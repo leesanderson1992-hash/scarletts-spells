@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "spelling:regression": "rm -rf .tmp/spelling-regression && npx tsc --outDir .tmp/spelling-regression --rootDir . --module commonjs --target es2022 --moduleResolution node --esModuleInterop --skipLibCheck --noEmit false scripts/spelling-regression.ts && node .tmp/spelling-regression/scripts/spelling-regression.js"
   },
   "dependencies": {
     "@supabase/ssr": "^0.10.2",

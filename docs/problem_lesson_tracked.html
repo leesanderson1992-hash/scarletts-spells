@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Passion Behind the Problem</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fredoka+One&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --berry: #b83b6d;
+    --berry-light: #f9e5ed;
+    --berry-mid: #d96e97;
+    --gold: #bf8a1f;
+    --gold-light: #fbf1d8;
+    --gold-mid: #e7b84f;
+    --sage: #3e6b4c;
+    --sage-light: #e6f1e9;
+    --sage-mid: #72a081;
+    --ink: #2f2430;
+    --ink-soft: #6c5a68;
+    --paper: #fffdf8;
+    --card: #ffffff;
+    --line: #efdce3;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    font-family: 'Nunito', sans-serif;
+    background:
+      radial-gradient(circle at top left, rgba(245, 220, 232, 0.7), transparent 28%),
+      radial-gradient(circle at top right, rgba(250, 240, 214, 0.8), transparent 24%),
+      linear-gradient(180deg, #fffdf8 0%, #fffafc 100%);
+    color: var(--ink);
+  }
+
+  .hero {
+    padding: 3rem 1.5rem 2rem;
+    text-align: center;
+    border-bottom: 1px solid var(--line);
+    background: linear-gradient(135deg, #fff7fa 0%, #fffdf8 45%, #fff6e8 100%);
+  }
+
+  .hero-kicker {
+    font-size: 0.8rem;
+    font-weight: 800;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--berry-mid);
+    margin-bottom: 0.8rem;
+  }
+
+  .hero h1 {
+    margin: 0 0 0.8rem;
+    font-family: 'Fredoka One', cursive;
+    font-size: clamp(2.2rem, 5vw, 3.7rem);
+    color: var(--berry);
+    line-height: 1.08;
+  }
+
+  .hero p {
+    max-width: 780px;
+    margin: 0 auto;
+    font-size: 1.05rem;
+    line-height: 1.75;
+    color: var(--ink-soft);
+  }
+
+  .lesson-note {
+    max-width: 900px;
+    margin: 1rem auto 0;
+    padding: 1rem 1.2rem;
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    background: rgba(250, 240, 214, 0.7);
+    font-size: 0.92rem;
+    line-height: 1.65;
+  }
+
+  .lesson-note strong { color: var(--gold); }
+
+  .main {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 2rem 1.25rem 4rem;
+  }
+
+  .section {
+    margin-bottom: 2rem;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow: 0 14px 40px rgba(120, 72, 98, 0.06);
+  }
+
+  .section-head {
+    padding: 1.2rem 1.4rem;
+    border-bottom: 1px solid var(--line);
+    background: linear-gradient(180deg, #fffdf8 0%, #fff8fb 100%);
+  }
+
+  .section-label {
+    font-size: 0.74rem;
+    font-weight: 800;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--berry-mid);
+    margin-bottom: 0.45rem;
+  }
+
+  .section-title {
+    margin: 0;
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.55rem;
+    line-height: 1.15;
+    color: var(--ink);
+  }
+
+  .section-body {
+    padding: 1.3rem 1.4rem 1.5rem;
+  }
+
+  .lead {
+    margin: 0 0 1rem;
+    font-size: 1rem;
+    line-height: 1.8;
+    color: var(--ink-soft);
+  }
+
+  .quote-box,
+  .example-box,
+  .tip-box {
+    padding: 1rem 1.1rem;
+    border-radius: 18px;
+    margin: 1rem 0;
+    line-height: 1.75;
+  }
+
+  .quote-box {
+    background: var(--berry-light);
+    border: 1px solid #f0cddc;
+  }
+
+  .example-box {
+    background: var(--sage-light);
+    border: 1px solid #d3e3d8;
+  }
+
+  .tip-box {
+    background: var(--gold-light);
+    border: 1px solid #f2dfab;
+  }
+
+  .quote-box strong,
+  .example-box strong,
+  .tip-box strong {
+    color: var(--ink);
+  }
+
+  .grid-2,
+  .grid-3 {
+    display: grid;
+    gap: 1rem;
+    margin-top: 1rem;
+  }
+
+  .grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+  .mini-card {
+    padding: 1rem;
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    background: #fff;
+  }
+
+  .mini-card h3 {
+    margin: 0 0 0.4rem;
+    font-size: 1rem;
+    color: var(--berry);
+  }
+
+  .mini-card p {
+    margin: 0;
+    font-size: 0.92rem;
+    line-height: 1.65;
+    color: var(--ink-soft);
+  }
+
+  .field-block {
+    margin: 1rem 0;
+  }
+
+  .field-block label {
+    display: block;
+    margin-bottom: 0.45rem;
+    font-weight: 800;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    color: var(--ink);
+  }
+
+  .field-block textarea,
+  .field-block input,
+  .field-block select {
+    width: 100%;
+    font: inherit;
+    color: var(--ink);
+    background: #fff;
+    border: 1.5px solid var(--line);
+    border-radius: 16px;
+    padding: 0.9rem 1rem;
+  }
+
+  .field-block textarea {
+    min-height: 90px;
+    resize: vertical;
+    line-height: 1.7;
+  }
+
+  .field-block input {
+    min-height: 48px;
+  }
+
+  .field-block textarea:focus,
+  .field-block input:focus,
+  .field-block select:focus {
+    outline: 2px solid rgba(184, 59, 109, 0.16);
+    border-color: var(--berry-mid);
+  }
+
+  .list-box {
+    display: grid;
+    gap: 0.8rem;
+    margin-top: 1rem;
+  }
+
+  .list-row {
+    padding: 1rem;
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    background: #fff;
+  }
+
+  .list-row-title {
+    font-weight: 800;
+    color: var(--berry);
+    margin-bottom: 0.7rem;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+    overflow: hidden;
+    border-radius: 18px;
+    border: 1px solid var(--line);
+  }
+
+  th,
+  td {
+    padding: 0.85rem 0.9rem;
+    text-align: left;
+    vertical-align: top;
+    border-bottom: 1px solid var(--line);
+    font-size: 0.92rem;
+    line-height: 1.55;
+  }
+
+  th {
+    background: #fff8fb;
+    color: var(--berry);
+    font-size: 0.8rem;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+  }
+
+  tr:last-child td { border-bottom: 0; }
+
+  .prompt-list {
+    margin: 1rem 0 0;
+    padding-left: 1.2rem;
+    color: var(--ink-soft);
+    line-height: 1.75;
+  }
+
+  .prompt-list li + li { margin-top: 0.4rem; }
+
+  .statement-box {
+    padding: 1.15rem;
+    border: 1px dashed var(--berry-mid);
+    border-radius: 18px;
+    background: #fffafc;
+    margin-top: 1rem;
+  }
+
+  .statement-box p {
+    margin: 0.45rem 0;
+    line-height: 1.75;
+  }
+
+  .final-line {
+    text-align: center;
+    padding: 2rem 1.5rem 0.5rem;
+  }
+
+  .final-line p {
+    margin: 0;
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.5rem;
+    color: var(--berry);
+    line-height: 1.3;
+  }
+
+  @media (max-width: 760px) {
+    .grid-2,
+    .grid-3 {
+      grid-template-columns: 1fr;
+    }
+
+    .hero {
+      padding-left: 1rem;
+      padding-right: 1rem;
+    }
+
+    .main {
+      padding-left: 1rem;
+      padding-right: 1rem;
+    }
+
+    th,
+    td {
+      font-size: 0.88rem;
+      padding: 0.75rem;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-kicker">Phase One · Module One · Lesson One</div>
+  <h1>What Problem Do I Want to Solve?</h1>
+  <p>
+    Great businesses often begin with a problem, frustration, wish, or value.
+    This lesson will help you notice what matters to you, who you could help,
+    and why your idea might be worth building.
+  </p>
+</div>
+
+<div class="lesson-note">
+  <strong>How to save this lesson:</strong> write in the boxes here, then use the main save button underneath the lesson in Scarlett's Spells so your writing is captured for review and spelling later if needed.
+</div>
+
+<div class="main">
+
+  <div class="section">
+    <div class="section-head">
+      <div class="section-label">Lesson Aim</div>
+      <h2 class="section-title">What founders really ask</h2>
+    </div>
+    <div class="section-body">
+      <p class="lead">
+        By the end of this lesson, you should understand that many businesses begin
+        with a <strong>problem, frustration, wish, or value</strong>.
+      </p>
+      <div class="quote-box">
+        <p><strong>A weak founder question:</strong> “What can I make?”</p>
+        <p><strong>A stronger founder question:</strong> “What do I care about changing?”</p>
+        <p><strong>Even better:</strong> “What problem do I notice, who could I help, and why does it matter to me?”</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-head">
+      <div class="section-label">Big Idea</div>
+      <h2 class="section-title">A business idea is stronger when it starts with a real problem</h2>
+    </div>
+    <div class="section-body">
+      <p class="lead">
+        A problem does not have to be huge. It can be small, everyday, annoying,
+        emotional, practical, or personal. The founder’s job is to notice problems
+        other people ignore.
+      </p>
+      <table>
+        <thead>
+          <tr>
+            <th>Everyday problem</th>
+            <th>Possible business idea</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Healthy snacks are boring</td><td>Exciting healthy treat boxes</td></tr>
+          <tr><td>Children want sweets but parents want better ingredients</td><td>Child-approved natural treats</td></tr>
+          <tr><td>Gifts feel boring and impersonal</td><td>Handmade luxury food gifts</td></tr>
+          <tr><td>Protein bars taste artificial</td><td>Wholefood protein snacks</td></tr>
+          <tr><td>Some snacks have confusing ingredients</td><td>Simple-ingredient snack brand</td></tr>
+          <tr><td>Party bags are full of sweets</td><td>Better party treat boxes</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-head">
+      <div class="section-label">Warm-Up</div>
+      <h2 class="section-title">The annoying things list</h2>
+    </div>
+    <div class="section-body">
+      <p class="lead">What food or snack problems annoy you? Write as many as you can. They do not need to be brilliant business ideas yet.</p>
+      <div class="list-box">
+        <div class="list-row"><div class="list-row-title">1</div><div class="field-block"><textarea id="annoying_1" name="problem_lesson_annoying_1" aria-label="Annoying things list item 1"></textarea></div></div>
+        <div class="list-row"><div class="list-row-title">2</div><div class="field-block"><textarea id="annoying_2" name="problem_lesson_annoying_2" aria-label="Annoying things list item 2"></textarea></div></div>
+        <div class="list-row"><div class="list-row-title">3</div><div class="field-block"><textarea id="annoying_3" name="problem_lesson_annoying_3" aria-label="Annoying things list item 3"></textarea></div></div>
+        <div class="list-row"><div class="list-row-title">4</div><div class="field-block"><textarea id="annoying_4" name="problem_lesson_annoying_4" aria-label="Annoying things list item 4"></textarea></div></div>
+        <div class="list-row"><div class="list-row-title">5</div><div class="field-block"><textarea id="annoying_5" name="problem_lesson_annoying_5" aria-label="Annoying things list item 5"></textarea></div></div>
+        <div class="list-row"><div class="list-row-title">6</div><div class="field-block"><textarea id="annoying_6" name="problem_lesson_annoying_6" aria-label="Annoying things list item 6"></textarea></div></div>
+        <div class="list-row"><div class="list-row-title">7</div><div class="field-block"><textarea id="annoying_7" name="problem_lesson_annoying_7" aria-label="Annoying things list item 7"></textarea></div></div>
+        <div class="list-row"><div class="list-row-title">8</div><div class="field-block"><textarea id="annoying_8" name="problem_lesson_annoying_8" aria-label="Annoying things list item 8"></textarea></div></div>
+        <div class="list-row"><div class="list-row-title">9</div><div class="field-block"><textarea id="annoying_9" name="problem_lesson_annoying_9" aria-label="Annoying things list item 9"></textarea></div></div>
+        <div class="list-row"><div class="list-row-title">10</div><div class="field-block"><textarea id="annoying_10" name="problem_lesson_annoying_10" aria-label="Annoying things list item 10"></textarea></div></div>
+      </div>
+      <ul class="prompt-list">
+        <li>What snacks are boring?</li>
+        <li>What treats taste nice but feel unhealthy?</li>
+        <li>What foods are messy or hard to take with you?</li>
+        <li>What products have too much plastic packaging?</li>
+        <li>What ingredients feel confusing or hard to trust?</li>
+        <li>What foods are hard to find for allergies or special diets?</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-head">
+      <div class="section-label">Wishes</div>
+      <h2 class="section-title">The “I wish…” activity</h2>
+    </div>
+    <div class="section-body">
+      <p class="lead">Some business ideas begin with a wish. Complete these sentences.</p>
+      <div class="field-block"><label for="wish_1">I wish there was a snack that…</label><textarea id="wish_1" name="problem_lesson_wish_snack" aria-label="I wish there was a snack that"></textarea></div>
+      <div class="field-block"><label for="wish_2">I wish healthy treats could…</label><textarea id="wish_2" name="problem_lesson_wish_healthy_treats" aria-label="I wish healthy treats could"></textarea></div>
+      <div class="field-block"><label for="wish_3">I wish children could eat…</label><textarea id="wish_3" name="problem_lesson_wish_children_could_eat" aria-label="I wish children could eat"></textarea></div>
+      <div class="field-block"><label for="wish_4">I wish parents could trust…</label><textarea id="wish_4" name="problem_lesson_wish_parents_could_trust" aria-label="I wish parents could trust"></textarea></div>
+      <div class="field-block"><label for="wish_5">I wish gifts could feel…</label><textarea id="wish_5" name="problem_lesson_wish_gifts_could_feel" aria-label="I wish gifts could feel"></textarea></div>
+      <div class="field-block"><label for="wish_6">I wish food packaging looked…</label><textarea id="wish_6" name="problem_lesson_wish_packaging" aria-label="I wish food packaging looked"></textarea></div>
+      <div class="field-block"><label for="wish_7">I wish treats had less…</label><textarea id="wish_7" name="problem_lesson_wish_less" aria-label="I wish treats had less"></textarea></div>
+      <div class="field-block"><label for="wish_8">I wish treats had more…</label><textarea id="wish_8" name="problem_lesson_wish_more" aria-label="I wish treats had more"></textarea></div>
+      <div class="field-block"><label for="wish_9">I wish people could enjoy ___ without ___</label><textarea id="wish_9" name="problem_lesson_wish_enjoy_without" aria-label="I wish people could enjoy something without something else"></textarea></div>
+      <div class="field-block"><label for="wish_10">I wish my product could make people feel…</label><textarea id="wish_10" name="problem_lesson_wish_feeling" aria-label="I wish my product could make people feel"></textarea></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-head">
+      <div class="section-label">Deeper Reason</div>
+      <h2 class="section-title">The “why do I care?” ladder</h2>
+    </div>
+    <div class="section-body">
+      <div class="example-box">
+        <strong>Example:</strong><br>
+        Problem: I want healthier treats that still taste exciting.<br><br>
+        Why does this matter? Because lots of healthy snacks are boring.<br>
+        Why does that matter? Because children may not want to eat them.<br>
+        Why does that matter? Because parents end up buying sweets or chocolate bars.<br>
+        Why does that matter? Because parents want children to enjoy treats but still feel good about the ingredients.<br>
+        Why does that matter? Because food should make people happy without making parents feel guilty.
+      </div>
+      <div class="field-block"><label for="ladder_problem">Problem I noticed</label><textarea id="ladder_problem" name="problem_lesson_ladder_problem" aria-label="Problem I noticed"></textarea></div>
+      <div class="field-block"><label for="ladder_1">Why does this matter?</label><textarea id="ladder_1" name="problem_lesson_ladder_1" aria-label="Why does this matter"></textarea></div>
+      <div class="field-block"><label for="ladder_2">Why does that matter?</label><textarea id="ladder_2" name="problem_lesson_ladder_2" aria-label="Why does that matter one"></textarea></div>
+      <div class="field-block"><label for="ladder_3">Why does that matter?</label><textarea id="ladder_3" name="problem_lesson_ladder_3" aria-label="Why does that matter two"></textarea></div>
+      <div class="field-block"><label for="ladder_4">Why does that matter?</label><textarea id="ladder_4" name="problem_lesson_ladder_4" aria-label="Why does that matter three"></textarea></div>
+      <div class="field-block"><label for="ladder_5">Why does that matter?</label><textarea id="ladder_5" name="problem_lesson_ladder_5" aria-label="Why does that matter four"></textarea></div>
+      <div class="field-block"><label for="deeper_reason">My deeper reason</label><textarea id="deeper_reason" name="problem_lesson_deeper_reason" aria-label="My deeper reason"></textarea></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-head">
+      <div class="section-label">Type of Idea</div>
+      <h2 class="section-title">Frustration, need, interest, or value?</h2>
+    </div>
+    <div class="section-body">
+      <div class="grid-2">
+        <div class="mini-card"><h3>A frustration</h3><p>Something that annoys you. Example: “Protein bars taste fake.”</p></div>
+        <div class="mini-card"><h3>A need</h3><p>Something people actually require. Example: “Parents need clearer allergy information.”</p></div>
+        <div class="mini-card"><h3>An interest</h3><p>Something you love or enjoy. Example: “I love making beautiful desserts.”</p></div>
+        <div class="mini-card"><h3>A value</h3><p>Something you believe is important. Example: “Food should use simple ingredients.”</p></div>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>My idea or problem</th>
+            <th>Is it a frustration, need, interest or value?</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td><textarea id="sort_1_problem" name="problem_lesson_sort_1_problem" aria-label="Idea or problem 1"></textarea></td><td><textarea id="sort_1_type" name="problem_lesson_sort_1_type" aria-label="Type of idea 1"></textarea></td></tr>
+          <tr><td><textarea id="sort_2_problem" name="problem_lesson_sort_2_problem" aria-label="Idea or problem 2"></textarea></td><td><textarea id="sort_2_type" name="problem_lesson_sort_2_type" aria-label="Type of idea 2"></textarea></td></tr>
+          <tr><td><textarea id="sort_3_problem" name="problem_lesson_sort_3_problem" aria-label="Idea or problem 3"></textarea></td><td><textarea id="sort_3_type" name="problem_lesson_sort_3_type" aria-label="Type of idea 3"></textarea></td></tr>
+          <tr><td><textarea id="sort_4_problem" name="problem_lesson_sort_4_problem" aria-label="Idea or problem 4"></textarea></td><td><textarea id="sort_4_type" name="problem_lesson_sort_4_type" aria-label="Type of idea 4"></textarea></td></tr>
+          <tr><td><textarea id="sort_5_problem" name="problem_lesson_sort_5_problem" aria-label="Idea or problem 5"></textarea></td><td><textarea id="sort_5_type" name="problem_lesson_sort_5_type" aria-label="Type of idea 5"></textarea></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-head">
+      <div class="section-label">Detective Work</div>
+      <h2 class="section-title">Problem detective exercise</h2>
+    </div>
+    <div class="section-body">
+      <p class="lead">Look around your kitchen, snack cupboard, supermarket, lunchbox, or favourite café. Choose three products and investigate them.</p>
+      <div class="list-box">
+        <div class="list-row">
+          <div class="list-row-title">Product 1</div>
+          <div class="field-block"><label for="pd1_name">Product name</label><input id="pd1_name" name="problem_lesson_product_1_name" aria-label="Product 1 name"></div>
+          <div class="field-block"><label for="pd1_problem">What problem does it solve?</label><textarea id="pd1_problem" name="problem_lesson_product_1_problem" aria-label="Product 1 problem"></textarea></div>
+          <div class="field-block"><label for="pd1_who">Who is it for?</label><textarea id="pd1_who" name="problem_lesson_product_1_who" aria-label="Who product 1 is for"></textarea></div>
+          <div class="field-block"><label for="pd1_good">What is good about it?</label><textarea id="pd1_good" name="problem_lesson_product_1_good" aria-label="What is good about product 1"></textarea></div>
+          <div class="field-block"><label for="pd1_better">What could be better?</label><textarea id="pd1_better" name="problem_lesson_product_1_better" aria-label="What could be better about product 1"></textarea></div>
+        </div>
+        <div class="list-row">
+          <div class="list-row-title">Product 2</div>
+          <div class="field-block"><label for="pd2_name">Product name</label><input id="pd2_name" name="problem_lesson_product_2_name" aria-label="Product 2 name"></div>
+          <div class="field-block"><label for="pd2_problem">What problem does it solve?</label><textarea id="pd2_problem" name="problem_lesson_product_2_problem" aria-label="Product 2 problem"></textarea></div>
+          <div class="field-block"><label for="pd2_who">Who is it for?</label><textarea id="pd2_who" name="problem_lesson_product_2_who" aria-label="Who product 2 is for"></textarea></div>
+          <div class="field-block"><label for="pd2_good">What is good about it?</label><textarea id="pd2_good" name="problem_lesson_product_2_good" aria-label="What is good about product 2"></textarea></div>
+          <div class="field-block"><label for="pd2_better">What could be better?</label><textarea id="pd2_better" name="problem_lesson_product_2_better" aria-label="What could be better about product 2"></textarea></div>
+        </div>
+        <div class="list-row">
+          <div class="list-row-title">Product 3</div>
+          <div class="field-block"><label for="pd3_name">Product name</label><input id="pd3_name" name="problem_lesson_product_3_name" aria-label="Product 3 name"></div>
+          <div class="field-block"><label for="pd3_problem">What problem does it solve?</label><textarea id="pd3_problem" name="problem_lesson_product_3_problem" aria-label="Product 3 problem"></textarea></div>
+          <div class="field-block"><label for="pd3_who">Who is it for?</label><textarea id="pd3_who" name="problem_lesson_product_3_who" aria-label="Who product 3 is for"></textarea></div>
+          <div class="field-block"><label for="pd3_good">What is good about it?</label><textarea id="pd3_good" name="problem_lesson_product_3_good" aria-label="What is good about product 3"></textarea></div>
+          <div class="field-block"><label for="pd3_better">What could be better?</label><textarea id="pd3_better" name="problem_lesson_product_3_better" aria-label="What could be better about product 3"></textarea></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-head">
+      <div class="section-label">Ideas</div>
+      <h2 class="section-title">Turn problems into product ideas</h2>
+    </div>
+    <div class="section-body">
+      <div class="example-box">
+        <strong>Example:</strong><br>
+        Problem: Gifts feel boring and impersonal.<br>
+        Possible products: luxury handmade treat box, personalised message gift box, birthday brownie box, thank-you teacher treat box, monthly surprise treat subscription.
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Problem</th>
+            <th>Possible product ideas</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td><textarea id="product_idea_problem_1" name="problem_lesson_product_idea_problem_1" aria-label="Problem 1"></textarea></td><td><textarea id="product_idea_1" name="problem_lesson_product_idea_1" aria-label="Possible product ideas 1"></textarea></td></tr>
+          <tr><td><textarea id="product_idea_problem_2" name="problem_lesson_product_idea_problem_2" aria-label="Problem 2"></textarea></td><td><textarea id="product_idea_2" name="problem_lesson_product_idea_2" aria-label="Possible product ideas 2"></textarea></td></tr>
+          <tr><td><textarea id="product_idea_problem_3" name="problem_lesson_product_idea_problem_3" aria-label="Problem 3"></textarea></td><td><textarea id="product_idea_3" name="problem_lesson_product_idea_3" aria-label="Possible product ideas 3"></textarea></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-head">
+      <div class="section-label">Who Else?</div>
+      <h2 class="section-title">Test whether other people have the problem too</h2>
+    </div>
+    <div class="section-body">
+      <table>
+        <thead>
+          <tr>
+            <th>Problem</th>
+            <th>Who else might have it?</th>
+            <th>How often?</th>
+            <th>What do they buy now?</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><textarea id="who_else_problem_1" name="problem_lesson_who_else_problem_1" aria-label="Who else problem 1"></textarea></td>
+            <td><textarea id="who_else_people_1" name="problem_lesson_who_else_people_1" aria-label="Who else has problem 1"></textarea></td>
+            <td><textarea id="who_else_often_1" name="problem_lesson_who_else_often_1" aria-label="How often problem 1 happens"></textarea></td>
+            <td><textarea id="who_else_buy_1" name="problem_lesson_who_else_buy_1" aria-label="What they buy now for problem 1"></textarea></td>
+          </tr>
+          <tr>
+            <td><textarea id="who_else_problem_2" name="problem_lesson_who_else_problem_2" aria-label="Who else problem 2"></textarea></td>
+            <td><textarea id="who_else_people_2" name="problem_lesson_who_else_people_2" aria-label="Who else has problem 2"></textarea></td>
+            <td><textarea id="who_else_often_2" name="problem_lesson_who_else_often_2" aria-label="How often problem 2 happens"></textarea></td>
+            <td><textarea id="who_else_buy_2" name="problem_lesson_who_else_buy_2" aria-label="What they buy now for problem 2"></textarea></td>
+          </tr>
+          <tr>
+            <td><textarea id="who_else_problem_3" name="problem_lesson_who_else_problem_3" aria-label="Who else problem 3"></textarea></td>
+            <td><textarea id="who_else_people_3" name="problem_lesson_who_else_people_3" aria-label="Who else has problem 3"></textarea></td>
+            <td><textarea id="who_else_often_3" name="problem_lesson_who_else_often_3" aria-label="How often problem 3 happens"></textarea></td>
+            <td><textarea id="who_else_buy_3" name="problem_lesson_who_else_buy_3" aria-label="What they buy now for problem 3"></textarea></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-head">
+      <div class="section-label">Emotion</div>
+      <h2 class="section-title">The feeling behind the problem</h2>
+    </div>
+    <div class="section-body">
+      <p class="lead">People buy food because of feelings, not just logic.</p>
+      <div class="grid-3">
+        <div class="mini-card"><h3>Some feelings</h3><p>Happy, healthy, proud, safe, excited, loved, special, comforted.</p></div>
+        <div class="mini-card"><h3>More feelings</h3><p>Energetic, less guilty, more organised, more generous, more confident.</p></div>
+        <div class="mini-card"><h3>Founder job</h3><p>Notice not just what people buy, but how they want to feel when they buy it.</p></div>
+      </div>
+      <div class="field-block"><label for="emotion_1">My customer feels frustrated because…</label><textarea id="emotion_1" name="problem_lesson_customer_frustration" aria-label="My customer feels frustrated because"></textarea></div>
+      <div class="field-block"><label for="emotion_2">My customer wishes they could feel…</label><textarea id="emotion_2" name="problem_lesson_customer_wish_feel" aria-label="My customer wishes they could feel"></textarea></div>
+      <div class="field-block"><label for="emotion_3">My product could help them feel…</label><textarea id="emotion_3" name="problem_lesson_product_help_feel" aria-label="My product could help them feel"></textarea></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-head">
+      <div class="section-label">Decision</div>
+      <h2 class="section-title">Pick your strongest problem</h2>
+    </div>
+    <div class="section-body">
+      <p class="lead">Score each problem from 1 to 5. The best first problem is usually one you care about, other people also have, you could build for, and people might pay for.</p>
+      <table>
+        <thead>
+          <tr>
+            <th>Problem</th>
+            <th>Do I care about it?</th>
+            <th>Do others have it?</th>
+            <th>Could I make a product for it?</th>
+            <th>Would people pay?</th>
+            <th>Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td><textarea id="score_problem_1" name="problem_lesson_score_problem_1" aria-label="Problem score row 1"></textarea></td><td><input id="score_care_1" name="problem_lesson_score_care_1" aria-label="Do I care about it score 1"></td><td><input id="score_others_1" name="problem_lesson_score_others_1" aria-label="Do others have it score 1"></td><td><input id="score_make_1" name="problem_lesson_score_make_1" aria-label="Could I make a product for it score 1"></td><td><input id="score_pay_1" name="problem_lesson_score_pay_1" aria-label="Would people pay score 1"></td><td><input id="score_total_1" name="problem_lesson_score_total_1" aria-label="Total score 1"></td></tr>
+          <tr><td><textarea id="score_problem_2" name="problem_lesson_score_problem_2" aria-label="Problem score row 2"></textarea></td><td><input id="score_care_2" name="problem_lesson_score_care_2" aria-label="Do I care about it score 2"></td><td><input id="score_others_2" name="problem_lesson_score_others_2" aria-label="Do others have it score 2"></td><td><input id="score_make_2" name="problem_lesson_score_make_2" aria-label="Could I make a product for it score 2"></td><td><input id="score_pay_2" name="problem_lesson_score_pay_2" aria-label="Would people pay score 2"></td><td><input id="score_total_2" name="problem_lesson_score_total_2" aria-label="Total score 2"></td></tr>
+          <tr><td><textarea id="score_problem_3" name="problem_lesson_score_problem_3" aria-label="Problem score row 3"></textarea></td><td><input id="score_care_3" name="problem_lesson_score_care_3" aria-label="Do I care about it score 3"></td><td><input id="score_others_3" name="problem_lesson_score_others_3" aria-label="Do others have it score 3"></td><td><input id="score_make_3" name="problem_lesson_score_make_3" aria-label="Could I make a product for it score 3"></td><td><input id="score_pay_3" name="problem_lesson_score_pay_3" aria-label="Would people pay score 3"></td><td><input id="score_total_3" name="problem_lesson_score_total_3" aria-label="Total score 3"></td></tr>
+          <tr><td><textarea id="score_problem_4" name="problem_lesson_score_problem_4" aria-label="Problem score row 4"></textarea></td><td><input id="score_care_4" name="problem_lesson_score_care_4" aria-label="Do I care about it score 4"></td><td><input id="score_others_4" name="problem_lesson_score_others_4" aria-label="Do others have it score 4"></td><td><input id="score_make_4" name="problem_lesson_score_make_4" aria-label="Could I make a product for it score 4"></td><td><input id="score_pay_4" name="problem_lesson_score_pay_4" aria-label="Would people pay score 4"></td><td><input id="score_total_4" name="problem_lesson_score_total_4" aria-label="Total score 4"></td></tr>
+          <tr><td><textarea id="score_problem_5" name="problem_lesson_score_problem_5" aria-label="Problem score row 5"></textarea></td><td><input id="score_care_5" name="problem_lesson_score_care_5" aria-label="Do I care about it score 5"></td><td><input id="score_others_5" name="problem_lesson_score_others_5" aria-label="Do others have it score 5"></td><td><input id="score_make_5" name="problem_lesson_score_make_5" aria-label="Could I make a product for it score 5"></td><td><input id="score_pay_5" name="problem_lesson_score_pay_5" aria-label="Would people pay score 5"></td><td><input id="score_total_5" name="problem_lesson_score_total_5" aria-label="Total score 5"></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-head">
+      <div class="section-label">Founder Statement</div>
+      <h2 class="section-title">Write your first founder statement</h2>
+    </div>
+    <div class="section-body">
+      <div class="statement-box">
+        <p>I noticed that __________.</p>
+        <p>I care about this because __________.</p>
+        <p>I want to help __________.</p>
+        <p>I could create __________.</p>
+        <p>I want customers to feel __________.</p>
+      </div>
+      <div class="field-block"><label for="founder_1">I noticed that…</label><textarea id="founder_1" name="problem_lesson_founder_statement_notice" aria-label="I noticed that"></textarea></div>
+      <div class="field-block"><label for="founder_2">I care about this because…</label><textarea id="founder_2" name="problem_lesson_founder_statement_care" aria-label="I care about this because"></textarea></div>
+      <div class="field-block"><label for="founder_3">I want to help…</label><textarea id="founder_3" name="problem_lesson_founder_statement_help" aria-label="I want to help"></textarea></div>
+      <div class="field-block"><label for="founder_4">I could create…</label><textarea id="founder_4" name="problem_lesson_founder_statement_create" aria-label="I could create"></textarea></div>
+      <div class="field-block"><label for="founder_5">I want customers to feel…</label><textarea id="founder_5" name="problem_lesson_founder_statement_feel" aria-label="I want customers to feel"></textarea></div>
+      <div class="example-box">
+        <strong>Example:</strong><br>
+        I noticed that lots of healthy snacks are boring or taste too plain. I care about this because children should be able to enjoy treats that parents still trust. I want to help families who want better snacks without losing the fun. I could create colourful chocolate date balls made with simple ingredients. I want customers to feel excited, happy and confident about what they are eating.
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-head">
+      <div class="section-label">Speaking</div>
+      <h2 class="section-title">Founder interview prep</h2>
+    </div>
+    <div class="section-body">
+      <p class="lead">An adult can interview you like you are a real founder. Use the questions below to practise speaking in full sentences.</p>
+      <ol class="prompt-list">
+        <li>What problem did you notice?</li>
+        <li>When did you first notice it?</li>
+        <li>Why does it matter to you?</li>
+        <li>Who else might have this problem?</li>
+        <li>What do people currently do instead?</li>
+        <li>What would a better solution look like?</li>
+        <li>What kind of product could you create?</li>
+        <li>What would make your product special?</li>
+        <li>How do you want customers to feel?</li>
+        <li>What is one thing you want to test next?</li>
+      </ol>
+      <div class="field-block"><label for="interview_notes">Notes from my founder interview</label><textarea id="interview_notes" name="problem_lesson_interview_notes" aria-label="Notes from my founder interview"></textarea></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-head">
+      <div class="section-label">Writing Task</div>
+      <h2 class="section-title">The Passion Behind My Problem</h2>
+    </div>
+    <div class="section-body">
+      <div class="tip-box">
+        <strong>Starter:</strong><br>
+        I want to solve the problem of __________. This matters to me because __________. I think other people have this problem too, especially __________. At the moment, they probably buy __________, but I think I could make something better by __________. My first product idea is __________. I want people to feel __________ when they try it.
+      </div>
+      <div class="field-block">
+        <label for="final_paragraph">My paragraph: The Passion Behind My Problem</label>
+        <textarea id="final_paragraph" name="problem_lesson_final_paragraph" aria-label="The Passion Behind My Problem paragraph" placeholder="Write your full paragraph here..."></textarea>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-head">
+      <div class="section-label">Extension</div>
+      <h2 class="section-title">The problem wall</h2>
+    </div>
+    <div class="section-body">
+      <p class="lead">If you want to go further, build a problem wall and sort ideas under frustrations, needs, interests, and values.</p>
+      <div class="grid-2">
+        <div class="field-block"><label for="wall_frustrations">Frustrations</label><textarea id="wall_frustrations" name="problem_lesson_wall_frustrations" aria-label="Problem wall frustrations"></textarea></div>
+        <div class="field-block"><label for="wall_needs">Needs</label><textarea id="wall_needs" name="problem_lesson_wall_needs" aria-label="Problem wall needs"></textarea></div>
+        <div class="field-block"><label for="wall_interests">Interests</label><textarea id="wall_interests" name="problem_lesson_wall_interests" aria-label="Problem wall interests"></textarea></div>
+        <div class="field-block"><label for="wall_values">Values</label><textarea id="wall_values" name="problem_lesson_wall_values" aria-label="Problem wall values"></textarea></div>
+      </div>
+      <div class="field-block"><label for="wall_circle">Which problems would I circle first, and why?</label><textarea id="wall_circle" name="problem_lesson_wall_circle" aria-label="Which problems would I circle first and why"></textarea></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-head">
+      <div class="section-label">Lesson Conclusion</div>
+      <h2 class="section-title">A founder is a problem detective</h2>
+    </div>
+    <div class="section-body">
+      <div class="quote-box">
+        <p>A great food business does not begin with: <strong>“I want to sell snacks.”</strong></p>
+        <p>It begins with: <strong>“I noticed a problem. I care about it. Other people may care too. I can make something that helps.”</strong></p>
+      </div>
+      <p class="lead">Not every problem becomes a business, but every strong business solves a problem, fulfils a desire, or creates a feeling people want.</p>
+      <div class="final-line">
+        <p>A founder is a problem detective who turns care into creation.</p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Customer Research</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --pink: #D63F7C;
+    --pink-dark: #B02E64;
+    --pink-light: #F9E8F0;
+    --pink-pale: #FDF3F7;
+    --pink-mid: #E8649A;
+    --bg: #FDF8FA;
+    --white: #FFFFFF;
+    --ink: #1A1118;
+    --ink-soft: #5C4F58;
+    --ink-muted: #9C8A96;
+    --border: #EAE0E6;
+    --border-pink: #EBB8D0;
+    --green: #2D6B48;
+    --green-pale: #E8F5EE;
+    --green-mid: #4A9E6A;
+    --gold: #C8922B;
+    --gold-pale: #FBF2E0;
+    --shadow-sm: 0 1px 4px rgba(214,63,124,0.08);
+    --shadow: 0 2px 16px rgba(214,63,124,0.10);
+    --radius: 12px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    line-height: 1.6;
+  }
+
+  .progress-bar {
+    background: var(--white);
+    border-bottom: 1px solid var(--border);
+    padding: 0.6rem 2rem;
+    position: sticky;
+    top: 0;
+    z-index: 200;
+  }
+
+  .progress-inner {
+    max-width: 860px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+  }
+
+  .progress-label {
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+    white-space: nowrap;
+  }
+
+  .progress-track {
+    flex: 1;
+    height: 6px;
+    background: var(--pink-light);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(to right, var(--pink), var(--pink-mid));
+    border-radius: 3px;
+    width: 0%;
+    transition: width 0.6s cubic-bezier(.4,0,.2,1);
+  }
+
+  .progress-pct {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--pink);
+    min-width: 32px;
+    text-align: right;
+  }
+
+  .lesson-header {
+    background: linear-gradient(135deg, var(--pink-pale) 0%, #FFF0F6 60%, var(--pink-light) 100%);
+    border-bottom: 1px solid var(--border-pink);
+    padding: 2.5rem 2rem 2rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .lesson-header::before {
+    content: 'R';
+    position: absolute;
+    right: 2rem;
+    top: -1rem;
+    font-family: 'DM Serif Display', serif;
+    font-size: 10rem;
+    font-weight: 400;
+    color: rgba(214,63,124,0.06);
+    line-height: 1;
+    pointer-events: none;
+  }
+
+  .lesson-header-inner { max-width: 860px; margin: 0 auto; }
+  .lesson-eyebrow { font-size: 0.63rem; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--pink); margin-bottom: 0.4rem; }
+  .lesson-header h1 { font-family: 'DM Serif Display', serif; font-size: clamp(1.8rem, 4vw, 2.8rem); font-weight: 400; color: var(--ink); line-height: 1.1; margin-bottom: 0.5rem; }
+  .lesson-header h1 em { font-style: italic; color: var(--pink); }
+  .lesson-sub { font-size: 0.93rem; color: var(--ink-soft); max-width: 560px; line-height: 1.75; }
+
+  .save-note {
+    max-width: 860px;
+    margin: 1rem auto 0;
+    padding: 0 1.5rem;
+  }
+
+  .save-note-box {
+    border-left: 3px solid var(--pink);
+    background: var(--pink-pale);
+    border-radius: 0 8px 8px 0;
+    padding: 0.85rem 1.1rem;
+  }
+
+  .save-note-box p {
+    font-size: 0.84rem;
+    color: var(--ink-soft);
+    line-height: 1.65;
+  }
+
+  .main { max-width: 860px; margin: 0 auto; padding: 2.5rem 1.5rem 5rem; }
+  .part-divider { display: flex; align-items: center; gap: 1rem; margin: 2.5rem 0 1.8rem; }
+  .part-divider-line { flex: 1; height: 1px; background: var(--border); }
+  .part-pill { background: var(--pink); color: white; font-size: 0.65rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; padding: 4px 14px; border-radius: 20px; white-space: nowrap; }
+  .section-eyebrow { font-size: 0.63rem; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--pink); margin-bottom: 0.35rem; }
+  .section-title { font-family: 'DM Serif Display', serif; font-size: 1.6rem; font-weight: 400; line-height: 1.15; margin-bottom: 0.5rem; }
+  .section-body { font-size: 0.91rem; color: var(--ink-soft); line-height: 1.75; margin-bottom: 1.4rem; max-width: 620px; }
+
+  .card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-bottom: 1.2rem; box-shadow: var(--shadow-sm); }
+  .card-head { padding: 1rem 1.4rem; border-bottom: 1px solid var(--border); display: flex; align-items: flex-start; gap: 0.85rem; background: var(--pink-pale); }
+  .card-icon { width: 36px; height: 36px; border-radius: 8px; background: var(--pink-light); display: flex; align-items: center; justify-content: center; font-size: 17px; flex-shrink: 0; border: 1px solid var(--border-pink); }
+  .card-head-text h3 { font-family: 'DM Serif Display', serif; font-size: 1rem; font-weight: 400; line-height: 1.2; margin-bottom: 2px; }
+  .card-head-text p { font-size: 0.8rem; color: var(--ink-muted); line-height: 1.45; }
+  .card-body { padding: 1.2rem 1.4rem; }
+
+  textarea,
+  input[type="text"],
+  select {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.92rem;
+    width: 100%;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 13px;
+    color: var(--ink);
+    background: var(--bg);
+    transition: border-color 0.2s, background 0.2s;
+    line-height: 1.65;
+  }
+
+  textarea { resize: vertical; min-height: 72px; }
+
+  textarea:focus,
+  input[type="text"]:focus,
+  select:focus {
+    outline: none;
+    border-color: var(--pink);
+    background: var(--white);
+  }
+
+  textarea::placeholder,
+  input::placeholder { color: #C4A8B8; font-style: italic; }
+
+  .field-label { font-size: 0.72rem; font-weight: 700; color: var(--ink-soft); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; display: block; }
+  .field-group { margin-bottom: 1rem; }
+  .field-group:last-child { margin-bottom: 0; }
+
+  .save-row { display: flex; align-items: center; justify-content: space-between; padding: 0.7rem 1.4rem; border-top: 1px solid var(--border); background: var(--pink-pale); }
+  .word-count { font-size: 0.7rem; color: var(--ink-muted); font-weight: 600; }
+  .save-btn { font-family: 'DM Sans', sans-serif; font-size: 0.78rem; font-weight: 700; padding: 6px 18px; border-radius: 20px; border: 1.5px solid var(--pink); background: transparent; color: var(--pink); cursor: pointer; transition: all 0.2s; }
+  .save-btn:hover { background: var(--pink); color: white; }
+  .save-btn.saved { background: var(--green-pale); border-color: var(--green-mid); color: var(--green); }
+
+  .tip-box { border-left: 3px solid var(--pink); background: var(--pink-pale); border-radius: 0 8px 8px 0; padding: 0.85rem 1.1rem; margin: 1rem 0; }
+  .tip-label { font-size: 0.6rem; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: var(--pink); margin-bottom: 4px; }
+  .tip-box p { font-size: 0.84rem; color: var(--ink-soft); line-height: 1.65; }
+  .tip-box.tip-gold { border-color: var(--gold); background: var(--gold-pale); }
+  .tip-box.tip-gold .tip-label { color: var(--gold); }
+
+  .rule-list {
+    display: grid;
+    gap: 0.75rem;
+  }
+
+  .rule-item {
+    border: 1px solid var(--border-pink);
+    border-radius: 10px;
+    background: rgba(252, 228, 244, 0.34);
+    padding: 0.95rem 1rem;
+  }
+
+  .rule-item strong {
+    color: var(--pink);
+    display: block;
+    margin-bottom: 0.2rem;
+  }
+
+  .interview-card {
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    background: var(--white);
+    margin-bottom: 1rem;
+  }
+
+  .interview-head {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    padding: 0.85rem 1.1rem;
+    background: var(--pink-pale);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .interview-num {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--pink);
+    color: white;
+    font-size: 0.78rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .interview-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1rem;
+    color: var(--ink);
+  }
+
+  .interview-body {
+    padding: 1rem 1.1rem 1.1rem;
+    display: grid;
+    gap: 0.9rem;
+  }
+
+  .qa-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.9rem;
+  }
+
+  .question-prompt {
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 0.35rem;
+  }
+
+  .reflection-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.9rem;
+  }
+
+  .complete-box { background: var(--white); border: 1.5px solid var(--border-pink); border-radius: var(--radius); padding: 2rem; text-align: center; margin-top: 2.5rem; box-shadow: var(--shadow); }
+  #score-num { font-family: 'DM Serif Display', serif; font-size: 3rem; font-weight: 400; color: var(--pink); line-height: 1; margin-bottom: 0.4rem; }
+  #score-msg { font-size: 0.95rem; color: var(--ink-soft); margin-bottom: 1.5rem; line-height: 1.6; }
+  .submit-actions { display: flex; gap: 0.8rem; justify-content: center; flex-wrap: wrap; }
+  .submit-btn { font-family: 'DM Sans', sans-serif; font-size: 0.92rem; font-weight: 700; padding: 12px 28px; border-radius: 30px; border: none; cursor: pointer; transition: all 0.2s; }
+  .submit-secondary { background: var(--white); color: var(--pink); border: 1.5px solid var(--pink); }
+  .submit-secondary:hover { background: var(--pink-pale); }
+
+  .footer { background: var(--white); border-top: 1px solid var(--border); text-align: center; padding: 1.5rem 2rem; font-size: 0.78rem; color: var(--ink-muted); }
+  .footer strong { color: var(--pink); }
+
+  @media (max-width: 640px) {
+    .qa-grid,
+    .reflection-grid { grid-template-columns: 1fr; }
+  }
+
+  @media print {
+    .progress-bar, .save-row, .submit-actions { display: none !important; }
+    body { background: white; }
+    .card, .interview-card { box-shadow: none; border: 1px solid #ddd; page-break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+
+<div class="progress-bar">
+  <div class="progress-inner">
+    <span class="progress-label">Page progress</span>
+    <div class="progress-track"><div class="progress-fill" id="prog-fill"></div></div>
+    <span class="progress-pct" id="prog-pct">0%</span>
+  </div>
+</div>
+
+<div class="lesson-header">
+  <div class="lesson-header-inner">
+    <div class="lesson-eyebrow">Entrepreneur Studio</div>
+    <h1>Customer <em>Research</em></h1>
+    <p class="lesson-sub">An entrepreneur does not guess what customers think. They ask, listen carefully, and notice patterns. Use this page to interview five possible customers and record what they really say.</p>
+  </div>
+</div>
+
+<div class="save-note">
+  <div class="save-note-box">
+    <p>Write inside this page, then use the main Scarlett&apos;s Spells save button underneath to submit everything properly for review.</p>
+  </div>
+</div>
+
+<div class="main">
+  <div class="part-divider">
+    <div class="part-divider-line"></div>
+    <div class="part-pill">Part 1 — Your Task</div>
+    <div class="part-divider-line"></div>
+  </div>
+
+  <div class="section-eyebrow">Get Ready</div>
+  <h2 class="section-title">Interview five people who might be customers</h2>
+  <p class="section-body">Ask each person the same core questions. The aim is not to persuade them. The aim is to find out what they already buy, what they care about, and what might stop them from buying yours.</p>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="card-icon">📝</div>
+      <div class="card-head-text">
+        <h3>Interview focus</h3>
+        <p>Write down the product you are asking about and where you plan to find your five people.</p>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="field-group">
+        <label class="field-label" for="research-product">The product I am researching</label>
+        <input type="text" id="research-product" name="customer_research_product" aria-label="The product I am researching" placeholder="e.g. Handmade chocolate date balls for families" data-track data-section="setup">
+      </div>
+      <div class="field-group">
+        <label class="field-label" for="research-people">Where I will find the five people</label>
+        <textarea id="research-people" name="customer_research_people" aria-label="Where I will find the five people" rows="3" placeholder="e.g. family friends, parents at school, grandparents, gym-goers, teachers" data-track data-section="setup"></textarea>
+      </div>
+    </div>
+    <div class="save-row">
+      <span class="word-count" id="wc-setup">—</span>
+      <button type="button" class="save-btn" data-save="setup">Save ✓</button>
+    </div>
+  </div>
+
+  <div class="tip-box tip-gold">
+    <div class="tip-label">Rule</div>
+    <p><strong>Do not argue with their answers.</strong> The entrepreneur&apos;s job is to listen.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="card-icon">🎧</div>
+      <div class="card-head-text">
+        <h3>How to interview well</h3>
+        <p>These reminders help you collect useful answers instead of trying to get people to agree with you.</p>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="rule-list">
+        <div class="rule-item">
+          <strong>Ask exactly what they already do</strong>
+          Start with what they buy now, not what you hope they might buy later.
+        </div>
+        <div class="rule-item">
+          <strong>Let silence do some work</strong>
+          If they pause, wait. People often give the most honest answer second.
+        </div>
+        <div class="rule-item">
+          <strong>Notice emotion</strong>
+          If they sound excited, doubtful, confused, or uninterested, write that down too.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="part-divider">
+    <div class="part-divider-line"></div>
+    <div class="part-pill">Part 2 — Five Interviews</div>
+    <div class="part-divider-line"></div>
+  </div>
+
+  <div class="section-eyebrow">Listen</div>
+  <h2 class="section-title">Record what each person actually says</h2>
+  <p class="section-body">Use one interview card per person. Short answers are fine, as long as they are honest and clear.</p>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="card-icon">👤</div>
+      <div class="card-head-text">
+        <h3>Interview 1</h3>
+        <p>Ask all ten questions, then write a short note about what you learned.</p>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="interview-card">
+        <div class="interview-head">
+          <div class="interview-num">1</div>
+          <div class="interview-title">Person 1</div>
+        </div>
+        <div class="interview-body">
+          <div class="qa-grid">
+            <div class="field-group"><label class="field-label" for="p1-name">Who I interviewed</label><input type="text" id="p1-name" name="customer_research_person_1_name" aria-label="Who I interviewed for person 1" placeholder="e.g. Mum of two, age 36" data-track data-section="p1"></div>
+            <div class="field-group"><label class="field-label" for="p1-where">Where I met them</label><input type="text" id="p1-where" name="customer_research_person_1_where" aria-label="Where I met person 1" placeholder="e.g. School gate" data-track data-section="p1"></div>
+          </div>
+          <div class="field-group"><div class="question-prompt">What snacks or treats do you buy now?</div><textarea id="p1-q1" name="customer_research_person_1_q1" aria-label="What snacks or treats do you buy now for person 1" rows="2" data-track data-section="p1"></textarea></div>
+          <div class="field-group"><div class="question-prompt">When do you buy them?</div><textarea id="p1-q2" name="customer_research_person_1_q2" aria-label="When do you buy them for person 1" rows="2" data-track data-section="p1"></textarea></div>
+          <div class="field-group"><div class="question-prompt">What do you like about them?</div><textarea id="p1-q3" name="customer_research_person_1_q3" aria-label="What do you like about them for person 1" rows="2" data-track data-section="p1"></textarea></div>
+          <div class="field-group"><div class="question-prompt">What do you dislike about them?</div><textarea id="p1-q4" name="customer_research_person_1_q4" aria-label="What do you dislike about them for person 1" rows="2" data-track data-section="p1"></textarea></div>
+          <div class="field-group"><div class="question-prompt">Would you buy this product? Why or why not?</div><textarea id="p1-q5" name="customer_research_person_1_q5" aria-label="Would you buy this product for person 1" rows="2" data-track data-section="p1"></textarea></div>
+          <div class="reflection-grid">
+            <div class="field-group"><div class="question-prompt">How much would you expect to pay?</div><textarea id="p1-q6" name="customer_research_person_1_q6" aria-label="How much would you expect to pay for person 1" rows="2" data-track data-section="p1"></textarea></div>
+            <div class="field-group"><div class="question-prompt">What would make you trust it?</div><textarea id="p1-q7" name="customer_research_person_1_q7" aria-label="What would make you trust it for person 1" rows="2" data-track data-section="p1"></textarea></div>
+          </div>
+          <div class="reflection-grid">
+            <div class="field-group"><div class="question-prompt">Would you buy it once, or regularly?</div><textarea id="p1-q8" name="customer_research_person_1_q8" aria-label="Would you buy it once or regularly for person 1" rows="2" data-track data-section="p1"></textarea></div>
+            <div class="field-group"><div class="question-prompt">Would you buy it as a gift?</div><textarea id="p1-q9" name="customer_research_person_1_q9" aria-label="Would you buy it as a gift for person 1" rows="2" data-track data-section="p1"></textarea></div>
+          </div>
+          <div class="field-group"><div class="question-prompt">What would stop you buying it?</div><textarea id="p1-q10" name="customer_research_person_1_q10" aria-label="What would stop you buying it for person 1" rows="2" data-track data-section="p1"></textarea></div>
+          <div class="field-group"><label class="field-label" for="p1-note">What I learned from this interview</label><textarea id="p1-note" name="customer_research_person_1_note" aria-label="What I learned from interview 1" rows="3" placeholder="What stood out most?" data-track data-section="p1"></textarea></div>
+        </div>
+      </div>
+    </div>
+    <div class="save-row">
+      <span class="word-count" id="wc-p1">—</span>
+      <button type="button" class="save-btn" data-save="p1">Save ✓</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="card-icon">👤</div>
+      <div class="card-head-text">
+        <h3>Interview 2</h3>
+        <p>Keep asking the same questions so you can compare answers later.</p>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="interview-card">
+        <div class="interview-head">
+          <div class="interview-num">2</div>
+          <div class="interview-title">Person 2</div>
+        </div>
+        <div class="interview-body">
+          <div class="qa-grid">
+            <div class="field-group"><label class="field-label" for="p2-name">Who I interviewed</label><input type="text" id="p2-name" name="customer_research_person_2_name" aria-label="Who I interviewed for person 2" data-track data-section="p2"></div>
+            <div class="field-group"><label class="field-label" for="p2-where">Where I met them</label><input type="text" id="p2-where" name="customer_research_person_2_where" aria-label="Where I met person 2" data-track data-section="p2"></div>
+          </div>
+          <div class="field-group"><div class="question-prompt">What snacks or treats do you buy now?</div><textarea id="p2-q1" name="customer_research_person_2_q1" aria-label="What snacks or treats do you buy now for person 2" rows="2" data-track data-section="p2"></textarea></div>
+          <div class="field-group"><div class="question-prompt">When do you buy them?</div><textarea id="p2-q2" name="customer_research_person_2_q2" aria-label="When do you buy them for person 2" rows="2" data-track data-section="p2"></textarea></div>
+          <div class="field-group"><div class="question-prompt">What do you like about them?</div><textarea id="p2-q3" name="customer_research_person_2_q3" aria-label="What do you like about them for person 2" rows="2" data-track data-section="p2"></textarea></div>
+          <div class="field-group"><div class="question-prompt">What do you dislike about them?</div><textarea id="p2-q4" name="customer_research_person_2_q4" aria-label="What do you dislike about them for person 2" rows="2" data-track data-section="p2"></textarea></div>
+          <div class="field-group"><div class="question-prompt">Would you buy this product? Why or why not?</div><textarea id="p2-q5" name="customer_research_person_2_q5" aria-label="Would you buy this product for person 2" rows="2" data-track data-section="p2"></textarea></div>
+          <div class="reflection-grid">
+            <div class="field-group"><div class="question-prompt">How much would you expect to pay?</div><textarea id="p2-q6" name="customer_research_person_2_q6" aria-label="How much would you expect to pay for person 2" rows="2" data-track data-section="p2"></textarea></div>
+            <div class="field-group"><div class="question-prompt">What would make you trust it?</div><textarea id="p2-q7" name="customer_research_person_2_q7" aria-label="What would make you trust it for person 2" rows="2" data-track data-section="p2"></textarea></div>
+          </div>
+          <div class="reflection-grid">
+            <div class="field-group"><div class="question-prompt">Would you buy it once, or regularly?</div><textarea id="p2-q8" name="customer_research_person_2_q8" aria-label="Would you buy it once or regularly for person 2" rows="2" data-track data-section="p2"></textarea></div>
+            <div class="field-group"><div class="question-prompt">Would you buy it as a gift?</div><textarea id="p2-q9" name="customer_research_person_2_q9" aria-label="Would you buy it as a gift for person 2" rows="2" data-track data-section="p2"></textarea></div>
+          </div>
+          <div class="field-group"><div class="question-prompt">What would stop you buying it?</div><textarea id="p2-q10" name="customer_research_person_2_q10" aria-label="What would stop you buying it for person 2" rows="2" data-track data-section="p2"></textarea></div>
+          <div class="field-group"><label class="field-label" for="p2-note">What I learned from this interview</label><textarea id="p2-note" name="customer_research_person_2_note" aria-label="What I learned from interview 2" rows="3" data-track data-section="p2"></textarea></div>
+        </div>
+      </div>
+    </div>
+    <div class="save-row">
+      <span class="word-count" id="wc-p2">—</span>
+      <button type="button" class="save-btn" data-save="p2">Save ✓</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="card-icon">👤</div>
+      <div class="card-head-text">
+        <h3>Interview 3</h3>
+        <p>Notice what repeats and what changes from person to person.</p>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="interview-card">
+        <div class="interview-head">
+          <div class="interview-num">3</div>
+          <div class="interview-title">Person 3</div>
+        </div>
+        <div class="interview-body">
+          <div class="qa-grid">
+            <div class="field-group"><label class="field-label" for="p3-name">Who I interviewed</label><input type="text" id="p3-name" name="customer_research_person_3_name" aria-label="Who I interviewed for person 3" data-track data-section="p3"></div>
+            <div class="field-group"><label class="field-label" for="p3-where">Where I met them</label><input type="text" id="p3-where" name="customer_research_person_3_where" aria-label="Where I met person 3" data-track data-section="p3"></div>
+          </div>
+          <div class="field-group"><div class="question-prompt">What snacks or treats do you buy now?</div><textarea id="p3-q1" name="customer_research_person_3_q1" aria-label="What snacks or treats do you buy now for person 3" rows="2" data-track data-section="p3"></textarea></div>
+          <div class="field-group"><div class="question-prompt">When do you buy them?</div><textarea id="p3-q2" name="customer_research_person_3_q2" aria-label="When do you buy them for person 3" rows="2" data-track data-section="p3"></textarea></div>
+          <div class="field-group"><div class="question-prompt">What do you like about them?</div><textarea id="p3-q3" name="customer_research_person_3_q3" aria-label="What do you like about them for person 3" rows="2" data-track data-section="p3"></textarea></div>
+          <div class="field-group"><div class="question-prompt">What do you dislike about them?</div><textarea id="p3-q4" name="customer_research_person_3_q4" aria-label="What do you dislike about them for person 3" rows="2" data-track data-section="p3"></textarea></div>
+          <div class="field-group"><div class="question-prompt">Would you buy this product? Why or why not?</div><textarea id="p3-q5" name="customer_research_person_3_q5" aria-label="Would you buy this product for person 3" rows="2" data-track data-section="p3"></textarea></div>
+          <div class="reflection-grid">
+            <div class="field-group"><div class="question-prompt">How much would you expect to pay?</div><textarea id="p3-q6" name="customer_research_person_3_q6" aria-label="How much would you expect to pay for person 3" rows="2" data-track data-section="p3"></textarea></div>
+            <div class="field-group"><div class="question-prompt">What would make you trust it?</div><textarea id="p3-q7" name="customer_research_person_3_q7" aria-label="What would make you trust it for person 3" rows="2" data-track data-section="p3"></textarea></div>
+          </div>
+          <div class="reflection-grid">
+            <div class="field-group"><div class="question-prompt">Would you buy it once, or regularly?</div><textarea id="p3-q8" name="customer_research_person_3_q8" aria-label="Would you buy it once or regularly for person 3" rows="2" data-track data-section="p3"></textarea></div>
+            <div class="field-group"><div class="question-prompt">Would you buy it as a gift?</div><textarea id="p3-q9" name="customer_research_person_3_q9" aria-label="Would you buy it as a gift for person 3" rows="2" data-track data-section="p3"></textarea></div>
+          </div>
+          <div class="field-group"><div class="question-prompt">What would stop you buying it?</div><textarea id="p3-q10" name="customer_research_person_3_q10" aria-label="What would stop you buying it for person 3" rows="2" data-track data-section="p3"></textarea></div>
+          <div class="field-group"><label class="field-label" for="p3-note">What I learned from this interview</label><textarea id="p3-note" name="customer_research_person_3_note" aria-label="What I learned from interview 3" rows="3" data-track data-section="p3"></textarea></div>
+        </div>
+      </div>
+    </div>
+    <div class="save-row">
+      <span class="word-count" id="wc-p3">—</span>
+      <button type="button" class="save-btn" data-save="p3">Save ✓</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="card-icon">👤</div>
+      <div class="card-head-text">
+        <h3>Interview 4</h3>
+        <p>Keep listening. Sometimes the fourth answer reveals the strongest pattern.</p>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="interview-card">
+        <div class="interview-head">
+          <div class="interview-num">4</div>
+          <div class="interview-title">Person 4</div>
+        </div>
+        <div class="interview-body">
+          <div class="qa-grid">
+            <div class="field-group"><label class="field-label" for="p4-name">Who I interviewed</label><input type="text" id="p4-name" name="customer_research_person_4_name" aria-label="Who I interviewed for person 4" data-track data-section="p4"></div>
+            <div class="field-group"><label class="field-label" for="p4-where">Where I met them</label><input type="text" id="p4-where" name="customer_research_person_4_where" aria-label="Where I met person 4" data-track data-section="p4"></div>
+          </div>
+          <div class="field-group"><div class="question-prompt">What snacks or treats do you buy now?</div><textarea id="p4-q1" name="customer_research_person_4_q1" aria-label="What snacks or treats do you buy now for person 4" rows="2" data-track data-section="p4"></textarea></div>
+          <div class="field-group"><div class="question-prompt">When do you buy them?</div><textarea id="p4-q2" name="customer_research_person_4_q2" aria-label="When do you buy them for person 4" rows="2" data-track data-section="p4"></textarea></div>
+          <div class="field-group"><div class="question-prompt">What do you like about them?</div><textarea id="p4-q3" name="customer_research_person_4_q3" aria-label="What do you like about them for person 4" rows="2" data-track data-section="p4"></textarea></div>
+          <div class="field-group"><div class="question-prompt">What do you dislike about them?</div><textarea id="p4-q4" name="customer_research_person_4_q4" aria-label="What do you dislike about them for person 4" rows="2" data-track data-section="p4"></textarea></div>
+          <div class="field-group"><div class="question-prompt">Would you buy this product? Why or why not?</div><textarea id="p4-q5" name="customer_research_person_4_q5" aria-label="Would you buy this product for person 4" rows="2" data-track data-section="p4"></textarea></div>
+          <div class="reflection-grid">
+            <div class="field-group"><div class="question-prompt">How much would you expect to pay?</div><textarea id="p4-q6" name="customer_research_person_4_q6" aria-label="How much would you expect to pay for person 4" rows="2" data-track data-section="p4"></textarea></div>
+            <div class="field-group"><div class="question-prompt">What would make you trust it?</div><textarea id="p4-q7" name="customer_research_person_4_q7" aria-label="What would make you trust it for person 4" rows="2" data-track data-section="p4"></textarea></div>
+          </div>
+          <div class="reflection-grid">
+            <div class="field-group"><div class="question-prompt">Would you buy it once, or regularly?</div><textarea id="p4-q8" name="customer_research_person_4_q8" aria-label="Would you buy it once or regularly for person 4" rows="2" data-track data-section="p4"></textarea></div>
+            <div class="field-group"><div class="question-prompt">Would you buy it as a gift?</div><textarea id="p4-q9" name="customer_research_person_4_q9" aria-label="Would you buy it as a gift for person 4" rows="2" data-track data-section="p4"></textarea></div>
+          </div>
+          <div class="field-group"><div class="question-prompt">What would stop you buying it?</div><textarea id="p4-q10" name="customer_research_person_4_q10" aria-label="What would stop you buying it for person 4" rows="2" data-track data-section="p4"></textarea></div>
+          <div class="field-group"><label class="field-label" for="p4-note">What I learned from this interview</label><textarea id="p4-note" name="customer_research_person_4_note" aria-label="What I learned from interview 4" rows="3" data-track data-section="p4"></textarea></div>
+        </div>
+      </div>
+    </div>
+    <div class="save-row">
+      <span class="word-count" id="wc-p4">—</span>
+      <button type="button" class="save-btn" data-save="p4">Save ✓</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="card-icon">👤</div>
+      <div class="card-head-text">
+        <h3>Interview 5</h3>
+        <p>This last interview helps you check whether the pattern is real.</p>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="interview-card">
+        <div class="interview-head">
+          <div class="interview-num">5</div>
+          <div class="interview-title">Person 5</div>
+        </div>
+        <div class="interview-body">
+          <div class="qa-grid">
+            <div class="field-group"><label class="field-label" for="p5-name">Who I interviewed</label><input type="text" id="p5-name" name="customer_research_person_5_name" aria-label="Who I interviewed for person 5" data-track data-section="p5"></div>
+            <div class="field-group"><label class="field-label" for="p5-where">Where I met them</label><input type="text" id="p5-where" name="customer_research_person_5_where" aria-label="Where I met person 5" data-track data-section="p5"></div>
+          </div>
+          <div class="field-group"><div class="question-prompt">What snacks or treats do you buy now?</div><textarea id="p5-q1" name="customer_research_person_5_q1" aria-label="What snacks or treats do you buy now for person 5" rows="2" data-track data-section="p5"></textarea></div>
+          <div class="field-group"><div class="question-prompt">When do you buy them?</div><textarea id="p5-q2" name="customer_research_person_5_q2" aria-label="When do you buy them for person 5" rows="2" data-track data-section="p5"></textarea></div>
+          <div class="field-group"><div class="question-prompt">What do you like about them?</div><textarea id="p5-q3" name="customer_research_person_5_q3" aria-label="What do you like about them for person 5" rows="2" data-track data-section="p5"></textarea></div>
+          <div class="field-group"><div class="question-prompt">What do you dislike about them?</div><textarea id="p5-q4" name="customer_research_person_5_q4" aria-label="What do you dislike about them for person 5" rows="2" data-track data-section="p5"></textarea></div>
+          <div class="field-group"><div class="question-prompt">Would you buy this product? Why or why not?</div><textarea id="p5-q5" name="customer_research_person_5_q5" aria-label="Would you buy this product for person 5" rows="2" data-track data-section="p5"></textarea></div>
+          <div class="reflection-grid">
+            <div class="field-group"><div class="question-prompt">How much would you expect to pay?</div><textarea id="p5-q6" name="customer_research_person_5_q6" aria-label="How much would you expect to pay for person 5" rows="2" data-track data-section="p5"></textarea></div>
+            <div class="field-group"><div class="question-prompt">What would make you trust it?</div><textarea id="p5-q7" name="customer_research_person_5_q7" aria-label="What would make you trust it for person 5" rows="2" data-track data-section="p5"></textarea></div>
+          </div>
+          <div class="reflection-grid">
+            <div class="field-group"><div class="question-prompt">Would you buy it once, or regularly?</div><textarea id="p5-q8" name="customer_research_person_5_q8" aria-label="Would you buy it once or regularly for person 5" rows="2" data-track data-section="p5"></textarea></div>
+            <div class="field-group"><div class="question-prompt">Would you buy it as a gift?</div><textarea id="p5-q9" name="customer_research_person_5_q9" aria-label="Would you buy it as a gift for person 5" rows="2" data-track data-section="p5"></textarea></div>
+          </div>
+          <div class="field-group"><div class="question-prompt">What would stop you buying it?</div><textarea id="p5-q10" name="customer_research_person_5_q10" aria-label="What would stop you buying it for person 5" rows="2" data-track data-section="p5"></textarea></div>
+          <div class="field-group"><label class="field-label" for="p5-note">What I learned from this interview</label><textarea id="p5-note" name="customer_research_person_5_note" aria-label="What I learned from interview 5" rows="3" data-track data-section="p5"></textarea></div>
+        </div>
+      </div>
+    </div>
+    <div class="save-row">
+      <span class="word-count" id="wc-p5">—</span>
+      <button type="button" class="save-btn" data-save="p5">Save ✓</button>
+    </div>
+  </div>
+
+  <div class="part-divider">
+    <div class="part-divider-line"></div>
+    <div class="part-pill">Part 3 — Patterns</div>
+    <div class="part-divider-line"></div>
+  </div>
+
+  <div class="section-eyebrow">Notice</div>
+  <h2 class="section-title">What patterns showed up?</h2>
+  <p class="section-body">Now step back. What repeated across the interviews? What surprised you? What should you change because of what you heard?</p>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="card-icon">🔎</div>
+      <div class="card-head-text">
+        <h3>What I learned overall</h3>
+        <p>This is where you turn five conversations into useful business insight.</p>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="field-group">
+        <label class="field-label" for="pattern-1">What repeated most often?</label>
+        <textarea id="pattern-1" name="customer_research_pattern_1" aria-label="What repeated most often" rows="3" placeholder="e.g. People want better ingredients, but only if the treat still feels exciting." data-track data-section="patterns"></textarea>
+      </div>
+      <div class="field-group">
+        <label class="field-label" for="pattern-2">What surprised me?</label>
+        <textarea id="pattern-2" name="customer_research_pattern_2" aria-label="What surprised me" rows="3" data-track data-section="patterns"></textarea>
+      </div>
+      <div class="field-group">
+        <label class="field-label" for="pattern-3">What might stop people buying?</label>
+        <textarea id="pattern-3" name="customer_research_pattern_3" aria-label="What might stop people buying" rows="3" data-track data-section="patterns"></textarea>
+      </div>
+      <div class="field-group">
+        <label class="field-label" for="pattern-4">What should I test or change next?</label>
+        <textarea id="pattern-4" name="customer_research_pattern_4" aria-label="What should I test or change next" rows="3" data-track data-section="patterns"></textarea>
+      </div>
+    </div>
+    <div class="save-row">
+      <span class="word-count" id="wc-patterns">—</span>
+      <button type="button" class="save-btn" data-save="patterns">Save ✓</button>
+    </div>
+  </div>
+
+  <div class="complete-box" id="complete-box">
+    <div id="score-num">0 / 7</div>
+    <div id="score-msg">Fill in your answers above to complete this page.</div>
+    <div class="submit-actions">
+      <button type="button" class="submit-btn submit-secondary" id="print-btn">Download a copy / Print</button>
+    </div>
+  </div>
+</div>
+
+<div class="footer">
+  <strong>Scarlett&apos;s Entrepreneur Studio</strong> · Customer Research
+</div>
+
+<script>
+  const sectionFields = {
+    setup: ['research-product', 'research-people'],
+    p1: ['p1-name', 'p1-where', 'p1-q1', 'p1-q2', 'p1-q3', 'p1-q4', 'p1-q5', 'p1-q6', 'p1-q7', 'p1-q8', 'p1-q9', 'p1-q10', 'p1-note'],
+    p2: ['p2-name', 'p2-where', 'p2-q1', 'p2-q2', 'p2-q3', 'p2-q4', 'p2-q5', 'p2-q6', 'p2-q7', 'p2-q8', 'p2-q9', 'p2-q10', 'p2-note'],
+    p3: ['p3-name', 'p3-where', 'p3-q1', 'p3-q2', 'p3-q3', 'p3-q4', 'p3-q5', 'p3-q6', 'p3-q7', 'p3-q8', 'p3-q9', 'p3-q10', 'p3-note'],
+    p4: ['p4-name', 'p4-where', 'p4-q1', 'p4-q2', 'p4-q3', 'p4-q4', 'p4-q5', 'p4-q6', 'p4-q7', 'p4-q8', 'p4-q9', 'p4-q10', 'p4-note'],
+    p5: ['p5-name', 'p5-where', 'p5-q1', 'p5-q2', 'p5-q3', 'p5-q4', 'p5-q5', 'p5-q6', 'p5-q7', 'p5-q8', 'p5-q9', 'p5-q10', 'p5-note'],
+    patterns: ['pattern-1', 'pattern-2', 'pattern-3', 'pattern-4']
+  };
+
+  const wcIds = {
+    setup: 'wc-setup',
+    p1: 'wc-p1',
+    p2: 'wc-p2',
+    p3: 'wc-p3',
+    p4: 'wc-p4',
+    p5: 'wc-p5',
+    patterns: 'wc-patterns'
+  };
+
+  function wordCount(str) {
+    return str.trim().split(/\s+/).filter((w) => w.length > 0).length;
+  }
+
+  function sectionWC(key) {
+    return sectionFields[key].reduce((sum, id) => {
+      const el = document.getElementById(id);
+      return sum + (el ? wordCount(el.value) : 0);
+    }, 0);
+  }
+
+  function refreshWC(key) {
+    const el = document.getElementById(wcIds[key]);
+    if (!el) return;
+    const wc = sectionWC(key);
+    el.textContent = wc + ' word' + (wc !== 1 ? 's' : '');
+  }
+
+  function updateProgress() {
+    const keys = Object.keys(sectionFields);
+    let done = 0;
+
+    keys.forEach((key) => {
+      const ids = sectionFields[key];
+      const filled = ids.filter((id) => {
+        const el = document.getElementById(id);
+        return el && el.value.trim().length > 2;
+      });
+
+      if (filled.length >= Math.ceil(ids.length / 2)) done++;
+    });
+
+    const pct = Math.round((done / keys.length) * 100);
+    document.getElementById('prog-fill').style.width = pct + '%';
+    document.getElementById('prog-pct').textContent = pct + '%';
+    document.getElementById('score-num').textContent = done + ' / ' + keys.length;
+
+    const msgs = [
+      'Fill in your answers above to get started.',
+      'Good start — keep listening.',
+      'You are collecting real customer evidence.',
+      'Halfway there — keep interviewing.',
+      'You are building a strong picture now.',
+      'Nearly there — look for patterns.',
+      'One last step to go.',
+      'All done — ready to save below.'
+    ];
+
+    document.getElementById('score-msg').textContent = msgs[Math.min(done, msgs.length - 1)];
+  }
+
+  document.querySelectorAll('.save-btn[data-save]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const key = btn.dataset.save;
+      refreshWC(key);
+      btn.textContent = 'Saved ✓';
+      btn.classList.add('saved');
+      setTimeout(() => {
+        btn.textContent = 'Save ✓';
+        btn.classList.remove('saved');
+      }, 2500);
+      updateProgress();
+    });
+  });
+
+  document.querySelectorAll('[data-track]').forEach((el) => {
+    el.addEventListener('input', () => {
+      const key = el.dataset.section;
+      if (key) refreshWC(key);
+      updateProgress();
+    });
+  });
+
+  document.getElementById('print-btn').addEventListener('click', () => window.print());
+
+  updateProgress();
+</script>
+</body>
+</html>

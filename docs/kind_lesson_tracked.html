@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Daniel's Snack Bar Story – A Lesson for Young Entrepreneurs!</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fredoka+One&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green: #3B6D11;
+    --green-light: #EAF3DE;
+    --green-mid: #639922;
+    --amber: #BA7517;
+    --amber-light: #FAEEDA;
+    --amber-mid: #EF9F27;
+    --teal: #0F6E56;
+    --teal-light: #E1F5EE;
+    --teal-mid: #1D9E75;
+    --coral: #993C1D;
+    --coral-light: #FAECE7;
+    --coral-mid: #D85A30;
+    --purple: #534AB7;
+    --purple-light: #EEEDFE;
+    --purple-mid: #7F77DD;
+    --gray-light: #F1EFE8;
+    --gray-dark: #444441;
+    --text: #2C2C2A;
+    --text-muted: #5F5E5A;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: #FFFEF5;
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  .hero {
+    background: linear-gradient(135deg, var(--green-light) 0%, #FAEEDA 50%, var(--teal-light) 100%);
+    padding: 3rem 2rem 2rem;
+    text-align: center;
+    border-bottom: 3px solid var(--green-mid);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -30px; left: -30px;
+    width: 120px; height: 120px;
+    background: var(--amber-mid);
+    opacity: 0.15;
+    border-radius: 50%;
+  }
+  .hero::after {
+    content: '';
+    position: absolute;
+    bottom: -20px; right: -20px;
+    width: 90px; height: 90px;
+    background: var(--teal-mid);
+    opacity: 0.15;
+    border-radius: 50%;
+  }
+
+  .hero-icon {
+    font-size: 60px;
+    margin-bottom: 0.5rem;
+    display: block;
+  }
+
+  .hero h1 {
+    font-family: 'Fredoka One', cursive;
+    font-size: 2.8rem;
+    color: var(--green);
+    line-height: 1.1;
+    margin-bottom: 0.5rem;
+  }
+
+  .hero .subtitle {
+    font-size: 1.1rem;
+    color: var(--teal);
+    font-weight: 700;
+    margin-bottom: 1rem;
+  }
+
+  .hero .intro-box {
+    background: white;
+    border: 2px solid var(--green-mid);
+    border-radius: 16px;
+    padding: 1rem 1.5rem;
+    max-width: 620px;
+    margin: 0 auto;
+    font-size: 1rem;
+    color: var(--text);
+    line-height: 1.7;
+  }
+
+  .section-nav {
+    display: flex;
+    gap: 8px;
+    padding: 1rem 2rem;
+    background: white;
+    border-bottom: 1px solid #e0ddd5;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .lesson-note {
+    max-width: 800px;
+    margin: 1rem auto 0;
+    padding: 0.95rem 1.1rem;
+    border: 1px solid #e0ddd5;
+    border-radius: 14px;
+    background: rgba(239, 159, 39, 0.12);
+    color: var(--text);
+    font-size: 0.9rem;
+    line-height: 1.6;
+  }
+
+  .lesson-note strong {
+    color: var(--amber);
+  }
+
+  .nav-btn {
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 700;
+    padding: 6px 14px;
+    border-radius: 20px;
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .nav-btn.green { background: var(--green-light); color: var(--green); border-color: var(--green-mid); }
+  .nav-btn.amber { background: var(--amber-light); color: var(--amber); border-color: var(--amber-mid); }
+  .nav-btn.teal { background: var(--teal-light); color: var(--teal); border-color: var(--teal-mid); }
+  .nav-btn.coral { background: var(--coral-light); color: var(--coral); border-color: var(--coral-mid); }
+  .nav-btn.purple { background: var(--purple-light); color: var(--purple); border-color: var(--purple-mid); }
+  .nav-btn:hover { transform: scale(1.05); }
+
+  .main {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem;
+  }
+
+  .section {
+    margin-bottom: 3rem;
+    animation: fadeIn 0.4s ease;
+  }
+
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 1.2rem;
+  }
+
+  .section-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    flex-shrink: 0;
+  }
+
+  .section-title {
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.7rem;
+    line-height: 1.1;
+  }
+
+  .story-card {
+    background: white;
+    border: 1.5px solid #e0ddd5;
+    border-radius: 16px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    line-height: 1.8;
+    font-size: 1rem;
+    color: var(--text);
+  }
+
+  .story-card p + p { margin-top: 0.8rem; }
+
+  .fact-strip {
+    border-left: 4px solid var(--amber-mid);
+    background: var(--amber-light);
+    padding: 0.8rem 1rem;
+    border-radius: 0 10px 10px 0;
+    margin: 0.8rem 0;
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: var(--amber);
+  }
+
+  .lesson-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem;
+  }
+
+  .lesson-card {
+    border-radius: 16px;
+    padding: 1.2rem;
+    border: 2px solid transparent;
+  }
+
+  .lesson-card .lc-icon { font-size: 32px; margin-bottom: 8px; display: block; }
+  .lesson-card .lc-title { font-family: 'Fredoka One', cursive; font-size: 1.1rem; margin-bottom: 6px; }
+  .lesson-card .lc-body { font-size: 0.9rem; line-height: 1.6; }
+
+  .lc-green { background: var(--green-light); border-color: var(--green-mid); }
+  .lc-green .lc-title { color: var(--green); }
+  .lc-green .lc-body { color: var(--gray-dark); }
+
+  .lc-amber { background: var(--amber-light); border-color: var(--amber-mid); }
+  .lc-amber .lc-title { color: var(--amber); }
+  .lc-amber .lc-body { color: var(--gray-dark); }
+
+  .lc-teal { background: var(--teal-light); border-color: var(--teal-mid); }
+  .lc-teal .lc-title { color: var(--teal); }
+  .lc-teal .lc-body { color: var(--gray-dark); }
+
+  .lc-coral { background: var(--coral-light); border-color: var(--coral-mid); }
+  .lc-coral .lc-title { color: var(--coral); }
+  .lc-coral .lc-body { color: var(--gray-dark); }
+
+  .lc-purple { background: var(--purple-light); border-color: var(--purple-mid); }
+  .lc-purple .lc-title { color: var(--purple); }
+  .lc-purple .lc-body { color: var(--gray-dark); }
+
+  .quiz-area { display: flex; flex-direction: column; gap: 1.5rem; }
+
+  .quiz-q {
+    background: white;
+    border: 1.5px solid #e0ddd5;
+    border-radius: 16px;
+    padding: 1.2rem 1.5rem;
+  }
+
+  .quiz-q .q-text {
+    font-weight: 800;
+    font-size: 1rem;
+    margin-bottom: 1rem;
+    color: var(--text);
+  }
+
+  .quiz-opts { display: flex; flex-direction: column; gap: 8px; }
+
+  .quiz-opt {
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 600;
+    text-align: left;
+    padding: 10px 14px;
+    border-radius: 10px;
+    border: 2px solid #D3D1C7;
+    background: var(--gray-light);
+    cursor: pointer;
+    transition: all 0.2s;
+    color: var(--text);
+  }
+
+  .quiz-opt:hover { border-color: var(--teal-mid); background: var(--teal-light); }
+  .quiz-opt.correct { background: var(--green-light); border-color: var(--green-mid); color: var(--green); }
+  .quiz-opt.wrong { background: var(--coral-light); border-color: var(--coral-mid); color: var(--coral); }
+  .quiz-opt:disabled { cursor: default; }
+
+  .feedback {
+    margin-top: 10px;
+    padding: 8px 12px;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    display: none;
+  }
+  .feedback.show { display: block; }
+  .feedback.ok { background: var(--green-light); color: var(--green); }
+  .feedback.no { background: var(--coral-light); color: var(--coral); }
+
+  .score-box {
+    background: var(--teal-light);
+    border: 2px solid var(--teal-mid);
+    border-radius: 16px;
+    padding: 1rem 1.5rem;
+    text-align: center;
+    display: none;
+    margin-top: 1rem;
+  }
+  .score-box.show { display: block; }
+  .score-box .score-num { font-family: 'Fredoka One', cursive; font-size: 3rem; color: var(--teal); }
+  .score-box p { color: var(--teal); font-weight: 700; }
+
+  .snackbar-section { }
+
+  .snackbar-card {
+    background: white;
+    border: 1.5px solid #e0ddd5;
+    border-radius: 16px;
+    overflow: hidden;
+    margin-bottom: 1rem;
+  }
+
+  .snackbar-card-header {
+    padding: 1rem 1.5rem;
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .snackbar-card-body {
+    padding: 0 1.5rem 1.2rem;
+    font-size: 0.95rem;
+    line-height: 1.7;
+    color: var(--text);
+  }
+
+  .snackbar-card-body ul {
+    padding-left: 1.4rem;
+    margin-top: 6px;
+  }
+  .snackbar-card-body ul li { margin-bottom: 4px; }
+
+  .sb-green .snackbar-card-header { background: var(--green-light); color: var(--green); }
+  .sb-amber .snackbar-card-header { background: var(--amber-light); color: var(--amber); }
+  .sb-teal .snackbar-card-header { background: var(--teal-light); color: var(--teal); }
+  .sb-coral .snackbar-card-header { background: var(--coral-light); color: var(--coral); }
+  .sb-purple .snackbar-card-header { background: var(--purple-light); color: var(--purple); }
+
+  .word-bank {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 1.5rem;
+  }
+
+  .vocab-word {
+    background: var(--purple-light);
+    color: var(--purple);
+    border: 2px solid var(--purple-mid);
+    border-radius: 20px;
+    padding: 4px 14px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .vocab-word:hover { background: var(--purple-mid); color: white; }
+
+  .vocab-define {
+    background: var(--purple-light);
+    border: 2px solid var(--purple-mid);
+    border-radius: 12px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    display: none;
+  }
+  .vocab-define.show { display: block; }
+  .vocab-define .vd-word { font-family: 'Fredoka One', cursive; font-size: 1.2rem; color: var(--purple); margin-bottom: 4px; }
+  .vocab-define .vd-def { font-size: 0.95rem; line-height: 1.6; color: var(--text); }
+
+  .timeline {
+    position: relative;
+    padding-left: 2rem;
+    margin: 1rem 0;
+  }
+
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 10px;
+    top: 0; bottom: 0;
+    width: 3px;
+    background: linear-gradient(to bottom, var(--green-mid), var(--teal-mid), var(--amber-mid));
+    border-radius: 2px;
+  }
+
+  .timeline-item {
+    position: relative;
+    margin-bottom: 1.2rem;
+  }
+
+  .timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -1.65rem;
+    top: 8px;
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    border: 3px solid white;
+    box-shadow: 0 0 0 2px var(--green-mid);
+    background: var(--green-mid);
+  }
+
+  .timeline-item.t2::before { background: var(--teal-mid); box-shadow: 0 0 0 2px var(--teal-mid); }
+  .timeline-item.t3::before { background: var(--amber-mid); box-shadow: 0 0 0 2px var(--amber-mid); }
+  .timeline-item.t4::before { background: var(--coral-mid); box-shadow: 0 0 0 2px var(--coral-mid); }
+  .timeline-item.t5::before { background: var(--purple-mid); box-shadow: 0 0 0 2px var(--purple-mid); }
+
+  .timeline-year { font-weight: 800; font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
+  .timeline-title { font-family: 'Fredoka One', cursive; font-size: 1.05rem; color: var(--text); }
+  .timeline-body { font-size: 0.9rem; color: var(--text-muted); line-height: 1.5; margin-top: 2px; }
+
+  .reflect-area { display: flex; flex-direction: column; gap: 1rem; }
+
+  .reflect-card {
+    background: white;
+    border: 1.5px solid #e0ddd5;
+    border-radius: 16px;
+    padding: 1.2rem 1.5rem;
+  }
+
+  .reflect-card label { font-weight: 800; font-size: 0.95rem; display: block; margin-bottom: 8px; }
+
+  .reflect-card textarea {
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.95rem;
+    width: 100%;
+    border: 1.5px solid #D3D1C7;
+    border-radius: 10px;
+    padding: 10px 12px;
+    resize: vertical;
+    min-height: 80px;
+    color: var(--text);
+    background: var(--gray-light);
+    transition: border-color 0.2s;
+  }
+  .reflect-card textarea:focus { outline: none; border-color: var(--teal-mid); background: white; }
+
+  .save-btn {
+    font-family: 'Nunito', sans-serif;
+    font-weight: 800;
+    font-size: 0.9rem;
+    margin-top: 8px;
+    padding: 8px 18px;
+    border-radius: 10px;
+    border: 2px solid var(--teal-mid);
+    background: var(--teal-light);
+    color: var(--teal);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .save-btn:hover { background: var(--teal-mid); color: white; }
+
+  .saved-msg { font-size: 0.85rem; color: var(--green); font-weight: 700; margin-top: 4px; display: none; }
+  .saved-msg.show { display: inline; }
+
+  .footer {
+    background: var(--green-light);
+    border-top: 3px solid var(--green-mid);
+    text-align: center;
+    padding: 2rem;
+    margin-top: 3rem;
+  }
+  .footer .f-title { font-family: 'Fredoka One', cursive; font-size: 1.5rem; color: var(--green); margin-bottom: 0.4rem; }
+  .footer p { font-size: 0.9rem; color: var(--gray-dark); }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <span class="hero-icon">🌰</span>
+  <h1>Daniel's Big Snack Idea!</h1>
+  <p class="subtitle">A true story about how one man turned a fruit and nut bar into a $5 billion business</p>
+  <div class="intro-box">
+    <strong>Welcome, young entrepreneur! 🎉</strong><br>
+    First, read the article about <strong>Daniel Lubetzky</strong>, the founder of <strong>KIND Snacks</strong> — then come back here to test what you've learned and plan your own snack business!<br><br>
+    <a href="https://fortune.com/2024/10/20/kind-daniel-lubetzky-secrets-to-success/" target="_blank" style="display:inline-block; margin-top:4px; background:var(--green-mid); color:white; font-weight:800; padding:8px 20px; border-radius:20px; text-decoration:none; font-size:0.95rem;">📰 Read the Article →</a>
+  </div>
+</div>
+
+<div class="section-nav">
+  <button class="nav-btn teal" type="button" onclick="scrollTo('timeline')">📅 His Journey</button>
+  <button class="nav-btn purple" type="button" onclick="scrollTo('vocab')">📚 Key Words</button>
+  <button class="nav-btn amber" type="button" onclick="scrollTo('quiz')">❓ Quiz Time</button>
+  <button class="nav-btn coral" type="button" onclick="scrollTo('lessons')">💡 Lessons</button>
+  <button class="nav-btn teal" type="button" onclick="scrollTo('reflect')">✏️ Reflect</button>
+</div>
+
+<div class="lesson-note">
+  <strong>How to save this lesson:</strong> complete the quiz and write in the reflection boxes here, then use the main save button underneath the lesson in Scarlett's Spells so your score and written answers are captured together.
+</div>
+
+<div class="main">
+
+  <!-- TIMELINE -->
+  <div class="section" id="timeline">
+    <div class="section-header">
+      <div class="section-icon" style="background:var(--teal-light);">📅</div>
+      <h2 class="section-title" style="color:var(--teal);">Daniel's Journey</h2>
+    </div>
+    <div class="timeline">
+      <div class="timeline-item">
+        <div class="timeline-year">Early childhood</div>
+        <div class="timeline-title">🎩 Mini Magician & Entrepreneur</div>
+        <div class="timeline-body">Age 8 — charging friends to watch magic shows; selling watches at flea markets.</div>
+      </div>
+      <div class="timeline-item t2">
+        <div class="timeline-year">Teenage years</div>
+        <div class="timeline-title">🌿 Lawn-Mowing Business</div>
+        <div class="timeline-body">After moving to the USA, started his own lawn-mowing and car-washing businesses because he couldn't get a regular job.</div>
+      </div>
+      <div class="timeline-item t3">
+        <div class="timeline-year">Late 1990s</div>
+        <div class="timeline-title">🤝 Peaceworks</div>
+        <div class="timeline-body">Founded a food company to help bring rival countries together through business. Lots of mistakes, but lots of lessons too.</div>
+      </div>
+      <div class="timeline-item t4">
+        <div class="timeline-year">2004</div>
+        <div class="timeline-title">🌰 KIND is Born!</div>
+        <div class="timeline-body">Launched KIND bars — made by hand, from whole nuts and fruits. Delivered them himself from his car.</div>
+      </div>
+      <div class="timeline-item t5">
+        <div class="timeline-year">2017 onwards</div>
+        <div class="timeline-title">🚀 $5 Billion & Shark Tank</div>
+        <div class="timeline-body">Sold a stake to Mars for $5 billion. Became a judge on Shark Tank, helping other entrepreneurs.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- VOCABULARY -->
+  <div class="section" id="vocab">
+    <div class="section-header">
+      <div class="section-icon" style="background:var(--purple-light);">📚</div>
+      <h2 class="section-title" style="color:var(--purple);">Key Words to Know</h2>
+    </div>
+    <p style="margin-bottom:1rem; color:var(--text-muted); font-size:0.95rem;">Click on any word to see what it means!</p>
+    <div class="word-bank">
+      <button class="vocab-word" type="button" onclick="showVocab('entrepreneur')">Entrepreneur</button>
+      <button class="vocab-word" type="button" onclick="showVocab('founder')">Founder</button>
+      <button class="vocab-word" type="button" onclick="showVocab('investor')">Investor</button>
+      <button class="vocab-word" type="button" onclick="showVocab('valuation')">Valuation</button>
+      <button class="vocab-word" type="button" onclick="showVocab('brand')">Brand</button>
+      <button class="vocab-word" type="button" onclick="showVocab('pitch')">Pitch</button>
+      <button class="vocab-word" type="button" onclick="showVocab('focus')">Focus</button>
+      <button class="vocab-word" type="button" onclick="showVocab('integrity')">Integrity</button>
+    </div>
+    <div class="vocab-define" id="vd-entrepreneur">
+      <div class="vd-word">Entrepreneur</div>
+      <div class="vd-def">Someone who starts their own business. Daniel was an entrepreneur from age 8! You can be one too — anyone who comes up with an idea and tries to make it real is an entrepreneur.</div>
+    </div>
+    <div class="vocab-define" id="vd-founder">
+      <div class="vd-word">Founder</div>
+      <div class="vd-def">The person who creates and starts a company for the very first time. Daniel is the founder of KIND because he had the original idea and built the business from scratch.</div>
+    </div>
+    <div class="vocab-define" id="vd-investor">
+      <div class="vd-word">Investor</div>
+      <div class="vd-def">Someone who gives money to a business, hoping to get even more money back later. Daniel got his first investment of $100,000 from close friends who believed in his idea.</div>
+    </div>
+    <div class="vocab-define" id="vd-valuation">
+      <div class="vd-word">Valuation</div>
+      <div class="vd-def">How much a company is worth in money. KIND's valuation reached $5 billion — that means it was worth five thousand million pounds or dollars!</div>
+    </div>
+    <div class="vocab-define" id="vd-brand">
+      <div class="vd-word">Brand</div>
+      <div class="vd-def">The personality and promise of a business — its name, look, and what it stands for. Daniel says "a brand is a promise." KIND promises to be good for your body, your taste buds, and the world.</div>
+    </div>
+    <div class="vocab-define" id="vd-pitch">
+      <div class="vd-word">Pitch</div>
+      <div class="vd-def">When an entrepreneur talks to investors to persuade them to give money. A good pitch is honest, passionate, and shows what makes the product special.</div>
+    </div>
+    <div class="vocab-define" id="vd-focus">
+      <div class="vd-word">Focus</div>
+      <div class="vd-def">Sticking to one thing and doing it really well, instead of trying to do too many things at once. Daniel said staying focused on one product was "the smartest thing" he did.</div>
+    </div>
+    <div class="vocab-define" id="vd-integrity">
+      <div class="vd-word">Integrity</div>
+      <div class="vd-def">Being honest and doing the right thing, even when it's hard. Daniel looks for integrity first in every entrepreneur he meets on Shark Tank.</div>
+    </div>
+  </div>
+
+  <!-- QUIZ -->
+  <div class="section" id="quiz">
+    <div class="section-header">
+      <div class="section-icon" style="background:var(--amber-light);">❓</div>
+      <h2 class="section-title" style="color:var(--amber);">Quiz Time! Let's check what you remember</h2>
+    </div>
+    <div class="quiz-area">
+
+      <div class="quiz-q" id="q1">
+        <div class="q-text">1. What did Daniel notice when he was working long days in New York City?</div>
+        <div class="quiz-opts">
+          <button class="quiz-opt" type="button" onclick="answer(this,'q1',false)">There were too many unhealthy snacks everywhere.</button>
+          <button class="quiz-opt" type="button" onclick="answer(this,'q1',true)">He couldn't find a healthy snack he felt good about eating.</button>
+          <button class="quiz-opt" type="button" onclick="answer(this,'q1',false)">He wanted to open a restaurant instead of a bar company.</button>
+          <button class="quiz-opt" type="button" onclick="answer(this,'q1',false)">He was too tired to eat anything at all.</button>
+        </div>
+        <div class="feedback" id="fb-q1"></div>
+      </div>
+
+      <div class="quiz-q" id="q2">
+        <div class="q-text">2. How did Daniel make the very first KIND bars?</div>
+        <div class="quiz-opts">
+          <button class="quiz-opt" type="button" onclick="answer(this,'q2',false)">In a big, modern factory with machines.</button>
+          <button class="quiz-opt" type="button" onclick="answer(this,'q2',false)">He bought them from another company and repackaged them.</button>
+          <button class="quiz-opt" type="button" onclick="answer(this,'q2',true)">He made them completely by hand.</button>
+          <button class="quiz-opt" type="button" onclick="answer(this,'q2',false)">He hired 100 workers to make them in a kitchen.</button>
+        </div>
+        <div class="feedback" id="fb-q2"></div>
+      </div>
+
+      <div class="quiz-q" id="q3">
+        <div class="q-text">3. What does Daniel say is the difference between being "nice" and being "kind"?</div>
+        <div class="quiz-opts">
+          <button class="quiz-opt" type="button" onclick="answer(this,'q3',false)">Being kind means giving away free products; being nice means charging for them.</button>
+          <button class="quiz-opt" type="button" onclick="answer(this,'q3',false)">They mean exactly the same thing.</button>
+          <button class="quiz-opt" type="button" onclick="answer(this,'q3',true)">Being nice avoids saying hard truths; being kind takes courage to say what needs to be said.</button>
+          <button class="quiz-opt" type="button" onclick="answer(this,'q3',false)">Being kind is easier because you don't need to spend any money.</button>
+        </div>
+        <div class="feedback" id="fb-q3"></div>
+      </div>
+
+      <div class="quiz-q" id="q4">
+        <div class="q-text">4. What was the "smartest thing" Daniel said he did when KIND first started doing well?</div>
+        <div class="quiz-opts">
+          <button class="quiz-opt" type="button" onclick="answer(this,'q4',false)">He immediately launched lots of new products.</button>
+          <button class="quiz-opt" type="button" onclick="answer(this,'q4',false)">He hired hundreds of staff straightaway.</button>
+          <button class="quiz-opt" type="button" onclick="answer(this,'q4',false)">He sold the company as quickly as possible.</button>
+          <button class="quiz-opt" type="button" onclick="answer(this,'q4',true)">He said no to launching other products and stayed focused on one thing.</button>
+        </div>
+        <div class="feedback" id="fb-q4"></div>
+      </div>
+
+      <div class="quiz-q" id="q5">
+        <div class="q-text">5. What is the most important thing Daniel looks for in entrepreneurs on Shark Tank?</div>
+        <div class="quiz-opts">
+          <button class="quiz-opt" type="button" onclick="answer(this,'q5',false)">That they have already made lots of money.</button>
+          <button class="quiz-opt" type="button" onclick="answer(this,'q5',true)">That they have integrity and are good human beings.</button>
+          <button class="quiz-opt" type="button" onclick="answer(this,'q5',false)">That they have a very flashy pitch and a fancy office.</button>
+          <button class="quiz-opt" type="button" onclick="answer(this,'q5',false)">That they are already famous.</button>
+        </div>
+        <div class="feedback" id="fb-q5"></div>
+      </div>
+
+    </div>
+    <div class="score-box" id="score-box">
+      <div class="score-num" id="score-num">0/5</div>
+      <p id="score-msg">Well done for trying!</p>
+    </div>
+  </div>
+
+  <!-- LESSONS -->
+  <div class="section" id="lessons">
+    <div class="section-header">
+      <div class="section-icon" style="background:var(--coral-light);">💡</div>
+      <h2 class="section-title" style="color:var(--coral);">Big Lessons from Daniel</h2>
+    </div>
+    <p style="margin-bottom:1rem; color:var(--text-muted); font-size:0.95rem;">Here are the most important lessons Daniel's story teaches us.</p>
+    <div class="lesson-cards">
+      <div class="lesson-card lc-green">
+        <span class="lc-icon">🔍</span>
+        <div class="lc-title">Spot a Gap</div>
+        <div class="lc-body">Daniel noticed a problem (no healthy snacks!) and created the solution. Look around you — what do people need that doesn't exist yet?</div>
+      </div>
+      <div class="lesson-card lc-amber">
+        <span class="lc-icon">🎯</span>
+        <div class="lc-title">Stay Focused</div>
+        <div class="lc-body">He said no to launching new products when everyone told him to. Do one thing brilliantly before you do many things badly.</div>
+      </div>
+      <div class="lesson-card lc-teal">
+        <span class="lc-icon">🌱</span>
+        <div class="lc-title">Learn from Mistakes</div>
+        <div class="lc-body">He made loads of mistakes at Peaceworks, but he reflected and improved. Mistakes aren't failures — they're lessons in disguise!</div>
+      </div>
+      <div class="lesson-card lc-coral">
+        <span class="lc-icon">⭐</span>
+        <div class="lc-title">Quality Matters</div>
+        <div class="lc-body">Daniel tasted every single batch of KIND bars himself. Never let your standards slip — your customers will notice and trust you for it.</div>
+      </div>
+      <div class="lesson-card lc-purple">
+        <span class="lc-icon">💬</span>
+        <div class="lc-title">Be Kind, Not Just Nice</div>
+        <div class="lc-body">Kind means being honest and helpful even when it's a bit difficult. Build a reputation for truthfulness and people will trust you.</div>
+      </div>
+      <div class="lesson-card lc-green">
+        <span class="lc-icon">💰</span>
+        <div class="lc-title">Be Resourceful</div>
+        <div class="lc-body">Daniel started with barely any money and delivered bars from his old car. You don't need to be rich to start — be creative with what you have!</div>
+      </div>
+      <div class="lesson-card lc-amber">
+        <span class="lc-icon">🤸</span>
+        <div class="lc-title">Keep Your Passion</div>
+        <div class="lc-body">He still hands out KIND bars to strangers on planes! Staying connected to your customers and your love of the product keeps a business alive.</div>
+      </div>
+      <div class="lesson-card lc-teal">
+        <span class="lc-icon">🛡️</span>
+        <div class="lc-title">Be Honest & Have Integrity</div>
+        <div class="lc-body">Daniel values honesty above everything. Show your vulnerabilities, admit when you don't know something — people respect that far more than pretending to be perfect.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- REFLECT -->
+  <div class="section" id="reflect">
+    <div class="section-header">
+      <div class="section-icon" style="background:var(--teal-light);">✏️</div>
+      <h2 class="section-title" style="color:var(--teal);">Reflect & Imagine</h2>
+    </div>
+    <p style="margin-bottom:1rem; color:var(--text-muted); font-size:0.95rem;">Write your thoughts in the boxes below. There are no wrong answers!</p>
+    <div class="reflect-area">
+
+      <div class="reflect-card">
+        <label for="r1">🌟 Which lesson from Daniel inspires you the most, and why?</label>
+        <textarea id="r1" name="kind_lesson_inspiring_lesson" aria-label="Which lesson from Daniel inspires you the most, and why?" placeholder="Write your thoughts here…"></textarea>
+        <br><button class="save-btn" type="button" onclick="saveReflect('r1','s1')">Save ✓</button>
+        <span class="saved-msg" id="s1">Saved! Great thinking! 🎉</span>
+      </div>
+
+      <div class="reflect-card">
+        <label for="r2">🍫 You've already named your healthy snack bar — amazing! What inspired the name, and what makes your bar different from everything else out there?</label>
+        <textarea id="r2" name="kind_lesson_bar_name_and_difference" aria-label="What inspired the name of your snack bar, and what makes it different?" placeholder="I named my bar… because… and what makes it special is…"></textarea>
+        <br><button class="save-btn" type="button" onclick="saveReflect('r2','s2')">Save ✓</button>
+        <span class="saved-msg" id="s2">Saved! Sounds delicious! 🌰</span>
+      </div>
+
+      <div class="reflect-card">
+        <label for="r3">🤔 Daniel made lots of mistakes before he succeeded. How do you feel about making mistakes in your own life?</label>
+        <textarea id="r3" name="kind_lesson_mistakes_reflection" aria-label="How do you feel about making mistakes in your own life?" placeholder="I think mistakes are… because…"></textarea>
+        <br><button class="save-btn" type="button" onclick="saveReflect('r3','s3')">Save ✓</button>
+        <span class="saved-msg" id="s3">Saved! Very thoughtful! 💛</span>
+      </div>
+
+      <div class="reflect-card">
+        <label for="r4">💡 Daniel spotted a gap — something people needed but couldn't find. Can you think of a gap in the world? What do people everywhere struggle to find or get?</label>
+        <textarea id="r4" name="kind_lesson_gap_in_world" aria-label="Can you think of a gap in the world?" placeholder="I think a gap in the world is… because people can't easily find…"></textarea>
+        <br><button class="save-btn" type="button" onclick="saveReflect('r4','s4')">Save ✓</button>
+        <span class="saved-msg" id="s4">Saved! What a great spot! 🔍</span>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">
+  <div class="f-title">🌰 You've completed the lesson! 🌰</div>
+  <p>Based on the Fortune interview with <strong>Daniel Lubetzky</strong>, founder of KIND Snacks.</p>
+  <p style="margin-top:6px;">"A brand is a promise — and a great brand is a promise well kept."</p>
+</div>
+
+<script>
+  function scrollTo(id) {
+    document.getElementById(id).scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  const vocabIds = ['entrepreneur','founder','investor','valuation','brand','pitch','focus','integrity'];
+  function showVocab(word) {
+    vocabIds.forEach(w => {
+      const el = document.getElementById('vd-' + w);
+      if (el) el.classList.remove('show');
+    });
+    const target = document.getElementById('vd-' + word);
+    if (target) target.classList.add('show');
+  }
+
+  const answers = { q1: 0, q2: 0, q3: 0, q4: 0, q5: 0 };
+  const correctMessages = [
+    "That's right! 🎉 Daniel couldn't find a healthy snack on those long work days — and that was the spark for KIND!",
+    "Correct! 🙌 The very first KIND bars were all made by hand — an amazing amount of work!",
+    "Spot on! 💡 Being kind takes courage — it means saying what needs to be said, even if it's a bit awkward.",
+    "Exactly right! 🎯 Staying focused on one product was Daniel's smartest move — he calls it the thing that made all the difference.",
+    "You got it! ⭐ Integrity comes first for Daniel — good values matter more than a flashy pitch."
+  ];
+  const wrongMessages = [
+    "Not quite — try again! Hint: think about what Daniel was searching for during those long working days.",
+    "Not quite! Hint: Daniel had no factory at the start — he had to use his own hands.",
+    "Not quite! Hint: Daniel says being nice is the easier option. What does being kind require?",
+    "Not quite! Hint: Daniel said his biggest strength was also his greatest danger — doing too many things at once.",
+    "Not quite! Hint: Daniel says he doesn't start with the product — he starts with the person."
+  ];
+
+  const qNums = ['q1','q2','q3','q4','q5'];
+  let answeredCount = 0;
+
+  function answer(btn, qid, isCorrect) {
+    const qEl = document.getElementById(qid);
+    if (qEl.dataset.done) return;
+    qEl.dataset.done = 'true';
+    const opts = qEl.querySelectorAll('.quiz-opt');
+    opts.forEach(o => { o.disabled = true; });
+
+    const idx = qNums.indexOf(qid);
+    const fb = document.getElementById('fb-' + qid);
+
+    if (isCorrect) {
+      btn.classList.add('correct');
+      fb.textContent = correctMessages[idx];
+      fb.className = 'feedback show ok';
+      answers[qid] = 1;
+    } else {
+      btn.classList.add('wrong');
+      opts.forEach(o => {
+        if (o.getAttribute('onclick').includes('true')) o.classList.add('correct');
+      });
+      fb.textContent = wrongMessages[idx];
+      fb.className = 'feedback show no';
+    }
+
+    answeredCount++;
+    if (answeredCount === 5) showScore();
+  }
+
+  function showScore() {
+    const total = Object.values(answers).reduce((a,b) => a+b, 0);
+    const box = document.getElementById('score-box');
+    document.getElementById('score-num').textContent = total + '/5';
+    const msgs = [
+      "Keep going — re-reading the article will help! 📰",
+      "Good try! Have another read and see what you notice. 👀",
+      "Nice work — you remembered quite a bit! 👍",
+      "Really great score! You paid close attention! 🌟",
+      "PERFECT! Outstanding — Daniel would be proud! 🏆"
+    ];
+    document.getElementById('score-msg').textContent = msgs[total];
+    box.classList.add('show');
+    box.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  function saveReflect(inputId, msgId) {
+    const val = document.getElementById(inputId).value.trim();
+    if (!val) return;
+    const msg = document.getElementById(msgId);
+    msg.classList.add('show');
+    setTimeout(() => msg.classList.remove('show'), 3000);
+  }
+</script>
+</body>
+</html>

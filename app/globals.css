@@ -1,26 +1,342 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --scarlett: #c2185b;
+  --spell: #e891c8;
+  --mist: #fce4f4;
+  --gold: #f9a825;
+  --soft-bg: #fff6fb;
+  --white: #ffffff;
+  --dark: #1a0a14;
+  --mid: #7b3060;
+  --text: #2d1020;
+  --text-muted: #8d5a75;
+  --border: rgba(194, 24, 91, 0.12);
+  --shadow-soft: 0 24px 60px rgba(123, 48, 96, 0.08);
+  --background: var(--soft-bg);
+  --foreground: var(--text);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --font-sans: "DM Sans", "Avenir Next", "Segoe UI", Helvetica, Arial, sans-serif;
+  --font-mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: "DM Sans", "Avenir Next", "Segoe UI", Helvetica, Arial, sans-serif;
+  background-image:
+    radial-gradient(ellipse 60% 50% at 10% 12%, rgba(232, 145, 200, 0.16) 0%, transparent 60%),
+    radial-gradient(ellipse 44% 50% at 88% 18%, rgba(194, 24, 91, 0.09) 0%, transparent 56%),
+    radial-gradient(ellipse 34% 34% at 78% 78%, rgba(249, 168, 37, 0.08) 0%, transparent 55%);
+  background-attachment: fixed;
+}
+
+::selection {
+  background: rgba(232, 145, 200, 0.35);
+  color: var(--dark);
+}
+
+.brand-body {
+  position: relative;
+}
+
+.brand-shell {
+  color: var(--text);
+}
+
+.brand-topbar {
+  background: rgba(255, 246, 251, 0.82);
+}
+
+.brand-sidebar {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(252, 228, 244, 0.9));
+}
+
+.brand-sidebar details summary::-webkit-details-marker {
+  display: none;
+}
+
+.brand-page {
+  color: var(--text);
+}
+
+.brand-card {
+  background: rgba(255, 255, 255, 0.88);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-soft);
+  backdrop-filter: blur(12px);
+}
+
+.brand-card-soft {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(252, 228, 244, 0.92));
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-soft);
+  backdrop-filter: blur(10px);
+}
+
+.brand-eyebrow {
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--spell);
+  font-weight: 500;
+}
+
+.brand-title {
+  font-family: "Playfair Display", Georgia, "Times New Roman", serif;
+  color: var(--scarlett);
+  letter-spacing: 0.01em;
+}
+
+.brand-copy {
+  color: var(--text-muted);
+}
+
+.brand-primary-btn,
+.brand-secondary-btn,
+.brand-warm-btn,
+.brand-danger-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding-inline: 1.25rem;
+  border-radius: 999px;
+  font-size: 0.92rem;
+  font-weight: 600;
+  transition:
+    transform 160ms ease,
+    background-color 160ms ease,
+    border-color 160ms ease,
+    color 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.brand-primary-btn {
+  background: linear-gradient(135deg, var(--scarlett), #d53d81);
+  color: var(--white);
+  box-shadow: 0 12px 24px rgba(194, 24, 91, 0.2);
+}
+
+.brand-primary-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 16px 28px rgba(194, 24, 91, 0.24);
+}
+
+.brand-secondary-btn {
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.82);
+  color: var(--mid);
+}
+
+.brand-secondary-btn:hover {
+  border-color: rgba(194, 24, 91, 0.3);
+  color: var(--scarlett);
+}
+
+.brand-warm-btn {
+  border: 1px solid rgba(249, 168, 37, 0.28);
+  background: rgba(255, 248, 230, 0.95);
+  color: #a06600;
+}
+
+.brand-danger-btn {
+  border: 1px solid rgba(194, 24, 91, 0.18);
+  background: rgba(255, 240, 246, 0.98);
+  color: var(--scarlett);
+}
+
+.brand-input,
+.brand-textarea,
+.brand-select {
+  width: 100%;
+  border: 1px solid rgba(194, 24, 91, 0.16);
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--text);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45);
+}
+
+.brand-input::placeholder,
+.brand-textarea::placeholder {
+  color: #af7f97;
+}
+
+.brand-input:focus,
+.brand-textarea:focus,
+.brand-select:focus {
+  border-color: rgba(194, 24, 91, 0.46);
+  box-shadow:
+    0 0 0 4px rgba(232, 145, 200, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.55);
+  outline: none;
+}
+
+.brand-chip {
+  border-radius: 999px;
+  background: rgba(252, 228, 244, 0.92);
+  color: var(--mid);
+}
+
+.brand-chip-strong {
+  border-radius: 999px;
+  background: rgba(194, 24, 91, 0.08);
+  color: var(--scarlett);
+}
+
+.brand-chip-review {
+  border-radius: 999px;
+  background: rgba(255, 248, 230, 0.95);
+  color: #9a6700;
+}
+
+.brand-status-pending {
+  background: rgba(252, 228, 244, 0.92);
+  color: var(--mid);
+}
+
+.brand-status-completed {
+  background: rgba(232, 250, 241, 0.95);
+  color: #18794e;
+}
+
+.brand-status-skipped {
+  background: rgba(255, 248, 230, 0.95);
+  color: #9a6700;
+}
+
+.brand-link {
+  color: var(--scarlett);
+}
+
+.brand-link:hover {
+  color: #a1124a;
+}
+
+.brand-page .bg-white {
+  background-color: rgba(255, 255, 255, 0.88) !important;
+}
+
+.brand-page .bg-zinc-50 {
+  background-color: rgba(252, 228, 244, 0.42) !important;
+}
+
+.brand-page .bg-zinc-100 {
+  background-color: rgba(252, 228, 244, 0.82) !important;
+}
+
+.brand-page .border-zinc-200,
+.brand-page .border-zinc-300,
+.brand-page .border-dashed {
+  border-color: var(--border) !important;
+}
+
+.brand-page .shadow-sm {
+  box-shadow: var(--shadow-soft) !important;
+}
+
+@keyframes rewardCoinFloat {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-6px) rotate(-2deg);
+  }
+}
+
+@keyframes rewardCoinBob {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-4px) rotate(2deg);
+  }
+}
+
+@keyframes rewardSparkle {
+  0%,
+  100% {
+    opacity: 0.45;
+    transform: scale(0.85);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+}
+
+.reward-coins .reward-coin-front {
+  animation: rewardCoinFloat 1.9s ease-in-out infinite;
+  transform-origin: 76px 50px;
+}
+
+.reward-coins .reward-coin-back {
+  animation: rewardCoinBob 2.2s ease-in-out infinite;
+  transform-origin: 38px 60px;
+}
+
+.reward-coins .reward-coin-small {
+  animation: rewardCoinFloat 1.6s ease-in-out infinite;
+  animation-delay: 0.15s;
+  transform-origin: 90px 80px;
+}
+
+.reward-coins .reward-spark {
+  animation: rewardSparkle 1.4s ease-in-out infinite;
+  transform-origin: center;
+}
+
+.reward-coins .reward-spark-two {
+  animation-delay: 0.2s;
+}
+
+.reward-coins .reward-spark-three {
+  animation-delay: 0.45s;
+}
+
+.brand-page .text-zinc-950 {
+  color: var(--text) !important;
+}
+
+.brand-page .text-zinc-800,
+.brand-page .text-zinc-700 {
+  color: var(--mid) !important;
+}
+
+.brand-page .text-zinc-600,
+.brand-page .text-zinc-500 {
+  color: var(--text-muted) !important;
+}
+
+.brand-page .bg-amber-50 {
+  background-color: rgba(255, 248, 230, 0.95) !important;
+}
+
+.brand-page .text-amber-800,
+.brand-page .text-amber-700 {
+  color: #9a6700 !important;
+}
+
+.brand-page .bg-emerald-50 {
+  background-color: rgba(232, 250, 241, 0.95) !important;
+}
+
+.brand-page .text-emerald-700 {
+  color: #18794e !important;
+}
+
+.brand-page .bg-zinc-950,
+.brand-page .bg-zinc-900 {
+  background: linear-gradient(135deg, var(--scarlett), #d53d81) !important;
+}
+
+.brand-page .hover\:bg-zinc-800:hover {
+  background: linear-gradient(135deg, #a1124a, #c12b6b) !important;
 }
