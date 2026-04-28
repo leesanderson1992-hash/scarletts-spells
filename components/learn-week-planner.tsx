@@ -447,6 +447,86 @@ function WeekMiniTask({
   );
 }
 
+function SpellingTaskCard({
+  practicePath,
+  dayKey,
+  readyCount,
+  reviewCount,
+}: {
+  practicePath: string;
+  dayKey: string;
+  readyCount: number;
+  reviewCount: number;
+}) {
+  const practicePathForDay = withQuery(practicePath, { day: dayKey });
+  const hasWordsReady = readyCount > 0 || reviewCount > 0;
+
+  return (
+    <div className="rounded-2xl border border-[rgba(206,71,125,0.22)] bg-[rgba(252,228,244,0.2)] px-3 py-3 shadow-[0_10px_24px_rgba(206,71,125,0.06)]">
+      <div className="flex flex-wrap items-center gap-2">
+        <p className="text-sm font-semibold text-[color:var(--ink)]">Daily spelling</p>
+        <span className="rounded-full border border-[rgba(206,71,125,0.24)] bg-white px-2 py-0.5 text-[10px] font-medium text-[var(--scarlett)]">
+          Every day
+        </span>
+        {hasWordsReady ? (
+          <span className="rounded-full border border-amber-200 bg-white px-2 py-0.5 text-[10px] font-medium text-amber-700">
+            {readyCount > 0 ? `${readyCount} ready` : `${reviewCount} review`}
+          </span>
+        ) : null}
+      </div>
+      <p className="mt-1 text-xs text-[color:var(--mid)]">Spelling practice</p>
+      <p className="mt-2 text-sm leading-6 text-[color:var(--ink)]">
+        Open your spelling practice for the day and work through the words waiting for you.
+      </p>
+      <div className="mt-3">
+        <Link
+          href={practicePathForDay}
+          className="inline-flex items-center rounded-full border border-[var(--border)] bg-white px-3 py-2 text-sm font-medium text-[color:var(--ink)] transition hover:text-[var(--scarlett)]"
+        >
+          Open spelling
+        </Link>
+      </div>
+    </div>
+  );
+}
+
+function SpellingMiniTask({
+  practicePath,
+  dayKey,
+  readyCount,
+  reviewCount,
+}: {
+  practicePath: string;
+  dayKey: string;
+  readyCount: number;
+  reviewCount: number;
+}) {
+  const practicePathForDay = withQuery(practicePath, { day: dayKey });
+  const label =
+    readyCount > 0 ? `${readyCount} ready` : reviewCount > 0 ? `${reviewCount} review` : "Open";
+
+  return (
+    <Link
+      href={practicePathForDay}
+      className="block w-full min-w-0 rounded-lg border border-[rgba(206,71,125,0.22)] bg-[rgba(252,228,244,0.2)] px-2 py-1.5 text-left transition hover:border-[var(--scarlett)]"
+    >
+      <div className="flex min-w-0 items-start gap-2">
+        <span className="mt-1 h-2.5 w-2.5 shrink-0 rounded-full bg-[var(--scarlett)]" />
+        <div className="min-w-0 flex-1">
+          <p className="line-clamp-2 text-[11px] font-semibold leading-4 text-[color:var(--ink)]">
+            Daily spelling
+          </p>
+          <div className="mt-1 flex items-center gap-1 text-[9px] text-[color:var(--mid)]">
+            <span className="truncate">Spelling practice</span>
+            <span aria-hidden="true">·</span>
+            <span className="shrink-0">{label}</span>
+          </div>
+        </div>
+      </div>
+    </Link>
+  );
+}
+
 export function LearnWeekPlanner({
   basePath,
   progressPath,
@@ -594,10 +674,16 @@ export function LearnWeekPlanner({
         ) : null}
       </button>
 
-      <div className="mt-3 grid gap-2">
-        {dailyTasks.map((task) => (
-          <TaskCard
-            key={`${day.key}-${task.id}`}
+        <div className="mt-3 grid gap-2">
+          <SpellingTaskCard
+            practicePath={practicePath}
+            dayKey={day.key}
+            readyCount={spellingReadyCount}
+            reviewCount={spellingReviewCount}
+          />
+          {dailyTasks.map((task) => (
+            <TaskCard
+              key={`${day.key}-${task.id}`}
             task={task}
             dayKey={day.key}
             childId={childId}
@@ -761,6 +847,12 @@ export function LearnWeekPlanner({
                   </button>
 
                   <div className="mt-2 grid gap-1.5">
+                    <SpellingMiniTask
+                      practicePath={practicePath}
+                      dayKey={day.key}
+                      readyCount={spellingReadyCount}
+                      reviewCount={spellingReviewCount}
+                    />
                     {dailyTasks.map((task) => (
                       <WeekMiniTask
                         key={`${day.key}-${task.id}`}
@@ -876,6 +968,12 @@ export function LearnWeekPlanner({
                 <div className="rounded-[1.35rem] border border-[var(--border)] bg-white px-4 py-3.5">
                   <p className="text-sm font-semibold text-[color:var(--ink)]">Every day</p>
                   <div className="mt-3 grid gap-2">
+                    <SpellingTaskCard
+                      practicePath={practicePath}
+                      dayKey={selectedDay}
+                      readyCount={spellingReadyCount}
+                      reviewCount={spellingReviewCount}
+                    />
                     {dailyTasks.length > 0 ? (
                       dailyTasks.map((task) => (
                         <TaskCard
