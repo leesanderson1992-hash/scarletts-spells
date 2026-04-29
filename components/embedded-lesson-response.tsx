@@ -100,6 +100,63 @@ function getFieldLabel(element: Element, index: number) {
   return `Answer ${index + 1}`;
 }
 
+function applyFieldFeedback(
+  frameDocument: Document,
+  draftValues?: Record<string, unknown>,
+) {
+  if (!draftValues) {
+    return;
+  }
+
+  const rawFeedback = draftValues.__field_feedback;
+  if (!rawFeedback || typeof rawFeedback !== "object" || Array.isArray(rawFeedback)) {
+    return;
+  }
+
+  frameDocument.querySelectorAll("[data-scarlett-feedback]").forEach((node) => node.remove());
+
+  Object.entries(rawFeedback).forEach(([key, value]) => {
+    if (typeof value !== "string" || !value.trim()) {
+      return;
+    }
+
+    const feedbackText = value.trim();
+    const byId = frameDocument.getElementById(key);
+    const byName = frameDocument.querySelector(
+      `[name="${CSS.escape(key)}"]`,
+    );
+    const target =
+      byId instanceof HTMLElement
+        ? byId
+        : byName instanceof HTMLElement
+          ? byName
+          : null;
+
+    if (!target) {
+      return;
+    }
+
+    const note = frameDocument.createElement("div");
+    note.setAttribute("data-scarlett-feedback", "true");
+    note.setAttribute("role", "note");
+    note.style.marginTop = "8px";
+    note.style.padding = "10px 12px";
+    note.style.borderRadius = "12px";
+    note.style.border = "1px solid #f3c57a";
+    note.style.background = "#fff7df";
+    note.style.color = "#7a4b00";
+    note.style.fontSize = "0.85rem";
+    note.style.lineHeight = "1.55";
+    note.innerHTML = `<strong style="display:block;margin-bottom:4px;">Feedback to fix</strong>${feedbackText}`;
+
+    target.style.borderColor = "#e7a23a";
+    target.style.background = "#fffdf5";
+
+    const anchor = target.closest(".field-group, .ladder-rung, .statement-row, .idea-row, td, label, .choice-q-body, .profile-fields > div") ?? target;
+    anchor.insertAdjacentElement("afterend", note);
+  });
+}
+
 export function EmbeddedLessonResponse({
   contentHtml,
   submitLabel,
@@ -425,6 +482,10 @@ export function EmbeddedLessonResponse({
           onLoad={() => {
             applyPrefillValues();
             applyInjectedLinks();
+            applyFieldFeedback(
+              iframeRef.current?.contentDocument as Document,
+              draftValues,
+            );
             syncHeight();
             window.setTimeout(syncHeight, 250);
           }}

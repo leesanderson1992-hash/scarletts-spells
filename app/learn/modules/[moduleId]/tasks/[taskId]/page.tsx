@@ -196,9 +196,7 @@ export default async function LearnModuleTaskPage({
     .eq("child_id", selectedChild.id)
     .eq("parent_user_id", user.id)
     .maybeSingle();
-  const shouldRestoreDraftValues =
-    Boolean(latestDraft) &&
-    (!latestSubmission || latestSubmission.parent_review_status === "returned");
+  const shouldRestoreDraftValues = Boolean(latestDraft);
   const orderedTasks = [...detail.module.tasks]
     .filter((candidate) => candidate.is_active)
     .sort((left, right) => left.position - right.position);
@@ -461,9 +459,15 @@ export default async function LearnModuleTaskPage({
                   Try again: {latestSubmission.parent_review_note}
                 </p>
               ) : null}
-              <p className="mt-2 text-sm leading-6 text-[color:var(--ink)]">
-                {latestSubmission.submission_text}
-              </p>
+              {!task.content_html ? (
+                <p className="mt-2 text-sm leading-6 text-[color:var(--ink)]">
+                  {latestSubmission.submission_text}
+                </p>
+              ) : (
+                <p className="mt-2 text-sm leading-6 text-[color:var(--mid)]">
+                  Your answers are already restored into the lesson above, so you can continue from the real question boxes.
+                </p>
+              )}
             </div>
           ) : null}
           {(!latestSubmission || latestSubmission.parent_review_status === "returned") &&

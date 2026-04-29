@@ -810,7 +810,7 @@ export function LearnWeekPlanner({
 
           {viewMode === "week" ? (
             <div className="mt-3 grid gap-4">
-              <div className="brand-card-soft rounded-[1.35rem] p-4">
+              <div className="rounded-[1.35rem] border border-[rgba(206,71,125,0.18)] bg-[rgba(252,228,244,0.22)] p-4 shadow-[0_10px_24px_rgba(206,71,125,0.05)]">
                 <div className="flex items-center justify-between gap-3">
                   <div>
                     <p className="brand-eyebrow">Week bank</p>
@@ -848,6 +848,8 @@ export function LearnWeekPlanner({
                         submissions={submissions}
                         draggable
                         onDragStart={(taskId) => setDraggedTaskId(taskId ?? null)}
+                        defaultExpanded
+                        hideToggleLabel
                       />
                     ))
                   ) : (

@@ -21,6 +21,7 @@ import {
   returnSubmissionToChild,
 } from "../actions";
 import {
+  extractReviewableLessonFields,
   getSubmissionStatusLabel,
   normaliseWordForLookup,
   parseSubmissionReview,
@@ -162,7 +163,7 @@ export default async function CourseReviewDetailPage({
     notFound();
   }
 
-  const [{ data: task }, { data: course }, { data: linkedSample }, { data: wordProgressRows }] =
+  const [{ data: task }, { data: course }, { data: linkedSample }, { data: wordProgressRows }, { data: draftRow }] =
     await Promise.all([
       supabase
         .from("course_tasks")
@@ -187,6 +188,13 @@ export default async function CourseReviewDetailPage({
         .select("target_word, mastered_at")
         .eq("parent_user_id", user.id)
         .eq("child_id", selectedChild.id),
+      supabase
+        .from("task_submission_drafts")
+        .select("draft_payload")
+        .eq("task_id", submission.task_id)
+        .eq("child_id", submission.child_id)
+        .eq("parent_user_id", user.id)
+        .maybeSingle(),
     ]);
 
   const { data: module } = task?.module_id
@@ -231,6 +239,7 @@ export default async function CourseReviewDetailPage({
       .map((row) => normaliseWordForLookup(row.target_word)),
   );
   const submissionStatus = getSubmissionStatusLabel(submission.parent_review_status);
+  const reviewableLessonFields = extractReviewableLessonFields(draftRow?.draft_payload);
 
   return (
     <AppShell
@@ -389,7 +398,7 @@ export default async function CourseReviewDetailPage({
                     Send back to child
                   </button>
                 </form>
-                <form action={deleteSubmissionFromReview}>
+	                <form action={deleteSubmissionFromReview}>
                   <input type="hidden" name="submission_id" value={submission.id} />
                   <input
                     type="hidden"
@@ -402,11 +411,58 @@ export default async function CourseReviewDetailPage({
                   >
                     Delete this work
                   </button>
+	                </form>
+	              </div>
+	            </div>
+
+            {reviewableLessonFields.length > 0 ? (
+              <div className="brand-card rounded-3xl p-4 md:p-5">
+                <p className="brand-eyebrow">Question feedback</p>
+                <p className="mt-2 text-sm leading-6 text-[color:var(--mid)]">
+                  Add direct feedback for specific answer boxes. These notes will show next to the matching question when the lesson is opened again.
+                </p>
+                <form action={returnSubmissionToChild} className="mt-4 grid gap-4">
+                  <input type="hidden" name="submission_id" value={submission.id} />
+                  <input
+                    type="hidden"
+                    name="redirect_path"
+                    value={buildScopedPath(`/courses/review/${submission.id}`, selectedChild.id, mode)}
+                  />
+                  <input type="hidden" name="parent_review_note" value={submission.parent_review_note ?? ""} />
+                  <div className="grid gap-3">
+                    {reviewableLessonFields.map((field) => (
+                      <div
+                        key={field.key}
+                        className="rounded-2xl border border-[var(--border)] bg-white px-4 py-4"
+                      >
+                        <p className="text-sm font-semibold text-[color:var(--ink)]">{field.label}</p>
+                        <p className="mt-2 whitespace-pre-wrap rounded-2xl bg-[rgba(255,247,220,0.35)] px-3 py-2 text-sm leading-6 text-[color:var(--ink)]">
+                          {field.value}
+                        </p>
+                        <label className="mt-3 grid gap-1 text-sm text-[color:var(--ink)]">
+                          <span className="font-medium">Feedback for this answer</span>
+                          <textarea
+                            name={`field_feedback__${field.key}`}
+                            rows={3}
+                            defaultValue={field.feedback}
+                            className="rounded-2xl border border-[var(--border)] bg-white px-3 py-2 text-sm text-[color:var(--ink)]"
+                            placeholder="Tell her exactly what to improve in this answer."
+                          />
+                        </label>
+                      </div>
+                    ))}
+                  </div>
+                  <button
+                    className="inline-flex h-11 items-center justify-center rounded-full border border-amber-300 bg-amber-50 px-5 text-sm font-medium text-amber-900 transition hover:border-amber-400"
+                    type="submit"
+                  >
+                    Send back with question feedback
+                  </button>
                 </form>
               </div>
-            </div>
+            ) : null}
 
-            <div className="brand-card rounded-3xl p-4 md:p-5">
+	            <div className="brand-card rounded-3xl p-4 md:p-5">
               <p className="brand-eyebrow">Add missed word</p>
               <p className="mt-2 text-sm leading-6 text-[color:var(--mid)]">
                 If the engine missed a spelling mistake in this writing, add it here so it enters the same review flow.

@@ -68,6 +68,52 @@ export function parseSubmissionReview(submissionText: string) {
   };
 }
 
+type DraftFieldMeta = {
+  label?: string;
+  type?: string;
+  excludeFromSpelling?: boolean;
+};
+
+type DraftPayloadLike = Record<string, unknown> & {
+  __field_meta?: Record<string, DraftFieldMeta>;
+  __field_feedback?: Record<string, string>;
+};
+
+export type ReviewableLessonField = {
+  key: string;
+  label: string;
+  value: string;
+  feedback: string;
+};
+
+export function extractReviewableLessonFields(payload: unknown): ReviewableLessonField[] {
+  if (!payload || typeof payload !== "object" || Array.isArray(payload)) {
+    return [];
+  }
+
+  const draftPayload = payload as DraftPayloadLike;
+  const metaMap = draftPayload.__field_meta ?? {};
+  const feedbackMap = draftPayload.__field_feedback ?? {};
+
+  return Object.entries(draftPayload)
+    .filter(([key, value]) => {
+      if (key === "__field_meta" || key === "__field_feedback") {
+        return false;
+      }
+
+      return typeof value === "string" && value.trim().length > 0;
+    })
+    .map(([key, value]) => ({
+      key,
+      label:
+        metaMap[key]?.label?.trim() ||
+        key.replace(/[_-]+/g, " ").replace(/\s+/g, " ").trim() ||
+        "Answer",
+      value: typeof value === "string" ? value.trim() : "",
+      feedback: feedbackMap[key]?.trim() ?? "",
+    }));
+}
+
 export function normaliseWordForLookup(word: string) {
   return word.trim().toLowerCase();
 }

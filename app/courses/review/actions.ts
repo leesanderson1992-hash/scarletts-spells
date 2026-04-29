@@ -297,13 +297,6 @@ export async function deleteSubmissionFromReview(formData: FormData) {
       .in("id", sampleIds);
   }
 
-  await supabase
-    .from("task_submission_drafts")
-    .delete()
-    .eq("task_id", submission.task_id)
-    .eq("child_id", submission.child_id)
-    .eq("parent_user_id", user.id);
-
   const { data: task } = await supabase
     .from("course_tasks")
     .select("id, title, task_type, monthly_goal_total, gold_bar_rule, gold_coin_reward_amount")
@@ -402,6 +395,38 @@ export async function returnSubmissionToChild(formData: FormData) {
     );
   }
 
+  const safeFieldFeedback = Object.fromEntries(
+    Array.from(formData.entries())
+      .filter(
+        ([key, value]) =>
+          key.startsWith("field_feedback__") &&
+          typeof value === "string" &&
+          value.trim().length > 0,
+      )
+      .map(([key, value]) => [
+        key.replace("field_feedback__", ""),
+        (value as string).trim().slice(0, 500),
+      ]),
+  );
+
+  const { data: existingDraft } = await supabase
+    .from("task_submission_drafts")
+    .select("draft_text, draft_review_summary, draft_payload")
+    .eq("task_id", submission.task_id)
+    .eq("child_id", submission.child_id)
+    .eq("parent_user_id", user.id)
+    .maybeSingle();
+
+  const mergedDraftPayload =
+    existingDraft?.draft_payload &&
+    typeof existingDraft.draft_payload === "object" &&
+    !Array.isArray(existingDraft.draft_payload)
+      ? {
+          ...(existingDraft.draft_payload as Record<string, unknown>),
+          __field_feedback: safeFieldFeedback,
+        }
+      : { __field_feedback: safeFieldFeedback };
+
   const { error } = await supabase
     .from("task_submissions")
     .update({
@@ -494,6 +519,13 @@ export async function approveSubmissionReview(formData: FormData) {
       ),
     );
   }
+
+  await supabase
+    .from("task_submission_drafts")
+    .delete()
+    .eq("task_id", submission.task_id)
+    .eq("child_id", submission.child_id)
+    .eq("parent_user_id", user.id);
 
   revalidatePath("/courses/review");
   revalidatePath("/dashboard");
