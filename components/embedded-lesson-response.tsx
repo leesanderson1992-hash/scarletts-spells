@@ -9,7 +9,18 @@ type EmbeddedLessonResponseProps = {
   submitLabel: string;
   prefillFields?: Record<string, string>;
   injectedLinks?: Record<string, string>;
+  draftValues?: Record<string, unknown>;
+  saveDraftAction: (formData: FormData) => void | Promise<void>;
 };
+
+type FieldMetaMap = Record<
+  string,
+  {
+    label: string;
+    type: string;
+    excludeFromSpelling?: boolean;
+  }
+>;
 
 function injectBranding(html: string) {
   const brandStyle = `
@@ -94,10 +105,13 @@ export function EmbeddedLessonResponse({
   submitLabel,
   prefillFields,
   injectedLinks,
+  draftValues,
+  saveDraftAction,
 }: EmbeddedLessonResponseProps) {
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
   const submissionRef = useRef<HTMLInputElement | null>(null);
   const reviewSummaryRef = useRef<HTMLInputElement | null>(null);
+  const draftPayloadRef = useRef<HTMLInputElement | null>(null);
   const [frameHeight, setFrameHeight] = useState(980);
 
   const srcDoc = useMemo(() => injectBranding(contentHtml), [contentHtml]);
@@ -105,11 +119,11 @@ export function EmbeddedLessonResponse({
   function applyPrefillValues() {
     const frameDocument = iframeRef.current?.contentDocument;
 
-    if (!frameDocument || !prefillFields) {
+    if (!frameDocument) {
       return;
     }
 
-    Object.entries(prefillFields).forEach(([fieldId, value]) => {
+    Object.entries(prefillFields ?? {}).forEach(([fieldId, value]) => {
       if (!value.trim()) {
         return;
       }
@@ -135,6 +149,66 @@ export function EmbeddedLessonResponse({
       element.dispatchEvent(new Event("input", { bubbles: true }));
       element.dispatchEvent(new Event("change", { bubbles: true }));
     });
+
+    if (!draftValues) {
+      return;
+    }
+
+    Object.entries(draftValues).forEach(([key, rawValue]) => {
+      if (typeof rawValue === "string") {
+        const byId = frameDocument.getElementById(key);
+        if (
+          byId instanceof HTMLInputElement ||
+          byId instanceof HTMLTextAreaElement ||
+          byId instanceof HTMLSelectElement
+        ) {
+          if (!byId.value.trim()) {
+            byId.value = rawValue;
+            byId.dispatchEvent(new Event("input", { bubbles: true }));
+            byId.dispatchEvent(new Event("change", { bubbles: true }));
+          }
+          return;
+        }
+
+        const radioGroup = frameDocument.querySelectorAll<HTMLInputElement>(
+          `input[type="radio"][name="${CSS.escape(key)}"]`,
+        );
+        if (radioGroup.length > 0) {
+          radioGroup.forEach((input) => {
+            input.checked = input.value === rawValue;
+          });
+          return;
+        }
+
+        const byName = frameDocument.querySelector<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>(
+          `[name="${CSS.escape(key)}"]`,
+        );
+        if (byName && !byName.value.trim()) {
+          byName.value = rawValue;
+          byName.dispatchEvent(new Event("input", { bubbles: true }));
+          byName.dispatchEvent(new Event("change", { bubbles: true }));
+        }
+        return;
+      }
+
+      if (Array.isArray(rawValue)) {
+        const values = rawValue.filter((item): item is string => typeof item === "string");
+        const checkboxes = frameDocument.querySelectorAll<HTMLInputElement>(
+          `input[type="checkbox"][name="${CSS.escape(key)}"]`,
+        );
+        checkboxes.forEach((input) => {
+          input.checked = values.includes(input.value);
+        });
+        return;
+      }
+
+      if (typeof rawValue === "boolean") {
+        const checkbox = frameDocument.getElementById(key);
+        if (checkbox instanceof HTMLInputElement && checkbox.type === "checkbox") {
+          checkbox.checked = rawValue;
+        }
+      }
+    });
   }
 
   function applyInjectedLinks() {
@@ -159,13 +233,28 @@ export function EmbeddedLessonResponse({
   function captureLessonResponse() {
     const frameDocument = iframeRef.current?.contentDocument;
 
-    if (!frameDocument || !submissionRef.current || !reviewSummaryRef.current) {
+    if (
+      !frameDocument ||
+      !submissionRef.current ||
+      !reviewSummaryRef.current ||
+      !draftPayloadRef.current
+    ) {
       return true;
     }
 
     const fields = Array.from(
       frameDocument.querySelectorAll("textarea, input, select"),
     ).filter((element) => {
+      if (
+        !(
+          element instanceof HTMLInputElement ||
+          element instanceof HTMLTextAreaElement ||
+          element instanceof HTMLSelectElement
+        )
+      ) {
+        return false;
+      }
+
       if (!(element instanceof HTMLInputElement)) {
         return true;
       }
@@ -176,8 +265,12 @@ export function EmbeddedLessonResponse({
     const seenRadioGroups = new Set<string>();
     const lines: string[] = [];
     const quizSummaryLines: string[] = [];
+    const draftPayload: Record<string, unknown> = {};
+    const fieldMeta: FieldMetaMap = {};
 
     fields.forEach((element, index) => {
+      const field = element as HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement;
+
       if (element instanceof HTMLInputElement) {
         if (element.type === "radio") {
           const groupName = element.name || `radio-${index}`;
@@ -192,12 +285,41 @@ export function EmbeddedLessonResponse({
 
           if (checked?.value?.trim()) {
             lines.push(`${getFieldLabel(checked, index)}: ${checked.value.trim()}`);
+            draftPayload[groupName] = checked.value.trim();
+            fieldMeta[groupName] = {
+              label: getFieldLabel(checked, index),
+              type: checked.type,
+              excludeFromSpelling: checked.dataset.spellingSource === "exclude",
+            };
           }
 
           return;
         }
 
         if (element.type === "checkbox") {
+          const checkboxKey = element.name || element.id || `checkbox-${index}`;
+
+          if (element.name) {
+            const selectedCheckboxes = frameDocument.querySelectorAll<HTMLInputElement>(
+              `input[type="checkbox"][name="${CSS.escape(element.name)}"]:checked`,
+            );
+            draftPayload[checkboxKey] = Array.from(selectedCheckboxes)
+              .map((input) => input.value.trim())
+              .filter(Boolean);
+            fieldMeta[checkboxKey] = {
+              label: getFieldLabel(element, index),
+              type: element.type,
+              excludeFromSpelling: element.dataset.spellingSource === "exclude",
+            };
+          } else {
+            draftPayload[checkboxKey] = element.checked;
+            fieldMeta[checkboxKey] = {
+              label: getFieldLabel(element, index),
+              type: element.type,
+              excludeFromSpelling: element.dataset.spellingSource === "exclude",
+            };
+          }
+
           if (element.checked && element.value.trim()) {
             lines.push(`${getFieldLabel(element, index)}: ${element.value.trim()}`);
           }
@@ -205,13 +327,32 @@ export function EmbeddedLessonResponse({
         }
       }
 
-      const rawValue = "value" in element ? element.value : "";
+      const rawValue = field.value;
       const value = typeof rawValue === "string" ? rawValue.trim() : "";
 
       if (!value) {
         return;
       }
 
+      const draftKey =
+        field.id ||
+        (typeof field.name === "string"
+          ? field.name
+          : `field-${index}`);
+
+      draftPayload[draftKey] = value;
+      fieldMeta[draftKey] = {
+        label: getFieldLabel(element, index),
+        type:
+          element instanceof HTMLTextAreaElement
+            ? "textarea"
+            : element instanceof HTMLSelectElement
+              ? "select-one"
+              : field instanceof HTMLInputElement
+                ? field.type || "text"
+                : "text",
+        excludeFromSpelling: field.dataset.spellingSource === "exclude",
+      };
       lines.push(`${getFieldLabel(element, index)}: ${value}`);
     });
 
@@ -253,6 +394,8 @@ export function EmbeddedLessonResponse({
 
     submissionRef.current.value = lines.join("\n\n");
     reviewSummaryRef.current.value = quizSummaryLines.join("\n");
+    draftPayload.__field_meta = fieldMeta;
+    draftPayloadRef.current.value = JSON.stringify(draftPayload);
     return true;
   }
 
@@ -296,10 +439,13 @@ export function EmbeddedLessonResponse({
         </p>
         <input ref={submissionRef} type="hidden" name="submission_text" />
         <input ref={reviewSummaryRef} type="hidden" name="lesson_review_summary" />
+        <input ref={draftPayloadRef} type="hidden" name="draft_payload" />
         <div className="mt-3">
           <PreSubmitChecklist
             submitLabel={submitLabel}
             onBeforeSubmit={captureLessonResponse}
+            saveDraftAction={saveDraftAction}
+            onBeforeSaveDraft={captureLessonResponse}
           />
         </div>
       </div>

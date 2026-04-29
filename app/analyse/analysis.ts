@@ -1,4 +1,5 @@
 import { analyseSpellingSample } from "@/lib/spelling/detectMisspellings";
+import { stripNonSpellingSections } from "@/lib/courses/spelling-analysis-text";
 import { asWordFamilyId, normaliseWordFamilyId } from "@/lib/spelling/wordFamilies";
 import { createClient } from "@/lib/supabase/server";
 
@@ -85,7 +86,8 @@ export async function buildMisspellingRows(
   parentUserId: string,
   priorOverrides: Map<string, PriorOverride>,
 ) {
-  const analysis = analyseSpellingSample(sample.sample_text);
+  const analysisText = stripNonSpellingSections(sample.sample_text);
+  const analysis = analyseSpellingSample(analysisText);
 
   return analysis.misspellings.map((item) => ({
     is_parent_overridden: priorOverrides.has(

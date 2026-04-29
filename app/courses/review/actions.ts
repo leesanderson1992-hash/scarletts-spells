@@ -297,6 +297,13 @@ export async function deleteSubmissionFromReview(formData: FormData) {
       .in("id", sampleIds);
   }
 
+  await supabase
+    .from("task_submission_drafts")
+    .delete()
+    .eq("task_id", submission.task_id)
+    .eq("child_id", submission.child_id)
+    .eq("parent_user_id", user.id);
+
   const { data: task } = await supabase
     .from("course_tasks")
     .select("id, title, task_type, monthly_goal_total, gold_bar_rule, gold_coin_reward_amount")
@@ -414,6 +421,13 @@ export async function returnSubmissionToChild(formData: FormData) {
       ),
     );
   }
+
+  await supabase
+    .from("task_submission_drafts")
+    .delete()
+    .eq("task_id", submission.task_id)
+    .eq("child_id", submission.child_id)
+    .eq("parent_user_id", user.id);
 
   revalidatePath("/courses/review");
   revalidatePath("/dashboard");

@@ -37,6 +37,7 @@ import { createClient } from "@/lib/supabase/server";
 import {
   addTaskToWeekSelection,
   completeCourseTask,
+  saveTaskDraft,
   submitTaskResponse,
 } from "../../../../actions";
 
@@ -188,6 +189,16 @@ export default async function LearnModuleTaskPage({
   const taskCompletions = detail.completions.filter((completion) => completion.task_id === task.id);
   const latestSubmission =
     detail.submissions.find((submission) => submission.task_id === task.id) ?? null;
+  const { data: latestDraft } = await supabase
+    .from("task_submission_drafts")
+    .select("draft_text, draft_review_summary, draft_payload, updated_at")
+    .eq("task_id", task.id)
+    .eq("child_id", selectedChild.id)
+    .eq("parent_user_id", user.id)
+    .maybeSingle();
+  const shouldRestoreDraftValues =
+    Boolean(latestDraft) &&
+    (!latestSubmission || latestSubmission.parent_review_status === "returned");
   const orderedTasks = [...detail.module.tasks]
     .filter((candidate) => candidate.is_active)
     .sort((left, right) => left.position - right.position);
@@ -319,6 +330,12 @@ export default async function LearnModuleTaskPage({
                 </div>
               ) : null}
 
+              {resolvedSearchParams?.saved === "draft" ? (
+                <p className="rounded-2xl border border-sky-200 bg-sky-50 px-4 py-2 text-sm text-sky-700">
+                  Draft saved. You can safely come back later.
+                </p>
+              ) : null}
+
               {earnedRewardCoins > 0 ? (
                 <RewardCelebration
                   goldCoinAmount={earnedRewardCoins}
@@ -352,9 +369,18 @@ export default async function LearnModuleTaskPage({
                 <EmbeddedLessonResponse
                   contentHtml={task.content_html}
                   submitLabel={task.task_type === "test" ? "Save test work" : "Save lesson work"}
+                  saveDraftAction={saveTaskDraft}
                   injectedLinks={
                     previousProblemSubmission && previousProblemPath
                       ? { "previous-task-link": previousProblemPath }
+                      : undefined
+                  }
+                  draftValues={
+                    shouldRestoreDraftValues &&
+                    latestDraft?.draft_payload &&
+                    typeof latestDraft.draft_payload === "object" &&
+                    !Array.isArray(latestDraft.draft_payload)
+                      ? (latestDraft.draft_payload as Record<string, unknown>)
                       : undefined
                   }
                 />
@@ -437,6 +463,21 @@ export default async function LearnModuleTaskPage({
               ) : null}
               <p className="mt-2 text-sm leading-6 text-[color:var(--ink)]">
                 {latestSubmission.submission_text}
+              </p>
+            </div>
+          ) : null}
+          {(!latestSubmission || latestSubmission.parent_review_status === "returned") &&
+          latestDraft?.draft_text ? (
+            <div className="mt-4 rounded-2xl border border-sky-200 bg-sky-50 px-4 py-3">
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-sky-700">
+                {latestSubmission?.parent_review_status === "returned"
+                  ? "Restored from your last try"
+                  : "Saved draft"}
+              </p>
+              <p className="mt-2 text-sm leading-6 text-sky-900">
+                {latestSubmission?.parent_review_status === "returned"
+                  ? "Your last answers have been put back into the lesson so you can improve them and submit again."
+                  : "Your draft has been restored. You can keep going and submit when you are ready."}
               </p>
             </div>
           ) : null}

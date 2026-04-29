@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { replaceAnalysisForSample } from "@/app/analyse/analysis";
+import { buildSpellcheckSourceText } from "@/lib/courses/spelling-analysis-text";
 import { getMonthlyCompletedTotal } from "@/lib/courses/progress";
 import {
   maybeAwardTaskCompletionCoins,
@@ -251,6 +252,7 @@ export async function submitTaskResponse(formData: FormData) {
   const childId = formData.get("child_id");
   const submissionText = formData.get("submission_text");
   const lessonReviewSummary = formData.get("lesson_review_summary");
+  const draftPayload = formData.get("draft_payload");
   const selectedOptions = formData
     .getAll("selected_options")
     .filter((value): value is string => typeof value === "string" && value.trim().length > 0)
@@ -259,6 +261,16 @@ export async function submitTaskResponse(formData: FormData) {
     typeof submissionText === "string" ? submissionText.trim() : "";
   const safeLessonReviewSummary =
     typeof lessonReviewSummary === "string" ? lessonReviewSummary.trim() : "";
+  const safeDraftPayload =
+    typeof draftPayload === "string" && draftPayload.trim()
+      ? (() => {
+          try {
+            return JSON.parse(draftPayload) as Record<string, unknown>;
+          } catch {
+            return undefined;
+          }
+        })()
+      : undefined;
 
   if (
     typeof taskId !== "string" ||
@@ -368,7 +380,12 @@ export async function submitTaskResponse(formData: FormData) {
     redirect(buildRedirectWithMessage(redirectPath, "error", "Your writing was saved, but the lesson could not be marked as done."));
   }
 
-  if (safeSubmissionText) {
+  const spellcheckSourceText = buildSpellcheckSourceText({
+    draftPayload: safeDraftPayload,
+    submissionText: safeSubmissionText,
+  });
+
+  if (spellcheckSourceText) {
     const writtenAt = insertedSubmission.submitted_at.slice(0, 10);
     const { data: insertedSample, error: sampleError } = await supabase
       .from("writing_samples")
@@ -376,7 +393,7 @@ export async function submitTaskResponse(formData: FormData) {
         child_id: childId,
         parent_user_id: user.id,
         title: task.task_type === "test" ? "Test submission" : "Lesson submission",
-        sample_text: safeSubmissionText,
+        sample_text: spellcheckSourceText,
         source: "Course task submission",
         written_at: writtenAt,
         task_submission_id: insertedSubmission.id,
@@ -390,6 +407,19 @@ export async function submitTaskResponse(formData: FormData) {
     }
   }
 
+  await supabase.from("task_submission_drafts").upsert(
+    {
+      task_id: taskId,
+      course_id: courseId,
+      child_id: childId,
+      parent_user_id: user.id,
+      draft_text: safeSubmissionText,
+      draft_review_summary: safeLessonReviewSummary,
+      draft_payload: safeDraftPayload ?? {},
+    },
+    { onConflict: "task_id,child_id" },
+  );
+
   await awardCourseCheckInIfNeeded(supabase, user.id, childId, hadCourseLogTodayBeforeSave);
 
   revalidatePath("/learn");
@@ -398,6 +428,83 @@ export async function submitTaskResponse(formData: FormData) {
   revalidatePath("/insights");
   revalidatePath("/courses/review");
   redirect(buildRedirectWithMessage(redirectPath, "saved", "submission"));
+}
+
+export async function saveTaskDraft(formData: FormData) {
+  const redirectPath = getRedirectPath(formData, "/learn");
+  const taskId = formData.get("task_id");
+  const courseId = formData.get("course_id");
+  const childId = formData.get("child_id");
+  const submissionText = formData.get("submission_text");
+  const lessonReviewSummary = formData.get("lesson_review_summary");
+  const draftPayload = formData.get("draft_payload");
+
+  if (
+    typeof taskId !== "string" ||
+    !taskId ||
+    typeof courseId !== "string" ||
+    !courseId ||
+    typeof childId !== "string" ||
+    !childId
+  ) {
+    redirect(buildRedirectWithMessage(redirectPath, "error", "We couldn't save that draft."));
+  }
+
+  const { supabase, user } = await getAuthenticatedUser();
+
+  if (!user) {
+    redirect("/login");
+  }
+
+  const { data: task } = await supabase
+    .from("course_tasks")
+    .select("id, course_id, task_type")
+    .eq("id", taskId)
+    .eq("course_id", courseId)
+    .eq("parent_user_id", user.id)
+    .maybeSingle();
+
+  if (!task || (task.task_type !== "lesson" && task.task_type !== "test")) {
+    redirect(buildRedirectWithMessage(redirectPath, "error", "That task does not accept drafts."));
+  }
+
+  const safeSubmissionText =
+    typeof submissionText === "string" ? submissionText.trim() : "";
+  const safeLessonReviewSummary =
+    typeof lessonReviewSummary === "string" ? lessonReviewSummary.trim() : "";
+  const safeDraftPayload =
+    typeof draftPayload === "string" && draftPayload.trim()
+      ? (() => {
+          try {
+            return JSON.parse(draftPayload) as Record<string, unknown>;
+          } catch {
+            return {};
+          }
+        })()
+      : {};
+
+  const { error } = await supabase.from("task_submission_drafts").upsert(
+    {
+      task_id: taskId,
+      course_id: courseId,
+      child_id: childId,
+      parent_user_id: user.id,
+      draft_text: safeSubmissionText,
+      draft_review_summary: safeLessonReviewSummary || null,
+      draft_payload: safeDraftPayload,
+      updated_at: new Date().toISOString(),
+    },
+    { onConflict: "task_id,child_id" },
+  );
+
+  if (error) {
+    redirect(buildRedirectWithMessage(redirectPath, "error", "We couldn't save that draft."));
+  }
+
+  revalidatePath("/learn");
+  revalidatePath("/learn/week");
+  revalidatePath("/dashboard");
+  redirect(buildRedirectWithMessage(redirectPath, "saved", "draft"));
 }
 
 export async function moveTaskToDayPlan(input: {

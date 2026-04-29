@@ -809,84 +809,134 @@ export function LearnWeekPlanner({
           </div>
 
           {viewMode === "week" ? (
-            <div className="mt-3 overflow-x-auto pb-2">
-              <div className="grid min-w-[980px] grid-cols-7 gap-2">
-              {weekDays.map((day) => (
+            <div className="mt-3 grid gap-4">
+              <div className="brand-card-soft rounded-[1.35rem] p-4">
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <p className="brand-eyebrow">Week bank</p>
+                    <h3 className="mt-1 text-lg font-semibold tracking-tight text-[color:var(--ink)]">
+                      Available this week
+                    </h3>
+                  </div>
+                  <span className="rounded-full border border-[var(--border)] bg-white px-3 py-1 text-xs font-medium text-[color:var(--mid)]">
+                    Drag into a day
+                  </span>
+                </div>
+                <p className="mt-2 text-sm text-[color:var(--mid)]">
+                  Tasks you added to your week stay here until you drop them into a specific day.
+                </p>
                 <div
-                  key={day.key}
                   onDragOver={(event) => event.preventDefault()}
                   onDrop={(event) => {
                     event.preventDefault();
                     const taskId = event.dataTransfer.getData("text/plain") || draggedTaskId;
                     if (taskId) {
-                      handleMove(taskId, day.key);
+                      handleMove(taskId, null);
                     }
                   }}
-                  className={`min-w-0 rounded-[1.15rem] border p-2.5 ${
-                    day.key === selectedDay
-                      ? "border-[var(--scarlett)] bg-[rgba(252,228,244,0.28)]"
-                      : "border-[var(--border)] bg-white"
-                  }`}
+                  className="mt-3 grid gap-2 md:grid-cols-2 xl:grid-cols-3"
                 >
-                  <button
-                    type="button"
-                    onClick={() => router.replace(withQuery(basePath, { day: day.key, view: viewMode }))}
-                    className="flex w-full items-center justify-between gap-2 text-left"
-                  >
-                    <div className="min-w-0">
-                      <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[color:var(--mid)]">
-                        {day.label}
-                      </p>
-                      <p className="mt-1 text-base font-semibold text-[color:var(--ink)]">{day.dayNumber}</p>
-                    </div>
-                    {day.key === selectedDay ? (
-                      <span className="rounded-full border border-[var(--scarlett)] bg-white px-2 py-0.5 text-[10px] font-medium text-[var(--scarlett)]">
-                        Chosen
-                      </span>
-                    ) : null}
-                  </button>
-
-                  <div className="mt-2 grid gap-1.5">
-                    <SpellingMiniTask
-                      practicePath={practicePath}
-                      dayKey={day.key}
-                      readyCount={spellingReadyCount}
-                      reviewCount={spellingReviewCount}
-                    />
-                    {dailyTasks.map((task) => (
-                      <WeekMiniTask
-                        key={`${day.key}-${task.id}`}
+                  {bankTasks.length > 0 ? (
+                    bankTasks.map((task) => (
+                      <TaskCard
+                        key={`bank-week-${task.id}`}
                         task={task}
-                        dayKey={day.key}
+                        dayKey={selectedDay}
+                        childId={childId}
+                        redirectPath={selectedDayPath}
                         completions={completions}
                         submissions={submissions}
-                        isSelected={
-                          selectedWeekTask?.taskId === task.id && selectedWeekTask?.dayKey === day.key
-                        }
-                        onSelect={() => setSelectedWeekTask({ taskId: task.id, dayKey: day.key })}
+                        draggable
+                        onDragStart={(taskId) => setDraggedTaskId(taskId ?? null)}
                       />
-                    ))}
-                    {(plannedByDay.get(day.key) ?? []).map((task) => (
-                      <WeekMiniTask
-                        key={`${day.key}-planned-${task.id}`}
-                        task={task}
-                        dayKey={day.key}
-                        completions={completions}
-                        submissions={submissions}
-                        isSelected={
-                          selectedWeekTask?.taskId === task.id && selectedWeekTask?.dayKey === day.key
-                        }
-                        onSelect={() => setSelectedWeekTask({ taskId: task.id, dayKey: day.key })}
-                      />
-                    ))}
-                    {dailyTasks.length === 0 && (plannedByDay.get(day.key) ?? []).length === 0 ? (
-                      <div className="rounded-xl border border-dashed border-[var(--border)] px-2.5 py-3 text-center text-[11px] text-[color:var(--mid)]">
-                        Drop here
-                      </div>
-                    ) : null}
-                  </div>
+                    ))
+                  ) : (
+                    <p className="rounded-2xl border border-dashed border-[var(--border)] bg-[rgba(252,228,244,0.16)] px-4 py-3 text-sm text-[color:var(--mid)] md:col-span-2 xl:col-span-3">
+                      The week bank is empty right now.
+                    </p>
+                  )}
                 </div>
-              ))}
+              </div>
+
+              <div className="overflow-x-auto pb-2">
+                <div className="grid min-w-[980px] grid-cols-7 gap-2">
+                {weekDays.map((day) => (
+                  <div
+                    key={day.key}
+                    onDragOver={(event) => event.preventDefault()}
+                    onDrop={(event) => {
+                      event.preventDefault();
+                      const taskId = event.dataTransfer.getData("text/plain") || draggedTaskId;
+                      if (taskId) {
+                        handleMove(taskId, day.key);
+                      }
+                    }}
+                    className={`min-w-0 rounded-[1.15rem] border p-2.5 ${
+                      day.key === selectedDay
+                        ? "border-[var(--scarlett)] bg-[rgba(252,228,244,0.28)]"
+                        : "border-[var(--border)] bg-white"
+                    }`}
+                  >
+                    <button
+                      type="button"
+                      onClick={() => router.replace(withQuery(basePath, { day: day.key, view: viewMode }))}
+                      className="flex w-full items-center justify-between gap-2 text-left"
+                    >
+                      <div className="min-w-0">
+                        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[color:var(--mid)]">
+                          {day.label}
+                        </p>
+                        <p className="mt-1 text-base font-semibold text-[color:var(--ink)]">{day.dayNumber}</p>
+                      </div>
+                      {day.key === selectedDay ? (
+                        <span className="rounded-full border border-[var(--scarlett)] bg-white px-2 py-0.5 text-[10px] font-medium text-[var(--scarlett)]">
+                          Chosen
+                        </span>
+                      ) : null}
+                    </button>
+
+                    <div className="mt-2 grid gap-1.5">
+                      <SpellingMiniTask
+                        practicePath={practicePath}
+                        dayKey={day.key}
+                        readyCount={spellingReadyCount}
+                        reviewCount={spellingReviewCount}
+                      />
+                      {dailyTasks.map((task) => (
+                        <WeekMiniTask
+                          key={`${day.key}-${task.id}`}
+                          task={task}
+                          dayKey={day.key}
+                          completions={completions}
+                          submissions={submissions}
+                          isSelected={
+                            selectedWeekTask?.taskId === task.id && selectedWeekTask?.dayKey === day.key
+                          }
+                          onSelect={() => setSelectedWeekTask({ taskId: task.id, dayKey: day.key })}
+                        />
+                      ))}
+                      {(plannedByDay.get(day.key) ?? []).map((task) => (
+                        <WeekMiniTask
+                          key={`${day.key}-planned-${task.id}`}
+                          task={task}
+                          dayKey={day.key}
+                          completions={completions}
+                          submissions={submissions}
+                          isSelected={
+                            selectedWeekTask?.taskId === task.id && selectedWeekTask?.dayKey === day.key
+                          }
+                          onSelect={() => setSelectedWeekTask({ taskId: task.id, dayKey: day.key })}
+                        />
+                      ))}
+                      {dailyTasks.length === 0 && (plannedByDay.get(day.key) ?? []).length === 0 ? (
+                        <div className="rounded-xl border border-dashed border-[var(--border)] px-2.5 py-3 text-center text-[11px] text-[color:var(--mid)]">
+                          Drop here
+                        </div>
+                      ) : null}
+                    </div>
+                  </div>
+                ))}
+                </div>
               </div>
             </div>
           ) : (
