@@ -222,6 +222,7 @@ function TaskCard({
   onDragStart,
   defaultExpanded = false,
   hideToggleLabel = false,
+  compact = false,
 }: {
   task: PlannerTask;
   dayKey: string;
@@ -233,6 +234,7 @@ function TaskCard({
   onDragStart?: (taskId: string) => void;
   defaultExpanded?: boolean;
   hideToggleLabel?: boolean;
+  compact?: boolean;
 }) {
   const [expanded, setExpanded] = useState(defaultExpanded);
   const monthlyCompleted = getMonthlyCompletedTotal(task.id, completions);
@@ -242,6 +244,59 @@ function TaskCard({
   const latestSubmission = getLatestSubmissionForTask(task.id, submissions);
   const inlineLessonPreview = getInlineLessonPreviewHtml(task.content_html);
   const hasEmbeddedLessonDocument = isFullDocumentHtml(task.content_html);
+
+  if (compact) {
+    const primaryBadge = badges[0] ?? null;
+
+    return (
+      <div
+        draggable={draggable}
+        onDragStart={(event) => {
+          event.dataTransfer.setData("text/plain", task.id);
+          onDragStart?.(task.id);
+        }}
+        className={`rounded-2xl border bg-white px-3 py-2.5 ${
+          draggable
+            ? "cursor-grab border-[rgba(206,71,125,0.22)] shadow-[0_8px_18px_rgba(206,71,125,0.06)]"
+            : "border-[var(--border)]"
+        }`}
+      >
+        <div className="flex min-w-0 items-start gap-2.5">
+          {draggable ? (
+            <span className="mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[rgba(252,228,244,0.55)] text-[color:var(--scarlett)]">
+              <svg aria-hidden="true" viewBox="0 0 20 20" className="h-3.5 w-3.5 fill-current">
+                <path d="M7 5a1.25 1.25 0 1 1-2.5 0A1.25 1.25 0 0 1 7 5Zm0 5a1.25 1.25 0 1 1-2.5 0A1.25 1.25 0 0 1 7 10Zm0 5a1.25 1.25 0 1 1-2.5 0A1.25 1.25 0 0 1 7 15ZM15.5 5a1.25 1.25 0 1 1-2.5 0 1.25 1.25 0 0 1 2.5 0Zm0 5a1.25 1.25 0 1 1-2.5 0 1.25 1.25 0 0 1 2.5 0Zm0 5a1.25 1.25 0 1 1-2.5 0 1.25 1.25 0 0 1 2.5 0Z" />
+              </svg>
+            </span>
+          ) : null}
+          <div className="min-w-0 flex-1">
+            <div className="flex min-w-0 flex-wrap items-center gap-1.5">
+              <p className="truncate text-sm font-semibold text-[color:var(--ink)]">{task.title}</p>
+              {primaryBadge ? renderTaskBadges(task.id, [primaryBadge]) : null}
+            </div>
+            <p className="mt-1 truncate text-xs text-[color:var(--mid)]">
+              {task.moduleTitle}
+            </p>
+            <div className="mt-1.5 flex flex-wrap items-center gap-1.5 text-[10px] text-[color:var(--mid)]">
+              <span>{getCourseTaskTypeLabel(task.task_type)}</span>
+              {task.gold_coin_reward_amount > 0 ? (
+                <>
+                  <span aria-hidden="true">·</span>
+                  <span>{`+${task.gold_coin_reward_amount} coins`}</span>
+                </>
+              ) : null}
+              {task.estimated_minutes ? (
+                <>
+                  <span aria-hidden="true">·</span>
+                  <span>{`${task.estimated_minutes} min`}</span>
+                </>
+              ) : null}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div
@@ -848,8 +903,7 @@ export function LearnWeekPlanner({
                         submissions={submissions}
                         draggable
                         onDragStart={(taskId) => setDraggedTaskId(taskId ?? null)}
-                        defaultExpanded
-                        hideToggleLabel
+                        compact
                       />
                     ))
                   ) : (
@@ -986,6 +1040,7 @@ export function LearnWeekPlanner({
                         submissions={submissions}
                         draggable
                         onDragStart={(taskId) => setDraggedTaskId(taskId ?? null)}
+                        compact
                       />
                     ))
                   ) : (
