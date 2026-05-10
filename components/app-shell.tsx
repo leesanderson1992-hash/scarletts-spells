@@ -40,8 +40,6 @@ function getNavSections(mode: AppMode): NavSection[] {
         items: [
           { label: "This Week", href: "/learn/week" },
           { label: "My Learning", href: "/learn" },
-          { label: "Today's Practice", href: "/practice" },
-          { label: "Review Words", href: "/review" },
           { label: "My Progress", href: "/insights" },
         ],
       },
@@ -50,32 +48,29 @@ function getNavSections(mode: AppMode): NavSection[] {
 
   return [
     {
-      title: "Overview",
+      title: "Parent mode",
       items: [
         { label: "Dashboard", href: "/dashboard" },
-        { label: "Review work", href: "/courses/review" },
-        { label: "Insights", href: "/insights" },
-      ],
-    },
-    {
-      title: "Plan",
-      items: [
-        { label: "Courses", href: "/courses" },
         {
-          label: "Analyse",
-          href: "/analyse",
+          label: "Courses",
+          href: "/courses",
           children: [
-            { label: "Writing intake", href: "/analyse" },
-            { label: "Misspelling review", href: "/analyse/review" },
+            { label: "Courses", href: "/courses" },
+            { label: "Review Work", href: "/courses/review" },
           ],
         },
-      ],
-    },
-    {
-      title: "Manage",
-      items: [
-        { label: "Children", href: "/children" },
+        { label: "Insights", href: "/insights" },
+        {
+          label: "Spelling Engine",
+          href: "/analyse",
+          children: [
+            { label: "Assignments", href: "/assignments" },
+            { label: "Intake", href: "/analyse" },
+            { label: "Analysis", href: "/analyse/review" },
+          ],
+        },
         { label: "Settings", href: "/settings" },
+        { label: "Children", href: "/children" },
       ],
     },
   ];
@@ -110,7 +105,7 @@ export function AppShell({
   );
   const modeDescription =
     mode === "child"
-      ? "A simpler view focused on this week's training and today's check-in."
+      ? "A simpler view focused on this week's training and current learning."
       : "Parent tools for review, course progress, and spelling insight.";
   const isFocusLayout = layout === "focus";
   const isParentMode = mode === "parent";
@@ -144,7 +139,7 @@ export function AppShell({
           <div className="hidden min-w-0 flex-1 items-center justify-center xl:flex">
             {activeChildId ? (
               <ChildSwitcher
-                children={availableChildren}
+                childOptions={availableChildren}
                 activeChildId={activeChildId}
                 redirectPath={scopedCurrentPath}
                 compact
@@ -232,7 +227,7 @@ export function AppShell({
 
             {activeChildId ? (
               <ChildSwitcher
-                children={availableChildren}
+                childOptions={availableChildren}
                 activeChildId={activeChildId}
                 redirectPath={scopedCurrentPath}
                 compact

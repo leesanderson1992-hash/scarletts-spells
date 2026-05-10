@@ -1,9 +1,11 @@
 import { createClient } from "@/lib/supabase/server";
+import { getDateOnly } from "@/lib/courses/progress";
 
 import type {
   ChildOption,
   CourseDetail,
   CourseGoalRow,
+  CourseGoalTaskSourceRow,
   CourseCheckpointRow,
   CoursePhaseRow,
   CourseModuleRow,
@@ -70,8 +72,67 @@ export function getCycleDateRange(
   cycleEnd.setDate(cycleEnd.getDate() + safeCycleLength * 7 - 1);
 
   return {
-    start: cycleStart.toISOString().slice(0, 10),
-    end: cycleEnd.toISOString().slice(0, 10),
+    start: getDateOnly(cycleStart),
+    end: getDateOnly(cycleEnd),
+  };
+}
+
+export function getTimedPhaseDateRange(
+  startDate: string | null | undefined,
+  durationWeeks: number | null | undefined,
+  cycleLengthWeeks: number | null | undefined,
+  cycleNumber: number | null | undefined,
+) {
+  if (!startDate || !durationWeeks || durationWeeks < 1 || !cycleNumber || cycleNumber < 1) {
+    return null;
+  }
+
+  const baseRange = getCycleDateRange(startDate, cycleLengthWeeks, cycleNumber);
+
+  if (!baseRange) {
+    return null;
+  }
+
+  const courseEnd = new Date(`${startDate}T00:00:00`);
+  courseEnd.setDate(courseEnd.getDate() + durationWeeks * 7 - 1);
+  const phaseEnd = new Date(`${baseRange.end}T00:00:00`);
+  const boundedEnd = phaseEnd.getTime() <= courseEnd.getTime() ? phaseEnd : courseEnd;
+
+  return {
+    start: baseRange.start,
+    end: getDateOnly(boundedEnd),
+  };
+}
+
+export function getPhaseWindowContext(phase: Pick<CoursePhaseRow, "title"> & {
+  start_date?: string | null;
+  end_date?: string | null;
+}) {
+  if (!phase.start_date || !phase.end_date) {
+    return null;
+  }
+
+  return {
+    windowType: "phase" as const,
+    startDate: phase.start_date,
+    endDate: phase.end_date,
+    windowLabel: phase.title,
+  };
+}
+
+export function getCourseWindowContext(course: Pick<CourseRow, "title" | "start_date" | "duration_weeks">) {
+  if (!course.start_date || !course.duration_weeks || course.duration_weeks < 1) {
+    return null;
+  }
+
+  const courseEnd = new Date(`${course.start_date}T00:00:00`);
+  courseEnd.setDate(courseEnd.getDate() + course.duration_weeks * 7 - 1);
+
+  return {
+    windowType: "course" as const,
+    startDate: course.start_date,
+    endDate: getDateOnly(courseEnd),
+    windowLabel: course.title,
   };
 }
 
@@ -105,15 +166,43 @@ export function getCurrentCycle(
   return Math.min(Math.max(derivedCycle, 1), totalCycles);
 }
 
+export function getNextCheckpoint(
+  checkpoints: CourseCheckpointRow[],
+  today = new Date(),
+) {
+  const recentThreshold = new Date(today);
+  recentThreshold.setDate(recentThreshold.getDate() - 1);
+
+  return (
+    checkpoints.find((checkpoint) => {
+      if (!checkpoint.scheduled_date) {
+        return false;
+      }
+
+      return (
+        new Date(`${checkpoint.scheduled_date}T00:00:00`).getTime() >= recentThreshold.getTime()
+      );
+    }) ?? checkpoints[0] ?? null
+  );
+}
+
 export function groupTasksByModule(
   modules: CourseModuleRow[],
   tasks: CourseTaskRow[],
 ): CourseModuleWithTasks[] {
+  const tasksByModule = new Map<string, CourseTaskRow[]>();
+
+  for (const task of tasks) {
+    const existing = tasksByModule.get(task.module_id) ?? [];
+    existing.push(task);
+    tasksByModule.set(task.module_id, existing);
+  }
+
   return modules.map((module) => ({
     ...module,
-    tasks: tasks
-      .filter((task) => task.module_id === module.id)
-      .sort((left, right) => left.position - right.position),
+    tasks: [...(tasksByModule.get(module.id) ?? [])].sort(
+      (left, right) => left.position - right.position,
+    ),
   }));
 }
 
@@ -135,14 +224,23 @@ export async function getCoursesForChild(
   supabase: SupabaseServerClient,
   parentUserId: string,
   childId: string,
+  options?: {
+    activeOnly?: boolean;
+  },
 ) {
-  const { data } = await supabase
+  let query = supabase
     .from("courses")
-    .select("id, child_id, structure_type, title, description, start_date, duration_weeks, cycle_length_weeks, is_archived, created_at")
+    .select("id, child_id, structure_type, title, description, start_date, duration_weeks, cycle_length_weeks, is_active, is_archived, created_at")
     .eq("parent_user_id", parentUserId)
     .eq("child_id", childId)
     .eq("is_archived", false)
     .order("created_at", { ascending: true });
+
+  if (options?.activeOnly) {
+    query = query.eq("is_active", true);
+  }
+
+  const { data } = await query;
 
   return (data ?? []) as CourseRow[];
 }
@@ -152,71 +250,152 @@ export async function getCourseDetailForParent(
   parentUserId: string,
   courseId: string,
 ) {
-  const [{ data: course }, { data: phases }, { data: modules }, { data: tasks }, { data: goals }, { data: focusBlocks }, { data: checkpoints }] = await Promise.all([
+  const [detail] = await getCourseDetailsForParent(supabase, parentUserId, [courseId]);
+  return detail ?? null;
+}
+
+export async function getCourseDetailsForParent(
+  supabase: SupabaseServerClient,
+  parentUserId: string,
+  courseIds: string[],
+) {
+  const uniqueCourseIds = Array.from(
+    new Set(courseIds.filter((courseId) => courseId.trim().length > 0)),
+  );
+
+  if (uniqueCourseIds.length === 0) {
+    return [] as CourseDetail[];
+  }
+
+  const [{ data: courses }, { data: phases }, { data: modules }, { data: tasks }, { data: goals }, { data: goalTaskSources }, { data: focusBlocks }, { data: checkpoints }] = await Promise.all([
     supabase
       .from("courses")
-      .select("id, child_id, structure_type, title, description, start_date, duration_weeks, cycle_length_weeks, is_archived, created_at")
-      .eq("id", courseId)
+      .select("id, child_id, structure_type, title, description, start_date, duration_weeks, cycle_length_weeks, is_active, is_archived, created_at")
+      .in("id", uniqueCourseIds)
       .eq("parent_user_id", parentUserId)
       .eq("is_archived", false)
-      .maybeSingle(),
+      .order("created_at", { ascending: true }),
     supabase
       .from("course_phases")
-      .select("id, course_id, title, description, position, badge_image_url, created_at")
-      .eq("course_id", courseId)
+      .select("id, course_id, title, description, position, badge_image_url, start_date, end_date, created_at")
+      .in("course_id", uniqueCourseIds)
       .eq("parent_user_id", parentUserId)
       .order("position", { ascending: true }),
     supabase
       .from("course_modules")
       .select("id, course_id, phase_id, title, description, position, created_at")
-      .eq("course_id", courseId)
+      .in("course_id", uniqueCourseIds)
       .eq("parent_user_id", parentUserId)
       .order("position", { ascending: true }),
     supabase
       .from("course_tasks")
       .select(
-        "id, course_id, module_id, focus_block_id, title, task_type, instructions, content_html, writing_prompt, choice_options, allow_multiple_choices, estimated_minutes, monthly_goal_total, gold_bar_rule, gold_coin_reward_amount, weekly_days, position, is_active, created_at",
+        "id, course_id, module_id, focus_block_id, title, task_type, instructions, lesson_schema, writing_prompt, choice_options, allow_multiple_choices, estimated_minutes, monthly_goal_total, coin_reward_trigger, gold_coin_reward_amount, weekly_days, position, is_active, created_at",
       )
-      .eq("course_id", courseId)
+      .in("course_id", uniqueCourseIds)
       .eq("parent_user_id", parentUserId)
       .order("position", { ascending: true }),
     supabase
       .from("course_goals")
       .select("id, course_id, title, goal_type, unit, target_quantity, progress_source, time_span, success_description, stretch_target, status, created_at")
-      .eq("course_id", courseId)
+      .in("course_id", uniqueCourseIds)
       .eq("parent_user_id", parentUserId)
       .order("created_at", { ascending: false }),
     supabase
+      .from("course_goal_task_sources")
+      .select("id, course_id, goal_id, task_id, parent_user_id, created_at")
+      .in("course_id", uniqueCourseIds)
+      .eq("parent_user_id", parentUserId)
+      .order("created_at", { ascending: true }),
+    supabase
       .from("focus_blocks")
-      .select("id, course_id, module_id, cycle_number, title, goal, description, start_date, end_date, is_active, created_at")
-      .eq("course_id", courseId)
+      .select("id, course_id, module_id, cycle_number, title, goal, description, gold_coin_reward_amount, coin_reward_trigger, start_date, end_date, is_active, created_at")
+      .in("course_id", uniqueCourseIds)
       .eq("parent_user_id", parentUserId)
       .order("is_active", { ascending: false })
       .order("created_at", { ascending: false }),
     supabase
       .from("course_checkpoints")
-      .select("id, course_id, module_id, cycle_number, title, target, scheduled_date, notes, created_at")
-      .eq("course_id", courseId)
+      .select("id, course_id, phase_id, module_id, cycle_number, title, target, scheduled_date, notes, gold_coin_reward_amount, coin_reward_trigger, created_at")
+      .in("course_id", uniqueCourseIds)
       .eq("parent_user_id", parentUserId)
       .order("scheduled_date", { ascending: true, nullsFirst: false })
       .order("created_at", { ascending: false }),
   ]);
 
-  if (!course) {
-    return null;
+  const courseById = new Map(
+    ((courses ?? []) as CourseRow[]).map((course) => [course.id, course]),
+  );
+  const phasesByCourseId = new Map<string, CoursePhaseRow[]>();
+  const modulesByCourseId = new Map<string, CourseModuleRow[]>();
+  const tasksByCourseId = new Map<string, CourseTaskRow[]>();
+  const goalsByCourseId = new Map<string, CourseGoalRow[]>();
+  const goalTaskSourcesByCourseId = new Map<string, CourseGoalTaskSourceRow[]>();
+  const focusBlocksByCourseId = new Map<string, FocusBlockRow[]>();
+  const checkpointsByCourseId = new Map<string, CourseCheckpointRow[]>();
+
+  for (const phase of (phases ?? []) as CoursePhaseRow[]) {
+    const existing = phasesByCourseId.get(phase.course_id) ?? [];
+    existing.push(phase);
+    phasesByCourseId.set(phase.course_id, existing);
   }
 
-  return {
-    course: course as CourseRow,
-    phases: (phases ?? []) as CoursePhaseRow[],
-    modules: groupTasksByModule(
-      (modules ?? []) as CourseModuleRow[],
-      (tasks ?? []) as CourseTaskRow[],
-    ),
-    goals: (goals ?? []) as CourseGoalRow[],
-    focusBlocks: (focusBlocks ?? []) as FocusBlockRow[],
-    checkpoints: (checkpoints ?? []) as CourseCheckpointRow[],
-  } satisfies CourseDetail;
+  for (const moduleRow of (modules ?? []) as CourseModuleRow[]) {
+    const existing = modulesByCourseId.get(moduleRow.course_id) ?? [];
+    existing.push(moduleRow);
+    modulesByCourseId.set(moduleRow.course_id, existing);
+  }
+
+  for (const task of (tasks ?? []) as CourseTaskRow[]) {
+    const existing = tasksByCourseId.get(task.course_id) ?? [];
+    existing.push(task);
+    tasksByCourseId.set(task.course_id, existing);
+  }
+
+  for (const goal of (goals ?? []) as CourseGoalRow[]) {
+    const existing = goalsByCourseId.get(goal.course_id) ?? [];
+    existing.push(goal);
+    goalsByCourseId.set(goal.course_id, existing);
+  }
+
+  for (const source of (goalTaskSources ?? []) as CourseGoalTaskSourceRow[]) {
+    const existing = goalTaskSourcesByCourseId.get(source.course_id) ?? [];
+    existing.push(source);
+    goalTaskSourcesByCourseId.set(source.course_id, existing);
+  }
+
+  for (const focusBlock of (focusBlocks ?? []) as FocusBlockRow[]) {
+    const existing = focusBlocksByCourseId.get(focusBlock.course_id) ?? [];
+    existing.push(focusBlock);
+    focusBlocksByCourseId.set(focusBlock.course_id, existing);
+  }
+
+  for (const checkpoint of (checkpoints ?? []) as CourseCheckpointRow[]) {
+    const existing = checkpointsByCourseId.get(checkpoint.course_id) ?? [];
+    existing.push(checkpoint);
+    checkpointsByCourseId.set(checkpoint.course_id, existing);
+  }
+
+  return uniqueCourseIds.flatMap((courseId) => {
+    const course = courseById.get(courseId);
+
+    if (!course) {
+      return [];
+    }
+
+    return [{
+      course,
+      phases: phasesByCourseId.get(courseId) ?? [],
+      modules: groupTasksByModule(
+        modulesByCourseId.get(courseId) ?? [],
+        tasksByCourseId.get(courseId) ?? [],
+      ),
+      goals: goalsByCourseId.get(courseId) ?? [],
+      goalTaskSources: goalTaskSourcesByCourseId.get(courseId) ?? [],
+      focusBlocks: focusBlocksByCourseId.get(courseId) ?? [],
+      checkpoints: checkpointsByCourseId.get(courseId) ?? [],
+    } satisfies CourseDetail];
+  });
 }
 
 export async function getModuleDetailForParent(
@@ -231,15 +410,15 @@ export async function getModuleDetailForParent(
     return null;
   }
 
-  const module = detail.modules.find((item) => item.id === moduleId) ?? null;
+  const selectedModule = detail.modules.find((item) => item.id === moduleId) ?? null;
 
-  if (!module) {
+  if (!selectedModule) {
     return null;
   }
 
   return {
     course: detail.course,
-    module,
+    module: selectedModule,
     focusBlocks: detail.focusBlocks,
   };
 }
@@ -252,7 +431,7 @@ export async function getCourseDetailForChild(
 ) {
   const detail = await getCourseDetailForParent(supabase, parentUserId, courseId);
 
-  if (!detail || detail.course.child_id !== childId) {
+  if (!detail || detail.course.child_id !== childId || !detail.course.is_active) {
     return null;
   }
 
@@ -287,9 +466,9 @@ export async function getModuleDetailForChild(
     return null;
   }
 
-  const module = detail.modules.find((item) => item.id === moduleId) ?? null;
+  const selectedModule = detail.modules.find((item) => item.id === moduleId) ?? null;
 
-  if (!module) {
+  if (!selectedModule) {
     return null;
   }
 
@@ -311,7 +490,7 @@ export async function getModuleDetailForChild(
     course: detail.course,
     phases: detail.phases,
     modules: detail.modules,
-    module,
+    module: selectedModule,
     focusBlocks: detail.focusBlocks,
     completions: (completions ?? []) as TaskCompletionRow[],
     submissions: (submissions ?? []) as TaskSubmissionRow[],

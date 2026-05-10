@@ -344,14 +344,14 @@ function buildNextStepMessage(
   }
 
   if (needsReviewCount === 0 && reviewedCount > 0) {
-    return "This sample is fully reviewed. The spelling assignment can now be generated with confidence.";
+    return "This sample is fully reviewed. The next spelling assignment can now be generated from the active canonical learning streams with confidence.";
   }
 
   if (reviewedCount === 0) {
     return "Review the strongest items first so the assignment is driven by the mistakes you actually want to teach.";
   }
 
-  return "You can generate an assignment now, but finishing the remaining review items will make the next practice set more trustworthy.";
+  return "You can generate an assignment now, but finishing the remaining review items will make the next canonical practice set more trustworthy.";
 }
 
 async function ensureAnalysisForSample(
@@ -499,7 +499,7 @@ export default async function AnalyseReviewPage({
             </div>
 
             <ChildSwitcher
-              children={activeChildren}
+              childOptions={activeChildren}
               activeChildId={selectedChild.id}
               redirectPath="/analyse/review"
             />
@@ -560,7 +560,7 @@ export default async function AnalyseReviewPage({
               <p className="mt-4 text-sm text-emerald-600">Writing sample reanalysed successfully.</p>
             ) : null}
             {resolvedSearchParams?.assigned ? (
-              <p className="mt-4 text-sm text-emerald-600">Practice queue refreshed successfully.</p>
+              <p className="mt-4 text-sm text-emerald-600">Spelling assignment refreshed successfully.</p>
             ) : null}
           </section>
 

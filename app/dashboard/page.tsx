@@ -10,22 +10,23 @@ import {
   selectChildById,
 } from "@/lib/children";
 import {
-  doesCourseTaskEarnGoldBar,
+  COURSE_PROGRESS_LABELS,
+  getCourseProgressBadgeClasses,
   getCourseTaskProgressState,
+  getDateOnly,
+  getRecurringTaskCompletionForDate,
   getModuleCompletionMap,
   hasActiveSubmissionForTask,
 } from "@/lib/courses/progress";
 import { getCoursesForChild } from "@/lib/courses/queries";
 import {
-  getAggregateProgressState,
-  getFocusBlockProgressState,
   getUniversalProgressBadgeClasses,
-  getWordProgressState,
-  isWordSecure,
   UNIVERSAL_PROGRESS_LABELS,
 } from "@/lib/progress/stateModel";
+import { getChildRewardReadModel } from "@/lib/rewards/read-model";
 import { getWordFamilyById } from "@/lib/spelling/wordFamilies";
 import { createClient } from "@/lib/supabase/server";
+import { getCanonicalActivePracticeWordsForChild } from "@/lib/writing-practice/practice-runtime";
 
 import { parseAnalysisRow } from "../analyse/types";
 import { CreateChildForm } from "./create-child-form";
@@ -42,7 +43,6 @@ type ChildRow = {
   first_name: string;
   last_name: string | null;
   date_of_birth: string | null;
-  gold_coin_balance: number;
   is_archived: boolean;
 };
 
@@ -81,7 +81,6 @@ type AnalysisSummary = {
   topCategory: string | null;
   topFamilyLabel: string | null;
 };
-
 type MisspellingReviewRow = {
   id: string;
   writing_sample_id: string;
@@ -109,16 +108,6 @@ type MisspellingReviewRow = {
   notes: string | null;
 };
 
-type WordProgressRow = {
-  id?: string;
-  target_word: string;
-  review_stage: number | null;
-  mastery_level: number | null;
-  correct_attempts: number | null;
-  incorrect_attempts: number | null;
-  mastered_at: string | null;
-};
-
 type CourseModuleDashboardRow = {
   id: string;
   course_id: string;
@@ -134,7 +123,7 @@ type CourseTaskDashboardRow = {
   task_type: string;
   instructions: string | null;
   monthly_goal_total: number | null;
-  gold_bar_rule: "auto" | "on_completion" | "on_monthly_target" | "none";
+  coin_reward_trigger: "none" | "on_completion" | "on_approval" | "on_target";
   weekly_days: string[] | null;
   is_active: boolean;
 };
@@ -176,8 +165,10 @@ type SubmissionReviewStatus =
   | { label: "No issues found"; tone: string }
   | { label: "No writing"; tone: string };
 
-function getTodayDateOnly() {
-  return new Date().toISOString().slice(0, 10);
+function getRecentIsoCutoff(days: number) {
+  const date = new Date();
+  date.setUTCDate(date.getUTCDate() - days);
+  return date.toISOString();
 }
 
 function getStartOfWeek(date: Date) {
@@ -196,55 +187,15 @@ function getWeekDates() {
     date.setDate(start.getDate() + index);
 
     return {
-      key: date.toISOString().slice(0, 10),
+      key: getDateOnly(date),
       label: new Intl.DateTimeFormat("en-GB", { weekday: "short" }).format(date),
       dayNumber: date.getDate(),
     };
   });
 }
 
-function getCurrentMonthPrefix() {
-  return new Date().toISOString().slice(0, 7);
-}
-
-function getMonthlyCompletedTotal(
-  taskId: string,
-  completions: TaskCompletionDashboardRow[],
-) {
-  const monthPrefix = getCurrentMonthPrefix();
-
-  return completions
-    .filter(
-      (completion) =>
-        completion.task_id === taskId &&
-        completion.completion_date.startsWith(monthPrefix),
-    )
-    .reduce((sum, completion) => sum + (completion.quantity_completed ?? 1), 0);
-}
-
 function getDisplayName(child: Pick<ChildRow, "first_name" | "last_name">) {
   return [child.first_name, child.last_name].filter(Boolean).join(" ");
-}
-
-function getAgeFromDateOfBirth(dateOfBirth: string | null) {
-  if (!dateOfBirth) {
-    return null;
-  }
-
-  const birthDate = new Date(dateOfBirth);
-  const today = new Date();
-
-  let age = today.getFullYear() - birthDate.getFullYear();
-  const hasHadBirthdayThisYear =
-    today.getMonth() > birthDate.getMonth() ||
-    (today.getMonth() === birthDate.getMonth() &&
-      today.getDate() >= birthDate.getDate());
-
-  if (!hasHadBirthdayThisYear) {
-    age -= 1;
-  }
-
-  return age >= 0 ? age : null;
 }
 
 function formatDate(dateString: string | null) {
@@ -259,16 +210,22 @@ function formatDate(dateString: string | null) {
   }).format(new Date(dateString));
 }
 
-function getPreviewText(sampleText: string) {
-  return sampleText.length > 180
-    ? `${sampleText.slice(0, 180).trimEnd()}...`
-    : sampleText;
-}
-
 function getCleanWords(words: string[] | null) {
   return Array.from(
     new Set((words ?? []).map((word) => word.trim().toLowerCase()).filter(Boolean)),
   );
+}
+
+function getWordStateFromRewardState(rewardState: string | null | undefined) {
+  if (rewardState === "gold_bar_earned") {
+    return "gold_bar" as const;
+  }
+
+  if (rewardState === "warm_workshop") {
+    return "in_machine" as const;
+  }
+
+  return "golden_nugget" as const;
 }
 
 function getMostCommonValue<T extends string>(values: T[]) {
@@ -293,26 +250,6 @@ function getMostCommonValue<T extends string>(values: T[]) {
   });
 
   return bestValue;
-}
-
-function getAssignmentStatusLabel(status: string | null) {
-  if (!status) {
-    return "pending";
-  }
-
-  return status.replace("-", " ");
-}
-
-function getAssignmentStatusClasses(status: string | null) {
-  if (status === "completed") {
-    return "brand-status-completed";
-  }
-
-  if (status === "skipped") {
-    return "brand-status-skipped";
-  }
-
-  return "brand-status-pending";
 }
 
 function getSubmissionReviewStatus(
@@ -398,7 +335,7 @@ export default async function DashboardPage({
 
   const { data: children } = await supabase
     .from("children")
-    .select("id, first_name, last_name, date_of_birth, gold_coin_balance, is_archived")
+    .select("id, first_name, last_name, date_of_birth, is_archived")
     .eq("parent_user_id", user.id)
     .order("created_at", { ascending: true });
 
@@ -422,19 +359,21 @@ export default async function DashboardPage({
           .order("created_at", { ascending: false })
           .limit(1)
           .maybeSingle<DailyAssignmentRow>(),
-        supabase
-          .from("writing_samples")
-          .select("id, title, sample_text, source, written_at, created_at")
-          .eq("parent_user_id", user.id)
-          .eq("child_id", activeScopedChild.id)
-          .order("created_at", { ascending: false })
-          .limit(1)
-          .maybeSingle<WritingSampleRow>(),
+        mode === "parent"
+          ? supabase
+              .from("writing_samples")
+              .select("id, title, sample_text, source, written_at, created_at")
+              .eq("parent_user_id", user.id)
+              .eq("child_id", activeScopedChild.id)
+              .order("created_at", { ascending: false })
+              .limit(1)
+              .maybeSingle<WritingSampleRow>()
+          : Promise.resolve({ data: null as WritingSampleRow | null }),
       ])
     : [{ data: null }, { data: null }];
 
   const analysisRows =
-    activeScopedChild && latestSample.data
+    mode === "parent" && activeScopedChild && latestSample.data
       ? await supabase
           .from("misspelling_instances")
           .select(
@@ -448,14 +387,12 @@ export default async function DashboardPage({
   const analysisSummary = summariseAnalysis(analysisRows.data ?? []);
 
   const childName = activeScopedChild ? getDisplayName(activeScopedChild) : null;
-  const childAge = activeScopedChild ? getAgeFromDateOfBirth(activeScopedChild.date_of_birth) : null;
   const targetWords = getCleanWords(latestAssignment.data?.target_words ?? null);
   const reviewWords = getCleanWords(latestAssignment.data?.review_words ?? null).filter(
     (word) => !targetWords.includes(word),
   );
-  const isReviewOnly = targetWords.length === 0 && reviewWords.length > 0;
-  const analysePath = buildScopedPath("/analyse", activeScopedChild?.id ?? null, mode);
   const practicePath = buildScopedPath("/practice", activeScopedChild?.id ?? null, mode);
+  const assignmentsPath = buildScopedPath("/assignments", activeScopedChild?.id ?? null, mode);
   const insightsPath = buildScopedPath("/insights", activeScopedChild?.id ?? null, mode);
   const childrenPath = buildScopedPath("/children", activeScopedChild?.id ?? null, mode);
   const reviewWorkPath = buildScopedPath("/courses/review", activeScopedChild?.id ?? null, mode);
@@ -465,19 +402,54 @@ export default async function DashboardPage({
 
   const childCourses =
     activeScopedChild
-      ? await getCoursesForChild(supabase, user.id, activeScopedChild.id)
+      ? await getCoursesForChild(supabase, user.id, activeScopedChild.id, {
+          activeOnly: mode === "child",
+        })
       : [];
   const childCourseIds = childCourses.map((course) => course.id);
+  const fiveDayCutoffIso = getRecentIsoCutoff(5);
+  const childRewardData =
+    activeScopedChild
+      ? await getChildRewardReadModel({
+          supabase,
+          parentUserId: user.id,
+          childId: activeScopedChild.id,
+          todayDateOnly: getDateOnly(),
+          lastFiveDaysSinceIso: fiveDayCutoffIso,
+        })
+      : null;
+  const activeCanonicalWords =
+    activeScopedChild
+      ? await getCanonicalActivePracticeWordsForChild({
+          supabase,
+          parentUserId: user.id,
+          childId: activeScopedChild.id,
+        })
+      : [];
+  const recentPracticeAttempts =
+    activeScopedChild
+      ? (
+          await supabase
+            .from("practice_attempts")
+            .select("target_word, is_correct, attempted_at")
+            .eq("parent_user_id", user.id)
+            .eq("child_id", activeScopedChild.id)
+            .order("attempted_at", { ascending: false })
+            .limit(30)
+        ).data ?? []
+      : [];
 
   const childDashboardData =
     activeScopedChild && childCourseIds.length > 0
       ? await Promise.all([
           supabase
             .from("course_modules")
-            .select("id, course_id, title"),
+            .select("id, course_id, title")
+            .in("course_id", childCourseIds)
+            .eq("parent_user_id", user.id),
           supabase
             .from("course_tasks")
-            .select("id, course_id, module_id, focus_block_id, title, task_type, instructions, monthly_goal_total, gold_bar_rule, weekly_days, is_active")
+            .select("id, course_id, module_id, focus_block_id, title, task_type, instructions, monthly_goal_total, coin_reward_trigger, weekly_days, is_active")
             .in("course_id", childCourseIds)
             .eq("parent_user_id", user.id)
             .eq("is_active", true),
@@ -485,11 +457,13 @@ export default async function DashboardPage({
             .from("task_completions")
             .select("task_id, course_id, completion_date, quantity_completed")
             .in("course_id", childCourseIds)
+            .eq("parent_user_id", user.id)
             .eq("child_id", activeScopedChild.id),
           supabase
             .from("task_submissions")
             .select("id, task_id, course_id, submission_text, submitted_at, parent_review_status, parent_review_note")
             .in("course_id", childCourseIds)
+            .eq("parent_user_id", user.id)
             .eq("child_id", activeScopedChild.id),
           supabase
             .from("focus_blocks")
@@ -498,30 +472,22 @@ export default async function DashboardPage({
             .eq("parent_user_id", user.id)
             .order("is_active", { ascending: false })
             .order("created_at", { ascending: false }),
-          supabase
-            .from("word_progress")
-            .select("target_word, review_stage, mastery_level, correct_attempts, incorrect_attempts, mastered_at")
-            .eq("parent_user_id", user.id)
-            .eq("child_id", activeScopedChild.id),
         ])
       : null;
 
   if (mode === "child" && activeScopedChild) {
-    const [, tasksResult, completionsResult, submissionsResult, focusBlocksResult, wordProgressResult] =
+    const [, tasksResult, completionsResult, submissionsResult] =
       childDashboardData ?? [
         { data: [] as CourseModuleDashboardRow[] },
         { data: [] as CourseTaskDashboardRow[] },
         { data: [] as TaskCompletionDashboardRow[] },
         { data: [] as TaskSubmissionDashboardRow[] },
         { data: [] as FocusBlockDashboardRow[] },
-        { data: [] as WordProgressRow[] },
       ];
-
     const childTasks = (tasksResult.data ?? []) as CourseTaskDashboardRow[];
     const childCompletions = (completionsResult.data ?? []) as TaskCompletionDashboardRow[];
     const childSubmissions = (submissionsResult.data ?? []) as TaskSubmissionDashboardRow[];
-    const childFocusBlocks = (focusBlocksResult.data ?? []) as FocusBlockDashboardRow[];
-    const childWordProgress = (wordProgressResult.data ?? []) as WordProgressRow[];
+    const spellingRewardStates = childRewardData?.spellingRewardStates ?? [];
     const weekDays = getWeekDates();
     const weekKeys = new Set(weekDays.map((day) => day.key));
     const weeklyCheckIns = new Set(
@@ -537,40 +503,33 @@ export default async function DashboardPage({
       }
     }
 
-    const today = getTodayDateOnly();
+    const today = getDateOnly();
     const todayWeekday = new Intl.DateTimeFormat("en-GB", { weekday: "short" })
       .format(new Date())
       .slice(0, 3)
       .toLowerCase();
 
-    const activeFocusBlocks = childFocusBlocks.filter((focusBlock) => focusBlock.is_active).slice(0, 3);
-    const finishedFocusBlocks = childFocusBlocks.filter((focusBlock) => !focusBlock.is_active).slice(0, 4);
-    const currentFocusBlock = activeFocusBlocks[0] ?? null;
+    const rewardStateByWord = new Map(
+      spellingRewardStates.map((row) => [row.target_word, row.reward_state]),
+    );
     const wordStateByWord = new Map(
-      childWordProgress.map((row) => [
-        row.target_word,
-        getWordProgressState({
-          reviewStage: row.review_stage,
-          masteryLevel: row.mastery_level,
-          correctAttempts: row.correct_attempts,
-          incorrectAttempts: row.incorrect_attempts,
-          masteredAt: row.mastered_at,
-          isAssignedNow: targetWords.includes(row.target_word) || reviewWords.includes(row.target_word),
-        }),
+      Array.from(new Set([...targetWords, ...reviewWords, ...activeCanonicalWords])).map((word) => [
+        word,
+        getWordStateFromRewardState(rewardStateByWord.get(word)),
       ]),
     );
-    const secureWords = childWordProgress.filter((row) =>
-      isWordSecure({
-        reviewStage: row.review_stage,
-        masteryLevel: row.mastery_level,
-        correctAttempts: row.correct_attempts,
-        incorrectAttempts: row.incorrect_attempts,
-        masteredAt: row.mastered_at,
-      }),
-    ).slice(0, 8);
-    const activeWords = childWordProgress
-      .filter((row) => (wordStateByWord.get(row.target_word) ?? "golden_nugget") !== "gold_bar")
-      .sort((left, right) => (right.review_stage ?? 0) - (left.review_stage ?? 0))
+    const secureWords = spellingRewardStates
+      .filter((row) => Boolean(row.gold_bar_earned_at))
+      .map((row) => row.target_word)
+      .slice(0, 8);
+    const activeWords = Array.from(
+      new Set([
+        ...targetWords,
+        ...reviewWords,
+        ...activeCanonicalWords,
+      ]),
+    )
+      .filter((word) => getWordStateFromRewardState(rewardStateByWord.get(word)) !== "gold_bar")
       .slice(0, 8);
     const taskProgressStates = new Map(
       childTasks.map((task) => [
@@ -582,11 +541,16 @@ export default async function DashboardPage({
     const todayTrainingTasks = childTasks
       .filter((task) => {
         if (task.task_type === "recurring_daily") {
-          return true;
+          return !getRecurringTaskCompletionForDate(task, childCompletions, today);
         }
 
         if (task.task_type === "recurring_weekly") {
-          return !task.weekly_days?.length || task.weekly_days.includes(todayWeekday);
+          const matchesThisWeek =
+            !task.weekly_days?.length || task.weekly_days.includes(todayWeekday);
+          return (
+            matchesThisWeek &&
+            !getRecurringTaskCompletionForDate(task, childCompletions, today)
+          );
         }
 
         const hasCompletion = childCompletions.some((completion) => completion.task_id === task.id);
@@ -594,76 +558,36 @@ export default async function DashboardPage({
         return !hasCompletion && !hasSubmission;
       })
       .slice(0, 6);
-    const currentFocusTasks = currentFocusBlock
-      ? childTasks.filter((task) => task.focus_block_id === currentFocusBlock.id).slice(0, 4)
-      : [];
-
-    const activeTasksInMachine = childTasks
-      .filter((task) => {
-        const hasCompletion = childCompletions.some((completion) => completion.task_id === task.id);
-        const hasSubmission = hasActiveSubmissionForTask(task.id, childSubmissions);
-
-        if (task.task_type === "recurring_daily" || task.task_type === "recurring_weekly") {
-          const monthlyGoal = task.monthly_goal_total ?? 0;
-          return monthlyGoal === 0 || getMonthlyCompletedTotal(task.id, childCompletions) < monthlyGoal;
-        }
-
-        return !hasCompletion && !hasSubmission;
-      })
-      .slice(0, 8);
     const nuggetWords = Array.from(
       new Set([
         ...targetWords,
         ...reviewWords,
-        ...activeWords.map((row) => row.target_word),
+        ...activeWords,
       ]),
     ).slice(0, 10);
 
-    const provenTasks = childTasks
-      .filter((task) =>
-        doesCourseTaskEarnGoldBar(task, childCompletions, childSubmissions),
-      )
-      .slice(0, 8);
-    const focusBlockStates = new Map(
-      childFocusBlocks.map((focusBlock) => [
-        focusBlock.id,
-        getFocusBlockProgressState({
-          isActive: focusBlock.is_active,
-          relatedProgressCount: childTasks.filter((task) => task.course_id === focusBlock.course_id).filter((task) => {
-            const state = taskProgressStates.get(task.id);
-            return state === "in_machine" || state === "gold_bar";
-          }).length,
-        }),
-      ]),
-    );
-    const courseStates = new Map(
-      childCourses.map((course) => [
-        course.id,
-        getAggregateProgressState([
-          ...childTasks
-            .filter((task) => task.course_id === course.id)
-            .map((task) => taskProgressStates.get(task.id) ?? "golden_nugget"),
-          ...childFocusBlocks
-            .filter((focusBlock) => focusBlock.course_id === course.id)
-            .map((focusBlock) => focusBlockStates.get(focusBlock.id) ?? "golden_nugget"),
-        ]),
-      ]),
-    );
-
-    const goldCoinCount = activeScopedChild.gold_coin_balance ?? 0;
-    const inMachineCount =
-      Array.from(taskProgressStates.values()).filter((state) => state === "in_machine").length +
-      Array.from(focusBlockStates.values()).filter((state) => state === "in_machine").length +
-      Array.from(wordStateByWord.values()).filter((state) => state === "in_machine").length;
-    const nuggetCount =
-      Array.from(taskProgressStates.values()).filter((state) => state === "golden_nugget").length +
-      Array.from(focusBlockStates.values()).filter((state) => state === "golden_nugget").length +
-      Array.from(wordStateByWord.values()).filter((state) => state === "golden_nugget").length;
-    const goldBarCount = secureWords.length + provenTasks.length + finishedFocusBlocks.length;
+    const rewardSnapshot = childRewardData?.rewardSnapshot ?? {
+      spendableGoldCoins: 0,
+      warmWorkshop: 0,
+      nuggets: 0,
+      lifetimeGoldBars: 0,
+      earnedGoldCoins: 0,
+      spentGoldCoins: 0,
+      reservedGoldCoins: 0,
+      redeemableGoldBars: 0,
+      convertedGoldBars: 0,
+      earnedTodayGoldCoins: 0,
+      goldBarsEarnedLastFiveDays: 0,
+      convertableGoldCoinValue: 0,
+    };
+    const goldCoinCount = rewardSnapshot.spendableGoldCoins;
+    const inMachineCount = rewardSnapshot.warmWorkshop;
+    const nuggetCount = rewardSnapshot.nuggets;
+    const goldBarCount = rewardSnapshot.lifetimeGoldBars;
     const provenBagItems = [
-      ...secureWords.map((row) => ({ id: `word-${row.target_word}`, label: row.target_word })),
-      ...provenTasks.map((task) => ({ id: `task-${task.id}`, label: task.title })),
-      ...finishedFocusBlocks.map((focusBlock) => ({ id: `focus-${focusBlock.id}`, label: focusBlock.title })),
+      ...spellingRewardStates
+        .filter((row) => Boolean(row.gold_bar_earned_at))
+        .map((row) => ({ id: `word-${row.target_word}`, label: row.target_word })),
     ].slice(0, 10);
 
     return (
@@ -684,12 +608,15 @@ export default async function DashboardPage({
                     {childName}
                   </h1>
                   <p className="brand-copy mt-1 max-w-2xl text-sm leading-6">
-                    Today is about keeping the learning moving. Nuggets in the machine are still valuable because they are being turned into gold.
+                    Today is about building steady progress. Spelling review, course work, and coin rewards are tracked separately but shown together here.
                   </p>
                 </div>
                 <div className="flex flex-wrap gap-2">
                   <Link href={practicePath} className="brand-primary-btn">
                     Spelling practice
+                  </Link>
+                  <Link href={assignmentsPath} className="brand-secondary-btn">
+                    View assignment
                   </Link>
                   <Link href={buildScopedPath("/learn/week", activeScopedChild.id, mode)} className="brand-secondary-btn">
                     Learning check-in
@@ -712,43 +639,20 @@ export default async function DashboardPage({
                       <div className="rounded-2xl border border-[rgba(206,71,125,0.18)] bg-[rgba(252,228,244,0.35)] px-4 py-3">
                         <div className="flex items-center justify-between gap-3">
                           <p className="text-sm font-semibold text-[color:var(--ink)]">Spelling practice</p>
-                          <span className={`rounded-full border px-2.5 py-1 text-[11px] font-medium ${getUniversalProgressBadgeClasses("in_machine")}`}>
-                            {UNIVERSAL_PROGRESS_LABELS.in_machine}
+                          <span className="rounded-full border border-[rgba(245,190,57,0.28)] bg-white px-2.5 py-1 text-[11px] font-medium text-[color:var(--ink)]">
+                            Review queue
                           </span>
                         </div>
                         <p className="mt-1 text-sm text-[color:var(--mid)]">
                           {targetWords.length} focus word{targetWords.length === 1 ? "" : "s"} and {reviewWords.length} review word{reviewWords.length === 1 ? "" : "s"}.
                         </p>
-                      </div>
-                    ) : null}
-
-                    {currentFocusBlock ? (
-                      <div className="rounded-2xl border border-[rgba(245,190,57,0.25)] bg-[rgba(255,247,220,0.72)] px-4 py-3">
-                        <div className="flex items-center justify-between gap-3">
-                          <div>
-                            <p className="text-sm font-semibold text-[color:var(--ink)]">
-                              Current focus
-                            </p>
-                            <p className="mt-1 text-sm text-[color:var(--mid)]">
-                              {currentFocusBlock.title}
-                            </p>
-                          </div>
-                          <span className={`rounded-full border px-2.5 py-1 text-[11px] font-medium ${getUniversalProgressBadgeClasses(focusBlockStates.get(currentFocusBlock.id) ?? "golden_nugget")}`}>
-                            {UNIVERSAL_PROGRESS_LABELS[focusBlockStates.get(currentFocusBlock.id) ?? "golden_nugget"]}
-                          </span>
-                        </div>
-                        <div className="mt-2 flex flex-wrap gap-2">
-                          {currentFocusTasks.length > 0 ? (
-                            currentFocusTasks.map((task) => (
-                              <span key={task.id} className="rounded-full border border-[var(--border)] bg-white px-3 py-1.5 text-xs font-medium text-[color:var(--ink)]">
-                                {task.title}
-                              </span>
-                            ))
-                          ) : (
-                            <span className="text-xs text-[color:var(--mid)]">
-                              No focus tasks linked yet.
-                            </span>
-                          )}
+                        <div className="mt-3">
+                          <Link
+                            href={assignmentsPath}
+                            className="inline-flex items-center rounded-full border border-[var(--border)] bg-white px-3 py-2 text-sm font-medium text-[color:var(--ink)] transition hover:text-[var(--scarlett)]"
+                          >
+                            Open assignment details
+                          </Link>
                         </div>
                       </div>
                     ) : null}
@@ -757,8 +661,8 @@ export default async function DashboardPage({
                       <div key={task.id} className="rounded-2xl border border-[var(--border)] bg-white px-4 py-3">
                         <div className="flex items-center justify-between gap-3">
                           <p className="text-sm font-semibold text-[color:var(--ink)]">{task.title}</p>
-                          <span className={`rounded-full border px-2.5 py-1 text-[11px] font-medium ${getUniversalProgressBadgeClasses(taskProgressStates.get(task.id) ?? "golden_nugget")}`}>
-                            {UNIVERSAL_PROGRESS_LABELS[taskProgressStates.get(task.id) ?? "golden_nugget"]}
+                          <span className={`rounded-full border px-2.5 py-1 text-[11px] font-medium ${getCourseProgressBadgeClasses(taskProgressStates.get(task.id) ?? "not_started")}`}>
+                            {COURSE_PROGRESS_LABELS[taskProgressStates.get(task.id) ?? "not_started"]}
                           </span>
                         </div>
                         {task.instructions ? (
@@ -790,9 +694,9 @@ export default async function DashboardPage({
               <article className="brand-card rounded-3xl p-5">
                 <div className="flex items-center justify-between gap-3">
                   <div>
-                    <p className="brand-eyebrow">Golden Nuggets in the Machine</p>
+                    <p className="brand-eyebrow">Spelling Review Queue</p>
                     <h2 className="mt-1 text-2xl font-semibold tracking-tight text-[color:var(--ink)]">
-                      In the Machine
+                      Warm Workshop
                     </h2>
                   </div>
                   <span className="rounded-full bg-[rgba(245,190,57,0.14)] px-3 py-1 text-xs font-medium text-[color:var(--ink)]">
@@ -820,42 +724,6 @@ export default async function DashboardPage({
                       ))}
                     </div>
                   </div>
-
-                  <div className="rounded-[1.4rem] border border-[rgba(245,190,57,0.25)] bg-[rgba(255,247,220,0.72)] px-4 py-4">
-                    <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[color:var(--mid)]">
-                      Active tasks and goals
-                    </p>
-                    <div className="mt-3 grid gap-2">
-                      {activeTasksInMachine.slice(0, 4).map((task) => (
-                        <div key={task.id} className="rounded-2xl border border-[var(--border)] bg-white px-4 py-3">
-                          <div className="flex items-center justify-between gap-3">
-                            <p className="text-sm font-semibold text-[color:var(--ink)]">{task.title}</p>
-                            <span className={`rounded-full border px-2 py-0.5 text-[10px] font-medium ${getUniversalProgressBadgeClasses(taskProgressStates.get(task.id) ?? "golden_nugget")}`}>
-                              {UNIVERSAL_PROGRESS_LABELS[taskProgressStates.get(task.id) ?? "golden_nugget"]}
-                            </span>
-                          </div>
-                          {task.monthly_goal_total ? (
-                            <p className="mt-1 text-sm text-[color:var(--mid)]">
-                              {getMonthlyCompletedTotal(task.id, childCompletions)} of {task.monthly_goal_total} this month
-                            </p>
-                          ) : null}
-                        </div>
-                      ))}
-                      {activeFocusBlocks.map((focusBlock) => (
-                        <div key={focusBlock.id} className="rounded-2xl border border-[var(--border)] bg-white px-4 py-3">
-                          <div className="flex items-center justify-between gap-3">
-                            <p className="text-sm font-semibold text-[color:var(--ink)]">{focusBlock.title}</p>
-                            <span className={`rounded-full border px-2 py-0.5 text-[10px] font-medium ${getUniversalProgressBadgeClasses(focusBlockStates.get(focusBlock.id) ?? "golden_nugget")}`}>
-                              {UNIVERSAL_PROGRESS_LABELS[focusBlockStates.get(focusBlock.id) ?? "golden_nugget"]}
-                            </span>
-                          </div>
-                          {focusBlock.goal ? (
-                            <p className="mt-1 text-sm text-[color:var(--mid)]">{focusBlock.goal}</p>
-                          ) : null}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
                 </div>
               </article>
 
@@ -878,25 +746,14 @@ export default async function DashboardPage({
                       <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[color:var(--mid)]">
                         Proven words
                       </p>
-                      {childCourses.length > 0 ? (
-                        <div className="flex flex-wrap gap-2">
-                          {childCourses.slice(0, 3).map((course) => (
-                            <span
-                              key={course.id}
-                              className={`rounded-full border px-2.5 py-1 text-[10px] font-medium ${getUniversalProgressBadgeClasses(
-                                courseStates.get(course.id) ?? "golden_nugget",
-                              )}`}
-                            >
-                              {course.title}: {UNIVERSAL_PROGRESS_LABELS[courseStates.get(course.id) ?? "golden_nugget"]}
-                            </span>
-                          ))}
-                        </div>
-                      ) : null}
+                      <span className="rounded-full bg-[rgba(46,125,50,0.12)] px-3 py-1 text-xs font-medium text-emerald-800">
+                        Spelling only
+                      </span>
                     </div>
                     <div className="mt-3 flex flex-wrap gap-2">
                       {secureWords.map((row) => (
-                        <div key={row.target_word} className="flex items-center gap-2 rounded-full border border-emerald-200 bg-white px-3 py-2 text-sm font-medium text-[color:var(--ink)]">
-                          <span>{row.target_word}</span>
+                        <div key={row} className="flex items-center gap-2 rounded-full border border-emerald-200 bg-white px-3 py-2 text-sm font-medium text-[color:var(--ink)]">
+                          <span>{row}</span>
                           <span className={`rounded-full border px-2 py-0.5 text-[10px] font-medium ${getUniversalProgressBadgeClasses("gold_bar")}`}>
                             {UNIVERSAL_PROGRESS_LABELS.gold_bar}
                           </span>
@@ -904,7 +761,7 @@ export default async function DashboardPage({
                       ))}
                       {secureWords.length === 0 ? (
                         <p className="text-sm text-[color:var(--mid)]">
-                          No gold bars yet. Keep feeding the machine.
+                          No gold bars yet. Keep practising and reviewing.
                         </p>
                       ) : null}
                     </div>
@@ -912,29 +769,24 @@ export default async function DashboardPage({
 
                   <div className="rounded-[1.4rem] border border-emerald-200 bg-[rgba(236,253,245,0.7)] px-4 py-4">
                     <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[color:var(--mid)]">
-                      Proven work
+                      Gold bar history
                     </p>
                     <div className="mt-3 grid gap-2">
-                      {provenTasks.slice(0, 4).map((task) => (
-                        <div key={task.id} className="rounded-2xl border border-emerald-200 bg-white px-4 py-3">
+                      {provenBagItems.slice(0, 4).map((item) => (
+                        <div key={item.id} className="rounded-2xl border border-emerald-200 bg-white px-4 py-3">
                           <div className="flex items-center justify-between gap-3">
-                            <p className="text-sm font-semibold text-[color:var(--ink)]">{task.title}</p>
-                            <span className={`rounded-full border px-2 py-0.5 text-[10px] font-medium ${getUniversalProgressBadgeClasses("gold_bar")}`}>
-                              {UNIVERSAL_PROGRESS_LABELS.gold_bar}
+                            <p className="text-sm font-semibold text-[color:var(--ink)]">{item.label}</p>
+                            <span className={`rounded-full border px-2 py-0.5 text-[10px] font-medium ${getCourseProgressBadgeClasses("complete")}`}>
+                              {COURSE_PROGRESS_LABELS.complete}
                             </span>
                           </div>
                         </div>
                       ))}
-                      {finishedFocusBlocks.slice(0, 3).map((focusBlock) => (
-                        <div key={focusBlock.id} className="rounded-2xl border border-emerald-200 bg-white px-4 py-3">
-                          <div className="flex items-center justify-between gap-3">
-                            <p className="text-sm font-semibold text-[color:var(--ink)]">{focusBlock.title}</p>
-                            <span className={`rounded-full border px-2 py-0.5 text-[10px] font-medium ${getUniversalProgressBadgeClasses("gold_bar")}`}>
-                              {UNIVERSAL_PROGRESS_LABELS.gold_bar}
-                            </span>
-                          </div>
-                        </div>
-                      ))}
+                      {provenBagItems.length === 0 ? (
+                        <p className="text-sm text-[color:var(--mid)]">
+                          Gold bar history will build here as spelling words become secure.
+                        </p>
+                      ) : null}
                     </div>
                   </div>
                 </div>
@@ -952,7 +804,6 @@ export default async function DashboardPage({
     completionsResult,
     submissionsResult,
     focusBlocksResult,
-    wordProgressResult,
   ] =
     childDashboardData ?? [
       { data: [] as CourseModuleDashboardRow[] },
@@ -960,7 +811,6 @@ export default async function DashboardPage({
       { data: [] as TaskCompletionDashboardRow[] },
       { data: [] as TaskSubmissionDashboardRow[] },
       { data: [] as FocusBlockDashboardRow[] },
-      { data: [] as WordProgressRow[] },
     ];
 
   const childModules = (modulesResult.data ?? []) as CourseModuleDashboardRow[];
@@ -968,7 +818,10 @@ export default async function DashboardPage({
   const childCompletions = (completionsResult.data ?? []) as TaskCompletionDashboardRow[];
   const childSubmissions = (submissionsResult.data ?? []) as TaskSubmissionDashboardRow[];
   const childFocusBlocks = (focusBlocksResult.data ?? []) as FocusBlockDashboardRow[];
-  const childWordProgress = (wordProgressResult.data ?? []) as WordProgressRow[];
+  const spellingRewardStates = childRewardData?.spellingRewardStates ?? [];
+  const rewardStateByWord = new Map(
+    spellingRewardStates.map((row) => [row.target_word, row.reward_state]),
+  );
 
   const taskById = new Map(childTasks.map((task) => [task.id, task]));
   const moduleById = new Map(childModules.map((module) => [module.id, module.title]));
@@ -982,35 +835,29 @@ export default async function DashboardPage({
   );
 
   const wordStateByWord = new Map(
-    childWordProgress.map((row) => [
-      row.target_word,
-      getWordProgressState({
-        reviewStage: row.review_stage,
-        masteryLevel: row.mastery_level,
-        correctAttempts: row.correct_attempts,
-        incorrectAttempts: row.incorrect_attempts,
-        masteredAt: row.mastered_at,
-        isAssignedNow: targetWords.includes(row.target_word) || reviewWords.includes(row.target_word),
-      }),
+    Array.from(new Set([...targetWords, ...reviewWords, ...activeCanonicalWords])).map((word) => [
+      word,
+      getWordStateFromRewardState(rewardStateByWord.get(word)),
     ]),
   );
 
-  const activeQueueWords = childWordProgress
-    .filter((row) => (wordStateByWord.get(row.target_word) ?? "golden_nugget") !== "gold_bar")
-    .sort((left, right) => (right.review_stage ?? 0) - (left.review_stage ?? 0));
-  const secureWords = childWordProgress.filter((row) =>
-    isWordSecure({
-      reviewStage: row.review_stage,
-      masteryLevel: row.mastery_level,
-      correctAttempts: row.correct_attempts,
-      incorrectAttempts: row.incorrect_attempts,
-      masteredAt: row.mastered_at,
-    }),
-  );
-  const slippingWords = childWordProgress.filter((row) => {
-    const state = wordStateByWord.get(row.target_word) ?? "golden_nugget";
-    return state !== "gold_bar" && (row.incorrect_attempts ?? 0) > (row.correct_attempts ?? 0);
-  });
+  const activeQueueWords = Array.from(
+    new Set([...targetWords, ...reviewWords, ...activeCanonicalWords]),
+  ).filter((word) => getWordStateFromRewardState(rewardStateByWord.get(word)) !== "gold_bar");
+  const secureWords = spellingRewardStates
+    .filter((row) => Boolean(row.gold_bar_earned_at))
+    .map((row) => row.target_word);
+  const slippingWords = Array.from(
+    new Set(
+      (recentPracticeAttempts as Array<{
+        target_word: string;
+        is_correct: boolean;
+        attempted_at: string;
+      }>)
+        .filter((attempt) => !attempt.is_correct)
+        .map((attempt) => attempt.target_word.trim().toLowerCase()),
+    ),
+  ).filter((word) => activeQueueWords.includes(word));
 
   const activeFocusByCourse = new Map(
     childFocusBlocks.filter((focusBlock) => focusBlock.is_active).map((focusBlock) => [focusBlock.course_id, focusBlock]),
@@ -1029,10 +876,10 @@ export default async function DashboardPage({
     const modules = childModules.filter((module) => module.course_id === course.id);
     const completedModules = modules.filter((module) => moduleCompletionById.get(module.id)).length;
     const totalTasks = childTasks.filter((task) => task.course_id === course.id && task.is_active).length;
-    const secureTaskCount = childTasks.filter(
+    const completedTaskCount = childTasks.filter(
       (task) =>
         task.course_id === course.id &&
-        (taskProgressStates.get(task.id) ?? "golden_nugget") === "gold_bar",
+        (taskProgressStates.get(task.id) ?? "not_started") === "complete",
     ).length;
 
     return {
@@ -1040,7 +887,7 @@ export default async function DashboardPage({
       totalModules: modules.length,
       completedModules,
       totalTasks,
-      secureTaskCount,
+      completedTaskCount,
       activeFocus: activeFocusByCourse.get(course.id) ?? null,
     };
   });
@@ -1096,7 +943,7 @@ export default async function DashboardPage({
         Boolean(submission.submission_text?.trim()),
       );
       const queueWords = sampleMisspellings.filter((row) =>
-        activeQueueWords.some((progress) => progress.target_word === row.corrected_word.trim().toLowerCase()),
+        activeQueueWords.includes(row.corrected_word.trim().toLowerCase()),
       ).length;
 
       return {
@@ -1174,7 +1021,7 @@ export default async function DashboardPage({
               >
                 <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[color:var(--mid)]">Words in queue</p>
                 <p className="mt-2 text-3xl font-semibold text-[color:var(--ink)]">{activeQueueCount}</p>
-                <p className="mt-1 text-sm text-[color:var(--mid)]">active spelling items still in the machine</p>
+                <p className="mt-1 text-sm text-[color:var(--mid)]">active spelling items still being strengthened</p>
                 <p className="mt-3 text-xs font-medium uppercase tracking-[0.16em] text-[var(--scarlett)]">
                   Open queue in insights
                 </p>
@@ -1323,8 +1170,8 @@ export default async function DashboardPage({
                       <div className="mt-3 flex flex-wrap gap-2">
                         {activeQueueWords.slice(0, 10).length > 0 ? (
                           activeQueueWords.slice(0, 10).map((row) => (
-                            <span key={row.target_word} className="rounded-full border border-[rgba(245,190,57,0.3)] bg-[rgba(255,247,220,0.82)] px-3 py-1.5 text-xs font-medium text-[color:var(--ink)]">
-                              {row.target_word}
+                            <span key={row} className="rounded-full border border-[rgba(245,190,57,0.3)] bg-[rgba(255,247,220,0.82)] px-3 py-1.5 text-xs font-medium text-[color:var(--ink)]">
+                              {row}
                             </span>
                           ))
                         ) : (
@@ -1340,8 +1187,8 @@ export default async function DashboardPage({
                       <div className="mt-3 flex flex-wrap gap-2">
                         {slippingWords.slice(0, 8).length > 0 ? (
                           slippingWords.slice(0, 8).map((row) => (
-                            <span key={row.target_word} className="rounded-full border border-rose-200 bg-rose-50 px-3 py-1.5 text-xs font-medium text-rose-700">
-                              {row.target_word}
+                            <span key={row} className="rounded-full border border-rose-200 bg-rose-50 px-3 py-1.5 text-xs font-medium text-rose-700">
+                              {row}
                             </span>
                           ))
                         ) : (
@@ -1375,7 +1222,7 @@ export default async function DashboardPage({
                               <p className="mt-1 text-sm text-[color:var(--mid)]">
                                 {row.totalModules > 0
                                   ? `${row.completedModules} of ${row.totalModules} modules complete`
-                                  : `${row.secureTaskCount} secure task${row.secureTaskCount === 1 ? "" : "s"} so far`}
+                                  : `${row.completedTaskCount} completed task${row.completedTaskCount === 1 ? "" : "s"} so far`}
                               </p>
                               {row.activeFocus ? (
                                 <p className="mt-1 text-xs text-[color:var(--mid)]">
@@ -1384,7 +1231,7 @@ export default async function DashboardPage({
                               ) : null}
                             </div>
                             <span className="rounded-full border border-[var(--border)] bg-[rgba(252,228,244,0.22)] px-3 py-1 text-xs font-medium text-[color:var(--ink)]">
-                              {row.course.structure_type === "phased" ? "Phased" : "Timed"}
+                              {row.course.structure_type === "phased" ? "Progress" : "Timed"}
                             </span>
                           </div>
                         </div>

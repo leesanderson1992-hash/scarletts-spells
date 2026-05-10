@@ -94,6 +94,12 @@ body {
   letter-spacing: 0.01em;
 }
 
+.brand-lesson-title {
+  font-family: "Playfair Display", Georgia, "Times New Roman", serif;
+  color: var(--text);
+  letter-spacing: 0.01em;
+}
+
 .brand-copy {
   color: var(--text-muted);
 }
@@ -158,7 +164,7 @@ body {
   width: 100%;
   border: 1px solid rgba(194, 24, 91, 0.16);
   background: rgba(255, 255, 255, 0.9);
-  color: var(--text);
+  color: #1c1a15;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45);
 }
 

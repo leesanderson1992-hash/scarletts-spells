@@ -2,7 +2,10 @@
 
 import { redirect } from "next/navigation";
 
-import { generateDailyAssignmentPlan } from "@/lib/spelling/generateDailyAssignment";
+import {
+  upsertCanonicalDailyAssignmentForChild,
+} from "@/lib/spelling/ensureDailyAssignment";
+import type { WordFamilyRecord } from "@/lib/spelling/familyCatalog";
 import { createClient } from "@/lib/supabase/server";
 import type { SpellingCategory } from "@/lib/spelling/categoriseError";
 import {
@@ -10,7 +13,6 @@ import {
   type ErrorPattern,
 } from "@/lib/spelling/errorPatterns";
 import { normaliseWordFamilyId } from "@/lib/spelling/wordFamilies";
-import { getWordsDueToday } from "@/lib/spelling/reviewScheduler";
 
 import { replaceAnalysisForSample } from "./analysis";
 import {
@@ -60,174 +62,6 @@ function getFriendlyDatabaseError(message: string | null | undefined) {
 
 function getDateOnly(date: Date) {
   return date.toISOString().slice(0, 10);
-}
-
-async function syncReviewedMisspellingsIntoQueue(
-  supabase: Awaited<ReturnType<typeof createClient>>,
-  parentUserId: string,
-  childId: string,
-) {
-  const { data: reviewedInstances } = await supabase
-    .from("misspelling_instances")
-    .select(
-      "misspelled_word, corrected_word, error_type, is_false_positive, notes",
-    )
-    .eq("parent_user_id", parentUserId)
-    .eq("child_id", childId);
-
-  const reviewedMisspellings = (reviewedInstances ?? [])
-    .map((instance) => ({
-      instance,
-      parsed: parseAnalysisRow(
-        {
-          suggested_word: instance.corrected_word,
-          error_type: instance.error_type,
-          secondary_error_type: null,
-          confidence_score: null,
-          is_parent_overridden: null,
-          is_false_positive: instance.is_false_positive,
-          notes: instance.notes,
-        },
-        instance.corrected_word,
-      ),
-    }))
-    .filter(({ parsed }) => !parsed.isFalsePositive && Boolean(parsed.extra.parentReviewedAt))
-    .map(({ instance, parsed }) => ({
-      misspelledWord: instance.misspelled_word,
-      correctedWord: instance.corrected_word,
-      category: parsed.effectiveCategory,
-      errorPattern: parsed.effectiveDiagnosis,
-      selectedWordFamilyId:
-        parsed.extra.parentOverrideFamilyId ?? parsed.extra.selectedWordFamilyId,
-    }));
-
-  const uniqueReviewedMisspellings = Array.from(
-    new Map(
-      reviewedMisspellings.map((item) => [item.correctedWord.trim().toLowerCase(), item]),
-    ).values(),
-  );
-
-  const targetWords = uniqueReviewedMisspellings.map((item) => item.correctedWord.trim().toLowerCase());
-
-  let skippedActiveWords = 0;
-
-  if (targetWords.length > 0) {
-    const { data: existingProgress } = await supabase
-      .from("word_progress")
-      .select("id, target_word, times_assigned, review_stage, mastered_at")
-      .eq("parent_user_id", parentUserId)
-      .eq("child_id", childId)
-      .in("target_word", targetWords);
-
-    const existingByWord = new Map(
-      (existingProgress ?? []).map((row) => [row.target_word.trim().toLowerCase(), row]),
-    );
-
-    for (const word of targetWords) {
-      const existing = existingByWord.get(word);
-
-      if (existing && !existing.mastered_at) {
-        skippedActiveWords += 1;
-        continue;
-      }
-
-      if (existing) {
-        await supabase
-          .from("word_progress")
-          .update({
-            times_assigned: (existing.times_assigned ?? 0) + 1,
-            review_stage: 0,
-            mastered_at: null,
-            last_assigned_at: new Date().toISOString(),
-          })
-          .eq("id", existing.id)
-          .eq("parent_user_id", parentUserId);
-        continue;
-      }
-
-      await supabase.from("word_progress").insert({
-        child_id: childId,
-        parent_user_id: parentUserId,
-        target_word: word,
-        word_family_id: null,
-        times_assigned: 1,
-        review_stage: 0,
-        last_assigned_at: new Date().toISOString(),
-      });
-    }
-  }
-
-  const today = getDateOnly(new Date());
-  const [{ data: progressRows }, { data: wordFamilyRows }, { data: existingAssignment }] =
-    await Promise.all([
-      supabase
-        .from("word_progress")
-        .select("target_word, review_stage, last_assigned_at, last_practised_at, mastered_at")
-        .eq("parent_user_id", parentUserId)
-        .eq("child_id", childId),
-      supabase
-        .from("word_families")
-        .select("*"),
-      supabase
-        .from("daily_assignments")
-        .select("id, status")
-        .eq("parent_user_id", parentUserId)
-        .eq("child_id", childId)
-        .eq("assignment_date", today)
-        .order("created_at", { ascending: false })
-        .limit(1)
-        .maybeSingle(),
-    ]);
-
-  const reviewWords = getWordsDueToday(progressRows ?? [], today).map(
-    (row) => row.target_word,
-  );
-  const plan = generateDailyAssignmentPlan(
-    uniqueReviewedMisspellings,
-    reviewWords,
-    (wordFamilyRows ?? []) as Array<Record<string, unknown>>,
-  );
-
-  if (plan.targetWords.length === 0 && plan.reviewWords.length === 0) {
-    return {
-      queuedCount: Math.max(targetWords.length - skippedActiveWords, 0),
-      skippedActiveWords,
-      assignmentUpdated: false,
-    };
-  }
-
-  const assignmentPayload = {
-    child_id: childId,
-    parent_user_id: parentUserId,
-    assignment_date: today,
-    title: plan.title,
-    instructions: plan.instructions,
-    focus_word: plan.focusWord,
-    selected_family_slug: plan.familyId,
-    target_words: plan.targetWords,
-    review_words: plan.reviewWords,
-    status:
-      existingAssignment?.status && existingAssignment.status !== "completed"
-        ? existingAssignment.status
-        : "pending",
-    word_family_id: null,
-  };
-
-  if (existingAssignment) {
-    await supabase
-      .from("daily_assignments")
-      .update(assignmentPayload)
-      .eq("id", existingAssignment.id)
-      .eq("parent_user_id", parentUserId);
-  } else {
-    await supabase.from("daily_assignments").insert(assignmentPayload);
-  }
-
-  return {
-    queuedCount: Math.max(targetWords.length - skippedActiveWords, 0),
-    skippedActiveWords,
-    assignmentUpdated: true,
-  };
 }
 
 export async function saveWritingSample(formData: FormData) {
@@ -649,19 +483,10 @@ export async function updateMisspellingClassification(formData: FormData) {
     !nextFalsePositive &&
     Boolean(nextExtraMetadata.parentReviewedAt);
 
-  if (shouldQueueReviewedItems) {
-    await syncReviewedMisspellingsIntoQueue(
-      supabase,
-      user.id,
-      instance.child_id,
-    );
-  }
-
   redirect(
     buildRedirectUrl(
       {
         updated: "1",
-        assigned: shouldQueueReviewedItems ? "1" : null,
         child: redirectChild,
       },
       redirectPath,
@@ -860,141 +685,27 @@ export async function generateDailyAssignment(formData: FormData) {
   });
 
   const today = getDateOnly(new Date());
-
-  const { data: progressRows } = await supabase
-    .from("word_progress")
-    .select("target_word, review_stage, last_assigned_at, last_practised_at, mastered_at")
-    .eq("parent_user_id", user.id)
-    .eq("child_id", childId);
-
   const { data: wordFamilyRows } = await supabase
     .from("word_families")
     .select("*");
+  const assignment = await upsertCanonicalDailyAssignmentForChild({
+    supabase,
+    parentUserId: user.id,
+    childId,
+    today,
+    availableFamilies: (wordFamilyRows ?? []) as WordFamilyRecord[],
+  });
 
-  const reviewWords = getWordsDueToday(progressRows ?? [], today).map(
-    (row) => row.target_word,
-  );
-
-  const plan = generateDailyAssignmentPlan(
-    relevantMisspellings,
-    reviewWords,
-    (wordFamilyRows ?? []) as Array<Record<string, unknown>>,
-  );
-
-  if (plan.targetWords.length === 0 && plan.reviewWords.length === 0) {
+  if (!assignment) {
     redirect(
       buildRedirectUrl(
         {
-          error: "There isn't enough analysed spelling data yet to generate an assignment.",
+          error: "There isn't enough canonical learning progress yet to generate an assignment.",
           child: redirectChild ?? childId,
         },
         redirectPath,
       ),
     );
-  }
-
-  const { data: existingAssignment } = await supabase
-    .from("daily_assignments")
-    .select("id, target_words, review_words, status, focus_word, selected_family_slug")
-    .eq("parent_user_id", user.id)
-    .eq("child_id", childId)
-    .eq("assignment_date", today)
-    .order("created_at", { ascending: false })
-    .limit(1)
-    .maybeSingle();
-
-  const existingTargetWords = ((existingAssignment?.target_words ?? []) as string[])
-    .map((word) => word.trim().toLowerCase())
-    .filter(Boolean);
-  const existingReviewWords = ((existingAssignment?.review_words ?? []) as string[])
-    .map((word) => word.trim().toLowerCase())
-    .filter(Boolean);
-  const sameAssignmentWords =
-    existingTargetWords.join("::") === plan.targetWords.join("::") &&
-    existingReviewWords.join("::") === plan.reviewWords.join("::") &&
-    (existingAssignment?.focus_word ?? null) === plan.focusWord &&
-    (existingAssignment?.selected_family_slug ?? null) === (plan.familyId ?? null);
-  const nextAssignmentStatus =
-    sameAssignmentWords && existingAssignment?.status
-      ? existingAssignment.status
-      : "pending";
-
-  const assignmentPayload = {
-    child_id: childId,
-    parent_user_id: user.id,
-    assignment_date: today,
-    title: plan.title,
-    instructions: plan.instructions,
-    focus_word: plan.focusWord,
-    selected_family_slug: plan.familyId,
-    target_words: plan.targetWords,
-    review_words: plan.reviewWords,
-    status: nextAssignmentStatus,
-    word_family_id: null,
-  };
-
-  const assignmentMutation = existingAssignment
-    ? supabase
-        .from("daily_assignments")
-        .update(assignmentPayload)
-        .eq("id", existingAssignment.id)
-        .eq("parent_user_id", user.id)
-    : supabase.from("daily_assignments").insert(assignmentPayload);
-
-  const { error: assignmentError } = await assignmentMutation;
-
-  if (assignmentError) {
-    redirect(
-      buildRedirectUrl(
-        {
-          error: getFriendlyDatabaseError(assignmentError.message),
-          child: redirectChild ?? childId,
-        },
-        redirectPath,
-      ),
-    );
-  }
-
-  const targetWordsToTrack = existingAssignment
-    ? plan.targetWords.filter((word) => !existingTargetWords.includes(word))
-    : plan.targetWords;
-  if (targetWordsToTrack.length > 0) {
-    const { data: existingProgress } = await supabase
-      .from("word_progress")
-      .select("id, target_word, times_assigned, review_stage")
-      .eq("parent_user_id", user.id)
-      .eq("child_id", childId)
-      .in("target_word", targetWordsToTrack);
-
-    const existingByWord = new Map(
-      (existingProgress ?? []).map((row) => [row.target_word, row]),
-    );
-
-    for (const word of targetWordsToTrack) {
-      const existing = existingByWord.get(word);
-
-      if (existing) {
-        await supabase
-          .from("word_progress")
-          .update({
-            times_assigned: (existing.times_assigned ?? 0) + 1,
-            last_assigned_at: new Date().toISOString(),
-            review_stage: existing.review_stage ?? 0,
-          })
-          .eq("id", existing.id)
-          .eq("parent_user_id", user.id);
-      } else {
-        await supabase.from("word_progress").insert({
-          child_id: childId,
-          parent_user_id: user.id,
-          target_word: word,
-          word_family_id: null,
-          times_assigned: 1,
-          review_stage: 0,
-          last_assigned_at: new Date().toISOString(),
-        });
-      }
-    }
   }
 
   redirect(

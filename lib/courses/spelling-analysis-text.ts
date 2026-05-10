@@ -26,8 +26,8 @@ function normaliseValue(value: unknown) {
 }
 
 function shouldExcludeField(key: string, meta?: DraftFieldMeta) {
-  if (meta?.excludeFromSpelling) {
-    return true;
+  if (typeof meta?.excludeFromSpelling === "boolean") {
+    return meta.excludeFromSpelling;
   }
 
   if (EXCLUDED_KEY_PATTERN.test(key)) {

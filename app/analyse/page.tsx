@@ -700,7 +700,7 @@ export default async function AnalysePage({ searchParams }: AnalysePageProps) {
             the real spelling engine comes next.
           </p>
           <ChildSwitcher
-            children={activeChildren}
+            childOptions={activeChildren}
             activeChildId={selectedChild.id}
             redirectPath="/analyse"
           />

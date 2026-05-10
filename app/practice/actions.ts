@@ -2,14 +2,26 @@
 
 import { revalidatePath } from "next/cache";
 
-import {
-  advanceReviewStage,
-  regressReviewStage,
-  repeatReviewStage,
-} from "@/lib/spelling/reviewScheduler";
+import { awardGoldCoins } from "@/lib/rewards/course-coins";
+import { getChildRewardLedgerReadModel } from "@/lib/rewards/read-model";
+import { syncSpellingRewardState } from "@/lib/rewards/spelling-rewards";
 import { createClient } from "@/lib/supabase/server";
+import {
+  getCleanPracticeWords,
+  resolveControlledPracticeLearningItemId,
+} from "@/lib/writing-practice/practice-runtime";
 
 type PracticeAttemptMode = "spelling" | "review";
+
+type CanonicalAssignmentRow = {
+  id: string;
+  child_id: string;
+  parent_user_id: string;
+  assignment_generation_source?: string | null;
+  source_learning_item_ids?: string[] | null;
+  target_words: string[] | null;
+  review_words: string[] | null;
+};
 
 export type SavePracticeAttemptState = {
   error: string | null;
@@ -17,6 +29,8 @@ export type SavePracticeAttemptState = {
   submittedWord: string;
   isCorrect: boolean | null;
   assignmentCompleted: boolean;
+  awardedGoldenNugget: boolean;
+  awardedGoldBar: boolean;
 };
 
 export type CompletePracticeSessionResult = {
@@ -35,12 +49,8 @@ function getOrderedAssignmentWords(
   targetWords: string[] | null,
   reviewWords: string[] | null,
 ) {
-  const cleanTargetWords = (targetWords ?? [])
-    .map((word) => normaliseWord(word))
-    .filter(Boolean);
-  const cleanReviewWords = (reviewWords ?? [])
-    .map((word) => normaliseWord(word))
-    .filter(Boolean)
+  const cleanTargetWords = getCleanPracticeWords(targetWords);
+  const cleanReviewWords = getCleanPracticeWords(reviewWords)
     .filter((word) => !cleanTargetWords.includes(word));
 
   return [...cleanTargetWords, ...cleanReviewWords];
@@ -49,6 +59,55 @@ function getOrderedAssignmentWords(
 function wasAttemptSubmittedVeryRecently(attemptedAt: string) {
   const recentThreshold = Date.now() - 15_000;
   return new Date(attemptedAt).getTime() >= recentThreshold;
+}
+
+async function writeControlledPracticeEvidence(input: {
+  supabase: Awaited<ReturnType<typeof createClient>>;
+  parentUserId: string;
+  childId: string;
+  learningItemId: string | null;
+  dailyAssignmentId: string;
+  targetWord: string;
+  submittedWord: string;
+  isCorrect: boolean;
+  feltWeak: boolean;
+  attemptMode: PracticeAttemptMode;
+  attemptedAt: string;
+}) {
+  if (!input.learningItemId) {
+    return null;
+  }
+
+  const { data, error } = await input.supabase.rpc(
+    "record_controlled_practice_learning_item_evidence",
+    {
+    p_learning_item_id: input.learningItemId,
+    p_parent_user_id: input.parentUserId,
+    p_child_id: input.childId,
+    p_daily_assignment_id: input.dailyAssignmentId,
+    p_target_word: input.targetWord,
+    p_submitted_word: input.submittedWord,
+    p_is_correct: input.isCorrect,
+    p_felt_weak: input.feltWeak,
+    p_attempt_mode: input.attemptMode,
+    p_attempted_at: input.attemptedAt,
+    },
+  );
+
+  if (error) {
+    return "Word checked, but learning progress is still syncing.";
+  }
+
+  const evidenceWritten = Boolean(
+    data &&
+      typeof data === "object" &&
+      "evidence_written" in data &&
+      data.evidence_written,
+  );
+
+  return evidenceWritten
+    ? null
+    : "Word checked, but learning progress is still syncing.";
 }
 
 type CompletePracticeSessionInput = {
@@ -82,7 +141,7 @@ export async function completePracticeSession(
 
   const today = new Date().toISOString().slice(0, 10);
 
-  const [{ data: assignment }, { data: child }, { count: courseLogCount }] = await Promise.all([
+  const [{ data: assignment }, { count: courseLogCount }] = await Promise.all([
     supabase
       .from("daily_assignments")
       .select(
@@ -93,12 +152,6 @@ export async function completePracticeSession(
       .eq("parent_user_id", user.id)
       .maybeSingle(),
     supabase
-      .from("children")
-      .select("id, gold_coin_balance")
-      .eq("id", input.childId)
-      .eq("parent_user_id", user.id)
-      .maybeSingle(),
-    supabase
       .from("task_completions")
       .select("*", { count: "exact", head: true })
       .eq("child_id", input.childId)
@@ -106,7 +159,7 @@ export async function completePracticeSession(
       .eq("completion_date", today),
   ]);
 
-  if (!assignment || !child) {
+  if (!assignment) {
     return {
       error: "We couldn't finish that spelling session.",
       completedWords: safeCompletedWords,
@@ -122,29 +175,36 @@ export async function completePracticeSession(
     (courseLogCount ?? 0) === 0 &&
     !((assignment as { gold_coin_awarded?: boolean | null }).gold_coin_awarded ?? false);
 
-  let nextGoldCoinCount = child.gold_coin_balance ?? 0;
+  let nextGoldCoinCount = (
+    await getChildRewardLedgerReadModel({
+      supabase,
+      parentUserId: user.id,
+      childId: input.childId,
+    })
+  ).spendableSnapshot.spendableGoldCoins;
 
   if (shouldAwardGoldCoin) {
-    nextGoldCoinCount += 1;
-
-    await supabase
-      .from("children")
-      .update({
-        gold_coin_balance: nextGoldCoinCount,
-      })
-      .eq("id", child.id)
-      .eq("parent_user_id", user.id);
-
-    await supabase.from("child_gold_coin_ledger_events").insert({
-      child_id: input.childId,
-      parent_user_id: user.id,
-      event_type: "earned_daily",
+    const awarded = await awardGoldCoins({
+      supabase,
+      parentUserId: user.id,
+      childId: input.childId,
       amount: 1,
+      eventType: "earned_daily",
       source: "spelling_session",
-      related_entity_type: "daily_assignment",
-      related_entity_id: assignment.id,
+      relatedEntityType: "daily_assignment",
+      relatedEntityId: assignment.id,
       notes: "Daily Gold Coin earned from a meaningful completed spelling session.",
     });
+
+    if (awarded) {
+      nextGoldCoinCount = (
+        await getChildRewardLedgerReadModel({
+          supabase,
+          parentUserId: user.id,
+          childId: input.childId,
+        })
+      ).spendableSnapshot.spendableGoldCoins;
+    }
   }
 
   await supabase
@@ -190,15 +250,15 @@ export async function savePracticeAttempt(
     submittedWord: "",
     isCorrect: null,
     assignmentCompleted: false,
+    awardedGoldenNugget: false,
+    awardedGoldBar: false,
   };
 
   const childId = formData.get("child_id");
   const dailyAssignmentId = formData.get("daily_assignment_id");
-  const wordProgressId = formData.get("word_progress_id");
   const targetWord = formData.get("target_word");
   const submittedWord = formData.get("submitted_word");
   const feltTricky = formData.get("felt_tricky");
-  const allowSessionWord = formData.get("allow_session_word");
 
   if (
     typeof childId !== "string" ||
@@ -236,11 +296,13 @@ export async function savePracticeAttempt(
 
   const { data: assignment } = await supabase
     .from("daily_assignments")
-    .select("id, child_id, parent_user_id, target_words, review_words")
+    .select(
+      "id, child_id, parent_user_id, assignment_generation_source, source_learning_item_ids, target_words, review_words",
+    )
     .eq("id", dailyAssignmentId)
     .eq("child_id", childId)
     .eq("parent_user_id", user.id)
-    .maybeSingle();
+    .maybeSingle<CanonicalAssignmentRow>();
 
   if (!assignment) {
     return {
@@ -256,47 +318,11 @@ export async function savePracticeAttempt(
   const normalisedTargetWord = normaliseWord(trimmedTargetWord);
   const isPlannedAssignmentWord = orderedAssignmentWords.includes(normalisedTargetWord);
 
-  let safeWordProgressId: string | null = null;
-
-  if (typeof wordProgressId === "string" && wordProgressId) {
-    const { data: progressRow } = await supabase
-      .from("word_progress")
-      .select("id, target_word")
-      .eq("id", wordProgressId)
-      .eq("parent_user_id", user.id)
-      .eq("child_id", childId)
-      .maybeSingle();
-
-    if (progressRow && normaliseWord(progressRow.target_word) === normalisedTargetWord) {
-      safeWordProgressId = progressRow.id;
-    }
-  }
-
-  if (!isPlannedAssignmentWord && !safeWordProgressId) {
-    if (allowSessionWord === "on") {
-      const { data: insertedProgress, error: insertError } = await supabase
-        .from("word_progress")
-        .insert({
-          child_id: childId,
-          parent_user_id: user.id,
-          target_word: normalisedTargetWord,
-          word_family_id: null,
-          times_assigned: 1,
-          review_stage: 0,
-          last_assigned_at: new Date().toISOString(),
-        })
-        .select("id")
-        .single();
-
-      if (!insertError && insertedProgress) {
-        safeWordProgressId = insertedProgress.id;
-      }
-    } else {
-      return {
-        ...emptyState,
-        error: "That word is not ready for this practice session.",
-      };
-    }
+  if (!isPlannedAssignmentWord) {
+    return {
+      ...emptyState,
+      error: "That word is not ready for this practice session.",
+    };
   }
 
   const attemptMode: PracticeAttemptMode = isPlannedAssignmentWord &&
@@ -333,14 +359,23 @@ export async function savePracticeAttempt(
       submittedWord: trimmedSubmittedWord,
       isCorrect: recentAttempt.is_correct,
       assignmentCompleted,
+      awardedGoldenNugget: false,
+      awardedGoldBar: false,
     };
   }
+
+  const linkedLearningItemId = await resolveControlledPracticeLearningItemId({
+    supabase,
+    parentUserId: user.id,
+    childId,
+    assignment,
+    targetWord: trimmedTargetWord,
+  });
 
   const { error: insertError } = await supabase.from("practice_attempts").insert({
     child_id: childId,
     parent_user_id: user.id,
     daily_assignment_id: dailyAssignmentId,
-    word_progress_id: safeWordProgressId,
     target_word: trimmedTargetWord,
     submitted_word: trimmedSubmittedWord,
     is_correct: isCorrect,
@@ -355,92 +390,45 @@ export async function savePracticeAttempt(
     };
   }
 
-  if (safeWordProgressId) {
-    const { data: progressRow } = await supabase
-      .from("word_progress")
-      .select(
-        "id, times_practised, correct_attempts, incorrect_attempts, mastery_level, mastered_at, review_stage, last_practised_at, has_ever_mastered",
-      )
-      .eq("id", safeWordProgressId)
+  const canonicalEvidenceWriteError = await writeControlledPracticeEvidence({
+    supabase,
+    parentUserId: user.id,
+    childId,
+    learningItemId: linkedLearningItemId,
+    dailyAssignmentId,
+    targetWord: trimmedTargetWord,
+    submittedWord: trimmedSubmittedWord,
+    isCorrect,
+    feltWeak,
+    attemptMode,
+    attemptedAt,
+  });
+
+  let rewardTransition = {
+    createdNugget: false,
+    earnedGoldBar: false,
+  };
+
+  if (linkedLearningItemId) {
+    const { data: learningItem } = await supabase
+      .from("learning_items")
+      .select("id, progress_state")
+      .eq("id", linkedLearningItemId)
       .eq("parent_user_id", user.id)
+      .eq("child_id", childId)
       .maybeSingle();
 
-    if (progressRow) {
-      const hasEverMastered = Boolean(
-        progressRow.has_ever_mastered || progressRow.mastered_at,
-      );
-      const isFirstTargetPractice =
-        attemptMode === "spelling" &&
-        (progressRow.last_practised_at === null ||
-          progressRow.last_practised_at === undefined) &&
-        (progressRow.review_stage ?? 0) === 0;
-      const isRegressingFromGoldBar = !isCorrect && Boolean(progressRow.mastered_at);
-      const shouldRestoreRegressedGoldBar =
-        isCorrect &&
-        !feltWeak &&
-        !progressRow.mastered_at &&
-        hasEverMastered;
-      const nextReviewStage = isFirstTargetPractice
-        ? 0
-        : shouldRestoreRegressedGoldBar
-          ? 3
-          : isRegressingFromGoldBar
-            ? 0
-            : isCorrect
-          ? feltWeak
-            ? repeatReviewStage(progressRow.review_stage)
-            : advanceReviewStage(progressRow.review_stage)
-          : regressReviewStage(progressRow.review_stage);
-      const nextCorrectAttempts =
-        (progressRow.correct_attempts ?? 0) + (isCorrect ? 1 : 0);
-      const nextIncorrectAttempts =
-        (progressRow.incorrect_attempts ?? 0) + (isCorrect ? 0 : 1);
-      const nextMasteryLevel = isCorrect
-        ? feltWeak
-          ? progressRow.mastery_level ?? 0
-          : Math.min((progressRow.mastery_level ?? 0) + 1, 5)
-        : Math.max((progressRow.mastery_level ?? 0) - 1, 0);
-      const shouldMarkMastered =
-        isCorrect &&
-        !feltWeak &&
-        ((progressRow.review_stage ?? 0) === 3 || shouldRestoreRegressedGoldBar);
-
-      await supabase
-        .from("word_progress")
-        .update({
-          times_practised: (progressRow.times_practised ?? 0) + 1,
-          correct_attempts: nextCorrectAttempts,
-          incorrect_attempts: nextIncorrectAttempts,
-          mastery_level: nextMasteryLevel,
-          review_stage: nextReviewStage,
-          last_practised_at: attemptedAt,
-          has_ever_mastered: hasEverMastered || shouldMarkMastered,
-          mastered_at:
-            shouldMarkMastered
-              ? progressRow.mastered_at ?? attemptedAt
-              : null,
-        })
-        .eq("id", progressRow.id)
-        .eq("parent_user_id", user.id);
+    if (learningItem) {
+      rewardTransition = await syncSpellingRewardState({
+        supabase,
+        childId,
+        parentUserId: user.id,
+        targetWord: normalisedTargetWord,
+        isCorrect,
+        shouldMarkMastered: learningItem.progress_state === "gold_bar",
+        hasEverMastered: learningItem.progress_state === "gold_bar",
+      });
     }
-  } else {
-    await supabase.from("word_progress").upsert({
-      child_id: childId,
-      parent_user_id: user.id,
-      target_word: normalisedTargetWord,
-      word_family_id: null,
-      times_assigned: attemptMode === "spelling" ? 1 : 0,
-      times_practised: 1,
-      correct_attempts: isCorrect ? 1 : 0,
-      incorrect_attempts: isCorrect ? 0 : 1,
-      mastery_level: isCorrect && !feltWeak ? 1 : 0,
-      review_stage: 0,
-      last_assigned_at: attemptedAt,
-      last_practised_at: attemptedAt,
-      mastered_at: null,
-    }, {
-      onConflict: "child_id,target_word",
-    });
   }
 
   if (assignmentCompleted && isPlannedAssignmentWord) {
@@ -452,12 +440,27 @@ export async function savePracticeAttempt(
   }
 
   revalidatePath("/practice");
+  revalidatePath("/dashboard");
+  revalidatePath("/insights");
+  revalidatePath("/learn/week");
 
   return {
-    error: null,
+    error: canonicalEvidenceWriteError,
     savedWord: trimmedTargetWord,
     submittedWord: trimmedSubmittedWord,
     isCorrect,
     assignmentCompleted,
+    awardedGoldenNugget: rewardTransition.createdNugget,
+    awardedGoldBar: rewardTransition.earnedGoldBar,
+  };
+
+  return {
+    error: canonicalEvidenceWriteError,
+    savedWord: trimmedTargetWord,
+    submittedWord: trimmedSubmittedWord,
+    isCorrect,
+    assignmentCompleted,
+    awardedGoldenNugget: false,
+    awardedGoldBar: false,
   };
 }

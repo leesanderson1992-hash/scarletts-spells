@@ -3,6 +3,7 @@ import type {
   CourseGoalTimeSpan,
   CourseRow,
 } from "./types";
+import { getTimedCourseGoalKind } from "./types";
 
 export type CourseGoalGuidance = {
   recommended_task_type: string;
@@ -58,11 +59,12 @@ export function getCourseGoalGuidance(
   goal: CourseGoalRow,
   course: Pick<CourseRow, "duration_weeks" | "cycle_length_weeks">,
 ): CourseGoalGuidance {
+  const timedGoalKind = getTimedCourseGoalKind(goal);
   const weeks = getWeeksForTimeSpan(goal.time_span, course);
   const weeklyPace = weeks ? roundPace(goal.target_quantity / weeks) : null;
   const dailyPace = weeklyPace ? roundPace(weeklyPace / 7) : null;
 
-  if (goal.goal_type === "count_goal") {
+  if (timedGoalKind === "numerical") {
     const recommendedTaskType = getCountGoalTaskType(weeklyPace, dailyPace);
 
     return {
@@ -82,47 +84,17 @@ export function getCourseGoalGuidance(
     };
   }
 
-  if (goal.goal_type === "completion_goal") {
-    return {
-      recommended_task_type: "Checklist or focus-block task",
-      recommended_daily_pace: null,
-      recommended_weekly_pace: weeklyPace,
-      recommended_tracking_mode: "Mark mini tasks complete as the mission moves forward",
-      suggested_mission_shape: `Create one current mission and split ${goal.target_quantity} ${goal.unit} into mini tasks`,
-      suggested_checkpoint_frequency: "Every cycle",
-      suggested_next_step: `Create one focus block for this goal, then add the next few ${goal.unit} as small checklist tasks.`,
-      parent_control_note:
-        "The app is suggesting a mission shape, not building every future chapter or step for you.",
-    };
-  }
-
-  if (goal.goal_type === "skill_goal") {
-    return {
-      recommended_task_type: "Recurring drill task",
-      recommended_daily_pace: (weeklyPace ?? 0) >= 5 ? dailyPace : null,
-      recommended_weekly_pace: weeklyPace ? Math.max(weeklyPace, 1) : null,
-      recommended_tracking_mode: "Use recurring drills plus review checkpoints",
-      suggested_mission_shape: "One focus block with repeat practice, review, and occasional reflection",
-      suggested_checkpoint_frequency: "Every cycle",
-      suggested_next_step:
-        "Create one or two recurring drills, then add a checkpoint to review whether the skill is becoming more secure.",
-      parent_control_note:
-        "Skill goals should guide practice rhythm and reviews, not fabricate highly specific content tasks automatically.",
-    };
-  }
-
   return {
-      recommended_task_type:
-      (weeklyPace ?? 0) > 1 ? "Short written response task" : "Long written response task",
+    recommended_task_type: "Checkpoint and focus review",
     recommended_daily_pace: null,
-    recommended_weekly_pace: weeklyPace,
-    recommended_tracking_mode: "Count saved submissions toward the goal",
-    suggested_mission_shape: "Recurring writing mission with submission tracking",
-    suggested_checkpoint_frequency: "Every cycle",
+    recommended_weekly_pace: null,
+    recommended_tracking_mode: "Review manually at checkpoints and at the end of the course",
+    suggested_mission_shape: "One current mission plus short recurring practice if it genuinely helps",
+    suggested_checkpoint_frequency: "Every cycle and end of course",
     suggested_next_step:
-      "Create one recurring writing task, then use saved submissions to count progress toward the goal.",
+      "Write what success looks like in parent words, then plan recurring work separately only if it helps the child move toward that aspiration.",
     parent_control_note:
-      "The app suggests a writing shape and pace, but the parent still chooses the actual prompts and schedule.",
+      "Aspiration goals should stay reflective and parent-reviewed. They should not turn into disguised recurring checklist engines.",
   };
 }
 

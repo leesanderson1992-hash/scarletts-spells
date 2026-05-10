@@ -1,9 +1,9 @@
 import { COMMON_MISSPELLINGS } from "./lexicon/commonMisspellings";
 import {
   KNOWN_WORD_SET,
-  SUGGESTION_WORDS,
   isKnownWordLike,
 } from "./lexicon";
+import { getSymSpellCandidates } from "./symSpell";
 import { TRICKY_WORD_SET } from "./trickyWords";
 import { findWordFamilyForWord, type WordFamilyId } from "./wordFamilies";
 
@@ -189,10 +189,11 @@ export function suggestCorrection(word: string): CorrectionSuggestion | null {
 
   let bestCandidate: CorrectionSuggestion | null = null;
   const heuristicVariants = generateHeuristicVariants(word);
+  const symSpellCandidates = getSymSpellCandidates(word);
 
-  for (const candidate of SUGGESTION_WORDS) {
+  for (const candidate of symSpellCandidates) {
     const lengthDifference = Math.abs(candidate.length - word.length);
-    if (lengthDifference > 1) {
+    if (lengthDifference > 2) {
       continue;
     }
 

@@ -16,17 +16,15 @@ import {
   getModuleDetailForChild,
 } from "@/lib/courses/queries";
 import {
+  getAggregateProgressState,
   getChildProgressBadge,
   getChildTaskBadges,
   getCourseTaskProgressState,
-  getMonthlyCompletedTotal,
+  getDateOnly,
+  getRecurringTaskProgressSummary,
   isTaskCompleteForProgress,
   isTaskDoneForChildSurface,
 } from "@/lib/courses/progress";
-import { getInlineLessonPreviewHtml, isFullDocumentHtml } from "@/lib/courses/html-preview";
-import {
-  getAggregateProgressState,
-} from "@/lib/progress/stateModel";
 import {
   getCourseTaskTypeLabel,
   isCompletionTask,
@@ -35,7 +33,12 @@ import {
 } from "@/lib/courses/types";
 import { createClient } from "@/lib/supabase/server";
 
-import { addTaskToWeekSelection, completeCourseTask, submitTaskResponse } from "../../actions";
+import {
+  addTaskToWeekSelection,
+  addTasksToWeekSelection,
+  completeCourseTask,
+  submitTaskResponse,
+} from "../../actions";
 
 type LearnModulePageProps = {
   params: Promise<{ moduleId: string }>;
@@ -45,6 +48,7 @@ type LearnModulePageProps = {
     error?: string;
     saved?: string;
     reward_coins?: string;
+    focus_near_reward_coins?: string;
     task?: string;
   }>;
 };
@@ -66,6 +70,10 @@ function getChildTaskTypeSummary(task: CourseTaskRow) {
     default:
       return "";
   }
+}
+
+function canAddTaskToWeek(task: CourseTaskRow) {
+  return task.task_type !== "recurring_daily";
 }
 
 export default async function LearnModulePage({
@@ -124,6 +132,10 @@ export default async function LearnModulePage({
       ? Number(resolvedSearchParams.reward_coins)
       : 0;
   const earnedRewardCoins = Number.isInteger(rewardCoins) && rewardCoins > 0 ? rewardCoins : 0;
+  const focusNearRewardCoins =
+    typeof resolvedSearchParams?.focus_near_reward_coins === "string"
+      ? Number(resolvedSearchParams.focus_near_reward_coins)
+      : 0;
   const taskStateById = new Map(
     detail.module.tasks.map((task) => [
       task.id,
@@ -131,7 +143,7 @@ export default async function LearnModulePage({
     ]),
   );
   const moduleState = getAggregateProgressState(
-    detail.module.tasks.map((task) => taskStateById.get(task.id) ?? "golden_nugget"),
+    detail.module.tasks.map((task) => taskStateById.get(task.id) ?? "not_started"),
   );
   const moduleProgressBadge = getChildProgressBadge(moduleState);
   const orderedPhasedModules = detail.course.structure_type === "phased"
@@ -149,6 +161,11 @@ export default async function LearnModulePage({
       )
     : true;
   const isLocked = detail.course.structure_type === "phased" && !predecessorComplete;
+  const timedCycle =
+    detail.course.structure_type === "timed"
+      ? detail.phases.find((phase) => phase.id === detail.module.phase_id) ?? null
+      : null;
+  const timedCycleLabel = timedCycle ? `Cycle ${timedCycle.position + 1}` : "Current cycle";
   if (isLocked) {
     return (
       <AppShell
@@ -218,13 +235,16 @@ export default async function LearnModulePage({
                       </div>
                       <div className="min-w-0">
                         <p className="text-xl font-black tracking-tight text-[color:var(--ink)]">
-                          Lesson complete!
+                          Sent for review!
                         </p>
                         <p className="mt-1 text-sm font-semibold text-emerald-800">
-                          Your work is saved and ready for review.
+                          Your work is saved and ready for a grown-up to approve.
+                        </p>
+                        <p className="mt-2 text-sm leading-6 text-emerald-700">
+                          Coins are added after approval, not at the moment you submit the lesson.
                         </p>
                         <div className="mt-3 inline-flex items-center gap-2 rounded-full border border-amber-200 bg-white px-3 py-1.5 text-xs font-bold uppercase tracking-[0.16em] text-amber-700 animate-pulse">
-                          Gold moved
+                          Waiting for approval
                         </div>
                       </div>
                     </div>
@@ -236,6 +256,12 @@ export default async function LearnModulePage({
                     goldCoinAmount={earnedRewardCoins}
                     title="Coins earned!"
                     body="You finished a task and your Gold Coins have landed straight in your balance."
+                  />
+                ) : Number.isInteger(focusNearRewardCoins) && focusNearRewardCoins > 0 ? (
+                  <RewardCelebration
+                    goldCoinAmount={focusNearRewardCoins}
+                    title={`You have nearly earned ${focusNearRewardCoins} coin${focusNearRewardCoins === 1 ? "" : "s"}. Keep going!`}
+                    body="Finish the last mini task in this focus block to unlock the full reward."
                   />
                 ) : null}
 
@@ -249,7 +275,21 @@ export default async function LearnModulePage({
           </div>
 
           <section className="brand-card rounded-3xl p-4">
-            <p className="brand-eyebrow">Inside this module</p>
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <p className="brand-eyebrow">Inside this module</p>
+                <p className="mt-1 text-sm leading-6 text-[color:var(--mid)]">
+                  Pick the tasks you want to schedule this week, or open one straight away.
+                </p>
+              </div>
+              <button
+                type="submit"
+                form="child-module-week-form"
+                className="inline-flex h-9 items-center justify-center rounded-full border border-[var(--border)] bg-white px-3 text-xs font-medium text-[color:var(--ink)] transition hover:text-[var(--scarlett)]"
+              >
+                Add selected to my week
+              </button>
+            </div>
             <div className="mt-3 grid gap-2">
               {detail.module.tasks.map((task) => {
                 const badges = getChildTaskBadges(
@@ -257,15 +297,25 @@ export default async function LearnModulePage({
                   detail.completions,
                   detail.submissions,
                 );
-                const inlineLessonPreview = getInlineLessonPreviewHtml(task.content_html);
-                const hasEmbeddedLessonDocument = isFullDocumentHtml(task.content_html);
-
                 return (
                 <div
                   key={task.id}
                   className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[var(--border)] bg-white px-4 py-3"
                 >
-                  <div className="min-w-0">
+                  <div className="flex min-w-0 flex-1 items-start gap-3">
+                    {canAddTaskToWeek(task) ? (
+                      <input
+                        type="checkbox"
+                        name="task_ids"
+                        value={task.id}
+                        form="child-module-week-form"
+                        className="mt-1 h-4 w-4 rounded border-[var(--border)] text-[var(--scarlett)]"
+                        aria-label={`Select ${task.title} to add to your week`}
+                      />
+                    ) : (
+                      <span className="mt-1 inline-flex h-4 w-4 shrink-0 rounded-full border border-[var(--border)] bg-[rgba(252,228,244,0.32)]" />
+                    )}
+                    <div className="min-w-0">
                     <p className="text-sm font-semibold text-[color:var(--ink)]">{task.title}</p>
                     <div className="mt-1 flex flex-wrap items-center gap-2">
                       <p className="text-xs text-[color:var(--mid)]">{getCourseTaskTypeLabel(task.task_type)}</p>
@@ -277,6 +327,12 @@ export default async function LearnModulePage({
                           {badge.label}
                         </span>
                       ))}
+                    </div>
+                    {!canAddTaskToWeek(task) ? (
+                      <p className="mt-1 text-xs text-[color:var(--mid)]">
+                        Daily habits already belong in your week automatically.
+                      </p>
+                    ) : null}
                     </div>
                   </div>
                   <div className="flex flex-wrap items-center gap-2">
@@ -308,6 +364,11 @@ export default async function LearnModulePage({
               })}
             </div>
           </section>
+          <form id="child-module-week-form" action={addTasksToWeekSelection} className="hidden">
+            <input type="hidden" name="course_id" value={detail.course.id} />
+            <input type="hidden" name="child_id" value={selectedChild.id} />
+            <input type="hidden" name="redirect_path" value={scopedCurrentPath} />
+          </form>
         </section>
       </AppShell>
     );
@@ -323,10 +384,10 @@ export default async function LearnModulePage({
     >
       <section className="grid gap-4">
         <div className="brand-card rounded-3xl p-4 md:p-5">
-          <p className="brand-eyebrow">Module</p>
+          <p className="brand-eyebrow">Cycle tasks</p>
           <div className="mt-1 flex flex-wrap items-center gap-3">
             <h1 className="brand-title text-2xl font-semibold tracking-tight">
-              {detail.module.title}
+              {timedCycleLabel}
             </h1>
             {moduleProgressBadge ? (
               <span className={`rounded-full border px-2.5 py-1 text-[10px] font-medium ${moduleProgressBadge.className}`}>
@@ -335,7 +396,7 @@ export default async function LearnModulePage({
             ) : null}
           </div>
           <p className="brand-copy mt-1 max-w-2xl text-sm leading-6">
-            {detail.module.description || "Work through the tasks in a calm order that works for you."}
+            {timedCycle?.title || "Work through the tasks in this cycle in a calm order that works for you."}
           </p>
 
           {(resolvedSearchParams?.error || resolvedSearchParams?.saved) ? (
@@ -352,6 +413,12 @@ export default async function LearnModulePage({
                     goldCoinAmount={earnedRewardCoins}
                     title="Coins earned!"
                     body="That task counted and your coin balance has gone up."
+                  />
+                ) : Number.isInteger(focusNearRewardCoins) && focusNearRewardCoins > 0 ? (
+                  <RewardCelebration
+                    goldCoinAmount={focusNearRewardCoins}
+                    title={`You have nearly earned ${focusNearRewardCoins} coin${focusNearRewardCoins === 1 ? "" : "s"}. Keep going!`}
+                    body="Finish the last mini task in this focus block to unlock the full reward."
                   />
                 ) : (
                   <p className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm text-emerald-700">
@@ -388,7 +455,6 @@ export default async function LearnModulePage({
               </div>
 
               {detail.module.tasks.map((task) => {
-                const taskCompletions = detail.completions.filter((completion) => completion.task_id === task.id);
                 const latestSubmission =
                   detail.submissions.find((submission) => submission.task_id === task.id) ?? null;
                 const done = isTaskDoneForChildSurface(
@@ -396,19 +462,16 @@ export default async function LearnModulePage({
                   detail.completions,
                   detail.submissions,
                 );
-                const monthlyCompletedTotal = getMonthlyCompletedTotal(task.id, detail.completions);
-                const monthlyRemainingTotal =
-                  task.monthly_goal_total !== null && task.monthly_goal_total !== undefined
-                    ? Math.max(task.monthly_goal_total - monthlyCompletedTotal, 0)
-                    : null;
+                const recurringSummary = getRecurringTaskProgressSummary(
+                  task,
+                  detail.completions,
+                  { windowType: "month", referenceDate: getDateOnly() },
+                );
                 const badges = getChildTaskBadges(
                   task,
                   detail.completions,
                   detail.submissions,
                 );
-                const inlineLessonPreview = getInlineLessonPreviewHtml(task.content_html);
-                const hasEmbeddedLessonDocument = isFullDocumentHtml(task.content_html);
-
                 return (
                   <div
                     key={task.id}
@@ -436,22 +499,16 @@ export default async function LearnModulePage({
                           {task.instructions}
                         </p>
                       ) : null}
-                      {task.content_html && inlineLessonPreview ? (
-                        <div
-                          className="mt-3 rounded-2xl border border-[var(--border)] bg-white px-4 py-3 text-sm leading-6 text-[color:var(--ink)]"
-                          dangerouslySetInnerHTML={{ __html: inlineLessonPreview }}
-                        />
-                      ) : null}
-                      {task.content_html && hasEmbeddedLessonDocument ? (
+                      {task.lesson_schema ? (
                         <p className="mt-2 text-xs font-medium text-[color:var(--mid)]">
-                          This task includes a full interactive lesson. Open it to work inside the full page.
+                          This task includes a structured lesson. Open it to work inside the full page.
                         </p>
                       ) : null}
                       {(task.task_type === "recurring_daily" || task.task_type === "recurring_weekly") &&
-                      task.monthly_goal_total ? (
+                      recurringSummary ? (
                         <p className="mt-2 text-sm font-medium text-[color:var(--mid)]">
-                          {monthlyCompletedTotal} of {task.monthly_goal_total} done this month
-                          {monthlyRemainingTotal !== null ? ` · ${monthlyRemainingTotal} left` : ""}
+                          {recurringSummary.windowTotal} of {recurringSummary.targetAmount} done this month
+                          {` · ${recurringSummary.remainingToTarget} left`}
                         </p>
                       ) : null}
                       {task.task_type === "recurring_daily" ? (
@@ -545,7 +602,7 @@ export default async function LearnModulePage({
                               type="number"
                               name="quantity_completed"
                               min="1"
-                              max="500"
+                              max="10000"
                               defaultValue={1}
                               aria-label={`How many completed for ${task.title}`}
                               className="mb-2 h-11 w-20 rounded-2xl border border-[var(--border)] bg-white px-3 text-center text-sm text-[color:var(--ink)]"

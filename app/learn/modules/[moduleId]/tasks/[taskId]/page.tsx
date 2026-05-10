@@ -2,9 +2,9 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 
 import { AppShell } from "@/components/app-shell";
-import { EmbeddedLessonResponse } from "@/components/embedded-lesson-response";
 import { PreSubmitChecklist } from "@/components/pre-submit-checklist";
 import { RewardCelebration } from "@/components/reward-celebration";
+import { StructuredLessonResponse as StructuredLessonResponseForm } from "@/components/structured-lesson-response";
 import {
   buildScopedPath,
   getActiveChildIdFromCookies,
@@ -16,17 +16,22 @@ import {
   getActiveChildrenForUser,
   getModuleDetailForChild,
 } from "@/lib/courses/queries";
+import { getLessonRuntimeMode } from "@/lib/lessons/runtime";
 import {
+  getReturnedWritingIssueFeedback,
+  getStructuredFieldFeedback,
+  getInitialStructuredLessonResponse,
+} from "@/lib/lessons/responses";
+import {
+  getAggregateProgressState,
   getChildProgressBadge,
   getChildTaskBadges,
   getCourseTaskProgressState,
-  getMonthlyCompletedTotal,
+  getDateOnly,
+  getRecurringTaskProgressSummary,
   isTaskCompleteForProgress,
   isTaskDoneForChildSurface,
 } from "@/lib/courses/progress";
-import {
-  getAggregateProgressState,
-} from "@/lib/progress/stateModel";
 import {
   isCompletionTask,
   isWritingTask,
@@ -38,6 +43,7 @@ import {
   addTaskToWeekSelection,
   completeCourseTask,
   saveTaskDraft,
+  saveTaskDraftSilently,
   submitTaskResponse,
 } from "../../../../actions";
 
@@ -49,12 +55,9 @@ type LearnModuleTaskPageProps = {
     error?: string;
     saved?: string;
     reward_coins?: string;
+    focus_near_reward_coins?: string;
   }>;
 };
-
-function normaliseTaskTitle(title: string) {
-  return title.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
-}
 
 function getChildTaskTypeSummary(task: CourseTaskRow) {
   switch (task.task_type) {
@@ -161,6 +164,11 @@ export default async function LearnModuleTaskPage({
       )
     : true;
   const isLocked = detail.course.structure_type === "phased" && !predecessorComplete;
+  const timedCycle =
+    detail.course.structure_type === "timed"
+      ? detail.phases.find((phase) => phase.id === detail.module.phase_id) ?? null
+      : null;
+  const timedCycleLabel = timedCycle ? `Cycle ${timedCycle.position + 1}` : "Current cycle";
 
   if (isLocked) {
     return (
@@ -186,7 +194,6 @@ export default async function LearnModuleTaskPage({
     );
   }
 
-  const taskCompletions = detail.completions.filter((completion) => completion.task_id === task.id);
   const latestSubmission =
     detail.submissions.find((submission) => submission.task_id === task.id) ?? null;
   const { data: latestDraft } = await supabase
@@ -196,40 +203,40 @@ export default async function LearnModuleTaskPage({
     .eq("child_id", selectedChild.id)
     .eq("parent_user_id", user.id)
     .maybeSingle();
-  const shouldRestoreDraftValues = Boolean(latestDraft);
-  const orderedTasks = [...detail.module.tasks]
-    .filter((candidate) => candidate.is_active)
-    .sort((left, right) => left.position - right.position);
-  const currentTaskIndex = orderedTasks.findIndex((candidate) => candidate.id === task.id);
-  const previousProblemTask = currentTaskIndex > 0
-    ? [...orderedTasks.slice(0, currentTaskIndex)]
-        .reverse()
-        .find((candidate) =>
-          normaliseTaskTitle(candidate.title).includes("what problem do i want to solve"),
-        ) ?? null
-    : null;
-  const previousProblemSubmission = previousProblemTask
-    ? detail.submissions.find((submission) => submission.task_id === previousProblemTask.id) ?? null
-    : null;
-  const previousProblemPath = previousProblemTask
-    ? buildScopedPath(`/learn/modules/${moduleId}/tasks/${previousProblemTask.id}`, selectedChild.id, mode)
-    : "";
   const done = isTaskDoneForChildSurface(
     task,
     detail.completions,
     detail.submissions,
   );
-  const monthlyCompletedTotal = getMonthlyCompletedTotal(task.id, detail.completions);
+  const lessonRuntimeMode = getLessonRuntimeMode(task);
+  const structuredLesson =
+    task.lesson_schema && !Array.isArray(task.lesson_schema)
+      ? task.lesson_schema
+      : null;
+  const structuredInitialResponse = getInitialStructuredLessonResponse({
+    payloadValue: latestDraft?.draft_payload,
+    isReturned: latestSubmission?.parent_review_status === "returned",
+  });
+  const latestStructuredFieldFeedback = getStructuredFieldFeedback(
+    latestDraft?.draft_payload,
+  );
+  const returnedWritingIssues =
+    latestSubmission?.parent_review_status === "returned"
+      ? getReturnedWritingIssueFeedback(latestDraft?.draft_payload)
+      : [];
+  const recurringSummary = getRecurringTaskProgressSummary(task, detail.completions, {
+    windowType: "month",
+    referenceDate: getDateOnly(),
+  });
   const rewardCoins =
     typeof resolvedSearchParams?.reward_coins === "string"
       ? Number(resolvedSearchParams.reward_coins)
       : 0;
   const earnedRewardCoins = Number.isInteger(rewardCoins) && rewardCoins > 0 ? rewardCoins : 0;
-  const monthlyRemainingTotal =
-    task.monthly_goal_total !== null && task.monthly_goal_total !== undefined
-      ? Math.max(task.monthly_goal_total - monthlyCompletedTotal, 0)
-      : null;
-
+  const focusNearRewardCoins =
+    typeof resolvedSearchParams?.focus_near_reward_coins === "string"
+      ? Number(resolvedSearchParams.focus_near_reward_coins)
+      : 0;
   return (
     <AppShell
       currentPath="/learn"
@@ -263,11 +270,13 @@ export default async function LearnModuleTaskPage({
                 <span
                   className={`rounded-full border px-2.5 py-1 text-[10px] font-medium ${moduleProgressBadge.className}`}
                 >
-                  {moduleProgressBadge.label}
+                  {detail.course.structure_type === "timed"
+                    ? `Cycle ${moduleProgressBadge.label.toLowerCase()}`
+                    : `Module ${moduleProgressBadge.label.toLowerCase()}`}
                 </span>
               ) : null}
               <span className="rounded-full border border-[var(--border)] bg-white px-2.5 py-1 text-[10px] font-medium text-[color:var(--mid)]">
-                {detail.module.title}
+                {detail.course.structure_type === "timed" ? timedCycleLabel : detail.module.title}
               </span>
             </div>
           </div>
@@ -277,7 +286,7 @@ export default async function LearnModuleTaskPage({
               href={modulePath}
               className="inline-flex h-9 items-center justify-center rounded-full border border-[var(--border)] bg-white px-3 text-xs font-medium text-[color:var(--ink)] transition hover:text-[var(--scarlett)]"
             >
-              Back to module
+              {detail.course.structure_type === "timed" ? "Back to cycle" : "Back to module"}
             </Link>
             <form action={addTaskToWeekSelection}>
               <input type="hidden" name="task_id" value={task.id} />
@@ -320,8 +329,22 @@ export default async function LearnModuleTaskPage({
                       <p className="mt-2 text-sm leading-6 text-emerald-700">
                         Your answers are safe and your grown-up can review everything later. Once they approve it, this task will count as complete.
                       </p>
-                      <div className="mt-3 inline-flex items-center gap-2 rounded-full border border-amber-200 bg-white px-3 py-1.5 text-xs font-bold uppercase tracking-[0.16em] text-amber-700 animate-pulse">
-                        Gold moved
+                      <div className="mt-3 inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-white px-3 py-1.5 text-xs font-bold uppercase tracking-[0.16em] text-emerald-700 animate-pulse">
+                        Sent for review
+                      </div>
+                      <div className="mt-4 flex flex-wrap gap-2">
+                        <Link
+                          href={modulePath}
+                          className="inline-flex h-10 items-center justify-center rounded-full border border-emerald-200 bg-white px-4 text-sm font-medium text-emerald-800 transition hover:text-[var(--scarlett)]"
+                        >
+                          {detail.course.structure_type === "timed" ? "Back to cycle" : "Back to module"}
+                        </Link>
+                        <Link
+                          href={scopedCurrentPath}
+                          className="inline-flex h-10 items-center justify-center rounded-full border border-emerald-200 bg-white px-4 text-sm font-medium text-emerald-800 transition hover:text-[var(--scarlett)]"
+                        >
+                          Stay on this task
+                        </Link>
                       </div>
                     </div>
                   </div>
@@ -338,13 +361,20 @@ export default async function LearnModuleTaskPage({
                 <RewardCelebration
                   goldCoinAmount={earnedRewardCoins}
                   title="You earned Gold Coins!"
-                  body="That task is complete and your reward has landed straight in your coin balance."
+                  body="This task is now complete and the reward has been added to your coin balance."
+                />
+              ) : Number.isInteger(focusNearRewardCoins) && focusNearRewardCoins > 0 ? (
+                <RewardCelebration
+                  goldCoinAmount={focusNearRewardCoins}
+                  title={`You have nearly earned ${focusNearRewardCoins} coin${focusNearRewardCoins === 1 ? "" : "s"}. Keep going!`}
+                  body="Finish the last mini task in this focus block to unlock the full reward."
                 />
               ) : null}
 
               {resolvedSearchParams?.saved &&
               resolvedSearchParams.saved !== "submission" &&
-              earnedRewardCoins < 1 ? (
+              earnedRewardCoins < 1 &&
+              !(Number.isInteger(focusNearRewardCoins) && focusNearRewardCoins > 0) ? (
                 <p className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm text-emerald-700">
                   Saved {resolvedSearchParams.saved}.
                 </p>
@@ -357,39 +387,47 @@ export default async function LearnModuleTaskPage({
           {task.instructions ? (
             <p className="text-sm leading-6 text-[color:var(--ink)]">{task.instructions}</p>
           ) : null}
-          {task.content_html ? (
-            <div className="mt-3">
-              <form action={submitTaskResponse} className="grid gap-3">
-                <input type="hidden" name="task_id" value={task.id} />
-                <input type="hidden" name="course_id" value={detail.course.id} />
-                <input type="hidden" name="child_id" value={selectedChild.id} />
-                <input type="hidden" name="redirect_path" value={scopedCurrentPath} />
-                <EmbeddedLessonResponse
-                  contentHtml={task.content_html}
+          {lessonRuntimeMode === "structured" ? (
+            structuredLesson ? (
+              <div className="mt-3">
+                <form action={submitTaskResponse} className="grid gap-3">
+                  <input type="hidden" name="task_id" value={task.id} />
+                  <input type="hidden" name="course_id" value={detail.course.id} />
+                  <input type="hidden" name="child_id" value={selectedChild.id} />
+                  <input type="hidden" name="redirect_path" value={scopedCurrentPath} />
+                  <StructuredLessonResponseForm
+                    lesson={structuredLesson}
                   submitLabel={task.task_type === "test" ? "Save test work" : "Save lesson work"}
                   saveDraftAction={saveTaskDraft}
-                  injectedLinks={
-                    previousProblemSubmission && previousProblemPath
-                      ? { "previous-task-link": previousProblemPath }
-                      : undefined
-                  }
-                  draftValues={
-                    shouldRestoreDraftValues &&
-                    latestDraft?.draft_payload &&
-                    typeof latestDraft.draft_payload === "object" &&
-                    !Array.isArray(latestDraft.draft_payload)
-                      ? (latestDraft.draft_payload as Record<string, unknown>)
-                      : undefined
-                  }
-                />
-              </form>
+                  saveDraftSilentlyAction={saveTaskDraftSilently}
+                  initialResponse={structuredInitialResponse}
+                  initialFieldFeedback={latestStructuredFieldFeedback}
+                  returnedIssueFeedback={returnedWritingIssues}
+                  draftContext={{
+                    taskId: task.id,
+                    courseId: detail.course.id,
+                    childId: selectedChild.id,
+                      redirectPath: scopedCurrentPath,
+                    }}
+                  />
+                </form>
+              </div>
+            ) : (
+              <div className="mt-3 rounded-2xl border border-[var(--border)] bg-[rgba(252,228,244,0.16)] px-4 py-3 text-sm text-[color:var(--mid)]">
+                This lesson is marked as structured but the lesson schema is missing.
+              </div>
+            )
+          ) : null}
+          {(task.task_type === "lesson" || task.task_type === "test") &&
+          lessonRuntimeMode === "plain_writing" ? (
+            <div className="mt-3 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+              This lesson is still using the older plain-writing compatibility path because it does not have a structured lesson schema yet. Open it in parent mode and rebuild it in the structured lesson builder.
             </div>
           ) : null}
-          {(task.task_type === "recurring_daily" || task.task_type === "recurring_weekly") &&
-          task.monthly_goal_total ? (
+          {recurringSummary ? (
             <p className="mt-3 text-sm font-medium text-[color:var(--mid)]">
-              {monthlyCompletedTotal} of {task.monthly_goal_total} done this month
-              {monthlyRemainingTotal !== null ? ` · ${monthlyRemainingTotal} left` : ""}
+              {recurringSummary.windowTotal} of {recurringSummary.targetAmount} done this month
+              {` · ${recurringSummary.remainingToTarget} left`}
             </p>
           ) : null}
           {task.task_type === "recurring_daily" ? (
@@ -406,7 +444,7 @@ export default async function LearnModuleTaskPage({
             </div>
           ) : null}
 
-          {isWritingTask(task.task_type) && !task.content_html ? (
+          {isWritingTask(task.task_type) && lessonRuntimeMode === "plain_writing" ? (
             <form action={submitTaskResponse} className="mt-4 grid gap-3">
               <input type="hidden" name="task_id" value={task.id} />
               <input type="hidden" name="course_id" value={detail.course.id} />
@@ -433,10 +471,90 @@ export default async function LearnModuleTaskPage({
                   ))}
                 </fieldset>
               ) : null}
+              {latestSubmission?.parent_review_status === "returned" &&
+              returnedWritingIssues.length > 0 ? (
+                <div className="grid gap-3 rounded-[1.75rem] border border-amber-200 bg-amber-50/70 px-4 py-4">
+                  <div>
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-amber-700">
+                      Fix these in your writing
+                    </p>
+                    <p className="mt-2 text-sm leading-6 text-amber-900">
+                      Edit your work below, use the notes to guide you, and then resubmit the whole task.
+                    </p>
+                  </div>
+                  {returnedWritingIssues.map((issue, index) => (
+                    <div
+                      key={issue.issue_id}
+                      className="rounded-[1.5rem] border border-amber-200 bg-white px-4 py-4 text-sm text-[color:var(--ink)] shadow-sm"
+                    >
+                      <div className="flex flex-wrap items-start justify-between gap-3">
+                        <div className="grid gap-2">
+                          <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-amber-700">
+                            Note {index + 1}
+                          </p>
+                          {issue.child_note ? (
+                            <p className="leading-6 text-amber-950">{issue.child_note}</p>
+                          ) : null}
+                          {issue.observed_text ? (
+                            <p className="text-sm leading-6 text-[color:var(--mid)]">
+                              Look at: <span className="font-medium text-[color:var(--ink)]">“{issue.observed_text}”</span>
+                            </p>
+                          ) : null}
+                          <p className="text-sm leading-6 text-[color:var(--mid)]">
+                            Try fixing this yourself before you resubmit.
+                          </p>
+                          {issue.context_text ? (
+                            <p className="rounded-2xl bg-[rgba(252,228,244,0.32)] px-3 py-2 text-sm leading-6 text-[color:var(--ink)]">
+                              {issue.context_text}
+                            </p>
+                          ) : null}
+                        </div>
+                        <div className="grid gap-3">
+                          <label className="inline-flex items-start gap-3 rounded-2xl border border-[var(--border)] bg-[rgba(255,247,220,0.35)] px-3 py-2 text-sm text-[color:var(--ink)]">
+                            <input
+                              type="checkbox"
+                              name={`returned_issue_fixed:${issue.issue_id}`}
+                              value="true"
+                              defaultChecked={issue.marked_fixed === true}
+                              className="mt-1 h-4 w-4 rounded border-[var(--border)] text-[var(--scarlett)]"
+                            />
+                            <span>I&apos;ve fixed this</span>
+                          </label>
+                          {issue.allow_confidence ? (
+                            <fieldset className="grid gap-2">
+                              <legend className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[color:var(--mid)]">
+                                How did this feel?
+                              </legend>
+                              <div className="flex flex-wrap gap-2">
+                                {(["easy", "medium", "hard"] as const).map((value) => (
+                                  <label
+                                    key={`${issue.issue_id}-${value}`}
+                                    className="inline-flex items-center gap-2 rounded-full border border-[var(--border)] bg-white px-3 py-1.5 text-xs font-medium text-[color:var(--ink)]"
+                                  >
+                                    <input
+                                      type="radio"
+                                      name={`returned_issue_reflection:${issue.issue_id}`}
+                                      value={value}
+                                      defaultChecked={issue.reflection === value}
+                                      className="h-4 w-4 border-[var(--border)] text-[var(--scarlett)]"
+                                    />
+                                    <span className="capitalize">{value}</span>
+                                  </label>
+                                ))}
+                              </div>
+                            </fieldset>
+                          ) : null}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : null}
               <textarea
                 name="submission_text"
                 rows={task.task_type === "lesson" ? 5 : 4}
                 className="brand-input rounded-2xl px-4 py-3 text-base"
+                defaultValue={latestDraft?.draft_text ?? ""}
                 placeholder={
                   task.task_type === "test"
                     ? "Write your answers here"
@@ -454,12 +572,7 @@ export default async function LearnModuleTaskPage({
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[color:var(--mid)]">
                 Latest submission
               </p>
-              {latestSubmission.parent_review_status === "returned" && latestSubmission.parent_review_note ? (
-                <p className="mt-2 rounded-2xl border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900">
-                  Try again: {latestSubmission.parent_review_note}
-                </p>
-              ) : null}
-              {!task.content_html ? (
+              {lessonRuntimeMode === "plain_writing" ? (
                 <p className="mt-2 text-sm leading-6 text-[color:var(--ink)]">
                   {latestSubmission.submission_text}
                 </p>
@@ -496,6 +609,7 @@ export default async function LearnModuleTaskPage({
                 <input
                   type="number"
                   min="1"
+                  max="10000"
                   step="1"
                   name="quantity_completed"
                   defaultValue={1}

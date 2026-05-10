@@ -17,9 +17,10 @@ import {
 import {
   getChildTaskBadges,
   getLatestSubmissionForTask,
+  getRecurringTaskProgressSummary,
+  getRecurringTaskCompletionForDate,
   type ChildSurfaceBadge,
 } from "@/lib/courses/progress";
-import { getInlineLessonPreviewHtml, isFullDocumentHtml } from "@/lib/courses/html-preview";
 import {
   clearTaskDayPlan,
   completeCourseTask,
@@ -33,7 +34,7 @@ type PlannerTask = {
   title: string;
   task_type: CourseTaskType;
   instructions: string | null;
-  content_html: string | null;
+  lesson_schema?: unknown;
   writing_prompt: string | null;
   choice_options: string[] | null;
   allow_multiple_choices: boolean;
@@ -41,6 +42,7 @@ type PlannerTask = {
   monthly_goal_total: number | null;
   gold_coin_reward_amount: number;
   weekly_days: string[] | null;
+  structureType: "phased" | "timed";
   moduleTitle: string;
   courseTitle: string;
 };
@@ -74,8 +76,8 @@ type LearnWeekPlannerProps = {
   basePath: string;
   progressPath: string;
   coursesPath: string;
-  practicePath: string;
   childId: string;
+  currentDate: string;
   selectedDay: string;
   viewMode: "day" | "week";
   weekDays: PlannerDay[];
@@ -85,8 +87,6 @@ type LearnWeekPlannerProps = {
   completions: PlannerCompletion[];
   submissions: PlannerSubmission[];
   dayPlans: PlannerDayPlan[];
-  spellingReadyCount: number;
-  spellingReviewCount: number;
   checkedInToday: boolean;
   nuggetCount: number;
   inMachineCount: number;
@@ -96,6 +96,7 @@ type LearnWeekPlannerProps = {
   flashError?: string;
   flashSaved?: string | null;
   flashRewardCoins?: number;
+  flashFocusNearRewardCoins?: number;
 };
 
 function withQuery(path: string, updates: Record<string, string | null | undefined>) {
@@ -121,23 +122,11 @@ function getWeekdayKeyFromDate(date: string) {
     .toLowerCase();
 }
 
-function getCurrentMonthPrefix() {
-  return new Date().toISOString().slice(0, 7);
-}
-
-function getMonthlyCompletedTotal(
-  taskId: string,
-  completions: PlannerCompletion[],
-) {
-  const monthPrefix = getCurrentMonthPrefix();
-
-  return completions
-    .filter(
-      (completion) =>
-        completion.task_id === taskId &&
-        completion.completion_date.startsWith(monthPrefix),
-    )
-    .reduce((sum, completion) => sum + (completion.quantity_completed ?? 1), 0);
+function getCurrentMonthLabel() {
+  return new Intl.DateTimeFormat("en-GB", {
+    month: "long",
+    year: "numeric",
+  }).format(new Date());
 }
 
 function isTaskDoneOnDate(
@@ -154,9 +143,7 @@ function isTaskDoneOnDate(
   }
 
   if (task.task_type === "recurring_daily" || task.task_type === "recurring_weekly") {
-    return completions.some(
-      (completion) => completion.task_id === task.id && completion.completion_date === targetDate,
-    );
+    return Boolean(getRecurringTaskCompletionForDate(task, completions, targetDate));
   }
 
   return completions.some((completion) => completion.task_id === task.id);
@@ -200,6 +187,42 @@ function getTaskRhythmText(task: PlannerTask, weekdayKey: string) {
   return getCourseTaskTypeLabel(task.task_type);
 }
 
+function getRecurringTaskSummary(
+  task: PlannerTask,
+  completions: PlannerCompletion[],
+  currentDate: string,
+) {
+  const summary = getRecurringTaskProgressSummary(task, completions, {
+    windowType: "month",
+    referenceDate: currentDate,
+  });
+  const rhythm =
+    task.task_type === "recurring_daily"
+      ? "Daily recurring"
+      : task.weekly_days?.length
+        ? `Weekly recurring · ${formatCourseWeekdays(task.weekly_days)}`
+        : "Weekly recurring";
+
+  if (!summary) {
+    return null;
+  }
+
+  return {
+    ...summary,
+    rhythm,
+  };
+}
+
+function getPlannerContextLabel(task: PlannerTask) {
+  return task.structureType === "timed" ? task.courseTitle : task.moduleTitle;
+}
+
+function getPlannerContextSummary(task: PlannerTask) {
+  return task.structureType === "timed"
+    ? task.courseTitle
+    : `${task.courseTitle} · ${task.moduleTitle}`;
+}
+
 function renderTaskBadges(taskId: string, badges: ChildSurfaceBadge[]) {
   return badges.map((badge) => (
     <span
@@ -214,6 +237,7 @@ function renderTaskBadges(taskId: string, badges: ChildSurfaceBadge[]) {
 function TaskCard({
   task,
   dayKey,
+  currentDate,
   childId,
   redirectPath,
   completions,
@@ -226,6 +250,7 @@ function TaskCard({
 }: {
   task: PlannerTask;
   dayKey: string;
+  currentDate: string;
   childId: string;
   redirectPath: string;
   completions: PlannerCompletion[];
@@ -237,16 +262,20 @@ function TaskCard({
   compact?: boolean;
 }) {
   const [expanded, setExpanded] = useState(defaultExpanded);
-  const monthlyCompleted = getMonthlyCompletedTotal(task.id, completions);
+  const recurringSummary = getRecurringTaskProgressSummary(task, completions, {
+    windowType: "month",
+    referenceDate: currentDate,
+  });
+  const isRecurringTask = recurringSummary !== null;
   const badges = getChildTaskBadges(task, completions, submissions, dayKey);
   const doneForDay = isTaskDoneOnDate(task, completions, submissions, dayKey);
   const weekdayKey = getWeekdayKeyFromDate(dayKey);
   const latestSubmission = getLatestSubmissionForTask(task.id, submissions);
-  const inlineLessonPreview = getInlineLessonPreviewHtml(task.content_html);
-  const hasEmbeddedLessonDocument = isFullDocumentHtml(task.content_html);
-
   if (compact) {
     const primaryBadge = badges[0] ?? null;
+    const compactRecurringSummary = isRecurringTask
+      ? getRecurringTaskSummary(task, completions, currentDate)
+      : null;
 
     return (
       <div
@@ -275,7 +304,7 @@ function TaskCard({
               {primaryBadge ? renderTaskBadges(task.id, [primaryBadge]) : null}
             </div>
             <p className="mt-1 truncate text-xs text-[color:var(--mid)]">
-              {task.moduleTitle}
+              {getPlannerContextLabel(task)}
             </p>
             <div className="mt-1.5 flex flex-wrap items-center gap-1.5 text-[10px] text-[color:var(--mid)]">
               <span>{getCourseTaskTypeLabel(task.task_type)}</span>
@@ -292,6 +321,11 @@ function TaskCard({
                 </>
               ) : null}
             </div>
+            {compactRecurringSummary ? (
+              <p className="mt-1 text-[10px] text-[color:var(--mid)]">
+                {compactRecurringSummary.allTimeTotal} all time
+              </p>
+            ) : null}
           </div>
         </div>
       </div>
@@ -329,7 +363,7 @@ function TaskCard({
             {renderTaskBadges(task.id, badges)}
           </div>
           <p className="mt-1 text-xs text-[color:var(--mid)]">
-            {task.courseTitle} · {task.moduleTitle}
+            {getPlannerContextSummary(task)}
           </p>
         </div>
         {!hideToggleLabel ? (
@@ -343,15 +377,9 @@ function TaskCard({
           {task.instructions ? (
             <p className="text-sm leading-6 text-[color:var(--ink)]">{task.instructions}</p>
           ) : null}
-          {task.content_html && inlineLessonPreview ? (
-            <div
-              className="rounded-2xl border border-[var(--border)] bg-white px-3 py-3 text-sm leading-6 text-[color:var(--ink)]"
-              dangerouslySetInnerHTML={{ __html: inlineLessonPreview }}
-            />
-          ) : null}
-          {task.content_html && hasEmbeddedLessonDocument ? (
+          {task.lesson_schema ? (
             <p className="text-xs font-medium text-[color:var(--mid)]">
-              This task includes a full interactive lesson. Open it to work inside the full page.
+              This task includes a structured lesson. Open it to work inside the full page.
             </p>
           ) : null}
           {task.writing_prompt ? (
@@ -361,8 +389,18 @@ function TaskCard({
           ) : null}
           {task.monthly_goal_total ? (
             <p className="text-xs font-medium text-[color:var(--mid)]">
-              {monthlyCompleted} of {task.monthly_goal_total} done this month
+              {recurringSummary?.windowTotal ?? 0} of {isRecurringTask ? recurringSummary.targetAmount : task.monthly_goal_total} done this month
               {getRecurringPacingText(task) ? ` · ${getRecurringPacingText(task)}` : ""}
+            </p>
+          ) : null}
+          {recurringSummary ? (
+            <p className="text-xs text-[color:var(--mid)]">
+              {recurringSummary.allTimeTotal} completed all time
+            </p>
+          ) : null}
+          {recurringSummary?.currentOccurrenceQuantity ? (
+            <p className="text-xs text-[color:var(--mid)]">
+              {recurringSummary.occurrenceLabel}: {recurringSummary.currentOccurrenceQuantity}
             </p>
           ) : null}
           {task.estimated_minutes ? (
@@ -376,12 +414,12 @@ function TaskCard({
               <input type="hidden" name="child_id" value={childId} />
               <input type="hidden" name="redirect_path" value={redirectPath} />
               <input type="hidden" name="completion_date" value={dayKey} />
-              {task.task_type === "recurring_daily" || task.task_type === "recurring_weekly" ? (
+              {isRecurringTask ? (
                 <input
                   type="number"
                   name="quantity_completed"
                   min="1"
-                  max="500"
+                  max="10000"
                   defaultValue={1}
                   className="h-10 w-16 rounded-2xl border border-[var(--border)] bg-white px-2 text-center text-sm text-[color:var(--ink)]"
                 />
@@ -451,6 +489,7 @@ function TaskCard({
 function WeekMiniTask({
   task,
   dayKey,
+  currentDate,
   completions,
   submissions,
   isSelected = false,
@@ -458,6 +497,7 @@ function WeekMiniTask({
 }: {
   task: PlannerTask;
   dayKey: string;
+  currentDate: string;
   completions: PlannerCompletion[];
   submissions: PlannerSubmission[];
   isSelected?: boolean;
@@ -466,6 +506,10 @@ function WeekMiniTask({
   const doneForDay = isTaskDoneOnDate(task, completions, submissions, dayKey);
   const badges = getChildTaskBadges(task, completions, submissions, dayKey);
   const primaryBadge = badges[0] ?? null;
+  const miniRecurringSummary =
+    task.task_type === "recurring_daily" || task.task_type === "recurring_weekly"
+      ? getRecurringTaskSummary(task, completions, currentDate)
+      : null;
 
   return (
     <button
@@ -496,6 +540,11 @@ function WeekMiniTask({
               </>
             ) : null}
           </div>
+          {miniRecurringSummary ? (
+            <p className="mt-1 text-[9px] text-[color:var(--mid)]">
+              {miniRecurringSummary.allTimeTotal} all time
+            </p>
+          ) : null}
         </div>
       </div>
     </button>
@@ -507,11 +556,13 @@ function SpellingTaskCard({
   dayKey,
   readyCount,
   reviewCount,
+  sourceLabel,
 }: {
   practicePath: string;
   dayKey: string;
   readyCount: number;
   reviewCount: number;
+  sourceLabel?: string | null;
 }) {
   const practicePathForDay = withQuery(practicePath, { day: dayKey });
   const hasWordsReady = readyCount > 0 || reviewCount > 0;
@@ -526,6 +577,11 @@ function SpellingTaskCard({
         {hasWordsReady ? (
           <span className="rounded-full border border-amber-200 bg-white px-2 py-0.5 text-[10px] font-medium text-amber-700">
             {readyCount > 0 ? `${readyCount} ready` : `${reviewCount} review`}
+          </span>
+        ) : null}
+        {sourceLabel ? (
+          <span className="rounded-full border border-[rgba(206,71,125,0.24)] bg-white px-2 py-0.5 text-[10px] font-medium text-[var(--scarlett)]">
+            {sourceLabel}
           </span>
         ) : null}
       </div>
@@ -550,11 +606,13 @@ function SpellingMiniTask({
   dayKey,
   readyCount,
   reviewCount,
+  sourceLabel,
 }: {
   practicePath: string;
   dayKey: string;
   readyCount: number;
   reviewCount: number;
+  sourceLabel?: string | null;
 }) {
   const practicePathForDay = withQuery(practicePath, { day: dayKey });
   const label =
@@ -575,6 +633,12 @@ function SpellingMiniTask({
             <span className="truncate">Spelling practice</span>
             <span aria-hidden="true">·</span>
             <span className="shrink-0">{label}</span>
+            {sourceLabel ? (
+              <>
+                <span aria-hidden="true">·</span>
+                <span className="truncate">{sourceLabel}</span>
+              </>
+            ) : null}
           </div>
         </div>
       </div>
@@ -586,8 +650,8 @@ export function LearnWeekPlanner({
   basePath,
   progressPath,
   coursesPath,
-  practicePath,
   childId,
+  currentDate,
   selectedDay,
   viewMode,
   weekDays,
@@ -597,8 +661,6 @@ export function LearnWeekPlanner({
   completions,
   submissions,
   dayPlans,
-  spellingReadyCount,
-  spellingReviewCount,
   checkedInToday,
   nuggetCount,
   inMachineCount,
@@ -608,9 +670,10 @@ export function LearnWeekPlanner({
   flashError,
   flashSaved,
   flashRewardCoins = 0,
+  flashFocusNearRewardCoins = 0,
 }: LearnWeekPlannerProps) {
   const router = useRouter();
-  const [isPending, startTransition] = useTransition();
+  const [, startTransition] = useTransition();
   const [draggedTaskId, setDraggedTaskId] = useState<string | null>(null);
   const [localPlans, setLocalPlans] = useState(dayPlans);
   const [plannerError, setPlannerError] = useState<string | null>(null);
@@ -630,6 +693,21 @@ export function LearnWeekPlanner({
   }, [localPlans]);
 
   const bankTasks = flexibleTasks.filter((task) => !plannedTaskById.has(task.id));
+  const monthlyRecurringTasks = useMemo(() => {
+    const seen = new Set<string>();
+    const recurring = [...dailyTasks, ...flexibleTasks].filter(
+      (task) =>
+        task.task_type === "recurring_daily" || task.task_type === "recurring_weekly",
+    );
+
+    return recurring.filter((task) => {
+      if (seen.has(task.id)) {
+        return false;
+      }
+      seen.add(task.id);
+      return true;
+    });
+  }, [dailyTasks, flexibleTasks]);
 
   const plannedByDay = useMemo(() => {
     const map = new Map<string, PlannerTask[]>();
@@ -694,76 +772,6 @@ export function LearnWeekPlanner({
     });
   };
 
-  const renderDropZone = (day: PlannerDay) => (
-    <div
-      key={day.key}
-      onDragOver={(event) => event.preventDefault()}
-      onDrop={(event) => {
-        event.preventDefault();
-        const taskId = event.dataTransfer.getData("text/plain") || draggedTaskId;
-        if (taskId) {
-          handleMove(taskId, day.key);
-        }
-      }}
-      className={`rounded-[1.35rem] border p-3 ${
-        day.key === selectedDay
-          ? "border-[var(--scarlett)] bg-[rgba(252,228,244,0.28)]"
-          : "border-[var(--border)] bg-white"
-      }`}
-    >
-      <button
-        type="button"
-        onClick={() => router.replace(withQuery(basePath, { day: day.key, view: viewMode }))}
-        className="flex w-full items-center justify-between text-left"
-      >
-        <div>
-          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[color:var(--mid)]">
-            {day.label}
-          </p>
-          <p className="mt-1 text-lg font-semibold text-[color:var(--ink)]">{day.dayNumber}</p>
-        </div>
-        {day.key === selectedDay ? (
-          <span className="rounded-full border border-[var(--scarlett)] bg-white px-2 py-0.5 text-[10px] font-medium text-[var(--scarlett)]">
-            Chosen
-          </span>
-        ) : null}
-      </button>
-
-        <div className="mt-3 grid gap-2">
-          <SpellingTaskCard
-            practicePath={practicePath}
-            dayKey={day.key}
-            readyCount={spellingReadyCount}
-            reviewCount={spellingReviewCount}
-          />
-          {dailyTasks.map((task) => (
-            <TaskCard
-              key={`${day.key}-${task.id}`}
-            task={task}
-            dayKey={day.key}
-            childId={childId}
-            redirectPath={withQuery(basePath, { day: day.key, view: viewMode })}
-            completions={completions}
-            submissions={submissions}
-          />
-        ))}
-        {(plannedByDay.get(day.key) ?? []).map((task) => (
-          <TaskCard
-            key={`${day.key}-${task.id}`}
-            task={task}
-            dayKey={day.key}
-            childId={childId}
-            redirectPath={withQuery(basePath, { day: day.key, view: viewMode })}
-            completions={completions}
-            submissions={submissions}
-            draggable
-            onDragStart={(taskId) => setDraggedTaskId(taskId ?? null)}
-          />
-        ))}
-      </div>
-    </div>
-  );
-
   return (
     <section className="grid gap-4">
       <div className="brand-card rounded-3xl p-4">
@@ -801,8 +809,7 @@ export function LearnWeekPlanner({
         <div className="mt-3 flex flex-wrap gap-2">
           {[
             { label: "Chosen day", value: selectedDayLabel },
-            { label: "Spelling", value: spellingReadyCount > 0 ? `${spellingReadyCount} ready` : "Nothing set yet" },
-            { label: "Week bank", value: `${bankTasks.length} waiting` },
+            { label: "Unplanned tasks", value: `${bankTasks.length} to place` },
             { label: "Gold", value: `${goldBarCount} bars` },
           ].map((item) => (
             <div key={item.label} className="inline-flex items-center gap-2 rounded-full border border-[var(--border)] bg-white px-3 py-2">
@@ -814,7 +821,7 @@ export function LearnWeekPlanner({
           ))}
         </div>
 
-        {(flashError || plannerError || flashSaved || flashRewardCoins > 0) ? (
+        {(flashError || plannerError || flashSaved || flashRewardCoins > 0 || flashFocusNearRewardCoins > 0) ? (
           <div className="mt-3 grid gap-2">
             {flashError || plannerError ? (
               <p className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-2 text-sm text-rose-700">
@@ -827,8 +834,14 @@ export function LearnWeekPlanner({
                 title="Coins earned!"
                 body="Nice work. Your completed task just added more Gold Coins to your balance."
               />
+            ) : flashFocusNearRewardCoins > 0 ? (
+              <RewardCelebration
+                goldCoinAmount={flashFocusNearRewardCoins}
+                title={`You have nearly earned ${flashFocusNearRewardCoins} coin${flashFocusNearRewardCoins === 1 ? "" : "s"}. Keep going!`}
+                body="Finish the last mini task in this focus block to unlock the full reward."
+              />
             ) : null}
-            {flashSaved && flashRewardCoins < 1 ? (
+            {flashSaved && flashRewardCoins < 1 && flashFocusNearRewardCoins < 1 ? (
               <p className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm text-emerald-700">
                 {flashSaved}
               </p>
@@ -846,6 +859,79 @@ export function LearnWeekPlanner({
             checkedInToday={checkedInToday}
             variant="compact"
           />
+        </div>
+
+        <div className="mt-4 rounded-[1.35rem] border border-[rgba(245,190,57,0.22)] bg-[linear-gradient(180deg,#fffdf4_0%,#fff8e2_100%)] p-4">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <p className="brand-eyebrow">This month</p>
+              <h2 className="mt-1 text-lg font-semibold tracking-tight text-[color:var(--ink)]">
+                Recurring progress for {getCurrentMonthLabel()}
+              </h2>
+              <p className="mt-2 text-sm text-[color:var(--mid)]">
+                Weekly recurring tasks roll up here so you can see monthly movement while still planning week by week.
+              </p>
+            </div>
+            <span className="rounded-full border border-[rgba(245,190,57,0.24)] bg-white px-3 py-1 text-xs font-medium text-[color:var(--mid)]">
+              {monthlyRecurringTasks.length} recurring item{monthlyRecurringTasks.length === 1 ? "" : "s"}
+            </span>
+          </div>
+
+          <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+            {monthlyRecurringTasks.length > 0 ? (
+              monthlyRecurringTasks.map((task) => {
+                const summary = getRecurringTaskSummary(task, completions, currentDate);
+                if (!summary) {
+                  return null;
+                }
+
+                return (
+                  <div
+                    key={`month-${task.id}`}
+                    className="rounded-[1.15rem] border border-[rgba(245,190,57,0.2)] bg-white px-4 py-4"
+                  >
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <p className="text-sm font-semibold text-[color:var(--ink)]">{task.title}</p>
+                      <span className="rounded-full border border-[var(--border)] bg-[rgba(252,228,244,0.2)] px-2.5 py-1 text-[10px] font-medium text-[color:var(--mid)]">
+                        {task.task_type === "recurring_daily" ? "Daily" : "Weekly"}
+                      </span>
+                    </div>
+                    <p className="mt-1 text-xs text-[color:var(--mid)]">
+                      {getPlannerContextSummary(task)}
+                    </p>
+                    <p className="mt-2 text-xs font-medium text-[color:var(--mid)]">
+                      {summary.rhythm}
+                    </p>
+                    <p className="mt-3 text-sm text-[color:var(--ink)]">
+                      {summary.targetAmount > 0
+                        ? `${summary.windowTotal} of ${summary.targetAmount} done this month · ${summary.remainingToTarget} left`
+                        : `${summary.windowTotal} logged this month`}
+                    </p>
+                    <p className="mt-1 text-sm text-[color:var(--mid)]">
+                      {summary.allTimeTotal} completed all time
+                    </p>
+                    {summary.targetAmount > 0 ? (
+                      <div className="mt-3">
+                        <div className="h-2.5 overflow-hidden rounded-full bg-[rgba(245,190,57,0.15)]">
+                          <div
+                            className="h-full rounded-full bg-[linear-gradient(90deg,#f5be39_0%,#ce477d_100%)]"
+                            style={{ width: `${Math.max(summary.progressPercent, summary.windowTotal > 0 ? 6 : 0)}%` }}
+                          />
+                        </div>
+                        <p className="mt-2 text-[11px] font-medium uppercase tracking-[0.16em] text-[color:var(--mid)]">
+                          {summary.progressPercent}% of target
+                        </p>
+                      </div>
+                    ) : null}
+                  </div>
+                );
+              })
+            ) : (
+              <div className="rounded-2xl border border-dashed border-[var(--border)] bg-white px-4 py-4 text-sm text-[color:var(--mid)] md:col-span-2 xl:col-span-3">
+                No recurring monthly targets are visible in this planner yet.
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
@@ -897,6 +983,7 @@ export function LearnWeekPlanner({
                         key={`bank-week-${task.id}`}
                         task={task}
                         dayKey={selectedDay}
+                        currentDate={currentDate}
                         childId={childId}
                         redirectPath={selectedDayPath}
                         completions={completions}
@@ -952,17 +1039,12 @@ export function LearnWeekPlanner({
                     </button>
 
                     <div className="mt-2 grid gap-1.5">
-                      <SpellingMiniTask
-                        practicePath={practicePath}
-                        dayKey={day.key}
-                        readyCount={spellingReadyCount}
-                        reviewCount={spellingReviewCount}
-                      />
                       {dailyTasks.map((task) => (
                         <WeekMiniTask
                           key={`${day.key}-${task.id}`}
                           task={task}
                           dayKey={day.key}
+                          currentDate={currentDate}
                           completions={completions}
                           submissions={submissions}
                           isSelected={
@@ -976,6 +1058,7 @@ export function LearnWeekPlanner({
                           key={`${day.key}-planned-${task.id}`}
                           task={task}
                           dayKey={day.key}
+                          currentDate={currentDate}
                           completions={completions}
                           submissions={submissions}
                           isSelected={
@@ -1012,11 +1095,30 @@ export function LearnWeekPlanner({
                 <p className="mt-2 text-sm text-[color:var(--mid)]">
                   Pick from the weekly bank and drop tasks into the chosen day.
                 </p>
-                {spellingReadyCount > 0 ? (
-                  <Link href={practicePath} className="mt-3 inline-flex items-center rounded-full border border-[var(--border)] bg-[rgba(252,228,244,0.22)] px-3 py-2 text-sm font-medium text-[color:var(--ink)] transition hover:text-[var(--scarlett)]">
-                    Spelling {spellingReadyCount}
-                  </Link>
-                ) : null}
+                <div className="rounded-[1.35rem] border border-[var(--border)] bg-white px-4 py-3.5">
+                  <p className="text-sm font-semibold text-[color:var(--ink)]">Every day</p>
+                  <div className="mt-3 grid gap-2">
+                    {dailyTasks.length > 0 ? (
+                      dailyTasks.map((task) => (
+                        <TaskCard
+                          key={`${selectedDay}-${task.id}`}
+                          task={task}
+                          dayKey={selectedDay}
+                          currentDate={currentDate}
+                          childId={childId}
+                          redirectPath={selectedDayPath}
+                          completions={completions}
+                          submissions={submissions}
+                        />
+                      ))
+                    ) : (
+                      <p className="rounded-2xl border border-[var(--border)] bg-[rgba(252,228,244,0.16)] px-4 py-3 text-sm text-[color:var(--mid)]">
+                        No daily habits waiting.
+                      </p>
+                    )}
+                  </div>
+                </div>
+
                 <div
                   onDragOver={(event) => event.preventDefault()}
                   onDrop={(event) => {
@@ -1034,6 +1136,7 @@ export function LearnWeekPlanner({
                         key={`bank-day-${task.id}`}
                         task={task}
                         dayKey={selectedDay}
+                        currentDate={currentDate}
                         childId={childId}
                         redirectPath={selectedDayPath}
                         completions={completions}
@@ -1072,35 +1175,6 @@ export function LearnWeekPlanner({
                 ))}
                 </div>
 
-                <div className="rounded-[1.35rem] border border-[var(--border)] bg-white px-4 py-3.5">
-                  <p className="text-sm font-semibold text-[color:var(--ink)]">Every day</p>
-                  <div className="mt-3 grid gap-2">
-                    <SpellingTaskCard
-                      practicePath={practicePath}
-                      dayKey={selectedDay}
-                      readyCount={spellingReadyCount}
-                      reviewCount={spellingReviewCount}
-                    />
-                    {dailyTasks.length > 0 ? (
-                      dailyTasks.map((task) => (
-                        <TaskCard
-                          key={`${selectedDay}-${task.id}`}
-                          task={task}
-                          dayKey={selectedDay}
-                          childId={childId}
-                          redirectPath={selectedDayPath}
-                          completions={completions}
-                          submissions={submissions}
-                        />
-                      ))
-                    ) : (
-                      <p className="rounded-2xl border border-[var(--border)] bg-[rgba(252,228,244,0.16)] px-4 py-3 text-sm text-[color:var(--mid)]">
-                        No daily habits waiting.
-                      </p>
-                    )}
-                  </div>
-                </div>
-
                 <div
                   onDragOver={(event) => event.preventDefault()}
                   onDrop={(event) => {
@@ -1123,6 +1197,7 @@ export function LearnWeekPlanner({
                           key={`${selectedDay}-planned-${task.id}`}
                           task={task}
                           dayKey={selectedDay}
+                          currentDate={currentDate}
                           childId={childId}
                           redirectPath={selectedDayPath}
                           completions={completions}
@@ -1176,6 +1251,7 @@ export function LearnWeekPlanner({
               <TaskCard
                 task={selectedWeekTaskRecord}
                 dayKey={selectedWeekTask.dayKey}
+                currentDate={currentDate}
                 childId={childId}
                 redirectPath={withQuery(basePath, { day: selectedWeekTask.dayKey, view: viewMode })}
                 completions={completions}

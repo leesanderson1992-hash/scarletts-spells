@@ -1,5 +1,89 @@
 # Decision Log
 
+## 2026-05-04 — Recurring canonicalization track is complete through Phase E and manually verified
+
+### What changed
+- The recurring progress canonicalization track is now complete through:
+  - Phase A selector contract lock
+  - Phase B window-based recurring runtime
+  - Phase C goal progress summaries
+  - Phase D weekly-only missed-event normalization
+  - Phase E recurring read-surface reconciliation
+- Manual verification has now confirmed:
+  - recurring month totals reconcile across child and parent surfaces
+  - all-time totals update across those surfaces
+  - phase and course goal summaries reconcile with linked recurring logs
+  - weekly missed-event behavior remains weekly-only and parent-facing
+
+### Why this matters
+- Follow-on project work no longer needs to keep re-opening recurring truth as a blocker.
+- The next delivery focus can move back to the broader course-builder roadmap and adjacent refactor tracks.
+
+## 2026-05-04 — Missed-event tracking is weekly-only in v1
+
+### What changed
+- Phase D of the recurring-progress canonicalization plan is now implemented.
+- The canonical missed-event selector contract is now explicitly weekly-only in v1.
+- The shared missed-event selector evaluates:
+  - `recurring_weekly` tasks only
+  - the previous closed Monday-Sunday window
+  - no completion in that completed week = missed
+- Parent insights remains the warning surface for missed events.
+
+### What was intentionally not added
+- daily missed-event counts
+- phase-window missed-event counts
+- course-window missed-event counts
+- weekly good days as missed-event gates
+
+### Why
+- The product now has a shared recurring runtime and shared goal progress layer, so missed-event semantics were the next place where drift could spread if left implicit.
+- Weekly-only v1 keeps warnings consistent without creating a second completion model or child-facing punitive backlog behavior.
+
+## 2026-05-03 — Recurring progress must move from month-first summaries to a window-based selector model
+
+### What changed
+- A dedicated implementation plan was added at [docs/implementation/completed/recurring-progress-canonicalization-plan.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/implementation/completed/recurring-progress-canonicalization-plan.md:1).
+- The current recurring model is now explicitly treated as an intermediate state:
+  - shared write truth in `task_completions`
+  - shared recurring selectors in `lib/courses/progress.ts`
+  - but still largely month-first for pacing
+- The agreed long-term direction is now:
+  - one recurring selector family
+  - window-based progress summaries for:
+    - day
+    - week
+    - month
+    - phase
+    - course
+  - a dependent goal-summary layer for numerical goals
+- Phase A is now implemented:
+  - the shared recurring selector contract is window-based
+  - the active live runtime still uses `month`
+  - missed events remain weekly-only in v1
+  - weekly good days remain advisory only
+  - parent insights supports neutral recurring summaries alongside warnings
+- The next confirmed Phase B task is now a data-shape correction:
+  - canonical timed phase windows must use generated `course_phases` boundaries
+  - `CoursePhaseRow` and shared course-detail queries must expose phase date fields to the progress selector
+  - pages and selectors must not recompute phase boundaries from course start/cycle length when stored or queryable phase dates exist
+- Phase B is now implemented:
+  - `course_phases.start_date` and `course_phases.end_date` are now the canonical timed phase boundary fields
+  - the shared course-detail path now exposes those fields to both parent and child readers
+  - the recurring selector runtime now supports explicit `month`, `phase`, and `course` windows
+  - `phase` and `course` selector calls fail safely when boundaries are missing instead of silently downgrading to `month`
+
+### What was intentionally not decided yet
+- whether daily missed-event warnings should exist in v1
+
+### Why
+- The app now has multiple recurring surfaces:
+  - child `This Week`
+  - child `My learning`
+  - parent `Insights`
+- Parent insights Slice 8 is implemented, but future pacing work would become inefficient if more UI is built before the recurring selector contract is hardened.
+- A window-based model is required so phase-level and course-level numerical goals can use the same canonical recurring truth instead of inventing separate maths.
+
 ## 2026-04-25 — Course builder reframed around Phased and Timed structures
 
 ### What changed
@@ -98,7 +182,7 @@
 ## 2026-04-27 — Reward system contract made canonical
 
 ### What changed
-- A dedicated canonical reward doc was added at [docs/reward-system-contract.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/reward-system-contract.md:1).
+- A dedicated canonical reward doc was added at [docs/contracts/reward-system-contract.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/contracts/reward-system-contract.md:1).
 - Reward language is now formally separated into:
   - progress state
   - reward currency

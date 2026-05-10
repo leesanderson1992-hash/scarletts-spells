@@ -27,7 +27,6 @@ type PracticeWord = {
   word: string;
   kind: "target" | "review";
   phase: "core" | "same_family_bonus" | "due_review" | "related_bonus";
-  wordProgressId: string | null;
 };
 
 type LessonType = "tricky_word" | "rule" | "morphology" | "sound" | "homophone";
@@ -129,6 +128,8 @@ const initialPracticeAttemptState: SavePracticeAttemptState = {
   submittedWord: "",
   isCorrect: null,
   assignmentCompleted: false,
+  awardedGoldenNugget: false,
+  awardedGoldBar: false,
 };
 
 const CHILD_MODE_DURATION_SECONDS = 10 * 60;
@@ -706,11 +707,23 @@ function getMicroTaskFeedback(
     : "Have another look and notice what the word is showing you before you move on.";
 }
 
-function getEarnedBadges(goldCoinAwarded: boolean): RewardBadge[] {
+function getEarnedBadges(input: {
+  goldCoinAwarded: boolean;
+  awardedGoldenNugget: boolean;
+  awardedGoldBar: boolean;
+}): RewardBadge[] {
   const badges: RewardBadge[] = [];
 
-  if (goldCoinAwarded) {
+  if (input.goldCoinAwarded) {
     badges.push({ label: "+1 Gold Coin", tone: "gold" });
+  }
+
+  if (input.awardedGoldenNugget) {
+    badges.push({ label: "Golden Nugget found", tone: "pink" });
+  }
+
+  if (input.awardedGoldBar) {
+    badges.push({ label: "Gold Bar earned", tone: "gold" });
   }
 
   return badges;
@@ -863,7 +876,11 @@ export function PracticeSession({
   const selectedMicroTaskOption =
     interactiveTask?.options.find((option) => option.id === selectedMicroTaskOptionId) ?? null;
   const hasCompletedInteractiveTask = selectedMicroTaskOption !== null;
-  const earnedBadges = getEarnedBadges(earnedGoldCoin);
+  const earnedBadges = getEarnedBadges({
+    goldCoinAwarded: earnedGoldCoin,
+    awardedGoldenNugget: state.awardedGoldenNugget,
+    awardedGoldBar: state.awardedGoldBar,
+  });
 
   useEffect(() => {
     if (!isTimedChildSession || !sessionStarted || remainingSeconds <= 0) {
@@ -1302,16 +1319,6 @@ export function PracticeSession({
             <form action={formAction} className="grid gap-4">
               <input type="hidden" name="child_id" value={childId} />
               <input type="hidden" name="daily_assignment_id" value={assignmentId} />
-              <input
-                type="hidden"
-                name="word_progress_id"
-                value={activeWord.wordProgressId ?? ""}
-              />
-              <input
-                type="hidden"
-                name="allow_session_word"
-                value={isBonusWord || activeWord.kind === "review" ? "on" : ""}
-              />
               <input type="hidden" name="target_word" value={activeWord.word} />
               <label className="grid gap-2 text-sm font-medium text-[color:var(--mid)]">
                 Type the word from memory

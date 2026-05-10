@@ -1,46 +1,32 @@
+import {
+  GoldBarIcon,
+  GoldCoinIcon,
+  NuggetIcon,
+  WarmWorkshopIcon,
+} from "@/components/reward-icons";
+
 type GoldForgePanelProps = {
   nuggetCount: number;
   inMachineCount: number;
   goldBarCount: number;
-  provenBagItems: Array<{ id: string; label: string; kind?: string }>;
+  provenBagItems: Array<{ id: string; label: string }>;
   goldCoinCount: number;
   checkedInToday: boolean;
   variant?: "full" | "compact";
+  nuggetsVisualCount?: number;
+  warmWorkshopVisualCount?: number;
+  goldBarsVisualCount?: number;
+  footerMetrics?: Array<{
+    label: string;
+    value: number;
+  }>;
 };
 
-function Nugget({ size = "md", className = "" }: { size?: "sm" | "md" | "lg"; className?: string }) {
-  const sizeClasses =
-    size === "lg" ? "h-6 w-7" : size === "sm" ? "h-3.5 w-4.5" : "h-5 w-6";
-
-  return (
-    <div
-      className={`${sizeClasses} ${className} border border-[rgba(194,24,91,0.28)]`}
-      style={{
-        borderRadius: "55% 42% 48% 38%",
-        background:
-          "radial-gradient(circle at 36% 30%, #fff1b8 0%, #f5be39 45%, #d49b0d 70%, #a06d00 100%)",
-      }}
-    />
-  );
-}
-
-function GoldBar({ className = "" }: { className?: string }) {
-  return (
-    <div className={`relative h-5 w-8 ${className}`}>
-      <div
-        className="absolute left-0 top-0 h-1.5 w-8 rounded-t-[3px]"
-        style={{ background: "linear-gradient(135deg,#fff0b6,#b8860b)" }}
-      />
-      <div
-        className="absolute left-0 top-1.5 h-3.5 w-8 rounded-b-[2px] border border-[rgba(194,24,91,0.22)]"
-        style={{ background: "linear-gradient(180deg,#fbe8a8,#f5be39,#be8600)" }}
-      />
-      <div
-        className="absolute right-[-3px] top-[2px] h-3.5 w-[3px] rounded-r-[2px]"
-        style={{ background: "#8b6914" }}
-      />
-    </div>
-  );
+function getPackedIconSize(count: number): "xs" | "sm" | "md" | "lg" {
+  if (count >= 18) return "xs";
+  if (count >= 10) return "sm";
+  if (count >= 5) return "md";
+  return "lg";
 }
 
 export function GoldForgePanel({
@@ -51,9 +37,25 @@ export function GoldForgePanel({
   goldCoinCount,
   checkedInToday,
   variant = "full",
+  nuggetsVisualCount,
+  warmWorkshopVisualCount,
+  goldBarsVisualCount,
+  footerMetrics,
 }: GoldForgePanelProps) {
-  const visibleNuggets = Math.max(1, Math.min(nuggetCount, 8));
-  const visibleBars = Math.max(1, Math.min(goldBarCount, 12));
+  const nuggetsCountForVisuals = Math.max(0, nuggetsVisualCount ?? nuggetCount);
+  const workshopCountForVisuals = Math.max(
+    0,
+    warmWorkshopVisualCount ?? inMachineCount,
+  );
+  const barsCountForVisuals = Math.max(0, goldBarsVisualCount ?? goldBarCount);
+  const nuggetIconSize = getPackedIconSize(nuggetsCountForVisuals);
+  const workshopIconSize = getPackedIconSize(workshopCountForVisuals);
+  const barIconSize = getPackedIconSize(barsCountForVisuals);
+  const summaryMetrics = footerMetrics ?? [
+    { label: "nuggets discovered", value: nuggetCount },
+    { label: "warm workshop", value: inMachineCount },
+    { label: "gold bars earned", value: goldBarCount },
+  ];
 
   if (variant === "compact") {
     return (
@@ -61,28 +63,29 @@ export function GoldForgePanel({
         <div className="flex flex-wrap items-center gap-4">
           <div className="flex min-w-0 flex-1 items-center gap-3">
             <div className="flex items-center gap-1.5">
-              <Nugget size="sm" className={nuggetCount > 0 ? "animate-bounce" : ""} />
-              <div className="relative h-7 w-7 rounded-full border-2 border-[rgba(206,71,125,0.28)] bg-[linear-gradient(180deg,#fff8de_0%,#fdebb4_55%,#f6d67b_100%)] shadow-[inset_0_2px_6px_rgba(255,255,255,0.8)]">
-                <div className="absolute left-1/2 top-1/2 h-2 w-2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#f5be39] shadow-[0_0_10px_rgba(245,190,57,0.55)]" />
-              </div>
-              <GoldBar />
+              <NuggetIcon size="sm" className={nuggetCount > 0 ? "animate-bounce" : ""} />
+              <WarmWorkshopIcon size="md" />
+              <GoldBarIcon />
             </div>
             <div className="min-w-0">
               <p className="text-sm font-semibold text-[color:var(--ink)]">
-                {nuggetCount > 0 ? "A golden nugget is in the forge" : "The forge is warm"}
+                {nuggetCount > 0 ? "A golden nugget was discovered" : "Spelling progress is moving"}
               </p>
               <p className="text-sm text-[color:var(--mid)]">
-                {inMachineCount} refining · {goldBarCount} gold bars · {checkedInToday ? "checked in today" : "ready to log"}
+                {inMachineCount} in Warm Workshop · {goldBarCount} gold bars earned · {checkedInToday ? "progress logged today" : "ready for today"}
               </p>
             </div>
           </div>
           <div className="min-w-[160px] flex-1 rounded-2xl border border-white/80 bg-white/75 px-3 py-2">
             <div className="flex items-center justify-between gap-3 text-xs text-[color:var(--mid)]">
               <span>Gold Coins</span>
-              <span className="font-semibold text-[color:var(--ink)]">{goldCoinCount}</span>
+              <div className="flex items-center gap-2">
+                <GoldCoinIcon size="sm" />
+                <span className="font-semibold text-[color:var(--ink)]">{goldCoinCount}</span>
+              </div>
             </div>
             <p className="mt-1 text-xs text-[color:var(--mid)]">
-              {checkedInToday ? "A daily coin was earned today." : "Daily coins come from meaningful completed sessions."}
+              {checkedInToday ? "Coins were added from today’s logged progress." : "Coins build from approved and completed learning work."}
             </p>
           </div>
         </div>
@@ -94,19 +97,19 @@ export function GoldForgePanel({
     <div className="rounded-[1.8rem] border border-[rgba(194,24,91,0.12)] bg-[linear-gradient(180deg,#fff8fc_0%,#fff4fa_100%)] p-4">
       <div className="text-center">
         <p className="text-[10px] font-medium uppercase tracking-[0.24em] text-[color:var(--scarlett)]">
-          The Gold Forge
+          Spelling Progress
         </p>
         <h3 className="mt-1 text-2xl font-semibold tracking-tight text-[color:var(--scarlett)]">
-          Golden nuggets become gold bars
+          Nuggets become Gold Bars
         </h3>
         <p className="mt-1 text-sm text-[color:var(--mid)]">
-          Things still being learned are valuable because they are being transformed.
+          Words move from discovery to review to secure mastery over time.
         </p>
       </div>
 
       {nuggetCount > 0 ? (
         <div className="mt-4 flex items-center gap-3 rounded-[1.4rem] border border-[rgba(245,190,57,0.34)] bg-[rgba(255,247,220,0.82)] px-4 py-3">
-          <Nugget size="lg" className="animate-bounce" />
+          <NuggetIcon size="lg" className="animate-bounce" />
           <div>
             <p className="text-sm font-semibold text-[color:var(--ink)]">
               We found a golden nugget!
@@ -125,12 +128,15 @@ export function GoldForgePanel({
           </p>
           <div className="rounded-[1rem] border border-[rgba(206,71,125,0.32)] bg-[rgba(252,228,244,0.72)] p-3">
             <div className="flex min-h-[72px] flex-wrap content-end justify-center gap-1.5">
-              {Array.from({ length: visibleNuggets }).map((_, index) => (
-                <Nugget
+              {Array.from({ length: nuggetsCountForVisuals }).map((_, index) => (
+                <NuggetIcon
                   key={`nugget-${index}`}
-                  size={index % 3 === 0 ? "lg" : index % 3 === 1 ? "md" : "sm"}
+                  size={nuggetIconSize}
                 />
               ))}
+              {nuggetsCountForVisuals === 0 ? (
+                <span className="text-xs text-[color:var(--mid)]">No nuggets</span>
+              ) : null}
             </div>
             <div
               className="mx-auto mt-2 h-4 w-12 border-x border-[rgba(206,71,125,0.32)] bg-[rgba(252,228,244,0.72)]"
@@ -142,7 +148,7 @@ export function GoldForgePanel({
         <div className="hidden xl:block">
           <div className="relative h-3 rounded bg-[repeating-linear-gradient(90deg,#fce4f4_0,#fce4f4_9px,#e891c8_9px,#e891c8_13px)]">
             <div className="absolute inset-0 animate-pulse rounded bg-[linear-gradient(90deg,transparent,rgba(245,190,57,0.18),transparent)]" />
-            <Nugget size="sm" className="absolute -top-2.5 right-3 animate-bounce" />
+            <NuggetIcon size="sm" className="absolute -top-2.5 right-3 animate-bounce" />
           </div>
           <div className="mt-1 flex justify-between px-1">
             <div className="h-2 w-1 rounded-b bg-[rgba(232,145,200,0.7)]" />
@@ -152,30 +158,31 @@ export function GoldForgePanel({
         </div>
 
         <div className="rounded-[1.35rem] border-2 border-[rgba(206,71,125,0.24)] bg-[linear-gradient(180deg,#fffdf2_0%,#fff1c9_58%,#ffe0a8_100%)] px-4 py-4 text-center shadow-[0_18px_40px_rgba(194,24,91,0.08)]">
-          <div className="mb-3 flex justify-center gap-2">
-            <div className="relative h-7 w-7 animate-spin rounded-full border-2 border-[rgba(206,71,125,0.3)] bg-[rgba(255,255,255,0.52)]">
-              <div className="absolute left-1/2 top-1/2 h-1.5 w-1.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#f5be39]" />
-            </div>
-            <div className="relative h-7 w-7 rounded-full border-2 border-[rgba(206,71,125,0.3)] bg-[rgba(255,255,255,0.52)] [animation:spin_2.4s_linear_infinite_reverse]">
-              <div className="absolute left-1/2 top-1/2 h-1.5 w-1.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#f5be39]" />
-            </div>
-            <div className="relative h-7 w-7 animate-spin rounded-full border-2 border-[rgba(206,71,125,0.3)] bg-[rgba(255,255,255,0.52)]">
-              <div className="absolute left-1/2 top-1/2 h-1.5 w-1.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#f5be39]" />
-            </div>
+          <div className="mb-3 flex flex-wrap justify-center gap-2">
+            {Array.from({ length: workshopCountForVisuals }).map((_, index) => (
+              <WarmWorkshopIcon
+                key={`workshop-${index}`}
+                size={workshopIconSize}
+                className={index % 2 === 0 ? "animate-pulse" : ""}
+              />
+            ))}
+            {workshopCountForVisuals === 0 ? (
+              <span className="text-xs text-[color:var(--mid)]">No words warming</span>
+            ) : null}
           </div>
           <p className="text-[10px] font-medium uppercase tracking-[0.22em] text-[color:var(--scarlett)]">
             Warm workshop
           </p>
-          <p className="mt-1 text-4xl font-semibold text-[#f5be39]">{goldBarCount}</p>
+          <p className="mt-1 text-4xl font-semibold text-[#f5be39]">{inMachineCount}</p>
           <p className="mt-2 text-sm text-[color:var(--ink)]">
-            {inMachineCount} things are being worked on right now
+            Active reviewed words still being strengthened
           </p>
         </div>
 
         <div className="hidden xl:block">
           <div className="relative h-3 rounded bg-[repeating-linear-gradient(90deg,#fce4f4_0,#fce4f4_9px,#e891c8_9px,#e891c8_13px)]">
             <div className="absolute inset-0 animate-pulse rounded bg-[linear-gradient(90deg,transparent,rgba(245,190,57,0.18),transparent)]" />
-            <GoldBar className="absolute -top-3 left-3 animate-pulse" />
+            <GoldBarIcon className="absolute -top-3 left-3 animate-pulse" />
           </div>
           <div className="mt-1 flex justify-between px-1">
             <div className="h-2 w-1 rounded-b bg-[rgba(232,145,200,0.7)]" />
@@ -190,41 +197,37 @@ export function GoldForgePanel({
           </p>
           <div className="rounded-[1rem] border border-[rgba(206,71,125,0.32)] bg-[rgba(252,228,244,0.72)] p-3">
             <div className="flex min-h-[72px] flex-wrap content-end justify-center gap-1.5">
-              {Array.from({ length: visibleBars }).map((_, index) => (
-                <GoldBar key={`bar-${index}`} />
+              {Array.from({ length: barsCountForVisuals }).map((_, index) => (
+                <GoldBarIcon key={`bar-${index}`} size={barIconSize} />
               ))}
+              {barsCountForVisuals === 0 ? (
+                <span className="text-xs text-[color:var(--mid)]">No bars yet</span>
+              ) : null}
             </div>
           </div>
         </div>
       </div>
 
       <div className="mt-4 grid gap-3 md:grid-cols-3">
-        <div className="rounded-[1rem] border border-[var(--border)] bg-white/80 px-4 py-3 text-center">
-          <p className="text-2xl font-semibold text-[color:var(--scarlett)]">{nuggetCount}</p>
-          <p className="mt-1 text-xs uppercase tracking-[0.16em] text-[color:var(--mid)]">
-            nuggets waiting
-          </p>
-        </div>
-        <div className="rounded-[1rem] border border-[var(--border)] bg-white/80 px-4 py-3 text-center">
-          <p className="text-2xl font-semibold text-[color:var(--scarlett)]">{inMachineCount}</p>
-          <p className="mt-1 text-xs uppercase tracking-[0.16em] text-[color:var(--mid)]">
-            in the machine
-          </p>
-        </div>
-        <div className="rounded-[1rem] border border-[var(--border)] bg-white/80 px-4 py-3 text-center">
-          <p className="text-2xl font-semibold text-[color:var(--scarlett)]">{goldBarCount}</p>
-          <p className="mt-1 text-xs uppercase tracking-[0.16em] text-[color:var(--mid)]">
-            gold bars made
-          </p>
-        </div>
+        {summaryMetrics.map((metric) => (
+          <div
+            key={metric.label}
+            className="rounded-[1rem] border border-[var(--border)] bg-white/80 px-4 py-3 text-center"
+          >
+            <p className="text-2xl font-semibold text-[color:var(--scarlett)]">{metric.value}</p>
+            <p className="mt-1 text-xs uppercase tracking-[0.16em] text-[color:var(--mid)]">
+              {metric.label}
+            </p>
+          </div>
+        ))}
       </div>
 
       <div className="mt-4 grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
         <div className="rounded-[1.35rem] border border-[var(--border)] bg-white px-4 py-4">
           <div className="flex items-center justify-between gap-3">
             <div>
-              <p className="text-sm font-semibold text-[color:var(--ink)]">Proven Bag</p>
-              <p className="text-sm text-[color:var(--mid)]">Secure things you can now truly own.</p>
+              <p className="text-sm font-semibold text-[color:var(--ink)]">Gold Bar History</p>
+              <p className="text-sm text-[color:var(--mid)]">Words you have already mastered.</p>
             </div>
             <span className="rounded-full border border-emerald-200 bg-[rgba(236,253,245,0.8)] px-3 py-1 text-xs font-medium text-emerald-800">
               {provenBagItems.length} inside
@@ -242,7 +245,7 @@ export function GoldForgePanel({
               ))
             ) : (
               <p className="text-sm text-[color:var(--mid)]">
-                Gold bars will land here as secure words, finished tasks, and completed focus work grow.
+                Gold bars will land here as secure spelling words grow.
               </p>
             )}
           </div>
@@ -258,18 +261,18 @@ export function GoldForgePanel({
               <p className="text-sm text-[color:var(--mid)]">Spendable coins saved so far.</p>
             </div>
             <span className="rounded-full border border-[var(--border)] bg-white px-3 py-1 text-xs font-medium text-[color:var(--mid)]">
-              {checkedInToday ? "+1 today" : "not earned today"}
+              {checkedInToday ? "updated today" : "no update yet"}
             </span>
           </div>
           <div className="mt-4 grid gap-2 text-sm text-[color:var(--mid)]">
             <div className="flex items-center justify-between gap-3 rounded-2xl border border-white/80 bg-white/75 px-3 py-2">
-              <span>Today&apos;s check-in</span>
+              <span>Today&apos;s progress</span>
               <span className={checkedInToday ? "font-semibold text-emerald-700" : "font-medium text-[color:var(--mid)]"}>
-                {checkedInToday ? "+ moved today" : "not yet"}
+                {checkedInToday ? "logged" : "not yet"}
               </span>
             </div>
             <p>
-              Every secure piece of knowledge adds to the stockpile. Perfection is not needed for the forge to keep working.
+              Coins are calculated from the reward ledger after approvals, completions, conversions, and pending transfer holds.
             </p>
           </div>
         </div>

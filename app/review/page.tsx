@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 
 import { AppShell } from "@/components/app-shell";
 import {
+  buildScopedPath,
   getActiveChildIdFromCookies,
   normaliseAppMode,
   selectChildById,
@@ -40,6 +41,10 @@ export default async function ReviewPage({ searchParams }: ReviewPageProps) {
     activeChildren,
     resolvedSearchParams?.child ?? activeChildIdFromCookie,
   );
+
+  if (mode === "child") {
+    redirect(buildScopedPath("/learn/week", selectedChild?.id ?? null, mode));
+  }
 
   return (
     <AppShell

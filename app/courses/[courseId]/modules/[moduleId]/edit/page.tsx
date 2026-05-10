@@ -15,6 +15,7 @@ import {
 import { createClient } from "@/lib/supabase/server";
 
 import { updateModule } from "../../../../actions";
+import { BuilderInfoHint } from "../../../../components/builder-info-hint";
 
 type ModuleEditPageProps = {
   params: Promise<{ courseId: string; moduleId: string }>;
@@ -79,9 +80,18 @@ export default async function ModuleEditPage({
               <h1 className="mt-1 text-2xl font-semibold tracking-tight text-[color:var(--ink)]">
                 {detail.module.title}
               </h1>
-              <p className="mt-2 max-w-3xl text-sm leading-6 text-[color:var(--mid)]">
-                Edit the module in a full-page view, then return to the module overview or task table.
-              </p>
+              <div className="mt-3 flex flex-wrap items-center gap-2 rounded-[1.35rem] border border-[var(--border)] bg-white px-3 py-3 text-sm text-[color:var(--mid)]">
+                <span className="rounded-full border border-[var(--border)] px-3 py-1 font-medium text-[color:var(--ink)]">
+                  Full-page edit
+                </span>
+                <span className="rounded-full border border-[var(--border)] px-3 py-1">
+                  Return to task ordering when finished
+                </span>
+                <BuilderInfoHint label="Module edit help">
+                  Keep this page for title and description changes. Task ordering, duplication, and
+                  quick edits stay on the module overview.
+                </BuilderInfoHint>
+              </div>
             </div>
             <div className="flex flex-wrap gap-2">
               <Link
@@ -151,12 +161,18 @@ export default async function ModuleEditPage({
               type="submit"
               className="inline-flex h-11 items-center justify-center rounded-full bg-[var(--scarlett)] px-5 text-sm font-medium text-white transition hover:brightness-105"
             >
+              <svg aria-hidden="true" viewBox="0 0 20 20" className="mr-2 h-4.5 w-4.5 fill-current">
+                <path d="M4 3h9.6a1 1 0 0 1 .7.3l2.4 2.4a1 1 0 0 1 .3.7V16a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Zm1 2v10h10V7.4L13.6 5H13v3a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1V5H5Zm4 0v2h2V5H9Z" />
+              </svg>
               Save module
             </button>
             <Link
               href={moduleBackPath}
               className="inline-flex h-11 items-center justify-center rounded-full border border-[var(--border)] bg-white px-5 text-sm font-medium text-[color:var(--ink)] transition hover:text-[var(--scarlett)]"
             >
+              <svg aria-hidden="true" viewBox="0 0 20 20" className="mr-2 h-4.5 w-4.5 fill-current">
+                <path d="M5.7 5.7a1 1 0 0 1 1.4 0L10 8.6l2.9-2.9a1 1 0 1 1 1.4 1.4L11.4 10l2.9 2.9a1 1 0 0 1-1.4 1.4L10 11.4l-2.9 2.9a1 1 0 0 1-1.4-1.4l2.9-2.9-2.9-2.9a1 1 0 0 1 0-1.4Z" />
+              </svg>
               Cancel
             </Link>
           </div>

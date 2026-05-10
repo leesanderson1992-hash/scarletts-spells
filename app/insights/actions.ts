@@ -4,7 +4,10 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { buildScopedPath, normaliseAppMode } from "@/lib/children";
-import { GOLD_BAR_TO_GOLD_COIN_RATE, getAvailableGoldBars, type GoldBarLedgerEvent } from "@/lib/rewards/ledger";
+import { awardGoldCoins, spendGoldCoins } from "@/lib/rewards/course-coins";
+import { getChildRewardLedgerReadModel, GOLD_BAR_TO_GOLD_COIN_RATE } from "@/lib/rewards/read-model";
+import { confirmPositiveEvidenceSuggestions } from "@/lib/writing-practice/positive-evidence";
+import { markGoldBarConverted } from "@/lib/rewards/spelling-rewards";
 import { createClient } from "@/lib/supabase/server";
 
 function buildRedirectWithMessage(
@@ -17,6 +20,114 @@ function buildRedirectWithMessage(
   searchParams.set(key, value);
   const nextQuery = searchParams.toString();
   return nextQuery ? `${pathname}?${nextQuery}` : pathname;
+}
+
+function revalidateInsightsOnly() {
+  revalidatePath("/insights");
+}
+
+function parseSuggestionIdList(value: FormDataEntryValue | null) {
+  if (typeof value !== "string") {
+    return [] as string[];
+  }
+
+  return Array.from(
+    new Set(
+      value
+        .split(",")
+        .map((entry) => entry.trim())
+        .filter(Boolean),
+    ),
+  );
+}
+
+export async function confirmInsightsPositiveEvidence(formData: FormData) {
+  const childId = formData.get("child_id");
+  const mode = formData.get("mode");
+  const suggestionId = formData.get("suggestion_id");
+  const safeMode = normaliseAppMode(typeof mode === "string" ? mode : undefined);
+
+  if (
+    typeof childId !== "string" ||
+    !childId ||
+    typeof suggestionId !== "string" ||
+    !suggestionId
+  ) {
+    redirect("/insights?error=We%20couldn%27t%20find%20that%20transfer%20evidence.");
+  }
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect("/login");
+  }
+
+  const summary = await confirmPositiveEvidenceSuggestions({
+    supabase,
+    parentUserId: user.id,
+    childId,
+    suggestionIds: [suggestionId],
+    surface: "insights",
+    maxConfirmCount: 1,
+  });
+
+  revalidateInsightsOnly();
+
+  redirect(
+    buildRedirectWithMessage(
+      buildScopedPath("/insights", childId, safeMode),
+      summary.confirmedCount > 0 ? "saved" : "error",
+      summary.confirmedCount > 0
+        ? "Transfer evidence confirmed from insights."
+        : "That transfer evidence could not be confirmed here.",
+    ),
+  );
+}
+
+export async function bulkConfirmInsightsPositiveEvidence(formData: FormData) {
+  const childId = formData.get("child_id");
+  const mode = formData.get("mode");
+  const suggestionIds = parseSuggestionIdList(formData.get("suggestion_ids"));
+  const safeMode = normaliseAppMode(typeof mode === "string" ? mode : undefined);
+
+  if (typeof childId !== "string" || !childId || suggestionIds.length === 0) {
+    redirect("/insights?error=We%20couldn%27t%20find%20those%20transfer%20matches.");
+  }
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect("/login");
+  }
+
+  const summary = await confirmPositiveEvidenceSuggestions({
+    supabase,
+    parentUserId: user.id,
+    childId,
+    suggestionIds,
+    surface: "insights",
+    maxConfirmCount: 3,
+  });
+
+  revalidateInsightsOnly();
+
+  redirect(
+    buildRedirectWithMessage(
+      buildScopedPath("/insights", childId, safeMode),
+      summary.confirmedCount > 0 ? "saved" : "error",
+      summary.confirmedCount > 0
+        ? `Confirmed ${summary.confirmedCount} transfer match${
+            summary.confirmedCount === 1 ? "" : "es"
+          } from insights.`
+        : "No eligible transfer matches were ready to confirm.",
+    ),
+  );
 }
 
 export async function convertGoldBarsToCoins(formData: FormData) {
@@ -39,7 +150,7 @@ export async function convertGoldBarsToCoins(formData: FormData) {
 
   const { data: child } = await supabase
     .from("children")
-    .select("id, gold_coin_balance")
+    .select("id")
     .eq("id", childId)
     .eq("parent_user_id", user.id)
     .maybeSingle();
@@ -48,13 +159,17 @@ export async function convertGoldBarsToCoins(formData: FormData) {
     redirect("/insights?error=We%20couldn%27t%20find%20that%20child.");
   }
 
-  const { data: goldBarEvents } = await supabase
-    .from("child_gold_bar_ledger_events")
-    .select("event_type, amount")
+  const { data: availableBarRows } = await supabase
+    .from("spelling_reward_states")
+    .select("target_word")
     .eq("child_id", childId)
-    .eq("parent_user_id", user.id);
+    .eq("parent_user_id", user.id)
+    .eq("reward_state", "gold_bar_earned")
+    .eq("has_converted_gold_bar", false);
 
-  const availableGoldBars = getAvailableGoldBars((goldBarEvents ?? []) as GoldBarLedgerEvent[]);
+  const redeemableGoldBarWords = (availableBarRows ?? [])
+    .filter((row) => Boolean((row as { target_word?: string }).target_word));
+  const availableGoldBars = redeemableGoldBarWords.length;
 
   if (availableGoldBars < 1) {
     redirect(
@@ -68,33 +183,29 @@ export async function convertGoldBarsToCoins(formData: FormData) {
 
   const goldCoinsToAdd = availableGoldBars * GOLD_BAR_TO_GOLD_COIN_RATE;
 
-  await supabase.from("child_gold_bar_ledger_events").insert({
-    child_id: childId,
-    parent_user_id: user.id,
-    event_type: "converted",
-    amount: availableGoldBars,
-    source: "manual_conversion",
-    notes: `Converted ${availableGoldBars} Gold Bar${availableGoldBars === 1 ? "" : "s"} into ${goldCoinsToAdd} Gold Coins.`,
+  await markGoldBarConverted({
+    supabase,
+    childId,
+    parentUserId: user.id,
+    targetWords: redeemableGoldBarWords.map((row) => (row as { target_word: string }).target_word),
   });
 
-  await supabase.from("child_gold_coin_ledger_events").insert({
-    child_id: childId,
-    parent_user_id: user.id,
-    event_type: "converted_from_bar",
+  await awardGoldCoins({
+    supabase,
+    parentUserId: user.id,
+    childId,
     amount: goldCoinsToAdd,
+    eventType: "converted_from_bar",
     source: "gold_bar_conversion",
+    relatedEntityType: "gold_bar_conversion",
+    relatedEntityId: redeemableGoldBarWords
+      .map((row) => row.target_word)
+      .sort()
+      .join("|"),
     notes: `Added ${goldCoinsToAdd} Gold Coins from Gold Bar conversion.`,
   });
 
-  await supabase
-      .from("children")
-      .update({
-      gold_coin_balance: (child.gold_coin_balance ?? 0) + goldCoinsToAdd,
-      })
-    .eq("id", childId)
-    .eq("parent_user_id", user.id);
-
-  revalidatePath("/insights");
+  revalidateInsightsOnly();
   revalidatePath("/dashboard");
   revalidatePath("/learn/week");
 
@@ -120,12 +231,16 @@ export async function requestGoldCoinTransfer(formData: FormData) {
 
   const requestedAmount = typeof amount === "string" ? Number(amount) : NaN;
 
-  if (!Number.isInteger(requestedAmount) || requestedAmount < 1) {
+  if (
+    !Number.isInteger(requestedAmount) ||
+    requestedAmount < 100 ||
+    requestedAmount % 100 !== 0
+  ) {
     redirect(
       buildRedirectWithMessage(
         buildScopedPath("/insights", childId, safeMode),
         "error",
-        "Choose at least 1 Gold Coin to request.",
+        "Requests must be in 100 Gold Coin blocks.",
       ),
     );
   }
@@ -139,30 +254,25 @@ export async function requestGoldCoinTransfer(formData: FormData) {
     redirect("/login");
   }
 
-  const [{ data: child }, { data: pendingRequests }] = await Promise.all([
+  const [{ data: child }, rewardLedgerReadModel] = await Promise.all([
     supabase
       .from("children")
-      .select("id, gold_coin_balance")
+      .select("id")
       .eq("id", childId)
       .eq("parent_user_id", user.id)
       .maybeSingle(),
-    supabase
-      .from("gold_coin_transfer_requests")
-      .select("gold_coin_amount")
-      .eq("child_id", childId)
-      .eq("parent_user_id", user.id)
-      .eq("status", "pending"),
+    getChildRewardLedgerReadModel({
+      supabase,
+      parentUserId: user.id,
+      childId,
+    }),
   ]);
 
   if (!child) {
     redirect("/insights?error=We%20couldn%27t%20find%20that%20child.");
   }
 
-  const pendingAmount = (pendingRequests ?? []).reduce(
-    (sum, request) => sum + (request.gold_coin_amount ?? 0),
-    0,
-  );
-  const availableToRequest = Math.max((child.gold_coin_balance ?? 0) - pendingAmount, 0);
+  const availableToRequest = rewardLedgerReadModel.spendableSnapshot.spendableGoldCoins;
 
   if (requestedAmount > availableToRequest) {
     redirect(
@@ -182,7 +292,7 @@ export async function requestGoldCoinTransfer(formData: FormData) {
     child_note: typeof childNote === "string" && childNote.trim() ? childNote.trim() : null,
   });
 
-  revalidatePath("/insights");
+  revalidateInsightsOnly();
 
   redirect(
     buildRedirectWithMessage(
@@ -230,7 +340,7 @@ export async function decideGoldCoinTransferRequest(formData: FormData) {
       .maybeSingle(),
     supabase
       .from("children")
-      .select("id, gold_coin_balance")
+      .select("id")
       .eq("id", childId)
       .eq("parent_user_id", user.id)
       .maybeSingle(),
@@ -258,7 +368,7 @@ export async function decideGoldCoinTransferRequest(formData: FormData) {
       .eq("id", request.id)
       .eq("parent_user_id", user.id);
 
-    revalidatePath("/insights");
+    revalidateInsightsOnly();
 
     redirect(
       buildRedirectWithMessage(
@@ -269,7 +379,7 @@ export async function decideGoldCoinTransferRequest(formData: FormData) {
     );
   }
 
-  if ((child.gold_coin_balance ?? 0) < (request.gold_coin_amount ?? 0)) {
+  if ((request.gold_coin_amount ?? 0) < 1) {
     redirect(
       buildRedirectWithMessage(
         buildScopedPath("/insights", childId, safeMode),
@@ -281,24 +391,26 @@ export async function decideGoldCoinTransferRequest(formData: FormData) {
 
   const now = new Date().toISOString();
 
-  await supabase
-    .from("children")
-    .update({
-      gold_coin_balance: (child.gold_coin_balance ?? 0) - (request.gold_coin_amount ?? 0),
-    })
-    .eq("id", child.id)
-    .eq("parent_user_id", user.id);
-
-  await supabase.from("child_gold_coin_ledger_events").insert({
-    child_id: childId,
-    parent_user_id: user.id,
-    event_type: "transferred",
+  const transferred = await spendGoldCoins({
+    supabase,
+    parentUserId: user.id,
+    childId,
     amount: request.gold_coin_amount,
     source: "pocket_money_transfer",
-    related_entity_type: "gold_coin_transfer_request",
-    related_entity_id: request.id,
+    relatedEntityType: "gold_coin_transfer_request",
+    relatedEntityId: request.id,
     notes: `Transferred ${request.gold_coin_amount} Gold Coin${request.gold_coin_amount === 1 ? "" : "s"} after parent approval.`,
   });
+
+  if (!transferred) {
+    redirect(
+      buildRedirectWithMessage(
+        buildScopedPath("/insights", childId, safeMode),
+        "error",
+        "There are not enough Gold Coins available to approve that request.",
+      ),
+    );
+  }
 
   await supabase
     .from("gold_coin_transfer_requests")

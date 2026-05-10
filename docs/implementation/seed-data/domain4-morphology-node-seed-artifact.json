@@ -1,0 +1,1433 @@
+{
+  "seed_version": "domain4-mvp1-preflight-v1",
+  "storage_type": "metadata_only_seed_rows",
+  "assignable_in_mvp1": false,
+  "reason": "The current runtime catalog requires an assignable practice_route. Morphology nodes are preserved here until the catalog can represent non-assignable nodes without fabricated routes.",
+  "morphology_node_count": 104,
+  "nodes": [
+    {
+      "cluster_id": "D4_MOR_BASE_WORDS",
+      "family_id": "D4_MOR",
+      "cluster_name": "Base word awareness",
+      "node_id": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "node_name": "Identify base words inside longer words",
+      "developmental_foundation": "Morphological spelling control",
+      "teaching_point": "Word parts and meaning help preserve spellings even when pronunciation changes or when words become longer.",
+      "example_words": [
+        "help/helpful",
+        "play/playing"
+      ]
+    },
+    {
+      "cluster_id": "D4_MOR_BASE_WORDS",
+      "family_id": "D4_MOR",
+      "cluster_name": "Base word awareness",
+      "node_id": "D4_MOR_BASE_WORDS_PRESERVE_BASE",
+      "node_name": "Preserve base spelling in longer words",
+      "developmental_foundation": "Morphological spelling control",
+      "teaching_point": "Word parts and meaning help preserve spellings even when pronunciation changes or when words become longer.",
+      "example_words": [
+        "hope/hopeful",
+        "care/careful"
+      ]
+    },
+    {
+      "cluster_id": "D4_MOR_BASE_WORDS",
+      "family_id": "D4_MOR",
+      "cluster_name": "Base word awareness",
+      "node_id": "D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX",
+      "node_name": "Build words from base + suffix",
+      "developmental_foundation": "Morphological spelling control",
+      "teaching_point": "Word parts and meaning help preserve spellings even when pronunciation changes or when words become longer.",
+      "example_words": [
+        "jump/jumped",
+        "pay/payment"
+      ]
+    },
+    {
+      "cluster_id": "D4_MOR_BASE_WORDS",
+      "family_id": "D4_MOR",
+      "cluster_name": "Base word awareness",
+      "node_id": "D4_MOR_BASE_WORDS_BASE_PLUS_PREFIX",
+      "node_name": "Build words from prefix + base",
+      "developmental_foundation": "Morphological spelling control",
+      "teaching_point": "Word parts and meaning help preserve spellings even when pronunciation changes or when words become longer.",
+      "example_words": [
+        "unhappy",
+        "replay"
+      ]
+    },
+    {
+      "cluster_id": "D4_MOR_BASE_WORDS",
+      "family_id": "D4_MOR",
+      "cluster_name": "Base word awareness",
+      "node_id": "D4_MOR_BASE_WORDS_BASE_IN_COMPOUND",
+      "node_name": "Find base words in compounds",
+      "developmental_foundation": "Morphological spelling control",
+      "teaching_point": "Word parts and meaning help preserve spellings even when pronunciation changes or when words become longer.",
+      "example_words": [
+        "sunshine",
+        "football"
+      ]
+    },
+    {
+      "cluster_id": "D4_MOR_BASE_WORDS",
+      "family_id": "D4_MOR",
+      "cluster_name": "Base word awareness",
+      "node_id": "D4_MOR_BASE_WORDS_BASE_MEANING",
+      "node_name": "Use base meaning to support spelling",
+      "developmental_foundation": "Morphological spelling control",
+      "teaching_point": "Word parts and meaning help preserve spellings even when pronunciation changes or when words become longer.",
+      "example_words": [
+        "sign/signal",
+        "heal/health"
+      ]
+    },
+    {
+      "cluster_id": "D4_MOR_BASE_WORDS",
+      "family_id": "D4_MOR",
+      "cluster_name": "Base word awareness",
+      "node_id": "D4_MOR_BASE_WORDS_BASE_PROOF",
+      "node_name": "Proofread base-word spellings",
+      "developmental_foundation": "Morphological spelling control",
+      "teaching_point": "Word parts and meaning help preserve spellings even when pronunciation changes or when words become longer.",
+      "example_words": [
+        "helth/health",
+        "goverment/government"
+      ]
+    },
+    {
+      "cluster_id": "D4_MOR_BASE_WORDS",
+      "family_id": "D4_MOR",
+      "cluster_name": "Base word awareness",
+      "node_id": "D4_MOR_BASE_WORDS_BASE_REVIEW",
+      "node_name": "Review base word awareness",
+      "developmental_foundation": "Morphological spelling control",
+      "teaching_point": "Word parts and meaning help preserve spellings even when pronunciation changes or when words become longer.",
+      "example_words": [
+        "helpful",
+        "payment",
+        "sunshine",
+        "signal"
+      ]
+    },
+    {
+      "cluster_id": "D4_MOR_PREFIXES",
+      "family_id": "D4_MOR",
+      "cluster_name": "Prefixes",
+      "node_id": "D4_MOR_PREFIXES_UN",
+      "node_name": "Spell prefix `un-`",
+      "developmental_foundation": "Morphological spelling control",
+      "teaching_point": "Word parts and meaning help preserve spellings even when pronunciation changes or when words become longer.",
+      "example_words": [
+        "unhappy",
+        "unkind",
+        "unfair"
+      ]
+    },
+    {
+      "cluster_id": "D4_MOR_PREFIXES",
+      "family_id": "D4_MOR",
+      "cluster_name": "Prefixes",
+      "node_id": "D4_MOR_PREFIXES_RE",
+      "node_name": "Spell prefix `re-`",
+      "developmental_foundation": "Morphological spelling control",
+      "teaching_point": "Word parts and meaning help preserve spellings even when pronunciation changes or when words become longer.",
+      "example_words": [
+        "replay",
+        "rewrite",
+        "return"
+      ]
+    },
+    {
+      "cluster_id": "D4_MOR_PREFIXES",
+      "family_id": "D4_MOR",
+      "cluster_name": "Prefixes",
+      "node_id": "D4_MOR_PREFIXES_PRE",
+      "node_name": "Spell prefix `pre-`",
+      "developmental_foundation": "Morphological spelling control",
+      "teaching_point": "Word parts and meaning help preserve spellings even when pronunciation changes or when words become longer.",
+      "example_words": [
+        "preview",
+        "preheat",
+        "prepay"
+      ]
+    },
+    {
+      "cluster_id": "D4_MOR_PREFIXES",
+      "family_id": "D4_MOR",
+      "cluster_name": "Prefixes",
+      "node_id": "D4_MOR_PREFIXES_DIS",
+      "node_name": "Spell prefix `dis-`",
+      "developmental_foundation": "Morphological spelling control",
+      "teaching_point": "Word parts and meaning help preserve spellings even when pronunciation changes or when words become longer.",
+      "example_words": [
+        "dislike",
+        "disagree",
+        "disappear"
+      ]
+    },
+    {
+      "cluster_id": "D4_MOR_PREFIXES",
+      "family_id": "D4_MOR",
+      "cluster_name": "Prefixes",
+      "node_id": "D4_MOR_PREFIXES_MIS",
+      "node_name": "Spell prefix `mis-`",
+      "developmental_foundation": "Morphological spelling control",
+      "teaching_point": "Word parts and meaning help preserve spellings even when pronunciation changes or when words become longer.",
+      "example_words": [
+        "misread",
+        "misspell",
+        "mistake"
+      ]
+    },
+    {
+      "cluster_id": "D4_MOR_PREFIXES",
+      "family_id": "D4_MOR",
+      "cluster_name": "Prefixes",
+      "node_id": "D4_MOR_PREFIXES_SUB",
+      "node_name": "Spell prefix `sub-`",
+      "developmental_foundation": "Morphological spelling control",
+      "teaching_point": "Word parts and meaning help preserve spellings even when pronunciation changes or when words become longer.",
+      "example_words": [
+        "subway",
+        "submarine",
+        "subtract"
+      ]
+    },
+    {
+      "cluster_id": "D4_MOR_PREFIXES",
+      "family_id": "D4_MOR",
+      "cluster_name": "Prefixes",
+      "node_id": "D4_MOR_PREFIXES_INTER",
+      "node_name": "Spell prefix `inter-`",
+      "developmental_foundation": "Morphological spelling control",
+      "teaching_point": "Word parts and meaning help preserve spellings even when pronunciation changes or when words become longer.",
+      "example_words": [
+        "internet",
+        "interact",
+        "international"
+      ]
+    },
+    {
+      "cluster_id": "D4_MOR_PREFIXES",
+      "family_id": "D4_MOR",
+      "cluster_name": "Prefixes",
+      "node_id": "D4_MOR_PREFIXES_PREFIX_BASE_BOUNDARY",
+      "node_name": "Keep prefix and base clear",
+      "developmental_foundation": "Morphological spelling control",
+      "teaching_point": "Word parts and meaning help preserve spellings even when pronunciation changes or when words become longer.",
+      "example_words": [
+        "un+happy",
+        "re+play"
+      ]
+    },
+    {
+      "cluster_id": "D4_MOR_PREFIXES",
+      "family_id": "D4_MOR",
+      "cluster_name": "Prefixes",
+      "node_id": "D4_MOR_PREFIXES_PREFIX_PROOF",
+      "node_name": "Proofread prefix spelling",
+      "developmental_foundation": "Morphological spelling control",
+      "teaching_point": "Word parts and meaning help preserve spellings even when pronunciation changes or when words become longer.",
+      "example_words": [
+        "dissapear/disappear",
+        "unnesessary/unnecessary"
+      ]
+    },
+    {
+      "cluster_id": "D4_MOR_PREFIXES",
+      "family_id": "D4_MOR",
+      "cluster_name": "Prefixes",
+      "node_id": "D4_MOR_PREFIXES_PREFIX_REVIEW",
+      "node_name": "Review common prefixes",
+      "developmental_foundation": "Morphological spelling control",
+      "teaching_point": "Word parts and meaning help preserve spellings even when pronunciation changes or when words become longer.",
+      "example_words": [
+        "unfair",
+        "replay",
+        "dislike",
+        "misread"
+      ]
+    },
+    {
+      "cluster_id": "D4_MOR_SUFFIXES",
+      "family_id": "D4_MOR",
+      "cluster_name": "Suffixes",
+      "node_id": "D4_MOR_SUFFIXES_MENT",
+      "node_name": "Spell suffix `-ment`",
+      "developmental_foundation": "Morphological spelling control",
+      "teaching_point": "Word parts and meaning help preserve spellings even when pronunciation changes or when words become longer.",
+      "example_words": [
+        "payment",
+        "government",
+        "agreement"
+      ]
+    },
+    {
+      "cluster_id": "D4_MOR_SUFFIXES",
+      "family_id": "D4_MOR",
+      "cluster_name": "Suffixes",
+      "node_id": "D4_MOR_SUFFIXES_NESS",
+      "node_name": "Spell suffix `-ness`",
+      "developmental_foundation": "Morphological spelling control",
+      "teaching_point": "Word parts and meaning help preserve spellings even when pronunciation changes or when words become longer.",
+      "example_words": [
+        "kindness",
+        "darkness",
+        "happiness"
+      ]
+    },
+    {
+      "cluster_id": "D4_MOR_SUFFIXES",
+      "family_id": "D4_MOR",
+      "cluster_name": "Suffixes",
+      "node_id": "D4_MOR_SUFFIXES_FUL",
+      "node_name": "Spell suffix `-ful` with one `l`",
+      "developmental_foundation": "Morphological spelling control",
+      "teaching_point": "Word parts and meaning help preserve spellings even when pronunciation changes or when words become longer.",
+      "example_words": [
+        "helpful",
+        "careful",
+        "playful"
+      ]
+    },
+    {
+      "cluster_id": "D4_MOR_SUFFIXES",
+      "family_id": "D4_MOR",
+      "cluster_name": "Suffixes",
+      "node_id": "D4_MOR_SUFFIXES_LESS",
+      "node_name": "Spell suffix `-less`",
+      "developmental_foundation": "Morphological spelling control",
+      "teaching_point": "Word parts and meaning help preserve spellings even when pronunciation changes or when words become longer.",
+      "example_words": [
+        "careless",
+        "hopeless",
+        "fearless"
+      ]
+    },
+    {
+      "cluster_id": "D4_MOR_SUFFIXES",
+      "family_id": "D4_MOR",
+      "cluster_name": "Suffixes",
+      "node_id": "D4_MOR_SUFFIXES_LY",
+      "node_name": "Spell suffix `-ly`",
+      "developmental_foundation": "Morphological spelling control",
+      "teaching_point": "Word parts and meaning help preserve spellings even when pronunciation changes or when words become longer.",
+      "example_words": [
+        "quickly",
+        "slowly",
+        "happily"
+      ]
+    },
+    {
+      "cluster_id": "D4_MOR_SUFFIXES",
+      "family_id": "D4_MOR",
+      "cluster_name": "Suffixes",
+      "node_id": "D4_MOR_SUFFIXES_ABLE",
+      "node_name": "Spell suffix `-able`",
+      "developmental_foundation": "Morphological spelling control",
+      "teaching_point": "Word parts and meaning help preserve spellings even when pronunciation changes or when words become longer.",
+      "example_words": [
+        "readable",
+        "enjoyable",
+        "comfortable"
+      ]
+    },
+    {
+      "cluster_id": "D4_MOR_SUFFIXES",
+      "family_id": "D4_MOR",
+      "cluster_name": "Suffixes",
+      "node_id": "D4_MOR_SUFFIXES_IBLE",
+      "node_name": "Spell suffix `-ible`",
+      "developmental_foundation": "Morphological spelling control",
+      "teaching_point": "Word parts and meaning help preserve spellings even when pronunciation changes or when words become longer.",
+      "example_words": [
+        "possible",
+        "visible",
+        "terrible"
+      ]
+    },
+    {
+      "cluster_id": "D4_MOR_SUFFIXES",
+      "family_id": "D4_MOR",
+      "cluster_name": "Suffixes",
+      "node_id": "D4_MOR_SUFFIXES_OUS",
+      "node_name": "Spell suffix `-ous`",
+      "developmental_foundation": "Morphological spelling control",
+      "teaching_point": "Word parts and meaning help preserve spellings even when pronunciation changes or when words become longer.",
+      "example_words": [
+        "famous",
+        "dangerous",
+        "nervous"
+      ]
+    },
+    {
+      "cluster_id": "D4_MOR_SUFFIXES",
+      "family_id": "D4_MOR",
+      "cluster_name": "Suffixes",
+      "node_id": "D4_MOR_SUFFIXES_TION",
+      "node_name": "Spell suffix `-tion`",
+      "developmental_foundation": "Morphological spelling control",
+      "teaching_point": "Word parts and meaning help preserve spellings even when pronunciation changes or when words become longer.",
+      "example_words": [
+        "action",
+        "station",
+        "invention"
+      ]
+    },
+    {
+      "cluster_id": "D4_MOR_SUFFIXES",
+      "family_id": "D4_MOR",
+      "cluster_name": "Suffixes",
+      "node_id": "D4_MOR_SUFFIXES_SION",
+      "node_name": "Spell suffix `-sion`",
+      "developmental_foundation": "Morphological spelling control",
+      "teaching_point": "Word parts and meaning help preserve spellings even when pronunciation changes or when words become longer.",
+      "example_words": [
+        "vision",
+        "division",
+        "confusion"
+      ]
+    },
+    {
+      "cluster_id": "D4_MOR_SUFFIXES",
+      "family_id": "D4_MOR",
+      "cluster_name": "Suffixes",
+      "node_id": "D4_MOR_SUFFIXES_SUFFIX_BASE_CHANGE",
+      "node_name": "Handle base changes before suffixes",
+      "developmental_foundation": "Morphological spelling control",
+      "teaching_point": "Word parts and meaning help preserve spellings even when pronunciation changes or when words become longer.",
+      "example_words": [
+        "happy/happiness",
+        "create/creation"
+      ]
+    },
+    {
+      "cluster_id": "D4_MOR_SUFFIXES",
+      "family_id": "D4_MOR",
+      "cluster_name": "Suffixes",
+      "node_id": "D4_MOR_SUFFIXES_SUFFIX_REVIEW",
+      "node_name": "Review common suffix spellings",
+      "developmental_foundation": "Morphological spelling control",
+      "teaching_point": "Word parts and meaning help preserve spellings even when pronunciation changes or when words become longer.",
+      "example_words": [
+        "payment",
+        "kindness",
+        "helpful",
+        "action"
+      ]
+    },
+    {
+      "cluster_id": "D4_MOR_COMPOUND_WORDS",
+      "family_id": "D4_MOR",
+      "cluster_name": "Compound words",
+      "node_id": "D4_MOR_COMPOUND_WORDS_TWO_BASES",
+      "node_name": "Spell compounds by preserving two bases",
+      "developmental_foundation": "Morphological spelling control",
+      "teaching_point": "Word parts and meaning help preserve spellings even when pronunciation changes or when words become longer.",
+      "example_words": [
+        "sunshine",
+        "football",
+        "bedroom"
+      ]
+    },
+    {
+      "cluster_id": "D4_MOR_COMPOUND_WORDS",
+      "family_id": "D4_MOR",
+      "cluster_name": "Compound words",
+      "node_id": "D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS",
+      "node_name": "Spell closed compounds",
+      "developmental_foundation": "Morphological spelling control",
+      "teaching_point": "Word parts and meaning help preserve spellings even when pronunciation changes or when words become longer.",
+      "example_words": [
+        "notebook",
+        "raincoat",
+        "playground"
+      ]
+    },
+    {
+      "cluster_id": "D4_MOR_COMPOUND_WORDS",
+      "family_id": "D4_MOR",
+      "cluster_name": "Compound words",
+      "node_id": "D4_MOR_COMPOUND_WORDS_OPEN_COMPOUNDS",
+      "node_name": "Recognise open compounds",
+      "developmental_foundation": "Morphological spelling control",
+      "teaching_point": "Word parts and meaning help preserve spellings even when pronunciation changes or when words become longer.",
+      "example_words": [
+        "ice cream",
+        "post office"
+      ]
+    },
+    {
+      "cluster_id": "D4_MOR_COMPOUND_WORDS",
+      "family_id": "D4_MOR",
+      "cluster_name": "Compound words",
+      "node_id": "D4_MOR_COMPOUND_WORDS_HYPHENATED_COMPOUNDS",
+      "node_name": "Recognise hyphenated compounds",
+      "developmental_foundation": "Morphological spelling control",
+      "teaching_point": "Word parts and meaning help preserve spellings even when pronunciation changes or when words become longer.",
+      "example_words": [
+        "mother-in-law",
+        "well-being"
+      ]
+    },
+    {
+      "cluster_id": "D4_MOR_COMPOUND_WORDS",
+      "family_id": "D4_MOR",
+      "cluster_name": "Compound words",
+      "node_id": "D4_MOR_COMPOUND_WORDS_COMPOUND_PROOF",
+      "node_name": "Proofread compound word boundaries",
+      "developmental_foundation": "Morphological spelling control",
+      "teaching_point": "Word parts and meaning help preserve spellings even when pronunciation changes or when words become longer.",
+      "example_words": [
+        "foot ball/football",
+        "bed room/bedroom"
+      ]
+    },
+    {
+      "cluster_id": "D4_MOR_COMPOUND_WORDS",
+      "family_id": "D4_MOR",
+      "cluster_name": "Compound words",
+      "node_id": "D4_MOR_COMPOUND_WORDS_COMPOUND_REVIEW",
+      "node_name": "Review compound word spelling",
+      "developmental_foundation": "Morphological spelling control",
+      "teaching_point": "Word parts and meaning help preserve spellings even when pronunciation changes or when words become longer.",
+      "example_words": [
+        "sunshine",
+        "bedroom",
+        "raincoat",
+        "notebook"
+      ]
+    },
+    {
+      "cluster_id": "D4_MOR_WORD_FAMILIES",
+      "family_id": "D4_MOR",
+      "cluster_name": "Word families",
+      "node_id": "D4_MOR_WORD_FAMILIES_FAMILY_BASE",
+      "node_name": "Use word family to preserve spelling",
+      "developmental_foundation": "Morphological spelling control",
+      "teaching_point": "Word parts and meaning help preserve spellings even when pronunciation changes or when words become longer.",
+      "example_words": [
+        "sign/signal",
+        "heal/health"
+      ]
+    },
+    {
+      "cluster_id": "D4_MOR_WORD_FAMILIES",
+      "family_id": "D4_MOR",
+      "cluster_name": "Word families",
+      "node_id": "D4_MOR_WORD_FAMILIES_FAMILY_VOWEL",
+      "node_name": "Use word family to recover hidden vowels",
+      "developmental_foundation": "Morphological spelling control",
+      "teaching_point": "Word parts and meaning help preserve spellings even when pronunciation changes or when words become longer.",
+      "example_words": [
+        "differ/different",
+        "define/definition"
+      ]
+    },
+    {
+      "cluster_id": "D4_MOR_WORD_FAMILIES",
+      "family_id": "D4_MOR",
+      "cluster_name": "Word families",
+      "node_id": "D4_MOR_WORD_FAMILIES_FAMILY_CONSONANT",
+      "node_name": "Use word family to recover hidden consonants",
+      "developmental_foundation": "Morphological spelling control",
+      "teaching_point": "Word parts and meaning help preserve spellings even when pronunciation changes or when words become longer.",
+      "example_words": [
+        "sign/signature",
+        "bomb/bombard"
+      ]
+    },
+    {
+      "cluster_id": "D4_MOR_WORD_FAMILIES",
+      "family_id": "D4_MOR",
+      "cluster_name": "Word families",
+      "node_id": "D4_MOR_WORD_FAMILIES_FAMILY_MEANING",
+      "node_name": "Use family meaning to choose spelling",
+      "developmental_foundation": "Morphological spelling control",
+      "teaching_point": "Word parts and meaning help preserve spellings even when pronunciation changes or when words become longer.",
+      "example_words": [
+        "magic/magician",
+        "music/musician"
+      ]
+    },
+    {
+      "cluster_id": "D4_MOR_WORD_FAMILIES",
+      "family_id": "D4_MOR",
+      "cluster_name": "Word families",
+      "node_id": "D4_MOR_WORD_FAMILIES_FAMILY_SUFFIX",
+      "node_name": "Spell word families with suffixes",
+      "developmental_foundation": "Morphological spelling control",
+      "teaching_point": "Word parts and meaning help preserve spellings even when pronunciation changes or when words become longer.",
+      "example_words": [
+        "act/action/active"
+      ]
+    },
+    {
+      "cluster_id": "D4_MOR_WORD_FAMILIES",
+      "family_id": "D4_MOR",
+      "cluster_name": "Word families",
+      "node_id": "D4_MOR_WORD_FAMILIES_FAMILY_STRESS",
+      "node_name": "Handle stress shifts in word families",
+      "developmental_foundation": "Morphological spelling control",
+      "teaching_point": "Word parts and meaning help preserve spellings even when pronunciation changes or when words become longer.",
+      "example_words": [
+        "photograph/photography"
+      ]
+    },
+    {
+      "cluster_id": "D4_MOR_WORD_FAMILIES",
+      "family_id": "D4_MOR",
+      "cluster_name": "Word families",
+      "node_id": "D4_MOR_WORD_FAMILIES_FAMILY_PROOF",
+      "node_name": "Proofread with word-family support",
+      "developmental_foundation": "Morphological spelling control",
+      "teaching_point": "Word parts and meaning help preserve spellings even when pronunciation changes or when words become longer.",
+      "example_words": [
+        "sinature/signature",
+        "difrent/different"
+      ]
+    },
+    {
+      "cluster_id": "D4_MOR_WORD_FAMILIES",
+      "family_id": "D4_MOR",
+      "cluster_name": "Word families",
+      "node_id": "D4_MOR_WORD_FAMILIES_FAMILY_REVIEW",
+      "node_name": "Review word-family spelling",
+      "developmental_foundation": "Morphological spelling control",
+      "teaching_point": "Word parts and meaning help preserve spellings even when pronunciation changes or when words become longer.",
+      "example_words": [
+        "sign",
+        "signal",
+        "signature",
+        "design"
+      ]
+    },
+    {
+      "cluster_id": "D4_MOR_LATIN_ROOTS",
+      "family_id": "D4_MOR",
+      "cluster_name": "Latin roots",
+      "node_id": "D4_MOR_LATIN_ROOTS_PORT",
+      "node_name": "Spell Latin root `port`",
+      "developmental_foundation": "Morphological spelling control",
+      "teaching_point": "Word parts and meaning help preserve spellings even when pronunciation changes or when words become longer.",
+      "example_words": [
+        "transport",
+        "import",
+        "export"
+      ]
+    },
+    {
+      "cluster_id": "D4_MOR_LATIN_ROOTS",
+      "family_id": "D4_MOR",
+      "cluster_name": "Latin roots",
+      "node_id": "D4_MOR_LATIN_ROOTS_STRUCT",
+      "node_name": "Spell Latin root `struct`",
+      "developmental_foundation": "Morphological spelling control",
+      "teaching_point": "Word parts and meaning help preserve spellings even when pronunciation changes or when words become longer.",
+      "example_words": [
+        "construct",
+        "instruction",
+        "structure"
+      ]
+    },
+    {
+      "cluster_id": "D4_MOR_LATIN_ROOTS",
+      "family_id": "D4_MOR",
+      "cluster_name": "Latin roots",
+      "node_id": "D4_MOR_LATIN_ROOTS_SCRIPT",
+      "node_name": "Spell Latin root `script`",
+      "developmental_foundation": "Morphological spelling control",
+      "teaching_point": "Word parts and meaning help preserve spellings even when pronunciation changes or when words become longer.",
+      "example_words": [
+        "description",
+        "script",
+        "subscribe"
+      ]
+    },
+    {
+      "cluster_id": "D4_MOR_LATIN_ROOTS",
+      "family_id": "D4_MOR",
+      "cluster_name": "Latin roots",
+      "node_id": "D4_MOR_LATIN_ROOTS_TRACT",
+      "node_name": "Spell Latin root `tract`",
+      "developmental_foundation": "Morphological spelling control",
+      "teaching_point": "Word parts and meaning help preserve spellings even when pronunciation changes or when words become longer.",
+      "example_words": [
+        "subtract",
+        "attract",
+        "contract"
+      ]
+    },
+    {
+      "cluster_id": "D4_MOR_LATIN_ROOTS",
+      "family_id": "D4_MOR",
+      "cluster_name": "Latin roots",
+      "node_id": "D4_MOR_LATIN_ROOTS_DICT",
+      "node_name": "Spell Latin root `dict`",
+      "developmental_foundation": "Morphological spelling control",
+      "teaching_point": "Word parts and meaning help preserve spellings even when pronunciation changes or when words become longer.",
+      "example_words": [
+        "predict",
+        "dictate",
+        "dictionary"
+      ]
+    },
+    {
+      "cluster_id": "D4_MOR_LATIN_ROOTS",
+      "family_id": "D4_MOR",
+      "cluster_name": "Latin roots",
+      "node_id": "D4_MOR_LATIN_ROOTS_FORM",
+      "node_name": "Spell Latin root `form`",
+      "developmental_foundation": "Morphological spelling control",
+      "teaching_point": "Word parts and meaning help preserve spellings even when pronunciation changes or when words become longer.",
+      "example_words": [
+        "inform",
+        "transform",
+        "formation"
+      ]
+    },
+    {
+      "cluster_id": "D4_MOR_LATIN_ROOTS",
+      "family_id": "D4_MOR",
+      "cluster_name": "Latin roots",
+      "node_id": "D4_MOR_LATIN_ROOTS_SPECT",
+      "node_name": "Spell Latin root `spect`",
+      "developmental_foundation": "Morphological spelling control",
+      "teaching_point": "Word parts and meaning help preserve spellings even when pronunciation changes or when words become longer.",
+      "example_words": [
+        "inspect",
+        "respect",
+        "spectator"
+      ]
+    },
+    {
+      "cluster_id": "D4_MOR_LATIN_ROOTS",
+      "family_id": "D4_MOR",
+      "cluster_name": "Latin roots",
+      "node_id": "D4_MOR_LATIN_ROOTS_AUD",
+      "node_name": "Spell Latin root `aud`",
+      "developmental_foundation": "Morphological spelling control",
+      "teaching_point": "Word parts and meaning help preserve spellings even when pronunciation changes or when words become longer.",
+      "example_words": [
+        "audio",
+        "audience",
+        "audible"
+      ]
+    },
+    {
+      "cluster_id": "D4_MOR_LATIN_ROOTS",
+      "family_id": "D4_MOR",
+      "cluster_name": "Latin roots",
+      "node_id": "D4_MOR_LATIN_ROOTS_LATIN_ROOT_PROOF",
+      "node_name": "Proofread common Latin roots",
+      "developmental_foundation": "Morphological spelling control",
+      "teaching_point": "Word parts and meaning help preserve spellings even when pronunciation changes or when words become longer.",
+      "example_words": [
+        "struckt/struct",
+        "dic/dict"
+      ]
+    },
+    {
+      "cluster_id": "D4_MOR_LATIN_ROOTS",
+      "family_id": "D4_MOR",
+      "cluster_name": "Latin roots",
+      "node_id": "D4_MOR_LATIN_ROOTS_LATIN_ROOT_REVIEW",
+      "node_name": "Review Latin-root spellings",
+      "developmental_foundation": "Morphological spelling control",
+      "teaching_point": "Word parts and meaning help preserve spellings even when pronunciation changes or when words become longer.",
+      "example_words": [
+        "import",
+        "construct",
+        "predict",
+        "inspect"
+      ]
+    },
+    {
+      "cluster_id": "D4_MOR_GREEK_ROOTS",
+      "family_id": "D4_MOR",
+      "cluster_name": "Greek roots",
+      "node_id": "D4_MOR_GREEK_ROOTS_PHON",
+      "node_name": "Spell Greek root `phon`",
+      "developmental_foundation": "Morphological spelling control",
+      "teaching_point": "Word parts and meaning help preserve spellings even when pronunciation changes or when words become longer.",
+      "example_words": [
+        "phone",
+        "phonics",
+        "microphone"
+      ]
+    },
+    {
+      "cluster_id": "D4_MOR_GREEK_ROOTS",
+      "family_id": "D4_MOR",
+      "cluster_name": "Greek roots",
+      "node_id": "D4_MOR_GREEK_ROOTS_PHOTO",
+      "node_name": "Spell Greek root `photo`",
+      "developmental_foundation": "Morphological spelling control",
+      "teaching_point": "Word parts and meaning help preserve spellings even when pronunciation changes or when words become longer.",
+      "example_words": [
+        "photo",
+        "photograph",
+        "photosynthesis"
+      ]
+    },
+    {
+      "cluster_id": "D4_MOR_GREEK_ROOTS",
+      "family_id": "D4_MOR",
+      "cluster_name": "Greek roots",
+      "node_id": "D4_MOR_GREEK_ROOTS_GRAPH",
+      "node_name": "Spell Greek root `graph`",
+      "developmental_foundation": "Morphological spelling control",
+      "teaching_point": "Word parts and meaning help preserve spellings even when pronunciation changes or when words become longer.",
+      "example_words": [
+        "graph",
+        "graphic",
+        "autograph"
+      ]
+    },
+    {
+      "cluster_id": "D4_MOR_GREEK_ROOTS",
+      "family_id": "D4_MOR",
+      "cluster_name": "Greek roots",
+      "node_id": "D4_MOR_GREEK_ROOTS_TELE",
+      "node_name": "Spell Greek root `tele`",
+      "developmental_foundation": "Morphological spelling control",
+      "teaching_point": "Word parts and meaning help preserve spellings even when pronunciation changes or when words become longer.",
+      "example_words": [
+        "telephone",
+        "television",
+        "telescope"
+      ]
+    },
+    {
+      "cluster_id": "D4_MOR_GREEK_ROOTS",
+      "family_id": "D4_MOR",
+      "cluster_name": "Greek roots",
+      "node_id": "D4_MOR_GREEK_ROOTS_AUTO",
+      "node_name": "Spell Greek root `auto`",
+      "developmental_foundation": "Morphological spelling control",
+      "teaching_point": "Word parts and meaning help preserve spellings even when pronunciation changes or when words become longer.",
+      "example_words": [
+        "autograph",
+        "automatic",
+        "autobiography"
+      ]
+    },
+    {
+      "cluster_id": "D4_MOR_GREEK_ROOTS",
+      "family_id": "D4_MOR",
+      "cluster_name": "Greek roots",
+      "node_id": "D4_MOR_GREEK_ROOTS_BIO",
+      "node_name": "Spell Greek root `bio`",
+      "developmental_foundation": "Morphological spelling control",
+      "teaching_point": "Word parts and meaning help preserve spellings even when pronunciation changes or when words become longer.",
+      "example_words": [
+        "biology",
+        "biography",
+        "biodegradable"
+      ]
+    },
+    {
+      "cluster_id": "D4_MOR_GREEK_ROOTS",
+      "family_id": "D4_MOR",
+      "cluster_name": "Greek roots",
+      "node_id": "D4_MOR_GREEK_ROOTS_SCOPE",
+      "node_name": "Spell Greek root `scope`",
+      "developmental_foundation": "Morphological spelling control",
+      "teaching_point": "Word parts and meaning help preserve spellings even when pronunciation changes or when words become longer.",
+      "example_words": [
+        "telescope",
+        "microscope",
+        "periscope"
+      ]
+    },
+    {
+      "cluster_id": "D4_MOR_GREEK_ROOTS",
+      "family_id": "D4_MOR",
+      "cluster_name": "Greek roots",
+      "node_id": "D4_MOR_GREEK_ROOTS_METER",
+      "node_name": "Spell Greek root `meter`",
+      "developmental_foundation": "Morphological spelling control",
+      "teaching_point": "Word parts and meaning help preserve spellings even when pronunciation changes or when words become longer.",
+      "example_words": [
+        "thermometer",
+        "centimetre",
+        "diameter"
+      ]
+    },
+    {
+      "cluster_id": "D4_MOR_GREEK_ROOTS",
+      "family_id": "D4_MOR",
+      "cluster_name": "Greek roots",
+      "node_id": "D4_MOR_GREEK_ROOTS_GREEK_ROOT_PROOF",
+      "node_name": "Proofread common Greek roots",
+      "developmental_foundation": "Morphological spelling control",
+      "teaching_point": "Word parts and meaning help preserve spellings even when pronunciation changes or when words become longer.",
+      "example_words": [
+        "fone/phone",
+        "graf/graph"
+      ]
+    },
+    {
+      "cluster_id": "D4_MOR_GREEK_ROOTS",
+      "family_id": "D4_MOR",
+      "cluster_name": "Greek roots",
+      "node_id": "D4_MOR_GREEK_ROOTS_GREEK_ROOT_REVIEW",
+      "node_name": "Review Greek-root spellings",
+      "developmental_foundation": "Morphological spelling control",
+      "teaching_point": "Word parts and meaning help preserve spellings even when pronunciation changes or when words become longer.",
+      "example_words": [
+        "phone",
+        "photo",
+        "graph",
+        "telescope"
+      ]
+    },
+    {
+      "cluster_id": "D4_MOR_BASE_PRESERVATION",
+      "family_id": "D4_MOR",
+      "cluster_name": "Base preservation",
+      "node_id": "D4_MOR_BASE_PRESERVATION_E_BEFORE_CONSONANT_SUFFIX",
+      "node_name": "Keep final `e` before consonant suffix",
+      "developmental_foundation": "Morphological spelling control",
+      "teaching_point": "Word parts and meaning help preserve spellings even when pronunciation changes or when words become longer.",
+      "example_words": [
+        "careful",
+        "hopeful",
+        "useful"
+      ]
+    },
+    {
+      "cluster_id": "D4_MOR_BASE_PRESERVATION",
+      "family_id": "D4_MOR",
+      "cluster_name": "Base preservation",
+      "node_id": "D4_MOR_BASE_PRESERVATION_DROP_E_VOWEL_SUFFIX",
+      "node_name": "Drop final `e` before vowel suffix",
+      "developmental_foundation": "Morphological spelling control",
+      "teaching_point": "Word parts and meaning help preserve spellings even when pronunciation changes or when words become longer.",
+      "example_words": [
+        "making",
+        "smiling",
+        "hoped"
+      ]
+    },
+    {
+      "cluster_id": "D4_MOR_BASE_PRESERVATION",
+      "family_id": "D4_MOR",
+      "cluster_name": "Base preservation",
+      "node_id": "D4_MOR_BASE_PRESERVATION_Y_TO_I_SUFFIX",
+      "node_name": "Change `y` to `i` before suffixes",
+      "developmental_foundation": "Morphological spelling control",
+      "teaching_point": "Word parts and meaning help preserve spellings even when pronunciation changes or when words become longer.",
+      "example_words": [
+        "happy/happiness",
+        "try/tried"
+      ]
+    },
+    {
+      "cluster_id": "D4_MOR_BASE_PRESERVATION",
+      "family_id": "D4_MOR",
+      "cluster_name": "Base preservation",
+      "node_id": "D4_MOR_BASE_PRESERVATION_DOUBLE_BEFORE_SUFFIX",
+      "node_name": "Double final consonant before vowel suffix",
+      "developmental_foundation": "Morphological spelling control",
+      "teaching_point": "Word parts and meaning help preserve spellings even when pronunciation changes or when words become longer.",
+      "example_words": [
+        "running",
+        "stopped"
+      ]
+    },
+    {
+      "cluster_id": "D4_MOR_BASE_PRESERVATION",
+      "family_id": "D4_MOR",
+      "cluster_name": "Base preservation",
+      "node_id": "D4_MOR_BASE_PRESERVATION_NO_CHANGE_SUFFIX",
+      "node_name": "Preserve base with no change",
+      "developmental_foundation": "Morphological spelling control",
+      "teaching_point": "Word parts and meaning help preserve spellings even when pronunciation changes or when words become longer.",
+      "example_words": [
+        "helpful",
+        "payment",
+        "jumped"
+      ]
+    },
+    {
+      "cluster_id": "D4_MOR_BASE_PRESERVATION",
+      "family_id": "D4_MOR",
+      "cluster_name": "Base preservation",
+      "node_id": "D4_MOR_BASE_PRESERVATION_BASE_BEFORE_MENT",
+      "node_name": "Preserve base before `-ment`",
+      "developmental_foundation": "Morphological spelling control",
+      "teaching_point": "Word parts and meaning help preserve spellings even when pronunciation changes or when words become longer.",
+      "example_words": [
+        "govern/government",
+        "pay/payment"
+      ]
+    },
+    {
+      "cluster_id": "D4_MOR_BASE_PRESERVATION",
+      "family_id": "D4_MOR",
+      "cluster_name": "Base preservation",
+      "node_id": "D4_MOR_BASE_PRESERVATION_BASE_BEFORE_Y",
+      "node_name": "Preserve base before `-y`",
+      "developmental_foundation": "Morphological spelling control",
+      "teaching_point": "Word parts and meaning help preserve spellings even when pronunciation changes or when words become longer.",
+      "example_words": [
+        "health/healthy",
+        "wealth/wealthy"
+      ]
+    },
+    {
+      "cluster_id": "D4_MOR_BASE_PRESERVATION",
+      "family_id": "D4_MOR",
+      "cluster_name": "Base preservation",
+      "node_id": "D4_MOR_BASE_PRESERVATION_BASE_PRESERVE_REVIEW",
+      "node_name": "Review base preservation",
+      "developmental_foundation": "Morphological spelling control",
+      "teaching_point": "Word parts and meaning help preserve spellings even when pronunciation changes or when words become longer.",
+      "example_words": [
+        "healthy",
+        "government",
+        "running",
+        "hopeful"
+      ]
+    },
+    {
+      "cluster_id": "D4_MOR_BASE_PRESERVATION",
+      "family_id": "D4_MOR",
+      "cluster_name": "Base preservation",
+      "node_id": "D4_MOR_BASE_PRESERVATION_BASE_PRESERVE_PROOF",
+      "node_name": "Proofread base changes",
+      "developmental_foundation": "Morphological spelling control",
+      "teaching_point": "Word parts and meaning help preserve spellings even when pronunciation changes or when words become longer.",
+      "example_words": [
+        "helfy/healthy",
+        "goverment/government"
+      ]
+    },
+    {
+      "cluster_id": "D4_MOR_BASE_PRESERVATION",
+      "family_id": "D4_MOR",
+      "cluster_name": "Base preservation",
+      "node_id": "D4_MOR_BASE_PRESERVATION_BASE_PRESERVE_TRANSFER",
+      "node_name": "Use base preservation in writing",
+      "developmental_foundation": "Morphological spelling control",
+      "teaching_point": "Word parts and meaning help preserve spellings even when pronunciation changes or when words become longer.",
+      "example_words": [
+        "healthy",
+        "payment",
+        "hopeful",
+        "running"
+      ]
+    },
+    {
+      "cluster_id": "D4_MOR_PRONUNCIATION_SHIFT",
+      "family_id": "D4_MOR",
+      "cluster_name": "Pronunciation shifts in word families",
+      "node_id": "D4_MOR_PRONUNCIATION_SHIFT_SIGN_SIGNAL",
+      "node_name": "Preserve spelling across sign/signal",
+      "developmental_foundation": "Morphological spelling control",
+      "teaching_point": "Word parts and meaning help preserve spellings even when pronunciation changes or when words become longer.",
+      "example_words": [
+        "sign",
+        "signal",
+        "signature"
+      ]
+    },
+    {
+      "cluster_id": "D4_MOR_PRONUNCIATION_SHIFT",
+      "family_id": "D4_MOR",
+      "cluster_name": "Pronunciation shifts in word families",
+      "node_id": "D4_MOR_PRONUNCIATION_SHIFT_MAGIC_MAGICIAN",
+      "node_name": "Preserve spelling across magic/magician",
+      "developmental_foundation": "Morphological spelling control",
+      "teaching_point": "Word parts and meaning help preserve spellings even when pronunciation changes or when words become longer.",
+      "example_words": [
+        "magic",
+        "magician"
+      ]
+    },
+    {
+      "cluster_id": "D4_MOR_PRONUNCIATION_SHIFT",
+      "family_id": "D4_MOR",
+      "cluster_name": "Pronunciation shifts in word families",
+      "node_id": "D4_MOR_PRONUNCIATION_SHIFT_MUSIC_MUSICIAN",
+      "node_name": "Preserve spelling across music/musician",
+      "developmental_foundation": "Morphological spelling control",
+      "teaching_point": "Word parts and meaning help preserve spellings even when pronunciation changes or when words become longer.",
+      "example_words": [
+        "music",
+        "musician"
+      ]
+    },
+    {
+      "cluster_id": "D4_MOR_PRONUNCIATION_SHIFT",
+      "family_id": "D4_MOR",
+      "cluster_name": "Pronunciation shifts in word families",
+      "node_id": "D4_MOR_PRONUNCIATION_SHIFT_NATURE_NATURAL",
+      "node_name": "Preserve spelling across nature/natural",
+      "developmental_foundation": "Morphological spelling control",
+      "teaching_point": "Word parts and meaning help preserve spellings even when pronunciation changes or when words become longer.",
+      "example_words": [
+        "nature",
+        "natural"
+      ]
+    },
+    {
+      "cluster_id": "D4_MOR_PRONUNCIATION_SHIFT",
+      "family_id": "D4_MOR",
+      "cluster_name": "Pronunciation shifts in word families",
+      "node_id": "D4_MOR_PRONUNCIATION_SHIFT_HEAL_HEALTH",
+      "node_name": "Preserve spelling across heal/health",
+      "developmental_foundation": "Morphological spelling control",
+      "teaching_point": "Word parts and meaning help preserve spellings even when pronunciation changes or when words become longer.",
+      "example_words": [
+        "heal",
+        "health",
+        "healthy"
+      ]
+    },
+    {
+      "cluster_id": "D4_MOR_PRONUNCIATION_SHIFT",
+      "family_id": "D4_MOR",
+      "cluster_name": "Pronunciation shifts in word families",
+      "node_id": "D4_MOR_PRONUNCIATION_SHIFT_PHOTOGRAPHY",
+      "node_name": "Handle stress shift in photograph family",
+      "developmental_foundation": "Morphological spelling control",
+      "teaching_point": "Word parts and meaning help preserve spellings even when pronunciation changes or when words become longer.",
+      "example_words": [
+        "photograph",
+        "photography",
+        "photographer"
+      ]
+    },
+    {
+      "cluster_id": "D4_MOR_PRONUNCIATION_SHIFT",
+      "family_id": "D4_MOR",
+      "cluster_name": "Pronunciation shifts in word families",
+      "node_id": "D4_MOR_PRONUNCIATION_SHIFT_DEFINE_DEFINITION",
+      "node_name": "Preserve spelling across define/definition",
+      "developmental_foundation": "Morphological spelling control",
+      "teaching_point": "Word parts and meaning help preserve spellings even when pronunciation changes or when words become longer.",
+      "example_words": [
+        "define",
+        "definition"
+      ]
+    },
+    {
+      "cluster_id": "D4_MOR_PRONUNCIATION_SHIFT",
+      "family_id": "D4_MOR",
+      "cluster_name": "Pronunciation shifts in word families",
+      "node_id": "D4_MOR_PRONUNCIATION_SHIFT_SHIFT_REVIEW",
+      "node_name": "Review pronunciation-shift families",
+      "developmental_foundation": "Morphological spelling control",
+      "teaching_point": "Word parts and meaning help preserve spellings even when pronunciation changes or when words become longer.",
+      "example_words": [
+        "sign",
+        "magic",
+        "music",
+        "health"
+      ]
+    },
+    {
+      "cluster_id": "D4_MOR_BOUND_MORPHEMES",
+      "family_id": "D4_MOR",
+      "cluster_name": "Bound morphemes",
+      "node_id": "D4_MOR_BOUND_MORPHEMES_CEIVE",
+      "node_name": "Spell bound morpheme `ceive`",
+      "developmental_foundation": "Morphological spelling control",
+      "teaching_point": "Word parts and meaning help preserve spellings even when pronunciation changes or when words become longer.",
+      "example_words": [
+        "receive",
+        "deceive",
+        "conceive"
+      ]
+    },
+    {
+      "cluster_id": "D4_MOR_BOUND_MORPHEMES",
+      "family_id": "D4_MOR",
+      "cluster_name": "Bound morphemes",
+      "node_id": "D4_MOR_BOUND_MORPHEMES_JECT",
+      "node_name": "Spell bound morpheme `ject`",
+      "developmental_foundation": "Morphological spelling control",
+      "teaching_point": "Word parts and meaning help preserve spellings even when pronunciation changes or when words become longer.",
+      "example_words": [
+        "project",
+        "reject",
+        "subject"
+      ]
+    },
+    {
+      "cluster_id": "D4_MOR_BOUND_MORPHEMES",
+      "family_id": "D4_MOR",
+      "cluster_name": "Bound morphemes",
+      "node_id": "D4_MOR_BOUND_MORPHEMES_CEPT",
+      "node_name": "Spell bound morpheme `cept`",
+      "developmental_foundation": "Morphological spelling control",
+      "teaching_point": "Word parts and meaning help preserve spellings even when pronunciation changes or when words become longer.",
+      "example_words": [
+        "accept",
+        "except",
+        "concept"
+      ]
+    },
+    {
+      "cluster_id": "D4_MOR_BOUND_MORPHEMES",
+      "family_id": "D4_MOR",
+      "cluster_name": "Bound morphemes",
+      "node_id": "D4_MOR_BOUND_MORPHEMES_FER",
+      "node_name": "Spell bound morpheme `fer`",
+      "developmental_foundation": "Morphological spelling control",
+      "teaching_point": "Word parts and meaning help preserve spellings even when pronunciation changes or when words become longer.",
+      "example_words": [
+        "transfer",
+        "refer",
+        "prefer"
+      ]
+    },
+    {
+      "cluster_id": "D4_MOR_BOUND_MORPHEMES",
+      "family_id": "D4_MOR",
+      "cluster_name": "Bound morphemes",
+      "node_id": "D4_MOR_BOUND_MORPHEMES_MIT",
+      "node_name": "Spell bound morpheme `mit`",
+      "developmental_foundation": "Morphological spelling control",
+      "teaching_point": "Word parts and meaning help preserve spellings even when pronunciation changes or when words become longer.",
+      "example_words": [
+        "submit",
+        "permit",
+        "commit"
+      ]
+    },
+    {
+      "cluster_id": "D4_MOR_BOUND_MORPHEMES",
+      "family_id": "D4_MOR",
+      "cluster_name": "Bound morphemes",
+      "node_id": "D4_MOR_BOUND_MORPHEMES_BOUND_REVIEW",
+      "node_name": "Review bound morpheme spellings",
+      "developmental_foundation": "Morphological spelling control",
+      "teaching_point": "Word parts and meaning help preserve spellings even when pronunciation changes or when words become longer.",
+      "example_words": [
+        "receive",
+        "project",
+        "accept",
+        "submit"
+      ]
+    },
+    {
+      "cluster_id": "D4_MOR_DERIVED_WORDS",
+      "family_id": "D4_MOR",
+      "cluster_name": "Derived word spelling",
+      "node_id": "D4_MOR_DERIVED_WORDS_NOUN_TO_ADJ_Y",
+      "node_name": "Form adjective with `-y`",
+      "developmental_foundation": "Morphological spelling control",
+      "teaching_point": "Word parts and meaning help preserve spellings even when pronunciation changes or when words become longer.",
+      "example_words": [
+        "health/healthy",
+        "cloud/cloudy"
+      ]
+    },
+    {
+      "cluster_id": "D4_MOR_DERIVED_WORDS",
+      "family_id": "D4_MOR",
+      "cluster_name": "Derived word spelling",
+      "node_id": "D4_MOR_DERIVED_WORDS_VERB_TO_NOUN_TION",
+      "node_name": "Form noun with `-tion`",
+      "developmental_foundation": "Morphological spelling control",
+      "teaching_point": "Word parts and meaning help preserve spellings even when pronunciation changes or when words become longer.",
+      "example_words": [
+        "act/action",
+        "invent/invention"
+      ]
+    },
+    {
+      "cluster_id": "D4_MOR_DERIVED_WORDS",
+      "family_id": "D4_MOR",
+      "cluster_name": "Derived word spelling",
+      "node_id": "D4_MOR_DERIVED_WORDS_VERB_TO_NOUN_MENT",
+      "node_name": "Form noun with `-ment`",
+      "developmental_foundation": "Morphological spelling control",
+      "teaching_point": "Word parts and meaning help preserve spellings even when pronunciation changes or when words become longer.",
+      "example_words": [
+        "govern/government",
+        "pay/payment"
+      ]
+    },
+    {
+      "cluster_id": "D4_MOR_DERIVED_WORDS",
+      "family_id": "D4_MOR",
+      "cluster_name": "Derived word spelling",
+      "node_id": "D4_MOR_DERIVED_WORDS_ADJ_TO_NOUN_NESS",
+      "node_name": "Form noun with `-ness`",
+      "developmental_foundation": "Morphological spelling control",
+      "teaching_point": "Word parts and meaning help preserve spellings even when pronunciation changes or when words become longer.",
+      "example_words": [
+        "kind/kindness",
+        "happy/happiness"
+      ]
+    },
+    {
+      "cluster_id": "D4_MOR_DERIVED_WORDS",
+      "family_id": "D4_MOR",
+      "cluster_name": "Derived word spelling",
+      "node_id": "D4_MOR_DERIVED_WORDS_NOUN_AGENT_ER",
+      "node_name": "Form agent noun with `-er`",
+      "developmental_foundation": "Morphological spelling control",
+      "teaching_point": "Word parts and meaning help preserve spellings even when pronunciation changes or when words become longer.",
+      "example_words": [
+        "teach/teacher",
+        "write/writer"
+      ]
+    },
+    {
+      "cluster_id": "D4_MOR_DERIVED_WORDS",
+      "family_id": "D4_MOR",
+      "cluster_name": "Derived word spelling",
+      "node_id": "D4_MOR_DERIVED_WORDS_NOUN_AGENT_OR",
+      "node_name": "Form agent noun with `-or`",
+      "developmental_foundation": "Morphological spelling control",
+      "teaching_point": "Word parts and meaning help preserve spellings even when pronunciation changes or when words become longer.",
+      "example_words": [
+        "act/actor",
+        "invent/inventor"
+      ]
+    },
+    {
+      "cluster_id": "D4_MOR_DERIVED_WORDS",
+      "family_id": "D4_MOR",
+      "cluster_name": "Derived word spelling",
+      "node_id": "D4_MOR_DERIVED_WORDS_ADJ_WITH_FUL",
+      "node_name": "Form adjective with `-ful`",
+      "developmental_foundation": "Morphological spelling control",
+      "teaching_point": "Word parts and meaning help preserve spellings even when pronunciation changes or when words become longer.",
+      "example_words": [
+        "help/helpful",
+        "care/careful"
+      ]
+    },
+    {
+      "cluster_id": "D4_MOR_DERIVED_WORDS",
+      "family_id": "D4_MOR",
+      "cluster_name": "Derived word spelling",
+      "node_id": "D4_MOR_DERIVED_WORDS_ADJ_WITH_LESS",
+      "node_name": "Form adjective with `-less`",
+      "developmental_foundation": "Morphological spelling control",
+      "teaching_point": "Word parts and meaning help preserve spellings even when pronunciation changes or when words become longer.",
+      "example_words": [
+        "care/careless",
+        "hope/hopeless"
+      ]
+    },
+    {
+      "cluster_id": "D4_MOR_DERIVED_WORDS",
+      "family_id": "D4_MOR",
+      "cluster_name": "Derived word spelling",
+      "node_id": "D4_MOR_DERIVED_WORDS_DERIVED_PROOF",
+      "node_name": "Proofread derived word spelling",
+      "developmental_foundation": "Morphological spelling control",
+      "teaching_point": "Word parts and meaning help preserve spellings even when pronunciation changes or when words become longer.",
+      "example_words": [
+        "happyness/happiness",
+        "carefull/careful"
+      ]
+    },
+    {
+      "cluster_id": "D4_MOR_DERIVED_WORDS",
+      "family_id": "D4_MOR",
+      "cluster_name": "Derived word spelling",
+      "node_id": "D4_MOR_DERIVED_WORDS_DERIVED_REVIEW",
+      "node_name": "Review derived word spelling",
+      "developmental_foundation": "Morphological spelling control",
+      "teaching_point": "Word parts and meaning help preserve spellings even when pronunciation changes or when words become longer.",
+      "example_words": [
+        "healthy",
+        "action",
+        "payment",
+        "kindness"
+      ]
+    },
+    {
+      "cluster_id": "D4_MOR_MEANING_BASED_SPELLING",
+      "family_id": "D4_MOR",
+      "cluster_name": "Meaning-based spelling",
+      "node_id": "D4_MOR_MEANING_BASED_SPELLING_HOMOGRAPH_MEANING",
+      "node_name": "Use meaning to distinguish spellings",
+      "developmental_foundation": "Morphological spelling control",
+      "teaching_point": "Word parts and meaning help preserve spellings even when pronunciation changes or when words become longer.",
+      "example_words": [
+        "sign/sine",
+        "plain/plane"
+      ]
+    },
+    {
+      "cluster_id": "D4_MOR_MEANING_BASED_SPELLING",
+      "family_id": "D4_MOR",
+      "cluster_name": "Meaning-based spelling",
+      "node_id": "D4_MOR_MEANING_BASED_SPELLING_MORPHEME_MEANING",
+      "node_name": "Use morpheme meaning to spell",
+      "developmental_foundation": "Morphological spelling control",
+      "teaching_point": "Word parts and meaning help preserve spellings even when pronunciation changes or when words become longer.",
+      "example_words": [
+        "tele=far",
+        "photo=light"
+      ]
+    },
+    {
+      "cluster_id": "D4_MOR_MEANING_BASED_SPELLING",
+      "family_id": "D4_MOR",
+      "cluster_name": "Meaning-based spelling",
+      "node_id": "D4_MOR_MEANING_BASED_SPELLING_WORD_FAMILY_MEANING",
+      "node_name": "Use related meaning to preserve spelling",
+      "developmental_foundation": "Morphological spelling control",
+      "teaching_point": "Word parts and meaning help preserve spellings even when pronunciation changes or when words become longer.",
+      "example_words": [
+        "heal/health",
+        "sign/signal"
+      ]
+    },
+    {
+      "cluster_id": "D4_MOR_MEANING_BASED_SPELLING",
+      "family_id": "D4_MOR",
+      "cluster_name": "Meaning-based spelling",
+      "node_id": "D4_MOR_MEANING_BASED_SPELLING_PREFIX_MEANING",
+      "node_name": "Use prefix meaning to spell",
+      "developmental_foundation": "Morphological spelling control",
+      "teaching_point": "Word parts and meaning help preserve spellings even when pronunciation changes or when words become longer.",
+      "example_words": [
+        "unhappy",
+        "replay",
+        "preview"
+      ]
+    },
+    {
+      "cluster_id": "D4_MOR_MEANING_BASED_SPELLING",
+      "family_id": "D4_MOR",
+      "cluster_name": "Meaning-based spelling",
+      "node_id": "D4_MOR_MEANING_BASED_SPELLING_SUFFIX_MEANING",
+      "node_name": "Use suffix meaning to spell",
+      "developmental_foundation": "Morphological spelling control",
+      "teaching_point": "Word parts and meaning help preserve spellings even when pronunciation changes or when words become longer.",
+      "example_words": [
+        "payment",
+        "kindness",
+        "helpful"
+      ]
+    },
+    {
+      "cluster_id": "D4_MOR_MEANING_BASED_SPELLING",
+      "family_id": "D4_MOR",
+      "cluster_name": "Meaning-based spelling",
+      "node_id": "D4_MOR_MEANING_BASED_SPELLING_MEANING_REVIEW",
+      "node_name": "Review meaning-based spelling decisions",
+      "developmental_foundation": "Morphological spelling control",
+      "teaching_point": "Word parts and meaning help preserve spellings even when pronunciation changes or when words become longer.",
+      "example_words": [
+        "sign",
+        "health",
+        "preview",
+        "payment"
+      ]
+    }
+  ]
+}

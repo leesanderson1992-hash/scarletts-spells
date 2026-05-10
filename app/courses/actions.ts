@@ -1,157 +1,223 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { buildScopedPath } from "@/lib/children";
-import { createClient } from "@/lib/supabase/server";
 
-import { COURSE_TASK_TYPES } from "@/lib/courses/types";
-import { TASK_GOLD_BAR_RULES } from "@/lib/courses/types";
-import { COURSE_STRUCTURE_TYPES } from "@/lib/courses/types";
+import {
+  COURSE_GOAL_STATUSES,
+  COURSE_STRUCTURE_TYPES,
+  normaliseCourseStructureType,
+  TIMED_COURSE_GOAL_KINDS,
+} from "@/lib/courses/types";
+import {
+  assertCheckpointPlacementAllowedForCourse,
+  assertCourseStructureCanChange,
+  assertModuleBelongsToCourse,
+  assertPhaseBelongsToCourse,
+} from "@/lib/courses/validation";
+import { getDateOnly } from "@/lib/courses/progress";
+import {
+  buildRedirectWithMessage,
+  getAuthenticatedParent,
+  getFriendlyCourseDatabaseError,
+  getRedirectPath,
+  parseGoalTaskIds,
+  parseOptionalPositiveInteger,
+  redirectForCourseActionError,
+  revalidateCoursePages,
+  validateGoalTaskIds,
+  type SupabaseServerClient,
+} from "@/app/courses/action-support";
 
-function getFriendlyCourseDatabaseError(message: string | null | undefined) {
-  if (!message) {
-    return "We couldn't save that course change just yet.";
-  }
-
-  if (
-    message.includes('relation "courses" does not exist') ||
-    message.includes('relation "course_modules" does not exist') ||
-    message.includes('relation "course_tasks" does not exist') ||
-    message.includes('relation "course_phases" does not exist') ||
-    message.includes('relation "focus_blocks" does not exist') ||
-    message.includes('relation "course_goals" does not exist') ||
-    message.includes('relation "course_checkpoints" does not exist') ||
-    message.includes('relation "task_submissions" does not exist') ||
-    message.includes('relation "task_completions" does not exist')
-  ) {
-    return "The new course tables are not in Supabase yet. Run the Phase 5 course-task migrations first.";
-  }
-
-  if (
-    message.includes("permission denied") ||
-    message.includes("row-level security") ||
-    message.includes("policy")
-  ) {
-    return "The course tables are missing the latest access policies. Run the latest Phase 5 course-task access migration in Supabase.";
-  }
-
-  if (message.includes("task_type")) {
-    return "The course_tasks table schema does not match the app yet. Run the latest Phase 5 migrations in Supabase.";
-  }
-
-  if (message.includes("structure_type") || message.includes("phase_id")) {
-    return "The course schema is missing the latest phased/timed fields. Run the latest course migration in Supabase.";
-  }
-
-  if (message.includes("focus_block_id")) {
-    return "The course task schema is missing the latest focus block link field. Run the latest course migration in Supabase.";
-  }
-
-  if (message.includes("gold_bar_rule")) {
-    return "The course task schema is missing the latest gold bar rule field. Run the latest course migration in Supabase.";
-  }
-
-  if (message.includes("gold_coin_reward_amount")) {
-    return "The course task schema is missing the latest Gold Coin reward field. Run the latest course migration in Supabase.";
-  }
-
-  if (
-    message.includes("content_html") ||
-    message.includes("choice_options") ||
-    message.includes("allow_multiple_choices")
-  ) {
-    return "The course task schema is missing the latest lesson/test authoring fields. Run the latest course migration in Supabase.";
-  }
-
-  return `We couldn't save that course change just yet. ${message}`;
-}
-
-function getRedirectPath(formData: FormData, fallbackPath: string) {
-  const redirectPath = formData.get("redirect_path");
-  return typeof redirectPath === "string" && redirectPath ? redirectPath : fallbackPath;
-}
-
-function buildRedirectWithMessage(
-  path: string,
-  key: "error" | "saved",
-  value: string,
+function getTimedPhaseCount(
+  durationWeeks: number | null | undefined,
+  cycleLengthWeeks: number | null | undefined,
 ) {
-  const [pathname, rawQuery] = path.split("?");
-  const searchParams = new URLSearchParams(rawQuery ?? "");
-  searchParams.set(key, value);
-  const nextQuery = searchParams.toString();
-  return nextQuery ? `${pathname}?${nextQuery}` : pathname;
-}
-
-function normaliseWeekdays(rawWeekdays: FormDataEntryValue[]) {
-  const allowed = new Set(["mon", "tue", "wed", "thu", "fri", "sat", "sun"]);
-
-  return Array.from(
-    new Set(
-      rawWeekdays
-        .filter((value): value is string => typeof value === "string")
-        .map((value) => value.trim().toLowerCase())
-        .filter((value) => allowed.has(value)),
-    ),
-  );
-}
-
-function normaliseChoiceOptions(rawOptions: FormDataEntryValue | null) {
-  if (typeof rawOptions !== "string" || !rawOptions.trim()) {
-    return [];
-  }
-
-  return Array.from(
-    new Set(
-      rawOptions
-        .split("\n")
-        .map((value) => value.trim())
-        .filter(Boolean),
-    ),
-  );
-}
-
-function parseOptionalPositiveInteger(
-  value: FormDataEntryValue | null,
-  {
-    min,
-    max,
-    message,
-    redirectPath,
-  }: {
-    min: number;
-    max: number;
-    message: string;
-    redirectPath: string;
-  },
-) {
-  if (typeof value !== "string" || !value.trim()) {
+  if (!durationWeeks || durationWeeks < 1) {
     return null;
   }
 
-  const parsed = Number(value);
+  const safeCycleLength = cycleLengthWeeks && cycleLengthWeeks > 0 ? cycleLengthWeeks : 4;
+  return Math.ceil(durationWeeks / safeCycleLength);
+}
 
-  if (!Number.isInteger(parsed) || parsed < min || parsed > max) {
-    redirect(buildRedirectWithMessage(redirectPath, "error", message));
+function getTimedPhaseBoundaryDates(input: {
+  startDate: string | null | undefined;
+  durationWeeks: number | null | undefined;
+  cycleLengthWeeks: number | null | undefined;
+  phaseNumber: number;
+}) {
+  const { startDate, durationWeeks, cycleLengthWeeks, phaseNumber } = input;
+
+  if (!startDate || !durationWeeks || durationWeeks < 1 || phaseNumber < 1) {
+    return {
+      start_date: null,
+      end_date: null,
+    };
   }
 
-  return parsed;
+  const safeCycleLength = cycleLengthWeeks && cycleLengthWeeks > 0 ? cycleLengthWeeks : 4;
+  const phaseStart = new Date(`${startDate}T00:00:00`);
+  phaseStart.setDate(phaseStart.getDate() + (phaseNumber - 1) * safeCycleLength * 7);
+
+  const phaseEnd = new Date(phaseStart);
+  phaseEnd.setDate(phaseEnd.getDate() + safeCycleLength * 7 - 1);
+
+  const courseEnd = new Date(`${startDate}T00:00:00`);
+  courseEnd.setDate(courseEnd.getDate() + durationWeeks * 7 - 1);
+  const boundedEnd = phaseEnd.getTime() <= courseEnd.getTime() ? phaseEnd : courseEnd;
+
+  return {
+    start_date: getDateOnly(phaseStart),
+    end_date: getDateOnly(boundedEnd),
+  };
 }
 
-function revalidateCoursePages() {
-  revalidatePath("/courses");
-  revalidatePath("/learn");
-}
-
-async function getAuthenticatedParent() {
-  const supabase = await createClient();
+async function syncTimedCoursePhases(input: {
+  supabase: SupabaseServerClient;
+  parentUserId: string;
+  courseId: string;
+  startDate: string | null | undefined;
+  durationWeeks: number | null | undefined;
+  cycleLengthWeeks: number | null | undefined;
+}) {
   const {
-    data: { user },
-  } = await supabase.auth.getUser();
+    supabase,
+    parentUserId,
+    courseId,
+    startDate,
+    durationWeeks,
+    cycleLengthWeeks,
+  } = input;
+  const phaseCount = getTimedPhaseCount(durationWeeks, cycleLengthWeeks);
 
-  return { supabase, user };
+  const { data: existingPhases, error: existingError } = await supabase
+    .from("course_phases")
+    .select("id, title, description, position, start_date, end_date")
+    .eq("course_id", courseId)
+    .eq("parent_user_id", parentUserId)
+    .order("position", { ascending: true });
+
+  if (existingError) {
+    return existingError.message;
+  }
+
+  const phases = existingPhases ?? [];
+
+  if (!phaseCount) {
+    const phaseIdsWithBoundaries = phases
+      .filter((phase) => phase.start_date || phase.end_date)
+      .map((phase) => phase.id);
+
+    if (phaseIdsWithBoundaries.length === 0) {
+      return null;
+    }
+
+    const { error: clearDatesError } = await supabase
+      .from("course_phases")
+      .update({ start_date: null, end_date: null })
+      .in("id", phaseIdsWithBoundaries)
+      .eq("parent_user_id", parentUserId);
+
+    if (clearDatesError) {
+      return clearDatesError.message;
+    }
+
+    return null;
+  }
+
+  const surplusPhases = phases.slice(phaseCount);
+
+  if (surplusPhases.length > 0) {
+    const surplusPhaseIds = surplusPhases.map((phase) => phase.id);
+    const { count: linkedModuleCount, error: linkedModuleError } = await supabase
+      .from("course_modules")
+      .select("*", { count: "exact", head: true })
+      .eq("course_id", courseId)
+      .eq("parent_user_id", parentUserId)
+      .in("phase_id", surplusPhaseIds);
+
+    if (linkedModuleError) {
+      return linkedModuleError.message;
+    }
+
+    if ((linkedModuleCount ?? 0) > 0) {
+      return "Timed phases could not shrink because some modules are still linked to the later phases.";
+    }
+
+    const { error: deleteError } = await supabase
+      .from("course_phases")
+      .delete()
+      .eq("course_id", courseId)
+      .eq("parent_user_id", parentUserId)
+      .in("id", surplusPhaseIds);
+
+    if (deleteError) {
+      return deleteError.message;
+    }
+  }
+
+  const activePhases = phases.slice(0, phaseCount);
+  const phasesToInsert = Array.from(
+    { length: Math.max(phaseCount - activePhases.length, 0) },
+    (_, index) => {
+      const position = activePhases.length + index;
+      return {
+        course_id: courseId,
+        parent_user_id: parentUserId,
+        title: `Phase ${position + 1}`,
+        description: null,
+        position,
+        ...getTimedPhaseBoundaryDates({
+          startDate,
+          durationWeeks,
+          cycleLengthWeeks,
+          phaseNumber: position + 1,
+        }),
+      };
+    },
+  );
+
+  if (phasesToInsert.length > 0) {
+    const { error: insertError } = await supabase.from("course_phases").insert(phasesToInsert);
+
+    if (insertError) {
+      return insertError.message;
+    }
+  }
+
+  for (const [index, phase] of activePhases.entries()) {
+    const nextBoundaries = getTimedPhaseBoundaryDates({
+      startDate,
+      durationWeeks,
+      cycleLengthWeeks,
+      phaseNumber: index + 1,
+    });
+    const positionChanged = phase.position !== index;
+    const startDateChanged = (phase.start_date ?? null) !== nextBoundaries.start_date;
+    const endDateChanged = (phase.end_date ?? null) !== nextBoundaries.end_date;
+
+    if (!positionChanged && !startDateChanged && !endDateChanged) {
+      continue;
+    }
+
+    const { error: updateError } = await supabase
+      .from("course_phases")
+      .update({
+        position: index,
+        start_date: nextBoundaries.start_date,
+        end_date: nextBoundaries.end_date,
+      })
+      .eq("id", phase.id)
+      .eq("parent_user_id", parentUserId);
+
+    if (updateError) {
+      return updateError.message;
+    }
+  }
+
+  return null;
 }
 
 export async function createCourse(formData: FormData) {
@@ -189,6 +255,14 @@ export async function createCourse(formData: FormData) {
     redirect(buildRedirectWithMessage(redirectPath, "error", "Choose a course structure first."));
   }
 
+  const safeStructureType = structureType as (typeof COURSE_STRUCTURE_TYPES)[number];
+  const safeStartDate =
+    safeStructureType === "timed" && typeof startDate === "string" && startDate
+      ? startDate
+      : null;
+  const safeDurationWeeks = safeStructureType === "timed" ? durationWeeks : null;
+  const safeCycleLengthWeeks = cycleLengthWeeks ?? 4;
+
   const { supabase, user } = await getAuthenticatedParent();
 
   if (!user) {
@@ -200,12 +274,13 @@ export async function createCourse(formData: FormData) {
     .insert({
       parent_user_id: user.id,
       child_id: childId,
-      structure_type: structureType,
+      structure_type: safeStructureType,
       title: title.trim(),
       description: typeof description === "string" ? description.trim() || null : null,
-      start_date: typeof startDate === "string" && startDate ? startDate : null,
-      duration_weeks: durationWeeks,
-      cycle_length_weeks: cycleLengthWeeks ?? 4,
+      start_date: safeStartDate,
+      duration_weeks: safeDurationWeeks,
+      cycle_length_weeks: safeCycleLengthWeeks,
+      is_active: true,
       is_archived: false,
     })
     .select("id")
@@ -219,6 +294,27 @@ export async function createCourse(formData: FormData) {
         getFriendlyCourseDatabaseError(error?.message),
       ),
     );
+  }
+
+  if (safeStructureType === "timed") {
+    const phaseSyncError = await syncTimedCoursePhases({
+      supabase,
+      parentUserId: user.id,
+      courseId: course.id,
+      startDate: safeStartDate,
+      durationWeeks: safeDurationWeeks,
+      cycleLengthWeeks: safeCycleLengthWeeks ?? 4,
+    });
+
+    if (phaseSyncError) {
+      redirect(
+        buildRedirectWithMessage(
+          redirectPath,
+          "error",
+          getFriendlyCourseDatabaseError(phaseSyncError),
+        ),
+      );
+    }
   }
 
   revalidateCoursePages();
@@ -400,91 +496,18 @@ export async function createCoursePhase(formData: FormData) {
   redirect(buildRedirectWithMessage(redirectPath, "saved", "phase"));
 }
 
-export async function createTask(formData: FormData) {
-  const courseId = formData.get("course_id");
-  const moduleId = formData.get("module_id");
-  const redirectPath = getRedirectPath(
-    formData,
-    typeof courseId === "string" && typeof moduleId === "string"
-      ? `/courses/${courseId}/modules/${moduleId}`
-      : "/courses",
-  );
+export async function updateCoursePhase(formData: FormData) {
+  const phaseId = formData.get("phase_id");
+  const redirectPath = getRedirectPath(formData, "/courses");
   const title = formData.get("title");
-  const taskType = formData.get("task_type");
-  const instructions = formData.get("instructions");
-  const contentHtml = formData.get("content_html");
-  const writingPrompt = formData.get("writing_prompt");
-  const choiceOptions = normaliseChoiceOptions(formData.get("choice_options_text"));
-  const allowMultipleChoices = formData.get("allow_multiple_choices") === "true";
-  const estimatedMinutes = formData.get("estimated_minutes");
-  const monthlyGoalTotal = formData.get("monthly_goal_total");
-  const focusBlockId = formData.get("focus_block_id");
-  const goldBarRule = formData.get("gold_bar_rule");
-  const goldCoinRewardAmount = formData.get("gold_coin_reward_amount");
-  const weeklyDays = normaliseWeekdays(formData.getAll("weekly_days"));
+  const description = formData.get("description");
 
-  if (typeof courseId !== "string" || !courseId || typeof moduleId !== "string" || !moduleId) {
-    redirect(buildRedirectWithMessage(redirectPath, "error", "We couldn't find that module."));
+  if (typeof phaseId !== "string" || !phaseId) {
+    redirect(buildRedirectWithMessage(redirectPath, "error", "We couldn't find that phase."));
   }
 
   if (typeof title !== "string" || !title.trim()) {
-    redirect(buildRedirectWithMessage(redirectPath, "error", "Please enter a task title."));
-  }
-
-  if (
-    typeof taskType !== "string" ||
-    !COURSE_TASK_TYPES.includes(taskType as (typeof COURSE_TASK_TYPES)[number])
-  ) {
-    redirect(buildRedirectWithMessage(redirectPath, "error", "Choose a valid task type."));
-  }
-
-  if (taskType === "recurring_weekly" && weeklyDays.length === 0) {
-    redirect(buildRedirectWithMessage(redirectPath, "error", "Choose at least one weekday for a weekly task."));
-  }
-
-  const safeGoldBarRule =
-    typeof goldBarRule === "string" &&
-    TASK_GOLD_BAR_RULES.includes(goldBarRule as (typeof TASK_GOLD_BAR_RULES)[number])
-      ? goldBarRule
-      : "auto";
-
-  const safeEstimatedMinutes =
-    typeof estimatedMinutes === "string" && estimatedMinutes.trim()
-      ? Number(estimatedMinutes)
-      : null;
-  const safeMonthlyGoalTotal =
-    typeof monthlyGoalTotal === "string" && monthlyGoalTotal.trim()
-      ? Number(monthlyGoalTotal)
-      : null;
-  const safeGoldCoinRewardAmount =
-    typeof goldCoinRewardAmount === "string" && goldCoinRewardAmount.trim()
-      ? Number(goldCoinRewardAmount)
-      : 0;
-
-  if (
-    safeEstimatedMinutes !== null &&
-    (!Number.isInteger(safeEstimatedMinutes) || safeEstimatedMinutes < 1 || safeEstimatedMinutes > 240)
-  ) {
-    redirect(buildRedirectWithMessage(redirectPath, "error", "Estimated minutes should be between 1 and 240."));
-  }
-
-  if (
-    safeMonthlyGoalTotal !== null &&
-    (!Number.isInteger(safeMonthlyGoalTotal) || safeMonthlyGoalTotal < 1 || safeMonthlyGoalTotal > 500)
-  ) {
-    redirect(buildRedirectWithMessage(redirectPath, "error", "Monthly goal total should be between 1 and 500."));
-  }
-
-  if (
-    !Number.isInteger(safeGoldCoinRewardAmount) ||
-    safeGoldCoinRewardAmount < 0 ||
-    safeGoldCoinRewardAmount > 500
-  ) {
-    redirect(buildRedirectWithMessage(redirectPath, "error", "Gold Coin reward should be between 0 and 500."));
-  }
-
-  if (safeGoldBarRule !== "none" && safeGoldCoinRewardAmount < 1) {
-    redirect(buildRedirectWithMessage(redirectPath, "error", "Set a Gold Coin reward amount or choose Progress only."));
+    redirect(buildRedirectWithMessage(redirectPath, "error", "Please enter a phase title."));
   }
 
   const { supabase, user } = await getAuthenticatedParent();
@@ -493,66 +516,14 @@ export async function createTask(formData: FormData) {
     redirect("/login");
   }
 
-  const [{ data: module }, { count }, { data: focusBlock }] = await Promise.all([
-    supabase
-      .from("course_modules")
-      .select("id, course_id")
-      .eq("id", moduleId)
-      .eq("course_id", courseId)
-      .eq("parent_user_id", user.id)
-      .maybeSingle(),
-    supabase
-      .from("course_tasks")
-      .select("*", { count: "exact", head: true })
-      .eq("module_id", moduleId)
-      .eq("parent_user_id", user.id),
-    typeof focusBlockId === "string" && focusBlockId.trim()
-      ? supabase
-          .from("focus_blocks")
-          .select("id")
-          .eq("id", focusBlockId)
-          .eq("course_id", courseId)
-          .eq("parent_user_id", user.id)
-          .maybeSingle()
-      : Promise.resolve({ data: null, error: null }),
-  ]);
-
-  if (!module) {
-    redirect(buildRedirectWithMessage(redirectPath, "error", "We couldn't find that module."));
-  }
-
-  if (typeof focusBlockId === "string" && focusBlockId.trim() && !focusBlock) {
-    redirect(buildRedirectWithMessage(redirectPath, "error", "Choose a valid focus block for that task."));
-  }
-
-  const { error } = await supabase.from("course_tasks").insert({
-    course_id: courseId,
-    module_id: moduleId,
-    parent_user_id: user.id,
-    focus_block_id: typeof focusBlockId === "string" && focusBlockId.trim() ? focusBlockId : null,
-    title: title.trim(),
-    task_type: taskType,
-    instructions: typeof instructions === "string" ? instructions.trim() || null : null,
-    content_html:
-      taskType === "lesson" || taskType === "test"
-        ? typeof contentHtml === "string"
-          ? contentHtml.trim() || null
-          : null
-        : null,
-    writing_prompt: typeof writingPrompt === "string" ? writingPrompt.trim() || null : null,
-    choice_options: taskType === "test" ? choiceOptions : [],
-    allow_multiple_choices: taskType === "test" ? allowMultipleChoices && choiceOptions.length > 0 : false,
-    estimated_minutes: safeEstimatedMinutes,
-    monthly_goal_total:
-      taskType === "recurring_daily" || taskType === "recurring_weekly"
-        ? safeMonthlyGoalTotal
-        : null,
-    gold_bar_rule: safeGoldBarRule,
-    gold_coin_reward_amount: safeGoldBarRule === "none" ? 0 : safeGoldCoinRewardAmount,
-    weekly_days: taskType === "recurring_weekly" ? weeklyDays : [],
-    position: count ?? 0,
-    is_active: true,
-  });
+  const { error } = await supabase
+    .from("course_phases")
+    .update({
+      title: title.trim(),
+      description: typeof description === "string" ? description.trim() || null : null,
+    })
+    .eq("id", phaseId)
+    .eq("parent_user_id", user.id);
 
   if (error) {
     redirect(
@@ -565,7 +536,7 @@ export async function createTask(formData: FormData) {
   }
 
   revalidateCoursePages();
-  redirect(buildRedirectWithMessage(redirectPath, "saved", "task"));
+  redirect(buildRedirectWithMessage(redirectPath, "saved", "phase"));
 }
 
 export async function updateCourse(formData: FormData) {
@@ -612,6 +583,29 @@ export async function updateCourse(formData: FormData) {
     redirect("/login");
   }
 
+  const { data: existingCourse } = await supabase
+    .from("courses")
+    .select("id, structure_type")
+    .eq("id", courseId)
+    .eq("parent_user_id", user.id)
+    .maybeSingle();
+
+  if (!existingCourse) {
+    redirect(buildRedirectWithMessage(redirectPath, "error", "We couldn't find that course."));
+  }
+
+  try {
+    await assertCourseStructureCanChange({
+      supabase,
+      parentUserId: user.id,
+      courseId,
+      currentStructureType: existingCourse.structure_type,
+      nextStructureType: structureType,
+    });
+  } catch (error) {
+    redirectForCourseActionError(error, redirectPath);
+  }
+
   const { error } = await supabase
     .from("courses")
     .update({
@@ -635,8 +629,89 @@ export async function updateCourse(formData: FormData) {
     );
   }
 
+  if (structureType === "timed") {
+    const phaseSyncError = await syncTimedCoursePhases({
+      supabase,
+      parentUserId: user.id,
+      courseId,
+      startDate: typeof startDate === "string" && startDate ? startDate : null,
+      durationWeeks,
+      cycleLengthWeeks: cycleLengthWeeks ?? 4,
+    });
+
+    if (phaseSyncError) {
+      redirect(
+        buildRedirectWithMessage(
+          redirectPath,
+          "error",
+          getFriendlyCourseDatabaseError(phaseSyncError),
+        ),
+      );
+    }
+  }
+
   revalidateCoursePages();
   redirect(buildRedirectWithMessage(redirectPath, "saved", "course"));
+}
+
+export async function updateCourseParentVisibility(formData: FormData) {
+  const courseId = formData.get("course_id");
+  const redirectPath = getRedirectPath(
+    formData,
+    typeof courseId === "string" ? `/courses/${courseId}` : "/courses",
+  );
+  const isActive = formData.get("is_active");
+
+  if (typeof courseId !== "string" || !courseId) {
+    redirect(buildRedirectWithMessage(redirectPath, "error", "We couldn't find that course."));
+  }
+
+  if (isActive !== "true" && isActive !== "false") {
+    redirect(buildRedirectWithMessage(redirectPath, "error", "Choose a valid parent view state."));
+  }
+
+  const { supabase, user } = await getAuthenticatedParent();
+
+  if (!user) {
+    redirect("/login");
+  }
+
+  const { data: course } = await supabase
+    .from("courses")
+    .select("id")
+    .eq("id", courseId)
+    .eq("parent_user_id", user.id)
+    .eq("is_archived", false)
+    .maybeSingle();
+
+  if (!course) {
+    redirect(buildRedirectWithMessage(redirectPath, "error", "We couldn't find that course."));
+  }
+
+  const { error } = await supabase
+    .from("courses")
+    .update({ is_active: isActive === "true" })
+    .eq("id", courseId)
+    .eq("parent_user_id", user.id);
+
+  if (error) {
+    redirect(
+      buildRedirectWithMessage(
+        redirectPath,
+        "error",
+        getFriendlyCourseDatabaseError(error.message),
+      ),
+    );
+  }
+
+  revalidateCoursePages();
+  redirect(
+    buildRedirectWithMessage(
+      redirectPath,
+      "saved",
+      isActive === "true" ? "course activated" : "course hidden",
+    ),
+  );
 }
 
 export async function updateModule(formData: FormData) {
@@ -881,173 +956,18 @@ export async function deleteModule(formData: FormData) {
   redirect(buildRedirectWithMessage(redirectPath, "saved", "deleted module"));
 }
 
-export async function updateTask(formData: FormData) {
-  const taskId = formData.get("task_id");
-  const redirectPath = getRedirectPath(formData, "/courses");
-  const title = formData.get("title");
-  const taskType = formData.get("task_type");
-  const instructions = formData.get("instructions");
-  const contentHtml = formData.get("content_html");
-  const writingPrompt = formData.get("writing_prompt");
-  const choiceOptions = normaliseChoiceOptions(formData.get("choice_options_text"));
-  const allowMultipleChoices = formData.get("allow_multiple_choices") === "true";
-  const estimatedMinutes = formData.get("estimated_minutes");
-  const monthlyGoalTotal = formData.get("monthly_goal_total");
-  const focusBlockId = formData.get("focus_block_id");
-  const goldBarRule = formData.get("gold_bar_rule");
-  const goldCoinRewardAmount = formData.get("gold_coin_reward_amount");
-  const weeklyDays = normaliseWeekdays(formData.getAll("weekly_days"));
-  const isActive = formData.get("is_active") === "true";
 
-  if (typeof taskId !== "string" || !taskId) {
-    redirect(buildRedirectWithMessage(redirectPath, "error", "We couldn't find that task."));
-  }
-
-  if (typeof title !== "string" || !title.trim()) {
-    redirect(buildRedirectWithMessage(redirectPath, "error", "Please enter a task title."));
-  }
-
-  if (
-    typeof taskType !== "string" ||
-    !COURSE_TASK_TYPES.includes(taskType as (typeof COURSE_TASK_TYPES)[number])
-  ) {
-    redirect(buildRedirectWithMessage(redirectPath, "error", "Choose a valid task type."));
-  }
-
-  if (taskType === "recurring_weekly" && weeklyDays.length === 0) {
-    redirect(buildRedirectWithMessage(redirectPath, "error", "Choose at least one weekday for a weekly task."));
-  }
-
-  const safeGoldBarRule =
-    typeof goldBarRule === "string" &&
-    TASK_GOLD_BAR_RULES.includes(goldBarRule as (typeof TASK_GOLD_BAR_RULES)[number])
-      ? goldBarRule
-      : "auto";
-
-  const safeEstimatedMinutes =
-    typeof estimatedMinutes === "string" && estimatedMinutes.trim()
-      ? Number(estimatedMinutes)
-      : null;
-  const safeMonthlyGoalTotal =
-    typeof monthlyGoalTotal === "string" && monthlyGoalTotal.trim()
-      ? Number(monthlyGoalTotal)
-      : null;
-  const safeGoldCoinRewardAmount =
-    typeof goldCoinRewardAmount === "string" && goldCoinRewardAmount.trim()
-      ? Number(goldCoinRewardAmount)
-      : 0;
-
-  if (
-    safeEstimatedMinutes !== null &&
-    (!Number.isInteger(safeEstimatedMinutes) || safeEstimatedMinutes < 1 || safeEstimatedMinutes > 240)
-  ) {
-    redirect(buildRedirectWithMessage(redirectPath, "error", "Estimated minutes should be between 1 and 240."));
-  }
-
-  if (
-    safeMonthlyGoalTotal !== null &&
-    (!Number.isInteger(safeMonthlyGoalTotal) || safeMonthlyGoalTotal < 1 || safeMonthlyGoalTotal > 500)
-  ) {
-    redirect(buildRedirectWithMessage(redirectPath, "error", "Monthly goal total should be between 1 and 500."));
-  }
-
-  if (
-    !Number.isInteger(safeGoldCoinRewardAmount) ||
-    safeGoldCoinRewardAmount < 0 ||
-    safeGoldCoinRewardAmount > 500
-  ) {
-    redirect(buildRedirectWithMessage(redirectPath, "error", "Gold Coin reward should be between 0 and 500."));
-  }
-
-  if (safeGoldBarRule !== "none" && safeGoldCoinRewardAmount < 1) {
-    redirect(buildRedirectWithMessage(redirectPath, "error", "Set a Gold Coin reward amount or choose Progress only."));
-  }
-
-  const { supabase, user } = await getAuthenticatedParent();
-
-  if (!user) {
-    redirect("/login");
-  }
-
-  const { data: existingTask } = await supabase
-    .from("course_tasks")
-    .select("id, course_id")
-    .eq("id", taskId)
-    .eq("parent_user_id", user.id)
-    .maybeSingle();
-
-  if (!existingTask) {
-    redirect(buildRedirectWithMessage(redirectPath, "error", "We couldn't find that task."));
-  }
-
-  if (typeof focusBlockId === "string" && focusBlockId.trim()) {
-    const { data: focusBlock } = await supabase
-      .from("focus_blocks")
-      .select("id")
-      .eq("id", focusBlockId)
-      .eq("course_id", existingTask.course_id)
-      .eq("parent_user_id", user.id)
-      .maybeSingle();
-
-    if (!focusBlock) {
-      redirect(buildRedirectWithMessage(redirectPath, "error", "Choose a valid focus block for that task."));
-    }
-  }
-
-  const { error } = await supabase
-    .from("course_tasks")
-    .update({
-      focus_block_id: typeof focusBlockId === "string" && focusBlockId.trim() ? focusBlockId : null,
-      title: title.trim(),
-      task_type: taskType,
-      instructions: typeof instructions === "string" ? instructions.trim() || null : null,
-      content_html:
-        taskType === "lesson" || taskType === "test"
-          ? typeof contentHtml === "string"
-            ? contentHtml.trim() || null
-            : null
-          : null,
-      writing_prompt: typeof writingPrompt === "string" ? writingPrompt.trim() || null : null,
-      choice_options: taskType === "test" ? choiceOptions : [],
-      allow_multiple_choices: taskType === "test" ? allowMultipleChoices && choiceOptions.length > 0 : false,
-      estimated_minutes: safeEstimatedMinutes,
-      monthly_goal_total:
-        taskType === "recurring_daily" || taskType === "recurring_weekly"
-          ? safeMonthlyGoalTotal
-          : null,
-      gold_bar_rule: safeGoldBarRule,
-      gold_coin_reward_amount: safeGoldBarRule === "none" ? 0 : safeGoldCoinRewardAmount,
-      weekly_days: taskType === "recurring_weekly" ? weeklyDays : [],
-      is_active: isActive,
-    })
-    .eq("id", taskId)
-    .eq("parent_user_id", user.id);
-
-  if (error) {
-    redirect(
-      buildRedirectWithMessage(
-        redirectPath,
-        "error",
-        getFriendlyCourseDatabaseError(error.message),
-      ),
-    );
-  }
-
-  revalidateCoursePages();
-  redirect(buildRedirectWithMessage(redirectPath, "saved", "task"));
-}
-
-export async function moveTask(formData: FormData) {
-  const taskId = formData.get("task_id");
+export async function moveCourseCheckpoint(formData: FormData) {
+  const checkpointId = formData.get("checkpoint_id");
   const direction = formData.get("direction");
   const redirectPath = getRedirectPath(formData, "/courses");
 
-  if (typeof taskId !== "string" || !taskId) {
-    redirect(buildRedirectWithMessage(redirectPath, "error", "We couldn't find that task."));
+  if (typeof checkpointId !== "string" || !checkpointId) {
+    redirect(buildRedirectWithMessage(redirectPath, "error", "We couldn't find that checkpoint."));
   }
 
   if (direction !== "up" && direction !== "down") {
-    redirect(buildRedirectWithMessage(redirectPath, "error", "Choose a valid task move."));
+    redirect(buildRedirectWithMessage(redirectPath, "error", "Choose a valid checkpoint move."));
   }
 
   const { supabase, user } = await getAuthenticatedParent();
@@ -1056,297 +976,75 @@ export async function moveTask(formData: FormData) {
     redirect("/login");
   }
 
-  const { data: task } = await supabase
-    .from("course_tasks")
-    .select("id, module_id, position")
-    .eq("id", taskId)
+  const { data: checkpoint } = await supabase
+    .from("course_checkpoints")
+    .select("id, course_id, cycle_number, scheduled_date, created_at")
+    .eq("id", checkpointId)
     .eq("parent_user_id", user.id)
     .maybeSingle();
 
-  if (!task) {
-    redirect(buildRedirectWithMessage(redirectPath, "error", "We couldn't find that task."));
+  if (!checkpoint) {
+    redirect(buildRedirectWithMessage(redirectPath, "error", "We couldn't find that checkpoint."));
   }
 
-  const { data: siblings } = await supabase
-    .from("course_tasks")
-    .select("id, position")
-    .eq("module_id", task.module_id)
+  const { data: siblings, error } = await supabase
+    .from("course_checkpoints")
+    .select("id, cycle_number, scheduled_date, created_at")
+    .eq("course_id", checkpoint.course_id)
     .eq("parent_user_id", user.id)
-    .order("position", { ascending: true });
+    .eq("cycle_number", checkpoint.cycle_number)
+    .order("scheduled_date", { ascending: true, nullsFirst: false })
+    .order("created_at", { ascending: true });
 
-  const orderedSiblings = siblings ?? [];
-  const currentIndex = orderedSiblings.findIndex((item) => item.id === task.id);
+  if (error || !siblings) {
+    redirect(
+      buildRedirectWithMessage(
+        redirectPath,
+        "error",
+        getFriendlyCourseDatabaseError(error?.message),
+      ),
+    );
+  }
+
+  const currentIndex = siblings.findIndex((item) => item.id === checkpoint.id);
 
   if (currentIndex === -1) {
-    redirect(buildRedirectWithMessage(redirectPath, "error", "We couldn't place that task."));
+    redirect(buildRedirectWithMessage(redirectPath, "error", "We couldn't place that checkpoint."));
   }
 
   const targetIndex = direction === "up" ? currentIndex - 1 : currentIndex + 1;
-  if (targetIndex < 0 || targetIndex >= orderedSiblings.length) {
-    redirect(buildRedirectWithMessage(redirectPath, "saved", "task order"));
+  if (targetIndex < 0 || targetIndex >= siblings.length) {
+    redirect(buildRedirectWithMessage(redirectPath, "saved", "checkpoint order"));
   }
 
-  const targetTask = orderedSiblings[targetIndex];
-
+  const targetCheckpoint = siblings[targetIndex];
   const [{ error: currentError }, { error: targetError }] = await Promise.all([
     supabase
-      .from("course_tasks")
-      .update({ position: targetTask.position })
-      .eq("id", task.id)
+      .from("course_checkpoints")
+      .update({ scheduled_date: targetCheckpoint.scheduled_date })
+      .eq("id", checkpoint.id)
       .eq("parent_user_id", user.id),
     supabase
-      .from("course_tasks")
-      .update({ position: task.position })
-      .eq("id", targetTask.id)
+      .from("course_checkpoints")
+      .update({ scheduled_date: checkpoint.scheduled_date })
+      .eq("id", targetCheckpoint.id)
       .eq("parent_user_id", user.id),
   ]);
 
-  const error = currentError ?? targetError;
+  const updateError = currentError ?? targetError;
 
-  if (error) {
+  if (updateError) {
     redirect(
       buildRedirectWithMessage(
         redirectPath,
         "error",
-        getFriendlyCourseDatabaseError(error.message),
+        getFriendlyCourseDatabaseError(updateError.message),
       ),
     );
   }
 
   revalidateCoursePages();
-  redirect(buildRedirectWithMessage(redirectPath, "saved", "task order"));
-}
-
-export async function duplicateTask(formData: FormData) {
-  const taskId = formData.get("task_id");
-  const redirectPath = getRedirectPath(formData, "/courses");
-
-  if (typeof taskId !== "string" || !taskId) {
-    redirect(buildRedirectWithMessage(redirectPath, "error", "We couldn't find that lesson."));
-  }
-
-  const { supabase, user } = await getAuthenticatedParent();
-
-  if (!user) {
-    redirect("/login");
-  }
-
-  const { data: task } = await supabase
-    .from("course_tasks")
-    .select(
-      "id, course_id, module_id, focus_block_id, title, task_type, instructions, content_html, writing_prompt, choice_options, allow_multiple_choices, estimated_minutes, monthly_goal_total, gold_bar_rule, gold_coin_reward_amount, weekly_days, position, is_active",
-    )
-    .eq("id", taskId)
-    .eq("parent_user_id", user.id)
-    .maybeSingle();
-
-  if (!task) {
-    redirect(buildRedirectWithMessage(redirectPath, "error", "We couldn't find that lesson."));
-  }
-
-  const { count } = await supabase
-    .from("course_tasks")
-    .select("*", { count: "exact", head: true })
-    .eq("module_id", task.module_id)
-    .eq("parent_user_id", user.id);
-
-  const duplicateTitle = /\bcopy\b/i.test(task.title)
-    ? task.title
-    : `${task.title} copy`;
-
-  const { error } = await supabase.from("course_tasks").insert({
-    course_id: task.course_id,
-    module_id: task.module_id,
-    parent_user_id: user.id,
-    focus_block_id: task.focus_block_id,
-    title: duplicateTitle,
-    task_type: task.task_type,
-    instructions: task.instructions,
-    content_html: task.content_html,
-    writing_prompt: task.writing_prompt,
-    choice_options: task.choice_options ?? [],
-    allow_multiple_choices: task.allow_multiple_choices,
-    estimated_minutes: task.estimated_minutes,
-    monthly_goal_total: task.monthly_goal_total,
-    gold_bar_rule: task.gold_bar_rule,
-    gold_coin_reward_amount: task.gold_coin_reward_amount,
-    weekly_days: task.weekly_days ?? [],
-    position: count ?? task.position + 1,
-    is_active: task.is_active,
-  });
-
-  if (error) {
-    redirect(
-      buildRedirectWithMessage(
-        redirectPath,
-        "error",
-        getFriendlyCourseDatabaseError(error.message),
-      ),
-    );
-  }
-
-  revalidateCoursePages();
-  redirect(buildRedirectWithMessage(redirectPath, "saved", "duplicated lesson"));
-}
-
-export async function bulkUpdateTasks(formData: FormData) {
-  const redirectPath = getRedirectPath(formData, "/courses");
-  const taskIds = Array.from(
-    new Set(
-      formData
-        .getAll("task_ids")
-        .filter((value): value is string => typeof value === "string" && value.length > 0),
-    ),
-  );
-  const bulkAction = formData.get("bulk_action");
-
-  if (taskIds.length === 0) {
-    redirect(buildRedirectWithMessage(redirectPath, "error", "Choose at least one task first."));
-  }
-
-  if (bulkAction !== "activate" && bulkAction !== "pause" && bulkAction !== "delete") {
-    redirect(buildRedirectWithMessage(redirectPath, "error", "Choose a valid bulk action."));
-  }
-
-  const { supabase, user } = await getAuthenticatedParent();
-
-  if (!user) {
-    redirect("/login");
-  }
-
-  const result =
-    bulkAction === "delete"
-      ? await supabase
-          .from("course_tasks")
-          .delete()
-          .in("id", taskIds)
-          .eq("parent_user_id", user.id)
-      : await supabase
-          .from("course_tasks")
-          .update({
-            is_active: bulkAction === "activate",
-          })
-          .in("id", taskIds)
-          .eq("parent_user_id", user.id);
-
-  const { error } = result;
-
-  if (error) {
-    redirect(
-      buildRedirectWithMessage(
-        redirectPath,
-        "error",
-        getFriendlyCourseDatabaseError(error.message),
-      ),
-    );
-  }
-
-  revalidateCoursePages();
-  redirect(
-    buildRedirectWithMessage(
-      redirectPath,
-      "saved",
-      bulkAction === "activate"
-        ? "tasks"
-        : bulkAction === "pause"
-          ? "paused tasks"
-          : "deleted tasks",
-    ),
-  );
-}
-
-export async function deleteTask(formData: FormData) {
-  const taskId = formData.get("task_id");
-  const redirectPath = getRedirectPath(formData, "/courses");
-
-  if (typeof taskId !== "string" || !taskId) {
-    redirect(buildRedirectWithMessage(redirectPath, "error", "We couldn't find that task."));
-  }
-
-  const { supabase, user } = await getAuthenticatedParent();
-
-  if (!user) {
-    redirect("/login");
-  }
-
-  const { error } = await supabase
-    .from("course_tasks")
-    .delete()
-    .eq("id", taskId)
-    .eq("parent_user_id", user.id);
-
-  if (error) {
-    redirect(
-      buildRedirectWithMessage(
-        redirectPath,
-        "error",
-        getFriendlyCourseDatabaseError(error.message),
-      ),
-    );
-  }
-
-  revalidateCoursePages();
-  redirect(buildRedirectWithMessage(redirectPath, "saved", "deleted task"));
-}
-
-export async function createFocusBlock(formData: FormData) {
-  const courseId = formData.get("course_id");
-  const redirectPath = getRedirectPath(
-    formData,
-    typeof courseId === "string" ? `/courses/${courseId}` : "/courses",
-  );
-  const moduleId = formData.get("module_id");
-  const title = formData.get("title");
-  const goal = formData.get("goal");
-  const description = formData.get("description");
-  const startDate = formData.get("start_date");
-  const endDate = formData.get("end_date");
-  const cycleNumber = parseOptionalPositiveInteger(formData.get("cycle_number"), {
-    min: 1,
-    max: 52,
-    message: "Cycle number should be between 1 and 52.",
-    redirectPath,
-  });
-
-  if (typeof courseId !== "string" || !courseId) {
-    redirect(buildRedirectWithMessage(redirectPath, "error", "We couldn't find that course."));
-  }
-
-  if (typeof title !== "string" || !title.trim()) {
-    redirect(buildRedirectWithMessage(redirectPath, "error", "Please enter a focus block title."));
-  }
-
-  const { supabase, user } = await getAuthenticatedParent();
-
-  if (!user) {
-    redirect("/login");
-  }
-
-  const { error } = await supabase.from("focus_blocks").insert({
-    course_id: courseId,
-    module_id: typeof moduleId === "string" && moduleId.trim() ? moduleId : null,
-    parent_user_id: user.id,
-    title: title.trim(),
-    goal: typeof goal === "string" ? goal.trim() || null : null,
-    description: typeof description === "string" ? description.trim() || null : null,
-    cycle_number: cycleNumber,
-    start_date: typeof startDate === "string" && startDate ? startDate : null,
-    end_date: typeof endDate === "string" && endDate ? endDate : null,
-    is_active: true,
-  });
-
-  if (error) {
-    redirect(
-      buildRedirectWithMessage(
-        redirectPath,
-        "error",
-        getFriendlyCourseDatabaseError(error.message),
-      ),
-    );
-  }
-
-  revalidateCoursePages();
-  redirect(buildRedirectWithMessage(redirectPath, "saved", "focus block"));
+  redirect(buildRedirectWithMessage(redirectPath, "saved", "checkpoint order"));
 }
 
 export async function createCourseGoal(formData: FormData) {
@@ -1356,10 +1054,13 @@ export async function createCourseGoal(formData: FormData) {
     typeof courseId === "string" ? `/courses/${courseId}` : "/courses",
   );
   const title = formData.get("title");
+  const goalScope = formData.get("goal_scope");
+  const timedGoalKind = formData.get("timed_goal_kind");
   const goalType = formData.get("goal_type");
   const unit = formData.get("unit");
   const progressSource = formData.get("progress_source");
   const timeSpan = formData.get("time_span");
+  const goalTaskIds = parseGoalTaskIds(formData, redirectPath);
   const successDescription = formData.get("success_description");
   const status = formData.get("status");
   const targetQuantity = parseOptionalPositiveInteger(formData.get("target_quantity"), {
@@ -1383,61 +1084,145 @@ export async function createCourseGoal(formData: FormData) {
     redirect(buildRedirectWithMessage(redirectPath, "error", "Please enter a course goal title."));
   }
 
-  if (typeof unit !== "string" || !unit.trim()) {
-    redirect(buildRedirectWithMessage(redirectPath, "error", "Please enter the goal unit."));
-  }
-
-  if (
-    goalType !== "count_goal" &&
-    goalType !== "completion_goal" &&
-    goalType !== "skill_goal" &&
-    goalType !== "submission_goal"
-  ) {
-    redirect(buildRedirectWithMessage(redirectPath, "error", "Choose a valid goal type."));
-  }
-
-  if (
-    progressSource !== "task_completion" &&
-    progressSource !== "task_submission" &&
-    progressSource !== "focus_block_completion" &&
-    progressSource !== "manual_review" &&
-    progressSource !== "spelling_progress"
-  ) {
-    redirect(buildRedirectWithMessage(redirectPath, "error", "Choose a valid progress source."));
-  }
-
-  if (timeSpan !== "monthly" && timeSpan !== "cycle" && timeSpan !== "course_duration") {
-    redirect(buildRedirectWithMessage(redirectPath, "error", "Choose a valid time span."));
-  }
-
-  if (status !== "planned" && status !== "active" && status !== "secure" && status !== "paused") {
-    redirect(buildRedirectWithMessage(redirectPath, "error", "Choose a valid goal status."));
-  }
-
-  if (!targetQuantity) {
-    redirect(buildRedirectWithMessage(redirectPath, "error", "Please enter a target quantity."));
-  }
-
   const { supabase, user } = await getAuthenticatedParent();
 
   if (!user) {
     redirect("/login");
   }
 
-  const { error } = await supabase.from("course_goals").insert({
+  const { data: course } = await supabase
+    .from("courses")
+    .select("id, structure_type")
+    .eq("id", courseId)
+    .eq("parent_user_id", user.id)
+    .maybeSingle();
+
+  if (!course) {
+    redirect(buildRedirectWithMessage(redirectPath, "error", "We couldn't find that course."));
+  }
+
+  let safeGoalType = goalType;
+  let safeProgressSource = progressSource;
+  let safeTimeSpan = timeSpan;
+  let safeStatus = status;
+  let safeTargetQuantity = targetQuantity;
+  let safeStretchTarget = stretchTarget;
+  let safeUnit = typeof unit === "string" ? unit.trim() : "";
+  const trimmedTitle = title.trim();
+  const safeSuccessDescription =
+    typeof successDescription === "string" ? successDescription.trim() || null : null;
+
+  if (
+    goalScope === "timed_course_goal" &&
+    normaliseCourseStructureType(course.structure_type) === "timed"
+  ) {
+    if (
+      typeof timedGoalKind !== "string" ||
+      !TIMED_COURSE_GOAL_KINDS.includes(
+        timedGoalKind as (typeof TIMED_COURSE_GOAL_KINDS)[number],
+      )
+    ) {
+      redirect(buildRedirectWithMessage(redirectPath, "error", "Choose a valid timed goal kind."));
+    }
+
+    safeGoalType = timedGoalKind === "numerical" ? "count_goal" : "skill_goal";
+    safeProgressSource = timedGoalKind === "numerical" ? "task_completion" : "manual_review";
+    safeTimeSpan = "course_duration";
+    safeStatus =
+      typeof status === "string" &&
+      COURSE_GOAL_STATUSES.includes(status as (typeof COURSE_GOAL_STATUSES)[number])
+        ? status
+        : "active";
+
+    if (timedGoalKind === "numerical") {
+      if (!safeTargetQuantity) {
+        redirect(buildRedirectWithMessage(redirectPath, "error", "Please enter a numerical target."));
+      }
+
+      if (!safeUnit) {
+        redirect(buildRedirectWithMessage(redirectPath, "error", "Please enter what should be counted."));
+      }
+    } else {
+      safeTargetQuantity = 1;
+      safeStretchTarget = null;
+      safeUnit = safeUnit || "aspiration";
+
+      if (!safeSuccessDescription) {
+        redirect(buildRedirectWithMessage(redirectPath, "error", "Describe what success looks like for this aspiration."));
+      }
+    }
+  } else {
+    if (!safeUnit) {
+      redirect(buildRedirectWithMessage(redirectPath, "error", "Please enter the goal unit."));
+    }
+
+    if (
+      goalType !== "count_goal" &&
+      goalType !== "completion_goal" &&
+      goalType !== "skill_goal" &&
+      goalType !== "submission_goal"
+    ) {
+      redirect(buildRedirectWithMessage(redirectPath, "error", "Choose a valid goal type."));
+    }
+
+    if (
+      progressSource !== "task_completion" &&
+      progressSource !== "task_submission" &&
+      progressSource !== "focus_block_completion" &&
+      progressSource !== "manual_review" &&
+      progressSource !== "spelling_progress"
+    ) {
+      redirect(buildRedirectWithMessage(redirectPath, "error", "Choose a valid progress source."));
+    }
+
+    if (timeSpan !== "monthly" && timeSpan !== "cycle" && timeSpan !== "course_duration") {
+      redirect(buildRedirectWithMessage(redirectPath, "error", "Choose a valid time span."));
+    }
+
+    if (status !== "planned" && status !== "active" && status !== "secure" && status !== "paused") {
+      redirect(buildRedirectWithMessage(redirectPath, "error", "Choose a valid goal status."));
+    }
+
+    if (!safeTargetQuantity) {
+      redirect(buildRedirectWithMessage(redirectPath, "error", "Please enter a target quantity."));
+    }
+  }
+
+  if (goalTaskIds.length > 0 && safeProgressSource !== "task_completion") {
+    redirect(
+      buildRedirectWithMessage(
+        redirectPath,
+        "error",
+        "Only numerical task-completion goals can link recurring tasks.",
+      ),
+    );
+  }
+
+  const validatedGoalTaskIds = await validateGoalTaskIds(
+    supabase,
+    user.id,
+    courseId,
+    goalTaskIds,
+    redirectPath,
+  );
+
+  const { data: insertedGoal, error } = await supabase
+    .from("course_goals")
+    .insert({
     course_id: courseId,
     parent_user_id: user.id,
-    title: title.trim(),
-    goal_type: goalType,
-    unit: unit.trim(),
-    target_quantity: targetQuantity,
-    progress_source: progressSource,
-    time_span: timeSpan,
-    success_description:
-      typeof successDescription === "string" ? successDescription.trim() || null : null,
-    stretch_target: stretchTarget,
-    status,
-  });
+    title: trimmedTitle,
+    goal_type: safeGoalType,
+    unit: safeUnit,
+    target_quantity: safeTargetQuantity,
+    progress_source: safeProgressSource,
+    time_span: safeTimeSpan,
+    success_description: safeSuccessDescription ?? trimmedTitle,
+    stretch_target: safeStretchTarget,
+    status: safeStatus,
+    })
+    .select("id")
+    .single();
 
   if (error) {
     redirect(
@@ -1449,8 +1234,332 @@ export async function createCourseGoal(formData: FormData) {
     );
   }
 
+  if (validatedGoalTaskIds.length > 0 && insertedGoal?.id) {
+    const { error: goalTaskSourcesError } = await supabase
+      .from("course_goal_task_sources")
+      .insert(
+        validatedGoalTaskIds.map((taskId) => ({
+          course_id: courseId,
+          goal_id: insertedGoal.id,
+          task_id: taskId,
+          parent_user_id: user.id,
+        })),
+      );
+
+    if (goalTaskSourcesError) {
+      redirect(
+        buildRedirectWithMessage(
+          redirectPath,
+          "error",
+          getFriendlyCourseDatabaseError(goalTaskSourcesError.message),
+        ),
+      );
+    }
+  }
+
   revalidateCoursePages();
   redirect(buildRedirectWithMessage(redirectPath, "saved", "course goal"));
+}
+
+export async function updateCourseGoal(formData: FormData) {
+  const courseId = formData.get("course_id");
+  const goalId = formData.get("goal_id");
+  const redirectPath = getRedirectPath(
+    formData,
+    typeof courseId === "string" ? `/courses/${courseId}` : "/courses",
+  );
+  const title = formData.get("title");
+  const timedGoalKind = formData.get("timed_goal_kind");
+  const unit = formData.get("unit");
+  const goalTaskIds = parseGoalTaskIds(formData, redirectPath);
+  const successDescription = formData.get("success_description");
+  const targetQuantity = parseOptionalPositiveInteger(formData.get("target_quantity"), {
+    min: 1,
+    max: 10000,
+    message: "Target quantity should be between 1 and 10000.",
+    redirectPath,
+  });
+  const stretchTarget = parseOptionalPositiveInteger(formData.get("stretch_target"), {
+    min: 1,
+    max: 10000,
+    message: "Stretch target should be between 1 and 10000.",
+    redirectPath,
+  });
+
+  if (
+    typeof courseId !== "string" ||
+    !courseId ||
+    typeof goalId !== "string" ||
+    !goalId
+  ) {
+    redirect(buildRedirectWithMessage(redirectPath, "error", "We couldn't find that course goal."));
+  }
+
+  if (typeof title !== "string" || !title.trim()) {
+    redirect(buildRedirectWithMessage(redirectPath, "error", "Please enter a course goal title."));
+  }
+
+  const { supabase, user } = await getAuthenticatedParent();
+
+  if (!user) {
+    redirect("/login");
+  }
+
+  const { data: goal, error: goalError } = await supabase
+    .from("course_goals")
+    .select("id, course_id, goal_type, progress_source, time_span, status")
+    .eq("id", goalId)
+    .eq("course_id", courseId)
+    .eq("parent_user_id", user.id)
+    .maybeSingle();
+
+  if (goalError) {
+    redirect(
+      buildRedirectWithMessage(
+        redirectPath,
+        "error",
+        getFriendlyCourseDatabaseError(goalError.message),
+      ),
+    );
+  }
+
+  if (!goal) {
+    redirect(buildRedirectWithMessage(redirectPath, "error", "We couldn't find that course goal."));
+  }
+
+  if (
+    typeof timedGoalKind !== "string" ||
+    !TIMED_COURSE_GOAL_KINDS.includes(
+      timedGoalKind as (typeof TIMED_COURSE_GOAL_KINDS)[number],
+    )
+  ) {
+    redirect(buildRedirectWithMessage(redirectPath, "error", "Choose a valid timed goal kind."));
+  }
+
+  const trimmedTitle = title.trim();
+  const safeSuccessDescription =
+    typeof successDescription === "string" ? successDescription.trim() || null : null;
+  const safeGoalType = timedGoalKind === "numerical" ? "count_goal" : "skill_goal";
+  const safeProgressSource =
+    timedGoalKind === "numerical" ? "task_completion" : "manual_review";
+  let safeTargetQuantity = targetQuantity;
+  let safeStretchTarget = stretchTarget;
+  let safeUnit = typeof unit === "string" ? unit.trim() : "";
+
+  if (timedGoalKind === "numerical") {
+    if (!safeTargetQuantity) {
+      redirect(buildRedirectWithMessage(redirectPath, "error", "Please enter a numerical target."));
+    }
+
+    if (!safeUnit) {
+      redirect(buildRedirectWithMessage(redirectPath, "error", "Please enter what should be counted."));
+    }
+  } else {
+    safeTargetQuantity = 1;
+    safeStretchTarget = null;
+    safeUnit = safeUnit || "aspiration";
+
+    if (!safeSuccessDescription) {
+      redirect(
+        buildRedirectWithMessage(
+          redirectPath,
+          "error",
+          "Describe what success looks like for this aspiration.",
+        ),
+      );
+    }
+  }
+
+  if (goalTaskIds.length > 0 && safeProgressSource !== "task_completion") {
+    redirect(
+      buildRedirectWithMessage(
+        redirectPath,
+        "error",
+        "Only numerical task-completion goals can link recurring tasks.",
+      ),
+    );
+  }
+
+  const validatedGoalTaskIds = await validateGoalTaskIds(
+    supabase,
+    user.id,
+    courseId,
+    goalTaskIds,
+    redirectPath,
+  );
+
+  const { error: updateError } = await supabase
+    .from("course_goals")
+    .update({
+      title: trimmedTitle,
+      goal_type: safeGoalType,
+      unit: safeUnit,
+      target_quantity: safeTargetQuantity,
+      progress_source: safeProgressSource,
+      time_span: "course_duration",
+      success_description: safeSuccessDescription ?? trimmedTitle,
+      stretch_target: safeStretchTarget,
+      status: goal.status,
+    })
+    .eq("id", goalId)
+    .eq("course_id", courseId)
+    .eq("parent_user_id", user.id);
+
+  if (updateError) {
+    redirect(
+      buildRedirectWithMessage(
+        redirectPath,
+        "error",
+        getFriendlyCourseDatabaseError(updateError.message),
+      ),
+    );
+  }
+
+  const { error: deleteMappingError } = await supabase
+    .from("course_goal_task_sources")
+    .delete()
+    .eq("goal_id", goalId)
+    .eq("course_id", courseId)
+    .eq("parent_user_id", user.id);
+
+  if (deleteMappingError) {
+    redirect(
+      buildRedirectWithMessage(
+        redirectPath,
+        "error",
+        getFriendlyCourseDatabaseError(deleteMappingError.message),
+      ),
+    );
+  }
+
+  if (validatedGoalTaskIds.length > 0) {
+    const { error: insertMappingError } = await supabase
+      .from("course_goal_task_sources")
+      .insert(
+        validatedGoalTaskIds.map((taskId) => ({
+          course_id: courseId,
+          goal_id: goalId,
+          task_id: taskId,
+          parent_user_id: user.id,
+        })),
+      );
+
+    if (insertMappingError) {
+      redirect(
+        buildRedirectWithMessage(
+          redirectPath,
+          "error",
+          getFriendlyCourseDatabaseError(insertMappingError.message),
+        ),
+      );
+    }
+  }
+
+  revalidateCoursePages();
+  redirect(buildRedirectWithMessage(redirectPath, "saved", "course goal"));
+}
+
+export async function updateCourseGoalTaskSources(formData: FormData) {
+  const courseId = formData.get("course_id");
+  const goalId = formData.get("goal_id");
+  const redirectPath = getRedirectPath(
+    formData,
+    typeof courseId === "string" ? `/courses/${courseId}` : "/courses",
+  );
+  const goalTaskIds = parseGoalTaskIds(formData, redirectPath);
+
+  if (typeof courseId !== "string" || !courseId || typeof goalId !== "string" || !goalId) {
+    redirect(buildRedirectWithMessage(redirectPath, "error", "We couldn't find that course goal."));
+  }
+
+  const { supabase, user } = await getAuthenticatedParent();
+
+  if (!user) {
+    redirect("/login");
+  }
+
+  const { data: goal, error: goalError } = await supabase
+    .from("course_goals")
+    .select("id, course_id, goal_type, progress_source")
+    .eq("id", goalId)
+    .eq("course_id", courseId)
+    .eq("parent_user_id", user.id)
+    .maybeSingle();
+
+  if (goalError) {
+    redirect(
+      buildRedirectWithMessage(
+        redirectPath,
+        "error",
+        getFriendlyCourseDatabaseError(goalError.message),
+      ),
+    );
+  }
+
+  if (!goal) {
+    redirect(buildRedirectWithMessage(redirectPath, "error", "We couldn't find that course goal."));
+  }
+
+  if (goal.progress_source !== "task_completion" || goal.goal_type !== "count_goal") {
+    redirect(
+      buildRedirectWithMessage(
+        redirectPath,
+        "error",
+        "Only numerical task-completion goals can link recurring tasks.",
+      ),
+    );
+  }
+
+  const validatedGoalTaskIds = await validateGoalTaskIds(
+    supabase,
+    user.id,
+    courseId,
+    goalTaskIds,
+    redirectPath,
+  );
+
+  const { error: deleteError } = await supabase
+    .from("course_goal_task_sources")
+    .delete()
+    .eq("goal_id", goalId)
+    .eq("course_id", courseId)
+    .eq("parent_user_id", user.id);
+
+  if (deleteError) {
+    redirect(
+      buildRedirectWithMessage(
+        redirectPath,
+        "error",
+        getFriendlyCourseDatabaseError(deleteError.message),
+      ),
+    );
+  }
+
+  if (validatedGoalTaskIds.length > 0) {
+    const { error: insertError } = await supabase
+      .from("course_goal_task_sources")
+      .insert(
+        validatedGoalTaskIds.map((taskId) => ({
+          course_id: courseId,
+          goal_id: goalId,
+          task_id: taskId,
+          parent_user_id: user.id,
+        })),
+      );
+
+    if (insertError) {
+      redirect(
+        buildRedirectWithMessage(
+          redirectPath,
+          "error",
+          getFriendlyCourseDatabaseError(insertError.message),
+        ),
+      );
+    }
+  }
+
+  revalidateCoursePages();
+  redirect(buildRedirectWithMessage(redirectPath, "saved", "goal mapping"));
 }
 
 export async function createCourseCheckpoint(formData: FormData) {
@@ -1459,6 +1568,7 @@ export async function createCourseCheckpoint(formData: FormData) {
     formData,
     typeof courseId === "string" ? `/courses/${courseId}` : "/courses",
   );
+  const phaseId = formData.get("phase_id");
   const moduleId = formData.get("module_id");
   const title = formData.get("title");
   const target = formData.get("target");
@@ -1485,16 +1595,200 @@ export async function createCourseCheckpoint(formData: FormData) {
     redirect("/login");
   }
 
+  const { data: course } = await supabase
+    .from("courses")
+    .select("id, structure_type")
+    .eq("id", courseId)
+    .eq("parent_user_id", user.id)
+    .maybeSingle();
+
+  if (!course) {
+    redirect(buildRedirectWithMessage(redirectPath, "error", "We couldn't find that course."));
+  }
+
+  const structureType = normaliseCourseStructureType(course.structure_type);
+  let safePhaseId: string | null = null;
+
+  try {
+    assertCheckpointPlacementAllowedForCourse({
+      structureType,
+      phaseId,
+      cycleNumber,
+    });
+
+    if (structureType === "phased") {
+      safePhaseId = (
+        await assertPhaseBelongsToCourse({
+          supabase,
+          parentUserId: user.id,
+          courseId,
+          phaseId: phaseId as string,
+          invalidMessage: "Choose a valid phase for that review point.",
+        })
+      ).id;
+    }
+
+    if (typeof moduleId === "string" && moduleId.trim()) {
+      await assertModuleBelongsToCourse({
+        supabase,
+        parentUserId: user.id,
+        courseId,
+        moduleId,
+        invalidMessage: "Choose a valid module for that review point.",
+      });
+    }
+  } catch (error) {
+    redirectForCourseActionError(error, redirectPath);
+  }
+
   const { error } = await supabase.from("course_checkpoints").insert({
     course_id: courseId,
+    phase_id: safePhaseId,
     module_id: typeof moduleId === "string" && moduleId.trim() ? moduleId : null,
     parent_user_id: user.id,
     title: title.trim(),
-    cycle_number: cycleNumber,
+    cycle_number: structureType === "timed" ? cycleNumber : null,
     target: typeof target === "string" ? target.trim() || null : null,
     scheduled_date: typeof scheduledDate === "string" && scheduledDate ? scheduledDate : null,
     notes: typeof notes === "string" ? notes.trim() || null : null,
   });
+
+  if (error) {
+    redirect(
+      buildRedirectWithMessage(
+        redirectPath,
+        "error",
+        getFriendlyCourseDatabaseError(error.message),
+      ),
+    );
+  }
+
+  revalidateCoursePages();
+  redirect(buildRedirectWithMessage(redirectPath, "saved", "checkpoint"));
+}
+
+export async function updateCourseCheckpoint(formData: FormData) {
+  const checkpointId = formData.get("checkpoint_id");
+  const title = formData.get("title");
+  const target = formData.get("target");
+  const scheduledDate = formData.get("scheduled_date");
+  const notes = formData.get("notes");
+  const phaseId = formData.get("phase_id");
+  const redirectPath = getRedirectPath(formData, "/courses");
+  const cycleNumber = parseOptionalPositiveInteger(formData.get("cycle_number"), {
+    min: 1,
+    max: 52,
+    message: "Cycle number should be between 1 and 52.",
+    redirectPath,
+  });
+
+  if (typeof checkpointId !== "string" || !checkpointId) {
+    redirect(buildRedirectWithMessage(redirectPath, "error", "We couldn't find that checkpoint."));
+  }
+
+  if (typeof title !== "string" || !title.trim()) {
+    redirect(buildRedirectWithMessage(redirectPath, "error", "Please enter a checkpoint title."));
+  }
+
+  const { supabase, user } = await getAuthenticatedParent();
+
+  if (!user) {
+    redirect("/login");
+  }
+
+  const { data: checkpoint } = await supabase
+    .from("course_checkpoints")
+    .select("id, course_id")
+    .eq("id", checkpointId)
+    .eq("parent_user_id", user.id)
+    .maybeSingle();
+
+  if (!checkpoint) {
+    redirect(buildRedirectWithMessage(redirectPath, "error", "We couldn't find that checkpoint."));
+  }
+
+  const { data: course } = await supabase
+    .from("courses")
+    .select("id, structure_type")
+    .eq("id", checkpoint.course_id)
+    .eq("parent_user_id", user.id)
+    .maybeSingle();
+
+  if (!course) {
+    redirect(buildRedirectWithMessage(redirectPath, "error", "We couldn't find that course."));
+  }
+
+  const structureType = normaliseCourseStructureType(course.structure_type);
+  let safePhaseId: string | null = null;
+
+  try {
+    assertCheckpointPlacementAllowedForCourse({
+      structureType,
+      phaseId,
+      cycleNumber,
+    });
+
+    if (structureType === "phased") {
+      safePhaseId = (
+        await assertPhaseBelongsToCourse({
+          supabase,
+          parentUserId: user.id,
+          courseId: course.id,
+          phaseId: phaseId as string,
+          invalidMessage: "Choose a valid phase for that review point.",
+        })
+      ).id;
+    }
+  } catch (error) {
+    redirectForCourseActionError(error, redirectPath);
+  }
+
+  const { error } = await supabase
+    .from("course_checkpoints")
+    .update({
+      title: title.trim(),
+      target: typeof target === "string" ? target.trim() || null : null,
+      scheduled_date: typeof scheduledDate === "string" && scheduledDate ? scheduledDate : null,
+      notes: typeof notes === "string" ? notes.trim() || null : null,
+      cycle_number: structureType === "timed" ? cycleNumber : null,
+      phase_id: structureType === "phased" ? safePhaseId : null,
+    })
+    .eq("id", checkpointId)
+    .eq("parent_user_id", user.id);
+
+  if (error) {
+    redirect(
+      buildRedirectWithMessage(
+        redirectPath,
+        "error",
+        getFriendlyCourseDatabaseError(error.message),
+      ),
+    );
+  }
+
+  revalidateCoursePages();
+  redirect(buildRedirectWithMessage(redirectPath, "saved", "checkpoint"));
+}
+
+export async function deleteCourseCheckpoint(formData: FormData) {
+  const checkpointId = formData.get("checkpoint_id");
+  const redirectPath = getRedirectPath(formData, "/courses");
+
+  if (typeof checkpointId !== "string" || !checkpointId) {
+    redirect(buildRedirectWithMessage(redirectPath, "error", "We couldn't find that checkpoint."));
+  }
+
+  const { supabase, user } = await getAuthenticatedParent();
+
+  if (!user) {
+    redirect("/login");
+  }
+
+  const { error } = await supabase
+    .from("course_checkpoints")
+    .delete()
+    .eq("id", checkpointId)
+    .eq("parent_user_id", user.id);
 
   if (error) {
     redirect(

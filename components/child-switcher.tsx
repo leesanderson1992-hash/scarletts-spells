@@ -7,7 +7,7 @@ type ChildOption = {
 };
 
 type ChildSwitcherProps = {
-  children: ChildOption[];
+  childOptions: ChildOption[];
   activeChildId: string;
   redirectPath: string;
   compact?: boolean;
@@ -19,19 +19,19 @@ function getChildName(child: ChildOption) {
 }
 
 export function ChildSwitcher({
-  children,
+  childOptions,
   activeChildId,
   redirectPath,
   compact = false,
   className,
 }: ChildSwitcherProps) {
-  if (children.length <= 1) {
+  if (childOptions.length <= 1) {
     return null;
   }
 
   return (
     <div className={`${compact ? "flex flex-wrap gap-2" : "mt-6 flex flex-wrap gap-2"} ${className ?? ""}`.trim()}>
-      {children.map((child) => {
+      {childOptions.map((child) => {
         const isSelected = child.id === activeChildId;
 
         return (

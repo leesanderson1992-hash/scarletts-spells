@@ -8,7 +8,7 @@ import {
   normaliseAppMode,
   selectChildById,
 } from "@/lib/children";
-import { getWordsDueToday } from "@/lib/spelling/reviewScheduler";
+import { getChildRewardLedgerReadModel } from "@/lib/rewards/read-model";
 import {
   resolvePracticeFamily,
   type WordFamilyRecord,
@@ -30,16 +30,13 @@ type HomophonePromptExample = {
 };
 type PracticeQueuePhase =
   | "core"
-  | "same_family_bonus"
-  | "due_review"
-  | "related_bonus";
+  | "due_review";
 
 type ChildRow = {
   id: string;
   first_name: string;
   last_name: string | null;
   is_archived: boolean;
-  gold_coin_balance: number;
 };
 
 type DailyAssignmentRow = {
@@ -48,6 +45,8 @@ type DailyAssignmentRow = {
   instructions: string | null;
   focus_word?: string | null;
   selected_family_slug?: string | null;
+  assignment_generation_source?: string | null;
+  source_learning_item_ids?: string[] | null;
   target_words: string[] | null;
   review_words: string[] | null;
   status: string | null;
@@ -59,17 +58,35 @@ type DailyAssignmentRow = {
   ingredient_awarded?: boolean | null;
 };
 
-type WordProgressRow = {
-  id: string;
-  target_word: string;
-  correct_attempts?: number | null;
-  incorrect_attempts?: number | null;
-  mastery_level?: number | null;
-  review_stage?: number | null;
-  last_assigned_at?: string | null;
-  last_practised_at?: string | null;
-  mastered_at?: string | null;
+type CanonicalPracticeCatalogRow = {
+  display_name: string;
+  skill_family_key: string | null;
+  metadata: Record<string, unknown>;
 };
+
+function getAssignmentSourceLabel(source: string | null | undefined) {
+  if (source === "learning_items") {
+    return "Built from active learning items";
+  }
+
+  if (source === "historical_pre_phase5") {
+    return "Historic pre-Phase 5 assignment";
+  }
+
+  return null;
+}
+
+function getAssignmentSourceDescription(source: string | null | undefined) {
+  if (source === "learning_items") {
+    return "Teaching context is coming from the linked canonical learning stream for this assignment.";
+  }
+
+  if (source === "historical_pre_phase5") {
+    return "This older assignment was created before the final Phase 5 destructive cleanup pass completed.";
+  }
+
+  return null;
+}
 
 function getChildName(child: ChildRow) {
   return [child.first_name, child.last_name].filter(Boolean).join(" ");
@@ -110,20 +127,6 @@ const MAX_SAME_FAMILY_BONUS_WORDS = 4;
 const MAX_RELATED_FAMILY_BONUS_WORDS = 2;
 const MIN_QUEUE_BEFORE_RELATED_FAMILY = 10;
 
-function getDueReviewWords(progressRows: WordProgressRow[]) {
-  return getWordsDueToday(
-    progressRows.map((row) => ({
-      target_word: row.target_word,
-      review_stage: row.review_stage ?? 0,
-      last_assigned_at: row.last_assigned_at ?? null,
-      last_practised_at: row.last_practised_at ?? null,
-      mastered_at: row.mastered_at ?? null,
-    })),
-    getDateOnly(new Date()),
-  )
-    .map((row) => row.target_word.toLowerCase());
-}
-
 function wordMatchesFamily(
   word: string,
   familySlug: string | null | undefined,
@@ -157,6 +160,11 @@ function buildCoreLessonWords(
   availableFamilies: WordFamilyRecord[],
 ) {
   const cleanFocusWord = focusWord?.trim().toLowerCase() ?? "";
+
+  if (!selectedFamilySlug) {
+    return getCleanWords([cleanFocusWord, ...targetWords]).slice(0, 6);
+  }
+
   const sameFamilyTargets = getCleanWords(targetWords).filter(
     (word) =>
       word !== cleanFocusWord &&
@@ -173,6 +181,42 @@ function buildCoreLessonWords(
     ...sameFamilyTargets,
     ...familyBonusWords,
   ]).slice(0, 6);
+}
+
+function getCanonicalTeachingNote(metadata: Record<string, unknown>) {
+  const teachingPoint = metadata.teaching_point;
+  return typeof teachingPoint === "string" ? teachingPoint : null;
+}
+
+function getCanonicalStarterWords(metadata: Record<string, unknown>) {
+  const starterWordBank = metadata.starter_word_bank;
+  if (!Array.isArray(starterWordBank)) {
+    return [] as string[];
+  }
+
+  return getCleanWords(
+    starterWordBank.flatMap((entry) => {
+      if (!entry || typeof entry !== "object") {
+        return [];
+      }
+
+      const word = "word" in entry ? entry.word : null;
+      return typeof word === "string" ? [word] : [];
+    }),
+  );
+}
+
+function getCanonicalPracticeLessonType(
+  skillFamilyKey: string | null | undefined,
+): PracticeLessonType {
+  switch (skillFamilyKey) {
+    case "D4_PG":
+      return "sound";
+    case "D4_MOR":
+      return "morphology";
+    default:
+      return "rule";
+  }
 }
 
 function buildFamilyBonusWords(
@@ -217,63 +261,6 @@ function buildRelatedFamilyBonusWords(
   )
     .filter((word) => !usedWords.includes(word))
     .slice(0, MAX_RELATED_FAMILY_BONUS_WORDS);
-}
-
-function buildOrderedReviewWords(
-  assignmentReviewWords: string[],
-  progressRows: WordProgressRow[],
-  usedWords: string[],
-) {
-  const used = new Set(usedWords);
-  const progressByWord = new Map(
-    progressRows.map((row) => [row.target_word.trim().toLowerCase(), row]),
-  );
-  const dueReviewWords = Array.from(new Set(getDueReviewWords(progressRows))).filter(
-    (word) => !used.has(word),
-  );
-  const dueSet = new Set(dueReviewWords);
-
-  const scoreReviewWord = (word: string) => {
-    const progress = progressByWord.get(word);
-    return {
-      reviewStage: progress?.review_stage ?? 99,
-      incorrectAttempts: progress?.incorrect_attempts ?? 0,
-      correctAttempts: progress?.correct_attempts ?? 0,
-      masteryLevel: progress?.mastery_level ?? 99,
-    };
-  };
-
-  const sortByUrgency = (left: string, right: string) => {
-    const leftScore = scoreReviewWord(left);
-    const rightScore = scoreReviewWord(right);
-
-    if (leftScore.reviewStage !== rightScore.reviewStage) {
-      return leftScore.reviewStage - rightScore.reviewStage;
-    }
-
-    if (leftScore.incorrectAttempts !== rightScore.incorrectAttempts) {
-      return rightScore.incorrectAttempts - leftScore.incorrectAttempts;
-    }
-
-    if (leftScore.correctAttempts !== rightScore.correctAttempts) {
-      return leftScore.correctAttempts - rightScore.correctAttempts;
-    }
-
-    if (leftScore.masteryLevel !== rightScore.masteryLevel) {
-      return leftScore.masteryLevel - rightScore.masteryLevel;
-    }
-
-    return left.localeCompare(right);
-  };
-
-  const assignmentDueReviewWords = getCleanWords(assignmentReviewWords)
-    .filter((word) => dueSet.has(word) && !used.has(word))
-    .sort(sortByUrgency);
-  const queueDueReviewWords = dueReviewWords
-    .filter((word) => !assignmentDueReviewWords.includes(word))
-    .sort(sortByUrgency);
-
-  return [...assignmentDueReviewWords, ...queueDueReviewWords];
 }
 
 function getPracticeTeachingNote(
@@ -425,11 +412,12 @@ export default async function PracticePage({ searchParams }: PracticePageProps) 
 
   const resolvedSearchParams = await searchParams;
   const mode = normaliseAppMode(resolvedSearchParams?.mode);
+  const isChildMode = resolvedSearchParams?.mode === "child";
   const activeChildIdFromCookie = await getActiveChildIdFromCookies();
 
   const { data: children } = await supabase
     .from("children")
-    .select("id, first_name, last_name, is_archived, gold_coin_balance")
+    .select("id, first_name, last_name, is_archived")
     .eq("parent_user_id", user.id)
     .order("created_at", { ascending: true });
 
@@ -467,6 +455,10 @@ export default async function PracticePage({ searchParams }: PracticePageProps) 
     resolvedSearchParams?.child ?? activeChildIdFromCookie,
   );
 
+  if (isChildMode) {
+    redirect(buildScopedPath("/learn/week", selectedChild?.id ?? null, "child"));
+  }
+
   if (activeChildren.length === 0) {
     return (
       <AppShell currentPath="/practice" mode={mode} activeChildId={null} availableChildren={[]} userEmail={user.email}>
@@ -501,6 +493,7 @@ export default async function PracticePage({ searchParams }: PracticePageProps) 
 
   const today = getDateOnly(new Date());
   let latestAssignment: DailyAssignmentRow | null = null;
+  let canonicalPrimaryCatalogRow: CanonicalPracticeCatalogRow | null = null;
   const { data: wordFamilyRows } = await supabase
     .from("word_families")
     .select("*")
@@ -520,7 +513,7 @@ export default async function PracticePage({ searchParams }: PracticePageProps) 
     const { data } = await supabase
       .from("daily_assignments")
       .select(
-        "id, title, instructions, focus_word, selected_family_slug, target_words, review_words, status, assignment_date, session_started_at, session_completed_at, session_completed_words, gold_coin_awarded, ingredient_awarded",
+        "id, title, instructions, focus_word, selected_family_slug, assignment_generation_source, source_learning_item_ids, target_words, review_words, status, assignment_date, session_started_at, session_completed_at, session_completed_words, gold_coin_awarded, ingredient_awarded",
       )
       .eq("parent_user_id", user.id)
       .eq("child_id", selectedChild.id)
@@ -562,31 +555,68 @@ export default async function PracticePage({ searchParams }: PracticePageProps) 
     );
   }
 
+  const canonicalLearningItemIds =
+    latestAssignment.assignment_generation_source === "learning_items"
+      ? latestAssignment.source_learning_item_ids ?? []
+      : [];
+  const assignmentSourceLabel = getAssignmentSourceLabel(
+    latestAssignment.assignment_generation_source,
+  );
+  const assignmentSourceDescription = getAssignmentSourceDescription(
+    latestAssignment.assignment_generation_source,
+  );
+
+  if (canonicalLearningItemIds.length > 0) {
+    const { data: linkedLearningItems } = await supabase
+      .from("learning_items")
+      .select("id, micro_skill_key, skill_family_key")
+      .eq("parent_user_id", user.id)
+      .eq("child_id", selectedChild.id)
+      .in("id", canonicalLearningItemIds);
+    const learningItemById = new Map(
+      (linkedLearningItems ?? []).map((item) => [item.id, item]),
+    );
+    const primaryLearningItem =
+      canonicalLearningItemIds
+        .map((id) => learningItemById.get(id))
+        .find(Boolean) ?? null;
+
+    if (primaryLearningItem?.micro_skill_key) {
+      const { data: catalogRow } = await supabase
+        .from("micro_skill_catalog")
+        .select("display_name, skill_family_key, metadata")
+        .eq("micro_skill_key", primaryLearningItem.micro_skill_key)
+        .maybeSingle<CanonicalPracticeCatalogRow>();
+
+      canonicalPrimaryCatalogRow = catalogRow ?? null;
+    }
+  }
+
   const targetWords = getCleanWords(latestAssignment.target_words);
   const reviewWords = getCleanWords(latestAssignment.review_words).filter(
     (word) => !targetWords.includes(word),
   );
-  const practiceTeachingNote = getPracticeTeachingNote(
-    latestAssignment.selected_family_slug,
-    availableFamilies,
-  );
-  const practiceFamilyWords = getPracticeFamilyWords(
-    latestAssignment.selected_family_slug,
-    availableFamilies,
-  );
-  const practicePromptExamples = getPracticePromptExamples(
-    latestAssignment.selected_family_slug,
-    availableFamilies,
-  );
-  const practiceFamilyLabel = getPracticeFamilyLabel(
-    latestAssignment.selected_family_slug,
-    availableFamilies,
-  );
-  const practiceLessonType = getPracticeLessonType(
-    latestAssignment.selected_family_slug,
-    availableFamilies,
-  );
+  const practiceTeachingNote = canonicalPrimaryCatalogRow
+    ? getCanonicalTeachingNote(canonicalPrimaryCatalogRow.metadata)
+    : getPracticeTeachingNote(latestAssignment.selected_family_slug, availableFamilies);
+  const practiceFamilyWords = canonicalPrimaryCatalogRow
+    ? getCanonicalStarterWords(canonicalPrimaryCatalogRow.metadata)
+    : getPracticeFamilyWords(latestAssignment.selected_family_slug, availableFamilies);
+  const practicePromptExamples = canonicalPrimaryCatalogRow
+    ? []
+    : getPracticePromptExamples(latestAssignment.selected_family_slug, availableFamilies);
+  const practiceFamilyLabel = canonicalPrimaryCatalogRow
+    ? canonicalPrimaryCatalogRow.display_name
+    : getPracticeFamilyLabel(latestAssignment.selected_family_slug, availableFamilies);
+  const practiceLessonType = canonicalPrimaryCatalogRow
+    ? getCanonicalPracticeLessonType(canonicalPrimaryCatalogRow.skill_family_key)
+    : getPracticeLessonType(latestAssignment.selected_family_slug, availableFamilies);
   const allAssignmentWords = [...targetWords, ...reviewWords];
+  const rewardLedgerReadModel = await getChildRewardLedgerReadModel({
+    supabase,
+    parentUserId: user.id,
+    childId: selectedChild.id,
+  });
 
   if (allAssignmentWords.length === 0) {
     return (
@@ -617,100 +647,18 @@ export default async function PracticePage({ searchParams }: PracticePageProps) 
     );
   }
 
-  const { data: progressRows } = await supabase
-    .from("word_progress")
-    .select(
-      "id, target_word, correct_attempts, incorrect_attempts, mastery_level, review_stage, last_assigned_at, last_practised_at, mastered_at",
-    )
-    .eq("parent_user_id", user.id)
-    .eq("child_id", selectedChild.id);
-
-  const progressByWord = new Map(
-    (progressRows ?? []).map((row) => [row.target_word.toLowerCase(), row.id]),
-  );
-  const childCoreWordEntries =
-    mode === "child"
-      ? buildCoreLessonWords(
-          latestAssignment.focus_word,
-          latestAssignment.selected_family_slug,
-          targetWords,
-          availableFamilies,
-        ).map((word) => ({
-          word,
-          kind: "target" as const,
-          phase: "core" as const satisfies PracticeQueuePhase,
-          wordProgressId: progressByWord.get(word) ?? null,
-        }))
-      : [];
-  const childCoreWords = childCoreWordEntries.map((entry) => entry.word);
-  const familyBonusWords =
-    mode === "child"
-      ? buildFamilyBonusWords(
-          latestAssignment.selected_family_slug,
-          availableFamilies,
-          childCoreWords,
-        )
-      : [];
-  const dueReviewWords =
-    mode === "child"
-      ? buildOrderedReviewWords(
-          reviewWords,
-          (progressRows ?? []) as WordProgressRow[],
-          [...childCoreWords, ...familyBonusWords],
-        ).filter(
-          (word) =>
-            !childCoreWords.includes(word) &&
-            !familyBonusWords.includes(word),
-        )
-      : [];
-  const relatedFamilyBonusWords =
-    mode === "child" &&
-      childCoreWords.length + dueReviewWords.length + familyBonusWords.length <
-        MIN_QUEUE_BEFORE_RELATED_FAMILY
-      ? buildRelatedFamilyBonusWords(
-          latestAssignment.selected_family_slug,
-          availableFamilies,
-          [...childCoreWords, ...familyBonusWords, ...dueReviewWords],
-        )
-      : [];
-
-  const practiceWords =
-    mode === "child"
-      ? [
-          ...childCoreWordEntries,
-          ...familyBonusWords.map((word) => ({
-            word,
-            kind: "review" as const,
-            phase: "same_family_bonus" as const satisfies PracticeQueuePhase,
-            wordProgressId: progressByWord.get(word) ?? null,
-          })),
-          ...dueReviewWords.map((word) => ({
-            word,
-            kind: "review" as const,
-            phase: "due_review" as const satisfies PracticeQueuePhase,
-            wordProgressId: progressByWord.get(word) ?? null,
-          })),
-          ...relatedFamilyBonusWords.map((word) => ({
-            word,
-            kind: "review" as const,
-            phase: "related_bonus" as const satisfies PracticeQueuePhase,
-            wordProgressId: progressByWord.get(word) ?? null,
-          })),
-        ]
-      : [
-          ...targetWords.map((word) => ({
-            word,
-            kind: "target" as const,
-            phase: "core" as const satisfies PracticeQueuePhase,
-            wordProgressId: progressByWord.get(word) ?? null,
-          })),
-          ...reviewWords.map((word) => ({
-            word,
-            kind: "review" as const,
-            phase: "due_review" as const satisfies PracticeQueuePhase,
-            wordProgressId: progressByWord.get(word) ?? null,
-          })),
-        ];
+  const practiceWords = [
+    ...targetWords.map((word) => ({
+      word,
+      kind: "target" as const,
+      phase: "core" as const satisfies PracticeQueuePhase,
+    })),
+    ...reviewWords.map((word) => ({
+      word,
+      kind: "review" as const,
+      phase: "due_review" as const satisfies PracticeQueuePhase,
+    })),
+  ];
 
   return (
     <AppShell currentPath="/practice" mode={mode} activeChildId={selectedChild.id} availableChildren={activeChildren} userEmail={user.email}>
@@ -731,6 +679,16 @@ export default async function PracticePage({ searchParams }: PracticePageProps) 
             <p className="brand-copy mt-4 text-sm">
               Latest assignment saved {formatDate(latestAssignment.assignment_date)}.
             </p>
+            {assignmentSourceLabel ? (
+              <div className="mt-4 flex flex-wrap items-center gap-3 text-sm text-zinc-700">
+                <span className="rounded-full border border-zinc-300 bg-white px-3 py-1 text-xs font-medium uppercase tracking-[0.16em] text-zinc-700">
+                  {assignmentSourceLabel}
+                </span>
+                {assignmentSourceDescription ? (
+                  <span>{assignmentSourceDescription}</span>
+                ) : null}
+              </div>
+            ) : null}
           </section>
         )}
 
@@ -741,7 +699,7 @@ export default async function PracticePage({ searchParams }: PracticePageProps) 
           assignmentId={latestAssignment.id}
           assignmentTitle={latestAssignment.title ?? "Daily spelling practice"}
           lessonType={practiceLessonType}
-          familyId={latestAssignment.selected_family_slug ?? null}
+          familyId={canonicalPrimaryCatalogRow ? null : latestAssignment.selected_family_slug ?? null}
           familyLabel={practiceFamilyLabel}
           teachingNote={practiceTeachingNote}
           familyWords={practiceFamilyWords}
@@ -749,13 +707,13 @@ export default async function PracticePage({ searchParams }: PracticePageProps) 
           targetWords={targetWords}
           reviewWords={reviewWords}
           words={practiceWords}
-          plannedWordCount={mode === "child" ? childCoreWords.length : allAssignmentWords.length}
+          plannedWordCount={allAssignmentWords.length}
           status={latestAssignment.status ?? "pending"}
           isReviewOnly={targetWords.length === 0 && reviewWords.length > 0}
-          sameFamilyBonusCount={familyBonusWords.length}
-          dueReviewCount={dueReviewWords.length}
-          relatedBonusCount={relatedFamilyBonusWords.length}
-          goldCoinCount={selectedChild.gold_coin_balance ?? 0}
+          sameFamilyBonusCount={0}
+          dueReviewCount={reviewWords.length}
+          relatedBonusCount={0}
+          goldCoinCount={rewardLedgerReadModel.spendableSnapshot.spendableGoldCoins}
         />
       </div>
     </div>

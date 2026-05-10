@@ -11,7 +11,12 @@ import {
 import { getActiveChildrenForUser, getCoursesForChild } from "@/lib/courses/queries";
 import { createClient } from "@/lib/supabase/server";
 
-import { createCourse, deleteCourse, updateCourse } from "./actions";
+import {
+  deleteCourse,
+  updateCourse,
+  updateCourseParentVisibility,
+} from "./actions";
+import { CourseCreateForm } from "./components/course-create-form";
 
 type CoursesPageProps = {
   searchParams?: Promise<{
@@ -82,10 +87,6 @@ export default async function CoursesPage({ searchParams }: CoursesPageProps) {
               <h1 className="mt-1 text-xl font-semibold tracking-tight text-[color:var(--ink)]">
                 Learning structure
               </h1>
-              <p className="mt-1 max-w-2xl text-sm leading-6 text-[color:var(--mid)]">
-                Keep courses separate from spelling. This is the parent planning area for modules,
-                recurring tasks, and writing work.
-              </p>
             </div>
             <div className="rounded-full border border-[var(--border)] bg-white px-3 py-1 text-xs font-medium text-[color:var(--mid)]">
               {courses.length} {courses.length === 1 ? "course" : "courses"}
@@ -124,125 +125,12 @@ export default async function CoursesPage({ searchParams }: CoursesPageProps) {
           ) : null}
 
           {selectedChild && isAddingCourse ? (
-            <form
-              action={createCourse}
-              className="mt-3 grid gap-3 rounded-[1.5rem] border border-[var(--border)] bg-white px-4 py-4"
-            >
-              <input type="hidden" name="child_id" value={selectedChild.id} />
-              <input type="hidden" name="redirect_path" value={scopedCurrentPath} />
-              <div className="grid gap-2">
-                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[color:var(--mid)]">
-                  1. Choose the structure
-                </p>
-                <div className="grid gap-3 md:grid-cols-2">
-                  <label className="rounded-[1.35rem] border border-[var(--border)] bg-[rgba(252,228,244,0.2)] px-4 py-3.5 text-sm text-[color:var(--ink)]">
-                    <span className="flex items-start gap-3">
-                      <input
-                        type="radio"
-                        name="structure_type"
-                        value="phased"
-                        className="mt-1 h-4 w-4 border-[var(--border)] text-[var(--scarlett)]"
-                      />
-                      <span className="grid gap-1">
-                        <span className="font-semibold">Phased course</span>
-                        <span className="text-sm leading-6 text-[color:var(--mid)]">
-                          Ordered phases with modules inside each stage.
-                        </span>
-                      </span>
-                    </span>
-                  </label>
-                  <label className="rounded-[1.35rem] border border-[var(--border)] bg-[rgba(255,247,220,0.45)] px-4 py-3.5 text-sm text-[color:var(--ink)]">
-                    <span className="flex items-start gap-3">
-                      <input
-                        type="radio"
-                        name="structure_type"
-                        value="timed"
-                        className="mt-1 h-4 w-4 border-[var(--border)] text-[var(--scarlett)]"
-                      />
-                      <span className="grid gap-1">
-                        <span className="font-semibold">Timed course</span>
-                        <span className="text-sm leading-6 text-[color:var(--mid)]">
-                          Cycles, recurring work, focus blocks, and review points.
-                        </span>
-                      </span>
-                    </span>
-                  </label>
-                </div>
-              </div>
-              <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)]">
-                <div className="grid gap-2">
-                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[color:var(--mid)]">
-                    2. Name the course
-                  </p>
-                <input
-                  type="text"
-                  name="title"
-                  className="brand-input h-11 rounded-2xl px-4 text-sm"
-                  placeholder="Creative Writing"
-                />
-              </div>
-              <div className="grid gap-2">
-                <textarea
-                  name="description"
-                  rows={1}
-                  className="brand-input min-h-11 rounded-2xl px-4 py-3 text-sm"
-                  placeholder="What is this course for?"
-                />
-              </div>
-              </div>
-              <div className="grid gap-2">
-                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[color:var(--mid)]">
-                  3. Add timing only if this is a timed course
-                </p>
-              <div className="grid gap-2 md:grid-cols-3">
-                <input
-                  type="date"
-                  name="start_date"
-                  className="brand-input h-11 rounded-2xl px-4 text-sm"
-                  aria-label="Course start date"
-                />
-                <input
-                  type="number"
-                  name="duration_weeks"
-                  min={1}
-                  max={104}
-                  className="brand-input h-11 rounded-2xl px-4 text-sm"
-                  placeholder="Weeks"
-                  aria-label="Course duration in weeks"
-                />
-                <input
-                  type="number"
-                  name="cycle_length_weeks"
-                  min={1}
-                  max={12}
-                  defaultValue={4}
-                  className="brand-input h-11 rounded-2xl px-4 text-sm"
-                  placeholder="Cycle"
-                  aria-label="Cycle length in weeks"
-                />
-              </div>
-              </div>
-              <div className="flex items-center gap-2">
-              <button
-                type="submit"
-                className="inline-flex h-10 items-center justify-center rounded-full bg-[var(--scarlett)] px-5 text-sm font-medium text-white transition hover:brightness-105"
-                title={`Create course for ${selectedChild.first_name}`}
-                aria-label={`Create course for ${selectedChild.first_name}`}
-              >
-                Create course
-              </button>
-              <Link
-                href={withQuery(scopedCurrentPath, { add: null })}
-                className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-[var(--border)] bg-white text-[color:var(--mid)] transition hover:text-[var(--scarlett)]"
-                title="Close add course"
-                aria-label="Close add course"
-                >
-                  <svg aria-hidden="true" viewBox="0 0 20 20" className="h-5 w-5 fill-current">
-                    <path d="M5.7 5.7a1 1 0 0 1 1.4 0L10 8.6l2.9-2.9a1 1 0 1 1 1.4 1.4L11.4 10l2.9 2.9a1 1 0 0 1-1.4 1.4L10 11.4l-2.9 2.9a1 1 0 0 1-1.4-1.4l2.9-2.9-2.9-2.9a1 1 0 0 1 0-1.4Z" />
-                  </svg>
-                </Link>
-              </div>
-            </form>
+            <CourseCreateForm
+              childFirstName={selectedChild.first_name}
+              childId={selectedChild.id}
+              closeHref={withQuery(scopedCurrentPath, { add: null })}
+              redirectPath={scopedCurrentPath}
+            />
           ) : !selectedChild ? (
             <p className="mt-6 rounded-2xl border border-[var(--border)] bg-white px-4 py-3 text-sm text-[color:var(--mid)]">
               Add a child profile first so the course can be assigned cleanly.
@@ -251,10 +139,11 @@ export default async function CoursesPage({ searchParams }: CoursesPageProps) {
         </div>
 
         <section className="brand-card overflow-hidden rounded-3xl p-0">
-          <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)_minmax(0,0.9fr)_92px] gap-3 border-b border-[var(--border)] bg-white/70 px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-[color:var(--mid)]">
+          <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)_minmax(0,0.9fr)_160px_92px] gap-3 border-b border-[var(--border)] bg-white/70 px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-[color:var(--mid)]">
             <span>Course</span>
             <span>Notes</span>
             <span>Structure</span>
+            <span>Parent view</span>
             <span className="text-right">Open</span>
           </div>
 
@@ -265,7 +154,7 @@ export default async function CoursesPage({ searchParams }: CoursesPageProps) {
             return (
               <div
                 key={course.id}
-                className="grid grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)_minmax(0,0.9fr)_92px] gap-3 border-b border-[var(--border)] px-4 py-3 last:border-b-0"
+                className="grid grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)_minmax(0,0.9fr)_160px_92px] gap-3 border-b border-[var(--border)] px-4 py-3 last:border-b-0"
               >
                 <div className="min-w-0">
                   {isEditing ? (
@@ -312,7 +201,7 @@ export default async function CoursesPage({ searchParams }: CoursesPageProps) {
                         className="brand-input h-10 w-full rounded-2xl px-3 text-sm"
                         aria-label={`Course structure for ${course.title}`}
                       >
-                        <option value="phased">Phased course</option>
+                        <option value="phased">Progress course</option>
                         <option value="timed">Timed course</option>
                       </select>
                       <div className="grid gap-2 md:grid-cols-3">
@@ -350,7 +239,7 @@ export default async function CoursesPage({ searchParams }: CoursesPageProps) {
                     </div>
                   ) : course.structure_type === "phased" ? (
                     <>
-                      <p>Phased course</p>
+                      <p>Progress course</p>
                       <p className="text-xs">Stages and modules in order</p>
                     </>
                   ) : course.duration_weeks ? (
@@ -367,6 +256,42 @@ export default async function CoursesPage({ searchParams }: CoursesPageProps) {
                       <p className="text-xs">No timeline set yet</p>
                     </>
                   )}
+                </div>
+                <div className="flex items-center">
+                  <form action={updateCourseParentVisibility} className="flex items-center gap-3">
+                    <input type="hidden" name="course_id" value={course.id} />
+                    <input type="hidden" name="redirect_path" value={scopedCurrentPath} />
+                    <input type="hidden" name="is_active" value={course.is_active ? "false" : "true"} />
+                    <button
+                      type="submit"
+                      className={`relative inline-flex h-7 w-12 items-center rounded-full border transition ${
+                        course.is_active
+                          ? "border-emerald-200 bg-emerald-100"
+                          : "border-[var(--border)] bg-[rgba(148,163,184,0.18)]"
+                      }`}
+                      title={
+                        course.is_active
+                          ? `Deactivate ${course.title} in parent view`
+                          : `Activate ${course.title} in parent view`
+                      }
+                      aria-label={
+                        course.is_active
+                          ? `Deactivate ${course.title} in parent view`
+                          : `Activate ${course.title} in parent view`
+                      }
+                      role="switch"
+                      aria-checked={course.is_active}
+                    >
+                      <span
+                        className={`inline-block h-5 w-5 rounded-full bg-white shadow-sm transition ${
+                          course.is_active ? "translate-x-6" : "translate-x-1"
+                        }`}
+                      />
+                    </button>
+                    <span className="text-xs font-medium text-[color:var(--mid)]">
+                      {course.is_active ? "Active" : "Hidden"}
+                    </span>
+                  </form>
                 </div>
                 <div className="flex items-center justify-end gap-2">
                   {isEditing ? (

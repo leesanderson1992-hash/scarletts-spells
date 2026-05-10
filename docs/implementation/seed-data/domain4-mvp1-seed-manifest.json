@@ -1,0 +1,455 @@
+{
+  "seed_version": "domain4-mvp1-preflight-v1",
+  "source_workbook": "domain-4-mastery-node-seed-map.xlsx",
+  "locale_policy": {
+    "canonical_spelling_locale": "british",
+    "allow_known_names": true,
+    "allow_brand_words": true,
+    "brand_word_scope": "child_or_course_specific_where_possible",
+    "allow_project_safe_words": true,
+    "project_safe_word_scope": "child_or_course_specific_where_possible"
+  },
+  "starter_subset": {
+    "assignable_node_count": 15,
+    "assignable_family_ids": [
+      "D4_PG"
+    ],
+    "assignable_cluster_ids": [
+      "D4_PG_CVC_SHORT_VOWELS",
+      "D4_PG_CONSONANT_DIGRAPHS"
+    ],
+    "assignable_node_ids": [
+      "D4_PG_CVC_SHORT_VOWELS_SHORT_A",
+      "D4_PG_CVC_SHORT_VOWELS_SHORT_E",
+      "D4_PG_CVC_SHORT_VOWELS_SHORT_I",
+      "D4_PG_CVC_SHORT_VOWELS_SHORT_O",
+      "D4_PG_CVC_SHORT_VOWELS_SHORT_U",
+      "D4_PG_CVC_SHORT_VOWELS_INITIAL_CONSONANT",
+      "D4_PG_CVC_SHORT_VOWELS_FINAL_CONSONANT",
+      "D4_PG_CVC_SHORT_VOWELS_FULL_MAPPING",
+      "D4_PG_CVC_SHORT_VOWELS_VOWEL_DISCRIMINATION",
+      "D4_PG_CVC_SHORT_VOWELS_CHECK_VOWEL",
+      "D4_PG_CONSONANT_DIGRAPHS_SH_INITIAL_FINAL",
+      "D4_PG_CONSONANT_DIGRAPHS_CH_INITIAL_FINAL",
+      "D4_PG_CONSONANT_DIGRAPHS_TH_UNVOICED",
+      "D4_PG_CONSONANT_DIGRAPHS_TH_VOICED",
+      "D4_PG_CONSONANT_DIGRAPHS_WH_INITIAL"
+    ],
+    "assignable_nodes": [
+      {
+        "node_id": "D4_PG_CVC_SHORT_VOWELS_SHORT_A",
+        "cluster_id": "D4_PG_CVC_SHORT_VOWELS",
+        "family_id": "D4_PG",
+        "node_name": "Spell short /a/ in CVC words",
+        "developmental_foundation": "Sequential sound-to-spelling mapping",
+        "teaching_point": "In CVC words, each spoken sound should be represented in order, with one short vowel letter in the middle.",
+        "example_words": ["cat", "map", "sat", "pan"],
+        "starter_word_bank": [
+          { "word": "cat", "difficulty": "easy", "common_wrong_spellings": [] },
+          { "word": "map", "difficulty": "easy", "common_wrong_spellings": [] },
+          { "word": "sat", "difficulty": "easy", "common_wrong_spellings": [] },
+          { "word": "pan", "difficulty": "easy", "common_wrong_spellings": [] }
+        ],
+        "related_nodes": [
+          { "relationship_type": "related", "related_node_id": "D4_PG_CVC_SHORT_VOWELS_SHORT_E", "relationship_strength": "seed", "relationship_reason": "same_cluster_member" },
+          { "relationship_type": "related", "related_node_id": "D4_PG_CVC_SHORT_VOWELS_SHORT_I", "relationship_strength": "seed", "relationship_reason": "same_cluster_member" },
+          { "relationship_type": "related", "related_node_id": "D4_PG_CVC_SHORT_VOWELS_SHORT_O", "relationship_strength": "seed", "relationship_reason": "same_cluster_member" },
+          { "relationship_type": "related", "related_node_id": "D4_PG_CVC_SHORT_VOWELS_SHORT_U", "relationship_strength": "seed", "relationship_reason": "same_cluster_member" },
+          { "relationship_type": "related", "related_node_id": "D4_PG_CVC_SHORT_VOWELS_INITIAL_CONSONANT", "relationship_strength": "seed", "relationship_reason": "same_cluster_member" },
+          { "relationship_type": "related", "related_node_id": "D4_PG_CVC_SHORT_VOWELS_FINAL_CONSONANT", "relationship_strength": "seed", "relationship_reason": "same_cluster_member" },
+          { "relationship_type": "related", "related_node_id": "D4_PG_CVC_SHORT_VOWELS_FULL_MAPPING", "relationship_strength": "seed", "relationship_reason": "same_cluster_member" },
+          { "relationship_type": "related", "related_node_id": "D4_PG_CVC_SHORT_VOWELS_VOWEL_DISCRIMINATION", "relationship_strength": "seed", "relationship_reason": "same_cluster_member" },
+          { "relationship_type": "related", "related_node_id": "D4_PG_CVC_SHORT_VOWELS_CHECK_VOWEL", "relationship_strength": "seed", "relationship_reason": "same_cluster_member" }
+        ],
+        "interleaving_group_ids": ["D4_INT_CVC_SHORT_VOWELS", "D4_INT_CVC_FULL_MAPPING"]
+      },
+      {
+        "node_id": "D4_PG_CVC_SHORT_VOWELS_SHORT_E",
+        "cluster_id": "D4_PG_CVC_SHORT_VOWELS",
+        "family_id": "D4_PG",
+        "node_name": "Spell short /e/ in CVC words",
+        "developmental_foundation": "Sequential sound-to-spelling mapping",
+        "teaching_point": "In CVC words, each spoken sound should be represented in order, with one short vowel letter in the middle.",
+        "example_words": ["bed", "pen", "red", "ten"],
+        "starter_word_bank": [
+          { "word": "bed", "difficulty": "easy", "common_wrong_spellings": [] },
+          { "word": "pen", "difficulty": "easy", "common_wrong_spellings": [] },
+          { "word": "red", "difficulty": "easy", "common_wrong_spellings": [] },
+          { "word": "ten", "difficulty": "easy", "common_wrong_spellings": [] }
+        ],
+        "related_nodes": [
+          { "relationship_type": "related", "related_node_id": "D4_PG_CVC_SHORT_VOWELS_SHORT_A", "relationship_strength": "seed", "relationship_reason": "same_cluster_base_skill" }
+        ],
+        "interleaving_group_ids": ["D4_INT_CVC_SHORT_VOWELS", "D4_INT_CVC_FULL_MAPPING"]
+      },
+      {
+        "node_id": "D4_PG_CVC_SHORT_VOWELS_SHORT_I",
+        "cluster_id": "D4_PG_CVC_SHORT_VOWELS",
+        "family_id": "D4_PG",
+        "node_name": "Spell short /i/ in CVC words",
+        "developmental_foundation": "Sequential sound-to-spelling mapping",
+        "teaching_point": "In CVC words, each spoken sound should be represented in order, with one short vowel letter in the middle.",
+        "example_words": ["sit", "pin", "dig", "lip"],
+        "starter_word_bank": [
+          { "word": "sit", "difficulty": "easy", "common_wrong_spellings": [] },
+          { "word": "pin", "difficulty": "easy", "common_wrong_spellings": [] },
+          { "word": "dig", "difficulty": "easy", "common_wrong_spellings": [] },
+          { "word": "lip", "difficulty": "easy", "common_wrong_spellings": [] }
+        ],
+        "related_nodes": [
+          { "relationship_type": "related", "related_node_id": "D4_PG_CVC_SHORT_VOWELS_SHORT_A", "relationship_strength": "seed", "relationship_reason": "same_cluster_base_skill" }
+        ],
+        "interleaving_group_ids": ["D4_INT_CVC_SHORT_VOWELS", "D4_INT_CVC_FULL_MAPPING"]
+      },
+      {
+        "node_id": "D4_PG_CVC_SHORT_VOWELS_SHORT_O",
+        "cluster_id": "D4_PG_CVC_SHORT_VOWELS",
+        "family_id": "D4_PG",
+        "node_name": "Spell short /o/ in CVC words",
+        "developmental_foundation": "Sequential sound-to-spelling mapping",
+        "teaching_point": "In CVC words, each spoken sound should be represented in order, with one short vowel letter in the middle.",
+        "example_words": ["dog", "hop", "pot", "log"],
+        "starter_word_bank": [
+          { "word": "dog", "difficulty": "easy", "common_wrong_spellings": [] },
+          { "word": "hop", "difficulty": "easy", "common_wrong_spellings": [] },
+          { "word": "pot", "difficulty": "easy", "common_wrong_spellings": [] },
+          { "word": "log", "difficulty": "easy", "common_wrong_spellings": [] }
+        ],
+        "related_nodes": [
+          { "relationship_type": "related", "related_node_id": "D4_PG_CVC_SHORT_VOWELS_SHORT_A", "relationship_strength": "seed", "relationship_reason": "same_cluster_base_skill" }
+        ],
+        "interleaving_group_ids": ["D4_INT_CVC_SHORT_VOWELS", "D4_INT_CVC_FULL_MAPPING"]
+      },
+      {
+        "node_id": "D4_PG_CVC_SHORT_VOWELS_SHORT_U",
+        "cluster_id": "D4_PG_CVC_SHORT_VOWELS",
+        "family_id": "D4_PG",
+        "node_name": "Spell short /u/ in CVC words",
+        "developmental_foundation": "Sequential sound-to-spelling mapping",
+        "teaching_point": "In CVC words, each spoken sound should be represented in order, with one short vowel letter in the middle.",
+        "example_words": ["sun", "cup", "mud", "run"],
+        "starter_word_bank": [
+          { "word": "sun", "difficulty": "easy", "common_wrong_spellings": [] },
+          { "word": "cup", "difficulty": "easy", "common_wrong_spellings": [] },
+          { "word": "mud", "difficulty": "easy", "common_wrong_spellings": [] },
+          { "word": "run", "difficulty": "easy", "common_wrong_spellings": [] }
+        ],
+        "related_nodes": [
+          { "relationship_type": "related", "related_node_id": "D4_PG_CVC_SHORT_VOWELS_SHORT_A", "relationship_strength": "seed", "relationship_reason": "same_cluster_base_skill" }
+        ],
+        "interleaving_group_ids": ["D4_INT_CVC_SHORT_VOWELS", "D4_INT_CVC_FULL_MAPPING"]
+      },
+      {
+        "node_id": "D4_PG_CVC_SHORT_VOWELS_INITIAL_CONSONANT",
+        "cluster_id": "D4_PG_CVC_SHORT_VOWELS",
+        "family_id": "D4_PG",
+        "node_name": "Represent the first sound in CVC words",
+        "developmental_foundation": "Sequential sound-to-spelling mapping",
+        "teaching_point": "In CVC words, each spoken sound should be represented in order, with one short vowel letter in the middle.",
+        "example_words": ["cat", "dog", "sun", "pen"],
+        "starter_word_bank": [
+          { "word": "cat", "difficulty": "easy", "common_wrong_spellings": [] },
+          { "word": "dog", "difficulty": "easy", "common_wrong_spellings": [] },
+          { "word": "sun", "difficulty": "easy", "common_wrong_spellings": [] },
+          { "word": "pen", "difficulty": "easy", "common_wrong_spellings": [] }
+        ],
+        "related_nodes": [
+          { "relationship_type": "related", "related_node_id": "D4_PG_CVC_SHORT_VOWELS_SHORT_A", "relationship_strength": "seed", "relationship_reason": "same_cluster_base_skill" }
+        ],
+        "interleaving_group_ids": ["D4_INT_CVC_SHORT_VOWELS", "D4_INT_CVC_FULL_MAPPING"]
+      },
+      {
+        "node_id": "D4_PG_CVC_SHORT_VOWELS_FINAL_CONSONANT",
+        "cluster_id": "D4_PG_CVC_SHORT_VOWELS",
+        "family_id": "D4_PG",
+        "node_name": "Represent the final sound in CVC words",
+        "developmental_foundation": "Sequential sound-to-spelling mapping",
+        "teaching_point": "In CVC words, each spoken sound should be represented in order, with one short vowel letter in the middle.",
+        "example_words": ["map", "bed", "sit", "dog"],
+        "starter_word_bank": [
+          { "word": "map", "difficulty": "easy", "common_wrong_spellings": [] },
+          { "word": "bed", "difficulty": "easy", "common_wrong_spellings": [] },
+          { "word": "sit", "difficulty": "easy", "common_wrong_spellings": [] },
+          { "word": "dog", "difficulty": "easy", "common_wrong_spellings": [] }
+        ],
+        "related_nodes": [
+          { "relationship_type": "related", "related_node_id": "D4_PG_CVC_SHORT_VOWELS_SHORT_A", "relationship_strength": "seed", "relationship_reason": "same_cluster_base_skill" }
+        ],
+        "interleaving_group_ids": ["D4_INT_CVC_SHORT_VOWELS", "D4_INT_CVC_FULL_MAPPING"]
+      },
+      {
+        "node_id": "D4_PG_CVC_SHORT_VOWELS_FULL_MAPPING",
+        "cluster_id": "D4_PG_CVC_SHORT_VOWELS",
+        "family_id": "D4_PG",
+        "node_name": "Represent all three sounds in CVC words",
+        "developmental_foundation": "Sequential sound-to-spelling mapping",
+        "teaching_point": "In CVC words, each spoken sound should be represented in order, with one short vowel letter in the middle.",
+        "example_words": ["cat", "pen", "sit", "dog"],
+        "starter_word_bank": [
+          { "word": "cat", "difficulty": "easy", "common_wrong_spellings": [] },
+          { "word": "pen", "difficulty": "easy", "common_wrong_spellings": [] },
+          { "word": "sit", "difficulty": "easy", "common_wrong_spellings": [] },
+          { "word": "dog", "difficulty": "easy", "common_wrong_spellings": [] }
+        ],
+        "related_nodes": [
+          { "relationship_type": "related", "related_node_id": "D4_PG_CVC_SHORT_VOWELS_SHORT_A", "relationship_strength": "seed", "relationship_reason": "same_cluster_base_skill" }
+        ],
+        "interleaving_group_ids": ["D4_INT_CVC_SHORT_VOWELS", "D4_INT_CVC_FULL_MAPPING"]
+      },
+      {
+        "node_id": "D4_PG_CVC_SHORT_VOWELS_VOWEL_DISCRIMINATION",
+        "cluster_id": "D4_PG_CVC_SHORT_VOWELS",
+        "family_id": "D4_PG",
+        "node_name": "Distinguish short vowels in CVC words",
+        "developmental_foundation": "Sequential sound-to-spelling mapping",
+        "teaching_point": "In CVC words, each spoken sound should be represented in order, with one short vowel letter in the middle.",
+        "example_words": ["cat/cot", "pin/pen", "bed/bad"],
+        "starter_word_bank": [
+          { "word": "cat", "difficulty": "easy", "common_wrong_spellings": [] },
+          { "word": "cot", "difficulty": "easy", "common_wrong_spellings": [] },
+          { "word": "pin", "difficulty": "easy", "common_wrong_spellings": [] },
+          { "word": "pen", "difficulty": "easy", "common_wrong_spellings": [] },
+          { "word": "bed", "difficulty": "easy", "common_wrong_spellings": [] },
+          { "word": "bad", "difficulty": "easy", "common_wrong_spellings": [] }
+        ],
+        "related_nodes": [
+          { "relationship_type": "related", "related_node_id": "D4_PG_CVC_SHORT_VOWELS_SHORT_A", "relationship_strength": "seed", "relationship_reason": "same_cluster_base_skill" }
+        ],
+        "interleaving_group_ids": ["D4_INT_CVC_SHORT_VOWELS", "D4_INT_CVC_FULL_MAPPING"]
+      },
+      {
+        "node_id": "D4_PG_CVC_SHORT_VOWELS_CHECK_VOWEL",
+        "cluster_id": "D4_PG_CVC_SHORT_VOWELS",
+        "family_id": "D4_PG",
+        "node_name": "Check the middle vowel in CVC words",
+        "developmental_foundation": "Sequential sound-to-spelling mapping",
+        "teaching_point": "In CVC words, each spoken sound should be represented in order, with one short vowel letter in the middle.",
+        "example_words": ["cap/cup", "pin/pan", "hot/hut"],
+        "starter_word_bank": [
+          { "word": "cap", "difficulty": "easy", "common_wrong_spellings": [] },
+          { "word": "cup", "difficulty": "easy", "common_wrong_spellings": [] },
+          { "word": "pin", "difficulty": "easy", "common_wrong_spellings": [] },
+          { "word": "pan", "difficulty": "easy", "common_wrong_spellings": [] },
+          { "word": "hot", "difficulty": "easy", "common_wrong_spellings": [] },
+          { "word": "hut", "difficulty": "easy", "common_wrong_spellings": [] }
+        ],
+        "related_nodes": [
+          { "relationship_type": "related", "related_node_id": "D4_PG_CVC_SHORT_VOWELS_SHORT_A", "relationship_strength": "seed", "relationship_reason": "same_cluster_base_skill" }
+        ],
+        "interleaving_group_ids": ["D4_INT_CVC_SHORT_VOWELS", "D4_INT_CVC_FULL_MAPPING"]
+      },
+      {
+        "node_id": "D4_PG_CONSONANT_DIGRAPHS_SH_INITIAL_FINAL",
+        "cluster_id": "D4_PG_CONSONANT_DIGRAPHS",
+        "family_id": "D4_PG",
+        "node_name": "Spell initial and final /sh/ with `sh`",
+        "developmental_foundation": "Grapheme awareness",
+        "teaching_point": "A consonant digraph uses two letters to represent one consonant sound; the child should treat the grapheme as one sound-spelling unit.",
+        "example_words": ["ship", "shop", "fish", "wish"],
+        "starter_word_bank": [
+          { "word": "ship", "difficulty": "easy", "common_wrong_spellings": [] },
+          { "word": "shop", "difficulty": "easy", "common_wrong_spellings": [] },
+          { "word": "fish", "difficulty": "easy", "common_wrong_spellings": [] },
+          { "word": "wish", "difficulty": "easy", "common_wrong_spellings": [] }
+        ],
+        "related_nodes": [
+          { "relationship_type": "related", "related_node_id": "D4_PG_CONSONANT_DIGRAPHS_CH_INITIAL_FINAL", "relationship_strength": "seed", "relationship_reason": "same_cluster_member" },
+          { "relationship_type": "related", "related_node_id": "D4_PG_CONSONANT_DIGRAPHS_TH_UNVOICED", "relationship_strength": "seed", "relationship_reason": "same_cluster_member" },
+          { "relationship_type": "related", "related_node_id": "D4_PG_CONSONANT_DIGRAPHS_TH_VOICED", "relationship_strength": "seed", "relationship_reason": "same_cluster_member" },
+          { "relationship_type": "related", "related_node_id": "D4_PG_CONSONANT_DIGRAPHS_WH_INITIAL", "relationship_strength": "seed", "relationship_reason": "same_cluster_member" }
+        ],
+        "interleaving_group_ids": ["D4_INT_DIGRAPH_CORE", "D4_INT_DIGRAPH_VS_BLEND"]
+      },
+      {
+        "node_id": "D4_PG_CONSONANT_DIGRAPHS_CH_INITIAL_FINAL",
+        "cluster_id": "D4_PG_CONSONANT_DIGRAPHS",
+        "family_id": "D4_PG",
+        "node_name": "Spell initial and final /ch/ with `ch`",
+        "developmental_foundation": "Grapheme awareness",
+        "teaching_point": "A consonant digraph uses two letters to represent one consonant sound; the child should treat the grapheme as one sound-spelling unit.",
+        "example_words": ["chip", "chat", "rich", "much"],
+        "starter_word_bank": [
+          { "word": "chip", "difficulty": "easy", "common_wrong_spellings": [] },
+          { "word": "chat", "difficulty": "easy", "common_wrong_spellings": [] },
+          { "word": "rich", "difficulty": "easy", "common_wrong_spellings": [] },
+          { "word": "much", "difficulty": "easy", "common_wrong_spellings": [] }
+        ],
+        "related_nodes": [
+          { "relationship_type": "related", "related_node_id": "D4_PG_CONSONANT_DIGRAPHS_SH_INITIAL_FINAL", "relationship_strength": "seed", "relationship_reason": "same_cluster_base_skill" }
+        ],
+        "interleaving_group_ids": ["D4_INT_DIGRAPH_CORE", "D4_INT_DIGRAPH_VS_BLEND"]
+      },
+      {
+        "node_id": "D4_PG_CONSONANT_DIGRAPHS_TH_UNVOICED",
+        "cluster_id": "D4_PG_CONSONANT_DIGRAPHS",
+        "family_id": "D4_PG",
+        "node_name": "Spell unvoiced /th/ with `th`",
+        "developmental_foundation": "Grapheme awareness",
+        "teaching_point": "A consonant digraph uses two letters to represent one consonant sound; the child should treat the grapheme as one sound-spelling unit.",
+        "example_words": ["thin", "thick", "bath", "path"],
+        "starter_word_bank": [
+          { "word": "thin", "difficulty": "easy", "common_wrong_spellings": [] },
+          { "word": "thick", "difficulty": "medium", "common_wrong_spellings": [] },
+          { "word": "bath", "difficulty": "easy", "common_wrong_spellings": [] },
+          { "word": "path", "difficulty": "easy", "common_wrong_spellings": [] }
+        ],
+        "related_nodes": [
+          { "relationship_type": "related", "related_node_id": "D4_PG_CONSONANT_DIGRAPHS_SH_INITIAL_FINAL", "relationship_strength": "seed", "relationship_reason": "same_cluster_base_skill" }
+        ],
+        "interleaving_group_ids": ["D4_INT_DIGRAPH_CORE", "D4_INT_DIGRAPH_VS_BLEND"]
+      },
+      {
+        "node_id": "D4_PG_CONSONANT_DIGRAPHS_TH_VOICED",
+        "cluster_id": "D4_PG_CONSONANT_DIGRAPHS",
+        "family_id": "D4_PG",
+        "node_name": "Spell voiced /th/ with `th`",
+        "developmental_foundation": "Grapheme awareness",
+        "teaching_point": "A consonant digraph uses two letters to represent one consonant sound; the child should treat the grapheme as one sound-spelling unit.",
+        "example_words": ["this", "that", "then", "they"],
+        "starter_word_bank": [
+          { "word": "this", "difficulty": "easy", "common_wrong_spellings": [] },
+          { "word": "that", "difficulty": "easy", "common_wrong_spellings": [] },
+          { "word": "then", "difficulty": "easy", "common_wrong_spellings": [] },
+          { "word": "they", "difficulty": "easy", "common_wrong_spellings": [] }
+        ],
+        "related_nodes": [
+          { "relationship_type": "related", "related_node_id": "D4_PG_CONSONANT_DIGRAPHS_SH_INITIAL_FINAL", "relationship_strength": "seed", "relationship_reason": "same_cluster_base_skill" }
+        ],
+        "interleaving_group_ids": ["D4_INT_DIGRAPH_CORE", "D4_INT_DIGRAPH_VS_BLEND"]
+      },
+      {
+        "node_id": "D4_PG_CONSONANT_DIGRAPHS_WH_INITIAL",
+        "cluster_id": "D4_PG_CONSONANT_DIGRAPHS",
+        "family_id": "D4_PG",
+        "node_name": "Spell /wh/ at the start of words with `wh`",
+        "developmental_foundation": "Grapheme awareness",
+        "teaching_point": "A consonant digraph uses two letters to represent one consonant sound; the child should treat the grapheme as one sound-spelling unit.",
+        "example_words": ["when", "what", "where", "whip"],
+        "starter_word_bank": [
+          { "word": "when", "difficulty": "easy", "common_wrong_spellings": [] },
+          { "word": "what", "difficulty": "easy", "common_wrong_spellings": [] },
+          { "word": "where", "difficulty": "medium", "common_wrong_spellings": [] },
+          { "word": "whip", "difficulty": "easy", "common_wrong_spellings": [] }
+        ],
+        "related_nodes": [
+          { "relationship_type": "related", "related_node_id": "D4_PG_CONSONANT_DIGRAPHS_SH_INITIAL_FINAL", "relationship_strength": "seed", "relationship_reason": "same_cluster_base_skill" }
+        ],
+        "interleaving_group_ids": ["D4_INT_DIGRAPH_CORE", "D4_INT_DIGRAPH_VS_BLEND"]
+      }
+    ],
+    "interleaving_groups": [
+      {
+        "interleaving_group_id": "D4_INT_CVC_SHORT_VOWELS",
+        "group_name": "CVC short vowel contrasts",
+        "family_scope": "D4_PG",
+        "cluster_ids": ["D4_PG_CVC_SHORT_VOWELS"],
+        "minimum_competency_level": 2,
+        "example_review_set": ["cat", "cot", "cut", "pin", "pen", "pan"]
+      },
+      {
+        "interleaving_group_id": "D4_INT_CVC_FULL_MAPPING",
+        "group_name": "CVC mapping review",
+        "family_scope": "D4_PG",
+        "cluster_ids": ["D4_PG_CVC_SHORT_VOWELS", "D4_PG_CONSONANT_BLENDS"],
+        "minimum_competency_level": 2,
+        "example_review_set": ["cat", "dog", "sun", "pen", "map", "sit"]
+      },
+      {
+        "interleaving_group_id": "D4_INT_DIGRAPH_CORE",
+        "group_name": "Core consonant digraph review",
+        "family_scope": "D4_PG",
+        "cluster_ids": ["D4_PG_CONSONANT_DIGRAPHS"],
+        "minimum_competency_level": 3,
+        "example_review_set": ["ship", "chip", "thin", "this", "when", "fish"]
+      },
+      {
+        "interleaving_group_id": "D4_INT_DIGRAPH_VS_BLEND",
+        "group_name": "Digraph versus blend contrast review",
+        "family_scope": "D4_PG",
+        "cluster_ids": ["D4_PG_CONSONANT_DIGRAPHS", "D4_PG_CONSONANT_BLENDS"],
+        "minimum_competency_level": 3,
+        "example_review_set": ["ship", "slip", "chip", "clip", "thin", "spin"]
+      }
+    ]
+  },
+  "seed_now_non_assignable": {
+    "family_ids": [
+      "D4_MOR"
+    ],
+    "morphology_cluster_ids": [
+      "D4_MOR_BASE_WORDS",
+      "D4_MOR_PREFIXES",
+      "D4_MOR_SUFFIXES",
+      "D4_MOR_COMPOUND_WORDS",
+      "D4_MOR_WORD_FAMILIES",
+      "D4_MOR_LATIN_ROOTS",
+      "D4_MOR_GREEK_ROOTS",
+      "D4_MOR_BASE_PRESERVATION",
+      "D4_MOR_PRONUNCIATION_SHIFT",
+      "D4_MOR_BOUND_MORPHEMES",
+      "D4_MOR_DERIVED_WORDS",
+      "D4_MOR_MEANING_BASED_SPELLING"
+    ],
+    "morphology_cluster_metadata": [
+      { "cluster_id": "D4_MOR_BASE_WORDS", "display_name": "Base word awareness", "purpose": "Identify and preserve base words in longer spellings", "notes": "Keep" },
+      { "cluster_id": "D4_MOR_PREFIXES", "display_name": "Prefixes", "purpose": "Spell common prefixes such as un-, re-, pre-, dis-, mis-", "notes": "Keep" },
+      { "cluster_id": "D4_MOR_SUFFIXES", "display_name": "Suffixes", "purpose": "Spell common suffixes as stable meaning units", "notes": "Keep" },
+      { "cluster_id": "D4_MOR_COMPOUND_WORDS", "display_name": "Compound words", "purpose": "Spell compound words by preserving both base words", "notes": "Keep" },
+      { "cluster_id": "D4_MOR_WORD_FAMILIES", "display_name": "Word families", "purpose": "Use related words to support spelling", "notes": "Keep" },
+      { "cluster_id": "D4_MOR_LATIN_ROOTS", "display_name": "Latin roots", "purpose": "Use common Latin roots to support spelling and meaning", "notes": "Keep" },
+      { "cluster_id": "D4_MOR_GREEK_ROOTS", "display_name": "Greek roots", "purpose": "Use common Greek roots to support spelling and meaning", "notes": "Keep" },
+      { "cluster_id": "D4_MOR_BASE_PRESERVATION", "display_name": "Base preservation", "purpose": "Preserve base spelling when adding affixes", "notes": "Keep" },
+      { "cluster_id": "D4_MOR_PRONUNCIATION_SHIFT", "display_name": "Pronunciation shifts in word families", "purpose": "Preserve spelling despite pronunciation changes", "notes": "Keep" },
+      { "cluster_id": "D4_MOR_BOUND_MORPHEMES", "display_name": "Bound morphemes", "purpose": "Spell meaningful word parts that do not stand alone", "notes": "Keep" },
+      { "cluster_id": "D4_MOR_DERIVED_WORDS", "display_name": "Derived word spelling", "purpose": "Spell new words formed from known base words", "notes": "Keep if derivational suffixes are not a separate family" },
+      { "cluster_id": "D4_MOR_MEANING_BASED_SPELLING", "display_name": "Meaning-based spelling", "purpose": "Use meaning to choose or preserve spelling", "notes": "Keep as cross-cutting morphology cluster" }
+    ],
+    "morphology_node_support": {
+      "storage_location": "machine_readable_seed_artifact_only",
+      "artifact_path": "docs/implementation/seed-data/domain4-morphology-node-seed-artifact.json",
+      "seeded_node_count": 104,
+      "reason": "The current runtime catalog requires an assignable practice_route. Morphology nodes stay in seed artifacts until the catalog can represent non-assignable nodes without fabricated routes."
+    },
+    "notes": [
+      "Seed morphology metadata now but do not make morphology assignable in MVP 1.",
+      "Level 4-5 mappings may be retained as reference metadata but not used in early runtime routing."
+    ]
+  },
+  "template_policy": {
+    "level_1": [
+      "T01",
+      "T02"
+    ],
+    "level_2": [
+      "T03",
+      "T04"
+    ],
+    "level_3": [
+      "T05",
+      "T06",
+      "T08"
+    ],
+    "deferred_templates": [
+      "T07",
+      "T09",
+      "T10",
+      "T11",
+      "T12"
+    ]
+  },
+  "positive_evidence_policy": {
+    "evidence_types": [
+      "authentic_correct_use",
+      "delayed_authentic_correct_use",
+      "repeated_correct_use"
+    ],
+    "parent_confirmation_required": true
+  },
+  "deferred_seed_layers": [
+    "runtime catalog rows for non-assignable morphology nodes",
+    "full task-template runtime seeding",
+    "family-level template routing in canonical runtime tables",
+    "nodes after the first 15 assignable micro-skills",
+    "assignment-engine use of interleaving metadata"
+  ]
+}

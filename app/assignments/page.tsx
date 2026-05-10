@@ -30,12 +30,30 @@ type AssignmentRow = {
   instructions: string | null;
   focus_word: string | null;
   selected_family_slug: string | null;
+  assignment_generation_source?: string | null;
+  source_learning_item_ids?: string[] | null;
   target_words: string[] | null;
   review_words: string[] | null;
   status: string | null;
   assignment_date: string;
   session_completed_at: string | null;
   session_completed_words: number | null;
+};
+
+type CanonicalAssignmentLearningItemRow = {
+  id: string;
+  micro_skill_key: string;
+  practice_route: string | null;
+};
+
+type CanonicalAssignmentCatalogRow = {
+  micro_skill_key: string;
+  display_name: string;
+};
+
+type LatestAssignmentDetails = {
+  primaryDisplayName: string | null;
+  isGroupedSetRoute: boolean;
 };
 
 function getChildName(child: ChildRow) {
@@ -72,6 +90,89 @@ function getAssignmentStatusLabel(assignment: AssignmentRow) {
   return "Ready to practise";
 }
 
+function getAssignmentSourceLabel(assignment: AssignmentRow) {
+  if (assignment.assignment_generation_source === "learning_items") {
+    const linkedCount = assignment.source_learning_item_ids?.length ?? 0;
+    return linkedCount > 1
+      ? `Canonical · ${linkedCount} learning streams`
+      : "Canonical · learning stream";
+  }
+
+  if (assignment.assignment_generation_source === "historical_pre_phase5") {
+    return "Historic pre-Phase 5 assignment";
+  }
+
+  return "Needs manual verification";
+}
+
+function getAssignmentSourceSummary(assignment: AssignmentRow) {
+  if (assignment.assignment_generation_source === "learning_items") {
+    return "This assignment was generated from active canonical learning items and saved into the daily assignment delivery surface.";
+  }
+
+  if (assignment.assignment_generation_source === "historical_pre_phase5") {
+    return "This assignment was saved before the final Phase 5 destructive cleanup pass completed.";
+  }
+
+  return "Assignment source needs manual verification.";
+}
+
+async function getLatestAssignmentDetails(input: {
+  supabase: Awaited<ReturnType<typeof createClient>>;
+  parentUserId: string;
+  childId: string;
+  assignment: AssignmentRow;
+}) {
+  if (input.assignment.assignment_generation_source !== "learning_items") {
+    return {
+      primaryDisplayName: null,
+      isGroupedSetRoute: false,
+    } satisfies LatestAssignmentDetails;
+  }
+
+  const sourceLearningItemIds = input.assignment.source_learning_item_ids ?? [];
+  if (sourceLearningItemIds.length === 0) {
+    return {
+      primaryDisplayName: null,
+      isGroupedSetRoute: false,
+    } satisfies LatestAssignmentDetails;
+  }
+
+  const { data: linkedLearningItems } = await input.supabase
+    .from("learning_items")
+    .select("id, micro_skill_key, practice_route")
+    .eq("parent_user_id", input.parentUserId)
+    .eq("child_id", input.childId)
+    .in("id", sourceLearningItemIds);
+
+  const orderedLearningItems = sourceLearningItemIds
+    .map((id) =>
+      (linkedLearningItems ?? []).find(
+        (item) => item.id === id,
+      ) as CanonicalAssignmentLearningItemRow | undefined,
+    )
+    .filter((item): item is CanonicalAssignmentLearningItemRow => Boolean(item));
+
+  const primaryLearningItem = orderedLearningItems[0] ?? null;
+  if (!primaryLearningItem) {
+    return {
+      primaryDisplayName: null,
+      isGroupedSetRoute: false,
+    } satisfies LatestAssignmentDetails;
+  }
+
+  const { data: catalogRow } = await input.supabase
+    .from("micro_skill_catalog")
+    .select("micro_skill_key, display_name")
+    .eq("micro_skill_key", primaryLearningItem.micro_skill_key)
+    .maybeSingle<CanonicalAssignmentCatalogRow>();
+
+  return {
+    primaryDisplayName: catalogRow?.display_name ?? null,
+    isGroupedSetRoute: primaryLearningItem.practice_route === "grouped_set_practice",
+  } satisfies LatestAssignmentDetails;
+}
+
 export default async function AssignmentsPage({
   searchParams,
 }: AssignmentsPageProps) {
@@ -100,15 +201,22 @@ export default async function AssignmentsPage({
     resolvedSearchParams?.child ?? activeChildIdFromCookie,
   );
 
+  if (mode === "child") {
+    redirect(buildScopedPath("/learn/week", selectedChild?.id ?? null, mode));
+  }
+
   if (!selectedChild && activeChildren.length > 0) {
     redirect(buildScopedPath("/assignments", activeChildren[0].id, mode));
   }
 
+  // Transitional runtime read: assignments still render from daily_assignments,
+  // but the saved rows can now identify whether the plan came from canonical
+  // learning_items or the fenced legacy fallback path.
   const { data: assignments } = selectedChild
     ? await supabase
         .from("daily_assignments")
         .select(
-          "id, title, instructions, focus_word, selected_family_slug, target_words, review_words, status, assignment_date, session_completed_at, session_completed_words",
+          "id, title, instructions, focus_word, selected_family_slug, assignment_generation_source, source_learning_item_ids, target_words, review_words, status, assignment_date, session_completed_at, session_completed_words",
         )
         .eq("parent_user_id", user.id)
         .eq("child_id", selectedChild.id)
@@ -119,6 +227,15 @@ export default async function AssignmentsPage({
 
   const latestAssignment = ((assignments ?? []) as AssignmentRow[])[0] ?? null;
   const assignmentHistory = ((assignments ?? []) as AssignmentRow[]).slice(1);
+  const latestAssignmentDetails =
+    selectedChild && latestAssignment
+      ? await getLatestAssignmentDetails({
+          supabase,
+          parentUserId: user.id,
+          childId: selectedChild.id,
+          assignment: latestAssignment,
+        })
+      : null;
 
   return (
     <AppShell
@@ -138,9 +255,11 @@ export default async function AssignmentsPage({
                   Assignments
                 </h1>
                 <p className="brand-copy mt-3 max-w-3xl text-sm leading-6">
-                  Daily spelling is now built automatically from the approved queue for{" "}
-                  {selectedChild ? getChildName(selectedChild) : "your child"}. This page is
-                  best used as a quiet reference view of recent assignment builds.
+                  Daily spelling is now built automatically from active learning items for{" "}
+                  {selectedChild ? getChildName(selectedChild) : "your child"}. Older legacy
+                  assignment rows may still appear here as historical records, but new assignment
+                  generation now follows the canonical learning-item path only. This page is best
+                  used as a quiet reference view of recent assignment builds.
                 </p>
               </div>
               {selectedChild ? (
@@ -183,9 +302,10 @@ export default async function AssignmentsPage({
                       Workflow note
                     </p>
                     <p className="text-sm leading-6 text-amber-900">
-                      Parents no longer need to manually generate today&apos;s spelling. Reviewed
-                      items refresh the child&apos;s queue, and the daily set appears automatically
-                      when practice opens.
+                      Parents no longer need to manually generate today&apos;s spelling. Active
+                      learning items now generate the daily set first, and the older word-level
+                      review path only fills in when no truthful canonical assignment can yet be
+                      built.
                     </p>
                   </div>
                   <div className="flex flex-wrap gap-3">
@@ -223,6 +343,9 @@ export default async function AssignmentsPage({
                     <span className="rounded-full bg-zinc-100 px-3 py-1 text-xs font-medium text-zinc-700">
                       {getAssignmentStatusLabel(latestAssignment)}
                     </span>
+                    <span className="rounded-full bg-zinc-100 px-3 py-1 text-xs font-medium text-zinc-700">
+                      {getAssignmentSourceLabel(latestAssignment)}
+                    </span>
                     {latestAssignment.selected_family_slug ? (
                       <span className="rounded-full bg-zinc-100 px-3 py-1 text-xs font-medium text-zinc-700">
                         {latestAssignment.selected_family_slug}
@@ -256,9 +379,41 @@ export default async function AssignmentsPage({
                       {getCleanWords(latestAssignment.review_words).length}
                     </p>
                   </div>
+                  {latestAssignment.assignment_generation_source === "learning_items" ? (
+                    <div className="rounded-2xl border border-zinc-200 bg-zinc-50 p-4">
+                      <p className="text-xs font-medium uppercase tracking-[0.2em] text-zinc-500">
+                        Canonical focus
+                      </p>
+                      <p className="mt-2 text-lg font-semibold text-zinc-950">
+                        {latestAssignmentDetails?.primaryDisplayName ?? "Needs manual verification"}
+                      </p>
+                    </div>
+                  ) : null}
                 </div>
 
                 <div className="mt-5 grid gap-4">
+                  <div className="rounded-2xl border border-zinc-200 bg-white p-4">
+                    <p className="text-xs font-medium uppercase tracking-[0.2em] text-zinc-500">
+                      Assignment source
+                    </p>
+                    <p className="mt-2 text-sm leading-6 text-zinc-700">
+                      {getAssignmentSourceSummary(latestAssignment)}
+                    </p>
+                    {latestAssignment.assignment_generation_source === "learning_items" ? (
+                      <div className="mt-3 flex flex-wrap gap-2">
+                        <span className="rounded-full bg-zinc-100 px-3 py-1 text-xs font-medium text-zinc-700">
+                          {latestAssignmentDetails?.isGroupedSetRoute
+                            ? "Grouped-set route"
+                            : "Word-practice route"}
+                        </span>
+                        {latestAssignmentDetails?.primaryDisplayName ? (
+                          <span className="rounded-full bg-zinc-100 px-3 py-1 text-xs font-medium text-zinc-700">
+                            {latestAssignmentDetails.primaryDisplayName}
+                          </span>
+                        ) : null}
+                      </div>
+                    ) : null}
+                  </div>
                   <div className="rounded-2xl border border-zinc-200 bg-white p-4">
                     <p className="text-xs font-medium uppercase tracking-[0.2em] text-zinc-500">
                       Target words to teach
@@ -318,6 +473,7 @@ export default async function AssignmentsPage({
                           <th className="px-4 py-3 font-medium">Date</th>
                           <th className="px-4 py-3 font-medium">Focus</th>
                           <th className="px-4 py-3 font-medium">Family</th>
+                          <th className="px-4 py-3 font-medium">Source</th>
                           <th className="px-4 py-3 font-medium">Status</th>
                         </tr>
                       </thead>
@@ -332,6 +488,9 @@ export default async function AssignmentsPage({
                             </td>
                             <td className="px-4 py-3 text-zinc-700">
                               {assignment.selected_family_slug ?? "Mixed / review"}
+                            </td>
+                            <td className="px-4 py-3 text-zinc-700">
+                              {getAssignmentSourceLabel(assignment)}
                             </td>
                             <td className="px-4 py-3 text-zinc-700">
                               {getAssignmentStatusLabel(assignment)}

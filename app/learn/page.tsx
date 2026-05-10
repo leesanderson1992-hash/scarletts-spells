@@ -39,7 +39,7 @@ export default async function LearnPage({ searchParams }: LearnPageProps) {
     resolvedSearchParams?.child ?? activeChildIdFromCookie,
   );
   const courses = selectedChild
-    ? await getCoursesForChild(supabase, user.id, selectedChild.id)
+    ? await getCoursesForChild(supabase, user.id, selectedChild.id, { activeOnly: true })
     : [];
   const currentPath = "/learn";
 
@@ -60,7 +60,7 @@ export default async function LearnPage({ searchParams }: LearnPageProps) {
                 Courses and tasks
               </h1>
               <p className="brand-copy mt-1 max-w-2xl text-sm leading-6">
-                Open a course to go deeper, or use the weekly check-in page to log work from all courses and spelling in one place.
+                Open a course to go deeper, or use the weekly page to keep your learning organised in one place.
               </p>
             </div>
             <Link

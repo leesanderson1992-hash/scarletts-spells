@@ -11,10 +11,6 @@ import {
   selectChildById,
 } from "@/lib/children";
 import {
-  getAggregateProgressState,
-  getFocusBlockProgressState,
-} from "@/lib/progress/stateModel";
-import {
   formatCourseDate,
   formatCourseWeekdays,
   getCurrentCycle,
@@ -25,15 +21,18 @@ import {
   getTotalCycles,
 } from "@/lib/courses/queries";
 import {
+  getAggregateProgressState,
   getChildProgressBadge,
   getChildTaskBadges,
   getCourseTaskProgressState,
+  getDateOnly,
+  getFocusBlockProgressState,
   getLatestSubmissionForTask,
   getModuleCompletionMap,
-  getMonthlyCompletedTotal,
+  getRecurringTaskProgressSummary,
+  isTaskCompleteForProgress,
   isTaskDoneForChildSurface,
 } from "@/lib/courses/progress";
-import { getInlineLessonPreviewHtml, isFullDocumentHtml } from "@/lib/courses/html-preview";
 import {
   getCourseTaskTypeLabel,
   isCompletionTask,
@@ -51,6 +50,7 @@ type LearnCoursePageProps = {
     error?: string;
     saved?: string;
     reward_coins?: string;
+    focus_near_reward_coins?: string;
   }>;
 };
 
@@ -71,7 +71,7 @@ function getThisWeekDays() {
     date.setDate(start.getDate() + index);
 
     return {
-      key: date.toISOString().slice(0, 10),
+      key: getDateOnly(date),
       label: new Intl.DateTimeFormat("en-GB", { weekday: "short" }).format(date),
       dayNumber: date.getDate(),
     };
@@ -94,6 +94,14 @@ function getWeeklyTaskState(task: CourseTaskRow, currentWeekday: string) {
   }
 
   return getCourseTaskTypeLabel(task.task_type);
+}
+
+function getTimedCycleLabel(
+  phaseId: string | null | undefined,
+  phases: Array<{ id: string; position: number }>,
+) {
+  const matchedPhase = phaseId ? phases.find((phase) => phase.id === phaseId) ?? null : null;
+  return matchedPhase ? `Cycle ${matchedPhase.position + 1}` : "Current cycle";
 }
 
 export default async function LearnCoursePage({
@@ -144,6 +152,7 @@ export default async function LearnCoursePage({
   const allTasks = detail.modules.flatMap((module) =>
     module.tasks.map((task) => ({
       ...task,
+      phaseId: module.phase_id,
       moduleTitle: module.title,
     })),
   );
@@ -196,21 +205,35 @@ export default async function LearnCoursePage({
       currentCycle ? focusBlock.cycle_number === currentCycle : focusBlock.is_active,
     ) ?? detail.focusBlocks.find((focusBlock) => focusBlock.is_active) ?? null;
   const focusTasks = activeFocusBlock
-    ? allTasks.filter((task) => task.focus_block_id === activeFocusBlock.id)
+    ? allTasks
+        .filter((task) => task.focus_block_id === activeFocusBlock.id)
+        .sort((left, right) => left.position - right.position)
     : [];
+  const completedFocusTaskCount = focusTasks.filter((task) =>
+    isTaskCompleteForProgress(task, activity.completions, activity.submissions),
+  ).length;
+  const nextFocusTask =
+    focusTasks.find(
+      (task) => !isTaskCompleteForProgress(task, activity.completions, activity.submissions),
+    ) ?? null;
   const focusBlockState =
     activeFocusBlock
       ? getFocusBlockProgressState({
           isActive: activeFocusBlock.is_active,
-          relatedProgressCount: focusTasks.filter((task) => (taskStateById.get(task.id) ?? "golden_nugget") !== "golden_nugget").length,
+          totalTaskCount: focusTasks.length,
+          completedTaskCount: completedFocusTaskCount,
+          relatedProgressCount:
+            focusTasks.filter(
+              (task) => (taskStateById.get(task.id) ?? "not_started") !== "not_started",
+            ).length,
         })
-      : "golden_nugget";
+      : "not_started";
   const nextCheckpoint =
     detail.checkpoints.find((checkpoint) =>
       currentCycle ? checkpoint.cycle_number === currentCycle : Boolean(checkpoint.scheduled_date),
     ) ?? detail.checkpoints[0] ?? null;
   const courseState = getAggregateProgressState([
-    ...allTasks.map((task) => taskStateById.get(task.id) ?? "golden_nugget"),
+    ...allTasks.map((task) => taskStateById.get(task.id) ?? "not_started"),
     ...(activeFocusBlock ? [focusBlockState] : []),
   ]);
   const courseProgressBadge = getChildProgressBadge(courseState);
@@ -233,13 +256,17 @@ export default async function LearnCoursePage({
       ? Number(resolvedSearchParams.reward_coins)
       : 0;
   const earnedRewardCoins = Number.isInteger(rewardCoins) && rewardCoins > 0 ? rewardCoins : 0;
+  const focusNearRewardCoins =
+    typeof resolvedSearchParams?.focus_near_reward_coins === "string"
+      ? Number(resolvedSearchParams.focus_near_reward_coins)
+      : 0;
   const unlockedModuleIds = new Set<string>();
   let previousComplete = true;
-  for (const module of orderedPhasedModules) {
+  for (const courseModule of orderedPhasedModules) {
     if (previousComplete) {
-      unlockedModuleIds.add(module.id);
+      unlockedModuleIds.add(courseModule.id);
     }
-    previousComplete = moduleCompletionById.get(module.id) ?? false;
+    previousComplete = moduleCompletionById.get(courseModule.id) ?? false;
   }
 
   if (detail.course.structure_type === "phased") {
@@ -280,6 +307,12 @@ export default async function LearnCoursePage({
                     goldCoinAmount={earnedRewardCoins}
                     title="Coins earned!"
                     body="Your completed task paid out straight away and your coin balance has grown."
+                  />
+                ) : Number.isInteger(focusNearRewardCoins) && focusNearRewardCoins > 0 ? (
+                  <RewardCelebration
+                    goldCoinAmount={focusNearRewardCoins}
+                    title={`You have nearly earned ${focusNearRewardCoins} coin${focusNearRewardCoins === 1 ? "" : "s"}. Keep going!`}
+                    body="Finish the last mini task in this focus block to unlock the full reward."
                   />
                 ) : resolvedSearchParams?.saved ? (
                   <p className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm text-emerald-700">
@@ -450,7 +483,7 @@ export default async function LearnCoursePage({
             ) : null}
           </div>
           <p className="brand-copy mt-1 max-w-2xl text-sm leading-6">
-            {detail.course.description || "Open a module to begin the tasks inside this course."}
+            {detail.course.description || "Open a cycle to begin the tasks inside this course."}
           </p>
           <div className="mt-3 grid gap-3 md:grid-cols-3">
             <div className="rounded-2xl border border-[var(--border)] bg-white px-4 py-3">
@@ -513,9 +546,23 @@ export default async function LearnCoursePage({
                 ) : null}
               </div>
               <div className="rounded-full border border-[var(--border)] bg-white px-3 py-1 text-xs font-medium text-[color:var(--mid)]">
-                {focusTasks.length} linked task{focusTasks.length === 1 ? "" : "s"}
+                {focusTasks.length} mini task{focusTasks.length === 1 ? "" : "s"}
               </div>
             </div>
+
+            {nextFocusTask ? (
+              <div className="mt-3 rounded-2xl border border-[rgba(206,71,125,0.22)] bg-[rgba(252,228,244,0.22)] px-4 py-3">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[color:var(--mid)]">
+                  Next focus action
+                </p>
+                <p className="mt-1 text-sm font-semibold text-[color:var(--ink)]">
+                  {nextFocusTask.title}
+                </p>
+                <p className="mt-1 text-xs text-[color:var(--mid)]">
+                  Add this into your week when you are ready to schedule the next mini task.
+                </p>
+              </div>
+            ) : null}
 
             <div className="mt-3 grid gap-2">
               {focusTasks.length > 0 ? (
@@ -527,7 +574,14 @@ export default async function LearnCoursePage({
                       <div className="flex flex-wrap items-center justify-between gap-2">
                         <div>
                           <p className="text-sm font-semibold text-[color:var(--ink)]">{task.title}</p>
-                          <p className="mt-1 text-xs text-[color:var(--mid)]">{task.moduleTitle}</p>
+                          <p className="mt-1 text-xs text-[color:var(--mid)]">
+                            {getTimedCycleLabel(task.phaseId, detail.phases)}
+                          </p>
+                          {nextFocusTask?.id === task.id ? (
+                            <p className="mt-1 text-[11px] font-medium text-[var(--scarlett)]">
+                              Next mini task to schedule
+                            </p>
+                          ) : null}
                         </div>
                         <div className="flex flex-wrap items-center justify-end gap-2">
                           {badges.map((badge) => (
@@ -560,7 +614,7 @@ export default async function LearnCoursePage({
                 One place to check in
               </h2>
               <p className="mt-1 max-w-2xl text-sm leading-6 text-[color:var(--mid)]">
-                Log daily habits, weekly goals, and other course tasks here first. Modules are still there if you want to go deeper afterwards.
+                Log daily habits, weekly goals, and other course tasks here first. Open a cycle task when you want to work on it in more detail.
               </p>
             </div>
             <div className="rounded-full border border-[var(--border)] bg-white px-3 py-1 text-xs font-medium text-[color:var(--mid)]">
@@ -580,6 +634,12 @@ export default async function LearnCoursePage({
                   goldCoinAmount={earnedRewardCoins}
                   title="Coins earned!"
                   body="A completed task has just added more Gold Coins to your total."
+                />
+              ) : Number.isInteger(focusNearRewardCoins) && focusNearRewardCoins > 0 ? (
+                <RewardCelebration
+                  goldCoinAmount={focusNearRewardCoins}
+                  title={`You have nearly earned ${focusNearRewardCoins} coin${focusNearRewardCoins === 1 ? "" : "s"}. Keep going!`}
+                  body="Finish the last mini task in this focus block to unlock the full reward."
                 />
               ) : resolvedSearchParams?.saved ? (
                 <p className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm text-emerald-700">
@@ -643,7 +703,7 @@ export default async function LearnCoursePage({
                   <div className="overflow-hidden rounded-[1.35rem] border border-[var(--border)] bg-white">
                     <div className="grid grid-cols-[minmax(0,1fr)_120px_120px] gap-3 border-b border-[var(--border)] px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-[color:var(--mid)] md:grid-cols-[minmax(0,1.2fr)_180px_160px_120px]">
                       <span>Task</span>
-                      <span className="hidden md:block">Module</span>
+                      <span className="hidden md:block">Cycle</span>
                       <span>Rhythm</span>
                       <span className="text-right">Log</span>
                     </div>
@@ -654,22 +714,17 @@ export default async function LearnCoursePage({
                         activity.completions,
                         activity.submissions,
                       );
-                      const completionDates = activity.completions
-                        .filter((completion) => completion.task_id === task.id)
-                        .map((completion) => completion.completion_date);
                       const latestSubmission = getLatestSubmissionForTask(task.id, activity.submissions);
                       const done = isTaskDoneForChildSurface(
                         task,
                         activity.completions,
                         activity.submissions,
                       );
-                      const inlineLessonPreview = getInlineLessonPreviewHtml(task.content_html);
-                      const hasEmbeddedLessonDocument = isFullDocumentHtml(task.content_html);
-                      const monthlyCompletedTotal = getMonthlyCompletedTotal(task.id, activity.completions);
-                      const monthlyRemainingTotal =
-                        task.monthly_goal_total !== null && task.monthly_goal_total !== undefined
-                          ? Math.max(task.monthly_goal_total - monthlyCompletedTotal, 0)
-                          : null;
+                      const recurringSummary = getRecurringTaskProgressSummary(
+                        task,
+                        activity.completions,
+                        { windowType: "month", referenceDate: getDateOnly() },
+                      );
 
                       return (
                         <div
@@ -695,15 +750,9 @@ export default async function LearnCoursePage({
                                 {task.instructions}
                               </p>
                             ) : null}
-                            {task.content_html && inlineLessonPreview ? (
-                              <div
-                                className="mt-3 rounded-2xl border border-[var(--border)] bg-white px-3 py-3 text-sm leading-6 text-[color:var(--ink)]"
-                                dangerouslySetInnerHTML={{ __html: inlineLessonPreview }}
-                              />
-                            ) : null}
-                            {task.content_html && hasEmbeddedLessonDocument ? (
+                            {task.lesson_schema ? (
                               <p className="mt-2 text-xs font-medium text-[color:var(--mid)]">
-                                This task includes a full interactive lesson. Open it to work inside the full page.
+                                This task includes a structured lesson. Open it to work inside the full page.
                               </p>
                             ) : null}
                             {task.writing_prompt ? (
@@ -711,9 +760,14 @@ export default async function LearnCoursePage({
                                 Prompt: {task.writing_prompt}
                               </p>
                             ) : null}
-                            {monthlyRemainingTotal !== null ? (
+                            {recurringSummary ? (
                               <p className="mt-2 text-xs font-medium text-[color:var(--mid)]">
-                                {monthlyCompletedTotal} of {task.monthly_goal_total} done this month · {monthlyRemainingTotal} left
+                                {recurringSummary.windowTotal} of {recurringSummary.targetAmount} done this month · {recurringSummary.remainingToTarget} left
+                              </p>
+                            ) : null}
+                            {recurringSummary ? (
+                              <p className="mt-1 text-xs text-[color:var(--mid)]">
+                                {recurringSummary.allTimeTotal} completed all time
                               </p>
                             ) : null}
                             {latestSubmission ? (
@@ -733,7 +787,7 @@ export default async function LearnCoursePage({
                           </div>
 
                           <div className="hidden text-sm text-[color:var(--mid)] md:block">
-                            {task.moduleTitle}
+                            {getTimedCycleLabel(task.phaseId, detail.phases)}
                           </div>
 
                           <div className="text-sm text-[color:var(--mid)]">
@@ -752,7 +806,7 @@ export default async function LearnCoursePage({
                                     type="number"
                                     name="quantity_completed"
                                     min="1"
-                                    max="500"
+                                    max="10000"
                                     defaultValue={1}
                                     aria-label={`How many completed for ${task.title}`}
                                     className="h-10 w-16 rounded-2xl border border-[var(--border)] bg-white px-2 text-center text-sm text-[color:var(--ink)]"
@@ -891,38 +945,48 @@ export default async function LearnCoursePage({
         ) : null}
 
         <section className="grid gap-4 md:grid-cols-2">
-          {detail.modules.map((module) => (
+          {detail.phases.map((phase) => {
+            const phaseModule = detail.modules.find((module) => module.phase_id === phase.id) ?? null;
+            const cycleTasks = phaseModule?.tasks ?? [];
+            const cycleComplete = phaseModule ? moduleCompletionById.get(phaseModule.id) ?? false : false;
+
+            return (
             <Link
-              key={module.id}
-              href={buildScopedPath(`/learn/modules/${module.id}`, selectedChild.id, mode)}
+              key={phase.id}
+              href={
+                phaseModule
+                  ? buildScopedPath(`/learn/modules/${phaseModule.id}`, selectedChild.id, mode)
+                  : scopedCurrentPath
+              }
               className="brand-card rounded-3xl p-6 transition hover:-translate-y-0.5"
             >
               <div className="flex flex-wrap items-center justify-between gap-2">
-                <p className="brand-eyebrow">Module</p>
+                <p className="brand-eyebrow">Cycle</p>
                 <span className={`rounded-full border px-2.5 py-1 text-[10px] font-medium ${
-                  moduleCompletionById.get(module.id)
+                  cycleComplete
                     ? "border-emerald-200 bg-emerald-50 text-emerald-700"
                     : "border-[var(--border)] bg-white text-[color:var(--mid)]"
                 }`}>
-                  {moduleCompletionById.get(module.id) ? "Complete" : "In progress"}
+                  {cycleComplete ? "Complete" : "In progress"}
                 </span>
               </div>
               <h2 className="brand-title mt-2 text-2xl font-semibold tracking-tight">
-                {module.title}
+                {`Cycle ${phase.position + 1}`}
               </h2>
               <p className="brand-copy mt-3 text-sm leading-6">
-                {module.description || "Open this module to see the tasks inside it."}
+                {phase.title || "Open this cycle to see the tasks inside it."}
               </p>
               <p className="mt-4 text-sm font-medium text-[color:var(--mid)]">
-                {module.tasks.length} task{module.tasks.length === 1 ? "" : "s"}
+                {cycleTasks.length} task{cycleTasks.length === 1 ? "" : "s"}
               </p>
             </Link>
-          ))}
+            );
+          })}
 
-          {detail.modules.length === 0 ? (
+          {detail.phases.length === 0 ? (
             <div className="brand-card rounded-3xl p-6 md:col-span-2">
               <p className="text-sm text-[color:var(--mid)]">
-                This course does not have any modules yet.
+                This course does not have any cycles yet.
               </p>
             </div>
           ) : null}
