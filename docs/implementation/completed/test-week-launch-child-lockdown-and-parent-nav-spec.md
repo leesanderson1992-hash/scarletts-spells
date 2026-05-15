@@ -62,7 +62,7 @@ Confirmed implementation anchors:
 - child review route lives in [app/review/page.tsx](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/app/review/page.tsx:1)
 - parent assignments route lives in [app/assignments/page.tsx](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/app/assignments/page.tsx:1)
 - parent intake route lives in [app/analyse/page.tsx](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/app/analyse/page.tsx:1)
-- parent analysis review route lives in [app/analyse/review/page.tsx](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/app/analyse/review/page.tsx:1)
+- legacy `/analyse/review` remains redirect-only compatibility and should hand off to canonical `Review Work`
 - parent review-work queue lives in [app/courses/review/page.tsx](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/app/courses/review/page.tsx:1)
 - existing broad reset helper lives in [docs/support/sql/reset-child-learning-and-rewards.sql](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/support/sql/reset-child-learning-and-rewards.sql:1)
 
@@ -147,7 +147,7 @@ Implement parent nav as:
 - `Spelling Engine`
   - `Assignments` -> `/assignments`
   - `Intake` -> `/analyse`
-  - `Analysis` -> `/analyse/review`
+  - `Analysis` -> legacy compatibility redirect to canonical `Review Work`
 - `Settings` -> `/settings`
 - `Children` -> `/children`
 
