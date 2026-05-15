@@ -15,8 +15,12 @@ import {
 } from "@/lib/spelling/errorPatterns";
 import { findWordFamilyForWord } from "@/lib/spelling/wordFamilies";
 import { createClient } from "@/lib/supabase/server";
-import { stringifyAnalysisExtraMetadata } from "@/app/analyse/types";
 import { maybeAwardTaskSubmissionApprovalCoins } from "@/lib/rewards/course-coins";
+import {
+  buildStage7dReviewWorkVerificationTarget,
+  recordStage7dParentVerification,
+} from "@/lib/writing-engine/review/stage7d-parent-verification";
+import { stringifyAnalysisExtraMetadata } from "@/lib/writing-engine/spelling/legacy-analysis";
 import { confirmPositiveEvidenceSuggestions } from "@/lib/writing-practice/positive-evidence";
 import {
   doesFinalClassificationCreateLearningItem,
@@ -51,6 +55,14 @@ function getPathnameOnly(path: string) {
 function revalidateReviewQueueAndDetail(redirectPath: string) {
   revalidatePath("/courses/review");
   revalidatePath(getPathnameOnly(redirectPath));
+}
+
+function revalidateReviewQueueAndDetailBestEffort(redirectPath: string) {
+  try {
+    revalidateReviewQueueAndDetail(redirectPath);
+  } catch (error) {
+    console.error("Review Work revalidation failed after parent verification.", error);
+  }
 }
 
 function revalidateReviewDetailAndInsights(redirectPath: string) {
@@ -89,8 +101,9 @@ function findWordRange(text: string, word: string) {
 async function getOwnedSubmission(
   submissionId: string,
   userId: string,
+  suppliedSupabase?: Awaited<ReturnType<typeof createClient>>,
 ) {
-  const supabase = await createClient();
+  const supabase = suppliedSupabase ?? await createClient();
   const { data: submission } = await supabase
     .from("task_submissions")
     .select("id, task_id, course_id, child_id, submission_text, submitted_at")
@@ -116,6 +129,21 @@ async function getLinkedWritingSample(
   return sample;
 }
 
+async function getOwnedManualWritingSample(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  writingSampleId: string,
+  userId: string,
+) {
+  const { data: sample } = await supabase
+    .from("writing_samples")
+    .select("id, child_id, sample_text")
+    .eq("id", writingSampleId)
+    .eq("parent_user_id", userId)
+    .maybeSingle();
+
+  return sample;
+}
+
 function normaliseIssueText(value: FormDataEntryValue | null) {
   return typeof value === "string" ? value.trim().slice(0, 500) : "";
 }
@@ -128,6 +156,29 @@ function normaliseOptionalIssueText(value: FormDataEntryValue | null) {
 function normaliseMicroSkillKey(value: FormDataEntryValue | null) {
   const rawValue = typeof value === "string" ? value.trim() : "";
   return rawValue.length > 0 ? rawValue.slice(0, 120) : "unknown";
+}
+
+function normaliseStage7dDecision(
+  value: FormDataEntryValue | null,
+): "accepted" | "overridden" | "false_positive" | "not_a_learning_issue" | null {
+  if (
+    value === "accepted" ||
+    value === "overridden" ||
+    value === "false_positive" ||
+    value === "not_a_learning_issue"
+  ) {
+    return value;
+  }
+
+  return null;
+}
+
+function normaliseStage7dOverrideField(
+  value: FormDataEntryValue | null,
+  maxLength = 120,
+) {
+  const rawValue = typeof value === "string" ? value.trim() : "";
+  return rawValue.length > 0 ? rawValue.slice(0, maxLength) : null;
 }
 
 function parseSuggestionIdsFromFormData(formData: FormData) {
@@ -537,9 +588,7 @@ export async function addMissedWordToSubmissionReview(formData: FormData) {
     );
   }
 
-  revalidateReviewQueueAndDetail(safeRedirectPath);
-  revalidatePath("/analyse");
-  revalidatePath("/analyse/review");
+  revalidateReviewQueueAndDetailBestEffort(safeRedirectPath);
 
   redirect(
     buildRedirectWithMessage(
@@ -736,7 +785,7 @@ export async function acceptSubmissionReviewIssue(formData: FormData) {
     );
   }
 
-  revalidateReviewQueueAndDetail(safeRedirectPath);
+  revalidateReviewQueueAndDetailBestEffort(safeRedirectPath);
 
   redirect(
     buildRedirectWithMessage(
@@ -915,6 +964,258 @@ export async function rejectSubmissionReviewIssue(formData: FormData) {
       safeRedirectPath,
       "saved",
       "Suggestion rejected for targeted writing practice.",
+    ),
+  );
+}
+
+export async function recordReviewWorkVerificationAction(formData: FormData) {
+  const decision = normaliseStage7dDecision(formData.get("decision"));
+  const redirectPath = formData.get("redirect_path");
+  const misspellingInstanceId = formData.get("misspelling_instance_id");
+  const taskSubmissionId = formData.get("task_submission_id");
+  const writingSampleId = formData.get("writing_sample_id");
+  const verifiedCategoryCode = normaliseStage7dOverrideField(
+    formData.get("verified_category_code"),
+  );
+  const verifiedMicroSkillKey = normaliseStage7dOverrideField(
+    formData.get("verified_micro_skill_key"),
+  );
+  const verifiedTemplateKey = normaliseStage7dOverrideField(
+    formData.get("verified_template_key"),
+  );
+  const verificationNote = normaliseOptionalIssueText(formData.get("verification_note"));
+
+  const safeRedirectPath =
+    typeof redirectPath === "string" && redirectPath.startsWith("/courses/review/")
+      ? redirectPath
+      : "/courses/review";
+
+  if (
+    !decision ||
+    typeof misspellingInstanceId !== "string" ||
+    !misspellingInstanceId ||
+    (typeof taskSubmissionId !== "string" || !taskSubmissionId) &&
+      (typeof writingSampleId !== "string" || !writingSampleId)
+  ) {
+    redirect(
+      buildRedirectWithMessage(
+        safeRedirectPath,
+        "error",
+        "We couldn't prepare that parent verification action.",
+      ),
+    );
+  }
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect("/login");
+  }
+
+  const ownedSubmission =
+    typeof taskSubmissionId === "string" && taskSubmissionId
+      ? await getOwnedSubmission(taskSubmissionId, user.id, supabase)
+      : null;
+
+  if (ownedSubmission && !ownedSubmission.submission) {
+    redirect(
+      buildRedirectWithMessage(
+        safeRedirectPath,
+        "error",
+        "That lesson submission is no longer available for review.",
+      ),
+    );
+  }
+
+  const manualSample =
+    typeof writingSampleId === "string" && writingSampleId
+      ? await getOwnedManualWritingSample(supabase, writingSampleId, user.id)
+      : null;
+  const linkedSample =
+    ownedSubmission?.submission
+      ? await getLinkedWritingSample(supabase, ownedSubmission.submission.id, user.id)
+      : null;
+
+  if (!ownedSubmission?.submission && !manualSample) {
+    redirect(
+      buildRedirectWithMessage(
+        safeRedirectPath,
+        "error",
+        "That review source is no longer available.",
+      ),
+    );
+  }
+
+  const childId = ownedSubmission?.submission?.child_id ?? manualSample?.child_id;
+  const canonicalWritingSampleId = linkedSample?.id ?? manualSample?.id ?? null;
+
+  const { data: misspelling } = await supabase
+    .from("misspelling_instances")
+    .select(
+      "id, misspelled_word, corrected_word, suggested_word, error_type, notes, context_text, position_start, position_end",
+    )
+    .eq("id", misspellingInstanceId)
+    .eq("parent_user_id", user.id)
+    .maybeSingle();
+
+  if (!misspelling || !childId || !canonicalWritingSampleId) {
+    redirect(
+      buildRedirectWithMessage(
+        safeRedirectPath,
+        "error",
+        "That shared output is no longer available for verification.",
+      ),
+    );
+  }
+
+  const pendingSuggestionQuery = supabase
+    .from("writing_issue_suggestions")
+    .select(
+      "id, suggested_replacement, suggested_micro_skill_key, notes, suggestion_status",
+    )
+    .eq("parent_user_id", user.id)
+    .eq("misspelling_instance_id", misspelling.id)
+    .eq("suggestion_status", "pending")
+    .order("created_at", { ascending: false })
+    .limit(1);
+
+  if (ownedSubmission?.submission) {
+    pendingSuggestionQuery.eq("task_submission_id", ownedSubmission.submission.id);
+  } else {
+    pendingSuggestionQuery.eq("writing_sample_id", canonicalWritingSampleId);
+  }
+
+  const { data: pendingSuggestion } = await pendingSuggestionQuery.maybeSingle();
+  const suggestedMicroSkillKey = pendingSuggestion?.suggested_micro_skill_key ?? null;
+  const verificationTarget = buildStage7dReviewWorkVerificationTarget({
+    taskSubmissionId: ownedSubmission?.submission?.id ?? null,
+    writingSampleId: canonicalWritingSampleId,
+    observedText: misspelling.misspelled_word,
+    suggestedReplacement:
+      pendingSuggestion?.suggested_replacement ??
+      misspelling.suggested_word ??
+      misspelling.corrected_word,
+    contextText: misspelling.context_text,
+    positionStart: misspelling.position_start,
+    positionEnd: misspelling.position_end,
+    suggestedCategoryCode: misspelling.error_type,
+    suggestedMicroSkillKey,
+    notes: pendingSuggestion?.notes ?? misspelling.notes,
+  });
+
+  if (!verificationTarget) {
+    redirect(
+      buildRedirectWithMessage(
+        safeRedirectPath,
+        "error",
+        "That shared output does not yet have enough canonical source detail for parent verification.",
+      ),
+    );
+  }
+
+  const hasAnyOverrideField =
+    verifiedCategoryCode !== null ||
+    verifiedMicroSkillKey !== null ||
+    verifiedTemplateKey !== null;
+  const hasMeaningfulOverrideField =
+    (verifiedCategoryCode !== null &&
+      verifiedCategoryCode !== verificationTarget.suggestedCategoryCode) ||
+    (verifiedMicroSkillKey !== null &&
+      verifiedMicroSkillKey !== verificationTarget.suggestedMicroSkillKey) ||
+    verifiedTemplateKey !== null;
+
+  if (decision !== "overridden" && hasAnyOverrideField) {
+    redirect(
+      buildRedirectWithMessage(
+        safeRedirectPath,
+        "error",
+        "Verified override fields are only available through the override flow.",
+      ),
+    );
+  }
+
+  if (decision === "overridden" && !hasMeaningfulOverrideField) {
+    redirect(
+      buildRedirectWithMessage(
+        safeRedirectPath,
+        "error",
+        "Override requires at least one changed canonical verification field.",
+      ),
+    );
+  }
+
+  const { data: existingVerification } = await supabase
+    .from("parent_verifications")
+    .select("id")
+    .eq("parent_user_id", user.id)
+    .eq("source_entity_id", verificationTarget.sourceRef.sourceEntityId)
+    .limit(1)
+    .maybeSingle();
+
+  if (existingVerification) {
+    redirect(
+      buildRedirectWithMessage(
+        safeRedirectPath,
+        "saved",
+        "A parent verification was already recorded for that shared output.",
+      ),
+    );
+  }
+
+  if (
+    decision === "accepted" &&
+    (ownedSubmission?.submission
+      ? !suggestedMicroSkillKey || suggestedMicroSkillKey.trim().toLowerCase() === "unknown"
+      : false)
+  ) {
+    redirect(
+      buildRedirectWithMessage(
+        safeRedirectPath,
+        "error",
+        "Accepted verification is only available when existing shared suggestion truth already carries a canonical micro-skill.",
+      ),
+    );
+  }
+
+  try {
+    await recordStage7dParentVerification({
+      supabase,
+      childId,
+      parentUserId: user.id,
+      decision,
+      verifiedCategoryCode,
+      verifiedMicroSkillKey,
+      verifiedTemplateKey,
+      note: verificationNote,
+      target: verificationTarget,
+    });
+  } catch (error) {
+    console.error("Review Work verification action failed before redirect.", error);
+    redirect(
+      buildRedirectWithMessage(
+        safeRedirectPath,
+        "error",
+        "Could not record that parent verification right now.",
+      ),
+    );
+  }
+
+  revalidateReviewQueueAndDetailBestEffort(safeRedirectPath);
+
+  redirect(
+    buildRedirectWithMessage(
+      safeRedirectPath,
+      "saved",
+      decision === "accepted"
+        ? "Parent verification recorded as accepted."
+        : decision === "overridden"
+          ? "Parent verification recorded as overridden."
+        : decision === "false_positive"
+          ? "Parent verification recorded as false positive."
+          : "Parent verification recorded as not a learning issue.",
     ),
   );
 }
@@ -1236,11 +1537,9 @@ export async function confirmSubmissionPositiveEvidence(formData: FormData) {
       safeRedirectPath,
       summary.confirmedCount > 0 ? "saved" : "error",
       summary.confirmedCount > 0
-        ? summary.promotedLevel5Count > 0
-          ? "Transfer evidence confirmed. This micro-skill now qualifies for Level 5."
-          : summary.promotedLevel4Count > 0
-            ? "Transfer evidence confirmed. This micro-skill now qualifies for Level 4."
-            : "Transfer evidence confirmed."
+        ? summary.promotedLevel5Count > 0 || summary.promotedLevel4Count > 0
+          ? "Transfer evidence confirmed. This strengthens the mini-skill record with real-writing evidence."
+          : "Transfer evidence confirmed."
         : "That transfer evidence could not be confirmed from this review signal.",
     ),
   );

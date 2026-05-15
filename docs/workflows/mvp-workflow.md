@@ -5,6 +5,8 @@
 This file describes the intended MVP product loop at a workflow level.
 
 For detailed canon, defer to:
+- [docs/architecture/writing-engine-canonical-brief.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/architecture/writing-engine-canonical-brief.md:1)
+- [docs/contracts/writing-engine-mastery-and-evidence-contract.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/contracts/writing-engine-mastery-and-evidence-contract.md:1)
 - [docs/contracts/targeted-writing-practice-contract.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/contracts/targeted-writing-practice-contract.md:1)
 - [docs/contracts/modules-model.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/contracts/modules-model.md:1)
 - [docs/contracts/reward-system-contract.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/contracts/reward-system-contract.md:1)
@@ -15,6 +17,29 @@ Keep this workflow:
 - calm
 - parent-trustworthy
 - manageable for the child
+
+## Current implemented workflow status
+
+The full workflow below still captures the long-term MVP direction, but the
+current implemented private-MVP loop is narrower.
+
+Implemented now:
+1. Parent enters paper-written work through `Add Writing Sample` or reviews a
+   lesson submission already saved in the app.
+2. The app preserves canonical writing/submission truth.
+3. Existing shared Writing Engine outputs appear in `Review Work`.
+4. Parent reviews those outputs in context and records canonical verification
+   decisions.
+5. `Review Work` queue/detail/archive/history states remain coherent after
+   parent action.
+
+Not yet safe to treat as fully current product truth:
+- full automatic child-work checking
+- automatic mastery judgement from parent-facing summaries
+- any claim that dashboard/insights summaries are stronger than advisory
+  evidence/progress signals
+- assuming every longer-term returned-work or self-correction flow below is the
+  canonical current route without checking the live runtime and status docs
 
 ## Product loop
 
@@ -176,7 +201,9 @@ But active practice should be controlled through:
 - grouped `learning_items`
 - `micro_skill_key`
 - optional `theme_key`
-- capped `daily_assignments`
+- generic `assignment_items`
+- a transitional delivery/header surface while `daily_assignments` remains
+  legacy header debt
 
 If several issues map to the same active micro-skill stream:
 - link them to the existing stream where appropriate
@@ -184,7 +211,7 @@ If several issues map to the same active micro-skill stream:
 - expand the practice pool
 - avoid automatically creating separate lessons
 
-## Review cadence and mastery
+## Review cadence and secure progress
 
 The current spelling review cadence remains:
 - next day
@@ -193,11 +220,15 @@ The current spelling review cadence remains:
 - then 14 days
 - then Gold Bar
 
-Gold Bars still represent spaced mastery.
+Gold Bars represent secure spaced-review progress for the reward system.
 They do not come from:
 - checking-only issues
 - instant correction
 - task completion alone
+
+Parent-facing Writing Engine "Mastered" still requires authentic writing
+transfer, breadth, confidence, and low recent recurrence. The reward cadence
+must not be mistaken for the canonical mastery contract.
 
 ## Transfer evidence
 

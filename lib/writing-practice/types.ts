@@ -207,7 +207,7 @@ export type LearningItemRow = {
   id: string;
   child_id: string;
   parent_user_id: string;
-  source_writing_issue_id: string;
+  source_writing_issue_id: string | null;
   micro_skill_key: string;
   mastery_domain_key: string | null;
   skill_family_key: string | null;

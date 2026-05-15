@@ -31,6 +31,7 @@ When docs overlap:
 
 ### Contracts
 
+- [docs/contracts/writing-engine-mastery-and-evidence-contract.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/contracts/writing-engine-mastery-and-evidence-contract.md:1)
 - [docs/contracts/targeted-writing-practice-contract.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/contracts/targeted-writing-practice-contract.md:1)
 - [docs/contracts/micro-skill-taxonomy-and-assignment-contract.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/contracts/micro-skill-taxonomy-and-assignment-contract.md:1)
 - [docs/contracts/universal-progress-contract.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/contracts/universal-progress-contract.md:1)
@@ -41,6 +42,8 @@ When docs overlap:
 
 ### Architecture
 
+- [docs/architecture/writing-engine-canonical-brief.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/architecture/writing-engine-canonical-brief.md:1)
+- [docs/architecture/writing-engine-foundation.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/architecture/writing-engine-foundation.md:1)
 - [docs/architecture/targeted-writing-practice-architecture.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/architecture/targeted-writing-practice-architecture.md:1)
 - [docs/architecture/course-builder-unification-architecture.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/architecture/course-builder-unification-architecture.md:1)
 
@@ -57,12 +60,12 @@ When docs overlap:
 
 ### Active implementation docs
 
+- [docs/implementation/writing-engine-roadmap.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/implementation/writing-engine-roadmap.md:1)
 - [docs/implementation/targeted-writing-practice-status.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/implementation/targeted-writing-practice-status.md:1)
 - [docs/current-priorities.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/current-priorities.md:1)
+- [docs/support/vercel-launch-checklist.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/support/vercel-launch-checklist.md:1)
 - [docs/implementation/reward-system-refactor-plan.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/implementation/reward-system-refactor-plan.md:1)
 - [docs/implementation/structured-lesson-migration-plan.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/implementation/structured-lesson-migration-plan.md:1)
-- [docs/implementation/targeted-writing-practice-mvp-plan.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/implementation/targeted-writing-practice-mvp-plan.md:1)
-- [docs/implementation/targeted-writing-practice-runtime-transition-plan.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/implementation/targeted-writing-practice-runtime-transition-plan.md:1)
 - [docs/implementation/course-builder-post-slice-11-analysis-plan.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/implementation/course-builder-post-slice-11-analysis-plan.md:1)
 - [docs/implementation/global-action-grammar-standardisation-plan.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/implementation/global-action-grammar-standardisation-plan.md:1)
 
@@ -73,11 +76,18 @@ When docs overlap:
 - [docs/implementation/completed/recurring-progress-canonicalization-plan.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/implementation/completed/recurring-progress-canonicalization-plan.md:1)
 - [docs/implementation/completed/site-performance-stabilization-plan.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/implementation/completed/site-performance-stabilization-plan.md:1)
 - [docs/implementation/completed/targeted-writing-practice-preflight-seed-spec.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/implementation/completed/targeted-writing-practice-preflight-seed-spec.md:1)
-- [docs/implementation/repo-clean-house-plan.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/implementation/repo-clean-house-plan.md:1)
-- [docs/implementation/repo-clean-house-phase-5-kickoff.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/implementation/repo-clean-house-phase-5-kickoff.md:1)
-- [docs/implementation/repo-clean-house-phase-0-register.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/implementation/repo-clean-house-phase-0-register.md:1)
-- [docs/implementation/repo-clean-house-phase-2-kickoff.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/implementation/repo-clean-house-phase-2-kickoff.md:1)
-- [docs/implementation/repo-clean-house-phase-2-implementation-prompt.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/implementation/repo-clean-house-phase-2-implementation-prompt.md:1)
+- [docs/implementation/completed/targeted-writing-practice-mvp-plan.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/implementation/completed/targeted-writing-practice-mvp-plan.md:1)
+- [docs/implementation/completed/targeted-writing-practice-runtime-transition-plan.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/implementation/completed/targeted-writing-practice-runtime-transition-plan.md:1)
+- [docs/implementation/completed/repo-clean-house-plan.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/implementation/completed/repo-clean-house-plan.md:1)
+- [docs/implementation/completed/repo-clean-house-phase-5-kickoff.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/implementation/completed/repo-clean-house-phase-5-kickoff.md:1)
+- [docs/implementation/completed/repo-clean-house-phase-0-register.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/implementation/completed/repo-clean-house-phase-0-register.md:1)
+- [docs/implementation/completed/repo-clean-house-phase-2-kickoff.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/implementation/completed/repo-clean-house-phase-2-kickoff.md:1)
+- [docs/implementation/completed/repo-clean-house-phase-2-implementation-prompt.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/implementation/completed/repo-clean-house-phase-2-implementation-prompt.md:1)
+
+### QA and release-readiness records
+
+- [docs/qa/writing-engine-documentation-truth-audit.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/qa/writing-engine-documentation-truth-audit.md:1)
+- [docs/support/vercel-launch-checklist.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/support/vercel-launch-checklist.md:1)
 
 ## Supporting references
 

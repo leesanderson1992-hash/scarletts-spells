@@ -60,15 +60,6 @@ function getNavSections(mode: AppMode): NavSection[] {
           ],
         },
         { label: "Insights", href: "/insights" },
-        {
-          label: "Spelling Engine",
-          href: "/analyse",
-          children: [
-            { label: "Assignments", href: "/assignments" },
-            { label: "Intake", href: "/analyse" },
-            { label: "Analysis", href: "/analyse/review" },
-          ],
-        },
         { label: "Settings", href: "/settings" },
         { label: "Children", href: "/children" },
       ],

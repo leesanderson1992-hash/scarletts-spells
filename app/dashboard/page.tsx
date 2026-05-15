@@ -26,9 +26,8 @@ import {
 import { getChildRewardReadModel } from "@/lib/rewards/read-model";
 import { getWordFamilyById } from "@/lib/spelling/wordFamilies";
 import { createClient } from "@/lib/supabase/server";
+import { parseAnalysisRow } from "@/lib/writing-engine/spelling/legacy-analysis";
 import { getCanonicalActivePracticeWordsForChild } from "@/lib/writing-practice/practice-runtime";
-
-import { parseAnalysisRow } from "../analyse/types";
 import { CreateChildForm } from "./create-child-form";
 
 type DashboardPageProps = {
@@ -44,16 +43,6 @@ type ChildRow = {
   last_name: string | null;
   date_of_birth: string | null;
   is_archived: boolean;
-};
-
-type DailyAssignmentRow = {
-  id: string;
-  title: string | null;
-  instructions: string | null;
-  target_words: string[] | null;
-  review_words: string[] | null;
-  status: string | null;
-  assignment_date: string;
 };
 
 type WritingSampleRow = {
@@ -210,12 +199,6 @@ function formatDate(dateString: string | null) {
   }).format(new Date(dateString));
 }
 
-function getCleanWords(words: string[] | null) {
-  return Array.from(
-    new Set((words ?? []).map((word) => word.trim().toLowerCase()).filter(Boolean)),
-  );
-}
-
 function getWordStateFromRewardState(rewardState: string | null | undefined) {
   if (rewardState === "gold_bar_earned") {
     return "gold_bar" as const;
@@ -348,29 +331,17 @@ export default async function DashboardPage({
   const activeScopedChild =
     activeChildren.length > 0 ? selectedChild ?? activeChildren[0] : null;
 
-  const [latestAssignment, latestSample] = activeScopedChild
-    ? await Promise.all([
-        supabase
-          .from("daily_assignments")
-          .select("id, title, instructions, target_words, review_words, status, assignment_date")
+  const latestSample =
+    activeScopedChild && mode === "parent"
+      ? await supabase
+          .from("writing_samples")
+          .select("id, title, sample_text, source, written_at, created_at")
           .eq("parent_user_id", user.id)
           .eq("child_id", activeScopedChild.id)
-          .order("assignment_date", { ascending: false })
           .order("created_at", { ascending: false })
           .limit(1)
-          .maybeSingle<DailyAssignmentRow>(),
-        mode === "parent"
-          ? supabase
-              .from("writing_samples")
-              .select("id, title, sample_text, source, written_at, created_at")
-              .eq("parent_user_id", user.id)
-              .eq("child_id", activeScopedChild.id)
-              .order("created_at", { ascending: false })
-              .limit(1)
-              .maybeSingle<WritingSampleRow>()
-          : Promise.resolve({ data: null as WritingSampleRow | null }),
-      ])
-    : [{ data: null }, { data: null }];
+          .maybeSingle<WritingSampleRow>()
+      : { data: null as WritingSampleRow | null };
 
   const analysisRows =
     mode === "parent" && activeScopedChild && latestSample.data
@@ -387,12 +358,8 @@ export default async function DashboardPage({
   const analysisSummary = summariseAnalysis(analysisRows.data ?? []);
 
   const childName = activeScopedChild ? getDisplayName(activeScopedChild) : null;
-  const targetWords = getCleanWords(latestAssignment.data?.target_words ?? null);
-  const reviewWords = getCleanWords(latestAssignment.data?.review_words ?? null).filter(
-    (word) => !targetWords.includes(word),
-  );
-  const practicePath = buildScopedPath("/practice", activeScopedChild?.id ?? null, mode);
-  const assignmentsPath = buildScopedPath("/assignments", activeScopedChild?.id ?? null, mode);
+  const targetWords: string[] = [];
+  const reviewWords: string[] = [];
   const insightsPath = buildScopedPath("/insights", activeScopedChild?.id ?? null, mode);
   const childrenPath = buildScopedPath("/children", activeScopedChild?.id ?? null, mode);
   const reviewWorkPath = buildScopedPath("/courses/review", activeScopedChild?.id ?? null, mode);
@@ -608,15 +575,16 @@ export default async function DashboardPage({
                     {childName}
                   </h1>
                   <p className="brand-copy mt-1 max-w-2xl text-sm leading-6">
-                    Today is about building steady progress. Spelling review, course work, and coin rewards are tracked separately but shown together here.
+                    Today is about collecting useful review and practice signals.
+                    Spelling review, course work, and coin rewards are tracked
+                    separately and shown together here for parent guidance.
+                    Review Work decisions remain the verified truth; this page
+                    is an advisory summary of current evidence and routines.
                   </p>
                 </div>
                 <div className="flex flex-wrap gap-2">
-                  <Link href={practicePath} className="brand-primary-btn">
-                    Spelling practice
-                  </Link>
-                  <Link href={assignmentsPath} className="brand-secondary-btn">
-                    View assignment
+                  <Link href={reviewWorkPath} className="brand-primary-btn">
+                    Review work
                   </Link>
                   <Link href={buildScopedPath("/learn/week", activeScopedChild.id, mode)} className="brand-secondary-btn">
                     Learning check-in
@@ -631,32 +599,10 @@ export default async function DashboardPage({
                       Today&apos;s training
                     </p>
                     <span className="rounded-full bg-[rgba(252,228,244,0.45)] px-3 py-1 text-xs font-medium text-[color:var(--ink)]">
-                      {todayTrainingTasks.length + (latestAssignment.data ? 1 : 0)} items
+                      {todayTrainingTasks.length} items
                     </span>
                   </div>
                   <div className="mt-3 grid gap-2">
-                    {latestAssignment.data ? (
-                      <div className="rounded-2xl border border-[rgba(206,71,125,0.18)] bg-[rgba(252,228,244,0.35)] px-4 py-3">
-                        <div className="flex items-center justify-between gap-3">
-                          <p className="text-sm font-semibold text-[color:var(--ink)]">Spelling practice</p>
-                          <span className="rounded-full border border-[rgba(245,190,57,0.28)] bg-white px-2.5 py-1 text-[11px] font-medium text-[color:var(--ink)]">
-                            Review queue
-                          </span>
-                        </div>
-                        <p className="mt-1 text-sm text-[color:var(--mid)]">
-                          {targetWords.length} focus word{targetWords.length === 1 ? "" : "s"} and {reviewWords.length} review word{reviewWords.length === 1 ? "" : "s"}.
-                        </p>
-                        <div className="mt-3">
-                          <Link
-                            href={assignmentsPath}
-                            className="inline-flex items-center rounded-full border border-[var(--border)] bg-white px-3 py-2 text-sm font-medium text-[color:var(--ink)] transition hover:text-[var(--scarlett)]"
-                          >
-                            Open assignment details
-                          </Link>
-                        </div>
-                      </div>
-                    ) : null}
-
                     {todayTrainingTasks.map((task) => (
                       <div key={task.id} className="rounded-2xl border border-[var(--border)] bg-white px-4 py-3">
                         <div className="flex items-center justify-between gap-3">
@@ -671,7 +617,7 @@ export default async function DashboardPage({
                       </div>
                     ))}
 
-                    {todayTrainingTasks.length === 0 && !latestAssignment.data ? (
+                    {todayTrainingTasks.length === 0 ? (
                       <p className="rounded-2xl border border-[var(--border)] bg-white px-4 py-3 text-sm text-[color:var(--mid)]">
                         No training is queued yet for today.
                       </p>
@@ -730,13 +676,13 @@ export default async function DashboardPage({
               <article className="brand-card rounded-3xl p-5">
                 <div className="flex items-center justify-between gap-3">
                   <div>
-                    <p className="brand-eyebrow">Proven Bag</p>
+                    <p className="brand-eyebrow">Secure So Far</p>
                     <h2 className="mt-1 text-2xl font-semibold tracking-tight text-[color:var(--ink)]">
                       Gold Bars
                     </h2>
                   </div>
                   <span className="rounded-full bg-[rgba(46,125,50,0.12)] px-3 py-1 text-xs font-medium text-emerald-800">
-                    Secure and owned
+                    Looking secure so far
                   </span>
                 </div>
 
@@ -744,7 +690,7 @@ export default async function DashboardPage({
                   <div className="rounded-[1.4rem] border border-emerald-200 bg-[rgba(236,253,245,0.7)] px-4 py-4">
                     <div className="flex items-center justify-between gap-3">
                       <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[color:var(--mid)]">
-                        Proven words
+                        Words looking secure
                       </p>
                       <span className="rounded-full bg-[rgba(46,125,50,0.12)] px-3 py-1 text-xs font-medium text-emerald-800">
                         Spelling only
@@ -761,15 +707,21 @@ export default async function DashboardPage({
                       ))}
                       {secureWords.length === 0 ? (
                         <p className="text-sm text-[color:var(--mid)]">
-                          No gold bars yet. Keep practising and reviewing.
+                          No gold bars yet. Keep practising and reviewing with
+                          parent checks.
                         </p>
                       ) : null}
                     </div>
+                    <p className="mt-3 text-xs leading-5 text-[color:var(--mid)]">
+                      These secure-word labels reflect current evidence and
+                      parent-reviewed history so far. They are not automatic
+                      proof of full mastery on their own.
+                    </p>
                   </div>
 
                   <div className="rounded-[1.4rem] border border-emerald-200 bg-[rgba(236,253,245,0.7)] px-4 py-4">
                     <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[color:var(--mid)]">
-                      Gold bar history
+                      Recent secure-word history
                     </p>
                     <div className="mt-3 grid gap-2">
                       {provenBagItems.slice(0, 4).map((item) => (

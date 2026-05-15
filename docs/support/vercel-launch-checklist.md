@@ -7,7 +7,8 @@ This file is the operational checklist for launching Scarlett's Spells through G
 Use it when:
 - connecting the GitHub repo to Vercel
 - configuring production environment variables
-- confirming Supabase magic-link login works on both localhost and production
+- confirming Supabase-backed parent login works on both localhost and
+  production
 
 ## Repo requirements
 
@@ -49,7 +50,22 @@ If you want Vercel preview deployments to support login, add the preview domain 
 2. Set the production branch to `main`.
 3. Add the environment variables in Vercel.
 4. Confirm a production deploy builds successfully.
-5. Confirm the magic-link flow succeeds on the production URL.
+5. Confirm parent login succeeds on the production URL.
+6. Confirm the release slice being pushed is intentional, reviewed, and
+   isolated from unrelated local work.
+
+## Current release-readiness caution
+
+- `main` is the production branch and `git push origin main` is the live
+  release path.
+- The repo may still be in a dirty local state when this checklist is read.
+- Do not blindly push the whole current worktree just because it builds
+  locally.
+- Before a production push:
+  - isolate the intended release slice
+  - review the diff intentionally
+  - confirm no unrelated experiments, stale docs, test artifacts, or support
+    files are being shipped accidentally
 
 ## Launch validation
 
@@ -60,17 +76,22 @@ If you want Vercel preview deployments to support login, add the preview domain 
 
 ### Auth checks
 
-- request magic link from `/login`
-- email link returns to `/auth/callback?next=/dashboard`
-- callback redirects to `/dashboard`
-- session persists after redirect
+- sign in through `/login` with the intended production parent credentials
+- confirm the session reaches `/dashboard`
+- confirm the session persists after redirect
 - protected routes redirect unauthenticated users back to `/login`
+- if a Supabase callback flow is used by the deployment, confirm
+  `/auth/callback` still returns to an authenticated dashboard session
 
 ### Product checks
 
 - child mode shows only `This Week`, `My Learning`, `My Progress`
 - child access to `/practice`, `/review`, and `/assignments` redirects away
 - parent navigation groups still render correctly
+- Add Writing Sample remains intake only and hands off to Review Work
+- Review Work queue/detail/verification/archive flows remain coherent
+- dashboard and insights language remains advisory where evidence is still
+  immature
 
 ## Live release command
 

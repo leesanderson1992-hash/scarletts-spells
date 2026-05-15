@@ -4,12 +4,50 @@
 
 This document defines the intended parent and child experience for the Targeted Writing Practice system.
 
+Top-level Writing Engine identity and mastery semantics defer to:
+
+- [docs/architecture/writing-engine-canonical-brief.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/architecture/writing-engine-canonical-brief.md:1)
+- [docs/contracts/writing-engine-mastery-and-evidence-contract.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/contracts/writing-engine-mastery-and-evidence-contract.md:1)
+
 It covers:
 - parent manual review
 - child self-correction
 - final classification
 - curated daily practice
 - backlog control
+
+## Current implemented status
+
+Current private-MVP product truth after Stage `7` is narrower than the full
+long-term UX described below.
+
+Implemented now:
+- parent can enter paper-written work through `Add Writing Sample`
+- manual writing samples and lesson submissions converge into canonical
+  `Review Work`
+- parent can review existing shared outputs in `Review Work` detail
+- parent can record canonical verification decisions:
+  - `accepted`
+  - `overridden`
+  - `false positive`
+  - `not a learning issue`
+- queue, archive/history, and return-path states are coherent inside
+  `Review Work`
+
+Not yet safe to present as canonical current behaviour:
+- fully automatic child-work checking
+- parent-facing automatic mastery judgement
+- broad claims that dashboard/insights summaries are stronger than advisory
+  evidence/progress signals
+- treating older returned-work/self-correction/final-classification flows below
+  as the primary current parent workflow unless the corresponding runtime path
+  is explicitly revalidated
+
+Read the remaining sections in this file as:
+- long-term UX direction
+- historical MVP intent
+- bounded guidance that still must defer to the current canonical docs and live
+  runtime state
 
 ## Parent workflow
 
@@ -136,7 +174,8 @@ If the issue shows fragile knowledge, a concept gap, or transfer failure:
 Current Slice 6 boundary:
 - the parent review surface may show that a Golden Nugget / learning item was created
 - the child daily practice surfaces do not need to reflect that new Nugget immediately in Slice 6
-- runtime and reward visibility are intentionally deferred until the compatibility projection slice
+- runtime and reward visibility may still arrive in stages during implementation,
+  but that staged rollout should not be treated as the long-term architecture
 
 ## Curated daily practice UX
 
@@ -154,8 +193,9 @@ Suggested early defaults:
 
 Systematic truth rule:
 - curated daily practice should ultimately come from canonical `learning_items`
-- until the compatibility bridge is implemented, existing runtime surfaces may still read from older compatibility sources
-- that transitional split should be treated as staged rollout behavior, not as local page choice
+- generic `assignment_items` are the intended long-term composition layer
+- `daily_assignments` is transitional delivery/header debt only, not the
+  long-term architecture anchor
 - broader routes such as spelling patterns, morphology, grouped family practice, dictation, sentence application, proofreading, and oracy support should not be implied to already fit safely inside the older word-level runtime
 
 Boundary rule:
@@ -192,7 +232,8 @@ Child surfaces should show:
 
 Transitional Slice 6 note:
 - parent writing-practice review pages may show Nugget creation before child reward/practice surfaces do
-- that is expected while the system is still projecting into older compatibility runtime layers
+- that is expected during staged rollout and should not be read as the intended
+  long-term runtime ownership model
 
 ## Reject-suppression UX
 

@@ -56,8 +56,7 @@ import {
   type ParentProgressStream,
   type ReviewWritingIssueSuggestionDetailProjection,
 } from "@/lib/writing-practice/types";
-
-import { parseAnalysisRow } from "../analyse/types";
+import { parseAnalysisRow } from "@/lib/writing-engine/spelling/legacy-analysis";
 
 type InsightsPageProps = {
   searchParams?: Promise<{
@@ -327,6 +326,24 @@ function getFocusHint(stream: ParentProgressStream | null, status: ParentProgres
 
 function getStreamCompetencyWidth(level: number | null) {
   return `${((level ?? 0) / 5) * 100}%`;
+}
+
+function getEvidenceMaturityLabel(stream: ParentProgressStream | null) {
+  if (!stream) {
+    return "Awaiting evidence";
+  }
+
+  const count = stream.evidenceSummary.totalEvidenceCount;
+
+  if (count <= 1) {
+    return "Early evidence";
+  }
+
+  if (count <= 3) {
+    return "Building evidence";
+  }
+
+  return "Broader evidence";
 }
 
 function getConcernBarWidth(concernCount: number, totalCount: number) {
@@ -1127,16 +1144,10 @@ export default async function InsightsPage({
               Home
             </Link>
             <Link
-              href={buildScopedPath("/analyse", selectedChild.id, mode)}
+              href={buildScopedPath("/courses/review", selectedChild.id, mode)}
               className="brand-primary-btn"
             >
-              Analyse
-            </Link>
-            <Link
-              href={buildScopedPath("/practice", selectedChild.id, mode)}
-              className="brand-secondary-btn"
-            >
-              Practice
+              Review work
             </Link>
           </div>
           {resolvedSearchParams?.saved ? (
@@ -1154,13 +1165,13 @@ export default async function InsightsPage({
         {!hasCanonicalParentProgress ? (
           <section className="rounded-3xl border border-zinc-200 bg-white p-6 shadow-sm">
             <h2 className="text-xl font-semibold tracking-tight text-zinc-950">
-              No canonical spelling progress yet
+              No canonical spelling evidence summary yet
             </h2>
             <p className="mt-3 max-w-2xl text-sm leading-6 text-zinc-600">
               Review writing with {getChildName(selectedChild)}, finalise any spelling
               issues into learning items, and let a few practice outcomes build
-              evidence. Once that canonical progress exists, this page will show
-              strengths, regressions, and support needs by micro-skill.
+              evidence. Once that evidence is mature enough, this page can show
+              advisory strengths, regressions, and support needs by micro-skill.
             </p>
           </section>
         ) : null}
@@ -1171,10 +1182,10 @@ export default async function InsightsPage({
               <div className="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
                 <div className="max-w-3xl">
                   <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[color:var(--mid)]">
-                    Spelling mastery
+                    Spelling evidence and support
                   </p>
                   <h2 className="mt-2 text-2xl font-semibold tracking-tight text-[color:var(--ink)]">
-                    Strengths, pressure points, and the exact micro-skills underneath
+                    Advisory strengths, pressure points, and the micro-skills underneath
                   </h2>
                 </div>
 
@@ -1187,7 +1198,10 @@ export default async function InsightsPage({
                     {parentProgressDomains.length === 1 ? "" : "s"}
                   </span>
                   <span className="rounded-full border border-white/80 bg-white/85 px-3 py-1.5 text-xs font-medium text-[color:var(--ink)]">
-                    Avg competency {averageCompetency ?? "—"}
+                    Avg signal {averageCompetency ?? "—"}
+                  </span>
+                  <span className="rounded-full border border-white/80 bg-white/85 px-3 py-1.5 text-xs font-medium text-[color:var(--ink)]">
+                    Evidence maturity is advisory
                   </span>
                 </div>
               </div>
@@ -1199,7 +1213,7 @@ export default async function InsightsPage({
                       Domain strip
                     </p>
                     <p className="text-xs text-[color:var(--mid)]">
-                      Start here, then drill into families
+                      Start here, then drill into families and review evidence
                     </p>
                   </div>
                   <div className="mt-3 flex flex-wrap gap-2">
@@ -1249,10 +1263,10 @@ export default async function InsightsPage({
                 <div className="rounded-[1.4rem] border border-[rgba(36,34,68,0.08)] bg-white/85 p-3">
                   <div className="flex items-center justify-between gap-3">
                     <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[color:var(--mid)]">
-                      How mastery is built
+                      How this summary is built
                     </p>
                     <span className="rounded-full border border-zinc-200 bg-zinc-50 px-2 py-0.5 text-[10px] font-medium text-zinc-600">
-                      weakness-first
+                      advisory
                     </span>
                   </div>
                   <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-[color:var(--mid)]">
@@ -1273,8 +1287,11 @@ export default async function InsightsPage({
                     </span>
                   </div>
                   <p className="mt-3 text-sm leading-6 text-[color:var(--mid)]">
-                    This section highlights the weakest live pressure first, then lets
-                    you zoom into the family and micro-skill causing it.
+                    This section highlights the weakest live pressure first using
+                    current shared evidence, then lets you zoom into the family
+                    and micro-skill causing it. Treat it as parent guidance, not
+                    automatic proof of mastery. Review Work decisions are the
+                    verified truth underneath this summary.
                   </p>
                 </div>
               </div>
@@ -1634,6 +1651,9 @@ export default async function InsightsPage({
                                           {stream.linkedIssueCount} issue
                                           {stream.linkedIssueCount === 1 ? "" : "s"}
                                         </span>
+                                        <span className="rounded-full border border-white/80 bg-white/80 px-2 py-0.5 text-[10px] text-[color:var(--ink)]">
+                                          {getEvidenceMaturityLabel(stream)}
+                                        </span>
                                       </div>
                                     </summary>
 
@@ -1666,6 +1686,14 @@ export default async function InsightsPage({
                                             {stream.evidenceSummary.recentFailureCount === 1
                                               ? ""
                                               : "s"}
+                                          </p>
+                                          <p>
+                                            <span className="font-semibold text-[color:var(--ink)]">
+                                              Evidence maturity:
+                                            </span>{" "}
+                                            {getEvidenceMaturityLabel(stream)} based on currently
+                                            captured shared evidence, not a separate mastery
+                                            state.
                                           </p>
                                           <p>
                                             <span className="font-semibold text-[color:var(--ink)]">

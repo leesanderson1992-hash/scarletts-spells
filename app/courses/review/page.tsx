@@ -18,9 +18,13 @@ import type {
 } from "@/lib/writing-practice/types";
 
 import {
+  buildReviewWorkEntryId,
+  type ReviewQueueThread,
   buildReviewQueueThreads,
+  buildVerifiedMisspellingIdSet,
   buildFalsePositiveSuppressionSet,
-  getReviewQueueThreadStatusDisplay,
+  getCourseReviewSubmissionStatus,
+  isCourseReviewSubmissionStatusLive,
   getUnresolvedMisspellingCount,
   getReturnedIssueHistorySummary,
   isSuppressedFalsePositivePair,
@@ -64,10 +68,24 @@ type MisspellingReviewRow = {
   is_parent_overridden: boolean | null;
   is_false_positive: boolean | null;
   notes: string | null;
+  context_text: string | null;
+  position_start: number | null;
+  position_end: number | null;
 };
 
-type WritingIssueSuggestionRow = ReviewWritingIssueSuggestionProjection;
+type WritingIssueSuggestionRow = {
+  id: string;
+  task_submission_id: string | null;
+  writing_sample_id: string | null;
+  misspelling_instance_id: string | null;
+  suggestion_status: ReviewWritingIssueSuggestionProjection["suggestion_status"];
+};
 type WritingIssueRow = ReviewWritingIssueProjection;
+type ParentVerificationRow = {
+  source_entity_id: string;
+  task_submission_id: string | null;
+  writing_sample_id: string | null;
+};
 
 type WritingFalsePositiveSuppressionRow = {
   misspelled_word: string;
@@ -96,7 +114,47 @@ type ReviewQueueSubmissionSummary = ReviewQueueThreadInput & {
   unresolvedMisspellingCount: number;
   returnedIssueHistorySummary: ReturnType<typeof getReturnedIssueHistorySummary>;
   alreadyActiveCount: number;
+  sharedQueueStatus: ReturnType<typeof getCourseReviewSubmissionStatus>;
+  sharedQueueIsLive: boolean;
 };
+
+type ManualReviewSampleSummary = {
+  id: string;
+  title: string;
+  source: string;
+  sample_text: string;
+  submitted_at: string;
+  written_at: string | null;
+  created_at: string;
+  misspellings: MisspellingReviewRow[];
+  unresolvedMisspellingCount: number;
+  alreadyActiveCount: number;
+  sharedQueueStatus: { label: "Needs review" | "Reviewed"; tone: string };
+};
+
+type LiveReviewQueueEntry =
+  | {
+      sourceType: "manual_writing_sample";
+      submitted_at: string;
+      sample: ManualReviewSampleSummary;
+    }
+  | {
+      sourceType: "lesson_submission";
+      submitted_at: string;
+      thread: ReviewQueueThread<ReviewQueueSubmissionSummary>;
+    };
+
+type ArchivedReviewQueueEntry =
+  | {
+      sourceType: "manual_writing_sample";
+      submitted_at: string;
+      sample: ManualReviewSampleSummary;
+    }
+  | {
+      sourceType: "lesson_submission";
+      submitted_at: string;
+      thread: ReviewQueueThread<ReviewQueueSubmissionSummary>;
+    };
 
 export default async function CourseReviewPage({
   searchParams,
@@ -125,9 +183,10 @@ export default async function CourseReviewPage({
 
   const [
     { data: submissions },
-    { data: linkedSamples },
+    { data: writingSamples },
     { data: writingIssueRows },
     { data: writingIssueSuggestionRows },
+    { data: parentVerificationRows },
     { data: falsePositiveSuppressions },
     { data: correctionAttemptRows },
   ] = await Promise.all([
@@ -139,10 +198,10 @@ export default async function CourseReviewPage({
       .order("submitted_at", { ascending: false }),
     supabase
       .from("writing_samples")
-      .select("id, task_submission_id, sample_text")
+      .select("id, task_submission_id, title, source, sample_text, written_at, created_at")
       .eq("parent_user_id", user.id)
       .eq("child_id", selectedChild.id)
-      .not("task_submission_id", "is", null),
+      .order("created_at", { ascending: false }),
     supabase
       .from("writing_issues")
       .select("id, task_submission_id, source_misspelling_instance_id, issue_status, final_classification")
@@ -150,7 +209,12 @@ export default async function CourseReviewPage({
       .eq("child_id", selectedChild.id),
     supabase
       .from("writing_issue_suggestions")
-      .select("id, task_submission_id, misspelling_instance_id, suggestion_status")
+      .select("id, task_submission_id, writing_sample_id, misspelling_instance_id, suggestion_status")
+      .eq("parent_user_id", user.id)
+      .eq("child_id", selectedChild.id),
+    supabase
+      .from("parent_verifications")
+      .select("source_entity_id, task_submission_id, writing_sample_id")
       .eq("parent_user_id", user.id)
       .eq("child_id", selectedChild.id),
     supabase
@@ -176,32 +240,62 @@ export default async function CourseReviewPage({
   const taskIds = Array.from(
     new Set((submissions ?? []).map((submission) => submission.task_id)),
   );
-  const sampleIds = (linkedSamples ?? []).map((sample) => sample.id);
+  const linkedSamples = (writingSamples ?? []).filter(
+    (
+      sample,
+    ): sample is {
+      id: string;
+      task_submission_id: string;
+      title: string | null;
+      source: string | null;
+      sample_text: string;
+      written_at: string | null;
+      created_at: string;
+    } =>
+      typeof sample.task_submission_id === "string" &&
+      typeof sample.sample_text === "string",
+  );
+  const manualSamples = (writingSamples ?? []).filter(
+    (
+      sample,
+    ): sample is {
+      id: string;
+      task_submission_id: null;
+      title: string | null;
+      source: string | null;
+      sample_text: string;
+      written_at: string | null;
+      created_at: string;
+    } => sample.task_submission_id === null && typeof sample.sample_text === "string",
+  );
+  const sampleIds = (writingSamples ?? []).map((sample) => sample.id);
 
   const [{ data: courses }, { data: tasks }, { data: misspellingRows }] =
-    courseIds.length > 0
-      ? await Promise.all([
-          supabase
+    await Promise.all([
+      courseIds.length > 0
+        ? supabase
             .from("courses")
             .select("id, title")
             .in("id", courseIds)
-            .eq("parent_user_id", user.id),
-          supabase
+            .eq("parent_user_id", user.id)
+        : Promise.resolve({ data: [] }),
+      taskIds.length > 0
+        ? supabase
             .from("course_tasks")
             .select("id, title, module_id")
             .in("id", taskIds)
-            .eq("parent_user_id", user.id),
-          sampleIds.length > 0
-            ? supabase
-                .from("misspelling_instances")
-                .select(
-                  "id, writing_sample_id, misspelled_word, corrected_word, suggested_word, error_type, secondary_error_type, confidence_score, is_parent_overridden, is_false_positive, notes",
-                )
-                .in("writing_sample_id", sampleIds)
-                .eq("parent_user_id", user.id)
-            : Promise.resolve({ data: [] }),
-        ])
-      : [{ data: [] }, { data: [] }, { data: [] }];
+            .eq("parent_user_id", user.id)
+        : Promise.resolve({ data: [] }),
+      sampleIds.length > 0
+        ? supabase
+            .from("misspelling_instances")
+            .select(
+              "id, writing_sample_id, misspelled_word, corrected_word, suggested_word, error_type, secondary_error_type, confidence_score, is_parent_overridden, is_false_positive, notes, context_text, position_start, position_end",
+            )
+            .in("writing_sample_id", sampleIds)
+            .eq("parent_user_id", user.id)
+        : Promise.resolve({ data: [] }),
+    ]);
 
   const moduleIds = Array.from(
     new Set(
@@ -223,12 +317,7 @@ export default async function CourseReviewPage({
   const taskById = new Map((tasks ?? []).map((task) => [task.id, task]));
   const moduleById = new Map((modules ?? []).map((module) => [module.id, module.title]));
   const sampleBySubmissionId = new Map(
-    (linkedSamples ?? [])
-      .filter(
-        (sample): sample is { id: string; task_submission_id: string; sample_text: string } =>
-          typeof sample.task_submission_id === "string" && typeof sample.sample_text === "string",
-      )
-      .map((sample) => [sample.task_submission_id, sample]),
+    linkedSamples.map((sample) => [sample.task_submission_id, sample]),
   );
   const suppressedWordPairs = buildFalsePositiveSuppressionSet(
     (falsePositiveSuppressions ?? []) as WritingFalsePositiveSuppressionRow[],
@@ -237,6 +326,9 @@ export default async function CourseReviewPage({
   const writingIssuesBySubmissionId = new Map<string, WritingIssueRow[]>();
   const writingIssueById = new Map<string, WritingIssueRow>();
   const writingIssueSuggestionsBySubmissionId = new Map<string, WritingIssueSuggestionRow[]>();
+  const writingIssueSuggestionsBySampleId = new Map<string, WritingIssueSuggestionRow[]>();
+  const parentVerificationsBySubmissionId = new Map<string, ParentVerificationRow[]>();
+  const parentVerificationsBySampleId = new Map<string, ParentVerificationRow[]>();
   const correctionAttemptsBySubmissionId = new Map<string, WritingIssueCorrectionAttemptRow[]>();
 
   ((misspellingRows ?? []) as MisspellingReviewRow[]).forEach((row) => {
@@ -267,13 +359,31 @@ export default async function CourseReviewPage({
   });
 
   ((writingIssueSuggestionRows ?? []) as WritingIssueSuggestionRow[]).forEach((row) => {
-    if (!row.task_submission_id) {
-      return;
+    if (row.task_submission_id) {
+      const existing = writingIssueSuggestionsBySubmissionId.get(row.task_submission_id) ?? [];
+      existing.push(row);
+      writingIssueSuggestionsBySubmissionId.set(row.task_submission_id, existing);
     }
 
-    const existing = writingIssueSuggestionsBySubmissionId.get(row.task_submission_id) ?? [];
-    existing.push(row);
-    writingIssueSuggestionsBySubmissionId.set(row.task_submission_id, existing);
+    if (row.writing_sample_id) {
+      const existing = writingIssueSuggestionsBySampleId.get(row.writing_sample_id) ?? [];
+      existing.push(row);
+      writingIssueSuggestionsBySampleId.set(row.writing_sample_id, existing);
+    }
+  });
+
+  ((parentVerificationRows ?? []) as ParentVerificationRow[]).forEach((row) => {
+    if (row.task_submission_id) {
+      const existing = parentVerificationsBySubmissionId.get(row.task_submission_id) ?? [];
+      existing.push(row);
+      parentVerificationsBySubmissionId.set(row.task_submission_id, existing);
+    }
+
+    if (row.writing_sample_id) {
+      const existing = parentVerificationsBySampleId.get(row.writing_sample_id) ?? [];
+      existing.push(row);
+      parentVerificationsBySampleId.set(row.writing_sample_id, existing);
+    }
   });
 
   ((correctionAttemptRows ?? []) as WritingIssueCorrectionAttemptRow[]).forEach((row) => {
@@ -298,11 +408,21 @@ export default async function CourseReviewPage({
     const writingIssues = writingIssuesBySubmissionId.get(submission.id) ?? [];
     const writingIssueSuggestions =
       writingIssueSuggestionsBySubmissionId.get(submission.id) ?? [];
+    const parentVerifications =
+      parentVerificationsBySubmissionId.get(submission.id) ?? [];
+    const verifiedMisspellingIds = buildVerifiedMisspellingIdSet({
+      misspellings,
+      writingIssueSuggestions,
+      parentVerifications,
+      taskSubmissionId: submission.id,
+      writingSampleId: sample?.id ?? null,
+    });
     const correctionAttempts = correctionAttemptsBySubmissionId.get(submission.id) ?? [];
     const unresolvedMisspellingCount = getUnresolvedMisspellingCount(
       misspellings,
       writingIssues,
       writingIssueSuggestions,
+      verifiedMisspellingIds,
     );
     const historicalReturnedIssueIds = new Set(
       correctionAttempts.map((row) => row.writing_issue_id),
@@ -320,6 +440,16 @@ export default async function CourseReviewPage({
     const alreadyActiveCount = Array.from(uniqueQueueWords).filter((word) =>
       activeQueueWords.has(word),
     ).length;
+    const sharedQueueStatus = getCourseReviewSubmissionStatus({
+      submissionStatus: submission.parent_review_status,
+      misspellings,
+      writingIssues,
+      writingIssueSuggestions,
+      hasWrittenText,
+      hasActionableReturnedIssueHistory: returnedIssueHistorySummary.hasActionable,
+      verifiedMisspellingIds,
+    });
+
     return {
       ...submission,
       courseTitle,
@@ -333,11 +463,99 @@ export default async function CourseReviewPage({
       returnedIssueHistorySummary,
       hasActionableReturnedIssueHistory: returnedIssueHistorySummary.hasActionable,
       alreadyActiveCount,
+      sharedQueueStatus,
+      sharedQueueIsLive: isCourseReviewSubmissionStatusLive(sharedQueueStatus),
     };
   });
   const reviewQueueThreads = buildReviewQueueThreads(reviewQueueSubmissionSummaries);
-  const liveReviewThreads = reviewQueueThreads.filter((thread) => !thread.archiveEligible);
-  const archivedReviewThreads = reviewQueueThreads.filter((thread) => thread.archiveEligible);
+  const liveReviewThreads = reviewQueueThreads.filter(
+    (thread) => !thread.archiveEligible && thread.latestSubmission.sharedQueueIsLive,
+  );
+  const archivedReviewThreads = reviewQueueThreads.filter(
+    (thread) => !thread.latestSubmission.sharedQueueIsLive,
+  );
+  const manualReviewSamples: ManualReviewSampleSummary[] = manualSamples
+    .map((sample) => {
+      const misspellings = misspellingsBySampleId.get(sample.id) ?? [];
+      const writingIssueSuggestions =
+        writingIssueSuggestionsBySampleId.get(sample.id) ?? [];
+      const parentVerifications =
+        parentVerificationsBySampleId.get(sample.id) ?? [];
+      const verifiedMisspellingIds = buildVerifiedMisspellingIdSet({
+        misspellings,
+        writingIssueSuggestions,
+        parentVerifications,
+        taskSubmissionId: null,
+        writingSampleId: sample.id,
+      });
+      const unresolvedMisspellingCount = getUnresolvedMisspellingCount(
+        misspellings,
+        [],
+        writingIssueSuggestions,
+        verifiedMisspellingIds,
+      );
+      const uniqueQueueWords = new Set(
+        misspellings.map((row) => normaliseWordForLookup(row.corrected_word)),
+      );
+      const alreadyActiveCount = Array.from(uniqueQueueWords).filter((word) =>
+        activeQueueWords.has(word),
+      ).length;
+
+      return {
+        id: sample.id,
+        title: sample.title?.trim() || "Manual writing sample",
+        source: sample.source?.trim() || "Add Writing Sample",
+        sample_text: sample.sample_text,
+        submitted_at: sample.written_at ?? sample.created_at,
+        written_at: sample.written_at,
+        created_at: sample.created_at,
+        misspellings,
+        unresolvedMisspellingCount,
+        alreadyActiveCount,
+        sharedQueueStatus: {
+          label:
+            unresolvedMisspellingCount > 0 ? ("Needs review" as const) : ("Reviewed" as const),
+          tone:
+            unresolvedMisspellingCount > 0
+              ? "border-amber-200 bg-amber-50 text-amber-700"
+              : "border-sky-200 bg-sky-50 text-sky-700",
+        },
+      };
+    })
+    .sort((left, right) => right.submitted_at.localeCompare(left.submitted_at));
+  const liveManualReviewSamples = manualReviewSamples.filter(
+    (sample) => sample.unresolvedMisspellingCount > 0,
+  );
+  const archivedManualReviewSamples = manualReviewSamples.filter(
+    (sample) =>
+      sample.unresolvedMisspellingCount === 0 &&
+      (sample.misspellings.length > 0 || sample.sharedQueueStatus.label === "Reviewed"),
+  );
+  const liveReviewEntries: LiveReviewQueueEntry[] = [
+    ...liveManualReviewSamples.map((sample) => ({
+      sourceType: "manual_writing_sample" as const,
+      submitted_at: sample.submitted_at,
+      sample,
+    })),
+    ...liveReviewThreads.map((thread) => ({
+      sourceType: "lesson_submission" as const,
+      submitted_at: thread.latestSubmission.submitted_at,
+      thread,
+    })),
+  ].sort((left, right) => right.submitted_at.localeCompare(left.submitted_at));
+  const archivedReviewEntries: ArchivedReviewQueueEntry[] = [
+    ...archivedManualReviewSamples.map((sample) => ({
+      sourceType: "manual_writing_sample" as const,
+      submitted_at: sample.submitted_at,
+      sample,
+    })),
+    ...archivedReviewThreads.map((thread) => ({
+      sourceType: "lesson_submission" as const,
+      submitted_at: thread.latestSubmission.submitted_at,
+      thread,
+    })),
+  ].sort((left, right) => right.submitted_at.localeCompare(left.submitted_at));
+  const liveReviewCount = liveReviewThreads.length + liveManualReviewSamples.length;
 
   return (
     <AppShell
@@ -355,10 +573,10 @@ export default async function CourseReviewPage({
           </h1>
           <div className="mt-3 flex flex-wrap gap-2 text-xs font-medium">
             <span className="rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-amber-700">
-              {liveReviewThreads.length} need review
+              {liveReviewCount} need review
             </span>
             <span className="rounded-full border border-[var(--border)] bg-white px-3 py-1 text-[color:var(--ink)]">
-              {archivedReviewThreads.length} archived
+              {archivedReviewEntries.length} archived
             </span>
           </div>
           {resolvedSearchParams?.saved ? (
@@ -378,26 +596,89 @@ export default async function CourseReviewPage({
             <div>
               <p className="brand-eyebrow">Needs review</p>
               <h2 className="mt-1 text-lg font-semibold text-[color:var(--ink)]">
-                Latest live lesson submissions
+                Latest live review work
               </h2>
             </div>
             <span className="rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs font-medium text-amber-700">
-              {liveReviewThreads.length} live
+              {liveReviewCount} live
             </span>
           </div>
-          {liveReviewThreads.length > 0 ? (
+          {liveReviewCount > 0 ? (
             <div className="mt-4 grid gap-3">
-              {liveReviewThreads.map((thread) => {
+              {liveReviewEntries.map((entry) => {
+                if (entry.sourceType === "manual_writing_sample") {
+                  const { sample } = entry;
+                  const reviewPath = buildScopedPath(
+                    `/courses/review/${buildReviewWorkEntryId({
+                      sourceType: "manual_writing_sample",
+                      id: sample.id,
+                    })}`,
+                    selectedChild.id,
+                    mode,
+                  );
+
+                  return (
+                    <article
+                      key={`manual-${sample.id}`}
+                      className="rounded-3xl border border-[var(--border)] bg-white px-4 py-4"
+                    >
+                      <div className="flex flex-wrap items-start justify-between gap-3">
+                        <div className="min-w-0 flex-1">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <h3 className="text-base font-semibold text-[color:var(--ink)]">
+                              {sample.title}
+                            </h3>
+                            <span className="rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-xs font-medium text-sky-700">
+                              Manual writing sample
+                            </span>
+                            <span
+                              className={`rounded-full border px-3 py-1 text-xs font-medium ${sample.sharedQueueStatus.tone}`}
+                            >
+                              {sample.sharedQueueStatus.label}
+                            </span>
+                          </div>
+                          <p className="mt-1 text-sm text-[color:var(--mid)]">
+                            Entered through {sample.source}
+                          </p>
+                        </div>
+                        <Link
+                          href={reviewPath}
+                          className="inline-flex h-9 items-center justify-center rounded-full border border-[var(--scarlett)] bg-[var(--scarlett)] px-4 text-sm font-medium text-white transition hover:opacity-90"
+                        >
+                          Open review
+                        </Link>
+                      </div>
+                      <div className="mt-3 flex flex-wrap gap-2 text-xs font-medium">
+                        <span className="rounded-full border border-[var(--border)] bg-[rgba(255,247,220,0.45)] px-3 py-1 text-[color:var(--ink)]">
+                          Added {formatCourseDate(sample.submitted_at.slice(0, 10))}
+                        </span>
+                        <span className="rounded-full border border-[var(--border)] bg-white px-3 py-1 text-[color:var(--ink)]">
+                          {sample.unresolvedMisspellingCount} unresolved suggestion
+                          {sample.unresolvedMisspellingCount === 1 ? "" : "s"}
+                        </span>
+                        {sample.alreadyActiveCount > 0 ? (
+                          <span className="rounded-full border border-[var(--border)] bg-[rgba(236,253,245,0.45)] px-3 py-1 text-[color:var(--ink)]">
+                            {sample.alreadyActiveCount} active queue word
+                            {sample.alreadyActiveCount === 1 ? "" : "s"}
+                          </span>
+                        ) : null}
+                      </div>
+                    </article>
+                  );
+                }
+
+                const { thread } = entry;
                 const submission = thread.latestSubmission;
                 const task = submission.task;
                 const reviewPath = buildScopedPath(
-                  `/courses/review/${submission.id}`,
+                  `/courses/review/${buildReviewWorkEntryId({
+                    sourceType: "lesson_submission",
+                    id: submission.id,
+                  })}`,
                   selectedChild.id,
                   mode,
                 );
-                const queueStatus = getReviewQueueThreadStatusDisplay(
-                  thread.latestLiveReviewState,
-                );
+                const queueStatus = submission.sharedQueueStatus;
                 const parsed = parseSubmissionReview(submission.submission_text);
 
                 return (
@@ -411,6 +692,9 @@ export default async function CourseReviewPage({
                           <h3 className="text-base font-semibold text-[color:var(--ink)]">
                             {task?.title ?? "Lesson submission"}
                           </h3>
+                          <span className="rounded-full border border-[var(--border)] bg-white px-3 py-1 text-xs font-medium text-[color:var(--ink)]">
+                            Lesson submission
+                          </span>
                           <span
                             className={`rounded-full border px-3 py-1 text-xs font-medium ${queueStatus.tone}`}
                           >
@@ -479,7 +763,7 @@ export default async function CourseReviewPage({
             </div>
           ) : (
             <div className="mt-4 rounded-3xl border border-[var(--border)] bg-white px-4 py-4 text-sm text-[color:var(--mid)]">
-              No lesson or test submissions need review right now.
+              No lesson submissions or manual writing samples need review right now.
             </div>
           )}
         </section>
@@ -489,26 +773,68 @@ export default async function CourseReviewPage({
             <div>
               <p className="brand-eyebrow">Archive</p>
               <h2 className="mt-1 text-lg font-semibold text-[color:var(--ink)]">
-                Completed review threads
+                Completed review history
               </h2>
             </div>
             <span className="rounded-full border border-[var(--border)] bg-white px-3 py-1 text-xs font-medium text-[color:var(--ink)]">
-              {archivedReviewThreads.length} archived
+              {archivedReviewEntries.length} archived
             </span>
           </summary>
-          {archivedReviewThreads.length > 0 ? (
+          {archivedReviewEntries.length > 0 ? (
             <div className="mt-4 overflow-hidden rounded-3xl border border-[var(--border)] bg-[rgba(255,247,220,0.18)]">
-              {archivedReviewThreads.map((thread) => {
+              {archivedReviewEntries.map((entry) => {
+                if (entry.sourceType === "manual_writing_sample") {
+                  const { sample } = entry;
+                  const reviewPath = buildScopedPath(
+                    `/courses/review/${buildReviewWorkEntryId({
+                      sourceType: "manual_writing_sample",
+                      id: sample.id,
+                    })}`,
+                    selectedChild.id,
+                    mode,
+                  );
+
+                  return (
+                    <article
+                      key={`archived-manual-${sample.id}`}
+                      className="border-t border-[var(--border)] px-4 py-4 first:border-t-0"
+                    >
+                      <div className="flex flex-wrap items-start justify-between gap-3">
+                        <div className="min-w-0 flex-1">
+                          <h3 className="text-sm font-semibold text-[color:var(--ink)]">
+                            {sample.title}
+                          </h3>
+                          <p className="mt-1 text-sm text-[color:var(--mid)]">
+                            Manual writing sample · Entered through {sample.source}
+                          </p>
+                          <p className="mt-1 text-xs text-[color:var(--mid)]">
+                            {sample.sharedQueueStatus.label} · latest review{" "}
+                            {formatCourseDate(sample.submitted_at.slice(0, 10))}
+                          </p>
+                        </div>
+                        <Link
+                          href={reviewPath}
+                          className="inline-flex h-8 items-center justify-center rounded-full border border-[var(--border)] bg-white px-3 text-xs font-medium text-[color:var(--ink)] transition hover:text-[var(--scarlett)]"
+                        >
+                          Open history
+                        </Link>
+                      </div>
+                    </article>
+                  );
+                }
+
+                const { thread } = entry;
                 const submission = thread.latestSubmission;
                 const task = submission.task;
                 const reviewPath = buildScopedPath(
-                  `/courses/review/${submission.id}`,
+                  `/courses/review/${buildReviewWorkEntryId({
+                    sourceType: "lesson_submission",
+                    id: submission.id,
+                  })}`,
                   selectedChild.id,
                   mode,
                 );
-                const queueStatus = getReviewQueueThreadStatusDisplay(
-                  thread.latestLiveReviewState,
-                );
+                const queueStatus = submission.sharedQueueStatus;
 
                 return (
                   <article
@@ -543,7 +869,7 @@ export default async function CourseReviewPage({
             </div>
           ) : (
             <p className="mt-4 text-sm text-[color:var(--mid)]">
-              No completed review threads have been archived yet.
+              No completed review history has been archived yet.
             </p>
           )}
         </details>
