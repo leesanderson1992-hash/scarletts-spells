@@ -1,5 +1,4 @@
 import type { createClient } from "@/lib/supabase/server";
-import { getWordProgressState, isWordSecure } from "@/lib/progress/stateModel";
 
 type SupabaseServerClient = Awaited<ReturnType<typeof createClient>>;
 
@@ -27,15 +26,6 @@ export type SpellingRewardStateRow = {
   has_converted_gold_bar: boolean;
   created_at?: string;
   updated_at?: string;
-};
-
-export type WordProgressRewardSyncRow = {
-  target_word: string;
-  review_stage: number | null;
-  mastery_level: number | null;
-  correct_attempts: number | null;
-  incorrect_attempts: number | null;
-  mastered_at: string | null;
 };
 
 export type SpellingRewardEventType =
@@ -113,6 +103,10 @@ export async function syncSpellingRewardState(input: {
   parentUserId: string;
   targetWord: string;
   isCorrect: boolean;
+  // Legacy naming retained for compatibility with current callers.
+  // In reward logic, "mastered" here means the word is secure enough to earn or
+  // restore a Gold Bar in the reward loop, not that the Writing Engine should
+  // expose the mini-skill as parent-facing "Mastered".
   shouldMarkMastered: boolean;
   hasEverMastered: boolean;
 }) {
@@ -125,6 +119,8 @@ export async function syncSpellingRewardState(input: {
     shouldMarkMastered,
     hasEverMastered,
   } = input;
+  const shouldMarkRewardSecure = shouldMarkMastered;
+  const hasEverBeenRewardSecure = hasEverMastered;
 
   const safeTargetWord = normaliseWord(targetWord);
   const now = new Date().toISOString();
@@ -135,8 +131,9 @@ export async function syncSpellingRewardState(input: {
       targetWord: safeTargetWord,
     });
 
-  const hasEverEarnedGoldBar = Boolean(existing?.gold_bar_earned_at) || hasEverMastered;
-  const nextState: SpellingRewardStateName = shouldMarkMastered
+  const hasEverEarnedGoldBar =
+    Boolean(existing?.gold_bar_earned_at) || hasEverBeenRewardSecure;
+  const nextState: SpellingRewardStateName = shouldMarkRewardSecure
     ? "gold_bar_earned"
     : isCorrect
       ? "warm_workshop"
@@ -169,14 +166,15 @@ export async function syncSpellingRewardState(input: {
     });
 
   const earnedGoldBar =
-    shouldMarkMastered &&
+    shouldMarkRewardSecure &&
     !existing?.gold_bar_earned_at &&
     await ensureEvent(supabase, {
       childId,
       parentUserId,
       targetWord: safeTargetWord,
       eventType: "gold_bar_earned",
-      notes: "Gold Bar earned after completing the spaced review path.",
+      notes:
+        "Gold Bar earned after the word became secure in the reward review path.",
     });
 
   const regressedGoldBar =
@@ -191,7 +189,7 @@ export async function syncSpellingRewardState(input: {
     });
 
   const restoredGoldBar =
-    shouldMarkMastered &&
+    shouldMarkRewardSecure &&
     Boolean(existing?.gold_bar_earned_at) &&
     existing?.reward_state !== "gold_bar_earned" &&
     await ensureEvent(supabase, {
@@ -199,7 +197,8 @@ export async function syncSpellingRewardState(input: {
       parentUserId,
       targetWord: safeTargetWord,
       eventType: "gold_bar_restored",
-      notes: "Previously earned Gold Bar returned to secure status after review.",
+      notes:
+        "Previously earned Gold Bar returned to secure reward status after review.",
     });
 
   const payload = {
@@ -307,69 +306,4 @@ export function getSpellingRewardCounts(
       convertedGoldBars: 0,
     },
   );
-}
-
-export async function syncSpellingRewardStatesFromWordProgress(input: {
-  supabase: SupabaseServerClient;
-  childId: string;
-  parentUserId: string;
-  rows: WordProgressRewardSyncRow[];
-}) {
-  const { supabase, childId, parentUserId, rows } = input;
-  const now = new Date().toISOString();
-
-  for (const row of rows) {
-    const targetWord = normaliseWord(row.target_word);
-    if (!targetWord) {
-      continue;
-    }
-
-    const existing = await getSpellingRewardState(supabase, {
-      childId,
-      parentUserId,
-      targetWord,
-    });
-
-    const isSecure = isWordSecure({
-      reviewStage: row.review_stage,
-      masteryLevel: row.mastery_level,
-      correctAttempts: row.correct_attempts,
-      incorrectAttempts: row.incorrect_attempts,
-      masteredAt: row.mastered_at,
-    });
-    const progressState = getWordProgressState({
-      reviewStage: row.review_stage,
-      masteryLevel: row.mastery_level,
-      correctAttempts: row.correct_attempts,
-      incorrectAttempts: row.incorrect_attempts,
-      masteredAt: row.mastered_at,
-    });
-
-    const nextState: SpellingRewardStateName = isSecure
-      ? "gold_bar_earned"
-      : progressState === "in_machine"
-        ? "warm_workshop"
-        : "golden_nugget";
-
-    const payload = {
-      child_id: childId,
-      parent_user_id: parentUserId,
-      target_word: targetWord,
-      reward_state: nextState,
-      golden_nugget_at: existing?.golden_nugget_at ?? now,
-      warm_workshop_at:
-        existing?.warm_workshop_at ??
-        (nextState === "warm_workshop" || nextState === "gold_bar_earned" ? now : null),
-      gold_bar_earned_at:
-        existing?.gold_bar_earned_at ??
-        (nextState === "gold_bar_earned" ? row.mastered_at ?? now : null),
-      gold_bar_converted_at: existing?.gold_bar_converted_at ?? null,
-      has_converted_gold_bar: existing?.has_converted_gold_bar ?? false,
-      updated_at: now,
-    };
-
-    await supabase.from("spelling_reward_states").upsert(payload, {
-      onConflict: "child_id,target_word",
-    });
-  }
 }

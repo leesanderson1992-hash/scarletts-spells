@@ -68,8 +68,6 @@ function parseChildProfileForm(formData: FormData) {
 
 function revalidateChildPages() {
   revalidatePath("/dashboard");
-  revalidatePath("/analyse");
-  revalidatePath("/practice");
   revalidatePath("/insights");
   revalidatePath("/children");
   revalidatePath("/courses");

@@ -118,18 +118,12 @@ export default async function ChildrenPage({ searchParams }: ChildrenPageProps) 
             >
               Back to home
             </Link>
-            <Link
-              href={buildScopedPath("/analyse", activeChild?.id ?? null, mode)}
-              className="brand-secondary-btn"
-            >
-              Analyse
-            </Link>
           </div>
         </section>
 
         <CreateChildForm
           title="Add a child"
-          description="Create a new child profile to use in the spelling workflow."
+          description="Create a new child profile to use across courses, review, and insights."
           submitLabel="Add child"
         />
 
@@ -141,7 +135,7 @@ export default async function ChildrenPage({ searchParams }: ChildrenPageProps) 
                   Active children
                 </h2>
                 <p className="brand-copy mt-2 text-sm leading-6">
-                  These profiles appear across dashboard, analyse, practice, and insights.
+                  These profiles appear across dashboard, courses, learn, and insights.
                 </p>
               </div>
 

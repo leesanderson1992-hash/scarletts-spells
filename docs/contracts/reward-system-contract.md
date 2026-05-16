@@ -3,6 +3,10 @@
 This document is the canonical source of truth for the reward system.
 All other docs should defer to this terminology and behavior.
 
+Writing Engine product identity and operational mastery semantics defer to:
+- [docs/architecture/writing-engine-canonical-brief.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/architecture/writing-engine-canonical-brief.md:1)
+- [docs/contracts/writing-engine-mastery-and-evidence-contract.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/contracts/writing-engine-mastery-and-evidence-contract.md:1)
+
 Workflow and approval semantics should defer to:
 - [docs/contracts/universal-progress-contract.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/contracts/universal-progress-contract.md:1)
 
@@ -12,7 +16,7 @@ The reward system exists to do four things:
 
 1. make mistakes feel safe and useful
 2. show visible learning progress
-3. reward real mastery
+3. reward meaningful secure progress
 4. provide a simple spendable currency for pocket money or redemptions
 
 The system must not reward perfection only.
@@ -20,7 +24,7 @@ It should reward:
 - discovery
 - practice
 - consistency
-- mastery
+- secure progress
 
 ## Core model overview
 
@@ -41,7 +45,7 @@ This is the spendable economy:
 
 ### Link between them
 
-- Gold Bars are earned through mastery
+- Gold Bars are earned through secure reward-state progress
 - Gold Bars can be converted into Gold Coins
 - Gold Coins are the only spendable unit
 
@@ -99,19 +103,25 @@ Rules:
 
 ### Gold Bar
 
-A Gold Bar means the item has reached the mastery threshold.
+A Gold Bar means the item has reached the reward-system secure threshold.
 
 Meaning:
-- the child used to struggle with this item and now knows it securely
+- the child used to struggle with this item and now shows secure spaced-review
+  progress for the reward system
 
 Rules:
-- a Gold Bar is earned when the mastery rule is satisfied
-- a Gold Bar represents mastered knowledge
+- a Gold Bar is earned when the reward-system secure rule is satisfied
+- a Gold Bar represents secure progress for reward purposes
 - Gold Bars can be converted into Gold Coins
 - Gold Bars should remain visible in all-time mastery history even after conversion
 
 Important:
 - Gold Bar has a dual role as a progress milestone and a convertible mastery asset
+- Gold Bar must not automatically be treated as the parent-facing Writing Engine
+  state "Mastered"
+- the canonical parent-facing "Mastered" rule now defers to the Writing Engine
+  mastery/evidence contract and requires authentic writing transfer, breadth,
+  confidence, and low recent recurrence
 
 ### Proven Bag
 
@@ -140,9 +150,9 @@ Example:
 - child gets it right enough times across time -> Gold Bar
 - child completes the wider mastered set -> Proven Bag
 
-## Mastery rule for Gold Bars
+## Secure-progress rule for Gold Bars
 
-A Gold Bar must represent real mastery, not instant repetition.
+A Gold Bar must represent real secure progress, not instant repetition.
 
 Recommended default rule for spelling items:
 - wrong word found -> review next day
@@ -157,8 +167,12 @@ Meaning:
 
 Notes:
 - each step must happen on a later review occasion
-- this is the canonical spelling cadence unless a later settings layer explicitly overrides it
-- other learning items may use different mastery evidence later, but this is the default contract for spelling
+- this is the canonical reward cadence for spelling unless a later settings
+  layer explicitly overrides it
+- other learning items may use different reward evidence later, but this is the
+  default reward contract for spelling
+- this reward cadence must not be confused with the broader Writing Engine
+  parent-facing "Mastered" semantics
 
 ## Gold Bar regression rule
 
@@ -187,7 +201,7 @@ Gold Coins are used for:
 - Gold Bars can be converted into Gold Coins
 
 This keeps the system clean:
-- Gold Bars = knowledge mastered
+- Gold Bars = secure reward-state progress
 - Gold Coins = currency available to spend
 
 ### Default conversion rule
@@ -347,7 +361,7 @@ Wrong-answer language:
 
 Mastery language:
 - “You turned a Nugget into a Gold Bar.”
-- “You mastered this.”
+- “This learning is now secure.”
 - “This learning is now secure.”
 
 Currency language:

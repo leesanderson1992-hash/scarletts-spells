@@ -4,6 +4,12 @@
 
 This document describes the intended MVP architecture for Targeted Writing Practice.
 
+Top-level Writing Engine identity, product spine, mastery semantics, and
+long-term assignment direction now defer to:
+
+- [docs/architecture/writing-engine-canonical-brief.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/architecture/writing-engine-canonical-brief.md:1)
+- [docs/contracts/writing-engine-mastery-and-evidence-contract.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/contracts/writing-engine-mastery-and-evidence-contract.md:1)
+
 It separates:
 - canonical issue truth
 - learning-item truth
@@ -17,8 +23,9 @@ Today the repo already has:
 - `task_submission_drafts` for returned-work restoration
 - `writing_samples` for spellcheckable text
 - `misspelling_instances` for detected spelling concerns
-- `daily_assignments` as the delivery surface for active spelling practice
 - `spelling_reward_states` and `spelling_reward_events` for progress display
+- `lib/writing-engine` as the shared Stage 1A domain boundary for future
+  diagnostics, verification, mastery evidence, and assignment composition
 
 Current limitation:
 - `misspelling_instances` are recreated on reanalysis and are not durable enough to serve as the long-term issue lifecycle record
@@ -31,8 +38,11 @@ Current transitional reality:
 - Slice 7A now explicitly confirms `learning_items` as canonical active learning/practice/mastery truth
 - parent review detail can show returned-issue response history even when the fresh spelling sample no longer contains the original misspelling
 - returning a submission currently sends back all linked eligible durable issues on that submission, not a parent-selected subset
-- the older analyse review flow still exists as a compatibility path for queue/progress behavior
 - existing reward UI still reads Nugget / workshop / bar state from `spelling_reward_states`
+- the old `/analyse`, `/analyse/review`, `/practice`, and `/assignments`
+  spelling-era pages are retired redirects rather than active runtime surfaces
+- `daily_assignments` now survives only as legacy assignment-header debt during
+  the transition; new engine work should prefer generic `assignment_items`
 - this means the repo is in a deliberate transitional state rather than a fully reconciled single-review-flow architecture
 
 ## Canonical lineage
@@ -45,6 +55,8 @@ This means:
 - `writing_issues` are the durable historical source of issue truth
 - `learning_items` are the active practice and mastery units
 - `word_progress` no longer exists in the active schema or runtime
+- the broader Writing Engine meaning of mastery, transfer, and assignment
+  ownership is no longer owned by this transition document
 
 ## MVP storage shape
 
@@ -161,6 +173,9 @@ Suggested assignment defaults:
 - interleaving included but controlled
 - transfer task short and optional in early MVP
 
+Detailed assignment architecture and generic assignment-item truth now defer to
+the canonical brief and the micro-skill/assignment contract.
+
 ## Compatibility rule for `word_progress`
 
 `word_progress` is now a retired schema dependency preserved only in historical records and migration history.
@@ -192,6 +207,10 @@ Slice 7:
 - confirms `learning_items` as canonical truth
 - fences old `word_progress` dependencies
 - stops new canonical writing flows from creating fresh `word_progress` rows
+- adds generic `parent_verifications` so future writing-engine modules preserve
+  suggestion versus verified truth
+- adds generic `assignment_items` so future writing-engine modules can compose
+  mixed-domain work without inheriting the older spelling queue shape
 - prepares for a later `learning_items`-first assignment engine
 
 This boundary is deliberate:
@@ -235,6 +254,9 @@ This preserves:
 - later success
 - later transfer breakdown
 - re-strengthening attempts
+
+The stage ladder, recurrence interpretation, and parent-facing mastered rules
+now defer to the mastery/evidence contract rather than this architecture doc.
 
 ## Reject-suppression concept
 

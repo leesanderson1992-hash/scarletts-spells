@@ -123,6 +123,11 @@ Parent review of Writing Engine outputs happens in `Review Work`.
 `Add Writing Sample` is an intake step for authentic paper writing that
 originated outside the app.
 
+`/analyse` is an intake-only route for that parent-entered writing.
+
+`/analyse/review` is obsolete and unsupported. It must not exist as a supported
+parent review surface, compatibility handoff, or duplicate review workflow.
+
 Manual writing samples and lesson submissions are both valid source inputs into
 the same canonical review spine.
 
@@ -155,6 +160,24 @@ This means:
 - `Review Work` is not where verification semantics are invented
 - parent actions must reuse existing shared verified-truth and durable-issue
   pathways rather than creating a second review or issue workflow
+- `Review Work` is the only canonical parent review surface
+- `Analyse` does not own verification, mastery, assignment generation, rewards,
+  or durable learning effects
+- parent verification remains the source of truth for what counts as verified
+  writing-engine truth
+
+## Navigation ownership
+
+Parent navigation should expose writing review under `Courses`.
+
+This means:
+- `Review Work` belongs under `Courses`
+- `Analyse Writing` belongs under `Courses`
+- standalone top-level Analyse navigation is not allowed
+
+This navigation rule is an ownership rule, not just an information-architecture
+ preference. Analyse intake is subordinate to canonical `Review Work`, not a
+ parallel parent workflow.
 
 ## Mastery semantics
 

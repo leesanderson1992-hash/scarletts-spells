@@ -131,6 +131,8 @@ Retired or deactivated Stage 1A surfaces include:
 Compatibility note:
 - `/analyse` may remain as a compatibility route for manual writing-sample
   intake, but it is not canonical parent review ownership
+- `/analyse/review` is obsolete and unsupported and must not remain as a
+  supported runtime or navigation surface
 
 ## Daily assignments
 
@@ -160,6 +162,12 @@ Canonical parent review ownership lives in `Review Work`.
 Manual writing-sample intake may exist at `Add Writing Sample` and historical
 compatibility `/analyse`, but intake is not review ownership.
 
+`/analyse` is intake only and must not own verification, mastery, assignment
+generation, rewards, or durable learning effects.
+
+`/analyse/review` must not exist as a supported route, compatibility handoff,
+or duplicate parent review surface.
+
 Parent-entered paper writing becomes a canonical `writing_sample`.
 
 Once a `writing_sample` exists, parent review must continue through canonical
@@ -185,6 +193,11 @@ documented downstream issue-promotion paths.
 - durable issue lifecycle semantics
 - mastery/evidence truth
 - assignment truth
+
+Navigation rule:
+- parent navigation should place `Review Work` and `Analyse Writing` under
+  `Courses`
+- standalone top-level Analyse navigation is not allowed
 
 ## Stage 1B integration
 

@@ -15,9 +15,11 @@ Use it to define:
 If another doc conflicts with this file on writing-issue lifecycle or learning-gap semantics, this file wins.
 
 Pedagogy and taxonomy truth defer to:
+- [docs/architecture/writing-engine-canonical-brief.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/architecture/writing-engine-canonical-brief.md:1)
 - [docs/pedagogy/learning-system-overview.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/pedagogy/learning-system-overview.md:1)
 - [docs/pedagogy/micro-skill-taxonomy.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/pedagogy/micro-skill-taxonomy.md:1)
 - [docs/pedagogy/mastery-domain-4-spelling.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/pedagogy/mastery-domain-4-spelling.md:1)
+- [docs/contracts/writing-engine-mastery-and-evidence-contract.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/contracts/writing-engine-mastery-and-evidence-contract.md:1)
 
 The canonical distinction matrix for taxonomy, competency, issue classification, and lifecycle state lives in the taxonomy doc.
 
@@ -42,6 +44,13 @@ It should instead:
 
 This contract does not define the full pedagogy of micro-skills or mastery domains.
 It defines how reviewed writing issues become durable issue truth and controlled `learning_items`.
+
+It does not own:
+- the top-level Writing Engine identity or product spine
+- the mastery stage ladder
+- evidence source weights or role weights
+- transfer-gated "Mastered" semantics
+- detailed scoring, breadth, confidence, or recurrence rules
 
 ## Canonical objects
 
@@ -177,7 +186,7 @@ Sharper rule:
 
 The canonical lifecycle is:
 
-`writing submission -> writing_issue_suggestions -> writing_issues -> writing_issue_correction_attempts -> final classification -> learning_items -> controlled-practice evidence / reward-state updates`
+`lesson submission or parent-entered writing_sample -> writing_issue_suggestions -> writing_issues -> writing_issue_correction_attempts -> final classification -> learning_items -> controlled-practice evidence / reward-state updates`
 
 For a genuine learning need:
 
@@ -186,6 +195,10 @@ For a genuine learning need:
 For a checking-only outcome:
 
 `draft suggestion -> reviewed issue -> child self-correction -> parent final classification = checking_only -> history + proofreading signal only`
+
+Operational mastery movement after `learning_items` are created now defers to:
+
+- [docs/contracts/writing-engine-mastery-and-evidence-contract.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/contracts/writing-engine-mastery-and-evidence-contract.md:1)
 
 Current Slice 5 implementation rule:
 - parent final classification is applied after child correction
@@ -208,7 +221,49 @@ Current Slice 6 implementation rule:
 Current Slice 7 transition rule:
 - `learning_items` remain the canonical active learning/practice/mastery truth
 - the retired `word_progress` path must not be reintroduced into runtime or schema design
+- generic `parent_verifications` preserve engine suggestion versus parent
+  verified truth for future writing-engine modules
+- unverified suggestions must not update mastery
 - canonical daily assignment generation, interleaving, route-specific mastery, and full adaptive routing are deferred until the separate Micro-Skill Taxonomy and Assignment Contract exists
+
+## Intake and review ownership rule
+
+Parent-entered paper work is submitted through `Add Writing Sample`.
+
+Historical `/analyse` may remain as a compatibility route, but its product role
+is manual writing-sample intake only.
+
+`/analyse/review` is obsolete and unsupported. It must not exist as a
+supported route, compatibility handoff, or duplicate parent review surface.
+
+Intake creates or attaches canonical `writing_sample` truth.
+
+The intake page is not a review surface and must not host verification,
+classification, or durable-issue finalisation actions.
+
+The intake page must not own mastery, assignment generation, rewards, AI
+checking, or other durable learning effects.
+
+Canonical parent review ownership lives in `Review Work`.
+
+Manual writing samples and lesson submissions converge into one `Review Work`
+queue and one canonical review workflow.
+
+Downstream parent verification and durable issue behavior must reuse existing
+shared contracts only.
+
+Parent verification remains the source of truth.
+
+`false_positive` and `not_a_learning_issue` outcomes do not create learning
+items.
+
+Override outcomes must preserve verified truth rather than collapsing back to
+the original suggestion.
+
+Canonical `Review Work` detail may render existing suggested outputs,
+verification records, and durable issue history for either source type, but
+that detail rendering is visibility-only until a later documented action stage
+explicitly adds parent decision controls.
 
 ## Returned-work scope rule
 
@@ -233,7 +288,10 @@ Use this split:
 - `writing_issues` preserve full history
 - `learning_items` are controlled active practice units
 - `micro_skill_key` and `theme_key` provide grouping
-- `daily_assignments` are curated capped selections from active learning items
+- `assignment_items` are the generic long-term composition surface for work
+  generated from active learning items
+- `daily_assignments` remain legacy header debt during the transition and are
+  not the design anchor for future writing-engine modules
 
 ### Grouping default
 
@@ -301,6 +359,9 @@ Until the later `learning_items`-first runtime exists:
 Important:
 - pages and actions must not invent competing local truth
 - future slices should move runtime generation toward canonical `learning_items`, not entrench the older queue-first model
+- long-term assignment architecture and generic assignment composition defer to
+  the canonical brief and the micro-skill/assignment contract rather than this
+  lifecycle contract
 
 Daily assignments must be generated from curated active learning items, not from the full discovered issue backlog.
 
@@ -339,6 +400,9 @@ If a previously mastered item fails again in fresh writing:
 - preserve earlier mastery history
 
 Do not overwrite prior success.
+
+Stage movement, recurrence effects, and confidence reduction after transfer
+failure now defer to the mastery/evidence contract.
 
 ## Non-AI Historic Learning Loop for MVP
 

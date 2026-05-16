@@ -1,5 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { readSupabaseEnv } from "@/lib/supabase/env";
 
 const protectedRoutes = [
   "/dashboard",
@@ -11,21 +12,6 @@ const protectedRoutes = [
   "/insights",
   "/settings",
 ];
-
-function getSupabaseEnv() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-  if (!url) {
-    throw new Error("Missing env var: NEXT_PUBLIC_SUPABASE_URL");
-  }
-
-  if (!anonKey) {
-    throw new Error("Missing env var: NEXT_PUBLIC_SUPABASE_ANON_KEY");
-  }
-
-  return { url, anonKey };
-}
 
 function isProtectedPath(pathname: string) {
   return protectedRoutes.some(
@@ -44,7 +30,26 @@ function copyResponseState(from: NextResponse, to: NextResponse) {
 }
 
 export async function proxy(request: NextRequest) {
-  const { url, anonKey } = getSupabaseEnv();
+  const env = readSupabaseEnv();
+  const { pathname } = request.nextUrl;
+
+  if (!env) {
+    if (isProtectedPath(pathname)) {
+      const loginUrl = request.nextUrl.clone();
+      loginUrl.pathname = "/login";
+      loginUrl.searchParams.set(
+        "error",
+        "This deployment is missing Supabase environment variables in Vercel.",
+      );
+      return NextResponse.redirect(loginUrl);
+    }
+
+    return NextResponse.next({
+      request,
+    });
+  }
+
+  const { url, anonKey } = env;
   let response = NextResponse.next({
     request,
   });
@@ -77,8 +82,6 @@ export async function proxy(request: NextRequest) {
   const {
     data: { user },
   } = await supabase.auth.getUser();
-
-  const { pathname } = request.nextUrl;
 
   if (!user && isProtectedPath(pathname)) {
     const loginUrl = request.nextUrl.clone();

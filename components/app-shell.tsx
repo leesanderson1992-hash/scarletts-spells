@@ -57,6 +57,7 @@ function getNavSections(mode: AppMode): NavSection[] {
           children: [
             { label: "Courses", href: "/courses" },
             { label: "Review Work", href: "/courses/review" },
+            { label: "Analyse Writing", href: "/analyse" },
           ],
         },
         { label: "Insights", href: "/insights" },

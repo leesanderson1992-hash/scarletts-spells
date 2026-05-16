@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
+import { readSupabaseEnv } from "@/lib/supabase/env";
 import { createClient } from "@/lib/supabase/server";
 
 import { LoginForm } from "./login-form";
@@ -12,14 +13,18 @@ type LoginPageProps = {
 };
 
 export default async function LoginPage({ searchParams }: LoginPageProps) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
   const resolvedSearchParams = await searchParams;
+  const isSupabaseConfigured = Boolean(readSupabaseEnv());
 
-  if (user) {
-    redirect("/dashboard");
+  if (isSupabaseConfigured) {
+    const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (user) {
+      redirect("/dashboard");
+    }
   }
 
   return (
@@ -33,11 +38,25 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
             Parent login
           </h1>
           <p className="brand-copy mt-3 text-sm leading-6">
-            Enter your email to get a magic link and continue to your dashboard.
+            Enter your email and password to continue to your dashboard.
           </p>
         </div>
 
-        <LoginForm />
+        {isSupabaseConfigured ? (
+          <LoginForm />
+        ) : (
+          <div className="brand-card rounded-3xl p-6">
+            <h2 className="brand-title text-2xl font-semibold">Site setup needed</h2>
+            <p className="brand-copy mt-3 text-sm leading-6">
+              This deployment is missing `NEXT_PUBLIC_SUPABASE_URL` and/or
+              `NEXT_PUBLIC_SUPABASE_ANON_KEY` in Vercel.
+            </p>
+            <p className="brand-copy mt-3 text-sm leading-6">
+              Add both environment variables in the Vercel project settings, then
+              redeploy.
+            </p>
+          </div>
+        )}
 
         {resolvedSearchParams?.error ? (
           <p className="mt-4 text-center text-sm text-rose-600">
@@ -45,12 +64,14 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
           </p>
         ) : null}
 
-        <p className="brand-copy mt-6 text-center text-sm">
-          Signed in already?{" "}
-          <Link href="/dashboard" className="brand-link font-medium">
-            Go to dashboard
-          </Link>
-        </p>
+        {isSupabaseConfigured ? (
+          <p className="brand-copy mt-6 text-center text-sm">
+            Signed in already?{" "}
+            <Link href="/dashboard" className="brand-link font-medium">
+              Go to dashboard
+            </Link>
+          </p>
+        ) : null}
       </div>
     </main>
   );

@@ -3,7 +3,6 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
-import { replaceAnalysisForSample } from "@/app/analyse/analysis";
 import {
   getDateOnly,
   getEndOfWeekDateOnly,
@@ -28,6 +27,7 @@ import {
   maybeAwardTaskCompletionCoins,
   maybeAwardTaskTargetCoins,
 } from "@/lib/rewards/course-coins";
+import { replaceAnalysisForSample } from "@/lib/writing-engine/spelling/legacy-analysis";
 import { createClient } from "@/lib/supabase/server";
 function getRedirectPath(formData: FormData, fallbackPath: string) {
   const redirectPath = formData.get("redirect_path");
@@ -671,7 +671,6 @@ export async function submitTaskResponse(formData: FormData) {
 
     if (insertedSample && !sampleError) {
       await replaceAnalysisForSample(supabase, insertedSample, user.id);
-      revalidatePath("/analyse");
     }
   }
 

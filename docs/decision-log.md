@@ -1,5 +1,82 @@
 # Decision Log
 
+## 2026-05-11 — Canonical reward projection contract is a required follow-up before broader reward work
+
+### What changed
+- [docs/implementation/writing-engine-roadmap.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/implementation/writing-engine-roadmap.md:1) now records a required follow-up to define a future canonical reward projection contract from `learning_items` and `learning_item_evidence` into reward-safe states.
+
+### Why this matters
+- The Writing Engine now has canonical mastery/evidence truth, but the reward system still needs a distinct downstream projection contract rather than silently reusing reward states as if they were parent-facing mastery.
+- This preserves the rule that Gold Bars or reward-secure states must not be equated with the Writing Engine parent-facing state `Mastered` unless the canonical mastery/evidence requirements are genuinely met.
+- It also prevents broader reward work from accidentally rebuilding a hidden parallel mastery model before the projection boundary is explicitly defined.
+
+## 2026-05-11 — Reward, workflow, and UX docs now distinguish Gold Bar from canonical parent-facing Mastered
+
+### What changed
+- [docs/contracts/reward-system-contract.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/contracts/reward-system-contract.md:1) now treats Gold Bar as secure reward-state progress rather than automatically equivalent to the Writing Engine parent-facing state "Mastered".
+- [docs/workflows/mvp-workflow.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/workflows/mvp-workflow.md:1) now distinguishes reward cadence from the canonical mastery contract and stops framing `daily_assignments` as the lasting active-practice owner.
+- [docs/product/areas/targeted-writing-practice-ux.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/product/areas/targeted-writing-practice-ux.md:1) now frames staged rollout behavior as implementation staging rather than long-term compatibility architecture, and explicitly treats `assignment_items` as the intended long-term composition layer.
+
+### Why this matters
+- The active UX/workflow/reward docs no longer overstate Gold Bar as equivalent to the canonical Writing Engine mastery state.
+- The active docs now align better with the canonical brief and the mastery/evidence contract without changing live runtime behavior.
+- Remaining contradictions are now concentrated in runtime code and reward-state implementation, where they can be addressed separately with a dedicated implementation prompt.
+
+## 2026-05-11 — Writing Engine active docs now defer to the canonical brief and mastery/evidence contract
+
+### What changed
+- [docs/pedagogy/mastery-domain-4-spelling.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/pedagogy/mastery-domain-4-spelling.md:1) now keeps pedagogical meaning while deferring operational mastery stages and scoring mechanics to the dedicated mastery/evidence contract.
+- [docs/contracts/targeted-writing-practice-contract.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/contracts/targeted-writing-practice-contract.md:1) now explicitly defers product identity to the canonical brief and mastery mechanics to the mastery/evidence contract.
+- [docs/contracts/micro-skill-taxonomy-and-assignment-contract.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/contracts/micro-skill-taxonomy-and-assignment-contract.md:1) now limits itself to micro-skill identity, assignment rules, grouping, and routing rather than re-owning mastery rules.
+- [docs/architecture/targeted-writing-practice-architecture.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/architecture/targeted-writing-practice-architecture.md:1) now defers broader Writing Engine identity and mastery semantics upward.
+- [docs/implementation/targeted-writing-practice-status.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/implementation/targeted-writing-practice-status.md:1) has been reduced to current implementation state, next work, and risks.
+- [docs/implementation/targeted-writing-practice-runtime-transition-plan.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/implementation/targeted-writing-practice-runtime-transition-plan.md:1) is now marked as historical/reference-only and has been removed from the active implementation list in [docs/00-index.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/00-index.md:1).
+
+### Why this matters
+- The active documentation set now has clearer ownership boundaries.
+- The new canonical brief and mastery/evidence contract can now function as real governing sources instead of sitting beside overlapping older material.
+- Older implementation records remain available for historical context without competing with the active roadmap.
+
+## 2026-05-11 — Writing Engine mastery and evidence mechanics now have a dedicated contract
+
+### What changed
+- [docs/contracts/writing-engine-mastery-and-evidence-contract.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/contracts/writing-engine-mastery-and-evidence-contract.md:1) is now the dedicated lower-level contract for Writing Engine mastery and evidence rules.
+- [docs/00-index.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/00-index.md:1) now lists that contract in the canonical contracts section.
+
+### Why this matters
+- The canonical brief now has a lower-level contract to defer to for operational mastery semantics instead of leaving scoring, stage gates, and evidence interpretation spread across prompts, planning briefs, and pedagogy prose.
+- This gives future implementation a stable place to find source weights, role weighting, stage-gate rules, transfer requirements, breadth expectations, and recurrence logic.
+- It also reduces the risk that later implementation work silently invents mastery behavior in code.
+
+## 2026-05-11 — Writing Engine canonical brief added as the top-level reconciliation source
+
+### What changed
+- [docs/architecture/writing-engine-canonical-brief.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/architecture/writing-engine-canonical-brief.md:1) is now the canonical top-level Writing Engine brief.
+- [docs/00-index.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/00-index.md:1) now lists that brief in the architecture section so it is discoverable alongside the lower-level owner docs.
+
+### Why this matters
+- The repo now has one authoritative Writing Engine brief that merges the original mastery-model brief with later audit, retirement, and documentation-governance decisions.
+- This reduces the risk of the roadmap, pedagogy docs, architecture docs, and contracts each re-stating the Writing Engine differently.
+- Lower-level docs can now reconcile to one shared brief rather than drifting across multiple external planning artifacts and older implementation plans.
+
+## 2026-05-11 — Writing Engine documentation now uses one active roadmap and one active status tracker
+
+### What changed
+- [docs/implementation/writing-engine-roadmap.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/implementation/writing-engine-roadmap.md:1) is now the single active implementation plan for the Writing Engine program.
+- [docs/current-priorities.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/current-priorities.md:1) is now limited to:
+  - current initiative
+  - current stage
+  - next stage
+  - immediate blockers
+- [docs/implementation/targeted-writing-practice-status.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/implementation/targeted-writing-practice-status.md:1) remains the live status tracker rather than a forward plan.
+- [docs/implementation/targeted-writing-practice-mvp-plan.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/implementation/targeted-writing-practice-mvp-plan.md:1) is now explicitly historical.
+- [docs/00-index.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/00-index.md:1) now points to the roadmap as the active Writing Engine plan and keeps the older MVP plan out of the active implementation list.
+
+### Why this matters
+- The repo now has one trusted implementation reference for the Writing Engine instead of overlapping planning sources.
+- This reduces drift between architecture, contracts, status, and execution sequencing.
+- It also prevents external planning files from becoming the practical source of truth after implementation has already moved into the repo.
+
 ## 2026-05-04 — Recurring canonicalization track is complete through Phase E and manually verified
 
 ### What changed

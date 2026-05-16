@@ -98,6 +98,8 @@ Canonical documentation now defers to:
 - `Review Work` is the canonical parent review surface
 - `Add Writing Sample` and compatibility `/analyse` are intake-only entry
   points for parent-entered manual writing samples
+- `/analyse/review` is obsolete and unsupported and should not remain as a
+  supported route, redirect-owned compatibility surface, or active guidance
 - paper work written outside the app is entered through intake, saved as a
   canonical `writing_sample`, and reviewed through `Review Work`
 - lesson submissions and manual writing samples are expected to converge into
@@ -112,19 +114,26 @@ Canonical documentation now defers to:
 - Stage `7A` QA evidence:
   - `npm run writing-engine:stage7a-intake-regression`
     - `writing-engine-stage7a-intake-regression: ok`
-  - `npm run e2e:health`
-    - passed
-  - `npm run e2e:add-writing-sample`
-    - passed
   - `npx tsc --noEmit`
     - passed with exit code `0` and no output
 - Stage `7A` preserved boundaries:
   - `Add Writing Sample` remains intake only
   - `Review Work` remains the canonical parent review surface
   - `/analyse` is not canonical review ownership
+  - Analyse intake does not own verification, mastery, assignment generation,
+    rewards, or durable learning effects
   - no new engine, verification, durable issue, mastery/evidence,
     assignment, reward, analytics, or route-local review semantics were
     introduced
+- current navigation target:
+  - `Analyse Writing` belongs under `Courses`
+  - standalone top-level Analyse navigation is not allowed
+- current non-goals for Analyse Review retirement cleanup:
+  - Stage `8`
+  - mastery automation
+  - assignment generation changes
+  - rewards changes
+  - AI checking
 - bounded `7B` queue visibility now exists in `Review Work`:
   - manual writing samples and lesson submissions render in one live queue
   - queue rows identify source type
@@ -133,12 +142,6 @@ Canonical documentation now defers to:
   - `7B` remains visibility-only and does not add new verification or durable
     issue actions
 - Stage `7B` QA evidence:
-  - `npm run e2e:health`
-    - passed
-  - `npm run e2e:add-writing-sample`
-    - passed
-  - `npm run e2e:review-work-queue`
-    - passed
   - `npx tsc --noEmit`
     - passed with exit code `0` and no output
 - `7C` review detail suggested issues panel is now the next implementation
@@ -160,14 +163,6 @@ Canonical documentation now defers to:
     assignment, reward, analytics, or route-local source-of-truth semantics
     were introduced
 - Stage `7C` implementation evidence:
-  - `npm run e2e:health`
-    - passed
-  - `npm run e2e:add-writing-sample`
-    - passed
-  - `npm run e2e:review-work-queue`
-    - passed
-  - `npm run e2e:review-work-detail`
-    - passed
   - `npx tsc --noEmit`
     - passed with exit code `0` and no output
 - Stage `7C` QA evidence:
@@ -187,10 +182,6 @@ Canonical documentation now defers to:
   - no second review surface or route-local suggested-issue ownership was
     introduced
   - same-session regression stability is verified for:
-    - `npm run e2e:health`
-    - `npm run e2e:add-writing-sample`
-    - `npm run e2e:review-work-queue`
-    - `npm run e2e:review-work-detail`
     - `npx tsc --noEmit`
 - `7C` complete and QA passed
 - `unsupported_source` and `load_error` exist in the shared `7C` read model,
@@ -230,16 +221,6 @@ Canonical documentation now defers to:
     mastery/evidence writes, assignment writes, reward writes, analytics
     writes, taxonomy changes, or Stage `7E` behaviour were introduced
 - Stage `7D.1` QA evidence:
-  - `npm run e2e:health`
-    - passed
-  - `npm run e2e:add-writing-sample`
-    - passed
-  - `npm run e2e:review-work-queue`
-    - passed
-  - `npm run e2e:review-work-detail`
-    - passed
-  - `npm run e2e:review-work-verification`
-    - passed
   - `npx tsc --noEmit`
     - passed with exit code `0` and no output
 - Stage `7D.1` preserved boundaries:
@@ -260,16 +241,6 @@ Canonical documentation now defers to:
     mastery/evidence writes, assignment writes, reward writes, analytics
     writes, or taxonomy changes were introduced
 - Stage `7D.2` QA evidence:
-  - `npm run e2e:health`
-    - passed
-  - `npm run e2e:add-writing-sample`
-    - passed
-  - `npm run e2e:review-work-queue`
-    - passed
-  - `npm run e2e:review-work-detail`
-    - passed
-  - `npm run e2e:review-work-verification`
-    - passed
   - `npx tsc --noEmit`
     - passed with exit code `0` and no output
 - `7D.2` complete and QA passed
@@ -285,16 +256,6 @@ Canonical documentation now defers to:
     assignment writes, reward writes, analytics writes, or taxonomy changes
     were introduced
 - Stage `7D.3` QA evidence:
-  - `npm run e2e:health`
-    - passed
-  - `npm run e2e:add-writing-sample`
-    - passed
-  - `npm run e2e:review-work-queue`
-    - passed
-  - `npm run e2e:review-work-detail`
-    - passed
-  - `npm run e2e:review-work-verification`
-    - passed
   - `npx tsc --noEmit`
     - passed with exit code `0` and no output
 - `7D.3` complete and QA passed
@@ -341,18 +302,6 @@ Canonical documentation now defers to:
     verification states, issue lifecycle states, queue truth tables, or Stage
     `8` semantics were introduced
 - Stage `7E.1` QA evidence:
-  - `npm run e2e:health`
-    - passed
-  - `npm run e2e:add-writing-sample`
-    - passed
-  - `npm run e2e:review-work-queue`
-    - passed
-  - `npm run e2e:review-work-status`
-    - passed
-  - `npm run e2e:review-work-detail`
-    - passed
-  - `npm run e2e:review-work-verification`
-    - passed
   - `npx tsc --noEmit`
     - passed with exit code `0` and no output
 - `7E.1` preserved boundaries:
@@ -375,14 +324,6 @@ Canonical documentation now defers to:
   - no new lifecycle states, queue truth tables, route-local archive
     ownership, or separate completion-truth source were introduced
 - Stage `7E.2` QA evidence:
-  - `npm run e2e:review-work-archive`
-    - passed
-  - `npm run e2e:review-work-status`
-    - passed
-  - `npm run e2e:review-work-detail`
-    - passed
-  - `npm run e2e:review-work-verification`
-    - passed
   - `npx tsc --noEmit`
     - passed with exit code `0` and no output
 - `7E.2` preserved boundaries:
@@ -404,12 +345,6 @@ Canonical documentation now defers to:
   - no new queue truth table, route-local completion/archive ownership,
     lifecycle state, or Stage `8` semantics were introduced
 - Stage `7E.3` QA evidence:
-  - `npm run e2e:review-work-return-path`
-    - passed
-  - `npm run e2e:review-work-detail`
-    - passed
-  - `npm run e2e:review-work-verification`
-    - passed
   - `npx tsc --noEmit`
     - passed with exit code `0` and no output
 - `7E.3` preserved boundaries:
@@ -446,20 +381,6 @@ Canonical documentation now defers to:
     - new evidence-maturity persistence
     - stronger parent-facing mastery claims than the current advisory model
 - post-Stage-`7` evidence-transparency QA evidence:
-  - `npm run e2e:health`
-    - passed
-  - `npm run e2e:add-writing-sample`
-    - passed
-  - `npm run e2e:review-work-queue`
-    - passed
-  - `npm run e2e:review-work-detail`
-    - passed
-  - `npm run e2e:review-work-verification`
-    - passed
-  - `npm run e2e:review-work-archive`
-    - passed
-  - `npm run e2e:review-work-status`
-    - passed
   - `npx tsc --noEmit`
     - passed with exit code `0` and no output
 - current private-live readiness for one child:

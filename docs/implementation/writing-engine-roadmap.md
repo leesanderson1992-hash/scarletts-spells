@@ -92,10 +92,21 @@ Current transition reality:
 - `Review Work` is the canonical parent review surface for writing review
 - `Add Writing Sample` and compatibility `/analyse` are intake-only entry
   points for parent-entered manual writing samples
+- `/analyse/review` is obsolete and unsupported and must not survive as a
+  supported route, redirect-owned compatibility surface, or nav target
 - lesson submissions and manual writing samples must converge into one
   canonical `Review Work` queue
 - the next safe work is bounded `Stage 7` Review Work integration on top of
   existing shared engine outputs rather than new analysis or review semantics
+
+Current ownership rule:
+- `Analyse Writing` belongs under `Courses` navigation
+- standalone top-level Analyse navigation is not allowed
+- Analyse intake does not own verification, mastery, assignment generation,
+  rewards, or durable learning effects
+- parent verification remains the source of truth
+- Stage 8, mastery automation, assignment broadening, rewards, and AI checking
+  are out of scope for Analyse Review retirement cleanup
 
 ## Stage roadmap
 
@@ -4310,10 +4321,6 @@ Stage `7A` contract:
 - Stage `7A` QA evidence:
   - focused regression harness:
     - `npm run writing-engine:stage7a-intake-regression`
-  - browser + Supabase E2E environment check:
-    - `npm run e2e:health`
-  - browser + Supabase Stage `7A` flow:
-    - `npm run e2e:add-writing-sample`
   - typecheck:
     - `npx tsc --noEmit`
 
@@ -4480,8 +4487,6 @@ Stage `7C` QA requirements:
 - verify no route-local suggested-issue ownership is introduced
 - verify Stage `7A` and `7B` E2E still pass where relevant
 - reusable browser and Supabase QA protocol should be used where feasible:
-  - `npm run e2e:health`
-  - relevant stage-specific E2E script
   - expected rows verified
   - forbidden tables verified unchanged
 - forbidden-write QA list for `7C` detail viewing:
@@ -4685,8 +4690,6 @@ Stage `7D` QA requirements:
 - verify no render-time analysis is triggered by loading or submitting actions
 - verify Stage `7A`, `7B`, and `7C` E2E still pass where relevant
 - reusable browser and Supabase QA protocol should be used where feasible:
-  - `npm run e2e:health`
-  - relevant stage-specific E2E script
   - expected rows verified
   - forbidden tables verified unchanged except for documented shared
     verification and downstream issue-path writes caused by allowed actions
@@ -4989,12 +4992,6 @@ QA requirements:
   - reward tables
   - analytics tables
 - reusable browser and Supabase QA protocol should be used where feasible:
-  - `npm run e2e:health`
-  - `npm run e2e:add-writing-sample`
-  - `npm run e2e:review-work-queue`
-  - `npm run e2e:review-work-detail`
-  - `npm run e2e:review-work-verification`
-  - relevant Stage `7E` E2E script
   - `npx tsc --noEmit`
 
 Stage `7E` to next-stage boundary:
