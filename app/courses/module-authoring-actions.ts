@@ -47,6 +47,12 @@ function invalidDelete(message: string): DeleteActionResult {
   };
 }
 
+function replacePathnameKeepQuery(path: string, nextPathname: string) {
+  const [_, rawQuery] = path.split("?");
+  const nextQuery = new URLSearchParams(rawQuery ?? "").toString();
+  return nextQuery ? `${nextPathname}?${nextQuery}` : nextPathname;
+}
+
 export async function createTask(formData: FormData) {
   const courseId = formData.get("course_id");
   const rawModuleId = formData.get("module_id");
@@ -439,6 +445,15 @@ export async function createTask(formData: FormData) {
 
 export async function updateTask(formData: FormData) {
   const taskId = formData.get("task_id");
+  const rawModuleId = formData.get("module_id");
+  const rawPhaseId = formData.get("phase_id");
+  const timedPhaseBackingPhaseId =
+    typeof rawModuleId === "string" ? getTimedPhaseBackingModuleOptionPhaseId(rawModuleId) : null;
+  const requestedModuleId =
+    typeof rawModuleId === "string" && isTimedPhaseBackingModuleOptionValue(rawModuleId)
+      ? null
+      : rawModuleId;
+  const requestedPhaseId = timedPhaseBackingPhaseId ?? rawPhaseId;
   const redirectPath = getRedirectPath(formData, "/courses");
   const title = formData.get("title");
   const taskType = formData.get("task_type");
@@ -541,7 +556,7 @@ export async function updateTask(formData: FormData) {
 
   const { data: existingTask } = await supabase
     .from("course_tasks")
-    .select("id, course_id, task_type")
+    .select("id, course_id, module_id, focus_block_id, position, task_type")
     .eq("id", taskId)
     .eq("parent_user_id", user.id)
     .maybeSingle();
@@ -562,6 +577,10 @@ export async function updateTask(formData: FormData) {
   }
 
   const safeStructureType = normaliseCourseStructureType(course.structure_type);
+  const destinationModuleChangeRequested =
+    typeof rawModuleId === "string" &&
+    rawModuleId.trim().length > 0 &&
+    existingTask.task_type === "lesson";
 
   try {
     if (editorScope === "shared_task_creator") {
@@ -589,10 +608,61 @@ export async function updateTask(formData: FormData) {
     redirectForCourseActionError(error, redirectPath);
   }
 
+  let destinationModuleId = existingTask.module_id;
+
+  if (destinationModuleChangeRequested) {
+    if (typeof requestedPhaseId !== "string" || !requestedPhaseId.trim()) {
+      redirect(buildRedirectWithMessage(redirectPath, "error", "Choose a valid destination phase or cycle."));
+    }
+
+    await assertPhaseBelongsToCourse({
+      supabase,
+      parentUserId: user.id,
+      courseId: existingTask.course_id,
+      phaseId: requestedPhaseId,
+      invalidMessage: "Choose a valid destination phase or cycle.",
+    });
+
+    if (typeof requestedModuleId === "string" && requestedModuleId.trim()) {
+      const { data: destinationModule } = await supabase
+        .from("course_modules")
+        .select("id, phase_id")
+        .eq("id", requestedModuleId)
+        .eq("course_id", existingTask.course_id)
+        .eq("parent_user_id", user.id)
+        .maybeSingle();
+
+      if (!destinationModule) {
+        redirect(buildRedirectWithMessage(redirectPath, "error", "Choose a valid destination module."));
+      }
+
+      if (destinationModule.phase_id !== requestedPhaseId) {
+        redirect(buildRedirectWithMessage(redirectPath, "error", "Choose a destination module inside that phase or cycle."));
+      }
+
+      destinationModuleId = destinationModule.id;
+    } else if (safeStructureType === "timed") {
+      const result = await resolveOrCreateTimedPhaseBackingModule({
+        supabase,
+        parentUserId: user.id,
+        courseId: existingTask.course_id,
+        phaseId: requestedPhaseId,
+      });
+
+      if ("error" in result) {
+        redirect(buildRedirectWithMessage(redirectPath, "error", result.error));
+      }
+
+      destinationModuleId = result.module.id;
+    } else {
+      redirect(buildRedirectWithMessage(redirectPath, "error", "Choose a valid destination module."));
+    }
+  }
+
   if (typeof focusBlockId === "string" && focusBlockId.trim()) {
     const { data: focusBlock } = await supabase
       .from("focus_blocks")
-      .select("id")
+      .select("id, module_id")
       .eq("id", focusBlockId)
       .eq("course_id", existingTask.course_id)
       .eq("parent_user_id", user.id)
@@ -601,11 +671,45 @@ export async function updateTask(formData: FormData) {
     if (!focusBlock) {
       redirect(buildRedirectWithMessage(redirectPath, "error", "Choose a valid focus block for that task."));
     }
+
+    if (
+      destinationModuleChangeRequested &&
+      focusBlock.module_id &&
+      focusBlock.module_id !== destinationModuleId
+    ) {
+      redirect(
+        buildRedirectWithMessage(
+          redirectPath,
+          "error",
+          "Choose a focus block that belongs to the destination module, or remove the focus block before moving this lesson.",
+        ),
+      );
+    }
+  } else if (
+    destinationModuleChangeRequested &&
+    existingTask.focus_block_id
+  ) {
+    redirect(
+      buildRedirectWithMessage(
+        redirectPath,
+        "error",
+        "Remove the focus block before moving this lesson to another module.",
+      ),
+    );
   }
+
+  const isModuleChanging = destinationModuleId !== existingTask.module_id;
+  const destinationEditPath = isModuleChanging
+    ? replacePathnameKeepQuery(
+        redirectPath,
+        `/courses/${existingTask.course_id}/modules/${destinationModuleId}/tasks/${taskId}/edit`,
+      )
+    : redirectPath;
 
   const { error } = await supabase
     .from("course_tasks")
     .update({
+      module_id: destinationModuleId,
       focus_block_id: typeof focusBlockId === "string" && focusBlockId.trim() ? focusBlockId : null,
       title: title.trim(),
       task_type: taskType,
@@ -628,6 +732,7 @@ export async function updateTask(formData: FormData) {
       gold_coin_reward_amount:
         effectiveCoinRewardTrigger === "none" ? 0 : safeGoldCoinRewardAmount,
       weekly_days: taskType === "recurring_weekly" ? weeklyDays : [],
+      position: isModuleChanging ? 0 : existingTask.position,
       is_active: isActive,
     })
     .eq("id", taskId)
@@ -641,6 +746,66 @@ export async function updateTask(formData: FormData) {
         getFriendlyCourseDatabaseError(error.message),
       ),
     );
+  }
+
+  if (isModuleChanging) {
+    const [{ data: originSiblings }, { data: destinationSiblings }] = await Promise.all([
+      supabase
+        .from("course_tasks")
+        .select("id")
+        .eq("module_id", existingTask.module_id)
+        .eq("parent_user_id", user.id)
+        .neq("id", taskId)
+        .order("position", { ascending: true }),
+      supabase
+        .from("course_tasks")
+        .select("id")
+        .eq("module_id", destinationModuleId)
+        .eq("parent_user_id", user.id)
+        .neq("id", taskId)
+        .order("position", { ascending: true }),
+    ]);
+
+    const originOrderedTaskIds = (originSiblings ?? []).map((item) => item.id);
+    const destinationOrderedTaskIds = [
+      ...(destinationSiblings ?? []).map((item) => item.id),
+      taskId,
+    ];
+
+    const originPositionError = await updateTaskPositions(supabase, user.id, originOrderedTaskIds);
+    if (originPositionError) {
+      redirect(
+        buildRedirectWithMessage(
+          redirectPath,
+          "error",
+          getFriendlyCourseDatabaseError(originPositionError.message),
+        ),
+      );
+    }
+
+    const destinationPositionError = await updateTaskPositions(
+      supabase,
+      user.id,
+      destinationOrderedTaskIds,
+    );
+    if (destinationPositionError) {
+      redirect(
+        buildRedirectWithMessage(
+          redirectPath,
+          "error",
+          getFriendlyCourseDatabaseError(destinationPositionError.message),
+        ),
+      );
+    }
+
+    revalidateCourseMutationPaths({
+      redirectPath: destinationEditPath,
+      courseId: existingTask.course_id,
+      moduleId: destinationModuleId,
+    });
+    revalidatePath(`/courses/${existingTask.course_id}/modules/${existingTask.module_id}`);
+    revalidatePath(`/learn/modules/${existingTask.module_id}`);
+    redirect(buildRedirectWithMessage(destinationEditPath, "saved", "task"));
   }
 
   revalidateCoursePages();

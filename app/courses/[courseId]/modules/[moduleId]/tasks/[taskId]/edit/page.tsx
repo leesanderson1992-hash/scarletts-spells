@@ -14,9 +14,14 @@ import {
 } from "@/lib/children";
 import {
   getActiveChildrenForUser,
-  getModuleDetailForParent,
+  getCourseDetailForParent,
 } from "@/lib/courses/queries";
 import { normaliseCourseStructureType } from "@/lib/courses/types";
+import type { SharedTaskPlacementSelection } from "@/lib/courses/types";
+import {
+  buildTimedPhaseBackingModuleOptionValue,
+  isTimedPhaseBackingModule,
+} from "@/lib/courses/timed-phase-modules";
 import { createClient } from "@/lib/supabase/server";
 
 import { updateTask } from "../../../../../../module-authoring-actions";
@@ -65,13 +70,19 @@ export default async function TaskEditPage({
   const mode = normaliseAppMode(resolvedSearchParams?.mode);
   const activeChildIdFromCookie = await getActiveChildIdFromCookies();
   const children = await getActiveChildrenForUser(supabase, user.id);
-  const detail = await getModuleDetailForParent(supabase, user.id, courseId, moduleId);
+  const detail = await getCourseDetailForParent(supabase, user.id, courseId);
 
   if (!detail) {
     notFound();
   }
 
-  const task = detail.module.tasks.find((item) => item.id === taskId) ?? null;
+  const selectedModule = detail.modules.find((item) => item.id === moduleId) ?? null;
+
+  if (!selectedModule) {
+    notFound();
+  }
+
+  const task = selectedModule.tasks.find((item) => item.id === taskId) ?? null;
   if (!task) {
     notFound();
   }
@@ -97,6 +108,53 @@ export default async function TaskEditPage({
   );
   const formId = `task-edit-form-${task.id}`;
   const courseStructure = normaliseCourseStructureType(detail.course.structure_type);
+  const placementSelection: SharedTaskPlacementSelection | null =
+    task.task_type === "lesson"
+      ? courseStructure === "phased"
+        ? {
+            label: "Phase",
+            moduleLabel: "Module",
+            summaryLabel: `${detail.phases.length} phase${detail.phases.length === 1 ? "" : "s"}`,
+            emptyGroupMessage: "Add a module to this phase first",
+            groups: detail.phases.map((phase, index) => ({
+              id: phase.id,
+              label: `Phase ${index + 1} · ${phase.title}`,
+              moduleOptions: detail.modules
+                .filter((module) => module.phase_id === phase.id)
+                .map((module) => ({
+                  id: module.id,
+                  label: module.title,
+                })),
+            })),
+          }
+        : {
+            label: "Cycle",
+            moduleLabel: "Module",
+            summaryLabel: `${detail.phases.length} cycle${detail.phases.length === 1 ? "" : "s"}`,
+            emptyGroupMessage: "No module choices are available for this cycle yet",
+            groups: detail.phases.map((phase, index) => ({
+              id: phase.id,
+              label: `Cycle ${index + 1}`,
+              moduleOptions: [
+                {
+                  id: buildTimedPhaseBackingModuleOptionValue(phase.id),
+                  label: "Cycle tasks",
+                },
+                ...detail.modules
+                  .filter((module) => module.phase_id === phase.id && !isTimedPhaseBackingModule(module))
+                  .map((module) => ({
+                    id: module.id,
+                    label: module.title,
+                  })),
+              ],
+            })),
+          }
+      : null;
+  const initialPlacementId = selectedModule.phase_id;
+  const initialPlacementModuleId =
+    courseStructure === "timed" && isTimedPhaseBackingModule(selectedModule)
+      ? buildTimedPhaseBackingModuleOptionValue(selectedModule.phase_id ?? "")
+      : selectedModule.id;
 
   return (
     <AppShell
@@ -111,7 +169,7 @@ export default async function TaskEditPage({
           courseStructure === "phased" ? (
             <ProgressBuilderContext
               courseTitle={detail.course.title}
-              moduleTitle={detail.module.title}
+              moduleTitle={selectedModule.title}
               builderPath={progressBuilderPath}
               overviewPath={progressOverviewPath}
               modulePath={moduleBackPath}
@@ -145,11 +203,34 @@ export default async function TaskEditPage({
           <input type="hidden" name="task_id" value={task.id} />
           <input type="hidden" name="redirect_path" value={scopedCurrentPath} />
           <input type="hidden" name="editor_scope" value="shared_task_creator" />
+          <div className="mb-5 flex flex-wrap items-center gap-3">
+            <button
+              type="submit"
+              className="inline-flex h-11 items-center justify-center gap-2 rounded-full bg-[var(--scarlett)] px-5 text-sm font-medium text-white transition hover:brightness-105"
+            >
+              <svg aria-hidden="true" viewBox="0 0 20 20" className="h-4.5 w-4.5 fill-current">
+                <path d="M4 3h9.6a1 1 0 0 1 .7.3l2.4 2.4a1 1 0 0 1 .3.7V16a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Zm1 2v10h10V7.4L13.6 5H13v3a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1V5H5Zm4 0v2h2V5H9Z" />
+              </svg>
+              <span>Save</span>
+            </button>
+            <Link
+              href={moduleBackPath}
+              className={`${BUILDER_TEXT_BUTTON_CLASS} gap-2 px-5`}
+            >
+              <svg aria-hidden="true" viewBox="0 0 20 20" className="h-4.5 w-4.5 fill-current">
+                <path d="M5.7 5.7a1 1 0 0 1 1.4 0L10 8.6l2.9-2.9a1 1 0 1 1 1.4 1.4L11.4 10l2.9 2.9a1 1 0 0 1-1.4 1.4L10 11.4l-2.9 2.9a1 1 0 0 1-1.4-1.4l2.9-2.9-2.9-2.9a1 1 0 0 1 0-1.4Z" />
+              </svg>
+              Cancel
+            </Link>
+          </div>
           <TaskEditorFields
             task={task}
             focusBlocks={detail.focusBlocks}
             courseStructure={normaliseCourseStructureType(detail.course.structure_type)}
             formId={formId}
+            placementSelection={placementSelection}
+            initialPlacementId={initialPlacementId}
+            initialModuleId={initialPlacementModuleId}
           />
 
           <div className="mt-5 flex flex-wrap items-center gap-3">

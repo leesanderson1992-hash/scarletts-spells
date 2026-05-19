@@ -1,3 +1,7 @@
+"use client";
+
+import { useId, useState } from "react";
+
 import {
   canCourseStructureUseFocusBlocks,
   getAllowedRewardTriggersForTaskType,
@@ -5,6 +9,7 @@ import {
   COURSE_COIN_REWARD_TRIGGER_LABELS,
   COURSE_TASK_TYPE_LABELS,
   type CourseStructureType,
+  type SharedTaskPlacementSelection,
   WEEKDAY_OPTIONS,
   type CourseTaskRow,
   type FocusBlockRow,
@@ -49,15 +54,80 @@ export function TaskEditorFields({
   focusBlocks,
   courseStructure,
   formId,
+  placementSelection,
+  initialPlacementId,
+  initialModuleId,
 }: {
   task: CourseTaskRow;
   focusBlocks: FocusBlockRow[];
   courseStructure: CourseStructureType;
   formId: string;
+  placementSelection?: SharedTaskPlacementSelection | null;
+  initialPlacementId?: string | null;
+  initialModuleId?: string | null;
 }) {
   const allowedRewardTriggers = getAllowedRewardTriggersForTaskType(task.task_type);
   const allowedTaskTypes = getSharedCreatorTaskTypes(task.task_type);
   const showFocusBlockField = canCourseStructureUseFocusBlocks(courseStructure);
+  const [titleError, setTitleError] = useState<string | null>(null);
+  const titleErrorId = useId();
+  const placementGroups = placementSelection?.groups ?? [];
+  const defaultPlacementId =
+    initialPlacementId && placementGroups.some((group) => group.id === initialPlacementId)
+      ? initialPlacementId
+      : placementGroups[0]?.id ?? "";
+  const [selectedPlacementId, setSelectedPlacementId] = useState(defaultPlacementId);
+  const selectedPlacementGroup =
+    placementGroups.find((group) => group.id === selectedPlacementId) ?? placementGroups[0] ?? null;
+  const selectedModuleOptions = selectedPlacementGroup?.moduleOptions ?? [];
+  const defaultModuleId =
+    initialModuleId && selectedModuleOptions.some((option) => option.id === initialModuleId)
+      ? initialModuleId
+      : selectedModuleOptions[0]?.id ?? "";
+  const [selectedModuleId, setSelectedModuleId] = useState(defaultModuleId);
+  const effectiveSelectedModuleId =
+    selectedModuleOptions.some((option) => option.id === selectedModuleId)
+      ? selectedModuleId
+      : selectedModuleOptions[0]?.id ?? "";
+  const placementModuleLabel = placementSelection?.moduleLabel ?? "Module";
+  const lessonPlacementFocusBlocks = focusBlocks.filter((focusBlock) =>
+    effectiveSelectedModuleId
+      ? focusBlock.module_id === effectiveSelectedModuleId
+      : false,
+  );
+
+  const titleField = (
+    <label className="grid gap-1.5">
+      <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[color:var(--mid)]">
+        Title
+      </span>
+      <input
+        type="text"
+        name="title"
+        form={formId}
+        defaultValue={task.title}
+        required
+        aria-invalid={titleError ? "true" : undefined}
+        aria-describedby={titleError ? titleErrorId : undefined}
+        onInvalid={(event) => {
+          event.currentTarget.setCustomValidity("Please enter a task title.");
+          setTitleError("Please enter a task title.");
+        }}
+        onInput={(event) => {
+          event.currentTarget.setCustomValidity("");
+          if (event.currentTarget.value.trim()) {
+            setTitleError(null);
+          }
+        }}
+        className="brand-input h-11 rounded-2xl px-4 text-sm"
+      />
+      {titleError ? (
+        <p id={titleErrorId} className="text-sm font-medium text-rose-700">
+          {titleError}
+        </p>
+      ) : null}
+    </label>
+  );
 
   return (
     <div className="grid gap-4">
@@ -71,18 +141,7 @@ export function TaskEditorFields({
           </BuilderInfoHint>
         </div>
         <div className="mt-3 grid gap-4 lg:grid-cols-2">
-          <label className="grid gap-1.5">
-            <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[color:var(--mid)]">
-              Title
-            </span>
-            <input
-              type="text"
-              name="title"
-              form={formId}
-              defaultValue={task.title}
-              className="brand-input h-11 rounded-2xl px-4 text-sm"
-            />
-          </label>
+          {task.task_type === "lesson" || task.task_type === "test" ? null : titleField}
           <label className="grid gap-1.5">
             <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[color:var(--mid)]">
               Task type
@@ -128,6 +187,79 @@ export function TaskEditorFields({
         </div>
         {task.task_type === "lesson" || task.task_type === "test" ? (
           <div className="mt-3">
+            <div className="mb-4 rounded-[1.35rem] border border-[var(--border)] bg-[rgba(252,228,244,0.12)] px-4 py-4">
+              {titleField}
+            </div>
+            {task.task_type === "lesson" && placementSelection ? (
+              <div className="mb-4 rounded-[1.35rem] border border-[var(--border)] bg-white px-4 py-4">
+                <div className="flex flex-wrap items-center gap-2">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[color:var(--mid)]">
+                    Destination placement
+                  </p>
+                  <BuilderInfoHint label="Lesson placement help">
+                    Move this lesson to another valid module without recreating it. Placement uses the same parent-facing structure labels as Step 3.
+                  </BuilderInfoHint>
+                </div>
+                <div className="mt-3 grid gap-4 lg:grid-cols-2">
+                  <label className="grid gap-1.5">
+                    <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[color:var(--mid)]">
+                      {placementSelection.label}
+                    </span>
+                    <select
+                      name="phase_id"
+                      form={formId}
+                      value={selectedPlacementId}
+                      onChange={(event) => {
+                        const nextPlacementId = event.target.value;
+                        const nextPlacementGroup =
+                          placementGroups.find((group) => group.id === nextPlacementId) ?? null;
+                        const nextModuleOptions = nextPlacementGroup?.moduleOptions ?? [];
+                        const nextModuleId = nextModuleOptions.some(
+                          (option) => option.id === effectiveSelectedModuleId,
+                        )
+                          ? effectiveSelectedModuleId
+                          : nextModuleOptions[0]?.id ?? "";
+
+                        setSelectedPlacementId(nextPlacementId);
+                        setSelectedModuleId(nextModuleId);
+                      }}
+                      className="brand-input h-11 rounded-2xl px-4 text-sm"
+                    >
+                      {placementGroups.map((group) => (
+                        <option key={group.id} value={group.id}>
+                          {group.label}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  <label className="grid gap-1.5">
+                    <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[color:var(--mid)]">
+                      {placementModuleLabel}
+                    </span>
+                    <select
+                      name="module_id"
+                      form={formId}
+                      value={effectiveSelectedModuleId}
+                      onChange={(event) => setSelectedModuleId(event.target.value)}
+                      className="brand-input h-11 rounded-2xl px-4 text-sm"
+                      disabled={selectedModuleOptions.length === 0}
+                    >
+                      {selectedModuleOptions.length > 0 ? (
+                        selectedModuleOptions.map((moduleOption) => (
+                          <option key={moduleOption.id} value={moduleOption.id}>
+                            {moduleOption.label}
+                          </option>
+                        ))
+                      ) : (
+                        <option value="">
+                          {placementSelection.emptyGroupMessage ?? "No valid module choices available"}
+                        </option>
+                      )}
+                    </select>
+                  </label>
+                </div>
+              </div>
+            ) : null}
             <StructuredLessonBuilder
               formId={formId}
               taskTitle={task.title}
@@ -229,7 +361,10 @@ export function TaskEditorFields({
                 className="brand-input h-11 rounded-2xl px-4 text-sm"
               >
                 <option value="">No focus block</option>
-                {focusBlocks.map((focusBlock) => (
+                {(task.task_type === "lesson" && placementSelection
+                  ? lessonPlacementFocusBlocks
+                  : focusBlocks
+                ).map((focusBlock) => (
                   <option key={focusBlock.id} value={focusBlock.id}>
                     {focusBlock.title}
                   </option>
