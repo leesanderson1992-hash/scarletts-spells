@@ -195,6 +195,124 @@ Mode-specific validation must live in actions/services, not just the UI.
   - reward behavior does not redefine progress
   - warnings do not redefine completion
 
+## Lesson Builder Stabilize + Speed Boundary
+
+The lesson-builder stabilization redesign is an authoring-surface change, not a
+runtime lesson-model rewrite.
+
+### Source-of-truth hierarchy
+
+For lesson authoring:
+- `course_tasks` task row owns:
+  - task title
+  - placement
+  - module ownership
+  - task metadata such as type, pacing, reward, and focus-block linkage
+- `course_tasks.lesson_schema` owns:
+  - the canonical structured lesson body
+- personal lesson template records own:
+  - reusable authoring snapshots
+  - template labels and template metadata
+- editor layout state owns:
+  - preview open or closed state
+  - selected block state
+  - drawer state
+  - temporary validation presentation state
+  - inline insertion target state
+  - inline picker open or closed state
+  - temporary insertion placement hints
+
+Rule:
+- editor-only state must not be stored as canonical lesson truth inside
+  `lesson_schema`
+- insertion target, picker state, and placement hints must remain local
+  authoring-shell state rather than persisted lesson content
+
+### Runtime contract preservation
+
+The redesign must preserve:
+- `StructuredLessonDocument` as the structured lesson document contract
+- `isStructuredLessonDocument` as the lesson validation boundary
+- `course_tasks.lesson_schema` as the only canonical persisted lesson body
+
+The redesign must not introduce:
+- a second runtime lesson schema
+- template records masquerading as `course_tasks`
+
+### Shared authoring dialog chrome boundary
+
+The first shared dialog-foundation slice is limited to reusable UI chrome.
+
+For lesson-template dialogs:
+- a shared `AppDialog` primitive may own overlay, panel, and accessibility
+  chrome
+- structured-lesson-builder local state must continue to own open or closed
+  state, pending state, error state, and template action branching
+
+Boundary rule:
+- shared dialog chrome must not become a second owner of authoring truth
+- dialog state must remain transient React UI state only
+- no dialog metadata may be persisted into `course_tasks.lesson_schema`
+- no global provider or registry is required for the first adoption slice
+- preview-only or layout-only data inside `lesson_schema`
+- insertion metadata or picker state inside `lesson_schema`
+
+Completion note:
+- the first shared `AppDialog` adoption is now implemented on lesson-template
+  dialogs and QA-validated without changing authoring truth ownership
+- structured-lesson-builder local state still owns open or closed state,
+  pending state, error state, and template action branching
+- `course_tasks.lesson_schema`, `StructuredLessonDocument`, and
+  `isStructuredLessonDocument` remain unchanged
+
+### Separation from review and writing-engine work
+
+This lesson-builder work is explicitly separate from:
+- `Review Work`
+- writing-engine runtime behavior
+- Stage `7F`
+- Stage `8`
+
+Implications:
+- no review-surface ownership changes
+- no writing-evidence or mastery semantics changes
+- no Stage `7F` or Stage `8` runtime reopening
+- no child lesson runtime semantics changes beyond authoring-surface
+  compatibility with the existing lesson schema
+
+Current implementation status:
+- Phase 1 lesson-builder layout and save safety is now implemented
+- Phase 2 personal lesson templates is now implemented
+- Phase 3 lesson-task module reassignment is now implemented
+- that implementation did not change:
+  - `course_tasks.lesson_schema` ownership
+  - `StructuredLessonDocument`
+  - `isStructuredLessonDocument`
+  - Review Work ownership
+  - Writing Engine runtime behavior
+- existing lesson tasks can now be reassigned between valid modules from the
+  dedicated edit flow
+- `course_tasks.module_id` remains the canonical placement source of truth
+- reassignment does not create replacement tasks
+- focus-block compatibility is enforced as a move constraint rather than a new
+  semantic system
+- personal template records remain separate persisted authoring assets
+- dialog state remains UI-only and is not stored in `lesson_schema`
+- the current template dialog flow is builder-local and intentionally not yet a
+  shared app-wide dialog primitive
+- Stage 4 inline insertion is now implemented
+- Stage 4 preserved the same boundary:
+  - insertion target state and chooser UI remain local React state only
+  - `course_tasks.lesson_schema` remains lesson-body-only
+  - `StructuredLessonDocument` remains unchanged
+  - `isStructuredLessonDocument` remains unchanged
+- repository validation is green after a later unrelated TypeScript repair
+  pass:
+  - `npx tsc --noEmit` passed
+  - `npm run build` passed
+- that later validation-unblocker work touched Review Work and Writing Engine
+  typing boundaries only and was not part of Stage 4 implementation
+
 ## Scheduling And Occurrence Model
 
 Recurring scheduling should be calm and predictable.

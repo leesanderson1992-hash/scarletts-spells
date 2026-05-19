@@ -72,6 +72,19 @@ Every important action family must define:
 - failure feedback
 - persistence truth after refresh
 
+### ACT-006B: Confirmation shells must respect pending safety
+
+When a destructive or commit-adjacent action is presented in a dialog:
+- overlay click and `Escape` may dismiss the dialog only when that is safe
+- pending save, update, or delete work should disable accidental close
+- shared confirmation chrome may be reused across surfaces, but action state
+  ownership stays with the invoking surface
+
+First-adoption QA note:
+- the accepted lesson-template `AppDialog` adoption verified safe `Escape` and
+  overlay dismissal when not pending
+- pending save, update, and delete state blocked accidental close as required
+
 ### ACT-007: Repeated actions are icon-only by default
 
 Repeated operational controls should use icon-only buttons by default to reduce visual noise and create a consistent app-wide action grammar.

@@ -53,6 +53,12 @@ The following concepts are shared across both course types:
 Shared builder rule:
 - both course types use one shared lesson/task creator
 - the structured lesson builder remains the lesson authoring path
+- reusable dialog chrome may be shared across authoring flows, but transient
+  dialog state and dialog-specific handlers stay with the owning authoring
+  surface unless a later contract explicitly changes that ownership
+- the first shared `AppDialog` adoption did not change
+  `course_tasks.lesson_schema`, `StructuredLessonDocument`, or
+  `isStructuredLessonDocument`
 
 Shared completion rule:
 - completion and unlocking defer to [docs/contracts/universal-progress-contract.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/contracts/universal-progress-contract.md:1)

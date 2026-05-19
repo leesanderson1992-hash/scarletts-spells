@@ -182,6 +182,27 @@ Controls must have:
 
 Status must not rely on color alone.
 
+### UX-GEN-026: Shared transient UI chrome must not absorb business state
+
+Reusable UI shells such as dialogs, drawers, and popovers may centralize:
+- presentation chrome
+- accessibility wiring
+- generic close behavior
+
+They should not centralize:
+- business branching
+- persistence truth
+- feature-local pending and error ownership
+
+Unless a product contract explicitly says otherwise, transient open or closed
+state remains local UI state for the owning surface.
+
+First-adoption QA note:
+- the accepted lesson-template `AppDialog` adoption verified focus containment
+  inside the modal
+- intended child autofocus remained preserved for the template-name input
+- prior focus was restored on close
+
 ### UX-GEN-021: Operational pages should optimize for scanability
 
 Dense information is acceptable when it improves decision speed.

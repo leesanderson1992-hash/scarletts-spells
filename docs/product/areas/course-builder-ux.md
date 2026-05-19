@@ -364,6 +364,165 @@ Implication:
   - branch parity
   - post-action navigation parity
 
+## CB-UX-022: Structured lesson authoring should prioritize the active editor over passive preview
+
+In the lesson-authoring surface:
+- the initial viewport should prioritize title, save state, and the active block
+  editor
+- full-lesson preview should be hidden by default
+- preview should open intentionally through:
+  - a block-level preview affordance
+  - or a full preview drawer or panel
+
+The parent should not need to scroll past a large preview slab to continue
+adding or editing blocks.
+
+## CB-UX-023: Lesson title belongs at the top of the authoring surface
+
+For lesson and test authoring:
+- the task title should remain visible at the top of the authoring surface
+- the parent should not need to scroll away from the editor body to confirm or
+  correct the title
+- title, save state, and validation messages should read as one compact authoring
+  header rather than as separate distant controls
+
+## CB-UX-024: Structured lesson editing should feel page-builder-like without changing schema truth
+
+The structured lesson builder may adopt a more WordPress or Gutenberg-like
+interaction model, but it must remain an authoring shell over the existing
+structured lesson contract.
+
+Preferred qualities:
+- compact block cards
+- obvious add-block entry points
+- selected-block emphasis
+- local preview controls
+- advanced settings progressively disclosed rather than always expanded
+
+Non-goal:
+- this does not authorize a second lesson runtime or free-form HTML authoring
+
+## CB-UX-025: Missing required fields must not cause lesson-authoring data loss
+
+For lesson-authoring save attempts:
+- client-detectable required-field errors should be shown inline
+- the parent should stay on the current authoring surface
+- entered block content should remain intact
+- server validation may remain the durable backstop, but it must not be the
+  normal path for blank-title discovery
+
+This is especially required for blank title handling.
+
+## CB-UX-026: Lesson templates should be compact, reusable, and clearly distinct from tasks
+
+Lesson templates should:
+- appear in one compact control with built-in presets
+- be reusable authoring accelerators, not live course tasks
+- load lesson body and default lesson content without silently overwriting a
+  non-blank task title
+
+Parents should be able to:
+- apply a template
+- save the current lesson as a personal template
+- manage only their own saved templates in the v1 template flow
+
+Implementation status:
+- Phase 2 template interactions are implemented and QA-passed
+- template save, update, delete, and title-overwrite interactions now use
+  in-app dialog UI
+- this is acceptable for Phase 2
+- a shared app-wide dialog primitive remains preferred long-term, but is not
+  required for Phase 2 acceptance
+
+First-adoption follow-up rule:
+- the first shared `AppDialog` adoption is limited to these lesson-template
+  dialogs only
+- the shared primitive owns reusable dialog chrome, not template business state
+- template handlers, pending state, error state, and title-overwrite branching
+  remain local to the structured lesson builder
+- no global provider, registry, or broader dialog migration is part of this
+  slice
+- future adoption by other authoring flows is a later follow-up
+
+Close-out note:
+- the first shared `AppDialog` adoption is complete and accepted
+- only lesson-template dialogs were migrated in this slice
+- template save, update, delete, and title-overwrite interactions are
+  QA-validated on the shared primitive
+- preview remained unaffected
+- wider authoring-flow adoption is intentionally deferred to a later follow-up
+
+## CB-UX-027: Existing lessons should support placement correction without leaving the authoring model
+
+When editing an existing lesson task:
+- the parent should be able to change the destination module from the edit flow
+- placement changes should use parent-facing course structure language
+- placement should read as:
+  - `Progress`: `Phase -> Module`
+  - `Timed`: `Cycle -> Module`
+- `Timed` compatibility modules should remain implementation detail where
+  possible
+
+The parent should not need to duplicate and recreate a lesson just to fix the
+module placement.
+
+Implementation status:
+- Stage 3 is implemented and QA-passed for exercised paths
+- existing lesson edit now supports placement correction without requiring
+  recreation
+- the focus-block incompatibility path remains unexercised in QA because
+  lessons are not currently linkable to focus blocks
+
+## CB-UX-028: Inline block insertion should be the primary add-block path
+
+For structured lesson authoring:
+- compact inline `+ Add block` controls should exist:
+  - before the first block
+  - between every pair of blocks
+  - after the final block
+- clicking an insertion control should open one compact local picker tied to
+  that insertion point
+- choosing a block type should insert the new block at that position rather
+  than always appending it to the end
+- inserted blocks should use the same structured defaults as the current
+  append flow
+
+Preferred interaction shape:
+- lightweight divider-style insertion rows
+- one picker open at a time
+- local editor-state handling rather than persisted placement metadata
+
+Rollout rule:
+- the bottom add-block palette may remain temporarily as a secondary fallback
+- inline insertion should nevertheless be the primary authoring path
+
+Implementation status:
+- Stage 4 is implemented
+- functional browser QA passed for:
+  - inline insertion before the first block
+  - inline insertion between blocks
+  - inline insertion after final or later blocks
+  - one-picker-only behavior
+  - move, duplicate, and remove after insertion
+  - preview open and close
+  - lesson save round-trip
+  - persistence boundary confirmation that no insertion UI state is written
+    into `lesson_schema`
+- repository validation is green:
+  - `npx tsc --noEmit` passed
+  - `npm run build` passed
+- the later TypeScript repair pass that unblocked repository validation was not
+  Stage 4 implementation work and did not change Stage 4 files
+- a shared app-wide dialog primitive remains the next UI-foundation follow-up,
+  not part of Stage 4 itself
+
+Non-goals:
+- no slash-command system
+- no Gutenberg-scale editing model
+- no nested block model
+- no shared app-wide dialog work in this slice
+- no second lesson runtime schema
+
 ## CB-UX-007: Parent authoring should use planning concepts, not storage concepts
 
 Parents should author through:
@@ -387,3 +546,4 @@ to complete the canonical authoring flow.
 - [docs/archive/course-creator-architecture-plan.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/archive/course-creator-architecture-plan.md:1)
 - [docs/implementation/completed/course-builder-unification-plan.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/implementation/completed/course-builder-unification-plan.md:288)
 - [docs/contracts/course-builder-contract.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/contracts/course-builder-contract.md:1)
+- [docs/implementation/lesson-builder-stabilize-and-speed-plan.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/implementation/lesson-builder-stabilize-and-speed-plan.md:1)
