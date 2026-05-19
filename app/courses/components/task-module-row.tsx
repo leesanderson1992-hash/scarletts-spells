@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useId, useState } from "react";
 
 import { builderIconButtonClass } from "@/app/courses/components/builder-control-styles";
 import { StructuredLessonBuilder } from "@/components/structured-lesson-builder";
@@ -29,6 +30,9 @@ export function TaskModuleRow({
   onMove,
   onDelete,
 }: TaskModuleRowProps) {
+  const [titleError, setTitleError] = useState<string | null>(null);
+  const titleErrorId = useId();
+
   return (
     <tr className="border-t border-[var(--border)] align-top">
       <td className="py-3 pr-2">
@@ -52,9 +56,27 @@ export function TaskModuleRow({
               name="title"
               form={row.formId}
               defaultValue={row.title}
+              required
+              aria-invalid={titleError ? "true" : undefined}
+              aria-describedby={titleError ? titleErrorId : undefined}
+              onInvalid={(event) => {
+                event.currentTarget.setCustomValidity("Please enter a task title.");
+                setTitleError("Please enter a task title.");
+              }}
+              onInput={(event) => {
+                event.currentTarget.setCustomValidity("");
+                if (event.currentTarget.value.trim()) {
+                  setTitleError(null);
+                }
+              }}
               className="brand-input h-10 w-full rounded-2xl px-3 text-sm font-semibold"
               aria-label={`Task title for ${row.title}`}
             />
+            {titleError ? (
+              <p id={titleErrorId} className="mt-2 text-sm font-medium text-rose-700">
+                {titleError}
+              </p>
+            ) : null}
             <textarea
               name="instructions"
               form={row.formId}

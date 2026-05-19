@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useId, useState } from "react";
 
 import { BuilderInfoHint } from "@/app/courses/components/builder-info-hint";
 import { FocusBlockMiniTaskBuilder } from "@/components/focus-block-mini-task-builder";
@@ -37,6 +37,9 @@ export function SharedTaskCreatorForm({
   showFocusBlockField: boolean;
 }) {
   const [creatorMode, setCreatorMode] = useState<SharedCreatorMode>(creatorModes[0] ?? "checklist");
+  const [titleError, setTitleError] = useState<string | null>(null);
+  const titleErrorId = useId();
+  const formId = useId();
   const placementGroups = placementSelection?.groups ?? [];
   const initialPlacementId = (() => {
     if (phaseId && placementGroups.some((group) => group.id === phaseId)) {
@@ -79,7 +82,7 @@ export function SharedTaskCreatorForm({
     (hasPlacementGroups ? `${placementGroups.length} ${placementSelection?.label.toLowerCase()}${placementGroups.length === 1 ? "" : "s"}` : null);
 
   return (
-    <form action={action} className="mt-1 grid gap-2.5">
+    <form id={formId} action={action} className="mt-1 grid gap-2.5">
       <input type="hidden" name="course_id" value={courseId} />
       {moduleId && !hasPlacementGroups ? <input type="hidden" name="module_id" value={moduleId} /> : null}
       {phaseId && !hasPlacementGroups ? <input type="hidden" name="phase_id" value={phaseId} /> : null}
@@ -156,6 +159,19 @@ export function SharedTaskCreatorForm({
         <input
           type="text"
           name="title"
+          required
+          aria-invalid={titleError ? "true" : undefined}
+          aria-describedby={titleError ? titleErrorId : undefined}
+          onInvalid={(event) => {
+            event.currentTarget.setCustomValidity("Please enter a task title.");
+            setTitleError("Please enter a task title.");
+          }}
+          onInput={(event) => {
+            event.currentTarget.setCustomValidity("");
+            if (event.currentTarget.value.trim()) {
+              setTitleError(null);
+            }
+          }}
           className="brand-input h-11 min-w-[200px] flex-[2_1_260px] rounded-2xl px-4 text-sm"
           placeholder={isFocusBlock ? "Focus block title" : "Task title"}
         />
@@ -185,6 +201,11 @@ export function SharedTaskCreatorForm({
       {hasPlacementGroups && !hasSelectedModuleOptions ? (
         <p className="text-sm text-[color:var(--mid)]">
           {placementSelection?.emptyGroupMessage ?? "Add a module first before placing a task here."}
+        </p>
+      ) : null}
+      {titleError ? (
+        <p id={titleErrorId} className="text-sm font-medium text-rose-700">
+          {titleError}
         </p>
       ) : null}
 
@@ -276,7 +297,7 @@ export function SharedTaskCreatorForm({
 
           {isLesson ? (
             <div>
-              <StructuredLessonBuilder taskTitle="" initialLesson={null} compact />
+              <StructuredLessonBuilder formId={formId} taskTitle="" initialLesson={null} compact />
             </div>
           ) : null}
 
