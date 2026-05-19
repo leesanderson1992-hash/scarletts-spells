@@ -263,7 +263,7 @@ function getParentStatusHeadline(status: ParentProgressStatus) {
     case "watching":
       return "Worth watching";
     case "performing_well":
-      return "Secure and strengthening";
+      return "Building confidence";
   }
 }
 
@@ -881,9 +881,9 @@ export default async function InsightsPage({
                 <p className="mt-1 text-sm text-[color:var(--mid)]">days logged</p>
               </article>
               <article className="brand-card rounded-3xl p-4">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[color:var(--mid)]">Secure words</p>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[color:var(--mid)]">Broader-evidence words</p>
                 <p className="mt-2 text-3xl font-semibold text-[color:var(--ink)]">{secureWords.length}</p>
-                <p className="mt-1 text-sm text-[color:var(--mid)]">gold bars in spelling</p>
+                <p className="mt-1 text-sm text-[color:var(--mid)]">advisory gold bars in spelling</p>
               </article>
               <article className="brand-card rounded-3xl p-4">
                 <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[color:var(--mid)]">Warm workshop</p>
@@ -989,7 +989,7 @@ export default async function InsightsPage({
                 </div>
                 <div className="mt-4 grid gap-3">
                   <div className="rounded-[1.35rem] border border-[var(--border)] bg-white px-4 py-4">
-                    <p className="text-sm font-semibold text-[color:var(--ink)]">Secure words</p>
+                    <p className="text-sm font-semibold text-[color:var(--ink)]">Broader-evidence words</p>
                     <div className="mt-3 flex flex-wrap gap-2">
                       {secureWords.length > 0 ? (
                         secureWords.map((row) => (
@@ -998,9 +998,14 @@ export default async function InsightsPage({
                           </span>
                         ))
                       ) : (
-                        <p className="text-sm text-[color:var(--mid)]">No secure words yet.</p>
+                        <p className="text-sm text-[color:var(--mid)]">No broader-evidence words yet.</p>
                       )}
                     </div>
+                    <p className="mt-3 text-xs leading-5 text-[color:var(--mid)]">
+                      Gold Bar labels here are advisory progress markers based on
+                      current shared evidence. Review Work decisions remain the
+                      verified truth.
+                    </p>
                   </div>
                   <div className="rounded-[1.35rem] border border-[var(--border)] bg-white px-4 py-4">
                     <p className="text-sm font-semibold text-[color:var(--ink)]">Slipping words</p>
@@ -1372,7 +1377,7 @@ export default async function InsightsPage({
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                   <div>
                     <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[color:var(--mid)]">
-                      Evidenced truths
+                      Confirmable evidence signals
                     </p>
                     <p className="mt-1 text-sm leading-6 text-[color:var(--mid)]">
                       Medium-complexity real-writing signals that may count toward Level 4 or Level 5. Recent contradiction can pause level movement without blocking evidence confirmation.
@@ -1478,7 +1483,7 @@ export default async function InsightsPage({
               <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
                 <div>
                   <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[color:var(--mid)]">
-                    Mastery atlas
+                    Evidence atlas
                   </p>
                   <h2 className="mt-1 text-2xl font-semibold tracking-tight text-[color:var(--ink)]">
                     Scan the structure, then open the exact stream underneath

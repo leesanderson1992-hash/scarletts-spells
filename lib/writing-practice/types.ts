@@ -500,7 +500,7 @@ export function getLearningItemProgressStateLabel(
     case "in_machine":
       return "In the Machine";
     case "gold_bar":
-      return "Gold Bar";
+      return "Gold Bar so far";
   }
 }
 
@@ -541,7 +541,7 @@ export function getMasteryDomainLabel(value: string | null) {
 export function getParentProgressStatusLabel(value: ParentProgressStatus) {
   switch (value) {
     case "performing_well":
-      return "Performing well";
+      return "Building confidence";
     case "watching":
       return "Watching";
     case "regressing":

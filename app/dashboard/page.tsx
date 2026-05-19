@@ -676,13 +676,13 @@ export default async function DashboardPage({
               <article className="brand-card rounded-3xl p-5">
                 <div className="flex items-center justify-between gap-3">
                   <div>
-                    <p className="brand-eyebrow">Secure So Far</p>
+                    <p className="brand-eyebrow">Evidence So Far</p>
                     <h2 className="mt-1 text-2xl font-semibold tracking-tight text-[color:var(--ink)]">
-                      Gold Bars
+                      Gold Bar progress
                     </h2>
                   </div>
                   <span className="rounded-full bg-[rgba(46,125,50,0.12)] px-3 py-1 text-xs font-medium text-emerald-800">
-                    Looking secure so far
+                    Advisory progress only
                   </span>
                 </div>
 
@@ -690,7 +690,7 @@ export default async function DashboardPage({
                   <div className="rounded-[1.4rem] border border-emerald-200 bg-[rgba(236,253,245,0.7)] px-4 py-4">
                     <div className="flex items-center justify-between gap-3">
                       <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[color:var(--mid)]">
-                        Words looking secure
+                        Words with broader evidence so far
                       </p>
                       <span className="rounded-full bg-[rgba(46,125,50,0.12)] px-3 py-1 text-xs font-medium text-emerald-800">
                         Spelling only
@@ -707,21 +707,22 @@ export default async function DashboardPage({
                       ))}
                       {secureWords.length === 0 ? (
                         <p className="text-sm text-[color:var(--mid)]">
-                          No gold bars yet. Keep practising and reviewing with
+                          No broader-evidence gold bars yet. Keep practising and reviewing with
                           parent checks.
                         </p>
                       ) : null}
                     </div>
                     <p className="mt-3 text-xs leading-5 text-[color:var(--mid)]">
-                      These secure-word labels reflect current evidence and
-                      parent-reviewed history so far. They are not automatic
-                      proof of full mastery on their own.
+                      These labels reflect current evidence and parent-reviewed
+                      history so far. They are advisory progress markers, not
+                      automatic proof of full mastery on their own. Review Work
+                      decisions remain the verified truth.
                     </p>
                   </div>
 
                   <div className="rounded-[1.4rem] border border-emerald-200 bg-[rgba(236,253,245,0.7)] px-4 py-4">
                     <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[color:var(--mid)]">
-                      Recent secure-word history
+                      Recent gold-bar history
                     </p>
                     <div className="mt-3 grid gap-2">
                       {provenBagItems.slice(0, 4).map((item) => (
@@ -736,7 +737,8 @@ export default async function DashboardPage({
                       ))}
                       {provenBagItems.length === 0 ? (
                         <p className="text-sm text-[color:var(--mid)]">
-                          Gold bar history will build here as spelling words become secure.
+                          Gold bar history will build here as spelling evidence
+                          grows stronger over time.
                         </p>
                       ) : null}
                     </div>
@@ -982,11 +984,11 @@ export default async function DashboardPage({
                 href={insightsSecureWordsPath}
                 className="brand-card block rounded-3xl p-5 transition hover:border-[rgba(206,71,125,0.28)] hover:shadow-sm"
               >
-                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[color:var(--mid)]">Secure words</p>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[color:var(--mid)]">Broader-evidence words</p>
                 <p className="mt-2 text-3xl font-semibold text-[color:var(--ink)]">{secureWordCount}</p>
-                <p className="mt-1 text-sm text-[color:var(--mid)]">words currently sitting as Gold Bars</p>
+                <p className="mt-1 text-sm text-[color:var(--mid)]">words currently sitting as advisory Gold Bars</p>
                 <p className="mt-3 text-xs font-medium uppercase tracking-[0.16em] text-[var(--scarlett)]">
-                  Open secure words
+                  Open evidence summary
                 </p>
               </Link>
               <Link

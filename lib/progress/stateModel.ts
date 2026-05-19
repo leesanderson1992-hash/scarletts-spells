@@ -3,7 +3,7 @@ export type UniversalProgressState = "golden_nugget" | "in_machine" | "gold_bar"
 export const UNIVERSAL_PROGRESS_LABELS: Record<UniversalProgressState, string> = {
   golden_nugget: "Golden Nugget",
   in_machine: "In the Machine",
-  gold_bar: "Gold Bar",
+  gold_bar: "Gold Bar so far",
 };
 
 export function getUniversalProgressBadgeClasses(state: UniversalProgressState) {
