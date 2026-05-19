@@ -16,6 +16,7 @@ import type {
   ReviewWritingIssueProjection,
   ReviewWritingIssueSuggestionProjection,
 } from "@/lib/writing-practice/types";
+import { getManualReviewSampleStatus } from "./manual-sample-review-utils";
 
 import {
   buildReviewWorkEntryId,
@@ -93,6 +94,17 @@ type WritingFalsePositiveSuppressionRow = {
 };
 
 type WritingIssueCorrectionAttemptRow = ReviewWritingIssueCorrectionAttemptProjection;
+type WritingSampleRow = {
+  id: string;
+  task_submission_id: string | null;
+  title: string | null;
+  source: string | null;
+  sample_text: string;
+  written_at: string | null;
+  created_at: string;
+  review_completed_at: string | null;
+};
+
 type ReviewQueueSubmissionSummary = ReviewQueueThreadInput & {
   submission_text: string;
   course_id: string;
@@ -126,10 +138,11 @@ type ManualReviewSampleSummary = {
   submitted_at: string;
   written_at: string | null;
   created_at: string;
+  review_completed_at: string | null;
   misspellings: MisspellingReviewRow[];
   unresolvedMisspellingCount: number;
   alreadyActiveCount: number;
-  sharedQueueStatus: { label: "Needs review" | "Reviewed"; tone: string };
+  sharedQueueStatus: ReturnType<typeof getManualReviewSampleStatus>;
 };
 
 type LiveReviewQueueEntry =
@@ -198,7 +211,9 @@ export default async function CourseReviewPage({
       .order("submitted_at", { ascending: false }),
     supabase
       .from("writing_samples")
-      .select("id, task_submission_id, title, source, sample_text, written_at, created_at")
+      .select(
+        "id, task_submission_id, title, source, sample_text, written_at, created_at, review_completed_at",
+      )
       .eq("parent_user_id", user.id)
       .eq("child_id", selectedChild.id)
       .order("created_at", { ascending: false }),
@@ -240,7 +255,8 @@ export default async function CourseReviewPage({
   const taskIds = Array.from(
     new Set((submissions ?? []).map((submission) => submission.task_id)),
   );
-  const linkedSamples = (writingSamples ?? []).filter(
+  const allWritingSamples = (writingSamples ?? []) as WritingSampleRow[];
+  const linkedSamples = allWritingSamples.filter(
     (
       sample,
     ): sample is {
@@ -251,11 +267,12 @@ export default async function CourseReviewPage({
       sample_text: string;
       written_at: string | null;
       created_at: string;
+      review_completed_at: string | null;
     } =>
       typeof sample.task_submission_id === "string" &&
       typeof sample.sample_text === "string",
   );
-  const manualSamples = (writingSamples ?? []).filter(
+  const manualSamples = allWritingSamples.filter(
     (
       sample,
     ): sample is {
@@ -266,9 +283,10 @@ export default async function CourseReviewPage({
       sample_text: string;
       written_at: string | null;
       created_at: string;
+      review_completed_at: string | null;
     } => sample.task_submission_id === null && typeof sample.sample_text === "string",
   );
-  const sampleIds = (writingSamples ?? []).map((sample) => sample.id);
+  const sampleIds = allWritingSamples.map((sample) => sample.id);
 
   const [{ data: courses }, { data: tasks }, { data: misspellingRows }] =
     await Promise.all([
@@ -468,12 +486,8 @@ export default async function CourseReviewPage({
     };
   });
   const reviewQueueThreads = buildReviewQueueThreads(reviewQueueSubmissionSummaries);
-  const liveReviewThreads = reviewQueueThreads.filter(
-    (thread) => !thread.archiveEligible && thread.latestSubmission.sharedQueueIsLive,
-  );
-  const archivedReviewThreads = reviewQueueThreads.filter(
-    (thread) => !thread.latestSubmission.sharedQueueIsLive,
-  );
+  const liveReviewThreads = reviewQueueThreads.filter((thread) => !thread.archiveEligible);
+  const archivedReviewThreads = reviewQueueThreads.filter((thread) => thread.archiveEligible);
   const manualReviewSamples: ManualReviewSampleSummary[] = manualSamples
     .map((sample) => {
       const misspellings = misspellingsBySampleId.get(sample.id) ?? [];
@@ -509,27 +523,24 @@ export default async function CourseReviewPage({
         submitted_at: sample.written_at ?? sample.created_at,
         written_at: sample.written_at,
         created_at: sample.created_at,
+        review_completed_at:
+          typeof sample.review_completed_at === "string" ? sample.review_completed_at : null,
         misspellings,
         unresolvedMisspellingCount,
         alreadyActiveCount,
-        sharedQueueStatus: {
-          label:
-            unresolvedMisspellingCount > 0 ? ("Needs review" as const) : ("Reviewed" as const),
-          tone:
-            unresolvedMisspellingCount > 0
-              ? "border-amber-200 bg-amber-50 text-amber-700"
-              : "border-sky-200 bg-sky-50 text-sky-700",
-        },
+        sharedQueueStatus: getManualReviewSampleStatus({
+          reviewCompletedAt:
+            typeof sample.review_completed_at === "string" ? sample.review_completed_at : null,
+          unresolvedMisspellingCount,
+        }),
       };
     })
     .sort((left, right) => right.submitted_at.localeCompare(left.submitted_at));
   const liveManualReviewSamples = manualReviewSamples.filter(
-    (sample) => sample.unresolvedMisspellingCount > 0,
+    (sample) => sample.review_completed_at === null,
   );
   const archivedManualReviewSamples = manualReviewSamples.filter(
-    (sample) =>
-      sample.unresolvedMisspellingCount === 0 &&
-      (sample.misspellings.length > 0 || sample.sharedQueueStatus.label === "Reviewed"),
+    (sample) => sample.review_completed_at !== null,
   );
   const liveReviewEntries: LiveReviewQueueEntry[] = [
     ...liveManualReviewSamples.map((sample) => ({

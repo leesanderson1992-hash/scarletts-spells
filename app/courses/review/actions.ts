@@ -136,7 +136,7 @@ async function getOwnedManualWritingSample(
 ) {
   const { data: sample } = await supabase
     .from("writing_samples")
-    .select("id, child_id, sample_text")
+    .select("id, child_id, sample_text, task_submission_id, review_completed_at")
     .eq("id", writingSampleId)
     .eq("parent_user_id", userId)
     .maybeSingle();

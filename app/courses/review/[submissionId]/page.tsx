@@ -16,6 +16,12 @@ import type {
   ReviewWritingIssueProjection,
   ReviewWritingIssueSuggestionDetailProjection,
 } from "@/lib/writing-practice/types";
+import {
+  ManualSampleParentAuthoredIssuesSection,
+  ManualSampleParentIssueSection,
+  type ReviewWritingIssueWithSourceSuggestionRow,
+} from "../manual-sample-sections";
+import { getManualReviewSampleStatus } from "../manual-sample-review-utils";
 
 import { recordReviewWorkVerificationAction } from "../actions";
 import {
@@ -456,7 +462,9 @@ export default async function CourseReviewDetailPage({
   if (reviewEntry.sourceType === "manual_writing_sample") {
     const { data: manualSample } = await supabase
       .from("writing_samples")
-      .select("id, title, source, sample_text, written_at, created_at, child_id")
+      .select(
+        "id, title, source, sample_text, written_at, created_at, child_id, review_completed_at",
+      )
       .eq("id", reviewEntry.id)
       .eq("parent_user_id", user.id)
       .eq("child_id", selectedChild.id)
@@ -484,7 +492,7 @@ export default async function CourseReviewDetailPage({
       supabase
         .from("writing_issues")
         .select(
-          "id, task_submission_id, source_misspelling_instance_id, issue_status, final_classification, observed_text, approved_replacement, micro_skill_key, parent_review_note, parent_marked_at",
+          "id, task_submission_id, source_misspelling_instance_id, source_suggestion_id, issue_status, final_classification, observed_text, approved_replacement, micro_skill_key, parent_review_note, parent_marked_at",
         )
         .eq("writing_sample_id", manualSample.id)
         .eq("parent_user_id", user.id)
@@ -500,7 +508,7 @@ export default async function CourseReviewDetailPage({
       supabase
         .from("parent_verifications")
         .select(
-          "id, source_entity_id, decision, suggested_category_code, suggested_micro_skill_key, verification_notes, metadata, verified_at",
+          "id, source_entity_id, decision, suggested_category_code, suggested_micro_skill_key, verified_micro_skill_key, verification_notes, metadata, verified_at",
         )
         .eq("writing_sample_id", manualSample.id)
         .eq("parent_user_id", user.id)
@@ -508,20 +516,39 @@ export default async function CourseReviewDetailPage({
     ]);
 
     const misspellings = (misspellingRows ?? []) as MisspellingReviewRow[];
-    const writingIssues = (writingIssueRows ?? []) as WritingIssueRow[];
+    const writingIssues = (writingIssueRows ?? []) as ReviewWritingIssueWithSourceSuggestionRow[];
     const writingIssueSuggestions =
       (writingIssueSuggestionRows ?? []) as WritingIssueSuggestionRow[];
+    const parentManualSuggestionIds = new Set(
+      writingIssueSuggestions
+        .filter((suggestion) => suggestion.source_type === "parent_manual")
+        .map((suggestion) => suggestion.id),
+    );
+    const parentAuthoredManualIssues = writingIssues.filter(
+      (issue) =>
+        typeof issue.source_suggestion_id === "string" &&
+        parentManualSuggestionIds.has(issue.source_suggestion_id),
+    );
+    const sharedDurableIssues = writingIssues.filter(
+      (issue) =>
+        !(
+          typeof issue.source_suggestion_id === "string" &&
+          parentManualSuggestionIds.has(issue.source_suggestion_id)
+        ),
+    );
     const parentVerifications = (parentVerificationRows ?? []) as Parameters<
       typeof buildSuggestedIssuePanelModel
     >[0]["parentVerifications"];
     const panelModel = buildSuggestedIssuePanelModel({
       sourceType: "manual_writing_sample",
       misspellings,
-      writingIssues,
+      writingIssues: sharedDurableIssues,
       writingIssueSuggestions,
       parentVerifications,
       taskSubmissionId: null,
       writingSampleId: manualSample.id,
+      derivedTemplateMetadataByMicroSkillKey: {},
+      overrideMicroSkillProvidersByMisspellingId: {},
       hasCanonicalWritingSource: true,
       analysisAttempted: true,
       isReviewed: false,
@@ -532,6 +559,13 @@ export default async function CourseReviewDetailPage({
         Boolean(parentVerificationError),
     });
     const manualSampleDate = manualSample.written_at ?? manualSample.created_at;
+    const manualSampleQueueStatus = getManualReviewSampleStatus({
+      reviewCompletedAt:
+        typeof manualSample.review_completed_at === "string"
+          ? manualSample.review_completed_at
+          : null,
+      unresolvedMisspellingCount: panelModel.summary.unresolvedCount,
+    });
 
     return (
       <AppShell
@@ -575,6 +609,18 @@ export default async function CourseReviewDetailPage({
               <tbody>
                 <tr className="border-b border-[var(--border)]">
                   <th className="w-44 bg-[rgba(255,247,220,0.35)] px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-[color:var(--mid)]">
+                    Review status
+                  </th>
+                  <td className="px-4 py-3">
+                    <span
+                      className={`rounded-full border px-3 py-1 text-xs font-medium ${manualSampleQueueStatus.tone}`}
+                    >
+                      {manualSampleQueueStatus.label}
+                    </span>
+                  </td>
+                </tr>
+                <tr className="border-b border-[var(--border)]">
+                  <th className="w-44 bg-[rgba(255,247,220,0.35)] px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-[color:var(--mid)]">
                     Source type
                   </th>
                   <td className="px-4 py-3 text-[color:var(--ink)]">
@@ -605,10 +651,29 @@ export default async function CourseReviewDetailPage({
             </div>
           </div>
 
-          <SuggestedIssuesPanel
-            model={panelModel}
+          <ManualSampleParentIssueSection
+            writingSampleId={manualSample.id}
             redirectPath={buildScopedPath(`/courses/review/${reviewEntryId}`, selectedChild.id, mode)}
+            isCompleted={Boolean(manualSample.review_completed_at)}
+            completedAt={
+              typeof manualSample.review_completed_at === "string"
+                ? manualSample.review_completed_at
+                : null
+            }
           />
+
+          <ManualSampleParentAuthoredIssuesSection rows={parentAuthoredManualIssues} />
+
+        <SuggestedIssuesPanel
+          model={panelModel}
+          submissionId={reviewEntryId}
+          redirectPath={buildScopedPath(`/courses/review/${reviewEntryId}`, selectedChild.id, mode)}
+          candidateCaptureMicroSkillProvider={{
+            status: "blocked",
+            reason: "no_options_available",
+          }}
+          pendingCandidateMappingsByMisspellingId={new Map()}
+        />
         </section>
       </AppShell>
     );
