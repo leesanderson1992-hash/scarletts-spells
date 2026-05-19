@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 
 import {
   cloneStructuredLessonDocument,
-  STRUCTURED_LESSON_PRESETS,
+  getStructuredLessonPreset,
 } from "@/lib/lessons/presets";
 import type {
   LessonBlockType,
@@ -45,11 +45,12 @@ export type StructuredLessonBuilderState = {
   structuredDocument: StructuredLessonDocument;
   togglePreview: () => void;
   toggleExpanded: () => void;
-  addBlock: (blockType: LessonBlockType) => void;
+  addBlock: (blockType: LessonBlockType, index?: number) => void;
   moveBlock: (blockId: string, direction: -1 | 1) => void;
   duplicateBlock: (blockId: string) => void;
   removeBlock: (blockId: string) => void;
   loadPreset: (presetId: string) => void;
+  replaceLessonDocument: (lesson: StructuredLessonDocument) => void;
   updateBlock: (
     blockId: string,
     updater: (block: StructuredLessonBlock) => StructuredLessonBlock,
@@ -285,6 +286,17 @@ function updateBlockInList(
   return blocks.map((block) => (block.block_id === blockId ? updater(block) : block));
 }
 
+function insertBlockInList(
+  blocks: StructuredLessonBlock[],
+  block: StructuredLessonBlock,
+  index = blocks.length,
+) {
+  const next = [...blocks];
+  const safeIndex = Math.max(0, Math.min(index, next.length));
+  next.splice(safeIndex, 0, block);
+  return next;
+}
+
 function buildInitialBlocks(
   taskTitle: string,
   initialLesson?: StructuredLessonDocument | null,
@@ -322,8 +334,8 @@ export function useStructuredLessonBuilderState(input: {
   initialLesson?: StructuredLessonDocument | null;
   compact?: boolean;
 }): StructuredLessonBuilderState {
-  const [showPreview, setShowPreview] = useState(true);
-  const [isExpanded, setIsExpanded] = useState(!input.compact);
+  const [showPreview, setShowPreview] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(true);
   const [blocks, setBlocks] = useState<StructuredLessonBlock[]>(
     buildInitialBlocks(input.taskTitle, input.initialLesson),
   );
@@ -345,6 +357,12 @@ export function useStructuredLessonBuilderState(input: {
     setBlocks((current) => updateBlockInList(current, blockId, updater));
   }
 
+  function replaceLessonDocument(lesson: StructuredLessonDocument) {
+    const cloned = cloneStructuredLessonDocument(lesson);
+    setBlocks(cloned.blocks);
+    setShowPreview(false);
+  }
+
   return {
     showPreview,
     isExpanded,
@@ -352,7 +370,8 @@ export function useStructuredLessonBuilderState(input: {
     structuredDocument,
     togglePreview: () => setShowPreview((current) => !current),
     toggleExpanded: () => setIsExpanded((current) => !current),
-    addBlock: (blockType) => setBlocks((current) => [...current, createBlock(blockType)]),
+    addBlock: (blockType, index) =>
+      setBlocks((current) => insertBlockInList(current, createBlock(blockType), index)),
     moveBlock: (blockId, direction) =>
       setBlocks((current) => {
         const index = current.findIndex((block) => block.block_id === blockId);
@@ -377,22 +396,19 @@ export function useStructuredLessonBuilderState(input: {
           return current;
         }
 
-        const next = [...current];
-        next.splice(index + 1, 0, cloneBlock(current[index]!));
-        return next;
+        return insertBlockInList(current, cloneBlock(current[index]!), index + 1);
       }),
     removeBlock: (blockId) =>
       setBlocks((current) => current.filter((block) => block.block_id !== blockId)),
     loadPreset: (presetId) => {
-      const preset = STRUCTURED_LESSON_PRESETS.find((item) => item.id === presetId);
+      const preset = getStructuredLessonPreset(presetId);
       if (!preset) {
         return;
       }
 
-      const cloned = cloneStructuredLessonDocument(preset.lesson);
-      setBlocks(cloned.blocks);
-      setShowPreview(true);
+      replaceLessonDocument(preset.lesson);
     },
+    replaceLessonDocument,
     updateBlock,
     updateInfoCard: (blockId, cardId, fields) =>
       updateBlock(blockId, (item) => {
