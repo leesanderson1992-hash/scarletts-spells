@@ -1,6 +1,6 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { Fragment, type ReactNode, useState } from "react";
 
 import type {
   LessonActionLinkBlock,
@@ -31,7 +31,7 @@ function BlockCard({
   children: ReactNode;
 }) {
   return (
-    <div className="rounded-[1.75rem] border border-[var(--border)] bg-white p-4">
+    <div className="rounded-[1.5rem] border border-[var(--border)] bg-white px-4 py-3.5">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <p className="brand-eyebrow">Block {index + 1}</p>
@@ -73,7 +73,7 @@ function BlockCard({
         </div>
       </div>
 
-      <div className="mt-4 grid gap-3">{children}</div>
+      <div className="mt-3 grid gap-3">{children}</div>
     </div>
   );
 }
@@ -95,130 +95,172 @@ function Field({
   );
 }
 
+function InsertionRow({
+  insertIndex,
+  isOpen,
+  onToggle,
+  onAddBlock,
+}: {
+  insertIndex: number;
+  isOpen: boolean;
+  onToggle: () => void;
+  onAddBlock: (blockType: (typeof BLOCK_OPTIONS)[number]["type"]) => void;
+}) {
+  return (
+    <div className="grid gap-2">
+      <div className="flex items-center gap-3">
+        <div className="h-px flex-1 bg-[var(--border)]" />
+        <button
+          type="button"
+          onClick={onToggle}
+          aria-expanded={isOpen}
+          aria-label={isOpen ? "Close block picker" : `Add block at position ${insertIndex + 1}`}
+          className="rounded-full border border-dashed border-[var(--border)] bg-[rgba(255,255,255,0.9)] px-3 py-1.5 text-xs font-medium text-[color:var(--mid)] transition hover:border-[var(--scarlett)] hover:text-[var(--scarlett)]"
+        >
+          + Add block
+        </button>
+        <div className="h-px flex-1 bg-[var(--border)]" />
+      </div>
+
+      {isOpen ? (
+        <div className="flex flex-wrap justify-center gap-2 rounded-[1.25rem] border border-[var(--border)] bg-[rgba(252,228,244,0.16)] px-3 py-3">
+          {BLOCK_OPTIONS.map((option) => (
+            <button
+              key={option.type}
+              type="button"
+              onClick={() => onAddBlock(option.type)}
+              className="rounded-full border border-[var(--border)] bg-white px-3 py-2 text-xs font-medium text-[color:var(--ink)] transition hover:text-[var(--scarlett)]"
+            >
+              + {option.label}
+            </button>
+          ))}
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
 export function StructuredLessonBuilderEditorList({
   builder,
 }: {
   builder: StructuredLessonBuilderState;
 }) {
+  const [openInsertionIndex, setOpenInsertionIndex] = useState<number | null>(null);
+
+  function toggleInsertionPicker(index: number) {
+    setOpenInsertionIndex((current) => (current === index ? null : index));
+  }
+
+  function handleAddBlock(blockType: (typeof BLOCK_OPTIONS)[number]["type"], index: number) {
+    builder.addBlock(blockType, index);
+    setOpenInsertionIndex(null);
+  }
+
   return (
-    <div className="grid gap-4">
+    <div className="grid gap-3">
+      {builder.blocks.length === 0 ? (
+        <InsertionRow
+          insertIndex={0}
+          isOpen={openInsertionIndex === 0}
+          onToggle={() => toggleInsertionPicker(0)}
+          onAddBlock={(blockType) => handleAddBlock(blockType, 0)}
+        />
+      ) : null}
+
       {builder.blocks.map((block, index) => (
-        <BlockCard
-          key={block.block_id}
-          block={block}
-          index={index}
-          blockCount={builder.blocks.length}
-          onMove={(direction) => builder.moveBlock(block.block_id, direction)}
-          onDuplicate={() => builder.duplicateBlock(block.block_id)}
-          onRemove={() => builder.removeBlock(block.block_id)}
-        >
-          {block.block_type === "heading" ? (
-            <>
-              <Field label="Eyebrow">
-                <input
-                  type="text"
-                  value={block.eyebrow ?? ""}
-                  onChange={(event) =>
-                    builder.updateBlock(block.block_id, (item) => ({
-                      ...item,
-                      eyebrow: event.target.value,
-                    }))
-                  }
-                  className="brand-input h-11 rounded-2xl px-4 text-sm"
-                />
-              </Field>
-              <Field label="Heading">
-                <input
-                  type="text"
-                  value={block.heading}
-                  onChange={(event) =>
-                    builder.updateBlock(block.block_id, (item) => ({
-                      ...item,
-                      heading: event.target.value,
-                    }))
-                  }
-                  className="brand-input h-11 rounded-2xl px-4 text-sm"
-                />
-              </Field>
-            </>
-          ) : null}
+        <Fragment key={block.block_id}>
+          <InsertionRow
+            insertIndex={index}
+            isOpen={openInsertionIndex === index}
+            onToggle={() => toggleInsertionPicker(index)}
+            onAddBlock={(blockType) => handleAddBlock(blockType, index)}
+          />
 
-          {block.block_type === "section_intro" ? (
-            <>
-              <Field label="Eyebrow">
-                <input
-                  type="text"
-                  value={block.eyebrow ?? ""}
-                  onChange={(event) =>
-                    builder.updateBlock(block.block_id, (item) => ({
-                      ...(item as LessonSectionIntroBlock),
-                      eyebrow: event.target.value,
-                    }))
-                  }
-                  className="brand-input h-11 rounded-2xl px-4 text-sm"
-                />
-              </Field>
-              <Field label="Title">
-                <input
-                  type="text"
-                  value={block.title}
-                  onChange={(event) =>
-                    builder.updateBlock(block.block_id, (item) => ({
-                      ...(item as LessonSectionIntroBlock),
-                      title: event.target.value,
-                    }))
-                  }
-                  className="brand-input h-11 rounded-2xl px-4 text-sm"
-                />
-              </Field>
-              <Field label="Section intro">
-                <textarea
-                  value={block.body ?? ""}
-                  onChange={(event) =>
-                    builder.updateBlock(block.block_id, (item) => ({
-                      ...(item as LessonSectionIntroBlock),
-                      body: event.target.value,
-                    }))
-                  }
-                  rows={4}
-                  className="brand-input rounded-2xl px-4 py-3 text-sm"
-                />
-              </Field>
-            </>
-          ) : null}
+          <BlockCard
+            block={block}
+            index={index}
+            blockCount={builder.blocks.length}
+            onMove={(direction) => builder.moveBlock(block.block_id, direction)}
+            onDuplicate={() => builder.duplicateBlock(block.block_id)}
+            onRemove={() => builder.removeBlock(block.block_id)}
+          >
+            {block.block_type === "heading" ? (
+              <>
+                <Field label="Eyebrow">
+                  <input
+                    type="text"
+                    value={block.eyebrow ?? ""}
+                    onChange={(event) =>
+                      builder.updateBlock(block.block_id, (item) => ({
+                        ...item,
+                        eyebrow: event.target.value,
+                      }))
+                    }
+                    className="brand-input h-11 rounded-2xl px-4 text-sm"
+                  />
+                </Field>
+                <Field label="Heading">
+                  <input
+                    type="text"
+                    value={block.heading}
+                    onChange={(event) =>
+                      builder.updateBlock(block.block_id, (item) => ({
+                        ...item,
+                        heading: event.target.value,
+                      }))
+                    }
+                    className="brand-input h-11 rounded-2xl px-4 text-sm"
+                  />
+                </Field>
+              </>
+            ) : null}
 
-          {block.block_type === "rich_text" ? (
-            <Field label="Intro text">
-              <textarea
-                value={block.content}
-                onChange={(event) =>
-                  builder.updateBlock(block.block_id, (item) => ({
-                    ...item,
-                    content: event.target.value,
-                  }))
-                }
-                rows={5}
-                className="brand-input rounded-2xl px-4 py-3 text-sm"
-              />
-            </Field>
-          ) : null}
+            {block.block_type === "section_intro" ? (
+              <>
+                <Field label="Eyebrow">
+                  <input
+                    type="text"
+                    value={block.eyebrow ?? ""}
+                    onChange={(event) =>
+                      builder.updateBlock(block.block_id, (item) => ({
+                        ...(item as LessonSectionIntroBlock),
+                        eyebrow: event.target.value,
+                      }))
+                    }
+                    className="brand-input h-11 rounded-2xl px-4 text-sm"
+                  />
+                </Field>
+                <Field label="Title">
+                  <input
+                    type="text"
+                    value={block.title}
+                    onChange={(event) =>
+                      builder.updateBlock(block.block_id, (item) => ({
+                        ...(item as LessonSectionIntroBlock),
+                        title: event.target.value,
+                      }))
+                    }
+                    className="brand-input h-11 rounded-2xl px-4 text-sm"
+                  />
+                </Field>
+                <Field label="Section intro">
+                  <textarea
+                    value={block.body ?? ""}
+                    onChange={(event) =>
+                      builder.updateBlock(block.block_id, (item) => ({
+                        ...(item as LessonSectionIntroBlock),
+                        body: event.target.value,
+                      }))
+                    }
+                    rows={4}
+                    className="brand-input rounded-2xl px-4 py-3 text-sm"
+                  />
+                </Field>
+              </>
+            ) : null}
 
-          {block.block_type === "callout" ? (
-            <>
-              <Field label="Callout title">
-                <input
-                  type="text"
-                  value={block.title ?? ""}
-                  onChange={(event) =>
-                    builder.updateBlock(block.block_id, (item) => ({
-                      ...item,
-                      title: event.target.value,
-                    }))
-                  }
-                  className="brand-input h-11 rounded-2xl px-4 text-sm"
-                />
-              </Field>
-              <Field label="Callout text">
+            {block.block_type === "rich_text" ? (
+              <Field label="Intro text">
                 <textarea
                   value={block.content}
                   onChange={(event) =>
@@ -227,350 +269,390 @@ export function StructuredLessonBuilderEditorList({
                       content: event.target.value,
                     }))
                   }
-                  rows={4}
+                  rows={5}
                   className="brand-input rounded-2xl px-4 py-3 text-sm"
                 />
               </Field>
-            </>
-          ) : null}
+            ) : null}
 
-          {block.block_type === "action_link" ? (
-            <>
-              <Field label="Button label">
+            {block.block_type === "callout" ? (
+              <>
+                <Field label="Callout title">
+                  <input
+                    type="text"
+                    value={block.title ?? ""}
+                    onChange={(event) =>
+                      builder.updateBlock(block.block_id, (item) => ({
+                        ...item,
+                        title: event.target.value,
+                      }))
+                    }
+                    className="brand-input h-11 rounded-2xl px-4 text-sm"
+                  />
+                </Field>
+                <Field label="Callout text">
+                  <textarea
+                    value={block.content}
+                    onChange={(event) =>
+                      builder.updateBlock(block.block_id, (item) => ({
+                        ...item,
+                        content: event.target.value,
+                      }))
+                    }
+                    rows={4}
+                    className="brand-input rounded-2xl px-4 py-3 text-sm"
+                  />
+                </Field>
+              </>
+            ) : null}
+
+            {block.block_type === "action_link" ? (
+              <>
+                <Field label="Button label">
+                  <input
+                    type="text"
+                    value={block.label}
+                    onChange={(event) =>
+                      builder.updateBlock(block.block_id, (item) => ({
+                        ...(item as LessonActionLinkBlock),
+                        label: event.target.value,
+                      }))
+                    }
+                    className="brand-input h-11 rounded-2xl px-4 text-sm"
+                  />
+                </Field>
+                <Field label="Link URL">
+                  <input
+                    type="url"
+                    value={block.url}
+                    onChange={(event) =>
+                      builder.updateBlock(block.block_id, (item) => ({
+                        ...(item as LessonActionLinkBlock),
+                        url: event.target.value,
+                      }))
+                    }
+                    className="brand-input h-11 rounded-2xl px-4 text-sm"
+                  />
+                </Field>
+                <Field label="Button style">
+                  <select
+                    value={block.style ?? "primary"}
+                    onChange={(event) =>
+                      builder.updateBlock(block.block_id, (item) => ({
+                        ...(item as LessonActionLinkBlock),
+                        style: event.target.value as LessonActionLinkBlock["style"],
+                      }))
+                    }
+                    className="brand-input h-11 rounded-2xl px-4 text-sm"
+                  >
+                    <option value="primary">Primary</option>
+                    <option value="secondary">Secondary</option>
+                  </select>
+                </Field>
+              </>
+            ) : null}
+
+            {block.block_type === "info_cards" ? (
+              <>
+                <Field label="Block title">
+                  <input
+                    type="text"
+                    value={block.title ?? ""}
+                    onChange={(event) =>
+                      builder.updateBlock(block.block_id, (item) => ({
+                        ...(item as LessonInfoCardsBlock),
+                        title: event.target.value,
+                      }))
+                    }
+                    className="brand-input h-11 rounded-2xl px-4 text-sm"
+                  />
+                </Field>
+                <Field label="Intro copy">
+                  <textarea
+                    value={block.body ?? ""}
+                    onChange={(event) =>
+                      builder.updateBlock(block.block_id, (item) => ({
+                        ...(item as LessonInfoCardsBlock),
+                        body: event.target.value,
+                      }))
+                    }
+                    rows={3}
+                    className="brand-input rounded-2xl px-4 py-3 text-sm"
+                  />
+                </Field>
+                <div className="grid gap-3">
+                  {block.cards.map((card, cardIndex) => (
+                    <div
+                      key={card.card_id}
+                      className="rounded-2xl border border-[var(--border)] bg-[rgba(252,228,244,0.14)] px-4 py-4"
+                    >
+                      <div className="flex items-center justify-between gap-3">
+                        <p className="text-sm font-semibold text-[color:var(--ink)]">
+                          Card {cardIndex + 1}
+                        </p>
+                        <button
+                          type="button"
+                          onClick={() => builder.removeInfoCard(block.block_id, card.card_id)}
+                          className="rounded-full border border-rose-200 bg-rose-50 px-3 py-1.5 text-xs font-medium text-rose-700"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                      <div className="mt-3 grid gap-3">
+                        <input
+                          type="text"
+                          value={card.icon ?? ""}
+                          placeholder="Optional icon, e.g. 🎧"
+                          onChange={(event) =>
+                            builder.updateInfoCard(block.block_id, card.card_id, {
+                              icon: event.target.value,
+                            })
+                          }
+                          className="brand-input h-11 rounded-2xl px-4 text-sm"
+                        />
+                        <input
+                          type="text"
+                          value={card.title}
+                          onChange={(event) =>
+                            builder.updateInfoCard(block.block_id, card.card_id, {
+                              title: event.target.value,
+                            })
+                          }
+                          className="brand-input h-11 rounded-2xl px-4 text-sm"
+                        />
+                        <textarea
+                          value={card.body}
+                          onChange={(event) =>
+                            builder.updateInfoCard(block.block_id, card.card_id, {
+                              body: event.target.value,
+                            })
+                          }
+                          rows={3}
+                          className="brand-input rounded-2xl px-4 py-3 text-sm"
+                        />
+                      </div>
+                    </div>
+                  ))}
+                  <button
+                    type="button"
+                    onClick={() => builder.addInfoCard(block.block_id)}
+                    className="rounded-full border border-[var(--border)] bg-white px-3 py-2 text-sm font-medium text-[color:var(--ink)]"
+                  >
+                    + Add information card
+                  </button>
+                </div>
+              </>
+            ) : null}
+
+            {block.block_type === "question_text" || block.block_type === "question_textarea" ? (
+              <>
+                <Field label="Question label">
+                  <input
+                    type="text"
+                    value={block.label ?? ""}
+                    onChange={(event) =>
+                      builder.updateBlock(block.block_id, (item) => ({
+                        ...item,
+                        label: event.target.value,
+                      }))
+                    }
+                    className="brand-input h-11 rounded-2xl px-4 text-sm"
+                  />
+                </Field>
+                <Field label="Placeholder">
+                  <input
+                    type="text"
+                    value={block.placeholder ?? ""}
+                    onChange={(event) =>
+                      builder.updateBlock(block.block_id, (item) => ({
+                        ...item,
+                        placeholder: event.target.value,
+                      }))
+                    }
+                    className="brand-input h-11 rounded-2xl px-4 text-sm"
+                  />
+                </Field>
+              </>
+            ) : null}
+
+            {block.block_type === "question_choice_single" || block.block_type === "question_choice_multi" ? (
+              <>
+                <Field label="Question label">
+                  <input
+                    type="text"
+                    value={block.label ?? ""}
+                    onChange={(event) =>
+                      builder.updateBlock(block.block_id, (item) => ({
+                        ...item,
+                        label: event.target.value,
+                      }))
+                    }
+                    className="brand-input h-11 rounded-2xl px-4 text-sm"
+                  />
+                </Field>
+                <div className="grid gap-2">
+                  {block.options.map((option) => (
+                    <div key={option.value} className="flex gap-2">
+                      <input
+                        type="text"
+                        value={option.label}
+                        onChange={(event) =>
+                          builder.updateChoiceOptionLabel(
+                            block.block_id,
+                            option.value,
+                            event.target.value,
+                          )
+                        }
+                        className="brand-input h-11 flex-1 rounded-2xl px-4 text-sm"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => builder.removeChoiceOption(block.block_id, option.value)}
+                        className="rounded-full border border-rose-200 bg-rose-50 px-3 text-xs font-medium text-rose-700"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  ))}
+                  <button
+                    type="button"
+                    onClick={() => builder.addChoiceOption(block.block_id)}
+                    className="rounded-full border border-[var(--border)] bg-white px-3 py-2 text-sm font-medium text-[color:var(--ink)]"
+                  >
+                    + Add option
+                  </button>
+                </div>
+              </>
+            ) : null}
+
+            {block.block_type === "comprehension_quiz_group" ? (
+              <>
+                <Field label="Quiz title">
+                  <input
+                    type="text"
+                    value={block.label ?? ""}
+                    onChange={(event) =>
+                      builder.updateBlock(block.block_id, (item) => ({
+                        ...item,
+                        label: event.target.value,
+                      }))
+                    }
+                    className="brand-input h-11 rounded-2xl px-4 text-sm"
+                  />
+                </Field>
+                <div className="grid gap-4">
+                  {block.questions.map((question, questionIndex) => (
+                    <div
+                      key={question.question_id}
+                      className="rounded-2xl border border-[var(--border)] bg-[rgba(252,228,244,0.14)] px-4 py-4"
+                    >
+                      <div className="flex items-center justify-between gap-3">
+                        <p className="text-sm font-semibold text-[color:var(--ink)]">
+                          Question {questionIndex + 1}
+                        </p>
+                        <button
+                          type="button"
+                          onClick={() => builder.removeQuizQuestion(block.block_id, question.question_id)}
+                          className="rounded-full border border-rose-200 bg-rose-50 px-3 py-1.5 text-xs font-medium text-rose-700"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                      <Field label="Prompt">
+                        <textarea
+                          value={question.prompt}
+                          onChange={(event) =>
+                            builder.updateQuizQuestion(block.block_id, question.question_id, {
+                              prompt: event.target.value,
+                            })
+                          }
+                          rows={3}
+                          className="brand-input rounded-2xl px-4 py-3 text-sm"
+                        />
+                      </Field>
+                      <div className="mt-3 grid gap-2">
+                        {question.options.map((option) => (
+                          <div key={option.option_id} className="flex items-center gap-2">
+                            <input
+                              type="radio"
+                              checked={question.correct_option_id === option.option_id}
+                              onChange={() =>
+                                builder.setQuizCorrectOption(
+                                  block.block_id,
+                                  question.question_id,
+                                  option.option_id,
+                                )
+                              }
+                              className="h-4 w-4 rounded border-[var(--border)] text-[var(--scarlett)]"
+                            />
+                            <input
+                              type="text"
+                              value={option.label}
+                              onChange={(event) =>
+                                builder.updateQuizOptionLabel(
+                                  block.block_id,
+                                  question.question_id,
+                                  option.option_id,
+                                  event.target.value,
+                                )
+                              }
+                              className="brand-input h-11 flex-1 rounded-2xl px-4 text-sm"
+                            />
+                          </div>
+                        ))}
+                      </div>
+                      <Field label="Explanation">
+                        <textarea
+                          value={question.explanation ?? ""}
+                          onChange={(event) =>
+                            builder.updateQuizQuestion(block.block_id, question.question_id, {
+                              explanation: event.target.value,
+                            })
+                          }
+                          rows={2}
+                          className="brand-input rounded-2xl px-4 py-3 text-sm"
+                        />
+                      </Field>
+                    </div>
+                  ))}
+                  <button
+                    type="button"
+                    onClick={() => builder.addQuizQuestion(block.block_id)}
+                    className="rounded-full border border-[var(--border)] bg-white px-3 py-2 text-sm font-medium text-[color:var(--ink)]"
+                  >
+                    + Add quiz question
+                  </button>
+                </div>
+              </>
+            ) : null}
+
+            {block.block_type === "titled_divider" ? (
+              <Field label="Divider title">
                 <input
                   type="text"
-                  value={block.label}
+                  value={block.title}
                   onChange={(event) =>
                     builder.updateBlock(block.block_id, (item) => ({
-                      ...(item as LessonActionLinkBlock),
-                      label: event.target.value,
-                    }))
-                  }
-                  className="brand-input h-11 rounded-2xl px-4 text-sm"
-                />
-              </Field>
-              <Field label="Link URL">
-                <input
-                  type="url"
-                  value={block.url}
-                  onChange={(event) =>
-                    builder.updateBlock(block.block_id, (item) => ({
-                      ...(item as LessonActionLinkBlock),
-                      url: event.target.value,
-                    }))
-                  }
-                  className="brand-input h-11 rounded-2xl px-4 text-sm"
-                />
-              </Field>
-              <Field label="Button style">
-                <select
-                  value={block.style ?? "primary"}
-                  onChange={(event) =>
-                    builder.updateBlock(block.block_id, (item) => ({
-                      ...(item as LessonActionLinkBlock),
-                      style: event.target.value as LessonActionLinkBlock["style"],
-                    }))
-                  }
-                  className="brand-input h-11 rounded-2xl px-4 text-sm"
-                >
-                  <option value="primary">Primary</option>
-                  <option value="secondary">Secondary</option>
-                </select>
-              </Field>
-            </>
-          ) : null}
-
-          {block.block_type === "info_cards" ? (
-            <>
-              <Field label="Block title">
-                <input
-                  type="text"
-                  value={block.title ?? ""}
-                  onChange={(event) =>
-                    builder.updateBlock(block.block_id, (item) => ({
-                      ...(item as LessonInfoCardsBlock),
+                      ...item,
                       title: event.target.value,
                     }))
                   }
                   className="brand-input h-11 rounded-2xl px-4 text-sm"
                 />
               </Field>
-              <Field label="Intro copy">
-                <textarea
-                  value={block.body ?? ""}
-                  onChange={(event) =>
-                    builder.updateBlock(block.block_id, (item) => ({
-                      ...(item as LessonInfoCardsBlock),
-                      body: event.target.value,
-                    }))
-                  }
-                  rows={3}
-                  className="brand-input rounded-2xl px-4 py-3 text-sm"
-                />
-              </Field>
-              <div className="grid gap-3">
-                {block.cards.map((card, cardIndex) => (
-                  <div
-                    key={card.card_id}
-                    className="rounded-2xl border border-[var(--border)] bg-[rgba(252,228,244,0.14)] px-4 py-4"
-                  >
-                    <div className="flex items-center justify-between gap-3">
-                      <p className="text-sm font-semibold text-[color:var(--ink)]">
-                        Card {cardIndex + 1}
-                      </p>
-                      <button
-                        type="button"
-                        onClick={() => builder.removeInfoCard(block.block_id, card.card_id)}
-                        className="rounded-full border border-rose-200 bg-rose-50 px-3 py-1.5 text-xs font-medium text-rose-700"
-                      >
-                        Remove
-                      </button>
-                    </div>
-                    <div className="mt-3 grid gap-3">
-                      <input
-                        type="text"
-                        value={card.icon ?? ""}
-                        placeholder="Optional icon, e.g. 🎧"
-                        onChange={(event) =>
-                          builder.updateInfoCard(block.block_id, card.card_id, {
-                            icon: event.target.value,
-                          })
-                        }
-                        className="brand-input h-11 rounded-2xl px-4 text-sm"
-                      />
-                      <input
-                        type="text"
-                        value={card.title}
-                        onChange={(event) =>
-                          builder.updateInfoCard(block.block_id, card.card_id, {
-                            title: event.target.value,
-                          })
-                        }
-                        className="brand-input h-11 rounded-2xl px-4 text-sm"
-                      />
-                      <textarea
-                        value={card.body}
-                        onChange={(event) =>
-                          builder.updateInfoCard(block.block_id, card.card_id, {
-                            body: event.target.value,
-                          })
-                        }
-                        rows={3}
-                        className="brand-input rounded-2xl px-4 py-3 text-sm"
-                      />
-                    </div>
-                  </div>
-                ))}
-                <button
-                  type="button"
-                  onClick={() => builder.addInfoCard(block.block_id)}
-                  className="rounded-full border border-[var(--border)] bg-white px-3 py-2 text-sm font-medium text-[color:var(--ink)]"
-                >
-                  + Add information card
-                </button>
-              </div>
-            </>
-          ) : null}
-
-          {block.block_type === "question_text" || block.block_type === "question_textarea" ? (
-            <>
-              <Field label="Question label">
-                <input
-                  type="text"
-                  value={block.label ?? ""}
-                  onChange={(event) =>
-                    builder.updateBlock(block.block_id, (item) => ({
-                      ...item,
-                      label: event.target.value,
-                    }))
-                  }
-                  className="brand-input h-11 rounded-2xl px-4 text-sm"
-                />
-              </Field>
-              <Field label="Placeholder">
-                <input
-                  type="text"
-                  value={block.placeholder ?? ""}
-                  onChange={(event) =>
-                    builder.updateBlock(block.block_id, (item) => ({
-                      ...item,
-                      placeholder: event.target.value,
-                    }))
-                  }
-                  className="brand-input h-11 rounded-2xl px-4 text-sm"
-                />
-              </Field>
-            </>
-          ) : null}
-
-          {block.block_type === "question_choice_single" || block.block_type === "question_choice_multi" ? (
-            <>
-              <Field label="Question label">
-                <input
-                  type="text"
-                  value={block.label ?? ""}
-                  onChange={(event) =>
-                    builder.updateBlock(block.block_id, (item) => ({
-                      ...item,
-                      label: event.target.value,
-                    }))
-                  }
-                  className="brand-input h-11 rounded-2xl px-4 text-sm"
-                />
-              </Field>
-              <div className="grid gap-2">
-                {block.options.map((option) => (
-                  <div key={option.value} className="flex gap-2">
-                    <input
-                      type="text"
-                      value={option.label}
-                      onChange={(event) =>
-                        builder.updateChoiceOptionLabel(
-                          block.block_id,
-                          option.value,
-                          event.target.value,
-                        )
-                      }
-                      className="brand-input h-11 flex-1 rounded-2xl px-4 text-sm"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => builder.removeChoiceOption(block.block_id, option.value)}
-                      className="rounded-full border border-rose-200 bg-rose-50 px-3 text-xs font-medium text-rose-700"
-                    >
-                      Remove
-                    </button>
-                  </div>
-                ))}
-                <button
-                  type="button"
-                  onClick={() => builder.addChoiceOption(block.block_id)}
-                  className="rounded-full border border-[var(--border)] bg-white px-3 py-2 text-sm font-medium text-[color:var(--ink)]"
-                >
-                  + Add option
-                </button>
-              </div>
-            </>
-          ) : null}
-
-          {block.block_type === "comprehension_quiz_group" ? (
-            <>
-              <Field label="Quiz title">
-                <input
-                  type="text"
-                  value={block.label ?? ""}
-                  onChange={(event) =>
-                    builder.updateBlock(block.block_id, (item) => ({
-                      ...item,
-                      label: event.target.value,
-                    }))
-                  }
-                  className="brand-input h-11 rounded-2xl px-4 text-sm"
-                />
-              </Field>
-              <div className="grid gap-4">
-                {block.questions.map((question, questionIndex) => (
-                  <div
-                    key={question.question_id}
-                    className="rounded-2xl border border-[var(--border)] bg-[rgba(252,228,244,0.14)] px-4 py-4"
-                  >
-                    <div className="flex items-center justify-between gap-3">
-                      <p className="text-sm font-semibold text-[color:var(--ink)]">
-                        Question {questionIndex + 1}
-                      </p>
-                      <button
-                        type="button"
-                        onClick={() => builder.removeQuizQuestion(block.block_id, question.question_id)}
-                        className="rounded-full border border-rose-200 bg-rose-50 px-3 py-1.5 text-xs font-medium text-rose-700"
-                      >
-                        Remove
-                      </button>
-                    </div>
-                    <Field label="Prompt">
-                      <textarea
-                        value={question.prompt}
-                        onChange={(event) =>
-                          builder.updateQuizQuestion(block.block_id, question.question_id, {
-                            prompt: event.target.value,
-                          })
-                        }
-                        rows={3}
-                        className="brand-input rounded-2xl px-4 py-3 text-sm"
-                      />
-                    </Field>
-                    <div className="mt-3 grid gap-2">
-                      {question.options.map((option) => (
-                        <div key={option.option_id} className="flex items-center gap-2">
-                          <input
-                            type="radio"
-                            checked={question.correct_option_id === option.option_id}
-                            onChange={() =>
-                              builder.setQuizCorrectOption(
-                                block.block_id,
-                                question.question_id,
-                                option.option_id,
-                              )
-                            }
-                            className="h-4 w-4 rounded border-[var(--border)] text-[var(--scarlett)]"
-                          />
-                          <input
-                            type="text"
-                            value={option.label}
-                            onChange={(event) =>
-                              builder.updateQuizOptionLabel(
-                                block.block_id,
-                                question.question_id,
-                                option.option_id,
-                                event.target.value,
-                              )
-                            }
-                            className="brand-input h-11 flex-1 rounded-2xl px-4 text-sm"
-                          />
-                        </div>
-                      ))}
-                    </div>
-                    <Field label="Explanation">
-                      <textarea
-                        value={question.explanation ?? ""}
-                        onChange={(event) =>
-                          builder.updateQuizQuestion(block.block_id, question.question_id, {
-                            explanation: event.target.value,
-                          })
-                        }
-                        rows={2}
-                        className="brand-input rounded-2xl px-4 py-3 text-sm"
-                      />
-                    </Field>
-                  </div>
-                ))}
-                <button
-                  type="button"
-                  onClick={() => builder.addQuizQuestion(block.block_id)}
-                  className="rounded-full border border-[var(--border)] bg-white px-3 py-2 text-sm font-medium text-[color:var(--ink)]"
-                >
-                  + Add quiz question
-                </button>
-              </div>
-            </>
-          ) : null}
-
-          {block.block_type === "titled_divider" ? (
-            <Field label="Divider title">
-              <input
-                type="text"
-                value={block.title}
-                onChange={(event) =>
-                  builder.updateBlock(block.block_id, (item) => ({
-                    ...item,
-                    title: event.target.value,
-                  }))
-                }
-                className="brand-input h-11 rounded-2xl px-4 text-sm"
-              />
-            </Field>
-          ) : null}
-        </BlockCard>
+            ) : null}
+          </BlockCard>
+        </Fragment>
       ))}
+
+      {builder.blocks.length > 0 ? (
+        <InsertionRow
+          insertIndex={builder.blocks.length}
+          isOpen={openInsertionIndex === builder.blocks.length}
+          onToggle={() => toggleInsertionPicker(builder.blocks.length)}
+          onAddBlock={(blockType) => handleAddBlock(blockType, builder.blocks.length)}
+        />
+      ) : null}
     </div>
   );
 }
