@@ -4,7 +4,10 @@ import {
   captureSubmissionSpellingCandidateMapping,
   recordReviewWorkVerificationAction,
 } from "./actions";
-import { buildSuggestedIssuePanelModel } from "./review-utils";
+import {
+  buildSuggestedIssuePanelModel,
+  type SuggestedIssueDerivedTemplateMetadata,
+} from "./review-utils";
 
 const STAGE7D_CATEGORY_OPTIONS = [
   "Phonic",
@@ -30,6 +33,45 @@ type CandidateMappingRow = {
   candidate_status: "pending_parent_promotion" | "parent_local_promoted";
   promotion_scope: "parent_local";
 };
+
+function formatPracticeRouteLabel(
+  practiceRoute: SuggestedIssueDerivedTemplateMetadata["practiceRoute"],
+) {
+  switch (practiceRoute) {
+    case "word_practice":
+      return "Word practice";
+    case "grouped_set_practice":
+      return "Grouped set practice";
+    case "contrast_practice":
+      return "Contrast practice";
+    case "dictation":
+      return "Dictation";
+    default:
+      return "Unknown practice route";
+  }
+}
+
+function getDerivedTemplateMetadataMessage(
+  metadata: SuggestedIssueDerivedTemplateMetadata,
+) {
+  if (metadata.status === "available") {
+    return `Read-only derived template route: ${metadata.templateKey} via ${formatPracticeRouteLabel(metadata.practiceRoute)}, rooted in canonical micro-skill ${metadata.microSkillKey}.`;
+  }
+
+  switch (metadata.reason) {
+    case "manual_sample":
+      return "Read-only template metadata is unavailable for manual writing samples in this bounded lesson-submission slice.";
+    case "missing_micro_skill":
+      return "Read-only template metadata is unavailable because this suggestion does not yet carry deterministic canonical micro-skill truth.";
+    case "missing_catalog_entry":
+      return `Read-only template metadata is unavailable because canonical template registry truth could not be resolved for micro-skill ${metadata.microSkillKey}.`;
+    case "missing_template_registry_candidates":
+      return `Read-only template metadata is unavailable because canonical Stage 2A/2D template metadata is not configured for micro-skill ${metadata.microSkillKey}.`;
+    case "preferred_template_key_unavailable":
+    case "dictation_template_key_unavailable":
+      return `Read-only template metadata is unavailable because micro-skill ${metadata.microSkillKey} does not currently resolve a default template route for ${formatPracticeRouteLabel(metadata.practiceRoute)}.`;
+  }
+}
 
 export function SuggestedIssuesPanel(props: SuggestedIssuesPanelProps) {
   return (
@@ -139,6 +181,18 @@ export function SuggestedIssuesPanel(props: SuggestedIssuesPanelProps) {
                           <p className="mt-3 text-xs uppercase tracking-[0.16em] text-[color:var(--mid)]">
                             Parent verification recorded: {entry.recordedDecision.replaceAll("_", " ")}
                           </p>
+                        ) : null}
+                        {entry.derivedTemplateMetadata ? (
+                          <div className="mt-3 rounded-2xl border border-sky-200 bg-sky-50 px-4 py-3">
+                            <p className="text-xs font-medium uppercase tracking-[0.16em] text-sky-700">
+                              Derived template metadata
+                            </p>
+                            <p className="mt-2 text-sm leading-6 text-sky-900">
+                              {getDerivedTemplateMetadataMessage(
+                                entry.derivedTemplateMetadata,
+                              )}
+                            </p>
+                          </div>
                         ) : null}
                         {pendingCandidateMapping ? (
                           <div className="mt-3 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3">
@@ -286,21 +340,6 @@ export function SuggestedIssuesPanel(props: SuggestedIssuesPanelProps) {
                                         ? `Current: ${entry.actionTarget.suggestedMicroSkillKey}`
                                         : "Enter a canonical micro-skill key"
                                     }
-                                    className="rounded-2xl border border-[var(--border)] bg-white px-3 py-2 text-sm text-[color:var(--ink)] placeholder:text-[color:var(--mid)]"
-                                  />
-                                </div>
-                                <div className="grid gap-1">
-                                  <label
-                                    htmlFor={`${entry.id}-verified-template-key`}
-                                    className="text-xs font-medium uppercase tracking-[0.16em] text-[color:var(--mid)]"
-                                  >
-                                    Verified template key
-                                  </label>
-                                  <input
-                                    id={`${entry.id}-verified-template-key`}
-                                    name="verified_template_key"
-                                    type="text"
-                                    placeholder="Optional existing template key"
                                     className="rounded-2xl border border-[var(--border)] bg-white px-3 py-2 text-sm text-[color:var(--ink)] placeholder:text-[color:var(--mid)]"
                                   />
                                 </div>

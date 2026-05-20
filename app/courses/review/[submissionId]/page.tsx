@@ -12,7 +12,10 @@ import {
 } from "@/lib/children";
 import { formatCourseDate, getActiveChildrenForUser } from "@/lib/courses/queries";
 import { createClient } from "@/lib/supabase/server";
-import { getReviewWorkCandidateCaptureMicroSkillProvider } from "@/lib/writing-engine/persistence/learning-items";
+import {
+  getReviewWorkCandidateCaptureMicroSkillProvider,
+  getReviewWorkDerivedTemplateMetadataByMicroSkillKeys,
+} from "@/lib/writing-engine/persistence/learning-items";
 import type {
   ReviewWritingIssueProjection,
   ReviewWritingIssueSuggestionDetailProjection,
@@ -24,7 +27,10 @@ import {
 } from "../manual-sample-sections";
 import { getManualReviewSampleStatus } from "../manual-sample-review-utils";
 import { SuggestedIssuesPanel } from "../suggested-issues-panel";
-import { buildCanonicalSuggestedMicroSkillKeysByMisspellingId } from "../canonical-submission-spelling";
+import {
+  buildCanonicalSuggestedMicroSkillKeysByMisspellingId,
+  hasCanonicalMicroSkillKey,
+} from "../canonical-submission-spelling";
 
 import {
   addMissedWordToSubmissionReview,
@@ -162,6 +168,60 @@ async function buildScopedSuggestedMicroSkillKeysByMisspellingId(input: {
   });
 
   return suggestedMicroSkillKeysByMisspellingId;
+}
+
+async function buildDerivedTemplateMetadataByMicroSkillKey(input: {
+  supabase: Awaited<ReturnType<typeof createClient>>;
+  sourceType: "lesson_submission" | "manual_writing_sample";
+  misspellings: MisspellingReviewRow[];
+  writingIssueSuggestions: WritingIssueSuggestionRow[];
+  parentVerifications: Array<{
+    suggested_micro_skill_key: string | null;
+    verified_micro_skill_key: string | null;
+  }>;
+  canonicalSuggestedMicroSkillKeysByMisspellingId?: Record<string, string>;
+}) {
+  if (input.sourceType !== "lesson_submission") {
+    return {} as Awaited<
+      ReturnType<typeof getReviewWorkDerivedTemplateMetadataByMicroSkillKeys>
+    >;
+  }
+
+  const microSkillKeys = new Set<string>();
+
+  input.misspellings.forEach((misspelling) => {
+    const matchedSuggestion = input.writingIssueSuggestions.find(
+      (suggestion) => suggestion.misspelling_instance_id === misspelling.id,
+    );
+    const matchedSuggestedMicroSkillKey = matchedSuggestion?.suggested_micro_skill_key ?? null;
+    const matchedSuggestionMicroSkillKey = hasCanonicalMicroSkillKey(
+      matchedSuggestedMicroSkillKey,
+    )
+      ? matchedSuggestedMicroSkillKey
+      : input.canonicalSuggestedMicroSkillKeysByMisspellingId?.[misspelling.id] ?? null;
+
+    if (hasCanonicalMicroSkillKey(matchedSuggestionMicroSkillKey)) {
+      microSkillKeys.add(matchedSuggestionMicroSkillKey);
+    }
+  });
+
+  input.parentVerifications.forEach((verification) => {
+    const suggestedMicroSkillKey = verification.suggested_micro_skill_key;
+    const verifiedMicroSkillKey = verification.verified_micro_skill_key;
+
+    if (hasCanonicalMicroSkillKey(suggestedMicroSkillKey)) {
+      microSkillKeys.add(suggestedMicroSkillKey);
+    }
+
+    if (hasCanonicalMicroSkillKey(verifiedMicroSkillKey)) {
+      microSkillKeys.add(verifiedMicroSkillKey);
+    }
+  });
+
+  return getReviewWorkDerivedTemplateMetadataByMicroSkillKeys({
+    supabase: input.supabase,
+    microSkillKeys: [...microSkillKeys],
+  });
 }
 
 function buildPendingCandidateMappingByMisspellingId(
@@ -568,7 +628,6 @@ export default async function CourseReviewDetailPage({
       taskSubmissionId: null,
       writingSampleId: manualSample.id,
       derivedTemplateMetadataByMicroSkillKey: {},
-      overrideMicroSkillProvidersByMisspellingId: {},
       hasCanonicalWritingSource: true,
       analysisAttempted: true,
       isReviewed: false,
@@ -766,7 +825,7 @@ export default async function CourseReviewDetailPage({
     supabase
       .from("parent_verifications")
       .select(
-        "id, source_entity_id, decision, suggested_category_code, suggested_micro_skill_key, verification_notes, metadata, verified_at",
+        "id, source_entity_id, decision, suggested_category_code, suggested_micro_skill_key, verified_micro_skill_key, verification_notes, metadata, verified_at",
       )
       .eq("task_submission_id", submission.id)
       .eq("parent_user_id", user.id)
@@ -827,6 +886,15 @@ export default async function CourseReviewDetailPage({
     (pendingCandidateMappingRows ?? []) as CandidateMappingRow[];
   const pendingCandidateMappingsByMisspellingId =
     buildPendingCandidateMappingByMisspellingId(pendingCandidateMappings);
+  const derivedTemplateMetadataByMicroSkillKey =
+    await buildDerivedTemplateMetadataByMicroSkillKey({
+      supabase,
+      sourceType: "lesson_submission",
+      misspellings: engineMisspellings,
+      writingIssueSuggestions,
+      parentVerifications,
+      canonicalSuggestedMicroSkillKeysByMisspellingId,
+    });
   const panelModel = buildSuggestedIssuePanelModel({
     sourceType: "lesson_submission",
     misspellings: engineMisspellings,
@@ -836,6 +904,7 @@ export default async function CourseReviewDetailPage({
     taskSubmissionId: submission.id,
     writingSampleId: linkedSample?.id ?? null,
     canonicalSuggestedMicroSkillKeysByMisspellingId,
+    derivedTemplateMetadataByMicroSkillKey,
     hasCanonicalWritingSource: Boolean(linkedSample?.id),
     analysisAttempted: Boolean(linkedSample?.id),
     isReviewed: submission.parent_review_status !== "pending",

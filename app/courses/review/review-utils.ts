@@ -1,6 +1,8 @@
 export type { ReviewableLessonField } from "@/lib/lessons/review";
 export { extractReviewableLessonFields } from "@/lib/lessons/review";
+import type { ReviewWorkDerivedTemplateMetadata } from "@/lib/writing-engine/persistence/learning-items";
 import { buildStage7dReviewWorkVerificationTarget } from "@/lib/writing-engine/review/stage7d-parent-verification";
+import type { WritingEnginePracticeRoute } from "@/lib/writing-engine/types";
 import {
   getWritingIssueFinalClassificationLabel,
   getWritingIssueSuggestionSourceLabel,
@@ -409,6 +411,7 @@ export type SuggestedIssuePanelEntry = {
   detail: string | null;
   supportText: string | null;
   moduleLabel: "Spelling" | null;
+  derivedTemplateMetadata: SuggestedIssueDerivedTemplateMetadata | null;
   actionTarget: SuggestedIssueActionTarget | null;
   recordedDecision: SuggestedIssueVerificationDecision | null;
 };
@@ -426,6 +429,16 @@ export type SuggestedIssueVerificationDecision =
   | "false_positive"
   | "not_a_learning_issue";
 
+export type SuggestedIssueDerivedTemplateMetadata =
+  | ReviewWorkDerivedTemplateMetadata
+  | {
+      status: "unavailable";
+      microSkillKey: null;
+      practiceRoute: WritingEnginePracticeRoute | null;
+      reason: "manual_sample" | "missing_micro_skill";
+      sourceRefs: string[];
+    };
+
 export type SuggestedIssueActionTarget = {
   sourceEntityId: string;
   taskSubmissionId: string | null;
@@ -438,6 +451,7 @@ export type SuggestedIssueActionTarget = {
   positionStart: number | null;
   positionEnd: number | null;
   allowsAccepted: boolean;
+  derivedTemplateMetadata: SuggestedIssueDerivedTemplateMetadata;
 };
 
 export type ReviewParentVerificationProjection = {
@@ -446,6 +460,7 @@ export type ReviewParentVerificationProjection = {
   decision: SuggestedIssueVerificationDecision;
   suggested_category_code: string | null;
   suggested_micro_skill_key: string | null;
+  verified_micro_skill_key: string | null;
   verification_notes: string | null;
   metadata: Record<string, unknown>;
   verified_at: string;
@@ -500,6 +515,10 @@ export function buildSuggestedIssuePanelModel(input: {
   taskSubmissionId: string | null;
   writingSampleId: string | null;
   canonicalSuggestedMicroSkillKeysByMisspellingId?: Record<string, string>;
+  derivedTemplateMetadataByMicroSkillKey?: Record<
+    string,
+    ReviewWorkDerivedTemplateMetadata
+  >;
   hasCanonicalWritingSource: boolean;
   analysisAttempted: boolean;
   isReviewed: boolean;
@@ -581,6 +600,44 @@ export function buildSuggestedIssuePanelModel(input: {
   );
   const verificationActionTargets = new Map<string, SuggestedIssueActionTarget>();
 
+  function resolveDerivedTemplateMetadata(
+    microSkillKey: string | null,
+  ): SuggestedIssueDerivedTemplateMetadata {
+    if (input.sourceType === "manual_writing_sample") {
+      return {
+        status: "unavailable",
+        microSkillKey: null,
+        practiceRoute: null,
+        reason: "manual_sample",
+        sourceRefs: [],
+      };
+    }
+
+    if (
+      typeof microSkillKey !== "string" ||
+      microSkillKey.trim().length === 0 ||
+      microSkillKey.trim().toLowerCase() === "unknown"
+    ) {
+      return {
+        status: "unavailable",
+        microSkillKey: null,
+        practiceRoute: null,
+        reason: "missing_micro_skill",
+        sourceRefs: [],
+      };
+    }
+
+    return (
+      input.derivedTemplateMetadataByMicroSkillKey?.[microSkillKey] ?? {
+        status: "unavailable",
+        microSkillKey,
+        practiceRoute: null,
+        reason: "missing_catalog_entry",
+        sourceRefs: [],
+      }
+    );
+  }
+
   input.misspellings.forEach((misspelling) => {
     const matchedSuggestion = input.writingIssueSuggestions.find(
       (suggestion) => suggestion.misspelling_instance_id === misspelling.id,
@@ -630,6 +687,9 @@ export function buildSuggestedIssuePanelModel(input: {
         typeof matchedSuggestionMicroSkillKey === "string" &&
         matchedSuggestionMicroSkillKey.trim().length > 0 &&
         matchedSuggestionMicroSkillKey.trim().toLowerCase() !== "unknown",
+      derivedTemplateMetadata: resolveDerivedTemplateMetadata(
+        matchedSuggestionMicroSkillKey,
+      ),
     });
   });
 
@@ -645,6 +705,12 @@ export function buildSuggestedIssuePanelModel(input: {
         metadata.suggested_replacement.trim().length > 0
           ? metadata.suggested_replacement.trim()
           : null;
+      const derivedTemplateMetadata =
+        verification.decision === "accepted"
+          ? resolveDerivedTemplateMetadata(verification.suggested_micro_skill_key)
+          : verification.decision === "overridden"
+            ? resolveDerivedTemplateMetadata(verification.verified_micro_skill_key)
+            : null;
 
       return {
         id: verification.id,
@@ -663,6 +729,7 @@ export function buildSuggestedIssuePanelModel(input: {
         detail: null,
         supportText: verification.verification_notes?.trim() || null,
         moduleLabel: "Spelling",
+        derivedTemplateMetadata,
         actionTarget: null,
         recordedDecision: verification.decision,
       };
@@ -701,6 +768,7 @@ export function buildSuggestedIssuePanelModel(input: {
         detail: getMisspellingDetail(candidate),
         supportText: candidate.notes?.trim() || null,
         moduleLabel: "Spelling",
+        derivedTemplateMetadata: actionTarget?.derivedTemplateMetadata ?? null,
         actionTarget,
         recordedDecision: verificationRecord?.decision ?? null,
       };
@@ -718,6 +786,7 @@ export function buildSuggestedIssuePanelModel(input: {
       ? `Saved correction: ${issue.approved_replacement}`
       : issue.parent_review_note?.trim() || null,
     moduleLabel: issue.source_misspelling_instance_id ? "Spelling" : null,
+    derivedTemplateMetadata: null,
     actionTarget: null,
     recordedDecision: null,
   }));
@@ -741,6 +810,7 @@ export function buildSuggestedIssuePanelModel(input: {
       detail: getWritingIssueSuggestionSourceLabel(suggestion.source_type),
       supportText: suggestion.notes?.trim() || null,
       moduleLabel: suggestion.misspelling_instance_id ? "Spelling" : null,
+      derivedTemplateMetadata: actionTarget?.derivedTemplateMetadata ?? null,
       actionTarget,
       recordedDecision: verificationRecord?.decision ?? null,
     };
