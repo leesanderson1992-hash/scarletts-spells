@@ -655,6 +655,141 @@ Stage `2F` similar-practice guardrail:
   but it does not change the canonical assignment-generation unit or persisted
   assignment ownership
 
+Canonical lesson-submission spelling mapping closeout:
+- `Canonical Lesson Submission Spelling Mapping Slice 1` is now complete as a
+  bounded `Review Work` runtime consumer of documented Stage `2` catalog truth
+- this closeout defines the canonical contract boundary, but it does not by
+  itself prove that every current workspace already has a clean tracked
+  implementation of that boundary; local or untracked work must be reconciled
+  before later runtime follow-up is treated as implementation-ready
+- this closeout does not broaden Stage `2C` into a general canonical resolver;
+  it authorizes one narrow runtime path only:
+  - lesson/task-submission backed spelling suggestions
+  - submission-backed `misspelling_instance` lineage only
+  - normalized `suggested_replacement`
+  - exact deterministic matching only
+  - exactly one active assignable `D4` `micro_skill_catalog` row
+  - allowed catalog fields only:
+    - `metadata.starter_word_bank`
+    - `metadata.example_words`
+    - `metadata.contrast_word_bank`
+- ambiguous, unmapped, inactive, non-assignable, out-of-coverage, and manual
+  writing-sample cases must remain unresolved
+- `micro_skill_catalog` remains the only micro-skill identity source
+- this slice must not use:
+  - `word_families`
+  - family IDs
+  - notes-field inference
+  - theme inference
+  - helper/watchlist sources
+  - free-text `micro_skill_key` invention
+- this slice preserves:
+  - `allowsAccepted`
+  - server-side accepted-decision validation
+  - manual writing-sample exclusion
+  - mastery/evidence/assignment/reward/analytics truth boundaries
+- bounded backfill is allowed only for pending unverified
+  submission-backed spelling suggestions whose stored
+  `suggested_micro_skill_key` is null, empty, or `unknown`
+- backfill must not alter verified parent decisions or durable issue lifecycle
+  semantics
+- boundary clarification after closeout:
+  - this slice governs only when an existing shared suggestion may surface
+    `Accept` as already canonically valid
+  - this bounded `Accept` path is now validated for lesson/task-submission-
+    backed spelling suggestions only
+  - the runtime rule remains strict:
+    - deterministic resolution only
+    - canonical micro-skill truth required
+    - active assignable catalog match required
+    - non-`unknown` key required
+  - this slice does not authorize a general override-option provider
+  - catalog-backed alternative override options, if added later, require a
+    separate documented boundary
+  - no later pass may satisfy override-option population through free-text or
+    fallback `micro_skill_key` invention
+  - the first separate override-option provider boundary is limited to:
+    - lesson/task-submission-backed spelling suggestions only
+    - `verified_micro_skill_key` provider options only
+
+Review Work Suggested Issue override-option provider contract:
+- selectable Review Work override-provider UI/runtime remains deferred
+- existing server-side override behavior is covered by the tracked
+  override-provider behavior regression
+- `micro_skill_catalog` remains the only mini-skill identity source
+- provider options must be surfaced through a bounded provider/read model, not
+  an unrestricted catalog dump or generic/global catalog browsing surface
+- only active, assignable, in-scope spelling micro-skills may be offered
+- provider options must exclude:
+  - ambiguous options
+  - inactive rows
+  - non-assignable rows
+  - out-of-scope rows
+  - fallback/free-text keys
+- overridden saves may persist only canonical provider values
+- server-side validation must reject non-catalog override mini-skill keys
+- bounded lesson/task-submission spelling override validation may derive the
+  provider anchor from the same canonical submission-spelling mapping path
+  that any future selectable Review Work provider UI must use when persisted
+  shared suggestion truth is still `unknown`, but that fallback does not
+  broaden `accepted` eligibility
+- `accepted` validation remains unchanged
+- template routing is micro-skill-owned instructional configuration rather than
+  word-owned canonical truth
+- Review Work may verify the micro-skill classification, but it must not let
+  parents assign arbitrary template keys word by word
+- accepted suggestions derive template routing from the suggested canonical
+  micro-skill's configured template metadata
+- overridden suggestions derive template routing from the verified replacement
+  micro-skill's configured template metadata
+- `verified_template_key` remains deferred/blocked in Review Work for this
+  stage
+- no implementation in this boundary may treat raw free-text template entry,
+  parent-facing template dropdowns, or global template browsing as canonical
+  override truth
+- any later template choice UI must be separately authorized and bounded to the
+  verified micro-skill's allowed template metadata
+
+Parent-Verified Spelling Candidate Capture contract note:
+- when the bounded Slice `2` stage lets parents classify unmapped or
+  parent-added lesson-submission spelling mistakes for future reuse, the
+  selected `micro_skill_key` must come from bounded catalog-backed options
+  only
+- `micro_skill_catalog` remains the only micro-skill identity source for that
+  stage
+- no free-text `micro_skill_key` invention is authorized
+- no pending or promoted mapping may exist without an existing canonical
+  `micro_skill_key`
+- parent-local or future global promotion changes mapping reusability only; it
+  does not authorize taxonomy creation, template-key editing, or assignment
+  ownership changes
+- known limitation:
+  - candidate capture depends on seeded/catalog-backed canonical micro-skill
+    coverage
+  - valid rows such as `natral -> natural` may remain blocked until the
+    correct canonical micro-skill exists in the seeded option set
+  - this is catalog coverage debt, not a Slice `2` runtime boundary failure
+
+Review Work read-only derived template metadata contract:
+- Review Work continues to verify canonical micro-skill truth only
+- template metadata may be displayed only as read-only derivation from the
+  canonical/verified micro-skill
+- for accepted/shared canonical spelling suggestions, derive from the
+  suggested canonical micro-skill
+- for overridden suggestions, derive from the verified replacement micro-skill
+- use only canonical Stage 2A/2D template registry truth rooted in that
+  micro-skill
+- no editable `verified_template_key`
+- no template dropdown/provider
+- no free-text template key
+- no global template browsing
+- no independent template truth may be persisted from Review Work
+- unresolved template metadata must render as read-only unavailable/deferred
+  messaging rather than as input
+- this bounded read-only display slice is now implemented for
+  lesson/task-submission spelling suggestions in `Review Work`
+- manual writing samples remain out of scope for derived template display
+
 ## Stage 3 authentic-writing-analysis guardrail
 
 Stage `3` may consume Stage `2` spelling-content foundations during authentic

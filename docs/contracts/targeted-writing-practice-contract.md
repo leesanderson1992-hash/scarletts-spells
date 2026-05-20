@@ -260,6 +260,139 @@ items.
 Override outcomes must preserve verified truth rather than collapsing back to
 the original suggestion.
 
+Review Work boundary clarification:
+- `Accept` means the parent is confirming an existing shared suggestion as
+  already canonically valid
+- override means the parent is recording a different canonical classification
+  through existing shared verified fields
+- these are related but not identical boundaries
+- the bounded lesson-submission spelling `Accept` path is now implemented and
+  validated only for lesson/task-submission-backed spelling suggestions that
+  already meet the documented canonical mapping rule
+- a bounded `Accept`-readiness slice does not by itself authorize catalog-
+  backed override-option population
+- if override options later need richer catalog-backed choices, that must be
+  documented separately and must not rely on free-text taxonomy entry
+- the first selectable override-option provider UI/runtime remains deferred
+  for lesson/task-submission-backed spelling suggestions
+- existing server-side override behavior is covered by the tracked
+  override-provider behavior regression
+- in any future selectable provider slice:
+  - `verified_micro_skill_key` may be populated only from bounded canonical
+    provider options rooted in `micro_skill_catalog`
+  - `verified_category_code` remains the existing fixed option set
+  - `verification_note` remains free-text audit text
+  - template routing is owned by the verified micro-skill, not selected
+    word by word
+  - `verified_template_key` is deferred/blocked in Review Work and must not
+    remain free-text canonical truth
+- overridden decisions may save only canonical provider values
+- server-side validation must reject non-catalog override mini-skill keys
+- the bounded override save path may use the canonical spelling-anchor
+  fallback that any future selectable Review Work provider UI must also use
+  when a pending shared suggestion row still lacks persisted canonical
+  micro-skill truth
+- `accepted` validation remains unchanged
+- accepted suggestions use the suggested canonical micro-skill's configured
+  template route
+- overridden suggestions use the verified replacement micro-skill's configured
+  template route
+- no parent-facing template dropdown/provider implementation is authorized now
+- any future template choice UI must be separately authorized and bounded to
+  the verified micro-skill's allowed template metadata
+- the bounded read-only derived template metadata slice is now implemented for
+  Review Work lesson/task-submission spelling items
+- it does not change Review Work verification semantics; it only displays
+  template-route metadata derived from canonical/verified micro-skill truth
+- unresolved template metadata must display as read-only unavailable/deferred
+  messaging, not as an input
+
+Parent-Verified Spelling Candidate Capture boundary:
+- a bounded Slice `2` stage now lets parents classify eligible
+  lesson-submission-backed unmapped or parent-added spelling mistakes against
+  existing canonical micro-skills without changing current `Review Work`
+  ownership or shared verification semantics
+- parent verification may confirm event-level truth and capture a candidate
+  mapping, but normal parent review does not itself mint global canonical
+  mapping truth
+- for that stage, preserve three distinct layers:
+  - verified spelling evidence
+    - event-level truth for one reviewed child occurrence
+    - safe for audit/history immediately
+    - does not create reusable canonical mapping truth by itself
+  - candidate spelling mapping
+    - proposed reusable mapping:
+      - `misspelling -> correct_spelling -> micro_skill_key`
+    - stored separately from:
+      - `micro_skill_catalog`
+      - existing deterministic Stage `2C` / Slice `1` catalog-backed mapping
+        logic
+      - `writing_issues`
+      - `parent_verifications`
+    - must carry provenance and status
+    - must not be used by future suggestions while pending
+  - canonical or promoted mapping truth
+    - reusable suggestion truth only after explicit promotion
+    - includes existing catalog-backed mapping truth, parent-local promoted
+      mappings scoped to the current parent/child environment, and any future
+      admin/global promoted mappings only if separately implemented
+- Slice `2` QA closeout:
+  - success state is visible after save
+  - pending candidate mappings do not unlock `Accept`
+  - pending candidate mappings are not used by future suggestion resolution
+  - parent-added missed words persist and remain reviewable after reopen
+  - manual writing samples remain excluded
+  - template guardrails remain intact
+- known limitation:
+  - candidate capture depends on seeded canonical micro-skill coverage
+  - valid rows such as `natral -> natural` may remain blocked until the
+    correct canonical micro-skill exists in the seeded/catalog-backed option
+    set
+- UX follow-up note:
+  - a captured row may remain visible in both `Suggested / candidate` and
+    `Parent Verification` while it remains `pending_parent_promotion`
+  - this is acceptable for Slice `2`, though later wording may clarify the
+    state as captured-but-not-promoted
+- planning vocabulary only:
+  - candidate status values:
+    - `pending_parent_promotion`
+    - `parent_local_promoted`
+    - `admin_review_requested`
+    - `global_canonical_promoted`
+    - `rejected`
+    - `superseded`
+  - promotion scope values:
+    - `child_local`
+    - `parent_local`
+    - `global`
+- parent-local promotion is the highest authority authorised in the
+  single-child MVP
+- global canonical promotion remains a separate curator/admin workflow deferred
+  from MVP
+- future suggestions must not use:
+  - arbitrary parent free text
+  - unpromoted candidate mappings
+  - raw parent-authored missed-word rows
+  - raw `misspelling_instances`
+  - raw `writing_issues`
+  - any mapping lacking an existing canonical `micro_skill_key`
+- first safe runtime scope for that later stage is:
+  - lesson-submission-backed spelling rows only
+  - includes parent-added missed words attached to lesson submissions
+  - excludes manual writing samples from the first runtime slice
+- that later stage must not change:
+  - `Accept` readiness
+  - override-provider behavior
+  - derived template metadata behavior
+  - reward
+  - mastery
+  - assignment
+  - scoring
+  - thresholds
+  - template routing
+  - analytics
+  - positive-evidence semantics
+
 Canonical `Review Work` detail may render existing suggested outputs,
 verification records, and durable issue history for either source type, but
 that detail rendering is visibility-only until a later documented action stage

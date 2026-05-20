@@ -157,6 +157,22 @@ This boundary allows read-only copy and presentation clarification before
 `Stage 8`, but it does not authorize scoring changes, threshold changes, or
 new persistence.
 
+Current implementation-registration note:
+- the current contract authorizes a bounded `Stage 8A` wording /
+  presentation pass on parent-facing summary surfaces
+- `Stage 8A` is advisory wording clarification only
+- `Stage 8A` does not alter mastery/evidence semantics
+- completed `Stage 8A` kept `Review Work` as verified truth and kept summary
+  surfaces limited to advisory evidence / progress interpretation only
+- completed `Stage 8A` did not change runtime mastery semantics, scoring,
+  thresholds, persistence, routing, reward logic, positive-evidence logic, or
+  completed Stage `7F` behavior
+- residual product-metaphor labels such as `Golden Nugget`,
+  `In the Machine`, and `Gold Bar so far` remain a possible future copy-only
+  pass, not a blocker or contract gap
+- Stage `8` is therefore closed as a boundary-safety and parent-facing
+  evidence-wording stage, not a mastery-runtime stage
+
 ## Stage 1D assignment-generation guardrail
 
 Stage `1D` assignment-generation passes may generate or persist dictation

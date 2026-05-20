@@ -110,6 +110,306 @@ Current ownership rule:
 
 ## Stage roadmap
 
+## Registered next bounded stage
+
+### Parent-Verified Spelling Candidate Capture
+
+Status: `Slice 2 implemented and QA passed within its bounded scope`
+
+Purpose:
+- allow parents to classify unmapped or parent-added spelling mistakes against
+  existing canonical micro-skills
+- preserve verified event truth
+- capture reusable candidate mappings
+- keep candidate mappings separate from canonical mapping truth until explicit
+  promotion
+- prevent free-text taxonomy pollution
+- prevent normal parent `Review Work` from creating global canonical truth
+
+Current blocker:
+- the child is now producing real writing that includes genuine spelling
+  mistakes outside current canonical mapping truth
+- parents can review or add those mistakes in `Review Work`, but they cannot
+  safely classify them for future reuse without risking pollution of canonical
+  mapping truth
+- example:
+  - `natral -> natural` may be classified against an existing canonical
+    micro-skill, but that capture alone must not mint global canonical mapping
+    truth
+
+Boundary notes:
+- this stage is separate from `Stage 7F`
+- this stage is separate from `Stage 8`
+- this stage does not change:
+  - `Accept` readiness
+  - override-provider behavior
+  - read-only derived template metadata
+  - reward
+  - mastery
+  - assignment
+  - scoring
+  - thresholds
+  - template routing
+  - analytics
+  - positive-evidence semantics
+- `Review Work` remains the canonical parent review surface and must continue
+  to reuse shared verification semantics only
+
+Parent-facing workflow to register:
+1. parent sees or adds a spelling mistake
+2. parent confirms:
+   - `word_child_wrote`
+   - `correct_spelling`
+   - existing canonical `micro_skill_key`
+3. `micro_skill_key` must come from bounded catalog-backed options only
+4. the action saves verified event truth for the reviewed child occurrence
+5. the action may create a candidate spelling mapping with:
+   - `misspelling_normalized`
+   - `correct_spelling_normalized`
+   - `micro_skill_key`
+   - `source` / provenance
+   - `status`
+   - `promotion_scope`
+6. the candidate mapping remains non-canonical until promoted
+7. future suggestions must not use pending candidate mappings
+
+Three-layer truth model:
+- verified spelling evidence
+  - event-level truth for one reviewed child occurrence
+  - safe for audit/history immediately
+  - does not create reusable canonical mapping truth by itself
+- candidate spelling mapping
+  - proposed reusable mapping:
+    - `misspelling -> correct_spelling -> micro_skill_key`
+  - stored separately from:
+    - `micro_skill_catalog`
+    - existing deterministic Stage `2C` / Slice `1` catalog-backed mapping
+      logic
+    - `writing_issues`
+    - `parent_verifications`
+  - must carry provenance and status
+  - must not be used by future suggestions while pending
+- canonical or promoted mapping truth
+  - reusable suggestion truth only after explicit promotion
+  - includes:
+    - existing catalog-backed canonical mapping truth
+    - parent-local promoted mappings scoped to the current parent/child
+      environment
+    - future admin/global promoted mappings only if a separate curator workflow
+      is later implemented
+
+Planning vocabulary only:
+- candidate status values:
+  - `pending_parent_promotion`
+  - `parent_local_promoted`
+  - `admin_review_requested`
+  - `global_canonical_promoted`
+  - `rejected`
+  - `superseded`
+- promotion scope values:
+  - `child_local`
+  - `parent_local`
+  - `global`
+
+Promotion model:
+- parent verification may confirm event-level truth and capture a candidate
+  mapping, but normal parent review does not itself mint global canonical
+  mapping truth
+- parent-local promotion is the highest authority authorised in the
+  single-child MVP
+- for the single-child MVP, explicit parent promotion is enough to make a
+  mapping reusable inside the current parent/child environment
+- parent-local promoted mappings may be used only within that scoped
+  environment
+- parent-local promotion must be auditable and reversible
+- global canonical promotion remains a separate curator/admin workflow deferred
+  from MVP
+- no parent action directly writes global canonical mapping truth
+
+Future suggestion resolver rule:
+- future suggestions may use:
+  - existing catalog-backed canonical mapping truth
+  - parent-local promoted mappings scoped to the current parent/child
+    environment
+  - future admin/global promoted mappings only if separately implemented
+- future suggestions must not use:
+  - arbitrary parent free text
+  - unpromoted candidate mappings
+  - raw parent-authored missed-word rows
+  - raw `misspelling_instances`
+  - raw `writing_issues`
+  - any mapping lacking an existing canonical `micro_skill_key`
+
+First safe runtime scope:
+- lesson-submission-backed spelling rows only
+- includes parent-added missed words attached to lesson submissions
+- excludes manual writing samples from the first runtime slice
+- excludes template-choice changes
+- excludes mastery/reward/assignment/scoring changes
+- excludes future suggestion resolver changes until promotion is implemented
+- pending candidate mappings are not reusable
+- raw parent-added missed words are not reusable suggestion truth by
+  themselves
+- manual writing sample candidate capture is follow-up scope only
+
+Implementation phase breakdown:
+- Slice `1` — Documentation registration
+  - status: complete
+  - purpose:
+    - register the boundary
+    - align roadmap/status/contracts
+    - define evidence/candidate/canonical truth model
+    - define parent-local versus global promotion
+    - define blocked cases
+    - define first runtime scope
+  - rules:
+    - no runtime code
+    - no schema
+    - no tests
+    - no UI changes
+- Slice `2` — Bounded runtime capture for lesson submissions only
+  - status: implemented and QA passed
+  - allow parent to classify unmapped lesson-submission spelling rows and
+    parent-added missed words attached to lesson submissions
+  - save verified event truth
+  - save separate candidate mapping row
+  - candidate mapping remains `pending_parent_promotion`
+  - future suggestion resolver must not consult pending candidate mappings
+  - allowed:
+    - lesson-submission-backed spelling rows only
+    - bounded catalog-backed micro-skill selection only
+    - candidate mapping creation only
+  - forbidden:
+    - manual writing sample support
+    - parent-local promotion
+    - admin/global curation
+    - resolver use of pending mappings
+    - free-text `micro_skill_key` invention
+    - automatic canonical mutation
+    - template-key changes
+    - reward/mastery/assignment/scoring changes
+- Slice `3` — Bounded parent-local promotion
+  - allow explicit parent promotion of saved candidate mappings
+  - make promoted mappings reusable only inside the same parent/child scope
+  - update the future suggestion resolver to consult parent-local promoted
+    mappings only after existing catalog-backed canonical mapping truth
+  - allowed:
+    - parent-local promotion only
+    - scoped resolver use
+    - audit/reversal support
+  - forbidden:
+    - global canonical promotion
+    - admin/curator workflow
+    - shared/global reuse
+    - automatic promotion on initial capture
+- Slice `4` — Optional admin/global curation
+  - future admin/curator review queue for candidate mappings
+  - global promotion only after curator approval
+  - status:
+    - deferred from MVP
+    - documentation only
+    - not authorized for implementation now
+- Slice `5` — Optional manual writing sample extension
+  - consider whether manual writing samples should gain candidate capture
+  - status:
+    - deferred
+    - only after lesson-submission capture and parent-local promotion are
+      stable
+
+Blocked cases:
+- no free-text `micro_skill_key` invention
+- no automatic canonical mutation on initial save
+- no global canonical truth from normal parent `Review Work`
+- no parent action directly writes global canonical mapping truth
+- no unpromoted candidate mapping can be used by future suggestions
+- no raw `misspelling_instance` becomes reusable suggestion truth by itself
+- no raw `writing_issue` becomes reusable suggestion truth by itself
+- no template-key truth changes
+- no editable `verified_template_key`
+- no reward changes
+- no mastery changes
+- no assignment changes
+- no scoring or threshold changes
+- no positive-evidence semantics changes
+- no manual writing sample expansion in the first runtime slice
+- no reopening `Stage 7F`
+- no reopening `Stage 8`
+- no admin/global curation implementation in this stage
+
+Runtime implementation authorization:
+- authorized now:
+  - documentation updates only
+  - QA/status closeout only
+- not authorized now:
+  - parent-local promotion runtime work before an explicit Slice `3` prompt
+  - admin/global curation workflow
+  - future suggestion resolver changes beyond the documented
+    pending-mapping exclusion
+- status wording:
+  - Slice `2` is implemented and QA-passed within its bounded scope
+  - no candidate mapping is reusable by future suggestions until an explicit
+    promotion slice is implemented
+
+Slice `2` QA closeout:
+- passes:
+  - candidate capture works on eligible lesson-submission spelling rows
+  - success state is visible after save:
+    - `Saved as verified evidence.`
+    - `Candidate mapping captured.`
+    - `Not used for future suggestions until promoted.`
+  - pending candidate mappings do not unlock `Accept`
+  - pending candidate mappings are not used by future suggestion resolution
+  - canonical rows still show `Accept` correctly
+  - invalid candidate-capture submit shows a visible error
+  - parent-added missed words persist and remain reviewable after reopen
+  - manual writing samples still do not expose candidate capture
+  - template guardrails remain intact
+- known limitation:
+  - candidate capture depends on seeded canonical micro-skill coverage
+  - valid rows such as `natral -> natural` may remain blocked until the
+    correct canonical micro-skill exists in the seeded/catalog-backed option
+    set
+  - this is a catalog/seed coverage limitation, not a Slice `2` runtime
+    boundary failure
+- UX follow-up note:
+  - a captured row can remain visible in both `Suggested / candidate` and
+    `Parent Verification`
+  - this is acceptable for Slice `2` because the mapping is still
+    `pending_parent_promotion` and has not been promoted
+  - later clarity wording may use:
+    - `captured / awaiting promotion`
+    - `saved as evidence, not promoted yet`
+- final verdict:
+  - Slice `2` passes QA within its bounded scope
+  - Slice `2` can be marked implemented and QA-passed
+  - remaining issue is seed/catalogue coverage, not a Slice `2` runtime
+    regression
+
+Deferred after Slice `2`:
+- parent-local promotion remains deferred to Slice `3`
+- admin/global curation remains deferred to a later slice
+- manual writing sample candidate capture remains deferred
+- future suggestion resolver use of promoted mappings remains deferred until
+  the promotion slice
+- catalogue/seed coverage work may be needed before some real examples, such
+  as `natral -> natural`, can be classified
+
+Next safe implementation prompt for Slice `3`:
+
+`Implement Slice 3 of Parent-Verified Spelling Candidate Capture for parent-local promotion only.
+
+Requirements:
+- Add an explicit parent-local promotion action for existing pending-parent-promotion candidate mappings only.
+- Keep promotion scoped to the current parent/child environment only.
+- Make promoted mappings reusable only inside that same scoped parent/child environment.
+- Update future suggestion resolution only far enough to consult parent-local promoted mappings after existing catalog-backed canonical mapping truth.
+- Do not implement admin/global curation.
+- Do not implement manual writing sample candidate capture.
+- Do not change Accept readiness for pending mappings.
+- Do not change override-provider behavior, template-key truth, mastery, rewards, assignment, scoring, thresholds, analytics, or positive-evidence semantics.
+- Preserve Review Work ownership and shared verification boundaries.
+- Keep parent-local promotion auditable and reversible.`
+
 ### Stage 1A — Shared writing-engine foundation
 
 Status: `Complete`
@@ -2260,6 +2560,287 @@ Mini-task `2C.C` closeout status:
     metadata, so missing coverage continues to surface as explicit unresolved
     outcomes rather than inferred mappings
 - next safe pass after `2C` is `2D`
+
+Post-`2C` bounded follow-up closeout:
+- `Canonical Lesson Submission Spelling Mapping Slice 1` is now complete
+- this slice remains outside Stage `7F` behaviour work and outside Stage `8`
+  mastery/runtime work
+- the closeout above is canonical at the documentation boundary, but it must
+  not be treated as a clean tracked-runtime baseline until the current repo
+  state is explicitly reconciled:
+  - if key runtime pieces still exist only as local or untracked work, the
+    next safe step is docs reconciliation first
+  - implementation follow-up must treat that local work as evidence only, not
+    authority
+- the implemented bounded canonical mapping rule is:
+  - lesson/task-submission backed spelling suggestions only
+  - submission-backed `misspelling_instance` lineage only
+  - use normalized `suggested_replacement`
+  - exact deterministic matching only
+  - resolve only when exactly one active assignable `D4`
+    `micro_skill_catalog` row matches
+  - allowed catalog fields only:
+    - `metadata.starter_word_bank`
+    - `metadata.example_words`
+    - `metadata.contrast_word_bank`
+- creation-time population is now supported for eligible new
+  submission-backed spelling suggestions
+- bounded backfill is now supported for existing pending unverified
+  submission-backed spelling suggestions whose `suggested_micro_skill_key` is
+  null, empty, or `unknown`
+- manual writing samples remain excluded from this slice
+- ambiguous, unmapped, inactive, non-assignable, out-of-coverage, and
+  otherwise ineligible cases remain unresolved
+- `allowsAccepted` and server-side accepted-decision validation remain
+  preserved
+- `micro_skill_catalog` remains the only micro-skill identity source
+- no mastery, evidence, assignment, reward, analytics, queue, or archive
+  writes were introduced
+- manual QA supplied by Lee passed for this slice:
+  - `mony -> money`, `storry -> story`, and `ceeling -> ceiling` showed
+    `Accept`
+  - `plai -> play`, `buisness -> business`, and `rane -> ran` kept `Accept`
+    hidden/unavailable
+  - `mony -> money` persisted/backfilled `D4_PG_LONG_EE_EY` with mapping audit
+    metadata including:
+    - `source = micro_skill_catalog_word_lists`
+    - `status = resolved`
+    - `rule_version = canonical_submission_spelling_mapping_slice1_v1`
+    - matched fields including `starter_word_bank` and `example_words`
+    - normalized suggested replacement `money`
+  - `mony -> money` created a parent verification with
+    `decision = accepted`
+  - `storry -> story` created a parent verification with
+    `decision = not_a_learning_issue`
+- QA evidence for this closeout:
+  - `npx tsc --noEmit`
+  - `npm run build`
+  - `npm run writing-engine:mapping-source-regression`
+  - `npm run writing-engine:primary-mapping-regression`
+  - `npm run writing-engine:ambiguous-mapping-regression`
+  - `npm run writing-engine:authentic-submission-regression`
+  - `npm run writing-engine:authentic-verification-regression`
+- post-closeout boundary clarification:
+  - `Accept` readiness and override-option population are separate boundaries
+  - this bounded slice covers only when an existing shared suggestion may be
+    accepted as already canonically valid
+  - this bounded slice is now implemented and validated in the current
+    bounded runtime path for lesson/task-submission spelling suggestions
+  - `Accept` is surfaced only when canonical micro-skill truth is present and
+    non-`unknown`
+  - this slice does not by itself authorize or provide catalog-backed
+    alternative override options
+  - override-option population remains separate catalog-option-provider debt
+  - if a later implementation slice is authorized, the smallest safe runtime
+    slice is bounded lesson-submission spelling `Accept` readiness only
+  - that later slice must not weaken:
+    - `allowsAccepted`
+    - server-side accepted-decision validation
+    - `micro_skill_catalog` as the only micro-skill identity source
+    - manual writing-sample exclusion for this bounded path
+  - the next separate docs-only registration slice is:
+    - `Review Work Suggested Issue override-option provider`
+- exact eligible source remains:
+  - lesson/task-submission-backed spelling suggestions only
+- exact blocked cases remain:
+  - manual writing samples
+  - unresolved suggestions
+  - ambiguous matches
+  - inactive matches
+  - non-assignable matches
+  - out-of-scope matches
+- unchanged by this bounded slice:
+  - no Review Work workflow changes
+  - no mastery, assignment, reward, scoring, thresholds, persistence,
+    analytics, or positive-evidence changes
+- validated regression coverage for this bounded slice includes:
+  - `npx tsc --noEmit`
+  - `npm run writing-engine:mapping-source-regression`
+  - `npm run writing-engine:primary-mapping-regression`
+  - `npm run writing-engine:ambiguous-mapping-regression`
+  - `npm run writing-engine:authentic-submission-regression`
+  - `npm run writing-engine:authentic-verification-regression`
+  - direct Stage `7F` regression harness execution
+- lint caveat:
+  - `npm run lint` remains blocked by pre-existing repo-wide lint debt rather
+    than this slice
+- residual risks / follow-up:
+  - rows seeded outside the allowed catalog metadata fields remain unresolved
+    by design
+  - existing lesson misspellings with no persisted suggestion row may rely on
+    read-time canonical mapping until a review action creates or touches a
+    real `writing_issue_suggestions` row
+  - if accepted/rejected parent-verification decisions are still counted as
+    unresolved because `writing_issue_suggestions.suggestion_status` remains
+    `pending`, that is a separate `Review Work` read-model/status
+    reconciliation issue, not a mapping-slice bug
+
+### Registered slice — Review Work Suggested Issue override-option provider
+
+Status: `Deferred selectable UI/runtime; server behavior regression tracked`
+
+Purpose:
+- replace or constrain raw override taxonomy entry with catalog-backed options
+  for canonical parent overrides
+- prevent free-text `micro_skill_key` or free-text `template_key` invention in
+  `Review Work` override saves
+
+Scope:
+- lesson/task-submission-backed spelling suggestions only
+- `verified_micro_skill_key` provider first
+- `verified_category_code` remains the existing fixed option set
+- `verification_note` remains free-text audit text
+- selectable override-provider UI/runtime is not currently live in
+  `Review Work`
+- existing action-layer/server behavior is covered by:
+  - `npm run writing-engine:review-work-override-provider-behavior-regression`
+
+Canonical source and provider rules:
+- `micro_skill_catalog` remains the only mini-skill identity source
+- options must be surfaced through a bounded provider/read model, not an
+  unrestricted catalog dump or generic/global catalog browsing
+- only active, assignable, in-scope spelling micro-skills may be offered
+- provider options must exclude:
+  - ambiguous options
+  - inactive rows
+  - non-assignable rows
+  - out-of-scope rows
+  - fallback/free-text `micro_skill_key` values
+
+Save and validation rules:
+- overridden decisions may save only canonical provider values
+- server-side validation must reject non-catalog override mini-skill keys
+- future selectable provider UI must share the same bounded canonical anchor
+  fallback used by server-side override validation when the pending shared
+  suggestion row has not yet persisted a canonical micro-skill key
+- `accepted` validation remains unchanged
+
+Template handling:
+- template routing is micro-skill-owned, not word-owned
+- Review Work verifies the micro-skill classification and derives template
+  routing from that verified micro-skill's configured template metadata
+- if a suggestion is accepted, use the suggested canonical micro-skill's
+  configured template route
+- if a suggestion is overridden, use the verified replacement micro-skill's
+  configured template route
+- `verified_template_key` is explicitly deferred/blocked in Review Work for
+  this stage
+- template free text is not authorized
+- no parent-facing template dropdown/provider implementation is authorized now
+- any later template-choice UI requires separate bounded authorization and may
+  only surface template choices from the verified micro-skill's allowed
+  template metadata, never from global template browsing or word-by-word truth
+
+Explicitly blocked:
+- manual writing samples
+- unresolved suggestions
+- ambiguous matches
+- unmapped suggestions
+- inactive catalog rows
+- non-assignable catalog rows
+- out-of-scope micro-skills
+- generic/global catalog browsing
+
+Non-goals:
+- no Review Work workflow changes
+- no `Accept` gating changes
+- no weakening of accepted-decision validation
+- no mastery/evidence, assignment, reward, scoring, thresholds, persistence,
+  analytics, or positive-evidence logic changes
+
+Validation status:
+- existing server/action-layer override behavior is tracked by:
+  - `npx tsc --noEmit`
+  - `npm run writing-engine:review-work-override-provider-behavior-regression`
+- no selectable override-provider UI/runtime QA is recorded because that UI is
+  not currently committed/live
+- the deleted stale source-level override-provider harness is not part of the
+  current validation record
+
+Residual deferred scope:
+- selectable override-provider UI/runtime remains deferred
+- `verified_template_key` remains deferred/blocked in Review Work
+- manual writing samples remain out of scope for override-provider expansion
+
+### Registered slice — Review Work Read-Only Derived Template Metadata
+
+Status: `Implemented and validated (bounded read-only slice)`
+
+Purpose:
+- expose read-only template-route metadata in `Review Work`
+- keep Review Work focused on verifying canonical micro-skill truth rather
+  than assigning template truth word by word
+
+Boundary:
+- read-only display only
+- no editable `verified_template_key`
+- no template dropdown/provider
+- no free-text template key
+- no global template browsing
+- no independent template truth persisted from Review Work
+
+Allowed derivation:
+- lesson/task-submission-backed spelling suggestions only
+- derive only from deterministic canonical/verified micro-skill truth
+- for accepted/shared canonical spelling suggestions, derive from the
+  suggested canonical micro-skill
+- for overridden suggestions, derive from the verified replacement
+  micro-skill
+- use only canonical Stage 2A/2D template registry truth rooted in that
+  micro-skill:
+  - `micro_skill_catalog.allowed_template_keys`
+  - `micro_skill_catalog.metadata.dictation_template_key`
+  - `micro_skill_catalog.metadata.dictation_template_keys`
+
+Blocked or unresolved:
+- manual writing samples
+- missing deterministic canonical micro-skill truth
+- unresolved template registry cases
+- word-by-word template assignment
+- parent-editable template fields
+- template dropdown/provider
+- global template browsing
+
+Display rule:
+- unresolved template metadata must render as read-only unavailable/deferred
+  messaging, never as an input
+- the bounded read-only slice is now live for lesson/task-submission spelling
+  suggestions in `Review Work`
+- the implementation may use a derived read-only view-model field such as:
+  - `derivedTemplateMetadata: { status, templateKey, sourceRefs, reason }`
+
+QA closeout:
+- automated QA passed for the bounded slice:
+  - `npx tsc --noEmit`
+  - `npm run writing-engine:review-work-override-provider-behavior-regression`
+- engineering integration QA passed for the bounded Review Work slices
+- no automated/source-level regressions were found in the bounded Review Work
+  slices
+- remaining non-code caveat:
+  - a live browser/manual sweep should still be retained as a human
+    verification step covering:
+    - mapped lesson-submission spelling issue
+    - unresolved lesson-submission spelling issue
+    - recorded overridden verification
+    - manual writing sample
+- this remaining manual sweep item is not itself a code-implementation blocker
+  unless launch-readiness policy requires manual UI sign-off
+
+Non-goals:
+- no Review Work workflow changes
+- no `Accept` gating changes
+- no weakening of accepted-decision validation
+- no mastery/evidence, assignment, reward, scoring, thresholds, persistence,
+  analytics, or positive-evidence logic changes
+
+Residual deferred scope:
+- `verified_template_key` remains deferred/blocked as an editable Review Work
+  field
+- any future parent-facing template choice UI requires separate bounded
+  authorization and must remain micro-skill-owned rather than word-owned
+- manual writing samples remain out of scope for derived template display
+- Review Work should not be reopened unless the remaining manual sweep finds a
+  bug or a later docs-first stage explicitly authorizes new work
 
 Stage `2C` sequence rule:
 - start with `2C.A`
@@ -5252,6 +5833,1000 @@ Closeout note:
 - `Stage 7C` must now define the first canonical read-only suggested-issues
   panel inside `Review Work` detail before any `7D` action work begins
 
+### Stage 7F — Parent Review Action Restoration
+
+Status: `Documentation-defined bounded restoration pass; implementation not yet started`
+
+Goal:
+- restore historical parent-facing lesson review actions that were orphaned
+  from the current canonical `Review Work` detail UI
+- preserve the current canonical `Review Work` spine rather than reviving the
+  historical page or any legacy review surface
+- keep UI restoration, server-action reuse, queue/coherence work, and new
+  persistence work separated into safe mini implementation tasks
+
+Contracts and sources of truth:
+- primary contract:
+  - [docs/contracts/writing-engine-mastery-and-evidence-contract.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/contracts/writing-engine-mastery-and-evidence-contract.md:1)
+- secondary boundary contract:
+  - [docs/contracts/micro-skill-taxonomy-and-assignment-contract.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/contracts/micro-skill-taxonomy-and-assignment-contract.md:1)
+- primary architecture truth:
+  - [docs/architecture/writing-engine-canonical-brief.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/architecture/writing-engine-canonical-brief.md:1)
+  - [docs/architecture/writing-engine-foundation.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/architecture/writing-engine-foundation.md:1)
+- primary implementation truth:
+  - [docs/implementation/writing-engine-roadmap.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/implementation/writing-engine-roadmap.md:1)
+  - [docs/implementation/targeted-writing-practice-status.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/implementation/targeted-writing-practice-status.md:1)
+- runtime action contract:
+  - [app/courses/review/actions.ts](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/app/courses/review/actions.ts:1)
+- runtime read-model and UI truth:
+  - [app/courses/review/[submissionId]/page.tsx](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/app/courses/review/%5BsubmissionId%5D/page.tsx:1)
+  - [app/courses/review/page.tsx](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/app/courses/review/page.tsx:1)
+  - [app/courses/review/review-utils.ts](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/app/courses/review/review-utils.ts:1)
+  - [app/learn/modules/[moduleId]/tasks/[taskId]/page.tsx](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/app/learn/modules/%5BmoduleId%5D/tasks/%5BtaskId%5D/page.tsx:1)
+- historical reference only:
+  - `git show aa0341c:'app/courses/review/[submissionId]/page.tsx'`
+  - `git show c808b1f -- 'app/courses/review/[submissionId]/page.tsx'`
+
+Behaviour contract:
+- `Stage 7F` is a narrow restoration pass, not a new architecture slice
+- `Stage 7F` preserves the current canonical `Review Work` spine
+- `Stage 7F` must not revive `/analyse/review`, old Analyse review ownership,
+  duplicate review surfaces, or route-local truth
+- parent review actions surfaced in `Review Work` must continue to reuse
+  existing shared verification and durable-issue pathways only
+- `Review Work` UI actions must not mutate mastery or evidence directly
+- parent-added missed issues must preserve parent-authored provenance and must
+  not be presented as engine-suggested truth
+- returned lesson submissions must remain live and visually distinct from
+  generic needs-review rows
+- lesson approval must remain blocked while unresolved suggestions remain
+- zero-suggestion silence must not auto-complete either source type
+- manual-sample completion currently requires explicit persistence and must not
+  be faked
+
+Implementation sequencing rule:
+- `Stage 7F` is broken into bounded mini-tasks below
+- implementation must proceed one mini-task at a time
+- each mini-task requires:
+  - its own implementation report
+  - its own QA pass
+  - explicit closeout before the next mini-task begins
+- do not combine persistence/UI/server-action work with pure domain/helper work
+  unless the relevant mini-task explicitly owns that combination
+- if provenance, persistence, identity, permission, or source-of-truth rules
+  become unclear, stop and return to docs rather than inventing architecture
+
+Blocker note:
+- a previous prompt referenced `Current contract: [PASTE CONTRACT HERE]`, but no
+  extra contract text was supplied
+- therefore no additional hidden contract should be assumed beyond the sources
+  above
+- if implementation reaches a rule not covered by those sources, that is a
+  stop-and-return-to-docs blocker
+
+Mini-task `7F.1` — Lesson Parent Actions UI Restoration
+- ID:
+  - `7F.1`
+- Name:
+  - `Lesson detail parent actions surface`
+- Purpose:
+  - restore lesson-only parent review controls into the current canonical
+    `Review Work` detail page
+- Stage goal:
+  - re-establish the lesson-detail action surface without changing the current
+    shared action contract, verification semantics, or completion semantics
+- Scope:
+  - add a `Parent review actions` section for lesson submissions only
+  - include `Approve / mark complete`
+  - include `Send back to child`
+  - include parent note input
+- Behaviour contract:
+  - `7F.1` restores visibility and placement of lesson-only parent action
+    controls inside canonical `Review Work` detail
+  - `7F.1` may reuse existing lesson action targets and existing lesson/manual
+    source identification only
+  - `7F.1` does not broaden the action payload, restore structured field
+    feedback inputs, or reconnect child returned-work behavior
+- Architecture boundaries:
+  - keep canonical review ownership in `Review Work`
+  - keep manual writing samples outside this action surface
+  - keep shared action semantics in existing server actions rather than in
+    route-local UI logic
+  - keep the existing Suggested Issues panel as the primary canonical review
+    spine above or alongside the restored section
+- Non-goals:
+  - no manual-sample send-back UI
+  - no queue logic changes
+  - no new verification semantics
+  - no structured lesson field feedback inputs in this mini-task
+  - no child returned-work payload validation beyond preserving the current
+    form boundary
+  - no approval guardrail changes
+  - no backend persistence changes beyond existing action reuse
+- Expected files/areas:
+  - [app/courses/review/[submissionId]/page.tsx](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/app/courses/review/%5BsubmissionId%5D/page.tsx:1)
+  - historical reference from `aa0341c`
+- Acceptance criteria:
+  - lesson detail shows the parent actions section
+  - manual sample detail does not
+  - restored controls are visibly lesson-only and do not imply that manual
+    samples support lesson approval or send-back
+  - page remains anchored to the current canonical Suggested Issues panel
+  - no structured lesson field feedback inputs are required for `7F.1`
+- Tests/QA:
+  - browser/UI regression for lesson vs manual rendering
+  - browser/UI check that the restored section appears without reviving a
+    second review surface
+  - `npx tsc --noEmit`
+- Dependencies:
+  - none
+- Next-stage boundary:
+  - `7F.2` owns structured lesson feedback rehydration and any
+    `field_feedback__{fieldKey}` input restoration
+  - `7F.3` owns actual send-back flow reconnection
+  - `7F.4` owns approval guardrail restoration and unresolved-suggestion
+    blocking behavior
+- Stop conditions:
+  - if lesson/manual source identification is ambiguous at runtime
+  - if restoring the section requires replacing the whole page rather than
+    extending it
+
+Closeout:
+- `7F.1` is now implemented and QA passed
+- lesson submission detail now renders a lesson-only `Parent review actions`
+  section below the canonical Suggested Issues panel
+- manual writing sample detail does not render that section
+- the restored `Approve / mark complete`, `Send back to child`, and `Parent
+  note` controls are intentionally disabled / non-operative in `7F.1`
+- no backend mutation path was introduced by `7F.1`:
+  - no `parent_review_status` change
+  - no returned-work draft payload write
+  - no approval success path
+  - no send-back success path
+- `7F.1` therefore closes as a rendering/guardrail restoration only
+
+QA evidence:
+- `npx tsc --noEmit`
+  - passed with exit code `0`
+- `npm run build`
+  - passed with exit code `0`
+- `npm run writing-engine:stage7a-intake-regression`
+  - `writing-engine-stage7a-intake-regression: ok`
+
+Residual boundaries preserved:
+- `7F.2` still owns structured lesson feedback rehydration
+- `7F.3` still owns send-back wiring
+- `7F.4` still owns approval guardrail restoration
+
+Manual QA notes worth preserving:
+- verify the lesson-only action card remains visibly below Suggested Issues
+- verify manual writing sample detail still omits the lesson action surface
+- verify the disabled controls do not submit, redirect, mutate, or show
+  success copy
+
+Mini-task `7F.2` — Structured Lesson Feedback Rehydration
+- ID:
+  - `7F.2`
+- Name:
+  - `Structured lesson feedback inputs`
+- Purpose:
+  - re-enable question-level feedback for lesson submissions where the data
+    model still supports it
+- Scope:
+  - restore loading of lesson schema and draft payload in lesson detail
+  - render `field_feedback__{fieldKey}` inputs for reviewable structured
+    fields
+  - ensure payload shape matches `returnSubmissionToChild(...)`
+- Non-goals:
+  - no manual-sample field feedback
+  - no new lesson response model
+  - no child-page behavior changes
+- Expected files/areas:
+  - [app/courses/review/[submissionId]/page.tsx](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/app/courses/review/%5BsubmissionId%5D/page.tsx:1)
+  - [app/courses/review/actions.ts](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/app/courses/review/actions.ts:1)
+  - [app/learn/modules/[moduleId]/tasks/[taskId]/page.tsx](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/app/learn/modules/%5BmoduleId%5D/tasks/%5BtaskId%5D/page.tsx:1)
+    for compatibility verification only
+- Acceptance criteria:
+  - structured lesson fields render only when supported
+  - send-back form posts field feedback through the existing action contract
+- Tests/QA:
+  - focused returned-work path regression
+  - `npx tsc --noEmit`
+- Dependencies:
+  - `7F.1`
+- Stop conditions:
+  - if structured lesson field identity cannot be matched safely from current
+    draft/schema data
+
+Closeout:
+- `7F.2` is now implemented and QA passed
+- lesson submission detail may now render structured lesson feedback inputs
+  when current lesson schema/draft data supports them
+- manual writing sample detail does not render structured lesson feedback
+  inputs
+- structured lesson feedback inputs reuse the existing action naming contract:
+  - `field_feedback__{fieldKey}`
+- restored structured lesson feedback inputs remain disabled / non-operative in
+  `7F.2`
+- no backend mutation path was introduced by `7F.2`
+- `7F.2` therefore closes as a lesson-only structured-feedback rendering pass,
+  not a send-back or approval-behavior pass
+
+QA evidence:
+- `npx tsc --noEmit`
+  - passed with exit code `0`
+- `npm run build`
+  - passed with exit code `0`
+
+Residual boundaries preserved:
+- `7F.3` still owns send-back wiring
+- `7F.4` still owns approval guardrail restoration
+
+Manual QA notes worth preserving:
+- verify structured lesson feedback inputs appear only on supported lesson
+  submissions
+- verify unsupported lesson submissions still render the lesson action surface
+  without the structured-feedback subsection
+- verify manual writing sample detail still omits structured lesson feedback
+  inputs
+- verify disabled structured feedback inputs do not submit, redirect, mutate,
+  or show success copy
+
+Mini-task `7F.3` — Lesson Send-Back Flow Reconnection
+- ID:
+  - `7F.3`
+- Name:
+  - `Lesson send-back action restoration`
+- Purpose:
+  - restore the parent-facing send-back flow on lesson submissions using the
+    existing canonical action
+- Scope:
+  - wire lesson send-back form to `returnSubmissionToChild(...)`
+  - preserve parent note
+  - preserve structured field feedback payload
+  - verify child returned-work path still receives expected feedback
+- Non-goals:
+  - no manual-sample send-back
+  - no new return lifecycle state
+  - no archive redesign yet
+- Expected files/areas:
+  - [app/courses/review/[submissionId]/page.tsx](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/app/courses/review/%5BsubmissionId%5D/page.tsx:1)
+  - [app/courses/review/actions.ts](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/app/courses/review/actions.ts:1904)
+  - [app/learn/modules/[moduleId]/tasks/[taskId]/page.tsx](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/app/learn/modules/%5BmoduleId%5D/tasks/%5BtaskId%5D/page.tsx:1)
+- Acceptance criteria:
+  - parent can send lesson work back with note/feedback
+  - `parent_review_status` becomes `returned`
+  - child page shows returned-work path where applicable
+- Tests/QA:
+  - focused lesson send-back regression
+  - `npx tsc --noEmit`
+- Dependencies:
+  - `7F.1`
+  - `7F.2`
+- Stop conditions:
+  - if child returned-work consumption depends on undocumented payload fields
+    not present in current action
+
+Closeout:
+- `7F.3` is now implemented and QA passed
+- lesson submission detail now wires the lesson-only send-back form to the
+  existing canonical action:
+  - `returnSubmissionToChild(...)`
+- `parent_review_note` is editable and posts through the action
+- structured lesson feedback values post through the existing contract:
+  - `field_feedback__{fieldKey}`
+- manual writing sample detail does not render or support lesson send-back
+- approval remains deferred and non-operative in `7F.3`
+- `7F.3` therefore closes as a lesson send-back reconnection pass, not an
+  approval-guardrail pass
+
+QA evidence:
+- `npx tsc --noEmit`
+  - passed with exit code `0`
+- `npm run build`
+  - passed with exit code `0`
+
+Residual boundaries preserved:
+- `7F.4` still owns approval guardrails
+
+Manual QA notes worth preserving:
+- verify successful send-back messaging appears on lesson detail rather than a
+  no-op
+- verify reopening the same review item shows coherent returned-state truth
+- verify the child lesson page shows returned-work restoration and structured
+  feedback where supported
+- verify manual writing sample detail still omits lesson send-back UI
+- verify `Approve / mark complete` remains non-operative until `7F.4`
+
+Mini-task `7F.4` — Lesson Approval Guardrail Restoration
+- ID:
+  - `7F.4`
+- Name:
+  - `Lesson approval and unresolved-issue guardrails`
+- Purpose:
+  - restore explicit lesson approval UI while preserving the rule that
+    unresolved suggestions block completion
+- Scope:
+  - wire lesson complete form to `approveSubmissionReview(...)`
+  - ensure pending unresolved suggestions still block approval
+  - ensure accepted, overridden, false positive, and not-a-learning-issue
+    decisions count as resolved
+- Non-goals:
+  - no manual-sample completion
+  - no mastery/evidence writes
+  - no new review decisions
+- Expected files/areas:
+  - [app/courses/review/[submissionId]/page.tsx](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/app/courses/review/%5BsubmissionId%5D/page.tsx:1)
+  - [app/courses/review/actions.ts](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/app/courses/review/actions.ts:2149)
+  - [app/courses/review/review-utils.ts](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/app/courses/review/review-utils.ts:934)
+    if read-model wording needs alignment
+- Acceptance criteria:
+  - lesson submission can be approved only after all suggestions are resolved
+  - explicit parent completion remains required even when the engine found
+    nothing
+- Tests/QA:
+  - regression covering blocked approval with unresolved suggestions
+  - regression covering successful approval after resolution
+  - `npx tsc --noEmit`
+- Dependencies:
+  - `7F.1`
+- Stop conditions:
+  - if current unresolved-state derivation disagrees with canonical
+    parent-verification records in a way not covered by the current
+    contract/doc set
+
+Closeout:
+- `7F.4` is now implemented and QA passed
+- lesson-only approval is now wired to the existing canonical action:
+  - `approveSubmissionReview(...)`
+- approval remains lesson-only
+- manual writing sample detail pages do not render or support lesson approval
+- approval is blocked while unresolved suggestions remain
+- the unresolved-suggestion guardrail is enforced both:
+  - in the UI disabled state
+  - server-side in the approval action
+- unresolved state continues to derive from the existing Suggested Issues /
+  shared review truth model rather than a new unresolved-state model
+- accepted, overridden, `false_positive`, and `not_a_learning_issue` outcomes
+  continue to count as resolved through existing shared truth
+- explicit parent completion remains required even when the engine found no
+  suggestions
+- `7F.3` send-back behavior remains intact
+- `7F.4` therefore closes as a lesson-only approval-guardrail restoration
+  pass, not a Suggested Issue wording/visibility pass
+
+QA evidence:
+- `npx tsc --noEmit`
+  - passed with exit code `0`
+- `npm run build`
+  - passed with exit code `0`
+- code-level audit confirmed:
+  - approval form is wired to `approveSubmissionReview(...)`
+  - approval disabled state is driven by the existing shared unresolved count
+  - server-side approval guardrail rejects approval while unresolved
+    suggestions remain
+  - manual writing samples cannot render or submit lesson approval
+  - `returnSubmissionToChild(...)` wiring from `7F.3` remains intact
+- manual/browser QA confirmed:
+  - unresolved lesson submission approval is blocked
+  - blocked approval returns the expected message:
+    - `All captured suggestions must be reviewed before this submission can be approved.`
+  - manual writing sample detail does not render lesson approval UI
+  - manual writing sample detail does not render lesson send-back UI
+  - manual sample Suggested Issues behavior remains unchanged
+
+Non-blocking caveat:
+- the zero-unresolved approval success path was not manually re-tested in the
+  active browser context because the active lesson submission still had
+  unresolved suggestions
+- code-level audit confirmed the expected path:
+  - UI enables approval when unresolved count is `0`
+  - server action approves only when shared unresolved checks pass
+- this should be smoke-tested when a zero-unresolved or no-suggestion lesson
+  item is available
+- this caveat does not block `7F.4` closeout
+
+Related finding preserved for the next slice:
+- some Suggested Issues do not show a visible `Accept` button
+- classify this as `7F.5` wording/visibility debt, not a `7F.4` regression
+- the current code still contains an `Accept` action path
+- `Accept` visibility is controlled by the shared review model through
+  `allowsAccepted`
+- `Accept` remains unavailable when a suggestion lacks canonical micro-skill
+  truth
+- the action layer also rejects `accepted` decisions without valid canonical
+  micro-skill truth
+- `7F.5` should clarify Suggested Issue action wording and visibility without
+  weakening:
+  - `allowsAccepted`
+  - canonical micro-skill requirements
+  - approval unresolved-suggestion guardrails
+  - shared verification semantics
+
+Residual boundaries preserved:
+- `7F.5` still owns Suggested Issue action wording and visibility
+- `7F.6` still owns lesson missed-word capture
+- `7F.8` still owns returned lesson row and zero-suggestion lesson queue truth
+  restoration
+- `7F.9` still owns manual sample explicit completion persistence
+- `7F.10` still owns focused Stage `7F` regression coverage
+- no Stage `8` mastery/runtime work is authorized by this closeout
+
+Mini-task `7F.5` — Suggested Issue Semantics Clarification
+- ID:
+  - `7F.5`
+- Name:
+  - `Suggested issue action wording and visibility`
+- Purpose:
+  - make the current Stage `7D` action-bearing panel unambiguous for parent
+    review
+- Scope:
+  - ensure visible actions are:
+    - `Accept`
+    - `Override`
+    - `False positive`
+    - `Not a learning issue`
+  - remove ambiguous `Not an Issue` wording if any remains in current UI copy
+  - ensure recorded decisions are shown clearly post-action
+- Non-goals:
+  - no new verification semantics
+  - no new source-of-truth tables
+  - no queue logic changes
+- Expected files/areas:
+  - [app/courses/review/[submissionId]/page.tsx](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/app/courses/review/%5BsubmissionId%5D/page.tsx:1)
+  - [app/courses/review/review-utils.ts](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/app/courses/review/review-utils.ts:1)
+- Acceptance criteria:
+  - parent sees explicit `Accept`
+  - wording reflects canonical decision names from the existing verification
+    contract
+  - previously recorded decisions remain visible
+- Tests/QA:
+  - UI/detail regression
+  - `npx tsc --noEmit`
+- Dependencies:
+  - none
+- Stop conditions:
+  - if any label change conflicts with shared downstream decision names or the
+    live action contract
+
+Closeout:
+- `7F.5` is now implemented and QA passed
+- Suggested Issues action wording and visibility are now clarified on the
+  canonical Review Work surface
+- the UI now explains when `Accept` is available because canonical
+  micro-skill truth already exists
+- the UI now explains when `Accept` is unavailable because canonical
+  micro-skill truth is missing
+- the UI now explains the supported alternatives:
+  - `False positive`
+  - `Not a learning issue`
+  - `Override shared verification`
+- a compact `What these actions mean` disclosure now explains the existing
+  action meanings
+- stale lesson-action copy was corrected so the page no longer says send-back
+  and approval are deferred to later stages
+- `7F.5` therefore closes as a wording/visibility clarification pass, not a
+  catalog-population, verification-semantics, or queue-truth pass
+
+Guardrails preserved:
+- `allowsAccepted` was preserved
+- canonical micro-skill requirement for `accepted` was preserved
+- server-side rejection of invalid `accepted` decisions remains intact
+- approval guardrails from `7F.4` remain intact
+- send-back behavior from `7F.3` remains intact
+- no new verification decisions were introduced
+- no new unresolved-state model was introduced
+- no new source-of-truth tables were introduced
+- no mastery, evidence, assignment, reward, analytics, queue, or archive
+  writes were introduced
+
+QA evidence:
+- `npx tsc --noEmit`
+  - passed with exit code `0`
+- `npm run build`
+  - passed with exit code `0`
+- `npm run lint`
+  - was run and failed due to pre-existing repo-wide issues
+  - failures are concentrated under `.tmp` regression artifacts plus unrelated
+    files outside `7F.5`
+  - the lint failure is not caused by the `7F.5` change
+
+Related finding preserved outside Stage `7F`:
+- the reason some Suggested Issues still cannot show `Accept` is missing
+  canonical micro-skill mapping / truth readiness
+- classify this as catalog / micro-skill mapping readiness debt, not a
+  `7F.5` regression
+- do not solve this inside `7F.5` or `7F.6`
+- any mapping or population work must be handled in a separate docs-first
+  catalog readiness pass
+
+Residual boundaries preserved:
+- `7F.6` still owns lesson missed-word capture
+- `7F.8` still owns returned lesson row and zero-suggestion lesson queue truth
+  restoration
+- `7F.9` still owns manual sample explicit completion persistence
+- `7F.10` still owns focused Stage `7F` regression coverage
+- no Stage `8` mastery/runtime work is authorized by this closeout
+- catalog / micro-skill mapping population is not part of Stage `7F`
+
+Mini-task `7F.6` — Lesson Missed Word Restoration
+- ID:
+  - `7F.6`
+- Name:
+  - `Lesson missed word capture`
+- Purpose:
+  - restore a parent-facing missed-word path for lesson submissions using the
+    existing backend action
+- Scope:
+  - add `Add missed word` control for lesson submissions
+  - wire to `addMissedWordToSubmissionReview(...)`
+  - ensure the saved result reappears in current Review Work truth
+- Non-goals:
+  - no manual writing sample missed-word support
+  - no `7F.7` manual parent-authored issue path
+  - no new durable-issue lifecycle
+  - no general parent-authored issue model
+  - no new source-of-truth table
+  - no assignment/mastery/evidence/reward/analytics writes
+  - no queue/archive redesign
+  - no catalog/micro-skill mapping work
+  - no Stage `8` work
+- Expected files/areas:
+  - [app/courses/review/[submissionId]/page.tsx](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/app/courses/review/%5BsubmissionId%5D/page.tsx:1)
+  - [app/courses/review/actions.ts](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/app/courses/review/actions.ts:436)
+  - [app/courses/review/review-utils.ts](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/app/courses/review/review-utils.ts:1)
+- Provenance/rendering clarification:
+  - `7F.6` implementation was paused before runtime changes because the
+    current Review Work read model would re-surface a saved parent-added
+    missed word as a generic engine-style `Suggested / candidate` entry
+  - `7F.6` now defines the approved distinction before implementation resumes
+  - a parent-added missed word is persisted Review Work review input authored
+    by the parent
+  - it is not:
+    - engine-suggested candidate truth
+    - unresolved engine output
+    - verified issue truth
+    - durable issue truth
+    - mastery truth
+    - assignment truth
+  - parent-added missed words must not render inside the canonical Suggested
+    Issues section as:
+    - `Suggested / candidate`
+    - `Unresolved`
+    - or any engine-output framing
+  - the approved rendering treatment for `7F.6` is a separate lesson-only
+    parent-authored section in Review Work detail
+  - parent-facing wording may be:
+    - `Parent-added missed words`
+    - or an equivalent compact parent-authored label
+  - the separate section is presentation over existing persisted review truth
+  - it must not create a second review workflow
+  - Suggested Issues remains the canonical spine for engine/shared outputs
+  - parent-added missed words must preserve parent-authored provenance
+- Bounded provenance authorization:
+  - existing persistence does not currently expose a safe enough distinction in
+    the read model
+  - `7F.6` is explicitly authorized to use a bounded provenance marker on
+    existing lesson `misspelling_instances` rows
+  - the provenance marker must be narrowly scoped:
+    - only for lesson-submission rows created through
+      `addMissedWordToSubmissionReview(...)`
+    - only to distinguish parent-authored missed-word additions from
+      engine-detected misspellings
+    - may live on existing row metadata or existing row-attached persisted
+      fields
+    - must not create a new table
+    - must not create a general parent-authored issue system
+    - must not expand into `7F.7`
+  - the marker must not be used to imply verified truth, durable issue truth,
+    mastery truth, or assignment truth
+- Acceptance criteria:
+  - lesson detail allows parent to add missed word
+  - saved parent-added missed word reappears in Review Work detail
+  - saved parent-added missed word appears in a separate lesson-only
+    parent-authored section
+  - saved parent-added missed word does not render as engine-suggested truth
+  - Suggested Issues remains the canonical section for engine/shared outputs
+  - manual writing sample detail does not gain missed-word support
+  - no new durable-issue lifecycle is introduced
+  - no mastery/evidence/assignment/reward/analytics writes are introduced
+- Tests/QA:
+  - focused lesson missed-word regression
+  - `npm run build`
+  - `npx tsc --noEmit`
+- Dependencies:
+  - `7F.1`
+- Stop conditions:
+  - stop if implementation requires a broader provenance model than the
+    bounded marker
+  - stop if parent-added rows cannot be distinguished from engine-detected
+    misspellings
+  - stop if parent-added rows would need to render as `Suggested / candidate`
+    or `Unresolved` engine output
+  - stop if implementation requires a new table or general parent-authored
+    issue lifecycle
+  - stop if implementation pressure expands into manual samples, durable issue
+    promotion, mastery/evidence, assignment, queue/archive, or catalog mapping
+
+Mini-task `7F.7` — Parent-Authored Manual Issue Provenance
+- ID:
+  - `7F.7`
+- Name:
+  - `Manual sample parent-authored missed issue contract`
+- Purpose:
+  - define and implement the safest parent-authored missed-issue path for
+    manual writing samples without misrepresenting provenance
+- Scope:
+  - extend `addManualWritingIssue(...)` or documented equivalent to accept
+    `writing_sample_id`
+  - create canonical durable issue truth on the manual sample
+  - create a suggestion-shaped row only if the current Review Work
+    history/read model requires it
+  - if a suggestion-shaped row is used, it must be clearly parent-authored,
+    not engine-suggested
+- Non-goals:
+  - no new verification decision family
+  - no assignment generation
+  - no manual sample completion yet
+- Expected files/areas:
+  - [app/courses/review/actions.ts](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/app/courses/review/actions.ts:1223)
+  - [app/courses/review/[submissionId]/page.tsx](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/app/courses/review/%5BsubmissionId%5D/page.tsx:1)
+  - [app/courses/review/review-utils.ts](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/app/courses/review/review-utils.ts:1)
+- Acceptance criteria:
+  - manual sample parent-added issue persists with clear provenance
+  - UI/history does not present it as an engine suggestion
+  - route-local UI still does not mutate mastery/evidence directly
+- Tests/QA:
+  - focused manual parent-authored issue regression
+  - `npx tsc --noEmit`
+- Dependencies:
+  - none
+- Stop conditions:
+  - if current canonical model cannot represent parent-authored provenance
+    cleanly without a new documented persistence rule
+  - if a suggestion row is required but no safe source/provenance label exists
+    in the current contract/doc set
+- Closeout:
+  - `7F.7` is complete
+  - manual writing sample Review Work detail now exposes a parent-authored
+    manual issue save path
+  - the implementation reuses the existing manual issue action path:
+    - `addManualWritingIssue(...)`
+  - the manual sample path now supports saving against `writing_sample_id`
+  - canonical durable issue truth is created on the manual sample using the
+    existing durable-issue pathway
+  - a suggestion-shaped row is still used in the existing path, but it is
+    preserved as parent-authored provenance via:
+    - `source_type: parent_manual`
+  - manual sample Review Work detail now renders saved parent-authored manual
+    issues in a separate parent-authored section
+  - saved manual parent-authored issues are not presented as
+    engine-suggested truth
+- Guardrails preserved:
+  - `7F.6` lesson-only parent-authored missed-word behavior remains intact
+  - `7F.3` send-back behavior remains intact
+  - `7F.4` approval guardrails remain intact
+  - `7F.5` Suggested Issues wording/visibility remains intact
+  - no new verification decision family was introduced
+  - no manual sample completion behavior was introduced
+  - no new source-of-truth table was introduced
+  - no mastery, evidence, assignment, reward, analytics, queue, or archive
+    truth changes were introduced
+- QA evidence:
+  - `npx tsc --noEmit`
+    - passed with exit code `0`
+  - `npm run build`
+    - passed with exit code `0`
+  - `npm run lint`
+    - was run and failed due to pre-existing repo-wide issues
+    - failures are concentrated under `.tmp` regression artifacts plus
+      unrelated files outside `7F.7`
+    - the lint failure is not caused by the `7F.7` change
+  - manual/browser QA confirmed:
+    - manual writing sample detail shows the parent-authored manual issue save
+      form
+    - saving a parent-authored manual issue succeeds
+    - success messaging appears
+    - the saved issue reappears in the separate parent-authored manual issues
+      section
+    - the saved result is not framed as `Suggested / candidate`,
+      `Unresolved` engine output, or generic engine suggestion truth
+    - the result does not imply mastery truth, assignment truth, or engine
+      verification truth
+    - lesson `7F.6` / `7F.4` / `7F.3` regression checks passed
+- Residual boundaries preserved:
+  - `7F.8` still owns returned lesson row and zero-suggestion lesson queue
+    truth restoration
+  - `7F.9` still owns manual sample explicit completion persistence
+  - `7F.10` still owns focused Stage `7F` regression coverage
+  - no Stage `8` mastery/runtime work is authorized by this closeout
+  - catalog / micro-skill mapping remains outside Stage `7F`
+
+Mini-task `7F.8` — Queue Truth For Returned And Zero-Suggestion Lesson Work
+- ID:
+  - `7F.8`
+- Name:
+  - `Lesson queue truth restoration`
+- Purpose:
+  - prevent engine silence from auto-archiving lesson work and make returned
+    rows distinct in the live queue
+- Scope:
+  - keep returned lesson submissions live
+  - label them distinctly as `Sent back to child` or `Waiting for child
+    revision`
+  - keep pending zero-suggestion lesson submissions live until explicit
+    approval
+  - align detail copy with that truth
+- Non-goals:
+  - no manual sample completion persistence yet
+  - no second queue surface
+- Expected files/areas:
+  - [app/courses/review/review-utils.ts](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/app/courses/review/review-utils.ts:934)
+  - [app/courses/review/page.tsx](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/app/courses/review/page.tsx:1)
+  - [app/courses/review/[submissionId]/page.tsx](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/app/courses/review/%5BsubmissionId%5D/page.tsx:1)
+- Acceptance criteria:
+  - returned lesson rows stay live and distinct
+  - zero-suggestion pending lesson rows do not auto-archive
+  - required wording appears on detail:
+    - `No suggestions found. Please check the work and mark it complete when
+      you are satisfied.`
+- Tests/QA:
+  - queue/detail regression for returned and zero-suggestion lessons
+  - `npx tsc --noEmit`
+- Dependencies:
+  - `7F.3`
+  - `7F.4`
+- Stop conditions:
+  - if thread-level archive rules conflict with submission-level status truth
+    in a way not already covered by the current docs and read-model contract
+- Closeout:
+  - `7F.8` is complete
+  - returned lesson submissions now remain live in the main Review Work queue
+  - returned lesson submissions display distinct returned-state wording and do
+    not disappear or collapse into an ambiguous generic state
+  - zero-suggestion pending lesson submissions now remain live before approval
+  - zero-suggestion pending lesson submissions do not auto-archive while still
+    pending
+  - lesson detail now shows the required wording:
+    - `No suggestions found. Please check the work and mark it complete when
+      you are satisfied.`
+  - approval remains the explicit completion/archive boundary
+  - approving a zero-suggestion lesson succeeds
+  - completion/archive truth changes only after explicit approval
+- Guardrails preserved:
+  - `7F.8` restores queue/status truth only
+  - `7F.8` does not create new verification semantics
+  - `7F.8` does not change Suggested Issue decision semantics
+  - `7F.8` does not alter micro-skill mapping
+  - `7F.8` does not introduce mastery, evidence, assignment, reward,
+    analytics, queue, or archive truth writes outside the bounded queue/status
+    correction
+  - `7F.8` does not authorize Stage `8` runtime work
+  - `7F.3` send-back behaviour remains intact
+  - `7F.4` approval still blocks on real unresolved engine/shared suggestions
+  - `7F.5` Suggested Issues wording/help text remains unchanged
+  - `7F.6` lesson Add missed word behaviour remains unchanged
+  - `7F.7` manual writing sample parent-authored issue behaviour remains
+    unchanged
+- QA evidence:
+  - `npx tsc --noEmit`
+    - passed with exit code `0`
+  - `npm run build`
+    - passed with exit code `0`
+  - `npm run lint`
+    - was run and failed due to pre-existing repo-wide lint debt
+    - main known causes remain `.tmp` regression artifacts and unrelated
+      existing files such as `app/auth/callback/route.ts` and
+      `components/family-combobox.tsx`
+    - no `7F.8`-specific lint regression was identified
+  - manual/browser QA passed:
+    - returned lesson live-queue result passed
+    - zero-suggestion lesson live-queue result passed
+    - zero-suggestion lesson detail-copy result passed
+    - approval-boundary result passed
+    - regression checks for `7F.3`, `7F.4`, `7F.5`, `7F.6`, and `7F.7`
+      passed
+    - no essential manual browser checks remain for `7F.8`
+- Residual boundaries preserved:
+  - `7F.9` remains the next safe Stage `7F` task
+  - `7F.10` still owns focused Stage `7F` regression coverage
+  - no Stage `8` mastery/runtime work is authorized by this closeout
+  - spelling detection readiness remains outside this slice
+  - canonical micro-skill mapping remains outside this slice
+  - parent-selected micro-skill classification remains outside this slice
+
+Mini-task `7F.9` — Manual Sample Completion Persistence
+- ID:
+  - `7F.9`
+- Name:
+  - `Manual sample explicit completion model`
+- Purpose:
+  - introduce the smallest safe persistence required so manual writing samples
+    can be explicitly marked complete
+- Scope:
+  - add documented completion fields on `writing_samples`
+  - add dedicated completion action
+  - keep manual samples live until explicitly completed
+- Non-goals:
+  - no send-back for manual samples
+  - no mastery/evidence/reward behavior
+  - no zero-suggestion implicit completion
+- Expected files/areas:
+  - schema/migration area
+  - [app/courses/review/actions.ts](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/app/courses/review/actions.ts:1)
+  - [app/courses/review/page.tsx](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/app/courses/review/page.tsx:1)
+  - [app/courses/review/[submissionId]/page.tsx](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/app/courses/review/%5BsubmissionId%5D/page.tsx:1)
+- Acceptance criteria:
+  - manual sample remains live until explicit completion
+  - archive status derives from durable completion truth, not unresolved count
+    alone
+  - completion behavior does not imply mastery/evidence mutation
+- Tests/QA:
+  - focused manual completion regression
+  - schema verification
+  - `npx tsc --noEmit`
+- Dependencies:
+  - `7F.7`
+- Stop conditions:
+  - if permission, provenance, or persistence ownership for manual review
+    completion is not explicitly covered by current docs plus the new
+    roadmap/status breakdown before implementation
+- Closeout:
+  - `7F.9` is complete
+  - manual writing samples now remain live until explicit completion
+  - manual writing sample archive status now derives from durable completion
+    truth on `writing_samples`, not unresolved count alone
+  - manual writing sample detail now exposes an explicit completion action
+  - completing a manual writing sample persists durable completion truth
+  - completed manual writing samples appear in archive/completed view
+  - pending manual writing samples appear in `To be reviewed` / live
+  - approved/completed lesson submissions appear in archive/completed view
+  - returned lessons remain live
+  - zero-suggestion pending lessons remain live until explicit approval
+  - no item falls into neither live nor archive
+  - explicit approval/completion remains the archive boundary
+- Guardrails preserved:
+  - `7F.9` restores and formalizes manual sample explicit completion truth
+    only
+  - `7F.9` does not create new verification semantics
+  - `7F.9` does not change Suggested Issue decision semantics
+  - `7F.9` does not alter micro-skill mapping
+  - `7F.9` does not introduce mastery, evidence, assignment, reward, or
+    analytics writes
+  - `7F.9` does not authorize Stage `8` runtime work
+  - `7F.3` send-back behaviour remains intact
+  - `7F.4` approval guardrails remain intact
+  - `7F.5` Suggested Issues wording/help text remains unchanged
+  - `7F.6` lesson Add missed word behaviour remains unchanged
+  - `7F.7` manual writing sample parent-authored issue behaviour remains
+    unchanged
+  - `7F.8` returned lesson and zero-suggestion lesson queue truth remains
+    unchanged
+- QA evidence:
+  - `npx tsc --noEmit`
+    - passed with exit code `0`
+  - `npm run build`
+    - passed with exit code `0`
+  - `npm run lint`
+    - was run and failed due to pre-existing repo-wide lint debt
+    - main known causes remain `.tmp` regression artifacts and unrelated
+      existing files such as `app/auth/callback/route.ts` and
+      `components/family-combobox.tsx`
+    - no `7F.9`-specific lint regression was identified
+  - manual/browser QA passed:
+    - existing approved/completed lesson submission appears in
+      archive/completed view
+    - existing completed manual writing sample appears in archive/completed
+      view
+    - pending manual writing sample appears in `To be reviewed` / live
+    - pending zero-suggestion lesson appears in `To be reviewed` / live
+    - returned lesson appears in `To be reviewed` / live with returned
+      wording
+    - completing a manual writing sample moves it from live to archive
+    - approving a lesson moves it from live to archive
+    - no item disappears from both live and archive
+    - regressions for `7F.3` through `7F.8` all passed
+    - no essential manual browser checks remain for `7F.9`
+- Residual boundaries preserved:
+  - `7F.10` remains the next safe Stage `7F` task
+  - no Stage `8` mastery/runtime work is authorized by this closeout
+  - spelling detection readiness remains outside this slice
+  - canonical micro-skill mapping remains outside this slice
+  - parent-selected micro-skill classification remains outside this slice
+
+Mini-task `7F.10` — Stage 7F Regression Coverage
+- ID:
+  - `7F.10`
+- Name:
+  - `Focused Stage 7F regression suite`
+- Purpose:
+  - add bounded regression coverage in the repo’s current script-based style
+- Scope:
+  - add one Stage `7F` regression script
+  - validate lesson actions, manual restrictions, queue truth, and explicit
+    completion truth
+- Non-goals:
+  - no general e2e harness invention
+  - no unrelated Stage `8` coverage
+- Expected files/areas:
+  - `scripts/`
+- Acceptance criteria:
+  - script runs and covers all completed `7F` mini-tasks
+- Tests/QA:
+  - direct Stage `7F` regression harness execution
+  - `npx tsc --noEmit`
+  - `npm run build`
+- Dependencies:
+  - after all prior mini-tasks
+- Stop conditions:
+  - if required fixtures depend on missing documented persistence or identity
+    rules
+- Closeout:
+  - `7F.10` is complete
+  - a bounded Stage `7F` regression script now exists:
+    - `scripts/writing-engine-stage7f-parent-review-restoration-regression.ts`
+  - the regression script was run directly; no package command is currently
+    registered for it
+  - the script follows the repo’s current script-based regression style
+  - the script covers:
+    - lesson send-back behavior
+    - approval guardrails
+    - Suggested Issues wording/visibility semantics
+    - lesson parent-authored missed-word provenance
+    - manual parent-authored issue provenance
+    - returned lesson live-queue truth
+    - zero-suggestion lesson live-queue truth
+    - manual sample explicit completion/archive truth
+    - archive visibility integrity across lessons and manual samples
+  - no new harness was introduced
+  - no Stage `8`, mapping/readiness, or mastery/evidence behavior was
+    introduced
+- Guardrails preserved:
+  - `7F.10` adds bounded regression coverage only
+  - `7F.10` does not create new product semantics
+  - `7F.10` does not change Suggested Issue decision semantics
+  - `7F.10` does not alter micro-skill mapping
+  - `7F.10` does not introduce mastery, evidence, assignment, reward, or
+    analytics writes
+  - `7F.10` does not authorize Stage `8` runtime work
+  - `7F.3` send-back behaviour remains intact
+  - `7F.4` approval guardrails remain intact
+  - `7F.5` Suggested Issues wording/help text remains unchanged
+  - `7F.6` lesson Add missed word behaviour remains unchanged
+  - `7F.7` manual writing sample parent-authored issue behaviour remains
+    unchanged
+  - `7F.8` returned lesson and zero-suggestion lesson queue truth remains
+    unchanged
+  - `7F.9` manual sample explicit completion/archive truth remains unchanged
+- QA evidence:
+  - `npx tsc --noEmit`
+    - passed with exit code `0`
+  - `npm run build`
+    - passed with exit code `0`
+  - direct Stage `7F` regression harness execution passed with success output
+    confirming the regression script is `ok`
+  - `npm run lint`
+    - was run and failed due to pre-existing repo-wide lint debt
+    - main known causes remain `.tmp` regression artifacts and unrelated
+      existing files such as `app/auth/callback/route.ts` and
+      `components/family-combobox.tsx`
+    - no `7F.10` source-file lint regression was identified
+  - regression-script QA passed:
+    - the script meaningfully exercises completed Stage `7F` lifecycle and
+      guardrail slices
+    - the script is not placeholder-only
+    - no essential manual browser checks remain for `7F.10`
+- Stage `7F` overall closeout:
+  - `7F.1` through `7F.10` are complete
+  - Stage `7F` overall is now complete and closed
+  - the next safe task after Stage `7F` is the already-documented Stage `8`
+    docs-first foundation audit boundary, not new Stage `7F` behaviour work
+- Residual boundaries preserved:
+  - no Stage `8` mastery/runtime work is authorized by this closeout
+  - spelling detection readiness remains outside this slice
+  - canonical micro-skill mapping remains outside this slice
+  - parent-selected micro-skill classification remains outside this slice
+
 ## Post-Stage-7 private MVP safety slice
 
 Goal:
@@ -5307,6 +6882,7 @@ Stop-and-return-to-docs rules:
 ## Stage 8 foundation audit — evidence maturity and mastery-claim readiness
 
 Status:
+- complete
 - documentation-first and transparency-only
 - automatic mastery runtime semantics not started
 
@@ -5356,12 +6932,95 @@ Acceptance criteria:
 - no stored mastery/evidence, assignment, reward, analytics, or taxonomy truth
   changes in this slice
 
+Completed closeout record:
+- Stage `8` completed as a boundary-safety and parent-facing
+  evidence-wording stage, not a mastery-runtime stage
+- `Review Work` remains the canonical verified-truth surface
+- dashboard and insights remain advisory evidence / progress summaries only
+- no runtime mastery semantics, scoring, thresholds, persistence, routing,
+  assignment logic, reward logic, positive-evidence logic, or `Review Work`
+  workflow changed as part of Stage `8` closeout
+- completed Stage `7F` behavior remained preserved
+
 Stop-and-return-to-docs rules:
 - stop if implementation appears to require new stored evidence fields
 - stop if implementation appears to require mastery-score changes
 - stop if implementation appears to require threshold recalibration
 - stop if implementation appears to require new parent-facing mastery states
 - stop if implementation appears to require assignment-routing changes
+
+## Stage 8A — Parent-facing evidence wording safety pass
+
+Status:
+- complete
+
+Type:
+- copy/label/help-text/presentation-only
+
+Purpose:
+- reduce parent-facing wording that may imply stronger mastery certainty than
+  the evidence model supports
+
+Preserve:
+- `Review Work` remains the canonical verified-truth surface
+- evidence-maturity vocabulary remains advisory
+- Stage `8A` is not mastery logic and does not broaden into automatic mastery
+  semantics
+
+Allowed:
+- soften labels, help text, and explanatory copy on parent-facing dashboard,
+  insights, and progress-summary surfaces
+- clarify when a parent-facing surface is:
+  - verified review truth
+  - evidence / progress signal
+  - advisory interpretation
+
+Runtime surfaces expected for the later implementation prompt:
+- `app/dashboard/page.tsx`
+- `app/insights/page.tsx`
+- `lib/writing-practice/types.ts`
+- `lib/progress/stateModel.ts`
+
+Completed implementation record:
+- softened parent-facing certainty language only
+- preserved `Review Work` as the canonical verified-truth surface
+- kept summary surfaces limited to advisory evidence / progress interpretation
+- did not change runtime mastery semantics, scoring, thresholds, persistence,
+  routing, reward logic, positive-evidence logic, assignment logic, or
+  `Review Work` workflows
+- preserved completed Stage `7F` behavior unchanged
+- bounded verification completed with `npx tsc --noEmit`
+
+Acceptance criteria:
+- parent-facing summary wording is clearly advisory
+- evidence-maturity vocabulary remains advisory
+- `Review Work` remains the explicit verified-truth reference
+- no runtime semantics change
+
+Stop-and-return-to-docs rules:
+- stop if implementation requires a new mastery state
+- stop if implementation requires scoring or threshold changes
+- stop if implementation requires routing changes
+- stop if implementation requires new persistence or stored mastery state
+- stop if implementation requires reward changes
+- stop if implementation requires positive-evidence algorithm changes
+- stop if implementation requires `Review Work` workflow changes
+- stop if implementation would reopen completed Stage `7F` behavior
+
+Residual wording risk:
+- `Golden Nugget`
+- `In the Machine`
+- `Gold Bar so far`
+- these remain product-metaphor labels that are now framed more safely
+- they are a possible future copy-only pass, not a blocker
+
+Next safe follow-up:
+- Stage `8` is closed through the completed docs-first audit and completed
+  `Stage 8A` wording pass
+- no broader Stage `8` runtime work is authorized by this closeout
+- because no next implementation stage is canonically defined here, the next
+  safe step is a docs-first planning / audit pass
+- residual metaphor wording risk remains future copy debt only, not a blocker
 
 ## Deferred or intentionally out of scope
 

@@ -193,6 +193,59 @@ documented downstream issue-promotion paths.
 - durable issue lifecycle semantics
 - mastery/evidence truth
 - assignment truth
+- candidate-mapping truth
+
+Parent-Verified Spelling Candidate Capture boundary:
+- a bounded Slice `2` stage now lets parents classify eligible
+  lesson-submission-backed unmapped or parent-added spelling mistakes against
+  existing canonical micro-skills
+- that stage must preserve a three-layer truth model:
+  - verified spelling evidence for the reviewed child occurrence
+  - candidate spelling mappings stored separately from canonical truth
+  - canonical or promoted mapping truth reusable only after explicit promotion
+- candidate spelling mappings must be stored separately from:
+  - `micro_skill_catalog`
+  - existing deterministic Stage `2C` / Slice `1` catalog-backed mapping logic
+  - `writing_issues`
+  - `parent_verifications`
+- `parent_verifications` remain the event-level verified-truth record; they are
+  not by themselves reusable mapping truth
+- `writing_issues` remain durable reviewed issue history; they are not by
+  themselves reusable mapping truth
+- `micro_skill_catalog` remains the only micro-skill identity source
+- no free-text `micro_skill_key` invention is authorized
+- parent-local promotion is the highest authority authorised in the
+  single-child MVP
+- global canonical promotion remains a separate curator/admin workflow deferred
+  from MVP
+- no parent action in normal `Review Work` directly writes global canonical
+  mapping truth
+- pending candidate mappings must not be used by future suggestions
+- Slice `2` lesson-submission capture is now implemented and QA passed within
+  that bounded scope:
+  - success state is visible after save
+  - pending candidate mappings do not unlock `Accept`
+  - pending candidate mappings are not used by future suggestion resolution
+  - parent-added missed words remain reviewable after reopen
+  - manual writing samples remain excluded
+- known limitation:
+  - candidate capture depends on seeded canonical micro-skill coverage
+  - valid rows such as `natral -> natural` may remain blocked until the
+    correct canonical micro-skill exists in the bounded seeded option set
+- first safe runtime scope for that later stage is:
+  - lesson-submission-backed spelling rows only
+  - includes parent-added missed words attached to lesson submissions
+  - excludes manual writing samples in the first runtime slice
+- that later stage must not change:
+  - template-key truth
+  - mastery
+  - reward
+  - assignment
+  - scoring
+  - thresholds
+  - analytics
+  - positive-evidence semantics
+- that later stage is separate from `Stage 7F` and separate from `Stage 8`
 
 Navigation rule:
 - parent navigation should place `Review Work` and `Analyse Writing` under

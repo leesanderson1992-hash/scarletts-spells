@@ -44,6 +44,111 @@ Current transitional reality:
 - `daily_assignments` now survives only as legacy assignment-header debt during
   the transition; new engine work should prefer generic `assignment_items`
 - this means the repo is in a deliberate transitional state rather than a fully reconciled single-review-flow architecture
+- raw override taxonomy entry in `Review Work` is boundary debt rather than
+  canonical architecture truth
+- later override-option population must pass through a bounded catalog-backed
+  provider contract before runtime implementation
+
+Review Work Suggested Issue override-option provider boundary:
+- first slice is limited to lesson/task-submission-backed spelling suggestions
+  only
+- `micro_skill_catalog` remains the only mini-skill identity source
+- provider options must be exposed through a bounded provider/read model rather
+  than unrestricted catalog browsing
+- server-side override validation is covered by the existing tracked
+  override-provider behavior regression
+- selectable Review Work override-provider UI/runtime remains deferred
+- template routing is micro-skill-owned and should derive from the verified
+  micro-skill's configured template metadata
+- `verified_template_key` remains deferred/blocked in Review Work for this
+  stage
+- no first-slice implementation may save free-text mini-skill or free-text
+  template override truth
+- any future selectable Review Work provider UI and the live save path must
+  share the same bounded
+  canonical anchor derivation when persisted shared suggestion truth is still
+  absent or `unknown`
+- no parent-facing template dropdown/provider is authorized in this boundary
+- any later template choice UI must be separately authorized and bounded to the
+  verified micro-skill's allowed template metadata
+
+Review Work read-only derived template metadata boundary:
+- the bounded read-only display slice is now implemented for lesson/task-
+  submission spelling suggestions in `Review Work`
+- Review Work continues to verify micro-skill truth only
+- template metadata derives from the canonical/verified micro-skill rather
+  than word-by-word parent choice
+- derivation may use only canonical Stage 2A/2D template registry truth rooted
+  in the micro-skill
+- unresolved template metadata must display as unavailable/deferred messaging
+  rather than an input
+- no editable `verified_template_key`, no template dropdown/provider, and no
+  independent template truth persistence are authorized in this slice
+
+Parent-Verified Spelling Candidate Capture architecture boundary:
+- the bounded Slice `2` stage now lets parents classify eligible
+  lesson-submission-backed unmapped or parent-added spelling mistakes against
+  existing canonical micro-skills for future reuse
+- Slice `2` must not change future suggestion resolver behavior, `Accept`
+  readiness, template-key truth, or current `Review Work` ownership beyond the
+  documented capture flow
+- example:
+  - `natral -> natural` may be classified against an existing canonical
+    micro-skill, but that initial capture remains non-canonical until explicit
+    promotion
+- preserve three layers:
+  - verified spelling evidence for the reviewed child occurrence
+  - candidate spelling mapping stored separately from canonical truth
+  - canonical or promoted mapping truth reusable only after explicit promotion
+- candidate mappings must be stored separately from:
+  - `micro_skill_catalog`
+  - existing deterministic Stage `2C` / Slice `1` catalog-backed mapping logic
+  - `writing_issues`
+  - `parent_verifications`
+- planning vocabulary only:
+  - candidate status values:
+    - `pending_parent_promotion`
+    - `parent_local_promoted`
+    - `admin_review_requested`
+    - `global_canonical_promoted`
+    - `rejected`
+    - `superseded`
+  - promotion scope values:
+    - `child_local`
+    - `parent_local`
+    - `global`
+- parent-local promotion is the highest authority authorised in the
+  single-child MVP
+- parent-local promoted mappings may improve suggestions only inside the same
+  parent/child environment
+- global canonical promotion remains a separate curator/admin workflow deferred
+  from MVP
+- Slice `2` QA closeout:
+  - candidate capture works on eligible lesson-submission spelling rows
+  - success state is visible after save
+  - pending candidate mappings do not unlock `Accept`
+  - pending candidate mappings are not used by future suggestion resolution
+  - parent-added missed words persist and remain reviewable after reopen
+  - manual writing samples remain excluded
+- known limitation:
+  - candidate capture depends on seeded canonical micro-skill coverage
+  - valid rows such as `natral -> natural` may remain blocked until the
+    correct canonical micro-skill exists in the seeded/catalog-backed option
+    set
+- UX follow-up note:
+  - a captured row may remain visible in both `Suggested / candidate` and
+    `Parent Verification` while the mapping remains
+    `pending_parent_promotion`
+  - this is acceptable for Slice `2` and may receive clearer wording later
+- normal parent `Review Work` must not directly create global canonical truth
+- pending candidate mappings are not reusable
+- raw parent-authored missed-word rows, raw `misspelling_instances`, and raw
+  `writing_issues` are not reusable suggestion truth by themselves
+- first safe runtime scope is:
+  - lesson-submission-backed spelling rows only
+  - includes parent-added missed words attached to lesson submissions
+  - excludes manual writing samples from the first runtime slice
+  - excludes future suggestion resolver changes until promotion is implemented
 
 ## Canonical lineage
 
@@ -76,6 +181,8 @@ Inputs may include:
 Persistence rule:
 - suggestions may be regenerated
 - suggestions are not canonical history
+- raw suggestion or missed-word rows are not reusable mapping truth by
+  themselves
 
 ### `writing_issues`
 
@@ -98,6 +205,32 @@ Should store at minimum:
 Design note:
 - `checking_only` and approved learning-gap outcomes are final states on this record
 - they are not separate MVP tables
+- raw `writing_issues` are not reusable mapping truth by themselves
+
+### Candidate spelling mappings
+
+Role:
+- proposed reusable mapping truth for later promotion
+
+Should store conceptually at minimum:
+- `misspelling_normalized`
+- `correct_spelling_normalized`
+- existing canonical `micro_skill_key`
+- provenance / source
+- status
+- promotion scope
+
+Persistence rule:
+- candidate mappings remain separate from:
+  - `micro_skill_catalog`
+  - existing deterministic Stage `2C` / Slice `1` catalog-backed mapping
+    logic
+  - `writing_issues`
+  - `parent_verifications`
+- pending mappings must not be used by future suggestions
+- parent-local promotion, when later implemented, may make mappings reusable
+  only inside the same parent/child scope
+- global canonical promotion requires a separate curator/admin workflow
 
 ### `writing_issue_correction_attempts`
 
