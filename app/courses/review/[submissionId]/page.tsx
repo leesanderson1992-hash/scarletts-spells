@@ -27,8 +27,15 @@ import { SuggestedIssuesPanel } from "../suggested-issues-panel";
 import { buildCanonicalSuggestedMicroSkillKeysByMisspellingId } from "../canonical-submission-spelling";
 
 import {
+  addMissedWordToSubmissionReview,
+  approveSubmissionReview,
+  returnSubmissionToChild,
+} from "../actions";
+import {
   buildSuggestedIssuePanelModel,
+  extractReviewableLessonFields,
   getSubmissionStatusLabel,
+  isParentAuthoredMisspellingRow,
   normaliseWordForLookup,
   parseReviewWorkEntryId,
   parseSubmissionReview,
@@ -168,6 +175,226 @@ function buildPendingCandidateMappingByMisspellingId(
           row.source_misspelling_instance_id.length > 0,
       )
       .map((row) => [row.source_misspelling_instance_id, row] as const),
+  );
+}
+
+function ParentAddedMissedWordsSection(props: {
+  rows: MisspellingReviewRow[];
+}) {
+  if (props.rows.length === 0) {
+    return null;
+  }
+
+  return (
+    <section className="brand-card rounded-3xl p-4 md:p-5">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <p className="brand-eyebrow">Parent-added missed words</p>
+          <h2 className="mt-1 text-lg font-semibold text-[color:var(--ink)]">
+            Saved parent review input
+          </h2>
+          <p className="mt-2 text-sm leading-6 text-[color:var(--mid)]">
+            These lesson-only rows were added by the parent during review. They stay
+            separate from Suggested Issues engine output.
+          </p>
+        </div>
+        <span className="rounded-full border border-[var(--border)] bg-white px-3 py-1 text-xs font-medium text-[color:var(--ink)]">
+          {props.rows.length} saved
+        </span>
+      </div>
+
+      <div className="mt-4 grid gap-3">
+        {props.rows.map((row) => (
+          <div
+            key={row.id}
+            className="rounded-2xl border border-[var(--border)] bg-white px-4 py-4"
+          >
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs font-medium text-amber-700">
+                Parent added
+              </span>
+              {row.error_type ? (
+                <span className="rounded-full border border-[var(--border)] bg-[rgba(255,247,220,0.35)] px-3 py-1 text-xs font-medium text-[color:var(--ink)]">
+                  {row.error_type}
+                </span>
+              ) : null}
+            </div>
+            <p className="mt-3 text-sm font-medium text-[color:var(--ink)]">
+              {row.misspelled_word} {"->"} {row.corrected_word}
+            </p>
+            <p className="mt-2 text-sm leading-6 text-[color:var(--mid)]">
+              Saved as parent-authored review input. This row does not represent
+              engine-suggested candidate truth or unresolved engine output.
+            </p>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function LessonParentActionsSection(props: {
+  submissionId: string;
+  redirectPath: string;
+  parentReviewNote: string | null;
+  reviewableFields: ReturnType<typeof extractReviewableLessonFields>;
+  unresolvedCount: number;
+  showZeroSuggestionGuidance: boolean;
+}) {
+  const approvalBlocked = props.unresolvedCount > 0;
+
+  return (
+    <section className="brand-card rounded-3xl p-4 md:p-5">
+      <div>
+        <p className="brand-eyebrow">Parent review actions</p>
+        <h2 className="mt-1 text-lg font-semibold text-[color:var(--ink)]">
+          Lesson-only action surface
+        </h2>
+        <p className="mt-2 text-sm leading-6 text-[color:var(--mid)]">
+          Approval and send-back controls belong to lesson submissions only. The
+          canonical Suggested Issues panel above remains the primary review
+          surface for existing shared review truth.
+        </p>
+      </div>
+
+      <div className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm leading-6 text-amber-900">
+        These controls are available on lesson detail only. Send-back uses the
+        existing return flow, and approval stays blocked until shared review
+        truth shows no unresolved suggestions.
+      </div>
+
+      {props.showZeroSuggestionGuidance ? (
+        <div className="mt-4 rounded-2xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm leading-6 text-sky-900">
+          No suggestions found. Please check the work and mark it complete when you are
+          satisfied.
+        </div>
+      ) : null}
+
+      <form
+        action={addMissedWordToSubmissionReview}
+        className="mt-4 grid gap-3 rounded-2xl border border-[var(--border)] bg-white px-4 py-4"
+      >
+        <input type="hidden" name="submission_id" value={props.submissionId} />
+        <input type="hidden" name="redirect_path" value={props.redirectPath} />
+        <div>
+          <p className="text-sm font-medium text-[color:var(--ink)]">Add missed word</p>
+          <p className="mt-1 text-sm leading-6 text-[color:var(--mid)]">
+            Save a missed word the parent spotted in this lesson. It will appear as
+            parent-authored review input, not as Suggested Issues engine output.
+          </p>
+        </div>
+        <div className="grid gap-3 md:grid-cols-2">
+          <label className="grid gap-1 text-sm text-[color:var(--ink)]">
+            <span className="font-medium">Word child wrote</span>
+            <input
+              name="misspelled_word"
+              type="text"
+              className="rounded-2xl border border-[var(--border)] bg-white px-3 py-2 text-sm text-[color:var(--ink)]"
+              placeholder="eg becos"
+            />
+          </label>
+          <label className="grid gap-1 text-sm text-[color:var(--ink)]">
+            <span className="font-medium">Correct spelling</span>
+            <input
+              name="corrected_word"
+              type="text"
+              className="rounded-2xl border border-[var(--border)] bg-white px-3 py-2 text-sm text-[color:var(--ink)]"
+              placeholder="eg because"
+            />
+          </label>
+        </div>
+        <div>
+          <button className="brand-secondary-btn justify-center" type="submit">
+            Add missed word
+          </button>
+        </div>
+      </form>
+
+      <div className="mt-4 grid gap-3">
+        <form action={approveSubmissionReview} className="grid gap-2">
+          <input type="hidden" name="submission_id" value={props.submissionId} />
+          <input type="hidden" name="redirect_path" value={props.redirectPath} />
+          <button
+            className="brand-primary-btn disabled:cursor-not-allowed disabled:opacity-60"
+            type="submit"
+            disabled={approvalBlocked}
+          >
+            Approve / mark complete
+          </button>
+        </form>
+
+        {approvalBlocked ? (
+          <p className="text-xs uppercase tracking-[0.16em] text-[color:var(--mid)]">
+            Resolve all suggested issues before approving this lesson.
+          </p>
+        ) : (
+          <p className="text-xs uppercase tracking-[0.16em] text-[color:var(--mid)]">
+            Approval is available once shared review truth shows no unresolved
+            suggestions.
+          </p>
+        )}
+
+        <form action={returnSubmissionToChild} className="grid gap-3">
+          <input type="hidden" name="submission_id" value={props.submissionId} />
+          <input type="hidden" name="redirect_path" value={props.redirectPath} />
+          <label className="grid gap-1 text-sm text-[color:var(--ink)]">
+            <span className="font-medium">Parent note</span>
+            <textarea
+              name="parent_review_note"
+              rows={3}
+              defaultValue={props.parentReviewNote ?? ""}
+              className="rounded-2xl border border-[var(--border)] bg-white px-3 py-2 text-sm text-[color:var(--ink)]"
+              placeholder="Tell her what to fix before trying again."
+            />
+          </label>
+
+          {props.reviewableFields.length > 0 ? (
+            <div className="grid gap-3">
+              <div>
+                <p className="text-sm font-medium text-[color:var(--ink)]">
+                  Structured lesson feedback
+                </p>
+                <p className="mt-1 text-sm leading-6 text-[color:var(--mid)]">
+                  These lesson-only feedback inputs reuse the existing action
+                  field names so answer-specific guidance posts through the
+                  existing send-back contract.
+                </p>
+              </div>
+
+              {props.reviewableFields.map((field) => (
+                <div
+                  key={field.key}
+                  className="rounded-2xl border border-[var(--border)] bg-white px-4 py-4"
+                >
+                  <p className="text-sm font-semibold text-[color:var(--ink)]">
+                    {field.label}
+                  </p>
+                  <p className="mt-2 whitespace-pre-wrap rounded-2xl bg-[rgba(255,247,220,0.35)] px-3 py-2 text-sm leading-6 text-[color:var(--ink)]">
+                    {field.value}
+                  </p>
+                  <label className="mt-3 grid gap-1 text-sm text-[color:var(--ink)]">
+                    <span className="font-medium">Feedback for this answer</span>
+                    <textarea
+                      name={`field_feedback__${field.key}`}
+                      rows={3}
+                      defaultValue={field.feedback}
+                      className="rounded-2xl border border-[var(--border)] bg-white px-3 py-2 text-sm text-[color:var(--ink)]"
+                      placeholder="Tell her exactly what to improve in this answer."
+                    />
+                  </label>
+                </div>
+              ))}
+            </div>
+          ) : null}
+
+          <div className="grid gap-3">
+            <button className="brand-secondary-btn justify-center" type="submit">
+              Send back to child
+            </button>
+          </div>
+        </form>
+      </div>
+    </section>
   );
 }
 
@@ -489,6 +716,7 @@ export default async function CourseReviewDetailPage({
     { data: task },
     { data: course },
     { data: linkedSample },
+    { data: draftRow },
     { data: writingIssueRows, error: writingIssueError },
     { data: writingIssueSuggestionRows, error: writingIssueSuggestionError },
     { data: parentVerificationRows, error: parentVerificationError },
@@ -496,7 +724,7 @@ export default async function CourseReviewDetailPage({
   ] = await Promise.all([
     supabase
       .from("course_tasks")
-      .select("id, title, module_id")
+      .select("id, title, module_id, lesson_schema")
       .eq("id", submission.task_id)
       .eq("parent_user_id", user.id)
       .maybeSingle(),
@@ -510,6 +738,13 @@ export default async function CourseReviewDetailPage({
       .from("writing_samples")
       .select("id, sample_text")
       .eq("task_submission_id", submission.id)
+      .eq("parent_user_id", user.id)
+      .maybeSingle(),
+    supabase
+      .from("task_submission_drafts")
+      .select("draft_payload")
+      .eq("task_id", submission.task_id)
+      .eq("child_id", submission.child_id)
       .eq("parent_user_id", user.id)
       .maybeSingle(),
     supabase
@@ -568,6 +803,8 @@ export default async function CourseReviewDetailPage({
     : { data: [], error: null };
 
   const misspellings = (misspellingQuery.data ?? []) as MisspellingReviewRow[];
+  const parentAddedMissedWords = misspellings.filter((row) => isParentAuthoredMisspellingRow(row));
+  const engineMisspellings = misspellings.filter((row) => !isParentAuthoredMisspellingRow(row));
   const writingIssues = (writingIssueRows ?? []) as WritingIssueRow[];
   const writingIssueSuggestions = (writingIssueSuggestionRows ?? []) as WritingIssueSuggestionRow[];
   const canonicalSuggestedMicroSkillKeysByMisspellingId =
@@ -575,7 +812,7 @@ export default async function CourseReviewDetailPage({
       supabase,
       parentUserId: user.id,
       childId: submission.child_id,
-      misspellings,
+      misspellings: engineMisspellings,
       writingIssueSuggestions,
       sourceType: "lesson_submission",
     });
@@ -592,7 +829,7 @@ export default async function CourseReviewDetailPage({
     buildPendingCandidateMappingByMisspellingId(pendingCandidateMappings);
   const panelModel = buildSuggestedIssuePanelModel({
     sourceType: "lesson_submission",
-    misspellings,
+    misspellings: engineMisspellings,
     writingIssues,
     writingIssueSuggestions,
     parentVerifications,
@@ -611,6 +848,14 @@ export default async function CourseReviewDetailPage({
   });
   const parsedSubmission = parseSubmissionReview(submission.submission_text);
   const submissionStatus = getSubmissionStatusLabel(submission.parent_review_status);
+  const lessonSchema =
+    task?.lesson_schema && typeof task.lesson_schema === "object" && !Array.isArray(task.lesson_schema)
+      ? task.lesson_schema
+      : null;
+  const reviewableFields = extractReviewableLessonFields(
+    draftRow?.draft_payload ?? null,
+    lessonSchema,
+  );
 
   return (
     <AppShell
@@ -646,6 +891,14 @@ export default async function CourseReviewDetailPage({
             <p className="mt-3 rounded-2xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">
               {resolvedSearchParams.error}
             </p>
+          ) : null}
+          {parentAddedMissedWords.length > 0 ? (
+            <div className="mt-3 flex flex-wrap gap-2">
+              <span className="rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs font-medium text-amber-700">
+                {parentAddedMissedWords.length} parent-added missed word
+                {parentAddedMissedWords.length === 1 ? "" : "s"}
+              </span>
+            </div>
           ) : null}
         </div>
 
@@ -710,6 +963,19 @@ export default async function CourseReviewDetailPage({
           redirectPath={buildScopedPath(`/courses/review/${reviewEntryId}`, selectedChild.id, mode)}
           candidateCaptureMicroSkillProvider={candidateCaptureMicroSkillProvider}
           pendingCandidateMappingsByMisspellingId={pendingCandidateMappingsByMisspellingId}
+        />
+
+        <ParentAddedMissedWordsSection rows={parentAddedMissedWords} />
+
+        <LessonParentActionsSection
+          submissionId={submission.id}
+          redirectPath={buildScopedPath(`/courses/review/${reviewEntryId}`, selectedChild.id, mode)}
+          parentReviewNote={submission.parent_review_note}
+          reviewableFields={reviewableFields}
+          unresolvedCount={panelModel.summary.unresolvedCount}
+          showZeroSuggestionGuidance={
+            submission.parent_review_status === "pending" && panelModel.state === "empty_result"
+          }
         />
       </section>
     </AppShell>

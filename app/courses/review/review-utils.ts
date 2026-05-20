@@ -191,10 +191,10 @@ export function getSubmissionStatusLabel(
 export type CourseReviewSubmissionStatus =
   | { label: "Needs review"; tone: string }
   | { label: "Reviewed"; tone: string }
-  | { label: "No issues found"; tone: string }
+  | { label: "Waiting for approval"; tone: string }
   | { label: "No writing to analyse"; tone: string }
   | { label: "Approved"; tone: string }
-  | { label: "Sent back"; tone: string };
+  | { label: "Waiting for child revision"; tone: string };
 
 export type ReviewQueueThreadState =
   | "submitted"
@@ -982,7 +982,7 @@ export function getCourseReviewSubmissionStatus({
 
   if (submissionStatus === "returned") {
     return {
-      label: "Sent back",
+      label: "Waiting for child revision",
       tone: "border-rose-200 bg-rose-50 text-rose-700",
     };
   }
@@ -994,10 +994,21 @@ export function getCourseReviewSubmissionStatus({
     };
   }
 
-  if (misspellings.length === 0) {
+  const engineMisspellingCount = misspellings.filter(
+    (row) => !isParentAuthoredMisspellingRow(row),
+  ).length;
+
+  if (engineMisspellingCount === 0) {
+    if (submissionStatus === "approved") {
+      return {
+        label: "Approved",
+        tone: "border-sky-200 bg-sky-50 text-sky-700",
+      };
+    }
+
     return {
-      label: "No issues found",
-      tone: "border-emerald-200 bg-emerald-50 text-emerald-700",
+      label: "Waiting for approval",
+      tone: "border-sky-200 bg-sky-50 text-sky-700",
     };
   }
 
@@ -1048,6 +1059,7 @@ export function getUnresolvedMisspellingCount(
 
   return misspellings.filter(
     (row) =>
+      !isParentAuthoredMisspellingRow(row) &&
       !linkedIssueIds.has(row.id) &&
       !rejectedSuggestionIds.has(row.id) &&
       !verifiedMisspellingIds.has(row.id),
@@ -1120,7 +1132,8 @@ export function isCourseReviewSubmissionStatusLive(
 ) {
   return (
     status.label === "Needs review" ||
-    status.label === "Sent back" ||
+    status.label === "Waiting for child revision" ||
+    status.label === "Waiting for approval" ||
     status.label === "No writing to analyse"
   );
 }
