@@ -6,10 +6,26 @@ import {
 } from "@/lib/writing-engine/assignments/stage1d1-evidence";
 import type {
   WritingEngineMicroSkillCatalogEntry,
-  WritingEngineStage1d1CatalogEntry,
   WritingEngineStage1d1Evidence,
   WritingEngineStage1d1LearningItem,
 } from "@/lib/writing-engine/types";
+
+export { getStage1d1CatalogEntries } from "./stage1d1-catalog-entries";
+export {
+  getReviewWorkOverrideMicroSkillProvider,
+  type ReviewWorkOverrideMicroSkillOption,
+  type ReviewWorkOverrideMicroSkillProviderResult,
+} from "./review-work-override-provider";
+export {
+  getReviewWorkCandidateCaptureMicroSkillCatalogEntry,
+  getReviewWorkCandidateCaptureMicroSkillProvider,
+  type ReviewWorkCandidateCaptureMicroSkillOption,
+  type ReviewWorkCandidateCaptureMicroSkillProviderResult,
+} from "./review-work-candidate-capture-provider";
+export {
+  getReviewWorkDerivedTemplateMetadataByMicroSkillKeys,
+  type ReviewWorkDerivedTemplateMetadata,
+} from "./review-work-derived-template-metadata";
 
 type SupabaseServerClient = Awaited<ReturnType<typeof createClient>>;
 type MicroSkillCatalogLookupRow = {
@@ -28,12 +44,6 @@ type Stage1d1LearningItemRow = {
   parent_user_id: string;
   micro_skill_key: string;
   practice_route: WritingEngineMicroSkillCatalogEntry["practiceRoute"] | null;
-  metadata: Record<string, unknown>;
-};
-
-type Stage1d1CatalogRow = MicroSkillCatalogLookupRow & {
-  display_name: string;
-  allowed_template_keys: string[] | null;
   metadata: Record<string, unknown>;
 };
 
@@ -74,46 +84,6 @@ export async function getStage1d1ActiveLearningItems(input: {
     domainModule: null,
     metadata: row.metadata ?? {},
   })) satisfies WritingEngineStage1d1LearningItem[];
-}
-
-export async function getStage1d1CatalogEntries(input: {
-  supabase: SupabaseServerClient;
-  microSkillKeys: string[];
-}) {
-  if (input.microSkillKeys.length === 0) {
-    return [] as WritingEngineStage1d1CatalogEntry[];
-  }
-
-  const { data } = await input.supabase
-    .from("micro_skill_catalog")
-    .select(
-      [
-        "micro_skill_key",
-        "mastery_domain_key",
-        "skill_family_key",
-        "skill_cluster_key",
-        "practice_route",
-        "is_assignable",
-        "is_active",
-        "display_name",
-        "allowed_template_keys",
-        "metadata",
-      ].join(", "),
-    )
-    .in("micro_skill_key", input.microSkillKeys);
-
-  return (((data ?? []) as unknown) as Stage1d1CatalogRow[]).map((row) => ({
-    microSkillKey: row.micro_skill_key,
-    masteryDomainKey: row.mastery_domain_key,
-    skillFamilyKey: row.skill_family_key,
-    skillClusterKey: row.skill_cluster_key,
-    practiceRoute: row.practice_route,
-    isAssignable: row.is_assignable,
-    isActive: row.is_active,
-    displayName: row.display_name,
-    allowedTemplateKeys: row.allowed_template_keys ?? [],
-    metadata: row.metadata ?? {},
-  })) satisfies WritingEngineStage1d1CatalogEntry[];
 }
 
 export async function getStage1d1LatestEvidenceForLearningItems(input: {
