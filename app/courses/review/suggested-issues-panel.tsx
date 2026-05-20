@@ -1,4 +1,9 @@
-import { recordReviewWorkVerificationAction } from "./actions";
+import type { ReviewWorkCandidateCaptureMicroSkillProviderResult } from "@/lib/writing-engine/persistence/learning-items";
+
+import {
+  captureSubmissionSpellingCandidateMapping,
+  recordReviewWorkVerificationAction,
+} from "./actions";
 import { buildSuggestedIssuePanelModel } from "./review-utils";
 
 const STAGE7D_CATEGORY_OPTIONS = [
@@ -14,8 +19,16 @@ type SuggestedIssuesPanelProps = {
   model: ReturnType<typeof buildSuggestedIssuePanelModel>;
   redirectPath: string;
   submissionId?: string;
-  candidateCaptureMicroSkillProvider?: unknown;
-  pendingCandidateMappingsByMisspellingId?: unknown;
+  candidateCaptureMicroSkillProvider?: ReviewWorkCandidateCaptureMicroSkillProviderResult;
+  pendingCandidateMappingsByMisspellingId?: Map<string, CandidateMappingRow>;
+};
+
+type CandidateMappingRow = {
+  id: string;
+  source_misspelling_instance_id: string | null;
+  micro_skill_key: string;
+  candidate_status: "pending_parent_promotion" | "parent_local_promoted";
+  promotion_scope: "parent_local";
 };
 
 export function SuggestedIssuesPanel(props: SuggestedIssuesPanelProps) {
@@ -79,7 +92,22 @@ export function SuggestedIssuesPanel(props: SuggestedIssuesPanelProps) {
 
                 {section.entries.length > 0 ? (
                   <div className="mt-4 grid gap-3">
-                    {section.entries.map((entry) => (
+                    {section.entries.map((entry) => {
+                      const pendingCandidateMapping = entry.actionTarget
+                        ? props.pendingCandidateMappingsByMisspellingId?.get(
+                            entry.actionTarget.misspellingInstanceId,
+                          ) ?? null
+                        : null;
+                      const canCaptureCandidateMapping = Boolean(
+                        props.submissionId &&
+                          entry.actionTarget &&
+                          !entry.actionTarget.allowsAccepted &&
+                          props.model.sourceType === "lesson_submission" &&
+                          !entry.recordedDecision &&
+                          !pendingCandidateMapping,
+                      );
+
+                      return (
                       <div
                         key={entry.id}
                         className="rounded-2xl border border-[var(--border)] bg-[rgba(255,247,220,0.22)] px-4 py-4"
@@ -112,7 +140,29 @@ export function SuggestedIssuesPanel(props: SuggestedIssuesPanelProps) {
                             Parent verification recorded: {entry.recordedDecision.replaceAll("_", " ")}
                           </p>
                         ) : null}
-                        {entry.actionTarget && !entry.recordedDecision ? (
+                        {pendingCandidateMapping ? (
+                          <div className="mt-3 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3">
+                            <div className="flex flex-wrap items-center gap-2">
+                              <span className="rounded-full border border-emerald-200 bg-white px-3 py-1 text-xs font-medium text-emerald-700">
+                                {pendingCandidateMapping.candidate_status === "parent_local_promoted"
+                                  ? "Promoted for this child"
+                                  : "Pending candidate mapping"}
+                              </span>
+                              <span className="rounded-full border border-emerald-200 bg-white px-3 py-1 text-xs font-medium text-emerald-700">
+                                {pendingCandidateMapping.micro_skill_key}
+                              </span>
+                            </div>
+                            <p className="mt-3 text-sm leading-6 text-emerald-800">
+                              Saved as verified evidence. Candidate mapping captured.
+                            </p>
+                            <p className="text-sm leading-6 text-emerald-800">
+                              {pendingCandidateMapping.candidate_status === "parent_local_promoted"
+                                ? "This mapping is currently used only for this child/parent scope."
+                                : "Not used for future suggestions until promoted."}
+                            </p>
+                          </div>
+                        ) : null}
+                        {entry.actionTarget && !entry.recordedDecision && !pendingCandidateMapping ? (
                           <div className="mt-4 grid gap-3">
                             <form
                               action={recordReviewWorkVerificationAction}
@@ -281,10 +331,99 @@ export function SuggestedIssuesPanel(props: SuggestedIssuesPanelProps) {
                                 </div>
                               </form>
                             </details>
+                            {canCaptureCandidateMapping ? (
+                              <details className="rounded-2xl border border-[var(--border)] bg-white px-4 py-3">
+                                <summary className="cursor-pointer text-sm font-medium text-[color:var(--ink)]">
+                                  Classify and capture candidate mapping
+                                </summary>
+                                <p className="mt-3 text-sm leading-6 text-[color:var(--mid)]">
+                                  Save this spelling occurrence as verified evidence and capture a
+                                  pending candidate mapping. It will not be used for future suggestions until promoted.
+                                </p>
+                                <form
+                                  action={captureSubmissionSpellingCandidateMapping}
+                                  className="mt-4 grid gap-3"
+                                >
+                                  <input
+                                    type="hidden"
+                                    name="submission_id"
+                                    value={props.submissionId}
+                                  />
+                                  <input
+                                    type="hidden"
+                                    name="redirect_path"
+                                    value={props.redirectPath}
+                                  />
+                                  <input
+                                    type="hidden"
+                                    name="misspelling_instance_id"
+                                    value={entry.actionTarget.misspellingInstanceId}
+                                  />
+                                  <div className="grid gap-1 text-sm text-[color:var(--ink)]">
+                                    <span className="font-medium">Word child wrote</span>
+                                    <p className="rounded-2xl border border-[var(--border)] bg-white px-3 py-2">
+                                      {entry.actionTarget.observedText}
+                                    </p>
+                                  </div>
+                                  <div className="grid gap-1 text-sm text-[color:var(--ink)]">
+                                    <span className="font-medium">Correct spelling</span>
+                                    <p className="rounded-2xl border border-[var(--border)] bg-white px-3 py-2">
+                                      {entry.actionTarget.suggestedReplacement}
+                                    </p>
+                                  </div>
+                                  <div className="grid gap-1">
+                                    <label
+                                      htmlFor={`${entry.id}-candidate-micro-skill-key`}
+                                      className="text-xs font-medium uppercase tracking-[0.16em] text-[color:var(--mid)]"
+                                    >
+                                      Existing canonical micro-skill
+                                    </label>
+                                    {props.candidateCaptureMicroSkillProvider?.status === "available" ? (
+                                      <select
+                                        id={`${entry.id}-candidate-micro-skill-key`}
+                                        name="micro_skill_key"
+                                        required
+                                        defaultValue=""
+                                        className="rounded-2xl border border-[var(--border)] bg-white px-3 py-2 text-sm text-[color:var(--ink)]"
+                                      >
+                                        <option value="" disabled>
+                                          Choose a micro-skill
+                                        </option>
+                                        {props.candidateCaptureMicroSkillProvider.options.map((option) => (
+                                          <option
+                                            key={option.microSkillKey}
+                                            value={option.microSkillKey}
+                                          >
+                                            {option.displayName} ({option.microSkillKey})
+                                          </option>
+                                        ))}
+                                      </select>
+                                    ) : (
+                                      <p className="rounded-2xl border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800">
+                                        Candidate capture is blocked until assignable spelling
+                                        micro-skills are available.
+                                      </p>
+                                    )}
+                                  </div>
+                                  <div>
+                                    <button
+                                      type="submit"
+                                      disabled={
+                                        props.candidateCaptureMicroSkillProvider?.status !== "available"
+                                      }
+                                      className="brand-secondary-btn disabled:cursor-not-allowed disabled:opacity-60"
+                                    >
+                                      Save candidate mapping
+                                    </button>
+                                  </div>
+                                </form>
+                              </details>
+                            ) : null}
                           </div>
                         ) : null}
                       </div>
-                    ))}
+                    );
+                    })}
                   </div>
                 ) : (
                   <div className="mt-4 rounded-2xl border border-dashed border-[var(--border)] bg-[rgba(255,247,220,0.18)] px-4 py-4 text-sm leading-6 text-[color:var(--mid)]">

@@ -19,6 +19,7 @@ export type MisspellingAnalysisExtraMetadata = {
   parentOverrideFamilyId: string | null;
   parentOverrideDiagnosis: ErrorPattern | null;
   parentReviewedAt: string | null;
+  parentAuthoredMissedWord: boolean;
   markedCareless: boolean;
   detectedErrorPattern: ErrorPattern | null;
   selectedWordFamilyId: WordFamilyId | null;
@@ -55,6 +56,7 @@ export const DEFAULT_ANALYSIS_EXTRA_METADATA: MisspellingAnalysisExtraMetadata =
   parentOverrideFamilyId: null,
   parentOverrideDiagnosis: null,
   parentReviewedAt: null,
+  parentAuthoredMissedWord: false,
   markedCareless: false,
   detectedErrorPattern: null,
   selectedWordFamilyId: null,
@@ -86,7 +88,7 @@ function clampConfidence(value: number | null | undefined) {
   return Math.min(1, Math.max(0, Number(value.toFixed(2))));
 }
 
-function parseExtraMetadata(
+export function parseAnalysisExtraMetadata(
   notes: string | null,
 ): MisspellingAnalysisExtraMetadata {
   if (!notes) {
@@ -101,6 +103,7 @@ function parseExtraMetadata(
       parentOverrideFamilyId: string;
       parentOverrideDiagnosis: ErrorPattern;
       parentReviewedAt: string;
+      parentAuthoredMissedWord: boolean;
       markedCareless: boolean;
       detectedErrorPattern: ErrorPattern;
       selectedWordFamilyId: WordFamilyId;
@@ -116,6 +119,7 @@ function parseExtraMetadata(
         parsed.parentOverrideDiagnosis,
       ),
       parentReviewedAt: parsed.parentReviewedAt ?? null,
+      parentAuthoredMissedWord: parsed.parentAuthoredMissedWord ?? false,
       markedCareless: parsed.markedCareless ?? false,
       detectedErrorPattern: normaliseErrorPattern(parsed.detectedErrorPattern),
       selectedWordFamilyId: asWordFamilyId(parsed.selectedWordFamilyId) ?? null,
@@ -129,7 +133,7 @@ export function parseAnalysisRow(
   row: MisspellingAnalysisRow,
   fallbackCorrectedWord: string,
 ): ParsedMisspellingAnalysis {
-  const extra = parseExtraMetadata(row.notes);
+  const extra = parseAnalysisExtraMetadata(row.notes);
   const primaryCategory =
     extra.detectedPrimaryCategory ?? row.error_type ?? DEFAULT_PRIMARY_CATEGORY;
   const effectiveCategory = extra.markedCareless
@@ -255,6 +259,7 @@ export async function buildMisspellingRows(
           buildOverrideKey(item.misspelling, item.correction),
         )?.diagnosis ?? null,
       parentReviewedAt: null,
+      parentAuthoredMissedWord: false,
       markedCareless: false,
       detectedErrorPattern: item.errorPattern,
       selectedWordFamilyId: asWordFamilyId(item.wordFamilyId),

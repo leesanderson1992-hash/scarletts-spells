@@ -12,6 +12,7 @@ import {
 } from "@/lib/children";
 import { formatCourseDate, getActiveChildrenForUser } from "@/lib/courses/queries";
 import { createClient } from "@/lib/supabase/server";
+import { getReviewWorkCandidateCaptureMicroSkillProvider } from "@/lib/writing-engine/persistence/learning-items";
 import type {
   ReviewWritingIssueProjection,
   ReviewWritingIssueSuggestionDetailProjection,
@@ -23,10 +24,12 @@ import {
 } from "../manual-sample-sections";
 import { getManualReviewSampleStatus } from "../manual-sample-review-utils";
 import { SuggestedIssuesPanel } from "../suggested-issues-panel";
+import { buildCanonicalSuggestedMicroSkillKeysByMisspellingId } from "../canonical-submission-spelling";
 
 import {
   buildSuggestedIssuePanelModel,
   getSubmissionStatusLabel,
+  normaliseWordForLookup,
   parseReviewWorkEntryId,
   parseSubmissionReview,
 } from "../review-utils";
@@ -70,6 +73,103 @@ type MisspellingReviewRow = {
 
 type WritingIssueSuggestionRow = ReviewWritingIssueSuggestionDetailProjection;
 type WritingIssueRow = ReviewWritingIssueProjection;
+type CandidateMappingRow = {
+  id: string;
+  source_misspelling_instance_id: string | null;
+  micro_skill_key: string;
+  candidate_status: "pending_parent_promotion" | "parent_local_promoted";
+  promotion_scope: "parent_local";
+};
+
+async function buildScopedSuggestedMicroSkillKeysByMisspellingId(input: {
+  supabase: Awaited<ReturnType<typeof createClient>>;
+  parentUserId: string;
+  childId: string;
+  misspellings: MisspellingReviewRow[];
+  writingIssueSuggestions: WritingIssueSuggestionRow[];
+  sourceType: "lesson_submission" | "manual_writing_sample";
+}) {
+  if (input.sourceType !== "lesson_submission" || input.misspellings.length === 0) {
+    return {} as Record<string, string>;
+  }
+
+  const suggestedMicroSkillKeysByMisspellingId =
+    await buildCanonicalSuggestedMicroSkillKeysByMisspellingId({
+      supabase: input.supabase,
+      misspellings: input.misspellings,
+      writingIssueSuggestions: input.writingIssueSuggestions,
+      sourceType: input.sourceType,
+    });
+  const normalizedMisspellings = Array.from(
+    new Set(
+      input.misspellings
+        .map((misspelling) => normaliseWordForLookup(misspelling.misspelled_word))
+        .filter((value): value is string => Boolean(value)),
+    ),
+  );
+  const { data: promotedCandidateRows } =
+    normalizedMisspellings.length > 0
+      ? await input.supabase
+          .from("parent_verified_spelling_candidate_mappings")
+          .select(
+            "misspelling_normalized, correct_spelling_normalized, micro_skill_key, candidate_status, promotion_scope",
+          )
+          .eq("parent_user_id", input.parentUserId)
+          .eq("child_id", input.childId)
+          .eq("promotion_scope", "parent_local")
+          .eq("candidate_status", "parent_local_promoted")
+          .in("misspelling_normalized", normalizedMisspellings)
+      : { data: [] as Array<Record<string, unknown>> };
+  const unresolvedMisspellings = input.misspellings.filter(
+    (misspelling) => !suggestedMicroSkillKeysByMisspellingId[misspelling.id],
+  );
+
+  unresolvedMisspellings.forEach((misspelling) => {
+    const normalizedMisspelling = normaliseWordForLookup(misspelling.misspelled_word);
+    const normalizedCorrectSpelling = normaliseWordForLookup(
+      misspelling.suggested_word ?? misspelling.corrected_word,
+    );
+
+    if (!normalizedMisspelling || !normalizedCorrectSpelling) {
+      return;
+    }
+
+    const exactLocalMatches = ((promotedCandidateRows ?? []) as Array<{
+      misspelling_normalized?: string;
+      correct_spelling_normalized?: string;
+      micro_skill_key?: string;
+    }>).filter(
+      (mapping) =>
+        mapping.misspelling_normalized === normalizedMisspelling &&
+        mapping.correct_spelling_normalized === normalizedCorrectSpelling &&
+        typeof mapping.micro_skill_key === "string" &&
+        mapping.micro_skill_key.trim().length > 0,
+    );
+    const distinctLocalMicroSkillKeys = Array.from(
+      new Set(exactLocalMatches.map((mapping) => mapping.micro_skill_key as string)),
+    );
+
+    if (distinctLocalMicroSkillKeys.length === 1) {
+      suggestedMicroSkillKeysByMisspellingId[misspelling.id] = distinctLocalMicroSkillKeys[0];
+    }
+  });
+
+  return suggestedMicroSkillKeysByMisspellingId;
+}
+
+function buildPendingCandidateMappingByMisspellingId(
+  rows: CandidateMappingRow[],
+) {
+  return new Map(
+    rows
+      .filter(
+        (row): row is CandidateMappingRow & { source_misspelling_instance_id: string } =>
+          typeof row.source_misspelling_instance_id === "string" &&
+          row.source_misspelling_instance_id.length > 0,
+      )
+      .map((row) => [row.source_misspelling_instance_id, row] as const),
+  );
+}
 
 function renderHighlightedText(text: string, misspellings: MisspellingReviewRow[]) {
   const validRanges = [...misspellings]
@@ -392,6 +492,7 @@ export default async function CourseReviewDetailPage({
     { data: writingIssueRows, error: writingIssueError },
     { data: writingIssueSuggestionRows, error: writingIssueSuggestionError },
     { data: parentVerificationRows, error: parentVerificationError },
+    { data: pendingCandidateMappingRows, error: pendingCandidateMappingError },
   ] = await Promise.all([
     supabase
       .from("course_tasks")
@@ -435,6 +536,15 @@ export default async function CourseReviewDetailPage({
       .eq("task_submission_id", submission.id)
       .eq("parent_user_id", user.id)
       .order("verified_at", { ascending: false }),
+    supabase
+      .from("parent_verified_spelling_candidate_mappings")
+      .select(
+        "id, source_misspelling_instance_id, micro_skill_key, candidate_status, promotion_scope",
+      )
+      .eq("task_submission_id", submission.id)
+      .eq("parent_user_id", user.id)
+      .in("candidate_status", ["pending_parent_promotion", "parent_local_promoted"])
+      .order("created_at", { ascending: false }),
   ]);
 
   const { data: module } = task?.module_id
@@ -460,9 +570,26 @@ export default async function CourseReviewDetailPage({
   const misspellings = (misspellingQuery.data ?? []) as MisspellingReviewRow[];
   const writingIssues = (writingIssueRows ?? []) as WritingIssueRow[];
   const writingIssueSuggestions = (writingIssueSuggestionRows ?? []) as WritingIssueSuggestionRow[];
+  const canonicalSuggestedMicroSkillKeysByMisspellingId =
+    await buildScopedSuggestedMicroSkillKeysByMisspellingId({
+      supabase,
+      parentUserId: user.id,
+      childId: submission.child_id,
+      misspellings,
+      writingIssueSuggestions,
+      sourceType: "lesson_submission",
+    });
+  const candidateCaptureMicroSkillProvider =
+    await getReviewWorkCandidateCaptureMicroSkillProvider({
+      supabase,
+    });
   const parentVerifications = (parentVerificationRows ?? []) as Parameters<
     typeof buildSuggestedIssuePanelModel
   >[0]["parentVerifications"];
+  const pendingCandidateMappings =
+    (pendingCandidateMappingRows ?? []) as CandidateMappingRow[];
+  const pendingCandidateMappingsByMisspellingId =
+    buildPendingCandidateMappingByMisspellingId(pendingCandidateMappings);
   const panelModel = buildSuggestedIssuePanelModel({
     sourceType: "lesson_submission",
     misspellings,
@@ -471,6 +598,7 @@ export default async function CourseReviewDetailPage({
     parentVerifications,
     taskSubmissionId: submission.id,
     writingSampleId: linkedSample?.id ?? null,
+    canonicalSuggestedMicroSkillKeysByMisspellingId,
     hasCanonicalWritingSource: Boolean(linkedSample?.id),
     analysisAttempted: Boolean(linkedSample?.id),
     isReviewed: submission.parent_review_status !== "pending",
@@ -478,7 +606,8 @@ export default async function CourseReviewDetailPage({
       Boolean(misspellingQuery.error) ||
       Boolean(writingIssueError) ||
       Boolean(writingIssueSuggestionError) ||
-      Boolean(parentVerificationError),
+      Boolean(parentVerificationError) ||
+      Boolean(pendingCandidateMappingError),
   });
   const parsedSubmission = parseSubmissionReview(submission.submission_text);
   const submissionStatus = getSubmissionStatusLabel(submission.parent_review_status);
@@ -577,7 +706,10 @@ export default async function CourseReviewDetailPage({
 
         <SuggestedIssuesPanel
           model={panelModel}
+          submissionId={submission.id}
           redirectPath={buildScopedPath(`/courses/review/${reviewEntryId}`, selectedChild.id, mode)}
+          candidateCaptureMicroSkillProvider={candidateCaptureMicroSkillProvider}
+          pendingCandidateMappingsByMisspellingId={pendingCandidateMappingsByMisspellingId}
         />
       </section>
     </AppShell>

@@ -54,6 +54,53 @@ type RecordStage7dParentVerificationInput = {
   target: Stage7dReviewWorkVerificationTarget;
 };
 
+function buildRecordedStage7dParentVerification(input: RecordStage7dParentVerificationInput) {
+  const hypothesis = buildStage7dAuthenticWritingHypothesis(input.target);
+  const built = buildAuthenticSubmissionVerification({
+    childId: input.childId,
+    parentUserId: input.parentUserId,
+    hypothesis,
+    decision: input.decision,
+    verifiedCategoryCode: input.verifiedCategoryCode ?? null,
+    verifiedMicroSkillKey: input.verifiedMicroSkillKey ?? null,
+    verifiedTemplateKey: input.verifiedTemplateKey ?? null,
+    note: input.note ?? null,
+  });
+
+  return {
+    hypothesis,
+    built,
+  };
+}
+
+async function persistStage7dParentVerificationOnly(input: RecordStage7dParentVerificationInput) {
+  const { hypothesis, built } = buildRecordedStage7dParentVerification(input);
+  const verificationRecord = await recordParentVerification({
+    command: built.command,
+    repository: createSupabaseParentVerificationRepository(input.supabase),
+  });
+
+  return {
+    hypothesis,
+    verificationRecord,
+    verificationResult: {
+      sourceType: "authentic_writing" as const,
+      hypothesis,
+      originalSuggestion: hypothesis.candidateHypothesis,
+      parentDecision: verificationRecord.decision,
+      parentVerifiedTruth: buildParentVerifiedTruth(
+        verificationRecord,
+        hypothesis.candidateHypothesis,
+      ),
+      verificationRecord,
+      verifiedOutcome: createVerifiedOutcomeFromParentVerification(verificationRecord),
+      hasMasteryUpdatingIntent:
+        verificationRecord.decision === "accepted" ||
+        verificationRecord.decision === "overridden",
+    },
+  };
+}
+
 function buildReviewWorkWritingSampleSourceRef(input: {
   writingSampleId: string;
   observedText: string;
@@ -239,36 +286,8 @@ export function buildStage7dReviewWorkVerificationTarget(
 export async function recordStage7dParentVerification(
   input: RecordStage7dParentVerificationInput,
 ) {
-  const hypothesis = buildStage7dAuthenticWritingHypothesis(input.target);
-  const built = buildAuthenticSubmissionVerification({
-    childId: input.childId,
-    parentUserId: input.parentUserId,
-    hypothesis,
-    decision: input.decision,
-    verifiedCategoryCode: input.verifiedCategoryCode ?? null,
-    verifiedMicroSkillKey: input.verifiedMicroSkillKey ?? null,
-    verifiedTemplateKey: input.verifiedTemplateKey ?? null,
-    note: input.note ?? null,
-  });
-  const verificationRecord = await recordParentVerification({
-    command: built.command,
-    repository: createSupabaseParentVerificationRepository(input.supabase),
-  });
-  const verificationResult = {
-    sourceType: "authentic_writing" as const,
-    hypothesis,
-    originalSuggestion: hypothesis.candidateHypothesis,
-    parentDecision: verificationRecord.decision,
-    parentVerifiedTruth: buildParentVerifiedTruth(
-      verificationRecord,
-      hypothesis.candidateHypothesis,
-    ),
-    verificationRecord,
-    verifiedOutcome: createVerifiedOutcomeFromParentVerification(verificationRecord),
-    hasMasteryUpdatingIntent:
-      verificationRecord.decision === "accepted" ||
-      verificationRecord.decision === "overridden",
-  };
+  const { verificationRecord, verificationResult } =
+    await persistStage7dParentVerificationOnly(input);
 
   const promotionResult =
     (input.decision === "accepted" || input.decision === "overridden") &&
@@ -285,5 +304,18 @@ export async function recordStage7dParentVerification(
     verificationRecord,
     verificationResult,
     promotionResult,
+  };
+}
+
+export async function recordStage7dParentVerificationWithoutPromotion(
+  input: RecordStage7dParentVerificationInput,
+) {
+  const { verificationRecord, verificationResult } =
+    await persistStage7dParentVerificationOnly(input);
+
+  return {
+    verificationRecord,
+    verificationResult,
+    promotionResult: null,
   };
 }

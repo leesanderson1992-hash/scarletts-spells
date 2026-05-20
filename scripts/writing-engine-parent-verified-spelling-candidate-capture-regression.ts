@@ -1144,6 +1144,10 @@ function testSourceGuardrailsStayIntact() {
     workspaceRoot,
     "app/courses/review/[submissionId]/page.tsx",
   );
+  const suggestedIssuesPanelPath = path.join(
+    workspaceRoot,
+    "app/courses/review/suggested-issues-panel.tsx",
+  );
   const reviewActionsPath = path.join(
     workspaceRoot,
     "app/courses/review/actions.ts",
@@ -1166,6 +1170,7 @@ function testSourceGuardrailsStayIntact() {
   );
 
   const pageSource = readFileSync(reviewDetailPagePath, "utf8");
+  const suggestedIssuesPanelSource = readFileSync(suggestedIssuesPanelPath, "utf8");
   const actionsSource = readFileSync(reviewActionsPath, "utf8");
   const candidateMappingActionsSource = readFileSync(candidateMappingActionsPath, "utf8");
   const lessonSubmissionReviewActionsSource = readFileSync(
@@ -1176,7 +1181,7 @@ function testSourceGuardrailsStayIntact() {
   const slice1MappingSource = readFileSync(slice1MappingPath, "utf8");
 
   assert.match(
-    pageSource,
+    suggestedIssuesPanelSource,
     /!entry\.actionTarget\.allowsAccepted[\s\S]*props\.model\.sourceType === "lesson_submission"/,
   );
   assert.match(
@@ -1184,23 +1189,23 @@ function testSourceGuardrailsStayIntact() {
     /candidateCaptureMicroSkillProvider=\{\{\s*status: "blocked",\s*reason: "no_options_available"/,
   );
   assert.match(
-    pageSource,
+    suggestedIssuesPanelSource,
     /not be used for[\s\S]*future suggestions until promoted\./i,
   );
   assert.match(
-    pageSource,
+    suggestedIssuesPanelSource,
     /Pending candidate mapping/,
   );
   assert.match(
-    pageSource,
+    suggestedIssuesPanelSource,
     /Saved as verified evidence\./,
   );
   assert.match(
-    pageSource,
+    suggestedIssuesPanelSource,
     /Candidate mapping captured\./,
   );
   assert.match(
-    pageSource,
+    suggestedIssuesPanelSource,
     /This will let future suggestions for this child use this mapping\.|Not used for future suggestions until promoted\./,
   );
   assert.match(

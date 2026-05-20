@@ -42,6 +42,24 @@ export function parseReviewWorkEntryId(entryId: string): {
   };
 }
 
+export function isParentAuthoredMisspellingRow(input: {
+  notes?: string | null;
+}) {
+  if (!input.notes) {
+    return false;
+  }
+
+  try {
+    const parsed = JSON.parse(input.notes) as {
+      parentAuthoredMissedWord?: boolean;
+    };
+
+    return parsed.parentAuthoredMissedWord === true;
+  } catch {
+    return false;
+  }
+}
+
 export function parseSubmissionReview(submissionText: string) {
   const normalised = submissionText.replace(/\r\n/g, "\n").trim();
 
@@ -481,6 +499,7 @@ export function buildSuggestedIssuePanelModel(input: {
   parentVerifications: ReviewParentVerificationProjection[];
   taskSubmissionId: string | null;
   writingSampleId: string | null;
+  canonicalSuggestedMicroSkillKeysByMisspellingId?: Record<string, string>;
   hasCanonicalWritingSource: boolean;
   analysisAttempted: boolean;
   isReviewed: boolean;
@@ -566,6 +585,12 @@ export function buildSuggestedIssuePanelModel(input: {
     const matchedSuggestion = input.writingIssueSuggestions.find(
       (suggestion) => suggestion.misspelling_instance_id === misspelling.id,
     );
+    const matchedSuggestionMicroSkillKey =
+      typeof matchedSuggestion?.suggested_micro_skill_key === "string" &&
+      matchedSuggestion.suggested_micro_skill_key.trim().length > 0 &&
+      matchedSuggestion.suggested_micro_skill_key.trim().toLowerCase() !== "unknown"
+        ? matchedSuggestion.suggested_micro_skill_key
+        : input.canonicalSuggestedMicroSkillKeysByMisspellingId?.[misspelling.id] ?? null;
     const target = buildStage7dReviewWorkVerificationTarget({
       taskSubmissionId: input.taskSubmissionId,
       writingSampleId: input.writingSampleId,
@@ -578,7 +603,7 @@ export function buildSuggestedIssuePanelModel(input: {
       positionStart: misspelling.position_start,
       positionEnd: misspelling.position_end,
       suggestedCategoryCode: misspelling.error_type,
-      suggestedMicroSkillKey: matchedSuggestion?.suggested_micro_skill_key ?? null,
+      suggestedMicroSkillKey: matchedSuggestionMicroSkillKey,
       notes: matchedSuggestion?.notes ?? misspelling.notes,
     });
 
@@ -597,14 +622,14 @@ export function buildSuggestedIssuePanelModel(input: {
         misspelling.suggested_word ??
         misspelling.corrected_word,
       suggestedCategoryCode: misspelling.error_type,
-      suggestedMicroSkillKey: matchedSuggestion?.suggested_micro_skill_key ?? null,
+      suggestedMicroSkillKey: matchedSuggestionMicroSkillKey,
       positionStart: misspelling.position_start,
       positionEnd: misspelling.position_end,
       allowsAccepted:
         input.taskSubmissionId !== null &&
-        typeof matchedSuggestion?.suggested_micro_skill_key === "string" &&
-        matchedSuggestion.suggested_micro_skill_key.trim().length > 0 &&
-        matchedSuggestion.suggested_micro_skill_key.trim().toLowerCase() !== "unknown",
+        typeof matchedSuggestionMicroSkillKey === "string" &&
+        matchedSuggestionMicroSkillKey.trim().length > 0 &&
+        matchedSuggestionMicroSkillKey.trim().toLowerCase() !== "unknown",
     });
   });
 
