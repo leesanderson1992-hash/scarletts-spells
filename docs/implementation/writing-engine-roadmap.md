@@ -378,11 +378,27 @@ Implementation phase breakdown:
 - Slice `4C` — Minimal protected admin review surface
   - first admin place should be introduced only after parent-raised
     catalog-review cases can exist
-  - candidate route: `/admin/catalog-review`, or the repo's equivalent
-    internal/admin route convention if one exists then
+  - implementation status: blocked until a minimal admin/internal read
+    convention is documented and implemented
+  - current blocker: the repo has no discoverable admin/internal identity
+    convention, role model, admin route pattern, server-only service-role client
+    convention, or admin RLS read policy
+  - authenticated parent identity is not admin/internal identity; parent-scoped
+    ownership checks and RLS must remain parent-scoped
+  - provisional route: `/admin/catalog-review`; this route is approved only
+    after the access-control contract defines how it is protected
+  - admin read path is deferred; do not weaken parent RLS, expose a service-role
+    client to client components, or invent an undocumented internal dashboard
+    helper to list cases
   - scope is read/triage of open spelling catalog-review cases, not a broad
     admin dashboard, CMS, role-management system, or parent-facing catalog
     mutation surface
+  - once unblocked, the first view may show only open
+    `spelling_catalog_review_cases`, grouped by normalized
+    `misspelling -> correction`, with count, latest date, representative
+    context, parent note/reason, source provenance, and status
+  - admin reads must be explicit, auditable, and tested before launch; parent
+    users must never be able to list other parents' catalog-review cases
 - Slice `4D` — Admin decisions and canonical promotion
   - admin/catalog curation may link an existing skill, create/propose a new
     skill, mark word-level only, mark not a learning issue, merge duplicates,
@@ -504,6 +520,17 @@ Next documented stage after Slice `3`:
     micro-skill creation, resolver change, manual writing sample broadening, or
     mastery/reward/assignment/scoring/analytics/template change
 - Slice `4C` — Minimal protected admin/catalog-review read/triage surface
+  - still blocked pending a separate admin/internal access-control slice
+  - no safe existing admin/internal convention has been found in the repo
+  - the provisional route is `/admin/catalog-review`, dependent on the
+    access-control contract
+  - admin read access must be explicitly designed before implementation,
+    either through documented admin RLS policies, a documented server-only
+    service-role convention, or another reviewed internal access helper
+  - Slice `4C` must not include admin decisions, canonical/global promotion,
+    micro-skill creation, resolver changes, parent `Review Work` changes,
+    manual writing sample expansion, or
+    mastery/reward/assignment/scoring/analytics/template changes
 - Slice `4D` — Admin decisions and canonical promotion
 - Slice `5` — Optional manual writing sample extension
   - remains deferred until parent-local promotion stability and any
@@ -613,6 +640,26 @@ Slice `4A` catalog-review contract:
   - parent reason/note
   - source provenance
   - status
+- Slice `4C` access-control readiness:
+  - not implementation-ready yet
+  - implementation is blocked until a separate docs-first access-control slice
+    defines admin/internal identity, route protection, admin read mechanics, and
+    test expectations
+  - parent-scoped policies for `spelling_catalog_review_cases` must remain
+    parent-scoped
+  - admin reads must not grant parent users cross-parent visibility
+  - any service-role usage must be server-only and never exposed to client
+    components
+  - next docs-first prompt:
+    `Plan a minimal admin/internal access-control slice for Scarlett's Spells
+    before Slice 4C implementation. Inspect existing auth, Supabase clients,
+    RLS policies, route patterns, and docs. Define how an authenticated user is
+    recognized as admin/internal, whether admin reads use explicit RLS policies
+    or a server-only service-role client, how /admin/catalog-review should be
+    protected, how access is audited/tested, and how parent-scoped RLS remains
+    intact. Do not implement catalog-review UI, admin decisions,
+    canonical/global promotion, micro-skill creation, resolver changes, manual
+    writing sample expansion, or parent Review Work changes.`
 - admin decisions may include:
   - link existing skill
   - create/propose new skill

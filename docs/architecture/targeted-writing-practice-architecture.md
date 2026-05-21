@@ -257,11 +257,33 @@ Parent-Verified Spelling Candidate Capture architecture boundary:
   - first admin place should be minimal and protected, for example
     `/admin/catalog-review` or the repo's equivalent internal/admin route
     convention
+  - implementation is blocked because no safe existing admin/internal
+    convention has been found in the repo
+  - the repo currently has no discoverable admin/internal identity convention,
+    role model, admin route pattern, server-only service-role client
+    convention, or admin RLS read policy
+  - authenticated parent identity is not admin/internal identity; parent-scoped
+    ownership checks and RLS remain parent-scoped
+  - `/admin/catalog-review` is the provisional route and depends on a separate
+    access-control contract before runtime implementation
+  - admin read access is deferred until a documented convention chooses
+    explicit admin RLS policies, a server-only service-role client, an existing
+    internal access helper, or another reviewed repo convention
+  - admin reads must be explicit, auditable, and tested before launch
+  - parent users must not be able to list other parents' catalog-review cases
+  - any service-role usage must be server-only and never exposed to client
+    components
   - first admin view should focus on grouped `misspelling -> correction`,
     count/latest date, representative context, parent reason/note, source
     provenance, and status
+  - first admin view may show only open `spelling_catalog_review_cases` and
+    provide read/triage visibility only
   - do not start with a full admin dashboard, broad role-management work, CMS,
     or global catalog mutation from parent UI
+  - Slice `4C` must not add admin decisions, canonical/global promotion,
+    micro-skill creation, resolver changes, parent `Review Work` behavior
+    changes, manual writing sample expansion, or
+    mastery/reward/assignment/scoring/analytics/template changes
 - admin decisions are later than parent capture and may include:
   - link existing skill
   - create/propose new skill
@@ -271,6 +293,18 @@ Parent-Verified Spelling Candidate Capture architecture boundary:
   - supersede/reopen
 - only admin/catalog curation may create or update canonical/global mapping
   truth
+- Slice `4C` implementation readiness:
+  - still blocked pending a separate admin/internal access-control slice
+  - next docs-first prompt:
+    `Plan a minimal admin/internal access-control slice for Scarlett's Spells
+    before Slice 4C implementation. Inspect existing auth, Supabase clients,
+    RLS policies, route patterns, and docs. Define how an authenticated user is
+    recognized as admin/internal, whether admin reads use explicit RLS policies
+    or a server-only service-role client, how /admin/catalog-review should be
+    protected, how access is audited/tested, and how parent-scoped RLS remains
+    intact. Do not implement catalog-review UI, admin decisions,
+    canonical/global promotion, micro-skill creation, resolver changes, manual
+    writing sample expansion, or parent Review Work changes.`
 - resolver implications:
   - no resolver change in Slice `4A` or Slice `4B.1`
   - open catalog-review cases remain invisible to the resolver

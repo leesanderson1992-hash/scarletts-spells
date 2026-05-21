@@ -380,9 +380,32 @@ This means:
   - introduce it only after parent-raised catalog-review cases can exist
   - keep it minimal and protected, for example `/admin/catalog-review` or the
     repo's equivalent internal/admin route convention
+  - current implementation blocker: no safe existing admin/internal convention
+    has been found in the repo
+  - authenticated parent identity is not admin/internal identity; Slice `4C`
+    cannot proceed to runtime implementation until a minimal admin/internal
+    access model exists
+  - `/admin/catalog-review` is the provisional route, dependent on the
+    access-control contract
+  - admin read access is not chosen yet; a later access-control slice must
+    document whether reads use explicit admin RLS policies, a server-only
+    service-role client, an existing internal access helper, or another reviewed
+    repo convention
+  - parent-scoped `spelling_catalog_review_cases` policies must remain
+    parent-scoped; admin reads must not weaken parent access controls or let
+    parent users list other parents' cases
+  - any service-role usage must be server-only and must never be exposed to
+    client components
+  - admin read access must be explicit, auditable, and tested before launch
   - initial focus is read/triage of open spelling catalog-review cases grouped
     by `misspelling -> correction`, count/latest date, representative context,
     parent reason/note, source provenance, and status
+  - Slice `4C` is read/triage visibility only and may show only open
+    `spelling_catalog_review_cases`
+  - Slice `4C` must not add admin decisions, canonical/global promotion,
+    micro-skill creation, resolver changes, parent `Review Work` behavior
+    changes, manual writing sample expansion, or
+    mastery/reward/assignment/scoring/analytics/template changes
 - admin decision work is later than parent capture:
   - link existing skill
   - create/propose new skill
@@ -392,6 +415,19 @@ This means:
   - supersede/reopen
   - only admin/catalog curation may create or update canonical/global mapping
     truth
+- implementation readiness:
+  - Slice `4C` is still blocked pending a separate admin/internal
+    access-control slice
+  - next docs-first prompt:
+    `Plan a minimal admin/internal access-control slice for Scarlett's Spells
+    before Slice 4C implementation. Inspect existing auth, Supabase clients,
+    RLS policies, route patterns, and docs. Define how an authenticated user is
+    recognized as admin/internal, whether admin reads use explicit RLS policies
+    or a server-only service-role client, how /admin/catalog-review should be
+    protected, how access is audited/tested, and how parent-scoped RLS remains
+    intact. Do not implement catalog-review UI, admin decisions,
+    canonical/global promotion, micro-skill creation, resolver changes, manual
+    writing sample expansion, or parent Review Work changes.`
 - resolver contract remains unchanged in Slice `4A` and Slice `4B.1`:
   - open catalog-review cases are invisible to the resolver
   - parent notes/reasons are evidence only

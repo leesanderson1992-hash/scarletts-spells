@@ -520,6 +520,24 @@ Slice `4A` catalog-review contract:
   and QA passed
 - Slice `4C` may add the first minimal protected admin/catalog-review surface
   only after parent-raised cases can exist
+- Slice `4C` implementation is blocked until a minimal admin/internal read
+  convention is documented:
+  - no safe existing admin/internal convention has been found in the repo
+  - no admin/internal identity convention, role model, admin route pattern,
+    server-only service-role client convention, or admin RLS read policy is
+    currently discoverable
+  - authenticated parent identity is not admin/internal identity
+  - parent-scoped policies for `spelling_catalog_review_cases` must remain
+    parent-scoped and must not be weakened for admin listing
+  - parent users must not be able to list other parents' catalog-review cases
+  - admin read access must be explicit, auditable, and tested before launch
+  - any service-role usage must be server-only and never exposed to client
+    components
+  - `/admin/catalog-review` is the provisional route and depends on the
+    access-control contract
+  - admin read access is deferred until a documented convention chooses
+    explicit admin RLS policies, a server-only service-role client, an existing
+    internal access helper, or another reviewed repo convention
 - first admin surface should focus on:
   - grouped `misspelling -> correction`
   - count/latest date
@@ -527,8 +545,14 @@ Slice `4A` catalog-review contract:
   - parent reason/note
   - source provenance
   - status
+- Slice `4C` may show only open `spelling_catalog_review_cases` and provide
+  read/triage visibility only
 - first admin surface must not be a full admin dashboard, broad
   role-management system, CMS, or global catalog mutation path from parent UI
+- Slice `4C` must not add admin decisions, canonical/global promotion,
+  micro-skill creation, resolver changes, parent `Review Work` changes, manual
+  writing sample expansion, or
+  mastery/reward/assignment/scoring/analytics/template changes
 - Slice `4D` may add admin decisions and canonical promotion:
   - link existing skill
   - create/propose new skill
@@ -538,6 +562,18 @@ Slice `4A` catalog-review contract:
   - supersede/reopen
 - only admin/catalog curation may create or update canonical/global mapping
   truth
+- Slice `4C` implementation readiness:
+  - still blocked pending a separate admin/internal access-control slice
+  - next docs-first prompt:
+    `Plan a minimal admin/internal access-control slice for Scarlett's Spells
+    before Slice 4C implementation. Inspect existing auth, Supabase clients,
+    RLS policies, route patterns, and docs. Define how an authenticated user is
+    recognized as admin/internal, whether admin reads use explicit RLS policies
+    or a server-only service-role client, how /admin/catalog-review should be
+    protected, how access is audited/tested, and how parent-scoped RLS remains
+    intact. Do not implement catalog-review UI, admin decisions,
+    canonical/global promotion, micro-skill creation, resolver changes, manual
+    writing sample expansion, or parent Review Work changes.`
 - resolver contract:
   - no resolver change in Slice `4A` or Slice `4B.1`
   - open catalog-review cases remain invisible to the resolver
