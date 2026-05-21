@@ -272,7 +272,13 @@ Canonical documentation now defers to:
     - help parents find existing canonical skills before raising a catalog
       review case
   - Slice `4B.1` — Parent `No matching skill` case capture
+    - status: implemented and QA passed
     - create or update `spelling_catalog_review_cases` only
+    - implemented with `captureSpellingCatalogReviewCase`, parent-scoped RLS,
+      authenticated parent ownership enforcement, idempotent open-case dedupe,
+      compact Review Work `No matching skill` UI/status,
+      `Sent to catalog review` saved state, parent-added lesson missed-word
+      support, and graceful behavior when the case table is unavailable
   - Slice `4C` — Minimal protected admin/catalog-review read/triage surface
   - Slice `4D` — Admin decisions and canonical promotion
   - Slice `5` — Optional manual writing sample extension
@@ -372,20 +378,78 @@ Canonical documentation now defers to:
   - `Needs new skill` is not the only label because admin may decide an
     existing skill fits, the case is word-level only, the case is not a
     learning issue, or the case should be merged or superseded
-- future parent action may create or update a catalog-review case only
-- future case owner:
-  - proposed table concept: `spelling_catalog_review_cases`
+- Slice `4B.1` implemented and QA-passed goal:
+  - parent `No matching skill` catalog-review case capture for eligible
+    lesson-submission spelling rows only
+  - parent uses `No matching skill` when no existing catalog-backed micro-skill
+    fits
+  - helper copy remains `Send this spelling case to catalog review.`
+  - parent may optionally add a `parent_note` where supported by the
+    implemented action/table contract
+  - saved state should be non-blocking, for example
+    `Sent to catalog review`
+  - parent can still complete or return Review Work according to existing rules
+- Slice `4B.1` parent action may create or update a catalog-review case only
+- Slice `4B.1` case owner:
+  - implemented table: `spelling_catalog_review_cases`
   - not `parent_verified_spelling_candidate_mappings`, because that table
     requires an existing `micro_skill_key`
   - not `writing_issues`, because those are durable reviewed issue history
     rather than catalog-curation workflow
-- future table should capture:
-  - source lineage and provenance
-  - original and normalized misspelling/correction
-  - representative context
-  - parent reason/note
-  - status
-  - admin decision/audit metadata
+- implemented `spelling_catalog_review_cases` fields:
+  - `id`
+  - `parent_user_id`
+  - `child_id`
+  - `task_submission_id`
+  - nullable `writing_sample_id`
+  - nullable `source_suggestion_id`
+  - `source_misspelling_instance_id`
+  - `source_provenance`
+  - `reviewed_event_source_entity_id`
+  - `original_child_spelling`
+  - `original_correct_spelling`
+  - `misspelling_normalized`
+  - `correct_spelling_normalized`
+  - `case_status`
+  - `parent_note`
+  - `metadata`
+  - `created_at`
+  - `updated_at`
+- allowed initial `source_provenance` values:
+  - `lesson_submission_existing_output`
+  - `lesson_submission_parent_added_missed_word`
+- initial Slice `4B.1` `case_status` values:
+  - `open`
+  - `closed_duplicate`
+  - `superseded`
+- parent action can create/update only `open` cases in Slice `4B.1`
+- idempotency/dedupe:
+  - repeated parent submissions for the same parent/child/source misspelling
+    event update the same open case
+  - only one open case should exist for the same
+    `parent_user_id + child_id + source_misspelling_instance_id`
+  - closed/superseded historical cases may remain for audit
+  - existing parent verification, candidate mapping, or durable issue truth
+    should prevent duplicate catalog-review capture where appropriate
+- implemented server action boundary:
+  - `captureSpellingCatalogReviewCase`
+  - accepts only `submission_id`, `misspelling_instance_id`, optional
+    `parent_note`, and `redirect_path`
+  - requires authenticated parent ownership
+  - verifies lesson submission, child, writing sample, and misspelling row scope
+  - rejects manual writing samples and rows without lesson/task-submission
+    lineage
+  - does not accept `micro_skill_key`
+  - does not create `parent_verifications`,
+    `parent_verified_spelling_candidate_mappings`, or `writing_issues`
+  - does not write `micro_skill_catalog`
+  - does not affect resolver data, mastery, rewards, analytics, templates, or
+    assignments
+- RLS/auth expectations:
+  - authenticated parent access is scoped to `auth.uid() = parent_user_id`
+  - server action enforces ownership even if RLS exists
+  - no admin policies or admin routes are introduced in Slice `4B.1`
+  - future admin read/update policies belong to Slice `4C`/`4D`
 - Slice `4B.0` is implemented as a compact Review Work spelling review table
   rather than the bulky candidate-capture selector
 - Slice `4B.0` table columns:
@@ -421,6 +485,16 @@ Canonical documentation now defers to:
 - parent-local promotion/revert remains separate Slice `3` behavior
 - captured/promoted mapping status may be shown as status or separate action,
   but must not be collapsed into Tick
+- Slice `4B.1` UI placement:
+  - `No matching skill` appears in the compact spelling review table Actions for
+    eligible lesson-submission spelling rows
+  - it is not shown for manual writing samples
+  - it is not shown when a row already has a parent decision, candidate mapping,
+    durable issue, or open catalog-review case where that would create duplicate
+    workflow
+  - after capture, show row status such as `Sent to catalog review`
+  - do not disable unrelated Review Work completion unless existing rules
+    already require it
 - first admin surface comes after parent-raised catalog-review cases can exist
 - first admin place should be minimal and protected, such as
   `/admin/catalog-review` or the repo's equivalent internal/admin route
@@ -444,15 +518,60 @@ Canonical documentation now defers to:
 - only admin/catalog curation may create or update canonical/global mapping
   truth
 - resolver contract:
-  - no resolver change in Slice `4A`
-  - open/pending catalog-review cases remain invisible to the resolver
+  - no resolver change in Slice `4A` or Slice `4B.1`
+  - open catalog-review cases remain invisible to the resolver
   - parent notes/reasons remain evidence only
   - future admin-promoted global mappings may join canonical priority only
-    after separate admin curation writes canonical truth
+    after Slice `4D` or another explicit admin curation slice writes canonical
+    truth
   - resolver priority remains:
     1. catalog-backed canonical truth
     2. same-scope parent-local promoted mapping
     3. unresolved
+- Slice `4B.1` implementation QA checklist:
+  - parent can create an open catalog-review case for an eligible
+    lesson-submission spelling row
+  - parent-added missed word attached to a lesson submission can create a case
+    if eligible
+  - repeated capture updates the existing open case rather than inserting
+    duplicates
+  - manual writing samples are rejected/excluded
+  - submitted `micro_skill_key` is ignored/rejected
+  - no `parent_verifications` row is created by this action
+  - no `parent_verified_spelling_candidate_mappings` row is created by this
+    action
+  - no `writing_issues` row is created by this action
+  - no `micro_skill_catalog` row is created/updated
+  - resolver output remains unchanged
+  - mastery, rewards, assignments, scoring, analytics, and template metadata
+    remain untouched
+- Slice `4B.1` QA closeout:
+  - implemented table: `spelling_catalog_review_cases`
+  - implemented server action: `captureSpellingCatalogReviewCase`
+  - implemented parent-scoped RLS and authenticated parent ownership checks
+  - implemented idempotent open-case dedupe for
+    `parent_user_id + child_id + source_misspelling_instance_id`
+  - implemented compact Review Work `No matching skill` UI/status and
+    `Sent to catalog review` saved state
+  - implemented parent-added lesson missed-word support without broadening
+    manual writing samples
+  - implemented graceful behavior when the case table is unavailable
+  - manual/browser QA passed:
+    - lesson-submission suggested spelling row can be sent to catalog review
+    - repeated capture updates the existing open case rather than duplicating it
+    - `X`, `!`, and Tick continue to work as before
+    - manual writing samples do not show the action
+    - parent-added lesson missed words can be sent
+    - rows with existing decision, candidate mapping, durable issue, or open
+      case do not show duplicate workflow
+  - validation passed:
+    - `npx tsc --noEmit`
+    - `npm run build`
+    - `npm run writing-engine:parent-verified-spelling-candidate-capture-regression`
+    - `npm run writing-engine:parent-local-promotion-regression`
+    - `npm run writing-engine:mapping-source-regression`
+    - `npm run writing-engine:review-work-override-provider-behavior-regression`
+    - `git diff --check`
 - non-goals:
   - no migrations
   - no runtime code

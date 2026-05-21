@@ -782,12 +782,83 @@ Slice `4A` spelling catalog-review taxonomy contract:
 - parent-raised catalog-review cases are evidence for catalog curation only
 - parent actions must not create new `micro_skill_catalog` rows, invent
   free-text `micro_skill_key` values, or create global canonical mapping truth
-- future parent case capture should write to a dedicated
+- parent case capture now writes to the dedicated
   `spelling_catalog_review_cases` workflow table, not to:
   - `parent_verified_spelling_candidate_mappings`, because that requires an
     existing `micro_skill_key`
   - `writing_issues`, because those are durable reviewed issue history rather
     than catalog-curation workflow
+- Slice `4B.1` is implemented and QA passed as parent `No matching skill`
+  catalog-review case capture for eligible lesson-submission spelling rows only
+- parent-facing workflow:
+  - parent uses `No matching skill` when no existing catalog-backed micro-skill
+    fits
+  - helper copy remains `Send this spelling case to catalog review.`
+  - parent may optionally add `parent_note` only if supported by the
+    implementation
+  - saved state should be non-blocking, for example
+    `Sent to catalog review`
+  - parent can still complete or return Review Work according to existing rules
+- concrete implemented `spelling_catalog_review_cases` shape:
+  - `id uuid primary key default gen_random_uuid()`
+  - `parent_user_id uuid not null references auth.users(id) on delete cascade`
+  - `child_id uuid not null references public.children(id) on delete cascade`
+  - `task_submission_id uuid not null references public.task_submissions(id) on
+    delete cascade`
+  - `writing_sample_id uuid references public.writing_samples(id) on delete set
+    null`
+  - `source_suggestion_id uuid references public.writing_issue_suggestions(id)
+    on delete set null`
+  - `source_misspelling_instance_id uuid not null references
+    public.misspelling_instances(id) on delete cascade`
+  - `source_provenance text not null`
+  - `reviewed_event_source_entity_id text not null`
+  - `original_child_spelling text`
+  - `original_correct_spelling text`
+  - `misspelling_normalized text not null`
+  - `correct_spelling_normalized text not null`
+  - `case_status text not null default 'open'`
+  - `parent_note text`
+  - `metadata jsonb not null default '{}'::jsonb`
+  - `created_at timestamptz not null default timezone('utc', now())`
+  - `updated_at timestamptz not null default timezone('utc', now())`
+- initial allowed `source_provenance` values:
+  - `lesson_submission_existing_output`
+  - `lesson_submission_parent_added_missed_word`
+- initial Slice `4B.1` `case_status` values:
+  - `open`
+  - `closed_duplicate`
+  - `superseded`
+- parent action can create/update only `open` cases in Slice `4B.1`
+- idempotency/dedupe:
+  - repeated parent submissions for the same parent/child/source misspelling
+    event update the same open case
+  - only one open case should exist for the same
+    `parent_user_id + child_id + source_misspelling_instance_id`
+  - closed/superseded historical cases may remain for audit
+  - existing parent verification, candidate mapping, or durable issue truth
+    should prevent duplicate catalog-review capture where appropriate
+- implemented server action boundary: `captureSpellingCatalogReviewCase`
+  - accepts only `submission_id`, `misspelling_instance_id`, optional
+    `parent_note`, and `redirect_path`
+  - requires authenticated parent ownership
+  - verifies the lesson submission, child, writing sample, and misspelling row
+    are in scope
+  - rejects manual writing samples
+  - rejects rows without lesson/task-submission lineage
+  - does not accept `micro_skill_key`
+  - does not create `parent_verifications`
+  - does not create `parent_verified_spelling_candidate_mappings`
+  - does not create `writing_issues`
+  - does not write `micro_skill_catalog`
+  - does not affect resolver data, mastery, rewards, analytics, templates, or
+    assignments
+- RLS/auth expectations:
+  - authenticated parent access must be scoped to
+    `auth.uid() = parent_user_id`
+  - server action must enforce ownership even if RLS exists
+  - no admin policies or admin routes are introduced in Slice `4B.1`
+  - future admin read/update policies belong to Slice `4C`/`4D`
 - Slice `4B.0` now replaces the bulky candidate-capture selector with a
   compact spelling review table before parent case capture
 - Slice `4B.0` table columns:
@@ -816,6 +887,14 @@ Slice `4A` spelling catalog-review taxonomy contract:
   - `!`: not a learning issue, `This is not something to practise.`
   - Tick: approve this correction and skill, `Approve this correction and
     skill.`
+- Slice `4B.1` adds `No matching skill` as a separate compact-table action for
+  eligible lesson-submission spelling rows only
+- `No matching skill` must not be shown for manual writing samples, or when a
+  row already has a parent decision, candidate mapping, durable issue, or open
+  catalog-review case where that would duplicate workflow
+- after capture, show a row status such as `Sent to catalog review`
+- do not disable unrelated Review Work completion unless existing rules already
+  require it
 - Tick must use existing Review Work verification semantics only
 - Tick must not create global truth or automatically promote parent-local
   mappings
@@ -831,22 +910,59 @@ Slice `4A` spelling catalog-review taxonomy contract:
   parent-raised case into canonical/global mapping truth
 - staged follow-up:
   - Slice `4B.0`: bounded option filtering by family/cluster
-  - Slice `4B.1`: parent `No matching skill` case capture
+  - Slice `4B.1`: parent `No matching skill` case capture only,
+    implemented and QA passed
   - Slice `4C`: minimal protected admin review surface
   - Slice `4D`: admin decisions and canonical promotion
+  - Slice `5`: optional manual writing sample extension
 - admin decisions may link an existing skill, create/propose a new skill,
   classify as word-level only, classify as not a learning issue, merge a
   duplicate, supersede, or reopen
 - resolver contract:
-  - no resolver change in Slice `4A`
-  - open/pending catalog-review cases remain invisible to the resolver
+  - no resolver change in Slice `4A` or Slice `4B.1`
+  - open catalog-review cases remain invisible to the resolver
   - parent notes/reasons remain evidence only
   - future admin-promoted global mappings may join canonical priority only
-    after separate admin curation writes canonical truth
+    after Slice `4D` or another explicit admin curation slice writes canonical
+    truth
   - priority remains:
     1. catalog-backed canonical truth
     2. same-scope parent-local promoted mapping
     3. unresolved
+- Slice `4B.1` regression checklist:
+  - parent can create an open catalog-review case for an eligible
+    lesson-submission spelling row
+  - parent-added missed word attached to a lesson submission can create a case
+    if eligible
+  - repeated capture updates the existing open case rather than inserting
+    duplicates
+  - manual writing samples are rejected/excluded
+  - submitted `micro_skill_key` is ignored/rejected
+  - no `parent_verifications` row is created by this action
+  - no `parent_verified_spelling_candidate_mappings` row is created by this
+    action
+  - no `writing_issues` row is created by this action
+  - no `micro_skill_catalog` row is created/updated
+  - resolver output remains unchanged
+  - mastery, rewards, assignments, scoring, analytics, and template metadata
+    remain untouched
+- Slice `4B.1` QA closeout:
+  - implemented `spelling_catalog_review_cases`
+  - implemented `captureSpellingCatalogReviewCase`
+  - implemented parent-scoped RLS and authenticated parent ownership
+    enforcement
+  - implemented idempotent open-case dedupe
+  - implemented compact Review Work `No matching skill` UI/status and
+    `Sent to catalog review` saved state
+  - implemented parent-added lesson missed-word support without broadening
+    manual writing samples
+  - implemented graceful behavior when the case table is unavailable
+  - no admin queue, admin decisions, canonical/global mapping writes,
+    parent-created global canonical truth, micro-skill creation, resolver
+    priority change, manual writing sample broadening, or
+    mastery/reward/assignment/scoring/analytics/template changes were added
+  - mastery, rewards, assignments, scoring, analytics, and template metadata
+    remain untouched
 
 Review Work read-only derived template metadata contract:
 - Review Work continues to verify canonical micro-skill truth only

@@ -171,6 +171,70 @@ Parent-Verified Spelling Candidate Capture architecture boundary:
   - case rows need source lineage, normalized misspelling/correction,
     representative context, parent reason/note, review status, admin decision,
     merge/supersede metadata, and audit fields
+- Slice `4B.1` implemented and QA-passed case-capture architecture:
+  - `spelling_catalog_review_cases` stores parent-raised catalog-review cases
+    for eligible lesson-submission spelling rows only
+  - parent workflow starts from the compact spelling review table and uses
+    `No matching skill` only when no existing catalog-backed micro-skill fits
+  - saved state should be non-blocking, for example
+    `Sent to catalog review`
+  - optional `parent_note` is allowed by the implemented action/table contract
+  - parent can still complete or return Review Work according to existing rules
+- implemented table fields:
+  - identity: `id`, `created_at`, `updated_at`
+  - ownership/source: `parent_user_id`, `child_id`, `task_submission_id`,
+    nullable `writing_sample_id`, nullable `source_suggestion_id`,
+    `source_misspelling_instance_id`, `source_provenance`,
+    `reviewed_event_source_entity_id`
+  - spelling evidence: `original_child_spelling`,
+    `original_correct_spelling`, `misspelling_normalized`,
+    `correct_spelling_normalized`
+  - workflow/evidence: `case_status`, `parent_note`, `metadata`
+- allowed initial `source_provenance` values:
+  - `lesson_submission_existing_output`
+  - `lesson_submission_parent_added_missed_word`
+- initial Slice `4B.1` case statuses are `open`, `closed_duplicate`, and
+  `superseded`; parent action can create/update only `open`
+- idempotency:
+  - one open case per `parent_user_id + child_id +
+    source_misspelling_instance_id`
+  - repeated parent submissions update the existing open case
+  - closed/superseded historical cases may remain
+  - existing parent verification, candidate mapping, or durable issue truth
+    should prevent duplicate catalog-review capture where appropriate
+- implemented `captureSpellingCatalogReviewCase` server action:
+  - accepts only `submission_id`, `misspelling_instance_id`, optional
+    `parent_note`, and `redirect_path`
+  - requires authenticated parent ownership and verifies submission, child,
+    writing sample, and misspelling scope
+  - rejects manual writing samples and rows without lesson/task-submission
+    lineage
+  - does not accept `micro_skill_key`
+  - does not create `parent_verifications`,
+    `parent_verified_spelling_candidate_mappings`, or `writing_issues`
+  - does not write `micro_skill_catalog`
+  - does not affect resolver data, mastery, rewards, analytics, templates, or
+    assignments
+- Slice `4B.1` implementation closeout:
+  - parent-scoped RLS and server-side authenticated parent ownership checks are
+    in place
+  - open-case idempotency dedupes repeated captures for the same
+    `parent_user_id + child_id + source_misspelling_instance_id`
+  - compact Review Work exposes `No matching skill` only for eligible rows and
+    shows `Sent to catalog review` after capture
+  - parent-added lesson missed words attached to lesson submissions are
+    supported
+  - the UI gracefully withholds case capture when the case table is unavailable
+  - the closeout added no admin queue, admin decisions,
+    canonical/global mapping writes, parent-created global canonical truth,
+    micro-skill creation, resolver priority change, manual writing sample
+    broadening, or mastery/reward/assignment/scoring/analytics/template changes
+- RLS/auth:
+  - authenticated parent access must be scoped to
+    `auth.uid() = parent_user_id`
+  - server action ownership checks remain required even with RLS
+  - no admin policies or routes are part of Slice `4B.1`
+  - future admin read/update policies belong to Slice `4C`/`4D`
 - staged architecture:
   - Slice `4B.0`: bounded Review Work micro-skill option filtering by
     family/cluster using existing `micro_skill_catalog` metadata only
@@ -208,15 +272,24 @@ Parent-Verified Spelling Candidate Capture architecture boundary:
 - only admin/catalog curation may create or update canonical/global mapping
   truth
 - resolver implications:
-  - no resolver change in Slice `4A`
-  - open/pending catalog-review cases remain invisible to the resolver
+  - no resolver change in Slice `4A` or Slice `4B.1`
+  - open catalog-review cases remain invisible to the resolver
   - parent notes/reasons remain evidence only
   - future admin-promoted global mappings may join canonical priority only
-    after separate admin curation writes canonical truth
+    after Slice `4D` or another explicit admin curation slice writes canonical
+    truth
   - resolver priority remains:
     1. catalog-backed canonical truth
     2. same-scope parent-local promoted mapping
     3. unresolved
+- Slice `4B.1` Review Work UI placement:
+  - `No matching skill` appears in the compact spelling review table Actions for
+    eligible lesson-submission spelling rows
+  - exclude manual writing samples
+  - exclude rows that already have a parent decision, candidate mapping, durable
+    issue, or open catalog-review case where that would duplicate workflow
+  - after capture, show `Sent to catalog review` or equivalent row status
+  - do not change unrelated Review Work completion behavior
 
 ## Canonical lineage
 
