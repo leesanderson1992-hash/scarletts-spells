@@ -2,7 +2,9 @@ import type { ReviewWorkCandidateCaptureMicroSkillProviderResult } from "@/lib/w
 
 import {
   captureSubmissionSpellingCandidateMapping,
+  promoteParentLocalCandidateMapping,
   recordReviewWorkVerificationAction,
+  revertParentLocalCandidateMapping,
 } from "./actions";
 import {
   buildSuggestedIssuePanelModel,
@@ -214,6 +216,59 @@ export function SuggestedIssuesPanel(props: SuggestedIssuesPanelProps) {
                                 ? "This mapping is currently used only for this child/parent scope."
                                 : "Not used for future suggestions until promoted."}
                             </p>
+                            {props.model.sourceType === "lesson_submission" &&
+                            props.submissionId ? (
+                              pendingCandidateMapping.candidate_status ===
+                              "parent_local_promoted" ? (
+                                <form
+                                  action={revertParentLocalCandidateMapping}
+                                  className="mt-3 flex flex-wrap gap-3"
+                                >
+                                  <input
+                                    type="hidden"
+                                    name="candidate_mapping_id"
+                                    value={pendingCandidateMapping.id}
+                                  />
+                                  <input
+                                    type="hidden"
+                                    name="submission_id"
+                                    value={props.submissionId}
+                                  />
+                                  <input
+                                    type="hidden"
+                                    name="redirect_path"
+                                    value={props.redirectPath}
+                                  />
+                                  <button type="submit" className="brand-secondary-btn">
+                                    Revert to pending
+                                  </button>
+                                </form>
+                              ) : (
+                                <form
+                                  action={promoteParentLocalCandidateMapping}
+                                  className="mt-3 flex flex-wrap gap-3"
+                                >
+                                  <input
+                                    type="hidden"
+                                    name="candidate_mapping_id"
+                                    value={pendingCandidateMapping.id}
+                                  />
+                                  <input
+                                    type="hidden"
+                                    name="submission_id"
+                                    value={props.submissionId}
+                                  />
+                                  <input
+                                    type="hidden"
+                                    name="redirect_path"
+                                    value={props.redirectPath}
+                                  />
+                                  <button type="submit" className="brand-secondary-btn">
+                                    Promote for this child
+                                  </button>
+                                </form>
+                              )
+                            ) : null}
                           </div>
                         ) : null}
                         {entry.actionTarget && !entry.recordedDecision && !pendingCandidateMapping ? (

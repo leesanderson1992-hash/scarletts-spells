@@ -642,11 +642,11 @@ async function testPromoteActionRejectsConflictsAndInvalidCatalogEntries() {
 
 function testReviewWorkSourceGuardrails() {
   const workspaceRoot = process.cwd();
-  const reviewDetailPagePath = path.join(
+  const suggestedIssuesPanelPath = path.join(
     workspaceRoot,
-    "app/courses/review/[submissionId]/page.tsx",
+    "app/courses/review/suggested-issues-panel.tsx",
   );
-  const pageSource = readFileSync(reviewDetailPagePath, "utf8");
+  const pageSource = readFileSync(suggestedIssuesPanelPath, "utf8");
 
   assert.match(pageSource, /Promote for this child/);
   assert.match(pageSource, /Revert to pending/);
@@ -656,7 +656,7 @@ function testReviewWorkSourceGuardrails() {
   );
   assert.match(
     pageSource,
-    /This will let future suggestions for this child use this mapping\./,
+    /Not used for future suggestions until promoted\./,
   );
 }
 
