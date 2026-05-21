@@ -496,21 +496,22 @@ Canonical documentation now defers to:
   - do not disable unrelated Review Work completion unless existing rules
     already require it
 - first admin surface comes after parent-raised catalog-review cases can exist
-- first admin place should be minimal and protected, such as
-  `/admin/catalog-review` or the repo's equivalent internal/admin route
-  convention
+- first admin place is `/admin/catalog-review` under the admin/internal access
+  convention in
+  [docs/architecture/admin-internal-access.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/architecture/admin-internal-access.md:1)
 - Slice `4C` implementation readiness:
-  - still blocked pending a separate admin/internal access-control slice
-  - no safe existing admin/internal convention has been found in the repo
-  - the repo has no discoverable admin/internal identity convention, role
-    model, admin route pattern, server-only service-role client convention, or
-    admin RLS read policy
+  - documentation prerequisite is complete
+  - admin identity for the private MVP comes from private server-side
+    `ADMIN_USER_IDS` and `ADMIN_EMAILS` allowlists
+  - there is no DB admin role table, Supabase custom claims model,
+    role-management UI, or separate admin login in Slice `4C`
   - authenticated parent identity is not admin/internal identity
-  - provisional route is `/admin/catalog-review`, dependent on the
-    access-control contract
-  - admin read access is deferred until a documented, reviewed read path exists
-    through explicit admin RLS policies, a server-only service-role convention,
-    an existing internal access helper, or another documented repo convention
+  - `app/admin/layout.tsx` is the mandatory server-side guard for admin pages
+  - future `/api/admin/*` route handlers must call the same admin helper before
+    querying data
+  - admin reads use server-only service-role access only after admin
+    authorization passes
+  - no admin RLS read policies are added for v1
   - parent-scoped policies must remain parent-scoped and must not be weakened
     to make admin listing work
   - parent users must not be able to list other parents' catalog-review cases
@@ -541,16 +542,6 @@ Canonical documentation now defers to:
   - supersede/reopen
 - only admin/catalog curation may create or update canonical/global mapping
   truth
-- next docs-first access-control prompt:
-  `Plan a minimal admin/internal access-control slice for Scarlett's Spells
-  before Slice 4C implementation. Inspect existing auth, Supabase clients, RLS
-  policies, route patterns, and docs. Define how an authenticated user is
-  recognized as admin/internal, whether admin reads use explicit RLS policies or
-  a server-only service-role client, how /admin/catalog-review should be
-  protected, how access is audited/tested, and how parent-scoped RLS remains
-  intact. Do not implement catalog-review UI, admin decisions,
-  canonical/global promotion, micro-skill creation, resolver changes, manual
-  writing sample expansion, or parent Review Work changes.`
 - resolver contract:
   - no resolver change in Slice `4A` or Slice `4B.1`
   - open catalog-review cases remain invisible to the resolver

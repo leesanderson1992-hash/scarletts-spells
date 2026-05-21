@@ -26,6 +26,7 @@ The canonical distinction matrix for taxonomy, competency, issue classification,
 Shared contracts still apply:
 - workflow and approval semantics defer to [docs/contracts/universal-progress-contract.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/contracts/universal-progress-contract.md:1)
 - reward semantics defer to [docs/contracts/reward-system-contract.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/contracts/reward-system-contract.md:1)
+- admin/internal access defers to [docs/architecture/admin-internal-access.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/architecture/admin-internal-access.md:1)
 
 ## Core philosophy
 
@@ -520,24 +521,26 @@ Slice `4A` catalog-review contract:
   and QA passed
 - Slice `4C` may add the first minimal protected admin/catalog-review surface
   only after parent-raised cases can exist
-- Slice `4C` implementation is blocked until a minimal admin/internal read
-  convention is documented:
-  - no safe existing admin/internal convention has been found in the repo
-  - no admin/internal identity convention, role model, admin route pattern,
-    server-only service-role client convention, or admin RLS read policy is
-    currently discoverable
+- Slice `4C` admin/internal access is defined by
+  [docs/architecture/admin-internal-access.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/architecture/admin-internal-access.md:1):
+  - private-MVP admin identity comes from server-side `ADMIN_USER_IDS` and
+    `ADMIN_EMAILS` allowlists
+  - there is no DB admin role table, Supabase custom claims model,
+    role-management UI, or separate admin login in Slice `4C`
   - authenticated parent identity is not admin/internal identity
+  - admin pages live under `/admin`; first route is `/admin/catalog-review`
+  - `app/admin/layout.tsx` is the mandatory server-side admin guard
+  - future `/api/admin/*` routes must call the same admin helper before
+    querying data
+  - admin reads use server-only service-role access after admin authorization
+    passes
+  - no admin RLS read policies are added for v1
   - parent-scoped policies for `spelling_catalog_review_cases` must remain
     parent-scoped and must not be weakened for admin listing
   - parent users must not be able to list other parents' catalog-review cases
   - admin read access must be explicit, auditable, and tested before launch
   - any service-role usage must be server-only and never exposed to client
     components
-  - `/admin/catalog-review` is the provisional route and depends on the
-    access-control contract
-  - admin read access is deferred until a documented convention chooses
-    explicit admin RLS policies, a server-only service-role client, an existing
-    internal access helper, or another reviewed repo convention
 - first admin surface should focus on:
   - grouped `misspelling -> correction`
   - count/latest date
@@ -563,17 +566,10 @@ Slice `4A` catalog-review contract:
 - only admin/catalog curation may create or update canonical/global mapping
   truth
 - Slice `4C` implementation readiness:
-  - still blocked pending a separate admin/internal access-control slice
-  - next docs-first prompt:
-    `Plan a minimal admin/internal access-control slice for Scarlett's Spells
-    before Slice 4C implementation. Inspect existing auth, Supabase clients,
-    RLS policies, route patterns, and docs. Define how an authenticated user is
-    recognized as admin/internal, whether admin reads use explicit RLS policies
-    or a server-only service-role client, how /admin/catalog-review should be
-    protected, how access is audited/tested, and how parent-scoped RLS remains
-    intact. Do not implement catalog-review UI, admin decisions,
-    canonical/global promotion, micro-skill creation, resolver changes, manual
-    writing sample expansion, or parent Review Work changes.`
+  - documentation prerequisite is complete
+  - first implementation pass should add the admin helper, server-only
+    service-role helper, `/admin` route protection, and mandatory admin layout
+    guard before building the read-only catalog-review view
 - resolver contract:
   - no resolver change in Slice `4A` or Slice `4B.1`
   - open catalog-review cases remain invisible to the resolver

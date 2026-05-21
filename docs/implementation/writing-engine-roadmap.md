@@ -17,6 +17,7 @@ Implementation truth still lives in:
 - [docs/implementation/targeted-writing-practice-status.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/implementation/targeted-writing-practice-status.md:1)
 
 Canonical semantics still defer to:
+- [docs/architecture/admin-internal-access.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/architecture/admin-internal-access.md:1)
 - [docs/architecture/writing-engine-canonical-brief.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/architecture/writing-engine-canonical-brief.md:1)
 - [docs/contracts/writing-engine-mastery-and-evidence-contract.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/contracts/writing-engine-mastery-and-evidence-contract.md:1)
 - [docs/architecture/writing-engine-foundation.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/architecture/writing-engine-foundation.md:1)
@@ -378,18 +379,23 @@ Implementation phase breakdown:
 - Slice `4C` — Minimal protected admin review surface
   - first admin place should be introduced only after parent-raised
     catalog-review cases can exist
-  - implementation status: blocked until a minimal admin/internal read
-    convention is documented and implemented
-  - current blocker: the repo has no discoverable admin/internal identity
-    convention, role model, admin route pattern, server-only service-role client
-    convention, or admin RLS read policy
+  - documentation status: unblocked by
+    [docs/architecture/admin-internal-access.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/architecture/admin-internal-access.md:1)
+  - implementation status: ready for a separate admin access foundation pass
+    before the catalog-review UI is built
   - authenticated parent identity is not admin/internal identity; parent-scoped
     ownership checks and RLS must remain parent-scoped
-  - provisional route: `/admin/catalog-review`; this route is approved only
-    after the access-control contract defines how it is protected
-  - admin read path is deferred; do not weaken parent RLS, expose a service-role
-    client to client components, or invent an undocumented internal dashboard
-    helper to list cases
+  - route convention: `/admin/catalog-review` under a mandatory
+    `app/admin/layout.tsx` server-side admin guard
+  - admin identity for the private MVP comes from private server-side
+    `ADMIN_USER_IDS` and `ADMIN_EMAILS` allowlists; do not use
+    `NEXT_PUBLIC_*`, DB admin tables, Supabase custom claims, role-management
+    UI, or a separate admin login in Slice `4C`
+  - admin read path uses a server-only service-role helper only after admin
+    authorization passes; do not expose a service-role client to client
+    components
+  - no admin RLS read policies are added for v1; parent-owned table policies
+    remain scoped to `auth.uid() = parent_user_id`
   - scope is read/triage of open spelling catalog-review cases, not a broad
     admin dashboard, CMS, role-management system, or parent-facing catalog
     mutation surface
@@ -520,13 +526,14 @@ Next documented stage after Slice `3`:
     micro-skill creation, resolver change, manual writing sample broadening, or
     mastery/reward/assignment/scoring/analytics/template change
 - Slice `4C` — Minimal protected admin/catalog-review read/triage surface
-  - still blocked pending a separate admin/internal access-control slice
-  - no safe existing admin/internal convention has been found in the repo
-  - the provisional route is `/admin/catalog-review`, dependent on the
-    access-control contract
-  - admin read access must be explicitly designed before implementation,
-    either through documented admin RLS policies, a documented server-only
-    service-role convention, or another reviewed internal access helper
+  - access convention is now documented in
+    [docs/architecture/admin-internal-access.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/architecture/admin-internal-access.md:1)
+  - first implementation step should add the server-only admin access helper,
+    server-only service-role helper, `/admin` route protection in
+    proxy/middleware, and mandatory `app/admin/layout.tsx` guard
+  - approved route is `/admin/catalog-review`
+  - admin reads use server-only service-role access after the admin guard; no
+    admin RLS read policies are added for v1
   - Slice `4C` must not include admin decisions, canonical/global promotion,
     micro-skill creation, resolver changes, parent `Review Work` changes,
     manual writing sample expansion, or
@@ -641,25 +648,23 @@ Slice `4A` catalog-review contract:
   - source provenance
   - status
 - Slice `4C` access-control readiness:
-  - not implementation-ready yet
-  - implementation is blocked until a separate docs-first access-control slice
-    defines admin/internal identity, route protection, admin read mechanics, and
-    test expectations
+  - documentation contract exists in
+    [docs/architecture/admin-internal-access.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/architecture/admin-internal-access.md:1)
+  - implementation is ready to begin as a separate foundation pass before the
+    catalog-review UI
+  - admin/internal identity is private server-side allowlists:
+    `ADMIN_USER_IDS` preferred, `ADMIN_EMAILS` acceptable for private MVP
+  - admin pages live under `/admin`; `app/admin/layout.tsx` is the mandatory
+    server-side guard
+  - future admin APIs live under `/api/admin/*` and must call the same admin
+    helper before querying
   - parent-scoped policies for `spelling_catalog_review_cases` must remain
     parent-scoped
-  - admin reads must not grant parent users cross-parent visibility
-  - any service-role usage must be server-only and never exposed to client
-    components
-  - next docs-first prompt:
-    `Plan a minimal admin/internal access-control slice for Scarlett's Spells
-    before Slice 4C implementation. Inspect existing auth, Supabase clients,
-    RLS policies, route patterns, and docs. Define how an authenticated user is
-    recognized as admin/internal, whether admin reads use explicit RLS policies
-    or a server-only service-role client, how /admin/catalog-review should be
-    protected, how access is audited/tested, and how parent-scoped RLS remains
-    intact. Do not implement catalog-review UI, admin decisions,
-    canonical/global promotion, micro-skill creation, resolver changes, manual
-    writing sample expansion, or parent Review Work changes.`
+  - admin reads use a server-only service-role helper after admin authorization
+    passes; service-role keys must never be exposed to client components or
+    `NEXT_PUBLIC_*`
+  - no admin RLS read policies are added for v1
+  - admin reads must not grant normal parent users cross-parent visibility
 - admin decisions may include:
   - link existing skill
   - create/propose new skill

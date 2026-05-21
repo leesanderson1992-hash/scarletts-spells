@@ -254,21 +254,21 @@ Parent-Verified Spelling Candidate Capture architecture boundary:
   - do not create a broad admin system upfront
   - first admin surface should be introduced only after parent-raised cases can
     exist
-  - first admin place should be minimal and protected, for example
-    `/admin/catalog-review` or the repo's equivalent internal/admin route
-    convention
-  - implementation is blocked because no safe existing admin/internal
-    convention has been found in the repo
-  - the repo currently has no discoverable admin/internal identity convention,
-    role model, admin route pattern, server-only service-role client
-    convention, or admin RLS read policy
+  - admin/internal access convention is defined in
+    [docs/architecture/admin-internal-access.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/architecture/admin-internal-access.md:1)
+  - first admin place is `/admin/catalog-review`
+  - admin identity for the private MVP comes from private server-side
+    `ADMIN_USER_IDS` and `ADMIN_EMAILS` allowlists
+  - there is no DB admin role table, Supabase custom claims model,
+    role-management UI, or separate admin login in Slice `4C`
   - authenticated parent identity is not admin/internal identity; parent-scoped
     ownership checks and RLS remain parent-scoped
-  - `/admin/catalog-review` is the provisional route and depends on a separate
-    access-control contract before runtime implementation
-  - admin read access is deferred until a documented convention chooses
-    explicit admin RLS policies, a server-only service-role client, an existing
-    internal access helper, or another reviewed repo convention
+  - `app/admin/layout.tsx` is the mandatory server-side guard for admin pages
+  - future `/api/admin/*` route handlers must call the same admin helper before
+    querying data
+  - admin reads use a server-only service-role helper after admin authorization
+    passes
+  - no admin RLS read policies are added for v1
   - admin reads must be explicit, auditable, and tested before launch
   - parent users must not be able to list other parents' catalog-review cases
   - any service-role usage must be server-only and never exposed to client
@@ -294,17 +294,13 @@ Parent-Verified Spelling Candidate Capture architecture boundary:
 - only admin/catalog curation may create or update canonical/global mapping
   truth
 - Slice `4C` implementation readiness:
-  - still blocked pending a separate admin/internal access-control slice
-  - next docs-first prompt:
-    `Plan a minimal admin/internal access-control slice for Scarlett's Spells
-    before Slice 4C implementation. Inspect existing auth, Supabase clients,
-    RLS policies, route patterns, and docs. Define how an authenticated user is
-    recognized as admin/internal, whether admin reads use explicit RLS policies
-    or a server-only service-role client, how /admin/catalog-review should be
-    protected, how access is audited/tested, and how parent-scoped RLS remains
-    intact. Do not implement catalog-review UI, admin decisions,
-    canonical/global promotion, micro-skill creation, resolver changes, manual
-    writing sample expansion, or parent Review Work changes.`
+  - docs contract exists in
+    [docs/architecture/admin-internal-access.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/architecture/admin-internal-access.md:1)
+  - implementation may proceed as a separate admin access foundation plus
+    read-only `/admin/catalog-review` surface
+  - parent-scoped RLS must remain unchanged
+  - service-role access must stay server-only and must be guarded by the admin
+    helper before any query
 - resolver implications:
   - no resolver change in Slice `4A` or Slice `4B.1`
   - open catalog-review cases remain invisible to the resolver

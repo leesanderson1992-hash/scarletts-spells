@@ -378,19 +378,18 @@ This means:
     mastery/reward/assignment/scoring/analytics/template changes were added
 - first admin surface should not be a broad admin system:
   - introduce it only after parent-raised catalog-review cases can exist
-  - keep it minimal and protected, for example `/admin/catalog-review` or the
-    repo's equivalent internal/admin route convention
-  - current implementation blocker: no safe existing admin/internal convention
-    has been found in the repo
-  - authenticated parent identity is not admin/internal identity; Slice `4C`
-    cannot proceed to runtime implementation until a minimal admin/internal
-    access model exists
-  - `/admin/catalog-review` is the provisional route, dependent on the
-    access-control contract
-  - admin read access is not chosen yet; a later access-control slice must
-    document whether reads use explicit admin RLS policies, a server-only
-    service-role client, an existing internal access helper, or another reviewed
-    repo convention
+  - keep it minimal and protected at `/admin/catalog-review`
+  - admin/internal access is defined by
+    [docs/architecture/admin-internal-access.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/architecture/admin-internal-access.md:1)
+  - authenticated parent identity is not admin/internal identity
+  - private-MVP admin identity comes from server-side `ADMIN_USER_IDS` and
+    `ADMIN_EMAILS` allowlists
+  - `app/admin/layout.tsx` is the mandatory server-side admin guard
+  - future `/api/admin/*` routes must call the same admin helper before
+    querying data
+  - admin reads use a server-only service-role helper after admin authorization
+    passes
+  - no admin RLS read policies are added for v1
   - parent-scoped `spelling_catalog_review_cases` policies must remain
     parent-scoped; admin reads must not weaken parent access controls or let
     parent users list other parents' cases
@@ -416,18 +415,10 @@ This means:
   - only admin/catalog curation may create or update canonical/global mapping
     truth
 - implementation readiness:
-  - Slice `4C` is still blocked pending a separate admin/internal
-    access-control slice
-  - next docs-first prompt:
-    `Plan a minimal admin/internal access-control slice for Scarlett's Spells
-    before Slice 4C implementation. Inspect existing auth, Supabase clients,
-    RLS policies, route patterns, and docs. Define how an authenticated user is
-    recognized as admin/internal, whether admin reads use explicit RLS policies
-    or a server-only service-role client, how /admin/catalog-review should be
-    protected, how access is audited/tested, and how parent-scoped RLS remains
-    intact. Do not implement catalog-review UI, admin decisions,
-    canonical/global promotion, micro-skill creation, resolver changes, manual
-    writing sample expansion, or parent Review Work changes.`
+  - Slice `4C` is unblocked at the documentation-contract level
+  - first implementation pass should add the admin helper, server-only
+    service-role helper, `/admin` route protection, and mandatory admin layout
+    guard before building the read-only catalog-review view
 - resolver contract remains unchanged in Slice `4A` and Slice `4B.1`:
   - open catalog-review cases are invisible to the resolver
   - parent notes/reasons are evidence only
@@ -498,6 +489,17 @@ later through another bounded copy-only pass if needed.
 Stage `8` closeout preserves the same rule: it was a boundary-safety and
 parent-facing evidence-wording stage only, not a mastery-runtime stage, and it
 did not alter verification truth, mastery semantics, or workflow ownership.
+
+## Admin/Internal Access Boundary
+
+Writing Engine admin/internal access defers to:
+
+- [docs/architecture/admin-internal-access.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/architecture/admin-internal-access.md:1)
+
+The private-MVP admin model authorizes read-only internal surfaces only. It does
+not authorize admin decisions, canonical/global promotion, micro-skill creation,
+catalog mutation, resolver changes, parent `Review Work` changes, or any
+weakening of parent-scoped RLS.
 
 ## Navigation ownership
 

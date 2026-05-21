@@ -2,8 +2,8 @@
 
 ## Current initiative
 
-- Slice `4A` docs-only spelling catalog-review contract after Slice `3`
-  parent-local promotion
+- Slice `4C` readiness: private-MVP admin/internal access is now documented as
+  the prerequisite for the minimal protected catalog-review read/triage surface
 
 ## Current stage
 
@@ -18,13 +18,16 @@
   - parent-local promotion can make pending candidate mappings reusable only
     inside the same parent/child scope
   - no parent action creates global canonical mapping truth
-- current active work is Slice `4A` documentation only:
+- current active work has moved through Slice `4A`, `4B.0`, `4B.1`, and the
+  docs-only admin/internal access prerequisite for Slice `4C`:
   - define parent-facing `No matching skill`
   - define `Send this spelling case to catalog review.`
   - define future `spelling_catalog_review_cases`
   - define bounded family/cluster filtering as Slice `4B.0`
   - define parent case capture as Slice `4B.1`
   - define minimal admin review as Slice `4C`
+  - define the private-MVP admin/internal access model in
+    [docs/architecture/admin-internal-access.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/architecture/admin-internal-access.md:1)
   - define admin decisions and canonical promotion as Slice `4D`
   - keep migrations, runtime code, Review Work UI, tests, package files,
     resolver behavior, mastery, rewards, assignments, scoring, analytics,
@@ -46,7 +49,9 @@
   - Slice `4B.0`: bounded micro-skill option filtering by family/cluster using
     existing `micro_skill_catalog` metadata only
   - Slice `4B.1`: parent `No matching skill` catalog-review case capture
-  - Slice `4C`: minimal protected admin/catalog-review read/triage surface
+  - Slice `4C`: minimal protected admin/catalog-review read/triage surface,
+    now unblocked at the documentation-contract level by
+    [docs/architecture/admin-internal-access.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/architecture/admin-internal-access.md:1)
   - Slice `4D`: admin decisions and canonical promotion
 - no runtime Stage `8` automatic mastery implementation should begin until the
   mastery/evidence boundary is rechecked against the live product copy
@@ -64,12 +69,16 @@
   canonical mappings or new micro-skills
 - open/pending catalog-review cases must remain invisible to the resolver
 - parent notes and reasons must remain evidence only
+- Slice `4C` remains read-only internal triage only; admin decisions,
+  canonical/global promotion, micro-skill creation, catalog mutation, and case
+  closing/merging/superseding/reopening remain deferred to Slice `4D` or later
 - hosted Supabase/auth/test-harness issues must be kept separate from genuine
   product defects in future QA passes
 
 ## Active source-of-truth links
 
 - [docs/architecture/writing-engine-canonical-brief.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/architecture/writing-engine-canonical-brief.md:1)
+- [docs/architecture/admin-internal-access.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/architecture/admin-internal-access.md:1)
 - [docs/contracts/writing-engine-mastery-and-evidence-contract.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/contracts/writing-engine-mastery-and-evidence-contract.md:1)
 - [docs/architecture/writing-engine-foundation.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/architecture/writing-engine-foundation.md:1)
 - [docs/architecture/targeted-writing-practice-architecture.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/architecture/targeted-writing-practice-architecture.md:1)

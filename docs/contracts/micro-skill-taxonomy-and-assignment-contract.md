@@ -55,6 +55,12 @@ Review Work verification actions may surface existing shared decision controls,
 but they do not own assignment composition, route selection, or taxonomy
 creation.
 
+Admin/internal read access also does not own taxonomy creation. The private-MVP
+admin access model in
+[docs/architecture/admin-internal-access.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/architecture/admin-internal-access.md:1)
+authorizes read-only internal triage only; micro-skill creation remains a
+future explicit curation slice.
+
 ## Why this contract is required
 
 The app cannot safely decide what to teach each day until it has canonical definitions for:
@@ -916,18 +922,20 @@ Slice `4A` spelling catalog-review taxonomy contract:
   - Slice `4D`: admin decisions and canonical promotion
   - Slice `5`: optional manual writing sample extension
 - Slice `4C` admin/internal access contract:
-  - implementation is still blocked pending a separate admin/internal
-    access-control slice
-  - no safe existing admin/internal convention has been found in the repo
-  - no admin/internal identity convention, role model, admin route pattern,
-    server-only service-role client convention, or admin RLS read policy is
-    currently discoverable
+  - defined in
+    [docs/architecture/admin-internal-access.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/architecture/admin-internal-access.md:1)
+  - private-MVP admin identity comes from server-side `ADMIN_USER_IDS` and
+    `ADMIN_EMAILS` allowlists
+  - there is no DB admin role table, Supabase custom claims model,
+    role-management UI, or separate admin login in Slice `4C`
   - authenticated parent identity is not admin/internal identity
-  - `/admin/catalog-review` is the provisional route and depends on the
-    access-control contract
-  - admin read access is deferred until a documented convention chooses
-    explicit admin RLS policies, a server-only service-role client, an existing
-    internal access helper, or another reviewed repo convention
+  - `/admin/catalog-review` is the first admin route
+  - `app/admin/layout.tsx` is the mandatory server-side admin guard
+  - future `/api/admin/*` routes must call the same admin helper before
+    querying data
+  - admin reads use server-only service-role access after admin authorization
+    passes
+  - no admin RLS read policies are added for v1
   - parent-scoped policies for `spelling_catalog_review_cases` must remain
     parent-scoped and must not be weakened
   - parent users must not be able to list other parents' catalog-review cases
@@ -948,16 +956,6 @@ Slice `4A` spelling catalog-review taxonomy contract:
 - Slice `4D` owns link existing skill, create/propose new skill, word-level
   only, not a learning issue, merge duplicate, supersede/reopen, and
   canonical/global mapping promotion
-- next docs-first access-control prompt:
-  `Plan a minimal admin/internal access-control slice for Scarlett's Spells
-  before Slice 4C implementation. Inspect existing auth, Supabase clients, RLS
-  policies, route patterns, and docs. Define how an authenticated user is
-  recognized as admin/internal, whether admin reads use explicit RLS policies or
-  a server-only service-role client, how /admin/catalog-review should be
-  protected, how access is audited/tested, and how parent-scoped RLS remains
-  intact. Do not implement catalog-review UI, admin decisions,
-  canonical/global promotion, micro-skill creation, resolver changes, manual
-  writing sample expansion, or parent Review Work changes.`
 - resolver contract:
   - no resolver change in Slice `4A` or Slice `4B.1`
   - open catalog-review cases remain invisible to the resolver
