@@ -393,6 +393,95 @@ Parent-Verified Spelling Candidate Capture boundary:
   - analytics
   - positive-evidence semantics
 
+Slice `4A` catalog-review contract:
+- Slice `4A` is documentation only and follows Slice `3` parent-local
+  promotion
+- parent-facing action label:
+  - `No matching skill`
+- helper copy:
+  - `Send this spelling case to catalog review.`
+- wording rules:
+  - do not use `Uncategorised` as the primary label because it sounds like a
+    final state rather than a request for curation
+  - do not use `Needs new skill` as the only label because admin may decide an
+    existing skill fits, the case is word-level only, the case is not a
+    learning issue, or the case should be merged or superseded
+- parent action creates or updates a catalog-review case only
+- parent action must not create global canonical mappings or new micro-skills
+- future case owner:
+  - recommended table concept: `spelling_catalog_review_cases`
+  - not `parent_verified_spelling_candidate_mappings`, because that table
+    requires an existing `micro_skill_key`
+  - not `writing_issues`, because those are durable reviewed issue history
+    rather than catalog-curation workflow
+- future table shape should include:
+  - parent/child/source lineage
+  - task submission and writing sample references
+  - source suggestion and misspelling instance references
+  - source provenance and reviewed event source entity
+  - original child spelling and proposed/correct spelling
+  - normalized misspelling and normalized correction
+  - representative context
+  - parent reason/note
+  - status
+  - admin decision, reviewer, merge/supersede, and audit metadata
+- Slice `4B.0` must provide bounded micro-skill option filtering by
+  family/cluster before or alongside parent case capture:
+  - use existing `micro_skill_catalog` metadata only
+  - help parents find existing canonical skills before raising
+    `No matching skill`
+  - do not create micro-skills
+  - do not allow free-text `micro_skill_key`
+  - do not write canonical truth
+  - do not change resolver priority
+  - do not block parent review completion
+- Slice `4B.1` may add parent `No matching skill` case capture for eligible
+  lesson-submission spelling rows only
+- Slice `4C` may add the first minimal protected admin/catalog-review surface
+  only after parent-raised cases can exist
+- first admin surface should focus on:
+  - grouped `misspelling -> correction`
+  - count/latest date
+  - representative context
+  - parent reason/note
+  - source provenance
+  - status
+- first admin surface must not be a full admin dashboard, broad
+  role-management system, CMS, or global catalog mutation path from parent UI
+- Slice `4D` may add admin decisions and canonical promotion:
+  - link existing skill
+  - create/propose new skill
+  - word-level only
+  - not a learning issue
+  - merge duplicate
+  - supersede/reopen
+- only admin/catalog curation may create or update canonical/global mapping
+  truth
+- resolver contract:
+  - no resolver change in Slice `4A`
+  - open/pending catalog-review cases remain invisible to the resolver
+  - parent notes/reasons remain evidence only
+  - future admin-promoted global mappings may join canonical priority only
+    after separate admin curation writes canonical truth
+  - resolver priority remains:
+    1. catalog-backed canonical truth
+    2. same-scope parent-local promoted mapping
+    3. unresolved
+- non-goals and stop conditions:
+  - no migrations
+  - no runtime code
+  - no Review Work UI changes
+  - no `package.json` edits
+  - no tests
+  - no resolver behavior changes
+  - no mastery, reward, assignment, scoring, analytics, or template-routing
+    changes
+  - no manual writing sample broadening
+  - no parent-created global canonical truth
+  - stop if a design requires free-text `micro_skill_key` creation, parent
+    writes to `micro_skill_catalog`, parent writes to global mapping truth, or
+    unresolved catalog-review cases affect resolver suggestions
+
 Canonical `Review Work` detail may render existing suggested outputs,
 verification records, and durable issue history for either source type, but
 that detail rendering is visibility-only until a later documented action stage

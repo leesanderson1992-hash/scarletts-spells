@@ -240,6 +240,55 @@ This means:
   from MVP
 - no parent action in normal `Review Work` directly writes global canonical
   mapping truth
+- Slice `4A` documents the next catalog-review boundary only:
+  - parent-facing action label: `No matching skill`
+  - helper copy: `Send this spelling case to catalog review.`
+  - `Uncategorised` is not the primary label because it sounds like a final
+    state rather than a request for curation
+  - `Needs new skill` is not the only label because admin may decide an
+    existing skill fits, the case is word-level only, the case is not a
+    learning issue, or the case should be merged or superseded
+  - future parent action creates or updates a catalog-review case only
+  - no parent action creates a global canonical mapping or new micro-skill
+- future case owner should be a dedicated table concept,
+  `spelling_catalog_review_cases`, rather than:
+  - `parent_verified_spelling_candidate_mappings`, which requires an existing
+    `micro_skill_key` even when the gap is that no suitable skill exists
+  - `writing_issues`, which are durable reviewed issue history rather than
+    catalog-curation workflow
+- Slice `4B.0` should make bounded Review Work micro-skill option filtering by
+  family/cluster available before or alongside case capture:
+  - use existing `micro_skill_catalog` metadata only
+  - do not create micro-skills
+  - do not allow free-text `micro_skill_key`
+  - do not write canonical truth
+  - do not change resolver priority
+  - do not block parent review completion
+- first admin surface should not be a broad admin system:
+  - introduce it only after parent-raised catalog-review cases can exist
+  - keep it minimal and protected, for example `/admin/catalog-review` or the
+    repo's equivalent internal/admin route convention
+  - initial focus is read/triage of open spelling catalog-review cases grouped
+    by `misspelling -> correction`, count/latest date, representative context,
+    parent reason/note, source provenance, and status
+- admin decision work is later than parent capture:
+  - link existing skill
+  - create/propose new skill
+  - word-level only
+  - not a learning issue
+  - merge duplicate
+  - supersede/reopen
+  - only admin/catalog curation may create or update canonical/global mapping
+    truth
+- resolver contract remains unchanged in Slice `4A`:
+  - open/pending catalog-review cases are invisible to the resolver
+  - parent notes/reasons are evidence only
+  - future admin-promoted global mappings may join canonical priority only
+    after separate admin curation writes canonical truth
+  - priority remains:
+    1. catalog-backed canonical truth
+    2. same-scope parent-local promoted mapping
+    3. unresolved
 - the bounded override save path uses the canonical anchor fallback that any
   future selectable Review Work provider UI must also use when persisted
   shared suggestion truth is still `unknown`

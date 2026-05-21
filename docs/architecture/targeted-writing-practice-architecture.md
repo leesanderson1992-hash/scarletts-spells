@@ -149,6 +149,74 @@ Parent-Verified Spelling Candidate Capture architecture boundary:
   - includes parent-added missed words attached to lesson submissions
   - excludes manual writing samples from the first runtime slice
   - excludes future suggestion resolver changes until promotion is implemented
+- Slice `4A` catalog-review architecture boundary:
+  - docs-only contract after Slice `3` parent-local promotion
+  - parent-facing action label: `No matching skill`
+  - helper copy: `Send this spelling case to catalog review.`
+  - `Uncategorised` is not the primary label because it sounds like a final
+    state rather than a request for curation
+  - `Needs new skill` is not the only label because admin may decide an
+    existing skill fits, the case is word-level only, the case is not a
+    learning issue, or the case should be merged or superseded
+  - parent action may create or update a catalog-review case only
+  - parent action must not create global canonical mappings, new micro-skills,
+    or resolver-visible truth
+- future `spelling_catalog_review_cases` table should own catalog-review case
+  workflow because:
+  - `parent_verified_spelling_candidate_mappings` requires an existing
+    `micro_skill_key`, while the Slice `4` gap is often that no suitable
+    micro-skill exists
+  - `writing_issues` are durable reviewed issue history, not catalog-curation
+    workflow
+  - case rows need source lineage, normalized misspelling/correction,
+    representative context, parent reason/note, review status, admin decision,
+    merge/supersede metadata, and audit fields
+- staged architecture:
+  - Slice `4B.0`: bounded Review Work micro-skill option filtering by
+    family/cluster using existing `micro_skill_catalog` metadata only
+  - Slice `4B.1`: parent `No matching skill` case capture for eligible
+    lesson-submission spelling rows only
+  - Slice `4C`: minimal protected admin/catalog-review read/triage surface
+  - Slice `4D`: admin decisions and canonical promotion
+- Slice `4B.0` filtering safeguard:
+  - helps parents find existing canonical skills before raising
+    `No matching skill`
+  - reduces false catalog-review cases
+  - must not create micro-skills, allow free-text `micro_skill_key`, write
+    canonical truth, change resolver priority, or block parent review
+    completion
+- admin surface timing:
+  - there is currently no admin place
+  - do not create a broad admin system upfront
+  - first admin surface should be introduced only after parent-raised cases can
+    exist
+  - first admin place should be minimal and protected, for example
+    `/admin/catalog-review` or the repo's equivalent internal/admin route
+    convention
+  - first admin view should focus on grouped `misspelling -> correction`,
+    count/latest date, representative context, parent reason/note, source
+    provenance, and status
+  - do not start with a full admin dashboard, broad role-management work, CMS,
+    or global catalog mutation from parent UI
+- admin decisions are later than parent capture and may include:
+  - link existing skill
+  - create/propose new skill
+  - word-level only
+  - not a learning issue
+  - merge duplicate
+  - supersede/reopen
+- only admin/catalog curation may create or update canonical/global mapping
+  truth
+- resolver implications:
+  - no resolver change in Slice `4A`
+  - open/pending catalog-review cases remain invisible to the resolver
+  - parent notes/reasons remain evidence only
+  - future admin-promoted global mappings may join canonical priority only
+    after separate admin curation writes canonical truth
+  - resolver priority remains:
+    1. catalog-backed canonical truth
+    2. same-scope parent-local promoted mapping
+    3. unresolved
 
 ## Canonical lineage
 

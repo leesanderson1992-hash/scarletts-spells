@@ -314,13 +314,44 @@ Implementation phase breakdown:
     - admin/curator workflow
     - shared/global reuse
     - automatic promotion on initial capture
-- Slice `4` — Optional admin/global curation
-  - future admin/curator review queue for candidate mappings
-  - global promotion only after curator approval
+- Slice `4A` — Docs-only catalog-review contract
+  - define a parent-raised spelling catalog-gap workflow after Slice `3`
+  - parent-facing action label: `No matching skill`
+  - helper copy: `Send this spelling case to catalog review.`
+  - parent action creates or updates a catalog-review case only
+  - parent actions must not create global canonical mappings or new
+    micro-skills
+  - no runtime, schema, Review Work UI, resolver, mastery, reward,
+    assignment, scoring, analytics, or template-routing changes
   - status:
-    - deferred from MVP
-    - documentation only
-    - not authorized for implementation now
+    - authorized for documentation only
+- Slice `4B.0` — Bounded micro-skill option filtering
+  - future Review Work filtering by existing `micro_skill_catalog`
+    family/cluster metadata only
+  - helps parents find existing canonical skills before raising
+    `No matching skill`
+  - must not create micro-skills, allow free-text `micro_skill_key`, write
+    canonical truth, change resolver priority, or block parent review
+    completion
+- Slice `4B.1` — Parent catalog-review case capture
+  - future parent `No matching skill` save path for eligible lesson-submission
+    spelling rows only
+  - creates or updates a `spelling_catalog_review_cases` row only
+  - keeps manual writing samples out of scope
+- Slice `4C` — Minimal protected admin review surface
+  - first admin place should be introduced only after parent-raised
+    catalog-review cases can exist
+  - candidate route: `/admin/catalog-review`, or the repo's equivalent
+    internal/admin route convention if one exists then
+  - scope is read/triage of open spelling catalog-review cases, not a broad
+    admin dashboard, CMS, role-management system, or parent-facing catalog
+    mutation surface
+- Slice `4D` — Admin decisions and canonical promotion
+  - admin/catalog curation may link an existing skill, create/propose a new
+    skill, mark word-level only, mark not a learning issue, merge duplicates,
+    supersede, or reopen
+  - only this admin/catalog curation layer may create or update
+    canonical/global mapping truth
 - Slice `5` — Optional manual writing sample extension
   - consider whether manual writing samples should gain candidate capture
   - status:
@@ -414,19 +445,105 @@ Slice `3` QA closeout:
     regression
 
 Deferred after Slice `3`:
-- admin/global curation remains deferred to Slice `4`
+- parent-raised catalog-review curation is registered as docs-only Slice `4A`
 - manual writing sample candidate capture/promotion remains deferred to
   Slice `5`
 - catalogue/seed coverage work may be needed before some real examples, such
   as `natral -> natural`, can be classified
 
 Next documented stage after Slice `3`:
-- Slice `4` — Optional admin/global curation
-  - remains deferred from MVP
-  - no implementation authorized in this closeout
+- Slice `4A` — Docs-only catalog-review contract
+  - define how parents can raise spelling catalog gaps without creating global
+    canonical truth
+  - no migration, runtime code, Review Work UI, package, test, resolver,
+    mastery, reward, assignment, scoring, analytics, template-routing, or
+    manual-writing-sample expansion is authorized
+- Slice `4B.0` — Bounded micro-skill option filtering by family/cluster
+- Slice `4B.1` — Parent `No matching skill` catalog-review case capture
+- Slice `4C` — Minimal protected admin/catalog-review read/triage surface
+- Slice `4D` — Admin decisions and canonical promotion
 - Slice `5` — Optional manual writing sample extension
   - remains deferred until parent-local promotion stability and any
     curation decision are settled
+
+Slice `4A` catalog-review contract:
+- parent-facing action label is `No matching skill`
+- helper copy is `Send this spelling case to catalog review.`
+- `Uncategorised` is not the primary label because it sounds like a final
+  state rather than a request for curation
+- `Needs new skill` is not the only label because admin may decide an existing
+  skill fits, the case is word-level only, the case is not a learning issue,
+  or the case should be merged or superseded
+- future case capture should create or update a catalog-review case only
+- proposed future table concept: `spelling_catalog_review_cases`
+  - source lineage:
+    - parent user
+    - child
+    - task submission
+    - writing sample
+    - source suggestion
+    - source misspelling instance
+    - source provenance
+    - reviewed event source entity
+  - spelling evidence:
+    - original child spelling
+    - proposed/correct spelling
+    - normalized misspelling
+    - normalized correction
+    - representative context
+  - parent signal:
+    - reason such as `no_matching_skill`
+    - optional parent note
+  - review state:
+    - open
+    - triaged
+    - linked existing skill
+    - new skill needed
+    - word-level only
+    - not a learning issue
+    - merged
+    - superseded
+  - admin decision/audit:
+    - reviewer
+    - decision note
+    - linked or proposed `micro_skill_key` when applicable
+    - merge target
+    - created/updated timestamps
+- `parent_verified_spelling_candidate_mappings` should not own this workflow
+  because it requires an existing `micro_skill_key`, while the Slice `4` gap
+  is often that no suitable micro-skill exists
+- `writing_issues` should not own this workflow because `writing_issues` are
+  durable reviewed issue history, not catalog-curation workflow
+- admin queue should initially show:
+  - grouped `misspelling -> correction`
+  - count and latest date
+  - representative context
+  - parent reason/note
+  - source provenance
+  - status
+- admin decisions may include:
+  - link existing skill
+  - create/propose new skill
+  - word-level only
+  - not a learning issue
+  - merge duplicate
+  - supersede/reopen
+- resolver contract:
+  - no resolver change in Slice `4A`
+  - open or pending catalog-review cases remain invisible to the resolver
+  - parent notes and reasons remain evidence only
+  - future admin-promoted global mappings may join canonical priority only
+    after separate admin curation writes canonical truth
+  - resolver priority remains:
+    1. catalog-backed canonical truth
+    2. same-scope parent-local promoted mapping
+    3. unresolved
+- stop conditions:
+  - any design requires parent free-text `micro_skill_key` creation
+  - any parent action writes `micro_skill_catalog` or global mapping truth
+  - any unresolved catalog-review case affects resolver suggestions
+  - any implementation requires manual writing sample support
+  - any path cannot preserve source/audit lineage
 
 ### Stage 1A — Shared writing-engine foundation
 

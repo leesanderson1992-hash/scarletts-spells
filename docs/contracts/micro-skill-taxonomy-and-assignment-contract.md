@@ -770,6 +770,59 @@ Parent-Verified Spelling Candidate Capture contract note:
     correct canonical micro-skill exists in the seeded option set
   - this is catalog coverage debt, not a Slice `2` runtime boundary failure
 
+Slice `4A` spelling catalog-review taxonomy contract:
+- Slice `4A` is documentation only
+- parent-facing action label is `No matching skill`
+- helper copy is `Send this spelling case to catalog review.`
+- `Uncategorised` must not be the primary parent label because it sounds like
+  a final state rather than a request for curation
+- `Needs new skill` must not be the only parent label because admin may decide
+  an existing skill fits, the case is word-level only, the case is not a
+  learning issue, or the case should be merged or superseded
+- parent-raised catalog-review cases are evidence for catalog curation only
+- parent actions must not create new `micro_skill_catalog` rows, invent
+  free-text `micro_skill_key` values, or create global canonical mapping truth
+- future parent case capture should write to a dedicated
+  `spelling_catalog_review_cases` workflow table, not to:
+  - `parent_verified_spelling_candidate_mappings`, because that requires an
+    existing `micro_skill_key`
+  - `writing_issues`, because those are durable reviewed issue history rather
+    than catalog-curation workflow
+- Slice `4B.0` should add bounded Review Work micro-skill option filtering by
+  family/cluster before or alongside parent case capture
+- Slice `4B.0` filtering may use existing `micro_skill_catalog` metadata only:
+  - `mastery_domain_key`
+  - `skill_family_key`
+  - `skill_cluster_key`
+  - display metadata needed to present bounded options
+- Slice `4B.0` filtering must not:
+  - create micro-skills
+  - allow free-text `micro_skill_key`
+  - mutate canonical catalog truth
+  - change resolver priority
+  - write parent-local or global mappings
+  - block parent review completion
+- admin/catalog curation is the only path that may later convert a
+  parent-raised case into canonical/global mapping truth
+- staged follow-up:
+  - Slice `4B.0`: bounded option filtering by family/cluster
+  - Slice `4B.1`: parent `No matching skill` case capture
+  - Slice `4C`: minimal protected admin review surface
+  - Slice `4D`: admin decisions and canonical promotion
+- admin decisions may link an existing skill, create/propose a new skill,
+  classify as word-level only, classify as not a learning issue, merge a
+  duplicate, supersede, or reopen
+- resolver contract:
+  - no resolver change in Slice `4A`
+  - open/pending catalog-review cases remain invisible to the resolver
+  - parent notes/reasons remain evidence only
+  - future admin-promoted global mappings may join canonical priority only
+    after separate admin curation writes canonical truth
+  - priority remains:
+    1. catalog-backed canonical truth
+    2. same-scope parent-local promoted mapping
+    3. unresolved
+
 Review Work read-only derived template metadata contract:
 - Review Work continues to verify canonical micro-skill truth only
 - template metadata may be displayed only as read-only derivation from the
