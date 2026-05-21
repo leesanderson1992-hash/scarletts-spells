@@ -35,6 +35,7 @@ import {
 import {
   addMissedWordToSubmissionReview,
   approveSubmissionReview,
+  captureSpellingCatalogReviewCase,
   returnSubmissionToChild,
 } from "../actions";
 import {
@@ -92,6 +93,11 @@ type CandidateMappingRow = {
   micro_skill_key: string;
   candidate_status: "pending_parent_promotion" | "parent_local_promoted";
   promotion_scope: "parent_local";
+};
+type CatalogReviewCaseRow = {
+  id: string;
+  source_misspelling_instance_id: string;
+  case_status: "open";
 };
 
 async function buildScopedSuggestedMicroSkillKeysByMisspellingId(input: {
@@ -238,8 +244,29 @@ function buildPendingCandidateMappingByMisspellingId(
   );
 }
 
+function buildOpenCatalogReviewCaseByMisspellingId(
+  rows: CatalogReviewCaseRow[],
+) {
+  return new Map(
+    rows
+      .filter(
+        (row): row is CatalogReviewCaseRow =>
+          typeof row.source_misspelling_instance_id === "string" &&
+          row.source_misspelling_instance_id.length > 0 &&
+          row.case_status === "open",
+      )
+      .map((row) => [row.source_misspelling_instance_id, row] as const),
+  );
+}
+
 function ParentAddedMissedWordsSection(props: {
   rows: MisspellingReviewRow[];
+  submissionId: string;
+  redirectPath: string;
+  pendingCandidateMappingsByMisspellingId: Map<string, CandidateMappingRow>;
+  openCatalogReviewCasesByMisspellingId: Map<string, CatalogReviewCaseRow>;
+  catalogReviewCaseCaptureAvailable: boolean;
+  durableIssueMisspellingIds: Set<string>;
 }) {
   if (props.rows.length === 0) {
     return null;
@@ -264,30 +291,70 @@ function ParentAddedMissedWordsSection(props: {
       </div>
 
       <div className="mt-4 grid gap-3">
-        {props.rows.map((row) => (
-          <div
-            key={row.id}
-            className="rounded-2xl border border-[var(--border)] bg-white px-4 py-4"
-          >
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs font-medium text-amber-700">
-                Parent added
-              </span>
-              {row.error_type ? (
-                <span className="rounded-full border border-[var(--border)] bg-[rgba(255,247,220,0.35)] px-3 py-1 text-xs font-medium text-[color:var(--ink)]">
-                  {row.error_type}
+        {props.rows.map((row) => {
+          const openCatalogReviewCase =
+            props.openCatalogReviewCasesByMisspellingId.get(row.id) ?? null;
+          const pendingCandidateMapping =
+            props.pendingCandidateMappingsByMisspellingId.get(row.id) ?? null;
+          const hasDurableIssue = props.durableIssueMisspellingIds.has(row.id);
+          const canSendToCatalogReview =
+            props.catalogReviewCaseCaptureAvailable &&
+            !openCatalogReviewCase &&
+            !pendingCandidateMapping &&
+            !hasDurableIssue;
+
+          return (
+            <div
+              key={row.id}
+              className="rounded-2xl border border-[var(--border)] bg-white px-4 py-4"
+            >
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs font-medium text-amber-700">
+                  Parent added
                 </span>
+                {row.error_type ? (
+                  <span className="rounded-full border border-[var(--border)] bg-[rgba(255,247,220,0.35)] px-3 py-1 text-xs font-medium text-[color:var(--ink)]">
+                    {row.error_type}
+                  </span>
+                ) : null}
+              </div>
+              <p className="mt-3 text-sm font-medium text-[color:var(--ink)]">
+                {row.misspelled_word} {"->"} {row.corrected_word}
+              </p>
+              <p className="mt-2 text-sm leading-6 text-[color:var(--mid)]">
+                Saved as parent-authored review input. This row does not represent
+                engine-suggested candidate truth or unresolved engine output.
+              </p>
+              {openCatalogReviewCase ? (
+                <p className="mt-3 rounded-lg border border-amber-200 bg-amber-50 px-2 py-1 text-xs text-amber-800">
+                  Sent to catalog review
+                </p>
+              ) : null}
+              {canSendToCatalogReview ? (
+                <form
+                  action={captureSpellingCatalogReviewCase}
+                  className="mt-3"
+                >
+                  <input type="hidden" name="submission_id" value={props.submissionId} />
+                  <input type="hidden" name="redirect_path" value={props.redirectPath} />
+                  <input
+                    type="hidden"
+                    name="misspelling_instance_id"
+                    value={row.id}
+                  />
+                  <button
+                    type="submit"
+                    title="Send this spelling case to catalog review."
+                    aria-label={`No matching skill for ${row.misspelled_word}. Send this spelling case to catalog review.`}
+                    className="min-h-9 rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-800"
+                  >
+                    No matching skill
+                  </button>
+                </form>
               ) : null}
             </div>
-            <p className="mt-3 text-sm font-medium text-[color:var(--ink)]">
-              {row.misspelled_word} {"->"} {row.corrected_word}
-            </p>
-            <p className="mt-2 text-sm leading-6 text-[color:var(--mid)]">
-              Saved as parent-authored review input. This row does not represent
-              engine-suggested candidate truth or unresolved engine output.
-            </p>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </section>
   );
@@ -780,6 +847,7 @@ export default async function CourseReviewDetailPage({
     { data: writingIssueSuggestionRows, error: writingIssueSuggestionError },
     { data: parentVerificationRows, error: parentVerificationError },
     { data: pendingCandidateMappingRows, error: pendingCandidateMappingError },
+    { data: openCatalogReviewCaseRows, error: openCatalogReviewCaseError },
   ] = await Promise.all([
     supabase
       .from("course_tasks")
@@ -839,6 +907,14 @@ export default async function CourseReviewDetailPage({
       .eq("parent_user_id", user.id)
       .in("candidate_status", ["pending_parent_promotion", "parent_local_promoted"])
       .order("created_at", { ascending: false }),
+    supabase
+      .from("spelling_catalog_review_cases")
+      .select("id, source_misspelling_instance_id, case_status")
+      .eq("task_submission_id", submission.id)
+      .eq("parent_user_id", user.id)
+      .eq("child_id", submission.child_id)
+      .eq("case_status", "open")
+      .order("created_at", { ascending: false }),
   ]);
 
   const { data: module } = task?.module_id
@@ -865,6 +941,11 @@ export default async function CourseReviewDetailPage({
   const parentAddedMissedWords = misspellings.filter((row) => isParentAuthoredMisspellingRow(row));
   const engineMisspellings = misspellings.filter((row) => !isParentAuthoredMisspellingRow(row));
   const writingIssues = (writingIssueRows ?? []) as WritingIssueRow[];
+  const durableIssueMisspellingIds = new Set(
+    writingIssues
+      .map((issue) => issue.source_misspelling_instance_id)
+      .filter((value): value is string => typeof value === "string"),
+  );
   const writingIssueSuggestions = (writingIssueSuggestionRows ?? []) as WritingIssueSuggestionRow[];
   const canonicalSuggestedMicroSkillKeysByMisspellingId =
     await buildScopedSuggestedMicroSkillKeysByMisspellingId({
@@ -886,6 +967,10 @@ export default async function CourseReviewDetailPage({
     (pendingCandidateMappingRows ?? []) as CandidateMappingRow[];
   const pendingCandidateMappingsByMisspellingId =
     buildPendingCandidateMappingByMisspellingId(pendingCandidateMappings);
+  const openCatalogReviewCases =
+    (openCatalogReviewCaseRows ?? []) as CatalogReviewCaseRow[];
+  const openCatalogReviewCasesByMisspellingId =
+    buildOpenCatalogReviewCaseByMisspellingId(openCatalogReviewCases);
   const derivedTemplateMetadataByMicroSkillKey =
     await buildDerivedTemplateMetadataByMicroSkillKey({
       supabase,
@@ -1032,9 +1117,19 @@ export default async function CourseReviewDetailPage({
           redirectPath={buildScopedPath(`/courses/review/${reviewEntryId}`, selectedChild.id, mode)}
           candidateCaptureMicroSkillProvider={candidateCaptureMicroSkillProvider}
           pendingCandidateMappingsByMisspellingId={pendingCandidateMappingsByMisspellingId}
+          openCatalogReviewCasesByMisspellingId={openCatalogReviewCasesByMisspellingId}
+          catalogReviewCaseCaptureAvailable={!openCatalogReviewCaseError}
         />
 
-        <ParentAddedMissedWordsSection rows={parentAddedMissedWords} />
+        <ParentAddedMissedWordsSection
+          rows={parentAddedMissedWords}
+          submissionId={submission.id}
+          redirectPath={buildScopedPath(`/courses/review/${reviewEntryId}`, selectedChild.id, mode)}
+          pendingCandidateMappingsByMisspellingId={pendingCandidateMappingsByMisspellingId}
+          openCatalogReviewCasesByMisspellingId={openCatalogReviewCasesByMisspellingId}
+          catalogReviewCaseCaptureAvailable={!openCatalogReviewCaseError}
+          durableIssueMisspellingIds={durableIssueMisspellingIds}
+        />
 
         <LessonParentActionsSection
           submissionId={submission.id}

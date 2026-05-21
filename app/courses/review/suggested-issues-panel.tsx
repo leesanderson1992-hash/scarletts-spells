@@ -18,6 +18,8 @@ type SuggestedIssuesPanelProps = {
   submissionId?: string;
   candidateCaptureMicroSkillProvider?: ReviewWorkCandidateCaptureMicroSkillProviderResult;
   pendingCandidateMappingsByMisspellingId?: Map<string, CandidateMappingRow>;
+  openCatalogReviewCasesByMisspellingId?: Map<string, CatalogReviewCaseRow>;
+  catalogReviewCaseCaptureAvailable?: boolean;
 };
 
 type CandidateMappingRow = {
@@ -26,6 +28,12 @@ type CandidateMappingRow = {
   micro_skill_key: string;
   candidate_status: "pending_parent_promotion" | "parent_local_promoted";
   promotion_scope: "parent_local";
+};
+
+type CatalogReviewCaseRow = {
+  id: string;
+  source_misspelling_instance_id: string;
+  case_status: "open";
 };
 
 const PENDING_CANDIDATE_MAPPING_LABEL = "Pending candidate mapping";
@@ -81,11 +89,16 @@ function getDerivedTemplateMetadataMessage(
 function buildSpellingReviewTableRows({
   entries,
   pendingCandidateMappingsByMisspellingId,
+  openCatalogReviewCasesByMisspellingId,
   props,
 }: {
   entries: ReturnType<typeof buildSuggestedIssuePanelModel>["sections"][number]["entries"];
   pendingCandidateMappingsByMisspellingId?: Map<string, CandidateMappingRow>;
-  props: Pick<SuggestedIssuesPanelProps, "model" | "submissionId">;
+  openCatalogReviewCasesByMisspellingId?: Map<string, CatalogReviewCaseRow>;
+  props: Pick<
+    SuggestedIssuesPanelProps,
+    "model" | "submissionId" | "catalogReviewCaseCaptureAvailable"
+  >;
 }): SpellingReviewTableRow[] {
   return entries.flatMap((entry) => {
     if (!entry.actionTarget) {
@@ -94,6 +107,10 @@ function buildSpellingReviewTableRows({
 
     const pendingCandidateMapping =
       pendingCandidateMappingsByMisspellingId?.get(
+        entry.actionTarget.misspellingInstanceId,
+      ) ?? null;
+    const openCatalogReviewCase =
+      openCatalogReviewCasesByMisspellingId?.get(
         entry.actionTarget.misspellingInstanceId,
       ) ?? null;
 
@@ -113,13 +130,27 @@ function buildSpellingReviewTableRows({
             !entry.actionTarget.allowsAccepted &&
             props.model.sourceType === "lesson_submission" &&
             !entry.recordedDecision &&
-            !pendingCandidateMapping,
+            !pendingCandidateMapping &&
+            !openCatalogReviewCase,
+        ),
+        canCaptureCatalogReviewCase: Boolean(
+          props.catalogReviewCaseCaptureAvailable !== false &&
+          props.submissionId &&
+            props.model.sourceType === "lesson_submission" &&
+            !entry.recordedDecision &&
+            !pendingCandidateMapping &&
+            !openCatalogReviewCase,
         ),
         pendingCandidateMapping: pendingCandidateMapping
           ? {
               id: pendingCandidateMapping.id,
               microSkillKey: pendingCandidateMapping.micro_skill_key,
               candidateStatus: pendingCandidateMapping.candidate_status,
+            }
+          : null,
+        openCatalogReviewCase: openCatalogReviewCase
+          ? {
+              id: openCatalogReviewCase.id,
             }
           : null,
       },
@@ -192,7 +223,14 @@ export function SuggestedIssuesPanel(props: SuggestedIssuesPanelProps) {
                       entries: section.entries,
                       pendingCandidateMappingsByMisspellingId:
                         props.pendingCandidateMappingsByMisspellingId,
-                      props,
+                      openCatalogReviewCasesByMisspellingId:
+                        props.openCatalogReviewCasesByMisspellingId,
+                      props: {
+                        model: props.model,
+                        submissionId: props.submissionId,
+                        catalogReviewCaseCaptureAvailable:
+                          props.catalogReviewCaseCaptureAvailable,
+                      },
                     })}
                     options={
                       props.candidateCaptureMicroSkillProvider?.status ===

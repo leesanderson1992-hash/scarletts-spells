@@ -23,6 +23,7 @@ import {
   promoteParentLocalCandidateMappingImpl,
   revertParentLocalCandidateMappingImpl,
 } from "./actions/candidate-mapping-actions";
+import { captureSpellingCatalogReviewCaseImpl } from "./actions/catalog-review-case-actions";
 
 export async function addMissedWordToSubmissionReview(formData: FormData) {
   return addMissedWordToSubmissionReviewImpl(formData);
@@ -42,6 +43,10 @@ export async function recordReviewWorkVerificationAction(formData: FormData) {
 
 export async function captureSubmissionSpellingCandidateMapping(formData: FormData) {
   return captureSubmissionSpellingCandidateMappingImpl(formData);
+}
+
+export async function captureSpellingCatalogReviewCase(formData: FormData) {
+  return captureSpellingCatalogReviewCaseImpl(formData);
 }
 
 export async function promoteParentLocalCandidateMapping(formData: FormData) {

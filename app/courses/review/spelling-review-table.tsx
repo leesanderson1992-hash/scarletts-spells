@@ -5,6 +5,7 @@ import { useMemo, useState } from "react";
 import type { ReviewWorkCandidateCaptureMicroSkillOption } from "@/lib/writing-engine/persistence/learning-items";
 
 import {
+  captureSpellingCatalogReviewCase,
   captureSubmissionSpellingCandidateMapping,
   promoteParentLocalCandidateMapping,
   recordReviewWorkVerificationAction,
@@ -19,6 +20,10 @@ export type SpellingReviewTablePendingMapping = {
   candidateStatus: CandidateMappingStatus;
 };
 
+export type SpellingReviewTableCatalogReviewCase = {
+  id: string;
+};
+
 export type SpellingReviewTableRow = {
   id: string;
   wrongWord: string;
@@ -30,7 +35,9 @@ export type SpellingReviewTableRow = {
   allowsAccepted: boolean;
   recordedDecision: string | null;
   canCaptureCandidateMapping: boolean;
+  canCaptureCatalogReviewCase: boolean;
   pendingCandidateMapping: SpellingReviewTablePendingMapping | null;
+  openCatalogReviewCase: SpellingReviewTableCatalogReviewCase | null;
 };
 
 type SpellingReviewTableProps = {
@@ -200,7 +207,14 @@ function SpellingReviewTableRowView({
     microSkillKey.length > 0 &&
     !row.recordedDecision &&
     !row.pendingCandidateMapping &&
+    !row.openCatalogReviewCase &&
     (row.allowsAccepted || row.canCaptureCandidateMapping);
+  const canCaptureCatalogReviewCase =
+    row.canCaptureCatalogReviewCase &&
+    !row.recordedDecision &&
+    !row.pendingCandidateMapping &&
+    !row.openCatalogReviewCase &&
+    Boolean(submissionId);
 
   function handleFamilyChange(nextFamilyKey: string) {
     const nextClusters = buildClusters(options, nextFamilyKey);
@@ -228,7 +242,11 @@ function SpellingReviewTableRowView({
           onChange={(event) => handleFamilyChange(event.target.value)}
           aria-label={`Skill Family for ${row.wrongWord}`}
           className="w-full rounded-xl border border-[var(--border)] bg-white px-2 py-2 text-sm text-[color:var(--ink)]"
-          disabled={Boolean(row.recordedDecision || row.pendingCandidateMapping)}
+          disabled={Boolean(
+            row.recordedDecision ||
+              row.pendingCandidateMapping ||
+              row.openCatalogReviewCase,
+          )}
         >
           {families.map((family) => (
             <option key={family.key} value={family.key}>
@@ -243,7 +261,11 @@ function SpellingReviewTableRowView({
           onChange={(event) => handleClusterChange(event.target.value)}
           aria-label={`Skill Cluster for ${row.wrongWord}`}
           className="w-full rounded-xl border border-[var(--border)] bg-white px-2 py-2 text-sm text-[color:var(--ink)]"
-          disabled={Boolean(row.recordedDecision || row.pendingCandidateMapping)}
+          disabled={Boolean(
+            row.recordedDecision ||
+              row.pendingCandidateMapping ||
+              row.openCatalogReviewCase,
+          )}
         >
           {clusters.map((cluster) => (
             <option key={cluster.key || "unclustered"} value={cluster.key}>
@@ -258,7 +280,11 @@ function SpellingReviewTableRowView({
           onChange={(event) => setMicroSkillKey(event.target.value)}
           aria-label={`Micro-skill for ${row.wrongWord}`}
           className="w-full rounded-xl border border-[var(--border)] bg-white px-2 py-2 text-sm text-[color:var(--ink)]"
-          disabled={Boolean(row.recordedDecision || row.pendingCandidateMapping)}
+          disabled={Boolean(
+            row.recordedDecision ||
+              row.pendingCandidateMapping ||
+              row.openCatalogReviewCase,
+          )}
         >
           <option value="">Choose micro-skill</option>
           {filteredMicroSkills.map((option) => (
@@ -290,10 +316,17 @@ function SpellingReviewTableRowView({
             Recorded: {row.recordedDecision.replaceAll("_", " ")}
           </p>
         ) : null}
+        {row.openCatalogReviewCase ? (
+          <p className="mt-2 rounded-lg border border-amber-200 bg-amber-50 px-2 py-1 text-xs text-amber-800">
+            Sent to catalog review
+          </p>
+        ) : null}
       </td>
       <td className="border-t border-[var(--border)] px-3 py-3">
         <div className="flex flex-wrap gap-2">
-          {!row.recordedDecision && !row.pendingCandidateMapping ? (
+          {!row.recordedDecision &&
+          !row.pendingCandidateMapping &&
+          !row.openCatalogReviewCase ? (
             <>
               <form action={recordReviewWorkVerificationAction}>
                 <input type="hidden" name="redirect_path" value={redirectPath} />
@@ -406,6 +439,25 @@ function SpellingReviewTableRowView({
                   </button>
                 </form>
               )}
+              {canCaptureCatalogReviewCase ? (
+                <form action={captureSpellingCatalogReviewCase}>
+                  <input type="hidden" name="submission_id" value={submissionId ?? ""} />
+                  <input type="hidden" name="redirect_path" value={redirectPath} />
+                  <input
+                    type="hidden"
+                    name="misspelling_instance_id"
+                    value={row.misspellingInstanceId}
+                  />
+                  <button
+                    type="submit"
+                    title="Send this spelling case to catalog review."
+                    aria-label={`No matching skill for ${row.wrongWord}. Send this spelling case to catalog review.`}
+                    className="min-h-9 rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-800"
+                  >
+                    No matching skill
+                  </button>
+                </form>
+              ) : null}
             </>
           ) : null}
           {row.pendingCandidateMapping && submissionId ? (
