@@ -3,6 +3,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { readSupabaseEnv } from "@/lib/supabase/env";
 
 const protectedRoutes = [
+  "/admin",
   "/dashboard",
   "/assignments",
   "/children",
@@ -103,5 +104,5 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/login", "/dashboard/:path*", "/assignments/:path*", "/children/:path*", "/analyse/:path*", "/practice/:path*", "/review/:path*", "/insights/:path*", "/settings/:path*"],
+  matcher: ["/login", "/admin/:path*", "/dashboard/:path*", "/assignments/:path*", "/children/:path*", "/analyse/:path*", "/practice/:path*", "/review/:path*", "/insights/:path*", "/settings/:path*"],
 };
