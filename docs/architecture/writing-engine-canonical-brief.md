@@ -205,6 +205,23 @@ This means:
   - pending candidate mappings are not used by future suggestion resolution
   - parent-added missed words persist as reviewable parent input after reopen
   - manual writing samples remain excluded
+- the bounded Slice `3` parent-local promotion path is now implemented and
+  validated for lesson/task-submission spelling suggestions in `Review Work`:
+  - parents can explicitly promote existing `pending_parent_promotion`
+    candidate mappings to `parent_local_promoted`
+  - parents can revert `parent_local_promoted` mappings back to
+    `pending_parent_promotion`
+  - promoted mappings are reusable only inside the same parent/child scope
+  - resolver priority remains:
+    1. existing catalog-backed canonical mapping truth
+    2. parent-local promoted mappings in the same parent/child scope
+    3. unresolved otherwise
+  - pending mappings remain invisible to the resolver
+  - reverted mappings stop being reusable
+  - manual writing samples remain excluded from promotion/revert UI
+  - parent-local promotion is auditable and reversible
+  - no parent action in normal `Review Work` creates global canonical mapping
+    truth
 - known limitation:
   - candidate capture depends on seeded canonical micro-skill coverage
   - valid rows such as `natral -> natural` may remain blocked until the

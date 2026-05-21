@@ -99,9 +99,8 @@ Canonical documentation now defers to:
 - Stage `8A` — Parent-facing evidence wording safety pass is complete
 - Stage `8` is now closed as a boundary-safety and parent-facing
   evidence-wording stage, not a mastery-runtime stage
-- the next safe documented stage is now `Parent-Verified Spelling Candidate
-  Capture`
-  - status: documentation registration only
+- `Parent-Verified Spelling Candidate Capture` Slice `3` is now implemented
+  and validated within its bounded lesson-submission scope
   - purpose:
     - allow parents to classify unmapped or parent-added spelling mistakes
       against existing canonical micro-skills
@@ -135,17 +134,15 @@ Canonical documentation now defers to:
     - template routing
     - analytics
     - positive-evidence semantics
-- Slice `2` runtime implementation is complete and QA passed within its
+- Slice `2` and Slice `3` runtime implementation are complete within their
   bounded lesson-submission scope
-- no candidate mapping is reusable by future suggestions until an explicit
-  promotion slice is implemented
 - optional DB-backed or app-triggered smoke-test follow-up for Stage `1`
 - active-doc cleanup so historical implementation plans no longer compete with
   the roadmap
 
 ### Registered next bounded stage
-- `Parent-Verified Spelling Candidate Capture` Slice `2` is now implemented
-  and QA passed within its bounded lesson-submission scope
+- `Parent-Verified Spelling Candidate Capture` Slice `3` is now implemented
+  and validated within its bounded lesson-submission scope
 - parent-facing workflow to preserve:
   1. parent sees or adds a spelling mistake
   2. parent confirms:
@@ -248,9 +245,16 @@ Canonical documentation now defers to:
     - candidate mapping remains `pending_parent_promotion`
     - future suggestion resolver must not consult pending candidate mappings
   - Slice `3` — Bounded parent-local promotion
+    - status: implemented and validated
     - explicit parent promotion only
+    - parents can promote `pending_parent_promotion` mappings to
+      `parent_local_promoted`
+    - parents can revert `parent_local_promoted` mappings back to
+      `pending_parent_promotion`
     - scoped resolver use only after existing catalog-backed canonical mapping
       truth
+    - pending mappings remain invisible to the resolver
+    - manual writing samples remain excluded
   - Slice `4` — Optional admin/global curation
     - deferred from MVP
     - documentation only
@@ -276,15 +280,6 @@ Canonical documentation now defers to:
   - no reopening `Stage 7F`
   - no reopening `Stage 8`
   - no admin/global curation implementation in this stage
-- implementation authorization:
-  - authorised now:
-    - documentation updates only
-    - QA/status closeout only
-  - not authorised now:
-    - parent-local promotion runtime work before an explicit Slice `3` prompt
-    - admin/global curation workflow
-    - future suggestion resolver changes beyond the documented
-      pending-mapping exclusion
 - Slice `2` QA closeout recorded:
   - pass:
     - candidate capture works on eligible lesson-submission spelling rows
@@ -310,11 +305,8 @@ Canonical documentation now defers to:
       state as `captured / awaiting promotion` or `saved as evidence, not
       promoted yet`
 - deferred after Slice `2`:
-  - parent-local promotion remains deferred to Slice `3`
   - admin/global curation remains deferred to a later slice
   - manual writing sample candidate capture remains deferred
-  - future suggestion resolver use of promoted mappings remains deferred until
-    the promotion slice
   - catalogue/seed coverage work may still be needed before some real
     examples, such as `natral -> natural`, can be classified
 - Slice `2` closeout verdict:
@@ -322,27 +314,34 @@ Canonical documentation now defers to:
   - Slice `2` can be marked implemented and QA-passed
   - remaining issue is seed/catalogue coverage, not a Slice `2` runtime
     regression
-- next safe Slice `3` implementation prompt:
-  - `Implement Slice 3 of Parent-Verified Spelling Candidate Capture for
-    parent-local promotion only.
-
-    Requirements:
-    - Add an explicit parent-local promotion action for existing
-      pending-parent-promotion candidate mappings only.
-    - Keep promotion scoped to the current parent/child environment only.
-    - Make promoted mappings reusable only inside that same scoped
-      parent/child environment.
-    - Update future suggestion resolution only far enough to consult
-      parent-local promoted mappings after existing catalog-backed canonical
-      mapping truth.
-    - Do not implement admin/global curation.
-    - Do not implement manual writing sample candidate capture.
-    - Do not change Accept readiness for pending mappings.
-    - Do not change override-provider behavior, template-key truth, mastery,
-      rewards, assignment, scoring, thresholds, analytics, or
-      positive-evidence semantics.
-    - Preserve Review Work ownership and shared verification boundaries.
-    - Keep parent-local promotion auditable and reversible.`
+- Slice `3` QA closeout recorded:
+  - pass:
+    - parents can explicitly promote existing
+      `pending_parent_promotion` candidate mappings
+    - promoted mappings move to `parent_local_promoted`
+    - parents can revert `parent_local_promoted` mappings back to
+      `pending_parent_promotion`
+    - promoted mappings are reusable only inside the same parent/child scope
+    - resolver priority remains:
+      1. existing catalog-backed canonical mapping truth
+      2. parent-local promoted mappings in the same parent/child scope
+      3. unresolved otherwise
+    - pending mappings remain invisible to the resolver
+    - reverted mappings stop being reusable
+    - manual writing samples remain excluded from promotion/revert UI
+    - parent-local promotion remains auditable and reversible
+    - no parent action creates global canonical mapping truth
+  - validation:
+    - `npx tsc --noEmit`
+    - `npm run writing-engine:parent-local-promotion-regression`
+    - `npm run writing-engine:parent-verified-spelling-candidate-capture-regression`
+    - `npm run build`
+  - closeout verdict:
+    - Slice `3` passes within its bounded lesson-submission scope
+    - admin/global curation remains deferred
+    - manual writing sample candidate capture/promotion remains deferred
+    - remaining issue is catalog/seed coverage, not a Slice `3` runtime
+      regression
 
 ### Stage 7 implementation status
 - Stage `7` overall is complete and QA passed on its documented bounded path

@@ -114,7 +114,7 @@ Current ownership rule:
 
 ### Parent-Verified Spelling Candidate Capture
 
-Status: `Slice 2 implemented and QA passed within its bounded scope`
+Status: `Slice 3 implemented and validated within its bounded lesson-submission scope`
 
 Purpose:
 - allow parents to classify unmapped or parent-added spelling mistakes against
@@ -126,16 +126,16 @@ Purpose:
 - prevent free-text taxonomy pollution
 - prevent normal parent `Review Work` from creating global canonical truth
 
-Current blocker:
+Known limitation:
 - the child is now producing real writing that includes genuine spelling
   mistakes outside current canonical mapping truth
 - parents can review or add those mistakes in `Review Work`, but they cannot
-  safely classify them for future reuse without risking pollution of canonical
-  mapping truth
+  classify every valid case until the required catalog-backed micro-skill
+  exists in the seeded option set
 - example:
   - `natral -> natural` may be classified against an existing canonical
-    micro-skill, but that capture alone must not mint global canonical mapping
-    truth
+    micro-skill only after that canonical micro-skill is available in the
+    bounded catalog-backed options
 
 Boundary notes:
 - this stage is separate from `Stage 7F`
@@ -289,10 +289,22 @@ Implementation phase breakdown:
     - template-key changes
     - reward/mastery/assignment/scoring changes
 - Slice `3` — Bounded parent-local promotion
+  - status: implemented and validated
   - allow explicit parent promotion of saved candidate mappings
   - make promoted mappings reusable only inside the same parent/child scope
   - update the future suggestion resolver to consult parent-local promoted
     mappings only after existing catalog-backed canonical mapping truth
+  - delivered:
+    - promote existing `pending_parent_promotion` candidate mappings to
+      `parent_local_promoted`
+    - revert `parent_local_promoted` mappings back to
+      `pending_parent_promotion`
+    - keep resolver priority:
+      1. existing catalog-backed canonical mapping truth
+      2. parent-local promoted mappings in the same parent/child scope
+      3. unresolved otherwise
+    - keep pending mappings invisible to the resolver
+    - keep manual writing samples excluded from promotion/revert UI
   - allowed:
     - parent-local promotion only
     - scoped resolver use
@@ -336,20 +348,6 @@ Blocked cases:
 - no reopening `Stage 8`
 - no admin/global curation implementation in this stage
 
-Runtime implementation authorization:
-- authorized now:
-  - documentation updates only
-  - QA/status closeout only
-- not authorized now:
-  - parent-local promotion runtime work before an explicit Slice `3` prompt
-  - admin/global curation workflow
-  - future suggestion resolver changes beyond the documented
-    pending-mapping exclusion
-- status wording:
-  - Slice `2` is implemented and QA-passed within its bounded scope
-  - no candidate mapping is reusable by future suggestions until an explicit
-    promotion slice is implemented
-
 Slice `2` QA closeout:
 - passes:
   - candidate capture works on eligible lesson-submission spelling rows
@@ -385,30 +383,50 @@ Slice `2` QA closeout:
   - remaining issue is seed/catalogue coverage, not a Slice `2` runtime
     regression
 
-Deferred after Slice `2`:
-- parent-local promotion remains deferred to Slice `3`
-- admin/global curation remains deferred to a later slice
-- manual writing sample candidate capture remains deferred
-- future suggestion resolver use of promoted mappings remains deferred until
-  the promotion slice
+Slice `3` QA closeout:
+- pass:
+  - parents can explicitly promote existing `pending_parent_promotion`
+    candidate mappings
+  - promoted mappings move to `parent_local_promoted`
+  - parents can revert promoted mappings back to
+    `pending_parent_promotion`
+  - promoted mappings are reusable only inside the same parent/child scope
+  - resolver priority remains:
+    1. existing catalog-backed canonical mapping truth
+    2. parent-local promoted mappings in the same parent/child scope
+    3. unresolved otherwise
+  - pending mappings remain invisible to the resolver
+  - reverted mappings stop being reusable
+  - manual writing samples remain excluded from promotion/revert UI
+  - parent-local promotion remains auditable and reversible
+  - no parent action creates global canonical mapping truth
+  - no `Accept` readiness, override-provider, template-key-truth, mastery,
+    reward, assignment, scoring, threshold, analytics, or
+    positive-evidence behavior changed
+- validation:
+  - `npx tsc --noEmit`
+  - `npm run writing-engine:parent-local-promotion-regression`
+  - `npm run writing-engine:parent-verified-spelling-candidate-capture-regression`
+  - `npm run build`
+- final verdict:
+  - Slice `3` passes within its bounded lesson-submission scope
+  - remaining issue is catalog/seed coverage, not a Slice `3` runtime
+    regression
+
+Deferred after Slice `3`:
+- admin/global curation remains deferred to Slice `4`
+- manual writing sample candidate capture/promotion remains deferred to
+  Slice `5`
 - catalogue/seed coverage work may be needed before some real examples, such
   as `natral -> natural`, can be classified
 
-Next safe implementation prompt for Slice `3`:
-
-`Implement Slice 3 of Parent-Verified Spelling Candidate Capture for parent-local promotion only.
-
-Requirements:
-- Add an explicit parent-local promotion action for existing pending-parent-promotion candidate mappings only.
-- Keep promotion scoped to the current parent/child environment only.
-- Make promoted mappings reusable only inside that same scoped parent/child environment.
-- Update future suggestion resolution only far enough to consult parent-local promoted mappings after existing catalog-backed canonical mapping truth.
-- Do not implement admin/global curation.
-- Do not implement manual writing sample candidate capture.
-- Do not change Accept readiness for pending mappings.
-- Do not change override-provider behavior, template-key truth, mastery, rewards, assignment, scoring, thresholds, analytics, or positive-evidence semantics.
-- Preserve Review Work ownership and shared verification boundaries.
-- Keep parent-local promotion auditable and reversible.`
+Next documented stage after Slice `3`:
+- Slice `4` — Optional admin/global curation
+  - remains deferred from MVP
+  - no implementation authorized in this closeout
+- Slice `5` — Optional manual writing sample extension
+  - remains deferred until parent-local promotion stability and any
+    curation decision are settled
 
 ### Stage 1A — Shared writing-engine foundation
 
