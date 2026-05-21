@@ -1,24 +1,16 @@
-import type { ReviewWorkCandidateCaptureMicroSkillProviderResult } from "@/lib/writing-engine/persistence/learning-items";
+import type {
+  ReviewWorkCandidateCaptureMicroSkillProviderResult,
+} from "@/lib/writing-engine/persistence/learning-items";
 
-import {
-  captureSubmissionSpellingCandidateMapping,
-  promoteParentLocalCandidateMapping,
-  recordReviewWorkVerificationAction,
-  revertParentLocalCandidateMapping,
-} from "./actions";
+import { recordReviewWorkVerificationAction } from "./actions";
 import {
   buildSuggestedIssuePanelModel,
   type SuggestedIssueDerivedTemplateMetadata,
 } from "./review-utils";
-
-const STAGE7D_CATEGORY_OPTIONS = [
-  "Phonic",
-  "Pattern/rule",
-  "Morphology",
-  "Homophone",
-  "Irregular/tricky memory word",
-  "Careless performance error",
-] as const;
+import {
+  SpellingReviewTable,
+  type SpellingReviewTableRow,
+} from "./spelling-review-table";
 
 type SuggestedIssuesPanelProps = {
   model: ReturnType<typeof buildSuggestedIssuePanelModel>;
@@ -35,6 +27,17 @@ type CandidateMappingRow = {
   candidate_status: "pending_parent_promotion" | "parent_local_promoted";
   promotion_scope: "parent_local";
 };
+
+const PENDING_CANDIDATE_MAPPING_LABEL = "Pending candidate mapping";
+const PROMOTED_CANDIDATE_MAPPING_LABEL = "Promoted for this child";
+const PROMOTE_CANDIDATE_MAPPING_ACTION_LABEL = "Promote for this child";
+const REVERT_CANDIDATE_MAPPING_ACTION_LABEL = "Revert to pending";
+const PENDING_CANDIDATE_MAPPING_STATUS_COPY =
+  "Saved as verified evidence. Candidate mapping captured. Not used for future suggestions until promoted.";
+const PENDING_CANDIDATE_MAPPING_ACCESSIBILITY_COPY =
+  "It will not be used for future suggestions until promoted.";
+const PROMOTED_CANDIDATE_MAPPING_STATUS_COPY =
+  "This mapping is currently used only for this child/parent scope.";
 
 function formatPracticeRouteLabel(
   practiceRoute: SuggestedIssueDerivedTemplateMetadata["practiceRoute"],
@@ -73,6 +76,55 @@ function getDerivedTemplateMetadataMessage(
     case "dictation_template_key_unavailable":
       return `Read-only template metadata is unavailable because micro-skill ${metadata.microSkillKey} does not currently resolve a default template route for ${formatPracticeRouteLabel(metadata.practiceRoute)}.`;
   }
+}
+
+function buildSpellingReviewTableRows({
+  entries,
+  pendingCandidateMappingsByMisspellingId,
+  props,
+}: {
+  entries: ReturnType<typeof buildSuggestedIssuePanelModel>["sections"][number]["entries"];
+  pendingCandidateMappingsByMisspellingId?: Map<string, CandidateMappingRow>;
+  props: Pick<SuggestedIssuesPanelProps, "model" | "submissionId">;
+}): SpellingReviewTableRow[] {
+  return entries.flatMap((entry) => {
+    if (!entry.actionTarget) {
+      return [];
+    }
+
+    const pendingCandidateMapping =
+      pendingCandidateMappingsByMisspellingId?.get(
+        entry.actionTarget.misspellingInstanceId,
+      ) ?? null;
+
+    return [
+      {
+        id: entry.id,
+        wrongWord: entry.actionTarget.observedText,
+        correctWord: entry.actionTarget.suggestedReplacement,
+        misspellingInstanceId: entry.actionTarget.misspellingInstanceId,
+        taskSubmissionId: entry.actionTarget.taskSubmissionId,
+        writingSampleId: entry.actionTarget.writingSampleId,
+        suggestedMicroSkillKey: entry.actionTarget.suggestedMicroSkillKey,
+        allowsAccepted: entry.actionTarget.allowsAccepted,
+        recordedDecision: entry.recordedDecision,
+        canCaptureCandidateMapping: Boolean(
+          props.submissionId &&
+            !entry.actionTarget.allowsAccepted &&
+            props.model.sourceType === "lesson_submission" &&
+            !entry.recordedDecision &&
+            !pendingCandidateMapping,
+        ),
+        pendingCandidateMapping: pendingCandidateMapping
+          ? {
+              id: pendingCandidateMapping.id,
+              microSkillKey: pendingCandidateMapping.micro_skill_key,
+              candidateStatus: pendingCandidateMapping.candidate_status,
+            }
+          : null,
+      },
+    ];
+  });
 }
 
 export function SuggestedIssuesPanel(props: SuggestedIssuesPanelProps) {
@@ -134,23 +186,47 @@ export function SuggestedIssuesPanel(props: SuggestedIssuesPanelProps) {
                   </span>
                 </div>
 
-                {section.entries.length > 0 ? (
+                {section.key === "candidate" ? (
+                  <SpellingReviewTable
+                    rows={buildSpellingReviewTableRows({
+                      entries: section.entries,
+                      pendingCandidateMappingsByMisspellingId:
+                        props.pendingCandidateMappingsByMisspellingId,
+                      props,
+                    })}
+                    options={
+                      props.candidateCaptureMicroSkillProvider?.status ===
+                      "available"
+                        ? props.candidateCaptureMicroSkillProvider.options
+                        : []
+                    }
+                    submissionId={props.submissionId}
+                    redirectPath={props.redirectPath}
+                    pendingCandidateMappingLabel={
+                      PENDING_CANDIDATE_MAPPING_LABEL
+                    }
+                    promotedCandidateMappingLabel={
+                      PROMOTED_CANDIDATE_MAPPING_LABEL
+                    }
+                    pendingMappingStatusCopy={
+                      PENDING_CANDIDATE_MAPPING_STATUS_COPY
+                    }
+                    pendingMappingAccessibilityCopy={
+                      PENDING_CANDIDATE_MAPPING_ACCESSIBILITY_COPY
+                    }
+                    promotedMappingStatusCopy={
+                      PROMOTED_CANDIDATE_MAPPING_STATUS_COPY
+                    }
+                    promoteCandidateMappingActionLabel={
+                      PROMOTE_CANDIDATE_MAPPING_ACTION_LABEL
+                    }
+                    revertCandidateMappingActionLabel={
+                      REVERT_CANDIDATE_MAPPING_ACTION_LABEL
+                    }
+                  />
+                ) : section.entries.length > 0 ? (
                   <div className="mt-4 grid gap-3">
                     {section.entries.map((entry) => {
-                      const pendingCandidateMapping = entry.actionTarget
-                        ? props.pendingCandidateMappingsByMisspellingId?.get(
-                            entry.actionTarget.misspellingInstanceId,
-                          ) ?? null
-                        : null;
-                      const canCaptureCandidateMapping = Boolean(
-                        props.submissionId &&
-                          entry.actionTarget &&
-                          !entry.actionTarget.allowsAccepted &&
-                          props.model.sourceType === "lesson_submission" &&
-                          !entry.recordedDecision &&
-                          !pendingCandidateMapping,
-                      );
-
                       return (
                       <div
                         key={entry.id}
@@ -196,82 +272,7 @@ export function SuggestedIssuesPanel(props: SuggestedIssuesPanelProps) {
                             </p>
                           </div>
                         ) : null}
-                        {pendingCandidateMapping ? (
-                          <div className="mt-3 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3">
-                            <div className="flex flex-wrap items-center gap-2">
-                              <span className="rounded-full border border-emerald-200 bg-white px-3 py-1 text-xs font-medium text-emerald-700">
-                                {pendingCandidateMapping.candidate_status === "parent_local_promoted"
-                                  ? "Promoted for this child"
-                                  : "Pending candidate mapping"}
-                              </span>
-                              <span className="rounded-full border border-emerald-200 bg-white px-3 py-1 text-xs font-medium text-emerald-700">
-                                {pendingCandidateMapping.micro_skill_key}
-                              </span>
-                            </div>
-                            <p className="mt-3 text-sm leading-6 text-emerald-800">
-                              Saved as verified evidence. Candidate mapping captured.
-                            </p>
-                            <p className="text-sm leading-6 text-emerald-800">
-                              {pendingCandidateMapping.candidate_status === "parent_local_promoted"
-                                ? "This mapping is currently used only for this child/parent scope."
-                                : "Not used for future suggestions until promoted."}
-                            </p>
-                            {props.model.sourceType === "lesson_submission" &&
-                            props.submissionId ? (
-                              pendingCandidateMapping.candidate_status ===
-                              "parent_local_promoted" ? (
-                                <form
-                                  action={revertParentLocalCandidateMapping}
-                                  className="mt-3 flex flex-wrap gap-3"
-                                >
-                                  <input
-                                    type="hidden"
-                                    name="candidate_mapping_id"
-                                    value={pendingCandidateMapping.id}
-                                  />
-                                  <input
-                                    type="hidden"
-                                    name="submission_id"
-                                    value={props.submissionId}
-                                  />
-                                  <input
-                                    type="hidden"
-                                    name="redirect_path"
-                                    value={props.redirectPath}
-                                  />
-                                  <button type="submit" className="brand-secondary-btn">
-                                    Revert to pending
-                                  </button>
-                                </form>
-                              ) : (
-                                <form
-                                  action={promoteParentLocalCandidateMapping}
-                                  className="mt-3 flex flex-wrap gap-3"
-                                >
-                                  <input
-                                    type="hidden"
-                                    name="candidate_mapping_id"
-                                    value={pendingCandidateMapping.id}
-                                  />
-                                  <input
-                                    type="hidden"
-                                    name="submission_id"
-                                    value={props.submissionId}
-                                  />
-                                  <input
-                                    type="hidden"
-                                    name="redirect_path"
-                                    value={props.redirectPath}
-                                  />
-                                  <button type="submit" className="brand-secondary-btn">
-                                    Promote for this child
-                                  </button>
-                                </form>
-                              )
-                            ) : null}
-                          </div>
-                        ) : null}
-                        {entry.actionTarget && !entry.recordedDecision && !pendingCandidateMapping ? (
+                        {entry.actionTarget && !entry.recordedDecision ? (
                           <div className="mt-4 grid gap-3">
                             <form
                               action={recordReviewWorkVerificationAction}
@@ -324,195 +325,6 @@ export function SuggestedIssuesPanel(props: SuggestedIssuesPanelProps) {
                                 Not a learning issue
                               </button>
                             </form>
-
-                            <details className="rounded-2xl border border-[var(--border)] bg-white px-4 py-3">
-                              <summary className="cursor-pointer text-sm font-medium text-[color:var(--ink)]">
-                                Override shared verification
-                              </summary>
-                              <p className="mt-3 text-sm leading-6 text-[color:var(--mid)]">
-                                Record an existing override using the canonical shared verification
-                                fields only. Leave fields blank unless you are changing them.
-                              </p>
-                              <form
-                                action={recordReviewWorkVerificationAction}
-                                className="mt-4 grid gap-3"
-                              >
-                                <input
-                                  type="hidden"
-                                  name="redirect_path"
-                                  value={props.redirectPath}
-                                />
-                                <input
-                                  type="hidden"
-                                  name="misspelling_instance_id"
-                                  value={entry.actionTarget.misspellingInstanceId}
-                                />
-                                <input
-                                  type="hidden"
-                                  name="task_submission_id"
-                                  value={entry.actionTarget.taskSubmissionId ?? ""}
-                                />
-                                <input
-                                  type="hidden"
-                                  name="writing_sample_id"
-                                  value={entry.actionTarget.writingSampleId ?? ""}
-                                />
-                                <div className="grid gap-1">
-                                  <label
-                                    htmlFor={`${entry.id}-verified-category-code`}
-                                    className="text-xs font-medium uppercase tracking-[0.16em] text-[color:var(--mid)]"
-                                  >
-                                    Verified category code
-                                  </label>
-                                  <select
-                                    id={`${entry.id}-verified-category-code`}
-                                    name="verified_category_code"
-                                    defaultValue=""
-                                    className="rounded-2xl border border-[var(--border)] bg-white px-3 py-2 text-sm text-[color:var(--ink)]"
-                                  >
-                                    <option value="">Keep existing category</option>
-                                    {STAGE7D_CATEGORY_OPTIONS.map((option) => (
-                                      <option key={option} value={option}>
-                                        {option}
-                                      </option>
-                                    ))}
-                                  </select>
-                                </div>
-                                <div className="grid gap-1">
-                                  <label
-                                    htmlFor={`${entry.id}-verified-micro-skill-key`}
-                                    className="text-xs font-medium uppercase tracking-[0.16em] text-[color:var(--mid)]"
-                                  >
-                                    Verified micro-skill key
-                                  </label>
-                                  <input
-                                    id={`${entry.id}-verified-micro-skill-key`}
-                                    name="verified_micro_skill_key"
-                                    type="text"
-                                    placeholder={
-                                      entry.actionTarget.suggestedMicroSkillKey &&
-                                      entry.actionTarget.suggestedMicroSkillKey.trim().length > 0
-                                        ? `Current: ${entry.actionTarget.suggestedMicroSkillKey}`
-                                        : "Enter a canonical micro-skill key"
-                                    }
-                                    className="rounded-2xl border border-[var(--border)] bg-white px-3 py-2 text-sm text-[color:var(--ink)] placeholder:text-[color:var(--mid)]"
-                                  />
-                                </div>
-                                <div className="grid gap-1">
-                                  <label
-                                    htmlFor={`${entry.id}-verification-note`}
-                                    className="text-xs font-medium uppercase tracking-[0.16em] text-[color:var(--mid)]"
-                                  >
-                                    Parent note
-                                  </label>
-                                  <textarea
-                                    id={`${entry.id}-verification-note`}
-                                    name="verification_note"
-                                    rows={3}
-                                    placeholder="Optional note for the canonical verification record"
-                                    className="rounded-2xl border border-[var(--border)] bg-white px-3 py-2 text-sm text-[color:var(--ink)] placeholder:text-[color:var(--mid)]"
-                                  />
-                                </div>
-                                <div>
-                                  <button
-                                    type="submit"
-                                    name="decision"
-                                    value="overridden"
-                                    className="brand-secondary-btn"
-                                  >
-                                    Save override
-                                  </button>
-                                </div>
-                              </form>
-                            </details>
-                            {canCaptureCandidateMapping ? (
-                              <details className="rounded-2xl border border-[var(--border)] bg-white px-4 py-3">
-                                <summary className="cursor-pointer text-sm font-medium text-[color:var(--ink)]">
-                                  Classify and capture candidate mapping
-                                </summary>
-                                <p className="mt-3 text-sm leading-6 text-[color:var(--mid)]">
-                                  Save this spelling occurrence as verified evidence and capture a
-                                  pending candidate mapping. It will not be used for future suggestions until promoted.
-                                </p>
-                                <form
-                                  action={captureSubmissionSpellingCandidateMapping}
-                                  className="mt-4 grid gap-3"
-                                >
-                                  <input
-                                    type="hidden"
-                                    name="submission_id"
-                                    value={props.submissionId}
-                                  />
-                                  <input
-                                    type="hidden"
-                                    name="redirect_path"
-                                    value={props.redirectPath}
-                                  />
-                                  <input
-                                    type="hidden"
-                                    name="misspelling_instance_id"
-                                    value={entry.actionTarget.misspellingInstanceId}
-                                  />
-                                  <div className="grid gap-1 text-sm text-[color:var(--ink)]">
-                                    <span className="font-medium">Word child wrote</span>
-                                    <p className="rounded-2xl border border-[var(--border)] bg-white px-3 py-2">
-                                      {entry.actionTarget.observedText}
-                                    </p>
-                                  </div>
-                                  <div className="grid gap-1 text-sm text-[color:var(--ink)]">
-                                    <span className="font-medium">Correct spelling</span>
-                                    <p className="rounded-2xl border border-[var(--border)] bg-white px-3 py-2">
-                                      {entry.actionTarget.suggestedReplacement}
-                                    </p>
-                                  </div>
-                                  <div className="grid gap-1">
-                                    <label
-                                      htmlFor={`${entry.id}-candidate-micro-skill-key`}
-                                      className="text-xs font-medium uppercase tracking-[0.16em] text-[color:var(--mid)]"
-                                    >
-                                      Existing canonical micro-skill
-                                    </label>
-                                    {props.candidateCaptureMicroSkillProvider?.status === "available" ? (
-                                      <select
-                                        id={`${entry.id}-candidate-micro-skill-key`}
-                                        name="micro_skill_key"
-                                        required
-                                        defaultValue=""
-                                        className="rounded-2xl border border-[var(--border)] bg-white px-3 py-2 text-sm text-[color:var(--ink)]"
-                                      >
-                                        <option value="" disabled>
-                                          Choose a micro-skill
-                                        </option>
-                                        {props.candidateCaptureMicroSkillProvider.options.map((option) => (
-                                          <option
-                                            key={option.microSkillKey}
-                                            value={option.microSkillKey}
-                                          >
-                                            {option.displayName} ({option.microSkillKey})
-                                          </option>
-                                        ))}
-                                      </select>
-                                    ) : (
-                                      <p className="rounded-2xl border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800">
-                                        Candidate capture is blocked until assignable spelling
-                                        micro-skills are available.
-                                      </p>
-                                    )}
-                                  </div>
-                                  <div>
-                                    <button
-                                      type="submit"
-                                      disabled={
-                                        props.candidateCaptureMicroSkillProvider?.status !== "available"
-                                      }
-                                      className="brand-secondary-btn disabled:cursor-not-allowed disabled:opacity-60"
-                                    >
-                                      Save candidate mapping
-                                    </button>
-                                  </div>
-                                </form>
-                              </details>
-                            ) : null}
                           </div>
                         ) : null}
                       </div>

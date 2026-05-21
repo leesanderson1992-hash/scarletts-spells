@@ -326,13 +326,44 @@ Implementation phase breakdown:
   - status:
     - authorized for documentation only
 - Slice `4B.0` — Bounded micro-skill option filtering
-  - future Review Work filtering by existing `micro_skill_catalog`
-    family/cluster metadata only
-  - helps parents find existing canonical skills before raising
-    `No matching skill`
-  - must not create micro-skills, allow free-text `micro_skill_key`, write
-    canonical truth, change resolver priority, or block parent review
-    completion
+  - status: implemented and QA passed
+  - replaces the bulky candidate-capture selector with a compact spelling
+    review table
+  - table columns:
+    - Wrong Word
+    - Correct Word
+    - Skill Family dropdown
+    - Skill Cluster dropdown
+    - Micro-skill dropdown
+    - Actions
+  - suggested spelling issues are pre-populated
+  - parent may override wrong/correct word only where the existing Review Work
+    flow already allows it
+  - Skill Family uses existing parent-facing family display names and filters
+    Skill Cluster
+  - Skill Cluster uses existing parent-facing cluster display names and
+    filters Micro-skill
+  - Micro-skill uses existing parent-facing micro-skill display names
+  - final submitted value remains exactly one catalog-backed
+    `micro_skill_key`
+  - action icons:
+    - `X` = false positive
+      - tooltip/focus text: `This was not actually wrong.`
+    - `!` = not a learning issue
+      - tooltip/focus text: `This is not something to practise.`
+    - Tick = approve this correction and skill
+      - tooltip/focus text: `Approve this correction and skill.`
+  - Tick uses existing Review Work verification semantics only
+  - Tick must not automatically create global truth or promote parent-local
+    mappings for future reuse
+  - captured/promoted mapping status may be shown, but promotion/revert remain
+    separate Slice `3` behavior
+  - the table uses existing active, assignable `D4` `micro_skill_catalog`
+    rows for selectable micro-skills and existing family/cluster display
+    metadata for parent-facing labels
+  - the table does not create micro-skills, allow free-text
+    `micro_skill_key`, write canonical truth, change resolver priority, or
+    block parent review completion
 - Slice `4B.1` — Parent catalog-review case capture
   - future parent `No matching skill` save path for eligible lesson-submission
     spelling rows only
@@ -459,6 +490,7 @@ Next documented stage after Slice `3`:
     mastery, reward, assignment, scoring, analytics, template-routing, or
     manual-writing-sample expansion is authorized
 - Slice `4B.0` — Bounded micro-skill option filtering by family/cluster
+  - implemented and QA passed as the compact spelling review table UX
 - Slice `4B.1` — Parent `No matching skill` catalog-review case capture
 - Slice `4C` — Minimal protected admin/catalog-review read/triage surface
 - Slice `4D` — Admin decisions and canonical promotion
@@ -544,6 +576,43 @@ Slice `4A` catalog-review contract:
   - any unresolved catalog-review case affects resolver suggestions
   - any implementation requires manual writing sample support
   - any path cannot preserve source/audit lineage
+
+Slice `4B.0` implementation closeout:
+- implemented and QA passed as the compact spelling review table contract
+- previous bulky candidate-capture selector wording is superseded
+- table scope:
+  - pre-populated suggested spelling issues
+  - parent-editable wrong/correct word only where the existing Review Work
+    flow already allows it
+  - Skill Family dropdown with existing parent-facing family display names
+  - Skill Cluster dropdown filtered by selected Skill Family
+  - Micro-skill dropdown filtered by selected Skill Cluster
+  - Actions column with false positive, not a learning issue, and approval
+    icons
+- action semantics:
+  - `X`: false positive, `This was not actually wrong.`
+  - `!`: not a learning issue, `This is not something to practise.`
+  - Tick: approve this correction and skill, `Approve this correction and
+    skill.`
+- Tick must reuse existing Review Work verification semantics
+- Tick must not automatically create global truth
+- Tick must not automatically promote parent-local mappings for future reuse
+- parent-local promotion/revert remains separate Slice `3` behavior
+- captured/promoted mapping status may be shown as status or separate action,
+  but must not be collapsed into Tick
+- selectable micro-skill truth remains existing active, assignable `D4`
+  `micro_skill_catalog` rows only
+- parent-facing labels use existing family, cluster, and micro-skill display
+  metadata where available
+- final submitted value remains exactly one catalog-backed `micro_skill_key`
+- this slice must not add migrations, create `spelling_catalog_review_cases`,
+  add `No matching skill` capture, add admin review, change resolver priority,
+  change mastery/reward/assignment/scoring/analytics/template-routing
+  contracts, broaden manual writing samples, or allow parent-created global
+  canonical truth
+- Slice `4B.1` remains parent `No matching skill` catalog-review case capture
+- Slice `4C` remains minimal admin read/triage
+- Slice `4D` remains admin decisions and canonical promotion
 
 ### Stage 1A — Shared writing-engine foundation
 

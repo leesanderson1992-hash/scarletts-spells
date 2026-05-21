@@ -788,13 +788,38 @@ Slice `4A` spelling catalog-review taxonomy contract:
     existing `micro_skill_key`
   - `writing_issues`, because those are durable reviewed issue history rather
     than catalog-curation workflow
-- Slice `4B.0` should add bounded Review Work micro-skill option filtering by
-  family/cluster before or alongside parent case capture
-- Slice `4B.0` filtering may use existing `micro_skill_catalog` metadata only:
+- Slice `4B.0` now replaces the bulky candidate-capture selector with a
+  compact spelling review table before parent case capture
+- Slice `4B.0` table columns:
+  - Wrong Word
+  - Correct Word
+  - Skill Family dropdown
+  - Skill Cluster dropdown
+  - Micro-skill dropdown
+  - Actions
+- Skill Family must use existing parent-facing family display names and filter
+  Skill Cluster
+- Skill Cluster must use existing parent-facing cluster display names and
+  filter Micro-skill
+- Micro-skill must use existing parent-facing micro-skill display names
+- final submitted value remains exactly one existing catalog-backed
+  `micro_skill_key`
+- Slice `4B.0` filtering may use existing active, assignable `D4`
+  `micro_skill_catalog` rows and existing family/cluster display metadata
+  only:
   - `mastery_domain_key`
   - `skill_family_key`
   - `skill_cluster_key`
   - display metadata needed to present bounded options
+- Slice `4B.0` actions:
+  - `X`: false positive, `This was not actually wrong.`
+  - `!`: not a learning issue, `This is not something to practise.`
+  - Tick: approve this correction and skill, `Approve this correction and
+    skill.`
+- Tick must use existing Review Work verification semantics only
+- Tick must not create global truth or automatically promote parent-local
+  mappings
+- parent-local promotion/revert remains separate Slice `3` behavior
 - Slice `4B.0` filtering must not:
   - create micro-skills
   - allow free-text `micro_skill_key`

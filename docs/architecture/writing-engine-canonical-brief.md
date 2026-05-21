@@ -256,9 +256,29 @@ This means:
     `micro_skill_key` even when the gap is that no suitable skill exists
   - `writing_issues`, which are durable reviewed issue history rather than
     catalog-curation workflow
-- Slice `4B.0` should make bounded Review Work micro-skill option filtering by
-  family/cluster available before or alongside case capture:
-  - use existing `micro_skill_catalog` metadata only
+- Slice `4B.0` now replaces the bulky candidate-capture selector with a
+  compact spelling review table before case capture:
+  - table columns are Wrong Word, Correct Word, Skill Family dropdown, Skill
+    Cluster dropdown, Micro-skill dropdown, and Actions
+  - suggested spelling issues are pre-populated
+  - parent may override wrong/correct word only where the existing Review Work
+    flow already allows it
+  - Skill Family uses existing parent-facing family display names and filters
+    Skill Cluster
+  - Skill Cluster uses existing parent-facing cluster display names and
+    filters Micro-skill
+  - Micro-skill uses existing parent-facing micro-skill display names
+  - final submitted value remains exactly one catalog-backed
+    `micro_skill_key`
+  - actions are `X` false positive, `!` not a learning issue, and Tick
+    approve correction and skill
+  - Tick uses existing Review Work verification semantics only
+  - Tick must not create global truth or automatically promote parent-local
+    mappings
+  - parent-local promotion/revert remains separate Slice `3` behavior
+  - use existing active, assignable `D4` `micro_skill_catalog` rows for
+    selectable micro-skills and existing family/cluster display metadata for
+    parent-facing labels
   - do not create micro-skills
   - do not allow free-text `micro_skill_key`
   - do not write canonical truth

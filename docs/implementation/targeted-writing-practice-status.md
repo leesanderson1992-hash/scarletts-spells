@@ -263,7 +263,12 @@ Canonical documentation now defers to:
       mastery, reward, assignment, scoring, analytics, template-routing, or
       manual-writing-sample expansion
   - Slice `4B.0` — Bounded micro-skill option filtering by family/cluster
-    - use existing `micro_skill_catalog` metadata only
+    - status: implemented and QA passed
+    - replaces the bulky candidate-capture selector with a compact spelling
+      review table
+    - uses existing active assignable `D4` `micro_skill_catalog` rows for
+      selectable micro-skills and existing family/cluster display metadata for
+      parent-facing labels
     - help parents find existing canonical skills before raising a catalog
       review case
   - Slice `4B.1` — Parent `No matching skill` case capture
@@ -381,12 +386,41 @@ Canonical documentation now defers to:
   - parent reason/note
   - status
   - admin decision/audit metadata
-- Slice `4B.0` should add bounded Review Work option filtering by existing
-  `micro_skill_catalog` family/cluster metadata before or alongside case
-  capture
-- Slice `4B.0` filtering must not create micro-skills, allow free-text
+- Slice `4B.0` is implemented as a compact Review Work spelling review table
+  rather than the bulky candidate-capture selector
+- Slice `4B.0` table columns:
+  - Wrong Word
+  - Correct Word
+  - Skill Family dropdown
+  - Skill Cluster dropdown
+  - Micro-skill dropdown
+  - Actions
+- suggested spelling issues are pre-populated
+- parent may override wrong/correct word only where the existing Review Work
+  flow already allows it
+- Skill Family uses existing parent-facing family display names and filters
+  Skill Cluster
+- Skill Cluster uses existing parent-facing cluster display names and filters
+  Micro-skill
+- Micro-skill uses existing parent-facing micro-skill display names
+- final submitted value remains exactly one existing catalog-backed
+  `micro_skill_key`
+- Slice `4B.0` table does not create micro-skills, allow free-text
   `micro_skill_key`, change resolver priority, write canonical truth, or block
   parent review completion
+- action semantics:
+  - `X` = false positive
+    - tooltip/focus text: `This was not actually wrong.`
+  - `!` = not a learning issue
+    - tooltip/focus text: `This is not something to practise.`
+  - Tick = approve this correction and skill
+    - tooltip/focus text: `Approve this correction and skill.`
+- Tick must use existing Review Work verification semantics only
+- Tick must not automatically create global truth
+- Tick must not automatically promote parent-local mappings for future reuse
+- parent-local promotion/revert remains separate Slice `3` behavior
+- captured/promoted mapping status may be shown as status or separate action,
+  but must not be collapsed into Tick
 - first admin surface comes after parent-raised catalog-review cases can exist
 - first admin place should be minimal and protected, such as
   `/admin/catalog-review` or the repo's equivalent internal/admin route
@@ -430,6 +464,35 @@ Canonical documentation now defers to:
     changes
   - no manual writing sample broadening
   - no parent-created global canonical truth
+
+### Slice 4B.0 implementation status
+- Slice `4B.0` is implemented and QA passed
+- previous bulky candidate-capture selector direction is superseded by the
+  compact spelling review table
+- delivered:
+  - pre-populated spelling review table
+  - parent-facing Skill Family, Skill Cluster, and Micro-skill display names
+  - Skill Family -> Skill Cluster -> Micro-skill filtering
+  - final submission of exactly one existing catalog-backed `micro_skill_key`
+  - action icons for false positive, not a learning issue, and approve
+    correction+skill
+  - row-specific accessible names for Skill Family, Skill Cluster, and
+    Micro-skill selects
+- not delivered in this slice:
+  - no migration
+  - no `spelling_catalog_review_cases`
+  - no parent `No matching skill` case capture
+  - no admin/catalog review surface
+  - no resolver priority change
+  - no mastery, reward, assignment, scoring, analytics, or template-routing
+    change
+  - no manual writing sample broadening
+  - no parent-created global canonical truth
+- remaining staged work:
+  - Slice `4B.1` remains parent `No matching skill` catalog-review case
+    capture
+  - Slice `4C` remains minimal admin read/triage
+  - Slice `4D` remains admin decisions and canonical promotion
 
 ### Stage 7 implementation status
 - Stage `7` overall is complete and QA passed on its documented bounded path
