@@ -2,8 +2,9 @@
 
 ## Current initiative
 
-- Slice `4C` readiness: private-MVP admin/internal access is now documented as
-  the prerequisite for the minimal protected catalog-review read/triage surface
+- Slice `4C` readiness: private-MVP admin/internal access foundation is now
+  implemented; the next safe work is the minimal protected read-only
+  catalog-review triage surface
 
 ## Current stage
 
@@ -19,14 +20,14 @@
     inside the same parent/child scope
   - no parent action creates global canonical mapping truth
 - current active work has moved through Slice `4A`, `4B.0`, `4B.1`, and the
-  docs-only admin/internal access prerequisite for Slice `4C`:
+  admin/internal access foundation prerequisite for Slice `4C`:
   - define parent-facing `No matching skill`
   - define `Send this spelling case to catalog review.`
   - define future `spelling_catalog_review_cases`
   - define bounded family/cluster filtering as Slice `4B.0`
   - define parent case capture as Slice `4B.1`
   - define minimal admin review as Slice `4C`
-  - define the private-MVP admin/internal access model in
+  - implement the private-MVP admin/internal access foundation defined in
     [docs/architecture/admin-internal-access.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/architecture/admin-internal-access.md:1)
   - define admin decisions and canonical promotion as Slice `4D`
   - keep migrations, runtime code, Review Work UI, tests, package files,
@@ -50,7 +51,7 @@
     existing `micro_skill_catalog` metadata only
   - Slice `4B.1`: parent `No matching skill` catalog-review case capture
   - Slice `4C`: minimal protected admin/catalog-review read/triage surface,
-    now unblocked at the documentation-contract level by
+    now unblocked at the admin access foundation level by
     [docs/architecture/admin-internal-access.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/architecture/admin-internal-access.md:1)
   - Slice `4D`: admin decisions and canonical promotion
 - no runtime Stage `8` automatic mastery implementation should begin until the

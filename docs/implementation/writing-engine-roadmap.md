@@ -381,12 +381,15 @@ Implementation phase breakdown:
     catalog-review cases can exist
   - documentation status: unblocked by
     [docs/architecture/admin-internal-access.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/architecture/admin-internal-access.md:1)
-  - implementation status: ready for a separate admin access foundation pass
-    before the catalog-review UI is built
+  - implementation status: admin access foundation implemented; the
+    `/admin/catalog-review` UI is not implemented yet
   - authenticated parent identity is not admin/internal identity; parent-scoped
     ownership checks and RLS must remain parent-scoped
-  - route convention: `/admin/catalog-review` under a mandatory
+  - implemented foundation: `/admin` session protection in `proxy.ts`,
+    `lib/admin/access.ts`, `lib/supabase/service-role.ts`, and mandatory
     `app/admin/layout.tsx` server-side admin guard
+  - route convention: future `/admin/catalog-review` under the implemented
+    admin layout guard
   - admin identity for the private MVP comes from private server-side
     `ADMIN_USER_IDS` and `ADMIN_EMAILS` allowlists; do not use
     `NEXT_PUBLIC_*`, DB admin tables, Supabase custom claims, role-management
@@ -528,10 +531,11 @@ Next documented stage after Slice `3`:
 - Slice `4C` — Minimal protected admin/catalog-review read/triage surface
   - access convention is now documented in
     [docs/architecture/admin-internal-access.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/architecture/admin-internal-access.md:1)
-  - first implementation step should add the server-only admin access helper,
-    server-only service-role helper, `/admin` route protection in
+  - admin access foundation is implemented with the server-only admin access
+    helper, server-only service-role helper, `/admin` route protection in
     proxy/middleware, and mandatory `app/admin/layout.tsx` guard
-  - approved route is `/admin/catalog-review`
+  - approved future route is `/admin/catalog-review`; the UI is not implemented
+    yet
   - admin reads use server-only service-role access after the admin guard; no
     admin RLS read policies are added for v1
   - Slice `4C` must not include admin decisions, canonical/global promotion,
@@ -650,14 +654,14 @@ Slice `4A` catalog-review contract:
 - Slice `4C` access-control readiness:
   - documentation contract exists in
     [docs/architecture/admin-internal-access.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/architecture/admin-internal-access.md:1)
-  - implementation is ready to begin as a separate foundation pass before the
-    catalog-review UI
+  - admin access foundation is implemented; next Slice `4C` work is the
+    read-only catalog-review triage UI
   - admin/internal identity is private server-side allowlists:
     `ADMIN_USER_IDS` preferred, `ADMIN_EMAILS` acceptable for private MVP
   - admin pages live under `/admin`; `app/admin/layout.tsx` is the mandatory
     server-side guard
-  - future admin APIs live under `/api/admin/*` and must call the same admin
-    helper before querying
+  - admin APIs are not implemented yet; future admin APIs live under
+    `/api/admin/*` and must call the same admin helper before querying
   - parent-scoped policies for `spelling_catalog_review_cases` must remain
     parent-scoped
   - admin reads use a server-only service-role helper after admin authorization

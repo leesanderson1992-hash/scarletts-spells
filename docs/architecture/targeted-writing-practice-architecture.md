@@ -250,13 +250,14 @@ Parent-Verified Spelling Candidate Capture architecture boundary:
     canonical truth, change resolver priority, or block parent review
     completion
 - admin surface timing:
-  - there is currently no admin place
+  - the admin access foundation now exists, but there is currently no
+    catalog-review admin UI
   - do not create a broad admin system upfront
   - first admin surface should be introduced only after parent-raised cases can
     exist
   - admin/internal access convention is defined in
     [docs/architecture/admin-internal-access.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/architecture/admin-internal-access.md:1)
-  - first admin place is `/admin/catalog-review`
+  - first admin review surface remains future `/admin/catalog-review`
   - admin identity for the private MVP comes from private server-side
     `ADMIN_USER_IDS` and `ADMIN_EMAILS` allowlists
   - there is no DB admin role table, Supabase custom claims model,
@@ -264,8 +265,8 @@ Parent-Verified Spelling Candidate Capture architecture boundary:
   - authenticated parent identity is not admin/internal identity; parent-scoped
     ownership checks and RLS remain parent-scoped
   - `app/admin/layout.tsx` is the mandatory server-side guard for admin pages
-  - future `/api/admin/*` route handlers must call the same admin helper before
-    querying data
+  - admin APIs are not implemented yet; future `/api/admin/*` route handlers
+    must call the same admin helper before querying data
   - admin reads use a server-only service-role helper after admin authorization
     passes
   - no admin RLS read policies are added for v1
@@ -296,8 +297,9 @@ Parent-Verified Spelling Candidate Capture architecture boundary:
 - Slice `4C` implementation readiness:
   - docs contract exists in
     [docs/architecture/admin-internal-access.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/architecture/admin-internal-access.md:1)
-  - implementation may proceed as a separate admin access foundation plus
-    read-only `/admin/catalog-review` surface
+  - admin access foundation is implemented
+  - next Slice `4C` implementation may proceed only as a read-only
+    `/admin/catalog-review` triage surface
   - parent-scoped RLS must remain unchanged
   - service-role access must stay server-only and must be guarded by the admin
     helper before any query

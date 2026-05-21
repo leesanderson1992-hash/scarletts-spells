@@ -501,14 +501,20 @@ Canonical documentation now defers to:
   [docs/architecture/admin-internal-access.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/architecture/admin-internal-access.md:1)
 - Slice `4C` implementation readiness:
   - documentation prerequisite is complete
+  - admin access foundation is implemented:
+    - `lib/admin/access.ts`
+    - `lib/supabase/service-role.ts`
+    - `/admin` session protection in `proxy.ts`
+    - mandatory `app/admin/layout.tsx` server-side guard
+  - `/admin/catalog-review` is not implemented yet
   - admin identity for the private MVP comes from private server-side
     `ADMIN_USER_IDS` and `ADMIN_EMAILS` allowlists
   - there is no DB admin role table, Supabase custom claims model,
     role-management UI, or separate admin login in Slice `4C`
   - authenticated parent identity is not admin/internal identity
   - `app/admin/layout.tsx` is the mandatory server-side guard for admin pages
-  - future `/api/admin/*` route handlers must call the same admin helper before
-    querying data
+  - admin APIs are not implemented yet; future `/api/admin/*` route handlers
+    must call the same admin helper before querying data
   - admin reads use server-only service-role access only after admin
     authorization passes
   - no admin RLS read policies are added for v1

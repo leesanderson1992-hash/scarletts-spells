@@ -3,11 +3,16 @@
 ## Purpose
 
 This document defines the smallest safe admin/internal access model for
-Scarlett's Spells before any admin route is implemented.
+Scarlett's Spells before any admin review surface is implemented.
 
 It is a private-MVP access contract for protected internal read/triage surfaces.
 It exists so Slice `4C` catalog-review admin UI can be built without weakening
 parent access, parent-scoped RLS, or Writing Engine taxonomy boundaries.
+
+Implementation status: the admin access foundation is implemented. The
+catalog-review admin UI, admin APIs, admin decisions, canonical promotion,
+micro-skill creation, catalog mutation, and case status mutation are not
+implemented.
 
 ## Current Model
 
@@ -32,12 +37,16 @@ claims model, role-management UI, or separate admin login in this version.
 
 Admin pages live under `/admin`.
 
-The first expected admin route is:
+Implemented foundation:
+
+- `/admin` session protection is registered in `proxy.ts`
+- `app/admin/layout.tsx` is the mandatory server-side admin gate
+- the layout calls the shared server-only admin helper before rendering child
+  admin routes
+
+The first expected admin review route is not implemented yet:
 
 - `/admin/catalog-review`
-
-`app/admin/layout.tsx` is the mandatory gate for admin pages. It must call a
-shared server-only admin helper before rendering any child route.
 
 Future admin APIs must live under `/api/admin/*` and must call the same admin
 helper before querying data. API route handlers must not rely on the admin page
@@ -48,32 +57,35 @@ Proxy/middleware may protect `/admin` from anonymous access by redirecting to
 signed-in non-admin parent must still be blocked by the server-side admin
 guard.
 
-## Helper Boundaries
+## Implemented Helper Boundaries
 
-The future admin access helper should live at:
+The admin access helper lives at:
 
 - `lib/admin/access.ts`
 
-Expected helper responsibilities:
+Implemented helper responsibilities:
 
 - read the current Supabase user using the existing server auth path
 - return unauthenticated when no user is signed in
 - authorize only users whose id or email appears in the private allowlist
-- expose a `requireAdminUser()` style helper for layouts, admin route handlers,
-  and admin-only server actions
+- expose `getAdminUser()` and `requireAdminUser()` for layouts, future admin
+  route handlers, and future admin-only server actions
 - avoid leaking allowlist values or service-role configuration to the browser
 
-The future service-role Supabase helper should live at:
+The service-role Supabase helper lives at:
 
 - `lib/supabase/service-role.ts`
 
-Expected service-role responsibilities:
+Implemented service-role responsibilities:
 
 - use `import "server-only"`
 - read a private server-side service-role key, never a `NEXT_PUBLIC_*` key
 - be imported only by admin server components, admin route handlers, or
   admin-only server actions after admin authorization has passed
 - never be passed to client components
+
+The service-role helper exists as a server-only boundary. It is not imported by
+client components, and no admin UI or API currently uses it.
 
 ## RLS And Parent Isolation
 
@@ -106,10 +118,10 @@ Parent data isolation rules:
 
 This model authorizes read-only internal surfaces only.
 
-For Slice `4C`, it authorizes a protected `/admin/catalog-review` read/triage
-surface over open `spelling_catalog_review_cases`. The surface may group,
-filter, inspect, and summarize parent-raised catalog-review cases for internal
-triage.
+For Slice `4C`, it authorizes a future protected `/admin/catalog-review`
+read/triage surface over open `spelling_catalog_review_cases`. That surface may
+group, filter, inspect, and summarize parent-raised catalog-review cases for
+internal triage. The surface is not implemented yet.
 
 This model does not authorize:
 
@@ -134,8 +146,8 @@ before those operations are implemented.
 
 Slice `4C`:
 
-- may implement the admin access foundation
-- may add `/admin/catalog-review`
+- has implemented the admin access foundation
+- may add `/admin/catalog-review` as a separate read-only UI slice
 - may add read-only internal triage over open catalog-review cases
 - must use the server-only admin guard and service-role boundary
 - must not mutate catalog-review case status or canonical catalog truth
