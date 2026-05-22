@@ -871,12 +871,22 @@ Slice `4A` catalog-review contract:
     until Slice `4E.3`
   - non-canonical Slice `4E` decisions record/close the case outcome only;
     they do not create canonical mappings or resolver-visible truth
+  - non-canonical decision semantics:
+    - `needs_new_micro_skill`: real issue, no suitable existing skill yet; no
+      micro-skill is created
+    - `word_level_only`: real spelling issue but not reusable canonical
+      micro-skill mapping truth
+    - `not_a_learning_issue`: should not become practice, catalog, or
+      canonical truth
+    - `reject_no_canonical_update`: reviewed; no canonical mapping, resolver
+      change, catalog update, or further curation action is needed
   - P1 provenance fix is closed: the source
     `spelling_catalog_review_case_decisions` row is inserted first, its id is
     passed as `p_source_decision_id` to the canonical mapping RPC, mapping and
     event rows preserve `source_decision_id`, the decision row is updated with
-    the returned `canonical_mapping_id`, and the flow remains atomic in the
-    same RPC transaction
+    the returned `canonical_mapping_id`, the flow remains atomic in the same
+    RPC transaction, and canonical mapping creation failure rolls back the
+    decision insert
   - audit provenance now links case -> case decision -> canonical mapping ->
     canonical mapping event, supporting future catalog-gap, resolver-quality,
     and admin-audit analytics without adding analytics tables or dashboards
@@ -894,9 +904,22 @@ Slice `4A` catalog-review contract:
     `npm run writing-engine:admin-canonical-curation-regression`, optional
     legacy admin catalog-review regression, `git diff --check`, and P1
     provenance re-audit
-  - residual risk: validation is still static/source-level rather than live
-    Supabase DB execution; DB-backed smoke testing should happen before Slice
-    `4E.3` resolver integration or production reliance
+  - hosted DB smoke initially failed because the hosted RPC body was stale,
+    then passed after the corrected SQL was manually reapplied:
+    `add_canonical_mapping` created a decision, canonical mapping, and
+    canonical mapping event; mapping and event `source_decision_id` matched the
+    decision id; the decision `canonical_mapping_id` matched the mapping id;
+    `reject_no_canonical_update` created no canonical mapping; cleanup left no
+    smoke cases or mappings behind
+  - residual deployment/process risk: hosted DB behavior passed after manual
+    SQL reapplication, but `supabase_migrations.schema_migrations` did not
+    show expected `20260522%` rows, so hosted migration-ledger alignment is
+    not proven. Multiple local migration files share a `20260522` prefix, so
+    migration ordering/version hygiene should be reviewed before relying on
+    CLI migrations for later slices. This does not block the Slice `4E.2`
+    source closeout, but do not proceed to Slice `4E.3` resolver integration
+    until the risk is documented and an explicit decision is made on whether
+    to reconcile first
 - false-positive catalog review is a future Slice `4D` planning concern:
   - reserve future case reason `false_positive_report`
   - reserve future admin outcomes `false_positive_confirmed` and
@@ -929,6 +952,11 @@ Slice `4A` catalog-review contract:
     canonical/global exact-pair spelling mapping, existing catalog-backed
     canonical mapping behavior, same-scope `parent_local_promoted` mapping,
     then unresolved
+- Slice `4E.3` owns resolver integration. Slice `4E.4` may handle canonical
+  mapping lifecycle refinements such as disable/deprecate/supersede. Slice
+  `4E.5` may handle false-positive curation. Hosted Supabase migration-ledger
+  reconciliation is a separate deployment hygiene task and is not solved by
+  the Slice `4E.2` docs closeout.
 - Slice `4B.1` regression checklist:
   - parent can create an open catalog-review case for an eligible
     lesson-submission spelling row

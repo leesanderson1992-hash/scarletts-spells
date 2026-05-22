@@ -1095,11 +1095,16 @@ Slice `4A` spelling catalog-review taxonomy contract:
   - `add_canonical_mapping` does not mutate `micro_skill_catalog`; other
     Slice `4E` decisions do not create canonical mappings or resolver-visible
     truth
+  - non-canonical Slice `4E` decisions distinguish a real issue that needs a
+    future micro-skill, a word-level-only issue, a non-learning issue, and a
+    reviewed refusal where no canonical mapping, resolver change, catalog
+    update, or further curation action is needed
   - P1 provenance fix is complete: the source decision row is inserted before
     canonical mapping creation, its id is passed as `p_source_decision_id`,
     canonical mapping and event rows preserve `source_decision_id`, the
     decision row is updated with `canonical_mapping_id`, and the flow is
-    atomic in the same RPC transaction
+    atomic in the same RPC transaction; canonical mapping creation failure
+    rolls back the decision insert
   - resolver boundary is unchanged: no resolver files read
     `spelling_canonical_mappings`, no resolver priority changed, and active
     canonical mappings remain resolver-invisible until Slice `4E.3`
@@ -1113,8 +1118,19 @@ Slice `4A` spelling catalog-review taxonomy contract:
   - validation passed: targeted eslint, `npx tsc --noEmit`, `npm run build`,
     canonical mapping storage regression, admin canonical-curation regression,
     optional legacy regression, `git diff --check`, and P1 provenance re-audit
-  - residual risk: validation is static/source-level rather than live Supabase
-    DB execution; DB-backed smoke testing should happen before Slice `4E.3`
+  - hosted DB smoke initially failed because the hosted RPC body was stale,
+    then passed after corrected SQL was manually reapplied: mapping/event
+    `source_decision_id` and decision `canonical_mapping_id` were populated,
+    `reject_no_canonical_update` created no mapping, and cleanup left no smoke
+    cases or mappings behind
+  - residual deployment/process risk: hosted DB behavior passed after manual
+    SQL reapplication, but hosted migration-ledger alignment is not proven
+    because `supabase_migrations.schema_migrations` did not show expected
+    `20260522%` rows. Multiple local migration files share a `20260522`
+    prefix, so migration ordering/version hygiene should be reviewed before
+    relying on CLI migrations for later slices. This does not block Slice
+    `4E.2` source closeout, but the risk must be documented and explicitly
+    decided before Slice `4E.3`
 - future false-positive catalog-review vocabulary is reserved but not
   implemented:
   - `false_positive_report`

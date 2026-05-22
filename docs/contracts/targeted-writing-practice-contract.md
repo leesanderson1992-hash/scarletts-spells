@@ -691,11 +691,21 @@ Slice `4A` catalog-review contract:
     affect resolver output in Slice `4E.2`
   - non-canonical Slice `4E` decisions record/close case outcomes without
     creating canonical mappings or resolver-visible truth
+  - non-canonical Slice `4E` decisions mean:
+    - `needs_new_micro_skill`: real issue, no suitable existing skill yet; no
+      micro-skill is created
+    - `word_level_only`: real spelling issue but not reusable canonical
+      micro-skill mapping truth
+    - `not_a_learning_issue`: should not become practice, catalog, or
+      canonical truth
+    - `reject_no_canonical_update`: reviewed; no canonical mapping, resolver
+      change, catalog update, or further curation action is needed
   - P1 provenance fix is part of the accepted contract: insert the source
     `spelling_catalog_review_case_decisions` row first, pass that id as
     `p_source_decision_id`, preserve `source_decision_id` on canonical mapping
     and event rows, then update the decision row with `canonical_mapping_id`
-    in the same RPC transaction
+    in the same RPC transaction; canonical mapping creation failure rolls back
+    the decision insert
   - RPC execute remains service-role only; no client service-role helper,
     parent RLS change, or admin browser-client RLS policy was added
   - audit provenance now links case -> case decision -> canonical mapping ->
@@ -705,9 +715,19 @@ Slice `4A` catalog-review contract:
     `npm run writing-engine:canonical-mapping-storage-regression`,
     `npm run writing-engine:admin-canonical-curation-regression`, optional
     legacy regression, `git diff --check`, and P1 provenance re-audit
-  - residual risk: validation is static/source-level and not live Supabase DB
-    execution; DB-backed smoke testing should happen before Slice `4E.3`
-    resolver integration or production reliance
+  - hosted DB smoke initially failed because the hosted RPC body was stale,
+    then passed after corrected SQL was manually reapplied: mapping/event
+    `source_decision_id` and decision `canonical_mapping_id` were populated,
+    `reject_no_canonical_update` created no mapping, and cleanup left no smoke
+    cases or mappings behind
+  - residual deployment/process risk: hosted DB behavior passed after manual
+    SQL reapplication, but hosted migration-ledger alignment is not proven
+    because `supabase_migrations.schema_migrations` did not show expected
+    `20260522%` rows. Multiple local migration files share a `20260522`
+    prefix, so migration ordering/version hygiene should be reviewed before
+    relying on CLI migrations for later slices. This does not block Slice
+    `4E.2` source closeout, but the risk must be documented and explicitly
+    decided before Slice `4E.3`
 - future false-positive catalog review vocabulary is reserved:
   - case reason `false_positive_report`
   - admin outcomes `false_positive_confirmed` and

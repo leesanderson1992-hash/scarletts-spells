@@ -404,9 +404,14 @@ Parent-Verified Spelling Candidate Capture architecture boundary:
   - P1 audit provenance is fixed: the source case-decision row exists before
     canonical mapping creation, its id is passed as `p_source_decision_id`,
     mapping/event rows preserve `source_decision_id`, and the same RPC
-    transaction updates the decision with `canonical_mapping_id`
+    transaction updates the decision with `canonical_mapping_id`; canonical
+    mapping creation failure rolls back the decision insert
   - non-canonical Slice `4E` decisions close/record only the case outcome and
     do not create canonical mappings
+  - non-canonical decision semantics distinguish a real issue needing a future
+    micro-skill, a word-level-only issue, a non-learning issue, and a reviewed
+    refusal where no canonical mapping, resolver change, catalog update, or
+    further curation action is needed
   - no `micro_skill_catalog` mutation, parent `Review Work` broadening,
     manual writing sample broadening, false-positive handling, resolver read,
     resolver priority change, analytics table, dashboard, mastery, rewards,
@@ -414,8 +419,19 @@ Parent-Verified Spelling Candidate Capture architecture boundary:
   - active canonical mappings are not resolver-visible until Slice `4E.3`
   - provenance now supports future catalog-gap, resolver-quality, and
     admin-audit analytics by linking case -> case decision -> mapping -> event
-  - residual risk: validation is static/source-level; DB-backed smoke testing
-    should happen before Slice `4E.3` or production reliance
+  - hosted DB smoke initially failed because the hosted RPC body was stale,
+    then passed after corrected SQL was manually reapplied: the affirmative
+    path populated mapping/event `source_decision_id`, updated the decision
+    with `canonical_mapping_id`, and `reject_no_canonical_update` created no
+    canonical mapping; cleanup left no smoke cases or mappings behind
+  - residual deployment/process risk: hosted DB behavior passed after manual
+    SQL reapplication, but hosted migration-ledger alignment is not proven
+    because `supabase_migrations.schema_migrations` did not show expected
+    `20260522%` rows. Multiple local migration files share a `20260522`
+    prefix, so migration ordering/version hygiene should be reviewed before
+    relying on CLI migrations for later slices. This does not block Slice
+    `4E.2` source closeout, but the risk must be documented and explicitly
+    decided before Slice `4E.3`
 - future false-positive review is reserved:
   - case reason `false_positive_report`
   - admin outcomes `false_positive_confirmed` and
