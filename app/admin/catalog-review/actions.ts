@@ -9,10 +9,11 @@ import { createServiceRoleClient } from "@/lib/supabase/service-role";
 const ADMIN_CATALOG_REVIEW_PATH = "/admin/catalog-review";
 
 const ADMIN_DECISION_TYPES = [
-  "linked_existing_skill",
-  "new_skill_needed",
+  "add_canonical_mapping",
+  "needs_new_micro_skill",
   "word_level_only",
   "not_a_learning_issue",
+  "reject_no_canonical_update",
 ] as const;
 
 type AdminDecisionType = (typeof ADMIN_DECISION_TYPES)[number];
@@ -81,12 +82,12 @@ export async function resolveSpellingCatalogReviewCase(formData: FormData) {
 
   let linkedMicroSkillKey: string | null = null;
 
-  if (decisionType === "linked_existing_skill") {
+  if (decisionType === "add_canonical_mapping") {
     if (!submittedMicroSkillKey) {
       redirect(
         buildRedirectWithMessage(
           "error",
-          "Link existing skill requires an active assignable D4 micro-skill.",
+          "Add canonical mapping requires an active assignable D4 micro-skill.",
         ),
       );
     }
@@ -110,7 +111,7 @@ export async function resolveSpellingCatalogReviewCase(formData: FormData) {
     redirect(
       buildRedirectWithMessage(
         "error",
-        "Only Link existing skill decisions may include a micro-skill.",
+        "Only Add canonical mapping decisions may include a micro-skill.",
       ),
     );
   }
@@ -125,8 +126,9 @@ export async function resolveSpellingCatalogReviewCase(formData: FormData) {
       p_decision_type: decisionType,
       p_linked_micro_skill_key: linkedMicroSkillKey,
       p_metadata: {
-        action_source: "admin_catalog_review_4d1",
-        canonical_mapping_created: false,
+        action_source: "admin_catalog_review_4e2",
+        canonical_mapping_created: decisionType === "add_canonical_mapping",
+        canonical_mapping_requested: decisionType === "add_canonical_mapping",
         resolver_visible: false,
       },
     },
@@ -143,6 +145,6 @@ export async function resolveSpellingCatalogReviewCase(formData: FormData) {
 
   revalidatePath(ADMIN_CATALOG_REVIEW_PATH);
   redirect(
-    buildRedirectWithMessage("saved", "Catalog-review case resolved."),
+    buildRedirectWithMessage("saved", "Catalog-review decision saved."),
   );
 }

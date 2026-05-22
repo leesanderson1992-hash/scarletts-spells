@@ -9,6 +9,7 @@ type CatalogReviewDecisionRow = {
   decision_type: string;
   decision_note: string | null;
   linked_micro_skill_key: string | null;
+  canonical_mapping_id: string | null;
   created_at: string;
 };
 
@@ -135,7 +136,12 @@ function DecisionHistory({ decisions }: { decisions: CatalogReviewDecisionRow[] 
           </span>
           {decision.linked_micro_skill_key ? (
             <span className="block text-[color:var(--mid)]">
-              Linked skill: {decision.linked_micro_skill_key}
+              Micro-skill: {decision.linked_micro_skill_key}
+            </span>
+          ) : null}
+          {decision.canonical_mapping_id ? (
+            <span className="block text-[color:var(--mid)]">
+              Canonical mapping: {decision.canonical_mapping_id}
             </span>
           ) : null}
           {decision.decision_note ? (
@@ -187,7 +193,7 @@ export function AdminCaseDecisionRow({
   );
   const [detailsOpen, setDetailsOpen] = useState(false);
   const formId = `admin-decision-${caseId}`;
-  const isLinkingSkill = decisionType === "linked_existing_skill";
+  const isAddingCanonicalMapping = decisionType === "add_canonical_mapping";
   const filteredClusters = clusterOptions.filter(
     (cluster) => cluster.skill_family_key === familyKey,
   );
@@ -234,12 +240,12 @@ export function AdminCaseDecisionRow({
           No matching skill
         </td>
         <td className="border-t border-[var(--border)] px-3 py-3">
-          {isLinkingSkill ? (
+          {isAddingCanonicalMapping ? (
             <label className="sr-only" htmlFor={`${formId}-family`}>
               Skill Family for {wrongWord}
             </label>
           ) : null}
-          {isLinkingSkill ? (
+          {isAddingCanonicalMapping ? (
             <select
               id={`${formId}-family`}
               value={familyKey}
@@ -262,12 +268,12 @@ export function AdminCaseDecisionRow({
           )}
         </td>
         <td className="border-t border-[var(--border)] px-3 py-3">
-          {isLinkingSkill ? (
+          {isAddingCanonicalMapping ? (
             <label className="sr-only" htmlFor={`${formId}-cluster`}>
               Skill Cluster for {wrongWord}
             </label>
           ) : null}
-          {isLinkingSkill ? (
+          {isAddingCanonicalMapping ? (
             <select
               id={`${formId}-cluster`}
               value={clusterKey}
@@ -290,12 +296,12 @@ export function AdminCaseDecisionRow({
           )}
         </td>
         <td className="border-t border-[var(--border)] px-3 py-3">
-          {isLinkingSkill ? (
+          {isAddingCanonicalMapping ? (
             <label className="sr-only" htmlFor={`${formId}-micro-skill`}>
               Micro-skill for {wrongWord}
             </label>
           ) : null}
-          {isLinkingSkill ? (
+          {isAddingCanonicalMapping ? (
             <select
               id={`${formId}-micro-skill`}
               form={formId}
@@ -342,15 +348,26 @@ export function AdminCaseDecisionRow({
                 <option value="" disabled>
                   Choose decision
                 </option>
-                <option value="linked_existing_skill">Link existing skill</option>
-                <option value="new_skill_needed">New skill needed</option>
+                <option value="add_canonical_mapping">
+                  Add canonical mapping
+                </option>
+                <option value="needs_new_micro_skill">
+                  Needs new micro-skill
+                </option>
                 <option value="word_level_only">Word-level only</option>
                 <option value="not_a_learning_issue">Not a learning issue</option>
+                <option value="reject_no_canonical_update">
+                  Reject, no canonical update
+                </option>
               </select>
+              <p className="text-[11px] leading-4 text-[color:var(--mid)]">
+                Add canonical mapping creates future canonical storage; resolver
+                use is deferred until Slice 4E.3.
+              </p>
             </form>
           ) : (
             <div className="rounded-lg border border-[var(--border)] bg-[var(--mist)]/55 px-3 py-2 text-xs text-[color:var(--mid)]">
-              Apply the Slice 4D.1 migration before submitting decisions.
+              Apply the Slice 4E.2 migration before submitting decisions.
             </div>
           )}
         </td>
@@ -446,6 +463,9 @@ export function AdminCaseDecisionRow({
               <div className="md:col-span-2">
                 <p className="font-semibold text-[color:var(--ink)]">
                   Decision history
+                </p>
+                <p className="mb-1 text-[color:var(--mid)]">
+                  Historical Slice 4D.1 decisions remain case-only history.
                 </p>
                 <DecisionHistory decisions={decisions} />
               </div>

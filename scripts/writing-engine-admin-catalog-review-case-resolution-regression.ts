@@ -115,8 +115,8 @@ assert.doesNotMatch(
 );
 assert.match(
   decisionRow,
-  /decisionType === "linked_existing_skill"/,
-  "Decision row must only show skill controls for Link existing skill.",
+  /decisionType === "add_canonical_mapping"/,
+  "Decision row must only show skill controls for Add canonical mapping.",
 );
 assert.match(
   decisionRow,

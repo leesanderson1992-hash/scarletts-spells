@@ -28,6 +28,7 @@ type CatalogReviewDecisionRow = {
   new_status: string;
   decision_note: string | null;
   linked_micro_skill_key: string | null;
+  canonical_mapping_id: string | null;
   admin_email: string | null;
   created_at: string;
 };
@@ -301,8 +302,9 @@ function AdminSetupWarnings({
       ) : null}
       {microSkillOptionsUnavailable ? (
         <p className="mt-2">
-          Active D4 micro-skill options could not be loaded. Link existing skill
-          decisions should wait until the catalog option read is healthy.
+          Active D4 micro-skill options could not be loaded. Add canonical
+          mapping decisions should wait until the catalog option read is
+          healthy.
         </p>
       ) : null}
     </section>
@@ -362,8 +364,9 @@ function AdminCaseDecisionTable({
           Case decisions
         </h2>
         <p className="brand-copy mt-2 text-sm">
-          Resolve individual open cases only. Linked skill decisions are
-          case-only and do not create resolver-visible canonical truth.
+          Resolve individual open cases only. Add canonical mapping creates
+          canonical storage for future use; resolver use remains deferred until
+          Slice 4E.3.
         </p>
       </div>
 
@@ -482,6 +485,7 @@ async function getCatalogReviewDecisionRows(caseIds: string[]) {
         "new_status",
         "decision_note",
         "linked_micro_skill_key",
+        "canonical_mapping_id",
         "admin_email",
         "created_at",
       ].join(", "),
@@ -647,8 +651,9 @@ export default async function AdminCatalogReviewPage({
           </h1>
           <p className="brand-copy mt-4 max-w-3xl text-sm leading-6">
             Internal per-case resolution for parent-raised spelling catalog
-            gaps. Slice 4D.1 decisions are case-only and do not create
-            canonical/global mapping truth.
+            gaps. Slice 4E.2 can create canonical mapping storage, but resolver
+            use remains deferred until Slice 4E.3. Historical Slice 4D.1
+            decisions stay readable as case-only history.
           </p>
         </header>
 
@@ -678,7 +683,7 @@ export default async function AdminCatalogReviewPage({
           <div className="brand-card rounded-2xl p-5">
             <p className="brand-eyebrow">Mode</p>
             <p className="mt-3 text-sm font-semibold text-[var(--text)]">
-              Case-only decisions
+              Canonical curation
             </p>
           </div>
         </section>

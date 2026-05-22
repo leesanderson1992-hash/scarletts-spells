@@ -175,15 +175,10 @@ assert.doesNotMatch(
   /spelling_canonical_mappings|create_spelling_canonical_mapping_admin|createSpellingCanonicalMappingAdmin/,
   "Parent Review Work paths must not create canonical mappings.",
 );
-assert.doesNotMatch(
-  adminAction,
-  /add_canonical_mapping|create_spelling_canonical_mapping_admin|createSpellingCanonicalMappingAdmin/,
-  "Slice 4E.1 must not add 4E admin UI decisions.",
-);
 assert.match(
   adminAction,
-  /canonical_mapping_created: false/,
-  "4D.1 admin actions must remain case-only and non-canonical.",
+  /resolver_visible: false/,
+  "Admin actions that touch canonical mapping storage must preserve resolver non-effect.",
 );
 assert.match(
   caseDecisionMigration,
