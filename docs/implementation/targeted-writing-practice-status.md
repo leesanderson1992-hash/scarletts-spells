@@ -560,8 +560,49 @@ Canonical documentation now defers to:
   - not a learning issue
   - merge duplicate
   - supersede/reopen
+- Slice `4D.1` is the smallest safe write-capable admin slice and remains
+  case-only:
+  - supported decisions are `linked_existing_skill`, `new_skill_needed`,
+    `word_level_only`, and `not_a_learning_issue`
+  - `linked_existing_skill` must validate an existing active, assignable `D4`
+    `micro_skill_catalog.micro_skill_key`
+  - `linked_existing_skill` closes/resolves the review case only; it does not
+    create canonical/global mapping truth, affect resolver output, or promote
+    anything globally
+- planned Slice `4D.1` admin UI pattern:
+  - use a per-case admin decision table that visually follows the compact
+    Review Work table pattern
+  - parent Review Work table purpose is evidence classification/reporting;
+    admin catalog-review table purpose is evidence review and curation
+  - preferred columns/controls are Wrong Word, Correct Word, Case Reason,
+    Representative Context, Evidence Count / Source Count where relevant,
+    Source Provenance, Parent Note, Current Status, Skill Family, Skill
+    Cluster, Micro-skill, Decision, Decision Note, and Submit Decision
+  - family, cluster, and micro-skill labels should be parent/admin-facing
+    display names where available, with raw keys kept as internal values
+  - do not add grouped batch mutation buttons for normalized
+    `misspelling -> correction` groups
+  - controls must be labelled, text-led, keyboard-accessible, and provide
+    clear empty/error/success states without unnecessary parent/child identity
+- planned Slice `4D.1` audit contract:
+  - audit must be append-only and support both `no_matching_skill` decisions
+    and future `false_positive_report` decisions
+  - record decision type, admin identity, previous status, new status,
+    linked `micro_skill_key` where applicable, nullable `canonical_mapping_id`
+    unused in `4D.1`, decision note, metadata, and `created_at`
 - only admin/catalog curation may create or update canonical/global mapping
   truth
+- false-positive catalog review is future/planned only:
+  - reserve future case reason `false_positive_report`
+  - reserve future admin outcomes `false_positive_confirmed` and
+    `false_positive_needs_rule_fix`
+  - `no_matching_skill` means the parent sees a real spelling issue but no
+    existing micro-skill fits
+  - `false_positive_report` means the parent believes the system should not
+    have flagged the word/error and admin may need to suppress or fix bad
+    canonical/system truth
+  - false-positive parent case capture and admin false-positive mutation are
+    not implemented in Slice `4C` and are not part of `4D.1`
 - Slice `4C` runtime QA closeout:
   - validation passed:
     - `npx eslint app/admin/catalog-review/page.tsx`
@@ -589,6 +630,14 @@ Canonical documentation now defers to:
   - future admin-promoted global mappings may join canonical priority only
     after Slice `4D` or another explicit admin curation slice writes canonical
     truth
+  - canonical/global promotion remains blocked until the canonical mapping
+    storage contract is chosen; do not use catalog-review cases, parent notes,
+    parent-scoped candidate mappings, or `micro_skill_catalog` metadata as
+    silent global mapping truth
+  - future canonical storage may later allow admin promotion to add
+    resolver-visible normalized spelling mappings, suppress or correct
+    false-positive-producing mappings/rules, close cases with audit, and
+    improve future suggestions
   - resolver priority remains:
     1. catalog-backed canonical truth
     2. same-scope parent-local promoted mapping

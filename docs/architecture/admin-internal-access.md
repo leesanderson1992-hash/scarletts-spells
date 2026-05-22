@@ -171,12 +171,40 @@ Slice `4C`:
 Slice `4D`:
 
 - owns admin decisions and canonical promotion if later approved
-- may define curation decisions such as linking an existing skill, proposing or
-  creating a skill, word-level-only classification, not-a-learning-issue
-  classification, merging, superseding, closing, or reopening
+- first safe implementation scope, `4D.1`, is case-only admin resolution with
+  `linked_existing_skill`, `new_skill_needed`, `word_level_only`, and
+  `not_a_learning_issue`
+- `linked_existing_skill` must validate an existing active, assignable `D4`
+  `micro_skill_catalog.micro_skill_key`, but it must not create
+  canonical/global mapping truth, affect resolver output, or promote anything
+  globally in `4D.1`
+- later sub-slices may define merging, superseding, reopening, false-positive
+  review, proposal workflows, and canonical/global promotion
+- future false-positive review vocabulary is reserved but not implemented:
+  `false_positive_report`, `false_positive_confirmed`, and
+  `false_positive_needs_rule_fix`
+- the `4D.1` admin decision UI should be a per-case table/detail surface that
+  follows the compact Review Work table visual pattern with admin evidence and
+  curation semantics; it must not add group-wide mutation buttons to grouped
+  normalized spelling pairs
+- future admin mutation controls must be text-led, labelled,
+  keyboard-accessible, auditable, and avoid unnecessary parent/child identity
+  exposure
+- the admin decision audit trail must be append-only and record decision type,
+  admin user id/email, previous status, new status, linked `micro_skill_key`
+  where applicable, nullable `canonical_mapping_id` unused in `4D.1`,
+  decision note, metadata, and `created_at`
 - must not inherit write authority from Slice `4C`; it needs its own explicit
   docs-first write contract, audit trail, decision actions, canonical write
   path, validation, and tests
+- canonical/global promotion remains blocked until the canonical mapping
+  storage contract is chosen; do not use `spelling_catalog_review_cases`,
+  parent notes, parent-scoped candidate mappings, or `micro_skill_catalog`
+  metadata as silent global mapping truth
+- after that future storage/resolver contract exists, admin/global promotion
+  may add resolver-visible normalized spelling mappings, suppress or correct
+  false-positive-producing mappings/rules, close cases with audit, and improve
+  future suggestions
 
 ## QA Expectations
 

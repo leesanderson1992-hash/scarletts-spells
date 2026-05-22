@@ -729,6 +729,53 @@ Slice `4A` catalog-review contract:
   - not a learning issue
   - merge duplicate
   - supersede/reopen
+- Slice `4D.1` first implementation scope is case-only admin resolution:
+  - `linked_existing_skill`
+  - `new_skill_needed`
+  - `word_level_only`
+  - `not_a_learning_issue`
+  - `linked_existing_skill` validates an existing active, assignable `D4`
+    `micro_skill_catalog.micro_skill_key`
+  - `linked_existing_skill` does not create canonical/global mapping truth,
+    does not affect resolver output, and does not promote anything globally
+- Slice `4D.1` admin UI should use a per-case decision table that visually
+  follows the compact Review Work table pattern, but with admin-specific
+  evidence and curation semantics:
+  - parent Review Work table purpose: parent classifies or reports evidence
+  - admin catalog-review table purpose: admin reviews evidence and curates the
+    decision path
+  - preferred fields are Wrong Word, Correct Word, Case Reason,
+    Representative Context, Evidence Count / Source Count where relevant,
+    Source Provenance, Parent Note, Current Status, Skill Family, Skill
+    Cluster, Micro-skill, Decision, Decision Note, and Submit Decision
+  - family, cluster, and micro-skill controls should use parent/admin-facing
+    display names where available; raw keys remain internal values only
+  - do not add group-wide mutation buttons on normalized
+    `misspelling -> correction` groups because grouped cases may have distinct
+    contexts and evidence
+  - mutation controls must be text-led, labelled, keyboard-accessible, and
+    have clear empty, error, and success states without exposing unnecessary
+    parent/child identity
+- Slice `4D.1` audit requirements:
+  - admin decisions must be append-only auditable, not metadata-only
+  - the decision record must support `no_matching_skill` and future
+    `false_positive_report` cases
+  - record decision type, admin user id/email, previous status, new status,
+    linked `micro_skill_key` where applicable, nullable `canonical_mapping_id`
+    unused in `4D.1`, decision note, metadata, and `created_at`
+- false-positive catalog review is a future Slice `4D` planning concern:
+  - reserve future case reason `false_positive_report`
+  - reserve future admin outcomes `false_positive_confirmed` and
+    `false_positive_needs_rule_fix`
+  - `no_matching_skill` means the parent believes there is a real spelling
+    issue but no existing micro-skill fits
+  - `false_positive_report` means the parent believes the system should not
+    have flagged the word/error, such as repeated correct-word flags,
+    incorrect corrections, correct spellings mapped to errors, bad canonical
+    mappings, or over-eager rules
+  - do not claim parent false-positive catalog-review capture or admin
+    false-positive mutation is implemented until a later slice explicitly
+    adds it
 - resolver contract:
   - no resolver change in Slice `4A` or Slice `4B.1`
   - open catalog-review cases remain invisible to the resolver
@@ -736,6 +783,17 @@ Slice `4A` catalog-review contract:
   - future admin-promoted global mappings may join canonical priority only
     after Slice `4D` or another explicit admin curation slice writes canonical
     truth
+  - canonical/global promotion remains blocked until a canonical mapping
+    storage contract is chosen; do not use `spelling_catalog_review_cases` as
+    canonical truth, parent notes as truth,
+    `parent_verified_spelling_candidate_mappings` as silent global truth, or
+    `micro_skill_catalog` metadata as canonical mapping truth unless Stage
+    `2C` and the relevant contracts are explicitly revised
+  - after that storage/resolver contract exists, future admin promotion may
+    add resolver-visible
+    `misspelling_normalized -> correct_spelling_normalized -> micro_skill_key`
+    mappings, suppress or correct false-positive-producing mappings/rules,
+    close catalog-review cases with audit, and improve future suggestions
   - resolver priority remains:
     1. catalog-backed canonical truth
     2. same-scope parent-local promoted mapping

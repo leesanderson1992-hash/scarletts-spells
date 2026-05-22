@@ -423,6 +423,39 @@ This means:
   - supersede/reopen
   - only admin/catalog curation may create or update canonical/global mapping
     truth
+- Slice `4D.1` first implementation scope is case-only admin resolution:
+  - `linked_existing_skill`, `new_skill_needed`, `word_level_only`, and
+    `not_a_learning_issue`
+  - `linked_existing_skill` validates an existing active, assignable `D4`
+    `micro_skill_catalog.micro_skill_key`
+  - `linked_existing_skill` does not create global canonical truth, does not
+    change resolver output, and does not promote anything globally
+- Slice `4D.1` admin UX should reuse the compact Review Work table visual
+  pattern as a per-case decision table, not a grouped batch mutation surface:
+  - parent Review Work table purpose is evidence classification/reporting
+  - admin catalog-review table purpose is evidence review and curation
+  - preferred fields are Wrong Word, Correct Word, Case Reason,
+    Representative Context, Evidence Count / Source Count where relevant,
+    Source Provenance, Parent Note, Current Status, Skill Family, Skill
+    Cluster, Micro-skill, Decision, Decision Note, and Submit Decision
+  - family, cluster, and micro-skill labels should use parent/admin-facing
+    display names where available
+  - mutation controls must be labelled, text-led, keyboard-accessible, and
+    must not expose unnecessary parent/child identity
+- Slice `4D.1` decisions require append-only audit records that can represent
+  `no_matching_skill` decisions and future `false_positive_report` decisions,
+  including decision type, admin identity, previous/new status, linked
+  `micro_skill_key`, nullable `canonical_mapping_id`, decision note, metadata,
+  and `created_at`
+- false-positive catalog review is reserved for a future Slice `4D` sub-slice:
+  - reserve future case reason `false_positive_report`
+  - reserve future admin outcomes `false_positive_confirmed` and
+    `false_positive_needs_rule_fix`
+  - false positives can indicate bad canonical/system truth, including
+    repeated correct-word flags, incorrect corrections, correct spellings
+    mapped to errors, bad canonical mappings, or over-eager rules
+  - do not claim parent false-positive catalog-review capture or admin
+    false-positive mutation is implemented until a later slice adds it
 - implementation readiness:
   - Slice `4C` runtime is implemented and QA passed
   - QA evidence:
@@ -443,6 +476,14 @@ This means:
   - future admin-promoted global mappings may join canonical priority only
     after Slice `4D` or another explicit admin curation slice writes canonical
     truth
+  - canonical/global promotion remains blocked until a canonical mapping
+    storage contract is chosen; `spelling_catalog_review_cases`, parent notes,
+    parent-scoped candidate mappings, and `micro_skill_catalog` metadata must
+    not silently become global mapping truth
+  - once that future storage/resolver contract exists, admin promotion may add
+    resolver-visible normalized spelling mappings, suppress or correct
+    false-positive-producing mappings/rules, close cases with audit, and
+    improve future suggestions
   - priority remains:
     1. catalog-backed canonical truth
     2. same-scope parent-local promoted mapping

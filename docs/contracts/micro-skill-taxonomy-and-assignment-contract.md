@@ -977,9 +977,40 @@ Slice `4A` spelling catalog-review taxonomy contract:
 - admin decisions may link an existing skill, create/propose a new skill,
   classify as word-level only, classify as not a learning issue, merge a
   duplicate, supersede, or reopen
-- Slice `4D` owns link existing skill, create/propose new skill, word-level
-  only, not a learning issue, merge duplicate, supersede/reopen, and
-  canonical/global mapping promotion
+- Slice `4D.1` owns only case-level admin decisions:
+  - `linked_existing_skill`
+  - `new_skill_needed`
+  - `word_level_only`
+  - `not_a_learning_issue`
+  - `linked_existing_skill` must validate an existing active, assignable `D4`
+    `micro_skill_catalog.micro_skill_key`
+  - `linked_existing_skill` must not create canonical/global mapping truth,
+    affect resolver output, or promote anything globally
+- later Slice `4D` sub-slices may own merge, supersede, reopen,
+  false-positive review, proposal workflows, and canonical/global mapping
+  promotion after their contracts are explicit
+- Slice `4D.1` admin table should be per-case and visually follow the compact
+  Review Work table pattern while using admin-specific evidence and curation
+  semantics; do not add group-wide mutation buttons on normalized
+  `misspelling -> correction` groups
+- preferred `4D.1` admin fields are Wrong Word, Correct Word, Case Reason,
+  Representative Context, Evidence Count / Source Count where relevant, Source
+  Provenance, Parent Note, Current Status, Skill Family, Skill Cluster,
+  Micro-skill, Decision, Decision Note, and Submit Decision
+- family, cluster, and micro-skill labels should use parent/admin-facing
+  display names where available; raw keys remain internal values
+- `4D.1` audit records must be append-only and capture decision type, admin
+  identity, previous/new status, linked `micro_skill_key` where applicable,
+  nullable `canonical_mapping_id` unused in `4D.1`, decision note, metadata,
+  and `created_at`
+- future false-positive catalog-review vocabulary is reserved but not
+  implemented:
+  - `false_positive_report`
+  - `false_positive_confirmed`
+  - `false_positive_needs_rule_fix`
+  - false-positive review may later address repeated correct-word flags,
+    incorrect corrections, correct spellings mapped to errors, bad canonical
+    mappings, or over-eager rules
 - resolver contract:
   - no resolver change in Slice `4A` or Slice `4B.1`
   - open catalog-review cases remain invisible to the resolver
@@ -987,6 +1018,14 @@ Slice `4A` spelling catalog-review taxonomy contract:
   - future admin-promoted global mappings may join canonical priority only
     after Slice `4D` or another explicit admin curation slice writes canonical
     truth
+  - canonical/global promotion remains blocked until a canonical mapping
+    storage contract is chosen; do not use catalog-review cases, parent notes,
+    parent-scoped candidate mappings, or `micro_skill_catalog` metadata as
+    silent global mapping truth
+  - after that contract exists, future admin/global promotion may add
+    resolver-visible normalized spelling mappings, suppress or correct
+    false-positive-producing mappings/rules, close cases with audit, and
+    improve future suggestions
   - priority remains:
     1. catalog-backed canonical truth
     2. same-scope parent-local promoted mapping

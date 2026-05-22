@@ -297,6 +297,42 @@ Parent-Verified Spelling Candidate Capture architecture boundary:
   - not a learning issue
   - merge duplicate
   - supersede/reopen
+- Slice `4D.1` is limited to case-only admin decisions:
+  - `linked_existing_skill`
+  - `new_skill_needed`
+  - `word_level_only`
+  - `not_a_learning_issue`
+  - `linked_existing_skill` validates an existing active, assignable `D4`
+    `micro_skill_catalog.micro_skill_key`
+  - `linked_existing_skill` does not create canonical/global mapping truth,
+    affect resolver output, or promote anything globally
+- Slice `4D.1` admin UI should use a per-case decision table that visually
+  follows the compact Review Work table pattern but uses admin-specific
+  evidence and curation semantics:
+  - parent Review Work table purpose is evidence classification/reporting
+  - admin table purpose is evidence review and decision-path curation
+  - preferred fields are Wrong Word, Correct Word, Case Reason,
+    Representative Context, Evidence Count / Source Count where relevant,
+    Source Provenance, Parent Note, Current Status, Skill Family, Skill
+    Cluster, Micro-skill, Decision, Decision Note, and Submit Decision
+  - do not add group-wide mutation buttons to normalized
+    `misspelling -> correction` groups
+  - controls must use clear labels, text-led actions, keyboard access, and
+    clear empty/error/success states while avoiding unnecessary parent/child
+    identity exposure
+- Slice `4D.1` audit must be append-only and record decision type, admin
+  identity, previous/new status, linked `micro_skill_key` where applicable,
+  nullable `canonical_mapping_id` unused in `4D.1`, decision note, metadata,
+  and `created_at`
+- future false-positive review is reserved:
+  - case reason `false_positive_report`
+  - admin outcomes `false_positive_confirmed` and
+    `false_positive_needs_rule_fix`
+  - `no_matching_skill` means a real spelling issue has no fitting
+    micro-skill; `false_positive_report` means the system should not have
+    flagged the word/error and may need canonical/system-truth correction
+  - false-positive catalog-review capture and admin mutation are not
+    implemented yet
 - only admin/catalog curation may create or update canonical/global mapping
   truth
 - Slice `4C` implementation readiness:
@@ -324,6 +360,14 @@ Parent-Verified Spelling Candidate Capture architecture boundary:
   - future admin-promoted global mappings may join canonical priority only
     after Slice `4D` or another explicit admin curation slice writes canonical
     truth
+  - canonical/global promotion remains blocked until a canonical mapping
+    storage contract is chosen; do not use catalog-review cases, parent notes,
+    parent-scoped candidate mappings, or `micro_skill_catalog` metadata as
+    silent global mapping truth
+  - future canonical storage may later allow admin promotion to add
+    resolver-visible normalized spelling mappings, suppress or correct
+    false-positive-producing mappings/rules, close cases with audit, and
+    improve future suggestions
   - resolver priority remains:
     1. catalog-backed canonical truth
     2. same-scope parent-local promoted mapping
