@@ -1,6 +1,8 @@
 import { requireAdminUser } from "@/lib/admin/access";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 
+import { AdminCaseDecisionRow } from "./admin-decision-row";
+
 export const dynamic = "force-dynamic";
 
 type CatalogReviewCaseRow = {
@@ -13,8 +15,39 @@ type CatalogReviewCaseRow = {
   case_status: string;
   parent_note: string | null;
   metadata: Record<string, unknown> | null;
+  source_suggestion_id: string | null;
   created_at: string;
   updated_at: string;
+};
+
+type CatalogReviewDecisionRow = {
+  id: string;
+  case_id: string;
+  decision_type: string;
+  previous_status: string;
+  new_status: string;
+  decision_note: string | null;
+  linked_micro_skill_key: string | null;
+  admin_email: string | null;
+  created_at: string;
+};
+
+type MicroSkillOptionRow = {
+  micro_skill_key: string;
+  display_name: string;
+  skill_family_key: string;
+  skill_cluster_key: string | null;
+};
+
+type SkillFamilyRow = {
+  skill_family_key: string;
+  display_name: string;
+};
+
+type SkillClusterRow = {
+  skill_family_key: string;
+  skill_cluster_key: string;
+  display_name: string;
 };
 
 type CatalogReviewGroup = {
@@ -31,6 +64,18 @@ type CatalogReviewGroup = {
   latestOriginalCorrectSpelling: string | null;
 };
 
+type CaseRowWithEvidence = CatalogReviewCaseRow & {
+  sourceCount: number;
+  representativeContext: string | null;
+  decisions: CatalogReviewDecisionRow[];
+  suggestedMicroSkillKey: string | null;
+};
+
+type SuggestedMicroSkillRow = {
+  id: string;
+  suggested_micro_skill_key: string | null;
+};
+
 function readStringMetadata(
   metadata: Record<string, unknown> | null,
   key: string,
@@ -42,25 +87,34 @@ function readStringMetadata(
     : null;
 }
 
-function formatDateTime(value: string) {
-  const date = new Date(value);
-
-  if (Number.isNaN(date.getTime())) {
-    return value;
-  }
-
-  return new Intl.DateTimeFormat("en-GB", {
-    dateStyle: "medium",
-    timeStyle: "short",
-  }).format(date);
-}
-
 function formatLabel(value: string) {
   return value
     .split("_")
     .filter(Boolean)
     .map((part) => part[0]?.toUpperCase() + part.slice(1))
     .join(" ");
+}
+
+function formatSourceLabel(value: string) {
+  if (value === "lesson_submission_parent_added_missed_word") {
+    return "Parent-added";
+  }
+
+  if (value === "lesson_submission_existing_output") {
+    return "Lesson";
+  }
+
+  return formatLabel(value);
+}
+
+function readSuggestedMicroSkillKey(row: CatalogReviewCaseRow) {
+  const metadataKey =
+    readStringMetadata(row.metadata, "suggested_micro_skill_key") ??
+    readStringMetadata(row.metadata, "selected_micro_skill_key") ??
+    readStringMetadata(row.metadata, "verified_micro_skill_key") ??
+    readStringMetadata(row.metadata, "micro_skill_key");
+
+  return metadataKey;
 }
 
 function getLatestDate(row: CatalogReviewCaseRow) {
@@ -124,6 +178,137 @@ function buildCatalogReviewGroups(rows: CatalogReviewCaseRow[]) {
   );
 }
 
+function buildSourceCounts(rows: CatalogReviewCaseRow[]) {
+  const counts = new Map<string, number>();
+
+  for (const row of rows) {
+    const key = `${row.misspelling_normalized}->${row.correct_spelling_normalized}`;
+    counts.set(key, (counts.get(key) ?? 0) + 1);
+  }
+
+  return counts;
+}
+
+function buildDecisionMap(decisions: CatalogReviewDecisionRow[]) {
+  const decisionsByCaseId = new Map<string, CatalogReviewDecisionRow[]>();
+
+  for (const decision of decisions) {
+    const existing = decisionsByCaseId.get(decision.case_id) ?? [];
+    existing.push(decision);
+    decisionsByCaseId.set(decision.case_id, existing);
+  }
+
+  return decisionsByCaseId;
+}
+
+function buildCasesWithEvidence(input: {
+  rows: CatalogReviewCaseRow[];
+  decisions: CatalogReviewDecisionRow[];
+  suggestedMicroSkillKeys: Map<string, string>;
+}) {
+  const sourceCounts = buildSourceCounts(input.rows);
+  const decisionsByCaseId = buildDecisionMap(input.decisions);
+
+  return input.rows.map((row) => {
+    const groupKey = `${row.misspelling_normalized}->${row.correct_spelling_normalized}`;
+
+    return {
+      ...row,
+      sourceCount: sourceCounts.get(groupKey) ?? 1,
+      representativeContext: readStringMetadata(row.metadata, "context_text"),
+      decisions: decisionsByCaseId.get(row.id) ?? [],
+      suggestedMicroSkillKey:
+        readSuggestedMicroSkillKey(row) ??
+        (row.source_suggestion_id
+          ? input.suggestedMicroSkillKeys.get(row.source_suggestion_id) ?? null
+          : null),
+    };
+  });
+}
+
+function buildSkillFamilyOptions(families: SkillFamilyRow[]) {
+  return families.sort((left, right) =>
+    left.display_name.localeCompare(right.display_name),
+  );
+}
+
+function buildSkillClusterOptions(clusters: SkillClusterRow[]) {
+  return clusters.sort((left, right) =>
+    left.display_name.localeCompare(right.display_name),
+  );
+}
+
+function buildMicroSkillOptions(options: MicroSkillOptionRow[]) {
+  return options.sort((left, right) =>
+    left.display_name.localeCompare(right.display_name),
+  );
+}
+
+function StatusMessage({
+  error,
+  saved,
+}: {
+  error?: string;
+  saved?: string;
+}) {
+  if (error) {
+    return (
+      <section
+        className="rounded-xl border border-rose-200 bg-rose-50 px-5 py-4 text-sm font-medium text-rose-950"
+        role="status"
+      >
+        {error}
+      </section>
+    );
+  }
+
+  if (saved) {
+    return (
+      <section
+        className="rounded-xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm font-medium text-emerald-950"
+        role="status"
+      >
+        {saved}
+      </section>
+    );
+  }
+
+  return null;
+}
+
+function AdminSetupWarnings({
+  decisionStorageUnavailable,
+  microSkillOptionsUnavailable,
+}: {
+  decisionStorageUnavailable: boolean;
+  microSkillOptionsUnavailable: boolean;
+}) {
+  if (!decisionStorageUnavailable && !microSkillOptionsUnavailable) {
+    return null;
+  }
+
+  return (
+    <section
+      className="rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 text-sm text-amber-950"
+      aria-label="Admin decision setup warnings"
+    >
+      <p className="font-semibold">Admin decision setup needs attention</p>
+      {decisionStorageUnavailable ? (
+        <p className="mt-2">
+          The case list is available, but Slice 4D.1 decision storage could not
+          be read. Apply the Slice 4D.1 migration before resolving cases.
+        </p>
+      ) : null}
+      {microSkillOptionsUnavailable ? (
+        <p className="mt-2">
+          Active D4 micro-skill options could not be loaded. Link existing skill
+          decisions should wait until the catalog option read is healthy.
+        </p>
+      ) : null}
+    </section>
+  );
+}
+
 function EmptyState() {
   return (
     <section className="brand-card rounded-2xl p-8">
@@ -149,97 +334,103 @@ function ErrorState() {
   );
 }
 
-function CatalogReviewTable({ groups }: { groups: CatalogReviewGroup[] }) {
+function AdminCaseDecisionTable({
+  cases,
+  canResolveCases,
+  familyOptions,
+  clusterOptions,
+  microSkillOptions,
+  microSkillOptionsUnavailable,
+}: {
+  cases: CaseRowWithEvidence[];
+  canResolveCases: boolean;
+  familyOptions: SkillFamilyRow[];
+  clusterOptions: SkillClusterRow[];
+  microSkillOptions: MicroSkillOptionRow[];
+  microSkillOptionsUnavailable: boolean;
+}) {
   return (
     <section
       className="overflow-hidden rounded-2xl border border-[var(--border)] bg-white/90 shadow-[var(--shadow-soft)]"
-      aria-labelledby="catalog-review-cases-heading"
+      aria-labelledby="admin-case-decision-heading"
     >
       <div className="border-b border-[var(--border)] px-6 py-5">
         <h2
-          id="catalog-review-cases-heading"
+          id="admin-case-decision-heading"
           className="brand-title text-2xl font-semibold"
         >
-          Open catalog-review cases
+          Case decisions
         </h2>
         <p className="brand-copy mt-2 text-sm">
-          Read-only triage grouped by normalized spelling pair.
+          Resolve individual open cases only. Linked skill decisions are
+          case-only and do not create resolver-visible canonical truth.
         </p>
       </div>
 
-      <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-[var(--border)] text-left text-sm">
-          <thead className="bg-[var(--mist)]/55 text-xs uppercase tracking-wide text-[var(--mid)]">
-            <tr>
-              <th scope="col" className="px-5 py-3 font-semibold">
-                Misspelling -&gt; correction
+      <div>
+        <table className="w-full table-fixed border-collapse text-left text-[13px]">
+          <colgroup>
+            <col className="w-[12%]" />
+            <col className="w-[12%]" />
+            <col className="w-[8%]" />
+            <col className="w-[12%]" />
+            <col className="w-[12%]" />
+            <col className="w-[16%]" />
+            <col className="w-[17%]" />
+            <col className="w-[10%]" />
+          </colgroup>
+          <thead>
+            <tr className="bg-[rgba(255,247,220,0.45)] text-left text-[10px] font-medium uppercase leading-tight tracking-normal text-[color:var(--mid)]">
+              <th scope="col" className="px-2 py-3">
+                Wrong Word
               </th>
-              <th scope="col" className="px-5 py-3 font-semibold">
-                Count
+              <th scope="col" className="px-2 py-3">
+                Correct Word
               </th>
-              <th scope="col" className="px-5 py-3 font-semibold">
-                Latest
+              <th scope="col" className="px-2 py-3">
+                Reason
               </th>
-              <th scope="col" className="px-5 py-3 font-semibold">
-                Representative context
+              <th scope="col" className="px-2 py-3">
+                Skill Family
               </th>
-              <th scope="col" className="px-5 py-3 font-semibold">
-                Parent note
+              <th scope="col" className="px-2 py-3">
+                Skill Cluster
               </th>
-              <th scope="col" className="px-5 py-3 font-semibold">
-                Source
+              <th scope="col" className="px-2 py-3">
+                Micro-skill
               </th>
-              <th scope="col" className="px-5 py-3 font-semibold">
-                Status
+              <th scope="col" className="px-2 py-3">
+                Decision
+              </th>
+              <th scope="col" className="px-2 py-3">
+                Actions
               </th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-[var(--border)]">
-            {groups.map((group) => (
-              <tr key={group.key} className="align-top">
-                <th scope="row" className="px-5 py-4 font-semibold text-[var(--text)]">
-                  <span className="block">
-                    {group.misspelling} -&gt; {group.correction}
-                  </span>
-                  {group.latestOriginalChildSpelling ||
-                  group.latestOriginalCorrectSpelling ? (
-                    <span className="brand-copy mt-1 block text-xs font-normal">
-                      Latest original: {group.latestOriginalChildSpelling ?? "unknown"}{" "}
-                      -&gt; {group.latestOriginalCorrectSpelling ?? "unknown"}
-                    </span>
-                  ) : null}
-                </th>
-                <td className="px-5 py-4">
-                  <span className="brand-chip-strong inline-flex min-w-9 justify-center px-3 py-1 text-xs font-semibold">
-                    {group.count}
-                  </span>
-                </td>
-                <td className="px-5 py-4 text-[var(--text)]">
-                  <time dateTime={group.latestDate}>
-                    {formatDateTime(group.latestDate)}
-                  </time>
-                </td>
-                <td className="max-w-xs px-5 py-4 text-[var(--text)]">
-                  {group.representativeContext ?? (
-                    <span className="brand-copy">No context saved</span>
-                  )}
-                </td>
-                <td className="max-w-xs px-5 py-4 text-[var(--text)]">
-                  {group.parentNote ?? (
-                    <span className="brand-copy">No parent note</span>
-                  )}
-                </td>
-                <td className="px-5 py-4">
-                  <span className="brand-chip inline-flex px-3 py-1 text-xs font-semibold">
-                    {group.sourceProvenanceLabels.join(", ")}
-                  </span>
-                </td>
-                <td className="px-5 py-4">
-                  <span className="brand-chip-review inline-flex px-3 py-1 text-xs font-semibold">
-                    {group.statusLabels.join(", ")}
-                  </span>
-                </td>
-              </tr>
+          <tbody>
+            {cases.map((row) => (
+              <AdminCaseDecisionRow
+                key={row.id}
+                canResolveCases={canResolveCases}
+                caseId={row.id}
+                correctWord={
+                  row.original_correct_spelling ?? row.correct_spelling_normalized
+                }
+                currentStatus={row.case_status}
+                decisions={row.decisions}
+                defaultMicroSkillKey={row.suggestedMicroSkillKey}
+                evidenceCount={row.sourceCount}
+                familyOptions={familyOptions}
+                clusterOptions={clusterOptions}
+                microSkillOptions={microSkillOptions}
+                microSkillOptionsUnavailable={microSkillOptionsUnavailable}
+                originalCorrectWord={row.original_correct_spelling}
+                originalWrongWord={row.original_child_spelling}
+                parentNote={row.parent_note}
+                representativeContext={row.representativeContext}
+                sourceLabel={formatSourceLabel(row.source_provenance)}
+                wrongWord={row.original_child_spelling ?? row.misspelling_normalized}
+              />
             ))}
           </tbody>
         </table>
@@ -264,6 +455,7 @@ async function getOpenCatalogReviewCases() {
         "case_status",
         "parent_note",
         "metadata",
+        "source_suggestion_id",
         "created_at",
         "updated_at",
       ].join(", "),
@@ -272,11 +464,126 @@ async function getOpenCatalogReviewCases() {
     .order("updated_at", { ascending: false });
 }
 
-export default async function AdminCatalogReviewPage() {
+async function getCatalogReviewDecisionRows(caseIds: string[]) {
+  if (caseIds.length === 0) {
+    return { data: [] as CatalogReviewDecisionRow[], error: null };
+  }
+
+  const supabase = createServiceRoleClient();
+
+  return supabase
+    .from("spelling_catalog_review_case_decisions")
+    .select(
+      [
+        "id",
+        "case_id",
+        "decision_type",
+        "previous_status",
+        "new_status",
+        "decision_note",
+        "linked_micro_skill_key",
+        "admin_email",
+        "created_at",
+      ].join(", "),
+    )
+    .in("case_id", caseIds)
+    .order("created_at", { ascending: false });
+}
+
+async function getSuggestedMicroSkillRows(sourceSuggestionIds: string[]) {
+  if (sourceSuggestionIds.length === 0) {
+    return { data: [] as SuggestedMicroSkillRow[], error: null };
+  }
+
+  const supabase = createServiceRoleClient();
+
+  return supabase
+    .from("writing_issue_suggestions")
+    .select("id, suggested_micro_skill_key")
+    .in("id", sourceSuggestionIds);
+}
+
+async function getAdminMicroSkillOptions() {
+  const supabase = createServiceRoleClient();
+  const { data: microSkills, error: microSkillError } = await supabase
+    .from("micro_skill_catalog")
+    .select("micro_skill_key, display_name, skill_family_key, skill_cluster_key")
+    .eq("mastery_domain_key", "D4")
+    .eq("is_active", true)
+    .eq("is_assignable", true)
+    .order("display_name", { ascending: true });
+
+  if (microSkillError) {
+    return {
+      clusterOptions: [] as SkillClusterRow[],
+      error: microSkillError,
+      familyOptions: [] as SkillFamilyRow[],
+      microSkillOptions: [] as MicroSkillOptionRow[],
+    };
+  }
+
+  const microSkillOptions = (microSkills ?? []) as unknown as MicroSkillOptionRow[];
+  const familyKeys = Array.from(
+    new Set(microSkillOptions.map((row) => row.skill_family_key).filter(Boolean)),
+  );
+  const clusterKeys = Array.from(
+    new Set(
+      microSkillOptions
+        .map((row) => row.skill_cluster_key)
+        .filter((key): key is string => typeof key === "string" && key.length > 0),
+    ),
+  );
+  const [{ data: families }, { data: clusters }] = await Promise.all([
+    familyKeys.length === 0
+      ? Promise.resolve({ data: [] })
+      : supabase
+          .from("micro_skill_families")
+          .select("skill_family_key, display_name")
+          .in("skill_family_key", familyKeys)
+          .order("display_name", { ascending: true }),
+    clusterKeys.length === 0
+      ? Promise.resolve({ data: [] })
+      : supabase
+          .from("micro_skill_clusters")
+          .select("skill_family_key, skill_cluster_key, display_name")
+          .in("skill_cluster_key", clusterKeys)
+          .order("display_name", { ascending: true }),
+  ]);
+
+  return {
+    clusterOptions: buildSkillClusterOptions(
+      ((clusters ?? []) as unknown) as SkillClusterRow[],
+    ),
+    error: null,
+    familyOptions: buildSkillFamilyOptions(
+      ((families ?? []) as unknown) as SkillFamilyRow[],
+    ),
+    microSkillOptions: buildMicroSkillOptions(microSkillOptions),
+  };
+}
+
+type AdminCatalogReviewPageProps = {
+  searchParams?: Promise<{
+    error?: string;
+    saved?: string;
+  }>;
+};
+
+export default async function AdminCatalogReviewPage({
+  searchParams,
+}: AdminCatalogReviewPageProps) {
   await requireAdminUser();
 
   let rows: CatalogReviewCaseRow[] = [];
+  let decisions: CatalogReviewDecisionRow[] = [];
+  let familyOptions: SkillFamilyRow[] = [];
+  let clusterOptions: SkillClusterRow[] = [];
+  let microSkillOptions: MicroSkillOptionRow[] = [];
+  let suggestedMicroSkillKeys = new Map<string, string>();
   let hasError = false;
+  let decisionStorageUnavailable = false;
+  let microSkillOptionsUnavailable = false;
+  const resolvedSearchParams = await searchParams;
 
   try {
     const { data, error } = await getOpenCatalogReviewCases();
@@ -286,11 +593,49 @@ export default async function AdminCatalogReviewPage() {
     } else {
       rows = ((data ?? []) as unknown) as CatalogReviewCaseRow[];
     }
+
+    const sourceSuggestionIds = Array.from(
+      new Set(rows.map((row) => row.source_suggestion_id).filter(Boolean)),
+    ) as string[];
+    const [
+      { data: decisionData, error: decisionError },
+      { data: suggestedMicroSkillData },
+      microSkillOptionResult,
+    ] = await Promise.all([
+      getCatalogReviewDecisionRows(rows.map((row) => row.id)),
+      getSuggestedMicroSkillRows(sourceSuggestionIds),
+      getAdminMicroSkillOptions(),
+    ]);
+
+    if (decisionError) {
+      decisionStorageUnavailable = true;
+    } else {
+      decisions = ((decisionData ?? []) as unknown) as CatalogReviewDecisionRow[];
+    }
+
+    if (microSkillOptionResult.error) {
+      microSkillOptionsUnavailable = true;
+    } else {
+      familyOptions = microSkillOptionResult.familyOptions;
+      clusterOptions = microSkillOptionResult.clusterOptions;
+      microSkillOptions = microSkillOptionResult.microSkillOptions;
+    }
+
+    suggestedMicroSkillKeys = new Map(
+      (((suggestedMicroSkillData ?? []) as unknown) as SuggestedMicroSkillRow[])
+        .filter((row) => row.suggested_micro_skill_key)
+        .map((row) => [row.id, row.suggested_micro_skill_key as string]),
+    );
   } catch {
     hasError = true;
   }
 
   const groups = buildCatalogReviewGroups(rows);
+  const cases = buildCasesWithEvidence({
+    decisions,
+    rows,
+    suggestedMicroSkillKeys,
+  });
 
   return (
     <main className="brand-page min-h-screen px-4 py-8 sm:px-6 lg:px-8">
@@ -301,10 +646,21 @@ export default async function AdminCatalogReviewPage() {
             Catalog review
           </h1>
           <p className="brand-copy mt-4 max-w-3xl text-sm leading-6">
-            Internal read-only triage for parent-raised spelling catalog gaps.
-            Open cases are evidence for future catalog curation only.
+            Internal per-case resolution for parent-raised spelling catalog
+            gaps. Slice 4D.1 decisions are case-only and do not create
+            canonical/global mapping truth.
           </p>
         </header>
+
+        <StatusMessage
+          error={resolvedSearchParams?.error}
+          saved={resolvedSearchParams?.saved}
+        />
+
+        <AdminSetupWarnings
+          decisionStorageUnavailable={decisionStorageUnavailable}
+          microSkillOptionsUnavailable={microSkillOptionsUnavailable}
+        />
 
         <section className="grid gap-4 sm:grid-cols-3" aria-label="Catalog review summary">
           <div className="brand-card rounded-2xl p-5">
@@ -322,7 +678,7 @@ export default async function AdminCatalogReviewPage() {
           <div className="brand-card rounded-2xl p-5">
             <p className="brand-eyebrow">Mode</p>
             <p className="mt-3 text-sm font-semibold text-[var(--text)]">
-              Read-only triage
+              Case-only decisions
             </p>
           </div>
         </section>
@@ -332,7 +688,14 @@ export default async function AdminCatalogReviewPage() {
         ) : groups.length === 0 ? (
           <EmptyState />
         ) : (
-          <CatalogReviewTable groups={groups} />
+          <AdminCaseDecisionTable
+            cases={cases}
+            canResolveCases={!decisionStorageUnavailable}
+            clusterOptions={clusterOptions}
+            familyOptions={familyOptions}
+            microSkillOptions={microSkillOptions}
+            microSkillOptionsUnavailable={microSkillOptionsUnavailable}
+          />
         )}
       </div>
     </main>
