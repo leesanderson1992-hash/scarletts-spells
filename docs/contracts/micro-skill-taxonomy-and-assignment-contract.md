@@ -1079,6 +1079,42 @@ Slice `4A` spelling catalog-review taxonomy contract:
     `git diff --check`
   - residual private-MVP risk: service-role direct table writes can bypass
     canonical mapping event conventions until later DB hardening
+- Slice `4E.2` admin canonical-curation decision flow is implemented and
+  QA-passed:
+  - `/admin/catalog-review` offers `add_canonical_mapping`,
+    `needs_new_micro_skill`, `word_level_only`, `not_a_learning_issue`, and
+    `reject_no_canonical_update` for new submissions
+  - historical Slice `4D.1` `linked_existing_skill` and `new_skill_needed`
+    remain readable in decision history only and are not promoted as
+    canonical/global mapping truth
+  - `add_canonical_mapping` validates an active, assignable `D4`
+    `micro_skill_catalog.micro_skill_key`, writes canonical mapping storage
+    and an event through the Slice `4E.1` path, records
+    `canonical_mapping_id` on the source case-decision row, and closes/updates
+    the source catalog-review case
+  - `add_canonical_mapping` does not mutate `micro_skill_catalog`; other
+    Slice `4E` decisions do not create canonical mappings or resolver-visible
+    truth
+  - P1 provenance fix is complete: the source decision row is inserted before
+    canonical mapping creation, its id is passed as `p_source_decision_id`,
+    canonical mapping and event rows preserve `source_decision_id`, the
+    decision row is updated with `canonical_mapping_id`, and the flow is
+    atomic in the same RPC transaction
+  - resolver boundary is unchanged: no resolver files read
+    `spelling_canonical_mappings`, no resolver priority changed, and active
+    canonical mappings remain resolver-invisible until Slice `4E.3`
+  - admin/security boundary is unchanged: server-side admin authorization
+    precedes service-role use, RPC execute remains service-role only, and no
+    client service-role helper, parent RLS change, or admin browser-client RLS
+    policy was added
+  - audit provenance now links case -> case decision -> canonical mapping ->
+    canonical mapping event for future catalog-gap, resolver-quality, and
+    admin-audit analytics; no analytics tables or dashboards were added
+  - validation passed: targeted eslint, `npx tsc --noEmit`, `npm run build`,
+    canonical mapping storage regression, admin canonical-curation regression,
+    optional legacy regression, `git diff --check`, and P1 provenance re-audit
+  - residual risk: validation is static/source-level rather than live Supabase
+    DB execution; DB-backed smoke testing should happen before Slice `4E.3`
 - future false-positive catalog-review vocabulary is reserved but not
   implemented:
   - `false_positive_report`

@@ -513,6 +513,36 @@ This means:
     `git diff --check`
   - residual private-MVP risk: service-role direct table writes can bypass
     canonical mapping event conventions until a later DB hardening slice
+- Slice `4E.2` admin canonical-curation decision flow is implemented and
+  QA-passed:
+  - `/admin/catalog-review` offers new canonical-curation submissions for
+    `add_canonical_mapping`, `needs_new_micro_skill`, `word_level_only`,
+    `not_a_learning_issue`, and `reject_no_canonical_update`
+  - historical Slice `4D.1` `linked_existing_skill` and `new_skill_needed`
+    decisions remain readable as history only and must not be reinterpreted,
+    backfilled, or promoted
+  - `add_canonical_mapping` validates active, assignable `D4`
+    `micro_skill_catalog.micro_skill_key` after server-side admin
+    authorization and before canonical storage is written through the Slice
+    `4E.1` service-role path
+  - the affirmative path writes `spelling_canonical_mappings`, writes
+    `spelling_canonical_mapping_events`, records `canonical_mapping_id` on the
+    source `spelling_catalog_review_case_decisions` row, and closes/updates
+    the source catalog-review case
+  - P1 provenance is fixed: case decision is inserted first, its id is passed
+    as `p_source_decision_id`, canonical mapping and event rows preserve
+    `source_decision_id`, and the flow is atomic in the same RPC transaction
+  - non-canonical Slice `4E` decisions record/close case outcomes without
+    creating canonical mappings or resolver-visible truth
+  - no resolver files read `spelling_canonical_mappings`, no resolver priority
+    changed, and active canonical mappings are not resolver-visible until
+    Slice `4E.3`
+  - audit provenance now links case -> case decision -> canonical mapping ->
+    canonical mapping event for future analytics; no analytics tables or
+    dashboards were added
+  - residual risk: validation is static/source-level rather than live
+    Supabase DB execution; DB-backed smoke testing should happen before
+    resolver integration or production reliance
 - false-positive catalog review is reserved for a future Slice `4D` sub-slice:
   - reserve future case reason `false_positive_report`
   - reserve future admin outcomes `false_positive_confirmed` and

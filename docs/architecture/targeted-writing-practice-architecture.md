@@ -389,6 +389,33 @@ Parent-Verified Spelling Candidate Capture architecture boundary:
     `git diff --check`
   - residual private-MVP risk: service-role direct table writes can bypass
     canonical mapping event conventions until later DB hardening
+- Slice `4E.2` admin canonical-curation decision flow is implemented and
+  QA-passed:
+  - `/admin/catalog-review` now offers `add_canonical_mapping`,
+    `needs_new_micro_skill`, `word_level_only`, `not_a_learning_issue`, and
+    `reject_no_canonical_update` for new submissions
+  - historical Slice `4D.1` `linked_existing_skill` and `new_skill_needed`
+    values remain readable in decision history only
+  - `add_canonical_mapping` runs behind server-side admin authorization,
+    validates active, assignable `D4` `micro_skill_catalog.micro_skill_key`,
+    writes canonical mapping storage and event rows through the Slice `4E.1`
+    path, records `canonical_mapping_id` on the source decision row, and
+    closes/updates the source case
+  - P1 audit provenance is fixed: the source case-decision row exists before
+    canonical mapping creation, its id is passed as `p_source_decision_id`,
+    mapping/event rows preserve `source_decision_id`, and the same RPC
+    transaction updates the decision with `canonical_mapping_id`
+  - non-canonical Slice `4E` decisions close/record only the case outcome and
+    do not create canonical mappings
+  - no `micro_skill_catalog` mutation, parent `Review Work` broadening,
+    manual writing sample broadening, false-positive handling, resolver read,
+    resolver priority change, analytics table, dashboard, mastery, rewards,
+    assignments, scoring, or template-routing change was introduced
+  - active canonical mappings are not resolver-visible until Slice `4E.3`
+  - provenance now supports future catalog-gap, resolver-quality, and
+    admin-audit analytics by linking case -> case decision -> mapping -> event
+  - residual risk: validation is static/source-level; DB-backed smoke testing
+    should happen before Slice `4E.3` or production reliance
 - future false-positive review is reserved:
   - case reason `false_positive_report`
   - admin outcomes `false_positive_confirmed` and

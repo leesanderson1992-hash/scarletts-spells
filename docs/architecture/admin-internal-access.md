@@ -255,7 +255,43 @@ Slice `4D`:
     `git diff --check`
   - residual private-MVP risk: service-role direct table writes can bypass
     canonical mapping event conventions until later DB hardening
-- canonical/global storage foundation now exists after Slice `4E.1`, but
+- Slice `4E.2` admin canonical-curation decision flow is implemented and
+  QA-passed:
+  - `/admin/catalog-review` offers `add_canonical_mapping`,
+    `needs_new_micro_skill`, `word_level_only`, `not_a_learning_issue`, and
+    `reject_no_canonical_update` for new submissions
+  - historical Slice `4D.1` `linked_existing_skill` and `new_skill_needed`
+    decisions remain readable in decision history only; they are not offered
+    for new submissions and were not reinterpreted, backfilled, or promoted
+  - `add_canonical_mapping` requires `requireAdminUser()` server-side before
+    service-role use, validates an active, assignable `D4`
+    `micro_skill_catalog.micro_skill_key`, creates canonical mapping storage
+    and a canonical mapping event through the Slice `4E.1` path, records
+    `canonical_mapping_id` on the source case-decision row, and closes/updates
+    the source catalog-review case
+  - non-canonical Slice `4E` decisions record/close case outcomes only; they
+    do not create canonical mappings or resolver-visible truth
+  - P1 provenance fix passed re-audit: the source decision row is inserted
+    first, its id is passed as `p_source_decision_id`, canonical mapping and
+    event rows preserve `source_decision_id`, the decision row is updated with
+    `canonical_mapping_id`, and the flow remains atomic in one RPC transaction
+  - admin/security boundary remains intact: RPC execute remains service-role
+    only, no client service-role helper was added, and no parent RLS or admin
+    browser-client RLS policy changed
+  - resolver boundary remains intact: no resolver reads
+    `spelling_canonical_mappings`, no resolver priority changed, and active
+    canonical mappings remain resolver-invisible until Slice `4E.3`
+  - audit provenance now links case -> case decision -> canonical mapping ->
+    canonical mapping event for future catalog-gap, resolver-quality, and
+    admin-audit analytics; no analytics tables or dashboards were added
+  - validation passed: targeted eslint, `npx tsc --noEmit`, `npm run build`,
+    canonical mapping storage regression, admin canonical-curation regression,
+    optional legacy regression, `git diff --check`, and P1 provenance re-audit
+  - residual risk: validation is static/source-level and not live Supabase DB
+    execution; DB-backed smoke testing should happen before Slice `4E.3`
+    resolver integration or production reliance
+- canonical/global storage and admin canonical-curation writes now exist after
+  Slice `4E.2`, but
   resolver use remains blocked until a later resolver integration slice; do
   not use `spelling_catalog_review_cases`, parent notes, parent-scoped
   candidate mappings, or `micro_skill_catalog` metadata as silent global

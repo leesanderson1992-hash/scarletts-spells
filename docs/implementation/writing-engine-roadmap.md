@@ -851,6 +851,52 @@ Slice `4A` catalog-review contract:
   - residual private-MVP risk: service-role direct table writes can bypass
     canonical mapping event conventions until a later DB hardening slice adds
     stricter append-only/write-ownership protection
+- Slice `4E.2` admin canonical-curation decision flow is implemented and
+  QA-passed:
+  - `/admin/catalog-review` now offers the canonical-curation decisions
+    `add_canonical_mapping`, `needs_new_micro_skill`, `word_level_only`,
+    `not_a_learning_issue`, and `reject_no_canonical_update` for new
+    submissions
+  - historical Slice `4D.1` `linked_existing_skill` and `new_skill_needed`
+    rows remain readable in decision history only; they are not offered for
+    new submissions and were not reinterpreted, backfilled, or promoted
+  - `add_canonical_mapping` requires server-side admin authorization before
+    service-role use, validates an active, assignable `D4`
+    `micro_skill_catalog.micro_skill_key`, creates canonical mapping storage
+    and a canonical mapping event through the Slice `4E.1` path, records
+    `canonical_mapping_id` on the source case-decision row, and closes/updates
+    the source catalog-review case
+  - `add_canonical_mapping` does not mutate `micro_skill_catalog` and does not
+    affect resolver output; active canonical mappings remain resolver-invisible
+    until Slice `4E.3`
+  - non-canonical Slice `4E` decisions record/close the case outcome only;
+    they do not create canonical mappings or resolver-visible truth
+  - P1 provenance fix is closed: the source
+    `spelling_catalog_review_case_decisions` row is inserted first, its id is
+    passed as `p_source_decision_id` to the canonical mapping RPC, mapping and
+    event rows preserve `source_decision_id`, the decision row is updated with
+    the returned `canonical_mapping_id`, and the flow remains atomic in the
+    same RPC transaction
+  - audit provenance now links case -> case decision -> canonical mapping ->
+    canonical mapping event, supporting future catalog-gap, resolver-quality,
+    and admin-audit analytics without adding analytics tables or dashboards
+  - security boundary remains unchanged: RPC execute is service-role only, no
+    client service-role helper was added, and no parent RLS or admin
+    browser-client RLS policy changed
+  - validation passed: `npx eslint app/admin/catalog-review/page.tsx
+    app/admin/catalog-review/admin-decision-row.tsx
+    app/admin/catalog-review/actions.ts
+    lib/writing-engine/persistence/spelling-canonical-mappings.ts
+    scripts/writing-engine-canonical-mapping-storage-regression.ts
+    scripts/writing-engine-admin-canonical-curation-regression.ts`,
+    `npx tsc --noEmit`, `npm run build`,
+    `npm run writing-engine:canonical-mapping-storage-regression`,
+    `npm run writing-engine:admin-canonical-curation-regression`, optional
+    legacy admin catalog-review regression, `git diff --check`, and P1
+    provenance re-audit
+  - residual risk: validation is still static/source-level rather than live
+    Supabase DB execution; DB-backed smoke testing should happen before Slice
+    `4E.3` resolver integration or production reliance
 - false-positive catalog review is a future Slice `4D` planning concern:
   - reserve future case reason `false_positive_report`
   - reserve future admin outcomes `false_positive_confirmed` and

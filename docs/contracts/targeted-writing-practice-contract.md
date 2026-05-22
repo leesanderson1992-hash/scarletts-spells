@@ -673,6 +673,41 @@ Slice `4A` catalog-review contract:
     `git diff --check`
   - residual private-MVP risk: service-role direct table writes can bypass
     canonical mapping event conventions until later DB hardening
+- Slice `4E.2` admin canonical-curation decision flow is implemented and
+  QA-passed:
+  - new `/admin/catalog-review` submissions use
+    `add_canonical_mapping`, `needs_new_micro_skill`, `word_level_only`,
+    `not_a_learning_issue`, and `reject_no_canonical_update`
+  - historical Slice `4D.1` `linked_existing_skill` and `new_skill_needed`
+    remain readable in decision history only and must not be reinterpreted,
+    backfilled, or promoted
+  - `add_canonical_mapping` requires `requireAdminUser()` before service-role
+    use, validates an active, assignable `D4`
+    `micro_skill_catalog.micro_skill_key`, creates canonical mapping storage
+    and a canonical mapping event through the Slice `4E.1` path, records
+    `canonical_mapping_id` on the source case-decision row, and closes/updates
+    the source catalog-review case
+  - `add_canonical_mapping` must not mutate `micro_skill_catalog` and must not
+    affect resolver output in Slice `4E.2`
+  - non-canonical Slice `4E` decisions record/close case outcomes without
+    creating canonical mappings or resolver-visible truth
+  - P1 provenance fix is part of the accepted contract: insert the source
+    `spelling_catalog_review_case_decisions` row first, pass that id as
+    `p_source_decision_id`, preserve `source_decision_id` on canonical mapping
+    and event rows, then update the decision row with `canonical_mapping_id`
+    in the same RPC transaction
+  - RPC execute remains service-role only; no client service-role helper,
+    parent RLS change, or admin browser-client RLS policy was added
+  - audit provenance now links case -> case decision -> canonical mapping ->
+    canonical mapping event for future catalog-gap, resolver-quality, and
+    admin-audit analytics; no analytics tables or dashboards were added
+  - validation passed: targeted eslint, `npx tsc --noEmit`, `npm run build`,
+    `npm run writing-engine:canonical-mapping-storage-regression`,
+    `npm run writing-engine:admin-canonical-curation-regression`, optional
+    legacy regression, `git diff --check`, and P1 provenance re-audit
+  - residual risk: validation is static/source-level and not live Supabase DB
+    execution; DB-backed smoke testing should happen before Slice `4E.3`
+    resolver integration or production reliance
 - future false-positive catalog review vocabulary is reserved:
   - case reason `false_positive_report`
   - admin outcomes `false_positive_confirmed` and
