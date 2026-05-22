@@ -423,30 +423,44 @@ This means:
   - supersede/reopen
   - only admin/catalog curation may create or update canonical/global mapping
     truth
-- Slice `4D.1` first implementation scope is case-only admin resolution:
+- Slice `4D.1` implementation closeout is case-only admin resolution:
   - `linked_existing_skill`, `new_skill_needed`, `word_level_only`, and
     `not_a_learning_issue`
+  - `no_action_needed` is not implemented in `4D.1`
   - `linked_existing_skill` validates an existing active, assignable `D4`
     `micro_skill_catalog.micro_skill_key`
   - `linked_existing_skill` does not create global canonical truth, does not
     change resolver output, and does not promote anything globally
-- Slice `4D.1` admin UX should reuse the compact Review Work table visual
-  pattern as a per-case decision table, not a grouped batch mutation surface:
+- `new_skill_needed` does not create a new micro-skill; `word_level_only`
+  resolves a real spelling issue as word-specific; `not_a_learning_issue`
+  resolves a case as not useful for learning/practice/catalog truth
+- Slice `4D.1` admin UX reuses the compact Review Work table visual pattern
+  where appropriate as one per-case decision table, not a grouped batch
+  mutation surface:
   - parent Review Work table purpose is evidence classification/reporting
   - admin catalog-review table purpose is evidence review and curation
-  - preferred fields are Wrong Word, Correct Word, Case Reason,
-    Representative Context, Evidence Count / Source Count where relevant,
-    Source Provenance, Parent Note, Current Status, Skill Family, Skill
-    Cluster, Micro-skill, Decision, Decision Note, and Submit Decision
+  - main table fields are Wrong Word, Correct Word, Reason, Skill Family,
+    Skill Cluster, Micro-skill, Decision, and Actions
+  - Source, Evidence Count / Source Count, Current Status, Latest Original
+    Spelling Pair, Representative Context, Parent Note, Decision Note, and
+    Decision History live in case details/disclosure
   - family, cluster, and micro-skill labels should use parent/admin-facing
     display names where available
-  - mutation controls must be labelled, text-led, keyboard-accessible, and
-    must not expose unnecessary parent/child identity
-- Slice `4D.1` decisions require append-only audit records that can represent
-  `no_matching_skill` decisions and future `false_positive_report` decisions,
-  including decision type, admin identity, previous/new status, linked
-  `micro_skill_key`, nullable `canonical_mapping_id`, decision note, metadata,
-  and `created_at`
+  - mutation controls are labelled and keyboard-accessible, use accessible
+    icon actions, and do not expose unnecessary parent/child identity; no
+    Archive action is implemented
+- Slice `4D.1` decisions use `spelling_catalog_review_case_decisions` as the
+  app/RPC-path audit ledger, including decision type, admin identity,
+  previous/new status, linked `micro_skill_key`, nullable
+  `canonical_mapping_id` unused in `4D.1`, decision note, metadata, and
+  `created_at`
+- the RPC locks/updates the target case and inserts the audit row; DB-level
+  append-only enforcement with triggers/privilege redesign is not implemented
+  and is accepted only for private MVP
+- Slice `4D.1` is implemented and QA passed; non-link `micro_skill_key`
+  tampering is rejected, and canonical/global truth, resolver non-effect,
+  admin/security/service-role, UI/accessibility/table workflow, and manual
+  browser QA boundaries passed
 - false-positive catalog review is reserved for a future Slice `4D` sub-slice:
   - reserve future case reason `false_positive_report`
   - reserve future admin outcomes `false_positive_confirmed` and
@@ -480,6 +494,9 @@ This means:
     storage contract is chosen; `spelling_catalog_review_cases`, parent notes,
     parent-scoped candidate mappings, and `micro_skill_catalog` metadata must
     not silently become global mapping truth
+  - a dedicated canonical spelling mapping table remains the likely future
+    direction, but it is not implemented by Slice `4D.1` and still requires a
+    docs-first storage/resolver contract
   - once that future storage/resolver contract exists, admin promotion may add
     resolver-visible normalized spelling mappings, suppress or correct
     false-positive-producing mappings/rules, close cases with audit, and

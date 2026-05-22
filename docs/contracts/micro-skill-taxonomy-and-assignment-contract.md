@@ -977,32 +977,54 @@ Slice `4A` spelling catalog-review taxonomy contract:
 - admin decisions may link an existing skill, create/propose a new skill,
   classify as word-level only, classify as not a learning issue, merge a
   duplicate, supersede, or reopen
-- Slice `4D.1` owns only case-level admin decisions:
+- Slice `4D.1` is implemented and QA passed as case-level admin decisions:
   - `linked_existing_skill`
   - `new_skill_needed`
   - `word_level_only`
   - `not_a_learning_issue`
+  - `no_action_needed` is not implemented in `4D.1`
   - `linked_existing_skill` must validate an existing active, assignable `D4`
     `micro_skill_catalog.micro_skill_key`
   - `linked_existing_skill` must not create canonical/global mapping truth,
     affect resolver output, or promote anything globally
+- `new_skill_needed` does not create a new micro-skill; `word_level_only`
+  resolves a real spelling issue as word-specific; `not_a_learning_issue`
+  resolves a case as not useful for learning/practice/catalog truth
 - later Slice `4D` sub-slices may own merge, supersede, reopen,
   false-positive review, proposal workflows, and canonical/global mapping
   promotion after their contracts are explicit
-- Slice `4D.1` admin table should be per-case and visually follow the compact
-  Review Work table pattern while using admin-specific evidence and curation
-  semantics; do not add group-wide mutation buttons on normalized
-  `misspelling -> correction` groups
-- preferred `4D.1` admin fields are Wrong Word, Correct Word, Case Reason,
-  Representative Context, Evidence Count / Source Count where relevant, Source
-  Provenance, Parent Note, Current Status, Skill Family, Skill Cluster,
-  Micro-skill, Decision, Decision Note, and Submit Decision
+- Slice `4D.1` admin table is one compact per-case decision table that
+  visually follows the compact Review Work table pattern where appropriate
+  while using admin-specific evidence and curation semantics; do not add
+  group-wide mutation buttons on normalized `misspelling -> correction` groups
+- implemented `4D.1` main table fields are Wrong Word, Correct Word, Reason,
+  Skill Family, Skill Cluster, Micro-skill, Decision, and Actions
+- case details/disclosure may include Source, Evidence Count / Source Count,
+  Current Status, Latest Original Spelling Pair, Representative Context,
+  Parent Note, Decision Note, and Decision History
 - family, cluster, and micro-skill labels should use parent/admin-facing
   display names where available; raw keys remain internal values
-- `4D.1` audit records must be append-only and capture decision type, admin
-  identity, previous/new status, linked `micro_skill_key` where applicable,
-  nullable `canonical_mapping_id` unused in `4D.1`, decision note, metadata,
-  and `created_at`
+- controls are labelled and keyboard-accessible, with accessible icon actions
+  where appropriate; no Archive action is implemented
+- `4D.1` audit uses `spelling_catalog_review_case_decisions` as the app/RPC
+  path audit ledger and captures decision type, admin identity,
+  previous/new status, linked `micro_skill_key` where applicable, nullable
+  `canonical_mapping_id` unused in `4D.1`, decision note, metadata, and
+  `created_at`
+- app path writes audit rows through the admin action/RPC path; the RPC
+  locks/updates the target case and inserts the audit row
+- DB-level append-only enforcement with triggers/privilege redesign is not
+  implemented and is accepted only for private MVP
+- Slice `4D.1` security and QA closeout:
+  - every admin mutation calls `requireAdminUser()` server-side before
+    service-role use
+  - service-role remains server-only and post-authorization
+  - parent-scoped RLS remains unchanged and no admin browser-client RLS policy
+    was added
+  - non-link `micro_skill_key` tampering is rejected; the RPC remains
+    defense-in-depth
+  - validation and manual browser QA passed with no remaining P0/P1/P2
+    findings
 - future false-positive catalog-review vocabulary is reserved but not
   implemented:
   - `false_positive_report`
@@ -1022,6 +1044,9 @@ Slice `4A` spelling catalog-review taxonomy contract:
     storage contract is chosen; do not use catalog-review cases, parent notes,
     parent-scoped candidate mappings, or `micro_skill_catalog` metadata as
     silent global mapping truth
+  - a dedicated canonical spelling mapping table remains the likely future
+    direction, but it is not implemented by Slice `4D.1` and still requires a
+    docs-first storage/resolver contract
   - after that contract exists, future admin/global promotion may add
     resolver-visible normalized spelling mappings, suppress or correct
     false-positive-producing mappings/rules, close cases with audit, and

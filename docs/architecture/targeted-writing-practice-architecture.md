@@ -297,33 +297,45 @@ Parent-Verified Spelling Candidate Capture architecture boundary:
   - not a learning issue
   - merge duplicate
   - supersede/reopen
-- Slice `4D.1` is limited to case-only admin decisions:
+- Slice `4D.1` is implemented and QA passed as case-only admin decisions:
   - `linked_existing_skill`
   - `new_skill_needed`
   - `word_level_only`
   - `not_a_learning_issue`
+  - `no_action_needed` is not implemented in `4D.1`
   - `linked_existing_skill` validates an existing active, assignable `D4`
     `micro_skill_catalog.micro_skill_key`
   - `linked_existing_skill` does not create canonical/global mapping truth,
     affect resolver output, or promote anything globally
-- Slice `4D.1` admin UI should use a per-case decision table that visually
-  follows the compact Review Work table pattern but uses admin-specific
-  evidence and curation semantics:
+- `new_skill_needed` does not create a new micro-skill; `word_level_only`
+  resolves a real spelling issue as word-specific; `not_a_learning_issue`
+  resolves a case as not useful for learning/practice/catalog truth
+- Slice `4D.1` admin UI uses one compact per-case decision table that visually
+  follows the compact Review Work table pattern where appropriate and uses
+  admin-specific evidence and curation semantics:
   - parent Review Work table purpose is evidence classification/reporting
   - admin table purpose is evidence review and decision-path curation
-  - preferred fields are Wrong Word, Correct Word, Case Reason,
-    Representative Context, Evidence Count / Source Count where relevant,
-    Source Provenance, Parent Note, Current Status, Skill Family, Skill
-    Cluster, Micro-skill, Decision, Decision Note, and Submit Decision
+  - main table fields are Wrong Word, Correct Word, Reason, Skill Family,
+    Skill Cluster, Micro-skill, Decision, and Actions
+  - Source, Evidence Count / Source Count, Current Status, Latest Original
+    Spelling Pair, Representative Context, Parent Note, Decision Note, and
+    Decision History live in case details/disclosure
   - do not add group-wide mutation buttons to normalized
     `misspelling -> correction` groups
-  - controls must use clear labels, text-led actions, keyboard access, and
-    clear empty/error/success states while avoiding unnecessary parent/child
-    identity exposure
-- Slice `4D.1` audit must be append-only and record decision type, admin
-  identity, previous/new status, linked `micro_skill_key` where applicable,
-  nullable `canonical_mapping_id` unused in `4D.1`, decision note, metadata,
-  and `created_at`
+  - controls use clear labels, keyboard access, and accessible icon actions;
+    no Archive action is implemented
+- Slice `4D.1` audit uses `spelling_catalog_review_case_decisions` as the
+  app/RPC-path audit ledger and records decision type, admin identity,
+  previous/new status, linked `micro_skill_key` where applicable, nullable
+  `canonical_mapping_id` unused in `4D.1`, decision note, metadata, and
+  `created_at`
+- the RPC locks/updates the target case and inserts the audit row; DB-level
+  append-only enforcement with triggers/privilege redesign is not implemented
+  and is accepted only for private MVP
+- Slice `4D.1` QA passed with no remaining P0/P1/P2 findings; non-link
+  `micro_skill_key` tampering is rejected, and canonical/global truth,
+  resolver non-effect, admin/security/service-role, UI/accessibility/table
+  workflow, and manual browser QA boundaries passed
 - future false-positive review is reserved:
   - case reason `false_positive_report`
   - admin outcomes `false_positive_confirmed` and

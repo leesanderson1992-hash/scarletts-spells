@@ -560,36 +560,57 @@ Canonical documentation now defers to:
   - not a learning issue
   - merge duplicate
   - supersede/reopen
-- Slice `4D.1` is the smallest safe write-capable admin slice and remains
-  case-only:
+- Slice `4D.1` is implemented and QA passed as the smallest safe
+  write-capable admin slice; it remains case-only:
   - supported decisions are `linked_existing_skill`, `new_skill_needed`,
     `word_level_only`, and `not_a_learning_issue`
+  - `no_action_needed` is not implemented; adding it requires a future
+    docs/schema decision
   - `linked_existing_skill` must validate an existing active, assignable `D4`
     `micro_skill_catalog.micro_skill_key`
   - `linked_existing_skill` closes/resolves the review case only; it does not
     create canonical/global mapping truth, affect resolver output, or promote
     anything globally
-- planned Slice `4D.1` admin UI pattern:
-  - use a per-case admin decision table that visually follows the compact
-    Review Work table pattern
+- implemented Slice `4D.1` admin UI pattern:
+  - uses one compact per-case admin decision table that visually follows the
+    compact Review Work table pattern where appropriate
   - parent Review Work table purpose is evidence classification/reporting;
     admin catalog-review table purpose is evidence review and curation
-  - preferred columns/controls are Wrong Word, Correct Word, Case Reason,
-    Representative Context, Evidence Count / Source Count where relevant,
-    Source Provenance, Parent Note, Current Status, Skill Family, Skill
-    Cluster, Micro-skill, Decision, Decision Note, and Submit Decision
+  - main table fields are Wrong Word, Correct Word, Reason, Skill Family,
+    Skill Cluster, Micro-skill, Decision, and Actions
+  - Source, Evidence Count / Source Count, Current Status, Latest Original
+    Spelling Pair, Representative Context, Parent Note, Decision Note, and
+    Decision History live in case details/disclosure
   - family, cluster, and micro-skill labels should be parent/admin-facing
     display names where available, with raw keys kept as internal values
   - do not add grouped batch mutation buttons for normalized
     `misspelling -> correction` groups
-  - controls must be labelled, text-led, keyboard-accessible, and provide
-    clear empty/error/success states without unnecessary parent/child identity
-- planned Slice `4D.1` audit contract:
-  - audit must be append-only and support both `no_matching_skill` decisions
-    and future `false_positive_report` decisions
+  - controls are labelled and keyboard-accessible; accessible icon actions are
+    used for submit/details, and there is no Archive action in this slice
+- implemented Slice `4D.1` audit and migration contract:
+  - `spelling_catalog_review_case_decisions` exists as the app/RPC-path audit
+    ledger
+  - app path writes audit rows through the admin action/RPC path
   - record decision type, admin identity, previous status, new status,
     linked `micro_skill_key` where applicable, nullable `canonical_mapping_id`
     unused in `4D.1`, decision note, metadata, and `created_at`
+  - the RPC locks/updates the target case and inserts the audit row
+  - DB-level append-only enforcement with triggers/privilege redesign is not
+    implemented; accepted for private MVP and to be revisited before broader
+    staff/admin operations
+- Slice `4D.1` QA closeout:
+  - validation passed: `npx eslint app/admin/catalog-review/page.tsx
+    app/admin/catalog-review/admin-decision-row.tsx
+    app/admin/catalog-review/actions.ts
+    scripts/writing-engine-admin-catalog-review-case-resolution-regression.ts`,
+    `npx tsc --noEmit`, `npm run build`, focused `4D.1` regression, and
+    `git diff --check`
+  - no P0/P1/P2 findings remain
+  - non-link `micro_skill_key` tampering is rejected, while
+    `linked_existing_skill` still validates active, assignable `D4`
+    `micro_skill_key`
+  - canonical/global truth, resolver non-effect, admin/security/service-role,
+    UI/accessibility/table workflow, and manual browser QA passed
 - only admin/catalog curation may create or update canonical/global mapping
   truth
 - false-positive catalog review is future/planned only:

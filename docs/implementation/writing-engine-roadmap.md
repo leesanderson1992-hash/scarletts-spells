@@ -729,40 +729,75 @@ Slice `4A` catalog-review contract:
   - not a learning issue
   - merge duplicate
   - supersede/reopen
-- Slice `4D.1` first implementation scope is case-only admin resolution:
+- Slice `4D.1` implementation closeout:
+  - implemented and QA passed as admin-only case resolution for
+    `spelling_catalog_review_cases`
+  - remains case-only and does not create resolver-visible canonical/global
+    truth, create or mutate `micro_skill_catalog`, change parent Review Work,
+    or broaden manual writing samples
   - `linked_existing_skill`
   - `new_skill_needed`
   - `word_level_only`
   - `not_a_learning_issue`
+  - `no_action_needed` is not implemented in `4D.1`; adding it requires a
+    docs/schema decision first
   - `linked_existing_skill` validates an existing active, assignable `D4`
     `micro_skill_catalog.micro_skill_key`
   - `linked_existing_skill` does not create canonical/global mapping truth,
     does not affect resolver output, and does not promote anything globally
-- Slice `4D.1` admin UI should use a per-case decision table that visually
-  follows the compact Review Work table pattern, but with admin-specific
-  evidence and curation semantics:
+- `new_skill_needed` resolves the case as future catalog/micro-skill work
+  without creating a micro-skill
+- `word_level_only` resolves the case as a real spelling issue best handled as
+  a specific word rather than reusable micro-skill truth
+- `not_a_learning_issue` resolves the case as not useful for learning,
+  practice, catalog truth, or canonical truth
+- Slice `4D.1` admin UI uses one compact per-case decision table that visually
+  follows the compact Review Work table pattern where appropriate, but with
+  admin-specific columns and curation semantics:
   - parent Review Work table purpose: parent classifies or reports evidence
   - admin catalog-review table purpose: admin reviews evidence and curates the
     decision path
-  - preferred fields are Wrong Word, Correct Word, Case Reason,
-    Representative Context, Evidence Count / Source Count where relevant,
-    Source Provenance, Parent Note, Current Status, Skill Family, Skill
-    Cluster, Micro-skill, Decision, Decision Note, and Submit Decision
+  - main table fields are Wrong Word, Correct Word, Reason, Skill Family,
+    Skill Cluster, Micro-skill, Decision, and Actions
+  - case details/disclosure may include Source, Evidence Count / Source Count,
+    Current Status, Latest Original Spelling Pair, Representative Context,
+    Parent Note, Decision Note, and Decision History
   - family, cluster, and micro-skill controls should use parent/admin-facing
     display names where available; raw keys remain internal values only
   - do not add group-wide mutation buttons on normalized
     `misspelling -> correction` groups because grouped cases may have distinct
     contexts and evidence
-  - mutation controls must be text-led, labelled, keyboard-accessible, and
-    have clear empty, error, and success states without exposing unnecessary
-    parent/child identity
-- Slice `4D.1` audit requirements:
-  - admin decisions must be append-only auditable, not metadata-only
-  - the decision record must support `no_matching_skill` and future
-    `false_positive_report` cases
-  - record decision type, admin user id/email, previous status, new status,
-    linked `micro_skill_key` where applicable, nullable `canonical_mapping_id`
-    unused in `4D.1`, decision note, metadata, and `created_at`
+  - accessible icon actions are labelled; there is no Archive action in this
+    slice
+- Slice `4D.1` audit and migration truth:
+  - `spelling_catalog_review_case_decisions` is the app/RPC-path audit ledger
+  - app path is append-only through the implemented server action/RPC path
+  - each decision records admin user id/email, previous status, new status,
+    decision type, decision note, linked `micro_skill_key` where applicable,
+    nullable `canonical_mapping_id` unused in `4D.1`, metadata, and
+    `created_at`
+  - the RPC locks and updates the target case and inserts the audit row
+  - DB-level append-only enforcement with triggers/privilege redesign is not
+    yet implemented; this is accepted for private MVP but must be revisited
+    before broader staff/admin operations
+- Slice `4D.1` admin/security QA closeout:
+  - every admin mutation calls `requireAdminUser()` server-side before
+    service-role use
+  - service-role access remains server-only and post-authorization; no client
+    component imports the service-role helper
+  - parent-scoped RLS remains unchanged, and no admin browser-client RLS policy
+    was added for private MVP
+  - the server action rejects non-link decisions that submit `micro_skill_key`;
+    the RPC remains defense-in-depth
+  - validation passed: `npx eslint app/admin/catalog-review/page.tsx
+    app/admin/catalog-review/admin-decision-row.tsx
+    app/admin/catalog-review/actions.ts
+    scripts/writing-engine-admin-catalog-review-case-resolution-regression.ts`,
+    `npx tsc --noEmit`, `npm run build`, focused `4D.1` regression, and
+    `git diff --check`
+  - QA found no remaining P0/P1/P2 issues; canonical/global truth,
+    resolver non-effect, admin/security/service-role, and
+    UI/accessibility/table workflow boundaries passed
 - false-positive catalog review is a future Slice `4D` planning concern:
   - reserve future case reason `false_positive_report`
   - reserve future admin outcomes `false_positive_confirmed` and
@@ -789,6 +824,9 @@ Slice `4A` catalog-review contract:
     `parent_verified_spelling_candidate_mappings` as silent global truth, or
     `micro_skill_catalog` metadata as canonical mapping truth unless Stage
     `2C` and the relevant contracts are explicitly revised
+  - a dedicated canonical spelling mapping table remains the likely future
+    direction, but it is not implemented by Slice `4D.1` and still requires a
+    docs-first storage/resolver contract
   - after that storage/resolver contract exists, future admin promotion may
     add resolver-visible
     `misspelling_normalized -> correct_spelling_normalized -> micro_skill_key`

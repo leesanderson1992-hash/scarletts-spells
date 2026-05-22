@@ -171,32 +171,45 @@ Slice `4C`:
 Slice `4D`:
 
 - owns admin decisions and canonical promotion if later approved
-- first safe implementation scope, `4D.1`, is case-only admin resolution with
-  `linked_existing_skill`, `new_skill_needed`, `word_level_only`, and
-  `not_a_learning_issue`
+- first safe implementation scope, `4D.1`, is implemented and QA passed as
+  case-only admin resolution with `linked_existing_skill`,
+  `new_skill_needed`, `word_level_only`, and `not_a_learning_issue`
 - `linked_existing_skill` must validate an existing active, assignable `D4`
   `micro_skill_catalog.micro_skill_key`, but it must not create
   canonical/global mapping truth, affect resolver output, or promote anything
   globally in `4D.1`
+- `new_skill_needed` does not create a new micro-skill; `word_level_only`
+  resolves a real spelling issue as word-specific; `not_a_learning_issue`
+  resolves a case as not useful for practice/catalog truth
+- `no_action_needed` is not implemented in `4D.1`
 - later sub-slices may define merging, superseding, reopening, false-positive
   review, proposal workflows, and canonical/global promotion
 - future false-positive review vocabulary is reserved but not implemented:
   `false_positive_report`, `false_positive_confirmed`, and
   `false_positive_needs_rule_fix`
-- the `4D.1` admin decision UI should be a per-case table/detail surface that
-  follows the compact Review Work table visual pattern with admin evidence and
-  curation semantics; it must not add group-wide mutation buttons to grouped
-  normalized spelling pairs
-- future admin mutation controls must be text-led, labelled,
-  keyboard-accessible, auditable, and avoid unnecessary parent/child identity
-  exposure
-- the admin decision audit trail must be append-only and record decision type,
-  admin user id/email, previous status, new status, linked `micro_skill_key`
-  where applicable, nullable `canonical_mapping_id` unused in `4D.1`,
-  decision note, metadata, and `created_at`
-- must not inherit write authority from Slice `4C`; it needs its own explicit
-  docs-first write contract, audit trail, decision actions, canonical write
-  path, validation, and tests
+- the implemented `4D.1` admin decision UI is one compact per-case table with
+  main fields Wrong Word, Correct Word, Reason, Skill Family, Skill Cluster,
+  Micro-skill, Decision, and Actions; Source, evidence count, current status,
+  latest original spelling pair, representative context, parent note, decision
+  note, and decision history live in case details/disclosure
+- `4D.1` must not add group-wide mutation buttons to grouped normalized
+  spelling pairs; every decision submission remains per individual case
+- admin mutation controls are labelled and keyboard-accessible, use accessible
+  icon actions where appropriate, and avoid unnecessary parent/child identity
+  exposure; no Archive action is implemented in `4D.1`
+- the admin decision audit trail uses
+  `spelling_catalog_review_case_decisions` as the app/RPC-path audit ledger
+  and records decision type, admin user id/email, previous status, new status,
+  linked `micro_skill_key` where applicable, nullable `canonical_mapping_id`
+  unused in `4D.1`, decision note, metadata, and `created_at`
+- app path writes are append-only through the server action/RPC path; DB-level
+  append-only enforcement with triggers/privilege redesign is not implemented
+  and is accepted only for private MVP
+- every admin mutation calls `requireAdminUser()` server-side before
+  service-role use; service-role access remains server-only and
+  post-authorization; no admin browser-client RLS policy was added; non-link
+  decisions that submit `micro_skill_key` are rejected by the server action,
+  with the RPC retained as defense-in-depth
 - canonical/global promotion remains blocked until the canonical mapping
   storage contract is chosen; do not use `spelling_catalog_review_cases`,
   parent notes, parent-scoped candidate mappings, or `micro_skill_catalog`
