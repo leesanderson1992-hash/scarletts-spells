@@ -85,6 +85,88 @@ Review Work read-only derived template metadata boundary:
 - no editable `verified_template_key`, no template dropdown/provider, and no
   independent template truth persistence are authorized in this slice
 
+Durable Structured Submission Payloads architecture boundary:
+- structured lesson/test answer boxes must not depend on
+  `task_submission_drafts` as their only archive after child submit
+- `task_submission_drafts` is mutable working state for autosave,
+  in-progress work, and returned/editable correction state
+- `task_submissions` is the submitted attempt header and workflow record; its
+  `submission_text` is a flattened readable representation, not reliable
+  structured answer JSON
+- planned `task_submission_payloads` owns immutable submitted structured
+  attempt evidence
+- planned table fields:
+  - `id`
+  - `submission_id`
+  - `parent_user_id`
+  - `course_id`
+  - `task_id`
+  - `child_id`
+  - `payload_type`
+  - `payload_version`
+  - `payload_json`
+  - `created_at`
+  - `updated_at`
+- initial `payload_type` values:
+  - `structured_lesson_response`
+  - `structured_test_response`
+- constraints and indexes:
+  - unique `(submission_id, payload_type)`
+  - lookup index on `(task_id, child_id, created_at desc)`
+  - optional lookup index on
+    `(parent_user_id, child_id, task_id, created_at desc)` where useful
+  - `payload_json` stores the structured response object, not flattened text
+- RLS/security:
+  - enable RLS
+  - authenticated parent access is scoped to
+    `auth.uid() = parent_user_id`
+  - insert/update/delete posture should be conservative and match existing
+    project table patterns
+  - server-side submit and approval code must derive ownership fields from
+    trusted submission/task context, not client-provided spoofable ids
+- submit-flow contract:
+  1. parse and validate structured response
+  2. insert `task_submissions` with flattened `submission_text`
+  3. immediately insert `task_submission_payloads`
+  4. if payload insert fails, roll back or delete the just-created submission
+     and return an error
+  5. only after durable payload succeeds may existing side effects continue,
+     including task completion, writing sample creation, rewards, draft upsert,
+     or draft cleanup
+- hydration contract:
+  - load latest draft and latest relevant durable submitted payload
+  - use draft when no submission exists or latest submission is returned
+  - use durable submitted payload when the latest structured submission is
+    pending, approved, or completed and not returned
+  - legacy structured rows without durable payload must not crash; they may
+    fall back to existing empty or flattened-text behavior
+- approval contract:
+  - before deleting `task_submission_drafts` for structured lesson/test
+    submissions, check that the approved submission has durable payload
+  - delete draft only if the durable payload exists
+  - if no durable payload exists, skip draft deletion and keep approval
+    otherwise unchanged
+  - approval must never delete, overwrite, or mutate durable submitted payloads
+- returned/send-back contract:
+  - returned flow remains draft-first and editable
+  - returned flow continues to merge `__field_feedback` and
+    `__writing_issue_feedback` into the draft
+  - durable payload support must not break returned hydration
+- non-goals:
+  - no `4E` / `4E.3` resolver work
+  - no admin/catalog-review work
+  - no manual writing sample expansion
+  - no hosted historical backfill
+  - no mastery, reward, assignment, scoring, analytics, dashboard, or
+    template-routing change
+  - no `micro_skill_catalog` mutation
+- implementation sequence:
+  1. storage foundation only
+  2. submit persistence
+  3. child revisit hydration
+  4. approval draft-deletion safety
+  5. closeout/regression hardening
+
 Parent-Verified Spelling Candidate Capture architecture boundary:
 - the bounded Slice `2` stage now lets parents classify eligible
   lesson-submission-backed unmapped or parent-added spelling mistakes against

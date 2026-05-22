@@ -112,6 +112,22 @@ Current Slice 5 behavior:
 
 ## Child workflow
 
+### 0. Submitted structured answers should remain visible
+
+When a child revisits a structured lesson or test they have submitted, the app
+should preserve the child's sense that their work still exists.
+
+Expected behavior:
+- returned work reopens as editable draft state with parent feedback where
+  available
+- pending or approved structured work restores the submitted answers into the
+  original answer boxes when durable submitted payload exists
+- legacy structured rows without durable payload should fail softly rather than
+  crash
+
+The UI should not solve missing structured payloads by hiding the lesson,
+blocking access, or implying the child never submitted the work.
+
 ### 1. Returned work should feel fixable
 
 The child should see:

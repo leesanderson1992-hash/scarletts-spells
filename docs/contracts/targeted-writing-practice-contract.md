@@ -258,6 +258,94 @@ Parent verification remains the source of truth.
 `false_positive` and `not_a_learning_issue` outcomes do not create learning
 items.
 
+## Durable structured submission payload contract
+
+Structured lesson/test submissions must preserve two forms of child work:
+- flattened readable submission text for parent review, spellcheckable
+  ingestion, and workflow evidence
+- structured answer payload evidence for restoring the original answer boxes
+  after submit, approval, and later child revisit
+
+Canonical storage roles:
+- `task_submission_drafts` is mutable working state for autosave,
+  in-progress work, and returned/editable correction state
+- `task_submissions` is the submitted attempt header/workflow record and
+  flattened readable text representation
+- planned `task_submission_payloads` is immutable durable submitted structured
+  payload evidence linked to one submitted attempt
+
+Planned `task_submission_payloads` contract:
+- fields:
+  - `id`
+  - `submission_id`
+  - `parent_user_id`
+  - `course_id`
+  - `task_id`
+  - `child_id`
+  - `payload_type`
+  - `payload_version`
+  - `payload_json`
+  - `created_at`
+  - `updated_at`
+- initial payload types:
+  - `structured_lesson_response`
+  - `structured_test_response`
+- constraints:
+  - unique `(submission_id, payload_type)`
+  - lookup index on `(task_id, child_id, created_at desc)`
+  - optional lookup index on
+    `(parent_user_id, child_id, task_id, created_at desc)` where useful
+  - `payload_json` stores the structured response object, not flattened text
+- security:
+  - RLS enabled
+  - authenticated parent access scoped to `auth.uid() = parent_user_id`
+  - server-side code derives `parent_user_id`, `course_id`, `task_id`, and
+    `child_id` from trusted context, not from client-supplied payload claims
+
+Structured submit contract:
+1. parse and validate the structured response
+2. insert `task_submissions` as the workflow/header row with flattened
+   `submission_text`
+3. immediately insert the matching `task_submission_payloads` row
+4. if durable payload insert fails, roll back or delete the just-created
+   submission and return an error
+5. only after durable payload succeeds may existing side effects continue,
+   including task completion, writing sample creation, rewards, draft upsert,
+   or draft cleanup
+
+Structured child revisit hydration contract:
+- load the latest draft and latest relevant submitted durable payload
+- use draft when no submission exists or when the latest submission is returned
+- use durable submitted payload when the latest structured submission is
+  pending, approved, or completed and not returned
+- legacy structured submissions without durable payload must not crash; they
+  may fall back to existing empty or flattened-text behavior
+
+Approval safety contract:
+- before deleting `task_submission_drafts` for structured lesson/test
+  submissions, confirm the approved submission has a durable payload
+- delete the draft only when the durable payload exists
+- if durable payload is missing, skip draft deletion and keep approval
+  otherwise unchanged
+- approval must never delete, overwrite, or mutate durable submitted payloads
+
+Returned/send-back boundary:
+- returned work remains draft-first and editable
+- returned flow continues to merge `__field_feedback` and
+  `__writing_issue_feedback` into the draft
+- durable payload support must not change returned/send-back behavior
+
+Explicit non-goals:
+- no `4E` / `4E.3` resolver work
+- no admin/catalog-review work
+- no manual writing sample expansion
+- no hosted historical backfill
+- no dashboards or analytics implementation
+- no mastery, reward, assignment, scoring, or template-routing change
+- no `micro_skill_catalog` mutation
+- no rewrite of Review Work semantics beyond preserving child submitted
+  structured payloads
+
 Override outcomes must preserve verified truth rather than collapsing back to
 the original suggestion.
 

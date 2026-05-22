@@ -168,6 +168,20 @@ Examples:
 
 Submissions are important because they can later feed into reviewed writing issues and learning items.
 
+Structured lesson/test submission storage has three distinct roles:
+- `task_submission_drafts` stores mutable autosave, in-progress, and returned
+  correction state
+- `task_submissions` stores the submitted attempt header, workflow state, and
+  flattened readable `submission_text`
+- planned `task_submission_payloads` stores durable submitted structured
+  answer payload evidence so approved work can be restored into the original
+  lesson/test boxes later
+
+Parent approval must not remove the only structured answer source for a
+submitted lesson or test. Returned work remains editable from draft state;
+approved or pending structured revisit should hydrate from durable submitted
+payload when no active draft applies.
+
 ---
 
 ## Key architecture principle

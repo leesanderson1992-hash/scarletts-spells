@@ -113,6 +113,61 @@ Current ownership rule:
 
 ## Registered next bounded stage
 
+### Durable Structured Submission Payloads
+
+Status: `docs-only contract registered; storage foundation not implemented`
+
+Purpose:
+- separate mutable structured lesson/test draft state from immutable submitted
+  structured attempt evidence
+- ensure structured lesson/test answers survive parent approval and child
+  revisit
+- prevent `task_submission_drafts` from being the only archive of structured
+  child answers
+
+Truth model:
+- `task_submission_drafts` is mutable working state for autosave,
+  in-progress work, and returned-for-correction work
+- `task_submissions` is the submitted attempt header, workflow record, and
+  flattened readable text representation
+- future `task_submission_payloads` is durable submitted structured payload
+  evidence linked to the submitted attempt
+
+Boundary notes:
+- this track is separate from `4E` / `4E.3` resolver integration
+- this track does not change admin/catalog-review, manual writing samples,
+  mastery, rewards, assignments, scoring, analytics, or template routing
+- no hosted historical backfill is authorised in the docs pass
+- no implementation may solve the bug by hiding completed lessons or blocking
+  child revisit unless a separate product contract explicitly requires it
+
+Implementation sequence:
+1. storage foundation only:
+   - add `task_submission_payloads`
+   - add conservative RLS and ownership contract
+   - add storage/source-contract regression
+   - no submit, hydration, or approval runtime changes yet
+2. submit persistence:
+   - write the durable payload immediately after `task_submissions` insert
+   - roll back the just-created submission if durable payload insert fails
+3. child revisit hydration:
+   - draft-first for in-progress and returned work
+   - durable submitted payload for pending/approved structured revisit
+   - safe legacy fallback for structured submissions without payload
+4. approval draft-deletion safety:
+   - delete draft only when the structured submitted payload exists
+   - preserve vulnerable legacy draft rows when no durable payload exists
+5. closeout and regression hardening
+
+Required regression direction:
+- structured lesson/test submit creates durable payload evidence
+- payload insert failure prevents successful submit
+- child revisit after approval hydrates from durable submitted payload
+- approval does not delete the only structured answer source
+- returned/send-back remains draft-first with feedback
+- plain-writing behavior is unchanged
+- legacy structured submissions without payload do not crash
+
 ### Parent-Verified Spelling Candidate Capture
 
 Status: `Slice 3 implemented and validated within its bounded lesson-submission scope`

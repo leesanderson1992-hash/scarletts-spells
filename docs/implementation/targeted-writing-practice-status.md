@@ -80,6 +80,46 @@ Canonical documentation now defers to:
 - old spelling-session assignment generation path
 
 ### Next
+- Durable Structured Submission Payloads is registered as a docs-only bounded
+  track:
+  - status: contract only; no runtime code, migration, test, package, hosted
+    data, or resolver change has been made in this docs pass
+  - purpose:
+    - separate mutable draft working state from immutable submitted structured
+      attempt evidence
+    - ensure structured lesson/test answers survive parent approval and child
+      revisit
+    - prevent `task_submission_drafts` from being the only archive of
+      structured child answers
+  - truth model:
+    - `task_submission_drafts` = mutable working state for in-progress,
+      autosaved, or returned/editable work
+    - `task_submissions` = submission header/workflow record plus flattened
+      readable `submission_text`
+    - planned `task_submission_payloads` = durable submitted structured payload
+      evidence linked to a submitted attempt
+  - implementation sequence:
+    1. storage foundation only
+    2. submit persistence
+    3. child revisit hydration
+    4. approval draft-deletion safety
+    5. closeout/regression hardening
+  - explicit non-goals:
+    - no `4E` / `4E.3` resolver work
+    - no admin/catalog-review work
+    - no manual writing sample expansion
+    - no hosted historical backfill
+    - no mastery, reward, assignment, scoring, analytics, dashboard, or
+      template-routing change
+    - no `micro_skill_catalog` mutation
+  - required regression direction:
+    - structured submit creates durable payload
+    - payload insert failure prevents successful submit
+    - child revisit after approval hydrates from durable submitted payload
+    - approval never deletes the only structured answer source
+    - returned/send-back remains draft-first with feedback
+    - plain-writing behavior remains unchanged
+    - legacy structured rows without payload do not crash
 - Stage `7F` is now fully closed:
   - `7F.10` regression coverage is complete
   - the bounded Stage `7F` regression script exists and passed when run
