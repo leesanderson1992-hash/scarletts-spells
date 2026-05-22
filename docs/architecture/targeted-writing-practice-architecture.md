@@ -250,14 +250,14 @@ Parent-Verified Spelling Candidate Capture architecture boundary:
     canonical truth, change resolver priority, or block parent review
     completion
 - admin surface timing:
-  - the admin access foundation now exists, but there is currently no
+  - Slice `4C` runtime is implemented and QA passed as a protected read-only
     catalog-review admin UI
   - do not create a broad admin system upfront
   - first admin surface should be introduced only after parent-raised cases can
     exist
   - admin/internal access convention is defined in
     [docs/architecture/admin-internal-access.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/architecture/admin-internal-access.md:1)
-  - first admin review surface remains future `/admin/catalog-review`
+  - first admin review surface is `/admin/catalog-review`
   - admin identity for the private MVP comes from private server-side
     `ADMIN_USER_IDS` and `ADMIN_EMAILS` allowlists
   - there is no DB admin role table, Supabase custom claims model,
@@ -265,6 +265,9 @@ Parent-Verified Spelling Candidate Capture architecture boundary:
   - authenticated parent identity is not admin/internal identity; parent-scoped
     ownership checks and RLS remain parent-scoped
   - `app/admin/layout.tsx` is the mandatory server-side guard for admin pages
+  - `/admin/catalog-review` also calls `requireAdminUser()` before creating or
+    using the service-role client; this page-level guard is outside broad
+    data-read error handling
   - admin APIs are not implemented yet; future `/api/admin/*` route handlers
     must call the same admin helper before querying data
   - admin reads use a server-only service-role helper after admin authorization
@@ -274,11 +277,13 @@ Parent-Verified Spelling Candidate Capture architecture boundary:
   - parent users must not be able to list other parents' catalog-review cases
   - any service-role usage must be server-only and never exposed to client
     components
-  - first admin view should focus on grouped `misspelling -> correction`,
-    count/latest date, representative context, parent reason/note, source
-    provenance, and status
-  - first admin view may show only open `spelling_catalog_review_cases` and
-    provide read/triage visibility only
+  - implemented admin view shows only open `spelling_catalog_review_cases`,
+    groups by normalized `misspelling -> correction`, sorts groups by latest
+    `updated_at`, and displays count/latest date, representative context,
+    parent reason/note, source provenance, status, and limited supporting
+    spelling context
+  - first admin view provides read/triage visibility only, includes safe
+    empty/error states, and avoids unnecessary parent/child identity exposure
   - do not start with a full admin dashboard, broad role-management work, CMS,
     or global catalog mutation from parent UI
   - Slice `4C` must not add admin decisions, canonical/global promotion,
@@ -297,9 +302,18 @@ Parent-Verified Spelling Candidate Capture architecture boundary:
 - Slice `4C` implementation readiness:
   - docs contract exists in
     [docs/architecture/admin-internal-access.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/architecture/admin-internal-access.md:1)
-  - admin access foundation is implemented
-  - next Slice `4C` implementation may proceed only as a read-only
-    `/admin/catalog-review` triage surface
+  - admin access foundation and read-only `/admin/catalog-review` triage
+    surface are implemented and QA passed
+  - validation passed:
+    - `npx eslint app/admin/catalog-review/page.tsx`
+    - `npx tsc --noEmit`
+    - `npm run build`
+    - `git diff --check`
+  - residual setup/risk: server environments must configure `ADMIN_USER_IDS`
+    and/or `ADMIN_EMAILS` plus `SUPABASE_SERVICE_ROLE_KEY`; browser-client
+    admin reads require future DB-backed role/claims and explicit admin RLS;
+    write-capable admin workflows require separate action helpers, audit trail
+    design, and regression coverage
   - parent-scoped RLS must remain unchanged
   - service-role access must stay server-only and must be guarded by the admin
     helper before any query

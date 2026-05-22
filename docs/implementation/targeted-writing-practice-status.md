@@ -500,19 +500,24 @@ Canonical documentation now defers to:
   convention in
   [docs/architecture/admin-internal-access.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/architecture/admin-internal-access.md:1)
 - Slice `4C` implementation readiness:
-  - documentation prerequisite is complete
+  - implemented and QA passed as protected read-only admin triage
   - admin access foundation is implemented:
     - `lib/admin/access.ts`
     - `lib/supabase/service-role.ts`
     - `/admin` session protection in `proxy.ts`
     - mandatory `app/admin/layout.tsx` server-side guard
-  - `/admin/catalog-review` is not implemented yet
+  - `/admin/catalog-review` exists as the minimal admin catalog-review page
   - admin identity for the private MVP comes from private server-side
     `ADMIN_USER_IDS` and `ADMIN_EMAILS` allowlists
   - there is no DB admin role table, Supabase custom claims model,
     role-management UI, or separate admin login in Slice `4C`
   - authenticated parent identity is not admin/internal identity
   - `app/admin/layout.tsx` is the mandatory server-side guard for admin pages
+  - `/admin/catalog-review` also calls `requireAdminUser()` before creating or
+    using the service-role client
+  - page-level `requireAdminUser()` is outside broad data-read `try/catch`, so
+    `redirect()` / `notFound()` control-flow is not swallowed by generic error
+    rendering
   - admin APIs are not implemented yet; future `/api/admin/*` route handlers
     must call the same admin helper before querying data
   - admin reads use server-only service-role access only after admin
@@ -533,6 +538,15 @@ Canonical documentation now defers to:
   - status
 - Slice `4C` may provide read/triage visibility only and may show only open
   `spelling_catalog_review_cases`
+- implemented page behavior:
+  - reads only open `spelling_catalog_review_cases`
+  - groups by normalized `misspelling -> correction`
+  - sorts groups by latest `updated_at`
+  - displays misspelling -> correction, count, latest date, representative
+    context, parent note/reason, source provenance, status, and limited
+    supporting spelling context where appropriate
+  - includes safe empty/error states
+  - avoids unnecessary parent/child identity exposure
 - do not start with a broad admin dashboard, role-management system, CMS, or
   global catalog mutation from parent UI
 - Slice `4C` must not add admin decisions, canonical/global promotion,
@@ -548,6 +562,26 @@ Canonical documentation now defers to:
   - supersede/reopen
 - only admin/catalog curation may create or update canonical/global mapping
   truth
+- Slice `4C` runtime QA closeout:
+  - validation passed:
+    - `npx eslint app/admin/catalog-review/page.tsx`
+    - `npx tsc --noEmit`
+    - `npm run build`
+    - `git diff --check`
+  - security QA conclusion:
+    - anonymous users are handled by `/admin` session protection
+    - signed-in non-admin users are blocked by server-side admin guard
+    - allowlisted admins can access the admin shell/page
+    - service-role access is post-authorization and server-only
+    - the page is read-only and mutation-free
+  - residual setup/risk:
+    - `ADMIN_USER_IDS` and/or `ADMIN_EMAILS` must be configured server-side
+    - `SUPABASE_SERVICE_ROLE_KEY` must be configured server-side
+    - this is private-MVP admin access, not long-term staff role management
+    - browser-client admin reads require a future DB role/claims model and
+      explicit admin RLS policies
+    - future write-capable admin workflows need separate action helpers, audit
+      trail design, and regression coverage
 - resolver contract:
   - no resolver change in Slice `4A` or Slice `4B.1`
   - open catalog-review cases remain invisible to the resolver

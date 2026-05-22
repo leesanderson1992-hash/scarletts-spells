@@ -918,7 +918,8 @@ Slice `4A` spelling catalog-review taxonomy contract:
   - Slice `4B.0`: bounded option filtering by family/cluster
   - Slice `4B.1`: parent `No matching skill` case capture only,
     implemented and QA passed
-  - Slice `4C`: minimal protected admin review surface
+  - Slice `4C`: minimal protected admin review surface, implemented and QA
+    passed as read-only triage
   - Slice `4D`: admin decisions and canonical promotion
   - Slice `5`: optional manual writing sample extension
 - Slice `4C` admin/internal access contract:
@@ -929,8 +930,11 @@ Slice `4A` spelling catalog-review taxonomy contract:
   - there is no DB admin role table, Supabase custom claims model,
     role-management UI, or separate admin login in Slice `4C`
   - authenticated parent identity is not admin/internal identity
-  - `/admin/catalog-review` is the first admin route
+  - `/admin/catalog-review` is the first admin route and is implemented
   - `app/admin/layout.tsx` is the mandatory server-side admin guard
+  - `/admin/catalog-review` also calls `requireAdminUser()` before creating or
+    using the service-role client; the page-level guard is outside broad
+    data-read error handling
   - future `/api/admin/*` routes must call the same admin helper before
     querying data
   - admin reads use server-only service-role access after admin authorization
@@ -942,14 +946,34 @@ Slice `4A` spelling catalog-review taxonomy contract:
   - admin reads must be explicit, auditable, and tested before launch
   - any service-role usage must be server-only and never exposed to client
     components
-  - once unblocked, Slice `4C` may show only open
-    `spelling_catalog_review_cases`, grouped by normalized
-    `misspelling -> correction`, with count, latest date, representative
-    context, parent note/reason, source provenance, and status
+  - Slice `4C` shows only open `spelling_catalog_review_cases`, grouped by
+    normalized `misspelling -> correction`, sorted by latest `updated_at`, with
+    count, latest date, representative context, parent note/reason, source
+    provenance, status, and limited supporting spelling context
+  - Slice `4C` includes safe empty/error states and avoids unnecessary
+    parent/child identity exposure
   - Slice `4C` is read/triage visibility only and must not add admin decisions,
     canonical/global promotion, micro-skill creation, resolver changes, parent
     `Review Work` changes, manual writing sample expansion, or
     mastery/reward/assignment/scoring/analytics/template changes
+- Slice `4C` runtime QA evidence:
+  - `npx eslint app/admin/catalog-review/page.tsx`
+  - `npx tsc --noEmit`
+  - `npm run build`
+  - `git diff --check`
+  - security QA confirmed anonymous users are handled by `/admin` session
+    protection, signed-in non-admin users are blocked by the server-side admin
+    guard, allowlisted admins can access the admin shell/page, service-role
+    access is post-authorization and server-only, and the page is read-only and
+    mutation-free
+- Slice `4C` residual setup/risk:
+  - configure `ADMIN_USER_IDS` and/or `ADMIN_EMAILS` server-side
+  - configure `SUPABASE_SERVICE_ROLE_KEY` server-side
+  - this is private-MVP admin access, not long-term staff role management
+  - browser-client admin reads require a future DB role/claims model and
+    explicit admin RLS policies
+  - future write-capable admin workflows require separate action helpers, audit
+    trail design, and regression coverage
 - admin decisions may link an existing skill, create/propose a new skill,
   classify as word-level only, classify as not a learning issue, merge a
   duplicate, supersede, or reopen

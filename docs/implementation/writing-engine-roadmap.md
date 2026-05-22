@@ -381,39 +381,65 @@ Implementation phase breakdown:
     catalog-review cases can exist
   - documentation status: unblocked by
     [docs/architecture/admin-internal-access.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/architecture/admin-internal-access.md:1)
-  - implementation status: admin access foundation implemented; the
-    `/admin/catalog-review` UI is not implemented yet
+  - status: implemented and QA passed as protected read-only admin triage
   - authenticated parent identity is not admin/internal identity; parent-scoped
     ownership checks and RLS must remain parent-scoped
   - implemented foundation: `/admin` session protection in `proxy.ts`,
     `lib/admin/access.ts`, `lib/supabase/service-role.ts`, and mandatory
     `app/admin/layout.tsx` server-side admin guard
-  - route convention: future `/admin/catalog-review` under the implemented
-    admin layout guard
+  - route: `/admin/catalog-review` under the implemented admin layout guard
   - admin identity for the private MVP comes from private server-side
     `ADMIN_USER_IDS` and `ADMIN_EMAILS` allowlists; do not use
     `NEXT_PUBLIC_*`, DB admin tables, Supabase custom claims, role-management
     UI, or a separate admin login in Slice `4C`
   - admin read path uses a server-only service-role helper only after admin
-    authorization passes; do not expose a service-role client to client
-    components
+    authorization passes; the page also calls `requireAdminUser()` outside the
+    broad data-read `try/catch`, so `redirect()` / `notFound()` control-flow is
+    not converted into generic error rendering
+  - do not expose a service-role client to client components, browser paths, or
+    parent routes
   - no admin RLS read policies are added for v1; parent-owned table policies
     remain scoped to `auth.uid() = parent_user_id`
   - scope is read/triage of open spelling catalog-review cases, not a broad
     admin dashboard, CMS, role-management system, or parent-facing catalog
     mutation surface
-  - once unblocked, the first view may show only open
-    `spelling_catalog_review_cases`, grouped by normalized
-    `misspelling -> correction`, with count, latest date, representative
-    context, parent note/reason, source provenance, and status
+  - the view reads only open `spelling_catalog_review_cases`, grouped by
+    normalized `misspelling -> correction`, sorted by latest `updated_at`, with
+    count, latest date, representative context, parent note/reason, source
+    provenance, status, and limited supporting spelling context where useful
+  - it includes safe empty/error states and avoids unnecessary parent/child
+    identity exposure
   - admin reads must be explicit, auditable, and tested before launch; parent
     users must never be able to list other parents' catalog-review cases
+  - QA evidence:
+    - `npx eslint app/admin/catalog-review/page.tsx`
+    - `npx tsc --noEmit`
+    - `npm run build`
+    - `git diff --check`
+  - security QA conclusion:
+    - anonymous users are handled by `/admin` session protection
+    - signed-in non-admin users are blocked by the server-side admin guard
+    - allowlisted admins can access the admin shell/page
+    - service-role access is post-authorization and server-only
+    - the page is read-only and mutation-free
+  - residual setup/risk:
+    - `ADMIN_USER_IDS` and/or `ADMIN_EMAILS` must be configured server-side
+    - `SUPABASE_SERVICE_ROLE_KEY` must be configured server-side
+    - this remains a private-MVP admin model, not long-term staff role
+      management
+    - if admin reads later move to a browser Supabase client, the app needs a
+      DB-backed admin role or claims model plus explicit admin RLS policies
+    - future write-capable admin workflows need separate action helpers, audit
+      trail design, and regression coverage
 - Slice `4D` — Admin decisions and canonical promotion
   - admin/catalog curation may link an existing skill, create/propose a new
     skill, mark word-level only, mark not a learning issue, merge duplicates,
     supersede, or reopen
   - only this admin/catalog curation layer may create or update
     canonical/global mapping truth
+  - Slice `4D` remains docs-first before implementation and must define its
+    audit trail, decision actions, canonical write path, validation, and tests;
+    Slice `4C` read-only status is not permission to mutate canonical truth
 - Slice `5` — Optional manual writing sample extension
   - consider whether manual writing samples should gain candidate capture
   - status:
@@ -534,10 +560,15 @@ Next documented stage after Slice `3`:
   - admin access foundation is implemented with the server-only admin access
     helper, server-only service-role helper, `/admin` route protection in
     proxy/middleware, and mandatory `app/admin/layout.tsx` guard
-  - approved future route is `/admin/catalog-review`; the UI is not implemented
-    yet
-  - admin reads use server-only service-role access after the admin guard; no
-    admin RLS read policies are added for v1
+  - `/admin/catalog-review` is implemented and QA passed as a protected
+    read-only triage page
+  - admin reads use server-only service-role access after the admin guard and
+    page-level `requireAdminUser()`; no admin RLS read policies are added for
+    v1
+  - the page reads only open `spelling_catalog_review_cases`, groups by
+    normalized `misspelling -> correction`, sorts by latest `updated_at`, and
+    displays count, latest date, representative context, parent note/reason,
+    source provenance, status, and limited supporting spelling context
   - Slice `4C` must not include admin decisions, canonical/global promotion,
     micro-skill creation, resolver changes, parent `Review Work` changes,
     manual writing sample expansion, or
@@ -654,12 +685,15 @@ Slice `4A` catalog-review contract:
 - Slice `4C` access-control readiness:
   - documentation contract exists in
     [docs/architecture/admin-internal-access.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/architecture/admin-internal-access.md:1)
-  - admin access foundation is implemented; next Slice `4C` work is the
-    read-only catalog-review triage UI
+  - admin access foundation and the read-only catalog-review triage UI are
+    implemented and QA passed
   - admin/internal identity is private server-side allowlists:
     `ADMIN_USER_IDS` preferred, `ADMIN_EMAILS` acceptable for private MVP
   - admin pages live under `/admin`; `app/admin/layout.tsx` is the mandatory
     server-side guard
+  - `/admin/catalog-review` also calls `requireAdminUser()` before creating or
+    using the service-role client; this guard is outside broad data-read error
+    handling
   - admin APIs are not implemented yet; future admin APIs live under
     `/api/admin/*` and must call the same admin helper before querying
   - parent-scoped policies for `spelling_catalog_review_cases` must remain
@@ -669,6 +703,25 @@ Slice `4A` catalog-review contract:
     `NEXT_PUBLIC_*`
   - no admin RLS read policies are added for v1
   - admin reads must not grant normal parent users cross-parent visibility
+- Slice `4C` QA closeout:
+  - validation passed:
+    - `npx eslint app/admin/catalog-review/page.tsx`
+    - `npx tsc --noEmit`
+    - `npm run build`
+    - `git diff --check`
+  - security QA confirmed anonymous `/admin/*` access is handled by session
+    protection, signed-in non-admin users are blocked by the server-side admin
+    guard, allowlisted admins can access the admin shell/page, service-role
+    access is post-authorization and server-only, and the page is read-only and
+    mutation-free
+  - residual operational requirements:
+    - configure `ADMIN_USER_IDS` and/or `ADMIN_EMAILS` server-side
+    - configure `SUPABASE_SERVICE_ROLE_KEY` server-side
+    - do not treat private-MVP allowlists as long-term staff role management
+    - browser-client admin reads require a future DB role/claims model and
+      explicit admin RLS policies
+    - write-capable admin workflows require separate helpers, audit trail
+      design, and regression coverage
 - admin decisions may include:
   - link existing skill
   - create/propose new skill

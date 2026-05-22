@@ -3,16 +3,16 @@
 ## Purpose
 
 This document defines the smallest safe admin/internal access model for
-Scarlett's Spells before any admin review surface is implemented.
+Scarlett's Spells for private-MVP protected internal read/triage surfaces.
 
 It is a private-MVP access contract for protected internal read/triage surfaces.
-It exists so Slice `4C` catalog-review admin UI can be built without weakening
-parent access, parent-scoped RLS, or Writing Engine taxonomy boundaries.
+It exists so Slice `4C` catalog-review admin UI can run without weakening parent
+access, parent-scoped RLS, or Writing Engine taxonomy boundaries.
 
 Implementation status: the admin access foundation is implemented. The
-catalog-review admin UI, admin APIs, admin decisions, canonical promotion,
-micro-skill creation, catalog mutation, and case status mutation are not
-implemented.
+`/admin/catalog-review` read-only triage UI is implemented and QA passed.
+Admin APIs, admin decisions, canonical promotion, micro-skill creation, catalog
+mutation, and case status mutation are not implemented.
 
 ## Current Model
 
@@ -44,7 +44,7 @@ Implemented foundation:
 - the layout calls the shared server-only admin helper before rendering child
   admin routes
 
-The first expected admin review route is not implemented yet:
+The first implemented admin review route is:
 
 - `/admin/catalog-review`
 
@@ -85,7 +85,8 @@ Implemented service-role responsibilities:
 - never be passed to client components
 
 The service-role helper exists as a server-only boundary. It is not imported by
-client components, and no admin UI or API currently uses it.
+client components. `/admin/catalog-review` uses it only after
+`requireAdminUser()` passes.
 
 ## RLS And Parent Isolation
 
@@ -118,10 +119,25 @@ Parent data isolation rules:
 
 This model authorizes read-only internal surfaces only.
 
-For Slice `4C`, it authorizes a future protected `/admin/catalog-review`
-read/triage surface over open `spelling_catalog_review_cases`. That surface may
-group, filter, inspect, and summarize parent-raised catalog-review cases for
-internal triage. The surface is not implemented yet.
+For Slice `4C`, it authorizes the implemented protected
+`/admin/catalog-review` read/triage surface over open
+`spelling_catalog_review_cases`. That surface may group, inspect, and summarize
+parent-raised catalog-review cases for internal triage.
+
+The implemented Slice `4C` surface:
+
+- reads only open `spelling_catalog_review_cases`
+- groups cases by normalized `misspelling -> correction`
+- sorts groups by latest `updated_at`
+- displays misspelling -> correction, count, latest date, representative
+  context, parent note/reason, source provenance, status, and limited
+  supporting spelling context where appropriate
+- includes safe empty/error states
+- avoids unnecessary parent/child identity exposure
+- calls `requireAdminUser()` before creating or using the service-role client
+- keeps that page-level guard outside broad data-read `try/catch`, so
+  `redirect()` / `notFound()` control-flow is not swallowed by generic error
+  rendering
 
 This model does not authorize:
 
@@ -147,9 +163,9 @@ before those operations are implemented.
 Slice `4C`:
 
 - has implemented the admin access foundation
-- may add `/admin/catalog-review` as a separate read-only UI slice
-- may add read-only internal triage over open catalog-review cases
-- must use the server-only admin guard and service-role boundary
+- has implemented `/admin/catalog-review` as a separate read-only UI slice
+- has implemented read-only internal triage over open catalog-review cases
+- uses the server-only admin guard and service-role boundary
 - must not mutate catalog-review case status or canonical catalog truth
 
 Slice `4D`:
@@ -159,23 +175,38 @@ Slice `4D`:
   creating a skill, word-level-only classification, not-a-learning-issue
   classification, merging, superseding, closing, or reopening
 - must not inherit write authority from Slice `4C`; it needs its own explicit
-  write contract
+  docs-first write contract, audit trail, decision actions, canonical write
+  path, validation, and tests
 
 ## QA Expectations
 
-Before any admin route is considered launchable:
+Slice `4C` runtime QA passed:
 
 - anonymous `/admin/*` requests redirect to `/login`
 - signed-in non-admin parents cannot render admin pages
-- signed-in non-admin parents cannot call `/api/admin/*`
 - allowlisted users can render the admin shell
 - service-role client code is server-only and not imported by client
   components
 - parent routes still use parent-scoped clients and ownership filters
 - existing parent-scoped RLS policies remain unchanged
 - normal parents cannot list cross-parent catalog-review cases
-- build and lint checks pass or any unrelated pre-existing failures are called
-  out explicitly
+- the page is read-only and mutation-free
+
+Validation evidence:
+
+- `npx eslint app/admin/catalog-review/page.tsx`
+- `npx tsc --noEmit`
+- `npm run build`
+- `git diff --check`
+
+Operational setup:
+
+- `ADMIN_USER_IDS` and/or `ADMIN_EMAILS` must be configured in the server
+  environment
+- `SUPABASE_SERVICE_ROLE_KEY` must be configured server-side
+- this is a private-MVP admin model, not long-term staff role management
+- future write-capable admin workflows need separate action helpers, audit
+  trail design, and regression coverage
 
 ## Future Migration Path
 

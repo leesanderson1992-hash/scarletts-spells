@@ -521,6 +521,8 @@ Slice `4A` catalog-review contract:
   and QA passed
 - Slice `4C` may add the first minimal protected admin/catalog-review surface
   only after parent-raised cases can exist
+- Slice `4C` runtime is now implemented and QA passed as a protected
+  read-only admin triage surface at `/admin/catalog-review`
 - Slice `4C` admin/internal access is defined by
   [docs/architecture/admin-internal-access.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/architecture/admin-internal-access.md:1):
   - private-MVP admin identity comes from server-side `ADMIN_USER_IDS` and
@@ -530,6 +532,11 @@ Slice `4A` catalog-review contract:
   - authenticated parent identity is not admin/internal identity
   - admin pages live under `/admin`; first route is `/admin/catalog-review`
   - `app/admin/layout.tsx` is the mandatory server-side admin guard
+  - `/admin/catalog-review` also calls `requireAdminUser()` before creating or
+    using the service-role client
+  - page-level `requireAdminUser()` runs outside broad data-read `try/catch`,
+    so `redirect()` / `notFound()` control-flow is not swallowed by generic
+    error rendering
   - future `/api/admin/*` routes must call the same admin helper before
     querying data
   - admin reads use server-only service-role access after admin authorization
@@ -541,15 +548,15 @@ Slice `4A` catalog-review contract:
   - admin read access must be explicit, auditable, and tested before launch
   - any service-role usage must be server-only and never exposed to client
     components
-- first admin surface should focus on:
-  - grouped `misspelling -> correction`
-  - count/latest date
-  - representative context
-  - parent reason/note
-  - source provenance
-  - status
-- Slice `4C` may show only open `spelling_catalog_review_cases` and provide
-  read/triage visibility only
+- Slice `4C` shows only open `spelling_catalog_review_cases` and provides
+  read/triage visibility only:
+  - groups by normalized `misspelling -> correction`
+  - sorts groups by latest `updated_at`
+  - displays misspelling -> correction, count, latest date, representative
+    context, parent note/reason, source provenance, status, and limited
+    supporting spelling context where appropriate
+  - includes safe empty/error states
+  - avoids unnecessary parent/child identity exposure
 - first admin surface must not be a full admin dashboard, broad
   role-management system, CMS, or global catalog mutation path from parent UI
 - Slice `4C` must not add admin decisions, canonical/global promotion,
@@ -566,10 +573,22 @@ Slice `4A` catalog-review contract:
 - only admin/catalog curation may create or update canonical/global mapping
   truth
 - Slice `4C` implementation readiness:
-  - documentation prerequisite is complete
-  - first implementation pass should add the admin helper, server-only
-    service-role helper, `/admin` route protection, and mandatory admin layout
-    guard before building the read-only catalog-review view
+  - runtime implementation and QA are complete
+  - validation passed:
+    - `npx eslint app/admin/catalog-review/page.tsx`
+    - `npx tsc --noEmit`
+    - `npm run build`
+    - `git diff --check`
+  - security QA confirmed anonymous users are handled by `/admin` session
+    protection, signed-in non-admin users are blocked by server-side admin
+    guard, allowlisted admins can access the admin shell/page, service-role
+    access is post-authorization and server-only, and the page is read-only and
+    mutation-free
+  - residual risk: server environments must configure `ADMIN_USER_IDS` and/or
+    `ADMIN_EMAILS` plus `SUPABASE_SERVICE_ROLE_KEY`; future browser-client
+    admin reads require DB-backed admin roles/claims and explicit admin RLS
+    policies; future write-capable admin workflows need separate helpers, audit
+    trail design, and regression coverage
 - resolver contract:
   - no resolver change in Slice `4A` or Slice `4B.1`
   - open catalog-review cases remain invisible to the resolver
