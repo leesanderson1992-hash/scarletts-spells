@@ -238,14 +238,32 @@ Slice `4D`:
   - resolver effect remains gated until a later resolver integration slice.
     Open catalog-review cases and non-canonical decisions must never affect
     resolver output
-- canonical/global promotion remains blocked until the canonical mapping
-  storage contract is chosen; do not use `spelling_catalog_review_cases`,
-  parent notes, parent-scoped candidate mappings, or `micro_skill_catalog`
-  metadata as silent global mapping truth
-- after that future storage/resolver contract exists, admin/global promotion
-  may add resolver-visible normalized spelling mappings, suppress or correct
-  false-positive-producing mappings/rules, close cases with audit, and improve
-  future suggestions
+- Slice `4E.1` implemented storage foundation only:
+  - dedicated canonical/global mapping storage exists in
+    `spelling_canonical_mappings`
+  - dedicated canonical mapping audit/event storage exists in
+    `spelling_canonical_mapping_events`
+  - a service-role-only RPC/repository foundation exists for future canonical
+    mapping writes
+  - no admin UI decision, resolver read, resolver priority change, parent
+    `Review Work` change, `micro_skill_catalog` mutation, false-positive
+    handling, or manual writing sample broadening was introduced
+  - existing Slice `4D.1` `linked_existing_skill` rows were not
+    reinterpreted, backfilled, or promoted as canonical/global mapping truth
+  - validation passed: `npx tsc --noEmit`, `npm run build`,
+    `npm run writing-engine:canonical-mapping-storage-regression`, and
+    `git diff --check`
+  - residual private-MVP risk: service-role direct table writes can bypass
+    canonical mapping event conventions until later DB hardening
+- canonical/global storage foundation now exists after Slice `4E.1`, but
+  resolver use remains blocked until a later resolver integration slice; do
+  not use `spelling_catalog_review_cases`, parent notes, parent-scoped
+  candidate mappings, or `micro_skill_catalog` metadata as silent global
+  mapping truth
+- future resolver integration may add resolver-visible normalized spelling
+  mappings, suppress or correct false-positive-producing mappings/rules, close
+  cases with audit, and improve future suggestions only after the resolver
+  contract is explicitly revised
 
 ## QA Expectations
 

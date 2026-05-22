@@ -369,6 +369,26 @@ Parent-Verified Spelling Candidate Capture architecture boundary:
     2. existing catalog-backed canonical mapping behavior
     3. same-scope `parent_local_promoted` mapping
     4. unresolved
+- Slice `4E.1` canonical spelling mapping storage foundation is implemented:
+  - `spelling_canonical_mappings` stores exact normalized canonical/global
+    spelling mappings
+  - `spelling_canonical_mapping_events` stores the dedicated audit/event trail
+  - a service-role-only RPC/repository foundation exists for future canonical
+    mapping writes
+  - the storage preserves source case, source decision, admin identity,
+    decision note, metadata, dialect, normalization version, status/lifecycle
+    fields, and previous/new event values for future analytics
+  - this slice added no resolver reads, no resolver priority change, no admin
+    UI decision, no parent `Review Work` change, no `micro_skill_catalog`
+    mutation, no false-positive handling, and no manual writing sample
+    broadening
+  - existing Slice `4D.1` `linked_existing_skill` rows were not
+    reinterpreted, backfilled, or promoted as canonical/global mapping truth
+  - validation passed: `npx tsc --noEmit`, `npm run build`,
+    `npm run writing-engine:canonical-mapping-storage-regression`, and
+    `git diff --check`
+  - residual private-MVP risk: service-role direct table writes can bypass
+    canonical mapping event conventions until later DB hardening
 - future false-positive review is reserved:
   - case reason `false_positive_report`
   - admin outcomes `false_positive_confirmed` and
@@ -402,17 +422,14 @@ Parent-Verified Spelling Candidate Capture architecture boundary:
   - no resolver change in Slice `4A` or Slice `4B.1`
   - open catalog-review cases remain invisible to the resolver
   - parent notes/reasons remain evidence only
-  - future admin-promoted global mappings may join canonical priority only
-    after Slice `4D` or another explicit admin curation slice writes canonical
-    truth
-  - canonical/global promotion remains blocked until a canonical mapping
-    storage contract is chosen; do not use catalog-review cases, parent notes,
-    parent-scoped candidate mappings, or `micro_skill_catalog` metadata as
-    silent global mapping truth
-  - future canonical storage may later allow admin promotion to add
-    resolver-visible normalized spelling mappings, suppress or correct
-    false-positive-producing mappings/rules, close cases with audit, and
-    improve future suggestions
+  - canonical/global storage foundation now exists after Slice `4E.1`, but
+    resolver use remains blocked until a later resolver integration slice
+  - do not use catalog-review cases, parent notes, parent-scoped candidate
+    mappings, or `micro_skill_catalog` metadata as silent global mapping truth
+  - future resolver integration may add resolver-visible normalized spelling
+    mappings, suppress or correct false-positive-producing mappings/rules,
+    close cases with audit, and improve future suggestions only after the
+    resolver contract is explicitly revised
   - future resolver priority is refined by Slice `4E.0`: active
     canonical/global exact-pair spelling mapping, existing catalog-backed
     canonical mapping behavior, same-scope `parent_local_promoted` mapping,
