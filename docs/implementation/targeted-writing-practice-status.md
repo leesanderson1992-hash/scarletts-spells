@@ -613,6 +613,39 @@ Canonical documentation now defers to:
     UI/accessibility/table workflow, and manual browser QA passed
 - only admin/catalog curation may create or update canonical/global mapping
   truth
+- Slice `4E.0` canonical spelling mapping curation contract:
+  - Slice `4D.1` remains historical case-only truth. Existing
+    `linked_existing_skill` decisions must not be reinterpreted, backfilled,
+    or promoted as resolver-visible canonical/global mapping truth
+  - Slice `4E` changes the future admin curation model from case-only
+    resolution to canonical curation. The primary affirmative decision is
+    `add_canonical_mapping`, not `linked_existing_skill` plus a separate
+    promote button
+  - future `4E` canonical-curation decisions are `add_canonical_mapping`,
+    `needs_new_micro_skill`, `word_level_only`, `not_a_learning_issue`, and
+    `reject_no_canonical_update`
+  - `add_canonical_mapping` validates an existing active, assignable `D4`
+    `micro_skill_catalog.micro_skill_key`, writes a dedicated
+    canonical/global spelling mapping row, writes a canonical mapping audit
+    event, and records the source catalog-review case outcome. It must not
+    create or mutate `micro_skill_catalog`
+  - other `4E` decisions refuse or defer canonical update and must not create
+    resolver-visible truth
+  - canonical/global mapping storage must live in a dedicated table, likely
+    `spelling_canonical_mappings`, with a dedicated audit/event table, likely
+    `spelling_canonical_mapping_events`
+  - `spelling_catalog_review_cases`, parent notes,
+    `parent_verified_spelling_candidate_mappings`, and
+    `micro_skill_catalog` metadata must not be used as the admin/global
+    canonical mapping table
+  - resolver effect remains gated until a later resolver integration slice.
+    Open catalog-review cases and non-canonical decisions must never affect
+    resolver output
+  - future resolver priority remains:
+    1. active canonical/global exact-pair spelling mapping
+    2. existing catalog-backed canonical mapping behavior
+    3. same-scope `parent_local_promoted` mapping
+    4. unresolved
 - false-positive catalog review is future/planned only:
   - reserve future case reason `false_positive_report`
   - reserve future admin outcomes `false_positive_confirmed` and
@@ -659,10 +692,10 @@ Canonical documentation now defers to:
     resolver-visible normalized spelling mappings, suppress or correct
     false-positive-producing mappings/rules, close cases with audit, and
     improve future suggestions
-  - resolver priority remains:
-    1. catalog-backed canonical truth
-    2. same-scope parent-local promoted mapping
-    3. unresolved
+  - future resolver priority is refined by Slice `4E.0`: active
+    canonical/global exact-pair spelling mapping, existing catalog-backed
+    canonical mapping behavior, same-scope `parent_local_promoted` mapping,
+    then unresolved
 - Slice `4B.1` implementation QA checklist:
   - parent can create an open catalog-review case for an eligible
     lesson-submission spelling row

@@ -210,6 +210,34 @@ Slice `4D`:
   post-authorization; no admin browser-client RLS policy was added; non-link
   decisions that submit `micro_skill_key` are rejected by the server action,
   with the RPC retained as defense-in-depth
+- Slice `4E.0` defines the next admin curation contract:
+  - Slice `4D.1` remains historical case-only truth. Existing
+    `linked_existing_skill` decisions must not be reinterpreted, backfilled,
+    or promoted as resolver-visible canonical/global mapping truth
+  - Slice `4E` changes the future admin curation model from case-only
+    resolution to canonical curation. The primary affirmative decision is
+    `add_canonical_mapping`, not `linked_existing_skill` plus a separate
+    promote button
+  - future `4E` canonical-curation decisions are `add_canonical_mapping`,
+    `needs_new_micro_skill`, `word_level_only`, `not_a_learning_issue`, and
+    `reject_no_canonical_update`
+  - `add_canonical_mapping` must validate an existing active, assignable `D4`
+    `micro_skill_catalog.micro_skill_key`, write a dedicated canonical/global
+    spelling mapping row, write a canonical mapping audit event, and record
+    the source catalog-review case outcome
+  - `add_canonical_mapping` must not create or mutate `micro_skill_catalog`;
+    other `4E` decisions refuse or defer canonical update and must not create
+    resolver-visible truth
+  - canonical/global mapping storage must live in a dedicated table, likely
+    `spelling_canonical_mappings`, with a dedicated audit/event table, likely
+    `spelling_canonical_mapping_events`
+  - `spelling_catalog_review_cases`, parent notes,
+    `parent_verified_spelling_candidate_mappings`, and
+    `micro_skill_catalog` metadata must not be used as the admin/global
+    canonical mapping table
+  - resolver effect remains gated until a later resolver integration slice.
+    Open catalog-review cases and non-canonical decisions must never affect
+    resolver output
 - canonical/global promotion remains blocked until the canonical mapping
   storage contract is chosen; do not use `spelling_catalog_review_cases`,
   parent notes, parent-scoped candidate mappings, or `micro_skill_catalog`
