@@ -1,5 +1,4 @@
 import assert from "node:assert/strict";
-import { execSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 
 const migrationPath =
@@ -8,7 +7,6 @@ const migration = readFileSync(migrationPath, "utf8");
 const compactMigration = migration.replace(/\s+/g, " ").toLowerCase();
 
 const runtimeFlowPaths = [
-  "app/learn/actions.ts",
   "app/learn/modules/[moduleId]/tasks/[taskId]/page.tsx",
   "app/courses/review/actions/review-completion-actions.ts",
 ];
@@ -95,27 +93,7 @@ for (const runtimeFlowPath of runtimeFlowPaths) {
   assert.doesNotMatch(
     source,
     /task_submission_payloads/,
-    `${runtimeFlowPath} must not be wired into durable payload storage in this storage-only pass.`,
-  );
-}
-
-const changedFiles = execSync("git status --short", {
-  encoding: "utf8",
-})
-  .trim()
-  .split("\n")
-  .filter(Boolean)
-  .map((line) => line.replace(/^.{1,2}\s+/, ""));
-const allowedChangedFiles = new Set([
-  "package.json",
-  "scripts/writing-engine-structured-submission-payload-storage-regression.ts",
-  migrationPath,
-]);
-
-for (const changedFile of changedFiles) {
-  assert.ok(
-    allowedChangedFiles.has(changedFile),
-    `Unexpected file changed in storage-only pass: ${changedFile}`,
+    `${runtimeFlowPath} must not be wired into durable payload hydration or approval cleanup yet.`,
   );
 }
 

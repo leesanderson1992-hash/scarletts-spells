@@ -21,6 +21,7 @@ import {
   type ReturnedWritingIssueDraftPayload,
   withStructuredLessonResponse,
 } from "@/lib/lessons/responses";
+import { persistStructuredSubmissionPayload } from "@/lib/lessons/persistence/submission-payloads";
 import {
   maybeAwardDailyCheckInCoins,
   maybeAwardMilestoneCoins,
@@ -495,12 +496,13 @@ export async function submitTaskResponse(formData: FormData) {
   const safeLessonReviewSummary =
     typeof lessonReviewSummary === "string" ? lessonReviewSummary.trim() : "";
   const safeDraftPayload = parseDraftPayloadValue(draftPayload);
-  const structuredResponse = buildStructuredLessonResponse({
+  const submittedAt = new Date().toISOString();
+  const submittedStructuredResponse = buildStructuredLessonResponse({
     taskId: typeof taskId === "string" ? taskId : "",
     childId: typeof childId === "string" ? childId : "",
     status: "submitted",
     payloadValue: safeDraftPayload,
-    submittedAt: new Date().toISOString(),
+    submittedAt,
   });
 
   if (
@@ -512,7 +514,7 @@ export async function submitTaskResponse(formData: FormData) {
     !childId ||
     (!safeSubmissionText &&
       selectedOptions.length === 0 &&
-      !hasMeaningfulStructuredLessonResponse(structuredResponse))
+      !hasMeaningfulStructuredLessonResponse(submittedStructuredResponse))
   ) {
     redirect(buildRedirectWithMessage(redirectPath, "error", "Please write something before submitting."));
   }
@@ -538,6 +540,31 @@ export async function submitTaskResponse(formData: FormData) {
   if (task.task_type !== "lesson" && task.task_type !== "test") {
     redirect(buildRedirectWithMessage(redirectPath, "error", "That task does not accept writing submissions."));
   }
+
+  const { data: child } = await supabase
+    .from("children")
+    .select("id")
+    .eq("id", childId)
+    .eq("parent_user_id", user.id)
+    .maybeSingle();
+
+  if (!child) {
+    redirect(buildRedirectWithMessage(redirectPath, "error", "We couldn't find that learner."));
+  }
+
+  const structuredResponse = buildStructuredLessonResponse({
+    taskId: task.id,
+    childId: child.id,
+    status: "submitted",
+    payloadValue: safeDraftPayload,
+    submittedAt,
+  });
+  const hasEmbeddedStructuredResponse = Boolean(
+    getStructuredLessonResponseFromPayload(safeDraftPayload),
+  );
+  const shouldPersistStructuredPayload =
+    hasEmbeddedStructuredResponse &&
+    hasMeaningfulStructuredLessonResponse(structuredResponse);
 
   const [{ data: latestSubmission }, { data: existingDraftRow }] = await Promise.all([
     supabase
@@ -616,12 +643,12 @@ export async function submitTaskResponse(formData: FormData) {
   );
 
   const { data: insertedSubmission, error } = await supabase.from("task_submissions").insert({
-    task_id: taskId,
-    course_id: courseId,
-    child_id: childId,
+    task_id: task.id,
+    course_id: task.course_id,
+    child_id: child.id,
     parent_user_id: user.id,
     submission_text: combinedSubmissionText,
-    submitted_at: new Date().toISOString(),
+    submitted_at: submittedAt,
     parent_review_status: "pending",
     parent_review_note: null,
     parent_reviewed_at: null,
@@ -629,6 +656,34 @@ export async function submitTaskResponse(formData: FormData) {
 
   if (error || !insertedSubmission) {
     redirect(buildRedirectWithMessage(redirectPath, "error", "We couldn't save that writing just yet."));
+  }
+
+  if (shouldPersistStructuredPayload) {
+    const payloadResult = await persistStructuredSubmissionPayload({
+      submissionId: insertedSubmission.id,
+      parentUserId: user.id,
+      courseId: task.course_id,
+      taskId: task.id,
+      childId: child.id,
+      taskType: task.task_type,
+      structuredResponse,
+    });
+
+    if (!payloadResult.ok) {
+      await supabase
+        .from("task_submissions")
+        .delete()
+        .eq("id", insertedSubmission.id)
+        .eq("parent_user_id", user.id);
+
+      redirect(
+        buildRedirectWithMessage(
+          redirectPath,
+          "error",
+          "We couldn't safely save your structured answers just yet. Please try again.",
+        ),
+      );
+    }
   }
 
   const { error: completionError } = await supabase.from("task_completions").upsert(
