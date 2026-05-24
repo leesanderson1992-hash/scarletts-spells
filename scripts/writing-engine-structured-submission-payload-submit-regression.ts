@@ -106,10 +106,15 @@ assert.match(
   /hasEmbeddedStructuredResponse[\s\S]*fallbackStructuredResponse[\s\S]*hasMeaningfulStructuredLessonResponse\(durableStructuredResponse\)/,
   "Plain-writing submissions must not be routed into durable structured payload storage unless structured evidence exists.",
 );
+assert.match(
+  taskPage,
+  /from\("task_submission_payloads"\)[\s\S]*\.select\("payload_json"\)/,
+  "Pass 3 may add child task-page hydration from durable submitted payloads.",
+);
 assert.doesNotMatch(
-  `${taskPage}\n${reviewCompletion}\n${reviewPage}`,
+  `${reviewCompletion}\n${reviewPage}`,
   /task_submission_payloads/,
-  "Pass 2 must not add hydration, approval, or Review Work read-model wiring.",
+  "Submit persistence must not add approval or Review Work read-model wiring.",
 );
 
 const realStructuredDraftPayload = {

@@ -213,10 +213,61 @@ export default async function LearnModuleTaskPage({
     task.lesson_schema && !Array.isArray(task.lesson_schema)
       ? task.lesson_schema
       : null;
-  const structuredInitialResponse = getInitialStructuredLessonResponse({
+  const structuredSubmissionPayloadType =
+    task.task_type === "lesson"
+      ? "structured_lesson_response"
+      : task.task_type === "test"
+        ? "structured_test_response"
+        : null;
+  const shouldHydrateFromSubmittedPayload =
+    Boolean(structuredLesson && structuredSubmissionPayloadType) &&
+    latestSubmission !== null &&
+    latestSubmission.parent_review_status !== "returned";
+  let latestSubmittedPayload: { payload_json: unknown } | null = null;
+
+  if (
+    shouldHydrateFromSubmittedPayload &&
+    latestSubmission &&
+    structuredSubmissionPayloadType
+  ) {
+    const { data } = await supabase
+      .from("task_submission_payloads")
+      .select("payload_json")
+      .eq("submission_id", latestSubmission.id)
+      .eq("parent_user_id", user.id)
+      .eq("course_id", detail.course.id)
+      .eq("task_id", task.id)
+      .eq("child_id", selectedChild.id)
+      .eq("payload_type", structuredSubmissionPayloadType)
+      .maybeSingle();
+
+    latestSubmittedPayload = data as { payload_json: unknown } | null;
+  }
+
+  const submittedStructuredPayload = latestSubmittedPayload
+    ? {
+        __structured_lesson_response: latestSubmittedPayload.payload_json,
+      }
+    : null;
+  const draftStructuredInitialResponse = getInitialStructuredLessonResponse({
     payloadValue: latestDraft?.draft_payload,
     isReturned: latestSubmission?.parent_review_status === "returned",
   });
+  const submittedStructuredInitialResponse = getInitialStructuredLessonResponse({
+    payloadValue: submittedStructuredPayload,
+  });
+  const structuredInitialResponse =
+    latestSubmission && latestSubmission.parent_review_status !== "returned"
+      ? submittedStructuredInitialResponse
+        ? {
+            ...submittedStructuredInitialResponse,
+            status:
+              latestSubmission.parent_review_status === "approved"
+                ? ("approved" as const)
+                : ("submitted" as const),
+          }
+        : draftStructuredInitialResponse
+      : draftStructuredInitialResponse;
   const latestStructuredFieldFeedback = getStructuredFieldFeedback(
     latestDraft?.draft_payload,
   );

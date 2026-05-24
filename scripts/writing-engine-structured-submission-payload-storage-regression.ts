@@ -6,10 +6,7 @@ const migrationPath =
 const migration = readFileSync(migrationPath, "utf8");
 const compactMigration = migration.replace(/\s+/g, " ").toLowerCase();
 
-const runtimeFlowPaths = [
-  "app/learn/modules/[moduleId]/tasks/[taskId]/page.tsx",
-  "app/courses/review/actions/review-completion-actions.ts",
-];
+const approvalFlowPaths = ["app/courses/review/actions/review-completion-actions.ts"];
 
 function assertMigrationIncludes(value: string, message: string) {
   assert.ok(
@@ -88,12 +85,12 @@ assert.doesNotMatch(
   "Authenticated users must not receive direct insert/update/delete policies for immutable submitted evidence.",
 );
 
-for (const runtimeFlowPath of runtimeFlowPaths) {
-  const source = readFileSync(runtimeFlowPath, "utf8");
+for (const approvalFlowPath of approvalFlowPaths) {
+  const source = readFileSync(approvalFlowPath, "utf8");
   assert.doesNotMatch(
     source,
     /task_submission_payloads/,
-    `${runtimeFlowPath} must not be wired into durable payload hydration or approval cleanup yet.`,
+    `${approvalFlowPath} must not be wired into durable payload approval cleanup yet.`,
   );
 }
 
