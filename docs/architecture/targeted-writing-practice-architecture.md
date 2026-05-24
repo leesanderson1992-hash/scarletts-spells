@@ -160,8 +160,12 @@ Durable Structured Submission Payloads architecture boundary:
     pending, approved, or completed and not returned
   - legacy structured rows without durable payload must not crash; they may
     fall back to existing empty or flattened-text behavior
-  - not yet implemented; this is Pass 3 and remains the next required fix for
-    the visible disappearing-work bug
+  - implementation status: Pass 3 is implemented and QA-passed
+  - child structured lesson/test revisit reads
+    `task_submission_payloads.payload_json` for the exact latest non-returned
+    submission
+  - the original visible blank-answer-box bug is fixed for submissions with
+    durable payloads
 - approval contract:
   - before deleting `task_submission_drafts` for structured lesson/test
     submissions, check that the approved submission has durable payload
@@ -186,16 +190,16 @@ Durable Structured Submission Payloads architecture boundary:
 - implementation sequence:
   1. storage foundation only: complete
   2. submit persistence: complete
-  3. child revisit hydration: next
+  3. child revisit hydration: complete
   4. approval draft-deletion safety: future
   5. closeout/regression hardening
 - validation evidence:
-  - storage and submit persistence regressions passed
+  - storage, submit persistence, and hydration regressions passed
   - `npx tsc --noEmit`, `npm run build`, and `git diff --check` passed
   - manual structured lesson-page smoke proved payload rows are created and
     survive parent approval
-  - child revisit still shows blank until Pass 3 hydration reads durable
-    submitted payloads
+  - manual checks passed for approved revisit, returned/send-back, legacy
+    fallback, and plain-writing unchanged
 
 Parent-Verified Spelling Candidate Capture architecture boundary:
 - the bounded Slice `2` stage now lets parents classify eligible

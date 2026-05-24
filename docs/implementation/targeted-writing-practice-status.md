@@ -81,8 +81,8 @@ Canonical documentation now defers to:
 
 ### Next
 - Durable Structured Submission Payloads is an active bounded track:
-  - status: Pass 2 submit persistence is implemented and QA-passed; child
-    revisit hydration and parent approval/draft-deletion safety remain pending
+  - status: Pass 3 child revisit hydration is implemented and QA-passed;
+    parent approval/draft-deletion safety remains pending
   - purpose:
     - separate mutable draft working state from immutable submitted structured
       attempt evidence
@@ -100,7 +100,7 @@ Canonical documentation now defers to:
   - implementation sequence:
     1. storage foundation only: complete
     2. submit persistence: complete
-    3. child revisit hydration: next
+    3. child revisit hydration: complete
     4. approval draft-deletion safety: future
     5. closeout/regression hardening
   - Pass 2 submit truth:
@@ -126,20 +126,23 @@ Canonical documentation now defers to:
     - actual structured lesson page submit created both `task_submissions` and
       `task_submission_payloads`
     - payload persisted through parent approval
-    - child revisit still showed blank because hydration has not yet been
-      implemented
+    - child revisit after parent approval restored submitted answer boxes from
+      durable payload evidence
+    - returned/send-back, legacy fallback, and plain-writing checks passed
   - validation:
     - `npm run writing-engine:structured-submission-payload-storage-regression`
       passed
     - `npm run writing-engine:structured-submission-payload-submit-regression`
+      passed
+    - `npm run writing-engine:structured-submission-payload-hydration-regression`
       passed
     - `npx tsc --noEmit` passed
     - `npm run build` passed
     - `git diff --check` passed
     - architecture QA passed after refactor
   - residual risk:
-    - the original user-visible bug remains until Pass 3 child revisit
-      hydration reads from `task_submission_payloads`
+    - the original user-visible blank-box bug is fixed for submissions with
+      durable payloads
     - Pass 4 is still needed to keep parent approval/draft deletion safe for
       legacy or vulnerable rows without durable payloads
     - no hosted historical backfill has been implemented

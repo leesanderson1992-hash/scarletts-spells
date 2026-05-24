@@ -130,9 +130,12 @@ Implementation status:
   structured lesson/test submissions
 - manual smoke confirmed durable payload evidence remains after parent
   approval
-- child revisit hydration has not yet been implemented, so the visible blank
-  answer-box bug can still appear until the next pass reads from
-  `task_submission_payloads`
+- child revisit hydration now reads durable submitted payload evidence from
+  `task_submission_payloads.payload_json` for the exact latest non-returned
+  submission
+- the visible blank-answer-box bug is fixed for submissions with durable
+  payloads
+- returned/send-back, legacy fallback, and plain-writing manual checks passed
 
 The UI should not solve missing structured payloads by hiding the lesson,
 blocking access, or implying the child never submitted the work.

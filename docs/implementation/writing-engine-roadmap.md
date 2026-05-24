@@ -115,7 +115,7 @@ Current ownership rule:
 
 ### Durable Structured Submission Payloads
 
-Status: `Pass 2 submit persistence implemented and QA-passed; hydration still pending`
+Status: `Pass 3 child revisit hydration implemented and QA-passed; approval draft-deletion safety still pending`
 
 Purpose:
 - separate mutable structured lesson/test draft state from immutable submitted
@@ -166,15 +166,26 @@ Implemented so far:
     supported text/textarea block; missing, invalid, or unsupported schemas
     produce no durable structured payload
   - plain-writing submit behavior remains unchanged
+- Pass 3 child revisit hydration is complete:
+  - structured lesson/test revisit now reads
+    `task_submission_payloads.payload_json` for the exact latest non-returned
+    submission
+  - returned/send-back remains draft-first and editable
+  - legacy structured rows without durable payload fall back safely instead of
+    crashing
+  - no submit persistence, parent approval/draft deletion, Review Work,
+    admin/catalog-review, resolver, rewards, mastery, scoring, assignments,
+    analytics, dashboards, or template-routing behavior changed
 
 Manual smoke:
 - actual structured lesson-page submit now creates both `task_submissions` and
   `task_submission_payloads`
 - the durable payload remains present after parent approval
-- child revisit can still show blank because Pass 3 hydration has not yet
-  read from `task_submission_payloads`
-- the remaining user-visible bug is therefore read-model/hydration, not
-  submit persistence
+- child revisit after parent approval now restores submitted answers from
+  durable payload evidence when that payload exists
+- returned/send-back, legacy fallback, and plain-writing manual checks passed
+- the original visible blank-answer-box bug is fixed for submissions with
+  durable payloads
 
 Boundary notes:
 - this track is separate from `4E` / `4E.3` resolver integration
@@ -193,7 +204,7 @@ Implementation sequence:
 2. submit persistence: `complete`
    - write the durable payload immediately after `task_submissions` insert
    - roll back the just-created submission if durable payload insert fails
-3. child revisit hydration: `next`
+3. child revisit hydration: `complete`
    - draft-first for in-progress and returned work
    - durable submitted payload for pending/approved structured revisit
    - safe legacy fallback for structured submissions without payload
@@ -207,12 +218,16 @@ Validation evidence for Pass 2:
   passed
 - `npm run writing-engine:structured-submission-payload-submit-regression`
   passed
+- `npm run writing-engine:structured-submission-payload-hydration-regression`
+  passed
 - `npx tsc --noEmit` passed
 - `npm run build` passed
 - `git diff --check` passed
 - architecture QA passed after moving privileged persistence into the
   server-only helper
 - quick-submit fallback bug was diagnosed and fixed
+- Pass 3 manual checks passed for approved revisit, returned/send-back, legacy
+  fallback, and plain-writing unchanged
 
 Required regression direction:
 - structured lesson/test submit creates durable payload evidence

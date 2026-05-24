@@ -352,10 +352,11 @@ Manual smoke evidence:
 - actual structured lesson-page submit created both `task_submissions` and
   `task_submission_payloads`
 - durable payload remained present after parent approval
-- child revisit still showed blank because hydration from durable payload is
-  not implemented yet
-- remaining visible disappearing-work bug is now read-model/hydration, not
-  submit persistence
+- child revisit after parent approval restored submitted answer boxes from
+  durable payload evidence
+- returned/send-back, legacy fallback, and plain-writing manual checks passed
+- the original visible blank-answer-box bug is fixed for submissions with
+  durable payloads
 
 Structured child revisit hydration contract:
 - load the latest draft and latest relevant submitted durable payload
@@ -364,7 +365,13 @@ Structured child revisit hydration contract:
   pending, approved, or completed and not returned
 - legacy structured submissions without durable payload must not crash; they
   may fall back to existing empty or flattened-text behavior
-- implementation status: pending Pass 3
+- implementation status: Pass 3 implemented and QA-passed
+- child structured lesson/test revisit reads
+  `task_submission_payloads.payload_json` for the exact latest non-returned
+  submission
+- no submit persistence, parent approval/draft deletion, Review Work,
+  admin/catalog-review, resolver, rewards, mastery, scoring, assignments,
+  analytics, dashboards, or template-routing behavior changed in Pass 3
 
 Approval safety contract:
 - before deleting `task_submission_drafts` for structured lesson/test
