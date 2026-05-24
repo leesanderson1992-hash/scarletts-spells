@@ -80,10 +80,9 @@ Canonical documentation now defers to:
 - old spelling-session assignment generation path
 
 ### Next
-- Durable Structured Submission Payloads is registered as a docs-only bounded
-  track:
-  - status: contract only; no runtime code, migration, test, package, hosted
-    data, or resolver change has been made in this docs pass
+- Durable Structured Submission Payloads is an active bounded track:
+  - status: Pass 2 submit persistence is implemented and QA-passed; child
+    revisit hydration and parent approval/draft-deletion safety remain pending
   - purpose:
     - separate mutable draft working state from immutable submitted structured
       attempt evidence
@@ -96,14 +95,54 @@ Canonical documentation now defers to:
       autosaved, or returned/editable work
     - `task_submissions` = submission header/workflow record plus flattened
       readable `submission_text`
-    - planned `task_submission_payloads` = durable submitted structured payload
+    - `task_submission_payloads` = durable submitted structured payload
       evidence linked to a submitted attempt
   - implementation sequence:
-    1. storage foundation only
-    2. submit persistence
-    3. child revisit hydration
-    4. approval draft-deletion safety
+    1. storage foundation only: complete
+    2. submit persistence: complete
+    3. child revisit hydration: next
+    4. approval draft-deletion safety: future
     5. closeout/regression hardening
+  - Pass 2 submit truth:
+    - `submitTaskResponse` still writes `task_submissions` with flattened
+      readable `submission_text`
+    - structured lesson/test submits now immediately write durable
+      `task_submission_payloads` evidence before completion, writing sample,
+      reward, draft, revalidation, or success redirect side effects
+    - helper failure rolls back the just-created submission and returns a
+      visible submit error
+    - privileged payload persistence lives in
+      `lib/lessons/persistence/submission-payloads.ts`; `app/learn/actions.ts`
+      only orchestrates ordering, helper call, rollback, and existing side
+      effects
+    - `payload_json` stores the structured response object, not flattened text
+      or the entire draft payload
+    - `lesson` maps to `structured_lesson_response`; `test` maps to
+      `structured_test_response`
+    - a narrow quick-submit fallback can derive structured evidence from
+      `lesson_schema + submission_text` for supported structured lesson/test
+      text/textarea cases; plain-writing remains unchanged
+  - manual smoke:
+    - actual structured lesson page submit created both `task_submissions` and
+      `task_submission_payloads`
+    - payload persisted through parent approval
+    - child revisit still showed blank because hydration has not yet been
+      implemented
+  - validation:
+    - `npm run writing-engine:structured-submission-payload-storage-regression`
+      passed
+    - `npm run writing-engine:structured-submission-payload-submit-regression`
+      passed
+    - `npx tsc --noEmit` passed
+    - `npm run build` passed
+    - `git diff --check` passed
+    - architecture QA passed after refactor
+  - residual risk:
+    - the original user-visible bug remains until Pass 3 child revisit
+      hydration reads from `task_submission_payloads`
+    - Pass 4 is still needed to keep parent approval/draft deletion safe for
+      legacy or vulnerable rows without durable payloads
+    - no hosted historical backfill has been implemented
   - explicit non-goals:
     - no `4E` / `4E.3` resolver work
     - no admin/catalog-review work

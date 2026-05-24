@@ -125,6 +125,15 @@ Expected behavior:
 - legacy structured rows without durable payload should fail softly rather than
   crash
 
+Implementation status:
+- submit persistence now creates durable submitted payload evidence for
+  structured lesson/test submissions
+- manual smoke confirmed durable payload evidence remains after parent
+  approval
+- child revisit hydration has not yet been implemented, so the visible blank
+  answer-box bug can still appear until the next pass reads from
+  `task_submission_payloads`
+
 The UI should not solve missing structured payloads by hiding the lesson,
 blocking access, or implying the child never submitted the work.
 

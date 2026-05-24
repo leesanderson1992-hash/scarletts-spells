@@ -115,7 +115,7 @@ Current ownership rule:
 
 ### Durable Structured Submission Payloads
 
-Status: `docs-only contract registered; storage foundation not implemented`
+Status: `Pass 2 submit persistence implemented and QA-passed; hydration still pending`
 
 Purpose:
 - separate mutable structured lesson/test draft state from immutable submitted
@@ -130,8 +130,51 @@ Truth model:
   in-progress work, and returned-for-correction work
 - `task_submissions` is the submitted attempt header, workflow record, and
   flattened readable text representation
-- future `task_submission_payloads` is durable submitted structured payload
+- `task_submission_payloads` is durable submitted structured payload
   evidence linked to the submitted attempt
+
+Implemented so far:
+- Pass 1 storage foundation is complete:
+  - `task_submission_payloads` exists as immutable submitted structured
+    evidence storage
+  - authenticated access is parent-scoped `SELECT` only
+- Pass 2 submit persistence is complete:
+  - `submitTaskResponse` still creates the normal `task_submissions` row with
+    flattened `submission_text`
+  - structured lesson/test submissions immediately persist a durable
+    `task_submission_payloads` row before completion, writing sample, reward,
+    draft, revalidation, or success-redirect side effects
+  - if durable payload persistence fails, the just-created submission is
+    rolled back and a visible submit error is returned
+  - `payload_json` stores the structured response object, not flattened text
+    and not the entire draft payload
+  - `lesson` maps to `structured_lesson_response`; `test` maps to
+    `structured_test_response`
+  - ownership fields are derived from trusted server-side task, child,
+    parent, course, and submission context
+  - privileged persistence lives in
+    `lib/lessons/persistence/submission-payloads.ts`, which imports
+    `server-only`, owns service-role writes, maps payload types, and returns a
+    typed success/failure result
+  - `app/learn/actions.ts` remains the submit orchestration layer and does not
+    import `createServiceRoleClient` or insert into `task_submission_payloads`
+    directly
+  - the full structured lesson/test page remains the preferred path via the
+    embedded structured response in `draft_payload`
+  - quick-submit compatibility can build a narrow fallback structured payload
+    from `lesson_schema + submission_text`, mapped only into the first
+    supported text/textarea block; missing, invalid, or unsupported schemas
+    produce no durable structured payload
+  - plain-writing submit behavior remains unchanged
+
+Manual smoke:
+- actual structured lesson-page submit now creates both `task_submissions` and
+  `task_submission_payloads`
+- the durable payload remains present after parent approval
+- child revisit can still show blank because Pass 3 hydration has not yet
+  read from `task_submission_payloads`
+- the remaining user-visible bug is therefore read-model/hydration, not
+  submit persistence
 
 Boundary notes:
 - this track is separate from `4E` / `4E.3` resolver integration
@@ -142,22 +185,34 @@ Boundary notes:
   child revisit unless a separate product contract explicitly requires it
 
 Implementation sequence:
-1. storage foundation only:
+1. storage foundation only: `complete`
    - add `task_submission_payloads`
    - add conservative RLS and ownership contract
    - add storage/source-contract regression
    - no submit, hydration, or approval runtime changes yet
-2. submit persistence:
+2. submit persistence: `complete`
    - write the durable payload immediately after `task_submissions` insert
    - roll back the just-created submission if durable payload insert fails
-3. child revisit hydration:
+3. child revisit hydration: `next`
    - draft-first for in-progress and returned work
    - durable submitted payload for pending/approved structured revisit
    - safe legacy fallback for structured submissions without payload
-4. approval draft-deletion safety:
+4. approval draft-deletion safety: `future`
    - delete draft only when the structured submitted payload exists
    - preserve vulnerable legacy draft rows when no durable payload exists
 5. closeout and regression hardening
+
+Validation evidence for Pass 2:
+- `npm run writing-engine:structured-submission-payload-storage-regression`
+  passed
+- `npm run writing-engine:structured-submission-payload-submit-regression`
+  passed
+- `npx tsc --noEmit` passed
+- `npm run build` passed
+- `git diff --check` passed
+- architecture QA passed after moving privileged persistence into the
+  server-only helper
+- quick-submit fallback bug was diagnosed and fixed
 
 Required regression direction:
 - structured lesson/test submit creates durable payload evidence

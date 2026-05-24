@@ -93,7 +93,7 @@ Durable Structured Submission Payloads architecture boundary:
 - `task_submissions` is the submitted attempt header and workflow record; its
   `submission_text` is a flattened readable representation, not reliable
   structured answer JSON
-- planned `task_submission_payloads` owns immutable submitted structured
+- `task_submission_payloads` owns immutable submitted structured
   attempt evidence
 - planned table fields:
   - `id`
@@ -120,8 +120,8 @@ Durable Structured Submission Payloads architecture boundary:
   - enable RLS
   - authenticated parent access is scoped to
     `auth.uid() = parent_user_id`
-  - insert/update/delete posture should be conservative and match existing
-    project table patterns
+  - authenticated browser clients have parent-scoped `SELECT` only
+  - writes are reserved for trusted server/service persistence
   - server-side submit and approval code must derive ownership fields from
     trusted submission/task context, not client-provided spoofable ids
 - submit-flow contract:
@@ -133,6 +133,26 @@ Durable Structured Submission Payloads architecture boundary:
   5. only after durable payload succeeds may existing side effects continue,
      including task completion, writing sample creation, rewards, draft upsert,
      or draft cleanup
+- submit-flow implementation status:
+  - Pass 2 is implemented and QA-passed
+  - `app/learn/actions.ts` orchestrates task/child validation,
+    `task_submissions` insert, helper call, rollback, and existing success
+    side effects
+  - privileged payload persistence is isolated in
+    `lib/lessons/persistence/submission-payloads.ts`
+  - the helper imports `server-only`, creates the service-role client, maps
+    lesson/test task types to payload types, inserts `task_submission_payloads`,
+    and returns a typed success/failure result
+  - `app/learn/actions.ts` does not import `createServiceRoleClient` and does
+    not insert into `task_submission_payloads` directly
+  - primary structured submit uses the embedded structured response from
+    `draft_payload`
+  - structured quick-submit compatibility can derive a narrow payload from
+    `lesson_schema + submission_text`, mapped only to the first supported
+    text/textarea block
+  - quick-submit fallback is not a full structured authoring path and returns
+    no payload for missing, invalid, or unsupported schemas
+  - plain-writing behavior is unchanged
 - hydration contract:
   - load latest draft and latest relevant durable submitted payload
   - use draft when no submission exists or latest submission is returned
@@ -140,6 +160,8 @@ Durable Structured Submission Payloads architecture boundary:
     pending, approved, or completed and not returned
   - legacy structured rows without durable payload must not crash; they may
     fall back to existing empty or flattened-text behavior
+  - not yet implemented; this is Pass 3 and remains the next required fix for
+    the visible disappearing-work bug
 - approval contract:
   - before deleting `task_submission_drafts` for structured lesson/test
     submissions, check that the approved submission has durable payload
@@ -147,6 +169,7 @@ Durable Structured Submission Payloads architecture boundary:
   - if no durable payload exists, skip draft deletion and keep approval
     otherwise unchanged
   - approval must never delete, overwrite, or mutate durable submitted payloads
+  - not yet implemented; this remains Pass 4 approval draft-deletion safety
 - returned/send-back contract:
   - returned flow remains draft-first and editable
   - returned flow continues to merge `__field_feedback` and
@@ -161,11 +184,18 @@ Durable Structured Submission Payloads architecture boundary:
     template-routing change
   - no `micro_skill_catalog` mutation
 - implementation sequence:
-  1. storage foundation only
-  2. submit persistence
-  3. child revisit hydration
-  4. approval draft-deletion safety
+  1. storage foundation only: complete
+  2. submit persistence: complete
+  3. child revisit hydration: next
+  4. approval draft-deletion safety: future
   5. closeout/regression hardening
+- validation evidence:
+  - storage and submit persistence regressions passed
+  - `npx tsc --noEmit`, `npm run build`, and `git diff --check` passed
+  - manual structured lesson-page smoke proved payload rows are created and
+    survive parent approval
+  - child revisit still shows blank until Pass 3 hydration reads durable
+    submitted payloads
 
 Parent-Verified Spelling Candidate Capture architecture boundary:
 - the bounded Slice `2` stage now lets parents classify eligible

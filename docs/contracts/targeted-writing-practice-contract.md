@@ -271,10 +271,10 @@ Canonical storage roles:
   in-progress work, and returned/editable correction state
 - `task_submissions` is the submitted attempt header/workflow record and
   flattened readable text representation
-- planned `task_submission_payloads` is immutable durable submitted structured
+- `task_submission_payloads` is immutable durable submitted structured
   payload evidence linked to one submitted attempt
 
-Planned `task_submission_payloads` contract:
+`task_submission_payloads` contract:
 - fields:
   - `id`
   - `submission_id`
@@ -299,6 +299,8 @@ Planned `task_submission_payloads` contract:
 - security:
   - RLS enabled
   - authenticated parent access scoped to `auth.uid() = parent_user_id`
+  - authenticated clients may select scoped rows only
+  - durable payload writes are server/service persistence only
   - server-side code derives `parent_user_id`, `course_id`, `task_id`, and
     `child_id` from trusted context, not from client-supplied payload claims
 
@@ -313,6 +315,48 @@ Structured submit contract:
    including task completion, writing sample creation, rewards, draft upsert,
    or draft cleanup
 
+Structured submit implementation status:
+- Pass 2 is implemented and QA-passed
+- `submitTaskResponse` still writes the normal `task_submissions` row with
+  flattened readable `submission_text`
+- for structured lesson/test submissions, durable `task_submission_payloads`
+  evidence is persisted immediately after the submission row and before any
+  success side effects
+- if durable payload persistence fails, the just-created submission is deleted
+  and a visible submit error is returned
+- `payload_json` stores the structured response object, not flattened text and
+  not the whole draft payload
+- `payload_type` mapping:
+  - `lesson` -> `structured_lesson_response`
+  - `test` -> `structured_test_response`
+- `parent_user_id`, `course_id`, `task_id`, `child_id`, and `submission_id`
+  are derived from trusted server-side context
+- privileged persistence lives in
+  `lib/lessons/persistence/submission-payloads.ts`
+- `app/learn/actions.ts` remains an orchestration layer and does not import
+  `createServiceRoleClient` or directly insert `task_submission_payloads`
+- quick-submit compatibility:
+  - primary structured submit evidence comes from the embedded structured
+    response in the full structured lesson/test page `draft_payload`
+  - if a structured lesson/test is submitted through a quick-submit path that
+    only provides `submission_text`, a narrow fallback can derive structured
+    evidence from `lesson_schema + submission_text`
+  - fallback maps the submitted text into the first supported text/textarea
+    block only
+  - fallback returns `null` for missing, invalid, or unsupported schemas
+  - fallback is a compatibility bridge, not the preferred structured submit
+    path
+- plain-writing submit behavior remains unchanged
+
+Manual smoke evidence:
+- actual structured lesson-page submit created both `task_submissions` and
+  `task_submission_payloads`
+- durable payload remained present after parent approval
+- child revisit still showed blank because hydration from durable payload is
+  not implemented yet
+- remaining visible disappearing-work bug is now read-model/hydration, not
+  submit persistence
+
 Structured child revisit hydration contract:
 - load the latest draft and latest relevant submitted durable payload
 - use draft when no submission exists or when the latest submission is returned
@@ -320,6 +364,7 @@ Structured child revisit hydration contract:
   pending, approved, or completed and not returned
 - legacy structured submissions without durable payload must not crash; they
   may fall back to existing empty or flattened-text behavior
+- implementation status: pending Pass 3
 
 Approval safety contract:
 - before deleting `task_submission_drafts` for structured lesson/test
@@ -328,6 +373,7 @@ Approval safety contract:
 - if durable payload is missing, skip draft deletion and keep approval
   otherwise unchanged
 - approval must never delete, overwrite, or mutate durable submitted payloads
+- implementation status: pending Pass 4
 
 Returned/send-back boundary:
 - returned work remains draft-first and editable

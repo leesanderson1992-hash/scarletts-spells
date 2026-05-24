@@ -173,7 +173,7 @@ Structured lesson/test submission storage has three distinct roles:
   correction state
 - `task_submissions` stores the submitted attempt header, workflow state, and
   flattened readable `submission_text`
-- planned `task_submission_payloads` stores durable submitted structured
+- `task_submission_payloads` stores durable submitted structured
   answer payload evidence so approved work can be restored into the original
   lesson/test boxes later
 
@@ -181,6 +181,14 @@ Parent approval must not remove the only structured answer source for a
 submitted lesson or test. Returned work remains editable from draft state;
 approved or pending structured revisit should hydrate from durable submitted
 payload when no active draft applies.
+
+Current implementation status:
+- storage foundation and submit persistence are complete
+- submit persistence writes durable structured payload evidence before submit
+  success side effects
+- child revisit hydration from durable payload is still pending
+- parent approval/draft-deletion safety for legacy rows without payload is
+  still pending
 
 ---
 
