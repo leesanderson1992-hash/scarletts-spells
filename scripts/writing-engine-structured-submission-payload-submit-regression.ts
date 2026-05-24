@@ -61,6 +61,16 @@ assert.match(
   /taskId: task\.id[\s\S]*childId: child\.id[\s\S]*status: "submitted"[\s\S]*payloadValue: safeDraftPayload/,
   "Persisted structured payload must be rebuilt with trusted task and child ids.",
 );
+assert.match(
+  submitSource,
+  /buildStructuredLessonResponseFromFlatSubmission\(\{[\s\S]*lessonValue: task\.lesson_schema[\s\S]*submissionText: safeSubmissionText/,
+  "Structured task submits without embedded draft payload must fall back to the task lesson schema and submitted text.",
+);
+assert.match(
+  learnActions,
+  /buildStructuredLessonResponseFromFlatSubmission/,
+  "Submit persistence must include the structured quick-submit fallback builder.",
+);
 assert.ok(
   submissionInsertIndex >= 0,
   "Structured submit must preserve task_submissions insertion.",
@@ -93,13 +103,92 @@ assert.match(
 );
 assert.match(
   submitSource,
-  /hasEmbeddedStructuredResponse[\s\S]*getStructuredLessonResponseFromPayload\(safeDraftPayload\)[\s\S]*hasMeaningfulStructuredLessonResponse\(structuredResponse\)/,
-  "Plain-writing submissions must not be routed into durable structured payload storage.",
+  /hasEmbeddedStructuredResponse[\s\S]*fallbackStructuredResponse[\s\S]*hasMeaningfulStructuredLessonResponse\(durableStructuredResponse\)/,
+  "Plain-writing submissions must not be routed into durable structured payload storage unless structured evidence exists.",
 );
 assert.doesNotMatch(
   `${taskPage}\n${reviewCompletion}\n${reviewPage}`,
   /task_submission_payloads/,
   "Pass 2 must not add hydration, approval, or Review Work read-model wiring.",
+);
+
+const realStructuredDraftPayload = {
+  "question-textarea-1": "A real structured answer",
+  __field_meta: {
+    "question-textarea-1": {
+      label: "Main written answer",
+      type: "textarea",
+      excludeFromSpelling: false,
+    },
+  },
+  __structured_lesson_response: {
+    task_id: "task-1",
+    child_id: "child-1",
+    status: "draft",
+    answers: [
+      {
+        block_id: "question-textarea-1",
+        value: "A real structured answer",
+        feedback: null,
+      },
+    ],
+    draft_saved_at: "2026-05-23T00:00:00.000Z",
+    submitted_at: null,
+  },
+};
+
+assert.equal(
+  realStructuredDraftPayload.__structured_lesson_response.answers[0]?.value,
+  realStructuredDraftPayload["question-textarea-1"],
+  "Real structured component draft payload fixture must embed the answer object used for durable persistence.",
+);
+assert.equal(
+  Array.isArray(realStructuredDraftPayload.__structured_lesson_response.answers),
+  true,
+  "Real structured component draft payload fixture must include structured answers.",
+);
+
+const flatSubmitFallbackFixture = {
+  submissionText: "Quick form answer",
+  lessonValue: {
+    version: 1,
+    theme: "scarlett-default",
+    title: "Quick form structured lesson",
+    blocks: [
+      {
+        block_id: "heading-1",
+        block_type: "heading",
+        heading: "Lesson title",
+      },
+      {
+        block_id: "question-textarea-2",
+        block_type: "question_textarea",
+        label: "Main written answer",
+      },
+    ],
+  },
+};
+
+assert.equal(
+  flatSubmitFallbackFixture.lessonValue.blocks[1]?.block_id,
+  "question-textarea-2",
+  "Structured quick-submit fallback fixture must include a text/textarea question target.",
+);
+assert.equal(
+  flatSubmitFallbackFixture.submissionText,
+  "Quick form answer",
+  "Structured quick-submit fallback fixture must preserve the submitted text as structured answer evidence.",
+);
+
+const invalidFallbackFixture = {
+  submissionText: "Plain writing",
+  lessonValue: null,
+};
+
+assert.equal(
+  invalidFallbackFixture.lessonValue,
+  null,
+  "Missing/invalid structured lesson schema fixture must represent a case that cannot create durable structured payload evidence.",
 );
 
 console.log(

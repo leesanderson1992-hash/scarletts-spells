@@ -14,6 +14,7 @@ import {
 import { buildSpellcheckSourceText } from "@/lib/courses/spelling-analysis-text";
 import {
   buildStructuredLessonResponse,
+  buildStructuredLessonResponseFromFlatSubmission,
   getReturnedWritingIssueFeedback,
   getStructuredLessonResponseFromPayload,
   hasMeaningfulStructuredLessonResponse,
@@ -527,7 +528,7 @@ export async function submitTaskResponse(formData: FormData) {
 
   const { data: task } = await supabase
     .from("course_tasks")
-    .select("id, course_id, task_type")
+    .select("id, course_id, task_type, lesson_schema")
     .eq("id", taskId)
     .eq("course_id", courseId)
     .eq("parent_user_id", user.id)
@@ -559,12 +560,24 @@ export async function submitTaskResponse(formData: FormData) {
     payloadValue: safeDraftPayload,
     submittedAt,
   });
+  const fallbackStructuredResponse =
+    hasMeaningfulStructuredLessonResponse(structuredResponse)
+      ? null
+      : buildStructuredLessonResponseFromFlatSubmission({
+          taskId: task.id,
+          childId: child.id,
+          lessonValue: task.lesson_schema,
+          submissionText: safeSubmissionText,
+          submittedAt,
+        });
+  const durableStructuredResponse =
+    fallbackStructuredResponse ?? structuredResponse;
   const hasEmbeddedStructuredResponse = Boolean(
     getStructuredLessonResponseFromPayload(safeDraftPayload),
   );
   const shouldPersistStructuredPayload =
-    hasEmbeddedStructuredResponse &&
-    hasMeaningfulStructuredLessonResponse(structuredResponse);
+    (hasEmbeddedStructuredResponse || Boolean(fallbackStructuredResponse)) &&
+    hasMeaningfulStructuredLessonResponse(durableStructuredResponse);
 
   const [{ data: latestSubmission }, { data: existingDraftRow }] = await Promise.all([
     supabase
@@ -666,7 +679,7 @@ export async function submitTaskResponse(formData: FormData) {
       taskId: task.id,
       childId: child.id,
       taskType: task.task_type,
-      structuredResponse,
+      structuredResponse: durableStructuredResponse,
     });
 
     if (!payloadResult.ok) {

@@ -3,6 +3,7 @@ import {
   type LessonComprehensionQuizGroupBlock,
   type LessonRepeatableInterviewBlock,
   type LessonTableQuestionBlock,
+  isStructuredLessonDocument,
   type StructuredLessonAnswerValue,
   type StructuredLessonDocument,
   type StructuredLessonAnswer,
@@ -662,6 +663,51 @@ export function buildStructuredLessonResponse({
     payloadValue,
     submittedAt,
   });
+}
+
+export function buildStructuredLessonResponseFromFlatSubmission({
+  taskId,
+  childId,
+  lessonValue,
+  submissionText,
+  submittedAt,
+}: {
+  taskId: string;
+  childId: string;
+  lessonValue: unknown;
+  submissionText: string;
+  submittedAt: string;
+}): StructuredLessonResponse | null {
+  const trimmedText = submissionText.trim();
+
+  if (!trimmedText || !isStructuredLessonDocument(lessonValue)) {
+    return null;
+  }
+
+  const textBlock = lessonValue.blocks.find(
+    (block) =>
+      block.block_type === "question_text" ||
+      block.block_type === "question_textarea",
+  );
+
+  if (!textBlock) {
+    return null;
+  }
+
+  return {
+    task_id: taskId,
+    child_id: childId,
+    status: "submitted",
+    answers: [
+      {
+        block_id: textBlock.block_id,
+        value: trimmedText,
+        feedback: null,
+      },
+    ],
+    draft_saved_at: null,
+    submitted_at: submittedAt,
+  };
 }
 
 export function hasMeaningfulStructuredLessonResponse(
