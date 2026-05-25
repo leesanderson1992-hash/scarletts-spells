@@ -189,6 +189,42 @@ On an approved baseline branch only:
 
 The proof must show that no archived duplicate-version migrations remain active.
 
+### Local Rebuild Proof Result
+
+Completed on branch `supabase-baseline-reconciliation` with active migration:
+
+```text
+20260525123937_baseline_current_production_schema.sql
+```
+
+The local rebuild used:
+
+```bash
+npx supabase db reset
+```
+
+The reset applied the single active baseline migration cleanly. The only SQL
+notices were expected local Supabase notices that the `extensions` schema and
+`pgcrypto` extension already existed.
+
+Post-reset verification confirmed:
+
+- active local migration ledger contains only
+  `20260525123937/baseline_current_production_schema`
+- active `supabase/migrations` has no duplicate Supabase versions
+- expected reviewed tables are present
+- RLS is enabled for expected public tables
+- policies, grants, functions/RPCs, triggers, constraints, and indexes are
+  present
+- `pgcrypto` is installed in the `extensions` schema
+- `npm run build` passed
+
+No hosted production schema or data was mutated during the proof. No
+`supabase db push`, migration repair, staging, commit, or push was run.
+
+Production deployment remains gated until staging proof and a separate
+production ledger/release decision are complete.
+
 ## Staging Proof
 
 Use a non-production Supabase project.
