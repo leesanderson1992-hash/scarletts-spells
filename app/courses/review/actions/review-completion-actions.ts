@@ -1,7 +1,12 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 
-import type { ReturnedWritingIssueDraftPayload } from "@/lib/lessons/responses";
+import {
+  buildStructuredLessonResponseFromSubmissionSummary,
+  getStructuredLessonResponseFromPayload,
+  hasMeaningfulStructuredLessonResponse,
+  type ReturnedWritingIssueDraftPayload,
+} from "@/lib/lessons/responses";
 import { maybeAwardTaskSubmissionApprovalCoins } from "@/lib/rewards/course-coins";
 import { createClient } from "@/lib/supabase/server";
 import {
@@ -24,6 +29,62 @@ import {
   hasActionableReturnedIssues,
   isSuppressedFalsePositivePair,
 } from "../review-utils";
+
+function getStructuredSubmissionPayloadTypeForReview(task: {
+  task_type: string;
+  lesson_schema?: unknown;
+}) {
+  const hasStructuredLessonSchema =
+    task.lesson_schema &&
+    typeof task.lesson_schema === "object" &&
+    !Array.isArray(task.lesson_schema);
+
+  if (!hasStructuredLessonSchema) {
+    return null;
+  }
+
+  if (task.task_type === "lesson") {
+    return "structured_lesson_response";
+  }
+
+  if (task.task_type === "test") {
+    return "structured_test_response";
+  }
+
+  return null;
+}
+
+function getStructuredDraftPayloadSeed({
+  existingDraftPayload,
+  durablePayloadJson,
+  summaryResponse,
+}: {
+  existingDraftPayload: unknown;
+  durablePayloadJson?: unknown;
+  summaryResponse?: unknown;
+}) {
+  if (
+    hasMeaningfulStructuredLessonResponse(
+      getStructuredLessonResponseFromPayload(existingDraftPayload),
+    )
+  ) {
+    return existingDraftPayload;
+  }
+
+  if (durablePayloadJson && typeof durablePayloadJson === "object") {
+    return {
+      __structured_lesson_response: durablePayloadJson,
+    };
+  }
+
+  if (summaryResponse && typeof summaryResponse === "object") {
+    return {
+      __structured_lesson_response: summaryResponse,
+    };
+  }
+
+  return existingDraftPayload;
+}
 
 export async function deleteSubmissionFromReviewImpl(formData: FormData) {
   const submissionId = formData.get("submission_id");
@@ -341,6 +402,48 @@ export async function returnSubmissionToChildImpl(formData: FormData) {
     .eq("parent_user_id", user.id)
     .maybeSingle();
 
+  const { data: task } = await supabase
+    .from("course_tasks")
+    .select("task_type, lesson_schema")
+    .eq("id", submission.task_id)
+    .eq("course_id", submission.course_id)
+    .eq("parent_user_id", user.id)
+    .maybeSingle();
+  const structuredPayloadType = task
+    ? getStructuredSubmissionPayloadTypeForReview(task)
+    : null;
+  let durableReturnedPayload: { payload_json: unknown } | null = null;
+
+  if (
+    structuredPayloadType &&
+    !hasMeaningfulStructuredLessonResponse(
+      getStructuredLessonResponseFromPayload(existingDraft?.draft_payload),
+    )
+  ) {
+    const { data } = await supabase
+      .from("task_submission_payloads")
+      .select("payload_json")
+      .eq("submission_id", submission.id)
+      .eq("parent_user_id", user.id)
+      .eq("course_id", submission.course_id)
+      .eq("task_id", submission.task_id)
+      .eq("child_id", submission.child_id)
+      .eq("payload_type", structuredPayloadType)
+      .maybeSingle();
+
+    durableReturnedPayload = data as { payload_json: unknown } | null;
+  }
+  const summaryReturnedResponse =
+    task && structuredPayloadType
+      ? buildStructuredLessonResponseFromSubmissionSummary({
+          taskId: submission.task_id,
+          childId: submission.child_id,
+          lessonValue: task.lesson_schema,
+          submissionText: submission.submission_text ?? "",
+          submittedAt: submission.submitted_at,
+        })
+      : null;
+
   const { data: linkedWritingIssues } = await supabase
     .from("writing_issues")
     .select(
@@ -404,12 +507,17 @@ export async function returnSubmissionToChildImpl(formData: FormData) {
     }),
   );
 
+  const draftPayloadSeed = getStructuredDraftPayloadSeed({
+    existingDraftPayload: existingDraft?.draft_payload,
+    durablePayloadJson: durableReturnedPayload?.payload_json,
+    summaryResponse: summaryReturnedResponse,
+  });
   const mergedDraftPayload =
-    existingDraft?.draft_payload &&
-    typeof existingDraft.draft_payload === "object" &&
-    !Array.isArray(existingDraft.draft_payload)
+    draftPayloadSeed &&
+    typeof draftPayloadSeed === "object" &&
+    !Array.isArray(draftPayloadSeed)
       ? {
-          ...(existingDraft.draft_payload as Record<string, unknown>),
+          ...(draftPayloadSeed as Record<string, unknown>),
           __field_feedback: safeFieldFeedback,
           __writing_issue_feedback: returnedIssuePayload,
         }
@@ -548,7 +656,7 @@ export async function approveSubmissionReviewImpl(formData: FormData) {
 
   const { data: task } = await supabase
     .from("course_tasks")
-    .select("id, title, task_type, monthly_goal_total, coin_reward_trigger, gold_coin_reward_amount")
+    .select("id, title, task_type, lesson_schema, monthly_goal_total, coin_reward_trigger, gold_coin_reward_amount")
     .eq("id", submission.task_id)
     .eq("course_id", submission.course_id)
     .eq("parent_user_id", user.id)
@@ -653,12 +761,32 @@ export async function approveSubmissionReviewImpl(formData: FormData) {
     );
   }
 
-  await supabase
-    .from("task_submission_drafts")
-    .delete()
-    .eq("task_id", submission.task_id)
-    .eq("child_id", submission.child_id)
-    .eq("parent_user_id", user.id);
+  const structuredPayloadType = getStructuredSubmissionPayloadTypeForReview(task);
+  let shouldDeleteDraft = true;
+
+  if (structuredPayloadType) {
+    const { data: durablePayload } = await supabase
+      .from("task_submission_payloads")
+      .select("id")
+      .eq("submission_id", submission.id)
+      .eq("parent_user_id", user.id)
+      .eq("course_id", submission.course_id)
+      .eq("task_id", submission.task_id)
+      .eq("child_id", submission.child_id)
+      .eq("payload_type", structuredPayloadType)
+      .maybeSingle();
+
+    shouldDeleteDraft = Boolean(durablePayload);
+  }
+
+  if (shouldDeleteDraft) {
+    await supabase
+      .from("task_submission_drafts")
+      .delete()
+      .eq("task_id", submission.task_id)
+      .eq("child_id", submission.child_id)
+      .eq("parent_user_id", user.id);
+  }
 
   await maybeAwardTaskSubmissionApprovalCoins({
     supabase,

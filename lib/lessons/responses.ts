@@ -710,6 +710,74 @@ export function buildStructuredLessonResponseFromFlatSubmission({
   };
 }
 
+export function buildStructuredLessonResponseFromSubmissionSummary({
+  taskId,
+  childId,
+  lessonValue,
+  submissionText,
+  submittedAt,
+}: {
+  taskId: string;
+  childId: string;
+  lessonValue: unknown;
+  submissionText: string;
+  submittedAt: string;
+}): StructuredLessonResponse | null {
+  if (!isStructuredLessonDocument(lessonValue)) {
+    return null;
+  }
+
+  const paragraphs = submissionText
+    .replace(/\r\n/g, "\n")
+    .split(/\n{2,}/)
+    .map((paragraph) => paragraph.trim())
+    .filter(Boolean);
+  const answers = lessonValue.blocks.flatMap((block) => {
+    if (
+      block.block_type !== "question_text" &&
+      block.block_type !== "question_textarea"
+    ) {
+      return [];
+    }
+
+    const label = block.label ?? block.block_id;
+    const prefix = `${label}:`;
+    const paragraph = paragraphs.find((candidate) =>
+      candidate.startsWith(prefix),
+    );
+    const value = paragraph?.slice(prefix.length).trim() ?? "";
+
+    return value
+      ? [
+          {
+            block_id: block.block_id,
+            value,
+            feedback: null,
+          } satisfies StructuredLessonAnswer,
+        ]
+      : [];
+  });
+
+  if (answers.length === 0) {
+    return buildStructuredLessonResponseFromFlatSubmission({
+      taskId,
+      childId,
+      lessonValue,
+      submissionText,
+      submittedAt,
+    });
+  }
+
+  return {
+    task_id: taskId,
+    child_id: childId,
+    status: "submitted",
+    answers,
+    draft_saved_at: null,
+    submitted_at: submittedAt,
+  };
+}
+
 export function hasMeaningfulStructuredLessonResponse(
   response: StructuredLessonResponse | null | undefined,
 ) {

@@ -32,8 +32,8 @@ assert.match(
 );
 assert.match(
   taskPage,
-  /latestSubmission !== null[\s\S]*latestSubmission\.parent_review_status !== "returned"/,
-  "Durable payload hydration must be limited to submitted non-returned work.",
+  /latestSubmission !== null[\s\S]*latestSubmission\.parent_review_status !== "returned"[\s\S]*!hasMeaningfulStructuredLessonResponse\([\s\S]*getStructuredLessonResponseFromPayload\(latestDraft\?\.draft_payload\)/,
+  "Durable payload hydration must cover submitted non-returned work and returned work only when its editable draft lacks structured answers.",
 );
 assert.match(
   taskPage,
@@ -42,8 +42,8 @@ assert.match(
 );
 assert.match(
   taskPage,
-  /const draftStructuredInitialResponse = getInitialStructuredLessonResponse\(\{[\s\S]*payloadValue: latestDraft\?\.draft_payload[\s\S]*isReturned: latestSubmission\?\.parent_review_status === "returned"/,
-  "Returned and editable draft hydration must continue to use draft_payload first.",
+  /const returnedSummaryStructuredPayload =[\s\S]*buildStructuredLessonResponseFromSubmissionSummary\(\{[\s\S]*submissionText: latestSubmission\.submission_text[\s\S]*const draftPayloadForInitialResponse =[\s\S]*latestSubmission\?\.parent_review_status === "returned"[\s\S]*!hasMeaningfulStructuredLessonResponse\([\s\S]*getStructuredLessonResponseFromPayload\(latestDraft\?\.draft_payload\)[\s\S]*submittedStructuredPayload \?\? returnedSummaryStructuredPayload[\s\S]*: latestDraft\?\.draft_payload;[\s\S]*const draftStructuredInitialResponse = getInitialStructuredLessonResponse\(\{[\s\S]*payloadValue: draftPayloadForInitialResponse[\s\S]*isReturned: latestSubmission\?\.parent_review_status === "returned"/,
+  "Returned and editable draft hydration must use draft_payload first, then durable submitted payload, then submitted summary reconstruction as missing-answers fallbacks.",
 );
 assert.match(
   taskPage,
@@ -89,8 +89,8 @@ assert.equal(
 
 assert.doesNotMatch(
   reviewCompletion,
-  /task_submission_payloads/,
-  "Pass 3 must not change parent approval or draft deletion behaviour.",
+  /from\("task_submission_payloads"\)(?:(?!\n\s*\.maybeSingle\(\);)[\s\S])*\.(insert|upsert|update|delete)\(/,
+  "Parent approval may only read durable payload existence and must not mutate payload rows.",
 );
 assert.doesNotMatch(
   reviewPage,

@@ -18,9 +18,12 @@ import {
 } from "@/lib/courses/queries";
 import { getLessonRuntimeMode } from "@/lib/lessons/runtime";
 import {
+  buildStructuredLessonResponseFromSubmissionSummary,
   getReturnedWritingIssueFeedback,
   getStructuredFieldFeedback,
   getInitialStructuredLessonResponse,
+  getStructuredLessonResponseFromPayload,
+  hasMeaningfulStructuredLessonResponse,
 } from "@/lib/lessons/responses";
 import {
   getAggregateProgressState,
@@ -222,7 +225,10 @@ export default async function LearnModuleTaskPage({
   const shouldHydrateFromSubmittedPayload =
     Boolean(structuredLesson && structuredSubmissionPayloadType) &&
     latestSubmission !== null &&
-    latestSubmission.parent_review_status !== "returned";
+    (latestSubmission.parent_review_status !== "returned" ||
+      !hasMeaningfulStructuredLessonResponse(
+        getStructuredLessonResponseFromPayload(latestDraft?.draft_payload),
+      ));
   let latestSubmittedPayload: { payload_json: unknown } | null = null;
 
   if (
@@ -249,8 +255,33 @@ export default async function LearnModuleTaskPage({
         __structured_lesson_response: latestSubmittedPayload.payload_json,
       }
     : null;
+  const returnedSummaryStructuredPayload =
+    latestSubmission?.parent_review_status === "returned" &&
+    structuredSubmissionPayloadType &&
+    structuredLesson &&
+    !hasMeaningfulStructuredLessonResponse(
+      getStructuredLessonResponseFromPayload(latestDraft?.draft_payload),
+    )
+      ? {
+          __structured_lesson_response:
+            buildStructuredLessonResponseFromSubmissionSummary({
+              taskId: task.id,
+              childId: selectedChild.id,
+              lessonValue: structuredLesson,
+              submissionText: latestSubmission.submission_text ?? "",
+              submittedAt: latestSubmission.submitted_at,
+            }),
+        }
+      : null;
+  const draftPayloadForInitialResponse =
+    latestSubmission?.parent_review_status === "returned" &&
+    !hasMeaningfulStructuredLessonResponse(
+      getStructuredLessonResponseFromPayload(latestDraft?.draft_payload),
+    )
+      ? submittedStructuredPayload ?? returnedSummaryStructuredPayload
+      : latestDraft?.draft_payload;
   const draftStructuredInitialResponse = getInitialStructuredLessonResponse({
-    payloadValue: latestDraft?.draft_payload,
+    payloadValue: draftPayloadForInitialResponse,
     isReturned: latestSubmission?.parent_review_status === "returned",
   });
   const submittedStructuredInitialResponse = getInitialStructuredLessonResponse({

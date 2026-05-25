@@ -89,8 +89,13 @@ for (const approvalFlowPath of approvalFlowPaths) {
   const source = readFileSync(approvalFlowPath, "utf8");
   assert.doesNotMatch(
     source,
-    /task_submission_payloads/,
-    `${approvalFlowPath} must not be wired into durable payload approval cleanup yet.`,
+    /from\("task_submission_payloads"\)(?:(?!\n\s*\.maybeSingle\(\);)[\s\S])*\.(insert|upsert|update|delete)\(/,
+    `${approvalFlowPath} must not mutate immutable durable payload rows during approval cleanup.`,
+  );
+  assert.match(
+    source,
+    /from\("task_submission_payloads"\)[\s\S]*\.select\("id"\)/,
+    `${approvalFlowPath} may only read durable payload existence for approval draft cleanup safety.`,
   );
 }
 

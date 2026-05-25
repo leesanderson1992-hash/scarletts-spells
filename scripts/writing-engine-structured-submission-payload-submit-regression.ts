@@ -113,8 +113,13 @@ assert.match(
 );
 assert.doesNotMatch(
   `${reviewCompletion}\n${reviewPage}`,
+  /from\("task_submission_payloads"\)(?:(?!\n\s*\.maybeSingle\(\);)[\s\S])*\.(insert|upsert|update|delete)\(/,
+  "Submit persistence must not add approval writes or Review Work read-model mutation wiring.",
+);
+assert.doesNotMatch(
+  reviewPage,
   /task_submission_payloads/,
-  "Submit persistence must not add approval or Review Work read-model wiring.",
+  "Submit persistence must not add Review Work read-model payload wiring.",
 );
 
 const realStructuredDraftPayload = {
