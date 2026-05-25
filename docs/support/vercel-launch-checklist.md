@@ -54,6 +54,27 @@ If you want Vercel preview deployments to support login, add the preview domain 
 6. Confirm the release slice being pushed is intentional, reviewed, and
    isolated from unrelated local work.
 
+## Supabase migration safety
+
+- Hosted production schema is currently behaviour-correct for recent Writing
+  Engine work, but the Supabase migration ledger is not aligned with the local
+  historical migration directory.
+- `supabase_migrations.schema_migrations` currently contains only
+  `20260421/add_false_positive_to_misspelling_instances`.
+- Historical local migrations use duplicate date-only versions and must not be
+  replayed with `supabase db push`.
+- Do not run blind migration repair for duplicate versions.
+- Do not casually rename historical migration files.
+- Treat hosted production as a manually reconciled baseline for existing
+  historical migrations.
+- Future DB migrations must use unique timestamp versions:
+  `YYYYMMDDHHMMSS_description.sql`.
+- Every DB-changing release slice must declare one deployment method:
+  `code-only`, `unique forward migration`, `manual SQL patch`, or
+  `baseline/reconciliation`.
+- Production DB deployment requires an explicit migration-ledger check before
+  applying any migration.
+
 ## Current release-readiness caution
 
 - `main` is the production branch and `git push origin main` is the live
@@ -92,6 +113,9 @@ If you want Vercel preview deployments to support login, add the preview domain 
 - Review Work queue/detail/verification/archive flows remain coherent
 - dashboard and insights language remains advisory where evidence is still
   immature
+- if the release includes `4E.3`, confirm it is either code-only against
+  already-present hosted tables/RPCs or uses a new unique timestamp migration
+  with an approved deployment process
 
 ## Live release command
 

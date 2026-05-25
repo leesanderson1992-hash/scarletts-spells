@@ -49,6 +49,11 @@ Canonical documentation now defers to:
   truth and what broader progress/maturity summaries mean.
 - The repo currently builds, but the current dirty `main` worktree must not be
   blindly pushed to production.
+- Hosted Supabase production is behaviour-correct for recent Writing Engine
+  schema, but the migration ledger is not aligned with historical local
+  migrations. Treat production as a manually reconciled baseline and follow
+  [docs/operations/supabase-migration-policy.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/operations/supabase-migration-policy.md:1)
+  before any DB-changing work.
 
 ## Current status snapshot
 
@@ -196,6 +201,12 @@ Canonical documentation now defers to:
   - do not proceed into resolver, admin/catalog-review, catalog mutation,
     mastery, reward, assignment, scoring, analytics, dashboard, or
     template-routing work from this closeout
+- deployment guardrail:
+  - `4E.3` source work may proceed locally after the structured-payload detour
+  - production deployment is allowed only if `4E.3` is code-only against
+    already-present hosted tables/RPCs, or if any DB-changing work uses a new
+    unique timestamp migration plus an approved deployment process
+  - future migrations must use `YYYYMMDDHHMMSS_description.sql`
 - Stage `7F` is now fully closed:
   - `7F.10` regression coverage is complete
   - the bounded Stage `7F` regression script exists and passed when run

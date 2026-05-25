@@ -16,6 +16,9 @@ This file is the active roadmap.
 Implementation truth still lives in:
 - [docs/implementation/targeted-writing-practice-status.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/implementation/targeted-writing-practice-status.md:1)
 
+Deployment and migration safety truth lives in:
+- [docs/operations/supabase-migration-policy.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/operations/supabase-migration-policy.md:1)
+
 Canonical semantics still defer to:
 - [docs/architecture/admin-internal-access.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/architecture/admin-internal-access.md:1)
 - [docs/architecture/writing-engine-canonical-brief.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/architecture/writing-engine-canonical-brief.md:1)
@@ -99,6 +102,15 @@ Current transition reality:
   canonical `Review Work` queue
 - the next safe work is bounded `Stage 7` Review Work integration on top of
   existing shared engine outputs rather than new analysis or review semantics
+- hosted Supabase production is treated as a manually reconciled baseline for
+  historical migrations; do not run `supabase db push`, blind migration repair,
+  or casual historical migration renames against the current migration
+  directory
+- future DB-changing Writing Engine work must declare `code-only`,
+  `unique forward migration`, `manual SQL patch`, or
+  `baseline/reconciliation` before implementation begins
+- future migrations must use unique timestamp versions in the form
+  `YYYYMMDDHHMMSS_description.sql`
 
 Current ownership rule:
 - `Analyse Writing` belongs under `Courses` navigation
@@ -213,6 +225,10 @@ Boundary notes:
 - no hosted historical backfill is authorised in the docs pass
 - no implementation may solve the bug by hiding completed lessons or blocking
   child revisit unless a separate product contract explicitly requires it
+- `4E.3` source work may proceed locally after this detour; production
+  deployment is allowed only if it is code-only against already-present hosted
+  tables/RPCs or uses a new unique timestamp migration and approved deployment
+  process
 
 Implementation sequence:
 1. storage foundation only: `complete`

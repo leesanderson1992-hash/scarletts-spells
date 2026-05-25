@@ -45,6 +45,13 @@
   - approval does not delete the only structured answer source for vulnerable
     legacy lesson/test submissions
   - returned structured work remains draft-first and editable
+- hosted Supabase production is now treated as a manually reconciled baseline:
+  - schema reality is behaviour-correct for recent Writing Engine work, but
+    the migration ledger is not aligned with local historical migrations
+  - do not run `supabase db push`, blind migration repair, or casual
+    historical migration renames against the current migration directory
+  - future DB-changing work must follow
+    [docs/operations/supabase-migration-policy.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/operations/supabase-migration-policy.md:1)
 - local QA/build state currently supports private parent-led use for one child:
   - Stage `7` E2E bundle passes
   - `npm run build` passes
@@ -69,6 +76,10 @@
   plan; do not start hosted backfill, resolver, admin/catalog-review, catalog
   mutation, mastery, rewards, assignments, scoring, analytics, dashboards, or
   template-routing work from that closeout
+- `4E.3` source work may proceed locally after the structured-payload detour,
+  but production deployment is allowed only if it is code-only against already
+  present hosted tables/RPCs or uses a new unique timestamp migration with an
+  approved deployment process
 
 ## Blockers / open risks
 
@@ -88,6 +99,9 @@
   closing/merging/superseding/reopening remain deferred to Slice `4D` or later
 - hosted Supabase/auth/test-harness issues must be kept separate from genuine
   product defects in future QA passes
+- hosted Supabase migration-ledger drift must be treated as a release-safety
+  gate for DB-changing work; production DB deployment requires an explicit
+  ledger check before applying any migration
 
 ## Active source-of-truth links
 
@@ -101,3 +115,4 @@
 - [docs/implementation/writing-engine-roadmap.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/implementation/writing-engine-roadmap.md:1)
 - [docs/implementation/targeted-writing-practice-status.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/implementation/targeted-writing-practice-status.md:1)
 - [docs/support/vercel-launch-checklist.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/support/vercel-launch-checklist.md:1)
+- [docs/operations/supabase-migration-policy.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/operations/supabase-migration-policy.md:1)
