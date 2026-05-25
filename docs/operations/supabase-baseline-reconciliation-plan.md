@@ -296,15 +296,72 @@ Validation also passed:
 - canonical mapping storage regression
 - admin canonical curation regression
 
-Staging app/browser smoke was not run because no staging app URL, test account,
-or seed data was provided.
+### Staging App/Browser Smoke Result
+
+Completed against staging app
+`https://scarletts-spells-staged.vercel.app` using staging project
+`jlhotktspjvffslvuyfz` after confirming production project
+`wwohrqtunajrbwxyssjf` was not used.
+
+App smoke confirmed:
+
+- logged-in dashboard loaded
+- child lesson page loaded
+- structured lesson submission created both `task_submissions` and
+  `task_submission_payloads`
+- child revisit hydrated submitted answers from the durable payload
+- Review Work queue loaded
+- Review Work detail loaded
+- parent approval succeeded
+- matching `task_completions` row was confirmed
+- Review Work queue moved to `0 need review` / `1 archived`
+
+Admin route smoke confirmed:
+
+- `/admin/catalog-review` loaded successfully
+- page showed `ADMIN` / `Catalog review`
+- canonical curation mode was visible
+- no production ref was found in the inspected page HTML
+
+Initial staging catalog-review/canonical state was empty:
+
+- `spelling_catalog_review_cases`: `0`
+- `spelling_catalog_review_case_decisions`: `0`
+- `spelling_canonical_mappings`: `0`
+- `spelling_canonical_mapping_events`: `0`
+
+A staging-only smoke seed was added outside SQL migrations and outside the
+baseline:
+
+- `micro_skill_families`: `STAGING_SMOKE_FAMILY`
+- `micro_skill_clusters`: `STAGING_SMOKE_CLUSTER`
+- `micro_skill_catalog`: `D4_STAGING_SMOKE_ASSIGNABLE`
+- metadata: `{ "seed_source": "staging_smoke" }`
+
+The active assignable `D4` micro-skill count became `1`. After that seed, the
+Review Work candidate-capture blocker disappeared, candidate rows appeared for
+`redd -> red` and `chiken -> chicken`, and the parent used `No matching skill`
+on `redd -> red`.
+
+Catalog-review case smoke confirmed one open staging
+`spelling_catalog_review_cases` row:
+
+- wrong word: `redd`
+- correction: `red`
+- status: `open`
+- source: `review_work_no_matching_skill`
+
+Admin catalog-review then showed `OPEN GROUPS: 1`, `OPEN CASES: 1`, and a
+visible case row for `redd -> red`.
+
+No broader admin decision was run. The staging seed is smoke-test data only and
+is not part of the baseline or migration history.
 
 No production `supabase db push`, migration repair, reset, or production SQL
 was run.
 
-Production deployment remains gated until staging app smoke is completed if
-required and a separate production ledger/release decision is explicitly
-approved.
+Production deployment remains gated until a separate production ledger/release
+decision is explicitly approved.
 
 ## Production Ledger Decision
 

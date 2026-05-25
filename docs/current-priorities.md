@@ -50,10 +50,14 @@
     the migration ledger is not aligned with local historical migrations
   - do not run `supabase db push`, blind migration repair, or casual
     historical migration renames against the current migration directory
-  - local rebuild proof and staging database rebuild proof have passed for the
-    new unique baseline migration
-  - staging app/browser smoke remains unrun until a staging app URL, test
-    account, and seed data are available
+  - local rebuild proof, staging database rebuild proof, and staging
+    app/browser smoke have passed for the new unique baseline migration
+  - staging app/browser smoke covered login/dashboard, structured submission
+    durable payload persistence and hydration, Review Work approval/archive,
+    admin catalog-review load, and a staging-only `No matching skill` promotion
+    into an open catalog-review case
+  - the staging catalog-review smoke used `STAGING_SMOKE_*` micro-skill seed
+    data only; that seed is not part of the baseline or migration history
   - production deployment remains gated on an explicit production ledger/release
     decision
   - future DB-changing work must follow

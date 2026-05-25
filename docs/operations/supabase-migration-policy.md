@@ -172,8 +172,17 @@ Status: staging database rebuild proof has passed against staging project
 single baseline migration, the staging ledger contains
 `20260525123937/baseline_current_production_schema`, no old duplicate-version
 migrations were applied as separate ledger rows, and schema verification
-matched the baseline proof counts. Staging app/browser smoke remains unrun
-because no staging app URL, test account, or seed data was provided.
+matched the baseline proof counts.
+
+Staging app/browser smoke also passed for login/dashboard, child lesson load,
+structured submission persistence, durable payload hydration, Review Work
+queue/detail/approval/archive, and admin catalog-review load. Candidate-capture
+and admin catalog-review case smoke used staging-only `STAGING_SMOKE_*`
+micro-skill seed data with metadata `{ "seed_source": "staging_smoke" }`;
+that seed is smoke-test data only and is not part of the baseline or migration
+history. A parent `No matching skill` action created one open staging
+catalog-review case for `redd -> red`, and `/admin/catalog-review` showed
+`OPEN GROUPS: 1` and `OPEN CASES: 1`. No broader admin decision was run.
 
 ### Phase 4: Production Ledger/Release Decision
 
