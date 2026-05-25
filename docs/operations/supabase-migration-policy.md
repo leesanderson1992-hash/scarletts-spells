@@ -186,25 +186,53 @@ catalog-review case for `redd -> red`, and `/admin/catalog-review` showed
 
 ### Phase 4: Production Ledger/Release Decision
 
-Production must not replay the baseline over the existing hosted database. A
-separate release decision must choose one of:
+Completed against production project `wwohrqtunajrbwxyssjf`.
 
-- leave production as a manually reconciled baseline and start all future DB
-  changes from unique timestamp migrations after the baseline branch lands
-- mark a baseline version as applied only if Supabase tooling and operator
-  review confirm it is safe
-- create a new production/staging environment from the baseline if a future
-  rebuild or migration cutover is intentionally approved
+Production ledger before repair:
 
-Any production DB-changing release must include an explicit ledger check before
-applying SQL.
+```text
+20260421 | add_false_positive_to_misspelling_instances | 4
+```
+
+Baseline version `20260525123937` was absent before repair. The approved
+ledger-only repair was:
+
+```bash
+npx supabase migration repair --status applied 20260525123937 --db-url [REDACTED_PRODUCTION_DB_URL]
+```
+
+Supabase reported:
+
+```text
+Repaired migration history: [20260525123937] => applied
+```
+
+Production ledger after repair:
+
+```text
+20260421        | add_false_positive_to_misspelling_instances | 4
+20260525123937 | baseline_current_production_schema           | 669
+```
+
+Only `20260525123937` was repaired. No `supabase db push` was run, no baseline
+SQL was applied to production, no old duplicate migrations were repaired, and
+no production schema/data mutation was performed beyond the migration ledger
+repair.
+
+The baseline is now the active clean migration foundation. It must not be
+reapplied over an existing production schema. Historical archived migrations
+remain audit/reference material only and must not be replayed blindly.
+
+Any future production DB-changing release must still include an explicit ledger
+check before applying SQL.
 
 ## Success Criteria
 
 - no duplicate active Supabase migration versions remain
 - a fresh database rebuilds from the baseline and future unique migrations
 - staging smoke tests pass against the baseline-built schema
-- production DB changes are gated by an explicit ledger check
+- production ledger contains the baseline row and future production DB changes
+  are gated by an explicit ledger check
 - historical migrations remain available for audit/reference
 - future migrations use `YYYYMMDDHHMMSS_description.sql`
 - the release process states whether each DB-changing slice is `code-only`,
@@ -219,8 +247,9 @@ applying SQL.
   Mitigate with explicit object inventory and rebuild verification.
 - Historical migrations may be needed for audit or debugging. Mitigate by
   archiving, not deleting, historical files.
-- Production ledger ambiguity remains until a dedicated release decision.
-  Mitigate by avoiding `supabase db push` and blind `migration repair`.
+- Production ledger ambiguity was resolved for the baseline by repairing only
+  unique version `20260525123937`. Future ambiguity must still be avoided with
+  explicit ledger checks and by rejecting blind `migration repair`.
 - Moving migrations can break assumptions in local workflows. Mitigate by doing
   the archive/baseline work on a dedicated branch with fresh local and staging
   rebuild proof before merge.

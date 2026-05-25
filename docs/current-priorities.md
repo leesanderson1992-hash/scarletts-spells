@@ -45,11 +45,13 @@
   - approval does not delete the only structured answer source for vulnerable
     legacy lesson/test submissions
   - returned structured work remains draft-first and editable
-- hosted Supabase production is now treated as a manually reconciled baseline:
-  - schema reality is behaviour-correct for recent Writing Engine work, but
-    the migration ledger is not aligned with local historical migrations
-  - do not run `supabase db push`, blind migration repair, or casual
-    historical migration renames against the current migration directory
+- hosted Supabase migration infrastructure is closed for source, local,
+  staging, and production ledger alignment:
+  - production ledger now contains the unique baseline row
+    `20260525123937/baseline_current_production_schema`
+  - do not replay the baseline over an existing production schema
+  - do not run old archived duplicate migrations, blind migration repair, or
+    casual historical migration renames
   - local rebuild proof, staging database rebuild proof, and staging
     app/browser smoke have passed for the new unique baseline migration
   - staging app/browser smoke covered login/dashboard, structured submission
@@ -58,8 +60,8 @@
     into an open catalog-review case
   - the staging catalog-review smoke used `STAGING_SMOKE_*` micro-skill seed
     data only; that seed is not part of the baseline or migration history
-  - production deployment remains gated on an explicit production ledger/release
-    decision
+  - future production DB-changing releases remain gated on explicit ledger
+    checks and unique timestamp migrations
   - future DB-changing work must follow
     [docs/operations/supabase-migration-policy.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/operations/supabase-migration-policy.md:1)
 - local QA/build state currently supports private parent-led use for one child:

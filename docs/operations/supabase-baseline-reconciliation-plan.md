@@ -357,34 +357,68 @@ visible case row for `redd -> red`.
 No broader admin decision was run. The staging seed is smoke-test data only and
 is not part of the baseline or migration history.
 
-No production `supabase db push`, migration repair, reset, or production SQL
-was run.
-
-Production deployment remains gated until a separate production ledger/release
-decision is explicitly approved.
+No production `supabase db push`, reset, or production SQL was run during
+staging proof.
 
 ## Production Ledger Decision
 
-Default recommendation: leave production manually baselined until the baseline
-branch is proven locally and in staging.
+Completed against production project `wwohrqtunajrbwxyssjf` after confirming
+the target was production and staging project `jlhotktspjvffslvuyfz` was not
+used.
 
-A later production decision may choose to mark the new baseline as applied.
-That can only be considered if:
+The production ledger before repair contained only:
+
+```text
+20260421 | add_false_positive_to_misspelling_instances | 4
+```
+
+The unique baseline version `20260525123937` was absent before repair.
+
+The approved production ledger-only repair command was:
+
+```bash
+npx supabase migration repair --status applied 20260525123937 --db-url [REDACTED_PRODUCTION_DB_URL]
+```
+
+Supabase reported:
+
+```text
+Repaired migration history: [20260525123937] => applied
+```
+
+The production ledger after repair contained:
+
+```text
+20260421        | add_false_positive_to_misspelling_instances | 4
+20260525123937 | baseline_current_production_schema           | 669
+```
+
+Safety checks confirmed:
 
 - the baseline SQL exactly represents current production schema
-- the baseline will not be replayed over production
+- the baseline was not replayed over production
 - the baseline version is unique
 - local rebuild proof passed
 - staging proof passed
-- an operator explicitly approves the ledger operation
+- only `20260525123937` was repaired
+- no old duplicate/date-only migrations were repaired
+- no `supabase db push` was run
+- no baseline SQL was applied to production
+- no production schema or data mutation was performed beyond the migration
+  ledger repair
+- required production tables and functions remained present after repair
 
-Possible future command, not approved now:
+The Supabase migration infrastructure track is now closed for source, local,
+staging, and production ledger alignment.
 
-```bash
-npx supabase migration repair \
-  --db-url "$SUPABASE_DB_URL" \
-  --status applied \
-  YYYYMMDDHHMMSS
+Future production DB-changing work must still follow the migration policy:
+
+```text
+- use unique timestamp migrations only
+- declare the deployment method for every DB-changing slice
+- run an explicit production ledger check before release
+- never replay archived historical migrations blindly
+- never reapply the baseline over an existing production schema
 ```
 
 Never repair duplicate historical versions such as `20260522`.
@@ -399,8 +433,9 @@ Never repair duplicate historical versions such as `20260522`.
   before staging.
 - Generated baseline differs from production. Mitigate by recapturing evidence
   or choosing a more trusted source.
-- Migration ledger ambiguity remains. Mitigate by leaving production manually
-  baselined until a separate ledger decision is approved.
+- Production ledger ambiguity was resolved for the baseline by repairing only
+  unique version `20260525123937`. Future ambiguity must still be avoided with
+  explicit ledger checks and by rejecting blind `migration repair`.
 - Any command would mutate production. Mitigate by stopping immediately.
 
 ## Stop Conditions
@@ -409,7 +444,7 @@ Stop before:
 
 - mutating hosted production schema or data
 - running `supabase db push`
-- running `supabase migration repair`
+- running blind `supabase migration repair`
 - running destructive reset
 - moving, renaming, deleting, or editing migrations without a dedicated
   approved baseline branch
