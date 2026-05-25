@@ -1,8 +1,7 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
+import { readArchivedMigrationOrActiveBaseline } from "./migration-sql-contract-source";
 
-const migrationPath =
-  "supabase/migrations/20260522_z_add_spelling_canonical_mapping_storage.sql";
 const canonicalRepositoryPath =
   "lib/writing-engine/persistence/spelling-canonical-mappings.ts";
 const adminActionPath = "app/admin/catalog-review/actions.ts";
@@ -12,17 +11,19 @@ const resolverPath =
   "lib/writing-engine/spelling/stage2c-primary-mapping-resolver.ts";
 const mappingSourcePath =
   "lib/writing-engine/spelling/stage2c-mapping-source-boundary.ts";
-const caseDecisionMigrationPath =
-  "supabase/migrations/20260522_add_spelling_catalog_review_case_decisions.sql";
 
-const migration = readFileSync(migrationPath, "utf8");
+const migration = readArchivedMigrationOrActiveBaseline(
+  "20260522_z_add_spelling_canonical_mapping_storage.sql",
+);
 const canonicalRepository = readFileSync(canonicalRepositoryPath, "utf8");
 const adminAction = readFileSync(adminActionPath, "utf8");
 const reviewActions = readFileSync(reviewActionsPath, "utf8");
 const reviewPage = readFileSync(reviewPagePath, "utf8");
 const resolver = readFileSync(resolverPath, "utf8");
 const mappingSource = readFileSync(mappingSourcePath, "utf8");
-const caseDecisionMigration = readFileSync(caseDecisionMigrationPath, "utf8");
+const caseDecisionMigration = readArchivedMigrationOrActiveBaseline(
+  "20260522_add_spelling_catalog_review_case_decisions.sql",
+);
 
 for (const table of [
   "spelling_canonical_mappings",

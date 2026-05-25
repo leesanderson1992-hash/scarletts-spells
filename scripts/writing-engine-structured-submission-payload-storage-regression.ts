@@ -1,9 +1,10 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
+import { readArchivedMigrationOrActiveBaseline } from "./migration-sql-contract-source";
 
-const migrationPath =
-  "supabase/migrations/20260522_zzz_add_task_submission_payloads.sql";
-const migration = readFileSync(migrationPath, "utf8");
+const migration = readArchivedMigrationOrActiveBaseline(
+  "20260522_zzz_add_task_submission_payloads.sql",
+);
 const compactMigration = migration.replace(/\s+/g, " ").toLowerCase();
 
 const approvalFlowPaths = ["app/courses/review/actions/review-completion-actions.ts"];

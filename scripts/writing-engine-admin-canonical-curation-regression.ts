@@ -1,15 +1,10 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
+import { readArchivedMigrationOrActiveBaseline } from "./migration-sql-contract-source";
 
 const actionPath = "app/admin/catalog-review/actions.ts";
 const decisionRowPath = "app/admin/catalog-review/admin-decision-row.tsx";
 const pagePath = "app/admin/catalog-review/page.tsx";
-const curationMigrationPath =
-  "supabase/migrations/20260522_zz_add_spelling_admin_canonical_curation_decisions.sql";
-const storageMigrationPath =
-  "supabase/migrations/20260522_z_add_spelling_canonical_mapping_storage.sql";
-const caseDecisionMigrationPath =
-  "supabase/migrations/20260522_add_spelling_catalog_review_case_decisions.sql";
 const reviewActionsPath = "app/courses/review/actions/catalog-review-case-actions.ts";
 const reviewPagePath = "app/courses/review/[submissionId]/page.tsx";
 const resolverPath =
@@ -20,9 +15,15 @@ const mappingSourcePath =
 const action = readFileSync(actionPath, "utf8");
 const decisionRow = readFileSync(decisionRowPath, "utf8");
 const page = readFileSync(pagePath, "utf8");
-const curationMigration = readFileSync(curationMigrationPath, "utf8");
-const storageMigration = readFileSync(storageMigrationPath, "utf8");
-const caseDecisionMigration = readFileSync(caseDecisionMigrationPath, "utf8");
+const curationMigration = readArchivedMigrationOrActiveBaseline(
+  "20260522_zz_add_spelling_admin_canonical_curation_decisions.sql",
+);
+const storageMigration = readArchivedMigrationOrActiveBaseline(
+  "20260522_z_add_spelling_canonical_mapping_storage.sql",
+);
+const caseDecisionMigration = readArchivedMigrationOrActiveBaseline(
+  "20260522_add_spelling_catalog_review_case_decisions.sql",
+);
 const reviewActions = readFileSync(reviewActionsPath, "utf8");
 const reviewPage = readFileSync(reviewPagePath, "utf8");
 const resolver = readFileSync(resolverPath, "utf8");
