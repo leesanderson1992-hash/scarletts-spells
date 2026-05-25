@@ -101,6 +101,9 @@ This runbook is planning documentation. It does not authorize production
 mutation, migration repair, `supabase db push`, destructive reset, migration
 file movement, or baseline migration generation by itself.
 
+The detailed Phase 1 plan lives in
+`docs/operations/supabase-baseline-reconciliation-plan.md`.
+
 ### Phase 0: Backup And Evidence Capture
 
 Capture enough evidence to make the baseline reproducible before changing the
