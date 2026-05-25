@@ -74,6 +74,8 @@ If you want Vercel preview deployments to support login, add the preview domain 
   `baseline/reconciliation`.
 - Production DB deployment requires an explicit migration-ledger check before
   applying any migration.
+- The selected permanent fix is the Option B baseline/reconciliation runbook in
+  `docs/operations/supabase-migration-policy.md`.
 
 ## Current release-readiness caution
 
