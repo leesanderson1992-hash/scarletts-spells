@@ -115,7 +115,7 @@ Current ownership rule:
 
 ### Durable Structured Submission Payloads
 
-Status: `Pass 3 child revisit hydration implemented and QA-passed; approval draft-deletion safety still pending`
+Status: `Pass 4 approval draft-deletion safety implemented and QA-passed; returned-child legacy recovery implemented and manually verified`
 
 Purpose:
 - separate mutable structured lesson/test draft state from immutable submitted
@@ -176,6 +176,22 @@ Implemented so far:
   - no submit persistence, parent approval/draft deletion, Review Work,
     admin/catalog-review, resolver, rewards, mastery, scoring, assignments,
     analytics, dashboards, or template-routing behavior changed
+- Pass 4 approval draft-deletion safety is complete:
+  - structured lesson/test approval checks for a matching durable
+    `task_submission_payloads` row before deleting `task_submission_drafts`
+  - if the durable payload exists, existing draft cleanup can continue
+  - if the durable payload is missing, approval still completes and draft
+    deletion is skipped
+  - plain-writing and non-structured approval behavior remains unchanged
+  - approval never inserts, updates, upserts, deletes, or overwrites
+    `task_submission_payloads`
+- Returned-child legacy recovery is complete:
+  - returned work remains draft-first and editable
+  - returned draft feedback merge behavior is preserved
+  - if a returned draft lacks meaningful structured answers, hydration can
+    fall back to durable submitted payload evidence
+  - if durable payload is also missing, legacy text/textarea answers can be
+    reconstructed from flattened `submission_text` when question labels match
 
 Manual smoke:
 - actual structured lesson-page submit now creates both `task_submissions` and
@@ -186,6 +202,9 @@ Manual smoke:
 - returned/send-back, legacy fallback, and plain-writing manual checks passed
 - the original visible blank-answer-box bug is fixed for submissions with
   durable payloads
+- manual browser QA after Pass 4 confirmed an approved structured lesson can
+  be returned to the child, the child view shows `Restored from your last try`,
+  and original answer fields are populated and editable
 
 Boundary notes:
 - this track is separate from `4E` / `4E.3` resolver integration
@@ -208,21 +227,40 @@ Implementation sequence:
    - draft-first for in-progress and returned work
    - durable submitted payload for pending/approved structured revisit
    - safe legacy fallback for structured submissions without payload
-4. approval draft-deletion safety: `future`
+4. approval draft-deletion safety: `complete`
    - delete draft only when the structured submitted payload exists
    - preserve vulnerable legacy draft rows when no durable payload exists
-5. closeout and regression hardening
+5. closeout and regression hardening: `complete for this bounded track`
+   - returned-child legacy recovery preserves editable answers after send-back
+   - regression coverage guards storage, submit, hydration, approval cleanup,
+     payload immutability, and returned fallback behavior
 
-Validation evidence for Pass 2:
+Validation evidence for Pass 4 closeout:
 - `npm run writing-engine:structured-submission-payload-storage-regression`
   passed
 - `npm run writing-engine:structured-submission-payload-submit-regression`
   passed
 - `npm run writing-engine:structured-submission-payload-hydration-regression`
   passed
+- `npm run writing-engine:structured-submission-approval-draft-safety-regression`
+  passed
 - `npx tsc --noEmit` passed
 - `npm run build` passed
 - `git diff --check` passed
+
+Next safest pass:
+- run a read-only historical data-integrity audit and optional local/operator
+  recovery-plan pass for vulnerable structured submissions
+- inventory structured lesson/test submissions without `task_submission_payloads`,
+  returned drafts with empty structured answers, submissions recoverable only
+  from flattened `submission_text`, and duplicate/pending historical
+  submission rows for the same task/child
+- do not implement hosted backfill by default; produce a risk report, manual
+  QA checklist, and only later, if explicitly approved, a narrowly scoped
+  recovery/backfill plan
+- do not proceed from this closeout into resolver, admin/catalog-review,
+  catalog mutation, mastery, reward, assignment, scoring, analytics, dashboard,
+  or template-routing work
 - architecture QA passed after moving privileged persistence into the
   server-only helper
 - quick-submit fallback bug was diagnosed and fixed

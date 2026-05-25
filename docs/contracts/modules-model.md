@@ -183,17 +183,21 @@ approved or pending structured revisit should hydrate from durable submitted
 payload when no active draft applies.
 
 Current implementation status:
-- storage foundation, submit persistence, and child revisit hydration are
-  complete
+- storage foundation, submit persistence, child revisit hydration, approval
+  draft-deletion safety, and returned-child legacy recovery are complete
 - submit persistence writes durable structured payload evidence before submit
   success side effects
 - child structured lesson/test revisit reads
   `task_submission_payloads.payload_json` for the exact latest non-returned
   submission
 - returned/send-back remains draft-first and editable
-- legacy structured rows without durable payload fall back safely
-- parent approval/draft-deletion safety for legacy rows without payload is
-  still pending
+- approval deletes structured lesson/test drafts only when the approved
+  submission has durable payload evidence; if durable payload is missing,
+  approval continues and draft deletion is skipped
+- approval never mutates `task_submission_payloads`
+- legacy returned structured rows can recover from draft first, then durable
+  payload, then label-matched flattened `submission_text` for text/textarea
+  answers
 
 ---
 

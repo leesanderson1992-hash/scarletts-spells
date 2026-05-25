@@ -80,9 +80,11 @@ Canonical documentation now defers to:
 - old spelling-session assignment generation path
 
 ### Next
-- Durable Structured Submission Payloads is an active bounded track:
-  - status: Pass 3 child revisit hydration is implemented and QA-passed;
-    parent approval/draft-deletion safety remains pending
+- Durable Structured Submission Payloads is closed for the bounded Pass
+  `1`-`4` track:
+  - status: Pass 4 approval draft-deletion safety is implemented and
+    QA-passed; returned-child legacy recovery is implemented and manually
+    verified
   - purpose:
     - separate mutable draft working state from immutable submitted structured
       attempt evidence
@@ -101,8 +103,8 @@ Canonical documentation now defers to:
     1. storage foundation only: complete
     2. submit persistence: complete
     3. child revisit hydration: complete
-    4. approval draft-deletion safety: future
-    5. closeout/regression hardening
+    4. approval draft-deletion safety: complete
+    5. closeout/regression hardening: complete for this bounded track
   - Pass 2 submit truth:
     - `submitTaskResponse` still writes `task_submissions` with flattened
       readable `submission_text`
@@ -129,6 +131,25 @@ Canonical documentation now defers to:
     - child revisit after parent approval restored submitted answer boxes from
       durable payload evidence
     - returned/send-back, legacy fallback, and plain-writing checks passed
+    - browser QA confirmed an approved structured lesson can be returned to
+      the child, the child view shows `Restored from your last try`, and the
+      original answers are populated and editable
+  - Pass 4 approval truth:
+    - structured lesson/test approval checks for a matching durable payload
+      before deleting `task_submission_drafts`
+    - durable payload present allows existing draft cleanup
+    - durable payload missing preserves approval but skips draft deletion
+    - plain-writing and non-structured approval behavior remains unchanged
+    - approval never inserts, updates, upserts, deletes, or overwrites
+      `task_submission_payloads`
+  - returned-child recovery truth:
+    - returned structured work remains draft-first and editable
+    - returned draft feedback merge behavior is preserved
+    - if a returned draft lacks meaningful structured answers, hydration can
+      fall back to durable submitted payload
+    - if durable payload is also missing, legacy text/textarea answers can be
+      reconstructed from flattened `submission_text` when question labels
+      match
   - validation:
     - `npm run writing-engine:structured-submission-payload-storage-regression`
       passed
@@ -136,16 +157,18 @@ Canonical documentation now defers to:
       passed
     - `npm run writing-engine:structured-submission-payload-hydration-regression`
       passed
+    - `npm run writing-engine:structured-submission-approval-draft-safety-regression`
+      passed
     - `npx tsc --noEmit` passed
     - `npm run build` passed
     - `git diff --check` passed
     - architecture QA passed after refactor
   - residual risk:
     - the original user-visible blank-box bug is fixed for submissions with
-      durable payloads
-    - Pass 4 is still needed to keep parent approval/draft deletion safe for
-      legacy or vulnerable rows without durable payloads
+      durable payloads and for the manually tested returned legacy row
     - no hosted historical backfill has been implemented
+    - unknown historical data shape may still include vulnerable structured
+      rows that should be inventoried before any operator recovery/backfill
   - explicit non-goals:
     - no `4E` / `4E.3` resolver work
     - no admin/catalog-review work
@@ -162,6 +185,17 @@ Canonical documentation now defers to:
     - returned/send-back remains draft-first with feedback
     - plain-writing behavior remains unchanged
     - legacy structured rows without payload do not crash
+- next safest pass:
+  - read-only historical data-integrity audit and optional local/operator
+    recovery plan
+  - inventory structured lesson/test submissions without
+    `task_submission_payloads`, returned drafts with empty structured answers,
+    submissions recoverable only from flattened `submission_text`, and
+    duplicate/pending historical rows for the same task/child
+  - do not implement hosted backfill by default
+  - do not proceed into resolver, admin/catalog-review, catalog mutation,
+    mastery, reward, assignment, scoring, analytics, dashboard, or
+    template-routing work from this closeout
 - Stage `7F` is now fully closed:
   - `7F.10` regression coverage is complete
   - the bounded Stage `7F` regression script exists and passed when run

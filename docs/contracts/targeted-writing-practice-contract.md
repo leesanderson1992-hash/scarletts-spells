@@ -357,6 +357,9 @@ Manual smoke evidence:
 - returned/send-back, legacy fallback, and plain-writing manual checks passed
 - the original visible blank-answer-box bug is fixed for submissions with
   durable payloads
+- Pass 4 manual browser QA confirmed an approved structured lesson can be
+  returned to the child, the child view shows `Restored from your last try`,
+  and original answer fields are populated and editable
 
 Structured child revisit hydration contract:
 - load the latest draft and latest relevant submitted durable payload
@@ -365,10 +368,16 @@ Structured child revisit hydration contract:
   pending, approved, or completed and not returned
 - legacy structured submissions without durable payload must not crash; they
   may fall back to existing empty or flattened-text behavior
-- implementation status: Pass 3 implemented and QA-passed
+- implementation status: Pass 3 implemented and QA-passed; returned-child
+  legacy recovery implemented and QA-passed
 - child structured lesson/test revisit reads
   `task_submission_payloads.payload_json` for the exact latest non-returned
   submission
+- returned structured work remains draft-first and editable
+- if a returned draft lacks meaningful structured answers, hydration can fall
+  back to durable submitted payload evidence
+- if durable payload is also missing, legacy text/textarea answers can be
+  reconstructed from flattened `submission_text` when question labels match
 - no submit persistence, parent approval/draft deletion, Review Work,
   admin/catalog-review, resolver, rewards, mastery, scoring, assignments,
   analytics, dashboards, or template-routing behavior changed in Pass 3
@@ -380,13 +389,37 @@ Approval safety contract:
 - if durable payload is missing, skip draft deletion and keep approval
   otherwise unchanged
 - approval must never delete, overwrite, or mutate durable submitted payloads
-- implementation status: pending Pass 4
+- plain-writing and non-structured approval behavior remains unchanged
+- implementation status: Pass 4 implemented and QA-passed
 
 Returned/send-back boundary:
 - returned work remains draft-first and editable
 - returned flow continues to merge `__field_feedback` and
   `__writing_issue_feedback` into the draft
 - durable payload support must not change returned/send-back behavior
+
+Durable payload closeout validation:
+- `npm run writing-engine:structured-submission-payload-storage-regression`
+  passed
+- `npm run writing-engine:structured-submission-payload-submit-regression`
+  passed
+- `npm run writing-engine:structured-submission-payload-hydration-regression`
+  passed
+- `npm run writing-engine:structured-submission-approval-draft-safety-regression`
+  passed
+- `npx tsc --noEmit`, `npm run build`, and `git diff --check` passed
+
+Next safest pass:
+- perform a read-only historical data-integrity audit and optional
+  local/operator recovery-plan pass
+- inventory structured lesson/test submissions without
+  `task_submission_payloads`, returned drafts with empty structured answers,
+  submissions recoverable only from flattened `submission_text`, and
+  duplicate/pending historical submission rows for the same task/child
+- do not implement hosted backfill by default
+- do not proceed into resolver, admin/catalog-review, catalog mutation,
+  mastery, reward, assignment, scoring, analytics, dashboard, or
+  template-routing work from this closeout
 
 Explicit non-goals:
 - no `4E` / `4E.3` resolver work

@@ -37,6 +37,14 @@
   implemented:
   - dashboard and insights wording is advisory where evidence is still immature
   - Review Work remains the canonical parent review surface
+- Durable Structured Submission Payloads is closed for the bounded Pass
+  `1`-`4` track:
+  - storage foundation, submit persistence, child revisit hydration, approval
+    draft-deletion safety, and returned-child legacy recovery are implemented
+    and QA-passed
+  - approval does not delete the only structured answer source for vulnerable
+    legacy lesson/test submissions
+  - returned structured work remains draft-first and editable
 - local QA/build state currently supports private parent-led use for one child:
   - Stage `7` E2E bundle passes
   - `npm run build` passes
@@ -56,6 +64,11 @@
   - Slice `4D`: admin decisions and canonical promotion
 - no runtime Stage `8` automatic mastery implementation should begin until the
   mastery/evidence boundary is rechecked against the live product copy
+- for Durable Structured Submission Payloads, the next safe work is a
+  read-only historical data-integrity audit and optional operator recovery
+  plan; do not start hosted backfill, resolver, admin/catalog-review, catalog
+  mutation, mastery, rewards, assignments, scoring, analytics, dashboards, or
+  template-routing work from that closeout
 
 ## Blockers / open risks
 

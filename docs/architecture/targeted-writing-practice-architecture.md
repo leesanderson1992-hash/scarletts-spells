@@ -160,12 +160,17 @@ Durable Structured Submission Payloads architecture boundary:
     pending, approved, or completed and not returned
   - legacy structured rows without durable payload must not crash; they may
     fall back to existing empty or flattened-text behavior
-  - implementation status: Pass 3 is implemented and QA-passed
+  - implementation status: Pass 3 is implemented and QA-passed; returned-child
+    legacy recovery is also implemented and QA-passed
   - child structured lesson/test revisit reads
     `task_submission_payloads.payload_json` for the exact latest non-returned
     submission
   - the original visible blank-answer-box bug is fixed for submissions with
     durable payloads
+  - returned work remains draft-first and editable; if a returned draft lacks
+    meaningful structured answers, hydration can fall back to durable payload,
+    then to label-matched text/textarea reconstruction from flattened
+    `submission_text`
 - approval contract:
   - before deleting `task_submission_drafts` for structured lesson/test
     submissions, check that the approved submission has durable payload
@@ -173,12 +178,16 @@ Durable Structured Submission Payloads architecture boundary:
   - if no durable payload exists, skip draft deletion and keep approval
     otherwise unchanged
   - approval must never delete, overwrite, or mutate durable submitted payloads
-  - not yet implemented; this remains Pass 4 approval draft-deletion safety
+  - implementation status: Pass 4 is implemented and QA-passed
+  - plain-writing and non-structured approval behavior remains unchanged
 - returned/send-back contract:
   - returned flow remains draft-first and editable
   - returned flow continues to merge `__field_feedback` and
     `__writing_issue_feedback` into the draft
   - durable payload support must not break returned hydration
+  - manual browser QA confirmed an approved structured lesson can be returned
+    to the child, the restore banner appears, and original answer fields are
+    populated and editable
 - non-goals:
   - no `4E` / `4E.3` resolver work
   - no admin/catalog-review work
@@ -191,15 +200,26 @@ Durable Structured Submission Payloads architecture boundary:
   1. storage foundation only: complete
   2. submit persistence: complete
   3. child revisit hydration: complete
-  4. approval draft-deletion safety: future
-  5. closeout/regression hardening
+  4. approval draft-deletion safety: complete
+  5. closeout/regression hardening: complete for this bounded track
 - validation evidence:
-  - storage, submit persistence, and hydration regressions passed
+  - storage, submit persistence, hydration, and approval draft-safety
+    regressions passed
   - `npx tsc --noEmit`, `npm run build`, and `git diff --check` passed
   - manual structured lesson-page smoke proved payload rows are created and
     survive parent approval
   - manual checks passed for approved revisit, returned/send-back, legacy
     fallback, and plain-writing unchanged
+- next safest pass:
+  - read-only historical data-integrity audit and optional local/operator
+    recovery plan
+  - inventory structured lesson/test submissions without durable payloads,
+    returned drafts with empty structured answers, summary-text-only
+    recoverable submissions, and duplicate/pending historical rows for the
+    same task/child
+  - no hosted historical backfill by default
+  - no resolver, admin/catalog-review, catalog mutation, mastery, reward,
+    assignment, scoring, analytics, dashboard, or template-routing work
 
 Parent-Verified Spelling Candidate Capture architecture boundary:
 - the bounded Slice `2` stage now lets parents classify eligible

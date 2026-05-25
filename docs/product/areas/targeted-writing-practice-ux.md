@@ -124,6 +124,9 @@ Expected behavior:
   original answer boxes when durable submitted payload exists
 - legacy structured rows without durable payload should fail softly rather than
   crash
+- if returned draft state exists but lacks meaningful structured answers, the
+  child view may recover from durable submitted payload or, for older rows,
+  from label-matched flattened `submission_text`
 
 Implementation status:
 - submit persistence now creates durable submitted payload evidence for
@@ -135,7 +138,11 @@ Implementation status:
   submission
 - the visible blank-answer-box bug is fixed for submissions with durable
   payloads
+- Pass 4 approval draft-deletion safety is implemented and QA-passed
 - returned/send-back, legacy fallback, and plain-writing manual checks passed
+- manual browser QA confirmed an approved structured lesson can be returned to
+  the child, the restore banner appears, and original answer fields are
+  populated and editable
 
 The UI should not solve missing structured payloads by hiding the lesson,
 blocking access, or implying the child never submitted the work.
