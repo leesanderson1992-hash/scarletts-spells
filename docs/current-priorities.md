@@ -50,6 +50,12 @@
     the migration ledger is not aligned with local historical migrations
   - do not run `supabase db push`, blind migration repair, or casual
     historical migration renames against the current migration directory
+  - local rebuild proof and staging database rebuild proof have passed for the
+    new unique baseline migration
+  - staging app/browser smoke remains unrun until a staging app URL, test
+    account, and seed data are available
+  - production deployment remains gated on an explicit production ledger/release
+    decision
   - future DB-changing work must follow
     [docs/operations/supabase-migration-policy.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/operations/supabase-migration-policy.md:1)
 - local QA/build state currently supports private parent-led use for one child:

@@ -166,6 +166,15 @@ production:
   smoke tests appropriate to the release
 - record any manual setup required outside SQL migrations
 
+Status: staging database rebuild proof has passed against staging project
+`jlhotktspjvffslvuyfz`, which was confirmed distinct from production project
+`wwohrqtunajrbwxyssjf` before applying SQL. The dry-run showed exactly the
+single baseline migration, the staging ledger contains
+`20260525123937/baseline_current_production_schema`, no old duplicate-version
+migrations were applied as separate ledger rows, and schema verification
+matched the baseline proof counts. Staging app/browser smoke remains unrun
+because no staging app URL, test account, or seed data was provided.
+
 ### Phase 4: Production Ledger/Release Decision
 
 Production must not replay the baseline over the existing hosted database. A

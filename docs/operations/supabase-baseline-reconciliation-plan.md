@@ -249,6 +249,63 @@ Use a non-production Supabase project.
 
 Staging proof must pass before any production ledger decision.
 
+### Staging Database Proof Result
+
+Completed against staging project `jlhotktspjvffslvuyfz` after confirming it
+was distinct from production project `wwohrqtunajrbwxyssjf`.
+
+The staging dry-run reported exactly one migration:
+
+```text
+20260525123937_baseline_current_production_schema.sql
+```
+
+The staging apply completed successfully. The staging migration ledger contains
+only the baseline row for this reconciliation:
+
+```text
+20260525123937 | baseline_current_production_schema
+```
+
+No old duplicate-version migrations were applied as separate staging ledger
+rows.
+
+Post-apply schema verification confirmed:
+
+- public tables: `44`
+- RLS-enabled public tables: `44`
+- policies: `63`
+- table grants: `1232`
+- routine grants: `83`
+- indexes: `157`
+- constraints: `259`
+- functions: `17`
+- triggers: `7`
+- `pgcrypto` is present
+- `create_spelling_canonical_mapping_admin` exists
+- `resolve_spelling_catalog_review_case_admin` exists
+- `set_children_updated_at` exists
+- `spelling_canonical_mappings_validate_row` exists
+
+Validation also passed:
+
+- `npx tsc --noEmit`
+- `npm run build`
+- structured submission payload storage, submit, hydration, and approval-draft
+  safety regressions
+- canonical mapping storage regression
+- admin canonical curation regression
+
+Staging app/browser smoke was not run because no staging app URL, test account,
+or seed data was provided.
+
+No production `supabase db push`, migration repair, reset, or production SQL
+was run.
+
+Production deployment remains gated until staging app smoke is completed if
+required and a separate production ledger/release decision is explicitly
+approved.
+
 ## Production Ledger Decision
 
 Default recommendation: leave production manually baselined until the baseline
