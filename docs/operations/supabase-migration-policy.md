@@ -101,6 +101,9 @@ This runbook is planning documentation. It does not authorize production
 mutation, migration repair, `supabase db push`, destructive reset, migration
 file movement, or baseline migration generation by itself.
 
+The detailed Phase 1 plan lives in
+`docs/operations/supabase-baseline-reconciliation-plan.md`.
+
 ### Phase 0: Backup And Evidence Capture
 
 Capture enough evidence to make the baseline reproducible before changing the
@@ -144,6 +147,13 @@ Prove the new baseline locally before staging or production decisions:
   extensions exist
 - run relevant app, migration, and smoke tests
 - confirm no historical duplicate-version migrations remain active
+
+Status: local rebuild proof has passed on branch
+`supabase-baseline-reconciliation` for baseline migration
+`20260525123937_baseline_current_production_schema.sql`. The local reset
+applied cleanly, required schema objects were verified, and `npm run build`
+passed. This does not approve production deployment; staging proof and a
+separate production ledger/release decision are still required.
 
 ### Phase 3: Staging Rebuild Proof
 
