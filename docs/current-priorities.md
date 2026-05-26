@@ -2,9 +2,16 @@
 
 ## Current initiative
 
-- Slice `4C` readiness: private-MVP admin/internal access foundation is now
-  implemented; the next safe work is the minimal protected read-only
-  catalog-review triage surface
+- Returned-child spelling correction: before resuming Slice `4C`, restore the
+  child-facing returned-work correction loop so every returned spelling issue is
+  visible, actionable, and linked to existing correction-attempt persistence.
+- Parent-added missed-word correction repair is the next bounded sub-pass:
+  parent-added missed words remain separate from engine `Suggested Issues` in
+  `Review Work`, but they must still become returned-child correction targets
+  for structured lesson/test send-back.
+- Slice `4C` readiness remains unblocked: private-MVP admin/internal access
+  foundation is implemented; the minimal protected read-only catalog-review
+  triage surface should resume after the bounded returned-child correction pass.
 
 ## Current stage
 
@@ -45,6 +52,13 @@
   - approval does not delete the only structured answer source for vulnerable
     legacy lesson/test submissions
   - returned structured work remains draft-first and editable
+  - follow-up correction contract is now clarified: every returned
+    `__writing_issue_feedback` item must render to the child, unmatched issues
+    need a fallback panel, spelling-like issues need a dedicated retry input,
+    and retry input should persist to `writing_issue_correction_attempts`
+  - engine-found misspelling candidate send-back bridge is partially
+    implemented, but the pass is not complete until parent-added missed words
+    are included as child correction targets with parent-authored provenance
 - hosted Supabase migration infrastructure is closed for source, local,
   staging, and production ledger alignment:
   - production ledger now contains the unique baseline row
@@ -73,6 +87,11 @@
 
 ## Next stage
 
+- first, complete the bounded returned-child spelling correction pass defined
+  in
+  [docs/implementation/targeted-writing-practice-status.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/implementation/targeted-writing-practice-status.md:1)
+  by implementing the parent-added missed-word correction repair before moving
+  back to admin/catalog-review or resolver work
 - after Slice `4A`, the next safe implementation path is staged:
   - Slice `4B.0`: bounded micro-skill option filtering by family/cluster using
     existing `micro_skill_catalog` metadata only

@@ -190,6 +190,16 @@ Current implementation status:
 - child structured lesson/test revisit reads
   `task_submission_payloads.payload_json` for the exact latest non-returned
   submission
+- returned structured lesson/test correction feedback is carried through
+  draft payload metadata:
+  - `__field_feedback` for structured field feedback
+  - `__writing_issue_feedback` for spelling/writing correction targets
+- parent-added missed words attached to structured lesson/test submissions may
+  remain separate from engine suggestions in parent review, but they still
+  belong in returned-child correction feedback once materialized through the
+  send-back lifecycle
+- missing or `unknown` micro-skill assignment must not block the child from
+  retrying a returned spelling item
 - returned/send-back remains draft-first and editable
 - approval deletes structured lesson/test drafts only when the approved
   submission has durable payload evidence; if durable payload is missing,
@@ -310,6 +320,8 @@ Writing tasks should support:
 - submitted work
 - returned work with feedback
 - self-correction before final learning-gap formalisation
+- parent-added missed words as self-correction targets for structured
+  lesson/test returned work
 - see tasks
 - complete checklist tasks
 - complete lesson and test tasks

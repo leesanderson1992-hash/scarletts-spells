@@ -97,6 +97,11 @@ They capture:
   - `needed_help`
   - `could_not_fix`
 
+For the current returned-child spelling correction surface, the child-facing UI
+should expose only `easy`, `medium`, and `hard` unless a later docs pass
+explicitly authorises `needed_help` and `could_not_fix` copy and UX. The broader
+enum remains valid persistence capacity, not an automatic UI requirement.
+
 ### `learning_items`
 
 These are the controlled practice and mastery units.
@@ -397,6 +402,62 @@ Returned/send-back boundary:
 - returned flow continues to merge `__field_feedback` and
   `__writing_issue_feedback` into the draft
 - durable payload support must not change returned/send-back behavior
+
+Returned-child spelling correction contract:
+- this scope applies to structured lesson/test returned work only
+- every `__writing_issue_feedback` item must be visible to the child when the
+  latest submission is returned
+- `__field_feedback` remains structured field feedback; `__writing_issue_feedback`
+  remains the child-facing spelling/writing correction target list
+- the child page must not independently mine raw `misspelling_instances`
+- items with a matching `source_field_key` should render beside the relevant
+  structured field
+- items without a matching `source_field_key` must render in a fallback
+  returned-issues panel rather than disappearing
+- spelling-like items should show `observed_text`, `context_text`, and parent
+  notes clearly without revealing `approved_replacement` by default
+- each spelling-like returned item should provide a dedicated child
+  retry/attempt input
+- that retry/attempt value should persist to
+  `writing_issue_correction_attempts.attempted_correction` on resubmission
+- child retry/reflection remains evidence for parent judgement only; it must
+  not directly update mastery, rewards, assignments, scoring, analytics,
+  dashboards, or template routing
+- parent final classification remains the gate for learning-item and broader
+  evidence consequences
+
+Returned spelling feedback source contract:
+- parent send-back/return flow owns preparing child-facing correction feedback
+- engine-found spelling candidates and parent-added missed words must not be
+  read directly by the child UI; they must first be represented in returned
+  draft feedback backed by durable `writing_issues`
+- when a parent sends back structured lesson/test work, eligible engine-found
+  misspellings and eligible parent-added missed words should be materialized
+  into durable `writing_issues` before `__writing_issue_feedback` is built
+- parent-added missed words remain separate from engine `Suggested Issues` in
+  `Review Work`; this source-of-truth separation does not make them
+  second-class returned-child correction targets
+- parent-added materialized rows must preserve parent-authored provenance in
+  `writing_issues.metadata`
+- `micro_skill_key: "unknown"` must not block send-back, child retry,
+  correction-attempt persistence, or parent final classification
+- unknown, uncatalogued, or non-assignable micro-skills may block learning-item
+  creation only at the final-classification learning-item stage, while the
+  durable issue and child correction evidence remain preserved
+- if a parent adds a missed word before send-back, it must be included in the
+  send-back correction payload
+- if a parent adds a missed word after work is already returned, the next
+  bounded implementation should require the parent to send back/resend through
+  the return action so the same return lifecycle refreshes the draft feedback;
+  do not add a hidden child-page raw-misspelling read path
+
+Implementation shape:
+- the existing UI and persistence model support one bounded implementation pass
+- staging is not required unless implementation uncovers a contract mismatch
+  that would require schema or cross-surface product changes
+- stop rather than broaden scope if the fix appears to require manual writing
+  sample expansion, schema changes, resolver work, catalog mutation, or
+  mastery/reward/assignment changes
 
 Durable payload closeout validation:
 - `npm run writing-engine:structured-submission-payload-storage-regression`

@@ -188,6 +188,21 @@ Durable Structured Submission Payloads architecture boundary:
   - manual browser QA confirmed an approved structured lesson can be returned
     to the child, the restore banner appears, and original answer fields are
     populated and editable
+  - child returned-work UI consumes returned draft feedback only; it must not
+    independently query raw `misspelling_instances`
+  - parent send-back owns preparing `__writing_issue_feedback` from durable
+    `writing_issues`
+  - parent-added missed words remain separate from engine `Suggested Issues`
+    in `Review Work`, but structured lesson/test send-back must still treat
+    them as eligible returned-child correction targets
+  - parent-added materialized `writing_issues` must preserve parent-authored
+    provenance in metadata
+  - `micro_skill_key: "unknown"` is valid for send-back and child retry; only
+    learning-item creation after final classification requires an assignable
+    catalogued micro-skill
+  - if a parent adds a missed word after work is already returned, the safe
+    MVP path is to resend through the return action rather than adding a
+    child-page raw misspelling read model
 - non-goals:
   - no `4E` / `4E.3` resolver work
   - no admin/catalog-review work

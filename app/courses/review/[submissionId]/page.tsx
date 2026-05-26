@@ -16,6 +16,14 @@ import {
   getReviewWorkCandidateCaptureMicroSkillProvider,
   getReviewWorkDerivedTemplateMetadataByMicroSkillKeys,
 } from "@/lib/writing-engine/persistence/learning-items";
+import {
+  loadReturnedCorrectionReviewItemsForSubmission,
+  type ReturnedCorrectionReviewItem,
+} from "@/lib/writing-engine/persistence/returned-correction-review";
+import {
+  getWritingIssueFinalClassificationLabel,
+  WRITING_ISSUE_FINAL_CLASSIFICATIONS,
+} from "@/lib/writing-practice/types";
 import type {
   ReviewWritingIssueProjection,
   ReviewWritingIssueSuggestionDetailProjection,
@@ -36,6 +44,7 @@ import {
   addMissedWordToSubmissionReview,
   approveSubmissionReview,
   captureSpellingCatalogReviewCase,
+  finaliseWritingIssueClassification,
   returnSubmissionToChild,
 } from "../actions";
 import {
@@ -350,6 +359,151 @@ function ParentAddedMissedWordsSection(props: {
                   >
                     No matching skill
                   </button>
+                </form>
+              ) : null}
+            </div>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
+function ReturnedCorrectionsSection(props: {
+  items: ReturnedCorrectionReviewItem[];
+  redirectPath: string;
+}) {
+  if (props.items.length === 0) {
+    return null;
+  }
+
+  return (
+    <section className="brand-card rounded-3xl p-4 md:p-5">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <p className="brand-eyebrow">Returned corrections</p>
+          <h2 className="mt-1 text-lg font-semibold text-[color:var(--ink)]">
+            Child correction responses
+          </h2>
+          <p className="mt-2 text-sm leading-6 text-[color:var(--mid)]">
+            These are responses to issues previously sent back to the child. They
+            are linked to the original returned writing issue, not regenerated
+            Suggested Issues for this new submission.
+          </p>
+        </div>
+        <span className="rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-xs font-medium text-sky-700">
+          {props.items.length} response{props.items.length === 1 ? "" : "s"}
+        </span>
+      </div>
+
+      <div className="mt-4 grid gap-3">
+        {props.items.map((item) => {
+          const canFinalClassify =
+            item.issueStatus === "child_responded" && item.finalClassification === null;
+          const expectedText =
+            item.approvedReplacement?.trim() ||
+            item.suggestedReplacement?.trim() ||
+            null;
+
+          return (
+            <div
+              key={`${item.originalWritingIssueId}:${item.attemptId}`}
+              className="rounded-2xl border border-[var(--border)] bg-white px-4 py-4"
+            >
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-xs font-medium text-sky-700">
+                  Child response
+                </span>
+                <span className="rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs font-medium text-amber-700">
+                  {item.sourceLabel}
+                </span>
+                <span className="rounded-full border border-[var(--border)] bg-[rgba(255,247,220,0.35)] px-3 py-1 text-xs font-medium text-[color:var(--ink)]">
+                  {item.issueStatus.replaceAll("_", " ")}
+                </span>
+              </div>
+
+              <div className="mt-3 grid gap-3 md:grid-cols-2">
+                <div className="rounded-2xl border border-[var(--border)] bg-[rgba(255,247,220,0.28)] px-3 py-3">
+                  <p className="text-xs uppercase tracking-[0.16em] text-[color:var(--mid)]">
+                    Original target
+                  </p>
+                  <p className="mt-2 text-sm font-semibold text-[color:var(--ink)]">
+                    {item.observedText?.trim() || "Returned writing issue"}
+                    {expectedText ? ` -> ${expectedText}` : ""}
+                  </p>
+                  {item.contextText?.trim() ? (
+                    <p className="mt-2 text-sm leading-6 text-[color:var(--mid)]">
+                      {item.contextText}
+                    </p>
+                  ) : null}
+                  <p className="mt-2 text-xs text-[color:var(--mid)]">
+                    Original issue: {item.originalWritingIssueId}
+                  </p>
+                </div>
+
+                <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-3 py-3">
+                  <p className="text-xs uppercase tracking-[0.16em] text-emerald-800">
+                    Child tried
+                  </p>
+                  <p className="mt-2 text-sm font-semibold text-emerald-950">
+                    {item.childAttemptedCorrection?.trim() || "No correction text entered"}
+                  </p>
+                  <p className="mt-2 text-sm text-emerald-900">
+                    Reflection: {item.childReflection}
+                  </p>
+                  {item.childAttemptNotes?.trim() ? (
+                    <p className="mt-2 text-sm leading-6 text-emerald-900">
+                      {item.childAttemptNotes}
+                    </p>
+                  ) : null}
+                </div>
+              </div>
+
+              {item.parentReviewNote?.trim() ? (
+                <p className="mt-3 rounded-2xl border border-[var(--border)] bg-[rgba(255,247,220,0.18)] px-3 py-2 text-sm leading-6 text-[color:var(--ink)]">
+                  {item.parentReviewNote}
+                </p>
+              ) : null}
+
+              {item.finalClassification ? (
+                <p className="mt-3 rounded-2xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm font-medium text-emerald-800">
+                  Final classification:{" "}
+                  {getWritingIssueFinalClassificationLabel(item.finalClassification)}
+                </p>
+              ) : canFinalClassify ? (
+                <form
+                  action={finaliseWritingIssueClassification}
+                  className="mt-3 grid gap-3 rounded-2xl border border-[var(--border)] bg-[rgba(255,247,220,0.18)] px-3 py-3 md:grid-cols-[1fr_auto]"
+                >
+                  <input
+                    type="hidden"
+                    name="writing_issue_id"
+                    value={item.originalWritingIssueId}
+                  />
+                  <input type="hidden" name="redirect_path" value={props.redirectPath} />
+                  <label className="grid gap-1 text-sm text-[color:var(--ink)]">
+                    <span className="font-medium">Final classification</span>
+                    <select
+                      name="final_classification"
+                      className="rounded-2xl border border-[var(--border)] bg-white px-3 py-2 text-sm text-[color:var(--ink)]"
+                      defaultValue=""
+                      required
+                    >
+                      <option value="" disabled>
+                        Choose outcome
+                      </option>
+                      {WRITING_ISSUE_FINAL_CLASSIFICATIONS.map((classification) => (
+                        <option key={classification} value={classification}>
+                          {getWritingIssueFinalClassificationLabel(classification)}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  <div className="flex items-end">
+                    <button className="brand-secondary-btn justify-center" type="submit">
+                      Save classification
+                    </button>
+                  </div>
                 </form>
               ) : null}
             </div>
@@ -848,6 +1002,7 @@ export default async function CourseReviewDetailPage({
     { data: parentVerificationRows, error: parentVerificationError },
     { data: pendingCandidateMappingRows, error: pendingCandidateMappingError },
     { data: openCatalogReviewCaseRows, error: openCatalogReviewCaseError },
+    returnedCorrectionReviewItems,
   ] = await Promise.all([
     supabase
       .from("course_tasks")
@@ -915,6 +1070,12 @@ export default async function CourseReviewDetailPage({
       .eq("child_id", submission.child_id)
       .eq("case_status", "open")
       .order("created_at", { ascending: false }),
+    loadReturnedCorrectionReviewItemsForSubmission({
+      supabase,
+      submissionId: submission.id,
+      parentUserId: user.id,
+      childId: submission.child_id,
+    }),
   ]);
 
   const { data: module } = task?.module_id
@@ -1119,6 +1280,11 @@ export default async function CourseReviewDetailPage({
           pendingCandidateMappingsByMisspellingId={pendingCandidateMappingsByMisspellingId}
           openCatalogReviewCasesByMisspellingId={openCatalogReviewCasesByMisspellingId}
           catalogReviewCaseCaptureAvailable={!openCatalogReviewCaseError}
+        />
+
+        <ReturnedCorrectionsSection
+          items={returnedCorrectionReviewItems}
+          redirectPath={buildScopedPath(`/courses/review/${reviewEntryId}`, selectedChild.id, mode)}
         />
 
         <ParentAddedMissedWordsSection

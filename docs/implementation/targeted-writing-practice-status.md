@@ -155,6 +155,47 @@ Canonical documentation now defers to:
     - if durable payload is also missing, legacy text/textarea answers can be
       reconstructed from flattened `submission_text` when question labels
       match
+  - returned-child spelling correction follow-up:
+    - status: docs contract clarified; child UI/retry persistence and
+      engine-found send-back bridge are implemented, but the pass remains open
+      because parent-added missed words are still excluded from returned-child
+      materialisation
+    - this is a bounded correction to the previously closed returned-child
+      recovery track, not a new mastery/reward/assignment stage
+    - every `__writing_issue_feedback` item must render to the child when work
+      is returned, including items that cannot be matched to a structured
+      lesson field
+    - parent-added missed words remain separate from engine `Suggested Issues`
+      in `Review Work`, but that separation must not make them second-class
+      correction targets
+    - eligible parent-added missed words attached to structured lesson/test
+      submissions must materialize into durable `writing_issues` during
+      send-back, with parent-authored provenance preserved in metadata
+    - `micro_skill_key: "unknown"` must not block send-back, child retry,
+      correction-attempt persistence, or parent final classification
+    - unknown/non-assignable micro-skills may block learning-item creation only
+      at final-classification learning-item creation time; the durable issue
+      and child correction evidence should remain preserved
+    - spelling-like returned issues should provide a dedicated retry/attempt
+      input and persist it to
+      `writing_issue_correction_attempts.attempted_correction`
+    - easy/medium/hard remains the child-facing reflection set for this pass;
+      `needed_help` and `could_not_fix` remain persistence-supported but not
+      UI-exposed without later authorisation
+    - child retry/reflection remains evidence for later parent final
+      classification and must not directly mutate mastery, rewards,
+      assignments, scoring, analytics, dashboards, or template routing
+    - implementation shape: the next bounded pass is
+      `Parent-Added Missed Word Correction Repair`
+    - if a parent adds a missed word before send-back, include it in the
+      send-back correction payload
+    - if a parent adds a missed word after work is already returned, require
+      the parent to send back/resend through the return action so the existing
+      return lifecycle refreshes draft feedback; do not add hidden child-page
+      raw `misspelling_instances` reads
+    - stop condition: if implementation requires schema changes, manual writing
+      sample expansion, resolver work, catalog mutation, or mastery/reward/
+      assignment changes, stop and return to docs
   - validation:
     - `npm run writing-engine:structured-submission-payload-storage-regression`
       passed
@@ -190,6 +231,93 @@ Canonical documentation now defers to:
     - returned/send-back remains draft-first with feedback
     - plain-writing behavior remains unchanged
     - legacy structured rows without payload do not crash
+- next returned-child correction implementation prompt:
+
+  ```text
+  Adopt the role of a senior Next.js App Router implementer, Review Work
+  lifecycle reviewer, child correction-flow UX reviewer, structured lesson
+  persistence implementer, Writing Engine source-of-truth guardian, QA
+  reviewer, and git-safety steward.
+
+  We are in the Scarlett's Spells repo.
+
+  Implement the Parent-Added Missed Word Correction Repair pass only.
+
+  Context:
+  - child UI consumes __writing_issue_feedback
+  - child retry input and easy/medium/hard reflection are wired
+  - retry attempts persist through writing_issue_correction_attempts
+  - Review Work send-back has a bridge for eligible engine-found
+    misspelling candidates
+  - parent-added missed words are still excluded from returned-child
+    materialisation
+
+  Required behavior:
+  1. Keep parent-added missed words separate from engine Suggested Issues in
+     Review Work.
+  2. Do not make the child page query raw misspelling_instances.
+  3. Make eligible parent-added missed words attached to structured lesson/test
+     submissions eligible for returned-child correction feedback.
+  4. During send-back, materialize eligible parent-added missed words into
+     durable writing_issues before building __writing_issue_feedback.
+  5. Preserve parent-authored provenance in writing_issues.metadata.
+  6. Keep micro_skill_key: "unknown" acceptable for send-back, child retry,
+     correction-attempt persistence, and parent final classification.
+  7. Preserve learning-item blocking for unknown/non-assignable micro-skills
+     only at final-classification learning-item creation time.
+  8. If a parent adds a missed word before send-back, include it in the
+     send-back correction payload.
+  9. If a parent adds a missed word after work is already returned, require
+     resend through the return action; do not silently add a new raw-read path.
+  10. Dedupe against all existing writing_issues for the same
+      source_misspelling_instance_id, including finalised rows.
+  11. Preserve __field_feedback, submitted payload immutability, draft-first
+      returned work, and existing engine-found candidate behavior.
+
+  Likely files:
+  - app/courses/review/actions/review-completion-actions.ts
+  - scripts/writing-engine-returned-child-correction-regression.ts
+  - focused regression scripts/tests only as needed
+
+  Hard constraints:
+  - Do not edit migrations.
+  - Do not edit package.json.
+  - Do not touch 4E/4E.3 resolver integration.
+  - Do not change admin/catalog-review.
+  - Do not mutate micro_skill_catalog.
+  - Do not change mastery, rewards, assignments, scoring, analytics,
+    dashboards, or template routing.
+  - Do not broaden manual writing samples.
+  - Do not make the child page read raw misspelling_instances.
+  - Do not mutate durable submitted payload evidence.
+  - Preserve existing submitted work and parent feedback.
+  - Do not stage, commit, or push unless explicitly asked.
+
+  QA:
+  - Extend the previous returned-child correction QA rather than replacing it.
+  - Parent adds missed word before send-back: child sees retry item.
+  - Parent adds missed word after work is already returned: resend through
+    return action refreshes returned feedback, or the UI/error copy clearly
+    requires resend.
+  - Engine-found spelling issue still works.
+  - Parent-added and engine-found issues both create
+    writing_issue_correction_attempts after child resubmission.
+  - Unknown micro_skill_key does not block send-back, retry, or final
+    classification.
+  - Learning item creation remains blocked only when final classification needs
+    an assignable catalogued skill.
+  - Rejected, false-positive, suppressed, verified, finalised, and non-pending
+    candidates are excluded or deduped correctly.
+  - Manual writing samples, admin/catalog-review, 4E/4E.3, mastery, rewards,
+    assignments, scoring, analytics, dashboards, template routing, migrations,
+    package files, and micro_skill_catalog remain unchanged.
+  - Run focused regression checks, npx tsc --noEmit, git diff --check, and the
+    existing structured-submission hydration/approval safety regressions.
+
+  Stop and return to docs if the fix requires schema changes, manual writing
+  sample expansion, resolver work, catalog mutation, or mastery/reward/
+  assignment changes.
+  ```
 - next safest pass:
   - read-only historical data-integrity audit and optional local/operator
     recovery plan

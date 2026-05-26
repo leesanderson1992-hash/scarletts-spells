@@ -270,6 +270,42 @@ export function StructuredLessonResponse({
   const saveDraftSilentlyActionRef = useRef(saveDraftSilentlyAction);
 
   const orderedBlocks = useMemo(() => lesson.blocks, [lesson.blocks]);
+  const returnedIssueInlineKeys = useMemo(() => {
+    const keys = new Set<string>();
+
+    orderedBlocks.forEach((block) => {
+      switch (block.block_type) {
+        case "question_text":
+        case "question_textarea":
+        case "question_choice_single":
+        case "question_choice_multi":
+        case "question_table":
+        case "question_repeatable_interview":
+        case "comprehension_quiz_group":
+          keys.add(block.block_id);
+          break;
+        default:
+          break;
+      }
+
+      if (block.block_type === "comprehension_quiz_group") {
+        block.questions.forEach((question) => {
+          keys.add(`${block.block_id}::${question.question_id}`);
+        });
+      }
+    });
+
+    return keys;
+  }, [orderedBlocks]);
+  const unmatchedReturnedIssues = useMemo(
+    () =>
+      returnedIssueFeedback.filter(
+        (issue) =>
+          !issue.source_field_key ||
+          !returnedIssueInlineKeys.has(issue.source_field_key),
+      ),
+    [returnedIssueFeedback, returnedIssueInlineKeys],
+  );
   const isReturnedForReview = initialResponse?.status === "returned";
 
   useEffect(() => {
@@ -477,6 +513,93 @@ export function StructuredLessonResponse({
     );
   }
 
+  function renderReturnedIssueCard(
+    issue: ReturnedWritingIssueDraftPayload,
+    label: string,
+  ) {
+    return (
+      <div
+        key={issue.issue_id}
+        className="rounded-[1.5rem] border border-amber-200 bg-amber-50 px-4 py-3 text-sm leading-6 text-amber-950"
+      >
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div className="min-w-0 flex-1">
+            <div className="grid gap-2">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-amber-700">
+                {label}
+              </p>
+              {issue.child_note ? <p>{issue.child_note}</p> : null}
+              {issue.observed_text ? (
+                <p className="text-sm text-amber-900/90">
+                  Look at:{" "}
+                  <mark className="rounded-md bg-white px-1.5 py-0.5 font-semibold text-amber-950 ring-1 ring-amber-200">
+                    {issue.observed_text}
+                  </mark>
+                </p>
+              ) : null}
+              <p className="text-sm text-amber-900/90">
+                Try fixing this yourself before you resubmit.
+              </p>
+              {issue.context_text ? (
+                <p className="rounded-2xl bg-white/80 px-3 py-2 text-sm text-[color:var(--ink)]">
+                  {issue.context_text}
+                </p>
+              ) : null}
+              {issue.allow_confidence ? (
+                <label className="grid gap-1.5 text-sm text-[color:var(--ink)]">
+                  <span className="font-medium">Try spelling it again</span>
+                  <input
+                    type="text"
+                    name={`returned_issue_attempt:${issue.issue_id}`}
+                    defaultValue={issue.attempted_correction ?? ""}
+                    className="brand-input h-11 rounded-2xl bg-white px-4 text-sm"
+                    placeholder="Type your new try here"
+                  />
+                </label>
+              ) : null}
+            </div>
+          </div>
+          <div className="grid gap-3">
+            <label className="inline-flex items-start gap-3 rounded-2xl border border-amber-200 bg-white px-3 py-2 text-sm text-[color:var(--ink)]">
+              <input
+                type="checkbox"
+                name={`returned_issue_fixed:${issue.issue_id}`}
+                value="true"
+                defaultChecked={issue.marked_fixed === true}
+                className="mt-1 h-4 w-4 rounded border-[var(--border)] text-[var(--scarlett)]"
+              />
+              <span>I&apos;ve fixed this</span>
+            </label>
+            {issue.allow_confidence ? (
+              <fieldset className="grid gap-2">
+                <legend className="text-[11px] font-semibold uppercase tracking-[0.14em] text-amber-700">
+                  How did this feel?
+                </legend>
+                <div className="flex flex-wrap gap-2">
+                  {(["easy", "medium", "hard"] as const).map((value) => (
+                    <label
+                      key={`${issue.issue_id}-${value}`}
+                      className="inline-flex items-center gap-2 rounded-full border border-amber-200 bg-white px-3 py-1.5 text-xs font-medium text-[color:var(--ink)]"
+                    >
+                      <input
+                        type="radio"
+                        name={`returned_issue_reflection:${issue.issue_id}`}
+                        value={value}
+                        defaultChecked={issue.reflection === value}
+                        className="h-4 w-4 border-[var(--border)] text-[var(--scarlett)]"
+                      />
+                      <span className="capitalize">{value}</span>
+                    </label>
+                  ))}
+                </div>
+              </fieldset>
+            ) : null}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   function renderReturnedIssueFeedback(feedbackKey: string) {
     const matchingIssues = returnedIssueFeedback.filter(
       (issue) => issue.source_field_key === feedbackKey,
@@ -488,70 +611,33 @@ export function StructuredLessonResponse({
 
     return (
       <div className="mt-3 grid gap-3">
-        {matchingIssues.map((issue, index) => (
-          <div
-            key={issue.issue_id}
-            className="rounded-[1.5rem] border border-amber-200 bg-amber-50 px-4 py-3 text-sm leading-6 text-amber-950"
-          >
-            <div className="flex flex-wrap items-start justify-between gap-3">
-              <div className="grid gap-2">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-amber-700">
-                  Fix note {index + 1}
-                </p>
-                {issue.child_note ? <p>{issue.child_note}</p> : null}
-                {issue.observed_text ? (
-                  <p className="text-sm text-amber-900/90">
-                    Look at: <span className="font-medium">“{issue.observed_text}”</span>
-                  </p>
-                ) : null}
-                <p className="text-sm text-amber-900/90">
-                  Try fixing this yourself before you resubmit.
-                </p>
-                {issue.context_text ? (
-                  <p className="rounded-2xl bg-white/80 px-3 py-2 text-sm text-[color:var(--ink)]">
-                    {issue.context_text}
-                  </p>
-                ) : null}
-              </div>
-              <div className="grid gap-3">
-                <label className="inline-flex items-start gap-3 rounded-2xl border border-amber-200 bg-white px-3 py-2 text-sm text-[color:var(--ink)]">
-                  <input
-                    type="checkbox"
-                    name={`returned_issue_fixed:${issue.issue_id}`}
-                    value="true"
-                    defaultChecked={issue.marked_fixed === true}
-                    className="mt-1 h-4 w-4 rounded border-[var(--border)] text-[var(--scarlett)]"
-                  />
-                  <span>I&apos;ve fixed this</span>
-                </label>
-                {issue.allow_confidence ? (
-                  <fieldset className="grid gap-2">
-                    <legend className="text-[11px] font-semibold uppercase tracking-[0.14em] text-amber-700">
-                      How did this feel?
-                    </legend>
-                    <div className="flex flex-wrap gap-2">
-                      {(["easy", "medium", "hard"] as const).map((value) => (
-                        <label
-                          key={`${issue.issue_id}-${value}`}
-                          className="inline-flex items-center gap-2 rounded-full border border-amber-200 bg-white px-3 py-1.5 text-xs font-medium text-[color:var(--ink)]"
-                        >
-                          <input
-                            type="radio"
-                            name={`returned_issue_reflection:${issue.issue_id}`}
-                            value={value}
-                            defaultChecked={issue.reflection === value}
-                            className="h-4 w-4 border-[var(--border)] text-[var(--scarlett)]"
-                          />
-                          <span className="capitalize">{value}</span>
-                        </label>
-                      ))}
-                    </div>
-                  </fieldset>
-                ) : null}
-              </div>
-            </div>
-          </div>
-        ))}
+        {matchingIssues.map((issue, index) =>
+          renderReturnedIssueCard(issue, `Fix note ${index + 1}`),
+        )}
+      </div>
+    );
+  }
+
+  function renderUnmatchedReturnedIssueFeedback() {
+    if (unmatchedReturnedIssues.length === 0) {
+      return null;
+    }
+
+    return (
+      <div className="rounded-[1.75rem] border border-amber-200 bg-amber-50/80 px-4 py-4">
+        <div>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-amber-700">
+            Fix these spellings
+          </p>
+          <p className="mt-2 text-sm leading-6 text-amber-900">
+            These notes are not attached to one exact question, but they still need a try before you resubmit.
+          </p>
+        </div>
+        <div className="mt-3 grid gap-3">
+          {unmatchedReturnedIssues.map((issue, index) =>
+            renderReturnedIssueCard(issue, `Fix note ${index + 1}`),
+          )}
+        </div>
       </div>
     );
   }
@@ -1034,6 +1120,7 @@ export function StructuredLessonResponse({
 
       <div className="rounded-[2rem] border border-[var(--border)] bg-[linear-gradient(180deg,rgba(252,228,244,0.18),rgba(255,255,255,0.96))] px-5 py-5 shadow-[0_14px_40px_rgba(79,38,66,0.06)]">
         <div className="grid gap-5">
+          {renderUnmatchedReturnedIssueFeedback()}
           {orderedBlocks.map((block) => (
             <div key={block.block_id}>{renderBlock(block)}</div>
           ))}

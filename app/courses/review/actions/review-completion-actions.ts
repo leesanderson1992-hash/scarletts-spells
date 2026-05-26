@@ -22,11 +22,14 @@ import {
   inferStructuredLessonFieldMatch,
   looksLikeWordIssue,
   revalidateReviewQueueAndDetail,
+  type ReviewSupabase,
 } from "./_shared";
 import {
   buildFalsePositiveSuppressionSet,
+  buildVerifiedMisspellingIdSet,
   getUnresolvedMisspellingCount,
   hasActionableReturnedIssues,
+  isParentAuthoredMisspellingRow,
   isSuppressedFalsePositivePair,
 } from "../review-utils";
 
@@ -84,6 +87,278 @@ function getStructuredDraftPayloadSeed({
   }
 
   return existingDraftPayload;
+}
+
+type ReturnFlowSubmission = {
+  id: string;
+  task_id: string;
+  course_id: string;
+  child_id: string;
+  submission_text: string | null;
+  submitted_at: string;
+};
+
+type ReturnFlowWritingIssueRow = {
+  id: string;
+  issue_status: string;
+  observed_text: string | null;
+  approved_replacement: string | null;
+  parent_review_note: string | null;
+  source_field_key: string | null;
+  context_text: string | null;
+  position_start: number | null;
+  position_end: number | null;
+  source_suggestion_id?: string | null;
+  source_misspelling_instance_id: string | null;
+  final_classification: string | null;
+};
+
+type ReturnFlowMisspellingRow = {
+  id: string;
+  misspelled_word: string;
+  corrected_word: string;
+  suggested_word: string | null;
+  error_type: string | null;
+  context_text: string | null;
+  position_start: number | null;
+  position_end: number | null;
+  is_false_positive: boolean | null;
+  notes: string | null;
+};
+
+type ReturnFlowSuggestionRow = {
+  id: string;
+  misspelling_instance_id: string | null;
+  suggestion_status: string;
+  observed_text: string | null;
+  suggested_replacement: string | null;
+  suggested_micro_skill_key: string | null;
+  notes: string | null;
+};
+
+type ReturnFlowParentVerificationRow = {
+  source_entity_id: string;
+};
+
+function getValidPositionRange(row: {
+  position_start?: number | null;
+  position_end?: number | null;
+}) {
+  return typeof row.position_start === "number" &&
+    typeof row.position_end === "number" &&
+    row.position_start >= 0 &&
+    row.position_end > row.position_start
+    ? {
+        position_start: row.position_start,
+        position_end: row.position_end,
+      }
+    : {
+        position_start: null,
+        position_end: null,
+      };
+}
+
+function getTrimmedOrNull(value: string | null | undefined) {
+  const trimmed = value?.trim();
+  return trimmed ? trimmed : null;
+}
+
+async function materializeReturnedSpellingIssuesFromCandidates(input: {
+  supabase: ReviewSupabase;
+  submission: ReturnFlowSubmission;
+  parentUserId: string;
+  structuredPayloadType: string | null;
+  linkedWritingIssues: ReturnFlowWritingIssueRow[];
+  safeParentNote: string | null;
+  safeFieldFeedback: Record<string, string>;
+  structuredLessonReviewContext: Awaited<
+    ReturnType<typeof getStructuredLessonReviewContext>
+  >;
+  safeRedirectPath: string;
+}) {
+  if (!input.structuredPayloadType) {
+    return false;
+  }
+
+  const { data: linkedSample } = await input.supabase
+    .from("writing_samples")
+    .select("id")
+    .eq("task_submission_id", input.submission.id)
+    .eq("parent_user_id", input.parentUserId)
+    .maybeSingle();
+
+  if (!linkedSample) {
+    return false;
+  }
+
+  const [
+    { data: misspellingRows },
+    { data: suggestionRows },
+    { data: falsePositiveSuppressions },
+    { data: parentVerificationRows },
+    { data: allLinkedWritingIssueRows },
+  ] = await Promise.all([
+    input.supabase
+      .from("misspelling_instances")
+      .select(
+        "id, misspelled_word, corrected_word, suggested_word, error_type, context_text, position_start, position_end, is_false_positive, notes",
+      )
+      .eq("writing_sample_id", linkedSample.id)
+      .eq("parent_user_id", input.parentUserId)
+      .order("position_start", { ascending: true }),
+    input.supabase
+      .from("writing_issue_suggestions")
+      .select(
+        "id, misspelling_instance_id, suggestion_status, observed_text, suggested_replacement, suggested_micro_skill_key, notes",
+      )
+      .eq("task_submission_id", input.submission.id)
+      .eq("parent_user_id", input.parentUserId)
+      .order("created_at", { ascending: false }),
+    input.supabase
+      .from("writing_false_positive_suppressions")
+      .select("misspelled_word, corrected_word")
+      .eq("parent_user_id", input.parentUserId)
+      .eq("child_id", input.submission.child_id),
+    input.supabase
+      .from("parent_verifications")
+      .select("source_entity_id")
+      .eq("task_submission_id", input.submission.id)
+      .eq("parent_user_id", input.parentUserId),
+    input.supabase
+      .from("writing_issues")
+      .select("source_misspelling_instance_id")
+      .eq("task_submission_id", input.submission.id)
+      .eq("parent_user_id", input.parentUserId),
+  ]);
+
+  const misspellings = (misspellingRows ?? []) as ReturnFlowMisspellingRow[];
+  const suggestions = (suggestionRows ?? []) as ReturnFlowSuggestionRow[];
+  const parentVerifications = (parentVerificationRows ??
+    []) as ReturnFlowParentVerificationRow[];
+
+  const durableMisspellingIds = new Set([
+    ...input.linkedWritingIssues
+      .map((issue) => issue.source_misspelling_instance_id)
+      .filter((value): value is string => typeof value === "string"),
+    ...(allLinkedWritingIssueRows ?? [])
+      .map((issue) => issue.source_misspelling_instance_id)
+      .filter((value): value is string => typeof value === "string"),
+  ]);
+  const suggestionByMisspellingId = new Map<string, ReturnFlowSuggestionRow>();
+
+  suggestions.forEach((suggestion) => {
+    if (
+      suggestion.misspelling_instance_id &&
+      !suggestionByMisspellingId.has(suggestion.misspelling_instance_id)
+    ) {
+      suggestionByMisspellingId.set(suggestion.misspelling_instance_id, suggestion);
+    }
+  });
+
+  const suppressedPairs = buildFalsePositiveSuppressionSet(
+    falsePositiveSuppressions ?? [],
+  );
+  const verifiedMisspellingIds = buildVerifiedMisspellingIdSet({
+    misspellings,
+    writingIssueSuggestions: suggestions,
+    parentVerifications,
+    taskSubmissionId: input.submission.id,
+    writingSampleId: linkedSample.id,
+  });
+
+  const eligibleMisspellings = misspellings.filter((misspelling) => {
+    const suggestion = suggestionByMisspellingId.get(misspelling.id) ?? null;
+
+    return (
+      !(misspelling.is_false_positive ?? false) &&
+      !isSuppressedFalsePositivePair(
+        suppressedPairs,
+        misspelling.misspelled_word,
+        misspelling.suggested_word ?? misspelling.corrected_word,
+      ) &&
+      !durableMisspellingIds.has(misspelling.id) &&
+      !verifiedMisspellingIds.has(misspelling.id) &&
+      (!suggestion || suggestion.suggestion_status === "pending")
+    );
+  });
+
+  if (eligibleMisspellings.length === 0) {
+    return false;
+  }
+
+  const now = new Date().toISOString();
+  const rowsToInsert = eligibleMisspellings.map((misspelling) => {
+    const suggestion = suggestionByMisspellingId.get(misspelling.id) ?? null;
+    const isParentAddedMissedWord = isParentAuthoredMisspellingRow(misspelling);
+    const observedText =
+      getTrimmedOrNull(suggestion?.observed_text) ?? misspelling.misspelled_word;
+    const approvedReplacement =
+      getTrimmedOrNull(suggestion?.suggested_replacement) ??
+      getTrimmedOrNull(misspelling.suggested_word) ??
+      misspelling.corrected_word;
+    const childNote =
+      getTrimmedOrNull(suggestion?.notes) ??
+      input.safeParentNote ??
+      getTrimmedOrNull(misspelling.notes);
+    const matchedLessonField = inferStructuredLessonFieldMatch({
+      reviewContext: input.structuredLessonReviewContext,
+      observedText,
+      approvedReplacement,
+      contextText: misspelling.context_text,
+      parentReviewNote: childNote,
+    });
+    const sourceFieldKey = matchedLessonField?.key ?? null;
+    const positionRange = getValidPositionRange(misspelling);
+
+    return {
+      child_id: input.submission.child_id,
+      parent_user_id: input.parentUserId,
+      task_submission_id: input.submission.id,
+      writing_sample_id: linkedSample.id,
+      source_suggestion_id: suggestion?.id ?? null,
+      source_misspelling_instance_id: misspelling.id,
+      issue_status: "pending_parent_review",
+      observed_text: observedText,
+      suggested_replacement: approvedReplacement,
+      approved_replacement: approvedReplacement,
+      context_text: misspelling.context_text,
+      source_field_key: sourceFieldKey,
+      position_start: positionRange.position_start,
+      position_end: positionRange.position_end,
+      micro_skill_key:
+        getTrimmedOrNull(suggestion?.suggested_micro_skill_key) ?? "unknown",
+      parent_review_note:
+        childNote ??
+        (sourceFieldKey ? input.safeFieldFeedback[sourceFieldKey] ?? null : null),
+      notes: "Materialized during structured returned-work send-back.",
+      metadata: {
+        source: "structured_returned_work_send_back",
+        source_kind: isParentAddedMissedWord
+          ? "parent_authored_missed_word"
+          : suggestion
+            ? "writing_issue_suggestion"
+            : "misspelling_instance",
+        parent_authored_missed_word: isParentAddedMissedWord,
+      },
+      parent_marked_at: now,
+      created_at: now,
+      updated_at: now,
+    };
+  });
+
+  const { error } = await input.supabase.from("writing_issues").insert(rowsToInsert);
+
+  if (error) {
+    redirect(
+      buildRedirectWithMessage(
+        input.safeRedirectPath,
+        "error",
+        "We couldn't prepare the spelling corrections for returned work just yet.",
+      ),
+    );
+  }
+
+  return true;
 }
 
 export async function deleteSubmissionFromReviewImpl(formData: FormData) {
@@ -444,18 +719,49 @@ export async function returnSubmissionToChildImpl(formData: FormData) {
         })
       : null;
 
-  const { data: linkedWritingIssues } = await supabase
+  const linkedWritingIssuesSelect =
+    "id, issue_status, observed_text, approved_replacement, parent_review_note, source_field_key, context_text, position_start, position_end, source_suggestion_id, source_misspelling_instance_id, final_classification";
+
+  const { data: initialLinkedWritingIssues } = await supabase
     .from("writing_issues")
-    .select(
-      "id, issue_status, observed_text, approved_replacement, parent_review_note, source_field_key, context_text, position_start, position_end, source_misspelling_instance_id, final_classification",
-    )
+    .select(linkedWritingIssuesSelect)
     .eq("task_submission_id", submission.id)
     .eq("parent_user_id", user.id)
     .is("final_classification", null)
     .neq("issue_status", "finalised")
     .order("created_at", { ascending: true });
 
-  const issuesToSendBack = (linkedWritingIssues ?? []).filter(
+  let linkedWritingIssues = (initialLinkedWritingIssues ??
+    []) as ReturnFlowWritingIssueRow[];
+
+  const materializedCandidateIssues =
+    await materializeReturnedSpellingIssuesFromCandidates({
+      supabase,
+      submission,
+      parentUserId: user.id,
+      structuredPayloadType,
+      linkedWritingIssues,
+      safeParentNote,
+      safeFieldFeedback,
+      structuredLessonReviewContext,
+      safeRedirectPath,
+    });
+
+  if (materializedCandidateIssues) {
+    const { data: refreshedLinkedWritingIssues } = await supabase
+      .from("writing_issues")
+      .select(linkedWritingIssuesSelect)
+      .eq("task_submission_id", submission.id)
+      .eq("parent_user_id", user.id)
+      .is("final_classification", null)
+      .neq("issue_status", "finalised")
+      .order("created_at", { ascending: true });
+
+    linkedWritingIssues = (refreshedLinkedWritingIssues ??
+      []) as ReturnFlowWritingIssueRow[];
+  }
+
+  const issuesToSendBack = linkedWritingIssues.filter(
     (issue) =>
       issue.issue_status === "pending_parent_review" ||
       issue.issue_status === "child_responded" ||

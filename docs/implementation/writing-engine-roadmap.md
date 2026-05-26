@@ -204,6 +204,18 @@ Implemented so far:
     fall back to durable submitted payload evidence
   - if durable payload is also missing, legacy text/textarea answers can be
     reconstructed from flattened `submission_text` when question labels match
+- Returned-child spelling correction remains open:
+  - child UI, retry input, easy/medium/hard reflection, and
+    `writing_issue_correction_attempts` persistence are wired
+  - engine-found misspelling candidate send-back bridge is partially
+    implemented
+  - parent-added missed words are still the next repair target: they remain
+    separate from engine `Suggested Issues` in `Review Work`, but must become
+    eligible returned-child correction targets for structured lesson/test
+    send-back
+  - `micro_skill_key: "unknown"` does not block send-back, child retry,
+    correction-attempt persistence, or parent final classification; it may
+    block learning-item creation only after final classification
 
 Manual smoke:
 - actual structured lesson-page submit now creates both `task_submissions` and
@@ -6683,6 +6695,9 @@ Behaviour contract:
 - `Review Work` UI actions must not mutate mastery or evidence directly
 - parent-added missed issues must preserve parent-authored provenance and must
   not be presented as engine-suggested truth
+- parent-added missed issues are nevertheless first-class returned-child
+  correction targets once materialized through structured lesson/test
+  send-back
 - returned lesson submissions must remain live and visually distinct from
   generic needs-review rows
 - lesson approval must remain blocked while unresolved suggestions remain

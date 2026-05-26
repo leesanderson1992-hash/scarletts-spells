@@ -117,6 +117,12 @@ function applyReturnedIssueInputsFromFormData(
   return issues.map((issue) => {
     const markedFixed = formData.get(`returned_issue_fixed:${issue.issue_id}`) === "true";
     const reflectionValue = formData.get(`returned_issue_reflection:${issue.issue_id}`);
+    const attemptedCorrectionValue = formData.get(`returned_issue_attempt:${issue.issue_id}`);
+    const attemptedCorrection =
+      typeof attemptedCorrectionValue === "string" &&
+      attemptedCorrectionValue.trim().length > 0
+        ? attemptedCorrectionValue.trim().slice(0, 500)
+        : issue.attempted_correction ?? null;
     const reflection =
       issue.allow_confidence &&
       (reflectionValue === "easy" ||
@@ -129,6 +135,7 @@ function applyReturnedIssueInputsFromFormData(
       ...issue,
       marked_fixed: markedFixed,
       reflection,
+      attempted_correction: attemptedCorrection,
     };
   });
 }
@@ -195,6 +202,10 @@ function buildAttemptedCorrectionForIssue({
   draftPayload: Record<string, unknown> | undefined;
   safeSubmissionText: string;
 }) {
+  if (issue.attempted_correction?.trim()) {
+    return issue.attempted_correction.trim();
+  }
+
   if (
     issue.source_field_key &&
     draftPayload &&
@@ -911,6 +922,20 @@ export async function saveTaskDraft(formData: FormData) {
     ),
     existingDraftRow?.draft_payload,
   );
+  const returnedWritingIssues = applyReturnedIssueInputsFromFormData(
+    formData,
+    getReturnedWritingIssueFeedback(persistedDraftPayload),
+  );
+  const draftPayloadWithReturnedIssueInputs =
+    returnedWritingIssues.length > 0
+      ? mergePreservedDraftMetadata(
+          {
+            ...persistedDraftPayload,
+            __writing_issue_feedback: returnedWritingIssues,
+          },
+          existingDraftRow?.draft_payload,
+        )
+      : persistedDraftPayload;
 
   const { error } = await supabase.from("task_submission_drafts").upsert(
     {
@@ -920,7 +945,7 @@ export async function saveTaskDraft(formData: FormData) {
       parent_user_id: user.id,
       draft_text: safeSubmissionText,
       draft_review_summary: safeLessonReviewSummary || null,
-      draft_payload: persistedDraftPayload,
+      draft_payload: draftPayloadWithReturnedIssueInputs,
       updated_at: new Date().toISOString(),
     },
     { onConflict: "task_id,child_id" },

@@ -154,6 +154,8 @@ The child should see:
 - the issue that needs attention
 - enough context to try again
 - the parent note when one exists
+- a clear retry box for each spelling-like returned issue
+- a simple reflection control for how the correction felt
 
 The app should not make the child feel as though every mistake is a permanent failure.
 
@@ -161,6 +163,15 @@ For ordinary spelling self-correction in MVP:
 - do not reveal the exact corrected answer by default
 - show the observed issue and the surrounding context instead
 - let the child attempt the correction before the parent later classifies the result
+- do not hide returned issues just because the app cannot match them to a
+  structured lesson field
+- render unmatched returned issues in a fallback returned-issues panel so the
+  child always has an actionable checklist
+- parent-added missed words should remain labelled/separate from
+  engine-suggested issues in parent `Review Work`, but they must still feel
+  actionable to the child when work is sent back
+- a parent-added missed word does not need an assigned micro-skill before the
+  child can try spelling it again
 
 ### 2. Reflection is part of evidence
 
@@ -168,11 +179,31 @@ For each correction attempt, the child should be able to say whether it felt:
 - easy
 - medium
 - hard
-- needed help
-- could not fix
 
 This reflection informs parent judgment.
 It does not decide the final classification on its own.
+
+The persistence model also supports `needed_help` and `could_not_fix`, but those
+options are not child-facing in this correction pass. They need separate copy
+and UX review before being exposed to the child.
+
+### 2A. Retry input is distinct from editing the answer
+
+Returned structured work should remain editable in the original answer boxes,
+but the child also needs a dedicated retry/attempt input for each spelling-like
+returned issue.
+
+That retry input is the child correction attempt evidence. On resubmission it
+should be linked to the returned durable issue and saved as
+`writing_issue_correction_attempts.attempted_correction`.
+
+If the child also edits the original lesson answer, that edited answer remains
+the resubmitted task content. It should not replace the dedicated correction
+attempt evidence when the retry box is present.
+
+If a parent adds a missed word after work is already returned, MVP should make
+the parent use the send-back/resend action to refresh the child correction list.
+Do not silently make the child page inspect raw spelling rows.
 
 ### 3. Easy does not automatically mean checking-only
 

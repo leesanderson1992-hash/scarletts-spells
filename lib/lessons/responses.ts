@@ -73,6 +73,7 @@ export type ReturnedWritingIssueDraftPayload = {
   issue_status: "sent_back_to_child";
   marked_fixed?: boolean;
   reflection?: WritingIssueReflection;
+  attempted_correction?: string | null;
 };
 
 export function getReturnedWritingIssueFeedback(
@@ -124,6 +125,10 @@ export function getReturnedWritingIssueFeedback(
         issue_status: "sent_back_to_child",
         marked_fixed: rawIssue.marked_fixed === true,
         reflection,
+        attempted_correction:
+          typeof rawIssue.attempted_correction === "string"
+            ? rawIssue.attempted_correction
+            : null,
       },
     ];
   });
