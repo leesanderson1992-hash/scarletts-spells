@@ -196,6 +196,21 @@ Canonical documentation now defers to:
     - stop condition: if implementation requires schema changes, manual writing
       sample expansion, resolver work, catalog mutation, or mastery/reward/
       assignment changes, stop and return to docs
+  - unified Parent Review spelling workflow planning:
+    - status: documented as the target workflow contract in
+      [docs/workflows/parent-review-workflow.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/workflows/parent-review-workflow.md:1)
+    - current implementation still exposes separate Suggested Issues,
+      parent-added missed words, and Returned Corrections surfaces
+    - target state is one unified parent-facing spelling review table/read
+      model, backed by multiple canonical source tables
+    - the unified table is not one database table; it preserves source IDs and
+      provenance across engine-suggested, parent-added, returned-correction,
+      verification, and catalog-review records
+    - returned corrections and parent-added missed words must remain visible in
+      the parent workflow after child resubmission
+    - implementation remains staged: unified read model, unified table UI,
+      returned-row categorisation controls, Suggested Issues cleanup, and
+      completion gating
   - validation:
     - `npm run writing-engine:structured-submission-payload-storage-regression`
       passed

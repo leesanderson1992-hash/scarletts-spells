@@ -203,6 +203,27 @@ Durable Structured Submission Payloads architecture boundary:
   - if a parent adds a missed word after work is already returned, the safe
     MVP path is to resend through the return action rather than adding a
     child-page raw misspelling read model
+- unified Parent Review spelling workflow contract:
+  - UX and page sequence details live in
+    [docs/workflows/parent-review-workflow.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/workflows/parent-review-workflow.md:1)
+  - architecture rule: the unified spelling review table is a read model, not
+    a new source-of-truth table
+  - the read model may assemble from `misspelling_instances`,
+    `writing_issue_suggestions`, `parent_verifications`, `writing_issues`,
+    `writing_issue_correction_attempts`, `spelling_catalog_review_cases`, and
+    candidate mapping state
+  - do not duplicate `writing_issues` onto a new child resubmission for display
+  - do not recreate parent-added missed words after child resubmission
+  - do not treat regenerated engine candidates as returned corrections
+  - preserve parent-authored provenance when parent-added rows are materialised
+    into durable returned correction targets
+  - final classification for returned corrections targets the original
+    `writing_issue.id`
+  - `task_submission_payloads` remain submitted evidence, not returned
+    correction lifecycle truth
+  - returned-correction admin/catalog-review and parent-local promotion need a
+    specific returned-row bridge contract before implementation if the current
+    routes only support candidate mappings or raw misspelling rows
 - non-goals:
   - no `4E` / `4E.3` resolver work
   - no admin/catalog-review work

@@ -16,6 +16,9 @@ It covers:
 - curated daily practice
 - backlog control
 
+Detailed Parent Review workflow direction now lives in:
+- [docs/workflows/parent-review-workflow.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/workflows/parent-review-workflow.md:1)
+
 ## Current implemented status
 
 Current private-MVP product truth after Stage `7` is narrower than the full

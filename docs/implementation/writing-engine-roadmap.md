@@ -217,6 +217,40 @@ Implemented so far:
     correction-attempt persistence, or parent final classification; it may
     block learning-item creation only after final classification
 
+### Follow-up registered slice — Unified Parent Review spelling workflow
+
+Detailed workflow and UX contract:
+- [docs/workflows/parent-review-workflow.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/workflows/parent-review-workflow.md:1)
+
+Current status:
+- target direction is one unified parent-facing spelling review table/read
+  model, backed by existing canonical source tables
+- current runtime still presents separate Suggested Issues, parent-added missed
+  words, and Returned Corrections surfaces
+- the unified table remains a planned read-model/UI refactor, not a schema
+  change or a new source-of-truth table
+
+Next implementation slices:
+- Slice B: create the unified review item read model while preserving source
+  IDs and provenance
+- Slice C: replace separate parent-facing spelling sections with one compact
+  table UI
+- Slice D: add returned-correction categorisation controls only where existing
+  admin/catalog-review or parent-local promotion routes safely support them
+- Slice E: clean up active Suggested Issues display after not-an-issue outcomes
+  and add completion gating once required decisions are resolved
+
+Hard stop conditions:
+- do not touch `app/courses/review/actions.ts`
+- do not duplicate `writing_issues` onto the new submission
+- do not destructively mutate `task_submission_payloads`
+- do not treat parent-added words as engine-suggested truth
+- do not merge regenerated candidates with returned corrections without
+  provenance
+- stop if broad admin/catalog-review, parent-local promotion, resolver,
+  mastery, reward, assignment, scoring, analytics, dashboard, template-routing,
+  migration, package, or `micro_skill_catalog` changes appear necessary
+
 Manual smoke:
 - actual structured lesson-page submit now creates both `task_submissions` and
   `task_submission_payloads`
