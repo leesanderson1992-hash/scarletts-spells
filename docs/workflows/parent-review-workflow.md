@@ -142,6 +142,9 @@ Rules:
 - do not recreate parent-added missed words after child resubmission
 - do not treat regenerated engine candidates as returned corrections
 - preserve parent-authored provenance
+- attach `parent_verifications` using the canonical Stage 7D
+  `source_entity_id` construction; helpers must not guess verification linkage
+  from raw `misspelling_instances.id` values
 - final classification for returned corrections targets the original
   `writing_issue.id`
 - `task_submission_payloads` remain submitted evidence, not returned-correction
@@ -197,12 +200,21 @@ Slice A — Docs and UX contract only:
 - make no runtime changes
 
 Slice B — Unified Review Item Read Model:
-- create a focused helper that assembles parent-facing review rows from existing
-  canonical tables
-- preserve source IDs and provenance
-- add no schema and duplicate no durable issues
+- complete: a focused read-model helper assembles parent-facing review rows
+  from existing canonical tables without replacing the UI
+- complete: the helper preserves source IDs and provenance, including
+  parent-authored missed-word provenance
+- complete: returned correction rows preserve the original `writing_issue.id`
+  for final classification
+- complete: existing accepted, overridden, false-positive, and
+  not-a-learning-issue `parent_verifications` attach through canonical Stage 7D
+  `source_entity_id` values, not guessed `misspelling_instances.id` values
+- complete: unsupported returned-correction categorisation remains marked as
+  deferred instead of inventing an admin/catalog-review or parent-local route
+- no schema was added and no durable issues are duplicated
 
 Slice C — Unified Table UI:
+- next safe implementation slice
 - replace separate Suggested Issues / parent-added / Returned Corrections
   presentation with one compact parent-facing table
 - include source/status chips

@@ -229,12 +229,20 @@ Current status:
   words, and Returned Corrections surfaces
 - the unified table remains a planned read-model/UI refactor, not a schema
   change or a new source-of-truth table
+- Slice B is complete: the unified spelling review item read-model helper
+  exists as a read-model foundation only, not a UI replacement
+- Slice B preserves source IDs and provenance, including parent-authored
+  missed-word provenance and original `writing_issue.id` values for returned
+  correction rows
+- Slice B attaches existing `parent_verifications` through canonical Stage 7D
+  `source_entity_id` values, preserving accepted, overridden,
+  false-positive, and not-a-learning-issue truth
+- unsupported returned-correction categorisation remains deferred until a safe
+  returned-row admin/catalog-review or parent-local bridge is documented
 
 Next implementation slices:
-- Slice B: create the unified review item read model while preserving source
-  IDs and provenance
 - Slice C: replace separate parent-facing spelling sections with one compact
-  table UI
+  table UI backed by the Slice B read model
 - Slice D: add returned-correction categorisation controls only where existing
   admin/catalog-review or parent-local promotion routes safely support them
 - Slice E: clean up active Suggested Issues display after not-an-issue outcomes
