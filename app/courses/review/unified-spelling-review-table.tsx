@@ -305,17 +305,17 @@ function UnifiedSpellingReviewTableRow({
             {detailsOpen ? "Hide details" : "Details"}
           </button>
         </td>
-        <td className="max-w-[9rem] px-3 py-2 text-sm text-[color:var(--ink)]">
+        <td className="max-w-[9rem] px-3 py-2 align-top text-sm text-[color:var(--ink)]">
           <span className="block truncate" title={row.expectedCorrection ?? "Unknown"}>
             {row.expectedCorrection ?? "Unknown"}
           </span>
         </td>
-        <td className="max-w-[9rem] px-3 py-2 text-sm text-[color:var(--ink)]">
+        <td className="max-w-[9rem] px-3 py-2 align-top text-sm text-[color:var(--ink)]">
           <span className="block truncate" title={row.latestChildAttempt ?? ""}>
             {row.latestChildAttempt ?? ""}
           </span>
         </td>
-        <td className="px-2 py-2 text-center">
+        <td className="px-2 py-2 align-top text-center">
           <span
             title={marker.title}
             aria-label={marker.title}
@@ -324,10 +324,10 @@ function UnifiedSpellingReviewTableRow({
             {marker.label}
           </span>
         </td>
-        <td className="px-3 py-2 text-sm font-medium text-[color:var(--ink)]">
+        <td className="px-3 py-2 align-top text-sm font-medium text-[color:var(--ink)]">
           {statusLabel(row)}
         </td>
-        <td className="min-w-52 px-3 py-2">
+        <td className="min-w-52 px-3 py-2 align-top">
           <div className="grid gap-1">
             <select
               value={familyKey}
