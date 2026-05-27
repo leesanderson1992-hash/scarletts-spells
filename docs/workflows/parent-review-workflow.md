@@ -41,7 +41,7 @@ model backed by existing canonical records.
 
 Each row should fit on one line wherever possible, using this column order:
 
-`Word | Correction | Retry | Src | Status | Skill | Actions | Details`
+`Word | Correction | Retry | Src | Status | Skill | Actions`
 
 Main-row cells should be compact:
 - `Word` shows the original word / observed issue.
@@ -51,7 +51,13 @@ Main-row cells should be compact:
 - `Status` is one word only.
 - `Skill` shows a dropdown menu where categorisation is supported.
 - `Actions` contains compact row actions.
-- `Details` opens longer context.
+
+The `Word` cell may include a small `Details` toggle under the observed word.
+Expanded `Details` content renders as a full-width secondary row beneath the
+main row, not as a table column.
+
+`Word`, `Correction`, and `Retry` should retain hover titles so truncated text
+can still be inspected without opening a custom popup.
 
 Source markers:
 - `E` = Engine
@@ -75,8 +81,12 @@ Main-row statuses must be one word only. Preferred statuses:
 Any longer status explanation belongs in `Details`, not the main row.
 
 Skill column rules:
-- use dropdown menus where categorisation is supported
+- use cascading dropdown menus where categorisation is supported:
+  `Skill Family` -> `Skill Cluster` -> `Micro-skill`
 - display unknown skill as `Choose…` or `Unknown`
+- `No matching skill` is a UI-only selector option that enables the
+  admin/catalog-review route where supported
+- `No matching skill` must not be persisted as a `micro_skill_key`
 - returned-correction skill dropdowns must remain disabled/deferred until the
   returned-correction categorisation bridge exists
 - do not invent returned-correction categorisation behaviour in the UI
@@ -86,7 +96,8 @@ Retry column rules:
 - do not show the whole answer/body text in `Retry`
 - do not show reflection in `Retry`
 
-Parent note, child reflection, provenance, and history belong in `Details`.
+Parent note, child reflection, provenance, history, route explanation,
+correction outcome, and original issue id belong in the expanded `Details` row.
 
 Returned corrections should not remain a large separate section long term. They
 should appear as compact unified rows with tiny source markers, one-word status,
@@ -249,13 +260,14 @@ Slice D — Unified Table UI:
 - replace separate Suggested Issues / parent-added / Returned Corrections
   presentation with one compact parent-facing table
 - use the locked one-line column order:
-  `Word | Correction | Retry | Src | Status | Skill | Actions | Details`
+  `Word | Correction | Retry | Src | Status | Skill | Actions`
 - use tiny source markers only: `E`, `P`, `R`, or `P·R`, with accessible labels
   and hover titles
 - use one-word main-row statuses only
 - show only the latest child attempted spelling in `Retry`
-- keep parent note, child reflection, provenance, history, and longer
-  explanations in `Details`
+- keep parent note, child reflection, provenance, history, route explanation,
+  correction outcome, original issue id, and longer explanations in an expanded
+  full-width `Details` row below the main row
 - do not expose returned-correction categorisation controls unless Slice C has
   made the route safe
 
