@@ -225,12 +225,10 @@ Detailed workflow and UX contract:
 Current status:
 - target direction is one unified parent-facing spelling review table/read
   model, backed by existing canonical source tables
-- current runtime still presents separate Suggested Issues, parent-added missed
-  words, and Returned Corrections surfaces
-- the unified table remains a planned read-model/UI refactor, not a schema
-  change or a new source-of-truth table
+- compact unified spelling table is now implemented as a parent-facing read
+  model/UI refactor, not a schema change or a new source-of-truth table
 - Slice B is complete: the unified spelling review item read-model helper
-  exists as a read-model foundation only, not a UI replacement
+  exists as the read-model foundation
 - Slice B preserves source IDs and provenance, including parent-authored
   missed-word provenance and original `writing_issue.id` values for returned
   correction rows
@@ -241,13 +239,12 @@ Current status:
   returned-row admin/catalog-review or parent-local bridge is documented
 
 Next implementation slices:
-- Slice C: define and implement the returned-correction categorisation bridge
-  before replacing the page UI; returned `writing_issues` must have a safe route
-  to supported categorisation/admin/catalog-review or parent-local handling
-- Slice D: replace separate parent-facing spelling sections with one compact
-  table UI backed by the Slice B read model and the Slice C bridge
-- Slice E: clean up active Suggested Issues display after not-an-issue outcomes
-  and add completion gating once required decisions are resolved
+- Slice C is complete: returned-correction categorisation bridge exists where
+  safely supported, with unsupported returned-row categorisation still deferred
+- Slice D is complete: compact unified spelling table UI is backed by the Slice
+  B read model and Slice C route/deferred states
+- Slice E is next: clean up active Suggested Issues display after not-an-issue
+  outcomes and add completion gating once required decisions are resolved
 
 Hard stop conditions:
 - do not touch `app/courses/review/actions.ts`

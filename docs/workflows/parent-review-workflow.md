@@ -243,21 +243,25 @@ Slice B — Unified Review Item Read Model:
 - no schema was added and no durable issues are duplicated
 
 Slice C — Returned Correction Categorisation Bridge:
-- next safe implementation slice
-- define and implement the safe route from returned `writing_issues` to
+- complete: returned-correction categorisation bridge is in place where safely
+  supported
+- completed constraint: route returned `writing_issues` to
   categorisation/admin/catalog-review and parent-local promotion where supported
-- preserve final classification as correction outcome, not categorisation
-- preserve original `writing_issue.id` as returned-correction truth
-- do not duplicate returned `writing_issues` onto the new submission
-- do not recreate parent-added missed words or regenerated candidates to force
-  visibility
-- stop if returned `writing_issues` cannot safely create or link to
-  catalog-review cases or parent-local mappings without a new contract
+- completed constraint: preserve final classification as correction outcome,
+  not categorisation
+- completed constraint: preserve original `writing_issue.id` as
+  returned-correction truth
+- completed constraint: do not duplicate returned `writing_issues` onto the new
+  submission
+- completed constraint: do not recreate parent-added missed words or regenerated
+  candidates to force visibility
+- completed constraint: unsupported returned-correction categorisation remains
+  deferred/disabled where no safe route exists
 
 Slice D — Unified Table UI:
-- paused until Slice C is complete enough that returned corrections have a safe
-  categorisation/admin/local route or an explicitly documented deferred state
-- replace separate Suggested Issues / parent-added / Returned Corrections
+- complete: compact unified spelling table is implemented against the read
+  model and safe returned-correction route/deferred states
+- complete: replaced separate Suggested Issues / parent-added / Returned Corrections
   presentation with one compact parent-facing table
 - use the locked one-line column order:
   `Word | Correction | Retry | Src | Status | Skill | Actions`
@@ -272,6 +276,7 @@ Slice D — Unified Table UI:
   made the route safe
 
 Slice E — Suggested Issue Cleanup And Completion Gating:
+- next safe implementation slice
 - ensure not-an-issue rows stop appearing as active issues while preserving
   history
 - allow parent completion once required correction and categorisation decisions
