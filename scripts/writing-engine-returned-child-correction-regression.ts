@@ -205,13 +205,43 @@ assert.match(
 );
 assert.match(
   unifiedSpellingReviewTable,
-  /Word[\s\S]*Correction[\s\S]*Retry[\s\S]*Src[\s\S]*Status[\s\S]*Skill[\s\S]*Actions[\s\S]*Details/,
+  /Word[\s\S]*Correction[\s\S]*Retry[\s\S]*Src[\s\S]*Status[\s\S]*Skill[\s\S]*Actions/,
   "Unified compact table must keep the contracted one-line column order.",
+);
+assert.doesNotMatch(
+  unifiedSpellingReviewTable,
+  /<th[^>]*>Details<\/th>/,
+  "Unified compact table must not render Details as a separate column.",
+);
+assert.match(
+  unifiedSpellingReviewTable,
+  /aria-expanded=\{detailsOpen\}[\s\S]*aria-controls=\{detailsId\}[\s\S]*\{detailsOpen \? "Hide details" : "Details"\}/,
+  "Unified compact table must render a compact Details toggle in the Word cell.",
+);
+assert.match(
+  unifiedSpellingReviewTable,
+  /<tr className="border-t border-\[var\(--border\)\] bg-\[rgba\(255,247,220,0\.18\)\]">[\s\S]*colSpan=\{7\}[\s\S]*\{routeText\(row\)\}/,
+  "Unified compact table must render expanded Details in a full-width secondary row.",
+);
+assert.doesNotMatch(
+  unifiedSpellingReviewTable,
+  /<td className="max-w-\[11rem\][\s\S]*<details/,
+  "Unified compact table must not expand the Details body inside the Word cell.",
 );
 assert.match(
   unifiedSpellingReviewTable,
   /label: "P·R"[\s\S]*Parent-added returned correction[\s\S]*label: "R"[\s\S]*Returned correction[\s\S]*label: "P"[\s\S]*Parent-added missed word[\s\S]*label: "E"[\s\S]*Engine suggestion/,
   "Unified compact table must use tiny source markers with accessible labels.",
+);
+assert.match(
+  unifiedSpellingReviewTable,
+  /Skill family[\s\S]*Skill cluster[\s\S]*Micro-skill/,
+  "Unified compact table must use family, cluster, and micro-skill filtering controls.",
+);
+assert.match(
+  unifiedSpellingReviewTable,
+  /NO_MATCHING_SKILL_VALUE[\s\S]*No matching skill[\s\S]*captureSpellingCatalogReviewCase/,
+  "No matching skill must be a UI-only selector option that routes through catalog review.",
 );
 assert.match(
   unifiedSpellingReviewTable,
