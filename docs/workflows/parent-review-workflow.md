@@ -39,40 +39,58 @@ review table/read model.
 The unified table is not a new source-of-truth table. It is a parent-facing read
 model backed by existing canonical records.
 
-Each row should show:
-- original word / observed issue
-- expected correction
-- child's latest retry attempt, if any
-- source:
-  - engine suggested
-  - parent-added missed word
-  - returned correction
-- state:
-  - pending parent review
-  - child responded
-  - resolved
-  - not an issue
-  - sent to admin
-  - locally promoted
-  - categorisation needed
-- correction outcome control:
-  - fixed/resolved
-  - checking only
-  - fragile knowledge
-  - concept gap
-  - transfer failure
-  - not an issue
-- categorisation control:
-  - confirm existing skill
-  - override skill
-  - no matching skill / send to admin
-  - promote locally where supported
-- compact details disclosure for parent note, child reflection, provenance, and
-  history
+Each row should fit on one line wherever possible, using this column order:
+
+`Word | Correction | Retry | Src | Status | Skill | Actions | Details`
+
+Main-row cells should be compact:
+- `Word` shows the original word / observed issue.
+- `Correction` shows the expected correction.
+- `Retry` shows only the child's latest attempted spelling, if any.
+- `Src` is a tiny one-character source marker, not a large badge.
+- `Status` is one word only.
+- `Skill` shows a dropdown menu where categorisation is supported.
+- `Actions` contains compact row actions.
+- `Details` opens longer context.
+
+Source markers:
+- `E` = Engine
+- `P` = Parent
+- `R` = Returned
+- `P·R` = Parent-added returned correction
+
+Source markers must use accessible labels and hover titles to explain the marker.
+Do not use large source badges in the compact table.
+
+Main-row statuses must be one word only. Preferred statuses:
+- `New`
+- `Tried`
+- `Fixed`
+- `Issue`
+- `Admin`
+- `Local`
+- `Done`
+- `Blocked`
+
+Any longer status explanation belongs in `Details`, not the main row.
+
+Skill column rules:
+- use dropdown menus where categorisation is supported
+- display unknown skill as `Choose…` or `Unknown`
+- returned-correction skill dropdowns must remain disabled/deferred until the
+  returned-correction categorisation bridge exists
+- do not invent returned-correction categorisation behaviour in the UI
+
+Retry column rules:
+- show only the child's latest attempted spelling
+- do not show the whole answer/body text in `Retry`
+- do not show reflection in `Retry`
+
+Parent note, child reflection, provenance, and history belong in `Details`.
 
 Returned corrections should not remain a large separate section long term. They
-should appear as compact unified rows with source/status labels and side-by-side
-original word and latest child attempt display.
+should appear as compact unified rows with tiny source markers, one-word status,
+original word, and latest child attempted spelling display.
 
 Parent-added missed words must remain visible after becoming durable returned
 corrections. Their parent-authored provenance must remain visible.
@@ -213,20 +231,33 @@ Slice B — Unified Review Item Read Model:
   deferred instead of inventing an admin/catalog-review or parent-local route
 - no schema was added and no durable issues are duplicated
 
-Slice C — Unified Table UI:
+Slice C — Returned Correction Categorisation Bridge:
 - next safe implementation slice
+- define and implement the safe route from returned `writing_issues` to
+  categorisation/admin/catalog-review and parent-local promotion where supported
+- preserve final classification as correction outcome, not categorisation
+- preserve original `writing_issue.id` as returned-correction truth
+- do not duplicate returned `writing_issues` onto the new submission
+- do not recreate parent-added missed words or regenerated candidates to force
+  visibility
+- stop if returned `writing_issues` cannot safely create or link to
+  catalog-review cases or parent-local mappings without a new contract
+
+Slice D — Unified Table UI:
+- paused until Slice C is complete enough that returned corrections have a safe
+  categorisation/admin/local route or an explicitly documented deferred state
 - replace separate Suggested Issues / parent-added / Returned Corrections
   presentation with one compact parent-facing table
-- include source/status chips
-- show original word and latest child attempt side by side
-- move extra history/details into row expansion
-
-Slice D — Returned Correction Categorisation Controls:
-- expose confirm/override/no-matching-skill/admin route from unified rows where
-  safe
-- expose parent-local promotion only where existing mapping state supports it
-- stop and document a bridge if returned `writing_issues` need new support to
-  create catalog-review cases or parent-local mappings
+- use the locked one-line column order:
+  `Word | Correction | Retry | Src | Status | Skill | Actions | Details`
+- use tiny source markers only: `E`, `P`, `R`, or `P·R`, with accessible labels
+  and hover titles
+- use one-word main-row statuses only
+- show only the latest child attempted spelling in `Retry`
+- keep parent note, child reflection, provenance, history, and longer
+  explanations in `Details`
+- do not expose returned-correction categorisation controls unless Slice C has
+  made the route safe
 
 Slice E — Suggested Issue Cleanup And Completion Gating:
 - ensure not-an-issue rows stop appearing as active issues while preserving

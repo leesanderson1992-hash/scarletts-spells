@@ -241,10 +241,11 @@ Current status:
   returned-row admin/catalog-review or parent-local bridge is documented
 
 Next implementation slices:
-- Slice C: replace separate parent-facing spelling sections with one compact
-  table UI backed by the Slice B read model
-- Slice D: add returned-correction categorisation controls only where existing
-  admin/catalog-review or parent-local promotion routes safely support them
+- Slice C: define and implement the returned-correction categorisation bridge
+  before replacing the page UI; returned `writing_issues` must have a safe route
+  to supported categorisation/admin/catalog-review or parent-local handling
+- Slice D: replace separate parent-facing spelling sections with one compact
+  table UI backed by the Slice B read model and the Slice C bridge
 - Slice E: clean up active Suggested Issues display after not-an-issue outcomes
   and add completion gating once required decisions are resolved
 
