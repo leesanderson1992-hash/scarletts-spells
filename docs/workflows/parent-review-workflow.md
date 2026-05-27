@@ -83,9 +83,11 @@ Any longer status explanation belongs in `Details`, not the main row.
 Skill column rules:
 - use cascading dropdown menus where categorisation is supported:
   `Skill Family` -> `Skill Cluster` -> `Micro-skill`
-- display unknown skill as `Choose…` or `Unknown`
-- `No matching skill` is a UI-only selector option that enables the
-  admin/catalog-review route where supported
+- display unselected controls with parent-facing placeholder text:
+  `Choose family`, `Choose cluster`, and `Choose skill`
+- `No matching skill` is a UI-only Family-level decision for supported current
+  rows; selecting it clears/disables Cluster and Micro-skill controls and
+  enables the admin/catalog-review route where supported
 - `No matching skill` must not be persisted as a `micro_skill_key`
 - returned-correction skill dropdowns must remain disabled/deferred until the
   returned-correction categorisation bridge exists
@@ -98,6 +100,10 @@ Retry column rules:
 
 Parent note, child reflection, provenance, history, route explanation,
 correction outcome, and original issue id belong in the expanded `Details` row.
+
+Compact action icons must have reliable hover/help text and accessible labels.
+Icon-only controls such as confirm, reject/not-an-issue, override/assign, and
+admin/catalog flag must not rely on the symbol alone.
 
 Returned corrections should not remain a large separate section long term. They
 should appear as compact unified rows with tiny source markers, one-word status,
@@ -222,6 +228,44 @@ returned `writing_issues`. If returned correction rows need a new bridge to
 catalog-review cases or parent-local mappings, stop and document that bridge
 before implementation.
 
+## Current Slice E Follow-Up
+
+Slice E is not ready to close until the compact table and completion gate handle
+the following follow-up points:
+
+- parent-added rows must survive as `P` before send-back and `P·R` after
+  returned correction where applicable
+- regenerated engine duplicate suppression must never hide parent-added rows
+- ordinary actionable rows should not display `Blocked`; reserve `Blocked` for
+  genuinely unsupported or deferred states
+- compact status display should map actionable current rows to `New`, returned
+  rows awaiting outcome to `Tried`, admin handoff to `Admin`, parent-local
+  route to `Local`, and terminal outcomes to `Done`, `Fixed`, or `Issue`
+- compact Skill placeholders should use parent-facing text:
+  `Choose family`, `Choose cluster`, and `Choose skill`
+- `No matching skill` belongs at the Family decision level for supported
+  current rows and must remain a UI-only admin/catalog route selector
+- compact action icons must restore reliable hover/help text
+
+## Returned Correction Categorisation Bridge
+
+Current returned rows may final-classify correction outcome against the original
+`writing_issue.id`.
+
+The desired workflow also requires returned rows to support skill assignment,
+skill override, no-matching-skill admin handoff, and parent-local route handling
+after the child retries. That is a separate returned-correction categorisation
+bridge, not a table-only change.
+
+The bridge must:
+- preserve final classification as correction outcome, not categorisation
+- preserve original `writing_issue.id` as returned-correction truth
+- use safe source/provenance records for catalog-review and parent-local routes
+- avoid pretending returned `writing_issues` are current `misspelling_instances`
+- avoid duplicating returned `writing_issues` onto the new submission
+- leave unsupported returned routes disabled/deferred until a safe action path
+  exists
+
 ## Implementation Slices
 
 Slice A — Docs and UX contract only:
@@ -242,21 +286,16 @@ Slice B — Unified Review Item Read Model:
   deferred instead of inventing an admin/catalog-review or parent-local route
 - no schema was added and no durable issues are duplicated
 
-Slice C — Returned Correction Categorisation Bridge:
-- complete: returned-correction categorisation bridge is in place where safely
-  supported
-- completed constraint: route returned `writing_issues` to
-  categorisation/admin/catalog-review and parent-local promotion where supported
-- completed constraint: preserve final classification as correction outcome,
-  not categorisation
-- completed constraint: preserve original `writing_issue.id` as
-  returned-correction truth
-- completed constraint: do not duplicate returned `writing_issues` onto the new
-  submission
-- completed constraint: do not recreate parent-added missed words or regenerated
-  candidates to force visibility
-- completed constraint: unsupported returned-correction categorisation remains
+Slice C — Returned Correction Read-Model Bridge:
+- complete: returned corrections are visible from current
+  `writing_issue_correction_attempts` joined back to original `writing_issues`
+- complete: returned rows preserve original `writing_issue.id` for final
+  classification
+- complete: unsupported returned-correction categorisation remains
   deferred/disabled where no safe route exists
+- not complete: full returned-row skill assignment, override, admin handoff, and
+  parent-local promotion/revert require the dedicated returned-correction
+  categorisation bridge below
 
 Slice D — Unified Table UI:
 - complete: compact unified spelling table is implemented against the read
@@ -276,14 +315,46 @@ Slice D — Unified Table UI:
   made the route safe
 
 Slice E — Suggested Issue Cleanup And Completion Gating:
-- next safe implementation slice
+- in progress; not ready to commit until Slice E.1 UX/status/provenance
+  corrections pass
 - ensure not-an-issue rows stop appearing as active issues while preserving
   history
 - allow parent completion once required correction and categorisation decisions
   are resolved
+- suppress regenerated engine duplicates without hiding parent-added rows
+- keep legacy Suggested Issues guards compatible with the unified
+  parent-facing item set
 - avoid mastery, reward, assignment, scoring, analytics, dashboard, or
   template-routing changes unless an existing verified-outcome bridge already
   owns them
+
+Slice E.1 — Completion Gating UX/Status Polish:
+- next safe implementation slice
+- restore compact icon hover/help text
+- fix compact status labels so `Blocked` is reserved for unsupported/deferred
+  states
+- move `No matching skill` to the Family-level selector for supported current
+  rows
+- prove regenerated duplicate suppression is engine-only and cannot hide
+  parent-added rows
+
+Slice F — Returned Correction Categorisation/Admin Bridge:
+- implement after Slice E.1
+- safely allow returned rows to assign/override existing skills, raise
+  no-matching-skill cases to admin, and use parent-local route handling where
+  source/provenance guarantees exist
+- keep final classification separate from categorisation routing
+- do not broaden resolver, mastery, assignment, analytics, dashboard, or admin
+  canonical-curation behavior
+
+Future Pass — Parent Recommended Canonical Mapping:
+- allow a parent-assigned existing skill to be recommended to admin for
+  canonical/global mapping review without automatically becoming canonical truth
+- recommendation should flow through `spelling_catalog_review_cases` with the
+  selected existing micro-skill as parent recommendation
+- admin canonical curation remains the only path to `spelling_canonical_mappings`
+- no parent action may mutate `micro_skill_catalog` or create global canonical
+  mapping truth directly
 
 ## Stop Conditions
 

@@ -914,6 +914,25 @@ Slice `4A` spelling catalog-review taxonomy contract:
   - block parent review completion
 - admin/catalog curation is the only path that may later convert a
   parent-raised case into canonical/global mapping truth
+- parent-local skill assignment remains parent/child-scoped evidence:
+  - rows in `parent_verified_spelling_candidate_mappings` may capture a
+    parent-selected existing canonical micro-skill for one parent/child scope
+  - parent-local promotion may make that mapping reusable only inside the same
+    parent/child scope
+  - parent-local assignment or promotion must not automatically create
+    resolver-visible global canonical truth
+  - parent-local assignment or promotion must not mutate `micro_skill_catalog`
+    or write `spelling_canonical_mappings`
+- future parent-recommended canonical mapping path:
+  - a parent may assign an existing canonical micro-skill locally and
+    separately recommend the misspelling/correction pair for admin canonical
+    review
+  - the recommendation should create or update a
+    `spelling_catalog_review_cases` row with the selected existing
+    `micro_skill_key` preserved as parent recommendation metadata/evidence
+  - admin canonical curation remains the only path that may write
+    `spelling_canonical_mappings`
+  - no parent action may create global canonical mapping truth directly
 - staged follow-up:
   - Slice `4B.0`: bounded option filtering by family/cluster
   - Slice `4B.1`: parent `No matching skill` case capture only,

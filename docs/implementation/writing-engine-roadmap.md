@@ -239,12 +239,25 @@ Current status:
   returned-row admin/catalog-review or parent-local bridge is documented
 
 Next implementation slices:
-- Slice C is complete: returned-correction categorisation bridge exists where
-  safely supported, with unsupported returned-row categorisation still deferred
+- Slice C is complete as a returned-correction read-model bridge: returned
+  corrections are visible from current correction attempts joined back to
+  original `writing_issues`, with unsupported returned-row categorisation still
+  deferred
 - Slice D is complete: compact unified spelling table UI is backed by the Slice
   B read model and Slice C route/deferred states
-- Slice E is next: clean up active Suggested Issues display after not-an-issue
-  outcomes and add completion gating once required decisions are resolved
+- Slice E is in progress but not ready to commit until UX/status/provenance
+  corrections pass
+- Slice E.1 is next: polish completion-gating UX/status display, keep
+  regenerated duplicate suppression engine-only, preserve parent-added rows as
+  `P` / `P·R`, move `No matching skill` to the Family-level selector for
+  supported current rows, and restore reliable compact action hover/help text
+- Slice F follows: implement the safe returned-correction
+  categorisation/admin bridge so returned rows can assign/override existing
+  skills, raise no-matching-skill cases to admin, and use parent-local route
+  handling where source/provenance guarantees exist
+- Future pass: define parent-recommended canonical mapping, where a
+  parent-assigned existing skill can be sent to admin as a canonical mapping
+  recommendation without automatically creating global canonical truth
 
 Hard stop conditions:
 - do not touch `app/courses/review/actions.ts`
@@ -256,6 +269,9 @@ Hard stop conditions:
 - stop if broad admin/catalog-review, parent-local promotion, resolver,
   mastery, reward, assignment, scoring, analytics, dashboard, template-routing,
   migration, package, or `micro_skill_catalog` changes appear necessary
+- keep Slice F bounded to Review Work returned spelling corrections; do not
+  broaden into resolver priority, mastery, assignment generation, dashboards,
+  analytics, or admin canonical-curation redesign
 
 Manual smoke:
 - actual structured lesson-page submit now creates both `task_submissions` and
