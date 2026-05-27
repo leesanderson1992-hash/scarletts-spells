@@ -386,6 +386,7 @@ const returnedMappingRow = rows.find(
 assert.ok(returnedMappingRow, "Returned correction parent-local route row should be present.");
 assert.equal(returnedMappingRow.sourceIds.candidateMappingId, "mapping-returned-pending");
 assert.equal(returnedMappingRow.categorisationStatus, "parent_local_pending");
+assert.equal(returnedMappingRow.microSkillKey, "vowel_team_ie_ei");
 
 const returnedDeferredRow = rows.find(
   (row) => row.sourceIds.originalWritingIssueId === "issue-original-deferred",

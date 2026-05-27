@@ -8,15 +8,16 @@ import type {
 } from "../../writing-practice/types";
 
 type SupabaseQueryBuilder = PromiseLike<{ data: unknown }> & {
-  select(columns: string): SupabaseQueryBuilder;
   eq(column: string, value: unknown): SupabaseQueryBuilder;
   in(column: string, values: unknown[]): SupabaseQueryBuilder;
   order(column: string, options?: { ascending?: boolean }): SupabaseQueryBuilder;
-  maybeSingle(): Promise<{ data: unknown }>;
+  maybeSingle(): PromiseLike<{ data: unknown }>;
 };
 
 type SupabaseServerClient = {
-  from(table: string): SupabaseQueryBuilder;
+  from(table: string): {
+    select(columns: string): SupabaseQueryBuilder;
+  };
 };
 
 export type UnifiedSpellingReviewSource =
@@ -534,7 +535,7 @@ export function buildUnifiedSpellingReviewItems(
         correctionOutcome: issue.final_classification,
         suggestedMicroSkillKey: null,
         verifiedMicroSkillKey: null,
-        microSkillKey: issue.micro_skill_key,
+        microSkillKey: candidateMapping?.micro_skill_key ?? issue.micro_skill_key,
         parentNote: issue.parent_review_note ?? issue.notes ?? attempt.attempt_notes,
         sourceIds: {
           currentTaskSubmissionId: input.submissionId,
@@ -565,12 +566,13 @@ export function buildUnifiedSpellingReviewItems(
 }
 
 export async function loadUnifiedSpellingReviewItemsForSubmission(input: {
-  supabase: SupabaseServerClient;
+  supabase: unknown;
   submissionId: string;
   parentUserId: string;
   childId: string;
 }): Promise<UnifiedSpellingReviewItem[]> {
-  const { data: linkedSample } = await input.supabase
+  const supabase = input.supabase as SupabaseServerClient;
+  const { data: linkedSample } = await supabase
     .from("writing_samples")
     .select("id")
     .eq("task_submission_id", input.submissionId)
@@ -591,7 +593,7 @@ export async function loadUnifiedSpellingReviewItemsForSubmission(input: {
     { data: attemptRows },
   ] = await Promise.all([
     writingSampleId
-      ? input.supabase
+      ? supabase
           .from("misspelling_instances")
           .select(
             "id, writing_sample_id, misspelled_word, corrected_word, suggested_word, is_false_positive, notes, position_start, position_end, context_text",
@@ -600,7 +602,7 @@ export async function loadUnifiedSpellingReviewItemsForSubmission(input: {
           .eq("parent_user_id", input.parentUserId)
           .order("position_start", { ascending: true })
       : Promise.resolve({ data: [] }),
-    input.supabase
+    supabase
       .from("writing_issue_suggestions")
       .select(
         "id, task_submission_id, writing_sample_id, misspelling_instance_id, suggestion_status, source_type, observed_text, suggested_replacement, suggested_micro_skill_key, notes, metadata",
@@ -608,7 +610,7 @@ export async function loadUnifiedSpellingReviewItemsForSubmission(input: {
       .eq("task_submission_id", input.submissionId)
       .eq("parent_user_id", input.parentUserId)
       .order("created_at", { ascending: false }),
-    input.supabase
+    supabase
       .from("parent_verifications")
       .select(
         "id, source_entity_id, decision, suggested_micro_skill_key, verified_micro_skill_key, verification_notes, metadata",
@@ -616,7 +618,7 @@ export async function loadUnifiedSpellingReviewItemsForSubmission(input: {
       .eq("task_submission_id", input.submissionId)
       .eq("parent_user_id", input.parentUserId)
       .order("verified_at", { ascending: false }),
-    input.supabase
+    supabase
       .from("writing_issues")
       .select(
         "id, task_submission_id, source_misspelling_instance_id, source_suggestion_id, issue_status, final_classification, observed_text, suggested_replacement, approved_replacement, micro_skill_key, parent_review_note, notes, metadata, child_responded_at, final_classified_at",
@@ -624,7 +626,7 @@ export async function loadUnifiedSpellingReviewItemsForSubmission(input: {
       .eq("task_submission_id", input.submissionId)
       .eq("parent_user_id", input.parentUserId)
       .order("created_at", { ascending: false }),
-    input.supabase
+    supabase
       .from("parent_verified_spelling_candidate_mappings")
       .select(
         "id, source_misspelling_instance_id, micro_skill_key, candidate_status, promotion_scope",
@@ -633,7 +635,7 @@ export async function loadUnifiedSpellingReviewItemsForSubmission(input: {
       .eq("parent_user_id", input.parentUserId)
       .in("candidate_status", ["pending_parent_promotion", "parent_local_promoted"])
       .order("created_at", { ascending: false }),
-    input.supabase
+    supabase
       .from("spelling_catalog_review_cases")
       .select("id, source_misspelling_instance_id, case_status")
       .eq("task_submission_id", input.submissionId)
@@ -641,7 +643,7 @@ export async function loadUnifiedSpellingReviewItemsForSubmission(input: {
       .eq("child_id", input.childId)
       .eq("case_status", "open")
       .order("created_at", { ascending: false }),
-    input.supabase
+    supabase
       .from("writing_issue_correction_attempts")
       .select(
         "id, writing_issue_id, task_submission_id, attempted_correction, attempt_notes, reflection, metadata, created_at",
@@ -659,7 +661,7 @@ export async function loadUnifiedSpellingReviewItemsForSubmission(input: {
   ];
   const { data: returnedWritingIssueRows } =
     returnedWritingIssueIds.length > 0
-      ? await input.supabase
+      ? await supabase
           .from("writing_issues")
           .select(
             "id, task_submission_id, source_misspelling_instance_id, source_suggestion_id, issue_status, final_classification, observed_text, suggested_replacement, approved_replacement, micro_skill_key, parent_review_note, notes, metadata, child_responded_at, final_classified_at",
@@ -683,7 +685,7 @@ export async function loadUnifiedSpellingReviewItemsForSubmission(input: {
   ] =
     returnedSourceMisspellingIds.length > 0
       ? await Promise.all([
-          input.supabase
+          supabase
             .from("parent_verified_spelling_candidate_mappings")
             .select(
               "id, source_misspelling_instance_id, micro_skill_key, candidate_status, promotion_scope",
@@ -696,7 +698,7 @@ export async function loadUnifiedSpellingReviewItemsForSubmission(input: {
               "parent_local_promoted",
             ])
             .order("created_at", { ascending: false }),
-          input.supabase
+          supabase
             .from("spelling_catalog_review_cases")
             .select("id, source_misspelling_instance_id, case_status")
             .eq("parent_user_id", input.parentUserId)

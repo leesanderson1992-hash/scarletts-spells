@@ -17,13 +17,8 @@ import {
   getReviewWorkDerivedTemplateMetadataByMicroSkillKeys,
 } from "@/lib/writing-engine/persistence/learning-items";
 import {
-  loadReturnedCorrectionReviewItemsForSubmission,
-  type ReturnedCorrectionReviewItem,
-} from "@/lib/writing-engine/persistence/returned-correction-review";
-import {
-  getWritingIssueFinalClassificationLabel,
-  WRITING_ISSUE_FINAL_CLASSIFICATIONS,
-} from "@/lib/writing-practice/types";
+  loadUnifiedSpellingReviewItemsForSubmission,
+} from "@/lib/writing-engine/persistence/unified-spelling-review-items";
 import type {
   ReviewWritingIssueProjection,
   ReviewWritingIssueSuggestionDetailProjection,
@@ -35,6 +30,7 @@ import {
 } from "../manual-sample-sections";
 import { getManualReviewSampleStatus } from "../manual-sample-review-utils";
 import { SuggestedIssuesPanel } from "../suggested-issues-panel";
+import { UnifiedSpellingReviewTable } from "../unified-spelling-review-table";
 import {
   buildCanonicalSuggestedMicroSkillKeysByMisspellingId,
   hasCanonicalMicroSkillKey,
@@ -43,8 +39,6 @@ import {
 import {
   addMissedWordToSubmissionReview,
   approveSubmissionReview,
-  captureSpellingCatalogReviewCase,
-  finaliseWritingIssueClassification,
   returnSubmissionToChild,
 } from "../actions";
 import {
@@ -96,18 +90,6 @@ type MisspellingReviewRow = {
 
 type WritingIssueSuggestionRow = ReviewWritingIssueSuggestionDetailProjection;
 type WritingIssueRow = ReviewWritingIssueProjection;
-type CandidateMappingRow = {
-  id: string;
-  source_misspelling_instance_id: string | null;
-  micro_skill_key: string;
-  candidate_status: "pending_parent_promotion" | "parent_local_promoted";
-  promotion_scope: "parent_local";
-};
-type CatalogReviewCaseRow = {
-  id: string;
-  source_misspelling_instance_id: string;
-  case_status: "open";
-};
 
 async function buildScopedSuggestedMicroSkillKeysByMisspellingId(input: {
   supabase: Awaited<ReturnType<typeof createClient>>;
@@ -237,281 +219,6 @@ async function buildDerivedTemplateMetadataByMicroSkillKey(input: {
     supabase: input.supabase,
     microSkillKeys: [...microSkillKeys],
   });
-}
-
-function buildPendingCandidateMappingByMisspellingId(
-  rows: CandidateMappingRow[],
-) {
-  return new Map(
-    rows
-      .filter(
-        (row): row is CandidateMappingRow & { source_misspelling_instance_id: string } =>
-          typeof row.source_misspelling_instance_id === "string" &&
-          row.source_misspelling_instance_id.length > 0,
-      )
-      .map((row) => [row.source_misspelling_instance_id, row] as const),
-  );
-}
-
-function buildOpenCatalogReviewCaseByMisspellingId(
-  rows: CatalogReviewCaseRow[],
-) {
-  return new Map(
-    rows
-      .filter(
-        (row): row is CatalogReviewCaseRow =>
-          typeof row.source_misspelling_instance_id === "string" &&
-          row.source_misspelling_instance_id.length > 0 &&
-          row.case_status === "open",
-      )
-      .map((row) => [row.source_misspelling_instance_id, row] as const),
-  );
-}
-
-function ParentAddedMissedWordsSection(props: {
-  rows: MisspellingReviewRow[];
-  submissionId: string;
-  redirectPath: string;
-  pendingCandidateMappingsByMisspellingId: Map<string, CandidateMappingRow>;
-  openCatalogReviewCasesByMisspellingId: Map<string, CatalogReviewCaseRow>;
-  catalogReviewCaseCaptureAvailable: boolean;
-  durableIssueMisspellingIds: Set<string>;
-}) {
-  if (props.rows.length === 0) {
-    return null;
-  }
-
-  return (
-    <section className="brand-card rounded-3xl p-4 md:p-5">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <p className="brand-eyebrow">Parent-added missed words</p>
-          <h2 className="mt-1 text-lg font-semibold text-[color:var(--ink)]">
-            Saved parent review input
-          </h2>
-          <p className="mt-2 text-sm leading-6 text-[color:var(--mid)]">
-            These lesson-only rows were added by the parent during review. They stay
-            separate from Suggested Issues engine output.
-          </p>
-        </div>
-        <span className="rounded-full border border-[var(--border)] bg-white px-3 py-1 text-xs font-medium text-[color:var(--ink)]">
-          {props.rows.length} saved
-        </span>
-      </div>
-
-      <div className="mt-4 grid gap-3">
-        {props.rows.map((row) => {
-          const openCatalogReviewCase =
-            props.openCatalogReviewCasesByMisspellingId.get(row.id) ?? null;
-          const pendingCandidateMapping =
-            props.pendingCandidateMappingsByMisspellingId.get(row.id) ?? null;
-          const hasDurableIssue = props.durableIssueMisspellingIds.has(row.id);
-          const canSendToCatalogReview =
-            props.catalogReviewCaseCaptureAvailable &&
-            !openCatalogReviewCase &&
-            !pendingCandidateMapping &&
-            !hasDurableIssue;
-
-          return (
-            <div
-              key={row.id}
-              className="rounded-2xl border border-[var(--border)] bg-white px-4 py-4"
-            >
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs font-medium text-amber-700">
-                  Parent added
-                </span>
-                {row.error_type ? (
-                  <span className="rounded-full border border-[var(--border)] bg-[rgba(255,247,220,0.35)] px-3 py-1 text-xs font-medium text-[color:var(--ink)]">
-                    {row.error_type}
-                  </span>
-                ) : null}
-              </div>
-              <p className="mt-3 text-sm font-medium text-[color:var(--ink)]">
-                {row.misspelled_word} {"->"} {row.corrected_word}
-              </p>
-              <p className="mt-2 text-sm leading-6 text-[color:var(--mid)]">
-                Saved as parent-authored review input. This row does not represent
-                engine-suggested candidate truth or unresolved engine output.
-              </p>
-              {openCatalogReviewCase ? (
-                <p className="mt-3 rounded-lg border border-amber-200 bg-amber-50 px-2 py-1 text-xs text-amber-800">
-                  Sent to catalog review
-                </p>
-              ) : null}
-              {canSendToCatalogReview ? (
-                <form
-                  action={captureSpellingCatalogReviewCase}
-                  className="mt-3"
-                >
-                  <input type="hidden" name="submission_id" value={props.submissionId} />
-                  <input type="hidden" name="redirect_path" value={props.redirectPath} />
-                  <input
-                    type="hidden"
-                    name="misspelling_instance_id"
-                    value={row.id}
-                  />
-                  <button
-                    type="submit"
-                    title="Send this spelling case to catalog review."
-                    aria-label={`No matching skill for ${row.misspelled_word}. Send this spelling case to catalog review.`}
-                    className="min-h-9 rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-800"
-                  >
-                    No matching skill
-                  </button>
-                </form>
-              ) : null}
-            </div>
-          );
-        })}
-      </div>
-    </section>
-  );
-}
-
-function ReturnedCorrectionsSection(props: {
-  items: ReturnedCorrectionReviewItem[];
-  redirectPath: string;
-}) {
-  if (props.items.length === 0) {
-    return null;
-  }
-
-  return (
-    <section className="brand-card rounded-3xl p-4 md:p-5">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <p className="brand-eyebrow">Returned corrections</p>
-          <h2 className="mt-1 text-lg font-semibold text-[color:var(--ink)]">
-            Child correction responses
-          </h2>
-          <p className="mt-2 text-sm leading-6 text-[color:var(--mid)]">
-            These are responses to issues previously sent back to the child. They
-            are linked to the original returned writing issue, not regenerated
-            Suggested Issues for this new submission.
-          </p>
-        </div>
-        <span className="rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-xs font-medium text-sky-700">
-          {props.items.length} response{props.items.length === 1 ? "" : "s"}
-        </span>
-      </div>
-
-      <div className="mt-4 grid gap-3">
-        {props.items.map((item) => {
-          const canFinalClassify =
-            item.issueStatus === "child_responded" && item.finalClassification === null;
-          const expectedText =
-            item.approvedReplacement?.trim() ||
-            item.suggestedReplacement?.trim() ||
-            null;
-
-          return (
-            <div
-              key={`${item.originalWritingIssueId}:${item.attemptId}`}
-              className="rounded-2xl border border-[var(--border)] bg-white px-4 py-4"
-            >
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-xs font-medium text-sky-700">
-                  Child response
-                </span>
-                <span className="rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs font-medium text-amber-700">
-                  {item.sourceLabel}
-                </span>
-                <span className="rounded-full border border-[var(--border)] bg-[rgba(255,247,220,0.35)] px-3 py-1 text-xs font-medium text-[color:var(--ink)]">
-                  {item.issueStatus.replaceAll("_", " ")}
-                </span>
-              </div>
-
-              <div className="mt-3 grid gap-3 md:grid-cols-2">
-                <div className="rounded-2xl border border-[var(--border)] bg-[rgba(255,247,220,0.28)] px-3 py-3">
-                  <p className="text-xs uppercase tracking-[0.16em] text-[color:var(--mid)]">
-                    Original target
-                  </p>
-                  <p className="mt-2 text-sm font-semibold text-[color:var(--ink)]">
-                    {item.observedText?.trim() || "Returned writing issue"}
-                    {expectedText ? ` -> ${expectedText}` : ""}
-                  </p>
-                  {item.contextText?.trim() ? (
-                    <p className="mt-2 text-sm leading-6 text-[color:var(--mid)]">
-                      {item.contextText}
-                    </p>
-                  ) : null}
-                  <p className="mt-2 text-xs text-[color:var(--mid)]">
-                    Original issue: {item.originalWritingIssueId}
-                  </p>
-                </div>
-
-                <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-3 py-3">
-                  <p className="text-xs uppercase tracking-[0.16em] text-emerald-800">
-                    Child tried
-                  </p>
-                  <p className="mt-2 text-sm font-semibold text-emerald-950">
-                    {item.childAttemptedCorrection?.trim() || "No correction text entered"}
-                  </p>
-                  <p className="mt-2 text-sm text-emerald-900">
-                    Reflection: {item.childReflection}
-                  </p>
-                  {item.childAttemptNotes?.trim() ? (
-                    <p className="mt-2 text-sm leading-6 text-emerald-900">
-                      {item.childAttemptNotes}
-                    </p>
-                  ) : null}
-                </div>
-              </div>
-
-              {item.parentReviewNote?.trim() ? (
-                <p className="mt-3 rounded-2xl border border-[var(--border)] bg-[rgba(255,247,220,0.18)] px-3 py-2 text-sm leading-6 text-[color:var(--ink)]">
-                  {item.parentReviewNote}
-                </p>
-              ) : null}
-
-              {item.finalClassification ? (
-                <p className="mt-3 rounded-2xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm font-medium text-emerald-800">
-                  Final classification:{" "}
-                  {getWritingIssueFinalClassificationLabel(item.finalClassification)}
-                </p>
-              ) : canFinalClassify ? (
-                <form
-                  action={finaliseWritingIssueClassification}
-                  className="mt-3 grid gap-3 rounded-2xl border border-[var(--border)] bg-[rgba(255,247,220,0.18)] px-3 py-3 md:grid-cols-[1fr_auto]"
-                >
-                  <input
-                    type="hidden"
-                    name="writing_issue_id"
-                    value={item.originalWritingIssueId}
-                  />
-                  <input type="hidden" name="redirect_path" value={props.redirectPath} />
-                  <label className="grid gap-1 text-sm text-[color:var(--ink)]">
-                    <span className="font-medium">Final classification</span>
-                    <select
-                      name="final_classification"
-                      className="rounded-2xl border border-[var(--border)] bg-white px-3 py-2 text-sm text-[color:var(--ink)]"
-                      defaultValue=""
-                      required
-                    >
-                      <option value="" disabled>
-                        Choose outcome
-                      </option>
-                      {WRITING_ISSUE_FINAL_CLASSIFICATIONS.map((classification) => (
-                        <option key={classification} value={classification}>
-                          {getWritingIssueFinalClassificationLabel(classification)}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
-                  <div className="flex items-end">
-                    <button className="brand-secondary-btn justify-center" type="submit">
-                      Save classification
-                    </button>
-                  </div>
-                </form>
-              ) : null}
-            </div>
-          );
-        })}
-      </div>
-    </section>
-  );
 }
 
 function LessonParentActionsSection(props: {
@@ -1000,9 +707,7 @@ export default async function CourseReviewDetailPage({
     { data: writingIssueRows, error: writingIssueError },
     { data: writingIssueSuggestionRows, error: writingIssueSuggestionError },
     { data: parentVerificationRows, error: parentVerificationError },
-    { data: pendingCandidateMappingRows, error: pendingCandidateMappingError },
-    { data: openCatalogReviewCaseRows, error: openCatalogReviewCaseError },
-    returnedCorrectionReviewItems,
+    unifiedSpellingReviewItems,
   ] = await Promise.all([
     supabase
       .from("course_tasks")
@@ -1053,24 +758,7 @@ export default async function CourseReviewDetailPage({
       .eq("task_submission_id", submission.id)
       .eq("parent_user_id", user.id)
       .order("verified_at", { ascending: false }),
-    supabase
-      .from("parent_verified_spelling_candidate_mappings")
-      .select(
-        "id, source_misspelling_instance_id, micro_skill_key, candidate_status, promotion_scope",
-      )
-      .eq("task_submission_id", submission.id)
-      .eq("parent_user_id", user.id)
-      .in("candidate_status", ["pending_parent_promotion", "parent_local_promoted"])
-      .order("created_at", { ascending: false }),
-    supabase
-      .from("spelling_catalog_review_cases")
-      .select("id, source_misspelling_instance_id, case_status")
-      .eq("task_submission_id", submission.id)
-      .eq("parent_user_id", user.id)
-      .eq("child_id", submission.child_id)
-      .eq("case_status", "open")
-      .order("created_at", { ascending: false }),
-    loadReturnedCorrectionReviewItemsForSubmission({
+    loadUnifiedSpellingReviewItemsForSubmission({
       supabase,
       submissionId: submission.id,
       parentUserId: user.id,
@@ -1102,11 +790,6 @@ export default async function CourseReviewDetailPage({
   const parentAddedMissedWords = misspellings.filter((row) => isParentAuthoredMisspellingRow(row));
   const engineMisspellings = misspellings.filter((row) => !isParentAuthoredMisspellingRow(row));
   const writingIssues = (writingIssueRows ?? []) as WritingIssueRow[];
-  const durableIssueMisspellingIds = new Set(
-    writingIssues
-      .map((issue) => issue.source_misspelling_instance_id)
-      .filter((value): value is string => typeof value === "string"),
-  );
   const writingIssueSuggestions = (writingIssueSuggestionRows ?? []) as WritingIssueSuggestionRow[];
   const canonicalSuggestedMicroSkillKeysByMisspellingId =
     await buildScopedSuggestedMicroSkillKeysByMisspellingId({
@@ -1124,14 +807,6 @@ export default async function CourseReviewDetailPage({
   const parentVerifications = (parentVerificationRows ?? []) as Parameters<
     typeof buildSuggestedIssuePanelModel
   >[0]["parentVerifications"];
-  const pendingCandidateMappings =
-    (pendingCandidateMappingRows ?? []) as CandidateMappingRow[];
-  const pendingCandidateMappingsByMisspellingId =
-    buildPendingCandidateMappingByMisspellingId(pendingCandidateMappings);
-  const openCatalogReviewCases =
-    (openCatalogReviewCaseRows ?? []) as CatalogReviewCaseRow[];
-  const openCatalogReviewCasesByMisspellingId =
-    buildOpenCatalogReviewCaseByMisspellingId(openCatalogReviewCases);
   const derivedTemplateMetadataByMicroSkillKey =
     await buildDerivedTemplateMetadataByMicroSkillKey({
       supabase,
@@ -1158,8 +833,7 @@ export default async function CourseReviewDetailPage({
       Boolean(misspellingQuery.error) ||
       Boolean(writingIssueError) ||
       Boolean(writingIssueSuggestionError) ||
-      Boolean(parentVerificationError) ||
-      Boolean(pendingCandidateMappingError),
+      Boolean(parentVerificationError),
   });
   const parsedSubmission = parseSubmissionReview(submission.submission_text);
   const submissionStatus = getSubmissionStatusLabel(submission.parent_review_status);
@@ -1272,29 +946,15 @@ export default async function CourseReviewDetailPage({
           ) : null}
         </div>
 
-        <SuggestedIssuesPanel
-          model={panelModel}
+        <UnifiedSpellingReviewTable
+          rows={unifiedSpellingReviewItems}
+          options={
+            candidateCaptureMicroSkillProvider.status === "available"
+              ? candidateCaptureMicroSkillProvider.options
+              : []
+          }
           submissionId={submission.id}
           redirectPath={buildScopedPath(`/courses/review/${reviewEntryId}`, selectedChild.id, mode)}
-          candidateCaptureMicroSkillProvider={candidateCaptureMicroSkillProvider}
-          pendingCandidateMappingsByMisspellingId={pendingCandidateMappingsByMisspellingId}
-          openCatalogReviewCasesByMisspellingId={openCatalogReviewCasesByMisspellingId}
-          catalogReviewCaseCaptureAvailable={!openCatalogReviewCaseError}
-        />
-
-        <ReturnedCorrectionsSection
-          items={returnedCorrectionReviewItems}
-          redirectPath={buildScopedPath(`/courses/review/${reviewEntryId}`, selectedChild.id, mode)}
-        />
-
-        <ParentAddedMissedWordsSection
-          rows={parentAddedMissedWords}
-          submissionId={submission.id}
-          redirectPath={buildScopedPath(`/courses/review/${reviewEntryId}`, selectedChild.id, mode)}
-          pendingCandidateMappingsByMisspellingId={pendingCandidateMappingsByMisspellingId}
-          openCatalogReviewCasesByMisspellingId={openCatalogReviewCasesByMisspellingId}
-          catalogReviewCaseCaptureAvailable={!openCatalogReviewCaseError}
-          durableIssueMisspellingIds={durableIssueMisspellingIds}
         />
 
         <LessonParentActionsSection

@@ -8,8 +8,10 @@ const taskPagePath = "app/learn/modules/[moduleId]/tasks/[taskId]/page.tsx";
 const reviewDetailPagePath = "app/courses/review/[submissionId]/page.tsx";
 const reviewCompletionActionsPath =
   "app/courses/review/actions/review-completion-actions.ts";
-const returnedCorrectionReviewPath =
-  "lib/writing-engine/persistence/returned-correction-review.ts";
+const unifiedSpellingReviewTablePath =
+  "app/courses/review/unified-spelling-review-table.tsx";
+const unifiedSpellingReviewItemsPath =
+  "lib/writing-engine/persistence/unified-spelling-review-items.ts";
 
 const structuredLessonResponse = readFileSync(structuredLessonResponsePath, "utf8");
 const lessonResponses = readFileSync(lessonResponsesPath, "utf8");
@@ -17,7 +19,8 @@ const learnActions = readFileSync(learnActionsPath, "utf8");
 const taskPage = readFileSync(taskPagePath, "utf8");
 const reviewDetailPage = readFileSync(reviewDetailPagePath, "utf8");
 const reviewCompletionActions = readFileSync(reviewCompletionActionsPath, "utf8");
-const returnedCorrectionReview = readFileSync(returnedCorrectionReviewPath, "utf8");
+const unifiedSpellingReviewTable = readFileSync(unifiedSpellingReviewTablePath, "utf8");
+const unifiedSpellingReviewItems = readFileSync(unifiedSpellingReviewItemsPath, "utf8");
 
 assert.match(
   lessonResponses,
@@ -160,55 +163,75 @@ assert.doesNotMatch(
 );
 
 assert.match(
-  returnedCorrectionReview,
-  /export async function loadReturnedCorrectionReviewItemsForSubmission/,
-  "Review Work detail must use a focused returned-correction read helper.",
+  unifiedSpellingReviewItems,
+  /export async function loadUnifiedSpellingReviewItemsForSubmission/,
+  "Review Work detail must use the unified spelling review read helper.",
 );
 assert.match(
-  returnedCorrectionReview,
+  unifiedSpellingReviewItems,
   /\.from\("writing_issue_correction_attempts"\)[\s\S]*\.eq\("task_submission_id", input\.submissionId\)/,
-  "Returned-correction read helper must start from correction attempts on the current resubmission.",
+  "Unified read helper must start returned corrections from correction attempts on the current resubmission.",
 );
 assert.match(
-  returnedCorrectionReview,
-  /\.from\("writing_issues"\)[\s\S]*\.in\("id", writingIssueIds\)/,
-  "Returned-correction read helper must follow attempts back to original writing_issues.",
+  unifiedSpellingReviewItems,
+  /\.from\("writing_issues"\)[\s\S]*\.in\("id", returnedWritingIssueIds\)/,
+  "Unified read helper must follow attempts back to original writing_issues.",
 );
 assert.match(
-  returnedCorrectionReview,
-  /source_kind[\s\S]*parent_authored_missed_word[\s\S]*parentAuthoredMissedWord/,
-  "Returned-correction read helper must preserve parent-authored missed-word provenance.",
+  unifiedSpellingReviewItems,
+  /source_kind[\s\S]*parent_authored_missed_word[\s\S]*parentAuthored/,
+  "Unified read helper must preserve parent-authored missed-word provenance.",
 );
 assert.doesNotMatch(
-  returnedCorrectionReview,
+  unifiedSpellingReviewItems,
   /\.from\("writing_issues"\)\s*\n\s*\.(insert|upsert)\(/,
-  "Returned-correction read helper must not duplicate writing_issues onto the new submission.",
+  "Unified read helper must not duplicate writing_issues onto the new submission.",
 );
 assert.doesNotMatch(
-  returnedCorrectionReview,
+  unifiedSpellingReviewItems,
   /\.from\("task_submission_payloads"\)/,
-  "Returned-correction read helper must not read or mutate durable submitted payload rows.",
+  "Unified read helper must not read or mutate durable submitted payload rows.",
 );
 
 assert.match(
   reviewDetailPage,
-  /loadReturnedCorrectionReviewItemsForSubmission\([\s\S]*submissionId: submission\.id[\s\S]*parentUserId: user\.id[\s\S]*childId: submission\.child_id/,
-  "Review Work detail must load returned corrections for the current pending resubmission.",
+  /loadUnifiedSpellingReviewItemsForSubmission\([\s\S]*submissionId: submission\.id[\s\S]*parentUserId: user\.id[\s\S]*childId: submission\.child_id/,
+  "Review Work detail must load unified spelling review items for the current pending resubmission.",
 );
 assert.match(
   reviewDetailPage,
-  /function ReturnedCorrectionsSection\([\s\S]*Returned corrections[\s\S]*Child correction responses/,
-  "Review Work detail must render returned correction attempts in a separate section.",
+  /<UnifiedSpellingReviewTable[\s\S]*rows=\{unifiedSpellingReviewItems\}/,
+  "Review Work detail must render spelling review rows through the unified compact table.",
 );
 assert.match(
-  reviewDetailPage,
-  /name="writing_issue_id"[\s\S]*value=\{item\.originalWritingIssueId\}/,
+  unifiedSpellingReviewTable,
+  /Word[\s\S]*Correction[\s\S]*Retry[\s\S]*Src[\s\S]*Status[\s\S]*Skill[\s\S]*Actions[\s\S]*Details/,
+  "Unified compact table must keep the contracted one-line column order.",
+);
+assert.match(
+  unifiedSpellingReviewTable,
+  /label: "P·R"[\s\S]*Parent-added returned correction[\s\S]*label: "R"[\s\S]*Returned correction[\s\S]*label: "P"[\s\S]*Parent-added missed word[\s\S]*label: "E"[\s\S]*Engine suggestion/,
+  "Unified compact table must use tiny source markers with accessible labels.",
+);
+assert.match(
+  unifiedSpellingReviewTable,
+  /name="writing_issue_id"[\s\S]*value=\{row\.sourceIds\.originalWritingIssueId \?\? ""\}/,
   "Returned correction final classification must target the original writing_issue.id.",
 );
 assert.match(
-  reviewDetailPage,
+  unifiedSpellingReviewTable,
   /action=\{finaliseWritingIssueClassification\}/,
-  "Returned correction section must use the existing final-classification action.",
+  "Unified compact table must use the existing final-classification action.",
+);
+assert.match(
+  unifiedSpellingReviewTable,
+  /row\.source === "returned_correction" \|\| !currentRouteIsOpen/,
+  "Returned correction skill dropdowns must remain disabled unless a supported route exists outside this UI.",
+);
+assert.match(
+  unifiedSpellingReviewTable,
+  /row\.source !== "returned_correction" &&[\s\S]*promoteParentLocalCandidateMapping/,
+  "Returned correction rows must not expose parent-local promotion actions until the action path supports returned provenance.",
 );
 
 console.log("writing-engine-returned-child-correction-regression: ok");
