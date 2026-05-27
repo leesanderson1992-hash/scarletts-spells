@@ -256,6 +256,16 @@ function getLatestAttemptByWritingIssueId(
   return latestByIssueId;
 }
 
+function mergeById<T extends { id: string }>(primary: T[], secondary: T[]) {
+  const merged = new Map<string, T>();
+
+  [...primary, ...secondary].forEach((row) => {
+    merged.set(row.id, row);
+  });
+
+  return [...merged.values()];
+}
+
 function getStateForCurrentReview(input: {
   verification: UnifiedSpellingReviewParentVerificationRow | null;
   catalogReviewCase: UnifiedSpellingReviewCatalogReviewCaseRow | null;
@@ -341,11 +351,27 @@ function getStateForReturnedIssue(
   return "child_responded";
 }
 
-function getCategorisationStatusForReturnedIssue(
-  issue: UnifiedSpellingReviewWritingIssueRow,
-): UnifiedSpellingReviewCategorisationStatus {
+function getCategorisationStatusForReturnedIssue(input: {
+  issue: UnifiedSpellingReviewWritingIssueRow;
+  catalogReviewCase: UnifiedSpellingReviewCatalogReviewCaseRow | null;
+  candidateMapping: UnifiedSpellingReviewCandidateMappingRow | null;
+}): UnifiedSpellingReviewCategorisationStatus {
+  const { issue } = input;
+
   if (issue.final_classification === "not_an_issue") {
     return "not_applicable";
+  }
+
+  if (input.catalogReviewCase) {
+    return "sent_to_admin";
+  }
+
+  if (input.candidateMapping?.candidate_status === "parent_local_promoted") {
+    return "parent_local_promoted";
+  }
+
+  if (input.candidateMapping?.candidate_status === "pending_parent_promotion") {
+    return "parent_local_pending";
   }
 
   if (hasMeaningfulMicroSkillKey(issue.micro_skill_key)) {
@@ -471,6 +497,14 @@ export function buildUnifiedSpellingReviewItems(
 
   const returnedCorrectionItems = input.returnedWritingIssues.flatMap((issue) => {
     const attempt = latestAttemptByWritingIssueId.get(issue.id) ?? null;
+    const candidateMapping =
+      typeof issue.source_misspelling_instance_id === "string"
+        ? candidateMappingByMisspellingId.get(issue.source_misspelling_instance_id) ?? null
+        : null;
+    const catalogReviewCase =
+      typeof issue.source_misspelling_instance_id === "string"
+        ? catalogReviewCaseByMisspellingId.get(issue.source_misspelling_instance_id) ?? null
+        : null;
 
     if (!attempt) {
       return [];
@@ -487,7 +521,11 @@ export function buildUnifiedSpellingReviewItems(
         id: `returned:${issue.id}:${attempt.id}`,
         source: "returned_correction",
         state: getStateForReturnedIssue(issue),
-        categorisationStatus: getCategorisationStatusForReturnedIssue(issue),
+        categorisationStatus: getCategorisationStatusForReturnedIssue({
+          issue,
+          catalogReviewCase,
+          candidateMapping,
+        }),
         observedText: issue.observed_text ?? "Returned spelling issue",
         expectedCorrection:
           issue.approved_replacement ?? issue.suggested_replacement ?? null,
@@ -507,8 +545,8 @@ export function buildUnifiedSpellingReviewItems(
           writingIssueId: null,
           originalWritingIssueId: issue.id,
           correctionAttemptId: attempt.id,
-          catalogReviewCaseId: null,
-          candidateMappingId: null,
+          catalogReviewCaseId: catalogReviewCase?.id ?? null,
+          candidateMappingId: candidateMapping?.id ?? null,
         },
         provenance: {
           parentAuthored,
@@ -630,6 +668,52 @@ export async function loadUnifiedSpellingReviewItemsForSubmission(input: {
           .eq("child_id", input.childId)
           .in("id", returnedWritingIssueIds)
       : { data: [] };
+  const returnedWritingIssues =
+    (returnedWritingIssueRows ?? []) as unknown as UnifiedSpellingReviewWritingIssueRow[];
+  const returnedSourceMisspellingIds = [
+    ...new Set(
+      returnedWritingIssues
+        .map((issue) => issue.source_misspelling_instance_id)
+        .filter((id): id is string => typeof id === "string" && id.length > 0),
+    ),
+  ];
+  const [
+    { data: returnedCandidateMappingRows },
+    { data: returnedCatalogReviewCaseRows },
+  ] =
+    returnedSourceMisspellingIds.length > 0
+      ? await Promise.all([
+          input.supabase
+            .from("parent_verified_spelling_candidate_mappings")
+            .select(
+              "id, source_misspelling_instance_id, micro_skill_key, candidate_status, promotion_scope",
+            )
+            .eq("parent_user_id", input.parentUserId)
+            .eq("child_id", input.childId)
+            .in("source_misspelling_instance_id", returnedSourceMisspellingIds)
+            .in("candidate_status", [
+              "pending_parent_promotion",
+              "parent_local_promoted",
+            ])
+            .order("created_at", { ascending: false }),
+          input.supabase
+            .from("spelling_catalog_review_cases")
+            .select("id, source_misspelling_instance_id, case_status")
+            .eq("parent_user_id", input.parentUserId)
+            .eq("child_id", input.childId)
+            .eq("case_status", "open")
+            .in("source_misspelling_instance_id", returnedSourceMisspellingIds)
+            .order("created_at", { ascending: false }),
+        ])
+      : [{ data: [] }, { data: [] }];
+  const candidateMappings = mergeById(
+    (candidateMappingRows ?? []) as UnifiedSpellingReviewCandidateMappingRow[],
+    (returnedCandidateMappingRows ?? []) as UnifiedSpellingReviewCandidateMappingRow[],
+  );
+  const catalogReviewCases = mergeById(
+    (catalogReviewCaseRows ?? []) as UnifiedSpellingReviewCatalogReviewCaseRow[],
+    (returnedCatalogReviewCaseRows ?? []) as UnifiedSpellingReviewCatalogReviewCaseRow[],
+  );
 
   return buildUnifiedSpellingReviewItems({
     submissionId: input.submissionId,
@@ -642,11 +726,8 @@ export async function loadUnifiedSpellingReviewItemsForSubmission(input: {
     writingIssues:
       (writingIssueRows ?? []) as unknown as UnifiedSpellingReviewWritingIssueRow[],
     correctionAttempts,
-    returnedWritingIssues:
-      (returnedWritingIssueRows ?? []) as unknown as UnifiedSpellingReviewWritingIssueRow[],
-    candidateMappings:
-      (candidateMappingRows ?? []) as UnifiedSpellingReviewCandidateMappingRow[],
-    catalogReviewCases:
-      (catalogReviewCaseRows ?? []) as UnifiedSpellingReviewCatalogReviewCaseRow[],
+    returnedWritingIssues,
+    candidateMappings,
+    catalogReviewCases,
   });
 }

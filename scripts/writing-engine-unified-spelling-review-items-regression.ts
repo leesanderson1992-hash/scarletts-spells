@@ -205,8 +205,8 @@ const input: BuildUnifiedSpellingReviewItemsInput = {
   writingIssues: [],
   correctionAttempts: [
     {
-      id: "attempt-returned",
-      writing_issue_id: "issue-original-parent",
+      id: "attempt-returned-admin",
+      writing_issue_id: "issue-original-admin",
       task_submission_id: "submission-current",
       attempted_correction: "natural",
       attempt_notes: null,
@@ -214,10 +214,30 @@ const input: BuildUnifiedSpellingReviewItemsInput = {
       metadata: { source: "child_retry" },
       created_at: "2026-05-26T09:00:00.000Z",
     },
+    {
+      id: "attempt-returned-mapping",
+      writing_issue_id: "issue-original-mapping",
+      task_submission_id: "submission-current",
+      attempted_correction: "receive",
+      attempt_notes: null,
+      reflection: "hard",
+      metadata: { source: "child_retry" },
+      created_at: "2026-05-26T09:05:00.000Z",
+    },
+    {
+      id: "attempt-returned-deferred",
+      writing_issue_id: "issue-original-deferred",
+      task_submission_id: "submission-current",
+      attempted_correction: "becuase",
+      attempt_notes: null,
+      reflection: "hard",
+      metadata: { source: "child_retry" },
+      created_at: "2026-05-26T09:10:00.000Z",
+    },
   ],
   returnedWritingIssues: [
     {
-      id: "issue-original-parent",
+      id: "issue-original-admin",
       task_submission_id: "submission-previous",
       source_misspelling_instance_id: "miss-parent-original",
       source_suggestion_id: null,
@@ -234,6 +254,40 @@ const input: BuildUnifiedSpellingReviewItemsInput = {
         parent_authored_missed_word: true,
       },
     },
+    {
+      id: "issue-original-mapping",
+      task_submission_id: "submission-previous",
+      source_misspelling_instance_id: "miss-mapping-original",
+      source_suggestion_id: "suggestion-original-mapping",
+      issue_status: "child_responded",
+      final_classification: null,
+      observed_text: "recieve",
+      suggested_replacement: "receive",
+      approved_replacement: "receive",
+      micro_skill_key: "unknown",
+      parent_review_note: "Try this spelling again.",
+      notes: null,
+      metadata: {
+        source_kind: "misspelling_instance",
+      },
+    },
+    {
+      id: "issue-original-deferred",
+      task_submission_id: "submission-previous",
+      source_misspelling_instance_id: "miss-deferred-original",
+      source_suggestion_id: "suggestion-original-deferred",
+      issue_status: "child_responded",
+      final_classification: null,
+      observed_text: "becuase",
+      suggested_replacement: "because",
+      approved_replacement: "because",
+      micro_skill_key: "unknown",
+      parent_review_note: "Try this spelling again.",
+      notes: null,
+      metadata: {
+        source_kind: "misspelling_instance",
+      },
+    },
   ],
   candidateMappings: [
     {
@@ -243,13 +297,26 @@ const input: BuildUnifiedSpellingReviewItemsInput = {
       candidate_status: "pending_parent_promotion",
       promotion_scope: "parent_local",
     },
+    {
+      id: "mapping-returned-pending",
+      source_misspelling_instance_id: "miss-mapping-original",
+      micro_skill_key: "vowel_team_ie_ei",
+      candidate_status: "pending_parent_promotion",
+      promotion_scope: "parent_local",
+    },
   ],
-  catalogReviewCases: [],
+  catalogReviewCases: [
+    {
+      id: "case-returned-admin",
+      source_misspelling_instance_id: "miss-parent-original",
+      case_status: "open",
+    },
+  ],
 };
 
 const rows = buildUnifiedSpellingReviewItems(input);
 
-assert.equal(rows.length, 6, "The unified read model should assemble six rows.");
+assert.equal(rows.length, 8, "The unified read model should assemble eight rows.");
 
 const engineRow = rows.find((row) => row.sourceIds.misspellingInstanceId === "miss-engine");
 assert.ok(engineRow, "Engine suggested issue row should be present.");
@@ -295,22 +362,41 @@ assert.equal(parentAddedRow.provenance.parentAuthored, true);
 assert.equal(parentAddedRow.categorisationStatus, "parent_local_pending");
 assert.equal(parentAddedRow.sourceIds.candidateMappingId, "mapping-parent-pending");
 
-const returnedRow = rows.find(
-  (row) => row.sourceIds.originalWritingIssueId === "issue-original-parent",
+const returnedAdminRow = rows.find(
+  (row) => row.sourceIds.originalWritingIssueId === "issue-original-admin",
 );
-assert.ok(returnedRow, "Returned correction row should be present.");
-assert.equal(returnedRow.source, "returned_correction");
-assert.equal(returnedRow.latestChildAttempt, "natural");
-assert.equal(returnedRow.childReflection, "medium");
-assert.equal(returnedRow.sourceIds.correctionAttemptId, "attempt-returned");
-assert.equal(returnedRow.sourceIds.writingIssueId, null);
-assert.equal(returnedRow.sourceIds.originalWritingIssueId, "issue-original-parent");
-assert.equal(returnedRow.provenance.parentAuthored, true);
-assert.equal(returnedRow.provenance.previousTaskSubmissionId, "submission-previous");
+assert.ok(returnedAdminRow, "Returned correction admin-route row should be present.");
+assert.equal(returnedAdminRow.source, "returned_correction");
+assert.equal(returnedAdminRow.latestChildAttempt, "natural");
+assert.equal(returnedAdminRow.childReflection, "medium");
+assert.equal(returnedAdminRow.sourceIds.correctionAttemptId, "attempt-returned-admin");
+assert.equal(returnedAdminRow.sourceIds.writingIssueId, null);
 assert.equal(
-  returnedRow.categorisationStatus,
+  returnedAdminRow.sourceIds.originalWritingIssueId,
+  "issue-original-admin",
+);
+assert.equal(returnedAdminRow.provenance.parentAuthored, true);
+assert.equal(returnedAdminRow.provenance.previousTaskSubmissionId, "submission-previous");
+assert.equal(returnedAdminRow.sourceIds.catalogReviewCaseId, "case-returned-admin");
+assert.equal(returnedAdminRow.categorisationStatus, "sent_to_admin");
+
+const returnedMappingRow = rows.find(
+  (row) => row.sourceIds.originalWritingIssueId === "issue-original-mapping",
+);
+assert.ok(returnedMappingRow, "Returned correction parent-local route row should be present.");
+assert.equal(returnedMappingRow.sourceIds.candidateMappingId, "mapping-returned-pending");
+assert.equal(returnedMappingRow.categorisationStatus, "parent_local_pending");
+
+const returnedDeferredRow = rows.find(
+  (row) => row.sourceIds.originalWritingIssueId === "issue-original-deferred",
+);
+assert.ok(returnedDeferredRow, "Returned correction deferred row should be present.");
+assert.equal(returnedDeferredRow.sourceIds.catalogReviewCaseId, null);
+assert.equal(returnedDeferredRow.sourceIds.candidateMappingId, null);
+assert.equal(
+  returnedDeferredRow.categorisationStatus,
   "unsupported_returned_correction_route",
-  "Returned issues with unknown micro-skill should be marked deferred rather than silently routed.",
+  "Returned issues with no bridge record should be marked deferred rather than silently routed.",
 );
 
 assert.doesNotMatch(
@@ -327,6 +413,21 @@ assert.doesNotMatch(
   helperSource,
   /\.from\("task_submission_payloads"\)[\s\S]*\.(update|upsert|insert)\(/,
   "Unified read-model helper must not mutate task_submission_payloads.",
+);
+assert.match(
+  helperSource,
+  /const returnedSourceMisspellingIds = \[/,
+  "Unified read-model helper must derive original source misspelling ids for returned corrections.",
+);
+assert.match(
+  helperSource,
+  /\.from\("parent_verified_spelling_candidate_mappings"\)[\s\S]*\.in\("source_misspelling_instance_id", returnedSourceMisspellingIds\)/,
+  "Unified read-model helper must bridge returned corrections to candidate mappings by original source misspelling id.",
+);
+assert.match(
+  helperSource,
+  /\.from\("spelling_catalog_review_cases"\)[\s\S]*\.in\("source_misspelling_instance_id", returnedSourceMisspellingIds\)/,
+  "Unified read-model helper must bridge returned corrections to open catalog review cases by original source misspelling id.",
 );
 
 console.log("writing-engine-unified-spelling-review-items-regression: ok");
