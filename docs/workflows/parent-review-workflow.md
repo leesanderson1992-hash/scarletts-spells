@@ -196,8 +196,11 @@ When a child resubmits returned work:
   child resubmission
 - `writing_issue_correction_attempts.writing_issue_id` points back to the
   original durable returned issue
-- Review Work must show the returned correction by joining the current
+- Review Work must show active returned corrections by joining the current
   submission's attempts to the original `writing_issues`
+- terminal returned corrections must remain known to the parent-facing review
+  model even when the latest child resubmission has no new
+  `writing_issue_correction_attempt`
 - parent final classification must target the original `writing_issue.id`
 
 The page must not duplicate old `writing_issues` onto the new submission just to
@@ -215,16 +218,27 @@ read model must distinguish between:
 - repeated instances that look similar but are separate occurrences
 
 Rules:
+- returned correction ownership survives later resubmission cycles in the same
+  task/child/parent review thread
+- terminal returned targets must not create new child retry boxes
+- terminal returned targets must not reopen as active `E` / `New` engine rows
+  when the same task/child/parent review thread is resubmitted
+- returned rows may remain visible as terminal/history rows with blank `Retry`
+  if no current correction attempt exists
 - regenerated detections that are safely identified as already-owned returned
   targets must not appear as duplicate active `E` rows
 - genuinely new spelling issues after resubmission must still appear as active
   `E` rows and block completion until resolved
 - repeated instances of the same word/correction pair are legitimate separate
-  review rows unless direct returned-lineage proves they are the same returned
-  correction target
-- pair-only matching is not sufficient to suppress an active row
+  review rows unless safe lineage or same-thread returned ownership proves they
+  are already-owned returned targets
+- pair-only matching is not sufficient to suppress an active row globally
+- same task/child/parent thread context may support returned-target ownership,
+  but ambiguous matches should stay visible
 - suppression or history-only treatment must be engine-only and must never hide
   parent-added rows
+- terminal returned targets and suppressed already-owned regenerated engine rows
+  do not block completion
 - parent-added current rows remain `P`
 - parent-added returned rows remain `P·R`
 
@@ -275,6 +289,10 @@ the following constraints:
   resubmission; regenerated engine detections for those already-returned targets
   must not create duplicate active `E` obligations when safe lineage proves
   ownership
+- terminal returned targets must remain owned by the review thread across later
+  child resubmissions even when no new correction attempt exists
+- terminal returned targets should not create child retry boxes and should not
+  reopen as active `E` / `New` rows
 - regenerated engine duplicate handling must never hide parent-added rows
 - ordinary actionable rows should not display `Blocked`; reserve `Blocked` for
   genuinely unsupported or deferred states
@@ -387,14 +405,19 @@ Slice F — Returned Correction Categorisation/Admin Bridge:
 - do not broaden resolver, mastery, assignment, analytics, dashboard, or admin
   canonical-curation behavior
 
-Slice G — Returned Resubmission New-Issue Scan And Duplicate Ownership:
-- next safe runtime follow-up if smoke testing shows returned targets reappear
-  as duplicate active engine rows after child resubmission
+Slice G — Multi-Cycle Returned Review Ownership:
+- next safe runtime follow-up after smoke testing showed terminal returned
+  targets can disappear from returned/history rows and reopen as active
+  engine rows after a later child resubmission
 - keep returned correction rows as the active owner for original returned
-  targets
+  targets across later resubmission cycles
+- keep terminal returned targets known even when the latest child resubmission
+  has no new `writing_issue_correction_attempt`
+- do not create child retry boxes for terminal returned targets
 - scan for genuinely new engine spelling issues in the latest resubmission
 - suppress or mark history-only only regenerated engine rows with safe returned
-  lineage; never suppress by word/correction pair alone
+  lineage or same-thread returned ownership; never suppress by word/correction
+  pair alone globally
 - preserve parent-added current rows as `P` and parent-added returned rows as
   `P·R`
 - keep completion gating aligned with active parent-facing obligations only

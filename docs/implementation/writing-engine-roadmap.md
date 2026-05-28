@@ -258,14 +258,18 @@ Next implementation slices:
 - Slice F is complete on the bounded Review Work path: returned rows can
   assign/override existing skills, raise no-matching-skill cases to admin, and
   use parent-local route handling where source/provenance guarantees exist
-- Slice G is the next bounded Review Work follow-up if smoke testing shows
-  returned correction targets reappearing as duplicate active engine rows after
-  child resubmission
+- Slice G is the next bounded Review Work follow-up after smoke testing showed
+  terminal returned correction targets can disappear from returned/history rows
+  and reopen as duplicate active engine rows after later child resubmission
 - Slice G must keep returned correction rows as the active owner for original
-  returned targets, while still surfacing genuinely new spelling issues in the
-  latest resubmission
-- Slice G must not suppress rows by word/correction pair alone; repeated
-  instances remain visible unless safe returned-lineage proves ownership
+  returned targets across later resubmission cycles, while still surfacing
+  genuinely new spelling issues in the latest resubmission
+- Slice G must keep terminal returned targets known even when the latest child
+  resubmission has no new `writing_issue_correction_attempt`
+- Slice G must not create child retry boxes for terminal returned targets
+- Slice G must not suppress rows by word/correction pair alone globally;
+  repeated instances remain visible unless safe returned-lineage or same-thread
+  returned ownership proves ownership
 - Slice G must preserve parent-added current rows as `P` and parent-added
   returned rows as `P·R`
 - Slice G may touch only unified spelling review read-model ownership, retry
@@ -287,9 +291,10 @@ Hard stop conditions:
 - keep Slice F bounded to Review Work returned spelling corrections; do not
   broaden into resolver priority, mastery, assignment generation, dashboards,
   analytics, or admin canonical-curation redesign
-- keep Slice G bounded to returned-resubmission new-issue scanning and duplicate
-  ownership; do not broaden into resolver priority, canonical admin redesign,
-  mastery, assignment generation, dashboards, or analytics
+- keep Slice G bounded to multi-cycle returned review ownership,
+  returned-resubmission new-issue scanning, and duplicate ownership; do not
+  broaden into resolver priority, canonical admin redesign, mastery,
+  assignment generation, dashboards, or analytics
 
 Manual smoke:
 - actual structured lesson-page submit now creates both `task_submissions` and
