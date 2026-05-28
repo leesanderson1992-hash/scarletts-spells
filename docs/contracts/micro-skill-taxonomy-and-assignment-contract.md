@@ -930,9 +930,14 @@ Slice `4A` spelling catalog-review taxonomy contract:
   - the recommendation should create or update a
     `spelling_catalog_review_cases` row with the selected existing
     `micro_skill_key` preserved as parent recommendation metadata/evidence
+  - admin canonical curation should let the admin review the suggested
+    word/correction/micro-skill decision before global canonical truth is
+    created
   - admin canonical curation remains the only path that may write
     `spelling_canonical_mappings`
   - no parent action may create global canonical mapping truth directly
+  - resolver integration remains separate from parent recommendation capture and
+    admin curation
 - staged follow-up:
   - Slice `4B.0`: bounded option filtering by family/cluster
   - Slice `4B.1`: parent `No matching skill` case capture only,

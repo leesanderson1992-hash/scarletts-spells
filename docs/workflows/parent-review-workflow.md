@@ -98,6 +98,8 @@ Retry column rules:
 - show only the child's latest attempted spelling
 - do not show the whole answer/body text in `Retry`
 - do not show reflection in `Retry`
+- if historical attempt data contains full answer/body text, hide it from the
+  main `Retry` column or show only a compact fallback such as `See details`
 
 Parent note, child reflection, provenance, history, route explanation,
 correction outcome, and original issue id belong in the expanded `Details` row.
@@ -201,6 +203,36 @@ When a child resubmits returned work:
 The page must not duplicate old `writing_issues` onto the new submission just to
 make returned corrections visible.
 
+## Returned Resubmission New-Issue Scan Contract
+
+When the child resubmits returned correction work, returned correction rows own
+the original spelling review obligation that was sent back.
+
+The engine may still scan the resubmitted text, but the unified parent-facing
+read model must distinguish between:
+- regenerated detections for already-returned targets
+- genuinely new spelling issues in the child's latest resubmission
+- repeated instances that look similar but are separate occurrences
+
+Rules:
+- regenerated detections that are safely identified as already-owned returned
+  targets must not appear as duplicate active `E` rows
+- genuinely new spelling issues after resubmission must still appear as active
+  `E` rows and block completion until resolved
+- repeated instances of the same word/correction pair are legitimate separate
+  review rows unless direct returned-lineage proves they are the same returned
+  correction target
+- pair-only matching is not sufficient to suppress an active row
+- suppression or history-only treatment must be engine-only and must never hide
+  parent-added rows
+- parent-added current rows remain `P`
+- parent-added returned rows remain `P·R`
+
+If safe lineage is unavailable, prefer showing the row as a distinct active
+review obligation over hiding a real current spelling issue. Details may expose
+source ids, snippets, position/span, original issue id, correction attempt id,
+or history to help the parent understand repeated-looking rows.
+
 ## Parent-Added Missed Word Continuity
 
 Parent-added missed words remain separate from engine suggested issues as source
@@ -239,6 +271,10 @@ the following constraints:
   returned correction where applicable
 - repeated spelling instances must remain separate review rows unless safe
   lineage proves they are the same returned correction item
+- returned correction rows own their original returned target after child
+  resubmission; regenerated engine detections for those already-returned targets
+  must not create duplicate active `E` obligations when safe lineage proves
+  ownership
 - regenerated engine duplicate handling must never hide parent-added rows
 - ordinary actionable rows should not display `Blocked`; reserve `Blocked` for
   genuinely unsupported or deferred states
@@ -350,6 +386,18 @@ Slice F — Returned Correction Categorisation/Admin Bridge:
 - complete: keeps final classification separate from categorisation routing
 - do not broaden resolver, mastery, assignment, analytics, dashboard, or admin
   canonical-curation behavior
+
+Slice G — Returned Resubmission New-Issue Scan And Duplicate Ownership:
+- next safe runtime follow-up if smoke testing shows returned targets reappear
+  as duplicate active engine rows after child resubmission
+- keep returned correction rows as the active owner for original returned
+  targets
+- scan for genuinely new engine spelling issues in the latest resubmission
+- suppress or mark history-only only regenerated engine rows with safe returned
+  lineage; never suppress by word/correction pair alone
+- preserve parent-added current rows as `P` and parent-added returned rows as
+  `P·R`
+- keep completion gating aligned with active parent-facing obligations only
 
 Future Pass — Parent Recommended Canonical Mapping:
 - allow a parent-assigned existing skill to be recommended to admin for
