@@ -235,8 +235,10 @@ Current status:
 - Slice B attaches existing `parent_verifications` through canonical Stage 7D
   `source_entity_id` values, preserving accepted, overridden,
   false-positive, and not-a-learning-issue truth
-- unsupported returned-correction categorisation remains deferred until a safe
-  returned-row admin/catalog-review or parent-local bridge is documented
+- returned-correction categorisation/admin routing is implemented for the
+  bounded Review Work path where the bridge can validate original issue,
+  correction attempt, source-misspelling lineage, parent/child ownership, and
+  final classification
 
 Next implementation slices:
 - Slice C is complete as a returned-correction read-model bridge: returned
@@ -245,16 +247,17 @@ Next implementation slices:
   deferred
 - Slice D is complete: compact unified spelling table UI is backed by the Slice
   B read model and Slice C route/deferred states
-- Slice E is in progress but not ready to commit until UX/status/provenance
-  corrections pass
-- Slice E.1 is next: polish completion-gating UX/status display, keep
-  regenerated duplicate suppression engine-only, preserve parent-added rows as
-  `P` / `P·R`, move `No matching skill` to the Family-level selector for
-  supported current rows, and restore reliable compact action hover/help text
-- Slice F follows: implement the safe returned-correction
-  categorisation/admin bridge so returned rows can assign/override existing
-  skills, raise no-matching-skill cases to admin, and use parent-local route
-  handling where source/provenance guarantees exist
+- Slice E is complete on the bounded Review Work path: completion gating uses
+  the unified parent-facing spelling review item summary while preserving
+  defensive server-side guards
+- Slice E.1 is complete: completion-gating UX/status display was polished,
+  repeated instances remain visible unless safe lineage proves sameness,
+  parent-added rows are preserved as `P` / `P·R`, `No matching skill` is a
+  Family-level selector for supported current rows, and compact action
+  hover/help text is restored
+- Slice F is complete on the bounded Review Work path: returned rows can
+  assign/override existing skills, raise no-matching-skill cases to admin, and
+  use parent-local route handling where source/provenance guarantees exist
 - Future pass: define parent-recommended canonical mapping, where a
   parent-assigned existing skill can be sent to admin as a canonical mapping
   recommendation without automatically creating global canonical truth

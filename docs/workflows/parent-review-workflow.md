@@ -89,9 +89,10 @@ Skill column rules:
   rows; selecting it clears/disables Cluster and Micro-skill controls and
   enables the admin/catalog-review route where supported
 - `No matching skill` must not be persisted as a `micro_skill_key`
-- returned-correction skill dropdowns must remain disabled/deferred until the
-  returned-correction categorisation bridge exists
-- do not invent returned-correction categorisation behaviour in the UI
+- returned-correction skill dropdowns remain disabled/deferred only where a
+  safe returned-correction categorisation/admin route is still unsupported
+- do not invent returned-correction categorisation behaviour in the UI; use the
+  dedicated returned-correction bridge where source/provenance guarantees exist
 
 Retry column rules:
 - show only the child's latest attempted spelling
@@ -223,19 +224,22 @@ returned feedback.
 The unified table should expose admin/catalog-review and parent-local promotion
 routes where supported by existing source records.
 
-Do not assume existing candidate-mapping or raw-misspelling routes safely support
-returned `writing_issues`. If returned correction rows need a new bridge to
-catalog-review cases or parent-local mappings, stop and document that bridge
-before implementation.
+Do not assume raw returned `writing_issues` are current `misspelling_instances`.
+Returned correction rows must use the dedicated returned-correction bridge for
+catalog-review cases or parent-local mappings, preserving original issue and
+source-misspelling lineage.
 
-## Current Slice E Follow-Up
+## Current Parent Review Status
 
-Slice E is not ready to close until the compact table and completion gate handle
-the following follow-up points:
+Slice E/E.1/F are implemented as an integrated Parent Review completion and
+returned-correction routing slice. The current committed runtime should preserve
+the following constraints:
 
 - parent-added rows must survive as `P` before send-back and `P·R` after
   returned correction where applicable
-- regenerated engine duplicate suppression must never hide parent-added rows
+- repeated spelling instances must remain separate review rows unless safe
+  lineage proves they are the same returned correction item
+- regenerated engine duplicate handling must never hide parent-added rows
 - ordinary actionable rows should not display `Blocked`; reserve `Blocked` for
   genuinely unsupported or deferred states
 - compact status display should map actionable current rows to `New`, returned
@@ -249,13 +253,14 @@ the following follow-up points:
 
 ## Returned Correction Categorisation Bridge
 
-Current returned rows may final-classify correction outcome against the original
+Returned rows may final-classify correction outcome against the original
 `writing_issue.id`.
 
-The desired workflow also requires returned rows to support skill assignment,
-skill override, no-matching-skill admin handoff, and parent-local route handling
-after the child retries. That is a separate returned-correction categorisation
-bridge, not a table-only change.
+Returned rows also support skill assignment, skill override,
+no-matching-skill admin handoff, and parent-local route handling after the child
+retries where the bridge can validate original issue, correction attempt,
+source-misspelling lineage, parent/child ownership, and final classification.
+This is a returned-correction categorisation bridge, not a table-only behavior.
 
 The bridge must:
 - preserve final classification as correction outcome, not categorisation
@@ -263,8 +268,8 @@ The bridge must:
 - use safe source/provenance records for catalog-review and parent-local routes
 - avoid pretending returned `writing_issues` are current `misspelling_instances`
 - avoid duplicating returned `writing_issues` onto the new submission
-- leave unsupported returned routes disabled/deferred until a safe action path
-  exists
+- leave unsupported returned routes disabled/deferred where a safe action path
+  still does not exist
 
 ## Implementation Slices
 
@@ -315,35 +320,34 @@ Slice D — Unified Table UI:
   made the route safe
 
 Slice E — Suggested Issue Cleanup And Completion Gating:
-- in progress; not ready to commit until Slice E.1 UX/status/provenance
-  corrections pass
-- ensure not-an-issue rows stop appearing as active issues while preserving
+- complete: unified completion gating now uses the parent-facing spelling review
+  item summary while preserving defensive server-side guards
+- complete: not-an-issue rows stop appearing as active issues while preserving
   history
-- allow parent completion once required correction and categorisation decisions
+- complete: parent completion is allowed once required correction and
+  categorisation decisions
   are resolved
-- suppress regenerated engine duplicates without hiding parent-added rows
-- keep legacy Suggested Issues guards compatible with the unified
+- complete: repeated spelling instances remain visible unless safe lineage
+  proves they are the same returned correction item
+- complete: legacy Suggested Issues guards remain compatible with the unified
   parent-facing item set
 - avoid mastery, reward, assignment, scoring, analytics, dashboard, or
   template-routing changes unless an existing verified-outcome bridge already
   owns them
 
 Slice E.1 — Completion Gating UX/Status Polish:
-- next safe implementation slice
-- restore compact icon hover/help text
-- fix compact status labels so `Blocked` is reserved for unsupported/deferred
+- complete: restored compact icon hover/help text
+- complete: fixed compact status labels so `Blocked` is reserved for unsupported/deferred
   states
-- move `No matching skill` to the Family-level selector for supported current
+- complete: moved `No matching skill` to the Family-level selector for supported current
   rows
-- prove regenerated duplicate suppression is engine-only and cannot hide
-  parent-added rows
+- complete: proved repeated-instance handling cannot hide parent-added rows
 
 Slice F — Returned Correction Categorisation/Admin Bridge:
-- implement after Slice E.1
-- safely allow returned rows to assign/override existing skills, raise
+- complete: safely allows returned rows to assign/override existing skills, raise
   no-matching-skill cases to admin, and use parent-local route handling where
   source/provenance guarantees exist
-- keep final classification separate from categorisation routing
+- complete: keeps final classification separate from categorisation routing
 - do not broaden resolver, mastery, assignment, analytics, dashboard, or admin
   canonical-curation behavior
 
@@ -364,7 +368,9 @@ Stop and return to docs if implementation would require:
 - destructive `task_submission_payloads` mutation
 - treating parent-added words as engine-suggested truth
 - merging regenerated candidates with returned corrections without provenance
-- broad admin/catalog-review changes before a returned-row route contract exists
-- parent-local promotion without a safe candidate-mapping bridge
+- broad admin/catalog-review changes outside the bounded returned-correction
+  bridge
+- parent-local promotion without a safe candidate-mapping or returned-correction
+  bridge
 - resolver, mastery, reward, assignment, scoring, analytics, dashboard,
   template-routing, migration, package, or `micro_skill_catalog` changes
