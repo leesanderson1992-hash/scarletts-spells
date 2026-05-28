@@ -3,7 +3,9 @@ import { readFileSync } from "node:fs";
 
 import {
   buildUnifiedSpellingReviewItems,
+  summarizeUnifiedSpellingReviewCompletion,
   type BuildUnifiedSpellingReviewItemsInput,
+  type UnifiedSpellingReviewItem,
 } from "../lib/writing-engine/persistence/unified-spelling-review-items";
 
 const helperPath = "lib/writing-engine/persistence/unified-spelling-review-items.ts";
@@ -81,6 +83,16 @@ const input: BuildUnifiedSpellingReviewItemsInput = {
       position_start: 40,
       position_end: 47,
     },
+    {
+      id: "miss-regenerated-returned",
+      writing_sample_id: "sample-current",
+      misspelled_word: "writting",
+      corrected_word: "writing",
+      suggested_word: "writing",
+      notes: null,
+      position_start: 50,
+      position_end: 58,
+    },
   ],
   writingIssueSuggestions: [
     {
@@ -133,6 +145,19 @@ const input: BuildUnifiedSpellingReviewItemsInput = {
       suggested_replacement: "going to",
       suggested_micro_skill_key: "unknown",
       notes: "Style issue candidate.",
+      metadata: { source: "engine" },
+    },
+    {
+      id: "suggestion-regenerated-returned",
+      task_submission_id: "submission-current",
+      writing_sample_id: "sample-current",
+      misspelling_instance_id: "miss-regenerated-returned",
+      suggestion_status: "pending",
+      source_type: "misspelling_instance",
+      observed_text: "writting",
+      suggested_replacement: "writing",
+      suggested_micro_skill_key: "phoneme_grapheme_blends",
+      notes: "Engine regenerated a candidate already represented by a returned correction.",
       metadata: { source: "engine" },
     },
   ],
@@ -234,6 +259,16 @@ const input: BuildUnifiedSpellingReviewItemsInput = {
       metadata: { source: "child_retry" },
       created_at: "2026-05-26T09:10:00.000Z",
     },
+    {
+      id: "attempt-returned-historical-full-answer",
+      writing_issue_id: "issue-original-historical-full-answer",
+      task_submission_id: "submission-current",
+      attempted_correction: "I practised writting again in my whole answer body.",
+      attempt_notes: null,
+      reflection: "easy",
+      metadata: { source: "historical_child_retry" },
+      created_at: "2026-05-26T09:15:00.000Z",
+    },
   ],
   returnedWritingIssues: [
     {
@@ -261,9 +296,9 @@ const input: BuildUnifiedSpellingReviewItemsInput = {
       source_suggestion_id: "suggestion-original-mapping",
       issue_status: "child_responded",
       final_classification: null,
-      observed_text: "recieve",
-      suggested_replacement: "receive",
-      approved_replacement: "receive",
+      observed_text: "adress",
+      suggested_replacement: "address",
+      approved_replacement: "address",
       micro_skill_key: "unknown",
       parent_review_note: "Try this spelling again.",
       notes: null,
@@ -282,6 +317,23 @@ const input: BuildUnifiedSpellingReviewItemsInput = {
       suggested_replacement: "because",
       approved_replacement: "because",
       micro_skill_key: "unknown",
+      parent_review_note: "Try this spelling again.",
+      notes: null,
+      metadata: {
+        source_kind: "misspelling_instance",
+      },
+    },
+    {
+      id: "issue-original-historical-full-answer",
+      task_submission_id: "submission-previous",
+      source_misspelling_instance_id: "miss-historical-full-answer-original",
+      source_suggestion_id: "suggestion-original-historical-full-answer",
+      issue_status: "child_responded",
+      final_classification: "checking_only",
+      observed_text: "writting",
+      suggested_replacement: "writing",
+      approved_replacement: "writing",
+      micro_skill_key: "phoneme_grapheme_blends",
       parent_review_note: "Try this spelling again.",
       notes: null,
       metadata: {
@@ -316,7 +368,11 @@ const input: BuildUnifiedSpellingReviewItemsInput = {
 
 const rows = buildUnifiedSpellingReviewItems(input);
 
-assert.equal(rows.length, 8, "The unified read model should assemble eight rows.");
+assert.equal(
+  rows.length,
+  10,
+  "The unified read model should preserve repeated spelling instances as separate review rows.",
+);
 
 const engineRow = rows.find((row) => row.sourceIds.misspellingInstanceId === "miss-engine");
 assert.ok(engineRow, "Engine suggested issue row should be present.");
@@ -361,6 +417,8 @@ assert.equal(parentAddedRow.source, "parent_added_missed_word");
 assert.equal(parentAddedRow.provenance.parentAuthored, true);
 assert.equal(parentAddedRow.categorisationStatus, "parent_local_pending");
 assert.equal(parentAddedRow.sourceIds.candidateMappingId, "mapping-parent-pending");
+assert.equal(parentAddedRow.observedText, "natrual");
+assert.equal(parentAddedRow.expectedCorrection, "natural");
 
 const returnedAdminRow = rows.find(
   (row) => row.sourceIds.originalWritingIssueId === "issue-original-admin",
@@ -379,6 +437,7 @@ assert.equal(returnedAdminRow.provenance.parentAuthored, true);
 assert.equal(returnedAdminRow.provenance.previousTaskSubmissionId, "submission-previous");
 assert.equal(returnedAdminRow.sourceIds.catalogReviewCaseId, "case-returned-admin");
 assert.equal(returnedAdminRow.categorisationStatus, "sent_to_admin");
+assert.equal(returnedAdminRow.source, "returned_correction");
 
 const returnedMappingRow = rows.find(
   (row) => row.sourceIds.originalWritingIssueId === "issue-original-mapping",
@@ -388,16 +447,159 @@ assert.equal(returnedMappingRow.sourceIds.candidateMappingId, "mapping-returned-
 assert.equal(returnedMappingRow.categorisationStatus, "parent_local_pending");
 assert.equal(returnedMappingRow.microSkillKey, "vowel_team_ie_ei");
 
+const repeatedInstanceRow = rows.find(
+  (row) => row.sourceIds.misspellingInstanceId === "miss-regenerated-returned",
+);
+assert.ok(
+  repeatedInstanceRow,
+  "Current engine rows with the same word/correction pair as a returned correction must remain visible unless direct lineage proves duplication.",
+);
+assert.equal(repeatedInstanceRow.source, "engine_suggested");
+assert.equal(repeatedInstanceRow.state, "pending_parent_review");
+assert.equal(repeatedInstanceRow.provenance.parentAuthored, false);
+assert.equal(
+  repeatedInstanceRow.provenance.metadata.source_misspelling_instance_id,
+  "miss-regenerated-returned",
+);
+
+const historicalFullAnswerReturnedRow = rows.find(
+  (row) =>
+    row.sourceIds.originalWritingIssueId === "issue-original-historical-full-answer",
+);
+assert.ok(
+  historicalFullAnswerReturnedRow,
+  "Returned correction row should remain visible when a historical attempt contains full answer text.",
+);
+assert.equal(
+  historicalFullAnswerReturnedRow.latestChildAttempt,
+  null,
+  "Historical full-answer attempt text must not render in the compact Retry column.",
+);
+assert.equal(
+  historicalFullAnswerReturnedRow.provenance.metadata.historical_full_answer_attempt,
+  "I practised writting again in my whole answer body.",
+  "Historical full-answer attempt text should stay available to Details/provenance.",
+);
+assert.equal(
+  historicalFullAnswerReturnedRow.provenance.metadata.original_writing_issue_id,
+  "issue-original-historical-full-answer",
+  "Returned row provenance should include original writing issue id for disambiguation.",
+);
+assert.equal(
+  historicalFullAnswerReturnedRow.provenance.metadata.correction_attempt_id,
+  "attempt-returned-historical-full-answer",
+  "Returned row provenance should include correction attempt id for disambiguation.",
+);
+
 const returnedDeferredRow = rows.find(
   (row) => row.sourceIds.originalWritingIssueId === "issue-original-deferred",
 );
-assert.ok(returnedDeferredRow, "Returned correction deferred row should be present.");
+assert.ok(returnedDeferredRow, "Returned correction awaiting-outcome row should be present.");
 assert.equal(returnedDeferredRow.sourceIds.catalogReviewCaseId, null);
 assert.equal(returnedDeferredRow.sourceIds.candidateMappingId, null);
 assert.equal(
   returnedDeferredRow.categorisationStatus,
-  "unsupported_returned_correction_route",
-  "Returned issues with no bridge record should be marked deferred rather than silently routed.",
+  "not_applicable",
+  "Returned corrections without final classification should await outcome before skill routing.",
+);
+
+const completionSummary = summarizeUnifiedSpellingReviewCompletion(rows);
+assert.equal(completionSummary.canComplete, false);
+assert.equal(completionSummary.totalItemCount, 10);
+assert.equal(completionSummary.unresolvedItemCount, 5);
+assert.equal(completionSummary.unresolvedReturnedCorrectionCount, 3);
+assert.equal(completionSummary.unresolvedCategorisationCount, 2);
+assert.equal(completionSummary.deferredUnsupportedRouteCount, 0);
+assert.ok(
+  completionSummary.blockingReasons.some((reason) =>
+    reason.includes("returned correction") && reason.includes("final classification"),
+  ),
+  "Returned corrections without final classification must block completion.",
+);
+assert.ok(
+  completionSummary.blockingReasons.some((reason) =>
+    reason.includes("categorisation or admin handoff"),
+  ),
+  "Rows needing categorisation or parent-local promotion must block completion.",
+);
+const terminalRows: UnifiedSpellingReviewItem[] = [
+  engineRow,
+  overriddenRow,
+  falsePositiveRow,
+  notLearningRow,
+  {
+    ...parentAddedRow,
+    state: "locally_promoted",
+    categorisationStatus: "parent_local_promoted",
+  },
+  {
+    ...returnedAdminRow,
+    state: "resolved",
+    correctionOutcome: "concept_gap",
+  },
+  {
+    ...returnedMappingRow,
+    state: "resolved",
+    categorisationStatus: "parent_local_promoted",
+    correctionOutcome: "concept_gap",
+  },
+];
+const terminalSummary = summarizeUnifiedSpellingReviewCompletion(terminalRows);
+assert.equal(terminalSummary.canComplete, true);
+assert.equal(terminalSummary.unresolvedItemCount, 0);
+assert.equal(terminalSummary.unresolvedReturnedCorrectionCount, 0);
+assert.deepEqual(terminalSummary.blockingReasons, []);
+
+const pendingEngineSummary = summarizeUnifiedSpellingReviewCompletion([
+  {
+    ...engineRow,
+    state: "pending_parent_review",
+    categorisationStatus: "categorised",
+  },
+]);
+assert.equal(pendingEngineSummary.canComplete, false);
+assert.equal(pendingEngineSummary.unresolvedItemCount, 1);
+assert.match(
+  pendingEngineSummary.blockingReasons.join(" "),
+  /parent decision/,
+  "Pending engine suggestions must block completion.",
+);
+
+const pendingParentAddedSummary = summarizeUnifiedSpellingReviewCompletion([
+  parentAddedRow,
+]);
+assert.equal(pendingParentAddedSummary.canComplete, false);
+assert.match(
+  pendingParentAddedSummary.blockingReasons.join(" "),
+  /categorisation or admin handoff/,
+  "Parent-added missed words with pending parent-local route must block completion.",
+);
+
+const unsupportedReturnedSummary = summarizeUnifiedSpellingReviewCompletion([
+  {
+    ...returnedDeferredRow,
+    state: "resolved",
+    correctionOutcome: "concept_gap",
+    categorisationStatus: "unsupported_returned_correction_route",
+  },
+]);
+assert.equal(unsupportedReturnedSummary.canComplete, false);
+assert.equal(unsupportedReturnedSummary.deferredUnsupportedRouteCount, 1);
+
+const routableReturnedSummary = summarizeUnifiedSpellingReviewCompletion([
+  {
+    ...returnedDeferredRow,
+    state: "resolved",
+    correctionOutcome: "concept_gap",
+    categorisationStatus: "categorisation_needed",
+  },
+]);
+assert.equal(routableReturnedSummary.canComplete, false);
+assert.equal(routableReturnedSummary.deferredUnsupportedRouteCount, 0);
+assert.match(
+  routableReturnedSummary.blockingReasons.join(" "),
+  /categorisation or admin handoff/,
+  "Final-classified returned corrections with source lineage must block as actionable categorisation work.",
 );
 
 assert.doesNotMatch(
@@ -419,6 +621,11 @@ assert.match(
   helperSource,
   /const returnedSourceMisspellingIds = \[/,
   "Unified read-model helper must derive original source misspelling ids for returned corrections.",
+);
+assert.doesNotMatch(
+  helperSource,
+  /returnedPairKeys|suppressedRegeneratedCandidatesByPairKey|buildReviewPairKey/,
+  "Unified read-model helper must not suppress active rows using word/correction pair-only matching.",
 );
 assert.match(
   helperSource,

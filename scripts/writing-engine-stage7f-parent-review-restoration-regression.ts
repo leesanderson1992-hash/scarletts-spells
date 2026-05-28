@@ -19,10 +19,6 @@ const manualSampleReviewUtilsPath = path.join(
   workspaceRoot,
   "app/courses/review/manual-sample-review-utils.ts",
 );
-const reviewActionsPath = path.join(
-  workspaceRoot,
-  "app/courses/review/actions.ts",
-);
 const manualSampleActionsPath = path.join(
   workspaceRoot,
   "app/courses/review/manual-sample-actions.ts",
@@ -387,20 +383,31 @@ function testReviewWorkSourceWiringAndGuardrailText() {
   const reviewQueuePageSource = readSource(reviewQueuePagePath);
   const manualSampleSectionsSource = readSource(manualSampleSectionsPath);
   const manualSampleReviewUtilsSource = readSource(manualSampleReviewUtilsPath);
-  const reviewActionsSource = readSource(reviewActionsPath);
   const manualSampleActionsSource = readSource(manualSampleActionsPath);
   const reviewCompletionActionsSource = readSource(reviewCompletionActionsPath);
   const reviewUtilsSource = readSource(reviewUtilsPath);
 
   assert.match(
     reviewDetailPageSource,
-    /<p className="brand-eyebrow">Parent-added missed words<\/p>/,
+    /<UnifiedSpellingReviewTable[\s\S]*rows=\{unifiedSpellingReviewItems\}/,
+  );
+  assert.match(reviewDetailPageSource, /action=\{addMissedWordToSubmissionReview\}/);
+  assert.match(
+    reviewDetailPageSource,
+    /completionSummary=\{unifiedCompletionSummary\}/,
+  );
+  assert.match(
+    reviewDetailPageSource,
+    /legacyUnresolvedCount=\{legacyUnresolvedCountForApproval\}/,
+  );
+  assert.match(
+    reviewDetailPageSource,
+    /const legacyUnresolvedCountForApproval = panelModel\.summary\.unresolvedCount/,
   );
   assert.match(
     manualSampleSectionsSource,
     /<p className="brand-eyebrow">Parent-authored manual issues<\/p>/,
   );
-  assert.match(reviewDetailPageSource, /action=\{addMissedWordToSubmissionReview\}/);
   assert.match(manualSampleSectionsSource, /action=\{addManualWritingIssue\}/);
   assert.match(manualSampleSectionsSource, /action=\{completeManualWritingSampleReview\}/);
   assert.match(reviewDetailPageSource, /action=\{approveSubmissionReview\}/);
@@ -440,6 +447,18 @@ function testReviewWorkSourceWiringAndGuardrailText() {
   assert.match(manualSampleActionsSource, /source_type:\s*"parent_manual"/);
   assert.match(manualSampleActionsSource, /review_completed_at:\s*new Date\(\)\.toISOString\(\)/);
   assert.match(manualSampleActionsSource, /review_completed_by:\s*user\.id/);
+  assert.match(
+    reviewCompletionActionsSource,
+    /loadUnifiedSpellingReviewItemsForSubmission[\s\S]*summarizeUnifiedSpellingReviewCompletion/,
+  );
+  assert.match(
+    reviewCompletionActionsSource,
+    /if \(!unifiedCompletionSummary\.canComplete\)/,
+  );
+  assert.doesNotMatch(
+    reviewCompletionActionsSource,
+    /suppressedRegeneratedCandidateIds/,
+  );
   assert.match(
     reviewCompletionActionsSource,
     /All captured suggestions must be reviewed before this submission can be approved\./,

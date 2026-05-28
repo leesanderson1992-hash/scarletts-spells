@@ -24,11 +24,183 @@ import {
   isParentAuthoredMisspellingRow,
   normaliseWordForLookup,
 } from "../review-utils";
+import { loadReturnedCorrectionRouteContext } from "./returned-correction-route-helpers";
+
+type OwnedSubmissionForCandidateCapture = NonNullable<
+  Awaited<ReturnType<typeof getOwnedSubmission>>["submission"]
+>;
+
+async function captureReturnedCorrectionCandidateMapping(input: {
+  supabase: Awaited<ReturnType<typeof createClient>>;
+  parentUserId: string;
+  submission: OwnedSubmissionForCandidateCapture;
+  originalWritingIssueId: string;
+  correctionAttemptId: string | null;
+  selectedMicroSkillKey: string;
+  safeRedirectPath: string;
+}) {
+  const routeContext = await loadReturnedCorrectionRouteContext({
+    supabase: input.supabase,
+    parentUserId: input.parentUserId,
+    childId: input.submission.child_id,
+    currentTaskSubmissionId: input.submission.id,
+    originalWritingIssueId: input.originalWritingIssueId,
+    correctionAttemptId: input.correctionAttemptId,
+  });
+
+  if (!routeContext) {
+    redirect(
+      buildRedirectWithMessage(
+        input.safeRedirectPath,
+        "error",
+        "That returned correction cannot be routed until it has an issue outcome and source spelling lineage.",
+      ),
+    );
+  }
+
+  const catalogEntry = await getReviewWorkCandidateCaptureMicroSkillCatalogEntry({
+    supabase: input.supabase,
+    microSkillKey: input.selectedMicroSkillKey,
+  });
+
+  if (!catalogEntry) {
+    redirect(
+      buildRedirectWithMessage(
+        input.safeRedirectPath,
+        "error",
+        "Only catalog-backed micro-skills can be used for candidate capture.",
+      ),
+    );
+  }
+
+  if (catalogEntry.masteryDomainKey !== "D4") {
+    redirect(
+      buildRedirectWithMessage(
+        input.safeRedirectPath,
+        "error",
+        "That micro-skill is outside the bounded spelling scope for candidate capture.",
+      ),
+    );
+  }
+
+  if (!catalogEntry.isActive) {
+    redirect(
+      buildRedirectWithMessage(
+        input.safeRedirectPath,
+        "error",
+        "Inactive micro-skills cannot be used for candidate capture.",
+      ),
+    );
+  }
+
+  if (!catalogEntry.isAssignable) {
+    redirect(
+      buildRedirectWithMessage(
+        input.safeRedirectPath,
+        "error",
+        "Non-assignable micro-skills cannot be used for candidate capture.",
+      ),
+    );
+  }
+
+  const { data: existingCandidateMapping } = await input.supabase
+    .from("parent_verified_spelling_candidate_mappings")
+    .select("id")
+    .eq("parent_user_id", input.parentUserId)
+    .eq("child_id", input.submission.child_id)
+    .eq("source_misspelling_instance_id", routeContext.misspelling.id)
+    .in("candidate_status", ["pending_parent_promotion", "parent_local_promoted"])
+    .limit(1)
+    .maybeSingle();
+
+  if (existingCandidateMapping) {
+    redirect(
+      buildRedirectWithMessage(
+        input.safeRedirectPath,
+        "saved",
+        "Returned correction already has a parent-local skill route.",
+      ),
+    );
+  }
+
+  const candidateMappingRepository =
+    createSupabaseSpellingCandidateMappingRepository(input.supabase);
+
+  let parentVerificationId: string | null = null;
+
+  try {
+    const verificationResult = await recordStage7dParentVerificationWithoutPromotion({
+      supabase: input.supabase,
+      childId: input.submission.child_id,
+      parentUserId: input.parentUserId,
+      decision: "overridden",
+      verifiedMicroSkillKey: input.selectedMicroSkillKey,
+      note: "Returned correction classified for parent-local candidate capture.",
+      target: routeContext.verificationTarget,
+    });
+    parentVerificationId = verificationResult.verificationRecord.id;
+  } catch (error) {
+    console.error("Returned correction candidate verification failed before redirect.", error);
+    redirect(
+      buildRedirectWithMessage(
+        input.safeRedirectPath,
+        "error",
+        "We couldn't save that returned correction skill route right now.",
+      ),
+    );
+  }
+
+  try {
+    await candidateMappingRepository.insertPending({
+      parentUserId: input.parentUserId,
+      childId: input.submission.child_id,
+      parentVerificationId,
+      taskSubmissionId: input.submission.id,
+      writingSampleId: routeContext.misspelling.writing_sample_id,
+      sourceSuggestionId: routeContext.issue.source_suggestion_id,
+      sourceMisspellingInstanceId: routeContext.misspelling.id,
+      sourceProvenance: routeContext.sourceProvenance,
+      reviewedEventSourceEntityId: routeContext.verificationTarget.sourceRef.sourceEntityId,
+      originalChildSpelling: routeContext.originalChildSpelling,
+      originalCorrectSpelling: routeContext.originalCorrectSpelling,
+      misspellingNormalized: routeContext.misspellingNormalized,
+      correctSpellingNormalized: routeContext.correctSpellingNormalized,
+      microSkillKey: input.selectedMicroSkillKey,
+      metadata: {
+        ...routeContext.routeMetadata,
+        candidate_status: "pending_parent_promotion",
+        promotion_scope: "parent_local",
+        action_source: "review_work_returned_correction_candidate_capture",
+      },
+    });
+  } catch (error) {
+    console.error("Returned correction candidate mapping creation failed before redirect.", error);
+    redirect(
+      buildRedirectWithMessage(
+        input.safeRedirectPath,
+        "error",
+        "Returned correction evidence was prepared, but the skill route could not be captured yet.",
+      ),
+    );
+  }
+
+  revalidateReviewQueueAndDetailBestEffort(input.safeRedirectPath);
+
+  redirect(
+    buildRedirectWithMessage(
+      input.safeRedirectPath,
+      "saved",
+      "Returned correction skill route captured. Promote it when you want it used in this parent/child scope.",
+    ),
+  );
+}
 
 export async function captureSubmissionSpellingCandidateMappingImpl(formData: FormData) {
   const submissionId = formData.get("submission_id");
   const redirectPath = formData.get("redirect_path");
   const misspellingInstanceId = formData.get("misspelling_instance_id");
+  const originalWritingIssueId = formData.get("original_writing_issue_id");
+  const correctionAttemptId = formData.get("correction_attempt_id");
   const selectedMicroSkillKey = normaliseMicroSkillKey(formData.get("micro_skill_key"));
 
   const safeRedirectPath =
@@ -39,8 +211,10 @@ export async function captureSubmissionSpellingCandidateMappingImpl(formData: Fo
   if (
     typeof submissionId !== "string" ||
     !submissionId ||
-    typeof misspellingInstanceId !== "string" ||
-    !misspellingInstanceId
+    !(
+      (typeof misspellingInstanceId === "string" && misspellingInstanceId) ||
+      (typeof originalWritingIssueId === "string" && originalWritingIssueId)
+    )
   ) {
     redirect(
       buildRedirectWithMessage(
@@ -80,6 +254,21 @@ export async function captureSubmissionSpellingCandidateMappingImpl(formData: Fo
         "That lesson submission is no longer available for review.",
       ),
     );
+  }
+
+  if (typeof originalWritingIssueId === "string" && originalWritingIssueId) {
+    await captureReturnedCorrectionCandidateMapping({
+      supabase,
+      parentUserId: user.id,
+      submission,
+      originalWritingIssueId,
+      correctionAttemptId:
+        typeof correctionAttemptId === "string" && correctionAttemptId
+          ? correctionAttemptId
+          : null,
+      selectedMicroSkillKey,
+      safeRedirectPath,
+    });
   }
 
   const linkedSample = await getLinkedWritingSample(supabase, submission.id, user.id);

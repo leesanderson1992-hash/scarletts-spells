@@ -18,6 +18,8 @@ import {
 } from "@/lib/writing-engine/persistence/learning-items";
 import {
   loadUnifiedSpellingReviewItemsForSubmission,
+  summarizeUnifiedSpellingReviewCompletion,
+  type UnifiedSpellingReviewCompletionSummary,
 } from "@/lib/writing-engine/persistence/unified-spelling-review-items";
 import type {
   ReviewWritingIssueProjection,
@@ -226,10 +228,22 @@ function LessonParentActionsSection(props: {
   redirectPath: string;
   parentReviewNote: string | null;
   reviewableFields: ReturnType<typeof extractReviewableLessonFields>;
-  unresolvedCount: number;
+  completionSummary: UnifiedSpellingReviewCompletionSummary;
+  legacyUnresolvedCount: number;
   showZeroSuggestionGuidance: boolean;
 }) {
-  const approvalBlocked = props.unresolvedCount > 0;
+  const legacyApprovalBlocked = props.legacyUnresolvedCount > 0;
+  const approvalBlocked = !props.completionSummary.canComplete || legacyApprovalBlocked;
+  const blockingReasons =
+    props.completionSummary.blockingReasons.length > 0
+      ? props.completionSummary.blockingReasons
+      : legacyApprovalBlocked
+        ? [
+            `${props.legacyUnresolvedCount} legacy suggested ${
+              props.legacyUnresolvedCount === 1 ? "issue" : "issues"
+            } still need review.`,
+          ]
+        : [];
 
   return (
     <section className="brand-card rounded-3xl p-4 md:p-5">
@@ -247,8 +261,8 @@ function LessonParentActionsSection(props: {
 
       <div className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm leading-6 text-amber-900">
         These controls are available on lesson detail only. Send-back uses the
-        existing return flow, and approval stays blocked until shared review
-        truth shows no unresolved suggestions.
+        existing return flow, and approval stays blocked until unified spelling
+        review items are resolved.
       </div>
 
       {props.showZeroSuggestionGuidance ? (
@@ -312,13 +326,14 @@ function LessonParentActionsSection(props: {
         </form>
 
         {approvalBlocked ? (
-          <p className="text-xs uppercase tracking-[0.16em] text-[color:var(--mid)]">
-            Resolve all suggested issues before approving this lesson.
-          </p>
+          <div className="grid gap-1 text-xs uppercase tracking-[0.16em] text-[color:var(--mid)]">
+            {blockingReasons.map((reason) => (
+              <p key={reason}>{reason}</p>
+            ))}
+          </div>
         ) : (
           <p className="text-xs uppercase tracking-[0.16em] text-[color:var(--mid)]">
-            Approval is available once shared review truth shows no unresolved
-            suggestions.
+            Approval is available once unified spelling review items are resolved.
           </p>
         )}
 
@@ -765,6 +780,9 @@ export default async function CourseReviewDetailPage({
       childId: submission.child_id,
     }),
   ]);
+  const unifiedCompletionSummary = summarizeUnifiedSpellingReviewCompletion(
+    unifiedSpellingReviewItems,
+  );
 
   const { data: module } = task?.module_id
     ? await supabase
@@ -835,6 +853,7 @@ export default async function CourseReviewDetailPage({
       Boolean(writingIssueSuggestionError) ||
       Boolean(parentVerificationError),
   });
+  const legacyUnresolvedCountForApproval = panelModel.summary.unresolvedCount;
   const parsedSubmission = parseSubmissionReview(submission.submission_text);
   const submissionStatus = getSubmissionStatusLabel(submission.parent_review_status);
   const lessonSchema =
@@ -962,7 +981,8 @@ export default async function CourseReviewDetailPage({
           redirectPath={buildScopedPath(`/courses/review/${reviewEntryId}`, selectedChild.id, mode)}
           parentReviewNote={submission.parent_review_note}
           reviewableFields={reviewableFields}
-          unresolvedCount={panelModel.summary.unresolvedCount}
+          completionSummary={unifiedCompletionSummary}
+          legacyUnresolvedCount={legacyUnresolvedCountForApproval}
           showZeroSuggestionGuidance={
             submission.parent_review_status === "pending" && panelModel.state === "empty_result"
           }

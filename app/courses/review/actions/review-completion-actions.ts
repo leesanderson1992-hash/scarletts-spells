@@ -14,6 +14,10 @@ import {
   isWritingIssueFinalClassification,
   type WritingIssueFinalClassification,
 } from "@/lib/writing-practice/types";
+import {
+  loadUnifiedSpellingReviewItemsForSubmission,
+  summarizeUnifiedSpellingReviewCompletion,
+} from "@/lib/writing-engine/persistence/unified-spelling-review-items";
 
 import {
   buildRedirectWithMessage,
@@ -978,6 +982,26 @@ export async function approveSubmissionReviewImpl(formData: FormData) {
     );
   }
 
+  const unifiedSpellingReviewItems = await loadUnifiedSpellingReviewItemsForSubmission({
+    supabase,
+    submissionId: submission.id,
+    parentUserId: user.id,
+    childId: submission.child_id,
+  });
+  const unifiedCompletionSummary = summarizeUnifiedSpellingReviewCompletion(
+    unifiedSpellingReviewItems,
+  );
+
+  if (!unifiedCompletionSummary.canComplete) {
+    redirect(
+      buildRedirectWithMessage(
+        safeRedirectPath,
+        "error",
+        unifiedCompletionSummary.blockingReasons[0] ??
+          "All spelling review items must be resolved before this submission can be approved.",
+      ),
+    );
+  }
   const { data: linkedWritingIssues } = await supabase
     .from("writing_issues")
     .select("source_misspelling_instance_id, issue_status, final_classification")

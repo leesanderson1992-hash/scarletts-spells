@@ -8,6 +8,12 @@ const taskPagePath = "app/learn/modules/[moduleId]/tasks/[taskId]/page.tsx";
 const reviewDetailPagePath = "app/courses/review/[submissionId]/page.tsx";
 const reviewCompletionActionsPath =
   "app/courses/review/actions/review-completion-actions.ts";
+const candidateMappingActionsPath =
+  "app/courses/review/actions/candidate-mapping-actions.ts";
+const catalogReviewCaseActionsPath =
+  "app/courses/review/actions/catalog-review-case-actions.ts";
+const returnedCorrectionRouteHelpersPath =
+  "app/courses/review/actions/returned-correction-route-helpers.ts";
 const unifiedSpellingReviewTablePath =
   "app/courses/review/unified-spelling-review-table.tsx";
 const unifiedSpellingReviewItemsPath =
@@ -19,6 +25,12 @@ const learnActions = readFileSync(learnActionsPath, "utf8");
 const taskPage = readFileSync(taskPagePath, "utf8");
 const reviewDetailPage = readFileSync(reviewDetailPagePath, "utf8");
 const reviewCompletionActions = readFileSync(reviewCompletionActionsPath, "utf8");
+const candidateMappingActions = readFileSync(candidateMappingActionsPath, "utf8");
+const catalogReviewCaseActions = readFileSync(catalogReviewCaseActionsPath, "utf8");
+const returnedCorrectionRouteHelpers = readFileSync(
+  returnedCorrectionRouteHelpersPath,
+  "utf8",
+);
 const unifiedSpellingReviewTable = readFileSync(unifiedSpellingReviewTablePath, "utf8");
 const unifiedSpellingReviewItems = readFileSync(unifiedSpellingReviewItemsPath, "utf8");
 
@@ -108,6 +120,16 @@ assert.match(
 );
 assert.match(
   reviewCompletionActions,
+  /loadUnifiedSpellingReviewItemsForSubmission[\s\S]*summarizeUnifiedSpellingReviewCompletion/,
+  "Review Work approval must load unified spelling review items and summarize completion state.",
+);
+assert.match(
+  reviewCompletionActions,
+  /if \(!unifiedCompletionSummary\.canComplete\) \{[\s\S]*blockingReasons\[0\]/,
+  "Review Work approval must reject unresolved unified spelling review items server-side.",
+);
+assert.match(
+  reviewCompletionActions,
   /if \(!input\.structuredPayloadType\) \{[\s\S]*return false;[\s\S]*\}/,
   "Candidate materialization must stay scoped to structured lesson/test returns.",
 );
@@ -174,6 +196,21 @@ assert.match(
 );
 assert.match(
   unifiedSpellingReviewItems,
+  /function isLikelyFullAnswerText[\s\S]*function getRetryDisplayText[\s\S]*latestChildAttempt: childAttemptDisplay/,
+  "Unified read helper must keep likely full-answer historical attempts out of the compact Retry column.",
+);
+assert.match(
+  unifiedSpellingReviewItems,
+  /historical_full_answer_attempt: historicalFullAnswerAttempt/,
+  "Unified read helper must preserve historical full-answer attempt text for Details/provenance.",
+);
+assert.doesNotMatch(
+  unifiedSpellingReviewItems,
+  /suppressedRegeneratedCandidatesByPairKey|returnedPairKeys|buildReviewPairKey/,
+  "Unified read helper must not suppress repeated spelling instances with pair-only matching.",
+);
+assert.match(
+  unifiedSpellingReviewItems,
   /\.from\("writing_issues"\)[\s\S]*\.in\("id", returnedWritingIssueIds\)/,
   "Unified read helper must follow attempts back to original writing_issues.",
 );
@@ -223,6 +260,16 @@ assert.match(
   /<tr className="border-t border-\[var\(--border\)\] bg-\[rgba\(255,247,220,0\.18\)\]">[\s\S]*colSpan=\{7\}[\s\S]*\{routeText\(row\)\}/,
   "Unified compact table must render expanded Details in a full-width secondary row.",
 );
+assert.match(
+  unifiedSpellingReviewTable,
+  /historicalFullAnswerAttempt[\s\S]*Child response\/context/,
+  "Unified compact table must show historical full-answer attempt text only inside Details context.",
+);
+assert.match(
+  unifiedSpellingReviewTable,
+  /Context: \{detailContextText\}[\s\S]*Misspelling instance:[\s\S]*Correction attempt:[\s\S]*Original issue:/,
+  "Unified compact table Details must show source context and ids to disambiguate repeated spelling instances.",
+);
 assert.doesNotMatch(
   unifiedSpellingReviewTable,
   /<td className="max-w-\[11rem\][\s\S]*<details/,
@@ -240,8 +287,103 @@ assert.match(
 );
 assert.match(
   unifiedSpellingReviewTable,
-  /NO_MATCHING_SKILL_VALUE[\s\S]*No matching skill[\s\S]*captureSpellingCatalogReviewCase/,
-  "No matching skill must be a UI-only selector option that routes through catalog review.",
+  /<option value="">Choose family<\/option>[\s\S]*<option value=\{NO_MATCHING_SKILL_VALUE\}>No matching skill<\/option>/,
+  "No matching skill must appear as a UI-only Family selector option.",
+);
+assert.match(
+  unifiedSpellingReviewTable,
+  /const initialSkillOption = findOption\(options, initialSkill \?\? null\);[\s\S]*const firstFamily = initialSkillOption\?\.skillFamilyKey \?\? "";[\s\S]*useState\(firstFamily\)/,
+  "Resolved engine/verified skill suggestions must initialize the Family selector rather than showing the placeholder.",
+);
+assert.match(
+  unifiedSpellingReviewTable,
+  /const firstCluster =[\s\S]*initialSkillOption\?\.skillFamilyKey === familyKey[\s\S]*initialSkillOption\.skillClusterKey \?\? ""[\s\S]*useState\(firstCluster\)/,
+  "Resolved engine/verified skill suggestions must initialize the Cluster selector.",
+);
+assert.match(
+  unifiedSpellingReviewTable,
+  /const \[microSkillKey, setMicroSkillKey\] = useState\(initialSkill \?\? ""\)/,
+  "Resolved engine/verified skill suggestions must initialize the Micro-skill selector.",
+);
+assert.match(
+  unifiedSpellingReviewTable,
+  /<option value="">Choose cluster<\/option>/,
+  "Skill cluster placeholder must be parent-facing.",
+);
+assert.match(
+  unifiedSpellingReviewTable,
+  /\{row\.source === "returned_correction" \? "Unknown" : "Choose skill"\}/,
+  "Micro-skill placeholder must be Choose skill for current rows and Unknown for returned rows.",
+);
+assert.doesNotMatch(
+  unifiedSpellingReviewTable,
+  /aria-label=\{`Micro-skill[\s\S]*<option value=\{NO_MATCHING_SKILL_VALUE\}>No matching skill<\/option>/,
+  "No matching skill must not remain in the Micro-skill selector.",
+);
+assert.match(
+  unifiedSpellingReviewTable,
+  /const noMatchingSkillSelected = familyKey === NO_MATCHING_SKILL_VALUE/,
+  "No matching skill selection must be tracked at Family level.",
+);
+assert.match(
+  unifiedSpellingReviewTable,
+  /const canSendToAdmin =[\s\S]*routeIsOpen && noMatchingSkillSelected[\s\S]*captureSpellingCatalogReviewCase/,
+  "No matching skill must route through catalog review without persisting a sentinel micro_skill_key.",
+);
+assert.match(
+  unifiedSpellingReviewTable,
+  /const dependentSkillDisabled = skillDisabled \|\| noMatchingSkillSelected[\s\S]*disabled=\{dependentSkillDisabled \|\| clusters\.length === 0\}[\s\S]*disabled=\{dependentSkillDisabled\}/,
+  "Choosing No matching skill must disable dependent Cluster and Micro-skill controls.",
+);
+assert.doesNotMatch(
+  unifiedSpellingReviewTable,
+  /name="micro_skill_key" value=\{NO_MATCHING_SKILL_VALUE\}/,
+  "No matching skill sentinel must not be submitted as a micro_skill_key.",
+);
+assert.match(
+  unifiedSpellingReviewTable,
+  /if \(row\.state === "child_responded"\) \{[\s\S]*return "Tried";[\s\S]*if \(row\.categorisationStatus === "unsupported_returned_correction_route"\) \{[\s\S]*return "Blocked";[\s\S]*if \(row\.state === "categorisation_needed"\) \{[\s\S]*return "New";/,
+  "Status labels must show unclassified returned attempts as Tried, reserve Blocked for deferred routes, and keep actionable current rows New.",
+);
+assert.match(
+  unifiedSpellingReviewTable,
+  /function IconActionButton[\s\S]*helpText: string;[\s\S]*ariaLabel: string;[\s\S]*aria-label=\{ariaLabel\}[\s\S]*title=\{helpText\}[\s\S]*<span className="sr-only">\{helpText\}<\/span>/,
+  "Compact icon actions must share one helper with native title help and accessible labels.",
+);
+assert.doesNotMatch(
+  unifiedSpellingReviewTable,
+  /group-hover:block group-focus:block/,
+  "Icon action help must not render a second custom tooltip alongside the native title tooltip.",
+);
+assert.match(
+  unifiedSpellingReviewTable,
+  /<IconActionButton[\s\S]*icon="✓"[\s\S]*helpText="Confirm suggested skill"[\s\S]*ariaLabel=\{`Confirm suggested skill/,
+  "Confirm icon must expose reliable hover/help and accessible text.",
+);
+assert.match(
+  unifiedSpellingReviewTable,
+  /<IconActionButton[\s\S]*icon="✕"[\s\S]*helpText="Reject as not an issue"[\s\S]*ariaLabel=\{`Reject/,
+  "Reject icon must expose reliable hover/help and accessible text.",
+);
+assert.match(
+  unifiedSpellingReviewTable,
+  /<IconActionButton[\s\S]*icon="!"[\s\S]*helpText="Apply selected skill instead of engine suggestion"[\s\S]*ariaLabel=\{`Apply selected skill instead of engine suggestion/,
+  "Override icon must expose reliable hover/help and accessible text.",
+);
+assert.match(
+  unifiedSpellingReviewTable,
+  /<IconActionButton[\s\S]*icon="!"[\s\S]*helpText="Assign selected skill as parent-local route"[\s\S]*ariaLabel=\{`Assign selected skill as parent-local route/,
+  "Parent-local assignment icon must expose reliable hover/help and accessible text.",
+);
+assert.match(
+  unifiedSpellingReviewTable,
+  /<IconActionButton[\s\S]*icon="⚑"[\s\S]*helpText="No matching skill: send to admin review"[\s\S]*ariaLabel=\{`No matching skill/,
+  "Admin flag icon must expose reliable hover/help and accessible text.",
+);
+assert.match(
+  unifiedSpellingReviewTable,
+  /<IconActionButton[\s\S]*icon="↑"[\s\S]*helpText="Promote parent-local skill route"[\s\S]*<IconActionButton[\s\S]*icon="↩"[\s\S]*helpText="Revert parent-local skill route to pending"/,
+  "Parent-local promote and revert icons must expose reliable hover/help and accessible text.",
 );
 assert.match(
   unifiedSpellingReviewTable,
@@ -255,13 +397,99 @@ assert.match(
 );
 assert.match(
   unifiedSpellingReviewTable,
-  /row\.source === "returned_correction" \|\| !currentRouteIsOpen/,
-  "Returned correction skill dropdowns must remain disabled unless a supported route exists outside this UI.",
+  /const returnedRouteIsOpen =[\s\S]*categorisation_needed[\s\S]*const routeIsOpen = currentRouteIsOpen \|\| returnedRouteIsOpen/,
+  "Returned correction skill routing must open only after an issue outcome exists and no route record has been chosen yet.",
 );
 assert.match(
   unifiedSpellingReviewTable,
-  /row\.source !== "returned_correction" &&[\s\S]*promoteParentLocalCandidateMapping/,
-  "Returned correction rows must not expose parent-local promotion actions until the action path supports returned provenance.",
+  /captureSubmissionSpellingCandidateMapping[\s\S]*name="original_writing_issue_id"[\s\S]*value=\{row\.sourceIds\.originalWritingIssueId \?\? ""\}[\s\S]*name="correction_attempt_id"/,
+  "Returned correction skill assignment must submit original writing_issue.id and correction attempt id, not a fake current misspelling row.",
+);
+assert.match(
+  unifiedSpellingReviewTable,
+  /captureSpellingCatalogReviewCase[\s\S]*name="original_writing_issue_id"[\s\S]*value=\{row\.sourceIds\.originalWritingIssueId \?\? ""\}[\s\S]*name="correction_attempt_id"/,
+  "Returned correction admin handoff must submit original writing_issue.id and correction attempt id.",
+);
+assert.doesNotMatch(
+  unifiedSpellingReviewTable,
+  /row\.source !== "returned_correction" &&\s*\n\s*row\.sourceIds\.candidateMappingId/,
+  "Returned correction rows with candidate mappings may use the existing parent-local promotion action.",
+);
+
+assert.match(
+  returnedCorrectionRouteHelpers,
+  /ROUTABLE_RETURNED_CLASSIFICATIONS[\s\S]*fragile_knowledge[\s\S]*concept_gap[\s\S]*transfer_failure/,
+  "Returned route helper must only route final classifications that represent learning issues.",
+);
+assert.match(
+  returnedCorrectionRouteHelpers,
+  /\.from\("writing_issues"\)[\s\S]*\.eq\("id", input\.originalWritingIssueId\)[\s\S]*\.eq\("parent_user_id", input\.parentUserId\)[\s\S]*\.eq\("child_id", input\.childId\)/,
+  "Returned route helper must validate original writing_issue ownership.",
+);
+assert.match(
+  returnedCorrectionRouteHelpers,
+  /\.from\("misspelling_instances"\)[\s\S]*\.eq\("id", issue\.source_misspelling_instance_id\)[\s\S]*\.eq\("parent_user_id", input\.parentUserId\)[\s\S]*\.eq\("child_id", input\.childId\)/,
+  "Returned route helper must validate original source misspelling lineage.",
+);
+assert.match(
+  returnedCorrectionRouteHelpers,
+  /\.from\("writing_issue_correction_attempts"\)[\s\S]*\.eq\("writing_issue_id", issue\.id\)[\s\S]*\.eq\("task_submission_id", input\.currentTaskSubmissionId\)/,
+  "Returned route helper must anchor returned routing to the current correction attempt.",
+);
+assert.match(
+  returnedCorrectionRouteHelpers,
+  /source_route: "returned_correction"[\s\S]*original_writing_issue_id: issue\.id[\s\S]*correction_attempt_id: attempt\.id/,
+  "Returned route records must carry returned-correction provenance metadata.",
+);
+assert.doesNotMatch(
+  returnedCorrectionRouteHelpers,
+  /sourceProvenance = "returned_correction"|source_provenance: "returned_correction"/,
+  "Returned routing must not invent a new source_provenance enum without a migration.",
+);
+assert.match(
+  candidateMappingActions,
+  /const originalWritingIssueId = formData\.get\("original_writing_issue_id"\)/,
+  "Candidate capture action must accept returned rows by original writing_issue.id.",
+);
+assert.match(
+  candidateMappingActions,
+  /captureReturnedCorrectionCandidateMapping[\s\S]*loadReturnedCorrectionRouteContext[\s\S]*insertPending/,
+  "Candidate capture action must bridge returned corrections into parent-local candidate mappings.",
+);
+assert.match(
+  candidateMappingActions,
+  /\.eq\("source_misspelling_instance_id", routeContext\.misspelling\.id\)[\s\S]*\.in\("candidate_status", \["pending_parent_promotion", "parent_local_promoted"\][\s\S]*sourceMisspellingInstanceId: routeContext\.misspelling\.id[\s\S]*sourceProvenance: routeContext\.sourceProvenance[\s\S]*action_source: "review_work_returned_correction_candidate_capture"/,
+  "Returned candidate mappings must use original misspelling lineage with returned provenance metadata.",
+);
+assert.doesNotMatch(
+  candidateMappingActions,
+  /\.eq\("task_submission_id", input\.submission\.id\)[\s\S]*\.eq\("source_misspelling_instance_id", routeContext\.misspelling\.id\)/,
+  "Returned candidate mapping idempotency must be scoped by source misspelling across active mappings, not only the current returned submission.",
+);
+assert.doesNotMatch(
+  candidateMappingActions,
+  /\.from\("writing_issues"\)\s*\n\s*\.(insert|upsert)\(/,
+  "Returned candidate capture must not duplicate writing_issues.",
+);
+assert.match(
+  catalogReviewCaseActions,
+  /const originalWritingIssueId = formData\.get\("original_writing_issue_id"\)/,
+  "Catalog review action must accept returned rows by original writing_issue.id.",
+);
+assert.match(
+  catalogReviewCaseActions,
+  /captureReturnedCorrectionCatalogReviewCase[\s\S]*loadReturnedCorrectionRouteContext[\s\S]*spelling_catalog_review_cases/,
+  "Catalog review action must bridge returned corrections into admin/catalog cases.",
+);
+assert.match(
+  catalogReviewCaseActions,
+  /action_source: "review_work_returned_correction_no_matching_skill"[\s\S]*source_misspelling_instance_id: routeContext\.misspelling\.id[\s\S]*source_provenance: routeContext\.sourceProvenance/,
+  "Returned catalog review cases must use original misspelling lineage with returned provenance metadata.",
+);
+assert.doesNotMatch(
+  catalogReviewCaseActions,
+  /\.from\("writing_issues"\)\s*\n\s*\.(insert|upsert)\(/,
+  "Returned catalog review must not duplicate writing_issues.",
 );
 
 console.log("writing-engine-returned-child-correction-regression: ok");

@@ -77,6 +77,16 @@ export type UnifiedSpellingReviewItem = {
   };
 };
 
+export type UnifiedSpellingReviewCompletionSummary = {
+  totalItemCount: number;
+  unresolvedItemCount: number;
+  unresolvedReturnedCorrectionCount: number;
+  unresolvedCategorisationCount: number;
+  deferredUnsupportedRouteCount: number;
+  blockingReasons: string[];
+  canComplete: boolean;
+};
+
 export type UnifiedSpellingReviewMisspellingRow = {
   id: string;
   writing_sample_id?: string | null;
@@ -183,6 +193,126 @@ function hasMeaningfulMicroSkillKey(value: string | null | undefined) {
   );
 }
 
+function returnedFinalClassificationNeedsRoute(value: string | null | undefined) {
+  return (
+    value === "fragile_knowledge" ||
+    value === "concept_gap" ||
+    value === "transfer_failure"
+  );
+}
+
+function pluralise(count: number, singular: string, plural = `${singular}s`) {
+  return `${count} ${count === 1 ? singular : plural}`;
+}
+
+function verbForCount(count: number, singular: string, plural: string) {
+  return count === 1 ? singular : plural;
+}
+
+export function summarizeUnifiedSpellingReviewCompletion(
+  rows: UnifiedSpellingReviewItem[],
+): UnifiedSpellingReviewCompletionSummary {
+  let parentDecisionCount = 0;
+  let returnedFinalClassificationCount = 0;
+  let unresolvedCategorisationCount = 0;
+  let deferredUnsupportedRouteCount = 0;
+  const unresolvedItemIds = new Set<string>();
+  const unresolvedReturnedCorrectionIds = new Set<string>();
+
+  rows.forEach((row) => {
+    const categorisationBlocks =
+      row.categorisationStatus === "categorisation_needed" ||
+      row.categorisationStatus === "parent_local_pending";
+    const deferredRouteBlocks =
+      row.categorisationStatus === "unsupported_returned_correction_route";
+
+    if (row.state === "pending_parent_review") {
+      parentDecisionCount += 1;
+      unresolvedItemIds.add(row.id);
+    }
+
+    if (row.source === "returned_correction" && row.state === "child_responded") {
+      returnedFinalClassificationCount += 1;
+      unresolvedItemIds.add(row.id);
+      unresolvedReturnedCorrectionIds.add(row.id);
+    }
+
+    if (categorisationBlocks) {
+      unresolvedCategorisationCount += 1;
+      unresolvedItemIds.add(row.id);
+    }
+
+    if (deferredRouteBlocks) {
+      deferredUnsupportedRouteCount += 1;
+      unresolvedItemIds.add(row.id);
+
+      if (row.source === "returned_correction") {
+        unresolvedReturnedCorrectionIds.add(row.id);
+      }
+    }
+  });
+
+  const unresolvedReturnedCorrectionCount = unresolvedReturnedCorrectionIds.size;
+  const unresolvedItemCount = unresolvedItemIds.size;
+  const blockingReasons: string[] = [];
+
+  if (parentDecisionCount > 0) {
+    blockingReasons.push(
+      `${pluralise(parentDecisionCount, "spelling item")} still ${verbForCount(
+        parentDecisionCount,
+        "needs",
+        "need",
+      )} a parent decision.`,
+    );
+  }
+
+  if (returnedFinalClassificationCount > 0) {
+    blockingReasons.push(
+      `${pluralise(
+        returnedFinalClassificationCount,
+        "returned correction",
+      )} still ${verbForCount(
+        returnedFinalClassificationCount,
+        "needs",
+        "need",
+      )} final classification.`,
+    );
+  }
+
+  if (unresolvedCategorisationCount > 0) {
+    blockingReasons.push(
+      `${pluralise(unresolvedCategorisationCount, "item")} still ${verbForCount(
+        unresolvedCategorisationCount,
+        "needs",
+        "need",
+      )} categorisation or admin handoff.`,
+    );
+  }
+
+  if (deferredUnsupportedRouteCount > 0) {
+    blockingReasons.push(
+      `${pluralise(
+        deferredUnsupportedRouteCount,
+        "returned correction route",
+      )} ${verbForCount(
+        deferredUnsupportedRouteCount,
+        "is",
+        "are",
+      )} blocked because no safe categorisation route is available.`,
+    );
+  }
+
+  return {
+    totalItemCount: rows.length,
+    unresolvedItemCount,
+    unresolvedReturnedCorrectionCount,
+    unresolvedCategorisationCount,
+    deferredUnsupportedRouteCount,
+    blockingReasons,
+    canComplete: unresolvedItemCount === 0,
+  };
+}
+
 function parseMetadata(value: Record<string, unknown> | null | undefined) {
   return value ?? {};
 }
@@ -193,6 +323,30 @@ function getMetadataString(
 ) {
   const value = metadata?.[key];
   return typeof value === "string" && value.trim().length > 0 ? value.trim() : null;
+}
+
+function isLikelyFullAnswerText(value: string | null | undefined) {
+  const trimmed = value?.trim();
+
+  if (!trimmed) {
+    return false;
+  }
+
+  return (
+    trimmed.length > 80 ||
+    trimmed.includes("\n") ||
+    trimmed.split(/\s+/).filter(Boolean).length > 6
+  );
+}
+
+function getRetryDisplayText(value: string | null | undefined) {
+  const trimmed = value?.trim();
+
+  if (!trimmed || isLikelyFullAnswerText(trimmed)) {
+    return null;
+  }
+
+  return trimmed;
 }
 
 function isParentAuthoredMisspellingRow(input: { notes?: string | null }) {
@@ -375,8 +529,20 @@ function getCategorisationStatusForReturnedIssue(input: {
     return "parent_local_pending";
   }
 
+  if (!issue.final_classification) {
+    return "not_applicable";
+  }
+
   if (hasMeaningfulMicroSkillKey(issue.micro_skill_key)) {
     return "categorised";
+  }
+
+  if (
+    returnedFinalClassificationNeedsRoute(issue.final_classification) &&
+    typeof issue.source_misspelling_instance_id === "string" &&
+    issue.source_misspelling_instance_id.length > 0
+  ) {
+    return "categorisation_needed";
   }
 
   return "unsupported_returned_correction_route";
@@ -416,7 +582,7 @@ export function buildUnifiedSpellingReviewItems(
     ]),
   );
 
-  const currentReviewItems = input.misspellings.map((misspelling) => {
+  const currentReviewItems = input.misspellings.flatMap((misspelling) => {
     const suggestion = suggestionsByMisspellingId.get(misspelling.id) ?? null;
     const writingIssue = writingIssueByMisspellingId.get(misspelling.id) ?? null;
     const candidateMapping = candidateMappingByMisspellingId.get(misspelling.id) ?? null;
@@ -436,6 +602,7 @@ export function buildUnifiedSpellingReviewItems(
         .find((row): row is UnifiedSpellingReviewParentVerificationRow => Boolean(row)) ??
       null;
     const parentAuthored = isParentAuthoredMisspellingRow(misspelling);
+
     const suggestedMicroSkillKey =
       suggestion?.suggested_micro_skill_key ?? verification?.suggested_micro_skill_key ?? null;
     const categorisationStatus = getCategorisationStatusForCurrentReview({
@@ -445,7 +612,7 @@ export function buildUnifiedSpellingReviewItems(
       suggestedMicroSkillKey,
     });
 
-    return {
+    const item = {
       id: `misspelling:${misspelling.id}`,
       source: parentAuthored ? "parent_added_missed_word" : "engine_suggested",
       state: getStateForCurrentReview({
@@ -489,11 +656,18 @@ export function buildUnifiedSpellingReviewItems(
         sourceKind: parentAuthored ? "parent_authored_missed_word" : "misspelling_instance",
         previousTaskSubmissionId: null,
         metadata: {
+          source_misspelling_instance_id: misspelling.id,
+          writing_sample_id: misspelling.writing_sample_id ?? input.writingSampleId,
+          context_text: misspelling.context_text ?? null,
+          position_start: misspelling.position_start ?? null,
+          position_end: misspelling.position_end ?? null,
           misspelling_notes: misspelling.notes,
           suggestion_metadata: parseMetadata(suggestion?.metadata),
         },
       },
     } satisfies UnifiedSpellingReviewItem;
+
+    return [item];
   });
 
   const returnedCorrectionItems = input.returnedWritingIssues.flatMap((issue) => {
@@ -516,6 +690,12 @@ export function buildUnifiedSpellingReviewItems(
     const parentAuthored =
       sourceKind === "parent_authored_missed_word" ||
       issueMetadata.parent_authored_missed_word === true;
+    const childAttemptDisplay = getRetryDisplayText(attempt.attempted_correction);
+    const historicalFullAnswerAttempt = childAttemptDisplay
+      ? null
+      : isLikelyFullAnswerText(attempt.attempted_correction)
+        ? attempt.attempted_correction
+        : null;
 
     return [
       {
@@ -530,7 +710,7 @@ export function buildUnifiedSpellingReviewItems(
         observedText: issue.observed_text ?? "Returned spelling issue",
         expectedCorrection:
           issue.approved_replacement ?? issue.suggested_replacement ?? null,
-        latestChildAttempt: attempt.attempted_correction,
+        latestChildAttempt: childAttemptDisplay,
         childReflection: attempt.reflection,
         correctionOutcome: issue.final_classification,
         suggestedMicroSkillKey: null,
@@ -556,6 +736,11 @@ export function buildUnifiedSpellingReviewItems(
           metadata: {
             issue_metadata: issueMetadata,
             attempt_metadata: parseMetadata(attempt.metadata),
+            source_misspelling_instance_id: issue.source_misspelling_instance_id,
+            source_suggestion_id: issue.source_suggestion_id,
+            original_writing_issue_id: issue.id,
+            correction_attempt_id: attempt.id,
+            historical_full_answer_attempt: historicalFullAnswerAttempt,
           },
         },
       } satisfies UnifiedSpellingReviewItem,

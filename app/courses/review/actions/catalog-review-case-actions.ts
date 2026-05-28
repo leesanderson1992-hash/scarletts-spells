@@ -14,6 +14,7 @@ import {
   isParentAuthoredMisspellingRow,
   normaliseWordForLookup,
 } from "../review-utils";
+import { loadReturnedCorrectionRouteContext } from "./returned-correction-route-helpers";
 
 type ExistingOpenCatalogReviewCase = {
   id: string;
@@ -35,17 +36,145 @@ function hasSubmittedMicroSkillKey(formData: FormData) {
   );
 }
 
+type OwnedSubmissionForCatalogRoute = NonNullable<
+  Awaited<ReturnType<typeof getOwnedSubmission>>["submission"]
+>;
+
+async function captureReturnedCorrectionCatalogReviewCase(input: {
+  supabase: Awaited<ReturnType<typeof createClient>>;
+  parentUserId: string;
+  submission: OwnedSubmissionForCatalogRoute;
+  originalWritingIssueId: string;
+  correctionAttemptId: string | null;
+  parentNote: string | null;
+  safeRedirectPath: string;
+}) {
+  const routeContext = await loadReturnedCorrectionRouteContext({
+    supabase: input.supabase,
+    parentUserId: input.parentUserId,
+    childId: input.submission.child_id,
+    currentTaskSubmissionId: input.submission.id,
+    originalWritingIssueId: input.originalWritingIssueId,
+    correctionAttemptId: input.correctionAttemptId,
+  });
+
+  if (!routeContext) {
+    redirect(
+      buildRedirectWithMessage(
+        input.safeRedirectPath,
+        "error",
+        "That returned correction cannot be sent to catalog review until it has an issue outcome and source spelling lineage.",
+      ),
+    );
+  }
+
+  const { data: existingOpenCaseData } = await input.supabase
+    .from("spelling_catalog_review_cases")
+    .select("id, metadata")
+    .eq("parent_user_id", input.parentUserId)
+    .eq("child_id", input.submission.child_id)
+    .eq("source_misspelling_instance_id", routeContext.misspelling.id)
+    .eq("case_status", "open")
+    .limit(1)
+    .maybeSingle();
+  const existingOpenCase = existingOpenCaseData as ExistingOpenCatalogReviewCase | null;
+  const nowIso = new Date().toISOString();
+  const metadata = {
+    ...(existingOpenCase?.metadata ?? {}),
+    ...routeContext.routeMetadata,
+    action_source: "review_work_returned_correction_no_matching_skill",
+    updated_from_parent_action_at: nowIso,
+  };
+
+  if (existingOpenCase) {
+    const { error: updateError } = await input.supabase
+      .from("spelling_catalog_review_cases")
+      .update({
+        task_submission_id: input.submission.id,
+        writing_sample_id: routeContext.misspelling.writing_sample_id,
+        source_suggestion_id: routeContext.issue.source_suggestion_id,
+        reviewed_event_source_entity_id:
+          routeContext.verificationTarget.sourceRef.sourceEntityId,
+        original_child_spelling: routeContext.originalChildSpelling,
+        original_correct_spelling: routeContext.originalCorrectSpelling,
+        misspelling_normalized: routeContext.misspellingNormalized,
+        correct_spelling_normalized: routeContext.correctSpellingNormalized,
+        parent_note: input.parentNote,
+        metadata,
+        updated_at: nowIso,
+      })
+      .eq("id", existingOpenCase.id)
+      .eq("parent_user_id", input.parentUserId)
+      .eq("case_status", "open");
+
+    if (updateError) {
+      redirect(
+        buildRedirectWithMessage(
+          input.safeRedirectPath,
+          "error",
+          "We couldn't update that returned correction catalog-review case just yet.",
+        ),
+      );
+    }
+  } else {
+    const { error: insertError } = await input.supabase
+      .from("spelling_catalog_review_cases")
+      .insert({
+        parent_user_id: input.parentUserId,
+        child_id: input.submission.child_id,
+        task_submission_id: input.submission.id,
+        writing_sample_id: routeContext.misspelling.writing_sample_id,
+        source_suggestion_id: routeContext.issue.source_suggestion_id,
+        source_misspelling_instance_id: routeContext.misspelling.id,
+        source_provenance: routeContext.sourceProvenance,
+        reviewed_event_source_entity_id:
+          routeContext.verificationTarget.sourceRef.sourceEntityId,
+        original_child_spelling: routeContext.originalChildSpelling,
+        original_correct_spelling: routeContext.originalCorrectSpelling,
+        misspelling_normalized: routeContext.misspellingNormalized,
+        correct_spelling_normalized: routeContext.correctSpellingNormalized,
+        case_status: "open",
+        parent_note: input.parentNote,
+        metadata,
+      });
+
+    if (insertError) {
+      redirect(
+        buildRedirectWithMessage(
+          input.safeRedirectPath,
+          "error",
+          "We couldn't send that returned correction to catalog review just yet.",
+        ),
+      );
+    }
+  }
+
+  revalidateReviewQueueAndDetailBestEffort(input.safeRedirectPath);
+
+  redirect(
+    buildRedirectWithMessage(
+      input.safeRedirectPath,
+      "saved",
+      "Returned correction sent to catalog review.",
+    ),
+  );
+}
+
 export async function captureSpellingCatalogReviewCaseImpl(formData: FormData) {
   const submissionId = formData.get("submission_id");
   const misspellingInstanceId = formData.get("misspelling_instance_id");
+  const originalWritingIssueId = formData.get("original_writing_issue_id");
+  const correctionAttemptId = formData.get("correction_attempt_id");
   const parentNote = normaliseOptionalIssueText(formData.get("parent_note"));
   const safeRedirectPath = normaliseRedirectPath(formData.get("redirect_path"));
 
   if (
     typeof submissionId !== "string" ||
     !submissionId ||
-    typeof misspellingInstanceId !== "string" ||
-    !misspellingInstanceId
+    !(
+      (typeof misspellingInstanceId === "string" && misspellingInstanceId) ||
+      (typeof originalWritingIssueId === "string" && originalWritingIssueId)
+    )
   ) {
     redirect(
       buildRedirectWithMessage(
@@ -85,6 +214,21 @@ export async function captureSpellingCatalogReviewCaseImpl(formData: FormData) {
         "That lesson submission is no longer available for review.",
       ),
     );
+  }
+
+  if (typeof originalWritingIssueId === "string" && originalWritingIssueId) {
+    await captureReturnedCorrectionCatalogReviewCase({
+      supabase,
+      parentUserId: user.id,
+      submission,
+      originalWritingIssueId,
+      correctionAttemptId:
+        typeof correctionAttemptId === "string" && correctionAttemptId
+          ? correctionAttemptId
+          : null,
+      parentNote,
+      safeRedirectPath,
+    });
   }
 
   const linkedSample = await getLinkedWritingSample(supabase, submission.id, user.id);
