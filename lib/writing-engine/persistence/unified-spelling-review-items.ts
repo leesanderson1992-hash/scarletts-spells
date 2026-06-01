@@ -20,6 +20,11 @@ type SupabaseServerClient = {
   };
 };
 
+type TaskSubmissionThreadRow = {
+  id: string;
+  task_id: string | null;
+};
+
 export type UnifiedSpellingReviewSource =
   | "engine_suggested"
   | "parent_added_missed_word"
@@ -178,6 +183,7 @@ export type BuildUnifiedSpellingReviewItemsInput = {
   misspellings: UnifiedSpellingReviewMisspellingRow[];
   writingIssueSuggestions: UnifiedSpellingReviewSuggestionRow[];
   parentVerifications: UnifiedSpellingReviewParentVerificationRow[];
+  historicalParentVerifications?: UnifiedSpellingReviewParentVerificationRow[];
   writingIssues: UnifiedSpellingReviewWritingIssueRow[];
   correctionAttempts: UnifiedSpellingReviewCorrectionAttemptRow[];
   returnedWritingIssues: UnifiedSpellingReviewWritingIssueRow[];
@@ -347,6 +353,81 @@ function getRetryDisplayText(value: string | null | undefined) {
   }
 
   return trimmed;
+}
+
+function normaliseReviewText(value: string | null | undefined) {
+  return value?.trim().toLowerCase().replace(/\s+/g, " ") ?? "";
+}
+
+function buildReviewPairKey(input: {
+  observedText: string | null | undefined;
+  expectedCorrection: string | null | undefined;
+}) {
+  const observedText = normaliseReviewText(input.observedText);
+  const expectedCorrection = normaliseReviewText(input.expectedCorrection);
+
+  if (!observedText || !expectedCorrection) {
+    return null;
+  }
+
+  return `${observedText}::${expectedCorrection}`;
+}
+
+function hasReturnedOwnershipSource(issue: UnifiedSpellingReviewWritingIssueRow) {
+  return (
+    (typeof issue.source_misspelling_instance_id === "string" &&
+      issue.source_misspelling_instance_id.length > 0) ||
+    (typeof issue.source_suggestion_id === "string" &&
+      issue.source_suggestion_id.length > 0)
+  );
+}
+
+function isTerminalReturnedOwnershipIssue(issue: UnifiedSpellingReviewWritingIssueRow) {
+  return (
+    hasReturnedOwnershipSource(issue) &&
+    (issue.final_classification !== null || issue.issue_status === "finalised")
+  );
+}
+
+function isTerminalParentVerification(
+  verification: UnifiedSpellingReviewParentVerificationRow,
+) {
+  return (
+    verification.decision === "accepted" ||
+    verification.decision === "overridden" ||
+    verification.decision === "false_positive" ||
+    verification.decision === "not_a_learning_issue"
+  );
+}
+
+function parseVerificationSourceEntityId(sourceEntityId: string) {
+  const [sourceType, taskSubmissionId, writingSampleId, span, observedText, expectedCorrection] =
+    sourceEntityId.split("::");
+
+  if (
+    sourceType !== "authentic_writing" ||
+    !taskSubmissionId ||
+    !writingSampleId ||
+    !span ||
+    !observedText ||
+    !expectedCorrection ||
+    expectedCorrection === "no_target"
+  ) {
+    return null;
+  }
+
+  const spanMatch = /^(\d+)-(\d+)$/.exec(span);
+  const positionStart = spanMatch ? Number(spanMatch[1]) : null;
+  const positionEnd = spanMatch ? Number(spanMatch[2]) : null;
+
+  return {
+    taskSubmissionId,
+    writingSampleId: writingSampleId === "no_sample" ? null : writingSampleId,
+    positionStart,
+    positionEnd,
+    observedText,
+    expectedCorrection,
+  };
 }
 
 function isParentAuthoredMisspellingRow(input: { notes?: string | null }) {
@@ -551,6 +632,67 @@ function getCategorisationStatusForReturnedIssue(input: {
 export function buildUnifiedSpellingReviewItems(
   input: BuildUnifiedSpellingReviewItemsInput,
 ): UnifiedSpellingReviewItem[] {
+  const returnedOwnedSourceMisspellingIds = new Set(
+    input.returnedWritingIssues
+      .map((issue) => issue.source_misspelling_instance_id)
+      .filter((id): id is string => typeof id === "string" && id.length > 0),
+  );
+  const returnedOwnedSourceSuggestionIds = new Set(
+    input.returnedWritingIssues
+      .map((issue) => issue.source_suggestion_id)
+      .filter((id): id is string => typeof id === "string" && id.length > 0),
+  );
+  const returnedWritingIssueIds = new Set(input.returnedWritingIssues.map((issue) => issue.id));
+  const suppressedRegeneratedCandidateIdsByReturnedIssueId = new Map<string, string[]>();
+  const consumedReturnedOwnershipIssueIds = new Set<string>();
+  const returnedOwnershipIssuesByPairKey = new Map<
+    string,
+    UnifiedSpellingReviewWritingIssueRow[]
+  >();
+  const consumedHistoricalVerificationIds = new Set<string>();
+  const historicalTerminalVerificationsByPairKey = new Map<
+    string,
+    UnifiedSpellingReviewParentVerificationRow[]
+  >();
+
+  input.returnedWritingIssues.forEach((issue) => {
+    const pairKey = buildReviewPairKey({
+      observedText: issue.observed_text,
+      expectedCorrection: issue.approved_replacement ?? issue.suggested_replacement ?? null,
+    });
+
+    if (!pairKey) {
+      return;
+    }
+
+    returnedOwnershipIssuesByPairKey.set(pairKey, [
+      ...(returnedOwnershipIssuesByPairKey.get(pairKey) ?? []),
+      issue,
+    ]);
+  });
+  (input.historicalParentVerifications ?? [])
+    .filter(isTerminalParentVerification)
+    .forEach((verification) => {
+      const sourceEntity = parseVerificationSourceEntityId(verification.source_entity_id);
+
+      if (!sourceEntity) {
+        return;
+      }
+
+      const pairKey = buildReviewPairKey({
+        observedText: sourceEntity.observedText,
+        expectedCorrection: sourceEntity.expectedCorrection,
+      });
+
+      if (!pairKey) {
+        return;
+      }
+
+      historicalTerminalVerificationsByPairKey.set(pairKey, [
+        ...(historicalTerminalVerificationsByPairKey.get(pairKey) ?? []),
+        verification,
+      ]);
+    });
   const suggestionsByMisspellingId = new Map(
     input.writingIssueSuggestions
       .filter((suggestion) => typeof suggestion.misspelling_instance_id === "string")
@@ -602,6 +744,75 @@ export function buildUnifiedSpellingReviewItems(
         .find((row): row is UnifiedSpellingReviewParentVerificationRow => Boolean(row)) ??
       null;
     const parentAuthored = isParentAuthoredMisspellingRow(misspelling);
+
+    const directlyReturnedOwnedWritingIssue =
+      returnedWritingIssueIds.has(writingIssue?.id ?? "")
+        ? writingIssue
+        : input.returnedWritingIssues.find(
+            (issue) =>
+              (typeof issue.source_misspelling_instance_id === "string" &&
+                issue.source_misspelling_instance_id === misspelling.id) ||
+              (typeof issue.source_suggestion_id === "string" &&
+                issue.source_suggestion_id === suggestion?.id),
+          ) ?? null;
+    const pairKey = buildReviewPairKey({
+      observedText: misspelling.misspelled_word,
+      expectedCorrection,
+    });
+    const sameThreadReturnedOwnedWritingIssue =
+      pairKey === null
+        ? null
+        : (returnedOwnershipIssuesByPairKey.get(pairKey) ?? []).find(
+            (issue) => !consumedReturnedOwnershipIssueIds.has(issue.id),
+          ) ?? null;
+    const historicalTerminalVerification =
+      pairKey === null || verification !== null
+        ? null
+        : (historicalTerminalVerificationsByPairKey.get(pairKey) ?? []).find(
+            (historicalVerification) =>
+              !consumedHistoricalVerificationIds.has(historicalVerification.id),
+          ) ?? null;
+    const returnedOwnedWritingIssue =
+      directlyReturnedOwnedWritingIssue ?? sameThreadReturnedOwnedWritingIssue;
+    const returnedOwnedByDirectLineage =
+      !parentAuthored &&
+      directlyReturnedOwnedWritingIssue !== null &&
+      (returnedOwnedSourceMisspellingIds.has(misspelling.id) ||
+        (typeof suggestion?.id === "string" &&
+          returnedOwnedSourceSuggestionIds.has(suggestion.id)) ||
+        returnedWritingIssueIds.has(writingIssue?.id ?? ""));
+    const returnedOwnedBySameThreadPair =
+      !parentAuthored &&
+      directlyReturnedOwnedWritingIssue === null &&
+      sameThreadReturnedOwnedWritingIssue !== null;
+    const ownedByHistoricalTerminalVerification =
+      !parentAuthored &&
+      verification === null &&
+      returnedOwnedWritingIssue === null &&
+      historicalTerminalVerification !== null;
+
+    if (
+      (returnedOwnedByDirectLineage || returnedOwnedBySameThreadPair) &&
+      returnedOwnedWritingIssue
+    ) {
+      const existing =
+        suppressedRegeneratedCandidateIdsByReturnedIssueId.get(returnedOwnedWritingIssue.id) ??
+        [];
+
+      consumedReturnedOwnershipIssueIds.add(returnedOwnedWritingIssue.id);
+      suppressedRegeneratedCandidateIdsByReturnedIssueId.set(returnedOwnedWritingIssue.id, [
+        ...existing,
+        misspelling.id,
+      ]);
+
+      return [];
+    }
+
+    if (ownedByHistoricalTerminalVerification && historicalTerminalVerification) {
+      consumedHistoricalVerificationIds.add(historicalTerminalVerification.id);
+
+      return [];
+    }
 
     const suggestedMicroSkillKey =
       suggestion?.suggested_micro_skill_key ?? verification?.suggested_micro_skill_key ?? null;
@@ -681,7 +892,7 @@ export function buildUnifiedSpellingReviewItems(
         ? catalogReviewCaseByMisspellingId.get(issue.source_misspelling_instance_id) ?? null
         : null;
 
-    if (!attempt) {
+    if (!attempt && !isTerminalReturnedOwnershipIssue(issue)) {
       return [];
     }
 
@@ -690,16 +901,16 @@ export function buildUnifiedSpellingReviewItems(
     const parentAuthored =
       sourceKind === "parent_authored_missed_word" ||
       issueMetadata.parent_authored_missed_word === true;
-    const childAttemptDisplay = getRetryDisplayText(attempt.attempted_correction);
+    const childAttemptDisplay = getRetryDisplayText(attempt?.attempted_correction);
     const historicalFullAnswerAttempt = childAttemptDisplay
       ? null
-      : isLikelyFullAnswerText(attempt.attempted_correction)
-        ? attempt.attempted_correction
+      : isLikelyFullAnswerText(attempt?.attempted_correction)
+        ? attempt?.attempted_correction
         : null;
 
     return [
       {
-        id: `returned:${issue.id}:${attempt.id}`,
+        id: `returned:${issue.id}:${attempt?.id ?? "no-current-attempt"}`,
         source: "returned_correction",
         state: getStateForReturnedIssue(issue),
         categorisationStatus: getCategorisationStatusForReturnedIssue({
@@ -711,12 +922,12 @@ export function buildUnifiedSpellingReviewItems(
         expectedCorrection:
           issue.approved_replacement ?? issue.suggested_replacement ?? null,
         latestChildAttempt: childAttemptDisplay,
-        childReflection: attempt.reflection,
+        childReflection: attempt?.reflection ?? null,
         correctionOutcome: issue.final_classification,
         suggestedMicroSkillKey: null,
         verifiedMicroSkillKey: null,
         microSkillKey: candidateMapping?.micro_skill_key ?? issue.micro_skill_key,
-        parentNote: issue.parent_review_note ?? issue.notes ?? attempt.attempt_notes,
+        parentNote: issue.parent_review_note ?? issue.notes ?? attempt?.attempt_notes ?? null,
         sourceIds: {
           currentTaskSubmissionId: input.submissionId,
           writingSampleId: input.writingSampleId,
@@ -725,7 +936,7 @@ export function buildUnifiedSpellingReviewItems(
           parentVerificationId: null,
           writingIssueId: null,
           originalWritingIssueId: issue.id,
-          correctionAttemptId: attempt.id,
+          correctionAttemptId: attempt?.id ?? null,
           catalogReviewCaseId: catalogReviewCase?.id ?? null,
           candidateMappingId: candidateMapping?.id ?? null,
         },
@@ -735,12 +946,15 @@ export function buildUnifiedSpellingReviewItems(
           previousTaskSubmissionId: issue.task_submission_id,
           metadata: {
             issue_metadata: issueMetadata,
-            attempt_metadata: parseMetadata(attempt.metadata),
+            attempt_metadata: parseMetadata(attempt?.metadata),
+            has_current_correction_attempt: Boolean(attempt),
             source_misspelling_instance_id: issue.source_misspelling_instance_id,
             source_suggestion_id: issue.source_suggestion_id,
             original_writing_issue_id: issue.id,
-            correction_attempt_id: attempt.id,
+            correction_attempt_id: attempt?.id ?? null,
             historical_full_answer_attempt: historicalFullAnswerAttempt,
+            suppressed_regenerated_candidate_ids:
+              suppressedRegeneratedCandidateIdsByReturnedIssueId.get(issue.id) ?? [],
           },
         },
       } satisfies UnifiedSpellingReviewItem,
@@ -769,6 +983,7 @@ export async function loadUnifiedSpellingReviewItemsForSubmission(input: {
     typeof linkedSampleRow?.id === "string" ? linkedSampleRow.id : null;
 
   const [
+    { data: currentSubmission },
     { data: misspellingRows },
     { data: suggestionRows },
     { data: verificationRows },
@@ -777,6 +992,13 @@ export async function loadUnifiedSpellingReviewItemsForSubmission(input: {
     { data: catalogReviewCaseRows },
     { data: attemptRows },
   ] = await Promise.all([
+    supabase
+      .from("task_submissions")
+      .select("id, task_id")
+      .eq("id", input.submissionId)
+      .eq("parent_user_id", input.parentUserId)
+      .eq("child_id", input.childId)
+      .maybeSingle(),
     writingSampleId
       ? supabase
           .from("misspelling_instances")
@@ -844,6 +1066,24 @@ export async function loadUnifiedSpellingReviewItemsForSubmission(input: {
   const returnedWritingIssueIds = [
     ...new Set(correctionAttempts.map((attempt) => attempt.writing_issue_id)),
   ];
+  const currentSubmissionRow = currentSubmission as TaskSubmissionThreadRow | null;
+  const { data: threadSubmissionRows } =
+    typeof currentSubmissionRow?.task_id === "string" &&
+    currentSubmissionRow.task_id.length > 0
+      ? await supabase
+          .from("task_submissions")
+          .select("id, task_id")
+          .eq("task_id", currentSubmissionRow.task_id)
+          .eq("parent_user_id", input.parentUserId)
+          .eq("child_id", input.childId)
+      : { data: [] };
+  const threadSubmissionIds = [
+    ...new Set(
+      ((threadSubmissionRows ?? []) as TaskSubmissionThreadRow[])
+        .map((row) => row.id)
+        .filter((id) => typeof id === "string" && id.length > 0),
+    ),
+  ];
   const { data: returnedWritingIssueRows } =
     returnedWritingIssueIds.length > 0
       ? await supabase
@@ -855,8 +1095,52 @@ export async function loadUnifiedSpellingReviewItemsForSubmission(input: {
           .eq("child_id", input.childId)
           .in("id", returnedWritingIssueIds)
       : { data: [] };
-  const returnedWritingIssues =
+  const { data: threadWritingIssueRows } =
+    threadSubmissionIds.length > 0
+      ? await supabase
+          .from("writing_issues")
+          .select(
+            "id, task_submission_id, source_misspelling_instance_id, source_suggestion_id, issue_status, final_classification, observed_text, suggested_replacement, approved_replacement, micro_skill_key, parent_review_note, notes, metadata, child_responded_at, final_classified_at",
+          )
+          .eq("parent_user_id", input.parentUserId)
+          .eq("child_id", input.childId)
+          .in("task_submission_id", threadSubmissionIds)
+      : { data: [] };
+  const attemptLinkedReturnedWritingIssues =
     (returnedWritingIssueRows ?? []) as unknown as UnifiedSpellingReviewWritingIssueRow[];
+  const historicalReturnedWritingIssues = (
+    (threadWritingIssueRows ?? []) as unknown as UnifiedSpellingReviewWritingIssueRow[]
+  ).filter(
+    (issue) =>
+      issue.task_submission_id !== input.submissionId &&
+      isTerminalReturnedOwnershipIssue(issue),
+  );
+  const { data: threadVerificationRows } =
+    threadSubmissionIds.length > 0
+      ? await supabase
+          .from("parent_verifications")
+          .select(
+            "id, source_entity_id, decision, suggested_micro_skill_key, verified_micro_skill_key, verification_notes, metadata",
+          )
+          .eq("parent_user_id", input.parentUserId)
+          .in("task_submission_id", threadSubmissionIds)
+          .order("verified_at", { ascending: false })
+      : { data: [] };
+  const historicalParentVerifications = (
+    (threadVerificationRows ?? []) as UnifiedSpellingReviewParentVerificationRow[]
+  ).filter((verification) => {
+    const sourceEntity = parseVerificationSourceEntityId(verification.source_entity_id);
+
+    return (
+      isTerminalParentVerification(verification) &&
+      sourceEntity !== null &&
+      sourceEntity.taskSubmissionId !== input.submissionId
+    );
+  });
+  const returnedWritingIssues = mergeById(
+    attemptLinkedReturnedWritingIssues,
+    historicalReturnedWritingIssues,
+  );
   const returnedSourceMisspellingIds = [
     ...new Set(
       returnedWritingIssues
@@ -910,6 +1194,7 @@ export async function loadUnifiedSpellingReviewItemsForSubmission(input: {
       (suggestionRows ?? []) as unknown as UnifiedSpellingReviewSuggestionRow[],
     parentVerifications:
       (verificationRows ?? []) as UnifiedSpellingReviewParentVerificationRow[],
+    historicalParentVerifications,
     writingIssues:
       (writingIssueRows ?? []) as unknown as UnifiedSpellingReviewWritingIssueRow[],
     correctionAttempts,

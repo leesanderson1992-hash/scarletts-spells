@@ -206,8 +206,23 @@ assert.match(
 );
 assert.doesNotMatch(
   unifiedSpellingReviewItems,
-  /suppressedRegeneratedCandidatesByPairKey|returnedPairKeys|buildReviewPairKey/,
-  "Unified read helper must not suppress repeated spelling instances with pair-only matching.",
+  /suppressedRegeneratedCandidatesByPairKey|returnedPairKeys/,
+  "Unified read helper must not use the old global pair-only suppression indexes.",
+);
+assert.match(
+  unifiedSpellingReviewItems,
+  /\.from\("task_submissions"\)[\s\S]*\.eq\("task_id", currentSubmissionRow\.task_id\)[\s\S]*\.eq\("parent_user_id", input\.parentUserId\)[\s\S]*\.eq\("child_id", input\.childId\)/,
+  "Same-pair returned ownership handling must be scoped to the same task, parent, and child.",
+);
+assert.match(
+  unifiedSpellingReviewItems,
+  /const returnedOwnedBySameThreadPair =[\s\S]*!parentAuthored[\s\S]*sameThreadReturnedOwnedWritingIssue !== null/,
+  "Unified read helper must only apply same-pair returned ownership to non-parent rows loaded from returned thread history.",
+);
+assert.match(
+  unifiedSpellingReviewItems,
+  /consumedReturnedOwnershipIssueIds\.add\(returnedOwnedWritingIssue\.id\)/,
+  "Unified read helper must consume returned ownership so repeated same-pair instances remain visible.",
 );
 assert.match(
   unifiedSpellingReviewItems,
