@@ -220,9 +220,15 @@ read model must distinguish between:
 Rules:
 - returned correction ownership survives later resubmission cycles in the same
   task/child/parent review thread
+- historical terminal parent verification ownership also survives later
+  resubmission cycles in the same task/child/parent review thread
+- terminal parent verification decisions that own a regenerated target include
+  `accepted`, `overridden`, `false_positive`, and `not_a_learning_issue`
 - terminal returned targets must not create new child retry boxes
 - terminal returned targets must not reopen as active `E` / `New` engine rows
   when the same task/child/parent review thread is resubmitted
+- terminal parent verification targets must not reopen as active `E` / `New`
+  engine rows when the same task/child/parent review thread is resubmitted
 - returned rows may remain visible as terminal/history rows with blank `Retry`
   if no current correction attempt exists
 - regenerated detections that are safely identified as already-owned returned
@@ -230,15 +236,22 @@ Rules:
 - genuinely new spelling issues after resubmission must still appear as active
   `E` rows and block completion until resolved
 - repeated instances of the same word/correction pair are legitimate separate
-  review rows unless safe lineage or same-thread returned ownership proves they
-  are already-owned returned targets
+  review rows unless safe lineage, same-thread returned ownership, or
+  same-thread historical terminal parent verification ownership proves they are
+  already-owned targets
 - pair-only matching is not sufficient to suppress an active row globally
-- same task/child/parent thread context may support returned-target ownership,
-  but ambiguous matches should stay visible
+- same task/child/parent thread context may support returned-target or
+  historical terminal verification ownership, but ambiguous matches should stay
+  visible
+- one ownership record may consume only one regenerated candidate; additional
+  same-pair instances remain visible as distinct active rows unless another
+  ownership record exists
 - suppression or history-only treatment must be engine-only and must never hide
   parent-added rows
 - terminal returned targets and suppressed already-owned regenerated engine rows
   do not block completion
+- suppressed already-owned regenerated rows from historical terminal parent
+  verification ownership do not block completion
 - parent-added current rows remain `P`
 - parent-added returned rows remain `P·R`
 
@@ -406,18 +419,25 @@ Slice F — Returned Correction Categorisation/Admin Bridge:
   canonical-curation behavior
 
 Slice G — Multi-Cycle Returned Review Ownership:
-- next safe runtime follow-up after smoke testing showed terminal returned
-  targets can disappear from returned/history rows and reopen as active
-  engine rows after a later child resubmission
+- complete: keeps terminal returned targets and historical terminal parent
+  verification targets known across later resubmission cycles
+- complete: prevents old handled obligations from reopening as active `E` /
+  `New` engine rows when the same task/child/parent review thread is
+  resubmitted
 - keep returned correction rows as the active owner for original returned
   targets across later resubmission cycles
 - keep terminal returned targets known even when the latest child resubmission
   has no new `writing_issue_correction_attempt`
+- treat historical terminal `parent_verifications` as ownership signals for
+  `accepted`, `overridden`, `false_positive`, and `not_a_learning_issue`
 - do not create child retry boxes for terminal returned targets
 - scan for genuinely new engine spelling issues in the latest resubmission
 - suppress or mark history-only only regenerated engine rows with safe returned
-  lineage or same-thread returned ownership; never suppress by word/correction
-  pair alone globally
+  lineage, same-thread returned ownership, or same-thread historical terminal
+  parent verification ownership; never suppress by word/correction pair alone
+  globally
+- one ownership record may consume only one regenerated candidate; true new
+  repeated instances remain visible
 - preserve parent-added current rows as `P` and parent-added returned rows as
   `P·R`
 - keep completion gating aligned with active parent-facing obligations only

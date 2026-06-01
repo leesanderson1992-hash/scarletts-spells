@@ -258,22 +258,26 @@ Next implementation slices:
 - Slice F is complete on the bounded Review Work path: returned rows can
   assign/override existing skills, raise no-matching-skill cases to admin, and
   use parent-local route handling where source/provenance guarantees exist
-- Slice G is the next bounded Review Work follow-up after smoke testing showed
-  terminal returned correction targets can disappear from returned/history rows
-  and reopen as duplicate active engine rows after later child resubmission
-- Slice G must keep returned correction rows as the active owner for original
+- Slice G/G.1 is complete on the bounded Review Work path: terminal returned
+  correction targets and historical terminal parent verification targets remain
+  owned across later child resubmission cycles
+- Slice G/G.1 keeps returned correction rows as the active owner for original
   returned targets across later resubmission cycles, while still surfacing
   genuinely new spelling issues in the latest resubmission
-- Slice G must keep terminal returned targets known even when the latest child
+- Slice G/G.1 keeps terminal returned targets known even when the latest child
   resubmission has no new `writing_issue_correction_attempt`
-- Slice G must not create child retry boxes for terminal returned targets
-- Slice G must not suppress rows by word/correction pair alone globally;
-  repeated instances remain visible unless safe returned-lineage or same-thread
-  returned ownership proves ownership
-- Slice G must preserve parent-added current rows as `P` and parent-added
+- Slice G/G.1 treats terminal `parent_verifications` for `accepted`,
+  `overridden`, `false_positive`, and `not_a_learning_issue` as ownership
+  signals in the same task/parent/child review thread
+- Slice G/G.1 must not create child retry boxes for terminal returned targets
+- Slice G/G.1 must not suppress rows by word/correction pair alone globally;
+  repeated instances remain visible unless safe returned-lineage, same-thread
+  returned ownership, or same-thread historical terminal parent verification
+  ownership proves ownership
+- Slice G/G.1 consumes only one regenerated candidate per ownership record, so
+  true new repeated instances remain visible
+- Slice G/G.1 preserves parent-added current rows as `P` and parent-added
   returned rows as `P·R`
-- Slice G may touch only unified spelling review read-model ownership, retry
-  display safety, completion-gating compatibility, and focused regressions
 - Future pass: define parent-recommended canonical mapping, where a
   parent-assigned existing skill can be sent to admin as a canonical mapping
   recommendation without automatically creating global canonical truth
