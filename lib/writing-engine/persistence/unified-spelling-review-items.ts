@@ -614,12 +614,15 @@ function getCategorisationStatusForReturnedIssue(input: {
     return "not_applicable";
   }
 
+  if (!returnedFinalClassificationNeedsRoute(issue.final_classification)) {
+    return "not_applicable";
+  }
+
   if (hasMeaningfulMicroSkillKey(issue.micro_skill_key)) {
     return "categorised";
   }
 
   if (
-    returnedFinalClassificationNeedsRoute(issue.final_classification) &&
     typeof issue.source_misspelling_instance_id === "string" &&
     issue.source_misspelling_instance_id.length > 0
   ) {

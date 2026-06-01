@@ -606,11 +606,12 @@ const input: BuildUnifiedSpellingReviewItemsInput = {
       observed_text: "writting",
       suggested_replacement: "writing",
       approved_replacement: "writing",
-      micro_skill_key: "phoneme_grapheme_blends",
+      micro_skill_key: "unknown",
       parent_review_note: "Try this spelling again.",
       notes: null,
       metadata: {
-        source_kind: "misspelling_instance",
+        source_kind: "parent_authored_missed_word",
+        parent_authored_missed_word: true,
       },
     },
     {
@@ -786,6 +787,16 @@ assert.equal(
   historicalFullAnswerReturnedRow.latestChildAttempt,
   null,
   "Historical full-answer attempt text must not render in the compact Retry column.",
+);
+assert.equal(
+  historicalFullAnswerReturnedRow.provenance.parentAuthored,
+  true,
+  "Parent-added returned checking-only rows should retain P/R provenance.",
+);
+assert.equal(
+  historicalFullAnswerReturnedRow.categorisationStatus,
+  "not_applicable",
+  "Checking-only returned corrections should not require skill routing.",
 );
 assert.equal(
   historicalFullAnswerReturnedRow.provenance.metadata.historical_full_answer_attempt,
