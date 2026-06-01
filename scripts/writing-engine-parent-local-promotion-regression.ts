@@ -169,6 +169,17 @@ function createHarness(overrides: Partial<HarnessState> = {}) {
         return [];
       },
     },
+    "@/lib/lessons/responses": {
+      buildStructuredLessonResponseFromSubmissionSummary() {
+        return null;
+      },
+      getStructuredLessonResponseFromPayload() {
+        return null;
+      },
+      hasMeaningfulStructuredLessonResponse() {
+        return false;
+      },
+    },
     "@/lib/spelling/errorPatterns": {
       detectErrorPattern() {
         return null;
@@ -337,6 +348,22 @@ function createHarness(overrides: Partial<HarnessState> = {}) {
 
             return { status: "updated", record: mapping };
           },
+        };
+      },
+    },
+    "@/lib/writing-engine/persistence/unified-spelling-review-items": {
+      async loadUnifiedSpellingReviewItemsForSubmission() {
+        return [];
+      },
+      summarizeUnifiedSpellingReviewCompletion() {
+        return {
+          blockingReasons: [],
+          canComplete: true,
+          deferredUnsupportedRouteCount: 0,
+          totalItemCount: 0,
+          unresolvedCategorisationCount: 0,
+          unresolvedItemCount: 0,
+          unresolvedReturnedCorrectionCount: 0,
         };
       },
     },

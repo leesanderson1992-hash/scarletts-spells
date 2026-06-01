@@ -958,6 +958,21 @@ Slice `4A` spelling catalog-review taxonomy contract:
     - if future implementation uses statuses such as `admin_review_requested`,
       the read model and completion summary must preserve completion safety for
       rows that are locally promoted/resolved
+  - PCRM-B storage/read-model foundation is implemented:
+    - recommendation evidence is stored in
+      `spelling_canonical_mapping_recommendations`
+    - authenticated parent access is scoped `select`/`insert` only
+    - parent-created rows may only start as `recommended` or
+      `pending_admin_review`
+    - parent-created rows cannot include canonical/admin curation fields
+    - child/source/candidate links are same-scope validated against
+      `parent_user_id` and `child_id` wherever source tables expose those
+      fields
+    - no parent action may write `micro_skill_catalog`,
+      `spelling_canonical_mappings`, resolver-visible truth, or local candidate
+      mapping status through this foundation
+    - if the PCRM-B migration was already applied before hardening, the target
+      database needs a follow-up hardening migration
 - staged follow-up:
   - Slice `4B.0`: bounded option filtering by family/cluster
   - Slice `4B.1`: parent `No matching skill` case capture only,

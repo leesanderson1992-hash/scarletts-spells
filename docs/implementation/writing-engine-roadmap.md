@@ -359,6 +359,43 @@ Future docs-first slice `PCRM-A` — Parent Recommended Canonical Mapping:
   - `PCRM-E` — QA and closeout
   - Future PCRM Resolver Integration — separate resolver adoption slice
 
+PCRM-B implementation record:
+- status: implemented as storage/read-model foundation only
+- added a dedicated `spelling_canonical_mapping_recommendations` evidence
+  table with parent/child scope, source identifiers, linked candidate mapping
+  and parent verification ids, selected `micro_skill_key`, recommendation
+  status, audit fields, duplicate/merge/supersession links, and metadata
+- added parent-scoped RLS with authenticated parent `select`/`insert` only;
+  admin review/status mutation remains future scope
+- parent-created recommendation rows may only start as `recommended` or
+  `pending_admin_review`
+- parent-created recommendation rows must not include canonical/admin curation
+  fields such as `canonical_mapping_id`, admin reviewer identity, admin review
+  note/timestamp, duplicate, merge, or supersession links
+- non-null source links are validated against the row's `parent_user_id` and
+  `child_id` wherever the source table exposes those fields; correction
+  attempts must also match `source_writing_issue_id` when provided
+- added a server-only repository/read-model helper for scoped parent reads and
+  pending-admin-review evidence inserts
+- preserved PCRM-A boundaries:
+  - no change to `parent_local_promoted`
+  - no completion-gating behavior change
+  - no parent UI or admin curation UI
+  - no resolver reads or priority changes
+  - no parent writes to `micro_skill_catalog`
+  - no parent writes to `spelling_canonical_mappings`
+- verification:
+  - `npm run writing-engine:pcrm-recommendation-evidence-regression`
+  - `npm run writing-engine:parent-local-promotion-regression`
+  - `npm run writing-engine:canonical-mapping-storage-regression`
+  - `npx tsc --noEmit`
+  - `git diff --check`
+- migration operation note:
+  - if `20260601103000_add_spelling_canonical_mapping_recommendations.sql`
+    was already applied to a database before the RLS/trigger hardening was
+    added, that database needs a follow-up hardening migration; Supabase will
+    not normally re-run the same timestamped migration automatically
+
 Hard stop conditions:
 - do not touch `app/courses/review/actions.ts`
 - do not duplicate `writing_issues` onto the new submission

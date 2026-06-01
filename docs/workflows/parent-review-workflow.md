@@ -347,6 +347,28 @@ source ids, linked candidate mapping id where applicable, parent/user id,
 child/family/account scope, provenance metadata, recommendation status,
 timestamps, audit fields, and duplicate/conflict metadata.
 
+PCRM-B storage/read-model foundation is implemented:
+- recommendation evidence lives in the dedicated
+  `spelling_canonical_mapping_recommendations` table
+- authenticated parent access is limited to scoped `select`/`insert`
+- parent-created rows may only start as `recommended` or
+  `pending_admin_review`
+- parent-created rows cannot include canonical/admin curation fields, including
+  `canonical_mapping_id`, admin reviewer identity, admin review note/timestamp,
+  duplicate, merge, or supersession links
+- non-null child/source/candidate ids are validated against the row's
+  `parent_user_id` and `child_id` wherever those source tables expose those
+  fields; correction attempts must match `source_writing_issue_id` when it is
+  supplied
+- the server-only read-model helper inserts pending recommendation evidence
+  only and does not write `micro_skill_catalog`,
+  `spelling_canonical_mappings`, or resolver-visible truth
+- no parent recommendation button, admin curation UI, resolver behavior, or
+  completion-gating behavior is implemented by PCRM-B
+- if the PCRM-B migration was already applied before hardening, use a follow-up
+  hardening migration for that database instead of expecting Supabase to rerun
+  the same timestamped migration
+
 ## Current Parent Review Status
 
 Slice E/E.1/F are implemented as an integrated Parent Review completion and

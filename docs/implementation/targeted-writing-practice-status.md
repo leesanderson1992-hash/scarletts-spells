@@ -427,6 +427,33 @@ Canonical documentation now defers to:
     recommendation, but admin action must not silently change resolver behavior
   - resolver adoption belongs to a later explicit PCRM resolver integration
     slice
+- `PCRM-B — Recommendation Evidence Model / Read Path` is implemented:
+  - added dedicated recommendation evidence storage and a server-only
+    repository/read-model helper
+  - recommendation status is parallel evidence and does not replace
+    `parent_local_promoted`
+  - parent-scoped RLS allows authenticated parent read/insert only
+  - parent-created rows may only start as `recommended` or
+    `pending_admin_review`
+  - parent-created rows cannot include canonical/admin curation fields such as
+    `canonical_mapping_id`, admin reviewer identity, admin review
+    note/timestamp, duplicate, merge, or supersession links
+  - non-null child/source/candidate links are validated against the
+    recommendation row's `parent_user_id` and `child_id` wherever the source
+    tables expose those fields
+  - admin mutation/curation remains future scope
+  - no parent UI, admin curation UI, resolver behavior, or completion-gating
+    behavior changed
+  - no parent recommendation path writes `micro_skill_catalog`,
+    `spelling_canonical_mappings`, or resolver-visible truth
+  - no completion-gating behavior changed; the focused PCRM regression proves
+    `parent_local_promoted` remains completion-safe and `parent_local_pending`
+    still blocks
+  - migration operation note: if
+    `20260601103000_add_spelling_canonical_mapping_recommendations.sql` was
+    already applied before hardening, the target database needs a follow-up
+    hardening migration because Supabase will not normally re-run that same
+    timestamped migration automatically
 
 ### Registered next bounded stage
 - `Parent-Verified Spelling Candidate Capture` Slice `3` is now implemented

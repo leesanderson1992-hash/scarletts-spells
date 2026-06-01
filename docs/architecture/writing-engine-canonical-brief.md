@@ -259,6 +259,26 @@ This means:
   - if future implementation uses candidate mapping statuses such as
     `admin_review_requested`, the read model and completion summary must keep
     locally promoted/resolved rows completion-safe
+- PCRM-B has implemented the storage/read-model foundation for that
+  evidence layer:
+  - `spelling_canonical_mapping_recommendations` is a dedicated evidence table,
+    not resolver-visible canonical truth
+  - authenticated parents may only perform scoped `select`/`insert`
+  - parent-created rows may only start as `recommended` or
+    `pending_admin_review`
+  - parent-created rows cannot carry canonical/admin curation fields such as
+    `canonical_mapping_id`, admin reviewer identity, review note/timestamp, or
+    duplicate/merge/supersession links
+  - child/source/candidate links are same-scope validated against the row's
+    `parent_user_id` and `child_id` wherever those source tables expose those
+    fields
+  - the server-only repository inserts pending evidence only; it does not write
+    `micro_skill_catalog`, `spelling_canonical_mappings`, resolver inputs, or
+    parent-local candidate mapping status
+  - no parent UI, admin curation UI, resolver behavior, or completion-gating
+    behavior is part of PCRM-B
+  - if the PCRM-B migration was already applied before this hardening, the
+    affected database needs a follow-up hardening migration
 - Slice `4A` documents the next catalog-review boundary only:
   - parent-facing action label: `No matching skill`
   - helper copy: `Send this spelling case to catalog review.`
