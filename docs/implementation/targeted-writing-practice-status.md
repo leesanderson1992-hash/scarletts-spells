@@ -409,6 +409,24 @@ Canonical documentation now defers to:
 - optional DB-backed or app-triggered smoke-test follow-up for Stage `1`
 - active-doc cleanup so historical implementation plans no longer compete with
   the roadmap
+- `PCRM-A — Parent Recommended Canonical Mapping Docs And Contract` is
+  registered as future docs-only work:
+  - parent may locally select/promote an existing active assignable spelling
+    micro-skill and separately recommend the child spelling/correction/skill
+    pairing for admin/global canonical consideration
+  - parent recommendation is evidence only; it is not canonical mapping truth
+    and is not resolver-visible
+  - this path is separate from `No matching skill`, which remains the route for
+    rows where no existing catalog-backed skill fits
+  - parent-local promotion remains the completion-gating truth, so
+    recommending a locally resolved/promoted row for canonical review must not
+    block lesson completion or reopen the row
+  - recommendation/admin-review status should be parallel evidence and must not
+    require changing `parent_local_promoted` into an admin-pending status
+  - admin may later accept, reject, merge, mark duplicate, or supersede the
+    recommendation, but admin action must not silently change resolver behavior
+  - resolver adoption belongs to a later explicit PCRM resolver integration
+    slice
 
 ### Registered next bounded stage
 - `Parent-Verified Spelling Candidate Capture` Slice `3` is now implemented

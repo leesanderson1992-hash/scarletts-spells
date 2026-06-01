@@ -240,6 +240,25 @@ This means:
   from MVP
 - no parent action in normal `Review Work` directly writes global canonical
   mapping truth
+- Parent Recommended Canonical Mapping is a future evidence/curation workflow,
+  not a change to parent-local authority:
+  - a parent may locally select or promote an existing active assignable
+    spelling micro-skill, then separately recommend the observed child spelling,
+    expected correction, and selected `micro_skill_key` pairing for admin/global
+    canonical consideration
+  - that recommendation is parent-submitted evidence only; it is not canonical
+    mapping truth and is not resolver-visible
+  - admin acceptance may create or update canonical mapping storage, but it must
+    not silently change resolver behavior
+  - resolver adoption belongs to a later explicit resolver integration slice
+  - the recommendation path is distinct from `No matching skill`, which remains
+    the route for rows where no existing catalog-backed skill fits
+  - recommendation/admin-review status must be parallel to the local decision:
+    it must not replace `parent_local_promoted`, reopen a resolved row, or block
+    parent completion after local resolution/promotion
+  - if future implementation uses candidate mapping statuses such as
+    `admin_review_requested`, the read model and completion summary must keep
+    locally promoted/resolved rows completion-safe
 - Slice `4A` documents the next catalog-review boundary only:
   - parent-facing action label: `No matching skill`
   - helper copy: `Send this spelling case to catalog review.`

@@ -927,9 +927,20 @@ Slice `4A` spelling catalog-review taxonomy contract:
   - a parent may assign an existing canonical micro-skill locally and
     separately recommend the misspelling/correction pair for admin canonical
     review
-  - the recommendation should create or update a
-    `spelling_catalog_review_cases` row with the selected existing
-    `micro_skill_key` preserved as parent recommendation metadata/evidence
+  - this path is separate from `No matching skill`:
+    - `No matching skill` is for rows where no existing catalog-backed
+      micro-skill fits
+    - Parent Recommended Canonical Mapping is for rows where the parent did
+      choose an existing active assignable skill locally and wants admin/global
+      consideration of that pairing
+  - the recommendation should use a parallel recommendation/evidence model or
+    explicit linked recommendation state; do not require changing
+    `parent_local_promoted` into an admin-pending status
+  - recommendation evidence should preserve the selected existing
+    `micro_skill_key`, observed child spelling, expected correction, source row
+    type, source ids, linked candidate mapping id where applicable, parent/user
+    id, child/family/account scope, provenance metadata, recommendation status,
+    timestamps, audit fields, and duplicate/conflict metadata
   - admin canonical curation should let the admin review the suggested
     word/correction/micro-skill decision before global canonical truth is
     created
@@ -938,6 +949,15 @@ Slice `4A` spelling catalog-review taxonomy contract:
   - no parent action may create global canonical mapping truth directly
   - resolver integration remains separate from parent recommendation capture and
     admin curation
+  - parent-local promotion remains the completion-gating truth:
+    - recommending a locally resolved/promoted row for canonical review must not
+      block lesson completion
+    - recommendation/admin-review status must not reopen a resolved row
+    - pending, accepted, rejected, merged, duplicate, or superseded
+      recommendation states must not by themselves block parent completion
+    - if future implementation uses statuses such as `admin_review_requested`,
+      the read model and completion summary must preserve completion safety for
+      rows that are locally promoted/resolved
 - staged follow-up:
   - Slice `4B.0`: bounded option filtering by family/cluster
   - Slice `4B.1`: parent `No matching skill` case capture only,

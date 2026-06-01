@@ -296,6 +296,57 @@ Returned correction rows must use the dedicated returned-correction bridge for
 catalog-review cases or parent-local mappings, preserving original issue and
 source-misspelling lineage.
 
+## Parent Recommended Canonical Mapping
+
+Parent Recommended Canonical Mapping is a future docs-defined workflow where a
+parent who has selected an existing catalog-backed spelling micro-skill locally
+may optionally recommend that observed child spelling, expected correction, and
+selected `micro_skill_key` pairing for admin/global canonical consideration.
+
+It is not the same route as `No matching skill`:
+- `No matching skill` is for supported rows where no existing catalog-backed
+  skill fits and the parent is asking admin/catalog review to decide what is
+  missing or appropriate
+- Parent Recommended Canonical Mapping is for supported rows where the parent
+  did choose an existing skill locally and wants that pairing considered for
+  future canonical mapping truth
+
+The workflow must keep four truth layers separate:
+1. parent local review decision
+2. parent recommendation evidence
+3. admin canonical curation
+4. resolver-visible global mapping truth
+
+Parent recommendation evidence must not be resolver-visible and must not become
+global canonical truth until an admin curation flow explicitly accepts or merges
+it. Even then, resolver adoption remains out of scope until a later explicit
+resolver integration slice.
+
+Completion-gating contract:
+- parent-local promotion remains the completion-gating truth
+- if a spelling row is locally resolved/promoted, recommending it for canonical
+  review must not block lesson completion
+- recommendation/admin-review status is parallel evidence only
+- recommending for canonical review must not reopen the row
+- pending, accepted, rejected, merged, duplicate, or superseded recommendation
+  states must not by themselves block parent completion
+- if a future implementation reuses candidate mapping statuses such as
+  `admin_review_requested`, the read model and completion summary must preserve
+  completion safety for rows that are locally promoted/resolved
+
+Parent-facing UX should be optional and explicit:
+- suggested action label: `Recommend this pairing for review`
+- suggested helper copy: `This sends the pairing for review. It will not change
+  global suggestions unless approved later.`
+- do not show the action for rows without safe source/provenance lineage
+- do not imply the parent is editing global truth
+
+Future recommendation evidence should preserve the observed child spelling,
+expected correction, selected `micro_skill_key`, source row type, available
+source ids, linked candidate mapping id where applicable, parent/user id,
+child/family/account scope, provenance metadata, recommendation status,
+timestamps, audit fields, and duplicate/conflict metadata.
+
 ## Current Parent Review Status
 
 Slice E/E.1/F are implemented as an integrated Parent Review completion and
@@ -453,11 +504,17 @@ Slice G — Multi-Cycle Returned Review Ownership:
 Future Pass — Parent Recommended Canonical Mapping:
 - allow a parent-assigned existing skill to be recommended to admin for
   canonical/global mapping review without automatically becoming canonical truth
-- recommendation should flow through `spelling_catalog_review_cases` with the
-  selected existing micro-skill as parent recommendation
+- recommendation should use a parallel recommendation/evidence model or
+  explicit linked recommendation state; do not require changing
+  `parent_local_promoted` into an admin-pending status
+- this route is distinct from `No matching skill`, which remains for cases
+  where no existing catalog-backed skill fits
 - admin canonical curation remains the only path to `spelling_canonical_mappings`
 - no parent action may mutate `micro_skill_catalog` or create global canonical
   mapping truth directly
+- parent-local promotion remains the completion-gating truth; recommending a
+  locally resolved/promoted row must not block lesson completion or reopen the
+  row
 
 ## Stop Conditions
 

@@ -285,9 +285,79 @@ Next implementation slices:
   and `transfer_failure` still require safe categorisation/admin/parent-local
   routing where applicable, and remain blocked/deferred when no safe route
   exists
-- Future pass: define parent-recommended canonical mapping, where a
-  parent-assigned existing skill can be sent to admin as a canonical mapping
-  recommendation without automatically creating global canonical truth
+- Future pass: define Parent Recommended Canonical Mapping, where a
+  parent-assigned existing skill can be sent to admin as canonical mapping
+  recommendation evidence without automatically creating global canonical truth
+
+Future docs-first slice `PCRM-A` — Parent Recommended Canonical Mapping:
+- scope: documentation and contract only; no runtime, migration, schema, test,
+  codegen, staging, or commit work
+- product workflow:
+  1. parent reviews a spelling row
+  2. parent confirms or overrides to an existing active assignable spelling
+     micro-skill
+  3. parent locally resolves or promotes the row where applicable
+  4. parent may optionally recommend the observed child spelling, expected
+     correction, and selected `micro_skill_key` for admin/global canonical
+     consideration
+  5. admin later accepts, rejects, merges, marks duplicate, or supersedes the
+     recommendation
+  6. resolver does not consume the recommendation until a later explicit
+     resolver integration slice
+- truth layers must stay separate:
+  1. parent local review decision
+  2. parent recommendation evidence
+  3. admin canonical curation
+  4. resolver-visible global mapping truth
+- Parent Recommended Canonical Mapping is separate from `No matching skill`:
+  - `No matching skill` is for rows where no existing catalog-backed skill fits
+  - Parent Recommended Canonical Mapping is for rows where an existing skill was
+    selected locally and the parent wants admin/global consideration
+- data/provenance contract should include observed child spelling, expected
+  correction, selected `micro_skill_key`, source row type, available source ids
+  such as `task_submission_id`, `writing_sample_id`,
+  `source_misspelling_instance_id`, `writing_issue.id`,
+  `correction_attempt_id`, `parent_verification_id`,
+  `writing_issue_suggestion_id`, linked candidate mapping id where applicable,
+  parent/user id, child/family/account scope, provenance metadata,
+  recommendation status, timestamps, audit fields, and duplicate/conflict
+  metadata
+- storage direction for future implementation:
+  - prefer a parallel recommendation/evidence model or explicit linked
+    recommendation state
+  - do not require changing `parent_local_promoted` into an admin-pending state
+  - do not design a parent-written row that is resolver-visible global truth
+- completion-gating contract:
+  - parent-local promotion remains the completion-gating truth
+  - if a spelling row is locally resolved/promoted, recommending it for
+    canonical review must not block lesson completion
+  - recommendation/admin-review status is parallel evidence only
+  - recommending for canonical review must not reopen the row
+  - pending, accepted, rejected, merged, duplicate, or superseded
+    recommendation states must not by themselves block parent completion
+  - if a future implementation reuses candidate mapping statuses such as
+    `admin_review_requested`, the read model and completion summary must
+    preserve completion safety for rows that are locally promoted/resolved
+- UX contract:
+  - optional parent action after local known-skill classification/promotion
+  - suggested label: `Recommend this pairing for review`
+  - helper copy: `This sends the pairing for review. It will not change global
+    suggestions unless approved later.`
+  - do not show for rows without safe provenance
+  - do not imply the parent is editing global truth
+- admin contract:
+  - admin sees recommendation with source evidence/provenance and can compare
+    it to existing canonical mappings
+  - admin can accept, reject, merge, mark duplicate, or supersede
+  - admin acceptance is audited
+  - admin action must not silently change resolver behavior
+- implementation slices:
+  - `PCRM-A` — docs and contract only
+  - `PCRM-B` — recommendation evidence model/read path
+  - `PCRM-C` — parent recommendation action/UI
+  - `PCRM-D` — admin review/curation surface
+  - `PCRM-E` — QA and closeout
+  - Future PCRM Resolver Integration — separate resolver adoption slice
 
 Hard stop conditions:
 - do not touch `app/courses/review/actions.ts`
