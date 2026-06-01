@@ -252,6 +252,14 @@ Rules:
   do not block completion
 - suppressed already-owned regenerated rows from historical terminal parent
   verification ownership do not block completion
+- returned corrections final-classified as `checking_only` are terminal and do
+  not require micro-skill categorisation, parent-local mapping, or
+  admin/catalog handoff
+- completion gating must not count `checking_only` returned rows as unresolved
+  categorisation or deferred-route blockers
+- learning-gap returned outcomes such as `fragile_knowledge`, `concept_gap`,
+  and `transfer_failure` still require a safe route where applicable; if no
+  safe route exists, they remain blocked/deferred
 - parent-added current rows remain `P`
 - parent-added returned rows remain `P·R`
 

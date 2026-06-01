@@ -278,6 +278,13 @@ Next implementation slices:
   true new repeated instances remain visible
 - Slice G/G.1 preserves parent-added current rows as `P` and parent-added
   returned rows as `P·R`
+- Returned corrections final-classified as `checking_only` are terminal and
+  non-route-required: they must not be treated as unresolved categorisation,
+  deferred returned routes, or admin/catalog handoff work
+- Learning-gap returned outcomes such as `fragile_knowledge`, `concept_gap`,
+  and `transfer_failure` still require safe categorisation/admin/parent-local
+  routing where applicable, and remain blocked/deferred when no safe route
+  exists
 - Future pass: define parent-recommended canonical mapping, where a
   parent-assigned existing skill can be sent to admin as a canonical mapping
   recommendation without automatically creating global canonical truth
