@@ -1,10 +1,10 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useId, useState } from "react";
 
 import { builderIconButtonClass } from "@/app/courses/components/builder-control-styles";
-import { StructuredLessonBuilder } from "@/components/structured-lesson-builder";
 import {
   COURSE_COIN_REWARD_TRIGGER_LABELS,
   COURSE_COIN_REWARD_TRIGGERS,
@@ -14,6 +14,20 @@ import {
   type TaskRowViewModel,
   WEEKDAY_OPTIONS,
 } from "@/lib/courses/types";
+
+const StructuredLessonBuilder = dynamic(
+  () =>
+    import("@/components/structured-lesson-builder").then((module) => ({
+      default: module.StructuredLessonBuilder,
+    })),
+  {
+    loading: () => (
+      <div className="rounded-[1.5rem] border border-[var(--border)] bg-white px-4 py-3 text-sm text-[color:var(--mid)]">
+        Loading lesson builder…
+      </div>
+    ),
+  },
+);
 
 type TaskModuleRowProps = {
   row: TaskRowViewModel;
