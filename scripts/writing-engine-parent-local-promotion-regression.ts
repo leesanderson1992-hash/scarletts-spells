@@ -351,6 +351,20 @@ function createHarness(overrides: Partial<HarnessState> = {}) {
         };
       },
     },
+    "@/lib/writing-engine/persistence/spelling-canonical-recommendations": {
+      createSupabaseSpellingCanonicalRecommendationRepository() {
+        return {
+          async findOpenForCandidateMapping() {
+            return null;
+          },
+          async insertPendingAdminReview() {
+            throw new Error(
+              "PCRM recommendation capture is outside parent-local promotion regression.",
+            );
+          },
+        };
+      },
+    },
     "@/lib/writing-engine/persistence/unified-spelling-review-items": {
       async loadUnifiedSpellingReviewItemsForSubmission() {
         return [];

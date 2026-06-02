@@ -21,6 +21,7 @@ import { recordReviewWorkVerificationActionImpl } from "./actions/parent-verific
 import {
   captureSubmissionSpellingCandidateMappingImpl,
   promoteParentLocalCandidateMappingImpl,
+  recommendParentLocalCanonicalMappingImpl,
   revertParentLocalCandidateMappingImpl,
 } from "./actions/candidate-mapping-actions";
 import { captureSpellingCatalogReviewCaseImpl } from "./actions/catalog-review-case-actions";
@@ -51,6 +52,10 @@ export async function captureSpellingCatalogReviewCase(formData: FormData) {
 
 export async function promoteParentLocalCandidateMapping(formData: FormData) {
   return promoteParentLocalCandidateMappingImpl(formData);
+}
+
+export async function recommendParentLocalCanonicalMapping(formData: FormData) {
+  return recommendParentLocalCanonicalMappingImpl(formData);
 }
 
 export async function revertParentLocalCandidateMapping(formData: FormData) {

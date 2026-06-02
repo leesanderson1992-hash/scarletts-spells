@@ -10,6 +10,7 @@ import type {
 type SupabaseQueryBuilder = PromiseLike<{ data: unknown }> & {
   eq(column: string, value: unknown): SupabaseQueryBuilder;
   in(column: string, values: unknown[]): SupabaseQueryBuilder;
+  limit(count: number): SupabaseQueryBuilder;
   order(column: string, options?: { ascending?: boolean }): SupabaseQueryBuilder;
   maybeSingle(): PromiseLike<{ data: unknown }>;
 };
@@ -73,6 +74,8 @@ export type UnifiedSpellingReviewItem = {
     correctionAttemptId: string | null;
     catalogReviewCaseId: string | null;
     candidateMappingId: string | null;
+    canonicalRecommendationId: string | null;
+    canonicalRecommendationStatus: "recommended" | "pending_admin_review" | null;
   };
   provenance: {
     parentAuthored: boolean;
@@ -177,6 +180,12 @@ export type UnifiedSpellingReviewCatalogReviewCaseRow = {
   case_status: "open";
 };
 
+export type UnifiedSpellingReviewCanonicalRecommendationRow = {
+  id: string;
+  candidate_mapping_id: string | null;
+  recommendation_status: "recommended" | "pending_admin_review";
+};
+
 export type BuildUnifiedSpellingReviewItemsInput = {
   submissionId: string;
   writingSampleId: string | null;
@@ -189,6 +198,7 @@ export type BuildUnifiedSpellingReviewItemsInput = {
   returnedWritingIssues: UnifiedSpellingReviewWritingIssueRow[];
   candidateMappings: UnifiedSpellingReviewCandidateMappingRow[];
   catalogReviewCases: UnifiedSpellingReviewCatalogReviewCaseRow[];
+  canonicalRecommendations?: UnifiedSpellingReviewCanonicalRecommendationRow[];
 };
 
 function hasMeaningfulMicroSkillKey(value: string | null | undefined) {
@@ -717,6 +727,18 @@ export function buildUnifiedSpellingReviewItems(
       reviewCase,
     ]),
   );
+  const canonicalRecommendationByCandidateMappingId = new Map(
+    (input.canonicalRecommendations ?? [])
+      .filter(
+        (recommendation) =>
+          typeof recommendation.candidate_mapping_id === "string" &&
+          recommendation.candidate_mapping_id.length > 0,
+      )
+      .map((recommendation) => [
+        recommendation.candidate_mapping_id as string,
+        recommendation,
+      ]),
+  );
   const latestAttemptByWritingIssueId = getLatestAttemptByWritingIssueId(
     input.correctionAttempts,
   );
@@ -732,6 +754,10 @@ export function buildUnifiedSpellingReviewItems(
     const writingIssue = writingIssueByMisspellingId.get(misspelling.id) ?? null;
     const candidateMapping = candidateMappingByMisspellingId.get(misspelling.id) ?? null;
     const catalogReviewCase = catalogReviewCaseByMisspellingId.get(misspelling.id) ?? null;
+    const canonicalRecommendation =
+      candidateMapping?.id
+        ? canonicalRecommendationByCandidateMappingId.get(candidateMapping.id) ?? null
+        : null;
     const expectedCorrection =
       suggestion?.suggested_replacement ??
       misspelling.suggested_word ??
@@ -864,6 +890,9 @@ export function buildUnifiedSpellingReviewItems(
         correctionAttemptId: null,
         catalogReviewCaseId: catalogReviewCase?.id ?? null,
         candidateMappingId: candidateMapping?.id ?? null,
+        canonicalRecommendationId: canonicalRecommendation?.id ?? null,
+        canonicalRecommendationStatus:
+          canonicalRecommendation?.recommendation_status ?? null,
       },
       provenance: {
         parentAuthored,
@@ -893,6 +922,10 @@ export function buildUnifiedSpellingReviewItems(
     const catalogReviewCase =
       typeof issue.source_misspelling_instance_id === "string"
         ? catalogReviewCaseByMisspellingId.get(issue.source_misspelling_instance_id) ?? null
+        : null;
+    const canonicalRecommendation =
+      candidateMapping?.id
+        ? canonicalRecommendationByCandidateMappingId.get(candidateMapping.id) ?? null
         : null;
 
     if (!attempt && !isTerminalReturnedOwnershipIssue(issue)) {
@@ -942,6 +975,9 @@ export function buildUnifiedSpellingReviewItems(
           correctionAttemptId: attempt?.id ?? null,
           catalogReviewCaseId: catalogReviewCase?.id ?? null,
           candidateMappingId: candidateMapping?.id ?? null,
+          canonicalRecommendationId: canonicalRecommendation?.id ?? null,
+          canonicalRecommendationStatus:
+            canonicalRecommendation?.recommendation_status ?? null,
         },
         provenance: {
           parentAuthored,
@@ -1188,6 +1224,24 @@ export async function loadUnifiedSpellingReviewItemsForSubmission(input: {
     (catalogReviewCaseRows ?? []) as UnifiedSpellingReviewCatalogReviewCaseRow[],
     (returnedCatalogReviewCaseRows ?? []) as UnifiedSpellingReviewCatalogReviewCaseRow[],
   );
+  const candidateMappingIds = [
+    ...new Set(
+      candidateMappings
+        .map((mapping) => mapping.id)
+        .filter((id): id is string => typeof id === "string" && id.length > 0),
+    ),
+  ];
+  const { data: canonicalRecommendationRows } =
+    candidateMappingIds.length > 0
+      ? await supabase
+          .from("spelling_canonical_mapping_recommendations")
+          .select("id, candidate_mapping_id, recommendation_status")
+          .eq("parent_user_id", input.parentUserId)
+          .eq("child_id", input.childId)
+          .in("candidate_mapping_id", candidateMappingIds)
+          .in("recommendation_status", ["recommended", "pending_admin_review"])
+          .order("created_at", { ascending: false })
+      : { data: [] };
 
   return buildUnifiedSpellingReviewItems({
     submissionId: input.submissionId,
@@ -1204,5 +1258,8 @@ export async function loadUnifiedSpellingReviewItemsForSubmission(input: {
     returnedWritingIssues,
     candidateMappings,
     catalogReviewCases,
+    canonicalRecommendations:
+      (canonicalRecommendationRows ??
+        []) as UnifiedSpellingReviewCanonicalRecommendationRow[],
   });
 }

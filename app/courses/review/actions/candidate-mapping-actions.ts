@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 
 import { createClient } from "@/lib/supabase/server";
 import { getReviewWorkCandidateCaptureMicroSkillCatalogEntry } from "@/lib/writing-engine/persistence/learning-items";
+import { createSupabaseSpellingCanonicalRecommendationRepository } from "@/lib/writing-engine/persistence/spelling-canonical-recommendations";
 import { createSupabaseSpellingCandidateMappingRepository } from "@/lib/writing-engine/persistence/spelling-candidate-mappings";
 import {
   buildStage7dReviewWorkVerificationTarget,
@@ -29,6 +30,29 @@ import { loadReturnedCorrectionRouteContext } from "./returned-correction-route-
 type OwnedSubmissionForCandidateCapture = NonNullable<
   Awaited<ReturnType<typeof getOwnedSubmission>>["submission"]
 >;
+
+function readMetadataString(metadata: Record<string, unknown>, key: string) {
+  const value = metadata[key];
+
+  return typeof value === "string" && value.trim().length > 0
+    ? value.trim()
+    : null;
+}
+
+function getRecommendationSourceRowType(input: {
+  sourceProvenance: string;
+  metadata: Record<string, unknown>;
+}) {
+  if (readMetadataString(input.metadata, "source_route") === "returned_correction") {
+    return "returned_correction" as const;
+  }
+
+  if (input.sourceProvenance === "lesson_submission_parent_added_missed_word") {
+    return "parent_added_missed_word" as const;
+  }
+
+  return "engine_suggested" as const;
+}
 
 async function captureReturnedCorrectionCandidateMapping(input: {
   supabase: Awaited<ReturnType<typeof createClient>>;
@@ -668,7 +692,6 @@ export async function promoteParentLocalCandidateMappingImpl(formData: FormData)
       ),
     );
   }
-
   const catalogEntry = await getReviewWorkCandidateCaptureMicroSkillCatalogEntry({
     supabase,
     microSkillKey: candidateMapping.micro_skill_key,
@@ -902,6 +925,233 @@ export async function revertParentLocalCandidateMappingImpl(formData: FormData) 
       reversionResult?.status === "already_pending"
         ? "Candidate mapping was already pending for this child."
         : "Candidate mapping returned to pending. It will no longer be reused by future suggestions until promoted again.",
+    ),
+  );
+}
+
+export async function recommendParentLocalCanonicalMappingImpl(formData: FormData) {
+  const candidateMappingId = formData.get("candidate_mapping_id");
+  const submissionId = formData.get("submission_id");
+  const redirectPath = formData.get("redirect_path");
+  const safeRedirectPath =
+    typeof redirectPath === "string" && redirectPath.startsWith("/courses/review/")
+      ? redirectPath
+      : "/courses/review";
+
+  if (
+    typeof candidateMappingId !== "string" ||
+    !candidateMappingId ||
+    typeof submissionId !== "string" ||
+    !submissionId
+  ) {
+    redirect(
+      buildRedirectWithMessage(
+        safeRedirectPath,
+        "error",
+        "We couldn't identify that parent-local mapping.",
+      ),
+    );
+  }
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect("/login");
+  }
+
+  const { data: submission } = await supabase
+    .from("task_submissions")
+    .select("id, child_id")
+    .eq("id", submissionId)
+    .eq("parent_user_id", user.id)
+    .maybeSingle();
+
+  if (!submission) {
+    redirect(
+      buildRedirectWithMessage(
+        safeRedirectPath,
+        "error",
+        "We couldn't find that lesson submission anymore.",
+      ),
+    );
+  }
+
+  const candidateMappingRepository =
+    createSupabaseSpellingCandidateMappingRepository(supabase);
+  const candidateMapping = await candidateMappingRepository.findByIdForParentChild({
+    id: candidateMappingId,
+    parentUserId: user.id,
+    childId: submission.child_id,
+  });
+
+  if (!candidateMapping) {
+    redirect(
+      buildRedirectWithMessage(
+        safeRedirectPath,
+        "error",
+        "We couldn't find that parent-local mapping for this child.",
+      ),
+    );
+  }
+
+  if (
+    candidateMapping.task_submission_id !== submission.id ||
+    candidateMapping.promotion_scope !== "parent_local" ||
+    candidateMapping.candidate_status !== "parent_local_promoted" ||
+    (candidateMapping.source_provenance !== "lesson_submission_existing_output" &&
+      candidateMapping.source_provenance !== "lesson_submission_parent_added_missed_word")
+  ) {
+    redirect(
+      buildRedirectWithMessage(
+        safeRedirectPath,
+        "error",
+        "Only promoted lesson-submission parent-local mappings can be recommended here.",
+      ),
+    );
+  }
+  const sourceProvenance = candidateMapping.source_provenance as
+    | "lesson_submission_existing_output"
+    | "lesson_submission_parent_added_missed_word";
+
+  const catalogEntry = await getReviewWorkCandidateCaptureMicroSkillCatalogEntry({
+    supabase,
+    microSkillKey: candidateMapping.micro_skill_key,
+  });
+
+  if (!catalogEntry) {
+    redirect(
+      buildRedirectWithMessage(
+        safeRedirectPath,
+        "error",
+        "That parent-local mapping no longer points at a valid canonical micro-skill.",
+      ),
+    );
+  }
+
+  if (
+    catalogEntry.masteryDomainKey !== "D4" ||
+    !catalogEntry.isActive ||
+    !catalogEntry.isAssignable
+  ) {
+    redirect(
+      buildRedirectWithMessage(
+        safeRedirectPath,
+        "error",
+        "Only active assignable spelling micro-skills can be recommended for canonical review.",
+      ),
+    );
+  }
+
+  if (
+    !candidateMapping.misspelling_normalized ||
+    !candidateMapping.correct_spelling_normalized ||
+    candidateMapping.misspelling_normalized ===
+      candidateMapping.correct_spelling_normalized
+  ) {
+    redirect(
+      buildRedirectWithMessage(
+        safeRedirectPath,
+        "error",
+        "That parent-local mapping does not have a safe spelling pair to recommend.",
+      ),
+    );
+  }
+
+  const recommendationRepository =
+    createSupabaseSpellingCanonicalRecommendationRepository(supabase);
+  const existingRecommendation =
+    await recommendationRepository.findOpenForCandidateMapping({
+      parentUserId: user.id,
+      childId: submission.child_id,
+      candidateMappingId: candidateMapping.id,
+    });
+
+  if (existingRecommendation) {
+    redirect(
+      buildRedirectWithMessage(
+        safeRedirectPath,
+        "saved",
+        "This pairing is already recommended for admin review.",
+      ),
+    );
+  }
+
+  const sourceRowType = getRecommendationSourceRowType({
+    sourceProvenance,
+    metadata: candidateMapping.metadata,
+  });
+
+  try {
+    await recommendationRepository.insertPendingAdminReview({
+      parentUserId: user.id,
+      childId: submission.child_id,
+      taskSubmissionId: candidateMapping.task_submission_id,
+      writingSampleId: candidateMapping.writing_sample_id,
+      sourceMisspellingInstanceId: candidateMapping.source_misspelling_instance_id,
+      sourceWritingIssueId:
+        sourceRowType === "returned_correction"
+          ? readMetadataString(candidateMapping.metadata, "original_writing_issue_id")
+          : null,
+      sourceCorrectionAttemptId:
+        sourceRowType === "returned_correction"
+          ? readMetadataString(candidateMapping.metadata, "correction_attempt_id")
+          : null,
+      parentVerificationId: candidateMapping.parent_verification_id,
+      sourceSuggestionId: candidateMapping.source_suggestion_id,
+      candidateMappingId: candidateMapping.id,
+      sourceRowType,
+      sourceProvenance,
+      reviewedEventSourceEntityId: candidateMapping.reviewed_event_source_entity_id,
+      originalChildSpelling: candidateMapping.original_child_spelling,
+      originalCorrectSpelling: candidateMapping.original_correct_spelling,
+      misspellingNormalized: candidateMapping.misspelling_normalized,
+      correctSpellingNormalized: candidateMapping.correct_spelling_normalized,
+      microSkillKey: candidateMapping.micro_skill_key,
+      metadata: {
+        source_candidate_mapping_status: candidateMapping.candidate_status,
+        source_candidate_mapping_scope: candidateMapping.promotion_scope,
+        source_candidate_mapping_metadata: candidateMapping.metadata,
+        action_source: "review_work_parent_recommended_canonical_mapping",
+        parent_ui_source: "unified_spelling_review_table",
+        resolver_visible: false,
+      },
+    });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "";
+
+    if (
+      message.includes("duplicate key") ||
+      message.includes("spelling_canonical_mapping_recommendations_open_candidate_idx")
+    ) {
+      redirect(
+        buildRedirectWithMessage(
+          safeRedirectPath,
+          "saved",
+          "This pairing is already recommended for admin review.",
+        ),
+      );
+    }
+
+    console.error("Parent canonical recommendation capture failed before redirect.", error);
+    redirect(
+      buildRedirectWithMessage(
+        safeRedirectPath,
+        "error",
+        "We couldn't recommend that pairing for admin review just yet.",
+      ),
+    );
+  }
+
+  revalidateReviewQueueAndDetailBestEffort(safeRedirectPath);
+
+  redirect(
+    buildRedirectWithMessage(
+      safeRedirectPath,
+      "saved",
+      "Pairing recommended for admin review. It will not change global suggestions unless approved later.",
     ),
   );
 }

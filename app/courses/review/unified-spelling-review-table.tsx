@@ -15,6 +15,7 @@ import {
   finaliseWritingIssueClassification,
   promoteParentLocalCandidateMapping,
   recordReviewWorkVerificationAction,
+  recommendParentLocalCanonicalMapping,
   revertParentLocalCandidateMapping,
 } from "./actions";
 
@@ -309,6 +310,10 @@ function UnifiedSpellingReviewTableRow({
     row.state === "child_responded" &&
     !row.correctionOutcome &&
     Boolean(row.sourceIds.originalWritingIssueId);
+  const canRecommendCanonicalMapping =
+    Boolean(row.sourceIds.candidateMappingId) &&
+    row.categorisationStatus === "parent_local_promoted" &&
+    !row.sourceIds.canonicalRecommendationId;
   const skillDisabled = !routeIsOpen;
   const currentFamilySelectorOpen = routeIsOpen;
   const dependentSkillDisabled = skillDisabled || noMatchingSkillSelected;
@@ -625,6 +630,31 @@ function UnifiedSpellingReviewTableRow({
               />
             </form>
           ) : null}
+
+          {canRecommendCanonicalMapping ? (
+            <form action={recommendParentLocalCanonicalMapping}>
+              <input type="hidden" name="candidate_mapping_id" value={row.sourceIds.candidateMappingId ?? ""} />
+              <input type="hidden" name="submission_id" value={submissionId} />
+              <input type="hidden" name="redirect_path" value={redirectPath} />
+              <IconActionButton
+                type="submit"
+                icon="★"
+                helpText="Recommend this pairing for review"
+                ariaLabel={`Recommend ${row.observedText} pairing for canonical review`}
+                className="border border-violet-200 bg-violet-50 text-xs text-violet-800"
+              />
+            </form>
+          ) : null}
+
+          {row.sourceIds.canonicalRecommendationId ? (
+            <span
+              title="Recommended for admin canonical review"
+              aria-label={`Recommended ${row.observedText} pairing for admin canonical review`}
+              className="inline-flex h-7 items-center rounded border border-violet-200 bg-violet-50 px-2 text-[11px] font-semibold text-violet-800"
+            >
+              Rec
+            </span>
+          ) : null}
           </div>
         </td>
       </tr>
@@ -661,6 +691,13 @@ function UnifiedSpellingReviewTableRow({
               <p>Writing issue: {row.sourceIds.writingIssueId ?? "None"}</p>
               <p>Correction attempt: {row.sourceIds.correctionAttemptId ?? "None"}</p>
               <p>Original issue: {row.sourceIds.originalWritingIssueId ?? "None"}</p>
+              {row.sourceIds.canonicalRecommendationId ? (
+                <p>
+                  Canonical recommendation:
+                  {" "}
+                  {row.sourceIds.canonicalRecommendationStatus ?? "pending"}
+                </p>
+              ) : null}
             </div>
           </td>
         </tr>

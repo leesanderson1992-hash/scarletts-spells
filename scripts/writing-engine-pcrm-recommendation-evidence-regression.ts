@@ -22,6 +22,13 @@ const resolverPath =
   "lib/writing-engine/spelling/stage2c-primary-mapping-resolver.ts";
 const mappingSourcePath =
   "lib/writing-engine/spelling/stage2c-mapping-source-boundary.ts";
+const candidateMappingActionPath =
+  "app/courses/review/actions/candidate-mapping-actions.ts";
+const reviewActionBarrelPath = "app/courses/review/actions.ts";
+const unifiedSpellingReviewTablePath =
+  "app/courses/review/unified-spelling-review-table.tsx";
+const catalogReviewCaseActionPath =
+  "app/courses/review/actions/catalog-review-case-actions.ts";
 
 assert.ok(existsSync(migrationPath), "Expected PCRM-B migration to exist.");
 assert.ok(existsSync(repositoryPath), "Expected PCRM-B repository to exist.");
@@ -40,6 +47,14 @@ const canonicalMappingRepository = readFileSync(
 );
 const resolver = readFileSync(resolverPath, "utf8");
 const mappingSource = readFileSync(mappingSourcePath, "utf8");
+const candidateMappingAction = readFileSync(candidateMappingActionPath, "utf8");
+const reviewActionBarrel = readFileSync(reviewActionBarrelPath, "utf8");
+const unifiedSpellingReviewTable = readFileSync(unifiedSpellingReviewTablePath, "utf8");
+const catalogReviewCaseAction = readFileSync(catalogReviewCaseActionPath, "utf8");
+const completionSummarySection = completionHelper.slice(
+  completionHelper.indexOf("export function summarizeUnifiedSpellingReviewCompletion"),
+  completionHelper.indexOf("function parseMetadata"),
+);
 
 assert.match(
   migration,
@@ -214,6 +229,97 @@ assert.doesNotMatch(
   "Recommendation repository must not mutate parent-local candidate mapping status.",
 );
 
+assert.match(
+  candidateMappingAction,
+  /recommendParentLocalCanonicalMappingImpl/,
+  "PCRM-C must expose a parent recommendation server action implementation.",
+);
+assert.match(
+  reviewActionBarrel,
+  /recommendParentLocalCanonicalMapping/,
+  "PCRM-C recommendation action must be exported through Review Work actions.",
+);
+assert.match(
+  candidateMappingAction,
+  /findOpenForCandidateMapping[\s\S]*This pairing is already recommended for admin review/,
+  "PCRM-C must handle duplicate open recommendations without creating another row.",
+);
+assert.match(
+  candidateMappingAction,
+  /candidateMapping\.candidate_status !== "parent_local_promoted"/,
+  "PCRM-C must reject parent-local pending mappings.",
+);
+assert.match(
+  candidateMappingAction,
+  /\.eq\("id", submissionId\)[\s\S]*\.eq\("parent_user_id", user\.id\)/,
+  "PCRM-C must validate the parent owns the submission.",
+);
+assert.match(
+  candidateMappingAction,
+  /findByIdForParentChild[\s\S]*parentUserId: user\.id[\s\S]*childId: submission\.child_id/,
+  "PCRM-C must validate candidate mapping parent/child scope.",
+);
+assert.match(
+  candidateMappingAction,
+  /task_submission_id !== submission\.id/,
+  "PCRM-C must validate candidate mapping submission scope.",
+);
+assert.match(
+  candidateMappingAction,
+  /masteryDomainKey !== "D4"[\s\S]*isActive[\s\S]*isAssignable/,
+  "PCRM-C must require active assignable D4 micro-skill identity.",
+);
+assert.match(
+  candidateMappingAction,
+  /insertPendingAdminReview[\s\S]*candidateMappingId: candidateMapping\.id/,
+  "PCRM-C must write recommendation evidence through the PCRM-B repository.",
+);
+assert.match(
+  candidateMappingAction,
+  /sourceWritingIssueId:[\s\S]*original_writing_issue_id[\s\S]*sourceCorrectionAttemptId:[\s\S]*correction_attempt_id/,
+  "PCRM-C must preserve returned correction lineage when available.",
+);
+assert.doesNotMatch(
+  candidateMappingAction,
+  /\.from\("parent_verified_spelling_candidate_mappings"\)[\s\S]*\.update\(/,
+  "PCRM-C recommendation capture must not mutate parent-local candidate mappings.",
+);
+assert.doesNotMatch(
+  candidateMappingAction,
+  /spelling_canonical_mappings|createSpellingCanonicalMappingAdmin|\b(insert|update|delete)\b[\s\S]*micro_skill_catalog/,
+  "PCRM-C parent action must not write canonical mapping truth or catalog truth.",
+);
+assert.match(
+  completionHelper,
+  /spelling_canonical_mapping_recommendations/,
+  "Unified spelling read model must load open PCRM recommendation state.",
+);
+assert.match(
+  completionHelper,
+  /canonicalRecommendationId/,
+  "Unified spelling read model must attach open PCRM recommendation state.",
+);
+assert.match(
+  unifiedSpellingReviewTable,
+  /canRecommendCanonicalMapping[\s\S]*categorisationStatus === "parent_local_promoted"[\s\S]*!row\.sourceIds\.canonicalRecommendationId/,
+  "PCRM-C UI must show recommendation only for promoted parent-local rows without an open recommendation.",
+);
+assert.match(
+  unifiedSpellingReviewTable,
+  /Recommend this pairing for review/,
+  "PCRM-C UI must expose the parent recommendation action help text.",
+);
+assert.match(
+  unifiedSpellingReviewTable,
+  /canonicalRecommendationId[\s\S]*Rec/,
+  "PCRM-C UI must show already-recommended state.",
+);
+assert.doesNotMatch(
+  catalogReviewCaseAction,
+  /spelling_canonical_mapping_recommendations|insertPendingAdminReview|recommendParentLocalCanonicalMapping/,
+  "No matching skill catalog-review route must remain separate from PCRM recommendations.",
+);
+
 const promotedRows = [
   {
     id: "local-promoted-row",
@@ -245,7 +351,7 @@ assert.equal(
 );
 
 assert.doesNotMatch(
-  `${completionHelper}\n${reviewCompletionAction}`,
+  `${completionSummarySection}\n${reviewCompletionAction}`,
   /spelling_canonical_mapping_recommendations|recommendation_status|pending_admin_review/,
   "Completion gating must not consult recommendation/admin-review evidence.",
 );
