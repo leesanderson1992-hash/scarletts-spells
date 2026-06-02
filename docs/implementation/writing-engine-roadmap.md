@@ -128,7 +128,7 @@ Current ownership rule:
 
 ### Parent Recommended Canonical Mapping parent action/admin curation
 
-Status: `PCRM-A docs/contract complete; PCRM-B evidence storage/read-model foundation already implemented; parent action and admin curation remain next runtime slices`
+Status: `PCRM-A docs/contract complete; PCRM-B evidence storage/read-model foundation implemented; PCRM-C parent recommendation action/UI implemented and regression-passed; admin curation remains the next runtime slice`
 
 Focused contract:
 - [docs/contracts/parent-recommended-canonical-mapping.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/contracts/parent-recommended-canonical-mapping.md:1)
@@ -152,6 +152,7 @@ Fixed boundary:
 
 Recommended sequence:
 - `PCRM-C` parent recommendation action/UI from safe scoped known-skill rows
+  is implemented for promoted parent-local candidate mappings
 - `PCRM-D` admin recommendation review/curation with audited decisions
 - `PCRM-E` QA and closeout
 - future `PCRM Resolver Integration` as a separate resolver visibility,
@@ -317,10 +318,9 @@ Next implementation slices:
   and `transfer_failure` still require safe categorisation/admin/parent-local
   routing where applicable, and remain blocked/deferred when no safe route
   exists
-- Next separate pass: implement Parent Recommended Canonical Mapping parent
-  action/admin curation, where a parent-assigned existing skill can be sent to
-  admin as canonical mapping recommendation evidence without automatically
-  creating global canonical truth
+- Next separate pass: implement Parent Recommended Canonical Mapping admin
+  curation, where admin/internal users can review parent-submitted canonical
+  recommendation evidence without automatically changing resolver-visible truth
 
 Completed docs-first slice `PCRM-A` — Parent Recommended Canonical Mapping:
 - scope: documentation and contract only; no runtime, migration, schema, test,
@@ -431,6 +431,50 @@ PCRM-B implementation record:
     was already applied to a database before the RLS/trigger hardening was
     added, that database needs a follow-up hardening migration; Supabase will
     not normally re-run the same timestamped migration automatically
+
+PCRM-C implementation record:
+- status: implemented and regression-passed as parent recommendation
+  action/UI only
+- parent-facing action:
+  - compact Review Work action label/help is
+    `Recommend this pairing for review`
+  - action appears only for rows with a scoped `candidateMappingId`,
+    `categorisationStatus === "parent_local_promoted"`, and no open PCRM
+    recommendation
+  - existing open `recommended` or `pending_admin_review` recommendation
+    evidence suppresses the action and shows a saved recommendation state
+- server action:
+  - captures recommendation evidence from promoted parent-local candidate
+    mappings only
+  - validates authenticated parent ownership, submission/child/candidate
+    scope, `candidate_status = parent_local_promoted`,
+    `promotion_scope = parent_local`, active assignable `D4` micro-skill, and
+    normalized spelling pair
+  - inserts via
+    `spelling_canonical_mapping_recommendations` /
+    `insertPendingAdminReview(...)`
+  - duplicate/open recommendations redirect to an already-recommended saved
+    state instead of creating another row
+- preserved boundaries:
+  - parent-local promotion remains separate from parent recommendation
+  - `No matching skill` remains the separate catalog-gap/admin-review route
+  - recommendation capture does not mutate
+    `parent_verified_spelling_candidate_mappings`
+  - recommendation capture does not write `spelling_canonical_mappings` or
+    `micro_skill_catalog`
+  - recommendation status does not affect completion gating
+  - resolver behavior and resolver priority are unchanged
+- validation:
+  - `npm run writing-engine:pcrm-recommendation-evidence-regression`
+  - `npm run writing-engine:parent-local-promotion-regression`
+  - `npx tsx scripts/writing-engine-unified-spelling-review-items-regression.ts`
+  - `npx tsc --noEmit`
+  - `git diff --check`
+- browser smoke note:
+  - smoke should verify an eligible promoted parent-local row shows the
+    recommendation action, submitting it shows the saved recommendation state,
+    pending/no-matching rows do not show the PCRM action, and completion
+    remains governed by local review state
 
 Hard stop conditions:
 - do not touch `app/courses/review/actions.ts`

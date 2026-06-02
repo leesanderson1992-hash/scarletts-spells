@@ -231,9 +231,19 @@ PCRM-B - Recommendation evidence model/read path:
   or canonical mapping write from parent recommendation capture
 
 PCRM-C - Parent recommendation action/UI:
-- optional action after known-skill local classification
-- only from safe scoped rows
-- must show saved recommendation state without changing local completion truth
+- implemented as parent-facing action/UI for promoted parent-local candidate
+  mappings
+- optional action after known-skill local classification and parent-local
+  promotion
+- only from safe scoped rows with `candidateMappingId`,
+  `categorisationStatus === "parent_local_promoted"`, and no open PCRM
+  recommendation
+- writes recommendation evidence only to
+  `spelling_canonical_mapping_recommendations`
+- shows saved recommendation state without changing local completion truth
+- does not mutate `parent_verified_spelling_candidate_mappings`, write
+  `spelling_canonical_mappings`, write `micro_skill_catalog`, change resolver
+  behavior, or reuse `No matching skill`
 
 PCRM-D - Admin recommendation review/curation:
 - admin can accept, reject, merge, mark duplicate, or supersede

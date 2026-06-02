@@ -86,8 +86,9 @@
 ## Next stage
 
 - choose the next slice explicitly after Review Work closeout:
-  - Parent Recommended Canonical Mapping parent action/admin curation remains
-    future work and must preserve PCRM-A/PCRM-B boundaries
+  - Parent Recommended Canonical Mapping parent action/UI is implemented and
+    regression-passed as PCRM-C; admin curation remains future PCRM-D work and
+    must preserve PCRM-A/PCRM-B/PCRM-C boundaries
   - resolver integration remains future work and must be planned separately
   - unsupported returned rows without safe lineage remain blocked/deferred until
     a future provenance-expansion slice

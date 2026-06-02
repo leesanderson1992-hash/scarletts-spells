@@ -55,8 +55,9 @@ Canonical documentation now defers to:
   - `PCRM-A` docs/contract is complete
   - `PCRM-B` recommendation evidence storage/read-model foundation is already
     implemented
-  - parent recommendation action/UI and admin recommendation curation remain
-    the next bounded runtime slices
+  - `PCRM-C` parent recommendation action/UI is implemented and
+    regression-passed for promoted parent-local candidate mappings
+  - admin recommendation curation remains the next bounded runtime slice
   - resolver integration remains a separate future slice
 - A bounded post-Stage-`7` parent-facing evidence-transparency slice is now
   complete.
@@ -479,6 +480,27 @@ Canonical documentation now defers to:
     already applied before hardening, the target database needs a follow-up
     hardening migration because Supabase will not normally re-run that same
     timestamped migration automatically
+- `PCRM-C — Parent Recommendation Action/UI` is implemented:
+  - parent may optionally recommend a known-skill spelling pair only after the
+    row is already locally promoted through a scoped parent-local candidate
+    mapping
+  - the compact Review Work action appears only for rows with
+    `candidateMappingId`, `categorisationStatus === "parent_local_promoted"`,
+    and no open PCRM recommendation
+  - existing open `recommended` or `pending_admin_review` evidence suppresses
+    duplicate recommendation action and shows saved recommendation state
+  - recommendation evidence is inserted into
+    `spelling_canonical_mapping_recommendations` only
+  - creating a recommendation does not mutate
+    `parent_verified_spelling_candidate_mappings`, write
+    `spelling_canonical_mappings`, write `micro_skill_catalog`, or affect
+    resolver behavior
+  - `No matching skill` remains separate catalog-gap/admin-review routing and
+    does not create PCRM recommendation evidence
+  - completion gating remains unchanged; parent-local promotion remains the
+    completion-gating truth
+  - admin curation remains PCRM-D and resolver adoption remains a future
+    explicit PCRM resolver integration slice
 
 ### Registered next bounded stage
 - `Parent-Verified Spelling Candidate Capture` Slice `3` is now implemented

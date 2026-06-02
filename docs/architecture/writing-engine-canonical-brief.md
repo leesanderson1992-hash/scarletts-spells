@@ -281,6 +281,22 @@ This means:
     behavior is part of PCRM-B
   - if the PCRM-B migration was already applied before this hardening, the
     affected database needs a follow-up hardening migration
+- PCRM-C has implemented the parent recommendation action/UI for promoted
+  parent-local candidate mappings only:
+  - parent-local promotion remains separate local truth; recommendation is a
+    later optional evidence action
+  - open PCRM recommendation evidence suppresses duplicate parent action and
+    displays saved recommendation state
+  - recommendation capture writes only
+    `spelling_canonical_mapping_recommendations`
+  - recommendation capture does not mutate
+    `parent_verified_spelling_candidate_mappings`
+  - recommendation capture does not write `spelling_canonical_mappings`,
+    `micro_skill_catalog`, resolver inputs, or resolver-visible truth
+  - `No matching skill` remains separate catalog-gap/admin-review routing
+  - completion gating remains unchanged
+  - admin recommendation curation remains PCRM-D and resolver adoption remains
+    a future explicit slice
 - Slice `4A` documents the next catalog-review boundary only:
   - parent-facing action label: `No matching skill`
   - helper copy: `Send this spelling case to catalog review.`

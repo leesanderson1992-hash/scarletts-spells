@@ -342,11 +342,15 @@ Completion-gating contract:
   completion safety for rows that are locally promoted/resolved
 
 Parent-facing UX should be optional and explicit:
-- suggested action label: `Recommend this pairing for review`
-- suggested helper copy: `This sends the pairing for review. It will not change
-  global suggestions unless approved later.`
+- implemented action/help label: `Recommend this pairing for review`
+- implemented saved state: a non-blocking recommendation indicator for rows
+  that already have open PCRM recommendation evidence
 - do not show the action for rows without safe source/provenance lineage
 - do not imply the parent is editing global truth
+- the action is currently limited to promoted parent-local candidate mappings:
+  rows must have a scoped `candidateMappingId`,
+  `categorisationStatus === "parent_local_promoted"`, and no open PCRM
+  recommendation
 
 Future recommendation evidence should preserve the observed child spelling,
 expected correction, selected `micro_skill_key`, source row type, available
@@ -375,6 +379,20 @@ PCRM-B storage/read-model foundation is implemented:
 - if the PCRM-B migration was already applied before hardening, use a follow-up
   hardening migration for that database instead of expecting Supabase to rerun
   the same timestamped migration
+
+PCRM-C parent action/UI is implemented:
+- recommendation capture writes evidence only to
+  `spelling_canonical_mapping_recommendations`
+- creating recommendation evidence does not mutate
+  `parent_verified_spelling_candidate_mappings`
+- creating recommendation evidence does not write `spelling_canonical_mappings`
+  or `micro_skill_catalog`
+- `No matching skill` remains separate catalog-gap/admin-review routing and is
+  not PCRM recommendation evidence
+- completion gating remains unchanged; parent-local promotion remains the local
+  completion truth
+- admin recommendation review/curation remains PCRM-D
+- resolver adoption remains future PCRM Resolver Integration
 
 ## Current Parent Review Status
 

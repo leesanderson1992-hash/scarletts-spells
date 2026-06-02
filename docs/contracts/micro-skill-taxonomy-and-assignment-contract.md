@@ -975,6 +975,21 @@ Slice `4A` spelling catalog-review taxonomy contract:
       mapping status through this foundation
     - if the PCRM-B migration was already applied before hardening, the target
       database needs a follow-up hardening migration
+  - PCRM-C parent recommendation action/UI is implemented:
+    - recommendation action appears only after a scoped parent-local candidate
+      mapping is already promoted
+    - open PCRM recommendation evidence suppresses duplicate action and shows a
+      saved state
+    - recommendation capture writes only
+      `spelling_canonical_mapping_recommendations`
+    - recommendation capture does not mutate
+      `parent_verified_spelling_candidate_mappings`
+    - recommendation capture does not write `micro_skill_catalog`,
+      `spelling_canonical_mappings`, resolver inputs, or resolver-visible truth
+    - `No matching skill` remains separate catalog-gap/admin-review routing
+    - parent-local promotion remains the completion-gating truth
+    - admin curation remains PCRM-D; resolver adoption remains a future
+      explicit PCRM resolver integration slice
 - staged follow-up:
   - Slice `4B.0`: bounded option filtering by family/cluster
   - Slice `4B.1`: parent `No matching skill` case capture only,
