@@ -125,9 +125,11 @@ Target page order:
 4. Optional answer-level feedback disclosure
 5. Send-back / completion actions
 
-The current UI may still expose separate `Suggested Issues`, parent-added missed
-words, and `Returned Corrections` sections. That is current implementation
-state, not the target workflow.
+The bounded MVP UI now uses one compact unified spelling review table for
+engine suggestions, parent-added missed words, returned corrections, and
+parent-added returned corrections. Separate source truth remains preserved in
+the read model; the unified table is presentation/read-model unification, not a
+new source-of-truth table.
 
 ## Decision Separation
 
@@ -371,9 +373,34 @@ PCRM-B storage/read-model foundation is implemented:
 
 ## Current Parent Review Status
 
-Slice E/E.1/F are implemented as an integrated Parent Review completion and
-returned-correction routing slice. The current committed runtime should preserve
-the following constraints:
+The bounded Parent Review spelling workflow MVP loop is complete for the
+current private-parent workflow. It supports engine suggestions,
+parent-added missed words, send-back, child retry, returned correction
+continuity, returned correction categorisation/admin/parent-local routing where
+safe, compact unified spelling review presentation, completion gating,
+historical terminal verification ownership, and `checking_only` terminal
+handling.
+
+Focused closeout QA passed:
+- `git diff --check`
+- `npx tsc --noEmit`
+- `npm run build`
+- `npx tsx scripts/writing-engine-unified-spelling-review-items-regression.ts`
+- `npx tsx scripts/writing-engine-returned-child-correction-regression.ts`
+- `npx tsx scripts/writing-engine-stage7f-parent-review-restoration-regression.ts`
+- `npm run writing-engine:parent-local-promotion-regression`
+- `npm run writing-engine:pcrm-recommendation-evidence-regression`
+
+Browser smoke on the current Review Work record confirmed the unified table
+renders; returned rows display as `R`; parent-added returned rows display as
+`P·R`; `Retry` cells show attempted spellings or blank instead of the full
+writing body; a terminal `checking_only`-style returned row no longer shows a
+route-blocked state; parent-added returned rows remain visible; admin-routed
+rows display as `Admin`; and `Approve / mark complete` plus `Send back to
+child` controls render. That smoke did not include every possible UI state, so
+new/deferred/blocking states remain covered by the targeted regressions.
+
+The current committed runtime should preserve the following constraints:
 
 - parent-added rows must survive as `P` before send-back and `P·R` after
   returned correction where applicable
@@ -446,9 +473,10 @@ Slice C — Returned Correction Read-Model Bridge:
   classification
 - complete: unsupported returned-correction categorisation remains
   deferred/disabled where no safe route exists
-- not complete: full returned-row skill assignment, override, admin handoff, and
-  parent-local promotion/revert require the dedicated returned-correction
-  categorisation bridge below
+- complete as a read-model bridge; full returned-row skill assignment, override,
+  admin handoff, and parent-local promotion/revert are implemented by the
+  dedicated returned-correction categorisation bridge in Slice F where safe
+  provenance exists
 
 Slice D — Unified Table UI:
 - complete: compact unified spelling table is implemented against the read

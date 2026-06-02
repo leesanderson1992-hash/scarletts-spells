@@ -41,14 +41,23 @@ Canonical documentation now defers to:
   - generic assignment generation from canonical `learning_items`
   - proof that assignment generation is not word-list-only
 - Stage `7` Review Work integration is now complete on its documented bounded
-  path through `7A` to `7E`.
+  path through `7A` to `7F`.
+- The bounded Parent Review spelling workflow MVP loop is complete:
+  - engine suggestions, parent-added missed words, send-back, child retry,
+    returned correction continuity, compact unified spelling review,
+    completion gating, historical terminal verification ownership, and
+    `checking_only` terminal handling are implemented
+  - returned correction categorisation/admin/parent-local routing is supported
+    where safe lineage exists
+  - unsupported returned rows without safe lineage remain blocked/deferred
+    rather than guessed
 - A bounded post-Stage-`7` parent-facing evidence-transparency slice is now
   complete.
 - The app is currently suitable for private parent-led use with one child,
   with the parent still acting as the authority on what counts as verified
   truth and what broader progress/maturity summaries mean.
-- The repo currently builds, but the current dirty `main` worktree must not be
-  blindly pushed to production.
+- The repo currently builds. Do not blindly push dirty local worktrees; run the
+  relevant QA and git-safety checks for the current slice before release.
 - Hosted Supabase production is behaviour-correct for recent Writing Engine
   schema, but the migration ledger is not aligned with historical local
   migrations. Treat production as a manually reconciled baseline and follow
@@ -196,21 +205,28 @@ Canonical documentation now defers to:
     - stop condition: if implementation requires schema changes, manual writing
       sample expansion, resolver work, catalog mutation, or mastery/reward/
       assignment changes, stop and return to docs
-  - unified Parent Review spelling workflow planning:
-    - status: documented as the target workflow contract in
+  - unified Parent Review spelling workflow closeout:
+    - status: bounded MVP loop complete and documented in
       [docs/workflows/parent-review-workflow.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/workflows/parent-review-workflow.md:1)
-    - current implementation still exposes separate Suggested Issues,
-      parent-added missed words, and Returned Corrections surfaces
-    - target state is one unified parent-facing spelling review table/read
-      model, backed by multiple canonical source tables
+    - current implementation uses one compact unified parent-facing spelling
+      review table/read model, backed by multiple canonical source tables
     - the unified table is not one database table; it preserves source IDs and
       provenance across engine-suggested, parent-added, returned-correction,
       verification, and catalog-review records
     - returned corrections and parent-added missed words must remain visible in
       the parent workflow after child resubmission
-    - implementation remains staged: unified read model, unified table UI,
-      returned-row categorisation controls, Suggested Issues cleanup, and
-      completion gating
+    - returned correction categorisation/admin/parent-local routing is supported
+      only where safe provenance exists; unsupported rows remain blocked or
+      deferred
+    - focused QA passed with TypeScript, production build, targeted Review Work
+      regressions, PCRM boundary regression, and browser smoke on a current
+      Review Work record
+    - the browser smoke did not include every possible UI state, so new,
+      deferred, and blocking states remain covered by targeted regressions
+    - future work remains separate: Parent Recommended Canonical Mapping parent
+      action/admin curation, resolver integration, unsupported lineage
+      expansion, broader mastery/reward/assignment/dashboard/analytics effects,
+      and any inline add-missed-word-after-returned shortcut
   - validation:
     - `npm run writing-engine:structured-submission-payload-storage-regression`
       passed

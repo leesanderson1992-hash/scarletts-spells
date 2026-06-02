@@ -2,16 +2,15 @@
 
 ## Current initiative
 
-- Returned-child spelling correction: before resuming Slice `4C`, restore the
-  child-facing returned-work correction loop so every returned spelling issue is
-  visible, actionable, and linked to existing correction-attempt persistence.
-- Parent-added missed-word correction repair is the next bounded sub-pass:
-  parent-added missed words remain separate from engine `Suggested Issues` in
-  `Review Work`, but they must still become returned-child correction targets
-  for structured lesson/test send-back.
-- Slice `4C` readiness remains unblocked: private-MVP admin/internal access
-  foundation is implemented; the minimal protected read-only catalog-review
-  triage surface should resume after the bounded returned-child correction pass.
+- The bounded Parent Review spelling workflow MVP loop is complete and
+  QA-passed for private parent-led use.
+- Review Work now supports engine suggestions, parent-added missed words,
+  send-back, child retry, returned correction continuity, returned correction
+  categorisation/admin/parent-local routing where safe, compact unified spelling
+  table presentation, completion gating, historical terminal verification
+  ownership, and `checking_only` terminal handling.
+- The next active work should be chosen as a separate bounded slice. Do not
+  restart Parent Review spelling work unless a fresh bug is found.
 
 ## Current stage
 
@@ -21,6 +20,7 @@
   - `7C` Review Work detail suggested-issues visibility
   - `7D` parent verification actions in Review Work
   - `7E` queue/archive/status coherence
+  - `7F` parent review action restoration and bounded spelling-loop closeout
 - `Parent-Verified Spelling Candidate Capture` Slice `3` is implemented and
   validated:
   - parent-local promotion can make pending candidate mappings reusable only
@@ -52,13 +52,9 @@
   - approval does not delete the only structured answer source for vulnerable
     legacy lesson/test submissions
   - returned structured work remains draft-first and editable
-  - follow-up correction contract is now clarified: every returned
-    `__writing_issue_feedback` item must render to the child, unmatched issues
-    need a fallback panel, spelling-like issues need a dedicated retry input,
-    and retry input should persist to `writing_issue_correction_attempts`
-  - engine-found misspelling candidate send-back bridge is partially
-    implemented, but the pass is not complete until parent-added missed words
-    are included as child correction targets with parent-authored provenance
+  - follow-up correction contract is now implemented for the bounded Parent
+    Review spelling loop, including returned correction visibility and
+    parent-added returned spelling rows
 - hosted Supabase migration infrastructure is closed for source, local,
   staging, and production ledger alignment:
   - production ledger now contains the unique baseline row
@@ -79,27 +75,24 @@
   - future DB-changing work must follow
     [docs/operations/supabase-migration-policy.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/operations/supabase-migration-policy.md:1)
 - local QA/build state currently supports private parent-led use for one child:
-  - Stage `7` E2E bundle passes
+  - focused Review Work regressions pass
+  - PCRM boundary regression passes
+  - `npx tsc --noEmit` passes
   - `npm run build` passes
-- the repo is not yet at a clean production release boundary because `main`
-  contains a large dirty worktree with tracked and untracked changes beyond the
-  small Stage `7` release slice
+  - browser smoke passed on a current Review Work record
+- do not blindly push dirty local worktrees; run git-safety checks and focused
+  QA for the current slice before release
 
 ## Next stage
 
-- first, complete the bounded returned-child spelling correction pass defined
-  in
-  [docs/implementation/targeted-writing-practice-status.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/implementation/targeted-writing-practice-status.md:1)
-  by implementing the parent-added missed-word correction repair before moving
-  back to admin/catalog-review or resolver work
-- after Slice `4A`, the next safe implementation path is staged:
-  - Slice `4B.0`: bounded micro-skill option filtering by family/cluster using
-    existing `micro_skill_catalog` metadata only
-  - Slice `4B.1`: parent `No matching skill` catalog-review case capture
-  - Slice `4C`: minimal protected admin/catalog-review read/triage surface,
-    now unblocked at the admin access foundation level by
-    [docs/architecture/admin-internal-access.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/architecture/admin-internal-access.md:1)
-  - Slice `4D`: admin decisions and canonical promotion
+- choose the next slice explicitly after Review Work closeout:
+  - Parent Recommended Canonical Mapping parent action/admin curation remains
+    future work and must preserve PCRM-A/PCRM-B boundaries
+  - resolver integration remains future work and must be planned separately
+  - unsupported returned rows without safe lineage remain blocked/deferred until
+    a future provenance-expansion slice
+  - parent adding a missed word after work is already returned still uses the
+    resend lifecycle unless a future docs-first slice plans a safe shortcut
 - no runtime Stage `8` automatic mastery implementation should begin until the
   mastery/evidence boundary is rechecked against the live product copy
 - for Durable Structured Submission Payloads, the next safe work is a

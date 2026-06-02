@@ -5852,7 +5852,7 @@ Stage `6C` contract confirmation:
 
 ### Stage 7 — Review Work integration
 
-Status: `Implemented through 7A` to `7E`; private-MVP safety copy slice also implemented`
+Status: `Implemented through 7A` to `7F`; bounded Parent Review spelling workflow MVP loop complete; private-MVP safety copy slice also implemented`
 
 Goal:
 - make existing Writing Engine reviewable outputs visible and usable inside the
@@ -7837,13 +7837,41 @@ Mini-task `7F.10` — Stage 7F Regression Coverage
 - Stage `7F` overall closeout:
   - `7F.1` through `7F.10` are complete
   - Stage `7F` overall is now complete and closed
-  - the next safe task after Stage `7F` is the already-documented Stage `8`
-    docs-first foundation audit boundary, not new Stage `7F` behaviour work
+  - bounded Parent Review spelling workflow MVP is complete for engine
+    suggestions, parent-added missed words, send-back, child retry, returned
+    correction continuity, returned correction categorisation/admin/parent-local
+    routing where safe, compact unified spelling table, completion gating,
+    historical terminal verification ownership, and `checking_only` terminal
+    handling
+  - focused QA passed after the final closeout:
+    - `git diff --check`
+    - `npx tsc --noEmit`
+    - `npm run build`
+    - `npx tsx scripts/writing-engine-unified-spelling-review-items-regression.ts`
+    - `npx tsx scripts/writing-engine-returned-child-correction-regression.ts`
+    - `npx tsx scripts/writing-engine-stage7f-parent-review-restoration-regression.ts`
+    - `npm run writing-engine:parent-local-promotion-regression`
+    - `npm run writing-engine:pcrm-recommendation-evidence-regression`
+  - browser smoke on a current Review Work record confirmed unified table
+    rendering, `R` and `P·R` source markers, compact retry cells, terminal
+    `checking_only` handling without route-blocked display, parent-added
+    returned-row visibility, admin-routed rows, and review action controls
+  - not every possible UI state appeared in the smoke record; targeted
+    regressions remain the closeout evidence for new/deferred/blocking states
+  - the next safe task after Stage `7F` is docs-first planning or a separately
+    scoped future slice, not more unplanned Stage `7F` behavior work
 - Residual boundaries preserved:
   - no Stage `8` mastery/runtime work is authorized by this closeout
   - spelling detection readiness remains outside this slice
   - canonical micro-skill mapping remains outside this slice
   - parent-selected micro-skill classification remains outside this slice
+  - Parent Recommended Canonical Mapping parent UI/admin curation and resolver
+    integration remain separate future work
+  - unsupported returned rows without safe lineage remain blocked/deferred
+  - parent adding a missed word after work is already returned still uses the
+    resend lifecycle
+  - no broader mastery, reward, assignment, dashboard, analytics, or resolver
+    expansion is authorized by this closeout
 
 ## Post-Stage-7 private MVP safety slice
 
