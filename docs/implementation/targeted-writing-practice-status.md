@@ -51,6 +51,13 @@ Canonical documentation now defers to:
     where safe lineage exists
   - unsupported returned rows without safe lineage remain blocked/deferred
     rather than guessed
+- Parent Recommended Canonical Mapping is now contracted:
+  - `PCRM-A` docs/contract is complete
+  - `PCRM-B` recommendation evidence storage/read-model foundation is already
+    implemented
+  - parent recommendation action/UI and admin recommendation curation remain
+    the next bounded runtime slices
+  - resolver integration remains a separate future slice
 - A bounded post-Stage-`7` parent-facing evidence-transparency slice is now
   complete.
 - The app is currently suitable for private parent-led use with one child,
@@ -426,7 +433,9 @@ Canonical documentation now defers to:
 - active-doc cleanup so historical implementation plans no longer compete with
   the roadmap
 - `PCRM-A — Parent Recommended Canonical Mapping Docs And Contract` is
-  registered as future docs-only work:
+  complete:
+  - focused contract:
+    [docs/contracts/parent-recommended-canonical-mapping.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/contracts/parent-recommended-canonical-mapping.md:1)
   - parent may locally select/promote an existing active assignable spelling
     micro-skill and separately recommend the child spelling/correction/skill
     pairing for admin/global canonical consideration

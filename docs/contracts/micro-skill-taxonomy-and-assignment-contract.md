@@ -923,7 +923,9 @@ Slice `4A` spelling catalog-review taxonomy contract:
     resolver-visible global canonical truth
   - parent-local assignment or promotion must not mutate `micro_skill_catalog`
     or write `spelling_canonical_mappings`
-- future parent-recommended canonical mapping path:
+- parent-recommended canonical mapping path:
+  - focused contract:
+    [docs/contracts/parent-recommended-canonical-mapping.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/contracts/parent-recommended-canonical-mapping.md:1)
   - a parent may assign an existing canonical micro-skill locally and
     separately recommend the misspelling/correction pair for admin canonical
     review

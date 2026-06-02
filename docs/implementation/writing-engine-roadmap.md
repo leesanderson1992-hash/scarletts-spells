@@ -27,6 +27,7 @@ Canonical semantics still defer to:
 - [docs/architecture/targeted-writing-practice-architecture.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/architecture/targeted-writing-practice-architecture.md:1)
 - [docs/contracts/targeted-writing-practice-contract.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/contracts/targeted-writing-practice-contract.md:1)
 - [docs/contracts/micro-skill-taxonomy-and-assignment-contract.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/contracts/micro-skill-taxonomy-and-assignment-contract.md:1)
+- [docs/contracts/parent-recommended-canonical-mapping.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/contracts/parent-recommended-canonical-mapping.md:1)
 - [docs/pedagogy/learning-system-overview.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/pedagogy/learning-system-overview.md:1)
 - [docs/pedagogy/micro-skill-taxonomy.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/pedagogy/micro-skill-taxonomy.md:1)
 - [docs/pedagogy/mastery-domain-4-spelling.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/pedagogy/mastery-domain-4-spelling.md:1)
@@ -124,6 +125,37 @@ Current ownership rule:
 ## Stage roadmap
 
 ## Registered next bounded stage
+
+### Parent Recommended Canonical Mapping parent action/admin curation
+
+Status: `PCRM-A docs/contract complete; PCRM-B evidence storage/read-model foundation already implemented; parent action and admin curation remain next runtime slices`
+
+Focused contract:
+- [docs/contracts/parent-recommended-canonical-mapping.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/contracts/parent-recommended-canonical-mapping.md:1)
+
+Purpose:
+- allow a parent, after safely resolving a local spelling categorisation to an
+  existing active assignable micro-skill, to optionally recommend that observed
+  spelling/correction/skill pairing for admin/global canonical consideration
+
+Fixed boundary:
+- a parent recommendation is evidence for admin review, not global canonical
+  truth
+- parent-local promotion remains the parent completion-gating truth
+- `No matching skill` remains the separate route for rows where no suitable
+  existing catalog-backed skill fits
+- admin curation may accept, reject, merge, mark duplicate, or supersede later
+- canonical mapping writes, if any, remain resolver-invisible until a separate
+  resolver integration slice
+- no parent action may create/edit `micro_skill_catalog`, write global
+  canonical mappings directly, or make resolver-visible truth
+
+Recommended sequence:
+- `PCRM-C` parent recommendation action/UI from safe scoped known-skill rows
+- `PCRM-D` admin recommendation review/curation with audited decisions
+- `PCRM-E` QA and closeout
+- future `PCRM Resolver Integration` as a separate resolver visibility,
+  priority, conflict, rollout, and rollback slice
 
 ### Durable Structured Submission Payloads
 
@@ -285,13 +317,16 @@ Next implementation slices:
   and `transfer_failure` still require safe categorisation/admin/parent-local
   routing where applicable, and remain blocked/deferred when no safe route
   exists
-- Future pass: define Parent Recommended Canonical Mapping, where a
-  parent-assigned existing skill can be sent to admin as canonical mapping
-  recommendation evidence without automatically creating global canonical truth
+- Next separate pass: implement Parent Recommended Canonical Mapping parent
+  action/admin curation, where a parent-assigned existing skill can be sent to
+  admin as canonical mapping recommendation evidence without automatically
+  creating global canonical truth
 
-Future docs-first slice `PCRM-A` — Parent Recommended Canonical Mapping:
+Completed docs-first slice `PCRM-A` — Parent Recommended Canonical Mapping:
 - scope: documentation and contract only; no runtime, migration, schema, test,
   codegen, staging, or commit work
+- focused contract:
+  [docs/contracts/parent-recommended-canonical-mapping.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/contracts/parent-recommended-canonical-mapping.md:1)
 - product workflow:
   1. parent reviews a spelling row
   2. parent confirms or overrides to an existing active assignable spelling
@@ -322,11 +357,12 @@ Future docs-first slice `PCRM-A` — Parent Recommended Canonical Mapping:
   parent/user id, child/family/account scope, provenance metadata,
   recommendation status, timestamps, audit fields, and duplicate/conflict
   metadata
-- storage direction for future implementation:
-  - prefer a parallel recommendation/evidence model or explicit linked
-    recommendation state
-  - do not require changing `parent_local_promoted` into an admin-pending state
-  - do not design a parent-written row that is resolver-visible global truth
+- storage implementation record:
+  - PCRM-B implemented a parallel recommendation/evidence model in
+    `spelling_canonical_mapping_recommendations`
+  - it does not require changing `parent_local_promoted` into an admin-pending
+    state
+  - parent-written rows are not resolver-visible global truth
 - completion-gating contract:
   - parent-local promotion remains the completion-gating truth
   - if a spelling row is locally resolved/promoted, recommending it for

@@ -8,6 +8,7 @@ Use alongside:
 - [docs/implementation/writing-engine-roadmap.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/implementation/writing-engine-roadmap.md:1)
 - [docs/implementation/targeted-writing-practice-status.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/implementation/targeted-writing-practice-status.md:1)
 - [docs/architecture/targeted-writing-practice-architecture.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/architecture/targeted-writing-practice-architecture.md:1)
+- [docs/contracts/parent-recommended-canonical-mapping.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/contracts/parent-recommended-canonical-mapping.md:1)
 - [docs/product/areas/targeted-writing-practice-ux.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/product/areas/targeted-writing-practice-ux.md:1)
 
 The parent review page should reflect the natural workflow of the parent, not
@@ -300,9 +301,13 @@ source-misspelling lineage.
 
 ## Parent Recommended Canonical Mapping
 
-Parent Recommended Canonical Mapping is a future docs-defined workflow where a
-parent who has selected an existing catalog-backed spelling micro-skill locally
-may optionally recommend that observed child spelling, expected correction, and
+Focused workflow and authority details live in:
+
+- [docs/contracts/parent-recommended-canonical-mapping.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/contracts/parent-recommended-canonical-mapping.md:1)
+
+Parent Recommended Canonical Mapping is a contracted workflow where a parent who
+has selected an existing catalog-backed spelling micro-skill locally may
+optionally recommend that observed child spelling, expected correction, and
 selected `micro_skill_key` pairing for admin/global canonical consideration.
 
 It is not the same route as `No matching skill`:
@@ -551,12 +556,13 @@ Slice G — Multi-Cycle Returned Review Ownership:
   `P·R`
 - keep completion gating aligned with active parent-facing obligations only
 
-Future Pass — Parent Recommended Canonical Mapping:
+Next Separate Pass — Parent Recommended Canonical Mapping:
+- focused contract:
+  [docs/contracts/parent-recommended-canonical-mapping.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/contracts/parent-recommended-canonical-mapping.md:1)
 - allow a parent-assigned existing skill to be recommended to admin for
   canonical/global mapping review without automatically becoming canonical truth
-- recommendation should use a parallel recommendation/evidence model or
-  explicit linked recommendation state; do not require changing
-  `parent_local_promoted` into an admin-pending status
+- PCRM-B already uses a parallel recommendation/evidence model; do not require
+  changing `parent_local_promoted` into an admin-pending status
 - this route is distinct from `No matching skill`, which remains for cases
   where no existing catalog-backed skill fits
 - admin canonical curation remains the only path to `spelling_canonical_mappings`

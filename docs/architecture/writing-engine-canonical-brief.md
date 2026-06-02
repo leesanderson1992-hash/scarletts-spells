@@ -240,8 +240,10 @@ This means:
   from MVP
 - no parent action in normal `Review Work` directly writes global canonical
   mapping truth
-- Parent Recommended Canonical Mapping is a future evidence/curation workflow,
-  not a change to parent-local authority:
+- Parent Recommended Canonical Mapping is a contracted evidence/curation
+  workflow, not a change to parent-local authority. The focused contract lives
+  in
+  [docs/contracts/parent-recommended-canonical-mapping.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/contracts/parent-recommended-canonical-mapping.md:1):
   - a parent may locally select or promote an existing active assignable
     spelling micro-skill, then separately recommend the observed child spelling,
     expected correction, and selected `micro_skill_key` pairing for admin/global
