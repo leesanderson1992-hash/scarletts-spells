@@ -128,7 +128,7 @@ Current ownership rule:
 
 ### Parent Recommended Canonical Mapping parent action/admin curation
 
-Status: `PCRM-A docs/contract complete; PCRM-B evidence storage/read-model foundation implemented; PCRM-C parent recommendation action/UI implemented and regression-passed; admin curation remains the next runtime slice`
+Status: `PCRM-A docs/contract complete; PCRM-B evidence storage/read-model foundation implemented; PCRM-C parent recommendation action/UI implemented and regression-passed; PCRM-D admin recommendation review/curation implemented, validated, committed, and pushed`
 
 Focused contract:
 - [docs/contracts/parent-recommended-canonical-mapping.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/contracts/parent-recommended-canonical-mapping.md:1)
@@ -144,7 +144,10 @@ Fixed boundary:
 - parent-local promotion remains the parent completion-gating truth
 - `No matching skill` remains the separate route for rows where no suitable
   existing catalog-backed skill fits
-- admin curation may accept, reject, merge, mark duplicate, or supersede later
+- PCRM-D admin curation can mark recommendation evidence accepted, rejected,
+  duplicate, merged, or superseded with audit metadata
+- PCRM-D v1 updates only `spelling_canonical_mapping_recommendations`
+  status/audit metadata; it does not create or link `spelling_canonical_mappings`
 - canonical mapping writes, if any, remain resolver-invisible until a separate
   resolver integration slice
 - no parent action may create/edit `micro_skill_catalog`, write global
@@ -153,8 +156,9 @@ Fixed boundary:
 Recommended sequence:
 - `PCRM-C` parent recommendation action/UI from safe scoped known-skill rows
   is implemented for promoted parent-local candidate mappings
-- `PCRM-D` admin recommendation review/curation with audited decisions
-- `PCRM-E` QA and closeout
+- `PCRM-D` admin recommendation review/curation with audited decisions is
+  implemented
+- `PCRM-E` documentation/status closeout
 - future `PCRM Resolver Integration` as a separate resolver visibility,
   priority, conflict, rollout, and rollback slice
 
@@ -475,6 +479,27 @@ PCRM-C implementation record:
     recommendation action, submitting it shows the saved recommendation state,
     pending/no-matching rows do not show the PCRM action, and completion
     remains governed by local review state
+
+PCRM-D admin recommendation review/curation is implemented:
+- admins can mark PCRM recommendation evidence accepted, rejected, duplicate,
+  merged, or superseded
+- curation updates only `spelling_canonical_mapping_recommendations`
+  status/audit metadata
+- curation does not create or link `spelling_canonical_mappings`
+- curation does not mutate `micro_skill_catalog` or parent-local candidate
+  mappings
+- curation does not merge `No matching skill` catalog-review cases into PCRM
+- curation does not change completion gating, mastery, rewards, assignments,
+  analytics, dashboards, scoring, resolver behavior, or resolver priority
+- browser smoke used Option A for closeout: focused regressions and build
+  passed, but no naturally generated pending recommendation row was available
+  for real pending-row browser smoke
+- `scripts/dev-pcrm-recommendation-fixture.ts` is local/staging/manual smoke
+  support only, not production seed data; it requires
+  `ALLOW_DEV_PCRM_FIXTURE=true` and `SUPABASE_SERVICE_ROLE_KEY`, refuses
+  production-like envs/URLs, refuses non-local Supabase unless
+  `ALLOW_STAGING_PCRM_FIXTURE=true`, and writes only fixture-marked rows to
+  `spelling_canonical_mapping_recommendations`
 
 Hard stop conditions:
 - do not touch `app/courses/review/actions.ts`

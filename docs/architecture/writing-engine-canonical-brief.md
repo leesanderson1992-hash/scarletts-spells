@@ -295,8 +295,14 @@ This means:
     `micro_skill_catalog`, resolver inputs, or resolver-visible truth
   - `No matching skill` remains separate catalog-gap/admin-review routing
   - completion gating remains unchanged
-  - admin recommendation curation remains PCRM-D and resolver adoption remains
-    a future explicit slice
+  - PCRM-D admin recommendation review/curation is implemented; admins can mark
+    recommendation evidence accepted, rejected, duplicate, merged, or superseded
+    and update only `spelling_canonical_mapping_recommendations` status/audit
+    metadata
+  - PCRM-D does not create or link `spelling_canonical_mappings`, mutate
+    `micro_skill_catalog`, mutate parent-local candidate mappings, merge
+    `No matching skill` with PCRM, or change resolver behavior
+  - resolver adoption remains a future explicit slice
 - Slice `4A` documents the next catalog-review boundary only:
   - parent-facing action label: `No matching skill`
   - helper copy: `Send this spelling case to catalog review.`

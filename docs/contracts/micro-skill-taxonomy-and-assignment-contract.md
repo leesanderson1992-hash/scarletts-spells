@@ -988,8 +988,15 @@ Slice `4A` spelling catalog-review taxonomy contract:
       `spelling_canonical_mappings`, resolver inputs, or resolver-visible truth
     - `No matching skill` remains separate catalog-gap/admin-review routing
     - parent-local promotion remains the completion-gating truth
-    - admin curation remains PCRM-D; resolver adoption remains a future
-      explicit PCRM resolver integration slice
+    - PCRM-D admin recommendation review/curation is implemented; admins can
+      mark recommendation evidence accepted, rejected, duplicate, merged, or
+      superseded and update only `spelling_canonical_mapping_recommendations`
+      status/audit metadata
+    - PCRM-D does not create or link `spelling_canonical_mappings`, mutate
+      `micro_skill_catalog`, mutate parent-local candidate mappings, merge
+      `No matching skill` with PCRM, or change resolver behavior
+    - resolver adoption remains a future explicit PCRM resolver integration
+      slice
 - staged follow-up:
   - Slice `4B.0`: bounded option filtering by family/cluster
   - Slice `4B.1`: parent `No matching skill` case capture only,

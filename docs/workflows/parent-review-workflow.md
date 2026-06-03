@@ -391,7 +391,14 @@ PCRM-C parent action/UI is implemented:
   not PCRM recommendation evidence
 - completion gating remains unchanged; parent-local promotion remains the local
   completion truth
-- admin recommendation review/curation remains PCRM-D
+- PCRM-D admin recommendation review/curation is implemented; admins can mark
+  recommendation evidence accepted, rejected, duplicate, merged, or superseded
+  and update only `spelling_canonical_mapping_recommendations` status/audit
+  metadata
+- PCRM-D does not create or link `spelling_canonical_mappings`, mutate
+  `micro_skill_catalog`, mutate parent-local candidate mappings, merge
+  `No matching skill` with PCRM, or change completion gating, mastery, rewards,
+  assignments, analytics, dashboards, scoring, or resolver behavior
 - resolver adoption remains future PCRM Resolver Integration
 
 ## Current Parent Review Status

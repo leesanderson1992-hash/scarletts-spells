@@ -86,9 +86,21 @@
 ## Next stage
 
 - choose the next slice explicitly after Review Work closeout:
-  - Parent Recommended Canonical Mapping parent action/UI is implemented and
-    regression-passed as PCRM-C; admin curation remains future PCRM-D work and
-    must preserve PCRM-A/PCRM-B/PCRM-C boundaries
+  - Parent Recommended Canonical Mapping is implemented through PCRM-D:
+    PCRM-A docs/contract, PCRM-B evidence model/read path, PCRM-C parent
+    recommendation action/UI, and PCRM-D admin recommendation review/curation
+    are complete and validated
+  - PCRM-D updates only `spelling_canonical_mapping_recommendations`
+    status/audit metadata; it does not create or link
+    `spelling_canonical_mappings`, mutate `micro_skill_catalog`, mutate
+    parent-local candidate mappings, merge `No matching skill` with PCRM, or
+    change completion gating, mastery, rewards, assignments, analytics,
+    dashboards, scoring, or resolver behavior
+  - PCRM-D browser smoke used Option A: focused regressions and build passed,
+    but no naturally generated pending recommendation row was available for
+    real pending-row browser smoke
+  - `scripts/dev-pcrm-recommendation-fixture.ts` is local/staging/manual smoke
+    support only, not production seed data
   - resolver integration remains future work and must be planned separately
   - unsupported returned rows without safe lineage remain blocked/deferred until
     a future provenance-expansion slice

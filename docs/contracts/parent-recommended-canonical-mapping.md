@@ -246,14 +246,28 @@ PCRM-C - Parent recommendation action/UI:
   behavior, or reuse `No matching skill`
 
 PCRM-D - Admin recommendation review/curation:
-- admin can accept, reject, merge, mark duplicate, or supersede
-- audited decisions
-- canonical mapping writes, if any, remain resolver-invisible until a later
-  resolver slice
+- status: implemented, validated, committed, and pushed as PCRM-D
+- admin can accept, reject, mark duplicate, merge, or supersede
+  recommendation evidence
+- curation updates only `spelling_canonical_mapping_recommendations`
+  status/audit metadata
+- curation does not create or link `spelling_canonical_mappings`
+- curation does not mutate `micro_skill_catalog`,
+  `parent_verified_spelling_candidate_mappings`, resolver inputs, or
+  resolver-visible truth
+- `No matching skill` catalog-review cases remain separate from PCRM
+- browser smoke used Option A for closeout: focused regressions and build
+  passed, but no naturally generated pending recommendation row was available
+  for real pending-row browser smoke
+- `scripts/dev-pcrm-recommendation-fixture.ts` is local/staging/manual smoke
+  support only, not production seed data; it requires
+  `ALLOW_DEV_PCRM_FIXTURE=true` and `SUPABASE_SERVICE_ROLE_KEY`, refuses
+  production-like envs/URLs, refuses non-local Supabase unless
+  `ALLOW_STAGING_PCRM_FIXTURE=true`, and writes only fixture-marked rows to
+  `spelling_canonical_mapping_recommendations`
 
 PCRM-E - QA and closeout:
 - focused regression tests
-- browser smoke for eligible and ineligible row states
 - documentation/status updates
 - `git diff --check`
 

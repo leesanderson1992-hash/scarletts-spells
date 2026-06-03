@@ -499,8 +499,20 @@ Canonical documentation now defers to:
     does not create PCRM recommendation evidence
   - completion gating remains unchanged; parent-local promotion remains the
     completion-gating truth
-  - admin curation remains PCRM-D and resolver adoption remains a future
-    explicit PCRM resolver integration slice
+  - PCRM-D admin recommendation review/curation is implemented; admins can mark
+    recommendation evidence accepted, rejected, duplicate, merged, or superseded
+    and update only `spelling_canonical_mapping_recommendations` status/audit
+    metadata
+  - PCRM-D does not create or link `spelling_canonical_mappings`, mutate
+    `micro_skill_catalog`, mutate parent-local candidate mappings, merge
+    `No matching skill` with PCRM, or change completion gating, mastery,
+    rewards, assignments, analytics, dashboards, scoring, or resolver behavior
+  - browser smoke used Option A for PCRM-D closeout: focused regressions and
+    build passed, but no naturally generated pending recommendation row was
+    available for real pending-row browser smoke
+  - `scripts/dev-pcrm-recommendation-fixture.ts` is local/staging/manual smoke
+    support only, not production seed data
+  - resolver adoption remains a future explicit PCRM resolver integration slice
 
 ### Registered next bounded stage
 - `Parent-Verified Spelling Candidate Capture` Slice `3` is now implemented
