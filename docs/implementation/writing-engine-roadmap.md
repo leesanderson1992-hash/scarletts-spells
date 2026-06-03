@@ -126,46 +126,43 @@ Current ownership rule:
 
 ## Registered next bounded stage
 
-### Parent Recommended Canonical Mapping parent action/admin curation
+### Parent-Added Missed Word Correction Repair
 
-Status: `PCRM-A docs/contract complete; PCRM-B evidence storage/read-model foundation implemented; PCRM-C parent recommendation action/UI implemented and regression-passed; PCRM-D admin recommendation review/curation implemented, validated, committed, and pushed`
+Status: `next bounded runtime/docs closeout stage`
 
-Focused contract:
-- [docs/contracts/parent-recommended-canonical-mapping.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/contracts/parent-recommended-canonical-mapping.md:1)
+Current status source of truth:
+- [docs/implementation/targeted-writing-practice-status.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/implementation/targeted-writing-practice-status.md:1)
 
 Purpose:
-- allow a parent, after safely resolving a local spelling categorisation to an
-  existing active assignable micro-skill, to optionally recommend that observed
-  spelling/correction/skill pairing for admin/global canonical consideration
+- complete the current MVP parent-review -> child-retry ->
+  final-classification -> learning-evidence loop for parent-added missed words
+  attached to structured lesson/test submissions
+- keep parent-added missed words separate from engine Suggested Issues in
+  Review Work while ensuring they are not second-class correction targets
 
 Fixed boundary:
-- a parent recommendation is evidence for admin review, not global canonical
-  truth
-- parent-local promotion remains the parent completion-gating truth
-- `No matching skill` remains the separate route for rows where no suitable
-  existing catalog-backed skill fits
-- PCRM-D admin curation can mark recommendation evidence accepted, rejected,
-  duplicate, merged, or superseded with audit metadata
-- PCRM-D v1 updates only `spelling_canonical_mapping_recommendations`
+- this stage belongs to the parent-review -> child-retry ->
+  final-classification -> learning-evidence loop, not resolver/PCRM/global
+  canonical work
+- PCRM-D admin recommendation review/curation is implemented and remains
+  evidence-only
+- PCRM-D updates only `spelling_canonical_mapping_recommendations`
   status/audit metadata; it does not create or link `spelling_canonical_mappings`
 - PCRM-D plain `accepted` means accepted evidence only and must not silently
   become resolver truth
-- future PCRM admin review may add an explicit
-  `accept_and_adopt_canonical_mapping` action so admin can accept eligible
-  evidence and create/link canonical mapping truth in one audited decision
-- canonical mapping writes, if any, remain resolver-invisible until a separate
-  resolver integration slice
-- no parent action may create/edit `micro_skill_catalog`, write global
-  canonical mappings directly, or make resolver-visible truth
+- future PCRM resolver integration remains a separate resolver visibility,
+  priority, conflict, rollout, rollback, observability, and browser-smoke slice
+- no stage may create/edit `micro_skill_catalog`, write global canonical
+  mappings directly, or make PCRM recommendations resolver-visible without a
+  separate explicit resolver contract
 
 Recommended sequence:
-- `PCRM-C` parent recommendation action/UI from safe scoped known-skill rows
-  is implemented for promoted parent-local candidate mappings
-- `PCRM-D` admin recommendation review/curation with audited decisions is
-  implemented
-- `PCRM-E` documentation/status closeout
-- future `PCRM Resolver Integration` as a separate resolver visibility,
-  priority, conflict, rollout, rollback, observability, and browser-smoke slice
+- docs/status alignment before runtime repair
+- data-backed browser verification for the parent-added missed-word correction
+  loop
+- smallest current Review Work send-back/read-model/correction repair only if
+  the browser/data path proves a gap
+- focused regressions, TypeScript, build, and browser smoke before closeout
 
 ### Durable Structured Submission Payloads
 
