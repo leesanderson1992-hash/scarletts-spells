@@ -887,6 +887,35 @@ Slice `4A` catalog-review contract:
     2. existing catalog-backed canonical mapping behavior
     3. same-scope `parent_local_promoted` mapping
     4. unresolved
+- PCRM resolver adoption contract:
+  - PCRM-D plain `accepted` means accepted recommendation evidence only; it
+    must not implicitly create/link canonical storage or change resolver output
+  - future PCRM admin review may add an explicit
+    `accept_and_adopt_canonical_mapping` action for eligible accepted evidence
+  - that action may create or link
+    `spelling_canonical_mappings`, set the PCRM source row's
+    `canonical_mapping_id` only after adoption succeeds, and record
+    `spelling_canonical_mapping_events` audit
+  - resolver visibility remains explicit audited admin authority; existing
+    non-visible mappings must not silently become resolver-visible
+  - canonical resolver mapping is exact-pair based:
+    `misspelling_normalized -> correct_spelling_normalized -> micro_skill_key`
+  - the correct word is a shared target anchor, not the sole routing key; for
+    example `taik -> take` and `tak -> take` may legitimately map to different
+    micro-skills when they represent different diagnostic errors
+  - the source misspelling instance is evidence for the mapping and selected
+    micro-skill, but does not by itself update child mastery, competency,
+    rewards, assignments, or learning-item state
+  - adoption eligibility requires accepted evidence, safe provenance, an
+    existing active assignable `D4` `micro_skill_catalog.micro_skill_key`, and
+    non-empty differing normalized spelling values
+  - duplicate, merged, or superseded recommendations resolve through their
+    target recommendation or target canonical mapping; rejected, pending, and
+    open recommendations are not independently adoptable
+  - same pair/dialect and same micro-skill may link to an existing mapping;
+    same pair/dialect with a different micro-skill is a conflict; same correct
+    spelling with a different misspelling may be a separate mapping; same
+    misspelling with a different correction is a conflict
 - Slice `4E.1` storage foundation is implemented and closed out:
   - canonical/global spelling mappings are stored in
     `spelling_canonical_mappings`
@@ -997,6 +1026,10 @@ Slice `4A` catalog-review contract:
   - no resolver change in Slice `4A` or Slice `4B.1`
   - open catalog-review cases remain invisible to the resolver
   - parent notes/reasons remain evidence only
+  - PCRM recommendation evidence remains invisible to the resolver unless a
+    later explicit admin canonical adoption and visibility contract is
+    implemented
+  - PCRM-D plain `accepted` does not by itself create resolver truth
   - canonical/global storage foundation now exists after Slice `4E.1`, but
     resolver use remains blocked until a later resolver integration slice
   - do not use catalog-review cases, parent notes, parent-scoped candidate
@@ -1006,10 +1039,11 @@ Slice `4A` catalog-review contract:
     mappings, suppress or correct false-positive-producing mappings/rules,
     close catalog-review cases with audit, and improve future suggestions only
     after the resolver contract is explicitly revised
-  - future resolver priority is refined by Slice `4E.0`: active
-    canonical/global exact-pair spelling mapping, existing catalog-backed
-    canonical mapping behavior, same-scope `parent_local_promoted` mapping,
-    then unresolved
+  - future resolver priority is refined by Slice `4E.0` and PCRM resolver
+    integration: active resolver-visible canonical exact-pair mapping, existing
+    catalog-backed resolver behavior, scoped parent-local promoted mapping
+    where supported, engine/manual diagnostic suggestions, then unresolved or
+    admin-review evidence only
 - Slice `4B.1` regression checklist:
   - parent can create an open catalog-review case for an eligible
     lesson-submission spelling row

@@ -317,6 +317,28 @@ Slice `4D`:
   mappings, suppress or correct false-positive-producing mappings/rules, close
   cases with audit, and improve future suggestions only after the resolver
   contract is explicitly revised
+- PCRM resolver adoption authority:
+  - PCRM-D plain `accepted` means accepted recommendation evidence only; it
+    must not create/link canonical storage or set resolver visibility
+  - a future explicit `accept_and_adopt_canonical_mapping` admin action may
+    accept eligible PCRM evidence and create/link canonical mapping truth in
+    one audited decision
+  - parent users may recommend only; they cannot create/link
+    `spelling_canonical_mappings`, mutate `micro_skill_catalog`, or set
+    resolver visibility
+  - admin adoption must call `requireAdminUser()` server-side before any
+    service-role operation
+  - no client component may import or use the service-role helper
+  - parent RLS must not be broadened for adoption
+  - no admin browser-client write policy is authorized unless a later explicit
+    admin-RLS design adds DB-backed roles/claims and policies
+  - adoption and resolver-visibility changes must write
+    `spelling_canonical_mapping_events` audit with admin identity, timestamp,
+    note/reason, source recommendation id, mapping id, and previous/new
+    status or visibility where applicable
+  - rollback must be admin-only and audited by turning resolver visibility off
+    or disabling/deprecating/superseding the mapping; it must not delete PCRM
+    evidence or mapping event history
 
 ## QA Expectations
 

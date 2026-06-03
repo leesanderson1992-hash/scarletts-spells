@@ -325,9 +325,19 @@ The workflow must keep four truth layers separate:
 4. resolver-visible global mapping truth
 
 Parent recommendation evidence must not be resolver-visible and must not become
-global canonical truth until an admin curation flow explicitly accepts or merges
-it. Even then, resolver adoption remains out of scope until a later explicit
-resolver integration slice.
+global canonical truth until an admin curation flow explicitly adopts it as
+canonical mapping truth. Plain PCRM `accepted` means accepted evidence only.
+Even after canonical adoption, resolver adoption remains out of scope until a
+later explicit resolver integration slice.
+
+Future PCRM resolver integration may add an explicit admin-only
+`accept_and_adopt_canonical_mapping` action. Plain PCRM `accepted` remains
+evidence-only; it must not become resolver truth by implication. Canonical
+adoption remains exact-pair based
+(`misspelling_normalized -> correct_spelling_normalized -> micro_skill_key`),
+so different misspellings of the same correct word may map to different
+micro-skills when their diagnostic teaching targets differ. Parent Review Work
+must continue to treat this as admin-only global curation, not a parent action.
 
 Completion-gating contract:
 - parent-local promotion remains the completion-gating truth

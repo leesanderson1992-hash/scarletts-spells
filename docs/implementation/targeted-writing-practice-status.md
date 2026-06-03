@@ -451,6 +451,10 @@ Canonical documentation now defers to:
     require changing `parent_local_promoted` into an admin-pending status
   - admin may later accept, reject, merge, mark duplicate, or supersede the
     recommendation, but admin action must not silently change resolver behavior
+  - PCRM-D plain `accepted` means accepted recommendation evidence only; it
+    does not create/link canonical storage or resolver-visible truth
+  - future admin review may add an explicit
+    `accept_and_adopt_canonical_mapping` action for eligible evidence
   - resolver adoption belongs to a later explicit PCRM resolver integration
     slice
 - `PCRM-B — Recommendation Evidence Model / Read Path` is implemented:
@@ -503,6 +507,9 @@ Canonical documentation now defers to:
     recommendation evidence accepted, rejected, duplicate, merged, or superseded
     and update only `spelling_canonical_mapping_recommendations` status/audit
     metadata
+  - plain `accepted` remains evidence-only; future canonical adoption requires
+    an explicit audited admin action that creates or links canonical mapping
+    truth
   - PCRM-D does not create or link `spelling_canonical_mappings`, mutate
     `micro_skill_catalog`, mutate parent-local candidate mappings, merge
     `No matching skill` with PCRM, or change completion gating, mastery,
@@ -513,6 +520,14 @@ Canonical documentation now defers to:
   - `scripts/dev-pcrm-recommendation-fixture.ts` is local/staging/manual smoke
     support only, not production seed data
   - resolver adoption remains a future explicit PCRM resolver integration slice
+  - future PCRM resolver integration must preserve exact-pair mapping:
+    `misspelling_normalized -> correct_spelling_normalized -> micro_skill_key`
+  - the correct word is a shared target anchor, not the sole routing key; `taik
+    -> take` and `tak -> take` may map to different micro-skills when their
+    diagnostic errors differ
+  - misspelling instances are evidence for the mapping and selected
+    micro-skill, but do not by themselves update child mastery, competency,
+    rewards, assignments, or learning-item state
 
 ### Registered next bounded stage
 - `Parent-Verified Spelling Candidate Capture` Slice `3` is now implemented
@@ -1138,6 +1153,10 @@ Canonical documentation now defers to:
   - no resolver change in Slice `4A` or Slice `4B.1`
   - open catalog-review cases remain invisible to the resolver
   - parent notes/reasons remain evidence only
+  - PCRM recommendation evidence remains invisible to the resolver unless a
+    future explicit admin canonical adoption and resolver-visibility contract
+    is implemented
+  - PCRM-D plain `accepted` means accepted evidence only, not resolver truth
   - canonical/global storage foundation now exists after Slice `4E.1`, but
     resolver use remains blocked until a later resolver integration slice
   - do not use catalog-review cases, parent notes, parent-scoped candidate
@@ -1146,10 +1165,11 @@ Canonical documentation now defers to:
     mappings, suppress or correct false-positive-producing mappings/rules,
     close cases with audit, and improve future suggestions only after the
     resolver contract is explicitly revised
-  - future resolver priority is refined by Slice `4E.0`: active
-    canonical/global exact-pair spelling mapping, existing catalog-backed
-    canonical mapping behavior, same-scope `parent_local_promoted` mapping,
-    then unresolved
+  - future resolver priority is refined by Slice `4E.0` and PCRM resolver
+    integration: active resolver-visible canonical exact-pair mapping,
+    existing catalog-backed resolver behavior, scoped parent-local promoted
+    mapping where supported, engine/manual diagnostic suggestions, then
+    unresolved or admin-review evidence only
 - Slice `4E.3` owns resolver integration. Slice `4E.4` may handle canonical
   mapping lifecycle refinements such as disable/deprecate/supersede. Slice
   `4E.5` may handle false-positive curation. Hosted Supabase migration-ledger

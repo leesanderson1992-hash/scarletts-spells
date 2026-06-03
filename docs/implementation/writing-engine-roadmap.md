@@ -148,6 +148,11 @@ Fixed boundary:
   duplicate, merged, or superseded with audit metadata
 - PCRM-D v1 updates only `spelling_canonical_mapping_recommendations`
   status/audit metadata; it does not create or link `spelling_canonical_mappings`
+- PCRM-D plain `accepted` means accepted evidence only and must not silently
+  become resolver truth
+- future PCRM admin review may add an explicit
+  `accept_and_adopt_canonical_mapping` action so admin can accept eligible
+  evidence and create/link canonical mapping truth in one audited decision
 - canonical mapping writes, if any, remain resolver-invisible until a separate
   resolver integration slice
 - no parent action may create/edit `micro_skill_catalog`, write global
@@ -160,7 +165,7 @@ Recommended sequence:
   implemented
 - `PCRM-E` documentation/status closeout
 - future `PCRM Resolver Integration` as a separate resolver visibility,
-  priority, conflict, rollout, and rollback slice
+  priority, conflict, rollout, rollback, observability, and browser-smoke slice
 
 ### Durable Structured Submission Payloads
 
@@ -483,6 +488,8 @@ PCRM-C implementation record:
 PCRM-D admin recommendation review/curation is implemented:
 - admins can mark PCRM recommendation evidence accepted, rejected, duplicate,
   merged, or superseded
+- `accepted` means the recommendation evidence is valid; it does not by itself
+  create canonical storage or resolver-visible truth
 - curation updates only `spelling_canonical_mapping_recommendations`
   status/audit metadata
 - curation does not create or link `spelling_canonical_mappings`
@@ -500,6 +507,41 @@ PCRM-D admin recommendation review/curation is implemented:
   production-like envs/URLs, refuses non-local Supabase unless
   `ALLOW_STAGING_PCRM_FIXTURE=true`, and writes only fixture-marked rows to
   `spelling_canonical_mapping_recommendations`
+
+Future PCRM Resolver Integration docs contract:
+- add explicit admin action/decision
+  `accept_and_adopt_canonical_mapping`
+- allow admin to accept eligible PCRM evidence and create/link
+  `spelling_canonical_mappings` in one audited decision
+- set the recommendation `canonical_mapping_id` only after canonical adoption
+  succeeds
+- record adoption and resolver-visibility changes in
+  `spelling_canonical_mapping_events`
+- keep resolver visibility behind explicit audited admin authority; existing
+  non-visible mappings must not silently become resolver-visible
+- canonical resolver mapping is exact-pair based:
+  `misspelling_normalized -> correct_spelling_normalized -> micro_skill_key`
+- the correct word is a shared target anchor, not the sole routing key; `taik
+  -> take` and `tak -> take` may map to different micro-skills when they
+  represent different diagnostic spelling errors
+- misspelling instances are evidence for the mapping and selected micro-skill,
+  but do not by themselves update child mastery, competency, rewards,
+  assignments, or learning-item state
+- conflict rules: same pair/dialect/same skill may link; same pair/dialect
+  with a different skill blocks for admin conflict resolution; same correct
+  spelling with different misspelling may be a separate mapping; same
+  misspelling with different correction blocks for admin review
+- future resolver priority: active resolver-visible canonical exact-pair
+  mapping, existing catalog-backed resolver behavior, scoped parent-local
+  promoted mapping where supported, engine/manual diagnostic suggestions, then
+  unresolved or admin-review evidence only
+- rollout order: docs contract, storage/admin adoption hardening, resolver read
+  path behind explicit visibility, browser/admin smoke, monitored rollout
+- rollback: turn resolver visibility off or disable/deprecate/supersede the
+  mapping with audit; do not delete PCRM evidence or mapping events
+- observability should track accepted-not-adopted recommendations, adoption
+  count, conflict count, resolver-visible mapping count, resolver hits by
+  mapping, and rollback/disable events
 
 Hard stop conditions:
 - do not touch `app/courses/review/actions.ts`
@@ -1430,6 +1472,11 @@ Slice `4A` catalog-review contract:
   - no resolver change in Slice `4A` or Slice `4B.1`
   - open catalog-review cases remain invisible to the resolver
   - parent notes and reasons remain evidence only
+  - PCRM recommendation evidence remains invisible to the resolver unless a
+    future explicit admin canonical adoption and resolver-visibility contract
+    is implemented
+  - PCRM-D plain `accepted` means accepted recommendation evidence only, not
+    resolver-visible truth
   - canonical/global storage foundation now exists after Slice `4E.1`, but
     resolver use remains blocked until a later resolver integration slice
   - do not use `spelling_catalog_review_cases` as canonical truth, parent
@@ -1441,10 +1488,11 @@ Slice `4A` catalog-review contract:
     mappings, suppress or correct false-positive-producing mappings/rules,
     close catalog-review cases with audit, and improve future suggestions only
     after the resolver contract is explicitly revised
-  - future resolver priority is refined by Slice `4E.0`: active
-    canonical/global exact-pair spelling mapping, existing catalog-backed
-    canonical mapping behavior, same-scope `parent_local_promoted` mapping,
-    then unresolved
+  - future resolver priority is refined by Slice `4E.0` and PCRM resolver
+    integration: active resolver-visible canonical exact-pair mapping,
+    existing catalog-backed resolver behavior, scoped parent-local promoted
+    mapping where supported, engine/manual diagnostic suggestions, then
+    unresolved or admin-review evidence only
 - Slice `4E.3` owns resolver integration. Slice `4E.4` may handle canonical
   mapping lifecycle refinements such as disable/deprecate/supersede. Slice
   `4E.5` may handle false-positive curation. Hosted Supabase migration-ledger

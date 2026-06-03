@@ -45,13 +45,18 @@ case and must not be overloaded to mean "please globalize my selected skill."
 
 Admin canonical mapping curation is an internal/admin workflow. It may compare
 recommendations or catalog-review cases against existing canonical mappings and
-may later accept, reject, merge, mark duplicate, or supersede evidence. Admin
-acceptance may write canonical mapping storage, but current canonical mapping
-storage records are created with resolver effect disabled.
+may later accept, reject, merge, mark duplicate, or supersede evidence.
+PCRM-D plain `accepted` means "admin agrees this recommendation evidence is
+valid"; it does not create, link, or expose resolver-visible canonical truth.
+Current canonical mapping storage exists in `spelling_canonical_mappings` and
+`spelling_canonical_mapping_events`, but current canonical mapping creation
+records resolver non-effect through `resolver_visible: false`.
 
 Resolver-visible global truth remains separate. Parent recommendations,
 pending admin review rows, open catalog-review cases, and canonical mappings
 with resolver visibility disabled must not change global suggestions.
+The current resolver does not consume PCRM recommendation rows or canonical
+mapping storage.
 
 ## Parent Workflow
 
@@ -67,7 +72,10 @@ with resolver visibility disabled must not change global suggestions.
 6. The recommendation does not change global suggestions immediately.
 7. Admin may later accept, reject, merge, mark duplicate, or supersede the
    recommendation.
-8. Resolver adoption remains a separate future slice.
+8. A future admin action may explicitly accept and adopt an eligible
+   recommendation as canonical mapping truth.
+9. Resolver adoption remains a separate future slice until an audited
+   resolver-visibility contract is implemented.
 
 Suggested helper copy:
 
@@ -169,6 +177,119 @@ start as `recommended` or `pending_admin_review`; they cannot include admin
 curation fields. The repository inserts pending evidence only and stores
 metadata with `resolver_visible: false`.
 
+## Future Canonical Adoption Decision
+
+Future PCRM resolver integration should add an explicit admin decision/action
+named `accept_and_adopt_canonical_mapping` or equivalent.
+
+Decision meanings:
+- `accepted`: admin agrees the PCRM evidence is valid; evidence only
+- `accept_and_adopt_canonical_mapping`: admin agrees the evidence is valid and
+  creates or links canonical mapping truth
+
+Plain `accepted` must not implicitly create `spelling_canonical_mappings`, set
+`canonical_mapping_id`, enable resolver visibility, or change resolver output.
+The adoption action may occur from an already-`accepted` recommendation or as a
+single explicit "accept and adopt" review action, but it must be distinguishable
+in audit metadata and admin copy.
+
+Future canonical adoption should create or link a
+`spelling_canonical_mappings` row. The source PCRM recommendation should write
+`canonical_mapping_id` only after the canonical adoption/link succeeds.
+Resolver visibility may be enabled only through explicit audited admin
+authority; an adopted mapping can still remain resolver-invisible until a
+separate visibility step or flag is enabled.
+
+## Exact Pair And Micro-Skill Model
+
+Canonical resolver mapping is exact-pair based:
+
+```text
+misspelling_normalized -> correct_spelling_normalized -> micro_skill_key
+```
+
+The correct word is a shared target anchor, not the sole resolver routing key.
+Multiple misspellings of the same correct word may legitimately map to
+different spelling micro-skills when they represent different diagnostic
+errors.
+
+Example:
+
+```text
+taik -> take -> one long-vowel/grapheme-choice micro-skill
+tak  -> take -> a different final-e or split-digraph micro-skill
+```
+
+Those rows must not be collapsed into one word-level bucket if their diagnostic
+teaching targets differ. A misspelling instance is evidence for the exact
+mapping and selected micro-skill, but it does not by itself update child
+mastery, competency, rewards, assignments, or learning-item state. Child
+mastery evidence remains governed by the reviewed issue and learning-item
+contracts.
+
+## Canonical Adoption Eligibility
+
+A PCRM recommendation is eligible for canonical adoption only when all of these
+are true:
+- recommendation evidence is already `accepted` or is being accepted in the
+  same explicit admin adoption action
+- the selected `micro_skill_key` exists in `micro_skill_catalog` and is active,
+  assignable, and `D4`
+- scoped parent/child/source provenance is safe and present
+- `misspelling_normalized` and `correct_spelling_normalized` are non-empty and
+  different
+- the recommendation does not rely on `No matching skill` semantics
+- duplicate, merged, or superseded evidence resolves through its target
+  recommendation or target canonical mapping
+
+Recommendations with status `recommended`, `pending_admin_review`, `rejected`,
+`duplicate`, `merged`, or `superseded` are not independently adoptable. `No
+matching skill` evidence remains in the separate catalog-review canonical
+curation lane.
+
+## Conflict And Priority Rules
+
+Conflict handling for future adoption:
+- same misspelling/correction/dialect and same `micro_skill_key`: link to the
+  existing canonical mapping and audit the PCRM source link
+- same misspelling/correction/dialect but different `micro_skill_key`: block
+  adoption and require explicit admin conflict resolution
+- same correct spelling with different misspelling: allow separate canonical
+  mappings when the diagnostic teaching targets differ
+- same misspelling with different correction: treat as a conflict requiring
+  admin review
+- existing non-visible mappings must not silently become resolver-visible
+
+Future resolver priority should be:
+1. active resolver-visible canonical exact-pair mapping
+2. existing catalog-backed resolver behavior
+3. scoped parent-local promoted mapping, where supported
+4. engine/manual diagnostic suggestions
+5. unresolved or admin-review evidence only
+
+PCRM evidence rows, open catalog-review cases, and non-adopted
+recommendations must never affect resolver output.
+
+## Audit, Rollback, And Observability
+
+Canonical adoption and resolver visibility changes require
+`spelling_canonical_mapping_events` audit entries. Audit should include admin
+identity, timestamp, note or reason, source recommendation id, mapping id,
+previous/new status where applicable, and previous/new resolver visibility
+where applicable.
+
+Rollback should disable resolver visibility or disable/deprecate/supersede the
+mapping through an audited admin-only action. Rollback must not delete PCRM
+evidence, source spelling instances, or canonical mapping event history.
+
+Future observability should track:
+- accepted recommendations not yet adopted
+- adoption count
+- adoption conflict count
+- resolver-visible mapping count
+- resolver hits by mapping
+- rollback, disable, deprecate, and supersede events
+
 ## No Matching Skill Relationship
 
 `No matching skill` and Parent Recommended Canonical Mapping are separate
@@ -190,14 +311,18 @@ Admin curation should eventually allow an authorized admin to:
 - view the recommendation with source evidence and context
 - compare it to existing canonical mappings and related recommendations
 - accept the recommendation
+- explicitly accept and adopt an eligible recommendation as canonical mapping
+  truth
 - reject the recommendation
 - merge it into another recommendation or canonical mapping
 - mark it duplicate
 - supersede it
 - record an audit decision with admin identity, timestamp, note, and metadata
 
-If admin acceptance creates or updates canonical mapping storage before resolver
-integration, the resulting canonical mapping must remain non-resolver-visible.
+Plain admin acceptance remains evidence-only. If a future explicit adoption
+action creates or links canonical mapping storage before resolver integration,
+the resulting canonical mapping must remain non-resolver-visible unless the
+same audited admin action is explicitly authorized to set resolver visibility.
 Current canonical mapping creation already records `resolver_visible: false` in
 metadata.
 
@@ -213,7 +338,8 @@ Specifically:
 - no resolver reads from `spelling_canonical_mapping_recommendations`
 - no resolver consumption of recommended, pending, accepted, rejected, merged,
   duplicate, or superseded recommendation rows
-- no automatic global suggestions from parent recommendations
+- no automatic global suggestions from parent recommendations or plain
+  `accepted` PCRM evidence
 - no resolver-visible mapping until a separate resolver integration slice
 - open catalog-review cases and pending recommendation rows remain invisible to
   resolver behavior
@@ -272,8 +398,10 @@ PCRM-E - QA and closeout:
 - `git diff --check`
 
 Future PCRM Resolver Integration:
-- separate slice defining resolver visibility, priority, conflict handling,
-  rollout, and rollback
+- separate slice defining explicit `accept_and_adopt_canonical_mapping`
+  behavior, resolver visibility, priority, conflict handling, admin/RLS
+  authority, rollout, rollback, observability, and regression/browser smoke
+  requirements
 
 ## Stop Conditions
 
@@ -283,6 +411,13 @@ Stop before implementation if:
 - resolver currently consumes draft/admin/recommended data directly
 - no safe provenance exists for eligible rows
 - implementation would require broad resolver changes
+- docs or implementation imply plain PCRM `accepted` automatically becomes
+  resolver truth
+- docs or implementation collapse all misspellings of the same correct word
+  into one micro-skill
+- docs or implementation blur `No matching skill`, parent-local promotion,
+  PCRM evidence, canonical mapping storage, resolver-visible truth, or child
+  mastery evidence
 - implementation would let parents create or edit `micro_skill_catalog`
 - admin curation model is not ready
 - duplicate/conflict handling is undefined for the proposed runtime behavior
@@ -290,3 +425,21 @@ Stop before implementation if:
 - docs contradict runtime
 - completion gating would depend on recommendation/admin-review status rather
   than local review resolution
+
+## Future Validation Requirements
+
+Future implementation should require:
+- `npm run writing-engine:pcrm-recommendation-evidence-regression`
+- `npm run writing-engine:pcrm-admin-recommendation-curation-regression`
+- `npm run writing-engine:canonical-mapping-storage-regression`
+- `npm run writing-engine:admin-canonical-curation-regression`
+- `npm run writing-engine:primary-mapping-regression`
+- `npm run writing-engine:mapping-source-regression`
+- `npm run writing-engine:parent-local-promotion-regression`
+- `npx tsx scripts/writing-engine-unified-spelling-review-items-regression.ts`
+- `npx tsc --noEmit`
+- `npm run build`
+
+Future browser smoke should verify admin accept/adopt behavior, conflict
+blocking, mapping audit, resolver visibility enable/rollback, and unchanged
+parent Review Work completion behavior.
