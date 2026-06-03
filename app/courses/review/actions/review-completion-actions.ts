@@ -836,6 +836,32 @@ export async function returnSubmissionToChildImpl(formData: FormData) {
           __writing_issue_feedback: returnedIssuePayload,
         };
 
+  const { error: returnedDraftUpsertError } = await supabase
+    .from("task_submission_drafts")
+    .upsert(
+      {
+        task_id: submission.task_id,
+        course_id: submission.course_id,
+        child_id: submission.child_id,
+        parent_user_id: user.id,
+        draft_text: existingDraft?.draft_text ?? submission.submission_text ?? "",
+        draft_review_summary: existingDraft?.draft_review_summary ?? null,
+        draft_payload: mergedDraftPayload,
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: "task_id,child_id" },
+    );
+
+  if (returnedDraftUpsertError) {
+    redirect(
+      buildRedirectWithMessage(
+        safeRedirectPath,
+        "error",
+        "We couldn't prepare the returned draft for the child just yet.",
+      ),
+    );
+  }
+
   const { error } = await supabase
     .from("task_submissions")
     .update({
@@ -906,22 +932,6 @@ export async function returnSubmissionToChildImpl(formData: FormData) {
       }
     }
   }
-
-  await supabase
-    .from("task_submission_drafts")
-    .upsert(
-      {
-        task_id: submission.task_id,
-        course_id: submission.course_id,
-        child_id: submission.child_id,
-        parent_user_id: user.id,
-        draft_text: existingDraft?.draft_text ?? submission.submission_text ?? "",
-        draft_review_summary: existingDraft?.draft_review_summary ?? null,
-        draft_payload: mergedDraftPayload,
-        updated_at: new Date().toISOString(),
-      },
-      { onConflict: "task_id,child_id" },
-    );
 
   revalidateReviewQueueAndDetail(safeRedirectPath);
   revalidatePath("/dashboard");

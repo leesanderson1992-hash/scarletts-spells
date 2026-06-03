@@ -225,6 +225,16 @@ assert.match(
 );
 assert.match(
   reviewCompletionActions,
+  /const \{ error: returnedDraftUpsertError \} = await supabase[\s\S]*\.from\("task_submission_drafts"\)[\s\S]*draft_payload: mergedDraftPayload[\s\S]*if \(returnedDraftUpsertError\) \{[\s\S]*We couldn't prepare the returned draft for the child just yet\./,
+  "Send-back must fail loudly if returned child draft feedback cannot be written.",
+);
+assert.ok(
+  reviewCompletionActions.indexOf("const { error: returnedDraftUpsertError }") <
+    reviewCompletionActions.indexOf('parent_review_status: "returned"'),
+  "Returned draft feedback must be written before marking the submission returned.",
+);
+assert.match(
+  reviewCompletionActions,
   /returnedIssuePayload: ReturnedWritingIssueDraftPayload\[\] = hydratedIssuesToSendBack\.map\([\s\S]*issue_id: issue\.id[\s\S]*observed_text: issue\.observed_text[\s\S]*approved_replacement: issue\.approved_replacement[\s\S]*allow_confidence:[\s\S]*Boolean\(issue\.source_misspelling_instance_id\)/,
   "Durable parent-added missed-word issues with source misspelling lineage must appear in __writing_issue_feedback with retry confidence enabled.",
 );

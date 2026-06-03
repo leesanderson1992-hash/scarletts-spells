@@ -77,8 +77,18 @@ assert.doesNotMatch(
 
 assert.match(
   returnSource,
-  /parent_review_status: "returned"[\s\S]*from\("task_submission_drafts"\)[\s\S]*\.upsert\([\s\S]*draft_payload: mergedDraftPayload/,
+  /from\("task_submission_drafts"\)[\s\S]*\.upsert\([\s\S]*draft_payload: mergedDraftPayload[\s\S]*parent_review_status: "returned"/,
   "Returned/send-back must remain draft-first and editable with merged draft feedback.",
+);
+assert.match(
+  returnSource,
+  /const \{ error: returnedDraftUpsertError \} = await supabase[\s\S]*from\("task_submission_drafts"\)[\s\S]*draft_payload: mergedDraftPayload[\s\S]*if \(returnedDraftUpsertError\)/,
+  "Returned/send-back must check the returned draft upsert result.",
+);
+assert.ok(
+  returnSource.indexOf("const { error: returnedDraftUpsertError }") <
+    returnSource.indexOf('parent_review_status: "returned"'),
+  "Returned/send-back must prepare the editable child draft before marking the submission returned.",
 );
 assert.match(
   returnSource,
