@@ -57,8 +57,15 @@ Canonical documentation now defers to:
     implemented
   - `PCRM-C` parent recommendation action/UI is implemented and
     regression-passed for promoted parent-local candidate mappings
-  - admin recommendation curation remains the next bounded runtime slice
+  - `PCRM-D` admin recommendation review/curation is implemented and
+    regression-passed
+  - PCRM-D updates recommendation status/audit metadata only; plain
+    `accepted` remains evidence-only and resolver-invisible
   - resolver integration remains a separate future slice
+- The next bounded implementation stage is
+  `Parent-Added Missed Word Correction Repair`, which belongs to the
+  parent-review -> child-retry -> final-classification -> learning-evidence
+  loop, not resolver/PCRM/global canonical work.
 - A bounded post-Stage-`7` parent-facing evidence-transparency slice is now
   complete.
 - The app is currently suitable for private parent-led use with one child,
@@ -102,6 +109,32 @@ Canonical documentation now defers to:
 - old spelling-session assignment generation path
 
 ### Next
+
+- `Parent-Added Missed Word Correction Repair`
+  - status: next bounded runtime/docs closeout stage
+  - purpose:
+    - complete the current MVP parent-review -> child-retry ->
+      final-classification -> learning-evidence loop for parent-added missed
+      words attached to structured lesson/test submissions
+    - keep parent-added missed words separate from engine Suggested Issues in
+      Review Work while ensuring they are not second-class correction targets
+  - scope:
+    - documentation alignment before runtime repair
+    - focused characterization/regression coverage
+    - smallest current Review Work send-back/read-model/correction repair only
+      if the regression proves a gap
+    - parent-menu convenience navigation to existing admin review surfaces
+  - explicit non-goals and stop conditions:
+    - no schema changes or migrations
+    - no resolver behavior changes
+    - no PCRM recommendation resolver visibility
+    - no canonical adoption action
+    - no `micro_skill_catalog` mutation
+    - no manual writing-sample expansion
+    - no reward, dashboard, analytics, scoring, assignment, or template-routing
+      redesign
+    - if the implementation requires any of these, stop and return to docs
+
 - Durable Structured Submission Payloads is closed for the bounded Pass
   `1`-`4` track:
   - status: Pass 4 approval draft-deletion safety is implemented and
@@ -174,9 +207,8 @@ Canonical documentation now defers to:
       match
   - returned-child spelling correction follow-up:
     - status: docs contract clarified; child UI/retry persistence and
-      engine-found send-back bridge are implemented, but the pass remains open
-      because parent-added missed words are still excluded from returned-child
-      materialisation
+      engine-found send-back bridge are implemented; parent-added missed-word
+      materialisation is the next bounded repair/closeout target
     - this is a bounded correction to the previously closed returned-child
       recovery track, not a new mastery/reward/assignment stage
     - every `__writing_issue_feedback` item must render to the child when work
@@ -211,8 +243,8 @@ Canonical documentation now defers to:
       return lifecycle refreshes draft feedback; do not add hidden child-page
       raw `misspelling_instances` reads
     - stop condition: if implementation requires schema changes, manual writing
-      sample expansion, resolver work, catalog mutation, or mastery/reward/
-      assignment changes, stop and return to docs
+      sample expansion, resolver work, PCRM adoption, catalog mutation, or
+      mastery/reward/assignment changes, stop and return to docs
   - unified Parent Review spelling workflow closeout:
     - status: bounded MVP loop complete and documented in
       [docs/workflows/parent-review-workflow.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/workflows/parent-review-workflow.md:1)

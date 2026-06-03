@@ -360,6 +360,17 @@ function loadCaptureSubmissionSpellingCandidateMapping(state: Required<HarnessSt
         return [];
       },
     },
+    "@/lib/lessons/responses": {
+      buildStructuredLessonResponseFromSubmissionSummary() {
+        return null;
+      },
+      getStructuredLessonResponseFromPayload() {
+        return null;
+      },
+      hasMeaningfulStructuredLessonResponse() {
+        return false;
+      },
+    },
     "@/lib/spelling/errorPatterns": {
       detectErrorPattern() {
         return null;
@@ -413,6 +424,22 @@ function loadCaptureSubmissionSpellingCandidateMapping(state: Required<HarnessSt
         return [];
       },
     },
+    "@/lib/writing-engine/persistence/unified-spelling-review-items": {
+      async loadUnifiedSpellingReviewItemsForSubmission() {
+        return [];
+      },
+      summarizeUnifiedSpellingReviewCompletion() {
+        return {
+          blockingReasons: [],
+          canComplete: true,
+          deferredUnsupportedRouteCount: 0,
+          totalItemCount: 0,
+          unresolvedCategorisationCount: 0,
+          unresolvedItemCount: 0,
+          unresolvedReturnedCorrectionCount: 0,
+        };
+      },
+    },
     "@/lib/writing-engine/persistence/spelling-candidate-mappings": {
       createSupabaseSpellingCandidateMappingRepository() {
         return {
@@ -428,6 +455,20 @@ function loadCaptureSubmissionSpellingCandidateMapping(state: Required<HarnessSt
               id: "candidate-1",
               parent_verification_id: input.parentVerificationId,
             };
+          },
+        };
+      },
+    },
+    "@/lib/writing-engine/persistence/spelling-canonical-recommendations": {
+      createSupabaseSpellingCanonicalRecommendationRepository() {
+        return {
+          async findOpenForCandidateMapping() {
+            return null;
+          },
+          async insertPendingAdminReview() {
+            throw new Error(
+              "PCRM recommendation capture is outside candidate-capture regression.",
+            );
           },
         };
       },
@@ -681,6 +722,17 @@ function loadAddMissedWordToSubmissionReview(state: Required<HarnessState>) {
         return [];
       },
     },
+    "@/lib/lessons/responses": {
+      buildStructuredLessonResponseFromSubmissionSummary() {
+        return null;
+      },
+      getStructuredLessonResponseFromPayload() {
+        return null;
+      },
+      hasMeaningfulStructuredLessonResponse() {
+        return false;
+      },
+    },
     "@/lib/spelling/errorPatterns": {
       detectErrorPattern() {
         return "tricky_whole_word_error";
@@ -734,11 +786,41 @@ function loadAddMissedWordToSubmissionReview(state: Required<HarnessState>) {
         return [];
       },
     },
+    "@/lib/writing-engine/persistence/unified-spelling-review-items": {
+      async loadUnifiedSpellingReviewItemsForSubmission() {
+        return [];
+      },
+      summarizeUnifiedSpellingReviewCompletion() {
+        return {
+          blockingReasons: [],
+          canComplete: true,
+          deferredUnsupportedRouteCount: 0,
+          totalItemCount: 0,
+          unresolvedCategorisationCount: 0,
+          unresolvedItemCount: 0,
+          unresolvedReturnedCorrectionCount: 0,
+        };
+      },
+    },
     "@/lib/writing-engine/persistence/spelling-candidate-mappings": {
       createSupabaseSpellingCandidateMappingRepository() {
         return {
           async findScopedPromotedByMisspelling() {
             return [];
+          },
+        };
+      },
+    },
+    "@/lib/writing-engine/persistence/spelling-canonical-recommendations": {
+      createSupabaseSpellingCanonicalRecommendationRepository() {
+        return {
+          async findOpenForCandidateMapping() {
+            return null;
+          },
+          async insertPendingAdminReview() {
+            throw new Error(
+              "PCRM recommendation capture is outside add-missed-word regression.",
+            );
           },
         };
       },

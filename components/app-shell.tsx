@@ -65,6 +65,16 @@ function getNavSections(mode: AppMode): NavSection[] {
         { label: "Children", href: "/children" },
       ],
     },
+    {
+      title: "Admin",
+      items: [
+        { label: "Catalog Review", href: "/admin/catalog-review" },
+        {
+          label: "Canonical Recommendations",
+          href: "/admin/canonical-recommendations",
+        },
+      ],
+    },
   ];
 }
 

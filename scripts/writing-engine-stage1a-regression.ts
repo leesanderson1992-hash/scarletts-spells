@@ -317,9 +317,9 @@ function testAnalyticsEventShape() {
 
 function testRetiredRuntimeSurfacesAreGone() {
   const retiredFiles = [
-    "app/analyse/actions.ts",
     "app/analyse/analysis.ts",
     "app/analyse/types.ts",
+    "app/analyse/review/page.tsx",
     "app/practice/actions.ts",
     "app/practice/practice-session.tsx",
     "components/analyse-bulk-review.tsx",
@@ -334,6 +334,36 @@ function testRetiredRuntimeSurfacesAreGone() {
       `${file} should be retired in Stage 1A`,
     );
   }
+
+  const analysePage = fs.readFileSync(
+    path.join(process.cwd(), "app/analyse/page.tsx"),
+    "utf8",
+  );
+  const analyseActions = fs.readFileSync(
+    path.join(process.cwd(), "app/analyse/actions.ts"),
+    "utf8",
+  );
+
+  assert.match(
+    analysePage,
+    /Add a manual writing sample[\s\S]*Review Work is where[\s\S]*Intake only/,
+    "/analyse may remain only as manual writing-sample intake.",
+  );
+  assert.match(
+    analysePage,
+    /does not verify, classify, assign,[\s\S]*or create durable learning effects/,
+    "/analyse page copy must explicitly fence off durable learning effects.",
+  );
+  assert.match(
+    analyseActions,
+    /saveManualWritingSampleIntake[\s\S]*replaceAnalysisForSample[\s\S]*redirect\(location\)/,
+    "/analyse actions must delegate to intake persistence and hand off to Review Work.",
+  );
+  assert.doesNotMatch(
+    analyseActions,
+    /parent_verifications|writing_issues|learning_items|assignment_items|daily_assignments|word_progress/,
+    "/analyse actions must not own verification, durable issue, mastery, assignment, or legacy word-progress truth.",
+  );
 }
 
 function testNoNewCanonicalWordProgressOwnership() {

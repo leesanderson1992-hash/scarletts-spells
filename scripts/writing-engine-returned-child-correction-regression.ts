@@ -1,6 +1,9 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
+const targetedWritingPracticeStatusPath =
+  "docs/implementation/targeted-writing-practice-status.md";
+const appShellPath = "components/app-shell.tsx";
 const structuredLessonResponsePath = "components/structured-lesson-response.tsx";
 const lessonResponsesPath = "lib/lessons/responses.ts";
 const learnActionsPath = "app/learn/actions.ts";
@@ -19,6 +22,11 @@ const unifiedSpellingReviewTablePath =
 const unifiedSpellingReviewItemsPath =
   "lib/writing-engine/persistence/unified-spelling-review-items.ts";
 
+const targetedWritingPracticeStatus = readFileSync(
+  targetedWritingPracticeStatusPath,
+  "utf8",
+);
+const appShell = readFileSync(appShellPath, "utf8");
 const structuredLessonResponse = readFileSync(structuredLessonResponsePath, "utf8");
 const lessonResponses = readFileSync(lessonResponsesPath, "utf8");
 const learnActions = readFileSync(learnActionsPath, "utf8");
@@ -33,6 +41,38 @@ const returnedCorrectionRouteHelpers = readFileSync(
 );
 const unifiedSpellingReviewTable = readFileSync(unifiedSpellingReviewTablePath, "utf8");
 const unifiedSpellingReviewItems = readFileSync(unifiedSpellingReviewItemsPath, "utf8");
+
+assert.match(
+  targetedWritingPracticeStatus,
+  /PCRM-D[\s\S]*implemented[\s\S]*evidence-only[\s\S]*resolver-invisible/,
+  "Status docs must mark PCRM-D as implemented, evidence-only, and resolver-invisible.",
+);
+assert.match(
+  targetedWritingPracticeStatus,
+  /Parent-Added Missed Word Correction Repair[\s\S]*parent-review -> child-retry -> final-classification -> learning-evidence/,
+  "Status docs must name the next bounded stage as the parent-added missed-word repair inside the MVP retry/evidence loop.",
+);
+assert.match(
+  targetedWritingPracticeStatus,
+  /no schema changes or migrations[\s\S]*no resolver behavior changes[\s\S]*no PCRM recommendation resolver visibility[\s\S]*no canonical adoption action[\s\S]*no `micro_skill_catalog` mutation/,
+  "Status docs must preserve the Slice 1 stop conditions before implementation work.",
+);
+assert.doesNotMatch(
+  targetedWritingPracticeStatus,
+  /admin recommendation curation remains the next bounded runtime slice/,
+  "Status docs must not describe PCRM-D admin curation as the next runtime slice.",
+);
+
+assert.match(
+  appShell,
+  /title: "Admin"[\s\S]*Catalog Review[\s\S]*href: "\/admin\/catalog-review"[\s\S]*Canonical Recommendations[\s\S]*href: "\/admin\/canonical-recommendations"/,
+  "Parent navigation must expose convenience links to the existing admin review surfaces.",
+);
+assert.doesNotMatch(
+  appShell,
+  /requireAdminUser|createServiceRoleClient|admin role/,
+  "App shell admin links must remain navigation only and must not implement authorization.",
+);
 
 assert.match(
   lessonResponses,
@@ -160,6 +200,11 @@ assert.match(
 );
 assert.match(
   reviewCompletionActions,
+  /const rowsToInsert = eligibleMisspellings\.map\([\s\S]*const isParentAddedMissedWord = isParentAuthoredMisspellingRow\(misspelling\)[\s\S]*micro_skill_key:[\s\S]*getTrimmedOrNull\(suggestion\?\.suggested_micro_skill_key\) \?\? "unknown"/,
+  "Parent-added missed words must materialize into durable writing_issues and may use unknown micro_skill_key for send-back.",
+);
+assert.match(
+  reviewCompletionActions,
   /source_kind: isParentAddedMissedWord[\s\S]*"parent_authored_missed_word"[\s\S]*parent_authored_missed_word: isParentAddedMissedWord/,
   "Materialized parent-added missed words must preserve parent-authored provenance metadata.",
 );
@@ -177,6 +222,21 @@ assert.match(
   reviewCompletionActions,
   /__field_feedback: safeFieldFeedback,[\s\S]*__writing_issue_feedback: returnedIssuePayload/,
   "Returned draft payload must preserve field feedback while attaching returned writing issue feedback.",
+);
+assert.match(
+  reviewCompletionActions,
+  /returnedIssuePayload: ReturnedWritingIssueDraftPayload\[\] = hydratedIssuesToSendBack\.map\([\s\S]*issue_id: issue\.id[\s\S]*observed_text: issue\.observed_text[\s\S]*approved_replacement: issue\.approved_replacement[\s\S]*allow_confidence:[\s\S]*Boolean\(issue\.source_misspelling_instance_id\)/,
+  "Durable parent-added missed-word issues with source misspelling lineage must appear in __writing_issue_feedback with retry confidence enabled.",
+);
+assert.match(
+  reviewCompletionActions,
+  /finalise_writing_issue_classification_and_learning_item[\s\S]*p_writing_issue_id: writingIssueId[\s\S]*p_final_classification/,
+  "Returned child corrections must final-classify through the existing learning-item RPC path.",
+);
+assert.match(
+  reviewCompletionActions,
+  /learningItemBlockedReason[\s\S]*uncatalogued_or_non_assignable_micro_skill[\s\S]*Durable issue preserved, but no assignable learning item was created yet/,
+  "Unknown or non-assignable micro-skills may block only assignable learning-item creation after final classification.",
 );
 assert.doesNotMatch(
   reviewCompletionActions,
