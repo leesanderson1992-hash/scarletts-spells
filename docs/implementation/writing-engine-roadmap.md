@@ -185,56 +185,83 @@ Residual risk and future work:
   hardening, and any resolver/PCRM/global canonical adoption work are separate
   future slices
 
-## Registered next bounded stage
+## Latest bounded closeout
 
 ### Unified Spelling Approval Truth Alignment
 
-Status: `next bounded stage`
+Status: `implemented and QA-passed`; runtime commit `3874992` (`Align Review
+Work approval with unified spelling truth`)
+
+Current status source of truth:
+- [docs/implementation/targeted-writing-practice-status.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/implementation/targeted-writing-practice-status.md:1)
 
 Purpose:
 - align Review Work page approval state and approval server action on one
   spelling completion contract
-- repair the known mismatch where the unified spelling review table can mark a
+- close the mismatch where the unified spelling review table marked a
   submission complete while the legacy raw `misspelling_instances` fallback
-  veto still blocks approval
+  veto still blocked approval
 - preserve raw spelling captures as evidence without letting suppressed
   regenerated retry captures become hidden approval blockers
-
-Known trigger:
-- submission `15201d76-cfd5-4088-9018-31e8ea9fa2cd` currently blocks approval
-  after unified review completion because retry-generated raw captures remain
-  visible to the older fallback guard:
-  - `buisness -> business`
-  - `buisness -> business`
-  - `natrual -> natural`
-  - `natrual -> natural`
-- the unified review model suppresses these as regenerated candidates owned by
-  prior returned correction rows; the older raw-row fallback treats them as
-  unresolved standalone captures
 
 Approval contract:
 - unified spelling review completion is the canonical spelling approval truth
   for Review Work
-- the detail page and `approveSubmissionReview` server action must use the same
+- the detail page and `approveSubmissionReview` server action use the same
   completion truth
 - raw `misspelling_instances` remain important evidence feeding unified review
   rows
-- raw `misspelling_instances` must not independently veto approval once
+- raw `misspelling_instances` no longer independently veto approval once
   unified review truth says all actionable spelling items are resolved
 - approval must still block on unresolved actionable unified spelling items
 - suppressed regenerated retry candidates may remain evidence/provenance, but
   must not become hidden approval blockers
-- any retained raw fallback may be diagnostic only or must be constrained to
-  unresolved actionable unified item IDs
 
-Implementation order:
-1. docs/status alignment
-2. regression characterization for the page/server approval mismatch
-3. approval contract runtime alignment
-4. browser smoke on the known blocked submission
-5. docs closeout after the runtime fix
+Implemented closeout:
+- the approval server action no longer runs the legacy raw
+  `misspelling_instances` fallback as an independent veto after unified
+  completion passes
+- the Review Work detail approval state no longer receives or checks a
+  competing legacy unresolved count
+- regression coverage now proves:
+  - suppressed regenerated retry candidates remain evidence and do not block
+    approval
+  - unsuppressed actionable raw captures still block through unified review
+    truth
+  - the old raw fallback error is not retained as an approval veto
+- browser smoke approved submission
+  `15201d76-cfd5-4088-9018-31e8ea9fa2cd`
+- smoke result:
+  - URL contained `saved=Submission approved.`
+  - page showed `SUBMISSION STATUS Approved`
+  - the old raw-capture error did not return
 
-Boundaries:
+QA evidence:
+- `npx tsx scripts/writing-engine-unified-spelling-review-items-regression.ts`
+  passed
+- `npx tsx scripts/writing-engine-stage7f-parent-review-restoration-regression.ts`
+  passed
+- `npx tsx scripts/writing-engine-returned-child-correction-regression.ts`
+  passed
+- `npx tsx scripts/writing-engine-parent-verified-spelling-candidate-capture-regression.ts`
+  passed
+- `npx tsx scripts/writing-engine-pcrm-recommendation-evidence-regression.ts`
+  passed
+- `npx tsx scripts/writing-engine-pcrm-admin-recommendation-curation-regression.ts`
+  passed
+- `git diff --check` passed
+- `npx tsc --noEmit` passed
+
+Residual risk and future work:
+- the smoke fixture submission is now approved and no longer reusable as a
+  pending approval-blocked fixture
+- future approval protection depends on unified review regression coverage
+  continuing to distinguish unresolved raw captures from suppressed retry
+  evidence
+- any new reusable pending fixture should be created through an explicit
+  test/smoke fixture plan rather than by mutating production-like data ad hoc
+
+Boundaries preserved:
 - no resolver behavior changes
 - no PCRM/PCRM-D semantic changes or resolver visibility
 - no canonical mapping adoption
