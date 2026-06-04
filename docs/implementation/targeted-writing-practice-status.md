@@ -65,6 +65,10 @@ Canonical documentation now defers to:
 - `Parent-Added Missed Word Correction Repair` is implemented and QA-passed.
   It belongs to the parent-review -> child-retry -> final-classification ->
   learning-evidence loop, not resolver/PCRM/global canonical work.
+- `Unified Spelling Approval Truth Alignment` is the next bounded planning and
+  runtime stage. It follows the Parent-Added Missed Word Correction Repair and
+  exists to make the Review Work page approval state and approval server action
+  use the same unified spelling completion contract.
 - A bounded post-Stage-`7` parent-facing evidence-transparency slice is now
   complete.
 - The app is currently suitable for private parent-led use with one child,
@@ -560,8 +564,61 @@ Canonical documentation now defers to:
     rewards, assignments, or learning-item state
 
 ### Registered next bounded stage
-- `Parent-Verified Spelling Candidate Capture` Slice `3` is now implemented
-  and validated within its bounded lesson-submission scope
+- `Unified Spelling Approval Truth Alignment`
+  - status: registered as the next bounded docs/runtime stage
+  - trigger:
+    - Review Work can show a submission as complete through the unified
+      spelling review table while the approval server action still blocks on
+      the older raw `misspelling_instances` fallback guard
+    - known blocked submission:
+      `15201d76-cfd5-4088-9018-31e8ea9fa2cd`
+    - known retry-generated duplicate raw captures:
+      - `buisness -> business`
+      - `buisness -> business`
+      - `natrual -> natural`
+      - `natrual -> natural`
+    - the unified review model suppresses those rows as regenerated candidate
+      evidence owned by prior returned correction rows, but the legacy fallback
+      still treats them as unresolved raw captures
+  - approval contract to implement:
+    - unified spelling review completion is the canonical spelling approval
+      contract for Review Work
+    - the detail page approval state and `approveSubmissionReview` server
+      action must use the same completion truth
+    - raw `misspelling_instances` remain important spelling evidence feeding
+      unified review rows
+    - raw `misspelling_instances` must not independently veto approval after
+      unified review truth says all actionable spelling items are resolved
+    - approval must still block on unresolved actionable unified spelling
+      items
+    - suppressed regenerated retry candidates may remain evidence/provenance,
+      but must not become hidden approval blockers
+    - if a raw fallback remains during the transition, it may be diagnostic
+      only or must be mapped to unresolved actionable unified item IDs
+  - smallest safe stage order:
+    1. docs/status alignment
+    2. regression characterization for page/server approval truth mismatch
+    3. approval contract runtime alignment
+    4. browser smoke on submission
+       `15201d76-cfd5-4088-9018-31e8ea9fa2cd`
+    5. docs closeout after the runtime fix
+  - hard stop conditions:
+    - no resolver behavior changes
+    - no PCRM/PCRM-D semantic changes or resolver visibility
+    - no canonical mapping adoption
+    - no migrations or schema changes
+    - no `micro_skill_catalog` mutation
+    - no hosted data deletion or cleanup as part of the fix
+    - no assignment, reward, dashboard, analytics, scoring, or
+      template-routing redesign
+    - no hidden suppression of genuinely unresolved actionable spelling work
+    - if unified review truth does not cover every approval-blocking spelling
+      state, stop and repair/extend the unified read model before weakening any
+      guard
+
+- Historical implemented context: `Parent-Verified Spelling Candidate Capture`
+  Slice `3` is implemented and validated within its bounded
+  lesson-submission scope
 - parent-facing workflow to preserve:
   1. parent sees or adds a spelling mistake
   2. parent confirms:

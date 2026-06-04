@@ -185,6 +185,66 @@ Residual risk and future work:
   hardening, and any resolver/PCRM/global canonical adoption work are separate
   future slices
 
+## Registered next bounded stage
+
+### Unified Spelling Approval Truth Alignment
+
+Status: `next bounded stage`
+
+Purpose:
+- align Review Work page approval state and approval server action on one
+  spelling completion contract
+- repair the known mismatch where the unified spelling review table can mark a
+  submission complete while the legacy raw `misspelling_instances` fallback
+  veto still blocks approval
+- preserve raw spelling captures as evidence without letting suppressed
+  regenerated retry captures become hidden approval blockers
+
+Known trigger:
+- submission `15201d76-cfd5-4088-9018-31e8ea9fa2cd` currently blocks approval
+  after unified review completion because retry-generated raw captures remain
+  visible to the older fallback guard:
+  - `buisness -> business`
+  - `buisness -> business`
+  - `natrual -> natural`
+  - `natrual -> natural`
+- the unified review model suppresses these as regenerated candidates owned by
+  prior returned correction rows; the older raw-row fallback treats them as
+  unresolved standalone captures
+
+Approval contract:
+- unified spelling review completion is the canonical spelling approval truth
+  for Review Work
+- the detail page and `approveSubmissionReview` server action must use the same
+  completion truth
+- raw `misspelling_instances` remain important evidence feeding unified review
+  rows
+- raw `misspelling_instances` must not independently veto approval once
+  unified review truth says all actionable spelling items are resolved
+- approval must still block on unresolved actionable unified spelling items
+- suppressed regenerated retry candidates may remain evidence/provenance, but
+  must not become hidden approval blockers
+- any retained raw fallback may be diagnostic only or must be constrained to
+  unresolved actionable unified item IDs
+
+Implementation order:
+1. docs/status alignment
+2. regression characterization for the page/server approval mismatch
+3. approval contract runtime alignment
+4. browser smoke on the known blocked submission
+5. docs closeout after the runtime fix
+
+Boundaries:
+- no resolver behavior changes
+- no PCRM/PCRM-D semantic changes or resolver visibility
+- no canonical mapping adoption
+- no migrations or schema changes
+- no `micro_skill_catalog` mutation
+- no hosted data deletion
+- no assignment, reward, dashboard, analytics, scoring, or template-routing
+  redesign
+- no hidden suppression of genuinely unresolved actionable spelling work
+
 ### Durable Structured Submission Payloads
 
 Status: `Pass 4 approval draft-deletion safety implemented and QA-passed; returned-child legacy recovery implemented and manually verified`

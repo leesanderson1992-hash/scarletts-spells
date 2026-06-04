@@ -228,6 +228,23 @@ Durable Structured Submission Payloads architecture boundary:
   - returned-correction admin/catalog-review and parent-local promotion need a
     specific returned-row bridge contract before implementation if the current
     routes only support candidate mappings or raw misspelling rows
+- Review Work spelling approval architecture:
+  - unified spelling review completion should be the canonical spelling
+    approval contract for Review Work
+  - the Review Work detail page and approval server action must use the same
+    unified completion truth
+  - raw `misspelling_instances` remain evidence feeding unified review rows,
+    not a competing approval contract
+  - raw captures that are genuinely unresolved and actionable must still appear
+    as unresolved unified rows and block approval
+  - retry-generated raw captures suppressed by the unified model as
+    regenerated candidates owned by prior returned correction rows may remain
+    provenance, but must not become hidden approval blockers
+  - any retained legacy raw fallback should be diagnostic only or constrained
+    to unresolved actionable unified item IDs
+  - this approval alignment must not change resolver behavior, PCRM/PCRM-D
+    semantics, canonical mapping adoption, `micro_skill_catalog`, assignments,
+    rewards, dashboards, analytics, scoring, or template routing
 - non-goals:
   - no `4E` / `4E.3` resolver work
   - no admin/catalog-review work

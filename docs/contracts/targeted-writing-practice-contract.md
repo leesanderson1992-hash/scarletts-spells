@@ -397,6 +397,30 @@ Approval safety contract:
 - plain-writing and non-structured approval behavior remains unchanged
 - implementation status: Pass 4 implemented and QA-passed
 
+Review Work spelling approval contract:
+- unified spelling review completion is the canonical spelling approval truth
+  for Review Work
+- the Review Work detail page and approval server action must agree on the same
+  unified completion result before approval is available
+- raw `misspelling_instances` are spelling evidence feeding the unified review
+  model; they are not a separate approval truth once unified completion has
+  classified all actionable spelling items
+- genuinely unresolved actionable spelling items must remain visible through
+  unified review rows and must block approval
+- parent-verified captures, false positives, not-learning-issue outcomes,
+  resolved current suggestions, durable returned correction rows, and
+  final-classified returned corrections must be represented through unified
+  review truth rather than through a competing approval guard
+- retry-generated raw captures that the unified model suppresses as regenerated
+  evidence owned by prior returned correction rows may remain in provenance,
+  but must not independently veto approval
+- if a legacy raw `misspelling_instances` fallback is retained during
+  transition, it may be diagnostic only or must map its unresolved IDs to
+  unresolved actionable unified item IDs before blocking approval
+- this contract does not change resolver behavior, PCRM/PCRM-D semantics,
+  canonical mapping adoption, `micro_skill_catalog`, assignments, rewards,
+  dashboards, analytics, scoring, or template routing
+
 Returned/send-back boundary:
 - returned work remains draft-first and editable
 - returned flow continues to merge `__field_feedback` and
