@@ -192,6 +192,10 @@ Durable Structured Submission Payloads architecture boundary:
     independently query raw `misspelling_instances`
   - parent send-back owns preparing `__writing_issue_feedback` from durable
     `writing_issues`
+  - parent send-back must write and check the returned draft feedback payload
+    before setting `parent_review_status` to `returned`
+  - if the returned draft cannot be prepared for the child, send-back must fail
+    rather than create a false successful returned state
   - parent-added missed words remain separate from engine `Suggested Issues`
     in `Review Work`, but structured lesson/test send-back must still treat
     them as eligible returned-child correction targets

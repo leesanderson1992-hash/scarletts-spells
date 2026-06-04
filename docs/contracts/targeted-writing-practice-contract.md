@@ -402,6 +402,10 @@ Returned/send-back boundary:
 - returned flow continues to merge `__field_feedback` and
   `__writing_issue_feedback` into the draft
 - durable payload support must not change returned/send-back behavior
+- the returned draft write that contains `__writing_issue_feedback` must be
+  checked before `task_submissions.parent_review_status` is set to `returned`
+- if child-facing returned draft feedback cannot be prepared, send-back must
+  fail rather than show a false successful "Sent back" state
 
 Returned-child spelling correction contract:
 - this scope applies to structured lesson/test returned work only
@@ -447,14 +451,15 @@ Returned spelling feedback source contract:
 - if a parent adds a missed word before send-back, it must be included in the
   send-back correction payload
 - if a parent adds a missed word after work is already returned, the next
-  bounded implementation should require the parent to send back/resend through
+  bounded follow-up should require the parent to send back/resend through
   the return action so the same return lifecycle refreshes the draft feedback;
   do not add a hidden child-page raw-misspelling read path
 
 Implementation shape:
-- the existing UI and persistence model support one bounded implementation pass
-- staging is not required unless implementation uncovers a contract mismatch
-  that would require schema or cross-surface product changes
+- the parent-added missed-word correction repair pass is implemented and
+  QA-passed
+- future staging is not required unless implementation uncovers a contract
+  mismatch that would require schema or cross-surface product changes
 - stop rather than broaden scope if the fix appears to require manual writing
   sample expansion, schema changes, resolver work, catalog mutation, or
   mastery/reward/assignment changes

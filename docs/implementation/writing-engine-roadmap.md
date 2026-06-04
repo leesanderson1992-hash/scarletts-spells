@@ -124,11 +124,12 @@ Current ownership rule:
 
 ## Stage roadmap
 
-## Registered next bounded stage
+## Latest bounded closeout
 
 ### Parent-Added Missed Word Correction Repair
 
-Status: `next bounded runtime/docs closeout stage`
+Status: `implemented and QA-passed`; runtime commit `582874a` (`Repair
+returned draft feedback gating`)
 
 Current status source of truth:
 - [docs/implementation/targeted-writing-practice-status.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/implementation/targeted-writing-practice-status.md:1)
@@ -156,13 +157,33 @@ Fixed boundary:
   mappings directly, or make PCRM recommendations resolver-visible without a
   separate explicit resolver contract
 
-Recommended sequence:
-- docs/status alignment before runtime repair
-- data-backed browser verification for the parent-added missed-word correction
-  loop
-- smallest current Review Work send-back/read-model/correction repair only if
-  the browser/data path proves a gap
-- focused regressions, TypeScript, build, and browser smoke before closeout
+Implemented closeout:
+- docs/status alignment completed before runtime repair
+- data-backed browser verification found the returned draft feedback gating
+  gap
+- `returnSubmissionToChildImpl` now writes and checks the returned
+  `task_submission_drafts` payload before setting `parent_review_status` to
+  `returned`
+- send-back fails loudly if `__writing_issue_feedback` cannot be prepared for
+  the child
+- focused returned-child correction regression, structured submission
+  returned-draft safety regression, parent-local promotion regression,
+  candidate capture regression, PCRM evidence regression, PCRM-D admin
+  curation regression, assignment generation regression, Stage `1A`
+  regression, `git diff --check`, `npx tsc --noEmit`, and `npm run build`
+  passed
+- browser/data smoke used source submission
+  `3d99d39e-3328-4aa3-a49c-49efed39857a` and child retry submission
+  `101c1bf0-d38f-46f7-95a5-3b1ad85e2fba`
+
+Residual risk and future work:
+- real hosted Supabase contains the smoke evidence rows
+- remaining open returned correction rows may be inspected later
+- send-back is not fully transactional across all parent-review updates, but
+  returned draft feedback now gates returned status
+- optional cleanup/marking of smoke fixture data, optional transactional
+  hardening, and any resolver/PCRM/global canonical adoption work are separate
+  future slices
 
 ### Durable Structured Submission Payloads
 

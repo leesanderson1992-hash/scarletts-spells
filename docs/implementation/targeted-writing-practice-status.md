@@ -62,10 +62,9 @@ Canonical documentation now defers to:
   - PCRM-D updates recommendation status/audit metadata only; plain
     `accepted` remains evidence-only and resolver-invisible
   - resolver integration remains a separate future slice
-- The next bounded implementation stage is
-  `Parent-Added Missed Word Correction Repair`, which belongs to the
-  parent-review -> child-retry -> final-classification -> learning-evidence
-  loop, not resolver/PCRM/global canonical work.
+- `Parent-Added Missed Word Correction Repair` is implemented and QA-passed.
+  It belongs to the parent-review -> child-retry -> final-classification ->
+  learning-evidence loop, not resolver/PCRM/global canonical work.
 - A bounded post-Stage-`7` parent-facing evidence-transparency slice is now
   complete.
 - The app is currently suitable for private parent-led use with one child,
@@ -95,6 +94,7 @@ Canonical documentation now defers to:
 - generic assignment-item contract
 - retirement of the old spelling-engine runtime surfaces
 - canonical brief and mastery/evidence contract
+- Parent-Added Missed Word Correction Repair closeout
 
 ### Partially done
 - broader documentation reconciliation to the canonical brief and mastery
@@ -108,22 +108,55 @@ Canonical documentation now defers to:
 - `/assignments`
 - old spelling-session assignment generation path
 
-### Next
+### Recent closeout
 
 - `Parent-Added Missed Word Correction Repair`
-  - status: next bounded runtime/docs closeout stage
+  - status: implemented and QA-passed in runtime commit `582874a` (`Repair
+    returned draft feedback gating`)
   - purpose:
     - complete the current MVP parent-review -> child-retry ->
       final-classification -> learning-evidence loop for parent-added missed
       words attached to structured lesson/test submissions
     - keep parent-added missed words separate from engine Suggested Issues in
       Review Work while ensuring they are not second-class correction targets
-  - scope:
-    - documentation alignment before runtime repair
-    - focused characterization/regression coverage
-    - smallest current Review Work send-back/read-model/correction repair only
-      if the regression proves a gap
+  - implemented repair:
+    - `returnSubmissionToChildImpl` writes and checks the returned
+      `task_submission_drafts` payload before setting
+      `parent_review_status` to `returned`
+    - returned draft feedback includes `__writing_issue_feedback` for the
+      child before the parent sees a successful "Sent back" state
+    - send-back now fails loudly if child-facing returned draft feedback cannot
+      be prepared
     - parent-menu convenience navigation to existing admin review surfaces
+      was added in the earlier docs/runtime-adjacent slice
+  - QA evidence:
+    - focused returned-child correction regression passed
+    - structured submission returned-draft safety regression passed
+    - parent-local promotion regression passed
+    - candidate capture regression passed
+    - PCRM evidence regression passed
+    - PCRM-D admin curation regression passed
+    - assignment generation regression passed
+    - Stage `1A` regression passed
+    - `git diff --check` passed
+    - `npx tsc --noEmit` passed
+    - `npm run build` passed
+    - data-backed browser smoke used source submission
+      `3d99d39e-3328-4aa3-a49c-49efed39857a` and child retry submission
+      `101c1bf0-d38f-46f7-95a5-3b1ad85e2fba`
+  - smoke evidence:
+    - parent-added `smoketestt -> smoketest` remained `child_responded`
+    - parent-added `taik -> take` was finalised as `fragile_knowledge`
+    - existing engine row `tast -> taste` remained `child_responded`
+    - unknown `micro_skill_key` did not block send-back, retry, or parent final
+      classification
+    - assignable learning-item creation remained blocked when the micro-skill
+      was unknown or non-assignable
+  - residual risks:
+    - real hosted Supabase still contains the smoke evidence rows
+    - open returned correction rows may be inspected later
+    - send-back is not fully transactional across every parent-review update,
+      but returned draft feedback now gates returned status
   - explicit non-goals and stop conditions:
     - no schema changes or migrations
     - no resolver behavior changes
@@ -133,7 +166,8 @@ Canonical documentation now defers to:
     - no manual writing-sample expansion
     - no reward, dashboard, analytics, scoring, assignment, or template-routing
       redesign
-    - if the implementation requires any of these, stop and return to docs
+    - future cleanup, transactional hardening, resolver/PCRM/global canonical
+      adoption, and any smoke fixture cleanup require separate authorization
 
 - Durable Structured Submission Payloads is closed for the bounded Pass
   `1`-`4` track:
@@ -206,9 +240,9 @@ Canonical documentation now defers to:
       reconstructed from flattened `submission_text` when question labels
       match
   - returned-child spelling correction follow-up:
-    - status: docs contract clarified; child UI/retry persistence and
-      engine-found send-back bridge are implemented; parent-added missed-word
-      materialisation is the next bounded repair/closeout target
+    - status: docs contract clarified; child UI/retry persistence,
+      engine-found send-back bridge, and parent-added missed-word correction
+      repair are implemented and QA-passed
     - this is a bounded correction to the previously closed returned-child
       recovery track, not a new mastery/reward/assignment stage
     - every `__writing_issue_feedback` item must render to the child when work
@@ -234,17 +268,22 @@ Canonical documentation now defers to:
     - child retry/reflection remains evidence for later parent final
       classification and must not directly mutate mastery, rewards,
       assignments, scoring, analytics, dashboards, or template routing
-    - implementation shape: the next bounded pass is
-      `Parent-Added Missed Word Correction Repair`
+    - returned draft feedback is written and checked before
+      `parent_review_status` is set to `returned`
+    - send-back must fail loudly if `__writing_issue_feedback` cannot be
+      prepared for the child
+    - implementation shape: the bounded
+      `Parent-Added Missed Word Correction Repair` pass is implemented in
+      runtime commit `582874a`
     - if a parent adds a missed word before send-back, include it in the
       send-back correction payload
     - if a parent adds a missed word after work is already returned, require
       the parent to send back/resend through the return action so the existing
       return lifecycle refreshes draft feedback; do not add hidden child-page
       raw `misspelling_instances` reads
-    - stop condition: if implementation requires schema changes, manual writing
-      sample expansion, resolver work, PCRM adoption, catalog mutation, or
-      mastery/reward/assignment changes, stop and return to docs
+    - future stop condition: if additional work requires schema changes,
+      manual writing sample expansion, resolver work, PCRM adoption, catalog
+      mutation, or mastery/reward/assignment changes, stop and return to docs
   - unified Parent Review spelling workflow closeout:
     - status: bounded MVP loop complete and documented in
       [docs/workflows/parent-review-workflow.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/workflows/parent-review-workflow.md:1)
@@ -302,93 +341,52 @@ Canonical documentation now defers to:
     - returned/send-back remains draft-first with feedback
     - plain-writing behavior remains unchanged
     - legacy structured rows without payload do not crash
-- next returned-child correction implementation prompt:
-
-  ```text
-  Adopt the role of a senior Next.js App Router implementer, Review Work
-  lifecycle reviewer, child correction-flow UX reviewer, structured lesson
-  persistence implementer, Writing Engine source-of-truth guardian, QA
-  reviewer, and git-safety steward.
-
-  We are in the Scarlett's Spells repo.
-
-  Implement the Parent-Added Missed Word Correction Repair pass only.
-
-  Context:
-  - child UI consumes __writing_issue_feedback
-  - child retry input and easy/medium/hard reflection are wired
-  - retry attempts persist through writing_issue_correction_attempts
-  - Review Work send-back has a bridge for eligible engine-found
-    misspelling candidates
-  - parent-added missed words are still excluded from returned-child
-    materialisation
-
-  Required behavior:
-  1. Keep parent-added missed words separate from engine Suggested Issues in
-     Review Work.
-  2. Do not make the child page query raw misspelling_instances.
-  3. Make eligible parent-added missed words attached to structured lesson/test
-     submissions eligible for returned-child correction feedback.
-  4. During send-back, materialize eligible parent-added missed words into
-     durable writing_issues before building __writing_issue_feedback.
-  5. Preserve parent-authored provenance in writing_issues.metadata.
-  6. Keep micro_skill_key: "unknown" acceptable for send-back, child retry,
-     correction-attempt persistence, and parent final classification.
-  7. Preserve learning-item blocking for unknown/non-assignable micro-skills
-     only at final-classification learning-item creation time.
-  8. If a parent adds a missed word before send-back, include it in the
-     send-back correction payload.
-  9. If a parent adds a missed word after work is already returned, require
-     resend through the return action; do not silently add a new raw-read path.
-  10. Dedupe against all existing writing_issues for the same
-      source_misspelling_instance_id, including finalised rows.
-  11. Preserve __field_feedback, submitted payload immutability, draft-first
-      returned work, and existing engine-found candidate behavior.
-
-  Likely files:
-  - app/courses/review/actions/review-completion-actions.ts
-  - scripts/writing-engine-returned-child-correction-regression.ts
-  - focused regression scripts/tests only as needed
-
-  Hard constraints:
-  - Do not edit migrations.
-  - Do not edit package.json.
-  - Do not touch 4E/4E.3 resolver integration.
-  - Do not change admin/catalog-review.
-  - Do not mutate micro_skill_catalog.
-  - Do not change mastery, rewards, assignments, scoring, analytics,
-    dashboards, or template routing.
-  - Do not broaden manual writing samples.
-  - Do not make the child page read raw misspelling_instances.
-  - Do not mutate durable submitted payload evidence.
-  - Preserve existing submitted work and parent feedback.
-  - Do not stage, commit, or push unless explicitly asked.
-
-  QA:
-  - Extend the previous returned-child correction QA rather than replacing it.
-  - Parent adds missed word before send-back: child sees retry item.
-  - Parent adds missed word after work is already returned: resend through
-    return action refreshes returned feedback, or the UI/error copy clearly
-    requires resend.
-  - Engine-found spelling issue still works.
-  - Parent-added and engine-found issues both create
-    writing_issue_correction_attempts after child resubmission.
-  - Unknown micro_skill_key does not block send-back, retry, or final
-    classification.
-  - Learning item creation remains blocked only when final classification needs
-    an assignable catalogued skill.
-  - Rejected, false-positive, suppressed, verified, finalised, and non-pending
-    candidates are excluded or deduped correctly.
-  - Manual writing samples, admin/catalog-review, 4E/4E.3, mastery, rewards,
-    assignments, scoring, analytics, dashboards, template routing, migrations,
-    package files, and micro_skill_catalog remain unchanged.
-  - Run focused regression checks, npx tsc --noEmit, git diff --check, and the
-    existing structured-submission hydration/approval safety regressions.
-
-  Stop and return to docs if the fix requires schema changes, manual writing
-  sample expansion, resolver work, catalog mutation, or mastery/reward/
-  assignment changes.
-  ```
+- returned-child correction implementation closeout evidence:
+  - runtime commit: `582874a` (`Repair returned draft feedback gating`)
+  - returned draft feedback now gates returned status:
+    - the returned `task_submission_drafts` payload is written and checked
+      before `parent_review_status` becomes `returned`
+    - a returned/send-back action must not report success if the child would
+      not receive `__writing_issue_feedback`
+  - data-backed smoke fixture:
+    - original source submission:
+      `3d99d39e-3328-4aa3-a49c-49efed39857a`
+    - child retry submission:
+      `101c1bf0-d38f-46f7-95a5-3b1ad85e2fba`
+    - parent-added rows:
+      - `smoketestt -> smoketest`, status `child_responded`
+      - `taik -> take`, finalised as `fragile_knowledge`
+    - existing engine row:
+      - `tast -> taste`, status `child_responded`
+  - verified behavior:
+    - parent-added missed words materialize into durable `writing_issues`
+    - returned draft contains `__writing_issue_feedback`
+    - child page renders retry inputs
+    - child retry persists
+      `writing_issue_correction_attempts.attempted_correction`
+    - returned corrections remain visible in Review Work after resubmission
+    - parent final classification uses the existing RPC path
+    - unknown `micro_skill_key` does not block send-back, retry, or final
+      classification
+    - assignable learning-item creation remains blocked when
+      `micro_skill_key` is unknown or non-assignable
+  - validation:
+    - focused returned-child correction regression passed
+    - structured submission returned-draft safety regression passed
+    - parent-local promotion regression passed
+    - candidate capture regression passed
+    - PCRM evidence regression passed
+    - PCRM-D admin curation regression passed
+    - assignment generation regression passed
+    - Stage `1A` regression passed
+    - `git diff --check` passed
+    - `npx tsc --noEmit` passed
+    - `npm run build` passed
+  - residual risk:
+    - real hosted Supabase contains the smoke evidence rows
+    - remaining open returned correction rows may be inspected later
+    - send-back is still not fully transactional across all parent-review
+      updates, but returned draft feedback now gates returned status
 - next safest pass:
   - read-only historical data-integrity audit and optional local/operator
     recovery plan
