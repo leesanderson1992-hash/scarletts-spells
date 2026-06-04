@@ -68,6 +68,7 @@ function getNavSections(mode: AppMode): NavSection[] {
     {
       title: "Admin",
       items: [
+        { label: "Spelling Review", href: "/admin/spelling-review" },
         { label: "Catalog Review", href: "/admin/catalog-review" },
         {
           label: "Canonical Recommendations",

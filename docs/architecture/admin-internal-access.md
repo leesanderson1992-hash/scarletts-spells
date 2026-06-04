@@ -307,13 +307,14 @@ Slice `4D`:
     `4E.2` source closeout, but do not proceed to Slice `4E.3` resolver
     integration until the risk is documented and an explicit decision is made
     on whether to reconcile first
-- Admin Spelling Review Hub is the next planned admin UX simplification slice:
-  - add one admin-facing hub route, likely `/admin/spelling-review`, so admins
-    do not need to remember whether to visit `/admin/catalog-review` or
+- Admin Spelling Review Hub is implemented as a small admin UX simplification:
+  - `/admin/spelling-review` is an admin-facing hub route so admins do not
+    need to remember whether to visit `/admin/catalog-review` or
     `/admin/canonical-recommendations`
-  - the hub is a composition layer only, not a full unified catalog-review
+  - the hub is a summary/link composition layer only, not an embedded
+    two-table mutation surface and not a full unified catalog-review
     architecture
-  - show two clearly separated sections:
+  - it shows two clearly separated sections:
     - Catalog gaps / No matching skill cases: existing `/admin/catalog-review`
       workflow backed by `spelling_catalog_review_cases`; parent could not
       find a suitable existing skill
@@ -322,19 +323,16 @@ Slice `4D`:
       `spelling_canonical_mapping_recommendations`; parent selected an
       existing skill and recommends the word/correction/skill pairing for
       admin review
-  - page copy must make the distinction explicit: "Catalog gaps: parent could
-    not find a suitable existing skill" and "Recommended mappings: parent
-    selected an existing skill and recommends the word/correction pairing for
-    admin review"
-  - do not merge the two data models, change decision semantics, create
-    migrations, broaden parent RLS, change parent-local promotion, change No
-    Matching Skill semantics, mutate `micro_skill_catalog`, alter canonical
-    mapping creation/adoption behavior, or make PCRM recommendations
-    resolver-visible
-  - service-role access remains server-only and must happen only after
-    `requireAdminUser()` or the existing admin layout guard
-  - original routes remain valid and may be linked from the hub even if their
-    full tables are embedded later
+  - original routes remain valid and existing workflows, actions, decision
+    semantics, canonical mapping creation behavior, PCRM curation behavior, No
+    Matching Skill semantics, parent-local promotion behavior, RLS, migrations,
+    resolver behavior, mastery, rewards, assignments, scoring, analytics,
+    dashboards, and template routing are unchanged
+  - service-role summary reads remain server-only and happen only after
+    admin authorization
+  - validation includes the focused
+    `npm run writing-engine:admin-spelling-review-hub-regression` boundary
+    check
 - canonical/global storage and admin canonical-curation writes now exist after
   Slice `4E.2`, but
   resolver use remains blocked until a later resolver integration slice; do

@@ -1021,8 +1021,9 @@ Slice `4A` catalog-review contract:
     relying on CLI migrations for later slices. This does not block Slice
     `4E.2` source closeout, but the risk must be documented and explicitly
     decided before Slice `4E.3`
-- Admin Spelling Review Hub is planned as a small admin UX composition slice:
-  - add one admin-facing page, likely `/admin/spelling-review`, with two
+- Admin Spelling Review Hub is implemented as a small admin UX composition
+  slice:
+  - `/admin/spelling-review` is an admin-facing summary/link hub with two
     clearly separated sections for the existing spelling admin queues
   - Catalog gaps / No matching skill cases reuse `/admin/catalog-review` and
     `spelling_catalog_review_cases`; parent could not find a suitable existing
@@ -1031,12 +1032,14 @@ Slice `4A` catalog-review contract:
     `/admin/canonical-recommendations` and
     `spelling_canonical_mapping_recommendations`; parent selected an existing
     skill and recommends the word/correction/skill pairing for admin review
-  - the hub must not merge data models, change decision semantics, create
-    migrations, change parent-local promotion, change No Matching Skill
-    semantics, mutate `micro_skill_catalog`, alter canonical mapping
-    creation/adoption behavior, or make any recommendation resolver-visible
-  - service-role access remains server-only and must remain behind
-    `requireAdminUser()` or the existing admin layout guard
+  - the hub is not an embedded two-table mutation surface and did not merge
+    data models, change decision semantics, create migrations, change
+    parent-local promotion, change No Matching Skill semantics, mutate
+    `micro_skill_catalog`, alter canonical mapping creation/adoption behavior,
+    or make any recommendation resolver-visible
+  - service-role reads remain server-only and happen after admin authorization
+  - focused regression:
+    `npm run writing-engine:admin-spelling-review-hub-regression`
 - Archive/reopen/edit is a separate future admin slice:
   - collapsed archived sections may show resolved rows
   - reopen or changed decisions must be represented by new audited admin

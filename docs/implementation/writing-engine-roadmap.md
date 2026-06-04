@@ -1560,30 +1560,29 @@ Slice `4A` catalog-review contract:
     source closeout, but do not proceed to Slice `4E.3` resolver integration
     until the risk is documented and an explicit decision is made on whether
     to reconcile first
-- Admin Spelling Review Hub is the next planned admin UX simplification slice:
-  - scope is docs-planned as a small Next.js App Router composition slice, not
-    a full architectural unification
-  - add one admin-facing route, likely `/admin/spelling-review`, that places
-    the two existing spelling admin queues on one page
+- Admin Spelling Review Hub implementation closeout:
+  - implemented `/admin/spelling-review` as a small Next.js App Router
+    composition slice, not a full architectural unification
+  - the route is a summary/link hub, not an embedded two-table mutation
+    surface
   - section 1 is Catalog gaps / No matching skill cases, reusing the existing
     `/admin/catalog-review` workflow backed by `spelling_catalog_review_cases`
   - section 2 is Parent recommended canonical mappings, reusing the existing
     `/admin/canonical-recommendations` workflow backed by
     `spelling_canonical_mapping_recommendations`
-  - recommended page copy:
+  - implemented page copy:
     - "Catalog gaps: parent could not find a suitable existing skill."
     - "Recommended mappings: parent selected an existing skill and recommends
       the word/correction pairing for admin review."
-  - preserve both original admin routes and existing actions; if embedding the
-    existing tables is risky, the first implementation may show compact
-    summaries, counts, status summaries, and links to each queue
-  - do not merge data models, change decision semantics, create migrations,
-    weaken admin access control, move service-role access client-side, mutate
-    `micro_skill_catalog`, change parent-local promotion or No Matching Skill
-    behavior, alter canonical mapping creation/adoption behavior, or affect
-    resolver behavior
-  - validation for the implementation slice should include `git diff --check`,
-    `npx tsc --noEmit`, `npm run build`,
+  - both original admin routes remain valid and existing actions are preserved
+  - no data model merge, decision semantic change, migration, admin access
+    weakening, client-side service-role access, `micro_skill_catalog`
+    mutation, parent-local promotion change, No Matching Skill behavior
+    change, canonical mapping creation/adoption behavior change, or resolver
+    behavior change was added
+  - validation passed: `git diff --check`, `npx tsc --noEmit`,
+    `npm run build`,
+    `npm run writing-engine:admin-spelling-review-hub-regression`,
     `npm run writing-engine:pcrm-admin-recommendation-curation-regression`,
     and `npm run writing-engine:admin-canonical-curation-regression`
 - Admin archive/reopen/edit remains a separate follow-up slice:

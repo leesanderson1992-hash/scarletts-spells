@@ -1211,13 +1211,12 @@ Canonical documentation now defers to:
     source closeout, but do not proceed to Slice `4E.3` resolver integration
     until the risk is documented and an explicit decision is made on whether
     to reconcile first
-- Next planned admin UX simplification: Admin Spelling Review Hub:
-  - goal: reduce admin confusion by adding one hub route, likely
-    `/admin/spelling-review`, that shows both existing spelling admin queues
-    together
-  - this is a UX composition slice only; it is not a full unified catalog
-    review, data-model merge, resolver integration, migration, or canonical
-    truth semantics change
+- Admin Spelling Review Hub is implemented:
+  - `/admin/spelling-review` reduces admin confusion by showing both existing
+    spelling admin queues together
+  - this is a summary/link UX composition slice only; it is not a full unified
+    catalog review, embedded two-table mutation surface, data-model merge,
+    resolver integration, migration, or canonical truth semantics change
   - hub section: Catalog gaps / No matching skill cases
     - existing route: `/admin/catalog-review`
     - table/source: `spelling_catalog_review_cases`
@@ -1230,14 +1229,15 @@ Canonical documentation now defers to:
     - meaning: parent selected an existing skill and recommends the
       word/correction/skill pairing for admin review
     - existing recommendation curation semantics remain unchanged
-  - hard boundaries: do not merge models, implement archive/reopen/edit,
-    implement resolver adoption, make PCRM recommendations resolver-visible,
-    mutate `micro_skill_catalog`, change parent-local promotion, change No
-    Matching Skill semantics, create migrations, weaken admin access, move
-    service-role access client-side, or alter mastery, rewards, assignments,
-    scoring, analytics, dashboards, template routing, or resolver code
-  - if full table embedding creates action or component risk, the first slice
-    may ship compact summaries and links to the two existing queues
+  - existing original routes remain valid
+  - existing workflows, actions, decision semantics, canonical mapping
+    creation behavior, PCRM curation behavior, No Matching Skill semantics,
+    parent-local promotion behavior, RLS, migrations, resolver behavior,
+    mastery, rewards, assignments, scoring, analytics, dashboards, and
+    template routing are unchanged
+  - service-role reads remain server-only and happen after admin authorization
+  - validation includes
+    `npm run writing-engine:admin-spelling-review-hub-regression`
 - Follow-up admin archive/reopen/edit slice:
   - may add collapsed archived sections for resolved decisions
   - reopen/change-decision must be recorded as a new audited admin
