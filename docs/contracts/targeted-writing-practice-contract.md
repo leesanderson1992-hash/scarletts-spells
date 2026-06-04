@@ -1021,6 +1021,33 @@ Slice `4A` catalog-review contract:
     relying on CLI migrations for later slices. This does not block Slice
     `4E.2` source closeout, but the risk must be documented and explicitly
     decided before Slice `4E.3`
+- Admin Spelling Review Hub is planned as a small admin UX composition slice:
+  - add one admin-facing page, likely `/admin/spelling-review`, with two
+    clearly separated sections for the existing spelling admin queues
+  - Catalog gaps / No matching skill cases reuse `/admin/catalog-review` and
+    `spelling_catalog_review_cases`; parent could not find a suitable existing
+    skill
+  - Parent recommended canonical mappings reuse
+    `/admin/canonical-recommendations` and
+    `spelling_canonical_mapping_recommendations`; parent selected an existing
+    skill and recommends the word/correction/skill pairing for admin review
+  - the hub must not merge data models, change decision semantics, create
+    migrations, change parent-local promotion, change No Matching Skill
+    semantics, mutate `micro_skill_catalog`, alter canonical mapping
+    creation/adoption behavior, or make any recommendation resolver-visible
+  - service-role access remains server-only and must remain behind
+    `requireAdminUser()` or the existing admin layout guard
+- Archive/reopen/edit is a separate future admin slice:
+  - collapsed archived sections may show resolved rows
+  - reopen or changed decisions must be represented by new audited admin
+    decisions/events; historical audit rows must not be edited in place
+- Resolver adoption is a separate future slice after UX cleanup:
+  - confirmed canonical mappings may become spelling-engine visible only after
+    an explicit resolver contract revision
+  - preserve exact-pair semantics and do not silently make existing accepted
+    PCRM recommendations resolver-visible
+  - resolve hosted Supabase migration-ledger risk before production
+    resolver-visible changes
 - future false-positive catalog review vocabulary is reserved:
   - case reason `false_positive_report`
   - admin outcomes `false_positive_confirmed` and

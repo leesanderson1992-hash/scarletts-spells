@@ -1560,6 +1560,43 @@ Slice `4A` catalog-review contract:
     source closeout, but do not proceed to Slice `4E.3` resolver integration
     until the risk is documented and an explicit decision is made on whether
     to reconcile first
+- Admin Spelling Review Hub is the next planned admin UX simplification slice:
+  - scope is docs-planned as a small Next.js App Router composition slice, not
+    a full architectural unification
+  - add one admin-facing route, likely `/admin/spelling-review`, that places
+    the two existing spelling admin queues on one page
+  - section 1 is Catalog gaps / No matching skill cases, reusing the existing
+    `/admin/catalog-review` workflow backed by `spelling_catalog_review_cases`
+  - section 2 is Parent recommended canonical mappings, reusing the existing
+    `/admin/canonical-recommendations` workflow backed by
+    `spelling_canonical_mapping_recommendations`
+  - recommended page copy:
+    - "Catalog gaps: parent could not find a suitable existing skill."
+    - "Recommended mappings: parent selected an existing skill and recommends
+      the word/correction pairing for admin review."
+  - preserve both original admin routes and existing actions; if embedding the
+    existing tables is risky, the first implementation may show compact
+    summaries, counts, status summaries, and links to each queue
+  - do not merge data models, change decision semantics, create migrations,
+    weaken admin access control, move service-role access client-side, mutate
+    `micro_skill_catalog`, change parent-local promotion or No Matching Skill
+    behavior, alter canonical mapping creation/adoption behavior, or affect
+    resolver behavior
+  - validation for the implementation slice should include `git diff --check`,
+    `npx tsc --noEmit`, `npm run build`,
+    `npm run writing-engine:pcrm-admin-recommendation-curation-regression`,
+    and `npm run writing-engine:admin-canonical-curation-regression`
+- Admin archive/reopen/edit remains a separate follow-up slice:
+  - add collapsed archived sections for resolved catalog-review cases and
+    reviewed PCRM recommendation rows
+  - any reopen or changed decision must create a new audited admin
+    decision/event; do not edit historical audit rows in place
+- Resolver adoption remains a separate follow-up slice after the hub:
+  - plan how confirmed canonical mappings become spelling-engine visible
+  - preserve exact-pair semantics and do not silently make existing accepted
+    PCRM recommendations resolver-visible
+  - resolve hosted Supabase migration-ledger risk before production
+    resolver-visible changes
 - false-positive catalog review is a future Slice `4D` planning concern:
   - reserve future case reason `false_positive_report`
   - reserve future admin outcomes `false_positive_confirmed` and
