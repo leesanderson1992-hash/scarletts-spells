@@ -31,7 +31,6 @@ import {
 import {
   buildFalsePositiveSuppressionSet,
   buildVerifiedMisspellingIdSet,
-  getUnresolvedMisspellingCount,
   hasActionableReturnedIssues,
   isParentAuthoredMisspellingRow,
   isSuppressedFalsePositivePair,
@@ -1024,60 +1023,6 @@ export async function approveSubmissionReviewImpl(formData: FormData) {
         safeRedirectPath,
         "error",
         "Final classification is still needed for returned writing issues before this submission can be approved.",
-      ),
-    );
-  }
-
-  const { data: linkedSample } = await supabase
-    .from("writing_samples")
-    .select("id")
-    .eq("task_submission_id", submission.id)
-    .eq("parent_user_id", user.id)
-    .maybeSingle();
-
-  const [{ data: writingIssueSuggestionRows }, { data: falsePositiveSuppressions }, { data: misspellingRows }] =
-    linkedSample
-      ? await Promise.all([
-          supabase
-            .from("writing_issue_suggestions")
-            .select("misspelling_instance_id, suggestion_status")
-            .eq("task_submission_id", submission.id)
-            .eq("parent_user_id", user.id),
-          supabase
-            .from("writing_false_positive_suppressions")
-            .select("misspelled_word, corrected_word")
-            .eq("parent_user_id", user.id)
-            .eq("child_id", submission.child_id),
-          supabase
-            .from("misspelling_instances")
-            .select("id, misspelled_word, corrected_word, suggested_word, is_false_positive, notes")
-            .eq("writing_sample_id", linkedSample.id)
-            .eq("parent_user_id", user.id),
-        ])
-      : [{ data: [] }, { data: [] }, { data: [] }];
-
-  const suppressedWordPairs = buildFalsePositiveSuppressionSet(falsePositiveSuppressions ?? []);
-  const visibleMisspellings = (misspellingRows ?? []).filter(
-    (row) =>
-      !(row.is_false_positive ?? false) &&
-      !isSuppressedFalsePositivePair(
-        suppressedWordPairs,
-        row.misspelled_word,
-        row.suggested_word ?? row.corrected_word,
-      ),
-  );
-  const unresolvedMisspellingCount = getUnresolvedMisspellingCount(
-    visibleMisspellings,
-    linkedWritingIssues ?? [],
-    writingIssueSuggestionRows ?? [],
-  );
-
-  if (unresolvedMisspellingCount > 0) {
-    redirect(
-      buildRedirectWithMessage(
-        safeRedirectPath,
-        "error",
-        "All captured suggestions must be reviewed before this submission can be approved.",
       ),
     );
   }

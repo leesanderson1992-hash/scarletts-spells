@@ -296,6 +296,16 @@ function testParentAuthoredMissedWordsStayOutOfUnresolvedEngineTruth() {
     ),
     0,
   );
+
+  assert.equal(
+    getUnresolvedMisspellingCount(
+      [engineRow],
+      [],
+      [],
+      new Set(["miss-2"]),
+    ),
+    0,
+  );
 }
 
 function testLessonQueueTruthForReturnedApprovedAndZeroSuggestionWork() {
@@ -396,13 +406,15 @@ function testReviewWorkSourceWiringAndGuardrailText() {
     reviewDetailPageSource,
     /completionSummary=\{unifiedCompletionSummary\}/,
   );
-  assert.match(
+  assert.doesNotMatch(
     reviewDetailPageSource,
     /legacyUnresolvedCount=\{legacyUnresolvedCountForApproval\}/,
+    "Review detail approval controls must not receive a competing legacy unresolved count.",
   );
-  assert.match(
+  assert.doesNotMatch(
     reviewDetailPageSource,
     /const legacyUnresolvedCountForApproval = panelModel\.summary\.unresolvedCount/,
+    "Review detail approval state must not derive completion from the legacy panel summary.",
   );
   assert.match(
     manualSampleSectionsSource,
@@ -459,9 +471,30 @@ function testReviewWorkSourceWiringAndGuardrailText() {
     reviewCompletionActionsSource,
     /suppressedRegeneratedCandidateIds/,
   );
-  assert.match(
+  assert.doesNotMatch(
     reviewCompletionActionsSource,
     /All captured suggestions must be reviewed before this submission can be approved\./,
+    "Approval must not retain the old raw misspelling fallback as an independent veto.",
+  );
+  assert.doesNotMatch(
+    reviewCompletionActionsSource,
+    /getUnresolvedMisspellingCount\([\s\S]*visibleMisspellings/,
+    "Approval must not count raw misspelling_instances independently after unified completion passes.",
+  );
+  assert.doesNotMatch(
+    reviewCompletionActionsSource,
+    /\.from\("misspelling_instances"\)[\s\S]*All captured suggestions must be reviewed/,
+    "Raw misspelling_instances may feed unified rows, but approval must not query them for a second veto.",
+  );
+  assert.match(
+    reviewDetailPageSource,
+    /const approvalBlocked = !props\.completionSummary\.canComplete;/,
+    "Detail page approval state must use unified completion truth.",
+  );
+  assert.doesNotMatch(
+    reviewDetailPageSource,
+    /legacyUnresolvedCount|legacyApprovalBlocked|legacy suggested/,
+    "Detail page approval state must not use a competing legacy unresolved count.",
   );
 }
 

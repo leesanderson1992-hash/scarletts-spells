@@ -957,6 +957,18 @@ assert.equal(terminalSummary.canComplete, true);
 assert.equal(terminalSummary.unresolvedItemCount, 0);
 assert.equal(terminalSummary.unresolvedReturnedCorrectionCount, 0);
 assert.deepEqual(terminalSummary.blockingReasons, []);
+assert.equal(
+  terminalRows.some(
+    (row) => row.sourceIds.misspellingInstanceId === "miss-regenerated-returned",
+  ),
+  false,
+  "Suppressed regenerated retry candidates must not reappear as actionable approval blockers.",
+);
+assert.deepEqual(
+  historicalFullAnswerReturnedRow.provenance.metadata.suppressed_regenerated_candidate_ids,
+  ["miss-regenerated-returned"],
+  "Suppressed retry candidates should remain evidence on returned rows while unified completion allows approval.",
+);
 
 const pendingEngineSummary = summarizeUnifiedSpellingReviewCompletion([
   {
@@ -971,6 +983,20 @@ assert.match(
   pendingEngineSummary.blockingReasons.join(" "),
   /parent decision/,
   "Pending engine suggestions must block completion.",
+);
+
+const unsuppressedRawCaptureSummary = summarizeUnifiedSpellingReviewCompletion([
+  repeatedInstanceRow,
+]);
+assert.equal(
+  unsuppressedRawCaptureSummary.canComplete,
+  false,
+  "Unsuppressed current raw captures must still block approval through unified review truth.",
+);
+assert.match(
+  unsuppressedRawCaptureSummary.blockingReasons.join(" "),
+  /parent decision/,
+  "Unsuppressed raw captures should block as actionable parent-review rows, not through a separate fallback.",
 );
 
 const pendingParentAddedSummary = summarizeUnifiedSpellingReviewCompletion([

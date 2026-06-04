@@ -229,21 +229,10 @@ function LessonParentActionsSection(props: {
   parentReviewNote: string | null;
   reviewableFields: ReturnType<typeof extractReviewableLessonFields>;
   completionSummary: UnifiedSpellingReviewCompletionSummary;
-  legacyUnresolvedCount: number;
   showZeroSuggestionGuidance: boolean;
 }) {
-  const legacyApprovalBlocked = props.legacyUnresolvedCount > 0;
-  const approvalBlocked = !props.completionSummary.canComplete || legacyApprovalBlocked;
-  const blockingReasons =
-    props.completionSummary.blockingReasons.length > 0
-      ? props.completionSummary.blockingReasons
-      : legacyApprovalBlocked
-        ? [
-            `${props.legacyUnresolvedCount} legacy suggested ${
-              props.legacyUnresolvedCount === 1 ? "issue" : "issues"
-            } still need review.`,
-          ]
-        : [];
+  const approvalBlocked = !props.completionSummary.canComplete;
+  const blockingReasons = props.completionSummary.blockingReasons;
 
   return (
     <section className="brand-card rounded-3xl p-4 md:p-5">
@@ -853,7 +842,6 @@ export default async function CourseReviewDetailPage({
       Boolean(writingIssueSuggestionError) ||
       Boolean(parentVerificationError),
   });
-  const legacyUnresolvedCountForApproval = panelModel.summary.unresolvedCount;
   const parsedSubmission = parseSubmissionReview(submission.submission_text);
   const submissionStatus = getSubmissionStatusLabel(submission.parent_review_status);
   const lessonSchema =
@@ -982,7 +970,6 @@ export default async function CourseReviewDetailPage({
           parentReviewNote={submission.parent_review_note}
           reviewableFields={reviewableFields}
           completionSummary={unifiedCompletionSummary}
-          legacyUnresolvedCount={legacyUnresolvedCountForApproval}
           showZeroSuggestionGuidance={
             submission.parent_review_status === "pending" && panelModel.state === "empty_result"
           }

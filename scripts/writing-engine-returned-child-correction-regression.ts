@@ -49,8 +49,8 @@ assert.match(
 );
 assert.match(
   targetedWritingPracticeStatus,
-  /Parent-Added Missed Word Correction Repair[\s\S]*parent-review -> child-retry -> final-classification -> learning-evidence/,
-  "Status docs must name the next bounded stage as the parent-added missed-word repair inside the MVP retry/evidence loop.",
+  /Parent-Added Missed Word Correction Repair[\s\S]*implemented and QA-passed[\s\S]*parent-review -> child-retry -> final-classification ->[\s\S]*learning-evidence/,
+  "Status docs must record the parent-added missed-word repair as implemented inside the MVP retry/evidence loop.",
 );
 assert.match(
   targetedWritingPracticeStatus,
