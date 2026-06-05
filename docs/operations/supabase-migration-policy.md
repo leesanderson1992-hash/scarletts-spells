@@ -70,6 +70,10 @@ authorize resolver reads, schema changes, RPCs, admin actions, parent Review
 Work changes, completion-gating changes, `micro_skill_catalog` mutation, or
 production rollout.
 
+R1 resolver integration adds first-class resolver visibility storage and a
+server-only exact-pair read helper as foundation only. It does not authorize
+admin enable/disable actions or runtime resolver adoption.
+
 `4E.3` production deployment is allowed only if:
 
 - it is code-only and relies on already-present hosted tables/RPCs, or

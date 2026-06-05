@@ -618,6 +618,10 @@ Future PCRM Resolver Integration docs contract:
   schema, RPC, admin action, parent Review Work, completion gating,
   `micro_skill_catalog`, mastery, rewards, assignments, scoring, analytics,
   dashboard, or template-routing behavior is changed by R0
+- R1 status: first-class resolver visibility storage and a server-only
+  exact-pair read helper are added as foundation only; the helper is not wired
+  into Stage 2C, Stage 3A, Review Work, or canonical backfill runtime, and no
+  admin enable/disable action is added
 - add explicit admin action/decision
   `accept_and_adopt_canonical_mapping`
 - allow admin to accept eligible PCRM evidence and create/link

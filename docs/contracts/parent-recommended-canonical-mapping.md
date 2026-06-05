@@ -439,6 +439,10 @@ Future PCRM Resolver Integration:
   behavior, resolver visibility, priority, conflict handling, admin/RLS
   authority, rollout, rollback, observability, and regression/browser smoke
   requirements
+- R1 adds first-class resolver visibility storage and a server-only exact-pair
+  read helper only; it does not add admin enable/disable actions, does not
+  call the helper from resolver runtime, and keeps existing canonical mappings
+  hidden by default
 - any DB-changing resolver stage must use a unique timestamp migration, must
   not replay archived `20260522_*` migrations, must pass an explicit
   production migration-ledger check, and must follow

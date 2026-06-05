@@ -1285,6 +1285,10 @@ Canonical documentation now defers to:
     resolver reads, schema, RPCs, admin actions, parent Review Work,
     completion gating, `micro_skill_catalog`, mastery, rewards, assignments,
     scoring, analytics, dashboards, or template routing
+  - R1 adds first-class resolver visibility storage and a server-only exact-pair
+    read helper as foundation only; it does not wire resolver-visible mappings
+    into runtime resolver/backfill paths and does not add admin enable/disable
+    actions
   - no resolver change in Slice `4A` or Slice `4B.1`
   - open catalog-review cases remain invisible to the resolver
   - parent notes/reasons remain evidence only
