@@ -1124,10 +1124,11 @@ Canonical documentation now defers to:
     Open catalog-review cases and non-canonical decisions must never affect
     resolver output
   - future resolver priority remains:
-    1. active canonical/global exact-pair spelling mapping
-    2. existing catalog-backed canonical mapping behavior
-    3. same-scope `parent_local_promoted` mapping
-    4. unresolved
+    1. active resolver-visible canonical exact-pair spelling mapping
+    2. existing catalog-backed resolver behavior
+    3. same-scope `parent_local_promoted` mapping where supported
+    4. engine/manual diagnostic suggestions
+    5. unresolved or admin-review evidence only
 - Slice `4E.1` implementation and QA closeout:
   - implemented dedicated canonical mapping storage in
     `spelling_canonical_mappings`
@@ -1280,6 +1281,10 @@ Canonical documentation now defers to:
     - future write-capable admin workflows need separate action helpers, audit
       trail design, and regression coverage
 - resolver contract:
+  - R0 resolver integration contract is documented only; it does not change
+    resolver reads, schema, RPCs, admin actions, parent Review Work,
+    completion gating, `micro_skill_catalog`, mastery, rewards, assignments,
+    scoring, analytics, dashboards, or template routing
   - no resolver change in Slice `4A` or Slice `4B.1`
   - open catalog-review cases remain invisible to the resolver
   - parent notes/reasons remain evidence only
@@ -1287,10 +1292,24 @@ Canonical documentation now defers to:
     future explicit admin canonical adoption and resolver-visibility contract
     is implemented
   - PCRM-D plain `accepted` means accepted evidence only, not resolver truth
+  - existing canonical mappings remain resolver-invisible until individually
+    adopted/enabled through a future explicit admin action
+  - metadata-only `resolver_visible` is not sufficient as the future production
+    resolver authority
   - canonical/global storage foundation now exists after Slice `4E.1`, but
     resolver use remains blocked until a later resolver integration slice
   - do not use catalog-review cases, parent notes, parent-scoped candidate
     mappings, or `micro_skill_catalog` metadata as silent global mapping truth
+  - future resolver visibility must require an active mapping, a first-class
+    visibility field/status, exact normalized
+    `misspelling_normalized -> correct_spelling_normalized -> micro_skill_key`
+    match, dialect and normalization-version match, active assignable `D4`
+    micro-skill, and a visibility-enable audit event
+  - future resolver use must block on conflicts, missing provenance or missing
+    visibility audit history, disabled/deprecated/superseded/replaced
+    mappings, inactive/non-assignable/non-`D4` skills, PCRM evidence not
+    separately adopted, closed catalog cases without canonical mapping, open
+    cases, parent notes, and parent-local mapping as global truth
   - future resolver integration may add resolver-visible normalized spelling
     mappings, suppress or correct false-positive-producing mappings/rules,
     close cases with audit, and improve future suggestions only after the
@@ -1304,7 +1323,10 @@ Canonical documentation now defers to:
   mapping lifecycle refinements such as disable/deprecate/supersede. Slice
   `4E.5` may handle false-positive curation. Hosted Supabase migration-ledger
   reconciliation is a separate deployment hygiene task and is not solved by
-  the Slice `4E.2` docs closeout.
+  the Slice `4E.2` docs closeout; any later DB-changing resolver stage must use
+  a unique timestamp migration, must not replay archived `20260522_*`
+  migrations, must pass an explicit production migration-ledger check, and
+  must follow `docs/operations/supabase-migration-policy.md`.
 - Slice `4B.1` implementation QA checklist:
   - parent can create an open catalog-review case for an eligible
     lesson-submission spelling row

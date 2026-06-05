@@ -343,6 +343,10 @@ Slice `4D`:
   mappings, suppress or correct false-positive-producing mappings/rules, close
   cases with audit, and improve future suggestions only after the resolver
   contract is explicitly revised
+- R0 resolver integration contract is documentation-only and authorizes no
+  runtime, schema, RPC, admin action, parent Review Work, completion gating,
+  `micro_skill_catalog`, mastery, rewards, assignments, scoring, analytics,
+  dashboard, or template-routing change
 - PCRM resolver adoption authority:
   - PCRM-D plain `accepted` means accepted recommendation evidence only; it
     must not create/link canonical storage or set resolver visibility
@@ -352,6 +356,17 @@ Slice `4D`:
   - parent users may recommend only; they cannot create/link
     `spelling_canonical_mappings`, mutate `micro_skill_catalog`, or set
     resolver visibility
+  - resolver visibility must be first-class, explicit, audited, reversible,
+    and exact-pair based; metadata-only `resolver_visible` is not sufficient as
+    future production resolver authority
+  - existing canonical mappings must remain resolver-invisible until
+    individually enabled, and accepted PCRM recommendations must remain
+    evidence-only until separately adopted into canonical mapping truth
+  - future admin visibility enablement must require active mapping status,
+    exact normalized `misspelling_normalized -> correct_spelling_normalized ->
+    micro_skill_key`, dialect and normalization-version match, active
+    assignable `D4` micro-skill, safe provenance, and a visibility-enable audit
+    event
   - admin adoption must call `requireAdminUser()` server-side before any
     service-role operation
   - no client component may import or use the service-role helper
@@ -374,7 +389,9 @@ Slice `4D`:
     spelling-engine visible, but it must preserve exact-pair semantics, avoid
     silently making existing accepted recommendations resolver-visible, and
     resolve hosted Supabase migration-ledger risk before production
-    resolver-visible changes
+    resolver-visible changes; any DB-changing resolver stage must use a unique
+    timestamp migration, must not replay archived `20260522_*` migrations, and
+    must follow `docs/operations/supabase-migration-policy.md`
 
 ## QA Expectations
 

@@ -1137,10 +1137,11 @@ Slice `4A` spelling catalog-review taxonomy contract:
     Open catalog-review cases and non-canonical decisions must never affect
     resolver output
   - future resolver priority remains:
-    1. active canonical/global exact-pair spelling mapping
-    2. existing catalog-backed canonical mapping behavior
-    3. same-scope `parent_local_promoted` mapping
-    4. unresolved
+    1. active resolver-visible canonical exact-pair spelling mapping
+    2. existing catalog-backed resolver behavior
+    3. same-scope `parent_local_promoted` mapping where supported
+    4. engine/manual diagnostic suggestions
+    5. unresolved or admin-review evidence only
 - Slice `4E.1` canonical spelling mapping storage foundation is implemented:
   - dedicated canonical/global mapping storage lives in
     `spelling_canonical_mappings`
@@ -1235,9 +1236,10 @@ Slice `4A` spelling catalog-review taxonomy contract:
     close cases with audit, and improve future suggestions only after the
     resolver contract is explicitly revised
   - future resolver priority is refined by Slice `4E.0`: active
-    canonical/global exact-pair spelling mapping, existing catalog-backed
-    canonical mapping behavior, same-scope `parent_local_promoted` mapping,
-    then unresolved
+    resolver-visible canonical exact-pair spelling mapping, existing
+    catalog-backed resolver behavior, same-scope `parent_local_promoted`
+    mapping where supported, engine/manual diagnostic suggestions, then
+    unresolved or admin-review evidence only
 - Slice `4B.1` regression checklist:
   - parent can create an open catalog-review case for an eligible
     lesson-submission spelling row

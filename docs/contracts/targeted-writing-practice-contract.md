@@ -912,10 +912,11 @@ Slice `4A` catalog-review contract:
     Open catalog-review cases and non-canonical decisions must never affect
     resolver output
   - future resolver priority remains:
-    1. active canonical/global exact-pair spelling mapping
-    2. existing catalog-backed canonical mapping behavior
-    3. same-scope `parent_local_promoted` mapping
-    4. unresolved
+    1. active resolver-visible canonical exact-pair spelling mapping
+    2. existing catalog-backed resolver behavior
+    3. same-scope `parent_local_promoted` mapping where supported
+    4. engine/manual diagnostic suggestions
+    5. unresolved or admin-review evidence only
 - PCRM resolver adoption contract:
   - PCRM-D plain `accepted` means accepted recommendation evidence only; it
     must not implicitly create/link canonical storage or change resolver output
@@ -927,6 +928,12 @@ Slice `4A` catalog-review contract:
     `spelling_canonical_mapping_events` audit
   - resolver visibility remains explicit audited admin authority; existing
     non-visible mappings must not silently become resolver-visible
+  - resolver visibility must be first-class, explicit, audited, reversible,
+    and exact-pair based; metadata-only `resolver_visible` is not sufficient as
+    future production resolver authority
+  - existing canonical mappings remain resolver-invisible until individually
+    enabled, and accepted PCRM recommendations remain evidence-only until
+    separately adopted into canonical mapping truth
   - canonical resolver mapping is exact-pair based:
     `misspelling_normalized -> correct_spelling_normalized -> micro_skill_key`
   - the correct word is a shared target anchor, not the sole routing key; for

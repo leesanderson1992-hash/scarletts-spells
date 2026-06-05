@@ -614,6 +614,10 @@ PCRM-D admin recommendation review/curation is implemented:
   `spelling_canonical_mapping_recommendations`
 
 Future PCRM Resolver Integration docs contract:
+- R0 status: docs/contract and release-safety planning only; no resolver read,
+  schema, RPC, admin action, parent Review Work, completion gating,
+  `micro_skill_catalog`, mastery, rewards, assignments, scoring, analytics,
+  dashboard, or template-routing behavior is changed by R0
 - add explicit admin action/decision
   `accept_and_adopt_canonical_mapping`
 - allow admin to accept eligible PCRM evidence and create/link
@@ -622,8 +626,14 @@ Future PCRM Resolver Integration docs contract:
   succeeds
 - record adoption and resolver-visibility changes in
   `spelling_canonical_mapping_events`
+- resolver visibility must be first-class, explicit, audited, reversible, and
+  exact-pair based; metadata-only `resolver_visible` is not sufficient as the
+  future production resolver authority
 - keep resolver visibility behind explicit audited admin authority; existing
   non-visible mappings must not silently become resolver-visible
+- accepted PCRM recommendations remain evidence-only until a separate explicit
+  admin adoption action creates or links canonical mapping truth and enables
+  resolver visibility
 - canonical resolver mapping is exact-pair based:
   `misspelling_normalized -> correct_spelling_normalized -> micro_skill_key`
 - the correct word is a shared target anchor, not the sole routing key; `taik
@@ -636,12 +646,22 @@ Future PCRM Resolver Integration docs contract:
   with a different skill blocks for admin conflict resolution; same correct
   spelling with different misspelling may be a separate mapping; same
   misspelling with different correction blocks for admin review
+- additional resolver-use blockers: inactive, non-assignable, missing, or
+  non-`D4` micro-skill; disabled/deprecated/superseded/replaced mapping;
+  missing provenance or visibility audit history; PCRM accepted evidence not
+  separately adopted; closed catalog-review case without canonical mapping;
+  open catalog-review case, parent notes, or parent-local mapping as global
+  truth
 - future resolver priority: active resolver-visible canonical exact-pair
   mapping, existing catalog-backed resolver behavior, scoped parent-local
   promoted mapping where supported, engine/manual diagnostic suggestions, then
   unresolved or admin-review evidence only
 - rollout order: docs contract, storage/admin adoption hardening, resolver read
   path behind explicit visibility, browser/admin smoke, monitored rollout
+- any DB-changing resolver stage must use a unique timestamp migration, must
+  not replay archived `20260522_*` migrations, must pass an explicit
+  production migration-ledger check, and must follow
+  `docs/operations/supabase-migration-policy.md`
 - rollback: turn resolver visibility off or disable/deprecate/supersede the
   mapping with audit; do not delete PCRM evidence or mapping events
 - observability should track accepted-not-adopted recommendations, adoption
@@ -1467,10 +1487,11 @@ Slice `4A` catalog-review contract:
     Open catalog-review cases and non-canonical decisions must never affect
     resolver output
   - future resolver priority remains:
-    1. active canonical/global exact-pair spelling mapping
-    2. existing catalog-backed canonical mapping behavior
-    3. same-scope `parent_local_promoted` mapping
-    4. unresolved
+    1. active resolver-visible canonical exact-pair spelling mapping
+    2. existing catalog-backed resolver behavior
+    3. same-scope `parent_local_promoted` mapping where supported
+    4. engine/manual diagnostic suggestions
+    5. unresolved or admin-review evidence only
 - Slice `4E.1` canonical spelling mapping storage foundation closeout:
   - implemented dedicated storage tables `spelling_canonical_mappings` and
     `spelling_canonical_mapping_events`

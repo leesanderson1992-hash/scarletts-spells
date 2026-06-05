@@ -558,10 +558,11 @@ Parent-Verified Spelling Candidate Capture architecture boundary:
     Open catalog-review cases and non-canonical decisions must never affect
     resolver output
   - future resolver priority remains:
-    1. active canonical/global exact-pair spelling mapping
-    2. existing catalog-backed canonical mapping behavior
-    3. same-scope `parent_local_promoted` mapping
-    4. unresolved
+    1. active resolver-visible canonical exact-pair spelling mapping
+    2. existing catalog-backed resolver behavior
+    3. same-scope `parent_local_promoted` mapping where supported
+    4. engine/manual diagnostic suggestions
+    5. unresolved or admin-review evidence only
 - Slice `4E.1` canonical spelling mapping storage foundation is implemented:
   - `spelling_canonical_mappings` stores exact normalized canonical/global
     spelling mappings
@@ -662,14 +663,28 @@ Parent-Verified Spelling Candidate Capture architecture boundary:
     resolver use remains blocked until a later resolver integration slice
   - do not use catalog-review cases, parent notes, parent-scoped candidate
     mappings, or `micro_skill_catalog` metadata as silent global mapping truth
+  - R0 resolver integration contract is documentation-only and does not change
+    runtime, schema, admin actions, parent Review Work, completion gating,
+    mastery, rewards, assignments, scoring, analytics, dashboards, or template
+    routing
+  - future resolver visibility must be first-class, explicit, audited,
+    reversible, and exact-pair based; metadata-only `resolver_visible` is not
+    sufficient production authority, existing canonical mappings remain
+    invisible until individually enabled, and accepted PCRM recommendations
+    remain evidence-only until separately adopted
+  - future resolver-visible exact-pair matching requires
+    `misspelling_normalized -> correct_spelling_normalized -> micro_skill_key`
+    plus dialect, normalization-version, active assignable `D4` micro-skill,
+    and visibility-enable audit event checks
   - future resolver integration may add resolver-visible normalized spelling
     mappings, suppress or correct false-positive-producing mappings/rules,
     close cases with audit, and improve future suggestions only after the
     resolver contract is explicitly revised
   - future resolver priority is refined by Slice `4E.0`: active
-    canonical/global exact-pair spelling mapping, existing catalog-backed
-    canonical mapping behavior, same-scope `parent_local_promoted` mapping,
-    then unresolved
+    resolver-visible canonical exact-pair spelling mapping, existing
+    catalog-backed resolver behavior, same-scope `parent_local_promoted`
+    mapping where supported, engine/manual diagnostic suggestions, then
+    unresolved or admin-review evidence only
 - Slice `4B.1` Review Work UI placement:
   - `No matching skill` appears in the compact spelling review table Actions for
     eligible lesson-submission spelling rows

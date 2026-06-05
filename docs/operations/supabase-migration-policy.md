@@ -65,11 +65,25 @@ applying any migration.
 `4E.3` source work may proceed locally because structured-payload data
 integrity is no longer blocking it.
 
+R0 resolver integration is documentation/contract work only. It does not
+authorize resolver reads, schema changes, RPCs, admin actions, parent Review
+Work changes, completion-gating changes, `micro_skill_catalog` mutation, or
+production rollout.
+
 `4E.3` production deployment is allowed only if:
 
 - it is code-only and relies on already-present hosted tables/RPCs, or
 - any DB-changing work uses a new unique timestamp migration and an approved
   deployment process.
+
+Any DB-changing resolver-visible stage must also:
+
+- avoid replaying archived `20260522_*` migrations
+- run an explicit production migration-ledger check before release
+- stop if the hosted ledger or required canonical mapping tables/RPCs differ
+  from source expectations
+- preserve resolver visibility as a first-class, explicit, audited,
+  reversible, exact-pair contract rather than metadata-only authority
 
 ## Selected Permanent Strategy
 

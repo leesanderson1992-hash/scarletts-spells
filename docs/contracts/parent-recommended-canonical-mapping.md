@@ -58,6 +58,15 @@ with resolver visibility disabled must not change global suggestions.
 The current resolver does not consume PCRM recommendation rows or canonical
 mapping storage.
 
+R0 resolver integration contract status:
+- this document now defines the future resolver-visible contract only
+- no resolver read path, schema migration, RPC, admin action, parent Review
+  Work behavior, completion gating, `micro_skill_catalog` mutation, mastery,
+  rewards, assignments, scoring, analytics, dashboards, or template routing is
+  authorized by R0
+- metadata-only `resolver_visible` is historical/non-effect metadata and is
+  not sufficient as the future production resolver-visible contract
+
 ## Parent Workflow
 
 1. Parent reviews a spelling row in `Review Work`.
@@ -249,6 +258,25 @@ curation lane.
 
 ## Conflict And Priority Rules
 
+Future resolver-visible canonical mapping contract:
+- a canonical mapping may affect resolver output only when all of these are
+  true:
+  - `mapping_status = 'active'`
+  - a future first-class visibility field/status says the mapping is
+    resolver-visible
+  - the resolver request matches the exact normalized triple
+    `misspelling_normalized -> correct_spelling_normalized -> micro_skill_key`
+  - dialect and normalization version match the resolver request defaults
+  - the linked `micro_skill_key` is still present, active, assignable, and
+    `D4`
+  - a resolver-visibility enable event exists in the canonical mapping audit
+    history
+- existing canonical mappings remain resolver-invisible until individually
+  adopted or enabled through the future explicit admin action
+- accepted PCRM recommendations remain evidence-only until a separate explicit
+  admin adoption action creates or links canonical mapping truth and enables
+  resolver visibility
+
 Conflict handling for future adoption:
 - same misspelling/correction/dialect and same `micro_skill_key`: link to the
   existing canonical mapping and audit the PCRM source link
@@ -259,6 +287,15 @@ Conflict handling for future adoption:
 - same misspelling with different correction: treat as a conflict requiring
   admin review
 - existing non-visible mappings must not silently become resolver-visible
+- inactive, non-assignable, missing, or non-`D4` micro-skills must block
+  resolver visibility and resolver use
+- disabled, deprecated, superseded, or replaced mappings must block resolver
+  use
+- missing provenance or missing resolver-visibility audit history must block
+  resolver visibility
+- closed catalog-review cases without canonical mappings, open catalog-review
+  cases, parent notes, parent-local mappings, and PCRM accepted evidence alone
+  must not be used as global resolver truth
 
 Future resolver priority should be:
 1. active resolver-visible canonical exact-pair mapping
@@ -402,6 +439,10 @@ Future PCRM Resolver Integration:
   behavior, resolver visibility, priority, conflict handling, admin/RLS
   authority, rollout, rollback, observability, and regression/browser smoke
   requirements
+- any DB-changing resolver stage must use a unique timestamp migration, must
+  not replay archived `20260522_*` migrations, must pass an explicit
+  production migration-ledger check, and must follow
+  [docs/operations/supabase-migration-policy.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/operations/supabase-migration-policy.md:1)
 
 ## Stop Conditions
 
@@ -409,10 +450,16 @@ Stop before implementation if:
 - parent-local mapping and global canonical mapping are conflated
 - current canonical mapping model is unclear
 - resolver currently consumes draft/admin/recommended data directly
+- resolver visibility cannot be modeled as first-class, explicit, audited,
+  reversible, and exact-pair based
 - no safe provenance exists for eligible rows
 - implementation would require broad resolver changes
+- implementation would use metadata-only `resolver_visible` as production
+  resolver authority
 - docs or implementation imply plain PCRM `accepted` automatically becomes
   resolver truth
+- docs or implementation imply existing canonical mappings become
+  resolver-visible by default
 - docs or implementation collapse all misspellings of the same correct word
   into one micro-skill
 - docs or implementation blur `No matching skill`, parent-local promotion,
