@@ -618,10 +618,15 @@ Future PCRM Resolver Integration docs contract:
   schema, RPC, admin action, parent Review Work, completion gating,
   `micro_skill_catalog`, mastery, rewards, assignments, scoring, analytics,
   dashboard, or template-routing behavior is changed by R0
-- R1 status: first-class resolver visibility storage and a server-only
-  exact-pair read helper are added as foundation only; the helper is not wired
-  into Stage 2C, Stage 3A, Review Work, or canonical backfill runtime, and no
-  admin enable/disable action is added
+- R1 status: complete, validated, and committed as
+  `42791c6 feat: add resolver-visible canonical mapping foundation`;
+  first-class resolver visibility storage and a server-only exact-pair read
+  helper are added as foundation only, the helper is not wired into Stage 2C,
+  Stage 3A, Review Work, or canonical backfill runtime, and no admin
+  enable/disable action is added
+- R2 status: still required for explicit admin enable/disable actions,
+  visibility audit writes, resolver adoption, browser/admin smoke, and
+  monitored rollout
 - add explicit admin action/decision
   `accept_and_adopt_canonical_mapping`
 - allow admin to accept eligible PCRM evidence and create/link
@@ -665,7 +670,9 @@ Future PCRM Resolver Integration docs contract:
 - any DB-changing resolver stage must use a unique timestamp migration, must
   not replay archived `20260522_*` migrations, must pass an explicit
   production migration-ledger check, and must follow
-  `docs/operations/supabase-migration-policy.md`
+  `docs/operations/supabase-migration-policy.md`; hosted Supabase schema may
+  already include R1 fields from SQL Editor application, but hosted
+  migration-ledger remediation remains a separate release-safety decision
 - rollback: turn resolver visibility off or disable/deprecate/supersede the
   mapping with audit; do not delete PCRM evidence or mapping events
 - observability should track accepted-not-adopted recommendations, adoption

@@ -74,6 +74,12 @@ R1 resolver integration adds first-class resolver visibility storage and a
 server-only exact-pair read helper as foundation only. It does not authorize
 admin enable/disable actions or runtime resolver adoption.
 
+R1 is complete, validated, and committed as
+`42791c6 feat: add resolver-visible canonical mapping foundation`. Local
+Supabase migration/schema verification has passed. Hosted Supabase schema may
+already include R1 fields from SQL Editor application, but hosted
+migration-ledger remediation remains a separate release-safety decision.
+
 `4E.3` production deployment is allowed only if:
 
 - it is code-only and relies on already-present hosted tables/RPCs, or

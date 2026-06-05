@@ -1285,10 +1285,14 @@ Canonical documentation now defers to:
     resolver reads, schema, RPCs, admin actions, parent Review Work,
     completion gating, `micro_skill_catalog`, mastery, rewards, assignments,
     scoring, analytics, dashboards, or template routing
-  - R1 adds first-class resolver visibility storage and a server-only exact-pair
-    read helper as foundation only; it does not wire resolver-visible mappings
-    into runtime resolver/backfill paths and does not add admin enable/disable
+  - R1 is complete, validated, and committed as
+    `42791c6 feat: add resolver-visible canonical mapping foundation`; it adds
+    first-class resolver visibility storage and a server-only exact-pair read
+    helper as foundation only, does not wire resolver-visible mappings into
+    runtime resolver/backfill paths, and does not add admin enable/disable
     actions
+  - R2 is still required for explicit admin enable/disable actions, visibility
+    audit writes, resolver adoption, browser/admin smoke, and monitored rollout
   - no resolver change in Slice `4A` or Slice `4B.1`
   - open catalog-review cases remain invisible to the resolver
   - parent notes/reasons remain evidence only
@@ -1325,12 +1329,13 @@ Canonical documentation now defers to:
     unresolved or admin-review evidence only
 - Slice `4E.3` owns resolver integration. Slice `4E.4` may handle canonical
   mapping lifecycle refinements such as disable/deprecate/supersede. Slice
-  `4E.5` may handle false-positive curation. Hosted Supabase migration-ledger
-  reconciliation is a separate deployment hygiene task and is not solved by
-  the Slice `4E.2` docs closeout; any later DB-changing resolver stage must use
-  a unique timestamp migration, must not replay archived `20260522_*`
-  migrations, must pass an explicit production migration-ledger check, and
-  must follow `docs/operations/supabase-migration-policy.md`.
+  `4E.5` may handle false-positive curation. Hosted Supabase schema may
+  already include R1 fields from SQL Editor application, but hosted
+  migration-ledger remediation remains a separate release-safety decision; any
+  later DB-changing resolver stage must use a unique timestamp migration, must
+  not replay archived `20260522_*` migrations, must pass an explicit
+  production migration-ledger check, and must follow
+  `docs/operations/supabase-migration-policy.md`.
 - Slice `4B.1` implementation QA checklist:
   - parent can create an open catalog-review case for an eligible
     lesson-submission spelling row
