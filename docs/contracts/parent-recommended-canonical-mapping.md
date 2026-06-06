@@ -445,8 +445,9 @@ Future PCRM Resolver Integration:
   helper only, does not add admin enable/disable actions, does not call the
   helper from resolver runtime, and keeps existing canonical mappings hidden
   by default
-- R2 is still required for explicit admin enable/disable actions, visibility
-  audit writes, resolver adoption, browser/admin smoke, and monitored rollout
+- R2 adds explicit admin enable/disable actions and visibility audit writes
+  only; R3 remains required for resolver runtime adoption, browser/admin smoke,
+  and monitored rollout
 - any DB-changing resolver stage must use a unique timestamp migration, must
   not replay archived `20260522_*` migrations, must pass an explicit
   production migration-ledger check, and must follow

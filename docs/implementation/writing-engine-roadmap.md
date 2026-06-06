@@ -624,9 +624,9 @@ Future PCRM Resolver Integration docs contract:
   helper are added as foundation only, the helper is not wired into Stage 2C,
   Stage 3A, Review Work, or canonical backfill runtime, and no admin
   enable/disable action is added
-- R2 status: still required for explicit admin enable/disable actions,
-  visibility audit writes, resolver adoption, browser/admin smoke, and
-  monitored rollout
+- R2 status: explicit admin enable/disable actions and visibility audit writes
+  are added as the adoption/rollback surface only; R3 remains required for
+  resolver runtime adoption, browser/admin smoke, and monitored rollout
 - add explicit admin action/decision
   `accept_and_adopt_canonical_mapping`
 - allow admin to accept eligible PCRM evidence and create/link

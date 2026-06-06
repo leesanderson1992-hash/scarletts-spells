@@ -271,6 +271,12 @@ export default async function AdminSpellingReviewPage() {
             separate so catalog gaps, parent recommendations, canonical mapping
             storage, and resolver visibility keep their current boundaries.
           </p>
+          <Link
+            href="/admin/canonical-mappings"
+            className="mt-4 inline-flex min-h-10 items-center justify-center rounded-xl border border-[var(--border)] bg-white px-4 py-2 text-sm font-semibold text-[color:var(--ink)] transition hover:bg-[var(--mist)] focus:outline-none focus:ring-2 focus:ring-[var(--scarlett)] focus:ring-offset-2"
+          >
+            Open canonical mappings
+          </Link>
         </header>
 
         {hasError || !catalogGapSummary || !recommendationSummary ? (

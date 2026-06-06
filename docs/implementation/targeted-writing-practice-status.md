@@ -1291,8 +1291,9 @@ Canonical documentation now defers to:
     helper as foundation only, does not wire resolver-visible mappings into
     runtime resolver/backfill paths, and does not add admin enable/disable
     actions
-  - R2 is still required for explicit admin enable/disable actions, visibility
-    audit writes, resolver adoption, browser/admin smoke, and monitored rollout
+  - R2 adds explicit admin enable/disable actions and visibility audit writes
+    only; R3 remains required for resolver runtime adoption, browser/admin
+    smoke, and monitored rollout
   - no resolver change in Slice `4A` or Slice `4B.1`
   - open catalog-review cases remain invisible to the resolver
   - parent notes/reasons remain evidence only

@@ -76,6 +76,14 @@ export type CreateSpellingCanonicalMappingInput = {
   eventMetadata?: Record<string, unknown>;
 };
 
+export type SetResolverVisibilityForCanonicalMappingInput = {
+  mappingId: string;
+  adminUserId: string;
+  adminEmail?: string | null;
+  note: string;
+  metadata?: Record<string, unknown>;
+};
+
 function normalizeLookupText(value: string | null | undefined) {
   if (typeof value !== "string") {
     return null;
@@ -173,6 +181,61 @@ export async function createSpellingCanonicalMappingAdmin(input: {
   }
 
   return data;
+}
+
+async function setResolverVisibilityForCanonicalMappingAdmin(input: {
+  supabase?: ServiceRoleClient;
+  targetStatus: "visible" | "disabled";
+  mapping: SetResolverVisibilityForCanonicalMappingInput;
+}) {
+  const supabase = input.supabase ?? createServiceRoleClient();
+  const { mapping } = input;
+
+  const { data, error } = await supabase.rpc(
+    "set_spelling_canonical_mapping_resolver_visibility_admin",
+    {
+      p_admin_email: mapping.adminEmail ?? null,
+      p_admin_user_id: mapping.adminUserId,
+      p_mapping_id: mapping.mappingId,
+      p_metadata: mapping.metadata ?? {},
+      p_new_resolver_visibility_status: input.targetStatus,
+      p_note: mapping.note,
+    },
+  );
+
+  if (error) {
+    throw new Error(
+      error.message || "Failed to update resolver visibility.",
+    );
+  }
+
+  if (typeof data !== "string") {
+    throw new Error("Resolver visibility RPC did not return a mapping id.");
+  }
+
+  return data;
+}
+
+export async function enableResolverVisibilityForCanonicalMappingAdmin(input: {
+  supabase?: ServiceRoleClient;
+  mapping: SetResolverVisibilityForCanonicalMappingInput;
+}) {
+  return setResolverVisibilityForCanonicalMappingAdmin({
+    supabase: input.supabase,
+    targetStatus: "visible",
+    mapping: input.mapping,
+  });
+}
+
+export async function disableResolverVisibilityForCanonicalMappingAdmin(input: {
+  supabase?: ServiceRoleClient;
+  mapping: SetResolverVisibilityForCanonicalMappingInput;
+}) {
+  return setResolverVisibilityForCanonicalMappingAdmin({
+    supabase: input.supabase,
+    targetStatus: "disabled",
+    mapping: input.mapping,
+  });
 }
 
 export async function findResolverVisibleExactPairMapping(input: {
