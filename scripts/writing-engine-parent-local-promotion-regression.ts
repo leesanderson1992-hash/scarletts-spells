@@ -148,6 +148,7 @@ function createHarness(overrides: Partial<HarnessState> = {}) {
   }
 
   const stubModules = {
+    "server-only": {},
     "next/cache": {
       revalidatePath() {},
     },
@@ -233,6 +234,14 @@ function createHarness(overrides: Partial<HarnessState> = {}) {
     "@/lib/writing-engine/persistence/review-work-canonical-submission-spelling": {
       async getCanonicalSubmissionSpellingCatalogEntries() {
         return [];
+      },
+    },
+    "@/lib/writing-engine/persistence/spelling-canonical-mappings": {
+      async findResolverVisibleExactPairMapping() {
+        return {
+          status: "unresolved",
+          reason: "no_visible_mapping",
+        };
       },
     },
     "@/lib/writing-engine/persistence/spelling-candidate-mappings": {

@@ -113,10 +113,13 @@
   plan; do not start hosted backfill, resolver, admin/catalog-review, catalog
   mutation, mastery, rewards, assignments, scoring, analytics, dashboards, or
   template-routing work from that closeout
-- `4E.3` source work may proceed locally after the structured-payload detour,
-  but production deployment is allowed only if it is code-only against already
-  present hosted tables/RPCs or uses a new unique timestamp migration with an
-  approved deployment process
+- `4E.3` R3 resolver integration is implemented and QA-passed as code-only
+  source work. Runtime use is gated by
+  `WRITING_ENGINE_RESOLVER_VISIBLE_CANONICAL_MAPPINGS=enabled`; blocked
+  resolver-visible states do not fall through; Stage `2C` / Stage `3A` pure
+  helpers remain unchanged; no schema or migration changes were introduced.
+  Production deployment still requires the approved release process and hosted
+  schema/ledger safety check before enabling the runtime flag
 
 ## Blockers / open risks
 

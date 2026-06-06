@@ -14,6 +14,7 @@ const resolverPath =
   "lib/writing-engine/spelling/stage2c-primary-mapping-resolver.ts";
 const stage3aAnalysisPath =
   "lib/writing-engine/spelling/stage3a-authentic-submission-analysis.ts";
+const resolverPriorityPath = "app/courses/review/resolver-visible-priority.ts";
 const canonicalBackfillPath =
   "app/courses/review/actions/canonical-spelling-backfill-actions.ts";
 const canonicalSubmissionActionsPath =
@@ -29,9 +30,12 @@ const existingAdminActions = [
   readFileSync(adminCatalogActionPath, "utf8"),
   readFileSync(adminPcrmActionPath, "utf8"),
 ].join("\n");
-const runtimeResolverSources = [
+const pureResolverSources = [
   readFileSync(resolverPath, "utf8"),
   readFileSync(stage3aAnalysisPath, "utf8"),
+].join("\n");
+const approvedR3RuntimeResolverSources = [
+  readFileSync(resolverPriorityPath, "utf8"),
   readFileSync(canonicalBackfillPath, "utf8"),
   readFileSync(canonicalSubmissionActionsPath, "utf8"),
 ].join("\n");
@@ -202,9 +206,14 @@ assert.match(
 );
 
 assert.doesNotMatch(
-  runtimeResolverSources,
+  pureResolverSources,
   /findResolverVisibleExactPairMapping|resolver_visibility_status|resolver_visibility_enabled|resolver_visibility_disabled/,
-  "R2 must not wire resolver-visible canonical mappings into runtime resolver/backfill paths.",
+  "R2/R3 must keep Stage 2C and Stage 3A pure helpers free of resolver-visible database reads.",
+);
+assert.match(
+  approvedR3RuntimeResolverSources,
+  /app\/courses\/review\/resolver-visible-priority|resolver-visible-priority|findResolverVisibleExactPairMapping/,
+  "R3 may wire resolver-visible mappings only through the approved server-side priority helper.",
 );
 assert.doesNotMatch(
   reviewWorkPage,

@@ -1297,8 +1297,24 @@ Canonical documentation now defers to:
     `dc13429 feat: add resolver visibility admin controls`; it adds explicit
     admin enable/disable actions for `resolver_visibility_status`, audited
     rollback, and conflict blocking only
-  - R3 remains required for resolver runtime adoption, browser/admin smoke,
-    and monitored rollout
+  - R3 is implemented and QA-passed as code-only resolver runtime adoption:
+    runtime use is gated by
+    `WRITING_ENGINE_RESOLVER_VISIBLE_CANONICAL_MAPPINGS=enabled`, active
+    resolver-visible canonical exact-pair mappings are consulted before
+    existing catalog-backed resolver behavior and same-scope parent-local
+    promoted mappings, blocked resolver-visible states do not fall through,
+    and Stage `2C` / Stage `3A` pure helpers remain unchanged
+  - R3 introduced no schema or Supabase migration changes; runtime rollback is
+    removing/unsetting the feature flag, while mapping-level rollback remains
+    the existing audited admin disable action
+  - R3 verification passed: `writing-engine:resolver-visible-canonical-mapping-regression`,
+    `writing-engine:resolver-visibility-admin-actions-regression`,
+    `writing-engine:resolver-runtime-integration-regression`,
+    `writing-engine:primary-mapping-regression`,
+    `writing-engine:authentic-submission-regression`,
+    `writing-engine:parent-local-promotion-regression`, and `npm run build`
+  - R3 browser smoke loaded `/admin/canonical-mappings`; local data had no
+    canonical mappings for row-level resolver visibility status/control smoke
   - no resolver change in Slice `4A` or Slice `4B.1`
   - open catalog-review cases remain invisible to the resolver
   - parent notes/reasons remain evidence only
@@ -1310,16 +1326,16 @@ Canonical documentation now defers to:
     adopted/enabled through a future explicit admin action
   - metadata-only `resolver_visible` is not sufficient as the future production
     resolver authority
-  - canonical/global storage foundation now exists after Slice `4E.1`, but
-    resolver use remains blocked until a later resolver integration slice
+  - canonical/global storage foundation now exists after Slice `4E.1`; after
+    R3, resolver use remains runtime-gated and exact-pair only
   - do not use catalog-review cases, parent notes, parent-scoped candidate
     mappings, or `micro_skill_catalog` metadata as silent global mapping truth
-  - future resolver visibility must require an active mapping, a first-class
+  - resolver visibility must require an active mapping, a first-class
     visibility field/status, exact normalized
     `misspelling_normalized -> correct_spelling_normalized -> micro_skill_key`
     match, dialect and normalization-version match, active assignable `D4`
     micro-skill, and a visibility-enable audit event
-  - future resolver use must block on conflicts, missing provenance or missing
+  - resolver use must block on conflicts, missing provenance or missing
     visibility audit history, disabled/deprecated/superseded/replaced
     mappings, inactive/non-assignable/non-`D4` skills, PCRM evidence not
     separately adopted, closed catalog cases without canonical mapping, open
@@ -1333,7 +1349,8 @@ Canonical documentation now defers to:
     existing catalog-backed resolver behavior, scoped parent-local promoted
     mapping where supported, engine/manual diagnostic suggestions, then
     unresolved or admin-review evidence only
-- Slice `4E.3` owns resolver integration. Slice `4E.4` may handle canonical
+- Slice `4E.3` owns resolver integration and is QA-passed code-only source work.
+  Slice `4E.4` may handle canonical
   mapping lifecycle refinements such as disable/deprecate/supersede. Slice
   `4E.5` may handle false-positive curation. Hosted Supabase schema may
   already include R1 fields from SQL Editor application, but hosted

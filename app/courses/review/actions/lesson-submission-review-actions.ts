@@ -10,7 +10,6 @@ import {
 } from "@/lib/spelling/errorPatterns";
 import { findWordFamilyForWord } from "@/lib/spelling/wordFamilies";
 import { createClient } from "@/lib/supabase/server";
-import { mergeCanonicalSubmissionSpellingSlice1Metadata } from "@/lib/writing-engine/spelling/canonical-submission-spelling-mapping-slice1";
 import { stringifyAnalysisExtraMetadata } from "@/lib/writing-engine/spelling/legacy-analysis";
 
 import {
@@ -18,6 +17,7 @@ import {
   resolveScopedMicroSkillForSubmissionSuggestion,
   type MisspellingSuggestionLookupRow,
 } from "./canonical-spelling-backfill-actions";
+import { mergeScopedSubmissionMicroSkillResolutionMetadata } from "../resolver-visible-priority";
 import {
   buildRedirectWithMessage,
   findWordRange,
@@ -83,20 +83,20 @@ export async function findOrCreateSuggestionForMisspelling({
     });
   }
 
-  const {
-    canonicalResolution,
-    microSkillKey: scopedMicroSkillKey,
-  } = await resolveScopedMicroSkillForSubmissionSuggestion({
+  const scopedResolution = await resolveScopedMicroSkillForSubmissionSuggestion({
     supabase,
     parentUserId,
     childId,
     observedText,
     suggestedReplacement,
   });
-  const nextSuggestedMicroSkillKey = scopedMicroSkillKey ?? suggestedMicroSkillKey;
-  const metadata = mergeCanonicalSubmissionSpellingSlice1Metadata({
+  const nextSuggestedMicroSkillKey =
+    scopedResolution.blocked
+      ? null
+      : scopedResolution.microSkillKey ?? suggestedMicroSkillKey;
+  const metadata = mergeScopedSubmissionMicroSkillResolutionMetadata({
     metadata: null,
-    resolution: canonicalResolution,
+    resolution: scopedResolution,
   });
 
   const { data: createdSuggestion, error } = await supabase

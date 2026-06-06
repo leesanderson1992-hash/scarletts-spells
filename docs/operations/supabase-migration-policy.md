@@ -86,6 +86,15 @@ resolver visibility enable/disable action surface, audited rollback, and
 conflict blocking. It still does not authorize runtime resolver adoption; R3
 remains the first stage that may change resolver behavior.
 
+R3 is implemented and QA-passed as code-only source work. It wires
+resolver-visible canonical exact-pair mappings into the lesson-submission
+spelling suggestion/resolution path behind
+`WRITING_ENGINE_RESOLVER_VISIBLE_CANONICAL_MAPPINGS=enabled`, preserves Stage
+`2C` / Stage `3A` pure helpers, blocks resolver-visible conflicts/invalid
+states without falling through, and introduces no schema or migration changes.
+Runtime rollback is removing/unsetting the feature flag; mapping-level rollback
+remains the existing audited admin disable action.
+
 `4E.3` production deployment is allowed only if:
 
 - it is code-only and relies on already-present hosted tables/RPCs, or
