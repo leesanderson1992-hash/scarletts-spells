@@ -361,8 +361,9 @@ export function AdminCaseDecisionRow({
                 </option>
               </select>
               <p className="text-[11px] leading-4 text-[color:var(--mid)]">
-                Add canonical mapping creates future canonical storage; resolver
-                use is deferred until Slice 4E.3.
+                Add canonical mapping creates canonical storage. Resolver use
+                requires separate resolver visibility enablement and the runtime
+                feature flag.
               </p>
             </form>
           ) : (

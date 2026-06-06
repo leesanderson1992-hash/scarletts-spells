@@ -215,8 +215,9 @@ export default async function AdminCanonicalMappingsPage({
               Resolver visibility controls
             </h2>
             <p className="brand-copy mt-2 text-sm">
-              R2 adds explicit admin enable/disable authority only. Resolver
-              adoption remains a later stage.
+              Resolver visibility is explicit admin enable/disable authority.
+              Runtime use still requires the resolver-visible mappings feature
+              flag.
             </p>
           </div>
 

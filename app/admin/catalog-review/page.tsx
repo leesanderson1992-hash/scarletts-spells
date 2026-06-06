@@ -365,8 +365,8 @@ function AdminCaseDecisionTable({
         </h2>
         <p className="brand-copy mt-2 text-sm">
           Resolve individual open cases only. Add canonical mapping creates
-          canonical storage for future use; resolver use remains deferred until
-          Slice 4E.3.
+          canonical storage. Resolver use requires separate resolver visibility
+          enablement and the runtime feature flag.
         </p>
       </div>
 
@@ -651,9 +651,10 @@ export default async function AdminCatalogReviewPage({
           </h1>
           <p className="brand-copy mt-4 max-w-3xl text-sm leading-6">
             Internal per-case resolution for parent-raised spelling catalog
-            gaps. Slice 4E.2 can create canonical mapping storage, but resolver
-            use remains deferred until Slice 4E.3. Historical Slice 4D.1
-            decisions stay readable as case-only history.
+            gaps. Add canonical mapping creates canonical storage. Resolver use
+            requires separate resolver visibility enablement and the runtime
+            feature flag. Historical Slice 4D.1 decisions stay readable as
+            case-only history.
           </p>
         </header>
 

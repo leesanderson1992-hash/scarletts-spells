@@ -165,7 +165,7 @@ assert.match(
 );
 assert.match(
   `${action}\n${decisionRow}\n${page}\n${curationMigration}`,
-  /resolver_visible:\s*false|resolver_visible',\s*false|resolver use remains deferred until\s+Slice 4E\.3/i,
+  /resolver_visible:\s*false|resolver_visible',\s*false|Resolver use requires separate resolver visibility enablement and the runtime feature flag/i,
   "4E.2 must make clear that canonical storage is not resolver-visible yet.",
 );
 
