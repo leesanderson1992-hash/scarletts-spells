@@ -80,9 +80,11 @@ Supabase migration/schema verification has passed. Hosted Supabase schema may
 already include R1 fields from SQL Editor application, but hosted
 migration-ledger remediation remains a separate release-safety decision.
 
-R2 adds the admin-only resolver visibility enable/disable action surface and
-audit writes. It still does not authorize runtime resolver adoption; R3 remains
-the first stage that may change resolver behavior.
+R2 is complete, QA-passed, pushed, and committed as
+`dc13429 feat: add resolver visibility admin controls`. It adds the admin-only
+resolver visibility enable/disable action surface, audited rollback, and
+conflict blocking. It still does not authorize runtime resolver adoption; R3
+remains the first stage that may change resolver behavior.
 
 `4E.3` production deployment is allowed only if:
 

@@ -1182,8 +1182,10 @@ Canonical documentation now defers to:
     `canonical_mapping_id`, the RPC remains atomic, and canonical mapping
     creation failure rolls back the decision insert
   - resolver boundary remains unchanged: no resolver reads
-    `spelling_canonical_mappings`, no resolver priority changed, and active
-    canonical mappings are not resolver-visible until Slice `4E.3`
+    `spelling_canonical_mappings` and no resolver priority changed; after R2,
+    individual active canonical mappings may be marked
+    `resolver_visibility_status = 'visible'` by explicit admin action, but the
+    resolver runtime still does not consume them until R3
   - no `micro_skill_catalog` mutation, parent `Review Work` broadening,
     manual writing sample broadening, false-positive handling, analytics
     table/dashboard, mastery, rewards, assignments, scoring, or template
@@ -1291,9 +1293,12 @@ Canonical documentation now defers to:
     helper as foundation only, does not wire resolver-visible mappings into
     runtime resolver/backfill paths, and does not add admin enable/disable
     actions
-  - R2 adds explicit admin enable/disable actions and visibility audit writes
-    only; R3 remains required for resolver runtime adoption, browser/admin
-    smoke, and monitored rollout
+  - R2 is complete, QA-passed, pushed, and committed as
+    `dc13429 feat: add resolver visibility admin controls`; it adds explicit
+    admin enable/disable actions for `resolver_visibility_status`, audited
+    rollback, and conflict blocking only
+  - R3 remains required for resolver runtime adoption, browser/admin smoke,
+    and monitored rollout
   - no resolver change in Slice `4A` or Slice `4B.1`
   - open catalog-review cases remain invisible to the resolver
   - parent notes/reasons remain evidence only

@@ -624,9 +624,12 @@ Future PCRM Resolver Integration docs contract:
   helper are added as foundation only, the helper is not wired into Stage 2C,
   Stage 3A, Review Work, or canonical backfill runtime, and no admin
   enable/disable action is added
-- R2 status: explicit admin enable/disable actions and visibility audit writes
-  are added as the adoption/rollback surface only; R3 remains required for
-  resolver runtime adoption, browser/admin smoke, and monitored rollout
+- R2 status: complete, QA-passed, pushed, and committed as
+  `dc13429 feat: add resolver visibility admin controls`; explicit admin
+  enable/disable actions for `resolver_visibility_status`, audited rollback,
+  and conflict blocking are added as the adoption/rollback surface only. R3
+  remains required for resolver runtime adoption, browser/admin smoke, and
+  monitored rollout
 - add explicit admin action/decision
   `accept_and_adopt_canonical_mapping`
 - allow admin to accept eligible PCRM evidence and create/link
@@ -1539,8 +1542,9 @@ Slice `4A` catalog-review contract:
     `canonical_mapping_id` on the source case-decision row, and closes/updates
     the source catalog-review case
   - `add_canonical_mapping` does not mutate `micro_skill_catalog` and does not
-    affect resolver output; active canonical mappings remain resolver-invisible
-    until Slice `4E.3`
+    affect resolver output; after R2, individual active canonical mappings may
+    be marked `resolver_visibility_status = 'visible'` by explicit admin
+    action, but resolver output remains unchanged until R3
   - non-canonical Slice `4E` decisions record/close the case outcome only;
     they do not create canonical mappings or resolver-visible truth
   - non-canonical decision semantics:
