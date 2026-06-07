@@ -1,0 +1,677 @@
+[
+  {
+    "competency_stage": "Recognition / exposure",
+    "default_template_id": "T01",
+    "default_template_route": "Recognition Sort",
+    "fallback_template_id": "T02",
+    "fallback_template_route": "Meaning / Rule Match",
+    "family_id": "D4_PG",
+    "level": 1,
+    "metadata": {
+      "seed_version": "domain4-seed-expansion-v1",
+      "source_workbook": "docs/D4 Seeding Map Finale Final.xlsx",
+      "storage_status": "repo_artifact_until_schema_exists"
+    },
+    "rationale": "Child first needs to notice the target sound-spelling pattern."
+  },
+  {
+    "competency_stage": "Guided correction",
+    "default_template_id": "T03",
+    "default_template_route": "Guided Error Correction",
+    "fallback_template_id": "T04",
+    "fallback_template_route": "Guided Rule Application",
+    "family_id": "D4_PG",
+    "level": 2,
+    "metadata": {
+      "seed_version": "domain4-seed-expansion-v1",
+      "source_workbook": "docs/D4 Seeding Map Finale Final.xlsx",
+      "storage_status": "repo_artifact_until_schema_exists"
+    },
+    "rationale": "Best for fixing a marked spelling error with a cue."
+  },
+  {
+    "competency_stage": "Independent controlled use",
+    "default_template_id": "T05",
+    "default_template_route": "Controlled Production",
+    "fallback_template_id": "T06",
+    "fallback_template_route": "Contrast Choice",
+    "family_id": "D4_PG",
+    "level": 3,
+    "metadata": {
+      "seed_version": "domain4-seed-expansion-v1",
+      "source_workbook": "docs/D4 Seeding Map Finale Final.xlsx",
+      "storage_status": "repo_artifact_until_schema_exists"
+    },
+    "rationale": "Child spells target words independently, then chooses between similar graphemes."
+  },
+  {
+    "competency_stage": "Transfer to authentic work",
+    "default_template_id": "T09",
+    "default_template_route": "Authentic Transfer Writing",
+    "fallback_template_id": "T10",
+    "fallback_template_route": "Proofreading Pass",
+    "family_id": "D4_PG",
+    "level": 4,
+    "metadata": {
+      "seed_version": "domain4-seed-expansion-v1",
+      "source_workbook": "docs/D4 Seeding Map Finale Final.xlsx",
+      "storage_status": "repo_artifact_until_schema_exists"
+    },
+    "rationale": "Child must use the spelling in real writing."
+  },
+  {
+    "competency_stage": "Secure retained mastery",
+    "default_template_id": "T11",
+    "default_template_route": "Delayed Mixed Review",
+    "fallback_template_id": "T10",
+    "fallback_template_route": "Proofreading Pass",
+    "family_id": "D4_PG",
+    "level": 5,
+    "metadata": {
+      "seed_version": "domain4-seed-expansion-v1",
+      "source_workbook": "docs/D4 Seeding Map Finale Final.xlsx",
+      "storage_status": "repo_artifact_until_schema_exists"
+    },
+    "rationale": "Retention is proven through delayed, interleaved review and later writing checks."
+  },
+  {
+    "competency_stage": "Recognition / exposure",
+    "default_template_id": "T01",
+    "default_template_route": "Recognition Sort",
+    "fallback_template_id": "T02",
+    "fallback_template_route": "Meaning / Rule Match",
+    "family_id": "D4_PAT",
+    "level": 1,
+    "metadata": {
+      "seed_version": "domain4-seed-expansion-v1",
+      "source_workbook": "docs/D4 Seeding Map Finale Final.xlsx",
+      "storage_status": "repo_artifact_until_schema_exists"
+    },
+    "rationale": "Child recognises the spelling convention or pattern."
+  },
+  {
+    "competency_stage": "Guided correction",
+    "default_template_id": "T04",
+    "default_template_route": "Guided Rule Application",
+    "fallback_template_id": "T03",
+    "fallback_template_route": "Guided Error Correction",
+    "family_id": "D4_PAT",
+    "level": 2,
+    "metadata": {
+      "seed_version": "domain4-seed-expansion-v1",
+      "source_workbook": "docs/D4 Seeding Map Finale Final.xlsx",
+      "storage_status": "repo_artifact_until_schema_exists"
+    },
+    "rationale": "Pattern rules often need step-by-step application."
+  },
+  {
+    "competency_stage": "Independent controlled use",
+    "default_template_id": "T08",
+    "default_template_route": "Error Correction Set",
+    "fallback_template_id": "T05",
+    "fallback_template_route": "Controlled Production",
+    "family_id": "D4_PAT",
+    "level": 3,
+    "metadata": {
+      "seed_version": "domain4-seed-expansion-v1",
+      "source_workbook": "docs/D4 Seeding Map Finale Final.xlsx",
+      "storage_status": "repo_artifact_until_schema_exists"
+    },
+    "rationale": "Patterns are best tested by correcting and applying rules, not just spelling lists."
+  },
+  {
+    "competency_stage": "Transfer to authentic work",
+    "default_template_id": "T10",
+    "default_template_route": "Proofreading Pass",
+    "fallback_template_id": "T09",
+    "fallback_template_route": "Authentic Transfer Writing",
+    "family_id": "D4_PAT",
+    "level": 4,
+    "metadata": {
+      "seed_version": "domain4-seed-expansion-v1",
+      "source_workbook": "docs/D4 Seeding Map Finale Final.xlsx",
+      "storage_status": "repo_artifact_until_schema_exists"
+    },
+    "rationale": "Pattern control should appear in editing and real writing."
+  },
+  {
+    "competency_stage": "Secure retained mastery",
+    "default_template_id": "T11",
+    "default_template_route": "Delayed Mixed Review",
+    "fallback_template_id": "T10",
+    "fallback_template_route": "Proofreading Pass",
+    "family_id": "D4_PAT",
+    "level": 5,
+    "metadata": {
+      "seed_version": "domain4-seed-expansion-v1",
+      "source_workbook": "docs/D4 Seeding Map Finale Final.xlsx",
+      "storage_status": "repo_artifact_until_schema_exists"
+    },
+    "rationale": "Interleaved delayed pattern review tests retention."
+  },
+  {
+    "competency_stage": "Recognition / exposure",
+    "default_template_id": "T01",
+    "default_template_route": "Recognition Sort",
+    "fallback_template_id": "T02",
+    "fallback_template_route": "Meaning / Rule Match",
+    "family_id": "D4_SYL",
+    "level": 1,
+    "metadata": {
+      "seed_version": "domain4-seed-expansion-v1",
+      "source_workbook": "docs/D4 Seeding Map Finale Final.xlsx",
+      "storage_status": "repo_artifact_until_schema_exists"
+    },
+    "rationale": "Child identifies syllable types or word parts."
+  },
+  {
+    "competency_stage": "Guided correction",
+    "default_template_id": "T04",
+    "default_template_route": "Guided Rule Application",
+    "fallback_template_id": "T03",
+    "fallback_template_route": "Guided Error Correction",
+    "family_id": "D4_SYL",
+    "level": 2,
+    "metadata": {
+      "seed_version": "domain4-seed-expansion-v1",
+      "source_workbook": "docs/D4 Seeding Map Finale Final.xlsx",
+      "storage_status": "repo_artifact_until_schema_exists"
+    },
+    "rationale": "Syllable spelling often needs guided splitting and rebuilding."
+  },
+  {
+    "competency_stage": "Independent controlled use",
+    "default_template_id": "T05",
+    "default_template_route": "Controlled Production",
+    "fallback_template_id": "T08",
+    "fallback_template_route": "Error Correction Set",
+    "family_id": "D4_SYL",
+    "level": 3,
+    "metadata": {
+      "seed_version": "domain4-seed-expansion-v1",
+      "source_workbook": "docs/D4 Seeding Map Finale Final.xlsx",
+      "storage_status": "repo_artifact_until_schema_exists"
+    },
+    "rationale": "Child spells syllable-based words independently."
+  },
+  {
+    "competency_stage": "Transfer to authentic work",
+    "default_template_id": "T09",
+    "default_template_route": "Authentic Transfer Writing",
+    "fallback_template_id": "T10",
+    "fallback_template_route": "Proofreading Pass",
+    "family_id": "D4_SYL",
+    "level": 4,
+    "metadata": {
+      "seed_version": "domain4-seed-expansion-v1",
+      "source_workbook": "docs/D4 Seeding Map Finale Final.xlsx",
+      "storage_status": "repo_artifact_until_schema_exists"
+    },
+    "rationale": "Child uses longer/syllable words in real writing."
+  },
+  {
+    "competency_stage": "Secure retained mastery",
+    "default_template_id": "T11",
+    "default_template_route": "Delayed Mixed Review",
+    "fallback_template_id": "T10",
+    "fallback_template_route": "Proofreading Pass",
+    "family_id": "D4_SYL",
+    "level": 5,
+    "metadata": {
+      "seed_version": "domain4-seed-expansion-v1",
+      "source_workbook": "docs/D4 Seeding Map Finale Final.xlsx",
+      "storage_status": "repo_artifact_until_schema_exists"
+    },
+    "rationale": "Retention requires delayed mixed spelling of longer words."
+  },
+  {
+    "competency_stage": "Recognition / exposure",
+    "default_template_id": "T02",
+    "default_template_route": "Meaning / Rule Match",
+    "fallback_template_id": "T01",
+    "fallback_template_route": "Recognition Sort",
+    "family_id": "D4_MOR",
+    "level": 1,
+    "metadata": {
+      "seed_version": "domain4-seed-expansion-v1",
+      "source_workbook": "docs/D4 Seeding Map Finale Final.xlsx",
+      "storage_status": "repo_artifact_until_schema_exists"
+    },
+    "rationale": "Morphology starts with recognising base words, suffixes, roots, and meanings."
+  },
+  {
+    "competency_stage": "Guided correction",
+    "default_template_id": "T04",
+    "default_template_route": "Guided Rule Application",
+    "fallback_template_id": "T03",
+    "fallback_template_route": "Guided Error Correction",
+    "family_id": "D4_MOR",
+    "level": 2,
+    "metadata": {
+      "seed_version": "domain4-seed-expansion-v1",
+      "source_workbook": "docs/D4 Seeding Map Finale Final.xlsx",
+      "storage_status": "repo_artifact_until_schema_exists"
+    },
+    "rationale": "Child applies base + affix rules with support."
+  },
+  {
+    "competency_stage": "Independent controlled use",
+    "default_template_id": "T05",
+    "default_template_route": "Controlled Production",
+    "fallback_template_id": "T06",
+    "fallback_template_route": "Contrast Choice",
+    "family_id": "D4_MOR",
+    "level": 3,
+    "metadata": {
+      "seed_version": "domain4-seed-expansion-v1",
+      "source_workbook": "docs/D4 Seeding Map Finale Final.xlsx",
+      "storage_status": "repo_artifact_until_schema_exists"
+    },
+    "rationale": "Child forms and spells derived words independently."
+  },
+  {
+    "competency_stage": "Transfer to authentic work",
+    "default_template_id": "T09",
+    "default_template_route": "Authentic Transfer Writing",
+    "fallback_template_id": "T10",
+    "fallback_template_route": "Proofreading Pass",
+    "family_id": "D4_MOR",
+    "level": 4,
+    "metadata": {
+      "seed_version": "domain4-seed-expansion-v1",
+      "source_workbook": "docs/D4 Seeding Map Finale Final.xlsx",
+      "storage_status": "repo_artifact_until_schema_exists"
+    },
+    "rationale": "Morphology is mastered when used in real writing."
+  },
+  {
+    "competency_stage": "Secure retained mastery",
+    "default_template_id": "T11",
+    "default_template_route": "Delayed Mixed Review",
+    "fallback_template_id": "T12",
+    "fallback_template_route": "Reflection / Explanation",
+    "family_id": "D4_MOR",
+    "level": 5,
+    "metadata": {
+      "seed_version": "domain4-seed-expansion-v1",
+      "source_workbook": "docs/D4 Seeding Map Finale Final.xlsx",
+      "storage_status": "repo_artifact_until_schema_exists"
+    },
+    "rationale": "Retained morphology may benefit from explanation of word parts."
+  },
+  {
+    "competency_stage": "Recognition / exposure",
+    "default_template_id": "T02",
+    "default_template_route": "Meaning / Rule Match",
+    "fallback_template_id": "T01",
+    "fallback_template_route": "Recognition Sort",
+    "family_id": "D4_INF",
+    "level": 1,
+    "metadata": {
+      "seed_version": "domain4-seed-expansion-v1",
+      "source_workbook": "docs/D4 Seeding Map Finale Final.xlsx",
+      "storage_status": "repo_artifact_until_schema_exists"
+    },
+    "rationale": "Inflections carry meaning: tense, number, comparison."
+  },
+  {
+    "competency_stage": "Guided correction",
+    "default_template_id": "T04",
+    "default_template_route": "Guided Rule Application",
+    "fallback_template_id": "T03",
+    "fallback_template_route": "Guided Error Correction",
+    "family_id": "D4_INF",
+    "level": 2,
+    "metadata": {
+      "seed_version": "domain4-seed-expansion-v1",
+      "source_workbook": "docs/D4 Seeding Map Finale Final.xlsx",
+      "storage_status": "repo_artifact_until_schema_exists"
+    },
+    "rationale": "Child applies endings step by step."
+  },
+  {
+    "competency_stage": "Independent controlled use",
+    "default_template_id": "T08",
+    "default_template_route": "Error Correction Set",
+    "fallback_template_id": "T05",
+    "fallback_template_route": "Controlled Production",
+    "family_id": "D4_INF",
+    "level": 3,
+    "metadata": {
+      "seed_version": "domain4-seed-expansion-v1",
+      "source_workbook": "docs/D4 Seeding Map Finale Final.xlsx",
+      "storage_status": "repo_artifact_until_schema_exists"
+    },
+    "rationale": "Inflections are well tested through correcting and forming words."
+  },
+  {
+    "competency_stage": "Transfer to authentic work",
+    "default_template_id": "T09",
+    "default_template_route": "Authentic Transfer Writing",
+    "fallback_template_id": "T10",
+    "fallback_template_route": "Proofreading Pass",
+    "family_id": "D4_INF",
+    "level": 4,
+    "metadata": {
+      "seed_version": "domain4-seed-expansion-v1",
+      "source_workbook": "docs/D4 Seeding Map Finale Final.xlsx",
+      "storage_status": "repo_artifact_until_schema_exists"
+    },
+    "rationale": "Child must use endings correctly in real writing."
+  },
+  {
+    "competency_stage": "Secure retained mastery",
+    "default_template_id": "T11",
+    "default_template_route": "Delayed Mixed Review",
+    "fallback_template_id": "T10",
+    "fallback_template_route": "Proofreading Pass",
+    "family_id": "D4_INF",
+    "level": 5,
+    "metadata": {
+      "seed_version": "domain4-seed-expansion-v1",
+      "source_workbook": "docs/D4 Seeding Map Finale Final.xlsx",
+      "storage_status": "repo_artifact_until_schema_exists"
+    },
+    "rationale": "Retention is shown through mixed tense/plural/suffix review."
+  },
+  {
+    "competency_stage": "Recognition / exposure",
+    "default_template_id": "T01",
+    "default_template_route": "Recognition Sort",
+    "fallback_template_id": "T02",
+    "fallback_template_route": "Meaning / Rule Match",
+    "family_id": "D4_SCHWA",
+    "level": 1,
+    "metadata": {
+      "seed_version": "domain4-seed-expansion-v1",
+      "source_workbook": "docs/D4 Seeding Map Finale Final.xlsx",
+      "storage_status": "repo_artifact_until_schema_exists"
+    },
+    "rationale": "Child notices unclear unstressed syllables."
+  },
+  {
+    "competency_stage": "Guided correction",
+    "default_template_id": "T03",
+    "default_template_route": "Guided Error Correction",
+    "fallback_template_id": "T04",
+    "fallback_template_route": "Guided Rule Application",
+    "family_id": "D4_SCHWA",
+    "level": 2,
+    "metadata": {
+      "seed_version": "domain4-seed-expansion-v1",
+      "source_workbook": "docs/D4 Seeding Map Finale Final.xlsx",
+      "storage_status": "repo_artifact_until_schema_exists"
+    },
+    "rationale": "Child corrects weak-vowel words with cues."
+  },
+  {
+    "competency_stage": "Independent controlled use",
+    "default_template_id": "T05",
+    "default_template_route": "Controlled Production",
+    "fallback_template_id": "T08",
+    "fallback_template_route": "Error Correction Set",
+    "family_id": "D4_SCHWA",
+    "level": 3,
+    "metadata": {
+      "seed_version": "domain4-seed-expansion-v1",
+      "source_workbook": "docs/D4 Seeding Map Finale Final.xlsx",
+      "storage_status": "repo_artifact_until_schema_exists"
+    },
+    "rationale": "Child spells schwa-heavy words independently."
+  },
+  {
+    "competency_stage": "Transfer to authentic work",
+    "default_template_id": "T10",
+    "default_template_route": "Proofreading Pass",
+    "fallback_template_id": "T09",
+    "fallback_template_route": "Authentic Transfer Writing",
+    "family_id": "D4_SCHWA",
+    "level": 4,
+    "metadata": {
+      "seed_version": "domain4-seed-expansion-v1",
+      "source_workbook": "docs/D4 Seeding Map Finale Final.xlsx",
+      "storage_status": "repo_artifact_until_schema_exists"
+    },
+    "rationale": "Schwa errors are often caught through proofreading real writing."
+  },
+  {
+    "competency_stage": "Secure retained mastery",
+    "default_template_id": "T11",
+    "default_template_route": "Delayed Mixed Review",
+    "fallback_template_id": "T10",
+    "fallback_template_route": "Proofreading Pass",
+    "family_id": "D4_SCHWA",
+    "level": 5,
+    "metadata": {
+      "seed_version": "domain4-seed-expansion-v1",
+      "source_workbook": "docs/D4 Seeding Map Finale Final.xlsx",
+      "storage_status": "repo_artifact_until_schema_exists"
+    },
+    "rationale": "Delayed review tests whether tricky words are retained."
+  },
+  {
+    "competency_stage": "Recognition / exposure",
+    "default_template_id": "T02",
+    "default_template_route": "Meaning / Rule Match",
+    "fallback_template_id": "T01",
+    "fallback_template_route": "Recognition Sort",
+    "family_id": "D4_HOM",
+    "level": 1,
+    "metadata": {
+      "seed_version": "domain4-seed-expansion-v1",
+      "source_workbook": "docs/D4 Seeding Map Finale Final.xlsx",
+      "storage_status": "repo_artifact_until_schema_exists"
+    },
+    "rationale": "Homophones require meaning recognition first."
+  },
+  {
+    "competency_stage": "Guided correction",
+    "default_template_id": "T07",
+    "default_template_route": "Sentence Context Choice",
+    "fallback_template_id": "T03",
+    "fallback_template_route": "Guided Error Correction",
+    "family_id": "D4_HOM",
+    "level": 2,
+    "metadata": {
+      "seed_version": "domain4-seed-expansion-v1",
+      "source_workbook": "docs/D4 Seeding Map Finale Final.xlsx",
+      "storage_status": "repo_artifact_until_schema_exists"
+    },
+    "rationale": "Even guided homophone work should happen in sentence context."
+  },
+  {
+    "competency_stage": "Independent controlled use",
+    "default_template_id": "T07",
+    "default_template_route": "Sentence Context Choice",
+    "fallback_template_id": "T08",
+    "fallback_template_route": "Error Correction Set",
+    "family_id": "D4_HOM",
+    "level": 3,
+    "metadata": {
+      "seed_version": "domain4-seed-expansion-v1",
+      "source_workbook": "docs/D4 Seeding Map Finale Final.xlsx",
+      "storage_status": "repo_artifact_until_schema_exists"
+    },
+    "rationale": "Controlled homophone mastery means choosing correctly in sentences."
+  },
+  {
+    "competency_stage": "Transfer to authentic work",
+    "default_template_id": "T09",
+    "default_template_route": "Authentic Transfer Writing",
+    "fallback_template_id": "T10",
+    "fallback_template_route": "Proofreading Pass",
+    "family_id": "D4_HOM",
+    "level": 4,
+    "metadata": {
+      "seed_version": "domain4-seed-expansion-v1",
+      "source_workbook": "docs/D4 Seeding Map Finale Final.xlsx",
+      "storage_status": "repo_artifact_until_schema_exists"
+    },
+    "rationale": "Child must use the correct homophone in their own writing."
+  },
+  {
+    "competency_stage": "Secure retained mastery",
+    "default_template_id": "T11",
+    "default_template_route": "Delayed Mixed Review",
+    "fallback_template_id": "T10",
+    "fallback_template_route": "Proofreading Pass",
+    "family_id": "D4_HOM",
+    "level": 5,
+    "metadata": {
+      "seed_version": "domain4-seed-expansion-v1",
+      "source_workbook": "docs/D4 Seeding Map Finale Final.xlsx",
+      "storage_status": "repo_artifact_until_schema_exists"
+    },
+    "rationale": "Mixed delayed review should include multiple homophone sets."
+  },
+  {
+    "competency_stage": "Recognition / exposure",
+    "default_template_id": "T01",
+    "default_template_route": "Recognition Sort",
+    "fallback_template_id": "T02",
+    "fallback_template_route": "Meaning / Rule Match",
+    "family_id": "D4_PROOF",
+    "level": 1,
+    "metadata": {
+      "seed_version": "domain4-seed-expansion-v1",
+      "source_workbook": "docs/D4 Seeding Map Finale Final.xlsx",
+      "storage_status": "repo_artifact_until_schema_exists"
+    },
+    "rationale": "Child recognises that something may need checking."
+  },
+  {
+    "competency_stage": "Guided correction",
+    "default_template_id": "T03",
+    "default_template_route": "Guided Error Correction",
+    "fallback_template_id": "T12",
+    "fallback_template_route": "Reflection / Explanation",
+    "family_id": "D4_PROOF",
+    "level": 2,
+    "metadata": {
+      "seed_version": "domain4-seed-expansion-v1",
+      "source_workbook": "docs/D4 Seeding Map Finale Final.xlsx",
+      "storage_status": "repo_artifact_until_schema_exists"
+    },
+    "rationale": "Child fixes marked errors with support and may explain correction."
+  },
+  {
+    "competency_stage": "Independent controlled use",
+    "default_template_id": "T08",
+    "default_template_route": "Error Correction Set",
+    "fallback_template_id": "T10",
+    "fallback_template_route": "Proofreading Pass",
+    "family_id": "D4_PROOF",
+    "level": 3,
+    "metadata": {
+      "seed_version": "domain4-seed-expansion-v1",
+      "source_workbook": "docs/D4 Seeding Map Finale Final.xlsx",
+      "storage_status": "repo_artifact_until_schema_exists"
+    },
+    "rationale": "Child finds/corrects errors independently in controlled text."
+  },
+  {
+    "competency_stage": "Transfer to authentic work",
+    "default_template_id": "T10",
+    "default_template_route": "Proofreading Pass",
+    "fallback_template_id": "T09",
+    "fallback_template_route": "Authentic Transfer Writing",
+    "family_id": "D4_PROOF",
+    "level": 4,
+    "metadata": {
+      "seed_version": "domain4-seed-expansion-v1",
+      "source_workbook": "docs/D4 Seeding Map Finale Final.xlsx",
+      "storage_status": "repo_artifact_until_schema_exists"
+    },
+    "rationale": "Proofreading is strongest when applied to real submitted work."
+  },
+  {
+    "competency_stage": "Secure retained mastery",
+    "default_template_id": "T11",
+    "default_template_route": "Delayed Mixed Review",
+    "fallback_template_id": "T12",
+    "fallback_template_route": "Reflection / Explanation",
+    "family_id": "D4_PROOF",
+    "level": 5,
+    "metadata": {
+      "seed_version": "domain4-seed-expansion-v1",
+      "source_workbook": "docs/D4 Seeding Map Finale Final.xlsx",
+      "storage_status": "repo_artifact_until_schema_exists"
+    },
+    "rationale": "Secure proofreading means delayed, mixed checking plus self-explanation when useful."
+  },
+  {
+    "competency_stage": "",
+    "default_template_id": "",
+    "default_template_route": "",
+    "fallback_template_id": "",
+    "fallback_template_route": "",
+    "family_id": "D4_IRRE",
+    "level": 1,
+    "metadata": {
+      "seed_version": "domain4-seed-expansion-v1",
+      "source_workbook": "docs/D4 Seeding Map Finale Final.xlsx",
+      "storage_status": "repo_artifact_until_schema_exists"
+    },
+    "rationale": ""
+  },
+  {
+    "competency_stage": "",
+    "default_template_id": "",
+    "default_template_route": "",
+    "fallback_template_id": "",
+    "fallback_template_route": "",
+    "family_id": "D4_IRRE",
+    "level": 2,
+    "metadata": {
+      "seed_version": "domain4-seed-expansion-v1",
+      "source_workbook": "docs/D4 Seeding Map Finale Final.xlsx",
+      "storage_status": "repo_artifact_until_schema_exists"
+    },
+    "rationale": ""
+  },
+  {
+    "competency_stage": "",
+    "default_template_id": "",
+    "default_template_route": "",
+    "fallback_template_id": "",
+    "fallback_template_route": "",
+    "family_id": "D4_IRRE",
+    "level": 3,
+    "metadata": {
+      "seed_version": "domain4-seed-expansion-v1",
+      "source_workbook": "docs/D4 Seeding Map Finale Final.xlsx",
+      "storage_status": "repo_artifact_until_schema_exists"
+    },
+    "rationale": ""
+  },
+  {
+    "competency_stage": "",
+    "default_template_id": "",
+    "default_template_route": "",
+    "fallback_template_id": "",
+    "fallback_template_route": "",
+    "family_id": "D4_IRRE",
+    "level": 4,
+    "metadata": {
+      "seed_version": "domain4-seed-expansion-v1",
+      "source_workbook": "docs/D4 Seeding Map Finale Final.xlsx",
+      "storage_status": "repo_artifact_until_schema_exists"
+    },
+    "rationale": ""
+  },
+  {
+    "competency_stage": "",
+    "default_template_id": "",
+    "default_template_route": "",
+    "fallback_template_id": "",
+    "fallback_template_route": "",
+    "family_id": "D4_IRRE",
+    "level": 5,
+    "metadata": {
+      "seed_version": "domain4-seed-expansion-v1",
+      "source_workbook": "docs/D4 Seeding Map Finale Final.xlsx",
+      "storage_status": "repo_artifact_until_schema_exists"
+    },
+    "rationale": ""
+  }
+]

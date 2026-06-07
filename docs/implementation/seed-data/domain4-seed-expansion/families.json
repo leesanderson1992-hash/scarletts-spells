@@ -1,0 +1,106 @@
+[
+  {
+    "display_name": "Phoneme-grapheme spelling",
+    "is_active": true,
+    "is_assignable": true,
+    "mastery_domain_key": "D4",
+    "metadata": {
+      "launch_status": "Ready",
+      "purpose": "Map sounds to graphemes",
+      "seed_version": "domain4-seed-expansion-v1",
+      "source_workbook": "docs/D4 Seeding Map Finale Final.xlsx"
+    },
+    "skill_family_key": "D4_PG"
+  },
+  {
+    "display_name": "Common spelling patterns",
+    "is_active": true,
+    "is_assignable": true,
+    "mastery_domain_key": "D4",
+    "metadata": {
+      "launch_status": "Ready",
+      "purpose": "Apply English spelling conventions",
+      "seed_version": "domain4-seed-expansion-v1",
+      "source_workbook": "docs/D4 Seeding Map Finale Final.xlsx"
+    },
+    "skill_family_key": "D4_PAT"
+  },
+  {
+    "display_name": "Unstressed vowels / schwa",
+    "is_active": true,
+    "is_assignable": true,
+    "mastery_domain_key": "D4",
+    "metadata": {
+      "launch_status": "Ready",
+      "purpose": "Spell weak vowels in unstressed syllables",
+      "seed_version": "domain4-seed-expansion-v1",
+      "source_workbook": "docs/D4 Seeding Map Finale Final.xlsx"
+    },
+    "skill_family_key": "D4_SCHWA"
+  },
+  {
+    "display_name": "Tricky Words",
+    "is_active": true,
+    "is_assignable": true,
+    "mastery_domain_key": "D4",
+    "metadata": {
+      "launch_status": "Ready",
+      "purpose": "One off words that don't follow a pattern",
+      "seed_version": "domain4-seed-expansion-v1",
+      "source_workbook": "docs/D4 Seeding Map Finale Final.xlsx"
+    },
+    "skill_family_key": "D4_IRRE"
+  },
+  {
+    "display_name": "Syllable spelling",
+    "is_active": true,
+    "is_assignable": true,
+    "mastery_domain_key": "D4",
+    "metadata": {
+      "launch_status": "Ready",
+      "purpose": "Use syllable structure to spell longer words",
+      "seed_version": "domain4-seed-expansion-v1",
+      "source_workbook": "docs/D4 Seeding Map Finale Final.xlsx"
+    },
+    "skill_family_key": "D4_SYL"
+  },
+  {
+    "display_name": "Morphology",
+    "is_active": true,
+    "is_assignable": true,
+    "mastery_domain_key": "D4",
+    "metadata": {
+      "launch_status": "Ready",
+      "purpose": "Use word parts and meaning for spelling",
+      "seed_version": "domain4-seed-expansion-v1",
+      "source_workbook": "docs/D4 Seeding Map Finale Final.xlsx"
+    },
+    "skill_family_key": "D4_MOR"
+  },
+  {
+    "display_name": "Inflectional endings",
+    "is_active": true,
+    "is_assignable": true,
+    "mastery_domain_key": "D4",
+    "metadata": {
+      "launch_status": "Ready",
+      "purpose": "Spell endings like -ed, -ing, plurals",
+      "seed_version": "domain4-seed-expansion-v1",
+      "source_workbook": "docs/D4 Seeding Map Finale Final.xlsx"
+    },
+    "skill_family_key": "D4_INF"
+  },
+  {
+    "display_name": "Homophones",
+    "is_active": true,
+    "is_assignable": true,
+    "mastery_domain_key": "D4",
+    "metadata": {
+      "launch_status": "Ready",
+      "purpose": "Choose spelling by meaning/context",
+      "seed_version": "domain4-seed-expansion-v1",
+      "source_workbook": "docs/D4 Seeding Map Finale Final.xlsx"
+    },
+    "skill_family_key": "D4_HOM"
+  }
+]

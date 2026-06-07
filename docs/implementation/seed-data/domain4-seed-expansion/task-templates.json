@@ -1,0 +1,134 @@
+[
+  {
+    "best_for_level": "1",
+    "main_purpose": "Child recognises the target pattern",
+    "metadata": {
+      "seed_version": "domain4-seed-expansion-v1",
+      "source_workbook": "docs/D4 Seeding Map Finale Final.xlsx",
+      "storage_status": "repo_artifact_until_schema_exists"
+    },
+    "template_id": "T01",
+    "template_name": "Recognition Sort"
+  },
+  {
+    "best_for_level": "1",
+    "main_purpose": "Child matches pattern, word, or meaning to explanation",
+    "metadata": {
+      "seed_version": "domain4-seed-expansion-v1",
+      "source_workbook": "docs/D4 Seeding Map Finale Final.xlsx",
+      "storage_status": "repo_artifact_until_schema_exists"
+    },
+    "template_id": "T02",
+    "template_name": "Meaning / Rule Match"
+  },
+  {
+    "best_for_level": "2",
+    "main_purpose": "Child corrects a marked issue with a cue",
+    "metadata": {
+      "seed_version": "domain4-seed-expansion-v1",
+      "source_workbook": "docs/D4 Seeding Map Finale Final.xlsx",
+      "storage_status": "repo_artifact_until_schema_exists"
+    },
+    "template_id": "T03",
+    "template_name": "Guided Error Correction"
+  },
+  {
+    "best_for_level": "2",
+    "main_purpose": "Child applies a rule step by step",
+    "metadata": {
+      "seed_version": "domain4-seed-expansion-v1",
+      "source_workbook": "docs/D4 Seeding Map Finale Final.xlsx",
+      "storage_status": "repo_artifact_until_schema_exists"
+    },
+    "template_id": "T04",
+    "template_name": "Guided Rule Application"
+  },
+  {
+    "best_for_level": "3",
+    "main_purpose": "Child produces correct spellings in focused practice",
+    "metadata": {
+      "seed_version": "domain4-seed-expansion-v1",
+      "source_workbook": "docs/D4 Seeding Map Finale Final.xlsx",
+      "storage_status": "repo_artifact_until_schema_exists"
+    },
+    "template_id": "T05",
+    "template_name": "Controlled Production"
+  },
+  {
+    "best_for_level": "3",
+    "main_purpose": "Child chooses between similar spellings",
+    "metadata": {
+      "seed_version": "domain4-seed-expansion-v1",
+      "source_workbook": "docs/D4 Seeding Map Finale Final.xlsx",
+      "storage_status": "repo_artifact_until_schema_exists"
+    },
+    "template_id": "T06",
+    "template_name": "Contrast Choice"
+  },
+  {
+    "best_for_level": "3",
+    "main_purpose": "Child chooses spelling in sentence context",
+    "metadata": {
+      "seed_version": "domain4-seed-expansion-v1",
+      "source_workbook": "docs/D4 Seeding Map Finale Final.xlsx",
+      "storage_status": "repo_artifact_until_schema_exists"
+    },
+    "template_id": "T07",
+    "template_name": "Sentence Context Choice"
+  },
+  {
+    "best_for_level": "3",
+    "main_purpose": "Child corrects multiple errors independently",
+    "metadata": {
+      "seed_version": "domain4-seed-expansion-v1",
+      "source_workbook": "docs/D4 Seeding Map Finale Final.xlsx",
+      "storage_status": "repo_artifact_until_schema_exists"
+    },
+    "template_id": "T08",
+    "template_name": "Error Correction Set"
+  },
+  {
+    "best_for_level": "4",
+    "main_purpose": "Child uses the skill in real writing",
+    "metadata": {
+      "seed_version": "domain4-seed-expansion-v1",
+      "source_workbook": "docs/D4 Seeding Map Finale Final.xlsx",
+      "storage_status": "repo_artifact_until_schema_exists"
+    },
+    "template_id": "T09",
+    "template_name": "Authentic Transfer Writing"
+  },
+  {
+    "best_for_level": "4",
+    "main_purpose": "Child finds and fixes errors in own or given writing",
+    "metadata": {
+      "seed_version": "domain4-seed-expansion-v1",
+      "source_workbook": "docs/D4 Seeding Map Finale Final.xlsx",
+      "storage_status": "repo_artifact_until_schema_exists"
+    },
+    "template_id": "T10",
+    "template_name": "Proofreading Pass"
+  },
+  {
+    "best_for_level": "5",
+    "main_purpose": "Child reviews older skills interleaved after time",
+    "metadata": {
+      "seed_version": "domain4-seed-expansion-v1",
+      "source_workbook": "docs/D4 Seeding Map Finale Final.xlsx",
+      "storage_status": "repo_artifact_until_schema_exists"
+    },
+    "template_id": "T11",
+    "template_name": "Delayed Mixed Review"
+  },
+  {
+    "best_for_level": "2\u20135",
+    "main_purpose": "Child explains what changed and why",
+    "metadata": {
+      "seed_version": "domain4-seed-expansion-v1",
+      "source_workbook": "docs/D4 Seeding Map Finale Final.xlsx",
+      "storage_status": "repo_artifact_until_schema_exists"
+    },
+    "template_id": "T12",
+    "template_name": "Reflection / Explanation"
+  }
+]

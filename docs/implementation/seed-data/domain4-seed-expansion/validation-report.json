@@ -1,0 +1,133 @@
+{
+  "actual_counts": {
+    "clusters": 47,
+    "family_level_template_mappings": 45,
+    "micro_skills": 240,
+    "ready_families": 8,
+    "task_templates": 12
+  },
+  "artifact_warnings": {
+    "family_level_mapping_references_without_taxonomy_family": [
+      "D4_PROOF"
+    ],
+    "incomplete_family_level_template_mappings": [
+      {
+        "family_id": "D4_IRRE",
+        "level": 1,
+        "missing_fields": [
+          "competency_stage",
+          "default_template_id",
+          "default_template_route",
+          "fallback_template_id",
+          "fallback_template_route",
+          "rationale"
+        ],
+        "row": 42
+      },
+      {
+        "family_id": "D4_IRRE",
+        "level": 2,
+        "missing_fields": [
+          "competency_stage",
+          "default_template_id",
+          "default_template_route",
+          "fallback_template_id",
+          "fallback_template_route",
+          "rationale"
+        ],
+        "row": 43
+      },
+      {
+        "family_id": "D4_IRRE",
+        "level": 3,
+        "missing_fields": [
+          "competency_stage",
+          "default_template_id",
+          "default_template_route",
+          "fallback_template_id",
+          "fallback_template_route",
+          "rationale"
+        ],
+        "row": 44
+      },
+      {
+        "family_id": "D4_IRRE",
+        "level": 4,
+        "missing_fields": [
+          "competency_stage",
+          "default_template_id",
+          "default_template_route",
+          "fallback_template_id",
+          "fallback_template_route",
+          "rationale"
+        ],
+        "row": 45
+      },
+      {
+        "family_id": "D4_IRRE",
+        "level": 5,
+        "missing_fields": [
+          "competency_stage",
+          "default_template_id",
+          "default_template_route",
+          "fallback_template_id",
+          "fallback_template_route",
+          "rationale"
+        ],
+        "row": 46
+      }
+    ]
+  },
+  "checks": {
+    "diphthong_node_ids_exist": true,
+    "no_duplicate_cluster_ids": true,
+    "no_duplicate_family_ids": true,
+    "no_duplicate_micro_skill_ids": true,
+    "no_empty_clusters": true,
+    "no_unknown_cluster_references": true,
+    "no_unknown_family_references": true,
+    "ready_rows_have_runtime_metadata": true
+  },
+  "default_practice_route": "word_practice",
+  "expected_counts": {
+    "clusters": 47,
+    "family_level_template_mappings": 45,
+    "micro_skills": 240,
+    "ready_families": 8,
+    "task_templates": 12
+  },
+  "family_skill_counts": {
+    "D4_HOM": 13,
+    "D4_INF": 28,
+    "D4_IRRE": 5,
+    "D4_MOR": 24,
+    "D4_PAT": 28,
+    "D4_PG": 116,
+    "D4_SCHWA": 9,
+    "D4_SYL": 17
+  },
+  "notes": [
+    "This dry-run slice does not mutate Supabase.",
+    "Task templates and family-level mappings remain repo artifacts/config until schema support exists.",
+    "Word/example data is projected into micro_skill_catalog metadata for import-time use.",
+    "Resolver adoption remains separate from taxonomy seeding."
+  ],
+  "output_dir": "docs/implementation/seed-data/domain4-seed-expansion",
+  "resolver_adoption": "not_changed_by_this_slice",
+  "seed_version": "domain4-seed-expansion-v1",
+  "source_workbook": "docs/D4 Seeding Map Finale Final.xlsx",
+  "supported_database_targets": {
+    "clusters": "micro_skill_clusters",
+    "families": "micro_skill_families",
+    "micro_skills": "micro_skill_catalog"
+  },
+  "supported_db_practice_routes": [
+    "word_practice",
+    "grouped_set_practice"
+  ],
+  "unsupported_direct_database_targets": [
+    "task_templates",
+    "family_level_template_mappings",
+    "standalone_word_bank_rows"
+  ]
+}

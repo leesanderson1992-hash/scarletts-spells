@@ -63,6 +63,8 @@ When docs overlap:
 
 - [docs/implementation/writing-engine-roadmap.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/implementation/writing-engine-roadmap.md:1)
 - [docs/implementation/targeted-writing-practice-status.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/implementation/targeted-writing-practice-status.md:1)
+- [docs/implementation/domain4-seed-expansion-plan.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/implementation/domain4-seed-expansion-plan.md:1)
+- [docs/implementation/seed-data/domain4-seed-expansion/README.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/implementation/seed-data/domain4-seed-expansion/README.md:1)
 - [docs/current-priorities.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/current-priorities.md:1)
 - [docs/support/vercel-launch-checklist.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/support/vercel-launch-checklist.md:1)
 - [docs/implementation/reward-system-refactor-plan.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/implementation/reward-system-refactor-plan.md:1)

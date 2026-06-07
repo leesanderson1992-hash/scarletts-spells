@@ -1,0 +1,613 @@
+[
+  {
+    "display_name": "CVC short vowel spellings",
+    "is_active": true,
+    "is_assignable": true,
+    "mastery_domain_key": "D4",
+    "metadata": {
+      "purpose": "Map simple consonant-vowel-consonant sounds to spellings",
+      "seed_version": "domain4-seed-expansion-v1",
+      "source_workbook": "docs/D4 Seeding Map Finale Final.xlsx"
+    },
+    "skill_cluster_key": "D4_PG_CVC_SHORT_VOWELS",
+    "skill_family_key": "D4_PG"
+  },
+  {
+    "display_name": "Consonant digraphs",
+    "is_active": true,
+    "is_assignable": true,
+    "mastery_domain_key": "D4",
+    "metadata": {
+      "purpose": "Spell sounds such as /sh/, /ch/, /th/, /wh/ with digraphs",
+      "seed_version": "domain4-seed-expansion-v1",
+      "source_workbook": "docs/D4 Seeding Map Finale Final.xlsx"
+    },
+    "skill_cluster_key": "D4_PG_CONSONANT_DIGRAPHS",
+    "skill_family_key": "D4_PG"
+  },
+  {
+    "display_name": "Consonant blends",
+    "is_active": true,
+    "is_assignable": true,
+    "mastery_domain_key": "D4",
+    "metadata": {
+      "purpose": "Preserve adjacent consonant sounds in spelling",
+      "seed_version": "domain4-seed-expansion-v1",
+      "source_workbook": "docs/D4 Seeding Map Finale Final.xlsx"
+    },
+    "skill_cluster_key": "D4_PG_CONSONANT_BLENDS",
+    "skill_family_key": "D4_PG"
+  },
+  {
+    "display_name": "Long /ai/ spellings",
+    "is_active": true,
+    "is_assignable": true,
+    "mastery_domain_key": "D4",
+    "metadata": {
+      "purpose": "Choose spellings such as ai, ay, a-e, eigh",
+      "seed_version": "domain4-seed-expansion-v1",
+      "source_workbook": "docs/D4 Seeding Map Finale Final.xlsx"
+    },
+    "skill_cluster_key": "D4_PG_LONG_AI",
+    "skill_family_key": "D4_PG"
+  },
+  {
+    "display_name": "Long /ee/ spellings",
+    "is_active": true,
+    "is_assignable": true,
+    "mastery_domain_key": "D4",
+    "metadata": {
+      "purpose": "Choose spellings such as ee, ea, e, y, ie",
+      "seed_version": "domain4-seed-expansion-v1",
+      "source_workbook": "docs/D4 Seeding Map Finale Final.xlsx"
+    },
+    "skill_cluster_key": "D4_PG_LONG_EE",
+    "skill_family_key": "D4_PG"
+  },
+  {
+    "display_name": "Long /igh/ spellings",
+    "is_active": true,
+    "is_assignable": true,
+    "mastery_domain_key": "D4",
+    "metadata": {
+      "purpose": "Choose spellings such as igh, i-e, y, ie",
+      "seed_version": "domain4-seed-expansion-v1",
+      "source_workbook": "docs/D4 Seeding Map Finale Final.xlsx"
+    },
+    "skill_cluster_key": "D4_PG_LONG_IGH",
+    "skill_family_key": "D4_PG"
+  },
+  {
+    "display_name": "Long /oa/ spellings",
+    "is_active": true,
+    "is_assignable": true,
+    "mastery_domain_key": "D4",
+    "metadata": {
+      "purpose": "Choose spellings such as oa, ow, o-e, oe",
+      "seed_version": "domain4-seed-expansion-v1",
+      "source_workbook": "docs/D4 Seeding Map Finale Final.xlsx"
+    },
+    "skill_cluster_key": "D4_PG_LONG_OA",
+    "skill_family_key": "D4_PG"
+  },
+  {
+    "display_name": "/oo/ and /yoo/ spellings",
+    "is_active": true,
+    "is_assignable": true,
+    "mastery_domain_key": "D4",
+    "metadata": {
+      "purpose": "Choose spellings such as oo, ue, u-e, ew, ui",
+      "seed_version": "domain4-seed-expansion-v1",
+      "source_workbook": "docs/D4 Seeding Map Finale Final.xlsx"
+    },
+    "skill_cluster_key": "D4_PG_LONG_OO_YOO",
+    "skill_family_key": "D4_PG"
+  },
+  {
+    "display_name": "R-controlled vowel spellings",
+    "is_active": true,
+    "is_assignable": true,
+    "mastery_domain_key": "D4",
+    "metadata": {
+      "purpose": "Spell sounds such as /ar/, /or/, /er/, /air/, /ear/",
+      "seed_version": "domain4-seed-expansion-v1",
+      "source_workbook": "docs/D4 Seeding Map Finale Final.xlsx"
+    },
+    "skill_cluster_key": "D4_PG_R_CONTROLLED",
+    "skill_family_key": "D4_PG"
+  },
+  {
+    "display_name": "Diphthongs",
+    "is_active": true,
+    "is_assignable": true,
+    "mastery_domain_key": "D4",
+    "metadata": {
+      "purpose": "Choose spellings such as ou, ow, oi, oy",
+      "seed_version": "domain4-seed-expansion-v1",
+      "source_workbook": "docs/D4 Seeding Map Finale Final.xlsx"
+    },
+    "skill_cluster_key": "D4_PG_DIPHTHONGS",
+    "skill_family_key": "D4_PG"
+  },
+  {
+    "display_name": "/k/ sound spelling choices",
+    "is_active": true,
+    "is_assignable": true,
+    "mastery_domain_key": "D4",
+    "metadata": {
+      "purpose": "Choose between c, k, ck, ch, que",
+      "seed_version": "domain4-seed-expansion-v1",
+      "source_workbook": "docs/D4 Seeding Map Finale Final.xlsx"
+    },
+    "skill_cluster_key": "D4_PG_K_SOUND_CHOICES",
+    "skill_family_key": "D4_PG"
+  },
+  {
+    "display_name": "/j/ sound spelling choices",
+    "is_active": true,
+    "is_assignable": true,
+    "mastery_domain_key": "D4",
+    "metadata": {
+      "purpose": "Choose between j, g, ge, dge",
+      "seed_version": "domain4-seed-expansion-v1",
+      "source_workbook": "docs/D4 Seeding Map Finale Final.xlsx"
+    },
+    "skill_cluster_key": "D4_PG_J_SOUND_CHOICES",
+    "skill_family_key": "D4_PG"
+  },
+  {
+    "display_name": "/f/ sound spelling choices",
+    "is_active": true,
+    "is_assignable": true,
+    "mastery_domain_key": "D4",
+    "metadata": {
+      "purpose": "Choose between f, ff, ph, gh",
+      "seed_version": "domain4-seed-expansion-v1",
+      "source_workbook": "docs/D4 Seeding Map Finale Final.xlsx"
+    },
+    "skill_cluster_key": "D4_PG_F_SOUND_CHOICES",
+    "skill_family_key": "D4_PG"
+  },
+  {
+    "display_name": "Short /oo/ spellings",
+    "is_active": true,
+    "is_assignable": true,
+    "mastery_domain_key": "D4",
+    "metadata": {
+      "purpose": "Spell short /oo/ words with patterns such as oo, oul, and u",
+      "seed_version": "domain4-seed-expansion-v1",
+      "source_workbook": "docs/D4 Seeding Map Finale Final.xlsx"
+    },
+    "skill_cluster_key": "D4_PG_SHORT_OO",
+    "skill_family_key": "D4_PG"
+  },
+  {
+    "display_name": "/s/ sound spelling choices",
+    "is_active": true,
+    "is_assignable": true,
+    "mastery_domain_key": "D4",
+    "metadata": {
+      "purpose": "Choose between s, ss, c, ce, se, sc",
+      "seed_version": "domain4-seed-expansion-v1",
+      "source_workbook": "docs/D4 Seeding Map Finale Final.xlsx"
+    },
+    "skill_cluster_key": "D4_PG_S_SOUND_CHOICES",
+    "skill_family_key": "D4_PG"
+  },
+  {
+    "display_name": "/z/ sound spelling choices",
+    "is_active": true,
+    "is_assignable": true,
+    "mastery_domain_key": "D4",
+    "metadata": {
+      "purpose": "Choose between z, zz, s, se",
+      "seed_version": "domain4-seed-expansion-v1",
+      "source_workbook": "docs/D4 Seeding Map Finale Final.xlsx"
+    },
+    "skill_cluster_key": "D4_PG_Z_SOUND_CHOICES",
+    "skill_family_key": "D4_PG"
+  },
+  {
+    "display_name": "/sh/ sound spelling choices",
+    "is_active": true,
+    "is_assignable": true,
+    "mastery_domain_key": "D4",
+    "metadata": {
+      "purpose": "Choose between sh, ti, ci, si, ch",
+      "seed_version": "domain4-seed-expansion-v1",
+      "source_workbook": "docs/D4 Seeding Map Finale Final.xlsx"
+    },
+    "skill_cluster_key": "D4_PG_SH_SOUND_CHOICES",
+    "skill_family_key": "D4_PG"
+  },
+  {
+    "display_name": "/ch/ sound spelling choices",
+    "is_active": true,
+    "is_assignable": true,
+    "mastery_domain_key": "D4",
+    "metadata": {
+      "purpose": "Choose between ch, tch, tu, ture, ti",
+      "seed_version": "domain4-seed-expansion-v1",
+      "source_workbook": "docs/D4 Seeding Map Finale Final.xlsx"
+    },
+    "skill_cluster_key": "D4_PG_CH_SOUND_CHOICES",
+    "skill_family_key": "D4_PG"
+  },
+  {
+    "display_name": "Final consonant spelling patterns",
+    "is_active": true,
+    "is_assignable": true,
+    "mastery_domain_key": "D4",
+    "metadata": {
+      "purpose": "Apply final spelling conventions such as ck, tch, dge, and final ve",
+      "seed_version": "domain4-seed-expansion-v1",
+      "source_workbook": "docs/D4 Seeding Map Finale Final.xlsx"
+    },
+    "skill_cluster_key": "D4_PAT_FINAL_CONSONANT_PATTERNS",
+    "skill_family_key": "D4_PAT"
+  },
+  {
+    "display_name": "Split digraph patterns",
+    "is_active": true,
+    "is_assignable": true,
+    "mastery_domain_key": "D4",
+    "metadata": {
+      "purpose": "Use a-e, e-e, i-e, o-e, u-e spellings",
+      "seed_version": "domain4-seed-expansion-v1",
+      "source_workbook": "docs/D4 Seeding Map Finale Final.xlsx"
+    },
+    "skill_cluster_key": "D4_PAT_SPLIT_DIGRAPHS",
+    "skill_family_key": "D4_PAT"
+  },
+  {
+    "display_name": "Base-word doubling patterns",
+    "is_active": true,
+    "is_assignable": true,
+    "mastery_domain_key": "D4",
+    "metadata": {
+      "purpose": "Use doubled consonants in common base-word spelling environments",
+      "seed_version": "domain4-seed-expansion-v1",
+      "source_workbook": "docs/D4 Seeding Map Finale Final.xlsx"
+    },
+    "skill_cluster_key": "D4_PAT_DOUBLING_PATTERNS",
+    "skill_family_key": "D4_PAT"
+  },
+  {
+    "display_name": "Common silent-letter patterns",
+    "is_active": true,
+    "is_assignable": true,
+    "mastery_domain_key": "D4",
+    "metadata": {
+      "purpose": "Spell common words with silent kn, wr, gn, mb, and related patterns",
+      "seed_version": "domain4-seed-expansion-v1",
+      "source_workbook": "docs/D4 Seeding Map Finale Final.xlsx"
+    },
+    "skill_cluster_key": "D4_PAT_SILENT_LETTERS",
+    "skill_family_key": "D4_PAT"
+  },
+  {
+    "display_name": "wa, war, wor patterns",
+    "is_active": true,
+    "is_assignable": true,
+    "mastery_domain_key": "D4",
+    "metadata": {
+      "purpose": "Spell altered vowel sounds after w",
+      "seed_version": "domain4-seed-expansion-v1",
+      "source_workbook": "docs/D4 Seeding Map Finale Final.xlsx"
+    },
+    "skill_cluster_key": "D4_PAT_WA_WOR",
+    "skill_family_key": "D4_PAT"
+  },
+  {
+    "display_name": "Contraction spelling patterns",
+    "is_active": true,
+    "is_assignable": true,
+    "mastery_domain_key": "D4",
+    "metadata": {
+      "purpose": "Spell contractions accurately using apostrophes for omitted letters",
+      "seed_version": "domain4-seed-expansion-v1",
+      "source_workbook": "docs/D4 Seeding Map Finale Final.xlsx"
+    },
+    "skill_cluster_key": "D4_PAT_CONTRACTIONS",
+    "skill_family_key": "D4_PAT"
+  },
+  {
+    "display_name": "Initial schwa",
+    "is_active": true,
+    "is_assignable": true,
+    "mastery_domain_key": "D4",
+    "metadata": {
+      "purpose": "Spell weak unstressed vowels at the beginning of words, especially a- words",
+      "seed_version": "domain4-seed-expansion-v1",
+      "source_workbook": "docs/D4 Seeding Map Finale Final.xlsx"
+    },
+    "skill_cluster_key": "D4_SCHWA_INITIAL",
+    "skill_family_key": "D4_SCHWA"
+  },
+  {
+    "display_name": "Medial schwa",
+    "is_active": true,
+    "is_assignable": true,
+    "mastery_domain_key": "D4",
+    "metadata": {
+      "purpose": "Spell unclear weak vowels in the middle of common words",
+      "seed_version": "domain4-seed-expansion-v1",
+      "source_workbook": "docs/D4 Seeding Map Finale Final.xlsx"
+    },
+    "skill_cluster_key": "D4_SCHWA_MEDIAL",
+    "skill_family_key": "D4_SCHWA"
+  },
+  {
+    "display_name": "Final schwa",
+    "is_active": true,
+    "is_assignable": true,
+    "mastery_domain_key": "D4",
+    "metadata": {
+      "purpose": "Spell final weak syllables such as -er, -or, -ar, -a",
+      "seed_version": "domain4-seed-expansion-v1",
+      "source_workbook": "docs/D4 Seeding Map Finale Final.xlsx"
+    },
+    "skill_cluster_key": "D4_SCHWA_FINAL",
+    "skill_family_key": "D4_SCHWA"
+  },
+  {
+    "display_name": "Tricky and word-specific spellings",
+    "is_active": true,
+    "is_assignable": true,
+    "mastery_domain_key": "D4",
+    "metadata": {
+      "purpose": "Spell common words that need word-specific memory because they do not follow a reliable taught pattern",
+      "seed_version": "domain4-seed-expansion-v1",
+      "source_workbook": "docs/D4 Seeding Map Finale Final.xlsx"
+    },
+    "skill_cluster_key": "D4_IRRE_TRICKY_WORDS",
+    "skill_family_key": "D4_IRRE"
+  },
+  {
+    "display_name": "Syllable division for spelling",
+    "is_active": true,
+    "is_assignable": true,
+    "mastery_domain_key": "D4",
+    "metadata": {
+      "purpose": "Split longer words into useful spelling syllables",
+      "seed_version": "domain4-seed-expansion-v1",
+      "source_workbook": "docs/D4 Seeding Map Finale Final.xlsx"
+    },
+    "skill_cluster_key": "D4_SYL_SYLLABLE_DIVISION",
+    "skill_family_key": "D4_SYL"
+  },
+  {
+    "display_name": "Consonant-le syllables",
+    "is_active": true,
+    "is_assignable": true,
+    "mastery_domain_key": "D4",
+    "metadata": {
+      "purpose": "Spell final syllables such as -ble, -tle, -dle, -kle, -ple",
+      "seed_version": "domain4-seed-expansion-v1",
+      "source_workbook": "docs/D4 Seeding Map Finale Final.xlsx"
+    },
+    "skill_cluster_key": "D4_SYL_CONSONANT_LE",
+    "skill_family_key": "D4_SYL"
+  },
+  {
+    "display_name": "Final stable syllables",
+    "is_active": true,
+    "is_assignable": true,
+    "mastery_domain_key": "D4",
+    "metadata": {
+      "purpose": "Spell common final syllables such as -tion, -sion, -ture, -cian, -cial, -tial",
+      "seed_version": "domain4-seed-expansion-v1",
+      "source_workbook": "docs/D4 Seeding Map Finale Final.xlsx"
+    },
+    "skill_cluster_key": "D4_SYL_FINAL_STABLE_SYLLABLES",
+    "skill_family_key": "D4_SYL"
+  },
+  {
+    "display_name": "Syllable preservation in longer words",
+    "is_active": true,
+    "is_assignable": true,
+    "mastery_domain_key": "D4",
+    "metadata": {
+      "purpose": "Preserve all syllables when spelling longer words",
+      "seed_version": "domain4-seed-expansion-v1",
+      "source_workbook": "docs/D4 Seeding Map Finale Final.xlsx"
+    },
+    "skill_cluster_key": "D4_SYL_SYLLABLE_PRESERVATION",
+    "skill_family_key": "D4_SYL"
+  },
+  {
+    "display_name": "Base word awareness",
+    "is_active": true,
+    "is_assignable": true,
+    "mastery_domain_key": "D4",
+    "metadata": {
+      "purpose": "Identify and preserve base words in longer spellings",
+      "seed_version": "domain4-seed-expansion-v1",
+      "source_workbook": "docs/D4 Seeding Map Finale Final.xlsx"
+    },
+    "skill_cluster_key": "D4_MOR_BASE_WORDS",
+    "skill_family_key": "D4_MOR"
+  },
+  {
+    "display_name": "Prefixes",
+    "is_active": true,
+    "is_assignable": true,
+    "mastery_domain_key": "D4",
+    "metadata": {
+      "purpose": "Spell common prefixes such as un-, re-, pre-, dis-, mis-",
+      "seed_version": "domain4-seed-expansion-v1",
+      "source_workbook": "docs/D4 Seeding Map Finale Final.xlsx"
+    },
+    "skill_cluster_key": "D4_MOR_PREFIXES",
+    "skill_family_key": "D4_MOR"
+  },
+  {
+    "display_name": "Derivational suffixes",
+    "is_active": true,
+    "is_assignable": true,
+    "mastery_domain_key": "D4",
+    "metadata": {
+      "purpose": "Spell common suffixes as stable meaning units",
+      "seed_version": "domain4-seed-expansion-v1",
+      "source_workbook": "docs/D4 Seeding Map Finale Final.xlsx"
+    },
+    "skill_cluster_key": "D4_MOR_SUFFIXES",
+    "skill_family_key": "D4_MOR"
+  },
+  {
+    "display_name": "Compound words",
+    "is_active": true,
+    "is_assignable": true,
+    "mastery_domain_key": "D4",
+    "metadata": {
+      "purpose": "Spell compound words by preserving both base words",
+      "seed_version": "domain4-seed-expansion-v1",
+      "source_workbook": "docs/D4 Seeding Map Finale Final.xlsx"
+    },
+    "skill_cluster_key": "D4_MOR_COMPOUND_WORDS",
+    "skill_family_key": "D4_MOR"
+  },
+  {
+    "display_name": "Word families and related forms",
+    "is_active": true,
+    "is_assignable": true,
+    "mastery_domain_key": "D4",
+    "metadata": {
+      "purpose": "Use related words to support spelling, including pronunciation shifts",
+      "seed_version": "domain4-seed-expansion-v1",
+      "source_workbook": "docs/D4 Seeding Map Finale Final.xlsx"
+    },
+    "skill_cluster_key": "D4_MOR_WORD_FAMILIES",
+    "skill_family_key": "D4_MOR"
+  },
+  {
+    "display_name": "Greek and Latin roots",
+    "is_active": true,
+    "is_assignable": true,
+    "mastery_domain_key": "D4",
+    "metadata": {
+      "purpose": "Use common Greek and Latin roots to support spelling and meaning",
+      "seed_version": "domain4-seed-expansion-v1",
+      "source_workbook": "docs/D4 Seeding Map Finale Final.xlsx"
+    },
+    "skill_cluster_key": "D4_MOR_ROOTS",
+    "skill_family_key": "D4_MOR"
+  },
+  {
+    "display_name": "Plural endings",
+    "is_active": true,
+    "is_assignable": true,
+    "mastery_domain_key": "D4",
+    "metadata": {
+      "purpose": "Spell regular and changed plural endings",
+      "seed_version": "domain4-seed-expansion-v1",
+      "source_workbook": "docs/D4 Seeding Map Finale Final.xlsx"
+    },
+    "skill_cluster_key": "D4_INF_PLURALS",
+    "skill_family_key": "D4_INF"
+  },
+  {
+    "display_name": "Past tense -ed endings",
+    "is_active": true,
+    "is_assignable": true,
+    "mastery_domain_key": "D4",
+    "metadata": {
+      "purpose": "Spell -ed despite different pronunciations /t/, /d/, /id/",
+      "seed_version": "domain4-seed-expansion-v1",
+      "source_workbook": "docs/D4 Seeding Map Finale Final.xlsx"
+    },
+    "skill_cluster_key": "D4_INF_PAST_TENSE_ED",
+    "skill_family_key": "D4_INF"
+  },
+  {
+    "display_name": "Present-tense endings",
+    "is_active": true,
+    "is_assignable": true,
+    "mastery_domain_key": "D4",
+    "metadata": {
+      "purpose": "Spell third-person singular and present-tense forms",
+      "seed_version": "domain4-seed-expansion-v1",
+      "source_workbook": "docs/D4 Seeding Map Finale Final.xlsx"
+    },
+    "skill_cluster_key": "D4_INF_PRESENT_TENSE",
+    "skill_family_key": "D4_INF"
+  },
+  {
+    "display_name": "-ing endings",
+    "is_active": true,
+    "is_assignable": true,
+    "mastery_domain_key": "D4",
+    "metadata": {
+      "purpose": "Spell -ing forms, including drop-e and doubling patterns",
+      "seed_version": "domain4-seed-expansion-v1",
+      "source_workbook": "docs/D4 Seeding Map Finale Final.xlsx"
+    },
+    "skill_cluster_key": "D4_INF_ING_ENDINGS",
+    "skill_family_key": "D4_INF"
+  },
+  {
+    "display_name": "Comparative and superlative endings",
+    "is_active": true,
+    "is_assignable": true,
+    "mastery_domain_key": "D4",
+    "metadata": {
+      "purpose": "Spell -er and -est forms accurately",
+      "seed_version": "domain4-seed-expansion-v1",
+      "source_workbook": "docs/D4 Seeding Map Finale Final.xlsx"
+    },
+    "skill_cluster_key": "D4_INF_COMPARATIVE_SUPERLATIVE",
+    "skill_family_key": "D4_INF"
+  },
+  {
+    "display_name": "Irregular inflected forms",
+    "is_active": true,
+    "is_assignable": true,
+    "mastery_domain_key": "D4",
+    "metadata": {
+      "purpose": "Spell common irregular forms such as went, made, children",
+      "seed_version": "domain4-seed-expansion-v1",
+      "source_workbook": "docs/D4 Seeding Map Finale Final.xlsx"
+    },
+    "skill_cluster_key": "D4_INF_IRREGULAR_INFLECTIONS",
+    "skill_family_key": "D4_INF"
+  },
+  {
+    "display_name": "Function-word homophones",
+    "is_active": true,
+    "is_assignable": true,
+    "mastery_domain_key": "D4",
+    "metadata": {
+      "purpose": "Choose common grammar/function-word homophones by meaning and sentence role",
+      "seed_version": "domain4-seed-expansion-v1",
+      "source_workbook": "docs/D4 Seeding Map Finale Final.xlsx"
+    },
+    "skill_cluster_key": "D4_HOM_FUNCTION_WORD_HOMOPHONES",
+    "skill_family_key": "D4_HOM"
+  },
+  {
+    "display_name": "Contraction and possessive homophones",
+    "is_active": true,
+    "is_assignable": true,
+    "mastery_domain_key": "D4",
+    "metadata": {
+      "purpose": "Distinguish contractions from possessives or pronouns by meaning",
+      "seed_version": "domain4-seed-expansion-v1",
+      "source_workbook": "docs/D4 Seeding Map Finale Final.xlsx"
+    },
+    "skill_cluster_key": "D4_HOM_CONTRACTION_POSSESSIVE_HOMOPHONES",
+    "skill_family_key": "D4_HOM"
+  },
+  {
+    "display_name": "Content-word homophones",
+    "is_active": true,
+    "is_assignable": true,
+    "mastery_domain_key": "D4",
+    "metadata": {
+      "purpose": "Choose noun, verb, adjective, and content-word homophones by meaning",
+      "seed_version": "domain4-seed-expansion-v1",
+      "source_workbook": "docs/D4 Seeding Map Finale Final.xlsx"
+    },
+    "skill_cluster_key": "D4_HOM_CONTENT_WORD_HOMOPHONES",
+    "skill_family_key": "D4_HOM"
+  }
+]
