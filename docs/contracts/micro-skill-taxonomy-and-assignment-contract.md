@@ -21,6 +21,12 @@ It is a prerequisite for later work on:
 - broader adaptive practice routing
 - oracy/pronunciation support
 
+Future spelling word-map or dictionary content must follow
+[docs/contracts/canonical-spelling-word-map-contract.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/contracts/canonical-spelling-word-map-contract.md:1):
+word rows may support lesson content for existing active assignable spelling
+micro-skills, but they do not create taxonomy, `learning_items`,
+`assignment_items`, resolver truth, or mastery evidence.
+
 ## Status
 
 Status: `Implementation contract`

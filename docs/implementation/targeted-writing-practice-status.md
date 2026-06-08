@@ -11,6 +11,7 @@ Canonical documentation now defers to:
 
 - [docs/architecture/writing-engine-canonical-brief.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/architecture/writing-engine-canonical-brief.md:1)
 - [docs/contracts/writing-engine-mastery-and-evidence-contract.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/contracts/writing-engine-mastery-and-evidence-contract.md:1)
+- [docs/contracts/canonical-spelling-word-map-contract.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/contracts/canonical-spelling-word-map-contract.md:1)
 - [docs/implementation/writing-engine-roadmap.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/implementation/writing-engine-roadmap.md:1)
 
 ## Current headline
@@ -33,6 +34,10 @@ Canonical documentation now defers to:
   diagnostics.
 - Stage `1D` generic assignment generation is now complete on the shared engine
   boundary through bounded `1D.1` to `1D.5` closeout.
+- Future spelling word-map/dictionary content is now contracted as content
+  metadata only. It may later supply lesson words for existing active
+  assignable spelling micro-skills, but it is not resolver, mastery,
+  assignment, taxonomy, or fallback spelling-list truth.
 - Stage `1` is now complete for its intended purpose:
   - shared Writing Engine foundation
   - first spelling diagnostic path

@@ -28,6 +28,7 @@ Canonical semantics still defer to:
 - [docs/contracts/targeted-writing-practice-contract.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/contracts/targeted-writing-practice-contract.md:1)
 - [docs/contracts/micro-skill-taxonomy-and-assignment-contract.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/contracts/micro-skill-taxonomy-and-assignment-contract.md:1)
 - [docs/contracts/parent-recommended-canonical-mapping.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/contracts/parent-recommended-canonical-mapping.md:1)
+- [docs/contracts/canonical-spelling-word-map-contract.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/contracts/canonical-spelling-word-map-contract.md:1)
 - [docs/pedagogy/learning-system-overview.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/pedagogy/learning-system-overview.md:1)
 - [docs/pedagogy/micro-skill-taxonomy.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/pedagogy/micro-skill-taxonomy.md:1)
 - [docs/pedagogy/mastery-domain-4-spelling.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/pedagogy/mastery-domain-4-spelling.md:1)
@@ -77,6 +78,10 @@ Treat these as fixed unless a later canonical doc changes them:
 - parent verification is required before new diagnostic suggestions update
   mastery
 - assignment composition must be generic and must not be word-list-only
+- future spelling word-map/dictionary content may supply route-support words
+  for existing active assignable spelling micro-skills only; it must not create
+  taxonomy, resolver truth, mastery evidence, `learning_items`, or
+  `assignment_items` by itself
 - `word_progress` must not be reintroduced as canonical truth
 - the retired spelling runtime must not be revived as the delivery model for
   the Writing Engine
