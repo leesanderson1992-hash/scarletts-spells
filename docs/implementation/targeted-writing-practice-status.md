@@ -38,6 +38,20 @@ Canonical documentation now defers to:
   metadata only. It may later supply lesson words for existing active
   assignable spelling micro-skills, but it is not resolver, mastery,
   assignment, taxonomy, or fallback spelling-list truth.
+- Stage `2C.1` canonical spelling word-map storage foundation is implemented
+  locally and committed as source only:
+  - migration:
+    `supabase/migrations/20260608193000_add_canonical_spelling_word_map_storage.sql`
+  - dry-run planner:
+    `python3 scripts/import-canonical-spelling-word-map.py "docs/implementation/seed-data/canonical-spelling-word-map/canonical-spelling-word-map-v1.xlsx"`
+  - no hosted deployment, Supabase import, resolver behaviour, assignment
+    generation, mastery/evidence, reward, scoring, analytics, dashboard,
+    template-routing, UI, or taxonomy behaviour changed
+  - the dry-run planner refuses `--apply` and does not connect to Supabase
+  - diagnostic examples remain non-resolver-visible
+  - production deployment remains blocked until an explicit migration-ledger
+    check and approved DB-changing release
+  - Stage `2D` assignment consumption remains future work only
 - Stage `1` is now complete for its intended purpose:
   - shared Writing Engine foundation
   - first spelling diagnostic path

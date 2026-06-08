@@ -265,6 +265,15 @@ remain audit/reference material only and must not be replayed blindly.
 Any future production DB-changing release must still include an explicit ledger
 check before applying SQL.
 
+Stage `2C.1` canonical spelling word-map storage foundation is currently
+source-only. Migration
+`20260608193000_add_canonical_spelling_word_map_storage.sql` creates dedicated
+word-map content tables and a dry-run-only import planner exists at
+`scripts/import-canonical-spelling-word-map.py`, but the migration has not been
+applied to hosted Supabase and no workbook rows have been imported. Applying
+that migration requires a separate approved DB-changing release with an
+explicit migration-ledger check; do not run broad `supabase db push` for it.
+
 ## Success Criteria
 
 - no duplicate active Supabase migration versions remain

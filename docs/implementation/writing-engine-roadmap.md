@@ -117,6 +117,13 @@ Current transition reality:
   `baseline/reconciliation` before implementation begins
 - future migrations must use unique timestamp versions in the form
   `YYYYMMDDHHMMSS_description.sql`
+- Stage `2C.1` canonical spelling word-map storage foundation exists in source
+  as unique migration
+  `supabase/migrations/20260608193000_add_canonical_spelling_word_map_storage.sql`
+  plus the dry-run-only planner
+  `scripts/import-canonical-spelling-word-map.py`; it is not deployed, imports
+  no rows, refuses `--apply`, does not connect to Supabase, and does not
+  authorize Stage `2D` assignment consumption
 
 Current ownership rule:
 - `Analyse Writing` belongs under `Courses` navigation

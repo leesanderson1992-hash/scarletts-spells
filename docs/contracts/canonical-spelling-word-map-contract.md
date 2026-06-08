@@ -24,10 +24,23 @@ runtime consumer.
 
 ## Status
 
-Status: `Stage 1 docs-only contract`
+Status: `Stage 2C.1 storage foundation implemented locally`
 
-This document is not a schema migration, import plan, spreadsheet artifact, or
-runtime authorization. It creates no database objects and changes no behavior.
+Stage `2C.1` adds a dedicated local storage foundation migration and a
+dry-run-only import planner for canonical spelling word-map content:
+
+- migration:
+  `supabase/migrations/20260608193000_add_canonical_spelling_word_map_storage.sql`
+- dry-run planner:
+  `python3 scripts/import-canonical-spelling-word-map.py "docs/implementation/seed-data/canonical-spelling-word-map/canonical-spelling-word-map-v1.xlsx"`
+
+The migration is committed source only until a separately approved
+DB-changing release applies it. No workbook rows have been imported. The
+dry-run planner refuses `--apply` and does not connect to Supabase.
+
+This document remains a contract and runtime boundary. It does not authorize
+resolver reads, assignment consumption, mastery/evidence interpretation,
+taxonomy mutation, production import, or hosted deployment by itself.
 
 ## Relationship to existing contracts
 
@@ -178,9 +191,10 @@ adopts them through the correct authority path.
 ## Explicit non-goals
 
 This contract does not authorize:
-- database migrations
+- applying database migrations without a separately approved DB-changing slice
+  and migration-ledger check
 - Supabase mutation
-- import scripts
+- actual imports
 - spreadsheet creation
 - resolver behavior changes
 - assignment generation changes
@@ -539,6 +553,8 @@ Future implementation must be staged:
 2. Stage `2B`: build a read-only validator that reports errors without
    mutation.
 3. Stage `2C`: plan storage foundation and import only after validation passes.
+   Stage `2C.1` has implemented dedicated storage tables and a dry-run-only
+   import planner locally; it has not deployed the migration or imported rows.
 4. Stage `2D`: allow assignment generation to consume approved content only
    after a separate runtime contract authorizes it.
 
@@ -548,6 +564,10 @@ Before any database-changing work:
 - check the migration ledger policy
 - create a unique forward migration only if separately approved
 - do not import to production until the source/licence and schema are approved
+- do not apply
+  `20260608193000_add_canonical_spelling_word_map_storage.sql` to hosted
+  Supabase until an explicit migration-ledger check and DB-changing release are
+  approved
 
 ## Future runtime boundary
 
@@ -601,15 +621,31 @@ status/catalog references, and writes a local validation report only.
 
 ### Stage `2C`: storage foundation/import
 
-Design and implement approved storage only after the validator passes and the
-migration policy is followed. No production import without separate
-authorization.
+Dedicated storage foundation and dry-run import planning are implemented
+locally in Stage `2C.1`.
+
+Storage tables:
+- `canonical_spelling_word_map_import_batches`
+- `canonical_spelling_word_map_diversity_groups`
+- `canonical_spelling_word_map_words`
+- `canonical_spelling_word_metadata`
+- `canonical_spelling_word_map_contrast_pairs`
+- `canonical_spelling_word_map_diagnostic_examples`
+- `canonical_spelling_word_map_route_support`
+
+Diagnostic examples remain non-resolver-visible; the storage constraint keeps
+`resolver_visible_candidate = false`. The dry-run planner validates first,
+preserves source/licence metadata in planned row metadata, refuses `--apply`,
+and does not connect to Supabase.
+
+The migration is not deployed and no rows are imported until a separate
+DB-changing release follows the migration policy.
 
 ### Stage `2D`: assignment consumption
 
-Allow assignment generation to consume approved word-map content only for
-already-existing active `learning_items`. Missing content must skip or surface
-explicitly.
+Future only. Allow assignment generation to consume approved word-map content
+only for already-existing active `learning_items`. Missing content must skip or
+surface explicitly.
 
 ### Later: positive evidence and mastery integration
 
