@@ -259,6 +259,9 @@ def headers_for(path: Path, sheet_name: str) -> list[str]:
                 return []
             headers: list[str] = []
             for cell in first.findall("a:c", NS):
+                if cell.attrib.get("t") == "inlineStr":
+                    headers.append("".join(t.text or "" for t in cell.findall(".//a:t", NS)).strip())
+                    continue
                 value = cell.find("a:v", NS)
                 if value is None:
                     headers.append("")
