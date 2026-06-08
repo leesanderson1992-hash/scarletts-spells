@@ -210,45 +210,53 @@ Stop the slice or import if:
 ## Spreadsheet workbook contract
 
 Stage `2A` should create a workbook or spreadsheet artifact with the following
-proposed sheets. The workbook is an authoring and review artifact, not runtime
+canonical sheets. The workbook is an authoring and review artifact, not runtime
 truth.
 
-### Sheet: `word_map`
+### Sheet: `micro_skill_word_bank`
 
-Purpose: one row per word-to-skill content association.
+Purpose: main lesson-filling content, one row per word-to-skill content
+association.
 
 Required columns:
-- `word_text`
-- `normalized_word`
-- `dialect_code`
 - `micro_skill_key`
-- `content_role`
+- `word`
+- `normalised_word`
+- `word_role`
+- `micro_skill_role`
+- `diversity_group_key`
+- `complexity_band`
+- `frequency_band`
 - `practice_route`
-- `review_status`
-- `source_name`
-- `source_reference`
-- `source_license`
+- `approved_for_assignment`
+- `notes`
 
 Optional columns:
+- `dialect_code`
 - `word_class`
-- `frequency_band`
 - `difficulty_band`
 - `is_high_frequency`
 - `is_tricky_word`
 - `spelling_pattern`
 - `morphology_family`
-- `diversity_group`
-- `complexity_band`
-- `notes`
+- `source_name`
+- `source_reference`
+- `source_license`
+- `review_status`
 
-Allowed `content_role` values:
-- `target_word`
-- `starter_word`
-- `example_word`
-- `contrast_word`
+Allowed `word_role` values:
+- `teaching_example`
+- `practice_word`
+- `anchor_word`
 - `dictation_word`
 - `sentence_application_word`
 - `review_word`
+
+Allowed `micro_skill_role` values:
+- `primary_tested`
+- `supporting_prerequisite`
+- `weak_possible_prerequisite`
+- `contrast_only`
 
 Allowed `practice_route` values must match the active catalog route vocabulary
 or a later approved route contract. Current expected values include:
@@ -261,33 +269,66 @@ or a later approved route contract. Current expected values include:
 - `proofreading`
 - `oracy_pronunciation`
 
-Allowed `review_status` values:
-- `draft`
-- `source_verified`
-- `manual_review_needed`
-- `approved`
-- `rejected`
+Validation rules:
+- `micro_skill_key` must exist in `micro_skill_catalog`, be active,
+  assignable, and spelling-owned.
+- `normalised_word` must be lowercase, non-empty, and not punctuation-only.
+- `diversity_group_key`, when present, must be defined for the same
+  `micro_skill_key` in `micro_skill_diversity_groups`.
+- `approved_for_assignment` must be a boolean workbook value.
+- approval is content readiness only; it does not create `learning_items`,
+  `assignment_items`, mastery evidence, or resolver truth.
 
 Example rows:
 
-| word_text | normalized_word | dialect_code | micro_skill_key | content_role | practice_route | review_status | source_name | source_reference | source_license |
+| micro_skill_key | word | normalised_word | word_role | micro_skill_role | diversity_group_key | complexity_band | frequency_band | practice_route | approved_for_assignment |
 |---|---|---|---|---|---|---|---|---|---|
-| cat | cat | en-GB | D4_PG_CVC_SHORT_VOWELS_SHORT_A | starter_word | word_practice | approved | internal_domain4_seed | domain4-mvp1-seed-manifest | internal |
-| ship | ship | en-GB | D4_PG_CONSONANT_DIGRAPHS_SH_INITIAL_FINAL | target_word | word_practice | draft | future_dictionary_review | pending | pending |
-| bath | bath | en-GB | D4_PG_CONSONANT_DIGRAPHS_TH_UNVOICED | sentence_application_word | sentence_application | draft | future_dictionary_review | pending | pending |
+| D4_PG_CVC_SHORT_VOWELS_SHORT_A | cat | cat | teaching_example | primary_tested | short_a_cvc | easy | common | word_practice | TRUE |
+| D4_PG_CONSONANT_DIGRAPHS_SH_INITIAL_FINAL | ship | ship | practice_word | primary_tested | sh_initial | easy | common | grouped_set_practice | TRUE |
 
-### Sheet: `contrast_sets`
+### Sheet: `micro_skill_diversity_groups`
+
+Purpose: breadth groups used to prevent shallow or over-narrow practice.
+
+Required columns:
+- `micro_skill_key`
+- `diversity_group_key`
+- `display_label`
+- `required_for_mastery`
+- `minimum_success_examples`
+- `notes`
+
+Optional columns:
+- `source_name`
+- `source_reference`
+- `source_license`
+- `review_status`
+
+Validation rules:
+- `micro_skill_key` must exist in `micro_skill_catalog`, be active,
+  assignable, and spelling-owned.
+- `diversity_group_key` must be unique per `micro_skill_key`.
+- `required_for_mastery` is descriptive in this stage and must not alter
+  mastery scoring.
+- `minimum_success_examples` must be numeric when present.
+
+Example row:
+
+| micro_skill_key | diversity_group_key | display_label | required_for_mastery | minimum_success_examples | notes |
+|---|---|---|---|---:|---|
+| D4_PG_CONSONANT_DIGRAPHS_SH_INITIAL_FINAL | sh_initial | Initial sh words | TRUE | 3 | ship, shop, shed type words |
+
+### Sheet: `contrast_pairs`
 
 Purpose: group contrast options without treating them as correction mappings.
 
 Required columns:
-- `contrast_set_key`
-- `micro_skill_key`
-- `anchor_word`
+- `target_micro_skill_key`
+- `target_word`
 - `contrast_word`
+- `contrast_micro_skill_key`
 - `contrast_type`
-- `practice_route`
-- `review_status`
+- `approved_for_assignment`
 
 Optional columns:
 - `explanation`
@@ -299,18 +340,25 @@ Optional columns:
 Allowed `contrast_type` values:
 - `same_sound_different_spelling`
 - `same_spelling_different_sound`
+- `confusable_grapheme`
 - `near_pattern`
 - `morphology_family`
 - `homophone`
 - `meaning_choice`
 - `irregular_vs_regular`
 
+Validation rules:
+- both micro-skill keys must exist in `micro_skill_catalog`, be active,
+  assignable, and spelling-owned.
+- contrast pairs are assignment content support only.
+- contrast pairs must not be imported as canonical misspelling/correction
+  mappings.
+
 Example rows:
 
-| contrast_set_key | micro_skill_key | anchor_word | contrast_word | contrast_type | practice_route | review_status |
-|---|---|---|---|---|---|---|
-| d4_short_a_cvc_001 | D4_PG_CVC_SHORT_VOWELS_SHORT_A | cat | cot | near_pattern | grouped_set_practice | approved |
-| d4_sh_digraph_001 | D4_PG_CONSONANT_DIGRAPHS_SH_INITIAL_FINAL | ship | sip | near_pattern | grouped_set_practice | draft |
+| target_micro_skill_key | target_word | contrast_word | contrast_micro_skill_key | contrast_type | approved_for_assignment |
+|---|---|---|---|---|---|
+| D4_PG_CONSONANT_DIGRAPHS_SH_INITIAL_FINAL | ship | sip | D4_PG_CVC_SHORT_VOWELS_INITIAL_CONSONANT | near_pattern | TRUE |
 
 ### Sheet: `word_metadata`
 
@@ -318,18 +366,20 @@ Purpose: store descriptive word properties that can support later content
 selection and display.
 
 Required columns:
-- `word_text`
-- `normalized_word`
-- `dialect_code`
-- `review_status`
-- `source_name`
-- `source_reference`
-- `source_license`
+- `word`
+- `normalised_word`
+- `syllable_count`
+- `phoneme_hint`
+- `stress_pattern`
+- `has_schwa`
+- `morphology_notes`
+- `irregularity_band`
+- `spelling_complexity_score`
+- `source`
 
 Optional columns:
+- `dialect_code`
 - `ipa_uk`
-- `syllable_count`
-- `stress_pattern`
 - `word_class`
 - `frequency_band`
 - `age_or_difficulty_band`
@@ -337,72 +387,145 @@ Optional columns:
 - `morphology_depth`
 - `pronunciation_spelling_mismatch`
 - `complexity_notes`
+- `source_reference`
+- `source_license`
+- `review_status`
 
 Validation rule: metadata rows may exist without a `micro_skill_key`, but they
 still must not create assignments, mastery evidence, or resolver truth.
 
-### Sheet: `diagnostic_examples`
+### Sheet: `lesson_route_support`
+
+Purpose: assignment-generation readiness metadata for each supported route.
+This sheet describes whether enough reviewed content exists for a future route;
+it does not enable runtime assignment generation in this stage.
+
+Required columns:
+- `micro_skill_key`
+- `route`
+- `minimum_words_required`
+- `requires_contrast_words`
+- `template_key`
+- `enabled_for_mvp`
+
+Optional columns:
+- `source_name`
+- `source_reference`
+- `source_license`
+- `review_status`
+- `notes`
+
+Validation rules:
+- `micro_skill_key` must exist in `micro_skill_catalog`, be active,
+  assignable, and spelling-owned.
+- `minimum_words_required` must be numeric.
+- boolean columns must use workbook boolean values.
+- an enabled route must have enough approved word-bank rows before a later
+  runtime slice may consume it.
+- enabled route metadata does not create `assignment_items` by itself.
+
+### Sheet: `diagnostic_misspelling_mappings`
 
 Purpose: optional content examples of common child misspellings.
 
 Required columns:
-- `observed_spelling`
-- `observed_spelling_normalized`
-- `correct_word`
-- `correct_word_normalized`
-- `diagnostic_note`
-- `review_status`
-- `source_name`
-- `source_reference`
-- `source_license`
-
-Optional columns:
-- `suggested_micro_skill_key`
-- `error_pattern`
+- `misspelling_normalised`
+- `correction_normalised`
+- `micro_skill_key`
+- `diagnostic_reason`
 - `confidence`
-- `age_band`
+- `resolver_visible_candidate`
 - `notes`
 
-Validation rule: `suggested_micro_skill_key`, if present, must exist in
-`micro_skill_catalog` and must not be free text. Rows are diagnostic content
-only and must not be imported into `spelling_canonical_mappings`.
-
-### Sheet: `sources`
-
-Purpose: workbook-level source and attribution registry.
-
-Required columns:
+Optional columns:
 - `source_name`
-- `source_type`
 - `source_reference`
 - `source_license`
-- `source_version_or_date`
+- `review_status`
+- `error_pattern`
+- `age_band`
+
+Validation rules:
+- `micro_skill_key` must exist in `micro_skill_catalog`, be active,
+  assignable, and spelling-owned.
+- `misspelling_normalised` and `correction_normalised` must be lowercase,
+  non-empty, and different.
+- `resolver_visible_candidate` must be `FALSE` for every row in this stage.
+- rows are diagnostic content only and must not be imported into
+  `spelling_canonical_mappings`.
+
+### Sheet: `import_notes`
+
+Purpose: workbook-level version, source, licence, review, and boundary notes.
+This sheet replaces the earlier proposed separate `sources` sheet for Stage
+`2A.1`.
+
+Required columns:
+- `version`
+- `author`
+- `source`
+- `review_status`
+- `notes`
+
+Optional columns:
+- `source_license`
+- `source_reference`
 - `redistribution_status`
 - `attribution_text`
+- `created_at`
+- `updated_at`
+
+Validation rules:
+- workbook-level source/licence notes must be present before import planning.
+- row-level source columns remain allowed on content sheets when source varies
+  by row.
+- rows from unclear or prohibited sources must not be approved for import.
+- `import_notes` is documentation and review support; it is not content import
+  truth by itself.
+
+### Sheet: `allowed_values`
+
+Purpose: helper sheet defining controlled vocabulary values for validation.
+
+This is a helper sheet, not import truth. A future import may use it to validate
+the workbook but must not import it as content.
+
+Expected columns:
+- `word_role`
+- `micro_skill_role`
+- `contrast_type`
+- `route`
+- `confidence`
+- `complexity_band`
+- `frequency_band`
 - `review_status`
+- `boolean`
 
-Allowed `redistribution_status` values:
-- `internal_only`
-- `redistributable`
-- `unclear`
-- `prohibited`
+### Sheet: `README`
 
-Validation rule: rows from `unclear` or `prohibited` sources must not be
-approved for import.
+Purpose: human-readable workbook instructions and boundary reminders.
+
+This is a helper sheet, not import truth. It must not be imported as content,
+taxonomy, resolver truth, assignment truth, or mastery evidence.
 
 ## Workbook validation rules
 
 A future validator must check:
 - required columns exist on every sheet
-- `normalized_word` is lowercase and non-empty
+- `normalised_word` / normalized fields are lowercase and non-empty
 - no punctuation-only normalized words
 - `dialect_code` is present and defaults to `en-GB` only when explicit
 - every `micro_skill_key` exists, is active, assignable, and spelling-owned
 - no free-text `micro_skill_key` values
 - enum values match the controlled sets
-- all source fields are present
+- boolean fields are valid
+- numeric fields are valid
+- diversity groups are defined before use
+- route support has enough approved word content before runtime consumption
+- source/licence fields are present in `import_notes` and, where row-specific,
+  on content rows
 - no approved row has unclear or prohibited source status
-- diagnostic examples are not treated as canonical mappings
+- diagnostic misspelling mappings are not treated as canonical mappings
 - duplicate word/skill/content-role rows are flagged
 - contrast words have a valid anchor word
 - rows do not imply child-specific state
