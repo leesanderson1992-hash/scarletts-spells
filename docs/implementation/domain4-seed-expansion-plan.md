@@ -2,7 +2,7 @@
 
 ## Status
 
-- Status: `Dry-run artifacts generated; database import not started`
+- Status: `Clean Domain 4 taxonomy import complete; resolver/practice routing not changed`
 - Scope: documentation, deterministic artifact generation, and implementation
   plan for the next Domain 4 seed expansion
 - Canonical workbook input:
@@ -36,7 +36,7 @@ The canonical workbook has already been validated with these expected counts:
 - `47` clusters
 - `240` micro-skills
 - `12` task templates
-- `45` family-level template mappings
+- `45` raw family-level template mappings in the workbook
 - `0` duplicate family, cluster, or micro-skill IDs
 - `0` missing keys
 - `0` unknown family references
@@ -53,6 +53,11 @@ The workbook must include these diphthong node IDs:
 
 Generated JSON, SQL, and import artifacts are deterministic derived outputs
 from the workbook. They must not become a competing hand-maintained taxonomy.
+
+Implementation decision: `D4_PROOF` is not part of this Domain 4 spelling
+taxonomy. The workbook contains `5` raw `D4_PROOF` family-level mapping rows,
+but generated seed artifacts must exclude those rows. Generated
+family-level-template mapping artifacts therefore contain `40` rows.
 
 ## Slice 1: Source And Scope
 
@@ -116,11 +121,13 @@ The implementation workflow must be:
    `docs/implementation/seed-data/domain4-seed-expansion/`.
 3. Validate generated artifacts against expected counts and relationships.
    Completed for the dry-run artifact slice.
-4. Run a read-only current-state audit. Not started.
-5. Back up affected Domain 4 rows and dependent reference summaries. Not
-   started.
-6. Import supported taxonomy rows idempotently. Not started.
-7. Rerun audit and validation. Not started.
+4. Run a read-only current-state audit. Completed.
+5. Back up affected Domain 4 rows and dependent reference summaries. Completed
+   under
+   `.tmp/catalog-reset-backups/domain4-seed-expansion-2026-06-07T19-09-28-585Z`.
+6. Import supported taxonomy rows idempotently. Completed for families,
+   clusters, and micro-skills only.
+7. Rerun audit and validation. Completed with zero stale references remaining.
 
 The current-state audit must include direct columns and metadata snapshots from:
 
@@ -139,9 +146,12 @@ The backup should follow the prior catalog reset pattern: timestamped local
 backup output under `.tmp/`, with exported rows and old key lists sufficient for
 rollback or stale-reference investigation.
 
-Stale removed Domain 4 nodes must not remain assignable after import. If an old
-row has dependent references and cannot be safely deleted, it must be made
-non-assignable/inactive rather than left exposed.
+Stale removed Domain 4 rows must not remain assignable after import. Hard-delete
+stale old Domain 4 families, clusters, and micro-skills that are not present in
+the clean workbook/artifacts after the dependency audit and backup/export
+complete. If stale rows are referenced only by disposable test data, clear the
+dependent test rows first in safe dependency order, then delete the stale
+taxonomy rows. Do not proceed with destructive cleanup if backup/export fails.
 
 ## Slice 4: Runtime Rules
 
@@ -152,8 +162,9 @@ values:
 - `grouped_set_practice`
 
 Assignable rows must use only supported practice routes. Default to
-`word_practice` unless the importer has a deterministic grouped/contrast rule
-for `grouped_set_practice`.
+`word_practice` for this pass. Do not implement `grouped_set_practice`, final
+practice-template routing, or inferred practice behavior in this taxonomy seed
+pass.
 
 For each micro-skill row, store workbook-derived runtime metadata in
 `micro_skill_catalog.metadata`, including:
@@ -169,6 +180,11 @@ assignability must still obey supported schema and practice-route constraints.
 Use `allowed_template_keys` where current schema supports it. The task-template
 and family-level mapping workbook sheets remain repo-owned seed artifacts until
 dedicated runtime schema exists.
+
+Practice templates will be designed and created after the clean taxonomy seed is
+stable. Existing workbook template and mapping artifacts may be generated and
+reviewed, but they must not enable automatic runtime routing unless explicitly
+requested in a later slice.
 
 ## Slice 5: Resolver Boundary
 
@@ -195,7 +211,8 @@ Generated artifacts must validate:
 - exactly `47` clusters
 - exactly `240` micro-skills
 - exactly `12` task templates in repo artifact/config
-- exactly `45` family-level mappings in repo artifact/config
+- exactly `40` family-level mappings in repo artifact/config after excluding
+  `D4_PROOF`
 - no duplicate IDs
 - no missing keys
 - no unknown family references
@@ -245,7 +262,8 @@ The dry-run parser and artifact generation slice is complete. It generated:
 - `clusters.json` for `micro_skill_clusters`
 - `micro-skills.json` for `micro_skill_catalog`
 - `task-templates.json` as repo-owned artifact/config only
-- `family-level-template-mappings.json` as repo-owned artifact/config only
+- `family-level-template-mappings.json` as repo-owned artifact/config only,
+  excluding `D4_PROOF`
 - `validation-report.json`
 - artifact README documentation
 
@@ -255,7 +273,7 @@ The generated validation report confirms:
 - `47` clusters
 - `240` micro-skills
 - `12` task templates in repo artifact/config
-- `45` family-level mappings in repo artifact/config
+- `40` family-level mappings in repo artifact/config
 - no duplicate family, cluster, or micro-skill IDs
 - no unknown taxonomy family or cluster references
 - no empty clusters
@@ -277,29 +295,76 @@ recommendation, or admin resolver behavior.
 
 Warnings to resolve before runtime use of mapping artifacts:
 
-- `D4_PROOF` appears in `family-level-template-mappings.json` but is not one
-  of the `8` taxonomy families.
 - `D4_IRRE` has five incomplete family-level mapping rows with blank template
-  fields.
+  fields. This is not a blocker for taxonomy seeding because mapping artifacts
+  do not enable runtime routing in this pass.
 
-## Open Implementation Questions
+`D4_PROOF` must not remain as a Domain 4 family, cluster, micro-skill, or
+family-level mapping. Proofreading may later exist as a writing/editing task
+type or separate writing-domain concept, but not in this Domain 4 spelling
+taxonomy.
 
-- Which deterministic script should own workbook parsing and artifact
-  generation: a standalone `scripts/` utility, a support SQL generator, or both?
-- Should removed/stale rows with no dependencies be hard-deleted during import,
-  or should the first expansion prefer inactive/non-assignable retirement for
-  easier rollback?
-- Should `grouped_set_practice` be inferred from node names/metadata in this
-  slice, or should all rows default to `word_practice` until a route-classifier
-  rule is explicitly designed?
-- Should generated artifacts be checked in as JSON only, SQL only, or JSON plus
-  a generated SQL/import script?
+## Backup And Import Closeout
 
-These questions are not blockers to the next implementation slice if the slice
-defaults to:
+The read-only audit, backup/export, stale taxonomy cleanup, and clean taxonomy
+import slice is complete.
 
-- standalone deterministic parser/validator in `scripts/`
-- backup before any database change
-- retire stale referenced rows rather than leaving them assignable
-- default `word_practice` unless deterministic grouped-set metadata exists
-- generated JSON artifacts plus an idempotent import script
+Backup/export output is local and intentionally not committed:
+
+- `.tmp/catalog-reset-backups/domain4-seed-expansion-2026-06-07T19-09-28-585Z`
+
+Rows exported before mutation:
+
+- `micro_skill_families`: `2`
+- `micro_skill_clusters`: `14`
+- `micro_skill_catalog`: `15`
+- dependent audited writing/learning/catalog tables: `0`
+
+Rows deleted as stale taxonomy:
+
+- `micro_skill_catalog`: `3`
+- `micro_skill_clusters`: `7`
+- `micro_skill_families`: `0`
+
+Rows upserted from the clean generated taxonomy artifacts:
+
+- `micro_skill_families`: `8`
+- `micro_skill_clusters`: `47`
+- `micro_skill_catalog`: `240`
+
+Final live validation:
+
+- `8` Domain 4 families
+- `47` Domain 4 clusters
+- `240` Domain 4 micro-skills
+- `240` active assignable Domain 4 micro-skills
+- `0` `D4_PROOF` taxonomy rows
+- `0` remaining stale clusters
+- `0` remaining stale micro-skills
+- `0` final validation failures
+
+Final stale-reference audit:
+
+- direct column references: `0`
+- linked rows: `0`
+- metadata snapshot rows: `0`
+
+The import did not change resolver behavior, canonical mapping behavior,
+practice-template routing, or grouped-set practice behavior. Task templates and
+family-level mappings were not imported into runtime tables; they remain
+repo-owned artifacts/config until a future schema/runtime slice creates an
+explicit storage and adoption contract.
+
+`D4_IRRE` still has five incomplete family-level mapping rows. That is not a
+blocker for the completed taxonomy import because those mappings are not used
+for runtime routing yet. It is a blocker before any future automatic
+practice-template routing or mapping-driven resolver behavior can safely use
+the family-level mapping artifact.
+
+## Next Planned Stage
+
+The next seed expansion stage is runtime planning for practice templates and
+family-level mapping adoption. That stage should define schema support or
+artifact-loading contracts, complete the deferred `D4_IRRE` mappings if they
+will be used, and add explicit tests before any resolver or practice-generation
+behavior changes.

@@ -26,13 +26,14 @@ OUTPUT_DIR = Path("docs/implementation/seed-data/domain4-seed-expansion")
 SEED_VERSION = "domain4-seed-expansion-v1"
 SUPPORTED_PRACTICE_ROUTE = "word_practice"
 SUPPORTED_DB_PRACTICE_ROUTES = ["word_practice", "grouped_set_practice"]
+EXCLUDED_MAPPING_FAMILY_IDS = ["D4_PROOF"]
 
 EXPECTED_COUNTS = {
     "ready_families": 8,
     "clusters": 47,
     "micro_skills": 240,
     "task_templates": 12,
-    "family_level_template_mappings": 45,
+    "family_level_template_mappings": 40,
 }
 
 DIPHTHONG_NODE_IDS = [
@@ -280,6 +281,22 @@ def missing_mapping_fields(
     return missing
 
 
+def exclude_mapping_rows(
+    mappings: list[dict[str, Any]],
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    excluded_family_ids = set(EXCLUDED_MAPPING_FAMILY_IDS)
+    included: list[dict[str, Any]] = []
+    excluded: list[dict[str, Any]] = []
+
+    for mapping in mappings:
+        if clean_string(mapping.get("family_id")) in excluded_family_ids:
+            excluded.append(mapping)
+        else:
+            included.append(mapping)
+
+    return included, excluded
+
+
 def write_json(path: Path, value: Any) -> None:
     path.write_text(json.dumps(value, indent=2, sort_keys=True) + "\n", encoding="utf8")
 
@@ -305,6 +322,9 @@ def main() -> None:
     micro_skill_rows = read_sheet(workbook, "Micro Skills")
     task_template_rows = read_sheet(workbook, "Task Templates")
     family_mapping_rows = read_sheet(workbook, "Family Level Mapping")
+    included_family_mapping_rows, excluded_family_mapping_rows = exclude_mapping_rows(
+        family_mapping_rows
+    )
 
     assert_no_duplicates(family_rows, "family_id", "Family")
     assert_no_duplicates(cluster_rows, "cluster_id", "Cluster")
@@ -366,20 +386,20 @@ def main() -> None:
     unknown_mapping_families = sorted(
         {
             clean_string(record.get("family_id"))
-            for record in family_mapping_rows
+            for record in included_family_mapping_rows
             if clean_string(record.get("family_id")) not in family_ids
         }
     )
     unknown_mapping_templates = sorted(
         {
             clean_string(record.get(field))
-            for record in family_mapping_rows
+            for record in included_family_mapping_rows
             for field in ("default_template_id", "fallback_template_id")
             if clean_string(record.get(field))
             and clean_string(record.get(field)) not in template_ids
         }
     )
-    incomplete_family_mappings = missing_mapping_fields(family_mapping_rows)
+    incomplete_family_mappings = missing_mapping_fields(included_family_mapping_rows)
     missing_diphthong_node_ids = sorted(
         set(DIPHTHONG_NODE_IDS)
         - {clean_string(record.get("node_id")) for record in micro_skill_rows}
@@ -400,7 +420,9 @@ def main() -> None:
     if blocking_errors:
         raise ValueError(f"Workbook validation failed: {blocking_errors}")
 
-    allowed_template_keys_by_family = build_allowed_template_keys(family_mapping_rows)
+    allowed_template_keys_by_family = build_allowed_template_keys(
+        included_family_mapping_rows
+    )
 
     families = [normalize_family(record) for record in family_rows]
     clusters = [
@@ -414,7 +436,7 @@ def main() -> None:
         normalize_task_template(record) for record in task_template_rows
     ]
     family_level_template_mappings = [
-        normalize_family_mapping(record) for record in family_mapping_rows
+        normalize_family_mapping(record) for record in included_family_mapping_rows
     ]
 
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
@@ -434,6 +456,10 @@ def main() -> None:
                 "These files are deterministic dry-run artifacts generated from",
                 f"`{WORKBOOK_PATH}`.",
                 "",
+                "The dry-run artifact slice and clean taxonomy import slice are complete. The",
+                "import did not create migrations, change resolver behavior, enable practice",
+                "template routing, or enable `grouped_set_practice`.",
+                "",
                 "Supported database targets today:",
                 "",
                 "- `families.json` -> `micro_skill_families`",
@@ -448,7 +474,91 @@ def main() -> None:
                 "Standalone word-bank rows are not generated because the current schema",
                 "stores word/example data in `micro_skill_catalog.metadata`.",
                 "",
+                "Generated files:",
+                "",
+                "- `families.json`",
+                "- `clusters.json`",
+                "- `micro-skills.json`",
+                "- `task-templates.json`",
+                "- `family-level-template-mappings.json`",
+                "- `validation-report.json`",
+                "",
+                "Validation summary:",
+                "",
+                "- `8` Ready Domain 4 families",
+                "- `47` clusters",
+                "- `240` micro-skills",
+                "- `12` task templates in repo artifact/config",
+                "- `40` family-level mappings in repo artifact/config",
+                "- no duplicate family, cluster, or micro-skill IDs",
+                "- no unknown taxonomy family or cluster references",
+                "- no empty clusters",
+                "- required Ready-row runtime metadata is present",
+                "- required diphthong node IDs are present",
+                "",
+                "Implementation decisions reflected here:",
+                "",
+                "- `D4_PROOF` is excluded from taxonomy and family-level mapping",
+                "  artifacts. Proofreading may return later as a separate writing",
+                "  or editing concept, but not as Domain 4 spelling taxonomy.",
+                "- `D4_IRRE` mapping rows are non-blocking for taxonomy seeding.",
+                "- Practice-template routing and `grouped_set_practice` adoption are",
+                "  intentionally deferred until after the clean taxonomy seed is stable.",
+                "",
+                "Known artifact warning before runtime use of mappings:",
+                "",
+                "- `D4_IRRE` has five incomplete family-level mapping rows with blank",
+                "  template fields.",
+                "",
                 "Resolver adoption is intentionally separate from this seed expansion.",
+                "",
+                "## Backup And Import Closeout",
+                "",
+                "The clean taxonomy import used these generated artifacts for the supported",
+                "database targets only:",
+                "",
+                "- `families.json` -> `micro_skill_families`",
+                "- `clusters.json` -> `micro_skill_clusters`",
+                "- `micro-skills.json` -> `micro_skill_catalog`",
+                "",
+                "Backup/export output was written locally and is not committed:",
+                "",
+                "- `.tmp/catalog-reset-backups/domain4-seed-expansion-2026-06-07T19-09-28-585Z`",
+                "",
+                "Rows exported before mutation:",
+                "",
+                "- `micro_skill_families`: `2`",
+                "- `micro_skill_clusters`: `14`",
+                "- `micro_skill_catalog`: `15`",
+                "- dependent audited writing/learning/catalog tables: `0`",
+                "",
+                "Rows deleted as stale taxonomy:",
+                "",
+                "- `micro_skill_catalog`: `3`",
+                "- `micro_skill_clusters`: `7`",
+                "- `micro_skill_families`: `0`",
+                "",
+                "Rows upserted from these artifacts:",
+                "",
+                "- `micro_skill_families`: `8`",
+                "- `micro_skill_clusters`: `47`",
+                "- `micro_skill_catalog`: `240`",
+                "",
+                "Final live validation:",
+                "",
+                "- `8` Domain 4 families",
+                "- `47` Domain 4 clusters",
+                "- `240` Domain 4 micro-skills",
+                "- `240` active assignable Domain 4 micro-skills",
+                "- `0` `D4_PROOF` taxonomy rows",
+                "- stale direct column references: `0`",
+                "- stale linked rows: `0`",
+                "- stale metadata snapshot rows: `0`",
+                "",
+                "Task templates and family-level mappings remain repo-owned artifact/config only.",
+                "They were not imported into runtime tables. The `D4_IRRE` incomplete mapping",
+                "rows remain deferred and non-blocking for taxonomy seeding, but they must be",
+                "completed before any future runtime use of family-level mapping artifacts.",
                 "",
             ]
         ),
@@ -484,6 +594,16 @@ def main() -> None:
             "family_level_mapping_references_without_taxonomy_family": unknown_mapping_families,
             "incomplete_family_level_template_mappings": incomplete_family_mappings,
         },
+        "excluded_rows": {
+            "family_level_template_mappings": [
+                {
+                    "row": record["_row"],
+                    "family_id": clean_string(record.get("family_id")),
+                    "reason": "D4_PROOF is excluded from Domain 4 spelling taxonomy and mapping artifacts.",
+                }
+                for record in excluded_family_mapping_rows
+            ]
+        },
         "supported_db_practice_routes": SUPPORTED_DB_PRACTICE_ROUTES,
         "default_practice_route": SUPPORTED_PRACTICE_ROUTE,
         "resolver_adoption": "not_changed_by_this_slice",
@@ -499,7 +619,9 @@ def main() -> None:
         },
         "notes": [
             "This dry-run slice does not mutate Supabase.",
+            "D4_PROOF is excluded from Domain 4 spelling taxonomy and mapping artifacts.",
             "Task templates and family-level mappings remain repo artifacts/config until schema support exists.",
+            "Practice-template routing and grouped_set_practice adoption are deferred until after taxonomy seeding.",
             "Word/example data is projected into micro_skill_catalog metadata for import-time use.",
             "Resolver adoption remains separate from taxonomy seeding.",
         ],

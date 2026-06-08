@@ -1,15 +1,13 @@
 {
   "actual_counts": {
     "clusters": 47,
-    "family_level_template_mappings": 45,
+    "family_level_template_mappings": 40,
     "micro_skills": 240,
     "ready_families": 8,
     "task_templates": 12
   },
   "artifact_warnings": {
-    "family_level_mapping_references_without_taxonomy_family": [
-      "D4_PROOF"
-    ],
+    "family_level_mapping_references_without_taxonomy_family": [],
     "incomplete_family_level_template_mappings": [
       {
         "family_id": "D4_IRRE",
@@ -89,9 +87,38 @@
     "ready_rows_have_runtime_metadata": true
   },
   "default_practice_route": "word_practice",
+  "excluded_rows": {
+    "family_level_template_mappings": [
+      {
+        "family_id": "D4_PROOF",
+        "reason": "D4_PROOF is excluded from Domain 4 spelling taxonomy and mapping artifacts.",
+        "row": 37
+      },
+      {
+        "family_id": "D4_PROOF",
+        "reason": "D4_PROOF is excluded from Domain 4 spelling taxonomy and mapping artifacts.",
+        "row": 38
+      },
+      {
+        "family_id": "D4_PROOF",
+        "reason": "D4_PROOF is excluded from Domain 4 spelling taxonomy and mapping artifacts.",
+        "row": 39
+      },
+      {
+        "family_id": "D4_PROOF",
+        "reason": "D4_PROOF is excluded from Domain 4 spelling taxonomy and mapping artifacts.",
+        "row": 40
+      },
+      {
+        "family_id": "D4_PROOF",
+        "reason": "D4_PROOF is excluded from Domain 4 spelling taxonomy and mapping artifacts.",
+        "row": 41
+      }
+    ]
+  },
   "expected_counts": {
     "clusters": 47,
-    "family_level_template_mappings": 45,
+    "family_level_template_mappings": 40,
     "micro_skills": 240,
     "ready_families": 8,
     "task_templates": 12
@@ -108,7 +135,9 @@
   },
   "notes": [
     "This dry-run slice does not mutate Supabase.",
+    "D4_PROOF is excluded from Domain 4 spelling taxonomy and mapping artifacts.",
     "Task templates and family-level mappings remain repo artifacts/config until schema support exists.",
+    "Practice-template routing and grouped_set_practice adoption are deferred until after taxonomy seeding.",
     "Word/example data is projected into micro_skill_catalog metadata for import-time use.",
     "Resolver adoption remains separate from taxonomy seeding."
   ],
