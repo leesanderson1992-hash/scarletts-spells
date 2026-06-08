@@ -291,7 +291,7 @@ async function fetchAll<T extends TableRow>(
       throw new Error(`${table} audit query failed: ${error.message}`);
     }
 
-    rows.push(...((data ?? []) as T[]));
+    rows.push(...((data ?? []) as unknown as T[]));
 
     if (!data || data.length < PAGE_SIZE) {
       break;

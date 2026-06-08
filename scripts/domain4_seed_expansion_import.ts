@@ -127,7 +127,7 @@ async function fetchAll<T extends TableRow>(
       throw new Error(`Backup/export query failed for ${table}: ${error.message}`);
     }
 
-    rows.push(...((data ?? []) as T[]));
+    rows.push(...((data ?? []) as unknown as T[]));
 
     if (!data || data.length < PAGE_SIZE) {
       break;
