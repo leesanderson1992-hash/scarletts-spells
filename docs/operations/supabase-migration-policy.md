@@ -266,13 +266,32 @@ Any future production DB-changing release must still include an explicit ledger
 check before applying SQL.
 
 Stage `2C.1` canonical spelling word-map storage foundation is currently
-source-only. Migration
+source-only for hosted Supabase. Migration
 `20260608193000_add_canonical_spelling_word_map_storage.sql` creates dedicated
 word-map content tables and a dry-run-only import planner exists at
-`scripts/import-canonical-spelling-word-map.py`, but the migration has not been
-applied to hosted Supabase and no workbook rows have been imported. Applying
-that migration requires a separate approved DB-changing release with an
-explicit migration-ledger check; do not run broad `supabase db push` for it.
+`scripts/import-canonical-spelling-word-map.py`.
+
+Stage `2C.2` local/dev proof applied only this migration to:
+
+- Supabase URL: `http://127.0.0.1:54321`
+- Local Postgres:
+  `postgresql://postgres:postgres@127.0.0.1:54322/postgres`
+
+`supabase migration up` was not used because unrelated pending migration
+`20260601142522` appeared locally. The Stage `2C.2` proof applied only
+`20260608193000_add_canonical_spelling_word_map_storage.sql` directly through
+local container `psql` and recorded the local ledger row only for
+`20260608193000`.
+
+All seven dedicated tables exist locally with RLS enabled, `service_role`
+grants, and no `anon` / `authenticated` grants. All seven tables remain empty;
+no workbook import occurred. Workbook validation and the dry-run importer still
+pass, and protected runtime/authority tables remained unchanged.
+
+The migration has not been applied to hosted Supabase and no workbook rows have
+been imported to hosted data. Applying that migration outside local/dev requires
+a separate approved DB-changing release with an explicit migration-ledger
+check; do not run broad `supabase db push` for it.
 
 ## Success Criteria
 

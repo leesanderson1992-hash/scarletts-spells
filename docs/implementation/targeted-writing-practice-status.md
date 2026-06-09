@@ -52,6 +52,25 @@ Canonical documentation now defers to:
   - production deployment remains blocked until an explicit migration-ledger
     check and approved DB-changing release
   - Stage `2D` assignment consumption remains future work only
+- Stage `2C.2` local/dev migration application proof is complete:
+  - target environment was local/dev only:
+    `http://127.0.0.1:54321` and
+    `postgresql://postgres:postgres@127.0.0.1:54322/postgres`
+  - `supabase migration up` was not used because unrelated pending migration
+    `20260601142522` appeared locally
+  - only
+    `supabase/migrations/20260608193000_add_canonical_spelling_word_map_storage.sql`
+    was applied directly through the local Supabase database container with
+    `psql`
+  - the local migration ledger row was recorded only for `20260608193000`
+  - all seven dedicated word-map tables exist locally with RLS enabled,
+    `service_role` grants, and no `anon` / `authenticated` grants
+  - all seven tables remain empty; no workbook import occurred
+  - workbook validation and the dry-run importer still pass
+  - protected runtime/authority tables remained unchanged
+  - hosted/production migration remains unapplied and blocked until an
+    explicit migration-ledger check and approved DB-changing release
+  - Stage `2D` assignment consumption remains future work only
 - Stage `1` is now complete for its intended purpose:
   - shared Writing Engine foundation
   - first spelling diagnostic path

@@ -24,7 +24,7 @@ runtime consumer.
 
 ## Status
 
-Status: `Stage 2C.1 storage foundation implemented locally`
+Status: `Stage 2C.2 local/dev migration application proof complete`
 
 Stage `2C.1` adds a dedicated local storage foundation migration and a
 dry-run-only import planner for canonical spelling word-map content:
@@ -34,9 +34,23 @@ dry-run-only import planner for canonical spelling word-map content:
 - dry-run planner:
   `python3 scripts/import-canonical-spelling-word-map.py "docs/implementation/seed-data/canonical-spelling-word-map/canonical-spelling-word-map-v1.xlsx"`
 
-The migration is committed source only until a separately approved
-DB-changing release applies it. No workbook rows have been imported. The
-dry-run planner refuses `--apply` and does not connect to Supabase.
+Stage `2C.2` applied the migration to local/dev only and verified the storage
+foundation against:
+
+- Supabase URL: `http://127.0.0.1:54321`
+- Local Postgres:
+  `postgresql://postgres:postgres@127.0.0.1:54322/postgres`
+
+`supabase migration up` was not used because unrelated pending migration
+`20260601142522` appeared in the local migration list. Only
+`20260608193000_add_canonical_spelling_word_map_storage.sql` was applied
+directly through the local Supabase database container with `psql`, and the
+local migration ledger row was recorded only for `20260608193000`.
+
+All seven dedicated tables exist locally with RLS enabled, `service_role`
+grants, and no `anon` / `authenticated` grants. All seven tables remain empty;
+no workbook rows have been imported. The dry-run planner still refuses
+`--apply` and does not connect to Supabase.
 
 This document remains a contract and runtime boundary. It does not authorize
 resolver reads, assignment consumption, mastery/evidence interpretation,
@@ -554,7 +568,8 @@ Future implementation must be staged:
    mutation.
 3. Stage `2C`: plan storage foundation and import only after validation passes.
    Stage `2C.1` has implemented dedicated storage tables and a dry-run-only
-   import planner locally; it has not deployed the migration or imported rows.
+   import planner. Stage `2C.2` has applied the migration to local/dev only and
+   verified the tables remain empty; hosted Supabase remains unapplied.
 4. Stage `2D`: allow assignment generation to consume approved content only
    after a separate runtime contract authorizes it.
 
@@ -621,8 +636,8 @@ status/catalog references, and writes a local validation report only.
 
 ### Stage `2C`: storage foundation/import
 
-Dedicated storage foundation and dry-run import planning are implemented
-locally in Stage `2C.1`.
+Dedicated storage foundation and dry-run import planning are implemented in
+Stage `2C.1`. Stage `2C.2` local/dev migration application proof is complete.
 
 Storage tables:
 - `canonical_spelling_word_map_import_batches`
@@ -638,8 +653,22 @@ Diagnostic examples remain non-resolver-visible; the storage constraint keeps
 preserves source/licence metadata in planned row metadata, refuses `--apply`,
 and does not connect to Supabase.
 
-The migration is not deployed and no rows are imported until a separate
-DB-changing release follows the migration policy.
+Stage `2C.2` proof:
+- target was local/dev only: `http://127.0.0.1:54321` and
+  `postgresql://postgres:postgres@127.0.0.1:54322/postgres`
+- `supabase migration up` was intentionally not used because unrelated pending
+  local migration `20260601142522` was present
+- only `20260608193000_add_canonical_spelling_word_map_storage.sql` was applied
+  directly through local container `psql`
+- the local ledger row was recorded only for `20260608193000`
+- all seven dedicated tables exist locally with RLS enabled, `service_role`
+  grants, and no `anon` / `authenticated` grants
+- all seven tables remain empty; no workbook import occurred
+- workbook validation and the dry-run importer still pass
+- protected runtime/authority tables remained unchanged
+
+Hosted/production migration remains unapplied and no rows are imported until a
+separate DB-changing release follows the migration policy.
 
 ### Stage `2D`: assignment consumption
 

@@ -124,6 +124,12 @@ Current transition reality:
   `scripts/import-canonical-spelling-word-map.py`; it is not deployed, imports
   no rows, refuses `--apply`, does not connect to Supabase, and does not
   authorize Stage `2D` assignment consumption
+- Stage `2C.2` local/dev migration application proof is complete for
+  `20260608193000_add_canonical_spelling_word_map_storage.sql` against
+  `http://127.0.0.1:54321` /
+  `postgresql://postgres:postgres@127.0.0.1:54322/postgres`; hosted production
+  remains unapplied, no workbook rows were imported, protected runtime tables
+  remained unchanged, and Stage `2D` assignment consumption remains future-only
 
 Current ownership rule:
 - `Analyse Writing` belongs under `Courses` navigation
