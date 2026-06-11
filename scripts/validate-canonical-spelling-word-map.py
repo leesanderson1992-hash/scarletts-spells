@@ -142,6 +142,23 @@ MICRO_SKILL_COLUMNS = {
     ("lesson_route_support", "micro_skill_key"),
 }
 
+STORAGE_ROUTE_VALUES = {
+    "word_practice",
+    "grouped_set_practice",
+    "sound_pattern_practice",
+    "morphology_lesson",
+    "dictation",
+    "sentence_application",
+    "proofreading",
+    "oracy_pronunciation",
+}
+
+STORAGE_ENUM_COLUMNS = {
+    ("micro_skill_word_bank", "practice_route"): STORAGE_ROUTE_VALUES,
+    ("lesson_route_support", "route"): STORAGE_ROUTE_VALUES,
+    ("word_metadata", "irregularity_band"): {"regular", "partly_irregular", "irregular"},
+}
+
 MUTATION_TERMS = re.compile(
     r"\b("
     r"resolver[_ -]?visible|canonical mapping|spelling_canonical_mappings|"
@@ -424,6 +441,12 @@ def validate(path: Path) -> dict[str, Any]:
                 if sheet_name == sheet and field in row and row.get(field, "") and allowed:
                     if row[field] not in allowed:
                         add(issues, "error", sheet_name, row_num, field, f"Value {row[field]!r} is not in allowed_values.{field}.")
+
+            for (sheet, field), allowed in STORAGE_ENUM_COLUMNS.items():
+                if sheet_name == sheet and field in row and row.get(field, ""):
+                    if row[field] not in allowed:
+                        allowed_values = ", ".join(sorted(allowed))
+                        add(issues, "error", sheet_name, row_num, field, f"Value {row[field]!r} is not in storage enum {{{allowed_values}}}.")
 
             if sheet_name == "micro_skill_word_bank":
                 group = row.get("diversity_group_key", "")

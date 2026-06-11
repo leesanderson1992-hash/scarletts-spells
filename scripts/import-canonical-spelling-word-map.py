@@ -408,8 +408,6 @@ def run_psql_script_text(
             "--no-align",
             "-v",
             "ON_ERROR_STOP=1",
-            "-c",
-            sql,
         ]
     elif psql_mode == "docker":
         if not docker_container:
@@ -430,14 +428,13 @@ def run_psql_script_text(
             "--no-align",
             "-v",
             "ON_ERROR_STOP=1",
-            "-c",
-            sql,
         ]
     else:
         raise ValueError(f"Unsupported psql mode: {psql_mode!r}.")
 
     result = subprocess.run(
         command,
+        input=sql,
         capture_output=True,
         text=True,
     )
