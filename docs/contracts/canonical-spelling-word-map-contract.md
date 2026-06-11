@@ -24,7 +24,7 @@ runtime consumer.
 
 ## Status
 
-Status: `Stage 2C.4 local/dev micro_skill_catalog prerequisite completed and QA-audited`
+Status: `Stage 2C.4 local/dev word-map import completed and QA-audited`
 
 Stage `2C.1` adds a dedicated local storage foundation migration and a
 dry-run-only import planner for canonical spelling word-map content:
@@ -61,19 +61,28 @@ database container. It checks migration ledger version `20260608193000`, all
 seven storage tables, active DB conflicts, protected-table counts, and
 diagnostic resolver visibility. No rows have been imported.
 
-Stage `2C.4` prerequisite closeout restored/seeded exactly 17 existing D4
-`micro_skill_catalog` rows into local/dev Supabase before the first word-map
-import attempt. The prerequisite used only existing repo seed artifacts:
+Stage `2C.4` restored/seeded exactly 17 existing D4 `micro_skill_catalog`
+rows into local/dev Supabase before the first word-map import attempt. The
+prerequisite used only existing repo seed artifacts:
 `docs/implementation/seed-data/domain4-seed-expansion/micro-skills.json`,
 `docs/implementation/seed-data/domain4-mvp1-seed-manifest.json`, and the
-word-map planner's own planned FK key set. Hosted production was not touched,
-broad `supabase db push` was not run, and no word-map rows were imported.
-Canonical word-map storage tables remained empty. Protected runtime/authority
-tables remained unchanged except the explicitly authorized local/dev
-`micro_skill_catalog` prerequisite rows. After this prerequisite,
-`--apply-local` preflight reports `missing_key_count = 0` and
-`actual_import_run = false`, so Stage `2C.4` local import is ready for a
-separately authorized QA/import attempt.
+word-map planner's own planned FK key set. The local/dev word-map import then
+completed successfully from commit
+`462f165 seed: align word-map enums and import locally` with import batch
+`cb5897f7-4ec3-4f25-9429-568a7296b35c`.
+
+Inserted local/dev word-map rows:
+- `canonical_spelling_word_metadata`: 99
+- `canonical_spelling_word_map_diversity_groups`: 40
+- `canonical_spelling_word_map_words`: 88
+- `canonical_spelling_word_map_contrast_pairs`: 30
+- `canonical_spelling_word_map_diagnostic_examples`: 20
+- `canonical_spelling_word_map_route_support`: 30
+
+Diagnostic visibility verification passed, protected runtime/authority table
+counts were unchanged, and a post-import `--apply-local` preflight now blocks
+duplicate active import through active database conflict checks. Hosted
+production was not touched and broad `supabase db push` was not run.
 
 This document remains a contract and runtime boundary. It does not authorize
 resolver reads, assignment consumption, mastery/evidence interpretation,
@@ -662,9 +671,8 @@ status/catalog references, and writes a local validation report only.
 Dedicated storage foundation and dry-run import planning are implemented in
 Stage `2C.1`. Stage `2C.2` local/dev migration application proof is complete.
 Stage `2C.3` local/dev import preflight is implemented and QA-audited.
-Stage `2C.4` local/dev `micro_skill_catalog` prerequisite seeding is complete
-and QA-audited; the actual word-map import still requires its own explicit
-local/dev import attempt.
+Stage `2C.4` local/dev `micro_skill_catalog` prerequisite seeding and local
+word-map import are complete and QA-audited.
 
 Storage tables:
 - `canonical_spelling_word_map_import_batches`
@@ -716,20 +724,24 @@ Stage `2C.4` prerequisite proof:
 - source artifacts were existing repo seed artifacts only
 - hosted production was not touched
 - broad `supabase db push` was not run
-- no word-map rows were imported
-- all seven canonical word-map storage tables remained empty
 - protected runtime/authority tables remained unchanged except the explicitly
   authorized local/dev `micro_skill_catalog` prerequisite rows
 - rerunning `--apply-local` after the prerequisite passed with
   `missing_key_count = 0` and `actual_import_run = false`
-- Stage `2C.4` local import is ready for a separately authorized QA/import
-  attempt
+- local/dev import batch `cb5897f7-4ec3-4f25-9429-568a7296b35c` was committed
+  from commit `462f165 seed: align word-map enums and import locally`
+- inserted counts were 99 metadata rows, 40 diversity groups, 88 word-map word
+  rows, 30 contrast pairs, 20 diagnostic examples, and 30 route-support rows
+- diagnostic visibility verification passed
+- protected runtime/authority table counts were unchanged after import
+- post-import `--apply-local` blocks duplicate active import through active
+  database conflict checks
 
 Hosted/production migration remains unapplied and no rows are imported until a
 separate DB-changing release follows the migration policy.
 
-Stage `2C.4` remains the first separately authorised local/dev word-map import
-attempt after this prerequisite.
+Stage `2C.4` local/dev word-map import is complete. Duplicate local import
+requires a future deactivation/rollback slice before rerun.
 
 ### Stage `2D`: assignment consumption
 

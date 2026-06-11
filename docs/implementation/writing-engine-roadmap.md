@@ -134,18 +134,17 @@ Current transition reality:
   `scripts/import-canonical-spelling-word-map.py`; dry-run remains default,
   generic `--apply` remains refused, `--apply-local` is preflight-only with
   `actual_import_run` false, hosted/non-local DB targets are blocked, Docker
-  `psql` mode verifies the local Supabase DB container, and Stage `2C.4`
-  remains the first separately authorised local/dev import attempt
-- Stage `2C.4` local/dev `micro_skill_catalog` prerequisite seeding is
-  complete and QA-audited; exactly 17 existing D4 `micro_skill_catalog` rows
-  were restored/seeded locally from existing repo seed artifacts only, hosted
-  production was not touched, broad `supabase db push` was not run, no word-map
-  rows were imported, all seven canonical word-map storage tables remained
-  empty, protected runtime/authority tables remained unchanged except the
-  authorized local/dev catalog rows, and the word-map `--apply-local` preflight
-  now passes with `missing_key_count = 0` and `actual_import_run` false; Stage
-  `2C.4` local word-map import is ready for its separately authorized QA/import
-  attempt, while Stage `2D` assignment consumption remains future-only
+  `psql` mode verifies the local Supabase DB container
+- Stage `2C.4` local/dev canonical spelling word-map import is complete and
+  QA-audited; exactly 17 existing D4 `micro_skill_catalog` rows were
+  restored/seeded locally first, import batch
+  `cb5897f7-4ec3-4f25-9429-568a7296b35c` then inserted 99 metadata rows, 40
+  diversity groups, 88 word-map word rows, 30 contrast pairs, 20 diagnostic
+  examples, and 30 route-support rows. Hosted production was not touched,
+  broad `supabase db push` was not run, protected runtime/authority counts
+  were unchanged, diagnostic examples stayed resolver-invisible, duplicate
+  local import is blocked by active DB conflict checks, and Stage `2D`
+  assignment consumption remains future-only
 
 Current ownership rule:
 - `Analyse Writing` belongs under `Courses` navigation

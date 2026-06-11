@@ -82,9 +82,19 @@ Canonical documentation now defers to:
     storage tables, active DB conflicts, protected-table counts, and diagnostic
     resolver visibility
   - no workbook rows were imported
-  - Stage `2C.4` remains the first separately authorised local/dev import
-    attempt
   - hosted/production import remains blocked
+- Stage `2C.4` local/dev canonical spelling word-map import is complete and
+  QA-audited:
+  - import batch:
+    `cb5897f7-4ec3-4f25-9429-568a7296b35c`
+  - inserted rows: 99 metadata, 40 diversity groups, 88 word-map words, 30
+    contrast pairs, 20 diagnostic examples, and 30 route-support rows
+  - protected runtime/authority table counts were unchanged, diagnostic
+    examples remained resolver-invisible, and duplicate local import is blocked
+    by active DB conflict checks
+  - hosted/production import remains blocked until a separate approved
+    DB-changing release
+  - Stage `2D` assignment consumption remains future work only
 - Stage `1` is now complete for its intended purpose:
   - shared Writing Engine foundation
   - first spelling diagnostic path

@@ -298,25 +298,26 @@ against the local Supabase DB container, and checks migration ledger version
 protected-table counts, and diagnostic resolver visibility. No workbook rows
 were imported.
 
-Stage `2C.4` local/dev `micro_skill_catalog` prerequisite seeding is complete
-and QA-audited. Exactly 17 existing D4 `micro_skill_catalog` rows were
-restored/seeded locally from existing repo seed artifacts only so the word-map
-FK preflight can pass. Hosted production was not touched, broad
-`supabase db push` was not run, and no word-map rows were imported. The seven
-canonical word-map storage tables remained empty. Protected runtime/authority
-tables remained unchanged except the explicitly authorized local/dev
-`micro_skill_catalog` prerequisite rows. After the prerequisite, the word-map
-`--apply-local` preflight passed with `actual_import_run` false and
-`missing_key_count = 0`.
+Stage `2C.4` local/dev `micro_skill_catalog` prerequisite seeding and word-map
+import are complete and QA-audited. Exactly 17 existing D4
+`micro_skill_catalog` rows were restored/seeded locally from existing repo seed
+artifacts only so the word-map FK preflight could pass. The subsequent
+local/dev word-map import committed batch
+`cb5897f7-4ec3-4f25-9429-568a7296b35c` from commit
+`462f165 seed: align word-map enums and import locally`, inserting 99 metadata
+rows, 40 diversity groups, 88 word-map word rows, 30 contrast pairs, 20
+diagnostic examples, and 30 route-support rows. Diagnostic examples remained
+resolver-invisible, protected runtime/authority table counts were unchanged,
+and post-import `--apply-local` now blocks duplicate active import through
+active DB conflict checks.
 
 The migration has not been applied to hosted Supabase and no workbook rows have
 been imported to hosted data. Applying that migration outside local/dev requires
 a separate approved DB-changing release with an explicit migration-ledger
 check; do not run broad `supabase db push` for it.
 
-Stage `2C.4` remains the first separately authorised local/dev word-map import
-attempt after this prerequisite. Stage `2D` assignment consumption remains
-future-only.
+Duplicate local import requires a future deactivation/rollback slice before
+rerun. Stage `2D` assignment consumption remains future-only.
 
 ## Success Criteria
 
