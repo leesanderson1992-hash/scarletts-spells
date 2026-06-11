@@ -9,6 +9,10 @@ Stage 2C.3 adds a local/dev apply preflight boundary. The --apply-local path
 checks that the target is local Supabase Postgres and that the storage migration
 is present, then emits the transaction plan it would use later. It still stops
 before inserting workbook rows.
+
+Stage 2C.4 adds an explicitly gated local/dev import transaction path behind
+--apply-local-import. It is only for local Supabase after the same preflight
+passes and must not be used for hosted environments.
 """
 
 from __future__ import annotations
@@ -69,6 +73,110 @@ PROTECTED_TABLES = [
     "spelling_canonical_mapping_recommendations",
     "spelling_catalog_review_cases",
 ]
+
+CONTENT_TABLE_COLUMNS = {
+    "canonical_spelling_word_metadata": [
+        "import_batch_id",
+        "row_status",
+        "review_status",
+        "source_sheet",
+        "source_row_number",
+        "source_row_hash",
+        "source_metadata",
+        "word",
+        "normalised_word",
+        "dialect_code",
+        "syllable_count",
+        "phoneme_hint",
+        "stress_pattern",
+        "has_schwa",
+        "morphology_notes",
+        "irregularity_band",
+        "spelling_complexity_score",
+        "source",
+    ],
+    "canonical_spelling_word_map_diversity_groups": [
+        "import_batch_id",
+        "row_status",
+        "review_status",
+        "source_sheet",
+        "source_row_number",
+        "source_row_hash",
+        "source_metadata",
+        "micro_skill_key",
+        "diversity_group_key",
+        "display_label",
+        "required_for_mastery",
+        "minimum_success_examples",
+        "notes",
+    ],
+    "canonical_spelling_word_map_words": [
+        "import_batch_id",
+        "row_status",
+        "review_status",
+        "source_sheet",
+        "source_row_number",
+        "source_row_hash",
+        "source_metadata",
+        "micro_skill_key",
+        "word",
+        "normalised_word",
+        "word_role",
+        "micro_skill_role",
+        "diversity_group_key",
+        "complexity_band",
+        "frequency_band",
+        "practice_route",
+        "approved_for_assignment",
+        "notes",
+    ],
+    "canonical_spelling_word_map_contrast_pairs": [
+        "import_batch_id",
+        "row_status",
+        "review_status",
+        "source_sheet",
+        "source_row_number",
+        "source_row_hash",
+        "source_metadata",
+        "target_micro_skill_key",
+        "target_word",
+        "contrast_word",
+        "contrast_micro_skill_key",
+        "contrast_type",
+        "approved_for_assignment",
+    ],
+    "canonical_spelling_word_map_diagnostic_examples": [
+        "import_batch_id",
+        "row_status",
+        "review_status",
+        "source_sheet",
+        "source_row_number",
+        "source_row_hash",
+        "source_metadata",
+        "misspelling_normalised",
+        "correction_normalised",
+        "micro_skill_key",
+        "diagnostic_reason",
+        "confidence",
+        "resolver_visible_candidate",
+        "notes",
+    ],
+    "canonical_spelling_word_map_route_support": [
+        "import_batch_id",
+        "row_status",
+        "review_status",
+        "source_sheet",
+        "source_row_number",
+        "source_row_hash",
+        "source_metadata",
+        "micro_skill_key",
+        "route",
+        "minimum_words_required",
+        "requires_contrast_words",
+        "template_key",
+        "enabled_for_mvp",
+    ],
+}
 
 UNIQUE_KEY_FIELDS = {
     "canonical_spelling_word_metadata": ["normalised_word", "dialect_code"],
@@ -141,6 +249,12 @@ DB_CONFLICT_FIELD_SQL = {
 }
 
 
+class LocalPreflightError(ValueError):
+    def __init__(self, message: str, details: dict[str, Any] | None = None):
+        super().__init__(message)
+        self.details = details or {}
+
+
 def load_validator():
     spec = importlib.util.spec_from_file_location("canonical_word_map_validator", VALIDATOR_PATH)
     if spec is None or spec.loader is None:
@@ -175,6 +289,24 @@ def source_commit() -> str | None:
 
 def quote_sql_literal(value: str) -> str:
     return "'" + value.replace("'", "''") + "'"
+
+
+def quote_sql_identifier(value: str) -> str:
+    return '"' + value.replace('"', '""') + '"'
+
+
+def sql_value(value: Any, jsonb: bool = False) -> str:
+    if value is None:
+        return "null"
+    if isinstance(value, bool):
+        return "true" if value else "false"
+    if isinstance(value, (int, float)):
+        return str(value)
+    if isinstance(value, (dict, list)):
+        literal = quote_sql_literal(json.dumps(value, sort_keys=True, separators=(",", ":")))
+        return f"{literal}::jsonb" if jsonb else literal
+    literal = quote_sql_literal(str(value))
+    return f"{literal}::jsonb" if jsonb else literal
 
 
 def require_local_db_url(db_url: str) -> dict[str, Any]:
@@ -257,6 +389,64 @@ def run_psql_json(
         raise ValueError(detail)
     output = result.stdout.strip()
     return json.loads(output or "[]")
+
+
+def run_psql_script_text(
+    db_url: str,
+    sql: str,
+    psql_command: str,
+    psql_mode: str,
+    docker_container: str | None,
+) -> str:
+    if psql_mode == "host":
+        command = [
+            psql_command,
+            db_url,
+            "--no-psqlrc",
+            "--quiet",
+            "--tuples-only",
+            "--no-align",
+            "-v",
+            "ON_ERROR_STOP=1",
+            "-c",
+            sql,
+        ]
+    elif psql_mode == "docker":
+        if not docker_container:
+            raise ValueError("--docker-container is required when --psql-mode docker is used.")
+        command = [
+            "docker",
+            "exec",
+            "-i",
+            docker_container,
+            "psql",
+            "-U",
+            "postgres",
+            "-d",
+            "postgres",
+            "--no-psqlrc",
+            "--quiet",
+            "--tuples-only",
+            "--no-align",
+            "-v",
+            "ON_ERROR_STOP=1",
+            "-c",
+            sql,
+        ]
+    else:
+        raise ValueError(f"Unsupported psql mode: {psql_mode!r}.")
+
+    result = subprocess.run(
+        command,
+        capture_output=True,
+        text=True,
+    )
+    if result.returncode != 0:
+        detail = (result.stderr or result.stdout or "").strip()
+        if not detail:
+            detail = f"{command[0]} exited with status {result.returncode}"
+        raise ValueError(detail)
+    return result.stdout.strip()
 
 
 def db_existing_tables(
@@ -360,6 +550,92 @@ def db_conflict_summary(
     return summary
 
 
+def planned_micro_skill_keys(planned: dict[str, list[dict[str, Any]]]) -> list[str]:
+    keys: set[str] = set()
+
+    for table, rows in planned.items():
+        for row in rows:
+            if table == "canonical_spelling_word_map_contrast_pairs":
+                for field in ("target_micro_skill_key", "contrast_micro_skill_key"):
+                    value = row.get(field)
+                    if value:
+                        keys.add(str(value))
+            else:
+                value = row.get("micro_skill_key")
+                if value:
+                    keys.add(str(value))
+
+    return sorted(keys)
+
+
+def db_missing_micro_skill_keys(
+    db_url: str,
+    keys: list[str],
+    psql_command: str,
+    psql_mode: str,
+    docker_container: str | None,
+) -> list[str]:
+    if not keys:
+        return []
+
+    values_sql = ", ".join(f"({quote_sql_literal(key)})" for key in keys)
+    rows = run_psql_json(
+        db_url,
+        f"""
+            select planned.micro_skill_key
+            from (values {values_sql}) as planned(micro_skill_key)
+            left join public.micro_skill_catalog catalog
+              on catalog.micro_skill_key = planned.micro_skill_key
+            where catalog.micro_skill_key is null
+            order by planned.micro_skill_key
+        """,
+        psql_command,
+        psql_mode,
+        docker_container,
+    )
+    return [row["micro_skill_key"] for row in rows]
+
+
+def local_audit_counts(
+    db_url: str,
+    psql_command: str,
+    psql_mode: str,
+    docker_container: str | None,
+) -> dict[str, Any]:
+    protected_existing_tables = sorted(
+        db_existing_tables(db_url, PROTECTED_TABLES, psql_command, psql_mode, docker_container)
+    )
+    protected_missing_tables = sorted(set(PROTECTED_TABLES) - set(protected_existing_tables))
+    protected_counts = db_count_by_table(
+        db_url,
+        protected_existing_tables,
+        psql_command,
+        psql_mode,
+        docker_container,
+    )
+    storage_counts_before = db_count_by_table(
+        db_url,
+        ALL_STORAGE_TABLES,
+        psql_command,
+        psql_mode,
+        docker_container,
+    )
+
+    return {
+        "storage_tables": {
+            "expected": ALL_STORAGE_TABLES,
+            "missing": [],
+            "row_counts_before": storage_counts_before,
+        },
+        "protected_tables": {
+            "tables_checked": PROTECTED_TABLES,
+            "missing_from_local_schema": protected_missing_tables,
+            "row_counts_before": protected_counts,
+            "mutation_allowed": False,
+        },
+    }
+
+
 def local_apply_preflight(
     manifest: dict[str, Any],
     db_url: str,
@@ -410,6 +686,29 @@ def local_apply_preflight(
     if resolver_visible_diagnostics:
         raise ValueError("Refusing --apply-local preflight: diagnostic rows include resolver-visible candidates.")
 
+    audit_counts = local_audit_counts(db_url, psql_command, psql_mode, docker_container)
+
+    planned_keys = planned_micro_skill_keys(manifest["planned_rows_by_table"])
+    missing_micro_skill_keys = db_missing_micro_skill_keys(
+        db_url,
+        planned_keys,
+        psql_command,
+        psql_mode,
+        docker_container,
+    )
+    if missing_micro_skill_keys:
+        raise LocalPreflightError(
+            "Missing local micro_skill_catalog keys required by word-map rows.",
+            {
+                "micro_skill_catalog_fk_readiness": {
+                    "planned_key_count": len(planned_keys),
+                    "missing_key_count": len(missing_micro_skill_keys),
+                    "missing_micro_skill_keys": missing_micro_skill_keys,
+                },
+                **audit_counts,
+            },
+        )
+
     conflicts = db_conflict_summary(
         db_url,
         manifest["planned_rows_by_table"],
@@ -425,25 +724,6 @@ def local_apply_preflight(
     if conflict_blockers:
         raise ValueError(f"Active database conflicts would block import: {json.dumps(conflict_blockers)}")
 
-    protected_existing_tables = sorted(
-        db_existing_tables(db_url, PROTECTED_TABLES, psql_command, psql_mode, docker_container)
-    )
-    protected_missing_tables = sorted(set(PROTECTED_TABLES) - set(protected_existing_tables))
-    protected_counts = db_count_by_table(
-        db_url,
-        protected_existing_tables,
-        psql_command,
-        psql_mode,
-        docker_container,
-    )
-    storage_counts_before = db_count_by_table(
-        db_url,
-        ALL_STORAGE_TABLES,
-        psql_command,
-        psql_mode,
-        docker_container,
-    )
-
     return {
         "mode": "apply_local_preflight",
         "actual_import_run": False,
@@ -457,18 +737,13 @@ def local_apply_preflight(
             "required_version": EXPECTED_MIGRATION_VERSION,
             "present": True,
         },
-        "storage_tables": {
-            "expected": ALL_STORAGE_TABLES,
-            "missing": [],
-            "row_counts_before": storage_counts_before,
-        },
-        "protected_tables": {
-            "tables_checked": PROTECTED_TABLES,
-            "missing_from_local_schema": protected_missing_tables,
-            "row_counts_before": protected_counts,
-            "mutation_allowed": False,
-        },
+        **audit_counts,
         "database_conflicts": conflicts,
+        "micro_skill_catalog_fk_readiness": {
+            "planned_key_count": len(planned_keys),
+            "missing_key_count": len(missing_micro_skill_keys),
+            "missing_micro_skill_keys": missing_micro_skill_keys,
+        },
         "transaction_plan": {
             "will_acquire_advisory_xact_lock": True,
             "advisory_lock_name": "canonical_spelling_word_map_import",
@@ -480,6 +755,226 @@ def local_apply_preflight(
         },
         "status": "local_apply_preflight_ready_no_import_run",
     }
+
+
+def insert_statement(table: str, rows: list[dict[str, Any]]) -> str:
+    if not rows:
+        return ""
+
+    columns = CONTENT_TABLE_COLUMNS[table]
+    column_sql = ", ".join(quote_sql_identifier(column) for column in columns)
+    values_sql: list[str] = []
+
+    for row in rows:
+        values: list[str] = []
+        for column in columns:
+            if column == "import_batch_id":
+                values.append("(select id from _word_map_import_batch)")
+            elif column == "source_metadata":
+                values.append(sql_value(row.get(column), jsonb=True))
+            else:
+                values.append(sql_value(row.get(column)))
+        values_sql.append("(" + ", ".join(values) + ")")
+
+    return (
+        f"insert into public.{table} ({column_sql})\nvalues\n"
+        + ",\n".join(values_sql)
+        + ";"
+    )
+
+
+def protected_counts_values(protected_counts: dict[str, int]) -> str:
+    return ", ".join(
+        f"({quote_sql_literal(table)}, {int(count)})"
+        for table, count in sorted(protected_counts.items())
+    )
+
+
+def protected_count_selects() -> str:
+    return " union all ".join(
+        (
+            f"select {quote_sql_literal(table)} as table_name, "
+            f"count(*)::integer as row_count from public.{table}"
+        )
+        for table in PROTECTED_TABLES
+    )
+
+
+def content_count_selects(batch_filter: bool = True) -> str:
+    where_clause = " where import_batch_id = (select id from _word_map_import_batch)" if batch_filter else ""
+    return " union all ".join(
+        (
+            f"select {quote_sql_literal(table)} as table_name, "
+            f"count(*)::integer as row_count from public.{table}{where_clause}"
+        )
+        for table in CONTENT_TABLES_IN_IMPORT_ORDER
+    )
+
+
+def planned_counts_values(planned_counts: dict[str, int]) -> str:
+    return ", ".join(
+        f"({quote_sql_literal(table)}, {int(planned_counts[table])})"
+        for table in CONTENT_TABLES_IN_IMPORT_ORDER
+    )
+
+
+def local_import_transaction_sql(
+    manifest: dict[str, Any],
+    preflight: dict[str, Any],
+) -> str:
+    planned_counts = manifest["planned_inserts_by_table"]
+    validation_summary = manifest["validation"]
+    row_counts = manifest["row_counts_by_sheet"]
+    source_metadata = manifest["source_metadata"]
+    protected_before = preflight["protected_tables"]["row_counts_before"]
+
+    insert_statements = "\n\n".join(
+        insert_statement(table, manifest["planned_rows_by_table"][table])
+        for table in CONTENT_TABLES_IN_IMPORT_ORDER
+    )
+
+    return f"""
+begin;
+
+select pg_advisory_xact_lock(hashtext('canonical_spelling_word_map_import'));
+
+create temporary table _word_map_import_batch (
+  id uuid not null
+) on commit preserve rows;
+
+create temporary table _word_map_protected_counts_before (
+  table_name text primary key,
+  row_count integer not null
+) on commit preserve rows;
+
+insert into _word_map_protected_counts_before(table_name, row_count)
+values {protected_counts_values(protected_before)};
+
+with inserted as (
+  insert into public.{IMPORT_BATCH_TABLE} (
+    workbook_path,
+    workbook_sha256,
+    source_commit,
+    validator_version,
+    validation_summary,
+    row_counts,
+    import_mode,
+    batch_status,
+    source_metadata,
+    imported_by,
+    imported_at
+  )
+  values (
+    {sql_value(manifest["workbook_path"])},
+    {sql_value(manifest["workbook_sha256"])},
+    {sql_value(manifest.get("source_commit"))},
+    {sql_value(manifest["validator_version"])},
+    {sql_value(validation_summary, jsonb=True)},
+    {sql_value(row_counts, jsonb=True)},
+    'local_dev_import',
+    'active',
+    {sql_value(source_metadata, jsonb=True)},
+    'stage_2c4_local_dev_import',
+    timezone('utc', now())
+  )
+  returning id
+)
+insert into _word_map_import_batch(id)
+select id from inserted;
+
+{insert_statements}
+
+do $$
+declare
+  mismatch_count integer;
+  diagnostic_visible_count integer;
+  protected_mismatch_count integer;
+begin
+  with planned(table_name, row_count) as (
+    values {planned_counts_values(planned_counts)}
+  ),
+  actual as (
+    {content_count_selects(batch_filter=True)}
+  )
+  select count(*) into mismatch_count
+  from planned
+  join actual using (table_name)
+  where planned.row_count <> actual.row_count;
+
+  if mismatch_count <> 0 then
+    raise exception 'canonical word-map import row-count verification failed';
+  end if;
+
+  select count(*) into diagnostic_visible_count
+  from public.canonical_spelling_word_map_diagnostic_examples
+  where import_batch_id = (select id from _word_map_import_batch)
+    and resolver_visible_candidate is not false;
+
+  if diagnostic_visible_count <> 0 then
+    raise exception 'canonical word-map import attempted resolver-visible diagnostics';
+  end if;
+
+  with protected_after as (
+    {protected_count_selects()}
+  )
+  select count(*) into protected_mismatch_count
+  from _word_map_protected_counts_before before_counts
+  join protected_after after_counts using (table_name)
+  where before_counts.row_count <> after_counts.row_count;
+
+  if protected_mismatch_count <> 0 then
+    raise exception 'canonical word-map import changed protected table counts';
+  end if;
+end $$;
+
+commit;
+
+with inserted_counts as (
+  {content_count_selects(batch_filter=True)}
+),
+protected_after as (
+  {protected_count_selects()}
+),
+diagnostic_visibility as (
+  select count(*)::integer as resolver_visible_count
+  from public.canonical_spelling_word_map_diagnostic_examples
+  where import_batch_id = (select id from _word_map_import_batch)
+    and resolver_visible_candidate is not false
+)
+select jsonb_build_object(
+  'actual_import_run', true,
+  'import_batch_id', (select id::text from _word_map_import_batch),
+  'inserted_counts_by_table', (
+    select jsonb_object_agg(table_name, row_count) from inserted_counts
+  ),
+  'protected_counts_before', (
+    select jsonb_object_agg(table_name, row_count) from _word_map_protected_counts_before
+  ),
+  'protected_counts_after', (
+    select jsonb_object_agg(table_name, row_count) from protected_after
+  ),
+  'row_count_verification', 'passed',
+  'diagnostic_visibility_verification', case
+    when (select resolver_visible_count from diagnostic_visibility) = 0 then 'passed'
+    else 'failed'
+  end,
+  'status', 'local_import_committed'
+)::text;
+""".strip()
+
+
+def run_local_import_transaction(
+    manifest: dict[str, Any],
+    preflight: dict[str, Any],
+    db_url: str,
+    psql_command: str,
+    psql_mode: str,
+    docker_container: str | None,
+) -> dict[str, Any]:
+    sql = local_import_transaction_sql(manifest, preflight)
+    output = run_psql_script_text(db_url, sql, psql_command, psql_mode, docker_container)
+    report_line = output.splitlines()[-1] if output else "{}"
+    return json.loads(report_line)
 
 
 def stable_row_hash(sheet_name: str, row: dict[str, str]) -> str:
@@ -688,6 +1183,14 @@ def main() -> int:
         ),
     )
     parser.add_argument(
+        "--apply-local-import",
+        action="store_true",
+        help=(
+            "Run the local/dev import transaction after preflight. This is blocked "
+            "for non-local targets and must not be used for hosted Supabase."
+        ),
+    )
+    parser.add_argument(
         "--local-db-url",
         help="Explicit local Supabase Postgres URL, expected postgresql://postgres:postgres@127.0.0.1:54322/postgres.",
     )
@@ -715,8 +1218,8 @@ def main() -> int:
     if args.apply:
         print("Refusing --apply: generic apply remains disabled. Use --apply-local preflight.", file=sys.stderr)
         return 2
-    if args.apply_local and not args.local_db_url:
-        print("Refusing --apply-local without --local-db-url.", file=sys.stderr)
+    if (args.apply_local or args.apply_local_import) and not args.local_db_url:
+        print("Refusing local apply path without --local-db-url.", file=sys.stderr)
         return 2
 
     workbook = Path(args.workbook).expanduser().resolve()
@@ -724,9 +1227,9 @@ def main() -> int:
         print(f"Workbook not found: {workbook}", file=sys.stderr)
         return 2
 
-    manifest = build_manifest(workbook, include_planned_rows=args.apply_local)
+    manifest = build_manifest(workbook, include_planned_rows=args.apply_local or args.apply_local_import)
 
-    if args.apply_local:
+    if args.apply_local or args.apply_local_import:
         try:
             manifest["local_apply_preflight"] = local_apply_preflight(
                 manifest=manifest,
@@ -737,14 +1240,30 @@ def main() -> int:
                 docker_container=args.docker_container,
             )
             manifest["mode"] = "apply_local_preflight"
-            manifest["read_only"] = True
             manifest["actual_import_run"] = False
+            manifest["read_only"] = not args.apply_local_import
             manifest["status"] = "local_apply_preflight_ready_no_import_run"
+            if args.apply_local_import:
+                import_report = run_local_import_transaction(
+                    manifest=manifest,
+                    preflight=manifest["local_apply_preflight"],
+                    db_url=args.local_db_url,
+                    psql_command=args.psql_command,
+                    psql_mode=args.psql_mode,
+                    docker_container=args.docker_container,
+                )
+                manifest["local_import"] = import_report
+                manifest["mode"] = "apply_local_import"
+                manifest["read_only"] = False
+                manifest["actual_import_run"] = True
+                manifest["status"] = import_report.get("status", "local_import_completed")
         except (OSError, ValueError) as error:
             manifest["mode"] = "apply_local_preflight"
-            manifest["read_only"] = True
+            manifest["read_only"] = not args.apply_local_import
             manifest["actual_import_run"] = False
             manifest["status"] = "blocked_by_local_apply_preflight"
+            if isinstance(error, LocalPreflightError):
+                manifest.update(error.details)
             manifest["blocked_rows"].append(
                 {
                     "scope": "local_apply_preflight",
