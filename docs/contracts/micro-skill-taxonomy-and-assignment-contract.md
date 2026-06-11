@@ -34,6 +34,22 @@ Status: `Implementation contract`
 Treat this file as runtime-facing and implementation-ready at the contract level.
 Do not use it as the pedagogical source of truth for what a micro-skill is in human terms.
 
+Stage `2C.4` local/dev word-map prerequisite note:
+- exactly 17 existing D4 `micro_skill_catalog` rows were restored/seeded into
+  local/dev Supabase before the first canonical spelling word-map import
+  attempt
+- the rows came only from existing repo seed artifacts and preserve existing
+  `micro_skill_key` identities
+- hosted production was not touched, broad `supabase db push` was not run, and
+  no word-map rows were imported
+- protected runtime/authority tables remained unchanged except the explicitly
+  authorized local/dev `micro_skill_catalog` prerequisite rows
+- this prerequisite does not create taxonomy authority beyond the existing
+  seeded identities and does not authorize resolver, assignment generation,
+  mastery, rewards, scoring, analytics, UI, canonical mapping, recommendation,
+  review-case, `learning_items`, `assignment_items`, or evidence changes
+- Stage `2D` assignment consumption remains future-only
+
 ## Contract role
 
 This contract owns:

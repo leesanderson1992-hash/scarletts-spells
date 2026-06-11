@@ -24,7 +24,7 @@ runtime consumer.
 
 ## Status
 
-Status: `Stage 2C.3 local/dev import preflight implemented and QA-audited`
+Status: `Stage 2C.4 local/dev micro_skill_catalog prerequisite completed and QA-audited`
 
 Stage `2C.1` adds a dedicated local storage foundation migration and a
 dry-run-only import planner for canonical spelling word-map content:
@@ -60,6 +60,20 @@ non-local targets, and can use Docker `psql` mode to verify the local Supabase
 database container. It checks migration ledger version `20260608193000`, all
 seven storage tables, active DB conflicts, protected-table counts, and
 diagnostic resolver visibility. No rows have been imported.
+
+Stage `2C.4` prerequisite closeout restored/seeded exactly 17 existing D4
+`micro_skill_catalog` rows into local/dev Supabase before the first word-map
+import attempt. The prerequisite used only existing repo seed artifacts:
+`docs/implementation/seed-data/domain4-seed-expansion/micro-skills.json`,
+`docs/implementation/seed-data/domain4-mvp1-seed-manifest.json`, and the
+word-map planner's own planned FK key set. Hosted production was not touched,
+broad `supabase db push` was not run, and no word-map rows were imported.
+Canonical word-map storage tables remained empty. Protected runtime/authority
+tables remained unchanged except the explicitly authorized local/dev
+`micro_skill_catalog` prerequisite rows. After this prerequisite,
+`--apply-local` preflight reports `missing_key_count = 0` and
+`actual_import_run = false`, so Stage `2C.4` local import is ready for a
+separately authorized QA/import attempt.
 
 This document remains a contract and runtime boundary. It does not authorize
 resolver reads, assignment consumption, mastery/evidence interpretation,
@@ -648,6 +662,9 @@ status/catalog references, and writes a local validation report only.
 Dedicated storage foundation and dry-run import planning are implemented in
 Stage `2C.1`. Stage `2C.2` local/dev migration application proof is complete.
 Stage `2C.3` local/dev import preflight is implemented and QA-audited.
+Stage `2C.4` local/dev `micro_skill_catalog` prerequisite seeding is complete
+and QA-audited; the actual word-map import still requires its own explicit
+local/dev import attempt.
 
 Storage tables:
 - `canonical_spelling_word_map_import_batches`
@@ -691,10 +708,28 @@ Stage `2C.3` preflight proof:
 - diagnostic rows remain resolver-invisible
 - no workbook import occurred
 
+Stage `2C.4` prerequisite proof:
+- target was local/dev only:
+  `postgresql://postgres:postgres@127.0.0.1:54322/postgres`
+- exactly 17 existing D4 `micro_skill_catalog` rows were restored/seeded
+  locally for word-map FK readiness
+- source artifacts were existing repo seed artifacts only
+- hosted production was not touched
+- broad `supabase db push` was not run
+- no word-map rows were imported
+- all seven canonical word-map storage tables remained empty
+- protected runtime/authority tables remained unchanged except the explicitly
+  authorized local/dev `micro_skill_catalog` prerequisite rows
+- rerunning `--apply-local` after the prerequisite passed with
+  `missing_key_count = 0` and `actual_import_run = false`
+- Stage `2C.4` local import is ready for a separately authorized QA/import
+  attempt
+
 Hosted/production migration remains unapplied and no rows are imported until a
 separate DB-changing release follows the migration policy.
 
-Stage `2C.4` remains the first separately authorised local/dev import attempt.
+Stage `2C.4` remains the first separately authorised local/dev word-map import
+attempt after this prerequisite.
 
 ### Stage `2D`: assignment consumption
 

@@ -136,6 +136,16 @@ Current transition reality:
   `actual_import_run` false, hosted/non-local DB targets are blocked, Docker
   `psql` mode verifies the local Supabase DB container, and Stage `2C.4`
   remains the first separately authorised local/dev import attempt
+- Stage `2C.4` local/dev `micro_skill_catalog` prerequisite seeding is
+  complete and QA-audited; exactly 17 existing D4 `micro_skill_catalog` rows
+  were restored/seeded locally from existing repo seed artifacts only, hosted
+  production was not touched, broad `supabase db push` was not run, no word-map
+  rows were imported, all seven canonical word-map storage tables remained
+  empty, protected runtime/authority tables remained unchanged except the
+  authorized local/dev catalog rows, and the word-map `--apply-local` preflight
+  now passes with `missing_key_count = 0` and `actual_import_run` false; Stage
+  `2C.4` local word-map import is ready for its separately authorized QA/import
+  attempt, while Stage `2D` assignment consumption remains future-only
 
 Current ownership rule:
 - `Analyse Writing` belongs under `Courses` navigation
