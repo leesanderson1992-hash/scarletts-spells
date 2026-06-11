@@ -24,7 +24,7 @@ runtime consumer.
 
 ## Status
 
-Status: `Stage 2C.2 local/dev migration application proof complete`
+Status: `Stage 2C.3 local/dev import preflight implemented and QA-audited`
 
 Stage `2C.1` adds a dedicated local storage foundation migration and a
 dry-run-only import planner for canonical spelling word-map content:
@@ -51,6 +51,15 @@ All seven dedicated tables exist locally with RLS enabled, `service_role`
 grants, and no `anon` / `authenticated` grants. All seven tables remain empty;
 no workbook rows have been imported. The dry-run planner still refuses
 `--apply` and does not connect to Supabase.
+
+Stage `2C.3` adds a local/dev-only, read-only `--apply-local` preflight to the
+import planner. Dry-run remains the default behavior, generic `--apply` remains
+refused, and `--apply-local` keeps `actual_import_run` false. The preflight
+requires an explicit local DB URL and confirmation token, blocks hosted or
+non-local targets, and can use Docker `psql` mode to verify the local Supabase
+database container. It checks migration ledger version `20260608193000`, all
+seven storage tables, active DB conflicts, protected-table counts, and
+diagnostic resolver visibility. No rows have been imported.
 
 This document remains a contract and runtime boundary. It does not authorize
 resolver reads, assignment consumption, mastery/evidence interpretation,
@@ -638,6 +647,7 @@ status/catalog references, and writes a local validation report only.
 
 Dedicated storage foundation and dry-run import planning are implemented in
 Stage `2C.1`. Stage `2C.2` local/dev migration application proof is complete.
+Stage `2C.3` local/dev import preflight is implemented and QA-audited.
 
 Storage tables:
 - `canonical_spelling_word_map_import_batches`
@@ -649,9 +659,9 @@ Storage tables:
 - `canonical_spelling_word_map_route_support`
 
 Diagnostic examples remain non-resolver-visible; the storage constraint keeps
-`resolver_visible_candidate = false`. The dry-run planner validates first,
-preserves source/licence metadata in planned row metadata, refuses `--apply`,
-and does not connect to Supabase.
+`resolver_visible_candidate = false`. The planner validates first, preserves
+source/licence metadata in planned row metadata, refuses generic `--apply`, and
+keeps dry-run as the default behavior.
 
 Stage `2C.2` proof:
 - target was local/dev only: `http://127.0.0.1:54321` and
@@ -667,8 +677,24 @@ Stage `2C.2` proof:
 - workbook validation and the dry-run importer still pass
 - protected runtime/authority tables remained unchanged
 
+Stage `2C.3` preflight proof:
+- `--apply-local` is local/dev-only and preflight-only
+- `actual_import_run` remains false
+- an explicit local DB URL and confirmation token are required
+- hosted and non-local DB targets are blocked
+- Docker `psql` mode can verify the local Supabase DB container
+- migration ledger version `20260608193000` is required
+- all seven dedicated storage tables are checked before apply readiness
+- active DB conflicts are checked
+- protected runtime/authority tables are counted for audit context only and are
+  not mutated
+- diagnostic rows remain resolver-invisible
+- no workbook import occurred
+
 Hosted/production migration remains unapplied and no rows are imported until a
 separate DB-changing release follows the migration policy.
+
+Stage `2C.4` remains the first separately authorised local/dev import attempt.
 
 ### Stage `2D`: assignment consumption
 

@@ -288,10 +288,22 @@ grants, and no `anon` / `authenticated` grants. All seven tables remain empty;
 no workbook import occurred. Workbook validation and the dry-run importer still
 pass, and protected runtime/authority tables remained unchanged.
 
+Stage `2C.3` local/dev import preflight is implemented and QA-audited. The
+importer keeps dry-run as the default behavior, refuses generic `--apply`, and
+offers local/dev-only `--apply-local` as a read-only preflight that keeps
+`actual_import_run` false. The preflight requires an explicit local DB URL and
+confirmation token, blocks hosted/non-local targets, can use Docker `psql` mode
+against the local Supabase DB container, and checks migration ledger version
+`20260608193000`, all seven storage tables, active DB conflicts,
+protected-table counts, and diagnostic resolver visibility. No workbook rows
+were imported.
+
 The migration has not been applied to hosted Supabase and no workbook rows have
 been imported to hosted data. Applying that migration outside local/dev requires
 a separate approved DB-changing release with an explicit migration-ledger
 check; do not run broad `supabase db push` for it.
+
+Stage `2C.4` remains the first separately authorised local/dev import attempt.
 
 ## Success Criteria
 

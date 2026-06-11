@@ -130,6 +130,12 @@ Current transition reality:
   `postgresql://postgres:postgres@127.0.0.1:54322/postgres`; hosted production
   remains unapplied, no workbook rows were imported, protected runtime tables
   remained unchanged, and Stage `2D` assignment consumption remains future-only
+- Stage `2C.3` local/dev import preflight is implemented and QA-audited in
+  `scripts/import-canonical-spelling-word-map.py`; dry-run remains default,
+  generic `--apply` remains refused, `--apply-local` is preflight-only with
+  `actual_import_run` false, hosted/non-local DB targets are blocked, Docker
+  `psql` mode verifies the local Supabase DB container, and Stage `2C.4`
+  remains the first separately authorised local/dev import attempt
 
 Current ownership rule:
 - `Analyse Writing` belongs under `Courses` navigation

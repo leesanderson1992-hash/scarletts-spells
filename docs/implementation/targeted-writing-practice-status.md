@@ -71,6 +71,20 @@ Canonical documentation now defers to:
   - hosted/production migration remains unapplied and blocked until an
     explicit migration-ledger check and approved DB-changing release
   - Stage `2D` assignment consumption remains future work only
+- Stage `2C.3` local/dev import preflight is implemented and QA-audited:
+  - dry-run remains the default importer behavior
+  - generic `--apply` remains refused
+  - `--apply-local` is preflight-only and keeps `actual_import_run` false
+  - an explicit local DB URL and confirmation token are required
+  - hosted and non-local DB targets are blocked
+  - Docker `psql` mode verifies the local Supabase DB container
+  - preflight checks migration ledger version `20260608193000`, all seven
+    storage tables, active DB conflicts, protected-table counts, and diagnostic
+    resolver visibility
+  - no workbook rows were imported
+  - Stage `2C.4` remains the first separately authorised local/dev import
+    attempt
+  - hosted/production import remains blocked
 - Stage `1` is now complete for its intended purpose:
   - shared Writing Engine foundation
   - first spelling diagnostic path
