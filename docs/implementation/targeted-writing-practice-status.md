@@ -94,7 +94,7 @@ Canonical documentation now defers to:
     by active DB conflict checks
   - hosted/production import remains blocked until a separate approved
     DB-changing release
-  - Stage `2D` assignment consumption remains future work only
+  - Stage `2D` assignment-generation hookup remains future work only
 - Stage `2D.0` canonical spelling word-map assignment-consumption design is
   registered as documentation only:
   - no code changes, migrations, imports, Supabase mutation, or runtime
@@ -110,6 +110,46 @@ Canonical documentation now defers to:
     behavior remain unchanged
   - next implementation slice is `Stage 2D.1: Read-only canonical word-map
     assignment-content resolver, no generation hook`
+- Stage `2D.1` canonical spelling word-map assignment-content resolver is
+  implemented and QA-passed as read-only foundation only:
+  - added a typed resolver/read-model for assignment-safe word-map content
+    anchored on an already-existing active child-specific spelling
+    `learning_item`
+  - added a Supabase read-only repository boundary for active learning-item,
+    catalog, route-support, word, contrast, and import-batch status reads
+  - no assignment-generation hook was added
+  - no Supabase writes, migrations, imports, `learning_items`,
+    `assignment_items`, resolver behavior, mastery/evidence, rewards, scoring,
+    analytics, dashboards, UI, taxonomy, canonical mappings, recommendations,
+    or review-case behavior changed
+  - diagnostic examples remain non-resolver-visible and are not queried by the
+    resolver
+  - QA passed:
+    `npm run writing-engine:word-map-assignment-content-regression`,
+    `npm run writing-engine:assignment-generation-regression`,
+    `npx tsc --noEmit`, and `git diff --check`
+- Stage `2D.2` local/dev read-only Supabase smoke for the Stage `2D.1`
+  resolver is implemented and QA-passed:
+  - verifies the existing read-only resolver/repository against seeded local
+    word-map rows
+  - uses an already-existing safe local/dev active spelling `learning_item`
+    fixture
+  - no assignment-generation hook was added
+  - no Supabase writes were performed by the smoke
+  - no migrations, imports, or seed actions were performed in Stage `2D.2`
+  - the smoke did not create `learning_items` or `assignment_items`
+  - diagnostic examples remain non-resolver-visible and are not queried by the
+    smoke resolver path
+  - resolver, canonical mapping, PCRM, mastery/evidence, rewards, scoring,
+    analytics, dashboards, UI, taxonomy, recommendations, and review-case
+    behavior remain unchanged
+  - QA passed:
+    `npm run writing-engine:word-map-local-smoke`,
+    `npm run writing-engine:word-map-assignment-content-regression`,
+    `npm run writing-engine:assignment-generation-regression`,
+    `npx tsc --noEmit`, and `git diff --check`
+  - residual risk: local Supabase was partially unhealthy/slow; the fixture is
+    local/dev only and safe to delete when no longer needed
 - Stage `1` is now complete for its intended purpose:
   - shared Writing Engine foundation
   - first spelling diagnostic path

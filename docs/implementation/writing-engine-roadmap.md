@@ -144,16 +144,15 @@ Current transition reality:
   broad `supabase db push` was not run, protected runtime/authority counts
   were unchanged, diagnostic examples stayed resolver-invisible, duplicate
   local import is blocked by active DB conflict checks, and Stage `2D`
-  assignment consumption remains future-only
-- Stage `2D.0` is now registered as documentation/design only for bounded
-  assignment-content consumption. It defines that future word-map consumption
-  must be anchored on an existing active spelling `learning_item`, must remain
-  read-only content metadata, and must not create `learning_items` or
-  `assignment_items`, change resolver behavior, or affect mastery, rewards,
-  scoring, analytics, dashboards, UI, taxonomy, canonical mappings,
-  recommendations, review cases, or evidence. The next implementation slice is
-  `Stage 2D.1: Read-only canonical word-map assignment-content resolver, no
-  generation hook`.
+  assignment-generation hookup remains future-only
+- Stage `2D.0` registered documentation/design only for bounded
+  assignment-content consumption. Stage `2D.1` is implemented as a read-only
+  resolver/read-model for existing active spelling `learning_items`. Stage
+  `2D.2` is implemented as a local/dev read-only Supabase smoke for that
+  resolver. Neither slice is wired into assignment generation, creates
+  `learning_items` or `assignment_items`, changes resolver behavior, or affects
+  mastery, rewards, scoring, analytics, dashboards, UI, taxonomy, canonical
+  mappings, recommendations, review cases, or evidence.
 
 Current ownership rule:
 - `Analyse Writing` belongs under `Courses` navigation
@@ -168,7 +167,7 @@ Current ownership rule:
 
 ### Stage `2D`: canonical word-map assignment-content consumption
 
-Status: `Stage 2D.0 documentation/design registered; runtime implementation not started`
+Status: `Stage 2D.2 local/dev read-only smoke implemented; no assignment-generation hook`
 
 Product outcome:
 - existing spelling assignments can later use approved canonical word-map
@@ -183,11 +182,14 @@ Stage sequence:
 - `2D.0` registers the authority boundary, preconditions, read-model shape,
   eligibility rules, gap behavior, duplicate/deactivation behavior, QA, and
   non-goals
-- `2D.1` may implement a server-only read-only assignment-content resolver for
+- `2D.1` implements a server-only read-only assignment-content resolver for
   existing learning items, with no generation hook and no runtime behavior
   change
+- `2D.2` implements a local/dev-only read-only Supabase smoke for the existing
+  resolver/repository against seeded word-map rows and a safe existing active
+  spelling `learning_item` fixture
 - a later explicit slice may wire the read model into assignment generation
-  only after `2D.1` is implemented and regression-proven
+  only after a separately approved implementation plan
 
 Fixed boundaries:
 - `learning_items` remain the active assignment/practice/mastery unit
@@ -198,9 +200,58 @@ Fixed boundaries:
 - diagnostic examples remain resolver-invisible and assignment-invisible
 - no resolver, mastery, rewards, scoring, analytics, dashboards, UI, taxonomy,
   canonical mapping, recommendation, review-case, or evidence behavior changes
-  are authorized by Stage `2D.0`
+  are authorized by Stage `2D` through `2D.2`
 
-Ready-to-paste implementation prompt for `2D.1`:
+Stage `2D.1` implementation closeout:
+- added typed read-model/result types and pure resolver logic under the shared
+  Writing Engine assignment boundary
+- added a Supabase read-only repository boundary for `learning_items`,
+  `micro_skill_catalog`, route support, approved word rows, approved contrast
+  rows, and active import-batch status
+- added focused regression coverage for happy path, inactive/missing learning
+  items, catalog ineligibility, route mismatch, missing route support,
+  insufficient words, missing required contrasts, inactive/deactivated/rejected
+  content exclusion, deterministic dedupe/order, content conflict, and
+  diagnostic-example non-access
+- preserved all Stage `2D` hard boundaries: no migrations, no Supabase writes,
+  no assignment-generation hook, no `learning_items` or `assignment_items`
+  creation, no resolver changes, and no mastery/reward/scoring/analytics/UI
+  behavior changes
+
+QA evidence:
+- `npm run writing-engine:word-map-assignment-content-regression`
+- `npm run writing-engine:assignment-generation-regression`
+- `npx tsc --noEmit`
+- `git diff --check`
+
+Stage `2D.2` implementation closeout:
+- added a local/dev-only smoke script for the Stage `2D.1` Supabase
+  read-only repository
+- verified the existing resolver against seeded local word-map rows through an
+  already-existing safe active spelling `learning_item` fixture
+- verified the smoke returned assignment-safe approved active content for the
+  fixture route without querying diagnostic examples
+- guarded `learning_items`, `learning_item_evidence`, and `assignment_items`
+  counts before and after the smoke to prove the smoke did not write those
+  protected surfaces
+- preserved all Stage `2D` hard boundaries: no migrations, no imports, no seed
+  action inside Stage `2D.2`, no Supabase writes by the smoke, no
+  assignment-generation hook, no `learning_items` or `assignment_items`
+  creation by the smoke, no resolver/canonical mapping/PCRM behavior changes,
+  and no mastery/reward/scoring/analytics/UI behavior changes
+
+Stage `2D.2` QA evidence:
+- `npm run writing-engine:word-map-local-smoke`
+- `npm run writing-engine:word-map-assignment-content-regression`
+- `npm run writing-engine:assignment-generation-regression`
+- `npx tsc --noEmit`
+- `git diff --check`
+
+Stage `2D.2` residual risk:
+- local Supabase was partially unhealthy/slow during smoke verification
+- the fixture is local/dev only and safe to delete when no longer needed
+
+Historical implementation prompt for `2D.1`:
 
 ```md
 Adopt the role of a senior Writing Engine implementation engineer,

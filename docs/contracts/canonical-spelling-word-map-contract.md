@@ -873,13 +873,44 @@ QA and acceptance criteria:
 
 #### Stage `2D.1`: read-only resolver, no generation hook
 
-Next implementation slice:
+Status: `Implemented as read-only resolver/read-model; not wired into assignment generation`
+
+Implemented slice:
 `Stage 2D.1: Read-only canonical word-map assignment-content resolver, no generation hook`
 
-Stage `2D.1` may add a server-only resolver/read-model that assembles
-assignment-safe word-map content for an already-existing learning item. It must
-not connect that resolver to assignment generation yet, must not write
-Supabase data, and must not change runtime behavior.
+Stage `2D.1` adds a server-only resolver/read-model that assembles
+assignment-safe word-map content for an already-existing learning item. It is
+not connected to assignment generation, does not write Supabase data, does not
+read diagnostic examples, and does not change runtime behavior.
+
+#### Stage `2D.2`: local/dev read-only Supabase smoke
+
+Status: `Implemented as local/dev smoke only; no assignment-generation hook`
+
+Implemented slice:
+`Stage 2D.2: Local Supabase read-only smoke for canonical word-map assignment-content resolver`
+
+Stage `2D.2` verifies the existing Stage `2D.1` read-only resolver/repository
+against seeded local/dev word-map rows. It uses an already-existing safe
+local/dev active spelling `learning_item` fixture and proves the read path can
+return assignment-safe word-map content without changing runtime behavior.
+
+Stage `2D.2` does not authorize assignment-generation wiring. The smoke does
+not write Supabase data, run migrations, run imports, seed rows, create
+`learning_items`, create `assignment_items`, read diagnostic examples, or
+change resolver, canonical mapping, PCRM, mastery/evidence, reward, scoring,
+analytics, dashboard, UI, taxonomy, recommendation, or review-case behavior.
+
+QA evidence:
+- `npm run writing-engine:word-map-local-smoke`
+- `npm run writing-engine:word-map-assignment-content-regression`
+- `npm run writing-engine:assignment-generation-regression`
+- `npx tsc --noEmit`
+- `git diff --check`
+
+Residual risk:
+- local Supabase was partially unhealthy/slow during smoke verification
+- the fixture is local/dev only and safe to delete when no longer needed
 
 ### Later: positive evidence and mastery integration
 
