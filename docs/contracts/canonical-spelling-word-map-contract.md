@@ -602,8 +602,11 @@ Future implementation must be staged:
    Stage `2C.1` has implemented dedicated storage tables and a dry-run-only
    import planner. Stage `2C.2` has applied the migration to local/dev only and
    verified the tables remain empty; hosted Supabase remains unapplied.
-4. Stage `2D`: allow assignment generation to consume approved content only
-   after a separate runtime contract authorizes it.
+4. Stage `2D`: register bounded assignment content consumption, then implement
+   it only in later approved slices after a child-specific active
+   `learning_item` already exists. Stage `2D.0` is documentation/design only;
+   Stage `2D.1` is the first allowed read-only resolver slice and must not hook
+   into assignment generation yet.
 
 Before any database-changing work:
 - run the validator
@@ -743,11 +746,140 @@ separate DB-changing release follows the migration policy.
 Stage `2C.4` local/dev word-map import is complete. Duplicate local import
 requires a future deactivation/rollback slice before rerun.
 
-### Stage `2D`: assignment consumption
+### Stage `2D`: assignment content consumption
 
-Future only. Allow assignment generation to consume approved word-map content
-only for already-existing active `learning_items`. Missing content must skip or
-surface explicitly.
+Stage `2D` is the bounded path for using canonical spelling word-map rows as
+assignment content metadata after the app already has a child-specific active
+spelling `learning_item`.
+
+Plain-English product outcome:
+- assignments may become richer because an existing spelling learning item can
+  draw from approved words, grouped examples, dictation-safe words, and
+  contrast pairs for the same catalog-backed micro-skill and route
+- the word-map still does not decide what a child needs to learn
+- the word-map still does not create practice by itself
+- missing or incomplete word-map content must skip or surface a gap without
+  changing existing assignment behavior
+
+#### Stage `2D.0`: authority boundary and design registration
+
+Status: `Documentation/design registered only; no runtime consumer implemented`
+
+Stage `2D.0` authorizes this design boundary only. It does not authorize code,
+migrations, imports, Supabase mutation, assignment-generation behavior, or any
+runtime reads.
+
+Authority boundary:
+- `learning_items` remain the child-specific assignment/practice/mastery unit
+- `micro_skill_catalog` remains the source of micro-skill identity,
+  assignability, active state, and route compatibility
+- `assignment_items` remain the generated delivery surface
+- word-map rows may only enrich content after an active `learning_item` exists
+- word-map rows must not create `learning_items` or `assignment_items`
+- word-map rows must not change resolver, mastery, evidence, rewards, scoring,
+  analytics, dashboards, UI, taxonomy, canonical mappings, recommendations, or
+  review cases
+- diagnostic examples remain non-resolver-visible and non-assignment-visible
+
+Required preconditions before runtime consumption:
+- the target environment has the word-map storage foundation safely available
+  under the migration policy
+- an approved active import batch exists for the content being read
+- consumed content rows are active and tied to an active batch
+- assignment-facing word and contrast rows are explicitly
+  `approved_for_assignment = true`
+- route support rows are active and `enabled_for_mvp = true`
+- the target `learning_item` already exists for the child/parent scope
+- the linked catalog row is active, assignable, spelling/Domain 4, and
+  compatible with the learning item's exact route
+
+Read-only assignment-content read model:
+- input must be anchored on `learningItemId`, `childId`, and `parentUserId`
+- the reader first loads the existing `learning_items` row and validates its
+  catalog-backed `micro_skill_key` and `practice_route`
+- route support is read from active
+  `canonical_spelling_word_map_route_support` rows for the same
+  `micro_skill_key` and route
+- target words are read from active approved
+  `canonical_spelling_word_map_words` rows for the same `micro_skill_key` and
+  route
+- contrast pairs are read from active approved
+  `canonical_spelling_word_map_contrast_pairs` rows only for contrast-capable
+  routes
+- word metadata and diversity groups may be read as descriptive content
+  metadata only
+- diagnostic examples must not be read by assignment generation
+
+The read model should return content-only data, including:
+- `learningItemId`
+- `microSkillKey`
+- `practiceRoute`
+- route-support status
+- approved target words
+- approved contrast pairs where eligible
+- optional descriptive word metadata and diversity labels
+- explicit content status such as `available`, `ineligible_learning_item`,
+  `route_not_supported`, `no_active_route_support`, `insufficient_words`,
+  `insufficient_contrast_words`, or `content_conflict`
+- source/import provenance sufficient for audit
+
+Assignment route eligibility:
+- the active `learning_item.practice_route` must exactly match the word-map
+  route being consumed
+- the catalog row must be active and assignable
+- active route support must exist and be enabled for MVP consumption
+- the route must have at least `minimum_words_required` active approved words
+- if route support requires contrast words, at least one active approved
+  contrast pair must exist
+- an existing evidence-backed target word remains the assignment provenance
+  anchor where present; word-map content may enrich but must not replace
+  child-specific lineage with generic content
+- unsupported routes skip word-map enrichment rather than changing route
+  selection
+
+Content gap behavior:
+- missing word-map content must not create fallback spelling-list practice
+- missing word-map content must not trigger reads from diagnostic examples,
+  resolver mappings, canonical mappings, parent recommendations, or free-text
+  guesses
+- gaps must be returned as explicit read-model statuses and may be logged or
+  surfaced for author/admin follow-up in a later slice
+- existing assignment behavior remains unchanged until a later runtime hook
+  explicitly consumes the read model
+
+Duplicate and deactivation behavior:
+- active unique indexes remain the primary database protection against active
+  duplicate content
+- runtime readers should still dedupe returned words deterministically by
+  normalized word and stable source order
+- active conflicts beyond allowed role differences must return a structured
+  conflict/gap status, not guessed content
+- inactive, rejected, deactivated, or superseded rows and batches must be
+  ignored
+- existing generated assignment items keep their original prompt and provenance
+  if content is deactivated later; no history is rewritten
+
+QA and acceptance criteria:
+- prove a word-map row alone cannot produce a `learning_item` or
+  `assignment_item`
+- prove assignment content resolution is anchored on an existing active
+  `learning_item`
+- prove inactive, rejected, deactivated, or unapproved rows are excluded
+- prove diagnostic examples are not queried or returned by assignment
+  consumption
+- prove insufficient content returns explicit status instead of guessed words
+- prove existing Stage `1D` assignment generation behavior is unchanged until a
+  later hook slice
+
+#### Stage `2D.1`: read-only resolver, no generation hook
+
+Next implementation slice:
+`Stage 2D.1: Read-only canonical word-map assignment-content resolver, no generation hook`
+
+Stage `2D.1` may add a server-only resolver/read-model that assembles
+assignment-safe word-map content for an already-existing learning item. It must
+not connect that resolver to assignment generation yet, must not write
+Supabase data, and must not change runtime behavior.
 
 ### Later: positive evidence and mastery integration
 

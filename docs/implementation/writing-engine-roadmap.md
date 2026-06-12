@@ -145,6 +145,15 @@ Current transition reality:
   were unchanged, diagnostic examples stayed resolver-invisible, duplicate
   local import is blocked by active DB conflict checks, and Stage `2D`
   assignment consumption remains future-only
+- Stage `2D.0` is now registered as documentation/design only for bounded
+  assignment-content consumption. It defines that future word-map consumption
+  must be anchored on an existing active spelling `learning_item`, must remain
+  read-only content metadata, and must not create `learning_items` or
+  `assignment_items`, change resolver behavior, or affect mastery, rewards,
+  scoring, analytics, dashboards, UI, taxonomy, canonical mappings,
+  recommendations, review cases, or evidence. The next implementation slice is
+  `Stage 2D.1: Read-only canonical word-map assignment-content resolver, no
+  generation hook`.
 
 Current ownership rule:
 - `Analyse Writing` belongs under `Courses` navigation
@@ -156,6 +165,142 @@ Current ownership rule:
   are out of scope for Analyse Review retirement cleanup
 
 ## Stage roadmap
+
+### Stage `2D`: canonical word-map assignment-content consumption
+
+Status: `Stage 2D.0 documentation/design registered; runtime implementation not started`
+
+Product outcome:
+- existing spelling assignments can later use approved canonical word-map
+  content to supply words, grouped examples, dictation-safe words, and
+  contrast pairs for an already-active child-specific `learning_item`
+- word-map content remains metadata only and does not decide what a child
+  needs to learn
+- content gaps skip or surface explicitly rather than creating fallback
+  spelling-list practice
+
+Stage sequence:
+- `2D.0` registers the authority boundary, preconditions, read-model shape,
+  eligibility rules, gap behavior, duplicate/deactivation behavior, QA, and
+  non-goals
+- `2D.1` may implement a server-only read-only assignment-content resolver for
+  existing learning items, with no generation hook and no runtime behavior
+  change
+- a later explicit slice may wire the read model into assignment generation
+  only after `2D.1` is implemented and regression-proven
+
+Fixed boundaries:
+- `learning_items` remain the active assignment/practice/mastery unit
+- `micro_skill_catalog` remains skill identity, active state, assignability,
+  and route authority
+- `assignment_items` remain the generated delivery surface
+- word-map rows must not create `learning_items` or `assignment_items`
+- diagnostic examples remain resolver-invisible and assignment-invisible
+- no resolver, mastery, rewards, scoring, analytics, dashboards, UI, taxonomy,
+  canonical mapping, recommendation, review-case, or evidence behavior changes
+  are authorized by Stage `2D.0`
+
+Ready-to-paste implementation prompt for `2D.1`:
+
+```md
+Adopt the role of a senior Writing Engine implementation engineer,
+assignment-generation safety reviewer, and Supabase read-model designer.
+
+We are working in the Scarlett's Spells repo.
+
+Implement `Stage 2D.1` only: read-only canonical word-map
+assignment-content resolver, no generation hook.
+
+Use these docs as the controlling contract:
+- `docs/contracts/canonical-spelling-word-map-contract.md`
+- `docs/contracts/micro-skill-taxonomy-and-assignment-contract.md`
+- `docs/contracts/targeted-writing-practice-contract.md`
+- `docs/contracts/writing-engine-mastery-and-evidence-contract.md`
+- `docs/implementation/targeted-writing-practice-status.md`
+- `docs/implementation/writing-engine-roadmap.md`
+- `supabase/migrations/20260608193000_add_canonical_spelling_word_map_storage.sql`
+- `scripts/import-canonical-spelling-word-map.py`
+
+Slice goal:
+Add a server-side, read-only resolver/read-model that can assemble
+assignment-safe word-map content for an existing active spelling
+`learning_item`, without connecting it to assignment generation yet.
+
+Scope:
+- add typed read-model/result types for canonical word-map assignment content
+- add a server-only resolver/repository boundary under the shared Writing
+  Engine area
+- input must be anchored on an existing `learningItemId`, `childId`, and
+  `parentUserId`
+- load and validate the existing `learning_items` row before reading word-map
+  content
+- validate the linked `micro_skill_catalog` row is active, assignable,
+  spelling/Domain 4, and route-compatible
+- read only active approved word-map rows for the same `micro_skill_key` and
+  exact `practice_route`
+- support route content for:
+  - `word_practice`
+  - `grouped_set_practice`
+  - `contrast_practice`
+  - `dictation`
+- return structured statuses such as:
+  - `available`
+  - `ineligible_learning_item`
+  - `route_not_supported`
+  - `no_active_route_support`
+  - `insufficient_words`
+  - `insufficient_contrast_words`
+  - `content_conflict`
+- preserve provenance from import batch/source sheet/source row/source hash
+  where available
+- dedupe returned words deterministically by normalized word while preserving
+  stable query order
+
+Hard boundaries:
+- no migrations
+- no Supabase writes
+- no assignment generation hook
+- no `assignment_items` writes
+- no `learning_items` creation
+- no resolver behavior changes
+- no reads from diagnostic examples for assignment generation
+- no reads from `spelling_canonical_mappings` or PCRM recommendation tables
+- no mastery, evidence, reward, scoring, analytics, dashboard, UI, taxonomy,
+  recommendation, review-case, or template-routing behavior changes
+- do not revive `word_progress` or retired spelling runtime paths
+
+Expected outcome:
+- other code can call the resolver in tests and receive assignment-safe content
+  for an already-existing learning item
+- existing runtime behavior is unchanged because the resolver is not wired into
+  generation
+- missing or inactive content returns explicit skip/status results rather than
+  guessing
+
+QA:
+- add focused regression coverage for the resolver/read-model
+- cover active happy path
+- cover missing/inactive learning item
+- cover inactive or non-assignable catalog row
+- cover route mismatch
+- cover missing route support
+- cover insufficient grouped words
+- cover required contrast words missing
+- cover inactive/deactivated/rejected rows excluded
+- cover diagnostic examples not queried or returned
+- cover deterministic dedupe/order
+- run the existing Stage `1D` assignment-generation regression
+- run `npx tsc --noEmit`
+- run `git diff --check`
+
+Stop and report instead of coding if:
+- implementation appears to require a migration or database view
+- implementation requires changing assignment generation behavior
+- implementation requires resolver/canonical mapping/PCRM integration
+- implementation requires creating or mutating `learning_items` or
+  `assignment_items`
+- implementation requires changing mastery/evidence/reward/scoring semantics
+```
 
 ## Latest bounded closeout
 

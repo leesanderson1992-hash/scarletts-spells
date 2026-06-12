@@ -95,6 +95,21 @@ Canonical documentation now defers to:
   - hosted/production import remains blocked until a separate approved
     DB-changing release
   - Stage `2D` assignment consumption remains future work only
+- Stage `2D.0` canonical spelling word-map assignment-consumption design is
+  registered as documentation only:
+  - no code changes, migrations, imports, Supabase mutation, or runtime
+    behavior changes are implemented by this registration
+  - future assignment consumption must be anchored on an already-existing
+    active child-specific spelling `learning_item`
+  - word-map rows remain content metadata and must not create `learning_items`
+    or `assignment_items` by themselves
+  - diagnostic examples remain non-resolver-visible and must not be read by
+    assignment generation
+  - resolver behavior, mastery, rewards, scoring, analytics, dashboards, UI,
+    taxonomy, canonical mappings, recommendations, review cases, and evidence
+    behavior remain unchanged
+  - next implementation slice is `Stage 2D.1: Read-only canonical word-map
+    assignment-content resolver, no generation hook`
 - Stage `1` is now complete for its intended purpose:
   - shared Writing Engine foundation
   - first spelling diagnostic path
