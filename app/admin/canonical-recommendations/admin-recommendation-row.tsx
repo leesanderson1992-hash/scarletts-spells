@@ -2,10 +2,12 @@
 
 import { useState } from "react";
 
+import { adoptAcceptedSpellingCanonicalRecommendation } from "./adoption-actions";
 import { curateSpellingCanonicalRecommendation } from "./actions";
 
 type AdminRecommendationRowProps = {
   childId: string;
+  canonicalMappingId: string | null;
   correctWord: string;
   createdAt: string;
   currentStatus: string;
@@ -88,6 +90,7 @@ function DetailsIcon() {
 
 export function AdminRecommendationRow({
   childId,
+  canonicalMappingId,
   correctWord,
   createdAt,
   currentStatus,
@@ -111,6 +114,7 @@ export function AdminRecommendationRow({
   const needsTarget = TARGET_DECISIONS.has(decision);
   const isOpen =
     currentStatus === "recommended" || currentStatus === "pending_admin_review";
+  const canAdopt = currentStatus === "accepted" && !canonicalMappingId;
 
   return (
     <>
@@ -176,28 +180,70 @@ export function AdminRecommendationRow({
                 <option value="superseded">Mark superseded</option>
               </select>
               <p className="text-[11px] leading-4 text-[color:var(--mid)]">
-                Accept records admin curation evidence only; resolver adoption
-                remains future.
+                Accept records evidence only. Use Adopt as canonical mapping
+                after acceptance; resolver visibility remains separate.
+              </p>
+            </form>
+          ) : canAdopt ? (
+            <form
+              id={formId}
+              action={adoptAcceptedSpellingCanonicalRecommendation}
+              className="flex flex-col gap-1"
+            >
+              <input
+                type="hidden"
+                name="recommendation_id"
+                value={recommendationId}
+              />
+              <label className="sr-only" htmlFor={`${formId}-adoption-note`}>
+                Adoption note for {wrongWord}
+              </label>
+              <textarea
+                id={`${formId}-adoption-note`}
+                name="adoption_note"
+                required
+                maxLength={600}
+                rows={2}
+                placeholder="Adoption note"
+                className="min-h-16 w-full rounded-xl border border-[var(--border)] bg-white px-2 py-2 text-sm text-[color:var(--ink)]"
+              />
+              <p className="text-[11px] leading-4 text-[color:var(--mid)]">
+                Adopt as canonical mapping. Resolver visibility remains
+                disabled until separately enabled.
               </p>
             </form>
           ) : (
             <span className="text-xs text-[color:var(--mid)]">
-              Already reviewed
+              {canonicalMappingId
+                ? "Adopted as canonical mapping"
+                : "Already reviewed"}
             </span>
           )}
         </td>
         <td className="border-t border-[var(--border)] px-3 py-3">
           <div className="flex items-center gap-2">
-            <button
-              type="submit"
-              form={formId}
-              title="Submit recommendation decision"
-              aria-label={`Submit recommendation decision for ${wrongWord}`}
-              className="flex h-9 w-9 items-center justify-center rounded-full border border-emerald-200 bg-emerald-50 text-base font-semibold text-emerald-800 transition hover:bg-emerald-100 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-              disabled={!isOpen}
-            >
-              <CheckIcon />
-            </button>
+            {isOpen ? (
+              <button
+                type="submit"
+                form={formId}
+                title="Submit recommendation decision"
+                aria-label={`Submit recommendation decision for ${wrongWord}`}
+                className="flex h-9 w-9 items-center justify-center rounded-full border border-emerald-200 bg-emerald-50 text-base font-semibold text-emerald-800 transition hover:bg-emerald-100 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
+              >
+                <CheckIcon />
+              </button>
+            ) : null}
+            {canAdopt ? (
+              <button
+                type="submit"
+                form={formId}
+                title="Adopt as canonical mapping"
+                aria-label={`Adopt recommendation as canonical mapping for ${wrongWord}`}
+                className="flex h-9 w-9 items-center justify-center rounded-full border border-amber-200 bg-amber-50 text-base font-semibold text-amber-900 transition hover:bg-amber-100 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2"
+              >
+                <CheckIcon />
+              </button>
+            ) : null}
             <button
               type="button"
               title="Edit recommendation details"
@@ -257,6 +303,12 @@ export function AdminRecommendationRow({
               <div>
                 <p className="font-semibold text-[color:var(--ink)]">Target</p>
                 <span>{targetRecommendationId ?? "None"}</span>
+              </div>
+              <div>
+                <p className="font-semibold text-[color:var(--ink)]">
+                  Canonical mapping
+                </p>
+                <span>{canonicalMappingId ?? "None"}</span>
               </div>
               <div>
                 <p className="font-semibold text-[color:var(--ink)]">Review note</p>

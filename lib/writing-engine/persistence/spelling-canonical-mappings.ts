@@ -84,6 +84,16 @@ export type SetResolverVisibilityForCanonicalMappingInput = {
   metadata?: Record<string, unknown>;
 };
 
+export type AdoptSpellingCanonicalMappingRecommendationInput = {
+  recommendationId: string;
+  adminUserId: string;
+  adminEmail?: string | null;
+  note: string;
+  dialectCode?: string;
+  normalizationVersion?: string;
+  metadata?: Record<string, unknown>;
+};
+
 function normalizeLookupText(value: string | null | undefined) {
   if (typeof value !== "string") {
     return null;
@@ -236,6 +246,44 @@ export async function disableResolverVisibilityForCanonicalMappingAdmin(input: {
     targetStatus: "disabled",
     mapping: input.mapping,
   });
+}
+
+export async function adoptSpellingCanonicalMappingRecommendationAdmin(input: {
+  supabase?: ServiceRoleClient;
+  adoption: AdoptSpellingCanonicalMappingRecommendationInput;
+}) {
+  const supabase = input.supabase ?? createServiceRoleClient();
+  const { adoption } = input;
+
+  const { data, error } = await supabase.rpc(
+    "adopt_spelling_canonical_mapping_recommendation_admin",
+    {
+      p_admin_email: adoption.adminEmail ?? null,
+      p_admin_user_id: adoption.adminUserId,
+      p_dialect_code: adoption.dialectCode ?? "en-GB",
+      p_metadata: {
+        ...(adoption.metadata ?? {}),
+        resolver_visible: false,
+        resolver_visibility_status: "hidden",
+      },
+      p_normalization_version:
+        adoption.normalizationVersion ?? "spelling_normalize_v1",
+      p_note: adoption.note,
+      p_recommendation_id: adoption.recommendationId,
+    },
+  );
+
+  if (error) {
+    throw new Error(
+      error.message || "Failed to adopt PCRM recommendation.",
+    );
+  }
+
+  if (typeof data !== "string") {
+    throw new Error("PCRM canonical adoption RPC did not return a mapping id.");
+  }
+
+  return data;
 }
 
 export async function findResolverVisibleExactPairMapping(input: {

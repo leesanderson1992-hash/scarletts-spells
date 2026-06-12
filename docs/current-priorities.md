@@ -101,7 +101,29 @@
     real pending-row browser smoke
   - `scripts/dev-pcrm-recommendation-fixture.ts` is local/staging/manual smoke
     support only, not production seed data
-  - resolver integration remains future work and must be planned separately
+  - R3 resolver runtime adoption already exists as code-only source work behind
+    `WRITING_ENGINE_RESOLVER_VISIBLE_CANONICAL_MAPPINGS=enabled`; the next
+    active resolver/canonical planning work is PCRM canonical adoption into
+    the already implemented resolver-visible mapping path, not generic
+    resolver runtime implementation
+  - PCRM-G accepted-evidence canonical adoption is implemented in source as an
+    admin-only, DB-changing slice with a new unique timestamp migration/RPC;
+    it creates or links canonical mapping truth, sets recommendation
+    `canonical_mapping_id` only after adoption succeeds, writes PCRM adoption
+    audit lineage, and leaves resolver visibility disabled
+  - existing admin catalog-review `Add canonical mapping` is now the
+    smoke-proven path for canonical truth population from real Review Work
+    `No matching skill` evidence: hosted-staging smoke created canonical
+    mapping `893fdd29-c09c-41f6-b568-9558a4b9de48` from source case
+    `b4f67f65-574d-4465-8785-a1c2b36fb6c9` and decision
+    `a05adb3a-2b8e-4bd0-bff7-c8a11f7a0ddd`; `resolver_visibility_status`
+    remained `hidden`, metadata `resolver_visible` remained `false`, no
+    `resolver_visibility_enabled` event was created, and resolver runtime
+    regressions passed
+  - PCRM-G remains separately blocked for hosted browser smoke by lack of
+    meaningful PCRM recommendation data; do not use PCRM fixture data as the
+    product proof while catalog-review already proves real Review Work
+    canonical truth creation
   - unsupported returned rows without safe lineage remain blocked/deferred until
     a future provenance-expansion slice
   - parent adding a missed word after work is already returned still uses the

@@ -119,8 +119,8 @@ assert.match(
 );
 assert.match(
   row,
-  /Accept records admin curation evidence only; resolver adoption\s+remains future\./,
-  "PCRM-D UI copy must not imply resolver-visible adoption.",
+  /Accept records evidence only[\s\S]*resolver visibility remains separate\./,
+  "PCRM-D UI copy must keep acceptance evidence-only and resolver visibility separate.",
 );
 assert.doesNotMatch(
   action,

@@ -17,6 +17,7 @@ type CanonicalRecommendationRow = {
   correct_spelling_normalized: string;
   micro_skill_key: string;
   recommendation_status: string;
+  canonical_mapping_id: string | null;
   duplicate_of_recommendation_id: string | null;
   merge_target_recommendation_id: string | null;
   superseded_by_recommendation_id: string | null;
@@ -180,6 +181,7 @@ function RecommendationTable({
               <AdminRecommendationRow
                 key={row.id}
                 childId={row.child_id}
+                canonicalMappingId={row.canonical_mapping_id}
                 correctWord={
                   row.original_correct_spelling ?? row.correct_spelling_normalized
                 }
@@ -233,6 +235,7 @@ async function getCanonicalRecommendations() {
         "correct_spelling_normalized",
         "micro_skill_key",
         "recommendation_status",
+        "canonical_mapping_id",
         "duplicate_of_recommendation_id",
         "merge_target_recommendation_id",
         "superseded_by_recommendation_id",

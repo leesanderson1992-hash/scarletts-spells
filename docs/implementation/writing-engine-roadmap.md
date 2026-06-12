@@ -380,8 +380,9 @@ Fixed boundary:
   status/audit metadata; it does not create or link `spelling_canonical_mappings`
 - PCRM-D plain `accepted` means accepted evidence only and must not silently
   become resolver truth
-- future PCRM resolver integration remains a separate resolver visibility,
+- future PCRM canonical adoption remains a separate resolver visibility,
   priority, conflict, rollout, rollback, observability, and browser-smoke slice
+  into the already implemented R3 resolver-visible mapping path
 - no stage may create/edit `micro_skill_catalog`, write global canonical
   mappings directly, or make PCRM recommendations resolver-visible without a
   separate explicit resolver contract
@@ -842,7 +843,37 @@ PCRM-D admin recommendation review/curation is implemented:
   `ALLOW_STAGING_PCRM_FIXTURE=true`, and writes only fixture-marked rows to
   `spelling_canonical_mapping_recommendations`
 
-Future PCRM Resolver Integration docs contract:
+PCRM-F canonical adoption and resolver visibility planning is implemented:
+- docs-only/source-only planning lives in
+  `docs/implementation/pcrm-canonical-adoption-and-resolver-visibility-plan.md`
+- it separates `Accept evidence only`, `Adopt as canonical mapping`, and
+  `Enable resolver visibility`
+- it records that R3 resolver runtime adoption already exists behind
+  `WRITING_ENGINE_RESOLVER_VISIBLE_CANONICAL_MAPPINGS=enabled`
+
+PCRM-G accepted PCRM canonical adoption, no resolver visibility is implemented
+in source:
+- release-safety review found that existing canonical mapping RPCs did not
+  support first-class PCRM adoption lineage atomically, so source adds the
+  unique timestamp migration/RPC
+  `supabase/migrations/20260612103000_add_pcrm_canonical_adoption_rpc.sql`
+- eligible accepted and unlinked PCRM recommendation evidence can be adopted
+  through `/admin/canonical-recommendations`
+- adoption creates or links canonical mapping truth and sets
+  `canonical_mapping_id` only after adoption succeeds
+- compatible existing mappings link safely; conflicting mappings block
+  adoption
+- adoption writes canonical mapping audit lineage, including source
+  recommendation, candidate mapping, parent verification/source ids where
+  available, normalized pair, micro-skill key, dialect, normalization version,
+  admin identity, note, and timestamps
+- resolver visibility remains disabled; no resolver visibility RPC is called
+  and `WRITING_ENGINE_RESOLVER_VISIBLE_CANONICAL_MAPPINGS` remains unchanged
+- no parent Review Work, completion gating, `micro_skill_catalog`, mastery,
+  rewards, assignments, scoring, analytics, dashboards, or templates are
+  changed
+
+Historical PCRM resolver-visible integration contract:
 - R0 status: docs/contract and release-safety planning only; no resolver read,
   schema, RPC, admin action, parent Review Work, completion gating,
   `micro_skill_catalog`, mastery, rewards, assignments, scoring, analytics,
@@ -856,17 +887,16 @@ Future PCRM Resolver Integration docs contract:
 - R2 status: complete, QA-passed, pushed, and committed as
   `dc13429 feat: add resolver visibility admin controls`; explicit admin
   enable/disable actions for `resolver_visibility_status`, audited rollback,
-  and conflict blocking are added as the adoption/rollback surface only. R3
-  remains required for resolver runtime adoption, browser/admin smoke, and
-  monitored rollout
-- add explicit admin action/decision
-  `accept_and_adopt_canonical_mapping`
-- allow admin to accept eligible PCRM evidence and create/link
-  `spelling_canonical_mappings` in one audited decision
-- set the recommendation `canonical_mapping_id` only after canonical adoption
-  succeeds
-- record adoption and resolver-visibility changes in
-  `spelling_canonical_mapping_events`
+  and conflict blocking are added as the adoption/rollback surface only
+- R3 status: complete and QA-passed as code-only source work; resolver-visible
+  exact-pair mappings are wired into runtime priority behind
+  `WRITING_ENGINE_RESOLVER_VISIBLE_CANONICAL_MAPPINGS=enabled`
+- future PCRM work should be described as canonical adoption into the already
+  implemented resolver-visible mapping path, not generic resolver integration
+- PCRM-G added explicit admin adoption for eligible accepted PCRM evidence,
+  creates or links `spelling_canonical_mappings` in one audited decision, sets
+  the recommendation `canonical_mapping_id` only after adoption succeeds, and
+  records PCRM adoption in `spelling_canonical_mapping_events`
 - resolver visibility must be first-class, explicit, audited, reversible, and
   exact-pair based; metadata-only `resolver_visible` is not sufficient as the
   future production resolver authority
@@ -1816,6 +1846,20 @@ Slice `4A` catalog-review contract:
     decision id; the decision `canonical_mapping_id` matched the mapping id;
     `reject_no_canonical_update` created no canonical mapping; cleanup left no
     smoke cases or mappings behind
+  - hosted-staging canonical truth smoke passed on a real Review Work
+    `No matching skill` catalog-review case: source case
+    `b4f67f65-574d-4465-8785-a1c2b36fb6c9` (`sucsesfull` -> `successful`)
+    was resolved in `/admin/catalog-review` with `add_canonical_mapping`,
+    decision `a05adb3a-2b8e-4bd0-bff7-c8a11f7a0ddd`, active assignable D4
+    micro-skill `D4_MOR_SUFFIXES_FUL_LESS`, and canonical mapping
+    `893fdd29-c09c-41f6-b568-9558a4b9de48`; the mapping remained
+    `resolver_visibility_status = hidden`, metadata `resolver_visible`
+    remained `false`, no `resolver_visibility_enabled` event was created, and
+    resolver runtime regressions passed
+  - PCRM-G remains a separate accepted-evidence adoption path and is still
+    blocked for hosted browser smoke by lack of meaningful PCRM recommendation
+    data; do not use PCRM fixture data as product proof when catalog-review now
+    proves real Review Work canonical truth creation
   - residual deployment/process risk: hosted DB behavior passed after manual
     SQL reapplication, but `supabase_migrations.schema_migrations` did not
     show expected `20260522%` rows, so hosted migration-ledger alignment is
@@ -1883,17 +1927,20 @@ Slice `4A` catalog-review contract:
     is implemented
   - PCRM-D plain `accepted` means accepted recommendation evidence only, not
     resolver-visible truth
-  - canonical/global storage foundation now exists after Slice `4E.1`, but
-    resolver use remains blocked until a later resolver integration slice
+  - canonical/global storage foundation exists and R3 resolver runtime
+    adoption is implemented behind the feature flag, but PCRM evidence remains
+    blocked until later explicit canonical adoption and resolver-visibility
+    enablement
   - do not use `spelling_catalog_review_cases` as canonical truth, parent
     notes as truth, `parent_verified_spelling_candidate_mappings` as silent
     global truth, or `micro_skill_catalog` metadata as canonical mapping truth
     unless Stage `2C` and the relevant contracts are explicitly revised
-  - future resolver integration may add resolver-visible
+  - future PCRM canonical adoption may add resolver-visible
     `misspelling_normalized -> correct_spelling_normalized -> micro_skill_key`
-    mappings, suppress or correct false-positive-producing mappings/rules,
-    close catalog-review cases with audit, and improve future suggestions only
-    after the resolver contract is explicitly revised
+    mappings from adopted PCRM evidence, suppress or correct
+    false-positive-producing mappings/rules, close catalog-review cases with
+    audit, and improve future suggestions only after the relevant adoption and
+    release-safety contract is explicitly revised
   - future resolver priority is refined by Slice `4E.0` and PCRM resolver
     integration: active resolver-visible canonical exact-pair mapping,
     existing catalog-backed resolver behavior, scoped parent-local promoted

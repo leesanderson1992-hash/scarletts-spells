@@ -178,7 +178,14 @@ Canonical documentation now defers to:
     regression-passed
   - PCRM-D updates recommendation status/audit metadata only; plain
     `accepted` remains evidence-only and resolver-invisible
-  - resolver integration remains a separate future slice
+  - `PCRM-F` canonical adoption/resolver-visibility planning is implemented
+  - `PCRM-G` accepted-evidence canonical adoption is implemented in source as
+    an admin-only, DB-changing slice; adoption creates or links canonical
+    mapping truth and sets `canonical_mapping_id` only after success, while
+    resolver visibility remains disabled
+  - resolver runtime integration already exists as R3 feature-flag-gated source
+    work; future PCRM work is adoption hardening and release gating into that
+    existing path, not generic resolver implementation
 - `Parent-Added Missed Word Correction Repair` is implemented and QA-passed.
   It belongs to the parent-review -> child-retry -> final-classification ->
   learning-evidence loop, not resolver/PCRM/global canonical work.
@@ -724,8 +731,9 @@ Canonical documentation now defers to:
     available for real pending-row browser smoke
   - `scripts/dev-pcrm-recommendation-fixture.ts` is local/staging/manual smoke
     support only, not production seed data
-  - resolver adoption remains a future explicit PCRM resolver integration slice
-  - future PCRM resolver integration must preserve exact-pair mapping:
+  - PCRM canonical adoption remains a future explicit slice into the already
+    implemented R3 resolver-visible mapping path
+  - future PCRM canonical adoption must preserve exact-pair mapping:
     `misspelling_normalized -> correct_spelling_normalized -> micro_skill_key`
   - the correct word is a shared target anchor, not the sole routing key; `taik
     -> take` and `tak -> take` may map to different micro-skills when their
@@ -1322,6 +1330,22 @@ Canonical documentation now defers to:
     decision id; the decision `canonical_mapping_id` matched the mapping id;
     `reject_no_canonical_update` created no canonical mapping; cleanup left no
     smoke cases or mappings behind
+  - hosted-staging canonical truth smoke passed on a real Review Work
+    `No matching skill` catalog-review case without PCRM fixture data:
+    source case `b4f67f65-574d-4465-8785-a1c2b36fb6c9`
+    (`sucsesfull` -> `successful`) was resolved through
+    `/admin/catalog-review` with `add_canonical_mapping`, decision
+    `a05adb3a-2b8e-4bd0-bff7-c8a11f7a0ddd`, active D4 micro-skill
+    `D4_MOR_SUFFIXES_FUL_LESS`, and canonical mapping
+    `893fdd29-c09c-41f6-b568-9558a4b9de48`; the mapping stayed
+    `resolver_visibility_status = hidden`, metadata `resolver_visible`
+    stayed `false`, no `resolver_visibility_enabled` event was created, the
+    page reloaded with one fewer open case, and focused resolver runtime
+    regressions passed
+  - PCRM-G remains a separate adoption path and is still blocked for hosted
+    browser smoke by lack of meaningful PCRM recommendation rows; catalog-review
+    is the current smoke-proven path from real Review Work spelling evidence
+    into canonical mapping truth
   - residual deployment/process risk: hosted DB behavior passed after manual
     SQL reapplication, but `supabase_migrations.schema_migrations` did not
     show expected `20260522%` rows, so hosted migration-ledger alignment is
@@ -1457,10 +1481,11 @@ Canonical documentation now defers to:
     mappings, inactive/non-assignable/non-`D4` skills, PCRM evidence not
     separately adopted, closed catalog cases without canonical mapping, open
     cases, parent notes, and parent-local mapping as global truth
-  - future resolver integration may add resolver-visible normalized spelling
-    mappings, suppress or correct false-positive-producing mappings/rules,
-    close cases with audit, and improve future suggestions only after the
-    resolver contract is explicitly revised
+  - future PCRM canonical adoption may add resolver-visible normalized
+    spelling mappings from adopted PCRM evidence, suppress or correct
+    false-positive-producing mappings/rules, close cases with audit, and
+    improve future suggestions only after the relevant adoption and
+    release-safety contract is explicitly revised
   - future resolver priority is refined by Slice `4E.0` and PCRM resolver
     integration: active resolver-visible canonical exact-pair mapping,
     existing catalog-backed resolver behavior, scoped parent-local promoted
