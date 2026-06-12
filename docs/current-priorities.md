@@ -1,5 +1,50 @@
 # Current Priorities — Scarlett’s Spells
 
+## Current Private MVP Scope
+
+The current launch MVP is private, parent-led use for one child. The parent can
+use `Review Work` as the canonical review surface for structured lesson/test
+submissions and manual writing-sample handoff, inspect durable submitted
+payloads, approve or return work, let the child retry returned work, review
+safe returned-correction continuity, add missed spellings, and rely on
+dashboard/progress language as advisory rather than automatic mastery truth.
+
+This scope is implemented and QA-supported by the focused Review Work,
+returned-child correction, Stage `7F`, structured submission payload, parent
+candidate-capture, parent-local promotion, PCRM evidence-boundary, typecheck,
+and production-build checks.
+
+MVP readiness status is `Ready with caveats`: the product is suitable for
+controlled private parent-led use, not broad public release. Browser smoke
+confirmed parent login/session, dashboard, advisory progress wording, Review
+Work queue/detail, a sent-back structured lesson submission, unified spelling
+review, parent-added missed words, disabled approval while unresolved, and
+send-back controls. The smoke did not mutate data and did not directly cover
+child retry in-browser because browser control became flaky; the focused
+returned-child correction regression covers that path.
+
+Release-boundary caveat: do not push blindly. The private MVP closeout commit
+must include only the current priorities update, the parent-verified candidate
+capture regression harness maintenance, and the approved deletion of
+`docs/D4 Seeding Map Finale Final.xlsx`; local Supabase temp artifacts remain
+excluded.
+
+## Explicitly Not In MVP
+
+- resolver-visible canonical mappings
+- automatic mastery / Stage `8`
+- reward-system expansion
+- word-map runtime assignment routing
+- broad AI diagnosis
+- hosted backfill
+- new writing domains
+
+## Next Safe Slice After Launch
+
+1. Read-only historical structured payload integrity audit.
+2. Real-data PCRM/canonical adoption smoke after launch readiness, without
+   fixture data as product proof.
+
 ## Current initiative
 
 - The bounded Parent Review spelling workflow MVP loop is complete and

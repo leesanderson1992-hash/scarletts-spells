@@ -337,6 +337,7 @@ function loadCaptureSubmissionSpellingCandidateMapping(state: Required<HarnessSt
   };
 
   const stubModules: Record<string, unknown> = {
+    "server-only": {},
     "next/cache": {
       revalidatePath() {},
     },
@@ -422,6 +423,14 @@ function loadCaptureSubmissionSpellingCandidateMapping(state: Required<HarnessSt
     "@/lib/writing-engine/persistence/review-work-canonical-submission-spelling": {
       async getCanonicalSubmissionSpellingCatalogEntries() {
         return [];
+      },
+    },
+    "@/lib/writing-engine/persistence/spelling-canonical-mappings": {
+      async findResolverVisibleExactPairMapping() {
+        return {
+          status: "unresolved",
+          reason: "no_visible_mapping",
+        };
       },
     },
     "@/lib/writing-engine/persistence/unified-spelling-review-items": {
@@ -699,6 +708,7 @@ function loadAddMissedWordToSubmissionReview(state: Required<HarnessState>) {
   };
 
   const stubModules: Record<string, unknown> = {
+    "server-only": {},
     "next/cache": {
       revalidatePath() {},
     },
@@ -784,6 +794,14 @@ function loadAddMissedWordToSubmissionReview(state: Required<HarnessState>) {
     "@/lib/writing-engine/persistence/review-work-canonical-submission-spelling": {
       async getCanonicalSubmissionSpellingCatalogEntries() {
         return [];
+      },
+    },
+    "@/lib/writing-engine/persistence/spelling-canonical-mappings": {
+      async findResolverVisibleExactPairMapping() {
+        return {
+          status: "unresolved",
+          reason: "no_visible_mapping",
+        };
       },
     },
     "@/lib/writing-engine/persistence/unified-spelling-review-items": {
