@@ -501,12 +501,66 @@ Canonical documentation now defers to:
     - `npm run build` passed
     - `git diff --check` passed
     - architecture QA passed after refactor
+  - v1.1 historical structured payload integrity audit and cleanup:
+    - read-only hosted audit found `0` critical findings, `75` warning
+      findings, and `23` info findings across historical structured
+      submission data
+    - local-only audit report:
+      `tmp/writing-engine-structured-payload-integrity-audit-2026-06-12T19-30-25-337Z.json`
+    - controlled cleanup script:
+      `npm run writing-engine:cleanup-pre-june-structured-warning-submissions`
+    - cleanup script is dry-run by default, requires explicit Supabase target
+      env vars, blocks hosted dry-run unless
+      `STRUCTURED_WARNING_CLEANUP_ALLOW_HOSTED_READ_ONLY=true`, and blocks
+      hosted apply unless `--apply`,
+      `STRUCTURED_WARNING_CLEANUP_ALLOW_HOSTED_DELETE=true`, and
+      `CONFIRM_PRE_JUNE_STRUCTURED_WARNING_DELETE=delete-pre-june-warning-submissions`
+      are all present
+    - cleanup is exact-ID based from the audit warning set, not broad date
+      deletion; it writes local manifests under `tmp/` and must not commit
+      those reports/manifests because they contain hosted child/submission IDs
+    - safe-subset dry-run local-only evidence:
+      `tmp/pre-june-structured-warning-cleanup-manifest-2026-06-12T20-52-25-830Z.json`
+    - safe-subset dry-run targeted `35` pre-`2026-06-01` warning
+      submissions, excluded `2` canonical-lineage-protected pre-June
+      submissions, excluded `4` post-cutoff warning submissions, had zero
+      canonical mapping/event lineage references in the final delete plan, and
+      had empty `cascadeRisk` arrays
+    - hosted apply was explicitly approved and verified on
+      `2026-06-12` against
+      `https://wwohrqtunajrbwxyssjf.supabase.co`; apply manifest:
+      `tmp/pre-june-structured-warning-cleanup-manifest-2026-06-12T21-00-32-625Z.json`
+    - verified apply deleted the safe subset:
+      `35` `task_submissions`, `35` `writing_samples`,
+      `51` `misspelling_instances`, `4` `task_submission_payloads`,
+      `1` `task_submission_drafts`, `8` `spelling_catalog_review_cases`, and
+      `8` `spelling_catalog_review_case_decisions`
+    - protected/global counts were unchanged by apply:
+      `micro_skill_catalog` `240 -> 240`,
+      `spelling_canonical_mappings` `6 -> 6`,
+      `spelling_canonical_mapping_events` `8 -> 8`, and `task_completions`
+      `34 -> 34`
+    - no raw hosted SQL was run, no migrations were created or applied, and
+      the hosted key was not printed
+    - any future hosted cleanup rerun remains a separate explicit approval
+      step and must use the destructive confirmation gates again
+    - apply command shape, with key redacted:
+      `STRUCTURED_WARNING_CLEANUP_ALLOW_HOSTED_DELETE=true CONFIRM_PRE_JUNE_STRUCTURED_WARNING_DELETE=delete-pre-june-warning-submissions STRUCTURED_WARNING_CLEANUP_SUPABASE_URL=https://wwohrqtunajrbwxyssjf.supabase.co STRUCTURED_WARNING_CLEANUP_SUPABASE_KEY="[REDACTED_SERVICE_ROLE_KEY]" npm run writing-engine:cleanup-pre-june-structured-warning-submissions -- --apply`
+    - no resolver, mastery, reward, assignment, scoring, analytics, dashboard,
+      template, lesson-generation, canonical mapping truth, or
+      `micro_skill_catalog` behavior changed
   - residual risk:
     - the original user-visible blank-box bug is fixed for submissions with
       durable payloads and for the manually tested returned legacy row
+    - the audit and safe-subset cleanup do not prove all historical structured
+      payloads are complete; they prove there were no critical findings in the
+      audited scope and that the approved pre-June warning safe subset was
+      removed without mutating protected canonical/global tables
+    - `2` pre-June warning submissions were intentionally preserved because
+      they are upstream of protected canonical catalog-review lineage
+    - `4` warning submissions on or after `2026-06-01` were intentionally
+      excluded by cutoff rules
     - no hosted historical backfill has been implemented
-    - unknown historical data shape may still include vulnerable structured
-      rows that should be inventoried before any operator recovery/backfill
   - explicit non-goals:
     - no `4E` / `4E.3` resolver work
     - no admin/catalog-review work
@@ -515,6 +569,7 @@ Canonical documentation now defers to:
     - no mastery, reward, assignment, scoring, analytics, dashboard, or
       template-routing change
     - no `micro_skill_catalog` mutation
+    - no canonical mapping truth deletion or resolver visibility enablement
   - required regression direction:
     - structured submit creates durable payload
     - payload insert failure prevents successful submit

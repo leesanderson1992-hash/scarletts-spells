@@ -41,9 +41,11 @@ excluded.
 
 ## Next Safe Slice After Launch
 
-1. Read-only historical structured payload integrity audit.
-2. Real-data PCRM/canonical adoption smoke after launch readiness, without
+1. Real-data PCRM/canonical adoption smoke after launch readiness, without
    fixture data as product proof.
+2. Manual/operator review of the two canonical-lineage-protected pre-June
+   structured warning submissions excluded from the v1.1 safe-subset cleanup,
+   if further cleanup is still desired.
 
 ## Current initiative
 
@@ -176,10 +178,11 @@ excluded.
 - no runtime Stage `8` automatic mastery implementation should begin until the
   mastery/evidence boundary is rechecked against the live product copy
 - for Durable Structured Submission Payloads, the next safe work is a
-  read-only historical data-integrity audit and optional operator recovery
-  plan; do not start hosted backfill, resolver, admin/catalog-review, catalog
-  mutation, mastery, rewards, assignments, scoring, analytics, dashboards, or
-  template-routing work from that closeout
+  manual/operator review of the canonical-lineage-protected exclusions from
+  the v1.1 cleanup, if further historical cleanup is desired; do not start
+  hosted backfill, resolver, admin/catalog-review, catalog mutation, mastery,
+  rewards, assignments, scoring, analytics, dashboards, or template-routing
+  work from that closeout
 - `4E.3` R3 resolver integration is implemented and QA-passed as code-only
   source work. Runtime use is gated by
   `WRITING_ENGINE_RESOLVER_VISIBLE_CANONICAL_MAPPINGS=enabled`; blocked

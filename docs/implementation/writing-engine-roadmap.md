@@ -504,7 +504,7 @@ Boundaries preserved:
 
 ### Durable Structured Submission Payloads
 
-Status: `Pass 4 approval draft-deletion safety implemented and QA-passed; returned-child legacy recovery implemented and manually verified`
+Status: `Pass 4 approval draft-deletion safety implemented and QA-passed; returned-child legacy recovery implemented and manually verified; v1.1 historical warning audit and safe-subset cleanup complete`
 
 Purpose:
 - separate mutable structured lesson/test draft state from immutable submitted
@@ -976,7 +976,9 @@ Boundary notes:
 - this track is separate from `4E` / `4E.3` resolver integration
 - this track does not change admin/catalog-review, manual writing samples,
   mastery, rewards, assignments, scoring, analytics, or template routing
-- no hosted historical backfill is authorised in the docs pass
+- v1.1 performed an explicitly approved hosted safe-subset cleanup of
+  historical warning submissions; no hosted historical backfill is authorised
+  by this closeout
 - no implementation may solve the bug by hiding completed lessons or blocking
   child revisit unless a separate product contract explicitly requires it
 - `4E.3` source work may proceed locally after this detour; production
@@ -1018,19 +1020,52 @@ Validation evidence for Pass 4 closeout:
 - `npm run build` passed
 - `git diff --check` passed
 
-Next safest pass:
-- run a read-only historical data-integrity audit and optional local/operator
-  recovery-plan pass for vulnerable structured submissions
-- inventory structured lesson/test submissions without `task_submission_payloads`,
-  returned drafts with empty structured answers, submissions recoverable only
-  from flattened `submission_text`, and duplicate/pending historical
-  submission rows for the same task/child
-- do not implement hosted backfill by default; produce a risk report, manual
-  QA checklist, and only later, if explicitly approved, a narrowly scoped
-  recovery/backfill plan
-- do not proceed from this closeout into resolver, admin/catalog-review,
-  catalog mutation, mastery, reward, assignment, scoring, analytics, dashboard,
-  or template-routing work
+v1.1 historical structured warning audit and cleanup closeout:
+- read-only hosted audit found `0` critical findings, `75` warning findings,
+  and `23` info findings
+- audit report is local-only evidence and must not be committed:
+  `tmp/writing-engine-structured-payload-integrity-audit-2026-06-12T19-30-25-337Z.json`
+- controlled cleanup script:
+  `npm run writing-engine:cleanup-pre-june-structured-warning-submissions`
+- the cleanup script is dry-run by default, hosted-gated, exact-ID based from
+  the audit warning set, manifest-writing, and destructive-confirmation gated
+- safe-subset dry-run manifest is local-only evidence and must not be
+  committed:
+  `tmp/pre-june-structured-warning-cleanup-manifest-2026-06-12T20-52-25-830Z.json`
+- safe-subset dry-run targeted `35` pre-`2026-06-01` warning submissions,
+  excluded `2` canonical-lineage-protected pre-June submissions, excluded `4`
+  post-cutoff warning submissions, had zero canonical mapping/event lineage
+  references in the final delete plan, and had empty `cascadeRisk` arrays
+- hosted apply was explicitly approved and verified on `2026-06-12`; apply
+  manifest is local-only evidence and must not be committed:
+  `tmp/pre-june-structured-warning-cleanup-manifest-2026-06-12T21-00-32-625Z.json`
+- verified apply deleted:
+  `35` `task_submissions`, `35` `writing_samples`,
+  `51` `misspelling_instances`, `4` `task_submission_payloads`,
+  `1` `task_submission_drafts`, `8` `spelling_catalog_review_cases`, and
+  `8` `spelling_catalog_review_case_decisions`
+- protected/global counts were unchanged:
+  `micro_skill_catalog` `240 -> 240`,
+  `spelling_canonical_mappings` `6 -> 6`,
+  `spelling_canonical_mapping_events` `8 -> 8`, and `task_completions`
+  `34 -> 34`
+- any future hosted cleanup rerun remains a separate explicit approval step and
+  must use the destructive confirmation gates again
+- apply command shape, with key redacted:
+  `STRUCTURED_WARNING_CLEANUP_ALLOW_HOSTED_DELETE=true CONFIRM_PRE_JUNE_STRUCTURED_WARNING_DELETE=delete-pre-june-warning-submissions STRUCTURED_WARNING_CLEANUP_SUPABASE_URL=https://wwohrqtunajrbwxyssjf.supabase.co STRUCTURED_WARNING_CLEANUP_SUPABASE_KEY="[REDACTED_SERVICE_ROLE_KEY]" npm run writing-engine:cleanup-pre-june-structured-warning-submissions -- --apply`
+- no raw hosted SQL was run, no migrations were created or applied, the hosted
+  key was not printed, and no resolver, mastery, reward, assignment, scoring,
+  analytics, dashboard, template, lesson-generation, canonical mapping truth,
+  or `micro_skill_catalog` behavior changed
+- this audit does not determine that all historical structured payloads are
+  complete; it establishes that the audited scope had no critical findings and
+  that the approved pre-June warning safe subset was removed while preserving
+  protected canonical/global tables
+- remaining data-governance follow-up, if desired, is manual/operator review
+  of the `2` canonical-lineage-protected pre-June warning submissions and the
+  `4` post-cutoff warning submissions; do not proceed from this closeout into
+  resolver, admin/catalog-review, catalog mutation, mastery, reward,
+  assignment, scoring, analytics, dashboard, or template-routing work
 - architecture QA passed after moving privileged persistence into the
   server-only helper
 - quick-submit fallback bug was diagnosed and fixed
