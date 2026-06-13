@@ -1053,6 +1053,24 @@ v1.1 historical structured warning audit and cleanup closeout:
   must use the destructive confirmation gates again
 - apply command shape, with key redacted:
   `STRUCTURED_WARNING_CLEANUP_ALLOW_HOSTED_DELETE=true CONFIRM_PRE_JUNE_STRUCTURED_WARNING_DELETE=delete-pre-june-warning-submissions STRUCTURED_WARNING_CLEANUP_SUPABASE_URL=https://wwohrqtunajrbwxyssjf.supabase.co STRUCTURED_WARNING_CLEANUP_SUPABASE_KEY="[REDACTED_SERVICE_ROLE_KEY]" npm run writing-engine:cleanup-pre-june-structured-warning-submissions -- --apply`
+- post-cleanup read-only review on `2026-06-13` found `0` critical findings,
+  `6` warning findings, and `18` info findings; all remaining warning
+  submissions had durable structured payload answers
+- local-only post-cleanup reports must not be committed:
+  `tmp/writing-engine-structured-payload-integrity-audit-2026-06-13T05-18-25-052Z.json`
+  and
+  `tmp/post-cleanup-remaining-structured-warning-review-2026-06-13T05-22-56-721Z.json`
+- remaining warning causes were known and bounded:
+  `4` `returned_submission_missing_draft` rows recoverable from durable
+  payload, and `2` `duplicate_or_pending_historical_submissions` rows requiring
+  operator review before any cleanup decision
+- one confirmed duplicate,
+  `0c01e5fd-d2c9-4f37-ae1d-0eddba8c0e1e`, was later deleted by exact ID with
+  no raw hosted SQL and no protected/global count changes; the post-delete
+  read-only audit found `0` critical findings, `6` warning findings, and `17`
+  info findings across `9` structured submissions, with the duplicate/pending
+  warning rebalanced to preserved row
+  `1ab59ab4-c1ec-4b77-b7f8-259b71d34b84`
 - no raw hosted SQL was run, no migrations were created or applied, the hosted
   key was not printed, and no resolver, mastery, reward, assignment, scoring,
   analytics, dashboard, template, lesson-generation, canonical mapping truth,
@@ -1061,11 +1079,14 @@ v1.1 historical structured warning audit and cleanup closeout:
   complete; it establishes that the audited scope had no critical findings and
   that the approved pre-June warning safe subset was removed while preserving
   protected canonical/global tables
+- the post-cleanup review resolves the v1.1 trust question to a known
+  residual-risk state: remaining warnings are non-critical, durable-payload
+  recoverable, and preserved/manual-review only
 - remaining data-governance follow-up, if desired, is manual/operator review
-  of the `2` canonical-lineage-protected pre-June warning submissions and the
-  `4` post-cutoff warning submissions; do not proceed from this closeout into
-  resolver, admin/catalog-review, catalog mutation, mastery, reward,
-  assignment, scoring, analytics, dashboard, or template-routing work
+  of the canonical-lineage-protected rows and preserved duplicate/pending row;
+  do not proceed from this closeout into resolver, admin/catalog-review,
+  catalog mutation, mastery, reward, assignment, scoring, analytics,
+  dashboard, or template-routing work
 - architecture QA passed after moving privileged persistence into the
   server-only helper
 - quick-submit fallback bug was diagnosed and fixed

@@ -546,6 +546,26 @@ Canonical documentation now defers to:
       step and must use the destructive confirmation gates again
     - apply command shape, with key redacted:
       `STRUCTURED_WARNING_CLEANUP_ALLOW_HOSTED_DELETE=true CONFIRM_PRE_JUNE_STRUCTURED_WARNING_DELETE=delete-pre-june-warning-submissions STRUCTURED_WARNING_CLEANUP_SUPABASE_URL=https://wwohrqtunajrbwxyssjf.supabase.co STRUCTURED_WARNING_CLEANUP_SUPABASE_KEY="[REDACTED_SERVICE_ROLE_KEY]" npm run writing-engine:cleanup-pre-june-structured-warning-submissions -- --apply`
+    - post-cleanup read-only review on `2026-06-13` found `0` critical
+      findings, `6` warning findings, and `18` info findings; all remaining
+      warning submissions had durable structured payload answers
+    - local-only post-cleanup reports:
+      `tmp/writing-engine-structured-payload-integrity-audit-2026-06-13T05-18-25-052Z.json`
+      and
+      `tmp/post-cleanup-remaining-structured-warning-review-2026-06-13T05-22-56-721Z.json`
+    - post-cleanup review classified `4`
+      `returned_submission_missing_draft` rows as recoverable from durable
+      payload, with optional manual browser UX review if the rows matter to
+      the child-facing returned flow
+    - post-cleanup review classified `2`
+      `duplicate_or_pending_historical_submissions` rows for operator review;
+      one confirmed duplicate,
+      `0c01e5fd-d2c9-4f37-ae1d-0eddba8c0e1e`, was later deleted by exact ID
+      with no raw hosted SQL and no protected/global count changes
+    - post-delete read-only audit found `0` critical findings, `6` warning
+      findings, and `17` info findings across `9` structured submissions; the
+      duplicate/pending warning rebalanced to preserved row
+      `1ab59ab4-c1ec-4b77-b7f8-259b71d34b84`
     - no resolver, mastery, reward, assignment, scoring, analytics, dashboard,
       template, lesson-generation, canonical mapping truth, or
       `micro_skill_catalog` behavior changed
@@ -556,10 +576,15 @@ Canonical documentation now defers to:
       payloads are complete; they prove there were no critical findings in the
       audited scope and that the approved pre-June warning safe subset was
       removed without mutating protected canonical/global tables
+    - the post-cleanup review resolves the v1.1 trust question to a known
+      residual-risk state: remaining warnings are non-critical,
+      durable-payload recoverable, and preserved/manual-review only
     - `2` pre-June warning submissions were intentionally preserved because
       they are upstream of protected canonical catalog-review lineage
-    - `4` warning submissions on or after `2026-06-01` were intentionally
-      excluded by cutoff rules
+    - `4` warning submissions on or after `2026-06-01` were reviewed after
+      cleanup; one confirmed duplicate was deleted by exact ID, one
+      duplicate/pending row remains preserved for operator review, and returned
+      rows remain recoverable from durable payload
     - no hosted historical backfill has been implemented
   - explicit non-goals:
     - no `4E` / `4E.3` resolver work
