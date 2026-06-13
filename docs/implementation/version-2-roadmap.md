@@ -221,6 +221,8 @@ Slice `2` has two bounded parts:
 
 #### Slice 2A - computed helper/read-model only
 
+Status: `implemented as read-only helper/read-model`
+
 Slice `2A` should:
 - implement a computed read-only recommendation helper/read-model
 - not create a new recommendation storage table
@@ -240,6 +242,25 @@ Slice `2A` should:
 
 For Slice `2A`, "read-model" means a computed read-only projection assembled
 from existing data, not a new manually populated storage table.
+
+Implementation closeout:
+- added pure scoring helper
+  `lib/writing-engine/spelling/stage2a-micro-skill-recommendation.ts`
+- added read-only repository/read-model boundary
+  `lib/writing-engine/persistence/stage2a-micro-skill-recommendation.ts`
+- added focused regression coverage via
+  `npm run writing-engine:micro-skill-recommendation-regression`
+- the helper returns `recommendationStatus`, `confidence`, `reason`,
+  `sourceSignals`, ranked candidates, fallback reason, and future table-prefill
+  fields
+- exact active canonical mappings and same-scope parent-local promoted mappings
+  outrank weak pattern signals
+- deterministic spelling-difference features, reviewed evidence, Slice `1`
+  frequency, and word-map metadata remain recommendation signals only
+- low confidence, low margin, conflicts, likely false positives, and
+  word-level-only cases do not allow prefill
+- no `Review Work` UI, resolver behavior, mappings, verifications,
+  `learning_items`, `assignment_items`, migrations, or Supabase writes changed
 
 #### Slice 2B - Review Work table prefill integration
 
