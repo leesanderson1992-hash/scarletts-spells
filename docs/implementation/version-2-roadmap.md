@@ -200,31 +200,245 @@ For an explicitly approved hosted read-only audit, set:
 SPELLING_POPULATION_AUDIT_ALLOW_HOSTED_READ_ONLY=true
 ```
 
-### Slice 2 - Ranked micro-skill suggestion helper
+### Slice 2 - Ranked micro-skill recommendation helper and Review Work table prefill contract
 
 Goal:
-- for a spelling pair, propose the top likely micro-skills so the parent/admin
-  confirms instead of manually searching the taxonomy
+- for a spelling pair, recommend the top likely active assignable D4
+  micro-skills so parent/admin review becomes confirmation and correction, not
+  taxonomy hunting
+- keep the existing compact parent `Review Work` spelling table as the future
+  UI surface
+- eventually prefill the existing `Skill Family`, `Skill Cluster`, and
+  `Micro-skill` controls with the best recommended values where confidence is
+  sufficient
+- clearly label prefilled values as `Suggested` or `Recommended`
+- preserve explicit parent action: confirm, change, reject, or send to catalog
+  review
 
-Input:
-- child spelling
-- correction
-- optional sentence/context
-- existing `micro_skill_catalog`
-- canonical word-map metadata where safe
-- existing canonical mappings
-- parent-local mappings where scoped
+Slice `2` has two bounded parts:
+- `Slice 2A` - computed helper/read-model only
+- `Slice 2B` - `Review Work` table prefill integration
+
+#### Slice 2A - computed helper/read-model only
+
+Slice `2A` should:
+- implement a computed read-only recommendation helper/read-model
+- not create a new recommendation storage table
+- not require manual pre-population
+- accept spelling pair inputs:
+  - child spelling
+  - correction
+  - optional sentence/context
+  - parent/child/submission scope where available
+- return ranked recommendation data shaped for later `Review Work` table
+  prefill
+- not mutate Supabase
+- not change `Review Work` UI
+- not create truth
+- not change resolver behavior
+- not create `learning_items` or `assignment_items`
+
+For Slice `2A`, "read-model" means a computed read-only projection assembled
+from existing data, not a new manually populated storage table.
+
+#### Slice 2B - Review Work table prefill integration
+
+Slice `2B` should:
+- feed the best recommendation into the existing compact `Review Work` spelling
+  table
+- prefill `Skill Family`, `Skill Cluster`, and `Micro-skill` controls where
+  safe
+- visually label prefilled values as recommendations
+- preserve editability
+- preserve Tick, X, `!`, and `No Matching Skill` flows
+- preserve existing completion-gating and approval semantics
+- never treat a suggestion as a parent decision
+
+The recommendation must not count as a completed review decision and must not
+silently unlock approval or completion.
+
+#### Recommendation-versus-truth boundary
+
+A Slice `2` recommendation is:
+- suggestion evidence only
+- not parent verification
+- not a candidate mapping
+- not parent-local promoted truth
+- not canonical/global mapping truth
+- not resolver-visible truth
+- not mastery evidence
+- not a `learning_item`
+- not an `assignment_item`
+
+#### Suggested Slice 2B parent-facing wording
+
+- Badge: `Suggested`
+- Helper: `Suggested by the spelling helper. Please confirm or change before approving.`
+- Tooltip: `This is a recommendation only. It will not become reusable truth unless you approve or promote it where allowed.`
+- Low-confidence fallback: `No confident skill suggestion yet. Choose a skill or send to catalog review.`
+- Conflict fallback: `Possible skill conflict. Please review manually.`
+
+#### Suggested helper output shape
+
+The Slice `2A` helper/read-model should return a result shaped for later table
+prefill:
+- `recommendedFamilyKey`
+- `recommendedClusterKey`
+- `recommendedMicroSkillKey`
+- `rankedMicroSkillCandidates`
+- `confidence`
+- `reason`
+- `sourceSignals`
+- `recommendationStatus`
+- `fallbackReason`
+- `isPrefillAllowed`
+
+Suggested `recommendationStatus` values:
+- `recommended`
+- `low_confidence`
+- `no_matching_skill_candidate`
+- `word_level_only_candidate`
+- `likely_false_positive`
+- `conflict`
+- `insufficient_evidence`
+
+#### Ranking logic
+
+The helper should score candidate micro-skills using safe read-only signals
+such as:
+- exact active canonical mapping match
+- same-scope parent-local promoted exact mapping
+- correction-word pattern support
+- deterministic spelling-difference features, such as missing final e,
+  consonant doubling, vowel substitution, transposition, suffix/prefix issue,
+  and schwa/unstressed vowel issue
+- active assignable D4 micro-skill metadata
 - historical reviewed evidence
+- Slice `1` audit-style frequency signals
+- canonical word-map metadata where safely available
 
-Output:
-- top 3 suggested active assignable D4 micro-skills
+Rules:
+- raw frequency alone must not create high-confidence truth
+- conflicting top candidates should return `conflict`
+- low margin between top candidates should prevent prefill
+- low confidence should not prefill
+- the helper must not invent `micro_skill_key`
+
+#### Allowed source signals
+
+The helper may use read-only signals from:
+- misspelling/correction pair
+- optional sentence/context
+- existing active assignable D4 `micro_skill_catalog`
+- existing canonical mappings
+- parent-local promoted mappings where scoped
+- historical reviewed evidence
+- Slice `1` audit patterns if available
+- canonical word-map metadata where safely available
+
+The helper must not use as truth:
+- arbitrary parent free text
+- pending candidate mappings
+- raw parent-authored missed-word rows
+- raw `misspelling_instances`
+- raw `writing_issues`
+- open catalog-review cases
+- accepted PCRM evidence not yet adopted
+- word-map rows as mastery/assignment/resolver truth
+
+#### Hard boundaries
+
+No:
+- resolver behavior changes
+- canonical mapping creation
+- parent-local promotion
+- candidate mapping creation by suggestion alone
+- parent verification creation by suggestion alone
+- `learning_item` creation
+- `assignment_item` creation
+- mastery/reward/dashboard/analytics/scoring/template changes
+- `micro_skill_catalog` mutation
+- broad AI diagnosis
+- manual writing sample expansion unless separately authorised
+- hidden completion-gating change
+- service-role exposure to client components
+- hosted DB mutation
+
+#### Next Slice 2A implementation prompt
+
+```md
+Adopt the role of a senior Supabase/Next.js architecture reviewer, spelling-engine classification engineer, learning-science-aware product engineer, and Review Work safety reviewer for Scarlett's Spells.
+
+Implement Version 2.0 Slice 2A only: ranked micro-skill recommendation helper read-model, no Review Work UI integration yet.
+
+Use these docs as controlling context:
+- docs/implementation/version-2-roadmap.md
+- docs/current-priorities.md
+- docs/implementation/targeted-writing-practice-status.md
+- docs/implementation/writing-engine-roadmap.md
+- docs/contracts/writing-engine-mastery-and-evidence-contract.md
+- docs/contracts/targeted-writing-practice-contract.md
+- docs/contracts/micro-skill-taxonomy-and-assignment-contract.md
+- docs/contracts/canonical-spelling-word-map-contract.md
+- docs/contracts/parent-recommended-canonical-mapping.md
+- docs/architecture/writing-engine-canonical-brief.md
+- docs/architecture/targeted-writing-practice-architecture.md
+
+Goal:
+Create a computed read-only helper/read-model that takes a spelling pair and optional context/scope, returns ranked active assignable D4 micro-skill recommendations, and exposes table-prefill fields for a later Review Work integration slice.
+
+Required output:
+- recommendation status
 - confidence
 - reason
-- fallback: no matching skill / word-level only / likely false positive
+- ranked candidates
+- source signals
+- `recommendedFamilyKey`
+- `recommendedClusterKey`
+- `recommendedMicroSkillKey`
+- `isPrefillAllowed`
+- fallback reason where relevant
 
-Hard boundary:
-- suggestion only
-- does not create truth
+Use read-only safe sources:
+- misspelling/correction pair
+- optional sentence/context
+- active assignable D4 `micro_skill_catalog`
+- existing canonical mappings
+- parent-local promoted mappings where scoped
+- historical reviewed evidence
+- Slice 1 audit-style frequency signals if available
+- canonical word-map metadata where safely available
+
+Hard boundaries:
+- helper/read-model only
+- no Supabase mutation
+- no new manually populated recommendation table
+- no Review Work UI integration
+- no resolver behavior changes
+- no candidate mapping creation
+- no parent-local promotion
+- no parent verification creation
+- no canonical mapping creation
+- no `learning_items`
+- no `assignment_items`
+- no resolver-visible truth
+- no mastery, reward, dashboard, analytics, scoring, or template behavior changes
+- no `micro_skill_catalog` mutation
+- no hosted DB mutation
+
+Testing:
+- add focused regression coverage for ranked recommendations, low confidence, conflicts, no matching skill, likely false positive, word-level-only candidate, and no prefill when confidence or margin is insufficient
+- verify suggestions remain recommendation evidence only and do not change completion gating or reusable truth
+
+Return:
+1. Files changed.
+2. Helper/read-model API and output shape.
+3. Data sources used.
+4. Safety boundaries preserved.
+5. Test coverage.
+6. How to run verification.
+7. Recommended Slice 2B follow-up.
+```
 
 ### Slice 3 - Parent review UX acceleration
 
