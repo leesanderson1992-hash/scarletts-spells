@@ -51,6 +51,11 @@ excluded.
 
 - The bounded Parent Review spelling workflow MVP loop is complete and
   QA-passed for private parent-led use.
+- Version 2.0 roadmap registration is now the active docs-first planning
+  direction: use
+  [docs/implementation/version-2-roadmap.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/implementation/version-2-roadmap.md:1)
+  to plan daily assignment practice and accelerated spelling-engine
+  population without weakening truth boundaries.
 - Review Work now supports engine suggestions, parent-added missed words,
   send-back, child retry, returned correction continuity, returned correction
   categorisation/admin/parent-local routing where safe, compact unified spelling
@@ -215,6 +220,7 @@ excluded.
 
 ## Active source-of-truth links
 
+- [docs/implementation/version-2-roadmap.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/implementation/version-2-roadmap.md:1)
 - [docs/architecture/writing-engine-canonical-brief.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/architecture/writing-engine-canonical-brief.md:1)
 - [docs/architecture/admin-internal-access.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/architecture/admin-internal-access.md:1)
 - [docs/contracts/writing-engine-mastery-and-evidence-contract.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/contracts/writing-engine-mastery-and-evidence-contract.md:1)

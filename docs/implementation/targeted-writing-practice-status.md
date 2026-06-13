@@ -193,6 +193,16 @@ Canonical documentation now defers to:
   It follows the Parent-Added Missed Word Correction Repair and makes the
   Review Work page approval state and approval server action use the same
   unified spelling completion contract.
+- Version 2.0 Slice `1` read-only spelling-engine population audit is
+  implemented as an operator script:
+  `npm run writing-engine:spelling-population-audit`.
+  It emits ranked JSON audit output for unresolved/repeated spelling pairs,
+  unknown micro-skill rows, parent-local candidates, catalog-review cases,
+  PCRM recommendations when available, word-map metadata when available, and
+  top mapping/micro-skill seed opportunities. It is read-only, refuses RPC and
+  Supabase mutation methods through a guarded client, and does not change
+  resolver, Review Work, assignment generation, mastery, rewards, scoring,
+  analytics, dashboards, taxonomy, template routing, or database schema.
 - A bounded post-Stage-`7` parent-facing evidence-transparency slice is now
   complete.
 - The app is currently suitable for private parent-led use with one child,
