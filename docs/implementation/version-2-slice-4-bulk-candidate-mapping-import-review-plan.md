@@ -667,6 +667,16 @@ Implementation closeout:
 - no local or hosted DB smoke was rerun for Slice `4A.4`; this hardening did not
   change DB comparison behavior
 - Slice `4A` is complete as a dry-run/report-only operator planner
+- hosted read-only validation of
+  `docs/implementation/seed-data/common_misspellings_seed_v1.csv` was later
+  run as an explicitly authorised operator audit using hosted service-role
+  credentials only inside the dry-run script's read-only path; no service-role
+  credential was exposed to runtime/client code and no hosted writes occurred
+- hosted validation confirmed all seed rows used active assignable D4
+  micro-skills; the CSV cleanup before Slice `4B` planning handled three
+  canonical-overlap findings by aligning `buisness -> business` to hosted
+  canonical skill `D4_IRRE_TRICKY_WORDS_COMMON_HIGH_FREQUENCY` and removing
+  already-canonical `natrual -> natural` and `sucsesfull -> successful`
 - next manual decision gate: decide whether to plan Slice `4B` dedicated seed
   import storage
 
