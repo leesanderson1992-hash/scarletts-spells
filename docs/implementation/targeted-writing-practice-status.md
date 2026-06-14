@@ -291,8 +291,31 @@ Canonical documentation now defers to:
     `npx tsc --noEmit`, and `git diff --check`
   - residual risk: no hosted smoke was performed; no DB-backed seed import
     storage exists yet; imported rows remain candidate evidence only
-  - next Slice `4` implementation work is `4A.4`: operator hardening and docs
-    closeout
+  - Slice `4A.4` completed operator hardening and docs closeout
+- Version 2.0 Slice `4A.4` is implemented as operator hardening and docs
+  closeout:
+  - command help now records required CSV columns, `.tmp` default report paths,
+    explicit local/hosted read-only DB flags, and that generated reports should
+    not be committed
+  - operator errors now cover missing input files, non-CSV inputs, unknown
+    options, and colliding JSON/Markdown output paths
+  - default report output remains under `.tmp/writing-engine-seed-import-dry-run`
+  - added synthetic non-sensitive sample fixture
+    `scripts/fixtures/writing-engine-seed-import-sample.csv`
+  - sample reports were intentionally not committed because generated reports
+    belong under `.tmp` and could be mistaken for durable evidence
+  - validation passed: `npm run writing-engine:seed-import-dry-run-regression`,
+    `npx tsc --noEmit`, and `git diff --check`
+  - no local or hosted DB smoke was rerun for Slice `4A.4`; this hardening did
+    not change DB comparison behavior
+  - no migrations, Supabase writes, service-role use, runtime app changes,
+    Review Work changes, resolver changes, assignment/mastery/reward/dashboard/
+    analytics/scoring/template changes, `micro_skill_catalog` mutation,
+    canonical mapping creation, DB-backed seed storage, hidden canonical import,
+    or resolver-visible import were introduced
+  - Slice `4A` is complete as a dry-run/report-only operator planner
+  - next manual decision gate is whether to plan Slice `4B` dedicated seed import
+    storage
 - A bounded post-Stage-`7` parent-facing evidence-transparency slice is now
   complete.
 - The app is currently suitable for private parent-led use with one child,

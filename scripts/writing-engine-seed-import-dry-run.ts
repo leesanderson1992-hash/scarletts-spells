@@ -2,7 +2,7 @@ import fs from "fs";
 import path from "path";
 import { createClient } from "@supabase/supabase-js";
 
-const SCHEMA_VERSION = "version_2_slice_4a_3";
+const SCHEMA_VERSION = "version_2_slice_4a_4";
 const NORMALIZATION_VERSION = "spelling_normalize_v1";
 const DEFAULT_DIALECT_CODE = "en-GB";
 const DEFAULT_OUT_DIR = ".tmp/writing-engine-seed-import-dry-run";
@@ -224,6 +224,7 @@ type DryRunOptions = {
   allowHostedReadOnlyDb?: boolean;
   dbUrl?: string;
   supabaseAnonKey?: string;
+  help?: boolean;
 };
 
 export type DryRunResult = {
@@ -1134,11 +1135,29 @@ export function renderMarkdownSummary(report: SeedImportDryRunReport) {
 function parseArgs(argv: string[]) {
   const positional: string[] = [];
   const options: Record<string, string> = {};
+  const knownOptions = new Set([
+    "help",
+    "out-dir",
+    "json-out",
+    "summary-out",
+    "allow-local-read-only-db",
+    "allow-hosted-read-only-db",
+    "db-url",
+    "supabase-url",
+    "supabase-anon-key",
+  ]);
 
   for (let index = 0; index < argv.length; index += 1) {
     const arg = argv[index];
+    if (arg === "-h") {
+      options.help = "true";
+      continue;
+    }
     if (arg.startsWith("--")) {
       const key = arg.slice(2);
+      if (!knownOptions.has(key)) {
+        throw new Error(`Unknown option --${key}.\n\n${getSeedImportDryRunHelp()}`);
+      }
       const next = argv[index + 1];
       if (!next || next.startsWith("--")) {
         options[key] = "true";
@@ -1160,7 +1179,35 @@ function parseArgs(argv: string[]) {
     allowHostedReadOnlyDb: options["allow-hosted-read-only-db"] === "true",
     dbUrl: options["db-url"] ?? options["supabase-url"],
     supabaseAnonKey: options["supabase-anon-key"],
+    help: options.help === "true",
   };
+}
+
+export function getSeedImportDryRunHelp() {
+  return [
+    "Writing Engine seed import dry-run planner",
+    "",
+    "Usage:",
+    "  npm run writing-engine:seed-import-dry-run -- path/to/candidates.csv [options]",
+    "",
+    "Required CSV columns:",
+    "  misspelling, correction, suggested_micro_skill_key, confidence, source, note",
+    "",
+    "Common options:",
+    `  --out-dir ${DEFAULT_OUT_DIR}`,
+    "  --json-out path/to/seed-import-dry-run-report.json",
+    "  --summary-out path/to/seed-import-dry-run-summary.md",
+    "  --allow-local-read-only-db --db-url http://127.0.0.1:54321",
+    "  --allow-hosted-read-only-db --supabase-url https://... --supabase-anon-key ...",
+    "",
+    "Safety:",
+    "  This command is dry-run/report-only. It never imports rows.",
+    "  Default reports are written under .tmp/ and should not be committed.",
+    "  DB comparison is optional, explicitly flagged, anon-key only, and guarded against mutation.",
+    "",
+    "Synthetic sample:",
+    "  scripts/fixtures/writing-engine-seed-import-sample.csv",
+  ].join("\n");
 }
 
 function isLocalSupabaseUrl(url: string) {
@@ -1539,8 +1586,31 @@ async function maybeLoadReadOnlyComparisonData(
   }
 }
 
+function validateInputFile(inputFile: string) {
+  if (path.extname(inputFile).toLowerCase() !== ".csv") {
+    throw new Error(
+      `CSV input required for Slice 4A.4 dry-run planner. Received: ${inputFile}`,
+    );
+  }
+
+  if (!fs.existsSync(inputFile)) {
+    throw new Error(`Input CSV file not found: ${inputFile}`);
+  }
+
+  if (!fs.statSync(inputFile).isFile()) {
+    throw new Error(`Input path must be a CSV file, not a directory: ${inputFile}`);
+  }
+}
+
+function validateOutputPaths(jsonPath: string, summaryPath: string) {
+  if (jsonPath === summaryPath) {
+    throw new Error("JSON report path and summary report path must be different.");
+  }
+}
+
 export async function runSeedImportDryRun(options: DryRunOptions): Promise<DryRunResult> {
   const inputFile = path.resolve(options.inputFile);
+  validateInputFile(inputFile);
   const csvText = fs.readFileSync(inputFile, "utf8");
   const report = buildSeedImportDryRunReport({
     csvText,
@@ -1559,6 +1629,7 @@ export async function runSeedImportDryRun(options: DryRunOptions): Promise<DryRu
   const summaryPath = path.resolve(
     options.summaryOut ?? path.join(outDir, "seed-import-dry-run-summary.md"),
   );
+  validateOutputPaths(jsonPath, summaryPath);
   const markdownSummary = renderMarkdownSummary(report);
 
   fs.mkdirSync(path.dirname(jsonPath), { recursive: true });
@@ -1577,10 +1648,13 @@ export async function runSeedImportDryRun(options: DryRunOptions): Promise<DryRu
 function main() {
   const args = parseArgs(process.argv.slice(2));
 
+  if (args.help) {
+    console.log(getSeedImportDryRunHelp());
+    return;
+  }
+
   if (!args.inputFile) {
-    throw new Error(
-      "Usage: npm run writing-engine:seed-import-dry-run -- path/to/candidates.csv [--out-dir .tmp/out] [--json-out report.json] [--summary-out report.md]",
-    );
+    throw new Error(`Missing input CSV file.\n\n${getSeedImportDryRunHelp()}`);
   }
 
   runSeedImportDryRun(args)

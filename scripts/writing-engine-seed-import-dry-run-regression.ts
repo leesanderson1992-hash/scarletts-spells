@@ -6,6 +6,7 @@ import path from "path";
 import {
   applyReadOnlyCatalogCanonicalComparison,
   buildSeedImportDryRunReport,
+  getSeedImportDryRunHelp,
   renderMarkdownSummary,
   runSeedImportDryRun,
   wrapReadOnlySupabaseClient,
@@ -35,7 +36,7 @@ function testFileOnlyValidation() {
     now: new Date("2026-06-14T12:00:00.000Z"),
   });
 
-  assert.strictEqual(report.schema_version, "version_2_slice_4a_3");
+  assert.strictEqual(report.schema_version, "version_2_slice_4a_4");
   assert.strictEqual(report.dry_run_only, true);
   assert.strictEqual(report.input_format, "csv");
   assert.strictEqual(report.normalization_version, "spelling_normalize_v1");
@@ -410,6 +411,50 @@ async function testReportWrites() {
   assert(fs.readFileSync(result.summaryPath, "utf8").includes("Total rows: 1"));
 }
 
+async function testOperatorHardening() {
+  const help = getSeedImportDryRunHelp();
+  assert(help.includes("Usage:"));
+  assert(help.includes("Default reports are written under .tmp/ and should not be committed."));
+  assert(help.includes("scripts/fixtures/writing-engine-seed-import-sample.csv"));
+
+  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "seed-import-hardening-"));
+  const nonCsvPath = path.join(tempDir, "candidates.txt");
+  fs.writeFileSync(nonCsvPath, "not,csv\n");
+  await assert.rejects(
+    () =>
+      runSeedImportDryRun({
+        inputFile: nonCsvPath,
+      }),
+    /CSV input required/,
+  );
+
+  await assert.rejects(
+    () =>
+      runSeedImportDryRun({
+        inputFile: path.join(tempDir, "missing.csv"),
+      }),
+    /Input CSV file not found/,
+  );
+
+  const csvPath = path.join(tempDir, "candidates.csv");
+  fs.writeFileSync(
+    csvPath,
+    [
+      "misspelling,correction,suggested_micro_skill_key,confidence,source,note",
+      "sinthetic,synthetic,D4_PATTERN,0.8,operator_sample,synthetic hardening row",
+    ].join("\n"),
+  );
+  await assert.rejects(
+    () =>
+      runSeedImportDryRun({
+        inputFile: csvPath,
+        jsonOut: path.join(tempDir, "same-report-path"),
+        summaryOut: path.join(tempDir, "same-report-path"),
+      }),
+    /must be different/,
+  );
+}
+
 function testNoSupabaseBoundary() {
   const scriptText = fs.readFileSync(
     path.join(process.cwd(), "scripts/writing-engine-seed-import-dry-run.ts"),
@@ -463,6 +508,7 @@ async function run() {
   testCatalogAndCanonicalComparison();
   testSupportingEvidenceComparison();
   await testReportWrites();
+  await testOperatorHardening();
   testNoSupabaseBoundary();
   testNoMutationGuardRefusesWritesAndRpc();
   console.log("writing-engine-seed-import-dry-run-regression: ok");

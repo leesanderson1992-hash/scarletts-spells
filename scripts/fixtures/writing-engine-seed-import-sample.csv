@@ -1,0 +1,4 @@
+misspelling,correction,suggested_micro_skill_key,confidence,source,note,dialect,source_dataset,source_row_id,import_batch_name,pattern_hint,route_hint
+sinthetic,synthetic,D4_SYNTHETIC_SAMPLE,0.82,operator_sample_fixture,Synthetic sample row for dry-run tooling only; not learner evidence,en-GB,slice-4a4-synthetic,row-1,slice-4a4-sample,pattern-demo,candidate_review
+practisee,practice,D4_SYNTHETIC_SAMPLE,medium,operator_sample_fixture,Synthetic duplicate/conflict rehearsal row; not learner evidence,en-GB,slice-4a4-synthetic,row-2,slice-4a4-sample,pattern-demo,candidate_review
+practisee,practice,D4_SYNTHETIC_OTHER,medium,operator_sample_fixture,Synthetic conflict rehearsal row; not learner evidence,en-GB,slice-4a4-synthetic,row-3,slice-4a4-sample,pattern-demo,candidate_review

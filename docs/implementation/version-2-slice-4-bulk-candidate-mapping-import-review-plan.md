@@ -641,11 +641,34 @@ Implementation closeout:
   import were introduced
 
 `Slice 4A.4 - operator hardening and docs closeout`
+- status: `implemented`
 - add sample CSV fixture and report examples
 - add focused regression command to `package.json`
 - document local and explicitly approved hosted read-only runbooks
 - confirm no runtime, migration, resolver, Review Work, assignment, mastery,
   reward, dashboard, analytics, scoring, template, or catalog mutation changes
+
+Implementation closeout:
+- added operator help output for the existing command, including required CSV
+  columns, `.tmp` default report paths, explicit read-only DB flags, and a
+  reminder that generated reports should not be committed
+- added clearer operator errors for missing input files, non-CSV inputs, unknown
+  options, and colliding JSON/Markdown output paths
+- kept default JSON and Markdown report output under
+  `.tmp/writing-engine-seed-import-dry-run`
+- added the synthetic non-sensitive sample fixture
+  `scripts/fixtures/writing-engine-seed-import-sample.csv`
+- did not add sample report files because generated reports belong under `.tmp`
+  and could be mistaken for durable evidence if committed
+- advanced report schema version to `version_2_slice_4a_4`
+- validation passed:
+  `npm run writing-engine:seed-import-dry-run-regression`,
+  `npx tsc --noEmit`, and `git diff --check`
+- no local or hosted DB smoke was rerun for Slice `4A.4`; this hardening did not
+  change DB comparison behavior
+- Slice `4A` is complete as a dry-run/report-only operator planner
+- next manual decision gate: decide whether to plan Slice `4B` dedicated seed
+  import storage
 
 `Slice 4B - dedicated seed import storage planning`
 - docs-only plan for `spelling_seed_import_batches` and
