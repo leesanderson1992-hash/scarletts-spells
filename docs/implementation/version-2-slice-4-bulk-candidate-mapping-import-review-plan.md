@@ -677,15 +677,321 @@ Implementation closeout:
   canonical-overlap findings by aligning `buisness -> business` to hosted
   canonical skill `D4_IRRE_TRICKY_WORDS_COMMON_HIGH_FREQUENCY` and removing
   already-canonical `natrual -> natural` and `sucsesfull -> successful`
-- next manual decision gate: decide whether to plan Slice `4B` dedicated seed
-  import storage
+- next manual decision gate: plan and approve Slice `4C` seed import storage
+  foundation as a separate DB-changing slice
 
 `Slice 4B - dedicated seed import storage planning`
-- docs-only plan for `spelling_seed_import_batches` and
-  `spelling_seed_import_rows`
-- define statuses, RLS/admin access, lineage, indexes, unique constraints,
-  import idempotency, and release-safety method
-- no migration until separately approved
+- status: `implemented as docs/planning only`
+- selects dedicated seed import storage as the safest future DB-backed
+  approach:
+  - `spelling_seed_import_batches`
+  - `spelling_seed_import_rows`
+- confirms dedicated tables are safer than reusing
+  `spelling_canonical_mapping_recommendations` or
+  `spelling_catalog_review_cases`
+- defines table responsibilities, statuses, lineage, idempotency,
+  duplicate/conflict handling, RLS/admin access, audit fields, rollback
+  expectations, migration safety gates, and Slice `4C` scope
+- no runtime code, migration, Supabase mutation, import/apply mode, canonical
+  mapping creation, resolver visibility, Review Work behavior change,
+  assignment generation change, `micro_skill_catalog` mutation, or service-role
+  client exposure is authorized by Slice `4B`
+
+### Slice 4B Dedicated Seed Import Storage Plan
+
+Slice `4B` keeps seed imports in an admin/operator quarantine lane. Imported
+rows are external/operator evidence only. They are not parent verification,
+child evidence, learning gaps, parent-local mappings, PCRM evidence,
+catalog-review cases, canonical mapping truth, or resolver-visible truth.
+
+#### Storage Recommendation
+
+The selected storage approach is dedicated tables:
+- `spelling_seed_import_batches`
+- `spelling_seed_import_rows`
+
+This is safer than reusing existing recommendation/review tables because:
+- `spelling_canonical_mapping_recommendations` means scoped parent/child
+  recommendation evidence from a reviewed source event.
+- `spelling_catalog_review_cases` means a parent could not find a suitable
+  existing skill for a reviewed child occurrence.
+- seed imports are external/operator candidates with source/provenance,
+  licensing, dry-run validation, duplicate/conflict, and later admin curation
+  needs that should not inherit parent evidence semantics.
+- keeping seed rows separate prevents accidental resolver, Review Work,
+  assignment, mastery, or parent-local authority leaks.
+
+#### `spelling_seed_import_batches`
+
+Purpose:
+- one row per imported seed file/report run
+- track source, provenance, dry-run report lineage, validation context, counts,
+  and lifecycle
+- append/audit-oriented lifecycle; batches should be cancelled, superseded,
+  quarantined, completed, or closed rather than deleted in normal operation
+
+Required planning-level columns:
+- `id`
+- `batch_name`
+- `source_name`
+- `source_dataset`
+- `source_url`
+- `source_license_note`
+- `source_file_name`
+- `source_file_sha256`
+- `input_format`
+- `normalization_version`
+- `dry_run_report_schema_version`
+- `dry_run_report_path` or `dry_run_report_artifact_ref`
+- `dry_run_report_sha256`
+- `dry_run_generated_at`
+- `validation_context`
+- `batch_status`
+- summary counts for total, candidate-review, manual-review, rejected,
+  duplicate, and conflict rows
+- `created_by_admin_user_id`
+- `created_by_admin_email`
+- `created_at`
+- `updated_at`
+- `closed_at`
+- `metadata jsonb`
+
+Optional provenance fields should be stored in `metadata` or explicit columns
+where the implementation needs queryability:
+- operator command version
+- parser version
+- git commit/ref
+- hosted/local validation mode
+- protected-table count summary
+- unavailable comparison sources
+- cleanup note for pre-import CSV edits
+
+Batch statuses:
+- `pending_candidate_review`: rows imported and awaiting admin review
+- `review_in_progress`: at least one row has admin action
+- `completed`: all rows reached terminal seed-row statuses
+- `completed_with_warnings`: complete, with documented warnings/manual
+  exceptions
+- `cancelled`: operator cancelled before review completion
+- `superseded`: replaced by a newer batch
+- `quarantined`: blocked because provenance, migration, validation, or safety
+  checks are suspect
+
+#### `spelling_seed_import_rows`
+
+Purpose:
+- one row per stored seed candidate
+- store normalized pair, proposed skill, provenance, dry-run classification,
+  duplicate/conflict evidence, and later admin review state
+- remain source evidence awaiting future admin review/adoption, not truth
+
+Required planning-level columns:
+- `id`
+- `batch_id`
+- `source_row_number`
+- `source_row_id`
+- `raw_misspelling`
+- `raw_correction`
+- `misspelling_normalized`
+- `correct_spelling_normalized`
+- `dialect_code`
+- `normalization_version`
+- `suggested_micro_skill_key`
+- `source_confidence_raw`
+- `source_confidence_normalized`
+- `source_note`
+- `dry_run_bucket`
+- `row_status`
+- `status_reason`
+- `validation_reasons jsonb`
+- `canonical_match_ids jsonb`
+- `canonical_conflict_ids jsonb`
+- `supporting_evidence_ids jsonb`
+- `duplicate_group_key`
+- `duplicate_of_seed_import_row_id`
+- `reviewed_by_admin_user_id`
+- `reviewed_by_admin_email`
+- `reviewed_at`
+- `review_note`
+- `canonical_mapping_id`, nullable and only populated by a later explicit
+  hidden-canonical adoption action after canonical creation/link succeeds
+- `created_at`
+- `updated_at`
+- `metadata jsonb`
+
+Optional lineage should remain comparison evidence only:
+- parent-local mapping ids
+- catalog-review case/decision ids
+- PCRM recommendation ids
+- source license row note
+- pattern/route hints
+- age band
+- original dry-run row hash
+
+Row statuses:
+- `pending_candidate_review`: default for eligible stored candidates
+- `manual_review_required`: allowed only in a later explicit
+  manual-quarantine import mode
+- `kept_pending`: admin chose to keep without adoption/rejection
+- `rejected`: admin rejected the seed row
+- `duplicate`: duplicate of another seed row, existing canonical mapping, or
+  other reviewed evidence
+- `conflict_blocked`: conflicts with existing canonical truth or unresolved
+  competing skill evidence
+- `nominated_for_canonical_adoption`: admin marked as eligible for a later
+  explicit adoption action
+- `adopted_hidden_canonical`: later Slice `4F` only, after audited canonical
+  creation/link succeeds with resolver visibility disabled
+- `superseded`: replaced by another seed row or canonical mapping decision
+
+Row statuses must not imply parent verification, child evidence, learning-gap
+creation, mastery, assignment eligibility, or resolver visibility.
+
+#### Dry-Run Mapping And Import Eligibility
+
+Slice `4A` dry-run outputs map into future storage as follows:
+- `safe_for_candidate_review` is eligible for future Slice `4D` import as
+  `pending_candidate_review`.
+- `manual_review_required` is not eligible for the first Slice `4D`
+  candidate-review import and should remain report-only unless a later explicit
+  manual-quarantine storage mode is planned.
+- `rejected_from_import` is not eligible for import and remains report-only.
+
+Rows are eligible for future Slice `4D` candidate-review import only when:
+- the normalized pair is non-empty and the misspelling/correction differ
+- the suggested `micro_skill_key` exists in `micro_skill_catalog` and is active,
+  assignable, and Domain `4`
+- source/provenance and licensing notes are present
+- no active canonical conflict exists
+- the row is not a file duplicate or unresolved same-file competing-skill row
+- the dry-run report was generated by the current approved report schema
+- the dry-run report hash is stored on the batch
+
+Rows must remain manual-review only when:
+- a same-pair/same-skill canonical mapping already exists
+- parent-local promoted evidence exists but no canonical truth exists
+- PCRM evidence exists but is not adopted
+- open or closed catalog-review cases or non-canonical decisions exist
+- competing skills exist for the same pair
+- confidence is low or ambiguous
+- source licensing/provenance needs human inspection
+
+Conflict handling:
+- same normalized pair/dialect/same skill already canonical: mark manual or
+  duplicate; do not import as a new candidate
+- same normalized pair/dialect/different skill canonical: block as
+  `conflict_blocked`
+- same file pair with competing skills: manual-only
+- parent-local, catalog-review, and PCRM rows remain supporting evidence only
+  and must never become automatic truth
+
+#### Idempotency, Indexes, And Constraints
+
+Batch-level idempotency should use:
+- source file hash
+- source name/dataset
+- normalization version
+- dry-run report schema version
+
+Row-level idempotency should use:
+- batch id
+- normalized misspelling/correction/dialect
+- suggested skill
+- source row identity or row hash
+
+Indexes and constraints to consider for Slice `4C`:
+- batch status and created date
+- row batch/status
+- normalized misspelling/correction/dialect
+- suggested micro-skill/status
+- duplicate group key
+- canonical mapping id
+- unique active batch source hash, unless the prior batch is explicitly
+  superseded
+- unique row per batch normalized triple
+- FK from `suggested_micro_skill_key` to `micro_skill_catalog`, with import-time
+  validation still required for active, assignable, Domain `4` eligibility
+
+#### Access, Audit, And Reversibility
+
+RLS/access model:
+- enable RLS on both tables
+- revoke access from `anon`
+- do not expose service-role credentials to client components
+- prefer service-role-only or admin-server-only writes
+- admin/operator reads should go through server-guarded internal routes or
+  operator scripts
+- no parent/child client read path is part of the first storage foundation
+
+Audit fields:
+- preserve admin identity, admin email, timestamps, status reason, review note,
+  dry-run report hash, source file hash, validation context, and metadata
+- source/supporting lineage ids are evidence links only
+- `canonical_mapping_id` is lineage after later explicit adoption only, not
+  resolver authority
+
+Rollback/reversibility expectations:
+- seed batch rollback means cancelling, superseding, or quarantining batch
+  rows, not deleting audit history
+- seed-row rejection, duplicate, conflict, or supersession must not touch
+  canonical mappings
+- later canonical adoption rollback must use canonical mapping events and
+  resolver-visibility disable paths, not seed-row edits
+
+#### Safety Boundaries
+
+Dedicated seed storage must remain separate from:
+- `spelling_canonical_mapping_recommendations`
+- `spelling_catalog_review_cases`
+- `parent_verified_spelling_candidate_mappings`
+- `spelling_canonical_mappings`
+- `learning_items`
+- `assignment_items`
+- `micro_skill_catalog`
+
+Seed rows must not:
+- create or mutate `micro_skill_catalog`
+- create `learning_items`
+- create `assignment_items`
+- create parent verification
+- create child evidence
+- create learning gaps
+- change Review Work
+- change resolver output
+- change assignment generation, mastery, rewards, dashboards, analytics,
+  scoring, or templates
+- create canonical/global mappings
+- become resolver-visible truth
+
+Resolver visibility remains separate, explicit, audited, reversible, and bound
+to the existing resolver-visibility contract.
+
+#### Migration And Release Safety
+
+The first DB-changing implementation after Slice `4B` should be
+`Slice 4C - seed import storage foundation`.
+
+Slice `4C` scope:
+- unique timestamp migration only
+- create `spelling_seed_import_batches` and `spelling_seed_import_rows`
+- add RLS, grants, constraints, and indexes
+- no import/apply mode
+- no runtime app behavior
+- no canonical mapping creation
+- no resolver visibility
+- no `micro_skill_catalog` mutation
+
+Required gates before any DB-changing work:
+- run a hosted migration-ledger check before implementation/release planning
+- confirm baseline ledger row is present and duplicate historical migrations
+  will not replay
+- use `YYYYMMDDHHMMSS_description.sql`
+- declare deployment method as `unique forward migration`
+- verify local migration application in fresh local/dev
+- verify both tables have RLS enabled and no broad client grants
+- run no-mutation checks proving protected tables are unchanged
+- run the existing seed dry-run regression and typecheck
+- stop if hosted schema/ledger differs from expected source baseline
 
 `Slice 4C - seed import storage foundation`
 - future DB-changing slice only after Slice `4B`
@@ -739,14 +1045,16 @@ Implementation closeout:
 
 ## Safety Conclusion
 
-The plan is safe to implement only if the first implementation is limited to
-`Slice 4A` dry-run/report-only behavior.
+Slice `4A` is complete as dry-run/report-only behavior, and Slice `4B` is safe
+to commit as docs/planning only.
 
-The later dedicated seed import storage approach is also safe in principle, but
-only after a separate DB-changing plan with a unique timestamp migration,
-admin-only access controls, explicit row statuses, and hosted migration-ledger
-safety checks. Reusing parent recommendation or catalog-review tables for bulk
-external imports is not safe because it blurs authority lineage.
+The dedicated seed import storage approach is safe as the next DB-backed
+direction only if implemented later as Slice `4C`: a separate DB-changing slice
+with a unique timestamp migration, admin/operator-only access controls,
+explicit row and batch statuses, no import/apply mode, no canonical mapping
+creation, no resolver visibility, and hosted migration-ledger safety checks.
+Reusing parent recommendation or catalog-review tables for bulk external
+imports is not safe because it blurs authority lineage.
 
 ## Docs-Only Update Prompt
 

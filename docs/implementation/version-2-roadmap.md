@@ -572,6 +572,9 @@ Planning closeout:
   `Slice 4A - dry-run bulk candidate mapping import planner`
 - safest later storage approach is dedicated seed-import storage:
   `spelling_seed_import_batches` and `spelling_seed_import_rows`
+- Slice `4B` dedicated seed import storage planning is registered as
+  docs/planning only; the first DB-changing implementation remains future
+  Slice `4C`
 - do not reuse `spelling_canonical_mapping_recommendations` for bulk external
   seed imports because PCRM rows mean scoped parent recommendation evidence
 - do not reuse `spelling_catalog_review_cases` for bulk external seed imports
@@ -669,7 +672,8 @@ Staged implementation breakdown:
   QA-audited, and local smoke-tested
 - `Slice 4A.4` operator hardening and docs closeout: implemented; Slice `4A`
   is complete as a dry-run/report-only operator planner
-- `Slice 4B` dedicated seed import storage planning
+- `Slice 4B` dedicated seed import storage planning: implemented as
+  docs/planning only
 - `Slice 4C` seed import storage foundation
 - `Slice 4D` candidate-review import
 - `Slice 4E` seed-row admin review
@@ -695,7 +699,8 @@ Hard boundary:
   hosted migration-ledger safety check
 
 Next manual decision gate:
-- decide whether to plan Slice `4B` dedicated seed import storage
+- plan and approve Slice `4C` seed import storage foundation as a separate
+  DB-changing slice
 
 #### Slice 4A docs-only update prompt
 

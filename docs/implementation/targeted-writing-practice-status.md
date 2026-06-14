@@ -314,8 +314,30 @@ Canonical documentation now defers to:
     canonical mapping creation, DB-backed seed storage, hidden canonical import,
     or resolver-visible import were introduced
   - Slice `4A` is complete as a dry-run/report-only operator planner
-  - next manual decision gate is whether to plan Slice `4B` dedicated seed import
-    storage
+- Version 2.0 Slice `4B` is registered as docs/planning only for dedicated
+  seed import storage:
+  - selects future dedicated `spelling_seed_import_batches` and
+    `spelling_seed_import_rows` storage as safer than reusing PCRM
+    recommendation or catalog-review case tables
+  - defines table responsibilities, row and batch statuses, dry-run lineage,
+    import idempotency, duplicate/conflict handling, links to canonical,
+    parent-local, catalog-review, and PCRM comparison evidence, RLS/admin
+    access, audit fields, rollback/reversibility expectations, and migration
+    safety gates
+  - maps `safe_for_candidate_review` rows to the only first eligible future
+    Slice `4D` import class; `manual_review_required` and
+    `rejected_from_import` remain report-only unless a later explicit
+    manual-quarantine mode is planned
+  - keeps seed rows out of resolver visibility, Review Work, parent
+    verification, child evidence, learning gaps, `learning_items`,
+    `assignment_items`, mastery, rewards, dashboards, analytics, scoring,
+    templates, canonical mapping creation, and `micro_skill_catalog` mutation
+  - authorizes no runtime code, migrations, Supabase mutation, import/apply
+    mode, hosted writes, service-role client exposure, canonical/global
+    adoption, or resolver behavior change
+  - next manual decision gate is whether to plan and approve Slice `4C` seed
+    import storage foundation as a separate DB-changing slice with a unique
+    timestamp migration and hosted migration-ledger safety check
 - A bounded post-Stage-`7` parent-facing evidence-transparency slice is now
   complete.
 - The app is currently suitable for private parent-led use with one child,

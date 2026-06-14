@@ -71,15 +71,24 @@ excluded.
   Slice `4A` did not add migrations, write Supabase rows, create canonical
   mappings, expose resolver-visible truth, mutate `micro_skill_catalog`, or
   change Review Work, assignments, mastery, rewards, analytics, dashboards,
-  scoring, or templates.
+  scoring, or templates. Slice `4B` is now registered as docs/planning only for
+  dedicated `spelling_seed_import_batches` and `spelling_seed_import_rows`
+  storage. It confirms dedicated seed storage is safer than reusing PCRM or
+  catalog-review tables, defines statuses, lineage, idempotency,
+  duplicate/conflict handling, RLS/admin boundaries, audit fields, rollback
+  expectations, and migration gates, and authorizes no migration, runtime code,
+  Supabase mutation, import/apply mode, canonical mapping creation, resolver
+  visibility, Review Work change, assignment change, or `micro_skill_catalog`
+  mutation.
 - Review Work now supports engine suggestions, parent-added missed words,
   send-back, child retry, returned correction continuity, returned correction
   categorisation/admin/parent-local routing where safe, compact unified spelling
   table presentation, completion gating, historical terminal verification
   ownership, and `checking_only` terminal handling.
-- The next manual decision gate is whether to plan Slice `4B` dedicated seed
-  import storage. Do not restart Parent Review spelling work unless a fresh bug
-  is found.
+- The next manual decision gate is whether to plan and approve Slice `4C` seed
+  import storage foundation as a separate DB-changing slice with a unique
+  timestamp migration and hosted migration-ledger safety check. Do not restart
+  Parent Review spelling work unless a fresh bug is found.
 
 ## Current stage
 
