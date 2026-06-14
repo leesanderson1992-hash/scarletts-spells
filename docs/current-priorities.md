@@ -59,11 +59,12 @@ excluded.
 - Version 2.0 Slice `4` bulk candidate mapping import/review is now planned
   in
   [docs/implementation/version-2-slice-4-bulk-candidate-mapping-import-review-plan.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/implementation/version-2-slice-4-bulk-candidate-mapping-import-review-plan.md:1).
-  `Slice 4A.1` is implemented as a pure CSV parser and file-only validator.
-  First implementation did not add migrations, write Supabase rows, create
-  canonical mappings, expose resolver-visible truth, mutate
-  `micro_skill_catalog`, or change Review Work, assignments, mastery, rewards,
-  analytics, dashboards, scoring, or templates.
+  Slice `4A.1` is implemented as a pure CSV parser and file-only validator.
+  Slice `4A.2` is implemented as optional read-only catalog and canonical
+  comparison, gated by explicit flags and anon-key access only. It did not add
+  migrations, write Supabase rows, create canonical mappings, expose
+  resolver-visible truth, mutate `micro_skill_catalog`, or change Review Work,
+  assignments, mastery, rewards, analytics, dashboards, scoring, or templates.
 - Review Work now supports engine suggestions, parent-added missed words,
   send-back, child retry, returned correction continuity, returned correction
   categorisation/admin/parent-local routing where safe, compact unified spelling

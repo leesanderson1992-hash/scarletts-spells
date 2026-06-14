@@ -247,14 +247,21 @@ Canonical documentation now defers to:
     truth, but resolver visibility is not required
   - same-pair/same-skill canonical matches are manual-review signals
   - same-pair/different-skill canonical mappings are rejected as conflicts
+  - JSON and Markdown reports include `database_comparison_mode`,
+    `skill_validation_summary`, `canonical_mapping_summary`, row-level skill
+    validation status, and row-level canonical match/conflict ids
   - no-mutation guard refuses `insert`, `update`, `upsert`, `delete`, and
     `rpc`, and compared protected-table counts are checked before and after DB
     comparison
+  - validation passed: `npm run writing-engine:seed-import-dry-run-regression`,
+    `npx tsc --noEmit`, and `git diff --check`
   - no migrations, Supabase writes, service-role use, runtime app changes,
     Review Work changes, resolver changes, assignment/mastery/reward/dashboard/
     analytics/scoring/template changes, `micro_skill_catalog` mutation,
     canonical mapping creation, DB-backed seed storage, hidden canonical
     import, or resolver-visible import were introduced
+  - residual risk: live local Supabase DB comparison was not smoke-tested in
+    this turn
   - next Slice `4` implementation work is `4A.3`: optional read-only
     supporting evidence comparison
 - A bounded post-Stage-`7` parent-facing evidence-transparency slice is now

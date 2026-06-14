@@ -579,6 +579,8 @@ Implementation closeout:
 - resolver visibility is not required or read as authority for this comparison
 - JSON and Markdown reports now include database comparison mode, skill
   validation summary, and canonical mapping summary
+- row-level report output now includes skill validation status plus canonical
+  match and conflict ids
 - no-mutation guard refuses `insert`, `update`, `upsert`, `delete`, and `rpc`
   through the guarded client
 - protected-table counts for compared tables are checked before and after DB
@@ -586,11 +588,16 @@ Implementation closeout:
 - regression coverage now covers active assignable `D4`, unknown, inactive,
   non-assignable, non-`D4`, canonical match, canonical conflict, hidden
   canonical comparison truth, no-mutation guard refusal, and file-only mode
+- validation passed:
+  `npm run writing-engine:seed-import-dry-run-regression`,
+  `npx tsc --noEmit`, and `git diff --check`
 - no migrations, Supabase writes, service-role use, runtime app changes,
   Review Work changes, resolver changes, assignment/mastery/reward/dashboard/
   analytics/scoring/template changes, `micro_skill_catalog` mutation,
   canonical mapping creation, DB-backed seed storage, hidden canonical import,
   or resolver-visible import were introduced
+- residual risk: live local Supabase DB comparison was not smoke-tested during
+  Slice `4A.2`; supporting-evidence comparison remains future Slice `4A.3`
 
 `Slice 4A.3 - read-only supporting evidence comparison`
 - add optional read-only comparison with parent-local mappings where safe,
