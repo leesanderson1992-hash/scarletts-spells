@@ -208,16 +208,18 @@ Goal:
   taxonomy hunting
 - keep the existing compact parent `Review Work` spelling table as the future
   UI surface
-- eventually prefill the existing `Skill Family`, `Skill Cluster`, and
-  `Micro-skill` controls with the best recommended values where confidence is
-  sufficient
-- clearly label prefilled values as `Suggested` or `Recommended`
+- prefill the existing `Skill Family`, `Skill Cluster`, and `Micro-skill`
+  controls with the best viable recommendation where safe
+- clearly label prefilled values as `Known Match`, `Your Match`, or
+  `Possible Match · X%`
 - preserve explicit parent action: confirm, change, reject, or send to catalog
   review
 
-Slice `2` has two bounded parts:
+Slice `2` has four bounded parts:
 - `Slice 2A` - computed helper/read-model only
 - `Slice 2B` - `Review Work` table prefill integration
+- `Slice 2C` - server-only canonical exact-pair recommendation signal
+- `Slice 2D` - useful inferred prefill and compact confidence display
 
 #### Slice 2A - computed helper/read-model only
 
@@ -250,15 +252,17 @@ Implementation closeout:
   `lib/writing-engine/persistence/stage2a-micro-skill-recommendation.ts`
 - added focused regression coverage via
   `npm run writing-engine:micro-skill-recommendation-regression`
-- the helper returns `recommendationStatus`, `confidence`, `reason`,
-  `sourceSignals`, ranked candidates, fallback reason, and future table-prefill
-  fields
+- the helper returns `recommendationStatus`, `confidence`,
+  `confidencePercent`, `reason`, `sourceSignals`, ranked candidates, fallback
+  reason, and future table-prefill fields
 - exact active canonical mappings and same-scope parent-local promoted mappings
   outrank weak pattern signals
 - deterministic spelling-difference features, reviewed evidence, Slice `1`
   frequency, and word-map metadata remain recommendation signals only
-- low confidence, low margin, conflicts, likely false positives, and
-  word-level-only cases do not allow prefill
+- low/no viable evidence, likely false positives, and word-level-only cases do
+  not allow prefill
+- close inferred candidate scores reduce `confidencePercent` rather than
+  automatically blocking prefill
 - no `Review Work` UI, resolver behavior, mappings, verifications,
   `learning_items`, `assignment_items`, migrations, or Supabase writes changed
 
@@ -287,13 +291,19 @@ Implementation closeout:
   only when `isPrefillAllowed` is true and the recommended micro-skill is still
   present in the existing active option set
 - suggested prefills show compact parent-facing badges only: `Known Match`,
-  `Your Match`, `Possible Match`, `No Match Yet`, and `Check Manually`, with
-  explanatory text kept in tooltips rather than visible row helper sentences
-- low-confidence, no-matching, word-level-only, likely-false-positive,
-  insufficient-evidence, unavailable optional-source, and non-conflict low-margin
-  recommendations do not prefill as confirmed values and display as `No Match Yet`
-- `Check Manually` is reserved for genuine close competing candidates, not for
-  optional-source unavailability
+  `Your Match`, `Possible Match · X%`, `No Match Yet`, and `Check Manually`,
+  with explanatory text kept in tooltips rather than visible row helper
+  sentences
+- low/no viable evidence, no-matching, word-level-only,
+  likely-false-positive, insufficient-evidence, and unavailable optional-source
+  recommendations do not prefill as confirmed values and display as
+  `No Match Yet`
+- `Possible Match · X%` may prefill the best viable active assignable D4
+  candidate even when candidate scores are close; the percentage is engine
+  confidence only and is not parent approval, mastery, canonical truth, or
+  resolver truth
+- `Check Manually` is reserved for genuinely unsupported or unchoosable states,
+  not for ordinary close-score uncertainty or optional-source unavailability
 - existing parent verification, catalog review, candidate mapping,
   parent-local promotion, and meaningful existing skill ownership still wins
 - suggestion-only data is ignored by unified completion gating and does not
@@ -303,8 +313,65 @@ Implementation closeout:
   `No Matching Skill`, candidate-capture, and parent-local promotion actions
 - optional Slice `2A` recommendation signal sources fail soft when unavailable
   or permission-denied under the parent-scoped client, so `Review Work` renders
-  with lower-confidence/no suggestion instead of weakening RLS or requiring
-  service-role reads
+  with lower-confidence/no suggestion instead of weakening RLS
+
+#### Slice 2C - server-only canonical exact-pair recommendation signal
+
+Status: `implemented as narrow server-only recommendation signal`
+
+Slice `2C` allows `Review Work` recommendation display to use active exact-pair
+canonical mappings as `Known Match` evidence without changing resolver truth.
+
+Implementation closeout:
+- added a narrow server-only helper for recommendation-only canonical exact-pair
+  lookup
+- the helper reads `spelling_canonical_mappings` only by normalised exact pair
+  and returns only minimal fields: mapping id, misspelling, correction,
+  `micro_skill_key`, and `resolver_visibility_status`
+- active hidden and visible canonical mappings may support display-only
+  `Known Match`
+- the mapped micro-skill must still exist as active, assignable, and D4 in
+  `micro_skill_catalog`
+- resolver visibility remains irrelevant for display-only recommendation;
+  `findResolverVisibleExactPairMapping` and resolver runtime behavior remain
+  unchanged
+- service-role access remains server-only, narrow, and invoked only from the
+  server `Review Work` recommendation read-model path after parent ownership has
+  already been established
+- parent-scoped reads remain strict for required `Review Work` ownership/data,
+  while optional recommendation signal sources fail soft
+- no RLS policy, migration, canonical mapping creation, resolver visibility
+  event, parent verification, parent-local promotion, `learning_item`,
+  `assignment_item`, mastery, reward, dashboard, analytics, scoring, template,
+  or completion-gating behavior changed
+
+#### Slice 2D - useful inferred prefill and compact confidence display
+
+Status: `implemented as suggestion-only inferred prefill confidence display`
+
+Slice `2D` reduces parent taxonomy hunting by prefilling the best viable active
+assignable D4 inferred candidate while displaying engine confidence clearly.
+
+Implementation closeout:
+- separated best viable candidate selection from confidence display
+- inferred `Possible Match` recommendations may prefill the existing `Skill
+  Family`, `Skill Cluster`, and `Micro-skill` controls when at least one viable
+  active assignable D4 candidate exists and no stronger parent/admin/canonical
+  owner already controls the row
+- close top-candidate scores reduce `confidencePercent` rather than
+  automatically blocking prefill
+- `Possible Match` displays as `Possible Match · X%` using whole-number engine
+  confidence only
+- exact tied inferred candidates use deterministic micro-skill key ordering
+  with reduced confidence instead of implying certainty
+- raw frequency alone remains weak evidence and must not create high confidence
+  or truth
+- `Known Match` and `Your Match` remain authority badges and continue to win
+  over `Possible Match`
+- `No Match Yet` remains the fallback when no viable candidate exists or
+  evidence is too poor to suggest any candidate
+- recommendation metadata remains ignored by completion gating; parent
+  confirmation remains explicit through the existing `Review Work` actions
 
 #### Recommendation-versus-truth boundary
 
@@ -330,11 +397,14 @@ dropdowns:
 - `Your Match` — a same-parent/child scoped parent-local promoted exact-pair
   mapping supports the spelling pair
 - `Possible Match` — inferred from spelling-pattern evidence, reviewed evidence,
-  word-map support, or other non-truth recommendation signals
+  word-map support, or other non-truth recommendation signals; when prefilled,
+  display as `Possible Match · X%`
 - `No Match Yet` — no confident existing skill suggestion is available, including
   low confidence, insufficient evidence, no matching skill candidate, or
   unavailable optional sources without a real conflict
-- `Check Manually` — genuine conflict or low-margin competing candidates only
+- `Check Manually` — genuine unresolved conflict, unsupported state, or exact
+  tie that cannot be resolved safely; ordinary close-score uncertainty should
+  lower confidence rather than block a viable prefill
 
 Tooltip/help text may explain the badge for accessibility, but visible row copy
 should stay minimal. Do not use visible wording such as `Engine Truth`.
@@ -348,6 +418,7 @@ prefill:
 - `recommendedMicroSkillKey`
 - `rankedMicroSkillCandidates`
 - `confidence`
+- `confidencePercent`
 - `reason`
 - `sourceSignals`
 - `recommendationStatus`
@@ -380,9 +451,13 @@ such as:
 
 Rules:
 - raw frequency alone must not create high-confidence truth
-- conflicting top candidates should return `conflict`
-- low margin between top candidates should prevent prefill
-- low confidence should not prefill
+- conflicting top candidates may return `conflict`/`Check Manually` only when
+  the helper cannot choose a viable candidate safely
+- close margins between top candidates should reduce `confidencePercent` rather
+  than automatically preventing prefill
+- low confidence may still prefill only when the top candidate meets the
+  minimum viability threshold and remains an existing active assignable D4
+  micro-skill
 - the helper must not invent `micro_skill_key`
 
 #### Allowed source signals
