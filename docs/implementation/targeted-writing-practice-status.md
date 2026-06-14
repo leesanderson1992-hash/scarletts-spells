@@ -203,6 +203,35 @@ Canonical documentation now defers to:
   Supabase mutation methods through a guarded client, and does not change
   resolver, Review Work, assignment generation, mastery, rewards, scoring,
   analytics, dashboards, taxonomy, template routing, or database schema.
+- Version 2.0 Slice `4` bulk candidate mapping import/review planning is
+  registered in
+  [docs/implementation/version-2-slice-4-bulk-candidate-mapping-import-review-plan.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/implementation/version-2-slice-4-bulk-candidate-mapping-import-review-plan.md:1).
+  The selected first implementation is `Slice 4A`: CSV-first dry-run/report
+  only. It should validate and classify imported candidate rows but write no
+  database rows. Dedicated seed import tables are the safest later DB-backed
+  storage approach; `spelling_canonical_mapping_recommendations` and
+  `spelling_catalog_review_cases` should not be reused for bulk external seed
+  imports because their authority lineage means something different.
+  Slice `4A.0` docs registration defines the command shape, validation
+  buckets, report shape, read-only comparison sources, no-mutation guard, QA
+  expectations, Slice `4A.1` implementation prompt, and staged breakdown
+  through future resolver-visibility consideration.
+- Version 2.0 Slice `4A.1` is implemented as a pure CSV parser and file-only
+  validator:
+  - added `scripts/writing-engine-seed-import-dry-run.ts`
+  - added `npm run writing-engine:seed-import-dry-run`
+  - added `scripts/writing-engine-seed-import-dry-run-regression.ts`
+  - added `npm run writing-engine:seed-import-dry-run-regression`
+  - emits JSON and Markdown dry-run reports
+  - classifies rows as `safe_for_candidate_review`,
+    `manual_review_required`, or `rejected_from_import` from file-local
+    evidence only
+  - no Supabase client is imported or created, no database reads or writes are
+    performed, and no runtime app, migration, resolver, Review Work,
+    assignment, mastery, reward, dashboard, analytics, scoring, template, or
+    catalog behavior changed
+  - next Slice `4` implementation work is `4A.2`: optional read-only
+    `micro_skill_catalog` and canonical mapping comparison
 - A bounded post-Stage-`7` parent-facing evidence-transparency slice is now
   complete.
 - The app is currently suitable for private parent-led use with one child,

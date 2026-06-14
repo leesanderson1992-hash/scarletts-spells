@@ -56,13 +56,23 @@ excluded.
   [docs/implementation/version-2-roadmap.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/implementation/version-2-roadmap.md:1)
   to plan daily assignment practice and accelerated spelling-engine
   population without weakening truth boundaries.
+- Version 2.0 Slice `4` bulk candidate mapping import/review is now planned
+  in
+  [docs/implementation/version-2-slice-4-bulk-candidate-mapping-import-review-plan.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/implementation/version-2-slice-4-bulk-candidate-mapping-import-review-plan.md:1).
+  `Slice 4A.1` is implemented as a pure CSV parser and file-only validator.
+  First implementation did not add migrations, write Supabase rows, create
+  canonical mappings, expose resolver-visible truth, mutate
+  `micro_skill_catalog`, or change Review Work, assignments, mastery, rewards,
+  analytics, dashboards, scoring, or templates.
 - Review Work now supports engine suggestions, parent-added missed words,
   send-back, child retry, returned correction continuity, returned correction
   categorisation/admin/parent-local routing where safe, compact unified spelling
   table presentation, completion gating, historical terminal verification
   ownership, and `checking_only` terminal handling.
-- The next active work should be chosen as a separate bounded slice. Do not
-  restart Parent Review spelling work unless a fresh bug is found.
+- The next active Slice `4` work is `Slice 4A.2`: optional read-only
+  `micro_skill_catalog` and canonical mapping comparison for the dry-run
+  planner. Do not restart Parent Review spelling work unless a fresh bug is
+  found.
 
 ## Current stage
 

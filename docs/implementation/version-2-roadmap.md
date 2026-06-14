@@ -557,13 +557,27 @@ Hard boundary:
 
 ### Slice 4 - Bulk candidate mapping import/review
 
-Status: `next active planning target`
+Status: `planned; first implementation slice is dry-run/report only`
 
 Goal:
 - allow admin/operator to import or generate batches of candidate spelling
   mappings for review
 - speed up spelling-engine population at scale
 - reduce dependency on parent row-by-row classification
+
+Planning closeout:
+- detailed plan:
+  [docs/implementation/version-2-slice-4-bulk-candidate-mapping-import-review-plan.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/implementation/version-2-slice-4-bulk-candidate-mapping-import-review-plan.md:1)
+- safest first implementation is file/report-based only:
+  `Slice 4A - dry-run bulk candidate mapping import planner`
+- safest later storage approach is dedicated seed-import storage:
+  `spelling_seed_import_batches` and `spelling_seed_import_rows`
+- do not reuse `spelling_canonical_mapping_recommendations` for bulk external
+  seed imports because PCRM rows mean scoped parent recommendation evidence
+- do not reuse `spelling_catalog_review_cases` for bulk external seed imports
+  because catalog-review cases mean parent-raised `No matching skill` gaps
+- do not write directly to `spelling_canonical_mappings` in the first
+  implementation
 
 Input shape:
 - misspelling
@@ -608,10 +622,12 @@ Import modes to consider:
 - no resolver-visible import mode in first implementation
 
 Storage options to evaluate:
-- reuse `spelling_canonical_mapping_recommendations`
-- reuse `spelling_catalog_review_cases`
-- create new `spelling_seed_import_batches` and `spelling_seed_import_rows`
-- keep first implementation file/report-based only
+- selected first implementation: keep file/report-based only
+- selected future DB-backed approach: create
+  `spelling_seed_import_batches` and `spelling_seed_import_rows`
+- rejected for bulk external seed imports:
+  `spelling_canonical_mapping_recommendations`
+- rejected for bulk external seed imports: `spelling_catalog_review_cases`
 
 External/common misspelling sources to consider:
 - Birkbeck spelling error corpus
@@ -624,6 +640,38 @@ Output:
 - reviewable candidate/recommendation rows
 - no resolver-visible truth by default
 - audit trail preserved
+
+First implementation slice:
+- `Slice 4A - dry-run bulk candidate mapping import planner, file/report only`
+  is implemented through `Slice 4A.1` as file-only validation
+- Slice `4A.0` docs registration lives in
+  [docs/implementation/version-2-slice-4-bulk-candidate-mapping-import-review-plan.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/implementation/version-2-slice-4-bulk-candidate-mapping-import-review-plan.md:1)
+- CSV-first input parser
+- optional XLSX support only if it does not broaden scope materially
+- validates required/optional schema
+- normalizes misspelling/correction
+- validates active assignable `D4` `suggested_micro_skill_key`
+- compares read-only against canonical mappings, parent-local mappings where
+  safe, catalog-review cases, and PCRM recommendations when available
+- classifies rows as `safe_for_candidate_review`, `manual_review_required`, or
+  `rejected_from_import`
+- emits JSON and human-readable reports
+- writes no Supabase rows
+- adds regression coverage for parser, validation buckets, conflict detection,
+  and no-mutation guard behavior
+
+Staged implementation breakdown:
+- `Slice 4A.0` docs registration
+- `Slice 4A.1` pure parser and file-only validator: implemented
+- `Slice 4A.2` read-only catalog and canonical comparison
+- `Slice 4A.3` read-only supporting evidence comparison
+- `Slice 4A.4` operator hardening and docs closeout
+- `Slice 4B` dedicated seed import storage planning
+- `Slice 4C` seed import storage foundation
+- `Slice 4D` candidate-review import
+- `Slice 4E` seed-row admin review
+- `Slice 4F` explicit hidden-canonical adoption from seed rows
+- `Slice 4G` resolver visibility consideration
 
 Hard boundary:
 - bulk import must not write resolver-visible canonical mappings directly
@@ -643,15 +691,16 @@ Hard boundary:
 - any DB-changing implementation requires a unique timestamp migration and
   hosted migration-ledger safety check
 
-#### Next Slice 4 planning prompt
+#### Slice 4A docs-only update prompt
 
 ```md
 Adopt the role of a CTO, senior documentation reviewer, Writing Engine architecture reviewer, spelling-engine classification engineer, and Supabase/Next.js release-safety reviewer for Scarlett's Spells.
 
-Plan Version 2.0 Slice 4 only: Bulk candidate mapping import/review.
+Implement docs-only Version 2.0 Slice 4A registration: dry-run bulk candidate mapping import planner, file/report only.
 
 Use these docs as controlling context:
 - docs/implementation/version-2-roadmap.md
+- docs/implementation/version-2-slice-4-bulk-candidate-mapping-import-review-plan.md
 - docs/current-priorities.md
 - docs/implementation/targeted-writing-practice-status.md
 - docs/implementation/writing-engine-roadmap.md
@@ -664,62 +713,14 @@ Use these docs as controlling context:
 - docs/architecture/targeted-writing-practice-architecture.md
 - docs/operations/supabase-migration-policy.md
 
-Current state:
-- Version 2.0 Slice 1 implemented a read-only spelling-engine population audit.
-- Slice 2A implemented a computed read-only micro-skill recommendation helper/read-model.
-- Slice 2B integrated recommendation output into the existing compact Review Work spelling table.
-- Slice 2C added safe server-only canonical exact-pair recommendation signals so canonical rows can show `Known Match`.
-- Slice 2D added useful inferred prefill and compact confidence display.
-- Slice 3 is deferred and not authorised for implementation now.
-
 Goal:
-Plan a safe bulk candidate mapping import/review workflow that speeds spelling-engine population at scale while preserving truth boundaries.
+Register Slice 4A as the next implementation slice: a local/operator dry-run bulk candidate mapping import planner that reads CSV first, validates and classifies rows, compares against existing read-only spelling-engine evidence where safe, and emits JSON plus human-readable reports without writing to Supabase.
 
-Planning requirements:
-- recommend the safest storage approach
-- define input schema for CSV and/or XLSX
-- define required fields: misspelling, correction, `suggested_micro_skill_key`, confidence, source, note/provenance
-- define optional fields: dialect, age_band, source_url, source_dataset, pattern_hint, route_hint, source_row_id, import_batch_name
-- define validation and dry-run behaviour
-- define import modes
-- define admin/operator workflow
-- define safety boundaries
-- define external source strategy
-- define the first implementation slice after planning
-
-Validation to plan:
-- normalize misspelling/correction
-- reject empty pairs
-- detect duplicate rows within the file
-- detect existing canonical mappings
-- detect conflicting canonical mappings
-- validate `suggested_micro_skill_key` exists, active, assignable, and D4
-- detect inactive, non-assignable, and unknown skills
-- compare against existing parent-local mappings where safe
-- compare against catalog-review cases
-- compare against PCRM recommendations
-- identify rows safe for candidate review
-- identify rows requiring manual review
-- identify rows that should be rejected from import
-
-Import modes to consider:
-- dry-run/report only
-- candidate-review import
-- hidden-canonical import only after explicit admin/operator confirmation
-- no resolver-visible import mode in first implementation
-
-Storage options to evaluate:
-- reuse `spelling_canonical_mapping_recommendations`
-- reuse `spelling_catalog_review_cases`
-- create new `spelling_seed_import_batches` and `spelling_seed_import_rows`
-- keep first implementation file/report-based only
-
-External/common misspelling sources to consider:
-- Birkbeck spelling error corpus
-- Wikipedia common misspellings machine-readable list
-- custom manually curated workbook
-- GitHub Typo Corpus only with caution
-- NeuSpell or correction-toolkit data only as a helper, not truth
+Scope:
+- docs/planning only
+- define script goal, command shape, validation buckets, report shape, read-only comparison sources, no-mutation guard, and QA expectations
+- keep dedicated seed import database storage as future work
+- keep hidden-canonical import and resolver-visible import out of scope
 
 Hard boundaries for this planning slice:
 - docs/planning only
@@ -737,16 +738,12 @@ Hard boundaries for this planning slice:
 - resolver visibility remains separate, explicit, audited, and reversible
 
 Return:
-1. Recommended storage approach and rationale.
-2. Input schema.
-3. Validation and dry-run behaviour.
-4. Import modes.
-5. Admin/operator workflow.
-6. Truth and safety boundaries.
-7. External source strategy.
-8. First implementation slice after planning.
-9. Risks or ambiguities found.
-10. Whether the resulting plan is safe to implement.
+1. Docs changed.
+2. Confirmed first implementation slice.
+3. Safety boundaries preserved.
+4. Any remaining risks or ambiguities.
+5. Slice 4A implementation prompt.
+6. Full list of staged implementation breakdown.
 ```
 
 ### Slice 5 - Child-local reuse and suggestion improvement
