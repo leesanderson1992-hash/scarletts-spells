@@ -335,9 +335,40 @@ Canonical documentation now defers to:
   - authorizes no runtime code, migrations, Supabase mutation, import/apply
     mode, hosted writes, service-role client exposure, canonical/global
     adoption, or resolver behavior change
-  - next manual decision gate is whether to plan and approve Slice `4C` seed
-    import storage foundation as a separate DB-changing slice with a unique
-    timestamp migration and hosted migration-ledger safety check
+- Version 2.0 Slice `4C` is implemented as seed import storage foundation only:
+  - added unique timestamp migration
+    `supabase/migrations/20260614120000_add_spelling_seed_import_storage.sql`
+  - created dedicated `spelling_seed_import_batches` and
+    `spelling_seed_import_rows` tables
+  - added check constraints for batch statuses, row statuses, dry-run buckets,
+    non-empty normalized pairs, dialect, normalization version, JSON shapes, and
+    bounded confidence
+  - added row to batch FK, `suggested_micro_skill_key` FK to
+    `micro_skill_catalog(micro_skill_key)`, nullable future
+    `canonical_mapping_id` FK to `spelling_canonical_mappings(id)`, and
+    nullable duplicate-row self-FK
+  - preserved the Slice `4B` rule that active, assignable, and Domain `4`
+    micro-skill validation remains import-time validation rather than storage
+    authority
+  - added batch status/date, row batch/status, normalized pair/dialect,
+    suggested skill/status, duplicate group, duplicate-of, canonical mapping,
+    active source hash, and per-batch normalized triple indexes
+  - enabled RLS, revoked table access from `anon` and `authenticated`, granted
+    table access to `service_role`, and added no parent/child client policies
+  - no import/apply mode, seed row import, runtime app behavior, canonical
+    mapping creation, resolver visibility, Review Work behavior, assignment
+    generation, mastery, rewards, analytics, dashboards, scoring, templates, or
+    `micro_skill_catalog` mutation changed
+  - production release is complete for project `wwohrqtunajrbwxyssjf`: a no-op
+    active compatibility migration for legacy ledger version `20260421` was
+    added, then pending active migrations `20260605103000`, `20260605144500`,
+    `20260608193000`, `20260612103000`, and `20260614120000` were applied in
+    source order through the Supabase CLI; production ledger and Slice `4C`
+    RLS/grants/FK/index schema verification passed
+  - no migration repair, hosted SQL patch, `supabase db push`, seed import, or
+    runtime behavior change was run during the production release
+  - next manual decision gate is Slice `4D` candidate-review import into the
+    dedicated seed tables
 - A bounded post-Stage-`7` parent-facing evidence-transparency slice is now
   complete.
 - The app is currently suitable for private parent-led use with one child,

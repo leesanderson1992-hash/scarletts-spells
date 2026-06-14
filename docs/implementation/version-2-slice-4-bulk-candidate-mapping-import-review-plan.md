@@ -677,8 +677,8 @@ Implementation closeout:
   canonical-overlap findings by aligning `buisness -> business` to hosted
   canonical skill `D4_IRRE_TRICKY_WORDS_COMMON_HIGH_FREQUENCY` and removing
   already-canonical `natrual -> natural` and `sucsesfull -> successful`
-- next manual decision gate: plan and approve Slice `4C` seed import storage
-  foundation as a separate DB-changing slice
+- next manual decision gate: plan and approve Slice `4D` candidate-review
+  import into the dedicated seed tables
 
 `Slice 4B - dedicated seed import storage planning`
 - status: `implemented as docs/planning only`
@@ -981,8 +981,8 @@ Slice `4C` scope:
 - no resolver visibility
 - no `micro_skill_catalog` mutation
 
-Required gates before any DB-changing work:
-- run a hosted migration-ledger check before implementation/release planning
+Required gates before hosted release or production DB application:
+- run a hosted migration-ledger check before release planning
 - confirm baseline ledger row is present and duplicate historical migrations
   will not replay
 - use `YYYYMMDDHHMMSS_description.sql`
@@ -994,12 +994,50 @@ Required gates before any DB-changing work:
 - stop if hosted schema/ledger differs from expected source baseline
 
 `Slice 4C - seed import storage foundation`
-- future DB-changing slice only after Slice `4B`
-- unique timestamp migration required
-- create dedicated seed import storage only
-- no canonical mapping creation
-- no resolver visibility
-- no Review Work behavior change
+- status: `implemented as storage foundation only`
+- deployment method: `unique forward migration`
+- migration:
+  `supabase/migrations/20260614120000_add_spelling_seed_import_storage.sql`
+- creates dedicated seed import storage only:
+  - `spelling_seed_import_batches`
+  - `spelling_seed_import_rows`
+- adds batch and row status checks, dry-run bucket checks, non-empty normalized
+  pair checks, dialect and normalization-version checks, bounded confidence
+  checks, JSON shape checks, audit fields, FK relationships, idempotency
+  indexes, RLS, `anon`/`authenticated` revokes, and `service_role` grants
+- row storage links `suggested_micro_skill_key` to
+  `micro_skill_catalog(micro_skill_key)` while preserving Slice `4B`'s rule
+  that active, assignable, and Domain `4` eligibility remains import-time
+  validation
+- nullable `canonical_mapping_id` is future lineage only and is not resolver
+  authority
+- no import/apply mode, seed row import, runtime app behavior, canonical mapping
+  creation, resolver visibility, Review Work behavior change, assignment
+  generation change, mastery, rewards, dashboards, analytics, scoring,
+  templates, or `micro_skill_catalog` mutation was introduced
+- production release status: released to production project
+  `wwohrqtunajrbwxyssjf`
+- production release added no-op compatibility migration
+  `supabase/migrations/20260421_add_false_positive_to_misspelling_instances.sql`
+  so the Supabase CLI can compare the legacy production ledger row without
+  migration repair
+- production release applied the pending active migrations in source order with
+  `supabase migration up --db-url ... --include-all --yes`:
+  - `20260605103000_add_resolver_visibility_to_spelling_canonical_mappings`
+  - `20260605144500_add_resolver_visibility_admin_rpc`
+  - `20260608193000_add_canonical_spelling_word_map_storage`
+  - `20260612103000_add_pcrm_canonical_adoption_rpc`
+  - `20260614120000_add_spelling_seed_import_storage`
+- production ledger now records all expected active versions through Slice
+  `4C`, and protected counts remained stable during the release check:
+  `micro_skill_catalog=240`, `spelling_canonical_mappings=6`,
+  `learning_items=0`, `assignment_items=0`
+- production Slice `4C` schema verification passed: both seed import tables
+  exist, RLS is enabled, no policies are present, grants are limited to
+  `service_role`, and expected constraints/FKs/indexes are present
+- no migration repair, hosted SQL patch, `supabase db push`, seed import,
+  import/apply mode, canonical mapping creation by Slice `4C`, resolver
+  visibility change by Slice `4C`, or runtime behavior change was run
 
 `Slice 4D - candidate-review import`
 - future admin/operator import mode into dedicated seed import rows
@@ -1045,16 +1083,16 @@ Required gates before any DB-changing work:
 
 ## Safety Conclusion
 
-Slice `4A` is complete as dry-run/report-only behavior, and Slice `4B` is safe
-to commit as docs/planning only.
+Slice `4A` is complete as dry-run/report-only behavior. Slice `4B` is complete
+as storage planning. Slice `4C` is implemented as a storage foundation only:
+dedicated seed import batch/row tables with admin/operator-only access controls
+and no runtime import path.
 
-The dedicated seed import storage approach is safe as the next DB-backed
-direction only if implemented later as Slice `4C`: a separate DB-changing slice
-with a unique timestamp migration, admin/operator-only access controls,
-explicit row and batch statuses, no import/apply mode, no canonical mapping
-creation, no resolver visibility, and hosted migration-ledger safety checks.
-Reusing parent recommendation or catalog-review tables for bulk external
-imports is not safe because it blurs authority lineage.
+The next manual decision gate is Slice `4D`: candidate-review import into the
+dedicated seed tables. Slice `4D` must remain separate from hidden canonical
+adoption and resolver visibility. Reusing parent recommendation or
+catalog-review tables for bulk external imports remains unsafe because it blurs
+authority lineage.
 
 ## Docs-Only Update Prompt
 

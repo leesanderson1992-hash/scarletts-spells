@@ -572,9 +572,16 @@ Planning closeout:
   `Slice 4A - dry-run bulk candidate mapping import planner`
 - safest later storage approach is dedicated seed-import storage:
   `spelling_seed_import_batches` and `spelling_seed_import_rows`
-- Slice `4B` dedicated seed import storage planning is registered as
-  docs/planning only; the first DB-changing implementation remains future
-  Slice `4C`
+- Slice `4B` dedicated seed import storage planning is implemented as
+  docs/planning only
+- Slice `4C` seed import storage foundation is implemented as a unique
+  timestamp migration only:
+  `supabase/migrations/20260614120000_add_spelling_seed_import_storage.sql`
+- Slice `4C` is released to production; the production release also added
+  no-op active compatibility migration
+  `supabase/migrations/20260421_add_false_positive_to_misspelling_instances.sql`
+  so the Supabase CLI can compare the legacy production ledger row without
+  migration repair
 - do not reuse `spelling_canonical_mapping_recommendations` for bulk external
   seed imports because PCRM rows mean scoped parent recommendation evidence
 - do not reuse `spelling_catalog_review_cases` for bulk external seed imports
@@ -674,7 +681,8 @@ Staged implementation breakdown:
   is complete as a dry-run/report-only operator planner
 - `Slice 4B` dedicated seed import storage planning: implemented as
   docs/planning only
-- `Slice 4C` seed import storage foundation
+- `Slice 4C` seed import storage foundation: implemented as storage foundation
+  only
 - `Slice 4D` candidate-review import
 - `Slice 4E` seed-row admin review
 - `Slice 4F` explicit hidden-canonical adoption from seed rows
@@ -699,8 +707,8 @@ Hard boundary:
   hosted migration-ledger safety check
 
 Next manual decision gate:
-- plan and approve Slice `4C` seed import storage foundation as a separate
-  DB-changing slice
+- plan and approve Slice `4D` candidate-review import into the dedicated seed
+  tables
 
 #### Slice 4A docs-only update prompt
 

@@ -79,16 +79,38 @@ excluded.
   expectations, and migration gates, and authorizes no migration, runtime code,
   Supabase mutation, import/apply mode, canonical mapping creation, resolver
   visibility, Review Work change, assignment change, or `micro_skill_catalog`
-  mutation.
+  mutation. Slice `4C` is implemented as the seed import storage foundation
+  only via unique timestamp migration
+  `supabase/migrations/20260614120000_add_spelling_seed_import_storage.sql`.
+  It creates dedicated `spelling_seed_import_batches` and
+  `spelling_seed_import_rows` tables with constraints, indexes, RLS,
+  `anon`/`authenticated` revokes, `service_role` grants, audit fields, row to
+  batch FK, `suggested_micro_skill_key` FK, nullable future canonical lineage,
+  and duplicate row lineage. Slice `4C` did not add import/apply mode, seed row
+  import, runtime app behavior, canonical mapping creation, resolver
+  visibility, Review Work behavior, assignments, mastery, rewards, analytics,
+  dashboards, scoring, templates, or `micro_skill_catalog` mutation.
+- Slice `4C` is production-released. A no-op compatibility migration
+  `supabase/migrations/20260421_add_false_positive_to_misspelling_instances.sql`
+  was added so the Supabase CLI can compare the legacy production ledger row
+  without migration repair. The approved production release then applied, in
+  order, `20260605103000`, `20260605144500`, `20260608193000`,
+  `20260612103000`, and `20260614120000` through
+  `supabase migration up --db-url ... --include-all --yes`. Production ledger
+  now records all expected active migration versions through Slice `4C`.
+  Production verification confirmed the seed import tables exist with RLS
+  enabled, no policies, `service_role` grants only, expected constraints/FKs,
+  and expected indexes. No migration repair, hosted SQL patch,
+  `supabase db push`, seed import, import/apply mode, or runtime behavior
+  change was run.
 - Review Work now supports engine suggestions, parent-added missed words,
   send-back, child retry, returned correction continuity, returned correction
   categorisation/admin/parent-local routing where safe, compact unified spelling
   table presentation, completion gating, historical terminal verification
   ownership, and `checking_only` terminal handling.
-- The next manual decision gate is whether to plan and approve Slice `4C` seed
-  import storage foundation as a separate DB-changing slice with a unique
-  timestamp migration and hosted migration-ledger safety check. Do not restart
-  Parent Review spelling work unless a fresh bug is found.
+- The next manual decision gate is whether to plan and approve Slice `4D`
+  candidate-review import into the dedicated seed tables. Do not restart Parent
+  Review spelling work unless a fresh bug is found.
 
 ## Current stage
 

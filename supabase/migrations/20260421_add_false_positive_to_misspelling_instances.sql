@@ -1,0 +1,12 @@
+-- Compatibility migration for the legacy production Supabase ledger.
+--
+-- Production project wwohrqtunajrbwxyssjf already records version 20260421
+-- with name add_false_positive_to_misspelling_instances in
+-- supabase_migrations.schema_migrations.
+--
+-- The historical SQL for this version has been superseded by the unique
+-- baseline migration 20260525123937_baseline_current_production_schema.sql.
+-- This no-op file exists only so the Supabase CLI can compare local and remote
+-- migration history before applying later unique timestamp migrations.
+--
+-- Do not add schema changes here.
