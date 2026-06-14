@@ -260,10 +260,39 @@ Canonical documentation now defers to:
     analytics/scoring/template changes, `micro_skill_catalog` mutation,
     canonical mapping creation, DB-backed seed storage, hidden canonical
     import, or resolver-visible import were introduced
-  - residual risk: live local Supabase DB comparison was not smoke-tested in
-    this turn
-  - next Slice `4` implementation work is `4A.3`: optional read-only
-    supporting evidence comparison
+  - Slice `4A.3` closed the local smoke residual risk and implemented optional
+    read-only supporting evidence comparison
+- Version 2.0 Slice `4A.3` is implemented, QA-audited, local smoke-tested, and
+  committed as optional read-only supporting evidence comparison:
+  - the dry-run planner can optionally compare against
+    `parent_verified_spelling_candidate_mappings`,
+    `spelling_catalog_review_cases`,
+    `spelling_catalog_review_case_decisions`, and
+    `spelling_canonical_mapping_recommendations`
+  - supporting evidence is manual-review signal only and never canonical/global
+    truth, resolver-visible truth, parent verification, child evidence, learning
+    gaps, learning items, assignment items, mastery, rewards, PCRM truth,
+    catalog-review truth, dashboard/progress/scoring/analytics data, or template
+    behavior
+  - JSON and Markdown reports include `supporting_evidence_summary` plus
+    row-level `supporting_evidence_counts` and supporting evidence ids
+  - optional supporting sources fail soft into warnings and `unavailable_sources`
+  - explicit read-only flags, anon-key-only access, no-mutation guard, and
+    protected-table count checks remain preserved
+  - QA audit passed with no blocking findings
+  - local read-only Supabase smoke passed with
+    `database_comparison_mode: local_read_only`, report output under
+    `.tmp/seed-import-smoke/report`, no warnings, no protected-table count error,
+    no write/mutation error, supporting evidence comparison run with
+    `unavailable_sources: []`, and live DB validation rejecting the smoke row
+    only because local `micro_skill_catalog` did not contain the sample
+    `suggested_micro_skill_key`
+  - validation passed: `npm run writing-engine:seed-import-dry-run-regression`,
+    `npx tsc --noEmit`, and `git diff --check`
+  - residual risk: no hosted smoke was performed; no DB-backed seed import
+    storage exists yet; imported rows remain candidate evidence only
+  - next Slice `4` implementation work is `4A.4`: operator hardening and docs
+    closeout
 - A bounded post-Stage-`7` parent-facing evidence-transparency slice is now
   complete.
 - The app is currently suitable for private parent-led use with one child,

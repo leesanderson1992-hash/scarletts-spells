@@ -643,7 +643,8 @@ Output:
 
 First implementation slice:
 - `Slice 4A - dry-run bulk candidate mapping import planner, file/report only`
-  is implemented through `Slice 4A.1` as file-only validation
+  is implemented through `Slice 4A.3` as file/report-only validation plus
+  optional read-only comparison
 - Slice `4A.0` docs registration lives in
   [docs/implementation/version-2-slice-4-bulk-candidate-mapping-import-review-plan.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/implementation/version-2-slice-4-bulk-candidate-mapping-import-review-plan.md:1)
 - CSV-first input parser
@@ -664,7 +665,8 @@ Staged implementation breakdown:
 - `Slice 4A.0` docs registration
 - `Slice 4A.1` pure parser and file-only validator: implemented
 - `Slice 4A.2` read-only catalog and canonical comparison: implemented
-- `Slice 4A.3` read-only supporting evidence comparison
+- `Slice 4A.3` read-only supporting evidence comparison: implemented,
+  QA-audited, and local smoke-tested
 - `Slice 4A.4` operator hardening and docs closeout
 - `Slice 4B` dedicated seed import storage planning
 - `Slice 4C` seed import storage foundation

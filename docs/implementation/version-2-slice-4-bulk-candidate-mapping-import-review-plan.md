@@ -402,9 +402,7 @@ Top-level JSON fields:
 - `conflict_groups`
 - `skill_validation_summary`
 - `canonical_mapping_summary`
-- `parent_local_mapping_summary`
-- `catalog_review_summary`
-- `pcrm_summary`
+- `supporting_evidence_summary`
 - `source_provenance_summary`
 - `warnings`
 - `hard_boundaries`
@@ -433,9 +431,8 @@ Per-row JSON fields:
 - `manual_review_warnings`
 - `matching_existing_canonical_mapping_ids`
 - `conflicting_existing_canonical_mapping_ids`
-- `matching_parent_local_mapping_count`
-- `matching_catalog_review_case_count`
-- `matching_pcrm_recommendation_count`
+- `supporting_evidence_counts`
+- `supporting_evidence_ids`
 - `recommended_next_action`
 
 Human-readable report:
@@ -456,7 +453,6 @@ Read-only comparison sources:
 - `spelling_catalog_review_cases`
 - `spelling_catalog_review_case_decisions` where available
 - `spelling_canonical_mapping_recommendations`
-- `spelling_canonical_mapping_events` where useful for canonical lineage
 
 Read-only comparison rules:
 - exact canonical pair conflicts are blocking or manual-review signals, not
@@ -596,14 +592,53 @@ Implementation closeout:
   analytics/scoring/template changes, `micro_skill_catalog` mutation,
   canonical mapping creation, DB-backed seed storage, hidden canonical import,
   or resolver-visible import were introduced
-- residual risk: live local Supabase DB comparison was not smoke-tested during
-  Slice `4A.2`; supporting-evidence comparison remains future Slice `4A.3`
+- residual risk closed in Slice `4A.3`: local read-only Supabase smoke proved
+  `database_comparison_mode: local_read_only` for the dry-run planner while
+  keeping the run report-only
 
 `Slice 4A.3 - read-only supporting evidence comparison`
+- status: `implemented, QA-audited, local smoke-tested`
 - add optional read-only comparison with parent-local mappings where safe,
   catalog-review cases/decisions, and PCRM recommendations
 - keep parent-local, catalog-review, and PCRM data as review signals only
 - fail soft when optional comparison sources are unavailable
+
+Implementation closeout:
+- committed as `579bc0c feat: add seed import supporting evidence comparison`
+- extended the dry-run planner with optional read-only comparison against
+  `parent_verified_spelling_candidate_mappings`,
+  `spelling_catalog_review_cases`,
+  `spelling_catalog_review_case_decisions`, and
+  `spelling_canonical_mapping_recommendations`
+- supporting evidence is manual-review signal only; it is not canonical/global
+  truth, resolver-visible truth, parent verification, child evidence, learning
+  gaps, learning items, assignment items, mastery, rewards, parent-local truth,
+  PCRM truth, catalog-review truth, dashboard/progress/scoring/analytics data, or
+  template behavior
+- JSON and Markdown reports now include `supporting_evidence_summary` plus
+  row-level `supporting_evidence_counts` and supporting evidence ids
+- optional supporting evidence sources fail soft into warnings and
+  `unavailable_sources`
+- explicit read-only flags, anon-key-only access, no-mutation guard, and
+  protected-table count checks are preserved
+- QA audit passed with no blocking findings
+- local read-only Supabase smoke passed:
+  - `database_comparison_mode` was `local_read_only`
+  - report emitted under `.tmp/seed-import-smoke/report`
+  - no warnings, no protected-table count error, and no write/mutation error
+  - supporting evidence comparison ran with `unavailable_sources: []`
+  - smoke row was rejected only because local `micro_skill_catalog` did not
+    contain the sample `suggested_micro_skill_key`, confirming live DB validation
+    applied
+- validation passed:
+  `npm run writing-engine:seed-import-dry-run-regression`,
+  `npx tsc --noEmit`, and `git diff --check`
+- no hosted smoke was performed
+- no migrations, Supabase writes, service-role use, runtime app changes, Review
+  Work changes, resolver changes, assignment/mastery/reward/dashboard/analytics/
+  scoring/template changes, `micro_skill_catalog` mutation, canonical mapping
+  creation, DB-backed seed storage, hidden canonical import, or resolver-visible
+  import were introduced
 
 `Slice 4A.4 - operator hardening and docs closeout`
 - add sample CSV fixture and report examples

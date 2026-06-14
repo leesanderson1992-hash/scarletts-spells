@@ -61,19 +61,23 @@ excluded.
   [docs/implementation/version-2-slice-4-bulk-candidate-mapping-import-review-plan.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/implementation/version-2-slice-4-bulk-candidate-mapping-import-review-plan.md:1).
   Slice `4A.1` is implemented as a pure CSV parser and file-only validator.
   Slice `4A.2` is implemented as optional read-only catalog and canonical
-  comparison, gated by explicit flags and anon-key access only. It did not add
-  migrations, write Supabase rows, create canonical mappings, expose
-  resolver-visible truth, mutate `micro_skill_catalog`, or change Review Work,
-  assignments, mastery, rewards, analytics, dashboards, scoring, or templates.
+  comparison, gated by explicit flags and anon-key access only. Slice `4A.3` is
+  implemented, QA-audited, and local smoke-tested as optional read-only
+  supporting evidence comparison for parent-local mappings, catalog-review
+  cases/decisions, and PCRM recommendations. Supporting evidence remains
+  manual-review signal only and does not create canonical/global/resolver truth.
+  Slice `4A` work so far did not add migrations, write Supabase rows, create
+  canonical mappings, expose resolver-visible truth, mutate
+  `micro_skill_catalog`, or change Review Work, assignments, mastery, rewards,
+  analytics, dashboards, scoring, or templates.
 - Review Work now supports engine suggestions, parent-added missed words,
   send-back, child retry, returned correction continuity, returned correction
   categorisation/admin/parent-local routing where safe, compact unified spelling
   table presentation, completion gating, historical terminal verification
   ownership, and `checking_only` terminal handling.
-- The next active Slice `4` work is `Slice 4A.3`: optional read-only
-  supporting evidence comparison for parent-local mappings, catalog-review
-  cases/decisions, and PCRM recommendations. Do not restart Parent Review
-  spelling work unless a fresh bug is found.
+- The next active Slice `4` work is `Slice 4A.4`: operator hardening and docs
+  closeout. Do not restart Parent Review spelling work unless a fresh bug is
+  found.
 
 ## Current stage
 
