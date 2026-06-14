@@ -1,4 +1,3 @@
-import { createClient } from "@/lib/supabase/server";
 import type {
   WritingEngineStage2aAuditFrequencySignal,
   WritingEngineStage2aCanonicalMappingSignal,
@@ -6,10 +5,21 @@ import type {
   WritingEngineStage2aRecommendationInput,
   WritingEngineStage2aReviewedEvidenceSignal,
   WritingEngineStage2aWordMapMetadataSignal,
-} from "@/lib/writing-engine/spelling/stage2a-micro-skill-recommendation";
-import type { WritingEngineStage1d1CatalogEntry } from "@/lib/writing-engine/types";
+} from "../spelling/stage2a-micro-skill-recommendation";
+import type { WritingEngineStage1d1CatalogEntry } from "../types";
 
-type SupabaseServerClient = Awaited<ReturnType<typeof createClient>>;
+type Stage2aSupabaseReadQuery = PromiseLike<{
+  data: unknown;
+  error: { message: string; code?: string } | null;
+}> & {
+  eq(column: string, value: unknown): Stage2aSupabaseReadQuery;
+};
+
+type SupabaseServerClient = {
+  from(table: string): {
+    select(columns: string): Stage2aSupabaseReadQuery;
+  };
+};
 
 type CatalogRow = {
   micro_skill_key: string;
@@ -78,19 +88,32 @@ function normalizeWord(value: string | null | undefined) {
   return normalized.length > 0 ? normalized : null;
 }
 
+function isOptionalRecommendationSourceUnavailableError(error: {
+  message: string;
+  code?: string;
+}) {
+  const message = error.message.toLowerCase();
+
+  return (
+    error.code === "42501" ||
+    error.code === "42P01" ||
+    error.code === "PGRST205" ||
+    message.includes("permission denied") ||
+    message.includes("could not find the table") ||
+    message.includes("could not find the schema cache") ||
+    message.includes("schema cache") ||
+    message.includes("does not exist") ||
+    message.includes("relation") && message.includes("does not exist")
+  );
+}
+
 async function optionalSelect<T>(
   query: PromiseLike<{ data: unknown; error: { message: string; code?: string } | null }>,
 ) {
   const { data, error } = await query;
 
   if (error) {
-    const missing =
-      error.code === "42P01" ||
-      error.code === "PGRST205" ||
-      error.message.includes("Could not find the table") ||
-      error.message.includes("does not exist");
-
-    if (missing) {
+    if (isOptionalRecommendationSourceUnavailableError(error)) {
       return [] as T[];
     }
 
@@ -109,6 +132,7 @@ export async function buildStage2aMicroSkillRecommendationReadModel(input: {
   childId?: string | null;
   taskSubmissionId?: string | null;
   writingSampleId?: string | null;
+  trustedCanonicalMappings?: WritingEngineStage2aCanonicalMappingSignal[];
 }): Promise<WritingEngineStage2aRecommendationInput> {
   const misspellingNormalized = normalizeWord(input.misspelling);
   const correctionNormalized = normalizeWord(input.correction);
@@ -289,13 +313,16 @@ export async function buildStage2aMicroSkillRecommendationReadModel(input: {
       allowedTemplateKeys: row.allowed_template_keys ?? [],
       metadata: row.metadata ?? {},
     })),
-    canonicalMappings: canonicalRows.map((row): WritingEngineStage2aCanonicalMappingSignal => ({
-      mappingId: row.id,
-      misspellingNormalized: row.misspelling_normalized,
-      correctSpellingNormalized: row.correct_spelling_normalized,
-      microSkillKey: row.micro_skill_key,
-      mappingStatus: row.mapping_status,
-    })),
+    canonicalMappings: [
+      ...(input.trustedCanonicalMappings ?? []),
+      ...canonicalRows.map((row): WritingEngineStage2aCanonicalMappingSignal => ({
+        mappingId: row.id,
+        misspellingNormalized: row.misspelling_normalized,
+        correctSpellingNormalized: row.correct_spelling_normalized,
+        microSkillKey: row.micro_skill_key,
+        mappingStatus: row.mapping_status,
+      })),
+    ],
     parentLocalPromotedMappings: parentLocalRows.map(
       (row): WritingEngineStage2aParentLocalPromotedMappingSignal => ({
         mappingId: row.id,

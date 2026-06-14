@@ -19,6 +19,14 @@ export type WritingEngineStage2aConfidenceLevel =
   | "low"
   | "none";
 
+export type WritingEngineStage2aRecommendationAuthority =
+  | "known_match"
+  | "your_match"
+  | "possible_match"
+  | "no_match_yet"
+  | "check_manually"
+  | "none";
+
 export type WritingEngineStage2aSourceSignalType =
   | "exact_active_canonical_mapping"
   | "same_scope_parent_local_promoted_mapping"
@@ -61,6 +69,7 @@ export type WritingEngineStage2aRankedMicroSkillCandidate = {
 
 export type WritingEngineStage2aRecommendationResult = {
   recommendationStatus: WritingEngineStage2aRecommendationStatus;
+  recommendationAuthority: WritingEngineStage2aRecommendationAuthority;
   recommendedFamilyKey: string | null;
   recommendedClusterKey: string | null;
   recommendedMicroSkillKey: string | null;
@@ -437,6 +446,12 @@ function buildFallbackResult(input: {
 }): WritingEngineStage2aRecommendationResult {
   return {
     recommendationStatus: input.status,
+    recommendationAuthority:
+      input.status === "conflict"
+        ? "check_manually"
+        : input.fallbackReason === "missing_spelling_pair"
+          ? "none"
+          : "no_match_yet",
     recommendedFamilyKey: null,
     recommendedClusterKey: null,
     recommendedMicroSkillKey: null,
@@ -447,6 +462,28 @@ function buildFallbackResult(input: {
     fallbackReason: input.fallbackReason,
     isPrefillAllowed: false,
   };
+}
+
+function authorityForRecommendedCandidate(
+  candidate: WritingEngineStage2aRankedMicroSkillCandidate,
+): WritingEngineStage2aRecommendationAuthority {
+  if (
+    candidate.sourceSignals.some(
+      (signal) => signal.type === "exact_active_canonical_mapping",
+    )
+  ) {
+    return "known_match";
+  }
+
+  if (
+    candidate.sourceSignals.some(
+      (signal) => signal.type === "same_scope_parent_local_promoted_mapping",
+    )
+  ) {
+    return "your_match";
+  }
+
+  return "possible_match";
 }
 
 export function recommendStage2aMicroSkillForSpellingPair(
@@ -728,7 +765,7 @@ export function recommendStage2aMicroSkillForSpellingPair(
   const [topCandidate, secondCandidate] = candidates;
   const scoreMargin = topCandidate.score - (secondCandidate?.score ?? 0);
 
-  if (secondCandidate && scoreMargin < CONFLICT_MARGIN) {
+  if (secondCandidate && scoreMargin < CONFLICT_MARGIN && topCandidate.score >= PREFILL_THRESHOLD) {
     return buildFallbackResult({
       status: "conflict",
       reason: "Top candidate scores are too close for a safe recommendation.",
@@ -753,6 +790,9 @@ export function recommendStage2aMicroSkillForSpellingPair(
 
   return {
     recommendationStatus: isPrefillAllowed ? "recommended" : "low_confidence",
+    recommendationAuthority: isPrefillAllowed
+      ? authorityForRecommendedCandidate(topCandidate)
+      : "no_match_yet",
     recommendedFamilyKey: isPrefillAllowed ? topCandidate.familyKey : null,
     recommendedClusterKey: isPrefillAllowed ? topCandidate.clusterKey : null,
     recommendedMicroSkillKey: isPrefillAllowed ? topCandidate.microSkillKey : null,

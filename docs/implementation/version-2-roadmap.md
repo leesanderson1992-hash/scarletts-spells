@@ -264,6 +264,8 @@ Implementation closeout:
 
 #### Slice 2B - Review Work table prefill integration
 
+Status: `implemented as suggestion-only Review Work table prefill`
+
 Slice `2B` should:
 - feed the best recommendation into the existing compact `Review Work` spelling
   table
@@ -278,6 +280,32 @@ Slice `2B` should:
 The recommendation must not count as a completed review decision and must not
 silently unlock approval or completion.
 
+Implementation closeout:
+- unified `Review Work` spelling rows now carry nullable Slice `2A`
+  recommendation metadata for still-open categorisation rows only
+- the compact table prefills `Skill Family`, `Skill Cluster`, and `Micro-skill`
+  only when `isPrefillAllowed` is true and the recommended micro-skill is still
+  present in the existing active option set
+- suggested prefills show compact parent-facing badges only: `Known Match`,
+  `Your Match`, `Possible Match`, `No Match Yet`, and `Check Manually`, with
+  explanatory text kept in tooltips rather than visible row helper sentences
+- low-confidence, no-matching, word-level-only, likely-false-positive,
+  insufficient-evidence, unavailable optional-source, and non-conflict low-margin
+  recommendations do not prefill as confirmed values and display as `No Match Yet`
+- `Check Manually` is reserved for genuine close competing candidates, not for
+  optional-source unavailability
+- existing parent verification, catalog review, candidate mapping,
+  parent-local promotion, and meaningful existing skill ownership still wins
+- suggestion-only data is ignored by unified completion gating and does not
+  create mappings, verifications, `learning_items`, `assignment_items`, mastery,
+  rewards, resolver truth, or canonical truth
+- parent edits and confirmations continue through the existing Tick, X, `!`,
+  `No Matching Skill`, candidate-capture, and parent-local promotion actions
+- optional Slice `2A` recommendation signal sources fail soft when unavailable
+  or permission-denied under the parent-scoped client, so `Review Work` renders
+  with lower-confidence/no suggestion instead of weakening RLS or requiring
+  service-role reads
+
 #### Recommendation-versus-truth boundary
 
 A Slice `2` recommendation is:
@@ -291,13 +319,25 @@ A Slice `2` recommendation is:
 - not a `learning_item`
 - not an `assignment_item`
 
-#### Suggested Slice 2B parent-facing wording
+#### Slice 2B parent-facing badges
 
-- Badge: `Suggested`
-- Helper: `Suggested by the spelling helper. Please confirm or change before approving.`
-- Tooltip: `This is a recommendation only. It will not become reusable truth unless you approve or promote it where allowed.`
-- Low-confidence fallback: `No confident skill suggestion yet. Choose a skill or send to catalog review.`
-- Conflict fallback: `Possible skill conflict. Please review manually.`
+Slice `2B` should keep the compact spelling table compact. It should display a
+single short badge/label rather than visible helper sentences under the
+dropdowns:
+
+- `Known Match` — a readable active canonical/global exact-pair mapping supports
+  the spelling pair
+- `Your Match` — a same-parent/child scoped parent-local promoted exact-pair
+  mapping supports the spelling pair
+- `Possible Match` — inferred from spelling-pattern evidence, reviewed evidence,
+  word-map support, or other non-truth recommendation signals
+- `No Match Yet` — no confident existing skill suggestion is available, including
+  low confidence, insufficient evidence, no matching skill candidate, or
+  unavailable optional sources without a real conflict
+- `Check Manually` — genuine conflict or low-margin competing candidates only
+
+Tooltip/help text may explain the badge for accessibility, but visible row copy
+should stay minimal. Do not use visible wording such as `Engine Truth`.
 
 #### Suggested helper output shape
 

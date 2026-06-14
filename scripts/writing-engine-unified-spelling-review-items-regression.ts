@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
 import {
+  attachStage2aMicroSkillRecommendationsToUnifiedRows,
   buildUnifiedSpellingReviewItems,
   summarizeUnifiedSpellingReviewCompletion,
   type BuildUnifiedSpellingReviewItemsInput,
@@ -10,6 +11,10 @@ import {
 
 const helperPath = "lib/writing-engine/persistence/unified-spelling-review-items.ts";
 const helperSource = readFileSync(helperPath, "utf8");
+const tableSource = readFileSync(
+  "app/courses/review/unified-spelling-review-table.tsx",
+  "utf8",
+);
 
 function buildStage7dSourceEntityId(input: {
   taskSubmissionId: string;
@@ -862,6 +867,8 @@ assert.ok(
   "A second same-pair current row should remain visible once returned ownership is consumed.",
 );
 assert.equal(terminalNoAttemptExtraRow.state, "pending_parent_review");
+const stage2aRecommendationBaseRow: UnifiedSpellingReviewItem = terminalNoAttemptExtraRow;
+const stage2aExistingDecisionRow: UnifiedSpellingReviewItem = engineRow;
 
 [
   ["miss-historical-false-positive-regenerated", "false-positive"],
@@ -1122,4 +1129,321 @@ assert.match(
   "Unified read-model helper must bridge returned corrections to open catalog review cases by original source misspelling id.",
 );
 
-console.log("writing-engine-unified-spelling-review-items-regression: ok");
+function filterRows(rows: Array<Record<string, unknown>>, filters: Array<{
+  column: string;
+  value: unknown;
+  operator: "eq" | "in";
+}>) {
+  return rows.filter((row) =>
+    filters.every((filter) => {
+      const value = row[filter.column];
+
+      if (filter.operator === "in" && Array.isArray(filter.value)) {
+        return filter.value.includes(value);
+      }
+
+      return value === filter.value;
+    }),
+  );
+}
+
+function createReadOnlyStage2aFakeSupabase() {
+  const rowsByTable: Record<string, Array<Record<string, unknown>>> = {
+    micro_skill_catalog: [
+      {
+        micro_skill_key: "d4.final_e_missing",
+        mastery_domain_key: "D4",
+        skill_family_key: "spelling-patterns",
+        skill_cluster_key: "spelling-patterns.final-e",
+        practice_route: "word_practice",
+        is_assignable: true,
+        is_active: true,
+        display_name: "Missing final e",
+        allowed_template_keys: [],
+        metadata: { recommendation_features: ["missing_final_e", "final e"] },
+      },
+    ],
+    spelling_canonical_mappings: [
+      {
+        id: "canonical-hav-have",
+        misspelling_normalized: "hav",
+        correct_spelling_normalized: "have",
+        micro_skill_key: "d4.final_e_missing",
+        mapping_status: "active",
+      },
+    ],
+    parent_verified_spelling_candidate_mappings: [],
+    writing_issues: [],
+    misspelling_instances: [],
+    canonical_spelling_word_map_diagnostic_examples: [],
+    canonical_spelling_word_map_words: [],
+  };
+  const readTables: string[] = [];
+
+  return {
+    readTables,
+    from(table: string) {
+      readTables.push(table);
+      const filters: Array<{
+        column: string;
+        value: unknown;
+        operator: "eq" | "in";
+      }> = [];
+      const query = {
+        select() {
+          return query;
+        },
+        eq(column: string, value: unknown) {
+          filters.push({ column, value, operator: "eq" });
+          return query;
+        },
+        in(column: string, value: unknown[]) {
+          filters.push({ column, value, operator: "in" });
+          return query;
+        },
+        order() {
+          return query;
+        },
+        maybeSingle() {
+          const data = filterRows(rowsByTable[table] ?? [], filters)[0] ?? null;
+          return Promise.resolve({ data, error: null });
+        },
+        then<
+          TResult1 = {
+            data: unknown;
+            error: { message: string; code?: string } | null;
+          },
+          TResult2 = never,
+        >(
+          onfulfilled?:
+            | ((value: {
+                data: unknown;
+                error: { message: string; code?: string } | null;
+              }) => TResult1 | PromiseLike<TResult1>)
+            | null,
+          onrejected?: ((reason: unknown) => TResult2 | PromiseLike<TResult2>) | null,
+        ) {
+          const error =
+            table === "spelling_canonical_mappings"
+              ? {
+                  code: "42501",
+                  message: "permission denied for table spelling_canonical_mappings",
+                }
+              : null;
+          const data = error ? null : filterRows(rowsByTable[table] ?? [], filters);
+
+          return Promise.resolve({ data, error }).then(onfulfilled, onrejected);
+        },
+      };
+
+      return query;
+    },
+  };
+}
+
+async function runStage2aRecommendationAttachmentRegression() {
+  const openRecommendationRow: UnifiedSpellingReviewItem = {
+    ...stage2aRecommendationBaseRow,
+    id: "misspelling:miss-stage2a-prefill",
+    state: "categorisation_needed",
+    categorisationStatus: "categorisation_needed",
+    observedText: "hav",
+    expectedCorrection: "have",
+    suggestedMicroSkillKey: null,
+    verifiedMicroSkillKey: null,
+    microSkillKey: null,
+    microSkillRecommendation: null,
+    sourceIds: {
+      ...stage2aRecommendationBaseRow.sourceIds,
+      misspellingInstanceId: "miss-stage2a-prefill",
+      writingIssueSuggestionId: null,
+      parentVerificationId: null,
+      writingIssueId: null,
+      catalogReviewCaseId: null,
+      candidateMappingId: null,
+      canonicalRecommendationId: null,
+      canonicalRecommendationStatus: null,
+    },
+  };
+  const fakeSupabase = createReadOnlyStage2aFakeSupabase();
+  const canonicalLookupCalls: Array<{
+    misspellingNormalized: string | null | undefined;
+    correctSpellingNormalized: string | null | undefined;
+  }> = [];
+  const attachedRows =
+    await attachStage2aMicroSkillRecommendationsToUnifiedRows({
+      supabase: fakeSupabase as never,
+      rows: [openRecommendationRow, stage2aExistingDecisionRow],
+      parentUserId: "parent-current",
+      childId: "child-current",
+      submissionId: "submission-current",
+      canonicalExactPairLookup: async (input) => {
+        canonicalLookupCalls.push(input);
+
+        if (
+          input.misspellingNormalized === "hav" &&
+          input.correctSpellingNormalized === "have"
+        ) {
+          return [{
+            mappingId: "canonical-hidden-hav-have",
+            misspellingNormalized: "hav",
+            correctSpellingNormalized: "have",
+            microSkillKey: "d4.final_e_missing",
+            resolverVisibilityStatus: "hidden",
+          }];
+        }
+
+        return [];
+      },
+    });
+  const attachedRecommendationRow = attachedRows.find(
+    (row) => row.id === openRecommendationRow.id,
+  );
+  const attachedExistingDecisionRow = attachedRows.find(
+    (row) => row.id === stage2aExistingDecisionRow.id,
+  );
+
+  assert.ok(attachedRecommendationRow, "Recommendation row should be returned.");
+  assert.equal(
+    attachedRecommendationRow.microSkillRecommendation?.recommendationStatus,
+    "recommended",
+  );
+  assert.equal(
+    attachedRecommendationRow.microSkillRecommendation?.recommendationAuthority,
+    "known_match",
+  );
+  assert.equal(
+    attachedRecommendationRow.microSkillRecommendation?.rankedMicroSkillCandidates[0]
+      ?.microSkillKey,
+    "d4.final_e_missing",
+  );
+  assert.equal(attachedRecommendationRow.microSkillRecommendation?.isPrefillAllowed, true);
+  assert.equal(
+    attachedExistingDecisionRow?.microSkillRecommendation,
+    null,
+    "Existing parent/canonical decisions must own displayed skill values over suggestion-only data.",
+  );
+  assert.equal(
+    fakeSupabase.readTables.includes("micro_skill_catalog"),
+    true,
+    "Slice 2B attachment should read active D4 catalog metadata through the Slice 2A read model.",
+  );
+  assert.deepEqual(
+    canonicalLookupCalls,
+    [{
+      misspellingNormalized: "hav",
+      correctSpellingNormalized: "have",
+    }],
+    "Service-role canonical recommendation lookup should run only for eligible open rows after ownership-gated Review Work loading.",
+  );
+  assert.equal(
+    fakeSupabase.readTables.includes("spelling_canonical_mappings"),
+    true,
+    "Parent-scoped canonical read denial should remain fail-soft while the server-only exact-pair signal supplies Known Match.",
+  );
+
+  const beforeSummary = summarizeUnifiedSpellingReviewCompletion([openRecommendationRow]);
+  const afterSummary = summarizeUnifiedSpellingReviewCompletion([attachedRecommendationRow]);
+
+  assert.equal(beforeSummary.canComplete, false);
+  assert.equal(afterSummary.canComplete, false);
+  assert.equal(
+    afterSummary.unresolvedCategorisationCount,
+    beforeSummary.unresolvedCategorisationCount,
+    "Suggestion-only recommendation data must not unlock completion.",
+  );
+}
+
+const summaryFunctionSource = helperSource.slice(
+  helperSource.indexOf("export function summarizeUnifiedSpellingReviewCompletion"),
+  helperSource.indexOf("function parseMetadata"),
+);
+assert.doesNotMatch(
+  summaryFunctionSource,
+  /microSkillRecommendation/,
+  "Unified completion gating must ignore suggestion-only recommendation data.",
+);
+assert.match(
+  helperSource,
+  /function rowCanReceiveSuggestionOnlyPrefill[\s\S]*row\.categorisationStatus !== "categorisation_needed"/,
+  "Slice 2B recommendations should attach only to rows still needing categorisation.",
+);
+assert.match(
+  helperSource,
+  /row\.sourceIds\.parentVerificationId[\s\S]*row\.sourceIds\.catalogReviewCaseId[\s\S]*row\.sourceIds\.candidateMappingId/,
+  "Existing parent verification, catalog review, and parent-local mapping ownership must beat suggestion-only data.",
+);
+assert.match(
+  tableSource,
+  /const recommendationPrefillAllowed =[\s\S]*routeIsOpen[\s\S]*row\.microSkillRecommendation\?\.isPrefillAllowed === true[\s\S]*Boolean\(recommendationOption\)/,
+  "The table must prefill only open rows with an available active option.",
+);
+assert.match(
+  tableSource,
+  /row\.microSkillRecommendation\.recommendedFamilyKey ===[\s\S]*recommendationOption\?\.skillFamilyKey[\s\S]*recommendedClusterKey[\s\S]*recommendationOption\?\.skillClusterKey/,
+  "The table must verify recommended family and cluster before prefill.",
+);
+assert.match(
+  tableSource,
+  /label: "Known Match"[\s\S]*label: "Your Match"[\s\S]*label: "Possible Match"[\s\S]*label: "No Match Yet"[\s\S]*label: "Check Manually"/,
+  "The table should render compact parent-facing recommendation badges.",
+);
+assert.match(
+  tableSource,
+  /Readable canonical mapping supports this spelling pair/,
+  "Known Match should be reserved for readable canonical exact-pair support.",
+);
+assert.match(
+  tableSource,
+  /same-child parent-local promoted mapping supports this spelling pair/,
+  "Your Match should describe same-scope parent-local promoted support.",
+);
+assert.match(
+  tableSource,
+  /Competing candidates are too close/,
+  "Check Manually should be reserved for real competing-candidate conflicts.",
+);
+assert.doesNotMatch(
+  tableSource,
+  /Suggested by the spelling helper\. Please confirm or change before approving\./,
+  "Compact table rows must not show verbose helper sentences under dropdowns.",
+);
+assert.doesNotMatch(
+  tableSource,
+  /Possible skill conflict\. Please review manually\./,
+  "Compact table rows should not show verbose conflict helper sentences.",
+);
+assert.doesNotMatch(
+  tableSource,
+  /No confident skill suggestion yet\. Choose a skill or send to catalog review\./,
+  "Compact table rows should not show verbose low-confidence helper sentences.",
+);
+assert.match(
+  tableSource,
+  /const selectedSuggested =[\s\S]*microSkillKey === row\.suggestedMicroSkillKey/,
+  "Confirm-as-accepted should remain tied to existing engine suggested skill, not Slice 2A recommendation data.",
+);
+assert.match(
+  tableSource,
+  /name="micro_skill_key" value=\{microSkillKey\}/,
+  "Parent overrides and recommendation confirmations must submit through the existing selected micro-skill flow.",
+);
+assert.match(
+  tableSource,
+  /value="false_positive"/,
+  "False-positive action should remain available through the existing row action.",
+);
+assert.match(
+  tableSource,
+  /No matching skill: send to admin review/,
+  "No Matching Skill path should remain available through the existing row action.",
+);
+
+runStage2aRecommendationAttachmentRegression()
+  .then(() => {
+    console.log("writing-engine-unified-spelling-review-items-regression: ok");
+  })
+  .catch((error: unknown) => {
+    console.error(error);
+    process.exitCode = 1;
+  });

@@ -1,6 +1,6 @@
 import "server-only";
 
-import { createServiceRoleClient } from "@/lib/supabase/service-role";
+import { createServiceRoleClient } from "../../supabase/service-role";
 
 type ServiceRoleClient = ReturnType<typeof createServiceRoleClient>;
 
@@ -59,6 +59,23 @@ type ResolverVisibleCanonicalMappingEventRow = {
 
 type ResolverVisibleMicroSkillRow = {
   micro_skill_key: string;
+};
+
+type RecommendationCanonicalExactPairMappingRow = {
+  id: string;
+  misspelling_normalized: string;
+  correct_spelling_normalized: string;
+  micro_skill_key: string;
+  mapping_status: string;
+  resolver_visibility_status: SpellingCanonicalResolverVisibilityStatus;
+};
+
+export type RecommendationCanonicalExactPairMappingSignal = {
+  mappingId: string;
+  misspellingNormalized: string;
+  correctSpellingNormalized: string;
+  microSkillKey: string;
+  resolverVisibilityStatus: SpellingCanonicalResolverVisibilityStatus;
 };
 
 export type CreateSpellingCanonicalMappingInput = {
@@ -151,6 +168,40 @@ function normaliseResolverVisibleCanonicalMappingRow(
 
 function dedupeStrings(values: string[]) {
   return Array.from(new Set(values.map((value) => value.trim()).filter(Boolean)));
+}
+
+function normaliseRecommendationCanonicalExactPairMappingRow(
+  value: unknown,
+): RecommendationCanonicalExactPairMappingRow | null {
+  if (!value || typeof value !== "object") {
+    return null;
+  }
+
+  const candidate = value as Partial<RecommendationCanonicalExactPairMappingRow>;
+
+  if (
+    typeof candidate.id !== "string" ||
+    typeof candidate.misspelling_normalized !== "string" ||
+    typeof candidate.correct_spelling_normalized !== "string" ||
+    typeof candidate.micro_skill_key !== "string" ||
+    candidate.mapping_status !== "active" ||
+    (
+      candidate.resolver_visibility_status !== "hidden" &&
+      candidate.resolver_visibility_status !== "visible" &&
+      candidate.resolver_visibility_status !== "disabled"
+    )
+  ) {
+    return null;
+  }
+
+  return {
+    id: candidate.id,
+    misspelling_normalized: candidate.misspelling_normalized,
+    correct_spelling_normalized: candidate.correct_spelling_normalized,
+    micro_skill_key: candidate.micro_skill_key,
+    mapping_status: candidate.mapping_status,
+    resolver_visibility_status: candidate.resolver_visibility_status,
+  };
 }
 
 export async function createSpellingCanonicalMappingAdmin(input: {
@@ -284,6 +335,109 @@ export async function adoptSpellingCanonicalMappingRecommendationAdmin(input: {
   }
 
   return data;
+}
+
+export async function findRecommendationCanonicalExactPairMappings(input: {
+  supabase?: ServiceRoleClient;
+  misspellingNormalized: string | null | undefined;
+  correctSpellingNormalized: string | null | undefined;
+  dialectCode?: string | null;
+  normalizationVersion?: string | null;
+}): Promise<RecommendationCanonicalExactPairMappingSignal[]> {
+  const misspellingNormalized = normalizeLookupText(input.misspellingNormalized);
+  const correctSpellingNormalized = normalizeLookupText(
+    input.correctSpellingNormalized,
+  );
+
+  if (!misspellingNormalized || !correctSpellingNormalized) {
+    return [];
+  }
+
+  const dialectCode = normalizeLookupCode(input.dialectCode, "en-GB");
+  const normalizationVersion = normalizeLookupCode(
+    input.normalizationVersion,
+    "spelling_normalize_v1",
+  );
+  const supabase = input.supabase ?? createServiceRoleClient();
+
+  const { data: mappingRows, error: mappingError } = await supabase
+    .from("spelling_canonical_mappings")
+    .select(
+      [
+        "id",
+        "misspelling_normalized",
+        "correct_spelling_normalized",
+        "micro_skill_key",
+        "mapping_status",
+        "resolver_visibility_status",
+      ].join(", "),
+    )
+    .eq("misspelling_normalized", misspellingNormalized)
+    .eq("correct_spelling_normalized", correctSpellingNormalized)
+    .eq("dialect_code", dialectCode)
+    .eq("normalization_version", normalizationVersion)
+    .eq("mapping_status", "active")
+    .order("created_at", { ascending: true });
+
+  if (mappingError) {
+    throw new Error(
+      mappingError.message ||
+        "Failed to read recommendation canonical exact-pair mappings.",
+    );
+  }
+
+  const mappings = ((mappingRows ?? []) as unknown[])
+    .map((row) => normaliseRecommendationCanonicalExactPairMappingRow(row))
+    .filter(Boolean) as RecommendationCanonicalExactPairMappingRow[];
+
+  if (mappings.length === 0) {
+    return [];
+  }
+
+  const candidateMicroSkillKeys = dedupeStrings(
+    mappings.map((mapping) => mapping.micro_skill_key),
+  );
+
+  const { data: microSkillRows, error: microSkillError } = await supabase
+    .from("micro_skill_catalog")
+    .select("micro_skill_key")
+    .in("micro_skill_key", candidateMicroSkillKeys)
+    .eq("mastery_domain_key", "D4")
+    .eq("is_active", true)
+    .eq("is_assignable", true);
+
+  if (microSkillError) {
+    throw new Error(
+      microSkillError.message ||
+        "Failed to validate recommendation canonical exact-pair micro-skills.",
+    );
+  }
+
+  const validMicroSkillKeys = new Set(
+    ((microSkillRows ?? []) as unknown[])
+      .map((row) => row as Partial<ResolverVisibleMicroSkillRow>)
+      .map((row) => row.micro_skill_key)
+      .filter((value): value is string => typeof value === "string"),
+  );
+  const selectedByMicroSkill = new Map<string, RecommendationCanonicalExactPairMappingRow>();
+
+  for (const mapping of mappings) {
+    if (!validMicroSkillKeys.has(mapping.micro_skill_key)) {
+      continue;
+    }
+
+    if (!selectedByMicroSkill.has(mapping.micro_skill_key)) {
+      selectedByMicroSkill.set(mapping.micro_skill_key, mapping);
+    }
+  }
+
+  return [...selectedByMicroSkill.values()].map((mapping) => ({
+    mappingId: mapping.id,
+    misspellingNormalized: mapping.misspelling_normalized,
+    correctSpellingNormalized: mapping.correct_spelling_normalized,
+    microSkillKey: mapping.micro_skill_key,
+    resolverVisibilityStatus: mapping.resolver_visibility_status,
+  }));
 }
 
 export async function findResolverVisibleExactPairMapping(input: {

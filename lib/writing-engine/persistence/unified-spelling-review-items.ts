@@ -6,6 +6,15 @@ import type {
   WritingIssueSuggestionSource,
   WritingIssueSuggestionStatus,
 } from "../../writing-practice/types";
+import { buildStage2aMicroSkillRecommendationReadModel } from "./stage2a-micro-skill-recommendation";
+import type {
+  RecommendationCanonicalExactPairMappingSignal,
+} from "./spelling-canonical-mappings";
+import {
+  recommendStage2aMicroSkillForSpellingPair,
+  type WritingEngineStage2aCanonicalMappingSignal,
+  type WritingEngineStage2aRecommendationResult,
+} from "../spelling/stage2a-micro-skill-recommendation";
 
 type SupabaseQueryBuilder = PromiseLike<{ data: unknown }> & {
   eq(column: string, value: unknown): SupabaseQueryBuilder;
@@ -20,6 +29,11 @@ type SupabaseServerClient = {
     select(columns: string): SupabaseQueryBuilder;
   };
 };
+
+type RecommendationCanonicalExactPairLookup = (input: {
+  misspellingNormalized: string | null | undefined;
+  correctSpellingNormalized: string | null | undefined;
+}) => Promise<RecommendationCanonicalExactPairMappingSignal[]>;
 
 type TaskSubmissionThreadRow = {
   id: string;
@@ -62,6 +76,7 @@ export type UnifiedSpellingReviewItem = {
   suggestedMicroSkillKey: string | null;
   verifiedMicroSkillKey: string | null;
   microSkillKey: string | null;
+  microSkillRecommendation: WritingEngineStage2aRecommendationResult | null;
   parentNote: string | null;
   sourceIds: {
     currentTaskSubmissionId: string;
@@ -874,6 +889,7 @@ export function buildUnifiedSpellingReviewItems(
         verification?.verified_micro_skill_key ??
         verification?.suggested_micro_skill_key ??
         suggestedMicroSkillKey,
+      microSkillRecommendation: null,
       parentNote:
         verification?.verification_notes ??
         writingIssue?.parent_review_note ??
@@ -963,6 +979,7 @@ export function buildUnifiedSpellingReviewItems(
         suggestedMicroSkillKey: null,
         verifiedMicroSkillKey: null,
         microSkillKey: candidateMapping?.micro_skill_key ?? issue.micro_skill_key,
+        microSkillRecommendation: null,
         parentNote: issue.parent_review_note ?? issue.notes ?? attempt?.attempt_notes ?? null,
         sourceIds: {
           currentTaskSubmissionId: input.submissionId,
@@ -1001,6 +1018,92 @@ export function buildUnifiedSpellingReviewItems(
   });
 
   return [...currentReviewItems, ...returnedCorrectionItems];
+}
+
+function rowCanReceiveSuggestionOnlyPrefill(row: UnifiedSpellingReviewItem) {
+  if (!row.expectedCorrection || !row.observedText) {
+    return false;
+  }
+
+  if (row.categorisationStatus !== "categorisation_needed") {
+    return false;
+  }
+
+  if (
+    row.sourceIds.parentVerificationId ||
+    row.sourceIds.catalogReviewCaseId ||
+    row.sourceIds.candidateMappingId ||
+    hasMeaningfulMicroSkillKey(row.verifiedMicroSkillKey) ||
+    hasMeaningfulMicroSkillKey(row.microSkillKey) ||
+    hasMeaningfulMicroSkillKey(row.suggestedMicroSkillKey)
+  ) {
+    return false;
+  }
+
+  return true;
+}
+
+export async function attachStage2aMicroSkillRecommendationsToUnifiedRows(input: {
+  supabase: SupabaseServerClient;
+  rows: UnifiedSpellingReviewItem[];
+  parentUserId: string;
+  childId: string;
+  submissionId: string;
+  canonicalExactPairLookup?: RecommendationCanonicalExactPairLookup;
+}) {
+  const canonicalExactPairLookup =
+    input.canonicalExactPairLookup ??
+    (async (lookupInput) => {
+      const { findRecommendationCanonicalExactPairMappings } = await import(
+        "./spelling-canonical-mappings"
+      );
+
+      return findRecommendationCanonicalExactPairMappings(lookupInput);
+    });
+
+  return Promise.all(
+    input.rows.map(async (row) => {
+      if (!rowCanReceiveSuggestionOnlyPrefill(row)) {
+        return row;
+      }
+
+      const trustedCanonicalMappings =
+        await canonicalExactPairLookup({
+          misspellingNormalized: row.observedText,
+          correctSpellingNormalized: row.expectedCorrection,
+        });
+      const recommendationInput = await buildStage2aMicroSkillRecommendationReadModel({
+        supabase: input.supabase as never,
+        misspelling: row.observedText,
+        correction: row.expectedCorrection,
+        contextText:
+          typeof row.provenance.metadata.context_text === "string"
+            ? row.provenance.metadata.context_text
+            : null,
+        parentUserId: input.parentUserId,
+        childId: input.childId,
+        taskSubmissionId: input.submissionId,
+        writingSampleId: row.sourceIds.writingSampleId,
+        trustedCanonicalMappings: trustedCanonicalMappings.map(
+          (mapping): WritingEngineStage2aCanonicalMappingSignal => ({
+            mappingId: mapping.mappingId,
+            misspellingNormalized: mapping.misspellingNormalized,
+            correctSpellingNormalized: mapping.correctSpellingNormalized,
+            microSkillKey: mapping.microSkillKey,
+            mappingStatus: "active",
+          }),
+        ),
+      });
+      const recommendation = recommendStage2aMicroSkillForSpellingPair(
+        recommendationInput,
+      );
+
+      return {
+        ...row,
+        microSkillRecommendation: recommendation,
+      };
+    }),
+  );
 }
 
 export async function loadUnifiedSpellingReviewItemsForSubmission(input: {
@@ -1243,7 +1346,7 @@ export async function loadUnifiedSpellingReviewItemsForSubmission(input: {
           .order("created_at", { ascending: false })
       : { data: [] };
 
-  return buildUnifiedSpellingReviewItems({
+  const unifiedRows = buildUnifiedSpellingReviewItems({
     submissionId: input.submissionId,
     writingSampleId,
     misspellings: (misspellingRows ?? []) as UnifiedSpellingReviewMisspellingRow[],
@@ -1261,5 +1364,13 @@ export async function loadUnifiedSpellingReviewItemsForSubmission(input: {
     canonicalRecommendations:
       (canonicalRecommendationRows ??
         []) as UnifiedSpellingReviewCanonicalRecommendationRow[],
+  });
+
+  return attachStage2aMicroSkillRecommendationsToUnifiedRows({
+    supabase,
+    rows: unifiedRows,
+    parentUserId: input.parentUserId,
+    childId: input.childId,
+    submissionId: input.submissionId,
   });
 }

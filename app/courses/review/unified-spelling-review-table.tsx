@@ -220,6 +220,52 @@ function findOption(
   return options.find((option) => option.microSkillKey === microSkillKey) ?? null;
 }
 
+function recommendationBadge(row: UnifiedSpellingReviewItem) {
+  switch (row.microSkillRecommendation?.recommendationAuthority) {
+    case "known_match":
+      return {
+        label: "Known Match",
+        title: "Readable canonical mapping supports this spelling pair. Please still confirm or change before approving.",
+        className: "border-emerald-200 bg-emerald-50 text-emerald-800",
+      };
+    case "your_match":
+      return {
+        label: "Your Match",
+        title: "A same-child parent-local promoted mapping supports this spelling pair. Please still confirm or change before approving.",
+        className: "border-sky-200 bg-sky-50 text-sky-800",
+      };
+    case "possible_match":
+      return {
+        label: "Possible Match",
+        title: "Pattern or reviewed evidence suggests this route. This is not parent confirmation.",
+        className: "border-violet-200 bg-violet-50 text-violet-800",
+      };
+    case "no_match_yet":
+      return {
+        label: "No Match Yet",
+        title: "No confident existing skill suggestion is available. Choose a skill or send to catalog review.",
+        className: "border-[var(--border)] bg-white text-[color:var(--mid)]",
+      };
+    case "check_manually":
+      return {
+        label: "Check Manually",
+        title: "Competing candidates are too close. Please review manually.",
+        className: "border-amber-200 bg-amber-50 text-amber-800",
+      };
+    case "none":
+    default:
+      return null;
+  }
+}
+
+function noMatchYetBadge() {
+  return {
+    label: "No Match Yet",
+    title: "No confident existing skill suggestion is available. Choose a skill or send to catalog review.",
+    className: "border-[var(--border)] bg-white text-[color:var(--mid)]",
+  };
+}
+
 function UnifiedSpellingReviewTableRow({
   row,
   options,
@@ -234,39 +280,6 @@ function UnifiedSpellingReviewTableRow({
   redirectPath: string;
 }) {
   const marker = sourceMarker(row);
-  const initialSkill =
-    isMeaningfulSkill(row.verifiedMicroSkillKey)
-      ? row.verifiedMicroSkillKey
-      : isMeaningfulSkill(row.microSkillKey)
-        ? row.microSkillKey
-        : isMeaningfulSkill(row.suggestedMicroSkillKey)
-          ? row.suggestedMicroSkillKey
-          : "";
-  const initialSkillOption = findOption(options, initialSkill ?? null);
-  const firstFamily = initialSkillOption?.skillFamilyKey ?? "";
-  const [familyKey, setFamilyKey] = useState(firstFamily);
-  const clusters = useMemo(
-    () => buildClusters(options, familyKey),
-    [familyKey, options],
-  );
-  const firstCluster =
-    initialSkillOption?.skillFamilyKey === familyKey
-      ? initialSkillOption.skillClusterKey ?? ""
-      : "";
-  const [clusterKey, setClusterKey] = useState(firstCluster);
-  const filteredMicroSkills = useMemo(
-    () =>
-      options
-        .filter(
-          (option) =>
-            option.skillFamilyKey === familyKey &&
-            (option.skillClusterKey ?? "") === clusterKey,
-        )
-        .sort((left, right) => left.displayName.localeCompare(right.displayName)),
-    [clusterKey, familyKey, options],
-  );
-  const [microSkillKey, setMicroSkillKey] = useState(initialSkill ?? "");
-  const [detailsOpen, setDetailsOpen] = useState(false);
   const sourceMisspellingId = row.sourceIds.misspellingInstanceId;
   const currentRouteIsOpen =
     row.source !== "returned_correction" &&
@@ -291,6 +304,61 @@ function UnifiedSpellingReviewTableRow({
     !row.sourceIds.candidateMappingId &&
     row.categorisationStatus === "categorisation_needed";
   const routeIsOpen = currentRouteIsOpen || returnedRouteIsOpen;
+  const recommendationOption = findOption(
+    options,
+    row.microSkillRecommendation?.recommendedMicroSkillKey ?? null,
+  );
+  const recommendationPrefillAllowed =
+    routeIsOpen &&
+    row.microSkillRecommendation?.isPrefillAllowed === true &&
+    Boolean(recommendationOption) &&
+    row.microSkillRecommendation.recommendedFamilyKey ===
+      recommendationOption?.skillFamilyKey &&
+    (row.microSkillRecommendation.recommendedClusterKey ?? "") ===
+      (recommendationOption?.skillClusterKey ?? "");
+  const initialSkillCandidate =
+    isMeaningfulSkill(row.verifiedMicroSkillKey)
+      ? row.verifiedMicroSkillKey
+      : isMeaningfulSkill(row.microSkillKey)
+        ? row.microSkillKey
+        : isMeaningfulSkill(row.suggestedMicroSkillKey)
+          ? row.suggestedMicroSkillKey
+          : recommendationPrefillAllowed
+            ? row.microSkillRecommendation?.recommendedMicroSkillKey ?? ""
+            : "";
+  const initialSkill = initialSkillCandidate ?? "";
+  const initialSkillOption = findOption(options, initialSkill ?? null);
+  const initialSkillCameFromRecommendation =
+    recommendationPrefillAllowed &&
+    initialSkill.length > 0 &&
+    initialSkill === row.microSkillRecommendation?.recommendedMicroSkillKey &&
+    !isMeaningfulSkill(row.verifiedMicroSkillKey) &&
+    !isMeaningfulSkill(row.microSkillKey) &&
+    !isMeaningfulSkill(row.suggestedMicroSkillKey);
+  const firstFamily = initialSkillOption?.skillFamilyKey ?? "";
+  const [familyKey, setFamilyKey] = useState(firstFamily);
+  const clusters = useMemo(
+    () => buildClusters(options, familyKey),
+    [familyKey, options],
+  );
+  const firstCluster =
+    initialSkillOption?.skillFamilyKey === familyKey
+      ? initialSkillOption.skillClusterKey ?? ""
+      : "";
+  const [clusterKey, setClusterKey] = useState(firstCluster);
+  const filteredMicroSkills = useMemo(
+    () =>
+      options
+        .filter(
+          (option) =>
+            option.skillFamilyKey === familyKey &&
+            (option.skillClusterKey ?? "") === clusterKey,
+        )
+        .sort((left, right) => left.displayName.localeCompare(right.displayName)),
+    [clusterKey, familyKey, options],
+  );
+  const [microSkillKey, setMicroSkillKey] = useState(initialSkill ?? "");
+  const [detailsOpen, setDetailsOpen] = useState(false);
   const suggestedSkillIsUsable = isMeaningfulSkill(row.suggestedMicroSkillKey);
   const noMatchingSkillSelected = familyKey === NO_MATCHING_SKILL_VALUE;
   const selectedSuggested =
@@ -318,6 +386,11 @@ function UnifiedSpellingReviewTableRow({
   const currentFamilySelectorOpen = routeIsOpen;
   const dependentSkillDisabled = skillDisabled || noMatchingSkillSelected;
   const selectedSkillOption = findOption(options, microSkillKey);
+  const recommendationBadgeModel =
+    routeIsOpen
+      ? recommendationBadge(row) ??
+        (!selectedSkillOption && !suggestedSkillIsUsable ? noMatchYetBadge() : null)
+      : null;
   const detailsId = `spelling-review-details-${row.id.replace(/[^a-zA-Z0-9_-]/g, "-")}`;
   const historicalFullAnswerAttempt =
     typeof row.provenance.metadata.historical_full_answer_attempt === "string"
@@ -450,6 +523,14 @@ function UnifiedSpellingReviewTableRow({
                 </option>
               ))}
             </select>
+            {recommendationBadgeModel ? (
+              <span
+                title={recommendationBadgeModel.title}
+                className={`inline-flex w-fit rounded border px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] ${recommendationBadgeModel.className}`}
+              >
+                {recommendationBadgeModel.label}
+              </span>
+            ) : null}
           </div>
         </td>
         <td className="overflow-visible px-3 py-2">
@@ -670,6 +751,15 @@ function UnifiedSpellingReviewTableRow({
               {row.parentNote ? <p>Parent note: {row.parentNote}</p> : null}
               {row.childReflection ? <p>Reflection: {row.childReflection}</p> : null}
               {selectedSkillOption ? <p>Skill: {selectedSkillOption.displayName}</p> : null}
+              {row.microSkillRecommendation ? (
+                <p>
+                  Spelling helper:
+                  {" "}
+                  {row.microSkillRecommendation.recommendationStatus}
+                  {" · "}
+                  {row.microSkillRecommendation.reason}
+                </p>
+              ) : null}
               {row.correctionOutcome ? (
                 <p>Outcome: {getWritingIssueFinalClassificationLabel(row.correctionOutcome)}</p>
               ) : null}
