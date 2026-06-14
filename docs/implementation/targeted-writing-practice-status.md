@@ -232,6 +232,31 @@ Canonical documentation now defers to:
     catalog behavior changed
   - next Slice `4` implementation work is `4A.2`: optional read-only
     `micro_skill_catalog` and canonical mapping comparison
+- Version 2.0 Slice `4A.2` is implemented as optional read-only catalog and
+  canonical comparison:
+  - the dry-run planner can optionally compare against `micro_skill_catalog`
+    and `spelling_canonical_mappings`
+  - Supabase connection is never created unless an explicit read-only flag is
+    passed
+  - local/dev read-only comparison is supported first; hosted read-only
+    comparison requires explicit hosted opt-in
+  - comparison uses anon-key access only and no service-role path
+  - unknown, inactive, non-assignable, and non-`D4` skills are rejected from
+    import in the dry-run report
+  - active hidden/non-visible canonical mappings count as canonical comparison
+    truth, but resolver visibility is not required
+  - same-pair/same-skill canonical matches are manual-review signals
+  - same-pair/different-skill canonical mappings are rejected as conflicts
+  - no-mutation guard refuses `insert`, `update`, `upsert`, `delete`, and
+    `rpc`, and compared protected-table counts are checked before and after DB
+    comparison
+  - no migrations, Supabase writes, service-role use, runtime app changes,
+    Review Work changes, resolver changes, assignment/mastery/reward/dashboard/
+    analytics/scoring/template changes, `micro_skill_catalog` mutation,
+    canonical mapping creation, DB-backed seed storage, hidden canonical
+    import, or resolver-visible import were introduced
+  - next Slice `4` implementation work is `4A.3`: optional read-only
+    supporting evidence comparison
 - A bounded post-Stage-`7` parent-facing evidence-transparency slice is now
   complete.
 - The app is currently suitable for private parent-led use with one child,

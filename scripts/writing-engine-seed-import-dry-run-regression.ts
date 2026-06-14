@@ -4,9 +4,11 @@ import os from "os";
 import path from "path";
 
 import {
+  applyReadOnlyCatalogCanonicalComparison,
   buildSeedImportDryRunReport,
   renderMarkdownSummary,
   runSeedImportDryRun,
+  wrapReadOnlySupabaseClient,
 } from "./writing-engine-seed-import-dry-run";
 
 function assertIncludes(values: string[], expected: string) {
@@ -33,14 +35,17 @@ function testFileOnlyValidation() {
     now: new Date("2026-06-14T12:00:00.000Z"),
   });
 
-  assert.strictEqual(report.schema_version, "version_2_slice_4a_1");
+  assert.strictEqual(report.schema_version, "version_2_slice_4a_2");
   assert.strictEqual(report.dry_run_only, true);
   assert.strictEqual(report.input_format, "csv");
   assert.strictEqual(report.normalization_version, "spelling_normalize_v1");
+  assert.strictEqual(report.database_comparison_mode, "none");
   assert.strictEqual(report.summary.total_rows, 6);
   assert.strictEqual(report.summary.safe_for_candidate_review, 1);
   assert.strictEqual(report.summary.manual_review_required, 3);
   assert.strictEqual(report.summary.rejected_from_import, 2);
+  assert.strictEqual(report.skill_validation_summary.not_checked, 6);
+  assert.strictEqual(report.canonical_mapping_summary.not_checked, true);
   assert.strictEqual(report.duplicate_groups.length, 1);
   assert.deepStrictEqual(report.duplicate_groups[0].row_numbers, [2, 3]);
   assert.strictEqual(report.conflict_groups.length, 1);
@@ -80,8 +85,9 @@ function testFileOnlyValidation() {
 
   const summary = renderMarkdownSummary(report);
   assert(summary.includes("Dry run only: `true`"));
+  assert(summary.includes("Database comparison mode: `none`"));
   assert(summary.includes("Row 5: Misspelling and correction normalize to the same value."));
-  assert(summary.includes("No Supabase connection is created."));
+  assert(summary.includes("Supabase comparison is optional and read-only."));
 }
 
 function testMissingRequiredColumns() {
@@ -104,7 +110,138 @@ function testMissingRequiredColumns() {
   );
 }
 
-function testReportWrites() {
+function testCatalogAndCanonicalComparison() {
+  const csv = [
+    "misspelling,correction,suggested_micro_skill_key,confidence,source,note",
+    "buisness,business,D4_ACTIVE,0.9,manual,curated",
+    "natrual,natural,D4_UNKNOWN,0.9,manual,curated",
+    "hav,have,D4_INACTIVE,0.9,manual,curated",
+    "gras,grass,D4_NON_ASSIGNABLE,0.9,manual,curated",
+    "taik,take,D3_NON_D4,0.9,manual,curated",
+    "recieve,receive,D4_CONFLICT,0.9,manual,curated",
+    "hidden,hid,D4_ACTIVE,0.9,manual,curated",
+  ].join("\n");
+  const report = buildSeedImportDryRunReport({
+    csvText: csv,
+    inputFile: "comparison.csv",
+    now: new Date("2026-06-14T12:00:00.000Z"),
+    comparisonData: {
+      microSkills: [
+        {
+          micro_skill_key: "D4_ACTIVE",
+          mastery_domain_key: "D4",
+          is_active: true,
+          is_assignable: true,
+        },
+        {
+          micro_skill_key: "D4_INACTIVE",
+          mastery_domain_key: "D4",
+          is_active: false,
+          is_assignable: true,
+        },
+        {
+          micro_skill_key: "D4_NON_ASSIGNABLE",
+          mastery_domain_key: "D4",
+          is_active: true,
+          is_assignable: false,
+        },
+        {
+          micro_skill_key: "D3_NON_D4",
+          mastery_domain_key: "D3",
+          is_active: true,
+          is_assignable: true,
+        },
+        {
+          micro_skill_key: "D4_CONFLICT",
+          mastery_domain_key: "D4",
+          is_active: true,
+          is_assignable: true,
+        },
+        {
+          micro_skill_key: "D4_CANONICAL_OTHER",
+          mastery_domain_key: "D4",
+          is_active: true,
+          is_assignable: true,
+        },
+      ],
+      canonicalMappings: [
+        {
+          id: "canonical-business",
+          misspelling_normalized: "buisness",
+          correct_spelling_normalized: "business",
+          micro_skill_key: "D4_ACTIVE",
+          mapping_status: "active",
+          dialect_code: "en-GB",
+          normalization_version: "spelling_normalize_v1",
+        },
+        {
+          id: "canonical-receive-conflict",
+          misspelling_normalized: "recieve",
+          correct_spelling_normalized: "receive",
+          micro_skill_key: "D4_CANONICAL_OTHER",
+          mapping_status: "active",
+          dialect_code: "en-GB",
+          normalization_version: "spelling_normalize_v1",
+        },
+        {
+          id: "canonical-hidden",
+          misspelling_normalized: "hidden",
+          correct_spelling_normalized: "hid",
+          micro_skill_key: "D4_ACTIVE",
+          mapping_status: "active",
+          dialect_code: "en-GB",
+          normalization_version: "spelling_normalize_v1",
+        },
+      ],
+    },
+  });
+
+  assert.strictEqual(report.database_comparison_mode, "fixture");
+  assert.strictEqual(report.summary.safe_for_candidate_review, 0);
+  assert.strictEqual(report.summary.manual_review_required, 2);
+  assert.strictEqual(report.summary.rejected_from_import, 5);
+  assert.strictEqual(report.skill_validation_summary.active_assignable_d4, 3);
+  assert.strictEqual(report.skill_validation_summary.unknown, 1);
+  assert.strictEqual(report.skill_validation_summary.inactive, 1);
+  assert.strictEqual(report.skill_validation_summary.non_assignable, 1);
+  assert.strictEqual(report.skill_validation_summary.non_d4, 1);
+  assert.strictEqual(report.canonical_mapping_summary.same_pair_same_skill_matches, 2);
+  assert.strictEqual(report.canonical_mapping_summary.same_pair_different_skill_conflicts, 1);
+  assert.strictEqual(report.canonical_mapping_summary.hidden_or_non_visible_matches_counted, 3);
+
+  const sameSkillRow = report.rows.find((row) => row.row_number === 2);
+  assert(sameSkillRow);
+  assert.strictEqual(sameSkillRow.bucket, "manual_review_required");
+  assert.deepStrictEqual(sameSkillRow.matching_existing_canonical_mapping_ids, [
+    "canonical-business",
+  ]);
+
+  const unknownSkillRow = report.rows.find((row) => row.row_number === 3);
+  assert(unknownSkillRow);
+  assert.strictEqual(unknownSkillRow.bucket, "rejected_from_import");
+  assert.strictEqual(unknownSkillRow.skill_validation_status, "unknown");
+
+  const inactiveSkillRow = report.rows.find((row) => row.row_number === 4);
+  assert(inactiveSkillRow);
+  assert.strictEqual(inactiveSkillRow.skill_validation_status, "inactive");
+
+  const nonAssignableSkillRow = report.rows.find((row) => row.row_number === 5);
+  assert(nonAssignableSkillRow);
+  assert.strictEqual(nonAssignableSkillRow.skill_validation_status, "non_assignable");
+
+  const nonD4SkillRow = report.rows.find((row) => row.row_number === 6);
+  assert(nonD4SkillRow);
+  assert.strictEqual(nonD4SkillRow.skill_validation_status, "non_d4");
+
+  const conflictRow = report.rows.find((row) => row.row_number === 7);
+  assert(conflictRow);
+  assert.strictEqual(conflictRow.bucket, "rejected_from_import");
+  assert.deepStrictEqual(conflictRow.conflicting_existing_canonical_mapping_ids, [
+    "canonical-receive-conflict",
+  ]);
+}
+
+async function testReportWrites() {
   const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "seed-import-dry-run-"));
   const inputPath = path.join(tempDir, "candidates.csv");
   fs.writeFileSync(
@@ -115,7 +252,7 @@ function testReportWrites() {
     ].join("\n"),
   );
 
-  const result = runSeedImportDryRun({
+  const result = await runSeedImportDryRun({
     inputFile: inputPath,
     outDir: path.join(tempDir, "reports"),
     now: new Date("2026-06-14T12:00:00.000Z"),
@@ -136,23 +273,58 @@ function testNoSupabaseBoundary() {
     "utf8",
   );
 
-  assert(!scriptText.includes("@supabase"));
-  assert(!scriptText.includes("createClient"));
   assert(!scriptText.includes("createServiceRoleClient"));
-  assert(!/\n\s*\.from\(/.test(scriptText));
   assert(!scriptText.includes(".insert("));
   assert(!scriptText.includes(".update("));
   assert(!scriptText.includes(".upsert("));
   assert(!scriptText.includes(".delete("));
-  assert(!scriptText.includes(".rpc("));
 }
 
-function run() {
+function testNoMutationGuardRefusesWritesAndRpc() {
+  const fakeBuilder = {
+    select() {
+      return Promise.resolve({ data: [], error: null, count: 0 });
+    },
+    insert() {
+      return Promise.resolve({ data: [], error: null });
+    },
+    update() {
+      return Promise.resolve({ data: [], error: null });
+    },
+    upsert() {
+      return Promise.resolve({ data: [], error: null });
+    },
+    delete() {
+      return Promise.resolve({ data: [], error: null });
+    },
+  };
+  const fakeClient = {
+    from(_table: string) {
+      return fakeBuilder;
+    },
+  };
+  const readOnlyClient = wrapReadOnlySupabaseClient(fakeClient) as ReturnType<
+    typeof wrapReadOnlySupabaseClient<typeof fakeClient>
+  > & { rpc: (name: string) => never };
+
+  assert.throws(() => readOnlyClient.from("micro_skill_catalog").insert(), /refuses insert/);
+  assert.throws(() => readOnlyClient.from("micro_skill_catalog").update(), /refuses update/);
+  assert.throws(() => readOnlyClient.from("micro_skill_catalog").upsert(), /refuses upsert/);
+  assert.throws(() => readOnlyClient.from("micro_skill_catalog").delete(), /refuses delete/);
+  assert.throws(() => readOnlyClient.rpc("unsafe_write"), /refuses rpc/);
+}
+
+async function run() {
   testFileOnlyValidation();
   testMissingRequiredColumns();
-  testReportWrites();
+  testCatalogAndCanonicalComparison();
+  await testReportWrites();
   testNoSupabaseBoundary();
+  testNoMutationGuardRefusesWritesAndRpc();
   console.log("writing-engine-seed-import-dry-run-regression: ok");
 }
 
-run();
+run().catch((error) => {
+  console.error(error);
+  process.exitCode = 1;
+});

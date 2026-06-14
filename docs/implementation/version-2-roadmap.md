@@ -663,7 +663,7 @@ First implementation slice:
 Staged implementation breakdown:
 - `Slice 4A.0` docs registration
 - `Slice 4A.1` pure parser and file-only validator: implemented
-- `Slice 4A.2` read-only catalog and canonical comparison
+- `Slice 4A.2` read-only catalog and canonical comparison: implemented
 - `Slice 4A.3` read-only supporting evidence comparison
 - `Slice 4A.4` operator hardening and docs closeout
 - `Slice 4B` dedicated seed import storage planning

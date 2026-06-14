@@ -69,10 +69,10 @@ excluded.
   categorisation/admin/parent-local routing where safe, compact unified spelling
   table presentation, completion gating, historical terminal verification
   ownership, and `checking_only` terminal handling.
-- The next active Slice `4` work is `Slice 4A.2`: optional read-only
-  `micro_skill_catalog` and canonical mapping comparison for the dry-run
-  planner. Do not restart Parent Review spelling work unless a fresh bug is
-  found.
+- The next active Slice `4` work is `Slice 4A.3`: optional read-only
+  supporting evidence comparison for parent-local mappings, catalog-review
+  cases/decisions, and PCRM recommendations. Do not restart Parent Review
+  spelling work unless a fresh bug is found.
 
 ## Current stage
 

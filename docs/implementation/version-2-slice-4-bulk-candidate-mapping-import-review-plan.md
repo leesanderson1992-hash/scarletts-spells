@@ -551,11 +551,46 @@ Implementation closeout:
   reward, dashboard, analytics, scoring, template, or catalog behavior changed
 
 `Slice 4A.2 - read-only catalog and canonical comparison`
+- status: `implemented`
 - add optional read-only comparison with `micro_skill_catalog` and
   `spelling_canonical_mappings`
 - validate active assignable `D4` skills
 - detect existing canonical matches and conflicts
 - preserve no-mutation guard and protected-table count checks
+
+Implementation closeout:
+- extended `scripts/writing-engine-seed-import-dry-run.ts` with optional
+  read-only DB comparison gated by explicit flags
+- added `--allow-local-read-only-db`, `--allow-hosted-read-only-db`,
+  `--db-url`, `--supabase-url`, and `--supabase-anon-key` options
+- no Supabase connection is created unless a read-only flag is passed
+- local/dev read-only comparison is supported first; hosted read-only
+  comparison requires the explicit hosted opt-in flag
+- comparison reads use the anon key path only, not service-role access
+- read-only comparison validates `suggested_micro_skill_key` against
+  `micro_skill_catalog` as active, assignable, and `D4`
+- unknown, inactive, non-assignable, and non-`D4` skills are rejected from
+  import in the dry-run report
+- active hidden/non-visible canonical mappings in `spelling_canonical_mappings`
+  count as canonical comparison truth
+- same-pair/same-skill active canonical mappings are manual-review signals
+- same-pair/different-skill active canonical mappings are rejected as
+  canonical conflicts
+- resolver visibility is not required or read as authority for this comparison
+- JSON and Markdown reports now include database comparison mode, skill
+  validation summary, and canonical mapping summary
+- no-mutation guard refuses `insert`, `update`, `upsert`, `delete`, and `rpc`
+  through the guarded client
+- protected-table counts for compared tables are checked before and after DB
+  comparison and fail the comparison if counts change
+- regression coverage now covers active assignable `D4`, unknown, inactive,
+  non-assignable, non-`D4`, canonical match, canonical conflict, hidden
+  canonical comparison truth, no-mutation guard refusal, and file-only mode
+- no migrations, Supabase writes, service-role use, runtime app changes,
+  Review Work changes, resolver changes, assignment/mastery/reward/dashboard/
+  analytics/scoring/template changes, `micro_skill_catalog` mutation,
+  canonical mapping creation, DB-backed seed storage, hidden canonical import,
+  or resolver-visible import were introduced
 
 `Slice 4A.3 - read-only supporting evidence comparison`
 - add optional read-only comparison with parent-local mappings where safe,
