@@ -35,7 +35,7 @@ function testFileOnlyValidation() {
     now: new Date("2026-06-14T12:00:00.000Z"),
   });
 
-  assert.strictEqual(report.schema_version, "version_2_slice_4a_2");
+  assert.strictEqual(report.schema_version, "version_2_slice_4a_3");
   assert.strictEqual(report.dry_run_only, true);
   assert.strictEqual(report.input_format, "csv");
   assert.strictEqual(report.normalization_version, "spelling_normalize_v1");
@@ -46,6 +46,7 @@ function testFileOnlyValidation() {
   assert.strictEqual(report.summary.rejected_from_import, 2);
   assert.strictEqual(report.skill_validation_summary.not_checked, 6);
   assert.strictEqual(report.canonical_mapping_summary.not_checked, true);
+  assert.strictEqual(report.supporting_evidence_summary.not_checked, true);
   assert.strictEqual(report.duplicate_groups.length, 1);
   assert.deepStrictEqual(report.duplicate_groups[0].row_numbers, [2, 3]);
   assert.strictEqual(report.conflict_groups.length, 1);
@@ -86,6 +87,7 @@ function testFileOnlyValidation() {
   const summary = renderMarkdownSummary(report);
   assert(summary.includes("Dry run only: `true`"));
   assert(summary.includes("Database comparison mode: `none`"));
+  assert(summary.includes("Parent-local mapping matches: 0"));
   assert(summary.includes("Row 5: Misspelling and correction normalize to the same value."));
   assert(summary.includes("Supabase comparison is optional and read-only."));
 }
@@ -241,6 +243,147 @@ function testCatalogAndCanonicalComparison() {
   ]);
 }
 
+function testSupportingEvidenceComparison() {
+  const csv = [
+    "misspelling,correction,suggested_micro_skill_key,confidence,source,note",
+    "lok,look,D4_ACTIVE,0.9,manual,curated",
+    "lern,learn,D4_ACTIVE,0.9,manual,curated",
+    "frend,friend,D4_ACTIVE,0.9,manual,curated",
+  ].join("\n");
+  const report = buildSeedImportDryRunReport({
+    csvText: csv,
+    inputFile: "supporting-evidence.csv",
+    now: new Date("2026-06-14T12:00:00.000Z"),
+    comparisonData: {
+      unavailableSources: ["spelling_catalog_review_case_decisions"],
+      microSkills: [
+        {
+          micro_skill_key: "D4_ACTIVE",
+          mastery_domain_key: "D4",
+          is_active: true,
+          is_assignable: true,
+        },
+        {
+          micro_skill_key: "D4_OTHER",
+          mastery_domain_key: "D4",
+          is_active: true,
+          is_assignable: true,
+        },
+      ],
+      canonicalMappings: [],
+      parentLocalMappings: [
+        {
+          id: "parent-local-same",
+          misspelling_normalized: "lok",
+          correct_spelling_normalized: "look",
+          micro_skill_key: "D4_ACTIVE",
+          candidate_status: "parent_local_promoted",
+          promotion_scope: "parent_local",
+        },
+        {
+          id: "parent-local-different",
+          misspelling_normalized: "lok",
+          correct_spelling_normalized: "look",
+          micro_skill_key: "D4_OTHER",
+          candidate_status: "parent_local_promoted",
+          promotion_scope: "parent_local",
+        },
+      ],
+      catalogReviewCases: [
+        {
+          id: "catalog-open",
+          misspelling_normalized: "lern",
+          correct_spelling_normalized: "learn",
+          case_status: "open",
+        },
+        {
+          id: "catalog-closed",
+          misspelling_normalized: "lern",
+          correct_spelling_normalized: "learn",
+          case_status: "word_level_only",
+        },
+      ],
+      catalogReviewDecisions: [
+        {
+          id: "decision-word-level",
+          case_id: "catalog-closed",
+          decision_type: "word_level_only",
+          linked_micro_skill_key: null,
+        },
+      ],
+      pcrmRecommendations: [
+        {
+          id: "pcrm-same",
+          misspelling_normalized: "frend",
+          correct_spelling_normalized: "friend",
+          micro_skill_key: "D4_ACTIVE",
+          recommendation_status: "accepted",
+          canonical_mapping_id: null,
+        },
+        {
+          id: "pcrm-different-adopted",
+          misspelling_normalized: "frend",
+          correct_spelling_normalized: "friend",
+          micro_skill_key: "D4_OTHER",
+          recommendation_status: "accepted",
+          canonical_mapping_id: "canonical-friend",
+        },
+      ],
+    },
+  });
+
+  assert.strictEqual(report.database_comparison_mode, "fixture");
+  assert.strictEqual(report.summary.safe_for_candidate_review, 0);
+  assert.strictEqual(report.summary.manual_review_required, 3);
+  assert.strictEqual(report.summary.rejected_from_import, 0);
+  assert.strictEqual(report.supporting_evidence_summary.not_checked, false);
+  assert.strictEqual(report.supporting_evidence_summary.parent_local_mapping_matches, 2);
+  assert.strictEqual(report.supporting_evidence_summary.catalog_review_case_matches, 2);
+  assert.strictEqual(report.supporting_evidence_summary.catalog_review_decision_matches, 1);
+  assert.strictEqual(report.supporting_evidence_summary.pcrm_recommendation_matches, 2);
+  assert.deepStrictEqual(report.supporting_evidence_summary.unavailable_sources, [
+    "spelling_catalog_review_case_decisions",
+  ]);
+
+  const parentLocalRow = report.rows.find((row) => row.row_number === 2);
+  assert(parentLocalRow);
+  assert.strictEqual(parentLocalRow.bucket, "manual_review_required");
+  assert.strictEqual(parentLocalRow.supporting_evidence_counts.parent_local_same_skill, 1);
+  assert.strictEqual(parentLocalRow.supporting_evidence_counts.parent_local_different_skill, 1);
+  assert.deepStrictEqual(parentLocalRow.supporting_evidence_ids.parent_local_mapping_ids, [
+    "parent-local-same",
+    "parent-local-different",
+  ]);
+  assertIncludes(parentLocalRow.reasons, "supporting_parent_local_mapping_exists");
+
+  const catalogReviewRow = report.rows.find((row) => row.row_number === 3);
+  assert(catalogReviewRow);
+  assert.strictEqual(catalogReviewRow.supporting_evidence_counts.open_catalog_review_cases, 1);
+  assert.strictEqual(catalogReviewRow.supporting_evidence_counts.closed_catalog_review_cases, 1);
+  assert.strictEqual(catalogReviewRow.supporting_evidence_counts.catalog_review_decisions, 1);
+  assert.deepStrictEqual(catalogReviewRow.supporting_evidence_ids.catalog_review_case_ids, [
+    "catalog-open",
+    "catalog-closed",
+  ]);
+  assertIncludes(catalogReviewRow.reasons, "supporting_catalog_review_case_exists");
+
+  const pcrmRow = report.rows.find((row) => row.row_number === 4);
+  assert(pcrmRow);
+  assert.strictEqual(pcrmRow.supporting_evidence_counts.pcrm_same_skill, 1);
+  assert.strictEqual(pcrmRow.supporting_evidence_counts.pcrm_different_skill, 1);
+  assert.strictEqual(pcrmRow.supporting_evidence_counts.pcrm_adopted, 1);
+  assert.deepStrictEqual(pcrmRow.supporting_evidence_ids.pcrm_recommendation_ids, [
+    "pcrm-same",
+    "pcrm-different-adopted",
+  ]);
+  assertIncludes(pcrmRow.reasons, "supporting_pcrm_recommendation_exists");
+
+  const summary = renderMarkdownSummary(report);
+  assert(summary.includes("Supporting Evidence Comparison"));
+  assert(summary.includes("PCRM recommendation matches: 2"));
+  assert(summary.includes("Unavailable sources: spelling_catalog_review_case_decisions"));
+}
+
 async function testReportWrites() {
   const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "seed-import-dry-run-"));
   const inputPath = path.join(tempDir, "candidates.csv");
@@ -318,6 +461,7 @@ async function run() {
   testFileOnlyValidation();
   testMissingRequiredColumns();
   testCatalogAndCanonicalComparison();
+  testSupportingEvidenceComparison();
   await testReportWrites();
   testNoSupabaseBoundary();
   testNoMutationGuardRefusesWritesAndRpc();

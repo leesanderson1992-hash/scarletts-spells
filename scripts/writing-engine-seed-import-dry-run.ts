@@ -2,7 +2,7 @@ import fs from "fs";
 import path from "path";
 import { createClient } from "@supabase/supabase-js";
 
-const SCHEMA_VERSION = "version_2_slice_4a_2";
+const SCHEMA_VERSION = "version_2_slice_4a_3";
 const NORMALIZATION_VERSION = "spelling_normalize_v1";
 const DEFAULT_DIALECT_CODE = "en-GB";
 const DEFAULT_OUT_DIR = ".tmp/writing-engine-seed-import-dry-run";
@@ -67,9 +67,45 @@ type CanonicalMappingComparisonRow = {
   normalization_version: string | null;
 };
 
+type ParentLocalMappingComparisonRow = {
+  id: string;
+  misspelling_normalized: string;
+  correct_spelling_normalized: string;
+  micro_skill_key: string;
+  candidate_status: string | null;
+  promotion_scope: string | null;
+};
+
+type CatalogReviewCaseComparisonRow = {
+  id: string;
+  misspelling_normalized: string;
+  correct_spelling_normalized: string;
+  case_status: string | null;
+};
+
+type CatalogReviewDecisionComparisonRow = {
+  id: string;
+  case_id: string;
+  decision_type: string | null;
+  linked_micro_skill_key: string | null;
+};
+
+type PcrmRecommendationComparisonRow = {
+  id: string;
+  misspelling_normalized: string;
+  correct_spelling_normalized: string;
+  micro_skill_key: string;
+  recommendation_status: string | null;
+  canonical_mapping_id: string | null;
+};
+
 type ComparisonData = {
   microSkills: MicroSkillCatalogComparisonRow[];
   canonicalMappings: CanonicalMappingComparisonRow[];
+  parentLocalMappings?: ParentLocalMappingComparisonRow[];
+  catalogReviewCases?: CatalogReviewCaseComparisonRow[];
+  catalogReviewDecisions?: CatalogReviewDecisionComparisonRow[];
+  pcrmRecommendations?: PcrmRecommendationComparisonRow[];
 };
 
 export type SeedImportDryRunRow = {
@@ -104,6 +140,22 @@ export type SeedImportDryRunRow = {
     | "non_d4";
   matching_existing_canonical_mapping_ids: string[];
   conflicting_existing_canonical_mapping_ids: string[];
+  supporting_evidence_counts: {
+    parent_local_same_skill: number;
+    parent_local_different_skill: number;
+    open_catalog_review_cases: number;
+    closed_catalog_review_cases: number;
+    catalog_review_decisions: number;
+    pcrm_same_skill: number;
+    pcrm_different_skill: number;
+    pcrm_adopted: number;
+  };
+  supporting_evidence_ids: {
+    parent_local_mapping_ids: string[];
+    catalog_review_case_ids: string[];
+    catalog_review_decision_ids: string[];
+    pcrm_recommendation_ids: string[];
+  };
   recommended_next_action: string;
 };
 
@@ -144,6 +196,14 @@ export type SeedImportDryRunReport = {
     same_pair_same_skill_matches: number;
     same_pair_different_skill_conflicts: number;
     hidden_or_non_visible_matches_counted: number;
+  };
+  supporting_evidence_summary: {
+    not_checked: boolean;
+    parent_local_mapping_matches: number;
+    catalog_review_case_matches: number;
+    catalog_review_decision_matches: number;
+    pcrm_recommendation_matches: number;
+    unavailable_sources: string[];
   };
   source_provenance_summary: Array<{
     source: string;
@@ -362,7 +422,8 @@ function applyBucket(row: SeedImportDryRunRow) {
 
   if (row.manual_review_warnings.length > 0) {
     row.bucket = "manual_review_required";
-    row.recommended_next_action = "Review and deduplicate or resolve the file-local conflict.";
+    row.recommended_next_action =
+      "Review file-local and read-only comparison signals before candidate-review import.";
     return;
   }
 
@@ -492,12 +553,115 @@ function compareCanonicalMappings(
   };
 }
 
+function isSamePair(row: SeedImportDryRunRow, candidate: {
+  misspelling_normalized: string;
+  correct_spelling_normalized: string;
+}) {
+  return (
+    row.misspelling_normalized !== null &&
+    row.correct_spelling_normalized !== null &&
+    candidate.misspelling_normalized === row.misspelling_normalized &&
+    candidate.correct_spelling_normalized === row.correct_spelling_normalized
+  );
+}
+
+function compareSupportingEvidence(
+  row: SeedImportDryRunRow,
+  comparisonData: ComparisonData,
+) {
+  if (!row.misspelling_normalized || !row.correct_spelling_normalized) {
+    return;
+  }
+
+  const parentLocalMatches = (comparisonData.parentLocalMappings ?? []).filter(
+    (mapping) =>
+      isSamePair(row, mapping) &&
+      mapping.candidate_status === "parent_local_promoted" &&
+      mapping.promotion_scope === "parent_local",
+  );
+  const catalogCaseMatches = (comparisonData.catalogReviewCases ?? []).filter((reviewCase) =>
+    isSamePair(row, reviewCase),
+  );
+  const decisionsByCaseId = new Map<string, CatalogReviewDecisionComparisonRow[]>();
+  for (const decision of comparisonData.catalogReviewDecisions ?? []) {
+    decisionsByCaseId.set(decision.case_id, [
+      ...(decisionsByCaseId.get(decision.case_id) ?? []),
+      decision,
+    ]);
+  }
+  const catalogDecisionMatches = catalogCaseMatches.flatMap(
+    (reviewCase) => decisionsByCaseId.get(reviewCase.id) ?? [],
+  );
+  const pcrmMatches = (comparisonData.pcrmRecommendations ?? []).filter((recommendation) =>
+    isSamePair(row, recommendation),
+  );
+
+  row.supporting_evidence_counts.parent_local_same_skill = parentLocalMatches.filter(
+    (mapping) => mapping.micro_skill_key === row.suggested_micro_skill_key,
+  ).length;
+  row.supporting_evidence_counts.parent_local_different_skill =
+    parentLocalMatches.length - row.supporting_evidence_counts.parent_local_same_skill;
+  row.supporting_evidence_counts.open_catalog_review_cases = catalogCaseMatches.filter(
+    (reviewCase) => reviewCase.case_status === "open",
+  ).length;
+  row.supporting_evidence_counts.closed_catalog_review_cases =
+    catalogCaseMatches.length - row.supporting_evidence_counts.open_catalog_review_cases;
+  row.supporting_evidence_counts.catalog_review_decisions = catalogDecisionMatches.length;
+  row.supporting_evidence_counts.pcrm_same_skill = pcrmMatches.filter(
+    (recommendation) => recommendation.micro_skill_key === row.suggested_micro_skill_key,
+  ).length;
+  row.supporting_evidence_counts.pcrm_different_skill =
+    pcrmMatches.length - row.supporting_evidence_counts.pcrm_same_skill;
+  row.supporting_evidence_counts.pcrm_adopted = pcrmMatches.filter(
+    (recommendation) => Boolean(recommendation.canonical_mapping_id),
+  ).length;
+
+  row.supporting_evidence_ids.parent_local_mapping_ids = parentLocalMatches.map(
+    (mapping) => mapping.id,
+  );
+  row.supporting_evidence_ids.catalog_review_case_ids = catalogCaseMatches.map(
+    (reviewCase) => reviewCase.id,
+  );
+  row.supporting_evidence_ids.catalog_review_decision_ids = catalogDecisionMatches.map(
+    (decision) => decision.id,
+  );
+  row.supporting_evidence_ids.pcrm_recommendation_ids = pcrmMatches.map(
+    (recommendation) => recommendation.id,
+  );
+
+  if (parentLocalMatches.length > 0) {
+    addManualWarning(
+      row,
+      "supporting_parent_local_mapping_exists",
+      `Parent-local promoted mapping evidence exists for this pair (${parentLocalMatches.length}).`,
+    );
+  }
+
+  if (catalogCaseMatches.length > 0) {
+    addManualWarning(
+      row,
+      "supporting_catalog_review_case_exists",
+      `Catalog-review case evidence exists for this pair (${catalogCaseMatches.length}).`,
+    );
+  }
+
+  if (pcrmMatches.length > 0) {
+    addManualWarning(
+      row,
+      "supporting_pcrm_recommendation_exists",
+      `PCRM recommendation evidence exists for this pair (${pcrmMatches.length}).`,
+    );
+  }
+}
+
 export function applyReadOnlyCatalogCanonicalComparison(
   report: SeedImportDryRunReport,
-  comparisonData: ComparisonData,
+  comparisonData: ComparisonData & { unavailableSources?: string[] },
   mode: Exclude<DatabaseComparisonMode, "none" | "unavailable"> = "fixture",
 ) {
   report.database_comparison_mode = mode;
+  report.supporting_evidence_summary.unavailable_sources =
+    comparisonData.unavailableSources ?? [];
 
   const microSkillsByKey = new Map(
     comparisonData.microSkills.map((row) => [row.micro_skill_key, row]),
@@ -511,6 +675,7 @@ export function applyReadOnlyCatalogCanonicalComparison(
       comparisonData.canonicalMappings,
     );
     hiddenOrNonVisibleCounted += canonicalComparison.hiddenOrNonVisibleCounted;
+    compareSupportingEvidence(row, comparisonData);
   }
 
   report.rows.forEach(applyBucket);
@@ -560,13 +725,43 @@ function updateReportSummaries(report: SeedImportDryRunReport) {
     hidden_or_non_visible_matches_counted:
       report.canonical_mapping_summary.hidden_or_non_visible_matches_counted,
   };
+
+  report.supporting_evidence_summary = {
+    not_checked: report.database_comparison_mode === "none",
+    parent_local_mapping_matches: report.rows.reduce(
+      (sum, row) =>
+        sum +
+        row.supporting_evidence_counts.parent_local_same_skill +
+        row.supporting_evidence_counts.parent_local_different_skill,
+      0,
+    ),
+    catalog_review_case_matches: report.rows.reduce(
+      (sum, row) =>
+        sum +
+        row.supporting_evidence_counts.open_catalog_review_cases +
+        row.supporting_evidence_counts.closed_catalog_review_cases,
+      0,
+    ),
+    catalog_review_decision_matches: report.rows.reduce(
+      (sum, row) => sum + row.supporting_evidence_counts.catalog_review_decisions,
+      0,
+    ),
+    pcrm_recommendation_matches: report.rows.reduce(
+      (sum, row) =>
+        sum +
+        row.supporting_evidence_counts.pcrm_same_skill +
+        row.supporting_evidence_counts.pcrm_different_skill,
+      0,
+    ),
+    unavailable_sources: report.supporting_evidence_summary.unavailable_sources,
+  };
 }
 
 export function buildSeedImportDryRunReport(input: {
   csvText: string;
   inputFile: string;
   now?: Date;
-  comparisonData?: ComparisonData;
+  comparisonData?: ComparisonData & { unavailableSources?: string[] };
 }): SeedImportDryRunReport {
   const warnings: string[] = [];
   const { headers, records } = buildCsvRecords(input.csvText);
@@ -664,6 +859,22 @@ export function buildSeedImportDryRunReport(input: {
       skill_validation_status: "not_checked",
       matching_existing_canonical_mapping_ids: [],
       conflicting_existing_canonical_mapping_ids: [],
+      supporting_evidence_counts: {
+        parent_local_same_skill: 0,
+        parent_local_different_skill: 0,
+        open_catalog_review_cases: 0,
+        closed_catalog_review_cases: 0,
+        catalog_review_decisions: 0,
+        pcrm_same_skill: 0,
+        pcrm_different_skill: 0,
+        pcrm_adopted: 0,
+      },
+      supporting_evidence_ids: {
+        parent_local_mapping_ids: [],
+        catalog_review_case_ids: [],
+        catalog_review_decision_ids: [],
+        pcrm_recommendation_ids: [],
+      },
       recommended_next_action: "",
     };
   });
@@ -785,6 +996,14 @@ export function buildSeedImportDryRunReport(input: {
       same_pair_different_skill_conflicts: 0,
       hidden_or_non_visible_matches_counted: 0,
     },
+    supporting_evidence_summary: {
+      not_checked: true,
+      parent_local_mapping_matches: 0,
+      catalog_review_case_matches: 0,
+      catalog_review_decision_matches: 0,
+      pcrm_recommendation_matches: 0,
+      unavailable_sources: [],
+    },
     source_provenance_summary: Array.from(sourceProvenanceMap.values()).sort(
       (left, right) =>
         left.source.localeCompare(right.source) ||
@@ -839,6 +1058,19 @@ export function renderMarkdownSummary(report: SeedImportDryRunReport) {
     `- Same-pair/same-skill matches: ${report.canonical_mapping_summary.same_pair_same_skill_matches}`,
     `- Same-pair/different-skill conflicts: ${report.canonical_mapping_summary.same_pair_different_skill_conflicts}`,
     `- Hidden or non-visible mappings counted: ${report.canonical_mapping_summary.hidden_or_non_visible_matches_counted}`,
+    "",
+    "## Supporting Evidence Comparison",
+    "",
+    `- Not checked: ${String(report.supporting_evidence_summary.not_checked)}`,
+    `- Parent-local mapping matches: ${report.supporting_evidence_summary.parent_local_mapping_matches}`,
+    `- Catalog-review case matches: ${report.supporting_evidence_summary.catalog_review_case_matches}`,
+    `- Catalog-review decision matches: ${report.supporting_evidence_summary.catalog_review_decision_matches}`,
+    `- PCRM recommendation matches: ${report.supporting_evidence_summary.pcrm_recommendation_matches}`,
+    `- Unavailable sources: ${
+      report.supporting_evidence_summary.unavailable_sources.length > 0
+        ? report.supporting_evidence_summary.unavailable_sources.join(", ")
+        : "none"
+    }`,
     "",
     "## Duplicate Groups",
     "",
@@ -1011,11 +1243,24 @@ async function fetchTableCount(client: ReadOnlySupabaseClient, table: string) {
 }
 
 async function fetchProtectedCounts(client: ReadOnlySupabaseClient) {
-  const tables = ["micro_skill_catalog", "spelling_canonical_mappings"];
+  const tables = [
+    "micro_skill_catalog",
+    "spelling_canonical_mappings",
+    "parent_verified_spelling_candidate_mappings",
+    "spelling_catalog_review_cases",
+    "spelling_catalog_review_case_decisions",
+    "spelling_canonical_mapping_recommendations",
+  ];
   const counts: Record<string, number> = {};
 
   for (const table of tables) {
-    counts[table] = await fetchTableCount(client, table);
+    try {
+      counts[table] = await fetchTableCount(client, table);
+    } catch (error) {
+      if (table === "micro_skill_catalog" || table === "spelling_canonical_mappings") {
+        throw error;
+      }
+    }
   }
 
   return counts;
@@ -1074,7 +1319,113 @@ function normaliseCanonicalMappingRows(data: unknown): CanonicalMappingCompariso
     .filter((row) => row.id.length > 0);
 }
 
-async function fetchComparisonData(client: ReadOnlySupabaseClient): Promise<ComparisonData> {
+function normaliseParentLocalMappingRows(data: unknown): ParentLocalMappingComparisonRow[] {
+  if (!Array.isArray(data)) {
+    return [];
+  }
+
+  return data
+    .filter((row): row is Record<string, unknown> => Boolean(row && typeof row === "object"))
+    .map((row) => ({
+      id: String(row.id ?? ""),
+      misspelling_normalized: String(row.misspelling_normalized ?? ""),
+      correct_spelling_normalized: String(row.correct_spelling_normalized ?? ""),
+      micro_skill_key: String(row.micro_skill_key ?? ""),
+      candidate_status:
+        typeof row.candidate_status === "string" ? row.candidate_status : null,
+      promotion_scope:
+        typeof row.promotion_scope === "string" ? row.promotion_scope : null,
+    }))
+    .filter((row) => row.id.length > 0);
+}
+
+function normaliseCatalogReviewCaseRows(data: unknown): CatalogReviewCaseComparisonRow[] {
+  if (!Array.isArray(data)) {
+    return [];
+  }
+
+  return data
+    .filter((row): row is Record<string, unknown> => Boolean(row && typeof row === "object"))
+    .map((row) => ({
+      id: String(row.id ?? ""),
+      misspelling_normalized: String(row.misspelling_normalized ?? ""),
+      correct_spelling_normalized: String(row.correct_spelling_normalized ?? ""),
+      case_status: typeof row.case_status === "string" ? row.case_status : null,
+    }))
+    .filter((row) => row.id.length > 0);
+}
+
+function normaliseCatalogReviewDecisionRows(
+  data: unknown,
+): CatalogReviewDecisionComparisonRow[] {
+  if (!Array.isArray(data)) {
+    return [];
+  }
+
+  return data
+    .filter((row): row is Record<string, unknown> => Boolean(row && typeof row === "object"))
+    .map((row) => ({
+      id: String(row.id ?? ""),
+      case_id: String(row.case_id ?? ""),
+      decision_type: typeof row.decision_type === "string" ? row.decision_type : null,
+      linked_micro_skill_key:
+        typeof row.linked_micro_skill_key === "string"
+          ? row.linked_micro_skill_key
+          : null,
+    }))
+    .filter((row) => row.id.length > 0 && row.case_id.length > 0);
+}
+
+function normalisePcrmRecommendationRows(data: unknown): PcrmRecommendationComparisonRow[] {
+  if (!Array.isArray(data)) {
+    return [];
+  }
+
+  return data
+    .filter((row): row is Record<string, unknown> => Boolean(row && typeof row === "object"))
+    .map((row) => ({
+      id: String(row.id ?? ""),
+      misspelling_normalized: String(row.misspelling_normalized ?? ""),
+      correct_spelling_normalized: String(row.correct_spelling_normalized ?? ""),
+      micro_skill_key: String(row.micro_skill_key ?? ""),
+      recommendation_status:
+        typeof row.recommendation_status === "string"
+          ? row.recommendation_status
+          : null,
+      canonical_mapping_id:
+        typeof row.canonical_mapping_id === "string" ? row.canonical_mapping_id : null,
+    }))
+    .filter((row) => row.id.length > 0);
+}
+
+async function fetchOptionalComparisonRows<T>(
+  client: ReadOnlySupabaseClient,
+  table: string,
+  columns: string,
+  normalize: (data: unknown) => T[],
+  warnings: string[],
+  unavailableSources: string[],
+) {
+  const result = await client.from(table).select(columns);
+
+  if (result.error) {
+    unavailableSources.push(table);
+    warnings.push(
+      `Optional supporting evidence source ${table} unavailable: ${
+        result.error.message ?? "unknown read error"
+      }`,
+    );
+    return [];
+  }
+
+  return normalize(result.data);
+}
+
+async function fetchComparisonData(
+  client: ReadOnlySupabaseClient,
+  warnings: string[],
+): Promise<ComparisonData & { unavailableSources: string[] }> {
+  const unavailableSources: string[] = [];
   const [microSkillsResult, canonicalMappingsResult] = await Promise.all([
     client
       .from("micro_skill_catalog")
@@ -1101,6 +1452,39 @@ async function fetchComparisonData(client: ReadOnlySupabaseClient): Promise<Comp
   return {
     microSkills: normaliseMicroSkillRows(microSkillsResult.data),
     canonicalMappings: normaliseCanonicalMappingRows(canonicalMappingsResult.data),
+    parentLocalMappings: await fetchOptionalComparisonRows(
+      client,
+      "parent_verified_spelling_candidate_mappings",
+      "id, misspelling_normalized, correct_spelling_normalized, micro_skill_key, candidate_status, promotion_scope",
+      normaliseParentLocalMappingRows,
+      warnings,
+      unavailableSources,
+    ),
+    catalogReviewCases: await fetchOptionalComparisonRows(
+      client,
+      "spelling_catalog_review_cases",
+      "id, misspelling_normalized, correct_spelling_normalized, case_status",
+      normaliseCatalogReviewCaseRows,
+      warnings,
+      unavailableSources,
+    ),
+    catalogReviewDecisions: await fetchOptionalComparisonRows(
+      client,
+      "spelling_catalog_review_case_decisions",
+      "id, case_id, decision_type, linked_micro_skill_key",
+      normaliseCatalogReviewDecisionRows,
+      warnings,
+      unavailableSources,
+    ),
+    pcrmRecommendations: await fetchOptionalComparisonRows(
+      client,
+      "spelling_canonical_mapping_recommendations",
+      "id, misspelling_normalized, correct_spelling_normalized, micro_skill_key, recommendation_status, canonical_mapping_id",
+      normalisePcrmRecommendationRows,
+      warnings,
+      unavailableSources,
+    ),
+    unavailableSources,
   };
 }
 
@@ -1143,7 +1527,7 @@ async function maybeLoadReadOnlyComparisonData(
 
   try {
     const beforeCounts = await fetchProtectedCounts(client);
-    const data = await fetchComparisonData(client);
+    const data = await fetchComparisonData(client, warnings);
     const afterCounts = await fetchProtectedCounts(client);
     assertProtectedCountsUnchanged(beforeCounts, afterCounts);
     return { mode, data };
