@@ -406,10 +406,12 @@ function loadCanonicalMappingHelper() {
     catalogEntries: [finalE],
   });
 
-  assert.equal(result.recommendationStatus, "low_confidence");
-  assert.equal(result.recommendationAuthority, "no_match_yet");
+  assert.equal(result.recommendationStatus, "recommended");
+  assert.equal(result.recommendationAuthority, "possible_match");
+  assert.equal(result.recommendedMicroSkillKey, finalE.microSkillKey);
   assert.equal(result.rankedMicroSkillCandidates[0]?.microSkillKey, finalE.microSkillKey);
-  assert.equal(result.isPrefillAllowed, false);
+  assert.equal(result.isPrefillAllowed, true);
+  assert.equal(result.confidencePercent, 49);
 }
 
 {
@@ -419,10 +421,12 @@ function loadCanonicalMappingHelper() {
     catalogEntries: [consonantDoubling],
   });
 
-  assert.equal(result.recommendationStatus, "low_confidence");
-  assert.equal(result.recommendationAuthority, "no_match_yet");
+  assert.equal(result.recommendationStatus, "recommended");
+  assert.equal(result.recommendationAuthority, "possible_match");
+  assert.equal(result.recommendedMicroSkillKey, consonantDoubling.microSkillKey);
   assert.equal(result.rankedMicroSkillCandidates[0]?.microSkillKey, consonantDoubling.microSkillKey);
-  assert.equal(result.isPrefillAllowed, false);
+  assert.equal(result.isPrefillAllowed, true);
+  assert.equal(result.confidencePercent, 49);
 }
 
 {
@@ -470,10 +474,13 @@ function loadCanonicalMappingHelper() {
     ],
   });
 
-  assert.equal(result.recommendationStatus, "conflict");
-  assert.equal(result.recommendationAuthority, "check_manually");
-  assert.equal(result.fallbackReason, "conflicting_candidates");
-  assert.equal(result.isPrefillAllowed, false);
+  assert.equal(result.recommendationStatus, "recommended");
+  assert.equal(result.recommendationAuthority, "possible_match");
+  assert.equal(result.recommendedMicroSkillKey, "d4.final_e_alternate");
+  assert.equal(result.fallbackReason, null);
+  assert.equal(result.isPrefillAllowed, true);
+  assert.equal(result.confidencePercent, 74);
+  assert.match(result.reason, /deterministic micro-skill key ordering/);
 }
 
 {
@@ -667,9 +674,10 @@ async function runReadModelRegression() {
     const result = recommendStage2aMicroSkillForSpellingPair(readModel);
 
     assert.deepEqual(readModel.canonicalMappings, []);
-    assert.equal(result.recommendationStatus, "low_confidence");
-    assert.equal(result.recommendationAuthority, "no_match_yet");
-    assert.equal(result.isPrefillAllowed, false);
+    assert.equal(result.recommendationStatus, "recommended");
+    assert.equal(result.recommendationAuthority, "possible_match");
+    assert.equal(result.recommendedMicroSkillKey, finalE.microSkillKey);
+    assert.equal(result.isPrefillAllowed, true);
     assert.equal(
       supabase.readTables.includes("spelling_canonical_mappings"),
       true,

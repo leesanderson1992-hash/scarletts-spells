@@ -236,8 +236,10 @@ function recommendationBadge(row: UnifiedSpellingReviewItem) {
       };
     case "possible_match":
       return {
-        label: "Possible Match",
-        title: "Pattern or reviewed evidence suggests this route. This is not parent confirmation.",
+        label: `Possible Match · ${Math.round(
+          row.microSkillRecommendation?.confidencePercent ?? 0,
+        )}%`,
+        title: "Pattern or reviewed evidence suggests this route. The percentage is engine confidence only, not parent confirmation.",
         className: "border-violet-200 bg-violet-50 text-violet-800",
       };
     case "no_match_yet":

@@ -1385,8 +1385,13 @@ assert.match(
 );
 assert.match(
   tableSource,
-  /label: "Known Match"[\s\S]*label: "Your Match"[\s\S]*label: "Possible Match"[\s\S]*label: "No Match Yet"[\s\S]*label: "Check Manually"/,
+  /label: "Known Match"[\s\S]*label: "Your Match"[\s\S]*Possible Match · \$\{Math\.round[\s\S]*label: "No Match Yet"[\s\S]*label: "Check Manually"/,
   "The table should render compact parent-facing recommendation badges.",
+);
+assert.match(
+  tableSource,
+  /confidencePercent/,
+  "Possible Match should display the engine confidence percentage.",
 );
 assert.match(
   tableSource,

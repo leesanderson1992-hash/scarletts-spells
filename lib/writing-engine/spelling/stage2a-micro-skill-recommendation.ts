@@ -63,6 +63,7 @@ export type WritingEngineStage2aRankedMicroSkillCandidate = {
   displayName: string;
   score: number;
   confidence: WritingEngineStage2aConfidenceLevel;
+  confidencePercent: number;
   reason: string;
   sourceSignals: WritingEngineStage2aSourceSignal[];
 };
@@ -75,6 +76,7 @@ export type WritingEngineStage2aRecommendationResult = {
   recommendedMicroSkillKey: string | null;
   rankedMicroSkillCandidates: WritingEngineStage2aRankedMicroSkillCandidate[];
   confidence: WritingEngineStage2aConfidenceLevel;
+  confidencePercent: number;
   reason: string;
   sourceSignals: WritingEngineStage2aSourceSignal[];
   fallbackReason: WritingEngineStage2aFallbackReason;
@@ -158,9 +160,9 @@ type SpellingFeature =
 const HIGH_CONFIDENCE_THRESHOLD = 90;
 const MEDIUM_CONFIDENCE_THRESHOLD = 45;
 const LOW_CONFIDENCE_THRESHOLD = 18;
-const PREFILL_THRESHOLD = 80;
-const PREFILL_MARGIN = 20;
-const CONFLICT_MARGIN = 10;
+const TRUSTED_PREFILL_THRESHOLD = 80;
+const VIABLE_INFERRED_PREFILL_THRESHOLD = 35;
+const POSSIBLE_MATCH_MAX_CONFIDENCE_PERCENT = 89;
 const DETERMINISTIC_FEATURE_WEIGHT = 35;
 const VOWELS = new Set(["a", "e", "i", "o", "u"]);
 const FEATURE_TERMS: Record<SpellingFeature, string[]> = {
@@ -394,6 +396,49 @@ function confidenceFromScore(score: number): WritingEngineStage2aConfidenceLevel
   return "none";
 }
 
+function clampPercent(value: number) {
+  return Math.max(0, Math.min(100, Math.round(value)));
+}
+
+function candidateHasTrustedExactSignal(
+  candidate: Pick<WritingEngineStage2aRankedMicroSkillCandidate, "sourceSignals">,
+) {
+  return candidate.sourceSignals.some(
+    (signal) =>
+      signal.type === "exact_active_canonical_mapping" ||
+      signal.type === "same_scope_parent_local_promoted_mapping",
+  );
+}
+
+function confidencePercentForCandidate(input: {
+  candidate: Pick<WritingEngineStage2aRankedMicroSkillCandidate, "score" | "sourceSignals">;
+  scoreMargin: number;
+  hasSecondCandidate: boolean;
+}) {
+  if (candidateHasTrustedExactSignal(input.candidate)) {
+    return 100;
+  }
+
+  const marginPenalty = input.hasSecondCandidate
+    ? input.scoreMargin === 0
+      ? 20
+      : input.scoreMargin < 5
+        ? 14
+        : input.scoreMargin < 10
+          ? 10
+          : input.scoreMargin < 20
+            ? 5
+            : 0
+    : 0;
+
+  return clampPercent(
+    Math.min(
+      POSSIBLE_MATCH_MAX_CONFIDENCE_PERCENT,
+      input.candidate.score - marginPenalty,
+    ),
+  );
+}
+
 function isPairMatch(input: {
   misspelling: string;
   correction: string;
@@ -457,6 +502,7 @@ function buildFallbackResult(input: {
     recommendedMicroSkillKey: null,
     rankedMicroSkillCandidates: input.candidates ?? [],
     confidence: input.candidates?.[0]?.confidence ?? "none",
+    confidencePercent: input.candidates?.[0]?.confidencePercent ?? 0,
     reason: input.reason,
     sourceSignals: input.sourceSignals ?? [],
     fallbackReason: input.fallbackReason,
@@ -734,6 +780,7 @@ export function recommendStage2aMicroSkillForSpellingPair(
         displayName: entry.displayName,
         score,
         confidence,
+        confidencePercent: clampPercent(score),
         reason: candidateReason(sourceSignals),
         sourceSignals,
       }];
@@ -762,47 +809,51 @@ export function recommendStage2aMicroSkillForSpellingPair(
     });
   }
 
-  const [topCandidate, secondCandidate] = candidates;
+  const rankedCandidates = candidates.map((candidate, index) => {
+    const nextCandidate = candidates[index + 1];
+    return {
+      ...candidate,
+      confidencePercent: confidencePercentForCandidate({
+        candidate,
+        scoreMargin: candidate.score - (nextCandidate?.score ?? 0),
+        hasSecondCandidate: Boolean(nextCandidate),
+      }),
+    };
+  });
+  const [topCandidate, secondCandidate] = rankedCandidates;
   const scoreMargin = topCandidate.score - (secondCandidate?.score ?? 0);
 
-  if (secondCandidate && scoreMargin < CONFLICT_MARGIN && topCandidate.score >= PREFILL_THRESHOLD) {
-    return buildFallbackResult({
-      status: "conflict",
-      reason: "Top candidate scores are too close for a safe recommendation.",
-      fallbackReason: "conflicting_candidates",
-      candidates,
-      sourceSignals: topCandidate.sourceSignals,
-    });
-  }
+  const recommendationAuthority = authorityForRecommendedCandidate(topCandidate);
+  const isTrustedExactPrefill =
+    recommendationAuthority === "known_match" || recommendationAuthority === "your_match";
+  const isPrefillAllowed = isTrustedExactPrefill
+    ? topCandidate.score >= TRUSTED_PREFILL_THRESHOLD
+    : topCandidate.score >= VIABLE_INFERRED_PREFILL_THRESHOLD;
 
-  if (topCandidate.score < MEDIUM_CONFIDENCE_THRESHOLD) {
+  if (!isPrefillAllowed) {
     return buildFallbackResult({
       status: topCandidate.score < LOW_CONFIDENCE_THRESHOLD ? "insufficient_evidence" : "low_confidence",
-      reason: "The strongest candidate is below the confidence threshold for prefill.",
+      reason: "The strongest candidate is below the viability threshold for table prefill.",
       fallbackReason: topCandidate.score < LOW_CONFIDENCE_THRESHOLD ? "insufficient_evidence" : "low_confidence",
-      candidates,
+      candidates: rankedCandidates,
       sourceSignals: topCandidate.sourceSignals,
     });
   }
 
-  const isPrefillAllowed =
-    topCandidate.score >= PREFILL_THRESHOLD && scoreMargin >= PREFILL_MARGIN;
-
   return {
-    recommendationStatus: isPrefillAllowed ? "recommended" : "low_confidence",
-    recommendationAuthority: isPrefillAllowed
-      ? authorityForRecommendedCandidate(topCandidate)
-      : "no_match_yet",
-    recommendedFamilyKey: isPrefillAllowed ? topCandidate.familyKey : null,
-    recommendedClusterKey: isPrefillAllowed ? topCandidate.clusterKey : null,
-    recommendedMicroSkillKey: isPrefillAllowed ? topCandidate.microSkillKey : null,
-    rankedMicroSkillCandidates: candidates,
+    recommendationStatus: "recommended",
+    recommendationAuthority,
+    recommendedFamilyKey: topCandidate.familyKey,
+    recommendedClusterKey: topCandidate.clusterKey,
+    recommendedMicroSkillKey: topCandidate.microSkillKey,
+    rankedMicroSkillCandidates: rankedCandidates,
     confidence: topCandidate.confidence,
-    reason: isPrefillAllowed
-      ? topCandidate.reason
-      : "A candidate was found, but confidence or score margin is not sufficient for table prefill.",
+    confidencePercent: topCandidate.confidencePercent,
+    reason: scoreMargin === 0 && secondCandidate && !isTrustedExactPrefill
+      ? `${topCandidate.reason}; exact score tie resolved by deterministic micro-skill key ordering.`
+      : topCandidate.reason,
     sourceSignals: topCandidate.sourceSignals,
-    fallbackReason: isPrefillAllowed ? null : "low_margin",
-    isPrefillAllowed,
+    fallbackReason: null,
+    isPrefillAllowed: true,
   };
 }
