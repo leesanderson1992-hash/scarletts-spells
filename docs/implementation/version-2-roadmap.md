@@ -131,6 +131,13 @@ become truth.
 
 ## 7. Proposed Version 2 slice order
 
+Next active planning target: `Slice 4 - Bulk candidate mapping import/review`.
+
+Slice `3` is deferred by founder decision and is not authorised for
+implementation now. Slice `4` is the current planning target because the
+highest-leverage immediate bottleneck is fast spelling-engine population at
+scale, not further parent confirmation polish.
+
 ### Slice 0 - Version 2 roadmap registration
 
 Goal:
@@ -500,12 +507,148 @@ No:
 - service-role exposure to client components
 - hosted DB mutation
 
-#### Next Slice 2A implementation prompt
+#### Slice 2 implementation closeout
+
+Slice `2A` through `2D` are implemented. Browser verification confirmed
+recommendation display examples such as:
+- `buisness -> business`: `Known Match`
+- `natrual -> natural`: `Known Match`
+
+### Slice 3 - Parent review UX acceleration
+
+Status: `deferred`
+
+Founder decision:
+- defer Slice `3` for a later product decision
+- do not implement Slice `3` now
+- do not remove Slice `3` from the roadmap
+
+Reason:
+- after Slice `2` recommendation/prefill work, additional parent review UX
+  acceleration is lower immediate impact than fast spelling-engine population
+  at scale
+- Slice `3` may return later if explicit parent review action routing becomes
+  a measurable bottleneck
+
+Goal:
+- if revived later, improve explicit parent-action routing in `Review Work`
+  without automatic truth creation
+
+Potential parent actions if revived:
+- accept suggested skill
+- choose different skill
+- not a learning issue
+- false positive
+- no matching skill
+- recommend pairing for admin review where eligible
+
+Clarifications:
+- stable dropdowns should remain as-is
+- do not reorder the large micro-skill dropdown by recommendation priority
+- do not build extra ranked option panels
+- any revived Slice `3` should focus on explicit parent-action routing only,
+  not automatic truth creation
+- no implementation is authorised now
+
+Hard boundary:
+- parent approval creates event truth and may create/promote scoped child-local
+  mappings only under existing rules
+- no global canonical truth
+
+### Slice 4 - Bulk candidate mapping import/review
+
+Status: `next active planning target`
+
+Goal:
+- allow admin/operator to import or generate batches of candidate spelling
+  mappings for review
+- speed up spelling-engine population at scale
+- reduce dependency on parent row-by-row classification
+
+Input shape:
+- misspelling
+- correction
+- `suggested_micro_skill_key`
+- confidence
+- source
+- note/provenance
+
+Optional input fields to consider:
+- dialect
+- age_band
+- source_url
+- source_dataset
+- pattern_hint
+- route_hint
+- source_row_id
+- import_batch_name
+
+Input format:
+- CSV and/or XLSX
+
+Validation planning requirements:
+- normalize misspelling/correction
+- reject empty pairs
+- detect duplicate rows within the file
+- detect existing canonical mappings
+- detect conflicting canonical mappings
+- validate `suggested_micro_skill_key` exists, active, assignable, and D4
+- detect inactive, non-assignable, and unknown skills
+- compare against existing parent-local mappings where safe
+- compare against catalog-review cases
+- compare against PCRM recommendations
+- identify rows safe for candidate review
+- identify rows requiring manual review
+- identify rows that should be rejected from import
+
+Import modes to consider:
+- dry-run/report only
+- candidate-review import
+- hidden-canonical import only after explicit admin/operator confirmation
+- no resolver-visible import mode in first implementation
+
+Storage options to evaluate:
+- reuse `spelling_canonical_mapping_recommendations`
+- reuse `spelling_catalog_review_cases`
+- create new `spelling_seed_import_batches` and `spelling_seed_import_rows`
+- keep first implementation file/report-based only
+
+External/common misspelling sources to consider:
+- Birkbeck spelling error corpus
+- Wikipedia common misspellings machine-readable list
+- custom manually curated workbook
+- GitHub Typo Corpus only with caution
+- NeuSpell or correction-toolkit data only as a helper, not truth
+
+Output:
+- reviewable candidate/recommendation rows
+- no resolver-visible truth by default
+- audit trail preserved
+
+Hard boundary:
+- bulk import must not write resolver-visible canonical mappings directly
+- imported rows are not parent verification
+- imported rows are not child evidence
+- imported rows are not learning gaps
+- imported rows do not create `learning_items`
+- imported rows do not create `assignment_items`
+- imported rows do not update mastery
+- imported rows do not update rewards
+- imported rows do not change dashboard, progress, scoring, or analytics
+- imported rows do not mutate `micro_skill_catalog`
+- imported rows do not become resolver-visible truth by default
+- canonical/global mapping adoption requires explicit admin action
+- resolver visibility remains separate, explicit, audited, and reversible
+- no service-role exposure to client components
+- any DB-changing implementation requires a unique timestamp migration and
+  hosted migration-ledger safety check
+
+#### Next Slice 4 planning prompt
 
 ```md
-Adopt the role of a senior Supabase/Next.js architecture reviewer, spelling-engine classification engineer, learning-science-aware product engineer, and Review Work safety reviewer for Scarlett's Spells.
+Adopt the role of a CTO, senior documentation reviewer, Writing Engine architecture reviewer, spelling-engine classification engineer, and Supabase/Next.js release-safety reviewer for Scarlett's Spells.
 
-Implement Version 2.0 Slice 2A only: ranked micro-skill recommendation helper read-model, no Review Work UI integration yet.
+Plan Version 2.0 Slice 4 only: Bulk candidate mapping import/review.
 
 Use these docs as controlling context:
 - docs/implementation/version-2-roadmap.md
@@ -519,103 +662,92 @@ Use these docs as controlling context:
 - docs/contracts/parent-recommended-canonical-mapping.md
 - docs/architecture/writing-engine-canonical-brief.md
 - docs/architecture/targeted-writing-practice-architecture.md
+- docs/operations/supabase-migration-policy.md
+
+Current state:
+- Version 2.0 Slice 1 implemented a read-only spelling-engine population audit.
+- Slice 2A implemented a computed read-only micro-skill recommendation helper/read-model.
+- Slice 2B integrated recommendation output into the existing compact Review Work spelling table.
+- Slice 2C added safe server-only canonical exact-pair recommendation signals so canonical rows can show `Known Match`.
+- Slice 2D added useful inferred prefill and compact confidence display.
+- Slice 3 is deferred and not authorised for implementation now.
 
 Goal:
-Create a computed read-only helper/read-model that takes a spelling pair and optional context/scope, returns ranked active assignable D4 micro-skill recommendations, and exposes table-prefill fields for a later Review Work integration slice.
+Plan a safe bulk candidate mapping import/review workflow that speeds spelling-engine population at scale while preserving truth boundaries.
 
-Required output:
-- recommendation status
-- confidence
-- reason
-- ranked candidates
-- source signals
-- `recommendedFamilyKey`
-- `recommendedClusterKey`
-- `recommendedMicroSkillKey`
-- `isPrefillAllowed`
-- fallback reason where relevant
+Planning requirements:
+- recommend the safest storage approach
+- define input schema for CSV and/or XLSX
+- define required fields: misspelling, correction, `suggested_micro_skill_key`, confidence, source, note/provenance
+- define optional fields: dialect, age_band, source_url, source_dataset, pattern_hint, route_hint, source_row_id, import_batch_name
+- define validation and dry-run behaviour
+- define import modes
+- define admin/operator workflow
+- define safety boundaries
+- define external source strategy
+- define the first implementation slice after planning
 
-Use read-only safe sources:
-- misspelling/correction pair
-- optional sentence/context
-- active assignable D4 `micro_skill_catalog`
-- existing canonical mappings
-- parent-local promoted mappings where scoped
-- historical reviewed evidence
-- Slice 1 audit-style frequency signals if available
-- canonical word-map metadata where safely available
+Validation to plan:
+- normalize misspelling/correction
+- reject empty pairs
+- detect duplicate rows within the file
+- detect existing canonical mappings
+- detect conflicting canonical mappings
+- validate `suggested_micro_skill_key` exists, active, assignable, and D4
+- detect inactive, non-assignable, and unknown skills
+- compare against existing parent-local mappings where safe
+- compare against catalog-review cases
+- compare against PCRM recommendations
+- identify rows safe for candidate review
+- identify rows requiring manual review
+- identify rows that should be rejected from import
 
-Hard boundaries:
-- helper/read-model only
+Import modes to consider:
+- dry-run/report only
+- candidate-review import
+- hidden-canonical import only after explicit admin/operator confirmation
+- no resolver-visible import mode in first implementation
+
+Storage options to evaluate:
+- reuse `spelling_canonical_mapping_recommendations`
+- reuse `spelling_catalog_review_cases`
+- create new `spelling_seed_import_batches` and `spelling_seed_import_rows`
+- keep first implementation file/report-based only
+
+External/common misspelling sources to consider:
+- Birkbeck spelling error corpus
+- Wikipedia common misspellings machine-readable list
+- custom manually curated workbook
+- GitHub Typo Corpus only with caution
+- NeuSpell or correction-toolkit data only as a helper, not truth
+
+Hard boundaries for this planning slice:
+- docs/planning only
+- no runtime code
+- no migrations
 - no Supabase mutation
-- no new manually populated recommendation table
-- no Review Work UI integration
-- no resolver behavior changes
-- no candidate mapping creation
-- no parent-local promotion
-- no parent verification creation
-- no canonical mapping creation
-- no `learning_items`
-- no `assignment_items`
-- no resolver-visible truth
-- no mastery, reward, dashboard, analytics, scoring, or template behavior changes
+- no resolver behaviour change
+- no Review Work behaviour change
+- no assignment generation change
+- no mastery, reward, dashboard, analytics, scoring, or template change
 - no `micro_skill_catalog` mutation
-- no hosted DB mutation
-
-Testing:
-- add focused regression coverage for ranked recommendations, low confidence, conflicts, no matching skill, likely false positive, word-level-only candidate, and no prefill when confidence or margin is insufficient
-- verify suggestions remain recommendation evidence only and do not change completion gating or reusable truth
+- no service-role exposure to client components
+- imported rows are not parent verification, child evidence, learning gaps, learning items, assignment items, mastery, rewards, or resolver-visible truth
+- canonical/global mapping adoption requires explicit admin action
+- resolver visibility remains separate, explicit, audited, and reversible
 
 Return:
-1. Files changed.
-2. Helper/read-model API and output shape.
-3. Data sources used.
-4. Safety boundaries preserved.
-5. Test coverage.
-6. How to run verification.
-7. Recommended Slice 2B follow-up.
+1. Recommended storage approach and rationale.
+2. Input schema.
+3. Validation and dry-run behaviour.
+4. Import modes.
+5. Admin/operator workflow.
+6. Truth and safety boundaries.
+7. External source strategy.
+8. First implementation slice after planning.
+9. Risks or ambiguities found.
+10. Whether the resulting plan is safe to implement.
 ```
-
-### Slice 3 - Parent review UX acceleration
-
-Goal:
-- in `Review Work`, replace manual taxonomy hunting with ranked suggestions
-  and one-click confirmation where safe
-
-Parent actions:
-- accept suggested skill
-- choose different skill
-- not a learning issue
-- false positive
-- no matching skill
-- recommend pairing for admin review where eligible
-
-Hard boundary:
-- parent approval creates event truth and may create/promote scoped child-local
-  mappings only under existing rules
-- no global canonical truth
-
-### Slice 4 - Bulk candidate mapping import/review
-
-Goal:
-- allow admin/operator to import or generate batches of candidate spelling
-  mappings for review
-
-Input shape:
-- misspelling
-- correction
-- `suggested_micro_skill_key`
-- confidence
-- source
-- note/provenance
-
-Output:
-- reviewable candidate/recommendation rows
-- no resolver-visible truth by default
-- audit trail preserved
-
-Hard boundary:
-- bulk import must not write resolver-visible canonical mappings directly
 
 ### Slice 5 - Child-local reuse and suggestion improvement
 
