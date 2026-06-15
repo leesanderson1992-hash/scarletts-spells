@@ -677,8 +677,9 @@ Implementation closeout:
   canonical-overlap findings by aligning `buisness -> business` to hosted
   canonical skill `D4_IRRE_TRICKY_WORDS_COMMON_HIGH_FREQUENCY` and removing
   already-canonical `natrual -> natural` and `sucsesfull -> successful`
-- next manual decision gate: plan and approve Slice `4D` candidate-review
-  import into the dedicated seed tables
+- superseded next-gate note: Slice `4D` candidate-review import is now
+  implemented and QA-tested; the next base slice is Slice `4E` seed-row admin
+  review
 
 `Slice 4B - dedicated seed import storage planning`
 - status: `implemented as docs/planning only`
@@ -849,15 +850,16 @@ creation, mastery, assignment eligibility, or resolver visibility.
 
 #### Dry-Run Mapping And Import Eligibility
 
-Slice `4A` dry-run outputs map into future storage as follows:
-- `safe_for_candidate_review` is eligible for future Slice `4D` import as
+Slice `4A` dry-run outputs map into Slice `4D` storage as follows:
+- `safe_for_candidate_review` is eligible for the implemented Slice `4D`
+  importer as
   `pending_candidate_review`.
-- `manual_review_required` is not eligible for the first Slice `4D`
+- `manual_review_required` is not eligible for the implemented Slice `4D`
   candidate-review import and should remain report-only unless a later explicit
   manual-quarantine storage mode is planned.
 - `rejected_from_import` is not eligible for import and remains report-only.
 
-Rows are eligible for future Slice `4D` candidate-review import only when:
+Rows are eligible for Slice `4D` candidate-review import only when:
 - the normalized pair is non-empty and the misspelling/correction differ
 - the suggested `micro_skill_key` exists in `micro_skill_catalog` and is active,
   assignable, and Domain `4`
@@ -1040,10 +1042,67 @@ Required gates before hosted release or production DB application:
   visibility change by Slice `4C`, or runtime behavior change was run
 
 `Slice 4D - candidate-review import`
-- future admin/operator import mode into dedicated seed import rows
-- imports only dry-run-safe candidate-review rows
-- no hidden canonical mapping creation
-- no resolver visibility
+- status: `implemented in source as service-role/operator-only import`
+- command:
+  `npm run writing-engine:seed-import-candidate-review`
+- imports from the exact shape:
+  `CSV -> Slice 4A dry-run report -> Slice 4D importer validation -> dedicated seed batch -> safe candidate seed rows`
+- requires:
+  - original source CSV path
+  - exact Slice `4A` dry-run JSON report path
+  - Slice `4C` schema proof artifact
+  - source license/provenance note
+  - `SUPABASE_URL` or `--supabase-url`
+  - `SUPABASE_SERVICE_ROLE_KEY` or `--supabase-service-role-key`
+  - explicit confirmation token
+    `IMPORT_SEED_CANDIDATE_REVIEW_ROWS`
+- validates before insert:
+  - approved dry-run report schema version `version_2_slice_4a_4`
+  - normalization version `spelling_normalize_v1`
+  - source CSV path matches `input_file` in the dry-run report
+  - current source CSV row contents still match the approved dry-run report
+  - source CSV and dry-run report SHA-256 hashes, with optional expected hash
+    pins
+  - at least one eligible `safe_for_candidate_review` row
+  - non-empty and different normalized spelling pairs
+  - non-empty dialect
+  - source confidence is null or within `0..1`
+  - row-level dry-run skill validation is `active_assignable_d4`
+  - import-time `micro_skill_catalog` validation confirms active,
+    assignable, Domain `4` keys
+  - no canonical match/conflict ids on imported rows
+  - no duplicate or same-file conflict group membership
+  - no active existing batch for the same source file hash
+  - Slice `4C` seed storage tables are reachable
+  - Slice `4C` schema proof confirms RLS enabled, zero RLS policies, no
+    `anon`/`authenticated` grants, service-role grants, and required storage
+    indexes/constraints
+  - hosted writes are blocked unless `--allow-hosted-write` is passed after a
+    separate hosted release approval
+  - protected-table counts are unchanged before/after import
+- inserts:
+  - one `spelling_seed_import_batches` row with source/report hashes,
+    dry-run lineage, validation context, operator attribution, counts, and
+    metadata
+  - only `safe_for_candidate_review` rows into
+    `spelling_seed_import_rows` with `row_status = 'pending_candidate_review'`
+- keeps `manual_review_required` and `rejected_from_import` rows report-only
+- quarantines a created batch if row insertion fails after batch creation
+- quarantines a created batch when the post-insert protected-table count check
+  fails, where possible
+- regression coverage:
+  `npm run writing-engine:seed-import-candidate-review-regression`
+- local-only smoke support:
+  `npm run writing-engine:seed-import-candidate-review-local-smoke`
+- local smoke passed against `127.0.0.1` / local Supabase with synthetic
+  local-only data: batch `c8539139-3a7a-44dc-a2c8-e5e786a4c2ec`, inserted row
+  count `1`, duplicate source-hash blocking verified, and protected table
+  counts unchanged
+- no hosted import has been run
+- no migration, runtime app behavior, admin UI, hidden canonical mapping
+  creation, resolver visibility, Review Work behavior, assignment generation,
+  mastery, rewards, dashboards, analytics, scoring, templates, parent/child
+  RLS policy, or `micro_skill_catalog` mutation was introduced
 
 `Slice 4E - seed-row admin review`
 - future admin-only review surface or operator action path for seed rows
@@ -1085,14 +1144,16 @@ Required gates before hosted release or production DB application:
 
 Slice `4A` is complete as dry-run/report-only behavior. Slice `4B` is complete
 as storage planning. Slice `4C` is implemented as a storage foundation only:
-dedicated seed import batch/row tables with admin/operator-only access controls
-and no runtime import path.
+dedicated seed import batch/row tables with admin/operator-only access controls.
+Slice `4D` is implemented in source as a service-role/operator-only
+candidate-review import path into those dedicated seed tables.
 
-The next manual decision gate is Slice `4D`: candidate-review import into the
-dedicated seed tables. Slice `4D` must remain separate from hidden canonical
-adoption and resolver visibility. Reusing parent recommendation or
-catalog-review tables for bulk external imports remains unsafe because it blurs
-authority lineage.
+The next base slice is Slice `4E`: seed-row admin review. It should define an
+admin/operator-only review surface or action path for imported seed rows to
+reject, mark duplicate, keep pending, or nominate for later canonical adoption.
+Slice `4E` must remain separate from hidden canonical adoption and resolver
+visibility. Reusing parent recommendation or catalog-review tables for bulk
+external imports remains unsafe because it blurs authority lineage.
 
 ## Docs-Only Update Prompt
 

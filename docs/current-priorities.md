@@ -56,7 +56,8 @@ excluded.
   [docs/implementation/version-2-roadmap.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/implementation/version-2-roadmap.md:1)
   to plan daily assignment practice and accelerated spelling-engine
   population without weakening truth boundaries.
-- Version 2.0 Slice `4` bulk candidate mapping import/review is now planned
+- Version 2.0 Slice `4` bulk candidate mapping import/review is implemented
+  through Slice `4D`
   in
   [docs/implementation/version-2-slice-4-bulk-candidate-mapping-import-review-plan.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/implementation/version-2-slice-4-bulk-candidate-mapping-import-review-plan.md:1).
   Slice `4A.1` is implemented as a pure CSV parser and file-only validator.
@@ -103,14 +104,41 @@ excluded.
   and expected indexes. No migration repair, hosted SQL patch,
   `supabase db push`, seed import, import/apply mode, or runtime behavior
   change was run.
+- Slice `4D` is implemented in source as a service-role/operator-only
+  candidate-review import command:
+  `npm run writing-engine:seed-import-candidate-review`. It requires the
+  original CSV, the exact Slice `4A` dry-run JSON report, a Slice `4C` schema
+  proof artifact, a source license note, service-role credentials in operator
+  context only, and the explicit confirmation token
+  `IMPORT_SEED_CANDIDATE_REVIEW_ROWS`. It validates current CSV contents
+  against the approved dry-run report, source/report hashes, dry-run schema
+  version, normalization version, safe candidate buckets, import-time
+  active/assignable/D4 micro-skill eligibility, duplicate/conflict evidence,
+  existing active source hashes, local-vs-hosted write approval, Slice `4C`
+  RLS/grant/index/constraint proof, and protected table counts, then writes
+  only `spelling_seed_import_batches` and `spelling_seed_import_rows`. A
+  local-only smoke command exists as
+  `npm run writing-engine:seed-import-candidate-review-local-smoke`; local
+  smoke passed against `127.0.0.1` / local Supabase with synthetic local-only
+  data, inserting one seed batch and one eligible seed row, verifying duplicate
+  source-hash blocking, and confirming protected table counts were unchanged.
+  Slice `4D` did not add
+  migrations, app runtime behavior, admin UI, hosted Supabase mutation,
+  canonical mapping creation, resolver visibility, Review Work behavior,
+  assignment generation, mastery, rewards, analytics, dashboards, scoring,
+  templates, parent/child RLS policies, or `micro_skill_catalog` mutation.
 - Review Work now supports engine suggestions, parent-added missed words,
   send-back, child retry, returned correction continuity, returned correction
   categorisation/admin/parent-local routing where safe, compact unified spelling
   table presentation, completion gating, historical terminal verification
   ownership, and `checking_only` terminal handling.
-- The next manual decision gate is whether to plan and approve Slice `4D`
-  candidate-review import into the dedicated seed tables. Do not restart Parent
-  Review spelling work unless a fresh bug is found.
+- The next base slice is Slice `4E` seed-row admin review. It should remain
+  admin/operator-only and may plan or implement review decisions for imported
+  seed rows such as reject, duplicate, keep pending, or nominate for later
+  canonical adoption. It must not create canonical mappings, enable resolver
+  visibility, change Review Work, generate assignments, or mutate
+  `micro_skill_catalog`. Do not run hosted imports or restart Parent Review
+  spelling work unless a fresh bug is found.
 
 ## Current stage
 

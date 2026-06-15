@@ -367,8 +367,61 @@ Canonical documentation now defers to:
     RLS/grants/FK/index schema verification passed
   - no migration repair, hosted SQL patch, `supabase db push`, seed import, or
     runtime behavior change was run during the production release
-  - next manual decision gate is Slice `4D` candidate-review import into the
-    dedicated seed tables
+- Version 2.0 Slice `4D` is implemented in source as candidate-review import
+  into the dedicated seed tables only:
+  - added `scripts/writing-engine-seed-import-candidate-review.ts`
+  - added `npm run writing-engine:seed-import-candidate-review`
+  - added focused regression coverage in
+    `scripts/writing-engine-seed-import-candidate-review-regression.ts`
+  - added `npm run writing-engine:seed-import-candidate-review-regression`
+  - added local-only smoke support in
+    `scripts/writing-engine-seed-import-candidate-review-local-smoke.ts`
+  - added `npm run writing-engine:seed-import-candidate-review-local-smoke`
+  - the importer requires the original CSV, the exact Slice `4A` dry-run JSON
+    report, a Slice `4C` schema proof artifact, source license/provenance note,
+    service-role credentials in operator context only, and explicit
+    confirmation token `IMPORT_SEED_CANDIDATE_REVIEW_ROWS`
+  - validates current CSV contents against the approved report, source/report
+    hashes, approved dry-run schema version
+    `version_2_slice_4a_4`, normalization version `spelling_normalize_v1`,
+    safe candidate-review buckets, non-empty normalized pairs, dialect,
+    confidence bounds, no canonical conflicts, no file duplicate/conflict
+    groups, no active same-source batch, and import-time active/assignable/D4
+    `micro_skill_catalog` eligibility
+  - requires Slice `4C` schema proof for RLS enabled, zero parent/client
+    policies, no `anon`/`authenticated` grants, service-role grants, and key
+    storage indexes/constraints before import planning
+  - hosted write targets require explicit `--allow-hosted-write` in addition
+    to separate release approval
+  - inserts one `spelling_seed_import_batches` row and only
+    `safe_for_candidate_review` `spelling_seed_import_rows`; manual-review and
+    rejected rows remain report-only
+  - captures protected-table counts before/after and fails if any protected
+    table count changes; post-insert protected-count failures quarantine the
+    created batch where possible
+  - local smoke support can generate a Slice `4C` schema proof through local
+    Postgres or Docker `psql`, create synthetic local-only CSV/report input,
+    run one import, verify one inserted row, verify duplicate source-hash
+    blocking, and confirm protected table counts are unchanged
+  - local smoke passed against `127.0.0.1` / local Supabase with synthetic
+    local-only data: batch `c8539139-3a7a-44dc-a2c8-e5e786a4c2ec`, inserted row
+    count `1`, duplicate source-hash blocking verified, and protected table
+    counts unchanged
+  - no hosted import was run
+  - no migrations, runtime app behavior, admin UI, canonical mapping creation,
+    resolver visibility, Review Work behavior, assignment/mastery/reward/
+    dashboard/analytics/scoring/template changes, parent/child RLS policies,
+    or `micro_skill_catalog` mutation were introduced
+  - validation passed:
+    `npm run writing-engine:seed-import-candidate-review-regression`,
+    `npm run writing-engine:seed-import-candidate-review-local-smoke`,
+    `npm run writing-engine:seed-import-dry-run-regression`,
+    `npx tsc --noEmit`, and `git diff --check`
+  - next base slice is Slice `4E` seed-row admin review: admin/operator-only
+    review decisions for imported seed rows such as reject, duplicate, keep
+    pending, or nominate for later canonical adoption, with no canonical
+    mapping creation, resolver visibility, Review Work change, assignment
+    generation, or `micro_skill_catalog` mutation
 - A bounded post-Stage-`7` parent-facing evidence-transparency slice is now
   complete.
 - The app is currently suitable for private parent-led use with one child,

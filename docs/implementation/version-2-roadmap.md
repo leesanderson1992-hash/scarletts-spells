@@ -557,7 +557,7 @@ Hard boundary:
 
 ### Slice 4 - Bulk candidate mapping import/review
 
-Status: `planned; first implementation slice is dry-run/report only`
+Status: `implemented through Slice 4D; next base slice is Slice 4E seed-row admin review`
 
 Goal:
 - allow admin/operator to import or generate batches of candidate spelling
@@ -582,6 +582,13 @@ Planning closeout:
   `supabase/migrations/20260421_add_false_positive_to_misspelling_instances.sql`
   so the Supabase CLI can compare the legacy production ledger row without
   migration repair
+- Slice `4D` candidate-review import is implemented and QA-tested as a
+  service-role/operator-only source path into the dedicated seed tables. It
+  imports only approved `safe_for_candidate_review` rows from an exact
+  Slice `4A` dry-run report, requires Slice `4C` schema proof, validates
+  current CSV/report consistency, blocks hosted writes unless explicitly
+  approved, preserves protected-table count checks, and has local-only smoke
+  proof against `127.0.0.1` / local Supabase with synthetic data.
 - do not reuse `spelling_canonical_mapping_recommendations` for bulk external
   seed imports because PCRM rows mean scoped parent recommendation evidence
 - do not reuse `spelling_catalog_review_cases` for bulk external seed imports
@@ -683,7 +690,9 @@ Staged implementation breakdown:
   docs/planning only
 - `Slice 4C` seed import storage foundation: implemented as storage foundation
   only
-- `Slice 4D` candidate-review import
+- `Slice 4D` candidate-review import: implemented and QA-tested as
+  service-role/operator-only source work with local smoke proof; no hosted
+  import was run
 - `Slice 4E` seed-row admin review
 - `Slice 4F` explicit hidden-canonical adoption from seed rows
 - `Slice 4G` resolver visibility consideration
@@ -706,9 +715,12 @@ Hard boundary:
 - any DB-changing implementation requires a unique timestamp migration and
   hosted migration-ledger safety check
 
-Next manual decision gate:
-- plan and approve Slice `4D` candidate-review import into the dedicated seed
-  tables
+Next base slice:
+- Slice `4E` seed-row admin review. It should define an admin/operator review
+  surface or action path for imported seed rows to reject, mark duplicate,
+  keep pending, or nominate for later canonical adoption. It must not create
+  canonical mappings, enable resolver visibility, alter Review Work, generate
+  assignments, or mutate `micro_skill_catalog`.
 
 #### Slice 4A docs-only update prompt
 
