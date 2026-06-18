@@ -557,7 +557,7 @@ Hard boundary:
 
 ### Slice 4 - Bulk candidate mapping import/review
 
-Status: `implemented through Slice 4D; next base slice is Slice 4E seed-row admin review`
+Status: `implemented through Slice 4E.1 seed-row admin review read model/listing; next base slice is Slice 4E.2 decision actions`
 
 Goal:
 - allow admin/operator to import or generate batches of candidate spelling
@@ -589,6 +589,21 @@ Planning closeout:
   current CSV/report consistency, blocks hosted writes unless explicitly
   approved, preserves protected-table count checks, and has local-only smoke
   proof against `127.0.0.1` / local Supabase with synthetic data.
+- Slice `4E.0` seed-row admin review is registered as docs/contract only. It
+  selects a no-migration private-MVP stance using existing seed row
+  `row_status`, review audit fields, review note, status reason, duplicate
+  lineage, and metadata; defines status-only decisions; reserves
+  `adopted_hidden_canonical`, `canonical_mapping_id`, and
+  `spelling_canonical_mappings` writes for later Slice `4F`; and keeps admin
+  access server-only behind the existing allowlist/service-role boundary.
+- Slice `4E.1` seed-row admin review read model/listing is implemented as a
+  server-only admin surface at `/admin/seed-import-review`, linked from the
+  spelling admin hub and admin navigation. It reads seed import batches/rows
+  and micro-skill labels only after admin authorization, displays provenance
+  and review-read-model fields, and adds no mutation actions, canonical mapping
+  writes, resolver visibility, Review Work behavior, assignments, mastery,
+  rewards, dashboards, analytics, scoring, templates, parent/child RLS
+  policies, or `micro_skill_catalog` mutation.
 - do not reuse `spelling_canonical_mapping_recommendations` for bulk external
   seed imports because PCRM rows mean scoped parent recommendation evidence
 - do not reuse `spelling_catalog_review_cases` for bulk external seed imports
@@ -693,7 +708,12 @@ Staged implementation breakdown:
 - `Slice 4D` candidate-review import: implemented and QA-tested as
   service-role/operator-only source work with local smoke proof; no hosted
   import was run
-- `Slice 4E` seed-row admin review
+- `Slice 4E.0` seed-row admin review contract: implemented as docs/planning
+  only
+- `Slice 4E.1` seed-row admin review read model/listing: implemented
+- `Slice 4E.2` seed-row admin review decision actions
+- `Slice 4E.3` minimal admin UI/table if useful after read/action proof
+- `Slice 4E.4` QA/browser/docs closeout
 - `Slice 4F` explicit hidden-canonical adoption from seed rows
 - `Slice 4G` resolver visibility consideration
 
@@ -716,11 +736,13 @@ Hard boundary:
   hosted migration-ledger safety check
 
 Next base slice:
-- Slice `4E` seed-row admin review. It should define an admin/operator review
-  surface or action path for imported seed rows to reject, mark duplicate,
-  keep pending, or nominate for later canonical adoption. It must not create
-  canonical mappings, enable resolver visibility, alter Review Work, generate
-  assignments, or mutate `micro_skill_catalog`.
+- Slice `4E.2` seed-row admin review decision actions. It should add
+  server-only status-only actions for imported seed rows, using
+  `requireAdminUser()` before service-role writes. It must not write outside
+  `spelling_seed_import_rows`, create canonical mappings, write
+  `canonical_mapping_id`, set `adopted_hidden_canonical`, enable resolver
+  visibility, alter Review Work, generate assignments, or mutate
+  `micro_skill_catalog`.
 
 #### Slice 4A docs-only update prompt
 

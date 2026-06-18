@@ -10,6 +10,12 @@ const OPEN_RECOMMENDATION_STATUSES = new Set([
   "recommended",
   "pending_admin_review",
 ]);
+const OPEN_SEED_IMPORT_ROW_STATUSES = new Set([
+  "pending_candidate_review",
+  "kept_pending",
+  "conflict_blocked",
+  "nominated_for_canonical_adoption",
+]);
 
 type QueueSummary = {
   openCount: number;
@@ -131,6 +137,29 @@ async function getCanonicalRecommendationSummary() {
   );
 }
 
+async function getSeedImportRowSummary() {
+  const supabase = createServiceRoleClient();
+  const { data, error } = await supabase
+    .from("spelling_seed_import_rows")
+    .select("row_status, updated_at")
+    .order("updated_at", { ascending: false })
+    .limit(250);
+
+  if (error) {
+    throw error;
+  }
+
+  return buildSummary(
+    ((data ?? []) as Array<{ row_status: string; updated_at: string | null }>).map(
+      (row) => ({
+        status: row.row_status,
+        updated_at: row.updated_at,
+      }),
+    ),
+    OPEN_SEED_IMPORT_ROW_STATUSES,
+  );
+}
+
 function StatusPills({ summary }: { summary: QueueSummary }) {
   if (summary.statusCounts.length === 0) {
     return (
@@ -247,13 +276,16 @@ export default async function AdminSpellingReviewPage() {
 
   let catalogGapSummary: QueueSummary | null = null;
   let recommendationSummary: QueueSummary | null = null;
+  let seedImportRowSummary: QueueSummary | null = null;
   let hasError = false;
 
   try {
-    [catalogGapSummary, recommendationSummary] = await Promise.all([
-      getCatalogGapSummary(),
-      getCanonicalRecommendationSummary(),
-    ]);
+    [catalogGapSummary, recommendationSummary, seedImportRowSummary] =
+      await Promise.all([
+        getCatalogGapSummary(),
+        getCanonicalRecommendationSummary(),
+        getSeedImportRowSummary(),
+      ]);
   } catch {
     hasError = true;
   }
@@ -267,9 +299,10 @@ export default async function AdminSpellingReviewPage() {
             Spelling Review
           </h1>
           <p className="brand-copy mt-4 max-w-3xl text-sm leading-6">
-            One place to see the two spelling admin queues. The queues remain
-            separate so catalog gaps, parent recommendations, canonical mapping
-            storage, and resolver visibility keep their current boundaries.
+            One place to see the spelling admin queues. The queues remain
+            separate so catalog gaps, parent recommendations, seed imports,
+            canonical mapping storage, and resolver visibility keep their
+            current boundaries.
           </p>
           <Link
             href="/admin/canonical-mappings"
@@ -279,7 +312,10 @@ export default async function AdminSpellingReviewPage() {
           </Link>
         </header>
 
-        {hasError || !catalogGapSummary || !recommendationSummary ? (
+        {hasError ||
+        !catalogGapSummary ||
+        !recommendationSummary ||
+        !seedImportRowSummary ? (
           <ErrorState />
         ) : (
           <>
@@ -298,6 +334,14 @@ export default async function AdminSpellingReviewPage() {
               sourceTable="spelling_canonical_mapping_recommendations"
               summary={recommendationSummary}
               title="Parent recommended canonical mappings"
+            />
+            <QueueSection
+              description="Seed imports: external/operator candidate evidence awaiting read-only review."
+              href="/admin/seed-import-review"
+              linkLabel="Open seed imports"
+              sourceTable="spelling_seed_import_rows"
+              summary={seedImportRowSummary}
+              title="Imported seed candidate rows"
             />
           </>
         )}

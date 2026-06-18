@@ -127,15 +127,35 @@ excluded.
   canonical mapping creation, resolver visibility, Review Work behavior,
   assignment generation, mastery, rewards, analytics, dashboards, scoring,
   templates, parent/child RLS policies, or `micro_skill_catalog` mutation.
+- Slice `4E.0` is registered as docs/planning only for seed-row admin review.
+  It defines a no-migration private-MVP contract using existing
+  `spelling_seed_import_rows` status/review fields for status-only decisions
+  such as keep pending, reject, duplicate, conflict blocked, supersede, or
+  nominate for later canonical adoption. It explicitly reserves
+  `adopted_hidden_canonical`, `canonical_mapping_id`, and
+  `spelling_canonical_mappings` writes for later Slice `4F`; it does not add
+  runtime code, migrations, Supabase mutation, admin UI, resolver visibility,
+  Review Work behavior, assignments, mastery, rewards, analytics, dashboards,
+  scoring, templates, parent/child access, or `micro_skill_catalog` mutation.
+- Slice `4E.1` is implemented as a server-only admin/operator read
+  model/listing at `/admin/seed-import-review`, linked from the spelling admin
+  hub and admin navigation. It reads `spelling_seed_import_batches`,
+  `spelling_seed_import_rows`, and `micro_skill_catalog` labels only after the
+  existing admin allowlist guard, displays seed provenance and review-read-model
+  fields, and adds no decision actions, Supabase writes, canonical mapping
+  creation, `canonical_mapping_id` writes, resolver visibility, Review Work
+  behavior, assignments, mastery, rewards, analytics, dashboards, scoring,
+  templates, parent/child access, or `micro_skill_catalog` mutation.
 - Review Work now supports engine suggestions, parent-added missed words,
   send-back, child retry, returned correction continuity, returned correction
   categorisation/admin/parent-local routing where safe, compact unified spelling
   table presentation, completion gating, historical terminal verification
   ownership, and `checking_only` terminal handling.
-- The next base slice is Slice `4E` seed-row admin review. It should remain
-  admin/operator-only and may plan or implement review decisions for imported
-  seed rows such as reject, duplicate, keep pending, or nominate for later
-  canonical adoption. It must not create canonical mappings, enable resolver
+- The next base slice is Slice `4E.2` seed-row admin review decision actions.
+  It should remain admin/operator-only and status-only, using the existing
+  server-side admin allowlist before service-role writes. It must not write
+  outside `spelling_seed_import_rows`, create canonical mappings, write
+  `canonical_mapping_id`, set `adopted_hidden_canonical`, enable resolver
   visibility, change Review Work, generate assignments, or mutate
   `micro_skill_catalog`. Do not run hosted imports or restart Parent Review
   spelling work unless a fresh bug is found.

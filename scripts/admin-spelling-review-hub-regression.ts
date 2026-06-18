@@ -48,6 +48,16 @@ assert.match(
 );
 assert.match(
   hubPage,
+  /spelling_seed_import_rows/,
+  "Hub page must show the seed import row queue source.",
+);
+assert.match(
+  hubPage,
+  /href="\/admin\/seed-import-review"/,
+  "Hub page must include the seed-import review route link.",
+);
+assert.match(
+  hubPage,
   /Catalog gaps: parent could not find a suitable existing skill\./,
   "Hub page must explain catalog gaps plainly.",
 );
@@ -70,6 +80,11 @@ assert.match(
   appShell,
   /label: "Canonical Recommendations"[\s\S]*href: "\/admin\/canonical-recommendations"/,
   "Admin navigation must preserve the canonical-recommendations link.",
+);
+assert.match(
+  appShell,
+  /label: "Seed Import Review", href: "\/admin\/seed-import-review"/,
+  "Admin navigation must include the seed-import review link.",
 );
 assert.doesNotMatch(
   hubPage,

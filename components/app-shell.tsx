@@ -74,6 +74,7 @@ function getNavSections(mode: AppMode): NavSection[] {
           label: "Canonical Recommendations",
           href: "/admin/canonical-recommendations",
         },
+        { label: "Seed Import Review", href: "/admin/seed-import-review" },
       ],
     },
   ];

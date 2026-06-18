@@ -417,11 +417,51 @@ Canonical documentation now defers to:
     `npm run writing-engine:seed-import-candidate-review-local-smoke`,
     `npm run writing-engine:seed-import-dry-run-regression`,
     `npx tsc --noEmit`, and `git diff --check`
-  - next base slice is Slice `4E` seed-row admin review: admin/operator-only
-    review decisions for imported seed rows such as reject, duplicate, keep
-    pending, or nominate for later canonical adoption, with no canonical
-    mapping creation, resolver visibility, Review Work change, assignment
-    generation, or `micro_skill_catalog` mutation
+- Version 2.0 Slice `4E.0` is registered as docs/planning only for seed-row
+  admin review:
+  - defines the product purpose as admin/operator review of external seed row
+    evidence only
+  - selects a no-migration private-MVP stance using existing
+    `spelling_seed_import_rows` status, reason, review note, review audit,
+    duplicate lineage, and metadata fields
+  - defines status-only decisions for keep pending/reopen, reject, duplicate,
+    conflict blocked, nomination for later canonical adoption, and supersede
+  - explicitly forbids Slice `4E` from writing `adopted_hidden_canonical`,
+    `canonical_mapping_id`, `spelling_canonical_mappings`, canonical mapping
+    events, or resolver visibility
+  - keeps admin access server-only through the existing allowlist and
+    post-authorization service-role boundary
+  - records that no append-only seed-row decision ledger exists yet; broader
+    or multi-admin use should add later audit hardening
+  - no runtime code, migrations, Supabase mutation, admin UI, canonical mapping
+    creation, resolver visibility, Review Work behavior, assignment/mastery/
+    reward/dashboard/analytics/scoring/template changes, parent/child RLS
+    policies, or `micro_skill_catalog` mutation were introduced
+- Version 2.0 Slice `4E.1` is implemented as a server-only admin/operator seed
+  import read model/listing:
+  - added `/admin/seed-import-review`
+  - added seed import review to `/admin/spelling-review` and admin navigation
+  - the page calls `requireAdminUser()` before service-role reads
+  - reads only `spelling_seed_import_batches`, `spelling_seed_import_rows`, and
+    `micro_skill_catalog` labels
+  - displays batch provenance/license/report lineage, row pair, suggested
+    micro-skill, confidence, dry-run bucket/reasons, canonical match/conflict
+    counts, supporting evidence counts, current status, status reason, review
+    note, duplicate lineage, and reviewer fields
+  - discloses that no append-only decision history exists yet
+  - added `npm run writing-engine:seed-import-admin-review-read-model-regression`
+  - no decision actions, migrations, Supabase writes, canonical mapping
+    creation, `canonical_mapping_id` writes, resolver visibility, Review Work
+    behavior, assignment/mastery/reward/dashboard/analytics/scoring/template
+    changes, parent/child RLS policies, or `micro_skill_catalog` mutation were
+    introduced
+  - validation passed:
+    `npm run writing-engine:seed-import-admin-review-read-model-regression`,
+    `npm run writing-engine:admin-spelling-review-hub-regression`, and
+    `npx tsc --noEmit`
+  - next base slice is Slice `4E.2` seed-row admin review decision actions:
+    status-only writes to existing seed row review fields, with no canonical or
+    resolver side effects
 - A bounded post-Stage-`7` parent-facing evidence-transparency slice is now
   complete.
 - The app is currently suitable for private parent-led use with one child,
