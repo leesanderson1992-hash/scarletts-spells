@@ -161,11 +161,31 @@ excluded.
   categorisation/admin/parent-local routing where safe, compact unified spelling
   table presentation, completion gating, historical terminal verification
   ownership, and `checking_only` terminal handling.
-- The next base decision is whether to close Slice `4E.2` with a stage/commit,
-  run a narrow Slice `4E.3` UI/audit polish pass after real operator use, or
-  move to a separate Slice `4F` explicit hidden-canonical adoption prompt. Do
-  not run hosted imports or restart Parent Review spelling work unless a fresh
-  bug is found.
+- Slice `4F` explicit hidden-canonical adoption from seed rows is implemented
+  and local/source QA-passed. It adds a service-role-only security-definer RPC,
+  first-class `source_seed_import_row_id` canonical lineage, a
+  `seed_import_adopted` canonical mapping event, a server-only admin action
+  under `/admin/seed-import-review`, and minimal adoption controls only for
+  nominated unlinked seed rows. The path creates or links hidden active
+  canonical mappings only; resolver visibility remains disabled.
+- Slice `4F.1` adds a guarded local/staging smoke harness:
+  `npm run writing-engine:seed-import-hidden-canonical-adoption-local-smoke`.
+  Local smoke passed after applying the new 4F migration to local Supabase
+  only, creating synthetic seed-import evidence, adopting one real nominated
+  seed row into hidden canonical truth, verifying `resolver_visibility_status =
+  'hidden'`, verifying `created` and `seed_import_adopted` events, and proving
+  protected table counts plus `micro_skill_catalog` stayed unchanged. The
+  smoke refuses production Supabase and allows staging only with an explicit
+  staging confirmation.
+- Hosted production release for the 4F migration is complete. The release used
+  a manual single-migration SQL patch after a production migration-ledger and
+  schema preflight, then recorded version `20260618120000` in
+  `supabase_migrations.schema_migrations`. Post-release verification confirmed
+  the RPC exists, seed-row lineage columns exist, `seed_import_adopted` is
+  allowed, seed rows still have no anon/authenticated grants, and only
+  `service_role` can execute the 4F RPC. Staging smoke remains optional and
+  separate. The next product/architecture stage can now be Slice `4G` resolver
+  visibility consideration, with 4F documented as hidden canonical truth only.
 
 ## Current stage
 

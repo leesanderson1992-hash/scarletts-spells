@@ -111,6 +111,14 @@ export type AdoptSpellingCanonicalMappingRecommendationInput = {
   metadata?: Record<string, unknown>;
 };
 
+export type AdoptSeedImportRowHiddenCanonicalInput = {
+  seedImportRowId: string;
+  adminUserId: string;
+  adminEmail?: string | null;
+  note: string;
+  metadata?: Record<string, unknown>;
+};
+
 function normalizeLookupText(value: string | null | undefined) {
   if (typeof value !== "string") {
     return null;
@@ -332,6 +340,41 @@ export async function adoptSpellingCanonicalMappingRecommendationAdmin(input: {
 
   if (typeof data !== "string") {
     throw new Error("PCRM canonical adoption RPC did not return a mapping id.");
+  }
+
+  return data;
+}
+
+export async function adoptSeedImportRowHiddenCanonicalAdmin(input: {
+  supabase?: ServiceRoleClient;
+  adoption: AdoptSeedImportRowHiddenCanonicalInput;
+}) {
+  const supabase = input.supabase ?? createServiceRoleClient();
+  const { adoption } = input;
+
+  const { data, error } = await supabase.rpc(
+    "adopt_seed_import_row_hidden_canonical_admin",
+    {
+      p_admin_email: adoption.adminEmail ?? null,
+      p_admin_user_id: adoption.adminUserId,
+      p_metadata: {
+        ...(adoption.metadata ?? {}),
+        resolver_visible: false,
+        resolver_visibility_status: "hidden",
+      },
+      p_note: adoption.note,
+      p_seed_import_row_id: adoption.seedImportRowId,
+    },
+  );
+
+  if (error) {
+    throw new Error(
+      error.message || "Failed to adopt seed import row into hidden canonical truth.",
+    );
+  }
+
+  if (typeof data !== "string") {
+    throw new Error("Seed import hidden canonical adoption RPC did not return a mapping id.");
   }
 
   return data;

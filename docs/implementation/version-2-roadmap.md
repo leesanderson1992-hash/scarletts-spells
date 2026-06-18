@@ -557,7 +557,7 @@ Hard boundary:
 
 ### Slice 4 - Bulk candidate mapping import/review
 
-Status: `implemented through Slice 4E.2 seed-row admin review decision actions; next base decision is Slice 4E.3 UI polish/docs closeout or Slice 4F explicit hidden-canonical adoption`
+Status: `implemented through Slice 4F.1 local/staging hidden-canonical adoption smoke; Slice 4G resolver visibility consideration remains separate`
 
 Goal:
 - allow admin/operator to import or generate batches of candidate spelling
@@ -613,6 +613,25 @@ Planning closeout:
   preserve the no-canonical/no-resolver boundary. The page includes minimal
   admin-only status controls and continues to disclose that decision history is
   not append-only.
+- Slice `4F` explicit hidden-canonical adoption from seed rows is implemented
+  as a hidden-only canonical truth adoption path. It adds one unique timestamp
+  migration, service-role-only RPC
+  `adopt_seed_import_row_hidden_canonical_admin`, first-class
+  `source_seed_import_row_id` lineage on canonical mappings/events, the
+  `seed_import_adopted` event type, a server-only admin action under
+  `/admin/seed-import-review`, and adoption controls only for nominated
+  unlinked seed rows. It can create or link active hidden canonical mappings
+  but cannot enable resolver visibility or change resolver/runtime behavior.
+- Slice `4F.1` local/staging hidden-canonical adoption smoke is implemented.
+  The smoke creates synthetic seed-import data only, chooses an existing active
+  assignable D4 micro-skill, inserts one eligible nominated seed row, calls the
+  4F RPC through service-role, asserts the row becomes
+  `adopted_hidden_canonical`, asserts the mapping remains
+  `resolver_visibility_status = 'hidden'`, verifies `created` and
+  `seed_import_adopted` events, proves no `resolver_visibility_enabled` event
+  was created, and confirms protected table counts plus `micro_skill_catalog`
+  are unchanged. It refuses production Supabase and allows staging only with an
+  explicit staging confirmation.
 - do not reuse `spelling_canonical_mapping_recommendations` for bulk external
   seed imports because PCRM rows mean scoped parent recommendation evidence
 - do not reuse `spelling_catalog_review_cases` for bulk external seed imports
@@ -724,7 +743,10 @@ Staged implementation breakdown:
 - `Slice 4E.3` optional UI polish or audit-hardening decision if useful after
   live operator use
 - `Slice 4E.4` optional broader QA/browser/docs closeout if 4E.3 proceeds
-- `Slice 4F` explicit hidden-canonical adoption from seed rows
+- `Slice 4F` explicit hidden-canonical adoption from seed rows: implemented
+  and local/source QA-passed
+- `Slice 4F.1` local/staging hidden-canonical adoption smoke: implemented;
+  local smoke passed after applying the 4F migration to local Supabase only
 - `Slice 4G` resolver visibility consideration
 
 Hard boundary:
@@ -746,11 +768,11 @@ Hard boundary:
   hosted migration-ledger safety check
 
 Next base decision:
-- close out Slice `4E.2` by staging and committing the status-only decision
-  implementation and docs, then choose between a narrow Slice `4E.3` UI/audit
-  polish pass or Slice `4F` explicit hidden-canonical adoption from seed rows.
-  Do not proceed to canonical adoption without a fresh Slice `4F` prompt and
-  explicit no-resolver-visibility safeguards.
+- proceed to Slice `4G` resolver visibility consideration only after accepting
+  the 4F closeout boundary: 4F creates or links hidden canonical truth only,
+  does not make mappings resolver-visible, and does not change resolver
+  behavior. Hosted/staging release remains a separate Supabase migration-policy
+  decision because the 4F migration was applied locally for smoke proof only.
 
 #### Slice 4A docs-only update prompt
 

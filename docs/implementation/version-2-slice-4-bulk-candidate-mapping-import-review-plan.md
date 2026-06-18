@@ -1295,10 +1295,14 @@ Required gates before hosted release or production DB application:
     canonical truth
 
 `Slice 4F - explicit hidden-canonical adoption from seed rows`
-- future audited admin action only
+- implemented as an audited admin action only
 - creates or links canonical mapping truth with resolver visibility disabled
-- writes canonical mapping events
-- requires explicit admin confirmation
+- writes canonical mapping events, including `seed_import_adopted`
+- updates the source seed row only after canonical create/link succeeds
+- requires explicit admin confirmation and adoption note
+- uses first-class `source_seed_import_row_id` lineage and the service-role-only
+  RPC `adopt_seed_import_row_hidden_canonical_admin`
+- must not enable resolver visibility or change resolver output
 
 `Slice 4G - resolver visibility consideration`
 - future separate resolver-visibility workflow only
@@ -1341,14 +1345,319 @@ registered as a docs-only seed-row admin review contract. Slice `4E.1` is
 implemented as a server-only admin/operator read model and listing for imported
 seed rows. Slice `4E.2` is implemented as status-only admin/operator review
 decision actions for imported seed rows, with no canonical mapping creation or
-resolver visibility. Slice `4E` remains separate from hidden canonical adoption
-and resolver visibility. Reusing parent recommendation or catalog-review tables
-for bulk external imports remains unsafe because it blurs authority lineage.
+resolver visibility. Slice `4F` is implemented as explicit hidden-canonical
+adoption from nominated seed rows only. It can create or link active hidden
+canonical mappings, records first-class seed-row lineage, writes canonical
+mapping events, and updates the seed row to `adopted_hidden_canonical` only
+after canonical create/link succeeds. Resolver visibility remains separate and
+unchanged. Reusing parent recommendation or catalog-review tables for bulk
+external imports remains unsafe because it blurs authority lineage.
 
-The next base decision is to stage and commit the Slice `4E.2` implementation
-and docs closeout, then choose whether a narrow Slice `4E.3` UI/audit polish
-pass is needed before moving to the separate Slice `4F` hidden-canonical
-adoption workflow.
+Slice `4F.1` is implemented as a local/staging-only smoke harness that proves
+the full 4F adoption loop with synthetic seed-import data. The local smoke
+passed after applying the 4F migration to local Supabase only. Hosted/staging
+release remains a separate migration-policy and release-approval decision.
+
+The next base decision is Slice `4G` resolver visibility consideration. Slice
+`4G` must treat 4F mappings as hidden canonical truth only until a separate,
+explicit, audited resolver visibility decision enables a mapping.
+
+## Slice 4F / 4F.1 Implementation Closeout
+
+Slice `4F` added:
+- `supabase/migrations/20260618120000_add_seed_import_hidden_canonical_adoption_rpc.sql`
+- first-class `source_seed_import_row_id` lineage on
+  `spelling_canonical_mappings` and `spelling_canonical_mapping_events`
+- `seed_import_adopted` canonical mapping event support
+- service-role-only security-definer RPC
+  `adopt_seed_import_row_hidden_canonical_admin`
+- server-only wrapper
+  `adoptSeedImportRowHiddenCanonicalAdmin`
+- server-only admin action
+  `app/admin/seed-import-review/adoption-actions.ts`
+- centralized adoption input validation in
+  `app/admin/seed-import-review/adoption-rules.ts`
+- minimal `/admin/seed-import-review` controls for rows with
+  `row_status = 'nominated_for_canonical_adoption'` and no
+  `canonical_mapping_id`
+- focused regression
+  `npm run writing-engine:seed-import-hidden-canonical-adoption-regression`
+
+Slice `4F` implemented the required eligibility and conflict rules:
+- source row must exist, be nominated, be unlinked, and not be duplicate,
+  rejected, superseded, conflict-blocked, already adopted, or manual review
+- duplicate target lineage is blocked from direct adoption
+- source row must come from `dry_run_bucket = 'safe_for_candidate_review'`
+- source/batch provenance must include auditable source, dataset, license,
+  file, report, batch, and row lineage
+- normalized misspelling/correction must be non-empty and different
+- dialect and normalization version are required
+- suggested micro-skill must be active, assignable, and Domain `D4`
+- blocking errors and unresolved canonical conflicts block adoption
+- missing admin note blocks adoption
+- existing hidden active exact-pair same-skill mappings can be linked
+- visible, disabled, deprecated, superseded, exact-pair different-skill, and
+  same-misspelling/different-correction conflicts block adoption
+
+Slice `4F` preserved the no-resolver-visibility safeguards:
+- new mappings are inserted with `resolver_visibility_status = 'hidden'`
+- adoption events use null-to-hidden or hidden-to-hidden resolver visibility
+- no resolver visibility enable RPC/action is called
+- no `resolver_visibility_enabled` event is produced by 4F
+- no Stage `2A`/`2C` resolver behavior changed
+- Review Work, assignments, mastery, rewards, dashboards, analytics, scoring,
+  templates, child/parent workflows, parent/child access, and
+  `micro_skill_catalog` mutation remain out of scope
+
+Slice `4F.1` added:
+- `scripts/writing-engine-seed-import-hidden-canonical-adoption-local-smoke.ts`
+- package script
+  `npm run writing-engine:seed-import-hidden-canonical-adoption-local-smoke`
+- smoke safety rails that refuse production Supabase, refuse non-local targets
+  by default, and allow only explicitly confirmed staging at the named staging
+  Supabase URL
+- synthetic-only seed import batch/row creation with smoke metadata
+- live local assertion that protected table counts and `micro_skill_catalog`
+  remain unchanged
+
+Slice `4F.1` local smoke result:
+- local Supabase was available at `http://127.0.0.1:54321`
+- the new 4F migration was applied to the local Supabase DB container only
+- the live smoke created one synthetic nominated seed import row and adopted it
+  through `adopt_seed_import_row_hidden_canonical_admin`
+- the adopted row became `adopted_hidden_canonical`
+- the row received a `canonical_mapping_id`
+- the canonical mapping was `active` and
+  `resolver_visibility_status = 'hidden'`
+- the mapping carried `source_seed_import_row_id`
+- canonical events included `created` and `seed_import_adopted`
+- no `resolver_visibility_enabled` event was created
+- protected table counts and `micro_skill_catalog` stayed unchanged
+
+Validation passed:
+- `npm run writing-engine:seed-import-review-decision-regression`
+- `npm run writing-engine:seed-import-admin-review-read-model-regression`
+- `npm run writing-engine:admin-spelling-review-hub-regression`
+- `npm run writing-engine:seed-import-hidden-canonical-adoption-regression`
+- `npm run writing-engine:seed-import-hidden-canonical-adoption-local-smoke`
+- `npx tsc --noEmit`
+- `npm run build`
+- `git diff --check`
+- browser/admin smoke for `/admin/seed-import-review` with current local data
+
+Hosted release status:
+- the 4F migration was applied to hosted production as a manual single-migration
+  SQL patch after production migration-ledger and schema preflight
+- hosted ledger row `20260618120000 / add_seed_import_hidden_canonical_adoption_rpc`
+  was recorded in `supabase_migrations.schema_migrations`
+- post-release verification confirmed the 4F RPC exists, mapping/event
+  `source_seed_import_row_id` lineage columns exist, `seed_import_adopted` is
+  accepted by the event-type constraint, seed rows still have no
+  anon/authenticated grants, and only `service_role` can execute the 4F RPC
+
+Remaining caveats:
+- staging was not mutated in this release; staging smoke can be run with the
+  4F.1 harness only after an explicit staging confirmation and staging
+  service-role key are supplied
+- no hosted synthetic adoption smoke was run, by design, to avoid creating
+  production smoke seed/canonical rows
+- Slice `4G` must not treat hidden canonical adoption as resolver-visible truth
+  or assignment/mastery eligibility
+
+## Slice 4F Implementation Prompt
+
+```md
+Adopt the role of a CTO, senior Writing Engine architect, admin workflow
+designer, Supabase/RLS safety reviewer, canonical mapping authority reviewer,
+and release-safety reviewer for Scarlett's Spells.
+
+Implement Version 2.0 Slice 4F only: explicit hidden-canonical adoption from
+imported seed rows.
+
+Use these controlling docs:
+- docs/implementation/version-2-roadmap.md
+- docs/implementation/version-2-slice-4-bulk-candidate-mapping-import-review-plan.md
+- docs/implementation/targeted-writing-practice-status.md
+- docs/current-priorities.md
+- docs/contracts/micro-skill-taxonomy-and-assignment-contract.md
+- docs/contracts/canonical-spelling-word-map-contract.md
+- docs/contracts/parent-recommended-canonical-mapping.md
+- docs/contracts/writing-engine-mastery-and-evidence-contract.md
+- docs/architecture/writing-engine-canonical-brief.md
+- docs/architecture/admin-internal-access.md
+- docs/operations/supabase-migration-policy.md
+- supabase/migrations/20260614120000_add_spelling_seed_import_storage.sql
+- supabase/migrations_archive/pre_baseline_2026_05/20260522_z_add_spelling_canonical_mapping_storage.sql
+- supabase/migrations/20260605103000_add_resolver_visibility_to_spelling_canonical_mappings.sql
+- supabase/migrations/20260612103000_add_pcrm_canonical_adoption_rpc.sql
+
+Current state:
+- Slice `4E.2` is complete as server-only, status-only admin/operator
+  decisions for seed import rows.
+- Seed-row nomination is non-adoptive and uses
+  `row_status = 'nominated_for_canonical_adoption'`.
+- Existing PCRM canonical adoption can create/link active canonical mappings
+  with `resolver_visibility_status = 'hidden'`, but its first-class lineage
+  columns are PCRM/source-parent specific, not seed-row specific.
+
+Goal:
+Add a narrow explicit admin adoption path that can adopt one eligible imported
+seed row into hidden canonical mapping truth, without making that mapping
+resolver-visible.
+
+Recommended implementation shape:
+- add a unique-timestamp migration only if needed for first-class seed lineage
+  and RPC support
+- prefer a security-definer admin RPC for the atomic database write:
+  - validate the seed row
+  - create or link the hidden canonical mapping
+  - write canonical mapping event(s)
+  - update the seed row to adopted only after canonical create/link succeeds
+- add a server-only admin action under `/admin/seed-import-review`
+- keep validation centralized and regression-testable
+- add minimal admin UI controls only for rows already nominated for canonical
+  adoption; otherwise keep an action helper/operator path first
+
+Eligibility:
+- source row must exist in `spelling_seed_import_rows`
+- source row must have `row_status = 'nominated_for_canonical_adoption'`
+- source row must not already have `canonical_mapping_id`
+- source row must not be `duplicate`, `rejected`, `superseded`,
+  `conflict_blocked`, `adopted_hidden_canonical`, or
+  `manual_review_required`
+- source row must not have `duplicate_of_seed_import_row_id`
+- source row should come from implemented candidate-review import
+  (`dry_run_bucket = 'safe_for_candidate_review'`)
+- source/provenance fields must be present enough to audit source name,
+  dataset/license/file/report/batch/row lineage
+- normalized misspelling/correction must be non-empty and different
+- dialect and normalization version must be present
+- `suggested_micro_skill_key` must exist in `micro_skill_catalog`, be active,
+  assignable, and Domain `D4`
+- seed row must not have blocking errors or unresolved canonical conflicts
+- admin must provide an explicit adoption note
+- admin confirmation copy must say resolver visibility remains disabled
+
+Conflict/linking rules:
+- exact normalized misspelling/correction/dialect active mapping with the same
+  micro-skill and `resolver_visibility_status = 'hidden'`: link the seed row
+  to that mapping and write a seed adoption/link event
+- exact normalized misspelling/correction/dialect active mapping with a
+  different micro-skill: block adoption
+- same normalized misspelling/dialect active mapping with a different
+  correction: block adoption
+- disabled, deprecated, or superseded mapping for the exact pair: block
+  adoption until a later explicit canonical maintenance workflow resolves it
+- exact active mapping with `resolver_visibility_status = 'visible'`: block
+  Slice `4F` adoption and require a separate resolver/canonical authority
+  decision; this slice is hidden-canonical only
+- same correct spelling with a different misspelling may remain a separate
+  canonical mapping when the diagnostic teaching target differs
+
+Allowed writes:
+- `spelling_canonical_mappings`
+  - insert active mapping only when no safe hidden exact-pair mapping exists
+  - `resolver_visibility_status` must be `hidden`
+  - include first-class `source_seed_import_row_id` lineage if the migration
+    adds it
+  - include admin identity, decision note, and metadata with
+    `action_source = 'seed_import_4f_hidden_canonical_adoption'`
+- `spelling_canonical_mapping_events`
+  - write `created` when a new mapping is created
+  - write a seed adoption/link event such as `seed_import_adopted`
+  - previous/new resolver visibility must be null/hidden or hidden/hidden
+  - include seed-row lineage, admin identity, timestamp, note, and metadata
+- `spelling_seed_import_rows`
+  - set `row_status = 'adopted_hidden_canonical'`
+  - set `canonical_mapping_id` only after canonical create/link succeeds
+  - write `reviewed_by_admin_user_id`, `reviewed_by_admin_email`,
+    `reviewed_at`, `updated_at`, `status_reason`, `review_note`, and metadata
+    describing the adoption/link result
+
+Hard no-resolver-visibility safeguards:
+- do not set `resolver_visibility_status = 'visible'`
+- do not call resolver visibility enable RPCs/actions
+- do not create `resolver_visibility_enabled` events
+- do not add resolver reads or resolver priority changes
+- do not change Stage 2A/2C resolver behavior
+- do not change Review Work, assignments, mastery, rewards, dashboards,
+  analytics, scoring, templates, or child/parent workflows
+- do not make hidden mappings visible by metadata, feature flag, copy, or UI
+- do not treat adoption as assignment eligibility or mastery evidence
+
+Admin/RLS/service-role boundaries:
+- call `requireAdminUser()` before any service-role client or RPC use
+- service-role use must stay server-only
+- no client component may import or receive service-role credentials
+- do not add `anon` or broad `authenticated` grants on seed rows or canonical
+  storage
+- any new RPC must revoke public access and grant execute only to
+  `service_role`
+- parent/child users must not gain seed-row or canonical-adoption access
+- do not mutate `micro_skill_catalog`
+
+Migration guidance:
+- if adding seed-row lineage columns/RPC, use one unique timestamp migration
+- follow docs/operations/supabase-migration-policy.md
+- do not repair hosted migration history or run hosted schema changes unless
+  explicitly asked
+- preserve existing RLS posture:
+  - seed rows remain service-role only
+  - canonical mapping/admin RPC writes remain service-role only
+- add event type constraint support for the seed adoption event if needed
+- add focused indexes for `source_seed_import_row_id` only if first-class
+  columns are added
+
+QA:
+- focused Slice `4F` adoption regression
+- migration/static regression proving:
+  - new RPC is service-role only
+  - seed rows keep `anon`/`authenticated` revoked
+  - canonical mapping/event writes include seed-row lineage
+  - resolver visibility remains `hidden`
+  - no `resolver_visibility_enabled` event can be produced by 4F
+- tests for:
+  - adopting a nominated row creates hidden active canonical mapping
+  - adopting a nominated row links to an existing active hidden exact-pair
+    same-skill mapping
+  - row status becomes `adopted_hidden_canonical` only after successful
+    canonical create/link
+  - invalid source statuses are blocked
+  - missing note is blocked
+  - duplicate/rejected/superseded/conflict-blocked/manual-review rows are
+    blocked
+  - existing visible mapping is blocked
+  - different active micro-skill exact pair is blocked
+  - same misspelling/different correction conflict is blocked
+  - inactive/non-assignable/non-D4 micro-skill is blocked
+  - duplicate target lineage is not adopted directly
+- static forbidden-side-effect regression proving no resolver, Review Work,
+  assignment, mastery, reward, dashboard, analytics, scoring, template,
+  parent/child access, or `micro_skill_catalog` mutation changed
+- rerun:
+  - `npm run writing-engine:seed-import-review-decision-regression`
+  - existing seed-import admin read model regression
+  - existing admin spelling review hub regression
+  - new Slice `4F` adoption regression
+  - `npx tsc --noEmit`
+  - `npm run build`
+  - `git diff --check`
+- browser/admin smoke if UI controls are added
+
+Return:
+1. Files changed.
+2. Migration/RPC changes, if any.
+3. Adoption action implemented.
+4. Eligibility and conflict rules implemented.
+5. No-resolver-visibility safeguards preserved.
+6. Admin/RLS/service-role boundaries preserved.
+7. Tests/checks run.
+8. Would this be deemed QA approved?
+9. If no, provide a QA audit prompt.
+10. Remaining risks/manual decisions.
+11. Next recommended prompt: Slice `4F` docs/status closeout, optional
+    audit-hardening, or Slice `4G` resolver visibility consideration.
+```
 
 ## Slice 4E.2 Stage And Commit Prompt
 

@@ -230,8 +230,8 @@ assert.match(
 );
 assert.match(
   page,
-  /status-only[\s\S]*does not create canonical mappings[\s\S]*resolver visibility/,
-  "Admin page must distinguish status-only review from canonical adoption.",
+  /status-only Slice 4E\.2 review actions[\s\S]*Slice 4F hidden-canonical adoption[\s\S]*Resolver\s+visibility remains disabled/,
+  "Admin page must distinguish status-only review from hidden canonical adoption.",
 );
 assert.match(
   page,

@@ -491,9 +491,65 @@ Canonical documentation now defers to:
     `npm run writing-engine:admin-spelling-review-hub-regression`,
     `npx tsc --noEmit`, `npm run build`, `git diff --check`, and browser/admin
     smoke against `/admin/seed-import-review`
-  - next base decision is a stage/commit closeout, optional Slice `4E.3`
-    UI/audit polish after real operator use, or separate Slice `4F` explicit
-    hidden-canonical adoption
+- Version 2.0 Slice `4F` is implemented as explicit hidden-canonical adoption
+  from nominated imported seed rows:
+  - added unique timestamp migration
+    `supabase/migrations/20260618120000_add_seed_import_hidden_canonical_adoption_rpc.sql`
+  - added first-class `source_seed_import_row_id` lineage to canonical
+    mappings and canonical mapping events
+  - added `seed_import_adopted` canonical mapping event support
+  - added service-role-only RPC
+    `adopt_seed_import_row_hidden_canonical_admin`
+  - added server-only adoption wrapper/action and centralized adoption input
+    validation under `/admin/seed-import-review`
+  - admin UI exposes adoption controls only for rows already nominated for
+    canonical adoption and not yet linked to a canonical mapping
+  - adoption creates or links active hidden canonical mappings only; it does
+    not enable resolver visibility, call resolver visibility RPCs/actions, or
+    create `resolver_visibility_enabled` events
+  - eligibility/conflict checks block invalid statuses, duplicate lineage,
+    missing provenance, unsafe dry-run buckets, empty/equal normalized pairs,
+    missing dialect/normalization version, inactive/non-assignable/non-D4
+    skills, blocking errors, canonical conflicts, existing visible mappings,
+    disabled/deprecated/superseded mappings, exact-pair different-skill
+    conflicts, and same-misspelling/different-correction conflicts
+  - no Review Work, assignment, mastery, reward, dashboard, analytics,
+    scoring, template, child/parent access, or `micro_skill_catalog` mutation
+    was introduced
+- Version 2.0 Slice `4F.1` is implemented as local/staging hidden-canonical
+  adoption smoke coverage:
+  - added
+    `scripts/writing-engine-seed-import-hidden-canonical-adoption-local-smoke.ts`
+  - added package script
+    `npm run writing-engine:seed-import-hidden-canonical-adoption-local-smoke`
+  - smoke refuses production Supabase, refuses non-local targets by default,
+    and allows staging only with an explicit staging confirmation
+  - local smoke passed after applying the new 4F migration to local Supabase
+    only
+  - live local smoke created synthetic seed-import data, inserted one eligible
+    nominated seed row, called the 4F RPC, verified the row became
+    `adopted_hidden_canonical`, verified the mapping stayed
+    `resolver_visibility_status = 'hidden'`, verified `created` and
+    `seed_import_adopted` events, verified no `resolver_visibility_enabled`
+    event, and confirmed protected table counts plus `micro_skill_catalog`
+    stayed unchanged
+  - validation passed:
+    `npm run writing-engine:seed-import-hidden-canonical-adoption-regression`,
+    `npm run writing-engine:seed-import-hidden-canonical-adoption-local-smoke`,
+    `npx tsc --noEmit`, `npm run build`, and `git diff --check`
+  - hosted production release is complete: the 4F migration was applied as a
+    manual single-migration SQL patch after production migration-ledger/schema
+    preflight, and version `20260618120000` was recorded in
+    `supabase_migrations.schema_migrations`
+  - post-release verification confirmed the 4F RPC exists, mapping/event
+    `source_seed_import_row_id` columns exist, `seed_import_adopted` is allowed,
+    seed rows still have no anon/authenticated grants, and only `service_role`
+    can execute the 4F RPC
+  - remaining caveat: staging was not mutated, and no hosted synthetic adoption
+    smoke was run by design because it would create production smoke
+    seed/canonical rows
+  - next base decision is Slice `4G` resolver visibility consideration, keeping
+    hidden canonical adoption separate from resolver-visible truth
 - A bounded post-Stage-`7` parent-facing evidence-transparency slice is now
   complete.
 - The app is currently suitable for private parent-led use with one child,

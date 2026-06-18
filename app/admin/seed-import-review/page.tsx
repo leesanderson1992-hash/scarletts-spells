@@ -3,6 +3,8 @@ import Link from "next/link";
 import { requireAdminUser } from "@/lib/admin/access";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 
+import { adoptSeedImportRowHiddenCanonical } from "./adoption-actions";
+import { SEED_IMPORT_HIDDEN_CANONICAL_CONFIRMATION_COPY } from "./adoption-rules";
 import { decideSeedImportReviewRow } from "./actions";
 
 export const dynamic = "force-dynamic";
@@ -207,6 +209,61 @@ function DecisionControls({ row }: { row: SeedImportRow }) {
   );
 }
 
+function HiddenCanonicalAdoptionControls({ row }: { row: SeedImportRow }) {
+  if (
+    row.row_status !== "nominated_for_canonical_adoption" ||
+    row.canonical_mapping_id
+  ) {
+    return null;
+  }
+
+  return (
+    <details className="mt-3 rounded-lg border border-amber-300 bg-amber-50 p-3">
+      <summary className="cursor-pointer text-xs font-semibold text-amber-950">
+        Adopt hidden canonical
+      </summary>
+      <form action={adoptSeedImportRowHiddenCanonical} className="mt-3 grid gap-2">
+        <input type="hidden" name="row_id" value={row.id} />
+        <p className="text-[11px] leading-5 text-amber-950">
+          This creates or links hidden canonical mapping truth for this seed row
+          only. Resolver visibility remains disabled.
+        </p>
+        <label className="grid gap-1 text-[11px] font-semibold text-amber-950">
+          Adoption note
+          <textarea
+            name="adoption_note"
+            maxLength={1000}
+            rows={3}
+            required
+            className="rounded-lg border border-amber-300 bg-white px-2 py-2 text-xs font-normal text-[color:var(--ink)]"
+            placeholder="Required explicit adoption rationale"
+          />
+        </label>
+        <label className="grid gap-1 text-[11px] font-semibold text-amber-950">
+          Confirmation
+          <input
+            name="resolver_visibility_confirmation"
+            required
+            pattern={SEED_IMPORT_HIDDEN_CANONICAL_CONFIRMATION_COPY.replace(
+              /[.*+?^${}()|[\]\\]/g,
+              "\\$&",
+            )}
+            className="min-h-9 rounded-lg border border-amber-300 bg-white px-2 text-xs font-normal text-[color:var(--ink)]"
+            placeholder={SEED_IMPORT_HIDDEN_CANONICAL_CONFIRMATION_COPY}
+            aria-label={SEED_IMPORT_HIDDEN_CANONICAL_CONFIRMATION_COPY}
+          />
+        </label>
+        <button
+          type="submit"
+          className="min-h-9 rounded-lg bg-amber-700 px-3 py-2 text-xs font-semibold text-white transition hover:bg-amber-800 focus:outline-none focus:ring-2 focus:ring-amber-700 focus:ring-offset-2"
+        >
+          Adopt hidden canonical
+        </button>
+      </form>
+    </details>
+  );
+}
+
 function BatchSummary({
   batches,
 }: {
@@ -357,9 +414,9 @@ function SeedRowTable({
           Imported candidate rows
         </h2>
         <p className="brand-copy mt-2 text-sm leading-6">
-          Seed evidence with status-only Slice 4E.2 review actions. Decision
-          history is not append-only yet; canonical adoption belongs to Slice
-          4F.
+          Seed evidence with status-only Slice 4E.2 review actions and explicit
+          Slice 4F hidden-canonical adoption for nominated rows. Resolver
+          visibility remains disabled.
         </p>
       </div>
 
@@ -509,6 +566,7 @@ function SeedRowTable({
                       {row.review_note ?? "No review note"}
                     </span>
                     <DecisionControls row={row} />
+                    <HiddenCanonicalAdoptionControls row={row} />
                   </td>
                 </tr>
               );
@@ -669,9 +727,9 @@ export default async function AdminSeedImportReviewPage({
             Seed Import Review
           </h1>
           <p className="brand-copy mt-4 max-w-3xl text-sm leading-6">
-            Inspect imported candidate-review seed rows and apply status-only
-            review decisions. This surface does not create canonical mappings
-            or change resolver visibility.
+            Inspect imported candidate-review seed rows, apply status-only
+            review decisions, and adopt nominated rows into hidden canonical
+            truth. This surface never enables resolver visibility.
           </p>
           <Link
             href="/admin/spelling-review"

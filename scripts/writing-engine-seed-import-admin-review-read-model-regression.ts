@@ -41,13 +41,13 @@ assert.match(
 );
 assert.match(
   page,
-  /status-only[\s\S]*does not create canonical mappings[\s\S]*resolver visibility/,
-  "Seed import review page must label itself as status-only and non-canonical.",
+  /status-only Slice 4E\.2 review actions[\s\S]*Slice 4F hidden-canonical adoption[\s\S]*Resolver\s+visibility remains disabled/,
+  "Seed import review page must separate status-only review from hidden canonical adoption.",
 );
 assert.match(
   page,
-  /Decision\s+history is not append-only yet/,
-  "Seed import review page must disclose the no-ledger audit limitation.",
+  /This surface never enables resolver visibility/,
+  "Seed import review page must disclose the resolver-visibility boundary.",
 );
 assert.match(
   hubPage,
@@ -62,7 +62,12 @@ assert.match(
 assert.match(
   page,
   /action=\{decideSeedImportReviewRow\}/,
-  "Slice 4E.2 page may expose only the server-only seed-row decision action.",
+  "Slice 4E.2 status decision action must remain server-only.",
+);
+assert.match(
+  page,
+  /action=\{adoptSeedImportRowHiddenCanonical\}/,
+  "Slice 4F page may expose the server-only hidden canonical adoption action.",
 );
 assert.doesNotMatch(
   page,
@@ -71,17 +76,17 @@ assert.doesNotMatch(
 );
 assert.doesNotMatch(
   page,
-  /adopted_hidden_canonical|canonical_mapping_id"\)[\s\S]*\.(insert|update|upsert|delete)\(/,
-  "Seed import review page must not adopt hidden canonical rows.",
+  /canonical_mapping_id"\)[\s\S]*\.(insert|update|upsert|delete)\(/,
+  "Seed import review page must not directly adopt hidden canonical rows.",
 );
 assert.doesNotMatch(
   page,
   /\.from\("spelling_canonical_mappings"\)|create_spelling_canonical_mapping_admin|canonical mapping events/i,
-  "Seed import review page must not touch canonical mapping truth.",
+  "Seed import review page must not directly touch canonical mapping truth.",
 );
 assert.doesNotMatch(
   page,
-  /resolver_visibility|resolver_visible:\s*true|enableCanonicalMappingResolverVisibility/,
+  /resolver_visible:\s*true|enableCanonicalMappingResolverVisibility/,
   "Seed import review page must not change resolver visibility.",
 );
 assert.doesNotMatch(
