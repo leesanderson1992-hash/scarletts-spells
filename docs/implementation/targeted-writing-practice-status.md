@@ -459,9 +459,41 @@ Canonical documentation now defers to:
     `npm run writing-engine:seed-import-admin-review-read-model-regression`,
     `npm run writing-engine:admin-spelling-review-hub-regression`, and
     `npx tsc --noEmit`
-  - next base slice is Slice `4E.2` seed-row admin review decision actions:
+  - this handed off to Slice `4E.2` seed-row admin review decision actions:
     status-only writes to existing seed row review fields, with no canonical or
     resolver side effects
+- Version 2.0 Slice `4E.2` is implemented as server-only, status-only
+  admin/operator review decision actions for imported seed rows:
+  - added `app/admin/seed-import-review/actions.ts`
+  - added centralized decision validation in
+    `app/admin/seed-import-review/decision-rules.ts`
+  - added compact admin-only status controls to `/admin/seed-import-review`
+  - supported decisions are keep pending/reopen, reject, mark duplicate, mark
+    conflict blocked, nominate for later canonical adoption, and supersede
+  - the action path calls `requireAdminUser()` before service-role use
+  - writes only existing `spelling_seed_import_rows` review/status fields:
+    `row_status`, `status_reason`, `review_note`,
+    `duplicate_of_seed_import_row_id`, `reviewed_by_admin_user_id`,
+    `reviewed_by_admin_email`, `reviewed_at`, and `updated_at`
+  - duplicate targets must be another seed row and must share the same
+    normalized misspelling, correction, and dialect by default
+  - nomination remains explicitly non-adoptive
+  - no migrations, writes outside `spelling_seed_import_rows`,
+    `adopted_hidden_canonical` writes, `canonical_mapping_id` writes,
+    `spelling_canonical_mappings` writes, canonical mapping events, resolver
+    visibility, Review Work behavior, assignment/mastery/reward/dashboard/
+    analytics/scoring/template changes, parent/child seed-row access, broad
+    authenticated RLS/grants, or `micro_skill_catalog` mutation were introduced
+  - added `npm run writing-engine:seed-import-review-decision-regression`
+  - validation passed:
+    `npm run writing-engine:seed-import-review-decision-regression`,
+    `npm run writing-engine:seed-import-admin-review-read-model-regression`,
+    `npm run writing-engine:admin-spelling-review-hub-regression`,
+    `npx tsc --noEmit`, `npm run build`, `git diff --check`, and browser/admin
+    smoke against `/admin/seed-import-review`
+  - next base decision is a stage/commit closeout, optional Slice `4E.3`
+    UI/audit polish after real operator use, or separate Slice `4F` explicit
+    hidden-canonical adoption
 - A bounded post-Stage-`7` parent-facing evidence-transparency slice is now
   complete.
 - The app is currently suitable for private parent-led use with one child,

@@ -557,7 +557,7 @@ Hard boundary:
 
 ### Slice 4 - Bulk candidate mapping import/review
 
-Status: `implemented through Slice 4E.1 seed-row admin review read model/listing; next base slice is Slice 4E.2 decision actions`
+Status: `implemented through Slice 4E.2 seed-row admin review decision actions; next base decision is Slice 4E.3 UI polish/docs closeout or Slice 4F explicit hidden-canonical adoption`
 
 Goal:
 - allow admin/operator to import or generate batches of candidate spelling
@@ -604,6 +604,15 @@ Planning closeout:
   writes, resolver visibility, Review Work behavior, assignments, mastery,
   rewards, dashboards, analytics, scoring, templates, parent/child RLS
   policies, or `micro_skill_catalog` mutation.
+- Slice `4E.2` seed-row admin review decision actions are implemented as
+  server-only status-only actions under `/admin/seed-import-review`. They call
+  `requireAdminUser()` before service-role use, update only existing
+  `spelling_seed_import_rows` review/status fields, support keep pending,
+  reject, duplicate, conflict blocked, nomination for later canonical adoption,
+  and supersede, validate allowed starting statuses and duplicate targets, and
+  preserve the no-canonical/no-resolver boundary. The page includes minimal
+  admin-only status controls and continues to disclose that decision history is
+  not append-only.
 - do not reuse `spelling_canonical_mapping_recommendations` for bulk external
   seed imports because PCRM rows mean scoped parent recommendation evidence
 - do not reuse `spelling_catalog_review_cases` for bulk external seed imports
@@ -711,9 +720,10 @@ Staged implementation breakdown:
 - `Slice 4E.0` seed-row admin review contract: implemented as docs/planning
   only
 - `Slice 4E.1` seed-row admin review read model/listing: implemented
-- `Slice 4E.2` seed-row admin review decision actions
-- `Slice 4E.3` minimal admin UI/table if useful after read/action proof
-- `Slice 4E.4` QA/browser/docs closeout
+- `Slice 4E.2` seed-row admin review decision actions: implemented
+- `Slice 4E.3` optional UI polish or audit-hardening decision if useful after
+  live operator use
+- `Slice 4E.4` optional broader QA/browser/docs closeout if 4E.3 proceeds
 - `Slice 4F` explicit hidden-canonical adoption from seed rows
 - `Slice 4G` resolver visibility consideration
 
@@ -735,14 +745,12 @@ Hard boundary:
 - any DB-changing implementation requires a unique timestamp migration and
   hosted migration-ledger safety check
 
-Next base slice:
-- Slice `4E.2` seed-row admin review decision actions. It should add
-  server-only status-only actions for imported seed rows, using
-  `requireAdminUser()` before service-role writes. It must not write outside
-  `spelling_seed_import_rows`, create canonical mappings, write
-  `canonical_mapping_id`, set `adopted_hidden_canonical`, enable resolver
-  visibility, alter Review Work, generate assignments, or mutate
-  `micro_skill_catalog`.
+Next base decision:
+- close out Slice `4E.2` by staging and committing the status-only decision
+  implementation and docs, then choose between a narrow Slice `4E.3` UI/audit
+  polish pass or Slice `4F` explicit hidden-canonical adoption from seed rows.
+  Do not proceed to canonical adoption without a fresh Slice `4F` prompt and
+  explicit no-resolver-visibility safeguards.
 
 #### Slice 4A docs-only update prompt
 

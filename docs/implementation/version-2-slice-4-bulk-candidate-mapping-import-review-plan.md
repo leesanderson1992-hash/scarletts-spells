@@ -1105,7 +1105,7 @@ Required gates before hosted release or production DB application:
   RLS policy, or `micro_skill_catalog` mutation was introduced
 
 `Slice 4E - seed-row admin review`
-- status: `implemented through Slice 4E.1 read model/listing`
+- status: `implemented through Slice 4E.2 status-only admin/operator decision actions`
 - product purpose:
   - give an allowlisted admin/operator a safe way to review imported seed rows
     after Slice `4D` candidate-review import
@@ -1119,6 +1119,14 @@ Required gates before hosted release or production DB application:
     and there are useful imported rows to inspect
   - an operator script/action path is acceptable for private-MVP review if it
     is safer than building UI before hosted rows exist
+- implemented shape:
+  - `/admin/seed-import-review` remains server-rendered under the existing
+    admin shell and now includes compact status-only decision controls
+  - the server action lives under the admin route and calls
+    `requireAdminUser()` before service-role use
+  - validation is centralized in a pure helper so transition rules, duplicate
+    safety, and forbidden side effects can be regression-tested without a live
+    Supabase write
 - no-migration private-MVP stance:
   - existing Slice `4C` columns and status constraints are enough for the first
     4E implementation
@@ -1208,9 +1216,10 @@ Required gates before hosted release or production DB application:
   - `Slice 4E.0` - docs/contract registration: this section
   - `Slice 4E.1` - server-only admin/operator read model and listing:
     implemented
-  - `Slice 4E.2` - status-only review decision actions; no canonical writes
-  - `Slice 4E.3` - minimal admin UI/table if useful after read/action proof
-  - `Slice 4E.4` - QA, optional browser smoke, and docs closeout
+  - `Slice 4E.2` - status-only review decision actions; no canonical writes:
+    implemented
+  - `Slice 4E.3` - optional UI/audit polish if useful after real operator use
+  - `Slice 4E.4` - optional broader QA/browser/docs closeout if 4E.3 proceeds
 - Slice `4E.1` implementation closeout:
   - added read-only `/admin/seed-import-review`
   - page uses the existing `/admin` layout plus `requireAdminUser()` before
@@ -1232,6 +1241,34 @@ Required gates before hosted release or production DB application:
     visibility, Review Work behavior, assignment/mastery/reward/dashboard/
     analytics/scoring/template changes, parent/child RLS policies, or
     `micro_skill_catalog` mutation were introduced
+- Slice `4E.2` implementation and QA closeout:
+  - added `app/admin/seed-import-review/actions.ts`
+  - added `app/admin/seed-import-review/decision-rules.ts`
+  - added minimal status-only controls to `/admin/seed-import-review`
+  - supported keep pending/reopen, reject, mark duplicate, mark conflict
+    blocked, nominate for later canonical adoption, and supersede
+  - enforced allowed starting statuses from the Slice `4E` contract
+  - validated duplicate targets as other seed rows with the same normalized
+    misspelling, correction, and dialect by default
+  - nomination is explicitly non-adoptive and does not create, link, or expose
+    canonical truth
+  - action writes only `spelling_seed_import_rows` review/status fields and
+    calls `requireAdminUser()` before service-role use
+  - added focused regression coverage:
+    `npm run writing-engine:seed-import-review-decision-regression`
+  - validation passed:
+    `npm run writing-engine:seed-import-review-decision-regression`,
+    `npm run writing-engine:seed-import-admin-review-read-model-regression`,
+    `npm run writing-engine:admin-spelling-review-hub-regression`,
+    `npx tsc --noEmit`, `npm run build`, `git diff --check`, and browser/admin
+    smoke against `/admin/seed-import-review`
+  - no migrations, writes outside `spelling_seed_import_rows`,
+    `adopted_hidden_canonical` writes, `canonical_mapping_id` writes,
+    `spelling_canonical_mappings` writes, canonical mapping events, resolver
+    visibility, Review Work behavior, assignment/mastery/reward/dashboard/
+    analytics/scoring/template changes, parent/child seed-row access,
+    broad authenticated RLS/grants, service-role exposure to client
+    components, or `micro_skill_catalog` mutation were introduced
 - QA expectations:
   - decision regressions for reject, duplicate, keep pending/reopen,
     conflict-blocked, nomination, and supersede
@@ -1302,65 +1339,53 @@ Slice `4D` is implemented in source as a service-role/operator-only
 candidate-review import path into those dedicated seed tables. Slice `4E.0` is
 registered as a docs-only seed-row admin review contract. Slice `4E.1` is
 implemented as a server-only admin/operator read model and listing for imported
-seed rows, with no row mutation.
+seed rows. Slice `4E.2` is implemented as status-only admin/operator review
+decision actions for imported seed rows, with no canonical mapping creation or
+resolver visibility. Slice `4E` remains separate from hidden canonical adoption
+and resolver visibility. Reusing parent recommendation or catalog-review tables
+for bulk external imports remains unsafe because it blurs authority lineage.
 
-The next implementation slice is Slice `4E.2`: status-only review decision
-actions for imported seed rows, with no canonical mapping creation or resolver
-visibility. Slice `4E` remains separate from hidden canonical adoption and
-resolver visibility. Reusing parent recommendation or catalog-review tables for
-bulk external imports remains unsafe because it blurs authority lineage.
+The next base decision is to stage and commit the Slice `4E.2` implementation
+and docs closeout, then choose whether a narrow Slice `4E.3` UI/audit polish
+pass is needed before moving to the separate Slice `4F` hidden-canonical
+adoption workflow.
 
-## Slice 4E.2 Implementation Prompt
+## Slice 4E.2 Stage And Commit Prompt
 
 ```md
 Adopt the role of a CTO, senior Writing Engine architect, admin workflow
 designer, Supabase/RLS safety reviewer, and release-safety reviewer for
 Scarlett's Spells.
 
-Implement Version 2.0 Slice 4E.2 only: status-only admin/operator review
-decision actions for imported seed rows.
+Stage and commit Version 2.0 Slice 4E.2 only: server-only, status-only
+admin/operator review decision actions for imported seed rows.
 
 Use these controlling docs:
 - docs/implementation/version-2-roadmap.md
 - docs/implementation/version-2-slice-4-bulk-candidate-mapping-import-review-plan.md
 - docs/implementation/targeted-writing-practice-status.md
 - docs/current-priorities.md
-- docs/contracts/micro-skill-taxonomy-and-assignment-contract.md
-- docs/contracts/canonical-spelling-word-map-contract.md
-- docs/contracts/parent-recommended-canonical-mapping.md
-- docs/contracts/writing-engine-mastery-and-evidence-contract.md
-- docs/architecture/writing-engine-canonical-brief.md
-- docs/architecture/admin-internal-access.md
 - docs/operations/supabase-migration-policy.md
-- supabase/migrations/20260614120000_add_spelling_seed_import_storage.sql
 
 Goal:
-Add narrow admin-only status decision actions for imported seed rows already
-visible through Slice 4E.1.
+Verify, stage, and commit only the Slice 4E.2 implementation and docs/status
+closeout.
 
-Scope:
-- server-only admin actions only
-- call `requireAdminUser()` before creating or using the service-role client
-- update only existing `spelling_seed_import_rows` review/status fields
-- supported decisions:
-  - keep pending/reopen via `row_status = 'kept_pending'`
-  - reject via `row_status = 'rejected'`
-  - mark duplicate via `row_status = 'duplicate'` and
-    `duplicate_of_seed_import_row_id`
-  - mark conflict blocked via `row_status = 'conflict_blocked'`
-  - nominate for later canonical adoption via
-    `row_status = 'nominated_for_canonical_adoption'`
-  - supersede via `row_status = 'superseded'`
-- write review audit fields, `status_reason`, `review_note`, and `updated_at`
-  according to the Slice 4E.0 contract
-- add focused validation and regression coverage for allowed transitions,
-  duplicate target safety, admin authorization, and forbidden canonical/
-  resolver side effects
+Expected staged source/docs:
+- app/admin/seed-import-review/actions.ts
+- app/admin/seed-import-review/decision-rules.ts
+- app/admin/seed-import-review/page.tsx
+- scripts/writing-engine-seed-import-review-decision-regression.ts
+- scripts/writing-engine-seed-import-admin-review-read-model-regression.ts
+- package.json
+- docs/implementation/version-2-roadmap.md
+- docs/implementation/version-2-slice-4-bulk-candidate-mapping-import-review-plan.md
+- docs/implementation/targeted-writing-practice-status.md
+- docs/current-priorities.md
 
 Hard boundaries:
 - no migrations
 - no writes outside `spelling_seed_import_rows`
-- no hidden-canonical adoption
 - no `adopted_hidden_canonical` writes
 - no `canonical_mapping_id` writes
 - no `spelling_canonical_mappings` writes
@@ -1375,21 +1400,27 @@ Hard boundaries:
 - no service-role exposure to client components
 
 QA:
-- focused Slice 4E.2 decision/action regression
-- rerun `npm run writing-engine:seed-import-admin-review-read-model-regression`
-- rerun `npm run writing-engine:admin-spelling-review-hub-regression`
+- `npm run writing-engine:seed-import-review-decision-regression`
+- `npm run writing-engine:seed-import-admin-review-read-model-regression`
+- `npm run writing-engine:admin-spelling-review-hub-regression`
 - `npx tsc --noEmit`
 - `npm run build`
 - `git diff --check`
-- optional browser/admin smoke if action forms are added to the page
+- browser/admin smoke may be cited from the implementation closeout if no code
+  changed after that smoke
+
+Git commands:
+- `git add app/admin/seed-import-review/actions.ts app/admin/seed-import-review/decision-rules.ts app/admin/seed-import-review/page.tsx scripts/writing-engine-seed-import-review-decision-regression.ts scripts/writing-engine-seed-import-admin-review-read-model-regression.ts package.json docs/implementation/version-2-roadmap.md docs/implementation/version-2-slice-4-bulk-candidate-mapping-import-review-plan.md docs/implementation/targeted-writing-practice-status.md docs/current-priorities.md`
+- `git commit -m "Add seed import review decision actions"`
 
 Return:
-1. Files changed.
-2. Decision actions added.
-3. Admin/RLS/service-role boundaries preserved.
-4. Tests/checks run.
-5. Remaining risks and the next prompt for Slice 4E.3 if UI polish or closeout
-   remains useful.
+1. Staged files.
+2. Commit hash.
+3. Tests/checks rerun.
+4. Confirmation that no migration/canonical/resolver/Review Work/assignment/
+   mastery/reward/dashboard/analytics/scoring/template/parent-child/
+   micro-skill mutation slipped in.
+5. Remaining risks and recommended next slice.
 ```
 
 ## Docs-Only Update Prompt

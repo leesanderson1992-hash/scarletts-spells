@@ -3,6 +3,8 @@ import Link from "next/link";
 import { requireAdminUser } from "@/lib/admin/access";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 
+import { decideSeedImportReviewRow } from "./actions";
+
 export const dynamic = "force-dynamic";
 
 type SeedImportBatchRow = {
@@ -135,6 +137,74 @@ function formatJsonCount(value: unknown, emptyLabel = "None") {
   const count = countJsonEntries(value);
 
   return count === 0 ? emptyLabel : String(count);
+}
+
+function DecisionControls({ row }: { row: SeedImportRow }) {
+  return (
+    <details className="mt-3 rounded-lg border border-[var(--border)] bg-white p-3">
+      <summary className="cursor-pointer text-xs font-semibold text-[color:var(--ink)]">
+        Review decision
+      </summary>
+      <form action={decideSeedImportReviewRow} className="mt-3 grid gap-2">
+        <input type="hidden" name="row_id" value={row.id} />
+        <label className="grid gap-1 text-[11px] font-semibold text-[color:var(--ink)]">
+          Decision
+          <select
+            name="decision"
+            required
+            className="min-h-9 rounded-lg border border-[var(--border)] bg-white px-2 text-xs font-normal text-[color:var(--ink)]"
+            defaultValue=""
+          >
+            <option value="" disabled>
+              Choose
+            </option>
+            <option value="keep_pending">Keep pending / reopen</option>
+            <option value="reject">Reject</option>
+            <option value="mark_duplicate">Mark duplicate</option>
+            <option value="mark_conflict_blocked">Conflict blocked</option>
+            <option value="nominate_for_canonical_adoption">
+              Nominate for later adoption
+            </option>
+            <option value="supersede">Supersede</option>
+          </select>
+        </label>
+        <label className="grid gap-1 text-[11px] font-semibold text-[color:var(--ink)]">
+          Status reason
+          <input
+            name="status_reason"
+            maxLength={400}
+            className="min-h-9 rounded-lg border border-[var(--border)] bg-white px-2 text-xs font-normal text-[color:var(--ink)]"
+            placeholder="Required for most decisions"
+          />
+        </label>
+        <label className="grid gap-1 text-[11px] font-semibold text-[color:var(--ink)]">
+          Review note
+          <textarea
+            name="review_note"
+            maxLength={700}
+            rows={3}
+            className="rounded-lg border border-[var(--border)] bg-white px-2 py-2 text-xs font-normal text-[color:var(--ink)]"
+            placeholder="Required for nomination"
+          />
+        </label>
+        <label className="grid gap-1 text-[11px] font-semibold text-[color:var(--ink)]">
+          Duplicate target row id
+          <input
+            name="duplicate_of_seed_import_row_id"
+            maxLength={80}
+            className="min-h-9 rounded-lg border border-[var(--border)] bg-white px-2 text-xs font-normal text-[color:var(--ink)]"
+            placeholder="Duplicate decision only"
+          />
+        </label>
+        <button
+          type="submit"
+          className="min-h-9 rounded-lg bg-[var(--scarlett)] px-3 py-2 text-xs font-semibold text-white transition hover:bg-[var(--scarlett-dark)] focus:outline-none focus:ring-2 focus:ring-[var(--scarlett)] focus:ring-offset-2"
+        >
+          Save status decision
+        </button>
+      </form>
+    </details>
+  );
 }
 
 function BatchSummary({
@@ -287,9 +357,9 @@ function SeedRowTable({
           Imported candidate rows
         </h2>
         <p className="brand-copy mt-2 text-sm leading-6">
-          Read-only seed evidence. Decision history is not append-only yet;
-          status decisions belong to Slice 4E.2 and canonical adoption belongs
-          to Slice 4F.
+          Seed evidence with status-only Slice 4E.2 review actions. Decision
+          history is not append-only yet; canonical adoption belongs to Slice
+          4F.
         </p>
       </div>
 
@@ -438,6 +508,7 @@ function SeedRowTable({
                     <span className="mt-1 block">
                       {row.review_note ?? "No review note"}
                     </span>
+                    <DecisionControls row={row} />
                   </td>
                 </tr>
               );
@@ -556,8 +627,13 @@ async function getMicroSkillNames(keys: string[]) {
   );
 }
 
-export default async function AdminSeedImportReviewPage() {
+export default async function AdminSeedImportReviewPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ error?: string; saved?: string }>;
+}) {
   await requireAdminUser();
+  const messages = await searchParams;
 
   let batches: SeedImportBatchRow[] = [];
   let rows: SeedImportRow[] = [];
@@ -593,9 +669,9 @@ export default async function AdminSeedImportReviewPage() {
             Seed Import Review
           </h1>
           <p className="brand-copy mt-4 max-w-3xl text-sm leading-6">
-            Inspect imported candidate-review seed rows. This surface is
-            read-only: it does not make review decisions, create canonical
-            mappings, or change resolver visibility.
+            Inspect imported candidate-review seed rows and apply status-only
+            review decisions. This surface does not create canonical mappings
+            or change resolver visibility.
           </p>
           <Link
             href="/admin/spelling-review"
@@ -604,6 +680,18 @@ export default async function AdminSeedImportReviewPage() {
             Back to spelling review
           </Link>
         </header>
+
+        {messages?.saved ? (
+          <section className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-950">
+            {messages.saved}
+          </section>
+        ) : null}
+
+        {messages?.error ? (
+          <section className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-medium text-rose-950">
+            {messages.error}
+          </section>
+        ) : null}
 
         {hasError ? (
           <ErrorState />

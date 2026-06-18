@@ -146,19 +146,26 @@ excluded.
   creation, `canonical_mapping_id` writes, resolver visibility, Review Work
   behavior, assignments, mastery, rewards, analytics, dashboards, scoring,
   templates, parent/child access, or `micro_skill_catalog` mutation.
+- Slice `4E.2` is implemented as server-only, status-only admin/operator
+  review decision actions for imported seed rows. The action path calls
+  `requireAdminUser()` before service-role use, updates only existing
+  `spelling_seed_import_rows` review/status fields, supports keep pending,
+  reject, duplicate, conflict blocked, nomination for later canonical adoption,
+  and supersede, and validates duplicate targets against the same normalized
+  misspelling, correction, and dialect by default. It does not create
+  canonical mappings, write `canonical_mapping_id`, set
+  `adopted_hidden_canonical`, enable resolver visibility, change Review Work,
+  generate assignments, or mutate `micro_skill_catalog`.
 - Review Work now supports engine suggestions, parent-added missed words,
   send-back, child retry, returned correction continuity, returned correction
   categorisation/admin/parent-local routing where safe, compact unified spelling
   table presentation, completion gating, historical terminal verification
   ownership, and `checking_only` terminal handling.
-- The next base slice is Slice `4E.2` seed-row admin review decision actions.
-  It should remain admin/operator-only and status-only, using the existing
-  server-side admin allowlist before service-role writes. It must not write
-  outside `spelling_seed_import_rows`, create canonical mappings, write
-  `canonical_mapping_id`, set `adopted_hidden_canonical`, enable resolver
-  visibility, change Review Work, generate assignments, or mutate
-  `micro_skill_catalog`. Do not run hosted imports or restart Parent Review
-  spelling work unless a fresh bug is found.
+- The next base decision is whether to close Slice `4E.2` with a stage/commit,
+  run a narrow Slice `4E.3` UI/audit polish pass after real operator use, or
+  move to a separate Slice `4F` explicit hidden-canonical adoption prompt. Do
+  not run hosted imports or restart Parent Review spelling work unless a fresh
+  bug is found.
 
 ## Current stage
 

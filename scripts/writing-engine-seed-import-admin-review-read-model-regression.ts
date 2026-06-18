@@ -41,12 +41,12 @@ assert.match(
 );
 assert.match(
   page,
-  /This surface is[\s\S]*read-only/,
-  "Seed import review page must label itself as read-only.",
+  /status-only[\s\S]*does not create canonical mappings[\s\S]*resolver visibility/,
+  "Seed import review page must label itself as status-only and non-canonical.",
 );
 assert.match(
   page,
-  /Decision history is not append-only yet/,
+  /Decision\s+history is not append-only yet/,
   "Seed import review page must disclose the no-ledger audit limitation.",
 );
 assert.match(
@@ -59,35 +59,35 @@ assert.match(
   /label: "Seed Import Review", href: "\/admin\/seed-import-review"/,
   "Admin navigation must include seed import review.",
 );
-assert.doesNotMatch(
+assert.match(
   page,
-  /export async function|function .*Action|<form|formAction|action=/,
-  "Slice 4E.1 page must not expose mutation forms or server actions.",
+  /action=\{decideSeedImportReviewRow\}/,
+  "Slice 4E.2 page may expose only the server-only seed-row decision action.",
 );
 assert.doesNotMatch(
   page,
   /\.(insert|update|upsert|delete)\(/,
-  "Slice 4E.1 page must not write to Supabase.",
+  "Seed import review page must not write to Supabase directly.",
 );
 assert.doesNotMatch(
   page,
   /adopted_hidden_canonical|canonical_mapping_id"\)[\s\S]*\.(insert|update|upsert|delete)\(/,
-  "Slice 4E.1 page must not adopt hidden canonical rows.",
+  "Seed import review page must not adopt hidden canonical rows.",
 );
 assert.doesNotMatch(
   page,
   /\.from\("spelling_canonical_mappings"\)|create_spelling_canonical_mapping_admin|canonical mapping events/i,
-  "Slice 4E.1 page must not touch canonical mapping truth.",
+  "Seed import review page must not touch canonical mapping truth.",
 );
 assert.doesNotMatch(
   page,
   /resolver_visibility|resolver_visible:\s*true|enableCanonicalMappingResolverVisibility/,
-  "Slice 4E.1 page must not change resolver visibility.",
+  "Seed import review page must not change resolver visibility.",
 );
 assert.doesNotMatch(
   page,
   /\.from\("micro_skill_catalog"\)[\s\S]*\.(insert|update|upsert|delete)\(/,
-  "Slice 4E.1 page must not mutate micro_skill_catalog.",
+  "Seed import review page must not mutate micro_skill_catalog.",
 );
 
 console.log("writing-engine-seed-import-admin-review-read-model-regression: ok");
