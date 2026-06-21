@@ -75,6 +75,10 @@ function getNavSections(mode: AppMode): NavSection[] {
           href: "/admin/canonical-recommendations",
         },
         { label: "Seed Import Review", href: "/admin/seed-import-review" },
+        {
+          label: "Resolver Readiness",
+          href: "/admin/spelling-canonical-resolver-readiness",
+        },
       ],
     },
   ];

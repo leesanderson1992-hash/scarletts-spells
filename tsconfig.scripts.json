@@ -1,0 +1,14 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "incremental": false,
+    "plugins": []
+  },
+  "include": [
+    "next-env.d.ts",
+    "scripts/**/*.ts",
+    "lib/**/*.ts",
+    "app/admin/seed-import-review/**/*.ts"
+  ],
+  "exclude": ["node_modules", ".next", ".tmp"]
+}

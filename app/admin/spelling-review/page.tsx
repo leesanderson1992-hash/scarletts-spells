@@ -310,6 +310,12 @@ export default async function AdminSpellingReviewPage() {
           >
             Open canonical mappings
           </Link>
+          <Link
+            href="/admin/spelling-canonical-resolver-readiness"
+            className="ml-0 mt-3 inline-flex min-h-10 items-center justify-center rounded-xl border border-[var(--border)] bg-white px-4 py-2 text-sm font-semibold text-[color:var(--ink)] transition hover:bg-[var(--mist)] focus:outline-none focus:ring-2 focus:ring-[var(--scarlett)] focus:ring-offset-2 sm:ml-3 sm:mt-4"
+          >
+            Open resolver readiness
+          </Link>
         </header>
 
         {hasError ||
