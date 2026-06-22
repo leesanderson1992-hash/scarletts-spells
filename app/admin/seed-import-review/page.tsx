@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Fragment } from "react";
 
 import { requireAdminUser } from "@/lib/admin/access";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
@@ -6,6 +7,7 @@ import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { adoptSeedImportRowHiddenCanonical } from "./adoption-actions";
 import { SEED_IMPORT_HIDDEN_CANONICAL_CONFIRMATION_COPY } from "./adoption-rules";
 import { decideSeedImportReviewRow } from "./actions";
+import { SeedImportUploadPanel } from "./upload-panel";
 
 export const dynamic = "force-dynamic";
 
@@ -45,7 +47,7 @@ type SeedImportRow = {
   correct_spelling_normalized: string;
   dialect_code: string;
   normalization_version: string;
-  suggested_micro_skill_key: string;
+  suggested_micro_skill_key: string | null;
   source_confidence_raw: string | null;
   source_confidence_normalized: number | null;
   source_note: string;
@@ -141,71 +143,91 @@ function formatJsonCount(value: unknown, emptyLabel = "None") {
   return count === 0 ? emptyLabel : String(count);
 }
 
-function DecisionControls({ row }: { row: SeedImportRow }) {
+function CheckIcon() {
   return (
-    <details className="mt-3 rounded-lg border border-[var(--border)] bg-white p-3">
-      <summary className="cursor-pointer text-xs font-semibold text-[color:var(--ink)]">
-        Review decision
-      </summary>
-      <form action={decideSeedImportReviewRow} className="mt-3 grid gap-2">
-        <input type="hidden" name="row_id" value={row.id} />
-        <label className="grid gap-1 text-[11px] font-semibold text-[color:var(--ink)]">
-          Decision
-          <select
-            name="decision"
-            required
-            className="min-h-9 rounded-lg border border-[var(--border)] bg-white px-2 text-xs font-normal text-[color:var(--ink)]"
-            defaultValue=""
-          >
-            <option value="" disabled>
-              Choose
-            </option>
-            <option value="keep_pending">Keep pending / reopen</option>
-            <option value="reject">Reject</option>
-            <option value="mark_duplicate">Mark duplicate</option>
-            <option value="mark_conflict_blocked">Conflict blocked</option>
-            <option value="nominate_for_canonical_adoption">
-              Nominate for later adoption
-            </option>
-            <option value="supersede">Supersede</option>
-          </select>
-        </label>
-        <label className="grid gap-1 text-[11px] font-semibold text-[color:var(--ink)]">
-          Status reason
-          <input
-            name="status_reason"
-            maxLength={400}
-            className="min-h-9 rounded-lg border border-[var(--border)] bg-white px-2 text-xs font-normal text-[color:var(--ink)]"
-            placeholder="Required for most decisions"
-          />
-        </label>
-        <label className="grid gap-1 text-[11px] font-semibold text-[color:var(--ink)]">
-          Review note
-          <textarea
-            name="review_note"
-            maxLength={700}
-            rows={3}
-            className="rounded-lg border border-[var(--border)] bg-white px-2 py-2 text-xs font-normal text-[color:var(--ink)]"
-            placeholder="Required for nomination"
-          />
-        </label>
-        <label className="grid gap-1 text-[11px] font-semibold text-[color:var(--ink)]">
-          Duplicate target row id
-          <input
-            name="duplicate_of_seed_import_row_id"
-            maxLength={80}
-            className="min-h-9 rounded-lg border border-[var(--border)] bg-white px-2 text-xs font-normal text-[color:var(--ink)]"
-            placeholder="Duplicate decision only"
-          />
-        </label>
-        <button
-          type="submit"
-          className="min-h-9 rounded-lg bg-[var(--scarlett)] px-3 py-2 text-xs font-semibold text-white transition hover:bg-[var(--scarlett-dark)] focus:outline-none focus:ring-2 focus:ring-[var(--scarlett)] focus:ring-offset-2"
-        >
-          Save status decision
-        </button>
-      </form>
-    </details>
+    <svg
+      aria-hidden="true"
+      className="h-4 w-4"
+      fill="none"
+      stroke="currentColor"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth="2.2"
+      viewBox="0 0 24 24"
+    >
+      <path d="m5 12 4 4L19 6" />
+    </svg>
+  );
+}
+
+function isSafeForCanonicalReview(row: SeedImportRow) {
+  return (
+    Boolean(row.suggested_micro_skill_key) &&
+    countJsonEntries(row.blocking_errors) === 0 &&
+    countJsonEntries(row.canonical_match_ids) === 0 &&
+    countJsonEntries(row.canonical_conflict_ids) === 0
+  );
+}
+
+function SafeBadge({ row }: { row: SeedImportRow }) {
+  if (isSafeForCanonicalReview(row)) {
+    return (
+      <span className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-emerald-200 bg-emerald-50 text-emerald-800">
+        <CheckIcon />
+        <span className="sr-only">Safe for canonical review</span>
+      </span>
+    );
+  }
+
+  return (
+    <span className="inline-flex min-h-8 items-center rounded-full border border-amber-200 bg-amber-50 px-2 text-[11px] font-semibold text-amber-900">
+      Review
+    </span>
+  );
+}
+
+function DecisionControls({
+  formId,
+  row,
+}: {
+  formId: string;
+  row: SeedImportRow;
+}) {
+  return (
+    <form id={formId} action={decideSeedImportReviewRow} className="grid gap-1">
+      <input type="hidden" name="row_id" value={row.id} />
+      <input
+        type="hidden"
+        name="status_reason"
+        value="Decision submitted from simplified seed import review workflow."
+      />
+      <input
+        type="hidden"
+        name="review_note"
+        value="Seed row reviewed from simplified admin decision queue."
+      />
+      <label className="sr-only" htmlFor={`${formId}-decision`}>
+        Decision for {row.raw_misspelling}
+      </label>
+      <select
+        id={`${formId}-decision`}
+        name="decision"
+        required
+        className="w-full rounded-xl border border-[var(--border)] bg-white px-2 py-2 text-sm text-[color:var(--ink)]"
+        defaultValue=""
+      >
+        <option value="" disabled>
+          Choose decision
+        </option>
+        <option value="nominate_for_canonical_adoption">
+          Approve for canonical review
+        </option>
+        <option value="reject">Reject</option>
+      </select>
+      <p className="text-[11px] leading-4 text-[color:var(--mid)]">
+        Approval sends this seed row to the canonical adoption review step.
+      </p>
+    </form>
   );
 }
 
@@ -421,26 +443,29 @@ function SeedRowTable({
       </div>
 
       <div className="overflow-x-auto">
-        <table className="w-full min-w-[1320px] border-collapse text-left text-[13px]">
+        <table className="w-full min-w-[1080px] table-fixed border-collapse text-left text-[13px]">
+          <colgroup>
+            <col className="w-[7%]" />
+            <col className="w-[14%]" />
+            <col className="w-[14%]" />
+            <col className="w-[25%]" />
+            <col className="w-[13%]" />
+            <col className="w-[20%]" />
+            <col className="w-[7%]" />
+          </colgroup>
           <thead>
             <tr className="bg-[rgba(255,247,220,0.45)] text-left text-[10px] font-medium uppercase leading-tight tracking-normal text-[color:var(--mid)]">
               <th scope="col" className="px-3 py-3">
-                Row
+                Safe
               </th>
               <th scope="col" className="px-3 py-3">
-                Pair
+                Misspelling
+              </th>
+              <th scope="col" className="px-3 py-3">
+                Correction
               </th>
               <th scope="col" className="px-3 py-3">
                 Micro-skill
-              </th>
-              <th scope="col" className="px-3 py-3">
-                Source
-              </th>
-              <th scope="col" className="px-3 py-3">
-                Dry run
-              </th>
-              <th scope="col" className="px-3 py-3">
-                Evidence
               </th>
               <th scope="col" className="px-3 py-3">
                 Status
@@ -448,127 +473,192 @@ function SeedRowTable({
               <th scope="col" className="px-3 py-3">
                 Review
               </th>
+              <th scope="col" className="px-3 py-3">
+                Action
+              </th>
             </tr>
           </thead>
           <tbody>
             {rows.map((row) => {
               const batch = batches.get(row.batch_id);
-              const microSkillDisplayName = microSkillNames.get(
-                row.suggested_micro_skill_key,
-              );
+              const microSkillDisplayName = row.suggested_micro_skill_key
+                ? microSkillNames.get(row.suggested_micro_skill_key)
+                : null;
+              const formId = `seed-import-decision-${row.id}`;
+              const detailId = `seed-import-details-${row.id}`;
 
               return (
-                <tr key={row.id} className="align-top">
-                  <th
-                    scope="row"
-                    className="border-t border-[var(--border)] px-3 py-4 text-xs font-medium text-[color:var(--ink)]"
-                  >
-                    <span className="block">
-                      {batch?.batch_name ?? "Unknown batch"}
-                    </span>
-                    <span className="mt-1 block text-[color:var(--mid)]">
-                      Source row {row.source_row_number}
-                    </span>
-                    {row.source_row_id ? (
-                      <span className="mt-1 block text-[color:var(--mid)]">
-                        {row.source_row_id}
+                <Fragment key={row.id}>
+                  <tr className="align-top">
+                    <td className="border-t border-[var(--border)] px-3 py-3">
+                      <SafeBadge row={row} />
+                    </td>
+                    <th
+                      scope="row"
+                      className="border-t border-[var(--border)] px-3 py-3 text-sm font-medium text-[color:var(--ink)]"
+                    >
+                      <span className="block truncate" title={row.raw_misspelling}>
+                        {row.raw_misspelling}
                       </span>
-                    ) : null}
-                  </th>
-                  <td className="border-t border-[var(--border)] px-3 py-4">
-                    <span className="block text-sm font-semibold text-[color:var(--ink)]">
-                      {row.raw_misspelling} to {row.raw_correction}
-                    </span>
-                    <span className="mt-1 block text-xs text-[color:var(--mid)]">
-                      {row.misspelling_normalized} to{" "}
-                      {row.correct_spelling_normalized}
-                    </span>
-                    <span className="mt-1 block text-xs text-[color:var(--mid)]">
-                      {row.dialect_code} · {row.normalization_version}
-                    </span>
-                  </td>
-                  <td className="border-t border-[var(--border)] px-3 py-4 text-xs text-[color:var(--mid)]">
-                    <span className="block font-semibold text-[color:var(--ink)]">
-                      {microSkillDisplayName ?? row.suggested_micro_skill_key}
-                    </span>
-                    <span className="mt-1 block">
-                      {row.suggested_micro_skill_key}
-                    </span>
-                  </td>
-                  <td className="border-t border-[var(--border)] px-3 py-4 text-xs text-[color:var(--mid)]">
-                    <span className="block font-semibold text-[color:var(--ink)]">
-                      {batch?.source_name ?? "Unknown source"}
-                    </span>
-                    <span className="mt-1 block">
-                      {row.source_dataset ?? batch?.source_dataset ?? "No dataset"}
-                    </span>
-                    <span className="mt-1 block">Confidence {formatConfidence(row)}</span>
-                    <span className="mt-1 block">{row.source_note}</span>
-                  </td>
-                  <td className="border-t border-[var(--border)] px-3 py-4 text-xs text-[color:var(--mid)]">
-                    <span className="block font-semibold text-[color:var(--ink)]">
-                      {formatLabel(row.dry_run_bucket)}
-                    </span>
-                    <span className="mt-1 block">
-                      {row.dry_run_recommended_next_action
-                        ? formatLabel(row.dry_run_recommended_next_action)
-                        : "No next action"}
-                    </span>
-                    <span className="mt-1 block">
-                      Reasons {formatJsonCount(row.validation_reasons)}
-                    </span>
-                    <span className="mt-1 block">
-                      Warnings {formatJsonCount(row.manual_review_warnings)}
-                    </span>
-                  </td>
-                  <td className="border-t border-[var(--border)] px-3 py-4 text-xs text-[color:var(--mid)]">
-                    <span className="block">
-                      Canonical matches {formatJsonCount(row.canonical_match_ids)}
-                    </span>
-                    <span className="mt-1 block">
-                      Canonical conflicts{" "}
-                      {formatJsonCount(row.canonical_conflict_ids)}
-                    </span>
-                    <span className="mt-1 block">
-                      Supporting ids {formatJsonCount(row.supporting_evidence_ids)}
-                    </span>
-                    <span className="mt-1 block">
-                      Supporting counts{" "}
-                      {formatJsonCount(row.supporting_evidence_counts)}
-                    </span>
-                  </td>
-                  <td className="border-t border-[var(--border)] px-3 py-4 text-xs text-[color:var(--mid)]">
-                    <span className="block font-semibold text-[color:var(--ink)]">
-                      {formatLabel(row.row_status)}
-                    </span>
-                    <span className="mt-1 block">
-                      {row.status_reason ?? "No status reason"}
-                    </span>
-                    <span className="mt-1 block">
-                      Duplicate target{" "}
-                      {row.duplicate_of_seed_import_row_id
-                        ? formatShortHash(row.duplicate_of_seed_import_row_id)
-                        : "none"}
-                    </span>
-                    <span className="mt-1 block">
-                      Canonical mapping{" "}
-                      {row.canonical_mapping_id
-                        ? formatShortHash(row.canonical_mapping_id)
-                        : "none"}
-                    </span>
-                  </td>
-                  <td className="border-t border-[var(--border)] px-3 py-4 text-xs text-[color:var(--mid)]">
-                    <span className="block">
-                      {row.reviewed_by_admin_email ?? "Not reviewed"}
-                    </span>
-                    <span className="mt-1 block">{formatDate(row.reviewed_at)}</span>
-                    <span className="mt-1 block">
-                      {row.review_note ?? "No review note"}
-                    </span>
-                    <DecisionControls row={row} />
-                    <HiddenCanonicalAdoptionControls row={row} />
-                  </td>
-                </tr>
+                      <span className="mt-1 block truncate text-xs font-normal text-[color:var(--mid)]">
+                        Row {row.source_row_number}
+                      </span>
+                    </th>
+                    <td className="border-t border-[var(--border)] px-3 py-3 text-sm text-[color:var(--ink)]">
+                      <span className="block truncate" title={row.raw_correction}>
+                        {row.raw_correction}
+                      </span>
+                      <span className="mt-1 block truncate text-xs text-[color:var(--mid)]">
+                        {row.dialect_code}
+                      </span>
+                    </td>
+                    <td className="border-t border-[var(--border)] px-3 py-3 text-xs text-[color:var(--mid)]">
+                      <span className="block truncate font-semibold text-[color:var(--ink)]">
+                        {microSkillDisplayName ??
+                          row.suggested_micro_skill_key ??
+                          "Manual review required"}
+                      </span>
+                      <span
+                        className="block truncate"
+                        title={row.suggested_micro_skill_key ?? undefined}
+                      >
+                        {row.suggested_micro_skill_key ??
+                          "No stored micro-skill yet"}
+                      </span>
+                    </td>
+                    <td className="border-t border-[var(--border)] px-3 py-3 text-xs text-[color:var(--mid)]">
+                      <span className="block font-semibold text-[color:var(--ink)]">
+                        {formatLabel(row.row_status)}
+                      </span>
+                      <span className="block">
+                        {row.reviewed_by_admin_email
+                          ? `Reviewed ${formatDate(row.reviewed_at)}`
+                          : "Not reviewed"}
+                      </span>
+                    </td>
+                    <td className="border-t border-[var(--border)] px-3 py-3">
+                      <DecisionControls formId={formId} row={row} />
+                    </td>
+                    <td className="border-t border-[var(--border)] px-3 py-3">
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="submit"
+                          form={formId}
+                          title="Submit seed row decision"
+                          aria-label={`Submit seed row decision for ${row.raw_misspelling}`}
+                          className="flex h-9 w-9 items-center justify-center rounded-full border border-emerald-200 bg-emerald-50 text-base font-semibold text-emerald-800 transition hover:bg-emerald-100 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
+                        >
+                          <CheckIcon />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td
+                      colSpan={7}
+                      className="border-t border-[var(--border)] bg-[rgba(255,247,220,0.16)] px-3 py-2"
+                    >
+                      <details
+                        id={detailId}
+                        className="text-xs leading-5 text-[color:var(--mid)]"
+                      >
+                        <summary className="cursor-pointer font-medium text-[color:var(--ink)]">
+                          Seed row details
+                        </summary>
+                        <div className="mt-2 grid gap-3 md:grid-cols-4">
+                          <div>
+                            <p className="font-semibold text-[color:var(--ink)]">
+                              Normalized pair
+                            </p>
+                            <span>
+                              {row.misspelling_normalized} -&gt;{" "}
+                              {row.correct_spelling_normalized}
+                            </span>
+                          </div>
+                          <div>
+                            <p className="font-semibold text-[color:var(--ink)]">
+                              Source
+                            </p>
+                            <span>{batch?.source_name ?? "Unknown source"}</span>
+                            <span className="block">
+                              {row.source_dataset ??
+                                batch?.source_dataset ??
+                                "No dataset"}
+                            </span>
+                          </div>
+                          <div>
+                            <p className="font-semibold text-[color:var(--ink)]">
+                              Dry run
+                            </p>
+                            <span>{formatLabel(row.dry_run_bucket)}</span>
+                            <span className="block">
+                              Confidence {formatConfidence(row)}
+                            </span>
+                          </div>
+                          <div>
+                            <p className="font-semibold text-[color:var(--ink)]">
+                              Evidence
+                            </p>
+                            <span>
+                              Matches {formatJsonCount(row.canonical_match_ids)}
+                            </span>
+                            <span className="block">
+                              Conflicts{" "}
+                              {formatJsonCount(row.canonical_conflict_ids)}
+                            </span>
+                          </div>
+                          <div>
+                            <p className="font-semibold text-[color:var(--ink)]">
+                              Validation
+                            </p>
+                            <span>
+                              Reasons {formatJsonCount(row.validation_reasons)}
+                            </span>
+                            <span className="block">
+                              Warnings{" "}
+                              {formatJsonCount(row.manual_review_warnings)}
+                            </span>
+                          </div>
+                          <div>
+                            <p className="font-semibold text-[color:var(--ink)]">
+                              Canonical mapping
+                            </p>
+                            <span>
+                              {row.canonical_mapping_id
+                                ? formatShortHash(row.canonical_mapping_id)
+                                : "None"}
+                            </span>
+                          </div>
+                          <div>
+                            <p className="font-semibold text-[color:var(--ink)]">
+                              Duplicate target
+                            </p>
+                            <span>
+                              {row.duplicate_of_seed_import_row_id
+                                ? formatShortHash(row.duplicate_of_seed_import_row_id)
+                                : "None"}
+                            </span>
+                          </div>
+                          <div>
+                            <p className="font-semibold text-[color:var(--ink)]">
+                              Review note
+                            </p>
+                            <span>{row.review_note ?? "None"}</span>
+                          </div>
+                          <div className="md:col-span-4">
+                            <p className="font-semibold text-[color:var(--ink)]">
+                              Source note
+                            </p>
+                            <span>{row.source_note}</span>
+                          </div>
+                        </div>
+                        <div className="mt-4">
+                          <HiddenCanonicalAdoptionControls row={row} />
+                        </div>
+                      </details>
+                    </td>
+                  </tr>
+                </Fragment>
               );
             })}
           </tbody>
@@ -714,7 +804,7 @@ export default async function AdminSeedImportReviewPage({
   }
 
   const microSkillNames = await getMicroSkillNames([
-    ...new Set(rows.map((row) => row.suggested_micro_skill_key)),
+    ...new Set(rows.flatMap((row) => row.suggested_micro_skill_key ?? [])),
   ]);
   const batchMap = new Map(batches.map((batch) => [batch.id, batch]));
 
@@ -750,6 +840,8 @@ export default async function AdminSeedImportReviewPage({
             {messages.error}
           </section>
         ) : null}
+
+        <SeedImportUploadPanel />
 
         {hasError ? (
           <ErrorState />
