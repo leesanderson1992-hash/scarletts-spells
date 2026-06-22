@@ -502,8 +502,11 @@ Canonical documentation now defers to:
     `adopt_seed_import_row_hidden_canonical_admin`
   - added server-only adoption wrapper/action and centralized adoption input
     validation under `/admin/seed-import-review`
-  - admin UI exposes adoption controls only for rows already nominated for
-    canonical adoption and not yet linked to a canonical mapping
+  - admin UI now uses a simplified active queue:
+    `Adopt for canonical review` or `Reject`
+  - `Adopt for canonical review` can nominate a safe seed row when needed and
+    then adopts it through the existing hidden-canonical adoption RPC
+  - rejected and adopted rows are hidden from the active queue
   - adoption creates or links active hidden canonical mappings only; it does
     not enable resolver visibility, call resolver visibility RPCs/actions, or
     create `resolver_visibility_enabled` events

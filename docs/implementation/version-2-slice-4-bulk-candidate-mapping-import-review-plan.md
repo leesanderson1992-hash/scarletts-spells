@@ -1377,9 +1377,11 @@ Slice `4F` added:
   `app/admin/seed-import-review/adoption-actions.ts`
 - centralized adoption input validation in
   `app/admin/seed-import-review/adoption-rules.ts`
-- minimal `/admin/seed-import-review` controls for rows with
-  `row_status = 'nominated_for_canonical_adoption'` and no
-  `canonical_mapping_id`
+- simplified `/admin/seed-import-review` active queue controls:
+  `Adopt for canonical review` or `Reject`
+- direct adoption flow that can first nominate a safe seed row when needed,
+  then call the hidden-canonical adoption RPC
+- active queue filtering that hides rejected and adopted hidden-canonical rows
 - focused regression
   `npm run writing-engine:seed-import-hidden-canonical-adoption-regression`
 
@@ -1394,7 +1396,7 @@ Slice `4F` implemented the required eligibility and conflict rules:
 - dialect and normalization version are required
 - suggested micro-skill must be active, assignable, and Domain `D4`
 - blocking errors and unresolved canonical conflicts block adoption
-- missing admin note blocks adoption
+- adoption uses a stable server-generated audit note in the simplified queue
 - existing hidden active exact-pair same-skill mappings can be linked
 - visible, disabled, deprecated, superseded, exact-pair different-skill, and
   same-misspelling/different-correction conflicts block adoption
@@ -1535,8 +1537,8 @@ Eligibility:
 - `suggested_micro_skill_key` must exist in `micro_skill_catalog`, be active,
   assignable, and Domain `D4`
 - seed row must not have blocking errors or unresolved canonical conflicts
-- admin must provide an explicit adoption note
-- admin confirmation copy must say resolver visibility remains disabled
+- current simplified queue uses a stable server-generated audit note and
+  visible UI copy stating resolver visibility remains disabled
 
 Conflict/linking rules:
 - exact normalized misspelling/correction/dialect active mapping with the same

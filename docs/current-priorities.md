@@ -165,9 +165,11 @@ excluded.
   and local/source QA-passed. It adds a service-role-only security-definer RPC,
   first-class `source_seed_import_row_id` canonical lineage, a
   `seed_import_adopted` canonical mapping event, a server-only admin action
-  under `/admin/seed-import-review`, and minimal adoption controls only for
-  nominated unlinked seed rows. The path creates or links hidden active
-  canonical mappings only; resolver visibility remains disabled.
+  under `/admin/seed-import-review`, and a simplified admin queue where safe
+  rows can be adopted for canonical review or rejected. Adoption can nominate
+  the seed row when needed, then creates or links hidden active canonical
+  mappings only. Rejected and adopted rows leave the active queue. Resolver
+  visibility remains disabled.
 - Slice `4F.1` adds a guarded local/staging smoke harness:
   `npm run writing-engine:seed-import-hidden-canonical-adoption-local-smoke`.
   Local smoke passed after applying the new 4F migration to local Supabase

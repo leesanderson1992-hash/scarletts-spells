@@ -619,9 +619,11 @@ Planning closeout:
   `adopt_seed_import_row_hidden_canonical_admin`, first-class
   `source_seed_import_row_id` lineage on canonical mappings/events, the
   `seed_import_adopted` event type, a server-only admin action under
-  `/admin/seed-import-review`, and adoption controls only for nominated
-  unlinked seed rows. It can create or link active hidden canonical mappings
-  but cannot enable resolver visibility or change resolver/runtime behavior.
+  `/admin/seed-import-review`, and a simplified active queue with
+  `Adopt for canonical review` / `Reject` actions. The adoption action can
+  nominate a safe seed row when needed, then create or link active hidden
+  canonical mappings. It cannot enable resolver visibility or change
+  resolver/runtime behavior, and rejected/adopted rows leave the active queue.
 - Slice `4F.1` local/staging hidden-canonical adoption smoke is implemented.
   The smoke creates synthetic seed-import data only, chooses an existing active
   assignable D4 micro-skill, inserts one eligible nominated seed row, calls the
