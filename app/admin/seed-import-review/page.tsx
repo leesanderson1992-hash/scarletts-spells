@@ -5,7 +5,6 @@ import { requireAdminUser } from "@/lib/admin/access";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 
 import { adoptSeedImportRowHiddenCanonical } from "./adoption-actions";
-import { SEED_IMPORT_HIDDEN_CANONICAL_CONFIRMATION_COPY } from "./adoption-rules";
 import { decideSeedImportReviewRow } from "./actions";
 import { SeedImportUploadPanel } from "./upload-panel";
 
@@ -193,96 +192,96 @@ function DecisionControls({
   formId: string;
   row: SeedImportRow;
 }) {
-  return (
-    <form id={formId} action={decideSeedImportReviewRow} className="grid gap-1">
-      <input type="hidden" name="row_id" value={row.id} />
-      <input
-        type="hidden"
-        name="status_reason"
-        value="Decision submitted from simplified seed import review workflow."
-      />
-      <input
-        type="hidden"
-        name="review_note"
-        value="Seed row reviewed from simplified admin decision queue."
-      />
-      <label className="sr-only" htmlFor={`${formId}-decision`}>
-        Decision for {row.raw_misspelling}
-      </label>
-      <select
-        id={`${formId}-decision`}
-        name="decision"
-        required
-        className="w-full rounded-xl border border-[var(--border)] bg-white px-2 py-2 text-sm text-[color:var(--ink)]"
-        defaultValue=""
-      >
-        <option value="" disabled>
-          Choose decision
-        </option>
-        <option value="nominate_for_canonical_adoption">
-          Approve for canonical review
-        </option>
-        <option value="reject">Reject</option>
-      </select>
-      <p className="text-[11px] leading-4 text-[color:var(--mid)]">
-        Approval sends this seed row to the canonical adoption review step.
-      </p>
-    </form>
-  );
-}
+  const adoptFormId = `${formId}-adopt`;
+  const rejectFormId = `${formId}-reject`;
+  const canAdoptForCanonicalReview =
+    [
+      "pending_candidate_review",
+      "kept_pending",
+      "conflict_blocked",
+      "nominated_for_canonical_adoption",
+    ].includes(row.row_status) &&
+    isSafeForCanonicalReview(row) &&
+    !row.canonical_mapping_id;
+  const canReject = [
+    "pending_candidate_review",
+    "manual_review_required",
+    "kept_pending",
+    "duplicate",
+    "conflict_blocked",
+    "superseded",
+  ].includes(row.row_status);
 
-function HiddenCanonicalAdoptionControls({ row }: { row: SeedImportRow }) {
-  if (
-    row.row_status !== "nominated_for_canonical_adoption" ||
-    row.canonical_mapping_id
-  ) {
-    return null;
+  if (row.row_status === "adopted_hidden_canonical") {
+    return (
+      <div className="grid gap-1 text-xs text-[color:var(--mid)]">
+        <span className="font-semibold text-[color:var(--ink)]">
+          Adopted for canonical review
+        </span>
+        <span>Resolver visibility remains disabled.</span>
+      </div>
+    );
+  }
+
+  if (!canAdoptForCanonicalReview && !canReject) {
+    return (
+      <div className="grid gap-1 text-xs text-[color:var(--mid)]">
+        <span className="font-semibold text-[color:var(--ink)]">
+          No action available
+        </span>
+        <span>This row is not safe for canonical adoption.</span>
+      </div>
+    );
   }
 
   return (
-    <details className="mt-3 rounded-lg border border-amber-300 bg-amber-50 p-3">
-      <summary className="cursor-pointer text-xs font-semibold text-amber-950">
-        Adopt hidden canonical
-      </summary>
-      <form action={adoptSeedImportRowHiddenCanonical} className="mt-3 grid gap-2">
-        <input type="hidden" name="row_id" value={row.id} />
-        <p className="text-[11px] leading-5 text-amber-950">
-          This creates or links hidden canonical mapping truth for this seed row
-          only. Resolver visibility remains disabled.
-        </p>
-        <label className="grid gap-1 text-[11px] font-semibold text-amber-950">
-          Adoption note
-          <textarea
-            name="adoption_note"
-            maxLength={1000}
-            rows={3}
-            required
-            className="rounded-lg border border-amber-300 bg-white px-2 py-2 text-xs font-normal text-[color:var(--ink)]"
-            placeholder="Required explicit adoption rationale"
-          />
-        </label>
-        <label className="grid gap-1 text-[11px] font-semibold text-amber-950">
-          Confirmation
-          <input
-            name="resolver_visibility_confirmation"
-            required
-            pattern={SEED_IMPORT_HIDDEN_CANONICAL_CONFIRMATION_COPY.replace(
-              /[.*+?^${}()|[\]\\]/g,
-              "\\$&",
-            )}
-            className="min-h-9 rounded-lg border border-amber-300 bg-white px-2 text-xs font-normal text-[color:var(--ink)]"
-            placeholder={SEED_IMPORT_HIDDEN_CANONICAL_CONFIRMATION_COPY}
-            aria-label={SEED_IMPORT_HIDDEN_CANONICAL_CONFIRMATION_COPY}
-          />
-        </label>
-        <button
-          type="submit"
-          className="min-h-9 rounded-lg bg-amber-700 px-3 py-2 text-xs font-semibold text-white transition hover:bg-amber-800 focus:outline-none focus:ring-2 focus:ring-amber-700 focus:ring-offset-2"
+    <div className="grid gap-2">
+      {canAdoptForCanonicalReview ? (
+        <form
+          id={adoptFormId}
+          action={adoptSeedImportRowHiddenCanonical}
+          className="contents"
         >
-          Adopt hidden canonical
-        </button>
-      </form>
-    </details>
+          <input type="hidden" name="row_id" value={row.id} />
+          <button
+            type="submit"
+            className="min-h-9 rounded-lg bg-emerald-700 px-3 py-2 text-xs font-semibold text-white transition hover:bg-emerald-800 focus:outline-none focus:ring-2 focus:ring-emerald-700 focus:ring-offset-2"
+          >
+            Adopt for canonical review
+          </button>
+        </form>
+      ) : null}
+      {canReject ? (
+        <form
+          id={rejectFormId}
+          action={decideSeedImportReviewRow}
+          className="contents"
+        >
+          <input type="hidden" name="row_id" value={row.id} />
+          <input type="hidden" name="decision" value="reject" />
+          <input
+            type="hidden"
+            name="status_reason"
+            value="Rejected from simplified seed import review queue."
+          />
+          <input
+            type="hidden"
+            name="review_note"
+            value="Seed row rejected from simplified admin decision queue."
+          />
+          <button
+            type="submit"
+            className="min-h-9 rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-xs font-semibold text-rose-800 transition hover:bg-rose-100 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:ring-offset-2"
+          >
+            Reject
+          </button>
+        </form>
+      ) : null}
+      <p className="text-[11px] leading-4 text-[color:var(--mid)]">
+        Adopted and rejected rows leave this active queue. Resolver visibility
+        remains disabled.
+      </p>
+    </div>
   );
 }
 
@@ -342,8 +341,7 @@ function EmptyState() {
       </h2>
       <p className="brand-copy mt-3 max-w-2xl text-sm leading-6">
         Candidate-review seed rows will appear here after an operator runs the
-        Slice 4D import path. Manual-review and rejected dry-run rows remain
-        report-only.
+        Slice 4D import path. Adopted and rejected rows leave this active queue.
       </p>
     </section>
   );
@@ -436,9 +434,9 @@ function SeedRowTable({
           Imported candidate rows
         </h2>
         <p className="brand-copy mt-2 text-sm leading-6">
-          Seed evidence with status-only Slice 4E.2 review actions and explicit
-          Slice 4F hidden-canonical adoption for nominated rows. Resolver
-          visibility remains disabled.
+          Seed evidence with two queue actions: adopt for canonical review or
+          reject. Adopted rows create hidden canonical truth for later resolver
+          readiness review. Resolver visibility remains disabled.
         </p>
       </div>
 
@@ -450,8 +448,7 @@ function SeedRowTable({
             <col className="w-[14%]" />
             <col className="w-[25%]" />
             <col className="w-[13%]" />
-            <col className="w-[20%]" />
-            <col className="w-[7%]" />
+            <col className="w-[27%]" />
           </colgroup>
           <thead>
             <tr className="bg-[rgba(255,247,220,0.45)] text-left text-[10px] font-medium uppercase leading-tight tracking-normal text-[color:var(--mid)]">
@@ -472,9 +469,6 @@ function SeedRowTable({
               </th>
               <th scope="col" className="px-3 py-3">
                 Review
-              </th>
-              <th scope="col" className="px-3 py-3">
-                Action
               </th>
             </tr>
           </thead>
@@ -539,23 +533,10 @@ function SeedRowTable({
                     <td className="border-t border-[var(--border)] px-3 py-3">
                       <DecisionControls formId={formId} row={row} />
                     </td>
-                    <td className="border-t border-[var(--border)] px-3 py-3">
-                      <div className="flex items-center gap-2">
-                        <button
-                          type="submit"
-                          form={formId}
-                          title="Submit seed row decision"
-                          aria-label={`Submit seed row decision for ${row.raw_misspelling}`}
-                          className="flex h-9 w-9 items-center justify-center rounded-full border border-emerald-200 bg-emerald-50 text-base font-semibold text-emerald-800 transition hover:bg-emerald-100 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
-                        >
-                          <CheckIcon />
-                        </button>
-                      </div>
-                    </td>
                   </tr>
                   <tr>
                     <td
-                      colSpan={7}
+                      colSpan={6}
                       className="border-t border-[var(--border)] bg-[rgba(255,247,220,0.16)] px-3 py-2"
                     >
                       <details
@@ -651,9 +632,6 @@ function SeedRowTable({
                             </p>
                             <span>{row.source_note}</span>
                           </div>
-                        </div>
-                        <div className="mt-4">
-                          <HiddenCanonicalAdoptionControls row={row} />
                         </div>
                       </details>
                     </td>
@@ -753,6 +731,7 @@ async function getSeedImportRows() {
       ].join(", "),
     )
     .order("updated_at", { ascending: false })
+    .not("row_status", "in", "(rejected,adopted_hidden_canonical)")
     .limit(100);
 }
 

@@ -41,8 +41,8 @@ assert.match(
 );
 assert.match(
   page,
-  /status-only Slice 4E\.2 review actions[\s\S]*Slice 4F hidden-canonical adoption[\s\S]*Resolver\s+visibility remains disabled/,
-  "Seed import review page must separate status-only review from hidden canonical adoption.",
+  /adopt for canonical review[\s\S]*reject[\s\S]*hidden canonical truth[\s\S]*Resolver\s+visibility remains disabled/i,
+  "Seed import review page must describe the simplified adopt/reject workflow.",
 );
 assert.match(
   page,
@@ -62,12 +62,12 @@ assert.match(
 assert.match(
   page,
   /action=\{decideSeedImportReviewRow\}/,
-  "Slice 4E.2 status decision action must remain server-only.",
+  "Reject decisions must remain server-only.",
 );
 assert.match(
   page,
   /action=\{adoptSeedImportRowHiddenCanonical\}/,
-  "Slice 4F page may expose the server-only hidden canonical adoption action.",
+  "Canonical-review adoption must remain server-only.",
 );
 assert.doesNotMatch(
   page,

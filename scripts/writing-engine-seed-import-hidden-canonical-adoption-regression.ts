@@ -2,7 +2,6 @@ import assert from "node:assert/strict";
 import { existsSync, readFileSync } from "node:fs";
 
 import {
-  SEED_IMPORT_HIDDEN_CANONICAL_CONFIRMATION_COPY,
   validateSeedImportHiddenCanonicalAdoptionInput,
 } from "../app/admin/seed-import-review/adoption-rules";
 
@@ -50,30 +49,17 @@ const resolver = readFileSync(resolverPath, "utf8");
 
 assert.equal(
   validateSeedImportHiddenCanonicalAdoptionInput({
-    adoptionNote: "Audited source row, exact D4 skill fit.",
-    confirmationCopy: SEED_IMPORT_HIDDEN_CANONICAL_CONFIRMATION_COPY,
     rowId: "seed-row-1",
   }).ok,
   true,
-  "Adoption input should require row id, note, and exact resolver-disabled confirmation.",
+  "Simplified adoption input should require a seed row id.",
 );
 assert.equal(
   validateSeedImportHiddenCanonicalAdoptionInput({
-    adoptionNote: "",
-    confirmationCopy: SEED_IMPORT_HIDDEN_CANONICAL_CONFIRMATION_COPY,
-    rowId: "seed-row-1",
+    rowId: "",
   }).ok,
   false,
-  "Missing adoption note must be blocked.",
-);
-assert.equal(
-  validateSeedImportHiddenCanonicalAdoptionInput({
-    adoptionNote: "Good source.",
-    confirmationCopy: "Enable it now.",
-    rowId: "seed-row-1",
-  }).ok,
-  false,
-  "Adoption confirmation must explicitly say resolver visibility remains disabled.",
+  "Missing row id must be blocked.",
 );
 
 assert.match(
@@ -256,8 +242,13 @@ assert.ok(
 );
 assert.match(
   adoptionAction,
-  /adoption_note[\s\S]*resolver_visibility_confirmation/,
-  "Slice 4F action must server-validate note and resolver-disabled confirmation.",
+  /validateSeedImportReviewDecision[\s\S]*nominate_for_canonical_adoption[\s\S]*adoptSeedImportRowHiddenCanonicalAdmin/,
+  "Simplified adoption must nominate when needed before calling the hidden-canonical RPC.",
+);
+assert.match(
+  adoptionAction,
+  /reviewNote: SEED_IMPORT_HIDDEN_CANONICAL_AUTO_NOTE[\s\S]*note: SEED_IMPORT_HIDDEN_CANONICAL_AUTO_NOTE/,
+  "Simplified adoption must use the stable audit note for nomination and adoption.",
 );
 assert.match(
   adoptionAction,
@@ -277,13 +268,13 @@ assert.doesNotMatch(
 
 assert.match(
   page,
-  /row\.row_status !== "nominated_for_canonical_adoption"[\s\S]*row\.canonical_mapping_id/,
-  "Admin UI must expose adoption only for nominated unlinked rows.",
+  /Adopt for canonical review[\s\S]*Reject/,
+  "Admin UI must expose the simplified adopt/reject queue actions.",
 );
 assert.match(
   page,
-  /name="adoption_note"[\s\S]*required/,
-  "Admin UI must require an adoption note.",
+  /\.not\("row_status", "in", "\(rejected,adopted_hidden_canonical\)"\)/,
+  "Admin UI must hide rejected and adopted rows from the active queue.",
 );
 assert.match(
   page,

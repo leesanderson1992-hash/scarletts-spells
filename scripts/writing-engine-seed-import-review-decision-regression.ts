@@ -230,13 +230,23 @@ assert.match(
 );
 assert.match(
   page,
-  /status-only Slice 4E\.2 review actions[\s\S]*Slice 4F hidden-canonical adoption[\s\S]*Resolver\s+visibility remains disabled/,
-  "Admin page must distinguish status-only review from hidden canonical adoption.",
+  /adopt for canonical review[\s\S]*reject[\s\S]*hidden canonical truth[\s\S]*Resolver\s+visibility remains disabled/i,
+  "Admin page must describe the simplified adopt/reject workflow.",
 );
 assert.match(
   page,
   /action=\{decideSeedImportReviewRow\}/,
   "Admin page must expose the server-only decision action.",
+);
+assert.match(
+  page,
+  /Adopt for canonical review[\s\S]*Reject[\s\S]*Resolver visibility\s+remains disabled/,
+  "Admin page must expose the simplified adopt/reject decision interface.",
+);
+assert.match(
+  page,
+  /\.not\("row_status", "in", "\(rejected,adopted_hidden_canonical\)"\)/,
+  "Completed seed import rows must be hidden from the active review queue.",
 );
 assert.match(
   migration,
