@@ -551,8 +551,29 @@ Canonical documentation now defers to:
   - remaining caveat: staging was not mutated, and no hosted synthetic adoption
     smoke was run by design because it would create production smoke
     seed/canonical rows
-  - next base decision is Slice `4G` resolver visibility consideration, keeping
-    hidden canonical adoption separate from resolver-visible truth
+  - later Slice `4G.0` / `4G.0a` readiness and production runtime proof are now
+    recorded below; hidden canonical adoption remains separate from
+    resolver-visible truth until explicit admin visibility enablement
+- Version 2.0 Slice `4G.0` / `4G.0a` resolver visibility readiness/audit is
+  implemented and production-used:
+  - `/admin/spelling-canonical-resolver-readiness` gives admins a read-only
+    readiness view for hidden active canonical mappings
+  - the route remains admin-gated and service-role/server-only
+  - readiness does not itself enable resolver visibility
+  - the performance read model/RPC pre-aggregates lineage, event summaries, and
+    duplicate/conflict blockers for production-volume review
+- Production import-to-resolver-visible runtime proof is complete:
+  - the same-page seed CSV upload/import flow is production-released
+  - an imported seed row was adopted through `Adopt for canonical review`
+  - the resulting canonical mapping appeared as hidden canonical truth
+  - resolver visibility remained hidden until explicitly enabled by admin
+  - after explicit resolver visibility enablement and Vercel production flag
+    `WRITING_ENGINE_RESOLVER_VISIBLE_CANONICAL_MAPPINGS=enabled`, the mapping
+    correctly highlighted/categorised a canonical truth word in submitted
+    learner work
+  - this proves the live chain from bulk CSV evidence to canonical truth to
+    resolver-visible runtime behaviour, while preserving explicit admin
+    visibility authority
 - A bounded post-Stage-`7` parent-facing evidence-transparency slice is now
   complete.
 - The app is currently suitable for private parent-led use with one child,
@@ -1900,12 +1921,12 @@ Canonical documentation now defers to:
   - open catalog-review cases remain invisible to the resolver
   - parent notes/reasons remain evidence only
   - PCRM recommendation evidence remains invisible to the resolver unless a
-    future explicit admin canonical adoption and resolver-visibility contract
-    is implemented
+    separate explicit admin canonical adoption and resolver-visibility action
+    is applied
   - PCRM-D plain `accepted` means accepted evidence only, not resolver truth
-  - existing canonical mappings remain resolver-invisible until individually
-    adopted/enabled through a future explicit admin action
-  - metadata-only `resolver_visible` is not sufficient as the future production
+  - canonical mappings remain resolver-invisible until individually
+    adopted/enabled through an explicit admin action
+  - metadata-only `resolver_visible` is not sufficient as the production
     resolver authority
   - canonical/global storage foundation now exists after Slice `4E.1`; after
     R3, resolver use remains runtime-gated and exact-pair only

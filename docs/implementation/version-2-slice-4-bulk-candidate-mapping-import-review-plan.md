@@ -1346,21 +1346,24 @@ implemented as a server-only admin/operator read model and listing for imported
 seed rows. Slice `4E.2` is implemented as status-only admin/operator review
 decision actions for imported seed rows, with no canonical mapping creation or
 resolver visibility. Slice `4F` is implemented as explicit hidden-canonical
-adoption from nominated seed rows only. It can create or link active hidden
-canonical mappings, records first-class seed-row lineage, writes canonical
-mapping events, and updates the seed row to `adopted_hidden_canonical` only
-after canonical create/link succeeds. Resolver visibility remains separate and
-unchanged. Reusing parent recommendation or catalog-review tables for bulk
-external imports remains unsafe because it blurs authority lineage.
+adoption from imported seed rows through the simplified
+`Adopt for canonical review` / `Reject` active queue. It can nominate safe seed
+rows when needed, create or link active hidden canonical mappings, records
+first-class seed-row lineage, writes canonical mapping events, and updates the
+seed row to `adopted_hidden_canonical` only after canonical create/link
+succeeds. Resolver visibility remains a separate explicit admin action.
+Reusing parent recommendation or catalog-review tables for bulk external
+imports remains unsafe because it blurs authority lineage.
 
 Slice `4F.1` is implemented as a local/staging-only smoke harness that proves
 the full 4F adoption loop with synthetic seed-import data. The local smoke
 passed after applying the 4F migration to local Supabase only. Hosted/staging
 release remains a separate migration-policy and release-approval decision.
 
-The next base decision is Slice `4G` resolver visibility consideration. Slice
-`4G` must treat 4F mappings as hidden canonical truth only until a separate,
-explicit, audited resolver visibility decision enables a mapping.
+Slice `4G.0` / `4G.0a` resolver visibility readiness/audit is implemented and
+production-used. The production runtime path is now proven for mappings that
+are explicitly enabled for resolver visibility after readiness review and admin
+authorization.
 
 ## Slice 4F / 4F.1 Implementation Closeout
 
@@ -1463,8 +1466,38 @@ Remaining caveats:
   service-role key are supplied
 - no hosted synthetic adoption smoke was run, by design, to avoid creating
   production smoke seed/canonical rows
-- Slice `4G` must not treat hidden canonical adoption as resolver-visible truth
-  or assignment/mastery eligibility
+- hidden canonical adoption still must not be treated as resolver-visible truth
+  until a separate explicit admin visibility action enables that mapping
+- resolver-visible canonical mappings are runtime-active in production only
+  because Vercel production now has
+  `WRITING_ENGINE_RESOLVER_VISIBLE_CANONICAL_MAPPINGS=enabled`
+- imported/canonical/resolver-visible mappings still do not create assignment
+  eligibility, mastery evidence, rewards, dashboards, analytics, scoring,
+  templates, parent/child access, or `micro_skill_catalog` mutation
+
+## Slice 4G Production Runtime Closeout
+
+Slice `4G.0` / `4G.0a` added a read-only resolver visibility readiness/audit
+surface for hidden active canonical mappings and a production-oriented read
+model/RPC for lineage, event summaries, and conflict blockers. Readiness is not
+enablement.
+
+Production proof now confirms the full operator/runtime chain:
+- CSV upload/import on `/admin/seed-import-review`
+- `Adopt for canonical review` from the simplified seed import queue
+- hidden canonical mapping creation/linking with seed-import lineage
+- readiness visibility on `/admin/spelling-canonical-resolver-readiness`
+- explicit admin resolver visibility enablement
+- Vercel production runtime flag
+  `WRITING_ENGINE_RESOLVER_VISIBLE_CANONICAL_MAPPINGS=enabled`
+- submitted learner work correctly highlighted/categorised the enabled
+  canonical truth word
+
+Next recommended prompt: production-scale canonical mapping operations and
+audit hardening. Focus on pagination/search, operator filtering, enable/disable
+rollback clarity, visible runtime smoke runbook, monitoring, and audit exports.
+Do not begin assignment/mastery/reward/dashboard/analytics/scoring/template or
+`micro_skill_catalog` mutation work in that slice.
 
 ## Slice 4F Implementation Prompt
 
@@ -1657,8 +1690,8 @@ Return:
 8. Would this be deemed QA approved?
 9. If no, provide a QA audit prompt.
 10. Remaining risks/manual decisions.
-11. Next recommended prompt: Slice `4F` docs/status closeout, optional
-    audit-hardening, or Slice `4G` resolver visibility consideration.
+11. Historical next recommended prompt was Slice `4G`; current docs now record
+    Slice `4G.0` / `4G.0a` readiness and production runtime proof as complete.
 ```
 
 ## Slice 4E.2 Stage And Commit Prompt

@@ -642,11 +642,12 @@ This means:
       model plus explicit admin RLS policies
     - future write-capable admin workflows require separate action helpers,
       audit trail design, and regression coverage
-- resolver contract remains unchanged in Slice `4A` and Slice `4B.1`:
+- resolver contract current status:
   - open catalog-review cases are invisible to the resolver
   - parent notes/reasons are evidence only
-  - canonical/global storage foundation now exists after Slice `4E.1`, but
-    resolver use remains blocked until a later resolver integration slice
+  - canonical/global storage foundation exists, resolver visibility storage and
+    admin enable/disable controls exist, and production runtime consumption is
+    enabled only for mappings explicitly set resolver-visible
   - `spelling_catalog_review_cases`, parent notes, parent-scoped candidate
     mappings, and `micro_skill_catalog` metadata must not silently become
     global mapping truth
@@ -654,16 +655,16 @@ This means:
     runtime, schema, RPCs, admin actions, parent Review Work, completion
     gating, mastery, rewards, assignments, scoring, analytics, dashboards, or
     template routing
-  - future resolver visibility must be first-class, explicit, audited,
-    reversible, and exact-pair based; metadata-only `resolver_visible` is not
-    sufficient production authority, existing canonical mappings remain
-    invisible until individually enabled, and accepted PCRM recommendations
-    remain evidence-only until separately adopted
-  - future resolver integration may add resolver-visible normalized spelling
-    mappings, suppress or correct false-positive-producing mappings/rules,
-    close cases with audit, and improve future suggestions only after the
-    resolver contract is explicitly revised
-  - future resolver priority is refined by Slice `4E.0`: active
+  - resolver visibility is first-class, explicit, audited, reversible, and
+    exact-pair based; metadata-only `resolver_visible` is not sufficient
+    production authority, canonical mappings remain invisible until
+    individually enabled, and accepted PCRM recommendations remain evidence-only
+    until separately adopted
+  - production Vercel has
+    `WRITING_ENGINE_RESOLVER_VISIBLE_CANONICAL_MAPPINGS=enabled`; one imported
+    seed canonical mapping has been explicitly enabled and runtime-smoked in
+    submitted learner work
+  - resolver priority is: active
     resolver-visible canonical exact-pair spelling mapping, existing
     catalog-backed resolver behavior, same-scope `parent_local_promoted`
     mapping where supported, engine/manual diagnostic suggestions, then

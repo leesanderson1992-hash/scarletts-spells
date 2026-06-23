@@ -1249,15 +1249,16 @@ Slice `4A` spelling catalog-review taxonomy contract:
   - no resolver change in Slice `4A` or Slice `4B.1`
   - open catalog-review cases remain invisible to the resolver
   - parent notes/reasons remain evidence only
-  - canonical/global storage foundation now exists after Slice `4E.1`, but
-    resolver use remains blocked until a later resolver integration slice
+  - canonical/global storage foundation, resolver visibility storage/admin
+    controls, and production runtime consumption now exist; resolver use is
+    limited to mappings explicitly enabled for first-class resolver visibility
   - do not use catalog-review cases, parent notes, parent-scoped candidate
     mappings, or `micro_skill_catalog` metadata as silent global mapping truth
-  - future resolver integration may add resolver-visible normalized spelling
-    mappings, suppress or correct false-positive-producing mappings/rules,
-    close cases with audit, and improve future suggestions only after the
-    resolver contract is explicitly revised
-  - future resolver priority is refined by Slice `4E.0`: active
+  - production Vercel has
+    `WRITING_ENGINE_RESOLVER_VISIBLE_CANONICAL_MAPPINGS=enabled`; one imported
+    seed canonical mapping has been explicitly enabled and runtime-smoked in
+    submitted learner work
+  - resolver priority is: active
     resolver-visible canonical exact-pair spelling mapping, existing
     catalog-backed resolver behavior, same-scope `parent_local_promoted`
     mapping where supported, engine/manual diagnostic suggestions, then

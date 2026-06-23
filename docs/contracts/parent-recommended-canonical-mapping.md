@@ -55,11 +55,12 @@ records resolver non-effect through `resolver_visible: false`.
 Resolver-visible global truth remains separate. Parent recommendations,
 pending admin review rows, open catalog-review cases, and canonical mappings
 with resolver visibility disabled must not change global suggestions. R3
-resolver runtime adoption already exists as code-only, feature-flag gated
-source work behind
-`WRITING_ENGINE_RESOLVER_VISIBLE_CANONICAL_MAPPINGS=enabled`; that runtime path
-does not consume PCRM recommendation rows. PCRM canonical adoption into
-`spelling_canonical_mappings` remains a separate future workflow.
+resolver runtime adoption is now production-enabled behind
+`WRITING_ENGINE_RESOLVER_VISIBLE_CANONICAL_MAPPINGS=enabled` for mappings that
+have been explicitly enabled for resolver visibility. That runtime path does
+not consume PCRM recommendation rows directly. PCRM canonical adoption into
+`spelling_canonical_mappings` remains a separate explicit admin workflow before
+any resolver visibility decision.
 
 Historical R0/R1/R2/R3 resolver integration contract status:
 - R0 documented the future resolver-visible contract only
@@ -67,7 +68,9 @@ Historical R0/R1/R2/R3 resolver integration contract status:
   helper
 - R2 added audited admin resolver visibility controls
 - R3 wired resolver-visible exact-pair mappings into runtime priority behind
-  the feature flag
+  the feature flag; production now has the flag enabled and one imported,
+  explicitly visible canonical mapping has been runtime-smoked in learner
+  submitted work
 - metadata-only `resolver_visible` remains historical/non-effect metadata and
   is not sufficient as production resolver-visible authority
 
@@ -275,8 +278,8 @@ Future resolver-visible canonical mapping contract:
     `D4`
   - a resolver-visibility enable event exists in the canonical mapping audit
     history
-- existing canonical mappings remain resolver-invisible until individually
-  adopted or enabled through the future explicit admin action
+- canonical mappings remain resolver-invisible until individually adopted or
+  enabled through an explicit audited admin action
 - accepted PCRM recommendations remain evidence-only until a separate explicit
   admin adoption action creates or links canonical mapping truth and enables
   resolver visibility
@@ -467,8 +470,11 @@ PCRM-G - Accepted PCRM Canonical Adoption, No Resolver Visibility:
   candidate mapping, parent verification/source ids where available, normalized
   pair, micro-skill key, dialect, normalization version, admin identity, note,
   and timestamps
-- resolver visibility remains disabled; no resolver visibility RPC is called
-  and `WRITING_ENGINE_RESOLVER_VISIBLE_CANONICAL_MAPPINGS` remains unchanged
+- resolver visibility remains disabled by PCRM adoption; no resolver visibility
+  RPC is called during PCRM adoption. Runtime resolver-visible consumption may
+  be enabled globally through
+  `WRITING_ENGINE_RESOLVER_VISIBLE_CANONICAL_MAPPINGS=enabled`, but only
+  mappings with first-class resolver visibility enabled are consumed.
 - no parent Review Work, completion gating, `micro_skill_catalog`, mastery,
   rewards, assignments, scoring, analytics, dashboards, or templates are
   changed
@@ -484,7 +490,7 @@ Historical resolver-visible integration:
   `dc13429 feat: add resolver visibility admin controls`; it adds explicit
   admin enable/disable actions for `resolver_visibility_status`, audited
   rollback, and conflict blocking only
-- R3 is complete and QA-passed as code-only source work; it wires
+- R3 is complete, QA-passed, production deployed, and runtime-enabled; it wires
   resolver-visible exact-pair mappings into runtime priority behind
   `WRITING_ENGINE_RESOLVER_VISIBLE_CANONICAL_MAPPINGS=enabled`
 - future PCRM work should be described as canonical adoption into the already

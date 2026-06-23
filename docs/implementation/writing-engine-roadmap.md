@@ -899,7 +899,7 @@ Historical PCRM resolver-visible integration contract:
   records PCRM adoption in `spelling_canonical_mapping_events`
 - resolver visibility must be first-class, explicit, audited, reversible, and
   exact-pair based; metadata-only `resolver_visible` is not sufficient as the
-  future production resolver authority
+  production resolver authority
 - keep resolver visibility behind explicit audited admin authority; existing
   non-visible mappings must not silently become resolver-visible
 - accepted PCRM recommendations remain evidence-only until a separate explicit

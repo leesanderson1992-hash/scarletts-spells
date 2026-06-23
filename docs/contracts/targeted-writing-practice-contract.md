@@ -931,12 +931,12 @@ Slice `4A` catalog-review contract:
     `spelling_canonical_mapping_events` audit
   - resolver visibility remains explicit audited admin authority; existing
     non-visible mappings must not silently become resolver-visible
-  - resolver visibility must be first-class, explicit, audited, reversible,
+  - resolver visibility must remain first-class, explicit, audited, reversible,
     and exact-pair based; metadata-only `resolver_visible` is not sufficient as
-    future production resolver authority
-  - existing canonical mappings remain resolver-invisible until individually
-    enabled, and accepted PCRM recommendations remain evidence-only until
-    separately adopted into canonical mapping truth
+    production resolver authority
+  - canonical mappings remain resolver-invisible until individually enabled,
+    and accepted PCRM recommendations remain evidence-only until separately
+    adopted into canonical mapping truth
   - canonical resolver mapping is exact-pair based:
     `misspelling_normalized -> correct_spelling_normalized -> micro_skill_key`
   - the correct word is a shared target anchor, not the sole routing key; for
@@ -1096,23 +1096,21 @@ Slice `4A` catalog-review contract:
   - open catalog-review cases remain invisible to the resolver
   - parent notes/reasons remain evidence only
   - PCRM recommendation evidence remains invisible to the resolver unless a
-    later explicit admin canonical adoption and visibility contract is
-    implemented
+    separate explicit admin canonical adoption and visibility action is applied
   - PCRM-D plain `accepted` does not by itself create resolver truth
-  - canonical/global storage foundation now exists after Slice `4E.1`, but
-    resolver use remains blocked until a later resolver integration slice
+  - canonical/global storage foundation, resolver visibility storage/admin
+    controls, and production runtime consumption now exist; resolver use is
+    limited to mappings explicitly enabled for first-class resolver visibility
   - do not use catalog-review cases, parent notes, parent-scoped candidate
     mappings, or `micro_skill_catalog` metadata as silent global mapping truth
-  - future resolver integration may add resolver-visible
-    `misspelling_normalized -> correct_spelling_normalized -> micro_skill_key`
-    mappings, suppress or correct false-positive-producing mappings/rules,
-    close catalog-review cases with audit, and improve future suggestions only
-    after the resolver contract is explicitly revised
-  - future resolver priority is refined by Slice `4E.0` and PCRM resolver
-    integration: active resolver-visible canonical exact-pair mapping, existing
-    catalog-backed resolver behavior, scoped parent-local promoted mapping
-    where supported, engine/manual diagnostic suggestions, then unresolved or
-    admin-review evidence only
+  - production Vercel has
+    `WRITING_ENGINE_RESOLVER_VISIBLE_CANONICAL_MAPPINGS=enabled`; one imported
+    seed canonical mapping has been explicitly enabled and runtime-smoked in
+    submitted learner work
+  - resolver priority is: active resolver-visible canonical exact-pair mapping,
+    existing catalog-backed resolver behavior, scoped parent-local promoted
+    mapping where supported, engine/manual diagnostic suggestions, then
+    unresolved or admin-review evidence only
 - Slice `4B.1` regression checklist:
   - parent can create an open catalog-review case for an eligible
     lesson-submission spelling row

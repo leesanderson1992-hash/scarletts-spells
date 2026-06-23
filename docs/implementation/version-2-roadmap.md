@@ -557,7 +557,7 @@ Hard boundary:
 
 ### Slice 4 - Bulk candidate mapping import/review
 
-Status: `implemented through Slice 4F.1 local/staging hidden-canonical adoption smoke; Slice 4G resolver visibility consideration remains separate`
+Status: `implemented through production-smoked import-to-resolver-visible canonical truth runtime path; next work is scale/audit hardening and operator UX`
 
 Goal:
 - allow admin/operator to import or generate batches of candidate spelling
@@ -634,6 +634,19 @@ Planning closeout:
   was created, and confirms protected table counts plus `micro_skill_catalog`
   are unchanged. It refuses production Supabase and allows staging only with an
   explicit staging confirmation.
+- Slice `4G.0` / `4G.0a` resolver visibility readiness/audit is implemented
+  as a read-only admin surface at
+  `/admin/spelling-canonical-resolver-readiness`, with a production-oriented
+  read model for lineage, event summaries, duplicate/conflict blockers, and
+  readiness classification. Readiness remains non-mutating and does not itself
+  enable resolver visibility.
+- The production runtime path is now proven for explicit resolver-visible
+  canonical mappings. Production Vercel has
+  `WRITING_ENGINE_RESOLVER_VISIBLE_CANONICAL_MAPPINGS=enabled`; an imported
+  seed row was adopted for canonical review, appeared as hidden canonical
+  truth, appeared in resolver readiness, was explicitly enabled for resolver
+  visibility, and correctly highlighted/categorised a canonical truth word in
+  submitted learner work.
 - do not reuse `spelling_canonical_mapping_recommendations` for bulk external
   seed imports because PCRM rows mean scoped parent recommendation evidence
 - do not reuse `spelling_catalog_review_cases` for bulk external seed imports
@@ -749,7 +762,10 @@ Staged implementation breakdown:
   and local/source QA-passed
 - `Slice 4F.1` local/staging hidden-canonical adoption smoke: implemented;
   local smoke passed after applying the 4F migration to local Supabase only
-- `Slice 4G` resolver visibility consideration
+- `Slice 4G.0` / `4G.0a` resolver visibility readiness/audit: implemented and
+  production-used
+- explicit resolver visibility enablement and runtime resolver consumption:
+  production-smoked for one canonical truth word
 
 Hard boundary:
 - bulk import must not write resolver-visible canonical mappings directly
@@ -770,11 +786,13 @@ Hard boundary:
   hosted migration-ledger safety check
 
 Next base decision:
-- proceed to Slice `4G` resolver visibility consideration only after accepting
-  the 4F closeout boundary: 4F creates or links hidden canonical truth only,
-  does not make mappings resolver-visible, and does not change resolver
-  behavior. Hosted/staging release remains a separate Supabase migration-policy
-  decision because the 4F migration was applied locally for smoke proof only.
+- proceed with a bounded production-scale hardening slice rather than more
+  generic resolver integration. The recommended next step is an admin
+  canonical mapping operations/audit slice that covers pagination/search,
+  batch-safe operator review, visible/hidden rollback clarity, production smoke
+  runbook, and monitoring for resolver-visible mapping effects. Assignment,
+  mastery, rewards, dashboards, analytics, and `micro_skill_catalog` mutation
+  remain out of scope until a separate assignment/mastery evidence slice.
 
 #### Slice 4A docs-only update prompt
 

@@ -333,16 +333,18 @@ Slice `4D`:
   - validation includes the focused
     `npm run writing-engine:admin-spelling-review-hub-regression` boundary
     check
-- canonical/global storage and admin canonical-curation writes now exist after
-  Slice `4E.2`, but
-  resolver use remains blocked until a later resolver integration slice; do
-  not use `spelling_catalog_review_cases`, parent notes, parent-scoped
-  candidate mappings, or `micro_skill_catalog` metadata as silent global
-  mapping truth
-- future resolver integration may add resolver-visible normalized spelling
-  mappings, suppress or correct false-positive-producing mappings/rules, close
-  cases with audit, and improve future suggestions only after the resolver
-  contract is explicitly revised
+- canonical/global storage, admin canonical-curation writes, resolver
+  visibility controls, and runtime consumption now exist. Resolver use is
+  production-enabled only for mappings with first-class
+  `resolver_visibility_status` explicitly enabled; do not use
+  `spelling_catalog_review_cases`, parent notes, parent-scoped candidate
+  mappings, or `micro_skill_catalog` metadata as silent global mapping truth.
+- production Vercel has
+  `WRITING_ENGINE_RESOLVER_VISIBLE_CANONICAL_MAPPINGS=enabled`; one imported
+  seed canonical mapping has been explicitly enabled and runtime-smoked in
+  submitted learner work. Future resolver work should focus on operations,
+  monitoring, rollback clarity, and audit hardening rather than generic
+  resolver integration.
 - R0 resolver integration contract is documentation-only and authorizes no
   runtime, schema, RPC, admin action, parent Review Work, completion gating,
   `micro_skill_catalog`, mastery, rewards, assignments, scoring, analytics,
@@ -356,13 +358,13 @@ Slice `4D`:
   - parent users may recommend only; they cannot create/link
     `spelling_canonical_mappings`, mutate `micro_skill_catalog`, or set
     resolver visibility
-  - resolver visibility must be first-class, explicit, audited, reversible,
+  - resolver visibility must remain first-class, explicit, audited, reversible,
     and exact-pair based; metadata-only `resolver_visible` is not sufficient as
-    future production resolver authority
-  - existing canonical mappings must remain resolver-invisible until
-    individually enabled, and accepted PCRM recommendations must remain
-    evidence-only until separately adopted into canonical mapping truth
-  - future admin visibility enablement must require active mapping status,
+    production resolver authority
+  - canonical mappings must remain resolver-invisible until individually
+    enabled, and accepted PCRM recommendations must remain evidence-only until
+    separately adopted into canonical mapping truth
+  - admin visibility enablement must require active mapping status,
     exact normalized `misspelling_normalized -> correct_spelling_normalized ->
     micro_skill_key`, dialect and normalization-version match, active
     assignable `D4` micro-skill, safe provenance, and a visibility-enable audit

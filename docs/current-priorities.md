@@ -41,9 +41,14 @@ excluded.
 
 ## Next Safe Slice After Launch
 
-1. Real-data PCRM/canonical adoption smoke after launch readiness, without
-   fixture data as product proof.
-2. Manual/operator review of the two canonical-lineage-protected pre-June
+1. Production-scale canonical mapping operations/audit hardening now that the
+   CSV import -> canonical adoption -> resolver visibility -> runtime
+   categorisation path is live. Focus on pagination/search, operator filters,
+   visible/hidden rollback clarity, audit export/runbook, and monitoring for
+   resolver-visible mapping effects.
+2. Real-data PCRM/canonical adoption smoke after launch readiness, without
+   fixture data as product proof, if PCRM remains a near-term source path.
+3. Manual/operator review of the two canonical-lineage-protected pre-June
    structured warning submissions and the remaining post-cleanup
    duplicate/pending warning row, if further cleanup is still desired.
 
@@ -57,7 +62,8 @@ excluded.
   to plan daily assignment practice and accelerated spelling-engine
   population without weakening truth boundaries.
 - Version 2.0 Slice `4` bulk candidate mapping import/review is implemented
-  through Slice `4D`
+  and production-smoked through the import-to-resolver-visible canonical truth
+  path
   in
   [docs/implementation/version-2-slice-4-bulk-candidate-mapping-import-review-plan.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/implementation/version-2-slice-4-bulk-candidate-mapping-import-review-plan.md:1).
   Slice `4A.1` is implemented as a pure CSV parser and file-only validator.
@@ -185,9 +191,20 @@ excluded.
   `supabase_migrations.schema_migrations`. Post-release verification confirmed
   the RPC exists, seed-row lineage columns exist, `seed_import_adopted` is
   allowed, seed rows still have no anon/authenticated grants, and only
-  `service_role` can execute the 4F RPC. Staging smoke remains optional and
-  separate. The next product/architecture stage can now be Slice `4G` resolver
-  visibility consideration, with 4F documented as hidden canonical truth only.
+  `service_role` can execute the 4F RPC.
+- Slice `4G.0` / `4G.0a` resolver visibility readiness/audit is implemented
+  and production-used at `/admin/spelling-canonical-resolver-readiness`.
+  Resolver visibility enablement is explicit and audited through the existing
+  admin visibility route, not automatic during import/adoption.
+- Production runtime resolver-visible canonical truth is now enabled and
+  smoke-proven. Vercel production has
+  `WRITING_ENGINE_RESOLVER_VISIBLE_CANONICAL_MAPPINGS=enabled`; an imported
+  seed row was adopted for canonical review, appeared as hidden canonical
+  truth, appeared in resolver readiness, was explicitly enabled for resolver
+  visibility, and then correctly highlighted/categorised a canonical truth word
+  in submitted learner work. This proves the full production chain:
+  CSV import -> adopt for canonical review -> hidden canonical mapping ->
+  readiness audit -> explicit resolver visibility -> runtime categorisation.
 
 ## Current stage
 
@@ -278,11 +295,12 @@ excluded.
     real pending-row browser smoke
   - `scripts/dev-pcrm-recommendation-fixture.ts` is local/staging/manual smoke
     support only, not production seed data
-  - R3 resolver runtime adoption already exists as code-only source work behind
+  - R3 resolver runtime adoption is now production-enabled for explicitly
+    resolver-visible canonical mappings through
     `WRITING_ENGINE_RESOLVER_VISIBLE_CANONICAL_MAPPINGS=enabled`; the next
-    active resolver/canonical planning work is PCRM canonical adoption into
-    the already implemented resolver-visible mapping path, not generic
-    resolver runtime implementation
+    active resolver/canonical work should focus on controlled scale,
+    auditability, rollback, and operator UX, not generic resolver runtime
+    implementation
   - PCRM-G accepted-evidence canonical adoption is implemented in source as an
     admin-only, DB-changing slice with a new unique timestamp migration/RPC;
     it creates or links canonical mapping truth, sets recommendation
@@ -313,13 +331,13 @@ excluded.
   resolver, admin/catalog-review, catalog mutation, mastery, rewards,
   assignments, scoring, analytics, dashboards, or template-routing work from
   that closeout
-- `4E.3` R3 resolver integration is implemented and QA-passed as code-only
-  source work. Runtime use is gated by
-  `WRITING_ENGINE_RESOLVER_VISIBLE_CANONICAL_MAPPINGS=enabled`; blocked
-  resolver-visible states do not fall through; Stage `2C` / Stage `3A` pure
-  helpers remain unchanged; no schema or migration changes were introduced.
-  Production deployment still requires the approved release process and hosted
-  schema/ledger safety check before enabling the runtime flag
+- `4E.3` / R3 resolver integration is implemented, QA-passed, production
+  deployed, and runtime-enabled for explicitly resolver-visible canonical
+  mappings. Blocked resolver-visible states do not fall through; Stage `2C` /
+  Stage `3A` pure helpers remain unchanged; no schema or migration changes were
+  introduced. Runtime rollback remains removing/unsetting
+  `WRITING_ENGINE_RESOLVER_VISIBLE_CANONICAL_MAPPINGS` in Vercel production,
+  while mapping-level rollback remains the audited admin disable action.
 
 ## Blockers / open risks
 
