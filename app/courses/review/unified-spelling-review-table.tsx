@@ -585,8 +585,8 @@ function UnifiedSpellingReviewTableRow({
               <IconActionButton
                 type="submit"
                 icon="!"
-                helpText="Assign selected skill as parent-local route"
-                ariaLabel={`Assign selected skill as parent-local route for ${row.observedText}`}
+                helpText="Use this skill and send for admin review"
+                ariaLabel={`Use this skill for ${row.observedText} and send for admin review`}
                 className="border border-sky-200 bg-sky-50 text-sky-800"
               />
             </form>

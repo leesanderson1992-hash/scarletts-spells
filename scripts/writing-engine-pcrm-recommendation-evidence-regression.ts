@@ -303,12 +303,12 @@ assert.match(
 );
 assert.doesNotMatch(
   `${unifiedSpellingReviewTable}\n${suggestedIssuesPanel}`,
-  /Recommend this pairing for review|recommendParentLocalCanonicalMapping|canRecommendCanonicalMapping|Promote parent-local skill route|Promote for this child|promotion is still pending|until promoted/,
+  /Recommend this pairing for review|recommendParentLocalCanonicalMapping|canRecommendCanonicalMapping|Assign selected skill as parent-local route|Promote parent-local skill route|Promote for this child|promotion is still pending|until promoted/,
   "Slice 5A UI must remove separate parent recommendation/promote-first language.",
 );
 assert.match(
   `${unifiedSpellingReviewTable}\n${suggestedIssuesPanel}`,
-  /Save locally and send for admin review/,
+  /Use this skill and send for admin review|Save locally and send for admin review/,
   "Slice 5A pending parent-local rows must use one-step parent-friendly copy.",
 );
 assert.match(
