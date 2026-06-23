@@ -41,14 +41,18 @@ excluded.
 
 ## Next Safe Slice After Launch
 
-1. Production-scale canonical mapping operations/audit hardening now that the
-   CSV import -> canonical adoption -> resolver visibility -> runtime
-   categorisation path is live. Focus on pagination/search, operator filters,
-   visible/hidden rollback clarity, audit export/runbook, and monitoring for
-   resolver-visible mapping effects.
-2. Real-data PCRM/canonical adoption smoke after launch readiness, without
+1. Version 2 roadmap Slice `5`: child-local reuse and suggestion improvement,
+   unless an operational need makes the optional canonical mapping
+   operations/audit hardening follow-up more urgent.
+2. Optional production-scale canonical mapping operations/audit hardening now
+   that the CSV import -> canonical adoption -> resolver visibility -> runtime
+   categorisation path is live. This is not required for the core flow to work,
+   but may be useful before larger imports. Potential scope: pagination/search,
+   operator filters, visible/hidden rollback clarity, audit export/runbook, and
+   monitoring for resolver-visible mapping effects.
+3. Real-data PCRM/canonical adoption smoke after launch readiness, without
    fixture data as product proof, if PCRM remains a near-term source path.
-3. Manual/operator review of the two canonical-lineage-protected pre-June
+4. Manual/operator review of the two canonical-lineage-protected pre-June
    structured warning submissions and the remaining post-cleanup
    duplicate/pending warning row, if further cleanup is still desired.
 

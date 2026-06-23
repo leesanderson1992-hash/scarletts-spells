@@ -786,13 +786,17 @@ Hard boundary:
   hosted migration-ledger safety check
 
 Next base decision:
-- proceed with a bounded production-scale hardening slice rather than more
-  generic resolver integration. The recommended next step is an admin
-  canonical mapping operations/audit slice that covers pagination/search,
-  batch-safe operator review, visible/hidden rollback clarity, production smoke
-  runbook, and monitoring for resolver-visible mapping effects. Assignment,
-  mastery, rewards, dashboards, analytics, and `micro_skill_catalog` mutation
-  remain out of scope until a separate assignment/mastery evidence slice.
+- the next numbered roadmap stage is Slice `5` child-local reuse and
+  suggestion improvement.
+- optional Slice `4`/admin-ops follow-up: production-scale canonical mapping
+  operations/audit hardening. This is not required for the proven core flow,
+  but may be useful before larger imports. Potential scope includes
+  pagination/search, batch-safe operator review, visible/hidden rollback
+  clarity, production smoke runbook, audit exports, and monitoring for
+  resolver-visible mapping effects.
+- assignment, mastery, rewards, dashboards, analytics, and
+  `micro_skill_catalog` mutation remain out of scope until a separate
+  assignment/mastery evidence slice.
 
 #### Slice 4A docs-only update prompt
 
