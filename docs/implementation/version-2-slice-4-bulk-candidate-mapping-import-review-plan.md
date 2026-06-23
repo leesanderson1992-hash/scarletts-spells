@@ -1499,6 +1499,40 @@ rollback clarity, visible runtime smoke runbook, monitoring, and audit exports.
 Do not begin assignment/mastery/reward/dashboard/analytics/scoring/template or
 `micro_skill_catalog` mutation work in that slice.
 
+Slice `4H` canonical mapping operations/audit hardening is implemented:
+- `/admin/canonical-mappings` is the primary operations surface for existing
+  canonical mappings and resolver visibility
+- operators can search by exact-pair text, micro-skill key, or mapping id and
+  filter by mapping status, resolver visibility, and source lineage
+- the page shows paginated results, matching/page counts, active/visible/hidden
+  summaries, source lineage, latest canonical mapping event summary, and event
+  count
+- `Disable resolver visibility` copy now clarifies that rollback removes
+  resolver use while preserving canonical mapping truth and audit history
+- `Export filtered CSV` is admin-only, read-only, capped at 5,000 rows, and
+  includes applied filters plus mapping, lineage, event, and admin fields
+- no migration was needed; the slice reuses `spelling_canonical_mappings`,
+  `spelling_canonical_mapping_events`, and the existing resolver visibility RPC
+- no canonical adoption, resolver rule, parent Review Work, assignment,
+  mastery, reward, dashboard, analytics, scoring, template, or
+  `micro_skill_catalog` behavior changed
+
+Slice `4H` operator runbook:
+1. Open `/admin/canonical-mappings`.
+2. Use `q`, `status`, `visibility`, and `source` filters to isolate the mapping
+   set under review.
+3. Inspect exact pair, micro-skill, dialect, normalization version, source
+   lineage, latest audit event, and event count before taking action.
+4. Export the filtered CSV before larger review sessions or after a visibility
+   change batch.
+5. To rollback resolver runtime use, choose `Disable resolver visibility`, add
+   a specific admin reason, and confirm the mapping remains canonical but no
+   longer resolver-visible.
+6. To smoke resolver visibility, enable only a safe test/staging mapping with a
+   note, submit or inspect learner work that should hit the exact pair, then
+   disable visibility again if the mapping is not intended to remain active in
+   resolver runtime.
+
 ## Slice 4F Implementation Prompt
 
 ```md

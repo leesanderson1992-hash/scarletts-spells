@@ -7,6 +7,8 @@ const canonicalRepositoryPath =
   "lib/writing-engine/persistence/spelling-canonical-mappings.ts";
 const adminActionsPath = "app/admin/canonical-mappings/actions.ts";
 const adminPagePath = "app/admin/canonical-mappings/page.tsx";
+const adminReadModelPath = "app/admin/canonical-mappings/read-model.ts";
+const adminExportRoutePath = "app/admin/canonical-mappings/export/route.ts";
 const spellingReviewPagePath = "app/admin/spelling-review/page.tsx";
 const adminCatalogActionPath = "app/admin/catalog-review/actions.ts";
 const adminPcrmActionPath = "app/admin/canonical-recommendations/actions.ts";
@@ -25,6 +27,8 @@ const migration = readFileSync(migrationPath, "utf8");
 const canonicalRepository = readFileSync(canonicalRepositoryPath, "utf8");
 const adminActions = readFileSync(adminActionsPath, "utf8");
 const adminPage = readFileSync(adminPagePath, "utf8");
+const adminReadModel = readFileSync(adminReadModelPath, "utf8");
+const adminExportRoute = readFileSync(adminExportRoutePath, "utf8");
 const spellingReviewPage = readFileSync(spellingReviewPagePath, "utf8");
 const existingAdminActions = [
   readFileSync(adminCatalogActionPath, "utf8"),
@@ -170,9 +174,34 @@ assert.doesNotMatch(
 );
 
 assert.match(
-  adminPage,
+  adminReadModel,
   /spelling_canonical_mappings/,
-  "R2 admin page must list canonical mappings.",
+  "R2/4H admin read model must list canonical mappings.",
+);
+assert.match(
+  adminPage,
+  /parseCanonicalMappingOperationsFilters/,
+  "Slice 4H admin page must parse operations filters.",
+);
+assert.match(
+  adminPage,
+  /PaginationControls[\s\S]*page\.pageCount[\s\S]*page\.totalCount/,
+  "Slice 4H admin page must show pagination and matching counts.",
+);
+assert.match(
+  adminPage,
+  /Export filtered CSV[\s\S]*CANONICAL_MAPPING_OPERATIONS_EXPORT_LIMIT/,
+  "Slice 4H admin page must expose a capped filtered audit export.",
+);
+assert.match(
+  adminPage,
+  /SourceLineage[\s\S]*PCRM[\s\S]*Seed row/,
+  "Slice 4H admin page must show source lineage for catalog, PCRM, and seed mappings.",
+);
+assert.match(
+  adminPage,
+  /AuditSummary[\s\S]*event_count[\s\S]*latest_event_type/,
+  "Slice 4H admin page must show canonical mapping audit summaries.",
 );
 assert.match(
   adminPage,
@@ -194,10 +223,55 @@ assert.match(
   /mapping\.mapping_status === "active"[\s\S]*resolver_visibility_status === "visible"/,
   "R2 admin page must show disable only for active visible mappings.",
 );
+assert.match(
+  adminPage,
+  /Disabling resolver visibility removes resolver use while preserving[\s\S]*canonical mapping truth and audit history/,
+  "Slice 4H rollback copy must clarify that disabling visibility preserves mapping truth and audit history.",
+);
 assert.doesNotMatch(
   adminPage,
   /archive|reopen|edit mapping|findResolverVisibleExactPairMapping/i,
   "R2 admin page must not add lifecycle edit/archive controls or resolver runtime calls.",
+);
+assert.match(
+  adminReadModel,
+  /CANONICAL_MAPPING_OPERATIONS_PAGE_SIZE = 25/,
+  "Slice 4H read model must cap page size for canonical mapping operations.",
+);
+assert.match(
+  adminReadModel,
+  /CANONICAL_MAPPING_OPERATIONS_EXPORT_LIMIT = 5000/,
+  "Slice 4H read model must cap canonical mapping audit exports.",
+);
+assert.match(
+  adminReadModel,
+  /source_recommendation_id[\s\S]*source_seed_import_row_id[\s\S]*latest_event_type[\s\S]*event_count/,
+  "Slice 4H read model must include lineage and audit fields.",
+);
+assert.match(
+  adminReadModel,
+  /applyMappingFilters[\s\S]*status[\s\S]*visibility[\s\S]*source[\s\S]*misspelling_normalized\.ilike[\s\S]*micro_skill_key\.ilike/,
+  "Slice 4H read model must apply status, visibility, source, and text filters.",
+);
+assert.match(
+  adminExportRoute,
+  /requireAdminUser/,
+  "Slice 4H export route must require an admin user.",
+);
+assert.match(
+  adminExportRoute,
+  /loadCanonicalMappingOperationsExportRows[\s\S]*renderCanonicalMappingOperationsCsv/,
+  "Slice 4H export route must use the server-only canonical mapping export read model.",
+);
+assert.doesNotMatch(
+  [adminPage, adminReadModel, adminExportRoute].join("\n"),
+  /\.from\("spelling_canonical_mappings"\)[\s\S]*\.(insert|update|upsert|delete)\(/,
+  "Slice 4H page/export read model must not directly mutate canonical mappings.",
+);
+assert.doesNotMatch(
+  [adminPage, adminReadModel, adminExportRoute].join("\n"),
+  /\.from\("spelling_canonical_mapping_events"\)[\s\S]*\.(insert|update|upsert|delete)\(/,
+  "Slice 4H page/export read model must not directly mutate canonical mapping events.",
 );
 assert.match(
   spellingReviewPage,

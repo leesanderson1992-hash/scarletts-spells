@@ -951,6 +951,23 @@ in source:
   rewards, assignments, scoring, analytics, dashboards, or templates are
   changed
 
+Version 2.0 Slice 4H canonical mapping operations/audit hardening is
+implemented:
+- `/admin/canonical-mappings` now supports paginated canonical mapping
+  operations with search, status, resolver-visibility, and source filters
+- rows show exact-pair mapping truth, micro-skill display/key, dialect,
+  normalization version, mapping status, resolver visibility, catalog/PCRM/seed
+  lineage, latest audit event, event count, and admin provenance
+- filtered CSV export is admin-only, read-only, capped, and includes applied
+  filters plus lineage/audit fields
+- rollback copy clarifies that disabling resolver visibility removes resolver
+  runtime use while preserving canonical mapping truth and audit history
+- no migration was needed; the slice reuses existing canonical mapping tables,
+  events, and resolver visibility RPCs
+- no canonical adoption semantics, resolver rules, parent Review Work,
+  `micro_skill_catalog`, assignment, mastery, reward, dashboard, analytics,
+  scoring, or template behavior changed
+
 Historical PCRM resolver-visible integration contract:
 - R0 status: docs/contract and release-safety planning only; no resolver read,
   schema, RPC, admin action, parent Review Work, completion gating,

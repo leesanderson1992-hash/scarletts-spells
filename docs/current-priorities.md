@@ -82,6 +82,15 @@ excluded.
   inactive, non-assignable, non-D4, and mismatched mappings do not become
   suggestion truth. No migration or resolver/canonical/catalog mutation was
   needed.
+- Version 2.0 Slice `4H` canonical mapping operations/audit hardening is
+  implemented: `/admin/canonical-mappings` is now the primary paginated
+  operations surface for searching, filtering, exporting, and auditing
+  canonical mappings and resolver visibility. It shows status/visibility
+  counts, source lineage, latest audit event summaries, and clearer rollback
+  copy. CSV export is admin-only, read-only, capped, and includes applied
+  filters. No migration, canonical adoption change, resolver rule change,
+  parent Review Work change, assignment/mastery/reward/dashboard/analytics/
+  scoring/template change, or `micro_skill_catalog` mutation was needed.
 - Version 2.0 roadmap registration is now the active docs-first planning
   direction: use
   [docs/implementation/version-2-roadmap.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/implementation/version-2-roadmap.md:1)

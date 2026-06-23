@@ -1,33 +1,33 @@
 import Link from "next/link";
 
 import { requireAdminUser } from "@/lib/admin/access";
-import { createServiceRoleClient } from "@/lib/supabase/service-role";
 
 import {
   disableCanonicalMappingResolverVisibility,
   enableCanonicalMappingResolverVisibility,
 } from "./actions";
+import {
+  buildCanonicalMappingOperationsSearchParams,
+  CANONICAL_MAPPING_OPERATIONS_EXPORT_LIMIT,
+  CANONICAL_MAPPING_SOURCE_FILTERS,
+  CANONICAL_MAPPING_STATUS_FILTERS,
+  CANONICAL_MAPPING_VISIBILITY_FILTERS,
+  loadCanonicalMappingOperationsPage,
+  parseCanonicalMappingOperationsFilters,
+  type CanonicalMappingOperationsFilters,
+  type CanonicalMappingOperationsRow,
+} from "./read-model";
 
 export const dynamic = "force-dynamic";
 
-type CanonicalMappingRow = {
-  id: string;
-  misspelling_normalized: string;
-  correct_spelling_normalized: string;
-  micro_skill_key: string;
-  mapping_status: string;
-  resolver_visibility_status: string;
-  dialect_code: string;
-  normalization_version: string;
-  source_case_id: string | null;
-  source_decision_id: string | null;
-  created_by_admin_email: string | null;
-  created_at: string;
-};
-
-type MicroSkillRow = {
-  micro_skill_key: string;
-  display_name: string;
+type SearchParams = {
+  error?: string;
+  saved?: string;
+  page?: string;
+  q?: string;
+  status?: string;
+  visibility?: string;
+  source?: string;
 };
 
 function formatLabel(value: string) {
@@ -38,7 +38,11 @@ function formatLabel(value: string) {
     .join(" ");
 }
 
-function formatDate(value: string) {
+function formatDate(value: string | null) {
+  if (!value) {
+    return "Not recorded";
+  }
+
   const date = new Date(value);
 
   if (Number.isNaN(date.getTime())) {
@@ -49,6 +53,37 @@ function formatDate(value: string) {
     dateStyle: "medium",
     timeStyle: "short",
   }).format(date);
+}
+
+function shortId(value: string | null | undefined) {
+  if (!value) {
+    return "none";
+  }
+
+  return value.length > 12 ? `${value.slice(0, 12)}...` : value;
+}
+
+function canonicalMappingsHref(filters: Partial<CanonicalMappingOperationsFilters>) {
+  const params = buildCanonicalMappingOperationsSearchParams(filters);
+  const query = params.toString();
+
+  return `/admin/canonical-mappings${query ? `?${query}` : ""}`;
+}
+
+function statusClassName(value: string) {
+  if (value === "active" || value === "visible") {
+    return "border-emerald-200 bg-emerald-50 text-emerald-950";
+  }
+
+  if (value === "hidden") {
+    return "border-sky-200 bg-sky-50 text-sky-950";
+  }
+
+  if (value === "disabled") {
+    return "border-amber-200 bg-amber-50 text-amber-950";
+  }
+
+  return "border-zinc-200 bg-zinc-50 text-zinc-800";
 }
 
 function StatusMessage({
@@ -83,28 +118,40 @@ function StatusMessage({
   return null;
 }
 
+function Badge({ value }: { value: string }) {
+  return (
+    <span
+      className={`inline-flex rounded-full border px-2.5 py-1 text-[11px] font-semibold ${statusClassName(value)}`}
+    >
+      {formatLabel(value)}
+    </span>
+  );
+}
+
 function VisibilityForm({
   action,
   label,
   mappingId,
+  mode,
 }: {
   action: (formData: FormData) => Promise<void>;
   label: string;
   mappingId: string;
+  mode: "enable" | "disable";
 }) {
   return (
-    <form action={action} className="flex min-w-52 flex-col gap-2">
+    <form action={action} className="flex min-w-56 flex-col gap-2">
       <input type="hidden" name="mapping_id" value={mappingId} />
-      <label className="sr-only" htmlFor={`${mappingId}-${label}-note`}>
+      <label className="sr-only" htmlFor={`${mappingId}-${mode}-note`}>
         {label} note
       </label>
       <textarea
-        id={`${mappingId}-${label}-note`}
+        id={`${mappingId}-${mode}-note`}
         name="note"
         required
         maxLength={600}
         rows={2}
-        placeholder="Admin reason"
+        placeholder="Required admin reason"
         className="min-h-16 rounded-xl border border-[var(--border)] bg-white px-3 py-2 text-xs text-[color:var(--ink)]"
       />
       <button
@@ -117,68 +164,376 @@ function VisibilityForm({
   );
 }
 
-async function getCanonicalMappings() {
-  const supabase = createServiceRoleClient();
+function FilterControls({
+  filters,
+}: {
+  filters: CanonicalMappingOperationsFilters;
+}) {
+  const exportParams = buildCanonicalMappingOperationsSearchParams({
+    ...filters,
+    page: 1,
+  });
 
-  return supabase
-    .from("spelling_canonical_mappings")
-    .select(
-      [
-        "id",
-        "misspelling_normalized",
-        "correct_spelling_normalized",
-        "micro_skill_key",
-        "mapping_status",
-        "resolver_visibility_status",
-        "dialect_code",
-        "normalization_version",
-        "source_case_id",
-        "source_decision_id",
-        "created_by_admin_email",
-        "created_at",
-      ].join(", "),
-    )
-    .order("created_at", { ascending: false })
-    .limit(100);
+  return (
+    <section
+      className="rounded-2xl border border-[var(--border)] bg-white/90 p-5"
+      aria-label="Canonical mapping filters"
+    >
+      <form className="grid gap-4 lg:grid-cols-[1.3fr_repeat(3,0.8fr)_auto]">
+        <label className="grid gap-2 text-sm font-semibold text-[color:var(--ink)]">
+          Search
+          <input
+            name="q"
+            defaultValue={filters.q}
+            placeholder="Pair, micro-skill, or mapping id"
+            className="min-h-11 rounded-xl border border-[var(--border)] bg-white px-3 text-sm font-normal"
+          />
+        </label>
+        <label className="grid gap-2 text-sm font-semibold text-[color:var(--ink)]">
+          Status
+          <select
+            name="status"
+            defaultValue={filters.status}
+            className="min-h-11 rounded-xl border border-[var(--border)] bg-white px-3 text-sm font-normal"
+          >
+            {CANONICAL_MAPPING_STATUS_FILTERS.map((status) => (
+              <option key={status} value={status}>
+                {formatLabel(status)}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="grid gap-2 text-sm font-semibold text-[color:var(--ink)]">
+          Visibility
+          <select
+            name="visibility"
+            defaultValue={filters.visibility}
+            className="min-h-11 rounded-xl border border-[var(--border)] bg-white px-3 text-sm font-normal"
+          >
+            {CANONICAL_MAPPING_VISIBILITY_FILTERS.map((visibility) => (
+              <option key={visibility} value={visibility}>
+                {formatLabel(visibility)}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="grid gap-2 text-sm font-semibold text-[color:var(--ink)]">
+          Source
+          <select
+            name="source"
+            defaultValue={filters.source}
+            className="min-h-11 rounded-xl border border-[var(--border)] bg-white px-3 text-sm font-normal"
+          >
+            {CANONICAL_MAPPING_SOURCE_FILTERS.map((source) => (
+              <option key={source} value={source}>
+                {formatLabel(source)}
+              </option>
+            ))}
+          </select>
+        </label>
+        <div className="flex items-end gap-2">
+          <button
+            type="submit"
+            className="min-h-11 rounded-xl border border-[var(--border)] bg-[var(--ink)] px-4 py-2 text-sm font-semibold text-white transition hover:opacity-90"
+          >
+            Apply
+          </button>
+          <Link
+            href="/admin/canonical-mappings"
+            className="inline-flex min-h-11 items-center rounded-xl border border-[var(--border)] bg-white px-4 py-2 text-sm font-semibold text-[color:var(--ink)] transition hover:bg-[var(--mist)]"
+          >
+            Reset
+          </Link>
+        </div>
+      </form>
+      <div className="mt-4 flex flex-wrap items-center gap-3 text-sm">
+        <Link
+          href={`/admin/canonical-mappings/export?${exportParams.toString()}`}
+          className="inline-flex min-h-10 items-center rounded-xl border border-[var(--border)] bg-white px-4 py-2 font-semibold text-[color:var(--ink)] transition hover:bg-[var(--mist)]"
+        >
+          Export filtered CSV
+        </Link>
+        <span className="text-xs text-[color:var(--mid)]">
+          Export is capped at {CANONICAL_MAPPING_OPERATIONS_EXPORT_LIMIT} rows
+          and includes the applied filters.
+        </span>
+      </div>
+    </section>
+  );
 }
 
-async function getMicroSkillNames(keys: string[]) {
-  if (keys.length === 0) {
-    return new Map<string, string>();
+function Summary({
+  pageCount,
+  summary,
+  totalCount,
+}: {
+  pageCount: number;
+  totalCount: number;
+  summary: {
+    activeCount: number;
+    visibleCount: number;
+    hiddenCount: number;
+    disabledVisibilityCount: number;
+  };
+}) {
+  const items = [
+    ["Total matches", totalCount],
+    ["On this page", pageCount],
+    ["Active", summary.activeCount],
+    ["Visible", summary.visibleCount],
+    ["Hidden", summary.hiddenCount],
+    ["Disabled visibility", summary.disabledVisibilityCount],
+  ] as const;
+
+  return (
+    <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-6" aria-label="Canonical mapping summary">
+      {items.map(([label, value]) => (
+        <div
+          key={label}
+          className="rounded-2xl border border-[var(--border)] bg-white/90 p-4"
+        >
+          <p className="text-xs font-semibold uppercase text-[color:var(--mid)]">
+            {label}
+          </p>
+          <p className="mt-2 text-2xl font-semibold text-[color:var(--ink)]">
+            {value}
+          </p>
+        </div>
+      ))}
+    </section>
+  );
+}
+
+function SourceLineage({ mapping }: { mapping: CanonicalMappingOperationsRow }) {
+  return (
+    <div className="grid gap-1">
+      <p>Catalog case {shortId(mapping.source_case_id)}</p>
+      <p>Decision {shortId(mapping.source_decision_id)}</p>
+      <p>PCRM {shortId(mapping.source_recommendation_id)}</p>
+      <p>Seed row {shortId(mapping.source_seed_import_row_id)}</p>
+      <p>Admin {mapping.created_by_admin_email ?? "unknown"}</p>
+    </div>
+  );
+}
+
+function AuditSummary({ mapping }: { mapping: CanonicalMappingOperationsRow }) {
+  return (
+    <div className="grid gap-1">
+      <p>Events {mapping.event_count}</p>
+      <p>Latest {mapping.latest_event_type ? formatLabel(mapping.latest_event_type) : "none"}</p>
+      <p>{formatDate(mapping.latest_event_at)}</p>
+      <p>Admin {mapping.latest_event_admin_email ?? "unknown"}</p>
+      {mapping.latest_event_note ? <p>Note {mapping.latest_event_note}</p> : null}
+    </div>
+  );
+}
+
+function PaginationControls({
+  filters,
+  totalPages,
+}: {
+  filters: CanonicalMappingOperationsFilters;
+  totalPages: number;
+}) {
+  const previousFilters = { ...filters, page: Math.max(1, filters.page - 1) };
+  const nextFilters = { ...filters, page: filters.page + 1 };
+
+  return (
+    <nav
+      className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[var(--border)] bg-white/90 p-4 text-sm"
+      aria-label="Canonical mapping pagination"
+    >
+      <p className="text-[color:var(--mid)]">
+        Page {filters.page} of {totalPages}
+      </p>
+      <div className="flex gap-2">
+        {filters.page > 1 ? (
+          <Link
+            href={canonicalMappingsHref(previousFilters)}
+            className="inline-flex min-h-10 items-center rounded-xl border border-[var(--border)] px-4 py-2 font-semibold text-[color:var(--ink)] transition hover:bg-[var(--mist)]"
+          >
+            Previous
+          </Link>
+        ) : (
+          <span className="inline-flex min-h-10 items-center rounded-xl border border-[var(--border)] px-4 py-2 font-semibold text-[color:var(--mid)]">
+            Previous
+          </span>
+        )}
+        {filters.page < totalPages ? (
+          <Link
+            href={canonicalMappingsHref(nextFilters)}
+            className="inline-flex min-h-10 items-center rounded-xl border border-[var(--border)] px-4 py-2 font-semibold text-[color:var(--ink)] transition hover:bg-[var(--mist)]"
+          >
+            Next
+          </Link>
+        ) : (
+          <span className="inline-flex min-h-10 items-center rounded-xl border border-[var(--border)] px-4 py-2 font-semibold text-[color:var(--mid)]">
+            Next
+          </span>
+        )}
+      </div>
+    </nav>
+  );
+}
+
+function MappingsTable({ mappings }: { mappings: CanonicalMappingOperationsRow[] }) {
+  if (mappings.length === 0) {
+    return (
+      <section className="rounded-2xl border border-[var(--border)] bg-white/90 p-8">
+        <h2 className="brand-title text-2xl font-semibold">
+          No canonical mappings match these filters
+        </h2>
+        <p className="brand-copy mt-3 text-sm">
+          Adjust the search, status, visibility, or source filters to continue
+          the audit.
+        </p>
+      </section>
+    );
   }
 
-  const supabase = createServiceRoleClient();
-  const { data } = await supabase
-    .from("micro_skill_catalog")
-    .select("micro_skill_key, display_name")
-    .in("micro_skill_key", keys);
+  return (
+    <section
+      className="overflow-hidden rounded-2xl border border-[var(--border)] bg-white/90 shadow-[var(--shadow-soft)]"
+      aria-labelledby="canonical-mappings-heading"
+    >
+      <div className="border-b border-[var(--border)] px-6 py-5">
+        <h2
+          id="canonical-mappings-heading"
+          className="brand-title text-2xl font-semibold"
+        >
+          Resolver visibility controls
+        </h2>
+        <p className="brand-copy mt-2 text-sm">
+          Disabling resolver visibility removes resolver use while preserving
+          canonical mapping truth and audit history.
+        </p>
+      </div>
+      <div className="overflow-x-auto">
+        <table className="w-full min-w-[1420px] border-collapse text-left text-[13px]">
+          <thead>
+            <tr className="bg-[rgba(255,247,220,0.45)] text-left text-[10px] font-medium uppercase leading-tight tracking-normal text-[color:var(--mid)]">
+              <th scope="col" className="px-3 py-3">
+                Exact Pair
+              </th>
+              <th scope="col" className="px-3 py-3">
+                Micro-skill
+              </th>
+              <th scope="col" className="px-3 py-3">
+                Scope
+              </th>
+              <th scope="col" className="px-3 py-3">
+                Status
+              </th>
+              <th scope="col" className="px-3 py-3">
+                Source Lineage
+              </th>
+              <th scope="col" className="px-3 py-3">
+                Audit
+              </th>
+              <th scope="col" className="px-3 py-3">
+                Created
+              </th>
+              <th scope="col" className="px-3 py-3">
+                Action
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {mappings.map((mapping) => {
+              const canEnable =
+                mapping.mapping_status === "active" &&
+                (mapping.resolver_visibility_status === "hidden" ||
+                  mapping.resolver_visibility_status === "disabled");
+              const canDisable =
+                mapping.mapping_status === "active" &&
+                mapping.resolver_visibility_status === "visible";
 
-  return new Map(
-    ((data ?? []) as MicroSkillRow[]).map((row) => [
-      row.micro_skill_key,
-      row.display_name,
-    ]),
+              return (
+                <tr key={mapping.id} className="align-top">
+                  <th
+                    scope="row"
+                    className="border-t border-[var(--border)] px-3 py-4 text-sm font-medium text-[color:var(--ink)]"
+                  >
+                    <span className="block">{mapping.misspelling_normalized}</span>
+                    <span className="block text-xs text-[color:var(--mid)]">
+                      to {mapping.correct_spelling_normalized}
+                    </span>
+                    <span className="mt-2 block text-[11px] text-[color:var(--mid)]">
+                      {shortId(mapping.id)}
+                    </span>
+                  </th>
+                  <td className="border-t border-[var(--border)] px-3 py-4 text-xs text-[color:var(--mid)]">
+                    <span className="block font-semibold text-[color:var(--ink)]">
+                      {mapping.micro_skill_display_name ??
+                        mapping.micro_skill_key}
+                    </span>
+                    <span className="block">{mapping.micro_skill_key}</span>
+                  </td>
+                  <td className="border-t border-[var(--border)] px-3 py-4 text-xs text-[color:var(--mid)]">
+                    <span className="block">{mapping.dialect_code}</span>
+                    <span className="block">{mapping.normalization_version}</span>
+                  </td>
+                  <td className="border-t border-[var(--border)] px-3 py-4 text-xs text-[color:var(--mid)]">
+                    <div className="flex flex-col items-start gap-2">
+                      <Badge value={mapping.mapping_status} />
+                      <Badge value={mapping.resolver_visibility_status} />
+                    </div>
+                  </td>
+                  <td className="border-t border-[var(--border)] px-3 py-4 text-xs text-[color:var(--mid)]">
+                    <SourceLineage mapping={mapping} />
+                  </td>
+                  <td className="border-t border-[var(--border)] px-3 py-4 text-xs text-[color:var(--mid)]">
+                    <AuditSummary mapping={mapping} />
+                  </td>
+                  <td className="border-t border-[var(--border)] px-3 py-4 text-xs text-[color:var(--mid)]">
+                    <span className="block">{formatDate(mapping.created_at)}</span>
+                    <span className="block">
+                      Updated {formatDate(mapping.updated_at)}
+                    </span>
+                  </td>
+                  <td className="border-t border-[var(--border)] px-3 py-4">
+                    {canEnable ? (
+                      <VisibilityForm
+                        action={enableCanonicalMappingResolverVisibility}
+                        label="Enable visibility"
+                        mappingId={mapping.id}
+                        mode="enable"
+                      />
+                    ) : null}
+                    {canDisable ? (
+                      <VisibilityForm
+                        action={disableCanonicalMappingResolverVisibility}
+                        label="Disable resolver visibility"
+                        mappingId={mapping.id}
+                        mode="disable"
+                      />
+                    ) : null}
+                    {!canEnable && !canDisable ? (
+                      <span className="text-xs text-[color:var(--mid)]">
+                        No resolver visibility action available.
+                      </span>
+                    ) : null}
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </section>
   );
 }
 
 export default async function AdminCanonicalMappingsPage({
   searchParams,
 }: {
-  searchParams?: Promise<{ error?: string; saved?: string }>;
+  searchParams?: Promise<SearchParams>;
 }) {
   await requireAdminUser();
 
   const params = (await searchParams) ?? {};
-  const { data, error } = await getCanonicalMappings();
-
-  if (error) {
-    throw error;
-  }
-
-  const mappings = ((data ?? []) as unknown) as CanonicalMappingRow[];
-  const microSkillNames = await getMicroSkillNames([
-    ...new Set(mappings.map((row) => row.micro_skill_key)),
-  ]);
+  const filters = parseCanonicalMappingOperationsFilters(params);
+  const page = await loadCanonicalMappingOperationsPage(filters);
 
   return (
     <main className="brand-page min-h-screen px-4 py-8 sm:px-6 lg:px-8">
@@ -189,162 +544,37 @@ export default async function AdminCanonicalMappingsPage({
             Canonical Spelling Mappings
           </h1>
           <p className="brand-copy mt-4 max-w-3xl text-sm leading-6">
-            Enable or disable resolver visibility for already-created canonical
-            exact-pair mappings. This surface only changes resolver visibility
-            and does not change resolver behavior.
+            Search, filter, export, and operate resolver visibility for
+            already-created canonical exact-pair mappings. Resolver visibility
+            is explicit admin authority; this page does not create, edit,
+            deprecate, or supersede canonical mapping truth.
           </p>
-          <Link
-            href="/admin/spelling-review"
-            className="mt-4 inline-flex min-h-10 items-center justify-center rounded-xl border border-[var(--border)] bg-white px-4 py-2 text-sm font-semibold text-[color:var(--ink)] transition hover:bg-[var(--mist)] focus:outline-none focus:ring-2 focus:ring-[var(--scarlett)] focus:ring-offset-2"
-          >
-            Back to spelling review
-          </Link>
+          <div className="mt-4 flex flex-wrap gap-2">
+            <Link
+              href="/admin/spelling-review"
+              className="inline-flex min-h-10 items-center justify-center rounded-xl border border-[var(--border)] bg-white px-4 py-2 text-sm font-semibold text-[color:var(--ink)] transition hover:bg-[var(--mist)] focus:outline-none focus:ring-2 focus:ring-[var(--scarlett)] focus:ring-offset-2"
+            >
+              Back to spelling review
+            </Link>
+            <Link
+              href="/admin/spelling-canonical-resolver-readiness"
+              className="inline-flex min-h-10 items-center justify-center rounded-xl border border-[var(--border)] bg-white px-4 py-2 text-sm font-semibold text-[color:var(--ink)] transition hover:bg-[var(--mist)] focus:outline-none focus:ring-2 focus:ring-[var(--scarlett)] focus:ring-offset-2"
+            >
+              Resolver readiness
+            </Link>
+          </div>
         </header>
 
         <StatusMessage error={params.error} saved={params.saved} />
-
-        <section
-          className="overflow-hidden rounded-2xl border border-[var(--border)] bg-white/90 shadow-[var(--shadow-soft)]"
-          aria-labelledby="canonical-mappings-heading"
-        >
-          <div className="border-b border-[var(--border)] px-6 py-5">
-            <h2
-              id="canonical-mappings-heading"
-              className="brand-title text-2xl font-semibold"
-            >
-              Resolver visibility controls
-            </h2>
-            <p className="brand-copy mt-2 text-sm">
-              Resolver visibility is explicit admin enable/disable authority.
-              Runtime use still requires the resolver-visible mappings feature
-              flag.
-            </p>
-          </div>
-
-          {mappings.length === 0 ? (
-            <p className="px-6 py-8 text-sm text-[color:var(--mid)]">
-              No canonical mappings have been created yet.
-            </p>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full min-w-[1100px] border-collapse text-left text-[13px]">
-                <thead>
-                  <tr className="bg-[rgba(255,247,220,0.45)] text-left text-[10px] font-medium uppercase leading-tight tracking-normal text-[color:var(--mid)]">
-                    <th scope="col" className="px-3 py-3">
-                      Exact Pair
-                    </th>
-                    <th scope="col" className="px-3 py-3">
-                      Micro-skill
-                    </th>
-                    <th scope="col" className="px-3 py-3">
-                      Scope
-                    </th>
-                    <th scope="col" className="px-3 py-3">
-                      Status
-                    </th>
-                    <th scope="col" className="px-3 py-3">
-                      Source
-                    </th>
-                    <th scope="col" className="px-3 py-3">
-                      Created
-                    </th>
-                    <th scope="col" className="px-3 py-3">
-                      Action
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {mappings.map((mapping) => {
-                    const canEnable =
-                      mapping.mapping_status === "active" &&
-                      (mapping.resolver_visibility_status === "hidden" ||
-                        mapping.resolver_visibility_status === "disabled");
-                    const canDisable =
-                      mapping.mapping_status === "active" &&
-                      mapping.resolver_visibility_status === "visible";
-
-                    return (
-                      <tr key={mapping.id} className="align-top">
-                        <th
-                          scope="row"
-                          className="border-t border-[var(--border)] px-3 py-4 text-sm font-medium text-[color:var(--ink)]"
-                        >
-                          <span className="block">
-                            {mapping.misspelling_normalized}
-                          </span>
-                          <span className="block text-xs text-[color:var(--mid)]">
-                            to {mapping.correct_spelling_normalized}
-                          </span>
-                        </th>
-                        <td className="border-t border-[var(--border)] px-3 py-4 text-xs text-[color:var(--mid)]">
-                          <span className="block font-semibold text-[color:var(--ink)]">
-                            {microSkillNames.get(mapping.micro_skill_key) ??
-                              mapping.micro_skill_key}
-                          </span>
-                          <span className="block">{mapping.micro_skill_key}</span>
-                        </td>
-                        <td className="border-t border-[var(--border)] px-3 py-4 text-xs text-[color:var(--mid)]">
-                          <span className="block">{mapping.dialect_code}</span>
-                          <span className="block">
-                            {mapping.normalization_version}
-                          </span>
-                        </td>
-                        <td className="border-t border-[var(--border)] px-3 py-4 text-xs text-[color:var(--mid)]">
-                          <span className="block font-semibold text-[color:var(--ink)]">
-                            {formatLabel(mapping.mapping_status)}
-                          </span>
-                          <span className="block">
-                            Resolver:{" "}
-                            {formatLabel(mapping.resolver_visibility_status)}
-                          </span>
-                        </td>
-                        <td className="border-t border-[var(--border)] px-3 py-4 text-xs text-[color:var(--mid)]">
-                          <span className="block">
-                            Case: {mapping.source_case_id ?? "none"}
-                          </span>
-                          <span className="block">
-                            Decision: {mapping.source_decision_id ?? "none"}
-                          </span>
-                          <span className="block">
-                            Admin: {mapping.created_by_admin_email ?? "unknown"}
-                          </span>
-                        </td>
-                        <td className="border-t border-[var(--border)] px-3 py-4 text-xs text-[color:var(--mid)]">
-                          {formatDate(mapping.created_at)}
-                        </td>
-                        <td className="border-t border-[var(--border)] px-3 py-4">
-                          {canEnable ? (
-                            <VisibilityForm
-                              action={
-                                enableCanonicalMappingResolverVisibility
-                              }
-                              label="Enable visibility"
-                              mappingId={mapping.id}
-                            />
-                          ) : null}
-                          {canDisable ? (
-                            <VisibilityForm
-                              action={
-                                disableCanonicalMappingResolverVisibility
-                              }
-                              label="Disable visibility"
-                              mappingId={mapping.id}
-                            />
-                          ) : null}
-                          {!canEnable && !canDisable ? (
-                            <span className="text-xs text-[color:var(--mid)]">
-                              No resolver visibility action available.
-                            </span>
-                          ) : null}
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </section>
+        <FilterControls filters={filters} />
+        <Summary
+          pageCount={page.pageCount}
+          summary={page.summary}
+          totalCount={page.totalCount}
+        />
+        <PaginationControls filters={filters} totalPages={page.totalPages} />
+        <MappingsTable mappings={page.rows} />
+        <PaginationControls filters={filters} totalPages={page.totalPages} />
       </div>
     </main>
   );
