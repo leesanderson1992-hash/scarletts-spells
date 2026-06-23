@@ -38,12 +38,12 @@ type CatalogReviewCaseRow = {
 
 const PENDING_CANDIDATE_MAPPING_LABEL = "Pending candidate mapping";
 const PROMOTED_CANDIDATE_MAPPING_LABEL = "Promoted for this child";
-const PROMOTE_CANDIDATE_MAPPING_ACTION_LABEL = "Promote for this child";
+const PROMOTE_CANDIDATE_MAPPING_ACTION_LABEL = "Save locally and send for admin review";
 const REVERT_CANDIDATE_MAPPING_ACTION_LABEL = "Revert to pending";
 const PENDING_CANDIDATE_MAPPING_STATUS_COPY =
-  "Saved as verified evidence. Candidate mapping captured. Not used for future suggestions until promoted.";
+  "Saved locally. Send for admin review to finish this route.";
 const PENDING_CANDIDATE_MAPPING_ACCESSIBILITY_COPY =
-  "It will not be used for future suggestions until promoted.";
+  "This will save the route locally and send it for admin review.";
 const PROMOTED_CANDIDATE_MAPPING_STATUS_COPY =
   "This mapping is currently used only for this child/parent scope.";
 

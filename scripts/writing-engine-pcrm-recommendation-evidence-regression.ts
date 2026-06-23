@@ -27,6 +27,7 @@ const candidateMappingActionPath =
 const reviewActionBarrelPath = "app/courses/review/actions.ts";
 const unifiedSpellingReviewTablePath =
   "app/courses/review/unified-spelling-review-table.tsx";
+const suggestedIssuesPanelPath = "app/courses/review/suggested-issues-panel.tsx";
 const catalogReviewCaseActionPath =
   "app/courses/review/actions/catalog-review-case-actions.ts";
 
@@ -50,6 +51,7 @@ const mappingSource = readFileSync(mappingSourcePath, "utf8");
 const candidateMappingAction = readFileSync(candidateMappingActionPath, "utf8");
 const reviewActionBarrel = readFileSync(reviewActionBarrelPath, "utf8");
 const unifiedSpellingReviewTable = readFileSync(unifiedSpellingReviewTablePath, "utf8");
+const suggestedIssuesPanel = readFileSync(suggestedIssuesPanelPath, "utf8");
 const catalogReviewCaseAction = readFileSync(catalogReviewCaseActionPath, "utf8");
 const completionSummarySection = completionHelper.slice(
   completionHelper.indexOf("export function summarizeUnifiedSpellingReviewCompletion"),
@@ -300,9 +302,14 @@ assert.match(
   "Unified spelling read model must attach open PCRM recommendation state.",
 );
 assert.doesNotMatch(
-  unifiedSpellingReviewTable,
-  /Recommend this pairing for review|recommendParentLocalCanonicalMapping|canRecommendCanonicalMapping/,
-  "Slice 5A UI must remove the separate parent recommendation button.",
+  `${unifiedSpellingReviewTable}\n${suggestedIssuesPanel}`,
+  /Recommend this pairing for review|recommendParentLocalCanonicalMapping|canRecommendCanonicalMapping|Promote parent-local skill route|Promote for this child|promotion is still pending|until promoted/,
+  "Slice 5A UI must remove separate parent recommendation/promote-first language.",
+);
+assert.match(
+  `${unifiedSpellingReviewTable}\n${suggestedIssuesPanel}`,
+  /Save locally and send for admin review/,
+  "Slice 5A pending parent-local rows must use one-step parent-friendly copy.",
 );
 assert.match(
   unifiedSpellingReviewTable,

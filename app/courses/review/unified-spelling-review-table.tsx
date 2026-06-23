@@ -198,7 +198,7 @@ function routeText(row: UnifiedSpellingReviewItem) {
     case "sent_to_admin":
       return "Sent to admin/catalog review.";
     case "parent_local_pending":
-      return "Parent-local skill route captured; promotion is still pending.";
+      return "Saved locally. Send for admin review to finish this route.";
     case "parent_local_promoted":
       return "Parent-local skill route is promoted for this child.";
     case "unsupported_returned_correction_route":
@@ -679,8 +679,8 @@ function UnifiedSpellingReviewTableRow({
               <IconActionButton
                 type="submit"
                 icon="↑"
-                helpText="Promote parent-local skill route"
-                ariaLabel={`Promote parent-local skill route for ${row.observedText}`}
+                helpText="Save locally and send for admin review"
+                ariaLabel={`Save ${row.observedText} locally and send for admin review`}
                 className="border border-emerald-200 bg-emerald-50 text-xs text-emerald-800"
               />
             </form>
