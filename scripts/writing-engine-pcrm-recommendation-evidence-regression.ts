@@ -299,20 +299,20 @@ assert.match(
   /canonicalRecommendationId/,
   "Unified spelling read model must attach open PCRM recommendation state.",
 );
-assert.match(
+assert.doesNotMatch(
   unifiedSpellingReviewTable,
-  /canRecommendCanonicalMapping[\s\S]*categorisationStatus === "parent_local_promoted"[\s\S]*!row\.sourceIds\.canonicalRecommendationId/,
-  "PCRM-C UI must show recommendation only for promoted parent-local rows without an open recommendation.",
+  /Recommend this pairing for review|recommendParentLocalCanonicalMapping|canRecommendCanonicalMapping/,
+  "Slice 5A UI must remove the separate parent recommendation button.",
 );
 assert.match(
   unifiedSpellingReviewTable,
-  /Recommend this pairing for review/,
-  "PCRM-C UI must expose the parent recommendation action help text.",
+  /canonicalRecommendationId[\s\S]*Sent for admin review/,
+  "Slice 5A UI must show parent-friendly admin-review status.",
 );
 assert.match(
   unifiedSpellingReviewTable,
-  /canonicalRecommendationId[\s\S]*Rec/,
-  "PCRM-C UI must show already-recommended state.",
+  /categorisationStatus === "parent_local_promoted"[\s\S]*Needs admin review/,
+  "Slice 5A UI must show admin-review-needed state when admin recommendation is absent.",
 );
 assert.doesNotMatch(
   catalogReviewCaseAction,

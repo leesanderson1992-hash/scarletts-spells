@@ -32,6 +32,15 @@ type CandidateMappingRow = {
   updated_at: string;
 };
 
+type RecommendationRow = {
+  id: string;
+  parent_user_id: string;
+  child_id: string;
+  candidate_mapping_id: string;
+  recommendation_status: "pending_admin_review";
+  metadata: Record<string, unknown>;
+};
+
 type HarnessState = {
   authUserId: string;
   submission: {
@@ -40,6 +49,8 @@ type HarnessState = {
     parent_user_id: string;
   };
   candidateMappings: CandidateMappingRow[];
+  recommendations: RecommendationRow[];
+  failRecommendationInsert: boolean;
   canonicalMicroSkillKey: string | null;
   canonicalResolution: Record<string, unknown>;
   catalogEntry: {
@@ -100,6 +111,8 @@ function createHarness(overrides: Partial<HarnessState> = {}) {
       parent_user_id: "parent-1",
     },
     candidateMappings: [buildDefaultMapping()],
+    recommendations: [],
+    failRecommendationInsert: false,
     canonicalMicroSkillKey: null,
     canonicalResolution: { status: "unresolved" },
     catalogEntry: {
@@ -363,13 +376,53 @@ function createHarness(overrides: Partial<HarnessState> = {}) {
     "@/lib/writing-engine/persistence/spelling-canonical-recommendations": {
       createSupabaseSpellingCanonicalRecommendationRepository() {
         return {
-          async findOpenForCandidateMapping() {
-            return null;
-          },
-          async insertPendingAdminReview() {
-            throw new Error(
-              "PCRM recommendation capture is outside parent-local promotion regression.",
+          async findOpenForCandidateMapping(input: {
+            parentUserId: string;
+            childId: string;
+            candidateMappingId: string;
+          }) {
+            return (
+              state.recommendations.find(
+                (recommendation) =>
+                  recommendation.parent_user_id === input.parentUserId &&
+                  recommendation.child_id === input.childId &&
+                  recommendation.candidate_mapping_id === input.candidateMappingId,
+              ) ?? null
             );
+          },
+          async insertPendingAdminReview(input: {
+            parentUserId: string;
+            childId: string;
+            candidateMappingId: string;
+            metadata?: Record<string, unknown>;
+          }) {
+            if (state.failRecommendationInsert) {
+              throw new Error("simulated recommendation insert failure");
+            }
+
+            const existing = state.recommendations.find(
+              (recommendation) =>
+                recommendation.parent_user_id === input.parentUserId &&
+                recommendation.child_id === input.childId &&
+                recommendation.candidate_mapping_id === input.candidateMappingId,
+            );
+
+            if (existing) {
+              throw new Error(
+                "duplicate key value violates unique constraint spelling_canonical_mapping_recommendations_open_candidate_idx",
+              );
+            }
+
+            const recommendation = {
+              id: `recommendation-${state.recommendations.length + 1}`,
+              parent_user_id: input.parentUserId,
+              child_id: input.childId,
+              candidate_mapping_id: input.candidateMappingId,
+              recommendation_status: "pending_admin_review" as const,
+              metadata: input.metadata ?? {},
+            };
+            state.recommendations.push(recommendation);
+            return recommendation;
           },
         };
       },
@@ -618,9 +671,14 @@ async function testPromoteAndRevertActionsWriteAuditMetadata() {
   assertRedirectMessage(
     promoteUrl,
     "saved",
-    "Candidate mapping promoted for this child. Future matching suggestions can now reuse it in this parent/child scope.",
+    "Saved for Scarlett and sent for admin review.",
   );
   assert.equal(harness.state.candidateMappings[0]?.candidate_status, "parent_local_promoted");
+  assert.equal(harness.state.recommendations.length, 1);
+  assert.equal(
+    harness.state.recommendations[0]?.metadata.action_source,
+    "review_work_parent_local_promotion_auto_recommendation",
+  );
   assert.equal(
     (
       harness.state.candidateMappings[0]?.metadata.latest_parent_local_promotion as {
@@ -648,6 +706,55 @@ async function testPromoteAndRevertActionsWriteAuditMetadata() {
     )?.actionSource,
     "review_work_parent_local_reversal",
   );
+}
+
+async function testPromoteActionIsIdempotentForExistingRecommendation() {
+  const mapping = buildDefaultMapping({
+    candidate_status: "parent_local_promoted",
+  });
+  const harness = createHarness({
+    candidateMappings: [mapping],
+    recommendations: [
+      {
+        id: "recommendation-1",
+        parent_user_id: "parent-1",
+        child_id: "child-1",
+        candidate_mapping_id: "candidate-1",
+        recommendation_status: "pending_admin_review",
+        metadata: {},
+      },
+    ],
+  });
+
+  const promoteUrl = await invokeRedirectingAction(
+    harness.promoteAction,
+    buildPromotionFormData(),
+  );
+  assertRedirectMessage(
+    promoteUrl,
+    "saved",
+    "Saved locally. Already sent for admin review.",
+  );
+  assert.equal(harness.state.candidateMappings[0]?.candidate_status, "parent_local_promoted");
+  assert.equal(harness.state.recommendations.length, 1);
+}
+
+async function testPromoteActionKeepsLocalPromotionWhenRecommendationFails() {
+  const harness = createHarness({
+    failRecommendationInsert: true,
+  });
+
+  const promoteUrl = await invokeRedirectingAction(
+    harness.promoteAction,
+    buildPromotionFormData(),
+  );
+  assertRedirectMessage(
+    promoteUrl,
+    "saved",
+    "Saved locally. Admin review could not be sent yet.",
+  );
+  assert.equal(harness.state.candidateMappings[0]?.candidate_status, "parent_local_promoted");
+  assert.equal(harness.state.recommendations.length, 0);
 }
 
 async function testPromoteActionRejectsConflictsAndInvalidCatalogEntries() {
@@ -715,6 +822,8 @@ async function main() {
   await testScopedResolverUsesPromotedLocalMappingOnlyInScope();
   await testScopedResolverIgnoresPendingAndConflicts();
   await testPromoteAndRevertActionsWriteAuditMetadata();
+  await testPromoteActionIsIdempotentForExistingRecommendation();
+  await testPromoteActionKeepsLocalPromotionWhenRecommendationFails();
   await testPromoteActionRejectsConflictsAndInvalidCatalogEntries();
   testReviewWorkSourceGuardrails();
 

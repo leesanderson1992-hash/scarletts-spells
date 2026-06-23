@@ -15,7 +15,6 @@ import {
   finaliseWritingIssueClassification,
   promoteParentLocalCandidateMapping,
   recordReviewWorkVerificationAction,
-  recommendParentLocalCanonicalMapping,
   revertParentLocalCandidateMapping,
 } from "./actions";
 
@@ -330,13 +329,6 @@ function UnifiedSpellingReviewTableRow({
             : "";
   const initialSkill = initialSkillCandidate ?? "";
   const initialSkillOption = findOption(options, initialSkill ?? null);
-  const initialSkillCameFromRecommendation =
-    recommendationPrefillAllowed &&
-    initialSkill.length > 0 &&
-    initialSkill === row.microSkillRecommendation?.recommendedMicroSkillKey &&
-    !isMeaningfulSkill(row.verifiedMicroSkillKey) &&
-    !isMeaningfulSkill(row.microSkillKey) &&
-    !isMeaningfulSkill(row.suggestedMicroSkillKey);
   const firstFamily = initialSkillOption?.skillFamilyKey ?? "";
   const [familyKey, setFamilyKey] = useState(firstFamily);
   const clusters = useMemo(
@@ -380,10 +372,6 @@ function UnifiedSpellingReviewTableRow({
     row.state === "child_responded" &&
     !row.correctionOutcome &&
     Boolean(row.sourceIds.originalWritingIssueId);
-  const canRecommendCanonicalMapping =
-    Boolean(row.sourceIds.candidateMappingId) &&
-    row.categorisationStatus === "parent_local_promoted" &&
-    !row.sourceIds.canonicalRecommendationId;
   const skillDisabled = !routeIsOpen;
   const currentFamilySelectorOpen = routeIsOpen;
   const dependentSkillDisabled = skillDisabled || noMatchingSkillSelected;
@@ -714,28 +702,21 @@ function UnifiedSpellingReviewTableRow({
             </form>
           ) : null}
 
-          {canRecommendCanonicalMapping ? (
-            <form action={recommendParentLocalCanonicalMapping}>
-              <input type="hidden" name="candidate_mapping_id" value={row.sourceIds.candidateMappingId ?? ""} />
-              <input type="hidden" name="submission_id" value={submissionId} />
-              <input type="hidden" name="redirect_path" value={redirectPath} />
-              <IconActionButton
-                type="submit"
-                icon="★"
-                helpText="Recommend this pairing for review"
-                ariaLabel={`Recommend ${row.observedText} pairing for canonical review`}
-                className="border border-violet-200 bg-violet-50 text-xs text-violet-800"
-              />
-            </form>
-          ) : null}
-
           {row.sourceIds.canonicalRecommendationId ? (
             <span
-              title="Recommended for admin canonical review"
-              aria-label={`Recommended ${row.observedText} pairing for admin canonical review`}
+              title="Sent for admin review"
+              aria-label={`${row.observedText} pairing sent for admin review`}
               className="inline-flex h-7 items-center rounded border border-violet-200 bg-violet-50 px-2 text-[11px] font-semibold text-violet-800"
             >
-              Rec
+              Sent for admin review
+            </span>
+          ) : row.categorisationStatus === "parent_local_promoted" ? (
+            <span
+              title="Saved locally. Needs admin review."
+              aria-label={`${row.observedText} pairing saved locally and needs admin review`}
+              className="inline-flex h-7 items-center rounded border border-sky-200 bg-sky-50 px-2 text-[11px] font-semibold text-sky-800"
+            >
+              Needs admin review
             </span>
           ) : null}
           </div>

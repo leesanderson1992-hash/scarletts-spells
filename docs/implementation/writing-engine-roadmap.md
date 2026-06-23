@@ -820,6 +820,54 @@ PCRM-C implementation record:
     pending/no-matching rows do not show the PCRM action, and completion
     remains governed by local review state
 
+Version 2.0 Slice 5A implementation record:
+- status: implemented as parent Review Work friction reduction
+- parent-facing action:
+  - the separate `Recommend this pairing for review` button is removed from
+    parent rows
+  - an eligible existing-skill decision now creates/confirms the
+    parent-local promoted mapping and idempotently submits PCRM admin
+    recommendation evidence
+  - rows show parent-friendly status text: `Sent for admin review`,
+    `Needs admin review`, or saved redirect copy for already-sent/fallback
+    cases
+- server action:
+  - `captureSubmissionSpellingCandidateMappingImpl`,
+    returned-correction candidate capture, and
+    `promoteParentLocalCandidateMappingImpl` compose local promotion with
+    automatic PCRM evidence insertion when a scoped candidate mapping exists
+  - duplicate/open PCRM recommendations are treated as already sent
+  - recommendation insert failure after promotion does not roll back
+    `parent_local_promoted`
+- preserved boundaries:
+  - parent action may write parent/child scoped candidate mapping state and
+    pending PCRM evidence only
+  - no parent write to `spelling_canonical_mappings`, resolver visibility,
+    `micro_skill_catalog`, assignment, mastery, rewards, dashboards,
+    analytics, scoring, templates, or learner-facing global truth
+  - `No matching skill` remains catalog-review routing, not PCRM evidence
+  - admin canonical adoption and resolver visibility remain separate authority
+    paths
+- validation:
+  - `npm run writing-engine:parent-local-promotion-regression`
+  - `npm run writing-engine:pcrm-recommendation-evidence-regression`
+  - `npm run writing-engine:pcrm-admin-recommendation-curation-regression`
+  - `npm run writing-engine:resolver-visible-canonical-mapping-regression`
+  - `npm run writing-engine:resolver-runtime-integration-regression`
+  - `npm run typecheck:scripts`
+  - targeted eslint on the changed implementation/regression files
+  - `npm run build`
+  - `git diff --check`
+- browser smoke note:
+  - localhost was restored and the app shell was reachable, but final
+    Review Work/admin browser smoke was blocked by local Supabase/Docker
+    health: `127.0.0.1:54321` timed out/closed sockets and Review Work data
+    loads redirected after multi-minute auth/data waits
+  - this is recorded as local-environment smoke blocked, not implementation
+    pass
+- migration:
+  - no migration needed for Slice 5A
+
 PCRM-D admin recommendation review/curation is implemented:
 - admins can mark PCRM recommendation evidence accepted, rejected, duplicate,
   merged, or superseded

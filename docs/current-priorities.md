@@ -60,6 +60,17 @@ excluded.
 
 - The bounded Parent Review spelling workflow MVP loop is complete and
   QA-passed for private parent-led use.
+- Version 2.0 Slice `5A` parent Review Work friction reduction is implemented:
+  eligible existing-skill decisions now compose parent-local promotion with
+  idempotent PCRM admin recommendation evidence submission. The separate
+  parent `Recommend this pairing for review` button is removed in favor of
+  simple status text. Parent actions still cannot create canonical truth,
+  enable resolver visibility, mutate `micro_skill_catalog`, or change
+  assignment, mastery, rewards, dashboards, analytics, scoring, templates, or
+  completion gating. No migration was needed. Focused regressions, build,
+  typecheck, and targeted lint passed; final browser smoke was blocked by
+  local Supabase/Docker health on `127.0.0.1:54321`, not by a recorded
+  implementation failure.
 - Version 2.0 roadmap registration is now the active docs-first planning
   direction: use
   [docs/implementation/version-2-roadmap.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/implementation/version-2-roadmap.md:1)

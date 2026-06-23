@@ -351,16 +351,25 @@ Completion-gating contract:
   `admin_review_requested`, the read model and completion summary must preserve
   completion safety for rows that are locally promoted/resolved
 
-Parent-facing UX should be optional and explicit:
-- implemented action/help label: `Recommend this pairing for review`
-- implemented saved state: a non-blocking recommendation indicator for rows
-  that already have open PCRM recommendation evidence
+Parent-facing UX is one-step for existing-skill local promotion:
+- Slice 5A removed the separate parent-facing
+  `Recommend this pairing for review` button
+- when a parent saves/promotes an eligible existing spelling micro-skill route,
+  Review Work promotes the scoped parent-local candidate mapping and
+  idempotently submits PCRM admin recommendation evidence in the same action
+- implemented saved states use non-technical copy such as
+  `Saved for Scarlett and sent for admin review.`,
+  `Saved locally. Already sent for admin review.`, and
+  `Saved locally. Admin review could not be sent yet.`
+- rows with open PCRM recommendation evidence show a non-blocking
+  `Sent for admin review` indicator
+- locally promoted rows without recommendation evidence show a
+  non-blocking `Needs admin review` indicator
 - do not show the action for rows without safe source/provenance lineage
 - do not imply the parent is editing global truth
-- the action is currently limited to promoted parent-local candidate mappings:
-  rows must have a scoped `candidateMappingId`,
-  `categorisationStatus === "parent_local_promoted"`, and no open PCRM
-  recommendation
+- automatic recommendation remains limited to scoped parent-local candidate
+  mappings with safe lineage, eligible active assignable D4 micro-skill,
+  normalized spelling pair, and no duplicate open PCRM recommendation
 
 Future recommendation evidence should preserve the observed child spelling,
 expected correction, selected `micro_skill_key`, source row type, available
@@ -410,6 +419,23 @@ PCRM-C parent action/UI is implemented:
   `No matching skill` with PCRM, or change completion gating, mastery, rewards,
   assignments, analytics, dashboards, scoring, or resolver behavior
 - resolver adoption remains future PCRM Resolver Integration
+
+Version 2.0 Slice 5A parent review friction reduction is implemented:
+- parent local promotion and PCRM recommendation evidence submission are
+  composed into one eligible existing-skill decision
+- the combined action reuses
+  `parent_verified_spelling_candidate_mappings` for parent/child scoped local
+  truth and `spelling_canonical_mapping_recommendations` for admin evidence
+- duplicate/open PCRM recommendation evidence is treated as idempotent
+  `already sent` state
+- if local promotion succeeds but recommendation insertion fails, local
+  promotion remains valid and the UI reports that admin review could not be
+  sent yet
+- `No matching skill`, false-positive/report-only handling, completion,
+  assignment, mastery, rewards, dashboards, analytics, scoring, templates,
+  canonical mapping truth, resolver visibility, and `micro_skill_catalog`
+  remain outside the parent action
+- no migration was needed
 
 ## Current Parent Review Status
 

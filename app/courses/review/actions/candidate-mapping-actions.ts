@@ -3,7 +3,10 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getReviewWorkCandidateCaptureMicroSkillCatalogEntry } from "@/lib/writing-engine/persistence/learning-items";
 import { createSupabaseSpellingCanonicalRecommendationRepository } from "@/lib/writing-engine/persistence/spelling-canonical-recommendations";
-import { createSupabaseSpellingCandidateMappingRepository } from "@/lib/writing-engine/persistence/spelling-candidate-mappings";
+import {
+  createSupabaseSpellingCandidateMappingRepository,
+  type SpellingCandidateMappingRecord,
+} from "@/lib/writing-engine/persistence/spelling-candidate-mappings";
 import {
   buildStage7dReviewWorkVerificationTarget,
   recordStage7dParentVerificationWithoutPromotion,
@@ -52,6 +55,165 @@ function getRecommendationSourceRowType(input: {
   }
 
   return "engine_suggested" as const;
+}
+
+function isOpenRecommendationDuplicateError(error: unknown) {
+  const message = error instanceof Error ? error.message : "";
+
+  return (
+    message.includes("duplicate key") ||
+    message.includes("spelling_canonical_mapping_recommendations_open_candidate_idx") ||
+    message.includes("spelling_canonical_mapping_recommendations_open_source_idx") ||
+    message.includes("spelling_canonical_mapping_recommendations_open_event_idx")
+  );
+}
+
+type AutoRecommendationResult =
+  | { status: "sent" }
+  | { status: "already_sent" }
+  | { status: "failed" };
+
+async function createAdminRecommendationForPromotedCandidateMapping(input: {
+  supabase: Awaited<ReturnType<typeof createClient>>;
+  parentUserId: string;
+  childId: string;
+  candidateMapping: SpellingCandidateMappingRecord;
+  actionSource: string;
+}): Promise<AutoRecommendationResult> {
+  const recommendationRepository =
+    createSupabaseSpellingCanonicalRecommendationRepository(input.supabase);
+  const existingRecommendation =
+    await recommendationRepository.findOpenForCandidateMapping({
+      parentUserId: input.parentUserId,
+      childId: input.childId,
+      candidateMappingId: input.candidateMapping.id,
+    });
+
+  if (existingRecommendation) {
+    return { status: "already_sent" };
+  }
+
+  const sourceProvenance = input.candidateMapping.source_provenance as
+    | "lesson_submission_existing_output"
+    | "lesson_submission_parent_added_missed_word";
+  const sourceRowType = getRecommendationSourceRowType({
+    sourceProvenance,
+    metadata: input.candidateMapping.metadata,
+  });
+
+  try {
+    await recommendationRepository.insertPendingAdminReview({
+      parentUserId: input.parentUserId,
+      childId: input.childId,
+      taskSubmissionId: input.candidateMapping.task_submission_id,
+      writingSampleId: input.candidateMapping.writing_sample_id,
+      sourceMisspellingInstanceId:
+        input.candidateMapping.source_misspelling_instance_id,
+      sourceWritingIssueId:
+        sourceRowType === "returned_correction"
+          ? readMetadataString(
+              input.candidateMapping.metadata,
+              "original_writing_issue_id",
+            )
+          : null,
+      sourceCorrectionAttemptId:
+        sourceRowType === "returned_correction"
+          ? readMetadataString(input.candidateMapping.metadata, "correction_attempt_id")
+          : null,
+      parentVerificationId: input.candidateMapping.parent_verification_id,
+      sourceSuggestionId: input.candidateMapping.source_suggestion_id,
+      candidateMappingId: input.candidateMapping.id,
+      sourceRowType,
+      sourceProvenance,
+      reviewedEventSourceEntityId:
+        input.candidateMapping.reviewed_event_source_entity_id,
+      originalChildSpelling: input.candidateMapping.original_child_spelling,
+      originalCorrectSpelling: input.candidateMapping.original_correct_spelling,
+      misspellingNormalized: input.candidateMapping.misspelling_normalized,
+      correctSpellingNormalized: input.candidateMapping.correct_spelling_normalized,
+      microSkillKey: input.candidateMapping.micro_skill_key,
+      metadata: {
+        source_candidate_mapping_status: input.candidateMapping.candidate_status,
+        source_candidate_mapping_scope: input.candidateMapping.promotion_scope,
+        source_candidate_mapping_metadata: input.candidateMapping.metadata,
+        action_source: input.actionSource,
+        parent_ui_source: "unified_spelling_review_table",
+        resolver_visible: false,
+      },
+    });
+  } catch (error) {
+    if (isOpenRecommendationDuplicateError(error)) {
+      return { status: "already_sent" };
+    }
+
+    console.error("Parent canonical recommendation capture failed.", error);
+    return { status: "failed" };
+  }
+
+  return { status: "sent" };
+}
+
+async function promoteAndRecommendParentLocalCandidateMapping(input: {
+  supabase: Awaited<ReturnType<typeof createClient>>;
+  parentUserId: string;
+  childId: string;
+  candidateMapping: SpellingCandidateMappingRecord;
+  promotionActionSource: string;
+  recommendationActionSource: string;
+}) {
+  const candidateMappingRepository =
+    createSupabaseSpellingCandidateMappingRepository(input.supabase);
+
+  const conflictingMappings =
+    await candidateMappingRepository.findConflictingScopedPromotedMappings({
+      parentUserId: input.parentUserId,
+      childId: input.childId,
+      misspellingNormalized: input.candidateMapping.misspelling_normalized,
+      correctSpellingNormalized: input.candidateMapping.correct_spelling_normalized,
+      microSkillKey: input.candidateMapping.micro_skill_key,
+      excludeId: input.candidateMapping.id,
+    });
+
+  if (conflictingMappings.length > 0) {
+    throw new Error(
+      "A different promoted mapping already exists for this misspelling in this child scope.",
+    );
+  }
+
+  const promotionResult = await candidateMappingRepository.promoteParentLocalPending({
+    id: input.candidateMapping.id,
+    parentUserId: input.parentUserId,
+    childId: input.childId,
+    actionSource: input.promotionActionSource,
+    nowIso: new Date().toISOString(),
+  });
+  const recommendationResult =
+    await createAdminRecommendationForPromotedCandidateMapping({
+      supabase: input.supabase,
+      parentUserId: input.parentUserId,
+      childId: input.childId,
+      candidateMapping: promotionResult.record,
+      actionSource: input.recommendationActionSource,
+    });
+
+  return {
+    promotionResult,
+    recommendationResult,
+  };
+}
+
+function oneStepPromotionMessage(input: {
+  recommendationResult: AutoRecommendationResult;
+}) {
+  if (input.recommendationResult.status === "already_sent") {
+    return "Saved locally. Already sent for admin review.";
+  }
+
+  if (input.recommendationResult.status === "failed") {
+    return "Saved locally. Admin review could not be sent yet.";
+  }
+
+  return "Saved for Scarlett and sent for admin review.";
 }
 
 async function captureReturnedCorrectionCandidateMapping(input: {
@@ -127,6 +289,9 @@ async function captureReturnedCorrectionCandidateMapping(input: {
     );
   }
 
+  const candidateMappingRepository =
+    createSupabaseSpellingCandidateMappingRepository(input.supabase);
+
   const { data: existingCandidateMapping } = await input.supabase
     .from("parent_verified_spelling_candidate_mappings")
     .select("id")
@@ -138,17 +303,75 @@ async function captureReturnedCorrectionCandidateMapping(input: {
     .maybeSingle();
 
   if (existingCandidateMapping) {
+    const candidateMapping = await candidateMappingRepository.findByIdForParentChild({
+      id: existingCandidateMapping.id,
+      parentUserId: input.parentUserId,
+      childId: input.submission.child_id,
+    });
+
+    if (!candidateMapping) {
+      redirect(
+        buildRedirectWithMessage(
+          input.safeRedirectPath,
+          "error",
+          "We couldn't find that returned correction skill route for this child.",
+        ),
+      );
+    }
+
+    let combinedResult:
+      | Awaited<ReturnType<typeof promoteAndRecommendParentLocalCandidateMapping>>
+      | null = null;
+
+    try {
+      combinedResult = await promoteAndRecommendParentLocalCandidateMapping({
+        supabase: input.supabase,
+        parentUserId: input.parentUserId,
+        childId: input.submission.child_id,
+        candidateMapping,
+        promotionActionSource:
+          "review_work_returned_correction_parent_local_promotion",
+        recommendationActionSource:
+          "review_work_parent_local_promotion_auto_recommendation",
+      });
+    } catch (error) {
+      console.error(
+        "Returned correction candidate mapping promotion failed before redirect.",
+        error,
+      );
+      redirect(
+        buildRedirectWithMessage(
+          input.safeRedirectPath,
+          "error",
+          error instanceof Error && error.message
+            ? error.message
+            : "We couldn't save that returned correction skill route right now.",
+        ),
+      );
+    }
+
+    if (!combinedResult) {
+      redirect(
+        buildRedirectWithMessage(
+          input.safeRedirectPath,
+          "error",
+          "We couldn't save that returned correction skill route right now.",
+        ),
+      );
+    }
+
+    revalidateReviewQueueAndDetailBestEffort(input.safeRedirectPath);
+
     redirect(
       buildRedirectWithMessage(
         input.safeRedirectPath,
         "saved",
-        "Returned correction already has a parent-local skill route.",
+        oneStepPromotionMessage({
+          recommendationResult: combinedResult.recommendationResult,
+        }),
       ),
     );
   }
-
-  const candidateMappingRepository =
-    createSupabaseSpellingCandidateMappingRepository(input.supabase);
 
   let parentVerificationId: string | null = null;
 
@@ -174,8 +397,10 @@ async function captureReturnedCorrectionCandidateMapping(input: {
     );
   }
 
+  let candidateMapping: SpellingCandidateMappingRecord | null = null;
+
   try {
-    await candidateMappingRepository.insertPending({
+    candidateMapping = await candidateMappingRepository.insertPending({
       parentUserId: input.parentUserId,
       childId: input.submission.child_id,
       parentVerificationId,
@@ -208,13 +433,66 @@ async function captureReturnedCorrectionCandidateMapping(input: {
     );
   }
 
+  if (!candidateMapping) {
+    redirect(
+      buildRedirectWithMessage(
+        input.safeRedirectPath,
+        "error",
+        "Returned correction evidence was captured, but the skill route could not be found yet.",
+      ),
+    );
+  }
+
+  let combinedResult:
+    | Awaited<ReturnType<typeof promoteAndRecommendParentLocalCandidateMapping>>
+    | null = null;
+
+  try {
+    combinedResult = await promoteAndRecommendParentLocalCandidateMapping({
+      supabase: input.supabase,
+      parentUserId: input.parentUserId,
+      childId: input.submission.child_id,
+      candidateMapping,
+      promotionActionSource:
+        "review_work_returned_correction_parent_local_promotion",
+      recommendationActionSource:
+        "review_work_parent_local_promotion_auto_recommendation",
+    });
+  } catch (error) {
+    console.error(
+      "Returned correction candidate mapping promotion failed before redirect.",
+      error,
+    );
+    redirect(
+      buildRedirectWithMessage(
+        input.safeRedirectPath,
+        "error",
+        error instanceof Error && error.message
+          ? error.message
+          : "Returned correction evidence was captured, but the skill route could not be promoted yet.",
+      ),
+    );
+  }
+
+  if (!combinedResult) {
+    redirect(
+      buildRedirectWithMessage(
+        input.safeRedirectPath,
+        "error",
+        "Returned correction evidence was captured, but the skill route could not be saved yet.",
+      ),
+    );
+  }
+
   revalidateReviewQueueAndDetailBestEffort(input.safeRedirectPath);
 
   redirect(
     buildRedirectWithMessage(
       input.safeRedirectPath,
       "saved",
-      "Returned correction skill route captured. Promote it when you want it used in this parent/child scope.",
+      oneStepPromotionMessage({
+        recommendationResult: combinedResult.recommendationResult,
+      }),
     ),
   );
 }
@@ -536,14 +814,14 @@ export async function captureSubmissionSpellingCandidateMappingImpl(formData: Fo
     }
   }
 
-  const existingCandidateMapping =
+  let candidateMapping =
     parentVerificationId
       ? await candidateMappingRepository.findByParentVerificationId(parentVerificationId)
       : null;
 
-  if (!existingCandidateMapping && parentVerificationId) {
+  if (!candidateMapping && parentVerificationId) {
     try {
-      await candidateMappingRepository.insertPending({
+      candidateMapping = await candidateMappingRepository.insertPending({
         parentUserId: user.id,
         childId: submission.child_id,
         parentVerificationId,
@@ -580,6 +858,16 @@ export async function captureSubmissionSpellingCandidateMappingImpl(formData: Fo
     }
   }
 
+  if (!candidateMapping) {
+    redirect(
+      buildRedirectWithMessage(
+        safeRedirectPath,
+        "error",
+        "Verified evidence was prepared, but the candidate mapping could not be found yet.",
+      ),
+    );
+  }
+
   if (suggestion?.id) {
     try {
       await markSuggestionReviewedAsAccepted({
@@ -599,13 +887,52 @@ export async function captureSubmissionSpellingCandidateMappingImpl(formData: Fo
     }
   }
 
+  let combinedResult:
+    | Awaited<ReturnType<typeof promoteAndRecommendParentLocalCandidateMapping>>
+    | null = null;
+
+  try {
+    combinedResult = await promoteAndRecommendParentLocalCandidateMapping({
+      supabase,
+      parentUserId: user.id,
+      childId: submission.child_id,
+      candidateMapping,
+      promotionActionSource: "review_work_parent_local_promotion",
+      recommendationActionSource:
+        "review_work_parent_local_promotion_auto_recommendation",
+    });
+  } catch (error) {
+    console.error("Candidate mapping promotion failed before redirect.", error);
+    redirect(
+      buildRedirectWithMessage(
+        safeRedirectPath,
+        "error",
+        error instanceof Error && error.message
+          ? error.message
+          : "Candidate mapping was captured, but the skill route could not be promoted yet.",
+      ),
+    );
+  }
+
+  if (!combinedResult) {
+    redirect(
+      buildRedirectWithMessage(
+        safeRedirectPath,
+        "error",
+        "Candidate mapping was captured, but the skill route could not be saved yet.",
+      ),
+    );
+  }
+
   revalidateReviewQueueAndDetailBestEffort(safeRedirectPath);
 
   redirect(
     buildRedirectWithMessage(
       safeRedirectPath,
       "saved",
-      "Saved as verified evidence. Candidate mapping captured. Not used for future suggestions until promoted.",
+      oneStepPromotionMessage({
+        recommendationResult: combinedResult.recommendationResult,
+      }),
     ),
   );
 }
@@ -738,14 +1065,17 @@ export async function promoteParentLocalCandidateMappingImpl(formData: FormData)
   }
 
   if (
-    candidateMapping.candidate_status !== "pending_parent_promotion" ||
+    (candidateMapping.candidate_status !== "pending_parent_promotion" &&
+      candidateMapping.candidate_status !== "parent_local_promoted") ||
     candidateMapping.promotion_scope !== "parent_local"
   ) {
-    const errorMessage =
-      candidateMapping.candidate_status === "parent_local_promoted"
-        ? "That candidate mapping is already promoted for this child."
-        : "Only pending parent-local candidate mappings can be promoted here.";
-    redirect(buildRedirectWithMessage(safeRedirectPath, "error", errorMessage));
+    redirect(
+      buildRedirectWithMessage(
+        safeRedirectPath,
+        "error",
+        "Only pending or promoted parent-local candidate mappings can be saved here.",
+      ),
+    );
   }
 
   const conflictingMappings =
@@ -768,17 +1098,19 @@ export async function promoteParentLocalCandidateMappingImpl(formData: FormData)
     );
   }
 
-  let promotionResult:
-    | Awaited<ReturnType<typeof candidateMappingRepository.promoteParentLocalPending>>
+  let combinedResult:
+    | Awaited<ReturnType<typeof promoteAndRecommendParentLocalCandidateMapping>>
     | null = null;
 
   try {
-    promotionResult = await candidateMappingRepository.promoteParentLocalPending({
-      id: candidateMapping.id,
+    combinedResult = await promoteAndRecommendParentLocalCandidateMapping({
+      supabase,
       parentUserId: user.id,
       childId: submission.child_id,
-      actionSource: "review_work_parent_local_promotion",
-      nowIso: new Date().toISOString(),
+      candidateMapping,
+      promotionActionSource: "review_work_parent_local_promotion",
+      recommendationActionSource:
+        "review_work_parent_local_promotion_auto_recommendation",
     });
   } catch (error) {
     console.error("Parent-local candidate promotion failed before redirect.", error);
@@ -786,7 +1118,19 @@ export async function promoteParentLocalCandidateMappingImpl(formData: FormData)
       buildRedirectWithMessage(
         safeRedirectPath,
         "error",
-        "We couldn't promote that candidate mapping just yet.",
+        error instanceof Error && error.message
+          ? error.message
+          : "We couldn't promote that candidate mapping just yet.",
+      ),
+    );
+  }
+
+  if (!combinedResult) {
+    redirect(
+      buildRedirectWithMessage(
+        safeRedirectPath,
+        "error",
+        "We couldn't save that candidate mapping just yet.",
       ),
     );
   }
@@ -797,9 +1141,9 @@ export async function promoteParentLocalCandidateMappingImpl(formData: FormData)
     buildRedirectWithMessage(
       safeRedirectPath,
       "saved",
-      promotionResult?.status === "already_promoted"
-        ? "Candidate mapping was already promoted for this child."
-        : "Candidate mapping promoted for this child. Future matching suggestions can now reuse it in this parent/child scope.",
+      oneStepPromotionMessage({
+        recommendationResult: combinedResult.recommendationResult,
+      }),
     ),
   );
 }
