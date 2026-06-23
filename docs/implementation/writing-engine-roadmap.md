@@ -870,6 +870,34 @@ Version 2.0 Slice 5A implementation record:
 - migration:
   - no migration needed for Slice 5A
 
+Version 2.0 Slice 5B implementation record:
+- status: implemented as parent-local reuse and suggestion improvement
+- Review Work suggestion behavior:
+  - same-parent/same-child `parent_local_promoted` mappings can feed Stage 2A
+    recommendation input for later matching spelling rows
+  - matching rows surface as `recommendationAuthority = "your_match"` and
+    render as `Your saved match`
+  - eligible `your_match` rows can prefill the family, cluster, and skill
+    selectors when `isPrefillAllowed = true`
+- preserved boundaries:
+  - parent-local reuse remains scoped to the current parent/child and exact
+    normalized spelling pair
+  - pending/reverted mappings, other-child mappings, other-parent mappings,
+    inactive/non-assignable/non-D4 skills, and mismatched corrections are not
+    reusable suggestion truth
+  - canonical known-match priority still outranks parent-local reuse
+  - no writes to `spelling_canonical_mappings`, resolver visibility,
+    `micro_skill_catalog`, assignments, mastery, rewards, dashboards,
+    analytics, scoring, templates, or learner-facing global truth
+- validation:
+  - `npm run writing-engine:micro-skill-recommendation-regression`
+  - `npx tsx scripts/writing-engine-unified-spelling-review-items-regression.ts`
+  - plus the Slice 5B closeout regression set for parent promotion, PCRM
+    evidence, resolver runtime, script typecheck, targeted eslint, and
+    `git diff --check`
+- migration:
+  - no migration needed for Slice 5B
+
 PCRM-D admin recommendation review/curation is implemented:
 - admins can mark PCRM recommendation evidence accepted, rejected, duplicate,
   merged, or superseded

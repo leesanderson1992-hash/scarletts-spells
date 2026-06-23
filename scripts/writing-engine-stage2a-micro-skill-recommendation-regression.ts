@@ -93,8 +93,9 @@ function filterRows(rows: Array<Record<string, unknown>>, filters: FakeFilter[])
 
 function createStage2aFakeSupabase(input?: {
   errorsByTable?: Record<string, { message: string; code?: string }>;
+  tableRows?: Record<string, Array<Record<string, unknown>>>;
 }) {
-  const rowsByTable: Record<string, Array<Record<string, unknown>>> = {
+  const defaultRowsByTable: Record<string, Array<Record<string, unknown>>> = {
     micro_skill_catalog: [
       {
         micro_skill_key: finalE.microSkillKey,
@@ -123,6 +124,10 @@ function createStage2aFakeSupabase(input?: {
     misspelling_instances: [],
     canonical_spelling_word_map_diagnostic_examples: [],
     canonical_spelling_word_map_words: [],
+  };
+  const rowsByTable: Record<string, Array<Record<string, unknown>>> = {
+    ...defaultRowsByTable,
+    ...(input?.tableRows ?? {}),
   };
   const readTables: string[] = [];
 
@@ -397,6 +402,41 @@ function loadCanonicalMappingHelper() {
   assert.equal(result.recommendationAuthority, "your_match");
   assert.equal(result.recommendedMicroSkillKey, finalE.microSkillKey);
   assert.equal(result.sourceSignals[0]?.type, "same_scope_parent_local_promoted_mapping");
+}
+
+for (const invalidCatalogEntry of [
+  catalogEntry("d4.inactive_parent_local", "Inactive parent-local skill", {}, {
+    isActive: false,
+  }),
+  catalogEntry("d4.non_assignable_parent_local", "Non-assignable parent-local skill", {}, {
+    isAssignable: false,
+  }),
+  catalogEntry("d3.parent_local", "Non-D4 parent-local skill", {}, {
+    masteryDomainKey: "D3",
+  }),
+]) {
+  const result = recommend({
+    parentUserId: "parent-1",
+    childId: "child-1",
+    catalogEntries: [invalidCatalogEntry],
+    parentLocalPromotedMappings: [{
+      mappingId: `parent-local-${invalidCatalogEntry.microSkillKey}`,
+      parentUserId: "parent-1",
+      childId: "child-1",
+      misspellingNormalized: "lik",
+      correctSpellingNormalized: "like",
+      microSkillKey: invalidCatalogEntry.microSkillKey,
+      candidateStatus: "parent_local_promoted",
+      promotionScope: "parent_local",
+    }],
+    misspelling: "lik",
+    correction: "like",
+  });
+
+  assert.equal(result.recommendationStatus, "no_matching_skill_candidate");
+  assert.equal(result.recommendationAuthority, "no_match_yet");
+  assert.equal(result.recommendedMicroSkillKey, null);
+  assert.equal(result.isPrefillAllowed, false);
 }
 
 {
@@ -683,6 +723,78 @@ async function runReadModelRegression() {
       true,
       "Read model should attempt optional canonical mappings but fail soft when RLS denies them.",
     );
+  }
+
+  {
+    const supabase = createStage2aFakeSupabase({
+      tableRows: {
+        spelling_canonical_mappings: [],
+        parent_verified_spelling_candidate_mappings: [
+          {
+            id: "parent-local-lik-like",
+            parent_user_id: "parent-1",
+            child_id: "child-1",
+            misspelling_normalized: "lik",
+            correct_spelling_normalized: "like",
+            micro_skill_key: finalE.microSkillKey,
+            candidate_status: "parent_local_promoted",
+            promotion_scope: "parent_local",
+          },
+          {
+            id: "pending-lik-like",
+            parent_user_id: "parent-1",
+            child_id: "child-1",
+            misspelling_normalized: "lik",
+            correct_spelling_normalized: "like",
+            micro_skill_key: "d4.pending_should_not_reuse",
+            candidate_status: "pending_parent_promotion",
+            promotion_scope: "parent_local",
+          },
+          {
+            id: "other-child-lik-like",
+            parent_user_id: "parent-1",
+            child_id: "child-2",
+            misspelling_normalized: "lik",
+            correct_spelling_normalized: "like",
+            micro_skill_key: "d4.other_child_should_not_reuse",
+            candidate_status: "parent_local_promoted",
+            promotion_scope: "parent_local",
+          },
+          {
+            id: "other-parent-lik-like",
+            parent_user_id: "parent-2",
+            child_id: "child-1",
+            misspelling_normalized: "lik",
+            correct_spelling_normalized: "like",
+            micro_skill_key: "d4.other_parent_should_not_reuse",
+            candidate_status: "parent_local_promoted",
+            promotion_scope: "parent_local",
+          },
+        ],
+      },
+    });
+    const readModel = await buildStage2aMicroSkillRecommendationReadModel({
+      supabase: supabase as never,
+      misspelling: "lik",
+      correction: "like",
+      parentUserId: "parent-1",
+      childId: "child-1",
+      taskSubmissionId: "submission-1",
+      writingSampleId: "sample-1",
+    });
+    const result = recommendStage2aMicroSkillForSpellingPair(readModel);
+
+    assert.deepEqual(
+      readModel.parentLocalPromotedMappings?.map((mapping) => mapping.mappingId),
+      ["parent-local-lik-like"],
+      "Read model must load only same-parent same-child promoted parent-local mappings.",
+    );
+    assert.equal(result.recommendationStatus, "recommended");
+    assert.equal(result.recommendationAuthority, "your_match");
+    assert.equal(result.recommendedMicroSkillKey, finalE.microSkillKey);
+    assert.equal(result.confidence, "high");
+    assert.equal(result.isPrefillAllowed, true);
+    assert.equal(result.sourceSignals[0]?.type, "same_scope_parent_local_promoted_mapping");
   }
 
   await assert.rejects(

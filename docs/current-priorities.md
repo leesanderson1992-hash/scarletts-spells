@@ -74,6 +74,14 @@ excluded.
   saves locally, creates admin recommendation evidence visible in
   `/admin/canonical-recommendations`, and leaves no separate recommend or
   promote-locally-first parent step.
+- Version 2.0 Slice `5B` parent-local reuse/suggestion improvement is
+  implemented: same-parent/same-child `parent_local_promoted` mappings now
+  surface in future eligible Review Work rows as `Your saved match` and can
+  prefill the family/cluster/skill selectors. This reuse remains scoped,
+  reversible, and non-canonical; pending, reverted, other-parent, other-child,
+  inactive, non-assignable, non-D4, and mismatched mappings do not become
+  suggestion truth. No migration or resolver/canonical/catalog mutation was
+  needed.
 - Version 2.0 roadmap registration is now the active docs-first planning
   direction: use
   [docs/implementation/version-2-roadmap.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/implementation/version-2-roadmap.md:1)

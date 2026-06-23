@@ -805,7 +805,7 @@ function testReviewWorkSourceGuardrails() {
   );
   const pageSource = readFileSync(suggestedIssuesPanelPath, "utf8");
 
-  assert.match(pageSource, /Promote for this child/);
+  assert.match(pageSource, /Save locally and send for admin review/);
   assert.match(pageSource, /Revert to pending/);
   assert.match(
     pageSource,
@@ -813,7 +813,7 @@ function testReviewWorkSourceGuardrails() {
   );
   assert.match(
     pageSource,
-    /Not used for future suggestions until promoted\./,
+    /Saved locally\. Send for admin review to finish this route\./,
   );
 }
 

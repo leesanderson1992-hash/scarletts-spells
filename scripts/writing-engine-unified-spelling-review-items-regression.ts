@@ -1172,7 +1172,38 @@ function createReadOnlyStage2aFakeSupabase() {
         mapping_status: "active",
       },
     ],
-    parent_verified_spelling_candidate_mappings: [],
+    parent_verified_spelling_candidate_mappings: [
+      {
+        id: "parent-local-lik-like",
+        parent_user_id: "parent-current",
+        child_id: "child-current",
+        misspelling_normalized: "lik",
+        correct_spelling_normalized: "like",
+        micro_skill_key: "d4.final_e_missing",
+        candidate_status: "parent_local_promoted",
+        promotion_scope: "parent_local",
+      },
+      {
+        id: "other-child-lik-like",
+        parent_user_id: "parent-current",
+        child_id: "child-other",
+        misspelling_normalized: "lik",
+        correct_spelling_normalized: "like",
+        micro_skill_key: "d4.other_child_should_not_reuse",
+        candidate_status: "parent_local_promoted",
+        promotion_scope: "parent_local",
+      },
+      {
+        id: "pending-lik-like",
+        parent_user_id: "parent-current",
+        child_id: "child-current",
+        misspelling_normalized: "lik",
+        correct_spelling_normalized: "like",
+        micro_skill_key: "d4.pending_should_not_reuse",
+        candidate_status: "pending_parent_promotion",
+        promotion_scope: "parent_local",
+      },
+    ],
     writing_issues: [],
     misspelling_instances: [],
     canonical_spelling_word_map_diagnostic_examples: [],
@@ -1265,6 +1296,29 @@ async function runStage2aRecommendationAttachmentRegression() {
       canonicalRecommendationStatus: null,
     },
   };
+  const parentLocalReuseRow: UnifiedSpellingReviewItem = {
+    ...stage2aRecommendationBaseRow,
+    id: "misspelling:miss-stage2a-parent-local-reuse",
+    state: "categorisation_needed",
+    categorisationStatus: "categorisation_needed",
+    observedText: "lik",
+    expectedCorrection: "like",
+    suggestedMicroSkillKey: null,
+    verifiedMicroSkillKey: null,
+    microSkillKey: null,
+    microSkillRecommendation: null,
+    sourceIds: {
+      ...stage2aRecommendationBaseRow.sourceIds,
+      misspellingInstanceId: "miss-stage2a-parent-local-reuse",
+      writingIssueSuggestionId: null,
+      parentVerificationId: null,
+      writingIssueId: null,
+      catalogReviewCaseId: null,
+      candidateMappingId: null,
+      canonicalRecommendationId: null,
+      canonicalRecommendationStatus: null,
+    },
+  };
   const fakeSupabase = createReadOnlyStage2aFakeSupabase();
   const canonicalLookupCalls: Array<{
     misspellingNormalized: string | null | undefined;
@@ -1273,7 +1327,11 @@ async function runStage2aRecommendationAttachmentRegression() {
   const attachedRows =
     await attachStage2aMicroSkillRecommendationsToUnifiedRows({
       supabase: fakeSupabase as never,
-      rows: [openRecommendationRow, stage2aExistingDecisionRow],
+      rows: [
+        openRecommendationRow,
+        parentLocalReuseRow,
+        stage2aExistingDecisionRow,
+      ],
       parentUserId: "parent-current",
       childId: "child-current",
       submissionId: "submission-current",
@@ -1302,6 +1360,9 @@ async function runStage2aRecommendationAttachmentRegression() {
   const attachedExistingDecisionRow = attachedRows.find(
     (row) => row.id === stage2aExistingDecisionRow.id,
   );
+  const attachedParentLocalReuseRow = attachedRows.find(
+    (row) => row.id === parentLocalReuseRow.id,
+  );
 
   assert.ok(attachedRecommendationRow, "Recommendation row should be returned.");
   assert.equal(
@@ -1318,6 +1379,30 @@ async function runStage2aRecommendationAttachmentRegression() {
     "d4.final_e_missing",
   );
   assert.equal(attachedRecommendationRow.microSkillRecommendation?.isPrefillAllowed, true);
+  assert.ok(
+    attachedParentLocalReuseRow,
+    "Parent-local reuse row should be returned.",
+  );
+  assert.equal(
+    attachedParentLocalReuseRow.microSkillRecommendation?.recommendationStatus,
+    "recommended",
+  );
+  assert.equal(
+    attachedParentLocalReuseRow.microSkillRecommendation?.recommendationAuthority,
+    "your_match",
+  );
+  assert.equal(
+    attachedParentLocalReuseRow.microSkillRecommendation?.recommendedMicroSkillKey,
+    "d4.final_e_missing",
+  );
+  assert.equal(
+    attachedParentLocalReuseRow.microSkillRecommendation?.sourceSignals[0]?.type,
+    "same_scope_parent_local_promoted_mapping",
+  );
+  assert.equal(
+    attachedParentLocalReuseRow.microSkillRecommendation?.isPrefillAllowed,
+    true,
+  );
   assert.equal(
     attachedExistingDecisionRow?.microSkillRecommendation,
     null,
@@ -1330,10 +1415,16 @@ async function runStage2aRecommendationAttachmentRegression() {
   );
   assert.deepEqual(
     canonicalLookupCalls,
-    [{
-      misspellingNormalized: "hav",
-      correctSpellingNormalized: "have",
-    }],
+    [
+      {
+        misspellingNormalized: "hav",
+        correctSpellingNormalized: "have",
+      },
+      {
+        misspellingNormalized: "lik",
+        correctSpellingNormalized: "like",
+      },
+    ],
     "Service-role canonical recommendation lookup should run only for eligible open rows after ownership-gated Review Work loading.",
   );
   assert.equal(
@@ -1385,7 +1476,7 @@ assert.match(
 );
 assert.match(
   tableSource,
-  /label: "Known Match"[\s\S]*label: "Your Match"[\s\S]*Possible Match · \$\{Math\.round[\s\S]*label: "No Match Yet"[\s\S]*label: "Check Manually"/,
+  /label: "Known Match"[\s\S]*label: "Your saved match"[\s\S]*Possible Match · \$\{Math\.round[\s\S]*label: "No Match Yet"[\s\S]*label: "Check Manually"/,
   "The table should render compact parent-facing recommendation badges.",
 );
 assert.match(
@@ -1400,8 +1491,8 @@ assert.match(
 );
 assert.match(
   tableSource,
-  /same-child parent-local promoted mapping supports this spelling pair/,
-  "Your Match should describe same-scope parent-local promoted support.",
+  /saved match for this child supports this spelling pair/,
+  "Your saved match should describe scoped parent-local support without internal route terminology.",
 );
 assert.match(
   tableSource,

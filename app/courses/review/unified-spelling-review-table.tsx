@@ -229,8 +229,8 @@ function recommendationBadge(row: UnifiedSpellingReviewItem) {
       };
     case "your_match":
       return {
-        label: "Your Match",
-        title: "A same-child parent-local promoted mapping supports this spelling pair. Please still confirm or change before approving.",
+        label: "Your saved match",
+        title: "A saved match for this child supports this spelling pair. Please still confirm or change before approving.",
         className: "border-sky-200 bg-sky-50 text-sky-800",
       };
     case "possible_match":

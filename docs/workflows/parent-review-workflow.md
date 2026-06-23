@@ -442,6 +442,18 @@ Version 2.0 Slice 5A parent review friction reduction is implemented:
   recommend or promote-locally-first parent step
 - no migration was needed
 
+Version 2.0 Slice 5B parent-local reuse/suggestion improvement is implemented:
+- future eligible Review Work rows can reuse same-parent/same-child
+  `parent_local_promoted` mappings as suggestion-only `Your saved match`
+  recommendations
+- `Your saved match` can prefill the parent selectors, but the parent still
+  confirms or changes the route before saving
+- reuse is exact-pair, parent/child scoped, reversible, and non-canonical
+- pending/reverted mappings, other-scope mappings, inactive/non-assignable or
+  non-D4 skills, and mismatched corrections must not prefill future rows
+- canonical/global/resolver authority remains admin-only and separate
+- no migration was needed
+
 ## Current Parent Review Status
 
 The bounded Parent Review spelling workflow MVP loop is complete for the
