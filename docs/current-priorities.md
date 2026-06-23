@@ -68,9 +68,12 @@ excluded.
   enable resolver visibility, mutate `micro_skill_catalog`, or change
   assignment, mastery, rewards, dashboards, analytics, scoring, templates, or
   completion gating. No migration was needed. Focused regressions, build,
-  typecheck, and targeted lint passed; final browser smoke was blocked by
-  local Supabase/Docker health on `127.0.0.1:54321`, not by a recorded
-  implementation failure.
+  typecheck, and targeted lint passed. Browser smoke is confirmed on the
+  parent Review Work page: changing the recommended skill selection exposes
+  the `!` action as `Use this skill and send for admin review`; one click
+  saves locally, creates admin recommendation evidence visible in
+  `/admin/canonical-recommendations`, and leaves no separate recommend or
+  promote-locally-first parent step.
 - Version 2.0 roadmap registration is now the active docs-first planning
   direction: use
   [docs/implementation/version-2-roadmap.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/implementation/version-2-roadmap.md:1)

@@ -858,13 +858,15 @@ Version 2.0 Slice 5A implementation record:
   - targeted eslint on the changed implementation/regression files
   - `npm run build`
   - `git diff --check`
-- browser smoke note:
-  - localhost was restored and the app shell was reachable, but final
-    Review Work/admin browser smoke was blocked by local Supabase/Docker
-    health: `127.0.0.1:54321` timed out/closed sockets and Review Work data
-    loads redirected after multi-minute auth/data waits
-  - this is recorded as local-environment smoke blocked, not implementation
-    pass
+- browser smoke:
+  - confirmed on the parent Review Work page after local Supabase health was
+    repaired
+  - changing the recommended skill selection shows the `!` action tooltip as
+    `Use this skill and send for admin review`
+  - one click saves the row locally and creates the admin recommendation
+    evidence visible in `/admin/canonical-recommendations`
+  - no separate `Recommend this pairing for review` or promote-locally-first
+    parent step remains
 - migration:
   - no migration needed for Slice 5A
 

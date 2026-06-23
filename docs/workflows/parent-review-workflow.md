@@ -435,6 +435,11 @@ Version 2.0 Slice 5A parent review friction reduction is implemented:
   assignment, mastery, rewards, dashboards, analytics, scoring, templates,
   canonical mapping truth, resolver visibility, and `micro_skill_catalog`
   remain outside the parent action
+- browser smoke confirmed that changing the recommended skill selection uses
+  the `!` action copy `Use this skill and send for admin review`, saves
+  locally, creates admin recommendation evidence in
+  `/admin/canonical-recommendations`, and does not require a separate
+  recommend or promote-locally-first parent step
 - no migration was needed
 
 ## Current Parent Review Status
