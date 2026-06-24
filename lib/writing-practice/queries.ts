@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+import type { createClient } from "../supabase/server";
 
 import type {
   LearningItemEvidenceRow,

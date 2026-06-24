@@ -281,6 +281,16 @@ Rules:
 - secure progress requires success across time, not only same-session repetition
 - route-specific adjustments are allowed later, but the default should still preserve spaced review
 
+Word Treasure boundary:
+- the assignment unit remains the active `learning_item` / micro-skill stream
+- starting a relevant lesson or practice may move linked word treasures into
+  the Forge where a later reward slice explicitly wires that bridge
+- lesson start, lesson completion, controlled practice, or quiz success must
+  not award a word Golden Bar by itself
+- word Golden Bars require the reward contract's 5 authentic/original uses of
+  that specific corrected word after Forge
+- micro-skill level movement remains separate from word treasure movement
+
 ### 7. Interleaving defaults
 
 Interleaving should be intentional rather than random.

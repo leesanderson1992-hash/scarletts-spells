@@ -107,6 +107,10 @@ The canonical product spine is:
 
 `authentic work / diagnostic source -> candidate issue or hypothesis -> parent verification -> verified outcome -> learning item / mini-skill stream -> learning evidence -> targeted assignment item -> later transfer evidence from real writing`
 
+For Slice 6 reward/proficiency alignment, the expanded spelling spine is:
+
+`verified misspelling -> word treasure + micro-skill evidence -> practice -> authentic writing evidence -> word bar and/or micro-skill level update`
+
 This means:
 
 - authentic work and diagnostics can both produce candidate concerns
@@ -115,6 +119,12 @@ This means:
 - verified outcomes strengthen or create canonical learning streams
 - later authentic writing provides transfer evidence back into the same mastery
   model
+- a word-specific Golden Bar and a transferable micro-skill level are separate
+  projections over evidence
+- a word-specific Golden Bar requires authentic/original writing evidence for
+  that corrected word after it enters the Forge
+- micro-skill mastery still requires transfer, breadth, confidence, and
+  recurrence guardrails; it must not be inferred from one word
 
 ## Canonical parent review surface
 

@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+import type { createClient } from "../../supabase/server";
 
 type SupabaseServerClient = Awaited<ReturnType<typeof createClient>>;
 
@@ -59,7 +59,8 @@ export async function getReviewWorkOverrideMicroSkillProvider(input: {
     .maybeSingle();
 
   const typedAnchorRow =
-    (anchorRow as ReviewWorkOverrideMicroSkillCatalogRow | null) ?? null;
+    ((anchorRow as unknown) as ReviewWorkOverrideMicroSkillCatalogRow | null) ??
+    null;
 
   if (
     !typedAnchorRow ||

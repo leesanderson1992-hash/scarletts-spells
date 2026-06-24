@@ -22,6 +22,16 @@ The future word-map may support:
 It must remain content metadata unless a later slice explicitly authorizes a
 runtime consumer.
 
+Word Treasure and child proficiency boundary:
+- word-map rows may identify useful words, linked micro-skills, diagnostic
+  examples, complexity, frequency, and content readiness
+- word-map rows do not create child Word Treasure records
+- word-map rows do not move a word into the Forge
+- word-map rows do not count toward the 5 authentic/original uses required for
+  a word Golden Bar
+- word-map rows do not create or update `micro_skill_levels`,
+  `learning_items`, child proficiency, or mastery evidence by existing
+
 ## Status
 
 Status: `Stage 2C.4 local/dev word-map import completed and QA-audited`
@@ -144,6 +154,9 @@ It must not:
 - create `learning_items`
 - create `assignment_items` by itself
 - create mastery or evidence merely by existing
+- create Word Treasure / Golden Nugget state merely by existing
+- increment word-specific Golden Bar progress merely by existing
+- create or update child micro-skill level projections merely by existing
 - create `spelling_canonical_mappings`
 - become resolver-visible by default
 - alter Review Work completion gates

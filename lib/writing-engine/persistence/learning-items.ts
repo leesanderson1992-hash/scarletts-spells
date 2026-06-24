@@ -1,14 +1,14 @@
-import { createClient } from "@/lib/supabase/server";
-import type { WritingEngineLearningItemRepository } from "@/lib/writing-engine/mastery/service";
+import type { createClient } from "../../supabase/server";
+import type { WritingEngineLearningItemRepository } from "../mastery/service";
 import {
   buildStage1d1SourceRefFromEvidenceRow,
   selectStage1d1RelevantEvidenceRows,
-} from "@/lib/writing-engine/assignments/stage1d1-evidence";
+} from "../assignments/stage1d1-evidence";
 import type {
   WritingEngineMicroSkillCatalogEntry,
   WritingEngineStage1d1Evidence,
   WritingEngineStage1d1LearningItem,
-} from "@/lib/writing-engine/types";
+} from "../types";
 
 export { getStage1d1CatalogEntries } from "./stage1d1-catalog-entries";
 export {

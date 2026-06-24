@@ -199,7 +199,16 @@ The canonical lifecycle is:
 
 For a genuine learning need:
 
-`draft suggestion -> reviewed issue -> child self-correction -> parent final classification -> Golden Nugget -> learning item -> In the Machine -> Gold Bar`
+`draft suggestion -> reviewed issue -> child self-correction -> parent final classification -> Golden Nugget -> learning item / practice starts -> In the Forge -> later authentic/original writing evidence -> Golden Bar`
+
+Reward terminology note:
+- Word Treasure semantics defer to
+  [docs/contracts/reward-system-contract.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/contracts/reward-system-contract.md:1)
+- lesson creation, lesson start, lesson completion, or controlled practice does
+  not award a word Golden Bar by itself
+- the default word Golden Bar rule is 5 correct authentic/original uses of the
+  same corrected word after entering the Forge
+- micro-skill mastery remains a separate projection over broader evidence
 
 For a checking-only outcome:
 
@@ -1256,7 +1265,9 @@ In MVP:
 Until the later `learning_items`-first runtime exists:
 - `writing_issues` remain the canonical reviewed issue-history source
 - `learning_items` are the canonical writing-practice practice-unit source
-- `spelling_reward_states` remain the current canonical reward-state source for existing spelling reward UI
+- `spelling_reward_states` remain the current compatibility reward-state source
+  for existing spelling reward UI until `child_word_treasures` or an approved
+  bridge is introduced
 - `daily_assignments` remain the current delivery surface, but new assignment generation now comes from canonical `learning_items`
 
 Important:

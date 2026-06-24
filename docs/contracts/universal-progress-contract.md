@@ -55,11 +55,17 @@ This describes the emotional and motivational learning state.
 
 Examples:
 - Golden Nugget
-- In the Machine
+- In the Forge
 - Gold Bar
-- Proven Bag
+- Vault
 
 Workflow status and progress state are related, but not identical.
+
+Reward terminology note:
+- Word Treasure, Micro-Skill Level, and Gold Coin Economy terminology defer to
+  [docs/contracts/reward-system-contract.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/contracts/reward-system-contract.md:1)
+- older terms such as `In the Machine` may appear in legacy implementation
+  surfaces, but new product semantics should use `In the Forge`
 
 ## Canonical task lifecycle
 

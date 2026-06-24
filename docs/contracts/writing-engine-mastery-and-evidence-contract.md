@@ -35,6 +35,38 @@ It is not an implementation roadmap, a UI spec, or a schema definition.
 These rules apply whether evidence comes from controlled practice, dictation,
 authentic writing, or parent-verified diagnostic work.
 
+## Word Treasure vs micro-skill mastery
+
+Word Treasure and micro-skill mastery are separate projections over shared
+evidence.
+
+Word Treasure answers:
+
+```text
+Has this child turned this specific once-misspelled word into a secure word?
+```
+
+Micro-skill mastery answers:
+
+```text
+Can this child transfer the underlying spelling skill across representative
+words and authentic writing contexts?
+```
+
+Rules:
+- a verified misspelling may create or update a word-specific Golden Nugget in
+  the reward contract's Word Treasure System
+- starting lesson or micro-skill practice may move that word treasure into the
+  Forge
+- a word-specific Golden Bar requires the child to use that corrected word
+  correctly 5 times in authentic/original writing after `entered_forge_at`
+- this conceptual interpretation may be represented as
+  `authentic_word_correct_use_after_forge`
+- a Golden Bar for one word must not be interpreted as micro-skill mastery
+- broad micro-skill mastery must not automatically mint word Golden Bars
+- both projections may read `learning_item_evidence` or its successor evidence
+  ledger, but they must calculate different outcomes
+
 ## Evidence event contract
 
 Each mastery-relevant evidence event should preserve the following conceptual
@@ -167,9 +199,10 @@ Current implementation-registration note:
 - completed `Stage 8A` did not change runtime mastery semantics, scoring,
   thresholds, persistence, routing, reward logic, positive-evidence logic, or
   completed Stage `7F` behavior
-- residual product-metaphor labels such as `Golden Nugget`,
-  `In the Machine`, and `Gold Bar so far` remain a possible future copy-only
-  pass, not a blocker or contract gap
+- residual legacy product-metaphor labels such as `Golden Nugget`,
+  `In the Machine`, and `Gold Bar so far` remain a possible future copy /
+  compatibility pass, not a blocker or contract gap; new Word Treasure
+  semantics defer to the reward contract
 - Stage `8` is therefore closed as a boundary-safety and parent-facing
   evidence-wording stage, not a mastery-runtime stage
 

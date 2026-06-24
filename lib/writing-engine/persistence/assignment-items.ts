@@ -1,5 +1,5 @@
-import { createClient } from "@/lib/supabase/server";
-import type { WritingEngineAssignmentItemRepository } from "@/lib/writing-engine/assignments/service";
+import type { createClient } from "../../supabase/server";
+import type { WritingEngineAssignmentItemRepository } from "../assignments/service";
 
 type SupabaseServerClient = Awaited<ReturnType<typeof createClient>>;
 type AssignmentAppendResult = Awaited<

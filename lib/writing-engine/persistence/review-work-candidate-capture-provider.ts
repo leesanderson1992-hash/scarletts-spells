@@ -1,5 +1,5 @@
-import { createClient } from "@/lib/supabase/server";
-import type { WritingEngineMicroSkillCatalogEntry } from "@/lib/writing-engine/types";
+import type { createClient } from "../../supabase/server";
+import type { WritingEngineMicroSkillCatalogEntry } from "../types";
 
 type SupabaseServerClient = Awaited<ReturnType<typeof createClient>>;
 

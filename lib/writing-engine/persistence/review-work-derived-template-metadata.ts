@@ -1,6 +1,6 @@
-import { createClient } from "@/lib/supabase/server";
-import { resolveStage2dLessonTemplateKey } from "@/lib/writing-engine/spelling/stage2d-lesson-template-registry";
-import type { WritingEnginePracticeRoute } from "@/lib/writing-engine/types";
+import type { createClient } from "../../supabase/server";
+import { resolveStage2dLessonTemplateKey } from "../spelling/stage2d-lesson-template-registry";
+import type { WritingEnginePracticeRoute } from "../types";
 
 import { getStage1d1CatalogEntries } from "./stage1d1-catalog-entries";
 

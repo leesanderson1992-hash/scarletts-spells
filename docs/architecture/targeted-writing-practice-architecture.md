@@ -38,7 +38,8 @@ Current transitional reality:
 - Slice 7A now explicitly confirms `learning_items` as canonical active learning/practice/mastery truth
 - parent review detail can show returned-issue response history even when the fresh spelling sample no longer contains the original misspelling
 - returning a submission currently sends back all linked eligible durable issues on that submission, not a parent-selected subset
-- existing reward UI still reads Nugget / workshop / bar state from `spelling_reward_states`
+- existing reward UI still reads legacy Nugget / workshop / bar state from
+  `spelling_reward_states` as a current implementation compatibility path
 - the old `/analyse`, `/analyse/review`, `/practice`, and `/assignments`
   spelling-era pages are retired redirects rather than active runtime surfaces
 - `daily_assignments` now survives only as legacy assignment-header debt during
@@ -911,7 +912,9 @@ Therefore:
 
 Systematic source-of-truth rule:
 - `learning_items` should become the canonical writing-practice source for Nugget/practice-unit truth
-- `spelling_reward_states` remain the canonical current-state reward source for existing reward UI until the planned compatibility bridge is introduced
+- `spelling_reward_states` remain the current compatibility reward-state source
+  for existing reward UI until the planned Word Treasure bridge or migration is
+  introduced
 - later slices must reconcile these through explicit projection, not by letting separate pages interpret them independently
 
 Current Slice 4 implementation note:

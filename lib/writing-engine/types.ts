@@ -211,6 +211,7 @@ export type AssignmentItemCandidate = {
 export const WRITING_ENGINE_STAGE1D1_SKIP_REASONS = [
   "unsupported_domain_module",
   "unsupported_practice_route",
+  "missing_catalog_entry",
   "inactive_micro_skill",
   "non_assignable_micro_skill",
   "missing_evidence",
