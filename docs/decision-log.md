@@ -1,5 +1,26 @@
 # Decision Log
 
+## 2026-06-24 — Child weekly planner now surfaces daily spelling practice read-only
+
+### What changed
+- Version 2.0 Slice `7B` wires the Slice `7A` daily spelling practice read
+  model into
+  [app/learn/week/page.tsx](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/app/learn/week/page.tsx:1).
+- The child weekly planner now renders a neutral display-only daily spelling
+  practice card in
+  [components/learn-week-planner.tsx](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/components/learn-week-planner.tsx:1).
+- Static regression coverage was added in
+  [scripts/writing-engine-daily-spelling-practice-child-card-regression.ts](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/scripts/writing-engine-daily-spelling-practice-child-card-regression.ts:1).
+
+### Why this matters
+- Generated daily spelling practice is now visible on the child weekly surface
+  without triggering generation, answer capture, completion persistence,
+  evidence, mastery, or rewards.
+- The card keeps due review before new practice and avoids backlog, reward,
+  mastery, Forge, bar, coin, and treasure language.
+- Legacy `/practice` and `/assignments` remain redirect-only paths for this
+  slice.
+
 ## 2026-06-24 — Child daily practice starts with a read-only server model
 
 ### What changed

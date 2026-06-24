@@ -27,6 +27,10 @@ import {
   moveTaskToDayPlan,
   submitTaskResponse,
 } from "@/app/learn/actions";
+import type {
+  DailySpellingPracticeReadItem,
+  DailySpellingPracticeReadModel,
+} from "@/lib/writing-practice/daily-spelling-practice-read-model";
 
 type PlannerTask = {
   id: string;
@@ -87,6 +91,7 @@ type LearnWeekPlannerProps = {
   completions: PlannerCompletion[];
   submissions: PlannerSubmission[];
   dayPlans: PlannerDayPlan[];
+  dailySpellingPractice: DailySpellingPracticeReadModel;
   checkedInToday: boolean;
   nuggetCount: number;
   inMachineCount: number;
@@ -551,6 +556,132 @@ function WeekMiniTask({
   );
 }
 
+function formatDailyPracticeWordCount(count: number) {
+  return `${count} word${count === 1 ? "" : "s"}`;
+}
+
+function getDailyPracticeItemLabel(item: DailySpellingPracticeReadItem) {
+  const targetWord = item.targetWord?.trim();
+  const microSkillLabel = item.microSkillLabel?.trim();
+
+  return targetWord || microSkillLabel || "Practice word";
+}
+
+function getDailyPracticePreviewGroups(practice: DailySpellingPracticeReadModel) {
+  const groups = [
+    { label: practice.childCopy.dueReview, items: practice.groups.dueReview },
+    { label: practice.childCopy.newPractice, items: practice.groups.newPractice },
+    { label: practice.childCopy.readyForToday, items: practice.groups.practice },
+  ];
+  let remainingPreviewSlots = 3;
+
+  return groups
+    .map((group) => {
+      const supportedItems = group.items.filter((item) => item.isSupportedForChildSurface);
+      const previewItems = supportedItems.slice(0, remainingPreviewSlots);
+      remainingPreviewSlots -= previewItems.length;
+
+      return {
+        ...group,
+        previewItems,
+        supportedCount: supportedItems.length,
+      };
+    })
+    .filter((group) => group.supportedCount > 0);
+}
+
+function DailySpellingPracticeCard({
+  practice,
+}: {
+  practice: DailySpellingPracticeReadModel;
+}) {
+  const copy = practice.childCopy;
+  const previewGroups = getDailyPracticePreviewGroups(practice);
+  const supportedItemCount = previewGroups.reduce(
+    (total, group) => total + group.supportedCount,
+    0,
+  );
+  const previewItemCount = previewGroups.reduce(
+    (total, group) => total + group.previewItems.length,
+    0,
+  );
+  const extraItemCount = Math.max(0, supportedItemCount - previewItemCount);
+  const isReady = practice.state === "ready";
+  const isClosed = practice.state === "completed" || practice.state === "skipped";
+  const isQuiet = practice.state === "missing" || practice.state === "empty";
+  const statusText = isClosed
+    ? copy.done
+    : practice.state === "blocked"
+      ? "This practice is not ready here yet."
+      : isQuiet
+        ? copy.empty
+        : copy.ready;
+  const supportText =
+    isQuiet || isClosed
+      ? "You can carry on with your week."
+      : isReady
+        ? copy.readyForToday
+        : null;
+
+  return (
+    <section
+      aria-label={copy.title}
+      className="mt-4 rounded-[1.35rem] border border-[rgba(64,128,112,0.2)] bg-[linear-gradient(180deg,#f8fffc_0%,#edf9f4_100%)] p-4"
+    >
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <p className="brand-eyebrow">{copy.title}</p>
+          <h2 className="mt-1 text-lg font-semibold tracking-tight text-[color:var(--ink)]">
+            {statusText}
+          </h2>
+          {supportText ? (
+            <p className="mt-2 text-sm text-[color:var(--mid)]">{supportText}</p>
+          ) : null}
+        </div>
+        {isReady && supportedItemCount > 0 ? (
+          <span className="rounded-full border border-[rgba(64,128,112,0.22)] bg-white px-3 py-1 text-xs font-medium text-[color:var(--mid)]">
+            {formatDailyPracticeWordCount(supportedItemCount)}
+          </span>
+        ) : null}
+      </div>
+
+      {isReady && previewGroups.length > 0 ? (
+        <div className="mt-4 grid gap-3 md:grid-cols-2">
+          {previewGroups.map((group) => (
+            <div
+              key={group.label}
+              className="rounded-2xl border border-[rgba(64,128,112,0.16)] bg-white px-3 py-3"
+            >
+              <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[color:var(--mid)]">
+                {group.label}
+              </p>
+              <div className="mt-2 flex flex-wrap gap-2">
+                {group.previewItems.length > 0 ? (
+                  group.previewItems.map((item) => (
+                    <span
+                      key={item.id}
+                      className="rounded-full border border-[rgba(64,128,112,0.18)] bg-[rgba(236,249,244,0.8)] px-2.5 py-1 text-xs font-medium text-[color:var(--ink)]"
+                    >
+                      {getDailyPracticeItemLabel(item)}
+                    </span>
+                  ))
+                ) : (
+                  <span className="text-sm text-[color:var(--mid)]">{copy.readyForToday}</span>
+                )}
+              </div>
+            </div>
+          ))}
+          {extraItemCount > 0 ? (
+            <div className="flex items-center rounded-2xl border border-dashed border-[rgba(64,128,112,0.24)] bg-white px-3 py-3 text-sm font-medium text-[color:var(--mid)]">
+              +{extraItemCount} more
+            </div>
+          ) : null}
+        </div>
+      ) : null}
+    </section>
+  );
+}
+
 export function LearnWeekPlanner({
   basePath,
   progressPath,
@@ -566,6 +697,7 @@ export function LearnWeekPlanner({
   completions,
   submissions,
   dayPlans,
+  dailySpellingPractice,
   checkedInToday,
   nuggetCount,
   inMachineCount,
@@ -753,6 +885,8 @@ export function LearnWeekPlanner({
             ) : null}
           </div>
         ) : null}
+
+        <DailySpellingPracticeCard practice={dailySpellingPractice} />
 
         <div className="mt-4">
           <GoldForgePanel

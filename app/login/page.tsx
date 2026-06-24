@@ -1,8 +1,5 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
-
 import { readSupabaseEnv } from "@/lib/supabase/env";
-import { createClient } from "@/lib/supabase/server";
 
 import { LoginForm } from "./login-form";
 
@@ -15,17 +12,6 @@ type LoginPageProps = {
 export default async function LoginPage({ searchParams }: LoginPageProps) {
   const resolvedSearchParams = await searchParams;
   const isSupabaseConfigured = Boolean(readSupabaseEnv());
-
-  if (isSupabaseConfigured) {
-    const supabase = await createClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (user) {
-      redirect("/dashboard");
-    }
-  }
 
   return (
     <main className="brand-page flex min-h-screen items-center justify-center px-6 py-12">

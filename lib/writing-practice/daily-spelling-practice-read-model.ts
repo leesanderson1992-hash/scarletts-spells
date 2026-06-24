@@ -250,7 +250,9 @@ function getState(input: {
   return "ready";
 }
 
-function buildMissingModel(practiceDate: string): DailySpellingPracticeReadModel {
+export function buildMissingDailySpellingPracticeReadModel(
+  practiceDate: string,
+): DailySpellingPracticeReadModel {
   return {
     state: "missing",
     practiceDate,
@@ -400,7 +402,7 @@ export async function getDailySpellingPracticeReadModelWithRepositories(
   });
 
   if (!assignment) {
-    return buildMissingModel(input.practiceDate);
+    return buildMissingDailySpellingPracticeReadModel(input.practiceDate);
   }
 
   const assignmentSourceLearningItemIds =

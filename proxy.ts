@@ -14,6 +14,24 @@ const protectedRoutes = [
   "/settings",
 ];
 
+async function withAuthTimeout<T>(
+  promise: Promise<T>,
+  timeoutMs: number,
+): Promise<T | null> {
+  let timeoutId: ReturnType<typeof setTimeout> | null = null;
+  const timeout = new Promise<null>((resolve) => {
+    timeoutId = setTimeout(() => resolve(null), timeoutMs);
+  });
+
+  try {
+    return await Promise.race([promise, timeout]);
+  } finally {
+    if (timeoutId) {
+      clearTimeout(timeoutId);
+    }
+  }
+}
+
 function isProtectedPath(pathname: string) {
   return protectedRoutes.some(
     (route) => pathname === route || pathname.startsWith(`${route}/`),
@@ -55,6 +73,10 @@ export async function proxy(request: NextRequest) {
     request,
   });
 
+  if (pathname === "/login") {
+    return response;
+  }
+
   const supabase = createServerClient(url, anonKey, {
     cookies: {
       getAll() {
@@ -80,9 +102,8 @@ export async function proxy(request: NextRequest) {
     },
   });
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const authResult = await withAuthTimeout(supabase.auth.getUser(), 2500);
+  const user = authResult?.data.user ?? null;
 
   if (!user && isProtectedPath(pathname)) {
     const loginUrl = request.nextUrl.clone();
@@ -92,17 +113,9 @@ export async function proxy(request: NextRequest) {
     return redirectResponse;
   }
 
-  if (user && pathname === "/login") {
-    const dashboardUrl = request.nextUrl.clone();
-    dashboardUrl.pathname = "/dashboard";
-    const redirectResponse = NextResponse.redirect(dashboardUrl);
-    copyResponseState(response, redirectResponse);
-    return redirectResponse;
-  }
-
   return response;
 }
 
 export const config = {
-  matcher: ["/login", "/admin/:path*", "/dashboard/:path*", "/assignments/:path*", "/children/:path*", "/analyse/:path*", "/practice/:path*", "/review/:path*", "/insights/:path*", "/settings/:path*"],
+  matcher: ["/admin/:path*", "/dashboard/:path*", "/assignments/:path*", "/children/:path*", "/analyse/:path*", "/practice/:path*", "/review/:path*", "/insights/:path*", "/settings/:path*"],
 };

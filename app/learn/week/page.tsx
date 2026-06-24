@@ -13,6 +13,10 @@ import { getDateOnly, isTaskCompleteForProgress } from "@/lib/courses/progress";
 import { getChildRewardReadModel } from "@/lib/rewards/read-model";
 import { createClient } from "@/lib/supabase/server";
 import type { CourseTaskType } from "@/lib/courses/types";
+import {
+  buildMissingDailySpellingPracticeReadModel,
+  getDailySpellingPracticeReadModel,
+} from "@/lib/writing-practice/daily-spelling-practice-read-model";
 
 type LearnWeekPageProps = {
   searchParams?: Promise<{
@@ -103,6 +107,26 @@ function getWeekDays() {
   });
 }
 
+async function withReadBoundaryTimeout<T>(
+  promise: Promise<T>,
+  timeoutMs: number,
+): Promise<T> {
+  let timeoutId: ReturnType<typeof setTimeout> | null = null;
+  const timeout = new Promise<never>((_, reject) => {
+    timeoutId = setTimeout(() => {
+      reject(new Error("Daily spelling practice read timed out."));
+    }, timeoutMs);
+  });
+
+  try {
+    return await Promise.race([promise, timeout]);
+  } finally {
+    if (timeoutId) {
+      clearTimeout(timeoutId);
+    }
+  }
+}
+
 // Transitional runtime read: this planner still surfaces spelling work through
 // daily_assignments, while the saved assignment rows now record whether the
 // day was generated canonically from learning_items or through the fenced
@@ -151,6 +175,15 @@ export default async function LearnWeekPage({ searchParams }: LearnWeekPageProps
       ? resolvedSearchParams.day
       : today;
   const viewMode = resolvedSearchParams?.view === "day" ? "day" : "week";
+  const dailySpellingPractice = await withReadBoundaryTimeout(
+    getDailySpellingPracticeReadModel({
+      supabase,
+      parentUserId: user.id,
+      childId: selectedChild.id,
+      practiceDate: today,
+    }),
+    2500,
+  ).catch(() => buildMissingDailySpellingPracticeReadModel(today));
   const [modulesResult, tasksResult, completionsResult, submissionsResult, focusBlocksResult, rewardReadModel, dayPlansResult, weekSelectionsResult] =
     courseIds.length > 0
       ? await Promise.all([
@@ -363,6 +396,7 @@ export default async function LearnWeekPage({ searchParams }: LearnWeekPageProps
         completions={completions}
         submissions={submissions}
         dayPlans={dayPlans}
+        dailySpellingPractice={dailySpellingPractice}
         checkedInToday={checkedInToday}
         nuggetCount={nuggetCount}
         inMachineCount={inMachineCount}

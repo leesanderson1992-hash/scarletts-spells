@@ -899,13 +899,27 @@ Status:
   - does not trigger generation, write tables, use service-role, or touch
     rewards, mastery, canonical mappings, resolver visibility, Review Work,
     analytics, scoring, templates, `/practice`, or `/assignments`
-- Browser smoke is deferred until Slice `7B` because `7A` adds no route or UI
-  behavior.
+- Slice `7B` is implemented as a neutral child `/learn/week` display surface:
+  - the page reads the Slice `7A` model server-side for the selected child and
+    current date
+  - `LearnWeekPlanner` renders a passive daily spelling practice card before
+    the existing reward panel
+  - the card shows empty, ready, closed, and blocked states with due review
+    before new practice
+  - it has no generation trigger, start action, answer capture, completion
+    persistence, reward, mastery, evidence, or scoring behavior
+  - `/practice` and `/assignments` remain redirect-only legacy paths for this
+    slice
+- Browser visual smoke for `7B` was attempted against local dev but blocked by
+  the in-app browser navigation layer. Route-level smoke confirmed
+  unauthenticated `/learn/week` redirects to `/login`; authenticated card
+  rendering is covered by static regression until an authenticated browser
+  session is available.
 
 UX:
 - today's practice
 - due review
-- new Nuggets
+- new practice
 - short optional transfer task
 - simple completion state
 - no scary backlog
