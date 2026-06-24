@@ -5,10 +5,8 @@ import { readSupabaseEnv } from "@/lib/supabase/env";
 const protectedRoutes = [
   "/admin",
   "/dashboard",
-  "/assignments",
   "/children",
   "/analyse",
-  "/practice",
   "/review",
   "/insights",
   "/settings",
@@ -117,5 +115,5 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/admin/:path*", "/dashboard/:path*", "/assignments/:path*", "/children/:path*", "/analyse/:path*", "/practice/:path*", "/review/:path*", "/insights/:path*", "/settings/:path*"],
+  matcher: ["/admin/:path*", "/dashboard/:path*", "/children/:path*", "/analyse/:path*", "/review/:path*", "/insights/:path*", "/settings/:path*"],
 };
