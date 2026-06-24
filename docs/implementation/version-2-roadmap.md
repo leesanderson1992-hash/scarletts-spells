@@ -885,6 +885,23 @@ Goal:
 - make `/learn/week` or child home show the daily spelling-practice block
   clearly
 
+Status:
+- Slice `7A` is implemented as a server-only read model and route boundary
+  foundation:
+  - reads only generated `Daily spelling practice` headers with
+    `assignment_generation_source = "learning_items"`
+  - reads scoped, ordered `assignment_items`
+  - optionally reads scoped `learning_items` and `micro_skill_catalog`
+    display labels for safe child-facing grouping
+  - returns `missing`, `empty`, `ready`, `completed`, `skipped`, and `blocked`
+    states
+  - exposes neutral copy for the future child card
+  - does not trigger generation, write tables, use service-role, or touch
+    rewards, mastery, canonical mappings, resolver visibility, Review Work,
+    analytics, scoring, templates, `/practice`, or `/assignments`
+- Browser smoke is deferred until Slice `7B` because `7A` adds no route or UI
+  behavior.
+
 UX:
 - today's practice
 - due review

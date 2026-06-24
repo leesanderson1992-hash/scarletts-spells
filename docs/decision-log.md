@@ -1,5 +1,26 @@
 # Decision Log
 
+## 2026-06-24 — Child daily practice starts with a read-only server model
+
+### What changed
+- Version 2.0 Slice `7A` added a server-only daily spelling practice read
+  model in
+  [lib/writing-practice/daily-spelling-practice-read-model.ts](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/lib/writing-practice/daily-spelling-practice-read-model.ts:1).
+- The read model returns scoped generated daily practice states and ordered
+  `assignment_items` for future child display without triggering generation or
+  completion.
+- Focused regression coverage was added in
+  [scripts/writing-engine-daily-spelling-practice-read-model-regression.ts](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/scripts/writing-engine-daily-spelling-practice-read-model-regression.ts:1).
+
+### Why this matters
+- The child surface can now be built from a neutral, parent/child-scoped read
+  boundary instead of reusing course-task completion or reward paths.
+- Daily practice display remains separate from mastery, evidence, rewards,
+  canonical mappings, resolver visibility, Review Work, and legacy `/practice`
+  or `/assignments` runtime surfaces.
+- Browser smoke is deliberately deferred until the next UI slice because this
+  change adds no route or rendered child behavior.
+
 ## 2026-05-11 — Canonical reward projection contract is a required follow-up before broader reward work
 
 ### What changed

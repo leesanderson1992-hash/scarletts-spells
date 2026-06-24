@@ -19,6 +19,9 @@ Canonical documentation now defers to:
 - Shared `lib/writing-engine` foundation exists.
 - Generic `parent_verifications` exist.
 - Generic `assignment_items` exist.
+- Version 2.0 Slice `7A` daily spelling practice read model exists as the
+  server-only foundation for a future child-facing `/learn/week` practice
+  surface.
 - Durable issue-lifecycle and learning-item creation exist.
 - The older spelling runtime surfaces are retired and should not be treated as
   an active product path.
@@ -34,6 +37,29 @@ Canonical documentation now defers to:
   diagnostics.
 - Stage `1D` generic assignment generation is now complete on the shared engine
   boundary through bounded `1D.1` to `1D.5` closeout.
+- Slice `7A` reads generated daily spelling practice without changing learning
+  truth:
+  - helper:
+    `lib/writing-practice/daily-spelling-practice-read-model.ts`
+  - regression:
+    `scripts/writing-engine-daily-spelling-practice-read-model-regression.ts`
+  - reads `daily_assignments`, `assignment_items`, selected scoped
+    `learning_items`, and optional `micro_skill_catalog` labels
+  - returns `missing`, `empty`, `ready`, `completed`, `skipped`, and `blocked`
+    states plus neutral child copy and due-review/new-practice grouping
+  - does not trigger generation, write Supabase rows, use service-role, expose
+    browser code, create evidence, mutate `learning_items`, revive
+    `/practice` or `/assignments`, or touch rewards, mastery, canonical
+    mappings, resolver visibility, Review Work, analytics, scoring, or
+    templates
+  - QA passed:
+    `npm run writing-engine:daily-spelling-practice-read-model-regression`,
+    `npm run writing-engine:daily-spelling-practice-planner-regression`,
+    `npm run writing-engine:daily-spelling-practice-generation-regression`,
+    `npm run typecheck:scripts`, targeted ESLint on the new files, and static
+    forbidden-reference scans
+  - browser smoke is intentionally deferred until Slice `7B` because no route
+    or UI behavior changed in `7A`
 - Future spelling word-map/dictionary content is now contracted as content
   metadata only. It may later supply lesson words for existing active
   assignable spelling micro-skills, but it is not resolver, mastery,
