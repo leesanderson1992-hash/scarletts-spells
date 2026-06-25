@@ -507,14 +507,15 @@ Success criteria:
 
 ## 7. Proposed Version 2 slice order
 
-Next active planning target: Version 2 roadmap Slice `5` child-local reuse and
-suggestion improvement, if the next priority returns to parent Review Work
-acceleration.
+Version 2 roadmap Slice `5` child-local reuse and suggestion improvement is
+complete.
 
 Slice `3` remains deferred by founder decision. Slice `4` and Slice `5` remain
 valid Version 2 product tracks. Stage F is now implemented and should remain in
 place as an emergency replay net for rare deferred rows that later gain route
-support, not as an active backlog-replay project.
+support, not as an active backlog-replay project. The next open product check is
+real-data PCRM/canonical adoption smoke after launch readiness, without fixture
+data as product proof, if PCRM remains a near-term source path.
 
 ### Slice 0 - Version 2 roadmap registration
 
@@ -1236,6 +1237,16 @@ Return:
 Goal:
 - once the parent approves/promotes a mapping for the child, the engine reuses
   it automatically within the same parent/child scope
+
+Status:
+- complete
+- Slice `5A` implemented the one-step parent action that saves the selected
+  spelling route locally and sends admin recommendation evidence for review
+- Slice `5B` implemented later same-parent/same-child reuse of
+  `parent_local_promoted` mappings as `Your saved match`
+- the refined objective is met: admin handoff no longer leaves the child
+  waiting for canonical/admin truth before the parent-selected route can help
+  within the current parent/child scope
 
 Hard boundary:
 - child-local reuse only

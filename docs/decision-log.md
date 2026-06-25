@@ -1,5 +1,26 @@
 # Decision Log
 
+## 2026-06-25 — Version 2 Slice 5 is closed
+
+### What changed
+- Version 2 Slice `5` is now documented as complete rather than a next active
+  planning target.
+- The closeout clarifies the refined objective: when a parent sends a selected
+  spelling route to admin review, the action also promotes the mapping locally
+  as `parent_local_promoted`, so the child can benefit within the same
+  parent/child scope while canonical/admin truth is pending.
+- The later `Your saved match` behavior remains the scoped reuse proof for
+  those promoted parent-local mappings.
+
+### Why this matters
+- Slice `5A` and `5B` already satisfy the product objective delivered during
+  Review Work UX acceleration.
+- No new Slice `5` implementation work is needed unless a new product goal is
+  introduced.
+- Parent-local route support remains temporary and scoped. It does not create
+  global canonical truth, resolver-visible truth, catalog mutations, rewards,
+  mastery, assignments, dashboard changes, scoring, analytics, or templates.
+
 ## 2026-06-25 — Stage F.2/F.3 surfaces replayable deferred returned corrections
 
 ### What changed

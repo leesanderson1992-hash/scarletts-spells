@@ -41,19 +41,16 @@ excluded.
 
 ## Next Safe Slice After Launch
 
-1. Version 2 roadmap Slice `5`: child-local reuse and suggestion improvement,
-   if the next priority returns to parent Review Work acceleration.
-2. Optional production-scale canonical mapping operations/audit hardening now
-   that the CSV import -> canonical adoption -> resolver visibility -> runtime
-   categorisation path is live. This is not required for the core flow to work,
-   but may be useful before larger imports. Potential scope: pagination/search,
-   operator filters, visible/hidden rollback clarity, audit export/runbook, and
-   monitoring for resolver-visible mapping effects.
-3. Real-data PCRM/canonical adoption smoke after launch readiness, without
+1. Real-data PCRM/canonical adoption smoke after launch readiness, without
    fixture data as product proof, if PCRM remains a near-term source path.
-4. Manual/operator review of the two canonical-lineage-protected pre-June
+2. Manual/operator review of the two canonical-lineage-protected pre-June
    structured warning submissions and the remaining post-cleanup
    duplicate/pending warning row, if further cleanup is still desired.
+3. Optional additional production-scale canonical mapping operations/audit
+   hardening after real operator use. Slice `4H` already provides the primary
+   paginated `/admin/canonical-mappings` operations surface, search/filtering,
+   export, audit summaries, and rollback copy; only extend this if larger
+   imports or live usage expose a concrete operational gap.
 
 ## Current initiative
 
@@ -204,6 +201,13 @@ excluded.
   inactive, non-assignable, non-D4, and mismatched mappings do not become
   suggestion truth. No migration or resolver/canonical/catalog mutation was
   needed.
+- Version 2.0 Slice `5` is closed. Its refined objective is met: sending a
+  parent-selected spelling route to admin review now promotes the mapping
+  locally as `parent_local_promoted`, so the child can benefit within the
+  current parent/child scope while canonical/admin truth is pending; later
+  matching rows can reuse that same scoped route as `Your saved match`. This
+  remains temporary parent-local route support only, not global canonical truth
+  or resolver-visible truth.
 - Version 2.0 Slice `4H` canonical mapping operations/audit hardening is
   implemented: `/admin/canonical-mappings` is now the primary paginated
   operations surface for searching, filtering, exporting, and auditing

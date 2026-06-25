@@ -194,6 +194,16 @@ Canonical documentation now defers to:
   - do not add a placeholder route merely to empty the deferred queue
   - queue verification for replayed learning items should wait until an actual
     manually applied replay candidate exists
+- Version 2.0 Slice `5` parent-local route handoff and reuse is complete:
+  - Slice `5A` saves a parent-selected spelling route locally as
+    `parent_local_promoted` when sending it to admin review
+  - Slice `5B` reuses same-parent/same-child promoted routes as `Your saved
+    match` in later eligible Review Work rows
+  - this gives the child scoped local route support while canonical/admin truth
+    is pending
+  - no global canonical truth, resolver-visible truth, catalog mutation,
+    reward, mastery, assignment, dashboard, analytics, scoring, or template
+    behavior is introduced
 - Shared `lib/writing-engine` foundation exists.
 - Generic `parent_verifications` exist.
 - Generic `assignment_items` exist.
