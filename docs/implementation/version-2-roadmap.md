@@ -184,10 +184,14 @@ recommendation is only actionable when the historical returned correction is
 finalised as `fragile_knowledge`, `concept_gap`, or `transfer_failure`, has
 returned-correction attempt evidence, and now resolves to one active assignable
 route. Admin/canonical truth is route support only, not learning truth by
-itself. The next product step is queue verification: prove that manually
+itself. A future product check is queue verification: prove that manually
 replayed learning items enter daily learning planning correctly without
 retroactive reward, mastery, daily-assignment completion, or child-facing
-completion effects.
+completion effects. That verification is deferred until there is an actual
+manually applied replay candidate. The current `waitingForRoute` row is
+intentionally blocked as a homophone/context-use issue, where the child's
+spelling is a valid word used incorrectly in context; it is not a missing
+spelling micro-skill and should not receive a placeholder canonical route.
 
 Parent recommendation ladder:
 - parent recommendation exists, not confirmed/promoted: suggestion only
@@ -503,13 +507,14 @@ Success criteria:
 
 ## 7. Proposed Version 2 slice order
 
-Next active planning target: `Stage F - Deferred Route Replay / Launch-Scale
-Reconciliation`.
+Next active planning target: Version 2 roadmap Slice `5` child-local reuse and
+suggestion improvement, if the next priority returns to parent Review Work
+acceleration.
 
 Slice `3` remains deferred by founder decision. Slice `4` and Slice `5` remain
-valid Version 2 product tracks, but Stage F is now the safest next engineering
-slice because Stage E intentionally creates durable deferred evidence that must
-be replayable once admin/canonical route support exists.
+valid Version 2 product tracks. Stage F is now implemented and should remain in
+place as an emergency replay net for rare deferred rows that later gain route
+support, not as an active backlog-replay project.
 
 ### Slice 0 - Version 2 roadmap registration
 

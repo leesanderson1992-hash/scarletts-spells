@@ -187,9 +187,13 @@ Canonical documentation now defers to:
     mutation, canonical/admin truth creation, reward/mastery claim, daily
     assignment generation, automatic learning apply, or child-side
     categorisation is included
-  - next product step: verify manually replayed learning items enter daily
-    learning queue planning correctly without retroactive reward or completion
-    effects
+  - Stage F.2/F.3 is closed for now as an emergency net
+  - the current `waitingForRoute` row is intentionally blocked because it is a
+    homophone/context-use issue, where the child's spelling is a valid word used
+    incorrectly in context; it is not a missing spelling micro-skill
+  - do not add a placeholder route merely to empty the deferred queue
+  - queue verification for replayed learning items should wait until an actual
+    manually applied replay candidate exists
 - Shared `lib/writing-engine` foundation exists.
 - Generic `parent_verifications` exist.
 - Generic `assignment_items` exist.

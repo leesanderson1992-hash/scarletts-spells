@@ -35,9 +35,15 @@
   mutate `micro_skill_catalog`, create canonical/admin truth from replay logic,
   create rewards, make mastery claims, write daily assignment completion, or
   perform child-side categorisation.
-- The next product step is verifying manually replayed learning items enter
-  daily learning queue planning correctly without retroactive reward, mastery,
-  or completion effects.
+- Stage F.2/F.3 is closed for now as an emergency net. The current
+  `waitingForRoute` row is intentionally deferred because it is a
+  homophone/context-use case: the child's spelling is a valid word used
+  incorrectly in context, not evidence of missing spelling micro-skill coverage.
+  No placeholder route should be created just to empty the queue.
+- Queue verification for replayed learning items should wait until there is an
+  actual manually applied replay candidate. Homophone/context rows should be
+  revisited only when a dedicated homophone/context learning model is designed
+  or a true no-matching-skill spelling case appears.
 
 ## 2026-06-25 — Stage F deferred route replay implemented for scoped operator use
 

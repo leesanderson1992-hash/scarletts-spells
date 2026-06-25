@@ -41,22 +41,17 @@ excluded.
 
 ## Next Safe Slice After Launch
 
-1. `Stage F: Deferred Route Replay / Launch-Scale Reconciliation`: productize
-   the Stage E lesson into a dry-run-first reconciliation path that finds
-   learning-relevant returned corrections deferred for lack of route support,
-   then creates or strengthens `learning_items` only after admin/canonical
-   truth supplies an active assignable route.
-2. Version 2 roadmap Slice `5`: child-local reuse and suggestion improvement,
+1. Version 2 roadmap Slice `5`: child-local reuse and suggestion improvement,
    if the next priority returns to parent Review Work acceleration.
-3. Optional production-scale canonical mapping operations/audit hardening now
+2. Optional production-scale canonical mapping operations/audit hardening now
    that the CSV import -> canonical adoption -> resolver visibility -> runtime
    categorisation path is live. This is not required for the core flow to work,
    but may be useful before larger imports. Potential scope: pagination/search,
    operator filters, visible/hidden rollback clarity, audit export/runbook, and
    monitoring for resolver-visible mapping effects.
-4. Real-data PCRM/canonical adoption smoke after launch readiness, without
+3. Real-data PCRM/canonical adoption smoke after launch readiness, without
    fixture data as product proof, if PCRM remains a near-term source path.
-5. Manual/operator review of the two canonical-lineage-protected pre-June
+4. Manual/operator review of the two canonical-lineage-protected pre-June
    structured warning submissions and the remaining post-cleanup
    duplicate/pending warning row, if further cleanup is still desired.
 
@@ -177,9 +172,14 @@ excluded.
   regressions:
   `npm run writing-engine:returned-correction-stage-f-regression` and
   `npm run writing-engine:returned-correction-stage-f-automation-regression`.
-  The next product step after F.2/F.3 is verifying replayed learning items enter
-  daily learning queue planning correctly without retroactive reward or
-  completion effects.
+  Stage F.2/F.3 is closed for now as an emergency net. The current
+  `waitingForRoute` row is intentionally blocked because it is a
+  homophone/context-use issue: the child's spelling is a valid word used
+  incorrectly in context, not a missing spelling micro-skill. Do not create a
+  placeholder micro-skill or canonical route for it. Revisit only when a true
+  no-matching-skill spelling case appears or when a homophone/context learning
+  model is explicitly designed. Queue verification for replayed learning items
+  should wait until there is an actual manually applied replay candidate.
 - The bounded Parent Review spelling workflow MVP loop is complete and
   QA-passed for private parent-led use.
 - Version 2.0 Slice `5A` parent Review Work friction reduction is implemented:
