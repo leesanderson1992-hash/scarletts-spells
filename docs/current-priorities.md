@@ -41,11 +41,10 @@ excluded.
 
 ## Next Safe Slice After Launch
 
-1. Version 2.0 Slice `7D`: completion-state safety for child daily spelling
-   practice, if product approves any persisted completion marker. The default
-   next decision is still conservative: no answer attempts, evidence, mastery,
-   rewards, or `daily_assignments.status` completion writes unless explicitly
-   scoped and regression-covered.
+1. Version 2.0 Slice `7E`: QA, browser-smoke broadening, and release-readiness
+   hardening for child daily spelling practice. Slice `7D` now adds only
+   item-level delivery completion; broader answer attempts, evidence, mastery,
+   rewards, or `daily_assignments.status` completion writes remain out of scope.
 2. Version 2 roadmap Slice `5`: child-local reuse and suggestion improvement,
    if the next priority returns to parent Review Work acceleration.
 3. Optional production-scale canonical mapping operations/audit hardening now
@@ -100,15 +99,15 @@ excluded.
   [docs/implementation/version-2-roadmap.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/implementation/version-2-roadmap.md:1)
   to plan daily assignment practice and accelerated spelling-engine
   population without weakening truth boundaries.
-- Version 2.0 Slice `7C` child daily spelling practice viewer is implemented at
+- Version 2.0 Slice `7D` child daily spelling practice completion safety is
+  implemented at
   `/learn/week/practice`: the page reads the Slice `7A` model server-side and
-  renders a local-only viewer for supported generated spelling items. The
-  `/learn/week` card links to the viewer only for ready supported practice.
-  There is still no generation trigger, persisted answer attempt, completion
-  persistence, learning truth mutation, service-role usage, migration,
-  `/practice` or `/assignments` runtime revival, or rewards/mastery/canonical/
-  Review Work change. Slice `7D` remains the decision point for any persisted
-  completion marker.
+  renders a local viewer for supported generated spelling items. The final child
+  action marks only supported generated `assignment_items.status` rows as
+  `completed`; `daily_assignments.status` remains untouched. There is still no
+  generation trigger, persisted answer attempt/correctness, learning truth
+  mutation, service-role usage, migration, `/practice` or `/assignments` runtime
+  revival, or rewards/mastery/canonical/Review Work change.
 - Version 2.0 Slice `4` bulk candidate mapping import/review is implemented
   and production-smoked through the import-to-resolver-visible canonical truth
   path

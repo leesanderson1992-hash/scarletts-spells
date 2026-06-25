@@ -1,5 +1,23 @@
 # Decision Log
 
+## 2026-06-25 — Child daily spelling practice completion is item-level delivery state only
+
+### What changed
+- Version 2.0 Slice `7D` adds a route-local completion action in
+  [app/learn/week/practice/actions.ts](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/app/learn/week/practice/actions.ts:1).
+- The actual scoped mutation lives in
+  [lib/writing-practice/daily-spelling-practice-completion.ts](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/lib/writing-practice/daily-spelling-practice-completion.ts:1).
+- The viewer now offers a neutral `Done for today` action on the final supported
+  item.
+
+### Why this matters
+- Completion is persisted only as `assignment_items.status = "completed"` for
+  supported generated spelling items.
+- `daily_assignments.status` remains untouched, and no answer attempts,
+  correctness, learning evidence, mastery, rewards, course completion, canonical
+  mappings, resolver state, catalog state, or Review Work state are written.
+- `/practice` and `/assignments` remain redirect-only legacy paths.
+
 ## 2026-06-25 — Child daily spelling practice has a read-only item viewer
 
 ### What changed

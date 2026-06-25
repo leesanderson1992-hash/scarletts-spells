@@ -3,6 +3,7 @@ import Link from "next/link";
 
 import { AppShell } from "@/components/app-shell";
 import { DailySpellingPracticeViewer } from "@/components/daily-spelling-practice-viewer";
+import { completeDailySpellingPracticeAction } from "./actions";
 import {
   buildScopedPath,
   getActiveChildIdFromCookies,
@@ -123,7 +124,14 @@ export default async function LearnWeekPracticePage({
     >
       <main className="mx-auto grid w-full max-w-3xl gap-5 px-4 py-6 sm:px-6">
         {practice.state === "ready" && supportedItems.length > 0 ? (
-          <DailySpellingPracticeViewer items={supportedItems} backHref={backHref} />
+          <DailySpellingPracticeViewer
+            items={supportedItems}
+            backHref={backHref}
+            dailyAssignmentId={practice.assignment?.id ?? ""}
+            practiceDate={practice.practiceDate}
+            childId={selectedChild.id}
+            completeAction={completeDailySpellingPracticeAction}
+          />
         ) : (
           <section className="brand-card rounded-3xl p-6">
             <p className="brand-eyebrow">{practice.childCopy.title}</p>

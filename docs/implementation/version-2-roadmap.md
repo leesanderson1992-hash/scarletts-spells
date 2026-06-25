@@ -931,13 +931,31 @@ Status:
   - local browser smoke passed for the authenticated child `/learn/week`
     daily-practice card, direct `/learn/week/practice` neutral empty state,
     refresh stability, forbidden daily-practice copy, and legacy child redirects
+- Slice `7D` is implemented as item-level delivery completion only:
+  - the route-local server action lives in `/learn/week/practice/actions.ts` and
+    calls the focused helper in
+    `lib/writing-practice/daily-spelling-practice-completion.ts`
+  - the helper marks only supported generated `assignment_items.status` rows as
+    `completed`, scoped by authenticated parent, selected child, generated daily
+    assignment, current practice date, `spelling`, and `controlled_spelling`
+  - `daily_assignments.status` remains untouched; the read model presents
+    `completed` only when all supported generated items are complete
+  - no migration, answer attempt, correctness persistence, evidence write,
+    mastery update, reward write, course completion write, resolver/catalog/
+    canonical change, Review Work gating change, service-role import, or legacy
+    `/practice` / `/assignments` runtime revival was added
+  - local browser smoke passed for authenticated child `/learn/week`, direct
+    `/learn/week/practice` neutral state, forbidden daily-practice copy, and
+    legacy child redirects; no ready supported local practice existed during
+    smoke, so item-completion behavior is covered by regression rather than
+    claimed as completed in-browser
 
 UX:
 - today's practice
 - due review
 - new practice
 - short optional transfer task
-- simple completion state
+- simple item-level completion state
 - no scary backlog
 
 ### Slice 8 - Admin canonical adoption hardening

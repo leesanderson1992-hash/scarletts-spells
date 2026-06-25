@@ -19,9 +19,10 @@ Canonical documentation now defers to:
 - Shared `lib/writing-engine` foundation exists.
 - Generic `parent_verifications` exist.
 - Generic `assignment_items` exist.
-- Version 2.0 Slice `7C` daily spelling practice is visible on the child
+- Version 2.0 Slice `7D` daily spelling practice is visible on the child
   `/learn/week` surface and opens a read-only/local-only viewer at
-  `/learn/week/practice` for supported generated spelling items.
+  `/learn/week/practice` for supported generated spelling items, with a minimal
+  item-level delivery completion marker.
 - Durable issue-lifecycle and learning-item creation exist.
 - The older spelling runtime surfaces are retired and should not be treated as
   an active product path.
@@ -37,7 +38,7 @@ Canonical documentation now defers to:
   diagnostics.
 - Stage `1D` generic assignment generation is now complete on the shared engine
   boundary through bounded `1D.1` to `1D.5` closeout.
-- Slice `7C` surfaces generated daily spelling practice without changing
+- Slice `7D` surfaces generated daily spelling practice without changing
   learning truth:
   - helper:
     `lib/writing-practice/daily-spelling-practice-read-model.ts`
@@ -49,12 +50,18 @@ Canonical documentation now defers to:
     `app/learn/week/practice/page.tsx`
   - child viewer:
     `components/daily-spelling-practice-viewer.tsx`
+  - item-level completion helper:
+    `lib/writing-practice/daily-spelling-practice-completion.ts`
+  - route-local completion action:
+    `app/learn/week/practice/actions.ts`
   - regression:
     `scripts/writing-engine-daily-spelling-practice-read-model-regression.ts`
   - card regression:
     `scripts/writing-engine-daily-spelling-practice-child-card-regression.ts`
   - viewer regression:
     `scripts/writing-engine-daily-spelling-practice-viewer-regression.ts`
+  - completion regression:
+    `scripts/writing-engine-daily-spelling-practice-completion-regression.ts`
   - reads `daily_assignments`, `assignment_items`, selected scoped
     `learning_items`, and optional `micro_skill_catalog` labels
   - returns `missing`, `empty`, `ready`, `completed`, `skipped`, and `blocked`
@@ -62,13 +69,15 @@ Canonical documentation now defers to:
   - renders the child card before the existing reward panel and links to
     `/learn/week/practice` only when practice is ready and has at least one
     supported `spelling` + `controlled_spelling` item
-  - renders the viewer with local React navigation and optional local feedback
-    only; it does not persist answers, correctness, attempts, completion, or
-    status
-  - no migration was added; Slice `7D` remains the place for any persisted
-    completion decision
-  - does not trigger generation, write Supabase rows, use service-role, expose
-    service-role browser code, create evidence, mutate `learning_items`, revive
+  - renders the viewer with local React navigation and optional local feedback;
+    the final child action marks supported generated `assignment_items.status`
+    rows as `completed`
+  - `daily_assignments.status` remains untouched; the read model presents
+    `completed` when all supported items are complete
+  - no migration was added; the completion marker is delivery state only
+  - does not trigger generation, persist answers/correctness/attempts, use
+    service-role, expose service-role browser code, create evidence, mutate
+    `learning_items`, write reward rows, write course completion rows, revive
     `/practice` or `/assignments`, or touch rewards, mastery, canonical
     mappings, resolver visibility, Review Work, analytics, scoring, or
     templates
@@ -76,12 +85,15 @@ Canonical documentation now defers to:
     `npm run writing-engine:daily-spelling-practice-read-model-regression`,
     `npm run writing-engine:daily-spelling-practice-child-card-regression`,
     `npm run writing-engine:daily-spelling-practice-viewer-regression`,
+    `npm run writing-engine:daily-spelling-practice-completion-regression`,
     `npx tsc --noEmit`, targeted ESLint, and `git diff --check`
   - browser smoke passed locally on port `3005` with healthy local Supabase:
     authenticated dashboard load, child `/learn/week`, neutral daily spelling
-    card, direct `/learn/week/practice` empty-state rendering, refresh stability,
-    forbidden-copy check for the daily-practice surfaces, and `/practice` plus
-    `/assignments` child redirects back to `/learn/week`
+    card, direct `/learn/week/practice` empty-state rendering, forbidden-copy
+    check for the daily-practice surfaces, and `/practice` plus `/assignments`
+    child redirects back to `/learn/week`; no ready supported local practice
+    existed during smoke, so item-completion behavior is covered by focused
+    regression rather than claimed as completed in-browser
 - Future spelling word-map/dictionary content is now contracted as content
   metadata only. It may later supply lesson words for existing active
   assignable spelling micro-skills, but it is not resolver, mastery,

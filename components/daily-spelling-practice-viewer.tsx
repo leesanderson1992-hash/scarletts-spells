@@ -20,6 +20,10 @@ export type DailySpellingPracticeViewerItem = Pick<
 type DailySpellingPracticeViewerProps = {
   items: DailySpellingPracticeViewerItem[];
   backHref: string;
+  dailyAssignmentId: string;
+  practiceDate: string;
+  childId: string;
+  completeAction: (formData: FormData) => void | Promise<void>;
 };
 
 function readString(value: unknown) {
@@ -61,6 +65,10 @@ function normalizeAnswer(value: string) {
 export function DailySpellingPracticeViewer({
   items,
   backHref,
+  dailyAssignmentId,
+  practiceDate,
+  childId,
+  completeAction,
 }: DailySpellingPracticeViewerProps) {
   const [activeIndex, setActiveIndex] = useState(0);
   const [answer, setAnswer] = useState("");
@@ -201,9 +209,19 @@ export function DailySpellingPracticeViewer({
             Back
           </button>
           {isLastItem ? (
-            <Link href={backHref} className="brand-primary-btn">
-              That&apos;s the last word for now.
-            </Link>
+            <form action={completeAction}>
+              <input type="hidden" name="mode" value="child" />
+              <input type="hidden" name="childId" value={childId} />
+              <input
+                type="hidden"
+                name="dailyAssignmentId"
+                value={dailyAssignmentId}
+              />
+              <input type="hidden" name="practiceDate" value={practiceDate} />
+              <button type="submit" className="brand-primary-btn">
+                Done for today
+              </button>
+            </form>
           ) : (
             <button
               type="button"

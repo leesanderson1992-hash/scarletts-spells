@@ -247,6 +247,14 @@ function getState(input: {
     return "blocked";
   }
 
+  const supportedItems = input.items.filter((item) => item.isSupportedForChildSurface);
+  if (
+    supportedItems.length > 0 &&
+    supportedItems.every((item) => item.status === "completed")
+  ) {
+    return "completed";
+  }
+
   return "ready";
 }
 

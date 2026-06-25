@@ -137,9 +137,11 @@ function testViewerComponentIsLocalOnlyAndNeutral() {
   assertIncludes(viewerSource, "Back to this week", "viewer component");
   assertIncludes(
     viewerSource,
-    "That&apos;s the last word for now.",
+    "Done for today",
     "viewer component",
   );
+  assertIncludes(viewerSource, "<form action={completeAction}>", "viewer completion form");
+  assertIncludes(viewerSource, 'name="dailyAssignmentId"', "viewer completion form");
 
   for (const forbidden of forbiddenImports) {
     assertNotIncludes(viewerSource, forbidden, "viewer component");
