@@ -1,5 +1,112 @@
 # Decision Log
 
+## 2026-06-25 — Stage F deferred route replay implemented for scoped operator use
+
+### What changed
+- Stage F now has a pure replay planner:
+  [lib/writing-engine/persistence/returned-correction-deferred-route-replay.ts](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/lib/writing-engine/persistence/returned-correction-deferred-route-replay.ts:1).
+- Stage F now has a dry-run-first operator script:
+  [scripts/returned-correction-stage-f-deferred-route-replay.ts](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/scripts/returned-correction-stage-f-deferred-route-replay.ts:1).
+- Regression coverage is registered as
+  `npm run writing-engine:returned-correction-stage-f-regression`.
+- Apply mode is scoped and may replay only finalised learning-relevant rows
+  with returned-correction attempt evidence and exactly one active assignable
+  durable/canonical/admin route.
+- F.2/F.3 remain future work: admin/canonical event hooks and a scheduled sweep
+  should call the same planner/mutation contract.
+
+### Why this matters
+- Deferred Stage E/admin-review rows are no longer a dead end once route support
+  exists.
+- Stage F preserves the core contract: canonical/admin truth supplies route
+  support only; learning items still require preserved learning-relevant final
+  classification plus an active assignable route.
+- The implementation does not broaden RLS, mutate `micro_skill_catalog`, create
+  canonical/admin truth, expose service-role access in browser paths, create
+  rewards, make mastery claims, generate daily assignments, or perform
+  child-side categorisation.
+
+## 2026-06-25 — Stage E deferred admin reconciliation completed; Stage F replay is next
+
+### What changed
+- Stage E is recorded as the scoped deferred-admin reconciliation phase for
+  reviewed returned corrections that are learning-relevant but have no active
+  assignable route.
+- In the scoped production pass, seven reviewed returned-correction rows were
+  finalised as `concept_gap`, confirmed to have no active canonical mapping for
+  their normalized pairs, and sent to admin review with open catalog cases.
+- The pass intentionally created no learning items, learning evidence, route
+  mutations, rewards, mastery claims, daily assignments, or Forge/Word
+  Treasure/Golden Bar movement.
+- The next best engineering stage is Stage F: deferred route replay /
+  launch-scale reconciliation.
+
+### Why this matters
+- Stage E preserves the parent-reviewed learning classification while avoiding
+  invented route truth.
+- At launch scale, the Stage E state must be replayable after admin/canonical
+  route support exists; otherwise "no matching skill" would become a permanent
+  lost learning opportunity.
+- Stage F should provide the dry-run-first, idempotent reconciliation job that
+  replays deferred finalised rows into `learning_items` only after active
+  assignable route support is proven.
+
+## 2026-06-25 — Deferred route support must be replayable after canonical/admin truth exists
+
+### What changed
+- Future launch-scale returned-correction reconciliation is now documented as a
+  required implementation path.
+- A learning-relevant returned correction with no active assignable route must
+  remain durable deferred evidence rather than becoming a dead end for the
+  child.
+- When admin/canonical work later adds an active assignable route for the
+  normalized pair, a dry-run-first reconciliation job should find matching
+  deferred finalised rows and create or strengthen `learning_items` only after
+  route support is proven.
+- The future path should be event-triggered by canonical/admin route changes
+  and backed by a nightly safety sweep.
+
+### Why this matters
+- At launch scale, "no matching skill" cannot mean the child permanently misses
+  the learning opportunity.
+- Canonical truth is route support, not learning truth by itself. It must not
+  create rewards, mastery, daily assignments, Forge/Word Treasure/Golden Bar
+  movement, or learning items without preserved learning-relevant final
+  classification and an active assignable route.
+
+## 2026-06-25 — Returned-correction Stage D repair is dry-run-first and scoped
+
+### What changed
+- Stage D adds a historical repair path for returned-correction rows finalised
+  before the explicit Stage C bridge existed:
+  [scripts/returned-correction-stage-d-repair.ts](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/scripts/returned-correction-stage-d-repair.ts:1).
+- The repair planner lives in
+  [lib/writing-engine/persistence/returned-correction-repair.ts](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/lib/writing-engine/persistence/returned-correction-repair.ts:1)
+  and classifies rows as no action, already repaired, repairable via durable
+  route, repairable via Stage C parent-local bridge, admin deferred, or unsafe
+  manual review.
+- Dry-run is the default. Apply requires `--apply`, `--child-id`, and either
+  `--submission-id` or `--writing-issue-id`.
+- Apply may only attach a Stage C-verified parent-local route and create or
+  strengthen the missing learning item/link/evidence for learning-relevant
+  finalised rows with child retry evidence and an active assignable route.
+- `checking_only`, `not_an_issue`, parent recommendation only, and admin
+  handoff remain no-learning-item paths.
+- Regression coverage is registered as
+  `npm run writing-engine:returned-correction-stage-d-regression`.
+
+### Why this matters
+- Historical rows can be explained and repaired without weakening the current
+  product contract.
+- Stage D does not invent learning truth from raw misspellings, parent
+  recommendations, canonical hints, or admin handoff.
+- Idempotency is explicit: existing issue links block repair, learning item
+  source/link uniqueness is respected, and Stage D evidence rows are checked
+  before insert.
+- The repair path does not broaden RLS, mutate `micro_skill_catalog`, expose
+  service-role access in browser/client paths, create canonical truth, generate
+  daily assignments, create rewards, or make mastery/Golden Bar/Forge claims.
+
 ## 2026-06-25 — Returned corrections separate child retry from learning-route categorisation
 
 ### What changed

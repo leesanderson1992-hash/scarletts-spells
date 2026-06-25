@@ -41,10 +41,11 @@ excluded.
 
 ## Next Safe Slice After Launch
 
-1. `Stage D: Backfill / Repair Existing Data`: dry-run-first repair for
-   historical returned-correction rows that were local/admin/finalised before
-   the explicit Stage C route bridge existed. Keep scope targeted, idempotent,
-   and free of reward, mastery, or daily-assignment side effects.
+1. `Stage F: Deferred Route Replay / Launch-Scale Reconciliation`: productize
+   the Stage E lesson into a dry-run-first reconciliation path that finds
+   learning-relevant returned corrections deferred for lack of route support,
+   then creates or strengthens `learning_items` only after admin/canonical
+   truth supplies an active assignable route.
 2. Version 2 roadmap Slice `5`: child-local reuse and suggestion improvement,
    if the next priority returns to parent Review Work acceleration.
 3. Optional production-scale canonical mapping operations/audit hardening now
@@ -120,6 +121,51 @@ excluded.
   issues to finalise, returned detail shows `Reason` before `Learning route`,
   and selecting `concept_gap` reveals learning-route controls without
   submitting.
+- `Stage D: Backfill / Repair Existing Data` is implemented as a dry-run-first
+  operator repair path for historical returned-correction rows finalised before
+  the explicit bridge existed. The default command,
+  `npx tsx scripts/returned-correction-stage-d-repair.ts --child-id <child-id>`,
+  reports stable JSON with issue ids, child/submission lineage, observed and
+  correction text, final classification, durable route, parent-local/admin
+  route status, catalog active/assignable status, existing learning-item links,
+  proposed mutations, and why repair is or is not safe. Apply mode requires
+  `--apply` plus `--child-id` and either `--submission-id` or
+  `--writing-issue-id`. Repair does not invent learning truth: it only repairs
+  learning-relevant finalised rows with child retry evidence and an active
+  assignable durable route, or a Stage C-proven parent-local promoted route.
+  Parent recommendations alone and admin handoff remain deferred route support.
+  No rewards, mastery claims, daily assignments, `micro_skill_catalog`
+  mutation, RLS broadening, or browser service-role path is introduced. Focused
+  regression: `npm run writing-engine:returned-correction-stage-d-regression`.
+- Future launch-scale route reconciliation is required: when a learning-relevant
+  returned correction is finalised without a matching active assignable route,
+  the evidence must remain queryable as deferred route support. Later canonical
+  mapping adoption or admin micro-skill creation must be able to replay those
+  deferred rows through an explicit dry-run-first reconciliation job so the
+  child can still receive the learning item once route support exists. Canonical
+  truth is route support only; it must not by itself create rewards, mastery,
+  daily assignments, or learning items without the preserved learning-relevant
+  final classification and an active assignable route.
+- `Stage E: Scoped Deferred Admin Reconciliation` is the current production
+  repair phase pattern for reviewed returned corrections that are
+  learning-relevant but have no canonical/admin route yet. The scoped
+  production pass finalised the reviewed rows as `concept_gap`, confirmed that
+  no active canonical mappings existed for those pairs, created open admin
+  review cases, and deliberately created no learning items, evidence rows,
+  rewards, mastery claims, daily assignments, or route mutations. This keeps
+  the rows recoverable once admin/canonical route support exists.
+- `Stage F: Deferred Route Replay / Launch-Scale Reconciliation` is
+  implemented through the operator-safe F.0/F.1 path. The pure planner
+  `lib/writing-engine/persistence/returned-correction-deferred-route-replay.ts`
+  and script
+  `scripts/returned-correction-stage-f-deferred-route-replay.ts` provide
+  dry-run-first replay for finalised Stage E/admin-deferred rows once
+  canonical/admin truth supplies an active assignable route. Apply mode is
+  scoped, idempotent, and uses the existing learning-item contract without
+  reward, mastery, or daily-assignment side effects. Focused regression:
+  `npm run writing-engine:returned-correction-stage-f-regression`. Remaining
+  future Stage F work is F.2/F.3: admin/canonical event hooks and a scheduled
+  sweep that call the same planner rather than inventing a second truth model.
 - The bounded Parent Review spelling workflow MVP loop is complete and
   QA-passed for private parent-led use.
 - Version 2.0 Slice `5A` parent Review Work friction reduction is implemented:

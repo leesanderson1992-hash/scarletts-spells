@@ -16,7 +16,7 @@ Canonical documentation now defers to:
 
 ## Current headline
 
-- Returned-correction route behavior is implemented through Stage C: child
+- Returned-correction route behavior is implemented through Stage D: child
   retry is evidence only, not categorisation. The parent sends work back with
   correction text and child-facing guidance, then chooses the final educational
   outcome only after the child retry or "I think this is right" response.
@@ -86,6 +86,89 @@ Canonical documentation now defers to:
   - automated regression and browser smoke passed on 25 Jun 2026; the browser
     smoke verified returned issues to finalise, the reason-first table, and
     route controls appearing after selecting `concept_gap` without submitting
+- Stage D returned-correction historical repair is implemented:
+  - pure planner:
+    `lib/writing-engine/persistence/returned-correction-repair.ts`
+  - dry-run/apply script:
+    `scripts/returned-correction-stage-d-repair.ts`
+  - regression:
+    `scripts/writing-engine-returned-correction-stage-d-repair-regression.ts`
+  - command:
+    `npm run writing-engine:returned-correction-stage-d-regression`
+  - default mode is dry-run and reports summary counts, per-row JSON records,
+    proposed mutations, `dryRun: true`, and `mutationsApplied: 0`
+  - dry-run accepts `--child-id` with optional `--submission-id`,
+    `--writing-issue-id`, and `--limit`
+  - apply requires `--apply` plus `--child-id` and either `--submission-id` or
+    `--writing-issue-id`
+  - repairable durable-route rows must be learning-relevant, finalised, have
+    child retry evidence, have no existing issue link, and already point at an
+    active assignable `micro_skill_catalog` row
+  - repairable parent-local rows must pass the Stage C bridge rules for same
+    parent, child, original issue, returned attempt/submission lineage, and
+    active assignable catalog route before the script attaches
+    `writing_issues.micro_skill_key`
+  - parent recommendations alone are no action; admin handoff/no route remains
+    deferred; inactive/non-assignable routes, missing lineage, inconsistent
+    partial evidence, and conflicting promoted mappings are blocked for manual
+    review
+  - idempotency is guarded by existing learning-item issue links, unique
+    source issue behavior, and Stage D evidence metadata before inserts
+  - no migration, RLS broadening, browser service-role path,
+    `micro_skill_catalog` mutation, canonical truth creation, reward/mastery
+    claim, daily assignment generation, or Slice 7 completion behavior change
+    is included
+- Future launch-scale route reconciliation remains required:
+  - a learning-relevant returned correction with no matching active assignable
+    route must remain durable deferred evidence, not become a lost learning
+    opportunity
+  - later canonical mapping adoption or admin micro-skill creation should
+    enqueue or expose an explicit dry-run-first reconciliation pass for matching
+    deferred rows
+  - that reconciliation may create or strengthen `learning_items` only when the
+    historical final classification is learning-relevant and the new route is
+    active and assignable
+  - canonical truth alone must not create rewards, mastery, daily assignments,
+    Forge/Word Treasure/Golden Bar movement, or learning items
+- Stage E scoped deferred-admin reconciliation has been exercised as a
+  production repair phase:
+  - reviewed `child_responded` returned-correction rows can be finalised as
+    `concept_gap` when the parent has explicitly made that educational
+    judgement
+  - if no active canonical mapping exists for the normalized pair, the row is
+    sent to admin review as deferred route support rather than being put in the
+    child learning queue
+  - the scoped production pass confirmed seven rows as `concept_gap`, created
+    seven open admin review cases, and left route, learning-item,
+    learning-evidence, reward, mastery, and daily-assignment surfaces untouched
+  - this was an operational data repair/reconciliation phase, not a new broad
+    runtime mutation path
+- Stage F deferred route replay / launch-scale reconciliation is implemented
+  through the operator-safe F.0/F.1 path:
+  - pure planner:
+    `lib/writing-engine/persistence/returned-correction-deferred-route-replay.ts`
+  - dry-run/apply script:
+    `scripts/returned-correction-stage-f-deferred-route-replay.ts`
+  - regression:
+    `scripts/writing-engine-returned-correction-stage-f-replay-regression.ts`
+  - command:
+    `npm run writing-engine:returned-correction-stage-f-regression`
+  - default mode is dry-run and reports summary counts, per-row JSON records,
+    proposed mutations, `dryRun: true`, and `mutationsApplied: 0`
+  - apply requires focused scope by writing issue, admin case, canonical
+    mapping, submission, or child plus explicit limit
+  - replayable rows must be finalised as `fragile_knowledge`, `concept_gap`,
+    or `transfer_failure`, have returned-correction attempt evidence, have no
+    existing issue link/evidence inconsistency, and now resolve to exactly one
+    active assignable durable/canonical/admin route
+  - apply may attach the verified route, then create or strengthen
+    `learning_items`, issue links, and evidence through the existing contract
+  - no migration, RLS broadening, browser service-role path,
+    `micro_skill_catalog` mutation, canonical/admin truth creation,
+    reward/mastery claim, daily assignment generation, or child-side
+    categorisation is included
+  - F.2/F.3 remain future work: admin/canonical event hooks and a scheduled
+    sweep should call the same planner/mutation contract
 - Shared `lib/writing-engine` foundation exists.
 - Generic `parent_verifications` exist.
 - Generic `assignment_items` exist.

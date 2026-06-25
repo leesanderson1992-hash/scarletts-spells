@@ -162,6 +162,17 @@ canonical truth later supplies an assignable route, a controlled reconciliation
 step may attach that route and create or strengthen the learning item while
 preserving historical evidence.
 
+Launch-scale requirement: "no matching route" must be a durable deferred state,
+not a terminal learning loss. When later admin/canonical work adds an active
+assignable mapping or creates the missing micro-skill, the system needs an
+explicit reconciliation path that finds previously finalised learning-relevant
+returned corrections for the normalized pair and replays them into
+`learning_items` only after the route is active and assignable. This should be
+implemented as a dry-run-first job, ideally triggered by canonical/admin route
+events and backed by a nightly sweep. It must not create rewards, mastery,
+Forge/Word Treasure/Golden Bar movement, daily assignments, or learning items
+from canonical truth alone.
+
 Parent recommendation ladder:
 - parent recommendation exists, not confirmed/promoted: suggestion only
 - parent recommendation promoted locally and active/assignable: may create or
@@ -209,18 +220,280 @@ issues to finalise, the returned detail rendered `Reason` before
 `Learning route`, and selecting `concept_gap` exposed learning-route controls
 without submitting or creating learning truth.
 
-The next stage should be `Stage D: Backfill / Repair Existing Data`, focused on
-dry-run-first recovery for historical returned-correction rows that were
-local/admin/finalised before the explicit bridge existed.
+`Stage D: Backfill / Repair Existing Data` is implemented as a targeted,
+dry-run-first historical repair path. It scans only an explicit child scope
+with optional submission, writing-issue, and limit filters. Dry-run reports the
+issue id, child/submission lineage, observed and correction text, final
+classification, durable `writing_issues.micro_skill_key`, parent-local/admin
+route status, catalog active/assignable status, existing learning-item links
+and evidence, proposed action, and why repair is or is not safe.
+
+Apply mode is intentionally narrower than dry-run: it requires `--apply`,
+`--child-id`, and either `--submission-id` or `--writing-issue-id`. It may
+repair only learning-relevant finalised rows that already have child retry
+evidence plus either an active assignable durable route or a Stage C-proven
+parent-local promoted route. Stage D may attach that verified parent-local
+route to `writing_issues.micro_skill_key`, then create or strengthen the
+learning item using the existing final-classification contract shape, including
+issue links and evidence. It is idempotent by checking existing links and
+Stage D evidence metadata before inserting.
+
+Stage D does not invent learning truth: `checking_only` and `not_an_issue`
+remain no-action, parent recommendations alone remain route evidence only,
+admin handoff remains deferred route support, inactive/non-assignable routes
+are blocked for manual review, and future canonical/admin truth still requires
+explicit controlled reconciliation. It does not broaden RLS, expose
+service-role access in browser/client paths, mutate `micro_skill_catalog`,
+create canonical truth, create rewards, create mastery claims, move Forge/Word
+Treasure/Golden Bar state, generate daily assignments, or alter Slice 7 daily
+assignment completion behavior.
+
+Commands:
+- dry-run: `npx tsx scripts/returned-correction-stage-d-repair.ts --child-id <child-id>`
+- scoped dry-run: `npx tsx scripts/returned-correction-stage-d-repair.ts --child-id <child-id> --submission-id <submission-id>`
+- apply: `npx tsx scripts/returned-correction-stage-d-repair.ts --child-id <child-id> --submission-id <submission-id> --apply`
+- regression: `npm run writing-engine:returned-correction-stage-d-regression`
+
+`Stage E: Scoped Deferred Admin Reconciliation` is now captured as the current
+operational phase pattern. For reviewed returned corrections that are
+learning-relevant but have no active canonical/admin route, Stage E may
+finalise the row as `concept_gap` only when the parent has explicitly reviewed
+and confirmed that classification. If the normalized spelling pair is not
+already covered by active canonical truth, Stage E sends it to admin review as
+deferred route support. It does not attach a route, create a learning item,
+insert learning evidence, create rewards, make mastery claims, move Forge/Word
+Treasure/Golden Bar state, or generate daily assignments.
+
+The 25 Jun 2026 scoped production pass used this pattern for seven reviewed
+rows: they were finalised as `concept_gap`, seven open admin review cases were
+created, zero active canonical mappings were found for those pairs, and zero
+learning links/evidence/route mutations were produced. This is the desired
+safe state until admin/canonical route support exists.
+
+`Stage F: Deferred Route Replay / Launch-Scale Reconciliation` is implemented
+for the operator-safe F.0/F.1 scope. Stage F productizes the replay path for
+deferred route support:
+- dry-run-first, scoped by child/submission/issue/admin case for operator use
+- uses existing Stage A diagnostics and Stage C/D learning-item safety checks
+- creates or strengthens `learning_items` only when the historical final
+  classification is learning-relevant and the new route is active/assignable
+- remains idempotent and avoids rewards, mastery, daily assignments, route
+  invention, child-side categorisation, and browser service-role exposure
+- future F.2/F.3 work should add admin/canonical event hooks and a scheduled
+  sweep that call the same planner/mutation contract
+
+### Stage F implementation contract
+
+Role:
+- CTO, Writing Engine architect, Supabase/RLS safety reviewer, learning queue
+  architect, data-repair engineer, reward-system safety reviewer,
+  release-safety reviewer, and docs maintainer.
+
+Implemented:
+- Pure helper:
+  `lib/writing-engine/persistence/returned-correction-deferred-route-replay.ts`
+- Operator script:
+  `scripts/returned-correction-stage-f-deferred-route-replay.ts`
+- Regression:
+  `scripts/writing-engine-returned-correction-stage-f-replay-regression.ts`
+- Command:
+  `npm run writing-engine:returned-correction-stage-f-regression`
+
+Goal:
+- Provide the reusable reconciliation path for finalised learning-relevant
+  returned-correction rows that were intentionally deferred because no active
+  assignable route existed at finalisation time.
+- When admin/canonical route support later exists, Stage F can safely create
+  or strengthen the missing child `learning_item` without pretending canonical
+  truth alone is learning truth.
+
+Core product truth:
+- child retry remains evidence only
+- `checking_only` and `not_an_issue` never create learning items
+- learning item creation requires both:
+  - final classification in `fragile_knowledge`, `concept_gap`, or
+    `transfer_failure`
+  - active assignable route from durable issue route, Stage C bridge,
+    canonical mapping, or explicit admin reconciliation
+- admin handoff/deferred route support is not queueable learning truth until
+  route support is active and assignable
+- canonical truth is route support only; it must not create rewards, mastery,
+  daily assignments, or learning items by itself
+
+Inputs to inspect before implementation:
+- Stage A diagnostics:
+  `lib/writing-engine/persistence/returned-correction-learning-route-diagnostics.ts`
+- Stage C bridge:
+  `lib/writing-engine/persistence/returned-correction-route-bridge.ts`
+- Stage D repair planner/script:
+  `lib/writing-engine/persistence/returned-correction-repair.ts`
+  `scripts/returned-correction-stage-d-repair.ts`
+- finalisation / learning-item contract:
+  `app/courses/review/actions/review-completion-actions.ts`
+  `lib/writing-engine/persistence/learning-items.ts`
+- admin/canonical decision paths:
+  `app/courses/review/actions/catalog-review-case-actions.ts`
+  `spelling_catalog_review_cases`
+  `spelling_catalog_review_case_decisions`
+  `spelling_canonical_mappings`
+  `spelling_canonical_mapping_events`
+  `micro_skill_catalog`
+
+Implemented shape:
+- The pure helper classifies rows into already linked, waiting for route,
+  replayable via canonical mapping, replayable via admin decision, replayable
+  via durable issue route, unsafe/manual review, or skipped non-learning
+  outcome.
+- The operator script loads scoped candidate rows, active canonical mappings,
+  admin decisions, catalog state, attempts, issue links, and evidence, then
+  emits stable JSON in dry-run mode.
+- Apply mode uses the same planner output and writes Stage F audit metadata on
+  route, learning item, link, and evidence mutations.
+- Optional later scheduled runner/event hook should invoke this same planner in
+  a scoped way.
+
+CLI contract:
+- dry-run must be default
+- accepted scope:
+  - `--child-id`
+  - `--submission-id`
+  - `--writing-issue-id`
+  - `--admin-case-id`
+  - `--canonical-mapping-id`
+  - `--micro-skill-key`
+  - `--limit`
+- apply mode requires `--apply`
+- apply must refuse broad execution unless scoped by one of:
+  - `--writing-issue-id`
+  - `--admin-case-id`
+  - `--canonical-mapping-id`
+  - `--submission-id`
+  - or `--child-id` plus an explicit limit
+- future scheduled/event mode must still call the same planner and mutation
+  contract; it must not have a separate truth model.
+
+Dry-run output:
+- summary counts:
+  - scanned
+  - already linked
+  - waiting for route
+  - replayable via canonical mapping
+  - replayable via admin decision
+  - replayable via durable issue route
+  - unsafe/manual review
+  - skipped non-learning outcome
+- per-row records:
+  - issue id
+  - child id
+  - submission id / returned submission id
+  - source misspelling instance id
+  - observed spelling and correction
+  - final classification
+  - existing durable `writing_issues.micro_skill_key`
+  - matching canonical/admin route support
+  - catalog active/assignable state
+  - existing learning item/link/evidence state
+  - proposed action
+  - why safe or blocked
+- explicit `dryRun: true` and `mutationsApplied: 0`
+
+Replayable cases:
+- learning-relevant finalised row
+- child retry / returned correction lineage is present
+- no existing complete learning-item link/evidence
+- normalized pair now resolves to exactly one active canonical mapping with an
+  active assignable `micro_skill_key`, or exactly one explicit admin decision
+  that supplies an active assignable route
+- source issue state and lineage are compatible with Stage D/Stage C safety
+  checks
+
+No-action cases:
+- non-learning final outcome
+- already linked/repaired
+- still no active assignable route
+- admin case open but undecided
+- canonical/admin route exists but catalog row is inactive or non-assignable
+
+Unsafe/manual-review cases:
+- multiple conflicting active canonical mappings for the pair
+- conflicting admin decisions
+- missing source misspelling lineage
+- missing returned attempt/submission lineage
+- existing partial learning links/evidence inconsistent with issue state
+- route mismatch against a durable non-unknown issue route
+- inactive/non-assignable `micro_skill_catalog` row
+
+Apply may only:
+- attach a verified route to `writing_issues.micro_skill_key` when the route is
+  proven by canonical/admin truth and compatible with issue lineage
+- create or strengthen `learning_items` through the existing learning-item
+  contract
+- create missing `learning_item_issue_links` / `learning_item_evidence` required
+  by that contract
+- write explicit Stage F audit metadata on issue/evidence rows
+
+Apply must not:
+- broaden RLS
+- use service role in browser/client paths
+- mutate `micro_skill_catalog`
+- create canonical mappings or admin decisions
+- create rewards, mastery claims, Word Treasure, Forge movement, Golden Bars,
+  or daily assignments
+- alter Slice 7 completion behavior
+- create learning items from canonical truth without preserved
+  learning-relevant final classification
+- treat open admin review as route truth
+
+Regression coverage:
+- dry-run mutates nothing
+- finalised `concept_gap` + active canonical mapping + active assignable route
+  is replayable
+- finalised `fragile_knowledge` and `transfer_failure` follow the same route
+  rule
+- `checking_only` and `not_an_issue` are skipped
+- open admin case without decision remains waiting for route
+- active canonical mapping with inactive/non-assignable catalog route is blocked
+- multiple active mappings are unsafe/manual review
+- already-linked row is idempotent/no action
+- apply refuses broad scope
+- apply twice does not duplicate learning items, links, evidence, or route
+  metadata
+- no reward/mastery/daily-assignment writes
+- no service-role import in browser/client paths
+
+Verification commands:
+- `npm run writing-engine:returned-correction-stage-c-regression`
+- `npm run writing-engine:returned-correction-stage-d-regression`
+- `npm run writing-engine:returned-correction-stage-f-regression`
+- `npx tsc --noEmit`
+- `git diff --check`
+
+Rollout:
+- Stage F.0: script-only dry-run planner with fixture regression is implemented
+- Stage F.1: scoped apply mode for operator use is implemented
+- Stage F.2: admin/canonical decision hook that enqueues or recommends replay
+  but still exposes dry-run/apply observability
+- Stage F.3: scheduled sweep for missed canonical/admin route activation events
+
+Success criteria:
+- no matching route becomes durable deferred evidence, not lost learning
+- when route support later exists, safe rows can enter `learning_items`
+  idempotently
+- no row enters learning items without learning-relevant final classification
+  and active assignable route
+- Stage C/D behavior remains unchanged
+- no reward, mastery, daily assignment, RLS, catalog mutation, or client
+  service-role regression is introduced
 
 ## 7. Proposed Version 2 slice order
 
-Next active planning target: `Slice 4 - Bulk candidate mapping import/review`.
+Next active planning target: `Stage F - Deferred Route Replay / Launch-Scale
+Reconciliation`.
 
-Slice `3` is deferred by founder decision and is not authorised for
-implementation now. Slice `4` is the current planning target because the
-highest-leverage immediate bottleneck is fast spelling-engine population at
-scale, not further parent confirmation polish.
+Slice `3` remains deferred by founder decision. Slice `4` and Slice `5` remain
+valid Version 2 product tracks, but Stage F is now the safest next engineering
+slice because Stage E intentionally creates durable deferred evidence that must
+be replayable once admin/canonical route support exists.
 
 ### Slice 0 - Version 2 roadmap registration
 
