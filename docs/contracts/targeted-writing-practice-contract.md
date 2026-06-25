@@ -1202,6 +1202,61 @@ Implication:
 - the current system does not require the parent to pick individual issues before returning work
 - future slices may add per-issue return selection, but that is not current canonical behavior
 
+## Returned-correction learning route rule
+
+Child retry is not categorisation.
+
+Canonical returned-correction route:
+1. Child submits work.
+2. Parent reviews the writing, adds any missed spelling words, adds correction
+   text, and adds child-facing feedback.
+3. Parent sends the work back without categorising the learning route.
+4. Child retries the correction or effectively indicates "I think this is
+   right."
+5. Parent receives the returned work and chooses the final educational outcome:
+   `checking_only`, `fragile_knowledge`, `concept_gap`, `transfer_failure`, or
+   `not_an_issue`.
+6. Only learning-relevant outcomes require a route:
+   `fragile_knowledge`, `concept_gap`, and `transfer_failure`.
+7. Parent-local routes can be promoted for that child and used to create or
+   strengthen a `learning_item` only when they point to an active assignable
+   micro-skill.
+8. "No matching route" goes to admin/catalog review as deferred route support.
+9. Review Work completion must not pretend that admin handoff created a
+   learning item.
+
+Non-learning outcomes:
+- `checking_only` may finalise without a micro-skill or learning item.
+- `not_an_issue` may finalise without a micro-skill or learning item.
+
+Learning-relevant outcomes:
+- require a learning-relevant final classification
+- require an active assignable micro-skill on the durable `writing_issues` row
+  or an explicitly bridged route source
+- may create or strengthen a `learning_item` only when both requirements are
+  met
+
+Admin handoff:
+- means no safe assignable route exists yet
+- must not put the row into the child learning queue
+- must not create rewards, mastery claims, or daily assignment generation
+- may be repaired later only by controlled reconciliation after admin/canonical
+  truth supplies an active assignable route
+
+Parent recommendation ladder:
+- parent recommendation exists, not confirmed/promoted: helpful route evidence
+  only
+- parent recommendation promoted locally and active/assignable: may create or
+  strengthen the child learning item
+- parent recommendation sent to admin with no assignable route: deferred, no
+  learning item
+- admin later approves canonical route: reconciliation may repair or create the
+  learning item if the final outcome was learning-relevant
+
+Future canonical truth updates may improve route metadata for an existing
+learning item through controlled reconciliation, but must preserve historical
+child evidence rather than silently rewriting what happened.
+
 ## Backlog-control rule
 
 The app must preserve every real writing issue for history, but it must not treat every issue as a separate active daily-practice item.

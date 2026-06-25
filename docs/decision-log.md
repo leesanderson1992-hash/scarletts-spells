@@ -1,5 +1,52 @@
 # Decision Log
 
+## 2026-06-25 — Returned corrections separate child retry from learning-route categorisation
+
+### What changed
+- The planned Review Work returned-correction route is clarified:
+  parent send-back needs correction text and child-facing guidance, not final
+  micro-skill categorisation.
+- Child retry, including an "I think this is right" style response, is
+  correction-attempt evidence only. It must not create mastery, rewards,
+  categorisation, or learning-queue truth.
+- After the child response, the parent chooses the final educational outcome:
+  `checking_only`, `fragile_knowledge`, `concept_gap`, `transfer_failure`, or
+  `not_an_issue`.
+- Learning-relevant outcomes require an active assignable route before they can
+  create or strengthen `learning_items`.
+- Parent recommendations are route evidence only until explicitly confirmed or
+  promoted into a child-scoped active assignable route.
+- Admin handoff is deferred route support. It must not create or imply a child
+  learning item until controlled reconciliation has assignable route truth.
+- Stage A now adds a read-only diagnostic model in
+  [lib/writing-engine/persistence/returned-correction-learning-route-diagnostics.ts](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/lib/writing-engine/persistence/returned-correction-learning-route-diagnostics.ts:1)
+  and regression coverage in
+  [scripts/writing-engine-returned-correction-route-diagnostics-regression.ts](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/scripts/writing-engine-returned-correction-route-diagnostics-regression.ts:1).
+- Stage B now blocks learning-gap finalisation before the learning-item RPC
+  unless the durable issue route is active and assignable.
+- Returned-correction route actions may carry pending learning-gap intent as
+  route evidence, but do not write final classification onto `writing_issues`.
+- Admin-deferred returned learning gaps remain deferred and block ordinary
+  approval rather than entering the learning queue.
+
+### Why this matters
+- The Review Work table may show local/admin route activity without the durable
+  `writing_issues.micro_skill_key` being ready for learning-item creation.
+- The intended implementation must distinguish retry-ready, route-ready,
+  learning-queue-ready, and admin-deferred states.
+- Future canonical updates may improve route metadata or repair blocked rows
+  through reconciliation, but must preserve historical child evidence rather
+  than silently rewriting what happened.
+- The diagnostic model reports source ids, issue status, final classification,
+  durable route, parent-local/admin route state, catalog active/assignable
+  status, learning-item linkage, retry-readiness, learning-queue-readiness,
+  disposition, and why-not reasons without changing product behavior.
+- Stage B removes the old successful-looking path where an issue could be
+  finalised as a learning gap while the RPC merely reported that no assignable
+  learning item was created.
+- Stage C remains the explicit bridge for parent-local promoted routes to become
+  learning-item creation routes.
+
 ## 2026-06-25 — Slice 7 child daily spelling practice is release-ready
 
 ### What changed

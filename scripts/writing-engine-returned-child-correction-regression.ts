@@ -245,8 +245,13 @@ assert.match(
 );
 assert.match(
   reviewCompletionActions,
-  /learningItemBlockedReason[\s\S]*uncatalogued_or_non_assignable_micro_skill[\s\S]*Durable issue preserved, but no assignable learning item was created yet/,
-  "Unknown or non-assignable micro-skills may block only assignable learning-item creation after final classification.",
+  /finalClassificationNeedsAssignableRoute[\s\S]*micro_skill_key[\s\S]*micro_skill_catalog[\s\S]*Choose an active assignable skill route before saving this learning outcome[\s\S]*finalise_writing_issue_classification_and_learning_item/,
+  "Learning-gap final classification must verify an active assignable durable route before calling the finalisation RPC.",
+);
+assert.doesNotMatch(
+  reviewCompletionActions,
+  /Durable issue preserved, but no assignable learning item was created yet/,
+  "Learning-gap finalisation must not report success after the RPC blocks learning-item creation.",
 );
 assert.doesNotMatch(
   reviewCompletionActions,
@@ -427,8 +432,8 @@ assert.doesNotMatch(
 );
 assert.match(
   unifiedSpellingReviewTable,
-  /if \(row\.state === "child_responded"\) \{[\s\S]*return "Tried";[\s\S]*if \(row\.categorisationStatus === "unsupported_returned_correction_route"\) \{[\s\S]*return "Blocked";[\s\S]*if \(row\.state === "categorisation_needed"\) \{[\s\S]*return "New";/,
-  "Status labels must show unclassified returned attempts as Tried, reserve Blocked for deferred routes, and keep actionable current rows New.",
+  /if \(row\.state === "child_responded"\) \{[\s\S]*return "Tried";[\s\S]*if \(row\.categorisationStatus === "unsupported_returned_correction_route"\) \{[\s\S]*return "Blocked";/,
+  "Status labels must show unclassified returned attempts as Tried and reserve Blocked for deferred routes.",
 );
 assert.match(
   unifiedSpellingReviewTable,
@@ -457,8 +462,8 @@ assert.match(
 );
 assert.match(
   unifiedSpellingReviewTable,
-  /<IconActionButton[\s\S]*icon="!"[\s\S]*helpText="Assign selected skill as parent-local route"[\s\S]*ariaLabel=\{`Assign selected skill as parent-local route/,
-  "Parent-local assignment icon must expose reliable hover/help and accessible text.",
+  /<IconActionButton[\s\S]*icon="!"[\s\S]*helpText="Use this skill and send for admin review"[\s\S]*ariaLabel=\{`Use this skill/,
+  "Parent-local route evidence icon must expose reliable hover/help and accessible text.",
 );
 assert.match(
   unifiedSpellingReviewTable,
@@ -467,7 +472,7 @@ assert.match(
 );
 assert.match(
   unifiedSpellingReviewTable,
-  /<IconActionButton[\s\S]*icon="↑"[\s\S]*helpText="Promote parent-local skill route"[\s\S]*<IconActionButton[\s\S]*icon="↩"[\s\S]*helpText="Revert parent-local skill route to pending"/,
+  /<IconActionButton[\s\S]*icon="↑"[\s\S]*helpText="Save locally and send for admin review"[\s\S]*<IconActionButton[\s\S]*icon="↩"[\s\S]*helpText="Revert parent-local skill route to pending"/,
   "Parent-local promote and revert icons must expose reliable hover/help and accessible text.",
 );
 assert.match(
@@ -482,18 +487,18 @@ assert.match(
 );
 assert.match(
   unifiedSpellingReviewTable,
-  /const returnedRouteIsOpen =[\s\S]*categorisation_needed[\s\S]*const routeIsOpen = currentRouteIsOpen \|\| returnedRouteIsOpen/,
-  "Returned correction skill routing must open only after an issue outcome exists and no route record has been chosen yet.",
+  /const selectedOutcomeNeedsRoute = isLearningRelevantOutcome\(selectedOutcome\)[\s\S]*const returnedRouteIsOpen =[\s\S]*selectedOutcomeNeedsRoute[\s\S]*categorisation_needed[\s\S]*not_applicable[\s\S]*const routeIsOpen = currentRouteIsOpen \|\| returnedRouteIsOpen/,
+  "Returned correction skill routing must open from pending learning-gap intent without finalising the issue first.",
 );
 assert.match(
   unifiedSpellingReviewTable,
-  /captureSubmissionSpellingCandidateMapping[\s\S]*name="original_writing_issue_id"[\s\S]*value=\{row\.sourceIds\.originalWritingIssueId \?\? ""\}[\s\S]*name="correction_attempt_id"/,
-  "Returned correction skill assignment must submit original writing_issue.id and correction attempt id, not a fake current misspelling row.",
+  /captureSubmissionSpellingCandidateMapping[\s\S]*name="original_writing_issue_id"[\s\S]*value=\{row\.sourceIds\.originalWritingIssueId \?\? ""\}[\s\S]*name="correction_attempt_id"[\s\S]*name="final_classification"/,
+  "Returned correction skill assignment must submit original writing_issue.id, correction attempt id, and pending final classification.",
 );
 assert.match(
   unifiedSpellingReviewTable,
-  /captureSpellingCatalogReviewCase[\s\S]*name="original_writing_issue_id"[\s\S]*value=\{row\.sourceIds\.originalWritingIssueId \?\? ""\}[\s\S]*name="correction_attempt_id"/,
-  "Returned correction admin handoff must submit original writing_issue.id and correction attempt id.",
+  /captureSpellingCatalogReviewCase[\s\S]*name="original_writing_issue_id"[\s\S]*value=\{row\.sourceIds\.originalWritingIssueId \?\? ""\}[\s\S]*name="correction_attempt_id"[\s\S]*name="final_classification"/,
+  "Returned correction admin handoff must submit original writing_issue.id, correction attempt id, and pending final classification.",
 );
 assert.doesNotMatch(
   unifiedSpellingReviewTable,
@@ -505,6 +510,16 @@ assert.match(
   returnedCorrectionRouteHelpers,
   /ROUTABLE_RETURNED_CLASSIFICATIONS[\s\S]*fragile_knowledge[\s\S]*concept_gap[\s\S]*transfer_failure/,
   "Returned route helper must only route final classifications that represent learning issues.",
+);
+assert.match(
+  returnedCorrectionRouteHelpers,
+  /const routeFinalClassification =[\s\S]*issue\.final_classification \?\? input\.finalClassificationOverride[\s\S]*!ROUTABLE_RETURNED_CLASSIFICATIONS\.has\(routeFinalClassification\)/,
+  "Returned route helper must accept durable or pending learning-gap route intent.",
+);
+assert.match(
+  returnedCorrectionRouteHelpers,
+  /final_classification: routeFinalClassification,[\s\S]*final_classification_source:[\s\S]*pending_parent_route_intent/,
+  "Returned route metadata must distinguish pending parent route intent from durable issue final classification.",
 );
 assert.match(
   returnedCorrectionRouteHelpers,

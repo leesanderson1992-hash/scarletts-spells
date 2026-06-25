@@ -96,6 +96,7 @@ export async function loadReturnedCorrectionRouteContext(input: {
   currentTaskSubmissionId: string;
   originalWritingIssueId: string;
   correctionAttemptId: string | null;
+  finalClassificationOverride?: string | null;
 }): Promise<ReturnedCorrectionRouteContext | null> {
   const { data: issueData } = await input.supabase
     .from("writing_issues")
@@ -127,7 +128,13 @@ export async function loadReturnedCorrectionRouteContext(input: {
     return null;
   }
 
-  if (!issue.final_classification || !ROUTABLE_RETURNED_CLASSIFICATIONS.has(issue.final_classification)) {
+  const routeFinalClassification =
+    issue.final_classification ?? input.finalClassificationOverride ?? null;
+
+  if (
+    !routeFinalClassification ||
+    !ROUTABLE_RETURNED_CLASSIFICATIONS.has(routeFinalClassification)
+  ) {
     return null;
   }
 
@@ -255,7 +262,10 @@ export async function loadReturnedCorrectionRouteContext(input: {
       returned_task_submission_id: input.currentTaskSubmissionId,
       correction_attempt_id: attempt.id,
       child_attempted_correction: attempt.attempted_correction,
-      final_classification: issue.final_classification,
+      final_classification: routeFinalClassification,
+      final_classification_source: issue.final_classification
+        ? "durable_issue"
+        : "pending_parent_route_intent",
       context_text: misspelling.context_text,
       position_start: misspelling.position_start,
       position_end: misspelling.position_end,

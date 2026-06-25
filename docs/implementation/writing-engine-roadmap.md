@@ -82,6 +82,13 @@ Treat these as fixed unless a later canonical doc changes them:
   for existing active assignable spelling micro-skills only; it must not create
   taxonomy, resolver truth, mastery evidence, `learning_items`, or
   `assignment_items` by itself
+- returned-correction child retry is not categorisation; final learning-gap
+  classification happens after the child response and can create/strengthen
+  `learning_items` only when an active assignable route is attached or
+  explicitly bridged
+- parent recommendations are route evidence only until confirmed/promoted into
+  a child-scoped active assignable route; admin handoff is deferred route
+  support and must not create a learning item
 - `word_progress` must not be reintroduced as canonical truth
 - the retired spelling runtime must not be revived as the delivery model for
   the Writing Engine

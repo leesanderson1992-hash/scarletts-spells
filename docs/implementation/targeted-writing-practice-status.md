@@ -16,6 +16,50 @@ Canonical documentation now defers to:
 
 ## Current headline
 
+- Returned-correction route planning is clarified but not yet behavior-changed:
+  child retry is evidence only, not categorisation. The parent sends work back
+  with correction text and child-facing guidance, then chooses the final
+  educational outcome only after the child retry or "I think this is right"
+  response.
+- Returned-correction learning items require both a learning-relevant final
+  classification and an active assignable route. `checking_only` and
+  `not_an_issue` remain valid non-learning final outcomes without a micro-skill.
+- Parent recommendations are route evidence only until the parent explicitly
+  confirms/promotes an active assignable route for that child. Admin handoff is
+  deferred route support and must not create, imply, or queue a learning item
+  until controlled reconciliation has an assignable route.
+- Stage A returned-correction route diagnostics are implemented read-only:
+  - helper:
+    `lib/writing-engine/persistence/returned-correction-learning-route-diagnostics.ts`
+  - regression:
+    `scripts/writing-engine-returned-correction-route-diagnostics-regression.ts`
+  - command:
+    `npm run writing-engine:returned-correction-route-diagnostics-regression`
+  - reports source ids, durable issue status, final classification,
+    `writing_issues.micro_skill_key`, parent-local/admin route status, catalog
+    active/assignable status, learning-item link/evidence status, retry-ready,
+    learning-queue-ready, disposition, and why-not reasons
+  - no UI, migration, RLS, reward, mastery, daily assignment, finalisation, or
+    Review Work behavior change is included
+- Stage B returned-correction workflow gate fix is implemented:
+  - learning-relevant final outcomes now require the durable
+    `writing_issues.micro_skill_key` to resolve to an active assignable
+    `micro_skill_catalog` row before the finalisation RPC is called
+  - `checking_only` and `not_an_issue` still finalise without a micro-skill or
+    learning item
+  - blocked learning-gap finalisation preserves `child_responded` issue state
+    and existing correction-attempt evidence
+  - returned-correction route actions can carry pending learning-gap route
+    intent for parent-local/admin evidence without writing final classification
+    onto the issue
+  - admin-deferred returned learning gaps block ordinary approval and are
+    labelled as deferred route support, not queued learning
+  - Stage C remains responsible for explicitly bridging parent-local promoted
+    routes into learning-item creation
+  - command:
+    `npm run writing-engine:returned-correction-stage-b-regression`
+  - no migration, RLS broadening, service-role browser path, reward/mastery
+    write, daily assignment generation, or Stage C route bridge is included
 - Shared `lib/writing-engine` foundation exists.
 - Generic `parent_verifications` exist.
 - Generic `assignment_items` exist.

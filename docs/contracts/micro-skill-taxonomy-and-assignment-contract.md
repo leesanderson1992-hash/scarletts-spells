@@ -159,6 +159,13 @@ The assignment unit is the active `learning_item`, not the raw `writing_issue`.
 
 Rules:
 - one finalised learning-gap issue normally strengthens one primary active `learning_item`
+- returned-correction retries do not become learning items by themselves; they
+  need both a learning-relevant final classification and an active assignable
+  route after the child response
+- parent recommendations are route evidence only until confirmed/promoted into
+  a child-scoped active assignable route
+- admin handoff is deferred route support and must not create or imply an
+  assigned learning item
 - repeated evidence for the same `micro_skill_key` should usually strengthen an existing stream rather than create a fresh lesson
 - durable issues are word- or event-specific, while `learning_items` are micro-skill-specific
 - one active `learning_item` may accumulate multiple target words and source issues when they support the same micro-skill and route

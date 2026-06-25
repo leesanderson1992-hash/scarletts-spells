@@ -41,22 +41,62 @@ excluded.
 
 ## Next Safe Slice After Launch
 
-1. Version 2 roadmap Slice `5`: child-local reuse and suggestion improvement,
+1. `Stage C: Parent-Local/Admin Route Bridge`: explicitly bridge a confirmed
+   child-scoped active assignable route into returned-correction finalisation so
+   parent-local promoted routes can create or strengthen `learning_items`.
+   Preserve the Stage B gate: no silent learning-gap finalisation without an
+   assignable route, and no admin-deferred row treated as queued.
+2. Version 2 roadmap Slice `5`: child-local reuse and suggestion improvement,
    if the next priority returns to parent Review Work acceleration.
-2. Optional production-scale canonical mapping operations/audit hardening now
+3. Optional production-scale canonical mapping operations/audit hardening now
    that the CSV import -> canonical adoption -> resolver visibility -> runtime
    categorisation path is live. This is not required for the core flow to work,
    but may be useful before larger imports. Potential scope: pagination/search,
    operator filters, visible/hidden rollback clarity, audit export/runbook, and
    monitoring for resolver-visible mapping effects.
-3. Real-data PCRM/canonical adoption smoke after launch readiness, without
+4. Real-data PCRM/canonical adoption smoke after launch readiness, without
    fixture data as product proof, if PCRM remains a near-term source path.
-4. Manual/operator review of the two canonical-lineage-protected pre-June
+5. Manual/operator review of the two canonical-lineage-protected pre-June
    structured warning submissions and the remaining post-cleanup
    duplicate/pending warning row, if further cleanup is still desired.
 
 ## Current initiative
 
+- Returned-correction learning route planning is now clarified: child retry is
+  not categorisation. Parent sends spelling corrections back with correction
+  text and child-facing guidance only; final educational outcome is chosen only
+  after the child retry or "I think this is right" response.
+- Returned corrections may complete as non-learning outcomes
+  `checking_only` or `not_an_issue` without a micro-skill. Learning-relevant
+  outcomes `fragile_knowledge`, `concept_gap`, and `transfer_failure` require
+  an active assignable route before they can create or strengthen a child
+  `learning_item`.
+- Parent-local promoted routes may support learning-item creation only when
+  they explicitly become a child-scoped, active assignable route. A parent
+  recommendation that is not confirmed/promoted is route evidence only, not
+  learning-queue truth.
+- Admin handoff means deferred route support. It must not put the item into the
+  child learning queue, must not imply a learning item was created, and may be
+  repaired later only by controlled reconciliation once admin/canonical truth
+  supplies an assignable route.
+- `Stage A: Review Work Returned-Correction Learning Route Diagnostics` is
+  implemented as a read-only diagnostic model in
+  `lib/writing-engine/persistence/returned-correction-learning-route-diagnostics.ts`.
+  It reports source ids, issue state, durable micro-skill, parent-local/admin
+  route status, catalog active/assignable status, learning-item linkage,
+  retry-readiness, learning-queue-readiness, disposition, and why-not reasons.
+  Focused regression:
+  `npm run writing-engine:returned-correction-route-diagnostics-regression`.
+- `Stage B: Returned-Correction Workflow Gate Fix` is implemented. Learning-gap
+  final classification now checks the durable `writing_issues.micro_skill_key`
+  against active assignable `micro_skill_catalog` truth before calling the
+  finalisation RPC. Unknown, uncatalogued, inactive, or non-assignable durable
+  routes are blocked before finalisation, leaving child retry evidence intact.
+  Returned-correction route capture may record pending learning-gap route intent
+  for parent-local/admin route evidence without writing final classification to
+  the issue. Admin-deferred returned learning gaps block ordinary approval and
+  are not learning-queue-ready. Focused regression:
+  `npm run writing-engine:returned-correction-stage-b-regression`.
 - The bounded Parent Review spelling workflow MVP loop is complete and
   QA-passed for private parent-led use.
 - Version 2.0 Slice `5A` parent Review Work friction reduction is implemented:

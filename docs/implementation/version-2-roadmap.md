@@ -114,6 +114,10 @@ become truth.
 
 - raw `misspelling_instances` are evidence only
 - parent-added missed words are evidence only
+- child returned-correction attempts are retry evidence only, not
+  categorisation, mastery, reward, or learning-queue truth
+- parent recommendations are route evidence only until explicitly confirmed or
+  promoted into a child-scoped active assignable route
 - pending candidate mappings are not reusable
 - parent-local promoted mappings may be reused only inside the same
   parent/child scope
@@ -126,8 +130,64 @@ become truth.
 - word-map rows are content metadata, not mastery, resolver, taxonomy, or
   assignment truth
 - only verified learning gaps create or strengthen `learning_items`
+- for returned corrections, "verified learning gap" means both a
+  learning-relevant final classification and an active assignable route
 - daily practice draws from curated active `learning_items`, not the full raw
   backlog
+- admin handoff is deferred route support and must not create or imply a child
+  learning item
+
+## 6A. Returned-correction learning route contract
+
+Canonical route:
+1. Child submits work.
+2. Parent reviews the writing, adds missed spelling words, adds correction text,
+   and adds child-facing feedback.
+3. Parent sends the work back without categorising the learning route.
+4. Child either retries the correction or indicates "I think this is right."
+5. Parent receives the returned work and chooses the final educational outcome:
+   `checking_only`, `fragile_knowledge`, `concept_gap`, `transfer_failure`, or
+   `not_an_issue`.
+6. Only `fragile_knowledge`, `concept_gap`, and `transfer_failure` require a
+   micro-skill route.
+7. Parent-local promoted routes may create or strengthen a child learning item
+   only when the route is active and assignable.
+8. "No matching route" goes to admin as deferred route support.
+9. Work can complete only when every returned correction is finalised as
+   non-learning, finalised as learning-relevant with an assignable route, or
+   explicitly deferred to admin without pretending that a learning item exists.
+
+Admin handoff does not put an item in the child learning queue. If admin or
+canonical truth later supplies an assignable route, a controlled reconciliation
+step may attach that route and create or strengthen the learning item while
+preserving historical evidence.
+
+Parent recommendation ladder:
+- parent recommendation exists, not confirmed/promoted: suggestion only
+- parent recommendation promoted locally and active/assignable: may create or
+  strengthen the child learning item
+- parent recommendation sent to admin with no assignable route: deferred, no
+  learning item
+- admin later approves canonical route: reconciliation may repair/create the
+  learning item if the final outcome was learning-relevant
+
+Implementation note: `Stage A: Review Work Returned-Correction Learning Route
+Diagnostics` is implemented read-only in
+`lib/writing-engine/persistence/returned-correction-learning-route-diagnostics.ts`
+with regression command
+`npm run writing-engine:returned-correction-route-diagnostics-regression`. It
+explains row readiness and blocked reasons before behavior changes.
+
+`Stage B: Returned-Correction Workflow Gate Fix` is implemented with regression
+command `npm run writing-engine:returned-correction-stage-b-regression`.
+Learning-gap finalisation now blocks before the RPC unless the durable issue
+route is active and assignable; admin-deferred returned learning gaps remain
+deferred and block ordinary approval; parent-local/admin route evidence can
+carry pending learning-gap intent without finalising the issue.
+
+The next stage should be `Stage C: Parent-Local/Admin Route Bridge`, focused on
+explicitly attaching an active assignable child-scoped route to returned
+corrections before learning-item creation.
 
 ## 7. Proposed Version 2 slice order
 

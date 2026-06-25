@@ -29,6 +29,10 @@ import {
   normaliseWordForLookup,
 } from "../review-utils";
 import { loadReturnedCorrectionRouteContext } from "./returned-correction-route-helpers";
+import {
+  isWritingIssueFinalClassification,
+  doesFinalClassificationCreateLearningItem,
+} from "@/lib/writing-practice/types";
 
 type OwnedSubmissionForCandidateCapture = NonNullable<
   Awaited<ReturnType<typeof getOwnedSubmission>>["submission"]
@@ -222,6 +226,7 @@ async function captureReturnedCorrectionCandidateMapping(input: {
   submission: OwnedSubmissionForCandidateCapture;
   originalWritingIssueId: string;
   correctionAttemptId: string | null;
+  finalClassification: string | null;
   selectedMicroSkillKey: string;
   safeRedirectPath: string;
 }) {
@@ -232,6 +237,7 @@ async function captureReturnedCorrectionCandidateMapping(input: {
     currentTaskSubmissionId: input.submission.id,
     originalWritingIssueId: input.originalWritingIssueId,
     correctionAttemptId: input.correctionAttemptId,
+    finalClassificationOverride: input.finalClassification,
   });
 
   if (!routeContext) {
@@ -503,6 +509,7 @@ export async function captureSubmissionSpellingCandidateMappingImpl(formData: Fo
   const misspellingInstanceId = formData.get("misspelling_instance_id");
   const originalWritingIssueId = formData.get("original_writing_issue_id");
   const correctionAttemptId = formData.get("correction_attempt_id");
+  const finalClassification = formData.get("final_classification");
   const selectedMicroSkillKey = normaliseMicroSkillKey(formData.get("micro_skill_key"));
 
   const safeRedirectPath =
@@ -537,6 +544,13 @@ export async function captureSubmissionSpellingCandidateMappingImpl(formData: Fo
     );
   }
 
+  const safeFinalClassification =
+    typeof finalClassification === "string" &&
+    isWritingIssueFinalClassification(finalClassification) &&
+    doesFinalClassificationCreateLearningItem(finalClassification)
+      ? finalClassification
+      : null;
+
   const supabase = await createClient();
   const {
     data: { user },
@@ -568,6 +582,7 @@ export async function captureSubmissionSpellingCandidateMappingImpl(formData: Fo
         typeof correctionAttemptId === "string" && correctionAttemptId
           ? correctionAttemptId
           : null,
+      finalClassification: safeFinalClassification,
       selectedMicroSkillKey,
       safeRedirectPath,
     });

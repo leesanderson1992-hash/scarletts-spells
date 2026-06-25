@@ -960,10 +960,14 @@ const terminalRows: UnifiedSpellingReviewItem[] = [
   terminalNoAttemptReturnedRow,
 ];
 const terminalSummary = summarizeUnifiedSpellingReviewCompletion(terminalRows);
-assert.equal(terminalSummary.canComplete, true);
-assert.equal(terminalSummary.unresolvedItemCount, 0);
-assert.equal(terminalSummary.unresolvedReturnedCorrectionCount, 0);
-assert.deepEqual(terminalSummary.blockingReasons, []);
+assert.equal(terminalSummary.canComplete, false);
+assert.equal(terminalSummary.unresolvedItemCount, 1);
+assert.equal(terminalSummary.unresolvedReturnedCorrectionCount, 1);
+assert.match(
+  terminalSummary.blockingReasons.join(" "),
+  /deferred because no active assignable learning route is available yet/,
+  "Admin-deferred returned learning gaps must not complete as ordinary terminal rows.",
+);
 assert.equal(
   terminalRows.some(
     (row) => row.sourceIds.misspellingInstanceId === "miss-regenerated-returned",
@@ -1026,6 +1030,22 @@ const unsupportedReturnedSummary = summarizeUnifiedSpellingReviewCompletion([
 ]);
 assert.equal(unsupportedReturnedSummary.canComplete, false);
 assert.equal(unsupportedReturnedSummary.deferredUnsupportedRouteCount, 1);
+
+const adminDeferredReturnedSummary = summarizeUnifiedSpellingReviewCompletion([
+  {
+    ...returnedAdminRow,
+    state: "resolved",
+    correctionOutcome: "concept_gap",
+    categorisationStatus: "sent_to_admin",
+  },
+]);
+assert.equal(adminDeferredReturnedSummary.canComplete, false);
+assert.equal(adminDeferredReturnedSummary.deferredUnsupportedRouteCount, 1);
+assert.match(
+  adminDeferredReturnedSummary.blockingReasons.join(" "),
+  /deferred because no active assignable learning route is available yet/,
+  "Admin-deferred returned learning gaps must block ordinary approval without implying learning queue creation.",
+);
 
 const routableReturnedSummary = summarizeUnifiedSpellingReviewCompletion([
   {

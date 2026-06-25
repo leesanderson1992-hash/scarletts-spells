@@ -255,7 +255,10 @@ export function summarizeUnifiedSpellingReviewCompletion(
       row.categorisationStatus === "categorisation_needed" ||
       row.categorisationStatus === "parent_local_pending";
     const deferredRouteBlocks =
-      row.categorisationStatus === "unsupported_returned_correction_route";
+      row.categorisationStatus === "unsupported_returned_correction_route" ||
+      (row.source === "returned_correction" &&
+        row.categorisationStatus === "sent_to_admin" &&
+        returnedFinalClassificationNeedsRoute(row.correctionOutcome));
 
     if (row.state === "pending_parent_review") {
       parentDecisionCount += 1;
@@ -329,7 +332,7 @@ export function summarizeUnifiedSpellingReviewCompletion(
         deferredUnsupportedRouteCount,
         "is",
         "are",
-      )} blocked because no safe categorisation route is available.`,
+      )} deferred because no active assignable learning route is available yet.`,
     );
   }
 

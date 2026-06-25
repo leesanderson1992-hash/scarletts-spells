@@ -2,6 +2,10 @@ import { redirect } from "next/navigation";
 
 import { createClient } from "@/lib/supabase/server";
 import { buildStage7dReviewWorkVerificationTarget } from "@/lib/writing-engine/review/stage7d-parent-verification";
+import {
+  doesFinalClassificationCreateLearningItem,
+  isWritingIssueFinalClassification,
+} from "@/lib/writing-practice/types";
 
 import {
   buildRedirectWithMessage,
@@ -46,6 +50,7 @@ async function captureReturnedCorrectionCatalogReviewCase(input: {
   submission: OwnedSubmissionForCatalogRoute;
   originalWritingIssueId: string;
   correctionAttemptId: string | null;
+  finalClassification: string | null;
   parentNote: string | null;
   safeRedirectPath: string;
 }) {
@@ -56,6 +61,7 @@ async function captureReturnedCorrectionCatalogReviewCase(input: {
     currentTaskSubmissionId: input.submission.id,
     originalWritingIssueId: input.originalWritingIssueId,
     correctionAttemptId: input.correctionAttemptId,
+    finalClassificationOverride: input.finalClassification,
   });
 
   if (!routeContext) {
@@ -165,6 +171,7 @@ export async function captureSpellingCatalogReviewCaseImpl(formData: FormData) {
   const misspellingInstanceId = formData.get("misspelling_instance_id");
   const originalWritingIssueId = formData.get("original_writing_issue_id");
   const correctionAttemptId = formData.get("correction_attempt_id");
+  const finalClassification = formData.get("final_classification");
   const parentNote = normaliseOptionalIssueText(formData.get("parent_note"));
   const safeRedirectPath = normaliseRedirectPath(formData.get("redirect_path"));
 
@@ -204,6 +211,13 @@ export async function captureSpellingCatalogReviewCaseImpl(formData: FormData) {
     redirect("/login");
   }
 
+  const safeFinalClassification =
+    typeof finalClassification === "string" &&
+    isWritingIssueFinalClassification(finalClassification) &&
+    doesFinalClassificationCreateLearningItem(finalClassification)
+      ? finalClassification
+      : null;
+
   const { submission } = await getOwnedSubmission(submissionId, user.id, supabase);
 
   if (!submission) {
@@ -226,6 +240,7 @@ export async function captureSpellingCatalogReviewCaseImpl(formData: FormData) {
         typeof correctionAttemptId === "string" && correctionAttemptId
           ? correctionAttemptId
           : null,
+      finalClassification: safeFinalClassification,
       parentNote,
       safeRedirectPath,
     });

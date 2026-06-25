@@ -143,6 +143,20 @@ type ReturnFlowParentVerificationRow = {
   source_entity_id: string;
 };
 
+function finalClassificationNeedsAssignableRoute(
+  value: WritingIssueFinalClassification,
+) {
+  return doesFinalClassificationCreateLearningItem(value);
+}
+
+function isMeaningfulMicroSkillKey(value: string | null | undefined) {
+  return (
+    typeof value === "string" &&
+    value.trim().length > 0 &&
+    value.trim().toLowerCase() !== "unknown"
+  );
+}
+
 function getValidPositionRange(row: {
   position_start?: number | null;
   position_end?: number | null;
@@ -507,7 +521,7 @@ export async function finaliseWritingIssueClassificationImpl(formData: FormData)
   const supabase = await createClient();
   const { data: issue } = await supabase
     .from("writing_issues")
-    .select("id, child_id, issue_status, final_classification")
+    .select("id, child_id, issue_status, final_classification, micro_skill_key")
     .eq("id", writingIssueId)
     .eq("parent_user_id", user.id)
     .maybeSingle();
@@ -540,6 +554,40 @@ export async function finaliseWritingIssueClassificationImpl(formData: FormData)
         "Only child responses can be final-classified in this slice.",
       ),
     );
+  }
+
+  if (
+    finalClassificationNeedsAssignableRoute(
+      finalClassification satisfies WritingIssueFinalClassification,
+    )
+  ) {
+    if (!isMeaningfulMicroSkillKey(issue.micro_skill_key)) {
+      redirect(
+        buildRedirectWithMessage(
+          safeRedirectPath,
+          "error",
+          "Choose an active assignable skill route before saving this learning outcome.",
+        ),
+      );
+    }
+
+    const { data: catalogEntry } = await supabase
+      .from("micro_skill_catalog")
+      .select("id, is_active, is_assignable")
+      .eq("micro_skill_key", issue.micro_skill_key)
+      .eq("is_active", true)
+      .eq("is_assignable", true)
+      .maybeSingle();
+
+    if (!catalogEntry) {
+      redirect(
+        buildRedirectWithMessage(
+          safeRedirectPath,
+          "error",
+          "Choose an active assignable skill route before saving this learning outcome.",
+        ),
+      );
+    }
   }
 
   const { data: finalisationResult, error } = await supabase.rpc(
@@ -583,13 +631,6 @@ export async function finaliseWritingIssueClassificationImpl(formData: FormData)
       "learning_item_id" in finalisationResult &&
       finalisationResult.learning_item_id,
   );
-  const learningItemBlockedReason =
-    finalisationResult &&
-    typeof finalisationResult === "object" &&
-    "learning_item_blocked_reason" in finalisationResult &&
-    typeof finalisationResult.learning_item_blocked_reason === "string"
-      ? finalisationResult.learning_item_blocked_reason
-      : null;
   const createsLearningItem = doesFinalClassificationCreateLearningItem(
     finalClassification,
   );
@@ -602,11 +643,7 @@ export async function finaliseWritingIssueClassificationImpl(formData: FormData)
         ? `Final classification saved: ${finalClassification}. Golden Nugget created.`
         : reusedLearningItem && linkedLearningItemExists
           ? `Final classification saved: ${finalClassification}. Existing learning item strengthened.`
-          : createsLearningItem &&
-              learningItemBlockedReason ===
-                "uncatalogued_or_non_assignable_micro_skill"
-            ? `Final classification saved: ${finalClassification}. Durable issue preserved, but no assignable learning item was created yet.`
-            : createsLearningItem && linkedLearningItemExists
+          : createsLearningItem && linkedLearningItemExists
               ? `Final classification saved: ${finalClassification}. Linked learning item confirmed.`
               : `Final classification saved: ${finalClassification}.`,
     ),

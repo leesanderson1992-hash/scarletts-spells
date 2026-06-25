@@ -19,6 +19,11 @@ import {
 } from "./actions";
 
 const NO_MATCHING_SKILL_VALUE = "__no_matching_skill__";
+const LEARNING_RELEVANT_OUTCOMES = new Set([
+  "fragile_knowledge",
+  "concept_gap",
+  "transfer_failure",
+]);
 
 type UnifiedSpellingReviewTableProps = {
   rows: UnifiedSpellingReviewItem[];
@@ -143,7 +148,7 @@ function sourceMarker(row: UnifiedSpellingReviewItem) {
 
 function statusLabel(row: UnifiedSpellingReviewItem) {
   if (row.categorisationStatus === "sent_to_admin" || row.state === "sent_to_admin") {
-    return "Admin";
+    return "Admin route pending";
   }
 
   if (
@@ -151,7 +156,7 @@ function statusLabel(row: UnifiedSpellingReviewItem) {
     row.categorisationStatus === "parent_local_promoted" ||
     row.state === "locally_promoted"
   ) {
-    return "Local";
+    return row.source === "returned_correction" ? "Local route ready" : "Local";
   }
 
   if (row.state === "child_responded") {
@@ -196,11 +201,11 @@ function routeText(row: UnifiedSpellingReviewItem) {
     case "categorisation_needed":
       return "Choose a skill, send to admin, or mark as not an issue.";
     case "sent_to_admin":
-      return "Sent to admin/catalog review.";
+      return "Sent to admin for route support. This is deferred and not in practice yet.";
     case "parent_local_pending":
       return "Saved locally. Send for admin review to finish this route.";
     case "parent_local_promoted":
-      return "Parent-local skill route is promoted for this child.";
+      return "Parent-local skill route is promoted for this child. Returned-correction learning item creation still waits for the route bridge.";
     case "unsupported_returned_correction_route":
       return "Returned-correction categorisation is deferred until a safe route record exists.";
     case "not_applicable":
@@ -267,6 +272,10 @@ function noMatchYetBadge() {
   };
 }
 
+function isLearningRelevantOutcome(value: string | null) {
+  return Boolean(value && LEARNING_RELEVANT_OUTCOMES.has(value));
+}
+
 function UnifiedSpellingReviewTableRow({
   row,
   options,
@@ -297,13 +306,17 @@ function UnifiedSpellingReviewTableRow({
     (row.correctionOutcome === "fragile_knowledge" ||
       row.correctionOutcome === "concept_gap" ||
       row.correctionOutcome === "transfer_failure");
+  const [selectedOutcome, setSelectedOutcome] = useState("");
+  const selectedOutcomeNeedsRoute = isLearningRelevantOutcome(selectedOutcome);
   const returnedRouteIsOpen =
-    returnedIssueOutcomeNeedsRoute &&
+    (returnedIssueOutcomeNeedsRoute || selectedOutcomeNeedsRoute) &&
     Boolean(row.sourceIds.originalWritingIssueId) &&
     Boolean(row.sourceIds.correctionAttemptId) &&
     !row.sourceIds.catalogReviewCaseId &&
     !row.sourceIds.candidateMappingId &&
-    row.categorisationStatus === "categorisation_needed";
+    (row.categorisationStatus === "categorisation_needed" ||
+      (selectedOutcomeNeedsRoute &&
+        row.categorisationStatus === "not_applicable"));
   const routeIsOpen = currentRouteIsOpen || returnedRouteIsOpen;
   const recommendationOption = findOption(
     options,
@@ -577,6 +590,11 @@ function UnifiedSpellingReviewTableRow({
                     name="correction_attempt_id"
                     value={row.sourceIds.correctionAttemptId ?? ""}
                   />
+                  <input
+                    type="hidden"
+                    name="final_classification"
+                    value={selectedOutcome}
+                  />
                 </>
               ) : (
                 <input type="hidden" name="misspelling_instance_id" value={sourceMisspellingId ?? ""} />
@@ -626,6 +644,11 @@ function UnifiedSpellingReviewTableRow({
                     name="correction_attempt_id"
                     value={row.sourceIds.correctionAttemptId ?? ""}
                   />
+                  <input
+                    type="hidden"
+                    name="final_classification"
+                    value={selectedOutcome}
+                  />
                 </>
               ) : (
                 <input type="hidden" name="misspelling_instance_id" value={sourceMisspellingId ?? ""} />
@@ -647,7 +670,8 @@ function UnifiedSpellingReviewTableRow({
               <select
                 name="final_classification"
                 required
-                defaultValue=""
+                value={selectedOutcome}
+                onChange={(event) => setSelectedOutcome(event.target.value)}
                 aria-label={`Outcome for ${row.observedText}`}
                 className="h-7 max-w-28 rounded border border-[var(--border)] bg-white px-1 text-xs text-[color:var(--ink)]"
               >
