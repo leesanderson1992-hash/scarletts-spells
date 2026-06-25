@@ -882,8 +882,9 @@ Rules:
 ### Slice 7 - Child daily practice surface
 
 Goal:
-- make `/learn/week` or child home show the daily spelling-practice block
-  clearly
+- make `/learn/week` show today's daily spelling-practice block clearly and let
+  the child open a calm read-only/local-only item viewer without creating
+  completion, mastery, evidence, or reward truth
 
 Status:
 - Slice `7A` is implemented as a server-only read model and route boundary
@@ -895,7 +896,7 @@ Status:
     display labels for safe child-facing grouping
   - returns `missing`, `empty`, `ready`, `completed`, `skipped`, and `blocked`
     states
-  - exposes neutral copy for the future child card
+  - exposes neutral copy for the child card and viewer
   - does not trigger generation, write tables, use service-role, or touch
     rewards, mastery, canonical mappings, resolver visibility, Review Work,
     analytics, scoring, templates, `/practice`, or `/assignments`
@@ -906,8 +907,9 @@ Status:
     the existing reward panel
   - the card shows empty, ready, closed, and blocked states with due review
     before new practice
-  - it has no generation trigger, start action, answer capture, completion
-    persistence, reward, mastery, evidence, or scoring behavior
+  - as implemented in `7B` it had no generation trigger, answer capture,
+    completion persistence, reward, mastery, evidence, scoring behavior, or
+    broad runtime revival
   - `/practice` and `/assignments` remain redirect-only legacy paths for this
     slice
 - Slice `7C` is implemented as a read-only/local-only child practice viewer:
@@ -971,13 +973,15 @@ Include:
 - number of repeated pairs resolved child-locally
 - number of admin canonical mappings adopted
 - number of daily practice items generated from verified `learning_items`
-- child completes daily spelling practice in 10-20 minutes
+- future `7D+` completion-state work can show the child completing daily
+  spelling practice in a bounded 10-20 minute session without reward/mastery
+  side effects
 - no increase in false-positive resolver reuse
 - no unreviewed raw evidence becomes reusable truth
 
-## 10. First implementation prompt after roadmap
+## 10. Original first implementation prompt after roadmap
 
-Recommended next slice:
+Historical recommended first slice:
 
 `Read-only spelling-engine population audit`
 

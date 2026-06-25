@@ -240,11 +240,15 @@ If the issue shows fragile knowledge, a concept gap, or transfer failure:
 - it should enter a controlled learning stream
 - it should later appear in curated daily practice
 
-Current Slice 6 boundary:
+Current Slice 6 to Slice 7C boundary:
 - the parent review surface may show that a Golden Nugget / learning item was created
-- the child daily practice surfaces do not need to reflect that new Nugget immediately in Slice 6
-- runtime and reward visibility may still arrive in stages during implementation,
-  but that staged rollout should not be treated as the long-term architecture
+- Slice 6 may materialize that learning item into generated daily practice rows
+  in `daily_assignments` / `assignment_items`
+- Slice 7C may show those rows on `/learn/week` and `/learn/week/practice` as
+  calm child practice only
+- reward, mastery, evidence, and persisted completion visibility still arrive in
+  separate explicitly scoped stages; the staged rollout should not be treated as
+  the long-term architecture
 
 ## Curated daily practice UX
 
@@ -299,10 +303,11 @@ Child surfaces should show:
 - the current curated learning stream
 - calm progress language
 
-Transitional Slice 6 note:
-- parent writing-practice review pages may show Nugget creation before child reward/practice surfaces do
-- that is expected during staged rollout and should not be read as the intended
-  long-term runtime ownership model
+Transitional Slice 7C note:
+- parent writing-practice review pages may show Nugget / learning-item creation
+  while child daily practice shows only neutral practice copy
+- `/learn/week/practice` is read-only/local-only today; persisted completion,
+  reward, mastery, and evidence meaning belong to later explicitly scoped work
 
 ## Reject-suppression UX
 

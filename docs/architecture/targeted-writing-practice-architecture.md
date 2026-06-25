@@ -877,9 +877,10 @@ Slice 6 and Slice 7 must be treated as two separate architecture steps.
 
 Slice 6:
 - creates the first canonical writing-practice Nugget path through `learning_items`
-- does not yet change reward-state tables
+- materializes the first learning-items-sourced daily practice delivery rows
+  through `daily_assignments` / `assignment_items`
+- does not change reward-state tables
 - does not yet change `word_progress`
-- does not yet change `daily_assignments`
 
 Slice 7:
 - is the canonical spine + bounded legacy/runtime boundary slice
@@ -890,12 +891,18 @@ Slice 7:
   suggestion versus verified truth
 - adds generic `assignment_items` so future writing-engine modules can compose
   mixed-domain work without inheriting the older spelling queue shape
-- prepares for a later `learning_items`-first assignment engine
+- surfaces the generated daily spelling practice to the child through
+  `/learn/week` and the read-only/local-only `/learn/week/practice` viewer
+- keeps `/practice` and `/assignments` redirect-only rather than reviving the
+  old spelling runtime
+- prepares for later completion-state and `learning_items`-first assignment
+  engine decisions without making reward/mastery claims
 
 This boundary is deliberate:
 - Slice 6 establishes canonical writing-practice practice truth
 - Slice 7 fences the old queue/runtime model rather than expanding it
-- later slices can replace legacy runtime pieces after the micro-skill and assignment contract exists
+- later slices can add completion or replace legacy runtime pieces only after the
+  micro-skill, assignment, reward, and evidence boundaries are explicitly scoped
 
 ## Reward integration boundary
 
@@ -985,14 +992,17 @@ Slice 6 introduced:
 - minimal canonical `learning_items`
 - one qualifying learning item per finalised learning-gap issue
 - parent-visible Nugget / learning-item evidence on writing-practice review surfaces
+- generated daily practice delivery through `daily_assignments` /
+  `assignment_items`, sourced from active child-specific `learning_items`
 
 Slice 6 did not introduce:
 - reward-table writes
 - `word_progress` writes
-- `daily_assignments` writes
 - child runtime visibility of the new Nuggets yet
 
-This ensures the first Nugget path is canonical without implying that reward-state and assignment/runtime systems have already cut over.
+Slice 7C now adds child visibility through neutral daily-practice surfaces, but
+the reward-state, mastery, evidence, and completion systems still have not cut
+over.
 
 ## Returned-work linkage rule
 

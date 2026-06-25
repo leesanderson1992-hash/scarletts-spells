@@ -230,11 +230,15 @@ Current Slice 5 implementation rule:
 Current Slice 6 implementation rule:
 - qualifying finalised learning-gap issues will create canonical writing-practice `learning_items`
 - these `learning_items` will become the canonical controlled practice-unit source for Targeted Writing Practice
-- Slice 6 will not yet write:
+- Slice 6 writes the transitional delivery layer needed for generated daily
+  spelling practice:
+  - `daily_assignments`
+  - `assignment_items`
+- Slice 6 does not write reward-state tables:
   - `spelling_reward_states`
   - `spelling_reward_events`
-  - `daily_assignments`
-- Slice 6 therefore creates the first canonical Nugget path without yet changing reward-state or runtime compatibility sources
+- Slice 6 therefore creates the first canonical Nugget-to-practice delivery path
+  without changing reward-state or older `word_progress` compatibility sources
 
 Current Slice 7 transition rule:
 - `learning_items` remain the canonical active learning/practice/mastery truth
@@ -243,6 +247,12 @@ Current Slice 7 transition rule:
   verified truth for future writing-engine modules
 - unverified suggestions must not update mastery
 - canonical daily assignment generation, interleaving, route-specific mastery, and full adaptive routing are deferred until the separate Micro-Skill Taxonomy and Assignment Contract exists
+- Version 2.0 Slice `7C` may display generated `daily_assignments` /
+  `assignment_items` through `/learn/week` and `/learn/week/practice`, but it
+  must remain read-only/local-only: no generation trigger, persisted attempt,
+  completion write, evidence write, mastery update, reward write, resolver
+  change, canonical mapping change, catalog mutation, or Review Work gating
+  change
 
 ## Intake and review ownership rule
 
