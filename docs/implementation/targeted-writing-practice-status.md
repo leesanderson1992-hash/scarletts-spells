@@ -19,7 +19,8 @@ Canonical documentation now defers to:
 - Shared `lib/writing-engine` foundation exists.
 - Generic `parent_verifications` exist.
 - Generic `assignment_items` exist.
-- Version 2.0 Slice `7D` daily spelling practice is visible on the child
+- Version 2.0 Slice `7E` daily spelling practice release readiness is complete:
+  practice is visible on the child
   `/learn/week` surface and opens a read-only/local-only viewer at
   `/learn/week/practice` for supported generated spelling items, with a minimal
   item-level delivery completion marker.
@@ -38,7 +39,7 @@ Canonical documentation now defers to:
   diagnostics.
 - Stage `1D` generic assignment generation is now complete on the shared engine
   boundary through bounded `1D.1` to `1D.5` closeout.
-- Slice `7D` surfaces generated daily spelling practice without changing
+- Slice `7E` closes out generated daily spelling practice without changing
   learning truth:
   - helper:
     `lib/writing-practice/daily-spelling-practice-read-model.ts`
@@ -86,6 +87,7 @@ Canonical documentation now defers to:
     `npm run writing-engine:daily-spelling-practice-child-card-regression`,
     `npm run writing-engine:daily-spelling-practice-viewer-regression`,
     `npm run writing-engine:daily-spelling-practice-completion-regression`,
+    `npm run writing-engine:daily-spelling-practice-surface-regression`,
     `npx tsc --noEmit`, targeted ESLint, and `git diff --check`
   - browser smoke passed locally on port `3005` with healthy local Supabase:
     authenticated dashboard load, child `/learn/week`, neutral daily spelling

@@ -85,6 +85,7 @@ function testCompletionHelperScope() {
 
 function testRouteActionIsThinAndScoped() {
   const source = readRepoFile("app/learn/week/practice/actions.ts");
+  const broadLearnActionsSource = readRepoFile("app/learn/actions.ts");
 
   assertIncludes(source, '"use server";', "completion action");
   assertIncludes(source, "supabase.auth.getUser()", "completion action");
@@ -101,6 +102,11 @@ function testRouteActionIsThinAndScoped() {
   );
   assertNotIncludes(source, '.from("assignment_items")', "completion action");
   assertNotIncludes(source, '.from("daily_assignments")', "completion action");
+  assertNotIncludes(
+    broadLearnActionsSource,
+    "completeDailySpellingPractice",
+    "broad learn actions",
+  );
 
   for (const forbidden of forbiddenTablesAndCalls) {
     assertNotIncludes(source, forbidden, "completion action");
@@ -115,9 +121,15 @@ function testViewerCompletionFormAndReadModelState() {
   );
 
   assertIncludes(viewerSource, "<form action={completeAction}>", "viewer");
+  assertIncludes(viewerSource, "isLastItem ? (", "viewer");
   assertIncludes(viewerSource, 'name="dailyAssignmentId"', "viewer");
   assertIncludes(viewerSource, 'name="practiceDate"', "viewer");
   assertIncludes(viewerSource, "Done for today", "viewer");
+  assertIncludes(
+    routeSource,
+    'practice.state === "ready" && supportedItems.length > 0',
+    "viewer route",
+  );
   assertIncludes(routeSource, "completeDailySpellingPracticeAction", "viewer route");
   assertIncludes(
     routeSource,

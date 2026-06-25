@@ -41,21 +41,17 @@ excluded.
 
 ## Next Safe Slice After Launch
 
-1. Version 2.0 Slice `7E`: QA, browser-smoke broadening, and release-readiness
-   hardening for child daily spelling practice. Slice `7D` now adds only
-   item-level delivery completion; broader answer attempts, evidence, mastery,
-   rewards, or `daily_assignments.status` completion writes remain out of scope.
-2. Version 2 roadmap Slice `5`: child-local reuse and suggestion improvement,
+1. Version 2 roadmap Slice `5`: child-local reuse and suggestion improvement,
    if the next priority returns to parent Review Work acceleration.
-3. Optional production-scale canonical mapping operations/audit hardening now
+2. Optional production-scale canonical mapping operations/audit hardening now
    that the CSV import -> canonical adoption -> resolver visibility -> runtime
    categorisation path is live. This is not required for the core flow to work,
    but may be useful before larger imports. Potential scope: pagination/search,
    operator filters, visible/hidden rollback clarity, audit export/runbook, and
    monitoring for resolver-visible mapping effects.
-4. Real-data PCRM/canonical adoption smoke after launch readiness, without
+3. Real-data PCRM/canonical adoption smoke after launch readiness, without
    fixture data as product proof, if PCRM remains a near-term source path.
-5. Manual/operator review of the two canonical-lineage-protected pre-June
+4. Manual/operator review of the two canonical-lineage-protected pre-June
    structured warning submissions and the remaining post-cleanup
    duplicate/pending warning row, if further cleanup is still desired.
 
@@ -99,15 +95,18 @@ excluded.
   [docs/implementation/version-2-roadmap.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/implementation/version-2-roadmap.md:1)
   to plan daily assignment practice and accelerated spelling-engine
   population without weakening truth boundaries.
-- Version 2.0 Slice `7D` child daily spelling practice completion safety is
-  implemented at
+- Version 2.0 Slice `7E` child daily spelling practice release readiness is
+  implemented: `/learn/week` shows the neutral daily spelling card and
   `/learn/week/practice`: the page reads the Slice `7A` model server-side and
   renders a local viewer for supported generated spelling items. The final child
   action marks only supported generated `assignment_items.status` rows as
   `completed`; `daily_assignments.status` remains untouched. There is still no
   generation trigger, persisted answer attempt/correctness, learning truth
   mutation, service-role usage, migration, `/practice` or `/assignments` runtime
-  revival, or rewards/mastery/canonical/Review Work change.
+  revival, or rewards/mastery/canonical/Review Work change. Focused regressions,
+  the aggregate daily-practice surface regression, typecheck, targeted lint,
+  diff checks, and local browser smoke are recorded as passing for release
+  readiness.
 - Version 2.0 Slice `4` bulk candidate mapping import/review is implemented
   and production-smoked through the import-to-resolver-visible canonical truth
   path

@@ -319,6 +319,32 @@ async function testCompletedSupportedItemsClosePracticeWithoutHeaderCompletion()
   assert.equal(model.counts.completed, 2);
 }
 
+async function testMixedSupportedItemStatusesRemainReady() {
+  const { repositories } = createRepositories({
+    dailyAssignments: [buildDailyAssignment({ status: "pending" })],
+    assignmentItems: [
+      buildAssignmentItem({
+        id: "assignment-item-completed",
+        status: "completed",
+        position: 0,
+      }),
+      buildAssignmentItem({
+        id: "assignment-item-ready",
+        status: "ready",
+        position: 1,
+      }),
+    ],
+    learningItems: [buildLearningItem()],
+  });
+
+  const model = await readModel(repositories);
+
+  assert.equal(model.state, "ready");
+  assert.equal(model.assignment?.status, "pending");
+  assert.equal(model.counts.completed, 1);
+  assert.equal(model.counts.ready, 1);
+}
+
 function testStaticSafetyBoundaries() {
   const readModelSource = readFileSync(
     path.join(
@@ -352,6 +378,7 @@ async function main() {
   await testOrderedScopedItemsAndGroups();
   await testEmptyAndBlockedStates();
   await testCompletedSupportedItemsClosePracticeWithoutHeaderCompletion();
+  await testMixedSupportedItemStatusesRemainReady();
   testStaticSafetyBoundaries();
 
   console.log("Daily spelling practice read model regression passed.");

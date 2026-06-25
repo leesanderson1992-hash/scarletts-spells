@@ -949,6 +949,17 @@ Status:
     legacy child redirects; no ready supported local practice existed during
     smoke, so item-completion behavior is covered by regression rather than
     claimed as completed in-browser
+- Slice `7E` is implemented as QA, smoke, and release-readiness closeout:
+  - strengthened regression coverage for mixed item statuses, final-item
+    completion-form placement, thin action delegation, and no broad
+    `app/learn/actions.ts` dumping-ground additions
+  - added `npm run writing-engine:daily-spelling-practice-surface-regression`
+    as the aggregate Slice 7 child-surface regression command
+  - reran focused regressions, aggregate regression, typecheck, targeted lint,
+    diff checks, and local browser smoke
+  - release-readiness decision: release-ready for the Slice 7 child daily
+    practice surface, with the documented local-smoke caveat that no ready
+    supported practice existed in the local dataset
 
 UX:
 - today's practice

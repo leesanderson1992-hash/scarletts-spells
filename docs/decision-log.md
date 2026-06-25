@@ -1,5 +1,25 @@
 # Decision Log
 
+## 2026-06-25 — Slice 7 child daily spelling practice is release-ready
+
+### What changed
+- Version 2.0 Slice `7E` closes the child daily spelling practice surface with
+  release-readiness coverage.
+- The aggregate regression command
+  `npm run writing-engine:daily-spelling-practice-surface-regression` now runs
+  the read-model, child-card, viewer, and completion regressions together.
+- Regression coverage now includes mixed completed/ready item status handling,
+  final-item completion-form placement, thin route-action delegation, and a
+  guard against adding daily-practice completion to broad `app/learn/actions.ts`.
+
+### Why this matters
+- Slice `7A` to `7D` are now documented and QA-covered as one release-ready child
+  daily practice surface.
+- The release boundary remains narrow: item-level delivery completion only,
+  `daily_assignments.status` untouched, no answer/correctness persistence, no
+  evidence, no mastery, no rewards, and legacy `/practice` plus `/assignments`
+  stay redirect-only.
+
 ## 2026-06-25 — Child daily spelling practice completion is item-level delivery state only
 
 ### What changed
