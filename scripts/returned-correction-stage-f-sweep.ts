@@ -114,6 +114,17 @@ function validateArgs(args: Args) {
   }
 }
 
+function buildSafeScopeMetadata(args: Args) {
+  return {
+    childId: args.childId ?? null,
+    submissionId: args.submissionId ?? null,
+    canonicalMappingId: args.canonicalMappingId ?? null,
+    adminCaseId: args.adminCaseId ?? null,
+    limit: args.limit ?? null,
+    upsertRecommendations: args.upsertRecommendations,
+  };
+}
+
 async function main() {
   const args = parseArgs(process.argv.slice(2));
   if (args.help) {
@@ -141,7 +152,7 @@ async function main() {
             issue,
             plan,
             metadata: {
-              sweep_scope: args,
+              sweep_scope: buildSafeScopeMetadata(args),
             },
           })
         : null;

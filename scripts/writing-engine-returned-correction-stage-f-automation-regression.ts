@@ -243,6 +243,12 @@ const sweepScript = readFileSync(
 assert.match(sweepScript, /dryRun: !args\.upsertRecommendations/);
 assert.match(sweepScript, /learningItemApply: false/);
 assert.match(sweepScript, /--upsert-recommendations/);
+assert.match(sweepScript, /buildSafeScopeMetadata/);
+assert.doesNotMatch(
+  sweepScript,
+  /sweep_scope: args/,
+  "Sweep recommendation metadata must not persist Supabase URL/key arguments.",
+);
 assert.doesNotMatch(sweepScript, /applyReturnedCorrectionDeferredRouteReplayPlan/);
 
 const replayScript = readFileSync(
