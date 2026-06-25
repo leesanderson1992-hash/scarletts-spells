@@ -118,16 +118,16 @@ Canonical documentation now defers to:
     `micro_skill_catalog` mutation, canonical truth creation, reward/mastery
     claim, daily assignment generation, or Slice 7 completion behavior change
     is included
-- Future launch-scale route reconciliation remains required:
+- Launch-scale route reconciliation discovery is implemented:
   - a learning-relevant returned correction with no matching active assignable
-    route must remain durable deferred evidence, not become a lost learning
-    opportunity
-  - later canonical mapping adoption or admin micro-skill creation should
-    enqueue or expose an explicit dry-run-first reconciliation pass for matching
-    deferred rows
-  - that reconciliation may create or strengthen `learning_items` only when the
-    historical final classification is learning-relevant and the new route is
-    active and assignable
+    route remains durable deferred evidence, not a lost learning opportunity
+  - later canonical mapping adoption or admin linked-skill decisions now surface
+    explicit dry-run-first replay recommendations for matching deferred rows
+  - the scheduled-safe Stage F sweep catches rows missed by the event hook and
+    is dry-run by default
+  - replay may create or strengthen `learning_items` only when the historical
+    final classification is learning-relevant, returned-correction attempt
+    evidence exists, and the route is active and assignable
   - canonical truth alone must not create rewards, mastery, daily assignments,
     Forge/Word Treasure/Golden Bar movement, or learning items
 - Stage E scoped deferred-admin reconciliation has been exercised as a
@@ -144,31 +144,52 @@ Canonical documentation now defers to:
   - this was an operational data repair/reconciliation phase, not a new broad
     runtime mutation path
 - Stage F deferred route replay / launch-scale reconciliation is implemented
-  through the operator-safe F.0/F.1 path:
+  through F.2/F.3 discovery and admin visibility:
   - pure planner:
     `lib/writing-engine/persistence/returned-correction-deferred-route-replay.ts`
+  - shared server-safe loader/apply/recommendation helper:
+    `lib/writing-engine/persistence/returned-correction-deferred-route-replay-apply.ts`
   - dry-run/apply script:
     `scripts/returned-correction-stage-f-deferred-route-replay.ts`
+  - scheduled-safe sweep:
+    `scripts/returned-correction-stage-f-sweep.ts`
+  - persisted admin/operator recommendations:
+    `returned_correction_replay_recommendations`
   - regression:
     `scripts/writing-engine-returned-correction-stage-f-replay-regression.ts`
+  - automation regression:
+    `scripts/writing-engine-returned-correction-stage-f-automation-regression.ts`
   - command:
     `npm run writing-engine:returned-correction-stage-f-regression`
+  - automation command:
+    `npm run writing-engine:returned-correction-stage-f-automation-regression`
   - default mode is dry-run and reports summary counts, per-row JSON records,
     proposed mutations, `dryRun: true`, and `mutationsApplied: 0`
   - apply requires focused scope by writing issue, admin case, canonical
     mapping, submission, or child plus explicit limit
+  - admin catalog decisions that add a canonical mapping or link an existing
+    skill call the same planner and upsert pending/blocked recommendations
+  - the sweep accepts `--limit` plus optional child, submission, canonical
+    mapping, or admin case scope; `--upsert-recommendations` persists
+    recommendations idempotently, while default dry-run mutates nothing
+  - `/admin/canonical-mappings` shows "Deferred learning replay available",
+    counts replayable rows, and displays dry-run details before any manual
+    operator apply
   - replayable rows must be finalised as `fragile_knowledge`, `concept_gap`,
     or `transfer_failure`, have returned-correction attempt evidence, have no
     existing issue link/evidence inconsistency, and now resolve to exactly one
     active assignable durable/canonical/admin route
   - apply may attach the verified route, then create or strengthen
     `learning_items`, issue links, and evidence through the existing contract
-  - no migration, RLS broadening, browser service-role path,
-    `micro_skill_catalog` mutation, canonical/admin truth creation,
-    reward/mastery claim, daily assignment generation, or child-side
+  - the recommendation table has RLS enabled and is service-role-only; admin UI
+    access is server-side
+  - no RLS broadening, browser service-role path, `micro_skill_catalog`
+    mutation, canonical/admin truth creation, reward/mastery claim, daily
+    assignment generation, automatic learning apply, or child-side
     categorisation is included
-  - F.2/F.3 remain future work: admin/canonical event hooks and a scheduled
-    sweep should call the same planner/mutation contract
+  - next product step: verify manually replayed learning items enter daily
+    learning queue planning correctly without retroactive reward or completion
+    effects
 - Shared `lib/writing-engine` foundation exists.
 - Generic `parent_verifications` exist.
 - Generic `assignment_items` exist.

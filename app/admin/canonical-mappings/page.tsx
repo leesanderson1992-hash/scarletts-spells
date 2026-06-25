@@ -16,6 +16,7 @@ import {
   parseCanonicalMappingOperationsFilters,
   type CanonicalMappingOperationsFilters,
   type CanonicalMappingOperationsRow,
+  type ReturnedCorrectionReplayRecommendationRow,
 } from "./read-model";
 
 export const dynamic = "force-dynamic";
@@ -61,6 +62,34 @@ function shortId(value: string | null | undefined) {
   }
 
   return value.length > 12 ? `${value.slice(0, 12)}...` : value;
+}
+
+function readSnapshotString(
+  snapshot: Record<string, unknown>,
+  key: string,
+) {
+  const value = snapshot[key];
+  return typeof value === "string" && value.trim().length > 0
+    ? value.trim()
+    : null;
+}
+
+function readSnapshotBoolean(
+  snapshot: Record<string, unknown>,
+  key: string,
+) {
+  const value = snapshot[key];
+  return typeof value === "boolean" ? value : null;
+}
+
+function readSnapshotStringArray(
+  snapshot: Record<string, unknown>,
+  key: string,
+) {
+  const value = snapshot[key];
+  return Array.isArray(value)
+    ? value.filter((item): item is string => typeof item === "string")
+    : [];
 }
 
 function canonicalMappingsHref(filters: Partial<CanonicalMappingOperationsFilters>) {
@@ -300,6 +329,176 @@ function Summary({
           </p>
         </div>
       ))}
+    </section>
+  );
+}
+
+function DeferredReplayPanel({
+  recommendations,
+}: {
+  recommendations: ReturnedCorrectionReplayRecommendationRow[];
+}) {
+  const replayableCount = recommendations.filter(
+    (row) => row.replay_status === "pending",
+  ).length;
+
+  return (
+    <section
+      className="overflow-hidden rounded-2xl border border-[var(--border)] bg-white/90 shadow-[var(--shadow-soft)]"
+      aria-labelledby="deferred-replay-heading"
+    >
+      <div className="flex flex-wrap items-start justify-between gap-4 border-b border-[var(--border)] px-6 py-5">
+        <div>
+          <p className="brand-eyebrow">Stage F.2/F.3</p>
+          <h2
+            id="deferred-replay-heading"
+            className="brand-title mt-2 text-2xl font-semibold"
+          >
+            Deferred learning replay available
+          </h2>
+          <p className="brand-copy mt-2 max-w-3xl text-sm">
+            These rows are surfaced by the Stage F planner. Canonical/admin
+            truth supplies route support only; manual apply still requires the
+            dry-run plan to be safe.
+          </p>
+        </div>
+        <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-950">
+          <span className="block text-xs font-semibold uppercase">
+            Replayable
+          </span>
+          <span className="text-2xl font-semibold">{replayableCount}</span>
+        </div>
+      </div>
+      {recommendations.length === 0 ? (
+        <div className="px-6 py-5 text-sm text-[color:var(--mid)]">
+          No pending or blocked deferred replay recommendations are currently
+          surfaced.
+        </div>
+      ) : (
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[1500px] border-collapse text-left text-[13px]">
+            <thead>
+              <tr className="bg-[rgba(255,247,220,0.45)] text-left text-[10px] font-medium uppercase leading-tight tracking-normal text-[color:var(--mid)]">
+                <th scope="col" className="px-3 py-3">
+                  Child / Parent
+                </th>
+                <th scope="col" className="px-3 py-3">
+                  Issue
+                </th>
+                <th scope="col" className="px-3 py-3">
+                  Spelling Pair
+                </th>
+                <th scope="col" className="px-3 py-3">
+                  Classification
+                </th>
+                <th scope="col" className="px-3 py-3">
+                  Route Source
+                </th>
+                <th scope="col" className="px-3 py-3">
+                  Catalog
+                </th>
+                <th scope="col" className="px-3 py-3">
+                  Existing State
+                </th>
+                <th scope="col" className="px-3 py-3">
+                  Dry-run Detail
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {recommendations.map((recommendation) => {
+                const snapshot = recommendation.planner_snapshot;
+                const observed = readSnapshotString(snapshot, "observedText");
+                const correction = readSnapshotString(snapshot, "correctionText");
+                const classification = readSnapshotString(
+                  snapshot,
+                  "finalClassification",
+                );
+                const proposedAction =
+                  readSnapshotString(snapshot, "proposedAction") ?? "none";
+                const safeToApply = readSnapshotBoolean(snapshot, "safeToApply");
+                const reasons = readSnapshotStringArray(snapshot, "reasons");
+                const existingLearningItemIds =
+                  readSnapshotStringArray(snapshot, "existingLearningItemIds");
+                const existingIssueLinkIds =
+                  readSnapshotStringArray(snapshot, "existingIssueLinkIds");
+                const evidenceCount =
+                  typeof snapshot.evidenceCount === "number"
+                    ? snapshot.evidenceCount
+                    : 0;
+
+                return (
+                  <tr key={recommendation.id} className="align-top">
+                    <td className="border-t border-[var(--border)] px-3 py-4 text-xs text-[color:var(--mid)]">
+                      <span className="block font-semibold text-[color:var(--ink)]">
+                        {shortId(recommendation.child_id)}
+                      </span>
+                      <span className="block">{shortId(recommendation.parent_user_id)}</span>
+                    </td>
+                    <td className="border-t border-[var(--border)] px-3 py-4 text-xs text-[color:var(--mid)]">
+                      <span className="block font-semibold text-[color:var(--ink)]">
+                        {shortId(recommendation.writing_issue_id)}
+                      </span>
+                      <span className="block">
+                        Misspelling {shortId(recommendation.source_misspelling_instance_id)}
+                      </span>
+                    </td>
+                    <td className="border-t border-[var(--border)] px-3 py-4 text-sm text-[color:var(--ink)]">
+                      <span className="block">{observed ?? "unknown"}</span>
+                      <span className="block text-xs text-[color:var(--mid)]">
+                        to {correction ?? "unknown"}
+                      </span>
+                    </td>
+                    <td className="border-t border-[var(--border)] px-3 py-4 text-xs text-[color:var(--mid)]">
+                      <Badge value={classification ?? "unknown"} />
+                    </td>
+                    <td className="border-t border-[var(--border)] px-3 py-4 text-xs text-[color:var(--mid)]">
+                      <span className="block font-semibold text-[color:var(--ink)]">
+                        {formatLabel(recommendation.route_source)}
+                      </span>
+                      <span className="block">Case {shortId(recommendation.admin_case_id)}</span>
+                      <span className="block">
+                        Mapping {shortId(recommendation.canonical_mapping_id)}
+                      </span>
+                      <span className="block">
+                        Decision {shortId(recommendation.admin_decision_id)}
+                      </span>
+                    </td>
+                    <td className="border-t border-[var(--border)] px-3 py-4 text-xs text-[color:var(--mid)]">
+                      <span className="block font-semibold text-[color:var(--ink)]">
+                        {recommendation.micro_skill_key ?? "none"}
+                      </span>
+                      <span className="block">
+                        Active/assignable: {recommendation.replay_status === "pending" ? "yes" : "blocked"}
+                      </span>
+                    </td>
+                    <td className="border-t border-[var(--border)] px-3 py-4 text-xs text-[color:var(--mid)]">
+                      <span className="block">
+                        Learning items {existingLearningItemIds.length}
+                      </span>
+                      <span className="block">
+                        Issue links {existingIssueLinkIds.length}
+                      </span>
+                      <span className="block">Evidence rows {evidenceCount}</span>
+                    </td>
+                    <td className="border-t border-[var(--border)] px-3 py-4 text-xs text-[color:var(--mid)]">
+                      <span className="block font-semibold text-[color:var(--ink)]">
+                        {formatLabel(proposedAction)}
+                      </span>
+                      <span className="block">
+                        {safeToApply ? "Safe to apply manually" : "Blocked for review"}
+                      </span>
+                      <span className="mt-1 block">
+                        {reasons.join(" ") || "No planner reason recorded."}
+                      </span>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
     </section>
   );
 }
@@ -572,6 +771,7 @@ export default async function AdminCanonicalMappingsPage({
           summary={page.summary}
           totalCount={page.totalCount}
         />
+        <DeferredReplayPanel recommendations={page.replayRecommendations} />
         <PaginationControls filters={filters} totalPages={page.totalPages} />
         <MappingsTable mappings={page.rows} />
         <PaginationControls filters={filters} totalPages={page.totalPages} />

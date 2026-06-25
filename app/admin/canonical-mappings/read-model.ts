@@ -67,6 +67,24 @@ export type CanonicalMappingOperationsRow = {
   event_count: number;
 };
 
+export type ReturnedCorrectionReplayRecommendationRow = {
+  id: string;
+  child_id: string;
+  parent_user_id: string;
+  writing_issue_id: string;
+  source_misspelling_instance_id: string | null;
+  admin_case_id: string | null;
+  canonical_mapping_id: string | null;
+  admin_decision_id: string | null;
+  micro_skill_key: string | null;
+  route_source: string;
+  replay_status: string;
+  planner_snapshot: Record<string, unknown>;
+  metadata: Record<string, unknown> | null;
+  created_at: string;
+  updated_at: string;
+};
+
 type CanonicalMappingTableRow = Omit<
   CanonicalMappingOperationsRow,
   | "micro_skill_display_name"
@@ -114,6 +132,7 @@ export type CanonicalMappingOperationsSummary = {
 export type CanonicalMappingOperationsPage = {
   filters: CanonicalMappingOperationsFilters;
   rows: CanonicalMappingOperationsRow[];
+  replayRecommendations: ReturnedCorrectionReplayRecommendationRow[];
   totalCount: number;
   pageCount: number;
   totalPages: number;
@@ -125,6 +144,44 @@ function parsePositivePage(value: string | string[] | undefined) {
   const page = Number.parseInt(raw ?? "1", 10);
 
   return Number.isFinite(page) && page > 0 ? page : 1;
+}
+
+async function fetchReplayRecommendations() {
+  const supabase = createServiceRoleClient();
+  const { data, error } = await supabase
+    .from("returned_correction_replay_recommendations")
+    .select(
+      [
+        "id",
+        "child_id",
+        "parent_user_id",
+        "writing_issue_id",
+        "source_misspelling_instance_id",
+        "admin_case_id",
+        "canonical_mapping_id",
+        "admin_decision_id",
+        "micro_skill_key",
+        "route_source",
+        "replay_status",
+        "planner_snapshot",
+        "metadata",
+        "created_at",
+        "updated_at",
+      ].join(", "),
+    )
+    .in("replay_status", ["pending", "blocked"])
+    .order("updated_at", { ascending: false })
+    .limit(25);
+
+  if (error) {
+    if ("code" in error && error.code === "PGRST205") {
+      return [];
+    }
+
+    throw error;
+  }
+
+  return (data ?? []) as unknown as ReturnedCorrectionReplayRecommendationRow[];
 }
 
 function parseEnum<TValue extends string>(
@@ -430,7 +487,13 @@ export async function loadCanonicalMappingOperationsPage(
   );
   const totalCount = count ?? 0;
   const summaryFilters = { ...filters, visibility: "all" as const };
-  const [activeCount, visibleCount, hiddenCount, disabledVisibilityCount] =
+  const [
+    activeCount,
+    visibleCount,
+    hiddenCount,
+    disabledVisibilityCount,
+    replayRecommendations,
+  ] =
     await Promise.all([
       countMappings(summaryFilters, {
         status: "active",
@@ -445,11 +508,13 @@ export async function loadCanonicalMappingOperationsPage(
       countMappings(summaryFilters, {
         visibility: "disabled",
       }),
+      fetchReplayRecommendations(),
     ]);
 
   return {
     filters,
     rows,
+    replayRecommendations,
     totalCount,
     pageCount: rows.length,
     totalPages: Math.max(

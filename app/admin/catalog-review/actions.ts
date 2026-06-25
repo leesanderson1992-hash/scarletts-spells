@@ -5,10 +5,12 @@ import { redirect } from "next/navigation";
 
 import { requireAdminUser } from "@/lib/admin/access";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
+import { surfaceReturnedCorrectionReplayRecommendations } from "@/lib/writing-engine/persistence/returned-correction-deferred-route-replay-apply";
 
 const ADMIN_CATALOG_REVIEW_PATH = "/admin/catalog-review";
 
 const ADMIN_DECISION_TYPES = [
+  "linked_existing_skill",
   "add_canonical_mapping",
   "needs_new_micro_skill",
   "word_level_only",
@@ -82,12 +84,15 @@ export async function resolveSpellingCatalogReviewCase(formData: FormData) {
 
   let linkedMicroSkillKey: string | null = null;
 
-  if (decisionType === "add_canonical_mapping") {
+  if (
+    decisionType === "add_canonical_mapping" ||
+    decisionType === "linked_existing_skill"
+  ) {
     if (!submittedMicroSkillKey) {
       redirect(
         buildRedirectWithMessage(
           "error",
-          "Add canonical mapping requires an active assignable D4 micro-skill.",
+          "That route-support decision requires an active assignable D4 micro-skill.",
         ),
       );
     }
@@ -111,7 +116,7 @@ export async function resolveSpellingCatalogReviewCase(formData: FormData) {
     redirect(
       buildRedirectWithMessage(
         "error",
-        "Only Add canonical mapping decisions may include a micro-skill.",
+        "Only route-support decisions may include a micro-skill.",
       ),
     );
   }
@@ -143,7 +148,29 @@ export async function resolveSpellingCatalogReviewCase(formData: FormData) {
     );
   }
 
+  try {
+    await surfaceReturnedCorrectionReplayRecommendations({
+      supabase,
+      scope: {
+        adminCaseId: caseId,
+        limit: 100,
+      },
+      nowIso: new Date().toISOString(),
+      triggerSource: "admin_hook",
+    });
+  } catch (surfaceError) {
+    redirect(
+      buildRedirectWithMessage(
+        "error",
+        surfaceError instanceof Error
+          ? surfaceError.message
+          : "Catalog-review decision saved, but deferred replay recommendations could not be refreshed.",
+      ),
+    );
+  }
+
   revalidatePath(ADMIN_CATALOG_REVIEW_PATH);
+  revalidatePath("/admin/canonical-mappings");
   redirect(
     buildRedirectWithMessage("saved", "Catalog-review decision saved."),
   );

@@ -193,7 +193,9 @@ export function AdminCaseDecisionRow({
   );
   const [detailsOpen, setDetailsOpen] = useState(false);
   const formId = `admin-decision-${caseId}`;
-  const isAddingCanonicalMapping = decisionType === "add_canonical_mapping";
+  const isRouteSupportDecision =
+    decisionType === "add_canonical_mapping" ||
+    decisionType === "linked_existing_skill";
   const filteredClusters = clusterOptions.filter(
     (cluster) => cluster.skill_family_key === familyKey,
   );
@@ -240,12 +242,12 @@ export function AdminCaseDecisionRow({
           No matching skill
         </td>
         <td className="border-t border-[var(--border)] px-3 py-3">
-          {isAddingCanonicalMapping ? (
+          {isRouteSupportDecision ? (
             <label className="sr-only" htmlFor={`${formId}-family`}>
               Skill Family for {wrongWord}
             </label>
           ) : null}
-          {isAddingCanonicalMapping ? (
+          {isRouteSupportDecision ? (
             <select
               id={`${formId}-family`}
               value={familyKey}
@@ -268,12 +270,12 @@ export function AdminCaseDecisionRow({
           )}
         </td>
         <td className="border-t border-[var(--border)] px-3 py-3">
-          {isAddingCanonicalMapping ? (
+          {isRouteSupportDecision ? (
             <label className="sr-only" htmlFor={`${formId}-cluster`}>
               Skill Cluster for {wrongWord}
             </label>
           ) : null}
-          {isAddingCanonicalMapping ? (
+          {isRouteSupportDecision ? (
             <select
               id={`${formId}-cluster`}
               value={clusterKey}
@@ -296,12 +298,12 @@ export function AdminCaseDecisionRow({
           )}
         </td>
         <td className="border-t border-[var(--border)] px-3 py-3">
-          {isAddingCanonicalMapping ? (
+          {isRouteSupportDecision ? (
             <label className="sr-only" htmlFor={`${formId}-micro-skill`}>
               Micro-skill for {wrongWord}
             </label>
           ) : null}
-          {isAddingCanonicalMapping ? (
+          {isRouteSupportDecision ? (
             <select
               id={`${formId}-micro-skill`}
               form={formId}
@@ -351,6 +353,9 @@ export function AdminCaseDecisionRow({
                 <option value="add_canonical_mapping">
                   Add canonical mapping
                 </option>
+                <option value="linked_existing_skill">
+                  Link existing skill
+                </option>
                 <option value="needs_new_micro_skill">
                   Needs new micro-skill
                 </option>
@@ -361,9 +366,9 @@ export function AdminCaseDecisionRow({
                 </option>
               </select>
               <p className="text-[11px] leading-4 text-[color:var(--mid)]">
-                Add canonical mapping creates canonical storage. Resolver use
-                requires separate resolver visibility enablement and the runtime
-                feature flag.
+                Canonical/admin route support can surface deferred returned
+                corrections for manual replay review. Resolver use still
+                requires separate visibility authority and the runtime flag.
               </p>
             </form>
           ) : (

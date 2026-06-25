@@ -1,5 +1,44 @@
 # Decision Log
 
+## 2026-06-25 — Stage F.2/F.3 surfaces replayable deferred returned corrections
+
+### What changed
+- Stage F replay now has a shared server-safe helper for loading planner
+  context, applying the existing replay mutation contract, and projecting
+  replay recommendations.
+- A new `returned_correction_replay_recommendations` table stores pending,
+  blocked, applied, dismissed, or superseded admin/operator recommendations
+  with planner snapshots. RLS is enabled and table grants remain service-role
+  only.
+- Admin catalog decisions that add canonical route support or link an existing
+  active assignable skill call the Stage F planner and upsert matching replay
+  recommendations.
+- `scripts/returned-correction-stage-f-sweep.ts` adds the Stage F.3
+  scheduled-safe sweep. It is dry-run by default and only persists
+  recommendations with explicit `--upsert-recommendations`.
+- `/admin/canonical-mappings` now shows "Deferred learning replay available",
+  replayable counts, row lineage, existing learning link/evidence state, and
+  dry-run planner reasons before any manual apply.
+- Regression coverage is registered as
+  `npm run writing-engine:returned-correction-stage-f-automation-regression`.
+
+### Why this matters
+- Deferred Stage E/admin rows can become visible when route support arrives
+  without relying on an operator remembering manual SQL or a replay script.
+- The Stage F planner remains the truth model. Canonical/admin truth supplies
+  route support only; learning replay still requires the preserved
+  learning-relevant final classification, returned-correction attempt evidence,
+  and one active assignable route.
+- The sweep and admin hook do not automatically apply learning mutations.
+  Replay apply stays manual, scoped, and observable.
+- The implementation does not broaden RLS, expose service-role browser paths,
+  mutate `micro_skill_catalog`, create canonical/admin truth from replay logic,
+  create rewards, make mastery claims, write daily assignment completion, or
+  perform child-side categorisation.
+- The next product step is verifying manually replayed learning items enter
+  daily learning queue planning correctly without retroactive reward, mastery,
+  or completion effects.
+
 ## 2026-06-25 — Stage F deferred route replay implemented for scoped operator use
 
 ### What changed

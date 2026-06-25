@@ -155,17 +155,31 @@ excluded.
   rewards, mastery claims, daily assignments, or route mutations. This keeps
   the rows recoverable once admin/canonical route support exists.
 - `Stage F: Deferred Route Replay / Launch-Scale Reconciliation` is
-  implemented through the operator-safe F.0/F.1 path. The pure planner
+  implemented through F.2/F.3 discovery and visibility. The pure planner
   `lib/writing-engine/persistence/returned-correction-deferred-route-replay.ts`
-  and script
+  remains the truth model; the shared helper
+  `lib/writing-engine/persistence/returned-correction-deferred-route-replay-apply.ts`
+  is used by the existing replay script, the admin/canonical hook, and the
+  sweep. The script
   `scripts/returned-correction-stage-f-deferred-route-replay.ts` provide
   dry-run-first replay for finalised Stage E/admin-deferred rows once
-  canonical/admin truth supplies an active assignable route. Apply mode is
-  scoped, idempotent, and uses the existing learning-item contract without
-  reward, mastery, or daily-assignment side effects. Focused regression:
-  `npm run writing-engine:returned-correction-stage-f-regression`. Remaining
-  future Stage F work is F.2/F.3: admin/canonical event hooks and a scheduled
-  sweep that call the same planner rather than inventing a second truth model.
+  canonical/admin truth supplies an active assignable route. Admin catalog
+  decisions that add canonical mapping route support or link an existing skill
+  now surface matching deferred rows into
+  `returned_correction_replay_recommendations`; the scheduled-safe sweep
+  `scripts/returned-correction-stage-f-sweep.ts` catches missed rows and is
+  dry-run by default. Apply remains manual/operator scoped and observable.
+  Canonical/admin truth supplies route support only: learning item replay still
+  requires the preserved learning-relevant final classification, returned
+  correction attempt evidence, and an active assignable route. No rewards,
+  mastery, daily assignments, child-side categorisation, RLS broadening,
+  catalog mutation, or browser service-role path is introduced. Focused
+  regressions:
+  `npm run writing-engine:returned-correction-stage-f-regression` and
+  `npm run writing-engine:returned-correction-stage-f-automation-regression`.
+  The next product step after F.2/F.3 is verifying replayed learning items enter
+  daily learning queue planning correctly without retroactive reward or
+  completion effects.
 - The bounded Parent Review spelling workflow MVP loop is complete and
   QA-passed for private parent-led use.
 - Version 2.0 Slice `5A` parent Review Work friction reduction is implemented:

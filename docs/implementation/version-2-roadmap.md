@@ -173,6 +173,22 @@ events and backed by a nightly sweep. It must not create rewards, mastery,
 Forge/Word Treasure/Golden Bar movement, daily assignments, or learning items
 from canonical truth alone.
 
+Stage F.2/F.3 now implements that discovery layer without changing the learning
+mutation boundary. Admin catalog decisions that add canonical route support or
+link an existing active assignable skill surface matching deferred rows as
+`returned_correction_replay_recommendations`. The scheduled-safe sweep
+`scripts/returned-correction-stage-f-sweep.ts` can dry-run or explicitly upsert
+those recommendations with `--upsert-recommendations`; it does not apply
+learning-item mutations. The Stage F planner remains the truth model. A replay
+recommendation is only actionable when the historical returned correction is
+finalised as `fragile_knowledge`, `concept_gap`, or `transfer_failure`, has
+returned-correction attempt evidence, and now resolves to one active assignable
+route. Admin/canonical truth is route support only, not learning truth by
+itself. The next product step is queue verification: prove that manually
+replayed learning items enter daily learning planning correctly without
+retroactive reward, mastery, daily-assignment completion, or child-facing
+completion effects.
+
 Parent recommendation ladder:
 - parent recommendation exists, not confirmed/promoted: suggestion only
 - parent recommendation promoted locally and active/assignable: may create or
