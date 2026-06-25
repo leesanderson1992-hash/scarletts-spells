@@ -910,11 +910,25 @@ Status:
     persistence, reward, mastery, evidence, or scoring behavior
   - `/practice` and `/assignments` remain redirect-only legacy paths for this
     slice
-- Browser visual smoke for `7B` was attempted against local dev but blocked by
-  the in-app browser navigation layer. Route-level smoke confirmed
-  unauthenticated `/learn/week` redirects to `/login`; authenticated card
-  rendering is covered by static regression until an authenticated browser
-  session is available.
+- Slice `7C` is implemented as a read-only/local-only child practice viewer:
+  - `/learn/week/practice` reads the Slice `7A` model server-side for the
+    selected child and current date
+  - non-child access redirects safely away from the child practice detail route
+  - the `/learn/week` card links to the viewer only when the read model is
+    `ready` and at least one item is supported for the child surface
+  - the viewer renders only supported `spelling` + `controlled_spelling` items
+    with local navigation and optional local feedback
+  - unsupported, missing, empty, completed, skipped, and blocked states render
+    calm neutral copy
+  - it adds no migration and no generation trigger, server action, persisted
+    answer attempt, completion persistence, evidence, mastery, reward, canonical
+    mapping, resolver, catalog, Review Work, analytics, scoring, template, or
+    course-completion write
+  - `/practice` and `/assignments` remain redirect-only legacy paths; Slice
+    `7D` remains the decision point for any persisted completion marker
+  - local browser smoke passed for the authenticated child `/learn/week`
+    daily-practice card, direct `/learn/week/practice` neutral empty state,
+    refresh stability, forbidden daily-practice copy, and legacy child redirects
 
 UX:
 - today's practice

@@ -1,5 +1,27 @@
 # Decision Log
 
+## 2026-06-25 — Child daily spelling practice has a read-only item viewer
+
+### What changed
+- Version 2.0 Slice `7C` adds the child practice detail route at
+  [app/learn/week/practice/page.tsx](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/app/learn/week/practice/page.tsx:1).
+- Supported generated spelling items render through the local-only viewer in
+  [components/daily-spelling-practice-viewer.tsx](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/components/daily-spelling-practice-viewer.tsx:1).
+- The child weekly card in
+  [components/learn-week-planner.tsx](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/components/learn-week-planner.tsx:1)
+  links to `/learn/week/practice` only for ready supported practice.
+- Static regression coverage was added in
+  [scripts/writing-engine-daily-spelling-practice-viewer-regression.ts](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/scripts/writing-engine-daily-spelling-practice-viewer-regression.ts:1).
+
+### Why this matters
+- Children can now open today's generated practice and move through words
+  without creating learning truth, attempts, completion state, evidence,
+  mastery, or reward implications.
+- The viewer is read-only at the data boundary and local-only in the browser; no
+  migration or service-role path was added.
+- Legacy `/practice` and `/assignments` remain redirect-only. Slice `7D` remains
+  the decision point for any persisted completion marker.
+
 ## 2026-06-24 — Child weekly planner now surfaces daily spelling practice read-only
 
 ### What changed

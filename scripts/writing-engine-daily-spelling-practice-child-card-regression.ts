@@ -93,12 +93,12 @@ function testPlannerAcceptsAndRendersDailyPracticeCard() {
   );
   assertIncludes(
     plannerSource,
-    "<DailySpellingPracticeCard practice={dailySpellingPractice} />",
+    "<DailySpellingPracticeCard",
     "LearnWeekPlanner render",
   );
 
   const cardRenderIndex = plannerSource.indexOf(
-    "<DailySpellingPracticeCard practice={dailySpellingPractice} />",
+    "<DailySpellingPracticeCard",
   );
   const panelRenderIndex = plannerSource.indexOf("<GoldForgePanel");
   assert.ok(
@@ -137,8 +137,6 @@ function testCardCopyAndBehaviorStayDisplayOnly() {
   ];
   const forbiddenInteractions = [
     "<button",
-    "<Link",
-    "href=",
     "onClick",
     "action=",
     "completeCourseTask",
@@ -191,6 +189,26 @@ function testCardCopyAndBehaviorStayDisplayOnly() {
   assertIncludes(cardSource, "copy.done", "DailySpellingPracticeCard source");
   assertIncludes(cardSource, "copy.empty", "DailySpellingPracticeCard source");
   assertIncludes(cardSource, "copy.readyForToday", "DailySpellingPracticeCard source");
+  assertIncludes(
+    cardSource,
+    'practice.state === "ready"',
+    "DailySpellingPracticeCard source",
+  );
+  assertIncludes(
+    cardSource,
+    "supportedItemCount > 0",
+    "DailySpellingPracticeCard source",
+  );
+  assertIncludes(
+    cardSource,
+    'href={getDailyPracticeViewerPath(childId)}',
+    "DailySpellingPracticeCard source",
+  );
+  assertIncludes(
+    cardSource,
+    "Open practice",
+    "DailySpellingPracticeCard source",
+  );
 }
 
 function testLegacyPracticeAndAssignmentsRedirectsStayScoped() {

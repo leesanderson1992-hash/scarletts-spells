@@ -19,8 +19,9 @@ Canonical documentation now defers to:
 - Shared `lib/writing-engine` foundation exists.
 - Generic `parent_verifications` exist.
 - Generic `assignment_items` exist.
-- Version 2.0 Slice `7B` daily spelling practice is visible on the child
-  `/learn/week` surface as a neutral, display-only card.
+- Version 2.0 Slice `7C` daily spelling practice is visible on the child
+  `/learn/week` surface and opens a read-only/local-only viewer at
+  `/learn/week/practice` for supported generated spelling items.
 - Durable issue-lifecycle and learning-item creation exist.
 - The older spelling runtime surfaces are retired and should not be treated as
   an active product path.
@@ -36,7 +37,7 @@ Canonical documentation now defers to:
   diagnostics.
 - Stage `1D` generic assignment generation is now complete on the shared engine
   boundary through bounded `1D.1` to `1D.5` closeout.
-- Slice `7B` surfaces generated daily spelling practice without changing
+- Slice `7C` surfaces generated daily spelling practice without changing
   learning truth:
   - helper:
     `lib/writing-practice/daily-spelling-practice-read-model.ts`
@@ -44,16 +45,28 @@ Canonical documentation now defers to:
     `app/learn/week/page.tsx`
   - child card:
     `components/learn-week-planner.tsx`
+  - child viewer route:
+    `app/learn/week/practice/page.tsx`
+  - child viewer:
+    `components/daily-spelling-practice-viewer.tsx`
   - regression:
     `scripts/writing-engine-daily-spelling-practice-read-model-regression.ts`
   - card regression:
     `scripts/writing-engine-daily-spelling-practice-child-card-regression.ts`
+  - viewer regression:
+    `scripts/writing-engine-daily-spelling-practice-viewer-regression.ts`
   - reads `daily_assignments`, `assignment_items`, selected scoped
     `learning_items`, and optional `micro_skill_catalog` labels
   - returns `missing`, `empty`, `ready`, `completed`, `skipped`, and `blocked`
     states plus neutral child copy and due-review/new-practice grouping
-  - renders the child card before the existing reward panel without start,
-    answer, completion, scoring, or persistence controls
+  - renders the child card before the existing reward panel and links to
+    `/learn/week/practice` only when practice is ready and has at least one
+    supported `spelling` + `controlled_spelling` item
+  - renders the viewer with local React navigation and optional local feedback
+    only; it does not persist answers, correctness, attempts, completion, or
+    status
+  - no migration was added; Slice `7D` remains the place for any persisted
+    completion decision
   - does not trigger generation, write Supabase rows, use service-role, expose
     service-role browser code, create evidence, mutate `learning_items`, revive
     `/practice` or `/assignments`, or touch rewards, mastery, canonical
@@ -62,13 +75,13 @@ Canonical documentation now defers to:
   - QA passed:
     `npm run writing-engine:daily-spelling-practice-read-model-regression`,
     `npm run writing-engine:daily-spelling-practice-child-card-regression`,
-    `npm run typecheck:scripts`, `npx tsc --noEmit`, targeted ESLint, and
-    `git diff --check`
-  - browser visual smoke was attempted against local dev but blocked by the
-    in-app browser navigation layer; route-level `curl` smoke confirmed
-    unauthenticated `/learn/week` redirects to `/login`, while authenticated
-    child card rendering remains covered by static regression until an
-    authenticated browser session is available
+    `npm run writing-engine:daily-spelling-practice-viewer-regression`,
+    `npx tsc --noEmit`, targeted ESLint, and `git diff --check`
+  - browser smoke passed locally on port `3005` with healthy local Supabase:
+    authenticated dashboard load, child `/learn/week`, neutral daily spelling
+    card, direct `/learn/week/practice` empty-state rendering, refresh stability,
+    forbidden-copy check for the daily-practice surfaces, and `/practice` plus
+    `/assignments` child redirects back to `/learn/week`
 - Future spelling word-map/dictionary content is now contracted as content
   metadata only. It may later supply lesson words for existing active
   assignable spelling micro-skills, but it is not resolver, mastery,

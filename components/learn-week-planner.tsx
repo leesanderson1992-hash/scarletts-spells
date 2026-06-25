@@ -590,10 +590,20 @@ function getDailyPracticePreviewGroups(practice: DailySpellingPracticeReadModel)
     .filter((group) => group.supportedCount > 0);
 }
 
+function getDailyPracticeViewerPath(childId: string) {
+  const searchParams = new URLSearchParams();
+  searchParams.set("child", childId);
+  searchParams.set("mode", "child");
+
+  return `/learn/week/practice?${searchParams.toString()}`;
+}
+
 function DailySpellingPracticeCard({
   practice,
+  childId,
 }: {
   practice: DailySpellingPracticeReadModel;
+  childId: string;
 }) {
   const copy = practice.childCopy;
   const previewGroups = getDailyPracticePreviewGroups(practice);
@@ -639,9 +649,17 @@ function DailySpellingPracticeCard({
           ) : null}
         </div>
         {isReady && supportedItemCount > 0 ? (
-          <span className="rounded-full border border-[rgba(64,128,112,0.22)] bg-white px-3 py-1 text-xs font-medium text-[color:var(--mid)]">
-            {formatDailyPracticeWordCount(supportedItemCount)}
-          </span>
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="rounded-full border border-[rgba(64,128,112,0.22)] bg-white px-3 py-1 text-xs font-medium text-[color:var(--mid)]">
+              {formatDailyPracticeWordCount(supportedItemCount)}
+            </span>
+            <Link
+              href={getDailyPracticeViewerPath(childId)}
+              className="brand-primary-btn px-3 py-2 text-xs"
+            >
+              Open practice
+            </Link>
+          </div>
         ) : null}
       </div>
 
@@ -886,7 +904,10 @@ export function LearnWeekPlanner({
           </div>
         ) : null}
 
-        <DailySpellingPracticeCard practice={dailySpellingPractice} />
+        <DailySpellingPracticeCard
+          practice={dailySpellingPractice}
+          childId={childId}
+        />
 
         <div className="mt-4">
           <GoldForgePanel

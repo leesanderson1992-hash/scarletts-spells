@@ -96,13 +96,15 @@ excluded.
   [docs/implementation/version-2-roadmap.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/implementation/version-2-roadmap.md:1)
   to plan daily assignment practice and accelerated spelling-engine
   population without weakening truth boundaries.
-- Version 2.0 Slice `7B` child daily spelling practice card is implemented on
-  `/learn/week`: the page reads the Slice `7A` model server-side and
-  `LearnWeekPlanner` renders a neutral display-only daily practice card before
-  the existing reward panel. It does not trigger generation, answer capture,
-  completion persistence, learning truth, service-role usage, `/practice` or
-  `/assignments` runtime revival, or rewards/mastery/canonical/Review Work
-  changes.
+- Version 2.0 Slice `7C` child daily spelling practice viewer is implemented at
+  `/learn/week/practice`: the page reads the Slice `7A` model server-side and
+  renders a local-only viewer for supported generated spelling items. The
+  `/learn/week` card links to the viewer only for ready supported practice.
+  There is still no generation trigger, persisted answer attempt, completion
+  persistence, learning truth mutation, service-role usage, migration,
+  `/practice` or `/assignments` runtime revival, or rewards/mastery/canonical/
+  Review Work change. Slice `7D` remains the decision point for any persisted
+  completion marker.
 - Version 2.0 Slice `4` bulk candidate mapping import/review is implemented
   and production-smoked through the import-to-resolver-visible canonical truth
   path
