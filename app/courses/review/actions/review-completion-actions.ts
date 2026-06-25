@@ -18,6 +18,12 @@ import {
   loadUnifiedSpellingReviewItemsForSubmission,
   summarizeUnifiedSpellingReviewCompletion,
 } from "@/lib/writing-engine/persistence/unified-spelling-review-items";
+import {
+  resolveReturnedCorrectionParentLocalRouteBridge,
+  type ReturnedCorrectionRouteBridgeAttempt,
+  type ReturnedCorrectionRouteBridgeCandidateMapping,
+  type ReturnedCorrectionRouteBridgeCatalogEntry,
+} from "@/lib/writing-engine/persistence/returned-correction-route-bridge";
 
 import {
   buildRedirectWithMessage,
@@ -143,6 +149,16 @@ type ReturnFlowParentVerificationRow = {
   source_entity_id: string;
 };
 
+type FinalClassificationIssueRow = {
+  id: string;
+  child_id: string;
+  issue_status: string;
+  final_classification: string | null;
+  micro_skill_key: string | null;
+  source_misspelling_instance_id: string | null;
+  metadata: Record<string, unknown> | null;
+};
+
 function finalClassificationNeedsAssignableRoute(
   value: WritingIssueFinalClassification,
 ) {
@@ -178,6 +194,128 @@ function getValidPositionRange(row: {
 function getTrimmedOrNull(value: string | null | undefined) {
   const trimmed = value?.trim();
   return trimmed ? trimmed : null;
+}
+
+function parseObjectMetadata(value: unknown): Record<string, unknown> {
+  return value && typeof value === "object" && !Array.isArray(value)
+    ? (value as Record<string, unknown>)
+    : {};
+}
+
+async function isActiveAssignableMicroSkillRoute(input: {
+  supabase: ReviewSupabase;
+  microSkillKey: string | null | undefined;
+}) {
+  if (!isMeaningfulMicroSkillKey(input.microSkillKey)) {
+    return false;
+  }
+
+  const { data: catalogEntry } = await input.supabase
+    .from("micro_skill_catalog")
+    .select("id, is_active, is_assignable")
+    .eq("micro_skill_key", input.microSkillKey)
+    .eq("is_active", true)
+    .eq("is_assignable", true)
+    .maybeSingle();
+
+  return Boolean(catalogEntry);
+}
+
+async function bridgeReturnedCorrectionParentLocalRoute(input: {
+  supabase: ReviewSupabase;
+  parentUserId: string;
+  issue: FinalClassificationIssueRow;
+}) {
+  const { data: attemptRows } = await input.supabase
+    .from("writing_issue_correction_attempts")
+    .select("id, task_submission_id")
+    .eq("writing_issue_id", input.issue.id)
+    .eq("parent_user_id", input.parentUserId)
+    .eq("child_id", input.issue.child_id)
+    .order("created_at", { ascending: false });
+
+  const attempts = (attemptRows ?? []) as ReturnedCorrectionRouteBridgeAttempt[];
+
+  if (attempts.length === 0 || !input.issue.source_misspelling_instance_id) {
+    return null;
+  }
+
+  const { data: candidateMappingRows } = await input.supabase
+    .from("parent_verified_spelling_candidate_mappings")
+    .select(
+      [
+        "id",
+        "parent_user_id",
+        "child_id",
+        "task_submission_id",
+        "source_misspelling_instance_id",
+        "micro_skill_key",
+        "candidate_status",
+        "promotion_scope",
+        "metadata",
+        "updated_at",
+      ].join(", "),
+    )
+    .eq("parent_user_id", input.parentUserId)
+    .eq("child_id", input.issue.child_id)
+    .eq("source_misspelling_instance_id", input.issue.source_misspelling_instance_id)
+    .eq("candidate_status", "parent_local_promoted")
+    .eq("promotion_scope", "parent_local")
+    .order("updated_at", { ascending: false });
+
+  const candidateMappings = (candidateMappingRows ??
+    []) as unknown as ReturnedCorrectionRouteBridgeCandidateMapping[];
+  const microSkillKeys = [
+    ...new Set(
+      candidateMappings
+        .map((mapping) => mapping.micro_skill_key)
+        .filter(isMeaningfulMicroSkillKey),
+    ),
+  ];
+
+  const { data: catalogRows } =
+    microSkillKeys.length > 0
+      ? await input.supabase
+          .from("micro_skill_catalog")
+          .select("micro_skill_key, is_active, is_assignable")
+          .in("micro_skill_key", microSkillKeys)
+      : { data: [] };
+
+  const bridgeResolution = resolveReturnedCorrectionParentLocalRouteBridge({
+    parentUserId: input.parentUserId,
+    issue: input.issue,
+    attempts,
+    candidateMappings,
+    catalogEntries: (catalogRows ?? []) as ReturnedCorrectionRouteBridgeCatalogEntry[],
+    nowIso: new Date().toISOString(),
+  });
+
+  if (bridgeResolution.status !== "bridged") {
+    return null;
+  }
+
+  const nextMetadata = {
+    ...parseObjectMetadata(input.issue.metadata),
+    returned_correction_route_bridge: bridgeResolution.bridgeMetadata,
+  };
+  const { error } = await input.supabase
+    .from("writing_issues")
+    .update({
+      micro_skill_key: bridgeResolution.microSkillKey,
+      metadata: nextMetadata,
+      updated_at: bridgeResolution.bridgeMetadata.bridged_at,
+    })
+    .eq("id", input.issue.id)
+    .eq("parent_user_id", input.parentUserId)
+    .eq("child_id", input.issue.child_id)
+    .eq("issue_status", "child_responded")
+    .is("final_classification", null);
+
+  if (error) {
+    return null;
+  }
+
+  return bridgeResolution;
 }
 
 async function materializeReturnedSpellingIssuesFromCandidates(input: {
@@ -521,10 +659,12 @@ export async function finaliseWritingIssueClassificationImpl(formData: FormData)
   const supabase = await createClient();
   const { data: issue } = await supabase
     .from("writing_issues")
-    .select("id, child_id, issue_status, final_classification, micro_skill_key")
+    .select(
+      "id, child_id, issue_status, final_classification, micro_skill_key, source_misspelling_instance_id, metadata",
+    )
     .eq("id", writingIssueId)
     .eq("parent_user_id", user.id)
-    .maybeSingle();
+    .maybeSingle<FinalClassificationIssueRow>();
 
   if (!issue) {
     redirect(
@@ -561,25 +701,22 @@ export async function finaliseWritingIssueClassificationImpl(formData: FormData)
       finalClassification satisfies WritingIssueFinalClassification,
     )
   ) {
-    if (!isMeaningfulMicroSkillKey(issue.micro_skill_key)) {
-      redirect(
-        buildRedirectWithMessage(
-          safeRedirectPath,
-          "error",
-          "Choose an active assignable skill route before saving this learning outcome.",
-        ),
-      );
+    let routeReady = await isActiveAssignableMicroSkillRoute({
+      supabase,
+      microSkillKey: issue.micro_skill_key,
+    });
+
+    if (!routeReady) {
+      const bridgeResult = await bridgeReturnedCorrectionParentLocalRoute({
+        supabase,
+        parentUserId: user.id,
+        issue,
+      });
+
+      routeReady = Boolean(bridgeResult);
     }
 
-    const { data: catalogEntry } = await supabase
-      .from("micro_skill_catalog")
-      .select("id, is_active, is_assignable")
-      .eq("micro_skill_key", issue.micro_skill_key)
-      .eq("is_active", true)
-      .eq("is_assignable", true)
-      .maybeSingle();
-
-    if (!catalogEntry) {
+    if (!routeReady) {
       redirect(
         buildRedirectWithMessage(
           safeRedirectPath,

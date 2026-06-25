@@ -40,6 +40,7 @@ export type ReturnedCorrectionDiagnosticCandidateMappingRow = {
     | "rejected"
     | "superseded";
   promotion_scope: "child_local" | "parent_local" | "global";
+  metadata?: Record<string, unknown> | null;
 };
 
 export type ReturnedCorrectionDiagnosticCatalogReviewCaseRow = {
@@ -116,6 +117,12 @@ export type ReturnedCorrectionLearningRouteDiagnosticRow = {
     candidateMappingStatus: string | null;
     catalogReviewCaseId: string | null;
     canonicalRecommendationId: string | null;
+    durable: boolean;
+    parentLocalPromoted: boolean;
+    bridgeAvailable: boolean;
+    bridgeMissing: boolean;
+    pendingParentRecommendation: boolean;
+    adminDeferred: boolean;
   };
   learningItem: {
     exists: boolean;
@@ -322,6 +329,12 @@ export function buildReturnedCorrectionLearningRouteDiagnostics(
           mapping.promotion_scope === "parent_local" &&
           mapping.candidate_status === "parent_local_promoted",
       ) ?? null;
+    const pendingCandidateMapping =
+      candidateMappings.find(
+        (mapping) =>
+          mapping.promotion_scope === "parent_local" &&
+          mapping.candidate_status === "pending_parent_promotion",
+      ) ?? null;
     const catalogReviewCase =
       sourceMisspellingId === null
         ? null
@@ -371,6 +384,16 @@ export function buildReturnedCorrectionLearningRouteDiagnostics(
         : row.state !== "categorisation_needed" && row.state !== "pending_parent_review";
     const learningQueueReady =
       learningRelevant && routeAssignable && learningItemExists;
+    const bridgeAvailable =
+      learningRelevant &&
+      routeSource === "parent_local_promoted" &&
+      routeAssignable &&
+      !learningItemExists;
+    const bridgeMissing =
+      learningRelevant &&
+      !routeAssignable &&
+      routeSource !== "admin_deferred" &&
+      !pendingCandidateMapping;
     const whyNot: string[] = [];
 
     if (!retryReady) {
@@ -381,9 +404,17 @@ export function buildReturnedCorrectionLearningRouteDiagnostics(
       whyNot.push("Final educational outcome has not been chosen yet.");
     } else if (!learningRelevant) {
       whyNot.push("Final outcome is non-learning and should not create a learning item.");
+    } else if (bridgeAvailable) {
+      whyNot.push(
+        "Parent-local promoted route is active and assignable; finalisation can bridge it onto the durable issue.",
+      );
     } else if (!routeAssignable) {
       if (routeSource === "admin_deferred") {
         whyNot.push("Route is deferred to admin/catalog review.");
+      } else if (pendingCandidateMapping) {
+        whyNot.push(
+          "Parent recommendation exists but has not been promoted into an assignable local route.",
+        );
       } else {
         whyNot.push("No active assignable micro-skill route is attached or bridged.");
       }
@@ -432,6 +463,12 @@ export function buildReturnedCorrectionLearningRouteDiagnostics(
         candidateMappingStatus: promotedCandidateMapping?.candidate_status ?? null,
         catalogReviewCaseId: catalogReviewCase?.id ?? null,
         canonicalRecommendationId: row.sourceIds.canonicalRecommendationId,
+        durable: routeSource === "durable_issue",
+        parentLocalPromoted: routeSource === "parent_local_promoted",
+        bridgeAvailable,
+        bridgeMissing,
+        pendingParentRecommendation: Boolean(pendingCandidateMapping),
+        adminDeferred: routeSource === "admin_deferred",
       },
       learningItem: {
         exists: learningItemExists,
@@ -516,7 +553,7 @@ export async function loadReturnedCorrectionLearningRouteDiagnostics(input: {
       ? supabase
           .from("parent_verified_spelling_candidate_mappings")
           .select(
-            "id, source_misspelling_instance_id, micro_skill_key, candidate_status, promotion_scope",
+            "id, source_misspelling_instance_id, micro_skill_key, candidate_status, promotion_scope, metadata",
           )
           .eq("parent_user_id", input.parentUserId)
           .eq("child_id", input.childId)

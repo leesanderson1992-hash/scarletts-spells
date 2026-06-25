@@ -185,9 +185,33 @@ route is active and assignable; admin-deferred returned learning gaps remain
 deferred and block ordinary approval; parent-local/admin route evidence can
 carry pending learning-gap intent without finalising the issue.
 
-The next stage should be `Stage C: Parent-Local/Admin Route Bridge`, focused on
-explicitly attaching an active assignable child-scoped route to returned
-corrections before learning-item creation.
+Stage `B.1` to `B.3` complete the Review Work UI side of that contract:
+pre-retry Review Work is only for corrections, missed words, and child-facing
+feedback, so it hides all micro-skill selectors, learning-route
+recommendations, parent-local promotion, and admin route controls. Once the
+child response returns, the spelling table becomes reason-first: `Reason`
+appears before `Learning route`; `checking_only` and `not_an_issue` save
+without a route; and learning-route controls appear only after a
+learning-relevant outcome is selected or already recorded.
+
+`Stage C: Parent-Local/Admin Route Bridge` is implemented with regression
+command `npm run writing-engine:returned-correction-stage-c-regression`. It uses
+the existing parent-local candidate mapping table, not a migration: a promoted
+local route can bridge finalisation only when it matches the same parent, child,
+original issue, returned attempt/submission lineage, and active assignable
+catalog micro-skill. The bridge updates `writing_issues.micro_skill_key` with
+auditable `returned_correction_route_bridge` metadata before the existing
+learning-item RPC runs. Parent recommendations alone and admin handoff remain
+deferred route evidence.
+
+Stage C smoke passed on 25 Jun 2026: the Review Work queue surfaced returned
+issues to finalise, the returned detail rendered `Reason` before
+`Learning route`, and selecting `concept_gap` exposed learning-route controls
+without submitting or creating learning truth.
+
+The next stage should be `Stage D: Backfill / Repair Existing Data`, focused on
+dry-run-first recovery for historical returned-correction rows that were
+local/admin/finalised before the explicit bridge existed.
 
 ## 7. Proposed Version 2 slice order
 

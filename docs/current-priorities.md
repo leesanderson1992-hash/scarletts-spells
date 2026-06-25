@@ -41,11 +41,10 @@ excluded.
 
 ## Next Safe Slice After Launch
 
-1. `Stage C: Parent-Local/Admin Route Bridge`: explicitly bridge a confirmed
-   child-scoped active assignable route into returned-correction finalisation so
-   parent-local promoted routes can create or strengthen `learning_items`.
-   Preserve the Stage B gate: no silent learning-gap finalisation without an
-   assignable route, and no admin-deferred row treated as queued.
+1. `Stage D: Backfill / Repair Existing Data`: dry-run-first repair for
+   historical returned-correction rows that were local/admin/finalised before
+   the explicit Stage C route bridge existed. Keep scope targeted, idempotent,
+   and free of reward, mastery, or daily-assignment side effects.
 2. Version 2 roadmap Slice `5`: child-local reuse and suggestion improvement,
    if the next priority returns to parent Review Work acceleration.
 3. Optional production-scale canonical mapping operations/audit hardening now
@@ -97,6 +96,30 @@ excluded.
   the issue. Admin-deferred returned learning gaps block ordinary approval and
   are not learning-queue-ready. Focused regression:
   `npm run writing-engine:returned-correction-stage-b-regression`.
+- Stage `B.1` to `B.3` Review Work UI amendments are implemented. Pre-retry
+  Review Work is a correction/feedback surface only: it hides micro-skill
+  selectors, learning-route recommendations, parent-local promotion, and admin
+  route controls. After child response, the unified spelling table is
+  reason-first: `Reason` appears before `Learning route`, and route controls
+  appear only after a learning-relevant outcome is selected or already saved.
+  `checking_only` and `not_an_issue` remain non-learning outcomes that can save
+  without a route.
+- `Stage C: Parent-Local/Admin Route Bridge` is implemented with no migration.
+  When a returned correction is finalised as learning-relevant and the durable
+  issue route is still missing/unknown, the server may bridge only an explicit
+  `parent_local_promoted` candidate mapping for the same parent, child,
+  original `writing_issue`, returned attempt/submission lineage, and active
+  assignable micro-skill. The bridge writes the verified route onto
+  `writing_issues.micro_skill_key`, records audit metadata under
+  `returned_correction_route_bridge`, and only then calls the existing
+  finalisation RPC. Parent recommendations alone and admin handoff remain
+  deferred route evidence and do not create learning items. Stage D remains the
+  historical repair/backfill slice. Focused regression:
+  `npm run writing-engine:returned-correction-stage-c-regression`.
+  Browser smoke on 25 Jun 2026 confirmed the Review Work queue shows returned
+  issues to finalise, returned detail shows `Reason` before `Learning route`,
+  and selecting `concept_gap` reveals learning-route controls without
+  submitting.
 - The bounded Parent Review spelling workflow MVP loop is complete and
   QA-passed for private parent-led use.
 - Version 2.0 Slice `5A` parent Review Work friction reduction is implemented:

@@ -89,6 +89,12 @@ Treat these as fixed unless a later canonical doc changes them:
 - parent recommendations are route evidence only until confirmed/promoted into
   a child-scoped active assignable route; admin handoff is deferred route
   support and must not create a learning item
+- Stage C returned-correction route bridge is implemented without migration:
+  verified `parent_local_promoted` route evidence can attach to
+  `writing_issues.micro_skill_key` before the existing finalisation RPC, while
+  recommendation-only and admin-deferred rows remain blocked/deferred
+- Stage D remains the historical repair/backfill slice for affected returned
+  corrections that predate the explicit bridge
 - `word_progress` must not be reintroduced as canonical truth
 - the retired spelling runtime must not be revived as the delivery model for
   the Writing Engine
@@ -8620,6 +8626,10 @@ Mini-task `7F.10` — Stage 7F Regression Coverage
     rendering, `R` and `P·R` source markers, compact retry cells, terminal
     `checking_only` handling without route-blocked display, parent-added
     returned-row visibility, admin-routed rows, and review action controls
+  - returned-correction Stage `B.3`/`C` smoke on 25 Jun 2026 confirmed Review
+    Work queue returned-issue counts, returned detail `Reason` before
+    `Learning route`, and learning-route controls appearing only after selecting
+    a learning-relevant reason without submitting
   - not every possible UI state appeared in the smoke record; targeted
     regressions remain the closeout evidence for new/deferred/blocking states
   - the next safe task after Stage `7F` is docs-first planning or a separately

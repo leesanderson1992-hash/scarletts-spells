@@ -65,6 +65,18 @@ export function loadTsModule<TModule = Record<string, unknown>>(
           return loadModule(resolveLocalModule(modulePath, specifier));
         }
 
+        if (
+          specifier ===
+          "@/lib/writing-engine/persistence/returned-correction-route-bridge"
+        ) {
+          return loadModule(
+            path.resolve(
+              process.cwd(),
+              "lib/writing-engine/persistence/returned-correction-route-bridge.ts",
+            ),
+          );
+        }
+
         throw new Error(`Missing stub module for ${specifier}`);
       },
       __dirname: path.dirname(modulePath),

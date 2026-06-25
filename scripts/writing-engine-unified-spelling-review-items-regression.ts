@@ -15,6 +15,10 @@ const tableSource = readFileSync(
   "app/courses/review/unified-spelling-review-table.tsx",
   "utf8",
 );
+const reviewPageSource = readFileSync(
+  "app/courses/review/[submissionId]/page.tsx",
+  "utf8",
+);
 
 function buildStage7dSourceEntityId(input: {
   taskSubmissionId: string;
@@ -1553,6 +1557,101 @@ assert.match(
   tableSource,
   /No matching skill: send to admin review/,
   "No Matching Skill path should remain available through the existing row action.",
+);
+assert.match(
+  reviewPageSource,
+  /function hasReturnedCorrectionResponse\(rows: UnifiedSpellingReviewItem\[\]\)[\s\S]*row\.source === "returned_correction"[\s\S]*row\.state === "child_responded"[\s\S]*!row\.correctionOutcome/,
+  "Review phase detection must inspect unified rows for returned child responses.",
+);
+assert.match(
+  reviewPageSource,
+  /function getReviewWorkflowPhase\(input:[\s\S]*parentReviewStatus[\s\S]*unifiedSpellingReviewItems[\s\S]*input\.parentReviewStatus === "approved"[\s\S]*hasReturnedCorrectionResponse\(input\.unifiedSpellingReviewItems\)[\s\S]*return "returned_correction"[\s\S]*input\.parentReviewStatus === "pending"[\s\S]*return "prepare_retry"/,
+  "Pending submissions with returned child-response rows must enter returned-correction mode before plain pending submissions enter prepare-retry mode.",
+);
+assert.match(
+  reviewPageSource,
+  /const \[[\s\S]*unifiedSpellingReviewItems,[\s\S]*\] = await Promise\.all[\s\S]*const reviewWorkflowPhase = getReviewWorkflowPhase\(\{[\s\S]*parentReviewStatus: submission\.parent_review_status,[\s\S]*unifiedSpellingReviewItems,[\s\S]*\}\)/,
+  "The review page must derive workflow phase after loading unified spelling review rows.",
+);
+assert.doesNotMatch(
+  reviewPageSource,
+  /const reviewWorkflowPhase = getReviewWorkflowPhase\(submission\.parent_review_status\)/,
+  "The review page must not derive phase from submission review status alone.",
+);
+assert.match(
+  reviewPageSource,
+  /type UnifiedSpellingReviewItem/,
+  "The review page must type the row-aware phase detector against unified spelling review rows.",
+);
+assert.match(
+  reviewPageSource,
+  /input\.parentReviewStatus === "pending"[\s\S]*return "prepare_retry"/,
+  "Plain pending submissions without returned child-response rows must still enter prepare-retry mode.",
+);
+assert.match(
+  reviewPageSource,
+  /<UnifiedSpellingReviewTable[\s\S]*reviewWorkflowPhase=\{reviewWorkflowPhase\}/,
+  "The unified table must receive the explicit workflow phase.",
+);
+assert.match(
+  tableSource,
+  /reviewWorkflowPhase: UnifiedSpellingReviewWorkflowPhase/,
+  "Unified table rows must be phase-aware.",
+);
+assert.match(
+  tableSource,
+  /const routeControlsAllowed = reviewWorkflowPhase === "returned_correction"/,
+  "Route actions must only be enabled in the returned-correction phase.",
+);
+assert.match(
+  tableSource,
+  /const showRouteColumns = reviewWorkflowPhase !== "prepare_retry"/,
+  "Prepare-retry mode must hide route columns instead of showing disabled micro-skill selectors.",
+);
+assert.match(
+  tableSource,
+  /const showRouteSelectors = routeIsOpen[\s\S]*showRouteSelectors \? \([\s\S]*Learning route family[\s\S]*\) : \([\s\S]*Learning route appears only for learning outcomes\./,
+  "Returned-correction rows must hide learning-route selectors until a learning-relevant outcome opens routing.",
+);
+assert.match(
+  tableSource,
+  /showRouteColumns \? \([\s\S]*Reason[\s\S]*Learning route[\s\S]*\) : null/,
+  "Returned-correction table header must put Reason before Learning route.",
+);
+assert.match(
+  tableSource,
+  /showActionsColumn \? \([\s\S]*Actions[\s\S]*\) : null/,
+  "The Actions column should be controlled separately from learning-route visibility.",
+);
+assert.match(
+  tableSource,
+  /reviewWorkflowPhase === "prepare_retry"[\s\S]*Review the correction and child-facing guidance before sending this back for retry\./,
+  "Prepare-retry details must avoid route-helper or micro-skill wording.",
+);
+assert.doesNotMatch(
+  tableSource,
+  /Suggested route for later review/,
+  "Prepare-retry UI must not surface micro-skill route suggestions.",
+);
+assert.match(
+  tableSource,
+  /canMarkNotIssueBeforeRetry[\s\S]*value="false_positive"/,
+  "Prepare-retry rows should still allow explicit false-positive cleanup without exposing route controls.",
+);
+assert.match(
+  tableSource,
+  /canSaveReturnedSuggestedRoute[\s\S]*captureSubmissionSpellingCandidateMapping/,
+  "Returned-correction selected suggestions should still expose an explicit route-save action.",
+);
+assert.match(
+  tableSource,
+  /Scarlett can try these corrections before you choose the learning route\./,
+  "Prepare-retry table copy must explain that child retry comes before route choice.",
+);
+assert.match(
+  tableSource,
+  /What did the retry show\?/,
+  "Returned-correction table copy must frame the post-retry outcome decision.",
 );
 
 runStage2aRecommendationAttachmentRegression()

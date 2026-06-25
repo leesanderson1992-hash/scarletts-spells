@@ -28,6 +28,21 @@
   route evidence, but do not write final classification onto `writing_issues`.
 - Admin-deferred returned learning gaps remain deferred and block ordinary
   approval rather than entering the learning queue.
+- Stage `B.1` to `B.3` align the parent UI with the workflow: pre-retry Review
+  Work hides all route/micro-skill/admin/local controls and post-retry Review
+  Work shows `Reason` before `Learning route`, with route controls appearing
+  only after a learning-relevant outcome.
+- Stage C now uses the existing parent-local candidate mapping table as the
+  explicit route bridge. A returned learning gap may bridge only from a
+  `parent_local_promoted` mapping that matches the same parent, child, original
+  `writing_issue`, returned attempt/submission lineage, and active assignable
+  micro-skill. The bridge writes the route onto
+  `writing_issues.micro_skill_key`, records `returned_correction_route_bridge`
+  metadata, and then calls the existing learning-item RPC. No migration was
+  needed.
+- Parent recommendation only remains suggestion evidence. Admin handoff remains
+  deferred route support. Stage D remains the controlled repair/backfill path
+  for historical rows.
 
 ### Why this matters
 - The Review Work table may show local/admin route activity without the durable
@@ -44,8 +59,12 @@
 - Stage B removes the old successful-looking path where an issue could be
   finalised as a learning gap while the RPC merely reported that no assignable
   learning item was created.
-- Stage C remains the explicit bridge for parent-local promoted routes to become
-  learning-item creation routes.
+- Stage C makes parent-local promoted routes explicit learning-item creation
+  routes only after server-side lineage and catalog checks pass. It does not
+  make raw recommendations or admin handoff queueable learning truth.
+- Stage C smoke passed on 25 Jun 2026: Review Work queue returned rows were
+  visible, the returned detail showed the reason-first table, and selecting a
+  learning-relevant reason exposed learning-route controls without submitting.
 
 ## 2026-06-25 — Slice 7 child daily spelling practice is release-ready
 

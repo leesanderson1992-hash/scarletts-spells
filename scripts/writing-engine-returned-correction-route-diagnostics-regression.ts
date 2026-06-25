@@ -232,10 +232,12 @@ function testParentLocalPromotedRouteIsReadyForBridgeButNotQueued() {
 
   assert.equal(diagnostics.rows[0].disposition, "parent_local_route_ready");
   assert.equal(diagnostics.rows[0].route.source, "parent_local_promoted");
+  assert.equal(diagnostics.rows[0].route.bridgeAvailable, true);
+  assert.equal(diagnostics.rows[0].route.parentLocalPromoted, true);
   assert.equal(diagnostics.rows[0].learningQueueReady, false);
   assert.match(
     diagnostics.rows[0].whyNot.join("\n"),
-    /Assignable route exists, but no learning item link exists yet/,
+    /finalisation can bridge it onto the durable issue/,
   );
 }
 
@@ -268,6 +270,7 @@ function testAdminDeferredDoesNotQueueLearningItem() {
 
   assert.equal(diagnostics.summary.adminDeferredCount, 1);
   assert.equal(diagnostics.rows[0].disposition, "admin_deferred");
+  assert.equal(diagnostics.rows[0].route.adminDeferred, true);
   assert.equal(diagnostics.rows[0].learningQueueReady, false);
   assert.match(diagnostics.rows[0].whyNot.join("\n"), /deferred to admin/);
 }

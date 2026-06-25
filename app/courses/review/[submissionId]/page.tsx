@@ -20,6 +20,7 @@ import {
   loadUnifiedSpellingReviewItemsForSubmission,
   summarizeUnifiedSpellingReviewCompletion,
   type UnifiedSpellingReviewCompletionSummary,
+  type UnifiedSpellingReviewItem,
 } from "@/lib/writing-engine/persistence/unified-spelling-review-items";
 import type {
   ReviewWritingIssueProjection,
@@ -32,7 +33,10 @@ import {
 } from "../manual-sample-sections";
 import { getManualReviewSampleStatus } from "../manual-sample-review-utils";
 import { SuggestedIssuesPanel } from "../suggested-issues-panel";
-import { UnifiedSpellingReviewTable } from "../unified-spelling-review-table";
+import {
+  UnifiedSpellingReviewTable,
+  type UnifiedSpellingReviewWorkflowPhase,
+} from "../unified-spelling-review-table";
 import {
   buildCanonicalSuggestedMicroSkillKeysByMisspellingId,
   hasCanonicalMicroSkillKey,
@@ -89,6 +93,34 @@ type MisspellingReviewRow = {
   position_start: number | null;
   position_end: number | null;
 };
+
+function hasReturnedCorrectionResponse(rows: UnifiedSpellingReviewItem[]) {
+  return rows.some(
+    (row) =>
+      row.source === "returned_correction" &&
+      row.state === "child_responded" &&
+      !row.correctionOutcome,
+  );
+}
+
+function getReviewWorkflowPhase(input: {
+  parentReviewStatus: string | null | undefined;
+  unifiedSpellingReviewItems: UnifiedSpellingReviewItem[];
+}): UnifiedSpellingReviewWorkflowPhase {
+  if (input.parentReviewStatus === "approved") {
+    return "read_only";
+  }
+
+  if (hasReturnedCorrectionResponse(input.unifiedSpellingReviewItems)) {
+    return "returned_correction";
+  }
+
+  if (input.parentReviewStatus === "pending") {
+    return "prepare_retry";
+  }
+
+  return "returned_correction";
+}
 
 type WritingIssueSuggestionRow = ReviewWritingIssueSuggestionDetailProjection;
 type WritingIssueRow = ReviewWritingIssueProjection;
@@ -769,6 +801,10 @@ export default async function CourseReviewDetailPage({
       childId: submission.child_id,
     }),
   ]);
+  const reviewWorkflowPhase = getReviewWorkflowPhase({
+    parentReviewStatus: submission.parent_review_status,
+    unifiedSpellingReviewItems,
+  });
   const unifiedCompletionSummary = summarizeUnifiedSpellingReviewCompletion(
     unifiedSpellingReviewItems,
   );
@@ -962,6 +998,7 @@ export default async function CourseReviewDetailPage({
           }
           submissionId={submission.id}
           redirectPath={buildScopedPath(`/courses/review/${reviewEntryId}`, selectedChild.id, mode)}
+          reviewWorkflowPhase={reviewWorkflowPhase}
         />
 
         <LessonParentActionsSection

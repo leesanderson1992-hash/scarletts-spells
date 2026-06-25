@@ -127,6 +127,36 @@ Runtime ownership rule:
 - issue classification belongs to the reviewed `writing_issue`
 - lifecycle state belongs to workflow objects, not taxonomy
 
+## Returned-correction Review Work route
+
+Returned child corrections deliberately separate retry-readiness from
+learning-queue-readiness.
+
+Canonical sequence:
+1. Child submits work.
+2. Parent reviews writing, adds missed spelling words where needed, adds
+   correction text, and adds child-facing feedback.
+3. Parent sends work back without categorising the learning route.
+4. Child retries or indicates that they think the correction is right.
+5. Parent receives the returned work and chooses the final educational outcome.
+
+Pre-retry Review Work is not a micro-skill routing surface. It must not show
+micro-skill selectors, learning-route recommendations, parent-local promotion,
+or admin route controls. Those controls become relevant only after the child
+response and only when the selected outcome is learning-relevant.
+
+Post-retry Review Work is reason-first. The parent chooses `checking_only`,
+`fragile_knowledge`, `concept_gap`, `transfer_failure`, or `not_an_issue`
+before choosing a learning route. `checking_only` and `not_an_issue` may
+finalise without a micro-skill or learning item. `fragile_knowledge`,
+`concept_gap`, and `transfer_failure` require an active assignable route before
+the row can create or strengthen a `learning_item`.
+
+Parent-local promoted routes may bridge returned-correction finalisation only
+after explicit server-side lineage and catalog checks. Parent recommendations
+alone are route evidence only. Admin handoff is deferred route support and must
+not create, imply, or queue a learning item.
+
 ## Final classification model
 
 Each finalised `writing_issue` should end in one of these canonical classifications:
@@ -1252,6 +1282,19 @@ Parent recommendation ladder:
   learning item
 - admin later approves canonical route: reconciliation may repair or create the
   learning item if the final outcome was learning-relevant
+
+Stage C bridge rule:
+- the only implemented returned-correction bridge is an explicit
+  `parent_local_promoted` route for the same parent, child, original
+  `writing_issue`, returned correction attempt or returned submission lineage,
+  and active assignable micro-skill
+- the bridge writes the verified route onto `writing_issues.micro_skill_key`
+  and records `returned_correction_route_bridge` metadata before the existing
+  learning-item finalisation RPC runs
+- parent recommendation-only and admin-deferred rows must still block or defer
+  learning-item creation
+- Stage D is responsible for dry-run-first historical backfill or repair of
+  rows created before this bridge existed
 
 Future canonical truth updates may improve route metadata for an existing
 learning item through controlled reconciliation, but must preserve historical

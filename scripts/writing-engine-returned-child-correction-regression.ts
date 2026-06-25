@@ -331,9 +331,19 @@ assert.match(
   "Review Work detail must render spelling review rows through the unified compact table.",
 );
 assert.match(
+  reviewDetailPage,
+  /hasReturnedCorrectionResponse[\s\S]*row\.source === "returned_correction"[\s\S]*row\.state === "child_responded"/,
+  "Review Work detail must detect returned child-response rows before choosing the UI phase.",
+);
+assert.match(
+  reviewDetailPage,
+  /getReviewWorkflowPhase\(\{[\s\S]*parentReviewStatus: submission\.parent_review_status,[\s\S]*unifiedSpellingReviewItems,[\s\S]*\}\)/,
+  "Review Work detail must choose phase from submission status plus unified returned-correction rows.",
+);
+assert.match(
   unifiedSpellingReviewTable,
-  /Word[\s\S]*Correction[\s\S]*Retry[\s\S]*Src[\s\S]*Status[\s\S]*Skill[\s\S]*Actions/,
-  "Unified compact table must keep the contracted one-line column order.",
+  /Word[\s\S]*Correction[\s\S]*Retry[\s\S]*Src[\s\S]*Status[\s\S]*Reason[\s\S]*Learning route[\s\S]*Actions/,
+  "Unified compact table must put Reason before Learning route in the returned-correction column order.",
 );
 assert.doesNotMatch(
   unifiedSpellingReviewTable,
@@ -347,8 +357,8 @@ assert.match(
 );
 assert.match(
   unifiedSpellingReviewTable,
-  /<tr className="border-t border-\[var\(--border\)\] bg-\[rgba\(255,247,220,0\.18\)\]">[\s\S]*colSpan=\{7\}[\s\S]*\{routeText\(row\)\}/,
-  "Unified compact table must render expanded Details in a full-width secondary row.",
+  /<tr className="border-t border-\[var\(--border\)\] bg-\[rgba\(255,247,220,0\.18\)\]">[\s\S]*colSpan=\{showRouteColumns \? 8 : showActionsColumn \? 6 : 5\}[\s\S]*routeText\(row\)/,
+  "Unified compact table must render expanded Details across the active compact columns.",
 );
 assert.match(
   unifiedSpellingReviewTable,
@@ -372,12 +382,12 @@ assert.match(
 );
 assert.match(
   unifiedSpellingReviewTable,
-  /Skill family[\s\S]*Skill cluster[\s\S]*Micro-skill/,
-  "Unified compact table must use family, cluster, and micro-skill filtering controls.",
+  /Learning route family[\s\S]*Learning route cluster[\s\S]*Learning route skill/,
+  "Unified compact table must use learning-route family, cluster, and skill filtering controls.",
 );
 assert.match(
   unifiedSpellingReviewTable,
-  /<option value="">Choose family<\/option>[\s\S]*<option value=\{NO_MATCHING_SKILL_VALUE\}>No matching skill<\/option>/,
+  /<option value="">Choose learning route<\/option>[\s\S]*<option value=\{NO_MATCHING_SKILL_VALUE\}>No matching skill<\/option>/,
   "No matching skill must appear as a UI-only Family selector option.",
 );
 assert.match(

@@ -16,11 +16,10 @@ Canonical documentation now defers to:
 
 ## Current headline
 
-- Returned-correction route planning is clarified but not yet behavior-changed:
-  child retry is evidence only, not categorisation. The parent sends work back
-  with correction text and child-facing guidance, then chooses the final
-  educational outcome only after the child retry or "I think this is right"
-  response.
+- Returned-correction route behavior is implemented through Stage C: child
+  retry is evidence only, not categorisation. The parent sends work back with
+  correction text and child-facing guidance, then chooses the final educational
+  outcome only after the child retry or "I think this is right" response.
 - Returned-correction learning items require both a learning-relevant final
   classification and an active assignable route. `checking_only` and
   `not_an_issue` remain valid non-learning final outcomes without a micro-skill.
@@ -54,12 +53,39 @@ Canonical documentation now defers to:
     onto the issue
   - admin-deferred returned learning gaps block ordinary approval and are
     labelled as deferred route support, not queued learning
-  - Stage C remains responsible for explicitly bridging parent-local promoted
-    routes into learning-item creation
   - command:
     `npm run writing-engine:returned-correction-stage-b-regression`
   - no migration, RLS broadening, service-role browser path, reward/mastery
     write, daily assignment generation, or Stage C route bridge is included
+- Stage `B.1` to `B.3` Review Work UI separation is implemented:
+  - before child retry, Review Work hides micro-skill selectors, learning-route
+    suggestions, parent-local promotion, and admin route controls
+  - after returned work, the unified spelling table renders `Reason` before
+    `Learning route`
+  - learning-route controls appear only after a learning-relevant outcome is
+    selected or already saved
+  - `checking_only` and `not_an_issue` can save without a route
+- Stage C returned-correction parent-local/admin route bridge is implemented:
+  - no migration was needed
+  - learning-gap finalisation still checks the durable issue route first
+  - if the durable issue route is missing/unknown, the server may bridge only a
+    `parent_local_promoted` candidate mapping that matches the same parent,
+    child, original `writing_issue`, returned correction attempt or returned
+    submission lineage, and active assignable `micro_skill_catalog` row
+  - the bridge writes the verified micro-skill onto
+    `writing_issues.micro_skill_key`, records
+    `returned_correction_route_bridge` metadata, and then calls the existing
+    finalisation RPC
+  - parent recommendation only remains blocked, admin handoff remains deferred,
+    and neither path creates a learning item
+  - Stage D remains responsible for historical backfill/repair
+  - command:
+    `npm run writing-engine:returned-correction-stage-c-regression`
+  - no RLS broadening, service-role browser path, reward/mastery write, daily
+    assignment generation, or broad data repair is included
+  - automated regression and browser smoke passed on 25 Jun 2026; the browser
+    smoke verified returned issues to finalise, the reason-first table, and
+    route controls appearing after selecting `concept_gap` without submitting
 - Shared `lib/writing-engine` foundation exists.
 - Generic `parent_verifications` exist.
 - Generic `assignment_items` exist.

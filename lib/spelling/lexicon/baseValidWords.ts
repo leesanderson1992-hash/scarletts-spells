@@ -58,6 +58,7 @@ export const BASE_VALID_WORDS = [
   "century",
   "certain",
   "chair",
+  "chemist",
   "chicken",
   "child",
   "children",

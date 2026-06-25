@@ -162,8 +162,16 @@ Rules:
 - returned-correction retries do not become learning items by themselves; they
   need both a learning-relevant final classification and an active assignable
   route after the child response
+- pre-retry Review Work must not ask the parent to choose a micro-skill route;
+  the parent is preparing correction text and child-facing guidance only
+- returned Review Work is reason-first: learning-route selection appears only
+  after a learning-relevant outcome is selected or already recorded
 - parent recommendations are route evidence only until confirmed/promoted into
   a child-scoped active assignable route
+- parent-local promoted returned-correction routes may be bridged only when
+  server-side lineage and catalog checks prove the route belongs to the same
+  parent, child, original issue, returned attempt/submission lineage, and an
+  active assignable spelling micro-skill
 - admin handoff is deferred route support and must not create or imply an
   assigned learning item
 - repeated evidence for the same `micro_skill_key` should usually strengthen an existing stream rather than create a fresh lesson
@@ -814,6 +822,19 @@ Parent-Verified Spelling Candidate Capture contract note:
   - valid rows such as `natral -> natural` may remain blocked until the
     correct canonical micro-skill exists in the seeded option set
   - this is catalog coverage debt, not a Slice `2` runtime boundary failure
+
+Returned-correction route bridge note:
+- a returned correction can use parent-local route evidence only after the
+  mapping is explicitly `parent_local_promoted` for the same parent/child and
+  the selected `micro_skill_key` is active and assignable in
+  `micro_skill_catalog`
+- the Stage C bridge attaches that verified route to the durable
+  `writing_issues.micro_skill_key` before learning-item finalisation
+- this bridge does not create taxonomy, mutate `micro_skill_catalog`, create
+  global canonical truth, generate daily assignments, or write rewards/mastery
+  claims
+- admin handoff remains deferred route support until controlled
+  reconciliation/backfill attaches assignable route truth
 
 Slice `4A` spelling catalog-review taxonomy contract:
 - Slice `4A` is documentation only

@@ -78,6 +78,7 @@ export const COMMON_MISSPELLINGS: Record<string, string> = {
   incraese: "increase",
   ingrediance: "ingredient",
   intrest: "interest",
+  kemist: "chemist",
   lern: "learn",
   lenth: "length",
   libary: "library",

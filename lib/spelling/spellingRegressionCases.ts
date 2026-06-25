@@ -74,6 +74,7 @@ export const misspellingsMustBeCaught: MisspellingRegressionCase[] = [
   { misspelling: "ingrediance", expectedSuggestion: "ingredient" },
   { misspelling: "tamato", expectedSuggestion: "tomato" },
   { misspelling: "harrisa", expectedSuggestion: "harissa" },
+  { misspelling: "kemist", expectedSuggestion: "chemist" },
   { misspelling: "apear", expectedSuggestion: "appear" },
   { misspelling: "arive", expectedSuggestion: "arrive" },
   { misspelling: "beleive", expectedSuggestion: "believe" },

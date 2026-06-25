@@ -30,7 +30,13 @@ type UnifiedSpellingReviewTableProps = {
   options: ReviewWorkCandidateCaptureMicroSkillOption[];
   submissionId: string;
   redirectPath: string;
+  reviewWorkflowPhase: UnifiedSpellingReviewWorkflowPhase;
 };
+
+export type UnifiedSpellingReviewWorkflowPhase =
+  | "prepare_retry"
+  | "returned_correction"
+  | "read_only";
 
 type FamilyOption = {
   key: string;
@@ -205,11 +211,35 @@ function routeText(row: UnifiedSpellingReviewItem) {
     case "parent_local_pending":
       return "Saved locally. Send for admin review to finish this route.";
     case "parent_local_promoted":
-      return "Parent-local skill route is promoted for this child. Returned-correction learning item creation still waits for the route bridge.";
+      return "Learning route ready. This correction can go to practice after you choose the outcome.";
     case "unsupported_returned_correction_route":
       return "Returned-correction categorisation is deferred until a safe route record exists.";
     case "not_applicable":
       return "No skill route is needed for this row.";
+  }
+}
+
+function phaseHeading(phase: UnifiedSpellingReviewWorkflowPhase) {
+  switch (phase) {
+    case "prepare_retry":
+      return {
+        eyebrow: "Send back for retry",
+        title: "Spelling corrections",
+        description:
+          "Scarlett can try these corrections before you choose the learning route.",
+      };
+    case "returned_correction":
+      return {
+        eyebrow: "Choose outcome",
+        title: "Returned spelling corrections",
+        description: "What did the retry show?",
+      };
+    case "read_only":
+      return {
+        eyebrow: "Spelling review",
+        title: "Spelling correction summary",
+        description: "Review the spelling decisions recorded for this submission.",
+      };
   }
 }
 
@@ -276,22 +306,34 @@ function isLearningRelevantOutcome(value: string | null) {
   return Boolean(value && LEARNING_RELEVANT_OUTCOMES.has(value));
 }
 
+function outcomeLabel(value: UnifiedSpellingReviewItem["correctionOutcome"]) {
+  return value ? getWritingIssueFinalClassificationLabel(value) : "Choose outcome";
+}
+
 function UnifiedSpellingReviewTableRow({
   row,
   options,
   families,
   submissionId,
   redirectPath,
+  reviewWorkflowPhase,
+  showPrepareRetryActions,
 }: {
   row: UnifiedSpellingReviewItem;
   options: ReviewWorkCandidateCaptureMicroSkillOption[];
   families: FamilyOption[];
   submissionId: string;
   redirectPath: string;
+  reviewWorkflowPhase: UnifiedSpellingReviewWorkflowPhase;
+  showPrepareRetryActions: boolean;
 }) {
   const marker = sourceMarker(row);
   const sourceMisspellingId = row.sourceIds.misspellingInstanceId;
+  const routeControlsAllowed = reviewWorkflowPhase === "returned_correction";
+  const showRouteColumns = reviewWorkflowPhase !== "prepare_retry";
+  const showActionsColumn = showRouteColumns || showPrepareRetryActions;
   const currentRouteIsOpen =
+    routeControlsAllowed &&
     row.source !== "returned_correction" &&
     Boolean(sourceMisspellingId) &&
     !row.sourceIds.parentVerificationId &&
@@ -306,9 +348,10 @@ function UnifiedSpellingReviewTableRow({
     (row.correctionOutcome === "fragile_knowledge" ||
       row.correctionOutcome === "concept_gap" ||
       row.correctionOutcome === "transfer_failure");
-  const [selectedOutcome, setSelectedOutcome] = useState("");
+  const [selectedOutcome, setSelectedOutcome] = useState(row.correctionOutcome ?? "");
   const selectedOutcomeNeedsRoute = isLearningRelevantOutcome(selectedOutcome);
   const returnedRouteIsOpen =
+    routeControlsAllowed &&
     (returnedIssueOutcomeNeedsRoute || selectedOutcomeNeedsRoute) &&
     Boolean(row.sourceIds.originalWritingIssueId) &&
     Boolean(row.sourceIds.correctionAttemptId) &&
@@ -318,6 +361,7 @@ function UnifiedSpellingReviewTableRow({
       (selectedOutcomeNeedsRoute &&
         row.categorisationStatus === "not_applicable"));
   const routeIsOpen = currentRouteIsOpen || returnedRouteIsOpen;
+  const showRouteSelectors = routeIsOpen;
   const recommendationOption = findOption(
     options,
     row.microSkillRecommendation?.recommendedMicroSkillKey ?? null,
@@ -378,13 +422,26 @@ function UnifiedSpellingReviewTableRow({
     microSkillKey.length > 0 &&
     !selectedSuggested &&
     !noMatchingSkillSelected;
+  const canSaveReturnedSuggestedRoute =
+    returnedRouteIsOpen && selectedSuggested && microSkillKey.length > 0;
   const canSendToAdmin =
     routeIsOpen && noMatchingSkillSelected && Boolean(submissionId);
   const canFinalClassify =
+    routeControlsAllowed &&
     row.source === "returned_correction" &&
     row.state === "child_responded" &&
     !row.correctionOutcome &&
     Boolean(row.sourceIds.originalWritingIssueId);
+  const canSaveOutcomeDirectly =
+    canFinalClassify && selectedOutcome.length > 0 && !selectedOutcomeNeedsRoute;
+  const canMarkNotIssueBeforeRetry =
+    reviewWorkflowPhase === "prepare_retry" &&
+    row.source !== "returned_correction" &&
+    Boolean(sourceMisspellingId) &&
+    !row.sourceIds.parentVerificationId &&
+    row.state !== "not_an_issue" &&
+    row.state !== "resolved" &&
+    row.state !== "sent_to_admin";
   const skillDisabled = !routeIsOpen;
   const currentFamilySelectorOpen = routeIsOpen;
   const dependentSkillDisabled = skillDisabled || noMatchingSkillSelected;
@@ -462,82 +519,141 @@ function UnifiedSpellingReviewTableRow({
         <td className="px-3 py-2 align-top text-sm font-medium text-[color:var(--ink)]">
           {statusLabel(row)}
         </td>
-        <td className="min-w-52 px-3 py-2 align-top">
-          <div className="grid gap-1">
-            <select
-              value={familyKey}
-              onChange={(event) => handleFamilyChange(event.target.value)}
-              disabled={skillDisabled}
-              title={
-                row.source === "returned_correction" && !returnedRouteIsOpen
-                  ? "Returned correction skill routing is displayed from existing bridge records only."
-                  : "Choose a skill family."
-              }
-              aria-label={`Skill family for ${row.observedText}`}
-              className="w-full rounded border border-[var(--border)] bg-white px-2 py-1 text-xs text-[color:var(--ink)] disabled:bg-[rgba(255,247,220,0.35)] disabled:text-[color:var(--mid)]"
-            >
-              <option value="">Choose family</option>
-              {currentFamilySelectorOpen ? (
-                <option value={NO_MATCHING_SKILL_VALUE}>No matching skill</option>
-              ) : null}
-              {families.map((family) => (
-                <option key={family.key} value={family.key}>
-                  {family.label}
-                </option>
-              ))}
-            </select>
-            <select
-              value={clusterKey}
-              onChange={(event) => handleClusterChange(event.target.value)}
-              disabled={dependentSkillDisabled || clusters.length === 0}
-              title={
-                row.source === "returned_correction" && !returnedRouteIsOpen
-                  ? "Returned correction skill routing is displayed from existing bridge records only."
-                  : "Choose a skill cluster."
-              }
-              aria-label={`Skill cluster for ${row.observedText}`}
-              className="w-full rounded border border-[var(--border)] bg-white px-2 py-1 text-xs text-[color:var(--ink)] disabled:bg-[rgba(255,247,220,0.35)] disabled:text-[color:var(--mid)]"
-            >
-              <option value="">Choose cluster</option>
-              {clusters.map((cluster) => (
-                <option key={cluster.key || "unclustered"} value={cluster.key}>
-                  {cluster.label}
-                </option>
-              ))}
-            </select>
-            <select
-              value={microSkillKey}
-              onChange={(event) => setMicroSkillKey(event.target.value)}
-              disabled={dependentSkillDisabled}
-              title={
-                row.source === "returned_correction" && !returnedRouteIsOpen
-                  ? "Returned correction skill routing is displayed from existing bridge records only."
-                  : "Choose a spelling micro-skill."
-              }
-              aria-label={`Micro-skill for ${row.observedText}`}
-              className="w-full rounded border border-[var(--border)] bg-white px-2 py-1 text-xs text-[color:var(--ink)] disabled:bg-[rgba(255,247,220,0.35)] disabled:text-[color:var(--mid)]"
-            >
-              <option value="">
-                {row.source === "returned_correction" ? "Unknown" : "Choose skill"}
-              </option>
-              {filteredMicroSkills.map((option) => (
-                <option key={option.microSkillKey} value={option.microSkillKey}>
-                  {option.displayName}
-                </option>
-              ))}
-            </select>
-            {recommendationBadgeModel ? (
-              <span
-                title={recommendationBadgeModel.title}
-                className={`inline-flex w-fit rounded border px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] ${recommendationBadgeModel.className}`}
-              >
-                {recommendationBadgeModel.label}
-              </span>
-            ) : null}
-          </div>
-        </td>
-        <td className="overflow-visible px-3 py-2">
-          <div className="flex items-center gap-1.5 overflow-visible">
+        {showRouteColumns ? (
+          <td className="min-w-44 px-3 py-2 align-top">
+            {canFinalClassify ? (
+              <form action={finaliseWritingIssueClassification} className="grid gap-1">
+                <input type="hidden" name="writing_issue_id" value={row.sourceIds.originalWritingIssueId ?? ""} />
+                <input type="hidden" name="redirect_path" value={redirectPath} />
+                <select
+                  name="final_classification"
+                  required
+                  value={selectedOutcome}
+                  onChange={(event) => setSelectedOutcome(event.target.value)}
+                  aria-label={`Outcome for ${row.observedText}`}
+                  className="h-8 w-full rounded border border-[var(--border)] bg-white px-2 text-xs text-[color:var(--ink)]"
+                >
+                  <option value="" disabled>
+                    Choose outcome
+                  </option>
+                  {WRITING_ISSUE_FINAL_CLASSIFICATIONS.map((classification) => (
+                    <option key={classification} value={classification}>
+                      {getWritingIssueFinalClassificationLabel(classification)}
+                    </option>
+                  ))}
+                </select>
+                {selectedOutcomeNeedsRoute ? (
+                  <p className="text-[11px] leading-4 text-[color:var(--mid)]">
+                    Choose learning route to save this outcome.
+                  </p>
+                ) : (
+                  <button
+                    type="submit"
+                    disabled={!canSaveOutcomeDirectly}
+                    className="inline-flex h-7 w-fit items-center rounded border border-emerald-200 bg-emerald-50 px-2 text-[11px] font-semibold text-emerald-800 disabled:border-[var(--border)] disabled:bg-white disabled:text-[color:var(--mid)]"
+                  >
+                    Save reason
+                  </button>
+                )}
+              </form>
+            ) : row.correctionOutcome ? (
+              <p className="text-sm font-medium text-[color:var(--ink)]">
+                {outcomeLabel(row.correctionOutcome)}
+              </p>
+            ) : (
+              <p className="text-xs leading-5 text-[color:var(--mid)]">
+                No outcome recorded.
+              </p>
+            )}
+          </td>
+        ) : null}
+        {showRouteColumns ? (
+          <td className="min-w-52 px-3 py-2 align-top">
+            {showRouteSelectors ? (
+              <div className="grid gap-1">
+                <select
+                  value={familyKey}
+                  onChange={(event) => handleFamilyChange(event.target.value)}
+                  disabled={skillDisabled}
+                  title={
+                    row.source === "returned_correction" && !returnedRouteIsOpen
+                      ? "Returned correction skill routing is displayed from existing bridge records only."
+                      : "Choose learning route."
+                  }
+                  aria-label={`Learning route family for ${row.observedText}`}
+                  className="w-full rounded border border-[var(--border)] bg-white px-2 py-1 text-xs text-[color:var(--ink)] disabled:bg-[rgba(255,247,220,0.35)] disabled:text-[color:var(--mid)]"
+                >
+                  <option value="">Choose learning route</option>
+                  {currentFamilySelectorOpen ? (
+                    <option value={NO_MATCHING_SKILL_VALUE}>No matching skill</option>
+                  ) : null}
+                  {families.map((family) => (
+                    <option key={family.key} value={family.key}>
+                      {family.label}
+                    </option>
+                  ))}
+                </select>
+                <select
+                  value={clusterKey}
+                  onChange={(event) => handleClusterChange(event.target.value)}
+                  disabled={dependentSkillDisabled || clusters.length === 0}
+                  title={
+                    row.source === "returned_correction" && !returnedRouteIsOpen
+                      ? "Returned correction skill routing is displayed from existing bridge records only."
+                      : "This outcome needs an active spelling skill before it can go to practice."
+                  }
+                  aria-label={`Learning route cluster for ${row.observedText}`}
+                  className="w-full rounded border border-[var(--border)] bg-white px-2 py-1 text-xs text-[color:var(--ink)] disabled:bg-[rgba(255,247,220,0.35)] disabled:text-[color:var(--mid)]"
+                >
+                  <option value="">Choose cluster</option>
+                  {clusters.map((cluster) => (
+                    <option key={cluster.key || "unclustered"} value={cluster.key}>
+                      {cluster.label}
+                    </option>
+                  ))}
+                </select>
+                <select
+                  value={microSkillKey}
+                  onChange={(event) => setMicroSkillKey(event.target.value)}
+                  disabled={dependentSkillDisabled}
+                  title={
+                    row.source === "returned_correction" && !returnedRouteIsOpen
+                      ? "Returned correction skill routing is displayed from existing bridge records only."
+                      : "This outcome needs an active spelling skill before it can go to practice."
+                  }
+                  aria-label={`Learning route skill for ${row.observedText}`}
+                  className="w-full rounded border border-[var(--border)] bg-white px-2 py-1 text-xs text-[color:var(--ink)] disabled:bg-[rgba(255,247,220,0.35)] disabled:text-[color:var(--mid)]"
+                >
+                  <option value="">
+                    {row.source === "returned_correction" ? "Unknown" : "Choose skill"}
+                  </option>
+                  {filteredMicroSkills.map((option) => (
+                    <option key={option.microSkillKey} value={option.microSkillKey}>
+                      {option.displayName}
+                    </option>
+                  ))}
+                </select>
+                {recommendationBadgeModel ? (
+                  <span
+                    title={recommendationBadgeModel.title}
+                    className={`inline-flex w-fit rounded border px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] ${recommendationBadgeModel.className}`}
+                  >
+                    {recommendationBadgeModel.label}
+                  </span>
+                ) : null}
+              </div>
+            ) : (
+              <p className="max-w-48 text-xs leading-5 text-[color:var(--mid)]">
+                {selectedOutcomeNeedsRoute || returnedIssueOutcomeNeedsRoute
+                  ? routeText(row)
+                  : "Learning route appears only for learning outcomes."}
+              </p>
+            )}
+          </td>
+        ) : null}
+        {showActionsColumn ? (
+          <td className="overflow-visible px-3 py-2">
+            <div className="flex items-center gap-1.5 overflow-visible">
           {canConfirmSuggested ? (
             <form action={recordReviewWorkVerificationAction}>
               <input type="hidden" name="redirect_path" value={redirectPath} />
@@ -574,7 +690,7 @@ function UnifiedSpellingReviewTableRow({
             </form>
           ) : null}
 
-          {canSaveOverride && !suggestedSkillIsUsable ? (
+          {(canSaveOverride && !suggestedSkillIsUsable) || canSaveReturnedSuggestedRoute ? (
             <form action={captureSubmissionSpellingCandidateMapping}>
               <input type="hidden" name="submission_id" value={submissionId} />
               <input type="hidden" name="redirect_path" value={redirectPath} />
@@ -610,7 +726,7 @@ function UnifiedSpellingReviewTableRow({
             </form>
           ) : null}
 
-          {currentRouteIsOpen ? (
+          {currentRouteIsOpen || canMarkNotIssueBeforeRetry ? (
             <form action={recordReviewWorkVerificationAction}>
               <input type="hidden" name="redirect_path" value={redirectPath} />
               <input type="hidden" name="misspelling_instance_id" value={sourceMisspellingId ?? ""} />
@@ -659,37 +775,6 @@ function UnifiedSpellingReviewTableRow({
                 helpText="No matching skill: send to admin review"
                 ariaLabel={`No matching skill for ${row.observedText}. Send this word and correction to admin catalog review.`}
                 className="border border-amber-200 bg-amber-50 text-amber-800"
-              />
-            </form>
-          ) : null}
-
-          {canFinalClassify ? (
-            <form action={finaliseWritingIssueClassification} className="flex items-center gap-1">
-              <input type="hidden" name="writing_issue_id" value={row.sourceIds.originalWritingIssueId ?? ""} />
-              <input type="hidden" name="redirect_path" value={redirectPath} />
-              <select
-                name="final_classification"
-                required
-                value={selectedOutcome}
-                onChange={(event) => setSelectedOutcome(event.target.value)}
-                aria-label={`Outcome for ${row.observedText}`}
-                className="h-7 max-w-28 rounded border border-[var(--border)] bg-white px-1 text-xs text-[color:var(--ink)]"
-              >
-                <option value="" disabled>
-                  Outcome
-                </option>
-                {WRITING_ISSUE_FINAL_CLASSIFICATIONS.map((classification) => (
-                  <option key={classification} value={classification}>
-                    {getWritingIssueFinalClassificationLabel(classification)}
-                  </option>
-                ))}
-              </select>
-              <IconActionButton
-                type="submit"
-                icon="✓"
-                helpText="Save correction outcome"
-                ariaLabel={`Save correction outcome for ${row.observedText}`}
-                className="border border-emerald-200 bg-emerald-50 text-emerald-800"
               />
             </form>
           ) : null}
@@ -743,22 +828,29 @@ function UnifiedSpellingReviewTableRow({
               Needs admin review
             </span>
           ) : null}
-          </div>
-        </td>
+            </div>
+          </td>
+        ) : null}
       </tr>
       {detailsOpen ? (
         <tr className="border-t border-[var(--border)] bg-[rgba(255,247,220,0.18)]">
           <td
             id={detailsId}
-            colSpan={7}
+            colSpan={showRouteColumns ? 8 : showActionsColumn ? 6 : 5}
             className="px-3 py-2 text-xs leading-5 text-[color:var(--mid)]"
           >
             <div className="grid gap-1 whitespace-pre-wrap break-words">
-              <p>{routeText(row)}</p>
+              <p>
+                {reviewWorkflowPhase === "prepare_retry"
+                  ? "Review the correction and child-facing guidance before sending this back for retry."
+                  : routeText(row)}
+              </p>
               {row.parentNote ? <p>Parent note: {row.parentNote}</p> : null}
               {row.childReflection ? <p>Reflection: {row.childReflection}</p> : null}
-              {selectedSkillOption ? <p>Skill: {selectedSkillOption.displayName}</p> : null}
-              {row.microSkillRecommendation ? (
+              {selectedSkillOption && reviewWorkflowPhase !== "prepare_retry" ? (
+                <p>Skill: {selectedSkillOption.displayName}</p>
+              ) : null}
+              {row.microSkillRecommendation && reviewWorkflowPhase !== "prepare_retry" ? (
                 <p>
                   Spelling helper:
                   {" "}
@@ -808,16 +900,34 @@ export function UnifiedSpellingReviewTable({
   options,
   submissionId,
   redirectPath,
+  reviewWorkflowPhase,
 }: UnifiedSpellingReviewTableProps) {
   const families = useMemo(() => buildFamilies(options), [options]);
+  const phaseCopy = phaseHeading(reviewWorkflowPhase);
+  const showRouteColumns = reviewWorkflowPhase !== "prepare_retry";
+  const showPrepareRetryActions =
+    reviewWorkflowPhase === "prepare_retry" &&
+    rows.some(
+      (row) =>
+        row.source !== "returned_correction" &&
+        Boolean(row.sourceIds.misspellingInstanceId) &&
+        !row.sourceIds.parentVerificationId &&
+        row.state !== "not_an_issue" &&
+        row.state !== "resolved" &&
+        row.state !== "sent_to_admin",
+    );
+  const showActionsColumn = showRouteColumns || showPrepareRetryActions;
 
   if (rows.length === 0) {
     return (
       <section className="brand-card rounded-3xl p-4 md:p-5">
-        <p className="brand-eyebrow">Spelling review</p>
+        <p className="brand-eyebrow">{phaseCopy.eyebrow}</p>
         <h2 className="mt-1 text-lg font-semibold text-[color:var(--ink)]">
           No spelling review items
         </h2>
+        <p className="mt-2 text-sm leading-6 text-[color:var(--mid)]">
+          {phaseCopy.description}
+        </p>
       </section>
     );
   }
@@ -826,10 +936,13 @@ export function UnifiedSpellingReviewTable({
     <section className="brand-card rounded-3xl p-4 md:p-5">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <p className="brand-eyebrow">Spelling review</p>
+          <p className="brand-eyebrow">{phaseCopy.eyebrow}</p>
           <h2 className="mt-1 text-lg font-semibold text-[color:var(--ink)]">
-            Unified spelling table
+            {phaseCopy.title}
           </h2>
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-[color:var(--mid)]">
+            {phaseCopy.description}
+          </p>
         </div>
         <span className="rounded border border-[var(--border)] bg-white px-2 py-1 text-xs font-medium text-[color:var(--ink)]">
           {rows.length} item{rows.length === 1 ? "" : "s"}
@@ -837,7 +950,7 @@ export function UnifiedSpellingReviewTable({
       </div>
 
       <div className="mt-4 overflow-x-auto rounded-2xl border border-[var(--border)] bg-white">
-        <table className="min-w-[980px] w-full border-collapse text-left">
+        <table className={`${showRouteColumns ? "min-w-[1120px]" : showActionsColumn ? "min-w-[720px]" : "min-w-[620px]"} w-full border-collapse text-left`}>
           <thead>
             <tr className="bg-[rgba(255,247,220,0.45)] text-[11px] font-semibold uppercase tracking-[0.12em] text-[color:var(--mid)]">
               <th className="px-3 py-2">Word</th>
@@ -845,8 +958,17 @@ export function UnifiedSpellingReviewTable({
               <th className="px-3 py-2">Retry</th>
               <th className="px-2 py-2 text-center">Src</th>
               <th className="px-3 py-2">Status</th>
-              <th className="px-3 py-2">Skill</th>
-              <th className="px-3 py-2">Actions</th>
+              {showRouteColumns ? (
+                <>
+                  <th className="px-3 py-2">Reason</th>
+                  <th className="px-3 py-2">Learning route</th>
+                </>
+              ) : null}
+              {showActionsColumn ? (
+                <>
+                  <th className="px-3 py-2">Actions</th>
+                </>
+              ) : null}
             </tr>
           </thead>
           <tbody>
@@ -858,6 +980,8 @@ export function UnifiedSpellingReviewTable({
                 families={families}
                 submissionId={submissionId}
                 redirectPath={redirectPath}
+                reviewWorkflowPhase={reviewWorkflowPhase}
+                showPrepareRetryActions={showPrepareRetryActions}
               />
             ))}
           </tbody>
