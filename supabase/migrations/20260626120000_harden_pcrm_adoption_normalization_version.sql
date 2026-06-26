@@ -1,39 +1,5 @@
 begin;
 
-alter table public.spelling_canonical_mappings
-  add column if not exists source_recommendation_id uuid references public.spelling_canonical_mapping_recommendations(id) on delete set null,
-  add column if not exists source_candidate_mapping_id uuid references public.parent_verified_spelling_candidate_mappings(id) on delete set null,
-  add column if not exists source_parent_verification_id uuid references public.parent_verifications(id) on delete set null;
-
-alter table public.spelling_canonical_mapping_events
-  add column if not exists source_recommendation_id uuid references public.spelling_canonical_mapping_recommendations(id) on delete set null,
-  add column if not exists source_candidate_mapping_id uuid references public.parent_verified_spelling_candidate_mappings(id) on delete set null,
-  add column if not exists source_parent_verification_id uuid references public.parent_verifications(id) on delete set null;
-
-alter table public.spelling_canonical_mapping_events
-  drop constraint if exists spelling_canonical_mapping_events_type_check;
-
-alter table public.spelling_canonical_mapping_events
-  add constraint spelling_canonical_mapping_events_type_check
-  check (
-    event_type in (
-      'created',
-      'disabled',
-      'deprecated',
-      'superseded',
-      'metadata_updated',
-      'resolver_visibility_enabled',
-      'resolver_visibility_disabled',
-      'pcrm_adopted'
-    )
-  );
-
-create index if not exists spelling_canonical_mappings_source_recommendation_idx
-  on public.spelling_canonical_mappings (source_recommendation_id, created_at desc);
-
-create index if not exists spelling_canonical_mapping_events_source_recommendation_idx
-  on public.spelling_canonical_mapping_events (source_recommendation_id, created_at desc);
-
 create or replace function public.adopt_spelling_canonical_mapping_recommendation_admin(
   p_recommendation_id uuid,
   p_admin_user_id uuid,

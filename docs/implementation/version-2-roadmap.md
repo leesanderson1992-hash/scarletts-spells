@@ -1399,6 +1399,13 @@ Include:
 - audit events
 - rollback/disable path
 
+Status:
+- PCRM accepted-evidence canonical adoption is implemented in source as an
+  admin-only path. It creates or links hidden canonical mapping truth, blocks
+  incompatible mappings by exact pair, dialect, normalization version, and
+  micro-skill, writes audit lineage, and keeps resolver visibility separate and
+  explicit.
+
 ## 8. Safety and migration rules
 
 - do not run broad `db push`

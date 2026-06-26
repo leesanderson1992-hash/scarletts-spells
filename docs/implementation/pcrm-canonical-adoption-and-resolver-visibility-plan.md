@@ -379,15 +379,18 @@ Current truth:
 - PCRM-G accepted-evidence canonical adoption is implemented in source as an
   admin-only, DB-changing slice. It creates or links canonical mapping truth,
   sets `canonical_mapping_id` only after success, writes PCRM adoption audit
-  lineage, and leaves resolver visibility disabled.
+  lineage, and leaves resolver visibility disabled. Follow-up source hardening
+  in `20260626120000_harden_pcrm_adoption_normalization_version.sql` keeps
+  existing-mapping link/conflict checks scoped by exact pair, dialect,
+  normalization version, and micro-skill.
 
 Any remaining "future resolver integration" wording should be read as
 historical unless it specifically means future PCRM canonical adoption,
 resolver-visibility enablement, release smoke, or feature-flag rollout.
 
 The active next work is not generic resolver runtime implementation. It is
-PCRM adoption smoke, conflict/link hardening where needed, release-safety
-review, and later explicit resolver-visibility enablement.
+PCRM adoption smoke, release-safety review, and later explicit
+resolver-visibility enablement.
 
 ## Stop Conditions
 

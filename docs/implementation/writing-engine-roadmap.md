@@ -948,12 +948,14 @@ in source:
   support first-class PCRM adoption lineage atomically, so source adds the
   unique timestamp migration/RPC
   `supabase/migrations/20260612103000_add_pcrm_canonical_adoption_rpc.sql`
+  plus the normalization-version hardening migration
+  `supabase/migrations/20260626120000_harden_pcrm_adoption_normalization_version.sql`
 - eligible accepted and unlinked PCRM recommendation evidence can be adopted
   through `/admin/canonical-recommendations`
 - adoption creates or links canonical mapping truth and sets
   `canonical_mapping_id` only after adoption succeeds
-- compatible existing mappings link safely; conflicting mappings block
-  adoption
+- compatible existing mappings link safely by exact pair, dialect,
+  normalization version, and micro-skill; conflicting mappings block adoption
 - adoption writes canonical mapping audit lineage, including source
   recommendation, candidate mapping, parent verification/source ids where
   available, normalized pair, micro-skill key, dialect, normalization version,
@@ -1004,7 +1006,9 @@ Historical PCRM resolver-visible integration contract:
 - PCRM-G added explicit admin adoption for eligible accepted PCRM evidence,
   creates or links `spelling_canonical_mappings` in one audited decision, sets
   the recommendation `canonical_mapping_id` only after adoption succeeds, and
-  records PCRM adoption in `spelling_canonical_mapping_events`
+  records PCRM adoption in `spelling_canonical_mapping_events`; source
+  hardening now scopes existing-mapping link/conflict checks by normalization
+  version as well as exact pair and dialect
 - resolver visibility must be first-class, explicit, audited, reversible, and
   exact-pair based; metadata-only `resolver_visible` is not sufficient as the
   production resolver authority

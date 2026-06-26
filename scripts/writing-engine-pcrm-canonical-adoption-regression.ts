@@ -3,6 +3,8 @@ import { existsSync, readFileSync } from "node:fs";
 
 const migrationPath =
   "supabase/migrations/20260612103000_add_pcrm_canonical_adoption_rpc.sql";
+const normalizationHardeningMigrationPath =
+  "supabase/migrations/20260626120000_harden_pcrm_adoption_normalization_version.sql";
 const repositoryPath =
   "lib/writing-engine/persistence/spelling-canonical-mappings.ts";
 const adoptionActionPath =
@@ -16,6 +18,7 @@ const reviewWorkPagePath = "app/courses/review/[submissionId]/page.tsx";
 
 for (const path of [
   migrationPath,
+  normalizationHardeningMigrationPath,
   repositoryPath,
   adoptionActionPath,
   curationActionPath,
@@ -26,6 +29,11 @@ for (const path of [
 }
 
 const migration = readFileSync(migrationPath, "utf8");
+const normalizationHardeningMigration = readFileSync(
+  normalizationHardeningMigrationPath,
+  "utf8",
+);
+const combinedMigration = `${migration}\n${normalizationHardeningMigration}`;
 const repository = readFileSync(repositoryPath, "utf8");
 const adoptionAction = readFileSync(adoptionActionPath, "utf8");
 const curationAction = readFileSync(curationActionPath, "utf8");
@@ -35,92 +43,117 @@ const resolverPriority = readFileSync(resolverPriorityPath, "utf8");
 const reviewWorkPage = readFileSync(reviewWorkPagePath, "utf8");
 
 assert.match(
-  migration,
+  combinedMigration,
+  /20260626120000_harden_pcrm_adoption_normalization_version|adopt_spelling_canonical_mapping_recommendation_admin/,
+  "PCRM-G normalization-version hardening must use a unique forward migration that replaces only the adoption RPC.",
+);
+assert.doesNotMatch(
+  normalizationHardeningMigration,
+  /\balter\s+table\b|\bcreate\s+index\b|\bdrop\s+constraint\b/i,
+  "PCRM-G normalization-version hardening migration must replace only the adoption RPC and grants.",
+);
+assert.match(
+  combinedMigration,
   /20260612103000|adopt_spelling_canonical_mapping_recommendation_admin/,
   "PCRM-G must use a unique forward migration with an adoption RPC.",
 );
 assert.match(
-  migration,
+  combinedMigration,
   /source_recommendation_id uuid references public\.spelling_canonical_mapping_recommendations\(id\)/,
   "PCRM-G must preserve source recommendation lineage as first-class schema.",
 );
 assert.match(
-  migration,
+  combinedMigration,
   /source_candidate_mapping_id uuid references public\.parent_verified_spelling_candidate_mappings\(id\)[\s\S]*source_parent_verification_id uuid references public\.parent_verifications\(id\)/,
   "PCRM-G must preserve candidate mapping and parent verification lineage where available.",
 );
 assert.match(
-  migration,
+  combinedMigration,
   /'pcrm_adopted'/,
   "PCRM-G must add a canonical mapping event for PCRM adoption/linking.",
 );
 assert.match(
-  migration,
+  combinedMigration,
   /for update[\s\S]*recommendation_status <> 'accepted'/,
   "PCRM-G RPC must lock the recommendation and only adopt accepted evidence.",
 );
 assert.match(
-  migration,
+  combinedMigration,
   /canonical_mapping_id is not null[\s\S]*already linked/,
   "PCRM-G RPC must not independently re-adopt already linked evidence.",
 );
 assert.match(
-  migration,
+  combinedMigration,
   /duplicate_of_recommendation_id[\s\S]*merge_target_recommendation_id[\s\S]*superseded_by_recommendation_id[\s\S]*follow its target row/,
   "Duplicate, merged, or superseded PCRM evidence must not be independently adoptable.",
 );
 assert.match(
-  migration,
+  combinedMigration,
   /mastery_domain_key = 'D4'[\s\S]*is_active = true[\s\S]*is_assignable = true/,
   "PCRM-G adoption must validate an active assignable D4 micro-skill.",
 );
 assert.match(
-  migration,
+  combinedMigration,
   /same misspelling has a different active correction/,
   "PCRM-G must block same-misspelling/different-correction conflicts.",
 );
 assert.match(
-  migration,
+  combinedMigration,
   /exact pair has a different active micro-skill/,
   "PCRM-G must block same-pair/different-micro-skill conflicts.",
 );
 assert.match(
-  migration,
+  combinedMigration,
   /mapping_status <> 'active'[\s\S]*disabled, deprecated, or superseded/,
   "PCRM-G must block adoption over disabled/deprecated/superseded mappings.",
 );
 assert.match(
-  migration,
+  combinedMigration,
+  /correct_spelling_normalized = v_recommendation\.correct_spelling_normalized[\s\S]*dialect_code = v_dialect_code[\s\S]*normalization_version = v_normalization_version[\s\S]*mapping_status <> 'active'/,
+  "PCRM-G inactive exact-pair blocking must be scoped by normalization version.",
+);
+assert.match(
+  combinedMigration,
+  /correct_spelling_normalized <> v_recommendation\.correct_spelling_normalized[\s\S]*dialect_code = v_dialect_code[\s\S]*normalization_version = v_normalization_version[\s\S]*mapping_status = 'active'/,
+  "PCRM-G same-misspelling/different-correction blocking must be scoped by normalization version.",
+);
+assert.match(
+  combinedMigration,
+  /correct_spelling_normalized = v_recommendation\.correct_spelling_normalized[\s\S]*dialect_code = v_dialect_code[\s\S]*normalization_version = v_normalization_version[\s\S]*mapping_status = 'active'[\s\S]*order by created_at[\s\S]*limit 1[\s\S]*for update/,
+  "PCRM-G existing exact-pair link lookup must be scoped by normalization version.",
+);
+assert.match(
+  combinedMigration,
   /insert into public\.spelling_canonical_mappings[\s\S]*resolver_visible[\s\S]*false/,
   "PCRM-G may create canonical mapping truth but must keep resolver visibility disabled.",
 );
 assert.match(
-  migration,
+  combinedMigration,
   /insert into public\.spelling_canonical_mapping_events[\s\S]*'created'[\s\S]*insert into public\.spelling_canonical_mapping_events[\s\S]*'pcrm_adopted'/,
   "PCRM-G must audit both created mappings and PCRM adoption/link events.",
 );
 assert.match(
-  migration,
+  combinedMigration,
   /update public\.spelling_canonical_mapping_recommendations[\s\S]*canonical_mapping_id = v_mapping_id/,
   "PCRM-G must set canonical_mapping_id only after canonical mapping create/link succeeds.",
 );
 assert.match(
-  migration,
+  combinedMigration,
   /grant execute on function public\.adopt_spelling_canonical_mapping_recommendation_admin[\s\S]*to service_role/,
   "PCRM-G adoption RPC must be service-role executable.",
 );
 assert.doesNotMatch(
-  migration,
+  combinedMigration,
   /grant execute on function public\.adopt_spelling_canonical_mapping_recommendation_admin[\s\S]*to authenticated/,
   "PCRM-G adoption RPC must not be directly executable by authenticated users.",
 );
 assert.doesNotMatch(
-  migration,
+  combinedMigration,
   /\b(update|insert into|delete from)\s+public\.micro_skill_catalog\b/i,
   "PCRM-G must not mutate micro_skill_catalog.",
 );
 assert.doesNotMatch(
-  migration,
+  combinedMigration,
   /resolver_visibility_status\s*=\s*'visible'|new_resolver_visibility_status\s*=\s*'visible'|p_new_resolver_visibility_status/,
   "PCRM-G must not enable resolver visibility.",
 );
