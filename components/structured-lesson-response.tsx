@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 
+import { ReturnedIssueRetryControls } from "@/components/returned-issue-retry-controls";
 import { buildStructuredLessonCapture } from "@/lib/lessons/responses";
 import type { ReturnedWritingIssueDraftPayload } from "@/lib/lessons/responses";
 import {
@@ -537,64 +538,17 @@ export function StructuredLessonResponse({
                   </mark>
                 </p>
               ) : null}
-              <p className="text-sm text-amber-900/90">
-                Try fixing this yourself before you resubmit.
-              </p>
               {issue.context_text ? (
                 <p className="min-w-0 whitespace-pre-wrap break-words rounded-2xl bg-white/80 px-3 py-2 text-sm text-[color:var(--ink)]">
                   {issue.context_text}
                 </p>
               ) : null}
-              {issue.allow_confidence ? (
-                <label className="grid gap-1.5 text-sm text-[color:var(--ink)]">
-                  <span className="font-medium">Try spelling it again</span>
-                  <input
-                    type="text"
-                    name={`returned_issue_attempt:${issue.issue_id}`}
-                    defaultValue={issue.attempted_correction ?? ""}
-                    className="brand-input h-11 rounded-2xl bg-white px-4 text-sm"
-                    placeholder="Type your new try here"
-                  />
-                </label>
-              ) : null}
+              <p className="text-sm text-amber-900/90">
+                Choose whether to keep your first try or make a new one.
+              </p>
             </div>
           </div>
-          <div className="grid min-w-0 content-start gap-3">
-            <label className="inline-flex max-w-full items-start gap-3 rounded-2xl border border-amber-200 bg-white px-3 py-2 text-sm text-[color:var(--ink)]">
-              <input
-                type="checkbox"
-                name={`returned_issue_fixed:${issue.issue_id}`}
-                value="true"
-                defaultChecked={issue.marked_fixed === true}
-                className="mt-1 h-4 w-4 rounded border-[var(--border)] text-[var(--scarlett)]"
-              />
-              <span className="min-w-0 break-words">I&apos;ve fixed this</span>
-            </label>
-            {issue.allow_confidence ? (
-              <fieldset className="grid gap-2">
-                <legend className="text-[11px] font-semibold uppercase tracking-[0.14em] text-amber-700">
-                  How did this feel?
-                </legend>
-                <div className="flex flex-wrap gap-2">
-                  {(["easy", "medium", "hard"] as const).map((value) => (
-                    <label
-                      key={`${issue.issue_id}-${value}`}
-                      className="inline-flex items-center gap-2 rounded-full border border-amber-200 bg-white px-3 py-1.5 text-xs font-medium text-[color:var(--ink)]"
-                    >
-                      <input
-                        type="radio"
-                        name={`returned_issue_reflection:${issue.issue_id}`}
-                        value={value}
-                        defaultChecked={issue.reflection === value}
-                        className="h-4 w-4 border-[var(--border)] text-[var(--scarlett)]"
-                      />
-                      <span className="capitalize">{value}</span>
-                    </label>
-                  ))}
-                </div>
-              </fieldset>
-            ) : null}
-          </div>
+          <ReturnedIssueRetryControls issue={issue} />
         </div>
       </div>
     );

@@ -1,8 +1,10 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
+import type { ReactNode } from "react";
 
 import { AppShell } from "@/components/app-shell";
 import { PreSubmitChecklist } from "@/components/pre-submit-checklist";
+import { ReturnedIssueRetryControls } from "@/components/returned-issue-retry-controls";
 import { RewardCelebration } from "@/components/reward-celebration";
 import { GoldBarIcon, GoldCoinIcon, NuggetIcon } from "@/components/reward-icons";
 import { StructuredLessonResponse as StructuredLessonResponseForm } from "@/components/structured-lesson-response";
@@ -82,6 +84,68 @@ function getChildTaskTypeSummary(task: CourseTaskRow) {
     default:
       return "";
   }
+}
+
+type CompletionRewardRow = {
+  key: string;
+  label: string;
+  value: string;
+  icon: ReactNode;
+};
+
+function LessonSubmissionCompletionModal({
+  modulePath,
+  rewardRows,
+}: {
+  modulePath: string;
+  rewardRows: CompletionRewardRow[];
+}) {
+  return (
+    <div className="fixed inset-0 z-50 grid min-h-dvh place-items-center bg-zinc-950/70 px-4 py-6 text-center backdrop-blur-sm">
+      <div className="w-full max-w-xl overflow-hidden rounded-[2rem] border border-white/70 bg-white px-5 py-6 shadow-[0_30px_90px_rgba(0,0,0,0.3)] md:px-8 md:py-8">
+        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full border border-amber-200 bg-amber-50 shadow-sm">
+          <NuggetIcon size="lg" className="scale-125" />
+        </div>
+        <h2 className="mt-4 text-2xl font-black tracking-tight text-[color:var(--ink)] md:text-3xl">
+          Amazing job! Your work was submitted.
+        </h2>
+        {rewardRows.length > 0 ? (
+          <div className="mt-5 text-left">
+            <p className="text-center text-sm font-semibold text-[color:var(--mid)]">
+              This work earned you:
+            </p>
+            <div className="mt-3 overflow-hidden rounded-2xl border border-[var(--border)] bg-white">
+              <table className="w-full border-collapse text-left text-sm">
+                <tbody>
+                  {rewardRows.map((row) => (
+                    <tr
+                      key={row.key}
+                      className="border-b border-[var(--border)] last:border-b-0"
+                    >
+                      <th className="px-4 py-3 font-semibold text-[color:var(--ink)]">
+                        <span className="inline-flex items-center gap-2">
+                          {row.icon}
+                          {row.label}
+                        </span>
+                      </th>
+                      <td className="px-4 py-3 text-right text-lg font-bold text-[color:var(--ink)]">
+                        {row.value}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        ) : null}
+        <div className="mt-6 flex flex-wrap justify-center gap-2">
+          <Link href={modulePath} className="brand-primary-btn">
+            Let&apos;s Reach Our Goal
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 export default async function LearnModuleTaskPage({
@@ -338,7 +402,7 @@ export default async function LearnModuleTaskPage({
     Number.isInteger(goldBarEvidenceCount) && goldBarEvidenceCount > 0
       ? goldBarEvidenceCount
       : 0;
-  const returnedCorrectionRewardRows = [
+  const submissionCompletionRewardRows = [
     ...(earnedRewardCoins > 0
       ? [
           {
@@ -372,7 +436,11 @@ export default async function LearnModuleTaskPage({
   ];
   const savedReturnedCorrection =
     resolvedSearchParams?.saved === "returned_correction_submission";
+  const showSubmissionCompletionModal =
+    resolvedSearchParams?.saved === "submission" || savedReturnedCorrection;
+
   return (
+    <>
     <AppShell
       currentPath="/learn"
       mode={mode}
@@ -437,103 +505,13 @@ export default async function LearnModuleTaskPage({
             </form>
           </div>
 
-          {(resolvedSearchParams?.error || resolvedSearchParams?.saved) ? (
+          {(resolvedSearchParams?.error ||
+            (resolvedSearchParams?.saved && !showSubmissionCompletionModal)) ? (
             <div className="mt-3 grid gap-2">
               {resolvedSearchParams?.error ? (
                 <p className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-2 text-sm text-rose-700">
                   {resolvedSearchParams.error}
                 </p>
-              ) : null}
-
-              {savedReturnedCorrection ? (
-                <div className="fixed inset-0 z-50 grid place-items-center bg-zinc-950/65 px-4 py-6 text-center backdrop-blur-sm">
-                  <div className="w-full max-w-xl overflow-hidden rounded-[2rem] border border-white/70 bg-white px-5 py-6 shadow-[0_30px_90px_rgba(0,0,0,0.28)] md:px-8 md:py-8">
-                    <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full border border-amber-200 bg-amber-50 shadow-sm">
-                      <NuggetIcon size="lg" className="scale-125" />
-                    </div>
-                    <div>
-                      <h2 className="mt-4 text-2xl font-black tracking-tight text-[color:var(--ink)] md:text-3xl">
-                        Amazing job! Your work was submitted.
-                      </h2>
-                      {returnedCorrectionRewardRows.length > 0 ? (
-                        <div className="mt-5 text-left">
-                          <p className="text-center text-sm font-semibold text-[color:var(--mid)]">
-                            This work earned you:
-                          </p>
-                          <div className="mt-3 overflow-hidden rounded-2xl border border-[var(--border)] bg-white">
-                            <table className="w-full border-collapse text-left text-sm">
-                              <tbody>
-                                {returnedCorrectionRewardRows.map((row) => (
-                                  <tr
-                                    key={row.key}
-                                    className="border-b border-[var(--border)] last:border-b-0"
-                                  >
-                                    <th className="px-4 py-3 font-semibold text-[color:var(--ink)]">
-                                      <span className="inline-flex items-center gap-2">
-                                        {row.icon}
-                                        {row.label}
-                                      </span>
-                                    </th>
-                                    <td className="px-4 py-3 text-right text-lg font-bold text-[color:var(--ink)]">
-                                      {row.value}
-                                    </td>
-                                  </tr>
-                                ))}
-                              </tbody>
-                            </table>
-                          </div>
-                        </div>
-                      ) : null}
-                    </div>
-                    <div className="flex flex-wrap justify-center gap-2">
-                      <Link
-                        href={modulePath}
-                        className="brand-primary-btn"
-                      >
-                        Let&apos;s Reach Our Goal
-                      </Link>
-                    </div>
-                  </div>
-                </div>
-              ) : resolvedSearchParams?.saved === "submission" ? (
-                <div className="relative overflow-hidden rounded-[2rem] border border-amber-200 bg-[linear-gradient(135deg,rgba(255,247,220,0.98),rgba(236,253,245,0.95),rgba(252,228,244,0.95))] px-5 py-5 text-emerald-900 shadow-[0_18px_40px_rgba(16,185,129,0.12)]">
-                  <div className="absolute -left-3 top-3 h-16 w-16 rounded-full bg-[rgba(245,190,57,0.18)]" />
-                  <div className="absolute right-4 top-4 h-10 w-10 rounded-full bg-[rgba(194,24,91,0.12)]" />
-                  <div className="absolute bottom-[-18px] right-10 h-20 w-20 rounded-full bg-[rgba(16,185,129,0.12)]" />
-                  <div className="relative flex items-start gap-4">
-                    <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full border border-amber-200 bg-white text-4xl shadow-sm animate-bounce">
-                      🏅
-                    </div>
-                    <div className="min-w-0">
-                      <p className="text-2xl font-black tracking-tight text-[color:var(--ink)]">
-                        You did it!
-                      </p>
-                      <p className="mt-1 text-base font-semibold text-emerald-800">
-                        This lesson has been saved and sent for review.
-                      </p>
-                      <p className="mt-2 text-sm leading-6 text-emerald-700">
-                        Your answers are safe and your grown-up can review everything later. Once they approve it, this task will count as complete.
-                      </p>
-                      <div className="mt-3 inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-white px-3 py-1.5 text-xs font-bold uppercase tracking-[0.16em] text-emerald-700 animate-pulse">
-                        Sent for review
-                      </div>
-                      <div className="mt-4 flex flex-wrap gap-2">
-                        <Link
-                          href={modulePath}
-                          className="inline-flex h-10 items-center justify-center rounded-full border border-emerald-200 bg-white px-4 text-sm font-medium text-emerald-800 transition hover:text-[var(--scarlett)]"
-                        >
-                          {detail.course.structure_type === "timed" ? "Back to cycle" : "Back to module"}
-                        </Link>
-                        <Link
-                          href={scopedCurrentPath}
-                          className="inline-flex h-10 items-center justify-center rounded-full border border-emerald-200 bg-white px-4 text-sm font-medium text-emerald-800 transition hover:text-[var(--scarlett)]"
-                        >
-                          Stay on this task
-                        </Link>
-                      </div>
-                    </div>
-                  </div>
-                </div>
               ) : null}
 
               {resolvedSearchParams?.saved === "draft" ? (
@@ -542,13 +520,13 @@ export default async function LearnModuleTaskPage({
                 </p>
               ) : null}
 
-              {!savedReturnedCorrection && earnedRewardCoins > 0 ? (
+              {!showSubmissionCompletionModal && earnedRewardCoins > 0 ? (
                 <RewardCelebration
                   goldCoinAmount={earnedRewardCoins}
                   title="You earned Gold Coins!"
                   body="This task is now complete and the reward has been added to your coin balance."
                 />
-              ) : !savedReturnedCorrection &&
+              ) : !showSubmissionCompletionModal &&
                 Number.isInteger(focusNearRewardCoins) &&
                 focusNearRewardCoins > 0 ? (
                 <RewardCelebration
@@ -689,7 +667,7 @@ export default async function LearnModuleTaskPage({
                             </p>
                           ) : null}
                           <p className="text-sm leading-6 text-[color:var(--mid)]">
-                            Try fixing this yourself before you resubmit.
+                            Choose whether to keep your first try or make a new one.
                           </p>
                           {issue.context_text ? (
                             <p className="whitespace-pre-wrap break-words rounded-2xl bg-[rgba(252,228,244,0.32)] px-3 py-2 text-sm leading-6 text-[color:var(--ink)]">
@@ -697,42 +675,7 @@ export default async function LearnModuleTaskPage({
                             </p>
                           ) : null}
                         </div>
-                        <div className="grid min-w-0 content-start gap-3">
-                          <label className="inline-flex max-w-full items-start gap-3 rounded-2xl border border-[var(--border)] bg-[rgba(255,247,220,0.35)] px-3 py-2 text-sm text-[color:var(--ink)]">
-                            <input
-                              type="checkbox"
-                              name={`returned_issue_fixed:${issue.issue_id}`}
-                              value="true"
-                              defaultChecked={issue.marked_fixed === true}
-                              className="mt-1 h-4 w-4 rounded border-[var(--border)] text-[var(--scarlett)]"
-                            />
-                            <span className="min-w-0 break-words">I&apos;ve fixed this</span>
-                          </label>
-                          {issue.allow_confidence ? (
-                            <fieldset className="grid gap-2">
-                              <legend className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[color:var(--mid)]">
-                                How did this feel?
-                              </legend>
-                              <div className="flex flex-wrap gap-2">
-                                {(["easy", "medium", "hard"] as const).map((value) => (
-                                  <label
-                                    key={`${issue.issue_id}-${value}`}
-                                    className="inline-flex items-center gap-2 rounded-full border border-[var(--border)] bg-white px-3 py-1.5 text-xs font-medium text-[color:var(--ink)]"
-                                  >
-                                    <input
-                                      type="radio"
-                                      name={`returned_issue_reflection:${issue.issue_id}`}
-                                      value={value}
-                                      defaultChecked={issue.reflection === value}
-                                      className="h-4 w-4 border-[var(--border)] text-[var(--scarlett)]"
-                                    />
-                                    <span className="capitalize">{value}</span>
-                                  </label>
-                                ))}
-                              </div>
-                            </fieldset>
-                          ) : null}
-                        </div>
+                        <ReturnedIssueRetryControls issue={issue} />
                       </div>
                     </div>
                   ))}
@@ -812,5 +755,12 @@ export default async function LearnModuleTaskPage({
         </div>
       </section>
     </AppShell>
+    {showSubmissionCompletionModal ? (
+      <LessonSubmissionCompletionModal
+        modulePath={modulePath}
+        rewardRows={submissionCompletionRewardRows}
+      />
+    ) : null}
+    </>
   );
 }

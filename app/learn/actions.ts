@@ -121,14 +121,22 @@ function applyReturnedIssueInputsFromFormData(
   issues: ReturnedWritingIssueDraftPayload[],
 ) {
   return issues.map((issue) => {
-    const markedFixed = formData.get(`returned_issue_fixed:${issue.issue_id}`) === "true";
+    const legacyMarkedFixed = formData.get(`returned_issue_fixed:${issue.issue_id}`) === "true";
+    const retryModeValue = formData.get(`returned_issue_retry_mode:${issue.issue_id}`);
+    const retryMode =
+      retryModeValue === "stick" || retryModeValue === "try_again"
+        ? retryModeValue
+        : issue.retry_mode ?? "try_again";
     const reflectionValue = formData.get(`returned_issue_reflection:${issue.issue_id}`);
     const attemptedCorrectionValue = formData.get(`returned_issue_attempt:${issue.issue_id}`);
+    const submittedAttempt =
+      typeof attemptedCorrectionValue === "string" ? attemptedCorrectionValue.trim() : "";
     const attemptedCorrection =
-      typeof attemptedCorrectionValue === "string" &&
-      attemptedCorrectionValue.trim().length > 0
-        ? attemptedCorrectionValue.trim().slice(0, 500)
-        : issue.attempted_correction ?? null;
+      retryMode === "stick"
+        ? issue.observed_text?.trim().slice(0, 500) || null
+        : submittedAttempt.length > 0
+          ? submittedAttempt.slice(0, 500)
+          : issue.attempted_correction ?? null;
     const reflection =
       issue.allow_confidence &&
       (reflectionValue === "easy" ||
@@ -139,11 +147,33 @@ function applyReturnedIssueInputsFromFormData(
 
     return {
       ...issue,
-      marked_fixed: markedFixed,
+      marked_fixed: retryMode === "try_again" ? Boolean(attemptedCorrection) : legacyMarkedFixed,
       reflection,
       attempted_correction: attemptedCorrection,
+      retry_mode: retryMode,
     };
   });
+}
+
+function normaliseCorrectionComparisonValue(value: string | null | undefined) {
+  return value?.trim().replace(/\s+/g, " ").toLowerCase() ?? "";
+}
+
+function doesReturnedCorrectionStillNeedPractice({
+  issue,
+  attemptedCorrection,
+}: {
+  issue: ReturnedWritingIssueDraftPayload;
+  attemptedCorrection: string | null;
+}) {
+  const expected = normaliseCorrectionComparisonValue(issue.approved_replacement);
+  const actual = normaliseCorrectionComparisonValue(attemptedCorrection);
+
+  if (!expected) {
+    return true;
+  }
+
+  return actual !== expected;
 }
 
 function mergePreservedDraftMetadata(
@@ -627,6 +657,7 @@ export async function submitTaskResponse(formData: FormData) {
         )
       : [];
   let returnedCorrectionAttemptCount = 0;
+  let returnedGoldenNuggetsNeedingPracticeCount = 0;
 
   const today = getDateOnly();
   const [{ count: completionCount }, { count: submissionCount }] = await Promise.all([
@@ -776,16 +807,20 @@ export async function submitTaskResponse(formData: FormData) {
     );
 
     if (issuesToRecord.length > 0) {
-      const attemptRows = issuesToRecord.map((issue) => ({
-        writing_issue_id: issue.issue_id,
-        child_id: childId,
-        parent_user_id: user.id,
-        task_submission_id: insertedSubmission.id,
-        attempted_correction: buildAttemptedCorrectionForIssue({
+      const correctionAttemptsToRecord = issuesToRecord.map((issue) => ({
+        issue,
+        attemptedCorrection: buildAttemptedCorrectionForIssue({
           issue,
           draftPayload: latestDraftPayload,
           safeSubmissionText,
         }),
+      }));
+      const attemptRows = correctionAttemptsToRecord.map(({ issue, attemptedCorrection }) => ({
+        writing_issue_id: issue.issue_id,
+        child_id: childId,
+        parent_user_id: user.id,
+        task_submission_id: insertedSubmission.id,
+        attempted_correction: attemptedCorrection,
         attempt_notes: null,
         corrected_independently: true,
         reflection: issue.reflection ?? "medium",
@@ -793,6 +828,7 @@ export async function submitTaskResponse(formData: FormData) {
           source_field_key: issue.source_field_key,
           allow_confidence: issue.allow_confidence,
           marked_fixed: issue.marked_fixed ?? false,
+          retry_mode: issue.retry_mode ?? "try_again",
           reflection_source: issue.reflection ? "child_input" : "slice4a_default",
         },
       }));
@@ -834,6 +870,10 @@ export async function submitTaskResponse(formData: FormData) {
       }
 
       returnedCorrectionAttemptCount = issuesToRecord.length;
+      returnedGoldenNuggetsNeedingPracticeCount = correctionAttemptsToRecord.filter(
+        ({ issue, attemptedCorrection }) =>
+          doesReturnedCorrectionStillNeedPractice({ issue, attemptedCorrection }),
+      ).length;
     }
   }
 
@@ -874,7 +914,7 @@ export async function submitTaskResponse(formData: FormData) {
         : "submission",
       returnedCorrectionAttemptCount > 0 && awardedDailyCheckInCoin ? 1 : undefined,
       undefined,
-      returnedCorrectionAttemptCount,
+      returnedGoldenNuggetsNeedingPracticeCount,
     ),
   );
 }

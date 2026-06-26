@@ -74,6 +74,7 @@ export type ReturnedWritingIssueDraftPayload = {
   marked_fixed?: boolean;
   reflection?: WritingIssueReflection;
   attempted_correction?: string | null;
+  retry_mode?: "stick" | "try_again";
 };
 
 export function getReturnedWritingIssueFeedback(
@@ -129,6 +130,10 @@ export function getReturnedWritingIssueFeedback(
           typeof rawIssue.attempted_correction === "string"
             ? rawIssue.attempted_correction
             : null,
+        retry_mode:
+          rawIssue.retry_mode === "stick" || rawIssue.retry_mode === "try_again"
+            ? rawIssue.retry_mode
+            : undefined,
       },
     ];
   });
