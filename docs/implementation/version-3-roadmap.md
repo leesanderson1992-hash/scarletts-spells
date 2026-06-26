@@ -159,11 +159,15 @@ Goal:
   submission
 - show Golden Nugget discovery positively
 - avoid failure wording
+- fix returned lesson readability so parent comments do not narrow or overflow
+  the child lesson view
 
 Scope:
 - child retry/correction submit UX
 - read-model count of Golden Nuggets discovered in the submitted returned work
 - success copy that frames mistakes as valuable discoveries
+- returned structured lesson layout after parent send-back comments
+- responsive lesson width on desktop, tablet, and mobile child views
 
 Boundaries:
 - no Golden Bar
@@ -178,6 +182,10 @@ Acceptance:
 - copy includes "Well done — your work has been submitted!" or equivalent
 - copy may include "You discovered X Golden Nuggets in this work"
 - no shame copy such as "failed", "wrong", or "got X incorrect"
+- returned lessons stay full-width and readable after parent comments are sent
+  back
+- parent feedback panels and returned correction prompts do not force horizontal
+  overflow or a narrow lesson column
 - parent review flow remains intact
 
 </details>
