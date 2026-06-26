@@ -13,18 +13,20 @@ ADLE remains separate from Word Treasure.
 
 ## Current stage
 
-Current Version 3.0 stage: `Phase 1 complete; Phase 2 next`.
+Current Version 3.0 stage: `Phase 2 follow-up implementation next`.
 
 Implemented so far:
 - Phase 0 current-state audit was completed as an inspection/planning pass.
 - Phase 1 docs-only contract overhaul is complete.
-- No Version 3.0 runtime code has been implemented.
+- Phase 2 initial returned-correction celebration and readability work has
+  been implemented.
 - No Version 3.0 migrations have been created or applied.
 - No Supabase data has been mutated for Version 3.0.
 - No ADLE generation has been wired into runtime assignment generation.
 
 Next safe implementation slice:
-- Phase 2: Child retry Golden Nugget celebration.
+- Phase 2 follow-up: full-page completion, corrected Golden Nugget read-model
+  count, and simplified returned retry UI.
 
 ## Target architecture
 
@@ -149,10 +151,10 @@ Verification:
 
 </details>
 
-<details>
-<summary>Phase 2: Child retry Golden Nugget celebration — Next</summary>
+<details open>
+<summary>Phase 2: Child retry Golden Nugget celebration — In Progress</summary>
 
-Status: `Not started`
+Status: `In progress`
 
 Goal:
 - add a centered child-facing success celebration after correction attempt
@@ -169,6 +171,23 @@ Scope:
 - returned structured lesson layout after parent send-back comments
 - responsive lesson width on desktop, tablet, and mobile child views
 
+Implemented:
+- returned correction submit shows a child-facing success celebration
+- returned lesson layout stays full-width/readable after parent feedback
+
+Phase 2 follow-up implementation tasks:
+- make lesson and test completion success full-page for both first submission
+  and returned resubmission
+- use one dimmed grey-black page overlay with a centered completion panel
+- show earned reward rows only: Gold Coins, Golden Nuggets, and Gold Bar
+  Evidence
+- count Golden Nuggets in the completion read model only for returned retry
+  items still needing practice after the child submits corrections
+- simplify returned retry cards so the child sees the original attempt, chooses
+  whether to stick with it or try again, and keeps the easy/medium/hard
+  reflection
+- remove the "I've fixed this" checkbox from the child retry UI
+
 Boundaries:
 - no Golden Bar
 - no ADLE scheduling
@@ -181,7 +200,14 @@ Acceptance:
 - child sees a centered celebration
 - copy includes "Well done — your work has been submitted!" or equivalent
 - copy may include "You discovered X Golden Nuggets in this work"
+- full-page completion copy may use "Amazing job! Your work was submitted."
 - no shame copy such as "failed", "wrong", or "got X incorrect"
+- completion reward rows are shown only when that reward/evidence exists
+- the completion action button says "Let's Reach Our Goal" and returns to the
+  module
+- corrected retry items are excluded from the Golden Nugget completion count
+- choosing to stick with the original attempt submits the original answer as the
+  retry attempt
 - returned lessons stay full-width and readable after parent comments are sent
   back
 - parent feedback panels and returned correction prompts do not force horizontal
