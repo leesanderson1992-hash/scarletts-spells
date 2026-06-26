@@ -1296,9 +1296,9 @@ Status:
     the existing reward panel
   - the card shows empty, ready, closed, and blocked states with due review
     before new practice
-  - as implemented in `7B` it had no generation trigger, answer capture,
-    completion persistence, reward, mastery, evidence, scoring behavior, or
-    broad runtime revival
+  - as implemented in `7B` it had no child-route generation trigger, answer
+    capture, completion persistence, reward, mastery, evidence, scoring
+    behavior, or broad runtime revival
   - `/practice` and `/assignments` remain redirect-only legacy paths for this
     slice
 - Slice `7C` is implemented as a read-only/local-only child practice viewer:
@@ -1311,10 +1311,10 @@ Status:
     with local navigation and optional local feedback
   - unsupported, missing, empty, completed, skipped, and blocked states render
     calm neutral copy
-  - it adds no migration and no generation trigger, server action, persisted
-    answer attempt, completion persistence, evidence, mastery, reward, canonical
-    mapping, resolver, catalog, Review Work, analytics, scoring, template, or
-    course-completion write
+  - it adds no migration and no child-route generation trigger, server action,
+    persisted answer attempt, completion persistence, evidence, mastery, reward,
+    canonical mapping, resolver, catalog, Review Work, analytics, scoring,
+    template, or course-completion write
   - `/practice` and `/assignments` remain redirect-only legacy paths; Slice
     `7D` remains the decision point for any persisted completion marker
   - local browser smoke passed for the authenticated child `/learn/week`
@@ -1349,6 +1349,34 @@ Status:
   - release-readiness decision: release-ready for the Slice 7 child daily
     practice surface, with the documented local-smoke caveat that no ready
     supported practice existed in the local dataset
+- Scheduled daily spelling practice materialization is implemented as the
+  production bridge from Slice `6` generation to the Slice `7` child surface:
+  - `vercel.json` schedules `/api/internal/daily-spelling-practice/generate`
+    once daily at `15 6 * * *` UTC, using `Europe/London` inside the route to
+    choose the practice date
+  - the internal route requires `Authorization: Bearer ${CRON_SECRET}`, runs on
+    the Node runtime, uses server-only service-role access, and returns a compact
+    summary of scanned children, generated assignments, empty plans, blocked
+    closed assignments, and errors
+  - `lib/writing-practice/daily-spelling-practice-materialization.ts` scans
+    active child/parent pairs with active `learning_items` and calls the
+    existing `generateDailySpellingPracticeAssignment` helper for each pair
+  - child `/learn/week` and `/learn/week/practice` remain read/display/completion
+    surfaces only; they do not trigger generation or import service-role code
+  - queued learning items are capped by the existing planner into calm daily
+    work; 35 active items should not become a 35-item daily assignment backlog
+  - the bridge adds no migration and no learning-truth, evidence, answer
+    attempt, reward, mastery, canonical, resolver, catalog, Review Work,
+    analytics, scoring, template, or course-completion behavior
+  - QA passed through the existing generation regression, aggregate Slice `7`
+    surface regression, the new materialization regression, TypeScript,
+    targeted ESLint, and diff checks
+  - local route smoke on port `3005` verified missing-auth `401`,
+    CRON_SECRET-authenticated `200`, one generated daily assignment for the
+    seeded active learning-item child, and an idempotent rerun with
+    `appendedItemCount: 0`; browser smoke verified the authenticated child
+    neutral state, Daily Practice menu link, `/learn/week/practice`, and child
+    `/practice` plus `/assignments` redirects
 
 UX:
 - today's practice

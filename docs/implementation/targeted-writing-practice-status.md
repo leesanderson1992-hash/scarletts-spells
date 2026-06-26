@@ -212,6 +212,15 @@ Canonical documentation now defers to:
   `/learn/week` surface and opens a read-only/local-only viewer at
   `/learn/week/practice` for supported generated spelling items, with a minimal
   item-level delivery completion marker.
+- Scheduled daily spelling practice materialization is implemented as the
+  production bridge from active `learning_items` into today's bounded generated
+  `daily_assignments`. Vercel cron calls
+  `/api/internal/daily-spelling-practice/generate`, authenticated by
+  `CRON_SECRET`; the route computes the date in `Europe/London`, uses
+  server-only service-role access, scans active child/parent pairs with active
+  `learning_items`, and delegates to the existing Slice `6`
+  `generateDailySpellingPracticeAssignment` helper. Child surfaces still do not
+  trigger generation.
 - Durable issue-lifecycle and learning-item creation exist.
 - The older spelling runtime surfaces are retired and should not be treated as
   an active product path.
@@ -251,6 +260,12 @@ Canonical documentation now defers to:
     `scripts/writing-engine-daily-spelling-practice-viewer-regression.ts`
   - completion regression:
     `scripts/writing-engine-daily-spelling-practice-completion-regression.ts`
+  - scheduled materializer helper:
+    `lib/writing-practice/daily-spelling-practice-materialization.ts`
+  - scheduled materializer route:
+    `app/api/internal/daily-spelling-practice/generate/route.ts`
+  - scheduled materializer regression:
+    `scripts/writing-engine-daily-spelling-practice-materialization-regression.ts`
   - reads `daily_assignments`, `assignment_items`, selected scoped
     `learning_items`, and optional `micro_skill_catalog` labels
   - returns `missing`, `empty`, `ready`, `completed`, `skipped`, and `blocked`
@@ -263,9 +278,16 @@ Canonical documentation now defers to:
     rows as `completed`
   - `daily_assignments.status` remains untouched; the read model presents
     `completed` when all supported items are complete
+  - production materialization runs separately from child rendering: Vercel cron
+    calls the CRON_SECRET-protected internal route, which uses service-role only
+    on the server and calls the existing Slice `6` generator for active
+    child/parent learning-item queues
+  - queued learning items are planned into capped daily work; a large queue is
+    not presented to the child as backlog
   - no migration was added; the completion marker is delivery state only
-  - does not trigger generation, persist answers/correctness/attempts, use
-    service-role, expose service-role browser code, create evidence, mutate
+  - child routes do not trigger generation, persist
+    answers/correctness/attempts, use service-role, expose service-role browser
+    code, create evidence, mutate
     `learning_items`, write reward rows, write course completion rows, revive
     `/practice` or `/assignments`, or touch rewards, mastery, canonical
     mappings, resolver visibility, Review Work, analytics, scoring, or
@@ -275,14 +297,21 @@ Canonical documentation now defers to:
     `npm run writing-engine:daily-spelling-practice-child-card-regression`,
     `npm run writing-engine:daily-spelling-practice-viewer-regression`,
     `npm run writing-engine:daily-spelling-practice-completion-regression`,
+    `npm run writing-engine:daily-spelling-practice-materialization-regression`,
     `npm run writing-engine:daily-spelling-practice-surface-regression`,
     `npx tsc --noEmit`, targeted ESLint, and `git diff --check`
+  - materializer route smoke passed locally on port `3005` with healthy local
+    Supabase: missing auth returned `401`, CRON_SECRET auth returned `200`, the
+    seeded active learning-item child received today's generated
+    `Daily spelling practice`, and a rerun appended zero duplicate items
   - browser smoke passed locally on port `3005` with healthy local Supabase:
     authenticated dashboard load, child `/learn/week`, neutral daily spelling
-    card, direct `/learn/week/practice` empty-state rendering, forbidden-copy
-    check for the daily-practice surfaces, and `/practice` plus `/assignments`
-    child redirects back to `/learn/week`; no ready supported local practice
-    existed during smoke, so item-completion behavior is covered by focused
+    card, Daily Practice child menu link, direct `/learn/week/practice`
+    empty-state rendering, forbidden-copy check scoped to the daily-practice
+    surfaces, and `/practice` plus `/assignments` child redirects back to
+    `/learn/week`; the logged-in smoke account's selected child was not the same
+    seeded materializer target, so generated-item browser visibility is covered
+    by the route smoke and item-completion behavior remains covered by focused
     regression rather than claimed as completed in-browser
 - Future spelling word-map/dictionary content is now contracted as content
   metadata only. It may later supply lesson words for existing active

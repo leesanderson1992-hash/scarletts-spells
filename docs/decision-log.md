@@ -239,6 +239,40 @@
   visible, the returned detail showed the reason-first table, and selecting a
   learning-relevant reason exposed learning-route controls without submitting.
 
+## 2026-06-26 — Daily spelling practice has a scheduled production materializer
+
+### What changed
+- Added a CRON_SECRET-protected internal route,
+  `/api/internal/daily-spelling-practice/generate`, for scheduled daily spelling
+  practice materialization.
+- Added the server-only materializer helper in
+  [lib/writing-practice/daily-spelling-practice-materialization.ts](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/lib/writing-practice/daily-spelling-practice-materialization.ts:1).
+- Added Vercel cron configuration in
+  [vercel.json](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/vercel.json:1)
+  for a once-daily run.
+- Added static regression coverage in
+  [scripts/writing-engine-daily-spelling-practice-materialization-regression.ts](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/scripts/writing-engine-daily-spelling-practice-materialization-regression.ts:1).
+
+### Why this matters
+- Slice `7` remains the child-facing surface only: `/learn/week` and
+  `/learn/week/practice` still read existing generated work and do not trigger
+  generation.
+- The scheduled route is the production bridge from active `learning_items` to
+  today's bounded `daily_assignments`, using the existing Slice `6` generator.
+- Large learning queues are planned into small daily practice; they are not
+  exposed as child-facing backlog.
+- The bridge writes only through the existing generator path and adds no
+  learning-truth, evidence, mastery, reward, canonical, resolver, catalog,
+  Review Work, analytics, scoring, template, or course-completion behavior.
+- QA passed with the existing daily-practice generation regression, aggregate
+  Slice `7` surface regression, materialization regression, `npx tsc --noEmit`,
+  targeted ESLint, and `git diff --check`.
+- Local smoke verified the internal route rejects missing auth with `401`, runs
+  with CRON_SECRET auth, creates today's bounded generated assignment for the
+  seeded active learning-item child, and appends zero duplicate items on rerun.
+  Browser smoke verified the authenticated child neutral state, Daily Practice
+  menu link, `/learn/week/practice`, and legacy child redirects.
+
 ## 2026-06-25 — Slice 7 child daily spelling practice is release-ready
 
 ### What changed

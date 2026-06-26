@@ -227,13 +227,27 @@ excluded.
   `/learn/week/practice`: the page reads the Slice `7A` model server-side and
   renders a local viewer for supported generated spelling items. The final child
   action marks only supported generated `assignment_items.status` rows as
-  `completed`; `daily_assignments.status` remains untouched. There is still no
-  generation trigger, persisted answer attempt/correctness, learning truth
-  mutation, service-role usage, migration, `/practice` or `/assignments` runtime
-  revival, or rewards/mastery/canonical/Review Work change. Focused regressions,
-  the aggregate daily-practice surface regression, typecheck, targeted lint,
-  diff checks, and local browser smoke are recorded as passing for release
-  readiness.
+  `completed`; `daily_assignments.status` remains untouched. Child routes still
+  do not trigger generation, persist answer attempts/correctness, mutate
+  learning truth, use service-role, add migrations, revive `/practice` or
+  `/assignments`, or change rewards/mastery/canonical/Review Work behavior.
+  Focused regressions, the aggregate daily-practice surface regression,
+  typecheck, targeted lint, diff checks, and local browser smoke are recorded as
+  passing for release readiness.
+- The scheduled daily spelling practice materializer is implemented as the
+  production bridge from active `learning_items` to today's bounded
+  `daily_assignments`: Vercel cron calls
+  `/api/internal/daily-spelling-practice/generate`, the route requires
+  `Authorization: Bearer ${CRON_SECRET}`, computes the practice date in
+  `Europe/London`, uses server-only service-role access, and calls the existing
+  Slice `6` generator. It caps queued learning items into calm daily practice
+  instead of exposing backlog size, and it adds no learning-truth, evidence,
+  reward, mastery, canonical, resolver, Review Work, or course-completion
+  behavior. Local smoke on port `3005` verified 401 without the cron secret,
+  200 with the local cron secret, one generated assignment for the seeded active
+  learning-item child, and an idempotent rerun that appended zero duplicate
+  items; authenticated browser smoke verified the logged-in child neutral state,
+  Daily Practice menu link, `/learn/week/practice`, and legacy child redirects.
 - Version 2.0 Slice `4` bulk candidate mapping import/review is implemented
   and production-smoked through the import-to-resolver-visible canonical truth
   path
