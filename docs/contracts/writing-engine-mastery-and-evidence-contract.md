@@ -31,9 +31,62 @@ It is not an implementation roadmap, a UI spec, or a schema definition.
 - supporting prerequisite mini-skills should not be strongly penalised without
   direct evidence
 - authentic writing transfer is required before parent-facing "Mastered"
+- ADLE instructional state determines how to teach or review today; it is not
+  the same as mastery, competency, reward state, or Word Treasure state
 
 These rules apply whether evidence comes from controlled practice, dictation,
 authentic writing, or parent-verified diagnostic work.
+
+## Version 3.0 ADLE instructional state
+
+Every active `learning_item` should eventually carry an instructional state:
+
+```text
+INTRODUCTION_REQUIRED
+GUIDED_PRACTICE
+RETRIEVAL
+CONSOLIDATION
+MAINTENANCE
+```
+
+Instructional state answers:
+
+```text
+What kind of instructional experience should ADLE generate next?
+```
+
+It does not answer:
+- whether the micro-skill is mastered
+- whether the child has earned a Golden Bar
+- whether a word is in the Vault
+- whether the child has a spendable reward
+
+Transition direction:
+- `INTRODUCTION_REQUIRED` begins when a learning-relevant reviewed issue creates
+  or strengthens an active learning item that has not yet been explicitly taught
+  through ADLE
+- `GUIDED_PRACTICE` follows first exposure when supported practice is still
+  needed
+- `RETRIEVAL` follows enough guided success to attempt independent retrieval
+- `CONSOLIDATION` follows independent retrieval success and introduces more
+  delay, contrast, interleaving, and transfer
+- `MAINTENANCE` follows stable delayed and authentic evidence across time and
+  breadth
+
+Regression direction:
+- meaningful failure after previous success may move a learning item back from
+  maintenance or consolidation toward retrieval or guided practice
+- evidence of concept fragility may re-enable an explanation or reteaching
+  block
+- regression must remain evidence-driven and auditable
+
+Hard boundaries:
+- `learning_items.progress_state` must not be reused as instructional state
+- Word Treasure status must not drive instructional-state transitions by itself
+- curriculum readiness must be checked before `INTRODUCTION_REQUIRED` can
+  become a full first-exposure lesson
+- if curriculum readiness is missing, ADLE must emit a readiness gap rather
+  than generating invented teaching content
 
 ## Word Treasure vs micro-skill mastery
 
@@ -141,6 +194,44 @@ The system must distinguish at least these source types:
 
 These source types are conceptually distinct because they represent different
 strengths of evidence and different meanings for mastery.
+
+## Version 3.0 evidence vocabulary expansion
+
+ADLE requires a broader attempt/evidence vocabulary than the current bounded
+MVP storage enum.
+
+Minimum Version 3.0 evidence vocabulary:
+- `incorrect_use`
+- `corrected_after_prompt`
+- `corrected_independently`
+- `controlled_practice_success`
+- `controlled_practice_failure`
+- `dictation_success`
+- `dictation_failure`
+- `sentence_application_success`
+- `sentence_application_failure`
+- `proofreading_success`
+- `proofreading_failure`
+- `authentic_correct_use`
+- `delayed_authentic_correct_use`
+- `repeated_correct_use`
+- `authentic_incorrect_use`
+- `instructional_first_exposure_completed`
+- `guided_practice_completed`
+- `retrieval_attempt_success`
+- `retrieval_attempt_failure`
+- `transfer_attempt_success`
+- `transfer_attempt_failure`
+
+Rules:
+- generated assignment creation is not evidence
+- viewing a word-map row is not evidence
+- same-session correction may create correction evidence, but must not create
+  durable mastery or Golden Bar progress by itself
+- authentic/original writing after delay is stronger than controlled practice
+- evidence rows must remain source-linked and auditable
+- evidence models, weights, thresholds, and state-transition rules must be
+  versioned
 
 ## Review Work verification guardrail
 

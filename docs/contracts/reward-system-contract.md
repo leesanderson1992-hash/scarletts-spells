@@ -54,22 +54,38 @@ A Golden Nugget represents:
 
 > "This is a word I once did not know."
 
-The standard word journey is:
+The Version 3.0 word journey is:
 
 ```text
-Wrong word
+verified word-specific misspelling
+-> correction attempted
 -> Golden Nugget
--> lesson/practice starts
--> In the Forge
--> 5 authentic correct uses after Forge
+-> word shown and attempted in ADLE
+-> 5 authentic/original correct uses
 -> Golden Bar
 -> Vault
 ```
 
+Older surfaces may still project `golden_nugget`, `warm_workshop`, or
+`gold_bar_earned` from `spelling_reward_states`. Those tables are compatibility
+debt and must not define the final Version 3.0 Word Treasure model.
+
+### Correction attempted
+
+Correction attempted means the child has engaged with the returned spelling
+issue and submitted an attempted correction.
+
+Rules:
+- correction-attempt state is child-specific and source-linked
+- a correction attempt may happen before the word is secure
+- same-session correction may prepare or confirm a Golden Nugget, but it must
+  not award a Golden Bar
+- child-facing copy should treat the attempt as a positive learning step
+
 ### Golden Nugget
 
-A Golden Nugget is created or updated when a verified misspelling identifies a
-specific corrected word worth learning.
+A Golden Nugget is created or updated after a verified word-specific
+misspelling has been engaged through correction attempt.
 
 Meaning:
 - this is not failure
@@ -77,8 +93,8 @@ Meaning:
 - the child has found a word they can now grow
 
 Rules:
-- a verified misspelling creates or updates a word treasure for the corrected
-  canonical word
+- a verified misspelling identifies a candidate corrected word treasure
+- the correction attempt is the child-facing Golden Nugget discovery moment
 - the Nugget belongs to the child and the corrected word
 - the original misspelling should be preserved as history where possible
 - Nuggets are not spendable currency
@@ -91,12 +107,11 @@ Child-facing message style:
 
 ### In the Forge
 
-In the Forge means the child has started learning or practising that specific
-word after it became a Golden Nugget.
+In the Forge means the word has been shown and attempted in ADLE after it
+became a Golden Nugget.
 
 Rules:
-- starting the relevant lesson or micro-skill practice moves the word into the
-  Forge
+- a relevant ADLE word attempt moves the word into the Forge
 - lesson completion alone does not award a Golden Bar
 - controlled practice and quiz success may support readiness, but do not count
   toward the default Golden Bar rule
@@ -138,6 +153,68 @@ Rules:
   historical fact that the child once forged the bar
 - renewed practice can create a current review need while preserving the
   lifetime Vault record
+
+### Version 3.0 Word Treasure storage contract
+
+The final Version 3.0 Word Treasure model should use dedicated storage rather
+than extending `spelling_reward_states`.
+
+Planned table:
+- `child_word_treasures`
+
+Required conceptual fields:
+- `id`
+- `child_id`
+- `parent_user_id`
+- `canonical_word_id`
+- `corrected_word`
+- `original_misspelling`
+- `source_issue_id`
+- `source_learning_item_id`
+- `source_submission_id`
+- `source_misspelling_instance_id`
+- `micro_skill_key`
+- `status`
+- `discovered_at`
+- `correction_attempted_at`
+- `entered_forge_at`
+- `golden_bar_at`
+- `vaulted_at`
+- `authentic_correct_uses_after_forge`
+- `required_uses_for_bar`
+- `metadata`
+- `created_at`
+- `updated_at`
+
+Allowed statuses:
+- `correction_attempted`
+- `golden_nugget`
+- `in_forge`
+- `golden_bar`
+- `vaulted`
+
+Planned event table:
+- `child_word_treasure_events`
+
+Required conceptual fields:
+- `id`
+- `treasure_id`
+- `child_id`
+- `event_type`
+- `source_type`
+- `source_entity_id`
+- `previous_status`
+- `new_status`
+- `metadata`
+- `created_at`
+
+Rules:
+- the same corrected word should dedupe for the same child
+- multiple original misspellings may link to the same corrected-word treasure
+- Word Treasure state may link to a `learning_item`, but it must not define
+  micro-skill proficiency
+- ADLE may surface Word Treasure context, but ADLE does not own reward truth
+- word-map rows and diagnostic examples must not create Word Treasure state
 
 ## Micro-Skill Level System
 
@@ -391,21 +468,30 @@ Currency language:
 
 ### Word Treasure projection
 
-Future canonical table or compatibility projection: `child_word_treasures`.
+Future canonical table: `child_word_treasures`.
+
+Compatibility projection from `spelling_reward_states` may be used only during a
+documented migration or bridge slice.
 
 Recommended fields:
 - `child_id`
 - `canonical_word_id` or normalized corrected word reference
 - `original_misspelling`
+- source issue/submission/misspelling lineage
+- linked `learning_item_id` where available
+- `micro_skill_key` where available
 - `status`
 - `discovered_at`
+- `correction_attempted_at`
 - `entered_forge_at`
-- `forged_at`
+- `golden_bar_at`
+- `vaulted_at`
 - `correct_authentic_uses_after_forge`
 - `required_uses_for_bar`
 - `metadata`
 
 Suggested statuses:
+- `correction_attempted`
 - `golden_nugget`
 - `in_forge`
 - `golden_bar`

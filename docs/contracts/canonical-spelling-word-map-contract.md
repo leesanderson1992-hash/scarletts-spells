@@ -1,4 +1,4 @@
-# Canonical Spelling Word-Map Contract
+# Canonical Spelling Word-Map / Curriculum Metadata Contract
 
 ## Purpose
 
@@ -6,11 +6,15 @@ This contract defines the authority boundary for a future canonical spelling
 word-map / dictionary that can supply lesson words and word metadata for
 existing spelling micro-skills.
 
+For Version 3.0, this contract also owns curriculum metadata and curriculum
+readiness for ADLE first-exposure lessons.
+
 It exists to prevent a word-bank or dictionary import from becoming accidental
 truth for taxonomy, resolver behavior, mastery, assignments, or child progress.
 
 The future word-map may support:
 - lesson population
+- explicit first-exposure teaching
 - grouped practice
 - contrast practice
 - dictation support
@@ -112,6 +116,8 @@ Ownership boundaries:
 - `learning_items` remain the child-specific active assignment and practice
   unit.
 - `assignment_items` remain the generated delivery surface.
+- ADLE first-exposure teaching requires curriculum readiness; taxonomy
+  existence alone is insufficient.
 - `spelling_canonical_mappings` remain exact misspelling/correction/micro-skill
   mapping truth.
 - resolver-visible canonical mappings remain explicit, audited operational
@@ -165,6 +171,88 @@ It must not:
 
 Every word-map association with a skill must reference an existing
 catalog-backed key. Unknown or unsupported keys must fail validation.
+
+## Version 3.0 curriculum readiness
+
+A micro-skill is not ADLE-ready simply because it exists in
+`micro_skill_catalog`.
+
+A micro-skill is first-exposure-ready only when curriculum metadata can support
+explicit teaching before independent retrieval.
+
+Required curriculum metadata:
+- teaching objective
+- child-friendly explanation
+- rule explanation
+- memory tip or mnemonic
+- anchor word
+- ordered example words from simple to complex
+- contrast words where useful
+- common misconceptions
+- suggested activity progression
+- suggested review progression
+- source
+- licence or source-use note
+- confidence
+- review status
+
+Rules:
+- curriculum readiness belongs to the curriculum metadata layer, not runtime
+  `learning_items`
+- curriculum readiness is a prerequisite for ADLE `INTRODUCTION_REQUIRED`
+  lessons
+- if readiness is missing, ADLE must surface an explicit skip/readiness status
+  rather than inventing teaching content
+- word-map rows and curriculum rows remain metadata; they do not create
+  `learning_items`, `assignment_items`, evidence, resolver truth, or rewards
+
+Suggested readiness states:
+- `not_ready`
+- `content_gap`
+- `needs_manual_review`
+- `ready_for_guided_review_only`
+- `ready_for_first_exposure`
+
+`ready_for_guided_review_only` may support short review activities where the
+child has already been taught by a parent or prior task, but it must not be
+used for an ADLE first-exposure lesson.
+
+## Version 3.0 teaching metadata
+
+Teaching metadata should be stored in a stable, reviewable content layer.
+It may be represented in existing word-map tables, future curriculum tables, or
+versioned repo artifacts, but the consuming contract is the same.
+
+Minimum teaching metadata shape:
+
+```text
+micro_skill_key
+teaching_objective
+child_friendly_explanation
+rule_explanation
+why_it_works
+memory_tip
+anchor_word
+ordered_example_words
+contrast_words
+common_misconceptions
+first_exposure_activity_sequence
+review_activity_sequence
+source
+licence
+confidence
+review_status
+```
+
+Rules:
+- examples must be ordered intentionally, usually simple to complex
+- anchor words should be stable and child-safe
+- contrast words should identify what contrast is being tested
+- common misconceptions are instructional support, not resolver truth
+- suggested activity sequences reference Instructional Activity Registry keys
+  only after those keys exist
+- a missing teaching field should be a readiness gap, not a prompt to invent
+  route-local copy
 
 ## Allowed future uses
 

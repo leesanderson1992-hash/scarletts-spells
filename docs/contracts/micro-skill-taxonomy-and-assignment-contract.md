@@ -57,6 +57,7 @@ This contract owns:
 - assignment-unit rules
 - grouping behavior
 - allowed practice routes
+- ADLE instructional-state boundary
 - default review and interleaving rules
 - legacy projection limits
 
@@ -69,9 +70,12 @@ This contract does not own:
 - the conceptual meaning of taxonomy levels
 - the broader rationale for project-first pedagogy
 - the operational mastery stage ladder
+- the detailed ADLE daily composer algorithm
+- the Instructional Activity Registry
 - source-weight tables
 - role-weight tables
 - breadth, confidence, recurrence, or transfer-gated Mastered rules
+- Word Treasure reward-state calculation
 
 Review Work verification actions may surface existing shared decision controls,
 but they do not own assignment composition, route selection, or taxonomy
@@ -123,6 +127,111 @@ Canonical runtime relationship rules:
 - lifecycle state belongs to workflow objects, not taxonomy
 - generic `assignment_items` carry mixed-domain daily work under the writing
   engine rather than flattening everything into a spelling-only word list
+
+### Version 3.0 ADLE boundary
+
+Version 3.0 introduces ADLE, the Adaptive Daily Learning Engine.
+
+ADLE uses active `learning_items` as its child-specific instructional input.
+It must not generate daily work directly from:
+- raw misspelling rows
+- word-map rows
+- diagnostic misspelling examples
+- free-text micro-skill labels
+- Word Treasure reward state
+- legacy `word_progress`
+
+The Version 3.0 architecture is:
+
+```text
+Canonical Truth
+-> Curriculum Metadata
+-> Curriculum Readiness
+-> Learning Item
+-> Instructional State
+-> Instructional Activity Registry
+-> ADLE Daily Assignment Composer
+-> Assignment Items
+-> Child Attempt
+-> Evidence
+-> Micro-skill Proficiency
+```
+
+This contract owns only the micro-skill and learning-item invariants inside
+that chain. Detailed composer behavior belongs to:
+- [docs/contracts/adle-daily-assignment-composer-contract.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/contracts/adle-daily-assignment-composer-contract.md:1)
+
+Detailed instructional activity metadata belongs to:
+- [docs/contracts/adle-instructional-activity-registry-contract.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/contracts/adle-instructional-activity-registry-contract.md:1)
+
+### Instructional state boundary
+
+Every active `learning_item` should eventually have one instructional state:
+
+```text
+INTRODUCTION_REQUIRED
+GUIDED_PRACTICE
+RETRIEVAL
+CONSOLIDATION
+MAINTENANCE
+```
+
+Instructional state answers:
+
+```text
+How should ADLE teach or review this micro-skill today?
+```
+
+Instructional state is independent from:
+- mastery level
+- competency level
+- reward state
+- Golden Nugget status
+- Word Treasure status
+- `learning_items.progress_state`
+
+Rules:
+- do not use existing `learning_items.progress_state` as instructional state
+- do not use Word Treasure status to choose a micro-skill proficiency level
+- do not use micro-skill proficiency to mint Word Treasure rewards
+- instructional state may be informed by evidence, but transition semantics
+  belong to the mastery/evidence contract
+- ADLE may skip a first-exposure lesson if curriculum readiness is missing
+
+Default instructional-state meanings:
+- `INTRODUCTION_REQUIRED`: the child has a learning item that needs explicit
+  teaching before independent retrieval
+- `GUIDED_PRACTICE`: the child has been introduced and still needs supported
+  activities
+- `RETRIEVAL`: the child should retrieve the skill without reteaching
+- `CONSOLIDATION`: the child needs mixed, delayed, or interleaved practice
+- `MAINTENANCE`: the child needs light long-term review only
+
+### Word Treasure boundary
+
+Word Treasure is a separate reward/motivation system.
+
+The Version 3.0 Word Treasure sequence is:
+
+```text
+verified word-specific misspelling
+-> correction attempted
+-> Golden Nugget
+-> word shown and attempted in ADLE
+-> 5 authentic/original correct uses
+-> Golden Bar
+-> Vault
+```
+
+Rules:
+- a Golden Nugget may link to a `learning_item`, but it does not define that
+  learning item
+- one `learning_item` may be linked to multiple Word Treasure records when
+  several words expose the same micro-skill
+- a Golden Bar for one word must not imply the whole micro-skill is mastered
+- micro-skill mastery must not automatically create Golden Bars
+- `spelling_reward_states` is compatibility debt for older reward surfaces and
+  must not become the final Version 3.0 Word Treasure model
 
 ### 1. `micro_skill_key`
 
