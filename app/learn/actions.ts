@@ -856,7 +856,7 @@ export async function submitTaskResponse(formData: FormData) {
     { onConflict: "task_id,child_id" },
   );
 
-  await maybeAwardDailyCheckInCoins({
+  const awardedDailyCheckInCoin = await maybeAwardDailyCheckInCoins({
     supabase,
     parentUserId: user.id,
     childId,
@@ -872,7 +872,7 @@ export async function submitTaskResponse(formData: FormData) {
       returnedCorrectionAttemptCount > 0
         ? "returned_correction_submission"
         : "submission",
-      undefined,
+      returnedCorrectionAttemptCount > 0 && awardedDailyCheckInCoin ? 1 : undefined,
       undefined,
       returnedCorrectionAttemptCount,
     ),

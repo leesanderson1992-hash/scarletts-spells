@@ -4,7 +4,7 @@ import { notFound, redirect } from "next/navigation";
 import { AppShell } from "@/components/app-shell";
 import { PreSubmitChecklist } from "@/components/pre-submit-checklist";
 import { RewardCelebration } from "@/components/reward-celebration";
-import { NuggetIcon } from "@/components/reward-icons";
+import { GoldBarIcon, GoldCoinIcon, NuggetIcon } from "@/components/reward-icons";
 import { StructuredLessonResponse as StructuredLessonResponseForm } from "@/components/structured-lesson-response";
 import {
   buildScopedPath,
@@ -61,6 +61,7 @@ type LearnModuleTaskPageProps = {
     reward_coins?: string;
     focus_near_reward_coins?: string;
     golden_nuggets?: string;
+    gold_bar_evidence?: string;
   }>;
 };
 
@@ -329,6 +330,46 @@ export default async function LearnModuleTaskPage({
     Number.isInteger(goldenNuggetCount) && goldenNuggetCount > 0
       ? goldenNuggetCount
       : 0;
+  const goldBarEvidenceCount =
+    typeof resolvedSearchParams?.gold_bar_evidence === "string"
+      ? Number(resolvedSearchParams.gold_bar_evidence)
+      : 0;
+  const earnedGoldBarEvidence =
+    Number.isInteger(goldBarEvidenceCount) && goldBarEvidenceCount > 0
+      ? goldBarEvidenceCount
+      : 0;
+  const returnedCorrectionRewardRows = [
+    ...(earnedRewardCoins > 0
+      ? [
+          {
+            key: "gold-coins",
+            label: "Gold Coins",
+            value: `${earnedRewardCoins}`,
+            icon: <GoldCoinIcon size="sm" />,
+          },
+        ]
+      : []),
+    ...(discoveredGoldenNuggets > 0
+      ? [
+          {
+            key: "golden-nuggets",
+            label: "Golden Nuggets",
+            value: `${discoveredGoldenNuggets}`,
+            icon: <NuggetIcon size="sm" />,
+          },
+        ]
+      : []),
+    ...(earnedGoldBarEvidence > 0
+      ? [
+          {
+            key: "gold-bar-evidence",
+            label: "Gold Bar Evidence",
+            value: `${earnedGoldBarEvidence}`,
+            icon: <GoldBarIcon size="sm" />,
+          },
+        ]
+      : []),
+  ];
   const savedReturnedCorrection =
     resolvedSearchParams?.saved === "returned_correction_submission";
   return (
@@ -405,42 +446,51 @@ export default async function LearnModuleTaskPage({
               ) : null}
 
               {savedReturnedCorrection ? (
-                <div className="relative overflow-hidden rounded-[2rem] border border-amber-200 bg-[linear-gradient(135deg,rgba(255,247,220,0.98),rgba(236,253,245,0.95),rgba(252,228,244,0.95))] px-5 py-8 text-center text-emerald-900 shadow-[0_18px_40px_rgba(16,185,129,0.12)] md:px-8">
-                  <div className="absolute left-6 top-6 h-14 w-14 rounded-full bg-[rgba(245,190,57,0.16)]" />
-                  <div className="absolute bottom-[-18px] right-8 h-24 w-24 rounded-full bg-[rgba(16,185,129,0.12)]" />
-                  <div className="relative mx-auto grid max-w-2xl justify-items-center gap-4">
-                    <div className="flex h-20 w-20 items-center justify-center rounded-full border border-amber-200 bg-white shadow-sm">
-                      <NuggetIcon size="lg" className="scale-150 animate-bounce" />
+                <div className="fixed inset-0 z-50 grid place-items-center bg-zinc-950/65 px-4 py-6 text-center backdrop-blur-sm">
+                  <div className="w-full max-w-xl overflow-hidden rounded-[2rem] border border-white/70 bg-white px-5 py-6 shadow-[0_30px_90px_rgba(0,0,0,0.28)] md:px-8 md:py-8">
+                    <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full border border-amber-200 bg-amber-50 shadow-sm">
+                      <NuggetIcon size="lg" className="scale-125" />
                     </div>
                     <div>
-                      <p className="text-2xl font-black tracking-tight text-[color:var(--ink)] md:text-3xl">
-                        Well done — your work has been submitted!
-                      </p>
-                      <p className="mt-2 text-base font-semibold text-emerald-800">
-                        You found Golden Nugget treasure in this work.
-                      </p>
-                      {discoveredGoldenNuggets > 0 ? (
-                        <p className="mt-2 text-sm leading-6 text-emerald-700">
-                          You discovered {discoveredGoldenNuggets} Golden Nugget
-                          {discoveredGoldenNuggets === 1 ? "" : "s"} in this work.
-                        </p>
+                      <h2 className="mt-4 text-2xl font-black tracking-tight text-[color:var(--ink)] md:text-3xl">
+                        Amazing job! Your work was submitted.
+                      </h2>
+                      {returnedCorrectionRewardRows.length > 0 ? (
+                        <div className="mt-5 text-left">
+                          <p className="text-center text-sm font-semibold text-[color:var(--mid)]">
+                            This work earned you:
+                          </p>
+                          <div className="mt-3 overflow-hidden rounded-2xl border border-[var(--border)] bg-white">
+                            <table className="w-full border-collapse text-left text-sm">
+                              <tbody>
+                                {returnedCorrectionRewardRows.map((row) => (
+                                  <tr
+                                    key={row.key}
+                                    className="border-b border-[var(--border)] last:border-b-0"
+                                  >
+                                    <th className="px-4 py-3 font-semibold text-[color:var(--ink)]">
+                                      <span className="inline-flex items-center gap-2">
+                                        {row.icon}
+                                        {row.label}
+                                      </span>
+                                    </th>
+                                    <td className="px-4 py-3 text-right text-lg font-bold text-[color:var(--ink)]">
+                                      {row.value}
+                                    </td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
                       ) : null}
-                      <p className="mt-2 text-sm leading-6 text-emerald-700">
-                        Your new try is ready for your grown-up to review.
-                      </p>
                     </div>
                     <div className="flex flex-wrap justify-center gap-2">
                       <Link
                         href={modulePath}
-                        className="inline-flex h-10 items-center justify-center rounded-full border border-emerald-200 bg-white px-4 text-sm font-medium text-emerald-800 transition hover:text-[var(--scarlett)]"
+                        className="brand-primary-btn"
                       >
-                        {detail.course.structure_type === "timed" ? "Back to cycle" : "Back to module"}
-                      </Link>
-                      <Link
-                        href={scopedCurrentPath}
-                        className="inline-flex h-10 items-center justify-center rounded-full border border-emerald-200 bg-white px-4 text-sm font-medium text-emerald-800 transition hover:text-[var(--scarlett)]"
-                      >
-                        Stay on this task
+                        Let&apos;s Reach Our Goal
                       </Link>
                     </div>
                   </div>
@@ -492,13 +542,15 @@ export default async function LearnModuleTaskPage({
                 </p>
               ) : null}
 
-              {earnedRewardCoins > 0 ? (
+              {!savedReturnedCorrection && earnedRewardCoins > 0 ? (
                 <RewardCelebration
                   goldCoinAmount={earnedRewardCoins}
                   title="You earned Gold Coins!"
                   body="This task is now complete and the reward has been added to your coin balance."
                 />
-              ) : Number.isInteger(focusNearRewardCoins) && focusNearRewardCoins > 0 ? (
+              ) : !savedReturnedCorrection &&
+                Number.isInteger(focusNearRewardCoins) &&
+                focusNearRewardCoins > 0 ? (
                 <RewardCelebration
                   goldCoinAmount={focusNearRewardCoins}
                   title={`You have nearly earned ${focusNearRewardCoins} coin${focusNearRewardCoins === 1 ? "" : "s"}. Keep going!`}
