@@ -4,6 +4,7 @@ import { notFound, redirect } from "next/navigation";
 import { AppShell } from "@/components/app-shell";
 import { PreSubmitChecklist } from "@/components/pre-submit-checklist";
 import { RewardCelebration } from "@/components/reward-celebration";
+import { NuggetIcon } from "@/components/reward-icons";
 import { StructuredLessonResponse as StructuredLessonResponseForm } from "@/components/structured-lesson-response";
 import {
   buildScopedPath,
@@ -59,6 +60,7 @@ type LearnModuleTaskPageProps = {
     saved?: string;
     reward_coins?: string;
     focus_near_reward_coins?: string;
+    golden_nuggets?: string;
   }>;
 };
 
@@ -319,6 +321,16 @@ export default async function LearnModuleTaskPage({
     typeof resolvedSearchParams?.focus_near_reward_coins === "string"
       ? Number(resolvedSearchParams.focus_near_reward_coins)
       : 0;
+  const goldenNuggetCount =
+    typeof resolvedSearchParams?.golden_nuggets === "string"
+      ? Number(resolvedSearchParams.golden_nuggets)
+      : 0;
+  const discoveredGoldenNuggets =
+    Number.isInteger(goldenNuggetCount) && goldenNuggetCount > 0
+      ? goldenNuggetCount
+      : 0;
+  const savedReturnedCorrection =
+    resolvedSearchParams?.saved === "returned_correction_submission";
   return (
     <AppShell
       currentPath="/learn"
@@ -392,7 +404,48 @@ export default async function LearnModuleTaskPage({
                 </p>
               ) : null}
 
-              {resolvedSearchParams?.saved === "submission" ? (
+              {savedReturnedCorrection ? (
+                <div className="relative overflow-hidden rounded-[2rem] border border-amber-200 bg-[linear-gradient(135deg,rgba(255,247,220,0.98),rgba(236,253,245,0.95),rgba(252,228,244,0.95))] px-5 py-8 text-center text-emerald-900 shadow-[0_18px_40px_rgba(16,185,129,0.12)] md:px-8">
+                  <div className="absolute left-6 top-6 h-14 w-14 rounded-full bg-[rgba(245,190,57,0.16)]" />
+                  <div className="absolute bottom-[-18px] right-8 h-24 w-24 rounded-full bg-[rgba(16,185,129,0.12)]" />
+                  <div className="relative mx-auto grid max-w-2xl justify-items-center gap-4">
+                    <div className="flex h-20 w-20 items-center justify-center rounded-full border border-amber-200 bg-white shadow-sm">
+                      <NuggetIcon size="lg" className="scale-150 animate-bounce" />
+                    </div>
+                    <div>
+                      <p className="text-2xl font-black tracking-tight text-[color:var(--ink)] md:text-3xl">
+                        Well done — your work has been submitted!
+                      </p>
+                      <p className="mt-2 text-base font-semibold text-emerald-800">
+                        You found Golden Nugget treasure in this work.
+                      </p>
+                      {discoveredGoldenNuggets > 0 ? (
+                        <p className="mt-2 text-sm leading-6 text-emerald-700">
+                          You discovered {discoveredGoldenNuggets} Golden Nugget
+                          {discoveredGoldenNuggets === 1 ? "" : "s"} in this work.
+                        </p>
+                      ) : null}
+                      <p className="mt-2 text-sm leading-6 text-emerald-700">
+                        Your new try is ready for your grown-up to review.
+                      </p>
+                    </div>
+                    <div className="flex flex-wrap justify-center gap-2">
+                      <Link
+                        href={modulePath}
+                        className="inline-flex h-10 items-center justify-center rounded-full border border-emerald-200 bg-white px-4 text-sm font-medium text-emerald-800 transition hover:text-[var(--scarlett)]"
+                      >
+                        {detail.course.structure_type === "timed" ? "Back to cycle" : "Back to module"}
+                      </Link>
+                      <Link
+                        href={scopedCurrentPath}
+                        className="inline-flex h-10 items-center justify-center rounded-full border border-emerald-200 bg-white px-4 text-sm font-medium text-emerald-800 transition hover:text-[var(--scarlett)]"
+                      >
+                        Stay on this task
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              ) : resolvedSearchParams?.saved === "submission" ? (
                 <div className="relative overflow-hidden rounded-[2rem] border border-amber-200 bg-[linear-gradient(135deg,rgba(255,247,220,0.98),rgba(236,253,245,0.95),rgba(252,228,244,0.95))] px-5 py-5 text-emerald-900 shadow-[0_18px_40px_rgba(16,185,129,0.12)]">
                   <div className="absolute -left-3 top-3 h-16 w-16 rounded-full bg-[rgba(245,190,57,0.18)]" />
                   <div className="absolute right-4 top-4 h-10 w-10 rounded-full bg-[rgba(194,24,91,0.12)]" />
@@ -455,6 +508,7 @@ export default async function LearnModuleTaskPage({
 
               {resolvedSearchParams?.saved &&
               resolvedSearchParams.saved !== "submission" &&
+              resolvedSearchParams.saved !== "returned_correction_submission" &&
               earnedRewardCoins < 1 &&
               !(Number.isInteger(focusNearRewardCoins) && focusNearRewardCoins > 0) ? (
                 <p className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm text-emerald-700">
@@ -465,14 +519,14 @@ export default async function LearnModuleTaskPage({
           ) : null}
         </div>
 
-        <div className="brand-card rounded-3xl p-4">
+        <div className="brand-card min-w-0 rounded-3xl p-4">
           {task.instructions ? (
             <p className="text-sm leading-6 text-[color:var(--ink)]">{task.instructions}</p>
           ) : null}
           {lessonRuntimeMode === "structured" ? (
             structuredLesson ? (
-              <div className="mt-3">
-                <form action={submitTaskResponse} className="grid gap-3">
+              <div className="mt-3 min-w-0">
+                <form action={submitTaskResponse} className="grid min-w-0 gap-3">
                   <input type="hidden" name="task_id" value={task.id} />
                   <input type="hidden" name="course_id" value={detail.course.id} />
                   <input type="hidden" name="child_id" value={selectedChild.id} />
@@ -555,7 +609,7 @@ export default async function LearnModuleTaskPage({
               ) : null}
               {latestSubmission?.parent_review_status === "returned" &&
               returnedWritingIssues.length > 0 ? (
-                <div className="grid gap-3 rounded-[1.75rem] border border-amber-200 bg-amber-50/70 px-4 py-4">
+                <div className="grid min-w-0 gap-3 rounded-[1.75rem] border border-amber-200 bg-amber-50/70 px-4 py-4">
                   <div>
                     <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-amber-700">
                       Fix these in your writing
@@ -567,18 +621,18 @@ export default async function LearnModuleTaskPage({
                   {returnedWritingIssues.map((issue, index) => (
                     <div
                       key={issue.issue_id}
-                      className="rounded-[1.5rem] border border-amber-200 bg-white px-4 py-4 text-sm text-[color:var(--ink)] shadow-sm"
+                      className="w-full min-w-0 rounded-[1.5rem] border border-amber-200 bg-white px-4 py-4 text-sm text-[color:var(--ink)] shadow-sm"
                     >
-                      <div className="flex flex-wrap items-start justify-between gap-3">
-                        <div className="grid gap-2">
+                      <div className="grid min-w-0 gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(12rem,18rem)]">
+                        <div className="grid min-w-0 gap-2">
                           <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-amber-700">
                             Note {index + 1}
                           </p>
                           {issue.child_note ? (
-                            <p className="leading-6 text-amber-950">{issue.child_note}</p>
+                            <p className="break-words leading-6 text-amber-950">{issue.child_note}</p>
                           ) : null}
                           {issue.observed_text ? (
-                            <p className="text-sm leading-6 text-[color:var(--mid)]">
+                            <p className="break-words text-sm leading-6 text-[color:var(--mid)]">
                               Look at: <span className="font-medium text-[color:var(--ink)]">“{issue.observed_text}”</span>
                             </p>
                           ) : null}
@@ -586,13 +640,13 @@ export default async function LearnModuleTaskPage({
                             Try fixing this yourself before you resubmit.
                           </p>
                           {issue.context_text ? (
-                            <p className="rounded-2xl bg-[rgba(252,228,244,0.32)] px-3 py-2 text-sm leading-6 text-[color:var(--ink)]">
+                            <p className="whitespace-pre-wrap break-words rounded-2xl bg-[rgba(252,228,244,0.32)] px-3 py-2 text-sm leading-6 text-[color:var(--ink)]">
                               {issue.context_text}
                             </p>
                           ) : null}
                         </div>
-                        <div className="grid gap-3">
-                          <label className="inline-flex items-start gap-3 rounded-2xl border border-[var(--border)] bg-[rgba(255,247,220,0.35)] px-3 py-2 text-sm text-[color:var(--ink)]">
+                        <div className="grid min-w-0 content-start gap-3">
+                          <label className="inline-flex max-w-full items-start gap-3 rounded-2xl border border-[var(--border)] bg-[rgba(255,247,220,0.35)] px-3 py-2 text-sm text-[color:var(--ink)]">
                             <input
                               type="checkbox"
                               name={`returned_issue_fixed:${issue.issue_id}`}
@@ -600,7 +654,7 @@ export default async function LearnModuleTaskPage({
                               defaultChecked={issue.marked_fixed === true}
                               className="mt-1 h-4 w-4 rounded border-[var(--border)] text-[var(--scarlett)]"
                             />
-                            <span>I&apos;ve fixed this</span>
+                            <span className="min-w-0 break-words">I&apos;ve fixed this</span>
                           </label>
                           {issue.allow_confidence ? (
                             <fieldset className="grid gap-2">

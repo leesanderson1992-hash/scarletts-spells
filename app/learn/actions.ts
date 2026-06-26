@@ -54,6 +54,7 @@ function buildRedirectWithMessage(
   value: string,
   rewardCoins?: number,
   focusNearRewardCoins?: number,
+  goldenNuggetsDiscovered?: number,
 ) {
   const [pathname, rawQuery] = path.split("?");
   const searchParams = new URLSearchParams(rawQuery ?? "");
@@ -67,6 +68,11 @@ function buildRedirectWithMessage(
     searchParams.set("focus_near_reward_coins", String(focusNearRewardCoins));
   } else {
     searchParams.delete("focus_near_reward_coins");
+  }
+  if (goldenNuggetsDiscovered && goldenNuggetsDiscovered > 0) {
+    searchParams.set("golden_nuggets", String(goldenNuggetsDiscovered));
+  } else {
+    searchParams.delete("golden_nuggets");
   }
   const nextQuery = searchParams.toString();
   return nextQuery ? `${pathname}?${nextQuery}` : pathname;
@@ -620,6 +626,7 @@ export async function submitTaskResponse(formData: FormData) {
           getReturnedWritingIssueFeedback(latestDraftPayload),
         )
       : [];
+  let returnedCorrectionAttemptCount = 0;
 
   const today = getDateOnly();
   const [{ count: completionCount }, { count: submissionCount }] = await Promise.all([
@@ -825,6 +832,8 @@ export async function submitTaskResponse(formData: FormData) {
           ),
         );
       }
+
+      returnedCorrectionAttemptCount = issuesToRecord.length;
     }
   }
 
@@ -856,7 +865,18 @@ export async function submitTaskResponse(formData: FormData) {
 
   revalidateLearnSurfacePaths(redirectPath);
   revalidatePath("/courses/review");
-  redirect(buildRedirectWithMessage(redirectPath, "saved", "submission"));
+  redirect(
+    buildRedirectWithMessage(
+      redirectPath,
+      "saved",
+      returnedCorrectionAttemptCount > 0
+        ? "returned_correction_submission"
+        : "submission",
+      undefined,
+      undefined,
+      returnedCorrectionAttemptCount,
+    ),
+  );
 }
 
 export async function saveTaskDraft(formData: FormData) {

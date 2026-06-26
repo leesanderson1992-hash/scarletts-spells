@@ -484,14 +484,14 @@ export function StructuredLessonResponse({
 
   function renderQuestionCheck(checkKey: string) {
     return (
-      <label className="mt-3 inline-flex items-start gap-3 rounded-2xl border border-[var(--border)] bg-[rgba(255,247,220,0.35)] px-3 py-2 text-sm text-[color:var(--ink)]">
+      <label className="mt-3 inline-flex max-w-full items-start gap-3 rounded-2xl border border-[var(--border)] bg-[rgba(255,247,220,0.35)] px-3 py-2 text-sm text-[color:var(--ink)]">
         <input
           type="checkbox"
           checked={Boolean(questionChecks[checkKey])}
           onChange={(event) => toggleQuestionCheck(checkKey, event.target.checked)}
           className="mt-1 h-4 w-4 rounded border-[var(--border)] text-[var(--scarlett)]"
         />
-        <span>I checked this for read aloud, spelling, and punctuation.</span>
+        <span className="min-w-0 break-words">I checked this for read aloud, spelling, and punctuation.</span>
       </label>
     );
   }
@@ -520,19 +520,19 @@ export function StructuredLessonResponse({
     return (
       <div
         key={issue.issue_id}
-        className="rounded-[1.5rem] border border-amber-200 bg-amber-50 px-4 py-3 text-sm leading-6 text-amber-950"
+        className="w-full min-w-0 rounded-[1.5rem] border border-amber-200 bg-amber-50 px-4 py-3 text-sm leading-6 text-amber-950"
       >
-        <div className="flex flex-wrap items-start justify-between gap-3">
+        <div className="grid min-w-0 gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(12rem,18rem)]">
           <div className="min-w-0 flex-1">
             <div className="grid gap-2">
               <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-amber-700">
                 {label}
               </p>
-              {issue.child_note ? <p>{issue.child_note}</p> : null}
+              {issue.child_note ? <p className="min-w-0 break-words">{issue.child_note}</p> : null}
               {issue.observed_text ? (
-                <p className="text-sm text-amber-900/90">
+                <p className="min-w-0 break-words text-sm text-amber-900/90">
                   Look at:{" "}
-                  <mark className="rounded-md bg-white px-1.5 py-0.5 font-semibold text-amber-950 ring-1 ring-amber-200">
+                  <mark className="rounded-md bg-white px-1.5 py-0.5 font-semibold text-amber-950 ring-1 ring-amber-200 break-words">
                     {issue.observed_text}
                   </mark>
                 </p>
@@ -541,7 +541,7 @@ export function StructuredLessonResponse({
                 Try fixing this yourself before you resubmit.
               </p>
               {issue.context_text ? (
-                <p className="rounded-2xl bg-white/80 px-3 py-2 text-sm text-[color:var(--ink)]">
+                <p className="min-w-0 whitespace-pre-wrap break-words rounded-2xl bg-white/80 px-3 py-2 text-sm text-[color:var(--ink)]">
                   {issue.context_text}
                 </p>
               ) : null}
@@ -559,8 +559,8 @@ export function StructuredLessonResponse({
               ) : null}
             </div>
           </div>
-          <div className="grid gap-3">
-            <label className="inline-flex items-start gap-3 rounded-2xl border border-amber-200 bg-white px-3 py-2 text-sm text-[color:var(--ink)]">
+          <div className="grid min-w-0 content-start gap-3">
+            <label className="inline-flex max-w-full items-start gap-3 rounded-2xl border border-amber-200 bg-white px-3 py-2 text-sm text-[color:var(--ink)]">
               <input
                 type="checkbox"
                 name={`returned_issue_fixed:${issue.issue_id}`}
@@ -568,7 +568,7 @@ export function StructuredLessonResponse({
                 defaultChecked={issue.marked_fixed === true}
                 className="mt-1 h-4 w-4 rounded border-[var(--border)] text-[var(--scarlett)]"
               />
-              <span>I&apos;ve fixed this</span>
+              <span className="min-w-0 break-words">I&apos;ve fixed this</span>
             </label>
             {issue.allow_confidence ? (
               <fieldset className="grid gap-2">
@@ -672,7 +672,7 @@ export function StructuredLessonResponse({
       case "rich_text":
         return (
           <div
-            className="prose prose-sm max-w-none text-[color:var(--ink)]"
+            className="prose prose-sm max-w-none break-words text-[color:var(--ink)]"
             dangerouslySetInnerHTML={{ __html: block.content }}
           />
         );
@@ -727,23 +727,23 @@ export function StructuredLessonResponse({
                 </p>
               ) : null}
             </div>
-            <div className={`grid gap-4 p-5 ${gridClass}`}>
+            <div className={`grid min-w-0 gap-4 p-5 ${gridClass}`}>
               {block.cards.map((card) => (
                 <div
                   key={card.card_id}
-                  className="rounded-[1.5rem] border border-[rgba(206,71,125,0.24)] bg-[rgba(252,228,244,0.18)] px-4 py-4"
+                  className="min-w-0 rounded-[1.5rem] border border-[rgba(206,71,125,0.24)] bg-[rgba(252,228,244,0.18)] px-4 py-4"
                 >
-                  <div className="flex items-start gap-3">
+                  <div className="flex min-w-0 items-start gap-3">
                     {card.icon ? (
                       <div className="flex h-10 w-10 items-center justify-center rounded-2xl border border-[var(--border)] bg-white text-lg">
                         {card.icon}
                       </div>
                     ) : null}
-                    <div className="grid gap-2">
+                    <div className="grid min-w-0 gap-2">
                       <h4 className="text-lg font-semibold text-[var(--scarlett)]">
                         {card.title}
                       </h4>
-                      <p className="text-sm leading-7 text-[color:var(--ink)]">
+                      <p className="break-words text-sm leading-7 text-[color:var(--ink)]">
                         {card.body}
                       </p>
                     </div>
@@ -1095,8 +1095,8 @@ export function StructuredLessonResponse({
   }
 
   return (
-    <div className="grid gap-4">
-      <div className="sticky top-0 z-10 rounded-[2rem] border border-[var(--border)] bg-white/90 px-4 py-3 shadow-sm backdrop-blur">
+    <div className="grid w-full min-w-0 gap-4">
+      <div className="sticky top-0 z-10 min-w-0 rounded-[2rem] border border-[var(--border)] bg-white/90 px-4 py-3 shadow-sm backdrop-blur">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[color:var(--mid)]">
@@ -1118,16 +1118,18 @@ export function StructuredLessonResponse({
         </div>
       </div>
 
-      <div className="rounded-[2rem] border border-[var(--border)] bg-[linear-gradient(180deg,rgba(252,228,244,0.18),rgba(255,255,255,0.96))] px-5 py-5 shadow-[0_14px_40px_rgba(79,38,66,0.06)]">
-        <div className="grid gap-5">
+      <div className="w-full min-w-0 rounded-[2rem] border border-[var(--border)] bg-[linear-gradient(180deg,rgba(252,228,244,0.18),rgba(255,255,255,0.96))] px-4 py-5 shadow-[0_14px_40px_rgba(79,38,66,0.06)] sm:px-5">
+        <div className="grid min-w-0 gap-5">
           {renderUnmatchedReturnedIssueFeedback()}
           {orderedBlocks.map((block) => (
-            <div key={block.block_id}>{renderBlock(block)}</div>
+            <div key={block.block_id} className="min-w-0">
+              {renderBlock(block)}
+            </div>
           ))}
         </div>
       </div>
 
-      <div className="rounded-3xl border border-[var(--border)] bg-white/90 px-4 py-4">
+      <div className="min-w-0 rounded-3xl border border-[var(--border)] bg-white/90 px-4 py-4">
         <p className="text-sm leading-6 text-[color:var(--mid)]">
           Work through the lesson here, then save your draft or submit it below.
         </p>
