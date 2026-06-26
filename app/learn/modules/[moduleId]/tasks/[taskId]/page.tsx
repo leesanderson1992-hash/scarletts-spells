@@ -22,6 +22,7 @@ import {
 import { getLessonRuntimeMode } from "@/lib/lessons/runtime";
 import {
   buildStructuredLessonResponseFromSubmissionSummary,
+  getChildSafeReturnedIssueNote,
   getReturnedWritingIssueFeedback,
   getStructuredFieldFeedback,
   getInitialStructuredLessonResponse,
@@ -656,18 +657,24 @@ export default async function LearnModuleTaskPage({
                       <div className="grid min-w-0 gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(12rem,18rem)]">
                         <div className="grid min-w-0 gap-2">
                           <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-amber-700">
-                            Note {index + 1}
+                            Word {index + 1}
                           </p>
-                          {issue.child_note ? (
-                            <p className="break-words leading-6 text-amber-950">{issue.child_note}</p>
-                          ) : null}
+                          {(() => {
+                            const childNote = getChildSafeReturnedIssueNote(issue.child_note);
+
+                            return childNote ? (
+                              <p className="break-words leading-6 text-amber-950">
+                                {childNote}
+                              </p>
+                            ) : null;
+                          })()}
                           {issue.observed_text ? (
                             <p className="break-words text-sm leading-6 text-[color:var(--mid)]">
                               Look at: <span className="font-medium text-[color:var(--ink)]">“{issue.observed_text}”</span>
                             </p>
                           ) : null}
                           <p className="text-sm leading-6 text-[color:var(--mid)]">
-                            Choose whether to keep your first try or make a new one.
+                            Choose whether to keep your first try or make a new try.
                           </p>
                           {issue.context_text ? (
                             <p className="whitespace-pre-wrap break-words rounded-2xl bg-[rgba(252,228,244,0.32)] px-3 py-2 text-sm leading-6 text-[color:var(--ink)]">

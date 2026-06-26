@@ -3,6 +3,7 @@ import { revalidatePath } from "next/cache";
 
 import {
   buildStructuredLessonResponseFromSubmissionSummary,
+  getChildSafeReturnedIssueNote,
   getStructuredLessonResponseFromPayload,
   hasMeaningfulStructuredLessonResponse,
   type ReturnedWritingIssueDraftPayload,
@@ -452,9 +453,9 @@ async function materializeReturnedSpellingIssuesFromCandidates(input: {
       getTrimmedOrNull(misspelling.suggested_word) ??
       misspelling.corrected_word;
     const childNote =
-      getTrimmedOrNull(suggestion?.notes) ??
+      getChildSafeReturnedIssueNote(suggestion?.notes) ??
       input.safeParentNote ??
-      getTrimmedOrNull(misspelling.notes);
+      getChildSafeReturnedIssueNote(misspelling.notes);
     const matchedLessonField = inferStructuredLessonFieldMatch({
       reviewContext: input.structuredLessonReviewContext,
       observedText,
@@ -484,7 +485,9 @@ async function materializeReturnedSpellingIssuesFromCandidates(input: {
         getTrimmedOrNull(suggestion?.suggested_micro_skill_key) ?? "unknown",
       parent_review_note:
         childNote ??
-        (sourceFieldKey ? input.safeFieldFeedback[sourceFieldKey] ?? null : null),
+        getChildSafeReturnedIssueNote(
+          sourceFieldKey ? input.safeFieldFeedback[sourceFieldKey] ?? null : null,
+        ),
       notes: "Materialized during structured returned-work send-back.",
       metadata: {
         source: "structured_returned_work_send_back",
@@ -960,10 +963,12 @@ export async function returnSubmissionToChildImpl(formData: FormData) {
 
     const resolvedSourceFieldKey = issue.source_field_key ?? matchedLessonField?.key ?? null;
     const resolvedChildNote =
-      issue.parent_review_note ??
-      (resolvedSourceFieldKey ? safeFieldFeedback[resolvedSourceFieldKey] ?? null : null) ??
-      matchedLessonField?.feedback?.trim() ??
-      safeParentNote;
+      getChildSafeReturnedIssueNote(issue.parent_review_note) ??
+      getChildSafeReturnedIssueNote(
+        resolvedSourceFieldKey ? safeFieldFeedback[resolvedSourceFieldKey] ?? null : null,
+      ) ??
+      getChildSafeReturnedIssueNote(matchedLessonField?.feedback) ??
+      getChildSafeReturnedIssueNote(safeParentNote);
 
     return {
       ...issue,

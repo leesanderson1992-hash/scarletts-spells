@@ -77,6 +77,40 @@ export type ReturnedWritingIssueDraftPayload = {
   retry_mode?: "stick" | "try_again";
 };
 
+function looksLikeMachineDiagnosticNote(value: string) {
+  const trimmed = value.trim();
+
+  if (!trimmed) {
+    return false;
+  }
+
+  if (
+    (trimmed.startsWith("{") && trimmed.endsWith("}")) ||
+    (trimmed.startsWith("[") && trimmed.endsWith("]"))
+  ) {
+    return true;
+  }
+
+  return [
+    "detectedPrimaryCategory",
+    "parentOverrideCategory",
+    "parentOverrideFamilyId",
+    "parentOverrideDiagnosis",
+    "detectedErrorPattern",
+    "selectedWordFamilyId",
+  ].some((marker) => trimmed.includes(marker));
+}
+
+export function getChildSafeReturnedIssueNote(value: string | null | undefined) {
+  const trimmed = value?.trim();
+
+  if (!trimmed || looksLikeMachineDiagnosticNote(trimmed)) {
+    return null;
+  }
+
+  return trimmed;
+}
+
 export function getReturnedWritingIssueFeedback(
   payloadValue: unknown,
 ): ReturnedWritingIssueDraftPayload[] {
@@ -111,7 +145,9 @@ export function getReturnedWritingIssueFeedback(
             ? rawIssue.approved_replacement
             : null,
         child_note:
-          typeof rawIssue.child_note === "string" ? rawIssue.child_note : null,
+          typeof rawIssue.child_note === "string"
+            ? getChildSafeReturnedIssueNote(rawIssue.child_note)
+            : null,
         source_field_key:
           typeof rawIssue.source_field_key === "string"
             ? rawIssue.source_field_key

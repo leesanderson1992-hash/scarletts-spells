@@ -5,6 +5,7 @@ const targetedWritingPracticeStatusPath =
   "docs/implementation/targeted-writing-practice-status.md";
 const appShellPath = "components/app-shell.tsx";
 const structuredLessonResponsePath = "components/structured-lesson-response.tsx";
+const returnedIssueRetryControlsPath = "components/returned-issue-retry-controls.tsx";
 const lessonResponsesPath = "lib/lessons/responses.ts";
 const learnActionsPath = "app/learn/actions.ts";
 const taskPagePath = "app/learn/modules/[moduleId]/tasks/[taskId]/page.tsx";
@@ -28,6 +29,7 @@ const targetedWritingPracticeStatus = readFileSync(
 );
 const appShell = readFileSync(appShellPath, "utf8");
 const structuredLessonResponse = readFileSync(structuredLessonResponsePath, "utf8");
+const returnedIssueRetryControls = readFileSync(returnedIssueRetryControlsPath, "utf8");
 const lessonResponses = readFileSync(lessonResponsesPath, "utf8");
 const learnActions = readFileSync(learnActionsPath, "utf8");
 const taskPage = readFileSync(taskPagePath, "utf8");
@@ -84,6 +86,16 @@ assert.match(
   /typeof rawIssue\.attempted_correction === "string"[\s\S]*rawIssue\.attempted_correction[\s\S]*: null/,
   "Returned writing issue parser must hydrate attempted_correction from draft metadata.",
 );
+assert.match(
+  lessonResponses,
+  /export function getChildSafeReturnedIssueNote[\s\S]*looksLikeMachineDiagnosticNote/,
+  "Returned writing issue parser must expose a child-safe note sanitizer.",
+);
+assert.match(
+  lessonResponses,
+  /child_note:[\s\S]*getChildSafeReturnedIssueNote\(rawIssue\.child_note\)/,
+  "Returned writing issue parser must strip machine diagnostic metadata from child-facing notes.",
+);
 
 assert.match(
   structuredLessonResponse,
@@ -101,19 +113,24 @@ assert.match(
   "Structured child UI must render a fallback returned-issues panel.",
 );
 assert.match(
-  structuredLessonResponse,
+  returnedIssueRetryControls,
   /name=\{`returned_issue_attempt:\$\{issue\.issue_id\}`\}[\s\S]*defaultValue=\{issue\.attempted_correction \?\? ""\}/,
-  "Spelling-like returned issues must include a dedicated retry input that reloads saved draft attempt text.",
+  "Spelling-like returned issues must include a dedicated retry input in the shared child retry control.",
+);
+assert.match(
+  returnedIssueRetryControls,
+  /Stick with this[\s\S]*Try again[\s\S]*returned_issue_retry_mode:\$\{issue\.issue_id\}[\s\S]*How did this feel\?/,
+  "Child retry cards must offer stick-or-try-again choices plus easy/medium/hard reflection.",
 );
 assert.match(
   structuredLessonResponse,
-  /issue\.allow_confidence \? \([\s\S]*returned_issue_attempt:[\s\S]*How did this feel\?/,
-  "Retry input and easy/medium/hard reflection must remain scoped to spelling-like returned issues.",
+  /getChildSafeReturnedIssueNote\(issue\.child_note\)/,
+  "Structured returned issue cards must sanitize child-facing notes before rendering.",
 );
 assert.doesNotMatch(
   structuredLessonResponse,
-  /needed_help|could_not_fix/,
-  "This pass must not expose needed_help or could_not_fix in the child UI.",
+  /I've fixed this|needed_help|could_not_fix/,
+  "This pass must not expose legacy fixed-checkbox or needed_help/could_not_fix wording in the child UI.",
 );
 
 assert.match(
@@ -123,7 +140,7 @@ assert.match(
 );
 assert.match(
   learnActions,
-  /attemptedCorrectionValue\.trim\(\)\.slice\(0, 500\)[\s\S]*attempted_correction: attemptedCorrection/,
+  /const retryModeValue = formData\.get\(`returned_issue_retry_mode:\$\{issue\.issue_id\}`\)[\s\S]*submittedAttempt\.slice\(0, 500\)[\s\S]*attempted_correction: attemptedCorrection/,
   "Returned issue form parsing must bound and persist retry text into draft metadata.",
 );
 assert.match(

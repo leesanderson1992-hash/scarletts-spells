@@ -24,7 +24,7 @@ export function ReturnedIssueRetryControls({
     <div className="grid min-w-0 content-start gap-3">
       <div className="rounded-2xl border border-amber-200 bg-white px-3 py-2 text-sm text-[color:var(--ink)]">
         <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-amber-700">
-          Original attempt
+          Your first try
         </p>
         <p className="mt-1 min-w-0 break-words text-base font-semibold">
           {originalAttempt}
@@ -42,7 +42,11 @@ export function ReturnedIssueRetryControls({
           ].map(([value, label]) => (
             <label
               key={`${issue.issue_id}-${value}`}
-              className="inline-flex items-center gap-2 rounded-2xl border border-amber-200 bg-white px-3 py-2 text-sm font-medium text-[color:var(--ink)]"
+              className={`inline-flex items-center gap-2 rounded-2xl border px-3 py-2 text-sm font-medium text-[color:var(--ink)] ${
+                retryMode === value
+                  ? "border-[var(--scarlett)] bg-[rgba(252,228,244,0.36)]"
+                  : "border-amber-200 bg-white"
+              }`}
             >
               <input
                 type="radio"
@@ -66,13 +70,13 @@ export function ReturnedIssueRetryControls({
         />
       ) : (
         <label className="grid gap-1.5 text-sm text-[color:var(--ink)]">
-          <span className="font-medium">Try spelling it again</span>
+          <span className="font-medium">New try</span>
           <input
             type="text"
             name={`returned_issue_attempt:${issue.issue_id}`}
             defaultValue={issue.attempted_correction ?? ""}
             className="brand-input h-11 rounded-2xl bg-white px-4 text-sm"
-            placeholder="Type your new try here"
+            placeholder="Type your new try"
           />
         </label>
       )}

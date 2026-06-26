@@ -3,7 +3,10 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import { ReturnedIssueRetryControls } from "@/components/returned-issue-retry-controls";
-import { buildStructuredLessonCapture } from "@/lib/lessons/responses";
+import {
+  buildStructuredLessonCapture,
+  getChildSafeReturnedIssueNote,
+} from "@/lib/lessons/responses";
 import type { ReturnedWritingIssueDraftPayload } from "@/lib/lessons/responses";
 import {
   getLessonUnderstandingBand,
@@ -518,6 +521,8 @@ export function StructuredLessonResponse({
     issue: ReturnedWritingIssueDraftPayload,
     label: string,
   ) {
+    const childNote = getChildSafeReturnedIssueNote(issue.child_note);
+
     return (
       <div
         key={issue.issue_id}
@@ -529,7 +534,7 @@ export function StructuredLessonResponse({
               <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-amber-700">
                 {label}
               </p>
-              {issue.child_note ? <p className="min-w-0 break-words">{issue.child_note}</p> : null}
+              {childNote ? <p className="min-w-0 break-words">{childNote}</p> : null}
               {issue.observed_text ? (
                 <p className="min-w-0 break-words text-sm text-amber-900/90">
                   Look at:{" "}
@@ -544,7 +549,7 @@ export function StructuredLessonResponse({
                 </p>
               ) : null}
               <p className="text-sm text-amber-900/90">
-                Choose whether to keep your first try or make a new one.
+                Choose whether to keep your first try or make a new try.
               </p>
             </div>
           </div>
@@ -566,7 +571,7 @@ export function StructuredLessonResponse({
     return (
       <div className="mt-3 grid gap-3">
         {matchingIssues.map((issue, index) =>
-          renderReturnedIssueCard(issue, `Fix note ${index + 1}`),
+          renderReturnedIssueCard(issue, `Word ${index + 1}`),
         )}
       </div>
     );
@@ -584,12 +589,12 @@ export function StructuredLessonResponse({
             Fix these spellings
           </p>
           <p className="mt-2 text-sm leading-6 text-amber-900">
-            These notes are not attached to one exact question, but they still need a try before you resubmit.
+            Look at each word, then choose whether to keep it or try again.
           </p>
         </div>
         <div className="mt-3 grid gap-3">
           {unmatchedReturnedIssues.map((issue, index) =>
-            renderReturnedIssueCard(issue, `Fix note ${index + 1}`),
+            renderReturnedIssueCard(issue, `Word ${index + 1}`),
           )}
         </div>
       </div>
