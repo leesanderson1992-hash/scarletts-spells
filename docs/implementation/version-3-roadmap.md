@@ -13,20 +13,21 @@ ADLE remains separate from Word Treasure.
 
 ## Current stage
 
-Current Version 3.0 stage: `Phase 2 follow-up implementation next`.
+Current Version 3.0 stage: `Phase 2 implemented and QA-audited; Phase 3 next`.
 
 Implemented so far:
 - Phase 0 current-state audit was completed as an inspection/planning pass.
 - Phase 1 docs-only contract overhaul is complete.
-- Phase 2 initial returned-correction celebration and readability work has
-  been implemented.
+- Phase 2 returned-correction celebration, full-page completion follow-up,
+  readability work, and simplified child retry UI have been implemented and
+  QA-audited.
 - No Version 3.0 migrations have been created or applied.
 - No Supabase data has been mutated for Version 3.0.
 - No ADLE generation has been wired into runtime assignment generation.
 
 Next safe implementation slice:
-- Phase 2 follow-up: full-page completion, corrected Golden Nugget read-model
-  count, and simplified returned retry UI.
+- Phase 3.0 docs-only Word Treasure scope expansion, then Phase 3 storage and
+  lifecycle implementation slices.
 
 ## Target architecture
 
@@ -152,9 +153,9 @@ Verification:
 </details>
 
 <details open>
-<summary>Phase 2: Child retry Golden Nugget celebration — In Progress</summary>
+<summary>Phase 2: Child retry Golden Nugget celebration — Implemented and QA-audited</summary>
 
-Status: `In progress`
+Status: `Implemented and QA-audited`
 
 Goal:
 - add a centered child-facing success celebration after correction attempt
@@ -174,8 +175,6 @@ Scope:
 Implemented:
 - returned correction submit shows a child-facing success celebration
 - returned lesson layout stays full-width/readable after parent feedback
-
-Phase 2 follow-up implementation tasks:
 - make lesson and test completion success full-page for both first submission
   and returned resubmission
 - use one dimmed grey-black page overlay with a centered completion panel
@@ -187,6 +186,7 @@ Phase 2 follow-up implementation tasks:
   whether to stick with it or try again, and keeps the easy/medium/hard
   reflection
 - remove the "I've fixed this" checkbox from the child retry UI
+- strip machine diagnostic metadata from child-facing retry cards
 
 Boundaries:
 - no Golden Bar
@@ -213,6 +213,32 @@ Acceptance:
 - parent feedback panels and returned correction prompts do not force horizontal
   overflow or a narrow lesson column
 - parent review flow remains intact
+
+QA audit:
+- completed on 27 June 2026 after Phase 2 implementation commits
+- `git diff --check origin/main...HEAD` passed
+- targeted `npx eslint` on touched Phase 2 files passed
+- `npx tsc --noEmit` passed
+- `npm run writing-engine:returned-child-correction-regression` passed
+- `npm run writing-engine:structured-submission-payload-submit-regression`
+  passed
+- `npm run writing-engine:structured-submission-payload-hydration-regression`
+  passed
+- `npm run writing-engine:returned-correction-stage-d-regression` passed
+
+Residual risk to carry forward:
+- legacy returned-correction evidence metadata may still classify a non-empty
+  typed retry attempt optimistically through `marked_fixed` and
+  `corrected_independently`; Phase 3 or a small hardening slice should align
+  those fields with the approved-replacement comparison before durable Word
+  Treasure evidence is introduced
+- Phase 2 Golden Nugget popup rows are read-model/estimate display only; Phase
+  3 must make parent-approved Nuggets durable in canonical Word Treasure
+  storage before they appear on My Progress
+
+Next step:
+- begin Phase 3 with a docs-only `3.0` scope update, then implement canonical
+  Word Treasure storage and lifecycle slices
 
 </details>
 
