@@ -9,6 +9,7 @@ import {
   type ReturnedWritingIssueDraftPayload,
 } from "@/lib/lessons/responses";
 import { maybeAwardTaskSubmissionApprovalCoins } from "@/lib/rewards/course-coins";
+import { createOrUpdateGoldenNuggetFromParentApproval } from "@/lib/rewards/word-treasures";
 import { createClient } from "@/lib/supabase/server";
 import {
   doesFinalClassificationCreateLearningItem,
@@ -153,12 +154,30 @@ type ReturnFlowParentVerificationRow = {
 type FinalClassificationIssueRow = {
   id: string;
   child_id: string;
+  task_submission_id: string | null;
   issue_status: string;
   final_classification: string | null;
+  observed_text: string | null;
+  suggested_replacement: string | null;
+  approved_replacement: string | null;
   micro_skill_key: string | null;
   source_misspelling_instance_id: string | null;
   metadata: Record<string, unknown> | null;
 };
+
+const FINAL_CLASSIFICATION_ISSUE_SELECT = [
+  "id",
+  "child_id",
+  "task_submission_id",
+  "issue_status",
+  "final_classification",
+  "observed_text",
+  "suggested_replacement",
+  "approved_replacement",
+  "micro_skill_key",
+  "source_misspelling_instance_id",
+  "metadata",
+].join(", ");
 
 function finalClassificationNeedsAssignableRoute(
   value: WritingIssueFinalClassification,
@@ -195,6 +214,16 @@ function getValidPositionRange(row: {
 function getTrimmedOrNull(value: string | null | undefined) {
   const trimmed = value?.trim();
   return trimmed ? trimmed : null;
+}
+
+function getLearningItemIdFromFinalisationResult(value: unknown) {
+  if (!value || typeof value !== "object" || !("learning_item_id" in value)) {
+    return null;
+  }
+
+  return typeof value.learning_item_id === "string"
+    ? value.learning_item_id
+    : null;
 }
 
 function parseObjectMetadata(value: unknown): Record<string, unknown> {
@@ -662,9 +691,7 @@ export async function finaliseWritingIssueClassificationImpl(formData: FormData)
   const supabase = await createClient();
   const { data: issue } = await supabase
     .from("writing_issues")
-    .select(
-      "id, child_id, issue_status, final_classification, micro_skill_key, source_misspelling_instance_id, metadata",
-    )
+    .select(FINAL_CLASSIFICATION_ISSUE_SELECT)
     .eq("id", writingIssueId)
     .eq("parent_user_id", user.id)
     .maybeSingle<FinalClassificationIssueRow>();
@@ -774,16 +801,83 @@ export async function finaliseWritingIssueClassificationImpl(formData: FormData)
   const createsLearningItem = doesFinalClassificationCreateLearningItem(
     finalClassification,
   );
+  let wordTreasureCreatedOrUpdated = false;
+
+  if (createsLearningItem) {
+    const learningItemId =
+      getLearningItemIdFromFinalisationResult(finalisationResult);
+    const { data: finalisedIssue } = await supabase
+      .from("writing_issues")
+      .select(FINAL_CLASSIFICATION_ISSUE_SELECT)
+      .eq("id", writingIssueId)
+      .eq("parent_user_id", user.id)
+      .eq("child_id", issue.child_id)
+      .maybeSingle<FinalClassificationIssueRow>();
+    const correctedWord =
+      getTrimmedOrNull(finalisedIssue?.approved_replacement) ??
+      getTrimmedOrNull(finalisedIssue?.suggested_replacement);
+
+    if (!finalisedIssue || !correctedWord) {
+      redirect(
+        buildRedirectWithMessage(
+          safeRedirectPath,
+          "error",
+          "The classification was saved, but Word Treasure could not be linked because the corrected word was missing.",
+        ),
+      );
+    }
+
+    const { data: latestAttempt } = await supabase
+      .from("writing_issue_correction_attempts")
+      .select("created_at")
+      .eq("writing_issue_id", writingIssueId)
+      .eq("parent_user_id", user.id)
+      .eq("child_id", issue.child_id)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle<{ created_at: string }>();
+
+    try {
+      const wordTreasureResult =
+        await createOrUpdateGoldenNuggetFromParentApproval({
+          childId: finalisedIssue.child_id,
+          parentUserId: user.id,
+          correctedWord,
+          originalMisspelling: finalisedIssue.observed_text,
+          sourceIssueId: finalisedIssue.id,
+          sourceLearningItemId: learningItemId,
+          sourceSubmissionId: finalisedIssue.task_submission_id,
+          sourceMisspellingInstanceId:
+            finalisedIssue.source_misspelling_instance_id,
+          microSkillKey: finalisedIssue.micro_skill_key,
+          correctionAttemptedAt: latestAttempt?.created_at ?? null,
+          metadata: {
+            final_classification: finalClassification,
+            learning_item_id: learningItemId,
+          },
+        });
+
+      wordTreasureCreatedOrUpdated = Boolean(wordTreasureResult.treasure);
+    } catch {
+      redirect(
+        buildRedirectWithMessage(
+          safeRedirectPath,
+          "error",
+          "The classification was saved, but the Golden Nugget could not be linked yet. Please retry the final classification repair path before closing this item.",
+        ),
+      );
+    }
+  }
 
   redirect(
     buildRedirectWithMessage(
       safeRedirectPath,
       "saved",
-      createdLearningItem
+      wordTreasureCreatedOrUpdated && createdLearningItem
         ? `Final classification saved: ${finalClassification}. Golden Nugget created.`
-        : reusedLearningItem && linkedLearningItemExists
+        : wordTreasureCreatedOrUpdated && reusedLearningItem && linkedLearningItemExists
           ? `Final classification saved: ${finalClassification}. Existing learning item strengthened.`
-          : createsLearningItem && linkedLearningItemExists
+          : wordTreasureCreatedOrUpdated && createsLearningItem && linkedLearningItemExists
               ? `Final classification saved: ${finalClassification}. Linked learning item confirmed.`
               : `Final classification saved: ${finalClassification}.`,
     ),

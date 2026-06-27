@@ -22,6 +22,10 @@ import {
   type ReturnedWritingIssueDraftPayload,
   withStructuredLessonResponse,
 } from "@/lib/lessons/responses";
+import {
+  getReturnedCorrectionEvidenceFlags,
+  normaliseCorrectionComparisonValue,
+} from "@/lib/lessons/returned-correction-evidence";
 import { persistStructuredSubmissionPayload } from "@/lib/lessons/persistence/submission-payloads";
 import {
   maybeAwardDailyCheckInCoins,
@@ -145,18 +149,20 @@ function applyReturnedIssueInputsFromFormData(
         ? reflectionValue
         : issue.reflection;
 
+    const evidenceFlags = getReturnedCorrectionEvidenceFlags({
+      approvedReplacement: issue.approved_replacement,
+      attemptedCorrection,
+    });
+
     return {
       ...issue,
-      marked_fixed: retryMode === "try_again" ? Boolean(attemptedCorrection) : legacyMarkedFixed,
+      marked_fixed:
+        retryMode === "try_again" ? evidenceFlags.markedFixed : legacyMarkedFixed,
       reflection,
       attempted_correction: attemptedCorrection,
       retry_mode: retryMode,
     };
   });
-}
-
-function normaliseCorrectionComparisonValue(value: string | null | undefined) {
-  return value?.trim().replace(/\s+/g, " ").toLowerCase() ?? "";
 }
 
 function doesReturnedCorrectionStillNeedPractice({
@@ -815,23 +821,33 @@ export async function submitTaskResponse(formData: FormData) {
           safeSubmissionText,
         }),
       }));
-      const attemptRows = correctionAttemptsToRecord.map(({ issue, attemptedCorrection }) => ({
-        writing_issue_id: issue.issue_id,
-        child_id: childId,
-        parent_user_id: user.id,
-        task_submission_id: insertedSubmission.id,
-        attempted_correction: attemptedCorrection,
-        attempt_notes: null,
-        corrected_independently: true,
-        reflection: issue.reflection ?? "medium",
-        metadata: {
-          source_field_key: issue.source_field_key,
-          allow_confidence: issue.allow_confidence,
-          marked_fixed: issue.marked_fixed ?? false,
-          retry_mode: issue.retry_mode ?? "try_again",
-          reflection_source: issue.reflection ? "child_input" : "slice4a_default",
+      const attemptRows = correctionAttemptsToRecord.map(
+        ({ issue, attemptedCorrection }) => {
+          const evidenceFlags = getReturnedCorrectionEvidenceFlags({
+            approvedReplacement: issue.approved_replacement,
+            attemptedCorrection,
+          });
+
+          return {
+            writing_issue_id: issue.issue_id,
+            child_id: childId,
+            parent_user_id: user.id,
+            task_submission_id: insertedSubmission.id,
+            attempted_correction: attemptedCorrection,
+            attempt_notes: null,
+            corrected_independently: evidenceFlags.correctedIndependently,
+            reflection: issue.reflection ?? "medium",
+            metadata: {
+              source_field_key: issue.source_field_key,
+              allow_confidence: issue.allow_confidence,
+              marked_fixed: evidenceFlags.markedFixed,
+              retry_mode: issue.retry_mode ?? "try_again",
+              reflection_source: issue.reflection ? "child_input" : "slice4a_default",
+              approved_replacement_match: evidenceFlags.markedFixed,
+            },
+          };
         },
-      }));
+      );
 
       const { error: attemptInsertError } = await supabase
         .from("writing_issue_correction_attempts")

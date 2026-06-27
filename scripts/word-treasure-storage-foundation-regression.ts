@@ -132,18 +132,8 @@ assert.match(
 );
 assert.doesNotMatch(
   helper,
-  /\.from\("child_word_treasures"\)[\s\S]*\.(insert|update|upsert|delete)\(/,
-  "Phase 3.1 helper must not write child_word_treasures yet.",
-);
-assert.doesNotMatch(
-  helper,
-  /\.from\("child_word_treasure_events"\)[\s\S]*\.(insert|update|upsert|delete)\(/,
-  "Phase 3.1 helper must not write child_word_treasure_events yet.",
-);
-assert.doesNotMatch(
-  helper,
   /spelling_reward_states|spelling_reward_events/,
-  "Phase 3.1 canonical helper must not read compatibility reward tables.",
+  "Canonical helper must not read or write compatibility reward tables.",
 );
 
 console.log("word-treasure-storage-foundation-regression: ok");
