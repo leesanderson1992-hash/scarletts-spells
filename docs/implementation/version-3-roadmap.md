@@ -13,7 +13,7 @@ ADLE remains separate from Word Treasure.
 
 ## Current stage
 
-Current Version 3.0 stage: `Phase 3.1 canonical storage foundation complete; Phase 3.2 next`.
+Current Version 3.0 stage: `Phase 3.2 parent approval durable Nuggets complete; Phase 3.3 next`.
 
 Implemented so far:
 - Phase 0 current-state audit was completed as an inspection/planning pass.
@@ -21,13 +21,13 @@ Implemented so far:
 - Phase 2 returned-correction celebration, full-page completion follow-up,
   readability work, and simplified child retry UI have been implemented and
   QA-audited.
-- No Version 3.0 migrations have been created or applied.
-- No Supabase data has been mutated for Version 3.0.
+- Phase 3.0 docs-only Word Treasure scope expansion is complete.
+- Phase 3.1 canonical Word Treasure storage foundation is complete.
+- Phase 3.2 parent approval durable Golden Nugget creation is complete.
 - No ADLE generation has been wired into runtime assignment generation.
 
 Next safe implementation slice:
-- Phase 3.0 docs-only Word Treasure scope expansion, followed by small
-  independently testable Phase 3 implementation slices.
+- Phase 3.3 My Progress canonical read model.
 
 ## Target architecture
 
@@ -245,7 +245,7 @@ Next step:
 <details open>
 <summary>Phase 3: Word Treasure end to end — Planned</summary>
 
-Status: `Started; Phase 3.0 and Phase 3.1 complete, Phase 3.2 next`
+Status: `Started; Phase 3.0, Phase 3.1, and Phase 3.2 complete, Phase 3.3 next`
 
 Goal:
 - implement the Word Treasure lifecycle end to end, beginning with canonical
@@ -373,6 +373,8 @@ Next step:
 
 ### Phase 3.2: Parent approval creates durable Nuggets
 
+Status: `Complete`
+
 Scope:
 - on parent final classification of a genuine learning need, create or update
   canonical Word Treasure state
@@ -382,14 +384,60 @@ Scope:
 - harden returned-correction evidence metadata before durable Word Treasure
   evidence consumes it
 
+Implemented:
+- added `createOrUpdateGoldenNuggetFromParentApproval` in
+  `lib/rewards/word-treasures.ts`
+- parent final classification now creates or updates `child_word_treasures`
+  only after a genuine learning-need classification creates a learning item
+- canonical lifecycle writes now record `golden_nugget_created` or
+  `golden_nugget_updated` events in `child_word_treasure_events`
+- source issue, learning item, submission, misspelling instance, canonical
+  mapping, and micro-skill links are preserved where available
+- child returned-correction submissions remain non-durable until parent
+  finalisation
+- returned-correction metadata now uses approved-replacement comparison before
+  setting `marked_fixed`, `corrected_independently`, and
+  `approved_replacement_match`
+- added `lib/lessons/returned-correction-evidence.ts`
+- added `scripts/word-treasure-parent-approval-regression.ts`
+- declared the existing server-only boundary dependency explicitly with the
+  `server-only` package
+
 Tests:
 - approved genuine issue creates a Nugget
 - unapproved retry does not create a durable Nugget
 - non-issue classifications do not create a Nugget
 - non-matching retry attempts are not recorded as fixed/independent evidence
+- `npx tsx scripts/word-treasure-parent-approval-regression.ts`
+- `npx tsx scripts/word-treasure-storage-foundation-regression.ts`
+- `npx tsc --noEmit --pretty false`
+- targeted `npx eslint` for Phase 3.2 touched files
+- `npm run writing-engine:returned-child-correction-regression`
+- `npm run writing-engine:returned-correction-stage-d-regression`
+- local Supabase smoke: synthetic parent-finalised genuine issue created a
+  canonical `golden_nugget`, linked source issue and learning item, and wrote a
+  `golden_nugget_created` lifecycle event
+- authenticated browser smoke: dashboard and review detail rendered
+  successfully, including returned-correction outcome controls and blocked
+  approval while classifications remain unresolved
+- `git diff --check`
+
+QA audit:
+- safe to close for Phase 3.2 scope
+- durable Golden Nugget creation is gated behind parent final classification
+  and genuine learning-need outcomes
+- child retry submission alone does not create canonical Word Treasure state
+- non-learning classifications remain non-durable for Word Treasure
+- old compatibility reward tables remain untouched
+- My Progress reads are not switched yet; that remains Phase 3.3
+- no ADLE scheduling or Gold Bar evidence counting was introduced
+- no production push or production Supabase apply was performed
 
 Commit:
 - `create word treasures from parent approval`
+
+Next step:
+- proceed to Phase 3.3 My Progress canonical read model
 
 ### Phase 3.3: My Progress canonical read model
 
