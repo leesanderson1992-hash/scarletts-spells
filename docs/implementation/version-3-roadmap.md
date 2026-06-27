@@ -13,7 +13,7 @@ ADLE remains separate from Word Treasure.
 
 ## Current stage
 
-Current Version 3.0 stage: `Phase 3.0 docs-only Word Treasure scope update complete; Phase 3.1 next`.
+Current Version 3.0 stage: `Phase 3.1 canonical storage foundation complete; Phase 3.2 next`.
 
 Implemented so far:
 - Phase 0 current-state audit was completed as an inspection/planning pass.
@@ -245,7 +245,7 @@ Next step:
 <details open>
 <summary>Phase 3: Word Treasure end to end — Planned</summary>
 
-Status: `Started; Phase 3.0 complete, Phase 3.1 next`
+Status: `Started; Phase 3.0 and Phase 3.1 complete, Phase 3.2 next`
 
 Goal:
 - implement the Word Treasure lifecycle end to end, beginning with canonical
@@ -321,6 +321,8 @@ Commit:
 
 ### Phase 3.1: Canonical storage foundation
 
+Status: `Complete`
+
 Scope:
 - add migrations for `child_word_treasures`
 - add migrations for `child_word_treasure_events`
@@ -328,12 +330,46 @@ Scope:
 - add schema/types/read helpers where needed
 - do not switch UI reads yet
 
+Implemented:
+- added additive migration
+  `supabase/migrations/20260627120000_add_word_treasure_storage.sql`
+- created canonical `child_word_treasures` storage with
+  `golden_nugget`, `in_forge`, and `golden_bar` statuses
+- created `child_word_treasure_events` lifecycle event storage
+- preserved `spelling_reward_states` and `spelling_reward_events` unchanged
+- added parent-scoped authenticated read policies and service-role write access
+  for later server-side lifecycle actions
+- added `lib/rewards/word-treasures.ts` read helpers and local row/event types
+- added `scripts/word-treasure-storage-foundation-regression.ts`
+
 Tests:
 - migration/schema checks
 - targeted type checks
+- `npx tsx scripts/word-treasure-storage-foundation-regression.ts`
+- targeted compile/run of
+  `scripts/word-treasure-storage-foundation-regression.ts`
+- `npx tsc --noEmit --pretty false`
+- `npx eslint lib/rewards/word-treasures.ts scripts/word-treasure-storage-foundation-regression.ts`
+- `git diff --check`
+- `git diff --cached --check`
+
+QA audit:
+- safe to close for Phase 3.1 scope
+- schema work is additive only
+- no UI reads were switched
+- no compatibility reward tables were removed, renamed, or written
+- no production push or Supabase apply was performed
+- canonical helper is read-only; durable Nugget writes remain deferred to Phase
+  3.2
+- broad `npx tsc -p tsconfig.scripts.json --noEmit --pretty false` currently
+  fails on pre-existing Supabase generic typing errors in
+  `scripts/returned-correction-stage-d-repair.ts`, unrelated to this slice
 
 Commit:
 - `add word treasure storage foundation`
+
+Next step:
+- proceed to Phase 3.2 parent approval creates durable Nuggets
 
 ### Phase 3.2: Parent approval creates durable Nuggets
 
