@@ -4,6 +4,7 @@ import {
   buildMergedWordTreasureDisplayRows,
   buildMyProgressRewardSnapshot,
   buildTodayRewardHeaderSnapshot,
+  isMissingCanonicalWordTreasureTableError,
 } from "../lib/rewards/read-model";
 import type { ChildWordTreasureRow } from "../lib/rewards/word-treasures";
 
@@ -163,6 +164,35 @@ assert.equal(
   todayHeader.goldenNuggetsFoundToday,
   2,
   "Today history should combine canonical events with non-overlapping compatibility events.",
+);
+
+assert.equal(
+  isMissingCanonicalWordTreasureTableError({
+    code: "PGRST205",
+    message:
+      "Could not find the table 'public.child_word_treasures' in the schema cache",
+  }),
+  true,
+  "Missing canonical Word Treasure tables should be treated as bridge-fallback read-model absence.",
+);
+
+assert.equal(
+  isMissingCanonicalWordTreasureTableError({
+    code: "PGRST205",
+    message:
+      "Could not find the table 'public.child_word_treasure_events' in the schema cache",
+  }),
+  true,
+  "Missing canonical Word Treasure event tables should be treated as bridge-fallback read-model absence.",
+);
+
+assert.equal(
+  isMissingCanonicalWordTreasureTableError({
+    code: "42501",
+    message: "permission denied for table child_word_treasures",
+  }),
+  false,
+  "Permission errors should still fail instead of being hidden as bridge fallback.",
 );
 
 console.log("word-treasure-my-progress-read-model-regression: ok");

@@ -53,6 +53,39 @@ function normaliseRewardWord(word: string | null | undefined) {
   return normaliseWordTreasureWord(word ?? "");
 }
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null;
+}
+
+export function isMissingCanonicalWordTreasureTableError(error: unknown) {
+  if (!isRecord(error)) {
+    return false;
+  }
+
+  const code = typeof error.code === "string" ? error.code : "";
+  const message = typeof error.message === "string" ? error.message : "";
+
+  return (
+    code === "PGRST205" &&
+    (message.includes("child_word_treasures") ||
+      message.includes("child_word_treasure_events"))
+  );
+}
+
+async function readCanonicalWordTreasureRowsOrEmpty<T>(
+  readPromise: Promise<T[]>,
+) {
+  try {
+    return await readPromise;
+  } catch (error) {
+    if (isMissingCanonicalWordTreasureTableError(error)) {
+      return [];
+    }
+
+    throw error;
+  }
+}
+
 export function getSpendableGoldCoinBalanceFromLedger(input: {
   goldCoinEvents: RewardCoinLedgerRow[];
   pendingTransferRequests: Array<{ gold_coin_amount: number | null }>;
@@ -398,16 +431,16 @@ export async function getChildRewardReadModel(input: {
         parentUserId,
         childId,
       }),
-      getChildWordTreasures({
+      readCanonicalWordTreasureRowsOrEmpty(getChildWordTreasures({
         supabase,
         parentUserId,
         childId,
-      }),
-      getChildWordTreasureEvents({
+      })),
+      readCanonicalWordTreasureRowsOrEmpty(getChildWordTreasureEvents({
         supabase,
         parentUserId,
         childId,
-      }),
+      })),
       supabase
         .from("spelling_reward_states")
         .select("target_word, reward_state, has_converted_gold_bar, gold_bar_earned_at")
@@ -427,7 +460,7 @@ export async function getChildRewardReadModel(input: {
     (spellingRewardStatesResult.data ?? []) as RewardSpellingStateSummaryRow[];
   const spellingRewardEvents =
     (spellingRewardEventsResult.data ?? []) as RewardSpellingEventRow[];
-  const wordTreasures = wordTreasuresResult;
+  const wordTreasures = wordTreasuresResult as ChildWordTreasureRow[];
   const wordTreasureEvents = wordTreasureEventsResult as RewardWordTreasureEventRow[];
   const mergedWordTreasureDisplay = buildMergedWordTreasureDisplayRows({
     wordTreasures,
