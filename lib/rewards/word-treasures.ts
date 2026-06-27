@@ -1,5 +1,4 @@
 import type { createClient } from "@/lib/supabase/server";
-import { createServiceRoleClient } from "@/lib/supabase/service-role";
 
 type SupabaseServerClient = Awaited<ReturnType<typeof createClient>>;
 
@@ -301,6 +300,7 @@ async function insertWordTreasureEventIfMissing(input: {
 export async function createOrUpdateGoldenNuggetFromParentApproval(
   input: CreateOrUpdateGoldenNuggetInput,
 ) {
+  const { createServiceRoleClient } = await import("@/lib/supabase/service-role");
   const {
     childId,
     parentUserId,
