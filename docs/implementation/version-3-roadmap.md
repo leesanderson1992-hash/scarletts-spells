@@ -13,7 +13,7 @@ ADLE remains separate from Word Treasure.
 
 ## Current stage
 
-Current Version 3.0 stage: `Phase 2 implemented and QA-audited; Phase 3 next`.
+Current Version 3.0 stage: `Phase 3.0 docs-only Word Treasure scope update complete; Phase 3.1 next`.
 
 Implemented so far:
 - Phase 0 current-state audit was completed as an inspection/planning pass.
@@ -26,8 +26,8 @@ Implemented so far:
 - No ADLE generation has been wired into runtime assignment generation.
 
 Next safe implementation slice:
-- Phase 3.0 docs-only Word Treasure scope expansion, then Phase 3 storage and
-  lifecycle implementation slices.
+- Phase 3.0 docs-only Word Treasure scope expansion, followed by small
+  independently testable Phase 3 implementation slices.
 
 ## Target architecture
 
@@ -69,7 +69,7 @@ verified word-specific misspelling
 - Do not revive `word_progress`.
 - Do not extend `spelling_reward_states` as the final Word Treasure model;
   treat it as compatibility/read-model debt.
-- Create new Word Treasure storage later: `child_word_treasures` and
+- Create new Word Treasure storage in Phase 3: `child_word_treasures` and
   `child_word_treasure_events`.
 
 ## Phase roadmap
@@ -242,30 +242,204 @@ Next step:
 
 </details>
 
-<details>
-<summary>Phase 3: Word Treasure storage foundation — Planned</summary>
+<details open>
+<summary>Phase 3: Word Treasure end to end — Planned</summary>
 
-Status: `Not started`
+Status: `Started; Phase 3.0 complete, Phase 3.1 next`
 
 Goal:
-- add dedicated Word Treasure storage after explicit approval.
+- implement the Word Treasure lifecycle end to end, beginning with canonical
+  storage and ending with My Progress and child popup reads from canonical Word
+  Treasure state.
 
-Planned tables:
-- `child_word_treasures`
-- `child_word_treasure_events`
+Scope:
+- parent-approved Golden Nugget creation from final classifications that are
+  genuine learning needs
+- estimated child popup Nuggets and Coins before parent approval, without
+  presenting those estimates as durable rewards
+- Daily Assignment child engagement moving a Nugget into `in_forge`
+- 5 qualifying authentic/original free-writing lesson uses after
+  `entered_forge_at` earning a `golden_bar`
+- My Progress reading canonical Word Treasure state with compatibility fallback
+- legacy `spelling_reward_states` and `spelling_reward_events` retained as
+  compatibility sources only
 
 Rules:
 - child-specific only
 - word-specific only
+- canonical statuses are `golden_nugget`, `in_forge`, and `golden_bar`
+- legacy "Warm Workshop" wording may appear only as optional transitional
+  display copy or compatibility interpretation
+- parent approval is required before durable Golden Nugget creation
+- child correction submission alone remains non-durable
 - no word-map-created rewards
 - no diagnostic-created rewards
 - no Golden Bar from same-session correction
+- no Golden Bar from copied text, controlled drills, daily practice, spelling
+  retries, returned corrections, or assignment visibility alone
 - local/dev first
 - migration-ledger check required
 
 Boundaries:
 - do not extend `spelling_reward_states` as the final model
-- do not remove compatibility reads until a bridge/migration plan exists
+- do not remove or rename `spelling_reward_states` or
+  `spelling_reward_events`
+- do not use `learning_items.progress_state` as instructional or reward state
+- do not redesign the Gold Coin economy
+- do not infer micro-skill mastery from Golden Bars
+- do not implement new ADLE scheduling
+- do not remove compatibility reads until the bridge is complete
+
+Pull-forward decision:
+- the Golden Bar evidence work previously planned for later roadmap phases is
+  pulled into Phase 3 because My Progress and child popup reward truth need the
+  complete Word Treasure lifecycle before old reward tables can become
+  compatibility-only
+
+Phase 2 hardening carried forward:
+- before durable Word Treasure evidence can depend on returned-correction
+  attempts, align legacy returned-correction evidence metadata so wrong typed
+  retry attempts are not optimistically classified as `marked_fixed` or
+  `corrected_independently`; the comparison must follow the approved
+  replacement/corrected-word match
+
+### Phase 3.0: Docs-only roadmap update
+
+Status: `Complete`
+
+Scope:
+- expand this roadmap only
+- document the end-to-end Word Treasure lifecycle now covered by Phase 3
+- clarify that Golden Bar evidence work is pulled forward
+- include the Phase 2 residual evidence-risk hardening decision
+
+Checks:
+- `git diff --check`
+
+Commit:
+- `docs: expand phase 3 word treasure scope`
+
+### Phase 3.1: Canonical storage foundation
+
+Scope:
+- add migrations for `child_word_treasures`
+- add migrations for `child_word_treasure_events`
+- keep `spelling_reward_states` and `spelling_reward_events` unchanged
+- add schema/types/read helpers where needed
+- do not switch UI reads yet
+
+Tests:
+- migration/schema checks
+- targeted type checks
+
+Commit:
+- `add word treasure storage foundation`
+
+### Phase 3.2: Parent approval creates durable Nuggets
+
+Scope:
+- on parent final classification of a genuine learning need, create or update
+  canonical Word Treasure state
+- record lifecycle events in `child_word_treasure_events`
+- link source issue, submission, and learning item where available
+- keep child correction submission non-durable until parent approval
+- harden returned-correction evidence metadata before durable Word Treasure
+  evidence consumes it
+
+Tests:
+- approved genuine issue creates a Nugget
+- unapproved retry does not create a durable Nugget
+- non-issue classifications do not create a Nugget
+- non-matching retry attempts are not recorded as fixed/independent evidence
+
+Commit:
+- `create word treasures from parent approval`
+
+### Phase 3.3: My Progress canonical read model
+
+Scope:
+- read Word Treasure counts and history from `child_word_treasures`
+- keep fallback to `spelling_reward_states` during the compatibility bridge
+- avoid duplicate display when both canonical and compatibility rows exist
+
+Tests:
+- canonical Nugget appears on My Progress
+- old compatibility rows still display during the bridge
+- duplicate display is avoided
+
+Commit:
+- `read word treasures on child progress`
+
+### Phase 3.4: Child popup reward language
+
+Scope:
+- show pending parent-review Nuggets and Coins as estimates only
+- avoid showing durable Nuggets as already earned before approval
+- show actual Gold Bar rows only when a Gold Bar is newly earned
+- preserve Phase 2 full-page overlay behavior
+- keep current encouraging copy and include a very small
+  "*once parent has approved" note at the bottom where rewards depend on
+  approval
+
+Tests:
+- returned resubmission shows estimates only
+- approval-dependent rewards are not persisted from child retry
+- copy avoids shame/failure wording
+
+Commit:
+- `clarify estimated word treasure rewards`
+
+### Phase 3.5: Daily Assignment moves Nuggets into Forge
+
+Scope:
+- when a Golden Nugget word appears in a Daily Assignment and the child
+  attempts/submits that item, move the treasure to `in_forge`
+- require child engagement; assignment visibility alone is not enough
+- avoid duplicate events from repeated attempts
+- do not implement new ADLE scheduling
+
+Tests:
+- assignment attempt moves `golden_nugget` to `in_forge`
+- assignment visibility alone does not move it
+- repeated attempts do not duplicate events
+
+Commit:
+- `move word treasures into forge from daily practice`
+
+### Phase 3.6: Free-writing evidence and Gold Bars
+
+Scope:
+- on lesson submission only, scan authentic/original free-writing responses for
+  corrected Word Treasure words
+- count only uses after `entered_forge_at`
+- exclude returned corrections, spelling retries, daily practice, copied text,
+  controlled drills, and the original mistake-producing submission
+- record each qualifying use as an event and increment the treasure evidence
+  count
+- award `golden_bar` at 5 qualifying uses
+- show newly earned Gold Bars on the child submission popup
+
+Tests:
+- 5 qualifying lesson uses award one Gold Bar
+- fewer than 5 do not
+- non-lesson or retry uses do not count
+- duplicate counting from the same submission is prevented
+
+Commit:
+- `award gold bars from free writing evidence`
+
+### Phase 3.7: End-to-end signoff
+
+Scope:
+- verify or add an end-to-end smoke path from parent returned misspelling
+  through child correction, parent finalisation, My Progress, Daily Assignment
+  Forge movement, five later lesson uses, Gold Bar popup, and My Progress
+  result
+- run targeted lint/type/regression checks
+- document any manual browser verification
+
+Commit:
+- `verify phase 3 word treasure lifecycle`
 
 </details>
 
@@ -471,14 +645,20 @@ Rules:
 </details>
 
 <details>
-<summary>Phase 12: Golden Bar and Vault — Planned</summary>
+<summary>Phase 12: Golden Bar and Vault — Pulled into Phase 3</summary>
 
-Status: `Not started`
+Status: `Pulled forward into Phase 3`
 
 Goal:
-- connect Word Treasure to authentic/original correct-use evidence.
+- previously planned connection between Word Treasure and authentic/original
+  correct-use evidence.
 
-Rules:
+Phase 3 pull-forward:
+- the storage, evidence, popup, and My Progress dependencies now require this
+  work before later ADLE phases
+- implementation now belongs to Phase 3.6 and Phase 3.7
+
+Rules retained:
 - Golden Bar requires 5 qualifying uses after ADLE/Forge
 - no Golden Bar from same-session correction
 - no Golden Bar from word-map existence
