@@ -33,6 +33,10 @@ import {
   maybeAwardTaskCompletionCoins,
   maybeAwardTaskTargetCoins,
 } from "@/lib/rewards/course-coins";
+import {
+  countConfirmedFreeWritingGoldBarsForSubmission,
+  detectAndStoreFreeWritingEvidenceCandidates,
+} from "@/lib/rewards/free-writing-evidence";
 import { replaceAnalysisForSample } from "@/lib/writing-engine/spelling/legacy-analysis";
 import { createClient } from "@/lib/supabase/server";
 function getRedirectPath(formData: FormData, fallbackPath: string) {
@@ -59,6 +63,8 @@ function buildRedirectWithMessage(
   rewardCoins?: number,
   focusNearRewardCoins?: number,
   goldenNuggetsDiscovered?: number,
+  suspectedGoldenBars?: number,
+  confirmedGoldenBars?: number,
 ) {
   const [pathname, rawQuery] = path.split("?");
   const searchParams = new URLSearchParams(rawQuery ?? "");
@@ -77,6 +83,16 @@ function buildRedirectWithMessage(
     searchParams.set("golden_nuggets", String(goldenNuggetsDiscovered));
   } else {
     searchParams.delete("golden_nuggets");
+  }
+  if (suspectedGoldenBars && suspectedGoldenBars > 0) {
+    searchParams.set("suspected_golden_bars", String(suspectedGoldenBars));
+  } else {
+    searchParams.delete("suspected_golden_bars");
+  }
+  if (confirmedGoldenBars && confirmedGoldenBars > 0) {
+    searchParams.set("confirmed_golden_bars", String(confirmedGoldenBars));
+  } else {
+    searchParams.delete("confirmed_golden_bars");
   }
   const nextQuery = searchParams.toString();
   return nextQuery ? `${pathname}?${nextQuery}` : pathname;
@@ -664,6 +680,7 @@ export async function submitTaskResponse(formData: FormData) {
       : [];
   let returnedCorrectionAttemptCount = 0;
   let returnedGoldenNuggetsNeedingPracticeCount = 0;
+  let returnedConfirmedGoldenBarCount = 0;
 
   const today = getDateOnly();
   const [{ count: completionCount }, { count: submissionCount }] = await Promise.all([
@@ -776,6 +793,8 @@ export async function submitTaskResponse(formData: FormData) {
     submissionText: safeSubmissionText,
   });
 
+  let writingSampleId: string | null = null;
+
   if (spellcheckSourceText) {
     const writtenAt = insertedSubmission.submitted_at.slice(0, 10);
     const { data: insertedSample, error: sampleError } = await supabase
@@ -793,11 +812,41 @@ export async function submitTaskResponse(formData: FormData) {
       .single();
 
     if (insertedSample && !sampleError) {
+      writingSampleId = insertedSample.id;
       await replaceAnalysisForSample(supabase, insertedSample, user.id);
     }
   }
 
+  const freeWritingEvidenceCandidates =
+    await detectAndStoreFreeWritingEvidenceCandidates({
+      supabase,
+      parentUserId: user.id,
+      childId: child.id,
+      taskSubmissionId: insertedSubmission.id,
+      taskId: task.id,
+      taskType: task.task_type,
+      draftPayload: persistedDraftPayload,
+      submissionText: safeSubmissionText,
+      writingSampleId,
+    });
+  const suspectedGoldenBarCount = freeWritingEvidenceCandidates.filter(
+    (candidate) =>
+      candidate.confirmation_status === "pending_parent_confirmation" &&
+      candidate.duplicate_status === "unique_candidate" &&
+      candidate.would_award_golden_bar,
+  ).length;
+
   if (returnedWritingIssues.length > 0) {
+    if (latestSubmission?.id) {
+      returnedConfirmedGoldenBarCount =
+        await countConfirmedFreeWritingGoldBarsForSubmission({
+          supabase,
+          parentUserId: user.id,
+          childId,
+          taskSubmissionId: latestSubmission.id,
+        });
+    }
+
     const returnedIssueIds = returnedWritingIssues.map((issue) => issue.issue_id);
     const { data: sentBackIssues } = await supabase
       .from("writing_issues")
@@ -935,6 +984,10 @@ export async function submitTaskResponse(formData: FormData) {
           : undefined,
       undefined,
       returnedGoldenNuggetsNeedingPracticeCount,
+      returnedCorrectionAttemptCount > 0 ? undefined : suspectedGoldenBarCount,
+      returnedCorrectionAttemptCount > 0
+        ? returnedConfirmedGoldenBarCount
+        : undefined,
     ),
   );
 }

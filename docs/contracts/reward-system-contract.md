@@ -127,9 +127,9 @@ authentic/original writing enough times after entering the Forge.
 
 Default rule:
 - only authentic/original writing after `entered_forge_at` increments
-  `correct_authentic_uses_after_forge`
+  `authentic_correct_uses_after_forge`
 - `required_uses_for_bar = 5`
-- when `correct_authentic_uses_after_forge >= required_uses_for_bar`, the word
+- when `authentic_correct_uses_after_forge >= required_uses_for_bar`, the word
   becomes a Golden Bar
 
 Rules:
@@ -215,6 +215,23 @@ Rules:
   micro-skill proficiency
 - ADLE may surface Word Treasure context, but ADLE does not own reward truth
 - word-map rows and diagnostic examples must not create Word Treasure state
+
+Free-writing Gold Bar evidence:
+- applies to authentic child writing in lesson and test submissions
+- does not apply to retried spelling correction inputs, Daily Assignment
+  practice, copied/prompt fields, controlled drills, or non-writing controls
+- child submission detection creates suspected evidence only
+- suspected evidence may be shown to the child as an estimate, but it does not
+  increment `authentic_correct_uses_after_forge`, change status, or create
+  canonical events
+- parent confirmation in Review Work converts suspected evidence into canonical
+  `authentic_correct_use_recorded` evidence
+- returned general-improvement rewrites can create new evidence if the Word
+  Treasure + task-field pair has not already been confirmed
+- duplicate scope is Word Treasure + task field; multiple occurrences in one
+  field and later resubmissions of that same field do not create extra evidence
+- canonical Gold Bars require confirmed evidence and a single
+  `golden_bar_awarded` event at the required threshold
 
 ## Micro-Skill Level System
 
@@ -474,7 +491,7 @@ Currency language:
 
 ### Word Treasure projection
 
-Future canonical table: `child_word_treasures`.
+Canonical table: `child_word_treasures`.
 
 Compatibility projection from `spelling_reward_states` may be used only during a
 documented migration or bridge slice.
@@ -492,7 +509,7 @@ Recommended fields:
 - `entered_forge_at`
 - `golden_bar_at`
 - `vaulted_at`
-- `correct_authentic_uses_after_forge`
+- `authentic_correct_uses_after_forge`
 - `required_uses_for_bar`
 - `metadata`
 

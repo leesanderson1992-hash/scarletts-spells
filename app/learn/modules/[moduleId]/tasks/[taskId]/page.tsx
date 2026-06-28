@@ -6,7 +6,7 @@ import { AppShell } from "@/components/app-shell";
 import { PreSubmitChecklist } from "@/components/pre-submit-checklist";
 import { ReturnedIssueRetryControls } from "@/components/returned-issue-retry-controls";
 import { RewardCelebration } from "@/components/reward-celebration";
-import { GoldCoinIcon, NuggetIcon } from "@/components/reward-icons";
+import { GoldBarIcon, GoldCoinIcon, NuggetIcon } from "@/components/reward-icons";
 import { StructuredLessonResponse as StructuredLessonResponseForm } from "@/components/structured-lesson-response";
 import {
   buildScopedPath,
@@ -63,6 +63,8 @@ type LearnModuleTaskPageProps = {
     reward_coins?: string;
     focus_near_reward_coins?: string;
     golden_nuggets?: string;
+    suspected_golden_bars?: string;
+    confirmed_golden_bars?: string;
   }>;
 };
 
@@ -97,11 +99,13 @@ function LessonSubmissionCompletionModal({
   modulePath,
   rewardRows,
   showEstimatedRewards,
+  rewardFootnote,
 }: {
   childFirstName?: string | null;
   modulePath: string;
   rewardRows: CompletionRewardRow[];
   showEstimatedRewards: boolean;
+  rewardFootnote: string;
 }) {
   const childName = childFirstName?.trim();
   const headline = showEstimatedRewards
@@ -167,7 +171,7 @@ function LessonSubmissionCompletionModal({
                   </table>
                 </div>
                 <p className="mt-3 text-center text-xs font-semibold leading-5 text-[color:var(--mid)]">
-                  These are estimates until your parent has approved the work.
+                  {rewardFootnote}
                 </p>
               </div>
             ) : null}
@@ -432,7 +436,23 @@ export default async function LearnModuleTaskPage({
     Number.isInteger(goldenNuggetCount) && goldenNuggetCount > 0
       ? goldenNuggetCount
       : 0;
-  const submissionCompletionRewardRows = [
+  const suspectedGoldenBarCount =
+    typeof resolvedSearchParams?.suspected_golden_bars === "string"
+      ? Number(resolvedSearchParams.suspected_golden_bars)
+      : 0;
+  const suspectedGoldenBars =
+    Number.isInteger(suspectedGoldenBarCount) && suspectedGoldenBarCount > 0
+      ? suspectedGoldenBarCount
+      : 0;
+  const confirmedGoldenBarCount =
+    typeof resolvedSearchParams?.confirmed_golden_bars === "string"
+      ? Number(resolvedSearchParams.confirmed_golden_bars)
+      : 0;
+  const confirmedGoldenBars =
+    Number.isInteger(confirmedGoldenBarCount) && confirmedGoldenBarCount > 0
+      ? confirmedGoldenBarCount
+      : 0;
+  const submissionCompletionRewardRows: CompletionRewardRow[] = [
     {
       key: "gold-coins",
       label: "Gold Coins:",
@@ -446,10 +466,34 @@ export default async function LearnModuleTaskPage({
       icon: <NuggetIcon size="sm" />,
     },
   ];
+  if (suspectedGoldenBars > 0) {
+    submissionCompletionRewardRows.push({
+      key: "suspected-gold-bars",
+      label: "Gold Bars estimated:",
+      value: `${suspectedGoldenBars}`,
+      icon: <GoldBarIcon size="sm" />,
+    });
+  }
+  if (confirmedGoldenBars > 0) {
+    submissionCompletionRewardRows.push({
+      key: "confirmed-gold-bars",
+      label: "Gold Bars confirmed:",
+      value: `${confirmedGoldenBars}`,
+      icon: <GoldBarIcon size="sm" />,
+    });
+  }
   const savedReturnedCorrection =
     resolvedSearchParams?.saved === "returned_correction_submission";
   const showSubmissionCompletionModal =
     resolvedSearchParams?.saved === "submission" || savedReturnedCorrection;
+  const showEstimatedSubmissionRewards =
+    savedReturnedCorrection || suspectedGoldenBars > 0 || confirmedGoldenBars > 0;
+  const submissionRewardFootnote =
+    confirmedGoldenBars > 0 && savedReturnedCorrection
+      ? "Gold Coins are estimates; confirmed Gold Bars have already been checked by your parent."
+      : suspectedGoldenBars > 0 || savedReturnedCorrection
+        ? "These are estimates until your parent has approved the work."
+        : "Confirmed rewards have already been checked by your parent.";
 
   return (
     <>
@@ -754,7 +798,8 @@ export default async function LearnModuleTaskPage({
         childFirstName={selectedChild.first_name}
         modulePath={modulePath}
         rewardRows={submissionCompletionRewardRows}
-        showEstimatedRewards={savedReturnedCorrection}
+        showEstimatedRewards={showEstimatedSubmissionRewards}
+        rewardFootnote={submissionRewardFootnote}
       />
     ) : null}
     </>

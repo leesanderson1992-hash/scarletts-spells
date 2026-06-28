@@ -22,7 +22,7 @@ const completionModalSource = sliceBetween(
 );
 const rewardRowsSource = sliceBetween(
   taskPage,
-  "const submissionCompletionRewardRows = [",
+  "const submissionCompletionRewardRows: CompletionRewardRow[] = [",
   "const savedReturnedCorrection =",
 );
 const submitSource = learnActions.slice(
@@ -55,9 +55,14 @@ assert.match(
   "Golden Nuggets row must be present with a plain number.",
 );
 assert.match(
-  completionModalSource,
+  taskPage,
   /estimates until your parent has approved the work/,
   "Approval-dependent completion values must be framed as estimates.",
+);
+assert.match(
+  taskPage,
+  /confirmed Gold Bars have already been checked by your parent/,
+  "Confirmed Gold Bars must not be framed as unconfirmed estimates.",
 );
 assert.match(
   completionModalSource,
@@ -79,15 +84,18 @@ assert.match(
   /returnedCorrectionAttemptCount > 0[\s\S]*task\.gold_coin_reward_amount \?\? 0/,
   "Returned resubmission popup must receive the lesson's configured Gold Coin estimate.",
 );
+assert.match(
+  rewardRowsSource,
+  /suspectedGoldenBars > 0[\s\S]*label: "Gold Bars estimated:"/,
+  "First submission popup may show suspected Gold Bars as estimated rewards.",
+);
+assert.match(
+  rewardRowsSource,
+  /confirmedGoldenBars > 0[\s\S]*label: "Gold Bars confirmed:"/,
+  "Returned-work popup may show parent-confirmed Gold Bars.",
+);
 
-for (const forbidden of [
-  "Gold Bar",
-  "GoldBar",
-  "gold_bar",
-  "Gold Bar Progress",
-  "coming soon",
-  "placeholder",
-]) {
+for (const forbidden of ["gold_bar", "Gold Bar Progress", "coming soon", "placeholder"]) {
   assert.doesNotMatch(
     `${completionModalSource}\n${rewardRowsSource}`,
     new RegExp(forbidden, "i"),
@@ -111,7 +119,6 @@ for (const forbidden of [
   "spelling_reward_events",
   "correct_authentic_uses_after_forge",
   "authentic_correct_uses_after_forge",
-  "golden_bar",
 ]) {
   assert.doesNotMatch(
     submitSource,

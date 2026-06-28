@@ -9,6 +9,7 @@ import {
   type ReturnedWritingIssueDraftPayload,
 } from "@/lib/lessons/responses";
 import { maybeAwardTaskSubmissionApprovalCoins } from "@/lib/rewards/course-coins";
+import { confirmFreeWritingEvidenceCandidates } from "@/lib/rewards/free-writing-evidence";
 import { createOrUpdateGoldenNuggetFromParentApproval } from "@/lib/rewards/word-treasures";
 import { createClient } from "@/lib/supabase/server";
 import {
@@ -66,6 +67,13 @@ function getStructuredSubmissionPayloadTypeForReview(task: {
   }
 
   return null;
+}
+
+function parseFreeWritingEvidenceCandidateIds(formData: FormData) {
+  return formData
+    .getAll("free_writing_evidence_candidate_id")
+    .filter((value): value is string => typeof value === "string" && value.trim().length > 0)
+    .map((value) => value.trim());
 }
 
 function getStructuredDraftPayloadSeed({
@@ -913,6 +921,18 @@ export async function returnSubmissionToChildImpl(formData: FormData) {
     );
   }
 
+  const selectedEvidenceCandidateIds =
+    parseFreeWritingEvidenceCandidateIds(formData);
+  if (selectedEvidenceCandidateIds.length > 0) {
+    await confirmFreeWritingEvidenceCandidates({
+      supabase,
+      parentUserId: user.id,
+      childId: submission.child_id,
+      candidateIds: selectedEvidenceCandidateIds,
+      confirmedByUserId: user.id,
+    });
+  }
+
   const safeFieldFeedback = Object.fromEntries(
     Array.from(formData.entries())
       .filter(
@@ -1234,6 +1254,18 @@ export async function approveSubmissionReviewImpl(formData: FormData) {
         "That submission no longer exists.",
       ),
     );
+  }
+
+  const selectedEvidenceCandidateIds =
+    parseFreeWritingEvidenceCandidateIds(formData);
+  if (selectedEvidenceCandidateIds.length > 0) {
+    await confirmFreeWritingEvidenceCandidates({
+      supabase,
+      parentUserId: user.id,
+      childId: submission.child_id,
+      candidateIds: selectedEvidenceCandidateIds,
+      confirmedByUserId: user.id,
+    });
   }
 
   const { data: task } = await supabase

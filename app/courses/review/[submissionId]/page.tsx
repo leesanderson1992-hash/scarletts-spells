@@ -11,6 +11,10 @@ import {
   selectChildById,
 } from "@/lib/children";
 import { formatCourseDate, getActiveChildrenForUser } from "@/lib/courses/queries";
+import {
+  getFreeWritingEvidenceCandidatesForReview,
+  type FreeWritingEvidenceReviewCandidate,
+} from "@/lib/rewards/free-writing-evidence";
 import { createClient } from "@/lib/supabase/server";
 import {
   getReviewWorkCandidateCaptureMicroSkillProvider,
@@ -262,9 +266,48 @@ function LessonParentActionsSection(props: {
   reviewableFields: ReturnType<typeof extractReviewableLessonFields>;
   completionSummary: UnifiedSpellingReviewCompletionSummary;
   showZeroSuggestionGuidance: boolean;
+  freeWritingEvidenceCandidates: FreeWritingEvidenceReviewCandidate[];
 }) {
   const approvalBlocked = !props.completionSummary.canComplete;
   const blockingReasons = props.completionSummary.blockingReasons;
+  const confirmableEvidenceCandidates = props.freeWritingEvidenceCandidates.filter(
+    (candidate) => candidate.canConfirm,
+  );
+  const duplicateEvidenceCandidates = props.freeWritingEvidenceCandidates.filter(
+    (candidate) => !candidate.canConfirm,
+  );
+  const renderEvidenceConfirmationInputs = () =>
+    confirmableEvidenceCandidates.length > 0 ? (
+      <div className="grid gap-2 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3">
+        <p className="text-sm font-semibold text-amber-950">
+          Confirm free-writing Gold Bar evidence
+        </p>
+        <div className="grid gap-2">
+          {confirmableEvidenceCandidates.map((candidate) => (
+            <label
+              key={candidate.id}
+              className="flex items-start gap-2 text-sm leading-6 text-amber-950"
+            >
+              <input
+                name="free_writing_evidence_candidate_id"
+                type="checkbox"
+                value={candidate.id}
+                defaultChecked
+                className="mt-1"
+              />
+              <span>
+                <span className="font-semibold">{candidate.matched_word}</span>
+                {" in "}
+                <span className="font-mono text-xs">{candidate.source_field_key}</span>
+                {candidate.would_award_golden_bar
+                  ? " can become a confirmed Gold Bar."
+                  : " can count as confirmed forge evidence."}
+              </span>
+            </label>
+          ))}
+        </div>
+      </div>
+    ) : null;
 
   return (
     <section className="brand-card rounded-3xl p-4 md:p-5">
@@ -290,6 +333,39 @@ function LessonParentActionsSection(props: {
         <div className="mt-4 rounded-2xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm leading-6 text-sky-900">
           No suggestions found. Please check the work and mark it complete when you are
           satisfied.
+        </div>
+      ) : null}
+
+      {props.freeWritingEvidenceCandidates.length > 0 ? (
+        <div className="mt-4 grid gap-3 rounded-2xl border border-[var(--border)] bg-white px-4 py-4">
+          <div>
+            <p className="text-sm font-medium text-[color:var(--ink)]">
+              Free-writing evidence
+            </p>
+            <p className="mt-1 text-sm leading-6 text-[color:var(--mid)]">
+              These matches are only estimates until you confirm them during approve
+              or send-back.
+            </p>
+          </div>
+          {confirmableEvidenceCandidates.length > 0 ? (
+            <div className="flex flex-wrap gap-2">
+              {confirmableEvidenceCandidates.map((candidate) => (
+                <span
+                  key={candidate.id}
+                  className="rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-800"
+                >
+                  {candidate.matched_word}
+                  {candidate.would_award_golden_bar ? " · possible Gold Bar" : ""}
+                </span>
+              ))}
+            </div>
+          ) : null}
+          {duplicateEvidenceCandidates.length > 0 ? (
+            <p className="text-xs uppercase tracking-[0.16em] text-[color:var(--mid)]">
+              {duplicateEvidenceCandidates.length} duplicate or already-confirmed
+              match{duplicateEvidenceCandidates.length === 1 ? "" : "es"} skipped.
+            </p>
+          ) : null}
         </div>
       ) : null}
 
@@ -337,6 +413,7 @@ function LessonParentActionsSection(props: {
         <form action={approveSubmissionReview} className="grid gap-2">
           <input type="hidden" name="submission_id" value={props.submissionId} />
           <input type="hidden" name="redirect_path" value={props.redirectPath} />
+          {renderEvidenceConfirmationInputs()}
           <button
             className="brand-primary-btn disabled:cursor-not-allowed disabled:opacity-60"
             type="submit"
@@ -361,6 +438,7 @@ function LessonParentActionsSection(props: {
         <form action={returnSubmissionToChild} className="grid gap-3">
           <input type="hidden" name="submission_id" value={props.submissionId} />
           <input type="hidden" name="redirect_path" value={props.redirectPath} />
+          {renderEvidenceConfirmationInputs()}
           <label className="grid gap-1 text-sm text-[color:var(--ink)]">
             <span className="font-medium">Parent note</span>
             <textarea
@@ -744,6 +822,7 @@ export default async function CourseReviewDetailPage({
     { data: writingIssueSuggestionRows, error: writingIssueSuggestionError },
     { data: parentVerificationRows, error: parentVerificationError },
     unifiedSpellingReviewItems,
+    freeWritingEvidenceCandidates,
   ] = await Promise.all([
     supabase
       .from("course_tasks")
@@ -799,6 +878,12 @@ export default async function CourseReviewDetailPage({
       submissionId: submission.id,
       parentUserId: user.id,
       childId: submission.child_id,
+    }),
+    getFreeWritingEvidenceCandidatesForReview({
+      supabase,
+      parentUserId: user.id,
+      childId: submission.child_id,
+      taskSubmissionId: submission.id,
     }),
   ]);
   const reviewWorkflowPhase = getReviewWorkflowPhase({
@@ -1010,6 +1095,7 @@ export default async function CourseReviewDetailPage({
           showZeroSuggestionGuidance={
             submission.parent_review_status === "pending" && panelModel.state === "empty_result"
           }
+          freeWritingEvidenceCandidates={freeWritingEvidenceCandidates}
         />
       </section>
     </AppShell>

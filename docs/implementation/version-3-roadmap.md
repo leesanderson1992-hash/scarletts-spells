@@ -13,7 +13,7 @@ ADLE remains separate from Word Treasure.
 
 ## Current stage
 
-Current Version 3.0 stage: `Phase 3.4 child popup reward language complete; Phase 3.5 next`.
+Current Version 3.0 stage: `Phase 3.6 Free-writing evidence complete; Phase 3.7A server lifecycle signoff next`.
 
 Implemented so far:
 - Phase 0 current-state audit was completed as an inspection/planning pass.
@@ -26,10 +26,13 @@ Implemented so far:
 - Phase 3.2 parent approval durable Golden Nugget creation is complete.
 - Phase 3.3 My Progress canonical Word Treasure read model is complete.
 - Phase 3.4 child popup reward language is complete.
+- Phase 3.5 Daily Assignment Forge movement is complete and QA-audited.
+- Phase 3.6 Free-writing evidence and parent-confirmed Gold Bars is complete
+  and QA-audited for the server/review/popup contract.
 - No ADLE generation has been wired into runtime assignment generation.
 
 Next safe implementation slice:
-- Phase 3.5 Daily Assignment moves Nuggets into Forge.
+- Phase 3.7A server/data lifecycle signoff.
 
 ## Target architecture
 
@@ -247,7 +250,7 @@ Next step:
 <details open>
 <summary>Phase 3: Word Treasure end to end — Planned</summary>
 
-Status: `Started; Phase 3.0, Phase 3.1, Phase 3.2, Phase 3.3, and Phase 3.4 complete, Phase 3.5 next`
+Status: `Started; Phase 3.0 through Phase 3.6 complete, Phase 3.7A next`
 
 Goal:
 - implement the Word Treasure lifecycle end to end, beginning with canonical
@@ -260,7 +263,7 @@ Scope:
 - estimated child popup Nuggets and Coins before parent approval, without
   presenting those estimates as durable rewards
 - Daily Assignment child engagement moving a Nugget into `in_forge`
-- 5 qualifying authentic/original free-writing lesson uses after
+- 5 parent-confirmed authentic lesson/test free-writing evidence units after
   `entered_forge_at` earning a `golden_bar`
 - My Progress reading canonical Word Treasure state with compatibility fallback
 - legacy `spelling_reward_states` and `spelling_reward_events` retained as
@@ -571,7 +574,9 @@ Tests:
   Nuggets
 - returned-resubmission popup has rows for Gold Coins and Golden Nuggets
 - approval-dependent reward table is framed by a single estimate note
-- popup does not mention Gold Bars or Gold Bar Progress
+- at the Phase 3.4 boundary, unsupported Gold Bar rows, progress promises, and
+  placeholder language were intentionally absent because no evidence path
+  existed yet
 - returned resubmission shows estimates only
 - child submission does not persist Word Treasure or Gold Bar evidence
 - copy avoids shame/failure wording
@@ -581,7 +586,16 @@ Commit:
 - follow-up: `refine child completion popup copy`
 - follow-up: `polish completion popup presentation`
 
+Phase 3.6 supersession note:
+- Phase 3.4 intentionally hid Gold Bars because no canonical Gold Bar evidence
+  path existed yet
+- Phase 3.6 added intentional suspected/confirmed Gold Bar popup language, so
+  the Phase 3.4 "no Gold Bar" rule now applies only to unsupported placeholder
+  or progress-promise wording, not to the implemented evidence path
+
 ### Phase 3.5: Daily Assignment moves Nuggets into Forge
+
+Status: `Implemented and QA-audited`
 
 Scope:
 - when a Golden Nugget word appears in a Daily Assignment and the child
@@ -590,47 +604,167 @@ Scope:
 - avoid duplicate events from repeated attempts
 - do not implement new ADLE scheduling
 
+Implemented:
+- daily spelling practice completion now calls canonical Word Treasure lifecycle
+  movement only for supported `assignment_items` being completed by the child
+- canonical `child_word_treasures` rows move from `golden_nugget` to
+  `in_forge`
+- movement is scoped by `parent_user_id`, `child_id`, and the controlled
+  practice item target word
+- `entered_forge_at` is set when the word first enters Forge
+- `child_word_treasure_events` records one `entered_forge` lifecycle event with
+  `source_type = daily_assignment_item`
+- lifecycle event metadata links the Daily Assignment, assignment item,
+  learning item, assignment source, and practice date where available
+- repeated completion submits do not rewrite later Word Treasure statuses and
+  do not duplicate lifecycle events
+- no Gold Bar evidence, Gold Bar award, Gold Coin ledger, ADLE scheduling,
+  micro-skill mastery, or compatibility spelling reward write was introduced
+
 Tests:
 - assignment attempt moves `golden_nugget` to `in_forge`
 - assignment visibility alone does not move it
 - repeated attempts do not duplicate events
+- `npm run writing-engine:daily-spelling-practice-completion-regression`
+- local server-boundary smoke:
+  `npm run word-treasure:daily-assignment-forge-local-smoke -- --confirm LOCAL_WORD_TREASURE_FORGE_SMOKE`
+- targeted `npx eslint` for changed Phase 3.5 files
+- `npx tsc --noEmit --pretty false`
+- `git diff --check`
+
+QA audit:
+- safe to close for Phase 3.5 server-side scope
+- local smoke verified the Daily Assignment completion boundary creates the
+  canonical `golden_nugget` -> `in_forge` movement only after item completion
+- local smoke verified assignment visibility alone does not move a Nugget into
+  Forge
+- local smoke verified repeated completion does not create duplicate
+  `entered_forge` events
+- local smoke verified later Word Treasure statuses are not regressed or
+  rewritten
+- local smoke verified no writes to `spelling_reward_states`,
+  `spelling_reward_events`, `learning_item_evidence`, or
+  `child_gold_coin_ledger_events`
+- child popup behavior from Phase 3.4 remains unchanged
+- no Gold Bar evidence counting, Gold Bar awarding, Gold Coin ledger write,
+  ADLE scheduling change, or micro-skill mastery inference was introduced
+
+Residual risk:
+- browser-level end-to-end verification through the child Daily Assignment UI
+  remains pending because the UI flow may be unreliable independently of this
+  server-side lifecycle path; once the Daily Assignment surface is healthy,
+  rerun a real child-flow smoke from generated item to completion
 
 Commit:
 - `move word treasures into forge from daily practice`
 
 ### Phase 3.6: Free-writing evidence and Gold Bars
 
+Status: `Implemented and QA-audited`
+
 Scope:
-- on lesson submission only, scan authentic/original free-writing responses for
-  corrected Word Treasure words
-- count only uses after `entered_forge_at`
-- exclude returned corrections, spelling retries, daily practice, copied text,
-  controlled drills, and the original mistake-producing submission
-- record each qualifying use as an event and increment the treasure evidence
-  count
-- award `golden_bar` at 5 qualifying uses
-- show newly earned Gold Bars on the child submission popup
+- scan authentic free-writing responses from lesson and test submissions for
+  canonical Word Treasure words that are already in the Forge
+- child submissions create suspected evidence only; canonical
+  `child_word_treasures` counts, statuses, and events update after parent
+  confirmation during Review Work
+- store suspected evidence with `task_submission_id`, `task_id`, `task_type`,
+  stable `source_field_key`, optional `writing_sample_id`, matched word,
+  occurrence count, duplicate status, and confirmation status
+- use structured `block_id` as the source field key; use
+  `legacy_submission_text` for plain submissions
+- exclude copied/prompt fields, non-writing controls, Daily Assignment
+  practice, controlled drills, and returned spelling correction retry inputs
+- returned general-improvement rewrites can create new suspected evidence when
+  the Word Treasure + task-field pair has not already been confirmed
+- duplicate scope is Word Treasure + task field, so multiple occurrences in one
+  field or later resubmissions of the same field do not create extra evidence
+- parent confirmation records `authentic_correct_use_recorded`, increments
+  `authentic_correct_uses_after_forge`, and awards `golden_bar` at 5 confirmed
+  evidence units
+- `golden_bar_awarded` is recorded once per treasure
+- child popups may show suspected Gold Bars as estimates before review, and
+  returned-work popups may show confirmed Gold Bars when the parent confirmed
+  evidence before send-back
 
 Tests:
-- 5 qualifying lesson uses award one Gold Bar
-- fewer than 5 do not
-- non-lesson or retry uses do not count
-- duplicate counting from the same submission is prevented
+- lesson evidence candidate detection
+- test evidence candidate detection
+- suspected evidence alone does not update canonical counts/status
+- parent confirmation creates canonical evidence
+- 5 confirmed evidence units award one Gold Bar
+- returned general-improvement rewrite with new evidence is detected
+- retried spelling correction does not count
+- same Word Treasure in the same task field across resubmissions is duplicate
+- multiple occurrences in one field do not create multiple evidence units
+- popup shows suspected versus confirmed Gold Bars correctly
+- no legacy reward table writes occur
 
-Commit:
+Implemented:
+- added `child_word_treasure_evidence_candidates` for suspected evidence
+- added field-level authentic-writing extraction while preserving the existing
+  combined spellcheck text behavior
+- lesson/test submissions detect suspected candidate evidence without mutating
+  canonical Word Treasure state
+- parent Review Work surfaces confirmable evidence before approve/send-back
+- approve and send-back confirm selected evidence before completing the parent
+  decision
+- confirmation writes canonical `authentic_correct_use_recorded` events,
+  increments `authentic_correct_uses_after_forge`, and awards `golden_bar` at
+  the required threshold
+- child completion popup distinguishes suspected Gold Bar estimates from
+  parent-confirmed Gold Bars
+
+Checks:
+- `npx tsc --noEmit --pretty false`
+- `npm run child-completion-popup-reward-language-regression`
+- `npx tsx scripts/word-treasure-my-progress-read-model-regression.ts`
+- `npm run writing-engine:daily-spelling-practice-completion-regression`
+- `npm run word-treasure:free-writing-evidence-regression`
+- `npm run word-treasure:daily-assignment-forge-local-smoke -- --confirm LOCAL_WORD_TREASURE_FORGE_SMOKE`
+- `git diff --check`
+
+QA audit:
+- local Supabase smoke verified the Phase 3.5 Daily Assignment Forge boundary
+  after local migrations, including the Phase 3.6 candidate table migration
+- Phase 3.6 regression verifies lesson/test candidate detection, duplicate
+  scope, parent confirmation, canonical event/count updates, Gold Bar award
+  threshold, popup language, and absence of legacy reward writes
+- suspected evidence alone remains non-canonical until parent confirmation
+- retried spelling correction inputs remain excluded from suspected Gold Bar
+  evidence
+
+Residual risk:
+- browser-level end-to-end verification through the Daily Assignment UI remains
+  deferred to Phase 3.7B, because the Daily Assignment product surface is not
+  yet the active user-facing stage
+
+Target commit:
 - `award gold bars from free writing evidence`
 
 ### Phase 3.7: End-to-end signoff
 
 Scope:
-- verify or add an end-to-end smoke path from parent returned misspelling
-  through child correction, parent finalisation, My Progress, Daily Assignment
-  Forge movement, five later lesson uses, Gold Bar popup, and My Progress
-  result
-- run targeted lint/type/regression checks
-- document any manual browser verification
+- split Phase 3 signoff into server/data lifecycle signoff now and browser UI
+  signoff when the Daily Assignment stage becomes active
 
-Commit:
+3.7A server/data lifecycle signoff now:
+- verify the canonical lifecycle without relying on the Daily Assignment browser
+  surface: parent finalisation creates a Nugget, Daily Assignment item
+  completion moves the Nugget into Forge, parent-confirmed lesson/test
+  free-writing evidence increments canonical counts, 5 confirmed task-field
+  evidence units award one Gold Bar, and My Progress reads the canonical result
+- run targeted lint/type/regression checks
+- document local Supabase smoke commands and any remaining UI verification gap
+
+3.7B browser/UI signoff when Daily Assignment stage begins:
+- run a real child/parent browser path from generated Daily Assignment card to
+  child completion, parent finalisation/confirmation, returned-work popup, Gold
+  Bar popup language, and My Progress result
+- verify visual copy and child-facing ergonomics in the live product flow
+- close any Daily Assignment UI-specific gaps discovered during that pass
+
+Target commit:
 - `verify phase 3 word treasure lifecycle`
 
 </details>
@@ -846,12 +980,15 @@ Goal:
   correct-use evidence.
 
 Phase 3 pull-forward:
-- the storage, evidence, popup, and My Progress dependencies now require this
-  work before later ADLE phases
-- implementation now belongs to Phase 3.6 and Phase 3.7
+- the storage, evidence, popup, and My Progress dependencies required this work
+  before later ADLE phases
+- core implementation is complete in Phase 3.6
+- remaining end-to-end signoff is split between Phase 3.7A server/data
+  verification and Phase 3.7B Daily Assignment browser/UI verification
 
 Rules retained:
-- Golden Bar requires 5 qualifying uses after ADLE/Forge
+- Golden Bar requires 5 parent-confirmed qualifying evidence units after
+  ADLE/Forge
 - no Golden Bar from same-session correction
 - no Golden Bar from word-map existence
 - no Golden Bar from lesson completion alone

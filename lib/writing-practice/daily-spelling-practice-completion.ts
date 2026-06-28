@@ -1,4 +1,8 @@
 import type { createClient } from "../supabase/server";
+import {
+  moveGoldenNuggetIntoForgeFromDailyAssignmentItem,
+  type MoveGoldenNuggetIntoForgeFromDailyAssignmentItemInput,
+} from "../rewards/word-treasures";
 import { DAILY_SPELLING_PRACTICE_ASSIGNMENT_TITLE } from "../writing-engine/persistence/daily-spelling-practice-assignments";
 
 type SupabaseServerClient = Awaited<ReturnType<typeof createClient>>;
@@ -9,6 +13,9 @@ export type CompleteDailySpellingPracticeItemsInput = {
   childId: string;
   dailyAssignmentId: string;
   practiceDate: string;
+  moveGoldenNuggetIntoForge?: (
+    input: Omit<MoveGoldenNuggetIntoForgeFromDailyAssignmentItemInput, "supabase">,
+  ) => Promise<unknown>;
 };
 
 export type CompleteDailySpellingPracticeItemsResult = {
@@ -24,6 +31,11 @@ type DailySpellingPracticeCompletionAssignmentRow = {
 type DailySpellingPracticeCompletionItemRow = {
   id: string;
   status: "pending" | "ready" | "completed" | "cancelled";
+  source_type: string;
+  source_entity_id: string;
+  learning_item_id: string | null;
+  target_word: string | null;
+  metadata: Record<string, unknown>;
 };
 
 export async function completeDailySpellingPracticeItems(
@@ -56,7 +68,9 @@ export async function completeDailySpellingPracticeItems(
 
   const { data: supportedItems, error: supportedItemsError } = await input.supabase
     .from("assignment_items")
-    .select("id, status")
+    .select(
+      "id, status, source_type, source_entity_id, learning_item_id, target_word, metadata",
+    )
     .eq("daily_assignment_id", input.dailyAssignmentId)
     .eq("parent_user_id", input.parentUserId)
     .eq("child_id", input.childId)
@@ -72,6 +86,9 @@ export async function completeDailySpellingPracticeItems(
   const itemIdsToComplete = supportedItemRows
     .filter((item) => item.status !== "completed")
     .map((item) => item.id);
+  const itemsToComplete = supportedItemRows.filter(
+    (item) => item.status !== "completed",
+  );
 
   if (itemIdsToComplete.length > 0) {
     const { error: updateError } = await input.supabase
@@ -87,6 +104,27 @@ export async function completeDailySpellingPracticeItems(
     if (updateError) {
       throw new Error("Failed to complete daily spelling practice items.");
     }
+  }
+
+  for (const item of itemsToComplete) {
+    const moveGoldenNuggetIntoForge =
+      input.moveGoldenNuggetIntoForge ??
+      moveGoldenNuggetIntoForgeFromDailyAssignmentItem;
+
+    await moveGoldenNuggetIntoForge({
+      parentUserId: input.parentUserId,
+      childId: input.childId,
+      dailyAssignmentId: input.dailyAssignmentId,
+      assignmentItemId: item.id,
+      learningItemId: item.learning_item_id,
+      targetWord: item.target_word,
+      sourceType: item.source_type,
+      sourceEntityId: item.source_entity_id,
+      metadata: {
+        assignment_item_metadata: item.metadata ?? {},
+        practice_date: input.practiceDate,
+      },
+    });
   }
 
   return {

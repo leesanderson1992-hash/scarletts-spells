@@ -45,17 +45,24 @@ function shouldExcludeField(key: string, meta?: DraftFieldMeta) {
   return false;
 }
 
-export function extractSpellcheckTextFromDraftPayload(payload: unknown) {
+export type SpellcheckSourceField = {
+  key: string;
+  text: string;
+  label: string | null;
+  type: string | null;
+};
+
+export function extractSpellcheckFieldsFromDraftPayload(payload: unknown) {
   if (!payload || typeof payload !== "object" || Array.isArray(payload)) {
-    return "";
+    return [] as SpellcheckSourceField[];
   }
 
   const draftPayload = payload as DraftPayloadWithMeta;
   const metaMap = draftPayload.__field_meta ?? {};
-  const parts: string[] = [];
+  const fields: SpellcheckSourceField[] = [];
 
   Object.entries(draftPayload).forEach(([key, rawValue]) => {
-    if (key === "__field_meta") {
+    if (key.startsWith("__")) {
       return;
     }
 
@@ -72,10 +79,22 @@ export function extractSpellcheckTextFromDraftPayload(payload: unknown) {
       return;
     }
 
-    parts.push(value);
+    fields.push({
+      key,
+      text: value,
+      label: metaMap[key]?.label ?? null,
+      type: metaMap[key]?.type ?? null,
+    });
   });
 
-  return parts.join("\n\n").trim();
+  return fields;
+}
+
+export function extractSpellcheckTextFromDraftPayload(payload: unknown) {
+  return extractSpellcheckFieldsFromDraftPayload(payload)
+    .map((field) => field.text)
+    .join("\n\n")
+    .trim();
 }
 
 export function stripNonSpellingSections(text: string) {

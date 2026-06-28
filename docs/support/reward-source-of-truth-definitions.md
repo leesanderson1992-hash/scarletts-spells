@@ -40,7 +40,7 @@ UI surfaces should **not** invent reward truth locally.
 
 ### 1. `child_word_treasures`
 
-Status: future canonical source or explicitly approved compatibility projection.
+Status: canonical Word Treasure source of truth.
 
 This is the intended source of truth for the **Word Treasure System**.
 
@@ -55,8 +55,8 @@ It should store:
 - original misspelling history where available
 - `discovered_at`
 - `entered_forge_at`
-- `forged_at`
-- `correct_authentic_uses_after_forge`
+- `golden_bar_at`
+- `authentic_correct_uses_after_forge`
 - `required_uses_for_bar`, default `5`
 
 This source should be used for:
@@ -69,6 +69,15 @@ This source should **not** be used for:
 - transferable micro-skill mastery
 - Gold Coin balances by itself
 - transfer holds
+
+Free-writing evidence for Gold Bars is a parent-confirmed path into this source.
+Lesson and test free-writing can create suspected evidence, but only parent
+confirmation records canonical events and increments
+`authentic_correct_uses_after_forge`. Retried spelling corrections, Daily
+Assignment practice, copied/prompt fields, controlled drills, and non-writing
+controls do not count. Duplicate scope is Word Treasure + task field, so a
+returned general-improvement rewrite can count only when that field has not
+already produced confirmed evidence for that treasure.
 
 ### 2. `micro_skill_levels`
 
@@ -166,7 +175,7 @@ This table should be used for:
 This table should **not** be used as the final source for:
 - the 5-authentic-use Golden Bar rule
 - `entered_forge_at`
-- `correct_authentic_uses_after_forge`
+- `authentic_correct_uses_after_forge`
 - micro-skill levels
 
 ### `spelling_reward_events`

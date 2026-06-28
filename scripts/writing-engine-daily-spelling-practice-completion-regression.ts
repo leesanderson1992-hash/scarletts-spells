@@ -61,9 +61,15 @@ function testCompletionHelperScope() {
   const source = readRepoFile(
     "lib/writing-practice/daily-spelling-practice-completion.ts",
   );
+  const wordTreasureSource = readRepoFile("lib/rewards/word-treasures.ts");
 
   assertIncludes(source, '.from("daily_assignments")', "completion helper");
   assertIncludes(source, '.from("assignment_items")', "completion helper");
+  assertIncludes(
+    source,
+    "moveGoldenNuggetIntoForgeFromDailyAssignmentItem",
+    "completion helper",
+  );
   assertIncludes(source, '.eq("parent_user_id", input.parentUserId)', "completion helper");
   assertIncludes(source, '.eq("child_id", input.childId)', "completion helper");
   assertIncludes(source, '.eq("id", input.dailyAssignmentId)', "completion helper");
@@ -73,10 +79,40 @@ function testCompletionHelperScope() {
   assertIncludes(source, 'scopedAssignment.status !== "pending"', "completion helper");
   assertIncludes(source, '.eq("domain_module", "spelling")', "completion helper");
   assertIncludes(source, '.eq("item_type", "controlled_spelling")', "completion helper");
+  assertIncludes(source, "learning_item_id", "completion helper");
+  assertIncludes(source, "target_word", "completion helper");
   assertIncludes(source, 'item.status !== "completed"', "completion helper");
   assertIncludes(source, '.update({ status: "completed" })', "completion helper");
   assertIncludes(source, ".in(\"id\", itemIdsToComplete)", "completion helper");
   assertNotIncludes(source, '.from("daily_assignments")\n      .update', "completion helper");
+
+  assertIncludes(
+    wordTreasureSource,
+    "export async function moveGoldenNuggetIntoForgeFromDailyAssignmentItem",
+    "word treasure helper",
+  );
+  assertIncludes(wordTreasureSource, '.from("child_word_treasures")', "word treasure helper");
+  assertIncludes(
+    wordTreasureSource,
+    '.from("child_word_treasure_events")',
+    "word treasure helper",
+  );
+  assertIncludes(wordTreasureSource, '.eq("status", "golden_nugget")', "word treasure helper");
+  assertIncludes(wordTreasureSource, 'status: "in_forge"', "word treasure helper");
+  assertIncludes(wordTreasureSource, 'eventType: "entered_forge"', "word treasure helper");
+  assertIncludes(
+    wordTreasureSource,
+    'sourceType: "daily_assignment_item"',
+    "word treasure helper",
+  );
+  assertNotIncludes(wordTreasureSource, '.from("spelling_reward_states")', "word treasure helper");
+  assertNotIncludes(wordTreasureSource, '.from("spelling_reward_events")', "word treasure helper");
+  assertNotIncludes(
+    wordTreasureSource,
+    '.from("child_gold_coin_ledger_events")',
+    "word treasure helper",
+  );
+  assertNotIncludes(wordTreasureSource, '.from("learning_item_evidence")', "word treasure helper");
 
   for (const forbidden of forbiddenTablesAndCalls) {
     assertNotIncludes(source, forbidden, "completion helper");

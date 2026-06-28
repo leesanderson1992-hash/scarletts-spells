@@ -47,7 +47,7 @@ testable and commit after each accepted slice.
   - parent-approved Golden Nugget creation
   - estimated child popup rewards before approval
   - Daily Assignment attempt moves Nugget into forge/workshop
-  - 5 qualifying free-writing lesson uses earn a Gold Bar
+  - 5 parent-confirmed lesson/test free-writing evidence units earn a Gold Bar
   - My Progress reads canonical Word Treasure state
   - old reward tables remain compatibility only
 - Clarify that this pulls the necessary Golden Bar evidence work forward from
@@ -130,35 +130,64 @@ testable and commit after each accepted slice.
 
 ## 3.6 Free-Writing Evidence and Gold Bars
 
-- On lesson submission only, scan authentic/original free-writing responses for
-  corrected Word Treasure words.
-- Count only uses after `entered_forge_at`.
-- Exclude returned corrections, spelling retries, daily practice, copied text,
-  controlled drills, and the original mistake-producing submission.
-- Record each qualifying use as an event and increment the treasure evidence
-  count.
-- Award `golden_bar` at 5 qualifying uses.
-- Show newly earned Gold Bars on the child submission popup.
+Status: implemented and QA-audited.
+
+- On lesson and test submission, scan authentic/original free-writing responses
+  for corrected Word Treasure words that are already `in_forge`.
+- Child submission creates suspected evidence only.
+- Parent confirmation during Review Work converts suspected evidence into
+  canonical Word Treasure evidence.
+- Use structured `block_id` as the task-field key, with
+  `legacy_submission_text` for plain submissions.
+- Duplicate scope is Word Treasure + task field; multiple occurrences in the
+  same field and later resubmissions of that same field do not create extra
+  evidence.
+- Returned general-improvement rewrites can create new suspected evidence only
+  when the Word Treasure + task-field pair has not already been confirmed.
+- Exclude returned spelling correction retry inputs, Daily Assignment practice,
+  copied/prompt fields, controlled drills, and non-writing controls.
+- Parent confirmation records `authentic_correct_use_recorded`, increments
+  `authentic_correct_uses_after_forge`, and awards `golden_bar` at 5 confirmed
+  evidence units.
+- Record `golden_bar_awarded` once per treasure.
+- Child popups may show suspected Gold Bars as estimates before review.
+- Returned-work popups may show parent-confirmed Gold Bars if the parent
+  confirmed evidence before send-back.
 - Tests:
-  - 5 qualifying lesson uses award one Gold Bar
-  - fewer than 5 do not
-  - non-lesson or retry uses do not count
-  - duplicate counting from the same submission is prevented
-- Commit: `award gold bars from free writing evidence`.
+  - `npm run word-treasure:free-writing-evidence-regression`
+  - `npm run child-completion-popup-reward-language-regression`
+  - `npx tsc --noEmit --pretty false`
+- Target commit: `award gold bars from free writing evidence`.
 
 ## 3.7 End-To-End Signoff
 
-- Add or run an E2E smoke path:
-  - parent returns misspelling
-  - child submits correction
-  - parent approves/finalises
-  - Nugget appears on My Progress
-  - Daily Assignment attempt moves it into forge/workshop
-  - five later lesson uses award Gold Bar
-  - popup and My Progress reflect the result
-- Run targeted lint/type/regression checks.
-- Document any manual browser verification.
-- Commit: `verify phase 3 word treasure lifecycle`.
+Split signoff into two layers.
+
+### 3.7A Server/Data Lifecycle Signoff
+
+Do now:
+- verify the canonical lifecycle without relying on the Daily Assignment browser
+  surface:
+  - parent finalisation creates a Nugget
+  - Daily Assignment item completion moves the Nugget into Forge
+  - parent-confirmed lesson/test free-writing evidence increments canonical
+    counts
+  - 5 confirmed task-field evidence units award one Gold Bar
+  - My Progress reads the canonical result
+- run targeted lint/type/regression checks
+- document local Supabase smoke commands and any remaining browser verification
+  gap
+
+### 3.7B Browser/UI Daily Assignment Signoff
+
+Defer until the Daily Assignment stage is active:
+- run a real child/parent browser path from generated Daily Assignment card to
+  child completion, parent finalisation/confirmation, returned-work popup, Gold
+  Bar popup language, and My Progress result
+- verify visual copy and child-facing ergonomics in the live product flow
+- close any Daily Assignment UI-specific gaps discovered during that pass
+
+Target commit: `verify phase 3 word treasure lifecycle`.
 
 ## Boundaries
 

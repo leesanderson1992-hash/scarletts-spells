@@ -76,6 +76,19 @@ export type CreateOrUpdateGoldenNuggetInput = {
   metadata?: Record<string, unknown>;
 };
 
+export type MoveGoldenNuggetIntoForgeFromDailyAssignmentItemInput = {
+  supabase?: SupabaseServerClient;
+  childId: string;
+  parentUserId: string;
+  dailyAssignmentId: string;
+  assignmentItemId: string;
+  learningItemId?: string | null;
+  targetWord?: string | null;
+  sourceType?: string | null;
+  sourceEntityId?: string | null;
+  metadata?: Record<string, unknown>;
+};
+
 export function normaliseWordTreasureWord(word: string) {
   return word.trim().toLowerCase();
 }
@@ -432,6 +445,137 @@ export async function createOrUpdateGoldenNuggetFromParentApproval(
     previousStatus: null,
     newStatus: "golden_nugget",
     metadata: baseMetadata,
+  });
+
+  return {
+    treasure,
+    eventCreated,
+    skippedReason: null,
+  };
+}
+
+export async function moveGoldenNuggetIntoForgeFromDailyAssignmentItem(
+  input: MoveGoldenNuggetIntoForgeFromDailyAssignmentItemInput,
+) {
+  const {
+    supabase: injectedSupabase,
+    childId,
+    parentUserId,
+    dailyAssignmentId,
+    assignmentItemId,
+    learningItemId,
+    targetWord,
+    sourceType,
+    sourceEntityId,
+    metadata,
+  } = input;
+  const correctedWordNormalized = normaliseWordTreasureWord(targetWord ?? "");
+
+  if (!correctedWordNormalized) {
+    return {
+      treasure: null,
+      eventCreated: false,
+      skippedReason: "missing_target_word" as const,
+    };
+  }
+
+  const supabase =
+    injectedSupabase ??
+    (await import("@/lib/supabase/service-role")).createServiceRoleClient();
+  const { data: existingTreasure, error: existingError } = await supabase
+    .from("child_word_treasures")
+    .select(WORD_TREASURE_SELECT)
+    .eq("parent_user_id", parentUserId)
+    .eq("child_id", childId)
+    .eq("corrected_word_normalized", correctedWordNormalized)
+    .maybeSingle();
+
+  if (existingError) {
+    throw existingError;
+  }
+
+  const existing = (existingTreasure as unknown as ChildWordTreasureRow | null) ?? null;
+
+  if (!existing) {
+    return {
+      treasure: null,
+      eventCreated: false,
+      skippedReason: "missing_word_treasure" as const,
+    };
+  }
+
+  if (existing.status !== "golden_nugget") {
+    return {
+      treasure: existing,
+      eventCreated: false,
+      skippedReason: "not_golden_nugget" as const,
+    };
+  }
+
+  const now = new Date().toISOString();
+  const forgeMetadata = {
+    daily_assignment_id: dailyAssignmentId,
+    assignment_item_id: assignmentItemId,
+    learning_item_id: learningItemId ?? existing.source_learning_item_id ?? null,
+    target_word: targetWord ?? existing.corrected_word,
+    assignment_source_type: sourceType ?? null,
+    assignment_source_entity_id: sourceEntityId ?? null,
+  };
+  const treasureMetadata = mergeDefined(
+    (existing.metadata ?? {}) as Record<string, unknown>,
+    {
+      ...metadata,
+      entered_forge_source: "daily_assignment_practice",
+      entered_forge_context: forgeMetadata,
+    },
+  );
+  const eventMetadata = {
+    ...metadata,
+    source: "daily_assignment_practice",
+    ...forgeMetadata,
+  };
+
+  const { data, error } = await supabase
+    .from("child_word_treasures")
+    .update({
+      status: "in_forge",
+      entered_forge_at: existing.entered_forge_at ?? now,
+      source_learning_item_id:
+        existing.source_learning_item_id ?? learningItemId ?? null,
+      metadata: treasureMetadata,
+    })
+    .eq("id", existing.id)
+    .eq("parent_user_id", parentUserId)
+    .eq("child_id", childId)
+    .eq("status", "golden_nugget")
+    .select(WORD_TREASURE_SELECT)
+    .maybeSingle();
+
+  if (error) {
+    throw error;
+  }
+
+  const treasure = (data as unknown as ChildWordTreasureRow | null) ?? null;
+
+  if (!treasure) {
+    return {
+      treasure: existing,
+      eventCreated: false,
+      skippedReason: "not_golden_nugget" as const,
+    };
+  }
+
+  const eventCreated = await insertWordTreasureEventIfMissing({
+    supabase,
+    treasureId: treasure.id,
+    childId,
+    parentUserId,
+    eventType: "entered_forge",
+    sourceType: "daily_assignment_item",
+    sourceEntityId: assignmentItemId,
+    previousStatus: existing.status,
+    newStatus: "in_forge",
+    metadata: eventMetadata,
   });
 
   return {
