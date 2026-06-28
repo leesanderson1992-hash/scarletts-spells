@@ -96,15 +96,19 @@ function LessonSubmissionCompletionModal({
   childFirstName,
   modulePath,
   rewardRows,
+  showEstimatedRewards,
 }: {
   childFirstName?: string | null;
   modulePath: string;
   rewardRows: CompletionRewardRow[];
+  showEstimatedRewards: boolean;
 }) {
   const childName = childFirstName?.trim();
-  const headline = childName
-    ? `Fantastic job, ${childName}. This Work Was Pure Gold!`
-    : "Fantastic job. This Work Was Pure Gold!";
+  const headline = showEstimatedRewards
+    ? childName
+      ? `Fantastic job, ${childName}. This Work Was Pure Gold!`
+      : "Fantastic job. This Work Was Pure Gold!"
+    : "Absolutely amazing job! You are now one step closer to achieving your goal.";
 
   return (
     <div className="fixed inset-0 z-50 grid min-h-dvh place-items-center bg-zinc-950/70 px-4 py-6 text-center backdrop-blur-sm">
@@ -115,39 +119,38 @@ function LessonSubmissionCompletionModal({
         <h2 className="mt-4 text-2xl font-black tracking-tight text-[color:var(--ink)] md:text-3xl">
           {headline}
         </h2>
-        <div className="mt-5 text-left">
-          <p className="text-center text-sm font-semibold text-[color:var(--mid)]">
-            Your estimated score
-          </p>
-          <div className="mt-3 overflow-hidden rounded-2xl border border-[var(--border)] bg-white">
-            <table className="w-full border-collapse text-left text-sm">
-              <tbody>
-                {rewardRows.map((row) => (
-                  <tr
-                    key={row.key}
-                    className="border-b border-[var(--border)] last:border-b-0"
-                  >
-                    <th className="px-4 py-3 font-semibold text-[color:var(--ink)]">
-                      <span className="inline-flex items-center gap-2">
-                        {row.icon}
-                        {row.label}
-                      </span>
-                    </th>
-                    <td className="px-4 py-3 text-right text-lg font-bold text-[color:var(--ink)]">
-                      {row.value}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+        {showEstimatedRewards ? (
+          <div className="mt-5 text-left">
+            <div className="overflow-hidden rounded-2xl border border-[var(--border)] bg-white">
+              <table className="w-full border-collapse text-left text-sm">
+                <tbody>
+                  {rewardRows.map((row) => (
+                    <tr
+                      key={row.key}
+                      className="border-b border-[var(--border)] last:border-b-0"
+                    >
+                      <th className="px-4 py-3 font-semibold text-[color:var(--ink)]">
+                        <span className="inline-flex items-center gap-2">
+                          {row.icon}
+                          {row.label}
+                        </span>
+                      </th>
+                      <td className="px-4 py-3 text-right text-lg font-bold text-[color:var(--ink)]">
+                        {row.value}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <p className="mt-3 text-center text-xs font-medium leading-5 text-[color:var(--mid)]">
+              These are estimates until your parent has approved the work.
+            </p>
           </div>
-          <p className="mt-3 text-center text-xs font-medium leading-5 text-[color:var(--mid)]">
-            These are estimates until your parent has approved the work.
-          </p>
-        </div>
+        ) : null}
         <div className="mt-6 flex flex-wrap justify-center gap-2">
           <Link href={modulePath} className="brand-primary-btn">
-            Let&apos;s Reach Our Goal
+            Let&apos;s Keep Working
           </Link>
         </div>
       </div>
@@ -405,13 +408,13 @@ export default async function LearnModuleTaskPage({
     {
       key: "gold-coins",
       label: "Gold Coins:",
-      value: `${earnedRewardCoins} estimated`,
+      value: `${earnedRewardCoins}`,
       icon: <GoldCoinIcon size="sm" />,
     },
     {
       key: "golden-nuggets",
       label: "Golden Nuggets:",
-      value: `${discoveredGoldenNuggets} estimated`,
+      value: `${discoveredGoldenNuggets}`,
       icon: <NuggetIcon size="sm" />,
     },
   ];
@@ -723,6 +726,7 @@ export default async function LearnModuleTaskPage({
         childFirstName={selectedChild.first_name}
         modulePath={modulePath}
         rewardRows={submissionCompletionRewardRows}
+        showEstimatedRewards={savedReturnedCorrection}
       />
     ) : null}
     </>

@@ -31,28 +31,53 @@ const submitSource = learnActions.slice(
 
 assert.match(
   completionModalSource,
-  /Fantastic job, \$\{childName\}\. This Work Was Pure Gold!/,
-  "Completion popup must include the child-name headline.",
+  /Absolutely amazing job! You are now one step closer to achieving your goal\./,
+  "First submission popup must use the goal-progress headline.",
 );
 assert.match(
   completionModalSource,
+  /Fantastic job, \$\{childName\}\. This Work Was Pure Gold!/,
+  "Returned resubmission popup must keep the child-name reward headline.",
+);
+assert.doesNotMatch(
+  completionModalSource,
   /Your estimated score/,
-  "Completion popup must use estimated score framing.",
+  "Completion popup must not use the estimated score heading.",
 );
 assert.match(
   rewardRowsSource,
-  /label: "Gold Coins:"[\s\S]*value: `\$\{earnedRewardCoins\} estimated`/,
-  "Gold Coins row must be present and estimated.",
+  /label: "Gold Coins:"[\s\S]*value: `\$\{earnedRewardCoins\}`/,
+  "Gold Coins row must be present with a plain number.",
 );
 assert.match(
   rewardRowsSource,
-  /label: "Golden Nuggets:"[\s\S]*value: `\$\{discoveredGoldenNuggets\} estimated`/,
-  "Golden Nuggets row must be present and estimated.",
+  /label: "Golden Nuggets:"[\s\S]*value: `\$\{discoveredGoldenNuggets\}`/,
+  "Golden Nuggets row must be present with a plain number.",
 );
 assert.match(
   completionModalSource,
   /estimates until your parent has approved the work/,
   "Approval-dependent completion values must be framed as estimates.",
+);
+assert.match(
+  completionModalSource,
+  /showEstimatedRewards \?[\s\S]*<table[\s\S]*: null/,
+  "First submission popup must not render reward rows.",
+);
+assert.match(
+  completionModalSource,
+  /Let&apos;s Keep Working/,
+  "Completion popup button must return to the module with the requested label.",
+);
+assert.match(
+  submitSource,
+  /select\("id, course_id, task_type, lesson_schema, gold_coin_reward_amount"\)/,
+  "Submit action must read the lesson's configured Gold Coin value.",
+);
+assert.match(
+  submitSource,
+  /returnedCorrectionAttemptCount > 0[\s\S]*task\.gold_coin_reward_amount \?\? 0/,
+  "Returned resubmission popup must receive the lesson's configured Gold Coin estimate.",
 );
 
 for (const forbidden of [

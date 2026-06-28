@@ -581,7 +581,7 @@ export async function submitTaskResponse(formData: FormData) {
 
   const { data: task } = await supabase
     .from("course_tasks")
-    .select("id, course_id, task_type, lesson_schema")
+    .select("id, course_id, task_type, lesson_schema, gold_coin_reward_amount")
     .eq("id", taskId)
     .eq("course_id", courseId)
     .eq("parent_user_id", user.id)
@@ -928,7 +928,11 @@ export async function submitTaskResponse(formData: FormData) {
       returnedCorrectionAttemptCount > 0
         ? "returned_correction_submission"
         : "submission",
-      returnedCorrectionAttemptCount > 0 && awardedDailyCheckInCoin ? 1 : undefined,
+      returnedCorrectionAttemptCount > 0
+        ? task.gold_coin_reward_amount ?? 0
+        : awardedDailyCheckInCoin
+          ? 1
+          : undefined,
       undefined,
       returnedGoldenNuggetsNeedingPracticeCount,
     ),

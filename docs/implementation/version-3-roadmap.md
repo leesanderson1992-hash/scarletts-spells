@@ -530,10 +530,11 @@ Boundaries:
 - no Gold Coin ledger entries beyond existing approved task/daily reward logic
 
 Tests:
-- completion popup includes `This Work Was Pure Gold`
-- popup shows `Your estimated score`
-- popup has rows for Gold Coins and Golden Nuggets
-- approval-dependent reward text is marked estimated
+- first-submission popup uses goal-progress copy without reward rows
+- returned-resubmission popup can include estimated Gold Coins and Golden
+  Nuggets
+- returned-resubmission popup has rows for Gold Coins and Golden Nuggets
+- approval-dependent reward table is framed by a single estimate note
 - popup does not mention Gold Bars or Gold Bar Progress
 - returned resubmission shows estimates only
 - child submission does not persist Word Treasure or Gold Bar evidence
