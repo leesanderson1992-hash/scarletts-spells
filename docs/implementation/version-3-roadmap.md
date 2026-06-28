@@ -13,7 +13,7 @@ ADLE remains separate from Word Treasure.
 
 ## Current stage
 
-Current Version 3.0 stage: `Phase 3.3 My Progress canonical read model complete; Phase 3.4 next`.
+Current Version 3.0 stage: `Phase 3.4 child popup reward language complete; Phase 3.5 next`.
 
 Implemented so far:
 - Phase 0 current-state audit was completed as an inspection/planning pass.
@@ -25,10 +25,11 @@ Implemented so far:
 - Phase 3.1 canonical Word Treasure storage foundation is complete.
 - Phase 3.2 parent approval durable Golden Nugget creation is complete.
 - Phase 3.3 My Progress canonical Word Treasure read model is complete.
+- Phase 3.4 child popup reward language is complete.
 - No ADLE generation has been wired into runtime assignment generation.
 
 Next safe implementation slice:
-- Phase 3.4 child popup reward language.
+- Phase 3.5 Daily Assignment moves Nuggets into Forge.
 
 ## Target architecture
 
@@ -246,7 +247,7 @@ Next step:
 <details open>
 <summary>Phase 3: Word Treasure end to end — Planned</summary>
 
-Status: `Started; Phase 3.0, Phase 3.1, Phase 3.2, and Phase 3.3 complete, Phase 3.4 next`
+Status: `Started; Phase 3.0, Phase 3.1, Phase 3.2, Phase 3.3, and Phase 3.4 complete, Phase 3.5 next`
 
 Goal:
 - implement the Word Treasure lifecycle end to end, beginning with canonical
@@ -511,6 +512,8 @@ Follow-up commits in the same close-out branch:
 
 ### Phase 3.4: Child popup reward language
 
+Status: `Complete`
+
 Scope:
 - completion-popup language and display only
 - show pending parent-review Gold Coins and Golden Nuggets as estimates only
@@ -529,6 +532,39 @@ Boundaries:
 - no `spelling_reward_states` mutation
 - no Gold Coin ledger entries beyond existing approved task/daily reward logic
 
+Implemented:
+- first child submission completion popup now uses goal-progress copy:
+  "Absolutely amazing job! You are now one step closer to achieving your goal."
+- first child submission completion popup does not show Gold Coins, Golden
+  Nuggets, Gold Bars, estimates, or reward-table language
+- returned/resubmitted work keeps the child-named "This Work Was Pure Gold"
+  popup
+- returned/resubmitted work shows a compact table with Gold Coins and Golden
+  Nuggets only
+- returned/resubmitted Gold Coins use the lesson's configured
+  `gold_coin_reward_amount` as the displayed estimate
+- table values are plain numbers; the estimate framing is a single note:
+  "These are estimates until your parent has approved the work."
+- popup presentation was polished into a higher-impact game-style modal while
+  preserving Phase 2 full-page overlay behavior
+- no Gold Bar row, icon, progress, placeholder, or promise language is shown
+- child submission remains non-durable for Word Treasure, Gold Bars, and Gold
+  Bar evidence
+
+Checks:
+- `npm run child-completion-popup-reward-language-regression`
+- `npm run writing-engine:returned-child-correction-regression`
+- `npx tsc --noEmit --pretty false`
+- targeted `npx eslint` for changed files
+- `git diff --check`
+
+Preview smoke:
+- preview branch `preview/phase-3.4-child-popup-reward-language`
+- latest Phase 3.4 visual preview:
+  `https://scarletts-spells-la5pne576-leesanderson1992-hashs-projects.vercel.app`
+- confirmed the branch-scoped Vercel `SUPABASE_SERVICE_ROLE_KEY` was required
+  for structured lesson payload persistence on the preview branch
+
 Tests:
 - first-submission popup uses goal-progress copy without reward rows
 - returned-resubmission popup can include estimated Gold Coins and Golden
@@ -542,6 +578,8 @@ Tests:
 
 Commit:
 - `clarify estimated word treasure rewards`
+- follow-up: `refine child completion popup copy`
+- follow-up: `polish completion popup presentation`
 
 ### Phase 3.5: Daily Assignment moves Nuggets into Forge
 
