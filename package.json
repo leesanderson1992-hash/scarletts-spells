@@ -90,6 +90,7 @@
     "writing-engine:daily-spelling-practice-generation-regression": "rm -rf .tmp/writing-engine-daily-spelling-practice-generation-regression && npx tsc --outDir .tmp/writing-engine-daily-spelling-practice-generation-regression --rootDir . --module commonjs --target es2022 --moduleResolution node --esModuleInterop --skipLibCheck --noEmit false scripts/writing-engine-daily-spelling-practice-generation-regression.ts && node .tmp/writing-engine-daily-spelling-practice-generation-regression/scripts/writing-engine-daily-spelling-practice-generation-regression.js",
     "writing-engine:daily-spelling-practice-generation-local-smoke": "npx tsx scripts/writing-engine-daily-spelling-practice-generation-local-smoke.ts",
     "word-treasure:daily-assignment-forge-local-smoke": "npx tsx scripts/word-treasure-daily-assignment-forge-local-smoke.ts",
+    "word-treasure:phase-3-7a-lifecycle-signoff": "npx tsx scripts/word-treasure-phase-3-7a-lifecycle-signoff.ts",
     "word-treasure:free-writing-evidence-regression": "rm -rf .tmp/word-treasure-free-writing-evidence-regression && npx tsc --outDir .tmp/word-treasure-free-writing-evidence-regression --rootDir . --module commonjs --target es2022 --moduleResolution node --esModuleInterop --skipLibCheck --noEmit false scripts/word-treasure-free-writing-evidence-regression.ts && node .tmp/word-treasure-free-writing-evidence-regression/scripts/word-treasure-free-writing-evidence-regression.js"
   },
   "dependencies": {

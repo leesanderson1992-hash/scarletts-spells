@@ -757,6 +757,73 @@ Scope:
 - run targeted lint/type/regression checks
 - document local Supabase smoke commands and any remaining UI verification gap
 
+Implemented:
+- added `scripts/word-treasure-phase-3-7a-lifecycle-signoff.ts`
+- added `npm run word-treasure:phase-3-7a-lifecycle-signoff`
+- added a local-only guard requiring
+  `--confirm LOCAL_WORD_TREASURE_PHASE_3_7A`
+- the signoff refuses hosted Supabase URLs and only accepts
+  `http://127.0.0.1:54321` or `http://localhost:54321`
+- the signoff seeds disposable local parent/child/course/task data, creates a
+  parent-finalised spelling issue, creates the canonical Golden Nugget, moves it
+  into Forge through Daily Assignment item completion, detects and confirms
+  lesson/test free-writing evidence, verifies duplicate task-field behavior,
+  verifies the fifth confirmed unit awards one Gold Bar, and verifies the My
+  Progress canonical read model reports the Gold Bar
+- added `20260628130000_allow_text_word_treasure_event_sources.sql` so
+  `child_word_treasure_events.source_entity_id` can store stable task-field
+  source keys such as `task_id:block_id`
+- `createOrUpdateGoldenNuggetFromParentApproval` now accepts an optional
+  injected Supabase client, matching the existing Forge helper pattern and
+  allowing local scripts to exercise the helper without importing the
+  server-only app client
+
+Command:
+- `npm run word-treasure:phase-3-7a-lifecycle-signoff -- --confirm LOCAL_WORD_TREASURE_PHASE_3_7A`
+
+Assertions covered by the script:
+- parent finalisation creates exactly one `golden_nugget_created` event
+- Daily Assignment completion moves `golden_nugget` to `in_forge` and records
+  exactly one `entered_forge` event
+- returned spelling correction retry metadata creates no free-writing evidence
+- one task field with multiple occurrences creates one candidate/evidence unit
+- lesson and test free-writing submissions create suspected candidates
+- parent confirmation creates exactly one
+  `authentic_correct_use_recorded` event per unique task field
+- same Word Treasure + same task field across resubmissions is a duplicate
+- repeated confirmation does not increment canonical evidence
+- the fifth confirmed evidence unit records exactly one `golden_bar_awarded`
+  event and moves the treasure to `golden_bar`
+- evidence confirmation does not write `spelling_reward_states`,
+  `spelling_reward_events`, `learning_item_evidence`, or
+  `child_gold_coin_ledger_events`
+- evidence confirmation does not infer micro-skill mastery
+- My Progress reads the canonical Gold Bar result
+
+Verification status:
+- `npx tsc --noEmit --pretty false` passes
+- `npm run word-treasure:free-writing-evidence-regression` passes
+- `npm run child-completion-popup-reward-language-regression` passes
+- `npx tsx scripts/word-treasure-my-progress-read-model-regression.ts` passes
+- `git diff --check` passes
+- fallback Vercel preview build passed:
+  `https://scarletts-spells-a21fxeaak-leesanderson1992-hashs-projects.vercel.app`
+- fallback preview route smoke was limited because Vercel SSO protection returns
+  `302` to `https://vercel.com/sso-api` for root, `/login`, and `/learn`
+- local Supabase migration
+  `20260628130000_allow_text_word_treasure_event_sources.sql` applied once with
+  `npx supabase migration up --local`
+- the 3.7A local smoke is not yet accepted because local Supabase Postgres
+  became unhealthy during verification; Auth returned repeat 504/ECONNRESET
+  errors and `supabase db reset` later exited with
+  `supabase_db_scarletts-spells container is not ready: unhealthy`
+- rerun the acceptance command after local Supabase is healthy
+
+Residual risk:
+- browser-level Daily Assignment/product journey remains deferred to 3.7B
+- 3.7A is not closed until the local smoke and the remaining listed regressions
+  pass on a healthy local Supabase stack
+
 3.7B browser/UI signoff when Daily Assignment stage begins:
 - run a real child/parent browser path from generated Daily Assignment card to
   child completion, parent finalisation/confirmation, returned-work popup, Gold

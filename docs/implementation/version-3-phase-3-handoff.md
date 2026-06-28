@@ -165,7 +165,19 @@ Split signoff into two layers.
 
 ### 3.7A Server/Data Lifecycle Signoff
 
-Do now:
+Status: implemented, verification pending healthy local Supabase.
+
+Implemented:
+- `scripts/word-treasure-phase-3-7a-lifecycle-signoff.ts`
+- `npm run word-treasure:phase-3-7a-lifecycle-signoff`
+- local-only command guard:
+  `--confirm LOCAL_WORD_TREASURE_PHASE_3_7A`
+- hosted Supabase refusal; only `http://127.0.0.1:54321` and
+  `http://localhost:54321` are allowed
+- text-capable Word Treasure event source IDs via
+  `20260628130000_allow_text_word_treasure_event_sources.sql`
+
+Purpose:
 - verify the canonical lifecycle without relying on the Daily Assignment browser
   surface:
   - parent finalisation creates a Nugget
@@ -174,9 +186,34 @@ Do now:
     counts
   - 5 confirmed task-field evidence units award one Gold Bar
   - My Progress reads the canonical result
-- run targeted lint/type/regression checks
-- document local Supabase smoke commands and any remaining browser verification
-  gap
+
+Run:
+- `npm run word-treasure:phase-3-7a-lifecycle-signoff -- --confirm LOCAL_WORD_TREASURE_PHASE_3_7A`
+
+Acceptance still requires:
+- `npx tsc --noEmit --pretty false`
+- `npm run word-treasure:phase-3-7a-lifecycle-signoff -- --confirm LOCAL_WORD_TREASURE_PHASE_3_7A`
+- `npm run word-treasure:free-writing-evidence-regression`
+- `npm run child-completion-popup-reward-language-regression`
+- `npx tsx scripts/word-treasure-my-progress-read-model-regression.ts`
+- `git diff --check`
+
+Current verification note:
+- TypeScript passed after implementation.
+- Focused Phase 3.6/3.7 static regressions passed:
+  - `npm run word-treasure:free-writing-evidence-regression`
+  - `npm run child-completion-popup-reward-language-regression`
+  - `npx tsx scripts/word-treasure-my-progress-read-model-regression.ts`
+  - `git diff --check`
+- Fallback Vercel preview build passed:
+  `https://scarletts-spells-a21fxeaak-leesanderson1992-hashs-projects.vercel.app`
+- Fallback preview route smoke was limited because Vercel SSO protection returns
+  `302` to `https://vercel.com/sso-api` for root, `/login`, and `/learn`.
+- The local smoke is blocked by local Supabase DB health, not by a lifecycle
+  assertion. Auth returned repeat 504/ECONNRESET errors while creating the
+  disposable local user, and `npx supabase db reset` later exited because
+  `supabase_db_scarletts-spells` was unhealthy.
+- Rerun the acceptance list once local Supabase Postgres is healthy.
 
 ### 3.7B Browser/UI Daily Assignment Signoff
 

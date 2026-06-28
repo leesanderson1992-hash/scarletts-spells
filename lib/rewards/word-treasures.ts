@@ -62,6 +62,7 @@ export type ChildWordTreasureEventRow = {
 };
 
 export type CreateOrUpdateGoldenNuggetInput = {
+  supabase?: SupabaseServerClient;
   childId: string;
   parentUserId: string;
   correctedWord: string;
@@ -313,8 +314,8 @@ async function insertWordTreasureEventIfMissing(input: {
 export async function createOrUpdateGoldenNuggetFromParentApproval(
   input: CreateOrUpdateGoldenNuggetInput,
 ) {
-  const { createServiceRoleClient } = await import("@/lib/supabase/service-role");
   const {
+    supabase: injectedSupabase,
     childId,
     parentUserId,
     correctedWord,
@@ -328,7 +329,9 @@ export async function createOrUpdateGoldenNuggetFromParentApproval(
     correctionAttemptedAt,
     metadata,
   } = input;
-  const supabase = createServiceRoleClient();
+  const supabase =
+    injectedSupabase ??
+    (await import("@/lib/supabase/service-role")).createServiceRoleClient();
   const safeCorrectedWord = correctedWord.trim();
   const correctedWordNormalized = normaliseWordTreasureWord(safeCorrectedWord);
 
