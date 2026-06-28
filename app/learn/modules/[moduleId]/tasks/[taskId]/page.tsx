@@ -6,7 +6,7 @@ import { AppShell } from "@/components/app-shell";
 import { PreSubmitChecklist } from "@/components/pre-submit-checklist";
 import { ReturnedIssueRetryControls } from "@/components/returned-issue-retry-controls";
 import { RewardCelebration } from "@/components/reward-celebration";
-import { GoldBarIcon, GoldCoinIcon, NuggetIcon } from "@/components/reward-icons";
+import { GoldCoinIcon, NuggetIcon } from "@/components/reward-icons";
 import { StructuredLessonResponse as StructuredLessonResponseForm } from "@/components/structured-lesson-response";
 import {
   buildScopedPath,
@@ -63,7 +63,6 @@ type LearnModuleTaskPageProps = {
     reward_coins?: string;
     focus_near_reward_coins?: string;
     golden_nuggets?: string;
-    gold_bar_evidence?: string;
   }>;
 };
 
@@ -94,12 +93,19 @@ type CompletionRewardRow = {
 };
 
 function LessonSubmissionCompletionModal({
+  childFirstName,
   modulePath,
   rewardRows,
 }: {
+  childFirstName?: string | null;
   modulePath: string;
   rewardRows: CompletionRewardRow[];
 }) {
+  const childName = childFirstName?.trim();
+  const headline = childName
+    ? `Fantastic job, ${childName}. This Work Was Pure Gold!`
+    : "Fantastic job. This Work Was Pure Gold!";
+
   return (
     <div className="fixed inset-0 z-50 grid min-h-dvh place-items-center bg-zinc-950/70 px-4 py-6 text-center backdrop-blur-sm">
       <div className="w-full max-w-xl overflow-hidden rounded-[2rem] border border-white/70 bg-white px-5 py-6 shadow-[0_30px_90px_rgba(0,0,0,0.3)] md:px-8 md:py-8">
@@ -107,37 +113,38 @@ function LessonSubmissionCompletionModal({
           <NuggetIcon size="lg" className="scale-125" />
         </div>
         <h2 className="mt-4 text-2xl font-black tracking-tight text-[color:var(--ink)] md:text-3xl">
-          Amazing job! Your work was submitted.
+          {headline}
         </h2>
-        {rewardRows.length > 0 ? (
-          <div className="mt-5 text-left">
-            <p className="text-center text-sm font-semibold text-[color:var(--mid)]">
-              This work earned you:
-            </p>
-            <div className="mt-3 overflow-hidden rounded-2xl border border-[var(--border)] bg-white">
-              <table className="w-full border-collapse text-left text-sm">
-                <tbody>
-                  {rewardRows.map((row) => (
-                    <tr
-                      key={row.key}
-                      className="border-b border-[var(--border)] last:border-b-0"
-                    >
-                      <th className="px-4 py-3 font-semibold text-[color:var(--ink)]">
-                        <span className="inline-flex items-center gap-2">
-                          {row.icon}
-                          {row.label}
-                        </span>
-                      </th>
-                      <td className="px-4 py-3 text-right text-lg font-bold text-[color:var(--ink)]">
-                        {row.value}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+        <div className="mt-5 text-left">
+          <p className="text-center text-sm font-semibold text-[color:var(--mid)]">
+            Your estimated score
+          </p>
+          <div className="mt-3 overflow-hidden rounded-2xl border border-[var(--border)] bg-white">
+            <table className="w-full border-collapse text-left text-sm">
+              <tbody>
+                {rewardRows.map((row) => (
+                  <tr
+                    key={row.key}
+                    className="border-b border-[var(--border)] last:border-b-0"
+                  >
+                    <th className="px-4 py-3 font-semibold text-[color:var(--ink)]">
+                      <span className="inline-flex items-center gap-2">
+                        {row.icon}
+                        {row.label}
+                      </span>
+                    </th>
+                    <td className="px-4 py-3 text-right text-lg font-bold text-[color:var(--ink)]">
+                      {row.value}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
-        ) : null}
+          <p className="mt-3 text-center text-xs font-medium leading-5 text-[color:var(--mid)]">
+            These are estimates until your parent has approved the work.
+          </p>
+        </div>
         <div className="mt-6 flex flex-wrap justify-center gap-2">
           <Link href={modulePath} className="brand-primary-btn">
             Let&apos;s Reach Our Goal
@@ -394,45 +401,19 @@ export default async function LearnModuleTaskPage({
     Number.isInteger(goldenNuggetCount) && goldenNuggetCount > 0
       ? goldenNuggetCount
       : 0;
-  const goldBarEvidenceCount =
-    typeof resolvedSearchParams?.gold_bar_evidence === "string"
-      ? Number(resolvedSearchParams.gold_bar_evidence)
-      : 0;
-  const earnedGoldBarEvidence =
-    Number.isInteger(goldBarEvidenceCount) && goldBarEvidenceCount > 0
-      ? goldBarEvidenceCount
-      : 0;
   const submissionCompletionRewardRows = [
-    ...(earnedRewardCoins > 0
-      ? [
-          {
-            key: "gold-coins",
-            label: "Gold Coins",
-            value: `${earnedRewardCoins}`,
-            icon: <GoldCoinIcon size="sm" />,
-          },
-        ]
-      : []),
-    ...(discoveredGoldenNuggets > 0
-      ? [
-          {
-            key: "golden-nuggets",
-            label: "Golden Nuggets",
-            value: `${discoveredGoldenNuggets}`,
-            icon: <NuggetIcon size="sm" />,
-          },
-        ]
-      : []),
-    ...(earnedGoldBarEvidence > 0
-      ? [
-          {
-            key: "gold-bar-evidence",
-            label: "Gold Bar Evidence",
-            value: `${earnedGoldBarEvidence}`,
-            icon: <GoldBarIcon size="sm" />,
-          },
-        ]
-      : []),
+    {
+      key: "gold-coins",
+      label: "Gold Coins:",
+      value: `${earnedRewardCoins} estimated`,
+      icon: <GoldCoinIcon size="sm" />,
+    },
+    {
+      key: "golden-nuggets",
+      label: "Golden Nuggets:",
+      value: `${discoveredGoldenNuggets} estimated`,
+      icon: <NuggetIcon size="sm" />,
+    },
   ];
   const savedReturnedCorrection =
     resolvedSearchParams?.saved === "returned_correction_submission";
@@ -739,6 +720,7 @@ export default async function LearnModuleTaskPage({
     </AppShell>
     {showSubmissionCompletionModal ? (
       <LessonSubmissionCompletionModal
+        childFirstName={selectedChild.first_name}
         modulePath={modulePath}
         rewardRows={submissionCompletionRewardRows}
       />

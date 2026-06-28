@@ -339,6 +339,12 @@ Important:
 Task reward rules define how tasks interact with the reward system.
 These are separate from Word Treasure and micro-skill levels.
 
+Child-facing completion popups may show estimated reward progress immediately
+after child submission. Any approval-dependent Gold Coins or Word Treasure
+values in that moment must be labelled or framed as estimates. Durable reward
+truth still depends on parent approval and the canonical reward/evidence
+sources defined in this contract.
+
 Allowed task reward rules:
 
 ### Progress only

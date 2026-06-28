@@ -512,17 +512,31 @@ Follow-up commits in the same close-out branch:
 ### Phase 3.4: Child popup reward language
 
 Scope:
-- show pending parent-review Nuggets and Coins as estimates only
+- completion-popup language and display only
+- show pending parent-review Gold Coins and Golden Nuggets as estimates only
 - avoid showing durable Nuggets as already earned before approval
-- show actual Gold Bar rows only when a Gold Bar is newly earned
+- intentionally defer Gold Bar display until real Gold Bar evidence exists in a
+  later phase
 - preserve Phase 2 full-page overlay behavior
-- keep current encouraging copy and include a very small
-  "*once parent has approved" note at the bottom where rewards depend on
-  approval
+- keep current encouraging, no-shame completion framing
+- do not write durable reward state from child submission alone
+
+Boundaries:
+- no Gold Bar row, progress, placeholder, icon, or "coming soon" language in
+  the child popup
+- no Gold Bar evidence counting
+- no Word Treasure storage mutation from child submission alone
+- no `spelling_reward_states` mutation
+- no Gold Coin ledger entries beyond existing approved task/daily reward logic
 
 Tests:
+- completion popup includes `This Work Was Pure Gold`
+- popup shows `Your estimated score`
+- popup has rows for Gold Coins and Golden Nuggets
+- approval-dependent reward text is marked estimated
+- popup does not mention Gold Bars or Gold Bar Progress
 - returned resubmission shows estimates only
-- approval-dependent rewards are not persisted from child retry
+- child submission does not persist Word Treasure or Gold Bar evidence
 - copy avoids shame/failure wording
 
 Commit:
