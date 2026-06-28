@@ -111,47 +111,75 @@ function LessonSubmissionCompletionModal({
     : "Absolutely amazing job! You are now one step closer to achieving your goal.";
 
   return (
-    <div className="fixed inset-0 z-50 grid min-h-dvh place-items-center bg-zinc-950/70 px-4 py-6 text-center backdrop-blur-sm">
-      <div className="w-full max-w-xl overflow-hidden rounded-[2rem] border border-white/70 bg-white px-5 py-6 shadow-[0_30px_90px_rgba(0,0,0,0.3)] md:px-8 md:py-8">
-        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full border border-amber-200 bg-amber-50 shadow-sm">
-          <NuggetIcon size="lg" className="scale-125" />
-        </div>
-        <h2 className="mt-4 text-2xl font-black tracking-tight text-[color:var(--ink)] md:text-3xl">
-          {headline}
-        </h2>
-        {showEstimatedRewards ? (
-          <div className="mt-5 text-left">
-            <div className="overflow-hidden rounded-2xl border border-[var(--border)] bg-white">
-              <table className="w-full border-collapse text-left text-sm">
-                <tbody>
-                  {rewardRows.map((row) => (
-                    <tr
-                      key={row.key}
-                      className="border-b border-[var(--border)] last:border-b-0"
-                    >
-                      <th className="px-4 py-3 font-semibold text-[color:var(--ink)]">
-                        <span className="inline-flex items-center gap-2">
-                          {row.icon}
-                          {row.label}
-                        </span>
-                      </th>
-                      <td className="px-4 py-3 text-right text-lg font-bold text-[color:var(--ink)]">
-                        {row.value}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+    <div className="fixed inset-0 z-50 grid min-h-dvh place-items-center overflow-hidden bg-[radial-gradient(circle_at_50%_18%,rgba(255,245,194,0.18),transparent_32%),linear-gradient(135deg,rgba(24,17,38,0.94),rgba(13,44,50,0.9)_46%,rgba(26,19,35,0.94))] px-4 py-6 text-center backdrop-blur-md">
+      <div className="absolute inset-x-0 top-0 h-px bg-[linear-gradient(90deg,transparent,rgba(255,235,170,0.88),transparent)]" />
+      <div className="absolute inset-x-0 bottom-0 h-px bg-[linear-gradient(90deg,transparent,rgba(188,240,218,0.68),transparent)]" />
+      <div className="absolute left-1/2 top-1/2 h-[150vmax] w-[150vmax] -translate-x-1/2 -translate-y-1/2 bg-[conic-gradient(from_0deg,transparent_0deg,rgba(255,236,178,0.13)_10deg,transparent_22deg,transparent_58deg,rgba(174,252,226,0.1)_70deg,transparent_84deg)] opacity-70" />
+      <div className="relative w-full max-w-xl rounded-[2rem] border border-[rgba(255,238,184,0.55)] bg-[linear-gradient(135deg,rgba(255,255,255,0.98),rgba(255,249,231,0.98)_46%,rgba(239,253,247,0.97))] p-px shadow-[0_34px_110px_rgba(0,0,0,0.46),0_0_44px_rgba(245,190,57,0.2)]">
+        <div className="relative overflow-hidden rounded-[calc(2rem-1px)] px-5 py-6 md:px-8 md:py-8">
+          <div className="absolute inset-x-0 top-0 h-2 bg-[linear-gradient(90deg,#9f6400,#fff0b6,#c2185b,#9de8ce,#9f6400)]" />
+          <div className="absolute inset-x-10 top-8 h-px bg-[linear-gradient(90deg,transparent,rgba(159,100,0,0.28),transparent)]" />
+          <div className="absolute inset-x-10 bottom-8 h-px bg-[linear-gradient(90deg,transparent,rgba(16,185,129,0.22),transparent)]" />
+          <div className="absolute left-5 top-5 h-3 w-3 rotate-45 border-l border-t border-amber-300" />
+          <div className="absolute right-5 top-5 h-3 w-3 rotate-45 border-r border-t border-emerald-300" />
+          <div className="absolute bottom-5 left-5 h-3 w-3 rotate-45 border-b border-l border-pink-300" />
+          <div className="absolute bottom-5 right-5 h-3 w-3 rotate-45 border-b border-r border-amber-300" />
+          <div className="relative">
+            <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-[1.6rem] border border-[rgba(255,235,170,0.9)] bg-[linear-gradient(145deg,#fff8d7,#f5be39_46%,#b98207)] shadow-[0_18px_36px_rgba(159,100,0,0.24),inset_0_2px_8px_rgba(255,255,255,0.9),inset_0_-5px_12px_rgba(122,78,0,0.22)]">
+              <div className="flex h-14 w-14 items-center justify-center rounded-[1.2rem] border border-white/70 bg-[rgba(255,255,255,0.34)] shadow-[inset_0_1px_8px_rgba(255,255,255,0.65)]">
+                {showEstimatedRewards ? (
+                  <NuggetIcon size="lg" className="scale-150 shadow-[0_0_18px_rgba(245,190,57,0.42)]" />
+                ) : (
+                  <span className="text-xl font-black text-[#7a4f00] drop-shadow-[0_1px_0_rgba(255,255,255,0.55)]">
+                    SS
+                  </span>
+                )}
+              </div>
             </div>
-            <p className="mt-3 text-center text-xs font-medium leading-5 text-[color:var(--mid)]">
-              These are estimates until your parent has approved the work.
-            </p>
+            <div className="mx-auto mt-4 h-px w-36 bg-[linear-gradient(90deg,transparent,#f5be39,transparent)]" />
+            <h2 className="mx-auto mt-4 max-w-lg text-balance text-2xl font-black leading-tight tracking-tight text-[color:var(--ink)] md:text-3xl">
+              {headline}
+            </h2>
+            {showEstimatedRewards ? (
+              <div className="mx-auto mt-5 max-w-md text-left">
+                <div className="overflow-hidden rounded-[1.35rem] border border-[rgba(159,100,0,0.24)] bg-[linear-gradient(180deg,rgba(255,255,255,0.98),rgba(255,248,222,0.9))] shadow-[0_16px_34px_rgba(16,24,40,0.1),inset_0_1px_0_rgba(255,255,255,0.9)]">
+                  <table className="w-full border-collapse text-left text-sm">
+                    <tbody>
+                      {rewardRows.map((row) => (
+                        <tr
+                          key={row.key}
+                          className="border-b border-[rgba(159,100,0,0.14)] last:border-b-0"
+                        >
+                          <th className="px-4 py-3.5 font-black text-[color:var(--ink)]">
+                            <span className="inline-flex items-center gap-2">
+                              <span className="flex h-7 w-7 items-center justify-center rounded-full border border-amber-200 bg-white shadow-sm">
+                                {row.icon}
+                              </span>
+                              {row.label}
+                            </span>
+                          </th>
+                          <td className="px-4 py-3.5 text-right text-2xl font-black text-[#9f6400]">
+                            {row.value}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                <p className="mt-3 text-center text-xs font-semibold leading-5 text-[color:var(--mid)]">
+                  These are estimates until your parent has approved the work.
+                </p>
+              </div>
+            ) : null}
+            <div className="mt-6 flex flex-wrap justify-center gap-2">
+              <Link
+                href={modulePath}
+                className="inline-flex min-h-12 items-center justify-center rounded-full border border-[rgba(255,235,170,0.9)] bg-[linear-gradient(135deg,#c2185b,#9f2d72_46%,#0f8b74)] px-6 py-3 text-sm font-black text-white shadow-[0_16px_30px_rgba(194,24,91,0.24),inset_0_1px_0_rgba(255,255,255,0.35)] transition hover:-translate-y-0.5 hover:shadow-[0_20px_36px_rgba(15,139,116,0.26),inset_0_1px_0_rgba(255,255,255,0.38)]"
+              >
+                Let&apos;s Keep Working
+              </Link>
+            </div>
           </div>
-        ) : null}
-        <div className="mt-6 flex flex-wrap justify-center gap-2">
-          <Link href={modulePath} className="brand-primary-btn">
-            Let&apos;s Keep Working
-          </Link>
         </div>
       </div>
     </div>
