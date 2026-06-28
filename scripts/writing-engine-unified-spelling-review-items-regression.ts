@@ -964,13 +964,13 @@ const terminalRows: UnifiedSpellingReviewItem[] = [
   terminalNoAttemptReturnedRow,
 ];
 const terminalSummary = summarizeUnifiedSpellingReviewCompletion(terminalRows);
-assert.equal(terminalSummary.canComplete, false);
-assert.equal(terminalSummary.unresolvedItemCount, 1);
-assert.equal(terminalSummary.unresolvedReturnedCorrectionCount, 1);
-assert.match(
+assert.equal(terminalSummary.canComplete, true);
+assert.equal(terminalSummary.unresolvedItemCount, 0);
+assert.equal(terminalSummary.unresolvedReturnedCorrectionCount, 0);
+assert.doesNotMatch(
   terminalSummary.blockingReasons.join(" "),
   /deferred because no active assignable learning route is available yet/,
-  "Admin-deferred returned learning gaps must not complete as ordinary terminal rows.",
+  "Admin-deferred returned learning gaps with a saved reason should not block approval.",
 );
 assert.equal(
   terminalRows.some(
@@ -1032,8 +1032,8 @@ const unsupportedReturnedSummary = summarizeUnifiedSpellingReviewCompletion([
     categorisationStatus: "unsupported_returned_correction_route",
   },
 ]);
-assert.equal(unsupportedReturnedSummary.canComplete, false);
-assert.equal(unsupportedReturnedSummary.deferredUnsupportedRouteCount, 1);
+assert.equal(unsupportedReturnedSummary.canComplete, true);
+assert.equal(unsupportedReturnedSummary.deferredUnsupportedRouteCount, 0);
 
 const adminDeferredReturnedSummary = summarizeUnifiedSpellingReviewCompletion([
   {
@@ -1043,12 +1043,12 @@ const adminDeferredReturnedSummary = summarizeUnifiedSpellingReviewCompletion([
     categorisationStatus: "sent_to_admin",
   },
 ]);
-assert.equal(adminDeferredReturnedSummary.canComplete, false);
-assert.equal(adminDeferredReturnedSummary.deferredUnsupportedRouteCount, 1);
-assert.match(
+assert.equal(adminDeferredReturnedSummary.canComplete, true);
+assert.equal(adminDeferredReturnedSummary.deferredUnsupportedRouteCount, 0);
+assert.doesNotMatch(
   adminDeferredReturnedSummary.blockingReasons.join(" "),
   /deferred because no active assignable learning route is available yet/,
-  "Admin-deferred returned learning gaps must block ordinary approval without implying learning queue creation.",
+  "Admin-deferred returned learning gaps with a saved reason should not block ordinary approval.",
 );
 
 const routableReturnedSummary = summarizeUnifiedSpellingReviewCompletion([
@@ -1185,6 +1185,30 @@ function createReadOnlyStage2aFakeSupabase() {
         display_name: "Missing final e",
         allowed_template_keys: [],
         metadata: { recommendation_features: ["missing_final_e", "final e"] },
+      },
+      {
+        micro_skill_key: "d4.business_spelling_pattern",
+        mastery_domain_key: "D4",
+        skill_family_key: "spelling-patterns",
+        skill_cluster_key: "spelling-patterns.business",
+        practice_route: "word_practice",
+        is_assignable: true,
+        is_active: true,
+        display_name: "Business spelling pattern",
+        allowed_template_keys: [],
+        metadata: { recommendation_features: ["business", "buisness"] },
+      },
+      {
+        micro_skill_key: "d4.fly_spelling_pattern",
+        mastery_domain_key: "D4",
+        skill_family_key: "spelling-patterns",
+        skill_cluster_key: "spelling-patterns.fly",
+        practice_route: "word_practice",
+        is_assignable: true,
+        is_active: true,
+        display_name: "Fly spelling pattern",
+        allowed_template_keys: [],
+        metadata: { recommendation_features: ["fly", "fli"] },
       },
     ],
     spelling_canonical_mappings: [
@@ -1343,8 +1367,64 @@ async function runStage2aRecommendationAttachmentRegression() {
       canonicalRecommendationStatus: null,
     },
   };
+  const returnedCanonicalMatchRow: UnifiedSpellingReviewItem = {
+    ...stage2aRecommendationBaseRow,
+    id: "returned:issue-stage2a-child-responded:attempt-stage2a",
+    source: "returned_correction",
+    state: "child_responded",
+    categorisationStatus: "not_applicable",
+    observedText: "buisness",
+    expectedCorrection: "business",
+    suggestedMicroSkillKey: null,
+    verifiedMicroSkillKey: null,
+    microSkillKey: null,
+    microSkillRecommendation: null,
+    sourceIds: {
+      ...stage2aRecommendationBaseRow.sourceIds,
+      misspellingInstanceId: "miss-stage2a-returned",
+      writingIssueSuggestionId: null,
+      parentVerificationId: null,
+      writingIssueId: null,
+      originalWritingIssueId: "issue-stage2a-child-responded",
+      correctionAttemptId: "attempt-stage2a",
+      catalogReviewCaseId: null,
+      candidateMappingId: null,
+      canonicalRecommendationId: null,
+      canonicalRecommendationStatus: null,
+    },
+  };
+  const returnedWordMapMatchRow: UnifiedSpellingReviewItem = {
+    ...stage2aRecommendationBaseRow,
+    id: "returned:issue-stage2a-word-map:attempt-stage2a-word-map",
+    source: "returned_correction",
+    state: "child_responded",
+    categorisationStatus: "not_applicable",
+    observedText: "fli",
+    expectedCorrection: "fly",
+    suggestedMicroSkillKey: null,
+    verifiedMicroSkillKey: null,
+    microSkillKey: null,
+    microSkillRecommendation: null,
+    sourceIds: {
+      ...stage2aRecommendationBaseRow.sourceIds,
+      misspellingInstanceId: "miss-stage2a-returned-word-map",
+      writingIssueSuggestionId: null,
+      parentVerificationId: null,
+      writingIssueId: null,
+      originalWritingIssueId: "issue-stage2a-word-map",
+      correctionAttemptId: "attempt-stage2a-word-map",
+      catalogReviewCaseId: null,
+      candidateMappingId: null,
+      canonicalRecommendationId: null,
+      canonicalRecommendationStatus: null,
+    },
+  };
   const fakeSupabase = createReadOnlyStage2aFakeSupabase();
   const canonicalLookupCalls: Array<{
+    misspellingNormalized: string | null | undefined;
+    correctSpellingNormalized: string | null | undefined;
+  }> = [];
+  const canonicalWordMapLookupCalls: Array<{
     misspellingNormalized: string | null | undefined;
     correctSpellingNormalized: string | null | undefined;
   }> = [];
@@ -1354,6 +1434,8 @@ async function runStage2aRecommendationAttachmentRegression() {
       rows: [
         openRecommendationRow,
         parentLocalReuseRow,
+        returnedCanonicalMatchRow,
+        returnedWordMapMatchRow,
         stage2aExistingDecisionRow,
       ],
       parentUserId: "parent-current",
@@ -1375,6 +1457,45 @@ async function runStage2aRecommendationAttachmentRegression() {
           }];
         }
 
+        if (
+          input.misspellingNormalized === "buisness" &&
+          input.correctSpellingNormalized === "business"
+        ) {
+          return [{
+            mappingId: "canonical-hidden-buisness-business",
+            misspellingNormalized: "buisness",
+            correctSpellingNormalized: "business",
+            microSkillKey: "d4.business_spelling_pattern",
+            resolverVisibilityStatus: "hidden",
+          }];
+        }
+
+        return [];
+      },
+      canonicalWordMapLookup: async (input) => {
+        canonicalWordMapLookupCalls.push(input);
+
+        if (
+          input.misspellingNormalized === "fli" &&
+          input.correctSpellingNormalized === "fly"
+        ) {
+          return [
+            {
+              sourceId: "word-map-diagnostic-fli-fly",
+              misspellingNormalized: "fli",
+              correctSpellingNormalized: "fly",
+              microSkillKey: "d4.fly_spelling_pattern",
+              confidence: "high",
+            },
+            {
+              sourceId: "word-map-fly",
+              wordNormalized: "fly",
+              microSkillKey: "d4.fly_spelling_pattern",
+              confidence: "medium",
+            },
+          ];
+        }
+
         return [];
       },
     });
@@ -1386,6 +1507,12 @@ async function runStage2aRecommendationAttachmentRegression() {
   );
   const attachedParentLocalReuseRow = attachedRows.find(
     (row) => row.id === parentLocalReuseRow.id,
+  );
+  const attachedReturnedCanonicalMatchRow = attachedRows.find(
+    (row) => row.id === returnedCanonicalMatchRow.id,
+  );
+  const attachedReturnedWordMapMatchRow = attachedRows.find(
+    (row) => row.id === returnedWordMapMatchRow.id,
   );
 
   assert.ok(attachedRecommendationRow, "Recommendation row should be returned.");
@@ -1427,6 +1554,40 @@ async function runStage2aRecommendationAttachmentRegression() {
     attachedParentLocalReuseRow.microSkillRecommendation?.isPrefillAllowed,
     true,
   );
+  assert.ok(
+    attachedReturnedCanonicalMatchRow,
+    "Returned child-response row should be returned.",
+  );
+  assert.equal(
+    attachedReturnedCanonicalMatchRow.microSkillRecommendation?.recommendationAuthority,
+    "known_match",
+  );
+  assert.equal(
+    attachedReturnedCanonicalMatchRow.microSkillRecommendation?.recommendedMicroSkillKey,
+    "d4.business_spelling_pattern",
+  );
+  assert.equal(
+    attachedReturnedCanonicalMatchRow.microSkillRecommendation?.isPrefillAllowed,
+    true,
+    "A returned child response awaiting parent outcome should show the canonical exact-pair match without completing the review.",
+  );
+  assert.ok(
+    attachedReturnedWordMapMatchRow,
+    "Returned word-map row should be returned.",
+  );
+  assert.equal(
+    attachedReturnedWordMapMatchRow.microSkillRecommendation?.recommendationAuthority,
+    "possible_match",
+  );
+  assert.equal(
+    attachedReturnedWordMapMatchRow.microSkillRecommendation?.recommendedMicroSkillKey,
+    "d4.fly_spelling_pattern",
+  );
+  assert.equal(
+    attachedReturnedWordMapMatchRow.microSkillRecommendation?.isPrefillAllowed,
+    true,
+    "Trusted canonical word-map metadata should support returned rows when exact mappings are absent.",
+  );
   assert.equal(
     attachedExistingDecisionRow?.microSkillRecommendation,
     null,
@@ -1448,8 +1609,38 @@ async function runStage2aRecommendationAttachmentRegression() {
         misspellingNormalized: "lik",
         correctSpellingNormalized: "like",
       },
+      {
+        misspellingNormalized: "buisness",
+        correctSpellingNormalized: "business",
+      },
+      {
+        misspellingNormalized: "fli",
+        correctSpellingNormalized: "fly",
+      },
     ],
-    "Service-role canonical recommendation lookup should run only for eligible open rows after ownership-gated Review Work loading.",
+    "Service-role canonical recommendation lookup should run for eligible open and returned child-response rows after ownership-gated Review Work loading.",
+  );
+  assert.deepEqual(
+    canonicalWordMapLookupCalls,
+    [
+      {
+        misspellingNormalized: "hav",
+        correctSpellingNormalized: "have",
+      },
+      {
+        misspellingNormalized: "lik",
+        correctSpellingNormalized: "like",
+      },
+      {
+        misspellingNormalized: "buisness",
+        correctSpellingNormalized: "business",
+      },
+      {
+        misspellingNormalized: "fli",
+        correctSpellingNormalized: "fly",
+      },
+    ],
+    "Trusted canonical word-map lookup should run for the same eligible rows as exact-pair canonical lookup.",
   );
   assert.equal(
     fakeSupabase.readTables.includes("spelling_canonical_mappings"),
@@ -1480,8 +1671,8 @@ assert.doesNotMatch(
 );
 assert.match(
   helperSource,
-  /function rowCanReceiveSuggestionOnlyPrefill[\s\S]*row\.categorisationStatus !== "categorisation_needed"/,
-  "Slice 2B recommendations should attach only to rows still needing categorisation.",
+  /function rowCanReceiveSuggestionOnlyPrefill[\s\S]*returnedChildResponseAwaitingOutcome[\s\S]*row\.source === "returned_correction"[\s\S]*row\.state === "child_responded"[\s\S]*!row\.correctionOutcome[\s\S]*row\.categorisationStatus === "not_applicable"[\s\S]*row\.categorisationStatus !== "categorisation_needed"/,
+  "Slice 2B recommendations should attach to rows still needing categorisation and returned child responses awaiting parent outcome.",
 );
 assert.match(
   helperSource,
@@ -1490,13 +1681,18 @@ assert.match(
 );
 assert.match(
   tableSource,
-  /const recommendationPrefillAllowed =[\s\S]*routeIsOpen[\s\S]*row\.microSkillRecommendation\?\.isPrefillAllowed === true[\s\S]*Boolean\(recommendationOption\)/,
+  /const recommendationMatchesOption =[\s\S]*row\.microSkillRecommendation\?\.isPrefillAllowed === true[\s\S]*Boolean\(recommendationOption\)[\s\S]*const recommendationPrefillAllowed =[\s\S]*routeIsOpen && recommendationMatchesOption/,
   "The table must prefill only open rows with an available active option.",
 );
 assert.match(
   tableSource,
   /row\.microSkillRecommendation\.recommendedFamilyKey ===[\s\S]*recommendationOption\?\.skillFamilyKey[\s\S]*recommendedClusterKey[\s\S]*recommendationOption\?\.skillClusterKey/,
   "The table must verify recommended family and cluster before prefill.",
+);
+assert.match(
+  tableSource,
+  /function handleOutcomeChange\(nextOutcome: string\) \{[\s\S]*setSelectedOutcome\(nextOutcome\)[\s\S]*!isLearningRelevantOutcome\(nextOutcome\)[\s\S]*!recommendationMatchesOption[\s\S]*!recommendationOption[\s\S]*familyKey\.length > 0[\s\S]*clusterKey\.length > 0[\s\S]*microSkillKey\.length > 0[\s\S]*setFamilyKey\(recommendationOption\.skillFamilyKey\)[\s\S]*setClusterKey\(recommendationOption\.skillClusterKey \?\? ""\)[\s\S]*setMicroSkillKey\(recommendationOption\.microSkillKey\)/,
+  "Returned route selectors must auto-populate from a prefillable recommendation when the route opens after outcome selection.",
 );
 assert.match(
   tableSource,

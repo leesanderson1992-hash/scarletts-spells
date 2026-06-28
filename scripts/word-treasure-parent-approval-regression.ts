@@ -78,8 +78,8 @@ assert.match(
 );
 assert.match(
   reviewCompletionActions,
-  /doesFinalClassificationCreateLearningItem\([\s\S]*finalClassification[\s\S]*if \(createsLearningItem\)/,
-  "Only learning-relevant final classifications should enter the Word Treasure write path.",
+  /doesFinalClassificationCreateLearningItem\([\s\S]*finalClassification[\s\S]*if \(createsLearningItem && linkedLearningItemExists\)/,
+  "Only learning-relevant final classifications with linked learning items should enter the Word Treasure write path.",
 );
 assert.match(
   wordTreasures,

@@ -211,10 +211,11 @@ explains row readiness and blocked reasons before behavior changes.
 
 `Stage B: Returned-Correction Workflow Gate Fix` is implemented with regression
 command `npm run writing-engine:returned-correction-stage-b-regression`.
-Learning-gap finalisation now blocks before the RPC unless the durable issue
-route is active and assignable; admin-deferred returned learning gaps remain
-deferred and block ordinary approval; parent-local/admin route evidence can
-carry pending learning-gap intent without finalising the issue.
+Learning-gap finalisation now saves the parent reason even when the durable
+issue route is not active and assignable. Admin-deferred returned learning gaps
+remain deferred for learning-item creation, but no longer block ordinary lesson
+approval once the parent reason is saved. Parent-local/admin route evidence can
+carry pending learning-gap intent without creating learning truth.
 
 Stage `B.1` to `B.3` complete the Review Work UI side of that contract:
 pre-retry Review Work is only for corrections, missed words, and child-facing

@@ -366,14 +366,15 @@ function UnifiedSpellingReviewTableRow({
     options,
     row.microSkillRecommendation?.recommendedMicroSkillKey ?? null,
   );
-  const recommendationPrefillAllowed =
-    routeIsOpen &&
+  const recommendationMatchesOption =
     row.microSkillRecommendation?.isPrefillAllowed === true &&
     Boolean(recommendationOption) &&
     row.microSkillRecommendation.recommendedFamilyKey ===
       recommendationOption?.skillFamilyKey &&
     (row.microSkillRecommendation.recommendedClusterKey ?? "") ===
       (recommendationOption?.skillClusterKey ?? "");
+  const recommendationPrefillAllowed =
+    routeIsOpen && recommendationMatchesOption;
   const initialSkillCandidate =
     isMeaningfulSkill(row.verifiedMicroSkillKey)
       ? row.verifiedMicroSkillKey
@@ -410,6 +411,24 @@ function UnifiedSpellingReviewTableRow({
   );
   const [microSkillKey, setMicroSkillKey] = useState(initialSkill ?? "");
   const [detailsOpen, setDetailsOpen] = useState(false);
+  function handleOutcomeChange(nextOutcome: string) {
+    setSelectedOutcome(nextOutcome);
+
+    if (
+      !isLearningRelevantOutcome(nextOutcome) ||
+      !recommendationMatchesOption ||
+      !recommendationOption ||
+      familyKey.length > 0 ||
+      clusterKey.length > 0 ||
+      microSkillKey.length > 0
+    ) {
+      return;
+    }
+
+    setFamilyKey(recommendationOption.skillFamilyKey);
+    setClusterKey(recommendationOption.skillClusterKey ?? "");
+    setMicroSkillKey(recommendationOption.microSkillKey);
+  }
   const suggestedSkillIsUsable = isMeaningfulSkill(row.suggestedMicroSkillKey);
   const noMatchingSkillSelected = familyKey === NO_MATCHING_SKILL_VALUE;
   const selectedSuggested =
@@ -433,7 +452,8 @@ function UnifiedSpellingReviewTableRow({
     !row.correctionOutcome &&
     Boolean(row.sourceIds.originalWritingIssueId);
   const canSaveOutcomeDirectly =
-    canFinalClassify && selectedOutcome.length > 0 && !selectedOutcomeNeedsRoute;
+    canFinalClassify &&
+    selectedOutcome.length > 0;
   const canMarkNotIssueBeforeRetry =
     reviewWorkflowPhase === "prepare_retry" &&
     row.source !== "returned_correction" &&
@@ -529,7 +549,7 @@ function UnifiedSpellingReviewTableRow({
                   name="final_classification"
                   required
                   value={selectedOutcome}
-                  onChange={(event) => setSelectedOutcome(event.target.value)}
+                  onChange={(event) => handleOutcomeChange(event.target.value)}
                   aria-label={`Outcome for ${row.observedText}`}
                   className="h-8 w-full rounded border border-[var(--border)] bg-white px-2 text-xs text-[color:var(--ink)]"
                 >
@@ -542,19 +562,13 @@ function UnifiedSpellingReviewTableRow({
                     </option>
                   ))}
                 </select>
-                {selectedOutcomeNeedsRoute ? (
-                  <p className="text-[11px] leading-4 text-[color:var(--mid)]">
-                    Choose learning route to save this outcome.
-                  </p>
-                ) : (
-                  <button
-                    type="submit"
-                    disabled={!canSaveOutcomeDirectly}
-                    className="inline-flex h-7 w-fit items-center rounded border border-emerald-200 bg-emerald-50 px-2 text-[11px] font-semibold text-emerald-800 disabled:border-[var(--border)] disabled:bg-white disabled:text-[color:var(--mid)]"
-                  >
-                    Save reason
-                  </button>
-                )}
+                <button
+                  type="submit"
+                  disabled={!canSaveOutcomeDirectly}
+                  className="inline-flex h-7 w-fit items-center rounded border border-emerald-200 bg-emerald-50 px-2 text-[11px] font-semibold text-emerald-800 disabled:border-[var(--border)] disabled:bg-white disabled:text-[color:var(--mid)]"
+                >
+                  Save reason
+                </button>
               </form>
             ) : row.correctionOutcome ? (
               <p className="text-sm font-medium text-[color:var(--ink)]">

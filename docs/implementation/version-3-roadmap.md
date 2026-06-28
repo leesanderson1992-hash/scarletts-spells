@@ -13,7 +13,7 @@ ADLE remains separate from Word Treasure.
 
 ## Current stage
 
-Current Version 3.0 stage: `Phase 3.2 parent approval durable Nuggets complete; Phase 3.3 next`.
+Current Version 3.0 stage: `Phase 3.3 My Progress canonical read model complete; Phase 3.4 next`.
 
 Implemented so far:
 - Phase 0 current-state audit was completed as an inspection/planning pass.
@@ -24,10 +24,11 @@ Implemented so far:
 - Phase 3.0 docs-only Word Treasure scope expansion is complete.
 - Phase 3.1 canonical Word Treasure storage foundation is complete.
 - Phase 3.2 parent approval durable Golden Nugget creation is complete.
+- Phase 3.3 My Progress canonical Word Treasure read model is complete.
 - No ADLE generation has been wired into runtime assignment generation.
 
 Next safe implementation slice:
-- Phase 3.3 My Progress canonical read model.
+- Phase 3.4 child popup reward language.
 
 ## Target architecture
 
@@ -245,7 +246,7 @@ Next step:
 <details open>
 <summary>Phase 3: Word Treasure end to end — Planned</summary>
 
-Status: `Started; Phase 3.0, Phase 3.1, and Phase 3.2 complete, Phase 3.3 next`
+Status: `Started; Phase 3.0, Phase 3.1, Phase 3.2, and Phase 3.3 complete, Phase 3.4 next`
 
 Goal:
 - implement the Word Treasure lifecycle end to end, beginning with canonical
@@ -441,18 +442,72 @@ Next step:
 
 ### Phase 3.3: My Progress canonical read model
 
+Status: `Complete`
+
 Scope:
 - read Word Treasure counts and history from `child_word_treasures`
 - keep fallback to `spelling_reward_states` during the compatibility bridge
 - avoid duplicate display when both canonical and compatibility rows exist
 
+Implemented:
+- My Progress/child progress reward reads now use the shared reward read model
+  in `lib/rewards/read-model.ts`
+- canonical `child_word_treasures` rows are preferred for
+  `golden_nugget`, `in_forge`, and `golden_bar`
+- legacy `spelling_reward_states` rows remain compatibility fallback only
+- canonical and compatibility rows are deduplicated by corrected word so the
+  same word does not display twice
+- canonical `child_word_treasure_events` history is used where available, with
+  legacy `spelling_reward_events` history retained as fallback
+- missing canonical Word Treasure tables are treated as bridge fallback absence
+  rather than a hard My Progress failure
+
 Tests:
 - canonical Nugget appears on My Progress
+- canonical forge/workshop item appears on My Progress
+- canonical Gold Bar appears on My Progress
 - old compatibility rows still display during the bridge
 - duplicate display is avoided
+- canonical history is preferred where available
+- `npx tsx scripts/word-treasure-my-progress-read-model-regression.ts`
+- `npx tsx scripts/word-treasure-parent-approval-regression.ts`
+- `npx tsx scripts/word-treasure-storage-foundation-regression.ts`
+- `npx tsx scripts/writing-engine-returned-child-correction-regression.ts`
+- `npx tsx scripts/writing-engine-unified-spelling-review-items-regression.ts`
+- `npx tsc --noEmit --pretty false`
+- targeted `npx eslint` for changed Phase 3.3 and review-flow repair files
+- `git diff --check`
+
+QA audit:
+- safe to close for Phase 3.3 scope
+- manual preview smoke verified the child can earn parent-approved Golden
+  Nuggets and see them on My Progress
+- canonical Word Treasure rows are the primary read source for My Progress
+- compatibility reward rows still display only where no canonical equivalent
+  exists
+- no duplicate word display was observed or allowed by the regression
+- old compatibility reward tables remain present and unmutated
+- no child popup reward-language switch, Daily Assignment Forge movement,
+  Gold Bar awarding, ADLE scheduling, or micro-skill mastery inference was
+  introduced
+- no-matching-skill returned corrections may save the parent reason and allow
+  lesson approval, but they do not create learning items or Golden Nuggets
+  until a later controlled reconciliation supplies an active assignable route
+
+Preview smoke:
+- `https://scarletts-spells-79qlhbcoc-leesanderson1992-hashs-projects.vercel.app`
+- test child My Progress showed canonical Golden Nuggets for repaired
+  parent-approved words
+- the same returned-correction lesson could be approved after all parent
+  reasons were saved, including the admin-deferred no-matching-skill row
 
 Commit:
 - `read word treasures on child progress`
+
+Follow-up commits in the same close-out branch:
+- `fallback when word treasure tables are unavailable`
+- review-flow repair to allow admin-deferred returned corrections to save the
+  parent reason and complete the lesson without creating learning truth
 
 ### Phase 3.4: Child popup reward language
 

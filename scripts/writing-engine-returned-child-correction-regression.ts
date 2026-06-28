@@ -119,8 +119,8 @@ assert.match(
 );
 assert.match(
   returnedIssueRetryControls,
-  /Stick with this[\s\S]*Try again[\s\S]*returned_issue_retry_mode:\$\{issue\.issue_id\}[\s\S]*How did this feel\?/,
-  "Child retry cards must offer stick-or-try-again choices plus easy/medium/hard reflection.",
+  /Your First Try[\s\S]*What would you like to do\?[\s\S]*Stick with this[\s\S]*Try again[\s\S]*returned_issue_retry_mode:\$\{issue\.issue_id\}[\s\S]*New Try[\s\S]*How did this feel\?/,
+  "Child retry cards must show only the requested first-try, action, new-try, and reflection sections.",
 );
 assert.match(
   structuredLessonResponse,
@@ -163,6 +163,16 @@ assert.match(
   taskPage,
   /returnedIssueFeedback=\{returnedWritingIssues\}/,
   "Structured lesson child page must continue to pass returned issue feedback into the structured response component.",
+);
+assert.match(
+  taskPage,
+  /Word \{index \+ 1\}[\s\S]*<ReturnedIssueRetryControls issue=\{issue\} \/>/,
+  "Plain-writing returned issue cards must keep the visible Word N label and shared retry controls.",
+);
+assert.doesNotMatch(
+  taskPage,
+  /Look at:|Choose whether to keep your first try|issue\.context_text|getChildSafeReturnedIssueNote\(issue\.child_note\)/,
+  "Plain-writing returned issue cards must not render extra child-note, look-at, helper, or context copy.",
 );
 assert.doesNotMatch(
   taskPage,
@@ -262,13 +272,18 @@ assert.match(
 );
 assert.match(
   reviewCompletionActions,
-  /finalClassificationNeedsAssignableRoute[\s\S]*micro_skill_key[\s\S]*micro_skill_catalog[\s\S]*Choose an active assignable skill route before saving this learning outcome[\s\S]*finalise_writing_issue_classification_and_learning_item/,
-  "Learning-gap final classification must verify an active assignable durable route before calling the finalisation RPC.",
+  /finalClassificationNeedsAssignableRoute[\s\S]*micro_skill_key[\s\S]*micro_skill_catalog[\s\S]*bridgeReturnedCorrectionParentLocalRoute[\s\S]*finalise_writing_issue_classification_and_learning_item/,
+  "Learning-gap final classification should bridge a promoted durable route when available before calling the finalisation RPC.",
 );
 assert.doesNotMatch(
   reviewCompletionActions,
-  /Durable issue preserved, but no assignable learning item was created yet/,
-  "Learning-gap finalisation must not report success after the RPC blocks learning-item creation.",
+  /Choose an active assignable skill route before saving this learning outcome/,
+  "Returned correction final classification must allow the parent reason to save while an admin route is still pending.",
+);
+assert.match(
+  reviewCompletionActions,
+  /if \(createsLearningItem && linkedLearningItemExists\)/,
+  "Returned correction finalisation must only link Word Treasure when a learning item exists.",
 );
 assert.doesNotMatch(
   reviewCompletionActions,

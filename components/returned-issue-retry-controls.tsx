@@ -24,7 +24,7 @@ export function ReturnedIssueRetryControls({
     <div className="grid min-w-0 content-start gap-3">
       <div className="rounded-2xl border border-amber-200 bg-white px-3 py-2 text-sm text-[color:var(--ink)]">
         <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-amber-700">
-          Your first try
+          Your First Try
         </p>
         <p className="mt-1 min-w-0 break-words text-base font-semibold">
           {originalAttempt}
@@ -70,7 +70,7 @@ export function ReturnedIssueRetryControls({
         />
       ) : (
         <label className="grid gap-1.5 text-sm text-[color:var(--ink)]">
-          <span className="font-medium">New try</span>
+          <span className="font-medium">New Try</span>
           <input
             type="text"
             name={`returned_issue_attempt:${issue.issue_id}`}

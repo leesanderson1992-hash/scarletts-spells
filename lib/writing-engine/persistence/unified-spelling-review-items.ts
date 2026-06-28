@@ -14,6 +14,7 @@ import {
   recommendStage2aMicroSkillForSpellingPair,
   type WritingEngineStage2aCanonicalMappingSignal,
   type WritingEngineStage2aRecommendationResult,
+  type WritingEngineStage2aWordMapMetadataSignal,
 } from "../spelling/stage2a-micro-skill-recommendation";
 
 type SupabaseQueryBuilder = PromiseLike<{ data: unknown }> & {
@@ -34,6 +35,11 @@ type RecommendationCanonicalExactPairLookup = (input: {
   misspellingNormalized: string | null | undefined;
   correctSpellingNormalized: string | null | undefined;
 }) => Promise<RecommendationCanonicalExactPairMappingSignal[]>;
+
+type RecommendationCanonicalWordMapLookup = (input: {
+  misspellingNormalized: string | null | undefined;
+  correctSpellingNormalized: string | null | undefined;
+}) => Promise<WritingEngineStage2aWordMapMetadataSignal[]>;
 
 type TaskSubmissionThreadRow = {
   id: string;
@@ -255,10 +261,11 @@ export function summarizeUnifiedSpellingReviewCompletion(
       row.categorisationStatus === "categorisation_needed" ||
       row.categorisationStatus === "parent_local_pending";
     const deferredRouteBlocks =
-      row.categorisationStatus === "unsupported_returned_correction_route" ||
-      (row.source === "returned_correction" &&
-        row.categorisationStatus === "sent_to_admin" &&
-        returnedFinalClassificationNeedsRoute(row.correctionOutcome));
+      row.source === "returned_correction" &&
+      !row.correctionOutcome &&
+      (row.categorisationStatus === "unsupported_returned_correction_route" ||
+        (row.categorisationStatus === "sent_to_admin" &&
+          returnedFinalClassificationNeedsRoute(row.correctionOutcome)));
 
     if (row.state === "pending_parent_review") {
       parentDecisionCount += 1;
@@ -1028,7 +1035,16 @@ function rowCanReceiveSuggestionOnlyPrefill(row: UnifiedSpellingReviewItem) {
     return false;
   }
 
-  if (row.categorisationStatus !== "categorisation_needed") {
+  const returnedChildResponseAwaitingOutcome =
+    row.source === "returned_correction" &&
+    row.state === "child_responded" &&
+    !row.correctionOutcome &&
+    row.categorisationStatus === "not_applicable";
+
+  if (
+    row.categorisationStatus !== "categorisation_needed" &&
+    !returnedChildResponseAwaitingOutcome
+  ) {
     return false;
   }
 
@@ -1043,6 +1059,13 @@ function rowCanReceiveSuggestionOnlyPrefill(row: UnifiedSpellingReviewItem) {
     return false;
   }
 
+  if (
+    row.source === "returned_correction" &&
+    row.state !== "child_responded"
+  ) {
+    return false;
+  }
+
   return true;
 }
 
@@ -1053,6 +1076,7 @@ export async function attachStage2aMicroSkillRecommendationsToUnifiedRows(input:
   childId: string;
   submissionId: string;
   canonicalExactPairLookup?: RecommendationCanonicalExactPairLookup;
+  canonicalWordMapLookup?: RecommendationCanonicalWordMapLookup;
 }) {
   const canonicalExactPairLookup =
     input.canonicalExactPairLookup ??
@@ -1063,6 +1087,63 @@ export async function attachStage2aMicroSkillRecommendationsToUnifiedRows(input:
 
       return findRecommendationCanonicalExactPairMappings(lookupInput);
     });
+  const canonicalWordMapLookup =
+    input.canonicalWordMapLookup ??
+    (async (lookupInput) => {
+      const { createServiceRoleClient } = await import("../../supabase/service-role");
+      const supabase = createServiceRoleClient();
+      const misspellingNormalized = lookupInput.misspellingNormalized?.trim().toLowerCase() ?? "";
+      const correctSpellingNormalized =
+        lookupInput.correctSpellingNormalized?.trim().toLowerCase() ?? "";
+
+      if (!correctSpellingNormalized) {
+        return [];
+      }
+
+      const [diagnosticResult, wordResult] = await Promise.all([
+        misspellingNormalized
+          ? supabase
+              .from("canonical_spelling_word_map_diagnostic_examples")
+              .select("id, misspelling_normalised, correction_normalised, micro_skill_key, confidence")
+              .eq("misspelling_normalised", misspellingNormalized)
+              .eq("correction_normalised", correctSpellingNormalized)
+          : Promise.resolve({ data: [], error: null }),
+        supabase
+          .from("canonical_spelling_word_map_words")
+          .select("id, normalised_word, micro_skill_key")
+          .eq("normalised_word", correctSpellingNormalized),
+      ]);
+
+      if (diagnosticResult.error || wordResult.error) {
+        return [];
+      }
+
+      const diagnosticSignals = ((diagnosticResult.data ?? []) as Array<{
+        id: string;
+        misspelling_normalised: string;
+        correction_normalised: string;
+        micro_skill_key: string;
+        confidence: string | null;
+      }>).map((row): WritingEngineStage2aWordMapMetadataSignal => ({
+        sourceId: row.id,
+        misspellingNormalized: row.misspelling_normalised,
+        correctSpellingNormalized: row.correction_normalised,
+        microSkillKey: row.micro_skill_key,
+        confidence: row.confidence ?? "medium",
+      }));
+      const wordSignals = ((wordResult.data ?? []) as Array<{
+        id: string;
+        normalised_word: string;
+        micro_skill_key: string;
+      }>).map((row): WritingEngineStage2aWordMapMetadataSignal => ({
+        sourceId: row.id,
+        wordNormalized: row.normalised_word,
+        microSkillKey: row.micro_skill_key,
+        confidence: "medium",
+      }));
+
+      return [...diagnosticSignals, ...wordSignals];
+    });
 
   return Promise.all(
     input.rows.map(async (row) => {
@@ -1070,11 +1151,17 @@ export async function attachStage2aMicroSkillRecommendationsToUnifiedRows(input:
         return row;
       }
 
-      const trustedCanonicalMappings =
-        await canonicalExactPairLookup({
-          misspellingNormalized: row.observedText,
-          correctSpellingNormalized: row.expectedCorrection,
-        });
+      const [trustedCanonicalMappings, trustedWordMapMetadataSignals] =
+        await Promise.all([
+          canonicalExactPairLookup({
+            misspellingNormalized: row.observedText,
+            correctSpellingNormalized: row.expectedCorrection,
+          }),
+          canonicalWordMapLookup({
+            misspellingNormalized: row.observedText,
+            correctSpellingNormalized: row.expectedCorrection,
+          }),
+        ]);
       const recommendationInput = await buildStage2aMicroSkillRecommendationReadModel({
         supabase: input.supabase as never,
         misspelling: row.observedText,
@@ -1096,6 +1183,7 @@ export async function attachStage2aMicroSkillRecommendationsToUnifiedRows(input:
             mappingStatus: "active",
           }),
         ),
+        trustedWordMapMetadataSignals,
       });
       const recommendation = recommendStage2aMicroSkillForSpellingPair(
         recommendationInput,

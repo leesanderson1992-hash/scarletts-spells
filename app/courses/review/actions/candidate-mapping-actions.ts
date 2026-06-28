@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 
+import { createOrUpdateGoldenNuggetFromParentApproval } from "@/lib/rewards/word-treasures";
 import { createClient } from "@/lib/supabase/server";
 import { getReviewWorkCandidateCaptureMicroSkillCatalogEntry } from "@/lib/writing-engine/persistence/learning-items";
 import { createSupabaseSpellingCanonicalRecommendationRepository } from "@/lib/writing-engine/persistence/spelling-canonical-recommendations";
@@ -32,6 +33,7 @@ import { loadReturnedCorrectionRouteContext } from "./returned-correction-route-
 import {
   isWritingIssueFinalClassification,
   doesFinalClassificationCreateLearningItem,
+  type WritingIssueFinalClassification,
 } from "@/lib/writing-practice/types";
 
 type OwnedSubmissionForCandidateCapture = NonNullable<
@@ -220,13 +222,232 @@ function oneStepPromotionMessage(input: {
   return "Saved for Scarlett and sent for admin review.";
 }
 
+function parseObjectMetadata(value: unknown): Record<string, unknown> {
+  return value && typeof value === "object" && !Array.isArray(value)
+    ? (value as Record<string, unknown>)
+    : {};
+}
+
+function getTrimmedOrNull(value: string | null | undefined) {
+  const trimmed = value?.trim();
+  return trimmed ? trimmed : null;
+}
+
+function getLearningItemIdFromFinalisationResult(value: unknown) {
+  if (!value || typeof value !== "object" || !("learning_item_id" in value)) {
+    return null;
+  }
+
+  return typeof value.learning_item_id === "string"
+    ? value.learning_item_id
+    : null;
+}
+
+async function finaliseReturnedCorrectionAfterRouteCapture(input: {
+  supabase: Awaited<ReturnType<typeof createClient>>;
+  parentUserId: string;
+  childId: string;
+  issueId: string;
+  selectedMicroSkillKey: string;
+  finalClassification: WritingIssueFinalClassification | null;
+  routeMetadata: Record<string, unknown>;
+  safeRedirectPath: string;
+}) {
+  if (!input.finalClassification) {
+    return;
+  }
+
+  const nowIso = new Date().toISOString();
+  const { data: currentIssue } = await input.supabase
+    .from("writing_issues")
+    .select(
+      [
+        "id",
+        "child_id",
+        "task_submission_id",
+        "issue_status",
+        "final_classification",
+        "observed_text",
+        "suggested_replacement",
+        "approved_replacement",
+        "micro_skill_key",
+        "source_misspelling_instance_id",
+        "metadata",
+      ].join(", "),
+    )
+    .eq("id", input.issueId)
+    .eq("parent_user_id", input.parentUserId)
+    .eq("child_id", input.childId)
+    .maybeSingle<{
+      id: string;
+      child_id: string;
+      task_submission_id: string | null;
+      issue_status: string;
+      final_classification: string | null;
+      observed_text: string | null;
+      suggested_replacement: string | null;
+      approved_replacement: string | null;
+      micro_skill_key: string | null;
+      source_misspelling_instance_id: string | null;
+      metadata: Record<string, unknown> | null;
+    }>();
+
+  if (!currentIssue) {
+    redirect(
+      buildRedirectWithMessage(
+        input.safeRedirectPath,
+        "error",
+        "The route was saved, but the returned correction outcome could not be found.",
+      ),
+    );
+  }
+
+  if (currentIssue.final_classification) {
+    return;
+  }
+
+  const { error: updateError } = await input.supabase
+    .from("writing_issues")
+    .update({
+      micro_skill_key: input.selectedMicroSkillKey,
+      metadata: {
+        ...parseObjectMetadata(currentIssue.metadata),
+        returned_correction_route_bridge: {
+          ...input.routeMetadata,
+          micro_skill_key: input.selectedMicroSkillKey,
+          bridged_at: nowIso,
+        },
+      },
+      updated_at: nowIso,
+    })
+    .eq("id", currentIssue.id)
+    .eq("parent_user_id", input.parentUserId)
+    .eq("child_id", input.childId)
+    .eq("issue_status", "child_responded")
+    .is("final_classification", null);
+
+  if (updateError) {
+    redirect(
+      buildRedirectWithMessage(
+        input.safeRedirectPath,
+        "error",
+        "The route was saved, but the returned correction outcome could not be linked to it yet.",
+      ),
+    );
+  }
+
+  const { data: finalisationResult, error: finalisationError } =
+    await input.supabase.rpc(
+      "finalise_writing_issue_classification_and_learning_item",
+      {
+        p_writing_issue_id: currentIssue.id,
+        p_parent_user_id: input.parentUserId,
+        p_child_id: input.childId,
+        p_final_classification: input.finalClassification,
+      },
+    );
+
+  if (finalisationError) {
+    redirect(
+      buildRedirectWithMessage(
+        input.safeRedirectPath,
+        "error",
+        "The route was saved, but the returned correction outcome could not be saved yet.",
+      ),
+    );
+  }
+
+  if (!doesFinalClassificationCreateLearningItem(input.finalClassification)) {
+    return;
+  }
+
+  const learningItemId = getLearningItemIdFromFinalisationResult(finalisationResult);
+  const { data: finalisedIssue } = await input.supabase
+    .from("writing_issues")
+    .select(
+      [
+        "id",
+        "child_id",
+        "task_submission_id",
+        "observed_text",
+        "suggested_replacement",
+        "approved_replacement",
+        "micro_skill_key",
+        "source_misspelling_instance_id",
+      ].join(", "),
+    )
+    .eq("id", currentIssue.id)
+    .eq("parent_user_id", input.parentUserId)
+    .eq("child_id", input.childId)
+    .maybeSingle<{
+      id: string;
+      child_id: string;
+      task_submission_id: string | null;
+      observed_text: string | null;
+      suggested_replacement: string | null;
+      approved_replacement: string | null;
+      micro_skill_key: string | null;
+      source_misspelling_instance_id: string | null;
+    }>();
+  const correctedWord =
+    getTrimmedOrNull(finalisedIssue?.approved_replacement) ??
+    getTrimmedOrNull(finalisedIssue?.suggested_replacement);
+
+  if (!finalisedIssue || !correctedWord) {
+    redirect(
+      buildRedirectWithMessage(
+        input.safeRedirectPath,
+        "error",
+        "The outcome was saved, but Word Treasure could not be linked because the corrected word was missing.",
+      ),
+    );
+  }
+
+  const { data: latestAttempt } = await input.supabase
+    .from("writing_issue_correction_attempts")
+    .select("created_at")
+    .eq("writing_issue_id", currentIssue.id)
+    .eq("parent_user_id", input.parentUserId)
+    .eq("child_id", input.childId)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle<{ created_at: string }>();
+
+  try {
+    await createOrUpdateGoldenNuggetFromParentApproval({
+      childId: finalisedIssue.child_id,
+      parentUserId: input.parentUserId,
+      correctedWord,
+      originalMisspelling: finalisedIssue.observed_text,
+      sourceIssueId: finalisedIssue.id,
+      sourceLearningItemId: learningItemId,
+      sourceSubmissionId: finalisedIssue.task_submission_id,
+      sourceMisspellingInstanceId: finalisedIssue.source_misspelling_instance_id,
+      microSkillKey: finalisedIssue.micro_skill_key,
+      correctionAttemptedAt: latestAttempt?.created_at ?? null,
+      metadata: {
+        final_classification: input.finalClassification,
+        learning_item_id: learningItemId,
+      },
+    });
+  } catch {
+    redirect(
+      buildRedirectWithMessage(
+        input.safeRedirectPath,
+        "error",
+        "The outcome was saved, but the Golden Nugget could not be linked yet. Please retry before closing this item.",
+      ),
+    );
+  }
+}
+
 async function captureReturnedCorrectionCandidateMapping(input: {
   supabase: Awaited<ReturnType<typeof createClient>>;
   parentUserId: string;
   submission: OwnedSubmissionForCandidateCapture;
   originalWritingIssueId: string;
   correctionAttemptId: string | null;
-  finalClassification: string | null;
+  finalClassification: WritingIssueFinalClassification | null;
   selectedMicroSkillKey: string;
   safeRedirectPath: string;
 }) {
@@ -366,6 +587,20 @@ async function captureReturnedCorrectionCandidateMapping(input: {
       );
     }
 
+    await finaliseReturnedCorrectionAfterRouteCapture({
+      supabase: input.supabase,
+      parentUserId: input.parentUserId,
+      childId: input.submission.child_id,
+      issueId: routeContext.issue.id,
+      selectedMicroSkillKey: candidateMapping.micro_skill_key,
+      finalClassification: input.finalClassification,
+      routeMetadata: {
+        ...routeContext.routeMetadata,
+        candidate_mapping_id: candidateMapping.id,
+      },
+      safeRedirectPath: input.safeRedirectPath,
+    });
+
     revalidateReviewQueueAndDetailBestEffort(input.safeRedirectPath);
 
     redirect(
@@ -490,6 +725,20 @@ async function captureReturnedCorrectionCandidateMapping(input: {
     );
   }
 
+  await finaliseReturnedCorrectionAfterRouteCapture({
+    supabase: input.supabase,
+    parentUserId: input.parentUserId,
+    childId: input.submission.child_id,
+    issueId: routeContext.issue.id,
+    selectedMicroSkillKey: input.selectedMicroSkillKey,
+    finalClassification: input.finalClassification,
+    routeMetadata: {
+      ...routeContext.routeMetadata,
+      candidate_mapping_id: candidateMapping.id,
+    },
+    safeRedirectPath: input.safeRedirectPath,
+  });
+
   revalidateReviewQueueAndDetailBestEffort(input.safeRedirectPath);
 
   redirect(
@@ -544,7 +793,7 @@ export async function captureSubmissionSpellingCandidateMappingImpl(formData: Fo
     );
   }
 
-  const safeFinalClassification =
+  const safeFinalClassification: WritingIssueFinalClassification | null =
     typeof finalClassification === "string" &&
     isWritingIssueFinalClassification(finalClassification) &&
     doesFinalClassificationCreateLearningItem(finalClassification)

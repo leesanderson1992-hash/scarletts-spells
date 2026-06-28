@@ -261,8 +261,9 @@ Rules:
 - completion gating must not count `checking_only` returned rows as unresolved
   categorisation or deferred-route blockers
 - learning-gap returned outcomes such as `fragile_knowledge`, `concept_gap`,
-  and `transfer_failure` still require a safe route where applicable; if no
-  safe route exists, they remain blocked/deferred
+  and `transfer_failure` can save the parent reason and allow lesson
+  completion even when no safe route exists yet; learning item, Golden Nugget,
+  mastery, and assignment effects remain deferred until route support exists
 - parent-added current rows remain `P`
 - parent-added returned rows remain `P·R`
 

@@ -22,7 +22,6 @@ import {
 import { getLessonRuntimeMode } from "@/lib/lessons/runtime";
 import {
   buildStructuredLessonResponseFromSubmissionSummary,
-  getChildSafeReturnedIssueNote,
   getReturnedWritingIssueFeedback,
   getStructuredFieldFeedback,
   getInitialStructuredLessonResponse,
@@ -654,34 +653,10 @@ export default async function LearnModuleTaskPage({
                       key={issue.issue_id}
                       className="w-full min-w-0 rounded-[1.5rem] border border-amber-200 bg-white px-4 py-4 text-sm text-[color:var(--ink)] shadow-sm"
                     >
-                      <div className="grid min-w-0 gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(12rem,18rem)]">
-                        <div className="grid min-w-0 gap-2">
-                          <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-amber-700">
-                            Word {index + 1}
-                          </p>
-                          {(() => {
-                            const childNote = getChildSafeReturnedIssueNote(issue.child_note);
-
-                            return childNote ? (
-                              <p className="break-words leading-6 text-amber-950">
-                                {childNote}
-                              </p>
-                            ) : null;
-                          })()}
-                          {issue.observed_text ? (
-                            <p className="break-words text-sm leading-6 text-[color:var(--mid)]">
-                              Look at: <span className="font-medium text-[color:var(--ink)]">“{issue.observed_text}”</span>
-                            </p>
-                          ) : null}
-                          <p className="text-sm leading-6 text-[color:var(--mid)]">
-                            Choose whether to keep your first try or make a new try.
-                          </p>
-                          {issue.context_text ? (
-                            <p className="whitespace-pre-wrap break-words rounded-2xl bg-[rgba(252,228,244,0.32)] px-3 py-2 text-sm leading-6 text-[color:var(--ink)]">
-                              {issue.context_text}
-                            </p>
-                          ) : null}
-                        </div>
+                      <div className="grid min-w-0 gap-3">
+                        <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-amber-700">
+                          Word {index + 1}
+                        </p>
                         <ReturnedIssueRetryControls issue={issue} />
                       </div>
                     </div>

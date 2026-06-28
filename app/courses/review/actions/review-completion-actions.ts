@@ -745,16 +745,6 @@ export async function finaliseWritingIssueClassificationImpl(formData: FormData)
 
       routeReady = Boolean(bridgeResult);
     }
-
-    if (!routeReady) {
-      redirect(
-        buildRedirectWithMessage(
-          safeRedirectPath,
-          "error",
-          "Choose an active assignable skill route before saving this learning outcome.",
-        ),
-      );
-    }
   }
 
   const { data: finalisationResult, error } = await supabase.rpc(
@@ -803,7 +793,7 @@ export async function finaliseWritingIssueClassificationImpl(formData: FormData)
   );
   let wordTreasureCreatedOrUpdated = false;
 
-  if (createsLearningItem) {
+  if (createsLearningItem && linkedLearningItemExists) {
     const learningItemId =
       getLearningItemIdFromFinalisationResult(finalisationResult);
     const { data: finalisedIssue } = await supabase

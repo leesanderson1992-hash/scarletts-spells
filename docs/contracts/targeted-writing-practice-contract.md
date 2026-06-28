@@ -1246,7 +1246,8 @@ Canonical returned-correction route:
 5. Parent receives the returned work and chooses the final educational outcome:
    `checking_only`, `fragile_knowledge`, `concept_gap`, `transfer_failure`, or
    `not_an_issue`.
-6. Only learning-relevant outcomes require a route:
+6. Only learning-relevant outcomes require a route before they can create
+   learning truth:
    `fragile_knowledge`, `concept_gap`, and `transfer_failure`.
 7. Parent-local routes can be promoted for that child and used to create or
    strengthen a `learning_item` only when they point to an active assignable
@@ -1261,13 +1262,16 @@ Non-learning outcomes:
 
 Learning-relevant outcomes:
 - require a learning-relevant final classification
+- may save the parent reason and allow Review Work completion even when no
+  active assignable route exists yet
 - require an active assignable micro-skill on the durable `writing_issues` row
-  or an explicitly bridged route source
-- may create or strengthen a `learning_item` only when both requirements are
-  met
+  or an explicitly bridged route source before creating or strengthening a
+  `learning_item`
 
 Admin handoff:
 - means no safe assignable route exists yet
+- may preserve the parent-confirmed learning-relevant reason
+- does not block lesson approval once that parent reason is saved
 - must not put the row into the child learning queue
 - must not create rewards, mastery claims, or daily assignment generation
 - may be repaired later only by controlled reconciliation after admin/canonical
@@ -1292,7 +1296,8 @@ Stage C bridge rule:
   and records `returned_correction_route_bridge` metadata before the existing
   learning-item finalisation RPC runs
 - parent recommendation-only and admin-deferred rows must still block or defer
-  learning-item creation
+  learning-item creation, even though a saved parent reason may allow lesson
+  approval
 - Stage D is responsible for dry-run-first historical backfill or repair of
   rows created before this bridge existed
 

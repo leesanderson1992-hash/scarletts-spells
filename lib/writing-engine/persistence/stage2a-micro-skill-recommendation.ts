@@ -133,6 +133,7 @@ export async function buildStage2aMicroSkillRecommendationReadModel(input: {
   taskSubmissionId?: string | null;
   writingSampleId?: string | null;
   trustedCanonicalMappings?: WritingEngineStage2aCanonicalMappingSignal[];
+  trustedWordMapMetadataSignals?: WritingEngineStage2aWordMapMetadataSignal[];
 }): Promise<WritingEngineStage2aRecommendationInput> {
   const misspellingNormalized = normalizeWord(input.misspelling);
   const correctionNormalized = normalizeWord(input.correction);
@@ -278,6 +279,7 @@ export async function buildStage2aMicroSkillRecommendationReadModel(input: {
   }
 
   const wordMapMetadataSignals: WritingEngineStage2aWordMapMetadataSignal[] = [
+    ...(input.trustedWordMapMetadataSignals ?? []),
     ...wordMapDiagnosticRows.map((row) => ({
       sourceId: row.id,
       misspellingNormalized: row.misspelling_normalised,

@@ -195,12 +195,14 @@
   [lib/writing-engine/persistence/returned-correction-learning-route-diagnostics.ts](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/lib/writing-engine/persistence/returned-correction-learning-route-diagnostics.ts:1)
   and regression coverage in
   [scripts/writing-engine-returned-correction-route-diagnostics-regression.ts](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/scripts/writing-engine-returned-correction-route-diagnostics-regression.ts:1).
-- Stage B now blocks learning-gap finalisation before the learning-item RPC
-  unless the durable issue route is active and assignable.
+- Stage B now allows the parent's learning-gap reason to be saved even when no
+  durable active assignable route exists yet.
 - Returned-correction route actions may carry pending learning-gap intent as
-  route evidence, but do not write final classification onto `writing_issues`.
-- Admin-deferred returned learning gaps remain deferred and block ordinary
-  approval rather than entering the learning queue.
+  route evidence, but learning-item creation still requires an active
+  assignable route.
+- Admin-deferred returned learning gaps remain deferred for learning queue
+  creation, rewards, mastery, daily assignment, and Word Treasure movement;
+  they do not block ordinary approval once the parent reason is saved.
 - Stage `B.1` to `B.3` align the parent UI with the workflow: pre-retry Review
   Work hides all route/micro-skill/admin/local controls and post-retry Review
   Work shows `Reason` before `Learning route`, with route controls appearing
