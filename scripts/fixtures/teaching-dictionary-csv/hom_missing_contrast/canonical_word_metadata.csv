@@ -1,0 +1,3 @@
+word_key,syllables,phoneme_hint,grapheme_notes,stress_pattern,has_schwa,morphemes,morphology_notes,irregularity_notes,source_category,source_name,source_url,source_licence,source_use_note,confidence,review_status
+to_en_gb,1,,,,FALSE,,,,internal_authored,Synthetic Phase 5D fixture,,,Synthetic test-only fixture content; not reviewed curriculum truth.,high,approved_for_first_exposure
+too_en_gb,1,,,,FALSE,,,,internal_authored,Synthetic Phase 5D fixture,,,Synthetic test-only fixture content; not reviewed curriculum truth.,high,approved_for_first_exposure

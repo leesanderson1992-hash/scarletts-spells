@@ -1,0 +1,3 @@
+word_key,micro_skill_key,micro_skill_role,difficulty_band,evidence_weight,display_order,source_category,source_name,source_url,source_licence,source_use_note,confidence,review_status
+cat_en_gb,D4_PG_CVC_SHORT_VOWELS_SHORT_A,anchor,low,1,1,internal_authored,Synthetic Phase 5D fixture,,,Synthetic test-only fixture content; not reviewed curriculum truth.,high,approved_for_first_exposure
+sat_en_gb,D4_PG_CVC_SHORT_VOWELS_SHORT_A,ordered_example,low,1,2,internal_authored,Synthetic Phase 5D fixture,,,Synthetic test-only fixture content; not reviewed curriculum truth.,high,approved_for_first_exposure

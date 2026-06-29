@@ -1,0 +1,3 @@
+word_key,normalised_word,display_word,dialect_code,frequency_band,age_band,complexity_band,source_category,source_name,source_url,source_licence,source_use_note,confidence,review_status,row_status
+to_en_gb,to,to,en-GB,high,synthetic,low,internal_authored,Synthetic Phase 5D fixture,,,Synthetic test-only fixture content; not reviewed curriculum truth.,high,approved_for_first_exposure,active
+too_en_gb,too,too,en-GB,high,synthetic,low,internal_authored,Synthetic Phase 5D fixture,,,Synthetic test-only fixture content; not reviewed curriculum truth.,high,approved_for_first_exposure,active

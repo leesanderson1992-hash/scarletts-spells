@@ -13,7 +13,7 @@ ADLE remains separate from Word Treasure.
 
 ## Current stage
 
-Current Version 3.0 stage: `Phase 4 curriculum metadata inventory audit complete as docs-only planning; Phase 3.7B browser/UI Daily Assignment signoff deferred until the Daily Assignment stage begins`.
+Current Version 3.0 stage: `Phase 5D teaching dictionary validator fixtures and regression coverage implemented; Phase 3.7B browser/UI Daily Assignment signoff deferred until the Daily Assignment stage begins`.
 
 Implemented so far:
 - Phase 0 current-state audit was completed as an inspection/planning pass.
@@ -31,10 +31,25 @@ Implemented so far:
   and QA-audited for the server/review/popup contract.
 - Phase 4 curriculum metadata inventory audit is complete as a docs-only report:
   `docs/implementation/version-3-phase-4-curriculum-metadata-inventory-audit.md`.
+- Phase 5A curriculum readiness rules are documented as a docs-only decision
+  slice:
+  `docs/implementation/version-3-phase-5-curriculum-readiness-planning.md`.
+- Phase 5B teaching dictionary architecture is documented as a docs-only design
+  slice:
+  `docs/implementation/version-3-phase-5b-teaching-dictionary-architecture.md`.
+- Phase 5C through Phase 5I implementation order is documented as a docs-only
+  sequencing slice:
+  `docs/implementation/version-3-phase-5-implementation-order.md`.
+- Phase 5C teaching dictionary CSV dry-run validator is implemented as a
+  read-only script:
+  `scripts/validate-teaching-dictionary-csv.py`.
+- Phase 5D teaching dictionary validator fixtures and regression coverage are
+  implemented:
+  `scripts/validate-teaching-dictionary-csv-regression.py`.
 - No ADLE generation has been wired into runtime assignment generation.
 
 Next safe implementation slice:
-- Phase 5A curriculum readiness rules, or Phase 3.7B browser/UI Daily
+- Phase 5E local/dev teaching dictionary schema, or Phase 3.7B browser/UI Daily
   Assignment signoff when the Daily Assignment product stage begins.
 
 ## Target architecture
@@ -889,13 +904,22 @@ Boundaries:
 </details>
 
 <details>
-<summary>Phase 5A: Curriculum readiness — Planned</summary>
+<summary>Phase 5A: Curriculum readiness — Complete</summary>
 
-Status: `Not started`
+Status: `Complete as docs-only readiness rules`
 
 Goal:
 - define readiness rules
 - identify which micro-skills are ready for ADLE first-exposure teaching
+
+Output:
+- accepted readiness states
+- accepted blocker vocabulary
+- P0/P1/P2/P3 field treatment
+- field-level review-status vocabulary
+- manual-review gates
+- readiness report shape
+- ADLE skip/readiness status mapping
 
 Readiness requires:
 - teaching objective
@@ -914,24 +938,154 @@ Boundaries:
 - no runtime generation
 - no invented teaching content
 - no readiness from taxonomy existence alone
+- no schema or migration until Phase 5B is explicitly approved
+- no assignment-generation hook
+
+Decision slice:
+- `docs/implementation/version-3-phase-5-curriculum-readiness-planning.md`
 
 </details>
 
 <details>
-<summary>Phase 5B: Curriculum metadata storage/import expansion — Planned</summary>
+<summary>Phase 5B: Teaching dictionary architecture — Complete</summary>
 
-Status: `Not started`
+Status: `Complete as docs-only architecture`
 
-After explicit approval:
-- design schema expansion
-- expand validators
-- run dry-run import
-- apply local/dev only
+Goal:
+- design the Canonical Teaching Dictionary architecture
+- separate canonical word facts from micro-skill teaching content
+- define CSV workbook-export shape
+- define content-version lifecycle
+- define validator/readiness report design
+
+Output:
+- candidate teaching dictionary storage/artifact shape
+- initial workbook template:
+  `docs/implementation/seed-data/teaching-dictionary/teaching-dictionary-workbook-template.xlsx`
+- one-active-signed-off-version rule per micro-skill
+- admin-owned field review and final readiness signoff workflow
+- source/licence import rules
+- D4 family-dependent readiness rules
+- dry-run report expectations
+- local/dev migration direction for a later slice
 
 Boundaries:
+- design-only
+- no migration
+- no validator implementation
+- no CSV import implementation
 - no assignment-generation hook
 - no broad `supabase db push`
 - no hosted/production deployment without a separate approval
+- no resolver, evidence, proficiency, or Word Treasure changes
+
+Decision slice:
+- `docs/implementation/version-3-phase-5b-teaching-dictionary-architecture.md`
+
+</details>
+
+<details>
+<summary>Phase 5 implementation order — Complete</summary>
+
+Status: `Complete as docs-only sequencing`
+
+Goal:
+- define the safe order for Phase 5C through Phase 5I
+- keep dry-run validation before schema and import
+- keep local/dev storage before admin workflow and read repository
+- keep ADLE handoff before runtime composition
+
+Order:
+- Phase 5C: Teaching Dictionary CSV Dry-Run Validator
+- Phase 5D: Fixtures and Validator Regression Coverage
+- Phase 5E: Local/Dev Teaching Dictionary Schema
+- Phase 5F: Local/Dev Import Preflight and Apply Path
+- Phase 5G: Admin Review Workflow Design
+- Phase 5H: Read-Only Teaching Dictionary Repository
+- Phase 5I: ADLE Readiness Handoff
+
+Boundaries:
+- no production import
+- no hosted Supabase mutation
+- no runtime ADLE generation
+- no assignment-generation hook
+- no resolver, evidence, proficiency, or Word Treasure changes
+
+Decision slice:
+- `docs/implementation/version-3-phase-5-implementation-order.md`
+
+</details>
+
+<details>
+<summary>Phase 5C: Teaching Dictionary CSV Dry-Run Validator — Complete</summary>
+
+Status: `Implemented and smoke-tested`
+
+Goal:
+- validate teaching dictionary CSV workbook exports without side effects
+- calculate Phase 5A readiness states and blockers per teaching content version
+- emit deterministic terminal summaries and optional JSON reports
+
+Implemented:
+- `scripts/validate-teaching-dictionary-csv.py`
+- required CSV file/header validation
+- optional `teaching_content_sources.csv` validation
+- D4 micro-skill key validation against seed artifacts
+- word-key reference validation
+- enum validation for source, review, status, confidence, boolean, and role
+  values
+- source/licence policy checks
+- one-active-version checks
+- family-dependent first-exposure checks for `D4_HOM`, `D4_MOR`, `D4_INF`, and
+  `D4_SCHWA`
+- Phase 5A readiness report summary counts
+
+Boundaries:
+- no Supabase writes
+- no migration
+- no import
+- no runtime consumer
+- no assignment-generation hook
+- no resolver, evidence, proficiency, or Word Treasure changes
+
+Verification:
+- `python3 scripts/validate-teaching-dictionary-csv.py --help`
+- `python3 -m py_compile scripts/validate-teaching-dictionary-csv.py`
+- smoke-tested against a temporary valid CSV folder
+- smoke-tested against a temporary invalid CSV folder
+- smoke-tested against an empty CSV export of the workbook template
+
+</details>
+
+<details>
+<summary>Phase 5D: Teaching Dictionary Validator Fixtures — Complete</summary>
+
+Status: `Implemented and regression-tested`
+
+Goal:
+- prove the Phase 5C validator contract with committed synthetic CSV fixtures
+- assert exact readiness states and blocker codes
+
+Implemented:
+- `scripts/fixtures/teaching-dictionary-csv/`
+- `scripts/validate-teaching-dictionary-csv-regression.py`
+- synthetic scenario folders for valid first exposure, guided review only,
+  missing P0 content, source/licence gaps, reference-only content, AI draft
+  signoff, duplicate active versions, archived content, unknown references,
+  homophone contrast gaps, morphology metadata gaps, and schwa metadata gaps
+
+Boundaries:
+- synthetic test-only content, not curriculum truth
+- no Supabase writes
+- no migration
+- no import
+- no runtime consumer
+- no assignment-generation hook
+- no resolver, evidence, proficiency, or Word Treasure changes
+
+Verification:
+- `python3 -m py_compile scripts/validate-teaching-dictionary-csv.py scripts/validate-teaching-dictionary-csv-regression.py`
+- `python3 scripts/validate-teaching-dictionary-csv-regression.py`
 
 </details>
 

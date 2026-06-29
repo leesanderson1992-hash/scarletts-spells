@@ -9,6 +9,12 @@ existing spelling micro-skills.
 For Version 3.0, this contract also owns curriculum metadata and curriculum
 readiness for ADLE first-exposure lessons.
 
+Phase 5A and Phase 5B define the current accepted planning truth:
+- Phase 5A readiness rules:
+  `docs/implementation/version-3-phase-5-curriculum-readiness-planning.md`
+- Phase 5B teaching dictionary architecture:
+  `docs/implementation/version-3-phase-5b-teaching-dictionary-architecture.md`
+
 It exists to prevent a word-bank or dictionary import from becoming accidental
 truth for taxonomy, resolver behavior, mastery, assignments, or child progress.
 
@@ -180,13 +186,14 @@ A micro-skill is not ADLE-ready simply because it exists in
 A micro-skill is first-exposure-ready only when curriculum metadata can support
 explicit teaching before independent retrieval.
 
-Required curriculum metadata:
+Phase 5A defines exact P0/P1/P2/P3 field treatment, blocker reasons, review
+statuses, and readiness states. Summary curriculum metadata includes:
 - teaching objective
 - child-friendly explanation
 - rule explanation
-- memory tip or mnemonic
 - anchor word
 - ordered example words from simple to complex
+- memory tip or mnemonic where required by the micro-skill family or route
 - contrast words where useful
 - common misconceptions
 - suggested activity progression
@@ -194,7 +201,7 @@ Required curriculum metadata:
 - source
 - licence or source-use note
 - confidence
-- review status
+- field-level review status
 
 Rules:
 - curriculum readiness belongs to the curriculum metadata layer, not runtime
@@ -206,12 +213,15 @@ Rules:
 - word-map rows and curriculum rows remain metadata; they do not create
   `learning_items`, `assignment_items`, evidence, resolver truth, or rewards
 
-Suggested readiness states:
+Accepted readiness states:
 - `not_ready`
 - `content_gap`
+- `source_or_license_gap`
 - `needs_manual_review`
 - `ready_for_guided_review_only`
 - `ready_for_first_exposure`
+- `rejected`
+- `superseded`
 
 `ready_for_guided_review_only` may support short review activities where the
 child has already been taught by a parent or prior task, but it must not be
@@ -222,6 +232,10 @@ used for an ADLE first-exposure lesson.
 Teaching metadata should be stored in a stable, reviewable content layer.
 It may be represented in existing word-map tables, future curriculum tables, or
 versioned repo artifacts, but the consuming contract is the same.
+
+Phase 5B names this target layer the Canonical Teaching Dictionary. It is more
+than canonical words: canonical words identify word facts, while teaching
+content versions describe how an existing micro-skill can be safely taught.
 
 Minimum teaching metadata shape:
 
