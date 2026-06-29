@@ -165,7 +165,7 @@ Split signoff into two layers.
 
 ### 3.7A Server/Data Lifecycle Signoff
 
-Status: implemented, verification pending healthy local Supabase.
+Status: implemented and closed as server/data lifecycle signoff.
 
 Implemented:
 - `scripts/word-treasure-phase-3-7a-lifecycle-signoff.ts`
@@ -190,30 +190,41 @@ Purpose:
 Run:
 - `npm run word-treasure:phase-3-7a-lifecycle-signoff -- --confirm LOCAL_WORD_TREASURE_PHASE_3_7A`
 
-Acceptance still requires:
+Acceptance covered:
 - `npx tsc --noEmit --pretty false`
-- `npm run word-treasure:phase-3-7a-lifecycle-signoff -- --confirm LOCAL_WORD_TREASURE_PHASE_3_7A`
 - `npm run word-treasure:free-writing-evidence-regression`
 - `npm run child-completion-popup-reward-language-regression`
 - `npx tsx scripts/word-treasure-my-progress-read-model-regression.ts`
+- `npx tsx scripts/writing-engine-returned-child-correction-regression.ts`
+- `npx tsx scripts/admin-spelling-review-hub-regression.ts`
 - `git diff --check`
 
-Current verification note:
-- TypeScript passed after implementation.
-- Focused Phase 3.6/3.7 static regressions passed:
-  - `npm run word-treasure:free-writing-evidence-regression`
-  - `npm run child-completion-popup-reward-language-regression`
-  - `npx tsx scripts/word-treasure-my-progress-read-model-regression.ts`
-  - `git diff --check`
-- Fallback Vercel preview build passed:
-  `https://scarletts-spells-a21fxeaak-leesanderson1992-hashs-projects.vercel.app`
-- Fallback preview route smoke was limited because Vercel SSO protection returns
-  `302` to `https://vercel.com/sso-api` for root, `/login`, and `/learn`.
-- The local smoke is blocked by local Supabase DB health, not by a lifecycle
-  assertion. Auth returned repeat 504/ECONNRESET errors while creating the
-  disposable local user, and `npx supabase db reset` later exited because
-  `supabase_db_scarletts-spells` was unhealthy.
-- Rerun the acceptance list once local Supabase Postgres is healthy.
+Verification note:
+- Hosted Supabase migration audit/repair applied the missing Phase 3.6/3.7
+  schema to the production-labeled database used by the preview:
+  `20260628120000_add_word_treasure_free_writing_evidence.sql` and
+  `20260628130000_allow_text_word_treasure_event_sources.sql`.
+- PostgREST schema cache was reloaded with
+  `select pg_notify('pgrst', 'reload schema');`.
+- Hosted audit confirmed
+  `public.child_word_treasure_evidence_candidates` exists,
+  `child_word_treasure_events.source_entity_id` is text-capable, candidate
+  RLS/policies exist, and migration ledger rows are present.
+- Authenticated preview smoke verified dashboard, Review Work list, two Review
+  Work detail records, parent insights, courses, child week, Daily Practice,
+  child progress, child learning, and child course routes without the earlier
+  `ERROR 4186047802@E394` Review Work detail crash.
+- Follow-up preview smoke on
+  `https://scarletts-spells-rfqh7j2ir-leesanderson1992-hashs-projects.vercel.app`
+  verified dashboard, Review Work list, two Review Work detail records, child
+  week, Daily Practice, Insights, and Courses with no 404 state, no server-error
+  state, and no browser console errors.
+- Parent app-shell admin navigation is hidden unless explicitly enabled by
+  `showAdminNav`, so non-admin parent sessions are no longer led into protected
+  `/admin/*` 404 routes.
+- Direct `/admin/spelling-review` still returns 404 for the smoke account when
+  it is not in the deployed preview admin allowlist; this is expected
+  server-side `requireAdminUser()` protection, not a missing route.
 
 ### 3.7B Browser/UI Daily Assignment Signoff
 

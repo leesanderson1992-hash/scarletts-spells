@@ -68,8 +68,8 @@ assert.match(
 );
 assert.match(
   appShell,
-  /label: "Spelling Review", href: "\/admin\/spelling-review"/,
-  "Admin navigation must include the spelling-review hub.",
+  /showAdminNav\?: boolean[\s\S]*if \(showAdminNav\)[\s\S]*label: "Spelling Review", href: "\/admin\/spelling-review"/,
+  "Admin navigation must include the spelling-review hub when admin navigation is explicitly enabled.",
 );
 assert.match(
   appShell,

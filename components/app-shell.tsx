@@ -19,6 +19,7 @@ type AppShellProps = {
   availableChildren: ChildOption[];
   userEmail?: string | null;
   layout?: "default" | "focus";
+  showAdminNav?: boolean;
 };
 
 type NavItem = {
@@ -32,7 +33,7 @@ type NavSection = {
   items: NavItem[];
 };
 
-function getNavSections(mode: AppMode): NavSection[] {
+function getNavSections(mode: AppMode, showAdminNav: boolean): NavSection[] {
   if (mode === "child") {
     return [
       {
@@ -47,7 +48,7 @@ function getNavSections(mode: AppMode): NavSection[] {
     ];
   }
 
-  return [
+  const sections: NavSection[] = [
     {
       title: "Parent mode",
       items: [
@@ -66,7 +67,10 @@ function getNavSections(mode: AppMode): NavSection[] {
         { label: "Children", href: "/children" },
       ],
     },
-    {
+  ];
+
+  if (showAdminNav) {
+    sections.push({
       title: "Admin",
       items: [
         { label: "Spelling Review", href: "/admin/spelling-review" },
@@ -81,8 +85,10 @@ function getNavSections(mode: AppMode): NavSection[] {
           href: "/admin/spelling-canonical-resolver-readiness",
         },
       ],
-    },
-  ];
+    });
+  }
+
+  return sections;
 }
 
 function isCurrentNavItem(currentPath: string, href: string) {
@@ -101,8 +107,9 @@ export function AppShell({
   availableChildren,
   userEmail,
   layout = "default",
+  showAdminNav = false,
 }: AppShellProps) {
-  const navSections = getNavSections(mode);
+  const navSections = getNavSections(mode, showAdminNav);
   const scopedCurrentPath = buildScopedPath(currentPath, activeChildId, mode);
   const activeChild =
     availableChildren.find((child) => child.id === activeChildId) ?? null;

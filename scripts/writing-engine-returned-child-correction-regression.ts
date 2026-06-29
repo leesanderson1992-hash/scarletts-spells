@@ -67,13 +67,13 @@ assert.doesNotMatch(
 
 assert.match(
   appShell,
-  /title: "Admin"[\s\S]*Catalog Review[\s\S]*href: "\/admin\/catalog-review"[\s\S]*Canonical Recommendations[\s\S]*href: "\/admin\/canonical-recommendations"/,
-  "Parent navigation must expose convenience links to the existing admin review surfaces.",
+  /showAdminNav\?: boolean[\s\S]*if \(showAdminNav\)[\s\S]*title: "Admin"[\s\S]*Catalog Review[\s\S]*href: "\/admin\/catalog-review"[\s\S]*Canonical Recommendations[\s\S]*href: "\/admin\/canonical-recommendations"/,
+  "Parent navigation must expose existing admin review surfaces only behind explicit admin-nav opt-in.",
 );
 assert.doesNotMatch(
   appShell,
   /requireAdminUser|createServiceRoleClient|admin role/,
-  "App shell admin links must remain navigation only and must not implement authorization.",
+  "App shell admin links must remain navigation-only and must not implement authorization.",
 );
 
 assert.match(

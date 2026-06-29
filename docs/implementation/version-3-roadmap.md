@@ -13,7 +13,7 @@ ADLE remains separate from Word Treasure.
 
 ## Current stage
 
-Current Version 3.0 stage: `Phase 3.6 Free-writing evidence complete; Phase 3.7A server lifecycle signoff next`.
+Current Version 3.0 stage: `Phase 3.7A server/data lifecycle signoff complete; Phase 3.7B browser/UI Daily Assignment signoff deferred until the Daily Assignment stage begins`.
 
 Implemented so far:
 - Phase 0 current-state audit was completed as an inspection/planning pass.
@@ -32,7 +32,8 @@ Implemented so far:
 - No ADLE generation has been wired into runtime assignment generation.
 
 Next safe implementation slice:
-- Phase 3.7A server/data lifecycle signoff.
+- Phase 3.7B browser/UI Daily Assignment signoff when the Daily Assignment
+  product stage begins.
 
 ## Target architecture
 
@@ -250,7 +251,7 @@ Next step:
 <details open>
 <summary>Phase 3: Word Treasure end to end — Planned</summary>
 
-Status: `Started; Phase 3.0 through Phase 3.6 complete, Phase 3.7A next`
+Status: `Started; Phase 3.0 through Phase 3.7A complete, Phase 3.7B deferred`
 
 Goal:
 - implement the Word Treasure lifecycle end to end, beginning with canonical
@@ -806,23 +807,43 @@ Verification status:
 - `npm run child-completion-popup-reward-language-regression` passes
 - `npx tsx scripts/word-treasure-my-progress-read-model-regression.ts` passes
 - `git diff --check` passes
-- fallback Vercel preview build passed:
-  `https://scarletts-spells-a21fxeaak-leesanderson1992-hashs-projects.vercel.app`
-- fallback preview route smoke was limited because Vercel SSO protection returns
-  `302` to `https://vercel.com/sso-api` for root, `/login`, and `/learn`
+- hosted Supabase migration audit/repair applied the missing Phase 3.6/3.7
+  schema to the production-labeled database used by the preview:
+  `20260628120000_add_word_treasure_free_writing_evidence.sql` and
+  `20260628130000_allow_text_word_treasure_event_sources.sql`
+- PostgREST schema cache was reloaded with
+  `select pg_notify('pgrst', 'reload schema');`
+- hosted audit confirmed
+  `public.child_word_treasure_evidence_candidates` exists,
+  `child_word_treasure_events.source_entity_id` is text-capable, candidate
+  RLS/policies exist, and migration ledger rows are present
 - local Supabase migration
   `20260628130000_allow_text_word_treasure_event_sources.sql` applied once with
   `npx supabase migration up --local`
-- the 3.7A local smoke is not yet accepted because local Supabase Postgres
-  became unhealthy during verification; Auth returned repeat 504/ECONNRESET
-  errors and `supabase db reset` later exited with
-  `supabase_db_scarletts-spells container is not ready: unhealthy`
-- rerun the acceptance command after local Supabase is healthy
+- initial authenticated preview smoke verified dashboard, Review Work list, two
+  Review Work detail records, parent insights, courses, child week, Daily
+  Practice, child progress, child learning, and child course routes without the
+  earlier `ERROR 4186047802@E394` Review Work detail crash
+- follow-up preview smoke on
+  `https://scarletts-spells-rfqh7j2ir-leesanderson1992-hashs-projects.vercel.app`
+  verified dashboard, Review Work list, two Review Work detail records, child
+  week, Daily Practice, Insights, and Courses with no 404 state, no server-error
+  state, and no browser console errors
+- parent app-shell admin navigation is now hidden unless explicitly enabled by
+  `showAdminNav`, so non-admin parent sessions are no longer led into protected
+  `/admin/*` 404 routes
+- direct `/admin/spelling-review` still returns 404 for the smoke account when
+  it is not in the deployed preview admin allowlist; this is expected
+  server-side `requireAdminUser()` protection, not a missing route
+- `npx tsx scripts/writing-engine-returned-child-correction-regression.ts`
+  passes with the updated admin-nav contract
+- `npx tsx scripts/admin-spelling-review-hub-regression.ts` passes with the
+  updated explicit-admin-nav contract
 
 Residual risk:
 - browser-level Daily Assignment/product journey remains deferred to 3.7B
-- 3.7A is not closed until the local smoke and the remaining listed regressions
-  pass on a healthy local Supabase stack
+- future admin navigation re-exposure should pass `showAdminNav` only from a
+  server-rendered context that has already established admin authorization
 
 3.7B browser/UI signoff when Daily Assignment stage begins:
 - run a real child/parent browser path from generated Daily Assignment card to
