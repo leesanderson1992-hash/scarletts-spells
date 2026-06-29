@@ -13,7 +13,7 @@ ADLE remains separate from Word Treasure.
 
 ## Current stage
 
-Current Version 3.0 stage: `Phase 3.7A server/data lifecycle signoff complete; Phase 3.7B browser/UI Daily Assignment signoff deferred until the Daily Assignment stage begins`.
+Current Version 3.0 stage: `Phase 4 curriculum metadata inventory audit complete as docs-only planning; Phase 3.7B browser/UI Daily Assignment signoff deferred until the Daily Assignment stage begins`.
 
 Implemented so far:
 - Phase 0 current-state audit was completed as an inspection/planning pass.
@@ -29,11 +29,13 @@ Implemented so far:
 - Phase 3.5 Daily Assignment Forge movement is complete and QA-audited.
 - Phase 3.6 Free-writing evidence and parent-confirmed Gold Bars is complete
   and QA-audited for the server/review/popup contract.
+- Phase 4 curriculum metadata inventory audit is complete as a docs-only report:
+  `docs/implementation/version-3-phase-4-curriculum-metadata-inventory-audit.md`.
 - No ADLE generation has been wired into runtime assignment generation.
 
 Next safe implementation slice:
-- Phase 3.7B browser/UI Daily Assignment signoff when the Daily Assignment
-  product stage begins.
+- Phase 5A curriculum readiness rules, or Phase 3.7B browser/UI Daily
+  Assignment signoff when the Daily Assignment product stage begins.
 
 ## Target architecture
 
@@ -858,25 +860,31 @@ Target commit:
 </details>
 
 <details>
-<summary>Phase 4: Curriculum metadata inventory audit — Planned</summary>
+<summary>Phase 4: Curriculum metadata inventory audit — Complete</summary>
 
-Status: `Not started`
+Status: `Complete as docs-only audit`
 
 Goal:
 - compare current word-map/curriculum data against target teaching metadata.
 
 Report:
-- ready fields
-- missing fields
-- manual-review gaps
-- licensing gaps
-- schema gaps
-- import-pipeline gaps
+- ready fields: captured in
+  `docs/implementation/version-3-phase-4-curriculum-metadata-inventory-audit.md`
+- missing fields: captured in the target metadata matrix
+- manual-review gaps: captured in the manual-review workflow recommendations
+- licensing gaps: captured in the external-source register
+- schema gaps: captured in the proposed production table notes
+- import-pipeline gaps: captured in the import-pipeline gap notes
 
 Boundaries:
 - no runtime use
 - no assignment-generation hook
 - no production import
+- no migration
+- no hosted Supabase mutation
+- no invented teaching content as final truth
+- no conflation of Canonical Truth and Child Proficiency
+- no conflation of Word Treasure and Micro-Skill Levels
 
 </details>
 
