@@ -80,6 +80,21 @@ const CANDIDATE_SELECT = [
   "updated_at",
 ].join(", ");
 
+function isMissingEvidenceCandidateTableError(error: unknown) {
+  if (!error || typeof error !== "object") {
+    return false;
+  }
+
+  const record = error as Record<string, unknown>;
+  const code = typeof record.code === "string" ? record.code : "";
+  const message = typeof record.message === "string" ? record.message : "";
+
+  return (
+    code === "PGRST205" &&
+    message.includes("child_word_treasure_evidence_candidates")
+  );
+}
+
 function escapeRegExp(value: string) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
@@ -290,6 +305,13 @@ export async function getFreeWritingEvidenceCandidatesForReview(input: {
     .order("created_at", { ascending: true });
 
   if (error) {
+    if (isMissingEvidenceCandidateTableError(error)) {
+      console.warn(
+        "Free-writing evidence candidate table is missing; Review Work will continue without candidate confirmations.",
+      );
+      return [] as FreeWritingEvidenceReviewCandidate[];
+    }
+
     throw error;
   }
 

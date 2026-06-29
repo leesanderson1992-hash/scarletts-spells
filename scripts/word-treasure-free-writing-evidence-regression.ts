@@ -102,6 +102,16 @@ assert.match(
   "Candidate confirmation must remember whether it awarded a Gold Bar.",
 );
 assert.match(
+  freeWritingEvidence,
+  /isMissingEvidenceCandidateTableError[\s\S]*PGRST205[\s\S]*child_word_treasure_evidence_candidates/,
+  "Review Work must detect missing candidate-table schema-cache errors during staged rollout.",
+);
+assert.match(
+  freeWritingEvidence,
+  /Free-writing evidence candidate table is missing[\s\S]*return \[\] as FreeWritingEvidenceReviewCandidate\[\]/,
+  "Review Work detail must not hard-fail when the optional suspected-evidence table has not reached the hosted schema yet.",
+);
+assert.match(
   learnActions,
   /detectAndStoreFreeWritingEvidenceCandidates\(/,
   "Lesson/test submission must store suspected evidence candidates.",
