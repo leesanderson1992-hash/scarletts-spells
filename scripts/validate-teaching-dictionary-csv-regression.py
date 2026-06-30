@@ -293,7 +293,7 @@ def write_fixture(name: str, data: dict[str, list[dict[str, str]]]) -> None:
     (folder / "README.md").write_text(readme, encoding="utf-8")
     for file_name, headers in HEADERS.items():
         with (folder / file_name).open("w", encoding="utf-8", newline="") as handle:
-            writer = csv.DictWriter(handle, fieldnames=headers)
+            writer = csv.DictWriter(handle, fieldnames=headers, lineterminator="\n")
             writer.writeheader()
             writer.writerows(data.get(file_name, []))
 
@@ -506,8 +506,7 @@ def normalize_report(report: dict[str, Any]) -> dict[str, Any]:
 
 
 def main() -> int:
-    if not FIXTURE_ROOT.exists():
-        raise FileNotFoundError(f"Fixture root is missing: {FIXTURE_ROOT}")
+    build_fixtures()
     validator = load_validator()
     if TMP_ROOT.exists():
         shutil.rmtree(TMP_ROOT)

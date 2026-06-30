@@ -22,7 +22,7 @@ from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
 EXPANDED_CATALOG = ROOT / "docs/implementation/seed-data/domain4-seed-expansion/micro-skills.json"
-SCHEMA_VERSION = "version_3_phase_5c_teaching_dictionary_csv_v1"
+SCHEMA_VERSION = "version_3_phase_5c_teaching_dictionary_csv_v2"
 
 REQUIRED_FILES = {
     "canonical_words.csv": [
@@ -60,13 +60,10 @@ REQUIRED_FILES = {
         "confidence",
         "review_status",
     ],
-    "canonical_word_micro_skills.csv": [
+    "micro_skill_word_support.csv": [
         "word_key",
         "micro_skill_key",
-        "micro_skill_role",
-        "difficulty_band",
-        "evidence_weight",
-        "display_order",
+        "support_role",
         "source_category",
         "source_name",
         "source_url",
@@ -74,6 +71,7 @@ REQUIRED_FILES = {
         "source_use_note",
         "confidence",
         "review_status",
+        "review_notes",
     ],
     "teaching_content_versions.csv": [
         "micro_skill_key",
@@ -84,9 +82,6 @@ REQUIRED_FILES = {
         "child_friendly_explanation",
         "rule_explanation",
         "memory_tip",
-        "anchor_word_key",
-        "ordered_example_word_keys",
-        "contrast_word_keys",
         "common_misconceptions",
         "first_exposure_progression",
         "review_progression",
@@ -174,9 +169,8 @@ IMPORTABILITY_STATUSES = {
 LEGAL_REVIEW_STATUSES = {"not_required", "required", "passed", "failed", "unknown"}
 ROW_STATUSES = {"draft", "active", "rejected", "superseded"}
 CONFIDENCE_VALUES = {"low", "medium", "high"}
-DIFFICULTY_BANDS = {"low", "medium", "high"}
 BOOLEAN_VALUES = {"TRUE", "FALSE"}
-MICRO_SKILL_ROLES = {"anchor", "ordered_example", "contrast", "diagnostic", "route_support", "review_example"}
+SUPPORT_ROLES = {"support_example", "contrast", "review_example"}
 
 ENUM_COLUMNS = {
     ("canonical_words.csv", "source_category"): SOURCE_CATEGORIES,
@@ -187,11 +181,10 @@ ENUM_COLUMNS = {
     ("canonical_word_metadata.csv", "review_status"): REVIEW_STATUSES,
     ("canonical_word_metadata.csv", "confidence"): CONFIDENCE_VALUES,
     ("canonical_word_metadata.csv", "has_schwa"): BOOLEAN_VALUES,
-    ("canonical_word_micro_skills.csv", "source_category"): SOURCE_CATEGORIES,
-    ("canonical_word_micro_skills.csv", "review_status"): REVIEW_STATUSES,
-    ("canonical_word_micro_skills.csv", "confidence"): CONFIDENCE_VALUES,
-    ("canonical_word_micro_skills.csv", "difficulty_band"): DIFFICULTY_BANDS,
-    ("canonical_word_micro_skills.csv", "micro_skill_role"): MICRO_SKILL_ROLES,
+    ("micro_skill_word_support.csv", "source_category"): SOURCE_CATEGORIES,
+    ("micro_skill_word_support.csv", "review_status"): REVIEW_STATUSES,
+    ("micro_skill_word_support.csv", "confidence"): CONFIDENCE_VALUES,
+    ("micro_skill_word_support.csv", "support_role"): SUPPORT_ROLES,
     ("teaching_content_versions.csv", "source_category"): SOURCE_CATEGORIES,
     ("teaching_content_versions.csv", "version_status"): VERSION_STATUSES,
     ("teaching_content_versions.csv", "final_readiness_review_status"): FINAL_REVIEW_STATUSES,
@@ -208,8 +201,6 @@ P0_FIELDS = [
     ("teaching_objective", "missing_teaching_objective"),
     ("child_friendly_explanation", "missing_child_friendly_explanation"),
     ("rule_explanation", "missing_rule_explanation"),
-    ("anchor_word_key", "missing_anchor_word"),
-    ("ordered_example_word_keys", "missing_ordered_example_words"),
     ("first_exposure_progression", "missing_first_exposure_progression"),
 ]
 
@@ -217,16 +208,12 @@ REQUIRED_FIRST_EXPOSURE_FIELD_REVIEWS = {
     "teaching_objective",
     "child_friendly_explanation",
     "rule_explanation",
-    "anchor_word_key",
-    "ordered_example_word_keys",
     "first_exposure_progression",
     "source",
     "licence",
 }
 
 REQUIRED_GUIDED_REVIEW_FIELD_REVIEWS = {
-    "anchor_word_key",
-    "ordered_example_word_keys",
     "rule_explanation",
     "review_progression",
     "source",
@@ -332,6 +319,11 @@ def read_csv_file(path: Path, expected_headers: list[str]) -> tuple[list[dict[st
 def load_csv_folder(folder: Path) -> tuple[dict[str, list[dict[str, str]]], list[Issue]]:
     issues: list[Issue] = []
     data: dict[str, list[dict[str, str]]] = {}
+    accepted_files = set(REQUIRED_FILES) | set(OPTIONAL_FILES)
+
+    for path in sorted(folder.glob("*.csv")):
+        if path.name not in accepted_files:
+            add_issue(issues, "error", path.name, None, None, "Unexpected CSV file is not part of the Phase 5C teaching dictionary contract.")
 
     for file_name, headers in REQUIRED_FILES.items():
         path = folder / file_name
@@ -435,6 +427,11 @@ def validate_global_references(
 ) -> None:
     word_rows = data["canonical_words.csv"]
     word_keys = {clean(row["word_key"]) for row in word_rows if clean(row["word_key"])}
+    approved_word_keys = {
+        clean(row["word_key"])
+        for row in word_rows
+        if clean(row["word_key"]) and clean(row["review_status"]) == "approved_for_first_exposure"
+    }
 
     validate_unique_keys(word_rows, "canonical_words.csv", ["word_key"], issues)
     validate_unique_keys(
@@ -447,7 +444,7 @@ def validate_global_references(
     for file_name in [
         "canonical_words.csv",
         "canonical_word_metadata.csv",
-        "canonical_word_micro_skills.csv",
+        "micro_skill_word_support.csv",
         "teaching_content_versions.csv",
     ]:
         for row in data.get(file_name, []):
@@ -458,16 +455,18 @@ def validate_global_references(
         if key and key not in word_keys:
             add_issue(issues, "error", "canonical_word_metadata.csv", row_number(row), "word_key", f"Unknown word_key {key!r}.")
 
-    for row in data["canonical_word_micro_skills.csv"]:
+    for row in data["micro_skill_word_support.csv"]:
         key = clean(row["word_key"])
         skill = clean(row["micro_skill_key"])
         if key and key not in word_keys:
-            add_issue(issues, "error", "canonical_word_micro_skills.csv", row_number(row), "word_key", f"Unknown word_key {key!r}.")
+            add_issue(issues, "error", "micro_skill_word_support.csv", row_number(row), "word_key", f"Unknown word_key {key!r}.")
+        elif key and key not in approved_word_keys:
+            add_issue(issues, "error", "micro_skill_word_support.csv", row_number(row), "word_key", f"word_key {key!r} is not approved in canonical_words.csv.")
         if skill and skill not in catalog:
             add_issue(
                 issues,
                 "error",
-                "canonical_word_micro_skills.csv",
+                "micro_skill_word_support.csv",
                 row_number(row),
                 "micro_skill_key",
                 f"Unknown micro_skill_key {skill!r}.",
@@ -484,21 +483,6 @@ def validate_global_references(
                 "micro_skill_key",
                 f"Unknown micro_skill_key {skill!r}.",
             )
-        for field in ["anchor_word_key"]:
-            key = clean(row[field])
-            if key and key not in word_keys:
-                add_issue(issues, "error", "teaching_content_versions.csv", row_number(row), field, f"Unknown word_key {key!r}.")
-        for field in ["ordered_example_word_keys", "contrast_word_keys"]:
-            for key in split_list(row[field]):
-                if key not in word_keys:
-                    add_issue(
-                        issues,
-                        "error",
-                        "teaching_content_versions.csv",
-                        row_number(row),
-                        field,
-                        f"Unknown word_key {key!r}.",
-                    )
 
     version_keys = {
         (clean(row["micro_skill_key"]), clean(row["content_version"]))
@@ -517,14 +501,12 @@ def validate_global_references(
                 f"Field review references unknown teaching content version {key}.",
             )
 
-
 def build_metadata_indexes(data: dict[str, list[dict[str, str]]]) -> tuple[dict[str, dict[str, str]], dict[tuple[str, str], list[dict[str, str]]]]:
     metadata_by_word = {clean(row["word_key"]): row for row in data["canonical_word_metadata.csv"] if clean(row["word_key"])}
-    mappings_by_skill: dict[tuple[str, str], list[dict[str, str]]] = defaultdict(list)
-    for row in data["canonical_word_micro_skills.csv"]:
-        mappings_by_skill[(clean(row["micro_skill_key"]), clean(row["micro_skill_role"]))].append(row)
-    return metadata_by_word, mappings_by_skill
-
+    support_by_skill: dict[tuple[str, str], list[dict[str, str]]] = defaultdict(list)
+    for row in data["micro_skill_word_support.csv"]:
+        support_by_skill[(clean(row["micro_skill_key"]), clean(row["support_role"]))].append(row)
+    return metadata_by_word, support_by_skill
 
 def approved_field_reviews(data: dict[str, list[dict[str, str]]]) -> dict[tuple[str, str], dict[str, set[str]]]:
     reviews: dict[tuple[str, str], dict[str, set[str]]] = defaultdict(lambda: defaultdict(set))
@@ -630,27 +612,32 @@ def family_required_blockers(
     row: dict[str, str],
     catalog_row: dict[str, Any] | None,
     metadata_by_word: dict[str, dict[str, str]],
-    mappings_by_skill: dict[tuple[str, str], list[dict[str, str]]],
+    support_by_skill: dict[tuple[str, str], list[dict[str, str]]],
     blockers: list[Blocker],
 ) -> None:
     if not catalog_row:
         return
     family = clean(catalog_row.get("skill_family_key"))
-    anchor_key = clean(row["anchor_word_key"])
-    anchor_metadata = metadata_by_word.get(anchor_key, {})
+    skill = clean(row["micro_skill_key"])
+    support_rows = support_by_skill.get((skill, "support_example"), [])
+    contrast_rows = support_by_skill.get((skill, "contrast"), [])
 
-    if family == "D4_HOM" and not split_list(row["contrast_word_keys"]):
+    if family == "D4_HOM" and not contrast_rows:
         add_blocker(
             blockers,
             "insufficient_ordered_example_words",
-            "contrast_word_keys",
+            "support_role:contrast",
             "blocking_first_exposure",
             "pedagogy",
-            "D4_HOM first-exposure content requires contrast words.",
+            "D4_HOM first-exposure content requires reviewed contrast support words.",
         )
 
     if family in {"D4_MOR", "D4_INF"}:
-        has_morphology = bool(clean(anchor_metadata.get("morphemes")) or clean(anchor_metadata.get("morphology_notes")))
+        has_morphology = any(
+            clean(metadata_by_word.get(clean(support_row["word_key"]), {}).get("morphemes"))
+            or clean(metadata_by_word.get(clean(support_row["word_key"]), {}).get("morphology_notes"))
+            for support_row in support_rows
+        )
         if not has_morphology:
             add_blocker(
                 blockers,
@@ -662,10 +649,11 @@ def family_required_blockers(
             )
 
     if family == "D4_SCHWA":
-        has_sound_metadata = bool(
-            clean(anchor_metadata.get("phoneme_hint"))
-            or clean(anchor_metadata.get("stress_pattern"))
-            or parse_bool(anchor_metadata.get("has_schwa", "FALSE"))
+        has_sound_metadata = any(
+            clean(metadata_by_word.get(clean(support_row["word_key"]), {}).get("phoneme_hint"))
+            or clean(metadata_by_word.get(clean(support_row["word_key"]), {}).get("stress_pattern"))
+            or parse_bool(metadata_by_word.get(clean(support_row["word_key"]), {}).get("has_schwa", "FALSE"))
+            for support_row in support_rows
         )
         if not has_sound_metadata:
             add_blocker(
@@ -676,7 +664,6 @@ def family_required_blockers(
                 "pedagogy",
                 "D4_SCHWA first-exposure content requires schwa, stress, or phoneme metadata support.",
             )
-
 
 def readiness_state_for(
     blockers: list[Blocker],
@@ -751,7 +738,7 @@ def validate_teaching_version(
     catalog: dict[str, dict[str, Any]],
     word_keys: set[str],
     metadata_by_word: dict[str, dict[str, str]],
-    mappings_by_skill: dict[tuple[str, str], list[dict[str, str]]],
+    support_by_skill: dict[tuple[str, str], list[dict[str, str]]],
     reviews: dict[tuple[str, str], dict[str, set[str]]],
     global_issues: list[Issue],
 ) -> dict[str, Any]:
@@ -767,14 +754,14 @@ def validate_teaching_version(
         for field, blocker in P0_FIELDS:
             if not clean(row[field]):
                 add_blocker(blockers, blocker, field, "blocking_first_exposure", "pedagogy", f"Missing required P0 field {field!r}.")
-        if not split_list(row["ordered_example_word_keys"]):
+        if not support_by_skill.get((clean(row["micro_skill_key"]), "support_example")):
             add_blocker(
                 blockers,
                 "missing_ordered_example_words",
-                "ordered_example_word_keys",
+                "support_role:support_example",
                 "blocking_first_exposure",
                 "pedagogy",
-                "Missing ordered example words.",
+                "Missing reviewed support example words.",
             )
 
     catalog_row = catalog.get(clean(row["micro_skill_key"]))
@@ -787,39 +774,8 @@ def validate_teaching_version(
             None,
             f"Unknown micro_skill_key {clean(row['micro_skill_key'])!r}.",
         )
-    anchor_key = clean(row["anchor_word_key"])
-    if anchor_key and anchor_key not in word_keys:
-        add_blocker(
-            blockers,
-            "missing_anchor_word",
-            "anchor_word_key",
-            "blocking_first_exposure",
-            "pedagogy",
-            f"anchor_word_key {anchor_key!r} does not resolve to canonical_words.csv.",
-        )
-    for example_key in split_list(row["ordered_example_word_keys"]):
-        if example_key not in word_keys:
-            add_blocker(
-                blockers,
-                "missing_ordered_example_words",
-                "ordered_example_word_keys",
-                "blocking_first_exposure",
-                "pedagogy",
-                f"ordered_example_word_keys contains unknown word_key {example_key!r}.",
-            )
-    for contrast_key in split_list(row["contrast_word_keys"]):
-        if contrast_key not in word_keys:
-            add_blocker(
-                blockers,
-                "insufficient_ordered_example_words",
-                "contrast_word_keys",
-                "blocking_first_exposure",
-                "pedagogy",
-                f"contrast_word_keys contains unknown word_key {contrast_key!r}.",
-            )
-
     if version_status not in {"rejected", "superseded", "archived"}:
-        family_required_blockers(row, catalog_row, metadata_by_word, mappings_by_skill, blockers)
+        family_required_blockers(row, catalog_row, metadata_by_word, support_by_skill, blockers)
 
     if not clean(row["confidence"]):
         add_blocker(blockers, "missing_confidence", "confidence", "blocking_first_exposure", "final_readiness", "Missing confidence.")
@@ -859,8 +815,7 @@ def validate_teaching_version(
     can_first_exposure = not first_exposure_blockers and final_signed_off and version_status == "active"
 
     guided_required_fields_present = bool(
-        clean(row["anchor_word_key"])
-        and split_list(row["ordered_example_word_keys"])
+        support_by_skill.get((clean(row["micro_skill_key"]), "support_example"))
         and clean(row["rule_explanation"])
         and clean(row["review_progression"])
     )
@@ -906,11 +861,11 @@ def validate(folder: Path) -> dict[str, Any]:
     validate_global_references(data, catalog, issues)
     validate_active_versions(data, issues)
 
-    metadata_by_word, mappings_by_skill = build_metadata_indexes(data)
+    metadata_by_word, support_by_skill = build_metadata_indexes(data)
     word_keys = {clean(row["word_key"]) for row in data["canonical_words.csv"] if clean(row["word_key"])}
     reviews = approved_field_reviews(data)
     versions = [
-        validate_teaching_version(row, catalog, word_keys, metadata_by_word, mappings_by_skill, reviews, issues)
+        validate_teaching_version(row, catalog, word_keys, metadata_by_word, support_by_skill, reviews, issues)
         for row in data["teaching_content_versions.csv"]
     ]
     return build_report(folder, versions, issues)

@@ -1,0 +1,296 @@
+file,row_number,word_key,field,value,action,reason
+canonical_words.csv,190,die_en_gb,word_key,die_en_gb,removed_duplicate_word_row,canonical_words.csv must have one row per word_key; kept the first occurrence.
+canonical_words.csv,212,dying_en_gb,word_key,dying_en_gb,removed_duplicate_word_row,canonical_words.csv must have one row per word_key; kept the first occurrence.
+canonical_words.csv,439,lying_en_gb,word_key,lying_en_gb,removed_duplicate_word_row,canonical_words.csv must have one row per word_key; kept the first occurrence.
+canonical_words.csv,800,tried_en_gb,word_key,tried_en_gb,removed_duplicate_word_row,canonical_words.csv must have one row per word_key; kept the first occurrence.
+canonical_word_metadata.csv,29,auto_automatic_en_gb,word_key,auto_automatic_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_metadata.csv,35,bad_worse_worst_en_gb,word_key,bad_worse_worst_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_metadata.csv,37,bake_baked_en_gb,word_key,bake_baked_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_metadata.csv,49,big_bigger_biggest_en_gb,word_key,big_bigger_biggest_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_metadata.csv,60,bomb_bombard_en_gb,word_key,bomb_bombard_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_metadata.csv,64,bote_en_gb,word_key,bote_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_metadata.csv,69,brave_braver_bravest_en_gb,word_key,brave_braver_bravest_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_metadata.csv,83,busy_busier_busiest_en_gb,word_key,busy_busier_busiest_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_metadata.csv,99,car_park_en_gb,word_key,car_park_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_metadata.csv,100,care_careful_en_gb,word_key,care_careful_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_metadata.csv,101,care_careless_en_gb,word_key,care_careless_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_metadata.csv,106,carry_carried_en_gb,word_key,carry_carried_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_metadata.csv,156,copy_copied_en_gb,word_key,copy_copied_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_metadata.csv,167,cry_cried_en_gb,word_key,cry_cried_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_metadata.csv,181,define_definition_en_gb,word_key,define_definition_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_metadata.csv,184,dict_predict_en_gb,word_key,dict_predict_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_metadata.csv,185,die_dying_en_gb,word_key,die_dying_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_metadata.csv,215,electric_electricity_en_gb,word_key,electric_electricity_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_metadata.csv,240,fast_faster_fastest_en_gb,word_key,fast_faster_fastest_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_metadata.csv,267,form_inform_en_gb,word_key,form_inform_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_metadata.csv,276,funny_funnier_funniest_en_gb,word_key,funny_funnier_funniest_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_metadata.csv,296,good_better_best_en_gb,word_key,good_better_best_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_metadata.csv,299,grab_grabbed_en_gb,word_key,grab_grabbed_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_metadata.csv,302,graph_graphic_en_gb,word_key,graph_graphic_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_metadata.csv,316,happy_happier_happiest_en_gb,word_key,happy_happier_happiest_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_metadata.csv,322,heal_health_en_gb,word_key,heal_health_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_metadata.csv,326,help_helpful_en_gb,word_key,help_helpful_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_metadata.csv,338,hop_hopped_en_gb,word_key,hop_hopped_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_metadata.csv,339,hope_hoped_en_gb,word_key,hope_hoped_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_metadata.csv,340,hope_hoping_en_gb,word_key,hope_hoping_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_metadata.csv,344,hot_hotter_hottest_en_gb,word_key,hot_hotter_hottest_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_metadata.csv,383,kind_kindness_en_gb,word_key,kind_kindness_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_metadata.csv,396,lat_en_gb,word_key,lat_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_metadata.csv,411,lie_lying_en_gb,word_key,lie_lying_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_metadata.csv,414,like_liked_en_gb,word_key,like_liked_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_metadata.csv,431,magic_magician_en_gb,word_key,magic_magician_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_metadata.csv,434,make_making_en_gb,word_key,make_making_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_metadata.csv,439,mapp_en_gb,word_key,mapp_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_metadata.csv,467,music_musician_en_gb,word_key,music_musician_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_metadata.csv,480,nice_nicer_nicest_en_gb,word_key,nice_nicer_nicest_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_metadata.csv,524,photo_photograph_en_gb,word_key,photo_photograph_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_metadata.csv,525,photograph_photography_en_gb,word_key,photograph_photography_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_metadata.csv,536,plan_planned_en_gb,word_key,plan_planned_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_metadata.csv,541,play_player_en_gb,word_key,play_player_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_metadata.csv,552,port_transport_en_gb,word_key,port_transport_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_metadata.csv,581,quick_quickly_en_gb,word_key,quick_quickly_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_metadata.csv,616,run_running_en_gb,word_key,run_running_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_metadata.csv,621,sad_sadder_saddest_en_gb,word_key,sad_sadder_saddest_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_metadata.csv,626,sam_en_gb,word_key,sam_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_metadata.csv,662,sign_signal_signature_en_gb,word_key,sign_signal_signature_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_metadata.csv,663,sign_signature_en_gb,word_key,sign_signature_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_metadata.csv,671,sit_sitting_en_gb,word_key,sit_sitting_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_metadata.csv,678,smile_smiled_en_gb,word_key,smile_smiled_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_metadata.csv,679,smile_smiling_en_gb,word_key,smile_smiling_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_metadata.csv,706,stop_stopped_en_gb,word_key,stop_stopped_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_metadata.csv,707,stop_stopping_en_gb,word_key,stop_stopping_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_metadata.csv,716,struct_instruct_en_gb,word_key,struct_instruct_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_metadata.csv,729,swim_swimming_en_gb,word_key,swim_swimming_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_metadata.csv,740,tele_telephone_en_gb,word_key,tele_telephone_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_metadata.csv,743,thank_thankful_en_gb,word_key,thank_thankful_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_metadata.csv,766,tie_tying_en_gb,word_key,tie_tying_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_metadata.csv,785,try_tried_en_gb,word_key,try_tried_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_metadata.csv,801,vie_vying_en_gb,word_key,vie_vying_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_metadata.csv,853,write_writing_en_gb,word_key,write_writing_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_metadata.csv,,auto_en_gb,word_key,auto_en_gb,added_placeholder_metadata_row,new reviewed word_key had no metadata row yet.
+canonical_word_metadata.csv,,automatic_en_gb,word_key,automatic_en_gb,added_placeholder_metadata_row,new reviewed word_key had no metadata row yet.
+canonical_word_metadata.csv,,bake_en_gb,word_key,bake_en_gb,added_placeholder_metadata_row,new reviewed word_key had no metadata row yet.
+canonical_word_metadata.csv,,baked_en_gb,word_key,baked_en_gb,added_placeholder_metadata_row,new reviewed word_key had no metadata row yet.
+canonical_word_metadata.csv,,bigger_en_gb,word_key,bigger_en_gb,added_placeholder_metadata_row,new reviewed word_key had no metadata row yet.
+canonical_word_metadata.csv,,biggest_en_gb,word_key,biggest_en_gb,added_placeholder_metadata_row,new reviewed word_key had no metadata row yet.
+canonical_word_metadata.csv,,bomb_en_gb,word_key,bomb_en_gb,added_placeholder_metadata_row,new reviewed word_key had no metadata row yet.
+canonical_word_metadata.csv,,bombard_en_gb,word_key,bombard_en_gb,added_placeholder_metadata_row,new reviewed word_key had no metadata row yet.
+canonical_word_metadata.csv,,braver_en_gb,word_key,braver_en_gb,added_placeholder_metadata_row,new reviewed word_key had no metadata row yet.
+canonical_word_metadata.csv,,bravest_en_gb,word_key,bravest_en_gb,added_placeholder_metadata_row,new reviewed word_key had no metadata row yet.
+canonical_word_metadata.csv,,busier_en_gb,word_key,busier_en_gb,added_placeholder_metadata_row,new reviewed word_key had no metadata row yet.
+canonical_word_metadata.csv,,busiest_en_gb,word_key,busiest_en_gb,added_placeholder_metadata_row,new reviewed word_key had no metadata row yet.
+canonical_word_metadata.csv,,carried_en_gb,word_key,carried_en_gb,added_placeholder_metadata_row,new reviewed word_key had no metadata row yet.
+canonical_word_metadata.csv,,copy_en_gb,word_key,copy_en_gb,added_placeholder_metadata_row,new reviewed word_key had no metadata row yet.
+canonical_word_metadata.csv,,define_en_gb,word_key,define_en_gb,added_placeholder_metadata_row,new reviewed word_key had no metadata row yet.
+canonical_word_metadata.csv,,definition_en_gb,word_key,definition_en_gb,added_placeholder_metadata_row,new reviewed word_key had no metadata row yet.
+canonical_word_metadata.csv,,electric_en_gb,word_key,electric_en_gb,added_placeholder_metadata_row,new reviewed word_key had no metadata row yet.
+canonical_word_metadata.csv,,electricity_en_gb,word_key,electricity_en_gb,added_placeholder_metadata_row,new reviewed word_key had no metadata row yet.
+canonical_word_metadata.csv,,fast_en_gb,word_key,fast_en_gb,added_placeholder_metadata_row,new reviewed word_key had no metadata row yet.
+canonical_word_metadata.csv,,faster_en_gb,word_key,faster_en_gb,added_placeholder_metadata_row,new reviewed word_key had no metadata row yet.
+canonical_word_metadata.csv,,fastest_en_gb,word_key,fastest_en_gb,added_placeholder_metadata_row,new reviewed word_key had no metadata row yet.
+canonical_word_metadata.csv,,form_en_gb,word_key,form_en_gb,added_placeholder_metadata_row,new reviewed word_key had no metadata row yet.
+canonical_word_metadata.csv,,funnier_en_gb,word_key,funnier_en_gb,added_placeholder_metadata_row,new reviewed word_key had no metadata row yet.
+canonical_word_metadata.csv,,funniest_en_gb,word_key,funniest_en_gb,added_placeholder_metadata_row,new reviewed word_key had no metadata row yet.
+canonical_word_metadata.csv,,grab_en_gb,word_key,grab_en_gb,added_placeholder_metadata_row,new reviewed word_key had no metadata row yet.
+canonical_word_metadata.csv,,grabbed_en_gb,word_key,grabbed_en_gb,added_placeholder_metadata_row,new reviewed word_key had no metadata row yet.
+canonical_word_metadata.csv,,graphic_en_gb,word_key,graphic_en_gb,added_placeholder_metadata_row,new reviewed word_key had no metadata row yet.
+canonical_word_metadata.csv,,happier_en_gb,word_key,happier_en_gb,added_placeholder_metadata_row,new reviewed word_key had no metadata row yet.
+canonical_word_metadata.csv,,heal_en_gb,word_key,heal_en_gb,added_placeholder_metadata_row,new reviewed word_key had no metadata row yet.
+canonical_word_metadata.csv,,health_en_gb,word_key,health_en_gb,added_placeholder_metadata_row,new reviewed word_key had no metadata row yet.
+canonical_word_metadata.csv,,hope_en_gb,word_key,hope_en_gb,added_placeholder_metadata_row,new reviewed word_key had no metadata row yet.
+canonical_word_metadata.csv,,hopeful_en_gb,word_key,hopeful_en_gb,added_placeholder_metadata_row,new reviewed word_key had no metadata row yet.
+canonical_word_metadata.csv,,hoping_en_gb,word_key,hoping_en_gb,added_placeholder_metadata_row,new reviewed word_key had no metadata row yet.
+canonical_word_metadata.csv,,hopped_en_gb,word_key,hopped_en_gb,added_placeholder_metadata_row,new reviewed word_key had no metadata row yet.
+canonical_word_metadata.csv,,hot_en_gb,word_key,hot_en_gb,added_placeholder_metadata_row,new reviewed word_key had no metadata row yet.
+canonical_word_metadata.csv,,hotter_en_gb,word_key,hotter_en_gb,added_placeholder_metadata_row,new reviewed word_key had no metadata row yet.
+canonical_word_metadata.csv,,hottest_en_gb,word_key,hottest_en_gb,added_placeholder_metadata_row,new reviewed word_key had no metadata row yet.
+canonical_word_metadata.csv,,inform_en_gb,word_key,inform_en_gb,added_placeholder_metadata_row,new reviewed word_key had no metadata row yet.
+canonical_word_metadata.csv,,instruct_en_gb,word_key,instruct_en_gb,added_placeholder_metadata_row,new reviewed word_key had no metadata row yet.
+canonical_word_metadata.csv,,larger_en_gb,word_key,larger_en_gb,added_placeholder_metadata_row,new reviewed word_key had no metadata row yet.
+canonical_word_metadata.csv,,largest_en_gb,word_key,largest_en_gb,added_placeholder_metadata_row,new reviewed word_key had no metadata row yet.
+canonical_word_metadata.csv,,latest_en_gb,word_key,latest_en_gb,added_placeholder_metadata_row,new reviewed word_key had no metadata row yet.
+canonical_word_metadata.csv,,liked_en_gb,word_key,liked_en_gb,added_placeholder_metadata_row,new reviewed word_key had no metadata row yet.
+canonical_word_metadata.csv,,mapped_en_gb,word_key,mapped_en_gb,added_placeholder_metadata_row,new reviewed word_key had no metadata row yet.
+canonical_word_metadata.csv,,musical_en_gb,word_key,musical_en_gb,added_placeholder_metadata_row,new reviewed word_key had no metadata row yet.
+canonical_word_metadata.csv,,nice_en_gb,word_key,nice_en_gb,added_placeholder_metadata_row,new reviewed word_key had no metadata row yet.
+canonical_word_metadata.csv,,nicer_en_gb,word_key,nicer_en_gb,added_placeholder_metadata_row,new reviewed word_key had no metadata row yet.
+canonical_word_metadata.csv,,nicest_en_gb,word_key,nicest_en_gb,added_placeholder_metadata_row,new reviewed word_key had no metadata row yet.
+canonical_word_metadata.csv,,photograph_en_gb,word_key,photograph_en_gb,added_placeholder_metadata_row,new reviewed word_key had no metadata row yet.
+canonical_word_metadata.csv,,photography_en_gb,word_key,photography_en_gb,added_placeholder_metadata_row,new reviewed word_key had no metadata row yet.
+canonical_word_metadata.csv,,plan_en_gb,word_key,plan_en_gb,added_placeholder_metadata_row,new reviewed word_key had no metadata row yet.
+canonical_word_metadata.csv,,player_en_gb,word_key,player_en_gb,added_placeholder_metadata_row,new reviewed word_key had no metadata row yet.
+canonical_word_metadata.csv,,port_en_gb,word_key,port_en_gb,added_placeholder_metadata_row,new reviewed word_key had no metadata row yet.
+canonical_word_metadata.csv,,predict_en_gb,word_key,predict_en_gb,added_placeholder_metadata_row,new reviewed word_key had no metadata row yet.
+canonical_word_metadata.csv,,quickest_en_gb,word_key,quickest_en_gb,added_placeholder_metadata_row,new reviewed word_key had no metadata row yet.
+canonical_word_metadata.csv,,sadder_en_gb,word_key,sadder_en_gb,added_placeholder_metadata_row,new reviewed word_key had no metadata row yet.
+canonical_word_metadata.csv,,saddest_en_gb,word_key,saddest_en_gb,added_placeholder_metadata_row,new reviewed word_key had no metadata row yet.
+canonical_word_metadata.csv,,signal_en_gb,word_key,signal_en_gb,added_placeholder_metadata_row,new reviewed word_key had no metadata row yet.
+canonical_word_metadata.csv,,signature_en_gb,word_key,signature_en_gb,added_placeholder_metadata_row,new reviewed word_key had no metadata row yet.
+canonical_word_metadata.csv,,sitting_en_gb,word_key,sitting_en_gb,added_placeholder_metadata_row,new reviewed word_key had no metadata row yet.
+canonical_word_metadata.csv,,smaller_en_gb,word_key,smaller_en_gb,added_placeholder_metadata_row,new reviewed word_key had no metadata row yet.
+canonical_word_metadata.csv,,smallest_en_gb,word_key,smallest_en_gb,added_placeholder_metadata_row,new reviewed word_key had no metadata row yet.
+canonical_word_metadata.csv,,smiling_en_gb,word_key,smiling_en_gb,added_placeholder_metadata_row,new reviewed word_key had no metadata row yet.
+canonical_word_metadata.csv,,swimming_en_gb,word_key,swimming_en_gb,added_placeholder_metadata_row,new reviewed word_key had no metadata row yet.
+canonical_word_metadata.csv,,taller_en_gb,word_key,taller_en_gb,added_placeholder_metadata_row,new reviewed word_key had no metadata row yet.
+canonical_word_metadata.csv,,tallest_en_gb,word_key,tallest_en_gb,added_placeholder_metadata_row,new reviewed word_key had no metadata row yet.
+canonical_word_metadata.csv,,telephone_en_gb,word_key,telephone_en_gb,added_placeholder_metadata_row,new reviewed word_key had no metadata row yet.
+canonical_word_metadata.csv,,thank_en_gb,word_key,thank_en_gb,added_placeholder_metadata_row,new reviewed word_key had no metadata row yet.
+canonical_word_metadata.csv,,thankful_en_gb,word_key,thankful_en_gb,added_placeholder_metadata_row,new reviewed word_key had no metadata row yet.
+canonical_word_metadata.csv,,transport_en_gb,word_key,transport_en_gb,added_placeholder_metadata_row,new reviewed word_key had no metadata row yet.
+canonical_word_metadata.csv,,tying_en_gb,word_key,tying_en_gb,added_placeholder_metadata_row,new reviewed word_key had no metadata row yet.
+canonical_word_metadata.csv,,vie_en_gb,word_key,vie_en_gb,added_placeholder_metadata_row,new reviewed word_key had no metadata row yet.
+canonical_word_metadata.csv,,vying_en_gb,word_key,vying_en_gb,added_placeholder_metadata_row,new reviewed word_key had no metadata row yet.
+canonical_word_metadata.csv,,weight_en_gb,word_key,weight_en_gb,added_placeholder_metadata_row,new reviewed word_key had no metadata row yet.
+canonical_word_metadata.csv,,worse_en_gb,word_key,worse_en_gb,added_placeholder_metadata_row,new reviewed word_key had no metadata row yet.
+canonical_word_metadata.csv,,worst_en_gb,word_key,worst_en_gb,added_placeholder_metadata_row,new reviewed word_key had no metadata row yet.
+canonical_word_metadata.csv,,writer_en_gb,word_key,writer_en_gb,added_placeholder_metadata_row,new reviewed word_key had no metadata row yet.
+canonical_word_micro_skills.csv,50,big_bigger_biggest_en_gb,word_key,big_bigger_biggest_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_micro_skills.csv,51,hot_hotter_hottest_en_gb,word_key,hot_hotter_hottest_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_micro_skills.csv,52,sad_sadder_saddest_en_gb,word_key,sad_sadder_saddest_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_micro_skills.csv,53,nice_nicer_nicest_en_gb,word_key,nice_nicer_nicest_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_micro_skills.csv,55,brave_braver_bravest_en_gb,word_key,brave_braver_bravest_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_micro_skills.csv,56,fast_faster_fastest_en_gb,word_key,fast_faster_fastest_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_micro_skills.csv,59,happy_happier_happiest_en_gb,word_key,happy_happier_happiest_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_micro_skills.csv,60,funny_funnier_funniest_en_gb,word_key,funny_funnier_funniest_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_micro_skills.csv,61,busy_busier_busiest_en_gb,word_key,busy_busier_busiest_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_micro_skills.csv,62,run_running_en_gb,word_key,run_running_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_micro_skills.csv,63,sit_sitting_en_gb,word_key,sit_sitting_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_micro_skills.csv,64,swim_swimming_en_gb,word_key,swim_swimming_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_micro_skills.csv,65,stop_stopping_en_gb,word_key,stop_stopping_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_micro_skills.csv,68,make_making_en_gb,word_key,make_making_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_micro_skills.csv,69,hope_hoping_en_gb,word_key,hope_hoping_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_micro_skills.csv,70,smile_smiling_en_gb,word_key,smile_smiling_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_micro_skills.csv,71,write_writing_en_gb,word_key,write_writing_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_micro_skills.csv,74,lie_lying_en_gb,word_key,lie_lying_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_micro_skills.csv,75,die_dying_en_gb,word_key,die_dying_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_micro_skills.csv,76,tie_tying_en_gb,word_key,tie_tying_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_micro_skills.csv,77,vie_vying_en_gb,word_key,vie_vying_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_micro_skills.csv,84,good_better_best_en_gb,word_key,good_better_best_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_micro_skills.csv,85,bad_worse_worst_en_gb,word_key,bad_worse_worst_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_micro_skills.csv,98,stop_stopped_en_gb,word_key,stop_stopped_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_micro_skills.csv,99,plan_planned_en_gb,word_key,plan_planned_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_micro_skills.csv,100,grab_grabbed_en_gb,word_key,grab_grabbed_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_micro_skills.csv,101,hop_hopped_en_gb,word_key,hop_hopped_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_micro_skills.csv,104,hope_hoped_en_gb,word_key,hope_hoped_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_micro_skills.csv,105,smile_smiled_en_gb,word_key,smile_smiled_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_micro_skills.csv,106,like_liked_en_gb,word_key,like_liked_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_micro_skills.csv,107,bake_baked_en_gb,word_key,bake_baked_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_micro_skills.csv,134,try_tried_en_gb,word_key,try_tried_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_micro_skills.csv,135,cry_cried_en_gb,word_key,cry_cried_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_micro_skills.csv,136,copy_copied_en_gb,word_key,copy_copied_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_micro_skills.csv,137,carry_carried_en_gb,word_key,carry_carried_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_micro_skills.csv,232,help_helpful_en_gb,word_key,help_helpful_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_micro_skills.csv,233,care_careful_en_gb,word_key,care_careful_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_micro_skills.csv,234,play_player_en_gb,word_key,play_player_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_micro_skills.csv,235,kind_kindness_en_gb,word_key,kind_kindness_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_micro_skills.csv,236,help_helpful_en_gb,word_key,help_helpful_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_micro_skills.csv,237,quick_quickly_en_gb,word_key,quick_quickly_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_micro_skills.csv,238,care_careless_en_gb,word_key,care_careless_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_micro_skills.csv,239,thank_thankful_en_gb,word_key,thank_thankful_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_micro_skills.csv,247,car_park_en_gb,word_key,car_park_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_micro_skills.csv,275,photo_photograph_en_gb,word_key,photo_photograph_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_micro_skills.csv,276,graph_graphic_en_gb,word_key,graph_graphic_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_micro_skills.csv,277,tele_telephone_en_gb,word_key,tele_telephone_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_micro_skills.csv,278,auto_automatic_en_gb,word_key,auto_automatic_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_micro_skills.csv,279,port_transport_en_gb,word_key,port_transport_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_micro_skills.csv,280,form_inform_en_gb,word_key,form_inform_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_micro_skills.csv,281,dict_predict_en_gb,word_key,dict_predict_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_micro_skills.csv,282,struct_instruct_en_gb,word_key,struct_instruct_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_micro_skills.csv,283,sign_signal_signature_en_gb,word_key,sign_signal_signature_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_micro_skills.csv,284,electric_electricity_en_gb,word_key,electric_electricity_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_micro_skills.csv,285,photograph_photography_en_gb,word_key,photograph_photography_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_micro_skills.csv,334,magic_magician_en_gb,word_key,magic_magician_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_micro_skills.csv,335,music_musician_en_gb,word_key,music_musician_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_micro_skills.csv,336,define_definition_en_gb,word_key,define_definition_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_micro_skills.csv,337,electric_electricity_en_gb,word_key,electric_electricity_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_micro_skills.csv,338,sign_signature_en_gb,word_key,sign_signature_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_micro_skills.csv,339,bomb_bombard_en_gb,word_key,bomb_bombard_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_micro_skills.csv,341,heal_health_en_gb,word_key,heal_health_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_micro_skills.csv,461,sam_en_gb,word_key,sam_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_micro_skills.csv,462,lat_en_gb,word_key,lat_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_micro_skills.csv,640,mapp_en_gb,word_key,mapp_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+canonical_word_micro_skills.csv,904,bote_en_gb,word_key,bote_en_gb,removed_row,word_key is no longer present in reviewed canonical_words.csv.
+teaching_content_versions.csv,42,bote_en_gb,contrast_word_keys,bote_en_gb,removed_list_reference,contrast_word_keys contained a word_key no longer present in reviewed canonical_words.csv.
+teaching_content_versions.csv,118,sam_en_gb,contrast_word_keys,sam_en_gb,removed_list_reference,contrast_word_keys contained a word_key no longer present in reviewed canonical_words.csv.
+teaching_content_versions.csv,118,lat_en_gb,contrast_word_keys,lat_en_gb,removed_list_reference,contrast_word_keys contained a word_key no longer present in reviewed canonical_words.csv.
+teaching_content_versions.csv,173,help_helpful_en_gb,anchor_word_key,help_helpful_en_gb,cleared_reference,anchor_word_key is no longer present in reviewed canonical_words.csv.
+teaching_content_versions.csv,173,help_helpful_en_gb,ordered_example_word_keys,help_helpful_en_gb,removed_list_reference,ordered_example_word_keys contained a word_key no longer present in reviewed canonical_words.csv.
+teaching_content_versions.csv,173,care_careful_en_gb,ordered_example_word_keys,care_careful_en_gb,removed_list_reference,ordered_example_word_keys contained a word_key no longer present in reviewed canonical_words.csv.
+teaching_content_versions.csv,173,play_player_en_gb,ordered_example_word_keys,play_player_en_gb,removed_list_reference,ordered_example_word_keys contained a word_key no longer present in reviewed canonical_words.csv.
+teaching_content_versions.csv,173,kind_kindness_en_gb,ordered_example_word_keys,kind_kindness_en_gb,removed_list_reference,ordered_example_word_keys contained a word_key no longer present in reviewed canonical_words.csv.
+teaching_content_versions.csv,174,help_helpful_en_gb,anchor_word_key,help_helpful_en_gb,cleared_reference,anchor_word_key is no longer present in reviewed canonical_words.csv.
+teaching_content_versions.csv,174,help_helpful_en_gb,ordered_example_word_keys,help_helpful_en_gb,removed_list_reference,ordered_example_word_keys contained a word_key no longer present in reviewed canonical_words.csv.
+teaching_content_versions.csv,174,quick_quickly_en_gb,ordered_example_word_keys,quick_quickly_en_gb,removed_list_reference,ordered_example_word_keys contained a word_key no longer present in reviewed canonical_words.csv.
+teaching_content_versions.csv,174,care_careless_en_gb,ordered_example_word_keys,care_careless_en_gb,removed_list_reference,ordered_example_word_keys contained a word_key no longer present in reviewed canonical_words.csv.
+teaching_content_versions.csv,174,thank_thankful_en_gb,ordered_example_word_keys,thank_thankful_en_gb,removed_list_reference,ordered_example_word_keys contained a word_key no longer present in reviewed canonical_words.csv.
+teaching_content_versions.csv,190,car_park_en_gb,ordered_example_word_keys,car_park_en_gb,removed_list_reference,ordered_example_word_keys contained a word_key no longer present in reviewed canonical_words.csv.
+teaching_content_versions.csv,191,sign_signature_en_gb,anchor_word_key,sign_signature_en_gb,cleared_reference,anchor_word_key is no longer present in reviewed canonical_words.csv.
+teaching_content_versions.csv,191,sign_signature_en_gb,ordered_example_word_keys,sign_signature_en_gb,removed_list_reference,ordered_example_word_keys contained a word_key no longer present in reviewed canonical_words.csv.
+teaching_content_versions.csv,191,bomb_bombard_en_gb,ordered_example_word_keys,bomb_bombard_en_gb,removed_list_reference,ordered_example_word_keys contained a word_key no longer present in reviewed canonical_words.csv.
+teaching_content_versions.csv,191,heal_health_en_gb,ordered_example_word_keys,heal_health_en_gb,removed_list_reference,ordered_example_word_keys contained a word_key no longer present in reviewed canonical_words.csv.
+teaching_content_versions.csv,192,magic_magician_en_gb,anchor_word_key,magic_magician_en_gb,cleared_reference,anchor_word_key is no longer present in reviewed canonical_words.csv.
+teaching_content_versions.csv,192,magic_magician_en_gb,ordered_example_word_keys,magic_magician_en_gb,removed_list_reference,ordered_example_word_keys contained a word_key no longer present in reviewed canonical_words.csv.
+teaching_content_versions.csv,192,music_musician_en_gb,ordered_example_word_keys,music_musician_en_gb,removed_list_reference,ordered_example_word_keys contained a word_key no longer present in reviewed canonical_words.csv.
+teaching_content_versions.csv,192,define_definition_en_gb,ordered_example_word_keys,define_definition_en_gb,removed_list_reference,ordered_example_word_keys contained a word_key no longer present in reviewed canonical_words.csv.
+teaching_content_versions.csv,192,electric_electricity_en_gb,ordered_example_word_keys,electric_electricity_en_gb,removed_list_reference,ordered_example_word_keys contained a word_key no longer present in reviewed canonical_words.csv.
+teaching_content_versions.csv,193,port_transport_en_gb,anchor_word_key,port_transport_en_gb,cleared_reference,anchor_word_key is no longer present in reviewed canonical_words.csv.
+teaching_content_versions.csv,193,port_transport_en_gb,ordered_example_word_keys,port_transport_en_gb,removed_list_reference,ordered_example_word_keys contained a word_key no longer present in reviewed canonical_words.csv.
+teaching_content_versions.csv,193,form_inform_en_gb,ordered_example_word_keys,form_inform_en_gb,removed_list_reference,ordered_example_word_keys contained a word_key no longer present in reviewed canonical_words.csv.
+teaching_content_versions.csv,193,dict_predict_en_gb,ordered_example_word_keys,dict_predict_en_gb,removed_list_reference,ordered_example_word_keys contained a word_key no longer present in reviewed canonical_words.csv.
+teaching_content_versions.csv,193,struct_instruct_en_gb,ordered_example_word_keys,struct_instruct_en_gb,removed_list_reference,ordered_example_word_keys contained a word_key no longer present in reviewed canonical_words.csv.
+teaching_content_versions.csv,194,photo_photograph_en_gb,anchor_word_key,photo_photograph_en_gb,cleared_reference,anchor_word_key is no longer present in reviewed canonical_words.csv.
+teaching_content_versions.csv,194,photo_photograph_en_gb,ordered_example_word_keys,photo_photograph_en_gb,removed_list_reference,ordered_example_word_keys contained a word_key no longer present in reviewed canonical_words.csv.
+teaching_content_versions.csv,194,graph_graphic_en_gb,ordered_example_word_keys,graph_graphic_en_gb,removed_list_reference,ordered_example_word_keys contained a word_key no longer present in reviewed canonical_words.csv.
+teaching_content_versions.csv,194,tele_telephone_en_gb,ordered_example_word_keys,tele_telephone_en_gb,removed_list_reference,ordered_example_word_keys contained a word_key no longer present in reviewed canonical_words.csv.
+teaching_content_versions.csv,194,auto_automatic_en_gb,ordered_example_word_keys,auto_automatic_en_gb,removed_list_reference,ordered_example_word_keys contained a word_key no longer present in reviewed canonical_words.csv.
+teaching_content_versions.csv,196,sign_signal_signature_en_gb,anchor_word_key,sign_signal_signature_en_gb,cleared_reference,anchor_word_key is no longer present in reviewed canonical_words.csv.
+teaching_content_versions.csv,196,sign_signal_signature_en_gb,ordered_example_word_keys,sign_signal_signature_en_gb,removed_list_reference,ordered_example_word_keys contained a word_key no longer present in reviewed canonical_words.csv.
+teaching_content_versions.csv,196,electric_electricity_en_gb,ordered_example_word_keys,electric_electricity_en_gb,removed_list_reference,ordered_example_word_keys contained a word_key no longer present in reviewed canonical_words.csv.
+teaching_content_versions.csv,196,photograph_photography_en_gb,ordered_example_word_keys,photograph_photography_en_gb,removed_list_reference,ordered_example_word_keys contained a word_key no longer present in reviewed canonical_words.csv.
+teaching_content_versions.csv,207,hope_hoped_en_gb,anchor_word_key,hope_hoped_en_gb,cleared_reference,anchor_word_key is no longer present in reviewed canonical_words.csv.
+teaching_content_versions.csv,207,hope_hoped_en_gb,ordered_example_word_keys,hope_hoped_en_gb,removed_list_reference,ordered_example_word_keys contained a word_key no longer present in reviewed canonical_words.csv.
+teaching_content_versions.csv,207,smile_smiled_en_gb,ordered_example_word_keys,smile_smiled_en_gb,removed_list_reference,ordered_example_word_keys contained a word_key no longer present in reviewed canonical_words.csv.
+teaching_content_versions.csv,207,like_liked_en_gb,ordered_example_word_keys,like_liked_en_gb,removed_list_reference,ordered_example_word_keys contained a word_key no longer present in reviewed canonical_words.csv.
+teaching_content_versions.csv,207,bake_baked_en_gb,ordered_example_word_keys,bake_baked_en_gb,removed_list_reference,ordered_example_word_keys contained a word_key no longer present in reviewed canonical_words.csv.
+teaching_content_versions.csv,208,try_tried_en_gb,anchor_word_key,try_tried_en_gb,cleared_reference,anchor_word_key is no longer present in reviewed canonical_words.csv.
+teaching_content_versions.csv,208,try_tried_en_gb,ordered_example_word_keys,try_tried_en_gb,removed_list_reference,ordered_example_word_keys contained a word_key no longer present in reviewed canonical_words.csv.
+teaching_content_versions.csv,208,cry_cried_en_gb,ordered_example_word_keys,cry_cried_en_gb,removed_list_reference,ordered_example_word_keys contained a word_key no longer present in reviewed canonical_words.csv.
+teaching_content_versions.csv,208,copy_copied_en_gb,ordered_example_word_keys,copy_copied_en_gb,removed_list_reference,ordered_example_word_keys contained a word_key no longer present in reviewed canonical_words.csv.
+teaching_content_versions.csv,208,carry_carried_en_gb,ordered_example_word_keys,carry_carried_en_gb,removed_list_reference,ordered_example_word_keys contained a word_key no longer present in reviewed canonical_words.csv.
+teaching_content_versions.csv,209,stop_stopped_en_gb,anchor_word_key,stop_stopped_en_gb,cleared_reference,anchor_word_key is no longer present in reviewed canonical_words.csv.
+teaching_content_versions.csv,209,stop_stopped_en_gb,ordered_example_word_keys,stop_stopped_en_gb,removed_list_reference,ordered_example_word_keys contained a word_key no longer present in reviewed canonical_words.csv.
+teaching_content_versions.csv,209,plan_planned_en_gb,ordered_example_word_keys,plan_planned_en_gb,removed_list_reference,ordered_example_word_keys contained a word_key no longer present in reviewed canonical_words.csv.
+teaching_content_versions.csv,209,grab_grabbed_en_gb,ordered_example_word_keys,grab_grabbed_en_gb,removed_list_reference,ordered_example_word_keys contained a word_key no longer present in reviewed canonical_words.csv.
+teaching_content_versions.csv,209,hop_hopped_en_gb,ordered_example_word_keys,hop_hopped_en_gb,removed_list_reference,ordered_example_word_keys contained a word_key no longer present in reviewed canonical_words.csv.
+teaching_content_versions.csv,214,make_making_en_gb,anchor_word_key,make_making_en_gb,cleared_reference,anchor_word_key is no longer present in reviewed canonical_words.csv.
+teaching_content_versions.csv,214,make_making_en_gb,ordered_example_word_keys,make_making_en_gb,removed_list_reference,ordered_example_word_keys contained a word_key no longer present in reviewed canonical_words.csv.
+teaching_content_versions.csv,214,hope_hoping_en_gb,ordered_example_word_keys,hope_hoping_en_gb,removed_list_reference,ordered_example_word_keys contained a word_key no longer present in reviewed canonical_words.csv.
+teaching_content_versions.csv,214,smile_smiling_en_gb,ordered_example_word_keys,smile_smiling_en_gb,removed_list_reference,ordered_example_word_keys contained a word_key no longer present in reviewed canonical_words.csv.
+teaching_content_versions.csv,214,write_writing_en_gb,ordered_example_word_keys,write_writing_en_gb,removed_list_reference,ordered_example_word_keys contained a word_key no longer present in reviewed canonical_words.csv.
+teaching_content_versions.csv,215,run_running_en_gb,anchor_word_key,run_running_en_gb,cleared_reference,anchor_word_key is no longer present in reviewed canonical_words.csv.
+teaching_content_versions.csv,215,run_running_en_gb,ordered_example_word_keys,run_running_en_gb,removed_list_reference,ordered_example_word_keys contained a word_key no longer present in reviewed canonical_words.csv.
+teaching_content_versions.csv,215,sit_sitting_en_gb,ordered_example_word_keys,sit_sitting_en_gb,removed_list_reference,ordered_example_word_keys contained a word_key no longer present in reviewed canonical_words.csv.
+teaching_content_versions.csv,215,swim_swimming_en_gb,ordered_example_word_keys,swim_swimming_en_gb,removed_list_reference,ordered_example_word_keys contained a word_key no longer present in reviewed canonical_words.csv.
+teaching_content_versions.csv,215,stop_stopping_en_gb,ordered_example_word_keys,stop_stopping_en_gb,removed_list_reference,ordered_example_word_keys contained a word_key no longer present in reviewed canonical_words.csv.
+teaching_content_versions.csv,216,lie_lying_en_gb,anchor_word_key,lie_lying_en_gb,cleared_reference,anchor_word_key is no longer present in reviewed canonical_words.csv.
+teaching_content_versions.csv,216,lie_lying_en_gb,ordered_example_word_keys,lie_lying_en_gb,removed_list_reference,ordered_example_word_keys contained a word_key no longer present in reviewed canonical_words.csv.
+teaching_content_versions.csv,216,die_dying_en_gb,ordered_example_word_keys,die_dying_en_gb,removed_list_reference,ordered_example_word_keys contained a word_key no longer present in reviewed canonical_words.csv.
+teaching_content_versions.csv,216,tie_tying_en_gb,ordered_example_word_keys,tie_tying_en_gb,removed_list_reference,ordered_example_word_keys contained a word_key no longer present in reviewed canonical_words.csv.
+teaching_content_versions.csv,216,vie_vying_en_gb,ordered_example_word_keys,vie_vying_en_gb,removed_list_reference,ordered_example_word_keys contained a word_key no longer present in reviewed canonical_words.csv.
+teaching_content_versions.csv,217,fast_faster_fastest_en_gb,anchor_word_key,fast_faster_fastest_en_gb,cleared_reference,anchor_word_key is no longer present in reviewed canonical_words.csv.
+teaching_content_versions.csv,217,fast_faster_fastest_en_gb,ordered_example_word_keys,fast_faster_fastest_en_gb,removed_list_reference,ordered_example_word_keys contained a word_key no longer present in reviewed canonical_words.csv.
+teaching_content_versions.csv,218,nice_nicer_nicest_en_gb,anchor_word_key,nice_nicer_nicest_en_gb,cleared_reference,anchor_word_key is no longer present in reviewed canonical_words.csv.
+teaching_content_versions.csv,218,nice_nicer_nicest_en_gb,ordered_example_word_keys,nice_nicer_nicest_en_gb,removed_list_reference,ordered_example_word_keys contained a word_key no longer present in reviewed canonical_words.csv.
+teaching_content_versions.csv,218,brave_braver_bravest_en_gb,ordered_example_word_keys,brave_braver_bravest_en_gb,removed_list_reference,ordered_example_word_keys contained a word_key no longer present in reviewed canonical_words.csv.
+teaching_content_versions.csv,219,happy_happier_happiest_en_gb,anchor_word_key,happy_happier_happiest_en_gb,cleared_reference,anchor_word_key is no longer present in reviewed canonical_words.csv.
+teaching_content_versions.csv,219,happy_happier_happiest_en_gb,ordered_example_word_keys,happy_happier_happiest_en_gb,removed_list_reference,ordered_example_word_keys contained a word_key no longer present in reviewed canonical_words.csv.
+teaching_content_versions.csv,219,funny_funnier_funniest_en_gb,ordered_example_word_keys,funny_funnier_funniest_en_gb,removed_list_reference,ordered_example_word_keys contained a word_key no longer present in reviewed canonical_words.csv.
+teaching_content_versions.csv,219,busy_busier_busiest_en_gb,ordered_example_word_keys,busy_busier_busiest_en_gb,removed_list_reference,ordered_example_word_keys contained a word_key no longer present in reviewed canonical_words.csv.
+teaching_content_versions.csv,220,big_bigger_biggest_en_gb,anchor_word_key,big_bigger_biggest_en_gb,cleared_reference,anchor_word_key is no longer present in reviewed canonical_words.csv.
+teaching_content_versions.csv,220,big_bigger_biggest_en_gb,ordered_example_word_keys,big_bigger_biggest_en_gb,removed_list_reference,ordered_example_word_keys contained a word_key no longer present in reviewed canonical_words.csv.
+teaching_content_versions.csv,220,hot_hotter_hottest_en_gb,ordered_example_word_keys,hot_hotter_hottest_en_gb,removed_list_reference,ordered_example_word_keys contained a word_key no longer present in reviewed canonical_words.csv.
+teaching_content_versions.csv,220,sad_sadder_saddest_en_gb,ordered_example_word_keys,sad_sadder_saddest_en_gb,removed_list_reference,ordered_example_word_keys contained a word_key no longer present in reviewed canonical_words.csv.
+teaching_content_versions.csv,224,good_better_best_en_gb,anchor_word_key,good_better_best_en_gb,cleared_reference,anchor_word_key is no longer present in reviewed canonical_words.csv.
+teaching_content_versions.csv,224,good_better_best_en_gb,ordered_example_word_keys,good_better_best_en_gb,removed_list_reference,ordered_example_word_keys contained a word_key no longer present in reviewed canonical_words.csv.
+teaching_content_versions.csv,224,bad_worse_worst_en_gb,ordered_example_word_keys,bad_worse_worst_en_gb,removed_list_reference,ordered_example_word_keys contained a word_key no longer present in reviewed canonical_words.csv.
+unrepresented_rows.csv,3,mapp_en_gb,related_word_key,mapp_en_gb,removed_row,related_word_key is no longer present in reviewed canonical_words.csv.

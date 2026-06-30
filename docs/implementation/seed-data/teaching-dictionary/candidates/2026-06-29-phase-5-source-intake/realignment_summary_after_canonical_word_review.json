@@ -1,0 +1,12 @@
+{
+  "canonical_words_input_rows": 878,
+  "canonical_words_rows_after_deduplication": 874,
+  "duplicate_canonical_word_rows_removed": 4,
+  "metadata_rows_removed_for_deleted_words": 64,
+  "duplicate_metadata_rows_removed": 0,
+  "placeholder_metadata_rows_added": 77,
+  "mapping_rows_removed_for_deleted_words": 66,
+  "teaching_content_word_references_removed_or_cleared": 83,
+  "unrepresented_rows_removed_for_deleted_words": 1,
+  "audit_rows": 295
+}

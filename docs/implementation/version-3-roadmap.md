@@ -13,7 +13,7 @@ ADLE remains separate from Word Treasure.
 
 ## Current stage
 
-Current Version 3.0 stage: `Phase 5D teaching dictionary validator fixtures and regression coverage implemented; Phase 3.7B browser/UI Daily Assignment signoff deferred until the Daily Assignment stage begins`.
+Current Version 3.0 stage: `Phase 5F local/dev teaching dictionary import preflight and apply path implemented and QA-approved; Phase 3.7B browser/UI Daily Assignment signoff deferred until the Daily Assignment stage begins`.
 
 Implemented so far:
 - Phase 0 current-state audit was completed as an inspection/planning pass.
@@ -46,10 +46,19 @@ Implemented so far:
 - Phase 5D teaching dictionary validator fixtures and regression coverage are
   implemented:
   `scripts/validate-teaching-dictionary-csv-regression.py`.
+- Phase 5E local/dev teaching dictionary schema is implemented as source-only
+  migration:
+  `supabase/migrations/20260629120000_add_canonical_teaching_dictionary_storage.sql`.
+- Phase 5F local/dev teaching dictionary import preflight/apply path is
+  implemented and QA-approved:
+  `scripts/import-teaching-dictionary-csv.py`,
+  `scripts/import-teaching-dictionary-csv-regression.py`.
+- A draft source-intake candidate CSV folder exists for review only:
+  `docs/implementation/seed-data/teaching-dictionary/candidates/2026-06-29-phase-5-source-intake/`.
 - No ADLE generation has been wired into runtime assignment generation.
 
 Next safe implementation slice:
-- Phase 5E local/dev teaching dictionary schema, or Phase 3.7B browser/UI Daily
+- Phase 5G admin review workflow design, or Phase 3.7B browser/UI Daily
   Assignment signoff when the Daily Assignment product stage begins.
 
 ## Target architecture
@@ -1086,6 +1095,91 @@ Boundaries:
 Verification:
 - `python3 -m py_compile scripts/validate-teaching-dictionary-csv.py scripts/validate-teaching-dictionary-csv-regression.py`
 - `python3 scripts/validate-teaching-dictionary-csv-regression.py`
+
+</details>
+
+<details>
+<summary>Phase 5E: Local/Dev Teaching Dictionary Schema — Complete</summary>
+
+Status: `Implemented as source-only local/dev migration`
+
+Goal:
+- add dedicated Canonical Teaching Dictionary storage for local/dev import
+  planning.
+
+Implemented:
+- `supabase/migrations/20260629120000_add_canonical_teaching_dictionary_storage.sql`
+- import batch, source, word, word metadata, word-to-micro-skill, teaching
+  content version, field review, and readiness report tables
+- RLS enabled with `anon`/`authenticated` revoked and `service_role` grants
+- duplicate active signed-off content protection per `micro_skill_key`
+
+Boundaries:
+- migration source only
+- no hosted Supabase mutation
+- no broad `supabase db push`
+- no runtime table reads
+- no ADLE, assignment, resolver, evidence, proficiency, or Word Treasure changes
+
+</details>
+
+<details>
+<summary>Phase 5F: Local/Dev Import Preflight and Apply Path — Complete</summary>
+
+Status: `Implemented and QA-approved`
+
+Goal:
+- extend Phase 5C dry-run validation into a local/dev-only teaching dictionary
+  import planner and guarded local apply path.
+
+Implemented:
+- `scripts/import-teaching-dictionary-csv.py`
+- `scripts/import-teaching-dictionary-csv-regression.py`
+- dry-run import planning remains default
+- generic `--apply` refuses
+- `--apply-local` and `--apply-local-import` require local DB URL and
+  confirmation token
+- hosted/non-local targets are refused
+- local preflight checks migration ledger version `20260629120000`, expected
+  tables, D4 micro-skill FK readiness, duplicate content, existing active
+  signed-off content, and protected-table counts
+
+QA evidence:
+- `python3 -m py_compile scripts/validate-teaching-dictionary-csv.py scripts/import-teaching-dictionary-csv.py scripts/import-teaching-dictionary-csv-regression.py`
+- `python3 scripts/validate-teaching-dictionary-csv-regression.py`
+- `python3 scripts/import-teaching-dictionary-csv-regression.py`
+- `python3 scripts/import-teaching-dictionary-csv.py scripts/fixtures/teaching-dictionary-csv/valid_first_exposure_pg --report .tmp/phase5f-valid-import-plan.json`
+- `git diff --check`
+
+Boundaries:
+- no Supabase apply/import was run during implementation or QA
+- no hosted Supabase mutation
+- no production import
+- no runtime consumer
+- no ADLE, assignment, resolver, evidence, proficiency, or Word Treasure changes
+
+</details>
+
+<details>
+<summary>Phase 5 Source-Intake Candidate Data — Draft</summary>
+
+Status: `Draft candidate CSV/report artifacts for review only`
+
+Artifact:
+- `docs/implementation/seed-data/teaching-dictionary/candidates/2026-06-29-phase-5-source-intake/`
+
+Current validator outcome:
+- zero structural CSV errors
+- zero first-exposure-ready content versions
+- expected manual-review and content-gap blockers remain
+- Phase 5F import planning is currently blocked by duplicate
+  word-to-micro-skill mapping rows that must be resolved before local import
+
+Boundaries:
+- candidate data only
+- no Supabase import
+- no final readiness signoff
+- no runtime use
 
 </details>
 

@@ -1,0 +1,24 @@
+{
+  "words": 874,
+  "metadata_rows": 874,
+  "mapping_rows": 1172,
+  "teaching_content_versions": 240,
+  "field_review_rows": 2160,
+  "sources": 7,
+  "unrepresented_rows": 210,
+  "micro_skills_represented_in_mappings": 233,
+  "micro_skills_with_teaching_versions": 240,
+  "source_categories": [
+    "ai_assisted_draft",
+    "internal_authored",
+    "internal_reviewed_seed",
+    "reference_only"
+  ],
+  "importability_statuses": [
+    "importable",
+    "not_importable",
+    "reference_only",
+    "unknown"
+  ],
+  "updated_after_canonical_word_review": true
+}

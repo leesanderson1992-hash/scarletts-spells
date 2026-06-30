@@ -1,0 +1,8 @@
+{
+  "file": "csv/canonical_words.csv",
+  "rows_updated": 874,
+  "review_status_set_to": "approved_for_first_exposure",
+  "row_status_set_to": "active",
+  "approval_scope": "canonical word identity only; does not approve metadata, mappings, teaching content, or readiness",
+  "reviewer_note": "Katie confirmed each canonical word on 2026-06-30."
+}

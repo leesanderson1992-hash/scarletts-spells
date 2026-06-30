@@ -141,6 +141,12 @@ Acceptance:
 
 ## Phase 5E: Local/Dev Teaching Dictionary Schema
 
+Status:
+- implemented as source-only migration:
+  `supabase/migrations/20260629120000_add_canonical_teaching_dictionary_storage.sql`
+- migration has not been applied to hosted Supabase by this slice
+- no runtime table reads were added
+
 Goal:
 - add source-controlled local/dev teaching dictionary schema only after the
   dry-run validator is reliable.
@@ -173,6 +179,15 @@ Acceptance:
 
 ## Phase 5F: Local/Dev Import Preflight and Apply Path
 
+Status:
+- implemented and QA-approved as:
+  `scripts/import-teaching-dictionary-csv.py`
+- no-Supabase regression coverage implemented as:
+  `scripts/import-teaching-dictionary-csv-regression.py`
+- dry-run remains default
+- local apply/import paths require explicit local DB URL and confirmation token
+- no local or hosted Supabase import was run during QA
+
 Goal:
 - extend the dry-run validator into a local/dev-only import planner after local
   schema exists.
@@ -198,6 +213,15 @@ Acceptance:
 - local apply refuses invalid reports
 - local apply refuses duplicate active signed-off versions
 - protected runtime tables remain unchanged
+
+QA evidence:
+- `python3 -m py_compile scripts/validate-teaching-dictionary-csv.py scripts/import-teaching-dictionary-csv.py scripts/import-teaching-dictionary-csv-regression.py`
+- `python3 scripts/validate-teaching-dictionary-csv-regression.py`
+- `python3 scripts/import-teaching-dictionary-csv-regression.py`
+- `python3 scripts/import-teaching-dictionary-csv.py scripts/fixtures/teaching-dictionary-csv/valid_first_exposure_pg --report .tmp/phase5f-valid-import-plan.json`
+- `git diff --check`
+- static scan confirmed no teaching-dictionary table references outside the
+  5E migration and 5F importer/regression files
 
 ## Phase 5G: Admin Review Workflow Design
 

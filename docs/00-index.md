@@ -73,6 +73,7 @@ When docs overlap:
 - [docs/implementation/domain4-seed-expansion-plan.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/implementation/domain4-seed-expansion-plan.md:1)
 - [docs/implementation/seed-data/domain4-seed-expansion/README.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/implementation/seed-data/domain4-seed-expansion/README.md:1)
 - [docs/implementation/seed-data/teaching-dictionary/teaching-dictionary-workbook-template.xlsx](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/implementation/seed-data/teaching-dictionary/teaching-dictionary-workbook-template.xlsx)
+- [docs/implementation/seed-data/teaching-dictionary/candidates/2026-06-29-phase-5-source-intake/README.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/implementation/seed-data/teaching-dictionary/candidates/2026-06-29-phase-5-source-intake/README.md:1)
 - [docs/current-priorities.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/current-priorities.md:1)
 - [docs/support/vercel-launch-checklist.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/support/vercel-launch-checklist.md:1)
 - [docs/implementation/reward-system-refactor-plan.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/implementation/reward-system-refactor-plan.md:1)
