@@ -1161,25 +1161,31 @@ Boundaries:
 </details>
 
 <details>
-<summary>Phase 5 Source-Intake Candidate Data — Draft</summary>
+<summary>Phase 5 Source-Intake Candidate Data — Validated Candidate</summary>
 
-Status: `Draft candidate CSV/report artifacts for review only`
+Status: `Validated candidate CSV/report artifacts ready for local preflight planning`
 
 Artifact:
 - `docs/implementation/seed-data/teaching-dictionary/candidates/2026-06-29-phase-5-source-intake/`
 
 Current validator outcome:
 - zero structural CSV errors
-- zero first-exposure-ready content versions
-- expected manual-review and content-gap blockers remain
-- Phase 5F import planning is currently blocked by duplicate
-  word-to-micro-skill mapping rows that must be resolved before local import
+- zero warnings
+- 240 teaching content versions ready for first exposure
+- 0 guided-review-only teaching content versions
+- latest validation report:
+  `validation-report-after-guided-review-activation.json`
+- latest dry-run import plan:
+  `phase-5f-import-plan-after-guided-review-activation.json`
+- handoff summary:
+  `phase-5-handoff-summary.md`
 
 Boundaries:
 - candidate data only
 - no Supabase import
-- no final readiness signoff
+- no hosted or local database mutation
 - no runtime use
+- daily-assignment blueprint work is deferred to a separate documentation pass
 
 </details>
 

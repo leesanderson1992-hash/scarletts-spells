@@ -1,0 +1,47 @@
+word_key,normalised_word,suggested_age_number,recommended_age_band,suggested_age_band_original,confidence,review_status,review_notes
+books_en_gb,books,5,early_primary,age_5_6,medium,in_review,Year 1 adding -s to words; plural form estimated from same curriculum pattern.
+braver_en_gb,braver,6,early_primary,age_6_7,medium,in_review,Year 2 adding -er to words ending in -e; estimated from brave -> braver.
+bravest_en_gb,bravest,6,early_primary,age_6_7,medium,in_review,Year 2 adding -est to words ending in -e; estimated from brave -> bravest.
+busier_en_gb,busier,6,early_primary,age_6_7,medium,in_review,"Year 2 consonant+y comparative pattern, matching happier/heavier/angrier/lazier."
+called_en_gb,called,5,early_primary,age_5_6,medium,in_review,Year 1 adding -ed with no spelling change; estimated from call -> called.
+carries_en_gb,carries,6,early_primary,age_6_7,medium,in_review,Year 2 y-to-ies/-es pattern for nouns/verbs ending in consonant+y.
+cars_en_gb,cars,5,early_primary,age_5_6,medium,in_review,Year 1 adding -s to words; plural form estimated from same curriculum pattern.
+cities_en_gb,cities,6,early_primary,age_6_7,medium,in_review,Year 2 nouns ending in y -> ies pattern; estimated from city -> cities.
+cleaned_en_gb,cleaned,5,early_primary,age_5_6,medium,in_review,Year 1 adding -ed with no spelling change; estimated from clean -> cleaned.
+ended_en_gb,ended,5,early_primary,age_5_6,medium,in_review,Year 1 adding -ed with no spelling change; estimated from end -> ended.
+fastest_en_gb,fastest,5,early_primary,age_5_6,high,in_review,Year 1 adding -est with no change; fastest appears in the Year 1 overview.
+funnier_en_gb,funnier,6,early_primary,age_6_7,medium,in_review,Year 2 adding -er to words ending in y; estimated from funny -> funnier.
+hoped_en_gb,hoped,6,early_primary,age_6_7,medium,in_review,Year 2 adding -ed to words ending in -e; drop final e before suffix.
+hoping_en_gb,hoping,6,early_primary,age_6_7,medium,in_review,Year 2 adding -ing to words ending in -e; drop final e before suffix.
+jumps_en_gb,jumps,5,early_primary,age_5_6,medium,in_review,Year 1 adding -s to words; estimated from jump -> jumps.
+larger_en_gb,larger,6,early_primary,age_6_7,medium,in_review,Year 2 adding -er to words ending in -e; estimated from large -> larger.
+largest_en_gb,largest,6,early_primary,age_6_7,medium,in_review,Year 2 adding -est to words ending in -e; estimated from large -> largest.
+latest_en_gb,latest,6,early_primary,age_6_7,high,in_review,Year 2 adding -est to words ending in -e; latest appears in the Year 2 overview.
+laughed_en_gb,laughed,10,upper_primary,age_10_11,medium,in_review,Year 6 includes laugh/laughable pattern; -ed form estimated as later curriculum spelling because of laugh spelling.
+looked_en_gb,looked,5,early_primary,age_5_6,medium,in_review,Year 1 adding -ed with no spelling change; estimated from look -> looked.
+looking_en_gb,looking,5,early_primary,age_5_6,medium,in_review,Year 1 adding -ing with no spelling change; estimated from look -> looking.
+mack_en_gb,mack,5,early_primary,age_5_6,low,in_review,"Not a standard curriculum word; estimated from Year 1 -ck final sound pattern, flag for review."
+making_en_gb,making,6,early_primary,age_6_7,high,in_review,Year 2 adding -ing to words ending in -e; drop final e before suffix.
+mapped_en_gb,Mapped,6,early_primary,age_6_7,medium,in_review,Year 2 one-syllable short-vowel final consonant doubling before -ed; estimated from map -> mapped.
+nature_natural_en_gb,nature/natural,7,early_primary,age_7_8,high,in_review,nature appears in Year 3 -ture work and natural appears in the Year 4 word list; earliest curriculum age used.
+needed_en_gb,needed,5,early_primary,age_5_6,medium,in_review,Year 1 adding -ed with no spelling change; estimated from need -> needed.
+opened_en_gb,opened,5,early_primary,age_5_6,medium,in_review,Year 1 adding -ed with no spelling change; estimated from open -> opened.
+played_en_gb,played,5,early_primary,age_5_6,medium,in_review,Year 1 adding -ed with no spelling change; estimated from play -> played.
+playing_en_gb,playing,5,early_primary,age_5_6,medium,in_review,Year 1 adding -ing with no spelling change; estimated from play -> playing.
+plays_en_gb,plays,5,early_primary,age_5_6,medium,in_review,Year 1 adding -s to words; estimated from play -> plays.
+quickest_en_gb,quickest,5,early_primary,age_5_6,medium,in_review,Year 1 adding -est with no spelling change; estimated from quick -> quickest.
+reads_en_gb,reads,5,early_primary,age_5_6,medium,in_review,Year 1 includes read/ea patterns and adding -s; estimated from read -> reads.
+replay_en_gb,replay,7,early_primary,age_7_8,medium,in_review,Year 3 prefix re-; estimated from play -> replay.
+replayed_en_gb,replayed,7,early_primary,age_7_8,medium,in_review,Year 3 prefix re- plus suffix -ed; estimated from replay -> replayed.
+smiling_en_gb,smiling,6,early_primary,age_6_7,high,in_review,Year 2 adding -ing to words ending in -e; drop final e before suffix.
+started_en_gb,started,5,early_primary,age_5_6,medium,in_review,Year 1 adding -ed with no spelling change; estimated from start -> started.
+stories_en_gb,stories,6,early_primary,age_6_7,medium,in_review,Year 2 nouns ending in y -> ies pattern; estimated from story -> stories.
+studies_en_gb,studies,6,early_primary,age_6_7,medium,in_review,Year 2 y-to-ies/-es pattern; study/studied appears in Year 2 overview.
+tall_taller_tallest_en_gb,tall/taller/tallest,5,early_primary,age_5_6,high,in_review,taller and tallest appear in Year 1 -er/-est no-change pattern; earliest curriculum age used.
+ten_en_gb,ten,5,early_primary,age_5_6,low,in_review,"Estimated Year 1 / early KS1 common number word; not explicit in spelling overview, flag for review."
+twenty_one_en_gb,twenty-one,6,early_primary,age_6_7,low,in_review,"Estimated Year 2 / KS1 compound number word; not explicit in spelling overview, flag for review."
+walked_en_gb,walked,5,early_primary,age_5_6,medium,in_review,Year 1 adding -ed with no spelling change; estimated from walk -> walked.
+wanted_en_gb,wanted,5,early_primary,age_5_6,medium,in_review,Year 1 adding -ed with no spelling change; estimated from want -> wanted.
+watches_en_gb,watches,5,early_primary,age_5_6,medium,in_review,Year 1 adding -es to words; estimated from watch -> watches.
+wishes_en_gb,wishes,5,early_primary,age_5_6,medium,in_review,Year 1 adding -es to words; estimated from wish -> wishes.
+words_en_gb,words,5,early_primary,age_5_6,medium,in_review,Year 1 adding -s to words; plural form estimated from word -> words.

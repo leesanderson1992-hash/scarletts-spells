@@ -1,0 +1,32 @@
+{
+  "active_canonical_words_updated": false,
+  "bnc_fallback_used_counts": {},
+  "fallback_frequency_source": "bnc",
+  "frequency_source_used_counts": {
+    "wordfreq": 874
+  },
+  "generated_at": "2026-07-01",
+  "hard_boundaries": [
+    "no canonical_words.csv band update",
+    "no Supabase import",
+    "no database mutation",
+    "no migrations",
+    "no importer changes",
+    "no runtime hooks",
+    "no resolver changes",
+    "no assignment changes",
+    "no evidence/proficiency changes",
+    "no Word Treasure changes"
+  ],
+  "primary_frequency_source": "wordfreq",
+  "recommendations_file": "docs/implementation/seed-data/teaching-dictionary/candidates/2026-06-29-phase-5-source-intake/canonical_words_frequency_aoa_band_recommendations.csv",
+  "recommended_frequency_band_counts": {
+    "high": 719,
+    "low": 15,
+    "medium": 140
+  },
+  "row_order_matches_canonical_words": true,
+  "rows": 874,
+  "unique_word_keys": 874,
+  "wordfreq_intake_file": "docs/implementation/seed-data/teaching-dictionary/candidates/2026-06-29-phase-5-source-intake/wordfreq_frequency_intake_all_canonical_words.csv"
+}

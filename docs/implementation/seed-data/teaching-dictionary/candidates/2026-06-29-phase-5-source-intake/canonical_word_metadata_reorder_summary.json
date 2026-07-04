@@ -1,0 +1,16 @@
+{
+  "action": "reordered_canonical_word_metadata_to_match_canonical_words",
+  "canonical_words_rows": 874,
+  "metadata_rows": 874,
+  "missing_metadata_rows": 0,
+  "extra_metadata_rows": 0,
+  "duplicate_metadata_word_keys": 0,
+  "same_order_before": false,
+  "same_order_after": true,
+  "first_order_mismatch_before": {
+    "row_number": 36,
+    "metadata_word_key": "badge_en_gb",
+    "canonical_word_key": "worse_en_gb"
+  },
+  "metadata_values_preserved": true
+}

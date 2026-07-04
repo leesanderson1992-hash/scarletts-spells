@@ -1,0 +1,41 @@
+{
+  "artifact": "docs/implementation/seed-data/teaching-dictionary/candidates/2026-06-29-phase-5-source-intake/lexicon_metadata_intake_all_canonical_words.csv",
+  "confidence_counts": {
+    "blank": 1,
+    "low": 873
+  },
+  "generated_at": "2026-07-01",
+  "hard_boundaries": [
+    "no Supabase import",
+    "no database mutation",
+    "no migrations",
+    "no runtime hooks",
+    "no resolver changes",
+    "no assignment changes",
+    "no evidence/proficiency changes",
+    "no Word Treasure changes"
+  ],
+  "has_schwa_counts": {
+    "FALSE": 632,
+    "TRUE": 241,
+    "blank": 1
+  },
+  "matched_rows": 873,
+  "not_merged_into_canonical_word_metadata": true,
+  "priority_artifact": "docs/implementation/seed-data/teaching-dictionary/candidates/2026-06-29-phase-5-source-intake/lexicon_metadata_intake_priority_40_blockers.csv",
+  "priority_matched_rows": 140,
+  "priority_rows": 141,
+  "priority_unmatched_rows": 1,
+  "reason_not_merged": "CMUdict is an American English reference; generated values require British English/human review before becoming canonical metadata.",
+  "review_status_counts": {
+    "draft": 1,
+    "in_review": 873
+  },
+  "rows": 874,
+  "source_category": "open_licensed",
+  "source_licence": "CMUdict BSD-style permissive licence",
+  "source_name": "CMU Pronouncing Dictionary",
+  "source_note": "Open pronunciation lexicon used for candidate ARPABET syllable, stress, and schwa metadata. CMUdict is primarily American English, so values require British English review before final use.",
+  "source_url": "https://github.com/cmusphinx/cmudict",
+  "unmatched_rows": 1
+}

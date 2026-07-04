@@ -1,0 +1,52 @@
+{
+  "active_canonical_words_updated": false,
+  "age_source_status_counts_after_apply": {
+    "aoa_and_uk": 457,
+    "aoa_only": 334,
+    "manual_uk_curriculum_fill": 46,
+    "uk_only": 37
+  },
+  "applied_notes_file": "docs/implementation/seed-data/teaching-dictionary/candidates/2026-06-29-phase-5-source-intake/missing_age_evidence_fill_in_applied_notes.csv",
+  "fill_source_file": "docs/implementation/seed-data/teaching-dictionary/candidates/2026-06-29-phase-5-source-intake/missing_age_evidence_populated_uk_curriculum.xlsx",
+  "fill_source_sha256": "dcd35fd4a6ddceca474a36ca3002b59ffbecf6a917ebf81345d680588c606722",
+  "generated_at": "2026-07-02",
+  "hard_boundaries": [
+    "no canonical_words.csv age_band update",
+    "no Supabase import",
+    "no database mutation",
+    "no migrations",
+    "no importer changes",
+    "no runtime hooks",
+    "no resolver changes",
+    "no assignment changes",
+    "no evidence/proficiency changes",
+    "no Word Treasure changes"
+  ],
+  "legal_review_status": {
+    "katie_missing_age_evidence_uk_curriculum_fill_2026_07_02": "passed"
+  },
+  "recommended_age_band_counts_after_apply": {
+    "early_primary": 450,
+    "later_review": 14,
+    "lower_secondary": 45,
+    "mid_secondary": 22,
+    "middle_primary": 233,
+    "upper_primary": 110
+  },
+  "review_flag_counts_after_apply": {
+    "aoa_18_plus_only": 10,
+    "aoa_uk_difference_over_2_years": 252,
+    "compound_or_multi_form_review": 5,
+    "manual_uk_curriculum_age_fill": 46,
+    "multiple_meanings_review": 529,
+    "source_band:age_10_11": 1,
+    "source_band:age_5_6": 25,
+    "source_band:age_6_7": 17,
+    "source_band:age_7_8": 3
+  },
+  "rows_applied": 46,
+  "source_importability_status": {
+    "katie_missing_age_evidence_uk_curriculum_fill_2026_07_02": "importable"
+  },
+  "source_rows_after_update": 20
+}

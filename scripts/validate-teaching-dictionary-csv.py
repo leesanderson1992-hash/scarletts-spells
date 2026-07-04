@@ -22,7 +22,7 @@ from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
 EXPANDED_CATALOG = ROOT / "docs/implementation/seed-data/domain4-seed-expansion/micro-skills.json"
-SCHEMA_VERSION = "version_3_phase_5c_teaching_dictionary_csv_v2"
+SCHEMA_VERSION = "version_3_phase_5c_teaching_dictionary_csv_v3"
 
 REQUIRED_FILES = {
     "canonical_words.csv": [
@@ -84,7 +84,11 @@ REQUIRED_FILES = {
         "memory_tip",
         "common_misconceptions",
         "first_exposure_progression",
-        "review_progression",
+        "guided_practice_progression",
+        "review_proofreading_progression",
+        "example_selection_guidance",
+        "contrast_policy_guidance",
+        "sample_preview_word_key",
         "source_category",
         "source_name",
         "source_url",
@@ -201,21 +205,31 @@ P0_FIELDS = [
     ("teaching_objective", "missing_teaching_objective"),
     ("child_friendly_explanation", "missing_child_friendly_explanation"),
     ("rule_explanation", "missing_rule_explanation"),
+    ("common_misconceptions", "missing_rule_explanation"),
     ("first_exposure_progression", "missing_first_exposure_progression"),
+    ("guided_practice_progression", "missing_review_progression"),
+    ("example_selection_guidance", "missing_ordered_example_words"),
 ]
 
 REQUIRED_FIRST_EXPOSURE_FIELD_REVIEWS = {
     "teaching_objective",
     "child_friendly_explanation",
     "rule_explanation",
+    "common_misconceptions",
     "first_exposure_progression",
+    "guided_practice_progression",
+    "review_proofreading_progression",
+    "example_selection_guidance",
+    "contrast_policy_guidance",
     "source",
     "licence",
 }
 
 REQUIRED_GUIDED_REVIEW_FIELD_REVIEWS = {
     "rule_explanation",
-    "review_progression",
+    "guided_practice_progression",
+    "review_proofreading_progression",
+    "example_selection_guidance",
     "source",
     "licence",
 }
@@ -483,6 +497,16 @@ def validate_global_references(
                 "micro_skill_key",
                 f"Unknown micro_skill_key {skill!r}.",
             )
+        preview_word = clean(row.get("sample_preview_word_key"))
+        if preview_word and preview_word not in approved_word_keys:
+            add_issue(
+                issues,
+                "error",
+                "teaching_content_versions.csv",
+                row_number(row),
+                "sample_preview_word_key",
+                f"sample_preview_word_key {preview_word!r} is not approved in canonical_words.csv.",
+            )
 
     version_keys = {
         (clean(row["micro_skill_key"]), clean(row["content_version"]))
@@ -622,14 +646,14 @@ def family_required_blockers(
     support_rows = support_by_skill.get((skill, "support_example"), [])
     contrast_rows = support_by_skill.get((skill, "contrast"), [])
 
-    if family == "D4_HOM" and not contrast_rows:
+    if family == "D4_HOM" and len(support_rows) < 2 and not contrast_rows:
         add_blocker(
             blockers,
             "insufficient_ordered_example_words",
             "support_role:contrast",
             "blocking_first_exposure",
             "pedagogy",
-            "D4_HOM first-exposure content requires reviewed contrast support words.",
+            "D4_HOM first-exposure content requires at least two reviewed support words in the homophone pair/set, or explicit contrast support rows.",
         )
 
     if family in {"D4_MOR", "D4_INF"}:
@@ -817,7 +841,9 @@ def validate_teaching_version(
     guided_required_fields_present = bool(
         support_by_skill.get((clean(row["micro_skill_key"]), "support_example"))
         and clean(row["rule_explanation"])
-        and clean(row["review_progression"])
+        and clean(row["guided_practice_progression"])
+        and clean(row["review_proofreading_progression"])
+        and clean(row["example_selection_guidance"])
     )
     guided_reviews_ok = has_approved_reviews(reviews, key, REQUIRED_GUIDED_REVIEW_FIELD_REVIEWS, "approved_for_guided_review") or has_approved_reviews(
         reviews, key, REQUIRED_GUIDED_REVIEW_FIELD_REVIEWS, "approved_for_first_exposure"

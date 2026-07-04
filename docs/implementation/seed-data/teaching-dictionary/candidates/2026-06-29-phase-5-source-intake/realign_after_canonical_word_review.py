@@ -1,16 +1,21 @@
 #!/usr/bin/env python3
-"""Realign dependent candidate CSVs after canonical_words.csv review edits.
+"""Legacy pre-simplification realignment helper.
 
 The reviewed canonical_words.csv is treated as the authority for this candidate
 folder. This script keeps its first row for each word_key, records duplicate
 rows in an audit CSV, removes dependent rows/references for deleted word_keys,
 and adds draft placeholder metadata rows for newly added word_keys.
+
+Do not run this script against the active candidate folder after the Teaching
+Dictionary simplification. It expects retired static word-selection fields and
+the retired `canonical_word_micro_skills.csv` layer.
 """
 
 from __future__ import annotations
 
 import csv
 import json
+import sys
 from pathlib import Path
 from typing import Any
 
@@ -77,6 +82,11 @@ def split_keys(value: str) -> list[str]:
 
 
 def main() -> None:
+    sys.exit(
+        "This legacy realignment helper expects the retired pre-simplification "
+        "CSV shape. Use the existing simplified csv/ folder instead."
+    )
+
     audit: list[dict[str, str]] = []
     duplicate_word_rows: list[dict[str, str]] = []
 

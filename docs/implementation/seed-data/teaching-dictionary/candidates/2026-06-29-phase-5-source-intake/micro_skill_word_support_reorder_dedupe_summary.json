@@ -1,0 +1,25 @@
+{
+  "action": "removed_exact_duplicate_support_rows_and_reordered_to_match_canonical_words",
+  "canonical_words_rows": 874,
+  "support_rows_before": 981,
+  "support_rows_after": 951,
+  "duplicate_support_rows_removed": 30,
+  "unique_words_represented_before": 778,
+  "unique_words_represented_after": 778,
+  "canonical_words_with_no_support_rows": 96,
+  "unknown_word_references": [],
+  "same_canonical_order_before": false,
+  "same_canonical_order_after": true,
+  "first_order_mismatch_before": {
+    "row_number": 4,
+    "word_key": "past_en_gb",
+    "next_row_number": 5,
+    "next_word_key": "passed_en_gb"
+  },
+  "support_role_counts_after": {
+    "support_example": 902,
+    "contrast": 27,
+    "review_example": 22
+  },
+  "support_values_preserved_except_exact_duplicates": true
+}

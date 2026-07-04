@@ -1,0 +1,91 @@
+{
+  "active_canonical_words_updated": false,
+  "age_recommendations_file": "docs/implementation/seed-data/teaching-dictionary/candidates/2026-06-29-phase-5-source-intake/canonical_words_age_recommendations.csv",
+  "age_source_status_counts": {
+    "aoa_and_uk": 457,
+    "aoa_only": 334,
+    "missing_age_evidence": 46,
+    "uk_only": 37
+  },
+  "age_source_status_counts_after_fill": {
+    "aoa_and_uk": 457,
+    "aoa_only": 334,
+    "manual_uk_curriculum_fill": 46,
+    "uk_only": 37
+  },
+  "aoa_intake_file": "docs/implementation/seed-data/teaching-dictionary/candidates/2026-06-29-phase-5-source-intake/aoa_test_based_intake_all_canonical_words.csv",
+  "aoa_source_file": "docs/implementation/seed-data/teaching-dictionary/candidates/2026-06-29-phase-5-source-intake/brysbaert_biemiller_test_based_aoa_master_source.xlsx",
+  "aoa_source_sha256": "0b929a3998096782272cc33c7b851a79cbe98fe13dae36293dfcc221b85dff62",
+  "frequency_aoa_recommendations_file": "docs/implementation/seed-data/teaching-dictionary/candidates/2026-06-29-phase-5-source-intake/canonical_words_frequency_aoa_band_recommendations.csv",
+  "generated_at": "2026-07-02",
+  "hard_boundaries": [
+    "no canonical_words.csv age_band update",
+    "no Supabase import",
+    "no database mutation",
+    "no migrations",
+    "no importer changes",
+    "no runtime hooks",
+    "no resolver changes",
+    "no assignment changes",
+    "no evidence/proficiency changes",
+    "no Word Treasure changes"
+  ],
+  "legal_review_status": {
+    "brysbaert_biemiller_test_based_aoa_master_2026_07_02": "passed",
+    "uk_spelling_words_age_estimates_2026_07_02": "passed"
+  },
+  "missing_age_fill_in_applied": true,
+  "missing_age_fill_in_rows_applied": 46,
+  "missing_age_fill_in_summary_file": "docs/implementation/seed-data/teaching-dictionary/candidates/2026-06-29-phase-5-source-intake/missing_age_evidence_fill_in_applied_summary.json",
+  "recommended_age_band_counts": {
+    "blank": 46,
+    "early_primary": 405,
+    "later_review": 14,
+    "lower_secondary": 45,
+    "mid_secondary": 22,
+    "middle_primary": 233,
+    "upper_primary": 109
+  },
+  "recommended_age_band_counts_after_fill": {
+    "early_primary": 450,
+    "later_review": 14,
+    "lower_secondary": 45,
+    "mid_secondary": 22,
+    "middle_primary": 233,
+    "upper_primary": 110
+  },
+  "recommended_age_number_counts": {
+    "10": 40,
+    "11": 69,
+    "12": 13,
+    "13": 32,
+    "14": 10,
+    "15": 12,
+    "17": 8,
+    "18": 6,
+    "5": 14,
+    "6": 264,
+    "7": 127,
+    "8": 121,
+    "9": 112,
+    "blank": 46
+  },
+  "review_flag_counts": {
+    "aoa_18_plus_only": 10,
+    "aoa_uk_difference_over_2_years": 252,
+    "compound_or_multi_form_review": 5,
+    "missing_age_evidence": 46,
+    "multiple_meanings_review": 529
+  },
+  "row_order_matches_canonical_words": true,
+  "rows": 874,
+  "source_importability_status": {
+    "brysbaert_biemiller_test_based_aoa_master_2026_07_02": "importable",
+    "uk_spelling_words_age_estimates_2026_07_02": "importable"
+  },
+  "source_rows_after_update": 19,
+  "uk_intake_file": "docs/implementation/seed-data/teaching-dictionary/candidates/2026-06-29-phase-5-source-intake/uk_curriculum_age_intake_all_canonical_words.csv",
+  "uk_source_file": "docs/implementation/seed-data/teaching-dictionary/candidates/2026-06-29-phase-5-source-intake/uk_spelling_words_age_estimates.csv",
+  "uk_source_sha256": "edec9fe6695aa70c22dd6e636cd9a4e0d0d7fe476af434abb8dbec5a909b5e8e",
+  "unique_word_keys": 874
+}

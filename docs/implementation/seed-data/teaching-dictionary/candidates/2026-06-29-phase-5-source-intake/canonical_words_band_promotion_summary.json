@@ -1,0 +1,46 @@
+{
+  "age_band_after_counts": {
+    "early_primary": 450,
+    "later_review": 14,
+    "lower_secondary": 45,
+    "mid_secondary": 22,
+    "middle_primary": 233,
+    "upper_primary": 110
+  },
+  "age_band_before_counts": {
+    "candidate_review": 874
+  },
+  "age_rows_changed": 874,
+  "audit_file": "docs/implementation/seed-data/teaching-dictionary/candidates/2026-06-29-phase-5-source-intake/canonical_words_band_promotion_audit.csv",
+  "before_snapshot_file": "docs/implementation/seed-data/teaching-dictionary/candidates/2026-06-29-phase-5-source-intake/canonical_words_before_band_promotion.csv",
+  "changed_fields": [
+    "age_band",
+    "frequency_band"
+  ],
+  "frequency_band_after_counts": {
+    "high": 719,
+    "low": 15,
+    "medium": 140
+  },
+  "frequency_band_before_counts": {
+    "medium": 874
+  },
+  "frequency_rows_changed": 734,
+  "generated_at": "2026-07-02",
+  "hard_boundaries": [
+    "no Supabase import",
+    "no database mutation",
+    "no migrations",
+    "no importer changes",
+    "no runtime hooks",
+    "no resolver changes",
+    "no assignment changes",
+    "no evidence/proficiency changes",
+    "no Word Treasure changes"
+  ],
+  "non_band_fields_changed": 0,
+  "recommendations_file": "docs/implementation/seed-data/teaching-dictionary/candidates/2026-06-29-phase-5-source-intake/canonical_words_frequency_aoa_band_recommendations.csv",
+  "rows": 874,
+  "unique_word_keys": 874,
+  "updated_file": "docs/implementation/seed-data/teaching-dictionary/candidates/2026-06-29-phase-5-source-intake/csv/canonical_words.csv"
+}

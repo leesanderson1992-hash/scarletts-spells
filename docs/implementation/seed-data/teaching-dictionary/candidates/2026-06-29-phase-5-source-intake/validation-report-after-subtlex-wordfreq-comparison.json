@@ -1,0 +1,4352 @@
+{
+  "dry_run_only": true,
+  "generated_at": "2026-07-01T19:30:08.414745+00:00",
+  "hard_boundaries": [
+    "dry-run only",
+    "no Supabase writes",
+    "no migrations",
+    "no imports",
+    "no assignment generation",
+    "no resolver changes",
+    "no evidence/proficiency writes",
+    "no Word Treasure changes"
+  ],
+  "input_folder": "/Users/katiesanderson/Documents/Scarletts Spells/scarletts-spells/docs/implementation/seed-data/teaching-dictionary/candidates/2026-06-29-phase-5-source-intake/csv",
+  "issues": [],
+  "schema_version": "version_3_phase_5c_teaching_dictionary_csv_v3",
+  "summary": {
+    "archived": 0,
+    "content_gap": 0,
+    "errors": 0,
+    "needs_manual_review": 0,
+    "ready_for_first_exposure": 200,
+    "ready_for_guided_review_only": 40,
+    "rejected": 0,
+    "source_or_license_gap": 0,
+    "superseded": 0,
+    "teaching_content_versions": 240,
+    "warnings": 0
+  },
+  "versions": [
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PG_CVC_SHORT_VOWELS_SHORT_A",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PG_CVC_SHORT_VOWELS_SHORT_E",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PG_CVC_SHORT_VOWELS_SHORT_I",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PG_CVC_SHORT_VOWELS_SHORT_O",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PG_CVC_SHORT_VOWELS_SHORT_U",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PG_CVC_SHORT_VOWELS_INITIAL_CONSONANT",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PG_CVC_SHORT_VOWELS_FINAL_CONSONANT",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PG_CONSONANT_DIGRAPHS_SH_INITIAL_FINAL",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PG_CONSONANT_DIGRAPHS_CH_INITIAL_FINAL",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PG_CONSONANT_DIGRAPHS_TH_UNVOICED",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PG_CONSONANT_DIGRAPHS_TH_VOICED",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PG_CONSONANT_DIGRAPHS_WH_INITIAL",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PG_CONSONANT_DIGRAPHS_NG_FINAL",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PG_CONSONANT_DIGRAPHS_NK_FINAL",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PG_CONSONANT_DIGRAPHS_QU_KW",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PG_CONSONANT_BLENDS_INITIAL_L",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PG_CONSONANT_BLENDS_INITIAL_R",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PG_CONSONANT_BLENDS_INITIAL_S",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PG_CONSONANT_BLENDS_FINAL_COMMON",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PG_CONSONANT_BLENDS_THREE_LETTER_INITIAL",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PG_CONSONANT_BLENDS_LONGER_WORDS",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PG_LONG_AI_FINAL_AY",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PG_LONG_AI_MEDIAL_AI",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PG_LONG_AI_SPLIT_A_E",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PG_LONG_AI_EIGH",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PG_LONG_AI_EY",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PG_LONG_AI_OPEN_A",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PG_LONG_EE_EE",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PG_LONG_EE_EA",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PG_LONG_EE_Y_FINAL",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PG_LONG_EE_E_OPEN",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PG_LONG_EE_IE",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PG_LONG_EE_EI",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PG_LONG_EE_EY",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PG_LONG_IGH_IGH",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PG_LONG_IGH_I_E",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PG_LONG_IGH_Y_FINAL",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PG_LONG_IGH_IE_FINAL",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PG_LONG_IGH_OPEN_I",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PG_LONG_IGH_IGH_BEFORE_T",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PG_LONG_OA_OA",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PG_LONG_OA_OW_FINAL",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PG_LONG_OA_O_E",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PG_LONG_OA_OE",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PG_LONG_OA_OPEN_O",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PG_LONG_OA_OLD_OLT_OST",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PG_LONG_OA_OA_BEFORE_TD",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PG_LONG_OO_YOO_OO_LONG",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PG_LONG_OO_YOO_UE_FINAL",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PG_LONG_OO_YOO_U_E",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PG_LONG_OO_YOO_EW",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PG_LONG_OO_YOO_UI",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PG_LONG_OO_YOO_OU",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PG_LONG_AI_EA_COMMON",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PG_LONG_EE_E_E_SPLIT",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PG_LONG_IGH_IND_ILD",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PG_LONG_OA_OW_MEDIAL",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PG_LONG_OO_YOO_U_OPEN",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PG_LONG_OO_YOO_O_SINGLE",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PG_R_CONTROLLED_AR",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PG_R_CONTROLLED_OR",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PG_R_CONTROLLED_ORE",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PG_R_CONTROLLED_AW_AU",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PG_R_CONTROLLED_ER",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PG_R_CONTROLLED_IR",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PG_R_CONTROLLED_UR",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PG_R_CONTROLLED_EAR_ER",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PG_R_CONTROLLED_WOR_ER",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PG_R_CONTROLLED_AIR_ARE",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PG_R_CONTROLLED_EAR_EER",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PG_R_CONTROLLED_OR_AFTER_W",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PG_R_CONTROLLED_AR_AFTER_QU",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PG_R_CONTROLLED_OAR_OUR",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PG_K_SOUND_CHOICES_C_AOU",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PG_K_SOUND_CHOICES_K_EIY",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PG_K_SOUND_CHOICES_KE_FINAL",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PG_K_SOUND_CHOICES_K_AFTER_CONSONANT",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PG_K_SOUND_CHOICES_CH_GREEK",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PG_K_SOUND_CHOICES_QUE_FINAL",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PG_K_SOUND_CHOICES_FINAL_C_LONGER_WORDS",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PG_J_SOUND_CHOICES_J_INITIAL",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PG_J_SOUND_CHOICES_G_SOFT_EIY",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PG_J_SOUND_CHOICES_GE_FINAL",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PG_J_SOUND_CHOICES_DGE_SHORT",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PG_J_SOUND_CHOICES_NGE",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PG_J_SOUND_CHOICES_AGE_SUFFIX",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PG_F_SOUND_CHOICES_F",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PG_F_SOUND_CHOICES_FF",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PG_F_SOUND_CHOICES_PH",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PG_F_SOUND_CHOICES_GH",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PG_SHORT_OO_OO",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PG_SHORT_OO_OULD",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PG_SHORT_OO_U",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PG_SHORT_OO_O",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PG_S_SOUND_CHOICES_S",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PG_S_SOUND_CHOICES_SS",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PG_S_SOUND_CHOICES_C_SOFT",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PG_S_SOUND_CHOICES_CE_FINAL",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PG_S_SOUND_CHOICES_SE_FINAL",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PG_S_SOUND_CHOICES_SC",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PG_Z_SOUND_CHOICES_Z",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PG_Z_SOUND_CHOICES_ZZ",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PG_Z_SOUND_CHOICES_S",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PG_Z_SOUND_CHOICES_SE_FINAL",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PG_SH_SOUND_CHOICES_SH",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PG_SH_SOUND_CHOICES_TI",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PG_SH_SOUND_CHOICES_CI",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PG_SH_SOUND_CHOICES_SI",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PG_SH_SOUND_CHOICES_CH",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PG_CH_SOUND_CHOICES_CH",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PG_CH_SOUND_CHOICES_TU",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PG_CH_SOUND_CHOICES_TI",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PAT_FINAL_CONSONANT_PATTERNS_CK_SHORT",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PAT_FINAL_CONSONANT_PATTERNS_TCH_SHORT",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PAT_FINAL_CONSONANT_PATTERNS_DGE_SHORT",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PAT_FINAL_CONSONANT_PATTERNS_FINAL_VE",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PAT_SPLIT_DIGRAPHS_A_E",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PAT_SPLIT_DIGRAPHS_E_E",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PAT_SPLIT_DIGRAPHS_I_E",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PAT_SPLIT_DIGRAPHS_O_E",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PAT_SPLIT_DIGRAPHS_U_E",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PAT_DOUBLING_PATTERNS_FLOSS",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PAT_DOUBLING_PATTERNS_MEDIAL_SHORT_VOWEL",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PAT_DOUBLING_PATTERNS_COMMON_DOUBLE_LETTER_WORDS",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PAT_SILENT_LETTERS_KN",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PAT_SILENT_LETTERS_WR",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PAT_SILENT_LETTERS_GN_INITIAL",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PAT_SILENT_LETTERS_GN_FINAL",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PAT_SILENT_LETTERS_MB",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PAT_SILENT_LETTERS_BT",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PAT_SILENT_LETTERS_L_SILENT",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PAT_SILENT_LETTERS_H_INITIAL",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PAT_SILENT_LETTERS_W_AFTER_S",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PAT_WA_WOR_WA",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PAT_WA_WOR_WAR",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PAT_WA_WOR_WOR",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PAT_CONTRACTIONS_NOT",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PAT_CONTRACTIONS_PRONOUN_VERB",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PAT_CONTRACTIONS_D_FOR_WOULD_HAD",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PAT_CONTRACTIONS_IRREGULAR_COMMON",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": false,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_SCHWA_INITIAL_A_INITIAL",
+      "readiness_state": "ready_for_guided_review_only",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": false,
+        "version_status": "in_review"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": false,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_SCHWA_INITIAL_E_INITIAL",
+      "readiness_state": "ready_for_guided_review_only",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": false,
+        "version_status": "in_review"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": false,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_SCHWA_INITIAL_O_INITIAL",
+      "readiness_state": "ready_for_guided_review_only",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": false,
+        "version_status": "in_review"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": false,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_SCHWA_MEDIAL_COMMON_WEAK_VOWELS",
+      "readiness_state": "ready_for_guided_review_only",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": false,
+        "version_status": "in_review"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": false,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_SCHWA_MEDIAL_NATURAL_ACTUAL",
+      "readiness_state": "ready_for_guided_review_only",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": false,
+        "version_status": "in_review"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": false,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_SCHWA_FINAL_ER_FINAL",
+      "readiness_state": "ready_for_guided_review_only",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": false,
+        "version_status": "in_review"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": false,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_SCHWA_FINAL_OR_FINAL",
+      "readiness_state": "ready_for_guided_review_only",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": false,
+        "version_status": "in_review"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": false,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_SCHWA_FINAL_AR_FINAL",
+      "readiness_state": "ready_for_guided_review_only",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": false,
+        "version_status": "in_review"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": false,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_SCHWA_FINAL_A_FINAL",
+      "readiness_state": "ready_for_guided_review_only",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": false,
+        "version_status": "in_review"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_IRRE_TRICKY_WORDS_SIMPLE_HIGH_FREQUENCY",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_IRRE_TRICKY_WORDS_COMMON_HIGH_FREQUENCY",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_IRRE_TRICKY_WORDS_COMPLEX_HIGH_FREQUENCY",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_IRRE_TRICKY_WORDS_FUNCTION_WORDS",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_IRRE_TRICKY_WORDS_OULD_WORDS",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_SYL_SYLLABLE_DIVISION_OPEN_CLOSED",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_SYL_SYLLABLE_DIVISION_CONSONANT_PATTERNS",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_SYL_SYLLABLE_DIVISION_MEANING_CHUNKS",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_SYL_CONSONANT_LE_BLE",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_SYL_CONSONANT_LE_DLE",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_SYL_CONSONANT_LE_GLE_KLE",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_SYL_CONSONANT_LE_PLE",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_SYL_CONSONANT_LE_TLE",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_SYL_FINAL_STABLE_SYLLABLES_TION",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_SYL_FINAL_STABLE_SYLLABLES_SION",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_SYL_FINAL_STABLE_SYLLABLES_TURE",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_SYL_FINAL_STABLE_SYLLABLES_CIAN",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_SYL_FINAL_STABLE_SYLLABLES_CIAL",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_SYL_FINAL_STABLE_SYLLABLES_TIAL",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_SYL_SYLLABLE_PRESERVATION_REDUCED_MEDIAL",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_SYL_SYLLABLE_PRESERVATION_COMMON_LONG_WORDS",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_SYL_SYLLABLE_PRESERVATION_CURRICULUM_WORDS",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_MOR_BASE_WORDS_PRESERVE_BASE",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": false,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_MOR_BASE_WORDS_BASE_PLUS_PREFIX",
+      "readiness_state": "ready_for_guided_review_only",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": false,
+        "version_status": "in_review"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": false,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX",
+      "readiness_state": "ready_for_guided_review_only",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": false,
+        "version_status": "in_review"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": false,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_MOR_PREFIXES_UN",
+      "readiness_state": "ready_for_guided_review_only",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": false,
+        "version_status": "in_review"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": false,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_MOR_PREFIXES_RE_PRE",
+      "readiness_state": "ready_for_guided_review_only",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": false,
+        "version_status": "in_review"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": false,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_MOR_PREFIXES_DIS_MIS",
+      "readiness_state": "ready_for_guided_review_only",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": false,
+        "version_status": "in_review"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": false,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_MOR_PREFIXES_IN_IM_IL_IR",
+      "readiness_state": "ready_for_guided_review_only",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": false,
+        "version_status": "in_review"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": false,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_MOR_PREFIXES_SUB_INTER_SUPER",
+      "readiness_state": "ready_for_guided_review_only",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": false,
+        "version_status": "in_review"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": false,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_MOR_SUFFIXES_NESS",
+      "readiness_state": "ready_for_guided_review_only",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": false,
+        "version_status": "in_review"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_MOR_SUFFIXES_FUL_LESS",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": false,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_MOR_SUFFIXES_MENT",
+      "readiness_state": "ready_for_guided_review_only",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": false,
+        "version_status": "in_review"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": false,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_MOR_SUFFIXES_OUS",
+      "readiness_state": "ready_for_guided_review_only",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": false,
+        "version_status": "in_review"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_MOR_SUFFIXES_ITY",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_MOR_SUFFIXES_AL",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": false,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_MOR_SUFFIXES_ABLE_IBLE",
+      "readiness_state": "ready_for_guided_review_only",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": false,
+        "version_status": "in_review"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": false,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS",
+      "readiness_state": "ready_for_guided_review_only",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": false,
+        "version_status": "in_review"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": false,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED",
+      "readiness_state": "ready_for_guided_review_only",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": false,
+        "version_status": "in_review"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": false,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_MOR_WORD_FAMILIES_RELATED_WORD_SUPPORT",
+      "readiness_state": "ready_for_guided_review_only",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": false,
+        "version_status": "in_review"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_MOR_WORD_FAMILIES_PRONUNCIATION_SHIFT",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_MOR_ROOTS_COMMON_LATIN_ROOTS",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_MOR_ROOTS_COMMON_GREEK_ROOTS",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": false,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_MOR_ROOTS_SCIENCE_MATH_ROOTS",
+      "readiness_state": "ready_for_guided_review_only",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": false,
+        "version_status": "in_review"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": false,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_MOR_ROOTS_ROOT_FAMILY_SPELLING",
+      "readiness_state": "ready_for_guided_review_only",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": false,
+        "version_status": "in_review"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": false,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_INF_PLURALS_S",
+      "readiness_state": "ready_for_guided_review_only",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": false,
+        "version_status": "in_review"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": false,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_INF_PLURALS_ES",
+      "readiness_state": "ready_for_guided_review_only",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": false,
+        "version_status": "in_review"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": false,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_INF_PLURALS_IES",
+      "readiness_state": "ready_for_guided_review_only",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": false,
+        "version_status": "in_review"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": false,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_INF_PLURALS_VES",
+      "readiness_state": "ready_for_guided_review_only",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": false,
+        "version_status": "in_review"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_INF_PAST_TENSE_ED_REGULAR",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": false,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_INF_PAST_TENSE_ED_T_SOUND",
+      "readiness_state": "ready_for_guided_review_only",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": false,
+        "version_status": "in_review"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_INF_PAST_TENSE_ED_D_SOUND",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": false,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_INF_PAST_TENSE_ED_ID_SOUND",
+      "readiness_state": "ready_for_guided_review_only",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": false,
+        "version_status": "in_review"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_INF_PAST_TENSE_ED_SPELLING_CHANGES",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_INF_PAST_TENSE_ED_SOUND_VARIANTS",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_INF_PAST_TENSE_ED_DROP_E",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_INF_PAST_TENSE_ED_Y_TO_I",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_INF_PAST_TENSE_ED_DOUBLE_FINAL_CONSONANT",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": false,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_INF_PRESENT_TENSE_S",
+      "readiness_state": "ready_for_guided_review_only",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": false,
+        "version_status": "in_review"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": false,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_INF_PRESENT_TENSE_ES",
+      "readiness_state": "ready_for_guided_review_only",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": false,
+        "version_status": "in_review"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": false,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_INF_PRESENT_TENSE_Y_TO_IES",
+      "readiness_state": "ready_for_guided_review_only",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": false,
+        "version_status": "in_review"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": false,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_INF_ING_ENDINGS_REGULAR",
+      "readiness_state": "ready_for_guided_review_only",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": false,
+        "version_status": "in_review"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_INF_ING_ENDINGS_DROP_E",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_INF_ING_ENDINGS_DOUBLE_FINAL_CONSONANT",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_INF_ING_ENDINGS_IE_TO_Y",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": false,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_INF_COMPARATIVE_SUPERLATIVE_REGULAR",
+      "readiness_state": "ready_for_guided_review_only",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": false,
+        "version_status": "in_review"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": false,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_INF_COMPARATIVE_SUPERLATIVE_DROP_E",
+      "readiness_state": "ready_for_guided_review_only",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": false,
+        "version_status": "in_review"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_INF_COMPARATIVE_SUPERLATIVE_Y_TO_I",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_INF_COMPARATIVE_SUPERLATIVE_DOUBLE_FINAL_CONSONANT",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": false,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_INF_IRREGULAR_INFLECTIONS_IRREGULAR_PAST",
+      "readiness_state": "ready_for_guided_review_only",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": false,
+        "version_status": "in_review"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": false,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_INF_IRREGULAR_INFLECTIONS_IRREGULAR_PLURALS",
+      "readiness_state": "ready_for_guided_review_only",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": false,
+        "version_status": "in_review"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": false,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_INF_IRREGULAR_INFLECTIONS_IRREGULAR_PRESENT",
+      "readiness_state": "ready_for_guided_review_only",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": false,
+        "version_status": "in_review"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_INF_IRREGULAR_INFLECTIONS_IRREGULAR_COMPARISONS",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_HOM_FUNCTION_WORD_HOMOPHONES_TO_TOO_TWO",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_HOM_FUNCTION_WORD_HOMOPHONES_THERE_THEIR_THEYRE",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_HOM_FUNCTION_WORD_HOMOPHONES_WERE_WHERE_WEAR",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_HOM_FUNCTION_WORD_HOMOPHONES_FOR_FOUR_OF_OFF",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_HOM_CONTRACTION_POSSESSIVE_YOUR_YOURE",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_HOM_CONTRACTION_POSSESSIVE_ITS_ITS",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_HOM_CONTRACTION_POSSESSIVE_WHOS_WHOSE",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_HOM_CONTRACTION_POSSESSIVE_WERE_WERE",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_HOM_CONTENT_WORD_HOMOPHONES_SEE_SEA",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_HOM_CONTENT_WORD_HOMOPHONES_RIGHT_WRITE",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_HOM_CONTENT_WORD_HOMOPHONES_PEACE_PIECE",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_HOM_CONTENT_WORD_HOMOPHONES_FLOWER_FLOUR",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_HOM_CONTENT_WORD_HOMOPHONES_COMMON_VERB_NOUN_PAIRS",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PG_DIPHTHONGS_OU",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PG_DIPHTHONGS_OW",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PG_DIPHTHONGS_OI",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    },
+    {
+      "blockers": [],
+      "content_version": "human_reviewed_v1",
+      "first_exposure_allowed": true,
+      "guided_review_allowed": true,
+      "micro_skill_key": "D4_PG_DIPHTHONGS_OY",
+      "readiness_state": "ready_for_first_exposure",
+      "review_summary": {
+        "final_readiness_review_status": "signed_off",
+        "is_active": true,
+        "version_status": "active"
+      },
+      "source_summary": {
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review"
+      },
+      "warnings": []
+    }
+  ]
+}

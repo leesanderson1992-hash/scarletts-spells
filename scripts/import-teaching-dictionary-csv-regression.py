@@ -60,6 +60,18 @@ def main() -> int:
         "active.final_readiness_review_status = 'signed_off'" in importer_source,
         "Importer must query existing active signed-off content before local import.",
     )
+    assert_true(
+        "micro_skill_word_support.csv" in importer_source,
+        "Importer must read the simplified micro_skill_word_support.csv contract.",
+    )
+    assert_true(
+        "canonical_word_micro_skills.csv" not in importer_source,
+        "Importer must not depend on retired canonical_word_micro_skills.csv.",
+    )
+    assert_true(
+        "canonical_teaching_dictionary_word_micro_skills" not in importer_source,
+        "Importer must not plan inserts into the retired word micro-skills table.",
+    )
 
     help_result = run_cmd(["--help"])
     assert_true(help_result.returncode == 0, "--help should exit 0.")
@@ -75,6 +87,14 @@ def main() -> int:
     assert_true(
         valid_manifest["planned_inserts_by_table"]["canonical_teaching_dictionary_words"] == 2,
         "Valid fixture should plan two word rows.",
+    )
+    assert_true(
+        valid_manifest["planned_inserts_by_table"]["canonical_teaching_dictionary_word_support"] == 2,
+        "Valid fixture should plan two word support rows.",
+    )
+    assert_true(
+        "canonical_teaching_dictionary_word_micro_skills" not in valid_manifest["planned_inserts_by_table"],
+        "Valid fixture should not plan retired word micro-skills inserts.",
     )
     assert_true(
         valid_manifest["planned_inserts_by_table"]["canonical_teaching_dictionary_readiness_reports"] == 1,

@@ -1,0 +1,40 @@
+{
+  "active_canonical_words_updated": false,
+  "band_comparison_counts": {
+    "agree": 304,
+    "comparison_only": 212,
+    "disagree": 358
+  },
+  "comparison_file": "docs/implementation/seed-data/teaching-dictionary/candidates/2026-06-29-phase-5-source-intake/bnc_subtlex_uk_frequency_comparison_all_canonical_words.csv",
+  "comparison_source_used": "wordfreq",
+  "generated_at": "2026-07-01",
+  "hard_boundaries": [
+    "no canonical_words.csv band update",
+    "no Supabase import",
+    "no database mutation",
+    "no migrations",
+    "no importer changes",
+    "no runtime hooks",
+    "no resolver changes",
+    "no assignment changes",
+    "no evidence/proficiency changes",
+    "no Word Treasure changes"
+  ],
+  "row_order_matches_canonical_words": true,
+  "rows": 874,
+  "source_importability_status": {
+    "subtlex_uk_van_heuven_2014_reference_2026_07_01": "requires_legal_review",
+    "wordfreq_python_package_fallback_2026_07_01": "requires_legal_review"
+  },
+  "source_rows_after_update": 17,
+  "subtlex_match_counts": {
+    "unavailable": 874
+  },
+  "subtlex_path": "",
+  "subtlex_source_data_status": "source_file_not_supplied",
+  "unique_word_keys": 874,
+  "wordfreq_match_counts": {
+    "exact": 874
+  },
+  "wordfreq_source_data_status": "loaded"
+}

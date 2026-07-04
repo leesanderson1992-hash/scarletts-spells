@@ -1,0 +1,82 @@
+{
+  "activation_policy": "Rows are active only when the full validator reports ready_for_first_exposure; signed-off content with metadata/support blockers remains non-active.",
+  "confidence": "medium",
+  "content_version": "human_reviewed_v1",
+  "contract_changes": {
+    "added_columns": [
+      "guided_practice_progression",
+      "review_proofreading_progression",
+      "example_selection_guidance",
+      "contrast_policy_guidance",
+      "sample_preview_word_key"
+    ],
+    "removed_column": "review_progression",
+    "review_progression_handling": "folded into review_proofreading_progression where distinct"
+  },
+  "field_review_rows": 2640,
+  "hard_boundaries": [
+    "no Supabase import",
+    "no database mutation",
+    "no migrations",
+    "no runtime hooks",
+    "no resolver changes",
+    "no assignment changes",
+    "no evidence/proficiency changes",
+    "no Word Treasure changes"
+  ],
+  "homophone_contrast_policy": "For D4_HOM, two or more reviewed support_example rows in the same micro-skill are treated as the homophone contrast pair/set; duplicate contrast rows are not required.",
+  "is_active_counts": {
+    "FALSE": 61,
+    "TRUE": 179
+  },
+  "preview_key_audit_counts": {
+    "normalised to existing approved canonical word key": 7,
+    "preview word key is not present in approved canonical_words.csv": 12
+  },
+  "preview_key_audit_rows": 19,
+  "remaining_blocker_fill_summary": "Filled 42 support rows and 42 morphology metadata updates for the 14 content-gap micro-skills; content_gap is now 0.",
+  "review_fields_per_version": 11,
+  "reviewed_by": "Katie Sanderson",
+  "source_category_encoded_as": "internal_authored",
+  "source_workbook": "/Users/katiesanderson/Downloads/teaching_content_versions_populated_expanded.xlsx",
+  "teaching_content_is_active_counts": {
+    "FALSE": 40,
+    "TRUE": 200
+  },
+  "teaching_content_version_status_counts": {
+    "active": 200,
+    "in_review": 40
+  },
+  "teaching_content_versions": 240,
+  "updated_at": "2026-07-01",
+  "validation_summary_after_homophone_contrast_alignment": {
+    "archived": 0,
+    "content_gap": 14,
+    "errors": 0,
+    "needs_manual_review": 0,
+    "ready_for_first_exposure": 179,
+    "ready_for_guided_review_only": 47,
+    "rejected": 0,
+    "source_or_license_gap": 0,
+    "superseded": 0,
+    "teaching_content_versions": 240,
+    "warnings": 0
+  },
+  "validation_summary_after_remaining_blocker_fill": {
+    "archived": 0,
+    "content_gap": 0,
+    "errors": 0,
+    "needs_manual_review": 0,
+    "ready_for_first_exposure": 200,
+    "ready_for_guided_review_only": 40,
+    "rejected": 0,
+    "source_or_license_gap": 0,
+    "superseded": 0,
+    "teaching_content_versions": 240,
+    "warnings": 0
+  },
+  "version_status_counts": {
+    "active": 179,
+    "in_review": 61
+  }
+}

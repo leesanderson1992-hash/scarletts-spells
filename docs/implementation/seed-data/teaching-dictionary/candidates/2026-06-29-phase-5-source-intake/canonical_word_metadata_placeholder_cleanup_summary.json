@@ -1,0 +1,92 @@
+{
+  "action": "cleared_unsafe_placeholder_pronunciation_metadata_pending_lexicon_intake",
+  "metadata_rows": 874,
+  "placeholder_values_removed": 1159,
+  "removed_by_field": {
+    "has_schwa": 874,
+    "syllables": 95,
+    "phoneme_hint": 95,
+    "stress_pattern": 95
+  },
+  "placeholders_cleared": {
+    "has_schwa": [
+      "FALSE"
+    ],
+    "syllables": [
+      "1"
+    ],
+    "phoneme_hint": [
+      "manual"
+    ],
+    "stress_pattern": [
+      "single"
+    ]
+  },
+  "counts_before_top_values": {
+    "has_schwa": [
+      [
+        "FALSE",
+        874
+      ]
+    ],
+    "syllables": [
+      [
+        "",
+        779
+      ],
+      [
+        "1",
+        95
+      ]
+    ],
+    "phoneme_hint": [
+      [
+        "",
+        779
+      ],
+      [
+        "manual",
+        95
+      ]
+    ],
+    "stress_pattern": [
+      [
+        "",
+        779
+      ],
+      [
+        "single",
+        95
+      ]
+    ]
+  },
+  "counts_after_top_values": {
+    "has_schwa": [
+      [
+        "",
+        874
+      ]
+    ],
+    "syllables": [
+      [
+        "",
+        874
+      ]
+    ],
+    "phoneme_hint": [
+      [
+        "",
+        874
+      ]
+    ],
+    "stress_pattern": [
+      [
+        "",
+        874
+      ]
+    ]
+  },
+  "frozen_pending_lexicon_intake": true,
+  "metadata_values_preserved_except_placeholder_fields": true,
+  "lexicon_intake_built": false
+}

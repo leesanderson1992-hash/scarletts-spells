@@ -18,6 +18,31 @@ Phase 5A and Phase 5B define the current accepted planning truth:
 It exists to prevent a word-bank or dictionary import from becoming accidental
 truth for taxonomy, resolver behavior, mastery, assignments, or child progress.
 
+## Current Phase 5 Teaching Dictionary boundary
+
+Phase 5 Teaching Dictionary CSV review is a separate simplification pass. It
+does not add `canonical_misspellings.csv` and it does not adopt diagnostic rows
+as Teaching Dictionary content.
+
+The active Teaching Dictionary support layer is
+`micro_skill_word_support.csv`. It stores approved words that can support,
+contrast with, or review an existing micro-skill. It does not create resolver
+truth, learner evidence, assignment items, proficiency state, runtime hooks, or
+Word Treasure state.
+
+Misspelling diagnosis remains owned by the existing bulk seed
+importer/resolver path. When that path supplies a corrected approved word and a
+likely micro-skill, the corrected approved word may become the dynamic lesson
+anchor at runtime. Teaching Dictionary support rows supply supporting,
+contrast, and review words only.
+
+For `D4_HOM` homophone micro-skills, the words linked to the same micro-skill
+as reviewed `support_example` rows are the homophone contrast pair/set. A
+separate `contrast` role row is not required just to express the relationship
+between `to/too/two`, `your/you're`, `see/sea`, or similar grouped homophones.
+Explicit `contrast` rows are reserved for additional non-set or cross-skill
+contrasts.
+
 The future word-map may support:
 - lesson population
 - explicit first-exposure teaching
@@ -190,14 +215,19 @@ Phase 5A defines exact P0/P1/P2/P3 field treatment, blocker reasons, review
 statuses, and readiness states. Summary curriculum metadata includes:
 - teaching objective
 - child-friendly explanation
-- rule explanation
-- anchor word
-- ordered example words from simple to complex
+- rule explanation for parent/teacher review and lesson composition
+- reviewed support words selected from `micro_skill_word_support`
+- dynamic lesson anchor supplied by the corrected approved word from importer/resolver where appropriate
 - memory tip or mnemonic where required by the micro-skill family or route
-- contrast words where useful
+- contrast policy guidance where useful, with actual contrast words generated
+  only where the micro-skill policy allows them. For homophone pair/set
+  micro-skills, the contrast words are drawn from the other approved
+  `support_example` words linked to that same micro-skill.
 - common misconceptions
-- suggested activity progression
-- suggested review progression
+- first-exposure, guided-practice, and review/proofreading progression
+- example-selection guidance for ADLE word choice
+- optional `sample_preview_word_key` for admin review only, never runtime anchor
+  truth
 - source
 - licence or source-use note
 - confidence
@@ -210,8 +240,8 @@ Rules:
   lessons
 - if readiness is missing, ADLE must surface an explicit skip/readiness status
   rather than inventing teaching content
-- word-map rows and curriculum rows remain metadata; they do not create
-  `learning_items`, `assignment_items`, evidence, resolver truth, or rewards
+- word-map rows, Teaching Dictionary support rows, and curriculum rows remain metadata; they do not create `learning_items`, `assignment_items`, evidence, resolver truth, rewards, or Word Treasure state
+- misspelling diagnosis rows remain owned by the existing bulk seed importer/resolver path, not by the Teaching Dictionary CSV review pass
 
 Accepted readiness states:
 - `not_ready`
@@ -237,21 +267,21 @@ Phase 5B names this target layer the Canonical Teaching Dictionary. It is more
 than canonical words: canonical words identify word facts, while teaching
 content versions describe how an existing micro-skill can be safely taught.
 
-Minimum teaching metadata shape:
+Active Phase 5 Teaching Dictionary metadata shape:
 
 ```text
 micro_skill_key
 teaching_objective
 child_friendly_explanation
 rule_explanation
-why_it_works
 memory_tip
-anchor_word
-ordered_example_words
-contrast_words
 common_misconceptions
-first_exposure_activity_sequence
-review_activity_sequence
+first_exposure_progression
+guided_practice_progression
+review_proofreading_progression
+example_selection_guidance
+contrast_policy_guidance
+sample_preview_word_key
 source
 licence
 confidence
@@ -259,14 +289,27 @@ review_status
 ```
 
 Rules:
-- examples must be ordered intentionally, usually simple to complex
-- anchor words should be stable and child-safe
-- contrast words should identify what contrast is being tested
+- teaching content is micro-skill-level guidance, not word-level runtime truth
+- the runtime anchor comes from the child's corrected approved word where
+  appropriate, not from a fixed Teaching Dictionary `anchor_word`
+- examples are selected at lesson composition time from reviewed
+  `micro_skill_word_support.csv` rows, metadata, child evidence, prior exposure,
+  and spacing/review state
+- `sample_preview_word_key`, when present, is an admin-review illustration only
+  and must not be treated as runtime anchor truth or readiness truth
+- contrast policy should identify when contrast is allowed or required, while
+  actual contrast words are selected from reviewed support rows at lesson
+  composition time
 - common misconceptions are instructional support, not resolver truth
 - suggested activity sequences reference Instructional Activity Registry keys
   only after those keys exist
 - a missing teaching field should be a readiness gap, not a prompt to invent
   route-local copy
+
+Legacy pre-simplification terms such as `anchor_word`,
+`ordered_example_words`, and static `contrast_words` may still appear in older
+word-map audit history or legacy workbook sections below. They are not the
+active Phase 5 Teaching Dictionary CSV contract.
 
 ## Allowed future uses
 
@@ -382,13 +425,18 @@ Stop the slice or import if:
 - production DB changes are proposed without a separately approved migration
   slice and migration-ledger check
 
-## Spreadsheet workbook contract
+## Legacy Stage 2A spreadsheet workbook contract
 
 Stage `2A` should create a workbook or spreadsheet artifact with the following
 canonical sheets. The workbook is an authoring and review artifact, not runtime
 truth.
 
-### Sheet: `micro_skill_word_bank`
+This Stage `2A` workbook contract records the earlier canonical spelling
+word-map import shape. It is not the active Phase 5 Teaching Dictionary CSV
+review contract. Phase 5 uses `micro_skill_word_support.csv` and the
+`support_role` values `support_example`, `contrast`, and `review_example`.
+
+### Legacy sheet: `micro_skill_word_bank`
 
 Purpose: main lesson-filling content, one row per word-to-skill content
 association.
@@ -658,7 +706,7 @@ Validation rules:
 - `import_notes` is documentation and review support; it is not content import
   truth by itself.
 
-### Sheet: `allowed_values`
+### Legacy sheet: `allowed_values`
 
 Purpose: helper sheet defining controlled vocabulary values for validation.
 
@@ -700,9 +748,11 @@ A future validator must check:
 - source/licence fields are present in `import_notes` and, where row-specific,
   on content rows
 - no approved row has unclear or prohibited source status
-- diagnostic misspelling mappings are not treated as canonical mappings
+- diagnostic misspelling mappings are not treated as Teaching Dictionary
+  support rows or canonical resolver mappings
 - duplicate word/skill/content-role rows are flagged
-- contrast words have a valid anchor word
+- contrast rows have valid approved word and micro-skill references; Phase 5
+  does not require a static reviewed anchor word
 - rows do not imply child-specific state
 - rows do not imply resolver visibility
 

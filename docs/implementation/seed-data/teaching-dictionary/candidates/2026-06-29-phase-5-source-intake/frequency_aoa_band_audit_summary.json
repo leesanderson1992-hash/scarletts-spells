@@ -1,0 +1,58 @@
+{
+  "active_canonical_words_updated": false,
+  "aoa_file": "docs/implementation/seed-data/teaching-dictionary/candidates/2026-06-29-phase-5-source-intake/aoa_intake_all_canonical_words.csv",
+  "aoa_source_data_status": {
+    "brysbaert_biemiller": "source_file_not_supplied",
+    "kuperman": "source_file_not_supplied"
+  },
+  "bnc_source_cache": "docs/implementation/seed-data/teaching-dictionary/candidates/2026-06-29-phase-5-source-intake/british_frequency_bnc_1_2_all_freq_source.txt",
+  "british_frequency_file": "docs/implementation/seed-data/teaching-dictionary/candidates/2026-06-29-phase-5-source-intake/british_frequency_intake_all_canonical_words.csv",
+  "fallback_frequency_source": "bnc",
+  "frequency_match_counts": {
+    "component": 4,
+    "exact": 658,
+    "unmatched": 212
+  },
+  "frequency_source_used_counts": {
+    "wordfreq": 874
+  },
+  "generated_at": "2026-07-01",
+  "hard_boundaries": [
+    "no canonical_words.csv band update",
+    "no Supabase import",
+    "no database mutation",
+    "no migrations",
+    "no importer changes",
+    "no runtime hooks",
+    "no resolver changes",
+    "no assignment changes",
+    "no evidence/proficiency changes",
+    "no Word Treasure changes"
+  ],
+  "primary_frequency_source": "wordfreq",
+  "proposed_age_band_counts": {
+    "blank": 874
+  },
+  "proposed_frequency_band_counts": {
+    "blank": 212,
+    "high": 288,
+    "medium": 374
+  },
+  "recommendations_file": "docs/implementation/seed-data/teaching-dictionary/candidates/2026-06-29-phase-5-source-intake/canonical_words_frequency_aoa_band_recommendations.csv",
+  "recommended_frequency_band_counts": {
+    "high": 719,
+    "low": 15,
+    "medium": 140
+  },
+  "row_order_matches_canonical_words": true,
+  "rows": 874,
+  "source_importability_status": {
+    "bnc_frequency_lists_ucrel_2026_07_01": "requires_legal_review",
+    "brysbaert_biemiller_aoa_2017_reference_2026_07_01": "requires_legal_review",
+    "kuperman_stadthagen_brysbaert_aoa_2012_reference_2026_07_01": "requires_legal_review"
+  },
+  "source_rows_after_update": 15,
+  "unique_word_keys": 874,
+  "wordfreq_intake_file": "docs/implementation/seed-data/teaching-dictionary/candidates/2026-06-29-phase-5-source-intake/wordfreq_frequency_intake_all_canonical_words.csv",
+  "wordfreq_primary_update_summary": "docs/implementation/seed-data/teaching-dictionary/candidates/2026-06-29-phase-5-source-intake/frequency_priority_wordfreq_update_summary.json"
+}

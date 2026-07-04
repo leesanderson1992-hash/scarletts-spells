@@ -1,0 +1,20 @@
+micro_skill_key,original_sample_preview_word_key,resolved_sample_preview_word_key,reason
+D4_PG_CONSONANT_BLENDS_THREE_LETTER_INITIAL,split_en_gb,,preview word key is not present in approved canonical_words.csv
+D4_PG_LONG_AI_OPEN_A,apron_en_gb,,preview word key is not present in approved canonical_words.csv
+D4_PG_R_CONTROLLED_AIR_ARE,chair_en_gb,,preview word key is not present in approved canonical_words.csv
+D4_PG_R_CONTROLLED_EAR_EER,dear_en_gb,,preview word key is not present in approved canonical_words.csv
+D4_PG_CH_SOUND_CHOICES_CH,chair_en_gb,,preview word key is not present in approved canonical_words.csv
+D4_PAT_CONTRACTIONS_NOT,dont_en_gb,don_t_en_gb,normalised to existing approved canonical word key
+D4_PAT_CONTRACTIONS_PRONOUN_VERB,shes_en_gb,she_s_en_gb,normalised to existing approved canonical word key
+D4_PAT_CONTRACTIONS_D_FOR_WOULD_HAD,id_contraction_en_gb,i_d_en_gb,normalised to existing approved canonical word key
+D4_PAT_CONTRACTIONS_IRREGULAR_COMMON,wont_en_gb,won_t_en_gb,normalised to existing approved canonical word key
+D4_SYL_FINAL_STABLE_SYLLABLES_SION,television_en_gb,,preview word key is not present in approved canonical_words.csv
+D4_SYL_SYLLABLE_PRESERVATION_CURRICULUM_WORDS,experiment_en_gb,,preview word key is not present in approved canonical_words.csv
+D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX,carefully_en_gb,,preview word key is not present in approved canonical_words.csv
+D4_MOR_PREFIXES_DIS_MIS,disagree_en_gb,,preview word key is not present in approved canonical_words.csv
+D4_INF_COMPARATIVE_SUPERLATIVE_DROP_E,wider_en_gb,,preview word key is not present in approved canonical_words.csv
+D4_INF_IRREGULAR_INFLECTIONS_IRREGULAR_COMPARISONS,better_en_gb,,preview word key is not present in approved canonical_words.csv
+D4_HOM_CONTRACTION_POSSESSIVE_YOUR_YOURE,youre_en_gb,you_re_en_gb,normalised to existing approved canonical word key
+D4_HOM_CONTRACTION_POSSESSIVE_ITS_ITS,its_contraction_en_gb,it_s_en_gb,normalised to existing approved canonical word key
+D4_HOM_CONTRACTION_POSSESSIVE_WERE_WERE,were_contraction_en_gb,we_re_en_gb,normalised to existing approved canonical word key
+D4_HOM_CONTENT_WORD_HOMOPHONES_COMMON_VERB_NOUN_PAIRS,heard_en_gb,,preview word key is not present in approved canonical_words.csv

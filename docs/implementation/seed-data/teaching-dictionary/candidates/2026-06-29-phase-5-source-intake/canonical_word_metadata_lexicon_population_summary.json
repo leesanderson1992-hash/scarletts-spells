@@ -1,0 +1,42 @@
+{
+  "active_metadata_file": "docs/implementation/seed-data/teaching-dictionary/candidates/2026-06-29-phase-5-source-intake/csv/canonical_word_metadata.csv",
+  "audit_file": "docs/implementation/seed-data/teaching-dictionary/candidates/2026-06-29-phase-5-source-intake/canonical_word_metadata_lexicon_population_audit.csv",
+  "before_snapshot": "docs/implementation/seed-data/teaching-dictionary/candidates/2026-06-29-phase-5-source-intake/canonical_word_metadata_before_lexicon_population.csv",
+  "british_ipa_source_importability_status": "importable",
+  "british_ipa_source_legal_review_status": "passed",
+  "cmudict_source_importability_status": "importable",
+  "cmudict_source_legal_review_status": "passed",
+  "confidence_counts": {
+    "low": 55,
+    "medium": 819
+  },
+  "filled_field_counts": {
+    "has_schwa": 874,
+    "phoneme_hint": 874,
+    "stress_pattern": 874,
+    "syllables": 874
+  },
+  "generated_at": "2026-07-01",
+  "hard_boundaries": [
+    "no Supabase import",
+    "no database mutation",
+    "no migrations",
+    "no importer changes",
+    "no runtime hooks",
+    "no resolver changes",
+    "no assignment changes",
+    "no evidence/proficiency changes",
+    "no Word Treasure changes"
+  ],
+  "morphology_changed_count": 0,
+  "morphology_scope": "preserved unchanged; separate later pass",
+  "review_status_set": "approved_for_first_exposure",
+  "row_order_matches_canonical_words": true,
+  "rows": 874,
+  "selected_source_counts": {
+    "british_ipa": 819,
+    "cmudict_fallback": 55
+  },
+  "unique_word_keys": 874,
+  "unpopulated_rows": []
+}

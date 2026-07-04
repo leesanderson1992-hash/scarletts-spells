@@ -27,7 +27,7 @@ VALIDATOR_PATH = ROOT / "scripts/validate-teaching-dictionary-csv.py"
 EXPECTED_MIGRATION_VERSION = "20260629120000"
 LOCAL_CONFIRMATION_TOKEN = "canonical-teaching-dictionary-local-dev"
 ADVISORY_LOCK_NAME = "canonical_teaching_dictionary_import"
-VALIDATOR_VERSION = "version_3_phase_5c_teaching_dictionary_csv_v1"
+VALIDATOR_VERSION = "version_3_phase_5c_teaching_dictionary_csv_v3"
 UUID_NAMESPACE = uuid.UUID("12345678-1234-5678-1234-567812345678")
 
 IMPORT_BATCH_TABLE = "canonical_teaching_dictionary_import_batches"
@@ -35,7 +35,7 @@ CONTENT_TABLES_IN_IMPORT_ORDER = [
     "canonical_teaching_dictionary_sources",
     "canonical_teaching_dictionary_words",
     "canonical_teaching_dictionary_word_metadata",
-    "canonical_teaching_dictionary_word_micro_skills",
+    "canonical_teaching_dictionary_word_support",
     "canonical_teaching_dictionary_content_versions",
     "canonical_teaching_dictionary_field_reviews",
     "canonical_teaching_dictionary_readiness_reports",
@@ -45,7 +45,7 @@ ALL_STORAGE_TABLES = [IMPORT_BATCH_TABLE, *CONTENT_TABLES_IN_IMPORT_ORDER]
 CSV_FILES = [
     "canonical_words.csv",
     "canonical_word_metadata.csv",
-    "canonical_word_micro_skills.csv",
+    "micro_skill_word_support.csv",
     "teaching_content_versions.csv",
     "teaching_content_field_reviews.csv",
     "teaching_content_sources.csv",
@@ -132,7 +132,7 @@ CONTENT_TABLE_COLUMNS = {
         "confidence",
         "review_status",
     ],
-    "canonical_teaching_dictionary_word_micro_skills": [
+    "canonical_teaching_dictionary_word_support": [
         "id",
         "import_batch_id",
         "canonical_word_id",
@@ -143,10 +143,7 @@ CONTENT_TABLE_COLUMNS = {
         "source_row_hash",
         "source_metadata",
         "micro_skill_key",
-        "micro_skill_role",
-        "difficulty_band",
-        "evidence_weight",
-        "display_order",
+        "support_role",
         "source_category",
         "source_name",
         "source_url",
@@ -154,6 +151,7 @@ CONTENT_TABLE_COLUMNS = {
         "source_use_note",
         "confidence",
         "review_status",
+        "review_notes",
     ],
     "canonical_teaching_dictionary_content_versions": [
         "id",
@@ -171,13 +169,13 @@ CONTENT_TABLE_COLUMNS = {
         "child_friendly_explanation",
         "rule_explanation",
         "memory_tip",
-        "anchor_word_id",
-        "anchor_word_key",
-        "ordered_example_word_keys",
-        "contrast_word_keys",
         "common_misconceptions",
         "first_exposure_progression",
-        "review_progression",
+        "guided_practice_progression",
+        "review_proofreading_progression",
+        "example_selection_guidance",
+        "contrast_policy_guidance",
+        "sample_preview_word_key",
         "source_category",
         "source_name",
         "source_url",
@@ -229,10 +227,9 @@ CONTENT_TABLE_COLUMNS = {
 
 JSONB_COLUMNS = {
     "source_metadata",
-    "ordered_example_word_keys",
-    "contrast_word_keys",
     "first_exposure_progression",
-    "review_progression",
+    "guided_practice_progression",
+    "review_proofreading_progression",
     "blockers",
     "warnings",
     "p0_field_statuses",
@@ -245,14 +242,14 @@ JSONB_COLUMNS = {
     "report_metadata",
 }
 BOOLEAN_COLUMNS = {"is_active", "first_exposure_allowed", "guided_review_allowed", "has_schwa"}
-INTEGER_COLUMNS = {"source_row_number", "display_order"}
-NUMERIC_COLUMNS = {"evidence_weight"}
+INTEGER_COLUMNS = {"source_row_number"}
+NUMERIC_COLUMNS: set[str] = set()
 
 UNIQUE_KEY_FIELDS = {
     "canonical_teaching_dictionary_sources": ["source_key"],
     "canonical_teaching_dictionary_words": ["word_key"],
     "canonical_teaching_dictionary_word_metadata": ["canonical_word_id"],
-    "canonical_teaching_dictionary_word_micro_skills": ["canonical_word_id", "micro_skill_key", "micro_skill_role"],
+    "canonical_teaching_dictionary_word_support": ["canonical_word_id", "micro_skill_key", "support_role"],
     "canonical_teaching_dictionary_content_versions": ["micro_skill_key", "content_version"],
     "canonical_teaching_dictionary_field_reviews": ["teaching_content_version_id", "field_key", "review_gate"],
     "canonical_teaching_dictionary_readiness_reports": ["teaching_content_version_id"],
@@ -505,21 +502,18 @@ def build_planned_rows(folder: Path, validation_report: dict[str, Any]) -> dict[
             }
         )
 
-    for row in data.get("canonical_word_micro_skills.csv", []):
+    for row in data.get("micro_skill_word_support.csv", []):
         word_key = clean(row["word_key"])
-        key = "|".join([word_key, clean(row["micro_skill_key"]), clean(row["micro_skill_role"])])
-        planned["canonical_teaching_dictionary_word_micro_skills"].append(
+        key = "|".join([word_key, clean(row["micro_skill_key"]), clean(row["support_role"])])
+        planned["canonical_teaching_dictionary_word_support"].append(
             {
-                "id": stable_uuid("word_micro_skill", key),
+                "id": stable_uuid("word_support", key),
                 "canonical_word_id": word_ids.get(word_key),
                 "source_id": None,
                 "row_status": "active",
-                **row_base("canonical_word_micro_skills.csv", row),
+                **row_base("micro_skill_word_support.csv", row),
                 "micro_skill_key": row["micro_skill_key"],
-                "micro_skill_role": row["micro_skill_role"],
-                "difficulty_band": row["difficulty_band"],
-                "evidence_weight": row["evidence_weight"],
-                "display_order": row["display_order"],
+                "support_role": row["support_role"],
                 "source_category": row["source_category"],
                 "source_name": row["source_name"],
                 "source_url": row["source_url"],
@@ -527,6 +521,7 @@ def build_planned_rows(folder: Path, validation_report: dict[str, Any]) -> dict[
                 "source_use_note": row["source_use_note"],
                 "confidence": row["confidence"],
                 "review_status": row["review_status"],
+                "review_notes": row["review_notes"],
             }
         )
 
@@ -550,13 +545,13 @@ def build_planned_rows(folder: Path, validation_report: dict[str, Any]) -> dict[
                 "child_friendly_explanation": row["child_friendly_explanation"],
                 "rule_explanation": row["rule_explanation"],
                 "memory_tip": row["memory_tip"],
-                "anchor_word_id": word_ids.get(clean(row["anchor_word_key"])) if clean(row["anchor_word_key"]) else None,
-                "anchor_word_key": row["anchor_word_key"],
-                "ordered_example_word_keys": split_pipe(row["ordered_example_word_keys"]),
-                "contrast_word_keys": split_pipe(row["contrast_word_keys"]),
                 "common_misconceptions": row["common_misconceptions"],
                 "first_exposure_progression": split_pipe(row["first_exposure_progression"]),
-                "review_progression": split_pipe(row["review_progression"]),
+                "guided_practice_progression": split_pipe(row["guided_practice_progression"]),
+                "review_proofreading_progression": split_pipe(row["review_proofreading_progression"]),
+                "example_selection_guidance": row["example_selection_guidance"],
+                "contrast_policy_guidance": row["contrast_policy_guidance"],
+                "sample_preview_word_key": row["sample_preview_word_key"],
                 "source_category": row["source_category"],
                 "source_name": row["source_name"],
                 "source_url": row["source_url"],
@@ -614,7 +609,10 @@ def build_planned_rows(folder: Path, validation_report: dict[str, Any]) -> dict[
                 "review_summary": version.get("review_summary", {}),
                 "activity_progression_summary": {
                     "first_exposure_progression": split_pipe(csv_row.get("first_exposure_progression", "")),
-                    "review_progression": split_pipe(csv_row.get("review_progression", "")),
+                    "guided_practice_progression": split_pipe(csv_row.get("guided_practice_progression", "")),
+                    "review_proofreading_progression": split_pipe(
+                        csv_row.get("review_proofreading_progression", "")
+                    ),
                 },
                 "report_metadata": {
                     "validator_generated_at": validation_report.get("generated_at"),
@@ -657,7 +655,7 @@ def duplicate_summary(planned: dict[str, list[dict[str, Any]]]) -> dict[str, Any
 def planned_micro_skill_keys(planned: dict[str, list[dict[str, Any]]]) -> list[str]:
     keys: set[str] = set()
     for table in [
-        "canonical_teaching_dictionary_word_micro_skills",
+        "canonical_teaching_dictionary_word_support",
         "canonical_teaching_dictionary_content_versions",
     ]:
         for row in planned.get(table, []):

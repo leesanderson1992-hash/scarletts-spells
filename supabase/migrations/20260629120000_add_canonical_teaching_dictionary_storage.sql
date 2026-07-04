@@ -148,7 +148,7 @@ create table if not exists public.canonical_teaching_dictionary_word_metadata (
     check (source_category <> 'internal_authored' or btrim(coalesce(source_use_note, '')) <> '')
 );
 
-create table if not exists public.canonical_teaching_dictionary_word_micro_skills (
+create table if not exists public.canonical_teaching_dictionary_word_support (
   id uuid primary key default gen_random_uuid(),
   import_batch_id uuid not null references public.canonical_teaching_dictionary_import_batches(id) on delete restrict,
   canonical_word_id uuid not null references public.canonical_teaching_dictionary_words(id) on delete restrict,
@@ -159,10 +159,7 @@ create table if not exists public.canonical_teaching_dictionary_word_micro_skill
   source_row_hash text not null,
   source_metadata jsonb not null default '{}'::jsonb,
   micro_skill_key text not null references public.micro_skill_catalog(micro_skill_key) on delete restrict,
-  micro_skill_role text not null,
-  difficulty_band text not null,
-  evidence_weight numeric,
-  display_order integer,
+  support_role text not null,
   source_category text not null,
   source_name text,
   source_url text,
@@ -170,29 +167,24 @@ create table if not exists public.canonical_teaching_dictionary_word_micro_skill
   source_use_note text,
   confidence text not null,
   review_status text not null,
+  review_notes text,
   reviewed_by text,
   reviewed_at timestamptz,
   created_at timestamptz not null default timezone('utc', now()),
   updated_at timestamptz not null default timezone('utc', now()),
-  constraint canonical_teaching_dictionary_word_micro_skills_row_status_check
+  constraint canonical_teaching_dictionary_word_support_row_status_check
     check (row_status = any (array['draft', 'active', 'rejected', 'superseded'])),
-  constraint canonical_teaching_dictionary_word_micro_skills_source_row_check
+  constraint canonical_teaching_dictionary_word_support_source_row_check
     check (source_row_number > 1 and btrim(source_sheet) <> '' and btrim(source_row_hash) <> ''),
-  constraint canonical_teaching_dictionary_word_micro_skills_role_check
-    check (micro_skill_role = any (array['anchor', 'ordered_example', 'contrast', 'diagnostic', 'route_support', 'review_example'])),
-  constraint canonical_teaching_dictionary_word_micro_skills_difficulty_check
-    check (difficulty_band = any (array['low', 'medium', 'high'])),
-  constraint canonical_teaching_dictionary_word_micro_skills_evidence_weight_check
-    check (evidence_weight is null or evidence_weight >= 0),
-  constraint canonical_teaching_dictionary_word_micro_skills_display_order_check
-    check (display_order is null or display_order >= 0),
-  constraint canonical_teaching_dictionary_word_micro_skills_source_category_check
+  constraint canonical_teaching_dictionary_word_support_role_check
+    check (support_role = any (array['support_example', 'contrast', 'review_example'])),
+  constraint canonical_teaching_dictionary_word_support_source_category_check
     check (source_category = any (array['internal_authored', 'internal_reviewed_seed', 'public_domain', 'open_licensed', 'licensed_vendor', 'reference_only', 'ai_assisted_draft'])),
-  constraint canonical_teaching_dictionary_word_micro_skills_confidence_check
+  constraint canonical_teaching_dictionary_word_support_confidence_check
     check (confidence = any (array['low', 'medium', 'high'])),
-  constraint canonical_teaching_dictionary_word_micro_skills_review_status_check
+  constraint canonical_teaching_dictionary_word_support_review_status_check
     check (review_status = any (array['draft', 'ai_draft', 'in_review', 'changes_requested', 'approved_for_guided_review', 'approved_for_first_exposure', 'rejected', 'superseded'])),
-  constraint canonical_teaching_dictionary_word_micro_skills_internal_note_check
+  constraint canonical_teaching_dictionary_word_support_internal_note_check
     check (source_category <> 'internal_authored' or btrim(coalesce(source_use_note, '')) <> '')
 );
 
@@ -212,13 +204,13 @@ create table if not exists public.canonical_teaching_dictionary_content_versions
   child_friendly_explanation text,
   rule_explanation text,
   memory_tip text,
-  anchor_word_id uuid references public.canonical_teaching_dictionary_words(id) on delete restrict,
-  anchor_word_key text,
-  ordered_example_word_keys jsonb not null default '[]'::jsonb,
-  contrast_word_keys jsonb not null default '[]'::jsonb,
   common_misconceptions text,
   first_exposure_progression jsonb not null default '[]'::jsonb,
-  review_progression jsonb not null default '[]'::jsonb,
+  guided_practice_progression jsonb not null default '[]'::jsonb,
+  review_proofreading_progression jsonb not null default '[]'::jsonb,
+  example_selection_guidance text,
+  contrast_policy_guidance text,
+  sample_preview_word_key text,
   source_category text not null,
   source_name text,
   source_url text,
@@ -246,14 +238,12 @@ create table if not exists public.canonical_teaching_dictionary_content_versions
         and final_readiness_review_status = 'signed_off'
       )
     ),
-  constraint canonical_teaching_dictionary_content_versions_ordered_examples_check
-    check (jsonb_typeof(ordered_example_word_keys) = 'array'),
-  constraint canonical_teaching_dictionary_content_versions_contrast_words_check
-    check (jsonb_typeof(contrast_word_keys) = 'array'),
   constraint canonical_teaching_dictionary_content_versions_first_progression_check
     check (jsonb_typeof(first_exposure_progression) = 'array'),
-  constraint canonical_teaching_dictionary_content_versions_review_progression_check
-    check (jsonb_typeof(review_progression) = 'array'),
+  constraint canonical_teaching_dictionary_content_versions_guided_progression_check
+    check (jsonb_typeof(guided_practice_progression) = 'array'),
+  constraint canonical_teaching_dictionary_content_versions_review_proofreading_progression_check
+    check (jsonb_typeof(review_proofreading_progression) = 'array'),
   constraint canonical_teaching_dictionary_content_versions_source_category_check
     check (source_category = any (array['internal_authored', 'internal_reviewed_seed', 'public_domain', 'open_licensed', 'licensed_vendor', 'reference_only', 'ai_assisted_draft'])),
   constraint canonical_teaching_dictionary_content_versions_confidence_check
@@ -352,22 +342,20 @@ create index if not exists canonical_teaching_dictionary_word_metadata_batch_idx
 create index if not exists canonical_teaching_dictionary_word_metadata_word_idx
   on public.canonical_teaching_dictionary_word_metadata(canonical_word_id);
 
-create index if not exists canonical_teaching_dictionary_word_micro_skills_batch_idx
-  on public.canonical_teaching_dictionary_word_micro_skills(import_batch_id);
-create index if not exists canonical_teaching_dictionary_word_micro_skills_word_idx
-  on public.canonical_teaching_dictionary_word_micro_skills(canonical_word_id);
-create index if not exists canonical_teaching_dictionary_word_micro_skills_skill_idx
-  on public.canonical_teaching_dictionary_word_micro_skills(micro_skill_key);
-create unique index if not exists canonical_teaching_dictionary_word_micro_skills_active_mapping_idx
-  on public.canonical_teaching_dictionary_word_micro_skills(canonical_word_id, micro_skill_key, micro_skill_role)
+create index if not exists canonical_teaching_dictionary_word_support_batch_idx
+  on public.canonical_teaching_dictionary_word_support(import_batch_id);
+create index if not exists canonical_teaching_dictionary_word_support_word_idx
+  on public.canonical_teaching_dictionary_word_support(canonical_word_id);
+create index if not exists canonical_teaching_dictionary_word_support_skill_idx
+  on public.canonical_teaching_dictionary_word_support(micro_skill_key);
+create unique index if not exists canonical_teaching_dictionary_word_support_active_mapping_idx
+  on public.canonical_teaching_dictionary_word_support(canonical_word_id, micro_skill_key, support_role)
   where row_status = 'active';
 
 create index if not exists canonical_teaching_dictionary_content_versions_batch_idx
   on public.canonical_teaching_dictionary_content_versions(import_batch_id);
 create index if not exists canonical_teaching_dictionary_content_versions_skill_idx
   on public.canonical_teaching_dictionary_content_versions(micro_skill_key);
-create index if not exists canonical_teaching_dictionary_content_versions_anchor_word_idx
-  on public.canonical_teaching_dictionary_content_versions(anchor_word_id);
 create unique index if not exists canonical_teaching_dictionary_content_versions_key_idx
   on public.canonical_teaching_dictionary_content_versions(micro_skill_key, content_version);
 create unique index if not exists canonical_teaching_dictionary_content_versions_one_active_idx
@@ -392,7 +380,7 @@ alter table public.canonical_teaching_dictionary_import_batches enable row level
 alter table public.canonical_teaching_dictionary_sources enable row level security;
 alter table public.canonical_teaching_dictionary_words enable row level security;
 alter table public.canonical_teaching_dictionary_word_metadata enable row level security;
-alter table public.canonical_teaching_dictionary_word_micro_skills enable row level security;
+alter table public.canonical_teaching_dictionary_word_support enable row level security;
 alter table public.canonical_teaching_dictionary_content_versions enable row level security;
 alter table public.canonical_teaching_dictionary_field_reviews enable row level security;
 alter table public.canonical_teaching_dictionary_readiness_reports enable row level security;
@@ -401,7 +389,7 @@ revoke all on table public.canonical_teaching_dictionary_import_batches from ano
 revoke all on table public.canonical_teaching_dictionary_sources from anon, authenticated;
 revoke all on table public.canonical_teaching_dictionary_words from anon, authenticated;
 revoke all on table public.canonical_teaching_dictionary_word_metadata from anon, authenticated;
-revoke all on table public.canonical_teaching_dictionary_word_micro_skills from anon, authenticated;
+revoke all on table public.canonical_teaching_dictionary_word_support from anon, authenticated;
 revoke all on table public.canonical_teaching_dictionary_content_versions from anon, authenticated;
 revoke all on table public.canonical_teaching_dictionary_field_reviews from anon, authenticated;
 revoke all on table public.canonical_teaching_dictionary_readiness_reports from anon, authenticated;
@@ -410,7 +398,7 @@ grant all on table public.canonical_teaching_dictionary_import_batches to servic
 grant all on table public.canonical_teaching_dictionary_sources to service_role;
 grant all on table public.canonical_teaching_dictionary_words to service_role;
 grant all on table public.canonical_teaching_dictionary_word_metadata to service_role;
-grant all on table public.canonical_teaching_dictionary_word_micro_skills to service_role;
+grant all on table public.canonical_teaching_dictionary_word_support to service_role;
 grant all on table public.canonical_teaching_dictionary_content_versions to service_role;
 grant all on table public.canonical_teaching_dictionary_field_reviews to service_role;
 grant all on table public.canonical_teaching_dictionary_readiness_reports to service_role;

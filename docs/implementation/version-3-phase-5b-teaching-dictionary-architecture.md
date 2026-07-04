@@ -70,8 +70,8 @@ The teaching dictionary should be designed as five conceptual layers.
 |---|---|---|
 | `canonical_words` | stable word identity and high-level word facts | teaching readiness, child proficiency, resolver truth |
 | `canonical_word_metadata` | technical spelling, pronunciation, syllable, schwa, stress, and morphology facts | child-facing teaching copy |
-| `canonical_word_micro_skills` | reviewed mappings from words to existing D4 micro-skills | taxonomy creation or free-text micro-skill keys |
-| teaching content versions | objective, explanation, anchor word, examples, contrast words, progressions, review/source state | word identity or child progress |
+| `micro_skill_word_support` | approved words that can support an existing D4 micro-skill as support examples, contrast words, or review examples | taxonomy creation, free-text micro-skill keys, misspelling diagnosis, static lesson anchors, or manual word ordering |
+| teaching content versions | objective, explanation, adult-facing rule/pattern, misconceptions, progressions, example-selection guidance, contrast policy, review/source state for a micro-skill | word identity, child progress, misspelling diagnosis, fixed anchor-word selection, fixed ordered-example selection, or static contrast-word lists |
 | readiness reports | validator-calculated state, blockers, warnings, and field-level review summaries | human approval by itself |
 
 These layers may eventually be represented as database tables, versioned repo
@@ -148,19 +148,17 @@ Rules:
 - morphology, phoneme, stress, and schwa fields are required only when the
   micro-skill family or teaching route depends on them.
 
-### `canonical_word_micro_skills`
+### `micro_skill_word_support`
 
-Purpose: reviewed links between words and existing D4 micro-skills.
+Purpose: reviewed support links from approved words to existing D4 micro-skills. This layer answers which approved words can support a micro-skill; it does not diagnose misspellings or choose the runtime anchor.
 
 Candidate fields:
 
 - `id`
 - `canonical_word_id`
 - `micro_skill_key`
-- `micro_skill_role`
-- `difficulty_band`
-- `evidence_weight`
-- `display_order`
+- `support_role`
+- `review_notes`
 - `source_category`
 - `source_name`
 - `source_url`
@@ -174,9 +172,20 @@ Candidate fields:
 Rules:
 
 - `micro_skill_key` must reference an existing catalog-backed key.
-- a word may map to multiple micro-skills.
-- a mapping does not create a `learning_item`, `assignment_item`, evidence
-  event, proficiency score, reward state, or resolver mapping.
+- `support_role` must be one of `support_example`, `contrast`, or `review_example`.
+- `anchor`, `ordered_example`, `diagnostic`, and `route_support` are not Teaching Dictionary support roles.
+- a word may map to multiple micro-skills only when it genuinely supports each one.
+- for `D4_HOM` homophone micro-skills, the reviewed `support_example` words in
+  the same micro-skill are the contrast pair/set. For example, a
+  `to/too/two` micro-skill should link `to`, `too`, and `two` as
+  `support_example` rows; a separate `contrast` row is not required merely to
+  say that those words contrast with one another.
+- explicit `contrast` rows are reserved for extra non-set contrasts, cross-skill
+  contrasts, or cases where the contrast is not already represented by the
+  homophone pair/set's support examples.
+- ordering is calculated later from metadata such as frequency, complexity, difficulty, route, and review context.
+- misspelling diagnosis remains owned by the bulk seed importer/resolver path.
+- a support row does not create a `learning_item`, `assignment_item`, evidence event, proficiency score, reward state, Word Treasure state, canonical misspelling, or resolver mapping.
 
 ### `teaching_content_versions`
 
@@ -193,12 +202,13 @@ Candidate fields:
 - `child_friendly_explanation`
 - `rule_explanation`
 - `memory_tip`
-- `anchor_word_id`
-- `ordered_example_word_ids`
-- `contrast_word_group_ids`
 - `common_misconceptions`
 - `first_exposure_progression`
-- `review_progression`
+- `guided_practice_progression`
+- `review_proofreading_progression`
+- `example_selection_guidance`
+- `contrast_policy_guidance`
+- `sample_preview_word_key`
 - `source_category`
 - `source_name`
 - `source_url`
@@ -219,6 +229,23 @@ Rules:
 - `is_active` is only allowed for a version that has final readiness signoff.
 - active selection must fail if another active signed-off version already exists
   for the same `micro_skill_key`.
+- `rule_explanation` is the parent/teacher-facing explanation of the rule,
+  pattern, or noticing principle. It is not a parent-guidance feature.
+- `guided_practice_progression` describes supported practice after first
+  exposure.
+- `review_proofreading_progression` describes later retrieval, editing, and
+  proofreading use.
+- `example_selection_guidance` tells ADLE how to select examples from approved
+  support rows and metadata; it must not hard-code ordered example lists.
+- `contrast_policy_guidance` tells ADLE when contrast is pedagogically allowed
+  or required; it must not create manual contrast-word truth. For `D4_HOM`
+  skills, the contrast options normally come from the other reviewed
+  `support_example` words in the same homophone pair/set.
+- `sample_preview_word_key` is optional admin-review scaffolding only. When
+  present, it must reference an approved canonical word, but it must not be
+  treated as the runtime anchor, readiness proof, or ordered-example truth.
+- misspelling-driven runtime lessons use the corrected approved word supplied
+  by the importer/resolver as the dynamic lesson anchor where appropriate.
 
 ### `teaching_content_field_reviews`
 
@@ -316,7 +343,7 @@ Initial CSV files:
 |---|---|
 | `canonical_words.csv` | word identity and high-level facts |
 | `canonical_word_metadata.csv` | technical word metadata |
-| `canonical_word_micro_skills.csv` | word-to-micro-skill mappings |
+| `micro_skill_word_support.csv` | approved word support for existing micro-skills |
 | `teaching_content_versions.csv` | micro-skill teaching packages |
 | `teaching_content_field_reviews.csv` | field-level review statuses |
 | `teaching_content_sources.csv` | optional shared source/licence records if workbook authors prefer normalized source rows |
@@ -327,7 +354,7 @@ Required import behavior:
 - validate headers before row content.
 - validate all enum values against Phase 5A vocabulary.
 - validate `micro_skill_key` values against known D4 taxonomy keys.
-- validate word references before mapping or teaching rows.
+- validate word references in support rows before readiness calculation.
 - calculate readiness reports without mutating production data.
 - reject ambiguous source/licence rows.
 - reject `reference_only` rows if they are used as surfaced child-facing final
@@ -372,8 +399,8 @@ The future validator should calculate readiness in this order:
 
 1. Validate import structure and enum vocabulary.
 2. Validate source/licence/importability.
-3. Validate known taxonomy and word references.
-4. Validate P0 fields.
+3. Validate known taxonomy and approved-word references in support rows.
+4. Validate P0 fields and sufficient reviewed support words.
 5. Apply family-dependent P1 rules.
 6. Apply field-level review statuses.
 7. Apply final readiness review status.

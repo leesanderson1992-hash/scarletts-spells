@@ -1,0 +1,15 @@
+{
+  "action": "realigned_single_metadata_word_key_after_placeholder_cleanup",
+  "metadata_rows": 874,
+  "canonical_words_rows": 874,
+  "changes": [
+    {
+      "old_word_key": "act_action_en_gb",
+      "new_word_key": "act_en_gb",
+      "reason": "Realigned metadata key to reviewed canonical_words.csv key after user edits."
+    }
+  ],
+  "missing_metadata_keys_after": [],
+  "extra_metadata_keys_after": [],
+  "same_order_after": true
+}

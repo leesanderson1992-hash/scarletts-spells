@@ -1,0 +1,16 @@
+{
+  "action": "realigned_single_support_word_key_after_metadata_cleanup_validation",
+  "support_rows": 951,
+  "changes": [
+    {
+      "row_number": 5,
+      "old_word_key": "act_action_en_gb",
+      "new_word_key": "act_en_gb",
+      "micro_skill_key": "D4_MOR_ROOTS_ROOT_FAMILY_SPELLING",
+      "support_role": "support_example",
+      "reason": "Realigned support row to reviewed canonical_words.csv key after user edits."
+    }
+  ],
+  "unknown_word_references_after": [],
+  "canonical_order_after": true
+}

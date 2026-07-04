@@ -104,9 +104,9 @@ map back to one of these values.
 | `missing_teaching_objective` | `content_gap` | No concise adult-facing objective defines what ADLE is teaching. |
 | `missing_child_friendly_explanation` | `content_gap` | No child-facing explanation is available for first exposure. |
 | `missing_rule_explanation` | `content_gap` | No rule, pattern, or noticing instruction explains what to do. |
-| `missing_anchor_word` | `content_gap` | No stable anchor word is selected. |
-| `missing_ordered_example_words` | `content_gap` | No ordered examples are available. |
-| `insufficient_ordered_example_words` | `content_gap` | Examples exist but do not meet the minimum for the chosen activity/progression. |
+| `missing_anchor_word` | `content_gap` | Legacy/fallback blocker only. Misspelling-driven lessons use the corrected approved word as the dynamic anchor at runtime. |
+| `missing_ordered_example_words` | `content_gap` | No reviewed `support_example` words are available for the micro-skill. |
+| `insufficient_ordered_example_words` | `content_gap` | Reviewed support words exist but do not meet the minimum for the chosen activity/progression. |
 | `missing_first_exposure_progression` | `content_gap` | No approved/planned first-exposure activity progression is defined. |
 | `missing_review_progression` | `content_gap` | No guided-review progression exists where guided review is claimed. |
 | `missing_source` | `source_or_license_gap` | Source or authorship is absent. |
@@ -140,10 +140,12 @@ exist, meet quality rules, and pass required review gates:
 |---|---|---|
 | `teaching_objective` | Required for every first exposure. | `missing_teaching_objective` |
 | `child_friendly_explanation` | Required for every first exposure. | `missing_child_friendly_explanation` |
-| `rule_explanation` | Required for every first exposure. | `missing_rule_explanation` |
-| `anchor_word` | Required for every first exposure. | `missing_anchor_word` |
-| `ordered_example_words` | Required for every first exposure. | `missing_ordered_example_words` or `insufficient_ordered_example_words` |
+| `rule_explanation` | Required adult-facing rule, pattern, or noticing explanation for every first exposure. This is teacher/parent-readable rule support, not a parent-guidance feature. | `missing_rule_explanation` |
+| `common_misconceptions` | Required misconception/trap description for reviewable teaching content. | `missing_rule_explanation` |
+| reviewed support words | Required for every first exposure. The corrected approved word supplied by the importer/resolver may become the dynamic lesson anchor at runtime. | `missing_ordered_example_words` or `insufficient_ordered_example_words` |
 | `first_exposure_progression` | Required for every first exposure. | `missing_first_exposure_progression`, `unsupported_activity_key`, or `unsupported_practice_route` |
+| `guided_practice_progression` | Required for promoted content so ADLE can move from supported practice toward independence. | `missing_review_progression` |
+| `example_selection_guidance` | Required policy for selecting examples from approved support rows and metadata. It must not hard-code ordered examples. | `missing_ordered_example_words` |
 | `source` | Required for every promoted field, including internal authorship. | `missing_source` |
 | `licence` or `source_use_note` | Required for every promoted field, including internally authored content. | `missing_licence` |
 | `confidence` | Required for every promoted field. | `missing_confidence` |
@@ -154,8 +156,10 @@ Minimum P0 quality rules:
 - The child-facing explanation must be child-safe, specific, and short enough
   for a lesson.
 - The rule explanation must describe what the child should notice or do.
-- The anchor word must be stable, age-appropriate, and dialect-appropriate.
-- Example words must be intentionally ordered, usually simple to complex.
+- Reviewed support words must be age-appropriate, dialect-appropriate, and linked to the target micro-skill.
+- Runtime ordering should be calculated from metadata such as difficulty, frequency, complexity, route, and review context rather than manually authored as Teaching Dictionary truth.
+- `sample_preview_word_key`, when present, is only an admin-review illustration
+  and must not be treated as a fixed runtime anchor or readiness requirement.
 - The first-exposure progression must reference only accepted or explicitly
   planned Instructional Activity Registry concepts.
 - Source/licence status must be explicit even for internally authored content.
@@ -169,9 +173,10 @@ the teaching unsafe, confusing, or too weak for the intended route.
 | Field | Required when | Advisory when | Blocker |
 |---|---|---|---|
 | `memory_tip` or `mnemonic` | The rule is arbitrary, irregular, easily confused, or relies on recall support. | The rule is transparent and directly observable. | `missing_child_friendly_explanation` if the lesson depends on it and no alternative support exists. |
-| `contrast_words` | Homophones, confusable graphemes, near-neighbour spellings, common reversal/confusion patterns, or contrast activities. | Simple CVC, transparent short-vowel, or single-pattern exposure. | `insufficient_ordered_example_words` or `unsupported_practice_route`, depending on route. |
+| `contrast_words` | Homophones, confusable graphemes, near-neighbour spellings, common reversal/confusion patterns, or contrast activities. For `D4_HOM`, the other reviewed `support_example` words in the same micro-skill count as the homophone contrast pair/set. | Simple CVC, transparent short-vowel, or single-pattern exposure. | `insufficient_ordered_example_words` or `unsupported_practice_route`, depending on route. |
 | `common_misconceptions` | Known trap patterns, irregulars, morphology shifts, suffix/drop/keep/change rules, and any content using guided error correction. | Very simple recognition-only review. | `missing_rule_explanation` if misconception handling is necessary for first exposure. |
-| `review_progression` | Any content claiming `ready_for_guided_review_only` or `ready_for_first_exposure` plus guided review support. | First-exposure-only planning before review routes are enabled. | `missing_review_progression` |
+| `review_proofreading_progression` | Any content claiming `ready_for_guided_review_only` or `ready_for_first_exposure` plus guided review support. | First-exposure-only planning before review routes are enabled. | `missing_review_progression` |
+| `contrast_policy_guidance` | Homophones, confusables, grapheme choices, or routes where contrast is allowed or required. For homophone pair/set micro-skills, guidance should describe how to introduce the same-micro-skill support words as contrasts. | Transparent single-pattern teaching where contrast may overload the learner. | `insufficient_ordered_example_words` or `unsupported_practice_route`, depending on route. |
 | `phoneme`, `stress`, or `schwa` metadata | Pronunciation, schwa, stress, syllable, or phoneme-grapheme teaching families. | Orthographic-only patterns where pronunciation metadata is not used. | `missing_rule_explanation` if the rule depends on it. |
 | `morphology` metadata | Prefix, suffix, root, word-family, inflection, derivation, or morphemic spelling families. | Non-morphology spelling patterns. | `missing_rule_explanation` if the rule depends on it. |
 
@@ -221,9 +226,12 @@ it from scratch.
 
 Guided review requires:
 
-- reviewed anchor word or reviewed example set
+- reviewed support examples, plus contrast or review examples where the route
+  requires them. For `D4_HOM`, two or more reviewed support examples in the
+  same homophone micro-skill satisfy the contrast set requirement.
 - reviewed short reminder or reviewed rule cue
-- reviewed `review_progression`
+- reviewed `guided_practice_progression` and
+  `review_proofreading_progression`
 - explicit source/licence/confidence
 - field-level review statuses for the fields being surfaced
 
@@ -401,8 +409,8 @@ Phase 5B may design:
 
 - `canonical_words`
 - `canonical_word_metadata`
-- `canonical_word_micro_skills`
-- `canonical_misspellings`
+- `micro_skill_word_support`
+- misspelling diagnosis remains outside the Teaching Dictionary CSV review pass and is owned by the existing bulk seed importer/resolver path
 - curriculum-readiness tables or artifacts
 - validator expansion
 - dry-run import reports

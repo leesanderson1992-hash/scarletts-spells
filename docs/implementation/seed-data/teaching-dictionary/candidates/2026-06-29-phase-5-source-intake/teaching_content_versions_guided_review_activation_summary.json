@@ -1,0 +1,28 @@
+{
+  "activated_rows": 40,
+  "audit_file": "teaching_content_versions_guided_review_activation_audit.csv",
+  "before_snapshot_file": "teaching_content_versions_before_guided_review_activation.csv",
+  "changed_fields": [
+    "version_status",
+    "is_active"
+  ],
+  "generated_at": "2026-07-02",
+  "hard_boundaries": [
+    "no Supabase import",
+    "no database mutation",
+    "no migrations",
+    "no importer changes",
+    "no runtime hooks",
+    "no resolver changes",
+    "no assignment changes",
+    "no evidence/proficiency changes",
+    "no Word Treasure changes"
+  ],
+  "rows": 240,
+  "source_validation_report": "validation-report-after-phase-5ef-alignment.json",
+  "status_counts_after": {
+    "active|TRUE|signed_off": 240
+  },
+  "target_selection": "ready_for_guided_review_only rows with no blockers or warnings in validation-report-after-phase-5ef-alignment.json",
+  "updated_file": "csv/teaching_content_versions.csv"
+}

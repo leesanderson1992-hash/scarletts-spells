@@ -155,6 +155,13 @@ Minimum skip reasons:
 - `audio_required_but_unavailable`
 - `parent_reading_required_but_not_allowed`
 
+`missing_anchor_word` remains a documented skip reason for now, but it must be
+read as a missing runtime lesson anchor: for misspelling-driven lessons, that
+anchor is the child's corrected approved word supplied by the importer/resolver
+path. It is not a requirement for fixed Teaching Dictionary `anchor_word_key`
+truth. The next daily-assignment blueprint pass may rename or split this skip
+reason when the activity/question vocabulary is finalised.
+
 ## Acceptance criteria
 
 - ADLE can compose different lesson structures from activity metadata

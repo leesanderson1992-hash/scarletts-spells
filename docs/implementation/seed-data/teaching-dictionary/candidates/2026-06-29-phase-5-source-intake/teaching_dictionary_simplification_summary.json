@@ -1,0 +1,13 @@
+{
+  "old_mapping_rows": 1172,
+  "support_rows_after_role_conversion": 981,
+  "support_rows_after_duplicate_cleanup": 951,
+  "duplicate_support_rows_removed": 30,
+  "dropped_non_teaching_dictionary_rows": 190,
+  "field_review_rows_removed_for_retired_word_selection_fields": 480,
+  "teaching_content_removed_fields": [
+    "anchor_word_key",
+    "contrast_word_keys",
+    "ordered_example_word_keys"
+  ]
+}

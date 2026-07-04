@@ -1,0 +1,45 @@
+{
+  "active_metadata_file": "docs/implementation/seed-data/teaching-dictionary/candidates/2026-06-29-phase-5-source-intake/csv/canonical_word_metadata.csv",
+  "audit_file": "docs/implementation/seed-data/teaching-dictionary/candidates/2026-06-29-phase-5-source-intake/canonical_word_metadata_morphology_population_audit.csv",
+  "before_snapshot": "docs/implementation/seed-data/teaching-dictionary/candidates/2026-06-29-phase-5-source-intake/canonical_word_metadata_before_morphology_population.csv",
+  "complex_rows_file": "docs/implementation/seed-data/teaching-dictionary/candidates/2026-06-29-phase-5-source-intake/morpholex_morphology_intake_unmatched_or_complex_rows.csv",
+  "component_match_rows": 4,
+  "confidence_counts": {
+    "low": 5,
+    "medium": 869
+  },
+  "existing_morphology_notes_preserved_and_augmented": 42,
+  "filled_field_counts": {
+    "morphemes": 874,
+    "morphology_notes": 874
+  },
+  "generated_at": "2026-07-01",
+  "grapheme_irregularity_fields_changed_count": 0,
+  "hard_boundaries": [
+    "no Supabase import",
+    "no database mutation",
+    "no migrations",
+    "no importer changes",
+    "no runtime hooks",
+    "no resolver changes",
+    "no assignment changes",
+    "no evidence/proficiency changes",
+    "no Word Treasure changes"
+  ],
+  "intake_file": "docs/implementation/seed-data/teaching-dictionary/candidates/2026-06-29-phase-5-source-intake/morpholex_morphology_intake_all_canonical_words.csv",
+  "match_type_counts": {
+    "combined_review_components": 2,
+    "compound_components": 2,
+    "exact": 869,
+    "normalized_form": 1
+  },
+  "morpholex_source_importability_status": "importable",
+  "morpholex_source_legal_review_status": "passed",
+  "morpholex_workbook_path_used": "/private/tmp/MorphoLEX_en.xlsx",
+  "pronunciation_fields_changed_count": 0,
+  "review_status_set": "approved_for_first_exposure",
+  "row_order_matches_canonical_words": true,
+  "rows": 874,
+  "source_rows_after_update": 12,
+  "unique_word_keys": 874
+}

@@ -63,13 +63,10 @@ HEADERS = {
         "confidence",
         "review_status",
     ],
-    "canonical_word_micro_skills.csv": [
+    "micro_skill_word_support.csv": [
         "word_key",
         "micro_skill_key",
-        "micro_skill_role",
-        "difficulty_band",
-        "evidence_weight",
-        "display_order",
+        "support_role",
         "source_category",
         "source_name",
         "source_url",
@@ -77,6 +74,7 @@ HEADERS = {
         "source_use_note",
         "confidence",
         "review_status",
+        "review_notes",
     ],
     "teaching_content_versions.csv": [
         "micro_skill_key",
@@ -87,12 +85,13 @@ HEADERS = {
         "child_friendly_explanation",
         "rule_explanation",
         "memory_tip",
-        "anchor_word_key",
-        "ordered_example_word_keys",
-        "contrast_word_keys",
         "common_misconceptions",
         "first_exposure_progression",
-        "review_progression",
+        "guided_practice_progression",
+        "review_proofreading_progression",
+        "example_selection_guidance",
+        "contrast_policy_guidance",
+        "sample_preview_word_key",
         "source_category",
         "source_name",
         "source_url",
@@ -130,10 +129,12 @@ FIRST_EXPOSURE_REVIEW_FIELDS = [
     "teaching_objective",
     "child_friendly_explanation",
     "rule_explanation",
-    "anchor_word_key",
-    "ordered_example_word_keys",
+    "common_misconceptions",
     "first_exposure_progression",
-    "review_progression",
+    "guided_practice_progression",
+    "review_proofreading_progression",
+    "example_selection_guidance",
+    "contrast_policy_guidance",
     "source",
     "licence",
 ]
@@ -199,16 +200,14 @@ def metadata(
     }
 
 
-def mapping(word_key: str, skill: str, role: str, order: int) -> dict[str, str]:
+def support(word_key: str, skill: str, role: str = "support_example") -> dict[str, str]:
     return {
         "word_key": word_key,
         "micro_skill_key": skill,
-        "micro_skill_role": role,
-        "difficulty_band": "low",
-        "evidence_weight": "1",
-        "display_order": str(order),
+        "support_role": role,
         **source_fields(),
         "review_status": "approved_for_first_exposure",
+        "review_notes": "Synthetic support row for validator coverage.",
     }
 
 
@@ -218,9 +217,6 @@ def teaching_version(
     version: str = "v1",
     status: str = "active",
     active: str = "TRUE",
-    anchor: str = "cat_en_gb",
-    examples: str = "cat_en_gb|sat_en_gb",
-    contrasts: str = "",
     child_explanation: str = "Synthetic child-facing explanation.",
     source_category: str = "internal_authored",
     final_status: str = "signed_off",
@@ -235,12 +231,13 @@ def teaching_version(
         "child_friendly_explanation": child_explanation,
         "rule_explanation": "Synthetic rule explanation.",
         "memory_tip": "",
-        "anchor_word_key": anchor,
-        "ordered_example_word_keys": examples,
-        "contrast_word_keys": contrasts,
-        "common_misconceptions": "",
+        "common_misconceptions": "Synthetic misconception notes.",
         "first_exposure_progression": "rule_explanation|guided_rule_application",
-        "review_progression": "rapid_recall",
+        "guided_practice_progression": "guided_rule_application",
+        "review_proofreading_progression": "rapid_recall",
+        "example_selection_guidance": "Use approved synthetic support words.",
+        "contrast_policy_guidance": "Use contrast only when the micro-skill family requires it.",
+        "sample_preview_word_key": "cat_en_gb" if skill == PG_SKILL else "",
         **fields,
         "supersedes_content_version": "",
         "final_readiness_review_status": final_status,
@@ -271,9 +268,9 @@ def base_pg() -> dict[str, list[dict[str, str]]]:
     return {
         "canonical_words.csv": [word("cat_en_gb", "cat"), word("sat_en_gb", "sat")],
         "canonical_word_metadata.csv": [metadata("cat_en_gb"), metadata("sat_en_gb")],
-        "canonical_word_micro_skills.csv": [
-            mapping("cat_en_gb", PG_SKILL, "anchor", 1),
-            mapping("sat_en_gb", PG_SKILL, "ordered_example", 2),
+        "micro_skill_word_support.csv": [
+            support("cat_en_gb", PG_SKILL),
+            support("sat_en_gb", PG_SKILL),
         ],
         "teaching_content_versions.csv": [teaching_version(PG_SKILL)],
         "teaching_content_field_reviews.csv": field_reviews(PG_SKILL),
@@ -345,7 +342,7 @@ def build_fixtures() -> None:
     write_fixture("archived_non_active", archived)
 
     unknown_word = base_pg()
-    unknown_word["teaching_content_versions.csv"][0]["anchor_word_key"] = "missing_word_key"
+    unknown_word["micro_skill_word_support.csv"][0]["word_key"] = "missing_word_key"
     write_fixture("unknown_word_reference", unknown_word)
 
     unknown_skill = base_pg()
@@ -353,15 +350,25 @@ def build_fixtures() -> None:
     unknown_skill["teaching_content_field_reviews.csv"] = field_reviews("D4_UNKNOWN_SYNTHETIC")
     write_fixture("unknown_micro_skill_key", unknown_skill)
 
+    invalid_role = base_pg()
+    invalid_role["micro_skill_word_support.csv"][0]["support_role"] = "diagnostic"
+    write_fixture("invalid_support_role", invalid_role)
+
+    unexpected_misspellings = base_pg()
+    write_fixture("canonical_misspellings_not_accepted", unexpected_misspellings)
+    with (FIXTURE_ROOT / "canonical_misspellings_not_accepted" / "canonical_misspellings.csv").open("w", encoding="utf-8", newline="") as handle:
+        writer = csv.writer(handle)
+        writer.writerow(["misspelling", "correct_word_key", "micro_skill_key"])
+        writer.writerow(["synthetik", "cat_en_gb", PG_SKILL])
+
     hom = {
         "canonical_words.csv": [word("to_en_gb", "to"), word("too_en_gb", "too")],
         "canonical_word_metadata.csv": [metadata("to_en_gb"), metadata("too_en_gb")],
-        "canonical_word_micro_skills.csv": [
-            mapping("to_en_gb", HOM_SKILL, "anchor", 1),
-            mapping("too_en_gb", HOM_SKILL, "ordered_example", 2),
+        "micro_skill_word_support.csv": [
+            support("to_en_gb", HOM_SKILL),
         ],
         "teaching_content_versions.csv": [
-            teaching_version(HOM_SKILL, anchor="to_en_gb", examples="to_en_gb|too_en_gb", contrasts="")
+            teaching_version(HOM_SKILL)
         ],
         "teaching_content_field_reviews.csv": field_reviews(HOM_SKILL),
         "teaching_content_sources.csv": [],
@@ -371,12 +378,12 @@ def build_fixtures() -> None:
     mor = {
         "canonical_words.csv": [word("playful_en_gb", "playful"), word("helpful_en_gb", "helpful")],
         "canonical_word_metadata.csv": [metadata("playful_en_gb"), metadata("helpful_en_gb")],
-        "canonical_word_micro_skills.csv": [
-            mapping("playful_en_gb", MOR_SKILL, "anchor", 1),
-            mapping("helpful_en_gb", MOR_SKILL, "ordered_example", 2),
+        "micro_skill_word_support.csv": [
+            support("playful_en_gb", MOR_SKILL),
+            support("helpful_en_gb", MOR_SKILL),
         ],
         "teaching_content_versions.csv": [
-            teaching_version(MOR_SKILL, anchor="playful_en_gb", examples="playful_en_gb|helpful_en_gb")
+            teaching_version(MOR_SKILL)
         ],
         "teaching_content_field_reviews.csv": field_reviews(MOR_SKILL),
         "teaching_content_sources.csv": [],
@@ -386,12 +393,12 @@ def build_fixtures() -> None:
     schwa = {
         "canonical_words.csv": [word("about_en_gb", "about"), word("again_en_gb", "again")],
         "canonical_word_metadata.csv": [metadata("about_en_gb"), metadata("again_en_gb")],
-        "canonical_word_micro_skills.csv": [
-            mapping("about_en_gb", SCHWA_SKILL, "anchor", 1),
-            mapping("again_en_gb", SCHWA_SKILL, "ordered_example", 2),
+        "micro_skill_word_support.csv": [
+            support("about_en_gb", SCHWA_SKILL),
+            support("again_en_gb", SCHWA_SKILL),
         ],
         "teaching_content_versions.csv": [
-            teaching_version(SCHWA_SKILL, anchor="about_en_gb", examples="about_en_gb|again_en_gb")
+            teaching_version(SCHWA_SKILL)
         ],
         "teaching_content_field_reviews.csv": field_reviews(SCHWA_SKILL),
         "teaching_content_sources.csv": [],
@@ -441,13 +448,23 @@ EXPECTED = {
         "errors": 0,
     },
     "unknown_word_reference": {
-        "states": {"content_gap": 1},
-        "blockers": {"missing_anchor_word"},
+        "states": {"ready_for_first_exposure": 1},
+        "blockers": set(),
         "errors": 1,
     },
     "unknown_micro_skill_key": {
         "states": {"content_gap": 1},
         "blockers": {"unsupported_practice_route"},
+        "errors": 1,
+    },
+    "invalid_support_role": {
+        "states": {"ready_for_first_exposure": 1},
+        "blockers": set(),
+        "errors": 1,
+    },
+    "canonical_misspellings_not_accepted": {
+        "states": {"ready_for_first_exposure": 1},
+        "blockers": set(),
         "errors": 1,
     },
     "hom_missing_contrast": {

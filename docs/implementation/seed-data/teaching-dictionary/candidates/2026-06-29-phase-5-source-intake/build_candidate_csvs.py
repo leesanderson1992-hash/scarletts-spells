@@ -1,10 +1,15 @@
 #!/usr/bin/env python3
-"""Build Phase 5 source-intake candidate CSVs.
+"""Legacy pre-simplification builder for Phase 5 source-intake candidate CSVs.
 
 This script is deliberately local-file only. It reads existing repo-owned
 source artifacts and writes review-candidate CSV exports into this dated folder.
 It does not import data, connect to Supabase, mutate schema, or change runtime
 code.
+
+Do not run this script against the active candidate folder after the Teaching
+Dictionary simplification. It writes the retired `canonical_word_micro_skills`
+shape and static word-selection fields. The active reviewed CSVs now use
+`micro_skill_word_support.csv`.
 """
 
 from __future__ import annotations
@@ -12,6 +17,7 @@ from __future__ import annotations
 import csv
 import json
 import re
+import sys
 from collections import Counter, defaultdict
 from pathlib import Path
 from typing import Any
@@ -347,6 +353,11 @@ def source_note_rows() -> list[dict[str, Any]]:
 
 
 def main() -> None:
+    sys.exit(
+        "This legacy builder writes the retired pre-simplification CSV shape. "
+        "Use the existing simplified csv/ folder instead."
+    )
+
     CSV_DIR.mkdir(parents=True, exist_ok=True)
 
     d4_rows = json.loads(D4_MICRO_SKILLS.read_text(encoding="utf-8"))

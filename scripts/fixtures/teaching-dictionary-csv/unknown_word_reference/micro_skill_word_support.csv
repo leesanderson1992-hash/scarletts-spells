@@ -1,0 +1,3 @@
+word_key,micro_skill_key,support_role,source_category,source_name,source_url,source_licence,source_use_note,confidence,review_status,review_notes
+missing_word_key,D4_PG_CVC_SHORT_VOWELS_SHORT_A,support_example,internal_authored,Synthetic Phase 5D fixture,,,Synthetic test-only fixture content; not reviewed curriculum truth.,high,approved_for_first_exposure,Synthetic support row for validator coverage.
+sat_en_gb,D4_PG_CVC_SHORT_VOWELS_SHORT_A,support_example,internal_authored,Synthetic Phase 5D fixture,,,Synthetic test-only fixture content; not reviewed curriculum truth.,high,approved_for_first_exposure,Synthetic support row for validator coverage.

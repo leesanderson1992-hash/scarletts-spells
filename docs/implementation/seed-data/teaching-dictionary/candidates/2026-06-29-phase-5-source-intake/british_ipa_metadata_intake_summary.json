@@ -1,0 +1,66 @@
+{
+  "approval_safety_counts": {
+    "needs_human_review_cmudict_missing": 1,
+    "needs_human_review_disagreement": 113,
+    "not_covered_by_british_ipa_source": 55,
+    "safe_to_approve_candidate": 705
+  },
+  "artifacts": {
+    "all_canonical_words": "docs/implementation/seed-data/teaching-dictionary/candidates/2026-06-29-phase-5-source-intake/british_ipa_metadata_intake_all_canonical_words.csv",
+    "comparison_all_canonical_words": "docs/implementation/seed-data/teaching-dictionary/candidates/2026-06-29-phase-5-source-intake/british_ipa_cmudict_comparison_all_canonical_words.csv",
+    "priority_40_blockers": "docs/implementation/seed-data/teaching-dictionary/candidates/2026-06-29-phase-5-source-intake/british_ipa_metadata_intake_priority_40_blockers.csv",
+    "priority_safe_to_approve_candidates": "docs/implementation/seed-data/teaching-dictionary/candidates/2026-06-29-phase-5-source-intake/british_ipa_priority_safe_to_approve_candidates.csv",
+    "safe_to_approve_candidates": "docs/implementation/seed-data/teaching-dictionary/candidates/2026-06-29-phase-5-source-intake/british_ipa_safe_to_approve_candidates.csv"
+  },
+  "generated_at": "2026-07-01",
+  "hard_boundaries": [
+    "no Supabase import",
+    "no database mutation",
+    "no migrations",
+    "no runtime hooks",
+    "no resolver changes",
+    "no assignment changes",
+    "no evidence/proficiency changes",
+    "no Word Treasure changes"
+  ],
+  "ipa_match_status_counts": {
+    "matched": 819,
+    "unmatched": 55
+  },
+  "not_merged_into_canonical_word_metadata": true,
+  "primary_stress_agreement_counts": {
+    "agree": 326,
+    "disagree": 3,
+    "not_applicable_single_syllable": 489,
+    "unknown": 56
+  },
+  "priority_approval_safety_counts": {
+    "needs_human_review_cmudict_missing": 1,
+    "needs_human_review_disagreement": 17,
+    "not_covered_by_british_ipa_source": 14,
+    "safe_to_approve_candidate": 109
+  },
+  "priority_rows": 141,
+  "reason_not_merged": "British IPA evidence has passed project legal/importability review. The separate canonical pronunciation population pass applies the approved British-IPA-first, CMUdict-fallback source priority.",
+  "rows": 874,
+  "schwa_agreement_counts": {
+    "agree": 731,
+    "disagree": 87,
+    "unknown": 56
+  },
+  "source": {
+    "importability_status": "importable",
+    "legal_review_status": "passed",
+    "source_category": "open_licensed",
+    "source_key": "open_dict_data_ipa_dict_en_uk_2026_07_01",
+    "source_licence": "MIT repository; English UK data credited to ipacards under GPL 3.0",
+    "source_name": "open-dict-data ipa-dict en_UK",
+    "source_url": "https://github.com/open-dict-data/ipa-dict/blob/master/data/en_UK.txt",
+    "source_use_note": "British English Received Pronunciation IPA candidate metadata. Project legal/importability review passed for this candidate metadata use."
+  },
+  "syllable_agreement_counts": {
+    "agree": 791,
+    "disagree": 27,
+    "unknown": 56
+  }
+}
