@@ -268,8 +268,10 @@ Deductions (slippage):
 
 Word mastery: evidence score >= 8, at least 5 correct productions, spaced
 across time, no unresolved slip, and the authentic-writing parent gate above.
-By design the review ladder alone tops out at ~5.25 points: retirement ends
-scheduled review; only real use makes a word `mastered`.
+By design the review ladder alone tops out well below the mastery score of
+8 (the exact clean figure is 6.75 — see the 2026-07-05 ladder-figure
+amendment; this "~5.25" is superseded): retirement ends scheduled review;
+only real use makes a word `mastered`.
 
 ## Micro-skill proficiency (graded breadth, gated levels)
 
@@ -416,7 +418,11 @@ amends this contract as follows:
 7. **Ladder figure corrected:** under the exact v1 pricing the clean review
    ladder tops out at ~5.75 points (~7 typical with catch-ups), not ~5.25;
    the protected property (ladder < 8; mastery requires parent-reviewed
-   authentic writing) is unchanged.
+   authentic writing) is unchanged. [Superseded 2026-07-05: the Slice 4
+   implementation and its regression pin the exact clean figure at 6.75,
+   not 5.75 — the parenthetical here mis-ordered the cold/recent classes.
+   See the 2026-07-05 ladder-figure amendment below. The protected
+   property is unaffected.]
 8. **Throttle predicate pinned:** a Part 2 lesson runs only when today's
    due review words + due catch-up retests ≤ 10 before the session starts.
 
@@ -466,3 +472,20 @@ contract and its neighbours as follows:
    docs (historical implementation logs unchanged), per the
    learning-system overview's naming rule. Code identifiers are
    unaffected.
+
+## Amendment (2026-07-05 — ladder figure corrected to 6.75)
+
+The Slice 4 evidence engine implements the exact v1 pricing and its
+`adle:evidence-regression` pins the clean-ladder score. Under the exact
+arithmetic (recency by the memory gap; cold = 3+ day gap; cold credit at
+most once per 28 days) the clean 1/3/7/14/28/56 ladder prices to **6.75**
+points (0.75 lesson + reviews 0.5 + 1.5 + 0.5 + 0.5 + 1.5 + 1.5),
+reproducing `queue_sim_v2.py`'s `credit()` arithmetic exactly. This
+supersedes the earlier figures: the original "~5.25" (line 271) and the
+2026-07-04 amendment item 7's "~5.75" both understated the clean ladder —
+item 7's parenthetical sequence mis-ordered the cold/recent classes. The
+**protected property is unchanged**: the clean review ladder is < 8, so
+retirement alone never reaches the mastery score; only parent-reviewed
+authentic writing makes a word `mastered`. Typical runs with catch-ups
+sit a little above 6.75, still below 8. The corrected figure is 6.75
+clean wherever the ladder total is cited.

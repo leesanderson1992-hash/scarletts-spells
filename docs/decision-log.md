@@ -1,5 +1,119 @@
 # Decision Log
 
+## 2026-07-05 — ADLE Slice 4 implemented through the owner QA gate
+
+### What changed
+- ADLE Slice 4 (per `docs/implementation/adle-slice-4-evidence-engine-plan.md`)
+  implemented through implementation-order step 8, local/dev only:
+  - 4A migration `20260705210000_add_adle_evidence_engine_storage.sql`
+    applied to local dev (`adle_evidence_policy_versions` seeded active
+    `evidence_policy_v1_2026-07-04`, `adle_authentic_use_events`,
+    `adle_slippage_events`); rolled-back constraint smoke passed (happy
+    inserts + 6 negative constraint exercises, zero rows remain)
+  - 4B–4F pure modules in `lib/adle/`: `evidence-policy.ts`
+    (EVIDENCE_POLICY_V1 + §3.1 deduction table + attempt normalisation),
+    `evidence-pricing.ts` (deterministic pricer: recency by memory gap,
+    session/interval-window/cold/per-piece caps, homophone validity,
+    §3.1 boundary — failures never deduct), `word-evidence-state.ts`
+    (recomputed states + slipped flag + explanation trails),
+    `authentic-use.ts` (fact-fed AuthenticUseProvider, amendment item 3
+    review credit as pure passed:true substitution with piece_ref
+    consumption, fail-closed bridge + corpus preview scan),
+    `slippage.ts` (as-of-date detection with slip-agnostic eligibility,
+    7-day re-entry bundle, third-slip lesson re-entry) and
+    `learningItemFromSlippage` in `learning-items.ts`
+  - 4G guarded scripts: `scripts/adle-authentic-use-bridge.py`
+    (dry-run default, localhost/token guards, corpus preview scan with
+    owner-confirmation flow; verified end-to-end against temporary local
+    fixtures — reviewed-piece events applied, flagged misspelling
+    excluded, preview candidate applied only via confirmations file,
+    idempotent re-run, fixtures fully cleaned) and
+    `scripts/adle-slippage-scan.ts` (canonical lib logic over extracted
+    facts; emits report + append-only SQL plan, applies nothing itself)
+  - 4H `npm run adle:evidence-regression` green; all prior adle:* suites
+    and banding parity unchanged; no Slice 4 typecheck errors (remaining
+    tsconfig.scripts errors are pre-existing legacy scripts)
+- **Ladder figure flagged for amendment:** under the exact v1 pricing the
+  clean 1/3/7/14/28/56 run prices to **6.75**, not amendment item 7's
+  "~5.75" (that parenthetical under-adds its own sequence; the approved
+  simulation's credit() arithmetic reproduces 6.75, regression-pinned).
+  Protected property (ladder < 8; retirement alone never masters) holds
+  with margin. Suggest correcting the figure when the contract is next
+  amended.
+- Implementation pins recorded in the plan (correctness derivation,
+  homophone discriminator, cold-cap downgrade, session = calendar day,
+  slip-agnostic detection eligibility, credit consumption by piece_ref).
+
+### What is pending
+- **Step 9 owner QA gate:** review of
+  `docs/implementation/adle-slice-4-evidence-report-samples-2026-07-05.md`
+  (two fixture children priced through the real modules: mastered via
+  parent gate, slipped secure word with 7-day re-entry, produced,
+  homophone validity, authentic-use review credit walkthrough). Sign-off
+  authorizes DB-mode bridge/scan applies; step 10 closeout follows.
+- No hosted/production Supabase mutation anywhere; local dev per-child
+  tables remain empty (smoke fixtures removed).
+
+## 2026-07-05 — ADLE Slice 4 plan approved ("I agree, proceed to implementation")
+
+### What changed
+- The owner approved `docs/implementation/adle-slice-4-evidence-engine-plan.md`
+  and authorized implementation (local/dev only, per the plan's
+  deployment method). All open questions closed with the plan's
+  recommendations:
+  1. scope split — micro-skill proficiency/levels move to Slice 5
+  2. storage shape — append-only fact tables + pure recomputation; no
+     stored scores, no persisted priced ledger
+  3. authentic-use capture — ADLE-owned `adle_authentic_use_events` via
+     the fail-closed normalised-word bridge, plus the owner-confirmed
+     corpus preview scan (approved earlier the same day); live Review
+     Work hook and automatic crediting deferred
+  4. slippage re-entry — new single-word bundle at the 7-day interval;
+     slip resolves on a later correct ≥0.5-weight production
+  5. triage — grapheme analysis, stage2a changes, frontier probes, and
+     transfer words all out of Slice 4
+- Implementation proceeds in the plan's order with the owner QA gate
+  (per-child evidence report from fixtures) before any DB-mode
+  bridge/scan apply.
+
+## 2026-07-05 — ADLE Slice 4 plan drafted
+
+### What changed
+- Drafted `docs/implementation/adle-slice-4-evidence-engine-plan.md`
+  (status `Draft for owner review`): evidence policy v1 constants +
+  version registry, pure pricing of the Slice 2/3 fact streams
+  (outcome ledger, taught/probed history, probe runs), recomputed word
+  evidence states with the `slipped` flag, an ADLE-owned
+  `adle_authentic_use_events` store behind the real
+  `AuthenticUseProvider` plus the authentic-use review credit
+  (blueprint 2026-07-05 amendment item 3), and slippage
+  detection/deductions with the `slippage_reentry` learning-item
+  intake Slice 3 reserved.
+- Local dev re-verified against the Slice 3 closeout inventory before
+  planning: migrations through `20260705180000`, banding parity
+  874/424/342/108, 372 allocation cells, 8 families / 32 templates,
+  per-child ADLE tables empty — no drift.
+- Writing-engine boundary surveyed: no positive authentic-use fact is
+  persisted anywhere today (`learning_item_evidence`'s
+  `authentic_correct_use` enum value has no writer;
+  `child_word_treasures.canonical_word_id` never populated); all
+  bridges must match canonical words by normalised text and fail
+  closed.
+
+### What is pending
+- Open questions for the owner (scope split with proficiency as
+  Slice 5, storage shape, slippage re-entry interval,
+  attempt-text/pedagogy-items triage), each with a recommendation.
+  Open question 3 (authentic-use capture path) was resolved same day:
+  the owner approved extending the guarded bridge script with a
+  **corpus preview scan** over all stored writing — candidate correct
+  uses reported per word/piece with review-status and
+  homophone/inflection caveats; unreviewed-piece candidates become
+  `adle_authentic_use_events` only on explicit owner confirmation;
+  fully automatic crediting stays a future slice. No implementation,
+  migration, import, or Supabase mutation authorized until plan
+  approval.
+
 ## 2026-07-05 — ADLE Slice 3 complete: read-model QA signed off, 3E persistence implemented
 
 ### What changed

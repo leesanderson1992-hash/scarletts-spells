@@ -340,6 +340,17 @@ Findings:
    was protecting (ladder < 8, real use required for mastery) holds with
    margin. Suggest updating the contract's figure to "~5.75 clean, ~7
    typical" when the contract is next amended.
+   **[Correction 2026-07-05, from the Slice 4 implementation:** the clean
+   clean-ladder figure is **6.75**, not 5.75 — matching this table's own
+   simulated "~6.7–7.3 evidence points" above. The parenthetical
+   hand-derivation mis-ordered the cold/recent classes: the correct
+   sequence is 0.75 lesson + reviews 0.5 + 1.5 + 0.5 + 0.5 + 1.5 + 1.5
+   (the day-4 review, a 3-day gap, is cold, and the 28/56-day reviews
+   re-earn the cold credit after the 28-day cap reopens).
+   `adle:evidence-regression` pins 6.75 and it reproduces
+   `queue_sim_v2.py`'s `credit()` output. The blueprint's 2026-07-05
+   ladder-figure amendment records the correction; the protected property
+   (ladder < 8) is unchanged.]**
 4. **Review-only days dominate** (~70% of days at steady state), matching
    the blueprint's "review-only days are correct behaviour".
 

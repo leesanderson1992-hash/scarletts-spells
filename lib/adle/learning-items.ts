@@ -172,6 +172,36 @@ export function learningItemFromEjection(params: EjectionIntakeParams): Learning
   };
 }
 
+export interface SlippageIntakeParams {
+  childId: string;
+  canonicalWordId: string;
+  microSkillKey: string;
+  slippedOn: IsoDate;
+  slipSourceRef: string;
+  attemptText: string | null;
+}
+
+/** Slice 4: the third slip of a secure/retired/mastered word rejoins the
+ * next lesson for its micro-skill as a priority item (blueprint deductions,
+ * limit 2). The composer's existing reteach-demand tier consumes this
+ * unchanged; ejectedOn carries the slip date so reteach ordering works. */
+export function learningItemFromSlippage(params: SlippageIntakeParams): LearningItemFact {
+  return {
+    learningItemId: deterministicItemId("slippage_reentry", params.slipSourceRef, params.canonicalWordId, params.microSkillKey),
+    childId: params.childId,
+    canonicalWordId: params.canonicalWordId,
+    microSkillKey: params.microSkillKey,
+    itemStatus: "pending_reteach",
+    sourceKind: "slippage_reentry",
+    sourceRef: params.slipSourceRef,
+    sourceAttemptText: params.attemptText,
+    reteachPriority: true,
+    ejectedOn: params.slippedOn,
+    intakeOn: params.slippedOn,
+    rowStatus: "active",
+  };
+}
+
 export interface StretchIntakeParams {
   childId: string;
   canonicalWordId: string;
