@@ -1,5 +1,58 @@
 # Decision Log
 
+## 2026-07-05 — ADLE Slice 2 implemented: review scheduler
+
+### What changed
+- ADLE Slice 2 (per `docs/implementation/adle-slice-2-review-scheduler-plan.md`,
+  owner-approved with all five open questions answered 2026-07-05) is
+  implemented:
+  - `supabase/migrations/20260705150000_add_adle_review_scheduler_storage.sql`
+    adds the review-policy registry (seeded with
+    `review_policy_v1_2026-07-04` active: ladder {1,3,7,14,28,56} rolling
+    gaps, catch-up offsets {1,3}, session cap 10, pre-retirement check gap
+    112), per-child review bundles, per-word schedule state with
+    state-shape check constraints, append-only taught/probed history, and
+    the append-only outcome-event ledger the Slice 4 evidence engine will
+    price. **Applied to local dev** — the local dev DB was found rebuilt
+    (baseline + all migrations + Phase 5F import + banding at exact parity
+    874/424/342/108, 372 cells), closing Slice 1's rebuild precondition —
+    and QA-verified with a 12-check rolled-back constraint smoke.
+    Hosted/production untouched.
+  - `lib/adle/review-scheduler.ts` — pure day-advance transitions
+    (injected dates, no clock): bundle creation into the 1-day review,
+    rolling-anchor advance, next-day/+3-day catch-up ladder, ejection with
+    reteach-priority facts, parent pause after a reteach cycle, and the
+    conditional 112-day pre-retirement check behind an injected
+    `AuthenticUseProvider` whose default fails closed into the check.
+    There is structurally no demotion path.
+  - `lib/adle/review-due-queue.ts` — due reviews + due catch-up retests in
+    one oldest-first queue under the cap of 10 (owner-confirmed, no
+    reserved slots), and the throttle predicate on uncapped counts
+    (lesson allowed at exactly 10) returning counts for
+    `review_debt_blocks_lesson`.
+  - `lib/adle/taught-word-history.ts` — the real fact-fed
+    `TaughtWordHistoryProvider` behind eligibility status 4; the Slice 1
+    fail-closed default remains the default.
+  - Regression: `scripts/adle-review-scheduler-regression.ts`
+    (`npm run adle:review-scheduler-regression`), passing — ladder dates,
+    catch-up timing, ejection/pause, throttle edge 10 vs 11, 112-day
+    conditionality and its 28-day-anchor window, fail-closed defaults,
+    forward-only property over a mixed multi-review scenario,
+    determinism, and real-provider status 4 coverage. Slice 1 regressions
+    still pass; scripts typecheck shows only pre-existing unrelated
+    errors.
+- Two interpretive pins documented in the plan and module and covered by
+  regression: a caught-up final pass is not clean (always takes the
+  check), and the 112-day check happens at most once (recovery from a
+  failed check retires).
+
+### Why
+- The review scheduler is the machinery the Slice 3 composer gates on
+  (throttle, due queue, reteach priority) and the Slice 4 evidence engine
+  prices (outcome ledger); landing it pure and versioned pins the
+  owner-approved simulation-validated structure before any consumer
+  exists.
+
 ## 2026-07-05 — ADLE Slice 1 implemented: dictionary eligibility statuses and complexity banding
 
 ### What changed
