@@ -2,23 +2,28 @@
 
 ## Status
 
-- Status: `Implemented through the owner QA gate 2026-07-05
-  (implementation-order steps 1–8). 4A migration 20260705210000 applied
-  to local dev with a rolled-back constraint smoke (6 negative checks);
-  4B–4F landed in lib/adle/ (evidence-policy, evidence-pricing,
-  word-evidence-state, authentic-use, slippage +
-  learningItemFromSlippage); 4G guarded scripts verified end-to-end
-  against temporary local fixtures (bridge apply + confirmation flow +
-  idempotence, then cleaned); 4H adle:evidence-regression green with all
-  prior adle:* suites. Step 9 PENDING: owner sign-off of
-  adle-slice-4-evidence-report-samples-2026-07-05.md authorizes DB-mode
-  bridge/scan applies; step 10 closeout follows. Implementation pins
-  recorded at the bottom of this document, including the regression-
-  pinned ladder figure: the clean ladder prices 6.75 under exact v1
-  arithmetic (the amendment item 7 "~5.75" parenthetical under-adds its
-  own sequence; protected property unchanged) — figure-correction
-  amendment suggested. Decision-log entry "2026-07-05 — ADLE Slice 4
-  implemented through the owner QA gate".`
+- Status: `COMPLETE 2026-07-05 (all 10 implementation-order steps). Owner
+  signed off the QA artefact
+  adle-slice-4-evidence-report-samples-2026-07-05.md (step 9), closing
+  the QA gate; DB-mode bridge/scan applies are authorized (no live
+  writing data exists locally yet, so none have run — the guarded
+  scripts stand ready). Landed: 4A migration 20260705210000
+  (adle_evidence_policy_versions seeded active evidence_policy_v1,
+  adle_authentic_use_events, adle_slippage_events); 4B–4F pure modules in
+  lib/adle/ (evidence-policy, evidence-pricing, word-evidence-state,
+  authentic-use, slippage + learningItemFromSlippage); 4G guarded scripts
+  (adle-authentic-use-bridge.py with the owner-confirmed corpus preview
+  scan, adle-slippage-scan.ts, adle-evidence-report-samples.ts); 4H
+  adle:evidence-regression green with all prior adle:* suites. Ladder
+  figure corrected ~5.75 → 6.75 across the blueprint contract and banding
+  proposal (protected property ladder < 8 unchanged; regression-pinned).
+  Decision-log entries "2026-07-05 — ADLE Slice 4 implemented through the
+  owner QA gate" and "2026-07-05 — ADLE Slice 4 complete". Next: Slice 5
+  (micro-skill proficiency; roadmap Phase 11).`
+- Previous status: `Implemented through the owner QA gate 2026-07-05
+  (implementation-order steps 1–8), QA sign-off pending. 4A migration
+  applied with a rolled-back constraint smoke; 4B–4F landed; 4G scripts
+  verified end-to-end against temporary local fixtures; 4H green.`
 - Previous status: `Owner-approved 2026-07-05 ("I agree, proceed to
   implementation") — all open questions closed with the plan's
   recommendations (proficiency split to Slice 5; append-only facts +

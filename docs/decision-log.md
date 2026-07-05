@@ -1,5 +1,27 @@
 # Decision Log
 
+## 2026-07-05 — ADLE Slice 4 complete: owner QA sign-off
+
+### What changed
+- The owner signed off the QA artefact
+  `docs/implementation/adle-slice-4-evidence-report-samples-2026-07-05.md`
+  (implementation-order step 9), closing the Slice 4 QA gate. Plan status
+  flipped to COMPLETE (step 10). DB-mode authentic-use bridge / slippage
+  scan applies are now authorized; none have run because no live writing
+  data exists in local dev yet — the guarded scripts stand ready for when
+  it does.
+- No code, schema, or figures changed at closeout beyond the status flip
+  and this entry; the evidence engine landed and was verified in the two
+  prior entries. Local dev per-child ADLE tables remain empty.
+
+### Next
+- Slice 5: micro-skill proficiency (roadmap Phase 11) — graded breadth
+  credit (1.0/0.4/0.1), target(L) computed from the allocation table,
+  gated-never-averaged levels, parent-facing progress reporting, and the
+  "not yet secure" extension to prerequisite-precedence skill selection.
+  It is a projection over the Slice 4 evidence states; no evidence-engine
+  changes are expected.
+
 ## 2026-07-05 — ADLE Slice 4 implemented through the owner QA gate
 
 ### What changed
