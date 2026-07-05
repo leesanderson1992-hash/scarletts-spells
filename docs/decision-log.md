@@ -1,5 +1,28 @@
 # Decision Log
 
+## 2026-07-05 — Version 3 roadmap aligned to the ADLE slice track (owner-directed)
+
+### What changed
+- The owner asked for the roadmap to reflect actual implementation and
+  to chart the workflow through to the shipped UI. `version-3-roadmap.md`
+  amended (docs-only):
+  - Current stage rewritten: ADLE Slices 1–4 complete 2026-07-05; next is
+    Slice 5 (Phase 11 proficiency).
+  - Phases 6/7/8/9 statuses flipped to complete — delivered inside
+    Slices 2–3 in the reformed shapes (superseded pre-reform designs kept
+    in place for history).
+  - Phase 10 split: capture storage + evidence engine complete
+    (Slices 3–4); the live child attempt-capture surface re-scoped as
+    Slice 6.
+  - New "ADLE slice track" section is the sequencing source to the final
+    product: Slice 5 proficiency → Slice 6 live session surface +
+    completion wiring (incl. Phase 3.7B browser signoff, live
+    authentic-use emission, parent-review release of paused words) →
+    Slice 7 child/parent UI + ADLE→Word Treasure event emission →
+    Slice 8 productionisation (bulk dictionary population, hosted
+    migrations, pilot tuning). Slices 5–8 each need their own docs-first
+    plan and owner approval before implementation.
+
 ## 2026-07-05 — ADLE Slice 4 complete: owner QA sign-off
 
 ### What changed

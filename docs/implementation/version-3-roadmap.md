@@ -13,7 +13,12 @@ ADLE remains separate from Word Treasure.
 
 ## Current stage
 
-Current Version 3.0 stage: `Phase 5F local/dev teaching dictionary import preflight and apply path implemented and QA-approved; Phase 3.7B browser/UI Daily Assignment signoff deferred until the Daily Assignment stage begins`.
+Current Version 3.0 stage: `ADLE Slices 1–4 complete (2026-07-05):
+dictionary eligibility + banding, review scheduler, daily assignment
+composer, and evidence engine are implemented in local/dev with passing
+regressions and owner QA sign-offs. Next: ADLE Slice 5 (Phase 11
+micro-skill proficiency). See "ADLE slice track" below for the full path
+to the shipped product.`
 
 Implemented so far:
 - Phase 0 current-state audit was completed as an inspection/planning pass.
@@ -55,11 +60,53 @@ Implemented so far:
   `scripts/import-teaching-dictionary-csv-regression.py`.
 - A draft source-intake candidate CSV folder exists for review only:
   `docs/implementation/seed-data/teaching-dictionary/candidates/2026-06-29-phase-5-source-intake/`.
-- No ADLE generation has been wired into runtime assignment generation.
+- ADLE Slice 1 (dictionary eligibility statuses + complexity banding
+  v1.1 + allocation table) — complete 2026-07-05:
+  `docs/implementation/adle-slice-1-dictionary-eligibility-and-banding-plan.md`.
+- ADLE Slice 2 (review scheduler: bundle-with-catch-up, throttle,
+  conditional 112-day check) — complete 2026-07-05:
+  `docs/implementation/adle-slice-2-review-scheduler-plan.md`.
+- ADLE Slice 3 (daily assignment composer: word-level learning items,
+  registry import, 5-word rule + probes, day assembly, completion write
+  path, `assignment_items` persistence) — complete 2026-07-05:
+  `docs/implementation/adle-slice-3-daily-assignment-composer-plan.md`.
+- ADLE Slice 4 (evidence engine: pricing, word evidence states, real
+  AuthenticUseProvider + authentic-use review credit, slippage) —
+  complete 2026-07-05:
+  `docs/implementation/adle-slice-4-evidence-engine-plan.md`.
+- No child-facing ADLE session surface exists yet: composition,
+  persistence, completion, and evidence are exercised by regressions and
+  guarded scripts only. Wiring the live product surface is the remaining
+  work (slice track below).
 
 Next safe implementation slice:
-- Phase 5G admin review workflow design, or Phase 3.7B browser/UI Daily
-  Assignment signoff when the Daily Assignment product stage begins.
+- ADLE Slice 5: micro-skill proficiency engine (Phase 11), docs-first
+  plan for owner review before any implementation.
+
+## ADLE slice track (2026-07-05) — path to the shipped product
+
+The reformed-pedagogy work proceeds as owner-approved, docs-first slices
+with fixture-backed regressions (the QA-reviewed convention from Slices
+1–4). Slices 5–8 below are the proposed sequencing to the final product;
+each still gets its own plan and owner approval before implementation,
+and any re-cut of their boundaries happens in those plans, not here.
+
+| slice | scope | roadmap phase(s) | status |
+|---|---|---|---|
+| 1 | dictionary eligibility statuses, complexity banding v1.1, allocation table | Phase 5 track extension | **complete 2026-07-05** |
+| 2 | review scheduler: 1/3/7/14/28/56 bundles, next-day/+3 catch-up, throttle, conditional 112-day check | Phase 9 (reordered ahead per the 2026-07-04 amendment) | **complete 2026-07-05** |
+| 3 | daily assignment composer: word-level learning items, family/template registry import, skill selection, 5-word rule + probes, day assembly, completion write path, `assignment_items` persistence | Phases 6, 7, 8 (+ session-mix interleaving from Phase 9) | **complete 2026-07-05** |
+| 4 | evidence engine: evidence policy v1, pricing + caps, word evidence states, real AuthenticUseProvider + review credit, slippage + deductions | Phase 10 (storage/pricing half) | **complete 2026-07-05** |
+| 5 | micro-skill proficiency engine: breadth credit 1.0/0.4/0.1, target(L) from the allocation table (floor 8, `secure (limited allocation)` badging), gated-never-averaged levels, reporting read model, "not yet secure" prerequisite-precedence extension | Phase 11 | next |
+| 6 | live session surface and completion wiring: child attempt-capture flow for the composed day (Part 1 review + Part 2 lesson), completion helpers wired to real sessions, live authentic-use emission from Review Work, parent-review release of paused words, Phase 3.7B Daily Assignment browser signoff | Phase 10 (capture half) + Phase 3.7B | planned |
+| 7 | child and parent UI: calm/small child daily practice UI, parent "why this appeared today" provenance, proficiency dashboard (progress-toward-next-level framing, allocation-limited flags), curriculum gap visibility, ADLE→Word Treasure event emission (reward contract consumes) | Phase 13 (+ Phase 12 event wiring) | planned |
+| 8 | productionisation: bulk dictionary population with per-batch banding reports and intake standards, hosted/production migrations (owner-approved, per migration policy), pilot tuning of the blueprint's pilot list (interval telemetry, probe cap, must-use counts, parent-report thresholds) | release | planned |
+
+Standing boundaries across all remaining slices: local/dev only until
+Slice 8's owner-approved production step; parent-review gates reuse the
+existing Review Work flow; ADLE emits events and never writes reward
+state; fail-closed skip reasons everywhere; every policy constant ships
+as a versioned `*_POLICY_V*` module.
 
 ## Target architecture
 
@@ -1190,14 +1237,19 @@ Boundaries:
 </details>
 
 <details>
-<summary>Phase 6: Instructional Activity Registry — Planned</summary>
+<summary>Phase 6: Instructional Activity Registry — Complete (ADLE Slice 3)</summary>
 
-Status: `Not started`
+Status: `Complete 2026-07-05 — delivered by ADLE Slice 3 (3A/3B) in the
+reformed shape: adle_family_methods (8 families) and
+adle_activity_templates (32 templates) imported from the content
+workbook via the guarded registry importer, per the activity-registry
+contract's 2026-07-04 amendment. The five-phase registry listed below is
+the superseded pre-reform design, kept for history.`
 
 Goal:
 - build the read-only registry of instructional strategies.
 
-Registry phases:
+Registry phases (superseded by the reformed template registry):
 - Understand
 - Guided Practice
 - Independent Retrieval
@@ -1213,9 +1265,14 @@ Boundaries:
 </details>
 
 <details>
-<summary>Phase 7: ADLE Composer read model — Planned</summary>
+<summary>Phase 7: ADLE Composer read model — Complete (ADLE Slice 3)</summary>
 
-Status: `Not started`
+Status: `Complete 2026-07-05 — delivered by ADLE Slice 3 (3C/3D) in the
+reformed two-part shape (Part 1 review-first, Part 2 throttled lesson);
+the five instructional-state-branched lesson structures listed below are
+superseded by the blueprint contract. Composition is pure and
+deterministic with fail-closed skip reasons; owner QA'd via the composed
+plan samples artefact.`
 
 Goal:
 - generate proposed lesson plans from instructional state, curriculum readiness,
@@ -1240,9 +1297,14 @@ Boundaries:
 </details>
 
 <details>
-<summary>Phase 8: Bounded assignment persistence — Planned</summary>
+<summary>Phase 8: Bounded assignment persistence — Complete (ADLE Slice 3)</summary>
 
-Status: `Not started`
+Status: `Complete 2026-07-05 — delivered by ADLE Slice 3 (3E):
+lib/adle/assignment-persistence.ts persists composed plans into
+assignment_items under a daily_assignments header ("ADLE Daily Plan"),
+deterministic ordering, idempotent per (child, day), provenance in
+metadata, legacy learning_item_id kept null for ADLE rows. All rules and
+boundaries below held.`
 
 Goal:
 - persist selected ADLE plans into `assignment_items`.
@@ -1262,15 +1324,22 @@ Boundaries:
 </details>
 
 <details>
-<summary>Phase 9: Scheduler and interleaving — Planned</summary>
+<summary>Phase 9: Scheduler and interleaving — Complete (ADLE Slices 2 + 3)</summary>
 
-Status: `Not started`
+Status: `Complete 2026-07-05 — delivered by ADLE Slice 2 (interval
+ladder 1/3/7/14/28/56, bundle-with-catch-up, 10-word session cap,
+review-debt throttle, conditional 112-day pre-retirement check) and
+Slice 3 (session-mix interleaving: no two same-family words adjacent at
+presentation time, per the 2026-07-05 blueprint amendment). The reformed
+model replaces the items below that assumed interval demotion:
+failure-shortened intervals became the next-day/+3-day catch-up ladder
+with ejection (bundles only move forward).`
 
-Implement:
+Implement (as reformed):
 - review intervals
-- failure-shortened intervals
-- delayed-success lengthening
-- interleaving partner selection
+- ~~failure-shortened intervals~~ catch-up retests then ejection
+- delayed-success lengthening (rolling anchor)
+- interleaving partner selection (session-mix rule)
 - workload caps
 
 Boundaries:
@@ -1280,9 +1349,15 @@ Boundaries:
 </details>
 
 <details>
-<summary>Phase 10: Attempt and evidence capture — Planned</summary>
+<summary>Phase 10: Attempt and evidence capture — Storage/pricing complete (ADLE Slices 3 + 4); live capture surface is Slice 6</summary>
 
-Status: `Not started`
+Status: `Split 2026-07-05. Complete: raw attempt text persisted on every
+completion fact (Slice 3, owner decision 6) and the full evidence engine
+(Slice 4: evidence_policy_v1 pricing, caps, word evidence states,
+authentic-use facts + review credit, slippage deductions) — the rules
+below are implemented and regression-pinned. Remaining: the live child
+attempt-capture surface that feeds real sessions into the completion
+helpers — ADLE Slice 6 in the slice track.`
 
 Capture:
 - child attempts
@@ -1300,9 +1375,14 @@ Rules:
 </details>
 
 <details>
-<summary>Phase 11: Micro-skill proficiency engine — Planned</summary>
+<summary>Phase 11: Micro-skill proficiency engine — Next (ADLE Slice 5)</summary>
 
-Status: `Not started`
+Status: `Next — ADLE Slice 5 (docs-first plan for owner review before
+implementation). Adopts the blueprint's graded-breadth gated-level model
+over the Slice 4 evidence states: breadth credit 1.0/0.4/0.1, target(L)
+computed from the allocation table (floor 8, secure-limited-allocation
+badging), levels gated never averaged, and the "not yet secure"
+prerequisite-precedence extension from the 2026-07-05 amendment.`
 
 Aggregate evidence into:
 - proficiency
@@ -1347,9 +1427,12 @@ Rules retained:
 </details>
 
 <details>
-<summary>Phase 13: Child and parent UI integration — Planned</summary>
+<summary>Phase 13: Child and parent UI integration — Planned (ADLE Slices 6–7)</summary>
 
-Status: `Not started`
+Status: `Not started. Sequenced in the slice track: Slice 6 delivers the
+live child session surface and completion wiring (with Phase 3.7B
+browser signoff); Slice 7 delivers the child/parent UI surfaces below
+plus ADLE→Word Treasure event emission.`
 
 Add:
 - child ADLE practice UI
@@ -1410,3 +1493,27 @@ Roadmap adjustments (completed phases 0-5F are unaffected):
    model; no averaging across levels.
 5. Review intervals are 1, 3, 7, 14, 28, 56 days with bundle-with-catch-up
    scheduling (bundles only move forward; ejection replaces demotion).
+
+## Amendment (2026-07-05 — slice-track alignment)
+
+ADLE Slices 1–4 landed 2026-07-05 (owner-approved, QA-signed-off; see the
+slice plans and decision log). This amendment aligns the roadmap with the
+implemented reality:
+
+1. Phases 6, 7, 8, and 9 are complete, delivered inside Slices 2–3 in the
+   reformed shapes (statuses updated in place; superseded pre-reform
+   designs kept for history).
+2. Phase 10 is split: attempt-text capture and the evidence engine are
+   complete (Slices 3–4); the live child attempt-capture surface is
+   re-scoped as ADLE Slice 6.
+3. The "ADLE slice track" section (top of this document) is now the
+   sequencing source for the remaining work: Slice 5 proficiency
+   (Phase 11), Slice 6 live session surface + completion wiring
+   (Phase 10 residual + Phase 3.7B), Slice 7 child/parent UI + Word
+   Treasure event emission (Phase 13 + Phase 12 wiring), Slice 8
+   productionisation (bulk dictionary population, hosted migrations,
+   pilot tuning). Slices 5–8 each require their own docs-first plan and
+   owner approval before implementation.
+4. The evidence ladder figure was corrected to 6.75 clean (blueprint
+   contract 2026-07-05 ladder-figure amendment); the roadmap carries no
+   ladder figures of its own.
