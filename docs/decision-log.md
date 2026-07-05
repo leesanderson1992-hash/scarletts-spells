@@ -1,5 +1,91 @@
 # Decision Log
 
+## 2026-07-04 — ADLE formula package approved (banding, pinned numbers, optimal structure)
+
+### What changed
+- The owner approved
+  `docs/implementation/adle-word-complexity-banding-and-formula-numbers-proposal.md`
+  in full; the blueprint contract gained a matching
+  "Amendment (2026-07-04 — formula package approved)" section closing all of
+  its formula-design open items.
+- Word-complexity banding `banding_v1.1_2026-07-04`: structural score
+  (syllables + length + irregularity class ×2 + morphology depth + schwa +
+  mismatch proxy) mapped to **3 levels** (≤1 / 2–5 / ≥6). The owner released
+  the provisional "Level (1-4)" wording and delegated the level count; 3 was
+  chosen from the data (most skills span 1–2 tiers; a 4-level top tier held
+  only 46 words; the floor-of-8 rate is ~98% under every scheme so
+  granularity cannot fix it). The level range is owned by the banding
+  version; banding is versioned and admin-overridable; frequency/AoA gate
+  eligibility only, never the Level.
+- Pinned numbers: slippage deduction = −0.5 × context weight; mastered
+  spacing = ≥5 productions on ≥4 days spanning ≥21 days; lexicographic
+  cluster tie-breakers; throttle predicate = due words ≤ 10.
+- Simulation-driven structure decisions (forgetting-curve Monte Carlo, 20
+  min × 5 days/week): failed review words get a next-day first catch-up
+  retest, a +3-day second, then ejection (fast relearning at the retest
+  tier, never at the lesson tier — eject-to-reteach was the worst policy
+  everywhere); a conditional 112-day pre-retirement check applies to words
+  with no authentic-use event since their 28-day review (87%→95% modelled
+  retention, cheaper per retained word); the clean review ladder figure is
+  corrected from ~5.25 to ~5.75 points (the ladder-below-8 mastery property
+  holds).
+
+### Why
+- The 874-word dictionary is a pilot sample; bulk population follows initial
+  implementation, so the allocation table is specified as recomputable per
+  import batch, with fail-closed banding for words missing structural
+  metadata and a review list for unknown irregularity notes.
+- Preview artefacts and the three simulators are in
+  `docs/implementation/seed-data/teaching-dictionary/candidates/2026-07-04-complexity-banding-preview/`.
+  No canonical store, Supabase table, or workbook was mutated; runtime
+  implementation proceeds next in the roadmap's amended order (dictionary
+  eligibility statuses → review scheduler → daily assignment composer →
+  evidence engine) as docs-first slices with regressions.
+
+## 2026-07-04 — Reformed pedagogy: Daily Assignment and Evidence Blueprint adopted
+
+### What changed
+- A new planning contract,
+  `docs/contracts/adle-daily-assignment-and-evidence-blueprint-contract.md`,
+  is now the single policy source for the reformed ADLE model: review-first
+  two-part daily assignments, bundle-with-catch-up review scheduling
+  (intervals 1/3/7/14/28/56, bundles only move forward, ejection replaces
+  demotion), the 5-word micro-skill lesson (real learning_items, then probe
+  misses, then stretch dictionary words), recency-scaled evidence weights,
+  word evidence states (unseen -> active -> produced -> secure ->
+  review_retired -> mastered, slipped as a flag), and graded-breadth
+  gated-level micro-skill proficiency.
+- Supersession notices were added to the writing-engine mastery/evidence
+  contract (stage ladder, source weights, weighted-accuracy formula) and the
+  ADLE composer contract (lesson structures).
+- Amendments were added to the taxonomy contract (learning_items become
+  word-level records), the word-map contract (eligibility ladder, complexity
+  banding package, per-skill-per-level allocation table), the activity
+  registry contract (reformed activity set, evidence strengths, interleaving
+  wording), the PCRM contract (mappings never gate learning_items), and the
+  Version 3 roadmap (Contract Reconciliation stage; scheduler and evidence
+  weights move ahead of the composer).
+
+### What was removed or replaced
+- The one-anchor-word/one-Golden-Nugget lesson model, broad
+  contrast/interleaving pedagogy, the 0-8 mastery stage ladder as scoring
+  truth, interval demotion in reviews, skill-level multi-word learning_items,
+  and authored memory_tip content (cues are child-generated).
+
+### Why
+- A 180-day queue simulation showed unthrottled daily lessons produce an
+  unbounded review backlog with zero words retiring; review debt must
+  throttle new lessons (expected cadence 2-3 lessons/week).
+- Two incompatible mastery models coexisted (stage ladder vs evidence
+  points); the evidence-points model with a parent-reviewed authentic-writing
+  gate for mastery was chosen.
+- The child's real writing is the strongest evidence; the micro-skill is the
+  lesson; reviews prove retention; writing proves transfer.
+- Word-complexity banding is deliberately deferred to the implementation
+  agent with a constraints package (structure sets Level; frequency/AoA set
+  eligibility only). The handoff remains agent-neutral (Codex, Claude Code,
+  or another implementer).
+
 ## 2026-06-25 — Version 2 Slice 5 is closed
 
 ### What changed

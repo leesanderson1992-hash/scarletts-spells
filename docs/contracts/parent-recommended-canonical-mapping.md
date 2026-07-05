@@ -546,3 +546,13 @@ Future implementation should require:
 Future browser smoke should verify admin accept/adopt behavior, conflict
 blocking, mapping audit, resolver visibility enable/rollback, and unchanged
 parent Review Work completion behavior.
+
+## Clarification (2026-07-04 reformed pedagogy)
+
+Canonical mappings feed the global resolver only. They never create or gate
+child `learning_items`. Learning items are created from reviewed writing
+issues (targeted-writing-practice contract) or from diagnostic probe misses
+(daily-assignment blueprint contract). A word can hold a canonical mapping
+without ever being assigned to a child, and a child can hold a learning_item
+for a word with no canonical mapping (routed to this contract's candidate
+queue for later adoption).

@@ -1,0 +1,875 @@
+word_key,normalised_word,syllables,letter_count,phoneme_count,syllable_points,length_points,irregularity_band,irregularity_points,morphology_depth,morphology_points,has_schwa,mismatch_flag,structural_score,complexity_level,frequency_band,age_band,irregularity_note_source,banding_version
+a_en_gb,a,1,1,1,0,0,0,0,1,0,True,False,1,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+ability_en_gb,ability,4,7,7,3,2,1,2,2,1,True,False,9,3,high,early_primary,suffix ity,banding_v1.1_2026-07-04.preview
+about_en_gb,about,2,5,4,1,1,0,0,1,0,True,False,3,2,high,early_primary,,banding_v1.1_2026-07-04.preview
+act_en_gb,act,1,3,3,0,0,0,0,1,0,False,False,0,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+action_en_gb,action,2,6,5,1,1,0,0,2,1,True,False,4,2,high,early_primary,,banding_v1.1_2026-07-04.preview
+activity_en_gb,activity,4,8,8,3,2,1,2,3,2,False,False,9,3,high,lower_secondary,suffix ity,banding_v1.1_2026-07-04.preview
+actor_en_gb,actor,2,5,4,1,1,0,0,2,1,True,False,4,2,high,early_primary,,banding_v1.1_2026-07-04.preview
+actual_en_gb,actual,2,6,6,1,1,1,2,2,1,True,False,6,3,high,middle_primary,natural/actual weak vowel,banding_v1.1_2026-07-04.preview
+again_en_gb,again,2,5,4,1,1,0,0,1,0,True,False,3,2,high,early_primary,,banding_v1.1_2026-07-04.preview
+agreement_en_gb,agreement,3,9,8,2,3,0,0,2,1,True,False,7,3,high,early_primary,,banding_v1.1_2026-07-04.preview
+air_en_gb,air,1,3,1,0,0,0,0,1,0,True,False,1,1,high,mid_secondary,,banding_v1.1_2026-07-04.preview
+align_en_gb,align,2,5,4,1,1,0,0,2,1,True,False,4,2,medium,mid_secondary,,banding_v1.1_2026-07-04.preview
+allowed_en_gb,allowed,2,7,4,1,2,0,0,1,0,True,True,5,2,high,middle_primary,,banding_v1.1_2026-07-04.preview
+aloud_en_gb,aloud,2,5,4,1,1,2,4,1,0,True,False,7,3,medium,middle_primary,content word homophone,banding_v1.1_2026-07-04.preview
+alphabet_en_gb,alphabet,3,8,7,2,2,0,0,1,0,True,False,5,2,medium,early_primary,,banding_v1.1_2026-07-04.preview
+angle_en_gb,angle,2,5,5,1,1,0,0,1,0,True,False,3,2,high,mid_secondary,,banding_v1.1_2026-07-04.preview
+animal_en_gb,animal,3,6,6,2,1,0,0,1,0,True,False,4,2,high,early_primary,,banding_v1.1_2026-07-04.preview
+ankle_en_gb,ankle,2,5,5,1,1,0,0,1,0,True,False,3,2,medium,early_primary,,banding_v1.1_2026-07-04.preview
+answer_en_gb,answer,2,6,4,1,1,0,0,1,0,True,False,3,2,high,middle_primary,,banding_v1.1_2026-07-04.preview
+antique_en_gb,antique,2,7,5,1,2,0,0,1,0,False,False,3,2,medium,middle_primary,,banding_v1.1_2026-07-04.preview
+apple_en_gb,apple,2,5,4,1,1,0,0,1,0,True,False,3,2,high,early_primary,,banding_v1.1_2026-07-04.preview
+are_en_gb,are,1,3,2,0,0,0,0,1,0,False,False,0,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+argument_en_gb,argument,3,8,8,2,2,1,2,2,1,True,False,8,3,high,middle_primary,suffix ment,banding_v1.1_2026-07-04.preview
+around_en_gb,around,2,6,5,1,1,0,0,1,0,True,False,3,2,high,early_primary,,banding_v1.1_2026-07-04.preview
+as_en_gb,as,1,2,2,0,0,0,0,1,0,False,False,0,1,high,middle_primary,,banding_v1.1_2026-07-04.preview
+attention_en_gb,attention,3,9,7,2,3,1,2,2,1,True,False,9,3,high,middle_primary,final tion,banding_v1.1_2026-07-04.preview
+author_en_gb,author,2,6,3,1,1,0,0,1,0,True,True,4,2,high,early_primary,,banding_v1.1_2026-07-04.preview
+auto_en_gb,auto,2,4,3,1,0,0,0,1,0,True,False,2,2,high,upper_primary,,banding_v1.1_2026-07-04.preview
+automatic_en_gb,automatic,4,9,8,3,3,0,0,1,0,True,False,7,3,high,middle_primary,,banding_v1.1_2026-07-04.preview
+away_en_gb,away,2,4,3,1,0,0,0,1,0,True,False,2,2,high,early_primary,,banding_v1.1_2026-07-04.preview
+babies_en_gb,babies,2,6,5,1,1,1,2,1,0,False,False,4,2,high,early_primary,plural ies,banding_v1.1_2026-07-04.preview
+baby_en_gb,baby,2,4,4,1,0,0,0,1,0,False,False,1,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+back_en_gb,back,1,4,3,0,0,0,0,1,0,False,False,0,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+bad_en_gb,bad,1,3,3,0,0,0,0,1,0,False,False,0,1,high,upper_primary,regular,banding_v1.1_2026-07-04.preview
+badge_en_gb,badge,1,5,3,0,1,0,0,1,0,False,False,1,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+bake_en_gb,bake,1,4,3,0,0,0,0,1,0,False,False,0,1,medium,early_primary,,banding_v1.1_2026-07-04.preview
+baked_en_gb,baked,1,5,4,0,1,0,0,1,0,False,False,1,1,medium,early_primary,,banding_v1.1_2026-07-04.preview
+bank_en_gb,bank,1,4,4,0,0,0,0,1,0,False,False,0,1,high,middle_primary,,banding_v1.1_2026-07-04.preview
+basic_en_gb,basic,2,5,5,1,1,0,0,2,1,False,False,3,2,high,lower_secondary,,banding_v1.1_2026-07-04.preview
+basket_en_gb,basket,2,6,6,1,1,0,0,1,0,False,False,2,2,high,early_primary,,banding_v1.1_2026-07-04.preview
+bat_en_gb,bat,1,3,3,0,0,0,0,1,0,False,False,0,1,high,early_primary,regular,banding_v1.1_2026-07-04.preview
+bath_en_gb,bath,1,4,3,0,0,0,0,1,0,False,False,0,1,high,early_primary,regular,banding_v1.1_2026-07-04.preview
+beautiful_en_gb,beautiful,3,9,8,2,3,2,4,2,1,True,False,11,3,high,early_primary,longer high-frequency tricky word,banding_v1.1_2026-07-04.preview
+because_en_gb,because,2,7,5,1,2,2,4,1,0,False,False,7,3,high,early_primary,longer high-frequency tricky word,banding_v1.1_2026-07-04.preview
+bed_en_gb,bed,1,3,3,0,0,0,0,1,0,False,False,0,1,high,lower_secondary,regular,banding_v1.1_2026-07-04.preview
+bedroom_en_gb,bedroom,2,7,6,1,2,0,0,2,1,False,False,4,2,high,early_primary,,banding_v1.1_2026-07-04.preview
+bench_en_gb,bench,1,5,4,0,1,0,0,1,0,False,False,1,1,high,early_primary,regular,banding_v1.1_2026-07-04.preview
+best_en_gb,best,1,4,4,0,0,0,0,1,0,False,False,0,1,high,upper_primary,,banding_v1.1_2026-07-04.preview
+big_en_gb,big,1,3,3,0,0,0,0,1,0,False,False,0,1,high,early_primary,regular,banding_v1.1_2026-07-04.preview
+bigger_en_gb,bigger,2,6,4,1,1,0,0,2,1,True,False,4,2,high,early_primary,,banding_v1.1_2026-07-04.preview
+biggest_en_gb,biggest,2,7,6,1,2,0,0,2,1,True,False,5,2,high,early_primary,,banding_v1.1_2026-07-04.preview
+bike_en_gb,bike,1,4,3,0,0,1,2,1,0,False,False,2,2,high,early_primary,split digraph i-e,banding_v1.1_2026-07-04.preview
+biology_en_gb,biology,4,7,7,3,2,0,0,3,2,True,False,8,3,high,lower_secondary,,banding_v1.1_2026-07-04.preview
+bird_en_gb,bird,1,4,3,0,0,0,0,1,0,False,False,0,1,high,middle_primary,,banding_v1.1_2026-07-04.preview
+black_en_gb,black,1,5,4,0,1,0,0,1,0,False,False,1,1,high,middle_primary,,banding_v1.1_2026-07-04.preview
+blue_en_gb,blue,1,4,3,0,0,0,0,1,0,False,False,0,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+board_en_gb,board,1,5,3,0,1,0,0,1,0,False,False,1,1,high,upper_primary,,banding_v1.1_2026-07-04.preview
+boat_en_gb,boat,1,4,3,0,0,1,2,1,0,True,False,3,2,high,middle_primary,long oa with oa,banding_v1.1_2026-07-04.preview
+boil_en_gb,boil,1,4,3,0,0,0,0,1,0,False,False,0,1,medium,middle_primary,,banding_v1.1_2026-07-04.preview
+bolt_en_gb,bolt,1,4,4,0,0,0,0,1,0,True,False,1,1,high,lower_secondary,,banding_v1.1_2026-07-04.preview
+bomb_en_gb,bomb,1,4,3,0,0,0,0,1,0,False,False,0,1,high,middle_primary,,banding_v1.1_2026-07-04.preview
+bombard_en_gb,bombard,2,7,6,1,2,0,0,1,0,True,False,4,2,low,upper_primary,,banding_v1.1_2026-07-04.preview
+book_en_gb,book,1,4,3,0,0,0,0,1,0,False,False,0,1,high,upper_primary,,banding_v1.1_2026-07-04.preview
+books_en_gb,books,1,5,4,0,1,0,0,1,0,False,False,1,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+bosom_en_gb,bosom,2,5,5,1,1,0,0,1,0,True,False,3,2,medium,lower_secondary,,banding_v1.1_2026-07-04.preview
+bottle_en_gb,bottle,2,6,5,1,1,0,0,1,0,True,False,3,2,high,early_primary,,banding_v1.1_2026-07-04.preview
+bowl_en_gb,bowl,1,4,3,0,0,0,0,1,0,True,False,1,1,high,upper_primary,,banding_v1.1_2026-07-04.preview
+boxes_en_gb,boxes,2,5,6,1,1,1,2,1,0,False,False,4,2,high,early_primary,plural es,banding_v1.1_2026-07-04.preview
+boy_en_gb,boy,1,3,2,0,0,0,0,1,0,False,False,0,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+brave_en_gb,brave,1,5,4,0,1,0,0,1,0,False,False,1,1,high,middle_primary,regular,banding_v1.1_2026-07-04.preview
+braver_en_gb,braver,2,6,5,1,1,0,0,2,1,True,False,4,2,low,early_primary,,banding_v1.1_2026-07-04.preview
+bravest_en_gb,bravest,2,7,7,1,2,0,0,2,1,True,False,5,2,medium,early_primary,,banding_v1.1_2026-07-04.preview
+break_en_gb,break,1,5,4,0,1,1,2,1,0,False,False,3,2,high,middle_primary,long ai with ea,banding_v1.1_2026-07-04.preview
+bridge_en_gb,bridge,1,6,4,0,1,0,0,1,0,False,False,1,1,high,middle_primary,,banding_v1.1_2026-07-04.preview
+bright_en_gb,bright,1,6,4,0,1,0,0,1,0,False,False,1,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+brochure_en_gb,brochure,2,8,5,1,2,0,0,1,0,True,True,5,2,medium,upper_primary,,banding_v1.1_2026-07-04.preview
+brown_en_gb,brown,1,5,4,0,1,0,0,1,0,False,False,1,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+bruise_en_gb,bruise,1,6,4,0,1,0,0,1,0,False,False,1,1,medium,middle_primary,,banding_v1.1_2026-07-04.preview
+brush_en_gb,brush,1,5,4,0,1,0,0,1,0,False,False,1,1,high,upper_primary,regular,banding_v1.1_2026-07-04.preview
+bubble_en_gb,bubble,2,6,5,1,1,0,0,1,0,True,False,3,2,high,upper_primary,,banding_v1.1_2026-07-04.preview
+build_en_gb,build,1,5,4,0,1,2,4,1,0,False,False,5,2,high,early_primary,common high-frequency tricky word,banding_v1.1_2026-07-04.preview
+burn_en_gb,burn,1,4,3,0,0,0,0,1,0,False,False,0,1,high,upper_primary,,banding_v1.1_2026-07-04.preview
+buses_en_gb,buses,2,5,5,1,1,0,0,1,0,False,False,2,2,high,early_primary,,banding_v1.1_2026-07-04.preview
+busier_en_gb,busier,2,6,5,1,1,0,0,2,1,True,False,4,2,low,early_primary,,banding_v1.1_2026-07-04.preview
+busiest_en_gb,busiest,2,7,6,1,2,0,0,2,1,True,False,5,2,medium,early_primary,,banding_v1.1_2026-07-04.preview
+business_en_gb,business,2,8,6,1,2,2,4,1,0,True,False,8,3,high,middle_primary,common high-frequency tricky word,banding_v1.1_2026-07-04.preview
+busy_en_gb,busy,2,4,4,1,0,2,4,1,0,False,False,5,2,high,middle_primary,common high-frequency tricky word,banding_v1.1_2026-07-04.preview
+button_en_gb,button,2,6,5,1,1,0,0,1,0,True,False,3,2,high,middle_primary,,banding_v1.1_2026-07-04.preview
+buzz_en_gb,buzz,1,4,3,0,0,1,2,1,0,False,False,2,2,high,early_primary,final zz after short vowel,banding_v1.1_2026-07-04.preview
+cage_en_gb,cage,1,4,3,0,0,0,0,1,0,False,False,0,1,high,upper_primary,,banding_v1.1_2026-07-04.preview
+cake_en_gb,cake,1,4,3,0,0,1,2,1,0,False,False,2,2,high,lower_secondary,split digraph a-e,banding_v1.1_2026-07-04.preview
+calendar_en_gb,calendar,3,8,7,2,2,1,2,1,0,True,False,7,3,high,lower_secondary,final unstressed ar,banding_v1.1_2026-07-04.preview
+called_en_gb,called,1,6,4,0,1,0,0,1,0,False,False,1,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+calm_en_gb,calm,1,4,3,0,0,0,0,1,0,False,False,0,1,high,upper_primary,,banding_v1.1_2026-07-04.preview
+came_en_gb,came,1,4,3,0,0,0,0,1,0,False,False,0,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+camera_en_gb,camera,2,6,5,1,1,0,0,1,0,True,False,3,2,high,early_primary,,banding_v1.1_2026-07-04.preview
+camp_en_gb,camp,1,4,4,0,0,0,0,1,0,False,False,0,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+can_t_en_gb,can't,1,4,4,0,0,0,0,1,0,False,False,0,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+candle_en_gb,candle,2,6,6,1,1,0,0,1,0,True,False,3,2,medium,early_primary,,banding_v1.1_2026-07-04.preview
+cap_en_gb,cap,1,3,3,0,0,0,0,1,0,False,False,0,1,high,upper_primary,regular,banding_v1.1_2026-07-04.preview
+car_en_gb,car,1,3,2,0,0,0,0,1,0,False,False,0,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+care_en_gb,care,1,4,2,0,0,0,0,1,0,True,False,1,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+careful_en_gb,careful,2,7,5,1,2,1,2,2,1,True,False,7,3,high,early_primary,suffix ful,banding_v1.1_2026-07-04.preview
+careless_en_gb,careless,2,8,5,1,2,0,0,2,1,True,True,6,3,medium,early_primary,,banding_v1.1_2026-07-04.preview
+carried_en_gb,carried,2,7,5,1,2,0,0,1,0,False,False,3,2,high,early_primary,,banding_v1.1_2026-07-04.preview
+carries_en_gb,carries,2,7,5,1,2,0,0,1,0,False,False,3,2,high,early_primary,,banding_v1.1_2026-07-04.preview
+carry_en_gb,carry,2,5,4,1,1,2,4,1,0,False,False,6,3,high,middle_primary,remembered double letter word,banding_v1.1_2026-07-04.preview
+cars_en_gb,cars,1,4,3,0,0,0,0,1,0,False,False,0,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+castle_en_gb,castle,2,6,5,1,1,0,0,1,0,True,False,3,2,high,middle_primary,,banding_v1.1_2026-07-04.preview
+cat_en_gb,cat,1,3,3,0,0,0,0,1,0,False,False,0,1,high,middle_primary,regular,banding_v1.1_2026-07-04.preview
+catch_en_gb,catch,1,5,3,0,1,0,0,1,0,False,False,1,1,high,middle_primary,,banding_v1.1_2026-07-04.preview
+cats_en_gb,cats,1,4,4,0,0,0,0,1,0,False,False,0,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+ceiling_en_gb,ceiling,2,7,5,1,2,0,0,1,0,False,False,3,2,high,middle_primary,,banding_v1.1_2026-07-04.preview
+cent_en_gb,cent,1,4,4,0,0,1,2,1,0,False,False,2,2,high,early_primary,soft c before e,banding_v1.1_2026-07-04.preview
+chain_en_gb,chain,1,5,3,0,1,0,0,1,0,False,False,1,1,high,middle_primary,regular,banding_v1.1_2026-07-04.preview
+chalet_en_gb,chalet,2,6,4,1,1,0,0,1,0,False,False,2,2,medium,lower_secondary,,banding_v1.1_2026-07-04.preview
+chance_en_gb,chance,1,6,4,0,1,0,0,1,0,False,False,1,1,high,middle_primary,,banding_v1.1_2026-07-04.preview
+change_en_gb,change,1,6,4,0,1,0,0,1,0,False,False,1,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+chat_en_gb,chat,1,4,3,0,0,0,0,1,0,False,False,0,1,high,middle_primary,regular,banding_v1.1_2026-07-04.preview
+cheer_en_gb,cheer,1,5,3,0,1,0,0,1,0,True,False,2,2,high,middle_primary,,banding_v1.1_2026-07-04.preview
+cheese_en_gb,cheese,1,6,3,0,1,0,0,1,0,False,True,2,2,high,upper_primary,,banding_v1.1_2026-07-04.preview
+chef_en_gb,chef,1,4,3,0,0,0,0,1,0,False,False,0,1,high,middle_primary,,banding_v1.1_2026-07-04.preview
+chemist_en_gb,chemist,2,7,6,1,2,1,2,2,1,False,False,6,3,medium,upper_primary,Greek ch for k,banding_v1.1_2026-07-04.preview
+cheque_en_gb,cheque,1,6,3,0,1,0,0,1,0,False,True,2,2,medium,lower_secondary,,banding_v1.1_2026-07-04.preview
+chew_en_gb,chew,1,4,3,0,0,0,0,1,0,False,False,0,1,medium,early_primary,,banding_v1.1_2026-07-04.preview
+chief_en_gb,chief,1,5,3,0,1,0,0,1,0,False,False,1,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+child_en_gb,child,1,5,4,0,1,0,0,1,0,False,False,1,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+children_en_gb,children,2,8,7,1,2,0,0,1,0,True,False,4,2,high,early_primary,,banding_v1.1_2026-07-04.preview
+chin_en_gb,chin,1,4,3,0,0,0,0,1,0,False,False,0,1,high,upper_primary,regular,banding_v1.1_2026-07-04.preview
+chip_en_gb,chip,1,4,3,0,0,0,0,1,0,False,False,0,1,high,early_primary,regular,banding_v1.1_2026-07-04.preview
+chocolate_en_gb,chocolate,2,9,6,1,3,0,0,1,0,True,True,6,3,high,early_primary,,banding_v1.1_2026-07-04.preview
+chop_en_gb,chop,1,4,3,0,0,0,0,1,0,False,False,0,1,medium,middle_primary,regular,banding_v1.1_2026-07-04.preview
+chorus_en_gb,chorus,2,6,5,1,1,0,0,1,0,True,False,3,2,medium,middle_primary,,banding_v1.1_2026-07-04.preview
+churches_en_gb,churches,2,8,5,1,2,0,0,1,0,False,True,4,2,high,early_primary,,banding_v1.1_2026-07-04.preview
+circle_en_gb,circle,2,6,5,1,1,1,2,1,0,True,False,5,2,high,early_primary,soft c before i,banding_v1.1_2026-07-04.preview
+cities_en_gb,cities,2,6,5,1,1,1,2,1,0,False,False,4,2,high,early_primary,plural ies,banding_v1.1_2026-07-04.preview
+city_en_gb,city,2,4,4,1,0,1,2,1,0,False,False,3,2,high,early_primary,soft c before i,banding_v1.1_2026-07-04.preview
+clap_en_gb,clap,1,4,4,0,0,0,0,1,0,False,False,0,1,medium,middle_primary,,banding_v1.1_2026-07-04.preview
+clay_en_gb,clay,1,4,3,0,0,0,0,1,0,False,False,0,1,high,early_primary,regular,banding_v1.1_2026-07-04.preview
+clean_en_gb,clean,1,5,4,0,1,0,0,1,0,False,False,1,1,high,upper_primary,,banding_v1.1_2026-07-04.preview
+cleaned_en_gb,cleaned,1,7,5,0,2,0,0,1,0,False,False,2,2,high,early_primary,,banding_v1.1_2026-07-04.preview
+cliff_en_gb,cliff,1,5,4,0,1,1,2,1,0,False,False,3,2,high,early_primary,final ff after short vowel,banding_v1.1_2026-07-04.preview
+climb_en_gb,climb,1,5,4,0,1,2,4,1,0,False,False,5,2,high,early_primary,silent mb,banding_v1.1_2026-07-04.preview
+cloth_en_gb,cloth,1,5,4,0,1,0,0,1,0,False,False,1,1,high,lower_secondary,regular,banding_v1.1_2026-07-04.preview
+cloud_en_gb,cloud,1,5,4,0,1,0,0,1,0,False,False,1,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+coat_en_gb,coat,1,4,3,0,0,0,0,1,0,True,False,1,1,high,early_primary,regular,banding_v1.1_2026-07-04.preview
+coin_en_gb,coin,1,4,3,0,0,0,0,1,0,False,False,0,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+cold_en_gb,cold,1,4,4,0,0,0,0,1,0,True,False,1,1,high,middle_primary,,banding_v1.1_2026-07-04.preview
+comb_en_gb,comb,1,4,3,0,0,0,0,1,0,True,False,1,1,medium,middle_primary,,banding_v1.1_2026-07-04.preview
+combustion_en_gb,combustion,3,10,9,2,3,0,0,2,1,True,False,7,3,medium,lower_secondary,,banding_v1.1_2026-07-04.preview
+comma_en_gb,comma,2,5,4,1,1,0,0,1,0,True,False,3,2,medium,early_primary,,banding_v1.1_2026-07-04.preview
+community_en_gb,community,4,9,9,3,3,0,0,2,1,True,False,8,3,high,middle_primary,,banding_v1.1_2026-07-04.preview
+complete_en_gb,complete,2,8,7,1,2,0,0,1,0,True,False,4,2,high,middle_primary,,banding_v1.1_2026-07-04.preview
+confusion_en_gb,confusion,3,9,9,2,3,1,2,2,1,True,False,9,3,high,middle_primary,final sion,banding_v1.1_2026-07-04.preview
+copied_en_gb,copied,2,6,5,1,1,1,2,1,0,False,False,4,2,medium,early_primary,past tense y to i,banding_v1.1_2026-07-04.preview
+copy_en_gb,copy,2,4,4,1,0,0,0,1,0,False,False,1,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+corn_en_gb,corn,1,4,3,0,0,0,0,1,0,False,False,0,1,high,mid_secondary,,banding_v1.1_2026-07-04.preview
+cot_en_gb,cot,1,3,3,0,0,0,0,1,0,False,False,0,1,medium,later_review,regular,banding_v1.1_2026-07-04.preview
+cough_en_gb,cough,1,5,3,0,1,2,4,1,0,False,False,5,2,medium,middle_primary,gh for f,banding_v1.1_2026-07-04.preview
+could_en_gb,could,1,5,3,0,1,2,4,1,0,False,False,5,2,high,early_primary,ould word,banding_v1.1_2026-07-04.preview
+court_en_gb,court,1,5,3,0,1,0,0,1,0,False,False,1,1,high,lower_secondary,,banding_v1.1_2026-07-04.preview
+cow_en_gb,cow,1,3,2,0,0,0,0,1,0,False,False,0,1,high,middle_primary,,banding_v1.1_2026-07-04.preview
+crab_en_gb,crab,1,4,4,0,0,0,0,1,0,False,False,0,1,medium,upper_primary,,banding_v1.1_2026-07-04.preview
+creature_en_gb,creature,2,8,5,1,2,1,2,1,0,True,True,7,3,high,middle_primary,final ture,banding_v1.1_2026-07-04.preview
+cried_en_gb,cried,1,5,4,0,1,1,2,1,0,False,False,3,2,high,early_primary,past tense y to i,banding_v1.1_2026-07-04.preview
+cries_en_gb,cries,1,5,4,0,1,0,0,1,0,False,False,1,1,medium,early_primary,,banding_v1.1_2026-07-04.preview
+cry_en_gb,cry,1,3,3,0,0,0,0,1,0,False,False,0,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+cube_en_gb,cube,1,4,4,0,0,1,2,1,0,False,False,2,2,medium,middle_primary,split digraph u-e,banding_v1.1_2026-07-04.preview
+cup_en_gb,cup,1,3,3,0,0,0,0,1,0,False,False,0,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+cute_en_gb,cute,1,4,4,0,0,0,0,1,0,False,False,0,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+cycle_en_gb,cycle,2,5,5,1,1,0,0,1,0,True,False,3,2,high,lower_secondary,,banding_v1.1_2026-07-04.preview
+dance_en_gb,dance,1,5,4,0,1,0,0,1,0,False,False,1,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+danger_en_gb,danger,2,6,5,1,1,0,0,1,0,True,False,3,2,high,early_primary,,banding_v1.1_2026-07-04.preview
+dangerous_en_gb,dangerous,3,9,8,2,3,1,2,2,1,True,False,9,3,high,early_primary,suffix ous,banding_v1.1_2026-07-04.preview
+darkness_en_gb,darkness,2,8,6,1,2,0,0,2,1,True,False,5,2,high,early_primary,,banding_v1.1_2026-07-04.preview
+day_en_gb,day,1,3,2,0,0,0,0,1,0,False,False,0,1,high,early_primary,regular,banding_v1.1_2026-07-04.preview
+debt_en_gb,debt,1,4,3,0,0,2,4,1,0,False,False,4,2,high,upper_primary,silent b/t,banding_v1.1_2026-07-04.preview
+decision_en_gb,decision,3,8,7,2,2,1,2,2,1,True,False,8,3,high,middle_primary,final sion,banding_v1.1_2026-07-04.preview
+deer_en_gb,deer,1,4,3,0,0,0,0,1,0,True,False,1,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+define_en_gb,define,2,6,5,1,1,0,0,1,0,False,False,2,2,high,lower_secondary,,banding_v1.1_2026-07-04.preview
+definition_en_gb,definition,4,10,9,3,3,0,0,2,1,True,False,8,3,high,mid_secondary,,banding_v1.1_2026-07-04.preview
+design_en_gb,design,2,6,5,1,1,0,0,1,0,False,False,2,2,high,middle_primary,,banding_v1.1_2026-07-04.preview
+desk_en_gb,desk,1,4,4,0,0,0,0,1,0,False,False,0,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+die_en_gb,die,1,3,2,0,0,0,0,1,0,False,False,0,1,high,upper_primary,,banding_v1.1_2026-07-04.preview
+different_en_gb,different,2,9,7,1,3,1,2,2,1,True,False,8,3,high,early_primary,medial weak vowel,banding_v1.1_2026-07-04.preview
+dig_en_gb,dig,1,3,3,0,0,0,0,1,0,False,False,0,1,high,mid_secondary,regular,banding_v1.1_2026-07-04.preview
+dinner_en_gb,dinner,2,6,4,1,1,1,2,1,0,True,False,5,2,high,middle_primary,medial doubled consonant,banding_v1.1_2026-07-04.preview
+disappear_en_gb,disappear,3,9,7,2,3,1,2,2,1,True,False,9,3,high,early_primary,prefix dis,banding_v1.1_2026-07-04.preview
+dish_en_gb,dish,1,4,3,0,0,0,0,1,0,False,False,0,1,high,lower_secondary,regular,banding_v1.1_2026-07-04.preview
+dislike_en_gb,dislike,2,7,6,1,2,0,0,2,1,False,False,4,2,medium,middle_primary,,banding_v1.1_2026-07-04.preview
+division_en_gb,division,3,8,7,2,2,0,0,2,1,True,False,6,3,high,middle_primary,,banding_v1.1_2026-07-04.preview
+do_en_gb,do,1,2,2,0,0,0,0,1,0,False,False,0,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+doctor_en_gb,doctor,2,6,5,1,1,1,2,1,0,True,False,5,2,high,middle_primary,final unstressed or,banding_v1.1_2026-07-04.preview
+doe_en_gb,doe,1,3,2,0,0,0,0,1,0,True,False,1,1,medium,middle_primary,,banding_v1.1_2026-07-04.preview
+does_en_gb,does,1,4,3,0,0,2,4,1,0,False,False,4,2,high,early_primary,irregular function word,banding_v1.1_2026-07-04.preview
+dog_en_gb,dog,1,3,3,0,0,0,0,1,0,False,False,0,1,high,mid_secondary,regular,banding_v1.1_2026-07-04.preview
+dogs_en_gb,dogs,1,4,4,0,0,0,0,1,0,False,False,0,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+dollar_en_gb,dollar,2,6,4,1,1,0,0,1,0,True,False,3,2,high,early_primary,,banding_v1.1_2026-07-04.preview
+don_t_en_gb,don't,1,4,4,0,0,0,0,1,0,False,False,0,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+donkey_en_gb,donkey,2,6,5,1,1,0,0,1,0,False,False,2,2,medium,early_primary,,banding_v1.1_2026-07-04.preview
+doubt_en_gb,doubt,1,5,3,0,1,2,4,1,0,False,False,5,2,high,upper_primary,silent b/t,banding_v1.1_2026-07-04.preview
+down_en_gb,down,1,4,3,0,0,0,0,1,0,False,False,0,1,high,upper_primary,,banding_v1.1_2026-07-04.preview
+draw_en_gb,draw,1,4,3,0,0,0,0,1,0,False,False,0,1,high,upper_primary,,banding_v1.1_2026-07-04.preview
+dress_en_gb,dress,1,5,4,0,1,0,0,1,0,False,False,1,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+duck_en_gb,duck,1,4,3,0,0,0,0,1,0,False,False,0,1,high,upper_primary,,banding_v1.1_2026-07-04.preview
+dying_en_gb,dying,1,5,4,0,1,1,2,1,0,False,False,3,2,high,middle_primary,ing ie to y,banding_v1.1_2026-07-04.preview
+early_en_gb,early,2,5,3,1,1,0,0,1,0,False,False,2,2,high,early_primary,,banding_v1.1_2026-07-04.preview
+earth_en_gb,earth,1,5,2,0,1,0,0,1,0,False,True,2,2,high,early_primary,,banding_v1.1_2026-07-04.preview
+echo_en_gb,echo,2,4,3,1,0,0,0,1,0,True,False,2,2,high,middle_primary,,banding_v1.1_2026-07-04.preview
+edge_en_gb,edge,1,4,2,0,0,0,0,1,0,False,False,0,1,high,middle_primary,,banding_v1.1_2026-07-04.preview
+education_en_gb,education,4,9,8,3,3,0,0,2,1,True,False,8,3,high,middle_primary,,banding_v1.1_2026-07-04.preview
+eight_en_gb,eight,1,5,2,0,1,0,0,1,0,False,True,2,2,high,early_primary,,banding_v1.1_2026-07-04.preview
+electric_en_gb,electric,3,8,8,2,2,0,0,2,1,False,False,5,2,high,upper_primary,,banding_v1.1_2026-07-04.preview
+electrician_en_gb,electrician,4,11,10,3,3,0,0,3,2,True,False,9,3,medium,middle_primary,,banding_v1.1_2026-07-04.preview
+electricity_en_gb,electricity,5,11,11,3,3,0,0,3,2,False,False,8,3,high,early_primary,,banding_v1.1_2026-07-04.preview
+eleven_en_gb,eleven,3,6,6,2,1,0,0,1,0,True,False,4,2,high,early_primary,,banding_v1.1_2026-07-04.preview
+ended_en_gb,ended,2,5,5,1,1,0,0,1,0,False,False,2,2,high,early_primary,,banding_v1.1_2026-07-04.preview
+enjoy_en_gb,enjoy,2,5,4,1,1,0,0,2,1,False,False,3,2,high,early_primary,,banding_v1.1_2026-07-04.preview
+enjoyable_en_gb,enjoyable,3,9,8,2,3,1,2,3,2,True,False,10,3,medium,middle_primary,suffix able/ible,banding_v1.1_2026-07-04.preview
+enjoyment_en_gb,enjoyment,3,9,8,2,3,0,0,3,2,True,False,8,3,medium,middle_primary,,banding_v1.1_2026-07-04.preview
+enough_en_gb,enough,2,6,4,1,1,0,0,1,0,False,False,2,2,high,early_primary,,banding_v1.1_2026-07-04.preview
+erase_en_gb,erase,2,5,4,1,1,0,0,1,0,False,False,2,2,medium,middle_primary,,banding_v1.1_2026-07-04.preview
+escape_en_gb,escape,2,6,5,1,1,0,0,1,0,False,False,2,2,high,early_primary,,banding_v1.1_2026-07-04.preview
+essential_en_gb,essential,3,9,7,2,3,1,2,2,1,True,False,9,3,high,upper_primary,final tial,banding_v1.1_2026-07-04.preview
+even_en_gb,even,2,4,4,1,0,0,0,1,0,True,False,2,2,high,early_primary,,banding_v1.1_2026-07-04.preview
+every_en_gb,every,2,5,4,1,1,1,2,1,0,False,False,4,2,high,early_primary,medial weak vowel,banding_v1.1_2026-07-04.preview
+example_en_gb,example,3,7,8,2,2,0,0,1,0,True,False,5,2,high,upper_primary,,banding_v1.1_2026-07-04.preview
+exhaustion_en_gb,exhaustion,3,10,8,2,3,0,0,2,1,True,False,7,3,medium,upper_primary,,banding_v1.1_2026-07-04.preview
+extension_en_gb,extension,3,9,9,2,3,1,2,3,2,True,False,10,3,high,upper_primary,final sion,banding_v1.1_2026-07-04.preview
+extreme_en_gb,extreme,2,7,7,1,2,0,0,1,0,False,False,3,2,high,upper_primary,,banding_v1.1_2026-07-04.preview
+eye_en_gb,eye,1,3,1,0,0,0,0,1,0,False,False,0,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+face_en_gb,face,1,4,3,0,0,0,0,1,0,False,False,0,1,high,middle_primary,,banding_v1.1_2026-07-04.preview
+facial_en_gb,facial,2,6,5,1,1,0,0,2,1,True,False,4,2,high,upper_primary,,banding_v1.1_2026-07-04.preview
+factual_en_gb,factual,2,7,7,1,2,1,2,2,1,True,False,7,3,medium,lower_secondary,natural/actual weak vowel,banding_v1.1_2026-07-04.preview
+fair_en_gb,fair,1,4,2,0,0,0,0,1,0,True,False,1,1,high,middle_primary,,banding_v1.1_2026-07-04.preview
+family_en_gb,family,3,6,6,2,1,1,2,1,0,False,False,5,2,high,middle_primary,medial weak vowel,banding_v1.1_2026-07-04.preview
+famous_en_gb,famous,2,6,5,1,1,1,2,2,1,True,False,6,3,high,middle_primary,suffix ous,banding_v1.1_2026-07-04.preview
+fan_en_gb,fan,1,3,3,0,0,0,0,1,0,False,False,0,1,high,middle_primary,regular,banding_v1.1_2026-07-04.preview
+fast_en_gb,Fast,1,3,4,0,0,0,0,1,0,False,False,0,1,high,middle_primary,,banding_v1.1_2026-07-04.preview
+faster_en_gb,faster,2,6,5,1,1,0,0,2,1,True,False,4,2,high,early_primary,,banding_v1.1_2026-07-04.preview
+fastest_en_gb,fastest,2,7,7,1,2,0,0,2,1,True,False,5,2,high,early_primary,,banding_v1.1_2026-07-04.preview
+favourite_en_gb,favourite,2,9,6,1,3,2,4,2,1,False,True,10,3,high,middle_primary,longer high-frequency tricky word,banding_v1.1_2026-07-04.preview
+feet_en_gb,feet,1,4,3,0,0,0,0,1,0,False,False,0,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+fern_en_gb,fern,1,4,3,0,0,0,0,1,0,False,False,0,1,medium,early_primary,,banding_v1.1_2026-07-04.preview
+fetch_en_gb,fetch,1,5,3,0,1,0,0,1,0,False,False,1,1,medium,lower_secondary,,banding_v1.1_2026-07-04.preview
+few_en_gb,few,1,3,3,0,0,0,0,1,0,False,False,0,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+field_en_gb,field,1,5,4,0,1,0,0,1,0,False,False,1,1,high,upper_primary,,banding_v1.1_2026-07-04.preview
+fight_en_gb,fight,1,5,3,0,1,0,0,1,0,False,False,1,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+fin_en_gb,fin,1,3,3,0,0,0,0,1,0,False,False,0,1,medium,upper_primary,regular,banding_v1.1_2026-07-04.preview
+final_en_gb,final,2,5,5,1,1,0,0,1,0,True,False,3,2,high,middle_primary,,banding_v1.1_2026-07-04.preview
+find_en_gb,find,1,4,4,0,0,0,0,1,0,False,False,0,1,high,middle_primary,,banding_v1.1_2026-07-04.preview
+fish_en_gb,fish,1,4,3,0,0,0,0,1,0,False,False,0,1,high,middle_primary,regular,banding_v1.1_2026-07-04.preview
+fit_en_gb,fit,1,3,3,0,0,0,0,1,0,False,False,0,1,high,upper_primary,regular,banding_v1.1_2026-07-04.preview
+fixes_en_gb,fixes,2,5,6,1,1,1,2,1,0,False,False,4,2,medium,early_primary,present tense es,banding_v1.1_2026-07-04.preview
+fizz_en_gb,fizz,1,4,3,0,0,0,0,1,0,False,False,0,1,low,early_primary,,banding_v1.1_2026-07-04.preview
+flag_en_gb,flag,1,4,4,0,0,0,0,1,0,False,False,0,1,high,later_review,,banding_v1.1_2026-07-04.preview
+flew_en_gb,flew,1,4,3,0,0,0,0,1,0,False,False,0,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+float_en_gb,float,1,5,4,0,1,0,0,1,0,True,False,2,2,medium,mid_secondary,regular,banding_v1.1_2026-07-04.preview
+flour_en_gb,flour,1,5,4,0,1,0,0,1,0,True,False,2,2,high,early_primary,,banding_v1.1_2026-07-04.preview
+flower_en_gb,flower,2,6,4,1,1,0,0,1,0,True,False,3,2,high,early_primary,,banding_v1.1_2026-07-04.preview
+fly_en_gb,fly,1,3,3,0,0,0,0,1,0,False,False,0,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+fog_en_gb,fog,1,3,3,0,0,0,0,1,0,False,False,0,1,medium,middle_primary,,banding_v1.1_2026-07-04.preview
+food_en_gb,food,1,4,3,0,0,0,0,1,0,False,False,0,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+foot_en_gb,foot,1,4,3,0,0,0,0,1,0,False,False,0,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+football_en_gb,football,2,8,6,1,2,0,0,2,1,False,False,4,2,high,early_primary,,banding_v1.1_2026-07-04.preview
+for_en_gb,for,1,3,2,0,0,0,0,1,0,False,False,0,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+fork_en_gb,fork,1,4,3,0,0,0,0,1,0,False,False,0,1,high,middle_primary,,banding_v1.1_2026-07-04.preview
+form_en_gb,form,1,4,3,0,0,0,0,1,0,False,False,0,1,high,upper_primary,,banding_v1.1_2026-07-04.preview
+found_en_gb,found,1,5,4,0,1,0,0,1,0,False,False,1,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+four_en_gb,four,1,4,2,0,0,0,0,1,0,False,False,0,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+friend_en_gb,friend,1,6,5,0,1,2,4,1,0,False,False,5,2,high,middle_primary,common high-frequency tricky word,banding_v1.1_2026-07-04.preview
+frog_en_gb,frog,1,4,4,0,0,0,0,1,0,False,False,0,1,medium,middle_primary,,banding_v1.1_2026-07-04.preview
+fruit_en_gb,fruit,1,5,4,0,1,0,0,1,0,False,False,1,1,high,middle_primary,,banding_v1.1_2026-07-04.preview
+fudge_en_gb,fudge,1,5,3,0,1,0,0,1,0,False,False,1,1,medium,upper_primary,,banding_v1.1_2026-07-04.preview
+full_en_gb,full,1,4,3,0,0,0,0,1,0,False,False,0,1,high,upper_primary,,banding_v1.1_2026-07-04.preview
+funnier_en_gb,funnier,2,7,5,1,2,0,0,3,2,True,False,6,3,medium,early_primary,,banding_v1.1_2026-07-04.preview
+funniest_en_gb,funniest,2,8,6,1,2,0,0,3,2,True,False,6,3,medium,early_primary,,banding_v1.1_2026-07-04.preview
+funny_en_gb,funny,2,5,4,1,1,0,0,2,1,False,False,3,2,high,middle_primary,,banding_v1.1_2026-07-04.preview
+future_en_gb,future,2,6,5,1,1,1,2,1,0,True,False,5,2,high,middle_primary,final ture,banding_v1.1_2026-07-04.preview
+fuzz_en_gb,fuzz,1,4,3,0,0,0,0,1,0,False,False,0,1,medium,middle_primary,,banding_v1.1_2026-07-04.preview
+game_en_gb,game,1,4,3,0,0,0,0,1,0,False,False,0,1,high,middle_primary,regular,banding_v1.1_2026-07-04.preview
+garden_en_gb,garden,2,6,5,1,1,0,0,1,0,True,False,3,2,high,early_primary,,banding_v1.1_2026-07-04.preview
+gem_en_gb,gem,1,3,3,0,0,0,0,1,0,False,False,0,1,medium,middle_primary,,banding_v1.1_2026-07-04.preview
+geography_en_gb,geography,4,9,8,3,3,0,0,3,2,True,False,9,3,medium,early_primary,,banding_v1.1_2026-07-04.preview
+giant_en_gb,giant,1,5,5,0,1,0,0,1,0,True,False,2,2,high,early_primary,,banding_v1.1_2026-07-04.preview
+giggle_en_gb,giggle,2,6,5,1,1,0,0,1,0,True,False,3,2,medium,early_primary,,banding_v1.1_2026-07-04.preview
+giraffe_en_gb,giraffe,2,7,5,1,2,1,2,1,0,False,False,5,2,medium,early_primary,soft g before i,banding_v1.1_2026-07-04.preview
+girl_en_gb,girl,1,4,3,0,0,0,0,1,0,False,False,0,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+give_en_gb,give,1,4,3,0,0,1,2,1,0,False,False,2,2,high,early_primary,final ve,banding_v1.1_2026-07-04.preview
+glass_en_gb,glass,1,5,4,0,1,1,2,1,0,False,False,3,2,high,middle_primary,final ss after short vowel,banding_v1.1_2026-07-04.preview
+glue_en_gb,glue,1,4,3,0,0,0,0,1,0,False,False,0,1,medium,early_primary,,banding_v1.1_2026-07-04.preview
+gnat_en_gb,gnat,1,4,3,0,0,0,0,1,0,False,False,0,1,low,middle_primary,,banding_v1.1_2026-07-04.preview
+gnaw_en_gb,gnaw,1,4,2,0,0,0,0,1,0,False,False,0,1,low,middle_primary,,banding_v1.1_2026-07-04.preview
+gnome_en_gb,gnome,1,5,3,0,1,0,0,1,0,False,False,1,1,medium,lower_secondary,,banding_v1.1_2026-07-04.preview
+go_en_gb,go,1,2,2,0,0,0,0,1,0,True,False,1,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+goat_en_gb,goat,1,4,3,0,0,0,0,1,0,True,False,1,1,high,middle_primary,regular,banding_v1.1_2026-07-04.preview
+goes_en_gb,goes,1,4,3,0,0,0,0,1,0,True,False,1,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+good_en_gb,good,1,4,3,0,0,0,0,1,0,False,False,0,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+government_en_gb,government,3,10,9,2,3,0,0,2,1,True,False,7,3,high,middle_primary,,banding_v1.1_2026-07-04.preview
+grab_en_gb,grab,1,4,4,0,0,0,0,1,0,False,False,0,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+grabbed_en_gb,grabbed,1,7,5,0,2,0,0,1,0,False,False,2,2,high,early_primary,,banding_v1.1_2026-07-04.preview
+grammar_en_gb,grammar,2,7,5,1,2,1,2,1,0,True,False,6,3,high,middle_primary,final unstressed ar,banding_v1.1_2026-07-04.preview
+graph_en_gb,graph,1,5,4,0,1,0,0,1,0,False,False,1,1,high,upper_primary,,banding_v1.1_2026-07-04.preview
+graphic_en_gb,graphic,2,7,6,1,2,0,0,2,1,False,False,4,2,high,later_review,,banding_v1.1_2026-07-04.preview
+grass_en_gb,grass,1,5,4,0,1,1,2,1,0,False,False,3,2,high,early_primary,final ss after short vowel,banding_v1.1_2026-07-04.preview
+great_en_gb,great,1,5,4,0,1,1,2,1,0,False,False,3,2,high,early_primary,long ai with ea,banding_v1.1_2026-07-04.preview
+green_en_gb,green,1,5,4,0,1,0,0,1,0,False,False,1,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+grey_en_gb,grey,1,4,3,0,0,0,0,1,0,False,False,0,1,high,middle_primary,,banding_v1.1_2026-07-04.preview
+group_en_gb,group,1,5,4,0,1,0,0,1,0,False,False,1,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+grow_en_gb,grow,1,4,3,0,0,1,2,1,0,True,False,3,2,high,early_primary,final ow,banding_v1.1_2026-07-04.preview
+grown_en_gb,grown,1,5,4,0,1,0,0,2,1,True,False,3,2,high,early_primary,,banding_v1.1_2026-07-04.preview
+gym_en_gb,gym,1,3,3,0,0,1,2,1,0,False,False,2,2,high,early_primary,soft g before y,banding_v1.1_2026-07-04.preview
+half_en_gb,half,1,4,3,0,0,0,0,1,0,False,False,0,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+hand_en_gb,hand,1,4,4,0,0,0,0,1,0,False,False,0,1,high,upper_primary,,banding_v1.1_2026-07-04.preview
+handle_en_gb,handle,2,6,6,1,1,0,0,1,0,True,False,3,2,high,upper_primary,,banding_v1.1_2026-07-04.preview
+happier_en_gb,happier,2,7,5,1,2,0,0,2,1,True,False,5,2,high,early_primary,,banding_v1.1_2026-07-04.preview
+happiness_en_gb,happiness,3,9,7,2,3,1,2,2,1,True,False,9,3,high,early_primary,suffix ness,banding_v1.1_2026-07-04.preview
+happy_en_gb,happy,2,5,4,1,1,1,2,1,0,False,False,4,2,high,middle_primary,medial doubled consonant,banding_v1.1_2026-07-04.preview
+hard_en_gb,hard,1,4,3,0,0,0,0,1,0,False,False,0,1,high,middle_primary,,banding_v1.1_2026-07-04.preview
+has_en_gb,has,1,3,3,0,0,0,0,1,0,False,False,0,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+have_en_gb,have,1,4,3,0,0,1,2,1,0,False,False,2,2,high,middle_primary,final ve,banding_v1.1_2026-07-04.preview
+he_d_en_gb,he'd,1,3,3,0,0,0,0,1,0,False,False,0,1,high,upper_primary,,banding_v1.1_2026-07-04.preview
+he_en_gb,he,1,2,2,0,0,0,0,1,0,False,False,0,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+heal_en_gb,heal,1,4,3,0,0,0,0,1,0,False,False,0,1,high,middle_primary,,banding_v1.1_2026-07-04.preview
+health_en_gb,health,1,6,4,0,1,0,0,1,0,False,False,1,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+hear_en_gb,hear,1,4,3,0,0,0,0,1,0,True,False,1,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+heir_en_gb,heir,1,4,1,0,0,0,0,1,0,True,True,2,2,medium,middle_primary,,banding_v1.1_2026-07-04.preview
+help_en_gb,help,1,4,4,0,0,0,0,1,0,False,False,0,1,high,upper_primary,,banding_v1.1_2026-07-04.preview
+helpful_en_gb,helpful,2,7,7,1,2,1,2,2,1,True,False,7,3,high,early_primary,preserve base before suffix,banding_v1.1_2026-07-04.preview
+hen_en_gb,hen,1,3,3,0,0,0,0,1,0,False,False,0,1,medium,early_primary,regular,banding_v1.1_2026-07-04.preview
+her_en_gb,her,1,3,2,0,0,0,0,1,0,False,False,0,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+hill_en_gb,hill,1,4,3,0,0,1,2,1,0,False,False,2,2,high,middle_primary,final ll after short vowel,banding_v1.1_2026-07-04.preview
+his_en_gb,his,1,3,3,0,0,0,0,1,0,False,False,0,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+history_en_gb,history,3,7,7,2,2,0,0,2,1,True,False,6,3,high,early_primary,,banding_v1.1_2026-07-04.preview
+home_en_gb,home,1,4,3,0,0,1,2,1,0,True,False,3,2,high,early_primary,split digraph o-e,banding_v1.1_2026-07-04.preview
+honest_en_gb,honest,2,6,5,1,1,0,0,1,0,False,False,2,2,high,upper_primary,,banding_v1.1_2026-07-04.preview
+honey_en_gb,honey,2,5,4,1,1,0,0,1,0,False,False,2,2,high,early_primary,,banding_v1.1_2026-07-04.preview
+honour_en_gb,honour,2,6,3,1,1,0,0,1,0,True,True,4,2,high,upper_primary,,banding_v1.1_2026-07-04.preview
+hop_en_gb,hop,1,3,3,0,0,0,0,1,0,False,False,0,1,high,middle_primary,,banding_v1.1_2026-07-04.preview
+hope_en_gb,hope,1,4,3,0,0,0,0,1,0,True,False,1,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+hoped_en_gb,hoped,1,5,4,0,1,1,2,1,0,True,False,4,2,high,early_primary,past tense drop e,banding_v1.1_2026-07-04.preview
+hopeful_en_gb,hopeful,2,7,6,1,2,0,0,2,1,True,False,5,2,medium,middle_primary,,banding_v1.1_2026-07-04.preview
+hopeless_en_gb,hopeless,2,8,6,1,2,0,0,2,1,True,False,5,2,medium,early_primary,,banding_v1.1_2026-07-04.preview
+hoping_en_gb,hoping,2,6,5,1,1,0,0,1,0,True,False,3,2,high,early_primary,,banding_v1.1_2026-07-04.preview
+hopped_en_gb,hopped,1,6,4,0,1,0,0,1,0,False,False,1,1,medium,middle_primary,,banding_v1.1_2026-07-04.preview
+horse_en_gb,horse,1,5,3,0,1,0,0,1,0,False,False,1,1,high,mid_secondary,,banding_v1.1_2026-07-04.preview
+hot_en_gb,hot,1,3,3,0,0,0,0,1,0,False,False,0,1,high,upper_primary,,banding_v1.1_2026-07-04.preview
+hotter_en_gb,hotter,2,6,4,1,1,0,0,2,1,True,False,4,2,medium,early_primary,,banding_v1.1_2026-07-04.preview
+hottest_en_gb,hottest,2,7,6,1,2,0,0,2,1,True,False,5,2,medium,early_primary,,banding_v1.1_2026-07-04.preview
+hour_en_gb,hour,1,4,2,0,0,0,0,1,0,True,False,1,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+house_en_gb,house,1,5,3,0,1,0,0,1,0,False,False,1,1,high,middle_primary,,banding_v1.1_2026-07-04.preview
+huge_en_gb,huge,1,4,4,0,0,0,0,1,0,False,False,0,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+human_en_gb,human,2,5,6,1,1,0,0,1,0,True,False,3,2,high,early_primary,,banding_v1.1_2026-07-04.preview
+hurt_en_gb,hurt,1,4,3,0,0,0,0,1,0,False,False,0,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+i_d_en_gb,i'd,1,2,2,0,0,0,0,1,0,False,False,0,1,high,middle_primary,,banding_v1.1_2026-07-04.preview
+i_m_en_gb,i'm,1,2,2,0,0,0,0,1,0,False,False,0,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+i_ve_en_gb,i've,1,3,2,0,0,0,0,1,0,False,False,0,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+ice_cream_en_gb,ice cream,2,8,6,1,2,0,0,1,0,False,False,3,2,high,early_primary,,banding_v1.1_2026-07-04.preview
+illegal_en_gb,illegal,3,7,6,2,2,1,2,2,1,True,False,8,3,high,middle_primary,negative prefix il,banding_v1.1_2026-07-04.preview
+impossible_en_gb,impossible,4,10,9,3,3,1,2,2,1,True,False,10,3,high,middle_primary,negative prefix im,banding_v1.1_2026-07-04.preview
+incorrect_en_gb,incorrect,3,9,8,2,3,0,0,2,1,True,False,7,3,medium,middle_primary,,banding_v1.1_2026-07-04.preview
+inform_en_gb,inform,2,6,5,1,1,0,0,1,0,False,False,2,2,high,upper_primary,,banding_v1.1_2026-07-04.preview
+information_en_gb,information,4,11,9,3,3,0,0,2,1,True,False,8,3,high,middle_primary,,banding_v1.1_2026-07-04.preview
+initial_en_gb,initial,3,7,6,2,2,0,0,2,1,True,False,6,3,high,upper_primary,,banding_v1.1_2026-07-04.preview
+instruct_en_gb,instruct,2,8,8,1,2,0,0,2,1,False,False,4,2,medium,upper_primary,,banding_v1.1_2026-07-04.preview
+interact_en_gb,interact,3,8,8,2,2,0,0,2,1,True,False,6,3,high,middle_primary,,banding_v1.1_2026-07-04.preview
+interesting_en_gb,interesting,3,11,9,2,3,0,0,1,0,True,False,6,3,high,early_primary,,banding_v1.1_2026-07-04.preview
+invention_en_gb,invention,3,9,8,2,3,1,2,3,2,True,False,10,3,high,middle_primary,final tion,banding_v1.1_2026-07-04.preview
+irregular_en_gb,irregular,4,9,8,3,3,0,0,3,2,True,False,9,3,medium,upper_primary,,banding_v1.1_2026-07-04.preview
+is_en_gb,is,1,2,2,0,0,0,0,1,0,False,False,0,1,high,middle_primary,,banding_v1.1_2026-07-04.preview
+isn_t_en_gb,isn't,2,4,5,1,0,0,0,1,0,True,False,2,2,high,early_primary,,banding_v1.1_2026-07-04.preview
+it_s_en_gb,it’s,1,3,3,0,0,2,4,1,0,False,False,4,2,high,early_primary,contraction/possessive homophone,banding_v1.1_2026-07-04.preview
+its_en_gb,its,1,3,3,0,0,0,0,1,0,False,False,0,1,high,middle_primary,,banding_v1.1_2026-07-04.preview
+jam_en_gb,jam,1,3,3,0,0,0,0,1,0,False,False,0,1,high,middle_primary,,banding_v1.1_2026-07-04.preview
+jazz_en_gb,jazz,1,4,3,0,0,0,0,1,0,False,False,0,1,high,upper_primary,,banding_v1.1_2026-07-04.preview
+jet_en_gb,jet,1,3,3,0,0,0,0,1,0,False,False,0,1,high,lower_secondary,,banding_v1.1_2026-07-04.preview
+jog_en_gb,jog,1,3,3,0,0,0,0,1,0,False,False,0,1,medium,upper_primary,,banding_v1.1_2026-07-04.preview
+joke_en_gb,joke,1,4,3,0,0,0,0,1,0,True,False,1,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+joy_en_gb,joy,1,3,2,0,0,0,0,1,0,False,False,0,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+juice_en_gb,juice,1,5,3,0,1,0,0,1,0,False,False,1,1,high,middle_primary,,banding_v1.1_2026-07-04.preview
+jump_en_gb,jump,1,4,4,0,0,0,0,1,0,False,False,0,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+jumped_en_gb,jumped,1,6,5,0,1,0,0,1,0,False,False,1,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+jumping_en_gb,jumping,2,7,6,1,2,0,0,1,0,False,False,3,2,high,early_primary,,banding_v1.1_2026-07-04.preview
+jumps_en_gb,jumps,1,5,5,0,1,0,0,1,0,False,False,1,1,medium,early_primary,,banding_v1.1_2026-07-04.preview
+junk_en_gb,junk,1,4,4,0,0,0,0,1,0,False,False,0,1,high,upper_primary,,banding_v1.1_2026-07-04.preview
+kept_en_gb,kept,1,4,4,0,0,0,0,1,0,False,False,0,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+key_en_gb,key,1,3,2,0,0,0,0,1,0,False,False,0,1,high,middle_primary,,banding_v1.1_2026-07-04.preview
+kicked_en_gb,kicked,1,6,4,0,1,0,0,1,0,False,False,1,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+kind_en_gb,kind,1,4,4,0,0,0,0,1,0,False,False,0,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+kindness_en_gb,kindness,2,8,7,1,2,0,0,2,1,True,False,5,2,high,early_primary,,banding_v1.1_2026-07-04.preview
+king_en_gb,king,1,4,3,0,0,0,0,1,0,False,False,0,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+kiss_en_gb,kiss,1,4,3,0,0,1,2,1,0,False,False,2,2,high,later_review,final ss after short vowel,banding_v1.1_2026-07-04.preview
+kit_en_gb,kit,1,3,3,0,0,0,0,1,0,False,False,0,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+kite_en_gb,kite,1,4,3,0,0,0,0,1,0,False,False,0,1,medium,middle_primary,,banding_v1.1_2026-07-04.preview
+knee_en_gb,knee,1,4,2,0,0,2,4,1,0,False,False,4,2,high,early_primary,silent kn,banding_v1.1_2026-07-04.preview
+knife_en_gb,knife,1,5,3,0,1,2,4,1,0,False,False,5,2,high,middle_primary,silent kn,banding_v1.1_2026-07-04.preview
+knives_en_gb,knives,1,6,4,0,1,1,2,1,0,False,False,3,2,medium,early_primary,plural ves,banding_v1.1_2026-07-04.preview
+knock_en_gb,knock,1,5,3,0,1,2,4,1,0,False,False,5,2,high,middle_primary,silent kn,banding_v1.1_2026-07-04.preview
+know_en_gb,know,1,4,2,0,0,0,0,1,0,True,False,1,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+lamb_en_gb,lamb,1,4,3,0,0,2,4,1,0,False,False,4,2,high,middle_primary,silent mb,banding_v1.1_2026-07-04.preview
+large_larger_largest_en_gb,large,1,5,3,0,1,0,0,1,0,False,False,1,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+larger_en_gb,larger,2,6,4,1,1,0,0,2,1,True,False,4,2,high,early_primary,,banding_v1.1_2026-07-04.preview
+largest_en_gb,largest,2,7,6,1,2,0,0,2,1,True,False,5,2,high,early_primary,,banding_v1.1_2026-07-04.preview
+late_en_gb,late,1,4,3,0,0,0,0,1,0,False,False,0,1,high,upper_primary,regular,banding_v1.1_2026-07-04.preview
+later_en_gb,later,2,5,4,1,1,0,0,2,1,True,False,4,2,high,early_primary,,banding_v1.1_2026-07-04.preview
+latest_en_gb,latest,2,6,6,1,1,0,0,2,1,True,False,4,2,high,early_primary,,banding_v1.1_2026-07-04.preview
+laugh_en_gb,laugh,1,5,3,0,1,2,4,1,0,False,False,5,2,high,middle_primary,gh for f,banding_v1.1_2026-07-04.preview
+laughed_en_gb,laughed,1,7,4,0,2,0,0,1,0,False,True,3,2,high,upper_primary,,banding_v1.1_2026-07-04.preview
+lazy_en_gb,lazy,2,4,4,1,0,0,0,1,0,False,False,1,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+leaf_en_gb,leaf,1,4,3,0,0,0,0,1,0,False,False,0,1,high,middle_primary,,banding_v1.1_2026-07-04.preview
+learn_en_gb,learn,1,5,3,0,1,0,0,1,0,False,False,1,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+leaves_en_gb,leaves,1,6,4,0,1,0,0,1,0,False,False,1,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+leg_en_gb,leg,1,3,3,0,0,0,0,1,0,False,False,0,1,high,later_review,regular,banding_v1.1_2026-07-04.preview
+lemon_en_gb,lemon,2,5,5,1,1,0,0,1,0,True,False,3,2,high,early_primary,,banding_v1.1_2026-07-04.preview
+let_s_en_gb,let's,1,4,4,0,0,0,0,1,0,False,False,0,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+letter_en_gb,letter,2,6,4,1,1,1,2,1,0,True,False,5,2,high,upper_primary,medial doubled consonant,banding_v1.1_2026-07-04.preview
+library_en_gb,library,3,7,7,2,2,0,0,1,0,True,False,5,2,high,early_primary,,banding_v1.1_2026-07-04.preview
+lie_en_gb,lie,1,3,2,0,0,0,0,1,0,False,False,0,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+light_en_gb,light,1,5,3,0,1,0,0,1,0,False,False,1,1,high,middle_primary,,banding_v1.1_2026-07-04.preview
+like_en_gb,like,1,4,3,0,0,1,2,1,0,False,False,2,2,high,middle_primary,split digraph i-e,banding_v1.1_2026-07-04.preview
+liked_en_gb,liked,1,5,4,0,1,0,0,1,0,False,False,1,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+lip_en_gb,lip,1,3,3,0,0,0,0,1,0,False,False,0,1,high,upper_primary,regular,banding_v1.1_2026-07-04.preview
+little_en_gb,little,2,6,5,1,1,2,4,1,0,True,False,7,3,high,early_primary,remembered double letter word,banding_v1.1_2026-07-04.preview
+live_en_gb,live,1,4,3,0,0,1,2,1,0,False,False,2,2,high,middle_primary,final ve,banding_v1.1_2026-07-04.preview
+loaf_en_gb,loaf,1,4,3,0,0,0,0,1,0,True,False,1,1,medium,early_primary,regular,banding_v1.1_2026-07-04.preview
+log_en_gb,log,1,3,3,0,0,0,0,1,0,False,False,0,1,high,middle_primary,,banding_v1.1_2026-07-04.preview
+long_en_gb,long,1,4,3,0,0,0,0,1,0,False,False,0,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+look_en_gb,look,1,4,3,0,0,0,0,1,0,False,False,0,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+looked_en_gb,looked,1,6,4,0,1,0,0,1,0,False,False,1,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+looking_en_gb,looking,2,7,5,1,2,0,0,1,0,False,False,3,2,high,early_primary,,banding_v1.1_2026-07-04.preview
+love_en_gb,love,1,4,3,0,0,1,2,1,0,False,False,2,2,high,early_primary,final ve,banding_v1.1_2026-07-04.preview
+lunch_en_gb,lunch,1,5,4,0,1,0,0,1,0,False,False,1,1,high,early_primary,regular,banding_v1.1_2026-07-04.preview
+lying_en_gb,lying,1,5,4,0,1,1,2,1,0,False,False,3,2,high,middle_primary,ing ie to y,banding_v1.1_2026-07-04.preview
+machine_en_gb,machine,2,7,5,1,2,0,0,1,0,True,False,4,2,high,upper_primary,,banding_v1.1_2026-07-04.preview
+mack_en_gb,mack,1,4,3,0,0,1,2,1,0,False,False,2,2,medium,early_primary,partly_irregular,banding_v1.1_2026-07-04.preview
+made_en_gb,made,1,4,3,0,0,0,0,1,0,False,False,0,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+magic_en_gb,magic,2,5,5,1,1,0,0,1,0,False,False,2,2,high,early_primary,,banding_v1.1_2026-07-04.preview
+magician_en_gb,magician,3,8,7,2,2,1,2,2,1,True,False,8,3,medium,middle_primary,final cian,banding_v1.1_2026-07-04.preview
+make_en_gb,make,1,4,3,0,0,1,2,1,0,False,False,2,2,high,mid_secondary,split digraph a-e,banding_v1.1_2026-07-04.preview
+making_en_gb,making,2,6,5,1,1,1,2,1,0,False,False,4,2,high,early_primary,ing drop e,banding_v1.1_2026-07-04.preview
+mansion_en_gb,mansion,2,7,6,1,2,0,0,1,0,True,False,4,2,high,middle_primary,,banding_v1.1_2026-07-04.preview
+many_en_gb,many,2,4,4,1,0,0,0,1,0,False,False,1,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+map_en_gb,map,1,3,3,0,0,0,0,1,0,False,False,0,1,high,early_primary,regular,banding_v1.1_2026-07-04.preview
+mapped_en_gb,Mapped,1,5,4,0,1,0,0,1,0,False,False,1,1,medium,early_primary,,banding_v1.1_2026-07-04.preview
+mask_en_gb,mask,1,4,4,0,0,0,0,1,0,False,False,0,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+mat_en_gb,mat,1,3,3,0,0,0,0,1,0,False,False,0,1,medium,mid_secondary,regular,banding_v1.1_2026-07-04.preview
+match_en_gb,match,1,5,3,0,1,0,0,1,0,False,False,1,1,high,middle_primary,,banding_v1.1_2026-07-04.preview
+may_en_gb,may,1,3,2,0,0,0,0,1,0,False,False,0,1,high,middle_primary,regular,banding_v1.1_2026-07-04.preview
+me_en_gb,me,1,2,2,0,0,0,0,1,0,False,False,0,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+mention_en_gb,mention,2,7,6,1,2,0,0,1,0,True,False,4,2,high,middle_primary,,banding_v1.1_2026-07-04.preview
+message_en_gb,message,2,7,5,1,2,0,0,1,0,False,False,3,2,high,early_primary,,banding_v1.1_2026-07-04.preview
+mice_en_gb,mice,1,4,3,0,0,0,0,1,0,False,False,0,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+middle_en_gb,middle,2,6,5,1,1,0,0,1,0,True,False,3,2,high,early_primary,,banding_v1.1_2026-07-04.preview
+milk_en_gb,milk,1,4,4,0,0,0,0,1,0,False,False,0,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+mind_en_gb,mind,1,4,4,0,0,0,0,1,0,False,False,0,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+misread_en_gb,misread,2,7,6,1,2,1,2,2,1,False,False,6,3,low,middle_primary,prefix mis,banding_v1.1_2026-07-04.preview
+miss_en_gb,miss,1,4,3,0,0,1,2,1,0,False,False,2,2,high,early_primary,final ss after short vowel,banding_v1.1_2026-07-04.preview
+mission_en_gb,mission,2,7,5,1,2,0,0,1,0,True,False,4,2,high,upper_primary,,banding_v1.1_2026-07-04.preview
+misspell_en_gb,misspell,2,8,7,1,2,1,2,2,1,False,False,6,3,low,middle_primary,prefix mis,banding_v1.1_2026-07-04.preview
+mistake_en_gb,mistake,2,7,6,1,2,0,0,2,1,False,False,4,2,high,early_primary,,banding_v1.1_2026-07-04.preview
+money_en_gb,money,2,5,4,1,1,0,0,1,0,False,False,2,2,high,early_primary,,banding_v1.1_2026-07-04.preview
+moon_en_gb,moon,1,4,3,0,0,0,0,1,0,False,False,0,1,high,middle_primary,,banding_v1.1_2026-07-04.preview
+mop_en_gb,mop,1,3,3,0,0,0,0,1,0,False,False,0,1,medium,early_primary,regular,banding_v1.1_2026-07-04.preview
+more_en_gb,more,1,4,2,0,0,0,0,1,0,False,False,0,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+moth_en_gb,moth,1,4,3,0,0,0,0,1,0,False,False,0,1,medium,early_primary,regular,banding_v1.1_2026-07-04.preview
+mother_en_gb,mother,2,6,4,1,1,0,0,1,0,True,False,3,2,high,early_primary,,banding_v1.1_2026-07-04.preview
+mouse_en_gb,mouse,1,5,3,0,1,0,0,1,0,False,False,1,1,high,middle_primary,,banding_v1.1_2026-07-04.preview
+move_en_gb,move,1,4,3,0,0,0,0,1,0,False,False,0,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+much_en_gb,much,1,4,3,0,0,0,0,1,0,False,False,0,1,high,early_primary,regular,banding_v1.1_2026-07-04.preview
+mud_en_gb,mud,1,3,3,0,0,0,0,1,0,False,False,0,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+music_en_gb,music,2,5,6,1,1,0,0,1,0,False,False,2,2,high,early_primary,,banding_v1.1_2026-07-04.preview
+musical_en_gb,musical,3,7,8,2,2,0,0,2,1,True,False,6,3,high,early_primary,,banding_v1.1_2026-07-04.preview
+musician_en_gb,musician,3,8,8,2,2,1,2,2,1,True,False,8,3,high,early_primary,final cian,banding_v1.1_2026-07-04.preview
+my_en_gb,my,1,2,2,0,0,0,0,1,0,False,False,0,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+national_en_gb,national,3,8,7,2,2,1,2,2,1,True,False,8,3,high,mid_secondary,suffix al,banding_v1.1_2026-07-04.preview
+natural_en_gb,natural,3,7,7,2,2,1,2,2,1,True,False,8,3,high,upper_primary,natural/actual weak vowel,banding_v1.1_2026-07-04.preview
+nature_en_gb,nature,2,6,4,1,1,0,0,1,0,True,False,3,2,high,middle_primary,,banding_v1.1_2026-07-04.preview
+nature_natural_en_gb,nature/natural,2,13,4,1,3,0,0,2,1,True,True,7,3,high,early_primary,,banding_v1.1_2026-07-04.preview
+near_en_gb,near,1,4,3,0,0,0,0,1,0,True,False,1,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+needed_en_gb,needed,2,6,5,1,1,0,0,1,0,False,False,2,2,high,early_primary,,banding_v1.1_2026-07-04.preview
+neighbour_en_gb,neighbour,2,9,4,1,3,0,0,1,0,True,True,6,3,medium,middle_primary,,banding_v1.1_2026-07-04.preview
+nervous_en_gb,nervous,2,7,5,1,2,0,0,2,1,True,False,5,2,high,middle_primary,,banding_v1.1_2026-07-04.preview
+net_en_gb,net,1,3,3,0,0,0,0,1,0,False,False,0,1,high,early_primary,regular,banding_v1.1_2026-07-04.preview
+new_en_gb,new,1,3,3,0,0,0,0,1,0,False,False,0,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+nice_en_gb,nice,1,4,3,0,0,0,0,1,0,False,False,0,1,high,upper_primary,,banding_v1.1_2026-07-04.preview
+nicer_en_gb,nicer,2,5,4,1,1,0,0,2,1,True,False,4,2,medium,early_primary,,banding_v1.1_2026-07-04.preview
+nicest_en_gb,nicest,2,6,6,1,1,0,0,2,1,True,False,4,2,medium,early_primary,,banding_v1.1_2026-07-04.preview
+night_en_gb,night,1,5,3,0,1,0,0,1,0,False,False,1,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+no_en_gb,no,1,2,2,0,0,0,0,1,0,False,False,0,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+nose_en_gb,nose,1,4,3,0,0,0,0,1,0,True,False,1,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+now_en_gb,now,1,3,2,0,0,0,0,1,0,False,False,0,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+nurse_en_gb,nurse,1,5,3,0,1,0,0,1,0,False,False,1,1,high,middle_primary,,banding_v1.1_2026-07-04.preview
+object_en_gb,object,2,6,6,1,1,0,0,2,1,False,False,3,2,high,lower_secondary,,banding_v1.1_2026-07-04.preview
+occur_en_gb,occur,2,5,3,1,1,0,0,1,0,True,False,3,2,high,upper_primary,,banding_v1.1_2026-07-04.preview
+of_en_gb,of,1,2,2,0,0,0,0,1,0,False,False,0,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+off_en_gb,off,1,3,2,0,0,0,0,1,0,False,False,0,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+official_en_gb,official,3,8,6,2,2,1,2,2,1,True,False,8,3,high,upper_primary,final cial,banding_v1.1_2026-07-04.preview
+old_en_gb,old,1,3,3,0,0,0,0,1,0,True,False,1,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+once_en_gb,once,1,4,4,0,0,2,4,1,0,False,False,4,2,high,middle_primary,simple high-frequency tricky word,banding_v1.1_2026-07-04.preview
+one_en_gb,one,1,3,3,0,0,0,0,1,0,False,False,0,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+opened_en_gb,opened,2,6,5,1,1,0,0,1,0,True,False,3,2,high,early_primary,,banding_v1.1_2026-07-04.preview
+opinion_en_gb,opinion,3,7,7,2,2,0,0,1,0,True,False,5,2,high,upper_primary,,banding_v1.1_2026-07-04.preview
+oppose_en_gb,oppose,2,6,4,1,1,0,0,2,1,True,False,4,2,medium,upper_primary,,banding_v1.1_2026-07-04.preview
+option_en_gb,option,2,6,5,1,1,0,0,1,0,True,False,3,2,high,mid_secondary,,banding_v1.1_2026-07-04.preview
+orange_en_gb,orange,2,6,5,1,1,0,0,1,0,False,False,2,2,high,middle_primary,,banding_v1.1_2026-07-04.preview
+out_en_gb,out,1,3,2,0,0,0,0,1,0,False,False,0,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+own_en_gb,own,1,3,2,0,0,0,0,1,0,True,False,1,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+package_en_gb,package,2,7,5,1,2,0,0,2,1,False,False,4,2,high,early_primary,,banding_v1.1_2026-07-04.preview
+page_en_gb,page,1,4,3,0,0,0,0,1,0,False,False,0,1,high,middle_primary,,banding_v1.1_2026-07-04.preview
+paint_en_gb,paint,1,5,4,0,1,0,0,1,0,False,False,1,1,high,early_primary,regular,banding_v1.1_2026-07-04.preview
+pan_en_gb,pan,1,3,3,0,0,0,0,1,0,False,False,0,1,high,upper_primary,regular,banding_v1.1_2026-07-04.preview
+pane_en_gb,pane,1,4,3,0,0,0,0,1,0,False,False,0,1,medium,middle_primary,regular,banding_v1.1_2026-07-04.preview
+panic_en_gb,panic,2,5,5,1,1,0,0,1,0,False,False,2,2,high,lower_secondary,,banding_v1.1_2026-07-04.preview
+paper_en_gb,paper,2,5,4,1,1,0,0,1,0,True,False,3,2,high,middle_primary,,banding_v1.1_2026-07-04.preview
+park_en_gb,park,1,4,3,0,0,0,0,1,0,False,False,0,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+partial_en_gb,partial,2,7,5,1,2,0,0,2,1,True,False,5,2,high,upper_primary,,banding_v1.1_2026-07-04.preview
+parties_en_gb,parties,2,7,5,1,2,0,0,1,0,False,False,3,2,high,early_primary,,banding_v1.1_2026-07-04.preview
+passed_en_gb,passed,1,6,4,0,1,2,4,1,0,False,False,5,2,high,middle_primary,content word homophone,banding_v1.1_2026-07-04.preview
+passion_en_gb,passion,2,7,5,1,2,0,0,1,0,True,False,4,2,high,lower_secondary,,banding_v1.1_2026-07-04.preview
+past_en_gb,past,1,4,4,0,0,0,0,1,0,False,False,0,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+path_en_gb,path,1,4,3,0,0,0,0,1,0,False,False,0,1,high,early_primary,regular,banding_v1.1_2026-07-04.preview
+payment_en_gb,payment,2,7,6,1,2,0,0,2,1,True,False,5,2,high,middle_primary,,banding_v1.1_2026-07-04.preview
+peace_en_gb,peace,1,5,3,0,1,0,0,1,0,False,False,1,1,high,middle_primary,,banding_v1.1_2026-07-04.preview
+pen_en_gb,pen,1,3,3,0,0,0,0,1,0,False,False,0,1,high,early_primary,regular,banding_v1.1_2026-07-04.preview
+people_en_gb,people,2,6,5,1,1,2,4,1,0,True,False,7,3,high,early_primary,common high-frequency tricky word,banding_v1.1_2026-07-04.preview
+person_en_gb,person,2,6,5,1,1,0,0,1,0,True,False,3,2,high,early_primary,,banding_v1.1_2026-07-04.preview
+personal_en_gb,personal,3,8,7,2,2,1,2,2,1,True,False,8,3,high,early_primary,suffix al,banding_v1.1_2026-07-04.preview
+pet_en_gb,pet,1,3,3,0,0,0,0,1,0,False,False,0,1,high,early_primary,regular,banding_v1.1_2026-07-04.preview
+phone_en_gb,phone,1,5,3,0,1,1,2,1,0,True,False,4,2,high,early_primary,ph for f,banding_v1.1_2026-07-04.preview
+photo_en_gb,photo,2,5,4,1,1,1,2,1,0,True,False,5,2,high,early_primary,ph for f,banding_v1.1_2026-07-04.preview
+photograph_en_gb,photograph,3,10,8,2,3,0,0,2,1,True,False,7,3,high,middle_primary,,banding_v1.1_2026-07-04.preview
+photography_en_gb,photography,4,11,9,3,3,0,0,3,2,True,False,9,3,high,middle_primary,,banding_v1.1_2026-07-04.preview
+picnic_en_gb,picnic,2,6,6,1,1,0,0,1,0,False,False,2,2,medium,middle_primary,,banding_v1.1_2026-07-04.preview
+picture_en_gb,picture,2,7,5,1,2,1,2,2,1,True,False,7,3,high,middle_primary,final ture,banding_v1.1_2026-07-04.preview
+pie_en_gb,pie,1,3,2,0,0,0,0,1,0,False,False,0,1,high,middle_primary,,banding_v1.1_2026-07-04.preview
+piece_en_gb,piece,1,5,3,0,1,2,4,1,0,False,False,5,2,high,middle_primary,content word homophone,banding_v1.1_2026-07-04.preview
+pilot_en_gb,pilot,2,5,5,1,1,0,0,1,0,True,False,3,2,high,early_primary,,banding_v1.1_2026-07-04.preview
+pin_en_gb,pin,1,3,3,0,0,0,0,1,0,False,False,0,1,high,upper_primary,regular,banding_v1.1_2026-07-04.preview
+pink_en_gb,pink,1,4,4,0,0,0,0,1,0,False,False,0,1,high,later_review,,banding_v1.1_2026-07-04.preview
+pizza_en_gb,pizza,2,5,5,1,1,0,0,1,0,True,False,3,2,high,early_primary,,banding_v1.1_2026-07-04.preview
+place_en_gb,place,1,5,4,0,1,0,0,1,0,False,False,1,1,high,lower_secondary,,banding_v1.1_2026-07-04.preview
+plain_en_gb,plain,1,5,4,0,1,0,0,1,0,False,False,1,1,high,middle_primary,regular,banding_v1.1_2026-07-04.preview
+plan_en_gb,plan,1,4,4,0,0,0,0,1,0,False,False,0,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+plane_en_gb,plane,1,5,4,0,1,0,0,1,0,False,False,1,1,high,middle_primary,regular,banding_v1.1_2026-07-04.preview
+planned_en_gb,planned,1,7,5,0,2,1,2,1,0,False,False,4,2,high,early_primary,past tense double final consonant,banding_v1.1_2026-07-04.preview
+plastic_en_gb,plastic,2,7,7,1,2,0,0,1,0,False,False,3,2,high,lower_secondary,,banding_v1.1_2026-07-04.preview
+play_en_gb,play,1,4,3,0,0,0,0,1,0,False,False,0,1,high,early_primary,regular,banding_v1.1_2026-07-04.preview
+played_en_gb,played,1,6,4,0,1,0,0,1,0,False,False,1,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+player_en_gb,player,1,6,4,0,1,0,0,2,1,True,False,3,2,high,early_primary,,banding_v1.1_2026-07-04.preview
+playground_en_gb,playground,2,10,8,1,3,0,0,2,1,False,False,5,2,medium,early_primary,,banding_v1.1_2026-07-04.preview
+playing_en_gb,playing,1,7,5,0,2,0,0,1,0,False,False,2,2,high,early_primary,,banding_v1.1_2026-07-04.preview
+plays_en_gb,plays,1,5,4,0,1,0,0,1,0,False,False,1,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+please_en_gb,please,1,6,4,0,1,0,0,1,0,False,False,1,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+point_en_gb,point,1,5,4,0,1,0,0,1,0,False,False,1,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+poisonous_en_gb,poisonous,3,9,7,2,3,0,0,2,1,True,False,7,3,medium,middle_primary,,banding_v1.1_2026-07-04.preview
+politician_en_gb,politician,4,10,9,3,3,1,2,2,1,True,False,10,3,high,middle_primary,final cian,banding_v1.1_2026-07-04.preview
+pool_en_gb,pool,1,4,3,0,0,0,0,1,0,False,False,0,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+popular_en_gb,popular,3,7,7,2,2,0,0,2,1,True,False,6,3,high,middle_primary,,banding_v1.1_2026-07-04.preview
+port_en_gb,port,1,4,3,0,0,0,0,1,0,False,False,0,1,high,mid_secondary,,banding_v1.1_2026-07-04.preview
+possibility_en_gb,possibility,5,11,10,3,3,1,2,2,1,True,False,10,3,high,upper_primary,suffix ity,banding_v1.1_2026-07-04.preview
+possible_en_gb,possible,3,8,7,2,2,1,2,1,0,True,False,7,3,high,middle_primary,suffix able/ible,banding_v1.1_2026-07-04.preview
+post_en_gb,post,1,4,4,0,0,0,0,1,0,True,False,1,1,high,upper_primary,,banding_v1.1_2026-07-04.preview
+pot_en_gb,pot,1,3,3,0,0,0,0,1,0,False,False,0,1,high,upper_primary,,banding_v1.1_2026-07-04.preview
+potential_en_gb,potential,3,9,8,2,3,1,2,3,2,True,False,10,3,high,upper_primary,final tial,banding_v1.1_2026-07-04.preview
+precious_en_gb,precious,2,8,6,1,2,0,0,1,0,True,False,4,2,high,upper_primary,,banding_v1.1_2026-07-04.preview
+predict_en_gb,predict,2,7,7,1,2,0,0,2,1,False,False,4,2,high,upper_primary,,banding_v1.1_2026-07-04.preview
+preheat_en_gb,preheat,2,7,6,1,2,0,0,2,1,False,False,4,2,low,upper_primary,,banding_v1.1_2026-07-04.preview
+pretty_en_gb,pretty,2,6,5,1,1,2,4,1,0,False,False,6,3,high,early_primary,remembered double letter word,banding_v1.1_2026-07-04.preview
+preview_en_gb,preview,2,7,6,1,2,0,0,2,1,False,False,4,2,medium,early_primary,,banding_v1.1_2026-07-04.preview
+prey_en_gb,prey,1,4,3,0,0,0,0,1,0,False,False,0,1,medium,middle_primary,,banding_v1.1_2026-07-04.preview
+promise_en_gb,promise,2,7,6,1,2,0,0,1,0,False,False,3,2,high,middle_primary,,banding_v1.1_2026-07-04.preview
+protein_en_gb,protein,2,7,6,1,2,0,0,1,0,True,False,4,2,high,upper_primary,,banding_v1.1_2026-07-04.preview
+prove_en_gb,prove,1,5,4,0,1,0,0,1,0,False,False,1,1,high,middle_primary,,banding_v1.1_2026-07-04.preview
+public_en_gb,public,2,6,6,1,1,0,0,1,0,False,False,2,2,high,middle_primary,,banding_v1.1_2026-07-04.preview
+puddle_en_gb,puddle,2,6,5,1,1,0,0,1,0,True,False,3,2,medium,early_primary,,banding_v1.1_2026-07-04.preview
+puff_en_gb,puff,1,4,3,0,0,0,0,1,0,False,False,0,1,medium,early_primary,,banding_v1.1_2026-07-04.preview
+pull_en_gb,pull,1,4,3,0,0,0,0,1,0,False,False,0,1,high,middle_primary,,banding_v1.1_2026-07-04.preview
+pupil_en_gb,pupil,2,5,6,1,1,0,0,1,0,True,False,3,2,medium,early_primary,,banding_v1.1_2026-07-04.preview
+purple_en_gb,purple,2,6,5,1,1,0,0,1,0,True,False,3,2,high,early_primary,,banding_v1.1_2026-07-04.preview
+push_en_gb,push,1,4,3,0,0,0,0,1,0,False,False,0,1,high,middle_primary,,banding_v1.1_2026-07-04.preview
+put_en_gb,put,1,3,3,0,0,0,0,1,0,False,False,0,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+quack_en_gb,quack,1,5,4,0,1,0,0,1,0,False,False,1,1,medium,upper_primary,,banding_v1.1_2026-07-04.preview
+quart_en_gb,quart,1,5,4,0,1,0,0,1,0,False,False,1,1,medium,early_primary,,banding_v1.1_2026-07-04.preview
+quarter_en_gb,quarter,2,7,5,1,2,0,0,1,0,True,False,4,2,high,lower_secondary,,banding_v1.1_2026-07-04.preview
+quartz_en_gb,quartz,1,6,5,0,1,0,0,1,0,False,False,1,1,medium,later_review,,banding_v1.1_2026-07-04.preview
+queen_en_gb,queen,1,5,4,0,1,0,0,1,0,False,False,1,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+question_en_gb,question,2,8,7,1,2,0,0,1,0,True,False,4,2,high,lower_secondary,,banding_v1.1_2026-07-04.preview
+quick_en_gb,quick,1,5,4,0,1,0,0,1,0,False,False,1,1,high,later_review,,banding_v1.1_2026-07-04.preview
+quickest_en_gb,quickest,2,8,7,1,2,0,0,2,1,True,False,5,2,medium,early_primary,,banding_v1.1_2026-07-04.preview
+quickly_en_gb,quickly,2,7,6,1,2,1,2,2,1,False,False,6,3,high,early_primary,preserve base before suffix,banding_v1.1_2026-07-04.preview
+quiz_en_gb,quiz,1,4,4,0,0,0,0,1,0,False,False,0,1,medium,early_primary,,banding_v1.1_2026-07-04.preview
+rabbit_en_gb,rabbit,2,6,5,1,1,1,2,1,0,False,False,4,2,high,early_primary,medial doubled consonant,banding_v1.1_2026-07-04.preview
+rain_en_gb,rain,1,4,3,0,0,1,2,1,0,False,False,2,2,high,early_primary,long ai with ai,banding_v1.1_2026-07-04.preview
+range_en_gb,range,1,5,4,0,1,0,0,1,0,False,False,1,1,high,upper_primary,,banding_v1.1_2026-07-04.preview
+ray_en_gb,ray,1,3,2,0,0,0,0,1,0,False,False,0,1,high,upper_primary,regular,banding_v1.1_2026-07-04.preview
+read_en_gb,read,1,4,3,0,0,0,0,1,0,False,False,0,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+readable_en_gb,readable,3,8,7,2,2,0,0,2,1,True,False,6,3,medium,upper_primary,,banding_v1.1_2026-07-04.preview
+reading_en_gb,reading,2,7,5,1,2,0,0,1,0,False,False,3,2,high,middle_primary,,banding_v1.1_2026-07-04.preview
+reads_en_gb,reads,1,5,4,0,1,0,0,1,0,False,False,1,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+receive_en_gb,receive,2,7,5,1,2,0,0,2,1,False,False,4,2,high,middle_primary,,banding_v1.1_2026-07-04.preview
+red_en_gb,red,1,3,3,0,0,0,0,1,0,False,False,0,1,high,upper_primary,regular,banding_v1.1_2026-07-04.preview
+remember_en_gb,remember,3,8,7,2,2,0,0,1,0,True,False,5,2,high,middle_primary,,banding_v1.1_2026-07-04.preview
+replay_en_gb,replay,2,6,5,1,1,0,0,2,1,False,False,3,2,medium,early_primary,,banding_v1.1_2026-07-04.preview
+replayed_en_gb,replayed,2,8,6,1,2,1,2,2,1,False,False,6,3,low,early_primary,preserve base after prefix,banding_v1.1_2026-07-04.preview
+rescue_en_gb,rescue,2,6,6,1,1,0,0,1,0,False,False,2,2,high,middle_primary,,banding_v1.1_2026-07-04.preview
+rewrite_en_gb,rewrite,2,7,5,1,2,0,0,2,1,False,False,4,2,medium,early_primary,,banding_v1.1_2026-07-04.preview
+rich_en_gb,rich,1,4,3,0,0,0,0,1,0,False,False,0,1,high,lower_secondary,regular,banding_v1.1_2026-07-04.preview
+rick_en_gb,rick,1,4,3,0,0,0,0,1,0,False,False,0,1,high,later_review,regular,banding_v1.1_2026-07-04.preview
+rid_en_gb,rid,1,3,3,0,0,0,0,1,0,False,False,0,1,high,middle_primary,regular,banding_v1.1_2026-07-04.preview
+right_en_gb,right,1,5,3,0,1,0,0,1,0,False,False,1,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+ring_en_gb,ring,1,4,3,0,0,0,0,1,0,False,False,0,1,high,middle_primary,,banding_v1.1_2026-07-04.preview
+rip_en_gb,rip,1,3,3,0,0,0,0,1,0,False,False,0,1,high,upper_primary,regular,banding_v1.1_2026-07-04.preview
+ritual_en_gb,ritual,2,6,6,1,1,1,2,1,0,True,False,5,2,high,later_review,natural/actual weak vowel,banding_v1.1_2026-07-04.preview
+road_en_gb,road,1,4,3,0,0,1,2,1,0,True,False,3,2,high,early_primary,long oa with oa,banding_v1.1_2026-07-04.preview
+roar_en_gb,roar,1,4,2,0,0,0,0,1,0,False,False,0,1,medium,early_primary,,banding_v1.1_2026-07-04.preview
+robot_en_gb,robot,2,5,5,1,1,0,0,1,0,True,False,3,2,high,middle_primary,,banding_v1.1_2026-07-04.preview
+rock_en_gb,rock,1,4,3,0,0,0,0,1,0,False,False,0,1,high,lower_secondary,,banding_v1.1_2026-07-04.preview
+rode_en_gb,rode,1,4,3,0,0,0,0,1,0,True,False,1,1,medium,early_primary,regular,banding_v1.1_2026-07-04.preview
+rope_en_gb,rope,1,4,3,0,0,1,2,1,0,True,False,3,2,high,early_primary,split digraph o-e,banding_v1.1_2026-07-04.preview
+rose_en_gb,rose,1,4,3,0,0,0,0,1,0,False,False,0,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+rough_en_gb,rough,1,5,3,0,1,2,4,1,0,False,False,5,2,high,middle_primary,gh for f,banding_v1.1_2026-07-04.preview
+rude_en_gb,rude,1,4,3,0,0,0,0,1,0,False,False,0,1,high,middle_primary,,banding_v1.1_2026-07-04.preview
+run_en_gb,run,1,3,3,0,0,0,0,1,0,False,False,0,1,high,lower_secondary,,banding_v1.1_2026-07-04.preview
+runner_en_gb,runner,2,6,4,1,1,0,0,2,1,True,False,4,2,high,middle_primary,,banding_v1.1_2026-07-04.preview
+running_en_gb,running,2,7,5,1,2,1,2,1,0,False,False,5,2,high,lower_secondary,ing double final consonant,banding_v1.1_2026-07-04.preview
+runs_en_gb,runs,1,4,4,0,0,0,0,1,0,False,False,0,1,high,later_review,,banding_v1.1_2026-07-04.preview
+sad_en_gb,sad,1,3,3,0,0,0,0,1,0,False,False,0,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+sadder_en_gb,sadder,2,6,4,1,1,0,0,2,1,True,False,4,2,low,early_primary,,banding_v1.1_2026-07-04.preview
+saddest_en_gb,saddest,2,7,6,1,2,0,0,2,1,True,False,5,2,medium,early_primary,,banding_v1.1_2026-07-04.preview
+sadly_en_gb,sadly,2,5,5,1,1,0,0,2,1,False,False,3,2,high,early_primary,,banding_v1.1_2026-07-04.preview
+sadness_en_gb,sadness,2,7,6,1,2,1,2,2,1,True,False,7,3,medium,early_primary,suffix ness,banding_v1.1_2026-07-04.preview
+said_en_gb,said,1,4,3,0,0,2,4,1,0,False,False,4,2,high,early_primary,simple high-frequency tricky word,banding_v1.1_2026-07-04.preview
+sailor_en_gb,sailor,2,6,4,1,1,0,0,2,1,True,False,4,2,medium,upper_primary,,banding_v1.1_2026-07-04.preview
+same_en_gb,same,1,4,3,0,0,1,2,1,0,False,False,2,2,high,early_primary,split digraph a-e,banding_v1.1_2026-07-04.preview
+sat_en_gb,sat,1,3,3,0,0,0,0,1,0,False,False,0,1,high,early_primary,regular,banding_v1.1_2026-07-04.preview
+saw_en_gb,saw,1,3,2,0,0,0,0,1,0,False,False,0,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+say_en_gb,say,1,3,2,0,0,0,0,1,0,False,False,0,1,high,early_primary,regular,banding_v1.1_2026-07-04.preview
+says_en_gb,says,1,4,3,0,0,0,0,1,0,False,False,0,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+scene_en_gb,scene,1,5,3,0,1,0,0,1,0,False,False,1,1,high,middle_primary,,banding_v1.1_2026-07-04.preview
+scent_en_gb,scent,1,5,4,0,1,0,0,1,0,False,False,1,1,medium,upper_primary,,banding_v1.1_2026-07-04.preview
+school_en_gb,school,1,6,4,0,1,1,2,1,0,False,False,3,2,high,early_primary,Greek ch for k,banding_v1.1_2026-07-04.preview
+science_en_gb,science,1,7,5,0,2,0,0,2,1,True,False,4,2,high,middle_primary,,banding_v1.1_2026-07-04.preview
+scissors_en_gb,scissors,2,8,5,1,2,0,0,1,0,True,True,5,2,medium,early_primary,,banding_v1.1_2026-07-04.preview
+score_en_gb,score,1,5,3,0,1,0,0,1,0,False,False,1,1,high,upper_primary,,banding_v1.1_2026-07-04.preview
+scrap_en_gb,scrap,1,5,5,0,1,0,0,1,0,False,False,1,1,medium,upper_primary,,banding_v1.1_2026-07-04.preview
+sea_en_gb,sea,1,3,2,0,0,0,0,1,0,False,False,0,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+search_en_gb,search,1,6,3,0,1,0,0,1,0,False,True,2,2,high,middle_primary,,banding_v1.1_2026-07-04.preview
+see_en_gb,see,1,3,2,0,0,0,0,1,0,False,False,0,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+separate_en_gb,separate,3,8,6,2,2,1,2,2,1,True,False,8,3,high,middle_primary,medial weak vowel,banding_v1.1_2026-07-04.preview
+shan_t_en_gb,shan't,1,5,4,0,1,0,0,1,0,False,False,1,1,low,lower_secondary,,banding_v1.1_2026-07-04.preview
+shape_en_gb,shape,1,5,3,0,1,0,0,1,0,False,False,1,1,high,middle_primary,regular,banding_v1.1_2026-07-04.preview
+share_en_gb,share,1,5,2,0,1,0,0,1,0,True,True,3,2,high,early_primary,,banding_v1.1_2026-07-04.preview
+she_s_en_gb,she's,1,4,3,0,0,0,0,1,0,False,False,0,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+shell_en_gb,shell,1,5,3,0,1,0,0,1,0,False,False,1,1,high,mid_secondary,regular,banding_v1.1_2026-07-04.preview
+shelves_en_gb,shelves,1,7,5,0,2,0,0,1,0,False,False,2,2,medium,early_primary,,banding_v1.1_2026-07-04.preview
+shield_en_gb,shield,1,6,4,0,1,0,0,1,0,False,False,1,1,high,middle_primary,,banding_v1.1_2026-07-04.preview
+ship_en_gb,ship,1,4,3,0,0,0,0,1,0,False,False,0,1,high,middle_primary,regular,banding_v1.1_2026-07-04.preview
+shirt_en_gb,shirt,1,5,3,0,1,0,0,1,0,False,False,1,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+shop_en_gb,shop,1,4,3,0,0,0,0,1,0,False,False,0,1,high,early_primary,regular,banding_v1.1_2026-07-04.preview
+shore_en_gb,shore,1,5,2,0,1,0,0,1,0,False,True,2,2,high,early_primary,,banding_v1.1_2026-07-04.preview
+short_en_gb,short,1,5,3,0,1,0,0,1,0,False,False,1,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+should_en_gb,should,1,6,3,0,1,2,4,1,0,False,True,6,3,high,middle_primary,ould word,banding_v1.1_2026-07-04.preview
+shout_en_gb,shout,1,5,3,0,1,0,0,1,0,False,False,1,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+show_en_gb,show,1,4,2,0,0,0,0,1,0,True,False,1,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+shut_en_gb,shut,1,4,3,0,0,0,0,1,0,False,False,0,1,high,middle_primary,regular,banding_v1.1_2026-07-04.preview
+sick_en_gb,sick,1,4,3,0,0,0,0,1,0,False,False,0,1,high,upper_primary,,banding_v1.1_2026-07-04.preview
+sigh_en_gb,sigh,1,4,2,0,0,0,0,1,0,False,False,0,1,medium,middle_primary,,banding_v1.1_2026-07-04.preview
+sign_en_gb,sign,1,4,3,0,0,0,0,1,0,False,False,0,1,high,middle_primary,,banding_v1.1_2026-07-04.preview
+signal_en_gb,signal,2,6,6,1,1,0,0,2,1,True,False,4,2,high,middle_primary,,banding_v1.1_2026-07-04.preview
+signature_en_gb,signature,3,9,7,2,3,0,0,2,1,True,False,7,3,high,middle_primary,,banding_v1.1_2026-07-04.preview
+silent_en_gb,silent,2,6,6,1,1,0,0,1,0,True,False,3,2,high,middle_primary,,banding_v1.1_2026-07-04.preview
+silk_en_gb,silk,1,4,4,0,0,0,0,1,0,False,False,0,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+simple_en_gb,simple,2,6,6,1,1,0,0,1,0,True,False,3,2,high,middle_primary,,banding_v1.1_2026-07-04.preview
+sing_en_gb,sing,1,4,3,0,0,0,0,1,0,False,False,0,1,high,upper_primary,,banding_v1.1_2026-07-04.preview
+sink_en_gb,sink,1,4,4,0,0,0,0,1,0,False,False,0,1,high,mid_secondary,,banding_v1.1_2026-07-04.preview
+sip_en_gb,sip,1,3,3,0,0,0,0,1,0,False,False,0,1,medium,early_primary,regular,banding_v1.1_2026-07-04.preview
+sit_en_gb,sit,1,3,3,0,0,0,0,1,0,False,False,0,1,high,upper_primary,regular,banding_v1.1_2026-07-04.preview
+sitting_en_gb,sitting,2,7,5,1,2,0,0,1,0,False,False,3,2,high,middle_primary,,banding_v1.1_2026-07-04.preview
+skip_en_gb,skip,1,4,4,0,0,0,0,1,0,False,False,0,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+sky_en_gb,sky,1,3,3,0,0,0,0,1,0,False,False,0,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+sleep_en_gb,sleep,1,5,4,0,1,0,0,1,0,False,False,1,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+sleigh_en_gb,sleigh,1,6,3,0,1,0,0,1,0,False,True,2,2,low,early_primary,,banding_v1.1_2026-07-04.preview
+small_smaller_smallest_en_gb,small,1,5,4,0,1,0,0,1,0,False,False,1,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+smaller_en_gb,smaller,2,7,5,1,2,0,0,2,1,True,False,5,2,high,early_primary,,banding_v1.1_2026-07-04.preview
+smallest_en_gb,smallest,2,8,7,1,2,0,0,2,1,True,False,5,2,high,early_primary,,banding_v1.1_2026-07-04.preview
+smile_en_gb,smile,1,5,4,0,1,1,2,1,0,False,False,3,2,high,early_primary,split digraph i-e,banding_v1.1_2026-07-04.preview
+smiled_en_gb,smiled,1,6,5,0,1,1,2,1,0,False,False,3,2,medium,early_primary,past tense drop e,banding_v1.1_2026-07-04.preview
+smiling_en_gb,smiling,2,7,6,1,2,0,0,1,0,False,False,3,2,high,early_primary,,banding_v1.1_2026-07-04.preview
+snail_en_gb,snail,1,5,4,0,1,1,2,1,0,False,False,3,2,medium,early_primary,long ai with ai,banding_v1.1_2026-07-04.preview
+snake_en_gb,snake,1,5,4,0,1,0,0,1,0,False,False,1,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+snow_en_gb,snow,1,4,3,0,0,1,2,1,0,True,False,3,2,high,upper_primary,final ow,banding_v1.1_2026-07-04.preview
+so_en_gb,so,1,2,2,0,0,0,0,1,0,True,False,1,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+soap_en_gb,soap,1,4,3,0,0,0,0,1,0,True,False,1,1,high,early_primary,regular,banding_v1.1_2026-07-04.preview
+social_en_gb,social,2,6,5,1,1,1,2,2,1,True,False,6,3,high,middle_primary,final cial,banding_v1.1_2026-07-04.preview
+sofa_en_gb,sofa,2,4,4,1,0,1,2,1,0,True,False,4,2,medium,middle_primary,final unstressed a,banding_v1.1_2026-07-04.preview
+soil_en_gb,soil,1,4,3,0,0,0,0,1,0,False,False,0,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+song_en_gb,song,1,4,3,0,0,0,0,1,0,False,False,0,1,high,middle_primary,,banding_v1.1_2026-07-04.preview
+soup_en_gb,soup,1,4,3,0,0,0,0,1,0,False,False,0,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+sparkle_en_gb,sparkle,2,7,6,1,2,0,0,1,0,True,False,4,2,medium,upper_primary,,banding_v1.1_2026-07-04.preview
+special_en_gb,special,2,7,6,1,2,0,0,1,0,True,False,4,2,high,middle_primary,,banding_v1.1_2026-07-04.preview
+spin_en_gb,spin,1,4,4,0,0,0,0,1,0,False,False,0,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+splash_en_gb,splash,1,6,5,0,1,0,0,1,0,False,False,1,1,medium,early_primary,,banding_v1.1_2026-07-04.preview
+spoon_en_gb,spoon,1,5,4,0,1,0,0,1,0,False,False,1,1,medium,later_review,,banding_v1.1_2026-07-04.preview
+spray_en_gb,spray,1,5,4,0,1,0,0,1,0,False,False,1,1,high,upper_primary,,banding_v1.1_2026-07-04.preview
+stain_en_gb,stain,1,5,4,0,1,0,0,1,0,False,False,1,1,medium,upper_primary,regular,banding_v1.1_2026-07-04.preview
+star_en_gb,star,1,4,3,0,0,0,0,1,0,False,False,0,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+started_en_gb,started,2,7,6,1,2,0,0,1,0,False,False,3,2,high,early_primary,,banding_v1.1_2026-07-04.preview
+station_en_gb,station,2,7,6,1,2,1,2,2,1,True,False,7,3,high,middle_primary,final tion,banding_v1.1_2026-07-04.preview
+stay_en_gb,stay,1,4,3,0,0,0,0,1,0,False,False,0,1,high,upper_primary,regular,banding_v1.1_2026-07-04.preview
+steak_en_gb,steak,1,5,4,0,1,0,0,1,0,False,False,1,1,medium,early_primary,,banding_v1.1_2026-07-04.preview
+stitch_en_gb,stitch,1,6,4,0,1,0,0,1,0,False,False,1,1,medium,middle_primary,,banding_v1.1_2026-07-04.preview
+stone_en_gb,stone,1,5,4,0,1,1,2,1,0,True,False,4,2,high,lower_secondary,split digraph o-e,banding_v1.1_2026-07-04.preview
+stop_en_gb,stop,1,4,4,0,0,0,0,1,0,False,False,0,1,high,middle_primary,,banding_v1.1_2026-07-04.preview
+stopped_en_gb,stopped,1,7,5,0,2,1,2,1,0,False,False,4,2,high,early_primary,past tense double final consonant,banding_v1.1_2026-07-04.preview
+stopping_en_gb,stopping,2,8,6,1,2,1,2,1,0,False,False,5,2,high,early_primary,ing double final consonant,banding_v1.1_2026-07-04.preview
+store_en_gb,store,1,5,3,0,1,0,0,1,0,False,False,1,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+stories_en_gb,stories,2,7,6,1,2,0,0,1,0,False,False,3,2,high,early_primary,,banding_v1.1_2026-07-04.preview
+storm_en_gb,storm,1,5,4,0,1,0,0,1,0,False,False,1,1,high,lower_secondary,,banding_v1.1_2026-07-04.preview
+story_en_gb,story,2,5,5,1,1,0,0,1,0,False,False,2,2,high,middle_primary,,banding_v1.1_2026-07-04.preview
+strange_en_gb,strange,1,7,6,0,2,0,0,1,0,False,False,2,2,high,middle_primary,,banding_v1.1_2026-07-04.preview
+string_en_gb,string,1,6,5,0,1,0,0,1,0,False,False,1,1,high,upper_primary,,banding_v1.1_2026-07-04.preview
+studies_en_gb,studies,2,7,6,1,2,1,2,2,1,False,False,6,3,high,early_primary,present tense y to ies,banding_v1.1_2026-07-04.preview
+stuff_en_gb,stuff,1,5,4,0,1,0,0,1,0,False,False,1,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+submarine_en_gb,submarine,3,9,8,2,3,0,0,2,1,True,False,7,3,medium,middle_primary,,banding_v1.1_2026-07-04.preview
+subtle_en_gb,subtle,2,6,5,1,1,0,0,1,0,True,False,3,2,high,mid_secondary,,banding_v1.1_2026-07-04.preview
+suggestion_en_gb,suggestion,3,10,8,2,3,0,0,2,1,True,False,7,3,high,upper_primary,,banding_v1.1_2026-07-04.preview
+suit_en_gb,suit,1,4,3,0,0,0,0,1,0,False,False,0,1,high,lower_secondary,,banding_v1.1_2026-07-04.preview
+summer_en_gb,summer,2,6,4,1,1,2,4,1,0,True,False,7,3,high,early_primary,remembered double letter word,banding_v1.1_2026-07-04.preview
+sun_en_gb,sun,1,3,3,0,0,0,0,1,0,False,False,0,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+sunshine_en_gb,sunshine,2,8,6,1,2,0,0,2,1,False,False,4,2,high,early_primary,,banding_v1.1_2026-07-04.preview
+superman_en_gb,superman,3,8,7,2,2,0,0,2,1,True,False,6,3,high,middle_primary,,banding_v1.1_2026-07-04.preview
+supermarket_en_gb,supermarket,4,11,9,3,3,0,0,2,1,True,False,8,3,medium,middle_primary,,banding_v1.1_2026-07-04.preview
+swim_en_gb,swim,1,4,4,0,0,0,0,1,0,False,False,0,1,high,lower_secondary,,banding_v1.1_2026-07-04.preview
+swimming_en_gb,swimming,2,8,6,1,2,0,0,1,0,False,False,3,2,high,early_primary,,banding_v1.1_2026-07-04.preview
+sword_en_gb,sword,1,5,3,0,1,0,0,1,0,False,False,1,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+table_en_gb,table,2,5,5,1,1,0,0,1,0,True,False,3,2,high,upper_primary,,banding_v1.1_2026-07-04.preview
+tail_en_gb,tail,1,4,3,0,0,0,0,1,0,False,False,0,1,high,early_primary,regular,banding_v1.1_2026-07-04.preview
+take_en_gb,take,1,4,3,0,0,0,0,1,0,False,False,0,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+talk_en_gb,talk,1,4,3,0,0,0,0,1,0,False,False,0,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+tall_taller_tallest_en_gb,tall/taller/tallest,1,17,3,0,3,0,0,3,2,False,True,6,3,medium,early_primary,,banding_v1.1_2026-07-04.preview
+taller_en_gb,taller,2,6,4,1,1,0,0,2,1,True,False,4,2,medium,early_primary,,banding_v1.1_2026-07-04.preview
+tallest_en_gb,tallest,2,7,6,1,2,0,0,2,1,True,False,5,2,medium,early_primary,,banding_v1.1_2026-07-04.preview
+tap_en_gb,tap,1,3,3,0,0,0,0,1,0,False,False,0,1,high,lower_secondary,regular,banding_v1.1_2026-07-04.preview
+teacher_en_gb,teacher,2,7,4,1,2,1,2,2,1,True,True,8,3,high,early_primary,final unstressed er,banding_v1.1_2026-07-04.preview
+team_en_gb,team,1,4,3,0,0,0,0,1,0,False,False,0,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+teeth_en_gb,teeth,1,5,3,0,1,0,0,1,0,False,False,1,1,high,upper_primary,,banding_v1.1_2026-07-04.preview
+telephone_en_gb,telephone,3,9,7,2,3,0,0,2,1,True,False,7,3,high,early_primary,,banding_v1.1_2026-07-04.preview
+ten_en_gb,ten,1,3,3,0,0,0,0,1,0,False,False,0,1,high,early_primary,regular,banding_v1.1_2026-07-04.preview
+tension_en_gb,tension,2,7,6,1,2,0,0,2,1,True,False,5,2,high,upper_primary,,banding_v1.1_2026-07-04.preview
+thank_en_gb,thank,1,5,4,0,1,0,0,1,0,False,False,1,1,high,middle_primary,,banding_v1.1_2026-07-04.preview
+thankful_en_gb,thankful,2,8,7,1,2,0,0,2,1,True,False,5,2,medium,upper_primary,,banding_v1.1_2026-07-04.preview
+that_en_gb,that,1,4,3,0,0,0,0,1,0,False,False,0,1,high,lower_secondary,,banding_v1.1_2026-07-04.preview
+the_en_gb,the,2,3,5,1,0,0,0,1,0,True,False,2,2,high,early_primary,,banding_v1.1_2026-07-04.preview
+their_en_gb,their,1,5,2,0,1,2,4,1,0,True,True,7,3,high,early_primary,function word homophone,banding_v1.1_2026-07-04.preview
+theme_en_gb,theme,1,5,3,0,1,0,0,1,0,False,False,1,1,high,middle_primary,,banding_v1.1_2026-07-04.preview
+then_en_gb,then,1,4,3,0,0,0,0,1,0,False,False,0,1,high,middle_primary,,banding_v1.1_2026-07-04.preview
+there_en_gb,there,1,5,2,0,1,2,4,1,0,True,True,7,3,high,middle_primary,function word homophone,banding_v1.1_2026-07-04.preview
+thermometer_en_gb,thermometer,4,11,8,3,3,0,0,2,1,True,True,9,3,medium,early_primary,,banding_v1.1_2026-07-04.preview
+these_en_gb,these,1,5,3,0,1,0,0,1,0,False,False,1,1,high,middle_primary,,banding_v1.1_2026-07-04.preview
+they_d_en_gb,they'd,1,5,3,0,1,0,0,1,0,False,False,1,1,high,mid_secondary,,banding_v1.1_2026-07-04.preview
+they_en_gb,they,1,4,2,0,0,0,0,1,0,False,False,0,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+they_ll_en_gb,they'll,1,6,3,0,1,0,0,1,0,False,True,2,2,high,early_primary,,banding_v1.1_2026-07-04.preview
+they_re_en_gb,they’re,1,6,3,0,1,2,4,1,0,False,True,6,3,high,early_primary,function word homophone,banding_v1.1_2026-07-04.preview
+thick_en_gb,thick,1,5,3,0,1,0,0,1,0,False,False,1,1,high,middle_primary,regular,banding_v1.1_2026-07-04.preview
+thin_en_gb,thin,1,4,3,0,0,0,0,1,0,False,False,0,1,high,middle_primary,regular,banding_v1.1_2026-07-04.preview
+thing_en_gb,thing,1,5,3,0,1,0,0,1,0,False,False,1,1,high,early_primary,regular,banding_v1.1_2026-07-04.preview
+third_en_gb,third,1,5,3,0,1,0,0,1,0,False,False,1,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+this_en_gb,this,1,4,3,0,0,0,0,1,0,False,False,0,1,high,middle_primary,,banding_v1.1_2026-07-04.preview
+through_en_gb,through,1,7,3,0,2,0,0,1,0,False,True,3,2,high,middle_primary,,banding_v1.1_2026-07-04.preview
+throw_en_gb,throw,1,5,3,0,1,0,0,1,0,True,False,2,2,high,middle_primary,,banding_v1.1_2026-07-04.preview
+thumb_en_gb,thumb,1,5,3,0,1,2,4,1,0,False,False,5,2,high,upper_primary,silent mb,banding_v1.1_2026-07-04.preview
+tick_en_gb,tick,1,4,3,0,0,0,0,1,0,False,False,0,1,medium,mid_secondary,regular,banding_v1.1_2026-07-04.preview
+tie_en_gb,tie,1,3,2,0,0,0,0,1,0,False,False,0,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+tiger_en_gb,tiger,2,5,4,1,1,0,0,1,0,True,False,3,2,high,early_primary,,banding_v1.1_2026-07-04.preview
+time_en_gb,time,1,4,3,0,0,1,2,1,0,False,False,2,2,high,early_primary,split digraph i-e,banding_v1.1_2026-07-04.preview
+to_en_gb,to,1,2,2,0,0,2,4,1,0,False,False,4,2,high,early_primary,function word homophone,banding_v1.1_2026-07-04.preview
+toad_en_gb,toad,1,4,3,0,0,0,0,1,0,True,False,1,1,medium,early_primary,,banding_v1.1_2026-07-04.preview
+toast_en_gb,toast,1,5,4,0,1,0,0,1,0,True,False,2,2,medium,middle_primary,regular,banding_v1.1_2026-07-04.preview
+toe_en_gb,toe,1,3,2,0,0,0,0,1,0,True,False,1,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+too_en_gb,too,1,3,2,0,0,2,4,1,0,False,False,4,2,high,early_primary,function word homophone,banding_v1.1_2026-07-04.preview
+tough_en_gb,tough,1,5,3,0,1,0,0,1,0,False,False,1,1,high,middle_primary,,banding_v1.1_2026-07-04.preview
+towards_en_gb,towards,2,7,6,1,2,0,0,1,0,False,False,3,2,high,early_primary,,banding_v1.1_2026-07-04.preview
+toy_en_gb,toy,1,3,2,0,0,0,0,1,0,False,False,0,1,high,middle_primary,,banding_v1.1_2026-07-04.preview
+train_en_gb,train,1,5,4,0,1,1,2,1,0,False,False,3,2,high,lower_secondary,long ai with ai,banding_v1.1_2026-07-04.preview
+transport_en_gb,transport,2,9,9,1,3,0,0,2,1,False,False,5,2,high,lower_secondary,,banding_v1.1_2026-07-04.preview
+tray_en_gb,tray,1,4,3,0,0,0,0,1,0,False,False,0,1,medium,upper_primary,regular,banding_v1.1_2026-07-04.preview
+tree_en_gb,tree,1,4,3,0,0,0,0,1,0,False,False,0,1,high,upper_primary,,banding_v1.1_2026-07-04.preview
+triangle_en_gb,triangle,2,8,8,1,2,0,0,2,1,True,False,5,2,medium,lower_secondary,,banding_v1.1_2026-07-04.preview
+tried_en_gb,tried,1,5,4,0,1,1,2,1,0,False,False,3,2,high,early_primary,past tense y to i,banding_v1.1_2026-07-04.preview
+tries_en_gb,tries,1,5,4,0,1,1,2,1,0,False,False,3,2,high,early_primary,present tense y to ies,banding_v1.1_2026-07-04.preview
+true_en_gb,TRUE,1,0,3,0,0,0,0,1,0,False,False,0,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+try_en_gb,try,1,3,3,0,0,0,0,1,0,False,False,0,1,high,middle_primary,,banding_v1.1_2026-07-04.preview
+tune_en_gb,tune,1,4,4,0,0,1,2,1,0,False,False,2,2,high,upper_primary,split digraph u-e,banding_v1.1_2026-07-04.preview
+turn_en_gb,turn,1,4,3,0,0,0,0,1,0,False,False,0,1,high,middle_primary,,banding_v1.1_2026-07-04.preview
+turtle_en_gb,turtle,2,6,5,1,1,0,0,1,0,True,False,3,2,medium,early_primary,,banding_v1.1_2026-07-04.preview
+twenty_one_en_gb,twenty-one,3,9,9,2,3,0,0,1,0,False,False,5,2,high,early_primary,,banding_v1.1_2026-07-04.preview
+two_en_gb,two,1,3,2,0,0,0,0,1,0,False,False,0,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+tying_en_gb,tying,1,5,4,0,1,0,0,1,0,False,False,1,1,medium,early_primary,,banding_v1.1_2026-07-04.preview
+unfair_en_gb,unfair,2,6,4,1,1,0,0,2,1,True,False,4,2,high,early_primary,,banding_v1.1_2026-07-04.preview
+unhappy_en_gb,unhappy,3,7,6,2,2,0,0,2,1,False,False,5,2,high,middle_primary,,banding_v1.1_2026-07-04.preview
+unique_en_gb,unique,2,6,5,1,1,0,0,1,0,False,False,2,2,high,upper_primary,,banding_v1.1_2026-07-04.preview
+unit_en_gb,unit,2,4,5,1,0,0,0,2,1,False,False,2,2,high,lower_secondary,,banding_v1.1_2026-07-04.preview
+unkind_en_gb,unkind,2,6,6,1,1,0,0,2,1,False,False,3,2,low,early_primary,,banding_v1.1_2026-07-04.preview
+unlock_en_gb,unlock,2,6,5,1,1,0,0,2,1,False,False,3,2,medium,upper_primary,,banding_v1.1_2026-07-04.preview
+use_en_gb,use,1,3,3,0,0,0,0,1,0,False,False,0,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+useful_en_gb,useful,2,6,6,1,1,1,2,2,1,True,False,6,3,high,early_primary,suffix ful,banding_v1.1_2026-07-04.preview
+usually_en_gb,usually,3,7,7,2,2,2,4,2,1,True,False,10,3,high,middle_primary,longer high-frequency tricky word,banding_v1.1_2026-07-04.preview
+vegetable_en_gb,vegetable,4,9,9,3,3,0,0,2,1,True,False,8,3,medium,middle_primary,,banding_v1.1_2026-07-04.preview
+vie_en_gb,vie,1,3,2,0,0,0,0,1,0,False,False,0,1,medium,later_review,,banding_v1.1_2026-07-04.preview
+village_en_gb,village,2,7,5,1,2,0,0,1,0,False,False,3,2,high,early_primary,,banding_v1.1_2026-07-04.preview
+visible_en_gb,visible,3,7,7,2,2,1,2,2,1,True,False,8,3,high,middle_primary,suffix able/ible,banding_v1.1_2026-07-04.preview
+vision_en_gb,vision,2,6,5,1,1,0,0,2,1,True,False,4,2,high,early_primary,,banding_v1.1_2026-07-04.preview
+visitor_en_gb,visitor,3,7,6,2,2,0,0,2,1,True,False,6,3,high,early_primary,,banding_v1.1_2026-07-04.preview
+vying_en_gb,vying,1,5,4,0,1,0,0,1,0,False,False,1,1,low,later_review,,banding_v1.1_2026-07-04.preview
+wait_en_gb,wait,1,4,3,0,0,0,0,1,0,False,False,0,1,high,early_primary,regular,banding_v1.1_2026-07-04.preview
+walk_en_gb,walk,1,4,3,0,0,0,0,1,0,False,False,0,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+walked_en_gb,walked,1,6,4,0,1,0,0,1,0,False,False,1,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+want_en_gb,want,1,4,4,0,0,2,4,1,0,False,False,4,2,high,early_primary,wa altered vowel,banding_v1.1_2026-07-04.preview
+wanted_en_gb,wanted,2,6,6,1,1,0,0,1,0,False,False,2,2,high,early_primary,,banding_v1.1_2026-07-04.preview
+war_en_gb,war,1,3,2,0,0,0,0,1,0,False,False,0,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+ward_en_gb,ward,1,4,3,0,0,0,0,1,0,False,False,0,1,high,mid_secondary,,banding_v1.1_2026-07-04.preview
+warm_en_gb,warm,1,4,3,0,0,0,0,1,0,False,False,0,1,high,middle_primary,,banding_v1.1_2026-07-04.preview
+was_en_gb,was,1,3,3,0,0,2,4,1,0,False,False,4,2,high,early_primary,irregular function word,banding_v1.1_2026-07-04.preview
+wash_en_gb,wash,1,4,3,0,0,2,4,1,0,False,False,4,2,high,mid_secondary,wa altered vowel,banding_v1.1_2026-07-04.preview
+watch_en_gb,watch,1,5,3,0,1,2,4,1,0,False,False,5,2,high,early_primary,wa altered vowel,banding_v1.1_2026-07-04.preview
+watches_en_gb,watches,2,7,5,1,2,0,0,1,0,False,False,3,2,high,early_primary,,banding_v1.1_2026-07-04.preview
+way_en_gb,way,1,3,2,0,0,0,0,1,0,False,False,0,1,high,middle_primary,regular,banding_v1.1_2026-07-04.preview
+we_en_gb,we,1,2,2,0,0,0,0,1,0,False,False,0,1,high,middle_primary,,banding_v1.1_2026-07-04.preview
+we_re_en_gb,we're,1,4,3,0,0,0,0,1,0,False,False,0,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+wear_en_gb,wear,1,4,3,0,0,0,0,1,0,False,False,0,1,high,middle_primary,,banding_v1.1_2026-07-04.preview
+weigh_en_gb,weigh,1,5,2,0,1,0,0,1,0,False,True,2,2,medium,middle_primary,,banding_v1.1_2026-07-04.preview
+weight_en_gb,weight,1,6,3,0,1,0,0,2,1,False,True,3,2,high,middle_primary,,banding_v1.1_2026-07-04.preview
+well_being_en_gb,well-being,3,9,7,2,3,0,0,2,1,False,False,6,3,high,mid_secondary,,banding_v1.1_2026-07-04.preview
+went_en_gb,went,1,4,4,0,0,0,0,1,0,False,False,0,1,high,middle_primary,,banding_v1.1_2026-07-04.preview
+were_en_gb,were,1,4,2,0,0,2,4,1,0,False,False,4,2,high,middle_primary,function word homophone,banding_v1.1_2026-07-04.preview
+what_en_gb,what,1,4,3,0,0,0,0,1,0,False,False,0,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+when_en_gb,when,1,4,3,0,0,0,0,1,0,False,False,0,1,high,middle_primary,,banding_v1.1_2026-07-04.preview
+where_en_gb,where,1,5,2,0,1,2,4,1,0,True,True,7,3,high,early_primary,function word homophone,banding_v1.1_2026-07-04.preview
+whip_en_gb,whip,1,4,3,0,0,0,0,1,0,False,False,0,1,high,middle_primary,,banding_v1.1_2026-07-04.preview
+who_en_gb,who,1,3,2,0,0,0,0,1,0,False,False,0,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+who_s_en_gb,who’s,1,4,3,0,0,0,0,1,0,False,False,0,1,high,middle_primary,,banding_v1.1_2026-07-04.preview
+whole_en_gb,whole,1,5,3,0,1,0,0,1,0,True,False,2,2,high,early_primary,,banding_v1.1_2026-07-04.preview
+whose_en_gb,whose,1,5,3,0,1,2,4,1,0,False,False,5,2,high,early_primary,contraction/possessive homophone,banding_v1.1_2026-07-04.preview
+wild_en_gb,wild,1,4,4,0,0,0,0,1,0,False,False,0,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+win_en_gb,win,1,3,3,0,0,0,0,1,0,False,False,0,1,high,early_primary,regular,banding_v1.1_2026-07-04.preview
+window_en_gb,window,2,6,5,1,1,0,0,1,0,True,False,3,2,high,early_primary,,banding_v1.1_2026-07-04.preview
+wish_en_gb,wish,1,4,3,0,0,0,0,1,0,False,False,0,1,high,middle_primary,regular,banding_v1.1_2026-07-04.preview
+wishes_en_gb,wishes,2,6,5,1,1,1,2,1,0,False,False,4,2,high,early_primary,plural es,banding_v1.1_2026-07-04.preview
+wolf_en_gb,wolf,1,4,4,0,0,0,0,1,0,False,False,0,1,high,lower_secondary,,banding_v1.1_2026-07-04.preview
+wolves_en_gb,wolves,1,6,5,0,1,1,2,1,0,False,False,3,2,high,early_primary,plural ves,banding_v1.1_2026-07-04.preview
+woman_en_gb,woman,2,5,5,1,1,0,0,1,0,True,False,3,2,high,early_primary,,banding_v1.1_2026-07-04.preview
+won_t_en_gb,won't,1,4,4,0,0,0,0,1,0,False,False,0,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+word_en_gb,word,1,4,3,0,0,0,0,1,0,False,False,0,1,high,upper_primary,,banding_v1.1_2026-07-04.preview
+words_en_gb,words,1,5,4,0,1,2,4,1,0,False,False,5,2,high,early_primary,wor for /wer/,banding_v1.1_2026-07-04.preview
+work_en_gb,work,1,4,3,0,0,2,4,1,0,False,False,4,2,high,early_primary,wor for /wer/,banding_v1.1_2026-07-04.preview
+worker_en_gb,worker,2,6,4,1,1,0,0,2,1,True,False,4,2,high,middle_primary,,banding_v1.1_2026-07-04.preview
+world_en_gb,world,1,5,4,0,1,2,4,1,0,False,False,5,2,high,lower_secondary,wor for /wer/,banding_v1.1_2026-07-04.preview
+worm_en_gb,worm,1,4,3,0,0,0,0,1,0,False,False,0,1,medium,middle_primary,,banding_v1.1_2026-07-04.preview
+worse_en_gb,worse,1,5,3,0,1,0,0,1,0,False,False,1,1,high,upper_primary,,banding_v1.1_2026-07-04.preview
+worst_en_gb,worst,1,5,4,0,1,0,0,1,0,False,False,1,1,high,middle_primary,,banding_v1.1_2026-07-04.preview
+would_en_gb,would,1,5,3,0,1,2,4,1,0,False,False,5,2,high,upper_primary,ould word,banding_v1.1_2026-07-04.preview
+wrap_en_gb,wrap,1,4,3,0,0,0,0,1,0,False,False,0,1,high,early_primary,,banding_v1.1_2026-07-04.preview
+wrist_en_gb,wrist,1,5,4,0,1,2,4,1,0,False,False,5,2,high,early_primary,silent wr,banding_v1.1_2026-07-04.preview
+write_en_gb,write,1,5,3,0,1,2,4,1,0,False,False,5,2,high,early_primary,content word homophone,banding_v1.1_2026-07-04.preview
+writer_en_gb,writer,2,6,4,1,1,0,0,2,1,True,False,4,2,high,middle_primary,,banding_v1.1_2026-07-04.preview
+writing_en_gb,writing,2,7,5,1,2,1,2,1,0,False,False,5,2,high,middle_primary,ing drop e,banding_v1.1_2026-07-04.preview
+wrong_en_gb,wrong,1,5,3,0,1,2,4,1,0,False,False,5,2,high,early_primary,silent wr,banding_v1.1_2026-07-04.preview
+you_d_en_gb,you'd,1,4,3,0,0,0,0,1,0,False,False,0,1,high,upper_primary,,banding_v1.1_2026-07-04.preview
+you_en_gb,you,1,3,2,0,0,0,0,1,0,False,False,0,1,high,middle_primary,,banding_v1.1_2026-07-04.preview
+you_re_en_gb,you’re,1,5,3,0,1,2,4,1,0,False,False,5,2,high,early_primary,contraction/possessive homophone,banding_v1.1_2026-07-04.preview
+your_en_gb,your,1,4,2,0,0,2,4,1,0,False,False,4,2,high,early_primary,contraction/possessive homophone,banding_v1.1_2026-07-04.preview
+zebra_en_gb,zebra,2,5,5,1,1,0,0,1,0,True,False,3,2,medium,early_primary,,banding_v1.1_2026-07-04.preview
+zip_en_gb,zip,1,3,3,0,0,0,0,1,0,False,False,0,1,medium,lower_secondary,,banding_v1.1_2026-07-04.preview
+zoo_en_gb,zoo,1,3,2,0,0,0,0,1,0,False,False,0,1,high,early_primary,,banding_v1.1_2026-07-04.preview

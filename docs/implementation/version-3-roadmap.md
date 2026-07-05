@@ -1388,3 +1388,25 @@ Boundaries:
 - no use of `learning_items.progress_state` as instructional state
 - no extension of `spelling_reward_states` as the final Version 3.0 Word
   Treasure model
+
+## Amendment (2026-07-04 reformed pedagogy)
+
+The reformed daily-assignment model is defined in
+[docs/contracts/adle-daily-assignment-and-evidence-blueprint-contract.md](../contracts/adle-daily-assignment-and-evidence-blueprint-contract.md).
+Roadmap adjustments (completed phases 0-5F are unaffected):
+
+1. Insert a **Contract Reconciliation** stage before Phase 6: publish the
+   blueprint contract; supersession notices applied to the mastery/evidence
+   and composer contracts; amendments applied to the taxonomy, word-map, and
+   PCRM contracts (done as docs-only on 2026-07-04).
+2. Reorder: review scheduling (previously Phase 9) and evidence weights
+   (previously Phase 8) move ahead of or into the composer phase (Phase 7).
+   The reformed assignment is review-first with a review-debt throttle; the
+   composer cannot be built without the scheduler and evidence caps.
+3. Add to the dictionary track: word-level complexity banding (deferred
+   package in the blueprint) and the per-skill-per-level allocation table.
+   Both precede any level-target or probe-selection work.
+4. Phase 11 proficiency adopts the blueprint's graded-breadth gated-level
+   model; no averaging across levels.
+5. Review intervals are 1, 3, 7, 14, 28, 56 days with bundle-with-catch-up
+   scheduling (bundles only move forward; ejection replaces demotion).

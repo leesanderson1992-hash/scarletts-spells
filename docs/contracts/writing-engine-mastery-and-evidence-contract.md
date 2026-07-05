@@ -1,5 +1,26 @@
 # Writing Engine Mastery and Evidence Contract
 
+## Supersession notice (2026-07-04 reformed pedagogy)
+
+Parts of this contract are superseded by
+[docs/contracts/adle-daily-assignment-and-evidence-blueprint-contract.md](adle-daily-assignment-and-evidence-blueprint-contract.md):
+
+- the mastery stage ladder (Stages 0-8) and its parent-facing stage mapping —
+  replaced by the word evidence states `unseen -> active -> produced ->
+  secure -> review_retired -> mastered` with `slipped` as a flag
+- the evidence source-weight table (recognition 0.25 ... correct-after-failure
+  1.15) — replaced by the blueprint's v1 weight table (authentic 2.0,
+  recency-scaled dictation 1.5/0.5, etc.)
+- the weighted-accuracy mastery formula and its component weights — replaced
+  by the blueprint's additive evidence-points model (score >= 8, >= 5 correct
+  productions, spaced, parent-gated authentic writing, no unresolved slip)
+
+Still authoritative here: the core principles below, the evidence capture
+vocabulary and attempt/lineage rules, the instructional-state boundary, and
+the Word Treasure separation rules (shared with the reward contract). Where
+this document and the blueprint disagree on mastery scoring or weights, the
+blueprint wins.
+
 ## Purpose and relationship to canonical brief
 
 This document owns the operational mastery and evidence rules for the Writing

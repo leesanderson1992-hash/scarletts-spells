@@ -171,3 +171,55 @@ reason when the activity/question vocabulary is finalised.
 - missing activity truth produces explicit skip statuses
 - activities do not create taxonomy, learning items, evidence, proficiency, or
   rewards by themselves
+
+## Amendment (2026-07-04 reformed pedagogy)
+
+Per
+[docs/contracts/adle-daily-assignment-and-evidence-blueprint-contract.md](adle-daily-assignment-and-evidence-blueprint-contract.md).
+The registry skeleton (phases, metadata shape, fail-closed skip rules) is
+unchanged. The following are amended:
+
+### Activity set
+
+The initial candidate list above is replaced by the workbook's reformed
+template registry (Activity Templates sheet) plus:
+- one parameterised `REVIEW_QUICK_SORT` whose sort dimension is supplied per
+  word by family (sound/spelling cue, chunk, morpheme, meaning, tricky part,
+  transformation, anchor); the seven family-named review-sort variants are
+  not separate activities
+- `DICTATION_SENTENCE_CONTEXT` for homophone-choice skills
+- `DIAGNOSTIC_DICTATION_PROBE` as a first-class activity with its own
+  evidence semantics (cold production; probe-cap skip reason)
+- `MUST_USE_FREEWRITING` capped at 3-5 required words
+- reflection activities (`ERROR_REFLECTION_CUE`, `MEMORY_CUE`) as first-class
+  entries; memory cues are child-generated (authored memory_tip content is
+  retired); `common_misconceptions` content feeds the reflection hint
+
+Old-model keys `contrast_choice`, `odd_one_out`, and `delayed_mixed_review`
+are retired as general-purpose activities. Contrast/meaning sets remain
+essential for homophones only, and optional elsewhere.
+
+### Evidence strength
+
+The reference evidence-strength direction above is replaced by the
+blueprint's v1 weight table. Notably: dictation is strong (recency-scaled
+1.5 cold / 0.5 recent), contrast choice is no longer ranked above controlled
+spelling, and activities must be able to declare family-conditional evidence
+validity (dictation emits no homophone-choice evidence).
+
+### Interleaving wording
+
+"Interleaving" now means the quick review sort/match step before production
+and the mixing of two due bundles in one review session. It is not a broad
+contrast pedagogy and must not be treated as a general lesson-design
+requirement.
+
+### Skip reasons
+
+`missing_anchor_word` and `insufficient_contrast_words` are renamed/scoped at
+the next pass per the blueprint: the runtime lesson anchor is the child's
+corrected approved word; contrast-word requirements apply to homophone-family
+activities only. The blueprint adds composer-level skip reasons
+(`review_debt_blocks_lesson`, `insufficient_real_learning_items`,
+`probe_cap_reached`, `no_diagnostic_eligible_words`,
+`word_pending_parent_review`).

@@ -1082,3 +1082,31 @@ Residual risk:
 Plan any use of diversity, complexity, or route performance in mastery scoring
 as a separate versioned evidence/scoring slice. The word-map must remain
 descriptive until then.
+
+## Amendment (2026-07-04 reformed pedagogy)
+
+Per
+[docs/contracts/adle-daily-assignment-and-evidence-blueprint-contract.md](adle-daily-assignment-and-evidence-blueprint-contract.md),
+the following additions are planned for this layer. They remain metadata-only
+and change no ownership boundary:
+
+1. Eligibility ladder as derived word statuses (statuses on one dictionary,
+   not two stores): `recognisable` -> `evidence-eligible` ->
+   `assignment/diagnostic-eligible` -> `review-eligible` (child-scoped) ->
+   `mastery-breadth-eligible`. Frequency/age-of-acquisition bands gate
+   child-facing eligibility; only mastery-breadth-eligible words count toward
+   level breadth targets (obscure-word firewall).
+2. Word-level complexity banding per the blueprint's deferred package,
+   resolved and owner-approved 2026-07-04 as `banding_v1.1` (3 levels; see
+   docs/implementation/adle-word-complexity-banding-and-formula-numbers-proposal.md):
+   structural metadata sets the Level; frequency/AoA never do; banding is
+   versioned and admin-overridable; the level range is owned by the banding
+   version.
+3. A per-micro-skill-per-level allocation table computed from the banding,
+   consumed by level targets and diagnostic probe selection.
+4. Diagnostic probe eligibility rule: assignment/diagnostic-eligible, same
+   micro-skill, near the child's cluster level, not previously taught to the
+   child.
+5. The legacy `word_role` value `anchor_word` (and static contrast-word
+   remnants) are confirmed retired from the active schema; they remain only
+   as quarantined legacy-audit history.

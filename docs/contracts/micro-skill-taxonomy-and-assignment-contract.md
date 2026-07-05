@@ -1571,3 +1571,17 @@ This contract does not by itself:
 - replace the targeted-writing issue lifecycle contract
 - replace the reward contract
 - fully design every future mastery domain
+
+## Amendment (2026-07-04 reformed pedagogy)
+
+Per
+[docs/contracts/adle-daily-assignment-and-evidence-blueprint-contract.md](adle-daily-assignment-and-evidence-blueprint-contract.md):
+
+- the `learning_item` unit changes to word-level: one record per child + word
+  + primary micro-skill key. The earlier one-record-per-child+micro-skill+route
+  shape holding multiple target words is retired.
+- a "cluster" is the unresolved learning_items sharing a micro-skill, computed
+  at composition time, not a stored aggregate.
+- reuse checks match on child_id + word + primary micro_skill_key.
+- taxonomy ownership, instructional-state boundaries, and Word Treasure rules
+  in this contract are unchanged.

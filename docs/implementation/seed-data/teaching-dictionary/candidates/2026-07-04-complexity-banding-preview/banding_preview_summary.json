@@ -1,0 +1,37 @@
+{
+  "banding_version": "banding_v1.1_2026-07-04.preview",
+  "level_count": 3,
+  "level_upper_bounds": [
+    1,
+    5
+  ],
+  "word_count": 874,
+  "level_distribution": {
+    "1": 424,
+    "3": 108,
+    "2": 342
+  },
+  "score_distribution": {
+    "1": 148,
+    "9": 13,
+    "3": 109,
+    "0": 276,
+    "4": 88,
+    "6": 32,
+    "7": 30,
+    "5": 70,
+    "8": 23,
+    "2": 75,
+    "11": 1,
+    "10": 9
+  },
+  "skills_with_mapped_words": 240,
+  "populated_skill_level_cells": 372,
+  "cells_under_floor_8": 365,
+  "skills_under_8_total_words": 229,
+  "skills_under_2_total_words": 3,
+  "median_words_per_skill": 4,
+  "blank_irregularity_notes": 615,
+  "mismatch_flag_count": 34,
+  "note": "PREVIEW ONLY - no canonical mutation; pending owner approval of banding formula v1.1 (3-level scheme)"
+}

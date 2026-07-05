@@ -31,6 +31,7 @@ When docs overlap:
 
 ### Contracts
 
+- [docs/contracts/adle-daily-assignment-and-evidence-blueprint-contract.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/contracts/adle-daily-assignment-and-evidence-blueprint-contract.md:1)
 - [docs/contracts/writing-engine-mastery-and-evidence-contract.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/contracts/writing-engine-mastery-and-evidence-contract.md:1)
 - [docs/contracts/targeted-writing-practice-contract.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/contracts/targeted-writing-practice-contract.md:1)
 - [docs/contracts/micro-skill-taxonomy-and-assignment-contract.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/contracts/micro-skill-taxonomy-and-assignment-contract.md:1)
@@ -63,6 +64,9 @@ When docs overlap:
 
 ### Active implementation docs
 
+- [docs/implementation/adle-word-complexity-banding-and-formula-numbers-proposal.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/implementation/adle-word-complexity-banding-and-formula-numbers-proposal.md:1)
+- [docs/implementation/adle-slice-1-dictionary-eligibility-and-banding-plan.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/implementation/adle-slice-1-dictionary-eligibility-and-banding-plan.md:1)
+- [docs/implementation/seed-data/teaching-dictionary/candidates/2026-07-04-complexity-banding-preview/README.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/implementation/seed-data/teaching-dictionary/candidates/2026-07-04-complexity-banding-preview/README.md:1)
 - [docs/implementation/writing-engine-roadmap.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/implementation/writing-engine-roadmap.md:1)
 - [docs/implementation/version-3-roadmap.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/implementation/version-3-roadmap.md:1)
 - [docs/implementation/version-3-phase-4-curriculum-metadata-inventory-audit.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/implementation/version-3-phase-4-curriculum-metadata-inventory-audit.md:1)

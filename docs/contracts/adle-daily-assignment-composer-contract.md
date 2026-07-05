@@ -13,10 +13,26 @@ transfer, and maintain micro-skills.
 
 ## Status
 
-Status: `Version 3.0 planning contract`
+Status: `Version 3.0 planning contract — lesson structures superseded`
 
 No runtime implementation, migration, Supabase mutation, import, or production
 deployment is authorized by this file.
+
+## Supersession notice (2026-07-04 reformed pedagogy)
+
+The lesson structures and section ordering defined in this contract
+(first-exposure, review/consolidation, and guided-practice structures) are
+superseded by
+[docs/contracts/adle-daily-assignment-and-evidence-blueprint-contract.md](adle-daily-assignment-and-evidence-blueprint-contract.md),
+which defines the reformed two-part daily assignment: Part 1 spaced review
+(intervals 1/3/7/14/28/56, bundle-with-catch-up scheduling, quick sort then
+production, reflection loop) and Part 2 one micro-skill lesson with 5 words
+(real learning_items, probe misses, then stretch dictionary words), throttled
+by review debt.
+
+Still authoritative here: the composer's ownership boundaries, the target
+architecture flow, and the Word Treasure separation. Where structures
+conflict, the blueprint wins.
 
 ## Target architecture
 
