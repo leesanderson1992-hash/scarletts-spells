@@ -1,5 +1,56 @@
 # Decision Log
 
+## 2026-07-05 — ADLE Slice 1 implemented: dictionary eligibility statuses and complexity banding
+
+### What changed
+- ADLE Slice 1 (per `docs/implementation/adle-slice-1-dictionary-eligibility-and-banding-plan.md`)
+  is implemented:
+  - `supabase/migrations/20260705090000_add_adle_dictionary_banding_storage.sql`
+    adds the banding version registry (seeded with `banding_v1.1_2026-07-04`
+    active, 3 levels), per-word banding rows with a score-sum audit
+    constraint, version-independent admin overrides, and the recomputable
+    skill/level allocation table. Deployment method: unique forward
+    migration, local/dev only. Written and scratch-verified; **not yet
+    applied to any environment** (the local dev DB currently has an empty
+    schema — see below).
+  - `scripts/adle-band-teaching-dictionary.py` — deterministic banding v1.1
+    runner: CSV-folder report-only mode plus guarded local-DB dry-run/apply
+    (same localhost:54322 guard, confirmation token, advisory-lock
+    transaction, and count-verification posture as the Phase 5F importer).
+    Fail-closed skips, new-note review list, allocation recompute, JSON
+    batch report in the preview-summary shape.
+  - `lib/adle/dictionary-eligibility.ts` — pure eligibility-ladder read
+    models (statuses computed, never stored), `effectiveComplexityLevel`
+    (active override else computed level for the active version), typed
+    allocation readers, and a fail-closed `TaughtWordHistoryProvider`
+    default until the review-scheduler slice exists.
+  - Regressions: `scripts/adle-banding-regression.py`
+    (`npm run adle:banding-regression`) and
+    `scripts/adle-dictionary-eligibility-regression.ts`
+    (`npm run adle:dictionary-eligibility-regression`), both passing.
+- Parity acceptance criterion met exactly: banding the 2026-06-29 candidate
+  batch reproduces the approved preview — 874 words, levels 424/342/108,
+  372 populated skill/level cells, 365 under floor 8.
+- Namespace decision (plan open question 1): ADLE read models live in
+  `lib/adle/`, keeping the blueprint's ADLE / writing-engine / reward
+  ownership boundaries visible in the code layout.
+
+### Open item found during implementation
+- The local Supabase container (`supabase_db_scarletts-spells`) has an empty
+  `public` schema — no migrations applied, no Phase 5F import present. The
+  1A migration was therefore verified against a throwaway scratch database
+  (full dictionary schema + constraint smoke tests + apply-transaction
+  smoke test with supersede semantics) and dropped. Applying 20260629120000
+  + 20260705090000 and re-running the Phase 5F import locally is a
+  precondition for the runner's DB mode; the CSV mode and all regressions
+  are independent of DB state.
+
+### Why
+- Complexity banding and the eligibility ladder are the two dictionary-layer
+  capabilities every later ADLE slice (review scheduler, daily assignment
+  composer, evidence engine) reads but never owns; landing them first with
+  regressions pins the approved formula before any consumer exists.
+
 ## 2026-07-04 — ADLE formula package approved (banding, pinned numbers, optimal structure)
 
 ### What changed
