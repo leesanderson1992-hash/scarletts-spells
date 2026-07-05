@@ -1,5 +1,55 @@
 # Decision Log
 
+## 2026-07-05 — Pedagogy wording amendments (owner-approved, docs audit)
+
+### What changed
+- The owner requested a wording audit of the pedagogy/contract docs
+  against the Math Academy-style model and approved its five amendments
+  on 2026-07-05. Applied:
+  1. `adle-instructional-activity-registry-contract.md` — the
+     "Interleaving wording" section is rewritten: interleaving =
+     cross-skill mixing within review sessions (a review-design
+     requirement); the quick sort step is a categorisation (activation)
+     step, not interleaving; contrast pedagogy remains a separate,
+     homophone-scoped concern.
+  2. Session-mix rule pinned: the Part 1 capped queue is presented so no
+     two same-family words are adjacent where the due mix allows
+     (presentation ordering only; scheduler state untouched). Pinned in
+     the blueprint's 2026-07-05 amendment and the Slice 3 composer plan
+     (pinned policy, 3C, 3F regressions, acceptance criteria).
+  3. Prerequisite precedence added to Part 2 skill selection: new
+     lexicographic tier between reteach demand and largest cluster — a
+     candidate skill defers to a prerequisite skill that is itself a
+     selectable candidate (≥2 unresolved learning_items); fail-open
+     no-op without prerequisite link data. Blueprint amendment + Slice 3
+     plan updated.
+  4. Authentic-use review credit: a parent-verified correct authentic
+     use of a scheduled-review word counts as its pass at its next due
+     review event, priced as authentic evidence, once per interval
+     window. Delivers the learning-system overview's "review confidence
+     update" promise. Policy pinned in the blueprint's 2026-07-05
+     amendment; implementation is a Slice 4 item (AuthenticUseProvider);
+     Slice 2 state machine unchanged until then.
+  5. Canonical naming enforced: "mini-skill" → "micro-skill" (incl.
+     `mini_skill_*` field vocabulary) across the normative contracts and
+     architecture docs (taxonomy-and-assignment, mastery-and-evidence,
+     targeted-writing-practice contracts; canonical brief,
+     targeted-writing-practice and writing-engine-foundation
+     architecture docs). Historical implementation logs
+     (writing-engine-roadmap, targeted-writing-practice-status) are
+     records and were left unchanged. Code identifiers unchanged (no
+     `mini_skill` exists in code/schema; camelCase TS type names are out
+     of scope).
+
+### Why
+- The audit found one pedagogical terminology error (the interleaving
+  redefinition), two promise-vs-mechanism gaps (the blueprint's "mixed
+  for interleaving" had no pinned composer rule; the overview's "review
+  confidence update" had no owning contract), one defined-but-unused
+  concept (prerequisite links never consulted by selection), and one
+  naming-rule violation. No scheduler or evidence numbers changed; the
+  2026-07-04 formula package is untouched.
+
 ## 2026-07-05 — ADLE Slice 2 implemented: review scheduler
 
 ### What changed

@@ -53,7 +53,7 @@ Current transitional reality:
 Review Work Suggested Issue override-option provider boundary:
 - first slice is limited to lesson/task-submission-backed spelling suggestions
   only
-- `micro_skill_catalog` remains the only mini-skill identity source
+- `micro_skill_catalog` remains the only micro-skill identity source
 - provider options must be exposed through a bounded provider/read model rather
   than unrestricted catalog browsing
 - server-side override validation is covered by the existing tracked
@@ -63,7 +63,7 @@ Review Work Suggested Issue override-option provider boundary:
   micro-skill's configured template metadata
 - `verified_template_key` remains deferred/blocked in Review Work for this
   stage
-- no first-slice implementation may save free-text mini-skill or free-text
+- no first-slice implementation may save free-text micro-skill or free-text
   template override truth
 - any future selectable Review Work provider UI and the live save path must
   share the same bounded

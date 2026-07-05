@@ -749,9 +749,9 @@ Stage `2` may add curated spelling content that supports assignment generation,
 but it must not change the ownership rules in this contract.
 
 Rules:
-- `micro_skill_catalog` remains the canonical source of mini-skill identity
+- `micro_skill_catalog` remains the canonical source of micro-skill identity
 - Stage `2` may refine spelling-content metadata that helps resolve:
-  - word-to-mini-skill mappings
+  - word-to-micro-skill mappings
   - lesson-template selection
   - word complexity metadata
   - similar-practice support
@@ -762,14 +762,14 @@ Rules:
 - Stage `2` content gaps must be skipped or surfaced explicitly rather than
   flattened into legacy `word_progress` compatibility
 - if a Stage `2` implementation needs a new assignment identity, new route
-  owner, or a non-catalog mini-skill source, the docs must be updated before
+  owner, or a non-catalog micro-skill source, the docs must be updated before
   code is written
 
 Stage `2D` lesson-template registry guardrail:
 
 - `2D` may define stable implementation-facing lesson-template keys for
-  supported spelling mini-skills
-- `2D` lookup must begin from canonical mini-skill identity plus bounded
+  supported spelling micro-skills
+- `2D` lookup must begin from canonical micro-skill identity plus bounded
   spelling-content truth; it must not invent free-text lesson keys
 - the registry remains read-only content truth in this pass:
   - no lesson-rendering system
@@ -786,7 +786,7 @@ Stage `2E` word-complexity guardrail:
 
 - `2E` may define a stable implementation-facing word-complexity metadata
   shape for supported spelling words
-- `2E` lookup must begin from canonical mini-skill identity plus bounded
+- `2E` lookup must begin from canonical micro-skill identity plus bounded
   spelling-content truth; it must not invent free-text complexity labels or
   route-local fallback values
 - the resolver remains read-only content truth in this pass:
@@ -802,8 +802,8 @@ Stage `2E` word-complexity guardrail:
 Stage `2F` similar-practice guardrail:
 
 - `2F` may define a stable implementation-facing similar-practice input/output
-  shape for supported spelling words or mini-skills
-- `2F` lookup must begin from canonical mini-skill identity plus bounded
+  shape for supported spelling words or micro-skills
+- `2F` lookup must begin from canonical micro-skill identity plus bounded
   spelling-content truth; it must not invent free-text support words or
   route-local fallback suggestions
 - the resolver remains read-only content truth in this pass:
@@ -878,7 +878,7 @@ Review Work Suggested Issue override-option provider contract:
 - selectable Review Work override-provider UI/runtime remains deferred
 - existing server-side override behavior is covered by the tracked
   override-provider behavior regression
-- `micro_skill_catalog` remains the only mini-skill identity source
+- `micro_skill_catalog` remains the only micro-skill identity source
 - provider options must be surfaced through a bounded provider/read model, not
   an unrestricted catalog dump or generic/global catalog browsing surface
 - only active, assignable, in-scope spelling micro-skills may be offered
@@ -889,7 +889,7 @@ Review Work Suggested Issue override-option provider contract:
   - out-of-scope rows
   - fallback/free-text keys
 - overridden saves may persist only canonical provider values
-- server-side validation must reject non-catalog override mini-skill keys
+- server-side validation must reject non-catalog override micro-skill keys
 - bounded lesson/task-submission spelling override validation may derive the
   provider anchor from the same canonical submission-spelling mapping path
   that any future selectable Review Work provider UI must use when persisted
@@ -1472,7 +1472,7 @@ submission analysis, but it must not change the identity and assignment
 ownership rules in this contract.
 
 Rules:
-- `micro_skill_catalog` remains the canonical source of mini-skill identity
+- `micro_skill_catalog` remains the canonical source of micro-skill identity
   for Stage `3` spelling hypotheses
 - Stage `3` may resolve at most one primary canonical `micro_skill_key` for a
   first-pass spelling hypothesis using documented Stage `2` mapping truth
@@ -1495,11 +1495,11 @@ Rules:
 ## Stage 4 punctuation-module guardrail
 
 Stage `4` may add punctuation-specific authentic-writing hypotheses, but it
-must not change the mini-skill identity and assignment ownership rules in this
+must not change the micro-skill identity and assignment ownership rules in this
 contract.
 
 Rules:
-- `micro_skill_catalog` remains the canonical source of mini-skill identity
+- `micro_skill_catalog` remains the canonical source of micro-skill identity
   for Stage `4` punctuation hypotheses where a canonical punctuation
   `micro_skill_key` is available
 - Stage `4` may resolve at most one primary canonical `micro_skill_key` for a
@@ -1521,11 +1521,11 @@ Rules:
 ## Stage 5 sentence-boundary-module guardrail
 
 Stage `5` may add sentence-boundary / sentence-formation authentic-writing
-hypotheses, but it must not change the mini-skill identity and assignment
+hypotheses, but it must not change the micro-skill identity and assignment
 ownership rules in this contract.
 
 Rules:
-- `micro_skill_catalog` remains the canonical source of mini-skill identity
+- `micro_skill_catalog` remains the canonical source of micro-skill identity
   for Stage `5` sentence-boundary hypotheses where a canonical
   sentence-boundary `micro_skill_key` is available
 - Stage `5` may resolve at most one primary canonical `micro_skill_key` for a

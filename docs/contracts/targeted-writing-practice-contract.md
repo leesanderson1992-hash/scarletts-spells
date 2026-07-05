@@ -604,7 +604,7 @@ Review Work boundary clarification:
   - `verified_template_key` is deferred/blocked in Review Work and must not
     remain free-text canonical truth
 - overridden decisions may save only canonical provider values
-- server-side validation must reject non-catalog override mini-skill keys
+- server-side validation must reject non-catalog override micro-skill keys
 - the bounded override save path may use the canonical spelling-anchor
   fallback that any future selectable Review Work provider UI must also use
   when a pending shared suggestion row still lacks persisted canonical

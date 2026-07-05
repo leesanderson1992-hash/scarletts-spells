@@ -45,11 +45,11 @@ It is not an implementation roadmap, a UI spec, or a schema definition.
 
 ## Core principles
 
-- a word is evidence about mini-skills, not the skill itself
-- correct spelling gives credit only for the mini-skills genuinely tested
+- a word is evidence about micro-skills, not the skill itself
+- correct spelling gives credit only for the micro-skills genuinely tested
 - one word must not prove mastery
-- complex words do not prove all simpler mini-skills
-- supporting prerequisite mini-skills should not be strongly penalised without
+- complex words do not prove all simpler micro-skills
+- supporting prerequisite micro-skills should not be strongly penalised without
   direct evidence
 - authentic writing transfer is required before parent-facing "Mastered"
 - ADLE instructional state determines how to teach or review today; it is not
@@ -148,7 +148,7 @@ fields, even if current tables represent some of them differently:
 
 - `child_id`
 - `domain`
-- `mini_skill_key`
+- `micro_skill_key`
 - `source_type`
 - `source_entity_id`
 - `target_text`
@@ -158,7 +158,7 @@ fields, even if current tables represent some of them differently:
 - `was_parent_verified`
 - `verification_decision`
 - `confidence`
-- `mini_skill_role`
+- `micro_skill_role`
 - `role_weight`
 - `source_weight`
 - `word_complexity`
@@ -170,10 +170,10 @@ fields, even if current tables represent some of them differently:
 
 Contract meaning:
 
-- evidence must be attributable to a child and a mini-skill
+- evidence must be attributable to a child and a micro-skill
 - evidence must preserve where it came from
 - evidence must preserve whether it was correct and whether it was verified
-- evidence must preserve whether the mini-skill was primary, supporting, weak,
+- evidence must preserve whether the micro-skill was primary, supporting, weak,
   or unrelated
 - evidence must preserve enough metadata for later transfer, breadth, and
   recurrence analysis
@@ -201,7 +201,7 @@ The system must distinguish at least these source types:
 - `delayed_review`
   - child succeeds after time delay rather than same-session repetition
 - `authentic_writing`
-  - child uses the mini-skill correctly in independent writing
+  - child uses the micro-skill correctly in independent writing
 - `self_correction_in_free_writing`
   - child notices and fixes the issue inside authentic writing
 - `correct_after_previous_failure`
@@ -366,9 +366,9 @@ Interpretation:
 - self-correction and correct-after-failure carry stronger meaning because they
   show active internalisation
 
-## Mini-skill role weighting
+## Micro-skill role weighting
 
-Each evidence event must distinguish at least these mini-skill roles:
+Each evidence event must distinguish at least these micro-skill roles:
 
 - `primary_tested`
 - `supporting_prerequisite`
@@ -378,16 +378,16 @@ Each evidence event must distinguish at least these mini-skill roles:
 Contract interpretation:
 
 - `primary_tested`
-  - the word or task directly tests this mini-skill
+  - the word or task directly tests this micro-skill
 - `supporting_prerequisite`
-  - success or failure may give some signal about this mini-skill, but it is
+  - success or failure may give some signal about this micro-skill, but it is
     not the main target
 - `weak_possible_prerequisite`
   - the event may suggest fragility, but evidence is indirect or ambiguous
 - `unrelated`
-  - the event should not affect this mini-skill
+  - the event should not affect this micro-skill
 
-Negative evidence should be strongest only for the primary failed mini-skill
+Negative evidence should be strongest only for the primary failed micro-skill
 unless the error directly proves a prerequisite failure.
 
 Examples:
@@ -415,7 +415,7 @@ Examples:
 
 The starting analytical model is:
 
-`evidence_value = outcome × source_weight × mini_skill_role_weight × word_complexity_weight × word_diversity_weight × independence_weight × recency_weight`
+`evidence_value = outcome × source_weight × micro_skill_role_weight × word_complexity_weight × word_diversity_weight × independence_weight × recency_weight`
 
 Where:
 
@@ -424,10 +424,10 @@ Where:
   - `-1` for incorrect evidence
 - `source_weight`
   - strength of the evidence source
-- `mini_skill_role_weight`
-  - strength of the relationship between the event and the mini-skill
+- `micro_skill_role_weight`
+  - strength of the relationship between the event and the micro-skill
 - `word_complexity_weight`
-  - difficulty of the word for the mini-skill being tested
+  - difficulty of the word for the micro-skill being tested
 - `word_diversity_weight`
   - breadth contribution beyond repeated success on the same item
 - `independence_weight`
@@ -475,7 +475,7 @@ Recalibration must preserve the canonical principles:
 - no "Mastered" without transfer
 - no one-word mastery
 - no unverified mastery updates in Stage 1
-- no complex-word shortcut to unrelated lower-level mini-skills
+- no complex-word shortcut to unrelated lower-level micro-skills
 
 ## Stage 4 punctuation issue-pass guardrail
 
@@ -615,7 +615,7 @@ Breadth/diversity required:
 
 Required:
 
-- success distinguishing the mini-skill from nearby confusable patterns
+- success distinguishing the micro-skill from nearby confusable patterns
 
 Insufficient:
 
@@ -651,7 +651,7 @@ Breadth/diversity required:
 
 Required:
 
-- authentic writing evidence showing the mini-skill used correctly in real
+- authentic writing evidence showing the micro-skill used correctly in real
   writing
 
 Insufficient:
@@ -795,7 +795,7 @@ Hard rule:
 
 ## Breadth and word diversity
 
-Each mini-skill should define representative word groups that must be covered
+Each micro-skill should define representative word groups that must be covered
 before strong mastery is awarded.
 
 Conceptual diversity score:
@@ -806,9 +806,9 @@ Rules:
 
 - one word cannot prove mastery
 - repeated success on the same word has diminishing value
-- breadth should reflect the actual mini-skill, not generic difficulty
+- breadth should reflect the actual micro-skill, not generic difficulty
 
-Example mini-skill: drop final `e` before `-ing`
+Example micro-skill: drop final `e` before `-ing`
 
 Representative groups may include:
 
@@ -834,13 +834,13 @@ Word complexity should consider:
 - morphology depth
 - etymology / irregularity
 - homophone / context risk
-- number of mini-skills required
-- highest-level mini-skill involved
+- number of micro-skills required
+- highest-level micro-skill involved
 - common error rate in actual learner work
 
 Hard rule:
 
-- complexity only matters for the mini-skills a word genuinely tests
+- complexity only matters for the micro-skills a word genuinely tests
 
 Complex words must not be treated as automatic proof of lower-level skills they
 did not actually require.
@@ -916,7 +916,7 @@ The mastery model should be able to derive or store:
 
 Rules:
 
-- a mini-skill should not be fully mastered with low confidence
+- a micro-skill should not be fully mastered with low confidence
 - repeated errors after prior mastery should trigger review or reactivation
 - recurrence should not erase historical truth, but it should weaken current
   confidence and may reduce current stage or surface a new review need
@@ -932,11 +932,11 @@ it demonstrates active monitoring, not only passive success.
 Authentic positive evidence differs from exercise evidence because:
 
 - the child is focused on meaning rather than the rule
-- the child must independently retrieve and apply the mini-skill
+- the child must independently retrieve and apply the micro-skill
 - the evidence shows transfer rather than isolated drill success
 
 Later authentic success after previous failure should also be treated as strong
-evidence that the mini-skill is being internalised.
+evidence that the micro-skill is being internalised.
 
 ## Parent verification gate
 
@@ -984,7 +984,7 @@ Documentation and implementation should preserve these checks:
 - no "Mastered" without authentic transfer
 - no one-word mastery
 - no complex-word shortcut to lower-level mastery
-- primary vs supporting mini-skill weighting preserved
+- primary vs supporting micro-skill weighting preserved
 - source type captured
 - verification state captured
 - unverified suggestions cannot update mastery

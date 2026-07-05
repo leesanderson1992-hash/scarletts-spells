@@ -37,7 +37,7 @@ The canonical shared spine remains:
 
 These continue to own:
 
-- mini-skill identity
+- micro-skill identity
 - durable authentic-writing issue history
 - active practice/mastery streams
 - evidence history
@@ -516,7 +516,7 @@ Stage `2` architectural rules:
 - shared consumption must remain under `lib/writing-engine`
 - curated spelling-content ownership must not move into route-local `app/*`
   code or retired spelling runtime helpers
-- mini-skill identity remains anchored by `micro_skill_catalog`
+- micro-skill identity remains anchored by `micro_skill_catalog`
 - mastery truth remains anchored by the existing mastery/evidence contract
 - parent-verification truth remains anchored by `parent_verifications`
 - assignment truth remains anchored by canonical `learning_items` ->
@@ -532,7 +532,7 @@ Stage `2D` boundary refinement:
   - explicit missing-template outcomes
 - `2D` must preserve:
   - the Stage `2A` content-source boundary
-  - the Stage `2C` mini-skill identity/mapping boundary
+  - the Stage `2C` micro-skill identity/mapping boundary
   - the existing Stage `1D` assignment ownership and duplicate-identity rules
 - template lookup must remain a shared read-only concern under
   `lib/writing-engine`
@@ -564,7 +564,7 @@ Stage `2E` boundary refinement:
   - explicit unknown / unavailable outcomes
 - `2E` must preserve:
   - the Stage `2A` content-source boundary
-  - the Stage `2C` mini-skill identity/mapping boundary
+  - the Stage `2C` micro-skill identity/mapping boundary
   - the existing mastery/evidence contract without recalibration
   - the existing Stage `1D` assignment ownership and duplicate-identity rules
 - complexity lookup must remain a shared read-only concern under
@@ -601,7 +601,7 @@ Stage `2F` boundary refinement:
   - explicit under-populated / unavailable outcomes
 - `2F` must preserve:
   - the Stage `2A` content-source boundary
-  - the Stage `2C` mini-skill identity/mapping boundary
+  - the Stage `2C` micro-skill identity/mapping boundary
   - the existing mastery/evidence contract unchanged
   - the existing Stage `1D` assignment ownership and duplicate-identity rules
 - similar-practice lookup must remain a shared read-only concern under
@@ -630,7 +630,7 @@ Stage `2F` stop rule:
 Stage `2` fence rules:
 
 - do not reintroduce `word_progress`
-- do not create a route-local taxonomy or free-text mini-skill source
+- do not create a route-local taxonomy or free-text micro-skill source
 - do not create a parallel parent-verification or mastery system
 - do not broaden into authentic submission analysis, issue creation, or
   sentence-/paragraph-level review flows

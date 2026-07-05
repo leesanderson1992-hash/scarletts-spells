@@ -23,7 +23,7 @@ better writer by:
 
 - analysing submitted work
 - identifying weaknesses
-- mapping those weaknesses to user-facing mini-skills
+- mapping those weaknesses to user-facing micro-skills
 - allowing parent verification
 - updating mastery
 - generating assignments that improve real writing
@@ -61,7 +61,7 @@ creating parallel verification, mastery, or assignment systems.
 
 Parent- and child-facing language should use:
 
-- mini-skill
+- micro-skill
 - lesson
 - review
 - practice
@@ -70,14 +70,14 @@ Parent- and child-facing language should use:
 - used in real writing
 
 Technical documentation may refer to graphs, prerequisite edges, or inference
-internally, but user-facing experiences should use mini-skill language rather
+internally, but user-facing experiences should use micro-skill language rather
 than node language.
 
 ## Existing repo source-of-truth assumptions
 
 The current likely canonical repo spine is:
 
-- `micro_skill_catalog` = mini-skill registry
+- `micro_skill_catalog` = micro-skill registry
 - `learning_items` = active learner mastery/practice stream
 - `learning_item_evidence` = evidence ledger
 - `writing_issues` = durable authentic writing issue history
@@ -105,7 +105,7 @@ they are required.
 
 The canonical product spine is:
 
-`authentic work / diagnostic source -> candidate issue or hypothesis -> parent verification -> verified outcome -> learning item / mini-skill stream -> learning evidence -> targeted assignment item -> later transfer evidence from real writing`
+`authentic work / diagnostic source -> candidate issue or hypothesis -> parent verification -> verified outcome -> learning item / micro-skill stream -> learning evidence -> targeted assignment item -> later transfer evidence from real writing`
 
 For Slice 6 reward/proficiency alignment, the expanded spelling spine is:
 
@@ -187,7 +187,7 @@ This means:
   lesson/task-submission-backed spelling suggestions
 - existing server-side override behavior is covered by the tracked
   override-provider behavior regression
-- `micro_skill_catalog` remains the only mini-skill identity source for that
+- `micro_skill_catalog` remains the only micro-skill identity source for that
   slice
 - bounded provider options must not become unrestricted catalog browsing or
   free-text override truth
@@ -766,16 +766,16 @@ This navigation rule is an ownership rule, not just an information-architecture
 
 ## Mastery semantics
 
-A word is evidence about one or more mini-skills, not the skill itself.
+A word is evidence about one or more micro-skills, not the skill itself.
 
-Correct spelling gives credit only for the mini-skills the word genuinely
+Correct spelling gives credit only for the micro-skills the word genuinely
 tests.
 
 The system must preserve these rules:
 
 - one word must not prove mastery
-- a complex word does not prove all simpler mini-skills
-- supporting prerequisite mini-skills should not be strongly penalised unless
+- a complex word does not prove all simpler micro-skills
+- supporting prerequisite micro-skills should not be strongly penalised unless
   the error directly proves prerequisite failure
 - repeated controlled practice must not be mistaken for authentic transfer
 
@@ -820,7 +820,7 @@ Important gate:
 Evidence should be modelled conceptually using:
 
 - source weight
-- mini-skill role weight
+- micro-skill role weight
 - complexity weight
 - diversity / breadth contribution
 - independence
@@ -849,7 +849,7 @@ Evidence records should preserve, where available:
 - attempt text
 - correctness
 - parent verification state
-- mini-skill role
+- micro-skill role
 - evidence strength / weight
 - complexity metadata
 - breadth metadata
@@ -858,13 +858,13 @@ The exact mathematical scoring model belongs in a lower-level mastery/evidence
 contract, but the requirement to preserve these evidence dimensions is part of
 the canonical brief.
 
-## Word-to-mini-skill evidence model
+## Word-to-micro-skill evidence model
 
 Each word can provide an evidence map that identifies:
 
-- primary tested mini-skill
-- supporting prerequisite mini-skills
-- unrelated mini-skills
+- primary tested micro-skill
+- supporting prerequisite micro-skills
+- unrelated micro-skills
 - evidence weights
 
 Example:
@@ -872,7 +872,7 @@ Example:
 - `hopeing -> hoping` strongly updates `drop final e before vowel suffix`
 - it may weakly or conditionally affect suffix awareness or final silent-e base
   awareness
-- it should not weaken unrelated mini-skills such as CVC word mastery
+- it should not weaken unrelated micro-skills such as CVC word mastery
 
 This distinction is required to avoid corrupting mastery with overly broad
 negative updates.
@@ -891,11 +891,11 @@ Word complexity should consider:
 - morphology depth
 - etymology / irregularity
 - homophone / context risk
-- number of mini-skills required
-- highest-level mini-skill involved
+- number of micro-skills required
+- highest-level micro-skill involved
 - common error rate in actual learner work
 
-Complexity matters only for the mini-skills a word genuinely tests.
+Complexity matters only for the micro-skills a word genuinely tests.
 
 Difficulty must not be treated as universal proof of lower-level mastery.
 
@@ -906,7 +906,7 @@ Parent verification is central.
 The engine may suggest:
 
 - likely category
-- mini-skill
+- micro-skill
 - prerequisite gaps
 - lesson
 - assignment item
@@ -924,7 +924,7 @@ Parent decisions should support:
 
 - accept suggestion
 - override category
-- override mini-skill
+- override micro-skill
 - override lesson
 - mark false positive / not an issue
 - add note
@@ -1019,7 +1019,7 @@ Stage `3` implementation rule:
 - rejected authentic-writing outcomes must remain auditable without creating
   fake `writing_issues`, fake mastery updates, or fake transfer evidence
 - if a proposed Stage `3` implementation requires a new parallel issue
-  history, free-text mini-skill identity, or external API truth owner, the
+  history, free-text micro-skill identity, or external API truth owner, the
   docs must be updated before code is written
 
 Stage `4` implementation rule:
@@ -1102,7 +1102,7 @@ It should support later calculation of:
 - repeated error rate
 - corrected-after-feedback rate
 - high-frequency word accuracy
-- target mini-skill transfer rate
+- target micro-skill transfer rate
 - writing volume
 - complexity of attempted words and sentences
 - self-correction rate
@@ -1138,7 +1138,7 @@ Stage 1 rule:
 
 APIs may enrich or seed suggestions later, but the app owns:
 
-- mini-skills
+- micro-skills
 - lesson templates
 - mastery
 - assignments
@@ -1186,7 +1186,7 @@ Input:
 Output:
 
 - likely error category
-- suggested mini-skill / mini-skills
+- suggested micro-skill / micro-skills
 - possible prerequisite gaps
 - recommended micro-lesson
 - similar practice words
@@ -1196,7 +1196,7 @@ Output:
 Initial classifier approach:
 
 - deterministic rules for obvious patterns
-- word-to-mini-skill map
+- word-to-micro-skill map
 - edit distance comparison
 - grapheme/phonics comparison where practical
 - parent verification

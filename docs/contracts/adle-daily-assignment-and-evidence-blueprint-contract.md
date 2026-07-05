@@ -419,3 +419,50 @@ amends this contract as follows:
    authentic writing) is unchanged.
 8. **Throttle predicate pinned:** a Part 2 lesson runs only when today's
    due review words + due catch-up retests ≤ 10 before the session starts.
+
+## Amendment (2026-07-05 — pedagogy wording corrections approved)
+
+The owner approved five pedagogy wording amendments on 2026-07-05
+(docs audit against the Math Academy-style model). They amend this
+contract and its neighbours as follows:
+
+1. **Interleaving defined (session-mix rule pinned).** "Mixed for
+   interleaving" in the review model means: at session presentation time
+   the composer orders the capped Part 1 queue so that no two words from
+   the same skill family are adjacent, wherever the due mix allows.
+   Interleaving is a review-design requirement and refers to cross-skill
+   mixing only; the quick sort step is a categorisation (activation) step,
+   not interleaving. The registry contract's "Interleaving wording"
+   section is amended accordingly; the ordering rule is pinned in the
+   Slice 3 composer plan. Scheduler state and due-date ordering are
+   unchanged — this is presentation-time ordering only.
+2. **Prerequisite precedence in Part 2 skill selection.** A new step is
+   inserted in the lexicographic order between reteach demand and largest
+   cluster: a candidate skill is deferred when one of its prerequisite
+   micro-skills (taxonomy prerequisite links) is itself a selectable
+   candidate (≥ 2 real unresolved learning_items); the prerequisite is
+   selected first. The order is now: reteach demand → prerequisite
+   precedence → largest cluster → oldest learning_item → frequency
+   usefulness → family rotation → `micro_skill_key`. Skills with no
+   prerequisite links, or whose prerequisites are not candidates, are
+   unaffected (the step is a no-op where no prerequisite data exists —
+   fail-open to the next tier). When Slice 4 proficiency lands,
+   "selectable candidate" may be extended to "not yet secure"; that
+   extension is a Slice 4 decision.
+3. **Authentic-use review credit.** A parent-verified correct authentic
+   use of a word currently in scheduled review counts as that word's pass
+   at its next due review event (bundle review, catch-up retest, or
+   pre-retirement check), priced as authentic-writing evidence rather
+   than review evidence, at most once per interval window. This delivers
+   the learning-system overview's "competency and review confidence
+   update" promise for positive evidence. Bundles still only move
+   forward; the Slice 2 state machine is unchanged until Slice 4's
+   `AuthenticUseProvider` lands — implementation is a Slice 4 item, and
+   this amendment is the policy source for it.
+4. **Interleaving/categorisation naming** applied to the registry
+   contract (see 1).
+5. **Canonical naming enforced:** the "mini-skill" synonym is replaced
+   with "micro-skill" across the normative contracts and architecture
+   docs (historical implementation logs unchanged), per the
+   learning-system overview's naming rule. Code identifiers are
+   unaffected.

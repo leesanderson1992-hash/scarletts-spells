@@ -207,12 +207,26 @@ blueprint's v1 weight table. Notably: dictation is strong (recency-scaled
 spelling, and activities must be able to declare family-conditional evidence
 validity (dictation emits no homophone-choice evidence).
 
-### Interleaving wording
+### Interleaving wording (amended 2026-07-05, owner-approved)
 
-"Interleaving" now means the quick review sort/match step before production
-and the mixing of two due bundles in one review session. It is not a broad
-contrast pedagogy and must not be treated as a general lesson-design
-requirement.
+"Interleaving" means mixing words from different micro-skills / due bundles
+within one review session, so the child must decide which pattern applies
+without the rule in front. It is a review-design requirement: review
+sessions interleave across skills. First-exposure lessons remain
+single-skill (blocked) by design and carry no interleaving requirement.
+
+The quick review sort/match step before production is a **categorisation
+step** (activation-level evidence), not interleaving, and does not satisfy
+the interleaving requirement by itself.
+
+"Interleaving" is also distinct from contrast pedagogy (explicit
+juxtaposition of confusables): contrast/meaning sets remain essential for
+homophones only, and optional elsewhere, per the activity-set amendment
+above.
+
+The Part 1 session-mix ordering rule (no two same-family words adjacent
+where the due mix allows) is pinned in the Slice 3 composer plan and the
+blueprint's 2026-07-05 amendment.
 
 ### Skip reasons
 
