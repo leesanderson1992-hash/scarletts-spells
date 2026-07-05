@@ -1,5 +1,171 @@
 # Decision Log
 
+## 2026-07-05 — ADLE Slice 3 complete: read-model QA signed off, 3E persistence implemented
+
+### What changed
+- The owner signed off the read-model QA artefact
+  (`docs/implementation/adle-slice-3-composed-plan-samples-2026-07-05.md`)
+  and authorized 3E. Slice 3 is now complete (steps 1–8 of the plan's
+  implementation order).
+- 3E persistence planner `lib/adle/assignment-persistence.ts` (pure;
+  DB access stays in loaders/scripts): `planAssignmentPersistence`
+  turns a composed daily plan into the exact `daily_assignments` header
+  (pinned title `ADLE Daily Plan`, generation source `adle_composer_v1`,
+  review words in presentation order, lesson words as target words) plus
+  ordered `assignment_items` drafts — one row per item candidate,
+  contiguous positions, deterministic `source_entity_id`
+  `adle:{child}:{date}:{position}`, `domain_module 'spelling'`,
+  `source_type 'adle_composer'`, prompt payload and full provenance
+  metadata (section, provenance, micro-skill, evidence-kind label,
+  composer/schedule policy versions). Stretch learning-item intakes ride
+  the same insert plan so every generated item traces to an active
+  `adle_learning_items` row.
+- Idempotence per (child, day): an existing ADLE-titled header for the
+  child+day makes re-planning a no-op (`existing_active_plan`); legacy
+  titles, other days, and other children never block. The DB duplicate
+  guard is the existing `daily_assignments` unique constraint on
+  (child_id, assignment_date, title) — no schema change to the legacy
+  tables. Empty plans are a `empty_plan` no-op; review-only days persist
+  Part 1 only.
+- Documented pins:
+  - `assignment_items.learning_item_id` stays null for ADLE rows — that
+    FK targets legacy `learning_items` (live consumers, untouched). ADLE
+    linkage is preserved in `metadata.adleLearningItemRef` plus the
+    persisted `adle_learning_items` rows.
+  - Plan-level skip reasons stay on the composed-plan value (read model /
+    telemetry); `daily_assignments` has no metadata column to carry them.
+- Regression `scripts/adle-composer-persistence-regression.ts`
+  (`npm run adle:composer-persistence-regression`): insert-plan shape,
+  determinism, provenance, idempotence no-ops, review-only and empty-day
+  behaviour. Rolled-back local-dev SQL smoke verified the real tables:
+  header inserts, duplicate ADLE header rejected by the unique
+  constraint, item drafts insert under the header, duplicate active
+  stretch item rejected by the (child, word, skill) guard. Full ADLE
+  regression suite re-run green. Assignment persistence writes nothing
+  else — no evidence, proficiency, Word Treasure, or scheduler state.
+- Slice 3 closeout: plan status flipped to complete. Next ADLE slice:
+  Slice 4 (evidence engine), which prices the outcome ledger and attempt
+  texts this slice and Slice 2 record.
+
+### Why
+- Read-model QA passed on the three fixture children's composed days, so
+  the composer contract's persistence boundary opened; landing the
+  planner pure with the existing uniqueness guard keeps persistence
+  idempotent and auditable without touching legacy writers.
+
+## 2026-07-05 — ADLE Slice 3 implemented through the read-model QA gate (3E persistence pending owner sign-off)
+
+### What changed
+- ADLE Slice 3 (per `docs/implementation/adle-slice-3-daily-assignment-composer-plan.md`,
+  owner-approved 2026-07-05) is implemented through step 6 of the plan's
+  implementation order. 3E persistence into `assignment_items` is **not
+  implemented** — it stays blocked on owner sign-off of the read-model QA
+  artefact, per the composer contract's read-model-first rule.
+  - 3A `supabase/migrations/20260705180000_add_adle_composer_storage.sql`
+    adds `adle_learning_items` (reformed word-level store; unique active
+    row per child+word+skill; legacy `learning_items` untouched),
+    `adle_family_methods`, `adle_activity_templates` (registry metadata:
+    min words, sentence-context/contrast requirements, evidence-kind
+    labels), `adle_probe_runs`, and the owner-decision-6 raw-attempt
+    columns (`attempt_text` on `adle_taught_word_history` and
+    `adle_review_outcome_events`, `source_attempt_text` on
+    `adle_learning_items`). **Applied to local dev** (ledger row
+    `20260705180000`) after a rolled-back scratch verify and a
+    rolled-back constraint smoke. Hosted/production untouched.
+  - 3B `scripts/adle-import-composer-registry.py` (dry-run default,
+    guarded local-only `--apply` with confirmation token
+    `adle-composer-registry-local-dev`, docker psql mode, advisory-lock
+    transaction, import-batch supersede-and-insert) landed the workbook's
+    Family Methods (8 rows) and Activity Templates (32 rows) in local
+    dev under content version `2026-07-04.v1`. Guided sequences may
+    reference exactly two documented composition-time meta-keys
+    (`DICTATION_OR_WRITING`, `SENTENCE_APPLICATION` — they are not
+    template rows on the sheet); the importer validates everything else
+    resolves. Regression:
+    `npm run adle:composer-registry-regression`.
+  - 3C pure read models in `lib/adle/`: `composer-policy.ts`
+    (composer policy v1 constants: 25-response budget, 5-word lesson,
+    guided 2–3, must-use 3–5, 14-day probe cap), `learning-items.ts`
+    (word-level items, call-time clusters, reteach demand, intake
+    transitions, read-only verified-misspelling bridge over promoted
+    candidate mappings), `composer-skill-selection.ts` (pinned
+    lexicographic tiers with explainable audit trail; prerequisite tier
+    fail-open on empty facts/cycles), `composer-word-selection.ts`
+    (pinned fill order, adjacent-band window, probe rules with 14-day cap
+    edges), `daily-assignment-composer.ts` (two-part day, session-mix
+    nearest-swap ordering, family sort dimensions, homophone
+    sentence-context production, throttle gating, pinned trim order,
+    fail-closed skip vocabulary).
+  - 3D `lib/adle/composer-completions.ts`: `onLessonCompleted` (bundle via
+    Slice 2 `createReviewBundle` over successful words, reteach re-entry
+    carries incremented cycle count, taught events for all produced
+    words), `onProbeCompleted` (probe-run booking, probed events, misses
+    to items, unmapped misspellings routed — returned, never written — to
+    the candidate queue), `onReviewSessionCompleted` (Slice 2 resolve
+    functions only, ejection round-trip into pending-reteach items,
+    3+-wrong reopen facts, parent-review pauses). Raw attempt text rides
+    every completion fact; nothing prices or analyses it.
+  - 3F `npm run adle:composer-regression` (fixture-backed, DB-independent)
+    passing, plus all prior ADLE regressions (banding parity 874/424/342/108,
+    eligibility, review scheduler, registry import) re-run green.
+  - QA artefact for the persistence gate (open question 3):
+    `docs/implementation/adle-slice-3-composed-plan-samples-2026-07-05.md`
+    — three fixture children (steady-state lesson day with probe;
+    12-due review-only day; reteach day under the probe cap), generated
+    deterministically by `scripts/adle-composer-qa-sample-plans.ts`.
+- Implementation pins to surface for owner QA (documented in code):
+  - **`stretch_selection` source kind added** to the plan's
+    `adle_learning_items.source_kind` enum: the acceptance criteria
+    require stretch words to trace to items created at composition, but
+    the plan's enum had no value for them. Probe words intake only on
+    misses (via 3D), matching the blueprint's "cold misses become
+    learning_items".
+  - The 3+-wrong reopen flags each failed word's micro-skill (the
+    blueprint's singular "the micro-skill lesson" is ambiguous for
+    mixed-skill sessions).
+  - The reopen rule and ejection intakes are completion facts (3D), not
+    composition facts — wrongness is unknowable at composition time.
+  - Probe and stretch pools are disjoint within one composition, so a
+    full probe day needs (open slots × 2) eligible new words; short pools
+    fail closed to `missing_required_words`.
+
+### Why
+- Lands the composer's storage, registry, read models, and completion
+  write path pure and regression-covered while honouring the composer
+  contract's rule that persistence waits for read-model QA — the owner
+  can now review real composed days before any `assignment_items` row
+  exists.
+
+## 2026-07-05 — ADLE Slice 3 plan approved ("recommended on all")
+
+### What changed
+- The owner approved
+  `docs/implementation/adle-slice-3-daily-assignment-composer-plan.md`
+  with "recommended on all": the plan's five open questions are closed on
+  their recommended answers (new `adle_learning_items` table, legacy
+  untouched; verified-misspelling intake bridge in this slice; hands-on
+  owner QA of 2–3 fixture children's composed plans before 3E
+  persistence; registry as DB tables + guarded import; time-budget
+  constants pinned as composer policy v1), plus a sixth decision added at
+  approval: **raw-attempt-text capture** — 3D completion helpers persist
+  the child's raw attempt text per produced word (nullable
+  `attempt_text` on `adle_taught_word_history` and
+  `adle_review_outcome_events` via the 3A migration; nullable
+  `source_attempt_text` on `adle_learning_items`), storage-only, so the
+  Slice 4 evidence engine can do grapheme-level error attribution later.
+- The plan's status is flipped to owner-approved; implementation is
+  authorized (local/dev only, no hosted/production Supabase mutation).
+  The plan also carries the 2026-07-05 pedagogy amendments (session-mix
+  rule, prerequisite-precedence selection tier) pinned in policy,
+  read-model, regression, and acceptance sections.
+
+### Why
+- Slice 3 (daily assignment composer) is the third slice in the amended
+  Version 3 roadmap order; Slices 1–2 landed 2026-07-05 and the plan's
+  "What already exists" inventory was verified against local dev the
+  same day. Raw attempt text cannot be recovered retroactively, so its
+  capture had to be decided before the composer's write path is built.
+
 ## 2026-07-05 — Pedagogy wording amendments (owner-approved, docs audit)
 
 ### What changed
