@@ -1,5 +1,126 @@
 # Decision Log
 
+## 2026-07-05 — ADLE Slice 5 complete: owner QA sign-off
+
+### What changed
+- The owner signed off the QA artefact
+  `docs/implementation/adle-slice-5-proficiency-report-samples-2026-07-05.md`
+  (implementation-order step 7), closing the Slice 5 QA gate. Plan status
+  flipped to COMPLETE (step 8).
+- No code or figures changed at closeout beyond the status flip and this
+  entry; the proficiency engine landed and was verified in the prior
+  entry (all eight `adle:*` suites green, new modules typecheck + lint
+  clean). Slice 5 added no migration and no new storage — proficiency is
+  a pure recomputed read model over the Slice 4 evidence states.
+- Clarified at the gate (no change needed): the sample artefact's skill
+  keys (`SK_OBSCURE`, `SK_MAGIC_E`, etc.) and words (`syzygy`, `cried`)
+  are synthetic fixtures that exercise each code path, not real
+  `micro_skill_catalog` keys or dictionary words; the five badge names
+  (`secure` / `secure (limited allocation)` / `developing` /
+  `developing (early)` / `not started`) are computed from allocation,
+  progress, and gate position. Also reaffirmed the obscure-word firewall:
+  frequency/AoA gate eligibility only and never set the complexity Level
+  (which is a six-input structural score, irregularity weighted double).
+
+### Next
+- Slice 6: live session surface + completion wiring (child attempt-capture
+  flow, live authentic-use emission from Review Work, parent-review
+  release of paused words, Phase 3.7B browser signoff). Needs its own
+  docs-first plan and owner approval before implementation.
+
+## 2026-07-05 — ADLE Slice 5 implemented (owner QA gate pending)
+
+### What changed
+- Implemented the owner-approved Slice 5 micro-skill proficiency engine
+  (implementation-order steps 1–6):
+  - `lib/adle/proficiency-policy.ts` — `PROFICIENCY_POLICY_V1`
+    (`proficiency_policy_v1_2026-07-05`): credit table 1.0/0.4/0.1,
+    target constants (cap 20, ratio 0.6, floor 8), `levelTarget` /
+    `isLimitedAllocation` / `stateCredit` helpers, non-contrast credit
+    roles, and the parent-facing `PROFICIENCY_VOCABULARY` constants.
+  - `lib/adle/micro-skill-proficiency.ts` — pure breadth-credit
+    projection over Slice 4 word evidence states: status-5 gate,
+    contrast-role exclusion, override-aware effective levels,
+    per-word-per-skill 1.0 cap, allocation-derived `target(L)`,
+    first-populated-level gating (never averaged; unpopulated lower
+    levels skipped as `no_allocation` gaps and re-gate on recomputation),
+    the blueprint reporting shape, and `notYetSecureSkillKeys` deriver.
+  - `lib/adle/composer-skill-selection.ts` — additive, fail-open
+    `notYetSecureSkillKeys` fact extending the prerequisite-precedence
+    tier with the actionability guard (defers a dependent only when its
+    not-yet-secure prerequisite has an unresolved learning item). Absent
+    fact → byte-identical to before; the composer regression is unchanged
+    and green.
+  - `scripts/adle-proficiency-regression.ts` (registered
+    `npm run adle:proficiency-regression`) and
+    `scripts/adle-proficiency-report-samples.ts` →
+    `docs/implementation/adle-slice-5-proficiency-report-samples-2026-07-05.md`
+    (owner QA artefact).
+- Verification: all eight `adle:*` regression suites green; the new lib
+  modules typecheck and lint clean. No migration, no new storage, no
+  changes to Slice 1–4 semantics or the allocation runner.
+
+### Next
+- Owner QA gate: review
+  `adle-slice-5-proficiency-report-samples-2026-07-05.md`; on sign-off,
+  flip the plan status to COMPLETE and close out. Slice 6 (live session
+  surface) follows in the slice track.
+
+## 2026-07-05 — ADLE Slice 5 plan approved ("Yes")
+
+### What changed
+- Owner approved `adle-slice-5-proficiency-engine-plan.md` — all five
+  open questions closed with the plan's recommendations: pure recomputed
+  read model (no migration, no new storage), state-based breadth credit
+  (1.0/0.4/0.1) with the status-5 gate and contrast-role exclusion,
+  allocation-derived `target(L)` (floor 8, `secure (limited allocation)`
+  badging), gated-never-averaged levels, the "not yet secure"
+  prerequisite-precedence extension with the actionability guard,
+  Phase 11 triage (instructional states / review priority / maintenance
+  status all out), and the reporting-read-model + parent-vocabulary
+  deliverable (UI deferred to Slice 7).
+- Refinement: the unpopulated-level gating edge is pinned to "progress
+  to the first available (populated) level" — a skill is gated bottom-up
+  from its lowest level that has words, not from Level 1 in the
+  abstract; empty lower levels neither block nor count, and re-gate
+  automatically if later import batches populate them. Plan status
+  flipped to `Owner-approved 2026-07-05`.
+
+### Next
+- Slice 5 implementation in a separate session per the slice-track
+  convention (docs-first plan now approved). No implementation,
+  migration, or Supabase mutation performed at approval.
+
+## 2026-07-05 — ADLE Slice 5 plan drafted
+
+### What changed
+- `docs/implementation/adle-slice-5-proficiency-engine-plan.md` drafted
+  (docs-only): the micro-skill proficiency engine as a pure projection
+  over the Slice 4 word evidence states — `PROFICIENCY_POLICY_V1`
+  breadth-credit table (1.0/0.4/0.1, state-based, capped 1/word/skill),
+  status-5 gate and contrast-role exclusion on credit mappings,
+  allocation-derived `target(L)` (floor 8 exactly, cap 20,
+  `secure (limited allocation)` badging), gated-never-averaged levels
+  with a pinned unpopulated-level rule (`no_allocation` cells skip the
+  gate but report as evidence gaps), the blueprint reporting shape with
+  parent-facing vocabulary constants, and the 2026-07-05 amendment
+  item 2 "not yet secure" prerequisite-precedence extension
+  (recommended: adopt with an actionability guard, as an additive
+  fail-open composer fact).
+- Recommended shape adds no storage and no migration; five open
+  questions for the owner with recommendations (storage shape, credit
+  inputs + slipped-word crediting, the prerequisite extension, old
+  Phase 11 triage, reporting vocabulary).
+
+### Why
+- Slice 5 (roadmap Phase 11) is the next slice in the ADLE slice track;
+  the slice-track convention requires a docs-first plan and owner
+  approval before any implementation.
+
+### Status
+- `Draft for owner review`. No implementation, migration, import, or
+  Supabase mutation authorized.
+
 ## 2026-07-05 — Version 3 roadmap aligned to the ADLE slice track (owner-directed)
 
 ### What changed

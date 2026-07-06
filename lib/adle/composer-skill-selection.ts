@@ -17,6 +17,14 @@
  * injected fact set; absent data means that tier decides nothing (fail-open
  * to the next tier), as does a deferral that would empty the survivor set
  * (e.g. a prerequisite cycle).
+ *
+ * Slice 5 (5D) extends the prerequisite tier per the blueprint's 2026-07-05
+ * amendment item 2: a prerequisite that is "not yet secure" (injected
+ * notYetSecureSkillKeys from the proficiency read model) AND actionable (has
+ * an unresolved learning item) also defers its dependent. The extension is
+ * additive and fail-open — with no injected proficiency facts the tier is
+ * byte-identical to before, and every prior composer regression fixture
+ * passes unchanged.
  */
 
 import {
@@ -36,6 +44,17 @@ export interface SkillSelectionFacts {
   skillFamilyKeyBySkill: ReadonlyMap<string, string>;
   /** Taxonomy prerequisite links; empty map = the tier is a no-op. */
   prerequisiteKeysBySkill: ReadonlyMap<string, readonly string[]>;
+  /** Slice 5 (5D) "not yet secure" extension (blueprint 2026-07-05 amendment
+   * item 2): skills whose micro-skill proficiency reports no secure level.
+   * Injected from the proficiency read model (the composer never recomputes
+   * proficiency). Absent/empty = the extension is off and the prerequisite
+   * tier behaves exactly as before (fail-open, byte-identical). A prerequisite
+   * defers a dependent under this set only when it is also ACTIONABLE — it has
+   * at least one unresolved learning item — so deferral always points at work
+   * the system can actually teach next; a not-yet-secure prerequisite with no
+   * items and no probe path (frontier probes are out of scope) never starves
+   * an error-driven dependent skill. */
+  notYetSecureSkillKeys?: ReadonlySet<string>;
   /** canonical_word_id -> frequency_band (eligibility metadata; ordering
    * only — the obscure-word firewall keeps it away from Levels). */
   frequencyBandByWordId: ReadonlyMap<string, string | null>;
@@ -150,18 +169,29 @@ export function selectPartTwoSkill(facts: SkillSelectionFacts): SkillSelectionRe
   }
 
   // Tier 2: prerequisite precedence — defer a survivor whose prerequisite is
-  // itself a selectable candidate; the prerequisite is selected first.
+  // itself a selectable candidate (original rule), OR (Slice 5D extension)
+  // whose prerequisite is not yet secure AND actionable (has >= 1 unresolved
+  // learning item). The prerequisite is selected first. The extension is off
+  // when notYetSecureSkillKeys is absent/empty (fail-open, byte-identical).
+  const notYetSecure = facts.notYetSecureSkillKeys ?? new Set<string>();
+  const hasUnresolvedItem = (skill: string) => (clusters.get(skill)?.length ?? 0) >= 1;
   if (
     runTier(
       "prerequisite_precedence",
-      "defer skills whose prerequisite micro-skill is a selectable candidate",
+      "defer skills whose prerequisite is a selectable candidate, or (Slice 5) not yet secure and actionable",
       (current) => {
         const currentSet = new Set(current);
         return current.filter((skill) => {
           const prerequisites = facts.prerequisiteKeysBySkill.get(skill) ?? [];
-          return !prerequisites.some(
-            (prerequisite) => prerequisite !== skill && currentSet.has(prerequisite),
-          );
+          return !prerequisites.some((prerequisite) => {
+            if (prerequisite === skill) {
+              return false;
+            }
+            const isSelectableCandidate = currentSet.has(prerequisite);
+            const isActionableNotYetSecure =
+              notYetSecure.has(prerequisite) && hasUnresolvedItem(prerequisite);
+            return isSelectableCandidate || isActionableNotYetSecure;
+          });
         });
       },
     )

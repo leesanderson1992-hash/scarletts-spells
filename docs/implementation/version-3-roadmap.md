@@ -13,12 +13,13 @@ ADLE remains separate from Word Treasure.
 
 ## Current stage
 
-Current Version 3.0 stage: `ADLE Slices 1–4 complete (2026-07-05):
+Current Version 3.0 stage: `ADLE Slices 1–5 complete (2026-07-05):
 dictionary eligibility + banding, review scheduler, daily assignment
-composer, and evidence engine are implemented in local/dev with passing
-regressions and owner QA sign-offs. Next: ADLE Slice 5 (Phase 11
-micro-skill proficiency). See "ADLE slice track" below for the full path
-to the shipped product.`
+composer, evidence engine, and micro-skill proficiency engine are
+implemented in local/dev with passing regressions and owner QA sign-offs.
+Next: ADLE Slice 6 (Phase 10 capture half + Phase 3.7B — live session
+surface and completion wiring). See "ADLE slice track" below for the full
+path to the shipped product.`
 
 Implemented so far:
 - Phase 0 current-state audit was completed as an inspection/planning pass.
@@ -97,8 +98,8 @@ and any re-cut of their boundaries happens in those plans, not here.
 | 2 | review scheduler: 1/3/7/14/28/56 bundles, next-day/+3 catch-up, throttle, conditional 112-day check | Phase 9 (reordered ahead per the 2026-07-04 amendment) | **complete 2026-07-05** |
 | 3 | daily assignment composer: word-level learning items, family/template registry import, skill selection, 5-word rule + probes, day assembly, completion write path, `assignment_items` persistence | Phases 6, 7, 8 (+ session-mix interleaving from Phase 9) | **complete 2026-07-05** |
 | 4 | evidence engine: evidence policy v1, pricing + caps, word evidence states, real AuthenticUseProvider + review credit, slippage + deductions | Phase 10 (storage/pricing half) | **complete 2026-07-05** |
-| 5 | micro-skill proficiency engine: breadth credit 1.0/0.4/0.1, target(L) from the allocation table (floor 8, `secure (limited allocation)` badging), gated-never-averaged levels, reporting read model, "not yet secure" prerequisite-precedence extension | Phase 11 | next |
-| 6 | live session surface and completion wiring: child attempt-capture flow for the composed day (Part 1 review + Part 2 lesson), completion helpers wired to real sessions, live authentic-use emission from Review Work, parent-review release of paused words, Phase 3.7B Daily Assignment browser signoff | Phase 10 (capture half) + Phase 3.7B | planned |
+| 5 | micro-skill proficiency engine: breadth credit 1.0/0.4/0.1, target(L) from the allocation table (floor 8, `secure (limited allocation)` badging), gated-never-averaged levels, reporting read model, "not yet secure" prerequisite-precedence extension | Phase 11 | **complete 2026-07-05** |
+| 6 | live session surface and completion wiring: child attempt-capture flow for the composed day (Part 1 review + Part 2 lesson), completion helpers wired to real sessions, live authentic-use emission from Review Work, parent-review release of paused words, Phase 3.7B Daily Assignment browser signoff | Phase 10 (capture half) + Phase 3.7B | next |
 | 7 | child and parent UI: calm/small child daily practice UI, parent "why this appeared today" provenance, proficiency dashboard (progress-toward-next-level framing, allocation-limited flags), curriculum gap visibility, ADLE→Word Treasure event emission (reward contract consumes) | Phase 13 (+ Phase 12 event wiring) | planned |
 | 8 | productionisation: bulk dictionary population with per-batch banding reports and intake standards, hosted/production migrations (owner-approved, per migration policy), pilot tuning of the blueprint's pilot list (interval telemetry, probe cap, must-use counts, parent-report thresholds) | release | planned |
 
@@ -1375,14 +1376,20 @@ Rules:
 </details>
 
 <details>
-<summary>Phase 11: Micro-skill proficiency engine — Next (ADLE Slice 5)</summary>
+<summary>Phase 11: Micro-skill proficiency engine — Complete (ADLE Slice 5)</summary>
 
-Status: `Next — ADLE Slice 5 (docs-first plan for owner review before
-implementation). Adopts the blueprint's graded-breadth gated-level model
-over the Slice 4 evidence states: breadth credit 1.0/0.4/0.1, target(L)
-computed from the allocation table (floor 8, secure-limited-allocation
-badging), levels gated never averaged, and the "not yet secure"
-prerequisite-precedence extension from the 2026-07-05 amendment.`
+Status: `Complete 2026-07-05 — ADLE Slice 5 (owner-approved plan, owner
+QA sign-off; see the slice plan and decision log). Delivered the
+blueprint's graded-breadth gated-level model over the Slice 4 evidence
+states: breadth credit 1.0/0.4/0.1, target(L) computed from the
+allocation table (floor 8, secure-limited-allocation badging), levels
+gated never averaged (from a skill's first populated level), the
+reporting read model with parent-facing vocabulary, and the additive
+fail-open "not yet secure" prerequisite-precedence extension (with an
+actionability guard). Pure recomputed read model — no migration, no new
+storage. Triaged OUT of Slice 5 (below): instructional-state
+transitions (lesson-flow only, never derived from evidence), review
+priority (scheduler-owned), and maintenance status.`
 
 Aggregate evidence into:
 - proficiency
