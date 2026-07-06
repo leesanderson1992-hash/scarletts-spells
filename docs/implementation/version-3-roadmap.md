@@ -13,13 +13,16 @@ ADLE remains separate from Word Treasure.
 
 ## Current stage
 
-Current Version 3.0 stage: `ADLE Slices 1–5 complete (2026-07-05):
-dictionary eligibility + banding, review scheduler, daily assignment
-composer, evidence engine, and micro-skill proficiency engine are
-implemented in local/dev with passing regressions and owner QA sign-offs.
-Next: ADLE Slice 6 (Phase 10 capture half + Phase 3.7B — live session
-surface and completion wiring). See "ADLE slice track" below for the full
-path to the shipped product.`
+Current Version 3.0 stage: `ADLE Slices 1–6 complete (Slices 1–5
+2026-07-05; Slice 6 2026-07-06): dictionary eligibility + banding, review
+scheduler, daily assignment composer, evidence engine, micro-skill
+proficiency engine, and the live session surface + completion wiring are
+implemented in local/dev with passing regressions and owner QA. Slice 6
+adds the two-part child session, completion wiring, live authentic-use
+emission on Review Work approval, and paused-word release — all verified
+against the real database with an owner browser walkthrough (fixes
+applied). Next: ADLE Slice 7 (child/parent UI). See "ADLE slice track"
+below for the full path to the shipped product.`
 
 Implemented so far:
 - Phase 0 current-state audit was completed as an inspection/planning pass.
@@ -99,7 +102,7 @@ and any re-cut of their boundaries happens in those plans, not here.
 | 3 | daily assignment composer: word-level learning items, family/template registry import, skill selection, 5-word rule + probes, day assembly, completion write path, `assignment_items` persistence | Phases 6, 7, 8 (+ session-mix interleaving from Phase 9) | **complete 2026-07-05** |
 | 4 | evidence engine: evidence policy v1, pricing + caps, word evidence states, real AuthenticUseProvider + review credit, slippage + deductions | Phase 10 (storage/pricing half) | **complete 2026-07-05** |
 | 5 | micro-skill proficiency engine: breadth credit 1.0/0.4/0.1, target(L) from the allocation table (floor 8, `secure (limited allocation)` badging), gated-never-averaged levels, reporting read model, "not yet secure" prerequisite-precedence extension | Phase 11 | **complete 2026-07-05** |
-| 6 | live session surface and completion wiring: child attempt-capture flow for the composed day (Part 1 review + Part 2 lesson), completion helpers wired to real sessions, live authentic-use emission from Review Work, parent-review release of paused words, Phase 3.7B Daily Assignment browser signoff | Phase 10 (capture half) + Phase 3.7B | next |
+| 6 | live session surface and completion wiring: child attempt-capture flow for the composed day (Part 1 review + Part 2 lesson), completion helpers wired to real sessions, live authentic-use emission from Review Work, parent-review release of paused words, Phase 3.7B Daily Assignment browser signoff | Phase 10 (capture half) + Phase 3.7B | **complete 2026-07-06** |
 | 7 | child and parent UI: calm/small child daily practice UI, parent "why this appeared today" provenance, proficiency dashboard (progress-toward-next-level framing, allocation-limited flags), curriculum gap visibility, ADLE→Word Treasure event emission (reward contract consumes) | Phase 13 (+ Phase 12 event wiring) | planned |
 | 8 | productionisation: bulk dictionary population with per-batch banding reports and intake standards, hosted/production migrations (owner-approved, per migration policy), pilot tuning of the blueprint's pilot list (interval telemetry, probe cap, must-use counts, parent-report thresholds) | release | planned |
 
@@ -1350,15 +1353,15 @@ Boundaries:
 </details>
 
 <details>
-<summary>Phase 10: Attempt and evidence capture — Storage/pricing complete (ADLE Slices 3 + 4); live capture surface is Slice 6</summary>
+<summary>Phase 10: Attempt and evidence capture — Complete (ADLE Slices 3 + 4 storage/pricing; Slice 6 live capture surface)</summary>
 
-Status: `Split 2026-07-05. Complete: raw attempt text persisted on every
-completion fact (Slice 3, owner decision 6) and the full evidence engine
-(Slice 4: evidence_policy_v1 pricing, caps, word evidence states,
-authentic-use facts + review credit, slippage deductions) — the rules
-below are implemented and regression-pinned. Remaining: the live child
-attempt-capture surface that feeds real sessions into the completion
-helpers — ADLE Slice 6 in the slice track.`
+Status: `Complete. Slices 3 + 4 (2026-07-05): raw attempt text persisted
+on every completion fact (owner decision 6) and the full evidence engine
+(evidence_policy_v1 pricing, caps, word evidence states, authentic-use
+facts + review credit, slippage deductions), regression-pinned. Slice 6
+(2026-07-06): the live child attempt-capture surface now feeds real
+sessions into the completion helpers, and live authentic-use emission
+fires on Review Work approval — verified against the real database.`
 
 Capture:
 - child attempts
@@ -1434,12 +1437,17 @@ Rules retained:
 </details>
 
 <details>
-<summary>Phase 13: Child and parent UI integration — Planned (ADLE Slices 6–7)</summary>
+<summary>Phase 13: Child and parent UI integration — Slice 6 done (live surface + wiring); Slice 7 (calm UI) planned</summary>
 
-Status: `Not started. Sequenced in the slice track: Slice 6 delivers the
-live child session surface and completion wiring (with Phase 3.7B
-browser signoff); Slice 7 delivers the child/parent UI surfaces below
-plus ADLE→Word Treasure event emission.`
+Status: `Slice 6 complete (2026-07-06): the live child session surface,
+completion wiring, and Phase 3.7B ADLE-mapped browser walkthrough are
+done, but the surface is deliberately a functional-forms harness. Slice 7
+(not started) delivers the child/parent UI surfaces below (calm child
+practice UI, parent "why this appeared today" provenance, proficiency
+dashboard) plus ADLE→Word Treasure event emission. Note: real lessons
+also need approved word↔skill dictionary mappings (content curation) —
+local dev currently has no content-complete, approved-mapped skill, so
+the manual-QA lesson uses a synthetic word↔skill pairing.`
 
 Add:
 - child ADLE practice UI

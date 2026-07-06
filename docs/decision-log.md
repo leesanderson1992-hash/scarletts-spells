@@ -1,5 +1,51 @@
 # Decision Log
 
+## 2026-07-06 — ADLE Slice 6 complete: live session surface + completion wiring
+
+### What changed
+- ADLE Slice 6 landed and closed out in local/dev. Delivered: a lazy
+  ensure-today's-plan generator + read model (`lib/adle/loaders/`), the
+  two-part child session route `app/learn/week/adle/` with
+  `AdleSessionRunner`, completion wiring that feeds real sessions into the
+  Slice 3 helpers (pass/fail with raw attempt text, catch-up, new 1-day
+  bundle, taught events), live authentic-use emission on Review Work
+  approval (hook in `approveSubmissionReviewImpl`, try/catch, log-only
+  no-match), and paused-word Resume/Retire inside the existing Review Work
+  page. No migration (release path reuses existing status enums; session
+  state is part-level `assignment_items.status`).
+- Verified against the real database, not just fixtures: a guarded live
+  smoke drove loader → compose → persist → complete → persist; an owner
+  browser walkthrough exercised the full child session and the parent
+  paused-word release; and the authentic-use emission was verified by
+  running the exact hook function against a real seeded Review Work
+  submission (5 events for canonical words, non-words logged not credited,
+  idempotent). QA artefact:
+  `docs/implementation/qa/adle-slice-6-live-smoke-2026-07-06.md`.
+- Three defects found during the owner walkthrough and fixed: (1)
+  whole-string correctness marked a correct homophone-in-a-sentence wrong
+  → token-membership rule in shared `lib/adle/session-correctness.ts`; (2)
+  review dictation was copyable and silent → phased sort→spell→reflect flow
+  (words hidden while spelling) + audio "Hear the word" (Web Speech API);
+  (3) primary buttons used a non-existent `--ink` CSS var → invisible
+  white-on-transparent, switched to the app's `.brand-primary-btn` /
+  `.brand-secondary-btn`.
+- All ten `adle:*` regression suites green; project `tsc --noEmit` clean;
+  new files lint clean.
+
+### Scope caveats (recorded, not defects)
+- The child UI is a deliberate functional-forms harness; the calm/
+  interactive lesson experience is Slice 7.
+- The manual-QA lesson uses a synthetic word↔skill pairing: the engine and
+  teaching content are real, but words were force-mapped onto a skill
+  because local dev has no approved, content-complete skill with enough
+  eligible words. Real lessons need approved word→skill dictionary mappings
+  (content curation, upstream of ADLE).
+
+### Next
+- ADLE Slice 7: child/parent UI (calm child practice UI, parent
+  provenance, proficiency dashboard) + ADLE→Word Treasure event emission.
+  Needs its own docs-first plan and owner approval before implementation.
+
 ## 2026-07-05 — ADLE Slice 5 complete: owner QA sign-off
 
 ### What changed

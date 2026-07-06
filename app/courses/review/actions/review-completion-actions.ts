@@ -12,6 +12,8 @@ import { maybeAwardTaskSubmissionApprovalCoins } from "@/lib/rewards/course-coin
 import { confirmFreeWritingEvidenceCandidates } from "@/lib/rewards/free-writing-evidence";
 import { createOrUpdateGoldenNuggetFromParentApproval } from "@/lib/rewards/word-treasures";
 import { createClient } from "@/lib/supabase/server";
+import { createServiceRoleClient } from "@/lib/supabase/service-role";
+import { emitAdleAuthenticUseFromApprovedSubmission } from "@/lib/adle/loaders/authentic-use-live-emission";
 import {
   doesFinalClassificationCreateLearningItem,
   isWritingIssueFinalClassification,
@@ -1338,6 +1340,26 @@ export async function approveSubmissionReviewImpl(formData: FormData) {
         "error",
         "We couldn't approve that submission just yet.",
       ),
+    );
+  }
+
+  // ADLE Slice 6: live authentic-use emission (Slice 4 open-question-3).
+  // Approval is the parent-verified-truth moment; matching is fail-closed
+  // normalised-word only, no-match is logged never guessed, and a failure
+  // here can never block the approval (the guarded batch bridge remains the
+  // idempotent recovery path).
+  try {
+    await emitAdleAuthenticUseFromApprovedSubmission({
+      userClient: supabase,
+      serviceClient: createServiceRoleClient(),
+      parentUserId: user.id,
+      childId: submission.child_id,
+      submissionId: submission.id,
+    });
+  } catch (adleEmissionError) {
+    console.error(
+      `[adle-authentic-use] emission failed for submission ${submission.id} (approval unaffected)`,
+      adleEmissionError,
     );
   }
 

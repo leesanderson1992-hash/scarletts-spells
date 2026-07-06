@@ -197,6 +197,54 @@ function normaliseObserved(word: string): string {
   return word.toLowerCase().replace(/[^a-z]/g, "");
 }
 
+/** The writing-engine truth the live approval hook extracts candidates from:
+ * one approved submission's linked writing sample plus its flagged
+ * misspellings (misspelling_instances that are not false positives). */
+export interface ApprovedWritingPieceFacts {
+  childId: string;
+  writingSampleId: string;
+  sampleText: string;
+  /** The date of the writing itself (written_at/created_at date). */
+  occurredOn: IsoDate;
+  /** Raw flagged misspelled words for this sample — a flagged misspelling is
+   * never a correct-use candidate. */
+  flaggedMisspellings: readonly string[];
+}
+
+const TOKEN_PATTERN = /[a-z]+/g;
+
+/**
+ * Slice 6 live-emission candidate extraction — the exact tokenisation and
+ * exclusion semantics of the guarded bridge script (scripts/
+ * adle-authentic-use-bridge.py): unique lowercase [a-z]+ tokens of the piece,
+ * minus flagged misspellings; piece_ref `ws:{sample_id}` so live emission and
+ * the batch bridge stay mutually idempotent under the storage's
+ * (child, word, piece, kind) uniqueness guard. Exact-form matching only —
+ * inflected forms of a dictionary word do not match it (that happens in
+ * authenticUseBridge, which also fails closed on no match).
+ */
+export function extractAuthenticUseCandidates(
+  piece: ApprovedWritingPieceFacts,
+): AuthenticUseCandidate[] {
+  const flagged = new Set(
+    piece.flaggedMisspellings.map((word) => normaliseObserved(word)).filter((word) => word !== ""),
+  );
+  const tokens = new Set(piece.sampleText.toLowerCase().match(TOKEN_PATTERN) ?? []);
+  const pieceRef = `ws:${piece.writingSampleId}`;
+  return [...tokens]
+    .sort()
+    .filter((token) => !flagged.has(token))
+    .map((token) => ({
+      childId: piece.childId,
+      observedWord: token,
+      occurredOn: piece.occurredOn,
+      pieceRef,
+      sourceRef: pieceRef,
+      useKind: "authentic_correct_use" as AuthenticUseKind,
+      pieceParentReviewed: true,
+    }));
+}
+
 export function authenticUseBridge(
   candidates: readonly AuthenticUseCandidate[],
   activeWordIdByNormalisedWord: ReadonlyMap<string, string>,

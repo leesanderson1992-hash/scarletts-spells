@@ -36,6 +36,7 @@ import {
   applyAuthenticUseCredit,
   authenticUseBridge,
   authenticUseProviderFromFacts,
+  extractAuthenticUseCandidates,
   intervalWindowStart,
   type AuthenticUseCandidate,
 } from "../lib/adle/authentic-use";
@@ -487,5 +488,67 @@ function runCleanLadder(taughtOn: string): { facts: WordPricingFacts; events: Ou
 // --- misc: diffDays sanity ------------------------------------------------------------
 
 assert(diffDays("2026-01-01", "2026-01-29") === 28, "diffDays");
+
+// --- Slice 6: live-emission candidate extraction (approval hook input) ------
+
+{
+  const piece = {
+    childId: CHILD,
+    writingSampleId: "sample-1",
+    sampleText: "The cat, the CAT and the katt sat. 123 !!",
+    occurredOn: "2026-07-01",
+    flaggedMisspellings: ["Katt!"],
+  };
+  const candidates = extractAuthenticUseCandidates(piece);
+  const observed = candidates.map((candidate) => candidate.observedWord);
+  // Unique lowercase tokens, sorted; flagged misspelling excluded even with
+  // punctuation/case noise; numerals never tokenise.
+  assert(
+    JSON.stringify(observed) === JSON.stringify(["and", "cat", "sat", "the"]),
+    `extraction tokens (got ${JSON.stringify(observed)})`,
+  );
+  assert(
+    candidates.every(
+      (candidate) =>
+        candidate.pieceRef === "ws:sample-1" &&
+        candidate.sourceRef === "ws:sample-1" &&
+        candidate.useKind === "authentic_correct_use" &&
+        candidate.pieceParentReviewed,
+    ),
+    "extraction refs use the bridge's ws:{sample_id} convention, parent-reviewed",
+  );
+
+  // Through the bridge: matched -> one event per word per piece; unmatched
+  // fail closed to the report, never an event.
+  const dictionaryMap = new Map([
+    ["cat", "w-cat"],
+    ["sat", "w-sat"],
+  ]);
+  const bridged = authenticUseBridge(candidates, dictionaryMap, "2026-07-01T00:00:00Z");
+  assert(bridged.events.length === 2, "two matched events");
+  assert(
+    bridged.events.every((event) => event.parentVerified && event.pieceRef === "ws:sample-1"),
+    "matched events parent-verified with the piece ref",
+  );
+  assert(bridged.previewCandidates.length === 0, "no preview candidates from a reviewed piece");
+  assert(
+    bridged.unmatched.map((candidate) => candidate.observedWord).sort().join(",") === "and,the",
+    "unmatched words surfaced, never guessed",
+  );
+
+  // Repeated word in one piece dedupes to a single candidate/event.
+  const repeated = extractAuthenticUseCandidates({ ...piece, sampleText: "cat cat CAT cat." });
+  assert(repeated.length === 1 && repeated[0].observedWord === "cat", "per-piece dedupe");
+
+  // Empty-after-normalise flagged entries are ignored safely.
+  const emptyFlag = extractAuthenticUseCandidates({ ...piece, flaggedMisspellings: ["123", "!!"] });
+  assert(
+    emptyFlag.some((candidate) => candidate.observedWord === "katt"),
+    "empty-after-normalise flags do not exclude real tokens",
+  );
+
+  const rerun = () => JSON.stringify(extractAuthenticUseCandidates(piece));
+  assert(rerun() === rerun(), "extraction is deterministic");
+}
 
 console.log("adle-evidence-regression: all checks passed");

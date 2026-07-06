@@ -17,6 +17,7 @@ import type {
   ReviewWritingIssueSuggestionProjection,
 } from "@/lib/writing-practice/types";
 import { getManualReviewSampleStatus } from "./manual-sample-review-utils";
+import { AdlePausedWordsSection } from "@/components/adle-paused-words-section";
 
 import {
   buildReviewWorkEntryId,
@@ -885,6 +886,11 @@ export default async function CourseReviewPage({
           )}
         </details>
       </section>
+      <AdlePausedWordsSection
+        childId={selectedChild.id}
+        childName={selectedChild.first_name}
+        redirectPath={buildScopedPath("/courses/review", selectedChild.id, mode)}
+      />
     </AppShell>
   );
 }

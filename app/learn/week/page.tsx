@@ -381,6 +381,23 @@ export default async function LearnWeekPage({ searchParams }: LearnWeekPageProps
       userEmail={user.email}
       layout="focus"
     >
+      {mode === "child" ? (
+        <div className="brand-card mb-4 rounded-3xl p-4">
+          <p className="brand-eyebrow">ADLE spelling</p>
+          <div className="mt-1 flex flex-wrap items-center justify-between gap-3">
+            <p className="text-sm text-[color:var(--text)]">
+              Today&apos;s two-part spelling plan: review first, then a lesson when
+              the queue allows.
+            </p>
+            <a
+              href={buildScopedPath("/learn/week/adle", selectedChild.id, "child")}
+              className="brand-primary-btn"
+            >
+              Open today&apos;s plan
+            </a>
+          </div>
+        </div>
+      ) : null}
       <LearnWeekPlanner
         basePath={scopedCurrentPath}
         progressPath={progressPath}

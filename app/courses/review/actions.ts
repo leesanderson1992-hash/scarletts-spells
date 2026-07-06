@@ -25,6 +25,7 @@ import {
   revertParentLocalCandidateMappingImpl,
 } from "./actions/candidate-mapping-actions";
 import { captureSpellingCatalogReviewCaseImpl } from "./actions/catalog-review-case-actions";
+import { releaseAdlePausedWordImpl } from "./actions/adle-paused-words-actions";
 
 export async function addMissedWordToSubmissionReview(formData: FormData) {
   return addMissedWordToSubmissionReviewImpl(formData);
@@ -92,4 +93,8 @@ export async function returnSubmissionToChild(formData: FormData) {
 
 export async function approveSubmissionReview(formData: FormData) {
   return approveSubmissionReviewImpl(formData);
+}
+
+export async function releaseAdlePausedWord(formData: FormData) {
+  return releaseAdlePausedWordImpl(formData);
 }

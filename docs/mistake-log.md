@@ -1,5 +1,46 @@
 # Mistake Log
 
+## 2026-07-06 — UI changes must be verified by rendered pixels, and colours must use defined theme variables, not guessed ones
+
+### Mistake
+- The ADLE Slice 6 child session and paused-word buttons were styled with
+  `bg-[color:var(--ink)]`. This app defines no `--ink` variable (it has
+  `--scarlett`, `--text`, `--mid`, `--border`). For `background-color` an
+  undefined CSS variable falls back to transparent, so every primary button
+  ("Start spelling", "Check my words", "Finish Part 1/2", "Open today's
+  plan", "Resume") rendered white-text-on-transparent — invisible. The owner
+  hit a dead end twice ("nothing to progress") before it was found.
+- It was missed because the browser verification clicked buttons by text via
+  JavaScript (`btn.click()`), which succeeds on an invisible element, so the
+  flow "passed" automated checks while being unusable for a real person.
+
+### What was actually true
+- Text colour tolerates an undefined var (it falls back to inherited dark),
+  which is why `text-[color:var(--ink)]` looked fine and hid the problem —
+  but `background-color` falls back to transparent, so only filled buttons
+  broke. The app already ships canonical button classes
+  (`.brand-primary-btn`, `.brand-secondary-btn`) that use the defined
+  `--scarlett` gradient.
+
+### Correction
+- Switched all ADLE Slice 6 primary/secondary buttons to
+  `.brand-primary-btn` / `.brand-secondary-btn`
+  (`components/adle-session-runner.tsx`,
+  `components/adle-paused-words-section.tsx`, `app/learn/week/page.tsx`);
+  verified the gradient renders via computed `background-image` and a
+  screenshot.
+
+### Prevention rule
+- Verify a UI change by what actually renders — a screenshot or
+  `getComputedStyle` (background/colour/visibility), not just DOM presence or
+  a scripted `.click()`. An element being in the DOM and clickable does not
+  mean it is visible or usable.
+- Use the codebase's existing design-system classes/tokens for colour; do
+  not invent CSS-variable names. Confirm a variable is actually defined
+  (`getComputedStyle(document.documentElement).getPropertyValue('--x')`)
+  before relying on it, especially for `background-color`, where an
+  undefined var silently becomes transparent.
+
 ## 2026-05-09 — Step 3 task-manager links should not reach through optional timed backing modules without an explicit fallback boundary
 
 ### Mistake

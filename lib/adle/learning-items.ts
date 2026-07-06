@@ -245,6 +245,70 @@ export function pauseItemForParentReview(item: LearningItemFact): LearningItemFa
 }
 
 // ---------------------------------------------------------------------------
+// Slice 6: parent release of paused words (the previously missing exit path)
+// ---------------------------------------------------------------------------
+
+/** Parent resumes a paused word: it re-enters the queue as a reteach-priority
+ * pending-reteach item, so the composer's existing reteach tier re-teaches it
+ * through the normal lesson path — no new scheduling semantics. The release
+ * date becomes the reteach-ordering anchor. */
+export function resumeItemFromParentReview(
+  item: LearningItemFact,
+  releasedOn: IsoDate,
+): LearningItemFact {
+  if (item.itemStatus !== "paused_parent_review") {
+    throw new Error("resumeItemFromParentReview: item is not paused for parent review");
+  }
+  return {
+    ...item,
+    itemStatus: "pending_reteach",
+    reteachPriority: true,
+    ejectedOn: item.ejectedOn ?? releasedOn,
+  };
+}
+
+/** Parent retires a paused word from the queue entirely. The row leaves the
+ * active set (rejected = a parent decision that this word/skill pairing is
+ * not teachable right now), so it can never re-enter selectability or
+ * clustering; re-mapping goes through the existing candidate-mapping flow,
+ * never through a release action. */
+export function retireItemFromParentReview(item: LearningItemFact): LearningItemFact {
+  if (item.itemStatus !== "paused_parent_review") {
+    throw new Error("retireItemFromParentReview: item is not paused for parent review");
+  }
+  return { ...item, rowStatus: "rejected" };
+}
+
+/** Slice 6 wiring of the 3+-wrong reopen rule (blueprint review session shape
+ * rule 4): the failed skills' selectable items become reteach-priority
+ * pending-reteach items so the NEXT composed day's reteach tier reopens the
+ * micro-skill lesson. Items already carrying an ejection date keep it (their
+ * demand is older); others anchor at the reopen date. Documented Slice 6 pin,
+ * flagged for owner QA — consumes only existing item states. */
+export function reopenItemsForMicroSkills(
+  items: readonly LearningItemFact[],
+  childId: string,
+  microSkillKeys: readonly string[],
+  reopenedOn: IsoDate,
+): LearningItemFact[] {
+  const skills = new Set(microSkillKeys);
+  return items
+    .filter(
+      (item) =>
+        item.childId === childId &&
+        item.rowStatus === "active" &&
+        skills.has(item.microSkillKey) &&
+        SELECTABLE_ITEM_STATUSES.includes(item.itemStatus),
+    )
+    .map((item) => ({
+      ...item,
+      itemStatus: "pending_reteach" as LearningItemStatus,
+      reteachPriority: true,
+      ejectedOn: item.ejectedOn ?? reopenedOn,
+    }));
+}
+
+// ---------------------------------------------------------------------------
 // Verified-misspelling intake bridge (read-only; open question 2)
 // ---------------------------------------------------------------------------
 

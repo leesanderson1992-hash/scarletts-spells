@@ -125,6 +125,11 @@ export interface DailyPlanFacts {
   skillFamilyKeyBySkill: ReadonlyMap<string, string>;
   learningItems: readonly LearningItemFact[];
   prerequisiteKeysBySkill: ReadonlyMap<string, readonly string[]>;
+  /** Slice 6 wiring of the Slice 5 (5D) extension: injected by the loader
+   * from the proficiency read model, passed through unchanged to the skill
+   * selection facts. Absent/empty = selection is byte-identical to before
+   * (fail-open — the 5D pin). */
+  notYetSecureSkillKeys?: ReadonlySet<string>;
   frequencyBandByWordId: ReadonlyMap<string, string | null>;
   previousLessonFamilyKey: string | null;
   dictionary: ComposerDictionaryFacts;
@@ -493,6 +498,7 @@ export function composeDailyPlan(facts: DailyPlanFacts, today: IsoDate): Compose
       learningItems: facts.learningItems.filter((item) => item.childId === facts.childId),
       skillFamilyKeyBySkill: facts.skillFamilyKeyBySkill,
       prerequisiteKeysBySkill: facts.prerequisiteKeysBySkill,
+      notYetSecureSkillKeys: facts.notYetSecureSkillKeys,
       frequencyBandByWordId: facts.frequencyBandByWordId,
       previousLessonFamilyKey: facts.previousLessonFamilyKey,
     };

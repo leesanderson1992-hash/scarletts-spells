@@ -498,6 +498,53 @@ export function resolveCatchUpRetest(
   };
 }
 
+export type PausedWordReleaseDecision = "resume" | "retire";
+
+export interface PausedWordReleaseResult {
+  word: ScheduleWordFact;
+  events: ReviewOutcomeEvent[];
+}
+
+/**
+ * Slice 6: parent release of a word paused by a post-reteach failure (the
+ * previously missing exit from paused_parent_review). Two decisions only:
+ * - resume: the word returns to the reteach path (ejected_pending_reteach) —
+ *   the composer re-teaches it through the normal lesson flow and
+ *   onLessonCompleted creates fresh schedule rows exactly as for any
+ *   ejection; nothing here reschedules or lowers an interval.
+ * - retire: the word leaves daily practice permanently (parent decision).
+ * Both emit existing ledger event types, so the release is auditable without
+ * any schema change. Re-mapping to a different skill/word is the existing
+ * candidate-mapping flow's job, never a release decision.
+ */
+export function releasePausedScheduleWord(
+  policy: ReviewPolicy,
+  word: ScheduleWordFact,
+  decision: PausedWordReleaseDecision,
+  releasedOn: IsoDate,
+): PausedWordReleaseResult {
+  if (word.membershipStatus !== "paused_parent_review" || word.rowStatus !== "active") {
+    throw new Error("releasePausedScheduleWord: word is not paused for parent review");
+  }
+  const base = {
+    childId: word.childId,
+    canonicalWordId: word.canonicalWordId,
+    bundleId: word.bundleId,
+    intervalIndex: null,
+    schedulePolicyVersion: policy.schedulePolicyVersion,
+  };
+  if (decision === "resume") {
+    return {
+      word: { ...word, membershipStatus: "ejected_pending_reteach" },
+      events: [{ ...base, eventType: "reteach_priority_flagged", occurredOn: releasedOn }],
+    };
+  }
+  return {
+    word: { ...word, membershipStatus: "retired" },
+    events: [{ ...base, eventType: "retired", occurredOn: releasedOn }],
+  };
+}
+
 export interface PreRetirementCheckResolution {
   word: ScheduleWordFact;
   events: ReviewOutcomeEvent[];
