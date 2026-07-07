@@ -111,6 +111,17 @@ Candidate fields:
 Rules:
 
 - `normalised_word` plus `dialect_code` should be unique for active rows.
+- `normalised_word` is the lower-case matching/identity key. It is exactly one
+  word: no upper-case, no slash-joined form lists.
+- `display_word` is the true child-facing surface form and is what child lesson
+  payloads render (ADLE Slice 7a onward). It is the authored spelling with
+  correct casing/punctuation. It may differ from `normalised_word` only by
+  casing or punctuation (for example the pronoun "I" is capitalised: `i'm`
+  normalises to `i'm` but displays as `I'm`); it must never carry multiple
+  slash-joined forms such as `fast/faster/fastest`. Each inflected/related form
+  (`fast`, `faster`, `fastest`) is its own row, not a slash string on one row.
+  Backfilled by migration `20260707120000` after malformed slash-joined values
+  from the D4 seed artifact reached active rows.
 - `reference_only` rows must not be surfaced to children or imported as final
   teaching copy.
 - word validity does not imply any micro-skill is ready.
