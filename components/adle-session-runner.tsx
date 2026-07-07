@@ -1,20 +1,17 @@
 "use client";
 
 /**
- * ADLE Slice 6: functional child session runner — deliberately plain forms
- * (calm-UI polish is Slice 7's mandate). Renders the contract session shape:
- * Part 1 quick sort -> production -> per-misspelling reflection; Part 2
- * intro -> guided -> production of all words (+ dictation or probe).
+ * ADLE Slice 7a (7a-A): the child session runner is now an orchestrator. It
+ * owns the part/phase flow, the attempt maps, and submission — all byte-identical
+ * to Slice 6 (same hidden fields, same server actions, correctness still decided
+ * server-side) — and delegates every activity's rendering to a registry-driven
+ * archetype component in components/adle/activities/. Slice 6 flattened almost
+ * every template to a text box; the registry restores tailored, warm interactions
+ * (and warm prompt shells where the structured content isn't authored yet).
  *
- * Dictation is audio, not visible text: the review words are shown only in
- * the quick-sort step, then hidden while the child spells, and each spelling
- * prompt plays the word aloud (Web Speech API) instead of showing it — so a
- * dictation tests recall, not copying. A collapsed grown-up reveal remains as
- * a fallback when device audio is unavailable. Controlled spelling ("copy and
- * spell") is a deliberate copy task and keeps the word visible.
- *
- * Correctness is decided server-side from raw attempt text; the local check
- * here only drives which reflection blocks show before submitting. Refreshing
+ * Frozen contract (unchanged from Slice 6): production/dictation/probe attempts
+ * are keyed by canonical_word_id and submitted; quick sort, guided practice, and
+ * reflection retries stay local (they carry no submitted evidence). Refreshing
  * mid-part loses in-part answers (part-level resume pin).
  */
 
@@ -26,6 +23,11 @@ import {
 } from "@/app/learn/week/adle/actions";
 import type { AdleSessionItem } from "@/lib/adle/loaders/daily-plan-surface";
 import { isAttemptCorrect } from "@/lib/adle/session-correctness";
+import { IntroActivity } from "@/components/adle/activities/intro-activity";
+import { QuickSortActivity } from "@/components/adle/activities/quick-sort-activity";
+import { SpellingField } from "@/components/adle/activities/shared";
+import { GuidedActivity } from "@/components/adle/activities/guided-activity";
+import { ReflectionActivity } from "@/components/adle/activities/reflection-activity";
 
 type AdleSessionRunnerProps = {
   childId: string;
@@ -40,9 +42,7 @@ function itemsIn(items: readonly AdleSessionItem[], sectionKey: string): AdleSes
 }
 
 function attemptsJson(attempts: ReadonlyMap<string, string>): string {
-  return JSON.stringify(
-    [...attempts.entries()].map(([key, attemptText]) => ({ key, attemptText })),
-  );
+  return JSON.stringify([...attempts.entries()].map(([key, attemptText]) => ({ key, attemptText })));
 }
 
 function HiddenSessionFields(props: { childId: string; assignmentId: string }) {
@@ -55,43 +55,6 @@ function HiddenSessionFields(props: { childId: string; assignmentId: string }) {
   );
 }
 
-/** Audio dictation: play the word aloud with the browser's speech engine.
- * Feature-detected — silently no-ops if the device has no speech synthesis
- * (the grown-up reveal is then the fallback). */
-function speakWord(word: string): void {
-  if (typeof window === "undefined" || !("speechSynthesis" in window) || word.trim() === "") {
-    return;
-  }
-  window.speechSynthesis.cancel();
-  const utterance = new SpeechSynthesisUtterance(word);
-  utterance.lang = "en-GB";
-  utterance.rate = 0.8;
-  window.speechSynthesis.speak(utterance);
-}
-
-function HearWordButton(props: { word: string }) {
-  return (
-    <button
-      type="button"
-      onClick={() => speakWord(props.word)}
-      className="mt-1 inline-flex h-9 items-center gap-1 rounded-full border border-[var(--border)] bg-white px-4 text-sm font-medium text-[color:var(--ink)]"
-    >
-      🔊 Hear the word
-    </button>
-  );
-}
-
-/** Collapsed fallback so a grown-up can read the word aloud if the device has
- * no audio — parent-gated, so it does not let the child simply copy. */
-function GrownUpReveal(props: { word: string }) {
-  return (
-    <details className="mt-1 text-xs text-[color:var(--mid)]">
-      <summary className="cursor-pointer">No sound? Grown-up: tap to read the word aloud</summary>
-      <span className="font-semibold">{props.word}</span>
-    </details>
-  );
-}
-
 function NextButton(props: { label: string; onClick: () => void }) {
   return (
     <button type="button" className="brand-primary-btn mt-4 w-full" onClick={props.onClick}>
@@ -100,26 +63,17 @@ function NextButton(props: { label: string; onClick: () => void }) {
   );
 }
 
-function ReviewPart(props: {
-  childId: string;
-  assignmentId: string;
-  items: AdleSessionItem[];
-}) {
+function mapWith(current: Map<string, string>, key: string, value: string): Map<string, string> {
+  return new Map(current).set(key, value);
+}
+
+function ReviewPart(props: { childId: string; assignmentId: string; items: AdleSessionItem[] }) {
   const quickSort = itemsIn(props.items, "review_quick_sort")[0] ?? null;
   const production = itemsIn(props.items, "review_production");
   const reflection = itemsIn(props.items, "review_reflection");
   const [attempts, setAttempts] = useState<Map<string, string>>(new Map());
   const [retries, setRetries] = useState<Map<string, string>>(new Map());
-  const [phase, setPhase] = useState<"sort" | "production" | "reflection">(
-    quickSort ? "sort" : "production",
-  );
-
-  const quickSortWords = useMemo(() => {
-    const words = quickSort?.promptData.words;
-    return Array.isArray(words)
-      ? (words as { targetWord?: string; sortDimension?: string }[])
-      : [];
-  }, [quickSort]);
+  const [phase, setPhase] = useState<"sort" | "production" | "reflection">(quickSort ? "sort" : "production");
 
   const missed = production.filter((item) => {
     const attempt = attempts.get(item.canonicalWordId ?? "") ?? "";
@@ -129,29 +83,19 @@ function ReviewPart(props: {
     missed.some((miss) => miss.canonicalWordId === item.canonicalWordId),
   );
 
-  const setAttempt = (wordId: string, value: string) => {
-    setAttempts((current) => new Map(current).set(wordId, value));
-  };
-
   return (
     <section className="brand-card rounded-3xl p-4 md:p-5">
       <p className="brand-eyebrow">Part 1 · Review first</p>
 
-      {phase === "sort" && quickSort !== null && quickSortWords.length > 0 ? (
+      {phase === "sort" && quickSort !== null ? (
         <div className="mt-3">
           <h2 className="text-sm font-semibold text-[color:var(--ink)]">Quick sort</h2>
           <p className="mt-1 text-sm text-[color:var(--mid)]">
-            Say each word&apos;s group out loud. When you&apos;re ready, start spelling — the
-            words will be hidden and read to you.
+            Warm up by sorting — then start spelling; the words hide and are read to you.
           </p>
-          <ul className="mt-2 grid gap-1 text-sm">
-            {quickSortWords.map((word, index) => (
-              <li key={index} className="rounded-xl border border-[var(--border)] bg-white px-3 py-2">
-                <span className="font-medium">{word.targetWord}</span>
-                <span className="text-[color:var(--mid)]"> — sort by {word.sortDimension}</span>
-              </li>
-            ))}
-          </ul>
+          <div className="mt-2">
+            <QuickSortActivity item={quickSort} />
+          </div>
           <NextButton label="Start spelling →" onClick={() => setPhase("production")} />
         </div>
       ) : null}
@@ -159,31 +103,17 @@ function ReviewPart(props: {
       {phase === "production" ? (
         <div className="mt-4">
           <h2 className="text-sm font-semibold text-[color:var(--ink)]">Spell your review words</h2>
-          <p className="mt-1 text-xs text-[color:var(--mid)]">
-            Press play to hear each word, then spell it — no peeking.
-          </p>
+          <p className="mt-1 text-xs text-[color:var(--mid)]">Press play to hear each word, then spell it — no peeking.</p>
           <div className="mt-2 grid gap-3">
             {production.map((item, index) => (
-              <div key={item.id} className="rounded-xl border border-[var(--border)] bg-white px-3 py-2">
-                <label className="text-sm font-medium text-[color:var(--ink)]">
-                  Word {index + 1}
-                  {item.promptData.requiresSentenceContext === true
-                    ? " — write it inside a sentence that shows what it means"
-                    : ""}
-                </label>
-                <div>
-                  <HearWordButton word={item.targetWord ?? ""} />
-                </div>
-                <GrownUpReveal word={item.targetWord ?? ""} />
-                <input
-                  type="text"
-                  autoComplete="off"
-                  spellCheck={false}
-                  className="mt-2 w-full rounded-lg border border-[var(--border)] px-3 py-2 text-sm"
-                  value={attempts.get(item.canonicalWordId ?? "") ?? ""}
-                  onChange={(event) => setAttempt(item.canonicalWordId ?? "", event.target.value)}
-                />
-              </div>
+              <SpellingField
+                key={item.id}
+                word={item.targetWord ?? ""}
+                value={attempts.get(item.canonicalWordId ?? "") ?? ""}
+                onChange={(value) => setAttempts((current) => mapWith(current, item.canonicalWordId ?? "", value))}
+                label={`Word ${index + 1}`}
+                sentenceContext={item.promptData.requiresSentenceContext === true}
+              />
             ))}
           </div>
           <NextButton label="Check my words →" onClick={() => setPhase("reflection")} />
@@ -196,40 +126,17 @@ function ReviewPart(props: {
           <input type="hidden" name="attempts" value={attemptsJson(attempts)} />
           {reflectionForMissed.length > 0 ? (
             <div>
-              <h2 className="text-sm font-semibold text-[color:var(--ink)]">
-                Let&apos;s fix the tricky ones together
-              </h2>
+              <h2 className="text-sm font-semibold text-[color:var(--ink)]">Let&apos;s fix the tricky ones together</h2>
               <div className="mt-2 grid gap-3">
-                {reflectionForMissed.map((item) => {
-                  const attempt = attempts.get(item.canonicalWordId ?? "") ?? "";
-                  const hint = item.promptData.misconceptionHint;
-                  return (
-                    <div key={item.id} className="rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-sm">
-                      <p>
-                        You wrote <span className="font-semibold">{attempt || "(nothing)"}</span> — the word is{" "}
-                        <span className="font-semibold">{item.targetWord}</span>.
-                      </p>
-                      {typeof hint === "string" && hint.trim() !== "" ? (
-                        <p className="mt-1 text-[color:var(--mid)]">Memory cue: {hint}</p>
-                      ) : null}
-                      <label className="mt-2 block text-xs text-[color:var(--mid)]">
-                        Try it again — what did you miss?
-                      </label>
-                      <input
-                        type="text"
-                        autoComplete="off"
-                        spellCheck={false}
-                        className="mt-1 w-full rounded-lg border border-amber-200 px-3 py-2 text-sm"
-                        value={retries.get(item.canonicalWordId ?? "") ?? ""}
-                        onChange={(event) =>
-                          setRetries((current) =>
-                            new Map(current).set(item.canonicalWordId ?? "", event.target.value),
-                          )
-                        }
-                      />
-                    </div>
-                  );
-                })}
+                {reflectionForMissed.map((item) => (
+                  <ReflectionActivity
+                    key={item.id}
+                    item={item}
+                    priorAttempt={attempts.get(item.canonicalWordId ?? "") ?? ""}
+                    value={retries.get(item.canonicalWordId ?? "") ?? ""}
+                    onChange={(value) => setRetries((current) => mapWith(current, item.canonicalWordId ?? "", value))}
+                  />
+                ))}
               </div>
             </div>
           ) : (
@@ -249,11 +156,7 @@ function ReviewPart(props: {
   );
 }
 
-function LessonPart(props: {
-  childId: string;
-  assignmentId: string;
-  items: AdleSessionItem[];
-}) {
+function LessonPart(props: { childId: string; assignmentId: string; items: AdleSessionItem[] }) {
   const intro = itemsIn(props.items, "lesson_intro");
   const guided = itemsIn(props.items, "guided_practice");
   const production = itemsIn(props.items, "lesson_production");
@@ -279,13 +182,8 @@ function LessonPart(props: {
       <p className="brand-eyebrow">Part 2 · Today&apos;s lesson</p>
 
       {introItem !== null ? (
-        <div className="mt-3 rounded-xl border border-[var(--border)] bg-white px-3 py-2 text-sm">
-          {typeof introItem.promptData.childFriendlyExplanation === "string" ? (
-            <p>{introItem.promptData.childFriendlyExplanation}</p>
-          ) : null}
-          {typeof introItem.promptData.ruleExplanation === "string" ? (
-            <p className="mt-1 text-[color:var(--mid)]">{introItem.promptData.ruleExplanation}</p>
-          ) : null}
+        <div className="mt-3">
+          <IntroActivity item={introItem} />
         </div>
       ) : null}
 
@@ -294,23 +192,12 @@ function LessonPart(props: {
           <h2 className="text-sm font-semibold text-[color:var(--ink)]">Guided practice</h2>
           <div className="mt-2 grid gap-2">
             {guided.map((item) => (
-              <div key={item.id} className="rounded-xl border border-[var(--border)] bg-white px-3 py-2 text-sm">
-                <p>
-                  <span className="font-medium">{item.targetWord}</span>
-                  <span className="text-[color:var(--mid)]"> — {item.templateKey.replaceAll("_", " ").toLowerCase()}</span>
-                </p>
-                <input
-                  type="text"
-                  autoComplete="off"
-                  spellCheck={false}
-                  placeholder="Talk it through, then jot your answer"
-                  className="mt-1 w-full rounded-lg border border-[var(--border)] px-3 py-2 text-sm"
-                  value={guidedNotes.get(item.id) ?? ""}
-                  onChange={(event) =>
-                    setGuidedNotes((current) => new Map(current).set(item.id, event.target.value))
-                  }
-                />
-              </div>
+              <GuidedActivity
+                key={item.id}
+                item={item}
+                value={guidedNotes.get(item.id) ?? ""}
+                onChange={(value) => setGuidedNotes((current) => mapWith(current, item.id, value))}
+              />
             ))}
           </div>
         </div>
@@ -326,21 +213,14 @@ function LessonPart(props: {
         <p className="mt-1 text-xs text-[color:var(--mid)]">Copy each word carefully — this one you can see.</p>
         <div className="mt-2 grid gap-3">
           {production.map((item) => (
-            <div key={item.id} className="rounded-xl border border-[var(--border)] bg-white px-3 py-2">
-              <label className="text-sm font-medium text-[color:var(--ink)]">
-                Copy and spell: <span className="font-semibold">{item.targetWord}</span>
-              </label>
-              <input
-                type="text"
-                autoComplete="off"
-                spellCheck={false}
-                className="mt-2 w-full rounded-lg border border-[var(--border)] px-3 py-2 text-sm"
-                value={attempts.get(item.canonicalWordId ?? "") ?? ""}
-                onChange={(event) =>
-                  setAttempts((current) => new Map(current).set(item.canonicalWordId ?? "", event.target.value))
-                }
-              />
-            </div>
+            <SpellingField
+              key={item.id}
+              word={item.targetWord ?? ""}
+              value={attempts.get(item.canonicalWordId ?? "") ?? ""}
+              onChange={(value) => setAttempts((current) => mapWith(current, item.canonicalWordId ?? "", value))}
+              label="Copy and spell"
+              reveal
+            />
           ))}
         </div>
 
@@ -350,30 +230,16 @@ function LessonPart(props: {
             <p className="mt-1 text-xs text-[color:var(--mid)]">Press play to hear each word, then spell it.</p>
             <div className="mt-2 grid gap-3">
               {dictation.map((item, index) => (
-                <div key={item.id} className="rounded-xl border border-[var(--border)] bg-white px-3 py-2">
-                  <label className="text-sm font-medium text-[color:var(--ink)]">
-                    Dictation word {index + 1}
-                    {item.promptData.requiresSentenceContext === true
-                      ? " — write it inside a sentence"
-                      : ""}
-                  </label>
-                  <div>
-                    <HearWordButton word={item.targetWord ?? ""} />
-                  </div>
-                  <GrownUpReveal word={item.targetWord ?? ""} />
-                  <input
-                    type="text"
-                    autoComplete="off"
-                    spellCheck={false}
-                    className="mt-2 w-full rounded-lg border border-[var(--border)] px-3 py-2 text-sm"
-                    value={dictationAttempts.get(item.canonicalWordId ?? "") ?? ""}
-                    onChange={(event) =>
-                      setDictationAttempts((current) =>
-                        new Map(current).set(item.canonicalWordId ?? "", event.target.value),
-                      )
-                    }
-                  />
-                </div>
+                <SpellingField
+                  key={item.id}
+                  word={item.targetWord ?? ""}
+                  value={dictationAttempts.get(item.canonicalWordId ?? "") ?? ""}
+                  onChange={(value) =>
+                    setDictationAttempts((current) => mapWith(current, item.canonicalWordId ?? "", value))
+                  }
+                  label={`Dictation word ${index + 1}`}
+                  sentenceContext={item.promptData.requiresSentenceContext === true}
+                />
               ))}
             </div>
           </div>
@@ -387,25 +253,15 @@ function LessonPart(props: {
             </p>
             <div className="mt-2 grid gap-3">
               {probeWords.map((word, index) => (
-                <div key={word.canonicalWordId} className="rounded-xl border border-[var(--border)] bg-white px-3 py-2">
-                  <label className="text-sm font-medium text-[color:var(--ink)]">Detective word {index + 1}</label>
-                  <div>
-                    <HearWordButton word={word.targetWord ?? ""} />
-                  </div>
-                  <GrownUpReveal word={word.targetWord ?? ""} />
-                  <input
-                    type="text"
-                    autoComplete="off"
-                    spellCheck={false}
-                    className="mt-2 w-full rounded-lg border border-[var(--border)] px-3 py-2 text-sm"
-                    value={probeAttempts.get(word.canonicalWordId ?? "") ?? ""}
-                    onChange={(event) =>
-                      setProbeAttempts((current) =>
-                        new Map(current).set(word.canonicalWordId ?? "", event.target.value),
-                      )
-                    }
-                  />
-                </div>
+                <SpellingField
+                  key={word.canonicalWordId}
+                  word={word.targetWord ?? ""}
+                  value={probeAttempts.get(word.canonicalWordId ?? "") ?? ""}
+                  onChange={(value) =>
+                    setProbeAttempts((current) => mapWith(current, word.canonicalWordId ?? "", value))
+                  }
+                  label={`Detective word ${index + 1}`}
+                />
               ))}
             </div>
           </div>
