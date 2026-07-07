@@ -30,6 +30,7 @@ import {
   getAdleDailyPlanReadModel,
   type AdleSessionItem,
 } from "@/lib/adle/loaders/daily-plan-surface";
+import { advanceForgeForAdleTaughtWords } from "@/lib/rewards/adle-reward-bridge";
 import {
   authenticUseEventFromRow,
   bundleFromRow,
@@ -432,6 +433,29 @@ export async function completeAdleLessonPartAction(formData: FormData) {
       }
       await persistProbeCompletion(serviceClient, probeResult);
     }
+  }
+
+  // ADLE Slice 7a (7a-C): reward loop. On lesson completion, move each taught
+  // word's Golden Nugget into the Forge (reward-owned consumer; ADLE stays
+  // event-only). Idempotent and boundary-respecting; a failure here can never
+  // block completion (the words are already taught).
+  try {
+    await advanceForgeForAdleTaughtWords({
+      supabase: serviceClient,
+      parentUserId: context.parentUserId,
+      childId,
+      dailyAssignmentId: context.assignmentId,
+      taughtWords: productionItems.map((item) => ({
+        assignmentItemId: item.id,
+        targetWord: item.targetWord ?? "",
+        learningItemId: item.adleLearningItemRef,
+      })),
+    });
+  } catch (forgeError) {
+    console.error(
+      `[adle-reward-bridge] forge advance failed for ${childId} ${planDate} (lesson completion unaffected)`,
+      forgeError,
+    );
   }
 
   await markItemsCompleted(context, readModel.partTwo.items);

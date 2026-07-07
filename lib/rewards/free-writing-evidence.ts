@@ -9,6 +9,8 @@ import {
   type ChildWordTreasureRow,
   normaliseWordTreasureWord,
 } from "./word-treasures";
+import { loadAdleCountedSampleKeys } from "./adle-reward-bridge";
+import { authenticUseDedupKey } from "./adle-reward-bridge-core";
 
 type SupabaseServerClient = Awaited<ReturnType<typeof createClient>>;
 
@@ -445,6 +447,15 @@ export async function confirmFreeWritingEvidenceCandidates(input: {
   const candidates = ((candidateRows ?? []) as unknown) as FreeWritingEvidenceCandidateRow[];
   const nowIso = new Date().toISOString();
 
+  // ADLE Slice 7a (7a-C): cross-path dedup. The ADLE reward bridge may already
+  // have credited a Golden-Bar use for a (word, writing sample); count it once
+  // across both paths by skipping any candidate ADLE already recorded. Keyed on
+  // the writing sample, so free-writing's own dedup is untouched.
+  const adleCountedKeys = await loadAdleCountedSampleKeys(
+    input.supabase,
+    Array.from(new Set(candidates.map((candidate) => candidate.treasure_id).filter(Boolean))),
+  );
+
   for (const candidate of candidates) {
     if (candidate.confirmation_status === "confirmed") {
       summary.confirmedCount += 1;
@@ -494,6 +505,23 @@ export async function confirmFreeWritingEvidenceCandidates(input: {
       | null;
 
     if (!treasure || treasure.status !== "in_forge") {
+      await input.supabase
+        .from("child_word_treasure_evidence_candidates")
+        .update({
+          confirmation_status: "duplicate",
+          duplicate_status: "confirmed_duplicate",
+        })
+        .eq("id", candidate.id)
+        .eq("parent_user_id", input.parentUserId);
+      summary.duplicateCount += 1;
+      continue;
+    }
+
+    // Cross-path dedup: ADLE already credited this (word, writing sample).
+    if (
+      candidate.writing_sample_id &&
+      adleCountedKeys.has(authenticUseDedupKey(treasure.id, candidate.writing_sample_id))
+    ) {
       await input.supabase
         .from("child_word_treasure_evidence_candidates")
         .update({

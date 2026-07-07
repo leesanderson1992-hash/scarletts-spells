@@ -14,6 +14,7 @@ import { createOrUpdateGoldenNuggetFromParentApproval } from "@/lib/rewards/word
 import { createClient } from "@/lib/supabase/server";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { emitAdleAuthenticUseFromApprovedSubmission } from "@/lib/adle/loaders/authentic-use-live-emission";
+import { recordAdleAuthenticUsesForRewards } from "@/lib/rewards/adle-reward-bridge";
 import {
   doesFinalClassificationCreateLearningItem,
   isWritingIssueFinalClassification,
@@ -1348,10 +1349,11 @@ export async function approveSubmissionReviewImpl(formData: FormData) {
   // normalised-word only, no-match is logged never guessed, and a failure
   // here can never block the approval (the guarded batch bridge remains the
   // idempotent recovery path).
+  const adleServiceClient = createServiceRoleClient();
   try {
     await emitAdleAuthenticUseFromApprovedSubmission({
       userClient: supabase,
-      serviceClient: createServiceRoleClient(),
+      serviceClient: adleServiceClient,
       parentUserId: user.id,
       childId: submission.child_id,
       submissionId: submission.id,
@@ -1360,6 +1362,24 @@ export async function approveSubmissionReviewImpl(formData: FormData) {
     console.error(
       `[adle-authentic-use] emission failed for submission ${submission.id} (approval unaffected)`,
       adleEmissionError,
+    );
+  }
+
+  // ADLE Slice 7a (7a-C): advance Golden-Bar progress from the just-verified
+  // ADLE authentic uses (reward-owned consumer). Synchronous on approval
+  // (owner-resolved), idempotent, and deduped by writing sample against the
+  // free-writing path so a use counts exactly once. Never blocks approval.
+  try {
+    await recordAdleAuthenticUsesForRewards({
+      supabase: adleServiceClient,
+      serviceClient: adleServiceClient,
+      parentUserId: user.id,
+      childId: submission.child_id,
+    });
+  } catch (adleRewardError) {
+    console.error(
+      `[adle-reward-bridge] authentic-use reward recording failed for submission ${submission.id} (approval unaffected)`,
+      adleRewardError,
     );
   }
 

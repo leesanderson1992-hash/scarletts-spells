@@ -160,6 +160,38 @@ export async function loadCountedAuthenticUseKeys(
   return keys;
 }
 
+/**
+ * The (treasure, sample) keys already counted by the ADLE path only
+ * (source_type = adle_authentic_use). The free-writing path calls this to skip
+ * a piece ADLE already credited — the other half of the cross-path dedup,
+ * leaving free-writing's own dedup untouched.
+ */
+export async function loadAdleCountedSampleKeys(
+  supabase: SupabaseServerClient,
+  treasureIds: readonly string[],
+): Promise<Set<string>> {
+  const keys = new Set<string>();
+  if (treasureIds.length === 0) {
+    return keys;
+  }
+  const { data, error } = await supabase
+    .from("child_word_treasure_events")
+    .select("treasure_id, source_entity_id")
+    .in("treasure_id", treasureIds as string[])
+    .eq("event_type", "authentic_correct_use_recorded")
+    .eq("source_type", ADLE_AUTHENTIC_USE_SOURCE_TYPE);
+  if (error) {
+    throw error;
+  }
+  for (const row of (data ?? []) as Array<{ treasure_id: string; source_entity_id: string | null }>) {
+    const sampleId = typeof row.source_entity_id === "string" ? parseWritingSampleFromPieceRef(row.source_entity_id) : null;
+    if (sampleId) {
+      keys.add(authenticUseDedupKey(row.treasure_id, sampleId));
+    }
+  }
+  return keys;
+}
+
 export interface AuthenticUseRewardResult {
   recordedUses: number;
   skippedAlreadyCounted: number;
