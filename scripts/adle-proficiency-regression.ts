@@ -57,6 +57,7 @@ function word(id: string, overrides: Partial<DictionaryWordFact> = {}): Dictiona
     canonicalWordId: id,
     wordKey: id,
     normalisedWord: id.replace(/[^a-z]/g, "") || "w",
+    displayWord: id.replace(/[^a-z]/g, "") || "w",
     rowStatus: "active",
     reviewStatus: "approved_for_first_exposure",
     frequencyBand: "high",

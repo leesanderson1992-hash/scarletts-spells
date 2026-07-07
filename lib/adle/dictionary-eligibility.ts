@@ -42,7 +42,13 @@ export const ASSIGNMENT_APPROVED_WORD_REVIEW_STATUSES: readonly DictionaryReview
 export interface DictionaryWordFact {
   canonicalWordId: string;
   wordKey: string;
+  /** Canonical stripped-lowercase identity — used for matching/dedup, never
+   * shown to the child. */
   normalisedWord: string;
+  /** True child-facing spelling with original casing/punctuation (apostrophes,
+   * hyphens). All child-facing lesson payloads use this; correctness matching
+   * still normalises internally, so display and identity never diverge. */
+  displayWord: string;
   rowStatus: DictionaryRowStatus;
   reviewStatus: DictionaryReviewStatus;
   frequencyBand: string | null;

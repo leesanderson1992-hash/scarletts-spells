@@ -36,6 +36,7 @@ function word(overrides: Partial<DictionaryWordFact> = {}): DictionaryWordFact {
     canonicalWordId: "word-1",
     wordKey: "cat_en_gb",
     normalisedWord: "cat",
+    displayWord: "cat",
     rowStatus: "active",
     reviewStatus: "approved_for_first_exposure",
     frequencyBand: "high",

@@ -178,6 +178,8 @@ function template(templateKey: string, evidenceKind: string, overrides: Partial<
     requiresContrastWords: false,
     evidenceKind,
     childFacingCopy: "fixture copy",
+    purpose: "fixture purpose",
+    childResponse: "fixture response",
     rowStatus: "active",
     ...overrides,
   };
@@ -216,6 +218,7 @@ const dictionary = {
     canonicalWordId: id,
     wordKey: `${id}_key`,
     normalisedWord: id.replace(/[^a-z]/g, ""),
+    displayWord: id.replace(/[^a-z]/g, ""),
     rowStatus: "active" as const,
     reviewStatus: "approved_for_first_exposure" as const,
     frequencyBand: "high",

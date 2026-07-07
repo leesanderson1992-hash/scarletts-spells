@@ -51,6 +51,7 @@ import {
   taughtHistoryFromRow,
   teachingContentFromRow,
   wordBandingFromRow,
+  wordStructuralMetadataFromRow,
   wordSupportFromRow,
   type ActivityTemplateRow,
   type AuthenticUseEventRow,
@@ -69,6 +70,7 @@ import {
   type TaughtHistoryRow,
   type TeachingContentRow,
   type WordBandingRow,
+  type WordStructuralMetadataRow,
   type WordSupportRow,
 } from "./rows";
 
@@ -149,6 +151,7 @@ export async function loadDailyPlanFacts(
     outcomeEventRows,
     authenticUseRows,
     slippageRows,
+    wordMetadataRows,
   ] = await Promise.all([
     loadActiveReviewPolicy(client),
     rows<ReviewBundleRow>(
@@ -189,7 +192,7 @@ export async function loadDailyPlanFacts(
       client
         .from("adle_activity_templates")
         .select(
-          "template_key, phase, min_words_required, requires_sentence_context, requires_contrast_words, evidence_kind, child_facing_copy, row_status",
+          "template_key, phase, min_words_required, requires_sentence_context, requires_contrast_words, evidence_kind, child_facing_copy, purpose, child_response, row_status",
         )
         .eq("row_status", "active"),
       "loadDailyPlanFacts:activityTemplates",
@@ -205,7 +208,7 @@ export async function loadDailyPlanFacts(
       client.from("micro_skill_catalog").select("micro_skill_key, skill_family_key").eq("is_active", true),
       "loadDailyPlanFacts:microSkillCatalog",
     ),
-    rows<DictionaryWordRow & { display_word: string }>(
+    rows<DictionaryWordRow>(
       client
         .from("canonical_teaching_dictionary_words")
         .select("id, word_key, normalised_word, display_word, row_status, review_status, frequency_band, age_band")
@@ -289,6 +292,13 @@ export async function loadDailyPlanFacts(
         .eq("row_status", "active"),
       "loadDailyPlanFacts:slippage",
     ),
+    rows<WordStructuralMetadataRow>(
+      client
+        .from("canonical_teaching_dictionary_word_metadata")
+        .select("canonical_word_id, syllables, has_schwa, phoneme_hint, stress_pattern")
+        .eq("row_status", "active"),
+      "loadDailyPlanFacts:wordMetadata",
+    ),
   ]);
 
   if (bandingVersionRows.length !== 1) {
@@ -314,8 +324,11 @@ export async function loadDailyPlanFacts(
   const skillFamilyKeyBySkill = new Map(catalogRows.map((row) => [row.micro_skill_key, row.skill_family_key]));
   const teachingContent = new Map(teachingContentRows.map((row) => [row.micro_skill_key, teachingContentFromRow(row)]));
   const activeTeachingSkillKeys = new Set(teachingContent.keys());
-  const displayWordByWordId = new Map(wordRows.map((row) => [row.id, row.display_word]));
+  const displayWordByWordId = new Map(wordRows.map((row) => [row.id, row.display_word ?? row.normalised_word]));
   const normalisedWordByWordId = new Map(wordRows.map((row) => [row.id, row.normalised_word]));
+  const wordMetadataByWordId = new Map(
+    wordMetadataRows.map((row) => [row.canonical_word_id, wordStructuralMetadataFromRow(row)]),
+  );
   const frequencyBandByWordId = new Map(words.map((word) => [word.canonicalWordId, word.frequencyBand]));
 
   // Primary micro-skill per word (Slice 6 pin, see module header).
@@ -434,6 +447,7 @@ export async function loadDailyPlanFacts(
     reviewWordFacts,
     familyMethods: familyMethodRows.map(familyMethodFromRow),
     activityTemplates: activityTemplateRows.map(activityTemplateFromRow),
+    wordMetadataByWordId,
     teachingContent,
     skillFamilyKeyBySkill,
     learningItems,

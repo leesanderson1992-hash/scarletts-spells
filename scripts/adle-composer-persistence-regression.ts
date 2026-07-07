@@ -101,6 +101,8 @@ function template(
     requiresContrastWords: false,
     evidenceKind,
     childFacingCopy: "",
+    purpose: "",
+    childResponse: "",
     rowStatus: "active",
     ...overrides,
   };
@@ -141,6 +143,7 @@ function buildDictionary(
     canonicalWordId: spec.id,
     wordKey: `${spec.id}_key`,
     normalisedWord: spec.id.replace(/-/g, ""),
+    displayWord: spec.id.replace(/-/g, ""),
     rowStatus: "active",
     reviewStatus: "approved_for_first_exposure",
     frequencyBand: "high",

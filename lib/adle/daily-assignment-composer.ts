@@ -86,7 +86,24 @@ export interface ActivityTemplateFact {
   /** Label only — weights are the Slice 4 evidence engine's. */
   evidenceKind: string;
   childFacingCopy: string;
+  /** Slice 7a: registry-derived Tier-C prompt copy source. */
+  purpose: string;
+  /** Slice 7a: expected child response modality (display hint only). */
+  childResponse: string;
   rowStatus: SchedulerRowStatus;
+}
+
+/** Slice 7a: structural word metadata used by the interactive activity
+ * renderer. Only the syllable *count* and `hasSchwa` back a real interaction
+ * (the two derivable quick-sort schemes); the rest is warm display context. */
+export interface WordStructuralMetadata {
+  canonicalWordId: string;
+  /** Count string, e.g. "1"/"4" — NOT a segmentation. */
+  syllables: string | null;
+  hasSchwa: boolean | null;
+  /** Phonetic transcription (e.g. "AH0 / EY1") — not a grapheme map. */
+  phonemeHint: string | null;
+  stressPattern: string | null;
 }
 
 export interface TeachingContentFact {
@@ -130,6 +147,10 @@ export interface DailyPlanFacts {
    * selection facts. Absent/empty = selection is byte-identical to before
    * (fail-open — the 5D pin). */
   notYetSecureSkillKeys?: ReadonlySet<string>;
+  /** Slice 7a: canonical_word_id -> structural metadata for the activity
+   * renderer. Optional and fail-open: absent/empty leaves every activity in its
+   * warm-prompt form and the composed plan byte-identical to before. */
+  wordMetadataByWordId?: ReadonlyMap<string, WordStructuralMetadata>;
   frequencyBandByWordId: ReadonlyMap<string, string | null>;
   previousLessonFamilyKey: string | null;
   dictionary: ComposerDictionaryFacts;
@@ -205,6 +226,87 @@ export interface ComposedDailyPlan {
 export function parseReviewSortDimension(raw: string): string | null {
   const match = /^REVIEW_QUICK_SORT\((.+)\)$/.exec(raw.trim());
   return match ? match[1].trim() : null;
+}
+
+/** Families whose review sort dimension maps to concrete, data-derivable bins
+ * (Slice 7a, data-honest Tier map). Every other family's quick sort renders as
+ * a warm prompt (sortBins === null). */
+export const SYLLABLE_FAMILY_KEY = "D4_SYL";
+export const SCHWA_FAMILY_KEY = "D4_SCHWA";
+
+/** A concrete, tappable quick-sort scheme derived from existing structural
+ * metadata. `correctBinByWordId` powers soft, non-punitive feedback only —
+ * quick sort is an activation step, never the production evidence. */
+export interface SortBinsDefinition {
+  dimensionLabel: string;
+  bins: { key: string; label: string }[];
+  correctBinByWordId: Record<string, string>;
+}
+
+const SYLLABLE_BINS: { key: string; label: string }[] = [
+  { key: "1", label: "1 beat" },
+  { key: "2", label: "2 beats" },
+  { key: "3+", label: "3 or more beats" },
+];
+const SCHWA_BINS: { key: string; label: string }[] = [
+  { key: "schwa", label: "Has a quiet vowel" },
+  { key: "no_schwa", label: "No quiet vowel" },
+];
+
+function syllableBinKey(syllables: string | null): string | null {
+  if (syllables === null) {
+    return null;
+  }
+  const n = Number.parseInt(syllables, 10);
+  if (!Number.isFinite(n) || n <= 0) {
+    return null;
+  }
+  return n <= 1 ? "1" : n === 2 ? "2" : "3+";
+}
+
+/**
+ * Derive a concrete quick-sort scheme for the session's reviewable words, or
+ * null (warm-prompt fallback). Concrete bins exist only for a single-family
+ * session of D4_SYL (by syllable count) or D4_SCHWA (by has_schwa); mixed
+ * families or any word missing the needed metadata fail closed to null so a
+ * partial/incoherent sort is never shown.
+ */
+export function deriveQuickSortBins(
+  entries: readonly { canonicalWordId: string; familyKey: string; sortDimension: string }[],
+  wordMetadata: ReadonlyMap<string, WordStructuralMetadata> | undefined,
+): SortBinsDefinition | null {
+  if (wordMetadata === undefined || entries.length === 0) {
+    return null;
+  }
+  const families = new Set(entries.map((entry) => entry.familyKey));
+  if (families.size !== 1) {
+    return null;
+  }
+  const family = entries[0].familyKey;
+  const dimensionLabel = entries[0].sortDimension;
+  const correctBinByWordId: Record<string, string> = {};
+
+  if (family === SYLLABLE_FAMILY_KEY) {
+    for (const entry of entries) {
+      const binKey = syllableBinKey(wordMetadata.get(entry.canonicalWordId)?.syllables ?? null);
+      if (binKey === null) {
+        return null;
+      }
+      correctBinByWordId[entry.canonicalWordId] = binKey;
+    }
+    return { dimensionLabel, bins: SYLLABLE_BINS, correctBinByWordId };
+  }
+  if (family === SCHWA_FAMILY_KEY) {
+    for (const entry of entries) {
+      const hasSchwa = wordMetadata.get(entry.canonicalWordId)?.hasSchwa ?? null;
+      if (hasSchwa === null) {
+        return null;
+      }
+      correctBinByWordId[entry.canonicalWordId] = hasSchwa ? "schwa" : "no_schwa";
+    }
+    return { dimensionLabel, bins: SCHWA_BINS, correctBinByWordId };
+  }
+  return null;
 }
 
 /**
@@ -348,12 +450,23 @@ export function composeDailyPlan(facts: DailyPlanFacts, today: IsoDate): Compose
             targetWord: null,
             learningItemId: null,
             payload: {
+              childFacingCopy: quickSortTemplate.childFacingCopy,
               words: reviewable.map((entry) => ({
                 canonicalWordId: entry.item.canonicalWordId,
                 targetWord: entry.word.displayWord,
                 sortDimension: entry.sortDimension,
                 familyKey: entry.familyKey,
               })),
+              // Concrete bins where the metadata backs them (D4_SYL/D4_SCHWA
+              // single-family sessions), else null -> warm prompt.
+              sortBins: deriveQuickSortBins(
+                reviewable.map((entry) => ({
+                  canonicalWordId: entry.item.canonicalWordId,
+                  familyKey: entry.familyKey,
+                  sortDimension: entry.sortDimension,
+                })),
+                facts.wordMetadataByWordId,
+              ),
             },
             expectedEvidenceKind: quickSortTemplate.evidenceKind,
             provenance: "review_session",
@@ -400,6 +513,7 @@ export function composeDailyPlan(facts: DailyPlanFacts, today: IsoDate): Compose
       targetWord: entry.word.displayWord,
       learningItemId: null,
       payload: {
+        childFacingCopy: productionTemplate.childFacingCopy,
         dueKind: entry.item.kind,
         dueOn: entry.item.dueOn,
         bundleId: entry.item.bundleId,
@@ -452,6 +566,7 @@ export function composeDailyPlan(facts: DailyPlanFacts, today: IsoDate): Compose
         targetWord: entry.word.displayWord,
         learningItemId: null,
         payload: {
+          childFacingCopy: reflectionTemplate.childFacingCopy,
           conditional: "on_misspelling",
           misconceptionHint: content?.commonMisconceptions ?? null,
         },
@@ -753,9 +868,12 @@ function assembleLesson(
   }
 
   const wordIdOf = (slot: LessonWordSlot) => slot.canonicalWordId;
+  // Child-facing lesson word: the true display spelling (casing/punctuation
+  // preserved). Correctness matching normalises internally (isAttemptCorrect),
+  // so identity and display never diverge.
   const displayWordOf = (canonicalWordId: string): string | null => {
     const word = facts.dictionary.words.find((w) => w.canonicalWordId === canonicalWordId);
-    return word ? word.normalisedWord : null;
+    return word ? word.displayWord : null;
   };
 
   const build = (guidedWordCount: number, introTrimmed: boolean): PlanSection[] => {
@@ -771,10 +889,18 @@ function assembleLesson(
         targetWord: null,
         learningItemId: null,
         payload: {
+          childFacingCopy: introTemplate.childFacingCopy,
           teachingObjective: content.teachingObjective,
           childFriendlyExplanation: content.childFriendlyExplanation,
           ruleExplanation: content.ruleExplanation,
           selectedWords: result.lessonWords.map(wordIdOf),
+          // Slice 7a: display words for the warm intro reveal (selectedWords
+          // stays id-only for back-compat).
+          lessonWordPreviews: result.lessonWords.map((slot) => ({
+            canonicalWordId: slot.canonicalWordId,
+            displayWord: displayWordOf(slot.canonicalWordId),
+            provenance: slot.provenance,
+          })),
         },
         expectedEvidenceKind: introTemplate.evidenceKind,
         provenance: "lesson_intro",
@@ -790,6 +916,7 @@ function assembleLesson(
         targetWord: null,
         learningItemId: null,
         payload: {
+          childFacingCopy: wordsIntroTemplate.childFacingCopy,
           words: result.lessonWords.map((slot) => ({
             canonicalWordId: slot.canonicalWordId,
             targetWord: displayWordOf(slot.canonicalWordId),
@@ -823,6 +950,13 @@ function assembleLesson(
           targetWord: displayWordOf(slot.canonicalWordId),
           learningItemId: slot.learningItemId,
           payload: {
+            // Slice 7a: instruction line + Tier-C prompt-copy source, so the
+            // registry can render a warm, template-specific prompt (never a
+            // naked box) for the content-dependent guided steps.
+            childFacingCopy: template.childFacingCopy,
+            purpose: template.purpose,
+            childResponse: template.childResponse,
+            teachingObjective: content.teachingObjective,
             requiresContrastWords: template.requiresContrastWords,
             requiresSentenceContext: template.requiresSentenceContext,
           },
@@ -848,7 +982,7 @@ function assembleLesson(
       canonicalWordId: slot.canonicalWordId,
       targetWord: displayWordOf(slot.canonicalWordId),
       learningItemId: slot.learningItemId,
-      payload: {},
+      payload: { childFacingCopy: controlledTemplate.childFacingCopy },
       expectedEvidenceKind: controlledTemplate.evidenceKind,
       provenance: `lesson_word:${slot.provenance}`,
     }));
@@ -872,6 +1006,7 @@ function assembleLesson(
             targetWord: null,
             learningItemId: null,
             payload: {
+              childFacingCopy: probeTemplate.childFacingCopy,
               words: result.probePlan.canonicalWordIds.map((canonicalWordId) => ({
                 canonicalWordId,
                 targetWord: displayWordOf(canonicalWordId),
@@ -894,7 +1029,10 @@ function assembleLesson(
           canonicalWordId: slot.canonicalWordId,
           targetWord: displayWordOf(slot.canonicalWordId),
           learningItemId: slot.learningItemId,
-          payload: { requiresSentenceContext: dictationTemplate.requiresSentenceContext },
+          payload: {
+            childFacingCopy: dictationTemplate.childFacingCopy,
+            requiresSentenceContext: dictationTemplate.requiresSentenceContext,
+          },
           expectedEvidenceKind: dictationTemplate.evidenceKind,
           provenance: `lesson_word:${slot.provenance}`,
         })),

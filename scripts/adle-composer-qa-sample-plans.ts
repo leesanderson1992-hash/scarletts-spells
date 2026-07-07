@@ -104,6 +104,8 @@ function template(
     requiresContrastWords: false,
     evidenceKind,
     childFacingCopy: "",
+    purpose: "",
+    childResponse: "",
     rowStatus: "active",
     ...overrides,
   };
@@ -161,6 +163,7 @@ function buildDictionary(specs: readonly WordSpec[]): ComposerDictionaryFacts {
     canonicalWordId: spec.id,
     wordKey: `${spec.word}_key`,
     normalisedWord: spec.word,
+    displayWord: spec.word,
     rowStatus: "active",
     reviewStatus: "approved_for_first_exposure",
     frequencyBand: spec.frequencyBand ?? "high",

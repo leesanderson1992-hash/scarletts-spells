@@ -26,7 +26,12 @@ import type {
   SchedulerRowStatus,
   WordMembershipStatus,
 } from "../review-scheduler";
-import type { ActivityTemplateFact, FamilyMethodFact, TeachingContentFact } from "../daily-assignment-composer";
+import type {
+  ActivityTemplateFact,
+  FamilyMethodFact,
+  TeachingContentFact,
+  WordStructuralMetadata,
+} from "../daily-assignment-composer";
 import type { ProbeRunFact } from "../composer-word-selection";
 import type {
   AuthenticUseEventFact,
@@ -173,6 +178,8 @@ export interface ActivityTemplateRow {
   requires_contrast_words: boolean;
   evidence_kind: string;
   child_facing_copy: string;
+  purpose: string | null;
+  child_response: string | null;
   row_status: string;
 }
 
@@ -185,7 +192,37 @@ export function activityTemplateFromRow(row: ActivityTemplateRow): ActivityTempl
     requiresContrastWords: row.requires_contrast_words,
     evidenceKind: row.evidence_kind,
     childFacingCopy: row.child_facing_copy,
+    // Slice 7a: purpose + child_response back the Tier-C warm prompt copy the
+    // activity registry derives client-side. Coalesced so a null never leaks a
+    // non-string into the payload.
+    purpose: row.purpose ?? "",
+    childResponse: row.child_response ?? "",
     rowStatus: row.row_status as SchedulerRowStatus,
+  };
+}
+
+/**
+ * Slice 7a: structural word metadata (from
+ * canonical_teaching_dictionary_word_metadata), surfaced only for the fields
+ * that back a real interaction — the syllable *count* (`syllables` is a count
+ * string, not a segmentation) and `has_schwa` drive the two derivable quick-sort
+ * schemes; `phoneme_hint`/`stress_pattern` ride along for warm display only.
+ */
+export interface WordStructuralMetadataRow {
+  canonical_word_id: string;
+  syllables: string | null;
+  has_schwa: boolean | null;
+  phoneme_hint: string | null;
+  stress_pattern: string | null;
+}
+
+export function wordStructuralMetadataFromRow(row: WordStructuralMetadataRow): WordStructuralMetadata {
+  return {
+    canonicalWordId: row.canonical_word_id,
+    syllables: row.syllables,
+    hasSchwa: row.has_schwa,
+    phonemeHint: row.phoneme_hint,
+    stressPattern: row.stress_pattern,
   };
 }
 
@@ -211,6 +248,7 @@ export interface DictionaryWordRow {
   id: string;
   word_key: string;
   normalised_word: string;
+  display_word: string | null;
   row_status: string;
   review_status: string;
   frequency_band: string | null;
@@ -222,6 +260,9 @@ export function dictionaryWordFromRow(row: DictionaryWordRow): DictionaryWordFac
     canonicalWordId: row.id,
     wordKey: row.word_key,
     normalisedWord: row.normalised_word,
+    // True child-facing spelling; coalesce so a null never leaves the identity
+    // word blank in the UI.
+    displayWord: row.display_word ?? row.normalised_word,
     rowStatus: row.row_status as DictionaryRowStatus,
     reviewStatus: row.review_status as DictionaryReviewStatus,
     frequencyBand: row.frequency_band,

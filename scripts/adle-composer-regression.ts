@@ -137,6 +137,8 @@ function template(
     requiresContrastWords: false,
     evidenceKind,
     childFacingCopy: "fixture copy",
+    purpose: "fixture purpose",
+    childResponse: "fixture response",
     rowStatus: "active",
     ...overrides,
   };
@@ -187,6 +189,7 @@ function buildDictionary(specs: readonly FixtureWordSpec[]): ComposerDictionaryF
     canonicalWordId: spec.id,
     wordKey: `${spec.id}_key`,
     normalisedWord: spec.id.replace(/-/g, ""),
+    displayWord: spec.id.replace(/-/g, ""),
     rowStatus: "active",
     reviewStatus: "approved_for_first_exposure",
     frequencyBand: spec.frequencyBand ?? "high",
