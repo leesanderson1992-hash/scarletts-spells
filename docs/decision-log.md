@@ -1,5 +1,64 @@
 # Decision Log
 
+## 2026-07-08 — ADLE Slice 7a complete: child fun session + reward loop; template UI/UX redesign is next
+
+### What changed
+- ADLE Slice 7a landed and closed out in local/dev (branch `adle-slice-7a`,
+  merged to `main` at closeout). It replaces the Slice 6 functional-forms
+  harness with the real child experience:
+  - **Registry-driven per-template activities** (`components/adle/activities/`):
+    a pure `resolveActivityKind` (`templateKey → component`) maps every active
+    template to one of six interaction archetypes under an owner-approved
+    **data-honest tier map** — real interactions where the data backs them
+    (dictation/spelling, drag-to-sort for D4_SYL/D4_SCHWA, reflection, intro),
+    warm template-specific prompt shells for the content-dependent guided steps.
+    `adle-session-runner.tsx` became an orchestrator; the attempt maps + both
+    server actions are byte-identical to Slice 6 (frozen contract).
+  - **Composer/loader payload enrichment** (`adle:composer-payload-regression`)
+    surfaces display words, provenance, teachingObjective, sort bins, and
+    child-facing copy; `wordMetadataByWordId` is optional/fail-open.
+  - **Display-word contract hardening**: the true `display_word` is threaded
+    into `DictionaryWordFact` (kept `normalisedWord` for identity/matching);
+    correctness still normalises internally.
+  - **ADLE→Word Treasure reward consumer** (`lib/rewards/adle-reward-bridge.ts`,
+    reward-owned; `lib/adle` stays event-only): Nugget→Forge on lesson
+    completion + Golden-Bar progress from parent-verified authentic uses, with
+    **cross-path no-double-count** keyed on `(treasure, writing_sample)` against
+    the free-writing path (`adle:reward-bridge-regression`).
+  - **Full-page end-of-session celebration** (7a-D) reusing the reward icon
+    layer + keyframes (`adle:session-celebration-regression`).
+- Verified live, not just fixtures: the reward bridge was run against the real
+  DB (forge, bar-at-threshold, cross-path dedup, all idempotent), and a **full
+  lesson browser walkthrough** drove the real Part 1 + Part 2 forms → real
+  server actions → Nugget "a" `golden_nugget → in_forge` + celebration. QA
+  artefact: `docs/implementation/qa/adle-slice-7a-walkthrough-2026-07-08.md`.
+- **One live-only defect found + fixed** (the walkthrough's value): the forge
+  wiring passed the ADLE learning-item id into
+  `child_word_treasures.source_learning_item_id`, whose FK references the legacy
+  `learning_items` table (ADLE items live in `adle_learning_items`). Fixed
+  structurally so the bridge never writes the legacy FK (commit `c810a6f`).
+- No migration. 14 `adle:*` suites green; app `tsc` + lint clean; `lib/adle`
+  imports no reward code (boundary intact).
+
+### Next
+- **Template UI/UX redesign (owner direction 2026-07-08)** is the next ADLE UI
+  slice: the owner is not happy with the current per-template UI/UX. It starts
+  at its own fresh planning phase; the 7a registry (`templateKey → component`)
+  and the warm prompt shells are the drop-in seam it will replace/upgrade.
+- ADLE Slice 7b (parent "why this appeared today" provenance, proficiency
+  dashboard, curriculum gap visibility) remains planned.
+
+### Why
+- Slice 6 proved the wiring but was deliberately plain; 7a makes the loop
+  something a child wants to return to while keeping the pedagogy honest
+  (rewarding without being noisy; the reward boundary intact).
+- The data-honest tier map keeps the interactions truthful: several guided
+  templates lack the structured content for a real interaction today, so they
+  render as warm shells rather than pretending — which is exactly why the owner
+  has scheduled a dedicated template UI/UX slice next.
+
+---
+
 ## 2026-07-06 — ADLE Slice 6 complete: live session surface + completion wiring
 
 ### What changed

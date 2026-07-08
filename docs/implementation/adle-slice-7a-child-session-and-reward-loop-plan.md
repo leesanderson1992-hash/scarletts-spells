@@ -2,15 +2,18 @@
 
 ## Status
 
-- Status: `IMPLEMENTATION IN PROGRESS 2026-07-07 (branch adle-slice-7a,
-  committed on-branch; NOT merged to main). DONE: 7a-B composer/loader payload
-  enrichment; display-word contract hardening (added, not in the original
-  plan); 7a-A activity registry + runner refactor. REMAINING: 7a-C reward
-  bridge, 7a-D celebration, step-6 browser QA (live walkthrough on a fresh
-  seed — not yet run; the ADLE route is auth+seed gated), and closeout. 12
-  adle:* suites green; app tsc + lint clean; dev server compiles clean.`
+- Status: `COMPLETE 2026-07-08 (local/dev), owner-directed closeout. Branch
+  adle-slice-7a, 7 commits ahead of main, merged to main at closeout. All of
+  7a-A/7a-B/7a-C/7a-D landed + display-word hardening; live QA passed (reward
+  bridge proven against the real DB; full lesson walkthrough drove the real
+  forms → forge → celebration). One live-only bug found + fixed (forge FK).
+  14 adle:* suites green; app tsc + lint clean. No migration. NEXT SLICE (owner
+  direction 2026-07-08): a dedicated TEMPLATE UI/UX slice — the owner is not
+  happy with the current per-template experience; it starts at a fresh planning
+  phase in its own plan. 7b (parent proficiency dashboard / provenance /
+  curriculum gaps) remains planned.`
 
-### Implementation progress (2026-07-07)
+### Implementation record (2026-07-07 → 2026-07-08)
 
 - **7a-B payload enrichment (DONE):** loader selects word structural metadata +
   template `purpose`/`child_response`; composer emits `sortBins`,
@@ -22,25 +25,53 @@
   identity/matching); composer `displayWordOf` returns display_word. Safe —
   `isAttemptCorrect` re-normalises internally. Row→fact mapping regression-
   covered. (The malformed-data cleanup lives on the sibling branch
-  `teaching-dictionary-display-word-fix`, not here.)
+  `teaching-dictionary-display-word-fix`.)
 - **7a-A activity registry + runner refactor (DONE):**
   `components/adle/activities/registry.ts` (pure `resolveActivityKind`, 6
   archetypes) + `adle:activity-registry-regression` (drift guard = exactly 32
-  active templates). `adle-session-runner.tsx` is now an orchestrator;
-  archetype components (intro / quick-sort / spelling / guided-shell /
-  reflection) under `components/adle/activities/`. **Frozen contract preserved:
-  attempt maps keyed by canonical_word_id + both server actions byte-identical;
-  correctness stays server-side.**
+  active templates). `adle-session-runner.tsx` is an orchestrator; archetype
+  components (intro / quick-sort / spelling / guided-shell / reflection) under
+  `components/adle/activities/`. **Frozen contract preserved:** attempt maps
+  keyed by canonical_word_id + both server actions byte-identical; correctness
+  stays server-side.
+- **7a-C reward bridge (DONE):** reward-owned `lib/rewards/adle-reward-bridge.ts`
+  (+ pure `-core.ts`). Nugget→Forge on lesson completion; Golden-Bar progress
+  from parent-verified ADLE authentic uses; cross-path no-double-count keyed on
+  `(treasure, writing_sample)` (ADLE `ws:{sample}` piece ref + free-writing
+  `writing_sample_id`). Wired into `completeAdleLessonPartAction` (forge) and
+  the approve hook (bar), plus a cross-path skip in
+  `confirmFreeWritingEvidenceCandidates`. `adle:reward-bridge-regression`.
+  `lib/adle/*` imports no reward code (boundary intact).
+- **7a-D end-of-session celebration (DONE):** pure `lib/rewards/adle-session-
+  celebration.ts` deriver + full-page `components/adle/adle-session-celebration.tsx`
+  (server-rendered, reusing the reward icon layer + keyframes). Reads the reward
+  model on the completed state; fail-soft. `adle:session-celebration-regression`.
 - **DATA-HONEST TIER MAP (re-verified, supersedes the plan's optimistic
-  sketch):** `syllables` is a count string (not a segmentation); `phoneme_hint`
-  is phonetic (not a grapheme map); `grapheme_notes`=0. Only D4_SYL (by count)
-  and D4_SCHWA (by has_schwa) get a concrete drag-to-sort; every other
-  content-dependent guided template renders a warm prompt shell. Owner-approved
-  as the "data-honest map".
-- **REMAINING:** 7a-C reward bridge (`lib/rewards/adle-reward-bridge.ts`, the
-  main-risk piece — piece_ref dedup, no double-count), 7a-D celebration,
-  step-6 browser QA (fresh seed; enriched payload only rides newly composed
-  plans), closeout (this status → COMPLETE, decision-log, roadmap, memory).
+  sketch below):** `syllables` is a count string (not a segmentation);
+  `phoneme_hint` is phonetic (not a grapheme map); `grapheme_notes`=0. Only
+  D4_SYL (by count) and D4_SCHWA (by has_schwa) get a concrete drag-to-sort;
+  every other content-dependent guided template renders a warm prompt shell.
+- **Live QA (step 6, 2026-07-08):** reward bridge proven against the real DB
+  (forge, bar-at-threshold, cross-path dedup all idempotent); the full lesson
+  walkthrough drove the real Part 1 + Part 2 forms → real server actions →
+  Nugget "a" `golden_nugget → in_forge` + `entered_forge` event → the "Into the
+  Workshop" celebration; a separate seed showed the Golden-Bar ceremony. **One
+  live-only defect** (forge FK: passing the ADLE learning-item id into the
+  legacy `child_word_treasures.source_learning_item_id` FK) was found and fixed
+  structurally (ADLE never writes the legacy FK). QA artefact:
+  `docs/implementation/qa/adle-slice-7a-walkthrough-2026-07-08.md`.
+- **NEXT SLICE — template UI/UX redesign (owner direction 2026-07-08):** the
+  registry renders each activity, but the owner is **not happy with the current
+  per-template UI/UX**. The next ADLE UI slice is a dedicated redesign of each
+  template's child experience, starting at its own planning phase. The registry
+  from 7a is the drop-in seam (`templateKey → component`); the warm prompt
+  shells and the Tier-map are what that slice will replace/upgrade.
+
+- **NOTE — the "what already exists" section below is the pre-implementation
+  sketch and contains assumptions later corrected in QA** (e.g. an `is_active`
+  column that does not exist — the real status column is `row_status`; and the
+  optimistic syllable/phoneme interactivity superseded by the data-honest tier
+  map above). Kept for provenance; do not treat it as current truth.
 
 - Prior status: `Owner-approved 2026-07-07 — all four open questions accepted as
   recommended (authentic-use reconciliation = single increment deduped by

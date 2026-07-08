@@ -33,10 +33,11 @@ type AdleSessionPageProps = {
   }>;
 };
 
-// ADLE Slice 6: the live two-part session surface (functional forms; calm-UI
-// polish is Slice 7). First load lazily ensures today's plan — compose ->
-// plan persistence -> insert, idempotent under the daily_assignments
-// uniqueness guard — then renders the plan read model.
+// ADLE Slice 6 + 7a: the live two-part session surface. First load lazily
+// ensures today's plan — compose -> plan persistence -> insert, idempotent
+// under the daily_assignments uniqueness guard — then renders the registry-
+// driven session runner (7a). On the completed state it reads the reward model
+// and shows the end-of-session celebration (7a-D).
 export default async function AdleSessionPage({ searchParams }: AdleSessionPageProps) {
   const supabase = await createClient();
   const {

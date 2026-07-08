@@ -13,16 +13,21 @@ ADLE remains separate from Word Treasure.
 
 ## Current stage
 
-Current Version 3.0 stage: `ADLE Slices 1–6 complete (Slices 1–5
-2026-07-05; Slice 6 2026-07-06): dictionary eligibility + banding, review
-scheduler, daily assignment composer, evidence engine, micro-skill
-proficiency engine, and the live session surface + completion wiring are
-implemented in local/dev with passing regressions and owner QA. Slice 6
-adds the two-part child session, completion wiring, live authentic-use
-emission on Review Work approval, and paused-word release — all verified
-against the real database with an owner browser walkthrough (fixes
-applied). Next: ADLE Slice 7 (child/parent UI). See "ADLE slice track"
-below for the full path to the shipped product.`
+Current Version 3.0 stage: `ADLE Slices 1–6 + 7a complete (Slices 1–5
+2026-07-05; Slice 6 2026-07-06; Slice 7a 2026-07-08): dictionary
+eligibility + banding, review scheduler, daily assignment composer,
+evidence engine, micro-skill proficiency engine, the live session surface
++ completion wiring, and the child fun session + reward loop are
+implemented in local/dev with passing regressions and owner QA. Slice 7a
+adds the registry-driven per-template activity renderer, a warm reskin,
+the full-page end-of-session celebration, and the ADLE→Word Treasure reward
+consumer (Nugget→Forge + Golden-Bar progress, cross-path deduped) — all
+verified against the real database with a full lesson browser walkthrough
+(one live-only forge FK defect found + fixed). NEXT (owner direction
+2026-07-08): a dedicated TEMPLATE UI/UX redesign slice — the owner is not
+happy with the current per-template experience; it starts at its own
+planning phase, with the 7a registry as the drop-in seam. Slice 7b (parent
+surfaces) remains planned. See "ADLE slice track" below.`
 
 Implemented so far:
 - Phase 0 current-state audit was completed as an inspection/planning pass.
@@ -103,7 +108,9 @@ and any re-cut of their boundaries happens in those plans, not here.
 | 4 | evidence engine: evidence policy v1, pricing + caps, word evidence states, real AuthenticUseProvider + review credit, slippage + deductions | Phase 10 (storage/pricing half) | **complete 2026-07-05** |
 | 5 | micro-skill proficiency engine: breadth credit 1.0/0.4/0.1, target(L) from the allocation table (floor 8, `secure (limited allocation)` badging), gated-never-averaged levels, reporting read model, "not yet secure" prerequisite-precedence extension | Phase 11 | **complete 2026-07-05** |
 | 6 | live session surface and completion wiring: child attempt-capture flow for the composed day (Part 1 review + Part 2 lesson), completion helpers wired to real sessions, live authentic-use emission from Review Work, parent-review release of paused words, Phase 3.7B Daily Assignment browser signoff | Phase 10 (capture half) + Phase 3.7B | **complete 2026-07-06** |
-| 7 | child and parent UI: calm/small child daily practice UI, parent "why this appeared today" provenance, proficiency dashboard (progress-toward-next-level framing, allocation-limited flags), curriculum gap visibility, ADLE→Word Treasure event emission (reward contract consumes) | Phase 13 (+ Phase 12 event wiring) | planned |
+| 7a | child fun session + reward loop: registry-driven per-template activities (`templateKey → component`, data-honest tier map — real interactions where data backs them, warm prompt shells otherwise), warm reskin, full-page end-of-session celebration, and the ADLE→Word Treasure reward consumer (`lib/rewards/adle-reward-bridge.ts`: Nugget→Forge on lesson completion + Golden-Bar progress from authentic uses, cross-path deduped by writing sample; ADLE stays event-only) | Phase 13 (child) + Phase 12 event wiring | **complete 2026-07-08 (local/dev)**; live QA incl. full lesson walkthrough |
+| 7-UI (NEXT) | template UI/UX redesign: rework the child experience of each activity template — the owner is **not happy with the current per-template UI/UX**. Starts at its own fresh planning phase. The 7a registry is the drop-in seam (`templateKey → component`); the warm prompt shells + the tier map are what this slice replaces/upgrades | Phase 13 (child) | planned — **next ADLE UI slice** |
+| 7b | parent surfaces: "why this appeared today" provenance, micro-skill proficiency dashboard (progress-toward-next-level framing, allocation-limited flags), curriculum gap visibility | Phase 13 (parent) | planned |
 | 8 | productionisation: bulk dictionary population with per-batch banding reports and intake standards, hosted/production migrations (owner-approved, per migration policy), pilot tuning of the blueprint's pilot list (interval telemetry, probe cap, must-use counts, parent-report thresholds) | release | planned |
 
 Standing boundaries across all remaining slices: local/dev only until
@@ -1437,17 +1444,23 @@ Rules retained:
 </details>
 
 <details>
-<summary>Phase 13: Child and parent UI integration — Slice 6 done (live surface + wiring); Slice 7 (calm UI) planned</summary>
+<summary>Phase 13: Child and parent UI integration — Slice 6 (surface) + 7a (child fun session + reward loop) done; template UI/UX redesign next; 7b (parent) planned</summary>
 
-Status: `Slice 6 complete (2026-07-06): the live child session surface,
-completion wiring, and Phase 3.7B ADLE-mapped browser walkthrough are
-done, but the surface is deliberately a functional-forms harness. Slice 7
-(not started) delivers the child/parent UI surfaces below (calm child
-practice UI, parent "why this appeared today" provenance, proficiency
-dashboard) plus ADLE→Word Treasure event emission. Note: real lessons
-also need approved word↔skill dictionary mappings (content curation) —
-local dev currently has no content-complete, approved-mapped skill, so
-the manual-QA lesson uses a synthetic word↔skill pairing.`
+Status: `Slice 6 (2026-07-06) delivered the live surface + wiring as a
+functional-forms harness. Slice 7a (2026-07-08) replaced that with the real
+child experience: a registry-driven per-template activity renderer
+(templateKey -> component), a warm reskin, a full-page end-of-session
+celebration, and the ADLE->Word Treasure reward consumer (Nugget->Forge +
+Golden-Bar progress, cross-path deduped; ADLE stays event-only). Verified
+with a full lesson browser walkthrough against the real DB (one live-only
+forge FK defect found + fixed). NEXT (owner direction 2026-07-08): a
+dedicated TEMPLATE UI/UX redesign slice — the owner is not happy with the
+current per-template UI/UX; it starts at its own planning phase, using the
+7a registry as the drop-in seam. Slice 7b (parent provenance, proficiency
+dashboard, curriculum gaps) remains planned. Note: real lessons still need
+approved word↔skill dictionary mappings (content curation) — local dev has
+no content-complete, approved-mapped skill, so QA lessons use a synthetic
+word↔skill pairing.`
 
 Add:
 - child ADLE practice UI
