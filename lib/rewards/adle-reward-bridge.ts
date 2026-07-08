@@ -54,7 +54,6 @@ type SupabaseServerClient = Awaited<ReturnType<typeof createClient>>;
 export interface AdleTaughtWordForForge {
   assignmentItemId: string;
   targetWord: string;
-  learningItemId?: string | null;
 }
 
 export interface ForgeAdvanceOutcome {
@@ -98,7 +97,11 @@ export async function advanceForgeForAdleTaughtWords(input: {
       parentUserId: input.parentUserId,
       dailyAssignmentId: input.dailyAssignmentId,
       assignmentItemId: taught.assignmentItemId,
-      learningItemId: taught.learningItemId ?? null,
+      // ADLE never writes the legacy source_learning_item_id: that column FKs
+      // the legacy `learning_items` table, and ADLE items live in
+      // `adle_learning_items` (the "ADLE rows keep legacy learning_item_id
+      // null" pin). Passing an ADLE id here violates the FK.
+      learningItemId: null,
       targetWord: taught.targetWord,
       sourceType: "adle_lesson_completion",
       sourceEntityId: taught.assignmentItemId,

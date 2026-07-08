@@ -448,7 +448,6 @@ export async function completeAdleLessonPartAction(formData: FormData) {
       taughtWords: productionItems.map((item) => ({
         assignmentItemId: item.id,
         targetWord: item.targetWord ?? "",
-        learningItemId: item.adleLearningItemRef,
       })),
     });
   } catch (forgeError) {
