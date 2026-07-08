@@ -874,6 +874,37 @@ def validate_teaching_version(
     }
 
 
+def validate_word_shapes(rows: list[dict[str, str]], file_name: str, issues: list[Issue]) -> None:
+    """A canonical word row must be a single child-facing spelling.
+
+    `normalised_word` is the lower-case matching/identity key; `display_word` is
+    the child-facing surface form. Neither may carry a slash-joined form list
+    such as "fast/faster/fastest" (each inflected/related form is its own row),
+    and `normalised_word` must be lower-case. See
+    docs/implementation/version-3-phase-5b-teaching-dictionary-architecture.md.
+    This guards against the D4-seed authoring shape that reached active rows
+    before migration 20260707120000.
+    """
+    for row in rows:
+        normalised = clean(row.get("normalised_word"))
+        display = clean(row.get("display_word"))
+        if "/" in normalised:
+            add_issue(
+                issues, "error", file_name, row_number(row), "normalised_word",
+                f"normalised_word {normalised!r} must be a single word, not a slash-joined form list.",
+            )
+        if "/" in display:
+            add_issue(
+                issues, "error", file_name, row_number(row), "display_word",
+                f"display_word {display!r} must be a single child-facing spelling, not a slash-joined form list.",
+            )
+        if normalised and normalised != normalised.lower():
+            add_issue(
+                issues, "error", file_name, row_number(row), "normalised_word",
+                f"normalised_word {normalised!r} must be lower-case.",
+            )
+
+
 def validate(folder: Path) -> dict[str, Any]:
     issues: list[Issue] = []
     data, load_issues = load_csv_folder(folder)
@@ -884,6 +915,7 @@ def validate(folder: Path) -> dict[str, Any]:
 
     catalog = load_micro_skill_catalog()
     validate_enums(data, issues)
+    validate_word_shapes(data["canonical_words.csv"], "canonical_words.csv", issues)
     validate_global_references(data, catalog, issues)
     validate_active_versions(data, issues)
 
