@@ -17,6 +17,12 @@ import {
   ensureAdleDailyPlan,
   getAdleDailyPlanReadModel,
 } from "@/lib/adle/loaders/daily-plan-surface";
+import { getChildRewardReadModel } from "@/lib/rewards/read-model";
+import {
+  deriveAdleSessionCelebration,
+  type AdleSessionCelebrationModel,
+} from "@/lib/rewards/adle-session-celebration";
+import { AdleSessionCelebration } from "@/components/adle/adle-session-celebration";
 
 type AdleSessionPageProps = {
   searchParams?: Promise<{
@@ -80,6 +86,29 @@ export default async function AdleSessionPage({ searchParams }: AdleSessionPageP
 
   const backPath = buildScopedPath("/learn/week", selectedChild.id, mode);
 
+  // Slice 7a-D: on the completed screen, read the child's Word Treasure state and
+  // derive today's celebration (Nugget->Forge from lesson completion + any
+  // Golden Bar earned today). Read-model-driven (the completion redirect
+  // revalidates this page); a failure falls back to the plain "all done" card.
+  let celebration: AdleSessionCelebrationModel | null = null;
+  if (readModel.state === "completed") {
+    try {
+      const fiveDayCutoff = new Date();
+      fiveDayCutoff.setDate(fiveDayCutoff.getDate() - 5);
+      const rewardReadModel = await getChildRewardReadModel({
+        supabase,
+        parentUserId: user.id,
+        childId: selectedChild.id,
+        todayDateOnly: today,
+        lastFiveDaysSinceIso: fiveDayCutoff.toISOString(),
+      });
+      celebration = deriveAdleSessionCelebration(rewardReadModel.childWordTreasures, today);
+    } catch (rewardError) {
+      console.error("[adle-session] reward celebration read failed (plain completed card shown)", rewardError);
+      celebration = null;
+    }
+  }
+
   return (
     <AppShell
       currentPath="/learn/week"
@@ -122,11 +151,19 @@ export default async function AdleSessionPage({ searchParams }: AdleSessionPageP
             </p>
           </div>
         ) : readModel.state === "completed" ? (
-          <div className="brand-card rounded-3xl p-4 md:p-5">
-            <p className="text-sm text-emerald-700">
-              Today&apos;s spelling plan is all done. See you tomorrow.
-            </p>
-          </div>
+          celebration !== null ? (
+            <AdleSessionCelebration
+              model={celebration}
+              planDate={readModel.planDate}
+              backPath={backPath}
+            />
+          ) : (
+            <div className="brand-card rounded-3xl p-4 md:p-5">
+              <p className="text-sm text-emerald-700">
+                Today&apos;s spelling plan is all done. See you tomorrow.
+              </p>
+            </div>
+          )
         ) : (
           <AdleSessionRunner
             childId={selectedChild.id}
