@@ -111,7 +111,7 @@ function assertNoError(error: { message?: string } | null, label: string) {
 }
 
 async function countRows(
-  supabase: ReturnType<typeof createClient>,
+  supabase: ReturnType<typeof createClient<any, "public">>,
   table: string,
   childId: string,
 ) {
@@ -123,6 +123,12 @@ async function countRows(
   assertNoError(error, `Failed to count ${table}`);
 
   return count ?? 0;
+}
+
+function assertRow<T>(value: T | null, label: string): asserts value is T {
+  if (value === null || value === undefined) {
+    throw new Error(`${label}: expected a row but received none.`);
+  }
 }
 
 async function main() {
@@ -178,6 +184,7 @@ async function main() {
       .select("id")
       .single();
     assertNoError(childError, "Failed to create disposable child");
+    assertRow(child, "Failed to create disposable child");
     childId = child.id as string;
 
     const { data: learningItem, error: learningItemError } = await supabase
@@ -196,6 +203,7 @@ async function main() {
       .select("id")
       .single();
     assertNoError(learningItemError, "Failed to create learning item");
+    assertRow(learningItem, "Failed to create learning item");
     const learningItemId = learningItem.id as string;
 
     const { data: assignment, error: assignmentError } = await supabase
@@ -212,6 +220,7 @@ async function main() {
       .select("id")
       .single();
     assertNoError(assignmentError, "Failed to create daily assignment");
+    assertRow(assignment, "Failed to create daily assignment");
     const dailyAssignmentId = assignment.id as string;
 
     const { data: assignmentItem, error: assignmentItemError } = await supabase
@@ -242,6 +251,7 @@ async function main() {
       .select("id, status")
       .single();
     assertNoError(assignmentItemError, "Failed to create assignment item");
+    assertRow(assignmentItem, "Failed to create assignment item");
     const assignmentItemId = assignmentItem.id as string;
 
     const { data: treasure, error: treasureError } = await supabase
@@ -262,6 +272,7 @@ async function main() {
       .select("id, status, entered_forge_at")
       .single();
     assertNoError(treasureError, "Failed to create word treasure");
+    assertRow(treasure, "Failed to create word treasure");
     const treasureId = treasure.id as string;
 
     const eventCountBeforeCompletion = await countRows(
@@ -313,6 +324,7 @@ async function main() {
       .eq("id", assignmentItemId)
       .single();
     assertNoError(completedItemError, "Failed to reread assignment item");
+    assertRow(completedItem, "Failed to reread assignment item");
 
     if (completedItem.status !== "completed") {
       throw new Error("Assignment item was not marked completed.");
@@ -324,6 +336,7 @@ async function main() {
       .eq("id", treasureId)
       .single();
     assertNoError(forgedTreasureError, "Failed to reread forged treasure");
+    assertRow(forgedTreasure, "Failed to reread forged treasure");
 
     if (
       forgedTreasure.status !== "in_forge" ||
@@ -421,6 +434,7 @@ async function main() {
       .eq("id", treasureId)
       .single();
     assertNoError(laterTreasureError, "Failed to reread later treasure");
+    assertRow(laterTreasure, "Failed to reread later treasure");
 
     if (laterTreasure.status !== "golden_bar" || !laterTreasure.golden_bar_at) {
       throw new Error("Completion rewrote or regressed a later Word Treasure status.");

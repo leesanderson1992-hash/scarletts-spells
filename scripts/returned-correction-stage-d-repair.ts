@@ -16,7 +16,7 @@ import {
 } from "../lib/writing-engine/persistence/returned-correction-repair";
 import type { ReturnedCorrectionRouteBridgeAttempt } from "../lib/writing-engine/persistence/returned-correction-route-bridge";
 
-type SupabaseClientLike = ReturnType<typeof createClient>;
+type SupabaseClientLike = ReturnType<typeof createClient<any, "public">>;
 
 type Args = {
   childId?: string;
@@ -199,7 +199,7 @@ async function loadCandidateIssues(input: {
     throw new Error(`Failed to load writing issues: ${error.message}`);
   }
 
-  return ((data ?? []) as ReturnedCorrectionRepairIssue[]).map((issue) => ({
+  return ((data ?? []) as unknown as ReturnedCorrectionRepairIssue[]).map((issue) => ({
     ...issue,
     metadata: parseMetadata(issue.metadata),
   }));
@@ -330,14 +330,14 @@ async function loadRowsForIssues(input: {
     throw new Error(`Failed to load repair context: ${failed.error.message}`);
   }
 
-  const attempts = ((attemptsResult.data ?? []) as CorrectionAttemptRow[]).map(
+  const attempts = ((attemptsResult.data ?? []) as unknown as CorrectionAttemptRow[]).map(
     (attempt) => ({
       ...attempt,
       metadata: parseMetadata(attempt.metadata),
     }),
   );
   const candidateMappings = (
-    (candidateMappingsResult.data ?? []) as ReturnedCorrectionRepairCandidateMapping[]
+    (candidateMappingsResult.data ?? []) as unknown as ReturnedCorrectionRepairCandidateMapping[]
   ).map((mapping) => ({
     ...mapping,
     metadata: parseMetadata(mapping.metadata),

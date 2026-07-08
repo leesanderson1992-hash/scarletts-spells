@@ -24,7 +24,7 @@ const TARGET_WORD = "because";
 const ORIGINAL_MISSPELLING = "becuase";
 const MICRO_SKILL_KEY = "phase_3_7a_spelling_transfer";
 
-type SupabaseClient = ReturnType<typeof createClient>;
+type SupabaseClient = ReturnType<typeof createClient<any, "public">>;
 type RowCountMap = Map<string, number>;
 
 function loadEnvFile(path: string) {
@@ -126,6 +126,12 @@ function assertNoError(error: { message?: string } | null, label: string) {
       .join("; ");
 
     throw new Error(`${label}: ${details || JSON.stringify(error)}`);
+  }
+}
+
+function assertRow<T>(value: T | null, label: string): asserts value is T {
+  if (value === null || value === undefined) {
+    throw new Error(`${label}: expected a row but received none.`);
   }
 }
 
@@ -668,6 +674,7 @@ async function main() {
       .eq("id", treasureId)
       .single();
     assertNoError(forgedTreasureError, "Failed to reread forged treasure");
+    assertRow(forgedTreasure, "Failed to reread forged treasure");
     assert.equal(forgedTreasure.status, "in_forge");
     assert.ok(forgedTreasure.entered_forge_at, "Treasure did not enter Forge.");
     assert.equal(forgedTreasure.authentic_correct_uses_after_forge, 0);
@@ -919,6 +926,7 @@ async function main() {
       .eq("id", treasureId)
       .single();
     assertNoError(goldenTreasureError, "Failed to reread Golden Bar treasure");
+    assertRow(goldenTreasure, "Failed to reread Golden Bar treasure");
     assert.equal(goldenTreasure.status, "golden_bar");
     assert.ok(goldenTreasure.golden_bar_at, "Golden Bar timestamp was not set.");
     assert.equal(goldenTreasure.authentic_correct_uses_after_forge, 5);
@@ -941,6 +949,7 @@ async function main() {
       learningItemAfterError,
       "Failed to reread learning item for mastery guard",
     );
+    assertRow(learningItemAfter, "Failed to reread learning item for mastery guard");
     assert.equal(
       learningItemAfter.progress_state,
       "golden_nugget",

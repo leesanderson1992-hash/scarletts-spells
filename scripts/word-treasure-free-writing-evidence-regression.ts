@@ -63,7 +63,7 @@ for (const column of [
 }
 assert.match(
   migration,
-  /treasure_id,\s*task_submission_id,\s*source_field_key/s,
+  /treasure_id,\s*task_submission_id,\s*source_field_key/,
   "Candidates must dedupe to one evidence unit per Word Treasure per task field per submission.",
 );
 assert.match(
