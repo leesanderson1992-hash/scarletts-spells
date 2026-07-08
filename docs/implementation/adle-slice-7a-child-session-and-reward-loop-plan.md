@@ -7,10 +7,11 @@
   7a-A/7a-B/7a-C/7a-D landed + display-word hardening; live QA passed (reward
   bridge proven against the real DB; full lesson walkthrough drove the real
   forms → forge → celebration). One live-only bug found + fixed (forge FK).
-  14 adle:* suites green; app tsc + lint clean. No migration. NEXT SLICE (owner
-  direction 2026-07-08): a dedicated TEMPLATE UI/UX slice — the owner is not
-  happy with the current per-template experience; it starts at a fresh planning
-  phase in its own plan. 7b (parent proficiency dashboard / provenance /
+  14 adle:* suites green; app tsc + lint clean. No migration. OWNER AMENDMENT
+  2026-07-08: insert ADLE 7P Live Pilot Foundation before template UI/UX
+  redesign. Do not continue template redesign until one real child live ADLE
+  assignment can be previewed, intentionally generated, opened, completed, and
+  verified in the database. 7b (parent proficiency dashboard / provenance /
   curriculum gaps) remains planned.`
 
 ### Implementation record (2026-07-07 → 2026-07-08)
@@ -60,12 +61,11 @@
   legacy `child_word_treasures.source_learning_item_id` FK) was found and fixed
   structurally (ADLE never writes the legacy FK). QA artefact:
   `docs/implementation/qa/adle-slice-7a-walkthrough-2026-07-08.md`.
-- **NEXT SLICE — template UI/UX redesign (owner direction 2026-07-08):** the
-  registry renders each activity, but the owner is **not happy with the current
-  per-template UI/UX**. The next ADLE UI slice is a dedicated redesign of each
-  template's child experience, starting at its own planning phase. The registry
-  from 7a is the drop-in seam (`templateKey → component`); the warm prompt
-  shells and the Tier-map are what that slice will replace/upgrade.
+- **NEXT SLICE — ADLE 7P Live Pilot Foundation (owner direction 2026-07-08):**
+  this is an inserted bridge slice before template UI/UX redesign. It proves
+  the real child assignment path first: read-only preview, explicit guarded
+  generation, child-opened session, completion, and database verification.
+  Template UI/UX redesign remains next after that proof.
 
 - **NOTE — the "what already exists" section below is the pre-implementation
   sketch and contains assumptions later corrected in QA** (e.g. an `is_active`

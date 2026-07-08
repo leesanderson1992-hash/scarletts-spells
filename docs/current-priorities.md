@@ -222,18 +222,21 @@ excluded.
   [docs/implementation/version-2-roadmap.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/implementation/version-2-roadmap.md:1)
   to plan daily assignment practice and accelerated spelling-engine
   population without weakening truth boundaries.
-- Version 2.0 Slice `7E` child daily spelling practice release readiness is
-  implemented: `/learn/week` shows the neutral daily spelling card and
-  `/learn/week/practice`: the page reads the Slice `7A` model server-side and
-  renders a local viewer for supported generated spelling items. The final child
-  action marks only supported generated `assignment_items.status` rows as
-  `completed`; `daily_assignments.status` remains untouched. Child routes still
-  do not trigger generation, persist answer attempts/correctness, mutate
-  learning truth, use service-role, add migrations, revive `/practice` or
-  `/assignments`, or change rewards/mastery/canonical/Review Work behavior.
-  Focused regressions, the aggregate daily-practice surface regression,
-  typecheck, targeted lint, diff checks, and local browser smoke are recorded as
-  passing for release readiness.
+- ADLE 7P Live Pilot Foundation is implemented as the required bridge after 7a
+  and before template UI redesign. Child navigation now points to
+  `/learn/week/adle` (`Today's Spelling`), and legacy `/learn/week/practice`
+  redirects child-mode traffic to ADLE. `/learn/week/adle` is read-only on load:
+  it reads an existing ADLE assignment and does not create `daily_assignments`
+  or `assignment_items`. Pilot generation is explicit via guarded command after
+  read-only preview and real child identity approval. First proof is
+  assignment/evidence/schedule only; Word Treasure is a second proof, not a
+  blocker for the first ADLE assignment pilot. See
+  [docs/implementation/adle-slice-7p-live-pilot-foundation.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/implementation/adle-slice-7p-live-pilot-foundation.md:1).
+- Legacy Daily Practice remains documented as legacy: it used the old
+  `learning_items` path and the `/api/internal/daily-spelling-practice/generate`
+  cron. ADLE uses `adle_learning_items`; `assignment_items.learning_item_id`
+  remains null by design and ADLE linkage lives in
+  `assignment_items.metadata.adleLearningItemRef` plus `adle_learning_items`.
 - The scheduled daily spelling practice materializer is implemented as the
   production bridge from active `learning_items` to today's bounded
   `daily_assignments`: Vercel cron calls

@@ -40,7 +40,7 @@ function getNavSections(mode: AppMode, showAdminNav: boolean): NavSection[] {
         title: "Child mode",
         items: [
           { label: "This Week", href: "/learn/week" },
-          { label: "Daily Practice", href: "/learn/week/practice" },
+          { label: "Today's Spelling", href: "/learn/week/adle" },
           { label: "My Learning", href: "/learn" },
           { label: "My Progress", href: "/insights" },
         ],
@@ -92,7 +92,10 @@ function getNavSections(mode: AppMode, showAdminNav: boolean): NavSection[] {
 }
 
 function isCurrentNavItem(currentPath: string, href: string) {
-  if (href === "/learn/week" && currentPath.startsWith("/learn/week/practice")) {
+  if (
+    href === "/learn/week" &&
+    (currentPath.startsWith("/learn/week/practice") || currentPath.startsWith("/learn/week/adle"))
+  ) {
     return false;
   }
 

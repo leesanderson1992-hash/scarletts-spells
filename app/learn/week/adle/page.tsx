@@ -12,9 +12,8 @@ import {
 import { getActiveChildrenForUser } from "@/lib/courses/queries";
 import { getDateOnly } from "@/lib/courses/progress";
 import { createClient } from "@/lib/supabase/server";
-import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import {
-  ensureAdleDailyPlan,
+  getExistingAdleDailyPlanId,
   getAdleDailyPlanReadModel,
 } from "@/lib/adle/loaders/daily-plan-surface";
 import { getChildRewardReadModel } from "@/lib/rewards/read-model";
@@ -33,11 +32,9 @@ type AdleSessionPageProps = {
   }>;
 };
 
-// ADLE Slice 6 + 7a: the live two-part session surface. First load lazily
-// ensures today's plan — compose -> plan persistence -> insert, idempotent
-// under the daily_assignments uniqueness guard — then renders the registry-
-// driven session runner (7a). On the completed state it reads the reward model
-// and shows the end-of-session celebration (7a-D).
+// ADLE Slice 7P: the child-facing route is read-only. Explicit guarded
+// generation creates the assignment before a child opens this page; loading
+// this route must never create daily_assignments or assignment_items.
 export default async function AdleSessionPage({ searchParams }: AdleSessionPageProps) {
   const supabase = await createClient();
   const {
@@ -60,21 +57,17 @@ export default async function AdleSessionPage({ searchParams }: AdleSessionPageP
   }
 
   const today = getDateOnly();
-  const serviceClient = createServiceRoleClient();
 
-  let ensureError: string | null = null;
   let assignmentId: string | null = null;
   try {
-    assignmentId = await ensureAdleDailyPlan({
+    assignmentId = await getExistingAdleDailyPlanId({
       userClient: supabase,
-      serviceClient,
       parentUserId: user.id,
       childId: selectedChild.id,
       planDate: today,
     });
   } catch (error) {
-    console.error("[adle-session] ensure failed", error);
-    ensureError = "We couldn't prepare today's spelling plan. Please try again.";
+    console.error("[adle-session] assignment lookup failed", error);
   }
 
   const readModel = await getAdleDailyPlanReadModel({
@@ -112,7 +105,7 @@ export default async function AdleSessionPage({ searchParams }: AdleSessionPageP
 
   return (
     <AppShell
-      currentPath="/learn/week"
+      currentPath="/learn/week/adle"
       mode={mode}
       activeChildId={selectedChild.id}
       availableChildren={children}
@@ -131,9 +124,9 @@ export default async function AdleSessionPage({ searchParams }: AdleSessionPageP
               {resolvedSearchParams.saved}
             </p>
           ) : null}
-          {resolvedSearchParams?.error || ensureError ? (
+          {resolvedSearchParams?.error ? (
             <p className="mt-3 rounded-2xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">
-              {resolvedSearchParams?.error ?? ensureError}
+              {resolvedSearchParams.error}
             </p>
           ) : null}
           <Link
@@ -147,8 +140,8 @@ export default async function AdleSessionPage({ searchParams }: AdleSessionPageP
         {readModel.state === "empty" ? (
           <div className="brand-card rounded-3xl p-4 md:p-5">
             <p className="text-sm text-[color:var(--mid)]">
-              Nothing to practise today — no words are due for review and no new
-              lesson is ready yet. That&apos;s a real rest day, not a mistake.
+              Today&apos;s spelling plan has not been set up yet. Check back after
+              your grown-up has prepared it.
             </p>
           </div>
         ) : readModel.state === "completed" ? (

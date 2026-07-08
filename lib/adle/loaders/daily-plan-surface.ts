@@ -1,11 +1,13 @@
 /**
- * ADLE Slice 6: lazy ensure-today's-plan and the session surface read model.
+ * ADLE Slice 6/7P: explicit ensure-today's-plan and the session surface read model.
  *
  * Ensure: compose (pure) -> plan persistence (pure) -> insert only on
- * `action === "insert"`. The daily_assignments unique (child_id,
- * assignment_date, title) guard makes concurrent first visits safe: the
- * losing insert conflicts and we re-read the winner. Composer skip reasons
- * are structured-logged at generation (parent-facing surfacing is Slice 7).
+ * `action === "insert"`. Slice 7P pins ensure behind an explicit guarded
+ * generation path only: the child-facing route must call read-only lookup +
+ * read model, never lazy generation on page load. The daily_assignments unique
+ * (child_id, assignment_date, title) guard makes concurrent explicit
+ * generation safe: the losing insert conflicts and we re-read the winner.
+ * Composer skip reasons are structured-logged at generation.
  *
  * The assignment header/items write through the caller's cookie-auth client
  * (parent-scoped RLS, same as the legacy daily practice); ADLE-owned tables
@@ -94,7 +96,7 @@ function partComplete(items: readonly AdleSessionItem[]): boolean {
   return items.length > 0 && items.every((item) => item.status === "completed");
 }
 
-async function findAdleHeader(
+export async function findAdleHeader(
   userClient: Client,
   parentUserId: string,
   childId: string,
@@ -113,6 +115,21 @@ async function findAdleHeader(
     throw new Error(`findAdleHeader: ${error.message}`);
   }
   return (data as { id: string } | null) ?? null;
+}
+
+export async function getExistingAdleDailyPlanId(params: {
+  userClient: Client;
+  parentUserId: string;
+  childId: string;
+  planDate: IsoDate;
+}): Promise<string | null> {
+  const existing = await findAdleHeader(
+    params.userClient,
+    params.parentUserId,
+    params.childId,
+    params.planDate,
+  );
+  return existing?.id ?? null;
 }
 
 export interface EnsureAdleDailyPlanParams {

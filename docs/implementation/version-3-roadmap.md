@@ -23,11 +23,12 @@ adds the registry-driven per-template activity renderer, a warm reskin,
 the full-page end-of-session celebration, and the ADLE→Word Treasure reward
 consumer (Nugget→Forge + Golden-Bar progress, cross-path deduped) — all
 verified against the real database with a full lesson browser walkthrough
-(one live-only forge FK defect found + fixed). NEXT (owner direction
-2026-07-08): a dedicated TEMPLATE UI/UX redesign slice — the owner is not
-happy with the current per-template experience; it starts at its own
-planning phase, with the 7a registry as the drop-in seam. Slice 7b (parent
-surfaces) remains planned. See "ADLE slice track" below.`
+(one live-only forge FK defect found + fixed). ADLE 7P (2026-07-08) is the
+inserted live-pilot foundation bridge: child ADLE route read-only on load,
+read-only composer preview, real-child identity preflight, explicit guarded
+generation, and child nav pointed at `/learn/week/adle`. NEXT after 7P proof:
+template UI/UX redesign. Slice 7b (parent surfaces) remains planned. See
+"ADLE slice track" below.`
 
 Implemented so far:
 - Phase 0 current-state audit was completed as an inspection/planning pass.
@@ -109,15 +110,16 @@ and any re-cut of their boundaries happens in those plans, not here.
 | 5 | micro-skill proficiency engine: breadth credit 1.0/0.4/0.1, target(L) from the allocation table (floor 8, `secure (limited allocation)` badging), gated-never-averaged levels, reporting read model, "not yet secure" prerequisite-precedence extension | Phase 11 | **complete 2026-07-05** |
 | 6 | live session surface and completion wiring: child attempt-capture flow for the composed day (Part 1 review + Part 2 lesson), completion helpers wired to real sessions, live authentic-use emission from Review Work, parent-review release of paused words, Phase 3.7B Daily Assignment browser signoff | Phase 10 (capture half) + Phase 3.7B | **complete 2026-07-06** |
 | 7a | child fun session + reward loop: registry-driven per-template activities (`templateKey → component`, data-honest tier map — real interactions where data backs them, warm prompt shells otherwise), warm reskin, full-page end-of-session celebration, and the ADLE→Word Treasure reward consumer (`lib/rewards/adle-reward-bridge.ts`: Nugget→Forge on lesson completion + Golden-Bar progress from authentic uses, cross-path deduped by writing sample; ADLE stays event-only) | Phase 13 (child) + Phase 12 event wiring | **complete 2026-07-08 (local/dev)**; live QA incl. full lesson walkthrough |
-| 7-UI (NEXT) | template UI/UX redesign: rework the child experience of each activity template — the owner is **not happy with the current per-template UI/UX**. Starts at its own fresh planning phase. The 7a registry is the drop-in seam (`templateKey → component`); the warm prompt shells + the tier map are what this slice replaces/upgrades | Phase 13 (child) | planned — **next ADLE UI slice** |
+| 7P | live pilot foundation: read-only ADLE composer preview, real child identity preflight, explicit guarded generation, `/learn/week/adle` read-only on child load, child nav routed to ADLE, legacy `learning_items` Daily Practice path documented/retired for child pilot | Phase 13 bridge | **implemented 2026-07-08**; first real-child live pilot proof pending |
+| 7-UI (NEXT AFTER 7P PROOF) | template UI/UX redesign: rework the child experience of each activity template — the owner is **not happy with the current per-template UI/UX**. Starts at its own fresh planning phase. The 7a registry is the drop-in seam (`templateKey → component`); the warm prompt shells + the tier map are what this slice replaces/upgrades | Phase 13 (child) | planned — blocked until one real child live ADLE assignment is previewed, intentionally generated, opened, completed, and DB-verified |
 | 7b | parent surfaces: "why this appeared today" provenance, micro-skill proficiency dashboard (progress-toward-next-level framing, allocation-limited flags), curriculum gap visibility | Phase 13 (parent) | planned |
 | 8 | productionisation: bulk dictionary population with per-batch banding reports and intake standards, hosted/production migrations (owner-approved, per migration policy), pilot tuning of the blueprint's pilot list (interval telemetry, probe cap, must-use counts, parent-report thresholds) | release | planned |
 
-Standing boundaries across all remaining slices: local/dev only until
-Slice 8's owner-approved production step; parent-review gates reuse the
-existing Review Work flow; ADLE emits events and never writes reward
-state; fail-closed skip reasons everywhere; every policy constant ships
-as a versioned `*_POLICY_V*` module.
+Standing boundaries across all remaining slices: parent-review gates reuse the
+existing Review Work flow; ADLE emits events and never writes reward state;
+fail-closed skip reasons everywhere; every policy constant ships as a versioned
+`*_POLICY_V*` module. For 7P, do not mutate production data until read-only
+preview output and real child identity are approved.
 
 ## Target architecture
 
@@ -1444,7 +1446,7 @@ Rules retained:
 </details>
 
 <details>
-<summary>Phase 13: Child and parent UI integration — Slice 6 (surface) + 7a (child fun session + reward loop) done; template UI/UX redesign next; 7b (parent) planned</summary>
+<summary>Phase 13: Child and parent UI integration — Slice 6 + 7a done; 7P live pilot foundation inserted; template UI/UX redesign next after proof; 7b planned</summary>
 
 Status: `Slice 6 (2026-07-06) delivered the live surface + wiring as a
 functional-forms harness. Slice 7a (2026-07-08) replaced that with the real
@@ -1453,14 +1455,12 @@ child experience: a registry-driven per-template activity renderer
 celebration, and the ADLE->Word Treasure reward consumer (Nugget->Forge +
 Golden-Bar progress, cross-path deduped; ADLE stays event-only). Verified
 with a full lesson browser walkthrough against the real DB (one live-only
-forge FK defect found + fixed). NEXT (owner direction 2026-07-08): a
-dedicated TEMPLATE UI/UX redesign slice — the owner is not happy with the
-current per-template UI/UX; it starts at its own planning phase, using the
-7a registry as the drop-in seam. Slice 7b (parent provenance, proficiency
-dashboard, curriculum gaps) remains planned. Note: real lessons still need
-approved word↔skill dictionary mappings (content curation) — local dev has
-no content-complete, approved-mapped skill, so QA lessons use a synthetic
-word↔skill pairing.`
+forge FK defect found + fixed). ADLE 7P (owner direction 2026-07-08) is inserted
+before template redesign to prove the real live child path: preview, explicit
+generation, child-opened session, completion, and DB verification. Template
+UI/UX redesign starts only after that proof, using the 7a registry as the
+drop-in seam. Slice 7b (parent provenance, proficiency dashboard, curriculum
+gaps) remains planned.`
 
 Add:
 - child ADLE practice UI
