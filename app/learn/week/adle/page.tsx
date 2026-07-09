@@ -12,10 +12,12 @@ import {
 import { getActiveChildrenForUser } from "@/lib/courses/queries";
 import { getDateOnly } from "@/lib/courses/progress";
 import { createClient } from "@/lib/supabase/server";
+import { isAdminUser } from "@/lib/admin/access";
 import {
   getExistingAdleDailyPlanId,
   getAdleDailyPlanReadModel,
 } from "@/lib/adle/loaders/daily-plan-surface";
+import { resolveAdlePlanDateOverride } from "@/lib/adle/session-date-override";
 import { getChildRewardReadModel } from "@/lib/rewards/read-model";
 import {
   deriveAdleSessionCelebration,
@@ -29,6 +31,7 @@ type AdleSessionPageProps = {
     mode?: string;
     saved?: string;
     error?: string;
+    adleDate?: string;
   }>;
 };
 
@@ -56,7 +59,15 @@ export default async function AdleSessionPage({ searchParams }: AdleSessionPageP
     notFound();
   }
 
-  const today = getDateOnly();
+  const actualToday = getDateOnly();
+  const planDate = resolveAdlePlanDateOverride({
+    requestedDate: resolvedSearchParams?.adleDate,
+    fallbackDate: actualToday,
+    isAdmin: isAdminUser(user),
+  });
+  if (planDate === null) {
+    notFound();
+  }
 
   let assignmentId: string | null = null;
   try {
@@ -64,7 +75,7 @@ export default async function AdleSessionPage({ searchParams }: AdleSessionPageP
       userClient: supabase,
       parentUserId: user.id,
       childId: selectedChild.id,
-      planDate: today,
+      planDate,
     });
   } catch (error) {
     console.error("[adle-session] assignment lookup failed", error);
@@ -74,7 +85,7 @@ export default async function AdleSessionPage({ searchParams }: AdleSessionPageP
     userClient: supabase,
     parentUserId: user.id,
     childId: selectedChild.id,
-    planDate: today,
+    planDate,
     assignmentId,
   });
 
@@ -93,10 +104,10 @@ export default async function AdleSessionPage({ searchParams }: AdleSessionPageP
         supabase,
         parentUserId: user.id,
         childId: selectedChild.id,
-        todayDateOnly: today,
+        todayDateOnly: planDate,
         lastFiveDaysSinceIso: fiveDayCutoff.toISOString(),
       });
-      celebration = deriveAdleSessionCelebration(rewardReadModel.childWordTreasures, today);
+      celebration = deriveAdleSessionCelebration(rewardReadModel.childWordTreasures, planDate);
     } catch (rewardError) {
       console.error("[adle-session] reward celebration read failed (plain completed card shown)", rewardError);
       celebration = null;

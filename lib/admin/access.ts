@@ -32,7 +32,7 @@ function parseAllowlist(value: string | undefined) {
   );
 }
 
-function isAdminUser(user: User) {
+export function isAdminUser(user: User) {
   const adminUserIds = parseAllowlist(process.env.ADMIN_USER_IDS);
 
   if (adminUserIds.has(user.id)) {

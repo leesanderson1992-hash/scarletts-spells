@@ -17,6 +17,14 @@ assert(
   "child ADLE route should read an existing ADLE header before loading the read model",
 );
 assert(
+  page.includes("resolveAdlePlanDateOverride"),
+  "QA date override should flow through the admin-gated ADLE date resolver",
+);
+assert(
+  page.includes("resolvedSearchParams?.adleDate"),
+  "QA date override should be sourced only from the explicit adleDate search parameter",
+);
+assert(
   page.includes("Today&apos;s spelling plan has not been set up yet"),
   "empty state should explain that generation is explicit, not a rest-day composer result",
 );
