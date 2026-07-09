@@ -9,10 +9,10 @@
  * every template to a text box; the registry restores tailored, warm interactions
  * (and warm prompt shells where the structured content isn't authored yet).
  *
- * Frozen contract (unchanged from Slice 6): production/dictation/probe attempts
- * are keyed by canonical_word_id and submitted; quick sort, guided practice, and
- * reflection retries stay local (they carry no submitted evidence). Refreshing
- * mid-part loses in-part answers (part-level resume pin).
+ * ADLE 7R evidence contract: production/dictation/probe attempts are keyed by
+ * canonical_word_id; guided practice and reflection retries are keyed by
+ * assignment_item_id. Quick sort stays local. Correctness is derived
+ * server-side; the client submits raw attempt text only.
  */
 
 import { useMemo, useState } from "react";
@@ -124,6 +124,7 @@ function ReviewPart(props: { childId: string; assignmentId: string; items: AdleS
         <form action={completeAdleReviewPartAction} className="mt-4">
           <HiddenSessionFields childId={props.childId} assignmentId={props.assignmentId} />
           <input type="hidden" name="attempts" value={attemptsJson(attempts)} />
+          <input type="hidden" name="reflectionAttempts" value={attemptsJson(retries)} />
           {reflectionForMissed.length > 0 ? (
             <div>
               <h2 className="text-sm font-semibold text-[color:var(--ink)]">Let&apos;s fix the tricky ones together</h2>
@@ -133,8 +134,8 @@ function ReviewPart(props: { childId: string; assignmentId: string; items: AdleS
                     key={item.id}
                     item={item}
                     priorAttempt={attempts.get(item.canonicalWordId ?? "") ?? ""}
-                    value={retries.get(item.canonicalWordId ?? "") ?? ""}
-                    onChange={(value) => setRetries((current) => mapWith(current, item.canonicalWordId ?? "", value))}
+                    value={retries.get(item.id) ?? ""}
+                    onChange={(value) => setRetries((current) => mapWith(current, item.id, value))}
                   />
                 ))}
               </div>
@@ -208,6 +209,7 @@ function LessonPart(props: { childId: string; assignmentId: string; items: AdleS
         <input type="hidden" name="attempts" value={attemptsJson(attempts)} />
         <input type="hidden" name="dictationAttempts" value={attemptsJson(dictationAttempts)} />
         <input type="hidden" name="probeAttempts" value={attemptsJson(probeAttempts)} />
+        <input type="hidden" name="guidedAttempts" value={attemptsJson(guidedNotes)} />
 
         <h2 className="text-sm font-semibold text-[color:var(--ink)]">Spell all your lesson words</h2>
         <p className="mt-1 text-xs text-[color:var(--mid)]">Copy each word carefully — this one you can see.</p>

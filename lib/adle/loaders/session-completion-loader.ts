@@ -40,8 +40,103 @@ const PRODUCTION_EVENT_TYPES = [
   "retirement_check_fail",
 ] as const;
 
+export type AssignmentAttemptKind =
+  | "review_production"
+  | "lesson_production"
+  | "lesson_dictation"
+  | "lesson_probe"
+  | "guided_practice"
+  | "reflection_retry";
+
+export type AssignmentAttemptEvidenceClass =
+  | "scheduled_review_attempt"
+  | "first_exposure_lesson_attempt"
+  | "diagnostic_probe_attempt"
+  | "guided_practice_attempt"
+  | "reflection_attempt";
+
+export interface AssignmentAttemptEventWrite {
+  childId: string;
+  parentUserId: string;
+  dailyAssignmentId: string;
+  assignmentItemId: string;
+  canonicalWordId: string | null;
+  microSkillKey: string | null;
+  sectionKey: string;
+  templateKey: string | null;
+  targetWord: string | null;
+  attemptText: string | null;
+  isCorrect: boolean | null;
+  attemptKind: AssignmentAttemptKind;
+  evidenceClass: AssignmentAttemptEvidenceClass;
+  sourceRef: string;
+}
+
 function fail(context: string, error: { message: string } | null): never {
   throw new Error(`${context}: ${error?.message ?? "unknown error"}`);
+}
+
+export async function insertAssignmentAttemptEvents(
+  client: AdleClient,
+  events: readonly AssignmentAttemptEventWrite[],
+): Promise<void> {
+  if (events.length === 0) {
+    return;
+  }
+  for (const event of events) {
+    const { error } = await client.from("adle_assignment_attempt_events").insert({
+      child_id: event.childId,
+      parent_user_id: event.parentUserId,
+      daily_assignment_id: event.dailyAssignmentId,
+      assignment_item_id: event.assignmentItemId,
+      canonical_word_id: event.canonicalWordId,
+      micro_skill_key: event.microSkillKey,
+      section_key: event.sectionKey,
+      template_key: event.templateKey,
+      target_word: event.targetWord,
+      attempt_text: event.attemptText,
+      is_correct: event.isCorrect,
+      attempt_kind: event.attemptKind,
+      evidence_class: event.evidenceClass,
+      source_ref: event.sourceRef,
+    });
+    if (error !== null && !`${error.code ?? ""}`.startsWith("23505")) {
+      fail("insertAssignmentAttemptEvents", error);
+    }
+  }
+}
+
+export async function markAssignmentCompletedIfAllItemsComplete(
+  client: AdleClient,
+  params: {
+    parentUserId: string;
+    childId: string;
+    assignmentId: string;
+  },
+): Promise<boolean> {
+  const { count, error: countError } = await client
+    .from("assignment_items")
+    .select("id", { count: "exact", head: true })
+    .eq("parent_user_id", params.parentUserId)
+    .eq("child_id", params.childId)
+    .eq("daily_assignment_id", params.assignmentId)
+    .neq("status", "completed");
+  if (countError) {
+    fail("markAssignmentCompletedIfAllItemsComplete:count", countError);
+  }
+  if ((count ?? 0) !== 0) {
+    return false;
+  }
+  const { error: headerError } = await client
+    .from("daily_assignments")
+    .update({ status: "completed" })
+    .eq("id", params.assignmentId)
+    .eq("parent_user_id", params.parentUserId)
+    .eq("child_id", params.childId);
+  if (headerError) {
+    fail("markAssignmentCompletedIfAllItemsComplete:header", headerError);
+  }
+  return true;
 }
 
 export async function hasTaughtEventsForSourceRef(

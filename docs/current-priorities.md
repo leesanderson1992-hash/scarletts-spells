@@ -237,6 +237,12 @@ excluded.
   cron. ADLE uses `adle_learning_items`; `assignment_items.learning_item_id`
   remains null by design and ADLE linkage lives in
   `assignment_items.metadata.adleLearningItemRef` plus `adle_learning_items`.
+- ADLE 7R Attempt Capture and Evidence Classification Integrity records the
+  first live pilot finding: assignment delivery/completion/scheduling worked,
+  but item-level first-exposure attempts needed their own ledger. Wrong
+  first-exposure attempts are now stored as non-punitive lesson evidence and do
+  not create scheduled-review failures or authentic-use events. See
+  [docs/implementation/adle-slice-7r-attempt-capture-integrity.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/implementation/adle-slice-7r-attempt-capture-integrity.md:1).
 - The scheduled daily spelling practice materializer is implemented as the
   production bridge from active `learning_items` to today's bounded
   `daily_assignments`: Vercel cron calls

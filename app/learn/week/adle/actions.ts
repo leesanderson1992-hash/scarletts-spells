@@ -21,6 +21,10 @@ import {
   type ProducedWordAttempt,
   type ReviewItemOutcome,
 } from "@/lib/adle/composer-completions";
+import {
+  buildLessonAttemptEvents,
+  buildReviewAttemptEvents,
+} from "@/lib/adle/assignment-attempt-events";
 import { reopenItemsForMicroSkills } from "@/lib/adle/learning-items";
 import { authenticUseProviderFromFacts } from "@/lib/adle/authentic-use";
 import type { DueItemKind } from "@/lib/adle/review-due-queue";
@@ -44,6 +48,8 @@ import {
 import {
   hasProductionOutcomeEventsOn,
   hasTaughtEventsForSourceRef,
+  insertAssignmentAttemptEvents,
+  markAssignmentCompletedIfAllItemsComplete,
   persistLessonCompletion,
   persistProbeCompletion,
   persistReviewSessionCompletion,
@@ -162,6 +168,11 @@ async function markItemsCompleted(
   if (error) {
     throw new Error(`markItemsCompleted: ${error.message}`);
   }
+  await markAssignmentCompletedIfAllItemsComplete(context.userClient, {
+    parentUserId: context.parentUserId,
+    childId: context.childId,
+    assignmentId: context.assignmentId,
+  });
 }
 
 function withParam(path: string, key: string, value: string): string {
@@ -199,9 +210,11 @@ export async function completeAdleReviewPartAction(formData: FormData) {
   }
 
   const attempts = parseAttempts(formData, "attempts");
+  const reflectionAttempts = parseAttempts(formData, "reflectionAttempts");
   const productionItems = readModel.partOne.items.filter(
     (item) => item.sectionKey === "review_production" && item.canonicalWordId !== null,
   );
+  const reflectionItems = readModel.partOne.items.filter((item) => item.sectionKey === "review_reflection");
   const outcomes: ReviewItemOutcome[] = [];
   const microSkillKeyByWordId = new Map<string, string>();
   for (const item of productionItems) {
@@ -227,6 +240,16 @@ export async function completeAdleReviewPartAction(formData: FormData) {
   if (outcomes.length === 0) {
     finishWith(context, "Nothing to record for today's review.");
   }
+  await insertAssignmentAttemptEvents(
+    serviceClient,
+    buildReviewAttemptEvents({
+      context,
+      productionItems,
+      reflectionItems,
+      attempts,
+      reflectionAttempts,
+    }),
+  );
 
   const [policy, bundleRows, scheduleWordRows, learningItemRows, authenticUseRows] = await Promise.all([
     loadActiveReviewPolicy(serviceClient),
@@ -347,6 +370,7 @@ export async function completeAdleLessonPartAction(formData: FormData) {
   const controlledAttempts = parseAttempts(formData, "attempts");
   const dictationAttempts = parseAttempts(formData, "dictationAttempts");
   const probeAttempts = parseAttempts(formData, "probeAttempts");
+  const guidedAttempts = parseAttempts(formData, "guidedAttempts");
 
   const dictationItems = readModel.partTwo.items.filter(
     (item) => item.sectionKey === "lesson_dictation" && item.canonicalWordId !== null,
@@ -393,6 +417,18 @@ export async function completeAdleLessonPartAction(formData: FormData) {
     producedWords,
     learningItems,
   });
+  await insertAssignmentAttemptEvents(
+    serviceClient,
+    buildLessonAttemptEvents({
+      context,
+      sourceRef: lessonSourceRef,
+      items: readModel.partTwo.items,
+      controlledAttempts,
+      dictationAttempts,
+      guidedAttempts,
+      probeAttempts,
+    }),
+  );
   await persistLessonCompletion(serviceClient, lessonResult);
 
   // Probe day: the diagnostic probe replaced the lesson dictation — record
