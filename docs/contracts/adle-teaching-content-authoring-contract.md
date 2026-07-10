@@ -36,6 +36,29 @@ authored source
 
 D4_MOR content is currently retained as draft authored source only.
 
+## D4_MOR 7-UI Candidate Boundary
+
+The existing active D4_MOR teaching content remains current runtime truth. The
+new category-v1 artifacts under
+`docs/implementation/seed-data/adle-7-ui/generated/d4-mor-category-v1/` are
+structurally reconciled, review-ready 7-UI candidates only. They do not replace
+or supersede existing active generic teaching content and do not become runtime
+truth until separately reviewed, approved, versioned and activated.
+
+Use this lifecycle terminology:
+
+```text
+retained authored source
+-> structurally reconciled candidate
+-> structurally validated candidate
+-> human linguistic and pedagogical review
+-> approved version
+-> activated runtime truth
+```
+
+Automated transformation or validation is not human review, approval, or
+activation.
+
 ## Theme And Experience Profile
 
 Separate:
@@ -44,3 +67,8 @@ Separate:
 - `experienceProfileKey`: child-facing experience profile selected by content/configuration.
 
 The frontend owns assets, animation, sound, layout, and scene implementation. Theme/profile keys must not become separate templates merely because they look different.
+
+For D4_MOR category candidates, `microSkillKey` selects a category experience
+manifest entry, which selects `experienceProfileKey` and template-variant
+selections. `originThemeKey` remains linguistic/origin metadata and must stay
+separate from visual asset or layout ownership.

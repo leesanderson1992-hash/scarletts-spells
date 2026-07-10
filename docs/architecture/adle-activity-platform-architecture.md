@@ -32,7 +32,7 @@ shared ADLE runtime
 
 Current implementation has:
 
-- a pure `templateKey -> activity archetype` resolver;
+- a typed `templateKey -> activity template definition` registry;
 - unversioned `assignment_items.prompt_data`;
 - section-driven rendering in the child session runner;
 - server-side correctness derivation;
@@ -40,6 +40,12 @@ Current implementation has:
 - separate evidence, scheduler, and reward paths.
 
 This is enough for warm shells and current dictation-style rendering, but not enough for many rich templates.
+
+7-UI-C adds D4_MOR category-v1 semantic candidate source artifacts only. Those
+artifacts define review-ready morphology parts, joins/separators,
+transformations, reusable linguistic identities, and experience-manifest
+selection without changing assignment payload emission, registry behaviour,
+renderers, composer output, evidence, scheduler, or reward semantics.
 
 ## Registry Direction
 

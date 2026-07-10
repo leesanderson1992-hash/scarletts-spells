@@ -1,0 +1,53 @@
+{
+  "metadata": {
+    "artifactKey": "d4-mor-category-v1-summary",
+    "candidateStatus": "structurally_reconciled_candidate",
+    "transformationVersion": "d4_mor_category_v1_reconciliation_2026_07_10",
+    "sourceArtifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+    "sourceWorkbookSha256": "db9f4b29e8e1df5dd3360132ad5b4b6539d9fa04714ec879092f9ed84d111e64",
+    "reviewBoundary": "Automated reconciliation is structural validation only; it is not human linguistic or pedagogical review, approval, activation, or runtime truth."
+  },
+  "counts": {
+    "microSkillCount": 24,
+    "wordAnalysisCount": 168,
+    "morphemeCatalogCount": 50,
+    "rootArtifactCount": 24,
+    "distractorSetCount": 24,
+    "experienceProfileCount": 1,
+    "transformationCountsByType": {
+      "drop_final_e": 1
+    },
+    "joinCountsByType": {
+      "hyphen": 5,
+      "space": 3
+    },
+    "structuralReadiness": {
+      "passed": 168,
+      "failed": 0
+    },
+    "humanReviewRequired": 24,
+    "reviewQueueItems": 20
+  },
+  "existingActiveGenericTeachingContent": {
+    "sourcePath": "docs/implementation/seed-data/teaching-dictionary/candidates/2026-06-29-phase-5-source-intake/csv/teaching_content_versions.csv",
+    "sha256": "d21ded0caa7d41c7d19512213305efcc27cb0c09f8c3319c7f7eca26533bdbb4",
+    "d4MorRows": 24,
+    "activeGenericRows": 24,
+    "activeGenericContentVersion": "human_reviewed_v1",
+    "activeGenericVersionStatus": "active",
+    "activeGenericIsActive": true,
+    "preservationStatus": "unchanged_existing_runtime_truth"
+  },
+  "pilotReadiness": {
+    "D4_MOR_PREFIXES_UN": "schema_ready"
+  },
+  "decisions": {
+    "7UI-DEC-003": "ready_to_close_experience_manifest_owns_profile_selection",
+    "7UI-DEC-007": "ready_to_close_parts_and_joins_authoritative_split_points_derived"
+  },
+  "warnings": [
+    "slash_delimited_gloss_review",
+    "slash_delimited_part_gloss_review"
+  ],
+  "blockingErrors": []
+}

@@ -15,9 +15,11 @@ Shared architecture is reused, while each micro-skill still receives an intentio
 
 ## Current Status
 
-Status: `7-UI-A documentation and reconciliation foundation; 7S live/manual proof recorded`.
+Status: `7-UI-C D4_MOR category-v1 semantic candidate source generated; 7S live/manual proof recorded`.
 
-The 7S reflection recall-gate live/manual proof is recorded in the proof register. Evidence-sensitive 7-UI runtime redesign may proceed only in the next approved runtime PR; no 7-UI-B runtime implementation is included in 7-UI-A or the 7S proof-recording pass.
+The 7S reflection recall-gate live/manual proof is recorded in the proof register. PR 7-UI-B added the typed activity-template registry foundation. PR 7-UI-C generated structurally reconciled D4_MOR category-v1 candidate source artifacts under `docs/implementation/seed-data/adle-7-ui/generated/d4-mor-category-v1/`.
+
+The existing active D4_MOR teaching content remains current runtime truth. The generated D4_MOR category-v1 artifacts are review-ready 7-UI candidates only; they are not approved, activated, emitted by the composer, or used by the child runtime.
 
 Current active category: `D4_MOR` morphology.
 
@@ -72,7 +74,7 @@ Only one category should normally be the active implementation focus at a time.
 
 | Family | Current status | Source of row truth |
 |---|---|---|
-| D4_MOR | Active foundation category; draft source retained and reconciled | Global matrix + D4_MOR matrix |
+| D4_MOR | Active foundation category; structurally reconciled candidate source generated, human review required | Global matrix + D4_MOR matrix + generated candidate summary |
 | D4_PG | In scope, unaudited for 7-UI | Global matrix |
 | D4_PAT | In scope, unaudited for 7-UI | Global matrix |
 | D4_INF | In scope, unaudited for 7-UI | Global matrix |
@@ -83,7 +85,11 @@ Only one category should normally be the active implementation focus at a time.
 
 ## Morphology Rollout
 
-First vertical proof: `D4_MOR_PREFIXES_UN`.
+First vertical proof candidate: `D4_MOR_PREFIXES_UN`.
+
+Current `D4_MOR_PREFIXES_UN` readiness: `schema_ready`. Human linguistic and
+pedagogical review is still required before content approval, activation, or a
+rich UI vertical proof.
 
 After proof and contract freeze, finish morphology in coherent groups:
 

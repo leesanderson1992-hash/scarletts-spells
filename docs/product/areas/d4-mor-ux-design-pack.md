@@ -2,7 +2,7 @@
 
 ## Status
 
-Status: `reconciled draft category design pack for 7-UI-A`.
+Status: `structurally reconciled 7-UI category-v1 candidate source generated for 7-UI-C`.
 
 Source artifacts:
 
@@ -10,6 +10,15 @@ Source artifacts:
 - `docs/implementation/seed-data/adle-7-ui/source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx`
 
 The retained artifacts are draft source material, not runtime truth.
+
+Generated category-v1 candidate artifacts:
+
+- `docs/implementation/seed-data/adle-7-ui/generated/d4-mor-category-v1/`
+
+The existing active D4_MOR teaching content remains current runtime truth. The
+new category-v1 artifacts are structurally reconciled, review-ready 7-UI
+candidates only. They do not become runtime truth until separately reviewed,
+approved, versioned and activated.
 
 ## Scope
 
@@ -84,11 +93,26 @@ Workbook inspection found:
 - 168 word-bank rows, 7 per micro-skill.
 - 24 distractor rows, 1 per micro-skill.
 - Valid JSON in anchor and word-bank morpheme fields.
-- 8 split/concat issues requiring schema resolution before runtime payloads.
+- 8 legacy split/concat issues requiring schema resolution before runtime
+  payloads.
+
+7-UI-C generated structurally reconciled candidate artifacts that resolve those
+legacy issues as semantic source data:
+
+- parts and joins/separators are authoritative;
+- `splitPoints[]` is a derived view-model field, not source truth;
+- open and hyphenated compounds use explicit `space`/`hyphen` joins;
+- `fame + ous -> famous` is represented with `drop_final_e`;
+- slash-delimited root aliases such as `scrib/script` and `meter/metre` are
+  split into explicit candidate identities and variant relationships.
+
+The generated candidates remain `structurally_reconciled_candidate` with
+`human_review_required`.
 
 Detailed validation artifact:
 
 - `docs/implementation/seed-data/adle-7-ui/validation/d4-mor-workbook-reconciliation-2026-07-10.json`
+- `docs/implementation/seed-data/adle-7-ui/generated/d4-mor-category-v1/d4-mor-category-v1-summary.json`
 
 ## Rollout Groups
 

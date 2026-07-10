@@ -1,0 +1,1963 @@
+{
+  "metadata": {
+    "artifactKey": "d4-mor-morpheme-catalog-candidate-v1",
+    "candidateStatus": "structurally_reconciled_candidate",
+    "transformationVersion": "d4_mor_category_v1_reconciliation_2026_07_10",
+    "sourceArtifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+    "sourceWorkbookSha256": "db9f4b29e8e1df5dd3360132ad5b4b6539d9fa04714ec879092f9ed84d111e64",
+    "reviewBoundary": "Automated reconciliation is structural validation only; it is not human linguistic or pedagogical review, approval, activation, or runtime truth."
+  },
+  "morphemes": [
+    {
+      "morphemeKey": "prefix_DIS",
+      "candidateStatus": "structurally_reconciled_candidate",
+      "kind": "prefix",
+      "canonicalText": "dis",
+      "gloss": "not / opposite of",
+      "function": "negates or reverses",
+      "exampleWords": [
+        "disagree",
+        "disappear",
+        "dislike",
+        "dishonest"
+      ],
+      "distractorGlosses": [
+        "wrongly",
+        "again",
+        "under"
+      ],
+      "variantGroupKey": null,
+      "variantOf": null,
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Morpheme Glosses",
+        "row": 5,
+        "sourceValue": "dis"
+      },
+      "humanReviewStatus": "human_review_required"
+    },
+    {
+      "morphemeKey": "prefix_IL",
+      "candidateStatus": "structurally_reconciled_candidate",
+      "kind": "prefix",
+      "canonicalText": "il",
+      "gloss": "not (before l)",
+      "function": "negates",
+      "exampleWords": [
+        "illegal",
+        "illogical",
+        "illegible"
+      ],
+      "distractorGlosses": [
+        "above",
+        "again",
+        "before"
+      ],
+      "variantGroupKey": null,
+      "variantOf": null,
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Morpheme Glosses",
+        "row": 9,
+        "sourceValue": "il"
+      },
+      "humanReviewStatus": "human_review_required"
+    },
+    {
+      "morphemeKey": "prefix_IM",
+      "candidateStatus": "structurally_reconciled_candidate",
+      "kind": "prefix",
+      "canonicalText": "im",
+      "gloss": "not (before m/p)",
+      "function": "negates",
+      "exampleWords": [
+        "impossible",
+        "impatient",
+        "immature"
+      ],
+      "distractorGlosses": [
+        "between",
+        "again",
+        "wrongly"
+      ],
+      "variantGroupKey": null,
+      "variantOf": null,
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Morpheme Glosses",
+        "row": 8,
+        "sourceValue": "im"
+      },
+      "humanReviewStatus": "human_review_required"
+    },
+    {
+      "morphemeKey": "prefix_IN",
+      "candidateStatus": "structurally_reconciled_candidate",
+      "kind": "prefix",
+      "canonicalText": "in",
+      "gloss": "not (default form)",
+      "function": "negates",
+      "exampleWords": [
+        "invisible",
+        "incorrect",
+        "incomplete"
+      ],
+      "distractorGlosses": [
+        "again",
+        "under",
+        "before"
+      ],
+      "variantGroupKey": null,
+      "variantOf": null,
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Morpheme Glosses",
+        "row": 7,
+        "sourceValue": "in"
+      },
+      "humanReviewStatus": "human_review_required"
+    },
+    {
+      "morphemeKey": "prefix_INTER",
+      "candidateStatus": "structurally_reconciled_candidate",
+      "kind": "prefix",
+      "canonicalText": "inter",
+      "gloss": "between / among",
+      "function": "connects two sides",
+      "exampleWords": [
+        "international",
+        "internet",
+        "interact",
+        "interval"
+      ],
+      "distractorGlosses": [
+        "under",
+        "above",
+        "again"
+      ],
+      "variantGroupKey": null,
+      "variantOf": null,
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Morpheme Glosses",
+        "row": 12,
+        "sourceValue": "inter"
+      },
+      "humanReviewStatus": "human_review_required"
+    },
+    {
+      "morphemeKey": "prefix_IR",
+      "candidateStatus": "structurally_reconciled_candidate",
+      "kind": "prefix",
+      "canonicalText": "ir",
+      "gloss": "not (before r)",
+      "function": "negates",
+      "exampleWords": [
+        "irregular",
+        "irresponsible",
+        "irresistible"
+      ],
+      "distractorGlosses": [
+        "between",
+        "before",
+        "again"
+      ],
+      "variantGroupKey": null,
+      "variantOf": null,
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Morpheme Glosses",
+        "row": 10,
+        "sourceValue": "ir"
+      },
+      "humanReviewStatus": "human_review_required"
+    },
+    {
+      "morphemeKey": "prefix_MIS",
+      "candidateStatus": "structurally_reconciled_candidate",
+      "kind": "prefix",
+      "canonicalText": "mis",
+      "gloss": "wrongly / badly",
+      "function": "action done wrong",
+      "exampleWords": [
+        "misspell",
+        "misbehave",
+        "mislead",
+        "misplace"
+      ],
+      "distractorGlosses": [
+        "not",
+        "before",
+        "between"
+      ],
+      "variantGroupKey": null,
+      "variantOf": null,
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Morpheme Glosses",
+        "row": 6,
+        "sourceValue": "mis"
+      },
+      "humanReviewStatus": "human_review_required"
+    },
+    {
+      "morphemeKey": "prefix_PRE",
+      "candidateStatus": "structurally_reconciled_candidate",
+      "kind": "prefix",
+      "canonicalText": "pre",
+      "gloss": "before",
+      "function": "earlier in time",
+      "exampleWords": [
+        "preview",
+        "preheat",
+        "preschool",
+        "predict"
+      ],
+      "distractorGlosses": [
+        "again",
+        "after",
+        "under"
+      ],
+      "variantGroupKey": null,
+      "variantOf": null,
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Morpheme Glosses",
+        "row": 4,
+        "sourceValue": "pre"
+      },
+      "humanReviewStatus": "human_review_required"
+    },
+    {
+      "morphemeKey": "prefix_RE",
+      "candidateStatus": "structurally_reconciled_candidate",
+      "kind": "prefix",
+      "canonicalText": "re",
+      "gloss": "again / back",
+      "function": "repeats an action",
+      "exampleWords": [
+        "replay",
+        "rebuild",
+        "return",
+        "redo",
+        "rewrite"
+      ],
+      "distractorGlosses": [
+        "not",
+        "before",
+        "wrongly"
+      ],
+      "variantGroupKey": null,
+      "variantOf": null,
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Morpheme Glosses",
+        "row": 3,
+        "sourceValue": "re"
+      },
+      "humanReviewStatus": "human_review_required"
+    },
+    {
+      "morphemeKey": "prefix_SUB",
+      "candidateStatus": "structurally_reconciled_candidate",
+      "kind": "prefix",
+      "canonicalText": "sub",
+      "gloss": "under / below",
+      "function": "position beneath",
+      "exampleWords": [
+        "submarine",
+        "subway",
+        "subheading",
+        "subzero"
+      ],
+      "distractorGlosses": [
+        "above",
+        "between",
+        "far"
+      ],
+      "variantGroupKey": null,
+      "variantOf": null,
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Morpheme Glosses",
+        "row": 11,
+        "sourceValue": "sub"
+      },
+      "humanReviewStatus": "human_review_required"
+    },
+    {
+      "morphemeKey": "prefix_SUPER",
+      "candidateStatus": "structurally_reconciled_candidate",
+      "kind": "prefix",
+      "canonicalText": "super",
+      "gloss": "above / beyond",
+      "function": "more than normal",
+      "exampleWords": [
+        "superhero",
+        "supermarket",
+        "superstar",
+        "superhuman"
+      ],
+      "distractorGlosses": [
+        "under",
+        "between",
+        "wrongly"
+      ],
+      "variantGroupKey": null,
+      "variantOf": null,
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Morpheme Glosses",
+        "row": 13,
+        "sourceValue": "super"
+      },
+      "humanReviewStatus": "human_review_required"
+    },
+    {
+      "morphemeKey": "prefix_TRANS",
+      "candidateStatus": "structurally_reconciled_candidate",
+      "kind": "prefix",
+      "canonicalText": "trans",
+      "gloss": "across",
+      "function": "movement across",
+      "exampleWords": [
+        "transport",
+        "transfer",
+        "translate"
+      ],
+      "distractorGlosses": [
+        "under",
+        "three",
+        "light"
+      ],
+      "variantGroupKey": null,
+      "variantOf": null,
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Morpheme Glosses",
+        "row": 14,
+        "sourceValue": "trans"
+      },
+      "humanReviewStatus": "human_review_required"
+    },
+    {
+      "morphemeKey": "prefix_UN",
+      "candidateStatus": "structurally_reconciled_candidate",
+      "kind": "prefix",
+      "canonicalText": "un",
+      "gloss": "not / opposite of",
+      "function": "negates or reverses",
+      "exampleWords": [
+        "unhappy",
+        "unkind",
+        "unlock",
+        "untie",
+        "unfair"
+      ],
+      "distractorGlosses": [
+        "again",
+        "before",
+        "under"
+      ],
+      "variantGroupKey": null,
+      "variantOf": null,
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Morpheme Glosses",
+        "row": 2,
+        "sourceValue": "un"
+      },
+      "humanReviewStatus": "human_review_required"
+    },
+    {
+      "morphemeKey": "root_ACT",
+      "candidateStatus": "structurally_reconciled_candidate",
+      "kind": "root",
+      "canonicalText": "act",
+      "gloss": "do (Latin)",
+      "function": "",
+      "exampleWords": [
+        "act",
+        "action",
+        "actor",
+        "active",
+        "react"
+      ],
+      "distractorGlosses": [
+        "see",
+        "say",
+        "build"
+      ],
+      "variantGroupKey": null,
+      "variantOf": null,
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Morpheme Glosses",
+        "row": 32,
+        "sourceValue": "act"
+      },
+      "humanReviewStatus": "human_review_required"
+    },
+    {
+      "morphemeKey": "root_BIO",
+      "candidateStatus": "structurally_reconciled_candidate",
+      "kind": "root",
+      "canonicalText": "bio",
+      "gloss": "life (Greek)",
+      "function": "",
+      "exampleWords": [
+        "biology",
+        "biography",
+        "antibiotic"
+      ],
+      "distractorGlosses": [
+        "earth",
+        "light",
+        "water"
+      ],
+      "variantGroupKey": null,
+      "variantOf": null,
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Morpheme Glosses",
+        "row": 44,
+        "sourceValue": "bio"
+      },
+      "humanReviewStatus": "human_review_required"
+    },
+    {
+      "morphemeKey": "root_CENT",
+      "candidateStatus": "structurally_reconciled_candidate",
+      "kind": "root",
+      "canonicalText": "cent",
+      "gloss": "hundred (Latin)",
+      "function": "",
+      "exampleWords": [
+        "century",
+        "centimetre",
+        "per cent",
+        "centipede"
+      ],
+      "distractorGlosses": [
+        "three",
+        "many",
+        "measure"
+      ],
+      "variantGroupKey": null,
+      "variantOf": null,
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Morpheme Glosses",
+        "row": 47,
+        "sourceValue": "cent"
+      },
+      "humanReviewStatus": "human_review_required"
+    },
+    {
+      "morphemeKey": "root_DICT",
+      "candidateStatus": "structurally_reconciled_candidate",
+      "kind": "root",
+      "canonicalText": "dict",
+      "gloss": "say / speak (Latin)",
+      "function": "",
+      "exampleWords": [
+        "predict",
+        "dictionary",
+        "verdict"
+      ],
+      "distractorGlosses": [
+        "write",
+        "pull",
+        "far"
+      ],
+      "variantGroupKey": null,
+      "variantOf": null,
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Morpheme Glosses",
+        "row": 30,
+        "sourceValue": "dict"
+      },
+      "humanReviewStatus": "human_review_required"
+    },
+    {
+      "morphemeKey": "root_GEO",
+      "candidateStatus": "structurally_reconciled_candidate",
+      "kind": "root",
+      "canonicalText": "geo",
+      "gloss": "earth (Greek)",
+      "function": "",
+      "exampleWords": [
+        "geography",
+        "geology",
+        "geometry"
+      ],
+      "distractorGlosses": [
+        "life",
+        "water",
+        "far"
+      ],
+      "variantGroupKey": null,
+      "variantOf": null,
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Morpheme Glosses",
+        "row": 45,
+        "sourceValue": "geo"
+      },
+      "humanReviewStatus": "human_review_required"
+    },
+    {
+      "morphemeKey": "root_GRAPH",
+      "candidateStatus": "structurally_reconciled_candidate",
+      "kind": "root",
+      "canonicalText": "graph",
+      "gloss": "write / draw (Greek)",
+      "function": "",
+      "exampleWords": [
+        "photograph",
+        "paragraph",
+        "autograph",
+        "graphics"
+      ],
+      "distractorGlosses": [
+        "sound",
+        "measure",
+        "life"
+      ],
+      "variantGroupKey": null,
+      "variantOf": null,
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Morpheme Glosses",
+        "row": 38,
+        "sourceValue": "graph"
+      },
+      "humanReviewStatus": "human_review_required"
+    },
+    {
+      "morphemeKey": "root_HYDRO",
+      "candidateStatus": "structurally_reconciled_candidate",
+      "kind": "root",
+      "canonicalText": "hydro",
+      "gloss": "water (Greek)",
+      "function": "",
+      "exampleWords": [
+        "hydrant",
+        "hydroelectric",
+        "dehydrate"
+      ],
+      "distractorGlosses": [
+        "heat",
+        "earth",
+        "life"
+      ],
+      "variantGroupKey": null,
+      "variantOf": null,
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Morpheme Glosses",
+        "row": 49,
+        "sourceValue": "hydro"
+      },
+      "humanReviewStatus": "human_review_required"
+    },
+    {
+      "morphemeKey": "root_MEDIC",
+      "candidateStatus": "structurally_reconciled_candidate",
+      "kind": "root",
+      "canonicalText": "medic",
+      "gloss": "heal (Latin)",
+      "function": "",
+      "exampleWords": [
+        "medic",
+        "medical",
+        "medicine"
+      ],
+      "distractorGlosses": [
+        "measure",
+        "write",
+        "life"
+      ],
+      "variantGroupKey": null,
+      "variantOf": null,
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Morpheme Glosses",
+        "row": 33,
+        "sourceValue": "medic"
+      },
+      "humanReviewStatus": "human_review_required"
+    },
+    {
+      "morphemeKey": "root_METER",
+      "candidateStatus": "structurally_reconciled_candidate",
+      "kind": "root",
+      "canonicalText": "meter",
+      "gloss": "measure (Greek)",
+      "function": "",
+      "exampleWords": [
+        "thermometer",
+        "centimetre",
+        "speedometer",
+        "perimeter"
+      ],
+      "distractorGlosses": [
+        "heat",
+        "look",
+        "build"
+      ],
+      "variantGroupKey": "VARIANT_METER_METRE",
+      "variantOf": null,
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Morpheme Glosses",
+        "row": 43,
+        "sourceValue": "meter/metre"
+      },
+      "humanReviewStatus": "human_review_required"
+    },
+    {
+      "morphemeKey": "root_METRE",
+      "candidateStatus": "structurally_reconciled_candidate",
+      "kind": "root",
+      "canonicalText": "metre",
+      "gloss": "measure (Greek)",
+      "function": "",
+      "exampleWords": [
+        "thermometer",
+        "centimetre",
+        "speedometer",
+        "perimeter"
+      ],
+      "distractorGlosses": [
+        "heat",
+        "look",
+        "build"
+      ],
+      "variantGroupKey": "VARIANT_METER_METRE",
+      "variantOf": "root_METER",
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Morpheme Glosses",
+        "row": 43,
+        "sourceValue": "meter/metre"
+      },
+      "humanReviewStatus": "human_review_required"
+    },
+    {
+      "morphemeKey": "root_MICRO",
+      "candidateStatus": "structurally_reconciled_candidate",
+      "kind": "root",
+      "canonicalText": "micro",
+      "gloss": "small (Greek)",
+      "function": "",
+      "exampleWords": [
+        "microscope",
+        "microphone",
+        "microwave"
+      ],
+      "distractorGlosses": [
+        "large",
+        "far",
+        "many"
+      ],
+      "variantGroupKey": null,
+      "variantOf": null,
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Morpheme Glosses",
+        "row": 41,
+        "sourceValue": "micro"
+      },
+      "humanReviewStatus": "human_review_required"
+    },
+    {
+      "morphemeKey": "root_NAT",
+      "candidateStatus": "structurally_reconciled_candidate",
+      "kind": "root",
+      "canonicalText": "nat",
+      "gloss": "born (Latin)",
+      "function": "",
+      "exampleWords": [
+        "nature",
+        "natural",
+        "nation",
+        "native"
+      ],
+      "distractorGlosses": [
+        "heat",
+        "water",
+        "say"
+      ],
+      "variantGroupKey": null,
+      "variantOf": null,
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Morpheme Glosses",
+        "row": 35,
+        "sourceValue": "nat"
+      },
+      "humanReviewStatus": "human_review_required"
+    },
+    {
+      "morphemeKey": "root_PHON",
+      "candidateStatus": "structurally_reconciled_candidate",
+      "kind": "root",
+      "canonicalText": "phon",
+      "gloss": "sound / voice (Greek)",
+      "function": "",
+      "exampleWords": [
+        "telephone",
+        "phonics",
+        "microphone",
+        "symphony"
+      ],
+      "distractorGlosses": [
+        "far",
+        "light",
+        "look"
+      ],
+      "variantGroupKey": null,
+      "variantOf": null,
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Morpheme Glosses",
+        "row": 37,
+        "sourceValue": "phon"
+      },
+      "humanReviewStatus": "human_review_required"
+    },
+    {
+      "morphemeKey": "root_PHOTO",
+      "candidateStatus": "structurally_reconciled_candidate",
+      "kind": "root",
+      "canonicalText": "photo",
+      "gloss": "light (Greek)",
+      "function": "",
+      "exampleWords": [
+        "photograph",
+        "photocopy",
+        "photosynthesis"
+      ],
+      "distractorGlosses": [
+        "sound",
+        "far",
+        "earth"
+      ],
+      "variantGroupKey": null,
+      "variantOf": null,
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Morpheme Glosses",
+        "row": 39,
+        "sourceValue": "photo"
+      },
+      "humanReviewStatus": "human_review_required"
+    },
+    {
+      "morphemeKey": "root_POLY",
+      "candidateStatus": "structurally_reconciled_candidate",
+      "kind": "root",
+      "canonicalText": "poly",
+      "gloss": "many (Greek)",
+      "function": "",
+      "exampleWords": [
+        "polygon",
+        "polyphonic"
+      ],
+      "distractorGlosses": [
+        "small",
+        "three",
+        "light"
+      ],
+      "variantGroupKey": null,
+      "variantOf": null,
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Morpheme Glosses",
+        "row": 48,
+        "sourceValue": "poly"
+      },
+      "humanReviewStatus": "human_review_required"
+    },
+    {
+      "morphemeKey": "root_PORT",
+      "candidateStatus": "structurally_reconciled_candidate",
+      "kind": "root",
+      "canonicalText": "port",
+      "gloss": "carry (Latin)",
+      "function": "",
+      "exampleWords": [
+        "transport",
+        "export",
+        "import",
+        "portable"
+      ],
+      "distractorGlosses": [
+        "build",
+        "break",
+        "write"
+      ],
+      "variantGroupKey": null,
+      "variantOf": null,
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Morpheme Glosses",
+        "row": 26,
+        "sourceValue": "port"
+      },
+      "humanReviewStatus": "human_review_required"
+    },
+    {
+      "morphemeKey": "root_RUPT",
+      "candidateStatus": "structurally_reconciled_candidate",
+      "kind": "root",
+      "canonicalText": "rupt",
+      "gloss": "break (Latin)",
+      "function": "",
+      "exampleWords": [
+        "interrupt",
+        "erupt",
+        "rupture"
+      ],
+      "distractorGlosses": [
+        "build",
+        "measure",
+        "look"
+      ],
+      "variantGroupKey": null,
+      "variantOf": null,
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Morpheme Glosses",
+        "row": 28,
+        "sourceValue": "rupt"
+      },
+      "humanReviewStatus": "human_review_required"
+    },
+    {
+      "morphemeKey": "root_SCOPE",
+      "candidateStatus": "structurally_reconciled_candidate",
+      "kind": "root",
+      "canonicalText": "scope",
+      "gloss": "look / watch (Greek)",
+      "function": "",
+      "exampleWords": [
+        "telescope",
+        "microscope",
+        "periscope"
+      ],
+      "distractorGlosses": [
+        "sound",
+        "carry",
+        "heat"
+      ],
+      "variantGroupKey": null,
+      "variantOf": null,
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Morpheme Glosses",
+        "row": 40,
+        "sourceValue": "scope"
+      },
+      "humanReviewStatus": "human_review_required"
+    },
+    {
+      "morphemeKey": "root_SCRIB",
+      "candidateStatus": "structurally_reconciled_candidate",
+      "kind": "root",
+      "canonicalText": "scrib",
+      "gloss": "write (Latin)",
+      "function": "",
+      "exampleWords": [
+        "describe",
+        "script",
+        "scribble",
+        "prescription"
+      ],
+      "distractorGlosses": [
+        "say",
+        "carry",
+        "sound"
+      ],
+      "variantGroupKey": "VARIANT_SCRIB_SCRIPT",
+      "variantOf": null,
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Morpheme Glosses",
+        "row": 31,
+        "sourceValue": "scrib/script"
+      },
+      "humanReviewStatus": "human_review_required"
+    },
+    {
+      "morphemeKey": "root_SCRIPT",
+      "candidateStatus": "structurally_reconciled_candidate",
+      "kind": "root",
+      "canonicalText": "script",
+      "gloss": "write (Latin)",
+      "function": "",
+      "exampleWords": [
+        "describe",
+        "script",
+        "scribble",
+        "prescription"
+      ],
+      "distractorGlosses": [
+        "say",
+        "carry",
+        "sound"
+      ],
+      "variantGroupKey": "VARIANT_SCRIB_SCRIPT",
+      "variantOf": "root_SCRIB",
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Morpheme Glosses",
+        "row": 31,
+        "sourceValue": "scrib/script"
+      },
+      "humanReviewStatus": "human_review_required"
+    },
+    {
+      "morphemeKey": "root_SIGN",
+      "candidateStatus": "structurally_reconciled_candidate",
+      "kind": "root",
+      "canonicalText": "sign",
+      "gloss": "mark (Latin)",
+      "function": "",
+      "exampleWords": [
+        "sign",
+        "signal",
+        "signature",
+        "design"
+      ],
+      "distractorGlosses": [
+        "sound",
+        "carry",
+        "small"
+      ],
+      "variantGroupKey": null,
+      "variantOf": null,
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Morpheme Glosses",
+        "row": 34,
+        "sourceValue": "sign"
+      },
+      "humanReviewStatus": "human_review_required"
+    },
+    {
+      "morphemeKey": "root_STRUCT",
+      "candidateStatus": "structurally_reconciled_candidate",
+      "kind": "root",
+      "canonicalText": "struct",
+      "gloss": "build (Latin)",
+      "function": "",
+      "exampleWords": [
+        "structure",
+        "construct",
+        "instruct",
+        "destruction"
+      ],
+      "distractorGlosses": [
+        "carry",
+        "pull",
+        "say"
+      ],
+      "variantGroupKey": null,
+      "variantOf": null,
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Morpheme Glosses",
+        "row": 27,
+        "sourceValue": "struct"
+      },
+      "humanReviewStatus": "human_review_required"
+    },
+    {
+      "morphemeKey": "root_TELE",
+      "candidateStatus": "structurally_reconciled_candidate",
+      "kind": "root",
+      "canonicalText": "tele",
+      "gloss": "far (Greek)",
+      "function": "",
+      "exampleWords": [
+        "telephone",
+        "telescope",
+        "television"
+      ],
+      "distractorGlosses": [
+        "sound",
+        "light",
+        "write"
+      ],
+      "variantGroupKey": null,
+      "variantOf": null,
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Morpheme Glosses",
+        "row": 36,
+        "sourceValue": "tele"
+      },
+      "humanReviewStatus": "human_review_required"
+    },
+    {
+      "morphemeKey": "root_THERM",
+      "candidateStatus": "structurally_reconciled_candidate",
+      "kind": "root",
+      "canonicalText": "therm",
+      "gloss": "heat (Greek)",
+      "function": "",
+      "exampleWords": [
+        "thermometer",
+        "thermal",
+        "thermos"
+      ],
+      "distractorGlosses": [
+        "water",
+        "light",
+        "earth"
+      ],
+      "variantGroupKey": null,
+      "variantOf": null,
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Morpheme Glosses",
+        "row": 42,
+        "sourceValue": "therm"
+      },
+      "humanReviewStatus": "human_review_required"
+    },
+    {
+      "morphemeKey": "root_TRACT",
+      "candidateStatus": "structurally_reconciled_candidate",
+      "kind": "root",
+      "canonicalText": "tract",
+      "gloss": "pull (Latin)",
+      "function": "",
+      "exampleWords": [
+        "tractor",
+        "attract",
+        "subtract",
+        "extract"
+      ],
+      "distractorGlosses": [
+        "carry",
+        "break",
+        "light"
+      ],
+      "variantGroupKey": null,
+      "variantOf": null,
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Morpheme Glosses",
+        "row": 29,
+        "sourceValue": "tract"
+      },
+      "humanReviewStatus": "human_review_required"
+    },
+    {
+      "morphemeKey": "root_TRI",
+      "candidateStatus": "structurally_reconciled_candidate",
+      "kind": "root",
+      "canonicalText": "tri",
+      "gloss": "three (Greek/Latin)",
+      "function": "",
+      "exampleWords": [
+        "triangle",
+        "tricycle",
+        "trio",
+        "triple"
+      ],
+      "distractorGlosses": [
+        "hundred",
+        "many",
+        "two"
+      ],
+      "variantGroupKey": null,
+      "variantOf": null,
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Morpheme Glosses",
+        "row": 46,
+        "sourceValue": "tri"
+      },
+      "humanReviewStatus": "human_review_required"
+    },
+    {
+      "morphemeKey": "suffix_ABLE",
+      "candidateStatus": "structurally_reconciled_candidate",
+      "kind": "suffix",
+      "canonicalText": "able",
+      "gloss": "can be done (after a base word)",
+      "function": "verb → adjective",
+      "exampleWords": [
+        "washable",
+        "enjoyable",
+        "comfortable",
+        "breakable"
+      ],
+      "distractorGlosses": [
+        "full of",
+        "state of",
+        "before"
+      ],
+      "variantGroupKey": null,
+      "variantOf": null,
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Morpheme Glosses",
+        "row": 22,
+        "sourceValue": "able"
+      },
+      "humanReviewStatus": "human_review_required"
+    },
+    {
+      "morphemeKey": "suffix_AL",
+      "candidateStatus": "structurally_reconciled_candidate",
+      "kind": "suffix",
+      "canonicalText": "al",
+      "gloss": "to do with (adjective-maker)",
+      "function": "noun → adjective",
+      "exampleWords": [
+        "musical",
+        "national",
+        "accidental",
+        "magical"
+      ],
+      "distractorGlosses": [
+        "without",
+        "the result of",
+        "again"
+      ],
+      "variantGroupKey": null,
+      "variantOf": null,
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Morpheme Glosses",
+        "row": 21,
+        "sourceValue": "al"
+      },
+      "humanReviewStatus": "human_review_required"
+    },
+    {
+      "morphemeKey": "suffix_FUL",
+      "candidateStatus": "structurally_reconciled_candidate",
+      "kind": "suffix",
+      "canonicalText": "ful",
+      "gloss": "full of (one l)",
+      "function": "noun → adjective",
+      "exampleWords": [
+        "hopeful",
+        "careful",
+        "joyful",
+        "thoughtful"
+      ],
+      "distractorGlosses": [
+        "without",
+        "state of being",
+        "to do with"
+      ],
+      "variantGroupKey": null,
+      "variantOf": null,
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Morpheme Glosses",
+        "row": 16,
+        "sourceValue": "ful"
+      },
+      "humanReviewStatus": "human_review_required"
+    },
+    {
+      "morphemeKey": "suffix_IBLE",
+      "candidateStatus": "structurally_reconciled_candidate",
+      "kind": "suffix",
+      "canonicalText": "ible",
+      "gloss": "can be done (after a root)",
+      "function": "root → adjective",
+      "exampleWords": [
+        "visible",
+        "possible",
+        "terrible",
+        "incredible"
+      ],
+      "distractorGlosses": [
+        "without",
+        "to do with",
+        "again"
+      ],
+      "variantGroupKey": null,
+      "variantOf": null,
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Morpheme Glosses",
+        "row": 23,
+        "sourceValue": "ible"
+      },
+      "humanReviewStatus": "human_review_required"
+    },
+    {
+      "morphemeKey": "suffix_ION",
+      "candidateStatus": "structurally_reconciled_candidate",
+      "kind": "suffix",
+      "canonicalText": "ion",
+      "gloss": "act or result of (noun-maker)",
+      "function": "verb → noun",
+      "exampleWords": [
+        "action",
+        "construction",
+        "prediction"
+      ],
+      "distractorGlosses": [
+        "full of",
+        "without",
+        "can be done"
+      ],
+      "variantGroupKey": null,
+      "variantOf": null,
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Morpheme Glosses",
+        "row": 25,
+        "sourceValue": "ion"
+      },
+      "humanReviewStatus": "human_review_required"
+    },
+    {
+      "morphemeKey": "suffix_ITY",
+      "candidateStatus": "structurally_reconciled_candidate",
+      "kind": "suffix",
+      "canonicalText": "ity",
+      "gloss": "quality of (noun-maker)",
+      "function": "adjective → noun",
+      "exampleWords": [
+        "activity",
+        "reality",
+        "ability",
+        "electricity"
+      ],
+      "distractorGlosses": [
+        "full of",
+        "to do with",
+        "wrongly"
+      ],
+      "variantGroupKey": null,
+      "variantOf": null,
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Morpheme Glosses",
+        "row": 20,
+        "sourceValue": "ity"
+      },
+      "humanReviewStatus": "human_review_required"
+    },
+    {
+      "morphemeKey": "suffix_LESS",
+      "candidateStatus": "structurally_reconciled_candidate",
+      "kind": "suffix",
+      "canonicalText": "less",
+      "gloss": "without",
+      "function": "noun → adjective",
+      "exampleWords": [
+        "hopeless",
+        "careless",
+        "fearless",
+        "endless"
+      ],
+      "distractorGlosses": [
+        "full of",
+        "able to",
+        "the most"
+      ],
+      "variantGroupKey": null,
+      "variantOf": null,
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Morpheme Glosses",
+        "row": 17,
+        "sourceValue": "less"
+      },
+      "humanReviewStatus": "human_review_required"
+    },
+    {
+      "morphemeKey": "suffix_LY",
+      "candidateStatus": "structurally_reconciled_candidate",
+      "kind": "suffix",
+      "canonicalText": "ly",
+      "gloss": "in this way",
+      "function": "adjective → adverb",
+      "exampleWords": [
+        "slowly",
+        "really",
+        "quickly",
+        "sadly"
+      ],
+      "distractorGlosses": [
+        "full of",
+        "not",
+        "the most"
+      ],
+      "variantGroupKey": null,
+      "variantOf": null,
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Morpheme Glosses",
+        "row": 24,
+        "sourceValue": "ly"
+      },
+      "humanReviewStatus": "human_review_required"
+    },
+    {
+      "morphemeKey": "suffix_MENT",
+      "candidateStatus": "structurally_reconciled_candidate",
+      "kind": "suffix",
+      "canonicalText": "ment",
+      "gloss": "result of an action (noun-maker)",
+      "function": "verb → noun",
+      "exampleWords": [
+        "enjoyment",
+        "payment",
+        "treatment",
+        "movement"
+      ],
+      "distractorGlosses": [
+        "full of",
+        "to do with",
+        "can be done"
+      ],
+      "variantGroupKey": null,
+      "variantOf": null,
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Morpheme Glosses",
+        "row": 18,
+        "sourceValue": "ment"
+      },
+      "humanReviewStatus": "human_review_required"
+    },
+    {
+      "morphemeKey": "suffix_NESS",
+      "candidateStatus": "structurally_reconciled_candidate",
+      "kind": "suffix",
+      "canonicalText": "ness",
+      "gloss": "state of being (noun-maker)",
+      "function": "adjective → noun",
+      "exampleWords": [
+        "kindness",
+        "darkness",
+        "sadness",
+        "weakness"
+      ],
+      "distractorGlosses": [
+        "full of",
+        "without",
+        "can be done"
+      ],
+      "variantGroupKey": null,
+      "variantOf": null,
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Morpheme Glosses",
+        "row": 15,
+        "sourceValue": "ness"
+      },
+      "humanReviewStatus": "human_review_required"
+    },
+    {
+      "morphemeKey": "suffix_OUS",
+      "candidateStatus": "structurally_reconciled_candidate",
+      "kind": "suffix",
+      "canonicalText": "ous",
+      "gloss": "full of (adjective-maker)",
+      "function": "noun → adjective",
+      "exampleWords": [
+        "dangerous",
+        "famous",
+        "mountainous",
+        "poisonous"
+      ],
+      "distractorGlosses": [
+        "without",
+        "state of being",
+        "before"
+      ],
+      "variantGroupKey": null,
+      "variantOf": null,
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Morpheme Glosses",
+        "row": 19,
+        "sourceValue": "ous"
+      },
+      "humanReviewStatus": "human_review_required"
+    }
+  ],
+  "rootArtifacts": [
+    {
+      "rootArtifactKey": "ROOT_ACT",
+      "candidateStatus": "structurally_reconciled_candidate",
+      "rootText": "act",
+      "themeKey": "latin",
+      "meaning": "do",
+      "originLine": "Latin agere/actus, 'to do'",
+      "descendantWords": [
+        "act",
+        "action",
+        "actor",
+        "react"
+      ],
+      "microLore": "An actor is a do-er; a reaction is a doing-back.",
+      "variantGroupKey": null,
+      "variantOf": null,
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Root Artifact Cards",
+        "row": 8,
+        "sourceValue": "act"
+      },
+      "humanReviewStatus": "human_review_required"
+    },
+    {
+      "rootArtifactKey": "ROOT_BIO",
+      "candidateStatus": "structurally_reconciled_candidate",
+      "rootText": "bio",
+      "themeKey": "greek",
+      "meaning": "life",
+      "originLine": "Greek bios, 'life'",
+      "descendantWords": [
+        "biology",
+        "biography",
+        "antibiotic"
+      ],
+      "microLore": "A biography is life-writing; biology is the study of life.",
+      "variantGroupKey": null,
+      "variantOf": null,
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Root Artifact Cards",
+        "row": 19,
+        "sourceValue": "bio"
+      },
+      "humanReviewStatus": "human_review_required"
+    },
+    {
+      "rootArtifactKey": "ROOT_CENT",
+      "candidateStatus": "structurally_reconciled_candidate",
+      "rootText": "cent",
+      "themeKey": "latin",
+      "meaning": "hundred",
+      "originLine": "Latin centum, 'hundred'",
+      "descendantWords": [
+        "century",
+        "centimetre",
+        "per cent",
+        "centipede"
+      ],
+      "microLore": "A Roman centurion led one hundred soldiers.",
+      "variantGroupKey": null,
+      "variantOf": null,
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Root Artifact Cards",
+        "row": 9,
+        "sourceValue": "cent"
+      },
+      "humanReviewStatus": "human_review_required"
+    },
+    {
+      "rootArtifactKey": "ROOT_DICT",
+      "candidateStatus": "structurally_reconciled_candidate",
+      "rootText": "dict",
+      "themeKey": "latin",
+      "meaning": "say",
+      "originLine": "Latin dicere/dictus, 'to say'",
+      "descendantWords": [
+        "predict",
+        "dictionary",
+        "verdict"
+      ],
+      "microLore": "A dictionary is where the words are 'said'; a verdict is a 'truth-saying'.",
+      "variantGroupKey": null,
+      "variantOf": null,
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Root Artifact Cards",
+        "row": 6,
+        "sourceValue": "dict"
+      },
+      "humanReviewStatus": "human_review_required"
+    },
+    {
+      "rootArtifactKey": "ROOT_GEO",
+      "candidateStatus": "structurally_reconciled_candidate",
+      "rootText": "geo",
+      "themeKey": "greek",
+      "meaning": "earth",
+      "originLine": "Greek ge, 'earth'",
+      "descendantWords": [
+        "geography",
+        "geology",
+        "geometry"
+      ],
+      "microLore": "Gaia was the Greek earth goddess — geo- words map her world.",
+      "variantGroupKey": null,
+      "variantOf": null,
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Root Artifact Cards",
+        "row": 20,
+        "sourceValue": "geo"
+      },
+      "humanReviewStatus": "human_review_required"
+    },
+    {
+      "rootArtifactKey": "ROOT_GRAPH",
+      "candidateStatus": "structurally_reconciled_candidate",
+      "rootText": "graph",
+      "themeKey": "greek",
+      "meaning": "write / draw",
+      "originLine": "Greek graphein, 'to write'",
+      "descendantWords": [
+        "photograph",
+        "paragraph",
+        "autograph"
+      ],
+      "microLore": "Greek scholars wrote on scrolls; an autograph is self-writing.",
+      "variantGroupKey": null,
+      "variantOf": null,
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Root Artifact Cards",
+        "row": 13,
+        "sourceValue": "graph"
+      },
+      "humanReviewStatus": "human_review_required"
+    },
+    {
+      "rootArtifactKey": "ROOT_HYDRO",
+      "candidateStatus": "structurally_reconciled_candidate",
+      "rootText": "hydro",
+      "themeKey": "greek",
+      "meaning": "water",
+      "originLine": "Greek hydor, 'water'",
+      "descendantWords": [
+        "hydrant",
+        "hydroelectric",
+        "dehydrate"
+      ],
+      "microLore": "The Hydra was a water-serpent; hydro- words all flow from water.",
+      "variantGroupKey": null,
+      "variantOf": null,
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Root Artifact Cards",
+        "row": 21,
+        "sourceValue": "hydro"
+      },
+      "humanReviewStatus": "human_review_required"
+    },
+    {
+      "rootArtifactKey": "ROOT_METER",
+      "candidateStatus": "structurally_reconciled_candidate",
+      "rootText": "meter",
+      "themeKey": "greek",
+      "meaning": "measure",
+      "originLine": "Greek metron, 'measure'",
+      "descendantWords": [
+        "thermometer",
+        "centimetre",
+        "perimeter"
+      ],
+      "microLore": "Perimeter: the measure around; geometry: earth-measuring.",
+      "variantGroupKey": "ROOT_VARIANT_METER_METRE",
+      "variantOf": null,
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Root Artifact Cards",
+        "row": 18,
+        "sourceValue": "meter/metre"
+      },
+      "humanReviewStatus": "human_review_required"
+    },
+    {
+      "rootArtifactKey": "ROOT_METRE",
+      "candidateStatus": "structurally_reconciled_candidate",
+      "rootText": "metre",
+      "themeKey": "greek",
+      "meaning": "measure",
+      "originLine": "Greek metron, 'measure'",
+      "descendantWords": [
+        "thermometer",
+        "centimetre",
+        "perimeter"
+      ],
+      "microLore": "Perimeter: the measure around; geometry: earth-measuring.",
+      "variantGroupKey": "ROOT_VARIANT_METER_METRE",
+      "variantOf": "ROOT_METER",
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Root Artifact Cards",
+        "row": 18,
+        "sourceValue": "meter/metre"
+      },
+      "humanReviewStatus": "human_review_required"
+    },
+    {
+      "rootArtifactKey": "ROOT_MICRO",
+      "candidateStatus": "structurally_reconciled_candidate",
+      "rootText": "micro",
+      "themeKey": "greek",
+      "meaning": "small",
+      "originLine": "Greek mikros, 'small'",
+      "descendantWords": [
+        "microscope",
+        "microphone",
+        "microwave"
+      ],
+      "microLore": "A microscope makes the small world visible.",
+      "variantGroupKey": null,
+      "variantOf": null,
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Root Artifact Cards",
+        "row": 16,
+        "sourceValue": "micro"
+      },
+      "humanReviewStatus": "human_review_required"
+    },
+    {
+      "rootArtifactKey": "ROOT_NAT",
+      "candidateStatus": "structurally_reconciled_candidate",
+      "rootText": "nat",
+      "themeKey": "latin",
+      "meaning": "born",
+      "originLine": "Latin natus, 'born'",
+      "descendantWords": [
+        "nature",
+        "natural",
+        "nation",
+        "native"
+      ],
+      "microLore": "Your nation is where you were born; nature is everything born into the world.",
+      "variantGroupKey": null,
+      "variantOf": null,
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Root Artifact Cards",
+        "row": 10,
+        "sourceValue": "nat"
+      },
+      "humanReviewStatus": "human_review_required"
+    },
+    {
+      "rootArtifactKey": "ROOT_PHON",
+      "candidateStatus": "structurally_reconciled_candidate",
+      "rootText": "phon",
+      "themeKey": "greek",
+      "meaning": "sound / voice",
+      "originLine": "Greek phone, 'voice'",
+      "descendantWords": [
+        "telephone",
+        "phonics",
+        "microphone",
+        "symphony"
+      ],
+      "microLore": "The nymph Echo could only repeat sounds — phon is her root.",
+      "variantGroupKey": null,
+      "variantOf": null,
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Root Artifact Cards",
+        "row": 12,
+        "sourceValue": "phon"
+      },
+      "humanReviewStatus": "human_review_required"
+    },
+    {
+      "rootArtifactKey": "ROOT_PHOTO",
+      "candidateStatus": "structurally_reconciled_candidate",
+      "rootText": "photo",
+      "themeKey": "greek",
+      "meaning": "light",
+      "originLine": "Greek phos/photos, 'light'",
+      "descendantWords": [
+        "photograph",
+        "photocopy",
+        "photosynthesis"
+      ],
+      "microLore": "A photograph is light-writing — drawing with light itself.",
+      "variantGroupKey": null,
+      "variantOf": null,
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Root Artifact Cards",
+        "row": 14,
+        "sourceValue": "photo"
+      },
+      "humanReviewStatus": "human_review_required"
+    },
+    {
+      "rootArtifactKey": "ROOT_POLY",
+      "candidateStatus": "structurally_reconciled_candidate",
+      "rootText": "poly",
+      "themeKey": "greek",
+      "meaning": "many",
+      "originLine": "Greek polys, 'many'",
+      "descendantWords": [
+        "polygon",
+        "polyphonic"
+      ],
+      "microLore": "A polygon has many corners; polyphonic music has many voices.",
+      "variantGroupKey": null,
+      "variantOf": null,
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Root Artifact Cards",
+        "row": 23,
+        "sourceValue": "poly"
+      },
+      "humanReviewStatus": "human_review_required"
+    },
+    {
+      "rootArtifactKey": "ROOT_PORT",
+      "candidateStatus": "structurally_reconciled_candidate",
+      "rootText": "port",
+      "themeKey": "latin",
+      "meaning": "carry",
+      "originLine": "Latin portare, 'to carry'",
+      "descendantWords": [
+        "transport",
+        "export",
+        "import",
+        "portable"
+      ],
+      "microLore": "Roman merchants carried goods to the port — the carrying-place.",
+      "variantGroupKey": null,
+      "variantOf": null,
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Root Artifact Cards",
+        "row": 2,
+        "sourceValue": "port"
+      },
+      "humanReviewStatus": "human_review_required"
+    },
+    {
+      "rootArtifactKey": "ROOT_RUPT",
+      "candidateStatus": "structurally_reconciled_candidate",
+      "rootText": "rupt",
+      "themeKey": "latin",
+      "meaning": "break",
+      "originLine": "Latin rumpere/ruptus, 'to break'",
+      "descendantWords": [
+        "interrupt",
+        "erupt",
+        "rupture"
+      ],
+      "microLore": "When Vesuvius erupted, it BROKE out of the mountain.",
+      "variantGroupKey": null,
+      "variantOf": null,
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Root Artifact Cards",
+        "row": 4,
+        "sourceValue": "rupt"
+      },
+      "humanReviewStatus": "human_review_required"
+    },
+    {
+      "rootArtifactKey": "ROOT_SCOPE",
+      "candidateStatus": "structurally_reconciled_candidate",
+      "rootText": "scope",
+      "themeKey": "greek",
+      "meaning": "look / watch",
+      "originLine": "Greek skopein, 'to look'",
+      "descendantWords": [
+        "telescope",
+        "microscope",
+        "periscope"
+      ],
+      "microLore": "Greek lookouts watched from towers; a telescope is a far-looker.",
+      "variantGroupKey": null,
+      "variantOf": null,
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Root Artifact Cards",
+        "row": 15,
+        "sourceValue": "scope"
+      },
+      "humanReviewStatus": "human_review_required"
+    },
+    {
+      "rootArtifactKey": "ROOT_SCRIB",
+      "candidateStatus": "structurally_reconciled_candidate",
+      "rootText": "scrib",
+      "themeKey": "latin",
+      "meaning": "write",
+      "originLine": "Latin scribere/scriptus, 'to write'",
+      "descendantWords": [
+        "describe",
+        "script",
+        "scribble",
+        "prescription"
+      ],
+      "microLore": "Roman scribes wrote everything by hand.",
+      "variantGroupKey": "ROOT_VARIANT_SCRIB_SCRIPT",
+      "variantOf": null,
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Root Artifact Cards",
+        "row": 7,
+        "sourceValue": "scrib/script"
+      },
+      "humanReviewStatus": "human_review_required"
+    },
+    {
+      "rootArtifactKey": "ROOT_SCRIPT",
+      "candidateStatus": "structurally_reconciled_candidate",
+      "rootText": "script",
+      "themeKey": "latin",
+      "meaning": "write",
+      "originLine": "Latin scribere/scriptus, 'to write'",
+      "descendantWords": [
+        "describe",
+        "script",
+        "scribble",
+        "prescription"
+      ],
+      "microLore": "Roman scribes wrote everything by hand.",
+      "variantGroupKey": "ROOT_VARIANT_SCRIB_SCRIPT",
+      "variantOf": "ROOT_SCRIB",
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Root Artifact Cards",
+        "row": 7,
+        "sourceValue": "scrib/script"
+      },
+      "humanReviewStatus": "human_review_required"
+    },
+    {
+      "rootArtifactKey": "ROOT_STRUCT",
+      "candidateStatus": "structurally_reconciled_candidate",
+      "rootText": "struct",
+      "themeKey": "latin",
+      "meaning": "build",
+      "originLine": "Latin struere/structus, 'to build'",
+      "descendantWords": [
+        "structure",
+        "construct",
+        "instruct",
+        "destruction"
+      ],
+      "microLore": "Roman engineers were master builders — roads, walls, aqueducts.",
+      "variantGroupKey": null,
+      "variantOf": null,
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Root Artifact Cards",
+        "row": 3,
+        "sourceValue": "struct"
+      },
+      "humanReviewStatus": "human_review_required"
+    },
+    {
+      "rootArtifactKey": "ROOT_TELE",
+      "candidateStatus": "structurally_reconciled_candidate",
+      "rootText": "tele",
+      "themeKey": "greek",
+      "meaning": "far",
+      "originLine": "Greek tele, 'far off'",
+      "descendantWords": [
+        "telephone",
+        "telescope",
+        "television"
+      ],
+      "microLore": "Greek messengers ran far — now tele- words carry sound and sight far.",
+      "variantGroupKey": null,
+      "variantOf": null,
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Root Artifact Cards",
+        "row": 11,
+        "sourceValue": "tele"
+      },
+      "humanReviewStatus": "human_review_required"
+    },
+    {
+      "rootArtifactKey": "ROOT_THERM",
+      "candidateStatus": "structurally_reconciled_candidate",
+      "rootText": "therm",
+      "themeKey": "greek",
+      "meaning": "heat",
+      "originLine": "Greek therme, 'heat'",
+      "descendantWords": [
+        "thermometer",
+        "thermal",
+        "thermos"
+      ],
+      "microLore": "Greek hot springs were called thermae — the Romans borrowed them for their baths.",
+      "variantGroupKey": null,
+      "variantOf": null,
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Root Artifact Cards",
+        "row": 17,
+        "sourceValue": "therm"
+      },
+      "humanReviewStatus": "human_review_required"
+    },
+    {
+      "rootArtifactKey": "ROOT_TRACT",
+      "candidateStatus": "structurally_reconciled_candidate",
+      "rootText": "tract",
+      "themeKey": "latin",
+      "meaning": "pull",
+      "originLine": "Latin trahere/tractus, 'to pull'",
+      "descendantWords": [
+        "tractor",
+        "attract",
+        "subtract",
+        "extract"
+      ],
+      "microLore": "A tractor pulls; subtract pulls a number away.",
+      "variantGroupKey": null,
+      "variantOf": null,
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Root Artifact Cards",
+        "row": 5,
+        "sourceValue": "tract"
+      },
+      "humanReviewStatus": "human_review_required"
+    },
+    {
+      "rootArtifactKey": "ROOT_TRI",
+      "candidateStatus": "structurally_reconciled_candidate",
+      "rootText": "tri",
+      "themeKey": "greek",
+      "meaning": "three",
+      "originLine": "Greek/Latin tri-, 'three'",
+      "descendantWords": [
+        "triangle",
+        "tricycle",
+        "trio",
+        "triple"
+      ],
+      "microLore": "A trident has three points — Poseidon's three-toothed spear.",
+      "variantGroupKey": null,
+      "variantOf": null,
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Root Artifact Cards",
+        "row": 22,
+        "sourceValue": "tri"
+      },
+      "humanReviewStatus": "human_review_required"
+    }
+  ],
+  "rootAliasModel": {
+    "variantGroupKey": "groups written variants and aliases without slash-delimited identity keys",
+    "variantOf": "points variant entries to the primary reusable identity"
+  }
+}
