@@ -1,0 +1,9 @@
+proof_id,scope,proof_type,status,required_before,record_location,summary,notes
+7UI-PROOF-7A-LIVE-QA,ADLE 7a,live_flow,recorded,7-UI-A,docs/implementation/qa/adle-slice-7a-walkthrough-2026-07-08.md,7a child session and reward loop walkthrough recorded.,Existing proof.
+7UI-PROOF-7P-REAL-CHILD,ADLE 7P,live_flow,recorded_in_roadmap,7-UI-A,docs/implementation/version-3-roadmap.md,Real child assignment proof described in slice track.,Keep or move to dedicated QA record later.
+7UI-PROOF-7R-SCHEDULED-MISS,ADLE 7R,evidence_regression_live_flow,recorded,7-UI-A,docs/implementation/adle-slice-7r-attempt-capture-integrity.md,Scheduled-review miss attempt classified correctly; no authentic-use event.,Existing proof.
+7UI-PROOF-7S-RECALL-GATE,ADLE 7S,live_manual_flow,outstanding,evidence_sensitive_runtime_redesign,docs/implementation/adle-slice-7s-reflection-recall-gate.md,Reflection retry gate implemented/regression documented; live/manual proof still required.,"Blocks runtime redesign, not docs PR."
+7UI-PROOF-D4-MOR-OWNER,D4_MOR,owner_validation,not_started,D4_MOR contract freeze,,Owner review of vertical proof.,Future PR.
+7UI-PROOF-D4-MOR-CHILD,D4_MOR,child_validation,not_started,D4_MOR contract freeze,,Child usability validation of vertical proof.,Future PR.
+7UI-PROOF-D4-MOR-A11Y,D4_MOR,accessibility,not_started,D4_MOR runtime enablement,,Keyboard/touch/screen-reader/reduced-motion proof.,Future PR.
+7UI-PROOF-D4-MOR-PERF,D4_MOR,performance,not_started,D4_MOR runtime enablement,,Bundle/performance proof for lazy rendering.,Future PR.

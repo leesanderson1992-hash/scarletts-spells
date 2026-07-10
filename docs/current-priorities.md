@@ -1,5 +1,25 @@
 # Current Priorities — Scarlett’s Spells
 
+## Current ADLE 7-UI Priority
+
+Current ADLE priority: `PR 7-UI-A documentation and reconciliation`.
+
+This slice is documentation-only. It establishes the programme-wide 7-UI
+roadmap, document-authority map, machine-readable global micro-skill control
+matrix, D4_MOR source-artifact retention, D4_MOR category design pack, decision
+register, proof register, and change-control rules.
+
+Runtime redesign remains blocked until the outstanding 7S live/manual
+reflection recall-gate proof is recorded. Do not make runtime component,
+composer, evidence, scheduler, reward, migration, Supabase, workbook-import, or
+bulk activation changes as part of 7-UI-A.
+
+Authoritative links:
+
+- [ADLE 7-UI Programme Roadmap](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/implementation/adle-7-ui-roadmap.md:1)
+- [ADLE 7-UI Control Matrix Guide](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/implementation/adle-7-ui-control-matrix.md:1)
+- [D4_MOR Morphology UX Design Pack](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/product/areas/d4-mor-ux-design-pack.md:1)
+
 ## Current Private MVP Scope
 
 The current launch MVP is private, parent-led use for one child. The parent can

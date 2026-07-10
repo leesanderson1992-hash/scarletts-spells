@@ -1,0 +1,114 @@
+{
+  "artifact": "D4_MOR_content_workbook_v1.xlsx",
+  "validation_date": "2026-07-10",
+  "micro_skill_rows": 24,
+  "word_bank_rows": 168,
+  "word_bank_rows_per_micro_skill_min": 7,
+  "word_bank_rows_per_micro_skill_max": 7,
+  "json_validation": {
+    "anchor_morphemes_json": "pass",
+    "morphemes_json": "pass"
+  },
+  "split_or_concat_issue_count": 8,
+  "split_or_concat_issues": [
+    {
+      "micro_skill_key": "D4_MOR_SUFFIXES_OUS",
+      "display_word": "famous",
+      "issue": "concat_mismatch",
+      "morpheme_concat": "fameous",
+      "split_points": [
+        4
+      ],
+      "expected_simple_split_points": [
+        4
+      ]
+    },
+    {
+      "micro_skill_key": "D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED",
+      "display_word": "ice cream",
+      "issue": "concat_mismatch",
+      "morpheme_concat": "icecream",
+      "split_points": [
+        3
+      ],
+      "expected_simple_split_points": [
+        3
+      ]
+    },
+    {
+      "micro_skill_key": "D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED",
+      "display_word": "living room",
+      "issue": "concat_mismatch",
+      "morpheme_concat": "livingroom",
+      "split_points": [
+        6
+      ],
+      "expected_simple_split_points": [
+        6
+      ]
+    },
+    {
+      "micro_skill_key": "D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED",
+      "display_word": "twenty-one",
+      "issue": "concat_mismatch",
+      "morpheme_concat": "twentyone",
+      "split_points": [
+        6
+      ],
+      "expected_simple_split_points": [
+        6
+      ]
+    },
+    {
+      "micro_skill_key": "D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED",
+      "display_word": "well-known",
+      "issue": "concat_mismatch",
+      "morpheme_concat": "wellknown",
+      "split_points": [
+        4
+      ],
+      "expected_simple_split_points": [
+        4
+      ]
+    },
+    {
+      "micro_skill_key": "D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED",
+      "display_word": "part-time",
+      "issue": "concat_mismatch",
+      "morpheme_concat": "parttime",
+      "split_points": [
+        4
+      ],
+      "expected_simple_split_points": [
+        4
+      ]
+    },
+    {
+      "micro_skill_key": "D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED",
+      "display_word": "post office",
+      "issue": "concat_mismatch",
+      "morpheme_concat": "postoffice",
+      "split_points": [
+        4
+      ],
+      "expected_simple_split_points": [
+        4
+      ]
+    },
+    {
+      "micro_skill_key": "D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED",
+      "display_word": "mother-in-law",
+      "issue": "concat_mismatch",
+      "morpheme_concat": "motherinlaw",
+      "split_points": [
+        6,
+        8
+      ],
+      "expected_simple_split_points": [
+        6,
+        8
+      ]
+    }
+  ],
+  "status": "draft_source_validated_for_reconciliation_not_runtime_activation"
+}

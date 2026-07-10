@@ -11,6 +11,9 @@ It focuses on:
 
 ## Child experience principles
 
+ADLE-specific child experience principles are governed by
+[docs/product/areas/adle-child-experience-principles.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/product/areas/adle-child-experience-principles.md:1).
+
 The child app should feel:
 - calm
 - directed

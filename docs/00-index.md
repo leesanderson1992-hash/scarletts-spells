@@ -31,6 +31,9 @@ When docs overlap:
 
 ### Contracts
 
+- [docs/contracts/adle-category-design-pack-contract.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/contracts/adle-category-design-pack-contract.md:1)
+- [docs/contracts/adle-template-development-contract.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/contracts/adle-template-development-contract.md:1)
+- [docs/contracts/adle-teaching-content-authoring-contract.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/contracts/adle-teaching-content-authoring-contract.md:1)
 - [docs/contracts/adle-daily-assignment-and-evidence-blueprint-contract.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/contracts/adle-daily-assignment-and-evidence-blueprint-contract.md:1)
 - [docs/contracts/writing-engine-mastery-and-evidence-contract.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/contracts/writing-engine-mastery-and-evidence-contract.md:1)
 - [docs/contracts/targeted-writing-practice-contract.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/contracts/targeted-writing-practice-contract.md:1)
@@ -45,6 +48,7 @@ When docs overlap:
 
 ### Architecture
 
+- [docs/architecture/adle-activity-platform-architecture.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/architecture/adle-activity-platform-architecture.md:1)
 - [docs/architecture/admin-internal-access.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/architecture/admin-internal-access.md:1)
 - [docs/architecture/writing-engine-canonical-brief.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/architecture/writing-engine-canonical-brief.md:1)
 - [docs/architecture/writing-engine-foundation.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/architecture/writing-engine-foundation.md:1)
@@ -53,6 +57,10 @@ When docs overlap:
 
 ### Workflow and UX
 
+- [docs/product/areas/adle-child-experience-principles.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/product/areas/adle-child-experience-principles.md:1)
+- [docs/product/areas/adle-accessibility-and-motion-contract.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/product/areas/adle-accessibility-and-motion-contract.md:1)
+- [docs/product/areas/adle-template-catalog.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/product/areas/adle-template-catalog.md:1)
+- [docs/product/areas/d4-mor-ux-design-pack.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/product/areas/d4-mor-ux-design-pack.md:1)
 - [docs/workflows/mvp-workflow.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/workflows/mvp-workflow.md:1)
 - [docs/product/areas/targeted-writing-practice-ux.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/product/areas/targeted-writing-practice-ux.md:1)
 - [docs/product/areas/child-app-ux.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/product/areas/child-app-ux.md:1)
@@ -64,6 +72,10 @@ When docs overlap:
 
 ### Active implementation docs
 
+- [docs/implementation/adle-7-ui-roadmap.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/implementation/adle-7-ui-roadmap.md:1)
+- [docs/implementation/adle-7-ui-document-authority-map.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/implementation/adle-7-ui-document-authority-map.md:1)
+- [docs/implementation/adle-7-ui-control-matrix.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/implementation/adle-7-ui-control-matrix.md:1)
+- [docs/implementation/adle-7-ui-change-control.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/implementation/adle-7-ui-change-control.md:1)
 - [docs/implementation/adle-word-complexity-banding-and-formula-numbers-proposal.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/implementation/adle-word-complexity-banding-and-formula-numbers-proposal.md:1)
 - [docs/implementation/adle-slice-1-dictionary-eligibility-and-banding-plan.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/implementation/adle-slice-1-dictionary-eligibility-and-banding-plan.md:1)
 - [docs/implementation/seed-data/teaching-dictionary/candidates/2026-07-04-complexity-banding-preview/README.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/implementation/seed-data/teaching-dictionary/candidates/2026-07-04-complexity-banding-preview/README.md:1)
