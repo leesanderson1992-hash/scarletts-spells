@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 
 import { buildReviewAttemptEvents } from "../lib/adle/assignment-attempt-events";
+import { resolveActivityTemplateDefinition } from "../lib/adle/activity-template-registry";
 import type { AdleSessionItem } from "../lib/adle/loaders/daily-plan-surface";
 
 function assert(condition: unknown, message: string) {
@@ -26,6 +27,17 @@ function item(overrides: Partial<AdleSessionItem>): AdleSessionItem {
 }
 
 const reflectionSource = readFileSync("components/adle/activities/reflection-activity.tsx", "utf8");
+const reflectionDefinition = resolveActivityTemplateDefinition({
+  templateKey: "ERROR_REFLECTION_CUE",
+  sectionKey: "review_reflection",
+});
+
+assert(
+  reflectionDefinition.rendererKind === "reflection" &&
+    reflectionDefinition.activityMode === "reflection" &&
+    reflectionDefinition.capturesAttempt,
+  "ERROR_REFLECTION_CUE must route through the registry as a reflection attempt template",
+);
 
 assert(
   reflectionSource.includes("useState(false)") && reflectionSource.includes("isAnswerHidden"),

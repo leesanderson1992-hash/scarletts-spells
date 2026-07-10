@@ -21,6 +21,10 @@ import {
   completeAdleLessonPartAction,
   completeAdleReviewPartAction,
 } from "@/app/learn/week/adle/actions";
+import {
+  resolveActivityTemplateDefinition,
+  type ActivityRendererKind,
+} from "@/lib/adle/activity-template-registry";
 import type { AdleSessionItem } from "@/lib/adle/loaders/daily-plan-surface";
 import { isAttemptCorrect } from "@/lib/adle/session-correctness";
 import { IntroActivity } from "@/components/adle/activities/intro-activity";
@@ -39,6 +43,21 @@ type AdleSessionRunnerProps = {
 
 function itemsIn(items: readonly AdleSessionItem[], sectionKey: string): AdleSessionItem[] {
   return items.filter((item) => item.sectionKey === sectionKey);
+}
+
+function rendererKindFor(item: AdleSessionItem): ActivityRendererKind {
+  return resolveActivityTemplateDefinition({
+    templateKey: item.templateKey,
+    sectionKey: item.sectionKey,
+  }).rendererKind;
+}
+
+function itemsForRenderer(
+  items: readonly AdleSessionItem[],
+  sectionKey: string,
+  rendererKinds: readonly ActivityRendererKind[],
+): AdleSessionItem[] {
+  return itemsIn(items, sectionKey).filter((item) => rendererKinds.includes(rendererKindFor(item)));
 }
 
 function attemptsJson(attempts: ReadonlyMap<string, string>): string {
@@ -68,9 +87,9 @@ function mapWith(current: Map<string, string>, key: string, value: string): Map<
 }
 
 function ReviewPart(props: { childId: string; assignmentId: string; items: AdleSessionItem[] }) {
-  const quickSort = itemsIn(props.items, "review_quick_sort")[0] ?? null;
-  const production = itemsIn(props.items, "review_production");
-  const reflection = itemsIn(props.items, "review_reflection");
+  const quickSort = itemsForRenderer(props.items, "review_quick_sort", ["quick_sort"])[0] ?? null;
+  const production = itemsForRenderer(props.items, "review_production", ["dictation", "must_use_writing"]);
+  const reflection = itemsForRenderer(props.items, "review_reflection", ["reflection"]);
   const [attempts, setAttempts] = useState<Map<string, string>>(new Map());
   const [retries, setRetries] = useState<Map<string, string>>(new Map());
   const [phase, setPhase] = useState<"sort" | "production" | "reflection">(quickSort ? "sort" : "production");
@@ -158,17 +177,17 @@ function ReviewPart(props: { childId: string; assignmentId: string; items: AdleS
 }
 
 function LessonPart(props: { childId: string; assignmentId: string; items: AdleSessionItem[] }) {
-  const intro = itemsIn(props.items, "lesson_intro");
-  const guided = itemsIn(props.items, "guided_practice");
-  const production = itemsIn(props.items, "lesson_production");
-  const dictation = itemsIn(props.items, "lesson_dictation");
-  const probe = itemsIn(props.items, "lesson_probe")[0] ?? null;
+  const intro = itemsForRenderer(props.items, "lesson_intro", ["intro"]);
+  const guided = itemsForRenderer(props.items, "guided_practice", ["guided_prompt", "dictation", "reflection"]);
+  const production = itemsForRenderer(props.items, "lesson_production", ["dictation", "must_use_writing"]);
+  const dictation = itemsForRenderer(props.items, "lesson_dictation", ["dictation"]);
+  const probe = itemsForRenderer(props.items, "lesson_probe", ["dictation"])[0] ?? null;
   const [attempts, setAttempts] = useState<Map<string, string>>(new Map());
   const [dictationAttempts, setDictationAttempts] = useState<Map<string, string>>(new Map());
   const [probeAttempts, setProbeAttempts] = useState<Map<string, string>>(new Map());
   const [guidedNotes, setGuidedNotes] = useState<Map<string, string>>(new Map());
 
-  const introItem = intro.find((item) => item.templateKey === "MICRO_READ_ONLY_INTRO") ?? null;
+  const introItem = intro.find((item) => rendererKindFor(item) === "intro") ?? null;
   const probeWords = useMemo(() => {
     const words = probe?.promptData.words;
     return Array.isArray(words)
