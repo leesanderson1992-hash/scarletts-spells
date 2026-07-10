@@ -1,6 +1,6 @@
 # ADLE 7S: Reflection Recall Gate
 
-Status: `Implemented 2026-07-09`
+Status: `Implemented 2026-07-09; live/manual proof recorded 2026-07-10`
 
 ## Why this slice exists
 
@@ -59,3 +59,7 @@ Manual QA:
    as `reflection_attempt`.
 7. Verify no extra review outcome or authentic-use row is created from the
    reflection retry.
+
+Recorded proof:
+
+- `docs/implementation/qa/adle-slice-7s-reflection-recall-gate-proof-2026-07-10.md`

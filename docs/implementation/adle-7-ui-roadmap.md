@@ -15,9 +15,9 @@ Shared architecture is reused, while each micro-skill still receives an intentio
 
 ## Current Status
 
-Status: `7-UI-A documentation and reconciliation foundation`.
+Status: `7-UI-A documentation and reconciliation foundation; 7S live/manual proof recorded`.
 
-Runtime implementation remains blocked for evidence-sensitive redesign until the outstanding 7S live/manual reflection recall-gate proof is recorded in the proof register.
+The 7S reflection recall-gate live/manual proof is recorded in the proof register. Evidence-sensitive 7-UI runtime redesign may proceed only in the next approved runtime PR; no 7-UI-B runtime implementation is included in 7-UI-A or the 7S proof-recording pass.
 
 Current active category: `D4_MOR` morphology.
 
@@ -102,10 +102,10 @@ Proof status is owned by:
 
 - `docs/implementation/seed-data/adle-7-ui/control-matrix/adle-7-ui-proof-register.csv`
 
-Current blockers:
+Current gate status:
 
-- `7UI-PROOF-7S-RECALL-GATE` is outstanding.
-- Runtime redesign that could affect evidence quality must not begin until this proof is recorded.
+- `7UI-PROOF-7S-RECALL-GATE` is recorded.
+- Runtime redesign that could affect evidence quality is no longer blocked by the 7S proof gate, but still requires its own approved runtime PR and proof plan.
 
 ## Definition Of Complete
 

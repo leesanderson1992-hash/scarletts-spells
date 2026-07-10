@@ -2,22 +2,23 @@
 
 ## Current ADLE 7-UI Priority
 
-Current ADLE priority: `PR 7-UI-A documentation and reconciliation`.
+Current ADLE priority: `PR 7-UI-A documentation/reconciliation committed; 7S proof gate recorded`.
 
 This slice is documentation-only. It establishes the programme-wide 7-UI
 roadmap, document-authority map, machine-readable global micro-skill control
 matrix, D4_MOR source-artifact retention, D4_MOR category design pack, decision
 register, proof register, and change-control rules.
 
-Runtime redesign remains blocked until the outstanding 7S live/manual
-reflection recall-gate proof is recorded. Do not make runtime component,
-composer, evidence, scheduler, reward, migration, Supabase, workbook-import, or
-bulk activation changes as part of 7-UI-A.
+The 7S live/manual reflection recall-gate proof is recorded. Evidence-sensitive
+7-UI runtime redesign may proceed only in the next approved runtime PR. Do not
+make runtime component, composer, evidence, scheduler, reward, workbook-import,
+or bulk activation changes as part of 7-UI-A or the proof-recording pass.
 
 Authoritative links:
 
 - [ADLE 7-UI Programme Roadmap](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/implementation/adle-7-ui-roadmap.md:1)
 - [ADLE 7-UI Control Matrix Guide](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/implementation/adle-7-ui-control-matrix.md:1)
+- [ADLE 7S Reflection Recall-Gate Proof](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/implementation/qa/adle-slice-7s-reflection-recall-gate-proof-2026-07-10.md:1)
 - [D4_MOR Morphology UX Design Pack](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/product/areas/d4-mor-ux-design-pack.md:1)
 
 ## Current Private MVP Scope

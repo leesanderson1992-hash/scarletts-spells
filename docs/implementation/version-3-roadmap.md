@@ -16,8 +16,8 @@ Current focus: `ADLE 7-UI-A documentation and reconciliation foundation`.
 Runtime status:
 
 - ADLE Slices 1-6, 7a, 7P, 7R, and 7S are documented as implemented.
-- 7a live QA, 7P real-child assignment proof, and 7R scheduled-review miss proof are recorded or referenced.
-- 7S reflection recall gate still needs explicit live/manual proof before evidence-sensitive runtime redesign begins.
+- 7a live QA, 7P real-child assignment proof, 7R scheduled-review miss proof, and 7S reflection recall-gate live/manual proof are recorded or referenced.
+- Evidence-sensitive 7-UI runtime redesign is no longer blocked by the 7S proof gate, but still requires a separate approved runtime PR.
 
 ## 7-UI Programme Links
 
@@ -52,4 +52,4 @@ All current ADLE micro-skills are in programme scope. The source of row truth is
 
 7-UI must preserve ADLE evidence, scheduler, and reward semantics unless a separate approved contract change says otherwise.
 
-PR 7-UI-A is documentation-only. It authorizes no runtime component changes, composer changes, migrations, Supabase writes, workbook import, evidence changes, scheduler changes, reward changes, or bulk teaching-content activation.
+PR 7-UI-A is documentation-only. The separate 7S proof-recording pass applied the existing 7R local/live proof-database migration and recorded the proof; it still authorizes no 7-UI runtime component changes, composer changes, workbook import, evidence-semantics changes, scheduler changes, reward changes, or bulk teaching-content activation.
