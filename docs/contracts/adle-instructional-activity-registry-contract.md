@@ -237,3 +237,21 @@ activities only. The blueprint adds composer-level skip reasons
 (`review_debt_blocks_lesson`, `insufficient_real_learning_items`,
 `probe_cap_reached`, `no_diagnostic_eligible_words`,
 `word_pending_parent_review`).
+
+### Reflection recall gate (amended 2026-07-09)
+
+`ERROR_REFLECTION_CUE` and equivalent reflection/repair activities may show
+the correct spelling after a child misspells a word, because the activity is
+partly instructional. However, the child must not be able to type the retry
+while the correct spelling remains visible.
+
+Required behavior:
+- show the child's attempt and the correct spelling for teaching
+- require an explicit child action, preferably a switch/slider, to hide or
+  mask the correct spelling before a retry input is available
+- keep the retry classified as reflection/repair evidence
+- do not classify the retry as a new scheduled-review production attempt
+- do not create authentic-use evidence from this controlled reflection retry
+
+This protects the evidence quality of the retry: it should be recall after a
+teaching reveal, not copy-from-screen transcription.

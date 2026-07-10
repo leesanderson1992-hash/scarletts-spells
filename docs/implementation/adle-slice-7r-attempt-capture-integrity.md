@@ -98,3 +98,25 @@ interpreted as proof of raw attempt capture.
 Wider impact: do not proceed to automatic daily generation or template UI
 redesign until this evidence contract is deployed and proven with one more
 approved live pilot assignment.
+
+## Post-deployment live pilot note (2026-07-09)
+
+The July 10 review-only pilot assignment
+`165d7724-b06a-4e02-ba4e-44640418b042` proved the 7R ledger behavior for a
+true scheduled review miss:
+
+- the wrong production attempt `hopeing` for `hoping` was stored in
+  `adle_assignment_attempt_events`
+- the attempt was classified as `scheduled_review_attempt`
+- the scheduler wrote a `review_fail` outcome for that word
+- correct attempts for `making` and `writing` wrote `review_pass` outcomes
+- no `adle_authentic_use_events` were created
+
+The same pilot exposed a reflection UX evidence-quality issue: after a wrong
+review attempt, the reflection activity showed the correct spelling and an
+active retry input at the same time. That allows copy-from-screen behavior.
+This does not invalidate the 7R ledger proof, but it lowers the instructional
+quality of reflection retries until the activity requires the correct spelling
+to be hidden before the retry box appears.
+
+Follow-up slice: `ADLE 7S — Reflection Recall Gate`.

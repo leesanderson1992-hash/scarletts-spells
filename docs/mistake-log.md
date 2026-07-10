@@ -1,5 +1,30 @@
 # Mistake Log
 
+## 2026-07-09 — Correct spelling reveal must not stay visible during ADLE retry input
+
+### Mistake
+- The ADLE review reflection screen showed the child's wrong attempt, the
+  correct spelling, and an active retry input at the same time.
+- That made the retry evidence weaker because the child could copy the visible
+  answer instead of recalling it after the teaching reveal.
+
+### What was actually true
+- It is important to show the correct spelling after a misspelling, because
+  the reflection step is partly instructional.
+- The retry is reflection/repair evidence, not a fresh scheduled-review
+  production attempt.
+- Teaching reveal and independent retry must be separated in the UI.
+
+### Correction
+- ADLE reflection activities must hide or mask the correct spelling before the
+  retry input is available.
+
+### Prevention rule
+- Do not display the correct spelling and an active retry box at the same
+  time.
+- Future child spelling UI must separate answer reveal from independent
+  recall input whenever the retry is meant to carry evidence value.
+
 ## 2026-07-06 — UI changes must be verified by rendered pixels, and colours must use defined theme variables, not guessed ones
 
 ### Mistake

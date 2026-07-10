@@ -243,6 +243,13 @@ excluded.
   first-exposure attempts are now stored as non-punitive lesson evidence and do
   not create scheduled-review failures or authentic-use events. See
   [docs/implementation/adle-slice-7r-attempt-capture-integrity.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/implementation/adle-slice-7r-attempt-capture-integrity.md:1).
+- ADLE 7S Reflection Recall Gate closes the live-pilot reflection UX finding:
+  a correction card may show the correct spelling for teaching, but the retry
+  input appears only after the child hides the word. The next ADLE step is the
+  7-UI template UI/UX redesign; see
+  [docs/implementation/version-3-roadmap.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/implementation/version-3-roadmap.md:113)
+  and
+  [docs/implementation/adle-slice-7s-reflection-recall-gate.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/implementation/adle-slice-7s-reflection-recall-gate.md:1).
 - The scheduled daily spelling practice materializer is implemented as the
   production bridge from active `learning_items` to today's bounded
   `daily_assignments`: Vercel cron calls
