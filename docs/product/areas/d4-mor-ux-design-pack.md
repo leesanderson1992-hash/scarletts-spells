@@ -2,7 +2,7 @@
 
 ## Status
 
-Status: `human approved 7-UI category-v1 content/schema candidate for 7-UI-D; not activated`.
+Status: `approved D4_MOR category-v1 source package frozen for 7-UI-E; not activated`.
 
 Source artifacts:
 
@@ -16,9 +16,14 @@ Generated category-v1 candidate artifacts:
 - `docs/implementation/seed-data/adle-7-ui/generated/d4-mor-category-v1/`
 
 The existing active D4_MOR teaching content remains current runtime truth. The
-new category-v1 artifacts are structurally reconciled, human-approved 7-UI
-candidates only. They do not become runtime truth until separately versioned
-and activated.
+category-v1 generated artifacts are structurally reconciled candidates, and the
+approved category-v1 source package is frozen separately at:
+
+- `data/adle/approved/d4-mor/v1/d4-mor-v1-manifest.json`
+
+The approved package is not activated, imported into Supabase, emitted by the
+composer, or used by the child runtime. It does not become runtime truth until a
+separate activation/content-selection PR.
 
 Human approval record:
 
@@ -113,6 +118,12 @@ legacy issues as semantic source data:
 7-UI-D records human approval for all 24 D4_MOR micro-skills, all exception
 review rows, and representative cluster spot checks. The generated candidates
 remain separate from runtime truth and are not activated.
+
+7-UI-E freezes the human-approved candidate plus approval record into the
+approved D4_MOR category-v1 source package under `data/adle/approved/d4-mor/v1/`.
+The package includes a runtime-neutral `D4_MOR_PREFIXES_UN` pilot source
+fixture only; it does not define a final assignment payload or support-word
+selection algorithm.
 
 Detailed validation artifact:
 

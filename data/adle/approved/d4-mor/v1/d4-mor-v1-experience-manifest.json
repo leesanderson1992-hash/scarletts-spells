@@ -1,0 +1,1460 @@
+{
+  "metadata": {
+    "artifactKey": "d4-mor-v1-experience-manifest",
+    "packageKey": "d4_mor_category_v1",
+    "schemaVersion": "d4_mor_approved_package_schema_v1",
+    "contentVersion": "d4_mor_category_v1_2026_07_11",
+    "approvalStatus": "human_approved",
+    "humanReviewStatus": "approved",
+    "approvalScope": "d4_mor_category_v1",
+    "activationStatus": "not_activated",
+    "runtimeEnabled": false,
+    "approvalRecordRef": "docs/implementation/seed-data/adle-7-ui/review/d4-mor-human-review-pack/d4-mor-human-approval-record-v1.json",
+    "approvalCommit": "31b127ff0259c7d0b5e2da5eda8d88fef17a0aab",
+    "generatorVersion": "adle_d4_mor_approved_package_2026_07_11"
+  },
+  "profileKeyMapping": {
+    "d4_mor_default_v1_candidate": "d4_mor_default_v1"
+  },
+  "templateVariantKeyMapping": {
+    "d4_mor_semantic_candidate_v1": "d4_mor_semantic_v1"
+  },
+  "profiles": {
+    "d4_mor_default_v1": {
+      "experienceProfileKey": "d4_mor_default_v1",
+      "description": "Default morphology tile/meaning-building profile candidate. Frontend assets, layout, scene, sound, and animation are not owned here.",
+      "frontendOwns": [
+        "assets",
+        "scene",
+        "animation",
+        "sound",
+        "layout"
+      ],
+      "sourceCandidateStatus": "structurally_reconciled_candidate",
+      "approvalStatus": "human_approved",
+      "humanReviewStatus": "approved",
+      "approvalScope": "d4_mor_category_v1",
+      "activationStatus": "not_activated",
+      "runtimeEnabled": false,
+      "sourceCandidateExperienceProfileKey": "d4_mor_default_v1_candidate"
+    }
+  },
+  "microSkills": [
+    {
+      "microSkillKey": "D4_MOR_BASE_WORDS_BASE_PLUS_PREFIX",
+      "originThemeKey": "neutral",
+      "experienceProfileKey": "d4_mor_default_v1",
+      "templateVariantSelections": [
+        {
+          "templateKey": "MICRO_READ_ONLY_INTRO",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "LESSON_WORDS_INTRO",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "MOR_STRIP_BUILD",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "MOR_MEANING_MATCH",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "MOR_BUILD_WORD",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "CONTROLLED_SPELLING",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "DICTATION_NO_IMAGE",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        }
+      ],
+      "ownership": {
+        "microSkillKey": "selects this category experience manifest entry",
+        "originThemeKey": "linguistic/origin metadata",
+        "teachingContent": "pedagogical copy and linguistic facts",
+        "frontend": "assets, scene, animation, sound, and layout"
+      },
+      "source": {
+        "artifact": "docs/implementation/seed-data/adle-7-ui/control-matrix/d4-mor-experience-readiness-matrix.csv",
+        "row": 2
+      },
+      "sourceCandidateStatus": "structurally_reconciled_candidate",
+      "approvalStatus": "human_approved",
+      "humanReviewStatus": "approved",
+      "approvalScope": "d4_mor_category_v1",
+      "activationStatus": "not_activated",
+      "runtimeEnabled": false,
+      "sourceCandidateExperienceProfileKey": "d4_mor_default_v1_candidate"
+    },
+    {
+      "microSkillKey": "D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX",
+      "originThemeKey": "neutral",
+      "experienceProfileKey": "d4_mor_default_v1",
+      "templateVariantSelections": [
+        {
+          "templateKey": "MICRO_READ_ONLY_INTRO",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "LESSON_WORDS_INTRO",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "MOR_STRIP_BUILD",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "MOR_MEANING_MATCH",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "MOR_BUILD_WORD",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "CONTROLLED_SPELLING",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "DICTATION_NO_IMAGE",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        }
+      ],
+      "ownership": {
+        "microSkillKey": "selects this category experience manifest entry",
+        "originThemeKey": "linguistic/origin metadata",
+        "teachingContent": "pedagogical copy and linguistic facts",
+        "frontend": "assets, scene, animation, sound, and layout"
+      },
+      "source": {
+        "artifact": "docs/implementation/seed-data/adle-7-ui/control-matrix/d4-mor-experience-readiness-matrix.csv",
+        "row": 3
+      },
+      "sourceCandidateStatus": "structurally_reconciled_candidate",
+      "approvalStatus": "human_approved",
+      "humanReviewStatus": "approved",
+      "approvalScope": "d4_mor_category_v1",
+      "activationStatus": "not_activated",
+      "runtimeEnabled": false,
+      "sourceCandidateExperienceProfileKey": "d4_mor_default_v1_candidate"
+    },
+    {
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "originThemeKey": "neutral",
+      "experienceProfileKey": "d4_mor_default_v1",
+      "templateVariantSelections": [
+        {
+          "templateKey": "MICRO_READ_ONLY_INTRO",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "LESSON_WORDS_INTRO",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "MOR_STRIP_BUILD",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "MOR_MEANING_MATCH",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "MOR_BUILD_WORD",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "CONTROLLED_SPELLING",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "DICTATION_NO_IMAGE",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        }
+      ],
+      "ownership": {
+        "microSkillKey": "selects this category experience manifest entry",
+        "originThemeKey": "linguistic/origin metadata",
+        "teachingContent": "pedagogical copy and linguistic facts",
+        "frontend": "assets, scene, animation, sound, and layout"
+      },
+      "source": {
+        "artifact": "docs/implementation/seed-data/adle-7-ui/control-matrix/d4-mor-experience-readiness-matrix.csv",
+        "row": 4
+      },
+      "sourceCandidateStatus": "structurally_reconciled_candidate",
+      "approvalStatus": "human_approved",
+      "humanReviewStatus": "approved",
+      "approvalScope": "d4_mor_category_v1",
+      "activationStatus": "not_activated",
+      "runtimeEnabled": false,
+      "sourceCandidateExperienceProfileKey": "d4_mor_default_v1_candidate"
+    },
+    {
+      "microSkillKey": "D4_MOR_BASE_WORDS_PRESERVE_BASE",
+      "originThemeKey": "neutral",
+      "experienceProfileKey": "d4_mor_default_v1",
+      "templateVariantSelections": [
+        {
+          "templateKey": "MICRO_READ_ONLY_INTRO",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "LESSON_WORDS_INTRO",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "MOR_STRIP_BUILD",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "MOR_MEANING_MATCH",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "MOR_BUILD_WORD",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "CONTROLLED_SPELLING",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "DICTATION_NO_IMAGE",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        }
+      ],
+      "ownership": {
+        "microSkillKey": "selects this category experience manifest entry",
+        "originThemeKey": "linguistic/origin metadata",
+        "teachingContent": "pedagogical copy and linguistic facts",
+        "frontend": "assets, scene, animation, sound, and layout"
+      },
+      "source": {
+        "artifact": "docs/implementation/seed-data/adle-7-ui/control-matrix/d4-mor-experience-readiness-matrix.csv",
+        "row": 5
+      },
+      "sourceCandidateStatus": "structurally_reconciled_candidate",
+      "approvalStatus": "human_approved",
+      "humanReviewStatus": "approved",
+      "approvalScope": "d4_mor_category_v1",
+      "activationStatus": "not_activated",
+      "runtimeEnabled": false,
+      "sourceCandidateExperienceProfileKey": "d4_mor_default_v1_candidate"
+    },
+    {
+      "microSkillKey": "D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS",
+      "originThemeKey": "neutral",
+      "experienceProfileKey": "d4_mor_default_v1",
+      "templateVariantSelections": [
+        {
+          "templateKey": "MICRO_READ_ONLY_INTRO",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "LESSON_WORDS_INTRO",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "MOR_STRIP_BUILD",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "MOR_MEANING_MATCH",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "MOR_BUILD_WORD",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "CONTROLLED_SPELLING",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "DICTATION_NO_IMAGE",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        }
+      ],
+      "ownership": {
+        "microSkillKey": "selects this category experience manifest entry",
+        "originThemeKey": "linguistic/origin metadata",
+        "teachingContent": "pedagogical copy and linguistic facts",
+        "frontend": "assets, scene, animation, sound, and layout"
+      },
+      "source": {
+        "artifact": "docs/implementation/seed-data/adle-7-ui/control-matrix/d4-mor-experience-readiness-matrix.csv",
+        "row": 18
+      },
+      "sourceCandidateStatus": "structurally_reconciled_candidate",
+      "approvalStatus": "human_approved",
+      "humanReviewStatus": "approved",
+      "approvalScope": "d4_mor_category_v1",
+      "activationStatus": "not_activated",
+      "runtimeEnabled": false,
+      "sourceCandidateExperienceProfileKey": "d4_mor_default_v1_candidate"
+    },
+    {
+      "microSkillKey": "D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED",
+      "originThemeKey": "neutral",
+      "experienceProfileKey": "d4_mor_default_v1",
+      "templateVariantSelections": [
+        {
+          "templateKey": "MICRO_READ_ONLY_INTRO",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "LESSON_WORDS_INTRO",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "MOR_STRIP_BUILD",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "MOR_MEANING_MATCH",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "MOR_BUILD_WORD",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "CONTROLLED_SPELLING",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "DICTATION_NO_IMAGE",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        }
+      ],
+      "ownership": {
+        "microSkillKey": "selects this category experience manifest entry",
+        "originThemeKey": "linguistic/origin metadata",
+        "teachingContent": "pedagogical copy and linguistic facts",
+        "frontend": "assets, scene, animation, sound, and layout"
+      },
+      "source": {
+        "artifact": "docs/implementation/seed-data/adle-7-ui/control-matrix/d4-mor-experience-readiness-matrix.csv",
+        "row": 19
+      },
+      "sourceCandidateStatus": "structurally_reconciled_candidate",
+      "approvalStatus": "human_approved",
+      "humanReviewStatus": "approved",
+      "approvalScope": "d4_mor_category_v1",
+      "activationStatus": "not_activated",
+      "runtimeEnabled": false,
+      "sourceCandidateExperienceProfileKey": "d4_mor_default_v1_candidate"
+    },
+    {
+      "microSkillKey": "D4_MOR_PREFIXES_DIS_MIS",
+      "originThemeKey": "neutral",
+      "experienceProfileKey": "d4_mor_default_v1",
+      "templateVariantSelections": [
+        {
+          "templateKey": "MICRO_READ_ONLY_INTRO",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "LESSON_WORDS_INTRO",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "MOR_STRIP_BUILD",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "MOR_MEANING_MATCH",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "MOR_BUILD_WORD",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "CONTROLLED_SPELLING",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "DICTATION_NO_IMAGE",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        }
+      ],
+      "ownership": {
+        "microSkillKey": "selects this category experience manifest entry",
+        "originThemeKey": "linguistic/origin metadata",
+        "teachingContent": "pedagogical copy and linguistic facts",
+        "frontend": "assets, scene, animation, sound, and layout"
+      },
+      "source": {
+        "artifact": "docs/implementation/seed-data/adle-7-ui/control-matrix/d4-mor-experience-readiness-matrix.csv",
+        "row": 6
+      },
+      "sourceCandidateStatus": "structurally_reconciled_candidate",
+      "approvalStatus": "human_approved",
+      "humanReviewStatus": "approved",
+      "approvalScope": "d4_mor_category_v1",
+      "activationStatus": "not_activated",
+      "runtimeEnabled": false,
+      "sourceCandidateExperienceProfileKey": "d4_mor_default_v1_candidate"
+    },
+    {
+      "microSkillKey": "D4_MOR_PREFIXES_IN_IM_IL_IR",
+      "originThemeKey": "latin",
+      "experienceProfileKey": "d4_mor_default_v1",
+      "templateVariantSelections": [
+        {
+          "templateKey": "MICRO_READ_ONLY_INTRO",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "LESSON_WORDS_INTRO",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "MOR_STRIP_BUILD",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "MOR_MEANING_MATCH",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "MOR_BUILD_WORD",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "CONTROLLED_SPELLING",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "DICTATION_NO_IMAGE",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        }
+      ],
+      "ownership": {
+        "microSkillKey": "selects this category experience manifest entry",
+        "originThemeKey": "linguistic/origin metadata",
+        "teachingContent": "pedagogical copy and linguistic facts",
+        "frontend": "assets, scene, animation, sound, and layout"
+      },
+      "source": {
+        "artifact": "docs/implementation/seed-data/adle-7-ui/control-matrix/d4-mor-experience-readiness-matrix.csv",
+        "row": 7
+      },
+      "sourceCandidateStatus": "structurally_reconciled_candidate",
+      "approvalStatus": "human_approved",
+      "humanReviewStatus": "approved",
+      "approvalScope": "d4_mor_category_v1",
+      "activationStatus": "not_activated",
+      "runtimeEnabled": false,
+      "sourceCandidateExperienceProfileKey": "d4_mor_default_v1_candidate"
+    },
+    {
+      "microSkillKey": "D4_MOR_PREFIXES_RE_PRE",
+      "originThemeKey": "neutral",
+      "experienceProfileKey": "d4_mor_default_v1",
+      "templateVariantSelections": [
+        {
+          "templateKey": "MICRO_READ_ONLY_INTRO",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "LESSON_WORDS_INTRO",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "MOR_STRIP_BUILD",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "MOR_MEANING_MATCH",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "MOR_BUILD_WORD",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "CONTROLLED_SPELLING",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "DICTATION_NO_IMAGE",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        }
+      ],
+      "ownership": {
+        "microSkillKey": "selects this category experience manifest entry",
+        "originThemeKey": "linguistic/origin metadata",
+        "teachingContent": "pedagogical copy and linguistic facts",
+        "frontend": "assets, scene, animation, sound, and layout"
+      },
+      "source": {
+        "artifact": "docs/implementation/seed-data/adle-7-ui/control-matrix/d4-mor-experience-readiness-matrix.csv",
+        "row": 8
+      },
+      "sourceCandidateStatus": "structurally_reconciled_candidate",
+      "approvalStatus": "human_approved",
+      "humanReviewStatus": "approved",
+      "approvalScope": "d4_mor_category_v1",
+      "activationStatus": "not_activated",
+      "runtimeEnabled": false,
+      "sourceCandidateExperienceProfileKey": "d4_mor_default_v1_candidate"
+    },
+    {
+      "microSkillKey": "D4_MOR_PREFIXES_SUB_INTER_SUPER",
+      "originThemeKey": "latin",
+      "experienceProfileKey": "d4_mor_default_v1",
+      "templateVariantSelections": [
+        {
+          "templateKey": "MICRO_READ_ONLY_INTRO",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "LESSON_WORDS_INTRO",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "MOR_STRIP_BUILD",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "MOR_MEANING_MATCH",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "MOR_BUILD_WORD",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "CONTROLLED_SPELLING",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "DICTATION_NO_IMAGE",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        }
+      ],
+      "ownership": {
+        "microSkillKey": "selects this category experience manifest entry",
+        "originThemeKey": "linguistic/origin metadata",
+        "teachingContent": "pedagogical copy and linguistic facts",
+        "frontend": "assets, scene, animation, sound, and layout"
+      },
+      "source": {
+        "artifact": "docs/implementation/seed-data/adle-7-ui/control-matrix/d4-mor-experience-readiness-matrix.csv",
+        "row": 9
+      },
+      "sourceCandidateStatus": "structurally_reconciled_candidate",
+      "approvalStatus": "human_approved",
+      "humanReviewStatus": "approved",
+      "approvalScope": "d4_mor_category_v1",
+      "activationStatus": "not_activated",
+      "runtimeEnabled": false,
+      "sourceCandidateExperienceProfileKey": "d4_mor_default_v1_candidate"
+    },
+    {
+      "microSkillKey": "D4_MOR_PREFIXES_UN",
+      "originThemeKey": "neutral",
+      "experienceProfileKey": "d4_mor_default_v1",
+      "templateVariantSelections": [
+        {
+          "templateKey": "MICRO_READ_ONLY_INTRO",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "LESSON_WORDS_INTRO",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "MOR_STRIP_BUILD",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "MOR_MEANING_MATCH",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "MOR_BUILD_WORD",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "CONTROLLED_SPELLING",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "DICTATION_NO_IMAGE",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        }
+      ],
+      "ownership": {
+        "microSkillKey": "selects this category experience manifest entry",
+        "originThemeKey": "linguistic/origin metadata",
+        "teachingContent": "pedagogical copy and linguistic facts",
+        "frontend": "assets, scene, animation, sound, and layout"
+      },
+      "source": {
+        "artifact": "docs/implementation/seed-data/adle-7-ui/control-matrix/d4-mor-experience-readiness-matrix.csv",
+        "row": 10
+      },
+      "sourceCandidateStatus": "structurally_reconciled_candidate",
+      "approvalStatus": "human_approved",
+      "humanReviewStatus": "approved",
+      "approvalScope": "d4_mor_category_v1",
+      "activationStatus": "not_activated",
+      "runtimeEnabled": false,
+      "sourceCandidateExperienceProfileKey": "d4_mor_default_v1_candidate"
+    },
+    {
+      "microSkillKey": "D4_MOR_ROOTS_COMMON_GREEK_ROOTS",
+      "originThemeKey": "greek",
+      "experienceProfileKey": "d4_mor_default_v1",
+      "templateVariantSelections": [
+        {
+          "templateKey": "MICRO_READ_ONLY_INTRO",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "LESSON_WORDS_INTRO",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "MOR_STRIP_BUILD",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "MOR_MEANING_MATCH",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "MOR_BUILD_WORD",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "CONTROLLED_SPELLING",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "DICTATION_NO_IMAGE",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        }
+      ],
+      "ownership": {
+        "microSkillKey": "selects this category experience manifest entry",
+        "originThemeKey": "linguistic/origin metadata",
+        "teachingContent": "pedagogical copy and linguistic facts",
+        "frontend": "assets, scene, animation, sound, and layout"
+      },
+      "source": {
+        "artifact": "docs/implementation/seed-data/adle-7-ui/control-matrix/d4-mor-experience-readiness-matrix.csv",
+        "row": 22
+      },
+      "sourceCandidateStatus": "structurally_reconciled_candidate",
+      "approvalStatus": "human_approved",
+      "humanReviewStatus": "approved",
+      "approvalScope": "d4_mor_category_v1",
+      "activationStatus": "not_activated",
+      "runtimeEnabled": false,
+      "sourceCandidateExperienceProfileKey": "d4_mor_default_v1_candidate"
+    },
+    {
+      "microSkillKey": "D4_MOR_ROOTS_COMMON_LATIN_ROOTS",
+      "originThemeKey": "latin",
+      "experienceProfileKey": "d4_mor_default_v1",
+      "templateVariantSelections": [
+        {
+          "templateKey": "MICRO_READ_ONLY_INTRO",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "LESSON_WORDS_INTRO",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "MOR_STRIP_BUILD",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "MOR_MEANING_MATCH",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "MOR_BUILD_WORD",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "CONTROLLED_SPELLING",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "DICTATION_NO_IMAGE",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        }
+      ],
+      "ownership": {
+        "microSkillKey": "selects this category experience manifest entry",
+        "originThemeKey": "linguistic/origin metadata",
+        "teachingContent": "pedagogical copy and linguistic facts",
+        "frontend": "assets, scene, animation, sound, and layout"
+      },
+      "source": {
+        "artifact": "docs/implementation/seed-data/adle-7-ui/control-matrix/d4-mor-experience-readiness-matrix.csv",
+        "row": 23
+      },
+      "sourceCandidateStatus": "structurally_reconciled_candidate",
+      "approvalStatus": "human_approved",
+      "humanReviewStatus": "approved",
+      "approvalScope": "d4_mor_category_v1",
+      "activationStatus": "not_activated",
+      "runtimeEnabled": false,
+      "sourceCandidateExperienceProfileKey": "d4_mor_default_v1_candidate"
+    },
+    {
+      "microSkillKey": "D4_MOR_ROOTS_ROOT_FAMILY_SPELLING",
+      "originThemeKey": "latin",
+      "experienceProfileKey": "d4_mor_default_v1",
+      "templateVariantSelections": [
+        {
+          "templateKey": "MICRO_READ_ONLY_INTRO",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "LESSON_WORDS_INTRO",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "MOR_STRIP_BUILD",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "MOR_MEANING_MATCH",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "MOR_BUILD_WORD",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "CONTROLLED_SPELLING",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "DICTATION_NO_IMAGE",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        }
+      ],
+      "ownership": {
+        "microSkillKey": "selects this category experience manifest entry",
+        "originThemeKey": "linguistic/origin metadata",
+        "teachingContent": "pedagogical copy and linguistic facts",
+        "frontend": "assets, scene, animation, sound, and layout"
+      },
+      "source": {
+        "artifact": "docs/implementation/seed-data/adle-7-ui/control-matrix/d4-mor-experience-readiness-matrix.csv",
+        "row": 24
+      },
+      "sourceCandidateStatus": "structurally_reconciled_candidate",
+      "approvalStatus": "human_approved",
+      "humanReviewStatus": "approved",
+      "approvalScope": "d4_mor_category_v1",
+      "activationStatus": "not_activated",
+      "runtimeEnabled": false,
+      "sourceCandidateExperienceProfileKey": "d4_mor_default_v1_candidate"
+    },
+    {
+      "microSkillKey": "D4_MOR_ROOTS_SCIENCE_MATH_ROOTS",
+      "originThemeKey": "greek",
+      "experienceProfileKey": "d4_mor_default_v1",
+      "templateVariantSelections": [
+        {
+          "templateKey": "MICRO_READ_ONLY_INTRO",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "LESSON_WORDS_INTRO",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "MOR_STRIP_BUILD",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "MOR_MEANING_MATCH",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "MOR_BUILD_WORD",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "CONTROLLED_SPELLING",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "DICTATION_NO_IMAGE",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        }
+      ],
+      "ownership": {
+        "microSkillKey": "selects this category experience manifest entry",
+        "originThemeKey": "linguistic/origin metadata",
+        "teachingContent": "pedagogical copy and linguistic facts",
+        "frontend": "assets, scene, animation, sound, and layout"
+      },
+      "source": {
+        "artifact": "docs/implementation/seed-data/adle-7-ui/control-matrix/d4-mor-experience-readiness-matrix.csv",
+        "row": 25
+      },
+      "sourceCandidateStatus": "structurally_reconciled_candidate",
+      "approvalStatus": "human_approved",
+      "humanReviewStatus": "approved",
+      "approvalScope": "d4_mor_category_v1",
+      "activationStatus": "not_activated",
+      "runtimeEnabled": false,
+      "sourceCandidateExperienceProfileKey": "d4_mor_default_v1_candidate"
+    },
+    {
+      "microSkillKey": "D4_MOR_SUFFIXES_ABLE_IBLE",
+      "originThemeKey": "latin",
+      "experienceProfileKey": "d4_mor_default_v1",
+      "templateVariantSelections": [
+        {
+          "templateKey": "MICRO_READ_ONLY_INTRO",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "LESSON_WORDS_INTRO",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "MOR_STRIP_BUILD",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "MOR_MEANING_MATCH",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "MOR_BUILD_WORD",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "CONTROLLED_SPELLING",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "DICTATION_NO_IMAGE",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        }
+      ],
+      "ownership": {
+        "microSkillKey": "selects this category experience manifest entry",
+        "originThemeKey": "linguistic/origin metadata",
+        "teachingContent": "pedagogical copy and linguistic facts",
+        "frontend": "assets, scene, animation, sound, and layout"
+      },
+      "source": {
+        "artifact": "docs/implementation/seed-data/adle-7-ui/control-matrix/d4-mor-experience-readiness-matrix.csv",
+        "row": 11
+      },
+      "sourceCandidateStatus": "structurally_reconciled_candidate",
+      "approvalStatus": "human_approved",
+      "humanReviewStatus": "approved",
+      "approvalScope": "d4_mor_category_v1",
+      "activationStatus": "not_activated",
+      "runtimeEnabled": false,
+      "sourceCandidateExperienceProfileKey": "d4_mor_default_v1_candidate"
+    },
+    {
+      "microSkillKey": "D4_MOR_SUFFIXES_AL",
+      "originThemeKey": "latin",
+      "experienceProfileKey": "d4_mor_default_v1",
+      "templateVariantSelections": [
+        {
+          "templateKey": "MICRO_READ_ONLY_INTRO",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "LESSON_WORDS_INTRO",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "MOR_STRIP_BUILD",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "MOR_MEANING_MATCH",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "MOR_BUILD_WORD",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "CONTROLLED_SPELLING",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "DICTATION_NO_IMAGE",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        }
+      ],
+      "ownership": {
+        "microSkillKey": "selects this category experience manifest entry",
+        "originThemeKey": "linguistic/origin metadata",
+        "teachingContent": "pedagogical copy and linguistic facts",
+        "frontend": "assets, scene, animation, sound, and layout"
+      },
+      "source": {
+        "artifact": "docs/implementation/seed-data/adle-7-ui/control-matrix/d4-mor-experience-readiness-matrix.csv",
+        "row": 12
+      },
+      "sourceCandidateStatus": "structurally_reconciled_candidate",
+      "approvalStatus": "human_approved",
+      "humanReviewStatus": "approved",
+      "approvalScope": "d4_mor_category_v1",
+      "activationStatus": "not_activated",
+      "runtimeEnabled": false,
+      "sourceCandidateExperienceProfileKey": "d4_mor_default_v1_candidate"
+    },
+    {
+      "microSkillKey": "D4_MOR_SUFFIXES_FUL_LESS",
+      "originThemeKey": "neutral",
+      "experienceProfileKey": "d4_mor_default_v1",
+      "templateVariantSelections": [
+        {
+          "templateKey": "MICRO_READ_ONLY_INTRO",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "LESSON_WORDS_INTRO",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "MOR_STRIP_BUILD",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "MOR_MEANING_MATCH",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "MOR_BUILD_WORD",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "CONTROLLED_SPELLING",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "DICTATION_NO_IMAGE",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        }
+      ],
+      "ownership": {
+        "microSkillKey": "selects this category experience manifest entry",
+        "originThemeKey": "linguistic/origin metadata",
+        "teachingContent": "pedagogical copy and linguistic facts",
+        "frontend": "assets, scene, animation, sound, and layout"
+      },
+      "source": {
+        "artifact": "docs/implementation/seed-data/adle-7-ui/control-matrix/d4-mor-experience-readiness-matrix.csv",
+        "row": 13
+      },
+      "sourceCandidateStatus": "structurally_reconciled_candidate",
+      "approvalStatus": "human_approved",
+      "humanReviewStatus": "approved",
+      "approvalScope": "d4_mor_category_v1",
+      "activationStatus": "not_activated",
+      "runtimeEnabled": false,
+      "sourceCandidateExperienceProfileKey": "d4_mor_default_v1_candidate"
+    },
+    {
+      "microSkillKey": "D4_MOR_SUFFIXES_ITY",
+      "originThemeKey": "latin",
+      "experienceProfileKey": "d4_mor_default_v1",
+      "templateVariantSelections": [
+        {
+          "templateKey": "MICRO_READ_ONLY_INTRO",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "LESSON_WORDS_INTRO",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "MOR_STRIP_BUILD",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "MOR_MEANING_MATCH",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "MOR_BUILD_WORD",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "CONTROLLED_SPELLING",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "DICTATION_NO_IMAGE",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        }
+      ],
+      "ownership": {
+        "microSkillKey": "selects this category experience manifest entry",
+        "originThemeKey": "linguistic/origin metadata",
+        "teachingContent": "pedagogical copy and linguistic facts",
+        "frontend": "assets, scene, animation, sound, and layout"
+      },
+      "source": {
+        "artifact": "docs/implementation/seed-data/adle-7-ui/control-matrix/d4-mor-experience-readiness-matrix.csv",
+        "row": 14
+      },
+      "sourceCandidateStatus": "structurally_reconciled_candidate",
+      "approvalStatus": "human_approved",
+      "humanReviewStatus": "approved",
+      "approvalScope": "d4_mor_category_v1",
+      "activationStatus": "not_activated",
+      "runtimeEnabled": false,
+      "sourceCandidateExperienceProfileKey": "d4_mor_default_v1_candidate"
+    },
+    {
+      "microSkillKey": "D4_MOR_SUFFIXES_MENT",
+      "originThemeKey": "latin",
+      "experienceProfileKey": "d4_mor_default_v1",
+      "templateVariantSelections": [
+        {
+          "templateKey": "MICRO_READ_ONLY_INTRO",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "LESSON_WORDS_INTRO",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "MOR_STRIP_BUILD",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "MOR_MEANING_MATCH",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "MOR_BUILD_WORD",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "CONTROLLED_SPELLING",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "DICTATION_NO_IMAGE",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        }
+      ],
+      "ownership": {
+        "microSkillKey": "selects this category experience manifest entry",
+        "originThemeKey": "linguistic/origin metadata",
+        "teachingContent": "pedagogical copy and linguistic facts",
+        "frontend": "assets, scene, animation, sound, and layout"
+      },
+      "source": {
+        "artifact": "docs/implementation/seed-data/adle-7-ui/control-matrix/d4-mor-experience-readiness-matrix.csv",
+        "row": 15
+      },
+      "sourceCandidateStatus": "structurally_reconciled_candidate",
+      "approvalStatus": "human_approved",
+      "humanReviewStatus": "approved",
+      "approvalScope": "d4_mor_category_v1",
+      "activationStatus": "not_activated",
+      "runtimeEnabled": false,
+      "sourceCandidateExperienceProfileKey": "d4_mor_default_v1_candidate"
+    },
+    {
+      "microSkillKey": "D4_MOR_SUFFIXES_NESS",
+      "originThemeKey": "neutral",
+      "experienceProfileKey": "d4_mor_default_v1",
+      "templateVariantSelections": [
+        {
+          "templateKey": "MICRO_READ_ONLY_INTRO",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "LESSON_WORDS_INTRO",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "MOR_STRIP_BUILD",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "MOR_MEANING_MATCH",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "MOR_BUILD_WORD",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "CONTROLLED_SPELLING",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "DICTATION_NO_IMAGE",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        }
+      ],
+      "ownership": {
+        "microSkillKey": "selects this category experience manifest entry",
+        "originThemeKey": "linguistic/origin metadata",
+        "teachingContent": "pedagogical copy and linguistic facts",
+        "frontend": "assets, scene, animation, sound, and layout"
+      },
+      "source": {
+        "artifact": "docs/implementation/seed-data/adle-7-ui/control-matrix/d4-mor-experience-readiness-matrix.csv",
+        "row": 16
+      },
+      "sourceCandidateStatus": "structurally_reconciled_candidate",
+      "approvalStatus": "human_approved",
+      "humanReviewStatus": "approved",
+      "approvalScope": "d4_mor_category_v1",
+      "activationStatus": "not_activated",
+      "runtimeEnabled": false,
+      "sourceCandidateExperienceProfileKey": "d4_mor_default_v1_candidate"
+    },
+    {
+      "microSkillKey": "D4_MOR_SUFFIXES_OUS",
+      "originThemeKey": "latin",
+      "experienceProfileKey": "d4_mor_default_v1",
+      "templateVariantSelections": [
+        {
+          "templateKey": "MICRO_READ_ONLY_INTRO",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "LESSON_WORDS_INTRO",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "MOR_STRIP_BUILD",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "MOR_MEANING_MATCH",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "MOR_BUILD_WORD",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "CONTROLLED_SPELLING",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "DICTATION_NO_IMAGE",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        }
+      ],
+      "ownership": {
+        "microSkillKey": "selects this category experience manifest entry",
+        "originThemeKey": "linguistic/origin metadata",
+        "teachingContent": "pedagogical copy and linguistic facts",
+        "frontend": "assets, scene, animation, sound, and layout"
+      },
+      "source": {
+        "artifact": "docs/implementation/seed-data/adle-7-ui/control-matrix/d4-mor-experience-readiness-matrix.csv",
+        "row": 17
+      },
+      "sourceCandidateStatus": "structurally_reconciled_candidate",
+      "approvalStatus": "human_approved",
+      "humanReviewStatus": "approved",
+      "approvalScope": "d4_mor_category_v1",
+      "activationStatus": "not_activated",
+      "runtimeEnabled": false,
+      "sourceCandidateExperienceProfileKey": "d4_mor_default_v1_candidate"
+    },
+    {
+      "microSkillKey": "D4_MOR_WORD_FAMILIES_PRONUNCIATION_SHIFT",
+      "originThemeKey": "latin",
+      "experienceProfileKey": "d4_mor_default_v1",
+      "templateVariantSelections": [
+        {
+          "templateKey": "MICRO_READ_ONLY_INTRO",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "LESSON_WORDS_INTRO",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "MOR_STRIP_BUILD",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "MOR_MEANING_MATCH",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "MOR_BUILD_WORD",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "CONTROLLED_SPELLING",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "DICTATION_NO_IMAGE",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        }
+      ],
+      "ownership": {
+        "microSkillKey": "selects this category experience manifest entry",
+        "originThemeKey": "linguistic/origin metadata",
+        "teachingContent": "pedagogical copy and linguistic facts",
+        "frontend": "assets, scene, animation, sound, and layout"
+      },
+      "source": {
+        "artifact": "docs/implementation/seed-data/adle-7-ui/control-matrix/d4-mor-experience-readiness-matrix.csv",
+        "row": 20
+      },
+      "sourceCandidateStatus": "structurally_reconciled_candidate",
+      "approvalStatus": "human_approved",
+      "humanReviewStatus": "approved",
+      "approvalScope": "d4_mor_category_v1",
+      "activationStatus": "not_activated",
+      "runtimeEnabled": false,
+      "sourceCandidateExperienceProfileKey": "d4_mor_default_v1_candidate"
+    },
+    {
+      "microSkillKey": "D4_MOR_WORD_FAMILIES_RELATED_WORD_SUPPORT",
+      "originThemeKey": "neutral",
+      "experienceProfileKey": "d4_mor_default_v1",
+      "templateVariantSelections": [
+        {
+          "templateKey": "MICRO_READ_ONLY_INTRO",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "LESSON_WORDS_INTRO",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "MOR_STRIP_BUILD",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "MOR_MEANING_MATCH",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "MOR_BUILD_WORD",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "CONTROLLED_SPELLING",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        },
+        {
+          "templateKey": "DICTATION_NO_IMAGE",
+          "variantKey": "d4_mor_semantic_v1",
+          "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+        }
+      ],
+      "ownership": {
+        "microSkillKey": "selects this category experience manifest entry",
+        "originThemeKey": "linguistic/origin metadata",
+        "teachingContent": "pedagogical copy and linguistic facts",
+        "frontend": "assets, scene, animation, sound, and layout"
+      },
+      "source": {
+        "artifact": "docs/implementation/seed-data/adle-7-ui/control-matrix/d4-mor-experience-readiness-matrix.csv",
+        "row": 21
+      },
+      "sourceCandidateStatus": "structurally_reconciled_candidate",
+      "approvalStatus": "human_approved",
+      "humanReviewStatus": "approved",
+      "approvalScope": "d4_mor_category_v1",
+      "activationStatus": "not_activated",
+      "runtimeEnabled": false,
+      "sourceCandidateExperienceProfileKey": "d4_mor_default_v1_candidate"
+    }
+  ]
+}

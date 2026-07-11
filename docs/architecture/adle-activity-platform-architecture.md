@@ -47,7 +47,11 @@ transformations, reusable linguistic identities, and experience-manifest
 selection without changing assignment payload emission, registry behaviour,
 renderers, composer output, evidence, scheduler, or reward semantics. 7-UI-D
 records human approval for that category-v1 content/schema candidate, but does
-not activate it or make it runtime truth.
+not activate it or make it runtime truth. 7-UI-E freezes the approved
+category-v1 source package under `data/adle/approved/d4-mor/v1/` with
+`activationStatus = not_activated` and `runtimeEnabled = false`. The package is
+not imported by the composer, registry, session runner, renderer, Supabase, or
+evidence/scheduler/reward paths in that PR.
 
 ## Registry Direction
 

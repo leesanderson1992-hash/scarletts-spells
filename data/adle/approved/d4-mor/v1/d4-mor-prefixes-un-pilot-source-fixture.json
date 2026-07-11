@@ -1,0 +1,752 @@
+{
+  "metadata": {
+    "artifactKey": "d4-mor-prefixes-un-pilot-source-fixture",
+    "packageKey": "d4_mor_category_v1",
+    "schemaVersion": "d4_mor_approved_package_schema_v1",
+    "contentVersion": "d4_mor_category_v1_2026_07_11",
+    "approvalStatus": "human_approved",
+    "humanReviewStatus": "approved",
+    "approvalScope": "d4_mor_category_v1",
+    "activationStatus": "not_activated",
+    "runtimeEnabled": false,
+    "approvalRecordRef": "docs/implementation/seed-data/adle-7-ui/review/d4-mor-human-review-pack/d4-mor-human-approval-record-v1.json",
+    "approvalCommit": "31b127ff0259c7d0b5e2da5eda8d88fef17a0aab",
+    "generatorVersion": "adle_d4_mor_approved_package_2026_07_11"
+  },
+  "fixtureBoundary": {
+    "purpose": "Runtime-neutral approved-source fixture for future D4_MOR_PREFIXES_UN pilot work.",
+    "implementsSelectionAlgorithm": false,
+    "selectionPolicy": "none_fixture_lists_approved_available_words_only",
+    "isAssignmentPayloadContract": false,
+    "activationStatus": "not_activated",
+    "runtimeEnabled": false
+  },
+  "microSkillKey": "D4_MOR_PREFIXES_UN",
+  "approvedContentVersion": "d4_mor_category_v1_2026_07_11",
+  "experienceProfileKey": "d4_mor_default_v1",
+  "originThemeKey": "neutral",
+  "teachingObjective": "Child can spell words with the prefix un- and knows it means 'not' or 'opposite of'.",
+  "childFriendlyExplanation": "un- is a tiny part that means NOT or the OPPOSITE. Stick it on the front and the word flips: kind → unkind, lock → unlock. The base word keeps every letter.",
+  "ruleExplanation": "un- is always spelled u-n, attached before a base word whose spelling stays the same: un + happy = unhappy, un + necessary = unnecessary (double n stays).",
+  "watchForCue": "un- is always just u-n, and the base keeps all its letters — even if that makes nn.",
+  "anchorWord": "unhappy",
+  "anchorAnalysis": {
+    "analysisKey": "D4_MOR_PREFIXES_UN::unhappy",
+    "microSkillKey": "D4_MOR_PREFIXES_UN",
+    "displayWord": "unhappy",
+    "role": "anchor",
+    "parts": [
+      {
+        "id": "part_1",
+        "kind": "prefix",
+        "morphemeKey": "prefix_UN",
+        "sourceText": "un",
+        "surfaceText": "un",
+        "gloss": "not",
+        "displayRange": {
+          "start": 0,
+          "end": 2
+        },
+        "source": {
+          "morphemesJsonIndex": 0
+        }
+      },
+      {
+        "id": "part_2",
+        "kind": "base",
+        "morphemeKey": null,
+        "sourceText": "happy",
+        "surfaceText": "happy",
+        "gloss": "",
+        "displayRange": {
+          "start": 2,
+          "end": 7
+        },
+        "source": {
+          "morphemesJsonIndex": 1
+        }
+      }
+    ],
+    "joins": [
+      {
+        "afterPartId": "part_1",
+        "beforePartId": "part_2",
+        "joinType": "none",
+        "surfaceText": "",
+        "displayRange": {
+          "start": 2,
+          "end": 2
+        }
+      }
+    ],
+    "joiningStrategy": "concatenate",
+    "transformations": [],
+    "derivedViewModel": {
+      "splitPoints": [
+        2
+      ]
+    },
+    "sourceSplitPoints": [
+      2
+    ],
+    "validation": {
+      "status": "pass",
+      "reconstructedDisplayWord": "unhappy",
+      "warnings": []
+    },
+    "source": {
+      "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+      "sheet": "Word Bank",
+      "row": 30
+    },
+    "sourceCandidateStatus": "structurally_reconciled_candidate",
+    "approvalStatus": "human_approved",
+    "humanReviewStatus": "approved",
+    "approvalScope": "d4_mor_category_v1",
+    "activationStatus": "not_activated",
+    "runtimeEnabled": false
+  },
+  "approvedAvailableWordAnalyses": [
+    {
+      "analysisKey": "D4_MOR_PREFIXES_UN::unhappy",
+      "microSkillKey": "D4_MOR_PREFIXES_UN",
+      "displayWord": "unhappy",
+      "role": "anchor",
+      "parts": [
+        {
+          "id": "part_1",
+          "kind": "prefix",
+          "morphemeKey": "prefix_UN",
+          "sourceText": "un",
+          "surfaceText": "un",
+          "gloss": "not",
+          "displayRange": {
+            "start": 0,
+            "end": 2
+          },
+          "source": {
+            "morphemesJsonIndex": 0
+          }
+        },
+        {
+          "id": "part_2",
+          "kind": "base",
+          "morphemeKey": null,
+          "sourceText": "happy",
+          "surfaceText": "happy",
+          "gloss": "",
+          "displayRange": {
+            "start": 2,
+            "end": 7
+          },
+          "source": {
+            "morphemesJsonIndex": 1
+          }
+        }
+      ],
+      "joins": [
+        {
+          "afterPartId": "part_1",
+          "beforePartId": "part_2",
+          "joinType": "none",
+          "surfaceText": "",
+          "displayRange": {
+            "start": 2,
+            "end": 2
+          }
+        }
+      ],
+      "joiningStrategy": "concatenate",
+      "transformations": [],
+      "derivedViewModel": {
+        "splitPoints": [
+          2
+        ]
+      },
+      "sourceSplitPoints": [
+        2
+      ],
+      "validation": {
+        "status": "pass",
+        "reconstructedDisplayWord": "unhappy",
+        "warnings": []
+      },
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Word Bank",
+        "row": 30
+      },
+      "sourceCandidateStatus": "structurally_reconciled_candidate",
+      "approvalStatus": "human_approved",
+      "humanReviewStatus": "approved",
+      "approvalScope": "d4_mor_category_v1",
+      "activationStatus": "not_activated",
+      "runtimeEnabled": false
+    },
+    {
+      "analysisKey": "D4_MOR_PREFIXES_UN::unfair",
+      "microSkillKey": "D4_MOR_PREFIXES_UN",
+      "displayWord": "unfair",
+      "role": "lesson_word",
+      "parts": [
+        {
+          "id": "part_1",
+          "kind": "prefix",
+          "morphemeKey": "prefix_UN",
+          "sourceText": "un",
+          "surfaceText": "un",
+          "gloss": "not",
+          "displayRange": {
+            "start": 0,
+            "end": 2
+          },
+          "source": {
+            "morphemesJsonIndex": 0
+          }
+        },
+        {
+          "id": "part_2",
+          "kind": "base",
+          "morphemeKey": null,
+          "sourceText": "fair",
+          "surfaceText": "fair",
+          "gloss": "",
+          "displayRange": {
+            "start": 2,
+            "end": 6
+          },
+          "source": {
+            "morphemesJsonIndex": 1
+          }
+        }
+      ],
+      "joins": [
+        {
+          "afterPartId": "part_1",
+          "beforePartId": "part_2",
+          "joinType": "none",
+          "surfaceText": "",
+          "displayRange": {
+            "start": 2,
+            "end": 2
+          }
+        }
+      ],
+      "joiningStrategy": "concatenate",
+      "transformations": [],
+      "derivedViewModel": {
+        "splitPoints": [
+          2
+        ]
+      },
+      "sourceSplitPoints": [
+        2
+      ],
+      "validation": {
+        "status": "pass",
+        "reconstructedDisplayWord": "unfair",
+        "warnings": []
+      },
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Word Bank",
+        "row": 32
+      },
+      "sourceCandidateStatus": "structurally_reconciled_candidate",
+      "approvalStatus": "human_approved",
+      "humanReviewStatus": "approved",
+      "approvalScope": "d4_mor_category_v1",
+      "activationStatus": "not_activated",
+      "runtimeEnabled": false
+    },
+    {
+      "analysisKey": "D4_MOR_PREFIXES_UN::unkind",
+      "microSkillKey": "D4_MOR_PREFIXES_UN",
+      "displayWord": "unkind",
+      "role": "lesson_word",
+      "parts": [
+        {
+          "id": "part_1",
+          "kind": "prefix",
+          "morphemeKey": "prefix_UN",
+          "sourceText": "un",
+          "surfaceText": "un",
+          "gloss": "not",
+          "displayRange": {
+            "start": 0,
+            "end": 2
+          },
+          "source": {
+            "morphemesJsonIndex": 0
+          }
+        },
+        {
+          "id": "part_2",
+          "kind": "base",
+          "morphemeKey": null,
+          "sourceText": "kind",
+          "surfaceText": "kind",
+          "gloss": "",
+          "displayRange": {
+            "start": 2,
+            "end": 6
+          },
+          "source": {
+            "morphemesJsonIndex": 1
+          }
+        }
+      ],
+      "joins": [
+        {
+          "afterPartId": "part_1",
+          "beforePartId": "part_2",
+          "joinType": "none",
+          "surfaceText": "",
+          "displayRange": {
+            "start": 2,
+            "end": 2
+          }
+        }
+      ],
+      "joiningStrategy": "concatenate",
+      "transformations": [],
+      "derivedViewModel": {
+        "splitPoints": [
+          2
+        ]
+      },
+      "sourceSplitPoints": [
+        2
+      ],
+      "validation": {
+        "status": "pass",
+        "reconstructedDisplayWord": "unkind",
+        "warnings": []
+      },
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Word Bank",
+        "row": 31
+      },
+      "sourceCandidateStatus": "structurally_reconciled_candidate",
+      "approvalStatus": "human_approved",
+      "humanReviewStatus": "approved",
+      "approvalScope": "d4_mor_category_v1",
+      "activationStatus": "not_activated",
+      "runtimeEnabled": false
+    },
+    {
+      "analysisKey": "D4_MOR_PREFIXES_UN::unlock",
+      "microSkillKey": "D4_MOR_PREFIXES_UN",
+      "displayWord": "unlock",
+      "role": "lesson_word",
+      "parts": [
+        {
+          "id": "part_1",
+          "kind": "prefix",
+          "morphemeKey": "prefix_UN",
+          "sourceText": "un",
+          "surfaceText": "un",
+          "gloss": "opposite of",
+          "displayRange": {
+            "start": 0,
+            "end": 2
+          },
+          "source": {
+            "morphemesJsonIndex": 0
+          }
+        },
+        {
+          "id": "part_2",
+          "kind": "base",
+          "morphemeKey": null,
+          "sourceText": "lock",
+          "surfaceText": "lock",
+          "gloss": "",
+          "displayRange": {
+            "start": 2,
+            "end": 6
+          },
+          "source": {
+            "morphemesJsonIndex": 1
+          }
+        }
+      ],
+      "joins": [
+        {
+          "afterPartId": "part_1",
+          "beforePartId": "part_2",
+          "joinType": "none",
+          "surfaceText": "",
+          "displayRange": {
+            "start": 2,
+            "end": 2
+          }
+        }
+      ],
+      "joiningStrategy": "concatenate",
+      "transformations": [],
+      "derivedViewModel": {
+        "splitPoints": [
+          2
+        ]
+      },
+      "sourceSplitPoints": [
+        2
+      ],
+      "validation": {
+        "status": "pass",
+        "reconstructedDisplayWord": "unlock",
+        "warnings": []
+      },
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Word Bank",
+        "row": 33
+      },
+      "sourceCandidateStatus": "structurally_reconciled_candidate",
+      "approvalStatus": "human_approved",
+      "humanReviewStatus": "approved",
+      "approvalScope": "d4_mor_category_v1",
+      "activationStatus": "not_activated",
+      "runtimeEnabled": false
+    },
+    {
+      "analysisKey": "D4_MOR_PREFIXES_UN::untidy",
+      "microSkillKey": "D4_MOR_PREFIXES_UN",
+      "displayWord": "untidy",
+      "role": "lesson_word",
+      "parts": [
+        {
+          "id": "part_1",
+          "kind": "prefix",
+          "morphemeKey": "prefix_UN",
+          "sourceText": "un",
+          "surfaceText": "un",
+          "gloss": "not",
+          "displayRange": {
+            "start": 0,
+            "end": 2
+          },
+          "source": {
+            "morphemesJsonIndex": 0
+          }
+        },
+        {
+          "id": "part_2",
+          "kind": "base",
+          "morphemeKey": null,
+          "sourceText": "tidy",
+          "surfaceText": "tidy",
+          "gloss": "",
+          "displayRange": {
+            "start": 2,
+            "end": 6
+          },
+          "source": {
+            "morphemesJsonIndex": 1
+          }
+        }
+      ],
+      "joins": [
+        {
+          "afterPartId": "part_1",
+          "beforePartId": "part_2",
+          "joinType": "none",
+          "surfaceText": "",
+          "displayRange": {
+            "start": 2,
+            "end": 2
+          }
+        }
+      ],
+      "joiningStrategy": "concatenate",
+      "transformations": [],
+      "derivedViewModel": {
+        "splitPoints": [
+          2
+        ]
+      },
+      "sourceSplitPoints": [
+        2
+      ],
+      "validation": {
+        "status": "pass",
+        "reconstructedDisplayWord": "untidy",
+        "warnings": []
+      },
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Word Bank",
+        "row": 34
+      },
+      "sourceCandidateStatus": "structurally_reconciled_candidate",
+      "approvalStatus": "human_approved",
+      "humanReviewStatus": "approved",
+      "approvalScope": "d4_mor_category_v1",
+      "activationStatus": "not_activated",
+      "runtimeEnabled": false
+    },
+    {
+      "analysisKey": "D4_MOR_PREFIXES_UN::unnatural",
+      "microSkillKey": "D4_MOR_PREFIXES_UN",
+      "displayWord": "unnatural",
+      "role": "stretch",
+      "parts": [
+        {
+          "id": "part_1",
+          "kind": "prefix",
+          "morphemeKey": "prefix_UN",
+          "sourceText": "un",
+          "surfaceText": "un",
+          "gloss": "not",
+          "displayRange": {
+            "start": 0,
+            "end": 2
+          },
+          "source": {
+            "morphemesJsonIndex": 0
+          }
+        },
+        {
+          "id": "part_2",
+          "kind": "base",
+          "morphemeKey": null,
+          "sourceText": "natural",
+          "surfaceText": "natural",
+          "gloss": "",
+          "displayRange": {
+            "start": 2,
+            "end": 9
+          },
+          "source": {
+            "morphemesJsonIndex": 1
+          }
+        }
+      ],
+      "joins": [
+        {
+          "afterPartId": "part_1",
+          "beforePartId": "part_2",
+          "joinType": "none",
+          "surfaceText": "",
+          "displayRange": {
+            "start": 2,
+            "end": 2
+          }
+        }
+      ],
+      "joiningStrategy": "concatenate",
+      "transformations": [],
+      "derivedViewModel": {
+        "splitPoints": [
+          2
+        ]
+      },
+      "sourceSplitPoints": [
+        2
+      ],
+      "validation": {
+        "status": "pass",
+        "reconstructedDisplayWord": "unnatural",
+        "warnings": []
+      },
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Word Bank",
+        "row": 36
+      },
+      "sourceCandidateStatus": "structurally_reconciled_candidate",
+      "approvalStatus": "human_approved",
+      "humanReviewStatus": "approved",
+      "approvalScope": "d4_mor_category_v1",
+      "activationStatus": "not_activated",
+      "runtimeEnabled": false
+    },
+    {
+      "analysisKey": "D4_MOR_PREFIXES_UN::unnecessary",
+      "microSkillKey": "D4_MOR_PREFIXES_UN",
+      "displayWord": "unnecessary",
+      "role": "stretch",
+      "parts": [
+        {
+          "id": "part_1",
+          "kind": "prefix",
+          "morphemeKey": "prefix_UN",
+          "sourceText": "un",
+          "surfaceText": "un",
+          "gloss": "not",
+          "displayRange": {
+            "start": 0,
+            "end": 2
+          },
+          "source": {
+            "morphemesJsonIndex": 0
+          }
+        },
+        {
+          "id": "part_2",
+          "kind": "base",
+          "morphemeKey": null,
+          "sourceText": "necessary",
+          "surfaceText": "necessary",
+          "gloss": "",
+          "displayRange": {
+            "start": 2,
+            "end": 11
+          },
+          "source": {
+            "morphemesJsonIndex": 1
+          }
+        }
+      ],
+      "joins": [
+        {
+          "afterPartId": "part_1",
+          "beforePartId": "part_2",
+          "joinType": "none",
+          "surfaceText": "",
+          "displayRange": {
+            "start": 2,
+            "end": 2
+          }
+        }
+      ],
+      "joiningStrategy": "concatenate",
+      "transformations": [],
+      "derivedViewModel": {
+        "splitPoints": [
+          2
+        ]
+      },
+      "sourceSplitPoints": [
+        2
+      ],
+      "validation": {
+        "status": "pass",
+        "reconstructedDisplayWord": "unnecessary",
+        "warnings": []
+      },
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Word Bank",
+        "row": 35
+      },
+      "sourceCandidateStatus": "structurally_reconciled_candidate",
+      "approvalStatus": "human_approved",
+      "humanReviewStatus": "approved",
+      "approvalScope": "d4_mor_category_v1",
+      "activationStatus": "not_activated",
+      "runtimeEnabled": false
+    }
+  ],
+  "morphemeIdentities": [
+    {
+      "morphemeKey": "prefix_UN",
+      "kind": "prefix",
+      "canonicalText": "un",
+      "gloss": "not / opposite of",
+      "function": "negates or reverses",
+      "exampleWords": [
+        "unhappy",
+        "unkind",
+        "unlock",
+        "untie",
+        "unfair"
+      ],
+      "distractorGlosses": [
+        "again",
+        "before",
+        "under"
+      ],
+      "variantGroupKey": null,
+      "variantOf": null,
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Morpheme Glosses",
+        "row": 2,
+        "sourceValue": "un"
+      },
+      "sourceCandidateStatus": "structurally_reconciled_candidate",
+      "approvalStatus": "human_approved",
+      "humanReviewStatus": "approved",
+      "approvalScope": "d4_mor_category_v1",
+      "activationStatus": "not_activated",
+      "runtimeEnabled": false
+    }
+  ],
+  "approvedDistractors": {
+    "microSkillKey": "D4_MOR_PREFIXES_UN",
+    "distractors": [
+      {
+        "distractorKey": "D4_MOR_PREFIXES_UN::distractor_1",
+        "displayText": "on",
+        "rationale": "",
+        "identity": "distractor"
+      },
+      {
+        "distractorKey": "D4_MOR_PREFIXES_UN::distractor_2",
+        "displayText": "an",
+        "rationale": "",
+        "identity": "distractor"
+      },
+      {
+        "distractorKey": "D4_MOR_PREFIXES_UN::distractor_3",
+        "displayText": "hapy",
+        "rationale": "corrupted base",
+        "identity": "distractor"
+      }
+    ],
+    "designNote": "misheard prefix + single-letter base",
+    "source": {
+      "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+      "sheet": "Distractor Tiles",
+      "row": 6
+    },
+    "sourceCandidateStatus": "structurally_reconciled_candidate",
+    "approvalStatus": "human_approved",
+    "humanReviewStatus": "approved",
+    "approvalScope": "d4_mor_category_v1",
+    "activationStatus": "not_activated",
+    "runtimeEnabled": false
+  },
+  "intendedTemplateSequence": [
+    {
+      "templateKey": "MICRO_READ_ONLY_INTRO",
+      "variantKey": "d4_mor_semantic_v1",
+      "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+    },
+    {
+      "templateKey": "LESSON_WORDS_INTRO",
+      "variantKey": "d4_mor_semantic_v1",
+      "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+    },
+    {
+      "templateKey": "MOR_STRIP_BUILD",
+      "variantKey": "d4_mor_semantic_v1",
+      "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+    },
+    {
+      "templateKey": "MOR_MEANING_MATCH",
+      "variantKey": "d4_mor_semantic_v1",
+      "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+    },
+    {
+      "templateKey": "MOR_BUILD_WORD",
+      "variantKey": "d4_mor_semantic_v1",
+      "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+    },
+    {
+      "templateKey": "CONTROLLED_SPELLING",
+      "variantKey": "d4_mor_semantic_v1",
+      "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+    },
+    {
+      "templateKey": "DICTATION_NO_IMAGE",
+      "variantKey": "d4_mor_semantic_v1",
+      "sourceCandidateVariantKey": "d4_mor_semantic_candidate_v1"
+    }
+  ],
+  "activationState": "not_activated",
+  "runtimeEnabled": false
+}

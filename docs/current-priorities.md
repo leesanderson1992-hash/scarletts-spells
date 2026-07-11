@@ -2,20 +2,22 @@
 
 ## Current ADLE 7-UI Priority
 
-Current ADLE priority: `PR 7-UI-D D4_MOR human approval pack`.
+Current ADLE priority: `PR 7-UI-E approved D4_MOR v1 source freeze`.
 
 PR 7-UI-A established the programme-wide 7-UI documentation foundation. PR
 7-UI-B added the typed activity-template registry foundation. PR 7-UI-C
 generates structurally reconciled, review-ready D4_MOR category-v1 candidate
 source artifacts without activating content or changing runtime behaviour. PR
 7-UI-D records human approval of the D4_MOR category-v1 content/schema
-candidate while keeping it not activated.
+candidate while keeping it not activated. PR 7-UI-E freezes the approved
+candidate and approval record into an immutable approved source package under
+`data/adle/approved/d4-mor/v1/`.
 
 The existing active D4_MOR teaching content remains current runtime truth. The
-new category-v1 artifacts are human-approved candidates only and do not become
-runtime truth until separately versioned and activated. Do not make runtime
-component, composer, evidence, scheduler, reward, workbook-import, or bulk
-activation changes as part of 7-UI-D.
+new approved category-v1 source package is not active runtime truth and must
+not become runtime-selected until a separate content-selection/runtime PR. Do
+not make runtime component, composer, evidence, scheduler, reward,
+workbook-import, Supabase import, or bulk activation changes as part of 7-UI-E.
 
 Authoritative links:
 
@@ -50,7 +52,7 @@ returned-child correction regression covers that path.
 Release-boundary caveat: do not push blindly. The private MVP closeout commit
 must include only the current priorities update, the parent-verified candidate
 capture regression harness maintenance, and the approved deletion of
-`docs/D4 Seeding Map Finale Final.xlsx`; local Supabase temp artifacts remain
+the obsolete D4 seeding-map workbook; local Supabase temp artifacts remain
 excluded.
 
 ## Explicitly Not In MVP

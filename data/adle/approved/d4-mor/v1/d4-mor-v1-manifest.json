@@ -1,0 +1,130 @@
+{
+  "packageKey": "d4_mor_category_v1",
+  "schemaVersion": "d4_mor_approved_package_schema_v1",
+  "contentVersion": "d4_mor_category_v1_2026_07_11",
+  "approvalStatus": "human_approved",
+  "humanReviewStatus": "approved",
+  "approvalScope": "d4_mor_category_v1",
+  "activationStatus": "not_activated",
+  "runtimeEnabled": false,
+  "approvalRecordRef": "docs/implementation/seed-data/adle-7-ui/review/d4-mor-human-review-pack/d4-mor-human-approval-record-v1.json",
+  "approvalCommit": "31b127ff0259c7d0b5e2da5eda8d88fef17a0aab",
+  "approvedBy": "Katie Sanderson",
+  "approvedAt": "2026-07-11",
+  "generatorVersion": "adle_d4_mor_approved_package_2026_07_11",
+  "sourceArtifacts": [
+    {
+      "path": "docs/implementation/seed-data/adle-7-ui/source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+      "sha256": "db9f4b29e8e1df5dd3360132ad5b4b6539d9fa04714ec879092f9ed84d111e64"
+    },
+    {
+      "path": "docs/implementation/seed-data/adle-7-ui/source-artifacts/2026-07-10-d4-mor/D4_MOR_template_design_pack.md",
+      "sha256": "db06ef3120d178c15f4c3621c6984ae18796fe6cc5a5f6606d818a2f5561702b"
+    }
+  ],
+  "candidateArtifacts": [
+    {
+      "path": "docs/implementation/seed-data/adle-7-ui/generated/d4-mor-category-v1/d4-mor-content-candidate-v1.json",
+      "sha256": "255ff5a19ef33c5cb4f0db4fede576fc381465cd07a8079027c0568d3e1b8062"
+    },
+    {
+      "path": "docs/implementation/seed-data/adle-7-ui/generated/d4-mor-category-v1/d4-mor-word-analyses-candidate-v1.json",
+      "sha256": "10e61b018cf990b434acc3cae272e647711dde543aa614b9527e3875e95214f2"
+    },
+    {
+      "path": "docs/implementation/seed-data/adle-7-ui/generated/d4-mor-category-v1/d4-mor-morpheme-catalog-candidate-v1.json",
+      "sha256": "7ebc18afaf0d468daa3bd9521be95d3735ea8cb2128222f56947a73f37cbe31c"
+    },
+    {
+      "path": "docs/implementation/seed-data/adle-7-ui/generated/d4-mor-category-v1/d4-mor-experience-manifest-candidate-v1.json",
+      "sha256": "417cec40ee232afa933958f9e747dc4e79f593216ac3de6cb8c44e8519eef390"
+    },
+    {
+      "path": "docs/implementation/seed-data/adle-7-ui/generated/d4-mor-category-v1/d4-mor-category-v1-summary.json",
+      "sha256": "01e436175952fda16eb3b71dcaf6e5b622ad42bd9e7fa85a089a99b8d3015fec"
+    },
+    {
+      "path": "docs/implementation/seed-data/adle-7-ui/generated/d4-mor-category-v1/d4-mor-category-v1-row-audit.csv",
+      "sha256": "a684d58f739abc22d7510eab04635ba39d07706c96799bd3fc9eab703686a762"
+    },
+    {
+      "path": "docs/implementation/seed-data/adle-7-ui/generated/d4-mor-category-v1/d4-mor-category-v1-review-queue.csv",
+      "sha256": "110c609f7666526ccdfe5720961b41ae2639b853747b3210091a3dd17eff77d2"
+    }
+  ],
+  "approvalArtifacts": [
+    {
+      "path": "docs/implementation/seed-data/adle-7-ui/review/d4-mor-human-review-pack/d4-mor-human-approval-record-v1.json",
+      "sha256": "4150737069aacb780861cf6cc1b691134b7127dae948dc5148c9b312faf3cf9f"
+    },
+    {
+      "path": "docs/implementation/seed-data/adle-7-ui/review/d4-mor-human-review-pack/d4-mor-micro-skill-approval-table.csv",
+      "sha256": "d65802981f250dbe4a7477e11b2586045365e7a9ad55ae78d43f50b29f873d55"
+    },
+    {
+      "path": "docs/implementation/seed-data/adle-7-ui/review/d4-mor-human-review-pack/d4-mor-exception-review-table.csv",
+      "sha256": "56705b3f05bd782ed214b8e623533994899d861a527f8f497d6ef515a7d9d2d6"
+    },
+    {
+      "path": "docs/implementation/seed-data/adle-7-ui/review/d4-mor-human-review-pack/d4-mor-cluster-spot-check-table.csv",
+      "sha256": "96f635899e50046e3eace771907e09386e7912580cb85b44f07e02d37a51b0da"
+    },
+    {
+      "path": "docs/implementation/seed-data/adle-7-ui/review/d4-mor-human-review-pack/d4-mor-batch-approval-declaration.md",
+      "sha256": "ffe69bb76d4bc4b88fd4d029f8421d34132d9b0129a7e8b8a243710cf734f4d6"
+    },
+    {
+      "path": "docs/implementation/seed-data/adle-7-ui/review/d4-mor-human-review-pack/d4-mor-human-review-pack-summary.json",
+      "sha256": "08f0f750da39d6845a18f3dd956e777f96579d62972abb7d427b05519e23fd52"
+    }
+  ],
+  "packageArtifacts": [
+    {
+      "path": "data/adle/approved/d4-mor/v1/d4-mor-prefixes-un-pilot-source-fixture.json",
+      "sha256": "18688a32ffd9c4be97576ce7f6009aff5f750e535dab0acdab17599fc06eccff"
+    },
+    {
+      "path": "data/adle/approved/d4-mor/v1/d4-mor-v1-content.json",
+      "sha256": "346fb0bee42fb5f4b5f6bca60d974d7965ac92de6a13251505d42383f54d8a97"
+    },
+    {
+      "path": "data/adle/approved/d4-mor/v1/d4-mor-v1-experience-manifest.json",
+      "sha256": "a30d8d28a5f2e21041f1102aecb0957112055d9901bb4d8f769ad2927c1ccafb"
+    },
+    {
+      "path": "data/adle/approved/d4-mor/v1/d4-mor-v1-morpheme-catalog.json",
+      "sha256": "e54614dfc7ee96e450f090ee064d3464dd8c5d1489e4a2ecfc230919bac825bc"
+    },
+    {
+      "path": "data/adle/approved/d4-mor/v1/d4-mor-v1-word-analyses.json",
+      "sha256": "bc723072afbc1b7aa1fc4d39b180cd437c17b29376d78c34dec5b0aa3aa91a49"
+    }
+  ],
+  "counts": {
+    "microSkills": 24,
+    "wordAnalyses": 168,
+    "morphemes": 50,
+    "distractorSets": 24,
+    "rootArtifacts": 24,
+    "experienceProfiles": 1
+  },
+  "approvedAmendments": [
+    {
+      "microSkillKey": "D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED",
+      "field": "child_friendly_explanation",
+      "summary": "Added explicit child-facing wording for hyphenated and open compounds."
+    },
+    {
+      "artifact": "d4-mor-cluster-spot-check-table.csv",
+      "summary": "Replaced the D4_MOR_WORD_FAMILIES_PRONUNCIATION_SHIFT spot-check row from heal to health."
+    }
+  ],
+  "runtimeBoundary": {
+    "existingActiveGenericTeachingContentRemainsRuntimeTruth": true,
+    "contentActivated": false,
+    "composerSelectionChanged": false,
+    "childRuntimeChanged": false,
+    "supabaseChanged": false
+  },
+  "futureConsumptionBoundary": "Future server-side content-selection work may consume this approved source package in a separate PR; this PR adds no runtime consumer."
+}

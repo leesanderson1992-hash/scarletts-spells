@@ -34,18 +34,21 @@ authored source
 -> emitted as stable assignment payloads
 ```
 
-D4_MOR retained workbook content remains source material; the generated
-category-v1 candidate has separate human approval recorded, but is not activated
-runtime truth.
+D4_MOR retained workbook content remains source material. The generated
+category-v1 candidate has separate human approval recorded, and the approved
+category-v1 source package is frozen under `data/adle/approved/d4-mor/v1/`,
+but neither artifact is activated runtime truth.
 
 ## D4_MOR 7-UI Candidate Boundary
 
 The existing active D4_MOR teaching content remains current runtime truth. The
-new category-v1 artifacts under
+category-v1 candidate artifacts under
 `docs/implementation/seed-data/adle-7-ui/generated/d4-mor-category-v1/` are
-structurally reconciled, human-approved 7-UI candidates only. They do not
-replace or supersede existing active generic teaching content and do not become
-runtime truth until separately versioned and activated.
+structurally reconciled candidates. Human approval is recorded separately, and
+PR 7-UI-E freezes the approved source package at
+`data/adle/approved/d4-mor/v1/`. The approved package does not replace or
+supersede existing active generic teaching content and does not become runtime
+truth until separately activated.
 
 Human approval is recorded at:
 
@@ -68,6 +71,21 @@ activation.
 Human approval still does not imply runtime activation. Activation requires a
 separate versioning/content-selection change and must preserve assignment,
 evidence, scheduler, and reward semantics.
+
+## D4_MOR Approved Source Package Boundary
+
+The approved D4_MOR category-v1 package is the canonical source package for
+future D4_MOR payload and UI work:
+
+- package manifest: `data/adle/approved/d4-mor/v1/d4-mor-v1-manifest.json`;
+- package status: `human_approved`, `not_activated`, `runtimeEnabled = false`;
+- pilot source fixture:
+  `data/adle/approved/d4-mor/v1/d4-mor-prefixes-un-pilot-source-fixture.json`.
+
+Future server-side content-selection work may consume this package in a
+separate PR. Client renderers, the composer, Supabase imports, and assignment
+payload emission must not consume it until a runtime activation PR explicitly
+does that work.
 
 ## Theme And Experience Profile
 

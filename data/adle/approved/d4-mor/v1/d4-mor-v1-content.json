@@ -1,0 +1,2068 @@
+{
+  "metadata": {
+    "artifactKey": "d4-mor-v1-content",
+    "packageKey": "d4_mor_category_v1",
+    "schemaVersion": "d4_mor_approved_package_schema_v1",
+    "contentVersion": "d4_mor_category_v1_2026_07_11",
+    "approvalStatus": "human_approved",
+    "humanReviewStatus": "approved",
+    "approvalScope": "d4_mor_category_v1",
+    "activationStatus": "not_activated",
+    "runtimeEnabled": false,
+    "approvalRecordRef": "docs/implementation/seed-data/adle-7-ui/review/d4-mor-human-review-pack/d4-mor-human-approval-record-v1.json",
+    "approvalCommit": "31b127ff0259c7d0b5e2da5eda8d88fef17a0aab",
+    "generatorVersion": "adle_d4_mor_approved_package_2026_07_11"
+  },
+  "runtimeBoundary": {
+    "existingActiveGenericTeachingContentRemainsRuntimeTruth": true,
+    "approvedPackageDoesNotSupersedeExistingActiveContent": true,
+    "approvedPackageDoesNotChangeRuntimeSelection": true,
+    "activationRequiresSeparateRuntimeContentSelectionPr": true
+  },
+  "approvedTeachingAmendmentsApplied": [
+    {
+      "microSkillKey": "D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED",
+      "field": "childFriendlyExplanation",
+      "sourceCandidateValue": "Some two-word teams stay apart (ice cream), and some hold hands with a hyphen (well-known). The words themselves stay perfectly spelled — the skill is knowing whether they're glued, hyphenated, or separate.",
+      "approvedValue": "Some two-word teams stay apart (ice cream), and some hold hands with a hyphen (well-known). The words themselves stay perfectly spelled — the skill is knowing whether they're glued, hyphenated, or separate. Hyphenated compound: Join the words with a hyphen when they work together as one describing idea. Open compound: Leave a space when the two words belong together but are usually written separately."
+    }
+  ],
+  "microSkillContent": [
+    {
+      "microSkillKey": "D4_MOR_BASE_WORDS_BASE_PLUS_PREFIX",
+      "candidateContentVersion": "2026-07-10.v1",
+      "skillTitle": "Base word + prefix",
+      "clusterKey": "D4_MOR_BASE_WORDS",
+      "originThemeKey": "neutral",
+      "teachingObjective": "Child spells words made of a prefix in front of an unchanged base word.",
+      "childFriendlyExplanation": "A prefix is a part that goes in FRONT of a base word. It changes the meaning, but it never changes the base word's spelling. Prefix + base — two chunks, snap them together.",
+      "ruleExplanation": "Prefix spelling is fixed and base spelling is preserved: re + play = replay, un + tie = untie. Spell each chunk, then join them with no letters lost.",
+      "commonMisconceptions": "Child blends prefix and base by sound and loses letters at the join (unatural for unnatural), or misspells the prefix itself.",
+      "watchForCue": "Two chunks: spell the prefix, spell the base, push them together. Nothing falls off.",
+      "anchorWord": "replay",
+      "anchorMorphemes": [
+        {
+          "text": "re",
+          "kind": "prefix",
+          "gloss": "again"
+        },
+        {
+          "text": "play",
+          "kind": "base",
+          "gloss": ""
+        }
+      ],
+      "meaningFlip": {
+        "without": "play",
+        "with": "replay",
+        "captionWithout": "play — do it once",
+        "captionWith": "replay — do it again; 're-' means again"
+      },
+      "furtherReading": "Selby, Morph Mastery lesson sequence: teach affix meaning before spelling.",
+      "existingRuntimeTeachingContent": {
+        "contentVersion": "human_reviewed_v1",
+        "versionStatus": "active",
+        "isActive": true,
+        "preservationStatement": "Existing active generic teaching content remains current runtime truth and is not superseded by this candidate."
+      },
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Micro Skill Content",
+        "row": 4
+      },
+      "sourceCandidateStatus": "structurally_reconciled_candidate",
+      "approvalStatus": "human_approved",
+      "humanReviewStatus": "approved",
+      "approvalScope": "d4_mor_category_v1",
+      "activationStatus": "not_activated",
+      "runtimeEnabled": false,
+      "approvedContentVersion": "d4_mor_category_v1_2026_07_11",
+      "reviewerDecision": "approved",
+      "reviewerComment": "Human-approved for D4_MOR category-v1 candidate source. Approval recorded 2026-07-11."
+    },
+    {
+      "microSkillKey": "D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX",
+      "candidateContentVersion": "2026-07-10.v1",
+      "skillTitle": "Base word + suffix",
+      "clusterKey": "D4_MOR_BASE_WORDS",
+      "originThemeKey": "neutral",
+      "teachingObjective": "Child spells words made of a base word plus a suffix ending.",
+      "childFriendlyExplanation": "A suffix is a part that goes on the END of a base word. It changes the word's job (slow → slowly) but the base usually keeps its spelling. Find the base, spell it, add the ending.",
+      "ruleExplanation": "Suffix spelling is fixed and, by default, base spelling is preserved: slow + ly = slowly, kind + ness = kindness. Spell base then suffix as two chunks.",
+      "commonMisconceptions": "Child spells the ending by ear (slowlee, kindniss) or corrupts the base while thinking about the ending.",
+      "watchForCue": "Say the word in two chunks — base, then ending — and spell each chunk.",
+      "anchorWord": "slowly",
+      "anchorMorphemes": [
+        {
+          "text": "slow",
+          "kind": "base",
+          "gloss": ""
+        },
+        {
+          "text": "ly",
+          "kind": "suffix",
+          "gloss": "in this way"
+        }
+      ],
+      "meaningFlip": {
+        "without": "slow",
+        "with": "slowly",
+        "captionWithout": "slow — describes a thing",
+        "captionWith": "slowly — describes how something is done"
+      },
+      "furtherReading": "Selby, Morph Mastery: suffixes as 'job changers' (word class).",
+      "existingRuntimeTeachingContent": {
+        "contentVersion": "human_reviewed_v1",
+        "versionStatus": "active",
+        "isActive": true,
+        "preservationStatement": "Existing active generic teaching content remains current runtime truth and is not superseded by this candidate."
+      },
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Micro Skill Content",
+        "row": 5
+      },
+      "sourceCandidateStatus": "structurally_reconciled_candidate",
+      "approvalStatus": "human_approved",
+      "humanReviewStatus": "approved",
+      "approvalScope": "d4_mor_category_v1",
+      "activationStatus": "not_activated",
+      "runtimeEnabled": false,
+      "approvedContentVersion": "d4_mor_category_v1_2026_07_11",
+      "reviewerDecision": "approved",
+      "reviewerComment": "Human-approved for D4_MOR category-v1 candidate source. Approval recorded 2026-07-11."
+    },
+    {
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "candidateContentVersion": "2026-07-10.v1",
+      "skillTitle": "Find the base word",
+      "clusterKey": "D4_MOR_BASE_WORDS",
+      "originThemeKey": "neutral",
+      "teachingObjective": "Child can find the base word hiding inside a longer word before spelling it.",
+      "childFriendlyExplanation": "Long words are built from a smaller word plus extra parts. Find the small word first — it's the Keeper of the meaning. If you can spell the base, most of the long word is already done.",
+      "ruleExplanation": "A base word is a complete word that can stand alone (help in helpful, play in replaying). Spot the base first, spell it, then add the extra parts around it.",
+      "commonMisconceptions": "Child sounds out the whole long word letter by letter and never notices the small word inside, so the base gets mangled (helful, replaing).",
+      "watchForCue": "Before you spell a long word, ask: what small word is hiding inside?",
+      "anchorWord": "helpful",
+      "anchorMorphemes": [
+        {
+          "text": "help",
+          "kind": "base",
+          "gloss": "a word that can stand alone"
+        },
+        {
+          "text": "ful",
+          "kind": "suffix",
+          "gloss": "full of"
+        }
+      ],
+      "meaningFlip": {
+        "without": "help",
+        "with": "helpful",
+        "captionWithout": "help — the small word on its own",
+        "captionWith": "helpful — the same word with a part added; 'help' didn't change"
+      },
+      "furtherReading": "Selby, Morph Mastery ch.3 (finding base words); any 'word detective' base-word hunt in the child's own reading book.",
+      "existingRuntimeTeachingContent": {
+        "contentVersion": "human_reviewed_v1",
+        "versionStatus": "active",
+        "isActive": true,
+        "preservationStatement": "Existing active generic teaching content remains current runtime truth and is not superseded by this candidate."
+      },
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Micro Skill Content",
+        "row": 2
+      },
+      "sourceCandidateStatus": "structurally_reconciled_candidate",
+      "approvalStatus": "human_approved",
+      "humanReviewStatus": "approved",
+      "approvalScope": "d4_mor_category_v1",
+      "activationStatus": "not_activated",
+      "runtimeEnabled": false,
+      "approvedContentVersion": "d4_mor_category_v1_2026_07_11",
+      "reviewerDecision": "approved",
+      "reviewerComment": "Human-approved for D4_MOR category-v1 candidate source. Approval recorded 2026-07-11."
+    },
+    {
+      "microSkillKey": "D4_MOR_BASE_WORDS_PRESERVE_BASE",
+      "candidateContentVersion": "2026-07-10.v1",
+      "skillTitle": "Keep the base word's spelling",
+      "clusterKey": "D4_MOR_BASE_WORDS",
+      "originThemeKey": "neutral",
+      "teachingObjective": "Child keeps the base word's spelling unchanged when parts are added.",
+      "childFriendlyExplanation": "When you add a part to a word, the base word usually keeps every one of its letters. The Keeper doesn't drop letters just because a new part arrives.",
+      "ruleExplanation": "Base spelling is usually preserved when affixes are added: hope + less = hopeless, joy + ful = joyful. (Some suffix rules change the ending — that's a different skill — but the default is: keep the base whole.)",
+      "commonMisconceptions": "Child drops or changes letters at the join (hopless, joyfull), especially where two of the same letter meet (unnecessary, really).",
+      "watchForCue": "Spell the base first, then bolt the part on — don't lose any letters at the join, even if it makes a double letter.",
+      "anchorWord": "really",
+      "anchorMorphemes": [
+        {
+          "text": "real",
+          "kind": "base",
+          "gloss": "the base word — keep all its letters"
+        },
+        {
+          "text": "ly",
+          "kind": "suffix",
+          "gloss": "in this way"
+        }
+      ],
+      "meaningFlip": {
+        "without": "real",
+        "with": "really",
+        "captionWithout": "real ends in l",
+        "captionWith": "really = real + ly, so it has two l's — both stay"
+      },
+      "furtherReading": "Selby, Morph Mastery: 'preserve the base' golden rule; collect double-letter joins (unnatural, misspell, really) from the child's writing.",
+      "existingRuntimeTeachingContent": {
+        "contentVersion": "human_reviewed_v1",
+        "versionStatus": "active",
+        "isActive": true,
+        "preservationStatement": "Existing active generic teaching content remains current runtime truth and is not superseded by this candidate."
+      },
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Micro Skill Content",
+        "row": 3
+      },
+      "sourceCandidateStatus": "structurally_reconciled_candidate",
+      "approvalStatus": "human_approved",
+      "humanReviewStatus": "approved",
+      "approvalScope": "d4_mor_category_v1",
+      "activationStatus": "not_activated",
+      "runtimeEnabled": false,
+      "approvedContentVersion": "d4_mor_category_v1_2026_07_11",
+      "reviewerDecision": "approved",
+      "reviewerComment": "Human-approved for D4_MOR category-v1 candidate source. Approval recorded 2026-07-11."
+    },
+    {
+      "microSkillKey": "D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS",
+      "candidateContentVersion": "2026-07-10.v1",
+      "skillTitle": "Closed compound words",
+      "clusterKey": "D4_MOR_COMPOUND_WORDS",
+      "originThemeKey": "neutral",
+      "teachingObjective": "Child can spell compounds written as one word, preserving both bases.",
+      "childFriendlyExplanation": "Some words are two whole words glued into one: foot + ball = football, rain + bow = rainbow. Both little words keep ALL their letters — two Keepers, one word.",
+      "ruleExplanation": "Closed compounds join two complete base words with no letters lost, even where letters double up at the join: book + keeper = bookkeeper.",
+      "commonMisconceptions": "Child drops letters at the join (foot+ball → 'footbal') or spells the whole thing by sound instead of finding the two words.",
+      "watchForCue": "Find BOTH little words first. Spell each one whole, then push them together — nothing falls off at the join.",
+      "anchorWord": "football",
+      "anchorMorphemes": [
+        {
+          "text": "foot",
+          "kind": "base",
+          "gloss": ""
+        },
+        {
+          "text": "ball",
+          "kind": "base",
+          "gloss": ""
+        }
+      ],
+      "meaningFlip": {
+        "without": "foot + ball",
+        "with": "football",
+        "captionWithout": "two separate words",
+        "captionWith": "one glued word — both keep all their letters"
+      },
+      "furtherReading": "Compound-hunt in the child's own books; silly-compound invention game (meaning from parts).",
+      "existingRuntimeTeachingContent": {
+        "contentVersion": "human_reviewed_v1",
+        "versionStatus": "active",
+        "isActive": true,
+        "preservationStatement": "Existing active generic teaching content remains current runtime truth and is not superseded by this candidate."
+      },
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Micro Skill Content",
+        "row": 18
+      },
+      "sourceCandidateStatus": "structurally_reconciled_candidate",
+      "approvalStatus": "human_approved",
+      "humanReviewStatus": "approved",
+      "approvalScope": "d4_mor_category_v1",
+      "activationStatus": "not_activated",
+      "runtimeEnabled": false,
+      "approvedContentVersion": "d4_mor_category_v1_2026_07_11",
+      "reviewerDecision": "approved",
+      "reviewerComment": "Human-approved for D4_MOR category-v1 candidate source. Approval recorded 2026-07-11."
+    },
+    {
+      "microSkillKey": "D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED",
+      "candidateContentVersion": "2026-07-10.v1",
+      "skillTitle": "Open and hyphenated compounds",
+      "clusterKey": "D4_MOR_COMPOUND_WORDS",
+      "originThemeKey": "neutral",
+      "teachingObjective": "Child can spell compounds written as separate words or with a hyphen, keeping parts and spacing correct.",
+      "childFriendlyExplanation": "Some two-word teams stay apart (ice cream), and some hold hands with a hyphen (well-known). The words themselves stay perfectly spelled — the skill is knowing whether they're glued, hyphenated, or separate. Hyphenated compound: Join the words with a hyphen when they work together as one describing idea. Open compound: Leave a space when the two words belong together but are usually written separately.",
+      "ruleExplanation": "Open compounds keep a space (ice cream, living room); hyphenated compounds join with - (twenty-one, part-time). Each word part keeps its full spelling.",
+      "commonMisconceptions": "Child glues open compounds into one word (icecream), drops the hyphen, or hyphenates randomly.",
+      "watchForCue": "Spell each word perfectly first; then ask — glued, hyphen, or space? Learn each team's style like a name.",
+      "anchorWord": "ice cream",
+      "anchorMorphemes": [
+        {
+          "text": "ice",
+          "kind": "base",
+          "gloss": ""
+        },
+        {
+          "text": "cream",
+          "kind": "base",
+          "gloss": ""
+        }
+      ],
+      "meaningFlip": {
+        "without": "",
+        "with": "",
+        "captionWithout": "",
+        "captionWith": ""
+      },
+      "furtherReading": "Keep a three-column style list (glued / hyphen / space) built from the child's reading.",
+      "existingRuntimeTeachingContent": {
+        "contentVersion": "human_reviewed_v1",
+        "versionStatus": "active",
+        "isActive": true,
+        "preservationStatement": "Existing active generic teaching content remains current runtime truth and is not superseded by this candidate."
+      },
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Micro Skill Content",
+        "row": 19
+      },
+      "sourceCandidateStatus": "structurally_reconciled_candidate",
+      "approvalStatus": "human_approved",
+      "humanReviewStatus": "approved",
+      "approvalScope": "d4_mor_category_v1",
+      "activationStatus": "not_activated",
+      "runtimeEnabled": false,
+      "approvedContentVersion": "d4_mor_category_v1_2026_07_11",
+      "reviewerDecision": "approved_with_amendment",
+      "reviewerComment": "Human-approved with amended child-friendly explanation for open and hyphenated compounds. Approval recorded 2026-07-11."
+    },
+    {
+      "microSkillKey": "D4_MOR_PREFIXES_DIS_MIS",
+      "candidateContentVersion": "2026-07-10.v1",
+      "skillTitle": "The prefixes dis- and mis-",
+      "clusterKey": "D4_MOR_PREFIXES",
+      "originThemeKey": "neutral",
+      "teachingObjective": "Child can spell words with dis- (not/opposite) and mis- (wrongly) and keep the base intact.",
+      "childFriendlyExplanation": "dis- means NOT or the OPPOSITE (disagree = not agree). mis- means WRONGLY or BADLY (misspell = spell wrongly). Both keep their own letters AND the base keeps its letters.",
+      "ruleExplanation": "dis- and mis- are fixed spellings before an unchanged base: dis + appear = disappear (one s from dis, keep the base), mis + spell = misspell (s from mis + s from spell = ss).",
+      "commonMisconceptions": "Child writes one s where two belong (mispell) or two where one belongs (dissapear), because they can't hear the join.",
+      "watchForCue": "You can't HEAR the join — you have to BUILD it: mis + spell = misspell (ss); dis + appear = disappear (one s, two p's from the base).",
+      "anchorWord": "misspell",
+      "anchorMorphemes": [
+        {
+          "text": "mis",
+          "kind": "prefix",
+          "gloss": "wrongly / badly"
+        },
+        {
+          "text": "spell",
+          "kind": "base",
+          "gloss": ""
+        }
+      ],
+      "meaningFlip": {
+        "without": "spell",
+        "with": "misspell",
+        "captionWithout": "spell — write the letters",
+        "captionWith": "misspell — spell it WRONGLY"
+      },
+      "furtherReading": "Selby: phonologically opaque joins — build, don't sound out (Appendix 13 examples).",
+      "existingRuntimeTeachingContent": {
+        "contentVersion": "human_reviewed_v1",
+        "versionStatus": "active",
+        "isActive": true,
+        "preservationStatement": "Existing active generic teaching content remains current runtime truth and is not superseded by this candidate."
+      },
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Micro Skill Content",
+        "row": 8
+      },
+      "sourceCandidateStatus": "structurally_reconciled_candidate",
+      "approvalStatus": "human_approved",
+      "humanReviewStatus": "approved",
+      "approvalScope": "d4_mor_category_v1",
+      "activationStatus": "not_activated",
+      "runtimeEnabled": false,
+      "approvedContentVersion": "d4_mor_category_v1_2026_07_11",
+      "reviewerDecision": "approved",
+      "reviewerComment": "Human-approved for D4_MOR category-v1 candidate source. Approval recorded 2026-07-11."
+    },
+    {
+      "microSkillKey": "D4_MOR_PREFIXES_IN_IM_IL_IR",
+      "candidateContentVersion": "2026-07-10.v1",
+      "skillTitle": "The changing prefix in-, im-, il-, ir-",
+      "clusterKey": "D4_MOR_PREFIXES",
+      "originThemeKey": "latin",
+      "teachingObjective": "Child can choose the right form of the negative prefix in-/im-/il-/ir- by looking at the base word's first letter.",
+      "childFriendlyExplanation": "This 'not' prefix is a shape-shifter: it copies the start of the base so it's easier to say. Before most letters it's in- (invisible). Before m or p it's im- (impossible). Before l it's il- (illegal). Before r it's ir- (irregular).",
+      "ruleExplanation": "The negative prefix assimilates to the base's first letter: im- before m/p, il- before l, ir- before r, in- elsewhere. This often creates a double letter: il + legal = illegal, ir + regular = irregular.",
+      "commonMisconceptions": "Child uses in- everywhere (inpossible, inlegal), or writes a single letter where the assimilated double belongs (ilegal, iregular).",
+      "watchForCue": "Look at the FIRST letter of the base — the prefix copies it: l → il (illegal, ll), r → ir (irregular, rr), m/p → im.",
+      "anchorWord": "impossible",
+      "anchorMorphemes": [
+        {
+          "text": "im",
+          "kind": "prefix",
+          "gloss": "not (form used before m/p)"
+        },
+        {
+          "text": "possible",
+          "kind": "base",
+          "gloss": ""
+        }
+      ],
+      "meaningFlip": {
+        "without": "possible",
+        "with": "impossible",
+        "captionWithout": "possible — it can happen",
+        "captionWith": "impossible — it can NOT happen"
+      },
+      "furtherReading": "Latin origin of in- assimilation; collect ll/rr negative words as a treasure list.",
+      "existingRuntimeTeachingContent": {
+        "contentVersion": "human_reviewed_v1",
+        "versionStatus": "active",
+        "isActive": true,
+        "preservationStatement": "Existing active generic teaching content remains current runtime truth and is not superseded by this candidate."
+      },
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Micro Skill Content",
+        "row": 9
+      },
+      "sourceCandidateStatus": "structurally_reconciled_candidate",
+      "approvalStatus": "human_approved",
+      "humanReviewStatus": "approved",
+      "approvalScope": "d4_mor_category_v1",
+      "activationStatus": "not_activated",
+      "runtimeEnabled": false,
+      "approvedContentVersion": "d4_mor_category_v1_2026_07_11",
+      "reviewerDecision": "approved",
+      "reviewerComment": "Human-approved for D4_MOR category-v1 candidate source. Approval recorded 2026-07-11."
+    },
+    {
+      "microSkillKey": "D4_MOR_PREFIXES_RE_PRE",
+      "candidateContentVersion": "2026-07-10.v1",
+      "skillTitle": "The prefixes re- and pre-",
+      "clusterKey": "D4_MOR_PREFIXES",
+      "originThemeKey": "neutral",
+      "teachingObjective": "Child can spell words with re- (again) and pre- (before) and tell them apart by meaning.",
+      "childFriendlyExplanation": "re- means AGAIN (replay = play again). pre- means BEFORE (preheat = heat before). Both are two-letter parts that snap onto the front of a base word without changing it.",
+      "ruleExplanation": "re- and pre- are fixed spellings attached before an unchanged base: re + build = rebuild, pre + view = preview. Choose the prefix by meaning: again → re-, before → pre-.",
+      "commonMisconceptions": "Child confuses which prefix carries which meaning, or spells them by ear (ri-, per-, pri-).",
+      "watchForCue": "Ask the meaning first: is it 'again' (re-) or 'before' (pre-)? Then spell the base unchanged.",
+      "anchorWord": "rebuild",
+      "anchorMorphemes": [
+        {
+          "text": "re",
+          "kind": "prefix",
+          "gloss": "again"
+        },
+        {
+          "text": "build",
+          "kind": "base",
+          "gloss": ""
+        }
+      ],
+      "meaningFlip": {
+        "without": "build",
+        "with": "rebuild",
+        "captionWithout": "build — make it once",
+        "captionWith": "rebuild — make it AGAIN"
+      },
+      "furtherReading": "Meaning-first prefix sort: 'again' pile vs 'before' pile.",
+      "existingRuntimeTeachingContent": {
+        "contentVersion": "human_reviewed_v1",
+        "versionStatus": "active",
+        "isActive": true,
+        "preservationStatement": "Existing active generic teaching content remains current runtime truth and is not superseded by this candidate."
+      },
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Micro Skill Content",
+        "row": 7
+      },
+      "sourceCandidateStatus": "structurally_reconciled_candidate",
+      "approvalStatus": "human_approved",
+      "humanReviewStatus": "approved",
+      "approvalScope": "d4_mor_category_v1",
+      "activationStatus": "not_activated",
+      "runtimeEnabled": false,
+      "approvedContentVersion": "d4_mor_category_v1_2026_07_11",
+      "reviewerDecision": "approved",
+      "reviewerComment": "Human-approved for D4_MOR category-v1 candidate source. Approval recorded 2026-07-11."
+    },
+    {
+      "microSkillKey": "D4_MOR_PREFIXES_SUB_INTER_SUPER",
+      "candidateContentVersion": "2026-07-10.v1",
+      "skillTitle": "The prefixes sub-, inter-, super-",
+      "clusterKey": "D4_MOR_PREFIXES",
+      "originThemeKey": "latin",
+      "teachingObjective": "Child can spell longer Latin prefixes sub- (under), inter- (between) and super- (above/beyond) as stable chunks.",
+      "childFriendlyExplanation": "These are bigger front-parts from Latin, each with a picture-meaning: sub- = UNDER (submarine goes under the sea), inter- = BETWEEN (international = between nations), super- = ABOVE or MORE THAN (superhero).",
+      "ruleExplanation": "sub-, inter- and super- are fixed multi-letter chunks before an unchanged base: sub + way, inter + net, super + market. Spell the whole prefix as one known chunk.",
+      "commonMisconceptions": "Child spells the prefix by ear (supper-, intre-, sup-) or breaks it into sounds and loses letters.",
+      "watchForCue": "Learn each prefix as ONE picture-chunk: under = sub-, between = inter-, above = super-. Then add the base whole.",
+      "anchorWord": "submarine",
+      "anchorMorphemes": [
+        {
+          "text": "sub",
+          "kind": "prefix",
+          "gloss": "under"
+        },
+        {
+          "text": "marine",
+          "kind": "base",
+          "gloss": "of the sea"
+        }
+      ],
+      "meaningFlip": {
+        "without": "marine",
+        "with": "submarine",
+        "captionWithout": "marine — of the sea",
+        "captionWith": "submarine — UNDER the sea"
+      },
+      "furtherReading": "Roman theming: Latin prepositions in everyday words; map sub/inter/super words as a Roman road network.",
+      "existingRuntimeTeachingContent": {
+        "contentVersion": "human_reviewed_v1",
+        "versionStatus": "active",
+        "isActive": true,
+        "preservationStatement": "Existing active generic teaching content remains current runtime truth and is not superseded by this candidate."
+      },
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Micro Skill Content",
+        "row": 10
+      },
+      "sourceCandidateStatus": "structurally_reconciled_candidate",
+      "approvalStatus": "human_approved",
+      "humanReviewStatus": "approved",
+      "approvalScope": "d4_mor_category_v1",
+      "activationStatus": "not_activated",
+      "runtimeEnabled": false,
+      "approvedContentVersion": "d4_mor_category_v1_2026_07_11",
+      "reviewerDecision": "approved",
+      "reviewerComment": "Human-approved for D4_MOR category-v1 candidate source. Approval recorded 2026-07-11."
+    },
+    {
+      "microSkillKey": "D4_MOR_PREFIXES_UN",
+      "candidateContentVersion": "2026-07-10.v1",
+      "skillTitle": "The prefix un-",
+      "clusterKey": "D4_MOR_PREFIXES",
+      "originThemeKey": "neutral",
+      "teachingObjective": "Child can spell words with the prefix un- and knows it means 'not' or 'opposite of'.",
+      "childFriendlyExplanation": "un- is a tiny part that means NOT or the OPPOSITE. Stick it on the front and the word flips: kind → unkind, lock → unlock. The base word keeps every letter.",
+      "ruleExplanation": "un- is always spelled u-n, attached before a base word whose spelling stays the same: un + happy = unhappy, un + necessary = unnecessary (double n stays).",
+      "commonMisconceptions": "Child drops a letter at the join, especially double letters (unecessary, unatural), or spells the prefix by ear (on-, an-).",
+      "watchForCue": "un- is always just u-n, and the base keeps all its letters — even if that makes nn.",
+      "anchorWord": "unhappy",
+      "anchorMorphemes": [
+        {
+          "text": "un",
+          "kind": "prefix",
+          "gloss": "not / opposite of"
+        },
+        {
+          "text": "happy",
+          "kind": "base",
+          "gloss": ""
+        }
+      ],
+      "meaningFlip": {
+        "without": "happy",
+        "with": "unhappy",
+        "captionWithout": "happy 🙂",
+        "captionWith": "unhappy — the opposite; un- flipped it"
+      },
+      "furtherReading": "Word-flip games: child hunts pairs (fair/unfair, tidy/untidy) in their own books.",
+      "existingRuntimeTeachingContent": {
+        "contentVersion": "human_reviewed_v1",
+        "versionStatus": "active",
+        "isActive": true,
+        "preservationStatement": "Existing active generic teaching content remains current runtime truth and is not superseded by this candidate."
+      },
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Micro Skill Content",
+        "row": 6
+      },
+      "sourceCandidateStatus": "structurally_reconciled_candidate",
+      "approvalStatus": "human_approved",
+      "humanReviewStatus": "approved",
+      "approvalScope": "d4_mor_category_v1",
+      "activationStatus": "not_activated",
+      "runtimeEnabled": false,
+      "approvedContentVersion": "d4_mor_category_v1_2026_07_11",
+      "reviewerDecision": "approved",
+      "reviewerComment": "Human-approved for D4_MOR category-v1 candidate source. Approval recorded 2026-07-11."
+    },
+    {
+      "microSkillKey": "D4_MOR_ROOTS_COMMON_GREEK_ROOTS",
+      "candidateContentVersion": "2026-07-10.v1",
+      "skillTitle": "Common Greek roots",
+      "clusterKey": "D4_MOR_ROOTS",
+      "originThemeKey": "greek",
+      "teachingObjective": "Child can recognise and spell common Greek roots, including their special letter patterns (ph, ch, y).",
+      "childFriendlyExplanation": "The ancient Greeks gave us word-treasures too: tele = far (telephone, telescope), phon = sound, graph = write/draw, photo = light. Greek roots carry secret signs — ph says /f/, ch says /k/ — that mark a word as Greek.",
+      "ruleExplanation": "Greek roots keep stable spelling and distinctive graphemes: phon (sound), graph (write), photo (light), tele (far), scope (look), micro (small). ph=/f/ and ch=/k/ signal Greek origin.",
+      "commonMisconceptions": "Child spells Greek graphemes by ear (telefone, fotograf, kemist) missing the ph/ch signature.",
+      "watchForCue": "An /f/ in a science-y word is often the Greek sign ph — telephone, graph, photo. Spot the Greek treasure marks.",
+      "anchorWord": "telephone",
+      "anchorMorphemes": [
+        {
+          "text": "tele",
+          "kind": "root",
+          "gloss": "far (Greek)"
+        },
+        {
+          "text": "phone",
+          "kind": "root",
+          "gloss": "sound / voice (Greek)"
+        }
+      ],
+      "meaningFlip": {
+        "without": "phone",
+        "with": "telephone",
+        "captionWithout": "phone — sound",
+        "captionWith": "telephone — sound from FAR away; two Greek treasures"
+      },
+      "furtherReading": "Greek theme: temple of tele/phon/graph words; myths tie-in (Echo for phon!); Selby Appendix 15–16.",
+      "existingRuntimeTeachingContent": {
+        "contentVersion": "human_reviewed_v1",
+        "versionStatus": "active",
+        "isActive": true,
+        "preservationStatement": "Existing active generic teaching content remains current runtime truth and is not superseded by this candidate."
+      },
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Micro Skill Content",
+        "row": 23
+      },
+      "sourceCandidateStatus": "structurally_reconciled_candidate",
+      "approvalStatus": "human_approved",
+      "humanReviewStatus": "approved",
+      "approvalScope": "d4_mor_category_v1",
+      "activationStatus": "not_activated",
+      "runtimeEnabled": false,
+      "approvedContentVersion": "d4_mor_category_v1_2026_07_11",
+      "reviewerDecision": "approved",
+      "reviewerComment": "Human-approved for D4_MOR category-v1 candidate source. Approval recorded 2026-07-11."
+    },
+    {
+      "microSkillKey": "D4_MOR_ROOTS_COMMON_LATIN_ROOTS",
+      "candidateContentVersion": "2026-07-10.v1",
+      "skillTitle": "Common Latin roots",
+      "clusterKey": "D4_MOR_ROOTS",
+      "originThemeKey": "latin",
+      "teachingObjective": "Child can recognise and spell common Latin roots as stable chunks inside longer words.",
+      "childFriendlyExplanation": "Two thousand years ago the Romans spoke Latin — and their word-bricks are still inside our words! port = carry (transport, export, import). struct = build (structure, construct). Spot the Roman brick and half the word is spelled.",
+      "ruleExplanation": "Latin roots keep stable spelling across word families: port (carry), struct (build), rupt (break), tract (pull), dict (say), scrib/script (write). Spell root as a fixed chunk, then add affixes.",
+      "commonMisconceptions": "Child sounds out through the root and corrupts it (transpot, constuct), missing the stable chunk.",
+      "watchForCue": "Find the Roman brick first — port, struct, rupt — spell it as one chunk, then add the front and end parts.",
+      "anchorWord": "transport",
+      "anchorMorphemes": [
+        {
+          "text": "trans",
+          "kind": "prefix",
+          "gloss": "across"
+        },
+        {
+          "text": "port",
+          "kind": "root",
+          "gloss": "carry (Latin portare)"
+        }
+      ],
+      "meaningFlip": {
+        "without": "port",
+        "with": "transport",
+        "captionWithout": "port — the carrying-place",
+        "captionWith": "transport — carry ACROSS; two Latin bricks"
+      },
+      "furtherReading": "Roman theme: build an aqueduct of port/struct/dict words; Selby Appendix 15 (Latin meanings and derivatives).",
+      "existingRuntimeTeachingContent": {
+        "contentVersion": "human_reviewed_v1",
+        "versionStatus": "active",
+        "isActive": true,
+        "preservationStatement": "Existing active generic teaching content remains current runtime truth and is not superseded by this candidate."
+      },
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Micro Skill Content",
+        "row": 22
+      },
+      "sourceCandidateStatus": "structurally_reconciled_candidate",
+      "approvalStatus": "human_approved",
+      "humanReviewStatus": "approved",
+      "approvalScope": "d4_mor_category_v1",
+      "activationStatus": "not_activated",
+      "runtimeEnabled": false,
+      "approvedContentVersion": "d4_mor_category_v1_2026_07_11",
+      "reviewerDecision": "approved",
+      "reviewerComment": "Human-approved for D4_MOR category-v1 candidate source. Approval recorded 2026-07-11."
+    },
+    {
+      "microSkillKey": "D4_MOR_ROOTS_ROOT_FAMILY_SPELLING",
+      "candidateContentVersion": "2026-07-10.v1",
+      "skillTitle": "Root families keep their spelling",
+      "clusterKey": "D4_MOR_ROOTS",
+      "originThemeKey": "latin",
+      "teachingObjective": "Child can hold a root's spelling steady across its whole word family, even as endings and sounds change.",
+      "childFriendlyExplanation": "A root is the family surname — it's spelled the same on every family member. act: act, actor, action, active, react. The endings change, the sounds shift, but a-c-t never breaks.",
+      "ruleExplanation": "Root spelling is invariant across derivatives: act/action/actor, medic/medical/medicine, sign/signal/signature. Anchor the root, then vary the affixes.",
+      "commonMisconceptions": "Child re-spells the root differently in each family member (acshun, medisin) instead of anchoring it once.",
+      "watchForCue": "Learn the surname once — act, medic, sign — and trust it in every relative, whatever the ending sounds like.",
+      "anchorWord": "action",
+      "anchorMorphemes": [
+        {
+          "text": "act",
+          "kind": "root",
+          "gloss": "do (Latin agere/actus)"
+        },
+        {
+          "text": "ion",
+          "kind": "suffix",
+          "gloss": "noun-maker"
+        }
+      ],
+      "meaningFlip": {
+        "without": "act",
+        "with": "action",
+        "captionWithout": "act — do something",
+        "captionWith": "action — the doing; same a-c-t inside"
+      },
+      "furtherReading": "Family-tree posters per root; Selby Roots & Derivatives Mastercard as the model.",
+      "existingRuntimeTeachingContent": {
+        "contentVersion": "human_reviewed_v1",
+        "versionStatus": "active",
+        "isActive": true,
+        "preservationStatement": "Existing active generic teaching content remains current runtime truth and is not superseded by this candidate."
+      },
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Micro Skill Content",
+        "row": 25
+      },
+      "sourceCandidateStatus": "structurally_reconciled_candidate",
+      "approvalStatus": "human_approved",
+      "humanReviewStatus": "approved",
+      "approvalScope": "d4_mor_category_v1",
+      "activationStatus": "not_activated",
+      "runtimeEnabled": false,
+      "approvedContentVersion": "d4_mor_category_v1_2026_07_11",
+      "reviewerDecision": "approved",
+      "reviewerComment": "Human-approved for D4_MOR category-v1 candidate source. Approval recorded 2026-07-11."
+    },
+    {
+      "microSkillKey": "D4_MOR_ROOTS_SCIENCE_MATH_ROOTS",
+      "candidateContentVersion": "2026-07-10.v1",
+      "skillTitle": "Science and maths roots",
+      "clusterKey": "D4_MOR_ROOTS",
+      "originThemeKey": "greek",
+      "teachingObjective": "Child can use Greek and Latin roots to spell subject words in science and maths.",
+      "childFriendlyExplanation": "School subject words look scary until you see the bricks: thermometer = therm (heat) + meter (measure). Triangle = tri (three) + angle. Once you know ten bricks, you can spell (and understand!) a hundred subject words.",
+      "ruleExplanation": "Subject vocabulary is built from productive roots: meter (measure), therm (heat), bio (life), geo (earth), tri (three), cent (hundred), poly (many), hydro (water). Spell root-by-root.",
+      "commonMisconceptions": "Child treats each long subject word as a brand-new random string and sounds through it (thurmomiter, trianggle).",
+      "watchForCue": "Break the scary word into bricks you know: therm + o + meter. Spell each brick — the word spells itself.",
+      "anchorWord": "thermometer",
+      "anchorMorphemes": [
+        {
+          "text": "therm",
+          "kind": "root",
+          "gloss": "heat (Greek)"
+        },
+        {
+          "text": "o",
+          "kind": "base",
+          "gloss": "connector letter"
+        },
+        {
+          "text": "meter",
+          "kind": "root",
+          "gloss": "measure (Greek)"
+        }
+      ],
+      "meaningFlip": {
+        "without": "meter",
+        "with": "thermometer",
+        "captionWithout": "meter — a measurer",
+        "captionWith": "thermometer — a HEAT measurer"
+      },
+      "furtherReading": "Cross-subject brick hunt: collect roots from this week's science/maths topics.",
+      "existingRuntimeTeachingContent": {
+        "contentVersion": "human_reviewed_v1",
+        "versionStatus": "active",
+        "isActive": true,
+        "preservationStatement": "Existing active generic teaching content remains current runtime truth and is not superseded by this candidate."
+      },
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Micro Skill Content",
+        "row": 24
+      },
+      "sourceCandidateStatus": "structurally_reconciled_candidate",
+      "approvalStatus": "human_approved",
+      "humanReviewStatus": "approved",
+      "approvalScope": "d4_mor_category_v1",
+      "activationStatus": "not_activated",
+      "runtimeEnabled": false,
+      "approvedContentVersion": "d4_mor_category_v1_2026_07_11",
+      "reviewerDecision": "approved",
+      "reviewerComment": "Human-approved for D4_MOR category-v1 candidate source. Approval recorded 2026-07-11."
+    },
+    {
+      "microSkillKey": "D4_MOR_SUFFIXES_ABLE_IBLE",
+      "candidateContentVersion": "2026-07-10.v1",
+      "skillTitle": "The suffixes -able and -ible",
+      "clusterKey": "D4_MOR_SUFFIXES",
+      "originThemeKey": "latin",
+      "teachingObjective": "Child can spell -able and -ible (can be done) and use the base-word test to choose between them.",
+      "childFriendlyExplanation": "Both endings mean CAN BE: washable = can be washed, visible = can be seen. The detective test: if you remove the ending and a whole real word is left, it's usually -able (wash → washable). If what's left isn't a word by itself, it's usually -ible (vis → visible).",
+      "ruleExplanation": "-able typically follows complete base words (enjoyable, comfortable); -ible typically follows bound Latin roots (possible, terrible, incredible). The test guides, with exceptions learned as tricky words.",
+      "commonMisconceptions": "Child guesses by sound — the two endings sound identical (schwa) — writing washible or visable.",
+      "watchForCue": "You can't hear the difference — run the test: take the ending off. Real word left? -able. Not a word? probably -ible.",
+      "anchorWord": "washable",
+      "anchorMorphemes": [
+        {
+          "text": "wash",
+          "kind": "base",
+          "gloss": "a complete word on its own"
+        },
+        {
+          "text": "able",
+          "kind": "suffix",
+          "gloss": "can be done"
+        }
+      ],
+      "meaningFlip": {
+        "without": "wash",
+        "with": "washable",
+        "captionWithout": "wash — the action",
+        "captionWith": "washable — it CAN BE washed"
+      },
+      "furtherReading": "Latin -abilis/-ibilis; keep a two-column treasure list and add exceptions as they're met.",
+      "existingRuntimeTeachingContent": {
+        "contentVersion": "human_reviewed_v1",
+        "versionStatus": "active",
+        "isActive": true,
+        "preservationStatement": "Existing active generic teaching content remains current runtime truth and is not superseded by this candidate."
+      },
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Micro Skill Content",
+        "row": 17
+      },
+      "sourceCandidateStatus": "structurally_reconciled_candidate",
+      "approvalStatus": "human_approved",
+      "humanReviewStatus": "approved",
+      "approvalScope": "d4_mor_category_v1",
+      "activationStatus": "not_activated",
+      "runtimeEnabled": false,
+      "approvedContentVersion": "d4_mor_category_v1_2026_07_11",
+      "reviewerDecision": "approved",
+      "reviewerComment": "Human-approved for D4_MOR category-v1 candidate source. Approval recorded 2026-07-11."
+    },
+    {
+      "microSkillKey": "D4_MOR_SUFFIXES_AL",
+      "candidateContentVersion": "2026-07-10.v1",
+      "skillTitle": "The suffix -al",
+      "clusterKey": "D4_MOR_SUFFIXES",
+      "originThemeKey": "latin",
+      "teachingObjective": "Child can spell -al and knows it makes describing words meaning 'to do with'.",
+      "childFriendlyExplanation": "-al is an ADJECTIVE-MAKER meaning 'to do with': music → musical, nation → national. Always a-l, even when it sounds like 'ul' or 'le'.",
+      "ruleExplanation": "-al is a fixed ending forming adjectives from nouns, spelled -al (never -le/-el/-ul in these built words): accident + al = accidental.",
+      "commonMisconceptions": "Child spells the ending by ear (-le, -el, -ul: musicle, nashunal) because the vowel is a schwa.",
+      "watchForCue": "If you can strip it back to a real base word (music, nation, accident), the ending is -al.",
+      "anchorWord": "musical",
+      "anchorMorphemes": [
+        {
+          "text": "music",
+          "kind": "base",
+          "gloss": ""
+        },
+        {
+          "text": "al",
+          "kind": "suffix",
+          "gloss": "to do with (adjective-maker)"
+        }
+      ],
+      "meaningFlip": {
+        "without": "music",
+        "with": "musical",
+        "captionWithout": "music — the thing itself",
+        "captionWith": "musical — TO DO WITH music"
+      },
+      "furtherReading": "Contrast with -le words that have no base (table, little) — -al built words always hide a base.",
+      "existingRuntimeTeachingContent": {
+        "contentVersion": "human_reviewed_v1",
+        "versionStatus": "active",
+        "isActive": true,
+        "preservationStatement": "Existing active generic teaching content remains current runtime truth and is not superseded by this candidate."
+      },
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Micro Skill Content",
+        "row": 16
+      },
+      "sourceCandidateStatus": "structurally_reconciled_candidate",
+      "approvalStatus": "human_approved",
+      "humanReviewStatus": "approved",
+      "approvalScope": "d4_mor_category_v1",
+      "activationStatus": "not_activated",
+      "runtimeEnabled": false,
+      "approvedContentVersion": "d4_mor_category_v1_2026_07_11",
+      "reviewerDecision": "approved",
+      "reviewerComment": "Human-approved for D4_MOR category-v1 candidate source. Approval recorded 2026-07-11."
+    },
+    {
+      "microSkillKey": "D4_MOR_SUFFIXES_FUL_LESS",
+      "candidateContentVersion": "2026-07-10.v1",
+      "skillTitle": "The suffixes -ful and -less",
+      "clusterKey": "D4_MOR_SUFFIXES",
+      "originThemeKey": "neutral",
+      "teachingObjective": "Child can spell -ful (full of) and -less (without) and knows they are opposites.",
+      "childFriendlyExplanation": "-ful means FULL OF (hopeful = full of hope). -less means WITHOUT (hopeless = without hope). They're opposite twins that snap onto the same bases. Big trap: -ful has ONE l, even though it means 'full'.",
+      "ruleExplanation": "-ful is always spelled with a single l (careful, not carefull); -less always has double s. Base is preserved: care + ful, care + less.",
+      "commonMisconceptions": "Child writes -full with two l's because the meaning is 'full', or -les with one s.",
+      "watchForCue": "The suffix -ful lost an l on its journey: full of care = careful, ONE l. And -less always keeps its ss.",
+      "anchorWord": "careful",
+      "anchorMorphemes": [
+        {
+          "text": "care",
+          "kind": "base",
+          "gloss": ""
+        },
+        {
+          "text": "ful",
+          "kind": "suffix",
+          "gloss": "full of (one l!)"
+        }
+      ],
+      "meaningFlip": {
+        "without": "careful",
+        "with": "careless",
+        "captionWithout": "careful — FULL of care",
+        "captionWith": "careless — WITHOUT care; same base, opposite ending"
+      },
+      "furtherReading": "Opposite-twins matching game with shared bases (hope, care, use, thought).",
+      "existingRuntimeTeachingContent": {
+        "contentVersion": "human_reviewed_v1",
+        "versionStatus": "active",
+        "isActive": true,
+        "preservationStatement": "Existing active generic teaching content remains current runtime truth and is not superseded by this candidate."
+      },
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Micro Skill Content",
+        "row": 12
+      },
+      "sourceCandidateStatus": "structurally_reconciled_candidate",
+      "approvalStatus": "human_approved",
+      "humanReviewStatus": "approved",
+      "approvalScope": "d4_mor_category_v1",
+      "activationStatus": "not_activated",
+      "runtimeEnabled": false,
+      "approvedContentVersion": "d4_mor_category_v1_2026_07_11",
+      "reviewerDecision": "approved",
+      "reviewerComment": "Human-approved for D4_MOR category-v1 candidate source. Approval recorded 2026-07-11."
+    },
+    {
+      "microSkillKey": "D4_MOR_SUFFIXES_ITY",
+      "candidateContentVersion": "2026-07-10.v1",
+      "skillTitle": "The suffix -ity",
+      "clusterKey": "D4_MOR_SUFFIXES",
+      "originThemeKey": "latin",
+      "teachingObjective": "Child can spell -ity and knows it turns describing words into naming words.",
+      "childFriendlyExplanation": "-ity is a NOUN-MAKER: active → activity, real → reality. It names the quality. It sounds like 'ittee' but it's always i-t-y.",
+      "ruleExplanation": "-ity is a fixed ending forming abstract nouns from adjectives; spelled -ity, never -aty/-etty. Related words share the spelling: real → reality.",
+      "commonMisconceptions": "Child spells the weak vowel by ear (activaty, realety) because the i is unstressed.",
+      "watchForCue": "The middle vowel is a whisper — but its family gives it away: real → reality, both spelled with the base intact, then i-t-y.",
+      "anchorWord": "activity",
+      "anchorMorphemes": [
+        {
+          "text": "active",
+          "kind": "base",
+          "gloss": "busy, doing things"
+        },
+        {
+          "text": "ity",
+          "kind": "suffix",
+          "gloss": "noun-maker: the quality of"
+        }
+      ],
+      "meaningFlip": {
+        "without": "active",
+        "with": "activity",
+        "captionWithout": "active — describes you",
+        "captionWith": "activity — the NAME of what you do"
+      },
+      "furtherReading": "Latin -itas; use word families to lock the unstressed vowel.",
+      "existingRuntimeTeachingContent": {
+        "contentVersion": "human_reviewed_v1",
+        "versionStatus": "active",
+        "isActive": true,
+        "preservationStatement": "Existing active generic teaching content remains current runtime truth and is not superseded by this candidate."
+      },
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Micro Skill Content",
+        "row": 15
+      },
+      "sourceCandidateStatus": "structurally_reconciled_candidate",
+      "approvalStatus": "human_approved",
+      "humanReviewStatus": "approved",
+      "approvalScope": "d4_mor_category_v1",
+      "activationStatus": "not_activated",
+      "runtimeEnabled": false,
+      "approvedContentVersion": "d4_mor_category_v1_2026_07_11",
+      "reviewerDecision": "approved",
+      "reviewerComment": "Human-approved for D4_MOR category-v1 candidate source. Approval recorded 2026-07-11."
+    },
+    {
+      "microSkillKey": "D4_MOR_SUFFIXES_MENT",
+      "candidateContentVersion": "2026-07-10.v1",
+      "skillTitle": "The suffix -ment",
+      "clusterKey": "D4_MOR_SUFFIXES",
+      "originThemeKey": "latin",
+      "teachingObjective": "Child can spell -ment and knows it turns a doing word into a naming word.",
+      "childFriendlyExplanation": "-ment is a NOUN-MAKER for actions: enjoy → enjoyment (the thing you feel), pay → payment (the thing you pay). It's always m-e-n-t and the base stays whole.",
+      "ruleExplanation": "-ment is a fixed ending added to verbs to form nouns, with the base preserved: treat + ment = treatment, move + ment = movement (the e stays!).",
+      "commonMisconceptions": "Child spells it by ear (-mant, -mint) or drops the base's final e (movment, excitment).",
+      "watchForCue": "Base first, whole and complete — movement keeps the e of move — then add m-e-n-t.",
+      "anchorWord": "enjoyment",
+      "anchorMorphemes": [
+        {
+          "text": "enjoy",
+          "kind": "base",
+          "gloss": ""
+        },
+        {
+          "text": "ment",
+          "kind": "suffix",
+          "gloss": "noun-maker: the result of an action"
+        }
+      ],
+      "meaningFlip": {
+        "without": "enjoy",
+        "with": "enjoyment",
+        "captionWithout": "enjoy — something you DO",
+        "captionWith": "enjoyment — the THING you feel; -ment made it a noun"
+      },
+      "furtherReading": "From Latin -mentum; hunt -ment nouns in the child's reading and strip them back to their verbs.",
+      "existingRuntimeTeachingContent": {
+        "contentVersion": "human_reviewed_v1",
+        "versionStatus": "active",
+        "isActive": true,
+        "preservationStatement": "Existing active generic teaching content remains current runtime truth and is not superseded by this candidate."
+      },
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Micro Skill Content",
+        "row": 13
+      },
+      "sourceCandidateStatus": "structurally_reconciled_candidate",
+      "approvalStatus": "human_approved",
+      "humanReviewStatus": "approved",
+      "approvalScope": "d4_mor_category_v1",
+      "activationStatus": "not_activated",
+      "runtimeEnabled": false,
+      "approvedContentVersion": "d4_mor_category_v1_2026_07_11",
+      "reviewerDecision": "approved",
+      "reviewerComment": "Human-approved for D4_MOR category-v1 candidate source. Approval recorded 2026-07-11."
+    },
+    {
+      "microSkillKey": "D4_MOR_SUFFIXES_NESS",
+      "candidateContentVersion": "2026-07-10.v1",
+      "skillTitle": "The suffix -ness",
+      "clusterKey": "D4_MOR_SUFFIXES",
+      "originThemeKey": "neutral",
+      "teachingObjective": "Child can spell -ness and knows it turns a describing word into a naming word (a state or quality).",
+      "childFriendlyExplanation": "-ness is a NOUN-MAKER. Stick it on a describing word and you get the name of that feeling or state: kind → kindness, dark → darkness. It's always n-e-s-s.",
+      "ruleExplanation": "-ness is a fixed ending (never -nes or -niss) added to adjectives to form nouns. Base is preserved by default: sad + ness = sadness. (y→i bases like happiness follow the y-rule, taught separately.)",
+      "commonMisconceptions": "Child spells the ending by ear (-nes, -niss, -nis) or doubles wrongly at the join.",
+      "watchForCue": "-ness is ALWAYS n-e-s-s — four letters, no exceptions. Spell the base first, then add all four.",
+      "anchorWord": "kindness",
+      "anchorMorphemes": [
+        {
+          "text": "kind",
+          "kind": "base",
+          "gloss": ""
+        },
+        {
+          "text": "ness",
+          "kind": "suffix",
+          "gloss": "noun-maker: the state of being"
+        }
+      ],
+      "meaningFlip": {
+        "without": "kind",
+        "with": "kindness",
+        "captionWithout": "kind — describes a person",
+        "captionWith": "kindness — the NAME of that quality"
+      },
+      "furtherReading": "Suffix-job sorting: which endings make nouns vs adjectives.",
+      "existingRuntimeTeachingContent": {
+        "contentVersion": "human_reviewed_v1",
+        "versionStatus": "active",
+        "isActive": true,
+        "preservationStatement": "Existing active generic teaching content remains current runtime truth and is not superseded by this candidate."
+      },
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Micro Skill Content",
+        "row": 11
+      },
+      "sourceCandidateStatus": "structurally_reconciled_candidate",
+      "approvalStatus": "human_approved",
+      "humanReviewStatus": "approved",
+      "approvalScope": "d4_mor_category_v1",
+      "activationStatus": "not_activated",
+      "runtimeEnabled": false,
+      "approvedContentVersion": "d4_mor_category_v1_2026_07_11",
+      "reviewerDecision": "approved",
+      "reviewerComment": "Human-approved for D4_MOR category-v1 candidate source. Approval recorded 2026-07-11."
+    },
+    {
+      "microSkillKey": "D4_MOR_SUFFIXES_OUS",
+      "candidateContentVersion": "2026-07-10.v1",
+      "skillTitle": "The suffix -ous",
+      "clusterKey": "D4_MOR_SUFFIXES",
+      "originThemeKey": "latin",
+      "teachingObjective": "Child can spell -ous and knows it makes describing words meaning 'full of'.",
+      "childFriendlyExplanation": "-ous is an ADJECTIVE-MAKER meaning full of: danger → dangerous (full of danger), fame → famous. The tricky bit: it SOUNDS like 'us' but it's spelled o-u-s.",
+      "ruleExplanation": "-ous is a fixed ending forming adjectives; it is never spelled -us or -is. Common pattern: base + ous with base largely preserved (dangerous, mountainous).",
+      "commonMisconceptions": "Child spells the ending as it sounds (-us: dangerus, famus) because the o is a lazy schwa sound.",
+      "watchForCue": "That ending sounds like 'us' but the Keeper knows it's o-u-s — three letters, o first.",
+      "anchorWord": "dangerous",
+      "anchorMorphemes": [
+        {
+          "text": "danger",
+          "kind": "base",
+          "gloss": ""
+        },
+        {
+          "text": "ous",
+          "kind": "suffix",
+          "gloss": "full of (adjective-maker)"
+        }
+      ],
+      "meaningFlip": {
+        "without": "danger",
+        "with": "dangerous",
+        "captionWithout": "danger — a thing",
+        "captionWith": "dangerous — FULL of danger"
+      },
+      "furtherReading": "Latin -osus 'full of'; link to schwa work (the o you can't hear).",
+      "existingRuntimeTeachingContent": {
+        "contentVersion": "human_reviewed_v1",
+        "versionStatus": "active",
+        "isActive": true,
+        "preservationStatement": "Existing active generic teaching content remains current runtime truth and is not superseded by this candidate."
+      },
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Micro Skill Content",
+        "row": 14
+      },
+      "sourceCandidateStatus": "structurally_reconciled_candidate",
+      "approvalStatus": "human_approved",
+      "humanReviewStatus": "approved",
+      "approvalScope": "d4_mor_category_v1",
+      "activationStatus": "not_activated",
+      "runtimeEnabled": false,
+      "approvedContentVersion": "d4_mor_category_v1_2026_07_11",
+      "reviewerDecision": "approved",
+      "reviewerComment": "Human-approved for D4_MOR category-v1 candidate source. Approval recorded 2026-07-11."
+    },
+    {
+      "microSkillKey": "D4_MOR_WORD_FAMILIES_PRONUNCIATION_SHIFT",
+      "candidateContentVersion": "2026-07-10.v1",
+      "skillTitle": "Word families with sound shifts",
+      "clusterKey": "D4_MOR_WORD_FAMILIES",
+      "originThemeKey": "latin",
+      "teachingObjective": "Child can preserve family spelling even when pronunciation changes across relatives.",
+      "childFriendlyExplanation": "Sometimes relatives SOUND different but LOOK the same: nature/natural, please/pleasant, know/knowledge. The sound shifts — the spelling stays loyal to the family.",
+      "ruleExplanation": "English preserves morphological spelling across pronunciation shifts. Trust the family spelling, not the changed sound: pleasant keeps the ea of please.",
+      "commonMisconceptions": "Child re-spells the shifted relative by its new sound (plesant, nachural) instead of keeping the family letters.",
+      "watchForCue": "When a relative sounds different, don't panic-spell by ear — the family letters stay the same.",
+      "anchorWord": "nature",
+      "anchorMorphemes": [
+        {
+          "text": "nat",
+          "kind": "root",
+          "gloss": "born / birth (Latin natus)"
+        },
+        {
+          "text": "ure",
+          "kind": "suffix",
+          "gloss": "noun ending"
+        }
+      ],
+      "meaningFlip": {
+        "without": "nature",
+        "with": "natural",
+        "captionWithout": "nature — say 'NAY-chur'",
+        "captionWith": "natural — say 'NACH-ral' — different sound, same family letters"
+      },
+      "furtherReading": "This is the deep principle of English spelling (meaning beats sound); Selby ch.1–2.",
+      "existingRuntimeTeachingContent": {
+        "contentVersion": "human_reviewed_v1",
+        "versionStatus": "active",
+        "isActive": true,
+        "preservationStatement": "Existing active generic teaching content remains current runtime truth and is not superseded by this candidate."
+      },
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Micro Skill Content",
+        "row": 21
+      },
+      "sourceCandidateStatus": "structurally_reconciled_candidate",
+      "approvalStatus": "human_approved",
+      "humanReviewStatus": "approved",
+      "approvalScope": "d4_mor_category_v1",
+      "activationStatus": "not_activated",
+      "runtimeEnabled": false,
+      "approvedContentVersion": "d4_mor_category_v1_2026_07_11",
+      "reviewerDecision": "approved",
+      "reviewerComment": "Human-approved for D4_MOR category-v1 candidate source. Approval recorded 2026-07-11."
+    },
+    {
+      "microSkillKey": "D4_MOR_WORD_FAMILIES_RELATED_WORD_SUPPORT",
+      "candidateContentVersion": "2026-07-10.v1",
+      "skillTitle": "Use a related word to spell",
+      "clusterKey": "D4_MOR_WORD_FAMILIES",
+      "originThemeKey": "neutral",
+      "teachingObjective": "Child can use a clearly-spelled relative to fix a hidden or unclear letter.",
+      "childFriendlyExplanation": "Words come in families, and a relative can tell you the secret letter. Can't hear the g in sign? Its cousin SIGNAL says it loudly. Not sure about muscle? MUSCULAR shouts the hidden c... the family keeps the spelling.",
+      "ruleExplanation": "Related words share meaning-spelling: sign/signal/signature, know/knowledge, medic/medicine. When a letter is silent or unclear, find a family member that pronounces it.",
+      "commonMisconceptions": "Child spells the tricky word by sound alone (sine, mussel) and never thinks to call in a relative.",
+      "watchForCue": "Stuck on a silent or fuzzy letter? Ask the family: which relative says that letter out loud?",
+      "anchorWord": "sign",
+      "anchorMorphemes": [
+        {
+          "text": "sign",
+          "kind": "base",
+          "gloss": "family root — the g is silent here but not in 'signal'"
+        }
+      ],
+      "meaningFlip": {
+        "without": "sign",
+        "with": "signal",
+        "captionWithout": "sign — the g hides",
+        "captionWith": "signal — the g speaks! Same family, same spelling"
+      },
+      "furtherReading": "Family-tree building: root in the middle, relatives radiating out (Selby's Roots & Derivatives chart).",
+      "existingRuntimeTeachingContent": {
+        "contentVersion": "human_reviewed_v1",
+        "versionStatus": "active",
+        "isActive": true,
+        "preservationStatement": "Existing active generic teaching content remains current runtime truth and is not superseded by this candidate."
+      },
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Micro Skill Content",
+        "row": 20
+      },
+      "sourceCandidateStatus": "structurally_reconciled_candidate",
+      "approvalStatus": "human_approved",
+      "humanReviewStatus": "approved",
+      "approvalScope": "d4_mor_category_v1",
+      "activationStatus": "not_activated",
+      "runtimeEnabled": false,
+      "approvedContentVersion": "d4_mor_category_v1_2026_07_11",
+      "reviewerDecision": "approved",
+      "reviewerComment": "Human-approved for D4_MOR category-v1 candidate source. Approval recorded 2026-07-11."
+    }
+  ],
+  "distractorSets": [
+    {
+      "microSkillKey": "D4_MOR_BASE_WORDS_BASE_PLUS_PREFIX",
+      "distractors": [
+        {
+          "distractorKey": "D4_MOR_BASE_WORDS_BASE_PLUS_PREFIX::distractor_1",
+          "displayText": "ri",
+          "rationale": "misheard re",
+          "identity": "distractor"
+        },
+        {
+          "distractorKey": "D4_MOR_BASE_WORDS_BASE_PLUS_PREFIX::distractor_2",
+          "displayText": "natral",
+          "rationale": "corrupted base",
+          "identity": "distractor"
+        }
+      ],
+      "designNote": "misheard-prefix + corrupted-base",
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Distractor Tiles",
+        "row": 4
+      },
+      "sourceCandidateStatus": "structurally_reconciled_candidate",
+      "approvalStatus": "human_approved",
+      "humanReviewStatus": "approved",
+      "approvalScope": "d4_mor_category_v1",
+      "activationStatus": "not_activated",
+      "runtimeEnabled": false
+    },
+    {
+      "microSkillKey": "D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX",
+      "distractors": [
+        {
+          "distractorKey": "D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX::distractor_1",
+          "displayText": "lee",
+          "rationale": "misheard ly",
+          "identity": "distractor"
+        },
+        {
+          "distractorKey": "D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX::distractor_2",
+          "displayText": "nis",
+          "rationale": "misheard ness",
+          "identity": "distractor"
+        }
+      ],
+      "designNote": "phonetic suffix tiles",
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Distractor Tiles",
+        "row": 5
+      },
+      "sourceCandidateStatus": "structurally_reconciled_candidate",
+      "approvalStatus": "human_approved",
+      "humanReviewStatus": "approved",
+      "approvalScope": "d4_mor_category_v1",
+      "activationStatus": "not_activated",
+      "runtimeEnabled": false
+    },
+    {
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "distractors": [
+        {
+          "distractorKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE::distractor_1",
+          "displayText": "helful",
+          "rationale": "corrupted base",
+          "identity": "distractor"
+        },
+        {
+          "distractorKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE::distractor_2",
+          "displayText": "full",
+          "rationale": "wrong suffix form",
+          "identity": "distractor"
+        }
+      ],
+      "designNote": "corrupted-base + wrong-affix tiles",
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Distractor Tiles",
+        "row": 2
+      },
+      "sourceCandidateStatus": "structurally_reconciled_candidate",
+      "approvalStatus": "human_approved",
+      "humanReviewStatus": "approved",
+      "approvalScope": "d4_mor_category_v1",
+      "activationStatus": "not_activated",
+      "runtimeEnabled": false
+    },
+    {
+      "microSkillKey": "D4_MOR_BASE_WORDS_PRESERVE_BASE",
+      "distractors": [
+        {
+          "distractorKey": "D4_MOR_BASE_WORDS_PRESERVE_BASE::distractor_1",
+          "displayText": "realy",
+          "rationale": "lost l",
+          "identity": "distractor"
+        },
+        {
+          "distractorKey": "D4_MOR_BASE_WORDS_PRESERVE_BASE::distractor_2",
+          "displayText": "hopless",
+          "rationale": "lost e",
+          "identity": "distractor"
+        }
+      ],
+      "designNote": "letter-dropped-at-join tiles",
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Distractor Tiles",
+        "row": 3
+      },
+      "sourceCandidateStatus": "structurally_reconciled_candidate",
+      "approvalStatus": "human_approved",
+      "humanReviewStatus": "approved",
+      "approvalScope": "d4_mor_category_v1",
+      "activationStatus": "not_activated",
+      "runtimeEnabled": false
+    },
+    {
+      "microSkillKey": "D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS",
+      "distractors": [
+        {
+          "distractorKey": "D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS::distractor_1",
+          "displayText": "futball",
+          "rationale": "corrupted first base",
+          "identity": "distractor"
+        },
+        {
+          "distractorKey": "D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS::distractor_2",
+          "displayText": "bal",
+          "rationale": "letter lost at join",
+          "identity": "distractor"
+        }
+      ],
+      "designNote": "corrupted/clipped base tiles",
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Distractor Tiles",
+        "row": 18
+      },
+      "sourceCandidateStatus": "structurally_reconciled_candidate",
+      "approvalStatus": "human_approved",
+      "humanReviewStatus": "approved",
+      "approvalScope": "d4_mor_category_v1",
+      "activationStatus": "not_activated",
+      "runtimeEnabled": false
+    },
+    {
+      "microSkillKey": "D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED",
+      "distractors": [
+        {
+          "distractorKey": "D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED::distractor_1",
+          "displayText": "icecream",
+          "rationale": "wrongly glued tile",
+          "identity": "distractor"
+        },
+        {
+          "distractorKey": "D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED::distractor_2",
+          "displayText": "twenty one",
+          "rationale": "missing hyphen option",
+          "identity": "distractor"
+        }
+      ],
+      "designNote": "style distractors (glue/space/hyphen chooser)",
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Distractor Tiles",
+        "row": 19
+      },
+      "sourceCandidateStatus": "structurally_reconciled_candidate",
+      "approvalStatus": "human_approved",
+      "humanReviewStatus": "approved",
+      "approvalScope": "d4_mor_category_v1",
+      "activationStatus": "not_activated",
+      "runtimeEnabled": false
+    },
+    {
+      "microSkillKey": "D4_MOR_PREFIXES_DIS_MIS",
+      "distractors": [
+        {
+          "distractorKey": "D4_MOR_PREFIXES_DIS_MIS::distractor_1",
+          "displayText": "diss",
+          "rationale": "",
+          "identity": "distractor"
+        },
+        {
+          "distractorKey": "D4_MOR_PREFIXES_DIS_MIS::distractor_2",
+          "displayText": "mi",
+          "rationale": "",
+          "identity": "distractor"
+        },
+        {
+          "distractorKey": "D4_MOR_PREFIXES_DIS_MIS::distractor_3",
+          "displayText": "spel",
+          "rationale": "lost l/s",
+          "identity": "distractor"
+        }
+      ],
+      "designNote": "double/single-s traps",
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Distractor Tiles",
+        "row": 8
+      },
+      "sourceCandidateStatus": "structurally_reconciled_candidate",
+      "approvalStatus": "human_approved",
+      "humanReviewStatus": "approved",
+      "approvalScope": "d4_mor_category_v1",
+      "activationStatus": "not_activated",
+      "runtimeEnabled": false
+    },
+    {
+      "microSkillKey": "D4_MOR_PREFIXES_IN_IM_IL_IR",
+      "distractors": [
+        {
+          "distractorKey": "D4_MOR_PREFIXES_IN_IM_IL_IR::distractor_1",
+          "displayText": "in",
+          "rationale": "before p/l/r bases",
+          "identity": "distractor"
+        },
+        {
+          "distractorKey": "D4_MOR_PREFIXES_IN_IM_IL_IR::distractor_2",
+          "displayText": "i",
+          "rationale": "single, losing double",
+          "identity": "distractor"
+        }
+      ],
+      "designNote": "wrong assimilation form",
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Distractor Tiles",
+        "row": 9
+      },
+      "sourceCandidateStatus": "structurally_reconciled_candidate",
+      "approvalStatus": "human_approved",
+      "humanReviewStatus": "approved",
+      "approvalScope": "d4_mor_category_v1",
+      "activationStatus": "not_activated",
+      "runtimeEnabled": false
+    },
+    {
+      "microSkillKey": "D4_MOR_PREFIXES_RE_PRE",
+      "distractors": [
+        {
+          "distractorKey": "D4_MOR_PREFIXES_RE_PRE::distractor_1",
+          "displayText": "ri",
+          "rationale": "",
+          "identity": "distractor"
+        },
+        {
+          "distractorKey": "D4_MOR_PREFIXES_RE_PRE::distractor_2",
+          "displayText": "per",
+          "rationale": "",
+          "identity": "distractor"
+        },
+        {
+          "distractorKey": "D4_MOR_PREFIXES_RE_PRE::distractor_3",
+          "displayText": "pri",
+          "rationale": "",
+          "identity": "distractor"
+        }
+      ],
+      "designNote": "phonetic prefix confusions",
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Distractor Tiles",
+        "row": 7
+      },
+      "sourceCandidateStatus": "structurally_reconciled_candidate",
+      "approvalStatus": "human_approved",
+      "humanReviewStatus": "approved",
+      "approvalScope": "d4_mor_category_v1",
+      "activationStatus": "not_activated",
+      "runtimeEnabled": false
+    },
+    {
+      "microSkillKey": "D4_MOR_PREFIXES_SUB_INTER_SUPER",
+      "distractors": [
+        {
+          "distractorKey": "D4_MOR_PREFIXES_SUB_INTER_SUPER::distractor_1",
+          "displayText": "supper",
+          "rationale": "",
+          "identity": "distractor"
+        },
+        {
+          "distractorKey": "D4_MOR_PREFIXES_SUB_INTER_SUPER::distractor_2",
+          "displayText": "intre",
+          "rationale": "",
+          "identity": "distractor"
+        },
+        {
+          "distractorKey": "D4_MOR_PREFIXES_SUB_INTER_SUPER::distractor_3",
+          "displayText": "sup",
+          "rationale": "",
+          "identity": "distractor"
+        }
+      ],
+      "designNote": "phonetic long-prefix corruptions",
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Distractor Tiles",
+        "row": 10
+      },
+      "sourceCandidateStatus": "structurally_reconciled_candidate",
+      "approvalStatus": "human_approved",
+      "humanReviewStatus": "approved",
+      "approvalScope": "d4_mor_category_v1",
+      "activationStatus": "not_activated",
+      "runtimeEnabled": false
+    },
+    {
+      "microSkillKey": "D4_MOR_PREFIXES_UN",
+      "distractors": [
+        {
+          "distractorKey": "D4_MOR_PREFIXES_UN::distractor_1",
+          "displayText": "on",
+          "rationale": "",
+          "identity": "distractor"
+        },
+        {
+          "distractorKey": "D4_MOR_PREFIXES_UN::distractor_2",
+          "displayText": "an",
+          "rationale": "",
+          "identity": "distractor"
+        },
+        {
+          "distractorKey": "D4_MOR_PREFIXES_UN::distractor_3",
+          "displayText": "hapy",
+          "rationale": "corrupted base",
+          "identity": "distractor"
+        }
+      ],
+      "designNote": "misheard prefix + single-letter base",
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Distractor Tiles",
+        "row": 6
+      },
+      "sourceCandidateStatus": "structurally_reconciled_candidate",
+      "approvalStatus": "human_approved",
+      "humanReviewStatus": "approved",
+      "approvalScope": "d4_mor_category_v1",
+      "activationStatus": "not_activated",
+      "runtimeEnabled": false
+    },
+    {
+      "microSkillKey": "D4_MOR_ROOTS_COMMON_GREEK_ROOTS",
+      "distractors": [
+        {
+          "distractorKey": "D4_MOR_ROOTS_COMMON_GREEK_ROOTS::distractor_1",
+          "displayText": "fone",
+          "rationale": "",
+          "identity": "distractor"
+        },
+        {
+          "distractorKey": "D4_MOR_ROOTS_COMMON_GREEK_ROOTS::distractor_2",
+          "displayText": "foto",
+          "rationale": "",
+          "identity": "distractor"
+        },
+        {
+          "distractorKey": "D4_MOR_ROOTS_COMMON_GREEK_ROOTS::distractor_3",
+          "displayText": "graf",
+          "rationale": "",
+          "identity": "distractor"
+        }
+      ],
+      "designNote": "missing Greek ph/graph signature",
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Distractor Tiles",
+        "row": 23
+      },
+      "sourceCandidateStatus": "structurally_reconciled_candidate",
+      "approvalStatus": "human_approved",
+      "humanReviewStatus": "approved",
+      "approvalScope": "d4_mor_category_v1",
+      "activationStatus": "not_activated",
+      "runtimeEnabled": false
+    },
+    {
+      "microSkillKey": "D4_MOR_ROOTS_COMMON_LATIN_ROOTS",
+      "distractors": [
+        {
+          "distractorKey": "D4_MOR_ROOTS_COMMON_LATIN_ROOTS::distractor_1",
+          "displayText": "pot",
+          "rationale": "corrupted port",
+          "identity": "distractor"
+        },
+        {
+          "distractorKey": "D4_MOR_ROOTS_COMMON_LATIN_ROOTS::distractor_2",
+          "displayText": "stuct",
+          "rationale": "",
+          "identity": "distractor"
+        },
+        {
+          "distractorKey": "D4_MOR_ROOTS_COMMON_LATIN_ROOTS::distractor_3",
+          "displayText": "rup",
+          "rationale": "",
+          "identity": "distractor"
+        }
+      ],
+      "designNote": "corrupted root chunks",
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Distractor Tiles",
+        "row": 22
+      },
+      "sourceCandidateStatus": "structurally_reconciled_candidate",
+      "approvalStatus": "human_approved",
+      "humanReviewStatus": "approved",
+      "approvalScope": "d4_mor_category_v1",
+      "activationStatus": "not_activated",
+      "runtimeEnabled": false
+    },
+    {
+      "microSkillKey": "D4_MOR_ROOTS_ROOT_FAMILY_SPELLING",
+      "distractors": [
+        {
+          "distractorKey": "D4_MOR_ROOTS_ROOT_FAMILY_SPELLING::distractor_1",
+          "displayText": "acshun",
+          "rationale": "",
+          "identity": "distractor"
+        },
+        {
+          "distractorKey": "D4_MOR_ROOTS_ROOT_FAMILY_SPELLING::distractor_2",
+          "displayText": "medisin",
+          "rationale": "",
+          "identity": "distractor"
+        },
+        {
+          "distractorKey": "D4_MOR_ROOTS_ROOT_FAMILY_SPELLING::distractor_3",
+          "displayText": "akt",
+          "rationale": "",
+          "identity": "distractor"
+        }
+      ],
+      "designNote": "family-breaking respellings",
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Distractor Tiles",
+        "row": 25
+      },
+      "sourceCandidateStatus": "structurally_reconciled_candidate",
+      "approvalStatus": "human_approved",
+      "humanReviewStatus": "approved",
+      "approvalScope": "d4_mor_category_v1",
+      "activationStatus": "not_activated",
+      "runtimeEnabled": false
+    },
+    {
+      "microSkillKey": "D4_MOR_ROOTS_SCIENCE_MATH_ROOTS",
+      "distractors": [
+        {
+          "distractorKey": "D4_MOR_ROOTS_SCIENCE_MATH_ROOTS::distractor_1",
+          "displayText": "thurm",
+          "rationale": "",
+          "identity": "distractor"
+        },
+        {
+          "distractorKey": "D4_MOR_ROOTS_SCIENCE_MATH_ROOTS::distractor_2",
+          "displayText": "miter",
+          "rationale": "",
+          "identity": "distractor"
+        },
+        {
+          "distractorKey": "D4_MOR_ROOTS_SCIENCE_MATH_ROOTS::distractor_3",
+          "displayText": "senti",
+          "rationale": "",
+          "identity": "distractor"
+        }
+      ],
+      "designNote": "phonetic root corruptions",
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Distractor Tiles",
+        "row": 24
+      },
+      "sourceCandidateStatus": "structurally_reconciled_candidate",
+      "approvalStatus": "human_approved",
+      "humanReviewStatus": "approved",
+      "approvalScope": "d4_mor_category_v1",
+      "activationStatus": "not_activated",
+      "runtimeEnabled": false
+    },
+    {
+      "microSkillKey": "D4_MOR_SUFFIXES_ABLE_IBLE",
+      "distractors": [
+        {
+          "distractorKey": "D4_MOR_SUFFIXES_ABLE_IBLE::distractor_1",
+          "displayText": "ible-after-base",
+          "rationale": "washible",
+          "identity": "distractor"
+        },
+        {
+          "distractorKey": "D4_MOR_SUFFIXES_ABLE_IBLE::distractor_2",
+          "displayText": "able-after-root",
+          "rationale": "visable",
+          "identity": "distractor"
+        }
+      ],
+      "designNote": "cross-swap of the pair",
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Distractor Tiles",
+        "row": 17
+      },
+      "sourceCandidateStatus": "structurally_reconciled_candidate",
+      "approvalStatus": "human_approved",
+      "humanReviewStatus": "approved",
+      "approvalScope": "d4_mor_category_v1",
+      "activationStatus": "not_activated",
+      "runtimeEnabled": false
+    },
+    {
+      "microSkillKey": "D4_MOR_SUFFIXES_AL",
+      "distractors": [
+        {
+          "distractorKey": "D4_MOR_SUFFIXES_AL::distractor_1",
+          "displayText": "le",
+          "rationale": "",
+          "identity": "distractor"
+        },
+        {
+          "distractorKey": "D4_MOR_SUFFIXES_AL::distractor_2",
+          "displayText": "el",
+          "rationale": "",
+          "identity": "distractor"
+        },
+        {
+          "distractorKey": "D4_MOR_SUFFIXES_AL::distractor_3",
+          "displayText": "ul",
+          "rationale": "",
+          "identity": "distractor"
+        }
+      ],
+      "designNote": "schwa ending confusions",
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Distractor Tiles",
+        "row": 16
+      },
+      "sourceCandidateStatus": "structurally_reconciled_candidate",
+      "approvalStatus": "human_approved",
+      "humanReviewStatus": "approved",
+      "approvalScope": "d4_mor_category_v1",
+      "activationStatus": "not_activated",
+      "runtimeEnabled": false
+    },
+    {
+      "microSkillKey": "D4_MOR_SUFFIXES_FUL_LESS",
+      "distractors": [
+        {
+          "distractorKey": "D4_MOR_SUFFIXES_FUL_LESS::distractor_1",
+          "displayText": "full",
+          "rationale": "",
+          "identity": "distractor"
+        },
+        {
+          "distractorKey": "D4_MOR_SUFFIXES_FUL_LESS::distractor_2",
+          "displayText": "les",
+          "rationale": "",
+          "identity": "distractor"
+        }
+      ],
+      "designNote": "the two classic traps",
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Distractor Tiles",
+        "row": 12
+      },
+      "sourceCandidateStatus": "structurally_reconciled_candidate",
+      "approvalStatus": "human_approved",
+      "humanReviewStatus": "approved",
+      "approvalScope": "d4_mor_category_v1",
+      "activationStatus": "not_activated",
+      "runtimeEnabled": false
+    },
+    {
+      "microSkillKey": "D4_MOR_SUFFIXES_ITY",
+      "distractors": [
+        {
+          "distractorKey": "D4_MOR_SUFFIXES_ITY::distractor_1",
+          "displayText": "aty",
+          "rationale": "",
+          "identity": "distractor"
+        },
+        {
+          "distractorKey": "D4_MOR_SUFFIXES_ITY::distractor_2",
+          "displayText": "ety",
+          "rationale": "",
+          "identity": "distractor"
+        },
+        {
+          "distractorKey": "D4_MOR_SUFFIXES_ITY::distractor_3",
+          "displayText": "itty",
+          "rationale": "",
+          "identity": "distractor"
+        }
+      ],
+      "designNote": "unstressed-vowel variants",
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Distractor Tiles",
+        "row": 15
+      },
+      "sourceCandidateStatus": "structurally_reconciled_candidate",
+      "approvalStatus": "human_approved",
+      "humanReviewStatus": "approved",
+      "approvalScope": "d4_mor_category_v1",
+      "activationStatus": "not_activated",
+      "runtimeEnabled": false
+    },
+    {
+      "microSkillKey": "D4_MOR_SUFFIXES_MENT",
+      "distractors": [
+        {
+          "distractorKey": "D4_MOR_SUFFIXES_MENT::distractor_1",
+          "displayText": "mant",
+          "rationale": "",
+          "identity": "distractor"
+        },
+        {
+          "distractorKey": "D4_MOR_SUFFIXES_MENT::distractor_2",
+          "displayText": "mint",
+          "rationale": "",
+          "identity": "distractor"
+        },
+        {
+          "distractorKey": "D4_MOR_SUFFIXES_MENT::distractor_3",
+          "displayText": "movment-base",
+          "rationale": "move without e",
+          "identity": "distractor"
+        }
+      ],
+      "designNote": "phonetic + e-dropping",
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Distractor Tiles",
+        "row": 13
+      },
+      "sourceCandidateStatus": "structurally_reconciled_candidate",
+      "approvalStatus": "human_approved",
+      "humanReviewStatus": "approved",
+      "approvalScope": "d4_mor_category_v1",
+      "activationStatus": "not_activated",
+      "runtimeEnabled": false
+    },
+    {
+      "microSkillKey": "D4_MOR_SUFFIXES_NESS",
+      "distractors": [
+        {
+          "distractorKey": "D4_MOR_SUFFIXES_NESS::distractor_1",
+          "displayText": "nes",
+          "rationale": "",
+          "identity": "distractor"
+        },
+        {
+          "distractorKey": "D4_MOR_SUFFIXES_NESS::distractor_2",
+          "displayText": "niss",
+          "rationale": "",
+          "identity": "distractor"
+        },
+        {
+          "distractorKey": "D4_MOR_SUFFIXES_NESS::distractor_3",
+          "displayText": "nis",
+          "rationale": "",
+          "identity": "distractor"
+        }
+      ],
+      "designNote": "phonetic -ness variants",
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Distractor Tiles",
+        "row": 11
+      },
+      "sourceCandidateStatus": "structurally_reconciled_candidate",
+      "approvalStatus": "human_approved",
+      "humanReviewStatus": "approved",
+      "approvalScope": "d4_mor_category_v1",
+      "activationStatus": "not_activated",
+      "runtimeEnabled": false
+    },
+    {
+      "microSkillKey": "D4_MOR_SUFFIXES_OUS",
+      "distractors": [
+        {
+          "distractorKey": "D4_MOR_SUFFIXES_OUS::distractor_1",
+          "displayText": "us",
+          "rationale": "",
+          "identity": "distractor"
+        },
+        {
+          "distractorKey": "D4_MOR_SUFFIXES_OUS::distractor_2",
+          "displayText": "is",
+          "rationale": "",
+          "identity": "distractor"
+        },
+        {
+          "distractorKey": "D4_MOR_SUFFIXES_OUS::distractor_3",
+          "displayText": "ess",
+          "rationale": "",
+          "identity": "distractor"
+        }
+      ],
+      "designNote": "schwa-by-ear endings",
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Distractor Tiles",
+        "row": 14
+      },
+      "sourceCandidateStatus": "structurally_reconciled_candidate",
+      "approvalStatus": "human_approved",
+      "humanReviewStatus": "approved",
+      "approvalScope": "d4_mor_category_v1",
+      "activationStatus": "not_activated",
+      "runtimeEnabled": false
+    },
+    {
+      "microSkillKey": "D4_MOR_WORD_FAMILIES_PRONUNCIATION_SHIFT",
+      "distractors": [
+        {
+          "distractorKey": "D4_MOR_WORD_FAMILIES_PRONUNCIATION_SHIFT::distractor_1",
+          "displayText": "plesant",
+          "rationale": "",
+          "identity": "distractor"
+        },
+        {
+          "distractorKey": "D4_MOR_WORD_FAMILIES_PRONUNCIATION_SHIFT::distractor_2",
+          "displayText": "nachural",
+          "rationale": "",
+          "identity": "distractor"
+        },
+        {
+          "distractorKey": "D4_MOR_WORD_FAMILIES_PRONUNCIATION_SHIFT::distractor_3",
+          "displayText": "helth",
+          "rationale": "",
+          "identity": "distractor"
+        }
+      ],
+      "designNote": "new-sound respellings",
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Distractor Tiles",
+        "row": 21
+      },
+      "sourceCandidateStatus": "structurally_reconciled_candidate",
+      "approvalStatus": "human_approved",
+      "humanReviewStatus": "approved",
+      "approvalScope": "d4_mor_category_v1",
+      "activationStatus": "not_activated",
+      "runtimeEnabled": false
+    },
+    {
+      "microSkillKey": "D4_MOR_WORD_FAMILIES_RELATED_WORD_SUPPORT",
+      "distractors": [
+        {
+          "distractorKey": "D4_MOR_WORD_FAMILIES_RELATED_WORD_SUPPORT::distractor_1",
+          "displayText": "sine",
+          "rationale": "",
+          "identity": "distractor"
+        },
+        {
+          "distractorKey": "D4_MOR_WORD_FAMILIES_RELATED_WORD_SUPPORT::distractor_2",
+          "displayText": "mussel",
+          "rationale": "",
+          "identity": "distractor"
+        },
+        {
+          "distractorKey": "D4_MOR_WORD_FAMILIES_RELATED_WORD_SUPPORT::distractor_3",
+          "displayText": "no",
+          "rationale": "for know",
+          "identity": "distractor"
+        }
+      ],
+      "designNote": "spell-by-sound rivals",
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Distractor Tiles",
+        "row": 20
+      },
+      "sourceCandidateStatus": "structurally_reconciled_candidate",
+      "approvalStatus": "human_approved",
+      "humanReviewStatus": "approved",
+      "approvalScope": "d4_mor_category_v1",
+      "activationStatus": "not_activated",
+      "runtimeEnabled": false
+    }
+  ]
+}
