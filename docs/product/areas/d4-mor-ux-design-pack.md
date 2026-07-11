@@ -2,7 +2,7 @@
 
 ## Status
 
-Status: `structurally reconciled 7-UI category-v1 candidate source generated for 7-UI-C`.
+Status: `human approved 7-UI category-v1 content/schema candidate for 7-UI-D; not activated`.
 
 Source artifacts:
 
@@ -16,9 +16,13 @@ Generated category-v1 candidate artifacts:
 - `docs/implementation/seed-data/adle-7-ui/generated/d4-mor-category-v1/`
 
 The existing active D4_MOR teaching content remains current runtime truth. The
-new category-v1 artifacts are structurally reconciled, review-ready 7-UI
-candidates only. They do not become runtime truth until separately reviewed,
-approved, versioned and activated.
+new category-v1 artifacts are structurally reconciled, human-approved 7-UI
+candidates only. They do not become runtime truth until separately versioned
+and activated.
+
+Human approval record:
+
+- `docs/implementation/seed-data/adle-7-ui/review/d4-mor-human-review-pack/d4-mor-human-approval-record-v1.json`
 
 ## Scope
 
@@ -106,8 +110,9 @@ legacy issues as semantic source data:
 - slash-delimited root aliases such as `scrib/script` and `meter/metre` are
   split into explicit candidate identities and variant relationships.
 
-The generated candidates remain `structurally_reconciled_candidate` with
-`human_review_required`.
+7-UI-D records human approval for all 24 D4_MOR micro-skills, all exception
+review rows, and representative cluster spot checks. The generated candidates
+remain separate from runtime truth and are not activated.
 
 Detailed validation artifact:
 

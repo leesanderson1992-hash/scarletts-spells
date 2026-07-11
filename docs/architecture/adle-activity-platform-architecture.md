@@ -42,10 +42,12 @@ Current implementation has:
 This is enough for warm shells and current dictation-style rendering, but not enough for many rich templates.
 
 7-UI-C adds D4_MOR category-v1 semantic candidate source artifacts only. Those
-artifacts define review-ready morphology parts, joins/separators,
+artifacts define morphology parts, joins/separators,
 transformations, reusable linguistic identities, and experience-manifest
 selection without changing assignment payload emission, registry behaviour,
-renderers, composer output, evidence, scheduler, or reward semantics.
+renderers, composer output, evidence, scheduler, or reward semantics. 7-UI-D
+records human approval for that category-v1 content/schema candidate, but does
+not activate it or make it runtime truth.
 
 ## Registry Direction
 

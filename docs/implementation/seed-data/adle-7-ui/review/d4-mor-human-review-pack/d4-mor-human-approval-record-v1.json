@@ -1,0 +1,42 @@
+{
+  "artifactKey": "d4-mor-human-approval-record-v1",
+  "status": "human_approved_not_activated",
+  "reviewer": "Katie Sanderson",
+  "approvalDate": "2026-07-11",
+  "sourceCandidate": "docs/implementation/seed-data/adle-7-ui/generated/d4-mor-category-v1/",
+  "reviewPack": "docs/implementation/seed-data/adle-7-ui/review/d4-mor-human-review-pack/",
+  "scope": {
+    "microSkillCount": 24,
+    "wordAnalysisCount": 168,
+    "exceptionReviewRows": 74,
+    "clusterSpotCheckRows": 18,
+    "approvedMicroSkills": 24,
+    "approvedExceptions": 74,
+    "approvedSpotChecks": 18,
+    "blockedMicroSkills": 0
+  },
+  "incorporatedAmendments": [
+    {
+      "microSkillKey": "D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED",
+      "field": "child_friendly_explanation",
+      "summary": "Added explicit child-facing wording for hyphenated and open compounds."
+    },
+    {
+      "artifact": "d4-mor-cluster-spot-check-table.csv",
+      "summary": "Replaced the D4_MOR_WORD_FAMILIES_PRONUNCIATION_SHIFT spot-check row from heal to health."
+    }
+  ],
+  "approvalBoundary": {
+    "contentApproved": true,
+    "runtimeActivated": false,
+    "existingActiveGenericTeachingContentUnchanged": true,
+    "generatedCandidateJsonDirectlyEdited": false,
+    "supabaseImported": false,
+    "composerChanged": false,
+    "rendererChanged": false,
+    "registryChanged": false,
+    "sessionRunnerChanged": false,
+    "evidenceSchedulerRewardChanged": false
+  },
+  "nextRequiredStep": "Create an approved/versioned D4_MOR category source or overlay for runtime payload work in a later PR; do not activate until the separate runtime/content-selection PR."
+}

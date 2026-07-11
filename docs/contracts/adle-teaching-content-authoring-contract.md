@@ -34,16 +34,22 @@ authored source
 -> emitted as stable assignment payloads
 ```
 
-D4_MOR content is currently retained as draft authored source only.
+D4_MOR retained workbook content remains source material; the generated
+category-v1 candidate has separate human approval recorded, but is not activated
+runtime truth.
 
 ## D4_MOR 7-UI Candidate Boundary
 
 The existing active D4_MOR teaching content remains current runtime truth. The
 new category-v1 artifacts under
 `docs/implementation/seed-data/adle-7-ui/generated/d4-mor-category-v1/` are
-structurally reconciled, review-ready 7-UI candidates only. They do not replace
-or supersede existing active generic teaching content and do not become runtime
-truth until separately reviewed, approved, versioned and activated.
+structurally reconciled, human-approved 7-UI candidates only. They do not
+replace or supersede existing active generic teaching content and do not become
+runtime truth until separately versioned and activated.
+
+Human approval is recorded at:
+
+- `docs/implementation/seed-data/adle-7-ui/review/d4-mor-human-review-pack/d4-mor-human-approval-record-v1.json`
 
 Use this lifecycle terminology:
 
@@ -58,6 +64,10 @@ retained authored source
 
 Automated transformation or validation is not human review, approval, or
 activation.
+
+Human approval still does not imply runtime activation. Activation requires a
+separate versioning/content-selection change and must preserve assignment,
+evidence, scheduler, and reward semantics.
 
 ## Theme And Experience Profile
 

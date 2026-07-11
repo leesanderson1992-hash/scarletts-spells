@@ -1,0 +1,62 @@
+{
+  "status": "human_approved_not_activated",
+  "artifactPaths": {
+    "microSkillApprovalTable": "docs/implementation/seed-data/adle-7-ui/review/d4-mor-human-review-pack/d4-mor-micro-skill-approval-table.csv",
+    "exceptionReviewTable": "docs/implementation/seed-data/adle-7-ui/review/d4-mor-human-review-pack/d4-mor-exception-review-table.csv",
+    "clusterSpotCheckTable": "docs/implementation/seed-data/adle-7-ui/review/d4-mor-human-review-pack/d4-mor-cluster-spot-check-table.csv",
+    "batchApprovalDeclaration": "docs/implementation/seed-data/adle-7-ui/review/d4-mor-human-review-pack/d4-mor-batch-approval-declaration.md"
+  },
+  "counts": {
+    "totalWordAnalyses": 168,
+    "straightforwardBatchApprovalCandidates": 157,
+    "wordAnalysesNeedingIndividualHumanDecisions": 11,
+    "currentReviewQueueItems": 20,
+    "exceptionReviewRows": 74,
+    "clusterSpotCheckRows": 18,
+    "teachingContentMicroSkillsFlaggedForAmendment": 20,
+    "microSkillsAppearingApprovableWithoutChanges": 4,
+    "microSkillsAppearingApprovableWithChanges": 20,
+    "blockedMicroSkills": 0,
+    "approvedMicroSkills": 24,
+    "approvedExceptionRows": 74,
+    "approvedClusterSpotChecks": 18
+  },
+  "flaggedMicroSkills": [
+    "D4_MOR_BASE_WORDS_BASE_PLUS_PREFIX",
+    "D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX",
+    "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+    "D4_MOR_BASE_WORDS_PRESERVE_BASE",
+    "D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS",
+    "D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED",
+    "D4_MOR_PREFIXES_IN_IM_IL_IR",
+    "D4_MOR_PREFIXES_UN",
+    "D4_MOR_ROOTS_COMMON_GREEK_ROOTS",
+    "D4_MOR_ROOTS_COMMON_LATIN_ROOTS",
+    "D4_MOR_ROOTS_ROOT_FAMILY_SPELLING",
+    "D4_MOR_ROOTS_SCIENCE_MATH_ROOTS",
+    "D4_MOR_SUFFIXES_AL",
+    "D4_MOR_SUFFIXES_FUL_LESS",
+    "D4_MOR_SUFFIXES_ITY",
+    "D4_MOR_SUFFIXES_MENT",
+    "D4_MOR_SUFFIXES_NESS",
+    "D4_MOR_SUFFIXES_OUS",
+    "D4_MOR_WORD_FAMILIES_PRONUNCIATION_SHIFT",
+    "D4_MOR_WORD_FAMILIES_RELATED_WORD_SUPPORT"
+  ],
+  "individualDecisionWordAnalyses": [
+    "D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX::windy",
+    "D4_MOR_BASE_WORDS_IDENTIFY_BASE::jumper",
+    "D4_MOR_PREFIXES_SUB_INTER_SUPER::superhero",
+    "D4_MOR_PREFIXES_SUB_INTER_SUPER::supermarket",
+    "D4_MOR_ROOTS_COMMON_GREEK_ROOTS::photograph",
+    "D4_MOR_ROOTS_ROOT_FAMILY_SPELLING::react",
+    "D4_MOR_ROOTS_SCIENCE_MATH_ROOTS::centimetre",
+    "D4_MOR_ROOTS_SCIENCE_MATH_ROOTS::geography",
+    "D4_MOR_ROOTS_SCIENCE_MATH_ROOTS::perimeter",
+    "D4_MOR_ROOTS_SCIENCE_MATH_ROOTS::thermometer",
+    "D4_MOR_SUFFIXES_OUS::famous"
+  ],
+  "humanApprovalRecord": "docs/implementation/seed-data/adle-7-ui/review/d4-mor-human-review-pack/d4-mor-human-approval-record-v1.json",
+  "approvalDate": "2026-07-11",
+  "reviewer": "Katie Sanderson"
+}

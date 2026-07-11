@@ -15,11 +15,11 @@ Shared architecture is reused, while each micro-skill still receives an intentio
 
 ## Current Status
 
-Status: `7-UI-C D4_MOR category-v1 semantic candidate source generated; 7S live/manual proof recorded`.
+Status: `7-UI-D D4_MOR category-v1 content/schema human approved; not activated; 7S live/manual proof recorded`.
 
-The 7S reflection recall-gate live/manual proof is recorded in the proof register. PR 7-UI-B added the typed activity-template registry foundation. PR 7-UI-C generated structurally reconciled D4_MOR category-v1 candidate source artifacts under `docs/implementation/seed-data/adle-7-ui/generated/d4-mor-category-v1/`.
+The 7S reflection recall-gate live/manual proof is recorded in the proof register. PR 7-UI-B added the typed activity-template registry foundation. PR 7-UI-C generated structurally reconciled D4_MOR category-v1 candidate source artifacts under `docs/implementation/seed-data/adle-7-ui/generated/d4-mor-category-v1/`. PR 7-UI-D records human approval for the D4_MOR category-v1 content/schema candidate under `docs/implementation/seed-data/adle-7-ui/review/d4-mor-human-review-pack/`.
 
-The existing active D4_MOR teaching content remains current runtime truth. The generated D4_MOR category-v1 artifacts are review-ready 7-UI candidates only; they are not approved, activated, emitted by the composer, or used by the child runtime.
+The existing active D4_MOR teaching content remains current runtime truth. The generated D4_MOR category-v1 artifacts are human-approved 7-UI candidates only; they are not activated, emitted by the composer, or used by the child runtime.
 
 Current active category: `D4_MOR` morphology.
 
@@ -74,7 +74,7 @@ Only one category should normally be the active implementation focus at a time.
 
 | Family | Current status | Source of row truth |
 |---|---|---|
-| D4_MOR | Active foundation category; structurally reconciled candidate source generated, human review required | Global matrix + D4_MOR matrix + generated candidate summary |
+| D4_MOR | Active foundation category; structurally reconciled candidate source generated and human approved, not activated | Global matrix + D4_MOR matrix + generated candidate summary + human approval record |
 | D4_PG | In scope, unaudited for 7-UI | Global matrix |
 | D4_PAT | In scope, unaudited for 7-UI | Global matrix |
 | D4_INF | In scope, unaudited for 7-UI | Global matrix |
@@ -87,9 +87,9 @@ Only one category should normally be the active implementation focus at a time.
 
 First vertical proof candidate: `D4_MOR_PREFIXES_UN`.
 
-Current `D4_MOR_PREFIXES_UN` readiness: `schema_ready`. Human linguistic and
-pedagogical review is still required before content approval, activation, or a
-rich UI vertical proof.
+Current `D4_MOR_PREFIXES_UN` readiness: `content_ready_not_activated`. Human
+content/schema approval is recorded; activation, assignment payload emission,
+and rich UI vertical proof remain future PRs.
 
 After proof and contract freeze, finish morphology in coherent groups:
 

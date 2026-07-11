@@ -2,18 +2,20 @@
 
 ## Current ADLE 7-UI Priority
 
-Current ADLE priority: `PR 7-UI-C D4_MOR semantic candidate source reconciliation`.
+Current ADLE priority: `PR 7-UI-D D4_MOR human approval pack`.
 
 PR 7-UI-A established the programme-wide 7-UI documentation foundation. PR
 7-UI-B added the typed activity-template registry foundation. PR 7-UI-C
 generates structurally reconciled, review-ready D4_MOR category-v1 candidate
-source artifacts without activating content or changing runtime behaviour.
+source artifacts without activating content or changing runtime behaviour. PR
+7-UI-D records human approval of the D4_MOR category-v1 content/schema
+candidate while keeping it not activated.
 
 The existing active D4_MOR teaching content remains current runtime truth. The
-new category-v1 artifacts are candidates only and do not become runtime truth
-until separately reviewed, approved, versioned, and activated. Do not make
-runtime component, composer, evidence, scheduler, reward, workbook-import, or
-bulk activation changes as part of 7-UI-C.
+new category-v1 artifacts are human-approved candidates only and do not become
+runtime truth until separately versioned and activated. Do not make runtime
+component, composer, evidence, scheduler, reward, workbook-import, or bulk
+activation changes as part of 7-UI-D.
 
 Authoritative links:
 
