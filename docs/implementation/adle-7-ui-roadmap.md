@@ -15,9 +15,9 @@ Shared architecture is reused, while each micro-skill still receives an intentio
 
 ## Current Status
 
-Status: `7-UI-E D4_MOR approved category-v1 source package frozen; not activated; 7S live/manual proof recorded`.
+Status: `7-UI-F D4_MOR primitive library accepted; approved source still not activated`.
 
-The 7S reflection recall-gate live/manual proof is recorded in the proof register. PR 7-UI-B added the typed activity-template registry foundation. PR 7-UI-C generated structurally reconciled D4_MOR category-v1 candidate source artifacts under `docs/implementation/seed-data/adle-7-ui/generated/d4-mor-category-v1/`. PR 7-UI-D records human approval for the D4_MOR category-v1 content/schema candidate under `docs/implementation/seed-data/adle-7-ui/review/d4-mor-human-review-pack/`. PR 7-UI-E freezes that approved candidate plus the approval record into the immutable approved source package under `data/adle/approved/d4-mor/v1/`.
+The 7S reflection recall-gate live/manual proof is recorded in the proof register. PR 7-UI-B added the typed activity-template registry foundation. PR 7-UI-C generated structurally reconciled D4_MOR category-v1 candidate source artifacts under `docs/implementation/seed-data/adle-7-ui/generated/d4-mor-category-v1/`. PR 7-UI-D records human approval for the D4_MOR category-v1 content/schema candidate under `docs/implementation/seed-data/adle-7-ui/review/d4-mor-human-review-pack/`. PR 7-UI-E freezes that approved candidate plus the approval record into the immutable approved source package under `data/adle/approved/d4-mor/v1/`. PR 7-UI-F adds the reusable D4_MOR primitive/view-model layer and development-only preview proof, with QA recorded in `docs/implementation/qa/adle-7-ui-f-morphology-primitives-qa-2026-07-12.md`.
 
 The existing active D4_MOR teaching content remains current runtime truth. The approved D4_MOR category-v1 package is approved source for future content-selection and payload work only; it is not activated, emitted by the composer, imported into Supabase, or used by the child runtime.
 
@@ -87,16 +87,16 @@ Only one category should normally be the active implementation focus at a time.
 
 First vertical proof candidate: `D4_MOR_PREFIXES_UN`.
 
-Current `D4_MOR_PREFIXES_UN` readiness: `content_ready_not_activated`. Human
-content/schema approval is recorded and the approved source package is frozen;
-activation, assignment payload emission, and rich UI vertical proof remain
-future PRs.
+Current `D4_MOR_PREFIXES_UN` readiness: `primitive_layer_ready_not_activated`.
+Human content/schema approval is recorded, the approved source package is
+frozen, and 7-UI-F primitive rendering proof is accepted. Activation,
+assignment payload emission, and rich UI vertical proof remain future PRs.
 
 Near-term sequence:
 
 1. `7-UI-D` - D4_MOR human approval pack - complete.
 2. `7-UI-E` - approved D4_MOR v1 source freeze and pilot source fixture - complete.
-3. `7-UI-F` - shared child-experience and morphology primitives.
+3. `7-UI-F` - shared child-experience and morphology primitives - complete.
 4. `7-UI-G` - `D4_MOR_PREFIXES_UN` vertical runtime pilot.
 5. `7-UI-H` - pilot amendments and runtime payload contract freeze.
 

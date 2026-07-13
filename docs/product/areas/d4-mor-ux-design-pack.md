@@ -66,6 +66,17 @@ D4_MOR category primitives include:
 
 Shared mechanics include introduction, strip/build, meaning match, build word, controlled spelling, dictation, review, and probe framing.
 
+7-UI-F adds the first reusable primitive layer: approved D4_MOR source records
+can be adapted into small typed view models and rendered through shared
+child-experience components, morphology tiles/sequences, assembly rails,
+meaning flips, transformation views, post-submit diffs, gloss cards, root
+artifact cards, word-family views, and a development-only preview route.
+
+This is a visual/platform proof only. Rich manipulation verbs such as flippable
+tiles, jigsaw tile shapes, pointer/touch dragging, magnetic snapping, split
+handles, CoverShutter, BinSort, LessonGuide, and guided beat scripts remain
+7-UI-G vertical runtime pilot work.
+
 ## Micro-skill Experience Profile
 
 Each micro-skill receives:
