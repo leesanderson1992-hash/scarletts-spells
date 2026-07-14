@@ -1,4 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
+import { getChildLearningReflections, upsertChildLearningReflection } from "../lib/adle/morphology/reflections";
 
 function assert(condition: unknown, message: string): asserts condition {
   if (!condition) throw new Error(`FAIL: ${message}`);
@@ -12,15 +13,18 @@ function requireLocal(url: string): void {
 async function main(): Promise<void> {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL ?? process.env.SUPABASE_URL;
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!url || !key) throw new Error("Missing local Supabase URL or service role key.");
+  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (!url || !key || !anonKey) throw new Error("Missing local Supabase URL, anon key, or service role key.");
   requireLocal(url);
   const client = createClient(url, key, { auth: { autoRefreshToken: false, persistSession: false } });
   const suffix = `${Date.now()}-${Math.random().toString(16).slice(2)}`;
   const email = `adle-ui-g-${suffix}@example.test`;
-  const { data: authData, error: authError } = await client.auth.admin.createUser({ email, password: `Local-${suffix}!`, email_confirm: true });
+  const password = `Local-${suffix}!`;
+  const { data: authData, error: authError } = await client.auth.admin.createUser({ email, password, email_confirm: true });
   if (authError || !authData.user) throw new Error(`seed auth user: ${authError?.message}`);
   const parentUserId = authData.user.id;
   let childId: string | null = null;
+  let otherUserId: string | null = null;
 
   try {
     const { data: child, error: childError } = await client.from("children").insert({ parent_user_id: parentUserId, first_name: "ADLE UI-G Atomic" }).select("id").single();
@@ -52,6 +56,29 @@ async function main(): Promise<void> {
     const first = await call(successDate, successPayload);
     assert(!first.error && typeof first.data === "string", "atomic RPC returns assignment id");
     assert(JSON.stringify(await countRows(successDate)) === JSON.stringify({ headerCount: 1, itemCount: 16 }), "success writes one header and 16 items");
+    const assignmentId = first.data as string;
+    const reflectionInput = { childId, parentUserId, assignmentId, microSkillKey: "D4_MOR_PREFIXES_UN", contentVersion: "reflection-regression-v1", promptKey: "word-lab-un-observation-v1", promptText: "What did you notice about what un- does in these words?", reflectionText: "un- can mean not" };
+    await upsertChildLearningReflection(client, reflectionInput);
+    await upsertChildLearningReflection(client, { ...reflectionInput, reflectionText: "un- can mean not or reverse an action" });
+    const { data: privateNotes, error: privateNotesError } = await client.from("adle_child_learning_reflections").select("reflection_text").eq("daily_assignment_id", assignmentId);
+    if (privateNotesError) throw privateNotesError;
+    assert(privateNotes?.length === 1 && (privateNotes[0] as { reflection_text: string }).reflection_text.includes("reverse"), "private reflection upsert is idempotent and keeps the latest draft");
+    const { count: assessmentCount, error: assessmentError } = await client.from("adle_assignment_attempt_events").select("id", { count: "exact", head: true }).eq("daily_assignment_id", assignmentId);
+    if (assessmentError) throw assessmentError;
+    assert((assessmentCount ?? 0) === 0, "private reflection creates no assessment attempt event");
+    const parentClient = createClient(url, anonKey, { auth: { autoRefreshToken: false, persistSession: false } });
+    const parentLogin = await parentClient.auth.signInWithPassword({ email, password });
+    if (parentLogin.error) throw parentLogin.error;
+    assert((await getChildLearningReflections(parentClient, { parentUserId, childId, limit: 10 })).length === 1, "owning parent can read the child's private reflection");
+    const otherEmail = `adle-ui-g-other-${suffix}@example.test`;
+    const otherPassword = `Other-${suffix}!`;
+    const { data: otherAuth, error: otherAuthError } = await client.auth.admin.createUser({ email: otherEmail, password: otherPassword, email_confirm: true });
+    if (otherAuthError || !otherAuth.user) throw new Error(`seed other auth user: ${otherAuthError?.message}`);
+    otherUserId = otherAuth.user.id;
+    const otherClient = createClient(url, anonKey, { auth: { autoRefreshToken: false, persistSession: false } });
+    const otherLogin = await otherClient.auth.signInWithPassword({ email: otherEmail, password: otherPassword });
+    if (otherLogin.error) throw otherLogin.error;
+    assert((await getChildLearningReflections(otherClient, { parentUserId, childId, limit: 10 })).length === 0, "another authenticated parent cannot read the private reflection");
     const duplicate = await call(successDate, successPayload);
     assert(duplicate.error !== null, "duplicate invocation is refused");
     assert(JSON.stringify(await countRows(successDate)) === JSON.stringify({ headerCount: 1, itemCount: 16 }), "duplicate invocation writes nothing");
@@ -77,6 +104,7 @@ async function main(): Promise<void> {
     console.log("ADLE D4_MOR atomic persistence regression passed");
   } finally {
     if (childId) await client.from("children").delete().eq("id", childId);
+    if (otherUserId) await client.auth.admin.deleteUser(otherUserId);
     await client.auth.admin.deleteUser(parentUserId);
   }
 }

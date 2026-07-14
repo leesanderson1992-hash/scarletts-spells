@@ -10,6 +10,7 @@ import {
 } from "@/lib/children";
 import { getActiveChildrenForUser, getCoursesForChild } from "@/lib/courses/queries";
 import { createClient } from "@/lib/supabase/server";
+import { getChildLearningReflections, type ChildLearningReflection } from "@/lib/adle/morphology/reflections";
 
 type LearnPageProps = {
   searchParams?: Promise<{
@@ -41,6 +42,14 @@ export default async function LearnPage({ searchParams }: LearnPageProps) {
   const courses = selectedChild
     ? await getCoursesForChild(supabase, user.id, selectedChild.id, { activeOnly: true })
     : [];
+  let wordLabReflections: ChildLearningReflection[] = [];
+  if (selectedChild) {
+    try {
+      wordLabReflections = await getChildLearningReflections(supabase, { parentUserId: user.id, childId: selectedChild.id, limit: 10 });
+    } catch (error) {
+      console.error("[my-learning] private Word Lab reflections failed to load", error);
+    }
+  }
   const currentPath = "/learn";
 
   return (
@@ -109,6 +118,21 @@ export default async function LearnPage({ searchParams }: LearnPageProps) {
               No courses are ready yet. A parent can add one in parent mode.
             </div>
           ) : null}
+        </section>
+
+        <section className="brand-card overflow-hidden rounded-3xl p-0" aria-labelledby="word-lab-reflections-heading">
+          <div className="border-b border-[var(--border)] bg-white/70 px-4 py-3">
+            <p className="brand-eyebrow">Private learning notes</p>
+            <h2 id="word-lab-reflections-heading" className="mt-1 text-lg font-semibold text-[color:var(--ink)]">My Word Lab reflections</h2>
+          </div>
+          {wordLabReflections.map((reflection) => (
+            <article key={reflection.id} className="border-b border-[var(--border)] px-4 py-4 last:border-b-0">
+              <p className="text-xs font-semibold uppercase tracking-[.14em] text-[color:var(--mid)]">{reflection.assignmentDate ?? reflection.createdAt.slice(0, 10)}</p>
+              <p className="mt-2 text-sm text-[color:var(--mid)]">{reflection.promptText}</p>
+              <blockquote className="mt-2 rounded-2xl bg-cyan-50 p-3 text-sm leading-6 text-cyan-950">{reflection.reflectionText}</blockquote>
+            </article>
+          ))}
+          {wordLabReflections.length === 0 ? <p className="px-4 py-4 text-sm text-[color:var(--mid)]">Your Word Lab reflections will appear here after you finish a lesson.</p> : null}
         </section>
       </section>
     </AppShell>

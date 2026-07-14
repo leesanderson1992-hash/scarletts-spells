@@ -55,7 +55,8 @@ import {
   persistReviewSessionCompletion,
 } from "@/lib/adle/loaders/session-completion-loader";
 import { isMorphologyUnPilotEnabledForChild } from "@/lib/adle/morphology/pilot-access";
-import { extractAuthoredTargetToken, resolveMorphologyPilotRuntime } from "@/lib/adle/morphology/payload";
+import { extractAuthoredTargetToken, resolveMorphologyPilotRuntime, type MorphologyLessonPayloadV1 } from "@/lib/adle/morphology/payload";
+import { upsertChildLearningReflection } from "@/lib/adle/morphology/reflections";
 
 function readFormValue(formData: FormData, key: string): string | null {
   const value = formData.get(key);
@@ -185,6 +186,21 @@ function finishWith(context: SessionActionContext, message: string): never {
   revalidatePath("/learn/week");
   revalidatePath("/learn/week/adle");
   redirect(withParam(context.sessionPath, "saved", message));
+}
+
+async function persistMorphologyReflection(context: SessionActionContext, payload: MorphologyLessonPayloadV1, reflectionText: string | null): Promise<void> {
+  const reflection = payload.activities.find((activity) => activity.type === "reflection");
+  if (!reflectionText || !reflection?.promptKey || !reflection.promptText) throw new Error("Please write a reflection before finishing the Word Lab.");
+  await upsertChildLearningReflection(context.serviceClient, {
+    childId: context.childId,
+    parentUserId: context.parentUserId,
+    assignmentId: context.assignmentId,
+    microSkillKey: payload.microSkillId,
+    contentVersion: payload.contentVersion,
+    promptKey: reflection.promptKey,
+    promptText: reflection.promptText,
+    reflectionText,
+  });
 }
 
 export async function completeAdleReviewPartAction(formData: FormData) {
@@ -361,10 +377,16 @@ export async function completeAdleLessonPartAction(formData: FormData) {
     finishWith(context, "Nothing to record for today's lesson.");
   }
   const lessonSourceRef = `lesson:${childId}:${planDate}:${microSkillKey}`;
+  const morphologyPilot = resolveMorphologyPilotRuntime(
+    isMorphologyUnPilotEnabledForChild(childId),
+    readModel.partTwo.items,
+  );
+  const learningReflection = readFormValue(formData, "learningReflection");
 
   // Crash-retry guard: taught events for the deterministic lesson ref mean
   // the completion already landed — re-mark the items and stop.
   if (await hasTaughtEventsForSourceRef(serviceClient, childId, lessonSourceRef)) {
+    if (morphologyPilot !== null) await persistMorphologyReflection(context, morphologyPilot, learningReflection);
     await markItemsCompleted(context, readModel.partTwo.items);
     finishWith(context, "Today's lesson is already recorded.");
   }
@@ -377,10 +399,6 @@ export async function completeAdleLessonPartAction(formData: FormData) {
 
   const dictationItems = readModel.partTwo.items.filter(
     (item) => item.sectionKey === "lesson_dictation" && item.canonicalWordId !== null,
-  );
-  const morphologyPilot = resolveMorphologyPilotRuntime(
-    isMorphologyUnPilotEnabledForChild(childId),
-    readModel.partTwo.items,
   );
   if (morphologyPilot !== null) {
     const sentenceActivity = morphologyPilot.activities.find((activity) => activity.type === "sentence_dictation");
@@ -510,6 +528,7 @@ export async function completeAdleLessonPartAction(formData: FormData) {
     );
   }
 
+  if (morphologyPilot !== null) await persistMorphologyReflection(context, morphologyPilot, learningReflection);
   await markItemsCompleted(context, readModel.partTwo.items);
   finishWith(context, "Lesson finished. New words join review tomorrow.");
 }

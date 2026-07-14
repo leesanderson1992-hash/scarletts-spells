@@ -22,6 +22,7 @@ export interface MorphologyLessonResumeState {
   guidedBindings: string[];
   muted: boolean;
   helpLevel: number;
+  reflectionText: string;
 }
 
 const LESSON_STAGES: readonly MorphologyLessonStage[] = ["discover", "split", "match", "build", "controlled", "dictation", "reflect"];
@@ -45,7 +46,7 @@ export function normaliseMorphologyLessonResume(
 ): MorphologyLessonResumeState | null {
   if (!isRecord(value) || !LESSON_STAGES.includes(value.stage as MorphologyLessonStage)) return null;
   if (!Number.isInteger(value.discoverIndex) || Number(value.discoverIndex) < 0 || Number(value.discoverIndex) > 2 || !Number.isInteger(value.controlledIndex) || Number(value.controlledIndex) < 0 || Number(value.controlledIndex) > 3 || !Number.isInteger(value.dictationIndex) || Number(value.dictationIndex) < 0 || Number(value.dictationIndex) > 3 || !Number.isInteger(value.helpLevel) || Number(value.helpLevel) < 0 || Number(value.helpLevel) > 2) return null;
-  if (typeof value.splitDone !== "boolean" || typeof value.checkedSentence !== "boolean" || typeof value.muted !== "boolean" || !isStringRecord(value.controlledAttempts) || !isBooleanRecord(value.controlledChecked) || !isStringRecord(value.sentenceAttempts) || !Array.isArray(value.guidedBindings) || !value.guidedBindings.every((entry) => typeof entry === "string")) return null;
+  if (typeof value.splitDone !== "boolean" || typeof value.checkedSentence !== "boolean" || typeof value.muted !== "boolean" || typeof value.reflectionText !== "string" || value.reflectionText.length > 2000 || !isStringRecord(value.controlledAttempts) || !isBooleanRecord(value.controlledChecked) || !isStringRecord(value.sentenceAttempts) || !Array.isArray(value.guidedBindings) || !value.guidedBindings.every((entry) => typeof entry === "string")) return null;
   const wordIds = new Set(canonicalWordIds);
   if (Object.keys(value.controlledAttempts).some((id) => !wordIds.has(id)) || Object.keys(value.controlledChecked).some((id) => !wordIds.has(id)) || Object.keys(value.sentenceAttempts).some((id) => !wordIds.has(id))) return null;
   const bindingSet = new Set(validGuidedBindings);
@@ -63,6 +64,7 @@ export function normaliseMorphologyLessonResume(
     guidedBindings: [...new Set(value.guidedBindings)],
     muted: value.muted,
     helpLevel: Number(value.helpLevel),
+    reflectionText: value.reflectionText,
   };
   if (state.stage === "controlled" && state.controlledChecked[canonicalWordIds[state.controlledIndex]] === true) {
     if (state.controlledIndex < canonicalWordIds.length - 1) {

@@ -74,6 +74,8 @@ export interface MorphologyActivityV1 {
   baseWord?: string;
   prefixChoices?: PrefixChoiceV1[];
   sentences?: SentenceDictationV1[];
+  promptKey?: string;
+  promptText?: string;
 }
 
 export interface PrefixChoiceV1 {
@@ -203,7 +205,7 @@ export function compileMorphologyUnPilotPayload(
       { id: "build-word", type: "prefix_choice", assignmentBindings: ["guided-build-untidy"], answerVisibility: "guided", evidenceMode: "guided_completion", wordIds: ["untidy"], baseWord: "tidy", prefixChoices: pilotLesson.prefixChoices as PrefixChoiceV1[] },
       { id: "controlled-spelling", type: "look_cover_write_check", assignmentBindings: REQUIRED_LESSON_WORDS.map((word) => `controlled-${word}`), answerVisibility: "recall_neutral", evidenceMode: "first_exposure_word", wordIds: [...REQUIRED_LESSON_WORDS] },
       { id: "dictation", type: "sentence_dictation", assignmentBindings: REQUIRED_LESSON_WORDS.map((word) => `dictation-${word}`), answerVisibility: "recall_neutral", evidenceMode: "first_exposure_word", wordIds: [...REQUIRED_LESSON_WORDS], sentences },
-      { id: "reflection", type: "reflection", assignmentBindings: [], answerVisibility: "post_submit", evidenceMode: "none", wordIds: [...REQUIRED_LESSON_WORDS] },
+      { id: "reflection", type: "reflection", assignmentBindings: [], answerVisibility: "post_submit", evidenceMode: "none", wordIds: [...REQUIRED_LESSON_WORDS], promptKey: pilotLesson.reflection.promptKey, promptText: pilotLesson.reflection.promptText },
     ],
   };
 }
@@ -306,6 +308,8 @@ export function validateMorphologyLessonPayload(value: unknown): MorphologyLesso
   if (!dictation?.sentences || dictation.sentences.length !== 4 || dictation.sentences.some((entry) => extractAuthoredTargetToken(entry.sentence, entry.targetTokenIndex) !== entry.targetWord)) {
     return null;
   }
+  const reflection = (value.activities as MorphologyActivityV1[]).find((activity) => activity.type === "reflection");
+  if (!reflection || reflection.assignmentBindings.length !== 0 || reflection.evidenceMode !== "none" || reflection.promptKey !== "word-lab-un-observation-v1" || reflection.promptText !== "What did you notice about what un- does in these words?") return null;
   const payload = value as unknown as MorphologyLessonPayloadV1;
   const expectedBindings = morphologyPilotBindingSpecs(payload).map((entry) => entry.binding);
   const actualBindings = payload.activities.flatMap((activity) => activity.assignmentBindings);

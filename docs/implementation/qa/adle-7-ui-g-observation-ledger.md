@@ -55,6 +55,35 @@ final sign-off record. Automated checks do not replace this observation.
 | Full dictation storage / target-token correctness | Pass |
 | Disposable fixture cleanup | Pass; no child-scoped fixture rows remain |
 
+## Refined Word Lab flow evidence
+
+| Gate | Result |
+|---|---|
+| Guided lesson opens first in development preview | Pass |
+| Development playground and restart controls | Pass |
+| Discover paired-card layout / narrow stacking | Pass |
+| Build prefix slot before fixed `tidy` base | Pass |
+| Exact learner capitalization retained | Pass |
+| Missing initial capital feedback | Pass |
+| Target-token correctness unchanged | Pass |
+| Remember recap precedes reflection | Pass |
+| Reflection required before summary/Finish | Pass |
+| Reflection draft survives reload | Pass |
+| Completed-page reflection display | Pass |
+| My Learning reflection history | Pass |
+| Private reflection ownership isolation | Pass |
+| Private reflection excluded from attempts/evidence | Pass; attempts remain 14 |
+| Idempotent private reflection persistence | Pass; exactly 1 note |
+| Post-completion database counts | Pass; 1 header / 16 items / 14 attempts / 1 note |
+| Disposable fixture cleanup | Pass |
+
+The capitalization QA intentionally submitted `it was unfair to change the
+rules.`. The comparison retained the lowercase `i`, announced that a sentence
+starts with a capital letter, and did not rewrite the response. The authored
+target token `unfair` remained the only correctness target. The reflection was
+then saved, reloaded, completed and shown in My Learning without creating an
+assignment item, attempt or evidence event.
+
 ## Remaining human-device acceptance
 
 The automated browser controller could focus controls but did not dispatch its

@@ -26,6 +26,8 @@ import {
 import { AdleSessionCelebration } from "@/components/adle/adle-session-celebration";
 import { isMorphologyUnPilotEnabledForChild } from "@/lib/adle/morphology/pilot-access";
 import { resolveMorphologyPilotRuntime } from "@/lib/adle/morphology/payload";
+import { getAssignmentLearningReflection, type ChildLearningReflection } from "@/lib/adle/morphology/reflections";
+import { ClearCompletedMorphologyResume } from "@/components/adle/morphology/clear-completed-resume";
 
 type AdleSessionPageProps = {
   searchParams?: Promise<{
@@ -102,6 +104,7 @@ export default async function AdleSessionPage({ searchParams }: AdleSessionPageP
   // Golden Bar earned today). Read-model-driven (the completion redirect
   // revalidates this page); a failure falls back to the plain "all done" card.
   let celebration: AdleSessionCelebrationModel | null = null;
+  let completedReflection: ChildLearningReflection | null = null;
   if (readModel.state === "completed") {
     try {
       const fiveDayCutoff = new Date();
@@ -117,6 +120,15 @@ export default async function AdleSessionPage({ searchParams }: AdleSessionPageP
     } catch (rewardError) {
       console.error("[adle-session] reward celebration read failed (plain completed card shown)", rewardError);
       celebration = null;
+    }
+    try {
+      completedReflection = await getAssignmentLearningReflection(supabase, {
+        parentUserId: user.id,
+        childId: selectedChild.id,
+        assignmentId: readModel.assignmentId,
+      });
+    } catch (reflectionError) {
+      console.error("[adle-session] private reflection read failed", reflectionError);
     }
   }
 
@@ -162,19 +174,22 @@ export default async function AdleSessionPage({ searchParams }: AdleSessionPageP
             </p>
           </div>
         ) : readModel.state === "completed" ? (
-          celebration !== null ? (
-            <AdleSessionCelebration
-              model={celebration}
-              planDate={readModel.planDate}
-              backPath={backPath}
-            />
-          ) : (
-            <div className="brand-card rounded-3xl p-4 md:p-5">
-              <p className="text-sm text-emerald-700">
-                Today&apos;s spelling plan is all done. See you tomorrow.
-              </p>
-            </div>
-          )
+          <div className="grid gap-4">
+            {morphologyPilotPayload && readModel.assignmentId ? <ClearCompletedMorphologyResume assignmentId={readModel.assignmentId} contentVersion={morphologyPilotPayload.contentVersion} /> : null}
+            {celebration !== null ? (
+              <AdleSessionCelebration model={celebration} planDate={readModel.planDate} backPath={backPath} />
+            ) : (
+              <div className="brand-card rounded-3xl p-4 md:p-5"><p className="text-sm text-emerald-700">Today&apos;s spelling plan is all done. See you tomorrow.</p></div>
+            )}
+            {completedReflection ? (
+              <section className="brand-card rounded-3xl p-4 md:p-5" aria-labelledby="completed-word-lab-reflection">
+                <p className="brand-eyebrow">My Word Lab reflection</p>
+                <h2 id="completed-word-lab-reflection" className="mt-1 text-lg font-semibold text-[color:var(--ink)]">What I noticed</h2>
+                <p className="mt-2 text-sm text-[color:var(--mid)]">{completedReflection.promptText}</p>
+                <blockquote className="mt-3 rounded-2xl bg-cyan-50 p-4 text-base leading-7 text-cyan-950">{completedReflection.reflectionText}</blockquote>
+              </section>
+            ) : null}
+          </div>
         ) : (
           <AdleSessionRunner
             childId={selectedChild.id}

@@ -101,6 +101,9 @@ async function verify(client: SupabaseClient): Promise<void> {
   assert(attemptRows.filter((row) => row.attempt_kind === "lesson_production").length === 4, "four controlled spelling events were captured");
   const dictation = attemptRows.filter((row) => row.attempt_kind === "lesson_dictation");
   assert(dictation.length === 4 && dictation.every((row) => row.attempt_text.includes(" ") && row.evidence_class === "first_exposure_lesson_attempt"), "four raw full-sentence dictation events were captured");
+  const { data: reflections, error: reflectionsError } = await client.from("adle_child_learning_reflections").select("reflection_text, prompt_key").eq("daily_assignment_id", assignmentId);
+  if (reflectionsError) throw reflectionsError;
+  assert((reflections ?? []).length === 1 && (reflections?.[0] as { reflection_text: string; prompt_key: string }).reflection_text.trim().length > 0 && (reflections?.[0] as { prompt_key: string }).prompt_key === "word-lab-un-observation-v1", "one private non-assessment reflection was saved");
   const { data: learningItems, error: learningError } = await client.from("adle_learning_items").select("id").eq("child_id", state.childId).eq("micro_skill_key", "D4_MOR_PREFIXES_UN").eq("row_status", "active");
   if (learningError) throw learningError;
   assert((learningItems ?? []).length === 4, "four active morphology learning items remain");
@@ -110,7 +113,7 @@ async function verify(client: SupabaseClient): Promise<void> {
   const { data: schedule, error: scheduleError } = await client.from("adle_review_schedule_words").select("id").eq("child_id", state.childId).eq("row_status", "active");
   if (scheduleError) throw scheduleError;
   assert((schedule ?? []).length === 4, "four review schedule words were created");
-  console.log(JSON.stringify({ assignmentId, headerCount: 1, itemCount: items?.length ?? 0, attemptCount: attemptRows.length, guidedCount: 6, controlledCount: 4, dictationCount: 4, learningItemCount: learningItems?.length ?? 0, taughtCount: taught?.length ?? 0, scheduleCount: schedule?.length ?? 0 }, null, 2));
+  console.log(JSON.stringify({ assignmentId, headerCount: 1, itemCount: items?.length ?? 0, attemptCount: attemptRows.length, guidedCount: 6, controlledCount: 4, dictationCount: 4, reflectionNoteCount: reflections?.length ?? 0, learningItemCount: learningItems?.length ?? 0, taughtCount: taught?.length ?? 0, scheduleCount: schedule?.length ?? 0 }, null, 2));
 }
 
 async function cleanup(client: SupabaseClient): Promise<void> {
@@ -123,7 +126,8 @@ async function cleanup(client: SupabaseClient): Promise<void> {
   const { count: childRows } = await client.from("children").select("id", { count: "exact", head: true }).eq("id", state.childId);
   const { count: assignmentRows } = await client.from("daily_assignments").select("id", { count: "exact", head: true }).eq("child_id", state.childId);
   const { count: itemRows } = await client.from("assignment_items").select("id", { count: "exact", head: true }).eq("child_id", state.childId);
-  assert((childRows ?? 0) === 0 && (assignmentRows ?? 0) === 0 && (itemRows ?? 0) === 0, "disposable child and assignment rows were removed");
+  const { count: reflectionRows } = await client.from("adle_child_learning_reflections").select("id", { count: "exact", head: true }).eq("child_id", state.childId);
+  assert((childRows ?? 0) === 0 && (assignmentRows ?? 0) === 0 && (itemRows ?? 0) === 0 && (reflectionRows ?? 0) === 0, "disposable child, assignment, and private reflection rows were removed");
   console.log("ADLE D4_MOR live smoke cleanup passed");
 }
 

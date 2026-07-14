@@ -1,5 +1,5 @@
 {
-  "contentVersion": "d4_mor_prefixes_un_word_lab_v1_2026_07_13",
+  "contentVersion": "d4_mor_prefixes_un_word_lab_v1_2026_07_14_refined",
   "guide": {
     "persona": "prefix_scout",
     "narrationEnabled": true
@@ -23,6 +23,10 @@
     "unkind": { "sentence": "It was unkind to leave her out.", "targetTokenIndex": 2 },
     "unlock": { "sentence": "Please unlock the door before we leave.", "targetTokenIndex": 1 },
     "untidy": { "sentence": "The untidy desk needed sorting.", "targetTokenIndex": 1 }
+  },
+  "reflection": {
+    "promptKey": "word-lab-un-observation-v1",
+    "promptText": "What did you notice about what un- does in these words?"
   },
   "beats": [
     { "id": "discover-happy", "activityId": "discover", "state": "invite", "say": "This piece can change the word.", "onExplore": "Move un- towards happy and notice how the meaning changes.", "onHelpRequest": "Join un- before happy.", "goal": "join:un:happy", "waitFor": "joined:unhappy", "onComplete": "discover-kind" },

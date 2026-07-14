@@ -75,3 +75,42 @@ controls therefore remain covered by the guided-pilot regression and native
 button/input semantics rather than a separately completed synthetic-keyboard
 run. Physical touch and genuine-child observation remain human-device pilot
 gates. The feature remains disabled outside an explicit child allowlist.
+
+## Word Lab flow refinement on 2026-07-14
+
+The follow-up refinement keeps the pilot assessment contract at exactly 16
+assignment items and 14 attempt events. The development route now opens the
+guided lesson first, with the component playground behind a secondary control
+and a development-only restart action. Build places the authored `un-` slot
+before the fixed `tidy` base. Discover presents the interactive word and a
+larger before/after definition as paired cards on wide screens and stacked
+cards at narrow widths.
+
+Remember now preserves the child's exact input when comparing sentences. A
+missing sentence-initial capital receives explicit feedback, while correctness
+continues to be derived solely from the authored target token. After recall,
+the child sees a supportive recap of spelling, capitalization and punctuation
+differences before answering “What did you notice about what un- does in these
+words?”. The NOT/REVERSE summary and Finish action remain hidden until the
+reflection is non-empty.
+
+Reflections are private learning notes, not assessment evidence. The new
+`adle_child_learning_reflections` table stores one idempotent note per
+assignment/prompt, with authenticated parent/child ownership enforced by RLS
+and completion writes performed through the existing authorised service path.
+The note is excluded from attempt, evidence, mastery, intake, scheduling,
+reward and reporting flows. Its draft remains in strict local resume state
+until completion succeeds. Saved notes appear on the completed lesson and in a
+read-only ten-note “My Word Lab reflections” history on My Learning.
+
+Authenticated local QA completed the real lesson route, including exact-case
+sentence feedback, reflection ordering, required input, reflection reload,
+completed-page display and My Learning history. Database verification returned
+one header, 16 items, 14 attempts (6 guided, 4 controlled, 4 dictation), four
+learning items, four taught rows, four schedule rows and exactly one private
+reflection. The completed route was reloaded without duplicating the note or
+assessment outputs, and disposable fixture cleanup passed.
+
+Physical keyboard, physical touch and genuine-child observation remain the
+separate human acceptance gates described below; the pilot remains disabled
+outside its explicit allowlist.
