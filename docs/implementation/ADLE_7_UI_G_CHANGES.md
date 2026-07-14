@@ -145,3 +145,26 @@ reload, explicit rebuild, exact-case sentence feedback and private-reflection
 reload. Database verification passed twice around a completed-route reload:
 one completed header, 16 completed items, 14 attempts (6 guided, 4 controlled,
 4 dictation), one private reflection, and 4 learning/taught/schedule rows.
+
+## Final acceptance preparation on 2026-07-14
+
+The general ADLE runner no longer eagerly imports the Word Lab. The rich lesson
+and development preview use a client-only dynamic import with a polite status
+message, while generic spelling, guided and quick-sort controls import their
+small shared field module directly instead of pulling the morphology interaction
+barrel into warm sessions.
+
+`adle:d4-mor-bundle-regression` verifies the production build rather than only
+the source shape. At commit `f2b2371`, the `/learn/week/adle` entry chunks
+contain no Word Lab implementation markers. The one route-specific dynamic
+chunk is 38,100 bytes raw and 11,026 bytes gzip against a 153,600-byte budget.
+The preview displayed the accessible loading state, loaded Learn first, had no
+console warnings/errors and exposed no undersized buttons in the available
+narrow browser viewport.
+
+The live-smoke fixture now defaults to local Supabase and refuses remote use
+unless the exact staging hostname, the `disposable-data-only` acknowledgement
+and an explicit unused date are provided. Device/accessibility/performance and
+child-observation forms are prepared in `docs/implementation/qa/`, but their
+physical results remain unrecorded. The proof register therefore remains open
+and the pilot remains allowlist-gated.

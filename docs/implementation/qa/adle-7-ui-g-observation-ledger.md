@@ -2,6 +2,12 @@
 
 Status: pending real-child gated pilot run.
 
+Final human acceptance is executed through the
+[device/accessibility/performance proof](./adle-7-ui-g-device-accessibility-performance-proof.md)
+and [genuine-child proof](./adle-7-ui-g-child-validation-proof.md). Both remain
+pending until their physical sessions are completed; prepared checklists are
+not recorded proof.
+
 Owner status (2026-07-14): current Word Lab preview accepted. This records
 owner validation of the vertical experience, but does not replace the pending
 physical-device, accessibility, performance or genuine-child proof.
@@ -76,6 +82,9 @@ final sign-off record. Automated checks do not replace this observation.
 | Checked dictation reload | Pass; resumed at sentence 2 without prior comparison |
 | Completed-route reload / duplicate protection | Pass; counts unchanged |
 | Browser console errors | Pass; none |
+| Conditional Word Lab bundle boundary | Pass; warm entry contains no Word Lab markers |
+| Word Lab production chunk budget | Pass; 11,026 bytes gzip against 153,600-byte budget at `f2b2371` |
+| Final human proof templates | Prepared; physical-device, Web Vitals and child results remain pending |
 | Post-completion assignment header/items | Pass; 1 / 16 completed |
 | Post-completion attempt events | Pass; 14 total (6 guided, 4 controlled, 4 dictation) |
 | Post-completion learning/taught/schedule rows | Pass; 4 / 4 / 4 |
