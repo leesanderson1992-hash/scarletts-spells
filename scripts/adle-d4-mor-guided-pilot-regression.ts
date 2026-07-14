@@ -94,7 +94,11 @@ const splitSource = readFileSync("components/adle/activities/shared/split-handle
 const soundSource = readFileSync("components/adle/activities/shared/sound.ts", "utf8");
 const guideSource = readFileSync("components/adle/morphology/lesson-guide.tsx", "utf8");
 const sceneSource = readFileSync("components/adle/morphology/word-lab-scene.tsx", "utf8");
+const runnerSource = readFileSync("components/adle-session-runner.tsx", "utf8");
+const guidedShellSource = readFileSync("components/adle/activities/guided-activity.tsx", "utf8");
+const quickSortSource = readFileSync("components/adle/activities/quick-sort-activity.tsx", "utf8");
 assert(previewSource.includes("useState(true)") && previewSource.includes("Restart lesson") && previewSource.includes("Open component playground"), "development preview opens the guided lesson and keeps restart/playground controls");
+assert(!previewSource.includes('import { MorphologyGuidedLesson } from "@/components/adle/morphology/morphology-guided-lesson"') && previewSource.includes('import("@/components/adle/morphology/morphology-guided-lesson")'), "development preview preserves the Word Lab lazy boundary");
 assert(previewSource.includes("onPreviewComplete") && previewSource.includes("This preview stayed local") && previewSource.includes("Try the Word Lab again"), "development preview completes locally and offers a fresh run");
 assert(railSource.includes('fixedTilesPosition?: "before" | "after"') && railSource.indexOf("{placedTiles}{fixedTiles}") >= 0, "assembly rail supports a prefix slot before the fixed base");
 assert(!diffSource.includes('props.attempt.toLocaleLowerCase') && diffSource.includes("a sentence starts with a capital letter"), "sentence diff preserves authored case and prompts for the initial capital");
@@ -106,5 +110,10 @@ assert(splitSource.includes('playInteractionSound("cleave"') && splitSource.incl
 assert(splitSource.includes("useReducedMotion") && splitSource.includes("reducedMotion ? 0 : STRIKE_MS"), "cleaver strike has a static reduced-motion path");
 assert(splitSource.includes("Rebuild the word") && splitSource.includes("disabled={disabled}") && splitSource.includes("props.misses >= 2"), "Split holds success and bounds independent attempts before scaffolding");
 assert(sceneSource.includes('["Learn", "Discover", "Split", "Match", "Build", "Remember"]') && !guideSource.includes("props.beat.state"), "Learn is first and internal Guide states are hidden from children");
+assert(!runnerSource.includes('import { MorphologyGuidedLesson } from "@/components/adle/morphology/morphology-guided-lesson"'), "the general ADLE runner does not eagerly import the Word Lab client");
+assert(runnerSource.includes('import("@/components/adle/morphology/morphology-guided-lesson")') && runnerSource.includes("ssr: false"), "the Word Lab client is isolated behind a client-only dynamic import");
+assert(runnerSource.includes('from "@/components/adle/activities/shared/spelling-field"') && !runnerSource.includes('from "@/components/adle/activities/shared"'), "the general ADLE runner bypasses the morphology interaction barrel");
+assert(guidedShellSource.includes('from "./shared/spelling-field"') && quickSortSource.includes('from "./shared/spelling-field"'), "generic activity shells do not pull the morphology interaction barrel into warm sessions");
+assert(runnerSource.includes('role="status"') && runnerSource.includes('aria-live="polite"') && runnerSource.includes("Preparing the Word Lab"), "the lazy boundary exposes an accessible loading state");
 
 console.log("ADLE D4_MOR guided pilot regression passed");

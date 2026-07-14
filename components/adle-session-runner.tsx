@@ -15,6 +15,7 @@
  * server-side; the client submits raw attempt text only.
  */
 
+import dynamic from "next/dynamic";
 import { useMemo, useState } from "react";
 
 import {
@@ -29,11 +30,29 @@ import type { AdleSessionItem } from "@/lib/adle/loaders/daily-plan-surface";
 import { isAttemptCorrect } from "@/lib/adle/session-correctness";
 import { IntroActivity } from "@/components/adle/activities/intro-activity";
 import { QuickSortActivity } from "@/components/adle/activities/quick-sort-activity";
-import { SpellingField } from "@/components/adle/activities/shared";
+import { SpellingField } from "@/components/adle/activities/shared/spelling-field";
 import { GuidedActivity } from "@/components/adle/activities/guided-activity";
 import { ReflectionActivity } from "@/components/adle/activities/reflection-activity";
-import { MorphologyGuidedLesson } from "@/components/adle/morphology/morphology-guided-lesson";
 import type { MorphologyLessonPayloadV1 } from "@/lib/adle/morphology/payload";
+
+const MorphologyGuidedLesson = dynamic(
+  () =>
+    import("@/components/adle/morphology/morphology-guided-lesson").then(
+      (module) => module.MorphologyGuidedLesson,
+    ),
+  {
+    ssr: false,
+    loading: () => (
+      <div
+        role="status"
+        aria-live="polite"
+        className="brand-card rounded-3xl p-8 text-center text-sm text-[color:var(--mid)]"
+      >
+        Preparing the Word Lab…
+      </div>
+    ),
+  },
+);
 
 type AdleSessionRunnerProps = {
   childId: string;

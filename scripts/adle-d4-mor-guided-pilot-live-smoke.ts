@@ -14,19 +14,36 @@ interface SmokeState {
   importBatchId: string | null;
   sourceId: string | null;
   insertedWordIds: string[];
+  supabaseHost: string;
 }
 
 function assert(condition: unknown, message: string): asserts condition {
   if (!condition) throw new Error(`FAIL: ${message}`);
 }
 
-function localClient(): SupabaseClient {
+function qaClient(): SupabaseClient {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL ?? process.env.SUPABASE_URL;
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!url || !key) throw new Error("Missing local Supabase URL or service role key.");
+  if (!url || !key) throw new Error("Missing QA Supabase URL or service role key.");
   const hostname = new URL(url).hostname;
-  if (hostname !== "127.0.0.1" && hostname !== "localhost") throw new Error("Refusing to run live pilot smoke outside local Supabase.");
+  const local = hostname === "127.0.0.1" || hostname === "localhost";
+  if (!local) {
+    const expectedStagingHost = process.env.ADLE_QA_STAGING_SUPABASE_HOST;
+    const acknowledgement = process.env.ADLE_QA_ACCEPT_STAGING;
+    if (!hostname.endsWith(".supabase.co") || expectedStagingHost !== hostname || acknowledgement !== "disposable-data-only") {
+      throw new Error("Refusing remote QA: set the exact ADLE_QA_STAGING_SUPABASE_HOST and ADLE_QA_ACCEPT_STAGING=disposable-data-only. Never use production.");
+    }
+  }
   return createClient(url, key, { auth: { autoRefreshToken: false, persistSession: false } });
+}
+
+function qaPlanDate(hostname: string): string {
+  const requested = process.env.ADLE_QA_PLAN_DATE;
+  if (requested !== undefined && /^\d{4}-\d{2}-\d{2}$/.test(requested)) return requested;
+  if (hostname !== "127.0.0.1" && hostname !== "localhost") {
+    throw new Error("Remote staging QA requires an explicit unused ADLE_QA_PLAN_DATE in YYYY-MM-DD format.");
+  }
+  return new Date().toISOString().slice(0, 10);
 }
 
 function readState(): SmokeState {
@@ -37,7 +54,9 @@ async function setup(client: SupabaseClient): Promise<void> {
   const suffix = `${Date.now()}-${Math.random().toString(16).slice(2)}`;
   const email = `adle-ui-g-live-${suffix}@example.test`;
   const password = `Local-${suffix}!`;
-  const planDate = new Date().toISOString().slice(0, 10);
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL ?? process.env.SUPABASE_URL;
+  const supabaseHost = new URL(url!).hostname;
+  const planDate = qaPlanDate(supabaseHost);
   const { data: authData, error: authError } = await client.auth.admin.createUser({ email, password, email_confirm: true });
   if (authError || !authData.user) throw new Error(`seed auth user: ${authError?.message}`);
   const parentUserId = authData.user.id;
@@ -70,7 +89,7 @@ async function setup(client: SupabaseClient): Promise<void> {
     const { data: allWords, error: allWordsError } = await client.from("canonical_teaching_dictionary_words").select("id, display_word").in("display_word", [...PILOT_WORDS]).eq("row_status", "active");
     if (allWordsError) throw allWordsError;
     assert((allWords ?? []).length === 7, "all seven canonical pilot words are available");
-    const state: SmokeState = { parentUserId, childId, email, password, planDate, importBatchId, sourceId, insertedWordIds };
+    const state: SmokeState = { parentUserId, childId, email, password, planDate, importBatchId, sourceId, insertedWordIds, supabaseHost };
     mkdirSync(dirname(STATE_PATH), { recursive: true });
     writeFileSync(STATE_PATH, JSON.stringify(state, null, 2));
     console.log(JSON.stringify(state));
@@ -132,7 +151,7 @@ async function cleanup(client: SupabaseClient): Promise<void> {
 }
 
 const command = process.argv[2];
-const client = localClient();
+const client = qaClient();
 const operation = command === "setup" ? setup(client) : command === "verify" ? verify(client) : command === "cleanup" ? cleanup(client) : Promise.reject(new Error("Use setup, verify, or cleanup."));
 operation.catch((error) => {
   console.error(error instanceof Error ? error.message : error);
