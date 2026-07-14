@@ -47,12 +47,21 @@ export function MorphologyPrimitivesPreview(props: {
   const [splitRevealed, setSplitRevealed] = useState(true);
   const [guided, setGuided] = useState(true);
   const [guidedRun, setGuidedRun] = useState(0);
+  const [guidedComplete, setGuidedComplete] = useState(false);
+  const [previewReflection, setPreviewReflection] = useState("");
   const reducedMotion = useReducedMotionPreference();
   const famous = props.sequences.find((sequence) => sequence.displayWord === "famous");
   const longWord = props.sequences.find((sequence) => sequence.displayWord === "unnecessary");
 
   const guidedItems: AdleSessionItem[] = props.guidedPayload.activities.flatMap((activity) => activity.assignmentBindings).map((binding, index) => ({ id: `dev-item-${index}`, sectionKey: binding.startsWith("controlled-") ? "lesson_production" : binding.startsWith("dictation-") ? "lesson_dictation" : binding === "intro-root" ? "lesson_intro" : "guided_practice", templateKey: binding.startsWith("controlled-") ? "CONTROLLED_SPELLING" : binding.startsWith("dictation-") ? "DICTATION_NO_IMAGE" : "MOR_STRIP_BUILD", position: index + 1, status: "ready", targetWord: null, canonicalWordId: null, microSkillKey: "D4_MOR_PREFIXES_UN", adleLearningItemRef: null, promptData: { pilotActivityId: binding } }));
-  if (guided) return <div className="grid gap-4"><div className="flex flex-wrap gap-3"><button type="button" className="brand-secondary-btn" onClick={() => setGuided(false)}>Open component playground</button><button type="button" className="brand-secondary-btn" onClick={() => { clearMorphologyResume(morphologyResumeKey(DEV_GUIDED_ASSIGNMENT_ID, props.guidedPayload.contentVersion)); setGuidedRun((current) => current + 1); }}>Restart lesson</button></div><MorphologyGuidedLesson key={guidedRun} childId="dev-child" assignmentId={DEV_GUIDED_ASSIGNMENT_ID} items={guidedItems} payload={props.guidedPayload} /></div>;
+  function restartGuidedLesson() {
+    clearMorphologyResume(morphologyResumeKey(DEV_GUIDED_ASSIGNMENT_ID, props.guidedPayload.contentVersion));
+    setGuidedComplete(false);
+    setPreviewReflection("");
+    setGuidedRun((current) => current + 1);
+  }
+
+  if (guided) return <div className="grid gap-4"><div className="flex flex-wrap gap-3"><button type="button" className="brand-secondary-btn" onClick={() => setGuided(false)}>Open component playground</button><button type="button" className="brand-secondary-btn" onClick={restartGuidedLesson}>Restart lesson</button></div>{guidedComplete ? <section className="brand-card rounded-3xl p-6 text-center" aria-labelledby="preview-word-lab-complete"><p className="brand-eyebrow">Development preview complete</p><h2 id="preview-word-lab-complete" className="mt-2 text-2xl font-black text-[color:var(--ink)]">You finished the Word Lab! 🎉</h2><p className="mt-2 text-sm text-[color:var(--mid)]">This preview stayed local. Nothing was submitted or scored.</p><blockquote className="mx-auto mt-4 max-w-2xl rounded-2xl bg-cyan-50 p-4 text-cyan-950">{previewReflection}</blockquote><button type="button" className="brand-primary-btn mt-5" onClick={restartGuidedLesson}>Try the Word Lab again</button></section> : <MorphologyGuidedLesson key={guidedRun} childId="dev-child" assignmentId={DEV_GUIDED_ASSIGNMENT_ID} items={guidedItems} payload={props.guidedPayload} onPreviewComplete={(reflectionText) => { clearMorphologyResume(morphologyResumeKey(DEV_GUIDED_ASSIGNMENT_ID, props.guidedPayload.contentVersion)); setPreviewReflection(reflectionText); setGuidedComplete(true); }} />}</div>;
   return (
     <ActivityFrame
       header={

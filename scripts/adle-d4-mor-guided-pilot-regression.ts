@@ -70,9 +70,11 @@ const lessonSource = readFileSync("components/adle/morphology/morphology-guided-
 const splitSource = readFileSync("components/adle/activities/shared/split-handle.tsx", "utf8");
 const soundSource = readFileSync("components/adle/activities/shared/sound.ts", "utf8");
 assert(previewSource.includes("useState(true)") && previewSource.includes("Restart lesson") && previewSource.includes("Open component playground"), "development preview opens the guided lesson and keeps restart/playground controls");
+assert(previewSource.includes("onPreviewComplete") && previewSource.includes("This preview stayed local") && previewSource.includes("Try the Word Lab again"), "development preview completes locally and offers a fresh run");
 assert(railSource.includes('fixedTilesPosition?: "before" | "after"') && railSource.indexOf("{placedTiles}{fixedTiles}") >= 0, "assembly rail supports a prefix slot before the fixed base");
 assert(!diffSource.includes('props.attempt.toLocaleLowerCase') && diffSource.includes("a sentence starts with a capital letter"), "sentence diff preserves authored case and prompts for the initial capital");
 assert(lessonSource.includes('autoCapitalize="sentences"') && lessonSource.includes("Remember recap") && lessonSource.includes('name="learningReflection"'), "Remember flows into a private written reflection");
+assert(lessonSource.includes("event.preventDefault()") && lessonSource.includes("props.onPreviewComplete ? undefined : completeAdleLessonPartAction"), "preview completion cannot invoke the authenticated lesson action");
 assert(!splitSource.includes('type="range"') && !splitSource.includes("Drag the split handle"), "Split removes the range slider");
 assert(splitSource.includes("CleaverIcon") && splitSource.includes("onPointerEnter") && splitSource.includes("onFocus") && splitSource.includes('aria-label={`Split after letter ${point}`}'), "cleaver follows pointer and keyboard focus over named boundary buttons");
 assert(splitSource.includes('playInteractionSound("cleave"') && splitSource.includes('playInteractionSound("sparkle"') && soundSource.includes('"sparkle"'), "split plays chop and success sparkle sounds");
