@@ -25,6 +25,10 @@ import type {
   WordFamilyViewModel,
   WordSplitViewModel,
 } from "@/lib/adle/ui/morphology-primitives";
+import type { MorphologyLessonPayloadV1 } from "@/lib/adle/morphology/payload";
+import type { AdleSessionItem } from "@/lib/adle/loaders/daily-plan-surface";
+import { MorphologyGuidedLesson } from "@/components/adle/morphology/morphology-guided-lesson";
+import { TransformationAnimation } from "@/components/adle/activities/shared";
 
 export function MorphologyPrimitivesPreview(props: {
   pilotSequence: MorphemeSequenceViewModel;
@@ -35,12 +39,16 @@ export function MorphologyPrimitivesPreview(props: {
   rootArtifact: RootArtifactCardViewModel;
   family: WordFamilyViewModel;
   diff: MorphologyDiffViewModel;
+  guidedPayload: MorphologyLessonPayloadV1;
 }) {
   const [splitRevealed, setSplitRevealed] = useState(true);
+  const [guided, setGuided] = useState(false);
   const reducedMotion = useReducedMotionPreference();
   const famous = props.sequences.find((sequence) => sequence.displayWord === "famous");
   const longWord = props.sequences.find((sequence) => sequence.displayWord === "unnecessary");
 
+  const guidedItems: AdleSessionItem[] = props.guidedPayload.activities.flatMap((activity) => activity.assignmentBindings).map((binding, index) => ({ id: `dev-item-${index}`, sectionKey: binding.startsWith("controlled-") ? "lesson_production" : binding.startsWith("dictation-") ? "lesson_dictation" : binding === "intro-root" ? "lesson_intro" : "guided_practice", templateKey: binding.startsWith("controlled-") ? "CONTROLLED_SPELLING" : binding.startsWith("dictation-") ? "DICTATION_NO_IMAGE" : "MOR_STRIP_BUILD", position: index + 1, status: "ready", targetWord: null, canonicalWordId: null, microSkillKey: "D4_MOR_PREFIXES_UN", adleLearningItemRef: null, promptData: { pilotActivityId: binding } }));
+  if (guided) return <div className="grid gap-4"><button type="button" className="brand-secondary-btn justify-self-start" onClick={() => setGuided(false)}>Back to component playground</button><MorphologyGuidedLesson childId="dev-child" assignmentId="dev-morphology-guided" items={guidedItems} payload={props.guidedPayload} /></div>;
   return (
     <ActivityFrame
       header={
@@ -53,6 +61,7 @@ export function MorphologyPrimitivesPreview(props: {
       }
     >
       <div className="grid gap-5">
+        <button type="button" className="brand-primary-btn" onClick={() => setGuided(true)}>Run guided lesson</button>
         <InstructionPanel
           instruction="These examples use approved D4_MOR v1 records and the approved un- pilot fixture."
           teachingCue="The preview composes primitives only; it does not submit, score, assign, or activate anything."
@@ -94,6 +103,7 @@ export function MorphologyPrimitivesPreview(props: {
             <MorphemeSequence sequence={famous} mode="teaching" />
             <div className="mt-3">
               <TransformationView transformations={famous.transformations} />
+              <div className="mt-3"><TransformationAnimation source="fame" removed="e" remaining="fam" suffix="ous" result="famous" description="The final e leaves before ous joins." /></div>
             </div>
           </PreviewPanel>
         ) : null}

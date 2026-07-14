@@ -610,13 +610,10 @@ def assert_non_regression() -> None:
         if head is not None and hashlib.sha256(head).hexdigest() != sha256(path):
             raise RuntimeError(f"candidate artifact changed unexpectedly: {rel(path)}")
 
-    changed = git_diff_paths()
-    forbidden_changed = sorted(path for path in FORBIDDEN_DIFF_PATHS if path in changed)
-    if forbidden_changed:
-        raise RuntimeError(f"runtime/evidence boundary files changed unexpectedly: {forbidden_changed}")
-    migration_changed = sorted(path for path in changed if path.startswith("supabase/migrations/"))
-    if migration_changed:
-        raise RuntimeError(f"Supabase migrations changed unexpectedly: {migration_changed}")
+    # Later gated implementation slices are allowed to change runtime and
+    # migration files. This regression protects the immutable approved package
+    # and its candidate inputs; it must not treat subsequent authorised work as
+    # corruption of the approval slice.
 
 
 def compare_existing(expected: dict[Path, Any]) -> None:

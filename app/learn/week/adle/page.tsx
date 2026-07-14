@@ -24,6 +24,8 @@ import {
   type AdleSessionCelebrationModel,
 } from "@/lib/rewards/adle-session-celebration";
 import { AdleSessionCelebration } from "@/components/adle/adle-session-celebration";
+import { isMorphologyUnPilotEnabledForChild } from "@/lib/adle/morphology/pilot-access";
+import { resolveMorphologyPilotRuntime } from "@/lib/adle/morphology/payload";
 
 type AdleSessionPageProps = {
   searchParams?: Promise<{
@@ -90,6 +92,10 @@ export default async function AdleSessionPage({ searchParams }: AdleSessionPageP
   });
 
   const backPath = buildScopedPath("/learn/week", selectedChild.id, mode);
+  const morphologyPilotPayload = resolveMorphologyPilotRuntime(
+    isMorphologyUnPilotEnabledForChild(selectedChild.id),
+    readModel.partTwo.items,
+  );
 
   // Slice 7a-D: on the completed screen, read the child's Word Treasure state and
   // derive today's celebration (Nugget->Forge from lesson completion + any
@@ -176,6 +182,7 @@ export default async function AdleSessionPage({ searchParams }: AdleSessionPageP
             planDate={readModel.planDate}
             partOne={readModel.partOne}
             partTwo={readModel.partTwo}
+            morphologyPilotPayload={morphologyPilotPayload}
           />
         )}
       </section>

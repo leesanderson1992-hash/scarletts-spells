@@ -45,6 +45,8 @@ export interface ActivityTemplateDefinition {
   fallbackBehaviour: ActivityTemplateFallbackBehaviour;
   capturesAttempt: boolean;
   activityMode: ActivityMode;
+  richExperience?: "D4_MOR_GUIDED";
+  supportedPayloadVersions?: readonly number[];
 }
 
 const TEMPLATE_DEFINITIONS = {
@@ -260,7 +262,10 @@ function guidedDefinition(
   templateKey: string,
   templateFamily: ActivityTemplateFamily,
 ): ActivityTemplateDefinition {
-  return definition(templateKey, templateFamily, ["guided_practice"], "guided_prompt", true, "guided");
+  const result = definition(templateKey, templateFamily, ["guided_practice"], "guided_prompt", true, "guided");
+  return templateFamily === "morphology"
+    ? { ...result, richExperience: "D4_MOR_GUIDED", supportedPayloadVersions: [1] }
+    : result;
 }
 
 function fallback(

@@ -1,0 +1,38 @@
+{
+  "contentVersion": "d4_mor_prefixes_un_word_lab_v1_2026_07_13",
+  "guide": {
+    "persona": "prefix_scout",
+    "narrationEnabled": true
+  },
+  "meanings": {
+    "unhappy": { "base": "feeling pleased", "derived": "not happy", "effect": "not" },
+    "unfair": { "base": "fair and equal", "derived": "not fair", "effect": "not" },
+    "unkind": { "base": "caring and helpful", "derived": "not kind", "effect": "not" },
+    "unlock": { "base": "close with a lock", "derived": "reverse the lock", "effect": "reverse" },
+    "untidy": { "base": "neat and ordered", "derived": "not tidy", "effect": "not" },
+    "unnatural": { "base": "natural", "derived": "not natural", "effect": "not" },
+    "unnecessary": { "base": "necessary", "derived": "not necessary", "effect": "not" }
+  },
+  "prefixChoices": [
+    { "text": "un", "label": "un-", "outcome": "untidy", "meaning": "not tidy", "status": "target" },
+    { "text": "re", "label": "re-", "outcome": "retidy", "meaning": "tidy again", "status": "valid_alternative" },
+    { "text": "pre", "label": "pre-", "outcome": null, "meaning": null, "status": "unsupported" }
+  ],
+  "dictation": {
+    "unfair": { "sentence": "It was unfair to change the rules.", "targetTokenIndex": 2 },
+    "unkind": { "sentence": "It was unkind to leave her out.", "targetTokenIndex": 2 },
+    "unlock": { "sentence": "Please unlock the door before we leave.", "targetTokenIndex": 1 },
+    "untidy": { "sentence": "The untidy desk needed sorting.", "targetTokenIndex": 1 }
+  },
+  "beats": [
+    { "id": "discover-happy", "activityId": "discover", "state": "invite", "say": "This piece can change the word.", "onExplore": "Move un- towards happy and notice how the meaning changes.", "onHelpRequest": "Join un- before happy.", "goal": "join:un:happy", "waitFor": "joined:unhappy", "onComplete": "discover-kind" },
+    { "id": "discover-kind", "activityId": "discover", "state": "observe", "say": "Try the same piece with kind.", "onExplore": "See whether un- changes kind in the same way.", "onHelpRequest": "Join un- before kind.", "goal": "join:un:kind", "waitFor": "joined:unkind", "onComplete": "discover-lock" },
+    { "id": "discover-lock", "activityId": "discover", "state": "observe", "say": "What happens when it meets lock?", "onExplore": "This time un- reverses an action.", "onHelpRequest": "Join un- before lock and listen to the new meaning.", "goal": "join:un:lock", "waitFor": "joined:unlock", "onComplete": "split" },
+    { "id": "split", "activityId": "strip-build", "state": "focus", "say": "Can you find where the word was joined?", "onSlip": "That point resisted. Try the boundary after un-.", "onRepeatedMisconception": "The prefix is the first two letters: un-.", "onHelpRequest": "Split unhappy after un-, then rebuild it with both pieces.", "goal": "split:unhappy:2", "waitFor": "rebuilt:unhappy", "onComplete": "match" },
+    { "id": "match", "activityId": "meaning-match", "state": "observe", "say": "What did un- do here?", "onMisconception": "Ask whether un- means not, or reverses an action.", "onRepeatedMisconception": "Unlock reverses locking; the other lesson words mean not.", "onHelpRequest": "Read the two meaning labels, then choose the job un- is doing.", "goal": "sort:all", "waitFor": "sorted:all", "onComplete": "build" },
+    { "id": "build", "activityId": "build-word", "state": "focus", "say": "Make a word meaning not tidy.", "onPartial": "re- makes retidy, meaning tidy again.", "onMisconception": "We need the prefix that means not.", "onRepeatedMisconception": "Choose un- to make untidy.", "onHelpRequest": "Put un- before tidy.", "goal": "prefix:un:tidy", "waitFor": "joined:untidy", "onComplete": "controlled" },
+    { "id": "controlled", "activityId": "controlled-spelling", "state": "withdraw", "say": "Look at how the parts fit. Cover each word when you are ready.", "goal": "controlled:all", "waitFor": "controlled:all", "onComplete": "dictation" },
+    { "id": "dictation", "activityId": "dictation", "state": "guideSilent", "goal": "dictation:all", "waitFor": "dictation:all", "onComplete": "reflect" },
+    { "id": "reflect", "activityId": "reflection", "state": "reflect", "say": "You discovered two jobs for un-. It can mean not, or reverse an action.", "goal": "complete", "waitFor": "complete", "onComplete": "done" }
+  ]
+}

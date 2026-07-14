@@ -32,6 +32,8 @@ import { QuickSortActivity } from "@/components/adle/activities/quick-sort-activ
 import { SpellingField } from "@/components/adle/activities/shared";
 import { GuidedActivity } from "@/components/adle/activities/guided-activity";
 import { ReflectionActivity } from "@/components/adle/activities/reflection-activity";
+import { MorphologyGuidedLesson } from "@/components/adle/morphology/morphology-guided-lesson";
+import type { MorphologyLessonPayloadV1 } from "@/lib/adle/morphology/payload";
 
 type AdleSessionRunnerProps = {
   childId: string;
@@ -39,6 +41,7 @@ type AdleSessionRunnerProps = {
   planDate: string;
   partOne: { items: AdleSessionItem[]; present: boolean; complete: boolean };
   partTwo: { items: AdleSessionItem[]; present: boolean; complete: boolean };
+  morphologyPilotPayload?: MorphologyLessonPayloadV1 | null;
 };
 
 function itemsIn(items: readonly AdleSessionItem[], sectionKey: string): AdleSessionItem[] {
@@ -313,7 +316,11 @@ export function AdleSessionRunner(props: AdleSessionRunnerProps) {
       ) : null}
 
       {partTwo.present && (partOne.complete || !partOne.present) && !partTwo.complete ? (
-        <LessonPart childId={props.childId} assignmentId={props.assignmentId} items={partTwo.items} />
+        props.morphologyPilotPayload ? (
+          <MorphologyGuidedLesson childId={props.childId} assignmentId={props.assignmentId} items={partTwo.items} payload={props.morphologyPilotPayload} />
+        ) : (
+          <LessonPart childId={props.childId} assignmentId={props.assignmentId} items={partTwo.items} />
+        )
       ) : null}
 
       {partTwo.present && !partOne.complete && partOne.present ? (

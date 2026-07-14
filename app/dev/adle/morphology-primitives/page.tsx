@@ -16,6 +16,7 @@ import {
   type ApprovedRootArtifactRecord,
   type ApprovedWordAnalysisRecord,
 } from "@/lib/adle/ui/morphology-primitives";
+import { compileMorphologyUnPilotPayload } from "@/lib/adle/morphology/payload";
 
 type WordAnalysesPackage = {
   wordAnalyses: ApprovedWordAnalysisRecord[];
@@ -58,6 +59,9 @@ export default function MorphologyPrimitivesDevPreviewPage() {
   const rootTele = findMorpheme(catalog.morphemes, "root_TELE");
   const rootArtifact = findRootArtifact(catalog.rootArtifacts, "ROOT_TELE");
   const telephone = findAnalysis(approvedWords.wordAnalyses, "telephone");
+  const pilotIds = Object.fromEntries(
+    pilot.approvedAvailableWordAnalyses.map((analysis) => [analysis.displayWord, `dev-${analysis.displayWord}`]),
+  );
 
   return (
     <MorphologyPrimitivesPreview
@@ -73,6 +77,7 @@ export default function MorphologyPrimitivesDevPreviewPage() {
         attemptedWord: "mispell",
         notes: ["Post-submit only", "Shows the approved morpheme grouping without deciding evidence"],
       })}
+      guidedPayload={compileMorphologyUnPilotPayload(pilotIds)}
     />
   );
 }

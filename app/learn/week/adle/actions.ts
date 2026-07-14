@@ -54,6 +54,8 @@ import {
   persistProbeCompletion,
   persistReviewSessionCompletion,
 } from "@/lib/adle/loaders/session-completion-loader";
+import { isMorphologyUnPilotEnabledForChild } from "@/lib/adle/morphology/pilot-access";
+import { extractAuthoredTargetToken, resolveMorphologyPilotRuntime } from "@/lib/adle/morphology/payload";
 
 function readFormValue(formData: FormData, key: string): string | null {
   const value = formData.get(key);
@@ -368,13 +370,27 @@ export async function completeAdleLessonPartAction(formData: FormData) {
   }
 
   const controlledAttempts = parseAttempts(formData, "attempts");
-  const dictationAttempts = parseAttempts(formData, "dictationAttempts");
+  let dictationAttempts = parseAttempts(formData, "dictationAttempts");
+  const dictationSentenceAttempts = parseAttempts(formData, "dictationSentenceAttempts");
   const probeAttempts = parseAttempts(formData, "probeAttempts");
   const guidedAttempts = parseAttempts(formData, "guidedAttempts");
 
   const dictationItems = readModel.partTwo.items.filter(
     (item) => item.sectionKey === "lesson_dictation" && item.canonicalWordId !== null,
   );
+  const morphologyPilot = resolveMorphologyPilotRuntime(
+    isMorphologyUnPilotEnabledForChild(childId),
+    readModel.partTwo.items,
+  );
+  if (morphologyPilot !== null) {
+    const sentenceActivity = morphologyPilot.activities.find((activity) => activity.type === "sentence_dictation");
+    const derived = new Map<string, string>();
+    for (const sentence of sentenceActivity?.sentences ?? []) {
+      const rawAttempt = dictationSentenceAttempts.get(sentence.canonicalWordId) ?? "";
+      derived.set(sentence.canonicalWordId, extractAuthoredTargetToken(rawAttempt, sentence.targetTokenIndex));
+    }
+    dictationAttempts = derived;
+  }
   const hasDictation = dictationItems.length > 0;
 
   const producedWords: ProducedWordAttempt[] = productionItems.map((item) => {
@@ -425,6 +441,7 @@ export async function completeAdleLessonPartAction(formData: FormData) {
       items: readModel.partTwo.items,
       controlledAttempts,
       dictationAttempts,
+      dictationRawAttempts: morphologyPilot === null ? undefined : dictationSentenceAttempts,
       guidedAttempts,
       probeAttempts,
     }),

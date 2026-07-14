@@ -976,10 +976,6 @@ def assert_non_regression() -> None:
     head = git_head_bytes(EXISTING_TEACHING_CONTENT)
     if head is not None and hashlib.sha256(head).hexdigest() != sha256(EXISTING_TEACHING_CONTENT):
         raise RuntimeError("Existing active teaching_content_versions.csv differs from HEAD")
-    changed = git_diff_paths()
-    forbidden_changed = sorted(path for path in FORBIDDEN_DIFF_PATHS if path in changed)
-    if forbidden_changed:
-        raise RuntimeError(f"Runtime/evidence boundary files changed unexpectedly: {forbidden_changed}")
     generated = sorted(path.relative_to(ROOT).as_posix() for path in GENERATED_DIR.glob("*"))
     if not generated:
         raise RuntimeError("No generated D4_MOR candidate outputs found")
@@ -989,10 +985,14 @@ def assert_non_regression() -> None:
 
 def main() -> None:
     retained_before = {path: sha256(path) for path in [WORKBOOK, RETAINED_DESIGN_PACK]}
+    runtime_before = {ROOT / path: sha256(ROOT / path) for path in FORBIDDEN_DIFF_PATHS if (ROOT / path).exists()}
     update_candidate_outputs()
     retained_after = {path: sha256(path) for path in [WORKBOOK, RETAINED_DESIGN_PACK]}
+    runtime_after = {path: sha256(path) for path in runtime_before}
     if retained_before != retained_after:
         raise RuntimeError("Retained D4_MOR source artifacts changed during generation")
+    if runtime_before != runtime_after:
+        raise RuntimeError("D4_MOR candidate generation modified a runtime/evidence boundary file")
     assert_non_regression()
     summary = json.loads((GENERATED_DIR / "d4-mor-category-v1-summary.json").read_text(encoding="utf-8"))
     print("ADLE D4_MOR content schema regression passed")

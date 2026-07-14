@@ -64,6 +64,7 @@ export function buildLessonAttemptEvents(params: {
   items: readonly AdleSessionItem[];
   controlledAttempts: ReadonlyMap<string, string>;
   dictationAttempts: ReadonlyMap<string, string>;
+  dictationRawAttempts?: ReadonlyMap<string, string>;
   guidedAttempts: ReadonlyMap<string, string>;
   probeAttempts: ReadonlyMap<string, string>;
 }): AssignmentAttemptEventWrite[] {
@@ -99,7 +100,7 @@ export function buildLessonAttemptEvents(params: {
       const attemptText = params.dictationAttempts.get(item.canonicalWordId) ?? "";
       events.push({
         ...attemptEventBase(params.context, item),
-        attemptText,
+        attemptText: params.dictationRawAttempts?.get(item.canonicalWordId) ?? attemptText,
         isCorrect: isAttemptCorrect(attemptText, item.targetWord),
         attemptKind: "lesson_dictation",
         evidenceClass: "first_exposure_lesson_attempt",

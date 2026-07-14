@@ -17,7 +17,7 @@
 
 import type { SupabaseClient } from "@supabase/supabase-js";
 
-import { composeDailyPlan } from "../daily-assignment-composer";
+import { composeDailyPlan, type ComposedDailyPlan } from "../daily-assignment-composer";
 import {
   ADLE_ASSIGNMENT_GENERATION_SOURCE,
   ADLE_DAILY_ASSIGNMENT_TITLE,
@@ -138,6 +138,27 @@ export interface EnsureAdleDailyPlanParams {
   parentUserId: string;
   childId: string;
   planDate: IsoDate;
+}
+
+export async function persistComposedAdleDailyPlan(params: EnsureAdleDailyPlanParams & { plan: ComposedDailyPlan }): Promise<string | null> {
+  const { userClient, serviceClient, parentUserId, childId, planDate, plan } = params;
+  const { data: headerRows, error: headersError } = await userClient.from("daily_assignments").select("child_id, assignment_date, title, status").eq("parent_user_id", parentUserId).eq("child_id", childId).eq("assignment_date", planDate);
+  if (headersError) throw new Error(`persistComposedAdleDailyPlan:headers: ${headersError.message}`);
+  const existingHeaders: ExistingAssignmentHeaderFact[] = (headerRows ?? []).map((row) => ({ childId: (row as { child_id: string }).child_id, assignmentDate: (row as { assignment_date: string }).assignment_date, title: (row as { title: string | null }).title ?? "", status: (row as { status: string }).status }));
+  const persistence = planAssignmentPersistence(plan, { parentUserId, existingHeaders });
+  if (persistence.action === "noop") return persistence.noopReason === "existing_active_plan" ? (await findAdleHeader(userClient, parentUserId, childId, planDate))?.id ?? null : null;
+  if (!persistence.header) return null;
+  const { data, error } = await serviceClient.rpc("persist_adle_composed_daily_plan_v1", {
+    p_parent_user_id: parentUserId,
+    p_child_id: childId,
+    p_plan_date: planDate,
+    p_header: persistence.header,
+    p_items: persistence.items,
+    p_intakes: persistence.learningItemIntakes,
+  });
+  if (error) throw new Error(`persistComposedAdleDailyPlan:rpc: ${error.message}`);
+  if (typeof data !== "string" || data.length === 0) throw new Error("persistComposedAdleDailyPlan: RPC returned no assignment id");
+  return data;
 }
 
 /** Ensure today's ADLE plan exists; returns the header id or null when the

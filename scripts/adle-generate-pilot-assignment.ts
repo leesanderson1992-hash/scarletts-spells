@@ -1,8 +1,12 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
-import { ensureAdleDailyPlan } from "../lib/adle/loaders/daily-plan-surface";
+import { ensureAdleDailyPlan, getExistingAdleDailyPlanId, persistComposedAdleDailyPlan } from "../lib/adle/loaders/daily-plan-surface";
 import { previewAdleDailyPlan } from "../lib/adle/loaders/daily-plan-preview";
 import type { IsoDate } from "../lib/adle/review-scheduler";
+import { loadDailyPlanFacts } from "../lib/adle/loaders/composer-facts-loader";
+import { composeDailyPlan } from "../lib/adle/daily-assignment-composer";
+import { buildMorphologyUnPilotPlan } from "../lib/adle/morphology/pilot-plan";
+import { validateMorphologyLessonPayload } from "../lib/adle/morphology/payload";
 
 const CONFIRM_TOKEN = "ADLE-7P-GENERATE";
 
@@ -137,6 +141,7 @@ async function main(): Promise<void> {
   const confirm = readArg("--confirm-generate");
   const approvedParentUserId = readArg("--approved-parent-user-id");
   const approvedChildId = readArg("--approved-child-id");
+  const experience = readArg("--experience");
 
   if (confirm !== CONFIRM_TOKEN) {
     throw new Error(`Refusing to generate without --confirm-generate ${CONFIRM_TOKEN}.`);
@@ -155,6 +160,24 @@ async function main(): Promise<void> {
   });
 
   await verifyChildApprovedForGeneration({ client, parentUserId, childId });
+
+  if (experience === "d4-mor-un") {
+    const allowlisted = new Set((process.env.ADLE_MORPHOLOGY_UN_PILOT_CHILD_IDS ?? "").split(",").map((entry) => entry.trim()).filter(Boolean));
+    if (process.env.ADLE_MORPHOLOGY_UN_PILOT_ENABLED !== "enabled" || !allowlisted.has(childId)) {
+      throw new Error("Refusing to generate: D4_MOR un- pilot gate or child allowlist is not enabled.");
+    }
+    const existing = await getExistingAdleDailyPlanId({ userClient: client, parentUserId, childId, planDate: assignmentDate });
+    if (existing) throw new Error(`Refusing to generate: active ADLE assignment ${existing} already exists for ${assignmentDate}.`);
+    const { facts } = await loadDailyPlanFacts(client, { childId, today: assignmentDate });
+    const plan = buildMorphologyUnPilotPlan({ basePlan: composeDailyPlan(facts, assignmentDate), facts, planDate: assignmentDate });
+    const root = plan.partTwo.sections.flatMap((section) => section.items).find((item) => item.payload.pilotActivityId === "intro-root");
+    const payload = validateMorphologyLessonPayload(root?.payload.morphologyLesson);
+    if (!payload) throw new Error("Refusing to generate: compiled morphology payload failed validation.");
+    const assignmentId = await persistComposedAdleDailyPlan({ userClient: client, serviceClient: client, parentUserId, childId, planDate: assignmentDate, plan });
+    console.log(JSON.stringify({ mode: "guarded_morphology_pilot_generated", assignmentId, experience, gateEnabled: true, schemaVersion: payload.schemaVersion, contentVersion: payload.contentVersion, wordBindings: payload.words.lesson.map((word) => ({ canonicalWordId: word.canonicalWordId, word: word.displayWord })) }, null, 2));
+    return;
+  }
+  if (experience !== null) throw new Error(`Unsupported --experience ${experience}.`);
 
   const preview = await previewAdleDailyPlan({
     userClient: client,
