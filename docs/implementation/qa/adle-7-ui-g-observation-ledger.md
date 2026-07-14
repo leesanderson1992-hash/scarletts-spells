@@ -15,7 +15,7 @@ genuine-child human sign-off.
 | Hesitations over five seconds | Pending |
 | Productive exploration vs confusion | Pending |
 | Failed pointer/touch drags | Direct-tap alternatives passed; physical touch pending |
-| Keyboard-only completion | Native semantics/regression passed; browser key injection unavailable |
+| Keyboard-only completion | Scaffolded Split completed with Enter in browser QA; full physical-keyboard run pending |
 | Touch completion | Narrow layout and tap controls passed; physical device pending |
 | Narration replays | Pending |
 | Help levels used | Pending |
@@ -42,6 +42,29 @@ final sign-off record. Automated checks do not replace this observation.
 | Dev preview HTTP smoke | Pass |
 | Unauthenticated real-route redirect | Pass |
 | Disposable fixture cleanup | Pass |
+
+## Explicit Learn and corrective Split evidence
+
+| Gate | Result |
+|---|---|
+| Learn opens before Discover | Pass |
+| Three authored Learn screens and narration | Pass; exact definition, `un-` jobs and four words |
+| Intro bindings remain teaching-only | Pass; 2 unique bindings, 0 attempts |
+| Internal Guide state names hidden | Pass |
+| Learn screen resume | Pass |
+| First wrong chop remains visible and announced | Pass; red cross and corrective status |
+| Two-miss scaffold | Pass; incorrect boundaries disabled and correct boundary focused |
+| Scaffold resume | Pass; miss count, disabled boundaries and focus restored |
+| Enter activation on focused boundary | Pass |
+| Correct split feedback held | Pass; no automatic advance |
+| Held-correct reload | Pass |
+| Explicit Rebuild transition | Pass; advances once to the existing assembly rail |
+| Narrow layout / horizontal overflow | Pass / none at the browser's narrow breakpoint |
+| JSONB payload round-trip activation | Pass; order-insensitive exact structural validation |
+| Authenticated full completion | Pass |
+| Completed-page and My Learning reflection | Pass |
+| Counts before/after completed reload | Pass; 1 / 16 / 14 / 1 unchanged |
+| Browser console warnings/errors | Pass; none |
 | Authenticated interactive browser completion | Pass on `/learn/week/adle` |
 | Accessibility-tree and labelled-control inspection | Pass |
 | Narrow responsive viewport / horizontal overflow | Pass / none |
@@ -86,8 +109,8 @@ assignment item, attempt or evidence event.
 
 ## Remaining human-device acceptance
 
-The automated browser controller could focus controls but did not dispatch its
-synthetic keyboard events, so a separate physical keyboard-only run is still
-required for human-device sign-off. Physical touch, narration observation and
-genuine-child comprehension/hesitation observations also remain pending. These
-do not enable the feature for any non-allowlisted child.
+The browser run verified focus transfer and Enter activation on the scaffolded
+Split boundary. A full physical keyboard-only run is still required for
+human-device sign-off. Physical touch, narration observation and genuine-child
+comprehension/hesitation observations also remain pending. These do not enable
+the feature for any non-allowlisted child.

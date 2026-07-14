@@ -7,11 +7,14 @@ export interface MorphologyResumeEnvelope<T> {
   state: T;
 }
 
-export type MorphologyLessonStage = "discover" | "split" | "match" | "build" | "controlled" | "dictation" | "reflect";
+export type MorphologyLessonStage = "learn" | "discover" | "split" | "match" | "build" | "controlled" | "dictation" | "reflect";
 
 export interface MorphologyLessonResumeState {
   stage: MorphologyLessonStage;
+  introIndex: number;
   discoverIndex: number;
+  splitMisses: number;
+  splitCorrect: boolean;
   splitDone: boolean;
   controlledIndex: number;
   dictationIndex: number;
@@ -25,7 +28,7 @@ export interface MorphologyLessonResumeState {
   reflectionText: string;
 }
 
-const LESSON_STAGES: readonly MorphologyLessonStage[] = ["discover", "split", "match", "build", "controlled", "dictation", "reflect"];
+const LESSON_STAGES: readonly MorphologyLessonStage[] = ["learn", "discover", "split", "match", "build", "controlled", "dictation", "reflect"];
 
 function isStringRecord(value: unknown): value is Record<string, string> {
   return isRecord(value) && Object.values(value).every((entry) => typeof entry === "string");
@@ -45,15 +48,18 @@ export function normaliseMorphologyLessonResume(
   validGuidedBindings: readonly string[],
 ): MorphologyLessonResumeState | null {
   if (!isRecord(value) || !LESSON_STAGES.includes(value.stage as MorphologyLessonStage)) return null;
-  if (!Number.isInteger(value.discoverIndex) || Number(value.discoverIndex) < 0 || Number(value.discoverIndex) > 2 || !Number.isInteger(value.controlledIndex) || Number(value.controlledIndex) < 0 || Number(value.controlledIndex) > 3 || !Number.isInteger(value.dictationIndex) || Number(value.dictationIndex) < 0 || Number(value.dictationIndex) > 3 || !Number.isInteger(value.helpLevel) || Number(value.helpLevel) < 0 || Number(value.helpLevel) > 2) return null;
-  if (typeof value.splitDone !== "boolean" || typeof value.checkedSentence !== "boolean" || typeof value.muted !== "boolean" || typeof value.reflectionText !== "string" || value.reflectionText.length > 2000 || !isStringRecord(value.controlledAttempts) || !isBooleanRecord(value.controlledChecked) || !isStringRecord(value.sentenceAttempts) || !Array.isArray(value.guidedBindings) || !value.guidedBindings.every((entry) => typeof entry === "string")) return null;
+  if (!Number.isInteger(value.introIndex) || Number(value.introIndex) < 0 || Number(value.introIndex) > 2 || !Number.isInteger(value.discoverIndex) || Number(value.discoverIndex) < 0 || Number(value.discoverIndex) > 2 || !Number.isInteger(value.splitMisses) || Number(value.splitMisses) < 0 || Number(value.splitMisses) > 2 || !Number.isInteger(value.controlledIndex) || Number(value.controlledIndex) < 0 || Number(value.controlledIndex) > 3 || !Number.isInteger(value.dictationIndex) || Number(value.dictationIndex) < 0 || Number(value.dictationIndex) > 3 || !Number.isInteger(value.helpLevel) || Number(value.helpLevel) < 0 || Number(value.helpLevel) > 2) return null;
+  if (typeof value.splitCorrect !== "boolean" || typeof value.splitDone !== "boolean" || (value.splitDone && !value.splitCorrect) || typeof value.checkedSentence !== "boolean" || typeof value.muted !== "boolean" || typeof value.reflectionText !== "string" || value.reflectionText.length > 2000 || !isStringRecord(value.controlledAttempts) || !isBooleanRecord(value.controlledChecked) || !isStringRecord(value.sentenceAttempts) || !Array.isArray(value.guidedBindings) || !value.guidedBindings.every((entry) => typeof entry === "string")) return null;
   const wordIds = new Set(canonicalWordIds);
   if (Object.keys(value.controlledAttempts).some((id) => !wordIds.has(id)) || Object.keys(value.controlledChecked).some((id) => !wordIds.has(id)) || Object.keys(value.sentenceAttempts).some((id) => !wordIds.has(id))) return null;
   const bindingSet = new Set(validGuidedBindings);
   if (value.guidedBindings.some((binding) => !bindingSet.has(binding))) return null;
   const state: MorphologyLessonResumeState = {
     stage: value.stage as MorphologyLessonStage,
+    introIndex: Number(value.introIndex),
     discoverIndex: Number(value.discoverIndex),
+    splitMisses: Number(value.splitMisses),
+    splitCorrect: value.splitCorrect,
     splitDone: value.splitDone,
     controlledIndex: Number(value.controlledIndex),
     dictationIndex: Number(value.dictationIndex),

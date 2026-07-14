@@ -5,7 +5,6 @@ import { useReducedMotion } from "./motion";
 import { playInteractionSound } from "./sound";
 
 const STRIKE_MS = 220;
-const RESULT_MS = 450;
 
 function CleaverIcon(props: { striking: boolean; reducedMotion: boolean }) {
   const transform = props.striking ? "translateY(38px) rotate(8deg)" : "translateY(0) rotate(-16deg)";
@@ -26,17 +25,33 @@ function CleaverIcon(props: { striking: boolean; reducedMotion: boolean }) {
   );
 }
 
-export function SplitHandle(props: { word: string; splitPoints: number[]; muted?: boolean; missMessage?: string; repeatedMissMessage?: string; onComplete?: (parts: string[]) => void }) {
+export function SplitHandle(props: {
+  word: string;
+  splitPoints: number[];
+  misses: number;
+  correct: boolean;
+  muted?: boolean;
+  missMessage?: string;
+  repeatedMissMessage?: string;
+  onMiss: (misses: number) => void;
+  onCorrect: () => void;
+  onContinue: () => void;
+}) {
   const reducedMotion = useReducedMotion();
-  const [misses, setMisses] = useState(0);
-  const [split, setSplit] = useState<number | null>(null);
   const [activeBoundary, setActiveBoundary] = useState(1);
   const [struckBoundary, setStruckBoundary] = useState<number | null>(null);
+  const [lastWrongBoundary, setLastWrongBoundary] = useState<number | null>(null);
   const [striking, setStriking] = useState(false);
   const timers = useRef<number[]>([]);
-  const completed = useRef(false);
+  const completed = useRef(props.correct);
+  const correctButton = useRef<HTMLButtonElement | null>(null);
+  const splitPoint = props.splitPoints[0];
+  const scaffolded = props.misses >= 2;
 
   useEffect(() => () => timers.current.forEach((timer) => window.clearTimeout(timer)), []);
+  useEffect(() => {
+    if (scaffolded && !props.correct) correctButton.current?.focus();
+  }, [props.correct, scaffolded]);
 
   function later(callback: () => void, delay: number) {
     const timer = window.setTimeout(callback, delay);
@@ -44,7 +59,7 @@ export function SplitHandle(props: { word: string; splitPoints: number[]; muted?
   }
 
   function choose(point: number) {
-    if (striking || completed.current) return;
+    if (striking || completed.current || (scaffolded && !props.splitPoints.includes(point))) return;
     const correct = props.splitPoints.includes(point);
     setActiveBoundary(point);
     setStruckBoundary(point);
@@ -52,31 +67,39 @@ export function SplitHandle(props: { word: string; splitPoints: number[]; muted?
     playInteractionSound("cleave", props.muted);
 
     later(() => {
+      setStriking(false);
       if (correct) {
         completed.current = true;
-        setSplit(point);
-        setStriking(false);
+        setLastWrongBoundary(null);
         playInteractionSound("sparkle", props.muted);
-        later(() => props.onComplete?.([props.word.slice(0, point), props.word.slice(point)]), reducedMotion ? 0 : RESULT_MS);
+        props.onCorrect();
       } else {
-        setMisses((value) => value + 1);
-        setStriking(false);
+        setLastWrongBoundary(point);
         setStruckBoundary(null);
+        playInteractionSound("resist", props.muted);
+        props.onMiss(Math.min(2, props.misses + 1));
       }
     }, reducedMotion ? 0 : STRIKE_MS);
   }
 
-  if (split !== null) {
+  if (props.correct) {
     return (
-      <div className="flex flex-wrap items-center justify-center gap-4" aria-live="polite">
-        <span className="rounded-2xl bg-cyan-100 px-5 py-4 text-2xl font-black text-cyan-950">{props.word.slice(0, split)}</span>
-        <span aria-hidden="true" className="text-2xl text-amber-300">✦</span>
-        <span className="rounded-2xl bg-amber-100 px-5 py-4 text-2xl font-black text-amber-950">{props.word.slice(split)}</span>
-        <span className="sr-only">Correct. {props.word} splits after letter {split}.</span>
-      </div>
+      <section className="grid gap-5 text-center" aria-labelledby="split-correct-heading" aria-live="polite">
+        <div className="flex flex-wrap items-center justify-center gap-4">
+          <span className="rounded-2xl bg-cyan-100 px-5 py-4 text-3xl font-black text-cyan-950">{props.word.slice(0, splitPoint)}</span>
+          <span aria-hidden="true" className="text-3xl text-emerald-300">✓</span>
+          <span className="rounded-2xl bg-amber-100 px-5 py-4 text-3xl font-black text-amber-950">{props.word.slice(splitPoint)}</span>
+        </div>
+        <div className="mx-auto max-w-xl rounded-2xl border border-emerald-300/40 bg-emerald-50 p-4 text-emerald-950">
+          <h2 id="split-correct-heading" className="text-xl font-black">Yes — un- is the first two letters.</h2>
+          <p className="mt-1 text-base font-semibold">un + happy makes unhappy.</p>
+        </div>
+        <button type="button" onClick={props.onContinue} className="mx-auto min-h-12 rounded-full bg-cyan-300 px-7 font-black text-slate-950">Rebuild the word</button>
+      </section>
     );
   }
 
+  const feedback = scaffolded ? props.repeatedMissMessage ?? "un- is the first two letters. Chop after the n." : props.misses > 0 ? props.missMessage ?? "Not there yet. Look for the prefix un- at the front." : "";
   return (
     <div className="text-center">
       <p className="mb-2 text-sm font-bold text-cyan-100">Move the cleaver between two letters, then strike.</p>
@@ -90,29 +113,38 @@ export function SplitHandle(props: { word: string; splitPoints: number[]; muted?
         </div>
         {props.word.slice(0, -1).split("").map((_, index) => {
           const point = index + 1;
+          const isCorrectBoundary = props.splitPoints.includes(point);
           const active = activeBoundary === point;
+          const wrong = lastWrongBoundary === point;
+          const disabled = striking || (scaffolded && !isCorrectBoundary);
           return (
             <button
               key={point}
+              ref={isCorrectBoundary ? correctButton : undefined}
               type="button"
               aria-label={`Split after letter ${point}`}
-              onPointerEnter={() => setActiveBoundary(point)}
-              onPointerDown={() => setActiveBoundary(point)}
+              onPointerEnter={() => !disabled && setActiveBoundary(point)}
+              onPointerDown={() => !disabled && setActiveBoundary(point)}
               onFocus={() => setActiveBoundary(point)}
+              onKeyDown={(event) => {
+                if (event.key !== "Enter" && event.key !== " ") return;
+                event.preventDefault();
+                choose(point);
+              }}
               onClick={() => choose(point)}
-              aria-disabled={striking}
-              className={`absolute top-0 h-36 w-11 -translate-x-1/2 cursor-none rounded-xl outline-none focus-visible:ring-4 focus-visible:ring-amber-300/80 ${striking ? "cursor-wait" : ""} ${misses >= 2 && props.splitPoints.includes(point) ? "bg-cyan-300/15 motion-safe:animate-pulse" : "hover:bg-white/5"}`}
+              disabled={disabled}
+              className={`absolute top-0 h-36 w-11 -translate-x-1/2 cursor-none rounded-xl outline-none focus-visible:ring-4 focus-visible:ring-amber-300/80 disabled:cursor-not-allowed disabled:opacity-40 ${scaffolded && isCorrectBoundary ? "bg-cyan-300/20 motion-safe:animate-pulse" : "hover:bg-white/5"}`}
               style={{ left: `${(point / props.word.length) * 100}%` }}
             >
               <span className={`absolute left-1/2 top-0 -translate-x-1/2 ${active ? "opacity-100" : "pointer-events-none opacity-0"}`}>
                 <CleaverIcon striking={striking && struckBoundary === point} reducedMotion={reducedMotion} />
               </span>
-              <span aria-hidden="true" className={`absolute bottom-2 left-1/2 h-11 w-1 -translate-x-1/2 rounded-full ${active ? "bg-amber-300 shadow-[0_0_14px_rgba(252,211,77,.75)]" : "bg-white/15"}`} />
+              <span aria-hidden="true" className={`absolute bottom-2 left-1/2 grid h-11 w-3 -translate-x-1/2 place-items-center rounded-full text-lg font-black ${wrong ? "bg-red-400 text-red-950 shadow-[0_0_16px_rgba(248,113,113,.8)]" : scaffolded && isCorrectBoundary ? "bg-cyan-300 shadow-[0_0_16px_rgba(103,232,249,.8)]" : active ? "bg-amber-300 shadow-[0_0_14px_rgba(252,211,77,.75)]" : "bg-white/15"}`}>{wrong ? "×" : ""}</span>
             </button>
           );
         })}
       </div>
-      <p className="sr-only" aria-live="polite">{misses > 0 ? misses > 1 ? props.repeatedMissMessage ?? props.missMessage ?? "Try the boundary after the prefix." : props.missMessage ?? "That point resisted. Try another boundary." : ""}</p>
+      <div role="status" aria-live="polite" className={`mx-auto mt-4 min-h-16 max-w-xl rounded-2xl p-3 text-sm font-bold ${feedback ? scaffolded ? "bg-cyan-100 text-cyan-950" : "bg-red-100 text-red-950" : "bg-transparent text-cyan-100"}`}>{feedback || "Find the end of the prefix at the front of the word."}</div>
     </div>
   );
 }

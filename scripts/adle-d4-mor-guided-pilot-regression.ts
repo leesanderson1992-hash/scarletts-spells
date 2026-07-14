@@ -10,12 +10,23 @@ const words = ["unhappy", "unfair", "unkind", "unlock", "untidy", "unnatural", "
 const ids = Object.fromEntries(words.map((word) => [word, `id-${word}`]));
 const payload = compileMorphologyUnPilotPayload(ids);
 assert(validateMorphologyLessonPayload(payload) !== null, "compiled payload validates");
+function reorderJson(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(reorderJson);
+  if (value === null || typeof value !== "object") return value;
+  return Object.fromEntries(Object.entries(value as Record<string, unknown>).sort(([left], [right]) => right.localeCompare(left)).map(([key, entry]) => [key, reorderJson(entry)]));
+}
+assert(validateMorphologyLessonPayload(reorderJson(payload)) !== null, "JSONB key reordering preserves exact authored payload validation");
 assert(payload.words.lesson.map((word) => word.displayWord).join("|") === "unfair|unkind|unlock|untidy", "fixed lesson word order");
 assert(payload.activities.find((activity) => activity.type === "prefix_choice")?.prefixChoices?.map((choice) => choice.text).join("|") === "un|re|pre", "fixed tidy prefix choices");
 const dictation = payload.activities.find((activity) => activity.type === "sentence_dictation")?.sentences ?? [];
 assert(dictation.length === 4 && dictation.every((entry) => extractAuthoredTargetToken(entry.sentence, entry.targetTokenIndex) === entry.targetWord), "authored sentence targets resolve");
 const reflection = payload.activities.find((activity) => activity.type === "reflection");
 assert(reflection?.evidenceMode === "none" && reflection.assignmentBindings.length === 0 && reflection.promptKey === "word-lab-un-observation-v1", "private reflection is authored and excluded from assessment bindings");
+const introduction = payload.activities.find((activity) => activity.type === "introduction");
+const discovery = payload.activities.find((activity) => activity.type === "discovery");
+assert(introduction?.assignmentBindings.join("|") === "intro-root|intro-words" && introduction.evidenceMode === "none" && introduction.introScreens?.length === 3, "read-only introduction owns both intro bindings and creates no evidence");
+assert(introduction?.introScreens?.map((screen) => screen.title).join("|") === "What is a prefix?|Today’s prefix: un-|Words we will be reviewing today", "authored Learn screens remain in the required order");
+assert(discovery?.assignmentBindings.length === 0, "interactive Discover does not absorb read-only intro bindings");
 
 const invalid = structuredClone(payload) as unknown as Record<string, unknown>;
 invalid.schemaVersion = 2;
@@ -23,6 +34,9 @@ assert(validateMorphologyLessonPayload(invalid) === null, "unsupported payload v
 const missingRecall = structuredClone(payload);
 missingRecall.activities.find((activity) => activity.type === "sentence_dictation")!.answerVisibility = "teaching";
 assert(validateMorphologyLessonPayload(missingRecall) === null, "answer-bearing dictation fails closed");
+const alteredIntro = structuredClone(payload);
+alteredIntro.activities.find((activity) => activity.type === "introduction")!.introScreens![0].paragraphs[0] = "A changed explanation";
+assert(validateMorphologyLessonPayload(alteredIntro) === null, "altered introduction fails closed");
 
 const specs = morphologyPilotBindingSpecs(payload);
 assert(specs.length === 16, "pilot binding contract contains exactly 16 items");
@@ -41,7 +55,16 @@ assert(parseMorphologyResume(resume, "different", now) === null, "different cont
 assert(parseMorphologyResume(resume, payload.contentVersion, now + MORPHOLOGY_RESUME_TTL_MS + 1) === null, "stale resume rejected");
 const resumeWords = payload.words.lesson.map((word) => word.canonicalWordId);
 const guidedBindings = ["guided-strip-unhappy", "guided-meaning-unfair", "guided-meaning-unkind", "guided-meaning-unlock", "guided-meaning-untidy", "guided-build-untidy"];
-const checkedControlled = normaliseMorphologyLessonResume({ stage: "controlled", discoverIndex: 2, splitDone: true, controlledIndex: 1, dictationIndex: 0, controlledAttempts: { [resumeWords[1]]: "unkind" }, controlledChecked: { [resumeWords[1]]: true }, sentenceAttempts: {}, checkedSentence: false, guidedBindings, muted: false, helpLevel: 0, reflectionText: "" }, resumeWords, guidedBindings);
+const learnResume = normaliseMorphologyLessonResume({ stage: "learn", introIndex: 1, discoverIndex: 0, splitMisses: 0, splitCorrect: false, splitDone: false, controlledIndex: 0, dictationIndex: 0, controlledAttempts: {}, controlledChecked: {}, sentenceAttempts: {}, checkedSentence: false, guidedBindings: [], muted: false, helpLevel: 0, reflectionText: "" }, resumeWords, guidedBindings);
+assert(learnResume?.stage === "learn" && learnResume.introIndex === 1, "Learn resumes on the authored read-only screen");
+const splitResume = normaliseMorphologyLessonResume({ ...learnResume!, stage: "split", introIndex: 2, splitMisses: 1 }, resumeWords, guidedBindings);
+assert(splitResume?.stage === "split" && splitResume.splitMisses === 1 && splitResume.splitCorrect === false, "first split miss survives strict resume");
+const scaffoldedSplit = normaliseMorphologyLessonResume({ ...splitResume!, splitMisses: 2 }, resumeWords, guidedBindings);
+assert(scaffoldedSplit?.splitMisses === 2, "two-miss Split scaffold survives strict resume");
+const correctSplit = normaliseMorphologyLessonResume({ ...scaffoldedSplit!, splitCorrect: true }, resumeWords, guidedBindings);
+assert(correctSplit?.splitCorrect === true && correctSplit.splitDone === false, "held correct Split feedback survives strict resume");
+assert(normaliseMorphologyLessonResume({ ...scaffoldedSplit!, splitDone: true, splitCorrect: false }, resumeWords, guidedBindings) === null, "rebuild cannot resume before a correct split");
+const checkedControlled = normaliseMorphologyLessonResume({ stage: "controlled", introIndex: 2, discoverIndex: 2, splitMisses: 2, splitCorrect: true, splitDone: true, controlledIndex: 1, dictationIndex: 0, controlledAttempts: { [resumeWords[1]]: "unkind" }, controlledChecked: { [resumeWords[1]]: true }, sentenceAttempts: {}, checkedSentence: false, guidedBindings, muted: false, helpLevel: 0, reflectionText: "" }, resumeWords, guidedBindings);
 assert(checkedControlled?.stage === "controlled" && checkedControlled.controlledIndex === 2, "checked controlled answer resumes at next word");
 const checkedLastControlled = normaliseMorphologyLessonResume({ ...checkedControlled!, controlledIndex: 3, controlledChecked: { [resumeWords[3]]: true } }, resumeWords, guidedBindings);
 assert(checkedLastControlled?.stage === "dictation" && checkedLastControlled.dictationIndex === 0, "final checked controlled answer resumes at dictation");
@@ -69,6 +92,8 @@ const diffSource = readFileSync("components/adle/activities/shared/diff-reveal.t
 const lessonSource = readFileSync("components/adle/morphology/morphology-guided-lesson.tsx", "utf8");
 const splitSource = readFileSync("components/adle/activities/shared/split-handle.tsx", "utf8");
 const soundSource = readFileSync("components/adle/activities/shared/sound.ts", "utf8");
+const guideSource = readFileSync("components/adle/morphology/lesson-guide.tsx", "utf8");
+const sceneSource = readFileSync("components/adle/morphology/word-lab-scene.tsx", "utf8");
 assert(previewSource.includes("useState(true)") && previewSource.includes("Restart lesson") && previewSource.includes("Open component playground"), "development preview opens the guided lesson and keeps restart/playground controls");
 assert(previewSource.includes("onPreviewComplete") && previewSource.includes("This preview stayed local") && previewSource.includes("Try the Word Lab again"), "development preview completes locally and offers a fresh run");
 assert(railSource.includes('fixedTilesPosition?: "before" | "after"') && railSource.indexOf("{placedTiles}{fixedTiles}") >= 0, "assembly rail supports a prefix slot before the fixed base");
@@ -77,7 +102,9 @@ assert(lessonSource.includes('autoCapitalize="sentences"') && lessonSource.inclu
 assert(lessonSource.includes("event.preventDefault()") && lessonSource.includes("props.onPreviewComplete ? undefined : completeAdleLessonPartAction"), "preview completion cannot invoke the authenticated lesson action");
 assert(!splitSource.includes('type="range"') && !splitSource.includes("Drag the split handle"), "Split removes the range slider");
 assert(splitSource.includes("CleaverIcon") && splitSource.includes("onPointerEnter") && splitSource.includes("onFocus") && splitSource.includes('aria-label={`Split after letter ${point}`}'), "cleaver follows pointer and keyboard focus over named boundary buttons");
-assert(splitSource.includes('playInteractionSound("cleave"') && splitSource.includes('playInteractionSound("sparkle"') && soundSource.includes('"sparkle"'), "split plays chop and success sparkle sounds");
+assert(splitSource.includes('playInteractionSound("cleave"') && splitSource.includes('playInteractionSound("resist"') && splitSource.includes('playInteractionSound("sparkle"') && soundSource.includes('"sparkle"'), "split distinguishes chop, resistance, and success sounds");
 assert(splitSource.includes("useReducedMotion") && splitSource.includes("reducedMotion ? 0 : STRIKE_MS"), "cleaver strike has a static reduced-motion path");
+assert(splitSource.includes("Rebuild the word") && splitSource.includes("disabled={disabled}") && splitSource.includes("props.misses >= 2"), "Split holds success and bounds independent attempts before scaffolding");
+assert(sceneSource.includes('["Learn", "Discover", "Split", "Match", "Build", "Remember"]') && !guideSource.includes("props.beat.state"), "Learn is first and internal Guide states are hidden from children");
 
 console.log("ADLE D4_MOR guided pilot regression passed");

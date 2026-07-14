@@ -60,6 +60,7 @@ export interface MorphologyWordSnapshot {
 export interface MorphologyActivityV1 {
   id: string;
   type:
+    | "introduction"
     | "discovery"
     | "strip_build"
     | "meaning_sort"
@@ -76,6 +77,16 @@ export interface MorphologyActivityV1 {
   sentences?: SentenceDictationV1[];
   promptKey?: string;
   promptText?: string;
+  introScreens?: MorphologyIntroductionScreenV1[];
+}
+
+export interface MorphologyIntroductionScreenV1 {
+  id: string;
+  title: string;
+  paragraphs: string[];
+  model?: { prefix: string; base: string; result: string };
+  wordCards?: Array<{ base: string; derived: string; meaning: string }>;
+  ctaLabel: string;
 }
 
 export interface PrefixChoiceV1 {
@@ -138,7 +149,7 @@ const GUIDE_STATES: readonly GuideState[] = [
   "invite", "focus", "model", "observe", "interpret", "reframe", "scaffold", "celebrate", "withdraw", "reflect", "guideSilent",
 ];
 const ACTIVITY_TYPES: readonly MorphologyActivityV1["type"][] = [
-  "discovery", "strip_build", "meaning_sort", "prefix_choice", "look_cover_write_check", "sentence_dictation", "reflection",
+  "introduction", "discovery", "strip_build", "meaning_sort", "prefix_choice", "look_cover_write_check", "sentence_dictation", "reflection",
 ];
 
 export function tokeniseSentence(sentence: string): string[] {
@@ -199,7 +210,8 @@ export function compileMorphologyUnPilotPayload(
       stretch: REQUIRED_STRETCH_WORDS.map(snapshot),
     },
     activities: [
-      { id: "discover", type: "discovery", assignmentBindings: ["intro-root", "intro-words"], answerVisibility: "teaching", evidenceMode: "none", wordIds: ["unhappy", "unkind", "unlock"] },
+      { id: "introduction", type: "introduction", assignmentBindings: ["intro-root", "intro-words"], answerVisibility: "teaching", evidenceMode: "none", wordIds: ["unhappy", ...REQUIRED_LESSON_WORDS], introScreens: pilotLesson.introduction.screens as MorphologyIntroductionScreenV1[] },
+      { id: "discover", type: "discovery", assignmentBindings: [], answerVisibility: "teaching", evidenceMode: "none", wordIds: ["unhappy", "unkind", "unlock"] },
       { id: "strip-build", type: "strip_build", assignmentBindings: ["guided-strip-unhappy"], answerVisibility: "guided", evidenceMode: "guided_completion", wordIds: ["unhappy"] },
       { id: "meaning-match", type: "meaning_sort", assignmentBindings: REQUIRED_LESSON_WORDS.map((word) => `guided-meaning-${word}`), answerVisibility: "guided", evidenceMode: "guided_completion", wordIds: [...REQUIRED_LESSON_WORDS] },
       { id: "build-word", type: "prefix_choice", assignmentBindings: ["guided-build-untidy"], answerVisibility: "guided", evidenceMode: "guided_completion", wordIds: ["untidy"], baseWord: "tidy", prefixChoices: pilotLesson.prefixChoices as PrefixChoiceV1[] },
@@ -299,6 +311,10 @@ export function validateMorphologyLessonPayload(value: unknown): MorphologyLesso
   if (activities.length !== ACTIVITY_TYPES.length || ACTIVITY_TYPES.some((type) => !activities.some((activity) => activity.type === type))) return null;
   const recallActivities = (value.activities as MorphologyActivityV1[]).filter((activity) => activity.type === "look_cover_write_check" || activity.type === "sentence_dictation");
   if (recallActivities.some((activity) => activity.answerVisibility !== "recall_neutral")) return null;
+  const introduction = (value.activities as MorphologyActivityV1[]).find((activity) => activity.type === "introduction");
+  const discovery = (value.activities as MorphologyActivityV1[]).find((activity) => activity.type === "discovery");
+  if (!introduction?.introScreens || introduction.answerVisibility !== "teaching" || introduction.evidenceMode !== "none" || !jsonValueEqual(introduction.introScreens, pilotLesson.introduction.screens)) return null;
+  if (!discovery || discovery.assignmentBindings.length !== 0 || discovery.evidenceMode !== "none") return null;
   const prefix = (value.activities as MorphologyActivityV1[]).find((activity) => activity.type === "prefix_choice");
   if (!prefix?.prefixChoices || prefix.prefixChoices.filter((choice) => choice.status === "target").length !== 1 || prefix.baseWord !== "tidy") {
     return null;
@@ -350,6 +366,17 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === "object" && !Array.isArray(value);
 }
 
+function jsonValueEqual(left: unknown, right: unknown): boolean {
+  if (left === right) return true;
+  if (Array.isArray(left) || Array.isArray(right)) {
+    return Array.isArray(left) && Array.isArray(right) && left.length === right.length && left.every((entry, index) => jsonValueEqual(entry, right[index]));
+  }
+  if (!isRecord(left) || !isRecord(right)) return false;
+  const leftKeys = Object.keys(left).sort();
+  const rightKeys = Object.keys(right).sort();
+  return leftKeys.length === rightKeys.length && leftKeys.every((key, index) => key === rightKeys[index] && jsonValueEqual(left[key], right[key]));
+}
+
 function isWord(value: unknown): value is MorphologyWordSnapshot {
   if (!isRecord(value) || typeof value.canonicalWordId !== "string" || typeof value.displayWord !== "string" || typeof value.audioText !== "string" || typeof value.baseMeaning !== "string" || typeof value.derivedMeaning !== "string" || (value.effect !== "not" && value.effect !== "reverse") || !Array.isArray(value.parts) || !Array.isArray(value.joins) || !Array.isArray(value.splitPoints)) return false;
   if (value.parts.length < 2 || !value.parts.every((part) => isRecord(part) && typeof part.id === "string" && typeof part.text === "string" && typeof part.sourceText === "string" && ["prefix", "base", "root", "suffix", "connector"].includes(String(part.role)) && Number.isInteger(part.start) && Number.isInteger(part.end) && Number(part.start) >= 0 && Number(part.end) > Number(part.start))) return false;
@@ -370,5 +397,11 @@ function isBeat(value: unknown): value is GuideBeatV1 {
 }
 
 function isActivity(value: unknown): value is MorphologyActivityV1 {
-  return isRecord(value) && typeof value.id === "string" && ACTIVITY_TYPES.includes(value.type as MorphologyActivityV1["type"]) && Array.isArray(value.assignmentBindings) && value.assignmentBindings.every((binding) => typeof binding === "string") && (value.wordIds === undefined || (Array.isArray(value.wordIds) && value.wordIds.every((word) => typeof word === "string"))) && ["teaching", "guided", "recall_neutral", "post_submit"].includes(String(value.answerVisibility)) && ["none", "guided_completion", "first_exposure_word"].includes(String(value.evidenceMode));
+  return isRecord(value) && typeof value.id === "string" && ACTIVITY_TYPES.includes(value.type as MorphologyActivityV1["type"]) && Array.isArray(value.assignmentBindings) && value.assignmentBindings.every((binding) => typeof binding === "string") && (value.wordIds === undefined || (Array.isArray(value.wordIds) && value.wordIds.every((word) => typeof word === "string"))) && (value.introScreens === undefined || (Array.isArray(value.introScreens) && value.introScreens.every(isIntroductionScreen))) && ["teaching", "guided", "recall_neutral", "post_submit"].includes(String(value.answerVisibility)) && ["none", "guided_completion", "first_exposure_word"].includes(String(value.evidenceMode));
+}
+
+function isIntroductionScreen(value: unknown): value is MorphologyIntroductionScreenV1 {
+  if (!isRecord(value) || typeof value.id !== "string" || typeof value.title !== "string" || typeof value.ctaLabel !== "string" || !Array.isArray(value.paragraphs) || !value.paragraphs.every((paragraph) => typeof paragraph === "string")) return false;
+  if (value.model !== undefined && (!isRecord(value.model) || typeof value.model.prefix !== "string" || typeof value.model.base !== "string" || typeof value.model.result !== "string")) return false;
+  return value.wordCards === undefined || (Array.isArray(value.wordCards) && value.wordCards.every((card) => isRecord(card) && typeof card.base === "string" && typeof card.derived === "string" && typeof card.meaning === "string"));
 }

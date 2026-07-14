@@ -69,12 +69,11 @@ checks full raw dictation sentence storage and target-token-derived correctness.
 All disposable parent/child, assignment, dictionary and intake rows were then
 removed and cleanup verification passed.
 
-The browser controller exposed focus through its accessibility snapshot but
-did not dispatch its synthetic `press`/CUA key events. Keyboard-equivalent
-controls therefore remain covered by the guided-pilot regression and native
-button/input semantics rather than a separately completed synthetic-keyboard
-run. Physical touch and genuine-child observation remain human-device pilot
-gates. The feature remains disabled outside an explicit child allowlist.
+The split boundary now handles Enter and Space explicitly as well as retaining
+native button semantics. Browser QA completed the scaffolded correct chop with
+Enter after focus moved to the only enabled boundary. Physical touch and
+genuine-child observation remain human-device pilot gates. The feature remains
+disabled outside an explicit child allowlist.
 
 ## Word Lab flow refinement on 2026-07-14
 
@@ -114,3 +113,35 @@ assessment outputs, and disposable fixture cleanup passed.
 Physical keyboard, physical touch and genuine-child observation remain the
 separate human acceptance gates described below; the pilot remains disabled
 outside its explicit allowlist.
+
+## Explicit prefix teaching and corrective Split on 2026-07-14
+
+The versioned lesson now starts with three authored, read-only Learn screens:
+the requested prefix definition, the spelling and two jobs of `un-`, and the
+four lesson words. The original two intro assignment bindings remain the first
+two of the 16 persisted items and continue to create no attempt or evidence
+events. Discover owns no intro binding, and child-facing Guide copy now uses
+phase language rather than internal state names.
+
+Split is bounded guided practice. A wrong boundary remains on screen with a
+red cross, resistance sound and an accessible correction. After two misses,
+all incorrect boundaries are disabled, the boundary after `un` is highlighted
+and focused, and the child must perform the correct chop. Correct feedback
+holds `un | happy` with the two explicit teaching statements until the child
+chooses **Rebuild the word**. Learn index, miss count, scaffold state and held
+correct feedback all survive strict resume; individual chops remain outside
+the assessment ledger.
+
+Live activation initially exposed an order-sensitivity defect: Supabase JSONB
+reordered object keys, so an otherwise exact introduction failed a
+`JSON.stringify` comparison and the route fell back to the warm shell. Payload
+validation now performs recursive, order-insensitive JSON structural equality
+while still rejecting any missing or altered authored value. A regression
+reorders every payload object key to model the JSONB round trip.
+
+The final authenticated run covered all three Learn screens, corrective Split
+states in preview, keyboard Enter completion after scaffolding, held-success
+reload, explicit rebuild, exact-case sentence feedback and private-reflection
+reload. Database verification passed twice around a completed-route reload:
+one completed header, 16 completed items, 14 attempts (6 guided, 4 controlled,
+4 dictation), one private reflection, and 4 learning/taught/schedule rows.

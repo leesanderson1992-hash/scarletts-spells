@@ -1,8 +1,48 @@
 {
-  "contentVersion": "d4_mor_prefixes_un_word_lab_v1_2026_07_14_refined",
+  "contentVersion": "d4_mor_prefixes_un_word_lab_v1_2026_07_14_explicit_intro",
   "guide": {
     "persona": "prefix_scout",
     "narrationEnabled": true
+  },
+  "introduction": {
+    "screens": [
+      {
+        "id": "prefix-definition",
+        "title": "What is a prefix?",
+        "paragraphs": [
+          "Prefixes are a group of letters that change the meaning of a word when they are added to the start.",
+          "Most prefixes mean a similar thing when they’re added to different words."
+        ],
+        "model": { "prefix": "prefix", "base": "base word", "result": "changed word" },
+        "ctaLabel": "Meet today’s prefix"
+      },
+      {
+        "id": "today-un",
+        "title": "Today’s prefix: un-",
+        "paragraphs": [
+          "un- is always spelled u-n. It goes at the start of a base word.",
+          "un- can mean NOT, or it can REVERSE an action. The base word keeps every letter."
+        ],
+        "model": { "prefix": "un", "base": "happy", "result": "unhappy" },
+        "wordCards": [
+          { "base": "kind", "derived": "unkind", "meaning": "NOT kind" },
+          { "base": "lock", "derived": "unlock", "meaning": "REVERSE locking" }
+        ],
+        "ctaLabel": "See today’s words"
+      },
+      {
+        "id": "review-words",
+        "title": "Words we will be reviewing today",
+        "paragraphs": ["Look for un- at the start and notice what it does to each base word."],
+        "wordCards": [
+          { "base": "fair", "derived": "unfair", "meaning": "not fair" },
+          { "base": "kind", "derived": "unkind", "meaning": "not kind" },
+          { "base": "lock", "derived": "unlock", "meaning": "reverse locking" },
+          { "base": "tidy", "derived": "untidy", "meaning": "not tidy" }
+        ],
+        "ctaLabel": "Start exploring"
+      }
+    ]
   },
   "meanings": {
     "unhappy": { "base": "feeling pleased", "derived": "not happy", "effect": "not" },
@@ -29,10 +69,13 @@
     "promptText": "What did you notice about what un- does in these words?"
   },
   "beats": [
+    { "id": "learn-prefix", "activityId": "introduction", "state": "model", "say": "First, let’s learn what a prefix is.", "narration": "Prefixes are a group of letters that change the meaning of a word when they are added to the start. Most prefixes mean a similar thing when they’re added to different words.", "goal": "read:prefix-definition", "waitFor": "continue:prefix-definition", "onComplete": "learn-un" },
+    { "id": "learn-un", "activityId": "introduction", "state": "model", "say": "Today’s prefix is un-.", "narration": "un- is always spelled u-n. It goes at the start of a base word. un- can mean not, or it can reverse an action. The base word keeps every letter.", "goal": "read:today-un", "waitFor": "continue:today-un", "onComplete": "learn-words" },
+    { "id": "learn-words", "activityId": "introduction", "state": "model", "say": "These are the words we will explore today.", "narration": "Today we will review unfair, unkind, unlock, and untidy. Look for un- at the start and notice what it does to each base word.", "goal": "read:review-words", "waitFor": "continue:review-words", "onComplete": "discover-happy" },
     { "id": "discover-happy", "activityId": "discover", "state": "invite", "say": "This piece can change the word.", "onExplore": "Move un- towards happy and notice how the meaning changes.", "onHelpRequest": "Join un- before happy.", "goal": "join:un:happy", "waitFor": "joined:unhappy", "onComplete": "discover-kind" },
     { "id": "discover-kind", "activityId": "discover", "state": "observe", "say": "Try the same piece with kind.", "onExplore": "See whether un- changes kind in the same way.", "onHelpRequest": "Join un- before kind.", "goal": "join:un:kind", "waitFor": "joined:unkind", "onComplete": "discover-lock" },
     { "id": "discover-lock", "activityId": "discover", "state": "observe", "say": "What happens when it meets lock?", "onExplore": "This time un- reverses an action.", "onHelpRequest": "Join un- before lock and listen to the new meaning.", "goal": "join:un:lock", "waitFor": "joined:unlock", "onComplete": "split" },
-    { "id": "split", "activityId": "strip-build", "state": "focus", "say": "Can you find where the word was joined?", "onSlip": "That point resisted. Try the boundary after un-.", "onRepeatedMisconception": "The prefix is the first two letters: un-.", "onHelpRequest": "Split unhappy after un-, then rebuild it with both pieces.", "goal": "split:unhappy:2", "waitFor": "rebuilt:unhappy", "onComplete": "match" },
+    { "id": "split", "activityId": "strip-build", "state": "focus", "say": "Find the prefix at the start of unhappy.", "onSlip": "Not there yet. Look for the prefix un- at the front.", "onRepeatedMisconception": "un- is the first two letters. Chop after the n.", "onHelpRequest": "un- is the prefix. Chop after the n, then rebuild unhappy with both pieces.", "goal": "split:unhappy:2", "waitFor": "rebuilt:unhappy", "onComplete": "match" },
     { "id": "match", "activityId": "meaning-match", "state": "observe", "say": "What did un- do here?", "onMisconception": "Ask whether un- means not, or reverses an action.", "onRepeatedMisconception": "Unlock reverses locking; the other lesson words mean not.", "onHelpRequest": "Read the two meaning labels, then choose the job un- is doing.", "goal": "sort:all", "waitFor": "sorted:all", "onComplete": "build" },
     { "id": "build", "activityId": "build-word", "state": "focus", "say": "Make a word meaning not tidy.", "onPartial": "re- makes retidy, meaning tidy again.", "onMisconception": "We need the prefix that means not.", "onRepeatedMisconception": "Choose un- to make untidy.", "onHelpRequest": "Put un- before tidy.", "goal": "prefix:un:tidy", "waitFor": "joined:untidy", "onComplete": "controlled" },
     { "id": "controlled", "activityId": "controlled-spelling", "state": "withdraw", "say": "Look at how the parts fit. Cover each word when you are ready.", "goal": "controlled:all", "waitFor": "controlled:all", "onComplete": "dictation" },
