@@ -2,27 +2,26 @@
 
 ## Current ADLE 7-UI Priority
 
-Current ADLE priority: `PR 7-UI-E approved D4_MOR v1 source freeze`.
+Current ADLE priority: `PR 7-UI-H pilot amendments and runtime payload contract freeze`.
 
-PR 7-UI-A established the programme-wide 7-UI documentation foundation. PR
-7-UI-B added the typed activity-template registry foundation. PR 7-UI-C
-generates structurally reconciled, review-ready D4_MOR category-v1 candidate
-source artifacts without activating content or changing runtime behaviour. PR
-7-UI-D records human approval of the D4_MOR category-v1 content/schema
-candidate while keeping it not activated. PR 7-UI-E freezes the approved
-candidate and approval record into an immutable approved source package under
-`data/adle/approved/d4-mor/v1/`.
+PRs 7-UI-A through 7-UI-F established the programme documentation, activity
+registry, approved D4_MOR source package and reusable morphology primitives.
+PR 7-UI-G implements the `D4_MOR_PREFIXES_UN` Word Lab vertical pilot and has
+completed automated, authenticated real-route and disposable-database
+engineering QA. The owner preview was accepted on 2026-07-14.
 
-The existing active D4_MOR teaching content remains current runtime truth. The
-new approved category-v1 source package is not active runtime truth and must
-not become runtime-selected until a separate content-selection/runtime PR. Do
-not make runtime component, composer, evidence, scheduler, reward,
-workbook-import, Supabase import, or bulk activation changes as part of 7-UI-E.
+The Word Lab remains an explicitly generated, child-allowlisted pilot. It is
+not broad D4_MOR runtime truth and must stay disabled outside the allowlist
+until physical keyboard/touch, screen-reader/reduced-motion, performance and
+genuine-child proof are recorded. 7-UI-H may amend the pilot from that evidence
+and freeze the v1 payload/resume compatibility contract; it must not bulk
+activate the remaining D4_MOR category.
 
 Authoritative links:
 
 - [ADLE 7-UI Programme Roadmap](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/implementation/adle-7-ui-roadmap.md:1)
 - [ADLE 7-UI Control Matrix Guide](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/implementation/adle-7-ui-control-matrix.md:1)
+- [ADLE 7-UI-G Observation Ledger](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/implementation/qa/adle-7-ui-g-observation-ledger.md:1)
 - [ADLE 7S Reflection Recall-Gate Proof](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/implementation/qa/adle-slice-7s-reflection-recall-gate-proof-2026-07-10.md:1)
 - [D4_MOR Morphology UX Design Pack](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/product/areas/d4-mor-ux-design-pack.md:1)
 

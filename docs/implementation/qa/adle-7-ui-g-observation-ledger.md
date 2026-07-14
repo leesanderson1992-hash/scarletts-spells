@@ -2,6 +2,10 @@
 
 Status: pending real-child gated pilot run.
 
+Owner status (2026-07-14): current Word Lab preview accepted. This records
+owner validation of the vertical experience, but does not replace the pending
+physical-device, accessibility, performance or genuine-child proof.
+
 Engineering status (2026-07-14): automated gates, authenticated real-route
 completion, accessibility-tree inspection, responsive-layout inspection,
 recall-safe reloads and post-completion database verification passed with a
