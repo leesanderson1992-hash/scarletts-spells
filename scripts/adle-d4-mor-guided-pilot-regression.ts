@@ -67,9 +67,15 @@ const previewSource = readFileSync("app/dev/adle/morphology-primitives/morpholog
 const railSource = readFileSync("components/adle/activities/shared/snap-rail.tsx", "utf8");
 const diffSource = readFileSync("components/adle/activities/shared/diff-reveal.tsx", "utf8");
 const lessonSource = readFileSync("components/adle/morphology/morphology-guided-lesson.tsx", "utf8");
+const splitSource = readFileSync("components/adle/activities/shared/split-handle.tsx", "utf8");
+const soundSource = readFileSync("components/adle/activities/shared/sound.ts", "utf8");
 assert(previewSource.includes("useState(true)") && previewSource.includes("Restart lesson") && previewSource.includes("Open component playground"), "development preview opens the guided lesson and keeps restart/playground controls");
 assert(railSource.includes('fixedTilesPosition?: "before" | "after"') && railSource.indexOf("{placedTiles}{fixedTiles}") >= 0, "assembly rail supports a prefix slot before the fixed base");
 assert(!diffSource.includes('props.attempt.toLocaleLowerCase') && diffSource.includes("a sentence starts with a capital letter"), "sentence diff preserves authored case and prompts for the initial capital");
 assert(lessonSource.includes('autoCapitalize="sentences"') && lessonSource.includes("Remember recap") && lessonSource.includes('name="learningReflection"'), "Remember flows into a private written reflection");
+assert(!splitSource.includes('type="range"') && !splitSource.includes("Drag the split handle"), "Split removes the range slider");
+assert(splitSource.includes("CleaverIcon") && splitSource.includes("onPointerEnter") && splitSource.includes("onFocus") && splitSource.includes('aria-label={`Split after letter ${point}`}'), "cleaver follows pointer and keyboard focus over named boundary buttons");
+assert(splitSource.includes('playInteractionSound("cleave"') && splitSource.includes('playInteractionSound("sparkle"') && soundSource.includes('"sparkle"'), "split plays chop and success sparkle sounds");
+assert(splitSource.includes("useReducedMotion") && splitSource.includes("reducedMotion ? 0 : STRIKE_MS"), "cleaver strike has a static reduced-motion path");
 
 console.log("ADLE D4_MOR guided pilot regression passed");
