@@ -17,8 +17,8 @@ browser accessibility, performance or genuine-child proof.
 Engineering status (updated 2026-07-15): automated gates, authenticated real-route
 completion, accessibility-tree inspection, responsive-layout inspection,
 recall-safe reloads and post-completion database verification passed with a
-disposable local child and two staging-only fixtures. The first staging fixture
-was cleaned before the second was created. The gate
+disposable local child and two staging-only fixtures. Both staging fixtures and
+their temporary preview configuration were cleaned successfully. The gate
 remains disabled outside the explicit allowlist and this ledger is not a
 genuine-child human sign-off.
 
@@ -98,6 +98,7 @@ final sign-off record. Automated checks do not replace this observation.
 | Staging Chrome desktop completion | Pass on the production-built Vercel Preview with staging Supabase; keyboard path, reload safety, reflection history and 1 / 16 / 14 / 1 verified |
 | Staging Chrome phone-sized completion | Pass at 390×844 using direct tap-equivalent clicks; Split boundaries 44×144 and zero horizontal overflow; true touch injection remains pending |
 | Staging accessibility amendments | Internal rebuild identifier replaced with child-facing tile text; shared shell links raised from 32–36px to a 44px minimum |
+| Refreshed-preview target retest | Pass at `f580e91`; desktop and mobile mode links plus Back-to-week measured exactly 44px high |
 | Staging migration verification | 24 migrations recorded; UI-G dictionary/attempt/reflection/RPC schema present; local-only 873-word backfill intentionally not marked applied |
 | Chrome console errors | Pass for application; only third-party Grammarly extension warnings were present |
 | Final acceptance proof templates | Prepared; touch events, Web Vitals and child results remain pending; 200% zoom and OS reduced-motion execution are optional |
@@ -105,7 +106,7 @@ final sign-off record. Automated checks do not replace this observation.
 | Post-completion attempt events | Pass; 14 total (6 guided, 4 controlled, 4 dictation) |
 | Post-completion learning/taught/schedule rows | Pass; 4 / 4 / 4 |
 | Full dictation storage / target-token correctness | Pass |
-| Disposable fixture cleanup | Pass; no child-scoped fixture rows remain |
+| Disposable fixture cleanup | Pass; no child-scoped, pilot-word or micro-skill fixture rows remain; temporary preview gate, allowlist and QA key removed |
 
 ## Refined Word Lab flow evidence
 

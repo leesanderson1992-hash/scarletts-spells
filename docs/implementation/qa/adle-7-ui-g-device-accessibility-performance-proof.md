@@ -14,8 +14,8 @@ runs are optional follow-up coverage rather than closure requirements.
 | Field | Record |
 |---|---|
 | PR | `#2` — `review/adle-7-ui-g-word-lab` |
-| Tested commit | `a088ed0` plus the working-tree child-facing announcement and 44px shell-target fixes |
-| Preview URL | Vercel Preview for `review/adle-7-ui-g-word-lab` (`scarletts-spells-staged-lsua3n1km.vercel.app`) |
+| Tested commit | `f580e91` |
+| Preview URL | Vercel Preview for `review/adle-7-ui-g-word-lab` (`scarletts-spells-staged-of9nsnbza.vercel.app`) |
 | Supabase environment | `scarletts-spells-staging` (`jlhotktspjvffslvuyfz`); no production learner data |
 | Disposable session ID | `UI-G-CHROME-STAGING-2026-07-15-A/B` |
 | Observer | Codex, with explicit owner authorisation |
@@ -140,8 +140,11 @@ This run found two accessibility wording/target defects outside the assessment
 contract. Rebuild briefly announced an internal part identifier; it now
 announces the child-facing tile text. Shared Parent/Child and Back-to-week links
 measured 32–36px high; they now use a 44px minimum target. Both fixes are
-covered by TypeScript, ESLint, production build and Word Lab regressions and
-require the final refreshed-preview spot check before this proof can close.
+covered by TypeScript, ESLint, production build and Word Lab regressions. The
+refreshed `f580e91` preview spot check measured Parent mode, Child mode, mobile
+Parent/Child and Back-to-week links at exactly 44px high. Both disposable
+fixtures, the pilot-word and micro-skill fixture rows, and the temporary Vercel
+gate, allowlist and QA service key were then removed successfully.
 
 VoiceOver, NVDA and TalkBack are not required for UI-G sign-off. If used, their
 results may be recorded as optional exploratory evidence and must not be
@@ -204,6 +207,10 @@ For each completed assignment, run the guarded live-smoke verification before
 cleanup and record `1 header / 16 items / 14 attempts / 1 reflection / 4
 learning / 4 taught / 4 schedule`. Reload the completed route and verify the
 same counts. Cleanup must leave zero child, assignment, item and reflection rows.
+
+Both staging assignments met the required counts. Guarded cleanup reported zero
+child-scoped fixture rows, the temporary micro-skill fixture count was zero,
+and no preview QA credential or child allowlist remained configured.
 
 ## Sign-off
 
