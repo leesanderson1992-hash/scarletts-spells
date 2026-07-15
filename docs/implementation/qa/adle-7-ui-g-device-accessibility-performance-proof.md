@@ -1,6 +1,8 @@
 # ADLE 7-UI-G device, accessibility and performance proof
 
-Status: ready for final browser, Mac Safari and performance execution.
+Status: Safari and Chrome desktop acceptance recorded; responsive interaction,
+reduced-motion, production-preview performance and genuine-child proof remain
+open.
 
 This record closes `7UI-PROOF-D4-MOR-A11Y` and
 `7UI-PROOF-D4-MOR-PERF` only after every blocking row below passes. The agreed
@@ -13,12 +15,12 @@ runs are optional follow-up coverage rather than closure requirements.
 | Field | Record |
 |---|---|
 | PR | `#2` — `review/adle-7-ui-g-word-lab` |
-| Tested commit | Pending |
-| Preview URL | Pending; record privately if it contains a deployment token |
-| Supabase environment | Pending; staging project only |
-| Disposable session ID | Pending; non-identifying value only |
-| Observer | Pending |
-| Test date | Pending |
+| Tested commit | `dc81b9c` plus the working-tree first-miss Split focus fix |
+| Preview URL | Local `http://localhost:3000`; production-equivalent preview remains pending |
+| Supabase environment | Disposable local Supabase only; no production learner data |
+| Disposable session ID | `UI-G-CHROME-2026-07-15-A` |
+| Observer | Codex, with explicit owner authorisation |
+| Test date | 2026-07-15 |
 
 Before testing, confirm the preview is connected to staging rather than
 production, allowlist only the disposable child, seed the seven pilot words and
@@ -52,16 +54,48 @@ focuses the held-success **Rebuild the word** action. The targeted Safari rerun
 and guided-pilot regression passed. This local run is compatibility evidence;
 the production-equivalent preview identity and Web Vitals rows remain pending.
 
+### Local Chrome desktop and responsive-view run — 2026-07-15
+
+An owner-authorised disposable local run passed the complete authenticated
+route in Chrome 150.0.7871.124 on macOS 26.5, MacBook Pro `MacBookPro17,1`.
+The run used keyboard-only activation throughout Learn, Discover, Split,
+Match, Build, controlled spelling, full-sentence dictation, reflection and
+Finish. It covered Sound off, two-miss Split scaffolding, held-correct reload,
+checked spelling and dictation reloads, lowercase sentence-capitalization
+feedback, reflection-draft reload and completed-route reload.
+
+Chrome exposed a second Split focus-continuity defect: after the first wrong
+chop, React replaced the attempted boundary button and focus fell back to the
+page body. `SplitHandle` now retains boundary refs and restores focus to the
+attempted boundary after the first miss. A targeted Chrome rerun confirmed
+that **Split after letter 1** remained the active control; the guided-pilot
+regression now asserts that focus path.
+
+Semantic snapshots confirmed named native controls, progress navigation,
+status output, disabled scaffold boundaries, a decorative cleaver and no
+visible or accessible target answer on recall screens. Finish stayed in the
+authenticated learner route. Database verification passed before and after a
+completed-page reload at `1 / 16 / 14 / 1 / 4 / 4 / 4`, then cleanup removed
+the disposable fixture and temporary allowlist.
+
+Responsive Chrome inspection passed at 390×844 and 844×390 phone views and
+768×1024 and 1024×768 tablet views. Every view had zero horizontal overflow
+and no visible interactive control below 44×44 CSS pixels. This is responsive
+layout evidence only: actual touch-event emulation, browser 200% zoom and
+operating-system reduced-motion execution were not exposed by the connected
+browser control and remain open rather than being inferred from viewport
+inspection.
+
 ## Required browser matrix
 
 Record `pass`, `fail` or `blocked`; a blank row is not a pass.
 
 | Environment | Required coverage | Version and hardware | Completion | Blocking findings | Evidence ref |
 |---|---|---|---|---|---|
-| macOS | Safari compatibility and lesson completion | Pending | Pending | Pending | Pending |
-| Chrome desktop | Keyboard-only completion, focus, semantics and accessibility-tree inspection | Pending | Pending | Pending | Pending |
-| Chrome phone view | Narrow portrait/landscape layout, touch emulation and 200% zoom/reflow | Pending | Pending | Pending | Pending |
-| Chrome tablet view | Larger touch layout, orientation change and 200% zoom/reflow | Pending | Pending | Pending | Pending |
+| macOS | Safari compatibility and lesson completion | Safari 26.5 / macOS 26.5 / Apple M1 | Pass | Successful-Split focus defect fixed and retested | Local Safari run above |
+| Chrome desktop | Keyboard-only completion, focus, semantics and accessibility-tree inspection | Chrome 150.0.7871.124 / macOS 26.5 / Apple M1 | Pass | First-wrong-Split focus defect fixed and retested | `UI-G-CHROME-2026-07-15-A` |
+| Chrome phone view | Narrow portrait/landscape layout, touch emulation and 200% zoom/reflow | Chrome responsive 390×844 / 844×390 | Partial | Layout and target size pass; touch events, 200% zoom and reduced motion pending | `UI-G-CHROME-2026-07-15-A` |
+| Chrome tablet view | Larger touch layout, orientation change and 200% zoom/reflow | Chrome responsive 768×1024 / 1024×768 | Partial | Layout and target size pass; touch events, 200% zoom and reduced motion pending | `UI-G-CHROME-2026-07-15-A` |
 
 Across the matrix, complete Learn, Discover, Split, Match, Build, Remember and
 the private reflection. Verify Tab and Shift+Tab order, Enter and Space
@@ -78,20 +112,20 @@ represented as completed when they were not run.
 
 | Check | Safari | Chrome desktop | Chrome phone | Chrome tablet | Notes |
 |---|---|---|---|---|---|
-| No pointer-, hover- or audio-only action | Pending | Pending | Pending | Pending | |
-| Split error status appears once | Pending | Pending | Pending | Pending | Validate live-region structure in the accessibility tree |
-| Two-miss scaffold and focus transfer | Pending | Pending | Pending | Pending | |
-| Correct split held until Rebuild | Pending | Pending | Pending | Pending | |
-| Cleaver ignored by accessibility tree | Pending | Pending | Pending | Pending | |
-| Recall contains no visible or accessible answer | Pending | Pending | Pending | Pending | |
-| Labels, headings, progress and status are understandable | Pending | Pending | Pending | Pending | |
-| Feedback remains clear without colour | Pending | Pending | Pending | Pending | |
-| Sound off and blocked audio still complete | Pending | Pending | Pending | Pending | |
-| Narration replay and mute are operable | Pending | Pending | Pending | Pending | |
+| No pointer-, hover- or audio-only action | Pass | Pass | Partial | Partial | Keyboard/direct-control paths pass; touch-event execution remains open |
+| Split error status appears once | Pass | Pass | Inspected | Inspected | Named status present in semantic snapshot |
+| Two-miss scaffold and focus transfer | Pass | Pass | Inspected | Inspected | Both Safari and Chrome focus defects fixed and retested |
+| Correct split held until Rebuild | Pass | Pass | Inspected | Inspected | |
+| Cleaver ignored by accessibility tree | Pass | Pass | Pass | Pass | No cleaver control/name in semantic snapshots |
+| Recall contains no visible or accessible answer | Pass | Pass | Not run | Not run | All four spelling and dictation recall states inspected on desktop |
+| Labels, headings, progress and status are understandable | Pass | Pass | Inspected | Inspected | |
+| Feedback remains clear without colour | Pass | Pass | Inspected | Inspected | Text/cross/status supplied alongside colour |
+| Sound off and blocked audio still complete | Pass | Pass | Not run | Not run | Sound-off full completion passed; blocked-audio simulation not run |
+| Narration replay and mute are operable | Pass | Pass | Inspected | Inspected | |
 | Reduced motion uses immediate static changes | Pending | Pending | Pending | Pending | |
-| Resume: Learn and first wrong Split | Pending | Pending | Pending | Pending | |
-| Resume: scaffold and held correct Split | Pending | Pending | Pending | Pending | |
-| Resume: spelling, dictation and reflection | Pending | Pending | Pending | Pending | |
+| Resume: Learn and first wrong Split | Pass | Pass | Not run | Not run | |
+| Resume: scaffold and held correct Split | Pass | Pass | Not run | Not run | |
+| Resume: spelling, dictation and reflection | Pass | Pass | Not run | Not run | |
 
 Any inaccessible control, focus trap, answer exposure, missing status
 announcement, touch failure or reduced-motion failure blocks this proof.
@@ -103,11 +137,12 @@ output records the route entry chunks, Word Lab dynamic chunk and compressed
 size. Warm or malformed/non-allowlisted sessions must not request the dynamic
 chunk, and the Word Lab chunk must remain at or below 153,600 compressed bytes.
 
-Engineering bundle preparation passed at `f2b2371`: the Word Lab is isolated in
-one 38,100-byte raw / 11,026-byte gzip chunk, its implementation markers are
-absent from the warm ADLE entry chunks, and the accessible lazy-loading state
-rendered before the lesson in browser QA. Production-preview network and Web
-Vitals rows below remain pending human execution.
+Engineering bundle preparation passed again from `dc81b9c` plus the focus fix:
+the Word Lab is isolated in one 38,340-byte raw / 11,097-byte gzip chunk, its
+implementation markers are absent from the warm ADLE entry chunks, and the
+accessible lazy-loading state rendered before the lesson in browser QA.
+Production-preview network and Web Vitals rows below remain pending human
+execution.
 
 | Run | Profile | Cache | LCP | INP | CLS | Long-task/interaction notes | Result |
 |---|---|---|---|---|---|---|---|
@@ -137,7 +172,7 @@ same counts. Cleanup must leave zero child, assignment, item and reflection rows
 |---|---|
 | Accessibility proof | Pending |
 | Performance proof | Pending |
-| Blocking issues | Pending |
+| Blocking issues | Responsive touch/200% zoom/reduced-motion execution, production-preview Web Vitals and genuine-child proof remain open |
 | Signed by / date | Pending |
 
 Do not change the proof register from `not_started` until every required row is

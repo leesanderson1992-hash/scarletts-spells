@@ -46,6 +46,7 @@ export function SplitHandle(props: {
   const completed = useRef(props.correct);
   const correctButton = useRef<HTMLButtonElement | null>(null);
   const continueButton = useRef<HTMLButtonElement | null>(null);
+  const boundaryButtons = useRef<Array<HTMLButtonElement | null>>([]);
   const splitPoint = props.splitPoints[0];
   const scaffolded = props.misses >= 2;
 
@@ -56,6 +57,11 @@ export function SplitHandle(props: {
   useEffect(() => {
     if (props.correct) continueButton.current?.focus();
   }, [props.correct]);
+  useEffect(() => {
+    if (!props.correct && props.misses === 1 && lastWrongBoundary !== null) {
+      boundaryButtons.current[lastWrongBoundary]?.focus();
+    }
+  }, [lastWrongBoundary, props.correct, props.misses]);
 
   function later(callback: () => void, delay: number) {
     const timer = window.setTimeout(callback, delay);
@@ -124,7 +130,10 @@ export function SplitHandle(props: {
           return (
             <button
               key={point}
-              ref={isCorrectBoundary ? correctButton : undefined}
+              ref={(node) => {
+                boundaryButtons.current[point] = node;
+                if (isCorrectBoundary) correctButton.current = node;
+              }}
               type="button"
               aria-label={`Split after letter ${point}`}
               onPointerEnter={() => !disabled && setActiveBoundary(point)}

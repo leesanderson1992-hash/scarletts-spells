@@ -26,9 +26,9 @@ genuine-child human sign-off.
 | Adult verbal prompts | Pending; target 0 |
 | Hesitations over five seconds | Pending |
 | Productive exploration vs confusion | Pending |
-| Failed pointer/touch drags | Direct-tap alternatives passed; Chrome touch-emulation matrix pending final record |
-| Keyboard-only completion | Scaffolded Split completed with Enter in browser QA; full Chrome keyboard-only record pending |
-| Touch completion | Narrow layout and tap controls passed; Chrome phone/tablet matrix pending final record |
+| Failed pointer/touch drags | Direct-tap alternatives passed; actual touch-event execution remains pending |
+| Keyboard-only completion | Pass in full authenticated Chrome 150 desktop run; Split, Match, Build and Finish used native keyboard activation |
+| Touch completion | Phone/tablet responsive layout and target sizes passed; actual touch-event execution remains pending |
 | Narration replays | Pending |
 | Help levels used | Pending |
 | Misunderstood affordances | Pending |
@@ -89,7 +89,13 @@ final sign-off record. Automated checks do not replace this observation.
 | Local Mac Safari authenticated completion | Pass on Safari 26.5 / macOS 26.5 / Apple M1; owner-authorised disposable fixture |
 | Safari successful-Split focus transfer | Initial run found body focus; fixed and targeted Safari rerun focuses **Rebuild the word** |
 | Safari completed-route reload / database idempotency | Pass; completed page and reflection retained; 1 / 16 / 14 / 1 unchanged |
-| Final acceptance proof templates | Prepared; Safari/Chrome matrix, Web Vitals and child results remain pending |
+| Chrome desktop authenticated keyboard completion | Pass on Chrome 150.0.7871.124 / macOS 26.5 / Apple M1; `UI-G-CHROME-2026-07-15-A` |
+| Chrome first-wrong-Split focus continuity | Initial run found body focus; fixed and targeted rerun keeps **Split after letter 1** active |
+| Chrome semantics and recall-answer inspection | Pass; named controls/statuses, decorative cleaver and answer-safe spelling/dictation recall |
+| Chrome reflection/completion reload and database idempotency | Pass; draft retained, Finish stayed authenticated, completed reflection retained, 1 / 16 / 14 / 1 unchanged |
+| Chrome phone/tablet responsive inspection | Pass at 390×844, 844×390, 768×1024 and 1024×768; zero horizontal overflow and no visible target below 44×44 CSS px |
+| Chrome console errors | Pass for application; only third-party Grammarly extension warnings were present |
+| Final acceptance proof templates | Prepared; touch events, 200% zoom, reduced motion, Web Vitals and child results remain pending |
 | Post-completion assignment header/items | Pass; 1 / 16 completed |
 | Post-completion attempt events | Pass; 14 total (6 guided, 4 controlled, 4 dictation) |
 | Post-completion learning/taught/schedule rows | Pass; 4 / 4 / 4 |
@@ -127,10 +133,13 @@ assignment item, attempt or evidence event.
 
 ## Remaining acceptance
 
-The browser run verified focus transfer and Enter activation on the scaffolded
-Split boundary. Final Mac Safari compatibility, Chrome keyboard-only,
-responsive touch-emulation, reduced-motion, performance and genuine-child
-records remain pending. VoiceOver and other screen-reader runs, native Windows,
-Android and physical phone/tablet runs are optional follow-up coverage and do
-not block UI-G closure. These changes do not enable the feature for any
+The Safari and Chrome desktop runs now verify complete authenticated operation,
+keyboard activation, semantic accessibility-tree output, focus transfer,
+answer-safe recall, private reflection persistence and idempotent completion.
+Chrome responsive phone/tablet layouts also pass overflow and 44×44 target-size
+inspection. Actual touch-event execution, browser 200% zoom, operating-system
+reduced motion, production-preview Web Vitals and genuine-child observation
+remain pending and therefore UI-G is not closed. VoiceOver and other
+screen-reader runs, native Windows, Android and physical phone/tablet runs are
+optional follow-up coverage. These changes do not enable the feature for any
 non-allowlisted child.

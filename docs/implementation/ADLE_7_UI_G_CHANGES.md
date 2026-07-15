@@ -195,3 +195,25 @@ Split replacement left focus on the page body; `SplitHandle` now transfers
 focus to **Rebuild the word**, and the focused regression plus targeted Safari
 rerun pass. Production-equivalent preview performance and genuine-child proof
 remain open.
+
+The owner-authorised Chrome 150 desktop run then completed the full
+authenticated lesson with keyboard-only activation, Sound off, all
+recall-safe reload points, capitalization feedback, reflection-draft reload
+and completed-route reload. It identified a separate first-wrong-Split focus
+defect: replacing the attempted boundary button returned focus to the page
+body. `SplitHandle` now retains each boundary ref and restores focus to the
+attempted boundary after the first miss; the targeted Chrome rerun and
+guided-pilot regression pass.
+
+Chrome semantic inspection found named native controls and statuses, a
+decorative cleaver and no recall answer exposure. Responsive views at 390×844,
+844×390, 768×1024 and 1024×768 had no horizontal overflow and no visible
+interactive target below 44×44 CSS pixels. Completion and completed-page reload
+both retained the database contract at 1 header, 16 items, 14 attempts, one
+private reflection and 4 learning/taught/schedule rows. The disposable fixture
+and temporary allowlist were removed afterward.
+
+Actual touch-event execution, browser 200% zoom, operating-system reduced
+motion, production-preview Web Vitals and genuine-child observation remain
+open; the responsive viewport inspection is not recorded as a substitute for
+those gates.
