@@ -14,10 +14,11 @@ Owner status (2026-07-14): current Word Lab preview accepted. This records
 owner validation of the vertical experience, but does not replace the pending
 browser accessibility, performance or genuine-child proof.
 
-Engineering status (2026-07-14): automated gates, authenticated real-route
+Engineering status (updated 2026-07-15): automated gates, authenticated real-route
 completion, accessibility-tree inspection, responsive-layout inspection,
 recall-safe reloads and post-completion database verification passed with a
-disposable local child. All fixtures were cleaned successfully. The gate
+disposable local child and two staging-only fixtures. The first staging fixture
+was cleaned before the second was created. The gate
 remains disabled outside the explicit allowlist and this ledger is not a
 genuine-child human sign-off.
 
@@ -93,9 +94,13 @@ final sign-off record. Automated checks do not replace this observation.
 | Chrome first-wrong-Split focus continuity | Initial run found body focus; fixed and targeted rerun keeps **Split after letter 1** active |
 | Chrome semantics and recall-answer inspection | Pass; named controls/statuses, decorative cleaver and answer-safe spelling/dictation recall |
 | Chrome reflection/completion reload and database idempotency | Pass; draft retained, Finish stayed authenticated, completed reflection retained, 1 / 16 / 14 / 1 unchanged |
-| Chrome phone/tablet responsive inspection | Pass at 390×844, 844×390, 768×1024 and 1024×768; zero horizontal overflow and no visible target below 44×44 CSS px |
+| Chrome phone/tablet responsive inspection | Lesson controls pass at 390×844, 844×390, 768×1024 and 1024×768 with zero horizontal overflow; staging later found and fixed 32–36px shared shell links |
+| Staging Chrome desktop completion | Pass on the production-built Vercel Preview with staging Supabase; keyboard path, reload safety, reflection history and 1 / 16 / 14 / 1 verified |
+| Staging Chrome phone-sized completion | Pass at 390×844 using direct tap-equivalent clicks; Split boundaries 44×144 and zero horizontal overflow; true touch injection remains pending |
+| Staging accessibility amendments | Internal rebuild identifier replaced with child-facing tile text; shared shell links raised from 32–36px to a 44px minimum |
+| Staging migration verification | 24 migrations recorded; UI-G dictionary/attempt/reflection/RPC schema present; local-only 873-word backfill intentionally not marked applied |
 | Chrome console errors | Pass for application; only third-party Grammarly extension warnings were present |
-| Final acceptance proof templates | Prepared; touch events, 200% zoom, reduced motion, Web Vitals and child results remain pending |
+| Final acceptance proof templates | Prepared; touch events, Web Vitals and child results remain pending; 200% zoom and OS reduced-motion execution are optional |
 | Post-completion assignment header/items | Pass; 1 / 16 completed |
 | Post-completion attempt events | Pass; 14 total (6 guided, 4 controlled, 4 dictation) |
 | Post-completion learning/taught/schedule rows | Pass; 4 / 4 / 4 |
@@ -131,15 +136,22 @@ target token `unfair` remained the only correctness target. The reflection was
 then saved, reloaded, completed and shown in My Learning without creating an
 assignment item, attempt or evidence event.
 
+The staging run also submitted `It was unkind to leave her out` without final
+punctuation. The raw sentence was retained, the comparison identified the
+missing full stop, and target-token correctness remained true. No assessment,
+evidence, mastery, schedule or reward row was created from the private
+reflection.
+
 ## Remaining acceptance
 
 The Safari and Chrome desktop runs now verify complete authenticated operation,
 keyboard activation, semantic accessibility-tree output, focus transfer,
 answer-safe recall, private reflection persistence and idempotent completion.
 Chrome responsive phone/tablet layouts also pass overflow and 44×44 target-size
-inspection. Actual touch-event execution, browser 200% zoom, operating-system
-reduced motion, production-preview Web Vitals and genuine-child observation
-remain pending and therefore UI-G is not closed. VoiceOver and other
+inspection. Actual touch-event execution, production-preview Web Vitals and
+genuine-child observation remain pending and therefore UI-G is not closed.
+Browser 200% zoom and operating-system reduced-motion execution are optional
+follow-up evidence rather than closure gates. VoiceOver and other
 screen-reader runs, native Windows, Android and physical phone/tablet runs are
 optional follow-up coverage. These changes do not enable the feature for any
 non-allowlisted child.

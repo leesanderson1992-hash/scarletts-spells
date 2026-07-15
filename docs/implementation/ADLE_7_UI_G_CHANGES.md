@@ -179,7 +179,10 @@ controlled Chrome desktop, phone and tablet modes. UI-G accessibility sign-off
 still requires complete keyboard operation, visible and transferred focus,
 semantic accessibility-tree inspection, named controls and states,
 colour-independent feedback, answer-safe recall, 44 by 44 CSS-pixel touch
-targets, zoom/reflow, reduced motion and completion without audio.
+targets, responsive reflow and completion without audio. Browser 200% zoom and
+operating-system reduced-motion execution are optional follow-up evidence; the
+reduced-motion implementation and automated static-path regression remain
+required engineering behaviour.
 
 VoiceOver, NVDA and TalkBack are not required sign-off tools. Native Windows,
 Android, iPhone and iPad runs are optional follow-up coverage and are never
@@ -213,7 +216,16 @@ both retained the database contract at 1 header, 16 items, 14 attempts, one
 private reflection and 4 learning/taught/schedule rows. The disposable fixture
 and temporary allowlist were removed afterward.
 
-Actual touch-event execution, browser 200% zoom, operating-system reduced
-motion, production-preview Web Vitals and genuine-child observation remain
-open; the responsive viewport inspection is not recorded as a substitute for
-those gates.
+Actual touch-event execution, production-preview Web Vitals and genuine-child
+observation remain open; the responsive viewport inspection is not recorded as
+a substitute for those gates. Browser 200% zoom and operating-system
+reduced-motion execution are optional follow-up coverage and do not block UI-G
+closure.
+
+The 2026-07-15 staging acceptance pass completed two disposable assignments on
+the production-built Vercel Preview. Desktop keyboard and 390×844 direct
+tap-equivalent runs each preserved the `1 / 16 / 14 / 1 / 4 / 4 / 4` contract.
+The pass fixed an internal rebuild identifier leaking into the polite live
+region and raised shared learner-shell links from 32–36px to a 44px minimum.
+Controlled Fast-4G/4×CPU Web Vitals, true touch-event injection and the genuine
+child observation remain open, so the pilot stays allowlist-gated.

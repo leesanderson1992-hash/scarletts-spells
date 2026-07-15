@@ -73,7 +73,7 @@ export function AdleSessionCelebration(props: {
         <p className="mt-5 text-sm text-[color:var(--mid)]">See you tomorrow. 🌙</p>
       )}
 
-      <Link href={props.backPath} className="brand-primary-btn mt-5 inline-flex">
+      <Link href={props.backPath} className="brand-primary-btn mt-5 inline-flex min-h-11 items-center">
         Back to my week
       </Link>
     </section>

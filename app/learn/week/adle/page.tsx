@@ -160,7 +160,7 @@ export default async function AdleSessionPage({ searchParams }: AdleSessionPageP
           ) : null}
           <Link
             href={backPath}
-            className="mt-3 inline-flex h-8 items-center rounded-full border border-[var(--border)] bg-white px-3 text-xs font-medium text-[color:var(--ink)]"
+            className="mt-3 inline-flex min-h-11 items-center rounded-full border border-[var(--border)] bg-white px-3 text-xs font-medium text-[color:var(--ink)]"
           >
             Back to my week
           </Link>

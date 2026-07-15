@@ -21,7 +21,12 @@ export function SnapRail(props: { tiles: RailTile[]; expectedIds: string[]; fixe
         const fixedText = (props.fixedTiles ?? []).map((tile) => tile.text);
         setPlaced(next); setAnnouncement("Word parts joined successfully"); playInteractionSound("fusion", props.muted); props.onComplete?.((props.fixedTilesPosition === "before" ? [...fixedText, ...placedText] : [...placedText, ...fixedText]).join(""));
       } else { setAnnouncement("Those parts make a different combination"); props.onInvalid?.(next); setPlaced([]); }
-    } else { setPlaced(next); setAnnouncement(`${id} placed in position ${next.length}`); playInteractionSound("snap", props.muted); }
+    } else {
+      const tileLabel = props.tiles.find((tile) => tile.id === id)?.text ?? "Word part";
+      setPlaced(next);
+      setAnnouncement(`${tileLabel} placed in position ${next.length}`);
+      playInteractionSound("snap", props.muted);
+    }
     setSelected(null);
   }
   function pointerDrop(id: string, point: { x: number; y: number }) {

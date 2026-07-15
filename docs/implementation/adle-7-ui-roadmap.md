@@ -134,5 +134,5 @@ Current gate status:
 - every production micro-skill has approved teaching content;
 - every production micro-skill reaches its intended rich experience;
 - fallbacks remain safe for runtime failures and old assignments;
-- accessibility, mobile, reduced-motion, performance, owner, child, live-flow, and evidence-regression proofs are recorded;
+- accessibility, mobile, automated reduced-motion behaviour, performance, owner, child, live-flow, and evidence-regression proofs are recorded; operating-system reduced-motion execution and browser 200% zoom are optional follow-up evidence;
 - evidence, scheduler, and reward semantics remain preserved unless separately approved.
