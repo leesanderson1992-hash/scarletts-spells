@@ -19,6 +19,51 @@ evidence, not population-level usability evidence.
 - Stop if the learner asks to stop or wellbeing requires it. An inability to
   continue is a failed proof, not an invitation to prompt.
 
+## Test-day runbook
+
+Use the latest successful Vercel Preview for
+`review/adle-7-ui-g-word-lab`, staging Supabase and a disposable QA family.
+Chrome on the validated MacBook is the default; Safari is also accepted. A
+phone, physical touch and performance throttling are not required for this
+observation.
+
+Before the learner arrives:
+
+1. Create a fresh anonymised session ID in the form
+   `UI-G-CHILD-YYYY-MM-DD-A`.
+2. Create a disposable staging parent and child, allowlist only that child,
+   seed the seven approved pilot words and generate an unused-date assignment.
+3. Sign in, open `/learn/week/adle`, confirm the first Learn screen is visible,
+   then make no further interaction.
+4. Start a screen-only recording with no microphone or camera. Confirm that no
+   account credentials, notifications or identifying filenames are visible.
+5. Keep this form available to the observer on a separate device or on paper;
+   do not cover or interrupt the learner's app screen to take notes.
+
+Read this once, exactly, before handing over control:
+
+> This is a spelling activity for you to try by yourself. Work through it in
+> whatever way makes sense to you. I won't tell you any answers, but you can use
+> anything the activity offers. You can stop at any time.
+
+During the lesson, do not point, demonstrate, read text aloud, explain `un-`,
+suggest a control or correct an answer. If the learner asks for help, record the
+request and reply only: “I can't help with the activity, but you can decide what
+to try next.” Stop for distress or a request to stop.
+
+After the completed page appears, ask these neutral questions in order and
+record only anonymised paraphrases:
+
+1. “What is a prefix?”
+2. “Where does `un-` go in a word?”
+3. “What can `un-` mean?”
+4. “Can you tell me what `un-` is doing in one of the words you saw?”
+5. “Was there any part that was confusing or that you would change?”
+
+After questioning, verify the database contract, capture the recording's
+SHA-256 checksum, stop the recording, clean the fixture in `finally`, remove
+the temporary allowlist/gate and confirm that no child-scoped rows remain.
+
 ## Session identity
 
 | Field | Record |
@@ -30,6 +75,7 @@ evidence, not population-level usability evidence.
 | Parental consent confirmed | Pending |
 | Screen-only recording checksum | Pending |
 | Recording retained outside repository | Pending |
+| Fixture and temporary allowlist removed | Pending |
 
 ## Timed observation
 
@@ -73,6 +119,18 @@ two authored meanings. Inability to complete, distress or fundamental
 misunderstanding blocks UI-G. Minor wording, pacing and hesitation findings are
 recorded below for UI-H rather than silently changing the frozen pilot.
 
+Use these severity rules:
+
+- **Blocking:** adult coaching is required; the learner cannot finish; an
+  answer is exposed; distress occurs; the learner cannot explain that a prefix
+  goes at the start or cannot give either the NOT or REVERSE/OPPOSITE meaning;
+  or the database/privacy/cleanup contract fails.
+- **Major UI-H:** the learner finishes unaided and meets comprehension, but a
+  control causes repeated confusion, the same failed action recurs after
+  scaffolding, or a hesitation materially interrupts the lesson.
+- **Minor UI-H:** wording, pacing, visual preference or a brief recoverable
+  hesitation that does not affect completion or comprehension.
+
 | Finding | Severity | Blocks UI-G | UI-H action / owner |
 |---|---|---|---|
 | Pending | Pending | Pending | Pending |
@@ -80,7 +138,7 @@ recorded below for UI-H rather than silently changing the frozen pilot.
 | Final field | Record |
 |---|---|
 | Child proof decision | Pending |
-| Blocking issues | Pending |
+| Blocking issues | Pending; enter `None` only after completion, comprehension, data verification and cleanup pass |
 | Observer / date | Pending |
 
 Do not change the proof register from `not_started` until the observation and

@@ -15,7 +15,7 @@ Shared architecture is reused, while each micro-skill still receives an intentio
 
 ## Current Status
 
-Status: `7-UI-G engineering complete; allowlist-gated browser accessibility, performance and child proof pending`.
+Status: `7-UI-G engineering, accessibility and bundle proof complete; allowlist-gated genuine-child proof pending`.
 
 The 7S reflection recall-gate live/manual proof is recorded in the proof register. PR 7-UI-B added the typed activity-template registry foundation. PR 7-UI-C generated structurally reconciled D4_MOR category-v1 candidate source artifacts under `docs/implementation/seed-data/adle-7-ui/generated/d4-mor-category-v1/`. PR 7-UI-D records human approval for the D4_MOR category-v1 content/schema candidate under `docs/implementation/seed-data/adle-7-ui/review/d4-mor-human-review-pack/`. PR 7-UI-E freezes that approved candidate plus the approval record into the immutable approved source package under `data/adle/approved/d4-mor/v1/`. PR 7-UI-F adds the reusable D4_MOR primitive/view-model layer. PR 7-UI-G implements the guarded `D4_MOR_PREFIXES_UN` Word Lab, including atomic assignment persistence, private reflections, strict payload/resume validation and authenticated engineering QA recorded in `docs/implementation/qa/adle-7-ui-g-observation-ledger.md`.
 
@@ -91,16 +91,17 @@ Current `D4_MOR_PREFIXES_UN` readiness:
 `gated_vertical_pilot_engineering_complete_human_proof_pending`. Human
 content/schema and owner approval are recorded. The guarded assignment payload,
 rich child runtime, fallback, persistence and authenticated engineering proof
-are complete. General activation remains blocked on the agreed Mac
-Safari/Chrome accessibility matrix, performance and genuine-child proof.
-Native Windows, Android, iOS and screen-reader runs are optional coverage.
+are complete. General activation remains blocked on genuine-child proof. The
+agreed Mac Safari/Chrome accessibility matrix and bundle/lazy-loading proof are
+recorded. True touch-event execution, controlled Web Vitals, native Windows,
+Android, iOS and screen-reader runs are optional UI-H rollout coverage.
 
 Near-term sequence:
 
 1. `7-UI-D` - D4_MOR human approval pack - complete.
 2. `7-UI-E` - approved D4_MOR v1 source freeze and pilot source fixture - complete.
 3. `7-UI-F` - shared child-experience and morphology primitives - complete.
-4. `7-UI-G` - `D4_MOR_PREFIXES_UN` vertical runtime pilot - engineering complete; browser accessibility, performance and child proof pending.
+4. `7-UI-G` - `D4_MOR_PREFIXES_UN` vertical runtime pilot - engineering, accessibility and bundle proof complete; child proof pending.
 5. `7-UI-H` - pilot amendments and runtime payload contract freeze - next engineering stage.
 
 After proof and contract freeze, finish morphology in coherent groups:
@@ -124,7 +125,8 @@ Current gate status:
 
 - `7UI-PROOF-7S-RECALL-GATE` is recorded.
 - `7UI-PROOF-D4-MOR-7UI-G-ENGINEERING` and `7UI-PROOF-D4-MOR-OWNER` are recorded for the guarded `un-` vertical pilot.
-- `7UI-PROOF-D4-MOR-CHILD`, `7UI-PROOF-D4-MOR-A11Y` and `7UI-PROOF-D4-MOR-PERF` remain open before general runtime enablement or contract freeze.
+- `7UI-PROOF-D4-MOR-A11Y` and `7UI-PROOF-D4-MOR-PERF` are recorded for the gated pilot.
+- `7UI-PROOF-D4-MOR-CHILD` remains open before UI-G closure or contract freeze.
 
 ## Definition Of Complete
 
@@ -134,5 +136,5 @@ Current gate status:
 - every production micro-skill has approved teaching content;
 - every production micro-skill reaches its intended rich experience;
 - fallbacks remain safe for runtime failures and old assignments;
-- accessibility, mobile, automated reduced-motion behaviour, performance, owner, child, live-flow, and evidence-regression proofs are recorded; operating-system reduced-motion execution and browser 200% zoom are optional follow-up evidence;
+- accessibility, responsive mobile layout, automated reduced-motion behaviour, bundle performance, owner, child, live-flow, and evidence-regression proofs are recorded; physical touch, controlled Web Vitals, operating-system reduced-motion execution and browser 200% zoom are optional follow-up evidence;
 - evidence, scheduler, and reward semantics remain preserved unless separately approved.

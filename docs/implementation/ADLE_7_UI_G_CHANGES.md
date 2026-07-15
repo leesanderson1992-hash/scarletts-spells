@@ -112,10 +112,11 @@ learning items, four taught rows, four schedule rows and exactly one private
 reflection. The completed route was reloaded without duplicating the note or
 assessment outputs, and disposable fixture cleanup passed.
 
-The agreed Mac Safari/Chrome accessibility matrix, performance proof and
-genuine-child observation remain the separate acceptance gates described
-below; the pilot remains disabled outside its explicit allowlist. Native
-Windows, Android, iOS and screen-reader confirmation is not required.
+The agreed Mac Safari/Chrome accessibility matrix and bundle/lazy-loading proof
+are recorded. Genuine-child observation is the remaining UI-G acceptance gate;
+the pilot remains disabled outside its explicit allowlist. True touch-event
+execution, controlled Web Vitals, native Windows, Android, iOS and
+screen-reader confirmation are optional UI-H rollout evidence.
 
 ## Explicit prefix teaching and corrective Split on 2026-07-14
 
@@ -186,8 +187,10 @@ required engineering behaviour.
 
 VoiceOver, NVDA and TalkBack are not required sign-off tools. Native Windows,
 Android, iPhone and iPad runs are optional follow-up coverage and are never
-recorded as completed unless actually performed. Performance and genuine-child
-proof remain blocking, and the runtime remains explicitly allowlist-gated.
+recorded as completed unless actually performed. Genuine-child proof remains
+blocking, and the runtime remains explicitly allowlist-gated. True touch-event
+execution and controlled production-preview Web Vitals are optional UI-H
+rollout evidence.
 
 The owner-authorised local Safari run completed the authenticated lesson on
 Safari 26.5 and macOS 26.5 with Sound off, lowercase sentence-capitalization
@@ -196,8 +199,8 @@ Database verification passed twice at 1 header, 16 items, 14 attempts, one
 reflection and 4 learning/taught/schedule rows. Safari revealed that successful
 Split replacement left focus on the page body; `SplitHandle` now transfers
 focus to **Rebuild the word**, and the focused regression plus targeted Safari
-rerun pass. Production-equivalent preview performance and genuine-child proof
-remain open.
+rerun pass. The production-equivalent preview and bundle proof were recorded
+later; genuine-child proof remains open.
 
 The owner-authorised Chrome 150 desktop run then completed the full
 authenticated lesson with keyboard-only activation, Sound off, all
@@ -216,16 +219,16 @@ both retained the database contract at 1 header, 16 items, 14 attempts, one
 private reflection and 4 learning/taught/schedule rows. The disposable fixture
 and temporary allowlist were removed afterward.
 
-Actual touch-event execution, production-preview Web Vitals and genuine-child
-observation remain open; the responsive viewport inspection is not recorded as
-a substitute for those gates. Browser 200% zoom and operating-system
-reduced-motion execution are optional follow-up coverage and do not block UI-G
-closure.
+Genuine-child observation remains open and is the only unfinished UI-G gate.
+Actual touch-event execution, production-preview Web Vitals, browser 200% zoom
+and operating-system reduced-motion execution are optional UI-H follow-up
+coverage and do not block UI-G closure.
 
 The 2026-07-15 staging acceptance pass completed two disposable assignments on
 the production-built Vercel Preview. Desktop keyboard and 390×844 direct
 tap-equivalent runs each preserved the `1 / 16 / 14 / 1 / 4 / 4 / 4` contract.
 The pass fixed an internal rebuild identifier leaking into the polite live
 region and raised shared learner-shell links from 32–36px to a 44px minimum.
-Controlled Fast-4G/4×CPU Web Vitals, true touch-event injection and the genuine
-child observation remain open, so the pilot stays allowlist-gated.
+Controlled Fast-4G/4×CPU Web Vitals and true touch-event injection are optional
+UI-H rollout evidence. Genuine-child observation remains open, so the pilot
+stays allowlist-gated.

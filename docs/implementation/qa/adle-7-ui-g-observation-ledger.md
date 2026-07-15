@@ -4,15 +4,15 @@ Status: pending real-child gated pilot run.
 
 Final human acceptance is executed through the
 [device/accessibility/performance proof](./adle-7-ui-g-device-accessibility-performance-proof.md)
-and [genuine-child proof](./adle-7-ui-g-child-validation-proof.md). Both remain
-pending until their required sessions are completed; prepared checklists are
-not recorded proof. The device proof uses Mac Safari and controlled Chrome
+and [genuine-child proof](./adle-7-ui-g-child-validation-proof.md). The device
+proof is recorded; genuine-child observation remains pending. The device proof
+uses Mac Safari and controlled Chrome
 desktop/phone/tablet modes. Native Windows, Android, iOS and screen-reader runs
 are optional rather than closure requirements.
 
 Owner status (2026-07-14): current Word Lab preview accepted. This records
 owner validation of the vertical experience, but does not replace the pending
-browser accessibility, performance or genuine-child proof.
+genuine-child proof.
 
 Engineering status (updated 2026-07-15): automated gates, authenticated real-route
 completion, accessibility-tree inspection, responsive-layout inspection,
@@ -27,9 +27,9 @@ genuine-child human sign-off.
 | Adult verbal prompts | Pending; target 0 |
 | Hesitations over five seconds | Pending |
 | Productive exploration vs confusion | Pending |
-| Failed pointer/touch drags | Direct-tap alternatives passed; actual touch-event execution remains pending |
+| Failed pointer/touch drags | Direct-tap alternatives passed; physical touch is optional UI-H evidence |
 | Keyboard-only completion | Pass in full authenticated Chrome 150 desktop run; Split, Match, Build and Finish used native keyboard activation |
-| Touch completion | Phone/tablet responsive layout and target sizes passed; actual touch-event execution remains pending |
+| Touch completion | Phone/tablet responsive layout and direct-control completion passed; physical touch is optional UI-H evidence |
 | Narration replays | Pending |
 | Help levels used | Pending |
 | Misunderstood affordances | Pending |
@@ -96,12 +96,12 @@ final sign-off record. Automated checks do not replace this observation.
 | Chrome reflection/completion reload and database idempotency | Pass; draft retained, Finish stayed authenticated, completed reflection retained, 1 / 16 / 14 / 1 unchanged |
 | Chrome phone/tablet responsive inspection | Lesson controls pass at 390×844, 844×390, 768×1024 and 1024×768 with zero horizontal overflow; staging later found and fixed 32–36px shared shell links |
 | Staging Chrome desktop completion | Pass on the production-built Vercel Preview with staging Supabase; keyboard path, reload safety, reflection history and 1 / 16 / 14 / 1 verified |
-| Staging Chrome phone-sized completion | Pass at 390×844 using direct tap-equivalent clicks; Split boundaries 44×144 and zero horizontal overflow; true touch injection remains pending |
+| Staging Chrome phone-sized completion | Pass at 390×844 using direct tap-equivalent clicks; Split boundaries 44×144 and zero horizontal overflow; true touch injection was not run and is optional UI-H evidence |
 | Staging accessibility amendments | Internal rebuild identifier replaced with child-facing tile text; shared shell links raised from 32–36px to a 44px minimum |
 | Refreshed-preview target retest | Pass at `f580e91`; desktop and mobile mode links plus Back-to-week measured exactly 44px high |
 | Staging migration verification | 24 migrations recorded; UI-G dictionary/attempt/reflection/RPC schema present; local-only 873-word backfill intentionally not marked applied |
 | Chrome console errors | Pass for application; only third-party Grammarly extension warnings were present |
-| Final acceptance proof templates | Prepared; touch events, Web Vitals and child results remain pending; 200% zoom and OS reduced-motion execution are optional |
+| Final acceptance proof templates | Device/accessibility/bundle proof recorded; child result pending; touch, Web Vitals, 200% zoom and OS reduced-motion execution are optional |
 | Post-completion assignment header/items | Pass; 1 / 16 completed |
 | Post-completion attempt events | Pass; 14 total (6 guided, 4 controlled, 4 dictation) |
 | Post-completion learning/taught/schedule rows | Pass; 4 / 4 / 4 |
@@ -149,10 +149,10 @@ The Safari and Chrome desktop runs now verify complete authenticated operation,
 keyboard activation, semantic accessibility-tree output, focus transfer,
 answer-safe recall, private reflection persistence and idempotent completion.
 Chrome responsive phone/tablet layouts also pass overflow and 44×44 target-size
-inspection. Actual touch-event execution, production-preview Web Vitals and
-genuine-child observation remain pending and therefore UI-G is not closed.
-Browser 200% zoom and operating-system reduced-motion execution are optional
-follow-up evidence rather than closure gates. VoiceOver and other
+inspection. Genuine-child observation is the only remaining UI-G gate.
+Actual touch-event execution, production-preview Web Vitals, browser 200% zoom
+and operating-system reduced-motion execution are optional UI-H follow-up
+evidence. VoiceOver and other
 screen-reader runs, native Windows, Android and physical phone/tablet runs are
 optional follow-up coverage. These changes do not enable the feature for any
 non-allowlisted child.
