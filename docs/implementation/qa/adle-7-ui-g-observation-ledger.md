@@ -5,12 +5,14 @@ Status: pending real-child gated pilot run.
 Final human acceptance is executed through the
 [device/accessibility/performance proof](./adle-7-ui-g-device-accessibility-performance-proof.md)
 and [genuine-child proof](./adle-7-ui-g-child-validation-proof.md). Both remain
-pending until their physical sessions are completed; prepared checklists are
-not recorded proof.
+pending until their required sessions are completed; prepared checklists are
+not recorded proof. The device proof uses Mac Safari and controlled Chrome
+desktop/phone/tablet modes. Native Windows, Android, iOS and screen-reader runs
+are optional rather than closure requirements.
 
 Owner status (2026-07-14): current Word Lab preview accepted. This records
 owner validation of the vertical experience, but does not replace the pending
-physical-device, accessibility, performance or genuine-child proof.
+browser accessibility, performance or genuine-child proof.
 
 Engineering status (2026-07-14): automated gates, authenticated real-route
 completion, accessibility-tree inspection, responsive-layout inspection,
@@ -24,9 +26,9 @@ genuine-child human sign-off.
 | Adult verbal prompts | Pending; target 0 |
 | Hesitations over five seconds | Pending |
 | Productive exploration vs confusion | Pending |
-| Failed pointer/touch drags | Direct-tap alternatives passed; physical touch pending |
-| Keyboard-only completion | Scaffolded Split completed with Enter in browser QA; full physical-keyboard run pending |
-| Touch completion | Narrow layout and tap controls passed; physical device pending |
+| Failed pointer/touch drags | Direct-tap alternatives passed; Chrome touch-emulation matrix pending final record |
+| Keyboard-only completion | Scaffolded Split completed with Enter in browser QA; full Chrome keyboard-only record pending |
+| Touch completion | Narrow layout and tap controls passed; Chrome phone/tablet matrix pending final record |
 | Narration replays | Pending |
 | Help levels used | Pending |
 | Misunderstood affordances | Pending |
@@ -84,7 +86,10 @@ final sign-off record. Automated checks do not replace this observation.
 | Browser console errors | Pass; none |
 | Conditional Word Lab bundle boundary | Pass; warm entry contains no Word Lab markers |
 | Word Lab production chunk budget | Pass; 11,026 bytes gzip against 153,600-byte budget at `f2b2371` |
-| Final human proof templates | Prepared; physical-device, Web Vitals and child results remain pending |
+| Local Mac Safari authenticated completion | Pass on Safari 26.5 / macOS 26.5 / Apple M1; owner-authorised disposable fixture |
+| Safari successful-Split focus transfer | Initial run found body focus; fixed and targeted Safari rerun focuses **Rebuild the word** |
+| Safari completed-route reload / database idempotency | Pass; completed page and reflection retained; 1 / 16 / 14 / 1 unchanged |
+| Final acceptance proof templates | Prepared; Safari/Chrome matrix, Web Vitals and child results remain pending |
 | Post-completion assignment header/items | Pass; 1 / 16 completed |
 | Post-completion attempt events | Pass; 14 total (6 guided, 4 controlled, 4 dictation) |
 | Post-completion learning/taught/schedule rows | Pass; 4 / 4 / 4 |
@@ -120,10 +125,12 @@ target token `unfair` remained the only correctness target. The reflection was
 then saved, reloaded, completed and shown in My Learning without creating an
 assignment item, attempt or evidence event.
 
-## Remaining human-device acceptance
+## Remaining acceptance
 
 The browser run verified focus transfer and Enter activation on the scaffolded
-Split boundary. A full physical keyboard-only run is still required for
-human-device sign-off. Physical touch, narration observation and genuine-child
-comprehension/hesitation observations also remain pending. These do not enable
-the feature for any non-allowlisted child.
+Split boundary. Final Mac Safari compatibility, Chrome keyboard-only,
+responsive touch-emulation, reduced-motion, performance and genuine-child
+records remain pending. VoiceOver and other screen-reader runs, native Windows,
+Android and physical phone/tablet runs are optional follow-up coverage and do
+not block UI-G closure. These changes do not enable the feature for any
+non-allowlisted child.

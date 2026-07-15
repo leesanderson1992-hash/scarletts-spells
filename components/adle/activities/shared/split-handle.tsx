@@ -45,6 +45,7 @@ export function SplitHandle(props: {
   const timers = useRef<number[]>([]);
   const completed = useRef(props.correct);
   const correctButton = useRef<HTMLButtonElement | null>(null);
+  const continueButton = useRef<HTMLButtonElement | null>(null);
   const splitPoint = props.splitPoints[0];
   const scaffolded = props.misses >= 2;
 
@@ -52,6 +53,9 @@ export function SplitHandle(props: {
   useEffect(() => {
     if (scaffolded && !props.correct) correctButton.current?.focus();
   }, [props.correct, scaffolded]);
+  useEffect(() => {
+    if (props.correct) continueButton.current?.focus();
+  }, [props.correct]);
 
   function later(callback: () => void, delay: number) {
     const timer = window.setTimeout(callback, delay);
@@ -94,7 +98,7 @@ export function SplitHandle(props: {
           <h2 id="split-correct-heading" className="text-xl font-black">Yes — un- is the first two letters.</h2>
           <p className="mt-1 text-base font-semibold">un + happy makes unhappy.</p>
         </div>
-        <button type="button" onClick={props.onContinue} className="mx-auto min-h-12 rounded-full bg-cyan-300 px-7 font-black text-slate-950">Rebuild the word</button>
+        <button ref={continueButton} type="button" onClick={props.onContinue} className="mx-auto min-h-12 rounded-full bg-cyan-300 px-7 font-black text-slate-950">Rebuild the word</button>
       </section>
     );
   }

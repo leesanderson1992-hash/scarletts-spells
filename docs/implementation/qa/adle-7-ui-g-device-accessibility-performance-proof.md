@@ -1,11 +1,12 @@
 # ADLE 7-UI-G device, accessibility and performance proof
 
-Status: ready for human execution; no physical-device pass is recorded.
+Status: ready for final browser, Mac Safari and performance execution.
 
 This record closes `7UI-PROOF-D4-MOR-A11Y` and
-`7UI-PROOF-D4-MOR-PERF` only after every blocking row below passes. Browser
-emulation and the existing accessibility-tree inspection are supporting
-engineering evidence, not substitutes for these runs.
+`7UI-PROOF-D4-MOR-PERF` only after every blocking row below passes. The agreed
+UI-G acceptance boundary uses Mac Safari plus controlled Chrome desktop and
+responsive-device modes. Native Windows, Android, iPhone/iPad and screen-reader
+runs are optional follow-up coverage rather than closure requirements.
 
 ## Safety and build identity
 
@@ -30,42 +31,67 @@ The fixture command refuses remote execution unless
 `ADLE_QA_PLAN_DATE` is supplied. These values belong in the private QA shell or
 deployment configuration, never in committed environment files.
 
-## Physical matrix
+### Local Mac Safari acceptance run — 2026-07-15
+
+An owner-authorised disposable local run passed on Safari 26.5, macOS 26.5,
+MacBook Pro `MacBookPro17,1` (Apple M1, 8 GB), based on `a4b05c6` plus the
+working-tree Split focus fix. The complete authenticated route covered Learn,
+Discover, two wrong Split chops, scaffolded correct Split, held success,
+rebuild, Match, an invalid Build choice, controlled recall, full-sentence
+dictation, capitalization recap, reflection and completion with Sound off.
+
+The run confirmed no login redirect on Finish, no horizontal overflow, no
+visible or accessible-attribute target leak before dictation submission, saved
+reflection display and stable completed-route reload. Database verification
+passed twice at `1 header / 16 items / 14 attempts (6 guided, 4 controlled, 4
+dictation) / 1 reflection / 4 learning / 4 taught / 4 schedule`.
+
+Safari exposed one focus-continuity defect: after a correct chop, focus returned
+to the page body when the boundary buttons were replaced. `SplitHandle` now
+focuses the held-success **Rebuild the word** action. The targeted Safari rerun
+and guided-pilot regression passed. This local run is compatibility evidence;
+the production-equivalent preview identity and Web Vitals rows remain pending.
+
+## Required browser matrix
 
 Record `pass`, `fail` or `blocked`; a blank row is not a pass.
 
-| Platform | Browser / assistive technology | Version and hardware | Completion | Blocking findings | Evidence ref |
+| Environment | Required coverage | Version and hardware | Completion | Blocking findings | Evidence ref |
 |---|---|---|---|---|---|
-| macOS | Safari + VoiceOver; physical keyboard only | Pending | Pending | Pending | Pending |
-| Windows | Edge + NVDA; physical keyboard only | Pending | Pending | Pending | Pending |
-| iPhone | Safari + VoiceOver; portrait and landscape | Pending | Pending | Pending | Pending |
-| iPad | Safari + VoiceOver; touch and orientation change | Pending | Pending | Pending | Pending |
-| Android | Chrome + TalkBack | Pending | Pending | Pending | Pending |
+| macOS | Safari compatibility and lesson completion | Pending | Pending | Pending | Pending |
+| Chrome desktop | Keyboard-only completion, focus, semantics and accessibility-tree inspection | Pending | Pending | Pending | Pending |
+| Chrome phone view | Narrow portrait/landscape layout, touch emulation and 200% zoom/reflow | Pending | Pending | Pending | Pending |
+| Chrome tablet view | Larger touch layout, orientation change and 200% zoom/reflow | Pending | Pending | Pending | Pending |
 
-For each row, complete Learn, Discover, Split, Match, Build, Remember and the
-private reflection. Verify Tab and Shift+Tab order where applicable, Enter and
-Space activation, visible focus, focus transfer, 44 by 44 CSS-pixel targets,
-200% zoom/reflow, orientation changes and absence of clipping or horizontal
-overflow.
+Across the matrix, complete Learn, Discover, Split, Match, Build, Remember and
+the private reflection. Verify Tab and Shift+Tab order, Enter and Space
+activation, visible focus, focus transfer, 44 by 44 CSS-pixel targets, 200%
+zoom/reflow, orientation changes and absence of clipping or horizontal
+overflow. Inspect the browser accessibility tree for names, roles, states,
+headings, status regions and hidden-answer safety.
+
+VoiceOver, NVDA and TalkBack are not required for UI-G sign-off. If used, their
+results may be recorded as optional exploratory evidence and must not be
+represented as completed when they were not run.
 
 ## Required state checks
 
-| Check | macOS | Windows | iPhone | iPad | Android | Notes |
-|---|---|---|---|---|---|---|
-| No pointer-, hover- or audio-only action | Pending | Pending | Pending | Pending | Pending | |
-| Split error announced once | Pending | Pending | Pending | Pending | Pending | |
-| Two-miss scaffold and focus transfer | Pending | Pending | Pending | Pending | Pending | |
-| Correct split held until Rebuild | Pending | Pending | Pending | Pending | Pending | |
-| Cleaver ignored by accessibility tree | Pending | Pending | Pending | Pending | Pending | |
-| Recall contains no visible or accessible answer | Pending | Pending | Pending | Pending | Pending | |
-| Labels, headings, progress and status understood | Pending | Pending | Pending | Pending | Pending | |
-| Feedback remains clear without colour | Pending | Pending | Pending | Pending | Pending | |
-| Sound off and blocked audio still complete | Pending | Pending | Pending | Pending | Pending | |
-| Narration replay and mute are operable | Pending | Pending | Pending | Pending | Pending | |
-| Reduced motion uses immediate static changes | Pending | Pending | Pending | Pending | Pending | |
-| Resume: Learn and first wrong Split | Pending | Pending | Pending | Pending | Pending | |
-| Resume: scaffold and held correct Split | Pending | Pending | Pending | Pending | Pending | |
-| Resume: spelling, dictation and reflection | Pending | Pending | Pending | Pending | Pending | |
+| Check | Safari | Chrome desktop | Chrome phone | Chrome tablet | Notes |
+|---|---|---|---|---|---|
+| No pointer-, hover- or audio-only action | Pending | Pending | Pending | Pending | |
+| Split error status appears once | Pending | Pending | Pending | Pending | Validate live-region structure in the accessibility tree |
+| Two-miss scaffold and focus transfer | Pending | Pending | Pending | Pending | |
+| Correct split held until Rebuild | Pending | Pending | Pending | Pending | |
+| Cleaver ignored by accessibility tree | Pending | Pending | Pending | Pending | |
+| Recall contains no visible or accessible answer | Pending | Pending | Pending | Pending | |
+| Labels, headings, progress and status are understandable | Pending | Pending | Pending | Pending | |
+| Feedback remains clear without colour | Pending | Pending | Pending | Pending | |
+| Sound off and blocked audio still complete | Pending | Pending | Pending | Pending | |
+| Narration replay and mute are operable | Pending | Pending | Pending | Pending | |
+| Reduced motion uses immediate static changes | Pending | Pending | Pending | Pending | |
+| Resume: Learn and first wrong Split | Pending | Pending | Pending | Pending | |
+| Resume: scaffold and held correct Split | Pending | Pending | Pending | Pending | |
+| Resume: spelling, dictation and reflection | Pending | Pending | Pending | Pending | |
 
 Any inaccessible control, focus trap, answer exposure, missing status
 announcement, touch failure or reduced-motion failure blocks this proof.
@@ -91,7 +117,7 @@ Vitals rows below remain pending human execution.
 | Desktop 1 | Clean Chrome | Cold | Pending | Pending | Pending | Pending | Pending |
 | Desktop 2 | Clean Chrome | Cold | Pending | Pending | Pending | Pending | Pending |
 | Desktop 3 | Clean Chrome | Cold | Pending | Pending | Pending | Pending | Pending |
-| Physical Android | Chrome, full interaction | Record | Pending | Pending | Pending | Pending | Pending |
+| Responsive interaction | Chrome phone view, full interaction | Cold | Pending | Pending | Pending | Pending | Pending |
 
 Record the median for each three-run group. Passing requires LCP at most 2.5
 seconds, INP at most 200 milliseconds and CLS at most 0.1, with no individual

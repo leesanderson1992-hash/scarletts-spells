@@ -12,8 +12,10 @@ engineering QA. The owner preview was accepted on 2026-07-14.
 
 The Word Lab remains an explicitly generated, child-allowlisted pilot. It is
 not broad D4_MOR runtime truth and must stay disabled outside the allowlist
-until physical keyboard/touch, screen-reader/reduced-motion, performance and
-genuine-child proof are recorded. 7-UI-H may amend the pilot from that evidence
+until the Mac Safari and Chrome desktop/responsive accessibility matrix,
+reduced-motion, performance and genuine-child proof are recorded. Native
+Windows/Android/iOS and screen-reader checks are optional follow-up coverage.
+7-UI-H may amend the pilot from that evidence
 and freeze the v1 payload/resume compatibility contract; it must not bulk
 activate the remaining D4_MOR category.
 

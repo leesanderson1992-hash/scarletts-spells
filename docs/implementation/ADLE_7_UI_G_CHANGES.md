@@ -71,9 +71,11 @@ removed and cleanup verification passed.
 
 The split boundary now handles Enter and Space explicitly as well as retaining
 native button semantics. Browser QA completed the scaffolded correct chop with
-Enter after focus moved to the only enabled boundary. Physical touch and
-genuine-child observation remain human-device pilot gates. The feature remains
-disabled outside an explicit child allowlist.
+Enter after focus moved to the only enabled boundary. The final required device
+coverage is Mac Safari plus Chrome desktop and responsive phone/tablet modes;
+native-device and screen-reader runs are optional. Genuine-child observation
+remains a pilot gate. The feature remains disabled outside an explicit child
+allowlist.
 
 ## Word Lab flow refinement on 2026-07-14
 
@@ -110,9 +112,10 @@ learning items, four taught rows, four schedule rows and exactly one private
 reflection. The completed route was reloaded without duplicating the note or
 assessment outputs, and disposable fixture cleanup passed.
 
-Physical keyboard, physical touch and genuine-child observation remain the
-separate human acceptance gates described below; the pilot remains disabled
-outside its explicit allowlist.
+The agreed Mac Safari/Chrome accessibility matrix, performance proof and
+genuine-child observation remain the separate acceptance gates described
+below; the pilot remains disabled outside its explicit allowlist. Native
+Windows, Android, iOS and screen-reader confirmation is not required.
 
 ## Explicit prefix teaching and corrective Split on 2026-07-14
 
@@ -164,7 +167,31 @@ narrow browser viewport.
 
 The live-smoke fixture now defaults to local Supabase and refuses remote use
 unless the exact staging hostname, the `disposable-data-only` acknowledgement
-and an explicit unused date are provided. Device/accessibility/performance and
-child-observation forms are prepared in `docs/implementation/qa/`, but their
-physical results remain unrecorded. The proof register therefore remains open
-and the pilot remains allowlist-gated.
+and an explicit unused date are provided. Browser accessibility/performance
+and child-observation forms are prepared in `docs/implementation/qa/`, but
+their final results remain unrecorded. The proof register therefore remains
+open and the pilot remains allowlist-gated.
+
+## Acceptance boundary refinement on 2026-07-15
+
+Owner direction narrowed the required device matrix to Mac Safari plus
+controlled Chrome desktop, phone and tablet modes. UI-G accessibility sign-off
+still requires complete keyboard operation, visible and transferred focus,
+semantic accessibility-tree inspection, named controls and states,
+colour-independent feedback, answer-safe recall, 44 by 44 CSS-pixel touch
+targets, zoom/reflow, reduced motion and completion without audio.
+
+VoiceOver, NVDA and TalkBack are not required sign-off tools. Native Windows,
+Android, iPhone and iPad runs are optional follow-up coverage and are never
+recorded as completed unless actually performed. Performance and genuine-child
+proof remain blocking, and the runtime remains explicitly allowlist-gated.
+
+The owner-authorised local Safari run completed the authenticated lesson on
+Safari 26.5 and macOS 26.5 with Sound off, lowercase sentence-capitalization
+feedback, private reflection display and stable completed-route reload.
+Database verification passed twice at 1 header, 16 items, 14 attempts, one
+reflection and 4 learning/taught/schedule rows. Safari revealed that successful
+Split replacement left focus on the page body; `SplitHandle` now transfers
+focus to **Rebuild the word**, and the focused regression plus targeted Safari
+rerun pass. Production-equivalent preview performance and genuine-child proof
+remain open.

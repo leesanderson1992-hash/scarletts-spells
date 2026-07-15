@@ -109,6 +109,7 @@ assert(splitSource.includes("CleaverIcon") && splitSource.includes("onPointerEnt
 assert(splitSource.includes('playInteractionSound("cleave"') && splitSource.includes('playInteractionSound("resist"') && splitSource.includes('playInteractionSound("sparkle"') && soundSource.includes('"sparkle"'), "split distinguishes chop, resistance, and success sounds");
 assert(splitSource.includes("useReducedMotion") && splitSource.includes("reducedMotion ? 0 : STRIKE_MS"), "cleaver strike has a static reduced-motion path");
 assert(splitSource.includes("Rebuild the word") && splitSource.includes("disabled={disabled}") && splitSource.includes("props.misses >= 2"), "Split holds success and bounds independent attempts before scaffolding");
+assert(splitSource.includes("continueButton.current?.focus()") && splitSource.includes("ref={continueButton}"), "Split transfers focus to the held-success Rebuild action");
 assert(sceneSource.includes('["Learn", "Discover", "Split", "Match", "Build", "Remember"]') && !guideSource.includes("props.beat.state"), "Learn is first and internal Guide states are hidden from children");
 assert(!runnerSource.includes('import { MorphologyGuidedLesson } from "@/components/adle/morphology/morphology-guided-lesson"'), "the general ADLE runner does not eagerly import the Word Lab client");
 assert(runnerSource.includes('import("@/components/adle/morphology/morphology-guided-lesson")') && runnerSource.includes("ssr: false"), "the Word Lab client is isolated behind a client-only dynamic import");
