@@ -1,6 +1,6 @@
 # ADLE 7-UI-G genuine-child validation proof
 
-Status: corrective unaided completion passed; comprehension capture and performance follow-up remain open.
+Status: child understanding and unaided completion passed; the final Finish-performance and pull-cover engineering retest remains open.
 
 This form is for one first-time, intended-age learner. It closes
 `7UI-PROOF-D4-MOR-CHILD` only when the learner completes the lesson unaided and
@@ -100,13 +100,13 @@ between productive exploration and confusion.
 | Criterion | Result | Observer evidence |
 |---|---|---|
 | Completed Learn through reflection without adult help | Pass on corrective re-run | No adult intervention reported. |
-| No answer was exposed during recall | Pending | |
-| No critical confusion or distress | Pending | |
+| No answer was exposed during recall | Pass | No answer exposure was reported during either unaided completion. |
+| No critical confusion or distress | Pass | No distress or critical confusion was reported. |
 | Understood how to operate Split and Rebuild | Mixed | Split was enjoyed; rebuild was not perceived as purposeful. |
 | Reacted meaningfully to spelling/capital/punctuation recap | Pending | |
 | Reflection supported review rather than assessment behaviour | Pending re-run | |
-| Explained that a prefix is added at the start | Pending | Record a non-identifying paraphrase only |
-| Explained that `un-` can mean NOT or REVERSE/OPPOSITE | Pending | Record a non-identifying paraphrase only |
+| Explained that a prefix is added at the start | Pass | Learner described it as something added to the start of a word to change its meaning. |
+| Explained that `un-` can mean NOT or REVERSE/OPPOSITE | Pass | Learner answered “not or reverse”. |
 
 Also record narration replays, mute use, Help use, wrong Split boundaries,
 spelling corrections and whether the child could distinguish `unfair`/`unkind`
@@ -147,8 +147,8 @@ Use these severity rules:
 
 | Final field | Record |
 |---|---|
-| Child proof decision | Provisional pass for unaided completion; do not close until comprehension answers and Finish latency follow-up are recorded. |
-| Blocking issues | No adult intervention on the corrective run. Comprehension answers were not captured; Finish latency requires measurement. |
+| Child proof decision | Pass for unaided completion and comprehension. The final engineering retest remains open for Finish latency and the pull-cover amendment. |
+| Blocking issues | No adult intervention. Finish showed immediate pending feedback, but the completed page took about 10 seconds; optimisation is implemented but must be remeasured. |
 | Observer / date | Pending |
 
 Do not change the proof register from `not_started` until the observation and

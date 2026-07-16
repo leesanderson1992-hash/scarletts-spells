@@ -121,7 +121,8 @@ assert(sceneSource.includes('["Learn", "Discover", "Split", "Match", "Build", "R
 assert(lessonSource.includes("Watch the meaning change") && lessonSource.includes("Add un-") && lessonSource.includes("Choose the new meaning"), "Discover uses purposeful meaning-change cards instead of separated prefix/base toggles");
 assert(lessonSource.includes("cards.length - 1") && lessonSource.includes('playInteractionSound(meaning === card.derivedMeaning ? "snap" : "resist"'), "Discover completes all cards and gives audible choice feedback");
 assert(lessonSource.includes("Two jobs, four words") && lessonSource.includes("matchComplete"), "NOT/REVERSE overview appears immediately after sorting");
-assert(!readFileSync("components/adle/activities/shared/cover-shutter.tsx", "utf8").includes('type="range"'), "Cover Check uses a direct cover action instead of a slider");
+const coverSource = readFileSync("components/adle/activities/shared/cover-shutter.tsx", "utf8");
+assert(!coverSource.includes('type="range"') && coverSource.includes("Pull the cover down") && coverSource.includes("onPointerMove"), "Cover Check uses a pull-down screen with a direct keyboard/tap alternative instead of a slider");
 assert(soundSource.includes('"select"') && soundSource.includes("sharedContext") && splitSource.includes("✦ ✧ ✦") && splitSource.includes("setShowSparkles(false)"), "all interactions use the louder shared sound context and cleaver success has a brief visual sparkle effect");
 assert(lessonSource.includes("useFormStatus") && lessonSource.includes("Finishing your Word Lab…"), "Finish gives immediate pending feedback while durable completion writes settle");
 assert(narrationSource.includes('kind === "dictation" ? 0.7') && narrationSource.includes('"/audio/narration/manifest.json"') && narrationSource.includes("FEMALE_UK_HINTS"), "dictation uses slower British-voice narration with reviewed local audio clips when available");

@@ -147,11 +147,19 @@ Word Lab feels too slow. The observer did not record the required neutral
 post-lesson explanation of a prefix, placement of `un-`, or NOT/REVERSE
 meaning, so the child proof is not yet closed.
 
+The child later described a prefix as something added to the start of a word to
+change its meaning; placed `un-` at the start; and gave its meanings as NOT or
+REVERSE. This closes the child-understanding portion of the proof. The child
+also reported that the brief held-correct Split sparkles did not affect the
+activity, and that immediate Finish feedback appeared, although the completed
+page still took about ten seconds.
+
 The pending corrective patch makes Split sparkles a 700ms impact effect only,
-keeps Cover Check motion unchanged, gives Finish immediate pending feedback and
-parallelises independent completion writes. Narration is intentionally held at
-the clearer built-in voice for the MVP. The final re-run must measure the Finish
-path and record the three neutral comprehension answers.
+changes Cover Check into a pull-down screen while retaining its button and
+keyboard path, gives Finish immediate pending feedback, and parallelises
+attempt, scheduling, learning-item and reward work. Narration is intentionally
+held at the clearer built-in voice for the MVP. One final deployed engineering
+retest must measure the Finish path and validate the pull-cover interaction.
 
 ## Refined Word Lab flow evidence
 
