@@ -78,6 +78,7 @@ export interface MorphologyActivityV1 {
   promptKey?: string;
   promptText?: string;
   introScreens?: MorphologyIntroductionScreenV1[];
+  discoveryCards?: MorphologyDiscoveryCardV1[];
 }
 
 export interface MorphologyIntroductionScreenV1 {
@@ -87,6 +88,14 @@ export interface MorphologyIntroductionScreenV1 {
   model?: { prefix: string; base: string; result: string };
   wordCards?: Array<{ base: string; derived: string; meaning: string }>;
   ctaLabel: string;
+}
+
+export interface MorphologyDiscoveryCardV1 {
+  word: string;
+  baseWord: string;
+  baseMeaning: string;
+  derivedMeaning: string;
+  distractorMeaning: string;
 }
 
 export interface PrefixChoiceV1 {
@@ -211,7 +220,7 @@ export function compileMorphologyUnPilotPayload(
     },
     activities: [
       { id: "introduction", type: "introduction", assignmentBindings: ["intro-root", "intro-words"], answerVisibility: "teaching", evidenceMode: "none", wordIds: ["unhappy", ...REQUIRED_LESSON_WORDS], introScreens: pilotLesson.introduction.screens as MorphologyIntroductionScreenV1[] },
-      { id: "discover", type: "discovery", assignmentBindings: [], answerVisibility: "teaching", evidenceMode: "none", wordIds: ["unhappy", "unkind", "unlock"] },
+      { id: "discover", type: "discovery", assignmentBindings: [], answerVisibility: "teaching", evidenceMode: "none", wordIds: ["unhappy", "unkind", "unlock", "untidy"], discoveryCards: pilotLesson.discovery.cards as MorphologyDiscoveryCardV1[] },
       { id: "strip-build", type: "strip_build", assignmentBindings: ["guided-strip-unhappy"], answerVisibility: "guided", evidenceMode: "guided_completion", wordIds: ["unhappy"] },
       { id: "meaning-match", type: "meaning_sort", assignmentBindings: REQUIRED_LESSON_WORDS.map((word) => `guided-meaning-${word}`), answerVisibility: "guided", evidenceMode: "guided_completion", wordIds: [...REQUIRED_LESSON_WORDS] },
       { id: "build-word", type: "prefix_choice", assignmentBindings: ["guided-build-untidy"], answerVisibility: "guided", evidenceMode: "guided_completion", wordIds: ["untidy"], baseWord: "tidy", prefixChoices: pilotLesson.prefixChoices as PrefixChoiceV1[] },
@@ -314,7 +323,7 @@ export function validateMorphologyLessonPayload(value: unknown): MorphologyLesso
   const introduction = (value.activities as MorphologyActivityV1[]).find((activity) => activity.type === "introduction");
   const discovery = (value.activities as MorphologyActivityV1[]).find((activity) => activity.type === "discovery");
   if (!introduction?.introScreens || introduction.answerVisibility !== "teaching" || introduction.evidenceMode !== "none" || !jsonValueEqual(introduction.introScreens, pilotLesson.introduction.screens)) return null;
-  if (!discovery || discovery.assignmentBindings.length !== 0 || discovery.evidenceMode !== "none") return null;
+  if (!discovery || discovery.assignmentBindings.length !== 0 || discovery.evidenceMode !== "none" || !jsonValueEqual(discovery.discoveryCards, pilotLesson.discovery.cards)) return null;
   const prefix = (value.activities as MorphologyActivityV1[]).find((activity) => activity.type === "prefix_choice");
   if (!prefix?.prefixChoices || prefix.prefixChoices.filter((choice) => choice.status === "target").length !== 1 || prefix.baseWord !== "tidy") {
     return null;
@@ -403,5 +412,6 @@ function isActivity(value: unknown): value is MorphologyActivityV1 {
 function isIntroductionScreen(value: unknown): value is MorphologyIntroductionScreenV1 {
   if (!isRecord(value) || typeof value.id !== "string" || typeof value.title !== "string" || typeof value.ctaLabel !== "string" || !Array.isArray(value.paragraphs) || !value.paragraphs.every((paragraph) => typeof paragraph === "string")) return false;
   if (value.model !== undefined && (!isRecord(value.model) || typeof value.model.prefix !== "string" || typeof value.model.base !== "string" || typeof value.model.result !== "string")) return false;
-  return value.wordCards === undefined || (Array.isArray(value.wordCards) && value.wordCards.every((card) => isRecord(card) && typeof card.base === "string" && typeof card.derived === "string" && typeof card.meaning === "string"));
+  if (value.wordCards !== undefined && (!Array.isArray(value.wordCards) || !value.wordCards.every((card) => isRecord(card) && typeof card.base === "string" && typeof card.derived === "string" && typeof card.meaning === "string"))) return false;
+  return true;
 }

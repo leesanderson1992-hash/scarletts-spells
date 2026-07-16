@@ -1,6 +1,6 @@
 # ADLE 7-UI-G genuine-child validation proof
 
-Status: ready for observation; no genuine-child pass is recorded.
+Status: first observation blocked; corrective amendments and a fresh unaided re-run are required.
 
 This form is for one first-time, intended-age learner. It closes
 `7UI-PROOF-D4-MOR-CHILD` only when the learner completes the lesson unaided and
@@ -69,13 +69,13 @@ the temporary allowlist/gate and confirm that no child-scoped rows remain.
 | Field | Record |
 |---|---|
 | Session ID | Pending |
-| Tested commit and preview | Pending |
+| Tested commit and preview | `UI-G-CHILD-2026-07-16-A`; staging preview, pre-corrective commit `c12fd31` |
 | Device / browser | Pending |
 | Date / observer | Pending |
-| Parental consent confirmed | Pending |
+| Parental consent confirmed | Must be confirmed in the private observation record before the re-run |
 | Screen-only recording checksum | Pending |
 | Recording retained outside repository | Pending |
-| Fixture and temporary allowlist removed | Pending |
+| Fixture and temporary allowlist removed | Pending recovery verification; do not mark the proof complete until this is confirmed |
 
 ## Timed observation
 
@@ -85,18 +85,21 @@ between productive exploration and confusion.
 
 | Time | Phase | Observable behaviour | Duration / attempts | Productive exploration or confusion | Product response | Severity |
 |---|---|---|---|---|---|---|
-| Pending | Pending | Pending | Pending | Pending | Pending | Pending |
+| During dictation | Dictation | Parent clarified one word after the learner could not make it out | 1 adult intervention | Confusion | Child continued after clarification | Blocking |
+| Discover | Meaning change | Separated word parts were reported as confusing and not purposeful | Reported feedback | Confusion | Replace with meaning-change cards | Major UI-H / corrected in UI-G follow-up |
+| Split | Cleaver | Child enjoyed chopping and requested louder sound and sparkles | Reported feedback | Productive exploration | Strengthen interaction sound and success effect | Minor UI-H / corrected in UI-G follow-up |
+| Rebuild | `un + happy` | Child found the action unchallenging | Reported feedback | Confusion about purpose | Remove this transition | Major UI-H / corrected in UI-G follow-up |
 
 ## Completion and comprehension
 
 | Criterion | Result | Observer evidence |
 |---|---|---|
-| Completed Learn through reflection without adult help | Pending | |
+| Completed Learn through reflection without adult help | Fail | One parent dictation clarification was required. |
 | No answer was exposed during recall | Pending | |
 | No critical confusion or distress | Pending | |
-| Understood how to operate Split and Rebuild | Pending | |
+| Understood how to operate Split and Rebuild | Mixed | Split was enjoyed; rebuild was not perceived as purposeful. |
 | Reacted meaningfully to spelling/capital/punctuation recap | Pending | |
-| Reflection supported review rather than assessment behaviour | Pending | |
+| Reflection supported review rather than assessment behaviour | Pending re-run | |
 | Explained that a prefix is added at the start | Pending | Record a non-identifying paraphrase only |
 | Explained that `un-` can mean NOT or REVERSE/OPPOSITE | Pending | Record a non-identifying paraphrase only |
 
@@ -133,12 +136,14 @@ Use these severity rules:
 
 | Finding | Severity | Blocks UI-G | UI-H action / owner |
 |---|---|---|---|
-| Pending | Pending | Pending | Pending |
+| Dictation was unclear enough to require adult clarification | Blocking | Yes | Use reviewed friendly British narration clips at 0.7x; rerun unaided and record the result. |
+| Discover meaning interaction and trivial rebuild lacked a clear purpose | Major UI-H / corrective UI-G follow-up | No | Replace with meaning-change cards and remove the `un + happy` rebuild; validate in re-run. |
+| Cleaver sound/effects, post-sort overview and Cover Check pacing | Minor UI-H / corrective UI-G follow-up | No | Strengthen feedback, show summary after sort and make Cover Check direct; validate in re-run. |
 
 | Final field | Record |
 |---|---|
-| Child proof decision | Pending |
-| Blocking issues | Pending; enter `None` only after completion, comprehension, data verification and cleanup pass |
+| Child proof decision | Blocked pending corrective amendments and fresh unaided observation |
+| Blocking issues | Adult clarification during dictation; fixture cleanup recovery verification pending |
 | Observer / date | Pending |
 
 Do not change the proof register from `not_started` until the observation and

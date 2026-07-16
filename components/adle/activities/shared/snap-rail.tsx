@@ -20,7 +20,7 @@ export function SnapRail(props: { tiles: RailTile[]; expectedIds: string[]; fixe
         const placedText = next.map((value) => props.tiles.find((tile) => tile.id === value)?.text ?? "");
         const fixedText = (props.fixedTiles ?? []).map((tile) => tile.text);
         setPlaced(next); setAnnouncement("Word parts joined successfully"); playInteractionSound("fusion", props.muted); props.onComplete?.((props.fixedTilesPosition === "before" ? [...fixedText, ...placedText] : [...placedText, ...fixedText]).join(""));
-      } else { setAnnouncement("Those parts make a different combination"); props.onInvalid?.(next); setPlaced([]); }
+      } else { setAnnouncement("Those parts make a different combination"); playInteractionSound("resist", props.muted); props.onInvalid?.(next); setPlaced([]); }
     } else {
       const tileLabel = props.tiles.find((tile) => tile.id === id)?.text ?? "Word part";
       setPlaced(next);
@@ -35,5 +35,5 @@ export function SnapRail(props: { tiles: RailTile[]; expectedIds: string[]; fixe
   }
   const placedTiles = <>{placed.map((id) => <span key={id} className="rounded-xl bg-cyan-100 px-4 py-3 font-black text-cyan-950">{props.tiles.find((tile) => tile.id === id)?.text}</span>)}{selected && placed.length < props.expectedIds.length ? <button type="button" className="min-h-11 rounded-full bg-cyan-300 px-4 font-bold text-slate-950" onClick={() => place(selected)}>{props.fixedTiles?.length ? "Place prefix here" : "Place here"}</button> : null}</>;
   const fixedTiles = <>{(props.fixedTiles ?? []).map((tile) => <span key={tile.id} className="rounded-xl bg-amber-100 px-4 py-3 font-black text-amber-950">{tile.text}</span>)}</>;
-  return <div className="grid gap-4"><div className="flex flex-wrap justify-center gap-3">{available.map((tile) => <DraggableTile key={tile.id} {...tile} selected={selected === tile.id} recallNeutral={props.recallNeutral} muted={props.muted} onSelect={(id) => setSelected(id)} onDrop={pointerDrop} />)}</div><div ref={rail} aria-label={props.label} className="flex min-h-24 flex-wrap items-center justify-center gap-2 rounded-3xl border-2 border-dashed border-cyan-300 bg-slate-950/40 p-4 text-white">{props.fixedTilesPosition === "before" ? <>{fixedTiles}{placedTiles}</> : <>{placedTiles}{fixedTiles}</>}</div><p className="sr-only" aria-live="polite">{announcement}</p></div>;
+  return <div className="grid gap-4"><div className="flex flex-wrap justify-center gap-3">{available.map((tile) => <DraggableTile key={tile.id} {...tile} selected={selected === tile.id} recallNeutral={props.recallNeutral} muted={props.muted} onSelect={(id) => { playInteractionSound("select", props.muted); setSelected(id); }} onDrop={pointerDrop} />)}</div><div ref={rail} aria-label={props.label} className="flex min-h-24 flex-wrap items-center justify-center gap-2 rounded-3xl border-2 border-dashed border-cyan-300 bg-slate-950/40 p-4 text-white">{props.fixedTilesPosition === "before" ? <>{fixedTiles}{placedTiles}</> : <>{placedTiles}{fixedTiles}</>}</div><p className="sr-only" aria-live="polite">{announcement}</p></div>;
 }

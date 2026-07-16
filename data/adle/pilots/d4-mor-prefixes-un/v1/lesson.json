@@ -1,5 +1,5 @@
 {
-  "contentVersion": "d4_mor_prefixes_un_word_lab_v1_2026_07_14_explicit_intro",
+  "contentVersion": "d4_mor_prefixes_un_word_lab_v2_2026_07_16_meaning_cards_audio",
   "guide": {
     "persona": "prefix_scout",
     "narrationEnabled": true
@@ -53,6 +53,14 @@
     "unnatural": { "base": "natural", "derived": "not natural", "effect": "not" },
     "unnecessary": { "base": "necessary", "derived": "not necessary", "effect": "not" }
   },
+  "discovery": {
+    "cards": [
+      { "word": "unhappy", "baseWord": "happy", "baseMeaning": "feeling pleased", "derivedMeaning": "not happy", "distractorMeaning": "happy again" },
+      { "word": "unkind", "baseWord": "kind", "baseMeaning": "caring and helpful", "derivedMeaning": "not kind", "distractorMeaning": "kind again" },
+      { "word": "unlock", "baseWord": "lock", "baseMeaning": "close with a lock", "derivedMeaning": "reverse the lock", "distractorMeaning": "not locking" },
+      { "word": "untidy", "baseWord": "tidy", "baseMeaning": "neat and in order", "derivedMeaning": "not tidy", "distractorMeaning": "tidy again" }
+    ]
+  },
   "prefixChoices": [
     { "text": "un", "label": "un-", "outcome": "untidy", "meaning": "not tidy", "status": "target" },
     { "text": "re", "label": "re-", "outcome": "retidy", "meaning": "tidy again", "status": "valid_alternative" },
@@ -74,7 +82,8 @@
     { "id": "learn-words", "activityId": "introduction", "state": "model", "say": "These are the words we will explore today.", "narration": "Today we will review unfair, unkind, unlock, and untidy. Look for un- at the start and notice what it does to each base word.", "goal": "read:review-words", "waitFor": "continue:review-words", "onComplete": "discover-happy" },
     { "id": "discover-happy", "activityId": "discover", "state": "invite", "say": "This piece can change the word.", "onExplore": "Move un- towards happy and notice how the meaning changes.", "onHelpRequest": "Join un- before happy.", "goal": "join:un:happy", "waitFor": "joined:unhappy", "onComplete": "discover-kind" },
     { "id": "discover-kind", "activityId": "discover", "state": "observe", "say": "Try the same piece with kind.", "onExplore": "See whether un- changes kind in the same way.", "onHelpRequest": "Join un- before kind.", "goal": "join:un:kind", "waitFor": "joined:unkind", "onComplete": "discover-lock" },
-    { "id": "discover-lock", "activityId": "discover", "state": "observe", "say": "What happens when it meets lock?", "onExplore": "This time un- reverses an action.", "onHelpRequest": "Join un- before lock and listen to the new meaning.", "goal": "join:un:lock", "waitFor": "joined:unlock", "onComplete": "split" },
+    { "id": "discover-lock", "activityId": "discover", "state": "observe", "say": "What happens when it meets lock?", "onExplore": "This time un- reverses an action.", "onHelpRequest": "Join un- before lock and listen to the new meaning.", "goal": "join:un:lock", "waitFor": "joined:unlock", "onComplete": "discover-tidy" },
+    { "id": "discover-tidy", "activityId": "discover", "state": "observe", "say": "What happens when it meets tidy?", "onExplore": "un- makes tidy mean not tidy.", "onHelpRequest": "Add un- and choose the new meaning.", "goal": "meaning:untidy:not-tidy", "waitFor": "selected:not-tidy", "onComplete": "split" },
     { "id": "split", "activityId": "strip-build", "state": "focus", "say": "Find the prefix at the start of unhappy.", "onSlip": "Not there yet. Look for the prefix un- at the front.", "onRepeatedMisconception": "un- is the first two letters. Chop after the n.", "onHelpRequest": "un- is the prefix. Chop after the n, then rebuild unhappy with both pieces.", "goal": "split:unhappy:2", "waitFor": "rebuilt:unhappy", "onComplete": "match" },
     { "id": "match", "activityId": "meaning-match", "state": "observe", "say": "What did un- do here?", "onMisconception": "Ask whether un- means not, or reverses an action.", "onRepeatedMisconception": "Unlock reverses locking; the other lesson words mean not.", "onHelpRequest": "Read the two meaning labels, then choose the job un- is doing.", "goal": "sort:all", "waitFor": "sorted:all", "onComplete": "build" },
     { "id": "build", "activityId": "build-word", "state": "focus", "say": "Make a word meaning not tidy.", "onPartial": "re- makes retidy, meaning tidy again.", "onMisconception": "We need the prefix that means not.", "onRepeatedMisconception": "Choose un- to make untidy.", "onHelpRequest": "Put un- before tidy.", "goal": "prefix:un:tidy", "waitFor": "joined:untidy", "onComplete": "controlled" },

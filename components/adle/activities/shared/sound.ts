@@ -1,14 +1,17 @@
 "use client";
 
-export type InteractionSound = "lift" | "attraction" | "snap" | "cleave" | "resist" | "sparkle" | "fusion" | "shutter" | "reveal" | "complete";
-const FREQUENCY: Record<Exclude<InteractionSound, "cleave" | "sparkle">, number> = { lift: 280, attraction: 340, snap: 440, resist: 120, fusion: 520, shutter: 190, reveal: 390, complete: 620 };
+export type InteractionSound = "select" | "lift" | "attraction" | "snap" | "cleave" | "resist" | "sparkle" | "fusion" | "shutter" | "reveal" | "complete";
+const FREQUENCY: Record<Exclude<InteractionSound, "cleave" | "sparkle">, number> = { select: 360, lift: 280, attraction: 340, snap: 440, resist: 120, fusion: 520, shutter: 190, reveal: 390, complete: 620 };
+let sharedContext: AudioContext | null = null;
 
 export function playInteractionSound(kind: InteractionSound, muted = false): void {
   if (muted || typeof window === "undefined") return;
   try {
     const AudioContextClass = window.AudioContext ?? (window as typeof window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
     if (!AudioContextClass) return;
-    const context = new AudioContextClass();
+    const context = sharedContext ?? new AudioContextClass();
+    sharedContext = context;
+    if (context.state === "suspended") void context.resume().catch(() => undefined);
     const now = context.currentTime;
     const tones = kind === "sparkle" ? [660, 880, 1100] : [kind === "cleave" ? 360 : FREQUENCY[kind]];
     tones.forEach((frequency, index) => {
@@ -19,13 +22,13 @@ export function playInteractionSound(kind: InteractionSound, muted = false): voi
       oscillator.type = kind === "cleave" ? "sawtooth" : kind === "resist" ? "triangle" : "sine";
       oscillator.frequency.setValueAtTime(frequency, start);
       if (kind === "cleave") oscillator.frequency.exponentialRampToValueAtTime(105, start + duration);
-      gain.gain.setValueAtTime(kind === "cleave" ? 0.045 : 0.03, start);
+      gain.gain.setValueAtTime(kind === "cleave" ? 0.09 : kind === "resist" ? 0.065 : 0.06, start);
       gain.gain.exponentialRampToValueAtTime(0.001, start + duration);
       oscillator.connect(gain).connect(context.destination);
       oscillator.start(start);
       oscillator.stop(start + duration);
     });
-    window.setTimeout(() => void context.close().catch(() => undefined), kind === "sparkle" ? 400 : 250);
+    // Keep a single context alive: iOS and Chromium both make repeated contexts quieter or block them.
   } catch {
     // Sound is enhancement-only; blocked or unavailable audio must not stop an interaction.
   }

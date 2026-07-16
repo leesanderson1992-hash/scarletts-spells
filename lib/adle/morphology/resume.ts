@@ -13,9 +13,10 @@ export interface MorphologyLessonResumeState {
   stage: MorphologyLessonStage;
   introIndex: number;
   discoverIndex: number;
+  discoverAddedPrefix: boolean;
   splitMisses: number;
   splitCorrect: boolean;
-  splitDone: boolean;
+  matchComplete: boolean;
   controlledIndex: number;
   dictationIndex: number;
   controlledAttempts: Record<string, string>;
@@ -48,8 +49,8 @@ export function normaliseMorphologyLessonResume(
   validGuidedBindings: readonly string[],
 ): MorphologyLessonResumeState | null {
   if (!isRecord(value) || !LESSON_STAGES.includes(value.stage as MorphologyLessonStage)) return null;
-  if (!Number.isInteger(value.introIndex) || Number(value.introIndex) < 0 || Number(value.introIndex) > 2 || !Number.isInteger(value.discoverIndex) || Number(value.discoverIndex) < 0 || Number(value.discoverIndex) > 2 || !Number.isInteger(value.splitMisses) || Number(value.splitMisses) < 0 || Number(value.splitMisses) > 2 || !Number.isInteger(value.controlledIndex) || Number(value.controlledIndex) < 0 || Number(value.controlledIndex) > 3 || !Number.isInteger(value.dictationIndex) || Number(value.dictationIndex) < 0 || Number(value.dictationIndex) > 3 || !Number.isInteger(value.helpLevel) || Number(value.helpLevel) < 0 || Number(value.helpLevel) > 2) return null;
-  if (typeof value.splitCorrect !== "boolean" || typeof value.splitDone !== "boolean" || (value.splitDone && !value.splitCorrect) || typeof value.checkedSentence !== "boolean" || typeof value.muted !== "boolean" || typeof value.reflectionText !== "string" || value.reflectionText.length > 2000 || !isStringRecord(value.controlledAttempts) || !isBooleanRecord(value.controlledChecked) || !isStringRecord(value.sentenceAttempts) || !Array.isArray(value.guidedBindings) || !value.guidedBindings.every((entry) => typeof entry === "string")) return null;
+  if (!Number.isInteger(value.introIndex) || Number(value.introIndex) < 0 || Number(value.introIndex) > 2 || !Number.isInteger(value.discoverIndex) || Number(value.discoverIndex) < 0 || Number(value.discoverIndex) > 3 || !Number.isInteger(value.splitMisses) || Number(value.splitMisses) < 0 || Number(value.splitMisses) > 2 || !Number.isInteger(value.controlledIndex) || Number(value.controlledIndex) < 0 || Number(value.controlledIndex) > 3 || !Number.isInteger(value.dictationIndex) || Number(value.dictationIndex) < 0 || Number(value.dictationIndex) > 3 || !Number.isInteger(value.helpLevel) || Number(value.helpLevel) < 0 || Number(value.helpLevel) > 2) return null;
+  if (typeof value.discoverAddedPrefix !== "boolean" || typeof value.splitCorrect !== "boolean" || typeof value.matchComplete !== "boolean" || typeof value.checkedSentence !== "boolean" || typeof value.muted !== "boolean" || typeof value.reflectionText !== "string" || value.reflectionText.length > 2000 || !isStringRecord(value.controlledAttempts) || !isBooleanRecord(value.controlledChecked) || !isStringRecord(value.sentenceAttempts) || !Array.isArray(value.guidedBindings) || !value.guidedBindings.every((entry) => typeof entry === "string")) return null;
   const wordIds = new Set(canonicalWordIds);
   if (Object.keys(value.controlledAttempts).some((id) => !wordIds.has(id)) || Object.keys(value.controlledChecked).some((id) => !wordIds.has(id)) || Object.keys(value.sentenceAttempts).some((id) => !wordIds.has(id))) return null;
   const bindingSet = new Set(validGuidedBindings);
@@ -58,9 +59,10 @@ export function normaliseMorphologyLessonResume(
     stage: value.stage as MorphologyLessonStage,
     introIndex: Number(value.introIndex),
     discoverIndex: Number(value.discoverIndex),
+    discoverAddedPrefix: value.discoverAddedPrefix,
     splitMisses: Number(value.splitMisses),
     splitCorrect: value.splitCorrect,
-    splitDone: value.splitDone,
+    matchComplete: value.matchComplete,
     controlledIndex: Number(value.controlledIndex),
     dictationIndex: Number(value.dictationIndex),
     controlledAttempts: value.controlledAttempts,

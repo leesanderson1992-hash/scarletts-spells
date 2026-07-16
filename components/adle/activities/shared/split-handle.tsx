@@ -95,7 +95,8 @@ export function SplitHandle(props: {
   if (props.correct) {
     return (
       <section className="grid gap-5 text-center" aria-labelledby="split-correct-heading" aria-live="polite">
-        <div className="flex flex-wrap items-center justify-center gap-4">
+        <div className="relative flex flex-wrap items-center justify-center gap-4">
+          {!reducedMotion ? <span aria-hidden="true" className="pointer-events-none absolute inset-0 grid place-items-center text-4xl text-amber-200 motion-safe:animate-[pulse_700ms_ease-out_2]">✦ ✧ ✦</span> : null}
           <span className="rounded-2xl bg-cyan-100 px-5 py-4 text-3xl font-black text-cyan-950">{props.word.slice(0, splitPoint)}</span>
           <span aria-hidden="true" className="text-3xl text-emerald-300">✓</span>
           <span className="rounded-2xl bg-amber-100 px-5 py-4 text-3xl font-black text-amber-950">{props.word.slice(splitPoint)}</span>
@@ -104,7 +105,7 @@ export function SplitHandle(props: {
           <h2 id="split-correct-heading" className="text-xl font-black">Yes — un- is the first two letters.</h2>
           <p className="mt-1 text-base font-semibold">un + happy makes unhappy.</p>
         </div>
-        <button ref={continueButton} type="button" onClick={props.onContinue} className="mx-auto min-h-12 rounded-full bg-cyan-300 px-7 font-black text-slate-950">Rebuild the word</button>
+        <button ref={continueButton} type="button" onClick={props.onContinue} className="mx-auto min-h-12 rounded-full bg-cyan-300 px-7 font-black text-slate-950">Continue to meanings</button>
       </section>
     );
   }

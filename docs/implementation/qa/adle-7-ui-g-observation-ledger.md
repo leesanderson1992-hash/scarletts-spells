@@ -1,11 +1,12 @@
 # ADLE 7-UI-G observation ledger
 
-Status: pending real-child gated pilot run.
+Status: first real-child gated pilot run completed; UI-G remains blocked pending the corrective amendments and a clean re-run.
 
 Final human acceptance is executed through the
 [device/accessibility/performance proof](./adle-7-ui-g-device-accessibility-performance-proof.md)
 and [genuine-child proof](./adle-7-ui-g-child-validation-proof.md). The device
-proof is recorded; genuine-child observation remains pending. The device proof
+proof is recorded; the first genuine-child observation found a blocking
+dictation-audio issue. The device proof
 uses Mac Safari and controlled Chrome
 desktop/phone/tablet modes. Native Windows, Android, iOS and screen-reader runs
 are optional rather than closure requirements.
@@ -24,18 +25,18 @@ genuine-child human sign-off.
 
 | Observation | Result |
 |---|---|
-| Adult verbal prompts | Pending; target 0 |
+| Adult verbal prompts | 1; parent clarified an unclear dictation word. This blocks the current proof. |
 | Hesitations over five seconds | Pending |
 | Productive exploration vs confusion | Pending |
 | Failed pointer/touch drags | Direct-tap alternatives passed; physical touch is optional UI-H evidence |
 | Keyboard-only completion | Pass in full authenticated Chrome 150 desktop run; Split, Match, Build and Finish used native keyboard activation |
 | Touch completion | Phone/tablet responsive layout and direct-control completion passed; physical touch is optional UI-H evidence |
-| Narration replays | Pending |
+| Narration replays | Dictation replay was insufficient to resolve one unclear word. |
 | Help levels used | Pending |
-| Misunderstood affordances | Pending |
+| Misunderstood affordances | Discover's separated prefix/base presentation was confusing; the trivial `un + happy` rebuild had no perceived purpose. |
 | Recall answer exposure | 0 in authenticated engineering run |
 | Console or invalid-state errors | 0 in authenticated engineering run |
-| Child explanation of `un-` | Pending |
+| Child explanation of `un-` | Deferred for the re-run; the lesson was not completed unaided. |
 
 Attach the uninterrupted real-route recording and database verification to the
 final sign-off record. Automated checks do not replace this observation.
@@ -108,6 +109,29 @@ final sign-off record. Automated checks do not replace this observation.
 | Full dictation storage / target-token correctness | Pass |
 | Disposable fixture cleanup | Pass; no child-scoped, pilot-word or micro-skill fixture rows remain; temporary preview gate, allowlist and QA key removed |
 
+## First genuine-child observation — corrective evidence
+
+Session `UI-G-CHILD-2026-07-16-A` completed on the staging preview using an
+anonymised disposable fixture. The completed assignment met the engineering
+data contract before cleanup: 1 header, 16 items, 14 attempts, 1 private
+reflection and 4 learning/taught/scheduling rows. No learner identifier,
+recording or reflection is retained in this repository.
+
+The child enjoyed the cleaver and the NOT/REVERSE sort. The observation found
+that the separated Discover presentation did not make the meaning decision
+clear, that the `un + happy` rebuild lacked challenge, that the Cover Check
+travel was too long, and that dictation was unclear enough to require one
+parent clarification. The child also requested sound and sparkles on the
+cleaver, a NOT/REVERSE overview immediately after sorting, and friendlier,
+slower narration. This is a blocking audio/completion finding, not a pass.
+
+The corrective implementation replaces Discover with authored meaning-change
+cards, removes the trivial split rebuild, adds post-sort recap, makes Cover
+Check direct, strengthens interaction feedback, slows dictation to 0.7x, and
+adds 19 reviewed static clips generated with the built-in UK female macOS
+voice Flo, with a local browser fallback. No child-specific text is sent to any
+TTS provider.
+
 ## Refined Word Lab flow evidence
 
 | Gate | Result |
@@ -149,7 +173,8 @@ The Safari and Chrome desktop runs now verify complete authenticated operation,
 keyboard activation, semantic accessibility-tree output, focus transfer,
 answer-safe recall, private reflection persistence and idempotent completion.
 Chrome responsive phone/tablet layouts also pass overflow and 44×44 target-size
-inspection. Genuine-child observation is the only remaining UI-G gate.
+inspection. The genuine-child proof must be rerun after the corrective
+amendments, including the reviewed narration clips, before UI-G can close.
 Actual touch-event execution, production-preview Web Vitals, browser 200% zoom
 and operating-system reduced-motion execution are optional UI-H follow-up
 evidence. VoiceOver and other
