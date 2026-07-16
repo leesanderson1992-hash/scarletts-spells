@@ -42,6 +42,7 @@ export function SplitHandle(props: {
   const [struckBoundary, setStruckBoundary] = useState<number | null>(null);
   const [lastWrongBoundary, setLastWrongBoundary] = useState<number | null>(null);
   const [striking, setStriking] = useState(false);
+  const [showSparkles, setShowSparkles] = useState(false);
   const timers = useRef<number[]>([]);
   const completed = useRef(props.correct);
   const correctButton = useRef<HTMLButtonElement | null>(null);
@@ -81,6 +82,8 @@ export function SplitHandle(props: {
       if (correct) {
         completed.current = true;
         setLastWrongBoundary(null);
+        setShowSparkles(!reducedMotion);
+        later(() => setShowSparkles(false), reducedMotion ? 0 : 700);
         playInteractionSound("sparkle", props.muted);
         props.onCorrect();
       } else {
@@ -96,7 +99,7 @@ export function SplitHandle(props: {
     return (
       <section className="grid gap-5 text-center" aria-labelledby="split-correct-heading" aria-live="polite">
         <div className="relative flex flex-wrap items-center justify-center gap-4">
-          {!reducedMotion ? <span aria-hidden="true" className="pointer-events-none absolute inset-0 grid place-items-center text-4xl text-amber-200 motion-safe:animate-[pulse_700ms_ease-out_2]">✦ ✧ ✦</span> : null}
+          {showSparkles && !reducedMotion ? <span aria-hidden="true" className="pointer-events-none absolute inset-0 grid place-items-center text-4xl text-amber-200 motion-safe:animate-[pulse_700ms_ease-out_2]">✦ ✧ ✦</span> : null}
           <span className="rounded-2xl bg-cyan-100 px-5 py-4 text-3xl font-black text-cyan-950">{props.word.slice(0, splitPoint)}</span>
           <span aria-hidden="true" className="text-3xl text-emerald-300">✓</span>
           <span className="rounded-2xl bg-amber-100 px-5 py-4 text-3xl font-black text-amber-950">{props.word.slice(splitPoint)}</span>

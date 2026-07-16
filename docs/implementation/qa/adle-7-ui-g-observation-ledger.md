@@ -1,6 +1,6 @@
 # ADLE 7-UI-G observation ledger
 
-Status: first real-child gated pilot run completed; UI-G remains blocked pending the corrective amendments and a clean re-run.
+Status: corrective real-child re-run completed without adult intervention; comprehension capture and performance follow-up remain open.
 
 Final human acceptance is executed through the
 [device/accessibility/performance proof](./adle-7-ui-g-device-accessibility-performance-proof.md)
@@ -131,6 +131,27 @@ Check direct, strengthens interaction feedback, slows dictation to 0.7x, and
 adds 19 reviewed static clips generated with the built-in UK female macOS
 voice Flo, with a local browser fallback. No child-specific text is sent to any
 TTS provider.
+
+## Corrective genuine-child re-run
+
+The corrective staging run completed without adult intervention. Database
+verification passed before cleanup: 1 completed header, 16 completed items, 14
+attempts (6 guided, 4 controlled and 4 dictation), 1 private reflection and 4
+learning/taught/schedule rows. The disposable child, both test-date assignments,
+fixture rows, Preview allowlist and gate were removed afterwards.
+
+The child reported that Cover Check's sliding cover motion was enjoyable. The
+remaining follow-up findings are: Split sparkles persist on held correct
+feedback; the built-in UK voice is clearer but sounds scary; and finishing the
+Word Lab feels too slow. The observer did not record the required neutral
+post-lesson explanation of a prefix, placement of `un-`, or NOT/REVERSE
+meaning, so the child proof is not yet closed.
+
+The pending corrective patch makes Split sparkles a 700ms impact effect only,
+keeps Cover Check motion unchanged, gives Finish immediate pending feedback and
+parallelises independent completion writes. Narration is intentionally held at
+the clearer built-in voice for the MVP. The final re-run must measure the Finish
+path and record the three neutral comprehension answers.
 
 ## Refined Word Lab flow evidence
 

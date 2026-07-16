@@ -83,7 +83,7 @@ export async function insertAssignmentAttemptEvents(
   if (events.length === 0) {
     return;
   }
-  for (const event of events) {
+  await Promise.all(events.map(async (event) => {
     const { error } = await client.from("adle_assignment_attempt_events").insert({
       child_id: event.childId,
       parent_user_id: event.parentUserId,
@@ -103,7 +103,7 @@ export async function insertAssignmentAttemptEvents(
     if (error !== null && !`${error.code ?? ""}`.startsWith("23505")) {
       fail("insertAssignmentAttemptEvents", error);
     }
-  }
+  }));
 }
 
 export async function markAssignmentCompletedIfAllItemsComplete(
@@ -369,7 +369,7 @@ export async function persistLessonCompletion(
     if (error) {
       fail("persistLessonCompletion:bundle", error);
     }
-    for (const word of write.scheduleWords) {
+    await Promise.all(write.scheduleWords.map(async (word) => {
       // Reteach re-entry: supersede the word's previous active schedule row
       // (ejected/paused history preserved), then insert the fresh row.
       const { error: supersedeError } = await client
@@ -398,10 +398,12 @@ export async function persistLessonCompletion(
       if (insertError) {
         fail("persistLessonCompletion:insertWord", insertError);
       }
-    }
+    }));
   }
-  await insertTaughtEvents(client, write.taughtEvents);
-  await updateLearningItems(client, write.itemTransitions);
+  await Promise.all([
+    insertTaughtEvents(client, write.taughtEvents),
+    updateLearningItems(client, write.itemTransitions),
+  ]);
 }
 
 export interface ProbeCompletionWrite {

@@ -92,7 +92,7 @@ async function setup(client: SupabaseClient): Promise<void> {
     const state: SmokeState = { parentUserId, childId, email, password, planDate, importBatchId, sourceId, insertedWordIds, supabaseHost };
     mkdirSync(dirname(STATE_PATH), { recursive: true });
     writeFileSync(STATE_PATH, JSON.stringify(state, null, 2));
-    console.log(JSON.stringify(state));
+    console.log(JSON.stringify({ childId: state.childId, parentUserId: state.parentUserId, planDate: state.planDate, supabaseHost: state.supabaseHost }));
   } catch (error) {
     await client.from("children").delete().eq("id", childId);
     if (insertedWordIds.length > 0) await client.from("canonical_teaching_dictionary_words").delete().in("id", insertedWordIds);

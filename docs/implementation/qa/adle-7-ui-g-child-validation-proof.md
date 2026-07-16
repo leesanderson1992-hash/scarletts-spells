@@ -1,6 +1,6 @@
 # ADLE 7-UI-G genuine-child validation proof
 
-Status: first observation blocked; corrective amendments and a fresh unaided re-run are required.
+Status: corrective unaided completion passed; comprehension capture and performance follow-up remain open.
 
 This form is for one first-time, intended-age learner. It closes
 `7UI-PROOF-D4-MOR-CHILD` only when the learner completes the lesson unaided and
@@ -69,13 +69,13 @@ the temporary allowlist/gate and confirm that no child-scoped rows remain.
 | Field | Record |
 |---|---|
 | Session ID | Pending |
-| Tested commit and preview | `UI-G-CHILD-2026-07-16-A`; staging preview, pre-corrective commit `c12fd31` |
+| Tested commit and preview | `UI-G-CHILD-2026-07-16-A` (pre-corrective `c12fd31`); corrective re-run on `ae1316e` staging Preview |
 | Device / browser | Pending |
 | Date / observer | Pending |
 | Parental consent confirmed | Must be confirmed in the private observation record before the re-run |
 | Screen-only recording checksum | Pending |
 | Recording retained outside repository | Pending |
-| Fixture and temporary allowlist removed | Pending recovery verification; do not mark the proof complete until this is confirmed |
+| Fixture and temporary allowlist removed | Pass after corrective re-run; disposable child, assignments, fixture rows, gate and allowlist removed |
 
 ## Timed observation
 
@@ -89,12 +89,17 @@ between productive exploration and confusion.
 | Discover | Meaning change | Separated word parts were reported as confusing and not purposeful | Reported feedback | Confusion | Replace with meaning-change cards | Major UI-H / corrected in UI-G follow-up |
 | Split | Cleaver | Child enjoyed chopping and requested louder sound and sparkles | Reported feedback | Productive exploration | Strengthen interaction sound and success effect | Minor UI-H / corrected in UI-G follow-up |
 | Rebuild | `un + happy` | Child found the action unchallenging | Reported feedback | Confusion about purpose | Remove this transition | Major UI-H / corrected in UI-G follow-up |
+| Corrective re-run | Whole lesson | Completed without adult intervention | 0 adult prompts | Productive completion | Lesson completed and saved | Pass |
+| Split | Correct answer feedback | Sparkles remained visible on the held correct-feedback screen | Reported feedback | Minor visual persistence issue | Make sparkles a short-lived impact effect | Minor follow-up |
+| Cover Check | Cover motion | Child liked the sliding cover motion | Reported feedback | Positive engagement | Keep the direct cover control and motion | Keep |
+| Narration | Guide and dictation | Clearer, but the built-in voice sounded scary | Reported feedback | Tone concern; did not prevent completion | Replace with reviewed natural British narration | Major follow-up |
+| Completion | Finish | Clearing/completion took noticeably too long | Reported feedback | Waiting / pacing concern | Measure and optimise Finish server-action path | Major follow-up |
 
 ## Completion and comprehension
 
 | Criterion | Result | Observer evidence |
 |---|---|---|
-| Completed Learn through reflection without adult help | Fail | One parent dictation clarification was required. |
+| Completed Learn through reflection without adult help | Pass on corrective re-run | No adult intervention reported. |
 | No answer was exposed during recall | Pending | |
 | No critical confusion or distress | Pending | |
 | Understood how to operate Split and Rebuild | Mixed | Split was enjoyed; rebuild was not perceived as purposeful. |
@@ -142,8 +147,8 @@ Use these severity rules:
 
 | Final field | Record |
 |---|---|
-| Child proof decision | Blocked pending corrective amendments and fresh unaided observation |
-| Blocking issues | Adult clarification during dictation; fixture cleanup recovery verification pending |
+| Child proof decision | Provisional pass for unaided completion; do not close until comprehension answers and Finish latency follow-up are recorded. |
+| Blocking issues | No adult intervention on the corrective run. Comprehension answers were not captured; Finish latency requires measurement. |
 | Observer / date | Pending |
 
 Do not change the proof register from `not_started` until the observation and
