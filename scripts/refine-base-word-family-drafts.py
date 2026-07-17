@@ -9,6 +9,7 @@ family to an auditable etymology route that remains pending human review.
 from __future__ import annotations
 
 import csv
+import argparse
 import json
 from collections import defaultdict
 from pathlib import Path
@@ -109,6 +110,12 @@ def dictation_sentence(display_word: str) -> tuple[str, str, str]:
 
 
 def main() -> int:
+    parser = argparse.ArgumentParser(description="Refine local ADLE base-word-family draft CSVs.")
+    parser.add_argument("--approve-reviewer", help="Human reviewer name to apply to all family-layer rows.")
+    parser.add_argument("--approved-at", help="Required ISO-8601 timestamp when --approve-reviewer is used.")
+    args = parser.parse_args()
+    if bool(args.approve_reviewer) != bool(args.approved_at):
+        parser.error("--approve-reviewer and --approved-at must be supplied together.")
     family_headers, families = read_csv("base_word_families.csv")
     member_headers, members = read_csv("base_word_family_members.csv")
     _, canonical_words = read_csv("canonical_words.csv")
@@ -131,6 +138,10 @@ def main() -> int:
             family["base_meaning"] = "to write, draw, or record information"
         elif family["base_family_key"] == "port_base_family":
             family["base_meaning"] = "to carry"
+        if args.approve_reviewer:
+            family["review_status"] = "approved_for_first_exposure"
+            family["reviewed_by"] = args.approve_reviewer
+            family["reviewed_at"] = args.approved_at
 
     retained = []
     excluded = []
@@ -144,6 +155,10 @@ def main() -> int:
         member["dictation_target_token_index"] = index
         member["audio_text"] = audio
         member["assignment_eligible"] = "TRUE"
+        if args.approve_reviewer:
+            member["review_status"] = "approved_for_first_exposure"
+            member["reviewed_by"] = args.approve_reviewer
+            member["reviewed_at"] = args.approved_at
         if member["base_family_key"] == "act_base_family":
             member["transformation_notes"] = "This member follows the Latin-derived act route. Teach the visible link carefully; it is not always a simple modern suffix rule."
         elif member["base_family_key"] == "graph_base_family":
@@ -168,7 +183,7 @@ def main() -> int:
     report = [
         "# Base-word family human-review sheet",
         "",
-        "All rows remain `ai_assisted_draft` and `in_review`. `assignment_eligible=TRUE` means the draft has complete controlled dictation support; it does not bypass the runtime approval gate.",
+        "All rows are `ai_assisted_draft`; `assignment_eligible=TRUE` means the record has complete controlled dictation support. Runtime use still requires an imported, active dictionary row and approved runtime content.",
         "",
         "## Compound members removed",
         "",
@@ -197,7 +212,7 @@ def main() -> int:
             f"- Teaching meaning: {family['base_meaning']}",
             f"- Route: {route['relation_type']}; {route['origin_language']} `{route['origin_form']}` — {route['literal_meaning']}",
             f"- Child-facing explanation: {route['child_facing_meaning']}",
-            f"- Review decision: remain `in_review`; approve only after route, word sums, and dictated wording are accepted.",
+            f"- Review decision: `{family['review_status']}` by `{family['reviewed_by'] or 'unassigned'}`; route, word sums, and dictated wording remain auditable in this sheet.",
             "",
         ])
         for row in by_family[key]:

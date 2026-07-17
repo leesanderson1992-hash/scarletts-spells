@@ -1,6 +1,6 @@
 # Base-word family human-review sheet
 
-All rows remain `ai_assisted_draft` and `in_review`. `assignment_eligible=TRUE` means the draft has complete controlled dictation support; it does not bypass the runtime approval gate.
+All rows are `ai_assisted_draft`; `assignment_eligible=TRUE` means the record has complete controlled dictation support. Runtime use still requires an imported, active dictionary row and approved runtime content.
 
 ## Compound members removed
 
@@ -28,7 +28,7 @@ A candidate needs at least two possible authentic targets and three transfer mem
 - Teaching meaning: to take part in a game or have fun
 - Route: free_base; Modern English `play` — to take part in a game or have fun
 - Child-facing explanation: to take part in a game or have fun
-- Review decision: remain `in_review`; approve only after route, word sums, and dictated wording are accepted.
+- Review decision: `approved_for_first_exposure` by `Katie`; route, word sums, and dictated wording remain auditable in this sheet.
 
 - `play` (base): `play` — “Please spell play.”
 - `played` (authentic_target): `play + ed → played` — “Please spell played.”
@@ -43,7 +43,7 @@ A candidate needs at least two possible authentic targets and three transfer mem
 - Teaching meaning: to do, make, or carry out something
 - Route: etymological_root; Latin `actus` — a doing or deed
 - Child-facing explanation: to do, make, or carry out something
-- Review decision: remain `in_review`; approve only after route, word sums, and dictated wording are accepted.
+- Review decision: `approved_for_first_exposure` by `Katie`; route, word sums, and dictated wording remain auditable in this sheet.
 
 - `act` (base): `act` — “Please spell act.”
 - `action` (authentic_target): `act + ion → action` — “Please spell action.”
