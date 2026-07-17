@@ -12,9 +12,13 @@ engineering QA. The owner preview was accepted on 2026-07-14.
 
 The Word Lab remains an explicitly generated, child-allowlisted pilot. It is
 not broad D4_MOR runtime truth and must stay disabled outside the allowlist
-until the genuine-child proof is recorded. The Mac Safari and Chrome
+until UI-H explicitly changes that rollout decision. The Mac Safari and Chrome
 desktop/responsive accessibility matrix, lazy-loading boundary and bundle
-budget are recorded. True touch-event execution, controlled production-preview
+budget are recorded. Finish persistence measured 11.3 seconds before batching
+and approximately 7.4 seconds after batching; the immediate completion screen
+is the accepted MVP mitigation, not a performance pass. UI-H owns completion
+path profiling, an atomic/fewer-round-trip durable write boundary and a fresh
+authenticated timing measurement. True touch-event execution, controlled production-preview
 Web Vitals, browser 200% zoom, operating-system reduced-motion execution,
 native Windows/Android/iOS and screen-reader checks are optional UI-H rollout
 evidence.

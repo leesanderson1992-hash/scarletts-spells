@@ -221,17 +221,18 @@ async function main() {
     from(table: string) {
       assert(table === "adle_assignment_attempt_events", "attempt insert targets the attempt ledger");
       return {
-        async insert(row: {
+        async upsert(rows: Array<{
           assignment_item_id: string;
           attempt_kind: string;
           source_ref: string;
-        }) {
-          const key = `${row.assignment_item_id}:${row.attempt_kind}:${row.source_ref}`;
-          if (seen.has(key)) {
-            return { error: { code: "23505", message: "duplicate key" } };
+        }>) {
+          for (const row of rows) {
+            const key = `${row.assignment_item_id}:${row.attempt_kind}:${row.source_ref}`;
+            if (!seen.has(key)) {
+              seen.add(key);
+              inserted.push(key);
+            }
           }
-          seen.add(key);
-          inserted.push(key);
           return { error: null };
         },
       };

@@ -83,8 +83,8 @@ export async function insertAssignmentAttemptEvents(
   if (events.length === 0) {
     return;
   }
-  await Promise.all(events.map(async (event) => {
-    const { error } = await client.from("adle_assignment_attempt_events").insert({
+  const { error } = await client.from("adle_assignment_attempt_events").upsert(
+    events.map((event) => ({
       child_id: event.childId,
       parent_user_id: event.parentUserId,
       daily_assignment_id: event.dailyAssignmentId,
@@ -99,11 +99,12 @@ export async function insertAssignmentAttemptEvents(
       attempt_kind: event.attemptKind,
       evidence_class: event.evidenceClass,
       source_ref: event.sourceRef,
-    });
-    if (error !== null && !`${error.code ?? ""}`.startsWith("23505")) {
-      fail("insertAssignmentAttemptEvents", error);
-    }
-  }));
+    })),
+    { onConflict: "assignment_item_id,attempt_kind,source_ref", ignoreDuplicates: true },
+  );
+  if (error !== null) {
+    fail("insertAssignmentAttemptEvents", error);
+  }
 }
 
 export async function markAssignmentCompletedIfAllItemsComplete(
@@ -264,7 +265,7 @@ export async function updateLearningItems(
   client: AdleClient,
   items: readonly LearningItemFact[],
 ): Promise<void> {
-  for (const item of items) {
+  await Promise.all(items.map(async (item) => {
     const { error } = await client
       .from("adle_learning_items")
       .update({
@@ -277,14 +278,14 @@ export async function updateLearningItems(
     if (error) {
       fail("updateLearningItems", error);
     }
-  }
+  }));
 }
 
 async function updateScheduleWords(
   client: AdleClient,
   words: readonly ScheduleWordFact[],
 ): Promise<void> {
-  for (const word of words) {
+  await Promise.all(words.map(async (word) => {
     const { error } = await client
       .from("adle_review_schedule_words")
       .update({
@@ -303,7 +304,7 @@ async function updateScheduleWords(
     if (error) {
       fail("updateScheduleWords", error);
     }
-  }
+  }));
 }
 
 async function updateBundles(client: AdleClient, bundles: readonly ReviewBundleFact[]): Promise<void> {
@@ -369,19 +370,22 @@ export async function persistLessonCompletion(
     if (error) {
       fail("persistLessonCompletion:bundle", error);
     }
-    await Promise.all(write.scheduleWords.map(async (word) => {
-      // Reteach re-entry: supersede the word's previous active schedule row
-      // (ejected/paused history preserved), then insert the fresh row.
+    // Reteach re-entry: supersede existing active schedule rows in one query,
+    // then write the new rows together.  The unique active-row guard and the
+    // historical semantics remain unchanged, while a four-word lesson avoids
+    // four serial remote round trips.
+    const canonicalWordIds = write.scheduleWords.map((word) => word.canonicalWordId);
+    if (canonicalWordIds.length > 0) {
       const { error: supersedeError } = await client
         .from("adle_review_schedule_words")
         .update({ row_status: "superseded" })
-        .eq("child_id", word.childId)
-        .eq("canonical_word_id", word.canonicalWordId)
+        .eq("child_id", write.scheduleWords[0].childId)
+        .in("canonical_word_id", canonicalWordIds)
         .eq("row_status", "active");
       if (supersedeError) {
         fail("persistLessonCompletion:supersedeWord", supersedeError);
       }
-      const { error: insertError } = await client.from("adle_review_schedule_words").insert({
+      const { error: insertError } = await client.from("adle_review_schedule_words").insert(write.scheduleWords.map((word) => ({
         child_id: word.childId,
         canonical_word_id: word.canonicalWordId,
         bundle_id: word.bundleId,
@@ -394,11 +398,11 @@ export async function persistLessonCompletion(
         reteach_cycle_count: word.reteachCycleCount,
         taught_on: word.taughtOn,
         row_status: "active",
-      });
+      })));
       if (insertError) {
         fail("persistLessonCompletion:insertWord", insertError);
       }
-    }));
+    }
   }
   await Promise.all([
     insertTaughtEvents(client, write.taughtEvents),

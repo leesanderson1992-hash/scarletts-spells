@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { after } from "next/server";
 import { randomUUID } from "node:crypto";
 
 import { buildScopedPath, getActiveChildIdFromCookies, selectChildById } from "@/lib/children";
@@ -451,20 +452,29 @@ export async function completeAdleLessonPartAction(formData: FormData) {
     producedWords,
     learningItems,
   });
-  await insertAssignmentAttemptEvents(
-    serviceClient,
-    buildLessonAttemptEvents({
-      context,
-      sourceRef: lessonSourceRef,
-      items: readModel.partTwo.items,
-      controlledAttempts,
-      dictationAttempts,
-      dictationRawAttempts: morphologyPilot === null ? undefined : dictationSentenceAttempts,
-      guidedAttempts,
-      probeAttempts,
-    }),
-  );
-  await persistLessonCompletion(serviceClient, lessonResult);
+  // These three writes have no dependency on one another.  Keeping them in
+  // series made the Finish button wait for three separate staging round trips
+  // before it could navigate, despite each write being independently
+  // idempotent.
+  await Promise.all([
+    insertAssignmentAttemptEvents(
+      serviceClient,
+      buildLessonAttemptEvents({
+        context,
+        sourceRef: lessonSourceRef,
+        items: readModel.partTwo.items,
+        controlledAttempts,
+        dictationAttempts,
+        dictationRawAttempts: morphologyPilot === null ? undefined : dictationSentenceAttempts,
+        guidedAttempts,
+        probeAttempts,
+      }),
+    ),
+    persistLessonCompletion(serviceClient, lessonResult),
+    morphologyPilot === null
+      ? Promise.resolve()
+      : persistMorphologyReflection(context, morphologyPilot, learningReflection),
+  ]);
 
   // Probe day: the diagnostic probe replaced the lesson dictation — record
   // it through its own completion helper (probe words are cold words with
@@ -510,25 +520,29 @@ export async function completeAdleLessonPartAction(formData: FormData) {
   // word's Golden Nugget into the Forge (reward-owned consumer; ADLE stays
   // event-only). Idempotent and boundary-respecting; a failure here can never
   // block completion (the words are already taught).
-  try {
-    await advanceForgeForAdleTaughtWords({
-      supabase: serviceClient,
-      parentUserId: context.parentUserId,
-      childId,
-      dailyAssignmentId: context.assignmentId,
-      taughtWords: productionItems.map((item) => ({
-        assignmentItemId: item.id,
-        targetWord: item.targetWord ?? "",
-      })),
-    });
-  } catch (forgeError) {
-    console.error(
-      `[adle-reward-bridge] forge advance failed for ${childId} ${planDate} (lesson completion unaffected)`,
-      forgeError,
-    );
-  }
+  // Rewards are deliberately best-effort and idempotent.  They must never
+  // hold up a child's completion navigation; Next keeps this task alive after
+  // the Server Action has returned its redirect response.
+  after(async () => {
+    try {
+      await advanceForgeForAdleTaughtWords({
+        supabase: serviceClient,
+        parentUserId: context.parentUserId,
+        childId,
+        dailyAssignmentId: context.assignmentId,
+        taughtWords: productionItems.map((item) => ({
+          assignmentItemId: item.id,
+          targetWord: item.targetWord ?? "",
+        })),
+      });
+    } catch (forgeError) {
+      console.error(
+        `[adle-reward-bridge] forge advance failed for ${childId} ${planDate} (lesson completion unaffected)`,
+        forgeError,
+      );
+    }
+  });
 
-  if (morphologyPilot !== null) await persistMorphologyReflection(context, morphologyPilot, learningReflection);
   await markItemsCompleted(context, readModel.partTwo.items);
   finishWith(context, "Lesson finished. New words join review tomorrow.");
 }

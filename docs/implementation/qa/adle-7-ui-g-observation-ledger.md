@@ -161,6 +161,28 @@ attempt, scheduling, learning-item and reward work. Narration is intentionally
 held at the clearer built-in voice for the MVP. One final deployed engineering
 retest must measure the Finish path and validate the pull-cover interaction.
 
+## Finish performance follow-up — 2026-07-16
+
+The pull-cover interaction passed manual child review. Authenticated staging
+completion measured 11.3 seconds before the completion-write batching change
+and approximately 7.4 seconds after it. The latter remains too slow for a
+performance pass. The final MVP mitigation replaces the static reflection
+recap immediately with **“Your Word Lab is complete! Saving your work now…”**
+while the durable action continues; it does not claim the backend is fast.
+
+This is non-blocking only for the explicitly allowlisted pilot. UI-H owns
+per-stage completion instrumentation (context/auth, plan load, attempts,
+scheduling/history, reflection, assignment completion, reward follow-up and
+redirect), an atomic or reduced-round-trip durable completion boundary, and a
+fresh authenticated timing run. Its acceptance requires preserving the
+`1 / 16 / 14 / 1 / 4 / 4 / 4` data contract and recording both
+Finish-to-completed-screen and durable-save timings.
+
+Two disposable staging children and their private preview QA access are
+intentionally retained for that UI-H work. The preview gate remains restricted
+to those child IDs; no production child, broad allowlist or general D4_MOR
+activation is authorised.
+
 ## Refined Word Lab flow evidence
 
 | Gate | Result |

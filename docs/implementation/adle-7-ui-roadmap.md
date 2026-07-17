@@ -101,8 +101,8 @@ Near-term sequence:
 1. `7-UI-D` - D4_MOR human approval pack - complete.
 2. `7-UI-E` - approved D4_MOR v1 source freeze and pilot source fixture - complete.
 3. `7-UI-F` - shared child-experience and morphology primitives - complete.
-4. `7-UI-G` - `D4_MOR_PREFIXES_UN` vertical runtime pilot - engineering, accessibility and bundle proof complete; child proof pending.
-5. `7-UI-H` - pilot amendments and runtime payload contract freeze - next engineering stage.
+4. `7-UI-G` - `D4_MOR_PREFIXES_UN` vertical runtime pilot - allowlist-gated MVP mitigation recorded; backend Finish latency remains an open UI-H follow-up.
+5. `7-UI-H` - pilot amendments, completion-path performance work and runtime payload contract freeze - next engineering stage.
 
 After proof and contract freeze, finish morphology in coherent groups:
 

@@ -1,7 +1,9 @@
 # ADLE 7-UI-G device, accessibility and performance proof
 
 Status: recorded for UI-G; physical touch and controlled production-preview
-Web Vitals are optional UI-H rollout evidence.
+Web Vitals are optional UI-H rollout evidence. Backend Finish latency is an
+open UI-H performance follow-up; the immediate completion screen is an MVP
+mitigation, not a Web Vitals or completion-latency pass.
 
 This record closes `7UI-PROOF-D4-MOR-A11Y` and
 `7UI-PROOF-D4-MOR-PERF` for the gated pilot. The agreed

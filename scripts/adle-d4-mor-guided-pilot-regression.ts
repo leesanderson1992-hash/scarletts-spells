@@ -101,6 +101,7 @@ const guidedShellSource = readFileSync("components/adle/activities/guided-activi
 const quickSortSource = readFileSync("components/adle/activities/quick-sort-activity.tsx", "utf8");
 const appShellSource = readFileSync("components/app-shell.tsx", "utf8");
 const adlePageSource = readFileSync("app/learn/week/adle/page.tsx", "utf8");
+const adleActionsSource = readFileSync("app/learn/week/adle/actions.ts", "utf8");
 assert(previewSource.includes("useState(true)") && previewSource.includes("Restart lesson") && previewSource.includes("Open component playground"), "development preview opens the guided lesson and keeps restart/playground controls");
 assert(!previewSource.includes('import { MorphologyGuidedLesson } from "@/components/adle/morphology/morphology-guided-lesson"') && previewSource.includes('import("@/components/adle/morphology/morphology-guided-lesson")'), "development preview preserves the Word Lab lazy boundary");
 assert(previewSource.includes("onPreviewComplete") && previewSource.includes("This preview stayed local") && previewSource.includes("Try the Word Lab again"), "development preview completes locally and offers a fresh run");
@@ -125,6 +126,8 @@ const coverSource = readFileSync("components/adle/activities/shared/cover-shutte
 assert(!coverSource.includes('type="range"') && coverSource.includes("Pull the cover down") && coverSource.includes("onPointerMove"), "Cover Check uses a pull-down screen with a direct keyboard/tap alternative instead of a slider");
 assert(soundSource.includes('"select"') && soundSource.includes("sharedContext") && splitSource.includes("✦ ✧ ✦") && splitSource.includes("setShowSparkles(false)"), "all interactions use the louder shared sound context and cleaver success has a brief visual sparkle effect");
 assert(lessonSource.includes("useFormStatus") && lessonSource.includes("Finishing your Word Lab…"), "Finish gives immediate pending feedback while durable completion writes settle");
+assert(lessonSource.includes("Your Word Lab is complete!") && lessonSource.includes("Saving your work now…"), "Finish replaces the recap with immediate child-facing completion feedback while durable writes settle");
+assert(adleActionsSource.includes('import { after } from "next/server"') && adleActionsSource.includes("await Promise.all([\n    insertAssignmentAttemptEvents") && adleActionsSource.includes("after(async () =>"), "Finish saves independent lesson data concurrently and defers only the non-blocking reward bridge");
 assert(narrationSource.includes('kind === "dictation" ? 0.7') && narrationSource.includes('"/audio/narration/manifest.json"') && narrationSource.includes("FEMALE_UK_HINTS"), "dictation uses slower British-voice narration with reviewed local audio clips when available");
 assert(!runnerSource.includes('import { MorphologyGuidedLesson } from "@/components/adle/morphology/morphology-guided-lesson"'), "the general ADLE runner does not eagerly import the Word Lab client");
 assert(runnerSource.includes('import("@/components/adle/morphology/morphology-guided-lesson")') && runnerSource.includes("ssr: false"), "the Word Lab client is isolated behind a client-only dynamic import");
