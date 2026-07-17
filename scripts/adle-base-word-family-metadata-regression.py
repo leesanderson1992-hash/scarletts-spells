@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import csv
 import importlib.util
+import json
 import shutil
 import sys
 from pathlib import Path
@@ -19,7 +20,7 @@ VALIDATOR_PATH = ROOT / "scripts/validate-teaching-dictionary-csv.py"
 TMP = ROOT / ".tmp/adle-base-word-family-metadata-regression"
 
 FAMILY_HEADERS = [
-    "base_family_key", "micro_skill_key", "base_word_key", "base_meaning",
+    "base_family_key", "micro_skill_key", "base_word_key", "base_meaning", "etymology_route",
     "source_category", "source_name", "source_url", "source_licence", "source_use_note",
     "confidence", "review_status", "reviewed_by", "reviewed_at",
 ]
@@ -55,6 +56,25 @@ def row_source() -> dict[str, str]:
     }
 
 
+def route(*, invalid: bool = False) -> str:
+    value = {
+        "relation_type": "free_base",
+        "origin_language": "Modern English",
+        "origin_form": "help",
+        "literal_meaning": "give help",
+        "child_facing_meaning": "give help",
+        "semantic_connection": "The visible base help is kept in this family.",
+        "evidence": {
+            "source_name": "Synthetic source",
+            "source_url": "https://example.test/help",
+            "verification_status": "linked_for_human_review",
+        },
+    }
+    if invalid:
+        value["relation_type"] = "not_a_route"
+    return json.dumps(value)
+
+
 def write_csv(path: Path, headers: list[str], rows: list[dict[str, str]]) -> None:
     with path.open("w", encoding="utf-8", newline="") as handle:
         writer = csv.DictWriter(handle, fieldnames=headers, lineterminator="\n", extrasaction="ignore")
@@ -62,8 +82,8 @@ def write_csv(path: Path, headers: list[str], rows: list[dict[str, str]]) -> Non
         writer.writerows(rows)
 
 
-def write_fixture(*, invalid_member: bool) -> Path:
-    fixture = TMP / ("invalid" if invalid_member else "valid")
+def write_fixture(*, invalid_member: bool, invalid_route: bool = False) -> Path:
+    fixture = TMP / ("invalid-member" if invalid_member else "invalid-route" if invalid_route else "valid")
     fixture.mkdir(parents=True)
     source = row_source()
     words = [
@@ -85,7 +105,7 @@ def write_fixture(*, invalid_member: bool) -> Path:
     ], [])
     write_csv(fixture / "teaching_content_field_reviews.csv", ["micro_skill_key", "content_version", "field_key", "review_gate", "review_status", "reviewed_by", "reviewed_at", "review_notes"], [])
     write_csv(fixture / "base_word_families.csv", FAMILY_HEADERS, [{
-        "base_family_key": "BASE_HELP", "micro_skill_key": "D4_MOR_BASE_WORDS_PRESERVE_BASE", "base_word_key": "help_en_gb", "base_meaning": "give help", **source,
+        "base_family_key": "BASE_HELP", "micro_skill_key": "D4_MOR_BASE_WORDS_PRESERVE_BASE", "base_word_key": "help_en_gb", "base_meaning": "give help", "etymology_route": route(invalid=invalid_route), **source,
     }])
     member_rows = []
     for key, text in words:
@@ -110,6 +130,9 @@ def main() -> int:
     invalid = validator.validate(write_fixture(invalid_member=True))
     if invalid["summary"]["errors"] != 1 or not any(issue["field"] == "morphology_parts" for issue in invalid["issues"]):
         raise AssertionError(f"invalid family fixture did not fail closed: {invalid['issues']}")
+    invalid_route = validator.validate(write_fixture(invalid_member=False, invalid_route=True))
+    if invalid_route["summary"]["errors"] != 1 or not any(issue["field"] == "etymology_route" for issue in invalid_route["issues"]):
+        raise AssertionError(f"invalid etymology route did not fail closed: {invalid_route['issues']}")
     print("adle-base-word-family-metadata-regression: ok")
     return 0
 

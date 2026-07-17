@@ -49,6 +49,14 @@ assert(probeOnly.skipReasons.includes("insufficient_verified_authentic_targets")
 const missingTransfers = selectBaseWordFamilyLesson(CHILD, SKILL, facts([item("a", "helpful", "2026-07-01"), item("b", "helpless", "2026-07-02")], { members: facts([]).members.slice(0, 4) }));
 assert(missingTransfers.skipReasons.includes("insufficient_eligible_family_transfer_words"), "insufficient reviewed transfers must fail closed");
 
+const inReview = selectBaseWordFamilyLesson(CHILD, SKILL, facts([
+  item("a", "helpful", "2026-07-01"), item("b", "helpless", "2026-07-02"),
+], {
+  families: [{ baseFamilyKey: "HELP", microSkillKey: SKILL, rowStatus: "active", reviewStatus: "in_review" }],
+  members: facts([]).members.map((member) => ({ ...member, reviewStatus: "in_review" })),
+}));
+assert(inReview.skipReasons.includes("no_shared_reviewed_base_family"), "provisionally assignment-eligible in-review family members must stay outside runtime selection");
+
 const sixAuthentic = selectBaseWordFamilyLesson(CHILD, SKILL, facts([
   item("a", "helpful", "2026-07-01"), item("b", "helpless", "2026-07-02"), item("c", "help", "2026-07-03"),
   item("d", "unhelpful", "2026-07-04"), item("e", "helping", "2026-07-05"), item("f", "helpfulness", "2026-07-06"),

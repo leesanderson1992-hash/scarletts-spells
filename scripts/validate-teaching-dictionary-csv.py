@@ -124,7 +124,7 @@ OPTIONAL_FILES = {
         "legal_review_status",
     ],
     "base_word_families.csv": [
-        "base_family_key", "micro_skill_key", "base_word_key", "base_meaning",
+        "base_family_key", "micro_skill_key", "base_word_key", "base_meaning", "etymology_route",
         "source_category", "source_name", "source_url", "source_licence", "source_use_note",
         "confidence", "review_status", "reviewed_by", "reviewed_at",
     ],
@@ -136,6 +136,13 @@ OPTIONAL_FILES = {
         "confidence", "review_status", "reviewed_by", "reviewed_at",
     ],
 }
+
+ETYMOLOGY_RELATION_TYPES = {"free_base", "classical_root", "etymological_root"}
+ETYMOLOGY_ROUTE_KEYS = {
+    "relation_type", "origin_language", "origin_form", "literal_meaning",
+    "child_facing_meaning", "semantic_connection", "evidence",
+}
+ETYMOLOGY_EVIDENCE_KEYS = {"source_name", "source_url", "verification_status"}
 
 SOURCE_CATEGORIES = {
     "internal_authored",
@@ -303,6 +310,14 @@ def parse_json_array(value: str) -> list[Any] | None:
     except (TypeError, json.JSONDecodeError):
         return None
     return parsed if isinstance(parsed, list) else None
+
+
+def parse_json_object(value: str) -> dict[str, Any] | None:
+    try:
+        parsed = json.loads(value)
+    except (TypeError, json.JSONDecodeError):
+        return None
+    return parsed if isinstance(parsed, dict) else None
 
 
 def row_is_blank(row: dict[str, str]) -> bool:
@@ -571,6 +586,29 @@ def validate_global_references(
             add_issue(issues, "error", "base_word_families.csv", row_number(row), "base_word_key", f"base_word_key {base_word_key!r} is not an approved canonical word.")
         if not clean(row["base_meaning"]):
             add_issue(issues, "error", "base_word_families.csv", row_number(row), "base_meaning", "Missing child-friendly base meaning.")
+        route = parse_json_object(row.get("etymology_route", ""))
+        if route is None:
+            add_issue(issues, "error", "base_word_families.csv", row_number(row), "etymology_route", "etymology_route must be a JSON object.")
+            continue
+        if not ETYMOLOGY_ROUTE_KEYS.issubset(route):
+            add_issue(issues, "error", "base_word_families.csv", row_number(row), "etymology_route", "etymology_route is missing required route fields.")
+            continue
+        if route.get("relation_type") not in ETYMOLOGY_RELATION_TYPES:
+            add_issue(issues, "error", "base_word_families.csv", row_number(row), "etymology_route", "etymology_route relation_type is invalid.")
+        for field in ("origin_language", "origin_form", "literal_meaning", "child_facing_meaning", "semantic_connection"):
+            if not isinstance(route.get(field), str) or not clean(route[field]):
+                add_issue(issues, "error", "base_word_families.csv", row_number(row), "etymology_route", f"etymology_route {field} must be a non-empty string.")
+        evidence = route.get("evidence")
+        if not isinstance(evidence, dict) or not ETYMOLOGY_EVIDENCE_KEYS.issubset(evidence):
+            add_issue(issues, "error", "base_word_families.csv", row_number(row), "etymology_route", "etymology_route evidence is incomplete.")
+        elif (
+            not isinstance(evidence.get("source_name"), str)
+            or not clean(evidence["source_name"])
+            or not isinstance(evidence.get("source_url"), str)
+            or not clean(evidence["source_url"])
+            or evidence.get("verification_status") != "linked_for_human_review"
+        ):
+            add_issue(issues, "error", "base_word_families.csv", row_number(row), "etymology_route", "etymology_route evidence must name a source, URL, and linked_for_human_review status.")
 
     for row in member_rows:
         validate_source_fields(row, "base_word_family_members.csv", issues)

@@ -158,7 +158,7 @@ CONTENT_TABLE_COLUMNS = {
         "review_notes",
     ],
     "canonical_teaching_dictionary_base_word_families": [
-        "id", "import_batch_id", "base_family_key", "micro_skill_key", "base_word_id", "base_meaning",
+        "id", "import_batch_id", "base_family_key", "micro_skill_key", "base_word_id", "base_meaning", "etymology_route",
         "row_status", "source_sheet", "source_row_number", "source_row_hash", "source_metadata",
         "source_category", "source_name", "source_url", "source_licence", "source_use_note",
         "confidence", "review_status", "reviewed_by", "reviewed_at",
@@ -566,6 +566,7 @@ def build_planned_rows(folder: Path, validation_report: dict[str, Any]) -> dict[
                 "micro_skill_key": row["micro_skill_key"],
                 "base_word_id": word_ids.get(clean(row["base_word_key"])),
                 "base_meaning": row["base_meaning"],
+                "etymology_route": json.loads(row["etymology_route"]),
                 "row_status": "active",
                 **row_base("base_word_families.csv", row),
                 "source_category": row["source_category"],
