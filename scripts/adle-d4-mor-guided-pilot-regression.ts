@@ -15,7 +15,7 @@ function reorderJson(value: unknown): unknown {
   if (value === null || typeof value !== "object") return value;
   return Object.fromEntries(Object.entries(value as Record<string, unknown>).sort(([left], [right]) => right.localeCompare(left)).map(([key, entry]) => [key, reorderJson(entry)]));
 }
-assert(validateMorphologyLessonPayload(reorderJson(payload)) !== null, "JSONB key reordering preserves exact authored payload validation");
+assert(validateMorphologyLessonPayload(reorderJson(payload)) !== null, "JSONB key reordering preserves v1 snapshot validation");
 assert(payload.words.lesson.map((word) => word.displayWord).join("|") === "unfair|unkind|unlock|untidy", "fixed lesson word order");
 assert(payload.activities.find((activity) => activity.type === "prefix_choice")?.prefixChoices?.map((choice) => choice.text).join("|") === "un|re|pre", "fixed tidy prefix choices");
 const dictation = payload.activities.find((activity) => activity.type === "sentence_dictation")?.sentences ?? [];
@@ -36,8 +36,12 @@ const missingRecall = structuredClone(payload);
 missingRecall.activities.find((activity) => activity.type === "sentence_dictation")!.answerVisibility = "teaching";
 assert(validateMorphologyLessonPayload(missingRecall) === null, "answer-bearing dictation fails closed");
 const alteredIntro = structuredClone(payload);
+alteredIntro.contentVersion = "older-compatible-word-lab-v1";
 alteredIntro.activities.find((activity) => activity.type === "introduction")!.introScreens![0].paragraphs[0] = "A changed explanation";
-assert(validateMorphologyLessonPayload(alteredIntro) === null, "altered introduction fails closed");
+assert(validateMorphologyLessonPayload(alteredIntro) !== null, "older structurally valid v1 content remains renderable from its immutable snapshot");
+const malformedOldPayload = structuredClone(alteredIntro);
+malformedOldPayload.activities.find((activity) => activity.type === "discovery")!.discoveryCards = [];
+assert(validateMorphologyLessonPayload(malformedOldPayload) === null, "malformed old v1 content still fails closed");
 
 const specs = morphologyPilotBindingSpecs(payload);
 assert(specs.length === 16, "pilot binding contract contains exactly 16 items");
@@ -127,7 +131,7 @@ assert(!coverSource.includes('type="range"') && coverSource.includes("Pull the c
 assert(soundSource.includes('"select"') && soundSource.includes("sharedContext") && splitSource.includes("✦ ✧ ✦") && splitSource.includes("setShowSparkles(false)"), "all interactions use the louder shared sound context and cleaver success has a brief visual sparkle effect");
 assert(lessonSource.includes("useFormStatus") && lessonSource.includes("Finishing your Word Lab…"), "Finish gives immediate pending feedback while durable completion writes settle");
 assert(lessonSource.includes("Your Word Lab is complete!") && lessonSource.includes("Saving your work now…"), "Finish replaces the recap with immediate child-facing completion feedback while durable writes settle");
-assert(adleActionsSource.includes('import { after } from "next/server"') && adleActionsSource.includes("await Promise.all([\n    insertAssignmentAttemptEvents") && adleActionsSource.includes("after(async () =>"), "Finish saves independent lesson data concurrently and defers only the non-blocking reward bridge");
+assert(adleActionsSource.includes('import { after } from "next/server"') && adleActionsSource.includes("persistWordLabCompletion") && adleActionsSource.includes("ADLE_WORD_LAB_ATOMIC_COMPLETION_ENABLED") && adleActionsSource.includes("after(async () =>"), "Finish supports measured batched comparison, one atomic pilot boundary, and deferred reward follow-up");
 assert(narrationSource.includes('kind === "dictation" ? 0.7') && narrationSource.includes('"/audio/narration/manifest.json"') && narrationSource.includes("FEMALE_UK_HINTS"), "dictation uses slower British-voice narration with reviewed local audio clips when available");
 assert(!runnerSource.includes('import { MorphologyGuidedLesson } from "@/components/adle/morphology/morphology-guided-lesson"'), "the general ADLE runner does not eagerly import the Word Lab client");
 assert(runnerSource.includes('import("@/components/adle/morphology/morphology-guided-lesson")') && runnerSource.includes("ssr: false"), "the Word Lab client is isolated behind a client-only dynamic import");

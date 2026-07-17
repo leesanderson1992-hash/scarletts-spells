@@ -15,7 +15,7 @@ Shared architecture is reused, while each micro-skill still receives an intentio
 
 ## Current Status
 
-Status: `7-UI-G engineering, accessibility and bundle proof complete; allowlist-gated genuine-child proof pending`.
+Status: `7-UI-H guarded staging proof complete; atomic route 39.4% faster with durable contract verified; production database migration awaiting explicit approval`.
 
 The 7S reflection recall-gate live/manual proof is recorded in the proof register. PR 7-UI-B added the typed activity-template registry foundation. PR 7-UI-C generated structurally reconciled D4_MOR category-v1 candidate source artifacts under `docs/implementation/seed-data/adle-7-ui/generated/d4-mor-category-v1/`. PR 7-UI-D records human approval for the D4_MOR category-v1 content/schema candidate under `docs/implementation/seed-data/adle-7-ui/review/d4-mor-human-review-pack/`. PR 7-UI-E freezes that approved candidate plus the approval record into the immutable approved source package under `data/adle/approved/d4-mor/v1/`. PR 7-UI-F adds the reusable D4_MOR primitive/view-model layer. PR 7-UI-G implements the guarded `D4_MOR_PREFIXES_UN` Word Lab, including atomic assignment persistence, private reflections, strict payload/resume validation and authenticated engineering QA recorded in `docs/implementation/qa/adle-7-ui-g-observation-ledger.md`.
 
@@ -101,8 +101,15 @@ Near-term sequence:
 1. `7-UI-D` - D4_MOR human approval pack - complete.
 2. `7-UI-E` - approved D4_MOR v1 source freeze and pilot source fixture - complete.
 3. `7-UI-F` - shared child-experience and morphology primitives - complete.
-4. `7-UI-G` - `D4_MOR_PREFIXES_UN` vertical runtime pilot - allowlist-gated MVP mitigation recorded; backend Finish latency remains an open UI-H follow-up.
-5. `7-UI-H` - pilot amendments, completion-path performance work and runtime payload contract freeze - next engineering stage.
+4. `7-UI-G` - `D4_MOR_PREFIXES_UN` vertical runtime pilot - allowlist-gated MVP mitigation recorded.
+5. `7-UI-H` - pilot-only atomic completion and runtime payload contract freeze - authenticated guarded-staging proof complete at 27.0ms feedback, 2.874s completed route and a 238.4ms atomic transaction; `1 / 16 / 14 / 1 / 4 / 4 / 4` verified before and after reload. The route improvement is 39.4%, a recorded 0.6-point miss against the 40% stretch gate.
+
+Production database migration is safe only after the UI-H working-tree diff and
+full regression/build results are reviewed. That approved step may install the
+service-role-only function with both runtime switches still disabled. It must
+not deploy the application change, populate an allowlist, use production
+learner data or broaden D4_MOR. Pilot application activation is a separate
+decision after migration and smoke verification.
 
 After proof and contract freeze, finish morphology in coherent groups:
 

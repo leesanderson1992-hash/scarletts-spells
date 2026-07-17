@@ -2,7 +2,7 @@
 
 ## Current ADLE 7-UI Priority
 
-Current ADLE priority: `PR 7-UI-H pilot amendments and runtime payload contract freeze`.
+Current ADLE priority: `PR 7-UI-H durable completion closeout and guarded rollout decision`.
 
 PRs 7-UI-A through 7-UI-F established the programme documentation, activity
 registry, approved D4_MOR source package and reusable morphology primitives.
@@ -16,19 +16,32 @@ until UI-H explicitly changes that rollout decision. The Mac Safari and Chrome
 desktop/responsive accessibility matrix, lazy-loading boundary and bundle
 budget are recorded. Finish persistence measured 11.3 seconds before batching
 and approximately 7.4 seconds after batching; the immediate completion screen
-is the accepted MVP mitigation, not a performance pass. UI-H owns completion
-path profiling, an atomic/fewer-round-trip durable write boundary and a fresh
-authenticated timing measurement. True touch-event execution, controlled production-preview
+is the accepted MVP mitigation, not a performance pass. UI-H now has a
+working-tree implementation of privacy-safe stage timing, a pilot-only atomic
+completion RPC and the decision-complete Word Lab v1 snapshot/resume contract.
+Authenticated staging measured 23.9ms feedback and 4.743s completed-route time
+on the true batched baseline, then 27.0ms and 2.874s through the 238.4ms atomic
+transaction. The route is 39.4% faster and durable server return is 52.9%
+faster. The database contract remained `1 / 16 / 14 / 1 / 4 / 4 / 4` before
+and after completed reload, with the 6/4/4 attempt split and raw dictation
+sentences retained. This is a material guarded-pilot performance pass, but the
+40% stretch gate missed by 0.6 percentage points and is recorded as such.
+The service-role-only RPC remains staging-only and the preview switch remains
+branch-scoped; production has not been migrated or activated. True touch-event execution, controlled production-preview
 Web Vitals, browser 200% zoom, operating-system reduced-motion execution,
 native Windows/Android/iOS and screen-reader checks are optional UI-H rollout
 evidence.
-7-UI-H may amend the pilot from that evidence
-and freeze the v1 payload/resume compatibility contract; it must not bulk
-activate the remaining D4_MOR category.
+The next safe database step is a production migration-only rollout of the
+service-role RPC after review of this working-tree diff and verification set.
+That step must not enable either feature switch, alter the child allowlist or
+bulk-activate D4_MOR. Application activation remains a separate guarded pilot
+decision.
 
 Authoritative links:
 
 - [ADLE 7-UI Programme Roadmap](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/implementation/adle-7-ui-roadmap.md:1)
+- [ADLE 7-UI-H Durable Completion Contract](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/implementation/adle-7-ui-h-word-lab-durable-completion-contract.md:1)
+- [ADLE 7-UI-H Completion Performance Proof](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/implementation/qa/adle-7-ui-h-completion-performance-proof.md:1)
 - [ADLE 7-UI Control Matrix Guide](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/implementation/adle-7-ui-control-matrix.md:1)
 - [ADLE 7-UI-G Observation Ledger](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/implementation/qa/adle-7-ui-g-observation-ledger.md:1)
 - [ADLE 7S Reflection Recall-Gate Proof](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/implementation/qa/adle-slice-7s-reflection-recall-gate-proof-2026-07-10.md:1)

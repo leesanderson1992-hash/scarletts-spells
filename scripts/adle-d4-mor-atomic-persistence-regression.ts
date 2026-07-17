@@ -1,4 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
+import { randomUUID } from "node:crypto";
 import { getChildLearningReflections, upsertChildLearningReflection } from "../lib/adle/morphology/reflections";
 
 function assert(condition: unknown, message: string): asserts condition {
@@ -30,14 +31,20 @@ async function main(): Promise<void> {
     const { data: child, error: childError } = await client.from("children").insert({ parent_user_id: parentUserId, first_name: "ADLE UI-G Atomic" }).select("id").single();
     if (childError || !child) throw new Error(`seed child: ${childError?.message}`);
     childId = (child as { id: string }).id;
-    const { data: words, error: wordsError } = await client.from("canonical_teaching_dictionary_words").select("id, display_word").in("display_word", ["unfair", "unhappy", "unkind", "unlock"]).eq("row_status", "active");
+    const lessonWordOrder = ["unfair", "unkind", "unlock", "untidy"];
+    const { data: words, error: wordsError } = await client.from("canonical_teaching_dictionary_words").select("id, display_word").in("display_word", lessonWordOrder).eq("row_status", "active");
     if (wordsError) throw new Error(`load words: ${wordsError.message}`);
     assert((words ?? []).length === 4, "four pilot lesson words exist locally");
-    const wordRows = words as Array<{ id: string; display_word: string }>;
+    const wordRows = (words as Array<{ id: string; display_word: string }>).sort((left, right) => lessonWordOrder.indexOf(left.display_word) - lessonWordOrder.indexOf(right.display_word));
 
     const makePayload = (date: string) => {
       const header = { childId, parentUserId, assignmentDate: date, title: "ADLE Daily Plan", status: "pending", targetWords: wordRows.map((word) => word.display_word), reviewWords: [], assignmentGenerationSource: "adle_composer_v1" };
-      const items = Array.from({ length: 16 }, (_, index) => ({ childId, parentUserId, domainModule: "spelling", itemType: index < 2 ? "adle_lesson_intro" : "adle_guided_practice", sourceType: "adle_composer", sourceEntityId: `adle:${childId}:${date}:${index + 1}`, templateKey: index === 0 ? "MICRO_READ_ONLY_INTRO" : "MOR_STRIP_BUILD", targetWord: null, position: index + 1, status: "ready", promptData: { pilotActivityId: `atomic-${index + 1}` }, metadata: { planDate: date, sectionKey: index < 2 ? "lesson_intro" : "guided_practice", provenance: "atomic_regression", microSkillKey: "D4_MOR_PREFIXES_UN", canonicalWordId: null, expectedEvidenceKind: "guided_task", adleLearningItemRef: null, composerPolicyVersion: "regression", schedulePolicyVersion: "regression" } }));
+      const bindings = ["intro-root", "intro-words", "guided-strip-unhappy", "guided-meaning-unfair", "guided-meaning-unkind", "guided-meaning-unlock", "guided-meaning-untidy", "guided-build-untidy", "controlled-unfair", "controlled-unkind", "controlled-unlock", "controlled-untidy", "dictation-unfair", "dictation-unkind", "dictation-unlock", "dictation-untidy"];
+      const items = bindings.map((binding, index) => {
+        const sectionKey = index < 2 ? "lesson_intro" : index < 8 ? "guided_practice" : index < 12 ? "lesson_production" : "lesson_dictation";
+        const word = index < 8 ? null : wordRows[index < 12 ? index - 8 : index - 12];
+        return { childId, parentUserId, domainModule: "spelling", itemType: sectionKey === "lesson_intro" ? "adle_lesson_intro" : sectionKey === "guided_practice" ? "adle_guided_practice" : sectionKey === "lesson_production" ? "adle_lesson_production" : "adle_lesson_dictation", sourceType: "adle_composer", sourceEntityId: `adle:${childId}:${date}:${index + 1}`, templateKey: sectionKey === "lesson_intro" ? (index === 0 ? "MICRO_READ_ONLY_INTRO" : "LESSON_WORDS_INTRO") : sectionKey === "guided_practice" ? "MOR_MEANING_MATCH" : sectionKey === "lesson_production" ? "CONTROLLED_SPELLING" : "DICTATION_NO_IMAGE", targetWord: word?.display_word ?? null, position: index + 1, status: "ready", promptData: { pilotActivityId: binding }, metadata: { planDate: date, sectionKey, provenance: "atomic_regression", microSkillKey: "D4_MOR_PREFIXES_UN", canonicalWordId: word?.id ?? null, expectedEvidenceKind: sectionKey === "guided_practice" ? "guided_task" : "first_exposure_word", adleLearningItemRef: null, composerPolicyVersion: "regression", schedulePolicyVersion: "regression" } };
+      });
       const intakes = wordRows.map((word) => ({ learningItemId: `regression:${date}:${word.id}`, childId, canonicalWordId: word.id, microSkillKey: "D4_MOR_PREFIXES_UN", itemStatus: "pending", sourceKind: "stretch_selection", sourceRef: `atomic-regression:${childId}:${date}:${word.display_word}`, sourceAttemptText: null, reteachPriority: false, ejectedOn: null, intakeOn: date, rowStatus: "active" }));
       return { header, items, intakes };
     };
@@ -50,6 +57,33 @@ async function main(): Promise<void> {
       if (itemError) throw itemError;
       return { headerCount: headerIds.length, itemCount: itemCount ?? 0 };
     };
+    const completionPayload = async (assignmentId: string, date: string) => {
+      const sourceRef = `lesson:${childId}:${date}:D4_MOR_PREFIXES_UN`;
+      const { data: itemRows, error: itemRowsError } = await client.from("assignment_items").select("id, template_key, target_word, metadata").eq("daily_assignment_id", assignmentId).order("position");
+      if (itemRowsError) throw itemRowsError;
+      const { data: learningRows, error: learningRowsError } = await client.from("adle_learning_items").select("id, canonical_word_id, item_status, source_kind, source_ref, source_attempt_text, reteach_priority, ejected_on, intake_on, row_status").eq("child_id", childId).eq("micro_skill_key", "D4_MOR_PREFIXES_UN").eq("row_status", "active");
+      if (learningRowsError) throw learningRowsError;
+      const { data: policy, error: policyError } = await client.from("adle_review_policy_versions").select("schedule_policy_version").eq("is_active", true).single();
+      if (policyError || !policy) throw new Error(`load active policy: ${policyError?.message}`);
+      const bundleId = randomUUID();
+      const nextDueOn = new Date(`${date}T12:00:00Z`); nextDueOn.setUTCDate(nextDueOn.getUTCDate() + 1);
+      const attempts = (itemRows ?? []).filter((row) => ["guided_practice", "lesson_production", "lesson_dictation"].includes(String((row as { metadata: Record<string, unknown> }).metadata.sectionKey))).map((row) => {
+        const typed = row as { id: string; template_key: string; target_word: string | null; metadata: Record<string, unknown> };
+        const sectionKey = String(typed.metadata.sectionKey);
+        const attemptKind = sectionKey === "guided_practice" ? "guided_practice" : sectionKey === "lesson_production" ? "lesson_production" : "lesson_dictation";
+        const targetWord = typed.target_word;
+        return { childId, parentUserId, dailyAssignmentId: assignmentId, assignmentItemId: typed.id, canonicalWordId: typed.metadata.canonicalWordId ?? null, microSkillKey: "D4_MOR_PREFIXES_UN", sectionKey, templateKey: typed.template_key, targetWord, attemptText: attemptKind === "lesson_dictation" ? `It uses ${targetWord} in a sentence.` : attemptKind === "guided_practice" ? "" : targetWord, isCorrect: attemptKind === "guided_practice" ? null : true, attemptKind, evidenceClass: attemptKind === "guided_practice" ? "guided_practice_attempt" : "first_exposure_lesson_attempt", sourceRef: attemptKind === "guided_practice" ? `${sourceRef}:guided:${typed.id}` : sourceRef };
+      });
+      const learningByWord = new Map((learningRows ?? []).map((row) => [(row as { canonical_word_id: string }).canonical_word_id, row as Record<string, unknown>]));
+      const itemTransitions = wordRows.map((word) => {
+        const row = learningByWord.get(word.id)!;
+        return { learningItemId: row.id, childId, canonicalWordId: word.id, microSkillKey: "D4_MOR_PREFIXES_UN", itemStatus: "awaiting_review_outcome", sourceKind: row.source_kind, sourceRef: row.source_ref, sourceAttemptText: row.source_attempt_text, reteachPriority: row.reteach_priority, ejectedOn: row.ejected_on, intakeOn: row.intake_on, rowStatus: row.row_status };
+      });
+      const scheduleWords = wordRows.map((word) => ({ childId, canonicalWordId: word.id, bundleId, membershipStatus: "scheduled", catchUpStage: 0, nextRetestDueOn: null, failedReviewOn: null, preRetirementCheckDueOn: null, last28DayReviewOn: null, reteachCycleCount: 0, taughtOn: date, rowStatus: "active" }));
+      const taughtEvents = wordRows.map((word) => ({ childId, canonicalWordId: word.id, eventKind: "taught", occurredOn: date, sourceRef, rowStatus: "active", attemptText: word.display_word }));
+      return { p_parent_user_id: parentUserId, p_child_id: childId, p_assignment_id: assignmentId, p_plan_date: date, p_micro_skill_key: "D4_MOR_PREFIXES_UN", p_source_ref: sourceRef, p_assignment_item_ids: (itemRows ?? []).map((row) => (row as { id: string }).id), p_attempts: attempts, p_lesson: { bundle: { bundleId, childId, sourceRef, intervalIndex: 0, nextDueOn: nextDueOn.toISOString().slice(0, 10), schedulePolicyVersion: (policy as { schedule_policy_version: string }).schedule_policy_version, bundleStatus: "active", rowStatus: "active" }, scheduleWords, taughtEvents, itemTransitions }, p_reflection: { childId, parentUserId, assignmentId, microSkillKey: "D4_MOR_PREFIXES_UN", contentVersion: "atomic-completion-regression-v1", promptKey: "word-lab-un-observation-v1", promptText: "What did you notice about what un- does in these words?", reflectionText: "un- can mean not or reverse an action" } };
+    };
+    const complete = (payload: Awaited<ReturnType<typeof completionPayload>>) => client.rpc("complete_adle_word_lab_v1", payload);
 
     const successDate = "2099-01-01";
     const successPayload = makePayload(successDate);
@@ -79,6 +113,18 @@ async function main(): Promise<void> {
     const otherLogin = await otherClient.auth.signInWithPassword({ email: otherEmail, password: otherPassword });
     if (otherLogin.error) throw otherLogin.error;
     assert((await getChildLearningReflections(otherClient, { parentUserId, childId, limit: 10 })).length === 0, "another authenticated parent cannot read the private reflection");
+    const completion = await completionPayload(assignmentId, successDate);
+    const completed = await complete(completion);
+    assert(!completed.error && (completed.data as { status: string }).status === "completed", "atomic Word Lab completion succeeds");
+    const completedAgain = await complete(completion);
+    assert(!completedAgain.error && (completedAgain.data as { status: string }).status === "already_completed", "completed resubmission verifies and returns idempotent success");
+    const { data: completionItems } = await client.from("assignment_items").select("status").eq("daily_assignment_id", assignmentId);
+    const { data: completionAttempts } = await client.from("adle_assignment_attempt_events").select("attempt_kind, attempt_text").eq("daily_assignment_id", assignmentId);
+    const { data: completionTaught } = await client.from("adle_taught_word_history").select("id").eq("child_id", childId).eq("source_ref", completion.p_source_ref).eq("row_status", "active");
+    const { data: completionSchedule } = await client.from("adle_review_schedule_words").select("id").eq("child_id", childId).eq("row_status", "active");
+    assert(completionItems?.length === 16 && completionItems.every((row) => (row as { status: string }).status === "completed"), "all 16 assignment items complete atomically");
+    assert(completionAttempts?.length === 14 && completionAttempts.filter((row) => (row as { attempt_kind: string }).attempt_kind === "guided_practice").length === 6 && completionAttempts.filter((row) => (row as { attempt_kind: string }).attempt_kind === "lesson_dictation").every((row) => String((row as { attempt_text: string }).attempt_text).includes(" ")), "14 attempts retain the 6/4/4 contract and raw dictation sentences");
+    assert(completionTaught?.length === 4 && completionSchedule?.length === 4, "completion creates four taught and four schedule rows without duplicates");
     const duplicate = await call(successDate, successPayload);
     assert(duplicate.error !== null, "duplicate invocation is refused");
     assert(JSON.stringify(await countRows(successDate)) === JSON.stringify({ headerCount: 1, itemCount: 16 }), "duplicate invocation writes nothing");
@@ -100,6 +146,18 @@ async function main(): Promise<void> {
     const concurrent = await Promise.all([call(concurrentDate, concurrentPayload), call(concurrentDate, concurrentPayload)]);
     assert(concurrent.filter((result) => result.error === null).length === 1 && concurrent.filter((result) => result.error !== null).length === 1, "concurrent invocation has one winner");
     assert(JSON.stringify(await countRows(concurrentDate)) === JSON.stringify({ headerCount: 1, itemCount: 16 }), "concurrent invocation persists one complete plan");
+
+    const rollbackDate = "2099-01-05";
+    const rollbackPlan = makePayload(rollbackDate);
+    const rollbackPlanResult = await call(rollbackDate, rollbackPlan);
+    assert(!rollbackPlanResult.error && typeof rollbackPlanResult.data === "string", "rollback fixture plan exists");
+    const rollbackCompletion = await completionPayload(rollbackPlanResult.data as string, rollbackDate);
+    rollbackCompletion.p_lesson.itemTransitions[3].learningItemId = randomUUID();
+    assert((await complete(rollbackCompletion)).error !== null, "forced late learning transition failure rejects completion");
+    const { data: rollbackHeader } = await client.from("daily_assignments").select("status").eq("id", rollbackPlanResult.data as string).single();
+    const { count: rollbackAttempts } = await client.from("adle_assignment_attempt_events").select("id", { count: "exact", head: true }).eq("daily_assignment_id", rollbackPlanResult.data as string);
+    const { count: rollbackTaught } = await client.from("adle_taught_word_history").select("id", { count: "exact", head: true }).eq("source_ref", rollbackCompletion.p_source_ref);
+    assert((rollbackHeader as { status: string }).status === "pending" && (rollbackAttempts ?? 0) === 0 && (rollbackTaught ?? 0) === 0, "late failure rolls back every completion write");
 
     console.log("ADLE D4_MOR atomic persistence regression passed");
   } finally {

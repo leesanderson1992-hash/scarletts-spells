@@ -292,7 +292,7 @@ export function validateMorphologyLessonPayload(value: unknown): MorphologyLesso
   if (!isRecord(value) || value.schemaVersion !== 1 || value.experience !== MORPHOLOGY_LESSON_EXPERIENCE || value.microSkillId !== MORPHOLOGY_UN_MICRO_SKILL || value.experienceProfile !== "word_lab_v1") {
     return null;
   }
-  if (typeof value.contentVersion !== "string" || !isRecord(value.guide) || value.guide.persona !== "prefix_scout" || typeof value.guide.narrationEnabled !== "boolean" || !Array.isArray(value.guide.beats)) {
+  if (typeof value.contentVersion !== "string" || value.contentVersion.trim() === "" || !isRecord(value.guide) || value.guide.persona !== "prefix_scout" || typeof value.guide.narrationEnabled !== "boolean" || !Array.isArray(value.guide.beats)) {
     return null;
   }
   if (!isRecord(value.words) || !isWord(value.words.anchor) || !Array.isArray(value.words.lesson) || !Array.isArray(value.words.stretch)) {
@@ -318,23 +318,34 @@ export function validateMorphologyLessonPayload(value: unknown): MorphologyLesso
   }
   const activities = value.activities as MorphologyActivityV1[];
   if (activities.length !== ACTIVITY_TYPES.length || ACTIVITY_TYPES.some((type) => !activities.some((activity) => activity.type === type))) return null;
+  const expectedActivityIds: Record<MorphologyActivityV1["type"], string> = {
+    introduction: "introduction",
+    discovery: "discover",
+    strip_build: "strip-build",
+    meaning_sort: "meaning-match",
+    prefix_choice: "build-word",
+    look_cover_write_check: "controlled-spelling",
+    sentence_dictation: "dictation",
+    reflection: "reflection",
+  };
+  if (activities.some((activity) => activity.id !== expectedActivityIds[activity.type])) return null;
   const recallActivities = (value.activities as MorphologyActivityV1[]).filter((activity) => activity.type === "look_cover_write_check" || activity.type === "sentence_dictation");
   if (recallActivities.some((activity) => activity.answerVisibility !== "recall_neutral")) return null;
   const introduction = (value.activities as MorphologyActivityV1[]).find((activity) => activity.type === "introduction");
   const discovery = (value.activities as MorphologyActivityV1[]).find((activity) => activity.type === "discovery");
-  if (!introduction?.introScreens || introduction.answerVisibility !== "teaching" || introduction.evidenceMode !== "none" || !jsonValueEqual(introduction.introScreens, pilotLesson.introduction.screens)) return null;
-  if (!discovery || discovery.assignmentBindings.length !== 0 || discovery.evidenceMode !== "none" || !jsonValueEqual(discovery.discoveryCards, pilotLesson.discovery.cards)) return null;
+  if (!introduction?.introScreens || introduction.introScreens.length !== 3 || introduction.answerVisibility !== "teaching" || introduction.evidenceMode !== "none") return null;
+  if (!discovery?.discoveryCards || discovery.discoveryCards.length !== 4 || discovery.assignmentBindings.length !== 0 || discovery.answerVisibility !== "teaching" || discovery.evidenceMode !== "none" || !discovery.discoveryCards.every(isDiscoveryCard)) return null;
   const prefix = (value.activities as MorphologyActivityV1[]).find((activity) => activity.type === "prefix_choice");
-  if (!prefix?.prefixChoices || prefix.prefixChoices.filter((choice) => choice.status === "target").length !== 1 || prefix.baseWord !== "tidy") {
+  if (!prefix?.prefixChoices || !prefix.prefixChoices.every(isPrefixChoice) || prefix.prefixChoices.filter((choice) => choice.status === "target").length !== 1 || prefix.baseWord !== "tidy") {
     return null;
   }
   if (prefix.prefixChoices.map((choice) => choice.text).join("|") !== "un|re|pre") return null;
   const dictation = (value.activities as MorphologyActivityV1[]).find((activity) => activity.type === "sentence_dictation");
-  if (!dictation?.sentences || dictation.sentences.length !== 4 || dictation.sentences.some((entry) => extractAuthoredTargetToken(entry.sentence, entry.targetTokenIndex) !== entry.targetWord)) {
+  if (!dictation?.sentences || dictation.sentences.length !== 4 || !dictation.sentences.every(isSentenceDictation) || dictation.sentences.some((entry, index) => entry.canonicalWordId !== lesson[index].canonicalWordId || entry.targetWord !== lesson[index].displayWord || extractAuthoredTargetToken(entry.sentence, entry.targetTokenIndex) !== entry.targetWord)) {
     return null;
   }
   const reflection = (value.activities as MorphologyActivityV1[]).find((activity) => activity.type === "reflection");
-  if (!reflection || reflection.assignmentBindings.length !== 0 || reflection.evidenceMode !== "none" || reflection.promptKey !== "word-lab-un-observation-v1" || reflection.promptText !== "What did you notice about what un- does in these words?") return null;
+  if (!reflection || reflection.assignmentBindings.length !== 0 || reflection.answerVisibility !== "post_submit" || reflection.evidenceMode !== "none" || reflection.promptKey !== "word-lab-un-observation-v1" || typeof reflection.promptText !== "string" || reflection.promptText.trim() === "") return null;
   const payload = value as unknown as MorphologyLessonPayloadV1;
   const expectedBindings = morphologyPilotBindingSpecs(payload).map((entry) => entry.binding);
   const actualBindings = payload.activities.flatMap((activity) => activity.assignmentBindings);
@@ -375,17 +386,6 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === "object" && !Array.isArray(value);
 }
 
-function jsonValueEqual(left: unknown, right: unknown): boolean {
-  if (left === right) return true;
-  if (Array.isArray(left) || Array.isArray(right)) {
-    return Array.isArray(left) && Array.isArray(right) && left.length === right.length && left.every((entry, index) => jsonValueEqual(entry, right[index]));
-  }
-  if (!isRecord(left) || !isRecord(right)) return false;
-  const leftKeys = Object.keys(left).sort();
-  const rightKeys = Object.keys(right).sort();
-  return leftKeys.length === rightKeys.length && leftKeys.every((key, index) => key === rightKeys[index] && jsonValueEqual(left[key], right[key]));
-}
-
 function isWord(value: unknown): value is MorphologyWordSnapshot {
   if (!isRecord(value) || typeof value.canonicalWordId !== "string" || typeof value.displayWord !== "string" || typeof value.audioText !== "string" || typeof value.baseMeaning !== "string" || typeof value.derivedMeaning !== "string" || (value.effect !== "not" && value.effect !== "reverse") || !Array.isArray(value.parts) || !Array.isArray(value.joins) || !Array.isArray(value.splitPoints)) return false;
   if (value.parts.length < 2 || !value.parts.every((part) => isRecord(part) && typeof part.id === "string" && typeof part.text === "string" && typeof part.sourceText === "string" && ["prefix", "base", "root", "suffix", "connector"].includes(String(part.role)) && Number.isInteger(part.start) && Number.isInteger(part.end) && Number(part.start) >= 0 && Number(part.end) > Number(part.start))) return false;
@@ -414,4 +414,16 @@ function isIntroductionScreen(value: unknown): value is MorphologyIntroductionSc
   if (value.model !== undefined && (!isRecord(value.model) || typeof value.model.prefix !== "string" || typeof value.model.base !== "string" || typeof value.model.result !== "string")) return false;
   if (value.wordCards !== undefined && (!Array.isArray(value.wordCards) || !value.wordCards.every((card) => isRecord(card) && typeof card.base === "string" && typeof card.derived === "string" && typeof card.meaning === "string"))) return false;
   return true;
+}
+
+function isDiscoveryCard(value: unknown): value is MorphologyDiscoveryCardV1 {
+  return isRecord(value) && [value.word, value.baseWord, value.baseMeaning, value.derivedMeaning, value.distractorMeaning].every((entry) => typeof entry === "string" && entry.trim() !== "");
+}
+
+function isPrefixChoice(value: unknown): value is PrefixChoiceV1 {
+  return isRecord(value) && typeof value.text === "string" && typeof value.label === "string" && (value.outcome === null || typeof value.outcome === "string") && (value.meaning === null || typeof value.meaning === "string") && ["target", "valid_alternative", "unsupported"].includes(String(value.status));
+}
+
+function isSentenceDictation(value: unknown): value is SentenceDictationV1 {
+  return isRecord(value) && typeof value.canonicalWordId === "string" && typeof value.targetWord === "string" && typeof value.sentence === "string" && Number.isInteger(value.targetTokenIndex) && Number(value.targetTokenIndex) >= 0;
 }

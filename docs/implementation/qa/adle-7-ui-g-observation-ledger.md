@@ -1,6 +1,8 @@
 # ADLE 7-UI-G observation ledger
 
-Status: corrective real-child re-run completed without adult intervention; comprehension capture and performance follow-up remain open.
+Status: corrective real-child re-run completed without adult intervention;
+comprehension capture is recorded and the durable performance follow-up is
+closed by UI-H. Optional broader device evidence remains open.
 
 Final human acceptance is executed through the
 [device/accessibility/performance proof](./adle-7-ui-g-device-accessibility-performance-proof.md)
@@ -182,6 +184,30 @@ Two disposable staging children and their private preview QA access are
 intentionally retained for that UI-H work. The preview gate remains restricted
 to those child IDs; no production child, broad allowlist or general D4_MOR
 activation is authorised.
+
+### UI-H implementation handoff — 2026-07-17
+
+UI-H adds correlation-only stage timing, parallel completed-route reward and
+reflection reads, a default-off pilot-only atomic completion RPC, and the frozen
+Word Lab v1 snapshot/resume contract. Local TypeScript, lint, production build,
+bundle and adjacent ADLE regressions pass. The rich runtime remains behind the
+existing child allowlist and invalid or mismatched payloads still fall back.
+
+Fresh staging proof is now complete. The instrumented batched path measured
+23.9ms to immediate feedback, 4.743s to the completed route and 3.281s to the
+durable server return. The accepted atomic comparison measured 27.0ms,
+2.874s and 1.545s respectively, with the transaction itself taking 238.4ms.
+This is a 39.4% completed-route improvement and a 52.9% durable-return
+improvement. The under-three-second gate passed; the 40% stretch gate missed by
+0.6 percentage points and is not represented as a pass.
+
+Both retained disposable allowlisted fixtures verified one completed header,
+16 completed items, 14 attempts (6 guided, 4 controlled, 4 dictation), one
+private reflection and four learning/taught/schedule rows. Raw dictation
+sentences were retained, and completed reload left the counts unchanged.
+Vercel Sensitive values remained write-only. The RPC is installed only on
+staging with execute permission limited to `service_role`; no fixture was
+cleaned up and no production learner data or broad activation was used.
 
 ## Refined Word Lab flow evidence
 
