@@ -30,6 +30,7 @@ COMPOUND_MEMBER_SUMS = {
     "playground_en_gb": "play + ground → playground",
     "sunshine_en_gb": "sun + shine → sunshine",
 }
+ORPHAN_REFERENCE_KEYS = {"nature_natural_en_gb", "tall_taller_tallest_en_gb"}
 
 
 def read_csv(name: str) -> tuple[list[str], list[dict[str, str]]]:
@@ -112,6 +113,13 @@ def main() -> int:
     member_headers, members = read_csv("base_word_family_members.csv")
     _, canonical_words = read_csv("canonical_words.csv")
     display_by_key = {row["word_key"]: row["display_word"] for row in canonical_words}
+
+    orphan_rows_removed = 0
+    for file_name in ("canonical_word_metadata.csv", "micro_skill_word_support.csv"):
+        headers, rows = read_csv(file_name)
+        retained_rows = [row for row in rows if row.get("word_key") not in ORPHAN_REFERENCE_KEYS]
+        orphan_rows_removed += len(rows) - len(retained_rows)
+        write_csv(file_name, headers, retained_rows)
     if "etymology_route" not in family_headers:
         family_headers.insert(family_headers.index("source_category"), "etymology_route")
 
@@ -166,6 +174,11 @@ def main() -> int:
         "",
         *[f"- `{key}` — true compound `{word_sum}`." for key, word_sum in COMPOUND_MEMBER_SUMS.items()],
         "",
+        "## Orphaned source rows removed",
+        "",
+        "- `nature_natural_en_gb` from canonical word metadata and micro-skill support.",
+        "- `tall_taller_tallest_en_gb` from canonical word metadata and micro-skill support.",
+        "",
         "## Five-word composition candidates",
         "",
         "A candidate needs at least two possible authentic targets and three transfer members. Human review must approve every route, word sum, sentence, and age/safeguarding decision before use.",
@@ -202,7 +215,7 @@ def main() -> int:
         "- Review every controlled dictation prompt, audio text, token index, age suitability, safeguarding, and UK-English usage.",
     ])
     REVIEW_REPORT.write_text("\n".join(report) + "\n", encoding="utf-8")
-    print(f"Retained {len(retained)} members; removed {len(excluded)} compound members; {len(ready)} five-word candidates.")
+    print(f"Retained {len(retained)} members; removed {len(excluded)} compound members in this run; removed {orphan_rows_removed} orphaned source rows; {len(ready)} five-word candidates.")
     return 0
 
 

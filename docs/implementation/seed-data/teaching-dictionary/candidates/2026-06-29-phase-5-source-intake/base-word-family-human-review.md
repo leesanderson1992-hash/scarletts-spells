@@ -9,6 +9,11 @@ All rows remain `ai_assisted_draft` and `in_review`. `assignment_eligible=TRUE` 
 - `playground_en_gb` — true compound `play + ground → playground`.
 - `sunshine_en_gb` — true compound `sun + shine → sunshine`.
 
+## Orphaned source rows removed
+
+- `nature_natural_en_gb` from canonical word metadata and micro-skill support.
+- `tall_taller_tallest_en_gb` from canonical word metadata and micro-skill support.
+
 ## Five-word composition candidates
 
 A candidate needs at least two possible authentic targets and three transfer members. Human review must approve every route, word sum, sentence, and age/safeguarding decision before use.
