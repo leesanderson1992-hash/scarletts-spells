@@ -205,9 +205,16 @@ Both retained disposable allowlisted fixtures verified one completed header,
 16 completed items, 14 attempts (6 guided, 4 controlled, 4 dictation), one
 private reflection and four learning/taught/schedule rows. Raw dictation
 sentences were retained, and completed reload left the counts unchanged.
-Vercel Sensitive values remained write-only. The RPC is installed only on
+Vercel Sensitive values remained write-only. The RPC was first installed on
 staging with execute permission limited to `service_role`; no fixture was
 cleaned up and no production learner data or broad activation was used.
+
+### UI-H production database release — 2026-07-17
+
+The same service-role-only RPC is now installed on production as the unique
+ledgered migration `20260717120000`. Runtime switches remain disabled and the
+Word Lab remains allowlist-gated; no production learner data was read or
+changed during the release.
 
 ## Refined Word Lab flow evidence
 

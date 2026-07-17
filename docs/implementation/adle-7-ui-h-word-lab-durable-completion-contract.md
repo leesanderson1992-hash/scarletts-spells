@@ -1,8 +1,9 @@
 # ADLE 7-UI-H Word Lab durable completion and v1 contract
 
 Status: implementation and database-backed guarded-staging proof complete. The
-feature remains explicitly child-allowlisted and both the pilot and atomic
-completion switches default to disabled.
+service-role RPC is installed on production; the feature remains explicitly
+child-allowlisted and both the pilot and atomic completion switches default to
+disabled.
 
 ## Durable completion boundary
 
@@ -75,3 +76,10 @@ Database verification before and after completed reload retained
 dictation sentences. This is a 39.4% route improvement: material and under
 three seconds, while honestly 0.6 percentage points short of the 40% stretch
 gate.
+
+Production migration record, 2026-07-17: unique ledger version
+`20260717120000` contains the three reviewed statements. The function is
+`SECURITY DEFINER` with `search_path = public, pg_temp`; `service_role` has
+execute permission and `anon`/`authenticated` do not. This installed only the
+dormant database boundary: it did not deploy application code, enable either
+runtime switch, alter the allowlist, or read/change production learner data.

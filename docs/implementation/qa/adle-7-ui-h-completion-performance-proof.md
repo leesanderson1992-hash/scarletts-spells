@@ -109,3 +109,16 @@ normal completion redirect. This can display the current-date completed route
 after an unused-date QA completion, although the submitted assignment ID and
 database rows are correct. Production learner navigation does not use this QA
 override; changing redirect semantics is outside UI-H.
+
+## Production migration record — 2026-07-17
+
+After the local UI-H commit `87d304a`, production project
+`wwohrqtunajrbwxyssjf` passed the ledger preflight: version `20260717120000`
+was absent and the RPC did not exist. The three reviewed migration statements
+and one matching three-statement ledger entry were then applied in one SQL
+transaction. Post-release verification returned exactly one ledger row,
+`SECURITY DEFINER=true`, controlled search path, `service_role_execute=true`,
+`authenticated_execute=false`, `anon_execute=false`, and both fail-closed
+attempt-binding and final 6/4/4 checks present. No application deployment,
+feature activation, allowlist change, production learner query or production
+learner write occurred.
