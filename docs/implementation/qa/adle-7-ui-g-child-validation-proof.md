@@ -1,6 +1,6 @@
 # ADLE 7-UI-G genuine-child validation proof
 
-Status: child understanding and unaided completion passed; the final Finish-performance and pull-cover engineering retest remains open.
+Status: child understanding and unaided completion passed; UI-H completed the Finish-performance and pull-cover engineering retest. Owner confirmation on 2026-07-17 accepts the prior production-child session as formal rollout evidence.
 
 This form is for one first-time, intended-age learner. It closes
 `7UI-PROOF-D4-MOR-CHILD` only when the learner completes the lesson unaided and
@@ -147,9 +147,9 @@ Use these severity rules:
 
 | Final field | Record |
 |---|---|
-| Child proof decision | Pass for unaided completion and comprehension. The final engineering retest remains open for Finish latency and the pull-cover amendment. |
-| Blocking issues | No adult intervention. Finish showed immediate pending feedback, but the completed page took about 10 seconds; optimisation is implemented but must be remeasured. |
-| Observer / date | Pending |
+| Child proof decision | Pass for unaided completion and comprehension. UI-H completed the Finish-performance and pull-cover engineering retest; owner confirmation accepts the prior production-child session as formal rollout evidence. |
+| Blocking issues | Closed for the current-child rollout: UI-H measured the atomic route at 2.874s and pull-cover passed manual child review. Optional broader device/accessibility evidence remains open. |
+| Observer / date | Owner confirmation recorded 2026-07-17; no child identity or response is retained here. |
 
-Do not change the proof register from `not_started` until the observation and
-database cleanup both pass.
+The proof register may record this vertical as accepted for the current-child
+Word Lab rollout. It does not make remaining D4_MOR skills generally active.

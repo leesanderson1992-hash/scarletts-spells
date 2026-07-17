@@ -13,9 +13,10 @@ uses Mac Safari and controlled Chrome
 desktop/phone/tablet modes. Native Windows, Android, iOS and screen-reader runs
 are optional rather than closure requirements.
 
-Owner status (2026-07-14): current Word Lab preview accepted. This records
-owner validation of the vertical experience, but does not replace the pending
-genuine-child proof.
+Owner status: the Word Lab preview was accepted on 2026-07-14. On 2026-07-17
+the owner confirmed the prior production-child session as the formal
+genuine-child acceptance evidence; UI-H closed the listed Finish-performance
+and pull-cover engineering follow-up.
 
 Engineering status (updated 2026-07-15): automated gates, authenticated real-route
 completion, accessibility-tree inspection, responsive-layout inspection,
@@ -104,7 +105,7 @@ final sign-off record. Automated checks do not replace this observation.
 | Refreshed-preview target retest | Pass at `f580e91`; desktop and mobile mode links plus Back-to-week measured exactly 44px high |
 | Staging migration verification | 24 migrations recorded; UI-G dictionary/attempt/reflection/RPC schema present; local-only 873-word backfill intentionally not marked applied |
 | Chrome console errors | Pass for application; only third-party Grammarly extension warnings were present |
-| Final acceptance proof templates | Device/accessibility/bundle proof recorded; child result pending; touch, Web Vitals, 200% zoom and OS reduced-motion execution are optional |
+| Final acceptance proof templates | Device/accessibility/bundle proof recorded; child acceptance is now recorded; touch, Web Vitals, 200% zoom and OS reduced-motion execution are optional |
 | Post-completion assignment header/items | Pass; 1 / 16 completed |
 | Post-completion attempt events | Pass; 14 total (6 guided, 4 controlled, 4 dictation) |
 | Post-completion learning/taught/schedule rows | Pass; 4 / 4 / 4 |
@@ -156,12 +157,12 @@ also reported that the brief held-correct Split sparkles did not affect the
 activity, and that immediate Finish feedback appeared, although the completed
 page still took about ten seconds.
 
-The pending corrective patch makes Split sparkles a 700ms impact effect only,
+The completed corrective patch makes Split sparkles a 700ms impact effect only,
 changes Cover Check into a pull-down screen while retaining its button and
 keyboard path, gives Finish immediate pending feedback, and parallelises
 attempt, scheduling, learning-item and reward work. Narration is intentionally
-held at the clearer built-in voice for the MVP. One final deployed engineering
-retest must measure the Finish path and validate the pull-cover interaction.
+held at the clearer built-in voice for the MVP. UI-H subsequently measured the
+Finish path and validated the pull-cover interaction.
 
 ## Finish performance follow-up — 2026-07-16
 
@@ -181,9 +182,9 @@ fresh authenticated timing run. Its acceptance requires preserving the
 Finish-to-completed-screen and durable-save timings.
 
 Two disposable staging children and their private preview QA access are
-intentionally retained for that UI-H work. The preview gate remains restricted
-to those child IDs; no production child, broad allowlist or general D4_MOR
-activation is authorised.
+intentionally retained for UI-H evidence. At this staging-proof point the
+preview gate was restricted to those child IDs; the later current-child
+production rollout is recorded below and does not activate general D4_MOR.
 
 ### UI-H implementation handoff — 2026-07-17
 
@@ -212,9 +213,18 @@ cleaned up and no production learner data or broad activation was used.
 ### UI-H production database release — 2026-07-17
 
 The same service-role-only RPC is now installed on production as the unique
-ledgered migration `20260717120000`. Runtime switches remain disabled and the
-Word Lab remains allowlist-gated; no production learner data was read or
-changed during the release.
+ledgered migration `20260717120000`. The migration itself left runtime switches
+disabled. The later current-child rollout enabled the two tested switches in
+Production only while retaining the Word Lab allowlist boundary.
+
+### Current-child production rollout — 2026-07-17
+
+Owner approval enabled the Word Lab and atomic-completion switches for a
+private, duplicate-free snapshot of the 13 children current on the rollout date
+(snapshot digest `a7a1d5a4632f`). The snapshot is not stored in this repository,
+future children are excluded, and Word Lab still requires an explicit valid v1
+assignment snapshot. The production configuration check created no learner
+assignment, attempt, reflection, evidence, reward, schedule or completion row.
 
 ## Refined Word Lab flow evidence
 
@@ -257,8 +267,8 @@ The Safari and Chrome desktop runs now verify complete authenticated operation,
 keyboard activation, semantic accessibility-tree output, focus transfer,
 answer-safe recall, private reflection persistence and idempotent completion.
 Chrome responsive phone/tablet layouts also pass overflow and 44×44 target-size
-inspection. The genuine-child proof must be rerun after the corrective
-amendments, including the reviewed narration clips, before UI-G can close.
+inspection. The accepted prior production-child proof plus the completed UI-H
+engineering retest closes this vertical for the current-child Word Lab rollout.
 Actual touch-event execution, production-preview Web Vitals, browser 200% zoom
 and operating-system reduced-motion execution are optional UI-H follow-up
 evidence. VoiceOver and other

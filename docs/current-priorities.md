@@ -2,7 +2,7 @@
 
 ## Current ADLE 7-UI Priority
 
-Current ADLE priority: `PR 7-UI-H durable completion closeout and guarded rollout decision`.
+Current ADLE priority: `PR 7-UI-H current-child rollout observation and remaining-category planning`.
 
 PRs 7-UI-A through 7-UI-F established the programme documentation, activity
 registry, approved D4_MOR source package and reusable morphology primitives.
@@ -26,17 +26,22 @@ faster. The database contract remained `1 / 16 / 14 / 1 / 4 / 4 / 4` before
 and after completed reload, with the 6/4/4 attempt split and raw dictation
 sentences retained. This is a material guarded-pilot performance pass, but the
 40% stretch gate missed by 0.6 percentage points and is recorded as such.
-The service-role-only RPC is now installed on production as a migration-only
-schema release; the Preview switch remains branch-scoped and production runtime
-activation remains disabled. No production learner records were queried or
-changed. True touch-event execution, controlled production-preview
+The service-role-only RPC is now installed on production. Following owner
+approval and acceptance of the prior production-child proof, the Word Lab and
+atomic-completion switches were enabled in Production only for a private,
+duplicate-free snapshot of the 13 children current on 2026-07-17 (snapshot
+digest `a7a1d5a4632f`). Future children are not automatically included, and
+Word Lab still requires an explicitly generated valid v1 assignment snapshot.
+The rollout configuration read only child identifiers; no learner assignment,
+attempt, reflection, evidence, reward or schedule data was read or written.
+True touch-event execution, controlled production-preview
 Web Vitals, browser 200% zoom, operating-system reduced-motion execution,
 native Windows/Android/iOS and screen-reader checks are optional UI-H rollout
 evidence.
-The next safe step is a separately authorised production application rollout:
-it must not enable either feature switch, alter the child allowlist or
-bulk-activate D4_MOR. Application activation remains a separate guarded pilot
-decision.
+The application was redeployed from the approved production release with the
+new configuration on 2026-07-17. `/login` returned `200` and an unauthenticated
+unknown-child ADLE route returned the expected `307` to `/login`. The rollout
+does not bulk-activate D4_MOR or alter generic lessons.
 
 Authoritative links:
 

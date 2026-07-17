@@ -15,7 +15,7 @@ Shared architecture is reused, while each micro-skill still receives an intentio
 
 ## Current Status
 
-Status: `7-UI-H guarded staging proof complete; atomic route 39.4% faster with durable contract verified; production database RPC installed with runtime activation disabled`.
+Status: `7-UI-H complete; atomic route 39.4% faster with durable contract verified; production current-child Word Lab rollout live`.
 
 The 7S reflection recall-gate live/manual proof is recorded in the proof register. PR 7-UI-B added the typed activity-template registry foundation. PR 7-UI-C generated structurally reconciled D4_MOR category-v1 candidate source artifacts under `docs/implementation/seed-data/adle-7-ui/generated/d4-mor-category-v1/`. PR 7-UI-D records human approval for the D4_MOR category-v1 content/schema candidate under `docs/implementation/seed-data/adle-7-ui/review/d4-mor-human-review-pack/`. PR 7-UI-E freezes that approved candidate plus the approval record into the immutable approved source package under `data/adle/approved/d4-mor/v1/`. PR 7-UI-F adds the reusable D4_MOR primitive/view-model layer. PR 7-UI-G implements the guarded `D4_MOR_PREFIXES_UN` Word Lab, including atomic assignment persistence, private reflections, strict payload/resume validation and authenticated engineering QA recorded in `docs/implementation/qa/adle-7-ui-g-observation-ledger.md`.
 
@@ -88,10 +88,12 @@ Only one category should normally be the active implementation focus at a time.
 First vertical proof candidate: `D4_MOR_PREFIXES_UN`.
 
 Current `D4_MOR_PREFIXES_UN` readiness:
-`gated_vertical_pilot_engineering_complete_human_proof_pending`. Human
-content/schema and owner approval are recorded. The guarded assignment payload,
-rich child runtime, fallback, persistence and authenticated engineering proof
-are complete. General activation remains blocked on genuine-child proof. The
+`current-child_word_lab_rollout_live`. Human content/schema and owner approval,
+including the accepted prior production-child validation, are recorded. The
+guarded assignment payload, rich child runtime, fallback, persistence and
+authenticated engineering proof are complete. The rollout remains restricted
+to a private snapshot of the 13 children current on 2026-07-17; it does not
+automatically include future children or activate the remaining D4_MOR skills. The
 agreed Mac Safari/Chrome accessibility matrix and bundle/lazy-loading proof are
 recorded. True touch-event execution, controlled Web Vitals, native Windows,
 Android, iOS and screen-reader runs are optional UI-H rollout coverage.
@@ -108,9 +110,16 @@ Production migration completed on 2026-07-17 against
 `wwohrqtunajrbwxyssjf`: ledger version `20260717120000` contains the three
 reviewed statements and the RPC is `SECURITY DEFINER`, search-path constrained
 and executable only by `service_role`. No production learner data was queried
-or changed. Both runtime switches remain disabled; pilot application activation
-is a separate decision after a guarded application rollout and smoke
-verification.
+or changed. The dormant application rollout from `dae5b49` is live at
+`https://scarletts-spells.vercel.app`; unauthenticated login and ADLE redirect
+smoke passed. Owner approval then enabled the two tested runtime switches in
+Production only and added a private, duplicate-free 13-child snapshot allowlist
+(digest `a7a1d5a4632f`) on 2026-07-17. Vercel redeployment
+`H8xr7f8DeFpmLSXAWx5aSEkKsm1c` is Ready at
+`https://scarletts-spells-pdo99u8yg-leesanderson1992-hashs-projects.vercel.app`.
+No assignment, attempt, reflection, reward or other learner completion data was
+created for the rollout check. The explicit valid Word Lab assignment snapshot
+is still required, so generic ADLE and all other D4_MOR skills remain unchanged.
 
 After proof and contract freeze, finish morphology in coherent groups:
 

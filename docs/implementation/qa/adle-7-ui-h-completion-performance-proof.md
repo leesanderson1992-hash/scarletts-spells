@@ -122,3 +122,40 @@ transaction. Post-release verification returned exactly one ledger row,
 attempt-binding and final 6/4/4 checks present. No application deployment,
 feature activation, allowlist change, production learner query or production
 learner write occurred.
+
+## Dormant production application rollout — 2026-07-17
+
+Commit `dae5b49` was deployed from an isolated checkout, excluding unrelated
+working-tree files. Vercel production deployment `dpl_8fiQ3CjNbJdDjSxPY6LPuPh4GTVg`
+is Ready at [scarletts-spells.vercel.app](https://scarletts-spells.vercel.app)
+(deployment URL:
+`https://scarletts-spells-miw0vdlka-leesanderson1992-hashs-projects.vercel.app`).
+Unauthenticated smoke returned `200` for `/login` and the expected `307` to
+`/login` for `/learn/week/adle`. Production configuration contains neither
+`ADLE_MORPHOLOGY_UN_PILOT_ENABLED` nor
+`ADLE_WORD_LAB_ATOMIC_COMPLETION_ENABLED`, so the Word Lab remains
+unreachable. No allowlisted pilot was enabled and no production learner data
+was accessed.
+
+## Current-child production rollout — 2026-07-17
+
+The owner confirmed that the prior production-child Word Lab session is the
+formal genuine-child acceptance evidence. The stale roadmap gate was therefore
+closed without recording any child identity, response or reflection.
+
+The production `children` table was queried only for IDs to produce a private,
+duplicate-free snapshot allowlist: 13 current children, snapshot digest
+`a7a1d5a4632f`. The following Vercel Production-only variables were then added:
+`ADLE_MORPHOLOGY_UN_PILOT_CHILD_IDS`,
+`ADLE_MORPHOLOGY_UN_PILOT_ENABLED=enabled`, and
+`ADLE_WORD_LAB_ATOMIC_COMPLETION_ENABLED=enabled`. No Preview or future-child
+access was added.
+
+Vercel redeployed the already-approved production release as
+`H8xr7f8DeFpmLSXAWx5aSEkKsm1c`, Ready at
+`https://scarletts-spells-pdo99u8yg-leesanderson1992-hashs-projects.vercel.app`.
+The normal `/login` route returned `200`; an unauthenticated unknown-child ADLE
+route returned the expected `307` to `/login`. No learner assignment, attempt,
+reflection, evidence, reward, schedule or completion row was created by this
+configuration proof. Word Lab remains explicit-assignment-only and the rest of
+D4_MOR remains inactive.
