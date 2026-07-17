@@ -7,6 +7,7 @@ const migrationPath =
   "supabase/migrations/20260628120000_add_word_treasure_free_writing_evidence.sql";
 const freeWritingEvidencePath = "lib/rewards/free-writing-evidence.ts";
 const learnActionsPath = "app/learn/actions.ts";
+const submissionProcessorPath = "lib/courses/submission-processing.ts";
 const reviewDetailPath = "app/courses/review/[submissionId]/page.tsx";
 const reviewCompletionActionsPath =
   "app/courses/review/actions/review-completion-actions.ts";
@@ -15,6 +16,7 @@ const taskPagePath = "app/learn/modules/[moduleId]/tasks/[taskId]/page.tsx";
 const migration = readFileSync(migrationPath, "utf8");
 const freeWritingEvidence = readFileSync(freeWritingEvidencePath, "utf8");
 const learnActions = readFileSync(learnActionsPath, "utf8");
+const submissionProcessor = readFileSync(submissionProcessorPath, "utf8");
 const reviewDetail = readFileSync(reviewDetailPath, "utf8");
 const reviewCompletionActions = readFileSync(reviewCompletionActionsPath, "utf8");
 const taskPage = readFileSync(taskPagePath, "utf8");
@@ -112,19 +114,19 @@ assert.match(
   "Review Work detail must not hard-fail when the optional suspected-evidence table has not reached the hosted schema yet.",
 );
 assert.match(
-  learnActions,
+  submissionProcessor,
   /detectAndStoreFreeWritingEvidenceCandidates\(/,
-  "Lesson/test submission must store suspected evidence candidates.",
+  "Background lesson/test processing must store suspected evidence candidates.",
 );
 assert.match(
   learnActions,
-  /countConfirmedFreeWritingGoldBarsForSubmission\(/,
-  "Returned-work popup must read confirmed Gold Bars from the prior reviewed submission.",
+  /after\(async \(\) =>[\s\S]*processTaskSubmission/,
+  "Evidence processing must not delay the child submission redirect.",
 );
 assert.match(
-  learnActions,
-  /returnedCorrectionAttemptCount > 0\s*\?\s*undefined\s*:\s*suspectedGoldenBarCount/,
-  "Retried spelling correction popups must not surface new suspected Gold Bars.",
+  submissionProcessor,
+  /writingSampleId[\s\S]*detectAndStoreFreeWritingEvidenceCandidates/,
+  "Evidence candidates must retain their writing-sample link when one exists.",
 );
 assert.match(
   reviewDetail,
@@ -143,21 +145,11 @@ assert.match(
 );
 assert.match(
   taskPage,
-  /label: "Gold Bars estimated:"[\s\S]*suspectedGoldenBars/,
-  "Child popup may show suspected Gold Bars as estimates.",
-);
-assert.match(
-  taskPage,
-  /label: "Gold Bars confirmed:"[\s\S]*confirmedGoldenBars/,
-  "Returned-work popup must be able to show parent-confirmed Gold Bars.",
-);
-assert.match(
-  taskPage,
-  /Gold Coins are estimates; confirmed Gold Bars have already been checked by your parent\./,
-  "Popup copy must distinguish confirmed Gold Bars from estimated Gold Coins.",
+  /Submitted[\s\S]*Your work is saved[\s\S]*waiting for a grown-up to review/,
+  "The child must see durable success while evidence processing continues in the background.",
 );
 
-for (const source of [learnActions, reviewCompletionActions, freeWritingEvidence]) {
+for (const source of [learnActions, submissionProcessor, reviewCompletionActions, freeWritingEvidence]) {
   assert.doesNotMatch(
     source,
     /syncSpellingRewardState|\.from\("spelling_reward_states"\)\s*\.\s*(insert|update|upsert|delete)|\.from\("spelling_reward_events"\)\s*\.\s*(insert|update|upsert|delete)/,

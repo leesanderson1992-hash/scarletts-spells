@@ -6,11 +6,14 @@ const reviewCompletionPath =
 const learnActionsPath = "app/learn/actions.ts";
 const taskPagePath = "app/learn/modules/[moduleId]/tasks/[taskId]/page.tsx";
 const reviewPagePath = "app/courses/review/[submissionId]/page.tsx";
+const atomicSubmissionMigrationPath =
+  "supabase/migrations/20260717153000_add_idempotent_course_task_submission.sql";
 
 const reviewCompletion = readFileSync(reviewCompletionPath, "utf8");
 const learnActions = readFileSync(learnActionsPath, "utf8");
 const taskPage = readFileSync(taskPagePath, "utf8");
 const reviewPage = readFileSync(reviewPagePath, "utf8");
+const atomicSubmissionMigration = readFileSync(atomicSubmissionMigrationPath, "utf8");
 
 const approveStart = reviewCompletion.indexOf(
   "export async function approveSubmissionReviewImpl",
@@ -113,8 +116,13 @@ assert.match(
 );
 assert.match(
   learnActions,
-  /persistStructuredSubmissionPayload\(/,
-  "Submit persistence must remain in the existing submit path.",
+  /submit_course_task_response_once/,
+  "Submit persistence must use the duplicate-proof atomic boundary.",
+);
+assert.match(
+  atomicSubmissionMigration,
+  /insert into public\.task_submission_payloads[\s\S]*insert into public\.task_completions[\s\S]*insert into public\.task_submission_processing_jobs/,
+  "Submitted payload, task completion, and processing outbox must commit with the submission.",
 );
 assert.doesNotMatch(
   learnActions,

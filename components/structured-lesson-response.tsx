@@ -4,8 +4,13 @@ import { useEffect, useMemo, useRef, useState } from "react";
 
 import { ReturnedIssueRetryControls } from "@/components/returned-issue-retry-controls";
 import {
+  LessonSubmissionControls,
+  readPreservedSubmissionValue,
+} from "@/components/lesson-submission-controls";
+import {
   buildStructuredLessonCapture,
   getChildSafeReturnedIssueNote,
+  getStructuredLessonResponseFromPayload,
 } from "@/lib/lessons/responses";
 import type { ReturnedWritingIssueDraftPayload } from "@/lib/lessons/responses";
 import {
@@ -34,8 +39,11 @@ type StructuredLessonResponseProps = {
   initialFieldFeedback?: FeedbackMap;
   returnedIssueFeedback?: ReturnedWritingIssueDraftPayload[];
   saveDraftAction: (formData: FormData) => void | Promise<void>;
-  saveDraftSilentlyAction?: (formData: FormData) => Promise<{ ok: boolean; error?: string }>;
+  saveDraftSilentlyAction?: (
+    formData: FormData,
+  ) => Promise<{ ok: boolean; error?: string }>;
   draftContext: DraftContext;
+  readOnly?: boolean;
 };
 
 type AnswerMap = Record<string, StructuredLessonAnswerValue>;
@@ -86,7 +94,9 @@ function getChoiceValue(answerMap: AnswerMap, blockId: string) {
 
 function getChoiceValues(answerMap: AnswerMap, blockId: string) {
   const value = answerMap[blockId];
-  return Array.isArray(value) ? value.filter((item): item is string => typeof item === "string") : [];
+  return Array.isArray(value)
+    ? value.filter((item): item is string => typeof item === "string")
+    : [];
 }
 
 function getTableRows(answerMap: AnswerMap, block: LessonTableQuestionBlock) {
@@ -104,18 +114,25 @@ function getTableRows(answerMap: AnswerMap, block: LessonTableQuestionBlock) {
     return Object.fromEntries(
       block.columns.map((column) => [
         column.column_id,
-        typeof safeRow[column.column_id] === "string" ? safeRow[column.column_id] : "",
+        typeof safeRow[column.column_id] === "string"
+          ? safeRow[column.column_id]
+          : "",
       ]),
     );
   });
 }
 
-function getInterviewRows(answerMap: AnswerMap, block: LessonRepeatableInterviewBlock) {
+function getInterviewRows(
+  answerMap: AnswerMap,
+  block: LessonRepeatableInterviewBlock,
+) {
   const value = answerMap[block.block_id];
 
   if (!Array.isArray(value)) {
     return Array.from({ length: block.repeat_count }, () =>
-      Object.fromEntries(block.questions.map((question) => [question.question_id, ""])),
+      Object.fromEntries(
+        block.questions.map((question) => [question.question_id, ""]),
+      ),
     ) as Array<Record<string, string>>;
   }
 
@@ -133,21 +150,29 @@ function getInterviewRows(answerMap: AnswerMap, block: LessonRepeatableInterview
   });
 }
 
-function getQuizValue(answerMap: AnswerMap, block: LessonComprehensionQuizGroupBlock): StructuredLessonQuizAnswerValue {
+function getQuizValue(
+  answerMap: AnswerMap,
+  block: LessonComprehensionQuizGroupBlock,
+): StructuredLessonQuizAnswerValue {
   const value = answerMap[block.block_id];
 
   if (isPlainObject(value)) {
     const selectedAnswers = isPlainObject(value.selected_answers)
       ? Object.fromEntries(
-          Object.entries(value.selected_answers).flatMap(([questionId, selectedValue]) =>
-            typeof selectedValue === "string" ? [[questionId, selectedValue] as const] : [],
+          Object.entries(value.selected_answers).flatMap(
+            ([questionId, selectedValue]) =>
+              typeof selectedValue === "string"
+                ? [[questionId, selectedValue] as const]
+                : [],
           ),
         )
       : {};
 
     const score = typeof value.score === "number" ? value.score : 0;
     const totalQuestions =
-      typeof value.total_questions === "number" ? value.total_questions : block.questions.length;
+      typeof value.total_questions === "number"
+        ? value.total_questions
+        : block.questions.length;
     const percentage =
       typeof value.percentage === "number"
         ? value.percentage
@@ -159,8 +184,11 @@ function getQuizValue(answerMap: AnswerMap, block: LessonComprehensionQuizGroupB
       selected_answers: selectedAnswers,
       correctness_by_question: isPlainObject(value.correctness_by_question)
         ? Object.fromEntries(
-            Object.entries(value.correctness_by_question).flatMap(([questionId, isCorrect]) =>
-              typeof isCorrect === "boolean" ? [[questionId, isCorrect] as const] : [],
+            Object.entries(value.correctness_by_question).flatMap(
+              ([questionId, isCorrect]) =>
+                typeof isCorrect === "boolean"
+                  ? [[questionId, isCorrect] as const]
+                  : [],
             ),
           )
         : {},
@@ -198,7 +226,8 @@ function buildQuizValue(
   );
   const score = Object.values(correctnessByQuestion).filter(Boolean).length;
   const totalQuestions = block.questions.length;
-  const percentage = totalQuestions > 0 ? Math.round((score / totalQuestions) * 100) : 0;
+  const percentage =
+    totalQuestions > 0 ? Math.round((score / totalQuestions) * 100) : 0;
 
   return {
     selected_answers: selectedAnswers,
@@ -236,7 +265,9 @@ function saveIndicatorClasses(saveState: SaveState) {
   }
 }
 
-function understandingBandLabel(band: StructuredLessonQuizAnswerValue["understanding_band"]) {
+function understandingBandLabel(
+  band: StructuredLessonQuizAnswerValue["understanding_band"],
+) {
   switch (band) {
     case "secure":
       return "Secure";
@@ -256,15 +287,22 @@ export function StructuredLessonResponse({
   saveDraftAction,
   saveDraftSilentlyAction,
   draftContext,
+  readOnly = false,
 }: StructuredLessonResponseProps) {
-  const [answerMap, setAnswerMap] = useState<AnswerMap>(() => getInitialAnswerMap(initialResponse));
+  const [answerMap, setAnswerMap] = useState<AnswerMap>(() =>
+    getInitialAnswerMap(initialResponse),
+  );
   const [feedbackMap] = useState<FeedbackMap>(() => ({
     ...getInitialFeedbackMap(initialResponse),
     ...(initialFieldFeedback ?? {}),
   }));
   const [saveState, setSaveState] = useState<SaveState>("idle");
-  const [saveMessage, setSaveMessage] = useState("Autosave keeps each answer safe.");
-  const [questionChecks, setQuestionChecks] = useState<Record<string, boolean>>({});
+  const [saveMessage, setSaveMessage] = useState(
+    "Autosave keeps each answer safe.",
+  );
+  const [questionChecks, setQuestionChecks] = useState<Record<string, boolean>>(
+    {},
+  );
   const submissionRef = useRef<HTMLInputElement | null>(null);
   const reviewSummaryRef = useRef<HTMLInputElement | null>(null);
   const draftPayloadRef = useRef<HTMLInputElement | null>(null);
@@ -311,6 +349,30 @@ export function StructuredLessonResponse({
     [returnedIssueFeedback, returnedIssueInlineKeys],
   );
   const isReturnedForReview = initialResponse?.status === "returned";
+
+  useEffect(() => {
+    if (readOnly || !new URLSearchParams(window.location.search).has("error"))
+      return;
+    const preservedPayload = readPreservedSubmissionValue(
+      draftContext.taskId,
+      draftContext.childId,
+      "draft_payload",
+    );
+    if (!preservedPayload) return;
+    try {
+      const response = getStructuredLessonResponseFromPayload(
+        JSON.parse(preservedPayload),
+      );
+      if (response) {
+        const frame = window.requestAnimationFrame(() => {
+          setAnswerMap(getInitialAnswerMap(response));
+        });
+        return () => window.cancelAnimationFrame(frame);
+      }
+    } catch {
+      // The server-side draft remains the fallback for malformed local recovery data.
+    }
+  }, [draftContext.childId, draftContext.taskId, readOnly]);
 
   useEffect(() => {
     saveDraftSilentlyActionRef.current = saveDraftSilentlyAction;
@@ -387,7 +449,11 @@ export function StructuredLessonResponse({
   );
 
   function captureResponse() {
-    if (!submissionRef.current || !reviewSummaryRef.current || !draftPayloadRef.current) {
+    if (
+      !submissionRef.current ||
+      !reviewSummaryRef.current ||
+      !draftPayloadRef.current
+    ) {
       return true;
     }
 
@@ -399,7 +465,7 @@ export function StructuredLessonResponse({
   }
 
   useEffect(() => {
-    if (!saveDraftSilentlyActionRef.current) {
+    if (readOnly || !saveDraftSilentlyActionRef.current) {
       return;
     }
 
@@ -459,9 +525,11 @@ export function StructuredLessonResponse({
     draftContext.courseId,
     draftContext.redirectPath,
     draftContext.taskId,
+    readOnly,
   ]);
 
   function renderSaveStatus(blockId: string) {
+    if (readOnly) return null;
     const feedback = feedbackMap[blockId];
 
     return (
@@ -487,15 +555,20 @@ export function StructuredLessonResponse({
   }
 
   function renderQuestionCheck(checkKey: string) {
+    if (readOnly) return null;
     return (
       <label className="mt-3 inline-flex max-w-full items-start gap-3 rounded-2xl border border-[var(--border)] bg-[rgba(255,247,220,0.35)] px-3 py-2 text-sm text-[color:var(--ink)]">
         <input
           type="checkbox"
           checked={Boolean(questionChecks[checkKey])}
-          onChange={(event) => toggleQuestionCheck(checkKey, event.target.checked)}
+          onChange={(event) =>
+            toggleQuestionCheck(checkKey, event.target.checked)
+          }
           className="mt-1 h-4 w-4 rounded border-[var(--border)] text-[var(--scarlett)]"
         />
-        <span className="min-w-0 break-words">I checked this for read aloud, spelling, and punctuation.</span>
+        <span className="min-w-0 break-words">
+          I checked this for read aloud, spelling, and punctuation.
+        </span>
       </label>
     );
   }
@@ -534,7 +607,9 @@ export function StructuredLessonResponse({
               <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-amber-700">
                 {label}
               </p>
-              {childNote ? <p className="min-w-0 break-words">{childNote}</p> : null}
+              {childNote ? (
+                <p className="min-w-0 break-words">{childNote}</p>
+              ) : null}
               {issue.observed_text ? (
                 <p className="min-w-0 break-words text-sm text-amber-900/90">
                   Look at:{" "}
@@ -617,7 +692,9 @@ export function StructuredLessonResponse({
       case "section_intro":
         return (
           <div className="grid justify-items-center gap-2 text-center">
-            {block.eyebrow ? <p className="brand-eyebrow">{block.eyebrow}</p> : null}
+            {block.eyebrow ? (
+              <p className="brand-eyebrow">{block.eyebrow}</p>
+            ) : null}
             <h3 className="brand-lesson-title text-[clamp(1.4rem,3vw,2rem)] font-semibold">
               {block.title}
             </h3>
@@ -637,7 +714,9 @@ export function StructuredLessonResponse({
         );
       case "callout":
         return (
-          <div className={`rounded-[1.75rem] border px-4 py-4 ${toneClasses(block.tone)}`}>
+          <div
+            className={`rounded-[1.75rem] border px-4 py-4 ${toneClasses(block.tone)}`}
+          >
             {block.title ? (
               <p className="text-sm font-semibold">{block.title}</p>
             ) : null}
@@ -673,7 +752,7 @@ export function StructuredLessonResponse({
               : "md:grid-cols-2";
 
         return (
-            <div className="overflow-hidden rounded-[1.75rem] border border-[var(--border)] bg-white">
+          <div className="overflow-hidden rounded-[1.75rem] border border-[var(--border)] bg-white">
             <div className="border-b border-[var(--border)] bg-[rgba(252,228,244,0.18)] px-5 py-4 text-center">
               {block.title ? (
                 <h3 className="brand-lesson-title text-xl font-semibold">
@@ -717,11 +796,16 @@ export function StructuredLessonResponse({
         return (
           <div className="rounded-[1.5rem] border border-[var(--border)] bg-white px-4 py-4">
             <label className="grid gap-2">
-              <span className="text-sm font-semibold text-[color:var(--ink)]">{block.label}</span>
+              <span className="text-sm font-semibold text-[color:var(--ink)]">
+                {block.label}
+              </span>
               <input
                 type="text"
                 value={getInputValue(answerMap, block.block_id)}
-                onChange={(event) => setAnswer(block.block_id, event.target.value)}
+                disabled={readOnly}
+                onChange={(event) =>
+                  setAnswer(block.block_id, event.target.value)
+                }
                 placeholder={block.placeholder ?? ""}
                 className="brand-input h-11 rounded-2xl px-4 text-sm"
               />
@@ -736,10 +820,15 @@ export function StructuredLessonResponse({
         return (
           <div className="rounded-[1.5rem] border border-[var(--border)] bg-white px-4 py-4">
             <label className="grid gap-2">
-              <span className="text-sm font-semibold text-[color:var(--ink)]">{block.label}</span>
+              <span className="text-sm font-semibold text-[color:var(--ink)]">
+                {block.label}
+              </span>
               <textarea
                 value={getInputValue(answerMap, block.block_id)}
-                onChange={(event) => setAnswer(block.block_id, event.target.value)}
+                disabled={readOnly}
+                onChange={(event) =>
+                  setAnswer(block.block_id, event.target.value)
+                }
                 placeholder={block.placeholder ?? ""}
                 rows={block.rows ?? 5}
                 className="brand-input rounded-2xl px-4 py-3 text-sm"
@@ -755,7 +844,9 @@ export function StructuredLessonResponse({
         return (
           <div className="rounded-[1.5rem] border border-[var(--border)] bg-white px-4 py-4">
             <fieldset className="grid gap-2">
-              <legend className="text-sm font-semibold text-[color:var(--ink)]">{block.label}</legend>
+              <legend className="text-sm font-semibold text-[color:var(--ink)]">
+                {block.label}
+              </legend>
               {block.options.map((option) => (
                 <label
                   key={option.value}
@@ -764,7 +855,10 @@ export function StructuredLessonResponse({
                   <input
                     type="radio"
                     name={block.block_id}
-                    checked={getChoiceValue(answerMap, block.block_id) === option.value}
+                    checked={
+                      getChoiceValue(answerMap, block.block_id) === option.value
+                    }
+                    disabled={readOnly}
                     onChange={() => setAnswer(block.block_id, option.value)}
                     className="mt-1 h-4 w-4 rounded border-[var(--border)] text-[var(--scarlett)]"
                   />
@@ -782,7 +876,9 @@ export function StructuredLessonResponse({
         return (
           <div className="rounded-[1.5rem] border border-[var(--border)] bg-white px-4 py-4">
             <fieldset className="grid gap-2">
-              <legend className="text-sm font-semibold text-[color:var(--ink)]">{block.label}</legend>
+              <legend className="text-sm font-semibold text-[color:var(--ink)]">
+                {block.label}
+              </legend>
               {block.options.map((option) => {
                 const values = getChoiceValues(answerMap, block.block_id);
                 const checked = values.includes(option.value);
@@ -795,6 +891,7 @@ export function StructuredLessonResponse({
                     <input
                       type="checkbox"
                       checked={checked}
+                      disabled={readOnly}
                       onChange={(event) => {
                         const nextValues = event.target.checked
                           ? [...values, option.value]
@@ -817,10 +914,15 @@ export function StructuredLessonResponse({
       case "question_table":
         return (
           <div className="grid gap-3">
-            <p className="text-sm font-semibold text-[color:var(--ink)]">{block.label}</p>
+            <p className="text-sm font-semibold text-[color:var(--ink)]">
+              {block.label}
+            </p>
             <div className="grid gap-3">
               {getTableRows(answerMap, block).map((row, rowIndex) => (
-                <div key={`${block.block_id}-row-${rowIndex}`} className="rounded-2xl border border-[var(--border)] bg-white px-4 py-4">
+                <div
+                  key={`${block.block_id}-row-${rowIndex}`}
+                  className="rounded-2xl border border-[var(--border)] bg-white px-4 py-4"
+                >
                   <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[color:var(--mid)]">
                     Row {rowIndex + 1}
                   </p>
@@ -833,8 +935,14 @@ export function StructuredLessonResponse({
                         {column.input_type === "textarea" ? (
                           <textarea
                             value={row[column.column_id] ?? ""}
+                            disabled={readOnly}
                             onChange={(event) =>
-                              setTableCell(block, rowIndex, column.column_id, event.target.value)
+                              setTableCell(
+                                block,
+                                rowIndex,
+                                column.column_id,
+                                event.target.value,
+                              )
                             }
                             rows={3}
                             placeholder={column.placeholder ?? ""}
@@ -843,8 +951,14 @@ export function StructuredLessonResponse({
                         ) : column.input_type === "select" ? (
                           <select
                             value={row[column.column_id] ?? ""}
+                            disabled={readOnly}
                             onChange={(event) =>
-                              setTableCell(block, rowIndex, column.column_id, event.target.value)
+                              setTableCell(
+                                block,
+                                rowIndex,
+                                column.column_id,
+                                event.target.value,
+                              )
                             }
                             className="brand-input h-11 rounded-2xl px-4 text-sm"
                           >
@@ -859,8 +973,14 @@ export function StructuredLessonResponse({
                           <input
                             type="text"
                             value={row[column.column_id] ?? ""}
+                            disabled={readOnly}
                             onChange={(event) =>
-                              setTableCell(block, rowIndex, column.column_id, event.target.value)
+                              setTableCell(
+                                block,
+                                rowIndex,
+                                column.column_id,
+                                event.target.value,
+                              )
                             }
                             placeholder={column.placeholder ?? ""}
                             className="brand-input h-11 rounded-2xl px-4 text-sm"
@@ -880,9 +1000,14 @@ export function StructuredLessonResponse({
       case "question_repeatable_interview":
         return (
           <div className="grid gap-3">
-            <p className="text-sm font-semibold text-[color:var(--ink)]">{block.label}</p>
+            <p className="text-sm font-semibold text-[color:var(--ink)]">
+              {block.label}
+            </p>
             {getInterviewRows(answerMap, block).map((row, rowIndex) => (
-              <div key={`${block.block_id}-person-${rowIndex}`} className="rounded-2xl border border-[var(--border)] bg-white px-4 py-4">
+              <div
+                key={`${block.block_id}-person-${rowIndex}`}
+                className="rounded-2xl border border-[var(--border)] bg-white px-4 py-4"
+              >
                 <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[color:var(--mid)]">
                   Person {rowIndex + 1}
                 </p>
@@ -894,6 +1019,7 @@ export function StructuredLessonResponse({
                       </span>
                       <textarea
                         value={row[question.question_id] ?? ""}
+                        disabled={readOnly}
                         onChange={(event) =>
                           setInterviewAnswer(
                             block,
@@ -928,7 +1054,9 @@ export function StructuredLessonResponse({
                     {block.label ?? "Comprehension check"}
                   </p>
                   {block.help_text ? (
-                    <p className="mt-1 text-sm text-[color:var(--mid)]">{block.help_text}</p>
+                    <p className="mt-1 text-sm text-[color:var(--mid)]">
+                      {block.help_text}
+                    </p>
                   ) : null}
                 </div>
                 <div className="rounded-[1.5rem] border border-[rgba(206,71,125,0.18)] bg-[rgba(252,228,244,0.4)] px-4 py-3 text-sm text-[color:var(--ink)]">
@@ -945,7 +1073,8 @@ export function StructuredLessonResponse({
               </div>
             </div>
             {block.questions.map((question, questionIndex) => {
-              const selectedAnswer = quizValue.selected_answers[question.question_id] ?? "";
+              const selectedAnswer =
+                quizValue.selected_answers[question.question_id] ?? "";
               const wasAnswered = selectedAnswer.length > 0;
               const shouldLockAnswer = wasAnswered && !isReturnedForReview;
               const isCorrect = wasAnswered
@@ -968,7 +1097,8 @@ export function StructuredLessonResponse({
                     {question.options.map((option) => {
                       const checked = selectedAnswer === option.option_id;
                       const shouldRevealCorrect =
-                        wasAnswered && option.option_id === question.correct_option_id;
+                        wasAnswered &&
+                        option.option_id === question.correct_option_id;
                       const optionClass = wasAnswered
                         ? checked
                           ? isCorrect
@@ -988,8 +1118,14 @@ export function StructuredLessonResponse({
                             type="radio"
                             name={question.question_id}
                             checked={checked}
-                            disabled={shouldLockAnswer}
-                            onChange={() => setQuizAnswer(block, question.question_id, option.option_id)}
+                            disabled={readOnly || shouldLockAnswer}
+                            onChange={() =>
+                              setQuizAnswer(
+                                block,
+                                question.question_id,
+                                option.option_id,
+                              )
+                            }
                             className="mt-1 h-4 w-4 rounded border-[var(--border)] text-[var(--scarlett)]"
                           />
                           <span>{option.label}</span>
@@ -997,7 +1133,9 @@ export function StructuredLessonResponse({
                       );
                     })}
                   </div>
-                  {renderQuestionCheck(`${block.block_id}::${question.question_id}`)}
+                  {renderQuestionCheck(
+                    `${block.block_id}::${question.question_id}`,
+                  )}
                   {wasAnswered ? (
                     <div className="mt-3 grid gap-2">
                       <p
@@ -1029,7 +1167,8 @@ export function StructuredLessonResponse({
       case "carry_forward_reference":
         return (
           <div className="rounded-[1.75rem] border border-[var(--border)] bg-[rgba(252,228,244,0.18)] px-4 py-4 text-sm text-[color:var(--mid)]">
-            {block.empty_state ?? "Previous lesson answers can be pulled into this section in a later pass."}
+            {block.empty_state ??
+              "Previous lesson answers can be pulled into this section in a later pass."}
           </div>
         );
       case "titled_divider":
@@ -1059,20 +1198,24 @@ export function StructuredLessonResponse({
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[color:var(--mid)]">
-              Lesson progress
+              {readOnly ? "Submitted lesson" : "Lesson progress"}
             </p>
-            <p className="mt-1 text-sm text-[color:var(--mid)]">{saveMessage}</p>
+            <p className="mt-1 text-sm text-[color:var(--mid)]">
+              {readOnly ? "Your saved answers are shown below." : saveMessage}
+            </p>
           </div>
           <span
             className={`rounded-full border px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.14em] ${saveIndicatorClasses(saveState)}`}
           >
-            {saveState === "saving"
-              ? "Saving..."
-              : saveState === "saved"
-                ? "Saved"
-                : saveState === "error"
-                  ? "Needs review"
-                  : "Autosave on"}
+            {readOnly
+              ? "Read only"
+              : saveState === "saving"
+                ? "Saving..."
+                : saveState === "saved"
+                  ? "Saved"
+                  : saveState === "error"
+                    ? "Needs review"
+                    : "Autosave on"}
           </span>
         </div>
       </div>
@@ -1088,35 +1231,29 @@ export function StructuredLessonResponse({
         </div>
       </div>
 
-      <div className="min-w-0 rounded-3xl border border-[var(--border)] bg-white/90 px-4 py-4">
-        <p className="text-sm leading-6 text-[color:var(--mid)]">
-          Work through the lesson here, then save your draft or submit it below.
-        </p>
-        <input ref={submissionRef} type="hidden" name="submission_text" />
-        <input ref={reviewSummaryRef} type="hidden" name="lesson_review_summary" />
-        <input ref={draftPayloadRef} type="hidden" name="draft_payload" />
-        <div className="mt-4 flex flex-wrap gap-3">
-          <button
-            type="submit"
-            formAction={saveDraftAction}
-            onClick={() => {
-              captureResponse();
-            }}
-            className="rounded-full border border-[var(--border)] bg-white px-4 py-2 text-sm font-medium text-[color:var(--ink)] transition hover:text-[var(--scarlett)]"
-          >
-            Save draft
-          </button>
-          <button
-            type="submit"
-            onClick={() => {
-              captureResponse();
-            }}
-            className="brand-primary-btn w-fit"
-          >
-            {submitLabel}
-          </button>
+      {readOnly ? null : (
+        <div className="min-w-0 rounded-3xl border border-[var(--border)] bg-white/90 px-4 py-4">
+          <p className="text-sm leading-6 text-[color:var(--mid)]">
+            Work through the lesson here, then save your draft or submit it
+            below.
+          </p>
+          <input ref={submissionRef} type="hidden" name="submission_text" />
+          <input
+            ref={reviewSummaryRef}
+            type="hidden"
+            name="lesson_review_summary"
+          />
+          <input ref={draftPayloadRef} type="hidden" name="draft_payload" />
+          <div className="mt-4">
+            <LessonSubmissionControls
+              submitLabel={submitLabel}
+              saveDraftAction={saveDraftAction}
+              onBeforeSaveDraft={captureResponse}
+              onBeforeSubmit={captureResponse}
+            />
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

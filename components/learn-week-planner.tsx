@@ -444,7 +444,8 @@ function TaskCard({
             </form>
           ) : null}
 
-          {isWritingTask(task.task_type) ? (
+          {isWritingTask(task.task_type) &&
+          (!latestSubmission || latestSubmission.parent_review_status === "returned") ? (
             <form action={submitTaskResponse} className="grid gap-2">
               <input type="hidden" name="task_id" value={task.id} />
               <input type="hidden" name="course_id" value={task.course_id} />
@@ -480,10 +481,15 @@ function TaskCard({
               <PreSubmitChecklist
                 submitLabel={task.task_type === "test" ? "Submit test" : "Save lesson"}
               />
-              {latestSubmission ? (
-                <p className="text-xs text-[color:var(--mid)]">A response has already been saved before.</p>
-              ) : null}
             </form>
+          ) : null}
+          {isWritingTask(task.task_type) &&
+          latestSubmission &&
+          latestSubmission.parent_review_status !== "returned" ? (
+            <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900">
+              <p className="font-semibold">Submitted! Your work is saved.</p>
+              <p className="mt-1">It is waiting for a grown-up to review.</p>
+            </div>
           ) : null}
         </div>
       ) : null}

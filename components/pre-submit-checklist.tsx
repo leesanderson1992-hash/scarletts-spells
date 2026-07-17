@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { LessonSubmissionControls } from "@/components/lesson-submission-controls";
 
 type PreSubmitChecklistProps = {
   submitLabel: string;
@@ -58,32 +59,14 @@ export function PreSubmitChecklist({
         ))}
       </div>
 
-      <div className="mt-4 flex flex-wrap gap-3">
-        {saveDraftAction ? (
-          <button
-            type="submit"
-            formAction={saveDraftAction}
-            onClick={() => {
-              onBeforeSaveDraft?.();
-            }}
-            className="rounded-full border border-[var(--border)] bg-white px-4 py-2 text-sm font-medium text-[color:var(--ink)] transition hover:text-[var(--scarlett)]"
-          >
-            Save draft
-          </button>
-        ) : null}
-
-        <button
-          type="submit"
-          onClick={() => {
-            if (allChecked) {
-              onBeforeSubmit?.();
-            }
-          }}
-          disabled={!allChecked}
-          className="brand-primary-btn w-fit disabled:cursor-not-allowed disabled:opacity-50"
-        >
-          {submitLabel}
-        </button>
+      <div className="mt-4">
+        <LessonSubmissionControls
+          submitLabel={submitLabel}
+          canSubmit={allChecked}
+          saveDraftAction={saveDraftAction}
+          onBeforeSaveDraft={onBeforeSaveDraft}
+          onBeforeSubmit={onBeforeSubmit}
+        />
       </div>
     </div>
   );
