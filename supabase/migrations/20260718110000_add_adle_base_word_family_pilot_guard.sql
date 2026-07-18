@@ -110,9 +110,12 @@ begin
     where not exists (select 1 from public.adle_review_bundles where child_id = p_child_id and source_ref = p_source_ref and row_status = 'active');
     for v_row in select value from jsonb_array_elements(p_lesson->'scheduleWords') loop
       if not exists (select 1 from public.assignment_items where daily_assignment_id=p_assignment_id and metadata->>'provenance'='authentic_target' and metadata->>'canonicalWordId'=v_row->>'canonicalWordId') then raise exception 'Transfer words cannot enter base-word pilot scheduling'; end if;
-      insert into public.adle_review_schedule_words (child_id, canonical_word_id, bundle_id, membership_status, catch_up_stage, next_retest_due_on, failed_review_on, pre_retirement_check_due_on, last_28_day_review_on, reteach_cycle_count, taught_on, row_status)
-      values (p_child_id,(v_row->>'canonicalWordId')::uuid,v_bundle_id,v_row->>'membershipStatus',(v_row->>'catchUpStage')::integer,nullif(v_row->>'nextRetestDueOn','')::date,nullif(v_row->>'failedReviewOn','')::date,nullif(v_row->>'preRetirementCheckDueOn','')::date,nullif(v_row->>'last28DayReviewOn','')::date,(v_row->>'reteachCycleCount')::integer,(v_row->>'taughtOn')::date,'active')
-      on conflict (child_id, canonical_word_id, bundle_id) where (row_status = 'active') do nothing;
+      if exists (select 1 from public.adle_review_schedule_words where child_id=p_child_id and canonical_word_id=(v_row->>'canonicalWordId')::uuid and bundle_id=v_bundle_id and row_status='active') then
+        update public.adle_review_schedule_words set membership_status=v_row->>'membershipStatus', catch_up_stage=(v_row->>'catchUpStage')::integer, next_retest_due_on=nullif(v_row->>'nextRetestDueOn','')::date, failed_review_on=nullif(v_row->>'failedReviewOn','')::date, pre_retirement_check_due_on=nullif(v_row->>'preRetirementCheckDueOn','')::date, last_28_day_review_on=nullif(v_row->>'last28DayReviewOn','')::date, reteach_cycle_count=(v_row->>'reteachCycleCount')::integer, taught_on=(v_row->>'taughtOn')::date, updated_at=v_now where child_id=p_child_id and canonical_word_id=(v_row->>'canonicalWordId')::uuid and bundle_id=v_bundle_id and row_status='active';
+      else
+        insert into public.adle_review_schedule_words (child_id, canonical_word_id, bundle_id, membership_status, catch_up_stage, next_retest_due_on, failed_review_on, pre_retirement_check_due_on, last_28_day_review_on, reteach_cycle_count, taught_on, row_status)
+        values (p_child_id,(v_row->>'canonicalWordId')::uuid,v_bundle_id,v_row->>'membershipStatus',(v_row->>'catchUpStage')::integer,nullif(v_row->>'nextRetestDueOn','')::date,nullif(v_row->>'failedReviewOn','')::date,nullif(v_row->>'preRetirementCheckDueOn','')::date,nullif(v_row->>'last28DayReviewOn','')::date,(v_row->>'reteachCycleCount')::integer,(v_row->>'taughtOn')::date,'active');
+      end if;
     end loop;
     for v_row in select value from jsonb_array_elements(p_lesson->'taughtEvents') loop
       insert into public.adle_taught_word_history (child_id, canonical_word_id, event_kind, occurred_on, source_ref, row_status, attempt_text)
