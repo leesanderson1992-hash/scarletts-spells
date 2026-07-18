@@ -6,7 +6,7 @@
  * every mutating command, records opaque IDs only in .tmp, and cleans up by
  * import batch and child ID. Never point it at Scarlett's account.
  *
- * Commands: preflight | load | setup | verify | cleanup
+ * Commands: preflight | load | setup | verify | cleanup | recover
  */
 import { createHash } from "node:crypto";
 import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
@@ -162,6 +162,7 @@ async function load(db: SupabaseClient) {
 
 async function setup(db: SupabaseClient) {
   mutating("setup"); const current = state(); assert(current.parentUserId === null && current.childId === null, "fixture setup has not already created a child");
+  assert(process.env.ADLE_BASE_WORD_PROOF_ENABLE_TEMPORARY_CHILD === "yes", "setup requires ADLE_BASE_WORD_PROOF_ENABLE_TEMPORARY_CHILD=yes");
   const suffix = `${Date.now()}-${Math.random().toString(16).slice(2)}`; const email = `adle-base-word-${suffix}@example.test`;
   const { data: user, error: userError } = await db.auth.admin.createUser({ email, password: `Disposable-${suffix}!`, email_confirm: true }); if (userError || !user.user) throw new Error(`create disposable parent: ${userError?.message}`);
   const { data: child, error: childError } = await db.from("children").insert({ parent_user_id: user.user.id, first_name: "ADLE Base-word Proof" }).select("id").single(); if (childError || !child) { await db.auth.admin.deleteUser(user.user.id); throw new Error(`create disposable child: ${childError?.message}`); }
@@ -169,6 +170,11 @@ async function setup(db: SupabaseClient) {
   try {
     const input = TARGET_KEYS.map((wordKey, index) => ({ child_id: child.id, canonical_word_id: current.wordIds[wordKey], micro_skill_key: SKILL, item_status: "pending", source_kind: "verified_misspelling", source_ref: `staging-proof:${suffix}:${wordKey}`, source_attempt_text: index === 0 ? "goviment" : "replaied", intake_on: safePlanDate, row_status: "active" }));
     const { error } = await db.from("adle_learning_items").insert(input); if (error) throw new Error(`seed verified authentic learning items: ${error.message}`);
+    // The proof process alone gets a one-child allowlist after the anonymous
+    // child exists. This does not set a Vercel variable or enable any account.
+    process.env.ADLE_BASE_WORD_FAMILY_PILOT_ENABLED = "enabled";
+    process.env.ADLE_BASE_WORD_FAMILY_PILOT_CHILD_IDS = child.id;
+    process.env.ADLE_BASE_WORD_FAMILY_PILOT_EMERGENCY_DISABLED = "false";
     assert(process.env.ADLE_BASE_WORD_FAMILY_PILOT_ENABLED === "enabled" && process.env.ADLE_BASE_WORD_FAMILY_PILOT_CHILD_IDS === child.id && process.env.ADLE_BASE_WORD_FAMILY_PILOT_EMERGENCY_DISABLED !== "true", "local proof process must use the temporary child as its only enabled allowlist entry");
     const generated = await generateGuardedBaseWordFamilyPilot({ client: db, parentUserId: user.user.id, childId: child.id, planDate: safePlanDate });
     const assignmentId = generated.assignmentId; assert(typeof assignmentId === "string", `guarded generator readiness: ${generated.readinessReason ?? "unknown"}`);
