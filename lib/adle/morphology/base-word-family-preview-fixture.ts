@@ -66,7 +66,13 @@ export const BASE_WORD_FAMILY_PREVIEW_READ_MODEL: BaseWordFamilyLessonReadModel 
       ],
     },
   ],
-  independentWordIds: ["replayed_en_gb", "government_en_gb", "replay_en_gb", "governor_en_gb", "playing_en_gb"],
+  independentSlots: [
+    { canonicalWordId: "replayed_en_gb", provenance: "authentic_target", baseFamilyKey: "play_base_family", learningItemId: "preview-authentic-replayed" },
+    { canonicalWordId: "government_en_gb", provenance: "authentic_target", baseFamilyKey: "govern_base_family", learningItemId: "preview-authentic-government" },
+    { canonicalWordId: "replay_en_gb", provenance: "transfer", baseFamilyKey: "play_base_family", learningItemId: null },
+    { canonicalWordId: "governor_en_gb", provenance: "transfer", baseFamilyKey: "govern_base_family", learningItemId: null },
+    { canonicalWordId: "playing_en_gb", provenance: "transfer", baseFamilyKey: "play_base_family", learningItemId: null },
+  ],
   pilotLessonNumber: 1,
 };
 

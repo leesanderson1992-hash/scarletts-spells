@@ -4,6 +4,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 
 import type {
   BaseWordFamilyAuthenticTarget,
+  BaseWordFamilyIndependentSlot,
   BaseWordFamilyLessonReadModel,
   BaseWordFamilySnapshotSection,
   BaseWordFamilySnapshotWord,
@@ -16,7 +17,7 @@ export interface BaseWordFamilyReadModelRequest {
   contentVersion: string;
   authenticTargets: BaseWordFamilyAuthenticTarget[];
   sections: Array<{ baseFamilyKey: string; authenticTargetWordIds: string[]; guidedWordIds: string[] }>;
-  independentWordIds: string[];
+  independentSlots: BaseWordFamilyIndependentSlot[];
   pilotLessonNumber: number;
 }
 
@@ -61,7 +62,7 @@ export async function loadBaseWordFamilyLessonReadModel(
   client: Client,
   request: BaseWordFamilyReadModelRequest,
 ): Promise<BaseWordFamilyLessonReadModel | null> {
-  if (request.authenticTargets.length !== 2 || request.sections.length < 1 || request.sections.length > 2 || request.independentWordIds.length !== 5) return null;
+  if (request.authenticTargets.length !== 2 || request.sections.length < 1 || request.sections.length > 2 || request.independentSlots.length !== 5) return null;
   const familyKeys = request.sections.map((section) => section.baseFamilyKey);
   if (new Set(familyKeys).size !== familyKeys.length) return null;
   const families = await readRows<FamilyRow>(
@@ -113,5 +114,5 @@ export async function loadBaseWordFamilyLessonReadModel(
     if (!baseWord || guidedWords.some((word) => word === null) || !requested.guidedWordIds.includes(baseWord.canonicalWordId)) return null;
     sections.push({ baseFamilyKey: family.base_family_key, baseWord, baseMeaning: family.base_meaning, etymologyRoute: family.etymology_route!, authenticTargetWordIds: requested.authenticTargetWordIds, guidedWords: guidedWords as BaseWordFamilySnapshotWord[] });
   }
-  return { microSkillKey: request.microSkillKey, contentVersion: request.contentVersion, authenticTargets: request.authenticTargets, familySections: sections, independentWordIds: request.independentWordIds, pilotLessonNumber: request.pilotLessonNumber };
+  return { microSkillKey: request.microSkillKey, contentVersion: request.contentVersion, authenticTargets: request.authenticTargets, familySections: sections, independentSlots: request.independentSlots, pilotLessonNumber: request.pilotLessonNumber };
 }

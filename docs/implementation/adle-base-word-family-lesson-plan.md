@@ -280,7 +280,9 @@ generic composer selection, production switch, or child exposure.
 - Route authentic target outcomes through the existing scheduling and review
   path unchanged.
 - Persist a first independent transfer miss as evidence only, with durable
-  provenance and idempotency protection.
+  provenance and idempotency protection. Count at most one final independent
+  miss for a transfer word per completed lesson; the confirming miss must be
+  from a later completed lesson.
 - Implement the explicit later-confirmation promotion path: a second
   independent transfer miss or verified authentic misspelling may create the
   word-level follow-up item; correct transfer attempts remain unscheduled.

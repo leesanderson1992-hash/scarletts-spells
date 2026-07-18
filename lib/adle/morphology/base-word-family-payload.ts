@@ -34,6 +34,13 @@ export interface BaseWordFamilyAuthenticTarget {
   sourceRef: string;
 }
 
+export interface BaseWordFamilyIndependentSlot {
+  canonicalWordId: string;
+  provenance: "authentic_target" | "transfer";
+  baseFamilyKey: string;
+  learningItemId: string | null;
+}
+
 export type BaseWordFamilyActivityType =
   | "strategy_intro"
   | "family_matrix"
@@ -57,6 +64,7 @@ export interface BaseWordFamilyLessonSnapshotV1 {
   authenticTargets: BaseWordFamilyAuthenticTarget[];
   familySections: BaseWordFamilySnapshotSection[];
   independentWords: BaseWordFamilySnapshotWord[];
+  independentSlots: BaseWordFamilyIndependentSlot[];
   activities: BaseWordFamilyActivity[];
   reflectionPrompt: string;
   measurement: { pilotLessonNumber: number; maxPilotLessons: 5; guidedWordLimit: 8; independentWordLimit: 5 };
@@ -72,7 +80,7 @@ export interface BaseWordFamilyLessonReadModel {
   contentVersion: string;
   authenticTargets: BaseWordFamilyAuthenticTarget[];
   familySections: BaseWordFamilySnapshotSection[];
-  independentWordIds: string[];
+  independentSlots: BaseWordFamilyIndependentSlot[];
   pilotLessonNumber: number;
 }
 
@@ -86,7 +94,7 @@ function isWord(value: unknown): value is BaseWordFamilySnapshotWord {
 
 /** Strict, safe fallback validator. Invalid snapshots are not renderable. */
 export function validateBaseWordFamilyLessonSnapshot(value: unknown): BaseWordFamilyLessonSnapshotV1 | null {
-  if (!isRecord(value) || value.schemaVersion !== BASE_WORD_FAMILY_SNAPSHOT_SCHEMA_VERSION || value.experience !== "D4_MOR_BASE_WORD_FAMILY" || typeof value.microSkillKey !== "string" || typeof value.contentVersion !== "string" || !Array.isArray(value.authenticTargets) || !Array.isArray(value.familySections) || !Array.isArray(value.independentWords) || !Array.isArray(value.activities) || typeof value.reflectionPrompt !== "string" || !isRecord(value.measurement)) return null;
+  if (!isRecord(value) || value.schemaVersion !== BASE_WORD_FAMILY_SNAPSHOT_SCHEMA_VERSION || value.experience !== "D4_MOR_BASE_WORD_FAMILY" || typeof value.microSkillKey !== "string" || typeof value.contentVersion !== "string" || !Array.isArray(value.authenticTargets) || !Array.isArray(value.familySections) || !Array.isArray(value.independentWords) || !Array.isArray(value.independentSlots) || !Array.isArray(value.activities) || typeof value.reflectionPrompt !== "string" || !isRecord(value.measurement)) return null;
   const targets = value.authenticTargets;
   const sections = value.familySections;
   const independent = value.independentWords;
@@ -101,6 +109,9 @@ export function validateBaseWordFamilyLessonSnapshot(value: unknown): BaseWordFa
   if (!sections.every((section) => (section as BaseWordFamilySnapshotSection).authenticTargetWordIds.every((id) => targetIds.includes(id) && (section as BaseWordFamilySnapshotSection).guidedWords.some((word) => word.canonicalWordId === id)))) return null;
   if (!targetIds.every((id) => independent.some((word) => word.canonicalWordId === id))) return null;
   if (!independent.every((word) => guided.some((guidedWord) => guidedWord.canonicalWordId === word.canonicalWordId))) return null;
+  const slots = value.independentSlots;
+  if (slots.length !== independent.length || !slots.every((slot) => isRecord(slot) && typeof slot.canonicalWordId === "string" && (slot.provenance === "authentic_target" || slot.provenance === "transfer") && typeof slot.baseFamilyKey === "string" && (slot.learningItemId === null || typeof slot.learningItemId === "string")) || slots.map((slot) => (slot as BaseWordFamilyIndependentSlot).canonicalWordId).join("|") !== independent.map((word) => word.canonicalWordId).join("|")) return null;
+  if (slots.filter((slot) => (slot as BaseWordFamilyIndependentSlot).provenance === "authentic_target").length !== 2 || slots.filter((slot) => (slot as BaseWordFamilyIndependentSlot).provenance === "transfer").length !== 3 || !slots.filter((slot) => (slot as BaseWordFamilyIndependentSlot).provenance === "authentic_target").every((slot) => targetIds.includes((slot as BaseWordFamilyIndependentSlot).canonicalWordId))) return null;
   const activities = value.activities;
   const expectedActivityTypes: BaseWordFamilyActivityType[] = ["strategy_intro", "family_matrix", "word_sum_exploration", "controlled_spelling", "sentence_dictation", "reflection"];
   if (activities.length !== expectedActivityTypes.length || activities.some((activity, index) => !isRecord(activity) || activity.type !== expectedActivityTypes[index] || !["teaching", "guided", "recall_neutral", "post_submit"].includes(String(activity.answerVisibility)) || !Array.isArray(activity.wordIds) || !activity.wordIds.every((id) => typeof id === "string"))) return null;
@@ -116,9 +127,9 @@ export function compileBaseWordFamilyLessonSnapshot(
   const wordsById = new Map(
     readModel.familySections.flatMap((section) => section.guidedWords).map((word) => [word.canonicalWordId, word]),
   );
-  const independentWords = readModel.independentWordIds.map((id) => {
-    const word = wordsById.get(id);
-    if (!word) throw new Error(`Base-word lesson independent word ${id} is not in a reviewed family section.`);
+  const independentWords = readModel.independentSlots.map((slot) => {
+    const word = wordsById.get(slot.canonicalWordId);
+    if (!word) throw new Error(`Base-word lesson independent word ${slot.canonicalWordId} is not in a reviewed family section.`);
     return word;
   });
   const payload: BaseWordFamilyLessonSnapshotV1 = {
@@ -129,13 +140,14 @@ export function compileBaseWordFamilyLessonSnapshot(
     authenticTargets: readModel.authenticTargets,
     familySections: readModel.familySections,
     independentWords,
+    independentSlots: readModel.independentSlots,
     activities: [
       { id: "strategy-intro", type: "strategy_intro", answerVisibility: "teaching", wordIds: readModel.authenticTargets.map((target) => target.canonicalWordId) },
       { id: "family-matrices", type: "family_matrix", answerVisibility: "teaching", wordIds: readModel.familySections.flatMap((section) => section.guidedWords.map((word) => word.canonicalWordId)) },
       { id: "word-sums", type: "word_sum_exploration", answerVisibility: "guided", wordIds: readModel.familySections.flatMap((section) => section.authenticTargetWordIds) },
-      { id: "controlled-spelling", type: "controlled_spelling", answerVisibility: "recall_neutral", wordIds: readModel.independentWordIds },
-      { id: "sentence-dictation", type: "sentence_dictation", answerVisibility: "recall_neutral", wordIds: readModel.independentWordIds },
-      { id: "reflection", type: "reflection", answerVisibility: "post_submit", wordIds: readModel.independentWordIds },
+      { id: "controlled-spelling", type: "controlled_spelling", answerVisibility: "recall_neutral", wordIds: readModel.independentSlots.map((slot) => slot.canonicalWordId) },
+      { id: "sentence-dictation", type: "sentence_dictation", answerVisibility: "recall_neutral", wordIds: readModel.independentSlots.map((slot) => slot.canonicalWordId) },
+      { id: "reflection", type: "reflection", answerVisibility: "post_submit", wordIds: readModel.independentSlots.map((slot) => slot.canonicalWordId) },
     ],
     reflectionPrompt: "How can finding a base word help you spell and understand more words?",
     measurement: { pilotLessonNumber: readModel.pilotLessonNumber, maxPilotLessons: 5, guidedWordLimit: 8, independentWordLimit: 5 },
