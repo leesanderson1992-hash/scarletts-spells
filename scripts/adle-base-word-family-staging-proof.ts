@@ -16,7 +16,8 @@ import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { generateGuardedBaseWordFamilyPilot } from "../lib/adle/loaders/base-word-family-pilot-loader";
 
 const FIXTURE = resolve("docs/implementation/seed-data/staging-fixtures/adle-base-word-family-pilot-v1");
-const STATE_PATH = resolve(".tmp/adle-base-word-family-staging-proof/state.json");
+// Kept outside the compiled-script directory, which npm clears before every command.
+const STATE_PATH = resolve(".tmp/adle-base-word-family-staging-proof-state.json");
 const CONFIRM = "ADLE-BASE-WORD-STAGING-FIXTURE-V1";
 const STAGING_REF = "jlhotktspjvffslvuyfz";
 const PRODUCTION_REF = "wwohrqtunajrbwxyssjf";
