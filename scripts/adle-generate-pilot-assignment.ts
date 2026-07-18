@@ -177,6 +177,21 @@ async function main(): Promise<void> {
     console.log(JSON.stringify({ mode: "guarded_morphology_pilot_generated", assignmentId, experience, gateEnabled: true, schemaVersion: payload.schemaVersion, contentVersion: payload.contentVersion, wordBindings: payload.words.lesson.map((word) => ({ canonicalWordId: word.canonicalWordId, word: word.displayWord })) }, null, 2));
     return;
   }
+  if (experience === "d4-mor-base-word-family") {
+    const { generateGuardedBaseWordFamilyPilot } = await import("../lib/adle/loaders/base-word-family-pilot-loader");
+    const { data: existingRows, error: existingError } = await client
+      .from("daily_assignments")
+      .select("id")
+      .eq("parent_user_id", parentUserId)
+      .eq("child_id", childId)
+      .eq("assignment_date", assignmentDate)
+      .in("assignment_generation_source", ["adle_composer_v1", "adle_base_word_family_pilot_v1"]);
+    if (existingError) throw new Error(`Refusing to generate: existing assignment check failed: ${existingError.message}`);
+    if ((existingRows ?? []).length > 0) throw new Error("Refusing to generate: an ADLE assignment already exists for this child and date.");
+    const result = await generateGuardedBaseWordFamilyPilot({ client, parentUserId, childId, planDate: assignmentDate });
+    console.log(JSON.stringify({ mode: result.assignmentId ? "guarded_base_word_family_pilot_generated" : "guarded_base_word_family_pilot_not_ready", experience, assignmentId: result.assignmentId, readinessReason: result.readinessReason }, null, 2));
+    return;
+  }
   if (experience !== null) throw new Error(`Unsupported --experience ${experience}.`);
 
   const preview = await previewAdleDailyPlan({

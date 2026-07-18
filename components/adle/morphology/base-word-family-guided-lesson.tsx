@@ -13,13 +13,16 @@ const INITIAL: BaseWordFamilyResumeState = {
 };
 
 export function BaseWordFamilyGuidedLesson(props: {
-  previewId: string;
+  /** A preview id or immutable assignment id; neither contains child writing. */
+  previewId?: string;
+  assignmentId?: string;
   payload: BaseWordFamilyLessonSnapshotV1;
-  onPreviewComplete: (reflection: string) => void;
+  onPreviewComplete?: (reflection: string) => void;
+  onComplete?: (input: { reflection: string; controlledAttempts: Record<string, string>; sentenceAttempts: Record<string, string> }) => void;
 }) {
   const [state, setState] = useState<BaseWordFamilyResumeState>(INITIAL);
   const [hydrated, setHydrated] = useState(false);
-  const key = baseWordFamilyResumeKey(props.previewId, props.payload.contentVersion);
+  const key = baseWordFamilyResumeKey(props.assignmentId ?? props.previewId ?? "base-word-family", props.payload.contentVersion);
   const update = (patch: Partial<BaseWordFamilyResumeState>) => setState((current) => ({ ...current, ...patch }));
   useEffect(() => {
     try {
@@ -41,7 +44,7 @@ export function BaseWordFamilyGuidedLesson(props: {
     {state.stage === "word_sums" ? <WordSums payload={props.payload} onNext={() => update({ stage: "controlled" })} /> : null}
     {state.stage === "controlled" ? <Controlled word={word} index={state.controlledIndex} total={props.payload.independentWords.length} attempt={state.controlledAttempts[word.canonicalWordId] ?? ""} checked={state.controlledChecked[word.canonicalWordId] === true} onAttempt={(attempt) => update({ controlledAttempts: { ...state.controlledAttempts, [word.canonicalWordId]: attempt } })} onChecked={() => update({ controlledChecked: { ...state.controlledChecked, [word.canonicalWordId]: true } })} onNext={() => state.controlledIndex + 1 < props.payload.independentWords.length ? update({ controlledIndex: state.controlledIndex + 1 }) : update({ stage: "dictation", dictationIndex: 0 })} /> : null}
     {state.stage === "dictation" ? <Dictation word={word} index={state.dictationIndex} total={props.payload.independentWords.length} value={state.sentenceAttempts[word.canonicalWordId] ?? ""} checked={state.sentenceChecked} onValue={(value) => update({ sentenceAttempts: { ...state.sentenceAttempts, [word.canonicalWordId]: value } })} onCheck={() => update({ sentenceChecked: true })} onNext={() => state.dictationIndex + 1 < props.payload.independentWords.length ? update({ dictationIndex: state.dictationIndex + 1, sentenceChecked: false }) : update({ stage: "reflect", sentenceChecked: false })} /> : null}
-    {state.stage === "reflect" ? <Reflection prompt={props.payload.reflectionPrompt} value={state.reflectionText} onValue={(reflectionText) => update({ reflectionText })} onComplete={() => props.onPreviewComplete(state.reflectionText)} /> : null}
+    {state.stage === "reflect" ? <Reflection prompt={props.payload.reflectionPrompt} value={state.reflectionText} completionLabel={props.onComplete ? "Finish Word Lab" : "Finish preview"} onValue={(reflectionText) => update({ reflectionText })} onComplete={() => { props.onPreviewComplete?.(state.reflectionText); props.onComplete?.({ reflection: state.reflectionText, controlledAttempts: state.controlledAttempts, sentenceAttempts: state.sentenceAttempts }); }} /> : null}
   </WordLabScene>;
 }
 
@@ -65,6 +68,6 @@ function Dictation(props: { word: BaseWordFamilySnapshotWord; index: number; tot
   return <section className="grid gap-4"><p className="text-center text-sm font-black uppercase tracking-[.2em] text-cyan-200">Sentence {props.index + 1} of {props.total}</p><div className="flex justify-center"><HearWordButton word={props.word.audioText} label="Play sentence" muted={false} kind="dictation" /></div><label className="text-sm font-semibold text-cyan-50">Write the whole sentence<textarea autoFocus spellCheck={false} autoComplete="off" autoCapitalize="sentences" value={props.value} onChange={(event) => props.onValue(event.target.value)} className="mt-2 min-h-28 w-full rounded-2xl bg-white p-4 text-lg text-slate-950 focus:outline-none focus:ring-4 focus:ring-cyan-300/30" /></label>{!props.checked ? <button type="button" disabled={!props.value.trim()} onClick={props.onCheck} className="min-h-12 rounded-full bg-cyan-300 font-black text-slate-950 disabled:opacity-40">Check sentence</button> : <><DiffReveal attempt={props.value} expected={props.word.dictationSentence} mode="sentence" /><button type="button" onClick={props.onNext} className="min-h-12 rounded-full bg-cyan-300 font-black text-slate-950">{props.index + 1 < props.total ? "Next sentence" : "Reflect"}</button></>}</section>;
 }
 
-function Reflection(props: { prompt: string; value: string; onValue: (value: string) => void; onComplete: () => void }) {
-  return <section className="grid gap-5"><h2 className="text-center text-3xl font-black text-white">What did you notice?</h2><label className="text-base font-black text-white">{props.prompt}<textarea autoFocus required maxLength={2000} value={props.value} onChange={(event) => props.onValue(event.target.value)} className="mt-2 min-h-32 w-full rounded-2xl bg-white p-4 text-lg font-normal text-slate-950 focus:outline-none focus:ring-4 focus:ring-cyan-300/30" /></label><button type="button" disabled={!props.value.trim()} onClick={props.onComplete} className="min-h-12 rounded-full bg-cyan-300 font-black text-slate-950 disabled:opacity-40">Finish preview</button></section>;
+function Reflection(props: { prompt: string; value: string; completionLabel: string; onValue: (value: string) => void; onComplete: () => void }) {
+  return <section className="grid gap-5"><h2 className="text-center text-3xl font-black text-white">What did you notice?</h2><label className="text-base font-black text-white">{props.prompt}<textarea autoFocus required maxLength={2000} value={props.value} onChange={(event) => props.onValue(event.target.value)} className="mt-2 min-h-32 w-full rounded-2xl bg-white p-4 text-lg font-normal text-slate-950 focus:outline-none focus:ring-4 focus:ring-cyan-300/30" /></label><button type="button" disabled={!props.value.trim()} onClick={props.onComplete} className="min-h-12 rounded-full bg-cyan-300 font-black text-slate-950 disabled:opacity-40">{props.completionLabel}</button></section>;
 }
