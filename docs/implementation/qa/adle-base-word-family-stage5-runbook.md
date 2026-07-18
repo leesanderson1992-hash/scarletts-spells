@@ -4,11 +4,17 @@ This is a guarded, disabled-by-default pilot. It does not authorise production r
 
 ## Staging proof
 
-1. Create an anonymised staging parent and child, then add reviewed fixture families and two verified authentic learning items.
-2. Enable only that child in `ADLE_BASE_WORD_FAMILY_PILOT_CHILD_IDS`; set `ADLE_BASE_WORD_FAMILY_PILOT_ENABLED=enabled`.
-3. Generate one assignment and confirm its exact thirteen bindings: strategy intro, family matrices, word sums, five controlled spellings, and five dictations.
-4. Complete, reload, and verify: immutable payload binding; idempotent completion; authentic-target schedules; transfer first-miss ledger only; no transfer schedule; unchanged reward, mastery, and parent-control records.
-5. Delete the staging assignment, fixtures, pilot-run record, allowlist entry, and gate setting. Record only aggregate counts in the release note.
+Before loading fixture data, verify the four source migrations are present in
+the staging schema and reconcile only those exact versions in the staging
+migration ledger. Stop if schema evidence and source differ; do not use raw SQL
+or broad `supabase db push`.
+
+1. Run `adle:base-word-family-staging-proof preflight`, then `load` with the exact staging-host acknowledgement, `--apply`, and its confirmation token. This loader is staging-only and records one disposable import batch.
+2. Run `setup` with an explicit unused plan date. It creates an anonymised staging parent/child and exactly two verified authentic learning items: `government` and `replayed`.
+3. Enable only that temporary child in `ADLE_BASE_WORD_FAMILY_PILOT_CHILD_IDS`; set `ADLE_BASE_WORD_FAMILY_PILOT_ENABLED=enabled` for the controlled preview only.
+4. Confirm one assignment with its exact thirteen bindings: strategy intro, family matrices, word sums, five controlled spellings, and five dictations. The displayed families must be `play` and `govern`, with no unrelated filler family.
+5. Complete, reload, and verify: immutable payload binding; idempotent completion; authentic-target schedules; transfer first-miss ledger only; no transfer schedule; unchanged reward, mastery, and parent-control records.
+6. Disable the preview gate, then run `cleanup` with the same acknowledgement and confirmation. It removes only the recorded child/account and import-batch rows. Record only aggregate counts in the release note.
 
 ## Production release hold-point
 
