@@ -323,9 +323,9 @@ not a default.
   unrelated families, missing family facts, unsuitable candidates, missing
   independent-production support, and insufficient family words fail closed
   with stable skip reasons.
-- Three authentic targets produce three targets plus two transfer words; four
-  produce four plus one; five or more preserve the five oldest without losing
-  later pending learning items.
+- The pilot selects exactly two authentic targets. Further eligible authentic
+  learning items remain pending for a later lesson; they do not add a third
+  target or a third family to this lesson.
 - The selector does not use spelling resemblance, create a family from raw
   text, select all family members, or widen the complexity window.
 - Authentic targets preserve existing word-level independent attempts,
