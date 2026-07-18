@@ -57,7 +57,12 @@ import {
 } from "@/lib/adle/loaders/session-completion-loader";
 import { isMorphologyUnPilotEnabledForChild } from "@/lib/adle/morphology/pilot-access";
 import { extractAuthoredTargetToken, resolveMorphologyPilotRuntime, type MorphologyLessonPayloadV1 } from "@/lib/adle/morphology/payload";
-import { upsertChildLearningReflection } from "@/lib/adle/morphology/reflections";
+import { isBaseWordFamilyPilotEnabledForChild } from "@/lib/adle/morphology/base-word-family-pilot-access";
+import { resolveBaseWordFamilyPilotRuntime } from "@/lib/adle/morphology/base-word-family-pilot-contract";
+import { BASE_WORD_FAMILY_ASSIGNMENT_SOURCE, BASE_WORD_FAMILY_ASSIGNMENT_TITLE } from "@/lib/adle/morphology/base-word-family-pilot-plan";
+import { baseWordTransferMissWrites } from "@/lib/adle/base-word-transfer-evidence";
+import { persistBaseWordFamilyPilotCompletion } from "@/lib/adle/loaders/base-word-family-pilot-loader";
+import { BASE_WORD_FAMILY_REFLECTION_PROMPT_KEY, upsertChildLearningReflection } from "@/lib/adle/morphology/reflections";
 import { safeCompletionTraceId, WordLabCompletionTimer } from "@/lib/adle/completion-timing";
 import {
   persistWordLabCompletion,
@@ -109,7 +114,7 @@ interface SessionActionContext {
   sessionPath: string;
 }
 
-async function resolveSessionContext(formData: FormData): Promise<SessionActionContext> {
+async function resolveSessionContext(formData: FormData, assignmentKind: "standard" | "base_word_family" = "standard"): Promise<SessionActionContext> {
   const mode = readFormValue(formData, "mode");
   const childId = readFormValue(formData, "childId");
   const assignmentId = readFormValue(formData, "assignmentId");
@@ -139,8 +144,8 @@ async function resolveSessionContext(formData: FormData): Promise<SessionActionC
     .eq("id", assignmentId)
     .eq("parent_user_id", user.id)
     .eq("child_id", selectedChild.id)
-    .eq("title", ADLE_DAILY_ASSIGNMENT_TITLE)
-    .eq("assignment_generation_source", ADLE_ASSIGNMENT_GENERATION_SOURCE)
+    .eq("title", assignmentKind === "base_word_family" ? BASE_WORD_FAMILY_ASSIGNMENT_TITLE : ADLE_DAILY_ASSIGNMENT_TITLE)
+    .eq("assignment_generation_source", assignmentKind === "base_word_family" ? BASE_WORD_FAMILY_ASSIGNMENT_SOURCE : ADLE_ASSIGNMENT_GENERATION_SOURCE)
     .maybeSingle();
   if (error || !header) {
     redirect(withParam(sessionPath, "error", "We couldn't find today's ADLE plan."));
@@ -608,4 +613,64 @@ export async function completeAdleLessonPartAction(formData: FormData) {
   scheduleLessonReward(context, productionItems);
   await timer.measure("assignment_completion", () => markItemsCompleted(context, readModel.partTwo.items));
   finishWith(context, "Lesson finished. New words join review tomorrow.");
+}
+
+/** Separate from generic ADLE: transfer words must never reach its scheduler path. */
+export async function completeBaseWordFamilyLessonAction(formData: FormData) {
+  const context = await resolveSessionContext(formData, "base_word_family");
+  if (!isBaseWordFamilyPilotEnabledForChild(context.childId)) {
+    finishWith(context, "This Word Lab is not available right now.");
+  }
+  const readModel = await getAdleDailyPlanReadModel({
+    userClient: context.userClient, parentUserId: context.parentUserId, childId: context.childId,
+    planDate: context.planDate, assignmentId: context.assignmentId,
+  });
+  const payload = resolveBaseWordFamilyPilotRuntime(true, readModel.partTwo.items);
+  if (!payload || readModel.partTwo.items.length !== 13) {
+    finishWith(context, "This Word Lab needs a grown-up check before it can continue.");
+  }
+  const controlledAttempts = parseAttempts(formData, "baseWordControlledAttempts");
+  const sentenceAttempts = parseAttempts(formData, "baseWordSentenceAttempts");
+  const reflection = readFormValue(formData, "baseWordReflection");
+  if (!reflection) finishWith(context, "Please share what you noticed before finishing.");
+  const finalAttempts = payload.independentWords.map((word) => {
+    const rawSentence = sentenceAttempts.get(word.canonicalWordId) ?? "";
+    const attemptText = extractAuthoredTargetToken(rawSentence, word.dictationTargetTokenIndex);
+    return { canonicalWordId: word.canonicalWordId, attemptText, correct: isAttemptCorrect(attemptText, word.displayWord) };
+  });
+  const authenticIds = new Set(payload.independentSlots.filter((slot) => slot.provenance === "authentic_target").map((slot) => slot.canonicalWordId));
+  const authenticProductionItems = readModel.partTwo.items.filter((item) => item.sectionKey === "lesson_production" && item.canonicalWordId !== null && authenticIds.has(item.canonicalWordId));
+  if (authenticProductionItems.length !== 2) finishWith(context, "This Word Lab needs a grown-up check before it can continue.");
+  const { data: learningItemRows, error: itemsError } = await context.serviceClient.from("adle_learning_items")
+    .select("id, child_id, canonical_word_id, micro_skill_key, item_status, source_kind, source_ref, source_attempt_text, reteach_priority, ejected_on, intake_on, row_status")
+    .eq("child_id", context.childId).eq("row_status", "active");
+  if (itemsError) throw new Error(`completeBaseWordFamilyLessonAction:items: ${itemsError.message}`);
+  const policy = await loadActiveReviewPolicy(context.serviceClient);
+  const lesson = onLessonCompleted(policy, {
+    childId: context.childId, microSkillKey: payload.microSkillKey, completedOn: context.planDate,
+    sourceRef: `lesson:${context.childId}:${context.planDate}:${payload.microSkillKey}`,
+    bundleId: randomUUID(),
+    producedWords: finalAttempts.filter((attempt) => authenticIds.has(attempt.canonicalWordId)),
+    learningItems: ((learningItemRows ?? []) as LearningItemRow[]).map(learningItemFromRow),
+  });
+  const sourceRef = `lesson:${context.childId}:${context.planDate}:${payload.microSkillKey}`;
+  const attempts = buildLessonAttemptEvents({
+    context, sourceRef, items: readModel.partTwo.items, controlledAttempts,
+    dictationAttempts: new Map(finalAttempts.map((attempt) => [attempt.canonicalWordId, attempt.attemptText])),
+    dictationRawAttempts: sentenceAttempts, guidedAttempts: new Map(), probeAttempts: new Map(),
+  });
+  if (attempts.length !== 10) throw new Error("completeBaseWordFamilyLessonAction: expected ten independent attempts");
+  const result = await persistBaseWordFamilyPilotCompletion({
+    client: context.serviceClient, parentUserId: context.parentUserId, childId: context.childId,
+    assignmentId: context.assignmentId, planDate: context.planDate, microSkillKey: payload.microSkillKey,
+    sourceRef, assignmentItemIds: readModel.partTwo.items.map((item) => item.id), attempts, lesson,
+    transferMisses: baseWordTransferMissWrites({ payload, childId: context.childId, lessonSourceRef: sourceRef, occurredOn: context.planDate as import("@/lib/adle/review-scheduler").IsoDate, finalAttempts }),
+  });
+  await upsertChildLearningReflection(context.serviceClient, {
+    childId: context.childId, parentUserId: context.parentUserId, assignmentId: context.assignmentId,
+    microSkillKey: payload.microSkillKey, contentVersion: payload.contentVersion,
+    promptKey: BASE_WORD_FAMILY_REFLECTION_PROMPT_KEY, promptText: payload.reflectionPrompt, reflectionText: reflection,
+  });
+  scheduleLessonReward(context, authenticProductionItems);
+  finishWith(context, result.status === "already_completed" ? "Today's lesson is already recorded." : "Lesson finished. Your two writing words join review tomorrow.");
 }

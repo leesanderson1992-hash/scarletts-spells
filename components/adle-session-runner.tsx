@@ -16,11 +16,12 @@
  */
 
 import dynamic from "next/dynamic";
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 
 import {
   completeAdleLessonPartAction,
   completeAdleReviewPartAction,
+  completeBaseWordFamilyLessonAction,
 } from "@/app/learn/week/adle/actions";
 import {
   resolveActivityTemplateDefinition,
@@ -34,6 +35,7 @@ import { SpellingField } from "@/components/adle/activities/shared/spelling-fiel
 import { GuidedActivity } from "@/components/adle/activities/guided-activity";
 import { ReflectionActivity } from "@/components/adle/activities/reflection-activity";
 import type { MorphologyLessonPayloadV1 } from "@/lib/adle/morphology/payload";
+import type { BaseWordFamilyLessonSnapshotV1 } from "@/lib/adle/morphology/base-word-family-payload";
 
 const MorphologyGuidedLesson = dynamic(
   () =>
@@ -54,6 +56,11 @@ const MorphologyGuidedLesson = dynamic(
   },
 );
 
+const BaseWordFamilyGuidedLesson = dynamic(
+  () => import("@/components/adle/morphology/base-word-family-guided-lesson").then((module) => module.BaseWordFamilyGuidedLesson),
+  { ssr: false, loading: () => <div role="status" aria-live="polite" className="brand-card rounded-3xl p-8 text-center text-sm text-[color:var(--mid)]">Preparing the base-word Word Lab…</div> },
+);
+
 type AdleSessionRunnerProps = {
   childId: string;
   assignmentId: string;
@@ -61,6 +68,7 @@ type AdleSessionRunnerProps = {
   partOne: { items: AdleSessionItem[]; present: boolean; complete: boolean };
   partTwo: { items: AdleSessionItem[]; present: boolean; complete: boolean };
   morphologyPilotPayload?: MorphologyLessonPayloadV1 | null;
+  baseWordFamilyPilotPayload?: BaseWordFamilyLessonSnapshotV1 | null;
 };
 
 function itemsIn(items: readonly AdleSessionItem[], sectionKey: string): AdleSessionItem[] {
@@ -106,6 +114,26 @@ function NextButton(props: { label: string; onClick: () => void }) {
 
 function mapWith(current: Map<string, string>, key: string, value: string): Map<string, string> {
   return new Map(current).set(key, value);
+}
+
+function BaseWordFamilyPart(props: { childId: string; assignmentId: string; payload: BaseWordFamilyLessonSnapshotV1 }) {
+  const formRef = useRef<HTMLFormElement>(null);
+  const controlledRef = useRef<HTMLInputElement>(null);
+  const sentenceRef = useRef<HTMLInputElement>(null);
+  const reflectionRef = useRef<HTMLInputElement>(null);
+  return <form ref={formRef} action={completeBaseWordFamilyLessonAction}>
+    <HiddenSessionFields childId={props.childId} assignmentId={props.assignmentId} />
+    <input ref={controlledRef} type="hidden" name="baseWordControlledAttempts" />
+    <input ref={sentenceRef} type="hidden" name="baseWordSentenceAttempts" />
+    <input ref={reflectionRef} type="hidden" name="baseWordReflection" />
+    <BaseWordFamilyGuidedLesson assignmentId={props.assignmentId} payload={props.payload} onComplete={(input) => {
+      if (!controlledRef.current || !sentenceRef.current || !reflectionRef.current) return;
+      controlledRef.current.value = JSON.stringify(Object.entries(input.controlledAttempts).map(([key, attemptText]) => ({ key, attemptText })));
+      sentenceRef.current.value = JSON.stringify(Object.entries(input.sentenceAttempts).map(([key, attemptText]) => ({ key, attemptText })));
+      reflectionRef.current.value = input.reflection;
+      formRef.current?.requestSubmit();
+    }} />
+  </form>;
 }
 
 function ReviewPart(props: { childId: string; assignmentId: string; items: AdleSessionItem[] }) {
@@ -320,6 +348,10 @@ function LessonPart(props: { childId: string; assignmentId: string; items: AdleS
 
 export function AdleSessionRunner(props: AdleSessionRunnerProps) {
   const { partOne, partTwo } = props;
+
+  if (props.baseWordFamilyPilotPayload && props.assignmentId) {
+    return <BaseWordFamilyPart childId={props.childId} assignmentId={props.assignmentId} payload={props.baseWordFamilyPilotPayload} />;
+  }
 
   return (
     <div className="grid gap-4">

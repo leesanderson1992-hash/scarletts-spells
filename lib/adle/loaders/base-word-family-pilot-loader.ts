@@ -8,6 +8,8 @@ import { selectBaseWordFamilyLesson, type BaseWordFamilyFact, type BaseWordFamil
 import { loadBaseWordFamilyLessonReadModel } from "./base-word-family-lesson-read-model";
 import { loadDailyPlanFacts } from "./composer-facts-loader";
 import { assertBaseWordFamilyPilotEnabledForChild } from "../morphology/base-word-family-pilot-access";
+import type { AssignmentAttemptEventWrite, LessonCompletionWrite } from "./session-completion-loader";
+import type { BaseWordTransferMissWrite } from "../base-word-transfer-evidence";
 
 export const BASE_WORD_PILOT_MICRO_SKILL = "D4_MOR_BASE_WORDS_PRESERVE_BASE";
 const BASE_WORD_PILOT_CONTENT_VERSION = "d4-mor-base-word-family-v1";
@@ -90,4 +92,28 @@ export async function generateGuardedBaseWordFamilyPilot(params: {
   const readiness = await loadBaseWordFamilyPilotReadiness({ client: params.client, childId: params.childId, planDate: params.planDate });
   if (!readiness.payload) return { assignmentId: null, readinessReason: readiness.readinessReason ?? "not_ready" };
   return { assignmentId: await persistBaseWordFamilyPilotAssignment({ ...params, payload: readiness.payload }), readinessReason: null };
+}
+
+export async function persistBaseWordFamilyPilotCompletion(params: {
+  client: SupabaseClient;
+  parentUserId: string;
+  childId: string;
+  assignmentId: string;
+  planDate: string;
+  microSkillKey: string;
+  sourceRef: string;
+  assignmentItemIds: readonly string[];
+  attempts: readonly AssignmentAttemptEventWrite[];
+  lesson: LessonCompletionWrite;
+  transferMisses: readonly BaseWordTransferMissWrite[];
+}): Promise<{ status: "completed" | "already_completed" }> {
+  const { data, error } = await params.client.rpc("complete_adle_base_word_family_pilot_v1", {
+    p_parent_user_id: params.parentUserId, p_child_id: params.childId, p_assignment_id: params.assignmentId,
+    p_plan_date: params.planDate, p_micro_skill_key: params.microSkillKey, p_source_ref: params.sourceRef,
+    p_assignment_item_ids: params.assignmentItemIds, p_attempts: params.attempts, p_lesson: params.lesson,
+    p_transfer_misses: params.transferMisses,
+  });
+  if (error) throw new Error(`persistBaseWordFamilyPilotCompletion: ${error.message}`);
+  if (!data || typeof data !== "object" || !["completed", "already_completed"].includes(String((data as { status?: unknown }).status))) throw new Error("persistBaseWordFamilyPilotCompletion: invalid RPC response");
+  return data as { status: "completed" | "already_completed" };
 }

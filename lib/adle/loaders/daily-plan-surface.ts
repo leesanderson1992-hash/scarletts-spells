@@ -27,6 +27,7 @@ import {
 import type { IsoDate } from "../review-scheduler";
 import { loadDailyPlanFacts } from "./composer-facts-loader";
 import { insertLearningItemIntakes } from "./session-completion-loader";
+import { BASE_WORD_FAMILY_ASSIGNMENT_SOURCE, BASE_WORD_FAMILY_ASSIGNMENT_TITLE } from "../morphology/base-word-family-pilot-plan";
 
 type Client = SupabaseClient;
 
@@ -104,7 +105,7 @@ export async function findAdleHeader(
 ): Promise<{ id: string } | null> {
   const { data, error } = await userClient
     .from("daily_assignments")
-    .select("id")
+    .select("id, title, assignment_generation_source")
     .eq("parent_user_id", parentUserId)
     .eq("child_id", childId)
     .eq("assignment_date", planDate)
@@ -130,6 +131,30 @@ export async function getExistingAdleDailyPlanId(params: {
     params.planDate,
   );
   return existing?.id ?? null;
+}
+
+/** Read-only child session lookup. The explicit base-word pilot has its own
+ * persistence path but is displayed on the same ADLE session surface. */
+export async function getExistingAdleSessionPlanId(params: {
+  userClient: Client;
+  parentUserId: string;
+  childId: string;
+  planDate: IsoDate;
+}): Promise<string | null> {
+  const { data, error } = await params.userClient
+    .from("daily_assignments")
+    .select("id, title, assignment_generation_source")
+    .eq("parent_user_id", params.parentUserId)
+    .eq("child_id", params.childId)
+    .eq("assignment_date", params.planDate)
+    .limit(4);
+  if (error) throw new Error(`getExistingAdleSessionPlanId: ${error.message}`);
+  const rows = ((data ?? []) as { id: string; title: string | null; assignment_generation_source: string | null }[]).filter((row) =>
+    (row.title === BASE_WORD_FAMILY_ASSIGNMENT_TITLE && row.assignment_generation_source === BASE_WORD_FAMILY_ASSIGNMENT_SOURCE)
+    || (row.title === ADLE_DAILY_ASSIGNMENT_TITLE && row.assignment_generation_source === ADLE_ASSIGNMENT_GENERATION_SOURCE),
+  );
+  if (rows.length > 1) throw new Error("getExistingAdleSessionPlanId: multiple ADLE session assignments found for one day");
+  return rows[0]?.id ?? null;
 }
 
 export interface EnsureAdleDailyPlanParams {

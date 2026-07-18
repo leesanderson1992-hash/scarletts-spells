@@ -14,7 +14,7 @@ import { getDateOnly } from "@/lib/courses/progress";
 import { createClient } from "@/lib/supabase/server";
 import { isAdminUser } from "@/lib/admin/access";
 import {
-  getExistingAdleDailyPlanId,
+  getExistingAdleSessionPlanId,
   getAdleDailyPlanReadModel,
 } from "@/lib/adle/loaders/daily-plan-surface";
 import { resolveAdlePlanDateOverride } from "@/lib/adle/session-date-override";
@@ -24,6 +24,8 @@ import {
 import { AdleSessionCelebration } from "@/components/adle/adle-session-celebration";
 import { isMorphologyUnPilotEnabledForChild } from "@/lib/adle/morphology/pilot-access";
 import { resolveMorphologyPilotRuntime } from "@/lib/adle/morphology/payload";
+import { isBaseWordFamilyPilotEnabledForChild } from "@/lib/adle/morphology/base-word-family-pilot-access";
+import { resolveBaseWordFamilyPilotRuntime } from "@/lib/adle/morphology/base-word-family-pilot-contract";
 import { type ChildLearningReflection } from "@/lib/adle/morphology/reflections";
 import { ClearCompletedMorphologyResume } from "@/components/adle/morphology/clear-completed-resume";
 import { WordLabCompletionPerformanceObserver } from "@/components/adle/morphology/completion-performance-observer";
@@ -76,7 +78,7 @@ export default async function AdleSessionPage({ searchParams }: AdleSessionPageP
 
   let assignmentId: string | null = null;
   try {
-    assignmentId = await getExistingAdleDailyPlanId({
+    assignmentId = await getExistingAdleSessionPlanId({
       userClient: supabase,
       parentUserId: user.id,
       childId: selectedChild.id,
@@ -97,6 +99,10 @@ export default async function AdleSessionPage({ searchParams }: AdleSessionPageP
   const backPath = buildScopedPath("/learn/week", selectedChild.id, mode);
   const morphologyPilotPayload = resolveMorphologyPilotRuntime(
     isMorphologyUnPilotEnabledForChild(selectedChild.id),
+    readModel.partTwo.items,
+  );
+  const baseWordFamilyPilotPayload = resolveBaseWordFamilyPilotRuntime(
+    isBaseWordFamilyPilotEnabledForChild(selectedChild.id),
     readModel.partTwo.items,
   );
 
@@ -163,7 +169,7 @@ export default async function AdleSessionPage({ searchParams }: AdleSessionPageP
         ) : readModel.state === "completed" ? (
           <div className="grid gap-4">
             {resolvedSearchParams?.completionTrace && /^[0-9a-f-]{36}$/i.test(resolvedSearchParams.completionTrace) ? <WordLabCompletionPerformanceObserver traceId={resolvedSearchParams.completionTrace} /> : null}
-            {morphologyPilotPayload && readModel.assignmentId ? <ClearCompletedMorphologyResume assignmentId={readModel.assignmentId} contentVersion={morphologyPilotPayload.contentVersion} /> : null}
+            {(morphologyPilotPayload ?? baseWordFamilyPilotPayload) && readModel.assignmentId ? <ClearCompletedMorphologyResume assignmentId={readModel.assignmentId} contentVersion={(morphologyPilotPayload ?? baseWordFamilyPilotPayload)!.contentVersion} /> : null}
             {celebration !== null ? (
               <AdleSessionCelebration model={celebration} planDate={readModel.planDate} backPath={backPath} />
             ) : (
@@ -186,6 +192,7 @@ export default async function AdleSessionPage({ searchParams }: AdleSessionPageP
             partOne={readModel.partOne}
             partTwo={readModel.partTwo}
             morphologyPilotPayload={morphologyPilotPayload}
+            baseWordFamilyPilotPayload={baseWordFamilyPilotPayload}
           />
         )}
       </section>
