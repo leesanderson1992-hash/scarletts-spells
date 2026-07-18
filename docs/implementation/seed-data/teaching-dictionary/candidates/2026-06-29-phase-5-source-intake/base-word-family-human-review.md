@@ -16,10 +16,11 @@ All rows are `ai_assisted_draft`; `assignment_eligible=TRUE` means the record ha
 
 ## Five-word composition candidates
 
-A candidate needs at least two possible authentic targets and three transfer members. Human review must approve every route, word sum, sentence, and age/safeguarding decision before use.
+A single-family candidate needs two possible authentic targets and three transfer members. The two-family pilot may combine two reviewed authentic families, with at least one transfer from each and three transfers total.
 
 - `play_base_family` — 7 members; 2 target candidates; 4 transfers.
 - `act_base_family` — 6 members; 2 target candidates; 3 transfers.
+- Two-family pilot: `play_base_family` + `govern_base_family` — `replayed` and `government` can be authentic targets; the guided matrix is capped at eight words and independent practice at five.
 
 ## Pilot review details
 
@@ -138,6 +139,7 @@ A candidate needs at least two possible authentic targets and three transfer mem
 - `word_base_family` — 2 members; 1 target candidates; 0 transfers.
 - `work_base_family` — 2 members; 1 target candidates; 0 transfers.
 - `write_base_family` — 4 members; 2 target candidates; 1 transfers.
+- `govern_base_family` — 3 members; 1 target candidates; 1 transfers.
 
 ## Mandatory human review
 

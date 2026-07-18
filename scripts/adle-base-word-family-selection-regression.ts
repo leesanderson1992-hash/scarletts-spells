@@ -1,66 +1,49 @@
 import {
+  BASE_WORD_GUIDED_DISPLAY_LIMIT,
   selectBaseWordFamilyLesson,
+  type BaseWordFamilyMemberFact,
   type BaseWordFamilySelectionFacts,
 } from "../lib/adle/base-word-family-selection";
 import type { LearningItemFact } from "../lib/adle/learning-items";
 
-function assert(value: unknown, message: string): asserts value {
-  if (!value) throw new Error(message);
-}
-
+function assert(value: unknown, message: string): asserts value { if (!value) throw new Error(message); }
 const CHILD = "child";
 const SKILL = "D4_MOR_BASE_WORDS_PRESERVE_BASE";
-
 function item(id: string, word: string, date: string, sourceKind: LearningItemFact["sourceKind"] = "verified_misspelling"): LearningItemFact {
-  return {
-    learningItemId: id, childId: CHILD, canonicalWordId: word, microSkillKey: SKILL,
-    itemStatus: "pending", sourceKind, sourceRef: `source:${id}`, sourceAttemptText: "misspelling",
-    reteachPriority: false, ejectedOn: null, intakeOn: date, rowStatus: "active",
-  };
+  return { learningItemId: id, childId: CHILD, canonicalWordId: word, microSkillKey: SKILL, itemStatus: "pending", sourceKind, sourceRef: id, sourceAttemptText: "misspelling", reteachPriority: false, ejectedOn: null, intakeOn: date, rowStatus: "active" };
+}
+function member(baseFamilyKey: string, canonicalWordId: string, memberRole: "base" | "authentic_target" | "transfer", level = 1) {
+  return { baseFamilyKey, canonicalWordId, memberRole, assignmentEligible: true, complexityLevel: level, rowStatus: "active" as const, reviewStatus: "approved_for_first_exposure" as const };
+}
+function facts(items: readonly LearningItemFact[], members: readonly BaseWordFamilyMemberFact[] = [
+  member("PLAY", "play", "base"), member("PLAY", "replayed", "authentic_target"), member("PLAY", "replay", "transfer"), member("PLAY", "playing", "transfer"), member("PLAY", "playful", "transfer"), member("PLAY", "plays", "transfer"),
+  member("GOVERN", "govern", "base"), member("GOVERN", "government", "authentic_target"), member("GOVERN", "governor", "transfer"),
+]): BaseWordFamilySelectionFacts {
+  return { learningItems: items, families: ["PLAY", "GOVERN"].map((baseFamilyKey) => ({ baseFamilyKey, microSkillKey: SKILL, rowStatus: "active", reviewStatus: "approved_for_first_exposure" })), members };
 }
 
-function facts(items: readonly LearningItemFact[], overrides: Partial<BaseWordFamilySelectionFacts> = {}): BaseWordFamilySelectionFacts {
-  return {
-    learningItems: items,
-    families: [{ baseFamilyKey: "HELP", microSkillKey: SKILL, rowStatus: "active", reviewStatus: "approved_for_first_exposure" }],
-    members: [
-      { baseFamilyKey: "HELP", canonicalWordId: "helpful", memberRole: "authentic_target", assignmentEligible: true, complexityLevel: 1, rowStatus: "active", reviewStatus: "approved_for_first_exposure" },
-      { baseFamilyKey: "HELP", canonicalWordId: "helpless", memberRole: "authentic_target", assignmentEligible: true, complexityLevel: 1, rowStatus: "active", reviewStatus: "approved_for_first_exposure" },
-      { baseFamilyKey: "HELP", canonicalWordId: "help", memberRole: "transfer", assignmentEligible: true, complexityLevel: 1, rowStatus: "active", reviewStatus: "approved_for_first_exposure" },
-      { baseFamilyKey: "HELP", canonicalWordId: "unhelpful", memberRole: "transfer", assignmentEligible: true, complexityLevel: 2, rowStatus: "active", reviewStatus: "approved_for_first_exposure" },
-      { baseFamilyKey: "HELP", canonicalWordId: "helping", memberRole: "transfer", assignmentEligible: true, complexityLevel: 2, rowStatus: "active", reviewStatus: "approved_for_first_exposure" },
-      { baseFamilyKey: "HELP", canonicalWordId: "helpfulness", memberRole: "optional_transfer_check", assignmentEligible: true, complexityLevel: 2, rowStatus: "active", reviewStatus: "approved_for_first_exposure" },
-    ],
-    ...overrides,
-  };
-}
+const mixed = selectBaseWordFamilyLesson(CHILD, SKILL, facts([item("a", "replayed", "2026-07-01"), item("b", "government", "2026-07-02")]));
+assert(mixed.baseFamilyKeys.join("|") === "PLAY|GOVERN", "different authentic families must share the diagnostic skill, not a family key");
+assert(mixed.slots.length === 5 && mixed.slots.slice(0, 2).map((slot) => slot.canonicalWordId).join("|") === "replayed|government" && mixed.slots.slice(2).some((slot) => slot.baseFamilyKey === "PLAY") && mixed.slots.slice(2).some((slot) => slot.baseFamilyKey === "GOVERN"), "two authentic targets must be followed by a related word from each family and a safe extra");
+assert(mixed.guidedFamilySections.flatMap((section) => section.guidedWordIds).length === BASE_WORD_GUIDED_DISPLAY_LIMIT, "guided display must retain the two family matrices at the eight-word cap");
+assert(mixed.guidedFamilySections.every((section) => section.authenticTargetWordIds.every((word) => section.guidedWordIds.includes(word))), "guided display must retain authentic targets");
 
-const two = selectBaseWordFamilyLesson(CHILD, SKILL, facts([item("a", "helpful", "2026-07-01"), item("b", "helpless", "2026-07-02")]));
-assert(two.baseFamilyKey === "HELP", "two verified authentic targets must select their shared family");
-assert(two.slots.map((slot) => slot.canonicalWordId).join("|") === "helpful|helpless|help|helping|unhelpful", "authentic targets must be oldest-first and transfers must fill to five");
-assert(two.slots.filter((slot) => slot.provenance === "authentic_target").length === 2, "two authentic targets must stay priority targets");
+const same = selectBaseWordFamilyLesson(CHILD, SKILL, facts([item("a", "replayed", "2026-07-01"), item("b", "replay", "2026-07-02")]));
+assert(same.baseFamilyKeys.join("|") === "PLAY" && same.slots.length === 5, "two targets in one family remain supported");
 
-const one = selectBaseWordFamilyLesson(CHILD, SKILL, facts([item("a", "helpful", "2026-07-01")]));
+const one = selectBaseWordFamilyLesson(CHILD, SKILL, facts([item("a", "replayed", "2026-07-01")]));
 assert(one.skipReasons.includes("insufficient_verified_authentic_targets"), "one authentic target must fail closed");
 
-const probeOnly = selectBaseWordFamilyLesson(CHILD, SKILL, facts([item("a", "helpful", "2026-07-01"), item("b", "helpless", "2026-07-02", "probe_miss")]));
+const probeOnly = selectBaseWordFamilyLesson(CHILD, SKILL, facts([item("a", "replayed", "2026-07-01"), item("b", "government", "2026-07-02", "probe_miss")]));
 assert(probeOnly.skipReasons.includes("insufficient_verified_authentic_targets"), "probe-only targets must not satisfy the trigger");
 
-const missingTransfers = selectBaseWordFamilyLesson(CHILD, SKILL, facts([item("a", "helpful", "2026-07-01"), item("b", "helpless", "2026-07-02")], { members: facts([]).members.slice(0, 4) }));
-assert(missingTransfers.skipReasons.includes("insufficient_eligible_family_transfer_words"), "insufficient reviewed transfers must fail closed");
+const noGovernTransfer = selectBaseWordFamilyLesson(CHILD, SKILL, facts([item("a", "replayed", "2026-07-01"), item("b", "government", "2026-07-02")], facts([]).members.filter((entry) => entry.canonicalWordId !== "governor")));
+assert(noGovernTransfer.skipReasons.includes("selected_family_missing_transfer_word"), "a three-word govern family needs its related transfer example");
 
-const inReview = selectBaseWordFamilyLesson(CHILD, SKILL, facts([
-  item("a", "helpful", "2026-07-01"), item("b", "helpless", "2026-07-02"),
-], {
-  families: [{ baseFamilyKey: "HELP", microSkillKey: SKILL, rowStatus: "active", reviewStatus: "in_review" }],
-  members: facts([]).members.map((member) => ({ ...member, reviewStatus: "in_review" })),
-}));
-assert(inReview.skipReasons.includes("no_shared_reviewed_base_family"), "provisionally assignment-eligible in-review family members must stay outside runtime selection");
+const missingSecondFamily = selectBaseWordFamilyLesson(CHILD, SKILL, { ...facts([item("a", "replayed", "2026-07-01"), item("b", "government", "2026-07-02")]), families: facts([]).families.filter((family) => family.baseFamilyKey !== "GOVERN") });
+assert(missingSecondFamily.skipReasons.includes("authentic_target_missing_reviewed_family_member"), "the second authentic family must be present and reviewed");
 
-const sixAuthentic = selectBaseWordFamilyLesson(CHILD, SKILL, facts([
-  item("a", "helpful", "2026-07-01"), item("b", "helpless", "2026-07-02"), item("c", "help", "2026-07-03"),
-  item("d", "unhelpful", "2026-07-04"), item("e", "helping", "2026-07-05"), item("f", "helpfulness", "2026-07-06"),
-]));
-assert(sixAuthentic.slots.length === 5 && sixAuthentic.deferredAuthenticLearningItemIds.join("|") === "f", "more than five authentic targets must leave later targets pending");
+const inReview = selectBaseWordFamilyLesson(CHILD, SKILL, { ...facts([item("a", "replayed", "2026-07-01"), item("b", "government", "2026-07-02")]), families: facts([]).families.map((family) => ({ ...family, reviewStatus: "in_review" })) });
+assert(inReview.skipReasons.includes("authentic_target_missing_reviewed_family_member"), "in-review families must stay outside runtime selection");
 
 console.log("adle-base-word-family-selection-regression: ok");

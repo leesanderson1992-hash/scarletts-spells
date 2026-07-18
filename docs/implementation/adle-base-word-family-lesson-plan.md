@@ -67,11 +67,12 @@ An eligible base-word lesson requires exactly these preconditions:
 2. Each target originates from a verified authentic misspelling/correction
    route. Pending, rejected, raw, duplicate, probe-only, and free-text routes
    do not count toward the two-target threshold.
-3. Each authentic target resolves to reviewed curriculum metadata for the same
-   `base_family_key`, or an approved reviewed family can be selected for the
-   lesson without misrepresenting either authentic target's structure.
-4. The selected family has enough reviewed, age-appropriate, assignment-safe
-   words, word sums, meanings, morphology parts/joins, and independent
+3. Each authentic target resolves to reviewed curriculum metadata for its own
+   `base_family_key`. The two targets may use different families, but the
+   lesson uses no more than two authentic families.
+4. Each selected family has at least one reviewed, age-appropriate,
+   assignment-safe related word. Together, the selected families must supply
+   enough words, word sums, meanings, morphology parts/joins, and independent
    sentence support to make an exact five-word lesson.
 
 If any precondition is absent, the composer records an explicit readiness/skip
@@ -81,14 +82,17 @@ must not silently substitute an unrelated word family.
 
 ### Five-word selection
 
-The lesson always contains five selected words.
+The pilot lesson always contains exactly five independently produced words:
+the two authentic targets and three related family words.
 
 1. Select authentic targets first, oldest active learning item first.
 2. With two authentic targets, select three reviewed family/transfer words.
-   With three authentic targets, select two. With four authentic targets,
-   select one. With five or more, select the five oldest authentic targets and
-   leave the remaining learning items pending for later composition.
-3. Transfer words must belong to the selected `base_family_key`, be eligible
+   Select at least one related word from each authentic family, then fill the
+   final place from either of those families.
+3. Any further eligible authentic learning items remain pending for a later
+   lesson; the pilot never adds a third target or a third family to fill space.
+4. Transfer words must belong to one of the selected authentic
+   `base_family_key` values, be eligible
    for the child's band, be age-appropriate, have not already become an
    unsuitable active burden, and add a meaningful structural or semantic
    example rather than padding the count.
@@ -127,7 +131,7 @@ ineligible. Insufficient eligible candidates is a fail-closed content gap.
 The generalised morphology payload is an immutable semantic assignment
 snapshot, never a live recompile from current content. It must carry:
 
-- the diagnostic micro-skill and selected `base_family_key`;
+- the diagnostic micro-skill and ordered selected `base_family_key` sections;
 - each authentic target's corrected word, original attempt text/source
   reference, and child-safe discovery attribution;
 - selected family/transfer words with reviewed word sums, parts, joins,
@@ -146,7 +150,9 @@ The intended child sequence is:
 
 1. **What is a base word?** Brief explicit introduction.
 2. **Meet your words.** Show the corrected authentic words and selected family
-   members as a word matrix/family, without punitive failure language.
+   members as one or two word matrices, without punitive failure language.
+   The guided display contains at most eight words; independent production
+   remains exactly five words.
 3. **Cleave to the base.** Guided prompt to find the base that carries the
    relevant meaning.
 4. **Build word sums.** Add reviewed prefixes/suffixes and connect their
@@ -242,8 +248,9 @@ incomplete, unrelated, and unsuitable words cannot be selected.
 - Add a pure selector alongside the existing composer word selection that
   consumes learning-item facts plus Stage 1 family facts.
 - Enforce two distinct verified authentic targets for the same eligible
-  micro-skill; prioritise oldest authentic targets; fill to exactly five with
-  reviewed same-family transfer words only.
+  micro-skill; allow one or two authentic families; prioritise oldest
+  authentic targets; fill to exactly five with reviewed words from those
+  authentic families only.
 - Preserve the complexity window, taught-history exclusions, explicit skip
   reasons, and pending status of unselected authentic targets.
 
@@ -297,10 +304,21 @@ confirmed-transfer paths.
 **Exit gate:** a decision record stating either keep the slice guarded, refine
 content/implementation, or separately approve a constrained rollout.
 
+### Two-family pilot measurement rule
+
+Before increasing the guided display above eight words, run five guarded
+two-family lessons. For each lesson record completion time, authentic-target
+outcomes, transfer misses, the child's independent base-word explanation, and
+child-effort signals. Independent spelling/dictation remains exactly five
+words. A ten-word guided display may be tested only when the eight-word pilot
+is consistently timely and independent performance does not decline; twelve is
+not a default.
+
 ## Acceptance and regression criteria
 
 - Two distinct verified authentic words for one eligible base-word micro-skill
-  produce an exact five-word, reviewed same-family lesson.
+  produce an exact five-word lesson using one or two reviewed authentic
+  families, with up to eight guided-display words.
 - One authentic target, duplicate corrected targets, unverified routes,
   unrelated families, missing family facts, unsuitable candidates, missing
   independent-production support, and insufficient family words fail closed

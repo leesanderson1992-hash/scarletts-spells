@@ -32,6 +32,8 @@ COMPOUND_MEMBER_SUMS = {
     "sunshine_en_gb": "sun + shine → sunshine",
 }
 ORPHAN_REFERENCE_KEYS = {"nature_natural_en_gb", "tall_taller_tallest_en_gb"}
+KATIE_APPROVAL_AT = "2026-07-18T09:00:00+01:00"
+CRLF_CSV_FILES = {"canonical_words.csv"}
 
 
 def read_csv(name: str) -> tuple[list[str], list[dict[str, str]]]:
@@ -42,7 +44,7 @@ def read_csv(name: str) -> tuple[list[str], list[dict[str, str]]]:
 
 def write_csv(name: str, headers: list[str], rows: list[dict[str, str]]) -> None:
     with (CSV_DIR / name).open("w", encoding="utf-8", newline="") as handle:
-        writer = csv.DictWriter(handle, fieldnames=headers, lineterminator="\n", extrasaction="raise")
+        writer = csv.DictWriter(handle, fieldnames=headers, lineterminator="\r\n" if name in CRLF_CSV_FILES else "\n", extrasaction="raise")
         writer.writeheader()
         writer.writerows(rows)
 
@@ -99,6 +101,15 @@ def etymology_route(family: dict[str, str]) -> dict[str, object]:
             "child_facing_meaning": "to carry",
             "semantic_connection": "The transport-family link follows the Latin carry route. Do not teach the harbour meaning of English port as the explanation for transport.",
         })
+    elif family["base_family_key"] == "govern_base_family":
+        route.update({
+            "relation_type": "etymological_root",
+            "origin_language": "Latin via Old French",
+            "origin_form": "gubernare",
+            "literal_meaning": "to steer or rule",
+            "child_facing_meaning": "to lead or rule a country",
+            "semantic_connection": "The visible base govern is kept in governor and government; the endings build related words without changing that base spelling.",
+        })
     return route
 
 
@@ -107,6 +118,51 @@ def dictation_sentence(display_word: str) -> tuple[str, str, str]:
     # independent recall, while audio says the target exactly once.
     sentence = f"Please spell {display_word}."
     return sentence, "2", sentence
+
+
+def ensure_govern_pilot_data(
+    families: list[dict[str, str]],
+    members: list[dict[str, str]],
+    canonical_words: list[dict[str, str]],
+    metadata_rows: list[dict[str, str]],
+    support_rows: list[dict[str, str]],
+) -> None:
+    """Adds the reviewed three-word govern family for the two-family pilot."""
+    words_by_key = {row["word_key"]: row for row in canonical_words}
+    government = words_by_key["government_en_gb"]
+    for key, display, syllables, phoneme, stress in [
+        ("govern_en_gb", "govern", "2", "/ˈɡʌvən/", "primary-unstressed"),
+        ("governor_en_gb", "governor", "3", "/ˈɡʌvənə/", "primary-unstressed-unstressed"),
+    ]:
+        if key not in words_by_key:
+            row = dict(government)
+            row.update({"word_key": key, "normalised_word": display, "display_word": display, "frequency_band": "medium", "age_band": "middle_primary", "complexity_band": "medium", "source_category": "internal_authored", "source_name": "Katie base-word family pilot review", "source_url": "docs/implementation/seed-data/teaching-dictionary/candidates/2026-06-29-phase-5-source-intake", "source_licence": "internal", "source_use_note": "Human-approved base-word pilot word added for govern → governor → government.", "confidence": "medium", "review_status": "approved_for_first_exposure", "row_status": "active"})
+            canonical_words.append(row)
+            words_by_key[key] = row
+        if not any(row["word_key"] == key for row in metadata_rows):
+            template = next(row for row in metadata_rows if row["word_key"] == "government_en_gb")
+            row = dict(template)
+            row.update({"word_key": key, "syllables": syllables, "phoneme_hint": phoneme, "stress_pattern": stress, "has_schwa": "TRUE", "morphemes": f"{display}: root:govern" if display == "govern" else "governor: root:govern + suffix:or", "morphology_notes": "Reviewed base-word pilot metadata for govern → governor → government.", "source_category": "internal_authored", "source_name": "Katie base-word family pilot review", "source_url": "docs/implementation/seed-data/teaching-dictionary/candidates/2026-06-29-phase-5-source-intake", "source_licence": "internal", "source_use_note": "Human-approved base-word pilot morphology metadata.", "confidence": "medium", "review_status": "approved_for_first_exposure"})
+            metadata_rows.append(row)
+    for key in ("govern_en_gb", "governor_en_gb", "government_en_gb"):
+        if not any(row["word_key"] == key and row["micro_skill_key"] == "D4_MOR_BASE_WORDS_PRESERVE_BASE" for row in support_rows):
+            support_rows.append({"word_key": key, "micro_skill_key": "D4_MOR_BASE_WORDS_PRESERVE_BASE", "support_role": "support_example", "source_category": "internal_authored", "source_name": "Katie base-word family pilot review", "source_url": "docs/implementation/seed-data/teaching-dictionary/candidates/2026-06-29-phase-5-source-intake", "source_licence": "internal", "source_use_note": "Human-approved support mapping for the two-family base-word pilot.", "confidence": "medium", "review_status": "approved_for_first_exposure", "review_notes": "Govern family supports preserving a familiar base in longer words."})
+    for family in families:
+        if family["base_family_key"] == "play_base_family": family["micro_skill_key"] = "D4_MOR_BASE_WORDS_PRESERVE_BASE"
+    if not any(row["base_family_key"] == "govern_base_family" for row in families):
+        families.append({"base_family_key": "govern_base_family", "micro_skill_key": "D4_MOR_BASE_WORDS_PRESERVE_BASE", "base_word_key": "govern_en_gb", "base_meaning": "to lead or rule a country", "etymology_route": "", "source_category": "internal_authored", "source_name": "Katie base-word family pilot review", "source_url": "https://www.etymonline.com/search?q=govern", "source_licence": "internal", "source_use_note": "Human-approved three-word govern family for the two-family base-word pilot.", "confidence": "medium", "review_status": "approved_for_first_exposure", "reviewed_by": "Katie", "reviewed_at": KATIE_APPROVAL_AT})
+    parts = {
+        "govern_en_gb": [{"id": "part_1", "kind": "base", "morphemeKey": None, "sourceText": "govern", "surfaceText": "govern", "gloss": "lead or rule", "displayRange": {"start": 0, "end": 6}}],
+        "governor_en_gb": [{"id": "part_1", "kind": "base", "morphemeKey": None, "sourceText": "govern", "surfaceText": "govern", "gloss": "lead or rule", "displayRange": {"start": 0, "end": 6}}, {"id": "part_2", "kind": "suffix", "morphemeKey": None, "sourceText": "or", "surfaceText": "or", "gloss": "person who", "displayRange": {"start": 6, "end": 8}}],
+        "government_en_gb": [{"id": "part_1", "kind": "base", "morphemeKey": None, "sourceText": "govern", "surfaceText": "govern", "gloss": "lead or rule", "displayRange": {"start": 0, "end": 6}}, {"id": "part_2", "kind": "suffix", "morphemeKey": None, "sourceText": "ment", "surfaceText": "ment", "gloss": "result or state", "displayRange": {"start": 6, "end": 10}}],
+    }
+    sums = {"govern_en_gb": "govern", "governor_en_gb": "govern + or → governor", "government_en_gb": "govern + ment → government"}
+    roles = {"govern_en_gb": "base", "governor_en_gb": "transfer", "government_en_gb": "authentic_target"}
+    for key in parts:
+        if any(row["base_family_key"] == "govern_base_family" and row["word_key"] == key for row in members): continue
+        display = words_by_key[key]["display_word"]
+        sentence, token_index, audio = dictation_sentence(display)
+        members.append({"base_family_key": "govern_base_family", "word_key": key, "member_role": roles[key], "word_sum": sums[key], "morphology_parts": json.dumps(parts[key], separators=(",", ":")), "morphology_joins": json.dumps([] if len(parts[key]) == 1 else [{"afterPartId": "part_1", "beforePartId": "part_2", "joinType": "none"}], separators=(",", ":")), "transformation_notes": "Keep govern unchanged while adding the ending.", "dictation_sentence": sentence, "dictation_target_token_index": token_index, "audio_text": audio, "assignment_eligible": "TRUE", "source_category": "internal_authored", "source_name": "Katie base-word family pilot review", "source_url": "https://www.etymonline.com/search?q=govern", "source_licence": "internal", "source_use_note": "Human-approved three-word govern family for the two-family base-word pilot.", "confidence": "medium", "review_status": "approved_for_first_exposure", "reviewed_by": "Katie", "reviewed_at": KATIE_APPROVAL_AT})
 
 
 def main() -> int:
@@ -118,7 +174,13 @@ def main() -> int:
         parser.error("--approve-reviewer and --approved-at must be supplied together.")
     family_headers, families = read_csv("base_word_families.csv")
     member_headers, members = read_csv("base_word_family_members.csv")
-    _, canonical_words = read_csv("canonical_words.csv")
+    canonical_headers, canonical_words = read_csv("canonical_words.csv")
+    metadata_headers, metadata_rows = read_csv("canonical_word_metadata.csv")
+    support_headers, support_rows = read_csv("micro_skill_word_support.csv")
+    ensure_govern_pilot_data(families, members, canonical_words, metadata_rows, support_rows)
+    write_csv("canonical_words.csv", canonical_headers, canonical_words)
+    write_csv("canonical_word_metadata.csv", metadata_headers, metadata_rows)
+    write_csv("micro_skill_word_support.csv", support_headers, support_rows)
     display_by_key = {row["word_key"]: row["display_word"] for row in canonical_words}
 
     orphan_rows_removed = 0
@@ -196,9 +258,10 @@ def main() -> int:
         "",
         "## Five-word composition candidates",
         "",
-        "A candidate needs at least two possible authentic targets and three transfer members. Human review must approve every route, word sum, sentence, and age/safeguarding decision before use.",
+        "A single-family candidate needs two possible authentic targets and three transfer members. The two-family pilot may combine two reviewed authentic families, with at least one transfer from each and three transfers total.",
         "",
         *[f"- `{key}` — {count} members; {targets} target candidates; {transfers} transfers." for key, count, targets, transfers in ready],
+        "- Two-family pilot: `play_base_family` + `govern_base_family` — `replayed` and `government` can be authentic targets; the guided matrix is capped at eight words and independent practice at five.",
         "",
         "## Pilot review details",
         "",
