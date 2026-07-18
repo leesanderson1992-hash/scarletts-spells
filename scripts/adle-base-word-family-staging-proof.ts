@@ -102,7 +102,7 @@ async function preflight(db: SupabaseClient) {
   const input = manifest(); const counts = input.counts as Record<string, number>;
   assert(input.fixture_key === "adle_base_word_family_pilot_v1", "fixture key matches this proof");
   assert(input.micro_skill_key === SKILL, "fixture micro-skill matches this proof");
-  assert(JSON.stringify(input.families) === JSON.stringify([...FAMILY_KEYS]), "fixture contains only approved play/govern families");
+  assert(JSON.stringify([...(input.families as string[])].sort()) === JSON.stringify([...FAMILY_KEYS].sort()), "fixture contains only approved play/govern families");
   for (const [file, expected] of Object.entries(counts)) assert(csv(file).length === expected, `${file} count matches fixture manifest`);
   for (const table of ["canonical_teaching_dictionary_import_batches", "canonical_teaching_dictionary_words", "canonical_teaching_dictionary_base_word_families", "canonical_teaching_dictionary_base_word_family_members", "adle_learning_items", "adle_base_word_transfer_miss_events", "adle_base_word_family_pilot_runs"]) await count(db, table);
   const fingerprint = sha(readFileSync(resolve(FIXTURE, "fixture-manifest.json"), "utf8"));
