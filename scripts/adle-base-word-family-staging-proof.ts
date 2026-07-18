@@ -98,6 +98,15 @@ async function auditCounts(db: SupabaseClient) {
   return Object.fromEntries(await Promise.all(AUDIT_TABLES.map(async (table) => [table, await count(db, table)] as const)));
 }
 
+async function removeFixtureBatch(db: SupabaseClient, batchId: string, removeCreatedMicroSkill: boolean) {
+  for (const table of ["canonical_teaching_dictionary_field_reviews", "canonical_teaching_dictionary_readiness_reports", "canonical_teaching_dictionary_content_versions", "canonical_teaching_dictionary_base_word_family_members", "canonical_teaching_dictionary_base_word_families", "canonical_teaching_dictionary_word_support", "canonical_teaching_dictionary_word_metadata", "canonical_teaching_dictionary_words", "canonical_teaching_dictionary_sources"] as const) {
+    const { error } = await db.from(table).delete().eq("import_batch_id", batchId);
+    if (error) throw new Error(`cleanup ${table}: ${error.message}`);
+  }
+  { const { error } = await db.from("canonical_teaching_dictionary_import_batches").delete().eq("id", batchId); if (error) throw new Error(`cleanup import batch: ${error.message}`); }
+  if (removeCreatedMicroSkill) { const { error } = await db.from("micro_skill_catalog").delete().eq("micro_skill_key", SKILL); if (error) throw new Error(`cleanup created micro-skill prerequisite: ${error.message}`); }
+}
+
 async function preflight(db: SupabaseClient) {
   const input = manifest(); const counts = input.counts as Record<string, number>;
   assert(input.fixture_key === "adle_base_word_family_pilot_v1", "fixture key matches this proof");
@@ -126,6 +135,7 @@ async function load(db: SupabaseClient) {
   const { data: batch, error: batchError } = await db.from("canonical_teaching_dictionary_import_batches").insert({ source_folder_path: "staging-fixtures/adle-base-word-family-pilot-v1", source_folder_sha256: fingerprint, source_commit: null, validator_version: "adle_base_word_family_staging_proof_v1", validation_summary: { fixture: "adle_base_word_family_pilot_v1", disposable: true }, row_counts: manifest().counts, readiness_summary: { ready_for_first_exposure: true }, import_mode: "local_dev_import", batch_status: "applied", source_metadata: { disposable: true, fixture: "adle_base_word_family_pilot_v1" }, imported_by: "adle-base-word-family-staging-proof", imported_at: now }).select("id").single();
   if (batchError || !batch) throw new Error(`create import batch: ${batchError?.message}`);
   const batchId = (batch as { id: string }).id;
+  save({ host: new URL(process.env.NEXT_PUBLIC_SUPABASE_URL ?? process.env.SUPABASE_URL!).hostname, batchId, createdMicroSkill, parentUserId: null, childId: null, assignmentId: null, planDate: null, wordIds: {}, baselineCounts });
   try {
     const sourceRows = csv("teaching_content_sources.csv").map((row, index) => ({ import_batch_id: batchId, row_status: "active", ...provenance("teaching_content_sources.csv", row, index), source_key: row.source_key, source_category: row.source_category, source_name: value(row, "source_name"), source_url: value(row, "source_url"), source_licence: value(row, "source_licence"), source_use_note: value(row, "source_use_note"), importability_status: row.importability_status, legal_review_status: row.legal_review_status }));
     if (sourceRows.length) { const { error } = await db.from("canonical_teaching_dictionary_sources").insert(sourceRows); if (error) throw new Error(`insert sources: ${error.message}`); }
@@ -143,11 +153,11 @@ async function load(db: SupabaseClient) {
     const contentInput = csv("teaching_content_versions.csv")[0]; assert(contentInput, "fixture has teaching content");
     const { data: content, error: contentError } = await db.from("canonical_teaching_dictionary_content_versions").insert({ import_batch_id: batchId, source_id: null, ...provenance("teaching_content_versions.csv", contentInput, 0), micro_skill_key: contentInput.micro_skill_key, content_version: contentInput.content_version, version_status: contentInput.version_status, is_active: bool(contentInput.is_active), teaching_objective: contentInput.teaching_objective, child_friendly_explanation: contentInput.child_friendly_explanation, rule_explanation: contentInput.rule_explanation, memory_tip: value(contentInput, "memory_tip"), common_misconceptions: contentInput.common_misconceptions, first_exposure_progression: parts(contentInput.first_exposure_progression), guided_practice_progression: parts(contentInput.guided_practice_progression), review_proofreading_progression: parts(contentInput.review_proofreading_progression), example_selection_guidance: contentInput.example_selection_guidance, contrast_policy_guidance: contentInput.contrast_policy_guidance, sample_preview_word_key: contentInput.sample_preview_word_key, source_category: contentInput.source_category, source_name: value(contentInput, "source_name"), source_url: value(contentInput, "source_url"), source_licence: value(contentInput, "source_licence"), source_use_note: value(contentInput, "source_use_note"), confidence: contentInput.confidence, supersedes_content_version: value(contentInput, "supersedes_content_version"), final_readiness_review_status: contentInput.final_readiness_review_status, final_readiness_reviewed_by: value(contentInput, "final_readiness_reviewed_by"), final_readiness_reviewed_at: value(contentInput, "final_readiness_reviewed_at"), created_by: "adle-base-word-family-staging-proof" }).select("id").single();
     if (contentError || !content) throw new Error(`insert teaching content: ${contentError?.message}`);
-    const reviewRows = csv("teaching_content_field_reviews.csv").map((row, index) => ({ teaching_content_version_id: (content as { id: string }).id, ...provenance("teaching_content_field_reviews.csv", row, index), field_key: row.field_key, review_gate: row.review_gate, review_status: row.review_status, reviewed_by: value(row, "reviewed_by"), reviewed_at: value(row, "reviewed_at"), review_notes: value(row, "review_notes") }));
+    const reviewRows = csv("teaching_content_field_reviews.csv").map((row, index) => ({ import_batch_id: batchId, teaching_content_version_id: (content as { id: string }).id, ...provenance("teaching_content_field_reviews.csv", row, index), field_key: row.field_key, review_gate: row.review_gate, review_status: row.review_status, reviewed_by: value(row, "reviewed_by"), reviewed_at: value(row, "reviewed_at"), review_notes: value(row, "review_notes") }));
     { const { error } = await db.from("canonical_teaching_dictionary_field_reviews").insert(reviewRows); if (error) throw new Error(`insert field reviews: ${error.message}`); }
     save({ host: new URL(process.env.NEXT_PUBLIC_SUPABASE_URL ?? process.env.SUPABASE_URL!).hostname, batchId, createdMicroSkill, parentUserId: null, childId: null, assignmentId: null, planDate: null, wordIds, baselineCounts });
     console.log(JSON.stringify({ status: "fixture_loaded", batchId, wordCount: Object.keys(wordIds).length, familyCount: Object.keys(familyIds).length }));
-  } catch (error) { await db.from("canonical_teaching_dictionary_import_batches").delete().eq("id", batchId); if (createdMicroSkill) await db.from("micro_skill_catalog").delete().eq("micro_skill_key", SKILL); throw error; }
+  } catch (error) { try { await removeFixtureBatch(db, batchId, createdMicroSkill); rmSync(STATE_PATH, { force: true }); } catch (cleanupError) { throw new Error(`${error instanceof Error ? error.message : String(error)}; cleanup failed: ${cleanupError instanceof Error ? cleanupError.message : String(cleanupError)}`); } throw error; }
 }
 
 async function setup(db: SupabaseClient) {
@@ -179,14 +189,20 @@ async function cleanup(db: SupabaseClient) {
   mutating("cleanup"); const current = state(); assert(process.env.ADLE_BASE_WORD_FAMILY_PILOT_ENABLED !== "enabled" || process.env.ADLE_BASE_WORD_FAMILY_PILOT_EMERGENCY_DISABLED === "true", "disable the local/preview pilot gate before cleanup");
   if (current.childId) await db.from("children").delete().eq("id", current.childId);
   if (current.parentUserId) await db.auth.admin.deleteUser(current.parentUserId);
-  for (const table of ["canonical_teaching_dictionary_field_reviews", "canonical_teaching_dictionary_content_versions", "canonical_teaching_dictionary_base_word_family_members", "canonical_teaching_dictionary_base_word_families", "canonical_teaching_dictionary_word_support", "canonical_teaching_dictionary_word_metadata", "canonical_teaching_dictionary_words", "canonical_teaching_dictionary_sources"] as const) { const { error } = await db.from(table).delete().eq("import_batch_id", current.batchId); if (error) throw new Error(`cleanup ${table}: ${error.message}`); }
-  { const { error } = await db.from("canonical_teaching_dictionary_import_batches").delete().eq("id", current.batchId); if (error) throw new Error(`cleanup import batch: ${error.message}`); }
-  if (current.createdMicroSkill) { const { error } = await db.from("micro_skill_catalog").delete().eq("micro_skill_key", SKILL); if (error) throw new Error(`cleanup created micro-skill prerequisite: ${error.message}`); }
+  await removeFixtureBatch(db, current.batchId, current.createdMicroSkill);
   assert(await count(db, "canonical_teaching_dictionary_import_batches", [["id", current.batchId]]) === 0, "fixture import batch was removed");
   if (current.childId) assert(await count(db, "children", [["id", current.childId]]) === 0, "disposable child was removed");
   const afterCounts = await auditCounts(db); const changed = AUDIT_TABLES.filter((table) => afterCounts[table] !== current.baselineCounts[table]);
   assert(changed.length === 0, `cleanup must restore preflight counts (${changed.join(", ")})`);
   rmSync(STATE_PATH, { force: true }); console.log("ADLE base-word-family staging proof cleanup passed");
+}
+
+async function recover(db: SupabaseClient) {
+  mutating("recover"); const fingerprint = sha(readFileSync(resolve(FIXTURE, "fixture-manifest.json"), "utf8"));
+  const { data, error } = await db.from("canonical_teaching_dictionary_import_batches").select("id").eq("source_folder_sha256", fingerprint);
+  if (error) throw new Error(`failed fixture batch lookup: ${error.message}`);
+  assert((data ?? []).length === 1, "recovery requires exactly one failed fixture batch");
+  await removeFixtureBatch(db, (data![0] as { id: string }).id, true); rmSync(STATE_PATH, { force: true }); console.log("ADLE base-word-family failed fixture batch recovery passed");
 }
 
 async function main() {
@@ -196,6 +212,7 @@ async function main() {
   if (command === "setup") return setup(db);
   if (command === "verify") return verify(db);
   if (command === "cleanup") return cleanup(db);
-  throw new Error("Use preflight, load, setup, verify, or cleanup.");
+  if (command === "recover") return recover(db);
+  throw new Error("Use preflight, load, setup, verify, cleanup, or recover.");
 }
 main().catch((error) => { console.error(error instanceof Error ? error.message : error); process.exit(1); });

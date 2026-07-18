@@ -10,5 +10,6 @@ assert(source.includes('assignmentItems: 13') && source.includes('adle_base_word
 assert(source.includes('canonical_teaching_dictionary_import_batches') && source.includes('source_folder_sha256'), "fixture writes are tracked by an import batch fingerprint");
 assert(source.includes('baselineCounts') && source.includes('cleanup must restore preflight counts'), "cleanup proves the protected staging counts return to baseline");
 assert(source.includes('input.families as string[]') && source.includes('.sort()'), "fixture-family validation is order-independent");
+assert(source.includes('removeFixtureBatch') && source.includes('canonical_teaching_dictionary_readiness_reports') && source.includes('command === "recover"'), "partial fixture imports have an exact-batch recovery path");
 assert(source.includes('disable the local/preview pilot gate before cleanup') && source.includes('rmSync(STATE_PATH'), "cleanup disables access first and removes opaque local state");
 console.log("adle-base-word-family-staging-proof-regression: ok");

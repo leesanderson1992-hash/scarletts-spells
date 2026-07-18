@@ -16,6 +16,10 @@ or broad `supabase db push`.
 5. Complete, reload, and verify: immutable payload binding; idempotent completion; authentic-target schedules; transfer first-miss ledger only; no transfer schedule; unchanged reward, mastery, and parent-control records.
 6. Disable the preview gate, then run `cleanup` with the same acknowledgement and confirmation. It removes only the recorded child/account and import-batch rows. Record only aggregate counts in the release note.
 
+If `load` stops after creating its batch, do not rerun it. Use the guarded
+`recover` command with the same confirmation to remove the one matching
+fixture batch, rerun `preflight`, and then retry `load`.
+
 ## Production release hold-point
 
 Requires separate explicit release approval, migration-ledger check, and a confirmed Scarlett-only allowlist. The emergency stop is `ADLE_BASE_WORD_FAMILY_PILOT_EMERGENCY_DISABLED=true`. Do not enable the gate in this implementation task.
