@@ -21,4 +21,6 @@ assert(buildBaseWordFamilyPilotItems({ payload, childId: "child", parentUserId: 
 const migration = readFileSync("supabase/migrations/20260718110000_add_adle_base_word_family_pilot_guard.sql", "utf8");
 assert(migration.includes("pilot_lesson_number between 1 and 5") && migration.includes("v_run_number > 5"), "database owns the five-lesson cap");
 assert(migration.includes("service_role") && migration.includes("enable row level security"), "pilot persistence remains service-only behind RLS");
+assert(migration.includes("complete_adle_base_word_family_pilot_v1") && migration.includes("exactly two authentic targets"), "base-word completion has its own atomic boundary");
+assert(migration.includes("Transfer words cannot enter base-word pilot scheduling") && migration.includes("record_adle_base_word_transfer_miss_v1"), "transfer misses are ledgered without adding transfer review work");
 console.log("adle-base-word-family-pilot-contract-regression: ok");
