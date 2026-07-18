@@ -1,0 +1,43 @@
+{
+  "cleanup_contract": "Delete only rows associated with the recorded staging import batch after proof verification; never delete shared curriculum rows.",
+  "counts": {
+    "base_word_families.csv": 2,
+    "base_word_family_members.csv": 8,
+    "canonical_word_metadata.csv": 9,
+    "canonical_words.csv": 9,
+    "micro_skill_word_support.csv": 3,
+    "teaching_content_field_reviews.csv": 11,
+    "teaching_content_sources.csv": 20,
+    "teaching_content_versions.csv": 1
+  },
+  "families": [
+    "govern_base_family",
+    "play_base_family"
+  ],
+  "fixture_key": "adle_base_word_family_pilot_v1",
+  "import_policy": "not directly importable; requires a separately reviewed staging-only importer",
+  "micro_skill_key": "D4_MOR_BASE_WORDS_PRESERVE_BASE",
+  "purpose": "disposable staging proof only",
+  "source_csv_folder": "docs/implementation/seed-data/teaching-dictionary/candidates/2026-06-29-phase-5-source-intake/csv",
+  "source_csv_sha256": {
+    "base_word_families.csv": "11c4683ca25a457864c6bd4ebc68ce31423d86ced150b49270d3810cee3066d8",
+    "base_word_family_members.csv": "29e16151d7933ea7a6cbd0c529b6e0e22c42cba8b05ad150cf5105321cbce8b4",
+    "canonical_word_metadata.csv": "c331825cdbe65bc795db7124a05fc2f7d065134f24fc1c68affdd80970567141",
+    "canonical_words.csv": "ba99a5b9507df39850e6f493644def7169d3a6559297c7acde702e365239177a",
+    "micro_skill_word_support.csv": "e20c314cf752d2d4e2f7e117e1e157f5ab9df8ef7edada758b1eb3465133c0bc",
+    "teaching_content_field_reviews.csv": "483ce38b866e3e0d0bd19b844d01f1ef0badc17cb802d8f499f9a618c83dc92d",
+    "teaching_content_sources.csv": "d8be7333fbd7067a3c762a04a27de022e46899b99948f916f4136d11f0e1384d",
+    "teaching_content_versions.csv": "d21ded0caa7d41c7d19512213305efcc27cb0c09f8c3319c7f7eca26533bdbb4"
+  },
+  "word_keys": [
+    "careless_en_gb",
+    "govern_en_gb",
+    "government_en_gb",
+    "governor_en_gb",
+    "play_en_gb",
+    "playing_en_gb",
+    "plays_en_gb",
+    "replay_en_gb",
+    "replayed_en_gb"
+  ]
+}
