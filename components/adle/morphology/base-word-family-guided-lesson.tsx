@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 
 import { CoverShutter, DiffReveal, HearWordButton, SnapRail, SplitHandle } from "@/components/adle/activities/shared";
+import type { GuideBeatV1 } from "@/lib/adle/morphology/payload";
 import type { BaseWordFamilyLessonSnapshotV1, BaseWordFamilySnapshotWord } from "@/lib/adle/morphology/base-word-family-payload";
 import { baseWordFamilyResumeKey, normaliseBaseWordFamilyResume, type BaseWordFamilyResumeState } from "@/lib/adle/morphology/base-word-family-resume";
 import { WordLabScene } from "./word-lab-scene";
@@ -16,6 +17,24 @@ type Part = { id: string; surfaceText: string; gloss?: string; kind?: string };
 function parts(word: BaseWordFamilySnapshotWord): Part[] { return word.parts.filter((part): part is Part => !!part && typeof part === "object" && typeof (part as Part).id === "string" && typeof (part as Part).surfaceText === "string"); }
 function splitPoints(word: BaseWordFamilySnapshotWord): number[] { let position = 0; return parts(word).slice(0, -1).map((part) => (position += part.surfaceText.length)); }
 
+function guideBeat(stage: BaseWordFamilyResumeState["stage"]): GuideBeatV1 {
+  const copy: Record<BaseWordFamilyResumeState["stage"], { say: string; goal: string; waitFor: string }> = {
+    intro: { say: "Let’s use a familiar base word to unlock a whole family of words.", goal: "Learn the base-word strategy", waitFor: "your next step" },
+    families: { say: "Tap the word from your writing and watch its family appear.", goal: "Meet a word family", waitFor: "a family reveal" },
+    cleave: { say: "Use the cleaver to find where the meaningful word parts join.", goal: "Find the base inside the word", waitFor: "the correct split" },
+    word_sums: { say: "Build the word that matches the meaning. Each tile is a useful word part.", goal: "Build word sums", waitFor: "a completed word" },
+    controlled: { say: "Now the word hides. Use the base word to help you remember its spelling.", goal: "Remember six words", waitFor: "your independent spelling" },
+    dictation: { say: "Listen carefully, then write the whole sentence in context.", goal: "Use words in sentences", waitFor: "your dictation" },
+    reflect: { say: "Tell me how finding the base word helped you today.", goal: "Reflect on the strategy", waitFor: "your reflection" },
+  };
+  const current = copy[stage];
+  return { id: `base-word-${stage}`, activityId: stage, state: stage === "reflect" ? "reflect" : "focus", say: current.say, narration: current.say, goal: current.goal, waitFor: current.waitFor, onComplete: "Great thinking — keep using the base word as your spelling anchor." };
+}
+
+function clueFor(stage: BaseWordFamilyResumeState["stage"]): string {
+  return stage === "families" ? "Tap the large word card. Its related words will appear around the base." : stage === "cleave" ? "Look for the edge of a meaningful word part. After two tries, the cleaver will point to it." : stage === "word_sums" ? "Choose the base tile first, then add any beginning or ending tiles in the order you hear them." : stage === "controlled" ? "Picture the word family and its base before you write." : stage === "dictation" ? "Listen more than once if you need to. Write the whole sentence, then check it." : "A base word is a familiar word that stays inside a longer word.";
+}
+
 export function BaseWordFamilyGuidedLesson(props: {
   previewId?: string; assignmentId?: string; payload: BaseWordFamilyLessonSnapshotV1;
   onPreviewComplete?: (reflection: string) => void;
@@ -23,17 +42,19 @@ export function BaseWordFamilyGuidedLesson(props: {
 }) {
   const [state, setState] = useState<BaseWordFamilyResumeState>(INITIAL);
   const [hydrated, setHydrated] = useState(false);
+  const [muted, setMuted] = useState(false);
+  const [clueOpen, setClueOpen] = useState(false);
   const key = baseWordFamilyResumeKey(props.assignmentId ?? props.previewId ?? "base-word-family", props.payload.contentVersion);
-  const update = (patch: Partial<BaseWordFamilyResumeState>) => setState((current) => ({ ...current, ...patch }));
+  const update = (patch: Partial<BaseWordFamilyResumeState>) => { setClueOpen(false); setState((current) => ({ ...current, ...patch })); };
   useEffect(() => { try { const saved = window.localStorage.getItem(key); const restored = saved ? normaliseBaseWordFamilyResume(JSON.parse(saved), props.payload) : null; if (restored) setState(restored); } catch { /* Resume is optional. */ } setHydrated(true); }, [key, props.payload]);
   useEffect(() => { if (!hydrated) return; try { window.localStorage.setItem(key, JSON.stringify(state)); } catch { /* Resume is optional. */ } }, [hydrated, key, state]);
   if (!hydrated) return <div role="status" aria-live="polite" className="brand-card rounded-3xl p-8 text-center text-sm text-[color:var(--mid)]">Preparing the base-word Word Lab…</div>;
   const guidedWords = props.payload.familySections.flatMap((section) => section.guidedWords);
   const independent = props.payload.independentWords[state.stage === "controlled" ? state.controlledIndex : state.dictationIndex];
   const phase = state.stage === "intro" ? 0 : state.stage === "families" ? 1 : state.stage === "cleave" ? 2 : state.stage === "word_sums" ? 4 : state.stage === "controlled" ? 5 : 5;
-  return <WordLabScene beat={{ id: "base-word-family", activityId: state.stage, state: "guideSilent", goal: "Find the familiar base word.", waitFor: "the next step", onComplete: "done" }} phase={phase} muted={false} onMutedChange={() => undefined} silent={state.stage === "controlled" || state.stage === "dictation"}>
+  return <WordLabScene beat={guideBeat(state.stage)} phase={phase} muted={muted} onMutedChange={setMuted} silent={state.stage === "controlled" || state.stage === "dictation"} help={clueOpen ? clueFor(state.stage) : undefined} onHelp={() => setClueOpen((current) => !current)} guideName="Word Builder">
     {state.stage === "intro" ? <Intro payload={props.payload} onNext={() => update({ stage: "families" })} /> : null}
-    {state.stage === "families" ? <FamilyReveal section={props.payload.familySections[state.familyIndex]} number={state.familyIndex + 1} total={props.payload.familySections.length} onNext={() => update({ stage: "cleave", cleaveIndex: state.familyIndex, cleaveStep: 0 })} /> : null}
+    {state.stage === "families" ? <FamilyReveal key={props.payload.familySections[state.familyIndex].baseFamilyKey} section={props.payload.familySections[state.familyIndex]} number={state.familyIndex + 1} total={props.payload.familySections.length} onNext={() => update({ stage: "cleave", cleaveIndex: state.familyIndex, cleaveStep: 0 })} /> : null}
     {state.stage === "cleave" ? <Cleave word={guidedWords.find((word) => word.canonicalWordId === props.payload.authenticTargets[state.cleaveIndex].canonicalWordId)!} step={state.cleaveStep} misses={state.cleaveMisses} onMiss={(id, misses) => update({ cleaveMisses: { ...state.cleaveMisses, [id]: misses } })} onNext={(nextStep) => { const currentWord = guidedWords.find((word) => word.canonicalWordId === props.payload.authenticTargets[state.cleaveIndex].canonicalWordId)!; if (nextStep < splitPoints(currentWord).length) update({ cleaveStep: nextStep }); else if (state.cleaveIndex + 1 < props.payload.authenticTargets.length) update({ stage: "families", familyIndex: state.cleaveIndex + 1, cleaveStep: 0 }); else update({ stage: "word_sums", buildIndex: 0 }); }} /> : null}
     {state.stage === "word_sums" ? <WordBuilder words={guidedWords} index={state.buildIndex} onNext={() => state.buildIndex + 1 < guidedWords.length ? update({ buildIndex: state.buildIndex + 1 }) : update({ stage: "controlled" })} /> : null}
     {state.stage === "controlled" ? <Controlled word={independent} index={state.controlledIndex} total={props.payload.independentWords.length} attempt={state.controlledAttempts[independent.canonicalWordId] ?? ""} checked={state.controlledChecked[independent.canonicalWordId] === true} onAttempt={(attempt) => update({ controlledAttempts: { ...state.controlledAttempts, [independent.canonicalWordId]: attempt } })} onChecked={() => update({ controlledChecked: { ...state.controlledChecked, [independent.canonicalWordId]: true } })} onNext={() => state.controlledIndex + 1 < props.payload.independentWords.length ? update({ controlledIndex: state.controlledIndex + 1 }) : update({ stage: "dictation", dictationIndex: 0 })} /> : null}
@@ -44,7 +65,22 @@ export function BaseWordFamilyGuidedLesson(props: {
 
 function Intro(props: { payload: BaseWordFamilyLessonSnapshotV1; onNext: () => void }) { return <section className="grid gap-5 text-center"><p className="text-xs font-black uppercase tracking-[.2em] text-cyan-200">Base-word strategy</p><h1 className="text-3xl font-black text-white">A familiar base can help you spell bigger words.</h1><p className="mx-auto max-w-2xl text-lg leading-8 text-cyan-50">Today we will look for a base word that stays inside a longer word. Knowing one spelling can help with many related words.</p><div className="grid gap-3 sm:grid-cols-2">{props.payload.authenticTargets.map((target) => <article key={target.canonicalWordId} className="rounded-2xl bg-white p-4 text-slate-950"><p className="text-xs font-black uppercase tracking-[.16em] text-slate-500">A word from your writing</p><p className="mt-1 text-2xl font-black">{props.payload.familySections.flatMap((section) => section.guidedWords).find((word) => word.canonicalWordId === target.canonicalWordId)?.displayWord}</p></article>)}</div><button type="button" onClick={props.onNext} className="mx-auto min-h-12 rounded-full bg-cyan-300 px-7 font-black text-slate-950">Meet the word families</button></section>; }
 
-function FamilyReveal(props: { section: BaseWordFamilyLessonSnapshotV1["familySections"][number]; number: number; total: number; onNext: () => void }) { const [revealed, setRevealed] = useState(false); const target = props.section.guidedWords.find((word) => props.section.authenticTargetWordIds.includes(word.canonicalWordId))!; return <section className="grid gap-5 text-center"><p className="text-xs font-black uppercase tracking-[.2em] text-cyan-200">Family {props.number} of {props.total}</p><h2 className="text-3xl font-black text-white">Tap the word to meet its family</h2><button type="button" onClick={() => setRevealed(true)} aria-expanded={revealed} className="mx-auto rounded-2xl bg-amber-100 px-7 py-5 text-3xl font-black text-amber-950 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-cyan-300">{target.displayWord}</button>{revealed ? <><p className="text-lg text-cyan-50">The familiar base is <strong>{props.section.baseWord.displayWord}</strong>: {props.section.baseMeaning}.</p><div className="grid gap-3 sm:grid-cols-2">{props.section.guidedWords.map((word, index) => <article key={word.canonicalWordId} className="rounded-2xl bg-white p-4 text-left text-slate-950 motion-safe:animate-[fade-in_300ms_ease-out_both]" style={{ animationDelay: `${index * 90}ms` }}><p className="text-xl font-black">{word.displayWord}</p><p className="mt-1 text-sm font-semibold text-slate-600">{word.childFriendlyMeaning}</p></article>)}</div><button type="button" onClick={props.onNext} className="mx-auto min-h-12 rounded-full bg-cyan-300 px-7 font-black text-slate-950">Cleave out the base</button></> : <p className="text-cyan-50">Tap to see the related words jump out.</p>}</section>; }
+function FamilyReveal(props: { section: BaseWordFamilyLessonSnapshotV1["familySections"][number]; number: number; total: number; onNext: () => void }) {
+  const [revealed, setRevealed] = useState(false);
+  const target = props.section.guidedWords.find((word) => props.section.authenticTargetWordIds.includes(word.canonicalWordId))!;
+  return <section className="grid gap-5 text-center" aria-labelledby={`family-${props.section.baseFamilyKey}`}>
+    <p className="text-xs font-black uppercase tracking-[.2em] text-cyan-200">Meet your words · family {props.number} of {props.total}</p>
+    <h2 id={`family-${props.section.baseFamilyKey}`} className="text-3xl font-black text-white">This word came from your writing</h2>
+    <button type="button" onClick={() => setRevealed(true)} aria-expanded={revealed} className="group mx-auto grid min-h-32 min-w-56 place-items-center rounded-[2rem] border-4 border-amber-200 bg-amber-100 px-7 py-5 text-3xl font-black text-amber-950 shadow-[0_16px_0_rgba(146,64,14,.25)] transition-transform hover:-translate-y-1 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-cyan-300">
+      <span className="text-xs font-black uppercase tracking-[.16em] text-amber-800">Tap to open</span><span>{target.displayWord}</span>
+    </button>
+    {!revealed ? <p className="text-cyan-50">Tap it and its word family will jump out.</p> : <>
+      <div className="mx-auto max-w-2xl rounded-3xl border border-cyan-200/30 bg-cyan-100/10 p-4"><p className="text-sm font-semibold text-cyan-50">Every word in this family keeps the familiar base.</p><div className="mt-3 inline-flex flex-col items-center rounded-2xl bg-amber-100 px-6 py-4 text-amber-950 shadow-lg"><span className="text-xs font-black uppercase tracking-[.15em]">Base word</span><strong className="text-3xl">{props.section.baseWord.displayWord}</strong><span className="mt-1 text-sm font-semibold">{props.section.baseMeaning}</span></div></div>
+      <div className="grid gap-3 sm:grid-cols-2">{props.section.guidedWords.map((word, index) => <article key={word.canonicalWordId} className="rounded-2xl border border-white/25 bg-white p-4 text-left text-slate-950 shadow-[0_10px_0_rgba(8,47,73,.2)] motion-safe:animate-[pulse_350ms_ease-out_both]" style={{ animationDelay: `${index * 110}ms` }}><p className="text-xs font-black uppercase tracking-[.14em] text-cyan-700">{word.canonicalWordId === props.section.baseWord.canonicalWordId ? "The base" : `base + word part${word.parts.length > 2 ? "s" : ""}`}</p><p className="mt-1 text-2xl font-black">{word.displayWord}</p><p className="mt-1 text-sm font-semibold text-slate-600">{word.childFriendlyMeaning}</p></article>)}</div>
+      <button type="button" onClick={props.onNext} className="mx-auto min-h-12 rounded-full bg-cyan-300 px-7 font-black text-slate-950">Use the cleaver</button>
+    </>}
+  </section>;
+}
 
 function Cleave(props: { word: BaseWordFamilySnapshotWord; step: number; misses: Record<string, number>; onMiss: (id: string, misses: number) => void; onNext: (nextStep: number) => void }) { const points = splitPoints(props.word); const point = points[props.step]; const key = `${props.word.canonicalWordId}:${point}`; const before = props.word.displayWord.slice(0, point); const after = props.word.displayWord.slice(point); return <section className="grid gap-4 text-center"><p className="text-xs font-black uppercase tracking-[.2em] text-cyan-200">Find the word parts</p><h2 className="text-3xl font-black text-white">Cleave after the part that comes before <span className="text-amber-200">{after}</span>.</h2><SplitHandle word={props.word.displayWord} splitPoints={[point]} misses={props.misses[key] ?? 0} correct={false} missMessage="Try again. Look for the edge of a meaningful word part." repeatedMissMessage={`The split is ${before} | ${after}.`} correctHeading={`Yes — ${before} and ${after} are separate word parts.`} correctExplanation={props.word.wordSum} continueLabel={props.step + 1 < points.length ? "Find the other edge of the base" : "Build words from meanings"} onMiss={(misses) => props.onMiss(key, misses)} onCorrect={() => undefined} onContinue={() => props.onNext(props.step + 1)} /></section>; }
 

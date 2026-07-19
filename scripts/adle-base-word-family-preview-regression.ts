@@ -20,5 +20,7 @@ assert(page.includes('process.env.NODE_ENV === "production"') && page.includes("
 assert(preview.includes("ssr: false") && preview.includes("did not submit, score, schedule, or save learning evidence"), "preview is lazy and local-only");
 assert(!renderer.includes("completeAdleLessonPartAction") && renderer.includes("CoverShutter") && renderer.includes("DiffReveal") && renderer.includes("SplitHandle") && renderer.includes("SnapRail"), "renderer uses independent and interactive morphology primitives without completion writes");
 assert(renderer.includes("raw misspelling") === false && renderer.includes("A word from your writing"), "renderer preserves authentic provenance without showing raw attempts");
+assert(renderer.includes('guideName="Word Builder"') && renderer.includes("function guideBeat") && renderer.includes("function clueFor"), "base-word lessons use the shared Word Lab guide, sound, and clue model rather than a silent generic shell");
+assert(renderer.includes('key={props.payload.familySections[state.familyIndex].baseFamilyKey}') && renderer.includes("Tap it and its word family will jump out."), "each authentic family has its own repeatable interactive reveal");
 
 console.log("adle-base-word-family-preview-regression: ok");
