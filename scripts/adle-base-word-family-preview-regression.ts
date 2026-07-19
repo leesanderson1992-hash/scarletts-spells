@@ -29,6 +29,9 @@ assert(preview.includes("ssr: false") && preview.includes("did not submit, score
 assert(!renderer.includes("completeAdleLessonPartAction") && renderer.includes("CoverShutter") && renderer.includes("DiffReveal") && renderer.includes("BaseWordCleaver") && renderer.includes("SnapRail"), "renderer uses independent and interactive morphology primitives without completion writes");
 assert(renderer.includes('part.kind === "base"') && renderer.includes("selectedCuts={props.cuts") && renderer.includes("different way to explore its parts"), "base-word cleaver isolates one reviewed base and fails safely for malformed parts");
 assert(readFileSync("components/adle/activities/shared/base-word-cleaver.tsx", "utf8").includes('event.key === "Enter"') && readFileSync("components/adle/activities/shared/base-word-cleaver.tsx", "utf8").includes('event.key === " "'), "base-word cleaver supports keyboard chop activation");
+const rail = readFileSync("components/adle/activities/shared/snap-rail.tsx", "utf8");
+assert(renderer.includes('checkMode="manual"') && rail.includes("Check my word") && rail.includes("Remove ${props.tiles"), "base-word builder uses editable manual-check word-part slots");
+assert(rail.includes("Array.from({ length: props.expectedIds.length }") && rail.includes("slotRefs.current.findIndex"), "rail has one droppable block slot per word part");
 assert(readFileSync("components/adle/activities/shared/split-handle.tsx", "utf8").includes("un- is the first two letters"), "the existing un- cleaver remains unchanged");
 assert(renderer.includes("raw misspelling") === false && renderer.includes("A word from your writing"), "renderer preserves authentic provenance without showing raw attempts");
 assert(renderer.includes('guideName="Word Builder"') && renderer.includes("function guideBeat") && renderer.includes("function clueFor"), "base-word lessons use the shared Word Lab guide, sound, and clue model rather than a silent generic shell");
