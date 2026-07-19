@@ -31,7 +31,7 @@ const INTERACTIVE_MEMBER_SUPPORT: Record<string, { meaning: string; sentence: st
   replay_en_gb: { meaning: "to play again", sentence: "Please replay the funny part of the film.", tokenIndex: 1 },
   replayed_en_gb: { meaning: "played again", sentence: "We replayed the song after dinner.", tokenIndex: 1 },
   govern_en_gb: { meaning: "to lead or rule", sentence: "Leaders govern a country by making rules.", tokenIndex: 1 },
-  governor_en_gb: { meaning: "a person who leads or rules a place", sentence: "The governor spoke to the class today.", tokenIndex: 1 },
+  governor_en_gb: { meaning: "a person who leads or rules a place", sentence: "I am going to vote for our new governor.", tokenIndex: 8 },
   government_en_gb: { meaning: "the group that rules a country", sentence: "The government announced a new plan.", tokenIndex: 1 },
 };
 

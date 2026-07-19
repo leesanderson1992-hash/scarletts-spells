@@ -62,7 +62,7 @@ export const BASE_WORD_FAMILY_PREVIEW_READ_MODEL: BaseWordFamilyLessonReadModel 
       authenticTargetWordIds: ["government_en_gb"],
       guidedWords: [
         word("govern_en_gb", "govern", "govern", "Leaders govern fairly.", 1),
-        word("governor_en_gb", "governor", "govern + or → governor", "The governor spoke today.", 1),
+        word("governor_en_gb", "governor", "govern + or → governor", "I am going to vote for our new governor.", 8),
         word("government_en_gb", "government", "govern + ment → government", "The government made a plan.", 1),
       ],
     },
