@@ -38,7 +38,8 @@ const INTERACTIVE_MEMBER_SUPPORT: Record<string, { meaning: string; sentence: st
 type CsvRow = Record<string, string>;
 type State = {
   host: string; batchId: string; createdMicroSkill: boolean; parentUserId: string | null; childId: string | null;
-  assignmentId: string | null; planDate: string | null; wordIds: Record<string, string>; baselineCounts: Record<string, number>;
+  assignmentId: string | null; planDate: string | null; parentEmail: string | null; parentPassword: string | null;
+  wordIds: Record<string, string>; baselineCounts: Record<string, number>;
 };
 
 function assert(value: unknown, message: string): asserts value { if (!value) throw new Error(`FAIL: ${message}`); }
@@ -146,7 +147,7 @@ async function load(db: SupabaseClient) {
   const { data: batch, error: batchError } = await db.from("canonical_teaching_dictionary_import_batches").insert({ source_folder_path: "staging-fixtures/adle-base-word-family-pilot-v1", source_folder_sha256: fingerprint, source_commit: null, validator_version: "adle_base_word_family_staging_proof_v1", validation_summary: { fixture: "adle_base_word_family_pilot_v1", disposable: true }, row_counts: manifest().counts, readiness_summary: { ready_for_first_exposure: true }, import_mode: "local_dev_import", batch_status: "applied", source_metadata: { disposable: true, fixture: "adle_base_word_family_pilot_v1" }, imported_by: "adle-base-word-family-staging-proof", imported_at: now }).select("id").single();
   if (batchError || !batch) throw new Error(`create import batch: ${batchError?.message}`);
   const batchId = (batch as { id: string }).id;
-  save({ host: new URL(process.env.NEXT_PUBLIC_SUPABASE_URL ?? process.env.SUPABASE_URL!).hostname, batchId, createdMicroSkill, parentUserId: null, childId: null, assignmentId: null, planDate: null, wordIds: {}, baselineCounts });
+  save({ host: new URL(process.env.NEXT_PUBLIC_SUPABASE_URL ?? process.env.SUPABASE_URL!).hostname, batchId, createdMicroSkill, parentUserId: null, childId: null, assignmentId: null, planDate: null, parentEmail: null, parentPassword: null, wordIds: {}, baselineCounts });
   try {
     const sourceRows = csv("teaching_content_sources.csv").map((row, index) => ({ import_batch_id: batchId, row_status: "active", ...provenance("teaching_content_sources.csv", row, index), source_key: row.source_key, source_category: row.source_category, source_name: value(row, "source_name"), source_url: value(row, "source_url"), source_licence: value(row, "source_licence"), source_use_note: value(row, "source_use_note"), importability_status: row.importability_status, legal_review_status: row.legal_review_status }));
     if (sourceRows.length) { const { error } = await db.from("canonical_teaching_dictionary_sources").insert(sourceRows); if (error) throw new Error(`insert sources: ${error.message}`); }
@@ -170,7 +171,7 @@ async function load(db: SupabaseClient) {
     if (contentError || !content) throw new Error(`insert teaching content: ${contentError?.message}`);
     const reviewRows = csv("teaching_content_field_reviews.csv").map((row, index) => ({ import_batch_id: batchId, teaching_content_version_id: (content as { id: string }).id, ...provenance("teaching_content_field_reviews.csv", row, index), field_key: row.field_key, review_gate: row.review_gate, review_status: row.review_status, reviewed_by: value(row, "reviewed_by"), reviewed_at: value(row, "reviewed_at"), review_notes: value(row, "review_notes") }));
     { const { error } = await db.from("canonical_teaching_dictionary_field_reviews").insert(reviewRows); if (error) throw new Error(`insert field reviews: ${error.message}`); }
-    save({ host: new URL(process.env.NEXT_PUBLIC_SUPABASE_URL ?? process.env.SUPABASE_URL!).hostname, batchId, createdMicroSkill, parentUserId: null, childId: null, assignmentId: null, planDate: null, wordIds, baselineCounts });
+    save({ host: new URL(process.env.NEXT_PUBLIC_SUPABASE_URL ?? process.env.SUPABASE_URL!).hostname, batchId, createdMicroSkill, parentUserId: null, childId: null, assignmentId: null, planDate: null, parentEmail: null, parentPassword: null, wordIds, baselineCounts });
     console.log(JSON.stringify({ status: "fixture_loaded", batchId, wordCount: Object.keys(wordIds).length, familyCount: Object.keys(familyIds).length }));
   } catch (error) { try { await removeFixtureBatch(db, batchId, createdMicroSkill); rmSync(STATE_PATH, { force: true }); } catch (cleanupError) { throw new Error(`${error instanceof Error ? error.message : String(error)}; cleanup failed: ${cleanupError instanceof Error ? cleanupError.message : String(cleanupError)}`); } throw error; }
 }
@@ -178,8 +179,8 @@ async function load(db: SupabaseClient) {
 async function setup(db: SupabaseClient) {
   mutating("setup"); const current = state(); assert(current.parentUserId === null && current.childId === null, "fixture setup has not already created a child");
   assert(process.env.ADLE_BASE_WORD_PROOF_ENABLE_TEMPORARY_CHILD === "yes", "setup requires ADLE_BASE_WORD_PROOF_ENABLE_TEMPORARY_CHILD=yes");
-  const suffix = `${Date.now()}-${Math.random().toString(16).slice(2)}`; const email = `adle-base-word-${suffix}@example.test`;
-  const { data: user, error: userError } = await db.auth.admin.createUser({ email, password: `Disposable-${suffix}!`, email_confirm: true }); if (userError || !user.user) throw new Error(`create disposable parent: ${userError?.message}`);
+  const suffix = `${Date.now()}-${Math.random().toString(16).slice(2)}`; const email = `adle-base-word-${suffix}@example.test`; const password = `Disposable-${suffix}!`;
+  const { data: user, error: userError } = await db.auth.admin.createUser({ email, password, email_confirm: true }); if (userError || !user.user) throw new Error(`create disposable parent: ${userError?.message}`);
   const { data: child, error: childError } = await db.from("children").insert({ parent_user_id: user.user.id, first_name: "ADLE Base-word Proof" }).select("id").single(); if (childError || !child) { await db.auth.admin.deleteUser(user.user.id); throw new Error(`create disposable child: ${childError?.message}`); }
   const planDate = process.env.ADLE_BASE_WORD_QA_PLAN_DATE; assert(/^\d{4}-\d{2}-\d{2}$/.test(planDate ?? ""), "ADLE_BASE_WORD_QA_PLAN_DATE must be an explicit unused YYYY-MM-DD date"); const safePlanDate = planDate!;
   try {
@@ -193,8 +194,8 @@ async function setup(db: SupabaseClient) {
     assert(process.env.ADLE_BASE_WORD_FAMILY_PILOT_ENABLED === "enabled" && process.env.ADLE_BASE_WORD_FAMILY_PILOT_CHILD_IDS === child.id && process.env.ADLE_BASE_WORD_FAMILY_PILOT_EMERGENCY_DISABLED !== "true", "local proof process must use the temporary child as its only enabled allowlist entry");
     const generated = await generateGuardedBaseWordFamilyPilot({ client: db, parentUserId: user.user.id, childId: child.id, planDate: safePlanDate });
     const assignmentId = generated.assignmentId; assert(typeof assignmentId === "string", `guarded generator readiness: ${generated.readinessReason ?? "unknown"}`);
-    save({ ...current, parentUserId: user.user.id, childId: child.id, assignmentId, planDate: safePlanDate });
-    console.log(JSON.stringify({ status: "assignment_generated", childId: child.id, assignmentId, planDate: safePlanDate }));
+    save({ ...current, parentUserId: user.user.id, childId: child.id, assignmentId, planDate: safePlanDate, parentEmail: email, parentPassword: password });
+    console.log(JSON.stringify({ status: "assignment_generated", childId: child.id, assignmentId, planDate: safePlanDate, loginEmail: email, loginPassword: password }));
   } catch (error) { await db.from("children").delete().eq("id", child.id); await db.auth.admin.deleteUser(user.user.id); throw error; }
 }
 
