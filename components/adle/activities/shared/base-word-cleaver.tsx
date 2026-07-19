@@ -36,6 +36,8 @@ export function BaseWordCleaver(props: {
   const [struckBoundary, setStruckBoundary] = useState<number | null>(null);
   const [lastWrongBoundary, setLastWrongBoundary] = useState<number | null>(null);
   const [striking, setStriking] = useState(false);
+  const [remainingWord, setRemainingWord] = useState("");
+  const [baseConfirmed, setBaseConfirmed] = useState(false);
   const timers = useRef<number[]>([]);
   const boundaryButtons = useRef<Array<HTMLButtonElement | null>>([]);
   const boundaries = segmentBoundaries(props.segments);
@@ -46,6 +48,8 @@ export function BaseWordCleaver(props: {
   const scaffolded = props.misses >= 2;
   const baseStart = props.segments.slice(0, props.baseIndex).reduce((total, segment) => total + segment.text.length, 0);
   const baseEnd = baseStart + props.segments[props.baseIndex].text.length;
+  const letters = Array.from(props.word);
+  const baseWord = props.segments[props.baseIndex]?.text ?? "";
 
   useEffect(() => () => timers.current.forEach((timer) => window.clearTimeout(timer)), []);
   useEffect(() => {
@@ -74,38 +78,31 @@ export function BaseWordCleaver(props: {
     }, reducedMotion ? 0 : STRIKE_MS);
   }
 
-  function choppedBefore(segmentIndex: number): boolean {
-    const point = props.segments.slice(0, segmentIndex).reduce((total, segment) => total + segment.text.length, 0);
-    return selectedCuts.includes(point);
-  }
-
-  const feedback = complete ? `You found the base word: ${props.segments[props.baseIndex]?.text}.` : scaffolded ? "Choose one of the glowing gaps beside the base word." : props.misses ? "Try again. Look for the edge of a meaningful word part." : selectedCuts.length ? "Great chop. Find another edge of the base word." : "Choose where to chop the word.";
+  const feedback = baseConfirmed ? `Yes — ${baseWord} is the base word.` : complete ? "The extra parts have moved aside. What word remains?" : scaffolded ? "Choose one of the glowing gaps beside the base word." : props.misses ? "Try again. Look for the edge of a meaningful word part." : selectedCuts.length ? "Great chop. Find another edge of the base word." : "Choose where to chop the word.";
   return <section className="grid gap-5 text-center" aria-labelledby="base-cleaver-heading">
     <p className="text-xs font-black uppercase tracking-[.2em] text-cyan-200">Cleave out the base</p>
-    <h2 id="base-cleaver-heading" className="text-3xl font-black text-white">Chop the word until only <span className="text-amber-200">{props.segments[props.baseIndex]?.text}</span> is left in the middle.</h2>
-    <p className="text-cyan-50">Choose where to chop. Some words need one chop; others need two.</p>
+    <h2 id="base-cleaver-heading" className="text-3xl font-black text-white">Chop off the parts that are not the base word.</h2>
+    <p className="text-cyan-50">Choose a gap between letters. Some words need one chop; others need two.</p>
     <div className="mx-auto w-full max-w-3xl overflow-x-auto rounded-3xl border border-cyan-200/25 bg-slate-950/30 px-3 py-10">
-      <div role="group" aria-label={`Chop ${props.word} to find its base word`} className="relative mx-auto h-32 min-w-[18rem] max-w-xl select-none">
-        <div className="absolute inset-x-0 top-16 flex justify-center text-4xl font-black tracking-normal text-white">
-          {props.segments.map((segment, index) => {
-            const separated = choppedBefore(index);
-            const isolated = complete && index === props.baseIndex;
-            const aside = selectedCuts.length > 0 && index !== props.baseIndex && (choppedBefore(index) || selectedCuts.some((point) => point === baseEnd && index > props.baseIndex));
-            return <span key={segment.id} className={`transition-all duration-300 ${separated ? "ml-10" : "ml-0"} ${isolated ? "rounded-2xl bg-amber-100 px-3 py-1 text-amber-950 shadow-[0_0_0_5px_rgba(252,211,77,.35)]" : aside ? "text-cyan-100 opacity-65" : ""}`}>{segment.text}</span>;
-          })}
-        </div>
-        {props.word.slice(0, -1).split("").map((_, index) => {
+      <div role="group" aria-label={`Chop ${props.word} to find its base word`} className="mx-auto flex min-w-max items-start justify-center gap-1 select-none">
+        {letters.map((letter, index) => {
+          const inBase = index >= baseStart && index < baseEnd;
+          const aside = complete && !inBase;
           const point = index + 1;
           const selected = selectedCuts.includes(point);
           const valid = availableCuts.includes(point);
           const disabled = striking || complete || selected || (scaffolded && !valid);
           const before = props.word.slice(0, point);
           const after = props.word.slice(point);
-          return <button key={point} ref={(node) => { boundaryButtons.current[point] = node; }} type="button" aria-label={`Chop between ${before} and ${after}`} disabled={disabled} onPointerEnter={() => !disabled && setActiveBoundary(point)} onFocus={() => !disabled && setActiveBoundary(point)} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); choose(point); } }} onClick={() => choose(point)} className={`absolute top-0 h-28 w-8 -translate-x-1/2 rounded-xl outline-none focus-visible:ring-4 focus-visible:ring-amber-300/80 disabled:cursor-not-allowed ${scaffolded && valid ? "bg-cyan-300/20 motion-safe:animate-pulse" : "hover:bg-white/10"}`} style={{ left: `${(point / props.word.length) * 100}%` }}><span className={`absolute top-0 left-1/2 -translate-x-1/2 ${activeBoundary === point || scaffolded && valid ? "opacity-100" : "opacity-0"}`}><CleaverIcon striking={striking && struckBoundary === point} reducedMotion={reducedMotion} /></span><span aria-hidden="true" className={`absolute bottom-0 left-1/2 h-9 w-1 -translate-x-1/2 rounded-full ${lastWrongBoundary === point ? "bg-red-400" : scaffolded && valid ? "bg-cyan-300" : selected ? "bg-emerald-300" : "bg-white/25"}`} /></button>;
+          return <div key={`${letter}-${index}`} className={`flex items-start ${aside ? index < baseStart ? "-translate-x-3 opacity-60" : "translate-x-3 opacity-60" : ""} ${inBase && complete ? "rounded-2xl bg-amber-100/20 p-1 shadow-[0_0_0_4px_rgba(252,211,77,.28)]" : ""} ${reducedMotion ? "" : "transition-all duration-300"}`}>
+            <span aria-hidden="true" className={`grid h-14 w-11 place-items-center rounded-xl border-2 text-3xl font-black ${inBase && complete ? "border-amber-200 bg-amber-100 text-amber-950" : "border-cyan-200/50 bg-slate-900 text-white"}`}>{letter}</span>
+            {index < letters.length - 1 ? <button ref={(node) => { boundaryButtons.current[point] = node; }} key={point} type="button" aria-label={`Chop between ${before} and ${after}`} disabled={disabled} onPointerEnter={() => !disabled && setActiveBoundary(point)} onFocus={() => !disabled && setActiveBoundary(point)} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); choose(point); } }} onClick={() => choose(point)} className={`relative mt-1 grid h-12 w-8 place-items-center rounded-xl outline-none focus-visible:ring-4 focus-visible:ring-amber-300/80 disabled:cursor-not-allowed ${scaffolded && valid ? "bg-cyan-300/20 motion-safe:animate-pulse" : "hover:bg-white/10"}`}><span className={`${activeBoundary === point || scaffolded && valid ? "opacity-100" : "opacity-45"}`}><CleaverIcon striking={striking && struckBoundary === point} reducedMotion={reducedMotion} /></span><span aria-hidden="true" className={`absolute bottom-0 h-1 w-5 rounded-full ${lastWrongBoundary === point ? "bg-red-400" : scaffolded && valid ? "bg-cyan-300" : selected ? "bg-emerald-300" : "bg-white/35"}`} /></button> : null}
+          </div>;
         })}
       </div>
     </div>
     <div role="status" aria-live="polite" className={`mx-auto min-h-14 max-w-xl rounded-2xl p-3 text-sm font-bold ${complete ? "bg-emerald-100 text-emerald-950" : props.misses ? scaffolded ? "bg-cyan-100 text-cyan-950" : "bg-red-100 text-red-950" : "bg-white/10 text-cyan-50"}`}>{feedback}</div>
-    {complete ? <button type="button" autoFocus onClick={props.onContinue} className="mx-auto min-h-12 rounded-full bg-cyan-300 px-7 font-black text-slate-950">Build words from meanings</button> : null}
+    {complete && !baseConfirmed ? <div className="mx-auto grid w-full max-w-md gap-3"><label className="text-left text-sm font-bold text-cyan-50">What word remains?<input autoFocus autoComplete="off" spellCheck={false} value={remainingWord} onChange={(event) => setRemainingWord(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter" && remainingWord.trim().toLocaleLowerCase("en-GB") === baseWord.toLocaleLowerCase("en-GB")) setBaseConfirmed(true); }} className="mt-2 w-full rounded-2xl bg-white p-3 text-xl font-black text-slate-950 focus:outline-none focus:ring-4 focus:ring-cyan-300/30" /></label><button type="button" disabled={!remainingWord.trim()} onClick={() => setBaseConfirmed(remainingWord.trim().toLocaleLowerCase("en-GB") === baseWord.toLocaleLowerCase("en-GB"))} className="min-h-12 rounded-full bg-cyan-300 px-7 font-black text-slate-950 disabled:opacity-40">Check the word</button></div> : null}
+    {baseConfirmed ? <button type="button" autoFocus onClick={props.onContinue} className="mx-auto min-h-12 rounded-full bg-cyan-300 px-7 font-black text-slate-950">Build words from meanings</button> : null}
   </section>;
 }
