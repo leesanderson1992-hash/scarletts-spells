@@ -7,7 +7,7 @@
 import type { DictionaryReviewStatus, DictionaryRowStatus } from "./dictionary-eligibility";
 import { compareOldestItemFirst, selectableLearningItems, type LearningItemFact } from "./learning-items";
 
-export const BASE_WORD_INDEPENDENT_WORD_COUNT = 5;
+export const BASE_WORD_INDEPENDENT_WORD_COUNT = 6;
 export const BASE_WORD_GUIDED_DISPLAY_LIMIT = 8;
 export const BASE_WORD_AUTHENTIC_FAMILY_LIMIT = 2;
 
@@ -87,7 +87,7 @@ function empty(skipReasons: readonly BaseWordFamilySelectionSkipReason[]): BaseW
 }
 
 /**
- * Select exactly five independent words from one or two reviewed families.
+ * Select exactly six independent words from one or two reviewed families.
  * Two verified authentic targets share the diagnostic micro-skill, not
  * necessarily a base family. The existing generic composer remains untouched.
  */
@@ -147,14 +147,15 @@ export function selectBaseWordFamilyLesson(
   const transferCandidatesByFamily = new Map<string, BaseWordFamilyMemberFact[]>();
   for (const familyKey of familyKeys) {
     const candidates = (membersByFamily.get(familyKey) ?? [])
-      .filter((member) => member.memberRole === "transfer" && member.assignmentEligible && !selectedWordIds.has(member.canonicalWordId))
+      .filter((member) => (member.memberRole === "base" || member.memberRole === "transfer") && member.assignmentEligible && !selectedWordIds.has(member.canonicalWordId))
       .sort((a, b) => (a.complexityLevel ?? Number.MAX_SAFE_INTEGER) - (b.complexityLevel ?? Number.MAX_SAFE_INTEGER) || a.canonicalWordId.localeCompare(b.canonicalWordId));
     if (candidates.length === 0) return empty(["selected_family_missing_transfer_word"]);
     transferCandidatesByFamily.set(familyKey, candidates);
   }
 
   // First guarantee at least one independently practised relative for every
-  // authentic family; then alternate through those families to reach five.
+  // authentic family; then prefer a second from each family before filling
+  // any remaining space. This keeps the two-family lesson balanced.
   for (const familyKey of familyKeys) {
     const candidate = (transferCandidatesByFamily.get(familyKey) ?? []).find((member) => fitsWindow(complexityWindow, member.complexityLevel));
     if (!candidate) return empty(["selected_family_missing_transfer_word"]);
@@ -162,8 +163,19 @@ export function selectBaseWordFamilyLesson(
     selectedWordIds.add(candidate.canonicalWordId);
     slots.push({ canonicalWordId: candidate.canonicalWordId, provenance: "transfer", learningItemId: null, baseFamilyKey: familyKey, complexityLevel: candidate.complexityLevel });
   }
+  if (familyKeys.length === 2) {
+    for (const familyKey of familyKeys) {
+      const candidate = (transferCandidatesByFamily.get(familyKey) ?? []).find((member) => !selectedWordIds.has(member.canonicalWordId) && fitsWindow(complexityWindow, member.complexityLevel));
+      if (!candidate) return empty(["insufficient_eligible_family_transfer_words"]);
+      complexityWindow = widen(complexityWindow, candidate.complexityLevel);
+      selectedWordIds.add(candidate.canonicalWordId);
+      slots.push({ canonicalWordId: candidate.canonicalWordId, provenance: "transfer", learningItemId: null, baseFamilyKey: familyKey, complexityLevel: candidate.complexityLevel });
+    }
+  }
   while (slots.length < BASE_WORD_INDEPENDENT_WORD_COUNT) {
-    const candidate = familyKeys
+    const transferCount = (familyKey: string) => slots.filter((slot) => slot.provenance === "transfer" && slot.baseFamilyKey === familyKey).length;
+    const candidate = [...familyKeys]
+      .sort((left, right) => transferCount(left) - transferCount(right) || familyKeys.indexOf(left) - familyKeys.indexOf(right))
       .flatMap((familyKey) => (transferCandidatesByFamily.get(familyKey) ?? []).map((member) => ({ familyKey, member })))
       .find(({ member }) => !selectedWordIds.has(member.canonicalWordId) && fitsWindow(complexityWindow, member.complexityLevel));
     if (!candidate) return empty(["insufficient_eligible_family_transfer_words"]);
@@ -181,7 +193,7 @@ export function selectBaseWordFamilyLesson(
     });
     return { baseFamilyKey: familyKey, authenticTargetWordIds: targetIds, guidedWordIds: members.map((member) => member.canonicalWordId) };
   });
-  // Base words plus the five independently practised words always fit inside
+  // Base words plus the six independently practised words always fit inside
   // the eight-word guided cap. Fill any spare guided slots in family order.
   const mandatoryIdsByFamily = new Map<string, Set<string>>();
   for (const familyKey of familyKeys) {

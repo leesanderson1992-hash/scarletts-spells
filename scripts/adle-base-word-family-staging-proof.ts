@@ -24,6 +24,16 @@ const PRODUCTION_REF = "wwohrqtunajrbwxyssjf";
 const SKILL = "D4_MOR_BASE_WORDS_PRESERVE_BASE";
 const FAMILY_KEYS = ["play_base_family", "govern_base_family"] as const;
 const TARGET_KEYS = ["government_en_gb", "replayed_en_gb"] as const;
+const INTERACTIVE_MEMBER_SUPPORT: Record<string, { meaning: string; sentence: string; tokenIndex: number }> = {
+  play_en_gb: { meaning: "to have fun in a game", sentence: "The children play a game at break time.", tokenIndex: 2 },
+  playing_en_gb: { meaning: "having fun in a game now", sentence: "The children are playing football in the park.", tokenIndex: 3 },
+  plays_en_gb: { meaning: "has fun in a game", sentence: "Mia plays the piano after school.", tokenIndex: 1 },
+  replay_en_gb: { meaning: "to play again", sentence: "Please replay the funny part of the film.", tokenIndex: 1 },
+  replayed_en_gb: { meaning: "played again", sentence: "We replayed the song after dinner.", tokenIndex: 1 },
+  govern_en_gb: { meaning: "to lead or rule", sentence: "Leaders govern a country by making rules.", tokenIndex: 1 },
+  governor_en_gb: { meaning: "a person who leads or rules a place", sentence: "The governor spoke to the class today.", tokenIndex: 1 },
+  government_en_gb: { meaning: "the group that rules a country", sentence: "The government announced a new plan.", tokenIndex: 1 },
+};
 
 type CsvRow = Record<string, string>;
 type State = {
@@ -149,7 +159,11 @@ async function load(db: SupabaseClient) {
     for (const [table, rows] of [["canonical_teaching_dictionary_word_metadata", metadataRows], ["canonical_teaching_dictionary_word_support", supportRows]] as const) { const { error } = await db.from(table).insert(rows); if (error) throw new Error(`insert ${table}: ${error.message}`); }
     const familyInput = csv("base_word_families.csv"); const { data: insertedFamilies, error: familiesError } = await db.from("canonical_teaching_dictionary_base_word_families").insert(familyInput.map((row, index) => ({ import_batch_id: batchId, base_family_key: row.base_family_key, micro_skill_key: row.micro_skill_key, base_word_id: wordIds[row.base_word_key], base_meaning: row.base_meaning, etymology_route: json(row.etymology_route), row_status: "active", ...provenance("base_word_families.csv", row, index), source_category: row.source_category, source_name: value(row, "source_name"), source_url: value(row, "source_url"), source_licence: value(row, "source_licence"), source_use_note: value(row, "source_use_note"), confidence: row.confidence, review_status: row.review_status, reviewed_by: value(row, "reviewed_by"), reviewed_at: value(row, "reviewed_at") }))).select("id, base_family_key"); if (familiesError) throw new Error(`insert families: ${familiesError.message}`);
     const familyIds = Object.fromEntries((insertedFamilies ?? []).map((row: any) => [row.base_family_key, row.id])) as Record<string, string>;
-    const memberRows = csv("base_word_family_members.csv").map((row, index) => ({ import_batch_id: batchId, base_word_family_id: familyIds[row.base_family_key], canonical_word_id: wordIds[row.word_key], member_role: row.member_role, word_sum: row.word_sum, morphology_parts: json(row.morphology_parts), morphology_joins: json(row.morphology_joins), transformation_notes: value(row, "transformation_notes"), dictation_sentence: value(row, "dictation_sentence"), dictation_target_token_index: Number(row.dictation_target_token_index), audio_text: value(row, "audio_text"), assignment_eligible: bool(row.assignment_eligible), row_status: "active", ...provenance("base_word_family_members.csv", row, index), source_category: row.source_category, source_name: value(row, "source_name"), source_url: value(row, "source_url"), source_licence: value(row, "source_licence"), source_use_note: value(row, "source_use_note"), confidence: row.confidence, review_status: row.review_status, reviewed_by: value(row, "reviewed_by"), reviewed_at: value(row, "reviewed_at") }));
+    const memberRows = csv("base_word_family_members.csv").map((row, index) => {
+      const support = INTERACTIVE_MEMBER_SUPPORT[row.word_key];
+      assert(support, `interactive meaning and contextual dictation exist for ${row.word_key}`);
+      return { import_batch_id: batchId, base_word_family_id: familyIds[row.base_family_key], canonical_word_id: wordIds[row.word_key], member_role: row.member_role, word_sum: row.word_sum, morphology_parts: json(row.morphology_parts), morphology_joins: json(row.morphology_joins), transformation_notes: value(row, "transformation_notes"), child_friendly_meaning: support.meaning, dictation_sentence: support.sentence, dictation_target_token_index: support.tokenIndex, audio_text: support.sentence, assignment_eligible: bool(row.assignment_eligible), row_status: "active", ...provenance("base_word_family_members.csv", row, index), source_category: row.source_category, source_name: value(row, "source_name"), source_url: value(row, "source_url"), source_licence: value(row, "source_licence"), source_use_note: value(row, "source_use_note"), confidence: row.confidence, review_status: row.review_status, reviewed_by: value(row, "reviewed_by"), reviewed_at: value(row, "reviewed_at") };
+    });
     { const { error } = await db.from("canonical_teaching_dictionary_base_word_family_members").insert(memberRows); if (error) throw new Error(`insert family members: ${error.message}`); }
     const contentInput = csv("teaching_content_versions.csv")[0]; assert(contentInput, "fixture has teaching content");
     const { data: content, error: contentError } = await db.from("canonical_teaching_dictionary_content_versions").insert({ import_batch_id: batchId, source_id: null, ...provenance("teaching_content_versions.csv", contentInput, 0), micro_skill_key: contentInput.micro_skill_key, content_version: contentInput.content_version, version_status: contentInput.version_status, is_active: bool(contentInput.is_active), teaching_objective: contentInput.teaching_objective, child_friendly_explanation: contentInput.child_friendly_explanation, rule_explanation: contentInput.rule_explanation, memory_tip: value(contentInput, "memory_tip"), common_misconceptions: contentInput.common_misconceptions, first_exposure_progression: parts(contentInput.first_exposure_progression), guided_practice_progression: parts(contentInput.guided_practice_progression), review_proofreading_progression: parts(contentInput.review_proofreading_progression), example_selection_guidance: contentInput.example_selection_guidance, contrast_policy_guidance: contentInput.contrast_policy_guidance, sample_preview_word_key: contentInput.sample_preview_word_key, source_category: contentInput.source_category, source_name: value(contentInput, "source_name"), source_url: value(contentInput, "source_url"), source_licence: value(contentInput, "source_licence"), source_use_note: value(contentInput, "source_use_note"), confidence: contentInput.confidence, supersedes_content_version: value(contentInput, "supersedes_content_version"), final_readiness_review_status: contentInput.final_readiness_review_status, final_readiness_reviewed_by: value(contentInput, "final_readiness_reviewed_by"), final_readiness_reviewed_at: value(contentInput, "final_readiness_reviewed_at"), created_by: "adle-base-word-family-staging-proof" }).select("id").single();
@@ -186,10 +200,10 @@ async function setup(db: SupabaseClient) {
 
 async function verify(db: SupabaseClient) {
   const current = state(); assert(current.childId && current.assignmentId, "setup state is incomplete");
-  assert(await count(db, "assignment_items", [["daily_assignment_id", current.assignmentId]]) === 13, "assignment has exactly 13 bound items");
+  assert(await count(db, "assignment_items", [["daily_assignment_id", current.assignmentId]]) === 18, "assignment has exactly 18 bound items");
   assert(await count(db, "adle_learning_items", [["child_id", current.childId]]) === 2, "proof has exactly two authentic learning items before completion");
   const { count: transfers, error } = await db.from("adle_base_word_transfer_miss_events").select("id", { count: "exact", head: true }).eq("child_id", current.childId); if (error) throw new Error(`transfer ledger check: ${error.message}`);
-  console.log(JSON.stringify({ status: "verification_ready", assignmentItems: 13, authenticLearningItems: 2, transferMisses: transfers ?? 0 }));
+  console.log(JSON.stringify({ status: "verification_ready", assignmentItems: 18, authenticLearningItems: 2, transferMisses: transfers ?? 0 }));
 }
 
 async function cleanup(db: SupabaseClient) {

@@ -11,7 +11,7 @@ const missedTransfers = baseWordTransferMissWrites({
   payload, childId: "child", lessonSourceRef: "lesson:child:2026-07-18:D4_MOR_BASE_WORDS_PRESERVE_BASE", occurredOn: "2026-07-18",
   finalAttempts: payload.independentWords.map((word) => ({ canonicalWordId: word.canonicalWordId, attemptText: targetIds.has(word.canonicalWordId) ? word.displayWord : "wrong", correct: targetIds.has(word.canonicalWordId) })),
 });
-assert(missedTransfers.length === 3 && missedTransfers.every((write) => !targetIds.has(write.canonicalWordId)), "only the three missed transfer words produce transfer evidence");
+assert(missedTransfers.length === 4 && missedTransfers.every((write) => !targetIds.has(write.canonicalWordId)), "only the four missed transfer words produce transfer evidence");
 assert(baseWordTransferMissWrites({ payload, childId: "child", lessonSourceRef: "lesson:child:2026-07-18:D4_MOR_BASE_WORDS_PRESERVE_BASE", occurredOn: "2026-07-18", finalAttempts: payload.independentWords.map((word) => ({ canonicalWordId: word.canonicalWordId, attemptText: word.displayWord, correct: true })) }).length === 0, "correct transfer words create neither evidence nor review burden");
 assert(baseWordTransferMissWrites({ payload, childId: "child", lessonSourceRef: "lesson:child:2026-07-18:D4_MOR_BASE_WORDS_PRESERVE_BASE", occurredOn: "2026-07-18", finalAttempts: payload.independentWords.map((word) => ({ canonicalWordId: word.canonicalWordId, attemptText: "", correct: false })) }).length === 0, "empty attempts do not create transfer evidence");
 

@@ -33,6 +33,9 @@ export function SplitHandle(props: {
   muted?: boolean;
   missMessage?: string;
   repeatedMissMessage?: string;
+  correctHeading?: string;
+  correctExplanation?: string;
+  continueLabel?: string;
   onMiss: (misses: number) => void;
   onCorrect: () => void;
   onContinue: () => void;
@@ -105,10 +108,10 @@ export function SplitHandle(props: {
           <span className="rounded-2xl bg-amber-100 px-5 py-4 text-3xl font-black text-amber-950">{props.word.slice(splitPoint)}</span>
         </div>
         <div className="mx-auto max-w-xl rounded-2xl border border-emerald-300/40 bg-emerald-50 p-4 text-emerald-950">
-          <h2 id="split-correct-heading" className="text-xl font-black">Yes — un- is the first two letters.</h2>
-          <p className="mt-1 text-base font-semibold">un + happy makes unhappy.</p>
+          <h2 id="split-correct-heading" className="text-xl font-black">{props.correctHeading ?? "Yes — un- is the first two letters."}</h2>
+          <p className="mt-1 text-base font-semibold">{props.correctExplanation ?? "un + happy makes unhappy."}</p>
         </div>
-        <button ref={continueButton} type="button" onClick={props.onContinue} className="mx-auto min-h-12 rounded-full bg-cyan-300 px-7 font-black text-slate-950">Continue to meanings</button>
+        <button ref={continueButton} type="button" onClick={props.onContinue} className="mx-auto min-h-12 rounded-full bg-cyan-300 px-7 font-black text-slate-950">{props.continueLabel ?? "Continue to meanings"}</button>
       </section>
     );
   }

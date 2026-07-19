@@ -24,6 +24,7 @@ function word(
     parts,
     joins: parts.slice(1).map((part, index) => ({ afterPartId: parts[index].id, beforePartId: part.id, joinType: "none" })),
     transformationNotes: `Keep the familiar base spelling when building ${displayWord}.`,
+    childFriendlyMeaning: displayWord === "play" ? "to have fun in a game" : displayWord === "replay" ? "to play again" : displayWord === "replayed" ? "played again" : displayWord === "playing" ? "having fun in a game now" : displayWord === "plays" ? "has fun in a game" : displayWord === "govern" ? "to lead or rule" : displayWord === "governor" ? "a person who governs" : "the group that rules a country",
     dictationSentence: sentence,
     dictationTargetTokenIndex: tokenIndex,
     audioText: sentence,
@@ -33,7 +34,7 @@ function word(
 /** Reviewed-content-shaped fixture only. It is never imported or assigned. */
 export const BASE_WORD_FAMILY_PREVIEW_READ_MODEL: BaseWordFamilyLessonReadModel = {
   microSkillKey: "D4_MOR_BASE_WORDS_PRESERVE_BASE",
-  contentVersion: "base-word-two-family-preview-v1",
+  contentVersion: "base-word-two-family-interactive-preview-v2",
   authenticTargets: [
     { canonicalWordId: "replayed_en_gb", learningItemId: "preview-authentic-replayed", sourceRef: "preview:authentic-writing:replayed" },
     { canonicalWordId: "government_en_gb", learningItemId: "preview-authentic-government", sourceRef: "preview:authentic-writing:government" },
@@ -69,9 +70,10 @@ export const BASE_WORD_FAMILY_PREVIEW_READ_MODEL: BaseWordFamilyLessonReadModel 
   independentSlots: [
     { canonicalWordId: "replayed_en_gb", provenance: "authentic_target", baseFamilyKey: "play_base_family", learningItemId: "preview-authentic-replayed" },
     { canonicalWordId: "government_en_gb", provenance: "authentic_target", baseFamilyKey: "govern_base_family", learningItemId: "preview-authentic-government" },
+    { canonicalWordId: "play_en_gb", provenance: "transfer", baseFamilyKey: "play_base_family", learningItemId: null },
     { canonicalWordId: "replay_en_gb", provenance: "transfer", baseFamilyKey: "play_base_family", learningItemId: null },
+    { canonicalWordId: "govern_en_gb", provenance: "transfer", baseFamilyKey: "govern_base_family", learningItemId: null },
     { canonicalWordId: "governor_en_gb", provenance: "transfer", baseFamilyKey: "govern_base_family", learningItemId: null },
-    { canonicalWordId: "playing_en_gb", provenance: "transfer", baseFamilyKey: "play_base_family", learningItemId: null },
   ],
   pilotLessonNumber: 1,
 };

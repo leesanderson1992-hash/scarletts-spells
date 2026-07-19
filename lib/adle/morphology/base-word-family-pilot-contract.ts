@@ -1,7 +1,7 @@
 import type { BaseWordFamilyLessonSnapshotV1 } from "./base-word-family-payload";
 import { validateBaseWordFamilyLessonSnapshot } from "./base-word-family-payload";
 
-export const BASE_WORD_FAMILY_ASSIGNMENT_ITEM_COUNT = 13;
+export const BASE_WORD_FAMILY_ASSIGNMENT_ITEM_COUNT = 18;
 export const BASE_WORD_FAMILY_PILOT_MAX_LESSONS = 5;
 
 export function canGenerateBaseWordFamilyPilot(completedLessonCount: number): boolean {
@@ -25,12 +25,13 @@ export interface BaseWordFamilyPilotBindingSpec {
   targetWord: string | null;
 }
 
-/** Exact 13-item persisted shape. The renderer must fail closed on any drift. */
+/** Exact 18-item persisted shape. The renderer must fail closed on any drift. */
 export function baseWordFamilyPilotBindingSpecs(payload: BaseWordFamilyLessonSnapshotV1): BaseWordFamilyPilotBindingSpec[] {
   return [
     { binding: "strategy-intro", sectionKey: "lesson_intro", templateKey: "MICRO_READ_ONLY_INTRO", canonicalWordId: null, targetWord: null },
-    { binding: "family-matrices", sectionKey: "guided_practice", templateKey: "MOR_BASE_FAMILY_MATRIX", canonicalWordId: null, targetWord: null },
-    { binding: "word-sums", sectionKey: "guided_practice", templateKey: "MOR_BASE_WORD_SUM", canonicalWordId: null, targetWord: null },
+    ...payload.familySections.map((section) => ({ binding: `family-reveal-${section.baseFamilyKey}`, sectionKey: "guided_practice" as const, templateKey: "MOR_BASE_FAMILY_REVEAL", canonicalWordId: null, targetWord: null })),
+    ...payload.authenticTargets.map((target) => ({ binding: `cleave-${target.canonicalWordId}`, sectionKey: "guided_practice" as const, templateKey: "MOR_STRIP_BUILD", canonicalWordId: target.canonicalWordId, targetWord: payload.independentWords.find((word) => word.canonicalWordId === target.canonicalWordId)?.displayWord ?? null })),
+    { binding: "word-sum-builder", sectionKey: "guided_practice", templateKey: "MOR_BUILD_WORD", canonicalWordId: null, targetWord: null },
     ...payload.independentWords.map((word) => ({ binding: `controlled-${word.canonicalWordId}`, sectionKey: "lesson_production" as const, templateKey: "CONTROLLED_SPELLING", canonicalWordId: word.canonicalWordId, targetWord: word.displayWord })),
     ...payload.independentWords.map((word) => ({ binding: `dictation-${word.canonicalWordId}`, sectionKey: "lesson_dictation" as const, templateKey: "DICTATION_NO_IMAGE", canonicalWordId: word.canonicalWordId, targetWord: word.displayWord })),
   ];

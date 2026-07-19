@@ -626,7 +626,7 @@ export async function completeBaseWordFamilyLessonAction(formData: FormData) {
     planDate: context.planDate, assignmentId: context.assignmentId,
   });
   const payload = resolveBaseWordFamilyPilotRuntime(true, readModel.partTwo.items);
-  if (!payload || readModel.partTwo.items.length !== 13) {
+  if (!payload || readModel.partTwo.items.length !== 18) {
     finishWith(context, "This Word Lab needs a grown-up check before it can continue.");
   }
   const controlledAttempts = parseAttempts(formData, "baseWordControlledAttempts");
@@ -657,9 +657,11 @@ export async function completeBaseWordFamilyLessonAction(formData: FormData) {
   const attempts = buildLessonAttemptEvents({
     context, sourceRef, items: readModel.partTwo.items, controlledAttempts,
     dictationAttempts: new Map(finalAttempts.map((attempt) => [attempt.canonicalWordId, attempt.attemptText])),
-    dictationRawAttempts: sentenceAttempts, guidedAttempts: new Map(), probeAttempts: new Map(),
+    dictationRawAttempts: sentenceAttempts,
+    guidedAttempts: new Map(readModel.partTwo.items.filter((item) => item.sectionKey === "lesson_intro" || item.sectionKey === "guided_practice").map((item) => [item.id, "completed"])),
+    probeAttempts: new Map(),
   });
-  if (attempts.length !== 10) throw new Error("completeBaseWordFamilyLessonAction: expected ten independent attempts");
+  if (attempts.length !== 18) throw new Error("completeBaseWordFamilyLessonAction: expected six guided and twelve independent attempts");
   const result = await persistBaseWordFamilyPilotCompletion({
     client: context.serviceClient, parentUserId: context.parentUserId, childId: context.childId,
     assignmentId: context.assignmentId, planDate: context.planDate, microSkillKey: payload.microSkillKey,

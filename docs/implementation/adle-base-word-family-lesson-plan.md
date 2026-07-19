@@ -6,7 +6,8 @@ Status: `approved planning authority; implementation, migration, activation,
 and rollout require separate explicit authorisation`.
 
 This document defines the first D4_MOR lesson-selection slice for base-word
-families. It amends the generic, micro-skill-only Part 2 five-word fill rule
+families. It replaces the earlier five-word family fill with the current
+six-word interactive pilot rule
 only when an eligible base-word lesson is selected. It does not activate the
 approved D4_MOR package, broaden the guarded `D4_MOR_PREFIXES_UN` Word Lab,
 or change production data or settings.
@@ -23,7 +24,7 @@ two verified authentic misspellings
   -> same eligible base-word micro-skill
   -> corrected authentic words remain priority targets
   -> reviewed base family supplies selected transfer words
-  -> five-word lesson
+  -> six-word independent lesson
   -> independent evidence and selective word review
 ```
 
@@ -73,22 +74,22 @@ An eligible base-word lesson requires exactly these preconditions:
 4. Each selected family has at least one reviewed, age-appropriate,
    assignment-safe related word. Together, the selected families must supply
    enough words, word sums, meanings, morphology parts/joins, and independent
-   sentence support to make an exact five-word lesson.
+   sentence support to make an exact six-word lesson.
 
 If any precondition is absent, the composer records an explicit readiness/skip
 reason and does not invent family content. It may continue with an already
 approved non-rich route only when that route is independently eligible; it
 must not silently substitute an unrelated word family.
 
-### Five-word selection
+### Six-word selection
 
-The pilot lesson always contains exactly five independently produced words:
-the two authentic targets and three related family words.
+The pilot lesson always contains exactly six independently produced words:
+the two authentic targets and four related family words.
 
 1. Select authentic targets first, oldest active learning item first.
-2. With two authentic targets, select three reviewed family/transfer words.
-   Select at least one related word from each authentic family, then fill the
-   final place from either of those families.
+2. With two authentic targets, select four reviewed family/transfer words.
+   Select at least one related word from each authentic family, then prefer a
+   second safe word from each family before filling any remaining place.
 3. Any further eligible authentic learning items remain pending for a later
    lesson; the pilot never adds a third target or a third family to fill space.
 4. Transfer words must belong to one of the selected authentic
@@ -149,22 +150,24 @@ covered answer.
 The intended child sequence is:
 
 1. **What is a base word?** Brief explicit introduction.
-2. **Meet your words.** Show the corrected authentic words and selected family
-   members as one or two word matrices, without punitive failure language.
+2. **Meet your words.** Show the corrected authentic word only (never the raw
+   misspelling). Tapping it reveals its reviewed family as one or two animated
+   word matrices, without punitive failure language.
    The guided display contains at most eight words; independent production
-   remains exactly five words.
-3. **Cleave to the base.** Guided prompt to find the base that carries the
-   relevant meaning.
-4. **Build word sums.** Add reviewed prefixes/suffixes and connect their
-   meanings to the resulting words.
+   remains exactly six words.
+3. **Cleave to the base.** Use the shared corrective split interaction to find
+   the base boundaries in each authentic target.
+4. **Build word sums.** Build every displayed family word from reviewed tiles
+   against its child-friendly meaning, with reviewed distractors and both drag
+   and tap placement.
 5. **Cover, write, check.** Independent recall, with no pre-submit answer or
    segmentation leak.
 6. **Dictation in context.** Independent production of the selected words.
 7. **Reflection.** Private, answer-safe reflection on the base strategy.
 
-Guided steps may use two or three representative words under the existing time
-budget. All five selected words receive independent production where their
-reviewed content permits it.
+Guided steps build every displayed word up to the eight-word cap. All six
+selected words receive independent controlled spelling and contextual
+dictation where their reviewed content permits it.
 
 ## Evidence, follow-up and review
 
@@ -194,7 +197,7 @@ reviewed content permits it.
    to the Teaching Dictionary pipeline. Do not infer, bulk-import, or activate
    family truth without review.
 2. Add a pure composer selector for the base-word lesson type. It must apply
-   the two-authentic-target trigger, family eligibility, exact-five selection,
+   the two-authentic-target trigger, family eligibility, exact-six selection,
    oldest-first ordering, complexity window, and explicit skip reasons before
    persistence.
 3. Generalise the current pilot-only morphology payload and validator behind a
@@ -215,7 +218,7 @@ reviewed content permits it.
 changing runtime behaviour.
 
 - Amend the ADLE blueprint and composer contract to distinguish the generic
-  five-word selection from the base-word family lesson selector.
+  six-word selection from the base-word family lesson selector.
 - Define stable skip reasons, transfer-evidence vocabulary, and fixture cases
   for two authentic targets, three targets, missing content, unrelated
   families, and promotion after a confirming miss.
@@ -249,7 +252,7 @@ incomplete, unrelated, and unsuitable words cannot be selected.
   consumes learning-item facts plus Stage 1 family facts.
 - Enforce two distinct verified authentic targets for the same eligible
   micro-skill; allow one or two authentic families; prioritise oldest
-  authentic targets; fill to exactly five with reviewed words from those
+  authentic targets; fill to exactly six with reviewed words from those
   authentic families only.
 - Preserve the complexity window, taught-history exclusions, explicit skip
   reasons, and pending status of unselected authentic targets.
@@ -311,7 +314,7 @@ content/implementation, or separately approve a constrained rollout.
 Before increasing the guided display above eight words, run five guarded
 two-family lessons. For each lesson record completion time, authentic-target
 outcomes, transfer misses, the child's independent base-word explanation, and
-child-effort signals. Independent spelling/dictation remains exactly five
+child-effort signals. Independent spelling/dictation remains exactly six
 words. A ten-word guided display may be tested only when the eight-word pilot
 is consistently timely and independent performance does not decline; twelve is
 not a default.
@@ -319,7 +322,7 @@ not a default.
 ## Acceptance and regression criteria
 
 - Two distinct verified authentic words for one eligible base-word micro-skill
-  produce an exact five-word lesson using one or two reviewed authentic
+  produce an exact six-word lesson using one or two reviewed authentic
   families, with up to eight guided-display words.
 - One authentic target, duplicate corrected targets, unverified routes,
   unrelated families, missing family facts, unsuitable candidates, missing

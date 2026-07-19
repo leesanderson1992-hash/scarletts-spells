@@ -10,7 +10,7 @@ const items = baseWordFamilyPilotBindingSpecs(payload).map((spec, index) => ({
   canonicalWordId: spec.canonicalWordId, targetWord: spec.targetWord,
   promptData: { pilotActivityId: spec.binding, ...(spec.binding === "strategy-intro" ? { baseWordFamilyLesson: payload } : {}) },
 }));
-assert(resolveBaseWordFamilyPilotRuntime(true, items) !== null, "validated 13-item assignment reaches the dedicated route");
+assert(resolveBaseWordFamilyPilotRuntime(true, items) !== null, "validated 18-item assignment reaches the dedicated route");
 assert(resolveBaseWordFamilyPilotRuntime(false, items) === null, "disabled base-word gate uses the normal safe fallback");
 assert(resolveBaseWordFamilyPilotRuntime(true, [...items, { ...items[0], id: "duplicate" }]) === null, "duplicate binding fails closed");
 

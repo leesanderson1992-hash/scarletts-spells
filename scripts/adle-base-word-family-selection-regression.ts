@@ -24,12 +24,12 @@ function facts(items: readonly LearningItemFact[], members: readonly BaseWordFam
 
 const mixed = selectBaseWordFamilyLesson(CHILD, SKILL, facts([item("a", "replayed", "2026-07-01"), item("b", "government", "2026-07-02")]));
 assert(mixed.baseFamilyKeys.join("|") === "PLAY|GOVERN", "different authentic families must share the diagnostic skill, not a family key");
-assert(mixed.slots.length === 5 && mixed.slots.slice(0, 2).map((slot) => slot.canonicalWordId).join("|") === "replayed|government" && mixed.slots.slice(2).some((slot) => slot.baseFamilyKey === "PLAY") && mixed.slots.slice(2).some((slot) => slot.baseFamilyKey === "GOVERN"), "two authentic targets must be followed by a related word from each family and a safe extra");
+assert(mixed.slots.length === 6 && mixed.slots.slice(0, 2).map((slot) => slot.canonicalWordId).join("|") === "replayed|government" && mixed.slots.filter((slot) => slot.provenance === "transfer" && slot.baseFamilyKey === "PLAY").length === 2 && mixed.slots.filter((slot) => slot.provenance === "transfer" && slot.baseFamilyKey === "GOVERN").length === 2, "two authentic targets must be followed by two safe transfers from each family");
 assert(mixed.guidedFamilySections.flatMap((section) => section.guidedWordIds).length === BASE_WORD_GUIDED_DISPLAY_LIMIT, "guided display must retain the two family matrices at the eight-word cap");
 assert(mixed.guidedFamilySections.every((section) => section.authenticTargetWordIds.every((word) => section.guidedWordIds.includes(word))), "guided display must retain authentic targets");
 
 const same = selectBaseWordFamilyLesson(CHILD, SKILL, facts([item("a", "replayed", "2026-07-01"), item("b", "replay", "2026-07-02")]));
-assert(same.baseFamilyKeys.join("|") === "PLAY" && same.slots.length === 5, "two targets in one family remain supported");
+assert(same.baseFamilyKeys.join("|") === "PLAY" && same.slots.length === 6, "two targets in one family remain supported");
 
 const one = selectBaseWordFamilyLesson(CHILD, SKILL, facts([item("a", "replayed", "2026-07-01")]));
 assert(one.skipReasons.includes("insufficient_verified_authentic_targets"), "one authentic target must fail closed");
@@ -38,7 +38,7 @@ const probeOnly = selectBaseWordFamilyLesson(CHILD, SKILL, facts([item("a", "rep
 assert(probeOnly.skipReasons.includes("insufficient_verified_authentic_targets"), "probe-only targets must not satisfy the trigger");
 
 const noGovernTransfer = selectBaseWordFamilyLesson(CHILD, SKILL, facts([item("a", "replayed", "2026-07-01"), item("b", "government", "2026-07-02")], facts([]).members.filter((entry) => entry.canonicalWordId !== "governor")));
-assert(noGovernTransfer.skipReasons.includes("selected_family_missing_transfer_word"), "a three-word govern family needs its related transfer example");
+assert(noGovernTransfer.skipReasons.includes("insufficient_eligible_family_transfer_words"), "a two-family six-word lesson needs both govern and its reviewed related example");
 
 const missingSecondFamily = selectBaseWordFamilyLesson(CHILD, SKILL, { ...facts([item("a", "replayed", "2026-07-01"), item("b", "government", "2026-07-02")]), families: facts([]).families.filter((family) => family.baseFamilyKey !== "GOVERN") });
 assert(missingSecondFamily.skipReasons.includes("authentic_target_missing_reviewed_family_member"), "the second authentic family must be present and reviewed");

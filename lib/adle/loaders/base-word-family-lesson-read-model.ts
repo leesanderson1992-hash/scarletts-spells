@@ -22,7 +22,7 @@ export interface BaseWordFamilyReadModelRequest {
 type FamilyRow = { id: string; base_family_key: string; base_meaning: string; etymology_route: Record<string, unknown> | null };
 type MemberRow = {
   base_word_family_id: string; canonical_word_id: string; member_role: string; word_sum: string;
-  morphology_parts: unknown[]; morphology_joins: unknown[]; transformation_notes: string | null;
+  morphology_parts: unknown[]; morphology_joins: unknown[]; transformation_notes: string | null; child_friendly_meaning: string | null;
   dictation_sentence: string | null; dictation_target_token_index: number | null; audio_text: string | null;
 };
 type WordRow = { id: string; display_word: string };
@@ -37,7 +37,7 @@ async function readRows<T>(
 }
 
 function approvedWord(member: MemberRow, word: WordRow | undefined): BaseWordFamilySnapshotWord | null {
-  if (!word || !member.word_sum.trim() || !Array.isArray(member.morphology_parts) || member.morphology_parts.length === 0 || !Array.isArray(member.morphology_joins) || !member.dictation_sentence?.trim() || member.dictation_target_token_index === null || member.dictation_target_token_index < 0 || !member.audio_text?.trim()) return null;
+  if (!word || !member.word_sum.trim() || !Array.isArray(member.morphology_parts) || member.morphology_parts.length === 0 || !Array.isArray(member.morphology_joins) || !member.child_friendly_meaning?.trim() || !member.dictation_sentence?.trim() || member.dictation_target_token_index === null || member.dictation_target_token_index < 0 || !member.audio_text?.trim()) return null;
   return {
     canonicalWordId: member.canonical_word_id,
     displayWord: word.display_word,
@@ -45,6 +45,7 @@ function approvedWord(member: MemberRow, word: WordRow | undefined): BaseWordFam
     parts: member.morphology_parts,
     joins: member.morphology_joins,
     transformationNotes: member.transformation_notes ?? "",
+    childFriendlyMeaning: member.child_friendly_meaning,
     dictationSentence: member.dictation_sentence,
     dictationTargetTokenIndex: member.dictation_target_token_index,
     audioText: member.audio_text,
@@ -60,7 +61,7 @@ export async function loadBaseWordFamilyLessonReadModel(
   client: Client,
   request: BaseWordFamilyReadModelRequest,
 ): Promise<BaseWordFamilyLessonReadModel | null> {
-  if (request.authenticTargets.length !== 2 || request.sections.length < 1 || request.sections.length > 2 || request.independentSlots.length !== 5) return null;
+  if (request.authenticTargets.length !== 2 || request.sections.length < 1 || request.sections.length > 2 || request.independentSlots.length !== 6) return null;
   const familyKeys = request.sections.map((section) => section.baseFamilyKey);
   if (new Set(familyKeys).size !== familyKeys.length) return null;
   const families = await readRows<FamilyRow>(
@@ -76,7 +77,7 @@ export async function loadBaseWordFamilyLessonReadModel(
   const familyIds = families.map((family) => family.id);
   const members = await readRows<MemberRow>(
     client.from("canonical_teaching_dictionary_base_word_family_members")
-      .select("base_word_family_id, canonical_word_id, member_role, word_sum, morphology_parts, morphology_joins, transformation_notes, dictation_sentence, dictation_target_token_index, audio_text")
+      .select("base_word_family_id, canonical_word_id, member_role, word_sum, morphology_parts, morphology_joins, transformation_notes, child_friendly_meaning, dictation_sentence, dictation_target_token_index, audio_text")
       .eq("row_status", "active")
       .eq("review_status", "approved_for_first_exposure")
       .eq("assignment_eligible", true)
