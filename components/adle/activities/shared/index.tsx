@@ -3,6 +3,7 @@
 export { DraggableTile } from "./draggable-tile";
 export { SnapRail } from "./snap-rail";
 export { SplitHandle } from "./split-handle";
+export { BaseWordCleaver } from "./base-word-cleaver";
 export { FlipToggle } from "./flip-toggle";
 export { CoverShutter } from "./cover-shutter";
 export { BinSort } from "./bin-sort";
