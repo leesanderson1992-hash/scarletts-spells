@@ -6,7 +6,7 @@
  * every mutating command, records opaque IDs only in .tmp, and cleans up by
  * import batch and child ID. Never point it at Scarlett's account.
  *
- * Commands: preflight | load | setup | verify | cleanup | recover
+ * Commands: preflight | load | setup | verify | verify-completed | verify-retry | cleanup | recover
  */
 import { createHash } from "node:crypto";
 import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
@@ -207,6 +207,18 @@ async function verify(db: SupabaseClient) {
   console.log(JSON.stringify({ status: "verification_ready", assignmentItems: 18, authenticLearningItems: 2, transferMisses: transfers ?? 0 }));
 }
 
+async function verifyCompleted(db: SupabaseClient, retry: boolean) {
+  const current = state(); assert(current.childId && current.assignmentId, "setup state is incomplete");
+  assert(await count(db, "assignment_items", [["daily_assignment_id", current.assignmentId]]) === 18, "assignment retains exactly 18 immutable bindings");
+  assert(await count(db, "adle_assignment_attempt_events", [["daily_assignment_id", current.assignmentId]]) === 18, "completion has exactly 18 attempt events");
+  assert(await count(db, "adle_child_learning_reflections", [["daily_assignment_id", current.assignmentId]]) === 1, "completion has exactly one reflection");
+  assert(await count(db, "adle_review_schedule_words", [["child_id", current.childId]]) === 2, "only two authentic targets are scheduled");
+  assert(await count(db, "adle_base_word_transfer_miss_events", [["child_id", current.childId]]) <= 1, "transfer ledger records at most one first miss");
+  const { data: run, error: runError } = await db.from("adle_base_word_family_pilot_runs").select("run_status").eq("assignment_id", current.assignmentId).maybeSingle();
+  if (runError) throw new Error(`pilot run verification: ${runError.message}`); assert(run?.run_status === "completed", "pilot run is completed");
+  console.log(JSON.stringify({ status: retry ? "retry_verified" : "completion_verified", attempts: 18, reflections: 1, authenticSchedules: 2 }));
+}
+
 async function cleanup(db: SupabaseClient) {
   mutating("cleanup"); const current = state(); assert(process.env.ADLE_BASE_WORD_FAMILY_PILOT_ENABLED !== "enabled" || process.env.ADLE_BASE_WORD_FAMILY_PILOT_EMERGENCY_DISABLED === "true", "disable the local/preview pilot gate before cleanup");
   if (current.childId) await db.from("children").delete().eq("id", current.childId);
@@ -233,8 +245,10 @@ async function main() {
   if (command === "load") return load(db);
   if (command === "setup") return setup(db);
   if (command === "verify") return verify(db);
+  if (command === "verify-completed") return verifyCompleted(db, false);
+  if (command === "verify-retry") return verifyCompleted(db, true);
   if (command === "cleanup") return cleanup(db);
   if (command === "recover") return recover(db);
-  throw new Error("Use preflight, load, setup, verify, cleanup, or recover.");
+  throw new Error("Use preflight, load, setup, verify, verify-completed, verify-retry, cleanup, or recover.");
 }
 main().catch((error) => { console.error(error instanceof Error ? error.message : error); process.exit(1); });
