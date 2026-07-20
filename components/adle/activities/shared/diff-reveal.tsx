@@ -1,10 +1,26 @@
 "use client";
 
+function normaliseToken(value: string) { return value.replace(/[^a-z']/gi, "").toLocaleLowerCase("en-GB"); }
+
+/** Marks only LCS-aligned words, so one earlier error cannot colour later correct words as wrong. */
+function alignSentenceTokens(attempted: string[], expected: string[]) {
+  const matrix = Array.from({ length: attempted.length + 1 }, () => Array<number>(expected.length + 1).fill(0));
+  for (let left = 1; left <= attempted.length; left += 1) for (let right = 1; right <= expected.length; right += 1) matrix[left][right] = normaliseToken(attempted[left - 1]) === normaliseToken(expected[right - 1]) ? matrix[left - 1][right - 1] + 1 : Math.max(matrix[left - 1][right], matrix[left][right - 1]);
+  const matchedExpected = new Set<number>(); let left = attempted.length; let right = expected.length;
+  while (left > 0 && right > 0) {
+    if (normaliseToken(attempted[left - 1]) === normaliseToken(expected[right - 1])) { matchedExpected.add(right - 1); left -= 1; right -= 1; }
+    else if (matrix[left - 1][right] >= matrix[left][right - 1]) left -= 1;
+    else right -= 1;
+  }
+  return matchedExpected;
+}
+
 export function DiffReveal(props: { attempt: string; expected: string; splitPoints?: number[]; mode?: "word" | "sentence" }) {
   if (props.mode === "sentence") {
     const attemptedTokens = props.attempt.trim().split(/\s+/).filter(Boolean);
     const expectedTokens = props.expected.trim().split(/\s+/).filter(Boolean);
-    return <div className="rounded-2xl border border-emerald-300/30 bg-emerald-50 p-4 text-slate-950"><p className="text-xs font-bold uppercase tracking-wide text-emerald-800">Check the sentence</p><p className="mt-3 text-left text-sm font-bold">You wrote</p><p className="rounded-xl bg-white p-3 text-left text-lg">{props.attempt}</p><p className="mt-3 text-left text-sm font-bold">The correct sentence</p><p className="rounded-xl bg-emerald-100 p-3 text-left text-lg font-bold">{props.expected}</p><div className="mt-3 flex flex-wrap gap-2">{expectedTokens.map((token, index) => <span key={`${token}-${index}`} className={`rounded-lg px-2 py-1 font-bold ${attemptedTokens[index]?.replace(/[^a-z']/gi, "").toLocaleLowerCase("en-GB") === token.replace(/[^a-z']/gi, "").toLocaleLowerCase("en-GB") ? "bg-emerald-200" : "bg-amber-200"}`}>{token}</span>)}</div><p className="mt-3 text-center text-sm font-semibold">Look at the highlighted word in the correct sentence, then try that word again next time.</p></div>;
+    const matchedExpected = alignSentenceTokens(attemptedTokens, expectedTokens);
+    return <div className="rounded-2xl border border-emerald-300/30 bg-emerald-50 p-4 text-slate-950"><p className="text-xs font-bold uppercase tracking-wide text-emerald-800">Check the sentence</p><p className="mt-3 text-left text-sm font-bold">You wrote</p><p className="rounded-xl bg-white p-3 text-left text-lg">{props.attempt}</p><p className="mt-3 text-left text-sm font-bold">The correct sentence</p><p className="rounded-xl bg-emerald-100 p-3 text-left text-lg font-bold">{props.expected}</p><div className="mt-3 flex flex-wrap gap-2">{expectedTokens.map((token, index) => <span key={`${token}-${index}`} className={`rounded-lg px-2 py-1 font-bold ${matchedExpected.has(index) ? "bg-emerald-200" : "bg-amber-200"}`}>{token}</span>)}</div><p className="mt-3 text-center text-sm font-semibold">Look at the highlighted word in the correct sentence, then try that word again next time.</p></div>;
   }
   const attempt = props.attempt; const expected = props.expected; const max = Math.max(attempt.length, expected.length); const split = new Set(props.splitPoints ?? []);
   return <div className="rounded-2xl border border-emerald-300/30 bg-emerald-50 p-4 text-slate-950"><p className="text-xs font-bold uppercase tracking-wide text-emerald-800">Compare the word</p><div className="mt-3 flex flex-wrap justify-center gap-1" aria-label={`You wrote ${props.attempt}. The expected word is ${props.expected}.`}>{Array.from({ length: max }).map((_, index) => <span key={index} className="inline-flex items-center"><span className={`grid h-10 min-w-8 place-items-center rounded-lg font-black ${attempt[index] === expected[index] ? "bg-emerald-200 text-emerald-950" : "animate-pulse bg-amber-200 text-amber-950 motion-reduce:animate-none"}`}>{attempt[index] ?? "_"}<span className="sr-only">{attempt[index] === expected[index] ? "matches" : `compare with ${expected[index] ?? "nothing"}`}</span></span>{split.has(index + 1) ? <span aria-hidden="true" className="mx-1 text-cyan-700">|</span> : null}</span>)}</div><p className="mt-3 text-center text-sm font-semibold">{attempt === expected ? "You kept both word parts." : "Look at the glowing comparison and notice what changed."}</p></div>;
