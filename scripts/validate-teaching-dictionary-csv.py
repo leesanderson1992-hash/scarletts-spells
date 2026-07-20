@@ -113,6 +113,12 @@ REQUIRED_FILES = {
 }
 
 OPTIONAL_FILES = {
+    "dictation_sentences.csv": [
+        "word_key", "display_word", "age_band", "complexity_band", "dictation_sentence",
+        "dictation_target_token_index", "audio_text", "source_category", "source_name",
+        "source_url", "source_licence", "source_use_note", "confidence", "review_status",
+        "reviewed_by", "reviewed_at", "review_notes",
+    ],
     "teaching_content_sources.csv": [
         "source_key",
         "source_category",
@@ -129,7 +135,7 @@ OPTIONAL_FILES = {
         "confidence", "review_status", "reviewed_by", "reviewed_at",
     ],
     "base_word_family_members.csv": [
-        "base_family_key", "word_key", "member_role", "word_sum", "morphology_parts",
+        "base_family_key", "word_key", "member_role", "child_friendly_meaning", "word_sum", "morphology_parts",
         "morphology_joins", "transformation_notes", "dictation_sentence",
         "dictation_target_token_index", "audio_text", "assignment_eligible",
         "source_category", "source_name", "source_url", "source_licence", "source_use_note",
@@ -197,6 +203,9 @@ SUPPORT_ROLES = {"support_example", "contrast", "review_example"}
 BASE_WORD_MEMBER_ROLES = {"base", "authentic_target", "transfer", "optional_transfer_check"}
 
 ENUM_COLUMNS = {
+    ("dictation_sentences.csv", "source_category"): SOURCE_CATEGORIES,
+    ("dictation_sentences.csv", "confidence"): CONFIDENCE_VALUES,
+    ("dictation_sentences.csv", "review_status"): REVIEW_STATUSES,
     ("canonical_words.csv", "source_category"): SOURCE_CATEGORIES,
     ("canonical_words.csv", "review_status"): REVIEW_STATUSES,
     ("canonical_words.csv", "row_status"): ROW_STATUSES,
@@ -492,6 +501,7 @@ def validate_global_references(
     }
 
     validate_unique_keys(word_rows, "canonical_words.csv", ["word_key"], issues)
+    validate_unique_keys(data["dictation_sentences.csv"], "dictation_sentences.csv", ["word_key"], issues)
     validate_unique_keys(
         data["teaching_content_versions.csv"],
         "teaching_content_versions.csv",
@@ -504,9 +514,40 @@ def validate_global_references(
         "canonical_word_metadata.csv",
         "micro_skill_word_support.csv",
         "teaching_content_versions.csv",
+        "dictation_sentences.csv",
     ]:
         for row in data.get(file_name, []):
             validate_source_fields(row, file_name, issues)
+
+    active_words_by_key = {
+        clean(row["word_key"]): row
+        for row in word_rows
+        if clean(row["word_key"]) and clean(row["row_status"]) == "active" and clean(row["review_status"]) == "approved_for_first_exposure"
+    }
+    sentence_rows = data["dictation_sentences.csv"]
+    if sentence_rows and set(clean(row["word_key"]) for row in sentence_rows) != set(active_words_by_key):
+        add_issue(issues, "error", "dictation_sentences.csv", None, "word_key", "When supplied, dictation_sentences.csv must contain exactly one row for every active approved canonical word.")
+    for row in sentence_rows:
+        key = clean(row["word_key"])
+        word = active_words_by_key.get(key)
+        if not word:
+            add_issue(issues, "error", "dictation_sentences.csv", row_number(row), "word_key", f"word_key {key!r} is not an active approved canonical word.")
+            continue
+        if clean(row["display_word"]) != clean(word["display_word"]):
+            add_issue(issues, "error", "dictation_sentences.csv", row_number(row), "display_word", "display_word must match canonical_words.csv.")
+        sentence = clean(row["dictation_sentence"])
+        audio = clean(row["audio_text"])
+        tokens = [token.lower().replace("’", "'") for token in __import__("re").findall(r"[A-Za-z]+(?:['’][A-Za-z]+)?", sentence)]
+        target_tokens = [token.lower().replace("’", "'") for token in __import__("re").findall(r"[A-Za-z]+(?:['’][A-Za-z]+)?", clean(word["display_word"]))]
+        matches = [index for index in range(len(tokens) - len(target_tokens) + 1) if tokens[index:index + len(target_tokens)] == target_tokens]
+        try:
+            target_index = int(clean(row["dictation_target_token_index"]))
+        except ValueError:
+            target_index = -1
+        if not sentence or len(matches) != 1 or target_index != (matches[0] if len(matches) == 1 else -1):
+            add_issue(issues, "error", "dictation_sentences.csv", row_number(row), "dictation_target_token_index", "Sentence must contain the canonical display word exactly once at the supplied zero-based token index.")
+        if audio != sentence:
+            add_issue(issues, "error", "dictation_sentences.csv", row_number(row), "audio_text", "audio_text must exactly match dictation_sentence for v1.")
 
     for row in data["canonical_word_metadata.csv"]:
         key = clean(row["word_key"])
@@ -626,6 +667,8 @@ def validate_global_references(
             add_issue(issues, "error", "base_word_family_members.csv", row_number(row), "morphology_joins", "morphology_joins must be a JSON array.")
         if not clean(row["word_sum"]):
             add_issue(issues, "error", "base_word_family_members.csv", row_number(row), "word_sum", "Missing reviewed word sum.")
+        if not clean(row["child_friendly_meaning"]):
+            add_issue(issues, "error", "base_word_family_members.csv", row_number(row), "child_friendly_meaning", "Missing child-friendly meaning.")
         sentence = clean(row["dictation_sentence"])
         token_index = clean(row["dictation_target_token_index"])
         if bool(sentence) != bool(token_index):
