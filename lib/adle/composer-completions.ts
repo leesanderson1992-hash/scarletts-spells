@@ -70,6 +70,9 @@ export interface LessonCompletionParams {
   producedWords: readonly ProducedWordAttempt[];
   /** The child's learning items (any status) — matched by (word, skill). */
   learningItems: readonly LearningItemFact[];
+  /** Guarded pilots may schedule their fixed authentic target set even when
+   * one final attempt was incorrect. Correctness still controls transitions. */
+  scheduleAllProducedWords?: boolean;
 }
 
 export interface LessonCompletionResult {
@@ -114,16 +117,18 @@ export function onLessonCompleted(
     attemptText: word.attemptText,
   }));
 
-  const successful = params.producedWords.filter((word) => word.correct);
+  const scheduled = params.scheduleAllProducedWords
+    ? params.producedWords
+    : params.producedWords.filter((word) => word.correct);
   let bundle: ReviewBundleFact | null = null;
   let scheduleWords: ScheduleWordFact[] = [];
-  if (successful.length > 0) {
+  if (scheduled.length > 0) {
     const created = createReviewBundle(policy, {
       bundleId: params.bundleId,
       childId: params.childId,
       sourceRef: params.sourceRef,
       taughtOn: params.completedOn,
-      words: successful.map((word) => {
+      words: scheduled.map((word) => {
         const item = itemByWordId.get(word.canonicalWordId);
         // A reteach re-entry increments the word's reteach cycle count on
         // its new schedule row (Slice 2 owns the count's semantics).

@@ -650,6 +650,7 @@ export async function completeBaseWordFamilyLessonAction(formData: FormData) {
     childId: context.childId, microSkillKey: payload.microSkillKey, completedOn: context.planDate,
     sourceRef: `lesson:${context.childId}:${context.planDate}:${payload.microSkillKey}`,
     bundleId: randomUUID(),
+    scheduleAllProducedWords: true,
     producedWords: finalAttempts.filter((attempt) => authenticIds.has(attempt.canonicalWordId)),
     learningItems: ((learningItemRows ?? []) as LearningItemRow[]).map(learningItemFromRow),
   });

@@ -154,6 +154,25 @@ async function main() {
     "taught history receives actual final produced attempt text",
   );
   assert(!("outcomeEvents" in lessonResult), "lesson completion does not create review outcome events");
+
+  const guardedPilotResult = onLessonCompleted(REVIEW_POLICY_V1, {
+    childId: context.childId,
+    microSkillKey: "D4_MOR_BASE_WORDS_PRESERVE_BASE",
+    completedOn: context.planDate,
+    sourceRef: "lesson:child-1:2026-07-09:D4_MOR_BASE_WORDS_PRESERVE_BASE",
+    bundleId: "bundle-authentic-miss",
+    scheduleAllProducedWords: true,
+    producedWords: [
+      { canonicalWordId: "word-writing", attemptText: "writing", correct: true },
+      { canonicalWordId: "word-making", attemptText: "makeing", correct: false },
+    ],
+    learningItems: [
+      { learningItemId: "item-writing", childId: context.childId, canonicalWordId: "word-writing", microSkillKey: "D4_MOR_BASE_WORDS_PRESERVE_BASE", itemStatus: "pending", sourceKind: "verified_misspelling", sourceRef: "proof", sourceAttemptText: null, reteachPriority: false, ejectedOn: null, intakeOn: context.planDate, rowStatus: "active" },
+      { learningItemId: "item-making", childId: context.childId, canonicalWordId: "word-making", microSkillKey: "D4_MOR_BASE_WORDS_PRESERVE_BASE", itemStatus: "pending", sourceKind: "verified_misspelling", sourceRef: "proof", sourceAttemptText: null, reteachPriority: false, ejectedOn: null, intakeOn: context.planDate, rowStatus: "active" },
+    ],
+  });
+  assert(guardedPilotResult.scheduleWords.length === 2, "guarded authentic pilot schedules both authentic targets after a mixed outcome");
+  assert(guardedPilotResult.itemTransitions.some((item) => item.canonicalWordId === "word-making" && item.itemStatus === "pending"), "authentic miss remains pending rather than being marked secure");
   }
 
   // Scheduled review attempts are the only route to scheduled-review evidence.
