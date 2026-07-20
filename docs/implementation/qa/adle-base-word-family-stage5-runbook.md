@@ -28,4 +28,13 @@ Requires separate explicit release approval, migration-ledger check, and a confi
 
 For each session record: date; anonymised session ID; elapsed completion time; authentic-target final outcomes; transfer misses and later confirmation; the child's base-word explanation; and effort (`easy`, `just right`, or `hard`) with any confusion, help, stopping, or distress. Disable immediately for privacy, distress/withdrawal, comprehension failure, malformed payload fallback, incorrect scheduling/reward behaviour, or an unexpected account scope.
 
+### Observation follow-up — 2026-07-20
+
+The child completed the base-word lesson. Dictation audio was difficult to hear,
+but this did not block completion or the other Word Lab tasks. Before broader
+refinement, replace the current dictation voice with **Lola**, or a comparably
+clear, natural British voice, and recheck dictation audibility. This is a
+non-blocking follow-up; do not treat it as a reason to reopen the completed
+staging proof.
+
 After five completed or intentionally stopped sessions, review the evidence. Keep the eight guided-word cap unless the evidence supports a separate, approved five-session ten-word experiment. Twelve words remain out of scope.
