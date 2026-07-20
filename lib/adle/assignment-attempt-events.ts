@@ -70,7 +70,7 @@ export function buildLessonAttemptEvents(params: {
 }): AssignmentAttemptEventWrite[] {
   const events: AssignmentAttemptEventWrite[] = [];
   for (const item of params.items) {
-    if (item.sectionKey === "guided_practice") {
+    if (item.sectionKey === "lesson_intro" || item.sectionKey === "guided_practice") {
       if (!params.guidedAttempts.has(item.id)) {
         continue;
       }

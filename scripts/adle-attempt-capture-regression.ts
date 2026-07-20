@@ -46,6 +46,13 @@ async function main() {
     context,
     sourceRef: lessonSourceRef,
     items: [
+      item({
+        id: "intro-1",
+        sectionKey: "lesson_intro",
+        templateKey: "MICRO_READ_ONLY_INTRO",
+        canonicalWordId: null,
+        targetWord: null,
+      }),
       item({ id: "guided-1", sectionKey: "guided_practice", templateKey: "PG_SOUND_NOTICE" }),
       item({ id: "prod-1", sectionKey: "lesson_production", templateKey: "CONTROLLED_SPELLING" }),
       item({ id: "dict-1", sectionKey: "lesson_dictation", templateKey: "DICTATION_NO_IMAGE" }),
@@ -63,7 +70,10 @@ async function main() {
         },
       }),
     ],
-    guidedAttempts: new Map([["guided-1", "I think it drops the e"]]),
+    guidedAttempts: new Map([
+      ["intro-1", "completed"],
+      ["guided-1", "I think it drops the e"],
+    ]),
     controlledAttempts: new Map([["word-writing", "writting"]]),
     dictationAttempts: new Map([["word-writing", "righting"]]),
     probeAttempts: new Map([
@@ -72,7 +82,7 @@ async function main() {
     ]),
   });
 
-  assert(events.length === 5, "guided, controlled, dictation, and two probe attempts are captured");
+  assert(events.length === 6, "intro, guided, controlled, dictation, and two probe attempts are captured");
   assert(
     events.some(
       (event) =>
@@ -101,6 +111,16 @@ async function main() {
         event.isCorrect === null,
     ),
     "guided prompt shell text is stored without correctness pricing",
+  );
+  assert(
+    events.some(
+      (event) =>
+        event.assignmentItemId === "intro-1" &&
+        event.attemptKind === "guided_practice" &&
+        event.evidenceClass === "guided_practice_attempt" &&
+        event.isCorrect === null,
+    ),
+    "read-only lesson intros are recorded as non-scored guided participation",
   );
   assert(
     events.some(
