@@ -666,12 +666,8 @@ export async function completeBaseWordFamilyLessonAction(formData: FormData) {
     client: context.serviceClient, parentUserId: context.parentUserId, childId: context.childId,
     assignmentId: context.assignmentId, planDate: context.planDate, microSkillKey: payload.microSkillKey,
     sourceRef, assignmentItemIds: readModel.partTwo.items.map((item) => item.id), attempts, lesson,
+    reflection: { childId: context.childId, parentUserId: context.parentUserId, assignmentId: context.assignmentId, microSkillKey: payload.microSkillKey, contentVersion: payload.contentVersion, promptKey: BASE_WORD_FAMILY_REFLECTION_PROMPT_KEY, promptText: payload.reflectionPrompt, reflectionText: reflection },
     transferMisses: baseWordTransferMissWrites({ payload, childId: context.childId, lessonSourceRef: sourceRef, occurredOn: context.planDate as import("@/lib/adle/review-scheduler").IsoDate, finalAttempts }),
-  });
-  await upsertChildLearningReflection(context.serviceClient, {
-    childId: context.childId, parentUserId: context.parentUserId, assignmentId: context.assignmentId,
-    microSkillKey: payload.microSkillKey, contentVersion: payload.contentVersion,
-    promptKey: BASE_WORD_FAMILY_REFLECTION_PROMPT_KEY, promptText: payload.reflectionPrompt, reflectionText: reflection,
   });
   scheduleLessonReward(context, authenticProductionItems);
   finishWith(context, result.status === "already_completed" ? "Today's lesson is already recorded." : "Lesson finished. Your two writing words join review tomorrow.");

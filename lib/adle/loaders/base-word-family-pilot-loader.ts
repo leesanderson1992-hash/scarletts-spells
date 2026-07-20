@@ -10,6 +10,7 @@ import { loadDailyPlanFacts } from "./composer-facts-loader";
 import { assertBaseWordFamilyPilotEnabledForChild } from "../morphology/base-word-family-pilot-access";
 import type { AssignmentAttemptEventWrite, LessonCompletionWrite } from "./session-completion-loader";
 import type { BaseWordTransferMissWrite } from "../base-word-transfer-evidence";
+import type { WordLabReflectionWrite } from "./word-lab-completion-loader";
 
 export const BASE_WORD_PILOT_MICRO_SKILL = "D4_MOR_BASE_WORDS_PRESERVE_BASE";
 const BASE_WORD_PILOT_CONTENT_VERSION = "d4-mor-base-word-family-v1";
@@ -105,12 +106,13 @@ export async function persistBaseWordFamilyPilotCompletion(params: {
   assignmentItemIds: readonly string[];
   attempts: readonly AssignmentAttemptEventWrite[];
   lesson: LessonCompletionWrite;
+  reflection: WordLabReflectionWrite;
   transferMisses: readonly BaseWordTransferMissWrite[];
 }): Promise<{ status: "completed" | "already_completed" }> {
   const { data, error } = await params.client.rpc("complete_adle_base_word_family_pilot_v1", {
     p_parent_user_id: params.parentUserId, p_child_id: params.childId, p_assignment_id: params.assignmentId,
     p_plan_date: params.planDate, p_micro_skill_key: params.microSkillKey, p_source_ref: params.sourceRef,
-    p_assignment_item_ids: params.assignmentItemIds, p_attempts: params.attempts, p_lesson: params.lesson,
+    p_assignment_item_ids: params.assignmentItemIds, p_attempts: params.attempts, p_lesson: { ...params.lesson, reflection: params.reflection },
     p_transfer_misses: params.transferMisses,
   });
   if (error) throw new Error(`persistBaseWordFamilyPilotCompletion: ${error.message}`);

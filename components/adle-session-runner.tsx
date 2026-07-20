@@ -121,17 +121,20 @@ function BaseWordFamilyPart(props: { childId: string; assignmentId: string; payl
   const controlledRef = useRef<HTMLInputElement>(null);
   const sentenceRef = useRef<HTMLInputElement>(null);
   const reflectionRef = useRef<HTMLInputElement>(null);
+  const [submitting, setSubmitting] = useState(false);
   return <form ref={formRef} action={completeBaseWordFamilyLessonAction}>
     <HiddenSessionFields childId={props.childId} assignmentId={props.assignmentId} />
     <input ref={controlledRef} type="hidden" name="baseWordControlledAttempts" />
     <input ref={sentenceRef} type="hidden" name="baseWordSentenceAttempts" />
     <input ref={reflectionRef} type="hidden" name="baseWordReflection" />
-    <BaseWordFamilyGuidedLesson assignmentId={props.assignmentId} payload={props.payload} onComplete={(input) => {
+    {submitting ? <p role="status" aria-live="polite" className="brand-card rounded-2xl p-4 text-center">Saving your Word Lab…</p> : null}
+    <BaseWordFamilyGuidedLesson assignmentId={props.assignmentId} payload={props.payload} submitting={submitting} onComplete={(input) => {
       if (!controlledRef.current || !sentenceRef.current || !reflectionRef.current) return;
       controlledRef.current.value = JSON.stringify(Object.entries(input.controlledAttempts).map(([key, attemptText]) => ({ key, attemptText })));
       sentenceRef.current.value = JSON.stringify(Object.entries(input.sentenceAttempts).map(([key, attemptText]) => ({ key, attemptText })));
       reflectionRef.current.value = input.reflection;
-      formRef.current?.requestSubmit();
+      setSubmitting(true);
+      requestAnimationFrame(() => formRef.current?.requestSubmit());
     }} />
   </form>;
 }
