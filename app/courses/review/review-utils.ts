@@ -208,8 +208,10 @@ export type ReviewQueueThreadInput = {
   id: string;
   task_id: string;
   submitted_at: string;
+  created_at: string;
   parent_review_status: "pending" | "approved" | "returned";
   hasActionableReturnedIssueHistory: boolean;
+  hasReturnedSubmissionHistory: boolean;
 };
 
 export type ReviewQueueThread<T extends ReviewQueueThreadInput> = {
@@ -226,19 +228,24 @@ export type ReviewQueueThread<T extends ReviewQueueThreadInput> = {
 export function getReviewQueueThreadState(
   row: Pick<
     ReviewQueueThreadInput,
-    "parent_review_status" | "hasActionableReturnedIssueHistory"
+    | "parent_review_status"
+    | "hasActionableReturnedIssueHistory"
+    | "hasReturnedSubmissionHistory"
   >,
 ): ReviewQueueThreadState {
-  if (row.hasActionableReturnedIssueHistory) {
-    return "child_resubmitted";
-  }
-
   if (row.parent_review_status === "returned") {
     return "sent_back_to_child";
   }
 
   if (row.parent_review_status === "approved") {
     return "completed";
+  }
+
+  if (
+    row.hasActionableReturnedIssueHistory ||
+    row.hasReturnedSubmissionHistory
+  ) {
+    return "child_resubmitted";
   }
 
   return "submitted";
@@ -284,9 +291,14 @@ export function buildReviewQueueThreads<T extends ReviewQueueThreadInput>(
 
   return Array.from(rowsByTaskId.entries())
     .map(([taskId, taskRows]) => {
-      const sortedRows = [...taskRows].sort((left, right) =>
-        right.submitted_at.localeCompare(left.submitted_at),
-      );
+      const sortedRows = [...taskRows].sort((left, right) => {
+        const submittedAtComparison = right.submitted_at.localeCompare(
+          left.submitted_at,
+        );
+        return submittedAtComparison !== 0
+          ? submittedAtComparison
+          : right.created_at.localeCompare(left.created_at);
+      });
       const latestSubmission = sortedRows[0];
       const latestLiveReviewState = getReviewQueueThreadState(latestSubmission);
       const archiveEligible = latestLiveReviewState === "completed";
@@ -304,9 +316,16 @@ export function buildReviewQueueThreads<T extends ReviewQueueThreadInput>(
         historicalSubmissionCount: Math.max(sortedRows.length - 1, 0),
       };
     })
-    .sort((left, right) =>
-      right.latestSubmission.submitted_at.localeCompare(left.latestSubmission.submitted_at),
-    );
+    .sort((left, right) => {
+      const submittedAtComparison = right.latestSubmission.submitted_at.localeCompare(
+        left.latestSubmission.submitted_at,
+      );
+      return submittedAtComparison !== 0
+        ? submittedAtComparison
+        : right.latestSubmission.created_at.localeCompare(
+            left.latestSubmission.created_at,
+          );
+    });
 }
 
 export type ActionableReturnedIssueLookupRow = {

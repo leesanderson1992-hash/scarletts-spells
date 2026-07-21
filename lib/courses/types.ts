@@ -150,6 +150,7 @@ export type TaskSubmissionRow = {
   child_id: string;
   submission_text: string;
   submitted_at: string;
+  created_at: string;
   parent_review_status: "pending" | "approved" | "returned";
   parent_review_note: string | null;
   parent_reviewed_at: string | null;

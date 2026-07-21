@@ -466,6 +466,12 @@ function isUuid(value: unknown): value is string {
   return typeof value === "string" && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
 }
 
+function isCourseTaskSubmissionOutcome(
+  value: unknown,
+): value is CourseTaskSubmissionRpcResult["outcome"] {
+  return value === "created" || value === "duplicate" || value === "already_submitted";
+}
+
 export async function submitTaskResponse(formData: FormData) {
   const redirectPath = getRedirectPath(formData, "/learn");
   const taskId = formData.get("task_id");
@@ -610,15 +616,69 @@ export async function submitTaskResponse(formData: FormData) {
   }
 
   const result = data as unknown as CourseTaskSubmissionRpcResult;
-  if (!isUuid(result.submissionId)) {
+  if (!isUuid(result.submissionId) || !isCourseTaskSubmissionOutcome(result.outcome)) {
     redirect(buildRedirectWithMessage(redirectPath, "error", "We couldn't confirm that submission safely. Please reload before trying again."));
   }
+
+  if (result.outcome === "already_submitted") {
+    redirect(buildRedirectWithMessage(
+      redirectPath,
+      "error",
+      "This lesson is already waiting for review. Reload to see the saved work.",
+    ));
+  }
+
+  const [{ data: confirmedSubmission, error: confirmationError }, { data: confirmedPayload, error: payloadConfirmationError }] =
+    await Promise.all([
+      supabase
+        .from("task_submissions")
+        .select("id, parent_review_status")
+        .eq("id", result.submissionId)
+        .eq("task_id", task.id)
+        .eq("course_id", task.course_id)
+        .eq("child_id", child.id)
+        .eq("parent_user_id", user.id)
+        .maybeSingle(),
+      shouldPersistStructuredPayload
+        ? supabase
+            .from("task_submission_payloads")
+            .select("id")
+            .eq("submission_id", result.submissionId)
+            .eq("task_id", task.id)
+            .eq("course_id", task.course_id)
+            .eq("child_id", child.id)
+            .eq("parent_user_id", user.id)
+            .eq("payload_type", task.task_type === "lesson" ? "structured_lesson_response" : "structured_test_response")
+            .maybeSingle()
+        : Promise.resolve({ data: { id: "not-required" }, error: null }),
+    ]);
+
+  if (
+    confirmationError ||
+    confirmedSubmission?.parent_review_status !== "pending" ||
+    payloadConfirmationError ||
+    !confirmedPayload
+  ) {
+    console.error("[course-task-submission] persistence confirmation failed", {
+      confirmationError,
+      payloadConfirmationError,
+      submissionId: result.submissionId,
+      outcome: result.outcome,
+    });
+    redirect(buildRedirectWithMessage(
+      redirectPath,
+      "error",
+      "We couldn't confirm that your revised work reached review. Your answers are still saved; please reload before trying again.",
+    ));
+  }
+
   after(async () => {
     await processTaskSubmission(result.submissionId);
   });
 
   revalidateLearnSurfacePaths(redirectPath);
   revalidatePath("/courses/review");
+  revalidatePath(`/courses/review/${result.submissionId}`);
   redirect(buildRedirectWithMessage(redirectPath, "saved", "submission"));
 }
 

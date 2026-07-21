@@ -97,10 +97,15 @@ assert.doesNotMatch(
   /task_submission_payloads/,
   "Pass 3 must not add Review Work read-model wiring.",
 );
+assert.match(
+  learnActions,
+  /\.from\("task_submission_payloads"\)[\s\S]*\.select\("id"\)[\s\S]*payloadConfirmationError[\s\S]*!confirmedPayload/,
+  "The submit action must read back the durable payload before reporting a structured submission as saved.",
+);
 assert.doesNotMatch(
   learnActions,
-  /\.from\("task_submission_payloads"\)/,
-  "Pass 3 must not add direct submit-action table wiring.",
+  /\.from\("task_submission_payloads"\)(?:(?!\.from\()[\s\S])*\.(insert|upsert|update|delete)\(/,
+  "The submit action may verify payload persistence but must not mutate payload rows directly.",
 );
 assert.match(
   payloadPersistence,

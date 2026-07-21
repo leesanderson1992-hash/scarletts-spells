@@ -480,10 +480,11 @@ export async function getModuleDetailForChild(
       .eq("child_id", childId),
     supabase
       .from("task_submissions")
-      .select("id, task_id, course_id, child_id, submission_text, submitted_at, parent_review_status, parent_review_note, parent_reviewed_at")
+      .select("id, task_id, course_id, child_id, submission_text, submitted_at, created_at, parent_review_status, parent_review_note, parent_reviewed_at")
       .eq("course_id", courseId)
       .eq("child_id", childId)
-      .order("submitted_at", { ascending: false }),
+      .order("submitted_at", { ascending: false })
+      .order("created_at", { ascending: false }),
   ]);
 
   return {
@@ -510,10 +511,11 @@ export async function getCourseActivityForChild(
       .eq("child_id", childId),
     supabase
       .from("task_submissions")
-      .select("id, task_id, course_id, child_id, submission_text, submitted_at, parent_review_status, parent_review_note, parent_reviewed_at")
+      .select("id, task_id, course_id, child_id, submission_text, submitted_at, created_at, parent_review_status, parent_review_note, parent_reviewed_at")
       .eq("course_id", courseId)
       .eq("child_id", childId)
-      .order("submitted_at", { ascending: false }),
+      .order("submitted_at", { ascending: false })
+      .order("created_at", { ascending: false }),
   ]);
 
   return {
