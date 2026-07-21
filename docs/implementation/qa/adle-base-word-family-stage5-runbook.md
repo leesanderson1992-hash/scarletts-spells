@@ -22,7 +22,11 @@ fixture batch, rerun `preflight`, and then retry `load`.
 
 ## Production release hold-point
 
-Requires separate explicit release approval, migration-ledger check, and a confirmed Scarlett-only allowlist. The emergency stop is `ADLE_BASE_WORD_FAMILY_PILOT_EMERGENCY_DISABLED=true`. Do not enable the gate in this implementation task.
+After staging proof and release approval, check the production migration ledger and the exact affected schema. Apply only the reviewed forward migrations; do not use raw schema changes or broad `supabase db push`.
+
+The release configuration is `ADLE_BASE_WORD_FAMILY_PILOT_ENABLED=enabled` and `ADLE_BASE_WORD_FAMILY_PILOT_SCOPE=all_eligible`. A child still needs two verified, unresolved learning items in one supported base-word micro-skill, so the route cannot create substitute targets. `ADLE_BASE_WORD_FAMILY_PILOT_EMERGENCY_DISABLED=true` disables every scope immediately. `allowlist` remains available for a controlled rollback or future preview.
+
+The supported runtime micro-skills are `D4_MOR_BASE_WORDS_PRESERVE_BASE` and `D4_MOR_BASE_WORDS_IDENTIFY_BASE`; the approved `bed`, `foot`, and `sun` families remain intentionally unavailable until their content gaps are separately enriched and approved. There is no per-child five-lesson cap; existing v1 snapshots and completed records remain immutable.
 
 ## Private parent observation sheet (kept outside this repository)
 

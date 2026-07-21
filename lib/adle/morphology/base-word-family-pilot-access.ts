@@ -1,4 +1,4 @@
-export const BASE_WORD_FAMILY_PILOT_MAX_LESSONS = 5;
+export const BASE_WORD_FAMILY_PILOT_MAX_LESSONS: number | null = null;
 
 function allowlist(value: string | undefined): ReadonlySet<string> {
   return new Set((value ?? "").split(",").map((entry) => entry.trim()).filter(Boolean));
@@ -6,9 +6,9 @@ function allowlist(value: string | undefined): ReadonlySet<string> {
 
 /** Deliberately separate from the D4_MOR_PREFIXES_UN gate. Disabled by default. */
 export function isBaseWordFamilyPilotEnabledForChild(childId: string): boolean {
-  return process.env.ADLE_BASE_WORD_FAMILY_PILOT_ENABLED === "enabled"
-    && process.env.ADLE_BASE_WORD_FAMILY_PILOT_EMERGENCY_DISABLED !== "true"
-    && allowlist(process.env.ADLE_BASE_WORD_FAMILY_PILOT_CHILD_IDS).has(childId);
+  if (process.env.ADLE_BASE_WORD_FAMILY_PILOT_ENABLED !== "enabled" || process.env.ADLE_BASE_WORD_FAMILY_PILOT_EMERGENCY_DISABLED === "true") return false;
+  const scope = process.env.ADLE_BASE_WORD_FAMILY_PILOT_SCOPE ?? "allowlist";
+  return scope === "all_eligible" || scope === "allowlist" && allowlist(process.env.ADLE_BASE_WORD_FAMILY_PILOT_CHILD_IDS).has(childId);
 }
 
 export function assertBaseWordFamilyPilotEnabledForChild(childId: string): void {

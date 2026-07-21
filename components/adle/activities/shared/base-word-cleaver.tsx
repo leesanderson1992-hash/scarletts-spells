@@ -8,6 +8,7 @@ import { playInteractionSound } from "./sound";
 const STRIKE_MS = 220;
 
 export type BaseWordCleaveSegment = { id: string; text: string };
+export type BaseWordFinalYRestoration = { sourceText: string; surfaceText: string; explanation: string };
 
 function CleaverIcon(props: { striking: boolean; reducedMotion: boolean }) {
   const transform = props.striking ? "translateY(32px) rotate(8deg)" : "translateY(0) rotate(-16deg)";
@@ -24,6 +25,7 @@ export function BaseWordCleaver(props: {
   word: string;
   segments: BaseWordCleaveSegment[];
   baseIndex: number;
+  finalYRestoration?: BaseWordFinalYRestoration;
   selectedCuts: number[];
   misses: number;
   muted?: boolean;
@@ -38,6 +40,7 @@ export function BaseWordCleaver(props: {
   const [striking, setStriking] = useState(false);
   const [remainingWord, setRemainingWord] = useState("");
   const [baseConfirmed, setBaseConfirmed] = useState(false);
+  const [finalYRestored, setFinalYRestored] = useState(false);
   const timers = useRef<number[]>([]);
   const boundaryButtons = useRef<Array<HTMLButtonElement | null>>([]);
   const boundaries = segmentBoundaries(props.segments);
@@ -50,6 +53,8 @@ export function BaseWordCleaver(props: {
   const baseEnd = baseStart + props.segments[props.baseIndex].text.length;
   const letters = Array.from(props.word);
   const baseWord = props.segments[props.baseIndex]?.text ?? "";
+  const expectedBaseWord = props.finalYRestoration?.sourceText ?? baseWord;
+  const displayLetters = letters.map((letter, index) => finalYRestored && props.finalYRestoration && index === baseEnd - 1 ? expectedBaseWord.at(-1) ?? letter : letter);
 
   useEffect(() => () => timers.current.forEach((timer) => window.clearTimeout(timer)), []);
   useEffect(() => {
@@ -78,7 +83,7 @@ export function BaseWordCleaver(props: {
     }, reducedMotion ? 0 : STRIKE_MS);
   }
 
-  const feedback = baseConfirmed ? `Yes — ${baseWord} is the base word.` : complete ? "The extra parts have moved aside. What word remains?" : scaffolded ? "Choose one of the glowing gaps beside the base word." : props.misses ? "Try again. Look for the edge of a meaningful word part." : selectedCuts.length ? "Great chop. Find another edge of the base word." : "Choose where to chop the word.";
+  const feedback = baseConfirmed ? `Yes — ${expectedBaseWord} is the base word.` : complete && props.finalYRestoration && !finalYRestored ? "The ending has moved aside. One letter needs changing before the base word returns." : complete ? "The extra parts have moved aside. What word remains?" : scaffolded ? "Choose one of the glowing gaps beside the base word." : props.misses ? "Try again. Look for the edge of a meaningful word part." : selectedCuts.length ? "Great chop. Find another edge of the base word." : "Choose where to chop the word.";
   return <section className="grid gap-5 text-center" aria-labelledby="base-cleaver-heading">
     <p className="text-xs font-black uppercase tracking-[.2em] text-cyan-200">Cleave out the base</p>
     <h2 id="base-cleaver-heading" className="text-3xl font-black text-white">Chop off the parts that are not the base word.</h2>
@@ -86,7 +91,7 @@ export function BaseWordCleaver(props: {
     <div className="mx-auto w-full max-w-3xl overflow-hidden rounded-3xl border border-cyan-200/25 bg-slate-950/30 px-3 py-8">
       <div role="group" aria-label={`Chop ${props.word} to find its base word`} className="relative mx-auto h-36 w-full max-w-2xl select-none pt-24">
         <div className="grid h-14 items-center" style={{ gridTemplateColumns: `repeat(${letters.length}, minmax(0, 1fr))` }}>
-        {letters.map((letter, index) => {
+        {displayLetters.map((letter, index) => {
           const inBase = index >= baseStart && index < baseEnd;
           const aside = complete && !inBase;
           return <span key={`${letter}-${index}`} aria-hidden="true" className={`grid h-14 place-items-center border-x border-white/20 text-3xl font-black ${aside ? index < baseStart ? "-translate-x-2 opacity-60" : "translate-x-2 opacity-60" : ""} ${inBase && complete ? "bg-amber-100 text-amber-950" : "text-white"} ${reducedMotion ? "" : "transition-all duration-300"}`}>{letter}</span>;
@@ -96,7 +101,8 @@ export function BaseWordCleaver(props: {
       </div>
     </div>
     <div role="status" aria-live="polite" className={`mx-auto min-h-14 max-w-xl rounded-2xl p-3 text-sm font-bold ${complete ? "bg-emerald-100 text-emerald-950" : props.misses ? scaffolded ? "bg-cyan-100 text-cyan-950" : "bg-red-100 text-red-950" : "bg-white/10 text-cyan-50"}`}>{feedback}</div>
-    {complete && !baseConfirmed ? <div className="mx-auto grid w-full max-w-md gap-3"><label className="text-left text-sm font-bold text-cyan-50">What word remains?<input autoFocus autoComplete="off" spellCheck={false} value={remainingWord} onChange={(event) => setRemainingWord(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter" && remainingWord.trim().toLocaleLowerCase("en-GB") === baseWord.toLocaleLowerCase("en-GB")) setBaseConfirmed(true); }} className="mt-2 w-full rounded-2xl bg-white p-3 text-xl font-black text-slate-950 focus:outline-none focus:ring-4 focus:ring-cyan-300/30" /></label><button type="button" disabled={!remainingWord.trim()} onClick={() => setBaseConfirmed(remainingWord.trim().toLocaleLowerCase("en-GB") === baseWord.toLocaleLowerCase("en-GB"))} className="min-h-12 rounded-full bg-cyan-300 px-7 font-black text-slate-950 disabled:opacity-40">Check the word</button></div> : null}
+    {complete && !baseConfirmed && props.finalYRestoration && !finalYRestored ? <div className="mx-auto grid w-full max-w-md gap-3 rounded-2xl bg-cyan-100 p-4 text-cyan-950"><p className="font-black">{props.finalYRestoration.explanation}</p><p><strong>{props.finalYRestoration.surfaceText}</strong> ends in <strong>i</strong>. Change that final <strong>i</strong> back to <strong>y</strong>.</p><button type="button" autoFocus onClick={() => setFinalYRestored(true)} className="min-h-12 rounded-full bg-cyan-700 px-7 font-black text-white">Change i to y</button></div> : null}
+    {complete && !baseConfirmed && (!props.finalYRestoration || finalYRestored) ? <div className="mx-auto grid w-full max-w-md gap-3"><label className="text-left text-sm font-bold text-cyan-50">What word remains?<input autoFocus autoComplete="off" spellCheck={false} value={remainingWord} onChange={(event) => setRemainingWord(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter" && remainingWord.trim().toLocaleLowerCase("en-GB") === expectedBaseWord.toLocaleLowerCase("en-GB")) setBaseConfirmed(true); }} className="mt-2 w-full rounded-2xl bg-white p-3 text-xl font-black text-slate-950 focus:outline-none focus:ring-4 focus:ring-cyan-300/30" /></label><button type="button" disabled={!remainingWord.trim()} onClick={() => setBaseConfirmed(remainingWord.trim().toLocaleLowerCase("en-GB") === expectedBaseWord.toLocaleLowerCase("en-GB"))} className="min-h-12 rounded-full bg-cyan-300 px-7 font-black text-slate-950 disabled:opacity-40">Check the word</button></div> : null}
     {baseConfirmed ? <button type="button" autoFocus onClick={props.onContinue} className="mx-auto min-h-12 rounded-full bg-cyan-300 px-7 font-black text-slate-950">Build words from meanings</button> : null}
   </section>;
 }

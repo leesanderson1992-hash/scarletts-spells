@@ -9,6 +9,7 @@ import type { LearningItemFact } from "../lib/adle/learning-items";
 function assert(value: unknown, message: string): asserts value { if (!value) throw new Error(message); }
 const CHILD = "child";
 const SKILL = "D4_MOR_BASE_WORDS_PRESERVE_BASE";
+const IDENTIFY_BASE = "D4_MOR_BASE_WORDS_IDENTIFY_BASE";
 function item(id: string, word: string, date: string, sourceKind: LearningItemFact["sourceKind"] = "verified_misspelling"): LearningItemFact {
   return { learningItemId: id, childId: CHILD, canonicalWordId: word, microSkillKey: SKILL, itemStatus: "pending", sourceKind, sourceRef: id, sourceAttemptText: "misspelling", reteachPriority: false, ejectedOn: null, intakeOn: date, rowStatus: "active" };
 }
@@ -45,5 +46,30 @@ assert(missingSecondFamily.skipReasons.includes("authentic_target_missing_review
 
 const inReview = selectBaseWordFamilyLesson(CHILD, SKILL, { ...facts([item("a", "replayed", "2026-07-01"), item("b", "government", "2026-07-02")]), families: facts([]).families.map((family) => ({ ...family, reviewStatus: "in_review" })) });
 assert(inReview.skipReasons.includes("authentic_target_missing_reviewed_family_member"), "in-review families must stay outside runtime selection");
+
+const identifyFacts: BaseWordFamilySelectionFacts = {
+  learningItems: [
+    { ...item("action", "action", "2026-07-01"), microSkillKey: IDENTIFY_BASE },
+    { ...item("happiness", "happiness", "2026-07-02"), microSkillKey: IDENTIFY_BASE },
+  ],
+  families: ["ACT", "HAPPY", "BED", "SUN"].map((baseFamilyKey) => ({ baseFamilyKey, microSkillKey: IDENTIFY_BASE, rowStatus: "active" as const, reviewStatus: "approved_for_first_exposure" as const })),
+  members: [
+    member("ACT", "act", "base"), member("ACT", "action", "authentic_target"), member("ACT", "react", "transfer"), member("ACT", "interact", "transfer"), member("ACT", "active", "transfer"),
+    member("HAPPY", "happy", "base"), member("HAPPY", "happiness", "authentic_target"), member("HAPPY", "unhappy", "transfer"),
+    member("BED", "bed", "authentic_target"), member("SUN", "sun", "authentic_target"),
+  ],
+};
+const yToIPair = selectBaseWordFamilyLesson(CHILD, IDENTIFY_BASE, identifyFacts);
+assert(yToIPair.skipReasons.length === 0 && yToIPair.slots.length === 6, "an approved action + happiness pair must retain the six-word contract");
+assert(yToIPair.slots.slice(0, 2).map((slot) => slot.canonicalWordId).join("|") === "action|happiness", "identify-base lessons must retain both genuine learning-item targets");
+assert(yToIPair.slots.slice(2).every((slot) => ["ACT", "HAPPY"].includes(slot.baseFamilyKey)), "paired transfers must remain within the two declared families");
+const blocked = selectBaseWordFamilyLesson(CHILD, IDENTIFY_BASE, {
+  ...identifyFacts,
+  learningItems: [
+    { ...item("bed", "bed", "2026-07-01"), microSkillKey: IDENTIFY_BASE },
+    { ...item("sun", "sun", "2026-07-02"), microSkillKey: IDENTIFY_BASE },
+  ],
+});
+assert(blocked.slots.length === 0 && blocked.skipReasons.length > 0, "blocked families must fail closed rather than gain unrelated fallback words");
 
 console.log("adle-base-word-family-selection-regression: ok");

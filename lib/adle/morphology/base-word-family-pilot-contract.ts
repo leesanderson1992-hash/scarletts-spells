@@ -2,10 +2,10 @@ import type { BaseWordFamilyLessonSnapshotV1 } from "./base-word-family-payload"
 import { validateBaseWordFamilyLessonSnapshot } from "./base-word-family-payload";
 
 export const BASE_WORD_FAMILY_ASSIGNMENT_ITEM_COUNT = 18;
-export const BASE_WORD_FAMILY_PILOT_MAX_LESSONS = 5;
+export const BASE_WORD_FAMILY_PILOT_MAX_LESSONS: number | null = null;
 
 export function canGenerateBaseWordFamilyPilot(completedLessonCount: number): boolean {
-  return Number.isInteger(completedLessonCount) && completedLessonCount >= 0 && completedLessonCount < BASE_WORD_FAMILY_PILOT_MAX_LESSONS;
+  return Number.isInteger(completedLessonCount) && completedLessonCount >= 0;
 }
 
 export interface BaseWordFamilyPilotAssignmentItem {

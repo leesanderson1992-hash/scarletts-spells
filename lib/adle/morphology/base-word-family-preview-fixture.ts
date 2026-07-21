@@ -23,6 +23,7 @@ function word(
     wordSum,
     parts,
     joins: parts.slice(1).map((part, index) => ({ afterPartId: parts[index].id, beforePartId: part.id, joinType: "none" })),
+    transformations: [],
     transformationNotes: `Keep the familiar base spelling when building ${displayWord}.`,
     childFriendlyMeaning: displayWord === "play" ? "to have fun in a game" : displayWord === "replay" ? "to play again" : displayWord === "replayed" ? "played again" : displayWord === "playing" ? "having fun in a game now" : displayWord === "plays" ? "has fun in a game" : displayWord === "govern" ? "to lead or rule" : displayWord === "governor" ? "a person who governs" : "the group that rules a country",
     dictationSentence: sentence,

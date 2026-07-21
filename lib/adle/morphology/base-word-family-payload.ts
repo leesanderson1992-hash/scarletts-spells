@@ -7,12 +7,38 @@ export const BASE_WORD_FAMILY_SNAPSHOT_SCHEMA_VERSION = 1 as const;
 export const BASE_WORD_FAMILY_GUIDED_LIMIT = 8;
 export const BASE_WORD_FAMILY_INDEPENDENT_LIMIT = 6;
 
+export interface BaseWordFamilySnapshotTransformation {
+  transformationKey: "change_final_y_to_i";
+  type: "change_final_y_to_i";
+  sourcePartId: string;
+  sourceText: string;
+  surfaceText: string;
+  explanation: string;
+}
+
+export function finalYRestorationForBasePart(
+  part: { id: string; sourceText: string; surfaceText: string },
+  transformations: readonly BaseWordFamilySnapshotTransformation[],
+): BaseWordFamilySnapshotTransformation | null {
+  const transformation = transformations.find((candidate) => candidate.type === "change_final_y_to_i" && candidate.sourcePartId === part.id);
+  return transformation
+    && transformation.sourceText === part.sourceText
+    && transformation.surfaceText === part.surfaceText
+    && transformation.sourceText.length === transformation.surfaceText.length
+    && transformation.sourceText.endsWith("y")
+    && transformation.surfaceText.endsWith("i")
+    && transformation.sourceText.slice(0, -1) === transformation.surfaceText.slice(0, -1)
+    ? transformation
+    : null;
+}
+
 export interface BaseWordFamilySnapshotWord {
   canonicalWordId: string;
   displayWord: string;
   wordSum: string;
   parts: unknown[];
   joins: unknown[];
+  transformations: BaseWordFamilySnapshotTransformation[];
   transformationNotes: string;
   childFriendlyMeaning: string;
   dictationSentence: string;
@@ -69,7 +95,7 @@ export interface BaseWordFamilyLessonSnapshotV1 {
   independentSlots: BaseWordFamilyIndependentSlot[];
   activities: BaseWordFamilyActivity[];
   reflectionPrompt: string;
-  measurement: { pilotLessonNumber: number; maxPilotLessons: 5; guidedWordLimit: 8; independentWordLimit: 6 };
+  measurement: { pilotLessonNumber: number; maxPilotLessons: 5 | null; guidedWordLimit: 8; independentWordLimit: 6 };
 }
 
 /**
@@ -87,9 +113,25 @@ export interface BaseWordFamilyLessonReadModel {
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> { return value !== null && typeof value === "object" && !Array.isArray(value); }
+function isFinalYToITransformation(value: unknown, parts: unknown[]): value is BaseWordFamilySnapshotTransformation {
+  if (!isRecord(value) || value.transformationKey !== "change_final_y_to_i" || value.type !== "change_final_y_to_i" || typeof value.sourcePartId !== "string" || typeof value.sourceText !== "string" || typeof value.surfaceText !== "string" || typeof value.explanation !== "string" || !value.explanation.trim()) return false;
+  const part = parts.find((candidate): candidate is Record<string, unknown> => isRecord(candidate) && candidate.id === value.sourcePartId);
+  return !!part
+    && typeof part.sourceText === "string"
+    && typeof part.surfaceText === "string"
+    && part.sourceText === value.sourceText
+    && part.surfaceText === value.surfaceText
+    && value.sourceText.length === value.surfaceText.length
+    && value.sourceText.endsWith("y")
+    && value.surfaceText.endsWith("i")
+    && value.sourceText.slice(0, -1) === value.surfaceText.slice(0, -1);
+}
+
 function isWord(value: unknown): value is BaseWordFamilySnapshotWord {
-  if (!isRecord(value) || typeof value.canonicalWordId !== "string" || typeof value.displayWord !== "string" || typeof value.wordSum !== "string" || !Array.isArray(value.parts) || value.parts.length === 0 || !Array.isArray(value.joins) || typeof value.transformationNotes !== "string" || typeof value.childFriendlyMeaning !== "string" || !value.childFriendlyMeaning.trim() || typeof value.dictationSentence !== "string" || !Number.isInteger(value.dictationTargetTokenIndex) || Number(value.dictationTargetTokenIndex) < 0 || typeof value.audioText !== "string") return false;
+  if (!isRecord(value) || typeof value.canonicalWordId !== "string" || typeof value.displayWord !== "string" || typeof value.wordSum !== "string" || !Array.isArray(value.parts) || value.parts.length === 0 || !Array.isArray(value.joins) || (value.transformations !== undefined && !Array.isArray(value.transformations)) || typeof value.transformationNotes !== "string" || typeof value.childFriendlyMeaning !== "string" || !value.childFriendlyMeaning.trim() || typeof value.dictationSentence !== "string" || !Number.isInteger(value.dictationTargetTokenIndex) || Number(value.dictationTargetTokenIndex) < 0 || typeof value.audioText !== "string") return false;
   if (!value.parts.every((part) => isRecord(part) && typeof part.id === "string" && typeof part.kind === "string" && typeof part.sourceText === "string" && typeof part.surfaceText === "string") || !value.joins.every((join) => isRecord(join) && typeof join.afterPartId === "string" && typeof join.beforePartId === "string" && ["none", "space", "hyphen"].includes(String(join.joinType)))) return false;
+  const transformations = Array.isArray(value.transformations) ? value.transformations : [];
+  if (!transformations.every((transformation) => isFinalYToITransformation(transformation, value.parts as unknown[])) || transformations.length > 1) return false;
   const tokens = value.dictationSentence.trim().split(/\s+/).map((token) => token.toLocaleLowerCase("en-GB").replace(/[^a-z'-]/g, "")).filter(Boolean);
   return tokens[Number(value.dictationTargetTokenIndex)] === value.displayWord.toLocaleLowerCase("en-GB");
 }
@@ -121,7 +163,7 @@ export function validateBaseWordFamilyLessonSnapshot(value: unknown): BaseWordFa
   const dictation = activities[activities.length - 2] as BaseWordFamilyActivity;
   const reflection = activities[activities.length - 1] as BaseWordFamilyActivity;
   if (controlled.wordIds.join("|") !== independent.map((word) => word.canonicalWordId).join("|") || dictation.wordIds.join("|") !== independent.map((word) => word.canonicalWordId).join("|") || controlled.answerVisibility !== "recall_neutral" || dictation.answerVisibility !== "recall_neutral" || reflection.answerVisibility !== "post_submit" || value.reflectionPrompt.trim() === "") return null;
-  if (value.measurement.pilotLessonNumber === undefined || value.measurement.maxPilotLessons !== 5 || value.measurement.guidedWordLimit !== 8 || value.measurement.independentWordLimit !== 6) return null;
+  if (value.measurement.pilotLessonNumber === undefined || ![5, null].includes(value.measurement.maxPilotLessons as 5 | null) || value.measurement.guidedWordLimit !== 8 || value.measurement.independentWordLimit !== 6) return null;
   return value as unknown as BaseWordFamilyLessonSnapshotV1;
 }
 
@@ -158,7 +200,7 @@ export function compileBaseWordFamilyLessonSnapshot(
       { id: "reflection", type: "reflection", answerVisibility: "post_submit", wordIds: readModel.independentSlots.map((slot) => slot.canonicalWordId) },
     ],
     reflectionPrompt: "How can finding a base word help you spell and understand more words?",
-    measurement: { pilotLessonNumber: readModel.pilotLessonNumber, maxPilotLessons: 5, guidedWordLimit: 8, independentWordLimit: 6 },
+    measurement: { pilotLessonNumber: readModel.pilotLessonNumber, maxPilotLessons: null, guidedWordLimit: 8, independentWordLimit: 6 },
   };
   if (!validateBaseWordFamilyLessonSnapshot(payload)) {
     throw new Error("Base-word lesson read model did not compile to a safe snapshot.");

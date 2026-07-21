@@ -5,7 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import { BaseWordCleaver, CoverShutter, DiffReveal, HearWordButton, SnapRail } from "@/components/adle/activities/shared";
 import type { GuideBeatV1 } from "@/lib/adle/morphology/payload";
 import { extractAuthoredTargetToken } from "@/lib/adle/morphology/payload";
-import type { BaseWordFamilyLessonSnapshotV1, BaseWordFamilySnapshotWord } from "@/lib/adle/morphology/base-word-family-payload";
+import { finalYRestorationForBasePart, type BaseWordFamilyLessonSnapshotV1, type BaseWordFamilySnapshotWord } from "@/lib/adle/morphology/base-word-family-payload";
 import { baseWordFamilyResumeKey, normaliseBaseWordFamilyResume, type BaseWordFamilyResumeState } from "@/lib/adle/morphology/base-word-family-resume";
 import { isAttemptCorrect } from "@/lib/adle/session-correctness";
 import { WordLabScene } from "./word-lab-scene";
@@ -15,8 +15,8 @@ const INITIAL: BaseWordFamilyResumeState = {
   controlledIndex: 0, dictationIndex: 0, controlledAttempts: {}, controlledChecked: {}, sentenceAttempts: {}, sentenceChecked: false, reflectionText: "",
 };
 
-type Part = { id: string; surfaceText: string; gloss?: string; kind?: string };
-function parts(word: BaseWordFamilySnapshotWord): Part[] { return word.parts.filter((part): part is Part => !!part && typeof part === "object" && typeof (part as Part).id === "string" && typeof (part as Part).surfaceText === "string"); }
+type Part = { id: string; sourceText: string; surfaceText: string; gloss?: string; kind?: string };
+function parts(word: BaseWordFamilySnapshotWord): Part[] { return word.parts.filter((part): part is Part => !!part && typeof part === "object" && typeof (part as Part).id === "string" && typeof (part as Part).sourceText === "string" && typeof (part as Part).surfaceText === "string"); }
 function baseCutCount(word: BaseWordFamilySnapshotWord | undefined): number { const wordParts = word ? parts(word) : []; const baseIndex = wordParts.findIndex((part) => part.kind === "base"); return baseIndex < 0 || wordParts.filter((part) => part.kind === "base").length !== 1 ? 0 : (baseIndex > 0 ? 1 : 0) + (baseIndex < wordParts.length - 1 ? 1 : 0); }
 
 function guideBeat(stage: BaseWordFamilyResumeState["stage"]): GuideBeatV1 {
@@ -92,7 +92,10 @@ function Cleave(props: { word: BaseWordFamilySnapshotWord | undefined; cuts: Rec
   const valid = !!word && baseIndex >= 0 && wordParts.filter((part) => part.kind === "base").length === 1 && wordParts.length > 1;
   if (!valid) return <section className="grid gap-5 text-center"><p className="text-xs font-black uppercase tracking-[.2em] text-cyan-200">Find the word parts</p><h2 className="text-3xl font-black text-white">This word needs a different way to explore its parts.</h2><p className="text-cyan-50">Let’s carry on with the rest of the Word Lab.</p><button type="button" onClick={props.onNext} className="mx-auto min-h-12 rounded-full bg-cyan-300 px-7 font-black text-slate-950">Build words from meanings</button></section>;
   const key = `${word!.canonicalWordId}:base`;
-  return <BaseWordCleaver word={word!.displayWord} segments={wordParts.map((part) => ({ id: part.id, text: part.surfaceText }))} baseIndex={baseIndex} selectedCuts={props.cuts[word!.canonicalWordId] ?? []} misses={props.misses[key] ?? 0} onCutsChange={(cuts) => props.onCutsChange(word!.canonicalWordId, cuts)} onMiss={(misses) => props.onMiss(key, misses)} onContinue={props.onNext} />;
+  const basePart = wordParts[baseIndex];
+  const transformation = finalYRestorationForBasePart(basePart, word!.transformations ?? []);
+  const finalYRestoration = transformation ? { sourceText: transformation.sourceText, surfaceText: transformation.surfaceText, explanation: transformation.explanation } : undefined;
+  return <BaseWordCleaver word={word!.displayWord} segments={wordParts.map((part) => ({ id: part.id, text: part.surfaceText }))} baseIndex={baseIndex} finalYRestoration={finalYRestoration} selectedCuts={props.cuts[word!.canonicalWordId] ?? []} misses={props.misses[key] ?? 0} onCutsChange={(cuts) => props.onCutsChange(word!.canonicalWordId, cuts)} onMiss={(misses) => props.onMiss(key, misses)} onContinue={props.onNext} />;
 }
 
 function WordBuilder(props: { words: BaseWordFamilySnapshotWord[]; index: number; onNext: () => void }) {
