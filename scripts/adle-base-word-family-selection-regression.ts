@@ -38,8 +38,8 @@ assert(one.skipReasons.includes("insufficient_verified_authentic_targets"), "one
 const probeOnly = selectBaseWordFamilyLesson(CHILD, SKILL, facts([item("a", "replayed", "2026-07-01"), item("b", "government", "2026-07-02", "probe_miss")]));
 assert(probeOnly.skipReasons.includes("insufficient_verified_authentic_targets"), "probe-only targets must not satisfy the trigger");
 
-const noGovernTransfer = selectBaseWordFamilyLesson(CHILD, SKILL, facts([item("a", "replayed", "2026-07-01"), item("b", "government", "2026-07-02")], facts([]).members.filter((entry) => entry.canonicalWordId !== "governor")));
-assert(noGovernTransfer.skipReasons.includes("insufficient_eligible_family_transfer_words"), "a two-family six-word lesson needs both govern and its reviewed related example");
+const noGovernTransfer = selectBaseWordFamilyLesson(CHILD, SKILL, facts([item("a", "replayed", "2026-07-01"), item("b", "government", "2026-07-02")], facts([]).members.filter((entry) => entry.canonicalWordId !== "governor" && entry.canonicalWordId !== "govern")));
+assert(noGovernTransfer.skipReasons.includes("selected_family_missing_transfer_word"), "each selected family needs at least one genuine reviewed related word");
 
 const missingSecondFamily = selectBaseWordFamilyLesson(CHILD, SKILL, { ...facts([item("a", "replayed", "2026-07-01"), item("b", "government", "2026-07-02")]), families: facts([]).families.filter((family) => family.baseFamilyKey !== "GOVERN") });
 assert(missingSecondFamily.skipReasons.includes("authentic_target_missing_reviewed_family_member"), "the second authentic family must be present and reviewed");
@@ -63,6 +63,17 @@ const yToIPair = selectBaseWordFamilyLesson(CHILD, IDENTIFY_BASE, identifyFacts)
 assert(yToIPair.skipReasons.length === 0 && yToIPair.slots.length === 6, "an approved action + happiness pair must retain the six-word contract");
 assert(yToIPair.slots.slice(0, 2).map((slot) => slot.canonicalWordId).join("|") === "action|happiness", "identify-base lessons must retain both genuine learning-item targets");
 assert(yToIPair.slots.slice(2).every((slot) => ["ACT", "HAPPY"].includes(slot.baseFamilyKey)), "paired transfers must remain within the two declared families");
+const compactPartner = selectBaseWordFamilyLesson(CHILD, IDENTIFY_BASE, {
+  ...identifyFacts,
+  learningItems: [
+    { ...item("action-compact", "action", "2026-07-01"), microSkillKey: IDENTIFY_BASE },
+    { ...item("tried", "tried", "2026-07-02"), microSkillKey: IDENTIFY_BASE },
+  ],
+  families: [...identifyFacts.families, { baseFamilyKey: "TRY", microSkillKey: IDENTIFY_BASE, rowStatus: "active", reviewStatus: "approved_for_first_exposure" }],
+  members: [...identifyFacts.members, member("TRY", "try", "base"), member("TRY", "tried", "authentic_target")],
+});
+assert(compactPartner.skipReasons.length === 0 && compactPartner.slots.length === 6, "a family with one related word may pair with an approved rich family when their joint pool has four words");
+assert(compactPartner.slots.slice(2).filter((slot) => slot.baseFamilyKey === "TRY").length === 1, "the compact family contributes its genuine related word without requiring unrelated filler");
 const blocked = selectBaseWordFamilyLesson(CHILD, IDENTIFY_BASE, {
   ...identifyFacts,
   learningItems: [

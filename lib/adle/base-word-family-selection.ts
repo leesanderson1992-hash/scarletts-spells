@@ -154,23 +154,15 @@ export function selectBaseWordFamilyLesson(
   }
 
   // First guarantee at least one independently practised relative for every
-  // authentic family; then prefer a second from each family before filling
-  // any remaining space. This keeps the two-family lesson balanced.
+  // authentic family. The four related words are then drawn from the joint,
+  // reviewed pool, which lets a rich family safely support a smaller but still
+  // genuine paired family without introducing unrelated filler.
   for (const familyKey of familyKeys) {
     const candidate = (transferCandidatesByFamily.get(familyKey) ?? []).find((member) => fitsWindow(complexityWindow, member.complexityLevel));
     if (!candidate) return empty(["selected_family_missing_transfer_word"]);
     complexityWindow = widen(complexityWindow, candidate.complexityLevel);
     selectedWordIds.add(candidate.canonicalWordId);
     slots.push({ canonicalWordId: candidate.canonicalWordId, provenance: "transfer", learningItemId: null, baseFamilyKey: familyKey, complexityLevel: candidate.complexityLevel });
-  }
-  if (familyKeys.length === 2) {
-    for (const familyKey of familyKeys) {
-      const candidate = (transferCandidatesByFamily.get(familyKey) ?? []).find((member) => !selectedWordIds.has(member.canonicalWordId) && fitsWindow(complexityWindow, member.complexityLevel));
-      if (!candidate) return empty(["insufficient_eligible_family_transfer_words"]);
-      complexityWindow = widen(complexityWindow, candidate.complexityLevel);
-      selectedWordIds.add(candidate.canonicalWordId);
-      slots.push({ canonicalWordId: candidate.canonicalWordId, provenance: "transfer", learningItemId: null, baseFamilyKey: familyKey, complexityLevel: candidate.complexityLevel });
-    }
   }
   while (slots.length < BASE_WORD_INDEPENDENT_WORD_COUNT) {
     const transferCount = (familyKey: string) => slots.filter((slot) => slot.provenance === "transfer" && slot.baseFamilyKey === familyKey).length;
