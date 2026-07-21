@@ -71,9 +71,11 @@ removed and cleanup verification passed.
 
 The split boundary now handles Enter and Space explicitly as well as retaining
 native button semantics. Browser QA completed the scaffolded correct chop with
-Enter after focus moved to the only enabled boundary. Physical touch and
-genuine-child observation remain human-device pilot gates. The feature remains
-disabled outside an explicit child allowlist.
+Enter after focus moved to the only enabled boundary. The final required device
+coverage is Mac Safari plus Chrome desktop and responsive phone/tablet modes;
+native-device and screen-reader runs are optional. Genuine-child observation
+remains a pilot gate. The feature remains disabled outside an explicit child
+allowlist.
 
 ## Word Lab flow refinement on 2026-07-14
 
@@ -110,9 +112,11 @@ learning items, four taught rows, four schedule rows and exactly one private
 reflection. The completed route was reloaded without duplicating the note or
 assessment outputs, and disposable fixture cleanup passed.
 
-Physical keyboard, physical touch and genuine-child observation remain the
-separate human acceptance gates described below; the pilot remains disabled
-outside its explicit allowlist.
+The agreed Mac Safari/Chrome accessibility matrix and bundle/lazy-loading proof
+are recorded. Genuine-child observation is the remaining UI-G acceptance gate;
+the pilot remains disabled outside its explicit allowlist. True touch-event
+execution, controlled Web Vitals, native Windows, Android, iOS and
+screen-reader confirmation are optional UI-H rollout evidence.
 
 ## Explicit prefix teaching and corrective Split on 2026-07-14
 
@@ -145,3 +149,86 @@ reload, explicit rebuild, exact-case sentence feedback and private-reflection
 reload. Database verification passed twice around a completed-route reload:
 one completed header, 16 completed items, 14 attempts (6 guided, 4 controlled,
 4 dictation), one private reflection, and 4 learning/taught/schedule rows.
+
+## Final acceptance preparation on 2026-07-14
+
+The general ADLE runner no longer eagerly imports the Word Lab. The rich lesson
+and development preview use a client-only dynamic import with a polite status
+message, while generic spelling, guided and quick-sort controls import their
+small shared field module directly instead of pulling the morphology interaction
+barrel into warm sessions.
+
+`adle:d4-mor-bundle-regression` verifies the production build rather than only
+the source shape. At commit `f2b2371`, the `/learn/week/adle` entry chunks
+contain no Word Lab implementation markers. The one route-specific dynamic
+chunk is 38,100 bytes raw and 11,026 bytes gzip against a 153,600-byte budget.
+The preview displayed the accessible loading state, loaded Learn first, had no
+console warnings/errors and exposed no undersized buttons in the available
+narrow browser viewport.
+
+The live-smoke fixture now defaults to local Supabase and refuses remote use
+unless the exact staging hostname, the `disposable-data-only` acknowledgement
+and an explicit unused date are provided. Browser accessibility/performance
+and child-observation forms are prepared in `docs/implementation/qa/`, but
+their final results remain unrecorded. The proof register therefore remains
+open and the pilot remains allowlist-gated.
+
+## Acceptance boundary refinement on 2026-07-15
+
+Owner direction narrowed the required device matrix to Mac Safari plus
+controlled Chrome desktop, phone and tablet modes. UI-G accessibility sign-off
+still requires complete keyboard operation, visible and transferred focus,
+semantic accessibility-tree inspection, named controls and states,
+colour-independent feedback, answer-safe recall, 44 by 44 CSS-pixel touch
+targets, responsive reflow and completion without audio. Browser 200% zoom and
+operating-system reduced-motion execution are optional follow-up evidence; the
+reduced-motion implementation and automated static-path regression remain
+required engineering behaviour.
+
+VoiceOver, NVDA and TalkBack are not required sign-off tools. Native Windows,
+Android, iPhone and iPad runs are optional follow-up coverage and are never
+recorded as completed unless actually performed. Genuine-child proof remains
+blocking, and the runtime remains explicitly allowlist-gated. True touch-event
+execution and controlled production-preview Web Vitals are optional UI-H
+rollout evidence.
+
+The owner-authorised local Safari run completed the authenticated lesson on
+Safari 26.5 and macOS 26.5 with Sound off, lowercase sentence-capitalization
+feedback, private reflection display and stable completed-route reload.
+Database verification passed twice at 1 header, 16 items, 14 attempts, one
+reflection and 4 learning/taught/schedule rows. Safari revealed that successful
+Split replacement left focus on the page body; `SplitHandle` now transfers
+focus to **Rebuild the word**, and the focused regression plus targeted Safari
+rerun pass. The production-equivalent preview and bundle proof were recorded
+later; genuine-child proof remains open.
+
+The owner-authorised Chrome 150 desktop run then completed the full
+authenticated lesson with keyboard-only activation, Sound off, all
+recall-safe reload points, capitalization feedback, reflection-draft reload
+and completed-route reload. It identified a separate first-wrong-Split focus
+defect: replacing the attempted boundary button returned focus to the page
+body. `SplitHandle` now retains each boundary ref and restores focus to the
+attempted boundary after the first miss; the targeted Chrome rerun and
+guided-pilot regression pass.
+
+Chrome semantic inspection found named native controls and statuses, a
+decorative cleaver and no recall answer exposure. Responsive views at 390×844,
+844×390, 768×1024 and 1024×768 had no horizontal overflow and no visible
+interactive target below 44×44 CSS pixels. Completion and completed-page reload
+both retained the database contract at 1 header, 16 items, 14 attempts, one
+private reflection and 4 learning/taught/schedule rows. The disposable fixture
+and temporary allowlist were removed afterward.
+
+Genuine-child observation remains open and is the only unfinished UI-G gate.
+Actual touch-event execution, production-preview Web Vitals, browser 200% zoom
+and operating-system reduced-motion execution are optional UI-H follow-up
+coverage and do not block UI-G closure.
+
+The 2026-07-15 staging acceptance pass completed two disposable assignments on
+the production-built Vercel Preview. Desktop keyboard and 390×844 direct
+tap-equivalent runs each preserved the `1 / 16 / 14 / 1 / 4 / 4 / 4` contract.
+The pass fixed an internal rebuild identifier leaking into the polite live
+region and raised shared learner-shell links from 32–36px to a 44px minimum.
+Controlled Fast-4G/4×CPU Web Vitals and true touch-event injection are optional
+UI-H rollout evidence. Genuine-child observation remains open, so the pilot
+stays allowlist-gated.

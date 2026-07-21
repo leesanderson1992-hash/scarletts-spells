@@ -531,7 +531,8 @@ export default async function LearnModulePage({
                           Prompt: {task.writing_prompt}
                         </div>
                       ) : null}
-                      {isWritingTask(task.task_type) ? (
+                      {isWritingTask(task.task_type) &&
+                      (!latestSubmission || latestSubmission.parent_review_status === "returned") ? (
                         <form action={submitTaskResponse} className="mt-4 grid gap-3">
                           <input type="hidden" name="task_id" value={task.id} />
                           <input type="hidden" name="course_id" value={detail.course.id} />

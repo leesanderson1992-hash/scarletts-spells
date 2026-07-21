@@ -46,6 +46,13 @@ async function main() {
     context,
     sourceRef: lessonSourceRef,
     items: [
+      item({
+        id: "intro-1",
+        sectionKey: "lesson_intro",
+        templateKey: "MICRO_READ_ONLY_INTRO",
+        canonicalWordId: null,
+        targetWord: null,
+      }),
       item({ id: "guided-1", sectionKey: "guided_practice", templateKey: "PG_SOUND_NOTICE" }),
       item({ id: "prod-1", sectionKey: "lesson_production", templateKey: "CONTROLLED_SPELLING" }),
       item({ id: "dict-1", sectionKey: "lesson_dictation", templateKey: "DICTATION_NO_IMAGE" }),
@@ -63,7 +70,10 @@ async function main() {
         },
       }),
     ],
-    guidedAttempts: new Map([["guided-1", "I think it drops the e"]]),
+    guidedAttempts: new Map([
+      ["intro-1", "completed"],
+      ["guided-1", "I think it drops the e"],
+    ]),
     controlledAttempts: new Map([["word-writing", "writting"]]),
     dictationAttempts: new Map([["word-writing", "righting"]]),
     probeAttempts: new Map([
@@ -72,7 +82,7 @@ async function main() {
     ]),
   });
 
-  assert(events.length === 5, "guided, controlled, dictation, and two probe attempts are captured");
+  assert(events.length === 6, "intro, guided, controlled, dictation, and two probe attempts are captured");
   assert(
     events.some(
       (event) =>
@@ -101,6 +111,16 @@ async function main() {
         event.isCorrect === null,
     ),
     "guided prompt shell text is stored without correctness pricing",
+  );
+  assert(
+    events.some(
+      (event) =>
+        event.assignmentItemId === "intro-1" &&
+        event.attemptKind === "guided_practice" &&
+        event.evidenceClass === "guided_practice_attempt" &&
+        event.isCorrect === null,
+    ),
+    "read-only lesson intros are recorded as non-scored guided participation",
   );
   assert(
     events.some(
@@ -134,6 +154,25 @@ async function main() {
     "taught history receives actual final produced attempt text",
   );
   assert(!("outcomeEvents" in lessonResult), "lesson completion does not create review outcome events");
+
+  const guardedPilotResult = onLessonCompleted(REVIEW_POLICY_V1, {
+    childId: context.childId,
+    microSkillKey: "D4_MOR_BASE_WORDS_PRESERVE_BASE",
+    completedOn: context.planDate,
+    sourceRef: "lesson:child-1:2026-07-09:D4_MOR_BASE_WORDS_PRESERVE_BASE",
+    bundleId: "bundle-authentic-miss",
+    scheduleAllProducedWords: true,
+    producedWords: [
+      { canonicalWordId: "word-writing", attemptText: "writing", correct: true },
+      { canonicalWordId: "word-making", attemptText: "makeing", correct: false },
+    ],
+    learningItems: [
+      { learningItemId: "item-writing", childId: context.childId, canonicalWordId: "word-writing", microSkillKey: "D4_MOR_BASE_WORDS_PRESERVE_BASE", itemStatus: "pending", sourceKind: "verified_misspelling", sourceRef: "proof", sourceAttemptText: null, reteachPriority: false, ejectedOn: null, intakeOn: context.planDate, rowStatus: "active" },
+      { learningItemId: "item-making", childId: context.childId, canonicalWordId: "word-making", microSkillKey: "D4_MOR_BASE_WORDS_PRESERVE_BASE", itemStatus: "pending", sourceKind: "verified_misspelling", sourceRef: "proof", sourceAttemptText: null, reteachPriority: false, ejectedOn: null, intakeOn: context.planDate, rowStatus: "active" },
+    ],
+  });
+  assert(guardedPilotResult.scheduleWords.length === 2, "guarded authentic pilot schedules both authentic targets after a mixed outcome");
+  assert(guardedPilotResult.itemTransitions.some((item) => item.canonicalWordId === "word-making" && item.itemStatus === "pending"), "authentic miss remains pending rather than being marked secure");
   }
 
   // Scheduled review attempts are the only route to scheduled-review evidence.
@@ -221,17 +260,18 @@ async function main() {
     from(table: string) {
       assert(table === "adle_assignment_attempt_events", "attempt insert targets the attempt ledger");
       return {
-        async insert(row: {
+        async upsert(rows: Array<{
           assignment_item_id: string;
           attempt_kind: string;
           source_ref: string;
-        }) {
-          const key = `${row.assignment_item_id}:${row.attempt_kind}:${row.source_ref}`;
-          if (seen.has(key)) {
-            return { error: { code: "23505", message: "duplicate key" } };
+        }>) {
+          for (const row of rows) {
+            const key = `${row.assignment_item_id}:${row.attempt_kind}:${row.source_ref}`;
+            if (!seen.has(key)) {
+              seen.add(key);
+              inserted.push(key);
+            }
           }
-          seen.add(key);
-          inserted.push(key);
           return { error: null };
         },
       };

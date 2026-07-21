@@ -22,7 +22,7 @@ from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
 EXPANDED_CATALOG = ROOT / "docs/implementation/seed-data/domain4-seed-expansion/micro-skills.json"
-SCHEMA_VERSION = "version_3_phase_5c_teaching_dictionary_csv_v3"
+SCHEMA_VERSION = "version_3_phase_5c_teaching_dictionary_csv_v4"
 
 REQUIRED_FILES = {
     "canonical_words.csv": [
@@ -113,6 +113,12 @@ REQUIRED_FILES = {
 }
 
 OPTIONAL_FILES = {
+    "dictation_sentences.csv": [
+        "word_key", "display_word", "age_band", "complexity_band", "dictation_sentence",
+        "dictation_target_token_index", "audio_text", "source_category", "source_name",
+        "source_url", "source_licence", "source_use_note", "confidence", "review_status",
+        "reviewed_by", "reviewed_at", "review_notes",
+    ],
     "teaching_content_sources.csv": [
         "source_key",
         "source_category",
@@ -122,8 +128,27 @@ OPTIONAL_FILES = {
         "source_use_note",
         "importability_status",
         "legal_review_status",
-    ]
+    ],
+    "base_word_families.csv": [
+        "base_family_key", "micro_skill_key", "base_word_key", "base_meaning", "etymology_route",
+        "source_category", "source_name", "source_url", "source_licence", "source_use_note",
+        "confidence", "review_status", "reviewed_by", "reviewed_at",
+    ],
+    "base_word_family_members.csv": [
+        "base_family_key", "word_key", "member_role", "child_friendly_meaning", "word_sum", "morphology_parts",
+        "morphology_joins", "transformation_notes", "dictation_sentence",
+        "dictation_target_token_index", "audio_text", "assignment_eligible",
+        "source_category", "source_name", "source_url", "source_licence", "source_use_note",
+        "confidence", "review_status", "reviewed_by", "reviewed_at",
+    ],
 }
+
+ETYMOLOGY_RELATION_TYPES = {"free_base", "classical_root", "etymological_root"}
+ETYMOLOGY_ROUTE_KEYS = {
+    "relation_type", "origin_language", "origin_form", "literal_meaning",
+    "child_facing_meaning", "semantic_connection", "evidence",
+}
+ETYMOLOGY_EVIDENCE_KEYS = {"source_name", "source_url", "verification_status"}
 
 SOURCE_CATEGORIES = {
     "internal_authored",
@@ -175,8 +200,12 @@ ROW_STATUSES = {"draft", "active", "rejected", "superseded"}
 CONFIDENCE_VALUES = {"low", "medium", "high"}
 BOOLEAN_VALUES = {"TRUE", "FALSE"}
 SUPPORT_ROLES = {"support_example", "contrast", "review_example"}
+BASE_WORD_MEMBER_ROLES = {"base", "authentic_target", "transfer", "optional_transfer_check"}
 
 ENUM_COLUMNS = {
+    ("dictation_sentences.csv", "source_category"): SOURCE_CATEGORIES,
+    ("dictation_sentences.csv", "confidence"): CONFIDENCE_VALUES,
+    ("dictation_sentences.csv", "review_status"): REVIEW_STATUSES,
     ("canonical_words.csv", "source_category"): SOURCE_CATEGORIES,
     ("canonical_words.csv", "review_status"): REVIEW_STATUSES,
     ("canonical_words.csv", "row_status"): ROW_STATUSES,
@@ -199,6 +228,14 @@ ENUM_COLUMNS = {
     ("teaching_content_sources.csv", "source_category"): SOURCE_CATEGORIES,
     ("teaching_content_sources.csv", "importability_status"): IMPORTABILITY_STATUSES,
     ("teaching_content_sources.csv", "legal_review_status"): LEGAL_REVIEW_STATUSES,
+    ("base_word_families.csv", "source_category"): SOURCE_CATEGORIES,
+    ("base_word_families.csv", "confidence"): CONFIDENCE_VALUES,
+    ("base_word_families.csv", "review_status"): REVIEW_STATUSES,
+    ("base_word_family_members.csv", "source_category"): SOURCE_CATEGORIES,
+    ("base_word_family_members.csv", "confidence"): CONFIDENCE_VALUES,
+    ("base_word_family_members.csv", "review_status"): REVIEW_STATUSES,
+    ("base_word_family_members.csv", "member_role"): BASE_WORD_MEMBER_ROLES,
+    ("base_word_family_members.csv", "assignment_eligible"): BOOLEAN_VALUES,
 }
 
 P0_FIELDS = [
@@ -274,6 +311,22 @@ def parse_bool(value: str) -> bool:
 
 def split_list(value: str) -> list[str]:
     return [part.strip() for part in clean(value).split("|") if part.strip()]
+
+
+def parse_json_array(value: str) -> list[Any] | None:
+    try:
+        parsed = json.loads(clean(value))
+    except (TypeError, json.JSONDecodeError):
+        return None
+    return parsed if isinstance(parsed, list) else None
+
+
+def parse_json_object(value: str) -> dict[str, Any] | None:
+    try:
+        parsed = json.loads(value)
+    except (TypeError, json.JSONDecodeError):
+        return None
+    return parsed if isinstance(parsed, dict) else None
 
 
 def row_is_blank(row: dict[str, str]) -> bool:
@@ -448,6 +501,7 @@ def validate_global_references(
     }
 
     validate_unique_keys(word_rows, "canonical_words.csv", ["word_key"], issues)
+    validate_unique_keys(data["dictation_sentences.csv"], "dictation_sentences.csv", ["word_key"], issues)
     validate_unique_keys(
         data["teaching_content_versions.csv"],
         "teaching_content_versions.csv",
@@ -460,9 +514,40 @@ def validate_global_references(
         "canonical_word_metadata.csv",
         "micro_skill_word_support.csv",
         "teaching_content_versions.csv",
+        "dictation_sentences.csv",
     ]:
         for row in data.get(file_name, []):
             validate_source_fields(row, file_name, issues)
+
+    active_words_by_key = {
+        clean(row["word_key"]): row
+        for row in word_rows
+        if clean(row["word_key"]) and clean(row["row_status"]) == "active" and clean(row["review_status"]) == "approved_for_first_exposure"
+    }
+    sentence_rows = data["dictation_sentences.csv"]
+    if sentence_rows and set(clean(row["word_key"]) for row in sentence_rows) != set(active_words_by_key):
+        add_issue(issues, "error", "dictation_sentences.csv", None, "word_key", "When supplied, dictation_sentences.csv must contain exactly one row for every active approved canonical word.")
+    for row in sentence_rows:
+        key = clean(row["word_key"])
+        word = active_words_by_key.get(key)
+        if not word:
+            add_issue(issues, "error", "dictation_sentences.csv", row_number(row), "word_key", f"word_key {key!r} is not an active approved canonical word.")
+            continue
+        if clean(row["display_word"]) != clean(word["display_word"]):
+            add_issue(issues, "error", "dictation_sentences.csv", row_number(row), "display_word", "display_word must match canonical_words.csv.")
+        sentence = clean(row["dictation_sentence"])
+        audio = clean(row["audio_text"])
+        tokens = [token.lower().replace("’", "'") for token in __import__("re").findall(r"[A-Za-z]+(?:['’][A-Za-z]+)?", sentence)]
+        target_tokens = [token.lower().replace("’", "'") for token in __import__("re").findall(r"[A-Za-z]+(?:['’][A-Za-z]+)?", clean(word["display_word"]))]
+        matches = [index for index in range(len(tokens) - len(target_tokens) + 1) if tokens[index:index + len(target_tokens)] == target_tokens]
+        try:
+            target_index = int(clean(row["dictation_target_token_index"]))
+        except ValueError:
+            target_index = -1
+        if not sentence or len(matches) != 1 or target_index != (matches[0] if len(matches) == 1 else -1):
+            add_issue(issues, "error", "dictation_sentences.csv", row_number(row), "dictation_target_token_index", "Sentence must contain the canonical display word exactly once at the supplied zero-based token index.")
+        if audio != sentence:
+            add_issue(issues, "error", "dictation_sentences.csv", row_number(row), "audio_text", "audio_text must exactly match dictation_sentence for v1.")
 
     for row in data["canonical_word_metadata.csv"]:
         key = clean(row["word_key"])
@@ -524,6 +609,78 @@ def validate_global_references(
                 "content_version",
                 f"Field review references unknown teaching content version {key}.",
             )
+
+    family_rows = data.get("base_word_families.csv", [])
+    member_rows = data.get("base_word_family_members.csv", [])
+    validate_unique_keys(family_rows, "base_word_families.csv", ["base_family_key"], issues)
+    validate_unique_keys(member_rows, "base_word_family_members.csv", ["base_family_key", "word_key"], issues)
+    families_by_key = {clean(row["base_family_key"]): row for row in family_rows if clean(row["base_family_key"])}
+    for row in family_rows:
+        validate_source_fields(row, "base_word_families.csv", issues)
+        skill = clean(row["micro_skill_key"])
+        base_word_key = clean(row["base_word_key"])
+        if skill and skill not in catalog:
+            add_issue(issues, "error", "base_word_families.csv", row_number(row), "micro_skill_key", f"Unknown micro_skill_key {skill!r}.")
+        elif skill and not skill.startswith("D4_MOR_BASE_WORDS_"):
+            add_issue(issues, "error", "base_word_families.csv", row_number(row), "micro_skill_key", "Base-word family records require a D4_MOR_BASE_WORDS micro-skill.")
+        if base_word_key and base_word_key not in approved_word_keys:
+            add_issue(issues, "error", "base_word_families.csv", row_number(row), "base_word_key", f"base_word_key {base_word_key!r} is not an approved canonical word.")
+        if not clean(row["base_meaning"]):
+            add_issue(issues, "error", "base_word_families.csv", row_number(row), "base_meaning", "Missing child-friendly base meaning.")
+        route = parse_json_object(row.get("etymology_route", ""))
+        if route is None:
+            add_issue(issues, "error", "base_word_families.csv", row_number(row), "etymology_route", "etymology_route must be a JSON object.")
+            continue
+        if not ETYMOLOGY_ROUTE_KEYS.issubset(route):
+            add_issue(issues, "error", "base_word_families.csv", row_number(row), "etymology_route", "etymology_route is missing required route fields.")
+            continue
+        if route.get("relation_type") not in ETYMOLOGY_RELATION_TYPES:
+            add_issue(issues, "error", "base_word_families.csv", row_number(row), "etymology_route", "etymology_route relation_type is invalid.")
+        for field in ("origin_language", "origin_form", "literal_meaning", "child_facing_meaning", "semantic_connection"):
+            if not isinstance(route.get(field), str) or not clean(route[field]):
+                add_issue(issues, "error", "base_word_families.csv", row_number(row), "etymology_route", f"etymology_route {field} must be a non-empty string.")
+        evidence = route.get("evidence")
+        if not isinstance(evidence, dict) or not ETYMOLOGY_EVIDENCE_KEYS.issubset(evidence):
+            add_issue(issues, "error", "base_word_families.csv", row_number(row), "etymology_route", "etymology_route evidence is incomplete.")
+        elif (
+            not isinstance(evidence.get("source_name"), str)
+            or not clean(evidence["source_name"])
+            or not isinstance(evidence.get("source_url"), str)
+            or not clean(evidence["source_url"])
+            or evidence.get("verification_status") != "linked_for_human_review"
+        ):
+            add_issue(issues, "error", "base_word_families.csv", row_number(row), "etymology_route", "etymology_route evidence must name a source, URL, and linked_for_human_review status.")
+
+    for row in member_rows:
+        validate_source_fields(row, "base_word_family_members.csv", issues)
+        family_key = clean(row["base_family_key"])
+        word_key = clean(row["word_key"])
+        if family_key not in families_by_key:
+            add_issue(issues, "error", "base_word_family_members.csv", row_number(row), "base_family_key", f"Unknown base_family_key {family_key!r}.")
+        if word_key not in approved_word_keys:
+            add_issue(issues, "error", "base_word_family_members.csv", row_number(row), "word_key", f"word_key {word_key!r} is not an approved canonical word.")
+        parts = parse_json_array(row.get("morphology_parts", ""))
+        joins = parse_json_array(row.get("morphology_joins", ""))
+        if not parts:
+            add_issue(issues, "error", "base_word_family_members.csv", row_number(row), "morphology_parts", "morphology_parts must be a non-empty JSON array.")
+        if joins is None:
+            add_issue(issues, "error", "base_word_family_members.csv", row_number(row), "morphology_joins", "morphology_joins must be a JSON array.")
+        if not clean(row["word_sum"]):
+            add_issue(issues, "error", "base_word_family_members.csv", row_number(row), "word_sum", "Missing reviewed word sum.")
+        if not clean(row["child_friendly_meaning"]):
+            add_issue(issues, "error", "base_word_family_members.csv", row_number(row), "child_friendly_meaning", "Missing child-friendly meaning.")
+        sentence = clean(row["dictation_sentence"])
+        token_index = clean(row["dictation_target_token_index"])
+        if bool(sentence) != bool(token_index):
+            add_issue(issues, "error", "base_word_family_members.csv", row_number(row), "dictation_target_token_index", "Dictation sentence and target-token index must be supplied together.")
+        if token_index:
+            try:
+                if int(token_index) < 0:
+                    raise ValueError
+            except ValueError:
+                add_issue(issues, "error", "base_word_family_members.csv", row_number(row), "dictation_target_token_index", "Dictation target-token index must be a non-negative integer.")
+        if parse_bool(row["assignment_eligible"]) and (not sentence or not token_index or not clean(row["audio_text"])):
+            add_issue(issues, "error", "base_word_family_members.csv", row_number(row), "assignment_eligible", "Assignment-eligible family members require reviewed dictation sentence, target-token index, and audio text.")
 
 def build_metadata_indexes(data: dict[str, list[dict[str, str]]]) -> tuple[dict[str, dict[str, str]], dict[tuple[str, str], list[dict[str, str]]]]:
     metadata_by_word = {clean(row["word_key"]): row for row in data["canonical_word_metadata.csv"] if clean(row["word_key"])}

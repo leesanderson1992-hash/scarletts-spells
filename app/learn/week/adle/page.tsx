@@ -14,20 +14,22 @@ import { getDateOnly } from "@/lib/courses/progress";
 import { createClient } from "@/lib/supabase/server";
 import { isAdminUser } from "@/lib/admin/access";
 import {
-  getExistingAdleDailyPlanId,
+  getExistingAdleSessionPlanId,
   getAdleDailyPlanReadModel,
 } from "@/lib/adle/loaders/daily-plan-surface";
 import { resolveAdlePlanDateOverride } from "@/lib/adle/session-date-override";
-import { getChildRewardReadModel } from "@/lib/rewards/read-model";
 import {
-  deriveAdleSessionCelebration,
   type AdleSessionCelebrationModel,
 } from "@/lib/rewards/adle-session-celebration";
 import { AdleSessionCelebration } from "@/components/adle/adle-session-celebration";
 import { isMorphologyUnPilotEnabledForChild } from "@/lib/adle/morphology/pilot-access";
 import { resolveMorphologyPilotRuntime } from "@/lib/adle/morphology/payload";
-import { getAssignmentLearningReflection, type ChildLearningReflection } from "@/lib/adle/morphology/reflections";
+import { isBaseWordFamilyPilotEnabledForChild } from "@/lib/adle/morphology/base-word-family-pilot-access";
+import { resolveBaseWordFamilyPilotRuntime } from "@/lib/adle/morphology/base-word-family-pilot-contract";
+import { type ChildLearningReflection } from "@/lib/adle/morphology/reflections";
 import { ClearCompletedMorphologyResume } from "@/components/adle/morphology/clear-completed-resume";
+import { WordLabCompletionPerformanceObserver } from "@/components/adle/morphology/completion-performance-observer";
+import { loadAdleCompletedRouteDetails } from "@/lib/adle/loaders/completed-route-loader";
 
 type AdleSessionPageProps = {
   searchParams?: Promise<{
@@ -36,6 +38,7 @@ type AdleSessionPageProps = {
     saved?: string;
     error?: string;
     adleDate?: string;
+    completionTrace?: string;
   }>;
 };
 
@@ -75,7 +78,7 @@ export default async function AdleSessionPage({ searchParams }: AdleSessionPageP
 
   let assignmentId: string | null = null;
   try {
-    assignmentId = await getExistingAdleDailyPlanId({
+    assignmentId = await getExistingAdleSessionPlanId({
       userClient: supabase,
       parentUserId: user.id,
       childId: selectedChild.id,
@@ -98,6 +101,10 @@ export default async function AdleSessionPage({ searchParams }: AdleSessionPageP
     isMorphologyUnPilotEnabledForChild(selectedChild.id),
     readModel.partTwo.items,
   );
+  const baseWordFamilyPilotPayload = resolveBaseWordFamilyPilotRuntime(
+    isBaseWordFamilyPilotEnabledForChild(selectedChild.id),
+    readModel.partTwo.items,
+  );
 
   // Slice 7a-D: on the completed screen, read the child's Word Treasure state and
   // derive today's celebration (Nugget->Forge from lesson completion + any
@@ -106,30 +113,16 @@ export default async function AdleSessionPage({ searchParams }: AdleSessionPageP
   let celebration: AdleSessionCelebrationModel | null = null;
   let completedReflection: ChildLearningReflection | null = null;
   if (readModel.state === "completed") {
-    try {
-      const fiveDayCutoff = new Date();
-      fiveDayCutoff.setDate(fiveDayCutoff.getDate() - 5);
-      const rewardReadModel = await getChildRewardReadModel({
-        supabase,
-        parentUserId: user.id,
-        childId: selectedChild.id,
-        todayDateOnly: planDate,
-        lastFiveDaysSinceIso: fiveDayCutoff.toISOString(),
-      });
-      celebration = deriveAdleSessionCelebration(rewardReadModel.childWordTreasures, planDate);
-    } catch (rewardError) {
-      console.error("[adle-session] reward celebration read failed (plain completed card shown)", rewardError);
-      celebration = null;
-    }
-    try {
-      completedReflection = await getAssignmentLearningReflection(supabase, {
-        parentUserId: user.id,
-        childId: selectedChild.id,
-        assignmentId: readModel.assignmentId,
-      });
-    } catch (reflectionError) {
-      console.error("[adle-session] private reflection read failed", reflectionError);
-    }
+    const completedDetails = await loadAdleCompletedRouteDetails({
+      supabase,
+      parentUserId: user.id,
+      childId: selectedChild.id,
+      assignmentId: readModel.assignmentId,
+      planDate,
+      traceId: resolvedSearchParams?.completionTrace,
+    });
+    celebration = completedDetails.celebration;
+    completedReflection = completedDetails.reflection;
   }
 
   return (
@@ -160,7 +153,7 @@ export default async function AdleSessionPage({ searchParams }: AdleSessionPageP
           ) : null}
           <Link
             href={backPath}
-            className="mt-3 inline-flex h-8 items-center rounded-full border border-[var(--border)] bg-white px-3 text-xs font-medium text-[color:var(--ink)]"
+            className="mt-3 inline-flex min-h-11 items-center rounded-full border border-[var(--border)] bg-white px-3 text-xs font-medium text-[color:var(--ink)]"
           >
             Back to my week
           </Link>
@@ -175,7 +168,8 @@ export default async function AdleSessionPage({ searchParams }: AdleSessionPageP
           </div>
         ) : readModel.state === "completed" ? (
           <div className="grid gap-4">
-            {morphologyPilotPayload && readModel.assignmentId ? <ClearCompletedMorphologyResume assignmentId={readModel.assignmentId} contentVersion={morphologyPilotPayload.contentVersion} /> : null}
+            {resolvedSearchParams?.completionTrace && /^[0-9a-f-]{36}$/i.test(resolvedSearchParams.completionTrace) ? <WordLabCompletionPerformanceObserver traceId={resolvedSearchParams.completionTrace} /> : null}
+            {(morphologyPilotPayload ?? baseWordFamilyPilotPayload) && readModel.assignmentId ? <ClearCompletedMorphologyResume assignmentId={readModel.assignmentId} contentVersion={(morphologyPilotPayload ?? baseWordFamilyPilotPayload)!.contentVersion} /> : null}
             {celebration !== null ? (
               <AdleSessionCelebration model={celebration} planDate={readModel.planDate} backPath={backPath} />
             ) : (
@@ -198,6 +192,7 @@ export default async function AdleSessionPage({ searchParams }: AdleSessionPageP
             partOne={readModel.partOne}
             partTwo={readModel.partTwo}
             morphologyPilotPayload={morphologyPilotPayload}
+            baseWordFamilyPilotPayload={baseWordFamilyPilotPayload}
           />
         )}
       </section>

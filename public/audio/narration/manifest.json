@@ -1,0 +1,121 @@
+{
+  "version": 1,
+  "voice": "Flo",
+  "locale": "en-GB",
+  "clips": [
+    {
+      "id": "guide-b9e6e83",
+      "text": "First, let’s learn what a prefix is.",
+      "kind": "guide",
+      "path": "/audio/narration/guide-b9e6e83.m4a"
+    },
+    {
+      "id": "guide-1bc4cc63",
+      "text": "Prefixes are a group of letters that change the meaning of a word when they are added to the start. Most prefixes mean a similar thing when they’re added to different words.",
+      "kind": "guide",
+      "path": "/audio/narration/guide-1bc4cc63.m4a"
+    },
+    {
+      "id": "guide-752501ec",
+      "text": "Today’s prefix is un-.",
+      "kind": "guide",
+      "path": "/audio/narration/guide-752501ec.m4a"
+    },
+    {
+      "id": "guide-2812bbd7",
+      "text": "un- is always spelled u-n. It goes at the start of a base word. un- can mean not, or it can reverse an action. The base word keeps every letter.",
+      "kind": "guide",
+      "path": "/audio/narration/guide-2812bbd7.m4a"
+    },
+    {
+      "id": "guide-aecba832",
+      "text": "These are the words we will explore today.",
+      "kind": "guide",
+      "path": "/audio/narration/guide-aecba832.m4a"
+    },
+    {
+      "id": "guide-37979160",
+      "text": "Today we will review unfair, unkind, unlock, and untidy. Look for un- at the start and notice what it does to each base word.",
+      "kind": "guide",
+      "path": "/audio/narration/guide-37979160.m4a"
+    },
+    {
+      "id": "guide-438b7c0c",
+      "text": "This piece can change the word.",
+      "kind": "guide",
+      "path": "/audio/narration/guide-438b7c0c.m4a"
+    },
+    {
+      "id": "guide-87bba5d3",
+      "text": "Try the same piece with kind.",
+      "kind": "guide",
+      "path": "/audio/narration/guide-87bba5d3.m4a"
+    },
+    {
+      "id": "guide-8451cfe9",
+      "text": "What happens when it meets lock?",
+      "kind": "guide",
+      "path": "/audio/narration/guide-8451cfe9.m4a"
+    },
+    {
+      "id": "guide-289bc35c",
+      "text": "What happens when it meets tidy?",
+      "kind": "guide",
+      "path": "/audio/narration/guide-289bc35c.m4a"
+    },
+    {
+      "id": "guide-2098076d",
+      "text": "Find the prefix at the start of unhappy.",
+      "kind": "guide",
+      "path": "/audio/narration/guide-2098076d.m4a"
+    },
+    {
+      "id": "guide-514d8c08",
+      "text": "What did un- do here?",
+      "kind": "guide",
+      "path": "/audio/narration/guide-514d8c08.m4a"
+    },
+    {
+      "id": "guide-2bc528b6",
+      "text": "Make a word meaning not tidy.",
+      "kind": "guide",
+      "path": "/audio/narration/guide-2bc528b6.m4a"
+    },
+    {
+      "id": "guide-b10a405d",
+      "text": "Look at how the parts fit. Cover each word when you are ready.",
+      "kind": "guide",
+      "path": "/audio/narration/guide-b10a405d.m4a"
+    },
+    {
+      "id": "guide-19b2add0",
+      "text": "You discovered two jobs for un-. It can mean not, or reverse an action.",
+      "kind": "guide",
+      "path": "/audio/narration/guide-19b2add0.m4a"
+    },
+    {
+      "id": "dictation-2da6379c",
+      "text": "It was unfair to change the rules.",
+      "kind": "dictation",
+      "path": "/audio/narration/dictation-2da6379c.m4a"
+    },
+    {
+      "id": "dictation-267cb964",
+      "text": "It was unkind to leave her out.",
+      "kind": "dictation",
+      "path": "/audio/narration/dictation-267cb964.m4a"
+    },
+    {
+      "id": "dictation-3d3f9e19",
+      "text": "Please unlock the door before we leave.",
+      "kind": "dictation",
+      "path": "/audio/narration/dictation-3d3f9e19.m4a"
+    },
+    {
+      "id": "dictation-d067abde",
+      "text": "The untidy desk needed sorting.",
+      "kind": "dictation",
+      "path": "/audio/narration/dictation-d067abde.m4a"
+    }
+  ]
+}

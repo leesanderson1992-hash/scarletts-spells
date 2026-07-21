@@ -1,28 +1,45 @@
 # ADLE 7-UI-G observation ledger
 
-Status: pending real-child gated pilot run.
+Status: corrective real-child re-run completed without adult intervention;
+comprehension capture is recorded and the durable performance follow-up is
+closed by UI-H. Optional broader device evidence remains open.
 
-Engineering status (2026-07-14): automated gates, authenticated real-route
+Final human acceptance is executed through the
+[device/accessibility/performance proof](./adle-7-ui-g-device-accessibility-performance-proof.md)
+and [genuine-child proof](./adle-7-ui-g-child-validation-proof.md). The device
+proof is recorded; the first genuine-child observation found a blocking
+dictation-audio issue. The device proof
+uses Mac Safari and controlled Chrome
+desktop/phone/tablet modes. Native Windows, Android, iOS and screen-reader runs
+are optional rather than closure requirements.
+
+Owner status: the Word Lab preview was accepted on 2026-07-14. On 2026-07-17
+the owner confirmed the prior production-child session as the formal
+genuine-child acceptance evidence; UI-H closed the listed Finish-performance
+and pull-cover engineering follow-up.
+
+Engineering status (updated 2026-07-15): automated gates, authenticated real-route
 completion, accessibility-tree inspection, responsive-layout inspection,
 recall-safe reloads and post-completion database verification passed with a
-disposable local child. All fixtures were cleaned successfully. The gate
+disposable local child and two staging-only fixtures. Both staging fixtures and
+their temporary preview configuration were cleaned successfully. The gate
 remains disabled outside the explicit allowlist and this ledger is not a
 genuine-child human sign-off.
 
 | Observation | Result |
 |---|---|
-| Adult verbal prompts | Pending; target 0 |
+| Adult verbal prompts | 1; parent clarified an unclear dictation word. This blocks the current proof. |
 | Hesitations over five seconds | Pending |
 | Productive exploration vs confusion | Pending |
-| Failed pointer/touch drags | Direct-tap alternatives passed; physical touch pending |
-| Keyboard-only completion | Scaffolded Split completed with Enter in browser QA; full physical-keyboard run pending |
-| Touch completion | Narrow layout and tap controls passed; physical device pending |
-| Narration replays | Pending |
+| Failed pointer/touch drags | Direct-tap alternatives passed; physical touch is optional UI-H evidence |
+| Keyboard-only completion | Pass in full authenticated Chrome 150 desktop run; Split, Match, Build and Finish used native keyboard activation |
+| Touch completion | Phone/tablet responsive layout and direct-control completion passed; physical touch is optional UI-H evidence |
+| Narration replays | Dictation replay was insufficient to resolve one unclear word. |
 | Help levels used | Pending |
-| Misunderstood affordances | Pending |
+| Misunderstood affordances | Discover's separated prefix/base presentation was confusing; the trivial `un + happy` rebuild had no perceived purpose. |
 | Recall answer exposure | 0 in authenticated engineering run |
 | Console or invalid-state errors | 0 in authenticated engineering run |
-| Child explanation of `un-` | Pending |
+| Child explanation of `un-` | Deferred for the re-run; the lesson was not completed unaided. |
 
 Attach the uninterrupted real-route recording and database verification to the
 final sign-off record. Automated checks do not replace this observation.
@@ -72,11 +89,142 @@ final sign-off record. Automated checks do not replace this observation.
 | Checked dictation reload | Pass; resumed at sentence 2 without prior comparison |
 | Completed-route reload / duplicate protection | Pass; counts unchanged |
 | Browser console errors | Pass; none |
+| Conditional Word Lab bundle boundary | Pass; warm entry contains no Word Lab markers |
+| Word Lab production chunk budget | Pass; 11,026 bytes gzip against 153,600-byte budget at `f2b2371` |
+| Local Mac Safari authenticated completion | Pass on Safari 26.5 / macOS 26.5 / Apple M1; owner-authorised disposable fixture |
+| Safari successful-Split focus transfer | Initial run found body focus; fixed and targeted Safari rerun focuses **Rebuild the word** |
+| Safari completed-route reload / database idempotency | Pass; completed page and reflection retained; 1 / 16 / 14 / 1 unchanged |
+| Chrome desktop authenticated keyboard completion | Pass on Chrome 150.0.7871.124 / macOS 26.5 / Apple M1; `UI-G-CHROME-2026-07-15-A` |
+| Chrome first-wrong-Split focus continuity | Initial run found body focus; fixed and targeted rerun keeps **Split after letter 1** active |
+| Chrome semantics and recall-answer inspection | Pass; named controls/statuses, decorative cleaver and answer-safe spelling/dictation recall |
+| Chrome reflection/completion reload and database idempotency | Pass; draft retained, Finish stayed authenticated, completed reflection retained, 1 / 16 / 14 / 1 unchanged |
+| Chrome phone/tablet responsive inspection | Lesson controls pass at 390×844, 844×390, 768×1024 and 1024×768 with zero horizontal overflow; staging later found and fixed 32–36px shared shell links |
+| Staging Chrome desktop completion | Pass on the production-built Vercel Preview with staging Supabase; keyboard path, reload safety, reflection history and 1 / 16 / 14 / 1 verified |
+| Staging Chrome phone-sized completion | Pass at 390×844 using direct tap-equivalent clicks; Split boundaries 44×144 and zero horizontal overflow; true touch injection was not run and is optional UI-H evidence |
+| Staging accessibility amendments | Internal rebuild identifier replaced with child-facing tile text; shared shell links raised from 32–36px to a 44px minimum |
+| Refreshed-preview target retest | Pass at `f580e91`; desktop and mobile mode links plus Back-to-week measured exactly 44px high |
+| Staging migration verification | 24 migrations recorded; UI-G dictionary/attempt/reflection/RPC schema present; local-only 873-word backfill intentionally not marked applied |
+| Chrome console errors | Pass for application; only third-party Grammarly extension warnings were present |
+| Final acceptance proof templates | Device/accessibility/bundle proof recorded; child acceptance is now recorded; touch, Web Vitals, 200% zoom and OS reduced-motion execution are optional |
 | Post-completion assignment header/items | Pass; 1 / 16 completed |
 | Post-completion attempt events | Pass; 14 total (6 guided, 4 controlled, 4 dictation) |
 | Post-completion learning/taught/schedule rows | Pass; 4 / 4 / 4 |
 | Full dictation storage / target-token correctness | Pass |
-| Disposable fixture cleanup | Pass; no child-scoped fixture rows remain |
+| Disposable fixture cleanup | Pass; no child-scoped, pilot-word or micro-skill fixture rows remain; temporary preview gate, allowlist and QA key removed |
+
+## First genuine-child observation — corrective evidence
+
+Session `UI-G-CHILD-2026-07-16-A` completed on the staging preview using an
+anonymised disposable fixture. The completed assignment met the engineering
+data contract before cleanup: 1 header, 16 items, 14 attempts, 1 private
+reflection and 4 learning/taught/scheduling rows. No learner identifier,
+recording or reflection is retained in this repository.
+
+The child enjoyed the cleaver and the NOT/REVERSE sort. The observation found
+that the separated Discover presentation did not make the meaning decision
+clear, that the `un + happy` rebuild lacked challenge, that the Cover Check
+travel was too long, and that dictation was unclear enough to require one
+parent clarification. The child also requested sound and sparkles on the
+cleaver, a NOT/REVERSE overview immediately after sorting, and friendlier,
+slower narration. This is a blocking audio/completion finding, not a pass.
+
+The corrective implementation replaces Discover with authored meaning-change
+cards, removes the trivial split rebuild, adds post-sort recap, makes Cover
+Check direct, strengthens interaction feedback, slows dictation to 0.7x, and
+adds 19 reviewed static clips generated with the built-in UK female macOS
+voice Flo, with a local browser fallback. No child-specific text is sent to any
+TTS provider.
+
+## Corrective genuine-child re-run
+
+The corrective staging run completed without adult intervention. Database
+verification passed before cleanup: 1 completed header, 16 completed items, 14
+attempts (6 guided, 4 controlled and 4 dictation), 1 private reflection and 4
+learning/taught/schedule rows. The disposable child, both test-date assignments,
+fixture rows, Preview allowlist and gate were removed afterwards.
+
+The child reported that Cover Check's sliding cover motion was enjoyable. The
+remaining follow-up findings are: Split sparkles persist on held correct
+feedback; the built-in UK voice is clearer but sounds scary; and finishing the
+Word Lab feels too slow. The observer did not record the required neutral
+post-lesson explanation of a prefix, placement of `un-`, or NOT/REVERSE
+meaning, so the child proof is not yet closed.
+
+The child later described a prefix as something added to the start of a word to
+change its meaning; placed `un-` at the start; and gave its meanings as NOT or
+REVERSE. This closes the child-understanding portion of the proof. The child
+also reported that the brief held-correct Split sparkles did not affect the
+activity, and that immediate Finish feedback appeared, although the completed
+page still took about ten seconds.
+
+The completed corrective patch makes Split sparkles a 700ms impact effect only,
+changes Cover Check into a pull-down screen while retaining its button and
+keyboard path, gives Finish immediate pending feedback, and parallelises
+attempt, scheduling, learning-item and reward work. Narration is intentionally
+held at the clearer built-in voice for the MVP. UI-H subsequently measured the
+Finish path and validated the pull-cover interaction.
+
+## Finish performance follow-up — 2026-07-16
+
+The pull-cover interaction passed manual child review. Authenticated staging
+completion measured 11.3 seconds before the completion-write batching change
+and approximately 7.4 seconds after it. The latter remains too slow for a
+performance pass. The final MVP mitigation replaces the static reflection
+recap immediately with **“Your Word Lab is complete! Saving your work now…”**
+while the durable action continues; it does not claim the backend is fast.
+
+This is non-blocking only for the explicitly allowlisted pilot. UI-H owns
+per-stage completion instrumentation (context/auth, plan load, attempts,
+scheduling/history, reflection, assignment completion, reward follow-up and
+redirect), an atomic or reduced-round-trip durable completion boundary, and a
+fresh authenticated timing run. Its acceptance requires preserving the
+`1 / 16 / 14 / 1 / 4 / 4 / 4` data contract and recording both
+Finish-to-completed-screen and durable-save timings.
+
+Two disposable staging children and their private preview QA access are
+intentionally retained for UI-H evidence. At this staging-proof point the
+preview gate was restricted to those child IDs; the later current-child
+production rollout is recorded below and does not activate general D4_MOR.
+
+### UI-H implementation handoff — 2026-07-17
+
+UI-H adds correlation-only stage timing, parallel completed-route reward and
+reflection reads, a default-off pilot-only atomic completion RPC, and the frozen
+Word Lab v1 snapshot/resume contract. Local TypeScript, lint, production build,
+bundle and adjacent ADLE regressions pass. The rich runtime remains behind the
+existing child allowlist and invalid or mismatched payloads still fall back.
+
+Fresh staging proof is now complete. The instrumented batched path measured
+23.9ms to immediate feedback, 4.743s to the completed route and 3.281s to the
+durable server return. The accepted atomic comparison measured 27.0ms,
+2.874s and 1.545s respectively, with the transaction itself taking 238.4ms.
+This is a 39.4% completed-route improvement and a 52.9% durable-return
+improvement. The under-three-second gate passed; the 40% stretch gate missed by
+0.6 percentage points and is not represented as a pass.
+
+Both retained disposable allowlisted fixtures verified one completed header,
+16 completed items, 14 attempts (6 guided, 4 controlled, 4 dictation), one
+private reflection and four learning/taught/schedule rows. Raw dictation
+sentences were retained, and completed reload left the counts unchanged.
+Vercel Sensitive values remained write-only. The RPC was first installed on
+staging with execute permission limited to `service_role`; no fixture was
+cleaned up and no production learner data or broad activation was used.
+
+### UI-H production database release — 2026-07-17
+
+The same service-role-only RPC is now installed on production as the unique
+ledgered migration `20260717120000`. The migration itself left runtime switches
+disabled. The later current-child rollout enabled the two tested switches in
+Production only while retaining the Word Lab allowlist boundary.
+
+### Current-child production rollout — 2026-07-17
+
+Owner approval enabled the Word Lab and atomic-completion switches for a
+private, duplicate-free snapshot of the 13 children current on the rollout date
+(snapshot digest `a7a1d5a4632f`). The snapshot is not stored in this repository,
+future children are excluded, and Word Lab still requires an explicit valid v1
+assignment snapshot. The production configuration check created no learner
+assignment, attempt, reflection, evidence, reward, schedule or completion row.
 
 ## Refined Word Lab flow evidence
 
@@ -107,10 +255,23 @@ target token `unfair` remained the only correctness target. The reflection was
 then saved, reloaded, completed and shown in My Learning without creating an
 assignment item, attempt or evidence event.
 
-## Remaining human-device acceptance
+The staging run also submitted `It was unkind to leave her out` without final
+punctuation. The raw sentence was retained, the comparison identified the
+missing full stop, and target-token correctness remained true. No assessment,
+evidence, mastery, schedule or reward row was created from the private
+reflection.
 
-The browser run verified focus transfer and Enter activation on the scaffolded
-Split boundary. A full physical keyboard-only run is still required for
-human-device sign-off. Physical touch, narration observation and genuine-child
-comprehension/hesitation observations also remain pending. These do not enable
-the feature for any non-allowlisted child.
+## Remaining acceptance
+
+The Safari and Chrome desktop runs now verify complete authenticated operation,
+keyboard activation, semantic accessibility-tree output, focus transfer,
+answer-safe recall, private reflection persistence and idempotent completion.
+Chrome responsive phone/tablet layouts also pass overflow and 44×44 target-size
+inspection. The accepted prior production-child proof plus the completed UI-H
+engineering retest closes this vertical for the current-child Word Lab rollout.
+Actual touch-event execution, production-preview Web Vitals, browser 200% zoom
+and operating-system reduced-motion execution are optional UI-H follow-up
+evidence. VoiceOver and other
+screen-reader runs, native Windows, Android and physical phone/tablet runs are
+optional follow-up coverage. These changes do not enable the feature for any
+non-allowlisted child.

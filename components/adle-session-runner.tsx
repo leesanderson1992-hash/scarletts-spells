@@ -15,11 +15,13 @@
  * server-side; the client submits raw attempt text only.
  */
 
-import { useMemo, useState } from "react";
+import dynamic from "next/dynamic";
+import { useMemo, useRef, useState } from "react";
 
 import {
   completeAdleLessonPartAction,
   completeAdleReviewPartAction,
+  completeBaseWordFamilyLessonAction,
 } from "@/app/learn/week/adle/actions";
 import {
   resolveActivityTemplateDefinition,
@@ -29,11 +31,35 @@ import type { AdleSessionItem } from "@/lib/adle/loaders/daily-plan-surface";
 import { isAttemptCorrect } from "@/lib/adle/session-correctness";
 import { IntroActivity } from "@/components/adle/activities/intro-activity";
 import { QuickSortActivity } from "@/components/adle/activities/quick-sort-activity";
-import { SpellingField } from "@/components/adle/activities/shared";
+import { SpellingField } from "@/components/adle/activities/shared/spelling-field";
 import { GuidedActivity } from "@/components/adle/activities/guided-activity";
 import { ReflectionActivity } from "@/components/adle/activities/reflection-activity";
-import { MorphologyGuidedLesson } from "@/components/adle/morphology/morphology-guided-lesson";
 import type { MorphologyLessonPayloadV1 } from "@/lib/adle/morphology/payload";
+import type { BaseWordFamilyLessonSnapshotV1 } from "@/lib/adle/morphology/base-word-family-payload";
+
+const MorphologyGuidedLesson = dynamic(
+  () =>
+    import("@/components/adle/morphology/morphology-guided-lesson").then(
+      (module) => module.MorphologyGuidedLesson,
+    ),
+  {
+    ssr: false,
+    loading: () => (
+      <div
+        role="status"
+        aria-live="polite"
+        className="brand-card rounded-3xl p-8 text-center text-sm text-[color:var(--mid)]"
+      >
+        Preparing the Word Lab…
+      </div>
+    ),
+  },
+);
+
+const BaseWordFamilyGuidedLesson = dynamic(
+  () => import("@/components/adle/morphology/base-word-family-guided-lesson").then((module) => module.BaseWordFamilyGuidedLesson),
+  { ssr: false, loading: () => <div role="status" aria-live="polite" className="brand-card rounded-3xl p-8 text-center text-sm text-[color:var(--mid)]">Preparing the base-word Word Lab…</div> },
+);
 
 type AdleSessionRunnerProps = {
   childId: string;
@@ -42,6 +68,7 @@ type AdleSessionRunnerProps = {
   partOne: { items: AdleSessionItem[]; present: boolean; complete: boolean };
   partTwo: { items: AdleSessionItem[]; present: boolean; complete: boolean };
   morphologyPilotPayload?: MorphologyLessonPayloadV1 | null;
+  baseWordFamilyPilotPayload?: BaseWordFamilyLessonSnapshotV1 | null;
 };
 
 function itemsIn(items: readonly AdleSessionItem[], sectionKey: string): AdleSessionItem[] {
@@ -87,6 +114,29 @@ function NextButton(props: { label: string; onClick: () => void }) {
 
 function mapWith(current: Map<string, string>, key: string, value: string): Map<string, string> {
   return new Map(current).set(key, value);
+}
+
+function BaseWordFamilyPart(props: { childId: string; assignmentId: string; payload: BaseWordFamilyLessonSnapshotV1 }) {
+  const formRef = useRef<HTMLFormElement>(null);
+  const controlledRef = useRef<HTMLInputElement>(null);
+  const sentenceRef = useRef<HTMLInputElement>(null);
+  const reflectionRef = useRef<HTMLInputElement>(null);
+  const [submitting, setSubmitting] = useState(false);
+  return <form ref={formRef} action={completeBaseWordFamilyLessonAction}>
+    <HiddenSessionFields childId={props.childId} assignmentId={props.assignmentId} />
+    <input ref={controlledRef} type="hidden" name="baseWordControlledAttempts" />
+    <input ref={sentenceRef} type="hidden" name="baseWordSentenceAttempts" />
+    <input ref={reflectionRef} type="hidden" name="baseWordReflection" />
+    {submitting ? <p role="status" aria-live="polite" className="brand-card rounded-2xl p-4 text-center">Saving your Word Lab…</p> : null}
+    <BaseWordFamilyGuidedLesson assignmentId={props.assignmentId} payload={props.payload} submitting={submitting} onComplete={(input) => {
+      if (!controlledRef.current || !sentenceRef.current || !reflectionRef.current) return;
+      controlledRef.current.value = JSON.stringify(Object.entries(input.controlledAttempts).map(([key, attemptText]) => ({ key, attemptText })));
+      sentenceRef.current.value = JSON.stringify(Object.entries(input.sentenceAttempts).map(([key, attemptText]) => ({ key, attemptText })));
+      reflectionRef.current.value = input.reflection;
+      setSubmitting(true);
+      requestAnimationFrame(() => formRef.current?.requestSubmit());
+    }} />
+  </form>;
 }
 
 function ReviewPart(props: { childId: string; assignmentId: string; items: AdleSessionItem[] }) {
@@ -301,6 +351,10 @@ function LessonPart(props: { childId: string; assignmentId: string; items: AdleS
 
 export function AdleSessionRunner(props: AdleSessionRunnerProps) {
   const { partOne, partTwo } = props;
+
+  if (props.baseWordFamilyPilotPayload && props.assignmentId) {
+    return <BaseWordFamilyPart childId={props.childId} assignmentId={props.assignmentId} payload={props.baseWordFamilyPilotPayload} />;
+  }
 
   return (
     <div className="grid gap-4">

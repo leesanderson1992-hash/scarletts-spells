@@ -176,7 +176,7 @@ export function AppShell({
             <div className="brand-card-soft hidden rounded-full p-1 md:flex">
               <Link
                 href={parentModePath}
-                className={`rounded-full px-4 py-2 text-sm font-medium transition ${
+                className={`inline-flex min-h-11 items-center rounded-full px-4 py-2 text-sm font-medium transition ${
                   mode === "parent"
                     ? "bg-[linear-gradient(135deg,var(--scarlett),#d53d81)] text-white shadow-[0_10px_20px_rgba(194,24,91,0.18)]"
                     : "text-[var(--mid)]"
@@ -186,7 +186,7 @@ export function AppShell({
               </Link>
               <Link
                 href={childModePath}
-                className={`rounded-full px-4 py-2 text-sm font-medium transition ${
+                className={`inline-flex min-h-11 items-center rounded-full px-4 py-2 text-sm font-medium transition ${
                   mode === "child"
                     ? "bg-[linear-gradient(135deg,var(--scarlett),#d53d81)] text-white shadow-[0_10px_20px_rgba(194,24,91,0.18)]"
                     : "text-[var(--mid)]"
@@ -227,7 +227,7 @@ export function AppShell({
               <div className="brand-card-soft rounded-full p-1">
                 <Link
                   href={parentModePath}
-                  className={`rounded-full px-3 py-2 text-xs font-medium transition ${
+                  className={`inline-flex min-h-11 items-center rounded-full px-3 py-2 text-xs font-medium transition ${
                     mode === "parent"
                       ? "bg-[linear-gradient(135deg,var(--scarlett),#d53d81)] text-white"
                       : "text-[var(--mid)]"
@@ -237,7 +237,7 @@ export function AppShell({
                 </Link>
                 <Link
                   href={childModePath}
-                  className={`rounded-full px-3 py-2 text-xs font-medium transition ${
+                  className={`inline-flex min-h-11 items-center rounded-full px-3 py-2 text-xs font-medium transition ${
                     mode === "child"
                       ? "bg-[linear-gradient(135deg,var(--scarlett),#d53d81)] text-white"
                       : "text-[var(--mid)]"

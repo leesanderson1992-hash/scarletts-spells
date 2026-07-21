@@ -1,0 +1,61 @@
+{
+  "allowed_template_keys": [
+    "T02",
+    "T01",
+    "T04",
+    "T03",
+    "T05",
+    "T06",
+    "T09",
+    "T10",
+    "T11",
+    "T12"
+  ],
+  "display_name": "Preserve the base word spelling in longer words",
+  "is_active": true,
+  "is_assignable": true,
+  "mastery_domain_key": "D4",
+  "metadata": {
+    "cluster_name": "Base word awareness",
+    "developmental_foundation": "Morphological awareness",
+    "example_words": [
+      "help/helpful",
+      "quick/quickly",
+      "care/careless",
+      "thank/thankful"
+    ],
+    "seed_version": "domain4-seed-expansion-v1",
+    "source_workbook": "docs/D4 Seeding Map Finale Final.xlsx",
+    "starter_word_bank": [
+      {
+        "common_wrong_spellings": [],
+        "difficulty": "seed",
+        "word": "help/helpful"
+      },
+      {
+        "common_wrong_spellings": [],
+        "difficulty": "seed",
+        "word": "quick/quickly"
+      },
+      {
+        "common_wrong_spellings": [],
+        "difficulty": "seed",
+        "word": "care/careless"
+      },
+      {
+        "common_wrong_spellings": [],
+        "difficulty": "seed",
+        "word": "thank/thankful"
+      }
+    ],
+    "teaching_point": "The spelling of a base word often stays visible when prefixes or suffixes are added.",
+    "unsupported_runtime_notes": [
+      "Task templates and family-level mappings are repo artifacts/config until dedicated schema exists.",
+      "Resolver adoption is intentionally separate from taxonomy seeding."
+    ]
+  },
+  "micro_skill_key": "D4_MOR_BASE_WORDS_PRESERVE_BASE",
+  "practice_route": "word_practice",
+  "skill_cluster_key": "D4_MOR_BASE_WORDS",
+  "skill_family_key": "D4_MOR"
+}

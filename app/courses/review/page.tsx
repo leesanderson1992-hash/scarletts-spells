@@ -203,6 +203,7 @@ export default async function CourseReviewPage({
     { data: parentVerificationRows },
     { data: falsePositiveSuppressions },
     { data: correctionAttemptRows },
+    { data: processingJobRows },
   ] = await Promise.all([
     supabase
       .from("task_submissions")
@@ -243,7 +244,15 @@ export default async function CourseReviewPage({
       .select("task_submission_id, writing_issue_id")
       .eq("parent_user_id", user.id)
       .eq("child_id", selectedChild.id),
+    supabase
+      .from("task_submission_processing_jobs")
+      .select("submission_id, status")
+      .eq("parent_user_id", user.id)
+      .eq("child_id", selectedChild.id),
   ]);
+  const processingStatusBySubmissionId = new Map(
+    (processingJobRows ?? []).map((row) => [row.submission_id, row.status]),
+  );
   const activeCanonicalWords = await getCanonicalActivePracticeWordsForChild({
     supabase,
     parentUserId: user.id,
@@ -692,6 +701,8 @@ export default async function CourseReviewPage({
                 );
                 const queueStatus = submission.sharedQueueStatus;
                 const parsed = parseSubmissionReview(submission.submission_text);
+                const processingStatus = processingStatusBySubmissionId.get(submission.id);
+                const isPreparing = Boolean(processingStatus && processingStatus !== "completed");
 
                 return (
                   <article
@@ -712,6 +723,11 @@ export default async function CourseReviewPage({
                           >
                             {queueStatus.label}
                           </span>
+                          {isPreparing ? (
+                            <span className="rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-xs font-medium text-sky-700">
+                              Preparing spelling review…
+                            </span>
+                          ) : null}
                         </div>
                         <p className="mt-1 text-sm text-[color:var(--mid)]">
                           {submission.courseTitle} ·{" "}
@@ -720,12 +736,18 @@ export default async function CourseReviewPage({
                             : "Module"}
                         </p>
                       </div>
-                      <Link
-                        href={reviewPath}
-                        className="inline-flex h-9 items-center justify-center rounded-full border border-[var(--scarlett)] bg-[var(--scarlett)] px-4 text-sm font-medium text-white transition hover:opacity-90"
-                      >
-                        Open review
-                      </Link>
+                      {isPreparing ? (
+                        <span className="inline-flex h-9 items-center justify-center rounded-full border border-sky-200 bg-sky-50 px-4 text-sm font-medium text-sky-700">
+                          Preparing…
+                        </span>
+                      ) : (
+                        <Link
+                          href={reviewPath}
+                          className="inline-flex h-9 items-center justify-center rounded-full border border-[var(--scarlett)] bg-[var(--scarlett)] px-4 text-sm font-medium text-white transition hover:opacity-90"
+                        >
+                          Open review
+                        </Link>
+                      )}
                     </div>
                     <div className="mt-3 flex flex-wrap gap-2 text-xs font-medium">
                       <span className="rounded-full border border-[var(--border)] bg-[rgba(255,247,220,0.45)] px-3 py-1 text-[color:var(--ink)]">

@@ -1,6 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 export const MORPHOLOGY_REFLECTION_PROMPT_KEY = "word-lab-un-observation-v1";
+export const BASE_WORD_FAMILY_REFLECTION_PROMPT_KEY = "base-word-family-observation-v1";
 export const MORPHOLOGY_REFLECTION_PROMPT = "What did you notice about what un- does in these words?";
 
 export interface ChildLearningReflection {
@@ -101,7 +102,7 @@ export async function getAssignmentLearningReflection(client: SupabaseClient, in
     .eq("parent_user_id", input.parentUserId)
     .eq("child_id", input.childId)
     .eq("daily_assignment_id", input.assignmentId)
-    .eq("prompt_key", MORPHOLOGY_REFLECTION_PROMPT_KEY)
+    .in("prompt_key", [MORPHOLOGY_REFLECTION_PROMPT_KEY, BASE_WORD_FAMILY_REFLECTION_PROMPT_KEY])
     .maybeSingle();
   if (error) throw new Error(`getAssignmentLearningReflection: ${error.message}`);
   return data ? fromRow(data as unknown as ReflectionRow) : null;

@@ -2,27 +2,54 @@
 
 ## Current ADLE 7-UI Priority
 
-Current ADLE priority: `PR 7-UI-E approved D4_MOR v1 source freeze`.
+Current ADLE priority: `PR 7-UI-H current-child rollout observation and remaining-category planning`.
 
-PR 7-UI-A established the programme-wide 7-UI documentation foundation. PR
-7-UI-B added the typed activity-template registry foundation. PR 7-UI-C
-generates structurally reconciled, review-ready D4_MOR category-v1 candidate
-source artifacts without activating content or changing runtime behaviour. PR
-7-UI-D records human approval of the D4_MOR category-v1 content/schema
-candidate while keeping it not activated. PR 7-UI-E freezes the approved
-candidate and approval record into an immutable approved source package under
-`data/adle/approved/d4-mor/v1/`.
+PRs 7-UI-A through 7-UI-F established the programme documentation, activity
+registry, approved D4_MOR source package and reusable morphology primitives.
+PR 7-UI-G implements the `D4_MOR_PREFIXES_UN` Word Lab vertical pilot and has
+completed automated, authenticated real-route and disposable-database
+engineering QA. The owner preview was accepted on 2026-07-14.
 
-The existing active D4_MOR teaching content remains current runtime truth. The
-new approved category-v1 source package is not active runtime truth and must
-not become runtime-selected until a separate content-selection/runtime PR. Do
-not make runtime component, composer, evidence, scheduler, reward,
-workbook-import, Supabase import, or bulk activation changes as part of 7-UI-E.
+The Word Lab remains an explicitly generated, child-allowlisted pilot. It is
+not broad D4_MOR runtime truth and must stay disabled outside the allowlist
+until UI-H explicitly changes that rollout decision. The Mac Safari and Chrome
+desktop/responsive accessibility matrix, lazy-loading boundary and bundle
+budget are recorded. Finish persistence measured 11.3 seconds before batching
+and approximately 7.4 seconds after batching; the immediate completion screen
+is the accepted MVP mitigation, not a performance pass. UI-H now has a
+working-tree implementation of privacy-safe stage timing, a pilot-only atomic
+completion RPC and the decision-complete Word Lab v1 snapshot/resume contract.
+Authenticated staging measured 23.9ms feedback and 4.743s completed-route time
+on the true batched baseline, then 27.0ms and 2.874s through the 238.4ms atomic
+transaction. The route is 39.4% faster and durable server return is 52.9%
+faster. The database contract remained `1 / 16 / 14 / 1 / 4 / 4 / 4` before
+and after completed reload, with the 6/4/4 attempt split and raw dictation
+sentences retained. This is a material guarded-pilot performance pass, but the
+40% stretch gate missed by 0.6 percentage points and is recorded as such.
+The service-role-only RPC is now installed on production. Following owner
+approval and acceptance of the prior production-child proof, the Word Lab and
+atomic-completion switches were enabled in Production only for a private,
+duplicate-free snapshot of the 13 children current on 2026-07-17 (snapshot
+digest `a7a1d5a4632f`). Future children are not automatically included, and
+Word Lab still requires an explicitly generated valid v1 assignment snapshot.
+The rollout configuration read only child identifiers; no learner assignment,
+attempt, reflection, evidence, reward or schedule data was read or written.
+True touch-event execution, controlled production-preview
+Web Vitals, browser 200% zoom, operating-system reduced-motion execution,
+native Windows/Android/iOS and screen-reader checks are optional UI-H rollout
+evidence.
+The application was redeployed from the approved production release with the
+new configuration on 2026-07-17. `/login` returned `200` and an unauthenticated
+unknown-child ADLE route returned the expected `307` to `/login`. The rollout
+does not bulk-activate D4_MOR or alter generic lessons.
 
 Authoritative links:
 
 - [ADLE 7-UI Programme Roadmap](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/implementation/adle-7-ui-roadmap.md:1)
+- [ADLE 7-UI-H Durable Completion Contract](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/implementation/adle-7-ui-h-word-lab-durable-completion-contract.md:1)
+- [ADLE 7-UI-H Completion Performance Proof](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/implementation/qa/adle-7-ui-h-completion-performance-proof.md:1)
 - [ADLE 7-UI Control Matrix Guide](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/implementation/adle-7-ui-control-matrix.md:1)
+- [ADLE 7-UI-G Observation Ledger](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/implementation/qa/adle-7-ui-g-observation-ledger.md:1)
 - [ADLE 7S Reflection Recall-Gate Proof](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/implementation/qa/adle-slice-7s-reflection-recall-gate-proof-2026-07-10.md:1)
 - [D4_MOR Morphology UX Design Pack](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/product/areas/d4-mor-ux-design-pack.md:1)
 

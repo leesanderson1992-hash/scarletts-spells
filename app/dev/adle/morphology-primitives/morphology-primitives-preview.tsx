@@ -1,5 +1,6 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useState } from "react";
 import type { ReactNode } from "react";
 
@@ -27,11 +28,24 @@ import type {
 } from "@/lib/adle/ui/morphology-primitives";
 import type { MorphologyLessonPayloadV1 } from "@/lib/adle/morphology/payload";
 import type { AdleSessionItem } from "@/lib/adle/loaders/daily-plan-surface";
-import { MorphologyGuidedLesson } from "@/components/adle/morphology/morphology-guided-lesson";
 import { TransformationAnimation } from "@/components/adle/activities/shared";
 import { clearMorphologyResume, morphologyResumeKey } from "@/lib/adle/morphology/resume";
 
 const DEV_GUIDED_ASSIGNMENT_ID = "dev-morphology-guided";
+const MorphologyGuidedLesson = dynamic(
+  () =>
+    import("@/components/adle/morphology/morphology-guided-lesson").then(
+      (module) => module.MorphologyGuidedLesson,
+    ),
+  {
+    ssr: false,
+    loading: () => (
+      <div role="status" aria-live="polite" className="brand-card rounded-3xl p-8 text-center text-sm text-[color:var(--mid)]">
+        Preparing the Word Lab…
+      </div>
+    ),
+  },
+);
 
 export function MorphologyPrimitivesPreview(props: {
   pilotSequence: MorphemeSequenceViewModel;

@@ -33,6 +33,9 @@ export function SplitHandle(props: {
   muted?: boolean;
   missMessage?: string;
   repeatedMissMessage?: string;
+  correctHeading?: string;
+  correctExplanation?: string;
+  continueLabel?: string;
   onMiss: (misses: number) => void;
   onCorrect: () => void;
   onContinue: () => void;
@@ -42,9 +45,12 @@ export function SplitHandle(props: {
   const [struckBoundary, setStruckBoundary] = useState<number | null>(null);
   const [lastWrongBoundary, setLastWrongBoundary] = useState<number | null>(null);
   const [striking, setStriking] = useState(false);
+  const [showSparkles, setShowSparkles] = useState(false);
   const timers = useRef<number[]>([]);
   const completed = useRef(props.correct);
   const correctButton = useRef<HTMLButtonElement | null>(null);
+  const continueButton = useRef<HTMLButtonElement | null>(null);
+  const boundaryButtons = useRef<Array<HTMLButtonElement | null>>([]);
   const splitPoint = props.splitPoints[0];
   const scaffolded = props.misses >= 2;
 
@@ -52,6 +58,14 @@ export function SplitHandle(props: {
   useEffect(() => {
     if (scaffolded && !props.correct) correctButton.current?.focus();
   }, [props.correct, scaffolded]);
+  useEffect(() => {
+    if (props.correct) continueButton.current?.focus();
+  }, [props.correct]);
+  useEffect(() => {
+    if (!props.correct && props.misses === 1 && lastWrongBoundary !== null) {
+      boundaryButtons.current[lastWrongBoundary]?.focus();
+    }
+  }, [lastWrongBoundary, props.correct, props.misses]);
 
   function later(callback: () => void, delay: number) {
     const timer = window.setTimeout(callback, delay);
@@ -71,6 +85,8 @@ export function SplitHandle(props: {
       if (correct) {
         completed.current = true;
         setLastWrongBoundary(null);
+        setShowSparkles(!reducedMotion);
+        later(() => setShowSparkles(false), reducedMotion ? 0 : 700);
         playInteractionSound("sparkle", props.muted);
         props.onCorrect();
       } else {
@@ -85,16 +101,17 @@ export function SplitHandle(props: {
   if (props.correct) {
     return (
       <section className="grid gap-5 text-center" aria-labelledby="split-correct-heading" aria-live="polite">
-        <div className="flex flex-wrap items-center justify-center gap-4">
+        <div className="relative flex flex-wrap items-center justify-center gap-4">
+          {showSparkles && !reducedMotion ? <span aria-hidden="true" className="pointer-events-none absolute inset-0 grid place-items-center text-4xl text-amber-200 motion-safe:animate-[pulse_700ms_ease-out_2]">✦ ✧ ✦</span> : null}
           <span className="rounded-2xl bg-cyan-100 px-5 py-4 text-3xl font-black text-cyan-950">{props.word.slice(0, splitPoint)}</span>
           <span aria-hidden="true" className="text-3xl text-emerald-300">✓</span>
           <span className="rounded-2xl bg-amber-100 px-5 py-4 text-3xl font-black text-amber-950">{props.word.slice(splitPoint)}</span>
         </div>
         <div className="mx-auto max-w-xl rounded-2xl border border-emerald-300/40 bg-emerald-50 p-4 text-emerald-950">
-          <h2 id="split-correct-heading" className="text-xl font-black">Yes — un- is the first two letters.</h2>
-          <p className="mt-1 text-base font-semibold">un + happy makes unhappy.</p>
+          <h2 id="split-correct-heading" className="text-xl font-black">{props.correctHeading ?? "Yes — un- is the first two letters."}</h2>
+          <p className="mt-1 text-base font-semibold">{props.correctExplanation ?? "un + happy makes unhappy."}</p>
         </div>
-        <button type="button" onClick={props.onContinue} className="mx-auto min-h-12 rounded-full bg-cyan-300 px-7 font-black text-slate-950">Rebuild the word</button>
+        <button ref={continueButton} type="button" onClick={props.onContinue} className="mx-auto min-h-12 rounded-full bg-cyan-300 px-7 font-black text-slate-950">{props.continueLabel ?? "Continue to meanings"}</button>
       </section>
     );
   }
@@ -120,7 +137,10 @@ export function SplitHandle(props: {
           return (
             <button
               key={point}
-              ref={isCorrectBoundary ? correctButton : undefined}
+              ref={(node) => {
+                boundaryButtons.current[point] = node;
+                if (isCorrectBoundary) correctButton.current = node;
+              }}
               type="button"
               aria-label={`Split after letter ${point}`}
               onPointerEnter={() => !disabled && setActiveBoundary(point)}

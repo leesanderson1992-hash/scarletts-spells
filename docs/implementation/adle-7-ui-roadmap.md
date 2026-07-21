@@ -15,11 +15,11 @@ Shared architecture is reused, while each micro-skill still receives an intentio
 
 ## Current Status
 
-Status: `7-UI-F D4_MOR primitive library accepted; approved source still not activated`.
+Status: `7-UI-H complete; atomic route 39.4% faster with durable contract verified; production current-child Word Lab rollout live`.
 
-The 7S reflection recall-gate live/manual proof is recorded in the proof register. PR 7-UI-B added the typed activity-template registry foundation. PR 7-UI-C generated structurally reconciled D4_MOR category-v1 candidate source artifacts under `docs/implementation/seed-data/adle-7-ui/generated/d4-mor-category-v1/`. PR 7-UI-D records human approval for the D4_MOR category-v1 content/schema candidate under `docs/implementation/seed-data/adle-7-ui/review/d4-mor-human-review-pack/`. PR 7-UI-E freezes that approved candidate plus the approval record into the immutable approved source package under `data/adle/approved/d4-mor/v1/`. PR 7-UI-F adds the reusable D4_MOR primitive/view-model layer and development-only preview proof, with QA recorded in `docs/implementation/qa/adle-7-ui-f-morphology-primitives-qa-2026-07-12.md`.
+The 7S reflection recall-gate live/manual proof is recorded in the proof register. PR 7-UI-B added the typed activity-template registry foundation. PR 7-UI-C generated structurally reconciled D4_MOR category-v1 candidate source artifacts under `docs/implementation/seed-data/adle-7-ui/generated/d4-mor-category-v1/`. PR 7-UI-D records human approval for the D4_MOR category-v1 content/schema candidate under `docs/implementation/seed-data/adle-7-ui/review/d4-mor-human-review-pack/`. PR 7-UI-E freezes that approved candidate plus the approval record into the immutable approved source package under `data/adle/approved/d4-mor/v1/`. PR 7-UI-F adds the reusable D4_MOR primitive/view-model layer. PR 7-UI-G implements the guarded `D4_MOR_PREFIXES_UN` Word Lab, including atomic assignment persistence, private reflections, strict payload/resume validation and authenticated engineering QA recorded in `docs/implementation/qa/adle-7-ui-g-observation-ledger.md`.
 
-The existing active D4_MOR teaching content remains current runtime truth. The approved D4_MOR category-v1 package is approved source for future content-selection and payload work only; it is not activated, emitted by the composer, imported into Supabase, or used by the child runtime.
+The existing active D4_MOR teaching content remains general runtime truth. The approved package is consumed only by the explicit `d4-mor-un` generator for an allowlisted child; it is not generally selected by the composer, bulk imported into Supabase, or enabled for non-allowlisted children.
 
 Current active category: `D4_MOR` morphology.
 
@@ -74,7 +74,7 @@ Only one category should normally be the active implementation focus at a time.
 
 | Family | Current status | Source of row truth |
 |---|---|---|
-| D4_MOR | Active foundation category; approved category-v1 source package frozen, not activated | Global matrix + D4_MOR matrix + approved package manifest + human approval record |
+| D4_MOR | Active foundation category; `D4_MOR_PREFIXES_UN` engineering-complete gated pilot, remaining category not activated | Global matrix + D4_MOR matrix + approved package manifest + 7-UI-G ledger |
 | D4_PG | In scope, unaudited for 7-UI | Global matrix |
 | D4_PAT | In scope, unaudited for 7-UI | Global matrix |
 | D4_INF | In scope, unaudited for 7-UI | Global matrix |
@@ -87,18 +87,39 @@ Only one category should normally be the active implementation focus at a time.
 
 First vertical proof candidate: `D4_MOR_PREFIXES_UN`.
 
-Current `D4_MOR_PREFIXES_UN` readiness: `primitive_layer_ready_not_activated`.
-Human content/schema approval is recorded, the approved source package is
-frozen, and 7-UI-F primitive rendering proof is accepted. Activation,
-assignment payload emission, and rich UI vertical proof remain future PRs.
+Current `D4_MOR_PREFIXES_UN` readiness:
+`current-child_word_lab_rollout_live`. Human content/schema and owner approval,
+including the accepted prior production-child validation, are recorded. The
+guarded assignment payload, rich child runtime, fallback, persistence and
+authenticated engineering proof are complete. The rollout remains restricted
+to a private snapshot of the 13 children current on 2026-07-17; it does not
+automatically include future children or activate the remaining D4_MOR skills. The
+agreed Mac Safari/Chrome accessibility matrix and bundle/lazy-loading proof are
+recorded. True touch-event execution, controlled Web Vitals, native Windows,
+Android, iOS and screen-reader runs are optional UI-H rollout coverage.
 
 Near-term sequence:
 
 1. `7-UI-D` - D4_MOR human approval pack - complete.
 2. `7-UI-E` - approved D4_MOR v1 source freeze and pilot source fixture - complete.
 3. `7-UI-F` - shared child-experience and morphology primitives - complete.
-4. `7-UI-G` - `D4_MOR_PREFIXES_UN` vertical runtime pilot.
-5. `7-UI-H` - pilot amendments and runtime payload contract freeze.
+4. `7-UI-G` - `D4_MOR_PREFIXES_UN` vertical runtime pilot - allowlist-gated MVP mitigation recorded.
+5. `7-UI-H` - pilot-only atomic completion and runtime payload contract freeze - authenticated guarded-staging proof complete at 27.0ms feedback, 2.874s completed route and a 238.4ms atomic transaction; `1 / 16 / 14 / 1 / 4 / 4 / 4` verified before and after reload. The route improvement is 39.4%, a recorded 0.6-point miss against the 40% stretch gate.
+
+Production migration completed on 2026-07-17 against
+`wwohrqtunajrbwxyssjf`: ledger version `20260717120000` contains the three
+reviewed statements and the RPC is `SECURITY DEFINER`, search-path constrained
+and executable only by `service_role`. No production learner data was queried
+or changed. The dormant application rollout from `dae5b49` is live at
+`https://scarletts-spells.vercel.app`; unauthenticated login and ADLE redirect
+smoke passed. Owner approval then enabled the two tested runtime switches in
+Production only and added a private, duplicate-free 13-child snapshot allowlist
+(digest `a7a1d5a4632f`) on 2026-07-17. Vercel redeployment
+`H8xr7f8DeFpmLSXAWx5aSEkKsm1c` is Ready at
+`https://scarletts-spells-pdo99u8yg-leesanderson1992-hashs-projects.vercel.app`.
+No assignment, attempt, reflection, reward or other learner completion data was
+created for the rollout check. The explicit valid Word Lab assignment snapshot
+is still required, so generic ADLE and all other D4_MOR skills remain unchanged.
 
 After proof and contract freeze, finish morphology in coherent groups:
 
@@ -120,7 +141,9 @@ Proof status is owned by:
 Current gate status:
 
 - `7UI-PROOF-7S-RECALL-GATE` is recorded.
-- Runtime redesign that could affect evidence quality is no longer blocked by the 7S proof gate, but still requires its own approved runtime PR and proof plan.
+- `7UI-PROOF-D4-MOR-7UI-G-ENGINEERING` and `7UI-PROOF-D4-MOR-OWNER` are recorded for the guarded `un-` vertical pilot.
+- `7UI-PROOF-D4-MOR-A11Y` and `7UI-PROOF-D4-MOR-PERF` are recorded for the gated pilot.
+- `7UI-PROOF-D4-MOR-CHILD` remains open before UI-G closure or contract freeze.
 
 ## Definition Of Complete
 
@@ -130,5 +153,5 @@ Current gate status:
 - every production micro-skill has approved teaching content;
 - every production micro-skill reaches its intended rich experience;
 - fallbacks remain safe for runtime failures and old assignments;
-- accessibility, mobile, reduced-motion, performance, owner, child, live-flow, and evidence-regression proofs are recorded;
+- accessibility, responsive mobile layout, automated reduced-motion behaviour, bundle performance, owner, child, live-flow, and evidence-regression proofs are recorded; physical touch, controlled Web Vitals, operating-system reduced-motion execution and browser 200% zoom are optional follow-up evidence;
 - evidence, scheduler, and reward semantics remain preserved unless separately approved.

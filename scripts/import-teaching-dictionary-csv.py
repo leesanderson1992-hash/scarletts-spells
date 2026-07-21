@@ -24,10 +24,10 @@ from urllib.parse import urlparse
 
 ROOT = Path(__file__).resolve().parents[1]
 VALIDATOR_PATH = ROOT / "scripts/validate-teaching-dictionary-csv.py"
-EXPECTED_MIGRATION_VERSION = "20260629120000"
+EXPECTED_MIGRATION_VERSION = "20260720100000"
 LOCAL_CONFIRMATION_TOKEN = "canonical-teaching-dictionary-local-dev"
 ADVISORY_LOCK_NAME = "canonical_teaching_dictionary_import"
-VALIDATOR_VERSION = "version_3_phase_5c_teaching_dictionary_csv_v3"
+VALIDATOR_VERSION = "version_3_phase_5c_teaching_dictionary_csv_v4"
 UUID_NAMESPACE = uuid.UUID("12345678-1234-5678-1234-567812345678")
 
 IMPORT_BATCH_TABLE = "canonical_teaching_dictionary_import_batches"
@@ -36,6 +36,9 @@ CONTENT_TABLES_IN_IMPORT_ORDER = [
     "canonical_teaching_dictionary_words",
     "canonical_teaching_dictionary_word_metadata",
     "canonical_teaching_dictionary_word_support",
+    "canonical_teaching_dictionary_dictation_sentences",
+    "canonical_teaching_dictionary_base_word_families",
+    "canonical_teaching_dictionary_base_word_family_members",
     "canonical_teaching_dictionary_content_versions",
     "canonical_teaching_dictionary_field_reviews",
     "canonical_teaching_dictionary_readiness_reports",
@@ -49,6 +52,9 @@ CSV_FILES = [
     "teaching_content_versions.csv",
     "teaching_content_field_reviews.csv",
     "teaching_content_sources.csv",
+    "base_word_families.csv",
+    "base_word_family_members.csv",
+    "dictation_sentences.csv",
 ]
 
 PROTECTED_TABLES = [
@@ -153,6 +159,26 @@ CONTENT_TABLE_COLUMNS = {
         "review_status",
         "review_notes",
     ],
+    "canonical_teaching_dictionary_dictation_sentences": [
+        "id", "import_batch_id", "canonical_word_id", "row_status", "source_sheet",
+        "source_row_number", "source_row_hash", "source_metadata", "dictation_sentence",
+        "dictation_target_token_index", "audio_text", "source_category", "source_name",
+        "source_url", "source_licence", "source_use_note", "confidence", "review_status",
+        "reviewed_by", "reviewed_at",
+    ],
+    "canonical_teaching_dictionary_base_word_families": [
+        "id", "import_batch_id", "base_family_key", "micro_skill_key", "base_word_id", "base_meaning", "etymology_route",
+        "row_status", "source_sheet", "source_row_number", "source_row_hash", "source_metadata",
+        "source_category", "source_name", "source_url", "source_licence", "source_use_note",
+        "confidence", "review_status", "reviewed_by", "reviewed_at",
+    ],
+    "canonical_teaching_dictionary_base_word_family_members": [
+        "id", "import_batch_id", "base_word_family_id", "canonical_word_id", "member_role", "word_sum",
+        "morphology_parts", "morphology_joins", "transformation_notes", "dictation_sentence_id", "dictation_sentence",
+        "dictation_target_token_index", "audio_text", "assignment_eligible", "row_status", "source_sheet",
+        "source_row_number", "source_row_hash", "source_metadata", "source_category", "source_name",
+        "source_url", "source_licence", "source_use_note", "confidence", "review_status", "reviewed_by", "reviewed_at",
+    ],
     "canonical_teaching_dictionary_content_versions": [
         "id",
         "import_batch_id",
@@ -240,9 +266,11 @@ JSONB_COLUMNS = {
     "review_summary",
     "activity_progression_summary",
     "report_metadata",
+    "morphology_parts",
+    "morphology_joins",
 }
-BOOLEAN_COLUMNS = {"is_active", "first_exposure_allowed", "guided_review_allowed", "has_schwa"}
-INTEGER_COLUMNS = {"source_row_number"}
+BOOLEAN_COLUMNS = {"is_active", "first_exposure_allowed", "guided_review_allowed", "has_schwa", "assignment_eligible"}
+INTEGER_COLUMNS = {"source_row_number", "dictation_target_token_index"}
 NUMERIC_COLUMNS: set[str] = set()
 
 UNIQUE_KEY_FIELDS = {
@@ -250,6 +278,9 @@ UNIQUE_KEY_FIELDS = {
     "canonical_teaching_dictionary_words": ["word_key"],
     "canonical_teaching_dictionary_word_metadata": ["canonical_word_id"],
     "canonical_teaching_dictionary_word_support": ["canonical_word_id", "micro_skill_key", "support_role"],
+    "canonical_teaching_dictionary_dictation_sentences": ["canonical_word_id"],
+    "canonical_teaching_dictionary_base_word_families": ["base_family_key"],
+    "canonical_teaching_dictionary_base_word_family_members": ["base_word_family_id", "canonical_word_id"],
     "canonical_teaching_dictionary_content_versions": ["micro_skill_key", "content_version"],
     "canonical_teaching_dictionary_field_reviews": ["teaching_content_version_id", "field_key", "review_gate"],
     "canonical_teaching_dictionary_readiness_reports": ["teaching_content_version_id"],
@@ -262,6 +293,14 @@ DB_CONFLICT_SQL = {
     },
     "canonical_teaching_dictionary_words": {
         "fields": ["word_key"],
+        "where": "row_status = 'active'",
+    },
+    "canonical_teaching_dictionary_base_word_families": {
+        "fields": ["base_family_key"],
+        "where": "row_status = 'active'",
+    },
+    "canonical_teaching_dictionary_base_word_family_members": {
+        "fields": ["base_word_family_id", "canonical_word_id"],
         "where": "row_status = 'active'",
     },
     "canonical_teaching_dictionary_content_versions": {
@@ -502,6 +541,29 @@ def build_planned_rows(folder: Path, validation_report: dict[str, Any]) -> dict[
             }
         )
 
+    for row in data.get("dictation_sentences.csv", []):
+        word_key = clean(row["word_key"])
+        planned["canonical_teaching_dictionary_dictation_sentences"].append(
+            {
+                "id": stable_uuid("dictation_sentence", word_key),
+                "canonical_word_id": word_ids.get(word_key),
+                "row_status": "active",
+                **row_base("dictation_sentences.csv", row),
+                "dictation_sentence": row["dictation_sentence"],
+                "dictation_target_token_index": row["dictation_target_token_index"],
+                "audio_text": row["audio_text"],
+                "source_category": row["source_category"],
+                "source_name": row["source_name"],
+                "source_url": row["source_url"],
+                "source_licence": row["source_licence"],
+                "source_use_note": row["source_use_note"],
+                "confidence": row["confidence"],
+                "review_status": row["review_status"],
+                "reviewed_by": row["reviewed_by"],
+                "reviewed_at": row["reviewed_at"],
+            }
+        )
+
     for row in data.get("micro_skill_word_support.csv", []):
         word_key = clean(row["word_key"])
         key = "|".join([word_key, clean(row["micro_skill_key"]), clean(row["support_role"])])
@@ -522,6 +584,71 @@ def build_planned_rows(folder: Path, validation_report: dict[str, Any]) -> dict[
                 "confidence": row["confidence"],
                 "review_status": row["review_status"],
                 "review_notes": row["review_notes"],
+            }
+        )
+
+    dictation_sentence_ids = {
+        clean(row["word_key"]): stable_uuid("dictation_sentence", clean(row["word_key"]))
+        for row in data.get("dictation_sentences.csv", [])
+    }
+    family_ids: dict[str, str] = {}
+    for row in data.get("base_word_families.csv", []):
+        family_key = clean(row["base_family_key"])
+        row_id = stable_uuid("base_word_family", family_key)
+        family_ids[family_key] = row_id
+        planned["canonical_teaching_dictionary_base_word_families"].append(
+            {
+                "id": row_id,
+                "base_family_key": family_key,
+                "micro_skill_key": row["micro_skill_key"],
+                "base_word_id": word_ids.get(clean(row["base_word_key"])),
+                "base_meaning": row["base_meaning"],
+                "etymology_route": json.loads(row["etymology_route"]),
+                "row_status": "active",
+                **row_base("base_word_families.csv", row),
+                "source_category": row["source_category"],
+                "source_name": row["source_name"],
+                "source_url": row["source_url"],
+                "source_licence": row["source_licence"],
+                "source_use_note": row["source_use_note"],
+                "confidence": row["confidence"],
+                "review_status": row["review_status"],
+                "reviewed_by": row["reviewed_by"],
+                "reviewed_at": row["reviewed_at"],
+            }
+        )
+
+    for row in data.get("base_word_family_members.csv", []):
+        family_key = clean(row["base_family_key"])
+        word_key = clean(row["word_key"])
+        key = "|".join([family_key, word_key])
+        planned["canonical_teaching_dictionary_base_word_family_members"].append(
+            {
+                "id": stable_uuid("base_word_family_member", key),
+                "base_word_family_id": family_ids.get(family_key),
+                "canonical_word_id": word_ids.get(word_key),
+                "member_role": row["member_role"],
+                "child_friendly_meaning": row["child_friendly_meaning"],
+                "word_sum": row["word_sum"],
+                "morphology_parts": json.loads(row["morphology_parts"]),
+                "morphology_joins": json.loads(row["morphology_joins"]),
+                "transformation_notes": row["transformation_notes"],
+                "dictation_sentence_id": dictation_sentence_ids.get(word_key),
+                "dictation_sentence": row["dictation_sentence"],
+                "dictation_target_token_index": row["dictation_target_token_index"],
+                "audio_text": row["audio_text"],
+                "assignment_eligible": row["assignment_eligible"],
+                "row_status": "active",
+                **row_base("base_word_family_members.csv", row),
+                "source_category": row["source_category"],
+                "source_name": row["source_name"],
+                "source_url": row["source_url"],
+                "source_licence": row["source_licence"],
+                "source_use_note": row["source_use_note"],
+                "confidence": row["confidence"],
+                "review_status": row["review_status"],
+                "reviewed_by": row["reviewed_by"],
+                "reviewed_at": row["reviewed_at"],
             }
         )
 

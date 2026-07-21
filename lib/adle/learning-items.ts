@@ -28,7 +28,8 @@ export type LearningItemSourceKind =
   | "probe_miss"
   | "review_ejection"
   | "slippage_reentry"
-  | "stretch_selection";
+  | "stretch_selection"
+  | "transfer_confirmation";
 
 export interface LearningItemFact {
   learningItemId: string;

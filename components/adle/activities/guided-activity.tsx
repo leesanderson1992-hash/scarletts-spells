@@ -19,7 +19,7 @@ import { useState } from "react";
 
 import type { AdleSessionItem } from "@/lib/adle/loaders/daily-plan-surface";
 import { resolveActivityKind } from "./registry";
-import { HearWordButton, GrownUpReveal } from "./shared";
+import { HearWordButton, GrownUpReveal } from "./shared/spelling-field";
 
 function copyOf(item: AdleSessionItem, fallback: string): string {
   const copy = item.promptData.childFacingCopy;

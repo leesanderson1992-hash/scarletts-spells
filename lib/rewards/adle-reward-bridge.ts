@@ -78,19 +78,20 @@ export async function advanceForgeForAdleTaughtWords(input: {
   dailyAssignmentId: string;
   taughtWords: readonly AdleTaughtWordForForge[];
 }): Promise<ForgeAdvanceResult> {
-  const outcomes: ForgeAdvanceOutcome[] = [];
-  let enteredForgeCount = 0;
-
   // Dedupe by normalised word: a lesson can carry a word in several activities;
   // the Nugget moves once (idempotent by assignment item anyway).
   const seenWords = new Set<string>();
+  const uniqueTaughtWords: AdleTaughtWordForForge[] = [];
   for (const taught of input.taughtWords) {
     const normalised = normaliseWordTreasureWord(taught.targetWord ?? "");
     if (normalised === "" || seenWords.has(normalised)) {
       continue;
     }
     seenWords.add(normalised);
+    uniqueTaughtWords.push(taught);
+  }
 
+  const results = await Promise.all(uniqueTaughtWords.map(async (taught): Promise<{ outcome: ForgeAdvanceOutcome; eventCreated: boolean }> => {
     const result = await moveGoldenNuggetIntoForgeFromDailyAssignmentItem({
       supabase: input.supabase,
       childId: input.childId,
@@ -108,20 +109,17 @@ export async function advanceForgeForAdleTaughtWords(input: {
     });
 
     if (result.skippedReason === "missing_word_treasure") {
-      outcomes.push({ targetWord: taught.targetWord, status: "missing_word_treasure" });
-    } else if (result.skippedReason === "not_golden_nugget") {
-      outcomes.push({ targetWord: taught.targetWord, status: "already_forged" });
-    } else if (result.treasure && result.skippedReason === null) {
-      outcomes.push({ targetWord: taught.targetWord, status: "entered_forge" });
-      if (result.eventCreated) {
-        enteredForgeCount += 1;
-      }
-    } else {
-      outcomes.push({ targetWord: taught.targetWord, status: "already_forged" });
+      return { outcome: { targetWord: taught.targetWord, status: "missing_word_treasure" }, eventCreated: false };
     }
-  }
-
-  return { outcomes, enteredForgeCount };
+    if (result.skippedReason === "not_golden_nugget") {
+      return { outcome: { targetWord: taught.targetWord, status: "already_forged" }, eventCreated: false };
+    }
+    if (result.treasure && result.skippedReason === null) {
+      return { outcome: { targetWord: taught.targetWord, status: "entered_forge" }, eventCreated: result.eventCreated };
+    }
+    return { outcome: { targetWord: taught.targetWord, status: "already_forged" }, eventCreated: false };
+  }));
+  return { outcomes: results.map((result) => result.outcome), enteredForgeCount: results.filter((result) => result.eventCreated).length };
 }
 
 /** The already-counted (treasure, sample) keys across BOTH authentic-use paths,

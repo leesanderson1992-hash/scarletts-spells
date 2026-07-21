@@ -15,7 +15,7 @@
 import { useMemo, useState } from "react";
 
 import type { AdleSessionItem } from "@/lib/adle/loaders/daily-plan-surface";
-import { HearWordButton } from "./shared";
+import { HearWordButton } from "./shared/spelling-field";
 
 interface SortWord {
   canonicalWordId?: string;

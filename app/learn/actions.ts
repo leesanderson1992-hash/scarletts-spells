@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { after } from "next/server";
 
 import {
   getDateOnly,
@@ -11,7 +12,7 @@ import {
   getStartOfWeekDateOnly,
   isTaskCompleteForProgress,
 } from "@/lib/courses/progress";
-import { buildSpellcheckSourceText } from "@/lib/courses/spelling-analysis-text";
+import { processTaskSubmission } from "@/lib/courses/submission-processing";
 import {
   buildStructuredLessonResponse,
   buildStructuredLessonResponseFromFlatSubmission,
@@ -24,20 +25,13 @@ import {
 } from "@/lib/lessons/responses";
 import {
   getReturnedCorrectionEvidenceFlags,
-  normaliseCorrectionComparisonValue,
 } from "@/lib/lessons/returned-correction-evidence";
-import { persistStructuredSubmissionPayload } from "@/lib/lessons/persistence/submission-payloads";
 import {
   maybeAwardDailyCheckInCoins,
   maybeAwardMilestoneCoins,
   maybeAwardTaskCompletionCoins,
   maybeAwardTaskTargetCoins,
 } from "@/lib/rewards/course-coins";
-import {
-  countConfirmedFreeWritingGoldBarsForSubmission,
-  detectAndStoreFreeWritingEvidenceCandidates,
-} from "@/lib/rewards/free-writing-evidence";
-import { replaceAnalysisForSample } from "@/lib/writing-engine/spelling/legacy-analysis";
 import { createClient } from "@/lib/supabase/server";
 function getRedirectPath(formData: FormData, fallbackPath: string) {
   const redirectPath = formData.get("redirect_path");
@@ -132,10 +126,6 @@ function parseDraftPayloadValue(draftPayload: FormDataEntryValue | null) {
     : undefined;
 }
 
-function isPlainObject(value: unknown): value is Record<string, unknown> {
-  return Boolean(value) && typeof value === "object" && !Array.isArray(value);
-}
-
 function applyReturnedIssueInputsFromFormData(
   formData: FormData,
   issues: ReturnedWritingIssueDraftPayload[],
@@ -181,23 +171,6 @@ function applyReturnedIssueInputsFromFormData(
   });
 }
 
-function doesReturnedCorrectionStillNeedPractice({
-  issue,
-  attemptedCorrection,
-}: {
-  issue: ReturnedWritingIssueDraftPayload;
-  attemptedCorrection: string | null;
-}) {
-  const expected = normaliseCorrectionComparisonValue(issue.approved_replacement);
-  const actual = normaliseCorrectionComparisonValue(attemptedCorrection);
-
-  if (!expected) {
-    return true;
-  }
-
-  return actual !== expected;
-}
-
 function mergePreservedDraftMetadata(
   nextPayloadValue: unknown,
   existingPayloadValue: unknown,
@@ -224,72 +197,6 @@ function mergePreservedDraftMetadata(
   }
 
   return mergedPayload;
-}
-
-function stringifyAttemptedCorrectionValue(value: unknown): string | null {
-  if (typeof value === "string") {
-    const trimmed = value.trim();
-    return trimmed.length > 0 ? trimmed : null;
-  }
-
-  if (typeof value === "boolean") {
-    return value ? "true" : "false";
-  }
-
-  if (Array.isArray(value)) {
-    if (value.length === 0) {
-      return null;
-    }
-
-    return JSON.stringify(value);
-  }
-
-  if (isPlainObject(value)) {
-    return JSON.stringify(value);
-  }
-
-  return null;
-}
-
-function buildAttemptedCorrectionForIssue({
-  issue,
-  draftPayload,
-  safeSubmissionText,
-}: {
-  issue: ReturnedWritingIssueDraftPayload;
-  draftPayload: Record<string, unknown> | undefined;
-  safeSubmissionText: string;
-}) {
-  if (issue.attempted_correction?.trim()) {
-    return issue.attempted_correction.trim();
-  }
-
-  if (
-    issue.source_field_key &&
-    draftPayload &&
-    Object.prototype.hasOwnProperty.call(draftPayload, issue.source_field_key)
-  ) {
-    return stringifyAttemptedCorrectionValue(draftPayload[issue.source_field_key]);
-  }
-
-  if (safeSubmissionText.trim().length > 0) {
-    return safeSubmissionText.trim();
-  }
-
-  const structuredResponse = getStructuredLessonResponseFromPayload(draftPayload);
-  if (!structuredResponse) {
-    return issue.marked_fixed ? "Child marked this returned issue as fixed." : null;
-  }
-
-  const matchingAnswer = structuredResponse.answers.find(
-    (answer) => answer.block_id === issue.source_field_key,
-  );
-
-  if (matchingAnswer) {
-    return stringifyAttemptedCorrectionValue(matchingAnswer.value);
-  }
-
-  return issue.marked_fixed ? "Child marked this returned issue as fixed." : null;
 }
 
 export async function completeCourseTask(formData: FormData) {
@@ -549,11 +456,22 @@ export async function completeCourseTask(formData: FormData) {
   );
 }
 
+type CourseTaskSubmissionRpcResult = {
+  submissionId: string;
+  outcome: "created" | "duplicate" | "already_submitted";
+  submittedAt: string;
+};
+
+function isUuid(value: unknown): value is string {
+  return typeof value === "string" && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
+}
+
 export async function submitTaskResponse(formData: FormData) {
   const redirectPath = getRedirectPath(formData, "/learn");
   const taskId = formData.get("task_id");
   const courseId = formData.get("course_id");
   const childId = formData.get("child_id");
+  const requestId = formData.get("submission_request_id");
   const submissionText = formData.get("submission_text");
   const lessonReviewSummary = formData.get("lesson_review_summary");
   const draftPayload = formData.get("draft_payload");
@@ -561,63 +479,61 @@ export async function submitTaskResponse(formData: FormData) {
     .getAll("selected_options")
     .filter((value): value is string => typeof value === "string" && value.trim().length > 0)
     .map((value) => value.trim());
-  const safeSubmissionText =
-    typeof submissionText === "string" ? submissionText.trim() : "";
+  const safeSubmissionText = typeof submissionText === "string" ? submissionText.trim() : "";
   const safeLessonReviewSummary =
     typeof lessonReviewSummary === "string" ? lessonReviewSummary.trim() : "";
   const safeDraftPayload = parseDraftPayloadValue(draftPayload);
   const submittedAt = new Date().toISOString();
-  const submittedStructuredResponse = buildStructuredLessonResponse({
-    taskId: typeof taskId === "string" ? taskId : "",
-    childId: typeof childId === "string" ? childId : "",
-    status: "submitted",
-    payloadValue: safeDraftPayload,
-    submittedAt,
-  });
+  const completionDate = getDateOnly();
 
   if (
-    typeof taskId !== "string" ||
-    !taskId ||
-    typeof courseId !== "string" ||
-    !courseId ||
-    typeof childId !== "string" ||
-    !childId ||
-    (!safeSubmissionText &&
-      selectedOptions.length === 0 &&
-      !hasMeaningfulStructuredLessonResponse(submittedStructuredResponse))
+    typeof taskId !== "string" || !taskId ||
+    typeof courseId !== "string" || !courseId ||
+    typeof childId !== "string" || !childId ||
+    !isUuid(requestId)
   ) {
-    redirect(buildRedirectWithMessage(redirectPath, "error", "Please write something before submitting."));
+    redirect(buildRedirectWithMessage(redirectPath, "error", "We couldn't start that submission safely. Please reload and try again."));
   }
 
   const { supabase, user } = await getAuthenticatedUser();
+  if (!user) redirect("/login");
 
-  if (!user) {
-    redirect("/login");
-  }
+  const [{ data: task }, { data: child }, { data: latestSubmission }, { data: existingDraftRow }] =
+    await Promise.all([
+      supabase
+        .from("course_tasks")
+        .select("id, course_id, task_type, lesson_schema")
+        .eq("id", taskId)
+        .eq("course_id", courseId)
+        .eq("parent_user_id", user.id)
+        .maybeSingle(),
+      supabase
+        .from("children")
+        .select("id")
+        .eq("id", childId)
+        .eq("parent_user_id", user.id)
+        .maybeSingle(),
+      supabase
+        .from("task_submissions")
+        .select("id, parent_review_status")
+        .eq("task_id", taskId)
+        .eq("child_id", childId)
+        .eq("parent_user_id", user.id)
+        .order("submitted_at", { ascending: false })
+        .limit(1)
+        .maybeSingle(),
+      supabase
+        .from("task_submission_drafts")
+        .select("draft_payload")
+        .eq("task_id", taskId)
+        .eq("child_id", childId)
+        .eq("parent_user_id", user.id)
+        .maybeSingle(),
+    ]);
 
-  const { data: task } = await supabase
-    .from("course_tasks")
-    .select("id, course_id, task_type, lesson_schema, gold_coin_reward_amount")
-    .eq("id", taskId)
-    .eq("course_id", courseId)
-    .eq("parent_user_id", user.id)
-    .maybeSingle();
-
-  if (!task) {
-    redirect(buildRedirectWithMessage(redirectPath, "error", "We couldn't find that task."));
-  }
-
-  if (task.task_type !== "lesson" && task.task_type !== "test") {
+  if (!task || (task.task_type !== "lesson" && task.task_type !== "test")) {
     redirect(buildRedirectWithMessage(redirectPath, "error", "That task does not accept writing submissions."));
   }
-
-  const { data: child } = await supabase
-    .from("children")
-    .select("id")
-    .eq("id", childId)
-    .eq("parent_user_id", user.id)
-    .maybeSingle();
-
   if (!child) {
     redirect(buildRedirectWithMessage(redirectPath, "error", "We couldn't find that learner."));
   }
@@ -629,367 +545,81 @@ export async function submitTaskResponse(formData: FormData) {
     payloadValue: safeDraftPayload,
     submittedAt,
   });
-  const fallbackStructuredResponse =
-    hasMeaningfulStructuredLessonResponse(structuredResponse)
-      ? null
-      : buildStructuredLessonResponseFromFlatSubmission({
-          taskId: task.id,
-          childId: child.id,
-          lessonValue: task.lesson_schema,
-          submissionText: safeSubmissionText,
-          submittedAt,
-        });
-  const durableStructuredResponse =
-    fallbackStructuredResponse ?? structuredResponse;
-  const hasEmbeddedStructuredResponse = Boolean(
-    getStructuredLessonResponseFromPayload(safeDraftPayload),
-  );
+  const fallbackStructuredResponse = hasMeaningfulStructuredLessonResponse(structuredResponse)
+    ? null
+    : buildStructuredLessonResponseFromFlatSubmission({
+        taskId: task.id,
+        childId: child.id,
+        lessonValue: task.lesson_schema,
+        submissionText: safeSubmissionText,
+        submittedAt,
+      });
+  const durableStructuredResponse = fallbackStructuredResponse ?? structuredResponse;
   const shouldPersistStructuredPayload =
-    (hasEmbeddedStructuredResponse || Boolean(fallbackStructuredResponse)) &&
+    (Boolean(getStructuredLessonResponseFromPayload(safeDraftPayload)) || Boolean(fallbackStructuredResponse)) &&
     hasMeaningfulStructuredLessonResponse(durableStructuredResponse);
 
-  const [{ data: latestSubmission }, { data: existingDraftRow }] = await Promise.all([
-    supabase
-      .from("task_submissions")
-      .select("id, parent_review_status")
-      .eq("task_id", taskId)
-      .eq("child_id", childId)
-      .eq("parent_user_id", user.id)
-      .order("submitted_at", { ascending: false })
-      .limit(1)
-      .maybeSingle(),
-    supabase
-      .from("task_submission_drafts")
-      .select("draft_payload")
-      .eq("task_id", taskId)
-      .eq("child_id", childId)
-      .eq("parent_user_id", user.id)
-      .maybeSingle(),
-  ]);
+  if (!safeSubmissionText && selectedOptions.length === 0 && !hasMeaningfulStructuredLessonResponse(durableStructuredResponse)) {
+    redirect(buildRedirectWithMessage(redirectPath, "error", "Please write something before submitting."));
+  }
 
+  const combinedSubmissionText = safeLessonReviewSummary
+    ? ["Lesson review summary:", safeLessonReviewSummary, safeSubmissionText ? "" : null, safeSubmissionText ? "Written response:" : null, safeSubmissionText || null]
+        .filter((value): value is string => Boolean(value)).join("\n")
+    : selectedOptions.length > 0
+      ? ["Selected options:", ...selectedOptions.map((option) => `- ${option}`), safeSubmissionText ? "" : null, safeSubmissionText ? "Written response:" : null, safeSubmissionText || null]
+          .filter((value): value is string => Boolean(value)).join("\n")
+      : safeSubmissionText || "Structured lesson response";
   const latestDraftPayload = mergePreservedDraftMetadata(
     safeDraftPayload ?? {},
     existingDraftRow?.draft_payload,
   );
-  const returnedWritingIssues =
-    latestSubmission?.parent_review_status === "returned"
-      ? applyReturnedIssueInputsFromFormData(
-          formData,
-          getReturnedWritingIssueFeedback(latestDraftPayload),
-        )
-      : [];
-  let returnedCorrectionAttemptCount = 0;
-  let returnedGoldenNuggetsNeedingPracticeCount = 0;
-  let returnedConfirmedGoldenBarCount = 0;
-
-  const today = getDateOnly();
-  const [{ count: completionCount }, { count: submissionCount }] = await Promise.all([
-    supabase
-      .from("task_completions")
-      .select("*", { count: "exact", head: true })
-      .eq("child_id", childId)
-      .eq("parent_user_id", user.id)
-      .eq("completion_date", today),
-    supabase
-      .from("task_submissions")
-      .select("*", { count: "exact", head: true })
-      .eq("child_id", childId)
-      .eq("parent_user_id", user.id)
-      .gte("submitted_at", `${today}T00:00:00`)
-      .lt("submitted_at", `${today}T23:59:59.999`),
-  ]);
-  const hadCourseLogTodayBeforeSave = (completionCount ?? 0) > 0 || (submissionCount ?? 0) > 0;
-
-  const combinedSubmissionText =
-    safeLessonReviewSummary
-      ? [
-          "Lesson review summary:",
-          safeLessonReviewSummary,
-          safeSubmissionText ? "" : null,
-          safeSubmissionText ? "Written response:" : null,
-          safeSubmissionText || null,
-        ]
-          .filter((value): value is string => Boolean(value))
-          .join("\n")
-      : selectedOptions.length > 0
-      ? [
-          "Selected options:",
-          ...selectedOptions.map((option) => `- ${option}`),
-          safeSubmissionText ? "" : null,
-          safeSubmissionText ? "Written response:" : null,
-          safeSubmissionText || null,
-        ]
-          .filter((value): value is string => Boolean(value))
-          .join("\n")
-      : safeSubmissionText;
-  const persistedDraftPayload = mergePreservedDraftMetadata(
+  const returnedWritingIssues = latestSubmission?.parent_review_status === "returned"
+    ? applyReturnedIssueInputsFromFormData(formData, getReturnedWritingIssueFeedback(latestDraftPayload))
+    : [];
+  const processingDraftPayload = mergePreservedDraftMetadata(
     withStructuredLessonResponse(latestDraftPayload, structuredResponse),
     existingDraftRow?.draft_payload,
   );
 
-  const { data: insertedSubmission, error } = await supabase.from("task_submissions").insert({
-    task_id: task.id,
-    course_id: task.course_id,
-    child_id: child.id,
-    parent_user_id: user.id,
-    submission_text: combinedSubmissionText,
-    submitted_at: submittedAt,
-    parent_review_status: "pending",
-    parent_review_note: null,
-    parent_reviewed_at: null,
-  }).select("id, child_id, submission_text, submitted_at").single();
-
-  if (error || !insertedSubmission) {
-    redirect(buildRedirectWithMessage(redirectPath, "error", "We couldn't save that writing just yet."));
-  }
-
-  if (shouldPersistStructuredPayload) {
-    const payloadResult = await persistStructuredSubmissionPayload({
-      submissionId: insertedSubmission.id,
-      parentUserId: user.id,
-      courseId: task.course_id,
-      taskId: task.id,
-      childId: child.id,
-      taskType: task.task_type,
-      structuredResponse: durableStructuredResponse,
-    });
-
-    if (!payloadResult.ok) {
-      await supabase
-        .from("task_submissions")
-        .delete()
-        .eq("id", insertedSubmission.id)
-        .eq("parent_user_id", user.id);
-
-      redirect(
-        buildRedirectWithMessage(
-          redirectPath,
-          "error",
-          "We couldn't safely save your structured answers just yet. Please try again.",
-        ),
-      );
-    }
-  }
-
-  const { error: completionError } = await supabase.from("task_completions").upsert(
-    {
-      task_id: taskId,
-      course_id: courseId,
-      child_id: childId,
-      parent_user_id: user.id,
-      completion_date: today,
-      quantity_completed: 1,
-      completed_at: new Date().toISOString(),
-    },
-    { onConflict: "task_id,child_id,completion_date" },
-  );
-
-  if (completionError) {
-    redirect(buildRedirectWithMessage(redirectPath, "error", "Your writing was saved, but the lesson could not be marked as done."));
-  }
-
-  const spellcheckSourceText = buildSpellcheckSourceText({
-    draftPayload: persistedDraftPayload,
-    submissionText: safeSubmissionText,
-  });
-
-  let writingSampleId: string | null = null;
-
-  if (spellcheckSourceText) {
-    const writtenAt = insertedSubmission.submitted_at.slice(0, 10);
-    const { data: insertedSample, error: sampleError } = await supabase
-      .from("writing_samples")
-      .insert({
-        child_id: childId,
-        parent_user_id: user.id,
-        title: task.task_type === "test" ? "Test submission" : "Lesson submission",
-        sample_text: spellcheckSourceText,
-        source: "Course task submission",
-        written_at: writtenAt,
-        task_submission_id: insertedSubmission.id,
-      })
-      .select("id, child_id, sample_text")
-      .single();
-
-    if (insertedSample && !sampleError) {
-      writingSampleId = insertedSample.id;
-      await replaceAnalysisForSample(supabase, insertedSample, user.id);
-    }
-  }
-
-  const freeWritingEvidenceCandidates =
-    await detectAndStoreFreeWritingEvidenceCandidates({
-      supabase,
-      parentUserId: user.id,
-      childId: child.id,
-      taskSubmissionId: insertedSubmission.id,
-      taskId: task.id,
-      taskType: task.task_type,
-      draftPayload: persistedDraftPayload,
+  const { data, error } = await supabase.rpc("submit_course_task_response_once", {
+    p_parent_user_id: user.id,
+    p_child_id: child.id,
+    p_course_id: task.course_id,
+    p_task_id: task.id,
+    p_submission_request_id: requestId,
+    p_submission_text: combinedSubmissionText,
+    p_submitted_at: submittedAt,
+    p_completion_date: completionDate,
+    p_structured_payload_type: shouldPersistStructuredPayload
+      ? task.task_type === "lesson" ? "structured_lesson_response" : "structured_test_response"
+      : null,
+    p_structured_payload: shouldPersistStructuredPayload ? durableStructuredResponse : null,
+    p_processing_payload: {
+      draftPayload: processingDraftPayload,
       submissionText: safeSubmissionText,
-      writingSampleId,
-    });
-  const suspectedGoldenBarCount = freeWritingEvidenceCandidates.filter(
-    (candidate) =>
-      candidate.confirmation_status === "pending_parent_confirmation" &&
-      candidate.duplicate_status === "unique_candidate" &&
-      candidate.would_award_golden_bar,
-  ).length;
-
-  if (returnedWritingIssues.length > 0) {
-    if (latestSubmission?.id) {
-      returnedConfirmedGoldenBarCount =
-        await countConfirmedFreeWritingGoldBarsForSubmission({
-          supabase,
-          parentUserId: user.id,
-          childId,
-          taskSubmissionId: latestSubmission.id,
-        });
-    }
-
-    const returnedIssueIds = returnedWritingIssues.map((issue) => issue.issue_id);
-    const { data: sentBackIssues } = await supabase
-      .from("writing_issues")
-      .select("id")
-      .eq("parent_user_id", user.id)
-      .eq("child_id", childId)
-      .in("id", returnedIssueIds)
-      .eq("issue_status", "sent_back_to_child");
-
-    const sentBackIssueIds = new Set((sentBackIssues ?? []).map((issue) => issue.id));
-    const issuesToRecord = returnedWritingIssues.filter((issue) =>
-      sentBackIssueIds.has(issue.issue_id),
-    );
-
-    if (issuesToRecord.length > 0) {
-      const correctionAttemptsToRecord = issuesToRecord.map((issue) => ({
-        issue,
-        attemptedCorrection: buildAttemptedCorrectionForIssue({
-          issue,
-          draftPayload: latestDraftPayload,
-          safeSubmissionText,
-        }),
-      }));
-      const attemptRows = correctionAttemptsToRecord.map(
-        ({ issue, attemptedCorrection }) => {
-          const evidenceFlags = getReturnedCorrectionEvidenceFlags({
-            approvedReplacement: issue.approved_replacement,
-            attemptedCorrection,
-          });
-
-          return {
-            writing_issue_id: issue.issue_id,
-            child_id: childId,
-            parent_user_id: user.id,
-            task_submission_id: insertedSubmission.id,
-            attempted_correction: attemptedCorrection,
-            attempt_notes: null,
-            corrected_independently: evidenceFlags.correctedIndependently,
-            reflection: issue.reflection ?? "medium",
-            metadata: {
-              source_field_key: issue.source_field_key,
-              allow_confidence: issue.allow_confidence,
-              marked_fixed: evidenceFlags.markedFixed,
-              retry_mode: issue.retry_mode ?? "try_again",
-              reflection_source: issue.reflection ? "child_input" : "slice4a_default",
-              approved_replacement_match: evidenceFlags.markedFixed,
-            },
-          };
-        },
-      );
-
-      const { error: attemptInsertError } = await supabase
-        .from("writing_issue_correction_attempts")
-        .insert(attemptRows);
-
-      if (attemptInsertError) {
-        redirect(
-          buildRedirectWithMessage(
-            redirectPath,
-            "error",
-            "Your work was saved, but the correction attempt history could not be linked yet.",
-          ),
-        );
-      }
-
-      const { error: issueUpdateError } = await supabase
-        .from("writing_issues")
-        .update({
-          issue_status: "child_responded",
-          child_responded_at: new Date().toISOString(),
-        })
-        .in(
-          "id",
-          issuesToRecord.map((issue) => issue.issue_id),
-        )
-        .eq("parent_user_id", user.id);
-
-      if (issueUpdateError) {
-        redirect(
-          buildRedirectWithMessage(
-            redirectPath,
-            "error",
-            "Your work was saved, but the returned writing issues could not be updated yet.",
-          ),
-        );
-      }
-
-      returnedCorrectionAttemptCount = issuesToRecord.length;
-      returnedGoldenNuggetsNeedingPracticeCount = correctionAttemptsToRecord.filter(
-        ({ issue, attemptedCorrection }) =>
-          doesReturnedCorrectionStillNeedPractice({ issue, attemptedCorrection }),
-      ).length;
-    }
+      lessonReviewSummary: safeLessonReviewSummary,
+      returnedWritingIssues,
+      taskType: task.task_type,
+      completionDate,
+    },
+  });
+  if (error || !data) {
+    console.error("[course-task-submission] atomic save failed", error);
+    redirect(buildRedirectWithMessage(redirectPath, "error", "We couldn't save that work just yet. Your answers are still here, so please try again."));
   }
 
-  await supabase.from("task_submission_drafts").upsert(
-    {
-      task_id: taskId,
-      course_id: courseId,
-      child_id: childId,
-      parent_user_id: user.id,
-      draft_text: safeSubmissionText,
-      draft_review_summary: safeLessonReviewSummary,
-      draft_payload: mergePreservedDraftMetadata(
-        {
-          ...persistedDraftPayload,
-          __writing_issue_feedback: returnedWritingIssues,
-        },
-        existingDraftRow?.draft_payload,
-      ),
-    },
-    { onConflict: "task_id,child_id" },
-  );
-
-  const awardedDailyCheckInCoin = await maybeAwardDailyCheckInCoins({
-    supabase,
-    parentUserId: user.id,
-    childId,
-    hadCourseLogTodayBeforeSave,
+  const result = data as unknown as CourseTaskSubmissionRpcResult;
+  if (!isUuid(result.submissionId)) {
+    redirect(buildRedirectWithMessage(redirectPath, "error", "We couldn't confirm that submission safely. Please reload before trying again."));
+  }
+  after(async () => {
+    await processTaskSubmission(result.submissionId);
   });
 
   revalidateLearnSurfacePaths(redirectPath);
   revalidatePath("/courses/review");
-  redirect(
-    buildRedirectWithMessage(
-      redirectPath,
-      "saved",
-      returnedCorrectionAttemptCount > 0
-        ? "returned_correction_submission"
-        : "submission",
-      returnedCorrectionAttemptCount > 0
-        ? task.gold_coin_reward_amount ?? 0
-        : awardedDailyCheckInCoin
-          ? 1
-          : undefined,
-      undefined,
-      returnedGoldenNuggetsNeedingPracticeCount,
-      returnedCorrectionAttemptCount > 0 ? undefined : suspectedGoldenBarCount,
-      returnedCorrectionAttemptCount > 0
-        ? returnedConfirmedGoldenBarCount
-        : undefined,
-    ),
-  );
+  redirect(buildRedirectWithMessage(redirectPath, "saved", "submission"));
 }
 
 export async function saveTaskDraft(formData: FormData) {
