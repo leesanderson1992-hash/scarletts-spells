@@ -1296,9 +1296,6 @@ export async function loadUnifiedSpellingReviewItemsForSubmission(input: {
 
   const correctionAttempts =
     (attemptRows ?? []) as unknown as UnifiedSpellingReviewCorrectionAttemptRow[];
-  const returnedWritingIssueIds = [
-    ...new Set(correctionAttempts.map((attempt) => attempt.writing_issue_id)),
-  ];
   const currentSubmissionRow = currentSubmission as TaskSubmissionThreadRow | null;
   const { data: threadSubmissionRows } =
     typeof currentSubmissionRow?.task_id === "string" &&
@@ -1316,6 +1313,30 @@ export async function loadUnifiedSpellingReviewItemsForSubmission(input: {
         .map((row) => row.id)
         .filter((id) => typeof id === "string" && id.length > 0),
     ),
+  ];
+  const { data: threadCorrectionAttemptRows } =
+    threadSubmissionIds.length > 0
+      ? await supabase
+          .from("writing_issue_correction_attempts")
+          .select(
+            "id, writing_issue_id, task_submission_id, attempted_correction, attempt_notes, reflection, metadata, created_at",
+          )
+          .eq("parent_user_id", input.parentUserId)
+          .eq("child_id", input.childId)
+          .in("task_submission_id", threadSubmissionIds)
+          .order("created_at", { ascending: false })
+      : { data: [] };
+  // A legacy double-submit can leave the child retry evidence on the earlier
+  // pending row while Review Work opens the later one. Treat the task's
+  // submission thread as the retry boundary so that evidence is never hidden.
+  const correctionAttemptsForThread =
+    (threadCorrectionAttemptRows ?? []) as unknown as UnifiedSpellingReviewCorrectionAttemptRow[];
+  const effectiveCorrectionAttempts =
+    correctionAttemptsForThread.length > 0
+      ? correctionAttemptsForThread
+      : correctionAttempts;
+  const returnedWritingIssueIds = [
+    ...new Set(effectiveCorrectionAttempts.map((attempt) => attempt.writing_issue_id)),
   ];
   const { data: returnedWritingIssueRows } =
     returnedWritingIssueIds.length > 0
@@ -1448,7 +1469,7 @@ export async function loadUnifiedSpellingReviewItemsForSubmission(input: {
     historicalParentVerifications,
     writingIssues:
       (writingIssueRows ?? []) as unknown as UnifiedSpellingReviewWritingIssueRow[],
-    correctionAttempts,
+    correctionAttempts: effectiveCorrectionAttempts,
     returnedWritingIssues,
     candidateMappings,
     catalogReviewCases,

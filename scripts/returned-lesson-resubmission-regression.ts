@@ -5,6 +5,10 @@ const actions = readFileSync("app/learn/actions.ts", "utf8");
 const reviewPage = readFileSync("app/courses/review/page.tsx", "utf8");
 const reviewUtils = readFileSync("app/courses/review/review-utils.ts", "utf8");
 const childQueries = readFileSync("lib/courses/queries.ts", "utf8");
+const unifiedReviewItems = readFileSync(
+  "lib/writing-engine/persistence/unified-spelling-review-items.ts",
+  "utf8",
+);
 const returnedResubmissionMigration = readFileSync(
   "supabase/migrations/20260721110000_allow_returned_task_resubmission_after_historical_pending.sql",
   "utf8",
@@ -60,6 +64,16 @@ assert.match(
   childQueries,
   /submitted_at, created_at, parent_review_status[\s\S]*\.order\("submitted_at", \{ ascending: false \}\)[\s\S]*\.order\("created_at", \{ ascending: false \}\)/,
   "Child lesson queries must use the same deterministic latest-submission ordering.",
+);
+assert.match(
+  submitAction,
+  /select\("id, parent_review_status, created_at"\)[\s\S]*\.order\("submitted_at", \{ ascending: false \}\)[\s\S]*\.order\("created_at", \{ ascending: false \}\)/,
+  "Submission preparation must select the newest row deterministically before deciding whether returned corrections apply.",
+);
+assert.match(
+  unifiedReviewItems,
+  /from\("writing_issue_correction_attempts"\)[\s\S]*\.in\("task_submission_id", threadSubmissionIds\)[\s\S]*correctionAttempts: effectiveCorrectionAttempts/,
+  "Parent review must reconcile correction attempts across a retry thread when a legacy duplicate submission exists.",
 );
 assert.match(
   returnedResubmissionMigration,

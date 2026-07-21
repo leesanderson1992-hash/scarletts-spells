@@ -521,11 +521,12 @@ export async function submitTaskResponse(formData: FormData) {
         .maybeSingle(),
       supabase
         .from("task_submissions")
-        .select("id, parent_review_status")
+        .select("id, parent_review_status, created_at")
         .eq("task_id", taskId)
         .eq("child_id", childId)
         .eq("parent_user_id", user.id)
         .order("submitted_at", { ascending: false })
+        .order("created_at", { ascending: false })
         .limit(1)
         .maybeSingle(),
       supabase
