@@ -5,6 +5,10 @@ const actions = readFileSync("app/learn/actions.ts", "utf8");
 const reviewPage = readFileSync("app/courses/review/page.tsx", "utf8");
 const reviewUtils = readFileSync("app/courses/review/review-utils.ts", "utf8");
 const childQueries = readFileSync("lib/courses/queries.ts", "utf8");
+const returnedResubmissionMigration = readFileSync(
+  "supabase/migrations/20260721110000_allow_returned_task_resubmission_after_historical_pending.sql",
+  "utf8",
+);
 
 const submitStart = actions.indexOf("export async function submitTaskResponse");
 const draftStart = actions.indexOf("export async function saveTaskDraft");
@@ -56,6 +60,11 @@ assert.match(
   childQueries,
   /submitted_at, created_at, parent_review_status[\s\S]*\.order\("submitted_at", \{ ascending: false \}\)[\s\S]*\.order\("created_at", \{ ascending: false \}\)/,
   "Child lesson queries must use the same deterministic latest-submission ordering.",
+);
+assert.match(
+  returnedResubmissionMigration,
+  /from public\.task_submissions[\s\S]*task_id = p_task_id[\s\S]*order by submitted_at desc, created_at desc[\s\S]*v_existing\.parent_review_status in \('pending', 'approved'\)/,
+  "Only the newest submission may block a returned lesson retry; historical active rows must not.",
 );
 
 console.log("Returned lesson resubmission regression passed.");
