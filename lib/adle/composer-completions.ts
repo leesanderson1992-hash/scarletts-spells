@@ -43,7 +43,6 @@ import type { TaughtWordEventKind, TaughtWordHistoryFact } from "./taught-word-h
 export interface TaughtWordHistoryWithAttempt extends TaughtWordHistoryFact {
   attemptText: string | null;
 }
-
 export interface OutcomeEventWithAttempt extends ReviewOutcomeEvent {
   attemptText: string | null;
 }
@@ -284,6 +283,9 @@ export interface ReviewSessionCompletionParams {
   /** canonical_word_id -> primary micro_skill_key, for ejection intake and
    * the reopen facts. Unknown words fail closed into unmappedEjections. */
   microSkillKeyByWordId: ReadonlyMap<string, string>;
+  /** Explicit shared-review route set. When present, transitions apply to
+   * every linked route while the word attempt remains singular. */
+  microSkillKeysByWordId?: ReadonlyMap<string, readonly string[]>;
   authenticUse?: AuthenticUseProvider;
 }
 
@@ -421,21 +423,26 @@ export function onReviewSessionCompleted(
     if (event.eventType !== "ejected") {
       continue;
     }
-    const microSkillKey = params.microSkillKeyByWordId.get(event.canonicalWordId);
-    if (microSkillKey === undefined) {
+    const microSkillKeys = params.microSkillKeysByWordId?.get(event.canonicalWordId) ??
+      (params.microSkillKeyByWordId.has(event.canonicalWordId)
+        ? [params.microSkillKeyByWordId.get(event.canonicalWordId) as string]
+        : []);
+    if (microSkillKeys.length === 0) {
       unmappedEjections.push(event.canonicalWordId);
       continue;
     }
-    itemIntakes.push(
-      learningItemFromEjection({
-        childId: params.childId,
-        canonicalWordId: event.canonicalWordId,
-        microSkillKey,
-        ejectedOn: params.completedOn,
-        ejectionSourceRef: params.sourceRef,
-        attemptText: attemptByWordId.get(event.canonicalWordId) ?? null,
-      }),
-    );
+    for (const microSkillKey of [...new Set(microSkillKeys)].sort()) {
+      itemIntakes.push(
+        learningItemFromEjection({
+          childId: params.childId,
+          canonicalWordId: event.canonicalWordId,
+          microSkillKey,
+          ejectedOn: params.completedOn,
+          ejectionSourceRef: params.sourceRef,
+          attemptText: attemptByWordId.get(event.canonicalWordId) ?? null,
+        }),
+      );
+    }
   }
 
   // 3+-wrong reopen rule (blueprint review session shape, rule 4).
@@ -445,7 +452,12 @@ export function onReviewSessionCompleted(
       ? [
           ...new Set(
             failedOutcomes
-              .map((outcome) => params.microSkillKeyByWordId.get(outcome.canonicalWordId))
+              .flatMap((outcome) =>
+                params.microSkillKeysByWordId?.get(outcome.canonicalWordId) ??
+                (params.microSkillKeyByWordId.has(outcome.canonicalWordId)
+                  ? [params.microSkillKeyByWordId.get(outcome.canonicalWordId) as string]
+                  : []),
+              )
               .filter((skill): skill is string => skill !== undefined),
           ),
         ].sort()
