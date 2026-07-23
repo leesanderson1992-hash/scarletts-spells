@@ -63,3 +63,19 @@ A post-delete audit returned zero rows for the fixture child, assignment, assign
 ## Release boundary
 
 The profile is staging-approved and remains `production_enabled = false`. It needs separate written production approval naming `D4_MOR_PREFIXES_SUB_INTER_SUPER`; this staging proof does not change any production database, production route gate, or other prefix profile.
+
+## Child-feedback correction addendum
+
+On 2026-07-23, a child completed a fresh staging assignment after the approved
+feedback correction. The correction package is
+`sub-inter-super-child-feedback-correction-package.json`, SHA-256
+`9d56d2807c80952cfbb8086fcb35230b487989b1866481e6bbaf893011502593`, applied
+in staging batch `3d826e0d-2084-4b9b-a081-a26d61430392`.
+
+It makes each profile example state its prefix meaning, adds a direct meaning-sort
+instruction, retains `nation` for discovery while building `inter + national`,
+and replaces Cover/Spell with an accessible left-to-right slide plus a delayed
+three-second **Cover the word** fallback. The child completed staging assignment
+`6327b25c-6ada-4134-a6d6-03b3cc2a2245`; staging deployment
+`dpl_23ibhXnptnHhjeVykwQaVbwGn3jj` was Ready. This confirms the correction in
+staging only and does not change the production-disabled profile state.
