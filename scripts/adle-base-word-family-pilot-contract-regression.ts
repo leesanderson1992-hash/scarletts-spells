@@ -21,10 +21,15 @@ assert(buildBaseWordFamilyPilotItems({ payload, childId: "child", parentUserId: 
 const migration = readFileSync("supabase/migrations/20260718110000_add_adle_base_word_family_pilot_guard.sql", "utf8");
 const interactiveMigration = readFileSync("supabase/migrations/20260719113000_update_adle_base_word_family_pilot_to_18_items.sql", "utf8");
 const expansionMigration = readFileSync("supabase/migrations/20260721130000_expand_base_word_family_runtime.sql", "utf8");
+const sharedRouteMigration = readFileSync("supabase/migrations/20260722200000_add_shared_route_base_word_completion.sql", "utf8");
+const loader = readFileSync("lib/adle/loaders/base-word-family-pilot-loader.ts", "utf8");
 assert(migration.includes("pilot_lesson_number between 1 and 5") && migration.includes("v_run_number > 5"), "database owns the five-lesson cap");
 assert(migration.includes("service_role") && migration.includes("enable row level security"), "pilot persistence remains service-only behind RLS");
 assert(migration.includes("complete_adle_base_word_family_pilot_v1") && migration.includes("exactly two authentic targets"), "base-word completion has its own atomic boundary");
 assert(migration.includes("Transfer words cannot enter base-word pilot scheduling") && migration.includes("record_adle_base_word_transfer_miss_v1"), "transfer misses are ledgered without adding transfer review work");
 assert(interactiveMigration.includes("p_items) <> 18") && interactiveMigration.includes("p_attempts) <> 18") && interactiveMigration.includes("lesson_production') <> 6"), "forward migration upgrades only the guarded pilot to the 18-item interactive shape");
 assert(expansionMigration.includes("pilot_lesson_number > 0") && expansionMigration.includes("D4_MOR_BASE_WORDS_IDENTIFY_BASE") && expansionMigration.includes("five-lesson cap"), "forward migration removes the cap and allows only the reviewed base-word micro-skills");
+assert(sharedRouteMigration.includes("complete_adle_base_word_family_pilot_v2") && sharedRouteMigration.includes("reactivated_for_new_skill"), "V2 atomically owns shared-route reactivation");
+assert(sharedRouteMigration.includes("item.item_status <> 'resolved'") && sharedRouteMigration.includes("multi-route schedule is incomplete and has failed closed"), "V2 derives active route truth and fails closed on incomplete linkage");
+assert(loader.includes('rpc("complete_adle_base_word_family_pilot_v2"'), "new Base Word Lab completions use the shared-route V2 RPC");
 console.log("adle-base-word-family-pilot-contract-regression: ok");
