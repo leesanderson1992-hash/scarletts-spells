@@ -1,0 +1,28 @@
+{
+  "packageKey": "adle_d4_dynamic_prefix_sub_inter_super_staging_correction_2026_07_23",
+  "profileKey": "D4_MOR_PREFIXES_SUB_INTER_SUPER",
+  "environment": "staging",
+  "targetProjectRef": "jlhotktspjvffslvuyfz",
+  "activation": { "production": false, "createsLearningItems": false, "createsAssignments": false, "createsEvidence": false, "createsSchedules": false },
+  "basePackage": { "sha256": "d5d4b9df9c399db66a143ed86af55db58fa8ba7595a6e8263821693ba4641916" },
+  "profile": {
+    "introContent": {
+      "title": "Meet the sub-, inter- and super- prefix family",
+      "paragraphs": ["These prefixes can tell us about position, connection or going beyond something."],
+      "examples": [
+        { "prefix": "sub-", "base": "marine", "word": "submarine", "meaning": "A submarine is a boat that travels under the sea." },
+        { "prefix": "inter-", "base": "national", "word": "international", "meaning": "International means involving more than one country." },
+        { "prefix": "super-", "base": "hero", "word": "superhero", "meaning": "A superhero is a hero with special powers." }
+      ]
+    },
+    "meaningBins": [
+      { "id": "under", "label": "Under", "description": "" },
+      { "id": "between", "label": "Between", "description": "" },
+      { "id": "above_beyond", "label": "Above or beyond", "description": "" }
+    ],
+    "prefixChoices": ["sub", "inter", "super"],
+    "reflection": "What position, connection or extra meaning did each prefix add?"
+  },
+  "words": ["interact", "international", "subheading", "submarine", "subway", "superhero", "supermarket"],
+  "review": { "approvedBy": "Katie Sanderson", "approvedOn": "2026-07-23", "note": "Profile-only correction. Existing canonical rows, true morphology, pronunciation, dictation, bands and teaching splits remain unchanged." }
+}

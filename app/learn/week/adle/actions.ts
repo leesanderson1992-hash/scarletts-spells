@@ -56,6 +56,8 @@ import {
   persistReviewSessionCompletion,
 } from "@/lib/adle/loaders/session-completion-loader";
 import { isMorphologyUnPilotEnabledForChild } from "@/lib/adle/morphology/pilot-access";
+import { resolveDynamicPrefixRuntime } from "@/lib/adle/morphology/dynamic-prefix-runtime";
+import { isDynamicPrefixRouteEnabled } from "@/lib/adle/morphology/dynamic-prefix-staging-access";
 import { extractAuthoredTargetToken, resolveMorphologyPilotRuntime, type MorphologyLessonPayloadV1 } from "@/lib/adle/morphology/payload";
 import { isBaseWordFamilyPilotEnabledForChild } from "@/lib/adle/morphology/base-word-family-pilot-access";
 import { resolveBaseWordFamilyPilotRuntime } from "@/lib/adle/morphology/base-word-family-pilot-contract";
@@ -292,6 +294,7 @@ export async function completeAdleReviewPartAction(formData: FormData) {
   const reflectionItems = readModel.partOne.items.filter((item) => item.sectionKey === "review_reflection");
   const outcomes: ReviewItemOutcome[] = [];
   const microSkillKeyByWordId = new Map<string, string>();
+  const microSkillKeysByWordId = new Map<string, readonly string[]>();
   for (const item of productionItems) {
     const canonicalWordId = item.canonicalWordId as string;
     const attemptText = attempts.get(canonicalWordId) ?? "";
@@ -310,6 +313,10 @@ export async function completeAdleReviewPartAction(formData: FormData) {
     });
     if (item.microSkillKey !== null) {
       microSkillKeyByWordId.set(canonicalWordId, item.microSkillKey);
+    }
+    const linkedSkillKeys = item.promptData.microSkillKeys;
+    if (Array.isArray(linkedSkillKeys) && linkedSkillKeys.every((key) => typeof key === "string")) {
+      microSkillKeysByWordId.set(canonicalWordId, [...new Set(linkedSkillKeys)].sort());
     }
   }
   if (outcomes.length === 0) {
@@ -373,6 +380,7 @@ export async function completeAdleReviewPartAction(formData: FormData) {
     scheduleWords,
     outcomes,
     microSkillKeyByWordId,
+    microSkillKeysByWordId,
     authenticUse: authenticUseProviderFromFacts(authenticUseEvents),
   });
 
@@ -437,9 +445,14 @@ export async function completeAdleLessonPartAction(formData: FormData) {
     isMorphologyUnPilotEnabledForChild(childId),
     readModel.partTwo.items,
   );
+  const dynamicPrefix = resolveDynamicPrefixRuntime(
+    isDynamicPrefixRouteEnabled(),
+    readModel.partTwo.items,
+  );
+  const wordLabPayload = dynamicPrefix ?? morphologyPilot;
   const atomicWordLabCompletionEnabled = process.env.ADLE_WORD_LAB_ATOMIC_COMPLETION_ENABLED === "enabled";
   const learningReflection = readFormValue(formData, "learningReflection");
-  if (readModel.partTwo.complete && morphologyPilot === null) {
+  if (readModel.partTwo.complete && wordLabPayload === null) {
     finishWith(context, "Today's lesson is already recorded.");
   }
 
@@ -447,13 +460,13 @@ export async function completeAdleLessonPartAction(formData: FormData) {
   // the completion already landed — re-mark the items and stop.
   const taughtCompletionExists = await timer.measure("retry_guard", () =>
     hasTaughtEventsForSourceRef(serviceClient, childId, lessonSourceRef));
-  if (taughtCompletionExists && morphologyPilot !== null && !atomicWordLabCompletionEnabled) {
-    await timer.measure("reflection_persistence", () => persistMorphologyReflection(context, morphologyPilot, learningReflection));
+  if (taughtCompletionExists && wordLabPayload !== null && !atomicWordLabCompletionEnabled) {
+    await timer.measure("reflection_persistence", () => persistMorphologyReflection(context, wordLabPayload, learningReflection));
     await timer.measure("assignment_completion", () => markItemsCompleted(context, readModel.partTwo.items));
     scheduleLessonReward(context, productionItems, timer);
     finishWith(context, "Today's lesson is already recorded.", completionTraceId, timer, "batched_retry");
   }
-  if (taughtCompletionExists && morphologyPilot === null) {
+  if (taughtCompletionExists && wordLabPayload === null) {
     await markItemsCompleted(context, readModel.partTwo.items);
     finishWith(context, "Today's lesson is already recorded.");
   }
@@ -467,8 +480,12 @@ export async function completeAdleLessonPartAction(formData: FormData) {
   const dictationItems = readModel.partTwo.items.filter(
     (item) => item.sectionKey === "lesson_dictation" && item.canonicalWordId !== null,
   );
-  if (morphologyPilot !== null && atomicWordLabCompletionEnabled) {
-    const sentenceActivity = morphologyPilot.activities.find((activity) => activity.type === "sentence_dictation");
+  // Both immutable Word Lab versions derive correctness from the reviewed
+  // sentence token.  Only the legacy v1 payload can use its deliberately
+  // exact-snapshot atomic RPC; v2 uses the established durable write contract
+  // below, whose bindings are validated against its generic snapshot.
+  if (wordLabPayload !== null) {
+    const sentenceActivity = wordLabPayload.activities.find((activity) => activity.type === "sentence_dictation");
     const derived = new Map<string, string>();
     for (const sentence of sentenceActivity?.sentences ?? []) {
       const rawAttempt = dictationSentenceAttempts.get(sentence.canonicalWordId) ?? "";
@@ -509,13 +526,14 @@ export async function completeAdleLessonPartAction(formData: FormData) {
   }
   const learningItems = ((learningItemRows.data ?? []) as LearningItemRow[]).map(learningItemFromRow);
 
+  const scheduledProductionItems = dynamicPrefix === null ? productionItems : productionItems.filter((item) => item.adleLearningItemRef !== null);
   const lessonResult = onLessonCompleted(policy, {
     childId,
     microSkillKey,
     completedOn: planDate,
     sourceRef: lessonSourceRef,
     bundleId: randomUUID(),
-    producedWords,
+    producedWords: producedWords.filter((word) => scheduledProductionItems.some((item) => item.canonicalWordId === word.canonicalWordId)),
     learningItems,
   });
   const attemptEvents = buildLessonAttemptEvents({
@@ -524,12 +542,12 @@ export async function completeAdleLessonPartAction(formData: FormData) {
     items: readModel.partTwo.items,
     controlledAttempts,
     dictationAttempts,
-    dictationRawAttempts: morphologyPilot === null ? undefined : dictationSentenceAttempts,
+    dictationRawAttempts: wordLabPayload === null ? undefined : dictationSentenceAttempts,
     guidedAttempts,
     probeAttempts,
   });
 
-  if (morphologyPilot !== null && atomicWordLabCompletionEnabled) {
+  if (morphologyPilot !== null && dynamicPrefix === null && atomicWordLabCompletionEnabled) {
     const reflection = buildMorphologyReflection(context, morphologyPilot, learningReflection);
     const result = await timer.measure("atomic_durable_completion", () => persistWordLabCompletion(serviceClient, {
       parentUserId: context.parentUserId,
@@ -553,11 +571,11 @@ export async function completeAdleLessonPartAction(formData: FormData) {
     );
   }
 
-  if (morphologyPilot !== null) {
+  if (wordLabPayload !== null) {
     await Promise.all([
       timer.measure("attempt_persistence", () => insertAssignmentAttemptEvents(serviceClient, attemptEvents)),
       timer.measure("lesson_persistence", () => persistLessonCompletion(serviceClient, lessonResult)),
-      timer.measure("reflection_persistence", () => persistMorphologyReflection(context, morphologyPilot, learningReflection)),
+      timer.measure("reflection_persistence", () => persistMorphologyReflection(context, wordLabPayload, learningReflection)),
     ]);
     await timer.measure("assignment_completion", () => markItemsCompleted(context, readModel.partTwo.items));
     scheduleLessonReward(context, productionItems, timer);

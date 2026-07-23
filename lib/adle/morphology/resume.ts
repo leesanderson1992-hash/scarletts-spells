@@ -16,7 +16,9 @@ export interface MorphologyLessonResumeState {
   discoverAddedPrefix: boolean;
   splitMisses: number;
   splitCorrect: boolean;
+  splitIndex: number;
   matchComplete: boolean;
+  buildIndex: number;
   controlledIndex: number;
   dictationIndex: number;
   controlledAttempts: Record<string, string>;
@@ -51,6 +53,8 @@ export function normaliseMorphologyLessonResume(
   if (!isRecord(value) || !LESSON_STAGES.includes(value.stage as MorphologyLessonStage)) return null;
   if (!Number.isInteger(value.introIndex) || Number(value.introIndex) < 0 || Number(value.introIndex) > 2 || !Number.isInteger(value.discoverIndex) || Number(value.discoverIndex) < 0 || Number(value.discoverIndex) > 3 || !Number.isInteger(value.splitMisses) || Number(value.splitMisses) < 0 || Number(value.splitMisses) > 2 || !Number.isInteger(value.controlledIndex) || Number(value.controlledIndex) < 0 || Number(value.controlledIndex) > 3 || !Number.isInteger(value.dictationIndex) || Number(value.dictationIndex) < 0 || Number(value.dictationIndex) > 3 || !Number.isInteger(value.helpLevel) || Number(value.helpLevel) < 0 || Number(value.helpLevel) > 2) return null;
   if (typeof value.discoverAddedPrefix !== "boolean" || typeof value.splitCorrect !== "boolean" || typeof value.matchComplete !== "boolean" || typeof value.checkedSentence !== "boolean" || typeof value.muted !== "boolean" || typeof value.reflectionText !== "string" || value.reflectionText.length > 2000 || !isStringRecord(value.controlledAttempts) || !isBooleanRecord(value.controlledChecked) || !isStringRecord(value.sentenceAttempts) || !Array.isArray(value.guidedBindings) || !value.guidedBindings.every((entry) => typeof entry === "string")) return null;
+  if (value.splitIndex !== undefined && (!Number.isInteger(value.splitIndex) || Number(value.splitIndex) < 0 || Number(value.splitIndex) > 3)) return null;
+  if (value.buildIndex !== undefined && (!Number.isInteger(value.buildIndex) || Number(value.buildIndex) < 0 || Number(value.buildIndex) > 3)) return null;
   const wordIds = new Set(canonicalWordIds);
   if (Object.keys(value.controlledAttempts).some((id) => !wordIds.has(id)) || Object.keys(value.controlledChecked).some((id) => !wordIds.has(id)) || Object.keys(value.sentenceAttempts).some((id) => !wordIds.has(id))) return null;
   const bindingSet = new Set(validGuidedBindings);
@@ -62,7 +66,9 @@ export function normaliseMorphologyLessonResume(
     discoverAddedPrefix: value.discoverAddedPrefix,
     splitMisses: Number(value.splitMisses),
     splitCorrect: value.splitCorrect,
+    splitIndex: value.splitIndex === undefined ? 0 : Number(value.splitIndex),
     matchComplete: value.matchComplete,
+    buildIndex: value.buildIndex === undefined ? 0 : Number(value.buildIndex),
     controlledIndex: Number(value.controlledIndex),
     dictationIndex: Number(value.dictationIndex),
     controlledAttempts: value.controlledAttempts,
@@ -94,7 +100,10 @@ export function normaliseMorphologyLessonResume(
 }
 
 export function morphologyResumeKey(assignmentId: string, contentVersion: string): string {
-  return `adle:morphology-un:${assignmentId}:1:${contentVersion}`;
+  // Keep the legacy v1 key stable so historical un- snapshots resume exactly
+  // as they did before the profile-driven runtime was introduced.
+  const namespace = contentVersion === "d4_mor_prefix_word_lab_v2" ? "prefix" : "un";
+  return `adle:morphology-${namespace}:${assignmentId}:1:${contentVersion}`;
 }
 
 export function serialiseMorphologyResume<T>(contentVersion: string, state: T, now = Date.now()): string {

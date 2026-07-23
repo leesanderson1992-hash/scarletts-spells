@@ -1,0 +1,12 @@
+{
+  "status": "applied_and_verified",
+  "environment": "staging",
+  "projectRef": "jlhotktspjvffslvuyfz",
+  "importBatchId": "dd7da3f9-a615-4051-bcdb-769c0651ead9",
+  "packageSha256": "a34cac1428023d2f6e0a5285cdf926c62615909c2d6942e84e8357ecf0a12854",
+  "created": { "canonicalWords": 15, "profiles": 4, "members": 28 },
+  "retained": { "completeCanonicalWords": 13 },
+  "profileProductionEnabled": false,
+  "prohibitedWrites": { "production": 0, "learningItems": 0, "assignments": 0, "evidence": 0, "scheduling": 0 },
+  "verification": { "packageValidation": "passed", "postImportCounts": "passed", "profileMembership": "passed" }
+}

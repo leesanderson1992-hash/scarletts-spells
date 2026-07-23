@@ -1,0 +1,4184 @@
+{
+  "packageKey": "adle_d4_dynamic_prefix_reviewed_staging_2026_07_22",
+  "activation": {
+    "production": false,
+    "createsLearningItems": false,
+    "createsAssignments": false
+  },
+  "sources": {
+    "britishIpa": {
+      "url": "https://github.com/open-dict-data/ipa-dict/blob/master/data/en_UK.txt",
+      "sha256": "221394caef0cf723b4f2df81a98ac33191293257b88aed5b1fb89466d3a0dc77"
+    },
+    "cmuDict": {
+      "url": "https://github.com/cmusphinx/cmudict",
+      "sha256": "81917843c7f44ce2b094ac63873c2c7a4cf802040792c455ba3ca406891c3d22"
+    },
+    "humanApprovals": "Dynamic Prefix profile review and owner-approved morphology/teaching ages"
+  },
+  "profiles": {
+    "D4_MOR_PREFIXES_DIS_MIS": {
+      "label": "dis- and mis-",
+      "text": "mixed",
+      "meaning": "not/opposite or wrongly/badly",
+      "bins": [
+        [
+          "not_or_opposite",
+          "Not or opposite",
+          "dis- means not or the opposite"
+        ],
+        [
+          "wrongly_or_badly",
+          "Wrongly or badly",
+          "mis- means wrongly or badly"
+        ]
+      ],
+      "choices": [
+        "dis",
+        "mis"
+      ],
+      "reflection": "How did dis- and mis- change the meaning of the base word?"
+    },
+    "D4_MOR_PREFIXES_IN_IM_IL_IR": {
+      "label": "in-, im-, il- and ir-",
+      "text": "mixed",
+      "meaning": "not",
+      "bins": [
+        [
+          "in_im",
+          "in-/im- form",
+          "not"
+        ],
+        [
+          "il",
+          "il- form",
+          "not"
+        ],
+        [
+          "ir",
+          "ir- form",
+          "not"
+        ]
+      ],
+      "choices": [
+        "in",
+        "im",
+        "il",
+        "ir"
+      ],
+      "reflection": "Which form of the \u2018not\u2019 prefix did each base word need?"
+    },
+    "D4_MOR_PREFIXES_RE_PRE": {
+      "label": "re- and pre-",
+      "text": "mixed",
+      "meaning": "again/back or before",
+      "bins": [
+        [
+          "again_back",
+          "Again/back",
+          "re- means again or back"
+        ],
+        [
+          "before",
+          "Before",
+          "pre- means before"
+        ]
+      ],
+      "choices": [
+        "re",
+        "pre"
+      ],
+      "reflection": "When did the prefix mean \u2018again/back\u2019, and when did it mean \u2018before\u2019?"
+    },
+    "D4_MOR_PREFIXES_SUB_INTER_SUPER": {
+      "label": "sub-, inter- and super-",
+      "text": "mixed",
+      "meaning": "under, between or above/beyond",
+      "bins": [
+        [
+          "under",
+          "Under",
+          "sub- means under"
+        ],
+        [
+          "between",
+          "Between",
+          "inter- means between"
+        ],
+        [
+          "above_beyond",
+          "Above or beyond",
+          "super- means above or beyond"
+        ]
+      ],
+      "choices": [
+        "sub",
+        "inter",
+        "super"
+      ],
+      "reflection": "What position or amount did each longer prefix add?"
+    }
+  },
+  "words": [
+    {
+      "wordKey": "disagree_en_gb",
+      "word": "disagree",
+      "microSkillKey": "D4_MOR_PREFIXES_DIS_MIS",
+      "canonical": {
+        "dialect": "en-GB",
+        "frequencyBand": "high",
+        "ageBand": "middle_primary",
+        "complexityBand": "high"
+      },
+      "trueMorphology": {
+        "humanApprovedText": "Prefix: dis + Base: agree",
+        "orderedParts": [
+          {
+            "id": "part_1",
+            "kind": "prefix",
+            "morphemeKey": "prefix_DIS",
+            "sourceText": "dis",
+            "surfaceText": "dis",
+            "gloss": "not",
+            "displayRange": {
+              "start": 0,
+              "end": 3
+            },
+            "source": {
+              "morphemesJsonIndex": 0
+            }
+          },
+          {
+            "id": "part_2",
+            "kind": "base",
+            "morphemeKey": null,
+            "sourceText": "agree",
+            "surfaceText": "agree",
+            "gloss": "",
+            "displayRange": {
+              "start": 3,
+              "end": 8
+            },
+            "source": {
+              "morphemesJsonIndex": 1
+            }
+          }
+        ],
+        "joins": [
+          {
+            "afterPartId": "part_1",
+            "beforePartId": "part_2",
+            "joinType": "none",
+            "surfaceText": "",
+            "displayRange": {
+              "start": 3,
+              "end": 3
+            }
+          }
+        ],
+        "transformationNotes": "",
+        "provenance": {
+          "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+          "sheet": "Word Bank",
+          "row": 45
+        }
+      },
+      "teaching": {
+        "splitParts": [
+          {
+            "id": "part_1",
+            "kind": "prefix",
+            "morphemeKey": "prefix_DIS",
+            "sourceText": "dis",
+            "surfaceText": "dis",
+            "gloss": "not",
+            "displayRange": {
+              "start": 0,
+              "end": 3
+            },
+            "source": {
+              "morphemesJsonIndex": 0
+            }
+          },
+          {
+            "id": "part_2",
+            "kind": "base",
+            "morphemeKey": null,
+            "sourceText": "agree",
+            "surfaceText": "agree",
+            "gloss": "",
+            "displayRange": {
+              "start": 3,
+              "end": 8
+            },
+            "source": {
+              "morphemesJsonIndex": 1
+            }
+          }
+        ],
+        "splitJoins": [
+          {
+            "afterPartId": "part_1",
+            "beforePartId": "part_2",
+            "joinType": "none",
+            "surfaceText": "",
+            "displayRange": {
+              "start": 3,
+              "end": 3
+            }
+          }
+        ],
+        "prefixVariant": "dis",
+        "cleaverBoundary": 3,
+        "baseOrRoot": "agree",
+        "baseMeaning": "having the same opinion",
+        "childFriendlyMeaning": "not having the same opinion",
+        "meaningBin": "not_or_opposite"
+      },
+      "pronunciation": {
+        "source": "british_ipa",
+        "ipa": "/d\u02cc\u026as\u0250\u0261\u0279\u02c8i\u02d0/",
+        "cmu": "D IH0 S AH0 G R IY1",
+        "ipaVariantCount": 1,
+        "syllables": 3,
+        "stressPattern": "unstressed-unstressed-primary",
+        "hasSchwa": true,
+        "phonemeCount": 9,
+        "approvalSafety": "safe_to_approve_candidate"
+      },
+      "complexityPreview": {
+        "version": "banding_v1.1_2026-07-04.preview",
+        "inputComplete": true,
+        "letterCount": 8,
+        "morphologyDepth": 2,
+        "irregularityBand": 0,
+        "structuralScore": 6,
+        "complexityLevel": 3,
+        "status": "preview_only"
+      },
+      "dictation": {
+        "sentence": "They disagree about the game.",
+        "targetTokenIndex": 1,
+        "audioText": "They disagree about the game."
+      },
+      "reviews": {
+        "status": "approved_for_guided_review"
+      }
+    },
+    {
+      "wordKey": "disappear_en_gb",
+      "word": "disappear",
+      "microSkillKey": "D4_MOR_PREFIXES_DIS_MIS",
+      "canonical": {
+        "dialect": "en-GB",
+        "frequencyBand": "high",
+        "ageBand": "middle_primary",
+        "complexityBand": "high"
+      },
+      "trueMorphology": {
+        "humanApprovedText": "Prefix: dis + Base: appear",
+        "orderedParts": [
+          {
+            "id": "part_1",
+            "kind": "prefix",
+            "morphemeKey": "prefix_DIS",
+            "sourceText": "dis",
+            "surfaceText": "dis",
+            "gloss": "opposite of",
+            "displayRange": {
+              "start": 0,
+              "end": 3
+            },
+            "source": {
+              "morphemesJsonIndex": 0
+            }
+          },
+          {
+            "id": "part_2",
+            "kind": "base",
+            "morphemeKey": null,
+            "sourceText": "appear",
+            "surfaceText": "appear",
+            "gloss": "",
+            "displayRange": {
+              "start": 3,
+              "end": 9
+            },
+            "source": {
+              "morphemesJsonIndex": 1
+            }
+          }
+        ],
+        "joins": [
+          {
+            "afterPartId": "part_1",
+            "beforePartId": "part_2",
+            "joinType": "none",
+            "surfaceText": "",
+            "displayRange": {
+              "start": 3,
+              "end": 3
+            }
+          }
+        ],
+        "transformationNotes": "",
+        "provenance": {
+          "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+          "sheet": "Word Bank",
+          "row": 46
+        }
+      },
+      "teaching": {
+        "splitParts": [
+          {
+            "id": "part_1",
+            "kind": "prefix",
+            "morphemeKey": "prefix_DIS",
+            "sourceText": "dis",
+            "surfaceText": "dis",
+            "gloss": "opposite of",
+            "displayRange": {
+              "start": 0,
+              "end": 3
+            },
+            "source": {
+              "morphemesJsonIndex": 0
+            }
+          },
+          {
+            "id": "part_2",
+            "kind": "base",
+            "morphemeKey": null,
+            "sourceText": "appear",
+            "surfaceText": "appear",
+            "gloss": "",
+            "displayRange": {
+              "start": 3,
+              "end": 9
+            },
+            "source": {
+              "morphemesJsonIndex": 1
+            }
+          }
+        ],
+        "splitJoins": [
+          {
+            "afterPartId": "part_1",
+            "beforePartId": "part_2",
+            "joinType": "none",
+            "surfaceText": "",
+            "displayRange": {
+              "start": 3,
+              "end": 3
+            }
+          }
+        ],
+        "prefixVariant": "dis",
+        "cleaverBoundary": 3,
+        "baseOrRoot": "appear",
+        "baseMeaning": "come into sight",
+        "childFriendlyMeaning": "go out of sight",
+        "meaningBin": "not_or_opposite"
+      },
+      "pronunciation": {
+        "source": "british_ipa",
+        "ipa": "/d\u02cc\u026as\u0250p\u02c8i\u0259/",
+        "cmu": "D IH2 S AH0 P IH1 R",
+        "ipaVariantCount": 1,
+        "syllables": 3,
+        "stressPattern": "unstressed-unstressed-primary",
+        "hasSchwa": true,
+        "phonemeCount": 9,
+        "approvalSafety": "in_review"
+      },
+      "complexityPreview": {
+        "version": "banding_v1.1_2026-07-04.preview",
+        "inputComplete": true,
+        "letterCount": 9,
+        "morphologyDepth": 2,
+        "irregularityBand": 0,
+        "structuralScore": 7,
+        "complexityLevel": 3,
+        "status": "preview_only"
+      },
+      "dictation": {
+        "sentence": "The rabbit can disappear behind the hedge.",
+        "targetTokenIndex": 3,
+        "audioText": "The rabbit can disappear behind the hedge."
+      },
+      "reviews": {
+        "status": "approved_for_guided_review"
+      }
+    },
+    {
+      "wordKey": "dishonest_en_gb",
+      "word": "dishonest",
+      "microSkillKey": "D4_MOR_PREFIXES_DIS_MIS",
+      "canonical": {
+        "dialect": "en-GB",
+        "frequencyBand": "medium",
+        "ageBand": "middle_primary",
+        "complexityBand": "high"
+      },
+      "trueMorphology": {
+        "humanApprovedText": "Prefix: dis + Base: honest",
+        "orderedParts": [
+          {
+            "id": "part_1",
+            "kind": "prefix",
+            "morphemeKey": "prefix_DIS",
+            "sourceText": "dis",
+            "surfaceText": "dis",
+            "gloss": "not",
+            "displayRange": {
+              "start": 0,
+              "end": 3
+            },
+            "source": {
+              "morphemesJsonIndex": 0
+            }
+          },
+          {
+            "id": "part_2",
+            "kind": "base",
+            "morphemeKey": null,
+            "sourceText": "honest",
+            "surfaceText": "honest",
+            "gloss": "",
+            "displayRange": {
+              "start": 3,
+              "end": 9
+            },
+            "source": {
+              "morphemesJsonIndex": 1
+            }
+          }
+        ],
+        "joins": [
+          {
+            "afterPartId": "part_1",
+            "beforePartId": "part_2",
+            "joinType": "none",
+            "surfaceText": "",
+            "displayRange": {
+              "start": 3,
+              "end": 3
+            }
+          }
+        ],
+        "transformationNotes": "",
+        "provenance": {
+          "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+          "sheet": "Word Bank",
+          "row": 47
+        }
+      },
+      "teaching": {
+        "splitParts": [
+          {
+            "id": "part_1",
+            "kind": "prefix",
+            "morphemeKey": "prefix_DIS",
+            "sourceText": "dis",
+            "surfaceText": "dis",
+            "gloss": "not",
+            "displayRange": {
+              "start": 0,
+              "end": 3
+            },
+            "source": {
+              "morphemesJsonIndex": 0
+            }
+          },
+          {
+            "id": "part_2",
+            "kind": "base",
+            "morphemeKey": null,
+            "sourceText": "honest",
+            "surfaceText": "honest",
+            "gloss": "",
+            "displayRange": {
+              "start": 3,
+              "end": 9
+            },
+            "source": {
+              "morphemesJsonIndex": 1
+            }
+          }
+        ],
+        "splitJoins": [
+          {
+            "afterPartId": "part_1",
+            "beforePartId": "part_2",
+            "joinType": "none",
+            "surfaceText": "",
+            "displayRange": {
+              "start": 3,
+              "end": 3
+            }
+          }
+        ],
+        "prefixVariant": "dis",
+        "cleaverBoundary": 3,
+        "baseOrRoot": "honest",
+        "baseMeaning": "tell the truth and do what is right",
+        "childFriendlyMeaning": "not honest",
+        "meaningBin": "not_or_opposite"
+      },
+      "pronunciation": {
+        "source": "british_ipa",
+        "ipa": "/d\u026as\u02c8\u0252n\u026ast/",
+        "cmu": "D IH0 S AA1 N AH0 S T",
+        "ipaVariantCount": 1,
+        "syllables": 3,
+        "stressPattern": "unstressed-primary-unstressed",
+        "hasSchwa": false,
+        "phonemeCount": 9,
+        "approvalSafety": "in_review"
+      },
+      "complexityPreview": {
+        "version": "banding_v1.1_2026-07-04.preview",
+        "inputComplete": true,
+        "letterCount": 9,
+        "morphologyDepth": 2,
+        "irregularityBand": 0,
+        "structuralScore": 6,
+        "complexityLevel": 3,
+        "status": "preview_only"
+      },
+      "dictation": {
+        "sentence": "It is dishonest to tell a lie.",
+        "targetTokenIndex": 2,
+        "audioText": "It is dishonest to tell a lie."
+      },
+      "reviews": {
+        "status": "approved_for_guided_review"
+      }
+    },
+    {
+      "wordKey": "dissatisfied_en_gb",
+      "word": "dissatisfied",
+      "microSkillKey": "D4_MOR_PREFIXES_DIS_MIS",
+      "canonical": {
+        "dialect": "en-GB",
+        "frequencyBand": "medium",
+        "ageBand": "middle_primary",
+        "complexityBand": "high"
+      },
+      "trueMorphology": {
+        "humanApprovedText": "Prefix: dis + Base: satisfy + Suffix: ed",
+        "orderedParts": [
+          {
+            "id": "part_1",
+            "kind": "prefix",
+            "morphemeKey": "prefix_DIS",
+            "sourceText": "dis",
+            "surfaceText": "dis",
+            "gloss": "not",
+            "displayRange": {
+              "start": 0,
+              "end": 3
+            },
+            "source": {
+              "morphemesJsonIndex": 0
+            }
+          },
+          {
+            "id": "part_2",
+            "kind": "base",
+            "morphemeKey": null,
+            "sourceText": "satisfied",
+            "surfaceText": "satisfied",
+            "gloss": "",
+            "displayRange": {
+              "start": 3,
+              "end": 12
+            },
+            "source": {
+              "morphemesJsonIndex": 1
+            }
+          }
+        ],
+        "joins": [
+          {
+            "afterPartId": "part_1",
+            "beforePartId": "part_2",
+            "joinType": "none",
+            "surfaceText": "",
+            "displayRange": {
+              "start": 3,
+              "end": 3
+            }
+          }
+        ],
+        "transformationNotes": "Change final y to i before adding -ed; keep both s letters where dis and satisfy meet.",
+        "provenance": {
+          "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+          "sheet": "Word Bank",
+          "row": 50
+        }
+      },
+      "teaching": {
+        "splitParts": [
+          {
+            "id": "part_1",
+            "kind": "prefix",
+            "morphemeKey": "prefix_DIS",
+            "sourceText": "dis",
+            "surfaceText": "dis",
+            "gloss": "not",
+            "displayRange": {
+              "start": 0,
+              "end": 3
+            },
+            "source": {
+              "morphemesJsonIndex": 0
+            }
+          },
+          {
+            "id": "part_2",
+            "kind": "base",
+            "morphemeKey": null,
+            "sourceText": "satisfied",
+            "surfaceText": "satisfied",
+            "gloss": "",
+            "displayRange": {
+              "start": 3,
+              "end": 12
+            },
+            "source": {
+              "morphemesJsonIndex": 1
+            }
+          }
+        ],
+        "splitJoins": [
+          {
+            "afterPartId": "part_1",
+            "beforePartId": "part_2",
+            "joinType": "none",
+            "surfaceText": "",
+            "displayRange": {
+              "start": 3,
+              "end": 3
+            }
+          }
+        ],
+        "prefixVariant": "dis",
+        "cleaverBoundary": 3,
+        "baseOrRoot": "satisfy",
+        "baseMeaning": "please or give what is needed",
+        "childFriendlyMeaning": "not pleased",
+        "meaningBin": "not_or_opposite"
+      },
+      "pronunciation": {
+        "source": "british_ipa",
+        "ipa": "/d\u026as\u02c8\u00e6t\u026asf\u02cca\u026ad/",
+        "cmu": "D IH0 S AE1 T AH0 S F AY2 D",
+        "ipaVariantCount": 1,
+        "syllables": 4,
+        "stressPattern": "unstressed-primary-unstressed-unstressed",
+        "hasSchwa": false,
+        "phonemeCount": 12,
+        "approvalSafety": "in_review"
+      },
+      "complexityPreview": {
+        "version": "banding_v1.1_2026-07-04.preview",
+        "inputComplete": true,
+        "letterCount": 12,
+        "morphologyDepth": 3,
+        "irregularityBand": 1,
+        "structuralScore": 10,
+        "complexityLevel": 3,
+        "status": "preview_only"
+      },
+      "dictation": {
+        "sentence": "She felt dissatisfied with the untidy work.",
+        "targetTokenIndex": 2,
+        "audioText": "She felt dissatisfied with the untidy work."
+      },
+      "reviews": {
+        "status": "approved_for_guided_review"
+      }
+    },
+    {
+      "wordKey": "misbehave_en_gb",
+      "word": "misbehave",
+      "microSkillKey": "D4_MOR_PREFIXES_DIS_MIS",
+      "canonical": {
+        "dialect": "en-GB",
+        "frequencyBand": "low",
+        "ageBand": "middle_primary",
+        "complexityBand": "high"
+      },
+      "trueMorphology": {
+        "humanApprovedText": "Prefix: mis + Base: behave",
+        "orderedParts": [
+          {
+            "id": "part_1",
+            "kind": "prefix",
+            "morphemeKey": "prefix_MIS",
+            "sourceText": "mis",
+            "surfaceText": "mis",
+            "gloss": "badly",
+            "displayRange": {
+              "start": 0,
+              "end": 3
+            },
+            "source": {
+              "morphemesJsonIndex": 0
+            }
+          },
+          {
+            "id": "part_2",
+            "kind": "base",
+            "morphemeKey": null,
+            "sourceText": "behave",
+            "surfaceText": "behave",
+            "gloss": "",
+            "displayRange": {
+              "start": 3,
+              "end": 9
+            },
+            "source": {
+              "morphemesJsonIndex": 1
+            }
+          }
+        ],
+        "joins": [
+          {
+            "afterPartId": "part_1",
+            "beforePartId": "part_2",
+            "joinType": "none",
+            "surfaceText": "",
+            "displayRange": {
+              "start": 3,
+              "end": 3
+            }
+          }
+        ],
+        "transformationNotes": "",
+        "provenance": {
+          "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+          "sheet": "Word Bank",
+          "row": 48
+        }
+      },
+      "teaching": {
+        "splitParts": [
+          {
+            "id": "part_1",
+            "kind": "prefix",
+            "morphemeKey": "prefix_MIS",
+            "sourceText": "mis",
+            "surfaceText": "mis",
+            "gloss": "badly",
+            "displayRange": {
+              "start": 0,
+              "end": 3
+            },
+            "source": {
+              "morphemesJsonIndex": 0
+            }
+          },
+          {
+            "id": "part_2",
+            "kind": "base",
+            "morphemeKey": null,
+            "sourceText": "behave",
+            "surfaceText": "behave",
+            "gloss": "",
+            "displayRange": {
+              "start": 3,
+              "end": 9
+            },
+            "source": {
+              "morphemesJsonIndex": 1
+            }
+          }
+        ],
+        "splitJoins": [
+          {
+            "afterPartId": "part_1",
+            "beforePartId": "part_2",
+            "joinType": "none",
+            "surfaceText": "",
+            "displayRange": {
+              "start": 3,
+              "end": 3
+            }
+          }
+        ],
+        "prefixVariant": "mis",
+        "cleaverBoundary": 3,
+        "baseOrRoot": "behave",
+        "baseMeaning": "act in a particular way",
+        "childFriendlyMeaning": "behave badly",
+        "meaningBin": "wrongly_or_badly"
+      },
+      "pronunciation": {
+        "source": "british_ipa",
+        "ipa": "/m\u026asb\u026ah\u02c8e\u026av/",
+        "cmu": "M IH2 S B AH0 HH EY1 V",
+        "ipaVariantCount": 1,
+        "syllables": 3,
+        "stressPattern": "unstressed-unstressed-primary",
+        "hasSchwa": false,
+        "phonemeCount": 9,
+        "approvalSafety": "in_review"
+      },
+      "complexityPreview": {
+        "version": "banding_v1.1_2026-07-04.preview",
+        "inputComplete": true,
+        "letterCount": 9,
+        "morphologyDepth": 2,
+        "irregularityBand": 0,
+        "structuralScore": 6,
+        "complexityLevel": 3,
+        "status": "preview_only"
+      },
+      "dictation": {
+        "sentence": "Do not misbehave in the library.",
+        "targetTokenIndex": 2,
+        "audioText": "Do not misbehave in the library."
+      },
+      "reviews": {
+        "status": "approved_for_guided_review"
+      }
+    },
+    {
+      "wordKey": "mislead_en_gb",
+      "word": "mislead",
+      "microSkillKey": "D4_MOR_PREFIXES_DIS_MIS",
+      "canonical": {
+        "dialect": "en-GB",
+        "frequencyBand": "medium",
+        "ageBand": "middle_primary",
+        "complexityBand": "medium"
+      },
+      "trueMorphology": {
+        "humanApprovedText": "Prefix: mis + Base: lead",
+        "orderedParts": [
+          {
+            "id": "part_1",
+            "kind": "prefix",
+            "morphemeKey": "prefix_MIS",
+            "sourceText": "mis",
+            "surfaceText": "mis",
+            "gloss": "wrongly",
+            "displayRange": {
+              "start": 0,
+              "end": 3
+            },
+            "source": {
+              "morphemesJsonIndex": 0
+            }
+          },
+          {
+            "id": "part_2",
+            "kind": "base",
+            "morphemeKey": null,
+            "sourceText": "lead",
+            "surfaceText": "lead",
+            "gloss": "",
+            "displayRange": {
+              "start": 3,
+              "end": 7
+            },
+            "source": {
+              "morphemesJsonIndex": 1
+            }
+          }
+        ],
+        "joins": [
+          {
+            "afterPartId": "part_1",
+            "beforePartId": "part_2",
+            "joinType": "none",
+            "surfaceText": "",
+            "displayRange": {
+              "start": 3,
+              "end": 3
+            }
+          }
+        ],
+        "transformationNotes": "",
+        "provenance": {
+          "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+          "sheet": "Word Bank",
+          "row": 49
+        }
+      },
+      "teaching": {
+        "splitParts": [
+          {
+            "id": "part_1",
+            "kind": "prefix",
+            "morphemeKey": "prefix_MIS",
+            "sourceText": "mis",
+            "surfaceText": "mis",
+            "gloss": "wrongly",
+            "displayRange": {
+              "start": 0,
+              "end": 3
+            },
+            "source": {
+              "morphemesJsonIndex": 0
+            }
+          },
+          {
+            "id": "part_2",
+            "kind": "base",
+            "morphemeKey": null,
+            "sourceText": "lead",
+            "surfaceText": "lead",
+            "gloss": "",
+            "displayRange": {
+              "start": 3,
+              "end": 7
+            },
+            "source": {
+              "morphemesJsonIndex": 1
+            }
+          }
+        ],
+        "splitJoins": [
+          {
+            "afterPartId": "part_1",
+            "beforePartId": "part_2",
+            "joinType": "none",
+            "surfaceText": "",
+            "displayRange": {
+              "start": 3,
+              "end": 3
+            }
+          }
+        ],
+        "prefixVariant": "mis",
+        "cleaverBoundary": 3,
+        "baseOrRoot": "lead",
+        "baseMeaning": "show someone where to go",
+        "childFriendlyMeaning": "lead someone the wrong way",
+        "meaningBin": "wrongly_or_badly"
+      },
+      "pronunciation": {
+        "source": "british_ipa",
+        "ipa": "/m\u026asl\u02c8i\u02d0d/",
+        "cmu": "M IH0 S L IY1 D",
+        "ipaVariantCount": 1,
+        "syllables": 2,
+        "stressPattern": "unstressed-primary",
+        "hasSchwa": false,
+        "phonemeCount": 7,
+        "approvalSafety": "safe_to_approve_candidate"
+      },
+      "complexityPreview": {
+        "version": "banding_v1.1_2026-07-04.preview",
+        "inputComplete": true,
+        "letterCount": 7,
+        "morphologyDepth": 2,
+        "irregularityBand": 0,
+        "structuralScore": 4,
+        "complexityLevel": 2,
+        "status": "preview_only"
+      },
+      "dictation": {
+        "sentence": "The sign did not mean to mislead us.",
+        "targetTokenIndex": 6,
+        "audioText": "The sign did not mean to mislead us."
+      },
+      "reviews": {
+        "status": "approved_for_guided_review"
+      }
+    },
+    {
+      "wordKey": "misspell_en_gb",
+      "word": "misspell",
+      "microSkillKey": "D4_MOR_PREFIXES_DIS_MIS",
+      "canonical": {
+        "dialect": "en-GB",
+        "frequencyBand": "low",
+        "ageBand": "middle_primary",
+        "complexityBand": "high"
+      },
+      "trueMorphology": {
+        "humanApprovedText": "Prefix: mis + Base: spell",
+        "orderedParts": [
+          {
+            "id": "part_1",
+            "kind": "prefix",
+            "morphemeKey": "prefix_MIS",
+            "sourceText": "mis",
+            "surfaceText": "mis",
+            "gloss": "wrongly",
+            "displayRange": {
+              "start": 0,
+              "end": 3
+            },
+            "source": {
+              "morphemesJsonIndex": 0
+            }
+          },
+          {
+            "id": "part_2",
+            "kind": "base",
+            "morphemeKey": null,
+            "sourceText": "spell",
+            "surfaceText": "spell",
+            "gloss": "",
+            "displayRange": {
+              "start": 3,
+              "end": 8
+            },
+            "source": {
+              "morphemesJsonIndex": 1
+            }
+          }
+        ],
+        "joins": [
+          {
+            "afterPartId": "part_1",
+            "beforePartId": "part_2",
+            "joinType": "none",
+            "surfaceText": "",
+            "displayRange": {
+              "start": 3,
+              "end": 3
+            }
+          }
+        ],
+        "transformationNotes": "Keep both s letters where mis and spell meet.",
+        "provenance": {
+          "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+          "sheet": "Word Bank",
+          "row": 44
+        }
+      },
+      "teaching": {
+        "splitParts": [
+          {
+            "id": "part_1",
+            "kind": "prefix",
+            "morphemeKey": "prefix_MIS",
+            "sourceText": "mis",
+            "surfaceText": "mis",
+            "gloss": "wrongly",
+            "displayRange": {
+              "start": 0,
+              "end": 3
+            },
+            "source": {
+              "morphemesJsonIndex": 0
+            }
+          },
+          {
+            "id": "part_2",
+            "kind": "base",
+            "morphemeKey": null,
+            "sourceText": "spell",
+            "surfaceText": "spell",
+            "gloss": "",
+            "displayRange": {
+              "start": 3,
+              "end": 8
+            },
+            "source": {
+              "morphemesJsonIndex": 1
+            }
+          }
+        ],
+        "splitJoins": [
+          {
+            "afterPartId": "part_1",
+            "beforePartId": "part_2",
+            "joinType": "none",
+            "surfaceText": "",
+            "displayRange": {
+              "start": 3,
+              "end": 3
+            }
+          }
+        ],
+        "prefixVariant": "mis",
+        "cleaverBoundary": 3,
+        "baseOrRoot": "spell",
+        "baseMeaning": "write a word using its letters in the right order",
+        "childFriendlyMeaning": "spell wrongly",
+        "meaningBin": "wrongly_or_badly"
+      },
+      "pronunciation": {
+        "source": "british_ipa",
+        "ipa": "/m\u026assp\u02c8\u025bl/",
+        "cmu": "M IH0 S S P EH1 L",
+        "ipaVariantCount": 1,
+        "syllables": 2,
+        "stressPattern": "unstressed-primary",
+        "hasSchwa": false,
+        "phonemeCount": 8,
+        "approvalSafety": "in_review"
+      },
+      "complexityPreview": {
+        "version": "banding_v1.1_2026-07-04.preview",
+        "inputComplete": true,
+        "letterCount": 8,
+        "morphologyDepth": 2,
+        "irregularityBand": 1,
+        "structuralScore": 6,
+        "complexityLevel": 3,
+        "status": "preview_only"
+      },
+      "dictation": {
+        "sentence": "Check that you do not misspell the word.",
+        "targetTokenIndex": 5,
+        "audioText": "Check that you do not misspell the word."
+      },
+      "reviews": {
+        "status": "approved_for_guided_review"
+      }
+    },
+    {
+      "wordKey": "illegal_en_gb",
+      "word": "illegal",
+      "microSkillKey": "D4_MOR_PREFIXES_IN_IM_IL_IR",
+      "canonical": {
+        "dialect": "en-GB",
+        "frequencyBand": "high",
+        "ageBand": "middle_primary",
+        "complexityBand": "high"
+      },
+      "trueMorphology": {
+        "humanApprovedText": "Prefix: il + Base: legal",
+        "orderedParts": [
+          {
+            "id": "part_1",
+            "kind": "prefix",
+            "morphemeKey": "prefix_IL",
+            "sourceText": "il",
+            "surfaceText": "il",
+            "gloss": "not (before l)",
+            "displayRange": {
+              "start": 0,
+              "end": 2
+            },
+            "source": {
+              "morphemesJsonIndex": 0
+            }
+          },
+          {
+            "id": "part_2",
+            "kind": "base",
+            "morphemeKey": null,
+            "sourceText": "legal",
+            "surfaceText": "legal",
+            "gloss": "",
+            "displayRange": {
+              "start": 2,
+              "end": 7
+            },
+            "source": {
+              "morphemesJsonIndex": 1
+            }
+          }
+        ],
+        "joins": [
+          {
+            "afterPartId": "part_1",
+            "beforePartId": "part_2",
+            "joinType": "none",
+            "surfaceText": "",
+            "displayRange": {
+              "start": 2,
+              "end": 2
+            }
+          }
+        ],
+        "transformationNotes": "in- becomes il- before l.",
+        "provenance": {
+          "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+          "sheet": "Word Bank",
+          "row": 55
+        }
+      },
+      "teaching": {
+        "splitParts": [
+          {
+            "id": "part_1",
+            "kind": "prefix",
+            "morphemeKey": "prefix_IL",
+            "sourceText": "il",
+            "surfaceText": "il",
+            "gloss": "not (before l)",
+            "displayRange": {
+              "start": 0,
+              "end": 2
+            },
+            "source": {
+              "morphemesJsonIndex": 0
+            }
+          },
+          {
+            "id": "part_2",
+            "kind": "base",
+            "morphemeKey": null,
+            "sourceText": "legal",
+            "surfaceText": "legal",
+            "gloss": "",
+            "displayRange": {
+              "start": 2,
+              "end": 7
+            },
+            "source": {
+              "morphemesJsonIndex": 1
+            }
+          }
+        ],
+        "splitJoins": [
+          {
+            "afterPartId": "part_1",
+            "beforePartId": "part_2",
+            "joinType": "none",
+            "surfaceText": "",
+            "displayRange": {
+              "start": 2,
+              "end": 2
+            }
+          }
+        ],
+        "prefixVariant": "il",
+        "cleaverBoundary": 2,
+        "baseOrRoot": "legal",
+        "baseMeaning": "allowed by law or rules",
+        "childFriendlyMeaning": "not allowed by law or rules",
+        "meaningBin": "il"
+      },
+      "pronunciation": {
+        "source": "british_ipa",
+        "ipa": "/\u026al\u02c8i\u02d0\u0261\u0259l/",
+        "cmu": "IH2 L IY1 G AH0 L",
+        "ipaVariantCount": 1,
+        "syllables": 3,
+        "stressPattern": "unstressed-primary-unstressed",
+        "hasSchwa": true,
+        "phonemeCount": 7,
+        "approvalSafety": "safe_to_approve_candidate"
+      },
+      "complexityPreview": {
+        "version": "banding_v1.1_2026-07-04.preview",
+        "inputComplete": true,
+        "letterCount": 7,
+        "morphologyDepth": 2,
+        "irregularityBand": 1,
+        "structuralScore": 8,
+        "complexityLevel": 3,
+        "status": "preview_only"
+      },
+      "dictation": {
+        "sentence": "Parking there is illegal.",
+        "targetTokenIndex": 3,
+        "audioText": "Parking there is illegal."
+      },
+      "reviews": {
+        "status": "approved_for_guided_review"
+      }
+    },
+    {
+      "wordKey": "impatient_en_gb",
+      "word": "impatient",
+      "microSkillKey": "D4_MOR_PREFIXES_IN_IM_IL_IR",
+      "canonical": {
+        "dialect": "en-GB",
+        "frequencyBand": "medium",
+        "ageBand": "middle_primary",
+        "complexityBand": "high"
+      },
+      "trueMorphology": {
+        "humanApprovedText": "Prefix: im + Base: patient",
+        "orderedParts": [
+          {
+            "id": "part_1",
+            "kind": "prefix",
+            "morphemeKey": "prefix_IM",
+            "sourceText": "im",
+            "surfaceText": "im",
+            "gloss": "not (before p)",
+            "displayRange": {
+              "start": 0,
+              "end": 2
+            },
+            "source": {
+              "morphemesJsonIndex": 0
+            }
+          },
+          {
+            "id": "part_2",
+            "kind": "base",
+            "morphemeKey": null,
+            "sourceText": "patient",
+            "surfaceText": "patient",
+            "gloss": "",
+            "displayRange": {
+              "start": 2,
+              "end": 9
+            },
+            "source": {
+              "morphemesJsonIndex": 1
+            }
+          }
+        ],
+        "joins": [
+          {
+            "afterPartId": "part_1",
+            "beforePartId": "part_2",
+            "joinType": "none",
+            "surfaceText": "",
+            "displayRange": {
+              "start": 2,
+              "end": 2
+            }
+          }
+        ],
+        "transformationNotes": "in- becomes im- before p.",
+        "provenance": {
+          "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+          "sheet": "Word Bank",
+          "row": 54
+        }
+      },
+      "teaching": {
+        "splitParts": [
+          {
+            "id": "part_1",
+            "kind": "prefix",
+            "morphemeKey": "prefix_IM",
+            "sourceText": "im",
+            "surfaceText": "im",
+            "gloss": "not (before p)",
+            "displayRange": {
+              "start": 0,
+              "end": 2
+            },
+            "source": {
+              "morphemesJsonIndex": 0
+            }
+          },
+          {
+            "id": "part_2",
+            "kind": "base",
+            "morphemeKey": null,
+            "sourceText": "patient",
+            "surfaceText": "patient",
+            "gloss": "",
+            "displayRange": {
+              "start": 2,
+              "end": 9
+            },
+            "source": {
+              "morphemesJsonIndex": 1
+            }
+          }
+        ],
+        "splitJoins": [
+          {
+            "afterPartId": "part_1",
+            "beforePartId": "part_2",
+            "joinType": "none",
+            "surfaceText": "",
+            "displayRange": {
+              "start": 2,
+              "end": 2
+            }
+          }
+        ],
+        "prefixVariant": "im",
+        "cleaverBoundary": 2,
+        "baseOrRoot": "patient",
+        "baseMeaning": "able to wait calmly",
+        "childFriendlyMeaning": "unable to wait calmly",
+        "meaningBin": "in_im"
+      },
+      "pronunciation": {
+        "source": "british_ipa",
+        "ipa": "/\u026amp\u02c8e\u026a\u0283\u0259nt/",
+        "cmu": "IH2 M P EY1 SH AH0 N T",
+        "ipaVariantCount": 1,
+        "syllables": 3,
+        "stressPattern": "unstressed-primary-unstressed",
+        "hasSchwa": true,
+        "phonemeCount": 9,
+        "approvalSafety": "safe_to_approve_candidate"
+      },
+      "complexityPreview": {
+        "version": "banding_v1.1_2026-07-04.preview",
+        "inputComplete": true,
+        "letterCount": 9,
+        "morphologyDepth": 2,
+        "irregularityBand": 1,
+        "structuralScore": 9,
+        "complexityLevel": 3,
+        "status": "preview_only"
+      },
+      "dictation": {
+        "sentence": "He grew impatient in the long queue.",
+        "targetTokenIndex": 2,
+        "audioText": "He grew impatient in the long queue."
+      },
+      "reviews": {
+        "status": "approved_for_guided_review"
+      }
+    },
+    {
+      "wordKey": "impossible_en_gb",
+      "word": "impossible",
+      "microSkillKey": "D4_MOR_PREFIXES_IN_IM_IL_IR",
+      "canonical": {
+        "dialect": "en-GB",
+        "frequencyBand": "high",
+        "ageBand": "middle_primary",
+        "complexityBand": "high"
+      },
+      "trueMorphology": {
+        "humanApprovedText": "Prefix: im + Base: possible",
+        "orderedParts": [
+          {
+            "id": "part_1",
+            "kind": "prefix",
+            "morphemeKey": "prefix_IM",
+            "sourceText": "im",
+            "surfaceText": "im",
+            "gloss": "not (before p)",
+            "displayRange": {
+              "start": 0,
+              "end": 2
+            },
+            "source": {
+              "morphemesJsonIndex": 0
+            }
+          },
+          {
+            "id": "part_2",
+            "kind": "base",
+            "morphemeKey": null,
+            "sourceText": "possible",
+            "surfaceText": "possible",
+            "gloss": "",
+            "displayRange": {
+              "start": 2,
+              "end": 10
+            },
+            "source": {
+              "morphemesJsonIndex": 1
+            }
+          }
+        ],
+        "joins": [
+          {
+            "afterPartId": "part_1",
+            "beforePartId": "part_2",
+            "joinType": "none",
+            "surfaceText": "",
+            "displayRange": {
+              "start": 2,
+              "end": 2
+            }
+          }
+        ],
+        "transformationNotes": "in- becomes im- before p.",
+        "provenance": {
+          "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+          "sheet": "Word Bank",
+          "row": 51
+        }
+      },
+      "teaching": {
+        "splitParts": [
+          {
+            "id": "part_1",
+            "kind": "prefix",
+            "morphemeKey": "prefix_IM",
+            "sourceText": "im",
+            "surfaceText": "im",
+            "gloss": "not (before p)",
+            "displayRange": {
+              "start": 0,
+              "end": 2
+            },
+            "source": {
+              "morphemesJsonIndex": 0
+            }
+          },
+          {
+            "id": "part_2",
+            "kind": "base",
+            "morphemeKey": null,
+            "sourceText": "possible",
+            "surfaceText": "possible",
+            "gloss": "",
+            "displayRange": {
+              "start": 2,
+              "end": 10
+            },
+            "source": {
+              "morphemesJsonIndex": 1
+            }
+          }
+        ],
+        "splitJoins": [
+          {
+            "afterPartId": "part_1",
+            "beforePartId": "part_2",
+            "joinType": "none",
+            "surfaceText": "",
+            "displayRange": {
+              "start": 2,
+              "end": 2
+            }
+          }
+        ],
+        "prefixVariant": "im",
+        "cleaverBoundary": 2,
+        "baseOrRoot": "possible",
+        "baseMeaning": "able to happen or be done",
+        "childFriendlyMeaning": "not able to happen or be done",
+        "meaningBin": "in_im"
+      },
+      "pronunciation": {
+        "source": "british_ipa",
+        "ipa": "/\u026amp\u02c8\u0252s\u0259b\u0259l/",
+        "cmu": "IH2 M P AA1 S AH0 B AH0 L",
+        "ipaVariantCount": 1,
+        "syllables": 4,
+        "stressPattern": "unstressed-primary-unstressed-unstressed",
+        "hasSchwa": true,
+        "phonemeCount": 10,
+        "approvalSafety": "safe_to_approve_candidate"
+      },
+      "complexityPreview": {
+        "version": "banding_v1.1_2026-07-04.preview",
+        "inputComplete": true,
+        "letterCount": 10,
+        "morphologyDepth": 2,
+        "irregularityBand": 1,
+        "structuralScore": 10,
+        "complexityLevel": 3,
+        "status": "preview_only"
+      },
+      "dictation": {
+        "sentence": "It is impossible to be in two places at once.",
+        "targetTokenIndex": 2,
+        "audioText": "It is impossible to be in two places at once."
+      },
+      "reviews": {
+        "status": "approved_for_guided_review"
+      }
+    },
+    {
+      "wordKey": "incorrect_en_gb",
+      "word": "incorrect",
+      "microSkillKey": "D4_MOR_PREFIXES_IN_IM_IL_IR",
+      "canonical": {
+        "dialect": "en-GB",
+        "frequencyBand": "medium",
+        "ageBand": "middle_primary",
+        "complexityBand": "high"
+      },
+      "trueMorphology": {
+        "humanApprovedText": "Prefix: in + Base: correct",
+        "orderedParts": [
+          {
+            "id": "part_1",
+            "kind": "prefix",
+            "morphemeKey": "prefix_IN",
+            "sourceText": "in",
+            "surfaceText": "in",
+            "gloss": "not",
+            "displayRange": {
+              "start": 0,
+              "end": 2
+            },
+            "source": {
+              "morphemesJsonIndex": 0
+            }
+          },
+          {
+            "id": "part_2",
+            "kind": "base",
+            "morphemeKey": null,
+            "sourceText": "correct",
+            "surfaceText": "correct",
+            "gloss": "",
+            "displayRange": {
+              "start": 2,
+              "end": 9
+            },
+            "source": {
+              "morphemesJsonIndex": 1
+            }
+          }
+        ],
+        "joins": [
+          {
+            "afterPartId": "part_1",
+            "beforePartId": "part_2",
+            "joinType": "none",
+            "surfaceText": "",
+            "displayRange": {
+              "start": 2,
+              "end": 2
+            }
+          }
+        ],
+        "transformationNotes": "",
+        "provenance": {
+          "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+          "sheet": "Word Bank",
+          "row": 53
+        }
+      },
+      "teaching": {
+        "splitParts": [
+          {
+            "id": "part_1",
+            "kind": "prefix",
+            "morphemeKey": "prefix_IN",
+            "sourceText": "in",
+            "surfaceText": "in",
+            "gloss": "not",
+            "displayRange": {
+              "start": 0,
+              "end": 2
+            },
+            "source": {
+              "morphemesJsonIndex": 0
+            }
+          },
+          {
+            "id": "part_2",
+            "kind": "base",
+            "morphemeKey": null,
+            "sourceText": "correct",
+            "surfaceText": "correct",
+            "gloss": "",
+            "displayRange": {
+              "start": 2,
+              "end": 9
+            },
+            "source": {
+              "morphemesJsonIndex": 1
+            }
+          }
+        ],
+        "splitJoins": [
+          {
+            "afterPartId": "part_1",
+            "beforePartId": "part_2",
+            "joinType": "none",
+            "surfaceText": "",
+            "displayRange": {
+              "start": 2,
+              "end": 2
+            }
+          }
+        ],
+        "prefixVariant": "in",
+        "cleaverBoundary": 2,
+        "baseOrRoot": "correct",
+        "baseMeaning": "right and without mistakes",
+        "childFriendlyMeaning": "not right",
+        "meaningBin": "in_im"
+      },
+      "pronunciation": {
+        "source": "british_ipa",
+        "ipa": "/\u026ank\u0259\u0279\u02c8\u025bkt/",
+        "cmu": "IH2 N K ER0 EH1 K T",
+        "ipaVariantCount": 1,
+        "syllables": 3,
+        "stressPattern": "unstressed-unstressed-primary",
+        "hasSchwa": true,
+        "phonemeCount": 9,
+        "approvalSafety": "safe_to_approve_candidate"
+      },
+      "complexityPreview": {
+        "version": "banding_v1.1_2026-07-04.preview",
+        "inputComplete": true,
+        "letterCount": 9,
+        "morphologyDepth": 2,
+        "irregularityBand": 0,
+        "structuralScore": 7,
+        "complexityLevel": 3,
+        "status": "preview_only"
+      },
+      "dictation": {
+        "sentence": "The answer is incorrect.",
+        "targetTokenIndex": 3,
+        "audioText": "The answer is incorrect."
+      },
+      "reviews": {
+        "status": "approved_for_guided_review"
+      }
+    },
+    {
+      "wordKey": "invisible_en_gb",
+      "word": "invisible",
+      "microSkillKey": "D4_MOR_PREFIXES_IN_IM_IL_IR",
+      "canonical": {
+        "dialect": "en-GB",
+        "frequencyBand": "high",
+        "ageBand": "middle_primary",
+        "complexityBand": "high"
+      },
+      "trueMorphology": {
+        "humanApprovedText": "Prefix: in + Root: vis + Suffix: ible",
+        "orderedParts": [
+          {
+            "id": "part_1",
+            "kind": "prefix",
+            "morphemeKey": "prefix_IN",
+            "sourceText": "in",
+            "surfaceText": "in",
+            "gloss": "not",
+            "displayRange": {
+              "start": 0,
+              "end": 2
+            },
+            "source": {
+              "morphemesJsonIndex": 0
+            }
+          },
+          {
+            "id": "part_2",
+            "kind": "base",
+            "morphemeKey": null,
+            "sourceText": "visible",
+            "surfaceText": "visible",
+            "gloss": "",
+            "displayRange": {
+              "start": 2,
+              "end": 9
+            },
+            "source": {
+              "morphemesJsonIndex": 1
+            }
+          }
+        ],
+        "joins": [
+          {
+            "afterPartId": "part_1",
+            "beforePartId": "part_2",
+            "joinType": "none",
+            "surfaceText": "",
+            "displayRange": {
+              "start": 2,
+              "end": 2
+            }
+          }
+        ],
+        "transformationNotes": "-ible attaches to the bound root vis.",
+        "provenance": {
+          "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+          "sheet": "Word Bank",
+          "row": 52
+        }
+      },
+      "teaching": {
+        "splitParts": [
+          {
+            "id": "part_1",
+            "kind": "prefix",
+            "morphemeKey": "prefix_IN",
+            "sourceText": "in",
+            "surfaceText": "in",
+            "gloss": "not",
+            "displayRange": {
+              "start": 0,
+              "end": 2
+            },
+            "source": {
+              "morphemesJsonIndex": 0
+            }
+          },
+          {
+            "id": "part_2",
+            "kind": "base",
+            "morphemeKey": null,
+            "sourceText": "visible",
+            "surfaceText": "visible",
+            "gloss": "",
+            "displayRange": {
+              "start": 2,
+              "end": 9
+            },
+            "source": {
+              "morphemesJsonIndex": 1
+            }
+          }
+        ],
+        "splitJoins": [
+          {
+            "afterPartId": "part_1",
+            "beforePartId": "part_2",
+            "joinType": "none",
+            "surfaceText": "",
+            "displayRange": {
+              "start": 2,
+              "end": 2
+            }
+          }
+        ],
+        "prefixVariant": "in",
+        "cleaverBoundary": 2,
+        "baseOrRoot": "visible",
+        "baseMeaning": "able to be seen",
+        "childFriendlyMeaning": "unable to be seen",
+        "meaningBin": "in_im"
+      },
+      "pronunciation": {
+        "source": "british_ipa",
+        "ipa": "/\u026anv\u02c8\u026az\u0259b\u0259l/",
+        "cmu": "IH2 N V IH1 Z AH0 B AH0 L",
+        "ipaVariantCount": 1,
+        "syllables": 4,
+        "stressPattern": "unstressed-primary-unstressed-unstressed",
+        "hasSchwa": true,
+        "phonemeCount": 10,
+        "approvalSafety": "safe_to_approve_candidate"
+      },
+      "complexityPreview": {
+        "version": "banding_v1.1_2026-07-04.preview",
+        "inputComplete": true,
+        "letterCount": 9,
+        "morphologyDepth": 3,
+        "irregularityBand": 0,
+        "structuralScore": 9,
+        "complexityLevel": 3,
+        "status": "preview_only"
+      },
+      "dictation": {
+        "sentence": "The tiny insect was almost invisible.",
+        "targetTokenIndex": 5,
+        "audioText": "The tiny insect was almost invisible."
+      },
+      "reviews": {
+        "status": "approved_for_guided_review"
+      }
+    },
+    {
+      "wordKey": "irregular_en_gb",
+      "word": "irregular",
+      "microSkillKey": "D4_MOR_PREFIXES_IN_IM_IL_IR",
+      "canonical": {
+        "dialect": "en-GB",
+        "frequencyBand": "medium",
+        "ageBand": "middle_primary",
+        "complexityBand": "high"
+      },
+      "trueMorphology": {
+        "humanApprovedText": "Prefix: ir + Base: regular",
+        "orderedParts": [
+          {
+            "id": "part_1",
+            "kind": "prefix",
+            "morphemeKey": "prefix_IR",
+            "sourceText": "ir",
+            "surfaceText": "ir",
+            "gloss": "not (before r)",
+            "displayRange": {
+              "start": 0,
+              "end": 2
+            },
+            "source": {
+              "morphemesJsonIndex": 0
+            }
+          },
+          {
+            "id": "part_2",
+            "kind": "base",
+            "morphemeKey": null,
+            "sourceText": "regular",
+            "surfaceText": "regular",
+            "gloss": "",
+            "displayRange": {
+              "start": 2,
+              "end": 9
+            },
+            "source": {
+              "morphemesJsonIndex": 1
+            }
+          }
+        ],
+        "joins": [
+          {
+            "afterPartId": "part_1",
+            "beforePartId": "part_2",
+            "joinType": "none",
+            "surfaceText": "",
+            "displayRange": {
+              "start": 2,
+              "end": 2
+            }
+          }
+        ],
+        "transformationNotes": "in- becomes ir- before r.",
+        "provenance": {
+          "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+          "sheet": "Word Bank",
+          "row": 56
+        }
+      },
+      "teaching": {
+        "splitParts": [
+          {
+            "id": "part_1",
+            "kind": "prefix",
+            "morphemeKey": "prefix_IR",
+            "sourceText": "ir",
+            "surfaceText": "ir",
+            "gloss": "not (before r)",
+            "displayRange": {
+              "start": 0,
+              "end": 2
+            },
+            "source": {
+              "morphemesJsonIndex": 0
+            }
+          },
+          {
+            "id": "part_2",
+            "kind": "base",
+            "morphemeKey": null,
+            "sourceText": "regular",
+            "surfaceText": "regular",
+            "gloss": "",
+            "displayRange": {
+              "start": 2,
+              "end": 9
+            },
+            "source": {
+              "morphemesJsonIndex": 1
+            }
+          }
+        ],
+        "splitJoins": [
+          {
+            "afterPartId": "part_1",
+            "beforePartId": "part_2",
+            "joinType": "none",
+            "surfaceText": "",
+            "displayRange": {
+              "start": 2,
+              "end": 2
+            }
+          }
+        ],
+        "prefixVariant": "ir",
+        "cleaverBoundary": 2,
+        "baseOrRoot": "regular",
+        "baseMeaning": "following the usual pattern",
+        "childFriendlyMeaning": "not even or following the usual pattern",
+        "meaningBin": "ir"
+      },
+      "pronunciation": {
+        "source": "british_ipa",
+        "ipa": "/\u026a\u0279\u02c8\u025b\u0261ju\u02d0l\u0250/",
+        "cmu": "IH2 R EH1 G Y AH0 L ER0",
+        "ipaVariantCount": 1,
+        "syllables": 4,
+        "stressPattern": "unstressed-primary-unstressed-unstressed",
+        "hasSchwa": true,
+        "phonemeCount": 9,
+        "approvalSafety": "safe_to_approve_candidate"
+      },
+      "complexityPreview": {
+        "version": "banding_v1.1_2026-07-04.preview",
+        "inputComplete": true,
+        "letterCount": 9,
+        "morphologyDepth": 2,
+        "irregularityBand": 1,
+        "structuralScore": 10,
+        "complexityLevel": 3,
+        "status": "preview_only"
+      },
+      "dictation": {
+        "sentence": "The shape has an irregular edge.",
+        "targetTokenIndex": 4,
+        "audioText": "The shape has an irregular edge."
+      },
+      "reviews": {
+        "status": "approved_for_guided_review"
+      }
+    },
+    {
+      "wordKey": "irresponsible_en_gb",
+      "word": "irresponsible",
+      "microSkillKey": "D4_MOR_PREFIXES_IN_IM_IL_IR",
+      "canonical": {
+        "dialect": "en-GB",
+        "frequencyBand": "medium",
+        "ageBand": "middle_primary",
+        "complexityBand": "high"
+      },
+      "trueMorphology": {
+        "humanApprovedText": "Prefix: ir + Root: respons + Suffix: ible",
+        "orderedParts": [
+          {
+            "id": "part_1",
+            "kind": "prefix",
+            "morphemeKey": "prefix_IR",
+            "sourceText": "ir",
+            "surfaceText": "ir",
+            "gloss": "not (before r)",
+            "displayRange": {
+              "start": 0,
+              "end": 2
+            },
+            "source": {
+              "morphemesJsonIndex": 0
+            }
+          },
+          {
+            "id": "part_2",
+            "kind": "base",
+            "morphemeKey": null,
+            "sourceText": "responsible",
+            "surfaceText": "responsible",
+            "gloss": "",
+            "displayRange": {
+              "start": 2,
+              "end": 13
+            },
+            "source": {
+              "morphemesJsonIndex": 1
+            }
+          }
+        ],
+        "joins": [
+          {
+            "afterPartId": "part_1",
+            "beforePartId": "part_2",
+            "joinType": "none",
+            "surfaceText": "",
+            "displayRange": {
+              "start": 2,
+              "end": 2
+            }
+          }
+        ],
+        "transformationNotes": "in- becomes ir- before r; -ible attaches to the bound root respons.",
+        "provenance": {
+          "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+          "sheet": "Word Bank",
+          "row": 57
+        }
+      },
+      "teaching": {
+        "splitParts": [
+          {
+            "id": "part_1",
+            "kind": "prefix",
+            "morphemeKey": "prefix_IR",
+            "sourceText": "ir",
+            "surfaceText": "ir",
+            "gloss": "not (before r)",
+            "displayRange": {
+              "start": 0,
+              "end": 2
+            },
+            "source": {
+              "morphemesJsonIndex": 0
+            }
+          },
+          {
+            "id": "part_2",
+            "kind": "base",
+            "morphemeKey": null,
+            "sourceText": "responsible",
+            "surfaceText": "responsible",
+            "gloss": "",
+            "displayRange": {
+              "start": 2,
+              "end": 13
+            },
+            "source": {
+              "morphemesJsonIndex": 1
+            }
+          }
+        ],
+        "splitJoins": [
+          {
+            "afterPartId": "part_1",
+            "beforePartId": "part_2",
+            "joinType": "none",
+            "surfaceText": "",
+            "displayRange": {
+              "start": 2,
+              "end": 2
+            }
+          }
+        ],
+        "prefixVariant": "ir",
+        "cleaverBoundary": 2,
+        "baseOrRoot": "responsible",
+        "baseMeaning": "showing sensible care",
+        "childFriendlyMeaning": "not showing sensible care",
+        "meaningBin": "ir"
+      },
+      "pronunciation": {
+        "source": "british_ipa",
+        "ipa": "/\u026a\u0279\u026asp\u02c8\u0252ns\u0259b\u0259l/",
+        "cmu": "IH2 R AH0 S P AA1 N S AH0 B AH0 L",
+        "ipaVariantCount": 1,
+        "syllables": 5,
+        "stressPattern": "unstressed-unstressed-primary-unstressed-unstressed",
+        "hasSchwa": true,
+        "phonemeCount": 13,
+        "approvalSafety": "safe_to_approve_candidate"
+      },
+      "complexityPreview": {
+        "version": "banding_v1.1_2026-07-04.preview",
+        "inputComplete": true,
+        "letterCount": 13,
+        "morphologyDepth": 3,
+        "irregularityBand": 1,
+        "structuralScore": 11,
+        "complexityLevel": 3,
+        "status": "preview_only"
+      },
+      "dictation": {
+        "sentence": "It is irresponsible to leave litter behind.",
+        "targetTokenIndex": 2,
+        "audioText": "It is irresponsible to leave litter behind."
+      },
+      "reviews": {
+        "status": "approved_for_guided_review"
+      }
+    },
+    {
+      "wordKey": "predict_en_gb",
+      "word": "predict",
+      "microSkillKey": "D4_MOR_PREFIXES_RE_PRE",
+      "canonical": {
+        "dialect": "en-GB",
+        "frequencyBand": "high",
+        "ageBand": "middle_primary",
+        "complexityBand": "medium"
+      },
+      "trueMorphology": {
+        "humanApprovedText": "Prefix: pre + Root: dict",
+        "orderedParts": [
+          {
+            "id": "part_1",
+            "kind": "prefix",
+            "morphemeKey": "prefix_PRE",
+            "sourceText": "pre",
+            "surfaceText": "pre",
+            "gloss": "before",
+            "displayRange": {
+              "start": 0,
+              "end": 3
+            },
+            "source": {
+              "morphemesJsonIndex": 0
+            }
+          },
+          {
+            "id": "part_2",
+            "kind": "root",
+            "morphemeKey": "root_DICT",
+            "sourceText": "dict",
+            "surfaceText": "dict",
+            "gloss": "say",
+            "displayRange": {
+              "start": 3,
+              "end": 7
+            },
+            "source": {
+              "morphemesJsonIndex": 1
+            }
+          }
+        ],
+        "joins": [
+          {
+            "afterPartId": "part_1",
+            "beforePartId": "part_2",
+            "joinType": "none",
+            "surfaceText": "",
+            "displayRange": {
+              "start": 3,
+              "end": 3
+            }
+          }
+        ],
+        "transformationNotes": "dict is a bound root meaning say.",
+        "provenance": {
+          "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+          "sheet": "Word Bank",
+          "row": 43
+        }
+      },
+      "teaching": {
+        "splitParts": [
+          {
+            "id": "part_1",
+            "kind": "prefix",
+            "morphemeKey": "prefix_PRE",
+            "sourceText": "pre",
+            "surfaceText": "pre",
+            "gloss": "before",
+            "displayRange": {
+              "start": 0,
+              "end": 3
+            },
+            "source": {
+              "morphemesJsonIndex": 0
+            }
+          },
+          {
+            "id": "part_2",
+            "kind": "root",
+            "morphemeKey": "root_DICT",
+            "sourceText": "dict",
+            "surfaceText": "dict",
+            "gloss": "say",
+            "displayRange": {
+              "start": 3,
+              "end": 7
+            },
+            "source": {
+              "morphemesJsonIndex": 1
+            }
+          }
+        ],
+        "splitJoins": [
+          {
+            "afterPartId": "part_1",
+            "beforePartId": "part_2",
+            "joinType": "none",
+            "surfaceText": "",
+            "displayRange": {
+              "start": 3,
+              "end": 3
+            }
+          }
+        ],
+        "prefixVariant": "pre",
+        "cleaverBoundary": 3,
+        "baseOrRoot": "dict",
+        "baseMeaning": "say",
+        "childFriendlyMeaning": "say what you think will happen",
+        "meaningBin": "before"
+      },
+      "pronunciation": {
+        "source": "british_ipa",
+        "ipa": "/p\u0279\u026ad\u02c8\u026akt/",
+        "cmu": "P R IH0 D IH1 K T",
+        "ipaVariantCount": 1,
+        "syllables": 2,
+        "stressPattern": "unstressed-primary",
+        "hasSchwa": false,
+        "phonemeCount": 8,
+        "approvalSafety": "in_review"
+      },
+      "complexityPreview": {
+        "version": "banding_v1.1_2026-07-04.preview",
+        "inputComplete": true,
+        "letterCount": 7,
+        "morphologyDepth": 2,
+        "irregularityBand": 0,
+        "structuralScore": 4,
+        "complexityLevel": 2,
+        "status": "preview_only"
+      },
+      "dictation": {
+        "sentence": "Can you predict tomorrow\u2019s weather?",
+        "targetTokenIndex": 2,
+        "audioText": "Can you predict tomorrow\u2019s weather?"
+      },
+      "reviews": {
+        "status": "approved_for_guided_review"
+      }
+    },
+    {
+      "wordKey": "preheat_en_gb",
+      "word": "preheat",
+      "microSkillKey": "D4_MOR_PREFIXES_RE_PRE",
+      "canonical": {
+        "dialect": "en-GB",
+        "frequencyBand": "low",
+        "ageBand": "middle_primary",
+        "complexityBand": "medium"
+      },
+      "trueMorphology": {
+        "humanApprovedText": "Prefix: pre + Base: heat",
+        "orderedParts": [
+          {
+            "id": "part_1",
+            "kind": "prefix",
+            "morphemeKey": "prefix_PRE",
+            "sourceText": "pre",
+            "surfaceText": "pre",
+            "gloss": "before",
+            "displayRange": {
+              "start": 0,
+              "end": 3
+            },
+            "source": {
+              "morphemesJsonIndex": 0
+            }
+          },
+          {
+            "id": "part_2",
+            "kind": "base",
+            "morphemeKey": null,
+            "sourceText": "heat",
+            "surfaceText": "heat",
+            "gloss": "",
+            "displayRange": {
+              "start": 3,
+              "end": 7
+            },
+            "source": {
+              "morphemesJsonIndex": 1
+            }
+          }
+        ],
+        "joins": [
+          {
+            "afterPartId": "part_1",
+            "beforePartId": "part_2",
+            "joinType": "none",
+            "surfaceText": "",
+            "displayRange": {
+              "start": 3,
+              "end": 3
+            }
+          }
+        ],
+        "transformationNotes": "",
+        "provenance": {
+          "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+          "sheet": "Word Bank",
+          "row": 40
+        }
+      },
+      "teaching": {
+        "splitParts": [
+          {
+            "id": "part_1",
+            "kind": "prefix",
+            "morphemeKey": "prefix_PRE",
+            "sourceText": "pre",
+            "surfaceText": "pre",
+            "gloss": "before",
+            "displayRange": {
+              "start": 0,
+              "end": 3
+            },
+            "source": {
+              "morphemesJsonIndex": 0
+            }
+          },
+          {
+            "id": "part_2",
+            "kind": "base",
+            "morphemeKey": null,
+            "sourceText": "heat",
+            "surfaceText": "heat",
+            "gloss": "",
+            "displayRange": {
+              "start": 3,
+              "end": 7
+            },
+            "source": {
+              "morphemesJsonIndex": 1
+            }
+          }
+        ],
+        "splitJoins": [
+          {
+            "afterPartId": "part_1",
+            "beforePartId": "part_2",
+            "joinType": "none",
+            "surfaceText": "",
+            "displayRange": {
+              "start": 3,
+              "end": 3
+            }
+          }
+        ],
+        "prefixVariant": "pre",
+        "cleaverBoundary": 3,
+        "baseOrRoot": "heat",
+        "baseMeaning": "make something warmer",
+        "childFriendlyMeaning": "heat before using",
+        "meaningBin": "before"
+      },
+      "pronunciation": {
+        "source": "british_ipa",
+        "ipa": "/p\u0279\u026ah\u02c8i\u02d0t/",
+        "cmu": "",
+        "ipaVariantCount": 1,
+        "syllables": 2,
+        "stressPattern": "unstressed-primary",
+        "hasSchwa": false,
+        "phonemeCount": 7,
+        "approvalSafety": "in_review"
+      },
+      "complexityPreview": {
+        "version": "banding_v1.1_2026-07-04.preview",
+        "inputComplete": true,
+        "letterCount": 7,
+        "morphologyDepth": 2,
+        "irregularityBand": 0,
+        "structuralScore": 4,
+        "complexityLevel": 2,
+        "status": "preview_only"
+      },
+      "dictation": {
+        "sentence": "Please preheat the oven first.",
+        "targetTokenIndex": 1,
+        "audioText": "Please preheat the oven first."
+      },
+      "reviews": {
+        "status": "approved_for_guided_review"
+      }
+    },
+    {
+      "wordKey": "preschool_en_gb",
+      "word": "preschool",
+      "microSkillKey": "D4_MOR_PREFIXES_RE_PRE",
+      "canonical": {
+        "dialect": "en-GB",
+        "frequencyBand": "medium",
+        "ageBand": "early_primary",
+        "complexityBand": "medium"
+      },
+      "trueMorphology": {
+        "humanApprovedText": "Prefix: pre + Base: school",
+        "orderedParts": [
+          {
+            "id": "part_1",
+            "kind": "prefix",
+            "morphemeKey": "prefix_PRE",
+            "sourceText": "pre",
+            "surfaceText": "pre",
+            "gloss": "before",
+            "displayRange": {
+              "start": 0,
+              "end": 3
+            },
+            "source": {
+              "morphemesJsonIndex": 0
+            }
+          },
+          {
+            "id": "part_2",
+            "kind": "base",
+            "morphemeKey": null,
+            "sourceText": "school",
+            "surfaceText": "school",
+            "gloss": "",
+            "displayRange": {
+              "start": 3,
+              "end": 9
+            },
+            "source": {
+              "morphemesJsonIndex": 1
+            }
+          }
+        ],
+        "joins": [
+          {
+            "afterPartId": "part_1",
+            "beforePartId": "part_2",
+            "joinType": "none",
+            "surfaceText": "",
+            "displayRange": {
+              "start": 3,
+              "end": 3
+            }
+          }
+        ],
+        "transformationNotes": "",
+        "provenance": {
+          "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+          "sheet": "Word Bank",
+          "row": 42
+        }
+      },
+      "teaching": {
+        "splitParts": [
+          {
+            "id": "part_1",
+            "kind": "prefix",
+            "morphemeKey": "prefix_PRE",
+            "sourceText": "pre",
+            "surfaceText": "pre",
+            "gloss": "before",
+            "displayRange": {
+              "start": 0,
+              "end": 3
+            },
+            "source": {
+              "morphemesJsonIndex": 0
+            }
+          },
+          {
+            "id": "part_2",
+            "kind": "base",
+            "morphemeKey": null,
+            "sourceText": "school",
+            "surfaceText": "school",
+            "gloss": "",
+            "displayRange": {
+              "start": 3,
+              "end": 9
+            },
+            "source": {
+              "morphemesJsonIndex": 1
+            }
+          }
+        ],
+        "splitJoins": [
+          {
+            "afterPartId": "part_1",
+            "beforePartId": "part_2",
+            "joinType": "none",
+            "surfaceText": "",
+            "displayRange": {
+              "start": 3,
+              "end": 3
+            }
+          }
+        ],
+        "prefixVariant": "pre",
+        "cleaverBoundary": 3,
+        "baseOrRoot": "school",
+        "baseMeaning": "a place where children learn",
+        "childFriendlyMeaning": "a school for children before primary school",
+        "meaningBin": "before"
+      },
+      "pronunciation": {
+        "source": "british_ipa",
+        "ipa": "/p\u0279\u02c8i\u02d0sku\u02d0l/",
+        "cmu": "P R IY0 S K UW1 L",
+        "ipaVariantCount": 1,
+        "syllables": 2,
+        "stressPattern": "primary-unstressed",
+        "hasSchwa": false,
+        "phonemeCount": 8,
+        "approvalSafety": "in_review"
+      },
+      "complexityPreview": {
+        "version": "banding_v1.1_2026-07-04.preview",
+        "inputComplete": true,
+        "letterCount": 9,
+        "morphologyDepth": 2,
+        "irregularityBand": 0,
+        "structuralScore": 5,
+        "complexityLevel": 2,
+        "status": "preview_only"
+      },
+      "dictation": {
+        "sentence": "Her brother goes to preschool.",
+        "targetTokenIndex": 4,
+        "audioText": "Her brother goes to preschool."
+      },
+      "reviews": {
+        "status": "approved_for_guided_review"
+      }
+    },
+    {
+      "wordKey": "preview_en_gb",
+      "word": "preview",
+      "microSkillKey": "D4_MOR_PREFIXES_RE_PRE",
+      "canonical": {
+        "dialect": "en-GB",
+        "frequencyBand": "medium",
+        "ageBand": "middle_primary",
+        "complexityBand": "medium"
+      },
+      "trueMorphology": {
+        "humanApprovedText": "Prefix: pre + Base: view",
+        "orderedParts": [
+          {
+            "id": "part_1",
+            "kind": "prefix",
+            "morphemeKey": "prefix_PRE",
+            "sourceText": "pre",
+            "surfaceText": "pre",
+            "gloss": "before",
+            "displayRange": {
+              "start": 0,
+              "end": 3
+            },
+            "source": {
+              "morphemesJsonIndex": 0
+            }
+          },
+          {
+            "id": "part_2",
+            "kind": "base",
+            "morphemeKey": null,
+            "sourceText": "view",
+            "surfaceText": "view",
+            "gloss": "",
+            "displayRange": {
+              "start": 3,
+              "end": 7
+            },
+            "source": {
+              "morphemesJsonIndex": 1
+            }
+          }
+        ],
+        "joins": [
+          {
+            "afterPartId": "part_1",
+            "beforePartId": "part_2",
+            "joinType": "none",
+            "surfaceText": "",
+            "displayRange": {
+              "start": 3,
+              "end": 3
+            }
+          }
+        ],
+        "transformationNotes": "",
+        "provenance": {
+          "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+          "sheet": "Word Bank",
+          "row": 41
+        }
+      },
+      "teaching": {
+        "splitParts": [
+          {
+            "id": "part_1",
+            "kind": "prefix",
+            "morphemeKey": "prefix_PRE",
+            "sourceText": "pre",
+            "surfaceText": "pre",
+            "gloss": "before",
+            "displayRange": {
+              "start": 0,
+              "end": 3
+            },
+            "source": {
+              "morphemesJsonIndex": 0
+            }
+          },
+          {
+            "id": "part_2",
+            "kind": "base",
+            "morphemeKey": null,
+            "sourceText": "view",
+            "surfaceText": "view",
+            "gloss": "",
+            "displayRange": {
+              "start": 3,
+              "end": 7
+            },
+            "source": {
+              "morphemesJsonIndex": 1
+            }
+          }
+        ],
+        "splitJoins": [
+          {
+            "afterPartId": "part_1",
+            "beforePartId": "part_2",
+            "joinType": "none",
+            "surfaceText": "",
+            "displayRange": {
+              "start": 3,
+              "end": 3
+            }
+          }
+        ],
+        "prefixVariant": "pre",
+        "cleaverBoundary": 3,
+        "baseOrRoot": "view",
+        "baseMeaning": "see or watch",
+        "childFriendlyMeaning": "see before the full thing",
+        "meaningBin": "before"
+      },
+      "pronunciation": {
+        "source": "british_ipa",
+        "ipa": "/p\u0279\u02c8i\u02d0vju\u02d0/",
+        "cmu": "P R IY1 V Y UW2",
+        "ipaVariantCount": 1,
+        "syllables": 2,
+        "stressPattern": "primary-unstressed",
+        "hasSchwa": false,
+        "phonemeCount": 7,
+        "approvalSafety": "safe_to_approve_candidate"
+      },
+      "complexityPreview": {
+        "version": "banding_v1.1_2026-07-04.preview",
+        "inputComplete": true,
+        "letterCount": 7,
+        "morphologyDepth": 2,
+        "irregularityBand": 0,
+        "structuralScore": 4,
+        "complexityLevel": 2,
+        "status": "preview_only"
+      },
+      "dictation": {
+        "sentence": "We watched a preview of the film.",
+        "targetTokenIndex": 3,
+        "audioText": "We watched a preview of the film."
+      },
+      "reviews": {
+        "status": "approved_for_guided_review"
+      }
+    },
+    {
+      "wordKey": "rebuild_en_gb",
+      "word": "rebuild",
+      "microSkillKey": "D4_MOR_PREFIXES_RE_PRE",
+      "canonical": {
+        "dialect": "en-GB",
+        "frequencyBand": "medium",
+        "ageBand": "middle_primary",
+        "complexityBand": "medium"
+      },
+      "trueMorphology": {
+        "humanApprovedText": "Prefix: re + Base: build",
+        "orderedParts": [
+          {
+            "id": "part_1",
+            "kind": "prefix",
+            "morphemeKey": "prefix_RE",
+            "sourceText": "re",
+            "surfaceText": "re",
+            "gloss": "again",
+            "displayRange": {
+              "start": 0,
+              "end": 2
+            },
+            "source": {
+              "morphemesJsonIndex": 0
+            }
+          },
+          {
+            "id": "part_2",
+            "kind": "base",
+            "morphemeKey": null,
+            "sourceText": "build",
+            "surfaceText": "build",
+            "gloss": "",
+            "displayRange": {
+              "start": 2,
+              "end": 7
+            },
+            "source": {
+              "morphemesJsonIndex": 1
+            }
+          }
+        ],
+        "joins": [
+          {
+            "afterPartId": "part_1",
+            "beforePartId": "part_2",
+            "joinType": "none",
+            "surfaceText": "",
+            "displayRange": {
+              "start": 2,
+              "end": 2
+            }
+          }
+        ],
+        "transformationNotes": "",
+        "provenance": {
+          "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+          "sheet": "Word Bank",
+          "row": 37
+        }
+      },
+      "teaching": {
+        "splitParts": [
+          {
+            "id": "part_1",
+            "kind": "prefix",
+            "morphemeKey": "prefix_RE",
+            "sourceText": "re",
+            "surfaceText": "re",
+            "gloss": "again",
+            "displayRange": {
+              "start": 0,
+              "end": 2
+            },
+            "source": {
+              "morphemesJsonIndex": 0
+            }
+          },
+          {
+            "id": "part_2",
+            "kind": "base",
+            "morphemeKey": null,
+            "sourceText": "build",
+            "surfaceText": "build",
+            "gloss": "",
+            "displayRange": {
+              "start": 2,
+              "end": 7
+            },
+            "source": {
+              "morphemesJsonIndex": 1
+            }
+          }
+        ],
+        "splitJoins": [
+          {
+            "afterPartId": "part_1",
+            "beforePartId": "part_2",
+            "joinType": "none",
+            "surfaceText": "",
+            "displayRange": {
+              "start": 2,
+              "end": 2
+            }
+          }
+        ],
+        "prefixVariant": "re",
+        "cleaverBoundary": 2,
+        "baseOrRoot": "build",
+        "baseMeaning": "make something by putting parts together",
+        "childFriendlyMeaning": "build again",
+        "meaningBin": "again_back"
+      },
+      "pronunciation": {
+        "source": "british_ipa",
+        "ipa": "/\u0279\u026ab\u02c8\u026ald/",
+        "cmu": "R IY0 B IH1 L D",
+        "ipaVariantCount": 1,
+        "syllables": 2,
+        "stressPattern": "unstressed-primary",
+        "hasSchwa": false,
+        "phonemeCount": 7,
+        "approvalSafety": "safe_to_approve_candidate"
+      },
+      "complexityPreview": {
+        "version": "banding_v1.1_2026-07-04.preview",
+        "inputComplete": true,
+        "letterCount": 7,
+        "morphologyDepth": 2,
+        "irregularityBand": 0,
+        "structuralScore": 4,
+        "complexityLevel": 2,
+        "status": "preview_only"
+      },
+      "dictation": {
+        "sentence": "Workers will rebuild the wall.",
+        "targetTokenIndex": 2,
+        "audioText": "Workers will rebuild the wall."
+      },
+      "reviews": {
+        "status": "approved_for_guided_review"
+      }
+    },
+    {
+      "wordKey": "replay_en_gb",
+      "word": "replay",
+      "microSkillKey": "D4_MOR_PREFIXES_RE_PRE",
+      "canonical": {
+        "dialect": "en-GB",
+        "frequencyBand": "medium",
+        "ageBand": "middle_primary",
+        "complexityBand": "medium"
+      },
+      "trueMorphology": {
+        "humanApprovedText": "Prefix: re + Base: play",
+        "orderedParts": [
+          {
+            "id": "part_1",
+            "kind": "prefix",
+            "morphemeKey": "prefix_RE",
+            "sourceText": "re",
+            "surfaceText": "re",
+            "gloss": "again",
+            "displayRange": {
+              "start": 0,
+              "end": 2
+            },
+            "source": {
+              "morphemesJsonIndex": 0
+            }
+          },
+          {
+            "id": "part_2",
+            "kind": "base",
+            "morphemeKey": null,
+            "sourceText": "play",
+            "surfaceText": "play",
+            "gloss": "",
+            "displayRange": {
+              "start": 2,
+              "end": 6
+            },
+            "source": {
+              "morphemesJsonIndex": 1
+            }
+          }
+        ],
+        "joins": [
+          {
+            "afterPartId": "part_1",
+            "beforePartId": "part_2",
+            "joinType": "none",
+            "surfaceText": "",
+            "displayRange": {
+              "start": 2,
+              "end": 2
+            }
+          }
+        ],
+        "transformationNotes": "",
+        "provenance": {
+          "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+          "sheet": "Word Bank",
+          "row": 38
+        }
+      },
+      "teaching": {
+        "splitParts": [
+          {
+            "id": "part_1",
+            "kind": "prefix",
+            "morphemeKey": "prefix_RE",
+            "sourceText": "re",
+            "surfaceText": "re",
+            "gloss": "again",
+            "displayRange": {
+              "start": 0,
+              "end": 2
+            },
+            "source": {
+              "morphemesJsonIndex": 0
+            }
+          },
+          {
+            "id": "part_2",
+            "kind": "base",
+            "morphemeKey": null,
+            "sourceText": "play",
+            "surfaceText": "play",
+            "gloss": "",
+            "displayRange": {
+              "start": 2,
+              "end": 6
+            },
+            "source": {
+              "morphemesJsonIndex": 1
+            }
+          }
+        ],
+        "splitJoins": [
+          {
+            "afterPartId": "part_1",
+            "beforePartId": "part_2",
+            "joinType": "none",
+            "surfaceText": "",
+            "displayRange": {
+              "start": 2,
+              "end": 2
+            }
+          }
+        ],
+        "prefixVariant": "re",
+        "cleaverBoundary": 2,
+        "baseOrRoot": "play",
+        "baseMeaning": "take part in a game or make music for fun",
+        "childFriendlyMeaning": "play again",
+        "meaningBin": "again_back"
+      },
+      "pronunciation": {
+        "source": "human_approved_uk_ipa",
+        "ipa": "/\u02ccri\u02d0\u02c8ple\u026a/",
+        "cmu": "R IY0 P L EY1",
+        "ipaVariantCount": 0,
+        "syllables": 2,
+        "stressPattern": "unstressed-primary",
+        "hasSchwa": false,
+        "phonemeCount": 7,
+        "approvalSafety": "safe_to_approve_candidate"
+      },
+      "complexityPreview": {
+        "version": "banding_v1.1_2026-07-04.preview",
+        "inputComplete": true,
+        "letterCount": 6,
+        "morphologyDepth": 2,
+        "irregularityBand": 0,
+        "structuralScore": 3,
+        "complexityLevel": 2,
+        "status": "preview_only"
+      },
+      "dictation": {
+        "sentence": "Please replay that part of the song.",
+        "targetTokenIndex": 1,
+        "audioText": "Please replay that part of the song."
+      },
+      "reviews": {
+        "status": "approved_for_guided_review"
+      }
+    },
+    {
+      "wordKey": "return_en_gb",
+      "word": "return",
+      "microSkillKey": "D4_MOR_PREFIXES_RE_PRE",
+      "canonical": {
+        "dialect": "en-GB",
+        "frequencyBand": "high",
+        "ageBand": "middle_primary",
+        "complexityBand": "medium"
+      },
+      "trueMorphology": {
+        "humanApprovedText": "Prefix: re + Base: turn",
+        "orderedParts": [
+          {
+            "id": "part_1",
+            "kind": "prefix",
+            "morphemeKey": "prefix_RE",
+            "sourceText": "re",
+            "surfaceText": "re",
+            "gloss": "back",
+            "displayRange": {
+              "start": 0,
+              "end": 2
+            },
+            "source": {
+              "morphemesJsonIndex": 0
+            }
+          },
+          {
+            "id": "part_2",
+            "kind": "base",
+            "morphemeKey": null,
+            "sourceText": "turn",
+            "surfaceText": "turn",
+            "gloss": "",
+            "displayRange": {
+              "start": 2,
+              "end": 6
+            },
+            "source": {
+              "morphemesJsonIndex": 1
+            }
+          }
+        ],
+        "joins": [
+          {
+            "afterPartId": "part_1",
+            "beforePartId": "part_2",
+            "joinType": "none",
+            "surfaceText": "",
+            "displayRange": {
+              "start": 2,
+              "end": 2
+            }
+          }
+        ],
+        "transformationNotes": "",
+        "provenance": {
+          "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+          "sheet": "Word Bank",
+          "row": 39
+        }
+      },
+      "teaching": {
+        "splitParts": [
+          {
+            "id": "part_1",
+            "kind": "prefix",
+            "morphemeKey": "prefix_RE",
+            "sourceText": "re",
+            "surfaceText": "re",
+            "gloss": "back",
+            "displayRange": {
+              "start": 0,
+              "end": 2
+            },
+            "source": {
+              "morphemesJsonIndex": 0
+            }
+          },
+          {
+            "id": "part_2",
+            "kind": "base",
+            "morphemeKey": null,
+            "sourceText": "turn",
+            "surfaceText": "turn",
+            "gloss": "",
+            "displayRange": {
+              "start": 2,
+              "end": 6
+            },
+            "source": {
+              "morphemesJsonIndex": 1
+            }
+          }
+        ],
+        "splitJoins": [
+          {
+            "afterPartId": "part_1",
+            "beforePartId": "part_2",
+            "joinType": "none",
+            "surfaceText": "",
+            "displayRange": {
+              "start": 2,
+              "end": 2
+            }
+          }
+        ],
+        "prefixVariant": "re",
+        "cleaverBoundary": 2,
+        "baseOrRoot": "turn",
+        "baseMeaning": "go back or change direction",
+        "childFriendlyMeaning": "go or give back",
+        "meaningBin": "again_back"
+      },
+      "pronunciation": {
+        "source": "human_approved_uk_ipa",
+        "ipa": "/r\u026a\u02c8t\u025c\u02d0n/",
+        "cmu": "R IH0 T ER1 N",
+        "ipaVariantCount": 0,
+        "syllables": 2,
+        "stressPattern": "unstressed-primary",
+        "hasSchwa": false,
+        "phonemeCount": 6,
+        "approvalSafety": "safe_to_approve_candidate"
+      },
+      "complexityPreview": {
+        "version": "banding_v1.1_2026-07-04.preview",
+        "inputComplete": true,
+        "letterCount": 6,
+        "morphologyDepth": 2,
+        "irregularityBand": 0,
+        "structuralScore": 3,
+        "complexityLevel": 2,
+        "status": "preview_only"
+      },
+      "dictation": {
+        "sentence": "Please return the book tomorrow.",
+        "targetTokenIndex": 1,
+        "audioText": "Please return the book tomorrow."
+      },
+      "reviews": {
+        "status": "approved_for_guided_review"
+      }
+    },
+    {
+      "wordKey": "interact_en_gb",
+      "word": "interact",
+      "microSkillKey": "D4_MOR_PREFIXES_SUB_INTER_SUPER",
+      "canonical": {
+        "dialect": "en-GB",
+        "frequencyBand": "high",
+        "ageBand": "middle_primary",
+        "complexityBand": "high"
+      },
+      "trueMorphology": {
+        "humanApprovedText": "Prefix: inter + Base: act",
+        "orderedParts": [
+          {
+            "id": "part_1",
+            "kind": "prefix",
+            "morphemeKey": "prefix_INTER",
+            "sourceText": "inter",
+            "surfaceText": "inter",
+            "gloss": "between",
+            "displayRange": {
+              "start": 0,
+              "end": 5
+            },
+            "source": {
+              "morphemesJsonIndex": 0
+            }
+          },
+          {
+            "id": "part_2",
+            "kind": "root",
+            "morphemeKey": "root_ACT",
+            "sourceText": "act",
+            "surfaceText": "act",
+            "gloss": "do",
+            "displayRange": {
+              "start": 5,
+              "end": 8
+            },
+            "source": {
+              "morphemesJsonIndex": 1
+            }
+          }
+        ],
+        "joins": [
+          {
+            "afterPartId": "part_1",
+            "beforePartId": "part_2",
+            "joinType": "none",
+            "surfaceText": "",
+            "displayRange": {
+              "start": 5,
+              "end": 5
+            }
+          }
+        ],
+        "transformationNotes": "",
+        "provenance": {
+          "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+          "sheet": "Word Bank",
+          "row": 62
+        }
+      },
+      "teaching": {
+        "splitParts": [
+          {
+            "id": "part_1",
+            "kind": "prefix",
+            "morphemeKey": "prefix_INTER",
+            "sourceText": "inter",
+            "surfaceText": "inter",
+            "gloss": "between",
+            "displayRange": {
+              "start": 0,
+              "end": 5
+            },
+            "source": {
+              "morphemesJsonIndex": 0
+            }
+          },
+          {
+            "id": "part_2",
+            "kind": "root",
+            "morphemeKey": "root_ACT",
+            "sourceText": "act",
+            "surfaceText": "act",
+            "gloss": "do",
+            "displayRange": {
+              "start": 5,
+              "end": 8
+            },
+            "source": {
+              "morphemesJsonIndex": 1
+            }
+          }
+        ],
+        "splitJoins": [
+          {
+            "afterPartId": "part_1",
+            "beforePartId": "part_2",
+            "joinType": "none",
+            "surfaceText": "",
+            "displayRange": {
+              "start": 5,
+              "end": 5
+            }
+          }
+        ],
+        "prefixVariant": "inter",
+        "cleaverBoundary": 5,
+        "baseOrRoot": "act",
+        "baseMeaning": "do something",
+        "childFriendlyMeaning": "act or communicate with each other",
+        "meaningBin": "between"
+      },
+      "pronunciation": {
+        "source": "british_ipa",
+        "ipa": "/\u02cc\u026ant\u0259\u0279\u02c8\u00e6kt/",
+        "cmu": "IH2 N T ER0 AE1 K T",
+        "ipaVariantCount": 1,
+        "syllables": 3,
+        "stressPattern": "unstressed-unstressed-primary",
+        "hasSchwa": true,
+        "phonemeCount": 10,
+        "approvalSafety": "in_review"
+      },
+      "complexityPreview": {
+        "version": "banding_v1.1_2026-07-04.preview",
+        "inputComplete": true,
+        "letterCount": 8,
+        "morphologyDepth": 2,
+        "irregularityBand": 0,
+        "structuralScore": 6,
+        "complexityLevel": 3,
+        "status": "preview_only"
+      },
+      "dictation": {
+        "sentence": "The children interact during the game.",
+        "targetTokenIndex": 2,
+        "audioText": "The children interact during the game."
+      },
+      "reviews": {
+        "status": "approved_for_guided_review"
+      }
+    },
+    {
+      "wordKey": "international_en_gb",
+      "word": "international",
+      "microSkillKey": "D4_MOR_PREFIXES_SUB_INTER_SUPER",
+      "canonical": {
+        "dialect": "en-GB",
+        "frequencyBand": "high",
+        "ageBand": "middle_primary",
+        "complexityBand": "high"
+      },
+      "trueMorphology": {
+        "humanApprovedText": "Prefix: inter + Base: nation + Suffix: al",
+        "orderedParts": [
+          {
+            "id": "part_1",
+            "kind": "prefix",
+            "morphemeKey": "prefix_INTER",
+            "sourceText": "inter",
+            "surfaceText": "inter",
+            "gloss": "between",
+            "displayRange": {
+              "start": 0,
+              "end": 5
+            },
+            "source": {
+              "morphemesJsonIndex": 0
+            }
+          },
+          {
+            "id": "part_2",
+            "kind": "base",
+            "morphemeKey": null,
+            "sourceText": "national",
+            "surfaceText": "national",
+            "gloss": "",
+            "displayRange": {
+              "start": 5,
+              "end": 13
+            },
+            "source": {
+              "morphemesJsonIndex": 1
+            }
+          }
+        ],
+        "joins": [
+          {
+            "afterPartId": "part_1",
+            "beforePartId": "part_2",
+            "joinType": "none",
+            "surfaceText": "",
+            "displayRange": {
+              "start": 5,
+              "end": 5
+            }
+          }
+        ],
+        "transformationNotes": "",
+        "provenance": {
+          "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+          "sheet": "Word Bank",
+          "row": 61
+        }
+      },
+      "teaching": {
+        "splitParts": [
+          {
+            "id": "part_1",
+            "kind": "prefix",
+            "morphemeKey": "prefix_INTER",
+            "sourceText": "inter",
+            "surfaceText": "inter",
+            "gloss": "between",
+            "displayRange": {
+              "start": 0,
+              "end": 5
+            },
+            "source": {
+              "morphemesJsonIndex": 0
+            }
+          },
+          {
+            "id": "part_2",
+            "kind": "base",
+            "morphemeKey": null,
+            "sourceText": "national",
+            "surfaceText": "national",
+            "gloss": "",
+            "displayRange": {
+              "start": 5,
+              "end": 13
+            },
+            "source": {
+              "morphemesJsonIndex": 1
+            }
+          }
+        ],
+        "splitJoins": [
+          {
+            "afterPartId": "part_1",
+            "beforePartId": "part_2",
+            "joinType": "none",
+            "surfaceText": "",
+            "displayRange": {
+              "start": 5,
+              "end": 5
+            }
+          }
+        ],
+        "prefixVariant": "inter",
+        "cleaverBoundary": 5,
+        "baseOrRoot": "nation",
+        "baseMeaning": "a country and its people",
+        "childFriendlyMeaning": "involving more than one country",
+        "meaningBin": "between"
+      },
+      "pronunciation": {
+        "source": "british_ipa",
+        "ipa": "/\u02cc\u026ant\u0259n\u02c8\u00e6\u0283\u0259n\u0259l/",
+        "cmu": "IH2 N T ER0 N AE1 SH AH0 N AH0 L",
+        "ipaVariantCount": 1,
+        "syllables": 5,
+        "stressPattern": "unstressed-unstressed-primary-unstressed-unstressed",
+        "hasSchwa": true,
+        "phonemeCount": 13,
+        "approvalSafety": "in_review"
+      },
+      "complexityPreview": {
+        "version": "banding_v1.1_2026-07-04.preview",
+        "inputComplete": true,
+        "letterCount": 13,
+        "morphologyDepth": 3,
+        "irregularityBand": 0,
+        "structuralScore": 9,
+        "complexityLevel": 3,
+        "status": "preview_only"
+      },
+      "dictation": {
+        "sentence": "The airport has international flights.",
+        "targetTokenIndex": 3,
+        "audioText": "The airport has international flights."
+      },
+      "reviews": {
+        "status": "approved_for_guided_review"
+      }
+    },
+    {
+      "wordKey": "subheading_en_gb",
+      "word": "subheading",
+      "microSkillKey": "D4_MOR_PREFIXES_SUB_INTER_SUPER",
+      "canonical": {
+        "dialect": "en-GB",
+        "frequencyBand": "low",
+        "ageBand": "middle_primary",
+        "complexityBand": "high"
+      },
+      "trueMorphology": {
+        "humanApprovedText": "Prefix: sub + Base: head + Suffix: ing",
+        "orderedParts": [
+          {
+            "id": "part_1",
+            "kind": "prefix",
+            "morphemeKey": "prefix_SUB",
+            "sourceText": "sub",
+            "surfaceText": "sub",
+            "gloss": "under",
+            "displayRange": {
+              "start": 0,
+              "end": 3
+            },
+            "source": {
+              "morphemesJsonIndex": 0
+            }
+          },
+          {
+            "id": "part_2",
+            "kind": "base",
+            "morphemeKey": null,
+            "sourceText": "heading",
+            "surfaceText": "heading",
+            "gloss": "",
+            "displayRange": {
+              "start": 3,
+              "end": 10
+            },
+            "source": {
+              "morphemesJsonIndex": 1
+            }
+          }
+        ],
+        "joins": [
+          {
+            "afterPartId": "part_1",
+            "beforePartId": "part_2",
+            "joinType": "none",
+            "surfaceText": "",
+            "displayRange": {
+              "start": 3,
+              "end": 3
+            }
+          }
+        ],
+        "transformationNotes": "",
+        "provenance": {
+          "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+          "sheet": "Word Bank",
+          "row": 60
+        }
+      },
+      "teaching": {
+        "splitParts": [
+          {
+            "id": "part_1",
+            "kind": "prefix",
+            "morphemeKey": "prefix_SUB",
+            "sourceText": "sub",
+            "surfaceText": "sub",
+            "gloss": "under",
+            "displayRange": {
+              "start": 0,
+              "end": 3
+            },
+            "source": {
+              "morphemesJsonIndex": 0
+            }
+          },
+          {
+            "id": "part_2",
+            "kind": "base",
+            "morphemeKey": null,
+            "sourceText": "heading",
+            "surfaceText": "heading",
+            "gloss": "",
+            "displayRange": {
+              "start": 3,
+              "end": 10
+            },
+            "source": {
+              "morphemesJsonIndex": 1
+            }
+          }
+        ],
+        "splitJoins": [
+          {
+            "afterPartId": "part_1",
+            "beforePartId": "part_2",
+            "joinType": "none",
+            "surfaceText": "",
+            "displayRange": {
+              "start": 3,
+              "end": 3
+            }
+          }
+        ],
+        "prefixVariant": "sub",
+        "cleaverBoundary": 3,
+        "baseOrRoot": "heading",
+        "baseMeaning": "the title of a section of writing",
+        "childFriendlyMeaning": "a smaller heading under a main heading",
+        "meaningBin": "under"
+      },
+      "pronunciation": {
+        "source": "human_approved_uk_ipa",
+        "ipa": "/\u02c8s\u028cb\u02cched\u026a\u014b/",
+        "cmu": "",
+        "ipaVariantCount": 0,
+        "syllables": 3,
+        "stressPattern": "primary-unstressed-unstressed",
+        "hasSchwa": false,
+        "phonemeCount": 10,
+        "approvalSafety": "safe_to_approve_candidate"
+      },
+      "complexityPreview": {
+        "version": "banding_v1.1_2026-07-04.preview",
+        "inputComplete": true,
+        "letterCount": 10,
+        "morphologyDepth": 3,
+        "irregularityBand": 0,
+        "structuralScore": 7,
+        "complexityLevel": 3,
+        "status": "preview_only"
+      },
+      "dictation": {
+        "sentence": "Write a subheading for the next section.",
+        "targetTokenIndex": 2,
+        "audioText": "Write a subheading for the next section."
+      },
+      "reviews": {
+        "status": "approved_for_guided_review"
+      }
+    },
+    {
+      "wordKey": "submarine_en_gb",
+      "word": "submarine",
+      "microSkillKey": "D4_MOR_PREFIXES_SUB_INTER_SUPER",
+      "canonical": {
+        "dialect": "en-GB",
+        "frequencyBand": "medium",
+        "ageBand": "middle_primary",
+        "complexityBand": "high"
+      },
+      "trueMorphology": {
+        "humanApprovedText": "Prefix: sub + Base: marine",
+        "orderedParts": [
+          {
+            "id": "part_1",
+            "kind": "prefix",
+            "morphemeKey": "prefix_SUB",
+            "sourceText": "sub",
+            "surfaceText": "sub",
+            "gloss": "under",
+            "displayRange": {
+              "start": 0,
+              "end": 3
+            },
+            "source": {
+              "morphemesJsonIndex": 0
+            }
+          },
+          {
+            "id": "part_2",
+            "kind": "base",
+            "morphemeKey": null,
+            "sourceText": "marine",
+            "surfaceText": "marine",
+            "gloss": "of the sea",
+            "displayRange": {
+              "start": 3,
+              "end": 9
+            },
+            "source": {
+              "morphemesJsonIndex": 1
+            }
+          }
+        ],
+        "joins": [
+          {
+            "afterPartId": "part_1",
+            "beforePartId": "part_2",
+            "joinType": "none",
+            "surfaceText": "",
+            "displayRange": {
+              "start": 3,
+              "end": 3
+            }
+          }
+        ],
+        "transformationNotes": "",
+        "provenance": {
+          "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+          "sheet": "Word Bank",
+          "row": 58
+        }
+      },
+      "teaching": {
+        "splitParts": [
+          {
+            "id": "part_1",
+            "kind": "prefix",
+            "morphemeKey": "prefix_SUB",
+            "sourceText": "sub",
+            "surfaceText": "sub",
+            "gloss": "under",
+            "displayRange": {
+              "start": 0,
+              "end": 3
+            },
+            "source": {
+              "morphemesJsonIndex": 0
+            }
+          },
+          {
+            "id": "part_2",
+            "kind": "base",
+            "morphemeKey": null,
+            "sourceText": "marine",
+            "surfaceText": "marine",
+            "gloss": "of the sea",
+            "displayRange": {
+              "start": 3,
+              "end": 9
+            },
+            "source": {
+              "morphemesJsonIndex": 1
+            }
+          }
+        ],
+        "splitJoins": [
+          {
+            "afterPartId": "part_1",
+            "beforePartId": "part_2",
+            "joinType": "none",
+            "surfaceText": "",
+            "displayRange": {
+              "start": 3,
+              "end": 3
+            }
+          }
+        ],
+        "prefixVariant": "sub",
+        "cleaverBoundary": 3,
+        "baseOrRoot": "marine",
+        "baseMeaning": "of the sea",
+        "childFriendlyMeaning": "a boat that travels under the sea",
+        "meaningBin": "under"
+      },
+      "pronunciation": {
+        "source": "british_ipa",
+        "ipa": "/s\u02c8\u028cbm\u0259\u0279\u02cci\u02d0n/",
+        "cmu": "S AH1 B M ER0 IY2 N",
+        "ipaVariantCount": 1,
+        "syllables": 3,
+        "stressPattern": "primary-unstressed-unstressed",
+        "hasSchwa": true,
+        "phonemeCount": 10,
+        "approvalSafety": "in_review"
+      },
+      "complexityPreview": {
+        "version": "banding_v1.1_2026-07-04.preview",
+        "inputComplete": true,
+        "letterCount": 9,
+        "morphologyDepth": 2,
+        "irregularityBand": 0,
+        "structuralScore": 7,
+        "complexityLevel": 3,
+        "status": "preview_only"
+      },
+      "dictation": {
+        "sentence": "The submarine moved under the waves.",
+        "targetTokenIndex": 1,
+        "audioText": "The submarine moved under the waves."
+      },
+      "reviews": {
+        "status": "approved_for_guided_review"
+      }
+    },
+    {
+      "wordKey": "subway_en_gb",
+      "word": "subway",
+      "microSkillKey": "D4_MOR_PREFIXES_SUB_INTER_SUPER",
+      "canonical": {
+        "dialect": "en-GB",
+        "frequencyBand": "high",
+        "ageBand": "middle_primary",
+        "complexityBand": "medium"
+      },
+      "trueMorphology": {
+        "humanApprovedText": "Prefix: sub + Base: way",
+        "orderedParts": [
+          {
+            "id": "part_1",
+            "kind": "prefix",
+            "morphemeKey": "prefix_SUB",
+            "sourceText": "sub",
+            "surfaceText": "sub",
+            "gloss": "under",
+            "displayRange": {
+              "start": 0,
+              "end": 3
+            },
+            "source": {
+              "morphemesJsonIndex": 0
+            }
+          },
+          {
+            "id": "part_2",
+            "kind": "base",
+            "morphemeKey": null,
+            "sourceText": "way",
+            "surfaceText": "way",
+            "gloss": "",
+            "displayRange": {
+              "start": 3,
+              "end": 6
+            },
+            "source": {
+              "morphemesJsonIndex": 1
+            }
+          }
+        ],
+        "joins": [
+          {
+            "afterPartId": "part_1",
+            "beforePartId": "part_2",
+            "joinType": "none",
+            "surfaceText": "",
+            "displayRange": {
+              "start": 3,
+              "end": 3
+            }
+          }
+        ],
+        "transformationNotes": "",
+        "provenance": {
+          "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+          "sheet": "Word Bank",
+          "row": 59
+        }
+      },
+      "teaching": {
+        "splitParts": [
+          {
+            "id": "part_1",
+            "kind": "prefix",
+            "morphemeKey": "prefix_SUB",
+            "sourceText": "sub",
+            "surfaceText": "sub",
+            "gloss": "under",
+            "displayRange": {
+              "start": 0,
+              "end": 3
+            },
+            "source": {
+              "morphemesJsonIndex": 0
+            }
+          },
+          {
+            "id": "part_2",
+            "kind": "base",
+            "morphemeKey": null,
+            "sourceText": "way",
+            "surfaceText": "way",
+            "gloss": "",
+            "displayRange": {
+              "start": 3,
+              "end": 6
+            },
+            "source": {
+              "morphemesJsonIndex": 1
+            }
+          }
+        ],
+        "splitJoins": [
+          {
+            "afterPartId": "part_1",
+            "beforePartId": "part_2",
+            "joinType": "none",
+            "surfaceText": "",
+            "displayRange": {
+              "start": 3,
+              "end": 3
+            }
+          }
+        ],
+        "prefixVariant": "sub",
+        "cleaverBoundary": 3,
+        "baseOrRoot": "way",
+        "baseMeaning": "a route or path from one place to another",
+        "childFriendlyMeaning": "an underground railway",
+        "meaningBin": "under"
+      },
+      "pronunciation": {
+        "source": "british_ipa",
+        "ipa": "/s\u02c8\u028cbwe\u026a/",
+        "cmu": "S AH1 B W EY2",
+        "ipaVariantCount": 1,
+        "syllables": 2,
+        "stressPattern": "primary-unstressed",
+        "hasSchwa": false,
+        "phonemeCount": 6,
+        "approvalSafety": "safe_to_approve_candidate"
+      },
+      "complexityPreview": {
+        "version": "banding_v1.1_2026-07-04.preview",
+        "inputComplete": true,
+        "letterCount": 6,
+        "morphologyDepth": 2,
+        "irregularityBand": 0,
+        "structuralScore": 3,
+        "complexityLevel": 2,
+        "status": "preview_only"
+      },
+      "dictation": {
+        "sentence": "We took the subway across the city.",
+        "targetTokenIndex": 3,
+        "audioText": "We took the subway across the city."
+      },
+      "reviews": {
+        "status": "approved_for_guided_review"
+      }
+    },
+    {
+      "wordKey": "superhero_en_gb",
+      "word": "superhero",
+      "microSkillKey": "D4_MOR_PREFIXES_SUB_INTER_SUPER",
+      "canonical": {
+        "dialect": "en-GB",
+        "frequencyBand": "medium",
+        "ageBand": "middle_primary",
+        "complexityBand": "high"
+      },
+      "trueMorphology": {
+        "humanApprovedText": "Prefix: super + Base: hero",
+        "orderedParts": [
+          {
+            "id": "part_1",
+            "kind": "prefix",
+            "morphemeKey": "prefix_SUPER",
+            "sourceText": "super",
+            "surfaceText": "super",
+            "gloss": "above / beyond",
+            "displayRange": {
+              "start": 0,
+              "end": 5
+            },
+            "source": {
+              "morphemesJsonIndex": 0
+            }
+          },
+          {
+            "id": "part_2",
+            "kind": "base",
+            "morphemeKey": null,
+            "sourceText": "hero",
+            "surfaceText": "hero",
+            "gloss": "",
+            "displayRange": {
+              "start": 5,
+              "end": 9
+            },
+            "source": {
+              "morphemesJsonIndex": 1
+            }
+          }
+        ],
+        "joins": [
+          {
+            "afterPartId": "part_1",
+            "beforePartId": "part_2",
+            "joinType": "none",
+            "surfaceText": "",
+            "displayRange": {
+              "start": 5,
+              "end": 5
+            }
+          }
+        ],
+        "transformationNotes": "",
+        "provenance": {
+          "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+          "sheet": "Word Bank",
+          "row": 63
+        }
+      },
+      "teaching": {
+        "splitParts": [
+          {
+            "id": "part_1",
+            "kind": "prefix",
+            "morphemeKey": "prefix_SUPER",
+            "sourceText": "super",
+            "surfaceText": "super",
+            "gloss": "above / beyond",
+            "displayRange": {
+              "start": 0,
+              "end": 5
+            },
+            "source": {
+              "morphemesJsonIndex": 0
+            }
+          },
+          {
+            "id": "part_2",
+            "kind": "base",
+            "morphemeKey": null,
+            "sourceText": "hero",
+            "surfaceText": "hero",
+            "gloss": "",
+            "displayRange": {
+              "start": 5,
+              "end": 9
+            },
+            "source": {
+              "morphemesJsonIndex": 1
+            }
+          }
+        ],
+        "splitJoins": [
+          {
+            "afterPartId": "part_1",
+            "beforePartId": "part_2",
+            "joinType": "none",
+            "surfaceText": "",
+            "displayRange": {
+              "start": 5,
+              "end": 5
+            }
+          }
+        ],
+        "prefixVariant": "super",
+        "cleaverBoundary": 5,
+        "baseOrRoot": "hero",
+        "baseMeaning": "a brave person who helps others",
+        "childFriendlyMeaning": "a hero with special powers",
+        "meaningBin": "above_beyond"
+      },
+      "pronunciation": {
+        "source": "british_ipa",
+        "ipa": "/s\u02c8u\u02d0p\u0259h\u02cci\u0259\u0279\u0259\u028a/",
+        "cmu": "S UW2 P ER0 HH IY1 R OW0",
+        "ipaVariantCount": 1,
+        "syllables": 4,
+        "stressPattern": "primary-unstressed-unstressed-unstressed",
+        "hasSchwa": true,
+        "phonemeCount": 11,
+        "approvalSafety": "in_review"
+      },
+      "complexityPreview": {
+        "version": "banding_v1.1_2026-07-04.preview",
+        "inputComplete": true,
+        "letterCount": 9,
+        "morphologyDepth": 2,
+        "irregularityBand": 0,
+        "structuralScore": 8,
+        "complexityLevel": 3,
+        "status": "preview_only"
+      },
+      "dictation": {
+        "sentence": "The superhero saved the town.",
+        "targetTokenIndex": 1,
+        "audioText": "The superhero saved the town."
+      },
+      "reviews": {
+        "status": "approved_for_guided_review"
+      }
+    },
+    {
+      "wordKey": "supermarket_en_gb",
+      "word": "supermarket",
+      "microSkillKey": "D4_MOR_PREFIXES_SUB_INTER_SUPER",
+      "canonical": {
+        "dialect": "en-GB",
+        "frequencyBand": "medium",
+        "ageBand": "middle_primary",
+        "complexityBand": "high"
+      },
+      "trueMorphology": {
+        "humanApprovedText": "Prefix: super + Base: market",
+        "orderedParts": [
+          {
+            "id": "part_1",
+            "kind": "prefix",
+            "morphemeKey": "prefix_SUPER",
+            "sourceText": "super",
+            "surfaceText": "super",
+            "gloss": "above / beyond",
+            "displayRange": {
+              "start": 0,
+              "end": 5
+            },
+            "source": {
+              "morphemesJsonIndex": 0
+            }
+          },
+          {
+            "id": "part_2",
+            "kind": "base",
+            "morphemeKey": null,
+            "sourceText": "market",
+            "surfaceText": "market",
+            "gloss": "",
+            "displayRange": {
+              "start": 5,
+              "end": 11
+            },
+            "source": {
+              "morphemesJsonIndex": 1
+            }
+          }
+        ],
+        "joins": [
+          {
+            "afterPartId": "part_1",
+            "beforePartId": "part_2",
+            "joinType": "none",
+            "surfaceText": "",
+            "displayRange": {
+              "start": 5,
+              "end": 5
+            }
+          }
+        ],
+        "transformationNotes": "",
+        "provenance": {
+          "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+          "sheet": "Word Bank",
+          "row": 64
+        }
+      },
+      "teaching": {
+        "splitParts": [
+          {
+            "id": "part_1",
+            "kind": "prefix",
+            "morphemeKey": "prefix_SUPER",
+            "sourceText": "super",
+            "surfaceText": "super",
+            "gloss": "above / beyond",
+            "displayRange": {
+              "start": 0,
+              "end": 5
+            },
+            "source": {
+              "morphemesJsonIndex": 0
+            }
+          },
+          {
+            "id": "part_2",
+            "kind": "base",
+            "morphemeKey": null,
+            "sourceText": "market",
+            "surfaceText": "market",
+            "gloss": "",
+            "displayRange": {
+              "start": 5,
+              "end": 11
+            },
+            "source": {
+              "morphemesJsonIndex": 1
+            }
+          }
+        ],
+        "splitJoins": [
+          {
+            "afterPartId": "part_1",
+            "beforePartId": "part_2",
+            "joinType": "none",
+            "surfaceText": "",
+            "displayRange": {
+              "start": 5,
+              "end": 5
+            }
+          }
+        ],
+        "prefixVariant": "super",
+        "cleaverBoundary": 5,
+        "baseOrRoot": "market",
+        "baseMeaning": "a place where people buy and sell things",
+        "childFriendlyMeaning": "a large food shop",
+        "meaningBin": "above_beyond"
+      },
+      "pronunciation": {
+        "source": "british_ipa",
+        "ipa": "/s\u02c8u\u02d0p\u0259m\u02cc\u0251\u02d0k\u026at/",
+        "cmu": "S UW1 P ER0 M AA2 R K IH0 T",
+        "ipaVariantCount": 1,
+        "syllables": 4,
+        "stressPattern": "primary-unstressed-unstressed-unstressed",
+        "hasSchwa": true,
+        "phonemeCount": 11,
+        "approvalSafety": "safe_to_approve_candidate"
+      },
+      "complexityPreview": {
+        "version": "banding_v1.1_2026-07-04.preview",
+        "inputComplete": true,
+        "letterCount": 11,
+        "morphologyDepth": 2,
+        "irregularityBand": 0,
+        "structuralScore": 8,
+        "complexityLevel": 3,
+        "status": "preview_only"
+      },
+      "dictation": {
+        "sentence": "We bought fruit at the supermarket.",
+        "targetTokenIndex": 5,
+        "audioText": "We bought fruit at the supermarket."
+      },
+      "reviews": {
+        "status": "approved_for_guided_review"
+      }
+    }
+  ]
+}

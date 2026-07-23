@@ -1,0 +1,1953 @@
+{
+  "packageKey": "adle_d4_dynamic_prefix_staging_enrichment_2026_07_22",
+  "activation": {
+    "production": false,
+    "createsLearningItems": false,
+    "createsAssignments": false
+  },
+  "sources": {
+    "britishIpa": {
+      "url": "https://github.com/open-dict-data/ipa-dict/blob/master/data/en_UK.txt",
+      "sha256": "221394caef0cf723b4f2df81a98ac33191293257b88aed5b1fb89466d3a0dc77"
+    },
+    "cmuDict": {
+      "url": "https://github.com/cmusphinx/cmudict",
+      "sha256": "81917843c7f44ce2b094ac63873c2c7a4cf802040792c455ba3ca406891c3d22"
+    },
+    "humanApprovals": "Dynamic Prefix profile review and owner-approved morphology/teaching ages"
+  },
+  "words": [
+    {
+      "wordKey": "disagree_en_gb",
+      "word": "disagree",
+      "microSkillKey": "D4_MOR_PREFIXES_DIS_MIS",
+      "teachingSplitParts": [
+        {
+          "id": "part_1",
+          "kind": "prefix",
+          "morphemeKey": "prefix_DIS",
+          "sourceText": "dis",
+          "surfaceText": "dis",
+          "gloss": "not",
+          "displayRange": {
+            "start": 0,
+            "end": 3
+          },
+          "source": {
+            "morphemesJsonIndex": 0
+          }
+        },
+        {
+          "id": "part_2",
+          "kind": "base",
+          "morphemeKey": null,
+          "sourceText": "agree",
+          "surfaceText": "agree",
+          "gloss": "",
+          "displayRange": {
+            "start": 3,
+            "end": 8
+          },
+          "source": {
+            "morphemesJsonIndex": 1
+          }
+        }
+      ],
+      "humanApprovedTrueMorphology": "Prefix: dis + Base: agree",
+      "transformationNotes": "",
+      "teachingAgeRange": "7\u20139",
+      "teachingAge": 8,
+      "dictation": {
+        "sentence": "They disagree about the game.",
+        "targetTokenIndex": 1,
+        "audioText": "They disagree about the game."
+      },
+      "pronunciation": {
+        "source": "british_ipa",
+        "ipa": "/d\u02cc\u026as\u0250\u0261\u0279\u02c8i\u02d0/",
+        "cmu": "D IH0 S AH0 G R IY1",
+        "ipaVariantCount": 1,
+        "syllables": 3,
+        "stressPattern": "unstressed-unstressed-primary",
+        "hasSchwa": true,
+        "phonemeCount": 9,
+        "approvalSafety": "safe_to_approve_candidate"
+      },
+      "complexityPreview": {
+        "version": "banding_v1.1_2026-07-04.preview",
+        "inputComplete": true,
+        "letterCount": 8,
+        "morphologyDepth": 2,
+        "irregularityBand": 0,
+        "structuralScore": 6,
+        "complexityLevel": 3,
+        "status": "preview_only"
+      },
+      "reviewStatus": "approved_for_guided_review",
+      "stagingActivation": "blocked_until_all_fields_are_approved"
+    },
+    {
+      "wordKey": "disappear_en_gb",
+      "word": "disappear",
+      "microSkillKey": "D4_MOR_PREFIXES_DIS_MIS",
+      "teachingSplitParts": [
+        {
+          "id": "part_1",
+          "kind": "prefix",
+          "morphemeKey": "prefix_DIS",
+          "sourceText": "dis",
+          "surfaceText": "dis",
+          "gloss": "opposite of",
+          "displayRange": {
+            "start": 0,
+            "end": 3
+          },
+          "source": {
+            "morphemesJsonIndex": 0
+          }
+        },
+        {
+          "id": "part_2",
+          "kind": "base",
+          "morphemeKey": null,
+          "sourceText": "appear",
+          "surfaceText": "appear",
+          "gloss": "",
+          "displayRange": {
+            "start": 3,
+            "end": 9
+          },
+          "source": {
+            "morphemesJsonIndex": 1
+          }
+        }
+      ],
+      "humanApprovedTrueMorphology": "Prefix: dis + Base: appear",
+      "transformationNotes": "",
+      "teachingAgeRange": "7\u20139",
+      "teachingAge": 8,
+      "dictation": {
+        "sentence": "The rabbit can disappear behind the hedge.",
+        "targetTokenIndex": 3,
+        "audioText": "The rabbit can disappear behind the hedge."
+      },
+      "pronunciation": {
+        "source": "british_ipa",
+        "ipa": "/d\u02cc\u026as\u0250p\u02c8i\u0259/",
+        "cmu": "D IH2 S AH0 P IH1 R",
+        "ipaVariantCount": 1,
+        "syllables": 3,
+        "stressPattern": "unstressed-unstressed-primary",
+        "hasSchwa": true,
+        "phonemeCount": 9,
+        "approvalSafety": "in_review"
+      },
+      "complexityPreview": {
+        "version": "banding_v1.1_2026-07-04.preview",
+        "inputComplete": true,
+        "letterCount": 9,
+        "morphologyDepth": 2,
+        "irregularityBand": 0,
+        "structuralScore": 7,
+        "complexityLevel": 3,
+        "status": "preview_only"
+      },
+      "reviewStatus": "in_review",
+      "stagingActivation": "blocked_until_all_fields_are_approved"
+    },
+    {
+      "wordKey": "dishonest_en_gb",
+      "word": "dishonest",
+      "microSkillKey": "D4_MOR_PREFIXES_DIS_MIS",
+      "teachingSplitParts": [
+        {
+          "id": "part_1",
+          "kind": "prefix",
+          "morphemeKey": "prefix_DIS",
+          "sourceText": "dis",
+          "surfaceText": "dis",
+          "gloss": "not",
+          "displayRange": {
+            "start": 0,
+            "end": 3
+          },
+          "source": {
+            "morphemesJsonIndex": 0
+          }
+        },
+        {
+          "id": "part_2",
+          "kind": "base",
+          "morphemeKey": null,
+          "sourceText": "honest",
+          "surfaceText": "honest",
+          "gloss": "",
+          "displayRange": {
+            "start": 3,
+            "end": 9
+          },
+          "source": {
+            "morphemesJsonIndex": 1
+          }
+        }
+      ],
+      "humanApprovedTrueMorphology": "Prefix: dis + Base: honest",
+      "transformationNotes": "",
+      "teachingAgeRange": "7\u20139",
+      "teachingAge": 8,
+      "dictation": {
+        "sentence": "It is dishonest to tell a lie.",
+        "targetTokenIndex": 2,
+        "audioText": "It is dishonest to tell a lie."
+      },
+      "pronunciation": {
+        "source": "british_ipa",
+        "ipa": "/d\u026as\u02c8\u0252n\u026ast/",
+        "cmu": "D IH0 S AA1 N AH0 S T",
+        "ipaVariantCount": 1,
+        "syllables": 3,
+        "stressPattern": "unstressed-primary-unstressed",
+        "hasSchwa": false,
+        "phonemeCount": 9,
+        "approvalSafety": "in_review"
+      },
+      "complexityPreview": {
+        "version": "banding_v1.1_2026-07-04.preview",
+        "inputComplete": true,
+        "letterCount": 9,
+        "morphologyDepth": 2,
+        "irregularityBand": 0,
+        "structuralScore": 6,
+        "complexityLevel": 3,
+        "status": "preview_only"
+      },
+      "reviewStatus": "in_review",
+      "stagingActivation": "blocked_until_all_fields_are_approved"
+    },
+    {
+      "wordKey": "dissatisfied_en_gb",
+      "word": "dissatisfied",
+      "microSkillKey": "D4_MOR_PREFIXES_DIS_MIS",
+      "teachingSplitParts": [
+        {
+          "id": "part_1",
+          "kind": "prefix",
+          "morphemeKey": "prefix_DIS",
+          "sourceText": "dis",
+          "surfaceText": "dis",
+          "gloss": "not",
+          "displayRange": {
+            "start": 0,
+            "end": 3
+          },
+          "source": {
+            "morphemesJsonIndex": 0
+          }
+        },
+        {
+          "id": "part_2",
+          "kind": "base",
+          "morphemeKey": null,
+          "sourceText": "satisfied",
+          "surfaceText": "satisfied",
+          "gloss": "",
+          "displayRange": {
+            "start": 3,
+            "end": 12
+          },
+          "source": {
+            "morphemesJsonIndex": 1
+          }
+        }
+      ],
+      "humanApprovedTrueMorphology": "Prefix: dis + Base: satisfy + Suffix: ed",
+      "transformationNotes": "Change final y to i before adding -ed; keep both s letters where dis and satisfy meet.",
+      "teachingAgeRange": "8\u201310",
+      "teachingAge": 9,
+      "dictation": {
+        "sentence": "She felt dissatisfied with the untidy work.",
+        "targetTokenIndex": 2,
+        "audioText": "She felt dissatisfied with the untidy work."
+      },
+      "pronunciation": {
+        "source": "british_ipa",
+        "ipa": "/d\u026as\u02c8\u00e6t\u026asf\u02cca\u026ad/",
+        "cmu": "D IH0 S AE1 T AH0 S F AY2 D",
+        "ipaVariantCount": 1,
+        "syllables": 4,
+        "stressPattern": "unstressed-primary-unstressed-unstressed",
+        "hasSchwa": false,
+        "phonemeCount": 12,
+        "approvalSafety": "in_review"
+      },
+      "complexityPreview": {
+        "version": "banding_v1.1_2026-07-04.preview",
+        "inputComplete": true,
+        "letterCount": 12,
+        "morphologyDepth": 3,
+        "irregularityBand": 1,
+        "structuralScore": 10,
+        "complexityLevel": 3,
+        "status": "preview_only"
+      },
+      "reviewStatus": "in_review",
+      "stagingActivation": "blocked_until_all_fields_are_approved"
+    },
+    {
+      "wordKey": "misbehave_en_gb",
+      "word": "misbehave",
+      "microSkillKey": "D4_MOR_PREFIXES_DIS_MIS",
+      "teachingSplitParts": [
+        {
+          "id": "part_1",
+          "kind": "prefix",
+          "morphemeKey": "prefix_MIS",
+          "sourceText": "mis",
+          "surfaceText": "mis",
+          "gloss": "badly",
+          "displayRange": {
+            "start": 0,
+            "end": 3
+          },
+          "source": {
+            "morphemesJsonIndex": 0
+          }
+        },
+        {
+          "id": "part_2",
+          "kind": "base",
+          "morphemeKey": null,
+          "sourceText": "behave",
+          "surfaceText": "behave",
+          "gloss": "",
+          "displayRange": {
+            "start": 3,
+            "end": 9
+          },
+          "source": {
+            "morphemesJsonIndex": 1
+          }
+        }
+      ],
+      "humanApprovedTrueMorphology": "Prefix: mis + Base: behave",
+      "transformationNotes": "",
+      "teachingAgeRange": "7\u20139",
+      "teachingAge": 8,
+      "dictation": {
+        "sentence": "Do not misbehave in the library.",
+        "targetTokenIndex": 2,
+        "audioText": "Do not misbehave in the library."
+      },
+      "pronunciation": {
+        "source": "british_ipa",
+        "ipa": "/m\u026asb\u026ah\u02c8e\u026av/",
+        "cmu": "M IH2 S B AH0 HH EY1 V",
+        "ipaVariantCount": 1,
+        "syllables": 3,
+        "stressPattern": "unstressed-unstressed-primary",
+        "hasSchwa": false,
+        "phonemeCount": 9,
+        "approvalSafety": "in_review"
+      },
+      "complexityPreview": {
+        "version": "banding_v1.1_2026-07-04.preview",
+        "inputComplete": true,
+        "letterCount": 9,
+        "morphologyDepth": 2,
+        "irregularityBand": 0,
+        "structuralScore": 6,
+        "complexityLevel": 3,
+        "status": "preview_only"
+      },
+      "reviewStatus": "in_review",
+      "stagingActivation": "blocked_until_all_fields_are_approved"
+    },
+    {
+      "wordKey": "mislead_en_gb",
+      "word": "mislead",
+      "microSkillKey": "D4_MOR_PREFIXES_DIS_MIS",
+      "teachingSplitParts": [
+        {
+          "id": "part_1",
+          "kind": "prefix",
+          "morphemeKey": "prefix_MIS",
+          "sourceText": "mis",
+          "surfaceText": "mis",
+          "gloss": "wrongly",
+          "displayRange": {
+            "start": 0,
+            "end": 3
+          },
+          "source": {
+            "morphemesJsonIndex": 0
+          }
+        },
+        {
+          "id": "part_2",
+          "kind": "base",
+          "morphemeKey": null,
+          "sourceText": "lead",
+          "surfaceText": "lead",
+          "gloss": "",
+          "displayRange": {
+            "start": 3,
+            "end": 7
+          },
+          "source": {
+            "morphemesJsonIndex": 1
+          }
+        }
+      ],
+      "humanApprovedTrueMorphology": "Prefix: mis + Base: lead",
+      "transformationNotes": "",
+      "teachingAgeRange": "7\u20139",
+      "teachingAge": 8,
+      "dictation": {
+        "sentence": "The sign did not mean to mislead us.",
+        "targetTokenIndex": 6,
+        "audioText": "The sign did not mean to mislead us."
+      },
+      "pronunciation": {
+        "source": "british_ipa",
+        "ipa": "/m\u026asl\u02c8i\u02d0d/",
+        "cmu": "M IH0 S L IY1 D",
+        "ipaVariantCount": 1,
+        "syllables": 2,
+        "stressPattern": "unstressed-primary",
+        "hasSchwa": false,
+        "phonemeCount": 7,
+        "approvalSafety": "safe_to_approve_candidate"
+      },
+      "complexityPreview": {
+        "version": "banding_v1.1_2026-07-04.preview",
+        "inputComplete": true,
+        "letterCount": 7,
+        "morphologyDepth": 2,
+        "irregularityBand": 0,
+        "structuralScore": 4,
+        "complexityLevel": 2,
+        "status": "preview_only"
+      },
+      "reviewStatus": "approved_for_guided_review",
+      "stagingActivation": "blocked_until_all_fields_are_approved"
+    },
+    {
+      "wordKey": "misspell_en_gb",
+      "word": "misspell",
+      "microSkillKey": "D4_MOR_PREFIXES_DIS_MIS",
+      "teachingSplitParts": [
+        {
+          "id": "part_1",
+          "kind": "prefix",
+          "morphemeKey": "prefix_MIS",
+          "sourceText": "mis",
+          "surfaceText": "mis",
+          "gloss": "wrongly",
+          "displayRange": {
+            "start": 0,
+            "end": 3
+          },
+          "source": {
+            "morphemesJsonIndex": 0
+          }
+        },
+        {
+          "id": "part_2",
+          "kind": "base",
+          "morphemeKey": null,
+          "sourceText": "spell",
+          "surfaceText": "spell",
+          "gloss": "",
+          "displayRange": {
+            "start": 3,
+            "end": 8
+          },
+          "source": {
+            "morphemesJsonIndex": 1
+          }
+        }
+      ],
+      "humanApprovedTrueMorphology": "Prefix: mis + Base: spell",
+      "transformationNotes": "Keep both s letters where mis and spell meet.",
+      "teachingAgeRange": "7\u20139",
+      "teachingAge": 8,
+      "dictation": {
+        "sentence": "Check that you do not misspell the word.",
+        "targetTokenIndex": 5,
+        "audioText": "Check that you do not misspell the word."
+      },
+      "pronunciation": {
+        "source": "british_ipa",
+        "ipa": "/m\u026assp\u02c8\u025bl/",
+        "cmu": "M IH0 S S P EH1 L",
+        "ipaVariantCount": 1,
+        "syllables": 2,
+        "stressPattern": "unstressed-primary",
+        "hasSchwa": false,
+        "phonemeCount": 8,
+        "approvalSafety": "in_review"
+      },
+      "complexityPreview": {
+        "version": "banding_v1.1_2026-07-04.preview",
+        "inputComplete": true,
+        "letterCount": 8,
+        "morphologyDepth": 2,
+        "irregularityBand": 1,
+        "structuralScore": 6,
+        "complexityLevel": 3,
+        "status": "preview_only"
+      },
+      "reviewStatus": "in_review",
+      "stagingActivation": "blocked_until_all_fields_are_approved"
+    },
+    {
+      "wordKey": "illegal_en_gb",
+      "word": "illegal",
+      "microSkillKey": "D4_MOR_PREFIXES_IN_IM_IL_IR",
+      "teachingSplitParts": [
+        {
+          "id": "part_1",
+          "kind": "prefix",
+          "morphemeKey": "prefix_IL",
+          "sourceText": "il",
+          "surfaceText": "il",
+          "gloss": "not (before l)",
+          "displayRange": {
+            "start": 0,
+            "end": 2
+          },
+          "source": {
+            "morphemesJsonIndex": 0
+          }
+        },
+        {
+          "id": "part_2",
+          "kind": "base",
+          "morphemeKey": null,
+          "sourceText": "legal",
+          "surfaceText": "legal",
+          "gloss": "",
+          "displayRange": {
+            "start": 2,
+            "end": 7
+          },
+          "source": {
+            "morphemesJsonIndex": 1
+          }
+        }
+      ],
+      "humanApprovedTrueMorphology": "Prefix: il + Base: legal",
+      "transformationNotes": "in- becomes il- before l.",
+      "teachingAgeRange": "7\u20139",
+      "teachingAge": 8,
+      "dictation": {
+        "sentence": "Parking there is illegal.",
+        "targetTokenIndex": 3,
+        "audioText": "Parking there is illegal."
+      },
+      "pronunciation": {
+        "source": "british_ipa",
+        "ipa": "/\u026al\u02c8i\u02d0\u0261\u0259l/",
+        "cmu": "IH2 L IY1 G AH0 L",
+        "ipaVariantCount": 1,
+        "syllables": 3,
+        "stressPattern": "unstressed-primary-unstressed",
+        "hasSchwa": true,
+        "phonemeCount": 7,
+        "approvalSafety": "safe_to_approve_candidate"
+      },
+      "complexityPreview": {
+        "version": "banding_v1.1_2026-07-04.preview",
+        "inputComplete": true,
+        "letterCount": 7,
+        "morphologyDepth": 2,
+        "irregularityBand": 1,
+        "structuralScore": 8,
+        "complexityLevel": 3,
+        "status": "preview_only"
+      },
+      "reviewStatus": "approved_for_guided_review",
+      "stagingActivation": "blocked_until_all_fields_are_approved"
+    },
+    {
+      "wordKey": "impatient_en_gb",
+      "word": "impatient",
+      "microSkillKey": "D4_MOR_PREFIXES_IN_IM_IL_IR",
+      "teachingSplitParts": [
+        {
+          "id": "part_1",
+          "kind": "prefix",
+          "morphemeKey": "prefix_IM",
+          "sourceText": "im",
+          "surfaceText": "im",
+          "gloss": "not (before p)",
+          "displayRange": {
+            "start": 0,
+            "end": 2
+          },
+          "source": {
+            "morphemesJsonIndex": 0
+          }
+        },
+        {
+          "id": "part_2",
+          "kind": "base",
+          "morphemeKey": null,
+          "sourceText": "patient",
+          "surfaceText": "patient",
+          "gloss": "",
+          "displayRange": {
+            "start": 2,
+            "end": 9
+          },
+          "source": {
+            "morphemesJsonIndex": 1
+          }
+        }
+      ],
+      "humanApprovedTrueMorphology": "Prefix: im + Base: patient",
+      "transformationNotes": "in- becomes im- before p.",
+      "teachingAgeRange": "7\u20139",
+      "teachingAge": 8,
+      "dictation": {
+        "sentence": "He grew impatient in the long queue.",
+        "targetTokenIndex": 2,
+        "audioText": "He grew impatient in the long queue."
+      },
+      "pronunciation": {
+        "source": "british_ipa",
+        "ipa": "/\u026amp\u02c8e\u026a\u0283\u0259nt/",
+        "cmu": "IH2 M P EY1 SH AH0 N T",
+        "ipaVariantCount": 1,
+        "syllables": 3,
+        "stressPattern": "unstressed-primary-unstressed",
+        "hasSchwa": true,
+        "phonemeCount": 9,
+        "approvalSafety": "safe_to_approve_candidate"
+      },
+      "complexityPreview": {
+        "version": "banding_v1.1_2026-07-04.preview",
+        "inputComplete": true,
+        "letterCount": 9,
+        "morphologyDepth": 2,
+        "irregularityBand": 1,
+        "structuralScore": 9,
+        "complexityLevel": 3,
+        "status": "preview_only"
+      },
+      "reviewStatus": "approved_for_guided_review",
+      "stagingActivation": "blocked_until_all_fields_are_approved"
+    },
+    {
+      "wordKey": "impossible_en_gb",
+      "word": "impossible",
+      "microSkillKey": "D4_MOR_PREFIXES_IN_IM_IL_IR",
+      "teachingSplitParts": [
+        {
+          "id": "part_1",
+          "kind": "prefix",
+          "morphemeKey": "prefix_IM",
+          "sourceText": "im",
+          "surfaceText": "im",
+          "gloss": "not (before p)",
+          "displayRange": {
+            "start": 0,
+            "end": 2
+          },
+          "source": {
+            "morphemesJsonIndex": 0
+          }
+        },
+        {
+          "id": "part_2",
+          "kind": "base",
+          "morphemeKey": null,
+          "sourceText": "possible",
+          "surfaceText": "possible",
+          "gloss": "",
+          "displayRange": {
+            "start": 2,
+            "end": 10
+          },
+          "source": {
+            "morphemesJsonIndex": 1
+          }
+        }
+      ],
+      "humanApprovedTrueMorphology": "Prefix: im + Base: possible",
+      "transformationNotes": "in- becomes im- before p.",
+      "teachingAgeRange": "7\u20139",
+      "teachingAge": 8,
+      "dictation": {
+        "sentence": "It is impossible to be in two places at once.",
+        "targetTokenIndex": 2,
+        "audioText": "It is impossible to be in two places at once."
+      },
+      "pronunciation": {
+        "source": "british_ipa",
+        "ipa": "/\u026amp\u02c8\u0252s\u0259b\u0259l/",
+        "cmu": "IH2 M P AA1 S AH0 B AH0 L",
+        "ipaVariantCount": 1,
+        "syllables": 4,
+        "stressPattern": "unstressed-primary-unstressed-unstressed",
+        "hasSchwa": true,
+        "phonemeCount": 10,
+        "approvalSafety": "safe_to_approve_candidate"
+      },
+      "complexityPreview": {
+        "version": "banding_v1.1_2026-07-04.preview",
+        "inputComplete": true,
+        "letterCount": 10,
+        "morphologyDepth": 2,
+        "irregularityBand": 1,
+        "structuralScore": 10,
+        "complexityLevel": 3,
+        "status": "preview_only"
+      },
+      "reviewStatus": "approved_for_guided_review",
+      "stagingActivation": "blocked_until_all_fields_are_approved"
+    },
+    {
+      "wordKey": "incorrect_en_gb",
+      "word": "incorrect",
+      "microSkillKey": "D4_MOR_PREFIXES_IN_IM_IL_IR",
+      "teachingSplitParts": [
+        {
+          "id": "part_1",
+          "kind": "prefix",
+          "morphemeKey": "prefix_IN",
+          "sourceText": "in",
+          "surfaceText": "in",
+          "gloss": "not",
+          "displayRange": {
+            "start": 0,
+            "end": 2
+          },
+          "source": {
+            "morphemesJsonIndex": 0
+          }
+        },
+        {
+          "id": "part_2",
+          "kind": "base",
+          "morphemeKey": null,
+          "sourceText": "correct",
+          "surfaceText": "correct",
+          "gloss": "",
+          "displayRange": {
+            "start": 2,
+            "end": 9
+          },
+          "source": {
+            "morphemesJsonIndex": 1
+          }
+        }
+      ],
+      "humanApprovedTrueMorphology": "Prefix: in + Base: correct",
+      "transformationNotes": "",
+      "teachingAgeRange": "7\u20139",
+      "teachingAge": 8,
+      "dictation": {
+        "sentence": "The answer is incorrect.",
+        "targetTokenIndex": 3,
+        "audioText": "The answer is incorrect."
+      },
+      "pronunciation": {
+        "source": "british_ipa",
+        "ipa": "/\u026ank\u0259\u0279\u02c8\u025bkt/",
+        "cmu": "IH2 N K ER0 EH1 K T",
+        "ipaVariantCount": 1,
+        "syllables": 3,
+        "stressPattern": "unstressed-unstressed-primary",
+        "hasSchwa": true,
+        "phonemeCount": 9,
+        "approvalSafety": "safe_to_approve_candidate"
+      },
+      "complexityPreview": {
+        "version": "banding_v1.1_2026-07-04.preview",
+        "inputComplete": true,
+        "letterCount": 9,
+        "morphologyDepth": 2,
+        "irregularityBand": 0,
+        "structuralScore": 7,
+        "complexityLevel": 3,
+        "status": "preview_only"
+      },
+      "reviewStatus": "approved_for_guided_review",
+      "stagingActivation": "blocked_until_all_fields_are_approved"
+    },
+    {
+      "wordKey": "invisible_en_gb",
+      "word": "invisible",
+      "microSkillKey": "D4_MOR_PREFIXES_IN_IM_IL_IR",
+      "teachingSplitParts": [
+        {
+          "id": "part_1",
+          "kind": "prefix",
+          "morphemeKey": "prefix_IN",
+          "sourceText": "in",
+          "surfaceText": "in",
+          "gloss": "not",
+          "displayRange": {
+            "start": 0,
+            "end": 2
+          },
+          "source": {
+            "morphemesJsonIndex": 0
+          }
+        },
+        {
+          "id": "part_2",
+          "kind": "base",
+          "morphemeKey": null,
+          "sourceText": "visible",
+          "surfaceText": "visible",
+          "gloss": "",
+          "displayRange": {
+            "start": 2,
+            "end": 9
+          },
+          "source": {
+            "morphemesJsonIndex": 1
+          }
+        }
+      ],
+      "humanApprovedTrueMorphology": "Prefix: in + Root: vis + Suffix: ible",
+      "transformationNotes": "-ible attaches to the bound root vis.",
+      "teachingAgeRange": "7\u20139",
+      "teachingAge": 8,
+      "dictation": {
+        "sentence": "The tiny insect was almost invisible.",
+        "targetTokenIndex": 5,
+        "audioText": "The tiny insect was almost invisible."
+      },
+      "pronunciation": {
+        "source": "british_ipa",
+        "ipa": "/\u026anv\u02c8\u026az\u0259b\u0259l/",
+        "cmu": "IH2 N V IH1 Z AH0 B AH0 L",
+        "ipaVariantCount": 1,
+        "syllables": 4,
+        "stressPattern": "unstressed-primary-unstressed-unstressed",
+        "hasSchwa": true,
+        "phonemeCount": 10,
+        "approvalSafety": "safe_to_approve_candidate"
+      },
+      "complexityPreview": {
+        "version": "banding_v1.1_2026-07-04.preview",
+        "inputComplete": true,
+        "letterCount": 9,
+        "morphologyDepth": 3,
+        "irregularityBand": 0,
+        "structuralScore": 9,
+        "complexityLevel": 3,
+        "status": "preview_only"
+      },
+      "reviewStatus": "approved_for_guided_review",
+      "stagingActivation": "blocked_until_all_fields_are_approved"
+    },
+    {
+      "wordKey": "irregular_en_gb",
+      "word": "irregular",
+      "microSkillKey": "D4_MOR_PREFIXES_IN_IM_IL_IR",
+      "teachingSplitParts": [
+        {
+          "id": "part_1",
+          "kind": "prefix",
+          "morphemeKey": "prefix_IR",
+          "sourceText": "ir",
+          "surfaceText": "ir",
+          "gloss": "not (before r)",
+          "displayRange": {
+            "start": 0,
+            "end": 2
+          },
+          "source": {
+            "morphemesJsonIndex": 0
+          }
+        },
+        {
+          "id": "part_2",
+          "kind": "base",
+          "morphemeKey": null,
+          "sourceText": "regular",
+          "surfaceText": "regular",
+          "gloss": "",
+          "displayRange": {
+            "start": 2,
+            "end": 9
+          },
+          "source": {
+            "morphemesJsonIndex": 1
+          }
+        }
+      ],
+      "humanApprovedTrueMorphology": "Prefix: ir + Base: regular",
+      "transformationNotes": "in- becomes ir- before r.",
+      "teachingAgeRange": "7\u20139",
+      "teachingAge": 8,
+      "dictation": {
+        "sentence": "The shape has an irregular edge.",
+        "targetTokenIndex": 4,
+        "audioText": "The shape has an irregular edge."
+      },
+      "pronunciation": {
+        "source": "british_ipa",
+        "ipa": "/\u026a\u0279\u02c8\u025b\u0261ju\u02d0l\u0250/",
+        "cmu": "IH2 R EH1 G Y AH0 L ER0",
+        "ipaVariantCount": 1,
+        "syllables": 4,
+        "stressPattern": "unstressed-primary-unstressed-unstressed",
+        "hasSchwa": true,
+        "phonemeCount": 9,
+        "approvalSafety": "safe_to_approve_candidate"
+      },
+      "complexityPreview": {
+        "version": "banding_v1.1_2026-07-04.preview",
+        "inputComplete": true,
+        "letterCount": 9,
+        "morphologyDepth": 2,
+        "irregularityBand": 1,
+        "structuralScore": 10,
+        "complexityLevel": 3,
+        "status": "preview_only"
+      },
+      "reviewStatus": "approved_for_guided_review",
+      "stagingActivation": "blocked_until_all_fields_are_approved"
+    },
+    {
+      "wordKey": "irresponsible_en_gb",
+      "word": "irresponsible",
+      "microSkillKey": "D4_MOR_PREFIXES_IN_IM_IL_IR",
+      "teachingSplitParts": [
+        {
+          "id": "part_1",
+          "kind": "prefix",
+          "morphemeKey": "prefix_IR",
+          "sourceText": "ir",
+          "surfaceText": "ir",
+          "gloss": "not (before r)",
+          "displayRange": {
+            "start": 0,
+            "end": 2
+          },
+          "source": {
+            "morphemesJsonIndex": 0
+          }
+        },
+        {
+          "id": "part_2",
+          "kind": "base",
+          "morphemeKey": null,
+          "sourceText": "responsible",
+          "surfaceText": "responsible",
+          "gloss": "",
+          "displayRange": {
+            "start": 2,
+            "end": 13
+          },
+          "source": {
+            "morphemesJsonIndex": 1
+          }
+        }
+      ],
+      "humanApprovedTrueMorphology": "Prefix: ir + Root: respons + Suffix: ible",
+      "transformationNotes": "in- becomes ir- before r; -ible attaches to the bound root respons.",
+      "teachingAgeRange": "7\u20139",
+      "teachingAge": 8,
+      "dictation": {
+        "sentence": "It is irresponsible to leave litter behind.",
+        "targetTokenIndex": 2,
+        "audioText": "It is irresponsible to leave litter behind."
+      },
+      "pronunciation": {
+        "source": "british_ipa",
+        "ipa": "/\u026a\u0279\u026asp\u02c8\u0252ns\u0259b\u0259l/",
+        "cmu": "IH2 R AH0 S P AA1 N S AH0 B AH0 L",
+        "ipaVariantCount": 1,
+        "syllables": 5,
+        "stressPattern": "unstressed-unstressed-primary-unstressed-unstressed",
+        "hasSchwa": true,
+        "phonemeCount": 13,
+        "approvalSafety": "safe_to_approve_candidate"
+      },
+      "complexityPreview": {
+        "version": "banding_v1.1_2026-07-04.preview",
+        "inputComplete": true,
+        "letterCount": 13,
+        "morphologyDepth": 3,
+        "irregularityBand": 1,
+        "structuralScore": 11,
+        "complexityLevel": 3,
+        "status": "preview_only"
+      },
+      "reviewStatus": "approved_for_guided_review",
+      "stagingActivation": "blocked_until_all_fields_are_approved"
+    },
+    {
+      "wordKey": "predict_en_gb",
+      "word": "predict",
+      "microSkillKey": "D4_MOR_PREFIXES_RE_PRE",
+      "teachingSplitParts": [
+        {
+          "id": "part_1",
+          "kind": "prefix",
+          "morphemeKey": "prefix_PRE",
+          "sourceText": "pre",
+          "surfaceText": "pre",
+          "gloss": "before",
+          "displayRange": {
+            "start": 0,
+            "end": 3
+          },
+          "source": {
+            "morphemesJsonIndex": 0
+          }
+        },
+        {
+          "id": "part_2",
+          "kind": "root",
+          "morphemeKey": "root_DICT",
+          "sourceText": "dict",
+          "surfaceText": "dict",
+          "gloss": "say",
+          "displayRange": {
+            "start": 3,
+            "end": 7
+          },
+          "source": {
+            "morphemesJsonIndex": 1
+          }
+        }
+      ],
+      "humanApprovedTrueMorphology": "Prefix: pre + Root: dict",
+      "transformationNotes": "dict is a bound root meaning say.",
+      "teachingAgeRange": "7\u20139",
+      "teachingAge": 8,
+      "dictation": {
+        "sentence": "Can you predict tomorrow\u2019s weather?",
+        "targetTokenIndex": 2,
+        "audioText": "Can you predict tomorrow\u2019s weather?"
+      },
+      "pronunciation": {
+        "source": "british_ipa",
+        "ipa": "/p\u0279\u026ad\u02c8\u026akt/",
+        "cmu": "P R IH0 D IH1 K T",
+        "ipaVariantCount": 1,
+        "syllables": 2,
+        "stressPattern": "unstressed-primary",
+        "hasSchwa": false,
+        "phonemeCount": 8,
+        "approvalSafety": "in_review"
+      },
+      "complexityPreview": {
+        "version": "banding_v1.1_2026-07-04.preview",
+        "inputComplete": true,
+        "letterCount": 7,
+        "morphologyDepth": 2,
+        "irregularityBand": 0,
+        "structuralScore": 4,
+        "complexityLevel": 2,
+        "status": "preview_only"
+      },
+      "reviewStatus": "in_review",
+      "stagingActivation": "blocked_until_all_fields_are_approved"
+    },
+    {
+      "wordKey": "preheat_en_gb",
+      "word": "preheat",
+      "microSkillKey": "D4_MOR_PREFIXES_RE_PRE",
+      "teachingSplitParts": [
+        {
+          "id": "part_1",
+          "kind": "prefix",
+          "morphemeKey": "prefix_PRE",
+          "sourceText": "pre",
+          "surfaceText": "pre",
+          "gloss": "before",
+          "displayRange": {
+            "start": 0,
+            "end": 3
+          },
+          "source": {
+            "morphemesJsonIndex": 0
+          }
+        },
+        {
+          "id": "part_2",
+          "kind": "base",
+          "morphemeKey": null,
+          "sourceText": "heat",
+          "surfaceText": "heat",
+          "gloss": "",
+          "displayRange": {
+            "start": 3,
+            "end": 7
+          },
+          "source": {
+            "morphemesJsonIndex": 1
+          }
+        }
+      ],
+      "humanApprovedTrueMorphology": "Prefix: pre + Base: heat",
+      "transformationNotes": "",
+      "teachingAgeRange": "7\u20139",
+      "teachingAge": 8,
+      "dictation": {
+        "sentence": "Please preheat the oven first.",
+        "targetTokenIndex": 1,
+        "audioText": "Please preheat the oven first."
+      },
+      "pronunciation": {
+        "source": "british_ipa",
+        "ipa": "/p\u0279\u026ah\u02c8i\u02d0t/",
+        "cmu": "",
+        "ipaVariantCount": 1,
+        "syllables": 2,
+        "stressPattern": "unstressed-primary",
+        "hasSchwa": false,
+        "phonemeCount": 7,
+        "approvalSafety": "in_review"
+      },
+      "complexityPreview": {
+        "version": "banding_v1.1_2026-07-04.preview",
+        "inputComplete": true,
+        "letterCount": 7,
+        "morphologyDepth": 2,
+        "irregularityBand": 0,
+        "structuralScore": 4,
+        "complexityLevel": 2,
+        "status": "preview_only"
+      },
+      "reviewStatus": "in_review",
+      "stagingActivation": "blocked_until_all_fields_are_approved"
+    },
+    {
+      "wordKey": "preschool_en_gb",
+      "word": "preschool",
+      "microSkillKey": "D4_MOR_PREFIXES_RE_PRE",
+      "teachingSplitParts": [
+        {
+          "id": "part_1",
+          "kind": "prefix",
+          "morphemeKey": "prefix_PRE",
+          "sourceText": "pre",
+          "surfaceText": "pre",
+          "gloss": "before",
+          "displayRange": {
+            "start": 0,
+            "end": 3
+          },
+          "source": {
+            "morphemesJsonIndex": 0
+          }
+        },
+        {
+          "id": "part_2",
+          "kind": "base",
+          "morphemeKey": null,
+          "sourceText": "school",
+          "surfaceText": "school",
+          "gloss": "",
+          "displayRange": {
+            "start": 3,
+            "end": 9
+          },
+          "source": {
+            "morphemesJsonIndex": 1
+          }
+        }
+      ],
+      "humanApprovedTrueMorphology": "Prefix: pre + Base: school",
+      "transformationNotes": "",
+      "teachingAgeRange": "6\u20138",
+      "teachingAge": 7,
+      "dictation": {
+        "sentence": "Her brother goes to preschool.",
+        "targetTokenIndex": 4,
+        "audioText": "Her brother goes to preschool."
+      },
+      "pronunciation": {
+        "source": "british_ipa",
+        "ipa": "/p\u0279\u02c8i\u02d0sku\u02d0l/",
+        "cmu": "P R IY0 S K UW1 L",
+        "ipaVariantCount": 1,
+        "syllables": 2,
+        "stressPattern": "primary-unstressed",
+        "hasSchwa": false,
+        "phonemeCount": 8,
+        "approvalSafety": "in_review"
+      },
+      "complexityPreview": {
+        "version": "banding_v1.1_2026-07-04.preview",
+        "inputComplete": true,
+        "letterCount": 9,
+        "morphologyDepth": 2,
+        "irregularityBand": 0,
+        "structuralScore": 5,
+        "complexityLevel": 2,
+        "status": "preview_only"
+      },
+      "reviewStatus": "in_review",
+      "stagingActivation": "blocked_until_all_fields_are_approved"
+    },
+    {
+      "wordKey": "preview_en_gb",
+      "word": "preview",
+      "microSkillKey": "D4_MOR_PREFIXES_RE_PRE",
+      "teachingSplitParts": [
+        {
+          "id": "part_1",
+          "kind": "prefix",
+          "morphemeKey": "prefix_PRE",
+          "sourceText": "pre",
+          "surfaceText": "pre",
+          "gloss": "before",
+          "displayRange": {
+            "start": 0,
+            "end": 3
+          },
+          "source": {
+            "morphemesJsonIndex": 0
+          }
+        },
+        {
+          "id": "part_2",
+          "kind": "base",
+          "morphemeKey": null,
+          "sourceText": "view",
+          "surfaceText": "view",
+          "gloss": "",
+          "displayRange": {
+            "start": 3,
+            "end": 7
+          },
+          "source": {
+            "morphemesJsonIndex": 1
+          }
+        }
+      ],
+      "humanApprovedTrueMorphology": "Prefix: pre + Base: view",
+      "transformationNotes": "",
+      "teachingAgeRange": "7\u20139",
+      "teachingAge": 8,
+      "dictation": {
+        "sentence": "We watched a preview of the film.",
+        "targetTokenIndex": 3,
+        "audioText": "We watched a preview of the film."
+      },
+      "pronunciation": {
+        "source": "british_ipa",
+        "ipa": "/p\u0279\u02c8i\u02d0vju\u02d0/",
+        "cmu": "P R IY1 V Y UW2",
+        "ipaVariantCount": 1,
+        "syllables": 2,
+        "stressPattern": "primary-unstressed",
+        "hasSchwa": false,
+        "phonemeCount": 7,
+        "approvalSafety": "safe_to_approve_candidate"
+      },
+      "complexityPreview": {
+        "version": "banding_v1.1_2026-07-04.preview",
+        "inputComplete": true,
+        "letterCount": 7,
+        "morphologyDepth": 2,
+        "irregularityBand": 0,
+        "structuralScore": 4,
+        "complexityLevel": 2,
+        "status": "preview_only"
+      },
+      "reviewStatus": "approved_for_guided_review",
+      "stagingActivation": "blocked_until_all_fields_are_approved"
+    },
+    {
+      "wordKey": "rebuild_en_gb",
+      "word": "rebuild",
+      "microSkillKey": "D4_MOR_PREFIXES_RE_PRE",
+      "teachingSplitParts": [
+        {
+          "id": "part_1",
+          "kind": "prefix",
+          "morphemeKey": "prefix_RE",
+          "sourceText": "re",
+          "surfaceText": "re",
+          "gloss": "again",
+          "displayRange": {
+            "start": 0,
+            "end": 2
+          },
+          "source": {
+            "morphemesJsonIndex": 0
+          }
+        },
+        {
+          "id": "part_2",
+          "kind": "base",
+          "morphemeKey": null,
+          "sourceText": "build",
+          "surfaceText": "build",
+          "gloss": "",
+          "displayRange": {
+            "start": 2,
+            "end": 7
+          },
+          "source": {
+            "morphemesJsonIndex": 1
+          }
+        }
+      ],
+      "humanApprovedTrueMorphology": "Prefix: re + Base: build",
+      "transformationNotes": "",
+      "teachingAgeRange": "7\u20139",
+      "teachingAge": 8,
+      "dictation": {
+        "sentence": "Workers will rebuild the wall.",
+        "targetTokenIndex": 2,
+        "audioText": "Workers will rebuild the wall."
+      },
+      "pronunciation": {
+        "source": "british_ipa",
+        "ipa": "/\u0279\u026ab\u02c8\u026ald/",
+        "cmu": "R IY0 B IH1 L D",
+        "ipaVariantCount": 1,
+        "syllables": 2,
+        "stressPattern": "unstressed-primary",
+        "hasSchwa": false,
+        "phonemeCount": 7,
+        "approvalSafety": "safe_to_approve_candidate"
+      },
+      "complexityPreview": {
+        "version": "banding_v1.1_2026-07-04.preview",
+        "inputComplete": true,
+        "letterCount": 7,
+        "morphologyDepth": 2,
+        "irregularityBand": 0,
+        "structuralScore": 4,
+        "complexityLevel": 2,
+        "status": "preview_only"
+      },
+      "reviewStatus": "approved_for_guided_review",
+      "stagingActivation": "blocked_until_all_fields_are_approved"
+    },
+    {
+      "wordKey": "replay_en_gb",
+      "word": "replay",
+      "microSkillKey": "D4_MOR_PREFIXES_RE_PRE",
+      "teachingSplitParts": [
+        {
+          "id": "part_1",
+          "kind": "prefix",
+          "morphemeKey": "prefix_RE",
+          "sourceText": "re",
+          "surfaceText": "re",
+          "gloss": "again",
+          "displayRange": {
+            "start": 0,
+            "end": 2
+          },
+          "source": {
+            "morphemesJsonIndex": 0
+          }
+        },
+        {
+          "id": "part_2",
+          "kind": "base",
+          "morphemeKey": null,
+          "sourceText": "play",
+          "surfaceText": "play",
+          "gloss": "",
+          "displayRange": {
+            "start": 2,
+            "end": 6
+          },
+          "source": {
+            "morphemesJsonIndex": 1
+          }
+        }
+      ],
+      "humanApprovedTrueMorphology": "Prefix: re + Base: play",
+      "transformationNotes": "",
+      "teachingAgeRange": "7\u20139",
+      "teachingAge": 8,
+      "dictation": {
+        "sentence": "Please replay that part of the song.",
+        "targetTokenIndex": 1,
+        "audioText": "Please replay that part of the song."
+      },
+      "pronunciation": {
+        "source": "human_approved_uk_ipa",
+        "ipa": "/\u02ccri\u02d0\u02c8ple\u026a/",
+        "cmu": "R IY0 P L EY1",
+        "ipaVariantCount": 0,
+        "syllables": 2,
+        "stressPattern": "unstressed-primary",
+        "hasSchwa": false,
+        "phonemeCount": 7,
+        "approvalSafety": "safe_to_approve_candidate"
+      },
+      "complexityPreview": {
+        "version": "banding_v1.1_2026-07-04.preview",
+        "inputComplete": true,
+        "letterCount": 6,
+        "morphologyDepth": 2,
+        "irregularityBand": 0,
+        "structuralScore": 3,
+        "complexityLevel": 2,
+        "status": "preview_only"
+      },
+      "reviewStatus": "approved_for_guided_review",
+      "stagingActivation": "blocked_until_all_fields_are_approved"
+    },
+    {
+      "wordKey": "return_en_gb",
+      "word": "return",
+      "microSkillKey": "D4_MOR_PREFIXES_RE_PRE",
+      "teachingSplitParts": [
+        {
+          "id": "part_1",
+          "kind": "prefix",
+          "morphemeKey": "prefix_RE",
+          "sourceText": "re",
+          "surfaceText": "re",
+          "gloss": "back",
+          "displayRange": {
+            "start": 0,
+            "end": 2
+          },
+          "source": {
+            "morphemesJsonIndex": 0
+          }
+        },
+        {
+          "id": "part_2",
+          "kind": "base",
+          "morphemeKey": null,
+          "sourceText": "turn",
+          "surfaceText": "turn",
+          "gloss": "",
+          "displayRange": {
+            "start": 2,
+            "end": 6
+          },
+          "source": {
+            "morphemesJsonIndex": 1
+          }
+        }
+      ],
+      "humanApprovedTrueMorphology": "Prefix: re + Base: turn",
+      "transformationNotes": "",
+      "teachingAgeRange": "7\u20139",
+      "teachingAge": 8,
+      "dictation": {
+        "sentence": "Please return the book tomorrow.",
+        "targetTokenIndex": 1,
+        "audioText": "Please return the book tomorrow."
+      },
+      "pronunciation": {
+        "source": "human_approved_uk_ipa",
+        "ipa": "/r\u026a\u02c8t\u025c\u02d0n/",
+        "cmu": "R IH0 T ER1 N",
+        "ipaVariantCount": 0,
+        "syllables": 2,
+        "stressPattern": "unstressed-primary",
+        "hasSchwa": false,
+        "phonemeCount": 6,
+        "approvalSafety": "safe_to_approve_candidate"
+      },
+      "complexityPreview": {
+        "version": "banding_v1.1_2026-07-04.preview",
+        "inputComplete": true,
+        "letterCount": 6,
+        "morphologyDepth": 2,
+        "irregularityBand": 0,
+        "structuralScore": 3,
+        "complexityLevel": 2,
+        "status": "preview_only"
+      },
+      "reviewStatus": "approved_for_guided_review",
+      "stagingActivation": "blocked_until_all_fields_are_approved"
+    },
+    {
+      "wordKey": "interact_en_gb",
+      "word": "interact",
+      "microSkillKey": "D4_MOR_PREFIXES_SUB_INTER_SUPER",
+      "teachingSplitParts": [
+        {
+          "id": "part_1",
+          "kind": "prefix",
+          "morphemeKey": "prefix_INTER",
+          "sourceText": "inter",
+          "surfaceText": "inter",
+          "gloss": "between",
+          "displayRange": {
+            "start": 0,
+            "end": 5
+          },
+          "source": {
+            "morphemesJsonIndex": 0
+          }
+        },
+        {
+          "id": "part_2",
+          "kind": "root",
+          "morphemeKey": "root_ACT",
+          "sourceText": "act",
+          "surfaceText": "act",
+          "gloss": "do",
+          "displayRange": {
+            "start": 5,
+            "end": 8
+          },
+          "source": {
+            "morphemesJsonIndex": 1
+          }
+        }
+      ],
+      "humanApprovedTrueMorphology": "Prefix: inter + Base: act",
+      "transformationNotes": "",
+      "teachingAgeRange": "7\u20139",
+      "teachingAge": 8,
+      "dictation": {
+        "sentence": "The children interact during the game.",
+        "targetTokenIndex": 2,
+        "audioText": "The children interact during the game."
+      },
+      "pronunciation": {
+        "source": "british_ipa",
+        "ipa": "/\u02cc\u026ant\u0259\u0279\u02c8\u00e6kt/",
+        "cmu": "IH2 N T ER0 AE1 K T",
+        "ipaVariantCount": 1,
+        "syllables": 3,
+        "stressPattern": "unstressed-unstressed-primary",
+        "hasSchwa": true,
+        "phonemeCount": 10,
+        "approvalSafety": "in_review"
+      },
+      "complexityPreview": {
+        "version": "banding_v1.1_2026-07-04.preview",
+        "inputComplete": true,
+        "letterCount": 8,
+        "morphologyDepth": 2,
+        "irregularityBand": 0,
+        "structuralScore": 6,
+        "complexityLevel": 3,
+        "status": "preview_only"
+      },
+      "reviewStatus": "in_review",
+      "stagingActivation": "blocked_until_all_fields_are_approved"
+    },
+    {
+      "wordKey": "international_en_gb",
+      "word": "international",
+      "microSkillKey": "D4_MOR_PREFIXES_SUB_INTER_SUPER",
+      "teachingSplitParts": [
+        {
+          "id": "part_1",
+          "kind": "prefix",
+          "morphemeKey": "prefix_INTER",
+          "sourceText": "inter",
+          "surfaceText": "inter",
+          "gloss": "between",
+          "displayRange": {
+            "start": 0,
+            "end": 5
+          },
+          "source": {
+            "morphemesJsonIndex": 0
+          }
+        },
+        {
+          "id": "part_2",
+          "kind": "base",
+          "morphemeKey": null,
+          "sourceText": "national",
+          "surfaceText": "national",
+          "gloss": "",
+          "displayRange": {
+            "start": 5,
+            "end": 13
+          },
+          "source": {
+            "morphemesJsonIndex": 1
+          }
+        }
+      ],
+      "humanApprovedTrueMorphology": "Prefix: inter + Base: nation + Suffix: al",
+      "transformationNotes": "",
+      "teachingAgeRange": "7\u20139",
+      "teachingAge": 8,
+      "dictation": {
+        "sentence": "The airport has international flights.",
+        "targetTokenIndex": 3,
+        "audioText": "The airport has international flights."
+      },
+      "pronunciation": {
+        "source": "british_ipa",
+        "ipa": "/\u02cc\u026ant\u0259n\u02c8\u00e6\u0283\u0259n\u0259l/",
+        "cmu": "IH2 N T ER0 N AE1 SH AH0 N AH0 L",
+        "ipaVariantCount": 1,
+        "syllables": 5,
+        "stressPattern": "unstressed-unstressed-primary-unstressed-unstressed",
+        "hasSchwa": true,
+        "phonemeCount": 13,
+        "approvalSafety": "in_review"
+      },
+      "complexityPreview": {
+        "version": "banding_v1.1_2026-07-04.preview",
+        "inputComplete": true,
+        "letterCount": 13,
+        "morphologyDepth": 3,
+        "irregularityBand": 0,
+        "structuralScore": 9,
+        "complexityLevel": 3,
+        "status": "preview_only"
+      },
+      "reviewStatus": "in_review",
+      "stagingActivation": "blocked_until_all_fields_are_approved"
+    },
+    {
+      "wordKey": "subheading_en_gb",
+      "word": "subheading",
+      "microSkillKey": "D4_MOR_PREFIXES_SUB_INTER_SUPER",
+      "teachingSplitParts": [
+        {
+          "id": "part_1",
+          "kind": "prefix",
+          "morphemeKey": "prefix_SUB",
+          "sourceText": "sub",
+          "surfaceText": "sub",
+          "gloss": "under",
+          "displayRange": {
+            "start": 0,
+            "end": 3
+          },
+          "source": {
+            "morphemesJsonIndex": 0
+          }
+        },
+        {
+          "id": "part_2",
+          "kind": "base",
+          "morphemeKey": null,
+          "sourceText": "heading",
+          "surfaceText": "heading",
+          "gloss": "",
+          "displayRange": {
+            "start": 3,
+            "end": 10
+          },
+          "source": {
+            "morphemesJsonIndex": 1
+          }
+        }
+      ],
+      "humanApprovedTrueMorphology": "Prefix: sub + Base: head + Suffix: ing",
+      "transformationNotes": "",
+      "teachingAgeRange": "7\u20139",
+      "teachingAge": 8,
+      "dictation": {
+        "sentence": "Write a subheading for the next section.",
+        "targetTokenIndex": 2,
+        "audioText": "Write a subheading for the next section."
+      },
+      "pronunciation": {
+        "source": "human_approved_uk_ipa",
+        "ipa": "/\u02c8s\u028cb\u02cched\u026a\u014b/",
+        "cmu": "",
+        "ipaVariantCount": 0,
+        "syllables": 3,
+        "stressPattern": "primary-unstressed-unstressed",
+        "hasSchwa": false,
+        "phonemeCount": 10,
+        "approvalSafety": "safe_to_approve_candidate"
+      },
+      "complexityPreview": {
+        "version": "banding_v1.1_2026-07-04.preview",
+        "inputComplete": true,
+        "letterCount": 10,
+        "morphologyDepth": 3,
+        "irregularityBand": 0,
+        "structuralScore": 7,
+        "complexityLevel": 3,
+        "status": "preview_only"
+      },
+      "reviewStatus": "approved_for_guided_review",
+      "stagingActivation": "blocked_until_all_fields_are_approved"
+    },
+    {
+      "wordKey": "submarine_en_gb",
+      "word": "submarine",
+      "microSkillKey": "D4_MOR_PREFIXES_SUB_INTER_SUPER",
+      "teachingSplitParts": [
+        {
+          "id": "part_1",
+          "kind": "prefix",
+          "morphemeKey": "prefix_SUB",
+          "sourceText": "sub",
+          "surfaceText": "sub",
+          "gloss": "under",
+          "displayRange": {
+            "start": 0,
+            "end": 3
+          },
+          "source": {
+            "morphemesJsonIndex": 0
+          }
+        },
+        {
+          "id": "part_2",
+          "kind": "base",
+          "morphemeKey": null,
+          "sourceText": "marine",
+          "surfaceText": "marine",
+          "gloss": "of the sea",
+          "displayRange": {
+            "start": 3,
+            "end": 9
+          },
+          "source": {
+            "morphemesJsonIndex": 1
+          }
+        }
+      ],
+      "humanApprovedTrueMorphology": "Prefix: sub + Base: marine",
+      "transformationNotes": "",
+      "teachingAgeRange": "7\u20139",
+      "teachingAge": 8,
+      "dictation": {
+        "sentence": "The submarine moved under the waves.",
+        "targetTokenIndex": 1,
+        "audioText": "The submarine moved under the waves."
+      },
+      "pronunciation": {
+        "source": "british_ipa",
+        "ipa": "/s\u02c8\u028cbm\u0259\u0279\u02cci\u02d0n/",
+        "cmu": "S AH1 B M ER0 IY2 N",
+        "ipaVariantCount": 1,
+        "syllables": 3,
+        "stressPattern": "primary-unstressed-unstressed",
+        "hasSchwa": true,
+        "phonemeCount": 10,
+        "approvalSafety": "in_review"
+      },
+      "complexityPreview": {
+        "version": "banding_v1.1_2026-07-04.preview",
+        "inputComplete": true,
+        "letterCount": 9,
+        "morphologyDepth": 2,
+        "irregularityBand": 0,
+        "structuralScore": 7,
+        "complexityLevel": 3,
+        "status": "preview_only"
+      },
+      "reviewStatus": "in_review",
+      "stagingActivation": "blocked_until_all_fields_are_approved"
+    },
+    {
+      "wordKey": "subway_en_gb",
+      "word": "subway",
+      "microSkillKey": "D4_MOR_PREFIXES_SUB_INTER_SUPER",
+      "teachingSplitParts": [
+        {
+          "id": "part_1",
+          "kind": "prefix",
+          "morphemeKey": "prefix_SUB",
+          "sourceText": "sub",
+          "surfaceText": "sub",
+          "gloss": "under",
+          "displayRange": {
+            "start": 0,
+            "end": 3
+          },
+          "source": {
+            "morphemesJsonIndex": 0
+          }
+        },
+        {
+          "id": "part_2",
+          "kind": "base",
+          "morphemeKey": null,
+          "sourceText": "way",
+          "surfaceText": "way",
+          "gloss": "",
+          "displayRange": {
+            "start": 3,
+            "end": 6
+          },
+          "source": {
+            "morphemesJsonIndex": 1
+          }
+        }
+      ],
+      "humanApprovedTrueMorphology": "Prefix: sub + Base: way",
+      "transformationNotes": "",
+      "teachingAgeRange": "7\u20139",
+      "teachingAge": 8,
+      "dictation": {
+        "sentence": "We took the subway across the city.",
+        "targetTokenIndex": 3,
+        "audioText": "We took the subway across the city."
+      },
+      "pronunciation": {
+        "source": "british_ipa",
+        "ipa": "/s\u02c8\u028cbwe\u026a/",
+        "cmu": "S AH1 B W EY2",
+        "ipaVariantCount": 1,
+        "syllables": 2,
+        "stressPattern": "primary-unstressed",
+        "hasSchwa": false,
+        "phonemeCount": 6,
+        "approvalSafety": "safe_to_approve_candidate"
+      },
+      "complexityPreview": {
+        "version": "banding_v1.1_2026-07-04.preview",
+        "inputComplete": true,
+        "letterCount": 6,
+        "morphologyDepth": 2,
+        "irregularityBand": 0,
+        "structuralScore": 3,
+        "complexityLevel": 2,
+        "status": "preview_only"
+      },
+      "reviewStatus": "approved_for_guided_review",
+      "stagingActivation": "blocked_until_all_fields_are_approved"
+    },
+    {
+      "wordKey": "superhero_en_gb",
+      "word": "superhero",
+      "microSkillKey": "D4_MOR_PREFIXES_SUB_INTER_SUPER",
+      "teachingSplitParts": [
+        {
+          "id": "part_1",
+          "kind": "prefix",
+          "morphemeKey": "prefix_SUPER",
+          "sourceText": "super",
+          "surfaceText": "super",
+          "gloss": "above / beyond",
+          "displayRange": {
+            "start": 0,
+            "end": 5
+          },
+          "source": {
+            "morphemesJsonIndex": 0
+          }
+        },
+        {
+          "id": "part_2",
+          "kind": "base",
+          "morphemeKey": null,
+          "sourceText": "hero",
+          "surfaceText": "hero",
+          "gloss": "",
+          "displayRange": {
+            "start": 5,
+            "end": 9
+          },
+          "source": {
+            "morphemesJsonIndex": 1
+          }
+        }
+      ],
+      "humanApprovedTrueMorphology": "Prefix: super + Base: hero",
+      "transformationNotes": "",
+      "teachingAgeRange": "7\u20139",
+      "teachingAge": 8,
+      "dictation": {
+        "sentence": "The superhero saved the town.",
+        "targetTokenIndex": 1,
+        "audioText": "The superhero saved the town."
+      },
+      "pronunciation": {
+        "source": "british_ipa",
+        "ipa": "/s\u02c8u\u02d0p\u0259h\u02cci\u0259\u0279\u0259\u028a/",
+        "cmu": "S UW2 P ER0 HH IY1 R OW0",
+        "ipaVariantCount": 1,
+        "syllables": 4,
+        "stressPattern": "primary-unstressed-unstressed-unstressed",
+        "hasSchwa": true,
+        "phonemeCount": 11,
+        "approvalSafety": "in_review"
+      },
+      "complexityPreview": {
+        "version": "banding_v1.1_2026-07-04.preview",
+        "inputComplete": true,
+        "letterCount": 9,
+        "morphologyDepth": 2,
+        "irregularityBand": 0,
+        "structuralScore": 8,
+        "complexityLevel": 3,
+        "status": "preview_only"
+      },
+      "reviewStatus": "in_review",
+      "stagingActivation": "blocked_until_all_fields_are_approved"
+    },
+    {
+      "wordKey": "supermarket_en_gb",
+      "word": "supermarket",
+      "microSkillKey": "D4_MOR_PREFIXES_SUB_INTER_SUPER",
+      "teachingSplitParts": [
+        {
+          "id": "part_1",
+          "kind": "prefix",
+          "morphemeKey": "prefix_SUPER",
+          "sourceText": "super",
+          "surfaceText": "super",
+          "gloss": "above / beyond",
+          "displayRange": {
+            "start": 0,
+            "end": 5
+          },
+          "source": {
+            "morphemesJsonIndex": 0
+          }
+        },
+        {
+          "id": "part_2",
+          "kind": "base",
+          "morphemeKey": null,
+          "sourceText": "market",
+          "surfaceText": "market",
+          "gloss": "",
+          "displayRange": {
+            "start": 5,
+            "end": 11
+          },
+          "source": {
+            "morphemesJsonIndex": 1
+          }
+        }
+      ],
+      "humanApprovedTrueMorphology": "Prefix: super + Base: market",
+      "transformationNotes": "",
+      "teachingAgeRange": "7\u20139",
+      "teachingAge": 8,
+      "dictation": {
+        "sentence": "We bought fruit at the supermarket.",
+        "targetTokenIndex": 5,
+        "audioText": "We bought fruit at the supermarket."
+      },
+      "pronunciation": {
+        "source": "british_ipa",
+        "ipa": "/s\u02c8u\u02d0p\u0259m\u02cc\u0251\u02d0k\u026at/",
+        "cmu": "S UW1 P ER0 M AA2 R K IH0 T",
+        "ipaVariantCount": 1,
+        "syllables": 4,
+        "stressPattern": "primary-unstressed-unstressed-unstressed",
+        "hasSchwa": true,
+        "phonemeCount": 11,
+        "approvalSafety": "safe_to_approve_candidate"
+      },
+      "complexityPreview": {
+        "version": "banding_v1.1_2026-07-04.preview",
+        "inputComplete": true,
+        "letterCount": 11,
+        "morphologyDepth": 2,
+        "irregularityBand": 0,
+        "structuralScore": 8,
+        "complexityLevel": 3,
+        "status": "preview_only"
+      },
+      "reviewStatus": "approved_for_guided_review",
+      "stagingActivation": "blocked_until_all_fields_are_approved"
+    }
+  ]
+}

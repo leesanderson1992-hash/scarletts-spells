@@ -1,0 +1,61 @@
+/** Guarded, transactional staging-only Dynamic Prefix importer. */
+import { createHash, randomUUID } from "node:crypto";
+import { readFile } from "node:fs/promises";
+import { resolve } from "node:path";
+import pg from "pg";
+
+const ROOT = resolve(import.meta.dirname, "..");
+const PROJECT_REF = "jlhotktspjvffslvuyfz";
+const KEYS = ["D4_MOR_PREFIXES_DIS_MIS", "D4_MOR_PREFIXES_IN_IM_IL_IR", "D4_MOR_PREFIXES_RE_PRE", "D4_MOR_PREFIXES_SUB_INTER_SUPER"] as const;
+const arg = (name: string) => { const index = process.argv.indexOf(name); return index < 0 ? undefined : process.argv[index + 1]; };
+const packagePath = resolve(ROOT, arg("--package") || "docs/implementation/seed-data/teaching-dictionary/candidates/2026-07-22-d4-dynamic-prefix-staging-enrichment/reviewed-staging-package.json");
+const hash = (value: string) => createHash("sha256").update(value).digest("hex");
+const tokenAt = (sentence: string, index: number) => sentence.trim().split(/\s+/).map((token) => token.replace(/^\p{P}+|\p{P}+$/gu, "").toLowerCase())[index];
+const fail = (message: string): never => { throw new Error(message); };
+type Word = any; type Package = { packageKey: string; activation: any; sources: any; profiles: Record<string, any>; words: Word[] };
+
+async function load() {
+  const raw = await readFile(packagePath, "utf8"); const pkg = JSON.parse(raw) as Package; const blockers: string[] = [];
+  if (pkg.packageKey !== "adle_d4_dynamic_prefix_reviewed_staging_2026_07_22" || pkg.words.length !== 28) blockers.push("Expected the reviewed 28-word package.");
+  if (pkg.activation?.production || pkg.activation?.createsLearningItems || pkg.activation?.createsAssignments) blockers.push("Package requests prohibited writes.");
+  for (const word of pkg.words) {
+    const prefix = word.teaching?.splitParts?.filter((part: any) => part.kind === "prefix") ?? [];
+    if (!KEYS.includes(word.microSkillKey) || !word.canonical?.frequencyBand || !word.canonical?.ageBand || !word.canonical?.complexityBand || !word.trueMorphology?.humanApprovedText || !word.teaching?.baseMeaning || !word.teaching?.childFriendlyMeaning || prefix.length !== 1 || word.teaching.cleaverBoundary !== prefix[0].displayRange?.end || word.teaching.splitParts.map((part: any) => part.surfaceText).join("") !== word.word || word.dictation?.sentence !== word.dictation?.audioText || tokenAt(word.dictation?.sentence ?? "", word.dictation?.targetTokenIndex) !== word.word || !word.pronunciation?.ipa || !word.complexityPreview?.inputComplete) blockers.push(`${word.word}: incomplete reviewed contract`);
+  }
+  for (const key of KEYS) if (pkg.words.filter((word) => word.microSkillKey === key).length !== 7 || !pkg.profiles[key]) blockers.push(`${key}: expected profile and seven words.`);
+  return { pkg, sha256: hash(raw), blockers };
+}
+function source(packageHash: string, word?: Word) { return { package_sha256: packageHash, package_key: "adle_d4_dynamic_prefix_reviewed_staging_2026_07_22", word, prohibited_writes: { production: 0, learner: 0, assignment: 0, evidence: 0, scheduling: 0 } }; }
+
+async function apply(pkg: Package, packageSha256: string, databaseUrl: string) {
+  const parsed = new URL(databaseUrl); if (!parsed.hostname.includes(PROJECT_REF) && !parsed.username.includes(PROJECT_REF)) fail("Database URL does not target the named staging project.");
+  const client = new pg.Client({ connectionString: databaseUrl, ssl: { rejectUnauthorized: false } }); await client.connect();
+  const batchId = randomUUID();
+  try {
+    await client.query("begin");
+    const tables = await client.query("select to_regclass('public.canonical_teaching_dictionary_prefix_profiles') as profiles, to_regclass('public.canonical_teaching_dictionary_prefix_members') as members");
+    if (!tables.rows[0].profiles || !tables.rows[0].members) fail("Dynamic Prefix staging migration is not present.");
+    const words = pkg.words.map((word) => word.word);
+    const found = await client.query("select id,normalised_word,source_metadata from canonical_teaching_dictionary_words where normalised_word = any($1) and row_status='active' for update", [words]);
+    if (found.rowCount !== 13) fail(`Expected exactly 13 existing canonical rows; found ${found.rowCount}.`);
+    const ids = new Map(found.rows.map((row) => [row.normalised_word, row.id])); const missing = pkg.words.filter((word) => !ids.has(word.word));
+    if (missing.length !== 15) fail(`Expected exactly 15 missing canonical rows; found ${missing.length}.`);
+    await client.query("insert into canonical_teaching_dictionary_import_batches (id,source_folder_path,source_folder_sha256,validator_version,validation_summary,row_counts,readiness_summary,import_mode,batch_status,source_metadata,imported_by,imported_at) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,now())", [batchId,"docs/implementation/seed-data/teaching-dictionary/candidates/2026-07-22-d4-dynamic-prefix-staging-enrichment",packageSha256,"adle_dynamic_prefix_staging_import_v1",{errors:0},{words:15,profiles:4,members:28},{production_enabled:false,learner_writes:0},"admin_import","validated",source(packageSha256),"ADLE guarded Dynamic Prefix staging importer"]);
+    for (const word of missing) {
+      const id = randomUUID(); ids.set(word.word,id);
+      await client.query("insert into canonical_teaching_dictionary_words (id,import_batch_id,row_status,source_sheet,source_row_number,source_row_hash,source_metadata,word_key,normalised_word,display_word,dialect_code,frequency_band,age_band,complexity_band,source_category,source_name,source_url,source_licence,source_use_note,confidence,review_status) values ($1,$2,'active',$3,$4,$5,$6,$7,$8,$8,'en-GB',$9,$10,$11,'internal_reviewed_seed',$12,$13,'internal','Staging-only reviewed Dynamic Prefix package','high','approved_for_first_exposure')", [id,batchId,"reviewed-staging-package.json",pkg.words.indexOf(word)+2,hash(JSON.stringify(word)),source(packageSha256,word),word.wordKey,word.word,word.canonical.frequencyBand,word.canonical.ageBand,word.canonical.complexityBand,"Dynamic Prefix v2 reviewed staging package",packagePath]);
+      await client.query("insert into canonical_teaching_dictionary_word_metadata (import_batch_id,canonical_word_id,row_status,source_sheet,source_row_number,source_row_hash,source_metadata,syllables,phoneme_hint,stress_pattern,has_schwa,morphemes,morphology_notes,source_category,source_name,source_url,source_licence,source_use_note,confidence,review_status,reviewed_by,reviewed_at) values ($1,$2,'active','reviewed-staging-package.json',$3,$4,$5,$6,$7,$8,$9,$10,$11,'internal_reviewed_seed','Dynamic Prefix v2 reviewed staging package',$12,'internal','Human-approved true morphology; preview retained as provenance.','high','approved_for_first_exposure','Katie Sanderson',now())", [batchId,id,pkg.words.indexOf(word)+2,hash(JSON.stringify(word.trueMorphology)),source(packageSha256,word),String(word.pronunciation.syllables),word.pronunciation.ipa,word.pronunciation.stressPattern,word.pronunciation.hasSchwa,word.trueMorphology.humanApprovedText,word.trueMorphology.transformationNotes,packagePath]);
+      await client.query("insert into canonical_teaching_dictionary_dictation_sentences (import_batch_id,canonical_word_id,row_status,source_sheet,source_row_number,source_row_hash,source_metadata,dictation_sentence,dictation_target_token_index,audio_text,source_category,source_name,source_url,source_licence,source_use_note,confidence,review_status,reviewed_by,reviewed_at) values ($1,$2,'active','reviewed-staging-package.json',$3,$4,$5,$6,$7,$6,'internal_reviewed_seed','Dynamic Prefix v2 reviewed staging package',$8,'internal','Human-approved sentence and identical audio text.','high','approved_for_first_exposure','Katie Sanderson',now())", [batchId,id,pkg.words.indexOf(word)+2,hash(JSON.stringify(word.dictation)),source(packageSha256,word),word.dictation.sentence,word.dictation.targetTokenIndex,packagePath]);
+    }
+    for (const key of KEYS) {
+      const profile = pkg.profiles[key]; const bins = profile.bins.map(([id,label,description]) => ({id,label,description})); const choices = [...profile.choices,""].map((text) => ({text,label:text?`${text}-`:"no prefix",outcome:null,meaning:null,status:"target"}));
+      const profileRow = await client.query("insert into canonical_teaching_dictionary_prefix_profiles (import_batch_id,micro_skill_key,prefix_label,prefix_text,prefix_meaning,meaning_bins,prefix_choices,reflection_prompt_key,reflection_prompt_text,production_enabled,row_status,review_status,source_sheet,source_row_number,source_row_hash,source_metadata,source_category,source_name,source_url,source_licence,source_use_note,confidence,reviewed_by,reviewed_at) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,false,'active','approved_for_first_exposure','reviewed-staging-package.json',1,$10,$11,'internal_reviewed_seed','Dynamic Prefix v2 reviewed staging package',$12,'internal','Staging-only profile configuration.','high','Katie Sanderson',now()) returning id", [batchId,key,profile.label,profile.text,profile.meaning,JSON.stringify(bins),JSON.stringify(choices),`dynamic-prefix-${key.toLowerCase()}`,profile.reflection,hash(JSON.stringify(profile)),source(packageSha256),packagePath]);
+      for (const word of pkg.words.filter((candidate) => candidate.microSkillKey === key)) await client.query("insert into canonical_teaching_dictionary_prefix_members (import_batch_id,prefix_profile_id,canonical_word_id,member_role,base_word,base_meaning,child_friendly_meaning,meaning_bin_key,teaching_split_parts,teaching_split_joins,transformation_notes,prefix_variant,assignment_eligible,row_status,review_status,source_sheet,source_row_number,source_row_hash,source_metadata,source_category,source_name,source_url,source_licence,source_use_note,confidence,reviewed_by,reviewed_at) values ($1,$2,$3,'transfer',$4,$5,$6,$7,$8,$9,$10,$11,true,'active','approved_for_first_exposure','reviewed-staging-package.json',$12,$13,$14,'internal_reviewed_seed','Dynamic Prefix v2 reviewed staging package',$15,'internal','Teaching split only; canonical true morphology remains in dictionary metadata.','high','Katie Sanderson',now())", [batchId,profileRow.rows[0].id,ids.get(word.word),word.teaching.baseOrRoot,word.teaching.baseMeaning,word.teaching.childFriendlyMeaning,word.teaching.meaningBin,JSON.stringify(word.teaching.splitParts),JSON.stringify(word.teaching.splitJoins),word.trueMorphology.transformationNotes,word.teaching.prefixVariant,pkg.words.indexOf(word)+2,hash(JSON.stringify(word.teaching)),source(packageSha256,word),packagePath]);
+    }
+    const receipt = await client.query("select (select count(*) from canonical_teaching_dictionary_words where import_batch_id=$1) words,(select count(*) from canonical_teaching_dictionary_prefix_profiles where import_batch_id=$1) profiles,(select count(*) from canonical_teaching_dictionary_prefix_members where import_batch_id=$1) members",[batchId]);
+    if (+receipt.rows[0].words !== 15 || +receipt.rows[0].profiles !== 4 || +receipt.rows[0].members !== 28) fail(`Post-import counts invalid: ${JSON.stringify(receipt.rows[0])}`);
+    await client.query("commit"); console.log(JSON.stringify({status:"applied_and_verified",batchId,packageSha256,created:receipt.rows[0],retainedCanonicalRows:13,productionEnabled:false,prohibitedWrites:0}));
+  } catch (error) { await client.query("rollback"); throw error; } finally { await client.end(); }
+}
+async function main() { const {pkg,sha256,blockers}=await load(); const manifest={packagePath,packageSha256:sha256,wordCount:pkg.words.length,profileCounts:Object.fromEntries(KEYS.map((key)=>[key,pkg.words.filter((word)=>word.microSkillKey===key).length])),blockers}; if(process.argv.includes("--validate")){console.log(JSON.stringify(manifest,null,2));if(blockers.length)process.exitCode=1;return;} if(!process.argv.includes("--apply"))fail("Use --validate or --apply."); if(blockers.length)fail(blockers.join("; ")); if(arg("--environment")!=="staging")fail("Staging only."); if(arg("--confirm-package-sha256")!==sha256)fail("Exact package SHA is required."); const url=arg("--database-url"); if(!url)fail("--database-url is required."); await apply(pkg,sha256,url); }
+main().catch((error)=>{console.error(error instanceof Error?error.message:error);process.exitCode=1;});

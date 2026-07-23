@@ -1,0 +1,16 @@
+word,wordfreq_zipf_en,candidate_frequency_band,complexity_preview_level,complexity_preview_score,frequency_source,complexity_source,review_status
+disagree,4.09,high,3,6,wordfreq_python_package_fallback_2026_07_01,banding_v1.1_2026-07-04.preview,approved_for_guided_review
+dishonest,3.52,medium,3,6,wordfreq_python_package_fallback_2026_07_01,banding_v1.1_2026-07-04.preview,approved_for_guided_review
+dissatisfied,3.31,medium,3,10,wordfreq_python_package_fallback_2026_07_01,banding_v1.1_2026-07-04.preview,approved_for_guided_review
+misbehave,2.51,low,3,6,wordfreq_python_package_fallback_2026_07_01,banding_v1.1_2026-07-04.preview,approved_for_guided_review
+mislead,3.22,medium,2,4,wordfreq_python_package_fallback_2026_07_01,banding_v1.1_2026-07-04.preview,approved_for_guided_review
+impatient,3.55,medium,3,9,wordfreq_python_package_fallback_2026_07_01,banding_v1.1_2026-07-04.preview,approved_for_guided_review
+invisible,4.09,high,3,9,wordfreq_python_package_fallback_2026_07_01,banding_v1.1_2026-07-04.preview,approved_for_guided_review
+irresponsible,3.67,medium,3,11,wordfreq_python_package_fallback_2026_07_01,banding_v1.1_2026-07-04.preview,approved_for_guided_review
+preschool,3.51,medium,2,5,wordfreq_python_package_fallback_2026_07_01,banding_v1.1_2026-07-04.preview,approved_for_guided_review
+rebuild,3.90,medium,2,4,wordfreq_python_package_fallback_2026_07_01,banding_v1.1_2026-07-04.preview,approved_for_guided_review
+return,5.19,high,2,3,wordfreq_python_package_fallback_2026_07_01,banding_v1.1_2026-07-04.preview,approved_for_guided_review
+international,5.36,high,3,9,wordfreq_python_package_fallback_2026_07_01,banding_v1.1_2026-07-04.preview,approved_for_guided_review
+subheading,1.91,low,3,7,wordfreq_python_package_fallback_2026_07_01,banding_v1.1_2026-07-04.preview,approved_for_guided_review
+subway,4.05,high,2,3,wordfreq_python_package_fallback_2026_07_01,banding_v1.1_2026-07-04.preview,approved_for_guided_review
+superhero,3.85,medium,3,8,wordfreq_python_package_fallback_2026_07_01,banding_v1.1_2026-07-04.preview,approved_for_guided_review

@@ -1,0 +1,31 @@
+{
+  "packageKey": "adle_d4_dynamic_prefix_in_im_il_ir_staging_correction_2026_07_22",
+  "profileKey": "D4_MOR_PREFIXES_IN_IM_IL_IR",
+  "environment": "staging",
+  "targetProjectRef": "jlhotktspjvffslvuyfz",
+  "activation": { "production": false, "createsLearningItems": false, "createsAssignments": false, "createsEvidence": false, "createsScheduling": false },
+  "basePackage": {
+    "path": "reviewed-staging-package.json",
+    "sha256": "d5d4b9df9c399db66a143ed86af55db58fa8ba7595a6e8263821693ba4641916",
+    "policy": "Dictionary-first: retain the active reviewed staging sentence/audio rows; correct only canonical morphology, reviewed bands, provenance and profile presentation."
+  },
+  "profile": {
+    "meaningBins": [
+      { "id": "in_im", "label": "in-/im- form", "description": "" },
+      { "id": "il", "label": "il- form", "description": "" },
+      { "id": "ir", "label": "ir- form", "description": "" }
+    ],
+    "prefixChoices": ["in", "im", "il", "ir", ""],
+    "reflection": "Which form of the ‘not’ prefix did each base word need?"
+  },
+  "words": [
+    { "word": "illegal", "retainedCanonical": true, "canonical": { "frequencyBand": "high", "ageBand": "middle_primary", "complexityBand": "high", "teachingAge": 8 }, "trueMorphology": { "humanApprovedText": "Prefix: il + Base: legal", "transformationNotes": "in- becomes il- before l." }, "dictation": { "sentence": "It is illegal to take something that belongs to another person.", "audioText": "It is illegal to take something that belongs to another person.", "targetTokenIndex": 2 }, "pronunciation": { "ipa": "/ɪlˈiːɡəl/", "syllables": 3, "stressPattern": "unstressed-primary-unstressed", "hasSchwa": true }, "complexityPreview": { "structuralScore": 8, "complexityLevel": 3, "inputComplete": true } },
+    { "word": "impatient", "retainedCanonical": false, "canonical": { "frequencyBand": "medium", "ageBand": "middle_primary", "complexityBand": "high", "teachingAge": 8 }, "trueMorphology": { "humanApprovedText": "Prefix: im + Base: patient", "transformationNotes": "in- becomes im- before p." }, "dictation": { "sentence": "He grew impatient in the long queue.", "audioText": "He grew impatient in the long queue.", "targetTokenIndex": 2 }, "pronunciation": { "ipa": "/ɪmpˈeɪʃənt/", "syllables": 3, "stressPattern": "unstressed-primary-unstressed", "hasSchwa": true }, "complexityPreview": { "structuralScore": 9, "complexityLevel": 3, "inputComplete": true } },
+    { "word": "impossible", "retainedCanonical": true, "canonical": { "frequencyBand": "high", "ageBand": "middle_primary", "complexityBand": "high", "teachingAge": 8 }, "trueMorphology": { "humanApprovedText": "Prefix: im + Base: possible", "transformationNotes": "in- becomes im- before p." }, "dictation": { "sentence": "It is impossible for a person to breathe underwater without help.", "audioText": "It is impossible for a person to breathe underwater without help.", "targetTokenIndex": 2 }, "pronunciation": { "ipa": "/ɪmpˈɒsəbəl/", "syllables": 4, "stressPattern": "unstressed-primary-unstressed-unstressed", "hasSchwa": true }, "complexityPreview": { "structuralScore": 10, "complexityLevel": 3, "inputComplete": true } },
+    { "word": "incorrect", "retainedCanonical": true, "canonical": { "frequencyBand": "medium", "ageBand": "middle_primary", "complexityBand": "high", "teachingAge": 8 }, "trueMorphology": { "humanApprovedText": "Prefix: in + Base: correct", "transformationNotes": "" }, "dictation": { "sentence": "The answer was incorrect because two plus two is not five.", "audioText": "The answer was incorrect because two plus two is not five.", "targetTokenIndex": 3 }, "pronunciation": { "ipa": "/ɪnkəɹˈɛkt/", "syllables": 3, "stressPattern": "unstressed-unstressed-primary", "hasSchwa": true }, "complexityPreview": { "structuralScore": 7, "complexityLevel": 3, "inputComplete": true } },
+    { "word": "invisible", "retainedCanonical": false, "canonical": { "frequencyBand": "high", "ageBand": "middle_primary", "complexityBand": "high", "teachingAge": 8 }, "trueMorphology": { "humanApprovedText": "Prefix: in + Root: vis + Suffix: ible", "transformationNotes": "-ible attaches to the bound root vis." }, "dictation": { "sentence": "The tiny insect was almost invisible.", "audioText": "The tiny insect was almost invisible.", "targetTokenIndex": 5 }, "pronunciation": { "ipa": "/ɪnvˈɪzəbəl/", "syllables": 4, "stressPattern": "unstressed-primary-unstressed-unstressed", "hasSchwa": true }, "complexityPreview": { "structuralScore": 9, "complexityLevel": 3, "inputComplete": true } },
+    { "word": "irregular", "retainedCanonical": true, "canonical": { "frequencyBand": "medium", "ageBand": "middle_primary", "complexityBand": "high", "teachingAge": 8 }, "trueMorphology": { "humanApprovedText": "Prefix: ir + Base: regular", "transformationNotes": "in- becomes ir- before r." }, "dictation": { "sentence": "The irregular shape had sides of different lengths.", "audioText": "The irregular shape had sides of different lengths.", "targetTokenIndex": 1 }, "pronunciation": { "ipa": "/ɪɹˈɛɡjuːlɐ/", "syllables": 4, "stressPattern": "unstressed-primary-unstressed-unstressed", "hasSchwa": true }, "complexityPreview": { "structuralScore": 10, "complexityLevel": 3, "inputComplete": true } },
+    { "word": "irresponsible", "retainedCanonical": false, "canonical": { "frequencyBand": "medium", "ageBand": "middle_primary", "complexityBand": "high", "teachingAge": 8 }, "trueMorphology": { "humanApprovedText": "Prefix: ir + Root: respons + Suffix: ible", "transformationNotes": "in- becomes ir- before r; -ible attaches to the bound root respons." }, "dictation": { "sentence": "It is irresponsible to leave litter behind.", "audioText": "It is irresponsible to leave litter behind.", "targetTokenIndex": 2 }, "pronunciation": { "ipa": "/ɪɹɪspˈɒnsəbəl/", "syllables": 5, "stressPattern": "unstressed-unstressed-primary-unstressed-unstressed", "hasSchwa": true }, "complexityPreview": { "structuralScore": 11, "complexityLevel": 3, "inputComplete": true } }
+  ],
+  "review": { "trueMorphology": "human_approved", "teachingSplit": "previously approved; retain profile-member record", "dictation": "active reviewed staging row retained", "pronunciation": "British IPA first; CMUdict comparison remains provenance", "reviewedBy": "Katie Sanderson", "reviewedOn": "2026-07-22" }
+}

@@ -5,7 +5,8 @@ export const MORPHOLOGY_LESSON_SCHEMA_VERSION = 1 as const;
 export const MORPHOLOGY_UN_MICRO_SKILL = "D4_MOR_PREFIXES_UN" as const;
 export const MORPHOLOGY_LESSON_EXPERIENCE = "D4_MOR_GUIDED" as const;
 
-export type MorphologyEffect = "not" | "reverse";
+/** A reviewed profile supplies the meaning-bin key; v1 happens to use not/reverse. */
+export type MorphologyEffect = string;
 export type MorphologyPartRole = "prefix" | "base" | "root" | "suffix" | "connector";
 export type GuideState =
   | "invite"
@@ -55,6 +56,9 @@ export interface MorphologyWordSnapshot {
   }>;
   joins: Array<{ afterPartId: string; beforePartId: string; joinType: "none" | "space" | "hyphen" }>;
   splitPoints: number[];
+  /** Per-word teaching prefix; absent only on legacy fixed-prefix snapshots. */
+  prefixText?: string;
+  prefixLabel?: string;
 }
 
 export interface MorphologyActivityV1 {
@@ -74,11 +78,17 @@ export interface MorphologyActivityV1 {
   wordIds?: string[];
   baseWord?: string;
   prefixChoices?: PrefixChoiceV1[];
+  /** Multiple guided builds are used by the in-/im-/il-/ir- profile. */
+  builds?: Array<{ canonicalWordId: string; baseWord: string; targetMeaning?: string; prefixChoices: PrefixChoiceV1[] }>;
+  /** A child-facing meaning target for a prefix build, when reviewed data supplies one. */
+  targetMeaning?: string;
   sentences?: SentenceDictationV1[];
   promptKey?: string;
   promptText?: string;
   introScreens?: MorphologyIntroductionScreenV1[];
   discoveryCards?: MorphologyDiscoveryCardV1[];
+  meaningBins?: Array<{ id: string; label: string; description: string }>;
+  prefixLabel?: string;
 }
 
 export interface MorphologyIntroductionScreenV1 {
@@ -87,6 +97,8 @@ export interface MorphologyIntroductionScreenV1 {
   paragraphs: string[];
   model?: { prefix: string; base: string; result: string };
   wordCards?: Array<{ base: string; derived: string; meaning: string }>;
+  /** Reviewed profile examples, used by mixed-prefix family explainers. */
+  examples?: Array<{ prefix: string; prefixMeaning?: string; base: string; word: string; meaning: string }>;
   ctaLabel: string;
 }
 
@@ -96,6 +108,8 @@ export interface MorphologyDiscoveryCardV1 {
   baseMeaning: string;
   derivedMeaning: string;
   distractorMeaning: string;
+  /** Allows mixed-prefix profiles to label each discovery card precisely. */
+  prefixLabel?: string;
 }
 
 export interface PrefixChoiceV1 {
@@ -117,7 +131,7 @@ export interface MorphologyLessonPayloadV1 {
   schemaVersion: 1;
   experience: "D4_MOR_GUIDED";
   contentVersion: string;
-  microSkillId: "D4_MOR_PREFIXES_UN";
+  microSkillId: string;
   experienceProfile: "word_lab_v1";
   guide: {
     persona: "prefix_scout";

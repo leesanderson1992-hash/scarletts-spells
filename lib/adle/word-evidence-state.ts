@@ -91,7 +91,25 @@ export function computeWordEvidenceState(
     );
   }
 
-  const retired = outcomeEvents.some((event) => event.eventType === "retired");
+  // Retirement is a lifecycle state, not an eternal historical flag. A later
+  // error-specific route may legitimately reopen the shared canonical word.
+  const latestRetiredOn = outcomeEvents
+    .filter((event) => event.eventType === "retired")
+    .reduce<IsoDate | null>(
+      (latest, event) => (latest === null || event.occurredOn > latest ? event.occurredOn : latest),
+      null,
+    );
+  const latestReactivatedOn = outcomeEvents
+    .filter((event) => event.eventType === "reactivated_for_new_skill")
+    .reduce<IsoDate | null>(
+      (latest, event) => (latest === null || event.occurredOn > latest ? event.occurredOn : latest),
+      null,
+    );
+  // A same-day reactivation is written after the historical retirement and
+  // therefore wins without relying on unspecified database row ordering.
+  const retired =
+    latestRetiredOn !== null &&
+    (latestReactivatedOn === null || latestRetiredOn > latestReactivatedOn);
   if (retired) {
     explanation.push("scheduler ledger holds a retired event (review_retired exit)");
   }

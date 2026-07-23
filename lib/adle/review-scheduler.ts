@@ -36,7 +36,6 @@ export interface ReviewPolicy {
   sessionCap: number;
   preRetirementCheckGapDays: number;
 }
-
 export const REVIEW_POLICY_V1: ReviewPolicy = {
   schedulePolicyVersion: "review_policy_v1_2026-07-04",
   intervalLadderDays: [1, 3, 7, 14, 28, 56],
@@ -102,7 +101,8 @@ export type ReviewOutcomeEventType =
   | "retirement_check_scheduled"
   | "retirement_check_pass"
   | "retirement_check_fail"
-  | "retired";
+  | "retired"
+  | "reactivated_for_new_skill";
 
 export interface ReviewOutcomeEvent {
   childId: string;

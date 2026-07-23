@@ -1,0 +1,44 @@
+{
+  "packageKey": "adle_d4_dynamic_prefix_re_pre_staging_correction_2026_07_22",
+  "profileKey": "D4_MOR_PREFIXES_RE_PRE",
+  "environment": "staging",
+  "targetProjectRef": "jlhotktspjvffslvuyfz",
+  "activation": {
+    "production": false,
+    "createsLearningItems": false,
+    "createsAssignments": false,
+    "createsEvidence": false,
+    "createsSchedules": false
+  },
+  "basePackage": {
+    "sha256": "d5d4b9df9c399db66a143ed86af55db58fa8ba7595a6e8263821693ba4641916"
+  },
+  "profile": {
+    "introContent": {
+      "title": "Meet the re- and pre- prefix family",
+      "paragraphs": [
+        "re- can mean again or back. pre- can mean before."
+      ]
+    },
+    "meaningBins": [
+      {
+        "id": "again_back",
+        "label": "Again",
+        "description": ""
+      },
+      {
+        "id": "before",
+        "label": "Before",
+        "description": ""
+      }
+    ],
+    "prefixChoices": ["re", "pre"],
+    "reflection": "When did the prefix mean ‘again/back’, and when did it mean ‘before’?"
+  },
+  "words": ["predict", "preheat", "preschool", "preview", "rebuild", "replay", "return"],
+  "review": {
+    "approvedBy": "Katie Sanderson",
+    "approvedOn": "2026-07-22",
+    "note": "Profile-only correction. Existing canonical rows, true morphology, pronunciation, dictation, bands and teaching splits remain unchanged."
+  }
+}

@@ -48,7 +48,6 @@ export interface ReviewPolicyRow {
   session_cap: number;
   pre_retirement_check_gap_days: number;
 }
-
 export function reviewPolicyFromRow(row: ReviewPolicyRow): ReviewPolicy {
   if (row.catch_up_offsets_days.length !== 2) {
     throw new Error("reviewPolicyFromRow: catch_up_offsets_days must have exactly two entries");
@@ -87,6 +86,7 @@ export function bundleFromRow(row: ReviewBundleRow): ReviewBundleFact {
 }
 
 export interface ScheduleWordRow {
+  id?: string;
   child_id: string;
   canonical_word_id: string;
   bundle_id: string;
@@ -99,6 +99,13 @@ export interface ScheduleWordRow {
   reteach_cycle_count: number;
   taught_on: IsoDate;
   row_status: string;
+  adle_review_schedule_word_routes?: Array<{
+    learning_item_id: string;
+    micro_skill_key: string;
+    attachment_ordinal: number;
+    attached_on: IsoDate;
+    row_status: string;
+  }>;
 }
 
 export function scheduleWordFromRow(row: ScheduleWordRow): ScheduleWordFact {

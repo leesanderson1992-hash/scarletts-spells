@@ -64,6 +64,7 @@ export type ComposerSkipReason =
   | "word_pending_parent_review"
   | "missing_teaching_metadata"
   | "missing_activity_strategy"
+  | "canonical_target_content_incomplete"
   | "missing_required_words"
   | "unknown_micro_skill";
 
@@ -117,7 +118,12 @@ export interface TeachingContentFact {
 export interface ReviewWordFact {
   canonicalWordId: string;
   displayWord: string;
+  /** Most recently attached route; it owns the weak activation cue only. */
   microSkillKey: string;
+  /** Every explicitly linked active route for this shared word review. */
+  microSkillKeys?: readonly string[];
+  learningItemIds?: readonly string[];
+  requiresSentenceContext?: boolean;
 }
 
 /** Guided-sequence meta-keys resolved at composition time, never emitted as
@@ -456,6 +462,8 @@ export function composeDailyPlan(facts: DailyPlanFacts, today: IsoDate): Compose
                 targetWord: entry.word.displayWord,
                 sortDimension: entry.sortDimension,
                 familyKey: entry.familyKey,
+                microSkillKeys: entry.word.microSkillKeys ?? [entry.word.microSkillKey],
+                learningItemIds: entry.word.learningItemIds ?? [],
               })),
               // Concrete bins where the metadata backs them (D4_SYL/D4_SCHWA
               // single-family sessions), else null -> warm prompt.
@@ -491,7 +499,9 @@ export function composeDailyPlan(facts: DailyPlanFacts, today: IsoDate): Compose
   const productionItems: PlanItemCandidate[] = [];
   for (const entry of reviewable) {
     const productionKey =
-      entry.familyKey === HOMOPHONE_FAMILY_KEY ? "DICTATION_SENTENCE_CONTEXT" : "REVIEW_DICTATION";
+      entry.word.requiresSentenceContext || entry.familyKey === HOMOPHONE_FAMILY_KEY
+        ? "DICTATION_SENTENCE_CONTEXT"
+        : "REVIEW_DICTATION";
     const productionTemplate = templates.get(productionKey);
     if (productionTemplate === undefined) {
       partOneSkips.push({
@@ -518,6 +528,8 @@ export function composeDailyPlan(facts: DailyPlanFacts, today: IsoDate): Compose
         dueOn: entry.item.dueOn,
         bundleId: entry.item.bundleId,
         requiresSentenceContext: productionTemplate.requiresSentenceContext,
+        microSkillKeys: entry.word.microSkillKeys ?? [entry.word.microSkillKey],
+        learningItemIds: entry.word.learningItemIds ?? [],
       },
       expectedEvidenceKind: productionTemplate.evidenceKind,
       provenance: "review_session",

@@ -68,6 +68,7 @@ type AdleSessionRunnerProps = {
   partOne: { items: AdleSessionItem[]; present: boolean; complete: boolean };
   partTwo: { items: AdleSessionItem[]; present: boolean; complete: boolean };
   morphologyPilotPayload?: MorphologyLessonPayloadV1 | null;
+  dynamicPrefixPayload?: MorphologyLessonPayloadV1 | null;
   baseWordFamilyPilotPayload?: BaseWordFamilyLessonSnapshotV1 | null;
 };
 
@@ -370,8 +371,8 @@ export function AdleSessionRunner(props: AdleSessionRunnerProps) {
       ) : null}
 
       {partTwo.present && (partOne.complete || !partOne.present) && !partTwo.complete ? (
-        props.morphologyPilotPayload ? (
-          <MorphologyGuidedLesson childId={props.childId} assignmentId={props.assignmentId} items={partTwo.items} payload={props.morphologyPilotPayload} />
+        (props.dynamicPrefixPayload ?? props.morphologyPilotPayload) ? (
+          <MorphologyGuidedLesson childId={props.childId} assignmentId={props.assignmentId} items={partTwo.items} payload={(props.dynamicPrefixPayload ?? props.morphologyPilotPayload)!} />
         ) : (
           <LessonPart childId={props.childId} assignmentId={props.assignmentId} items={partTwo.items} />
         )

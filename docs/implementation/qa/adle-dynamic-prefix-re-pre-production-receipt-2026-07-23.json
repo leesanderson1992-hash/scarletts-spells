@@ -1,0 +1,29 @@
+{
+  "profile": "D4_MOR_PREFIXES_RE_PRE",
+  "status": "production_promoted",
+  "productionProject": "wwohrqtunajrbwxyssjf",
+  "importBatchId": "016705bb-9a87-44ce-a610-596132240b9b",
+  "basePackageSha256": "d5d4b9df9c399db66a143ed86af55db58fa8ba7595a6e8263821693ba4641916",
+  "correctionPackageSha256": "4d3c6ce97d7264e7fdb8b175d91ee61ddc224fa9b0bbd326cc3670a13fb5593c",
+  "created": {
+    "canonicalWords": 3,
+    "profiles": 1,
+    "members": 7
+  },
+  "retainedCanonicalWords": ["predict", "preheat", "preview", "replay"],
+  "createdCanonicalWords": ["preschool", "rebuild", "return"],
+  "prohibitedWrites": {
+    "learningItems": 0,
+    "assignments": 0,
+    "evidence": 0,
+    "scheduling": 0
+  },
+  "productionDeployment": {
+    "id": "dpl_5tYTL3c9J3gJ4i7uxCQMspQVRupK",
+    "url": "https://scarletts-spells.vercel.app",
+    "status": "ready",
+    "routeUnauthenticatedStatus": 307,
+    "routeUnauthenticatedLocation": "/login"
+  },
+  "otherNewPrefixProfilesChanged": []
+}

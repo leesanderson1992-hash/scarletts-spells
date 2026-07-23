@@ -19,6 +19,7 @@
  *   evidence facts -> pricing -> word states -> proficiency reports. The
  *   composer receives the set as an injected fact and is untouched.
  */
+/* eslint-disable @typescript-eslint/no-explicit-any -- conditional nested route select is ahead of generated Supabase types */
 
 import type { SupabaseClient } from "@supabase/supabase-js";
 
@@ -32,6 +33,8 @@ import { priceWordEvidence } from "../evidence-pricing";
 import { computeWordEvidenceState, type WordEvidenceStateResult } from "../word-evidence-state";
 import { computeAllSkillProficiency, notYetSecureSkillKeys } from "../micro-skill-proficiency";
 import { taughtWordHistoryProviderFromFacts } from "../taught-word-history";
+import { ADLE_CANONICAL_INTAKE_FEATURE_FLAG } from "../canonical-intake";
+import { resolveSharedWordReviewPolicy } from "../shared-word-routes";
 import type { IsoDate, ReviewPolicy, SchedulerRowStatus } from "../review-scheduler";
 import {
   activityTemplateFromRow,
@@ -90,7 +93,6 @@ async function rows<T>(query: PromiseLike<{ data: unknown; error: { message: str
   }
   return (data ?? []) as T[];
 }
-
 export async function loadActiveReviewPolicy(client: AdleClient): Promise<ReviewPolicy> {
   const policies = await rows<ReviewPolicyRow>(
     client
@@ -112,6 +114,8 @@ export interface DailyPlanFactsLoad {
   /** canonical_word_id -> primary micro_skill_key (also the completion
    * helpers' microSkillKeyByWordId input). */
   microSkillKeyByWordId: Map<string, string>;
+  /** canonical_word_id -> every deterministic linked route. */
+  microSkillKeysByWordId: Map<string, readonly string[]>;
   /** canonical_word_id -> display word for read models and completion UI. */
   displayWordByWordId: Map<string, string>;
   /** canonical_word_id -> normalised word (server-side correctness checks). */
@@ -130,6 +134,13 @@ export async function loadDailyPlanFacts(
 ): Promise<DailyPlanFactsLoad> {
   const { childId, today } = params;
   const childBand = params.childBand ?? ADLE_PILOT_CHILD_BAND;
+  const sharedRoutesEnabled = process.env[ADLE_CANONICAL_INTAKE_FEATURE_FLAG] === "enabled";
+  const scheduleWordQuery = (client.from("adle_review_schedule_words") as any)
+    .select(sharedRoutesEnabled
+      ? "id, child_id, canonical_word_id, bundle_id, membership_status, catch_up_stage, next_retest_due_on, failed_review_on, pre_retirement_check_due_on, last_28_day_review_on, reteach_cycle_count, taught_on, row_status, adle_review_schedule_word_routes(learning_item_id, micro_skill_key, attachment_ordinal, attached_on, row_status)"
+      : "child_id, canonical_word_id, bundle_id, membership_status, catch_up_stage, next_retest_due_on, failed_review_on, pre_retirement_check_due_on, last_28_day_review_on, reteach_cycle_count, taught_on, row_status")
+    .eq("child_id", childId)
+    .eq("row_status", "active");
 
   const [
     reviewPolicy,
@@ -163,13 +174,7 @@ export async function loadDailyPlanFacts(
       "loadDailyPlanFacts:bundles",
     ),
     rows<ScheduleWordRow>(
-      client
-        .from("adle_review_schedule_words")
-        .select(
-          "child_id, canonical_word_id, bundle_id, membership_status, catch_up_stage, next_retest_due_on, failed_review_on, pre_retirement_check_due_on, last_28_day_review_on, reteach_cycle_count, taught_on, row_status",
-        )
-        .eq("child_id", childId)
-        .eq("row_status", "active"),
+      scheduleWordQuery,
       "loadDailyPlanFacts:scheduleWords",
     ),
     rows<LearningItemRow>(
@@ -359,14 +364,39 @@ export async function loadDailyPlanFacts(
   }
 
   const reviewWordFacts = new Map<string, ReviewWordFact>();
+  const microSkillKeysByWordId = new Map<string, readonly string[]>();
   for (const scheduleWord of scheduleWords) {
     const displayWord = displayWordByWordId.get(scheduleWord.canonicalWordId);
-    const microSkillKey = microSkillKeyByWordId.get(scheduleWord.canonicalWordId);
-    if (displayWord !== undefined && microSkillKey !== undefined) {
+    const storedRow = scheduleWordRows.find((row) =>
+      row.canonical_word_id === scheduleWord.canonicalWordId && row.bundle_id === scheduleWord.bundleId
+    );
+    const activeItemsForWord = learningItems.filter((item) =>
+      item.canonicalWordId === scheduleWord.canonicalWordId && item.rowStatus === "active" && item.itemStatus !== "resolved"
+    );
+    const linkedRoutes = (storedRow?.adle_review_schedule_word_routes ?? [])
+      .filter((route) => route.row_status === "active")
+      .map((route) => ({
+        learningItemId: route.learning_item_id,
+        microSkillKey: route.micro_skill_key,
+        attachmentOrdinal: route.attachment_ordinal,
+        attachedOn: route.attached_on,
+        requiresSentenceContext: skillFamilyKeyBySkill.get(route.micro_skill_key) === "D4_HOM",
+        rowStatus: route.row_status as "active" | "superseded",
+      }));
+    const routePolicy = resolveSharedWordReviewPolicy({
+      learningItems: activeItemsForWord,
+      explicitRoutes: linkedRoutes,
+    });
+    if (displayWord !== undefined && routePolicy !== null) {
+      microSkillKeyByWordId.set(scheduleWord.canonicalWordId, routePolicy.activationMicroSkillKey);
+      microSkillKeysByWordId.set(scheduleWord.canonicalWordId, routePolicy.microSkillKeys);
       reviewWordFacts.set(scheduleWord.canonicalWordId, {
         canonicalWordId: scheduleWord.canonicalWordId,
         displayWord,
-        microSkillKey,
+        microSkillKey: routePolicy.activationMicroSkillKey,
+        microSkillKeys: routePolicy.microSkillKeys,
+        learningItemIds: routePolicy.learningItemIds,
+        requiresSentenceContext: routePolicy.requiresSentenceContext,
       });
     }
     // Missing metadata fails closed inside the composer's skip vocabulary.
@@ -483,6 +513,7 @@ export async function loadDailyPlanFacts(
   return {
     facts,
     microSkillKeyByWordId,
+    microSkillKeysByWordId,
     displayWordByWordId,
     normalisedWordByWordId,
   };

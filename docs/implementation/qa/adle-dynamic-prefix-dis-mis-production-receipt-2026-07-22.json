@@ -1,0 +1,20 @@
+{
+  "status": "production_promoted_and_verified",
+  "environment": "production",
+  "projectRef": "wwohrqtunajrbwxyssjf",
+  "profile": "D4_MOR_PREFIXES_DIS_MIS",
+  "importBatchId": "6b7350f2-200e-4443-ab0f-85e78b03e842",
+  "packageSha256": "d5d4b9df9c399db66a143ed86af55db58fa8ba7595a6e8263821693ba4641916",
+  "created": { "canonicalWords": 5, "profiles": 1, "members": 7 },
+  "retained": { "completeCanonicalWords": ["disappear", "misspell"] },
+  "profileProductionEnabled": true,
+  "otherNewPrefixProfiles": [],
+  "prohibitedWrites": { "learner": 0, "assignments": 0, "evidence": 0, "scheduling": 0 },
+  "deployment": {
+    "id": "dpl_HU87rp3a7ZuyZFJDRD6UuBKqFr7h",
+    "url": "https://scarletts-spells.vercel.app",
+    "routeGate": "enabled",
+    "routeUnauthenticatedStatus": 307,
+    "routeUnauthenticatedLocation": "/login"
+  }
+}
