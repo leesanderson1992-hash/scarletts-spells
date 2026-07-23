@@ -65,7 +65,7 @@ export async function loadBaseWordCurriculumReadinessFacts(params: {
 }): Promise<BaseWordCurriculumReadinessLoad> {
   const [familiesRaw, membersRaw, dictationRaw, contentRaw] = await Promise.all([
     selectAll<any>(params.client, "canonical_teaching_dictionary_base_word_families", "id,base_family_key,micro_skill_key,row_status,review_status,base_meaning,etymology_route"),
-    selectAll<any>(params.client, "canonical_teaching_dictionary_base_word_family_members", "id,base_word_family_id,canonical_word_id,member_role,assignment_eligible,complexity_level,row_status,review_status,word_sum,morphology_parts,morphology_joins,morphology_transformations,child_friendly_meaning"),
+    selectAll<any>(params.client, "canonical_teaching_dictionary_base_word_family_members", "id,base_word_family_id,canonical_word_id,member_role,assignment_eligible,row_status,review_status,word_sum,morphology_parts,morphology_joins,morphology_transformations,child_friendly_meaning"),
     selectAll<any>(params.client, "canonical_teaching_dictionary_dictation_sentences", "id,canonical_word_id,row_status,review_status,dictation_sentence,dictation_target_token_index,audio_text"),
     selectAll<any>(params.client, "canonical_teaching_dictionary_content_versions", "id,micro_skill_key,content_version,version_status,is_active,final_readiness_review_status,child_friendly_explanation,rule_explanation"),
   ]);
@@ -82,7 +82,9 @@ export async function loadBaseWordCurriculumReadinessFacts(params: {
     return baseFamilyKey && microSkillKey ? [{
       memberId: row.id, familyId: row.base_word_family_id, baseFamilyKey, microSkillKey,
       canonicalWordId: row.canonical_word_id, memberRole: row.member_role, assignmentEligible: row.assignment_eligible,
-      complexityLevel: row.complexity_level, rowStatus: row.row_status, reviewStatus: row.review_status,
+      // Family-member storage has no reviewed complexity field. The existing
+      // selector treats null as unknown; inventing a level would distort it.
+      complexityLevel: null, rowStatus: row.row_status, reviewStatus: row.review_status,
       wordSum: row.word_sum, morphologyParts: row.morphology_parts, morphologyJoins: row.morphology_joins,
       morphologyTransformations: row.morphology_transformations, childFriendlyMeaning: row.child_friendly_meaning,
     }] : [];
