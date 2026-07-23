@@ -147,6 +147,8 @@ export interface LearningItemLineageFact {
 }
 
 export interface RouteActivationFact {
+  /** Null is a route-wide observation; a value is a child-scoped pilot gate. */
+  childId?: string | null;
   microSkillKey: string;
   routeId: string;
   routeVersion: string;
@@ -344,13 +346,15 @@ function routeInspection(route: CurriculumRouteDefinition, target: { canonicalWo
   const compatible = route.supportedMicroSkillKeys.includes(target.microSkillKey)
     ? decision()
     : decision([blocker("ROUTE_SKILL_NOT_SUPPORTED", "route_compatibility", target.microSkillKey)]);
-  const activationFact = facts.routeActivation.find(
+  const matchingActivationFacts = facts.routeActivation.filter(
     (entry) =>
       entry.microSkillKey === target.microSkillKey &&
       entry.routeId === route.routeId &&
       entry.routeVersion === route.routeVersion &&
       entry.environmentKey === facts.environmentKey,
   );
+  const activationFact = matchingActivationFacts.find((entry) => entry.childId === childId)
+    ?? matchingActivationFacts.find((entry) => entry.childId === null || entry.childId === undefined);
   const activationBlockers: CurriculumBlocker[] = [];
   if (!route.newAssignmentCapable) activationBlockers.push(blocker("ROUTE_NOT_NEW_ASSIGNMENT_CAPABLE", "route_activation", `${route.routeId}:${route.routeVersion}`));
   if (!activationFact?.environmentEnabled) activationBlockers.push(blocker("ROUTE_ENVIRONMENT_GATE_CLOSED", "route_activation", `${route.routeId}:${route.routeVersion}`));

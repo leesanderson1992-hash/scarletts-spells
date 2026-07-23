@@ -45,10 +45,11 @@ const routes = [
   },
 ];
 
-function activation(microSkillKey: string, routeId: string, enabled = true) {
+function activation(microSkillKey: string, routeId: string, enabled = true, childId: string | null = null) {
   const route = routes.find((candidate) => candidate.routeId === routeId);
   if (!route) throw new Error(`Unknown route ${routeId}`);
   return {
+    childId,
     microSkillKey,
     routeId,
     routeVersion: route.routeVersion,
@@ -143,6 +144,18 @@ const skillScopedActivation = resolveCurriculumReadinessInventory({
 });
 const disabledSkill = skillScopedActivation.targets.find((target) => target.microSkillKey === SKILL_B)?.routes.find((route) => route.routeId === "base_word_lab");
 assert(disabledSkill?.assignmentReadiness.blockers.some((entry) => entry.code === "ROUTE_ENVIRONMENT_GATE_CLOSED"), "activation is scoped to the exact micro-skill and route");
+
+const childScopedActivation = resolveCurriculumReadinessInventory({
+  ...facts,
+  routeActivation: [
+    activation(SKILL_A, "base_word_lab", false),
+    activation(SKILL_A, "base_word_lab", true, CHILD),
+    activation(SKILL_B, "base_word_lab"),
+    activation(SKILL_A, "alternate_base_lab"),
+  ],
+});
+const childOverride = childScopedActivation.targets.find((target) => target.microSkillKey === SKILL_A)?.assignmentReadinessByChild[0];
+assert(childOverride?.decision.status === "READY", "a child-scoped observed gate takes precedence over the route-wide fallback");
 
 const incompleteReview = resolveCurriculumReadinessInventory({
   ...facts,

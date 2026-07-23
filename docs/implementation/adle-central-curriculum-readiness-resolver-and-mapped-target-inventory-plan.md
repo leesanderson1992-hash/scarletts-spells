@@ -1,6 +1,23 @@
 # ADLE Central Curriculum Readiness Resolver and Mapped-Target Inventory Plan
 
-Status: implementation plan only; read-only slice.
+Status: central resolver committed; Base Word Lab fact adapter and inventory are
+the next read-only implementation slice.
+
+## Base Word Lab adapter boundary
+
+The first route adapter supplies facts only for `base_word_lab:v2` and the two
+catalogued Base Word micro-skills. It reads approved dictionary, support,
+content-version, family, family-member and dictation facts, then delegates
+child queue selection to `selectBaseWordFamilyLesson`. The target fact answers
+whether the exact word is structurally complete. The selection fact answers
+whether the child currently has the selector's two authentic targets and four
+transfer words. Neither answer enables a route or writes an assignment.
+
+The adapter reports the existing Base Word environment and child allowlist
+gates as observed activation facts, including the child scope whenever a pilot
+gate is child-specific. Route registry metadata remains capability metadata,
+never production activation authority. The companion inventory is select-only
+and emits canonical JSON; it has no RPC or mutation boundary.
 
 ## 1. Purpose
 

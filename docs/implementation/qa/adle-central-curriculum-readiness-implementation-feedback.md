@@ -2,7 +2,7 @@
 
 Date: 2026-07-23
 
-## Completed locally; pending narrow commit
+## Completed and committed
 
 The read-only central readiness foundation has been implemented.
 
@@ -44,7 +44,8 @@ The read-only central readiness foundation has been implemented.
 
 ## Verification completed
 
-`npm run adle:curriculum-readiness-regression` passes.
+`npm run adle:curriculum-readiness-regression` passes. The narrow foundation
+was committed as `8300c97 fix(adle): harden central curriculum readiness`.
 
 The regression covers:
 
@@ -74,6 +75,11 @@ This keeps the central resolver from duplicating selector logic or treating a
 registry entry as activation authority. Until a caller supplies an exact
 route-scoped content fact and selector result, the resolver fails closed with
 named blockers rather than reporting a target ready.
+
+The next narrow slice is the select-only `base_word_lab:v2` adapter and
+inventory. It derives exact target facts, existing selector facts, and
+observed child-scoped Base Word pilot gates only; Dynamic Prefix remains
+outside that work.
 
 ## Safety confirmation
 
