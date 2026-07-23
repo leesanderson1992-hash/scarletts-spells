@@ -130,6 +130,8 @@ const facts: CurriculumReadinessFacts = {
 const result = resolveCurriculumReadinessInventory(facts);
 assert(result.integrity.status === "READY", "the checked-in registry must validate");
 assert(result.mappingInspections.length === 2, "every approved mapping is inspected");
+assert(result.mappingInspections.every((entry) => entry.mappingTruthValidity.status === "READY"), "approved mapping truth is independent from curriculum readiness");
+assert(result.mappingInspections.every((entry) => entry.wordSkillSupportCompleteness.status === "READY"), "exact support is independently ready when present");
 assert(result.learningItemInspections.length === 3, "every active row is inspected, including resolved items");
 assert(result.targets.length === 2, "same word with two micro-skills remains two curriculum targets");
 assert(result.learningItemInspections.find((entry) => entry.learningItemId === "item-resolved")?.selectability.status === "BLOCKED", "resolved item remains visible but is not selectable");
@@ -137,6 +139,76 @@ assert(result.sharedWords[0]?.decision.status === "READY", "unscheduled shared w
 assert(result.targets.every((target) => target.assignmentReadinessByChild[0]?.decision.status === "READY"), "two pending first-exposure routes can be ready before review linkage exists");
 const alternate = result.targets.find((target) => target.microSkillKey === SKILL_A)?.routes.find((route) => route.routeId === "alternate_base_lab");
 assert(alternate?.assignmentReadiness.blockers.some((entry) => entry.code === "TARGET_ROUTE_CONTENT_INCOMPLETE"), "content for Base Word Lab cannot leak into another compatible route");
+
+const missingExactSupport = resolveCurriculumReadinessInventory({
+  ...facts,
+  supports: facts.supports.filter((support) => support.microSkillKey !== SKILL_B),
+});
+const unsupportedMapping = missingExactSupport.mappingInspections.find(
+  (entry) => entry.mappingId === "mapping-plaing",
+);
+assert(unsupportedMapping?.mappingTruthValidity.status === "READY", "missing exact support does not invalidate the approved correction relationship");
+assert(unsupportedMapping?.wordSkillSupportCompleteness.blockers.some((entry) => entry.code === "TARGET_SKILL_SUPPORT_MISSING"), "missing exact support is reported as its own curriculum dependency");
+assert(unsupportedMapping?.runtimeIntakeUsability.status === "BLOCKED", "missing exact support blocks the current intake projection");
+assert(missingExactSupport.targets.find((target) => target.microSkillKey === SKILL_B)?.assignmentReadinessByChild[0]?.decision.status === "BLOCKED", "missing exact support blocks assignment readiness without substituting another word");
+
+const sameSkillDifferentWord = resolveCurriculumReadinessInventory({
+  ...facts,
+  supports: [
+    { canonicalWordId: "other-word", microSkillKey: SKILL_A, supportRole: "support_example", rowStatus: "active", reviewStatus: "approved_for_first_exposure" },
+    facts.supports[1],
+  ],
+});
+assert(sameSkillDifferentWord.mappingInspections.find((entry) => entry.mappingId === "mapping-plaiing")?.wordSkillSupportCompleteness.status === "BLOCKED", "same-skill support for another word cannot satisfy exact target support");
+
+const missingCanonical = resolveCurriculumReadinessInventory({
+  ...facts,
+  mappings: [{ ...facts.mappings[0], mappingId: "mapping-missing-word", correctSpellingNormalized: "not-in-dictionary" }],
+});
+assert(missingCanonical.mappingInspections[0]?.mappingTruthValidity.blockers.some((entry) => entry.code === "APPROVED_MAPPING_TARGET_NOT_FOUND"), "an unresolved correction blocks mapping truth");
+
+const ambiguousCanonical = resolveCurriculumReadinessInventory({
+  ...facts,
+  mappings: [facts.mappings[0]],
+  words: [
+    ...facts.words,
+    { ...facts.words[0], canonicalWordId: "word-playing-duplicate" },
+  ],
+});
+assert(ambiguousCanonical.mappingInspections[0]?.mappingTruthValidity.blockers.some((entry) => entry.code === "APPROVED_MAPPING_TARGET_AMBIGUOUS"), "ambiguous canonical identity blocks mapping truth");
+
+const invalidScope = resolveCurriculumReadinessInventory({
+  ...facts,
+  mappings: [{ ...facts.mappings[0], parentUserId: null, sourceRef: "" }],
+});
+assert(invalidScope.mappingInspections[0]?.mappingTruthValidity.blockers.some((entry) => entry.code === "MAPPING_AUTHORITY_SCOPE_INVALID"), "invalid parent-local authority scope blocks mapping truth");
+assert(invalidScope.mappingInspections[0]?.mappingTruthValidity.blockers.some((entry) => entry.code === "MAPPING_SOURCE_LINEAGE_MISSING"), "missing mapping lineage blocks mapping truth");
+
+const conflictingScope = resolveCurriculumReadinessInventory({
+  ...facts,
+  mappings: [
+    facts.mappings[0],
+    { ...facts.mappings[0], mappingId: "mapping-conflict", correctSpellingNormalized: "played" },
+  ],
+});
+assert(conflictingScope.mappingInspections.every((entry) => entry.mappingTruthValidity.blockers.some((blocker) => blocker.code === "MAPPING_AUTHORITY_PAIR_CONFLICT")), "conflicting approved corrections in one authority scope block mapping truth");
+
+const hiddenGlobal = resolveCurriculumReadinessInventory({
+  ...facts,
+  mappings: [{
+    ...facts.mappings[0],
+    mappingId: "mapping-hidden-global",
+    authority: "global_canonical",
+    parentUserId: null,
+    childId: null,
+    status: "global_canonical_promoted",
+    mappingStatus: "active",
+    resolverVisibilityStatus: "hidden",
+    hasVisibilityEnableEvent: false,
+  }],
+});
+assert(hiddenGlobal.mappingInspections[0]?.mappingTruthValidity.status === "READY", "a hidden active global mapping remains coherent curriculum truth");
+assert(hiddenGlobal.mappingInspections[0]?.runtimeIntakeUsability.blockers.some((entry) => entry.code === "CANONICAL_MAPPING_NOT_RESOLVER_VISIBLE"), "hidden global mapping is blocked for current intake consumption");
 
 const skillScopedActivation = resolveCurriculumReadinessInventory({
   ...facts,

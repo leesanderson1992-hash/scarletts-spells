@@ -12,7 +12,8 @@ The read-only central readiness foundation has been implemented.
 - Preserved mapping and learning-item lineage as source-level evidence rather
   than merging distinct misspellings, children, mappings, or items.
 - Kept these decisions separate in the output:
-  - mapping validity;
+  - mapping truth validity;
+  - exact word-to-micro-skill support completeness;
   - mapping intake usability;
   - learning-item validity;
   - learning-item selectability;
@@ -41,6 +42,27 @@ The read-only central readiness foundation has been implemented.
   route links. The loader does not call RPCs or write to Supabase.
 - Added deterministic sorting for source inspections, targets, routes,
   evidence, and blockers.
+
+## Scope correction — 2026-07-23
+
+The resolver is a read-only diagnostic boundary, not a curriculum authoring or
+population system. A reviewed correction can therefore retain
+`mappingTruthValidity: READY` when its exact word-to-micro-skill support is
+missing; that dependency is reported separately as
+`wordSkillSupportCompleteness: BLOCKED`. The stricter live canonical-intake
+gate remains unchanged in `canonical-intake.ts`.
+
+`canonicalContentCompleteness` reports the shared, observable dictionary
+baseline: active approved canonical identity and banding presence. Route facts
+continue to own specialised content such as Base Word morphology, word sums,
+family members, transfer pools, and route-specific payload validation.
+`runtimeIntakeUsability` is a read-only projection of the intake prerequisites
+represented in resolver facts; it does not replace the authoritative live gate
+in `canonical-intake.ts`.
+
+Route narrowing is deliberately deferred. This correction changes source and
+curriculum decision boundaries only; it does not change the inventory's route
+coverage, route selection, or assignment interpretation.
 
 ## Verification completed
 
@@ -76,10 +98,10 @@ registry entry as activation authority. Until a caller supplies an exact
 route-scoped content fact and selector result, the resolver fails closed with
 named blockers rather than reporting a target ready.
 
-The next narrow slice is the select-only `base_word_lab:v2` adapter and
-inventory. It derives exact target facts, existing selector facts, and
-observed child-scoped Base Word pilot gates only; Dynamic Prefix remains
-outside that work.
+The Base Word `base_word_lab:v2` adapter and inventory are now committed.
+Further route adapters, Dynamic Prefix coverage, curriculum importers, and
+curriculum-authoring work are deferred until their own lesson contracts and
+approved content are ready.
 
 ## Safety confirmation
 

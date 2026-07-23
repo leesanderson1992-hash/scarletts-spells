@@ -1,7 +1,8 @@
 # ADLE Central Curriculum Readiness Resolver and Mapped-Target Inventory Plan
 
-Status: central resolver committed; Base Word Lab fact adapter and inventory are
-the next read-only implementation slice.
+Status: central resolver and the Base Word Lab fact adapter/inventory are
+committed. The resolver remains a bounded read-only diagnostic; broad future
+route coverage and curriculum population are paused.
 
 ## Base Word Lab adapter boundary
 
@@ -23,7 +24,7 @@ and emits canonical JSON; it has no RPC or mutation boundary.
 
 Build one exhaustive, deterministic read model that answers:
 
-1. Is each approved spelling mapping valid as spelling-to-curriculum input?
+1. Is each approved spelling mapping a valid, traceable correction identity?
 2. Is each active ADLE learning item internally valid and traceable?
 3. Which registered ADLE lesson routes are compatible with each canonical
    word and micro-skill target?
@@ -50,6 +51,20 @@ canonical_word_id + micro_skill_key + route_id + route_version
 
 and records a dependency fingerprint so a complete route cannot accidentally
 make another compatible route ready.
+
+Mapping truth is intentionally narrower than lesson readiness. Missing exact
+word-to-micro-skill support is reported as curriculum completeness, not as a
+defect in an otherwise approved correction relationship. The stricter runtime
+intake gate remains separately owned by `canonical-intake.ts`.
+
+The resolver reports shared canonical baseline completeness separately: active
+approved canonical identity and banding presence. It does not claim to author
+or infer definitions, morphology, word sums, dictation, family data, or
+route-specific content; those remain explicit curriculum and route facts.
+
+Route narrowing and broader future-route interpretation remain a separate
+follow-up. This correction changes source and curriculum decision boundaries
+only; it does not alter route coverage or assignment interpretation.
 
 This slice is inspection only. It must not add or apply migrations, import
 dictionary content, activate a route or profile, create or alter mappings,

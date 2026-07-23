@@ -101,9 +101,11 @@ export interface CurriculumBlocker {
   code: string;
   stage:
     | "mapping_validity"
-    | "mapping_intake_usability"
+    | "runtime_intake_usability"
     | "learning_item_validity"
     | "item_selectability"
+    | "canonical_content"
+    | "word_skill_support"
     | "target_content"
     | "route_compatibility"
     | "route_activation"
@@ -206,7 +208,19 @@ export interface CurriculumReadinessFacts {
 export interface MappingInspection {
   mappingId: string;
   targetKey: string | null;
-  validity: CurriculumDecision;
+  /** Correction identity and catalog identity only. It intentionally excludes
+   * curriculum dependencies such as exact word-to-skill support. */
+  mappingTruthValidity: CurriculumDecision;
+  /** Shared canonical-word facts currently available to this read model.
+   * Route-specific content remains in RouteContentFact. */
+  canonicalContentCompleteness: CurriculumDecision;
+  /** Exact reusable support is curriculum readiness, not mapping truth. */
+  wordSkillSupportCompleteness: CurriculumDecision;
+  /** Read-only projection of the current intake prerequisites available here.
+   * canonical-intake.ts remains the authoritative live persistence gate. */
+  runtimeIntakeUsability: CurriculumDecision;
+  /** @deprecated Use runtimeIntakeUsability. Retained only for one output
+   * transition; it is derived and must not be treated as mapping truth. */
   intakeUsability: CurriculumDecision;
 }
 
@@ -233,6 +247,8 @@ export interface TargetInspection {
   mappingIds: string[];
   learningItemIds: string[];
   childIds: string[];
+  canonicalContentCompleteness: CurriculumDecision;
+  wordSkillSupportCompleteness: CurriculumDecision;
   routes: RouteInspection[];
   assignmentReadinessByChild: Array<{ childId: string; decision: CurriculumDecision }>;
 }
@@ -274,29 +290,114 @@ function blocker(
   return { code, stage, dependency, evidence };
 }
 
-function targetForMapping(mapping: ApprovedMappingFact, facts: CurriculumReadinessFacts): { targetKey: string | null; blockers: CurriculumBlocker[]; evidence: CurriculumEvidence[] } {
+function targetForMapping(mapping: ApprovedMappingFact, facts: CurriculumReadinessFacts): {
+  targetKey: string | null;
+  canonicalWordId: string | null;
+  blockers: CurriculumBlocker[];
+  evidence: CurriculumEvidence[];
+} {
   const blockers: CurriculumBlocker[] = [];
   const evidence: CurriculumEvidence[] = [{ source: "approved_mapping", id: mapping.mappingId, field: "status", observed: mapping.status }];
   if (!APPROVED_MAPPING_STATUSES.has(mapping.status)) blockers.push(blocker("MAPPING_SCOPE_OR_AUTHORITY_INVALID", "mapping_validity", mapping.mappingId, evidence));
   if (!mapping.misspellingNormalized || !mapping.correctSpellingNormalized || mapping.misspellingNormalized === mapping.correctSpellingNormalized) blockers.push(blocker("MAPPING_NORMALISED_PAIR_INVALID", "mapping_validity", mapping.mappingId, evidence));
-  const matches = facts.words.filter((word) => word.rowStatus === "active" && word.normalisedWord === mapping.correctSpellingNormalized);
+  if (!mapping.sourceRef.trim()) blockers.push(blocker("MAPPING_SOURCE_LINEAGE_MISSING", "mapping_validity", mapping.mappingId, evidence));
+  if (
+    (mapping.authority === "parent_local" &&
+      (mapping.status !== "parent_local_promoted" || !mapping.parentUserId || !mapping.childId)) ||
+    (mapping.authority === "global_canonical" &&
+      (mapping.status !== "global_canonical_promoted" || mapping.parentUserId !== null || mapping.childId !== null))
+  ) {
+    blockers.push(blocker("MAPPING_AUTHORITY_SCOPE_INVALID", "mapping_validity", mapping.mappingId, evidence));
+  }
+  const sameScopeConflict = facts.mappings.some((candidate) => {
+    if (candidate.mappingId === mapping.mappingId || candidate.authority !== mapping.authority) return false;
+    const sameScope = mapping.authority === "global_canonical"
+      ? candidate.parentUserId === null && candidate.childId === null && mapping.parentUserId === null && mapping.childId === null
+      : candidate.parentUserId === mapping.parentUserId && candidate.childId === mapping.childId;
+    return sameScope &&
+      candidate.misspellingNormalized === mapping.misspellingNormalized &&
+      (candidate.correctSpellingNormalized !== mapping.correctSpellingNormalized || candidate.microSkillKey !== mapping.microSkillKey);
+  });
+  if (sameScopeConflict) blockers.push(blocker("MAPPING_AUTHORITY_PAIR_CONFLICT", "mapping_validity", mapping.mappingId, evidence));
+  const matches = facts.words.filter((word) => word.normalisedWord === mapping.correctSpellingNormalized);
   if (matches.length !== 1) {
     blockers.push(blocker(matches.length ? "APPROVED_MAPPING_TARGET_AMBIGUOUS" : "APPROVED_MAPPING_TARGET_NOT_FOUND", "mapping_validity", mapping.correctSpellingNormalized, matches.map((word) => ({ source: "canonical_teaching_dictionary_words", id: word.canonicalWordId }))));
-    return { targetKey: null, blockers, evidence };
+    return { targetKey: null, canonicalWordId: null, blockers, evidence };
   }
   const word = matches[0];
   const skill = facts.microSkills.find((candidate) => candidate.microSkillKey === mapping.microSkillKey);
-  if (!skill || !skill.isActive || !skill.isAssignable || skill.masteryDomainKey !== "D4") blockers.push(blocker("INACTIVE_OR_NON_ASSIGNABLE_MICRO_SKILL", "mapping_validity", mapping.microSkillKey));
-  if (word.reviewStatus !== APPROVED_WORD_STATUS) blockers.push(blocker("TARGET_WORD_NOT_APPROVED", "mapping_validity", word.canonicalWordId, [{ source: "canonical_teaching_dictionary_words", id: word.canonicalWordId, field: "review_status", observed: word.reviewStatus, required: APPROVED_WORD_STATUS }]));
-  if (!facts.supports.some((support) => support.canonicalWordId === word.canonicalWordId && support.microSkillKey === mapping.microSkillKey && support.rowStatus === "active" && support.reviewStatus === APPROVED_WORD_STATUS && NON_CONTRAST_SUPPORT_ROLES.has(support.supportRole))) blockers.push(blocker("TARGET_SKILL_SUPPORT_MISSING", "mapping_validity", canonicalWordSkillPair(word.canonicalWordId, mapping.microSkillKey)));
-  return { targetKey: canonicalWordSkillPair(word.canonicalWordId, mapping.microSkillKey), blockers, evidence };
+  if (!skill || skill.masteryDomainKey !== "D4") blockers.push(blocker("CATALOGUED_D4_MICRO_SKILL_MISSING", "mapping_validity", mapping.microSkillKey));
+  return {
+    targetKey: canonicalWordSkillPair(word.canonicalWordId, mapping.microSkillKey),
+    canonicalWordId: word.canonicalWordId,
+    blockers,
+    evidence,
+  };
 }
 
-function mappingIntakeUsability(mapping: ApprovedMappingFact): CurriculumDecision {
-  if (mapping.authority === "parent_local") return decision();
+function wordSkillSupportCompleteness(params: {
+  canonicalWordId: string | null;
+  microSkillKey: string;
+}, facts: CurriculumReadinessFacts): CurriculumDecision {
+  if (!params.canonicalWordId) {
+    return decision([blocker("TARGET_SKILL_SUPPORT_UNRESOLVED", "word_skill_support", params.microSkillKey)]);
+  }
+  const supported = facts.supports.some((support) =>
+    support.canonicalWordId === params.canonicalWordId &&
+    support.microSkillKey === params.microSkillKey &&
+    support.rowStatus === "active" &&
+    support.reviewStatus === APPROVED_WORD_STATUS &&
+    NON_CONTRAST_SUPPORT_ROLES.has(support.supportRole),
+  );
+  return decision(supported ? [] : [blocker(
+    "TARGET_SKILL_SUPPORT_MISSING",
+    "word_skill_support",
+    canonicalWordSkillPair(params.canonicalWordId, params.microSkillKey),
+  )]);
+}
+
+function canonicalContentCompleteness(
+  canonicalWordId: string | null,
+  facts: CurriculumReadinessFacts,
+): CurriculumDecision {
+  const word = canonicalWordId
+    ? facts.words.find((candidate) => candidate.canonicalWordId === canonicalWordId)
+    : null;
   const blockers: CurriculumBlocker[] = [];
-  if (mapping.mappingStatus !== "active") blockers.push(blocker("CANONICAL_MAPPING_NOT_ACTIVE", "mapping_intake_usability", mapping.mappingId));
-  if (mapping.resolverVisibilityStatus !== "visible" || !mapping.hasVisibilityEnableEvent) blockers.push(blocker("CANONICAL_MAPPING_NOT_RESOLVER_VISIBLE", "mapping_intake_usability", mapping.mappingId));
+  if (!word) {
+    blockers.push(blocker("CANONICAL_TARGET_CONTENT_UNRESOLVED", "canonical_content", canonicalWordId ?? "unknown"));
+  } else {
+    if (word.rowStatus !== "active") blockers.push(blocker("CANONICAL_TARGET_NOT_ACTIVE", "canonical_content", word.canonicalWordId));
+    if (word.reviewStatus !== APPROVED_WORD_STATUS) blockers.push(blocker("CANONICAL_TARGET_NOT_APPROVED", "canonical_content", word.canonicalWordId, [{ source: "canonical_teaching_dictionary_words", id: word.canonicalWordId, field: "review_status", observed: word.reviewStatus, required: APPROVED_WORD_STATUS }]));
+    if (word.frequencyBand === null || word.ageBand === null) blockers.push(blocker("CANONICAL_TARGET_BANDING_INCOMPLETE", "canonical_content", word.canonicalWordId));
+  }
+  return decision(blockers);
+}
+
+function runtimeIntakeUsability(params: {
+  mapping: ApprovedMappingFact;
+  mappingTruthValidity: CurriculumDecision;
+  canonicalContentCompleteness: CurriculumDecision;
+  wordSkillSupportCompleteness: CurriculumDecision;
+}, facts: CurriculumReadinessFacts): CurriculumDecision {
+  const blockers: CurriculumBlocker[] = [];
+  if (params.mappingTruthValidity.status === "BLOCKED") {
+    blockers.push(blocker("RUNTIME_INTAKE_MAPPING_TRUTH_INVALID", "runtime_intake_usability", params.mapping.mappingId, params.mappingTruthValidity.evidence));
+  }
+  if (params.canonicalContentCompleteness.status === "BLOCKED") {
+    blockers.push(blocker("RUNTIME_INTAKE_CANONICAL_TARGET_INCOMPLETE", "runtime_intake_usability", params.mapping.mappingId));
+  }
+  if (params.wordSkillSupportCompleteness.status === "BLOCKED") {
+    blockers.push(blocker("RUNTIME_INTAKE_EXACT_SUPPORT_MISSING", "runtime_intake_usability", params.mapping.mappingId));
+  }
+  const skill = facts.microSkills.find((candidate) => candidate.microSkillKey === params.mapping.microSkillKey);
+  if (!skill || !skill.isActive || !skill.isAssignable || skill.masteryDomainKey !== "D4") {
+    blockers.push(blocker("RUNTIME_INTAKE_MICRO_SKILL_NOT_ACTIVE_ASSIGNABLE", "runtime_intake_usability", params.mapping.microSkillKey));
+  }
+  if (params.mapping.authority === "global_canonical") {
+    if (params.mapping.mappingStatus !== "active") blockers.push(blocker("CANONICAL_MAPPING_NOT_ACTIVE", "runtime_intake_usability", params.mapping.mappingId));
+    if (params.mapping.resolverVisibilityStatus !== "visible" || !params.mapping.hasVisibilityEnableEvent) blockers.push(blocker("CANONICAL_MAPPING_NOT_RESOLVER_VISIBLE", "runtime_intake_usability", params.mapping.mappingId));
+  }
   return decision(blockers);
 }
 
@@ -394,7 +495,27 @@ export function resolveCurriculumReadinessInventory(facts: CurriculumReadinessFa
   const integrity = decision(registryErrors.map((error) => blocker("REGISTRY_INVALID", "inventory_integrity", error)));
   const mappingInspections = facts.mappings.slice().sort((a, b) => a.mappingId.localeCompare(b.mappingId)).map((mapping) => {
     const resolved = targetForMapping(mapping, facts);
-    return { mappingId: mapping.mappingId, targetKey: resolved.targetKey, validity: decision(resolved.blockers, resolved.evidence), intakeUsability: mappingIntakeUsability(mapping) };
+    const mappingTruthValidity = decision(resolved.blockers, resolved.evidence);
+    const canonicalCompleteness = canonicalContentCompleteness(resolved.canonicalWordId, facts);
+    const supportCompleteness = wordSkillSupportCompleteness({
+      canonicalWordId: resolved.canonicalWordId,
+      microSkillKey: mapping.microSkillKey,
+    }, facts);
+    const intakeUsability = runtimeIntakeUsability({
+      mapping,
+      mappingTruthValidity,
+      canonicalContentCompleteness: canonicalCompleteness,
+      wordSkillSupportCompleteness: supportCompleteness,
+    }, facts);
+    return {
+      mappingId: mapping.mappingId,
+      targetKey: resolved.targetKey,
+      mappingTruthValidity,
+      canonicalContentCompleteness: canonicalCompleteness,
+      wordSkillSupportCompleteness: supportCompleteness,
+      runtimeIntakeUsability: intakeUsability,
+      intakeUsability,
+    };
   });
   const learningItemInspections = facts.learningItems.filter((item) => item.rowStatus === "active").slice().sort((a, b) => a.learningItemId.localeCompare(b.learningItemId)).map((item) => itemInspection(item, facts));
   const targetIds = new Map<string, { canonicalWordId: string; microSkillKey: string; mappingIds: string[]; learningItemIds: string[]; childIds: string[] }>();
@@ -409,16 +530,29 @@ export function resolveCurriculumReadinessInventory(facts: CurriculumReadinessFa
     value.learningItemIds.push(inspection.learningItemId); value.childIds.push(inspection.childId); targetIds.set(inspection.targetKey, value);
   }
   const targets = [...targetIds.entries()].sort(([left], [right]) => left.localeCompare(right)).map(([targetKey, target]) => {
+    const canonicalCompleteness = canonicalContentCompleteness(target.canonicalWordId, facts);
+    const supportCompleteness = wordSkillSupportCompleteness(target, facts);
     const routes = facts.routes.map((route) => routeInspection(route, target, null, facts));
     const childIds = [...new Set(target.childIds)].sort();
     return {
       targetKey, ...target,
       mappingIds: [...new Set(target.mappingIds)].sort(), learningItemIds: [...new Set(target.learningItemIds)].sort(), childIds,
+      canonicalContentCompleteness: canonicalCompleteness,
+      wordSkillSupportCompleteness: supportCompleteness,
       routes,
       assignmentReadinessByChild: childIds.map((childId) => {
         const results = facts.routes.map((route) => routeInspection(route, target, childId, facts));
         const ready = results.some((result) => result.assignmentReadiness.status === "READY");
-        return { childId, decision: ready ? decision() : decision(results.flatMap((result) => result.assignmentReadiness.blockers)) };
+        return {
+          childId,
+          decision: ready && canonicalCompleteness.status === "READY" && supportCompleteness.status === "READY"
+            ? decision()
+            : decision([
+                ...canonicalCompleteness.blockers,
+                ...supportCompleteness.blockers,
+                ...results.flatMap((result) => result.assignmentReadiness.blockers),
+              ]),
+        };
       }),
     };
   });
