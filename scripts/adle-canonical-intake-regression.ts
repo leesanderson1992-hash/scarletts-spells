@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import {
   resolveCanonicalIntakeReadiness,
   canonicalWordSkillPair,
@@ -353,6 +354,32 @@ for (const [skill, companion] of [
   );
 }
 
+const migration = readFileSync(
+  "supabase/migrations/20260722180000_add_adle_canonical_intake_and_shared_routes.sql",
+  "utf8",
+);
+for (const contract of [
+  "adle_learning_item_sources",
+  "adle_review_schedule_word_routes",
+  "adle_review_outcome_event_routes",
+  "adle_assignment_attempt_event_routes",
+  "reactivated_for_new_skill",
+  "adle_persist_canonical_intake",
+])
+  assert(migration.includes(contract), `Migration is missing ${contract}.`);
+const baseCompletionMigration = readFileSync(
+  "supabase/migrations/20260722200000_add_shared_route_base_word_completion.sql",
+  "utf8",
+);
+for (const contract of [
+  "complete_adle_base_word_family_pilot_v2",
+  "reactivated_for_new_skill",
+  "adle_review_schedule_word_routes",
+  "adle_review_outcome_event_routes",
+  "active assignable D4 catalogued micro-skill",
+  "multi-route schedule is incomplete and has failed closed",
+])
+  assert(baseCompletionMigration.includes(contract), `Base Word Lab V2 migration is missing ${contract}.`);
 console.log(
   JSON.stringify(
     {
