@@ -92,7 +92,7 @@ export default async function PendingAdleQueuePage({
   }
 
   if (requestedMode === "child") {
-    redirect(buildScopedPath("/insights/adle-pending", selectedChild.id, "parent"));
+    redirect(buildScopedPath("/insights", selectedChild.id, "child"));
   }
 
   const pendingAdleLearning = await loadPendingAdleLearningForChild(selectedChild.id);
