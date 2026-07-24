@@ -1,0 +1,2 @@
+word_key,micro_skill_key,word_row_status,word_review_status,support_role,support_row_status,support_review_status,content_version,content_version_status,content_is_active,content_final_readiness_review_status,child_friendly_explanation,rule_explanation
+<existing_canonical_word_key>,D4_MOR_BASE_WORDS_IDENTIFY_BASE,draft,in_review,support_example,draft,in_review,<content_version>,draft,FALSE,in_review,<child_friendly_explanation>,<rule_explanation>

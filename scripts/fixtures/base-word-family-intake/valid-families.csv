@@ -1,0 +1,2 @@
+base_family_key,micro_skill_key,base_word_key,base_meaning,etymology_route,row_status,source_category,source_name,source_url,source_licence,source_use_note,confidence,review_status,reviewed_by,reviewed_at
+play_family,D4_MOR_BASE_WORDS_IDENTIFY_BASE,play_en_gb,doing something,"{""relation_type"":""free_base"",""evidence"":{""source_name"":""fixture""}}",active,internal_authored,fixture,https://example.invalid,internal,fixture,high,approved_for_first_exposure,Fixture Reviewer,2026-07-24T00:00:00Z
