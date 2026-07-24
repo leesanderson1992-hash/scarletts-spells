@@ -2,8 +2,13 @@
 
 ## Status
 
-Status: `approved planning authority; implementation, migration, activation,
-and rollout require separate explicit authorisation`.
+Status: `implemented and released to production on 2026-07-21 for eligible learners.`
+
+This document is retained as the design and acceptance authority for the
+released Base Word Lab. Current operational scope is recorded in
+[`adle-current-state-and-release-registry.md`](adle-current-state-and-release-registry.md)
+and the production runbook. Later work must not reopen its six-word / 18-item
+contract without a separate decision.
 
 This document defines the first D4_MOR lesson-selection slice for base-word
 families. It replaces the earlier five-word family fill with the current

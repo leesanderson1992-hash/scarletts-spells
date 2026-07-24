@@ -1,6 +1,13 @@
 # ADLE 7P: Live Pilot Foundation
 
-Status: `Implemented 2026-07-08; live pilot proof still requires approved real-child generation and QA.`
+Status: `Historical foundation slice. Implemented 2026-07-08; its original
+first-real-child-proof wording is superseded by later Word Lab and Base Word
+Lab releases.`
+
+This document describes the initial guarded assignment mechanism, not current
+production capability. See
+[`adle-current-state-and-release-registry.md`](adle-current-state-and-release-registry.md)
+for live release scope.
 
 ## Roadmap position
 
