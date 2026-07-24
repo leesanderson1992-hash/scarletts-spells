@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "next_teaching_dictionary_batch_v1",
+  "batchSize": 1000,
+  "newWordRows": 1000,
+  "metadataRows": 1000,
+  "supportRows": 1001,
+  "dictationRows": 1000,
+  "existingRepairRows": 16,
+  "status": "human_review_required",
+  "productionMutationAuthorised": false,
+  "sourceSnapshot": "docs/implementation/seed-data/teaching-dictionary/candidates/2026-07-22-next-1000-word-batch/production-snapshot.json",
+  "selectionSha256": "2f661304ba149432b964c8eeb0bbb13d71d632f60aa28c730ebe9a336f7a9945"
+}
