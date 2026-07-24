@@ -11,6 +11,7 @@ import { assertBaseWordFamilyPilotEnabledForChild } from "../morphology/base-wor
 import type { AssignmentAttemptEventWrite, LessonCompletionWrite } from "./session-completion-loader";
 import type { BaseWordTransferMissWrite } from "../base-word-transfer-evidence";
 import type { WordLabReflectionWrite } from "./word-lab-completion-loader";
+import { loadAdleLessonRouteActivations } from "./lesson-route-activations";
 
 export const BASE_WORD_PILOT_MICRO_SKILLS = [
   "D4_MOR_BASE_WORDS_PRESERVE_BASE",
@@ -30,6 +31,21 @@ export async function loadBaseWordFamilyPilotReadiness(params: {
   childId: string;
   planDate: string;
 }): Promise<{ payload: BaseWordFamilyLessonSnapshotV1 | null; readinessReason: string | null }> {
+  const activations = await loadAdleLessonRouteActivations(params.client, {
+    microSkillKeys: BASE_WORD_PILOT_MICRO_SKILLS,
+    environmentKey: "production",
+  });
+  const productionEnabledSkills = new Set(
+    activations
+      .filter(
+        (activation) =>
+          activation.lessonRouteKey === "base_word_family_v1" &&
+          activation.activationStatus === "production_enabled",
+      )
+      .map((activation) => activation.microSkillKey),
+  );
+  if (productionEnabledSkills.size === 0)
+    return { payload: null, readinessReason: "adle_route_not_production_enabled" };
   const { facts } = await loadDailyPlanFacts(params.client, { childId: params.childId, today: params.planDate as import("../review-scheduler").IsoDate });
   const [familyResult, memberResult, runResult] = await Promise.all([
     params.client.from("canonical_teaching_dictionary_base_word_families").select("id, base_family_key, micro_skill_key, row_status, review_status").in("micro_skill_key", BASE_WORD_PILOT_MICRO_SKILLS),
@@ -45,11 +61,11 @@ export async function loadBaseWordFamilyPilotReadiness(params: {
       const baseFamilyKey = keyById.get(row.base_word_family_id);
       return baseFamilyKey ? [{ baseFamilyKey, canonicalWordId: row.canonical_word_id, memberRole: row.member_role, assignmentEligible: row.assignment_eligible, complexityLevel: null, rowStatus: row.row_status, reviewStatus: row.review_status }] : [];
     });
-  const candidates = BASE_WORD_PILOT_MICRO_SKILLS.map((microSkillKey) => ({ microSkillKey, selection: selectBaseWordFamilyLesson(params.childId, microSkillKey, { learningItems: facts.learningItems, families, members }) }))
+  const candidates = BASE_WORD_PILOT_MICRO_SKILLS.filter((microSkillKey) => productionEnabledSkills.has(microSkillKey)).map((microSkillKey) => ({ microSkillKey, selection: selectBaseWordFamilyLesson(params.childId, microSkillKey, { learningItems: facts.learningItems, families, members }) }))
     .filter((candidate) => candidate.selection.skipReasons.length === 0);
   const candidate = candidates[0];
   if (!candidate) {
-    const reasons = BASE_WORD_PILOT_MICRO_SKILLS.map((microSkillKey) => selectBaseWordFamilyLesson(params.childId, microSkillKey, { learningItems: facts.learningItems, families, members }).skipReasons.join(",")).filter(Boolean);
+    const reasons = BASE_WORD_PILOT_MICRO_SKILLS.filter((microSkillKey) => productionEnabledSkills.has(microSkillKey)).map((microSkillKey) => selectBaseWordFamilyLesson(params.childId, microSkillKey, { learningItems: facts.learningItems, families, members }).skipReasons.join(",")).filter(Boolean);
     return { payload: null, readinessReason: reasons.join(";") || "no_supported_base_word_skill_ready" };
   }
   const { microSkillKey, selection } = candidate;
