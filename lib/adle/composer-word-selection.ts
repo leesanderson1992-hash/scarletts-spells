@@ -48,7 +48,6 @@ export interface ComposerDictionaryFacts {
   activeBandingVersion: BandingVersionFact;
   activeTeachingSkillKeys: ReadonlySet<string>;
 }
-
 export interface ProbeRunFact {
   childId: string;
   microSkillKey: string;
@@ -73,6 +72,7 @@ export interface ProbePlan {
 export type WordSelectionSkipReason =
   | "probe_cap_reached"
   | "no_diagnostic_eligible_words"
+  | "canonical_target_content_incomplete"
   | "missing_required_words";
 
 export interface WordSelectionFacts {
@@ -172,6 +172,37 @@ export function selectLessonWords(
   let window: { min: number; max: number } | null = null;
   const usedWordIds = new Set<string>();
   const itemByWordId = new Map(skillItems.map((item) => [item.canonicalWordId, item]));
+
+  // A real learner target is never replaceable by a same-skill dictionary
+  // word. Every exact target must still be an active, approved, child-banded
+  // word with an approved non-contrast support link to this error-specific
+  // micro-skill; otherwise the whole Part 2 route fails closed.
+  const incompleteExactTarget = skillItems.find((item) => {
+    const word = wordById.get(item.canonicalWordId);
+    if (!word) return true;
+    const supports = supportsByWord.get(item.canonicalWordId) ?? [];
+    const hasExactSupport = supports.some(
+      (support) =>
+        support.microSkillKey === microSkillKey &&
+        support.supportRole !== "contrast" &&
+        support.rowStatus === "active" &&
+        APPROVED_SUPPORT_REVIEW_STATUSES.includes(support.reviewStatus),
+    );
+    return !hasExactSupport || !isAssignmentDiagnosticEligible(
+      { word, supports, activeTeachingSkillKeys: dictionary.activeTeachingSkillKeys },
+      childBand,
+    );
+  });
+  if (incompleteExactTarget) {
+    return {
+      slots: [],
+      probePlan: null,
+      stretchItemIntakes: [],
+      deferredOutlierWordIds: [incompleteExactTarget.canonicalWordId],
+      skipReasons: ["canonical_target_content_incomplete"],
+      complexityWindow: null,
+    };
+  }
 
   for (const item of skillItems) {
     if (slots.length >= policy.lessonWordCount || usedWordIds.has(item.canonicalWordId)) {

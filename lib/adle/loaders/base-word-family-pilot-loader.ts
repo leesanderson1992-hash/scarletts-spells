@@ -117,7 +117,7 @@ export async function persistBaseWordFamilyPilotCompletion(params: {
   reflection: WordLabReflectionWrite;
   transferMisses: readonly BaseWordTransferMissWrite[];
 }): Promise<{ status: "completed" | "already_completed" }> {
-  const { data, error } = await params.client.rpc("complete_adle_base_word_family_pilot_v1", {
+  const { data, error } = await params.client.rpc("complete_adle_base_word_family_pilot_v2", {
     p_parent_user_id: params.parentUserId, p_child_id: params.childId, p_assignment_id: params.assignmentId,
     p_plan_date: params.planDate, p_micro_skill_key: params.microSkillKey, p_source_ref: params.sourceRef,
     p_assignment_item_ids: params.assignmentItemIds, p_attempts: params.attempts, p_lesson: { ...params.lesson, reflection: params.reflection },

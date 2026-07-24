@@ -14,6 +14,7 @@ import { createOrUpdateGoldenNuggetFromParentApproval } from "@/lib/rewards/word
 import { createClient } from "@/lib/supabase/server";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { emitAdleAuthenticUseFromApprovedSubmission } from "@/lib/adle/loaders/authentic-use-live-emission";
+import { intakeApprovedSubmissionCorrections } from "@/lib/adle/loaders/canonical-intake-live";
 import { recordAdleAuthenticUsesForRewards } from "@/lib/rewards/adle-reward-bridge";
 import {
   doesFinalClassificationCreateLearningItem,
@@ -1362,6 +1363,29 @@ export async function approveSubmissionReviewImpl(formData: FormData) {
     console.error(
       `[adle-authentic-use] emission failed for submission ${submission.id} (approval unaffected)`,
       adleEmissionError,
+    );
+  }
+
+  // Canonical-target intake is independently feature-gated and fail-closed.
+  // Parent approval remains durable even when dictionary or route readiness is
+  // incomplete; a dry-run/reconciliation pass can safely replay this source.
+  try {
+    const intake = await intakeApprovedSubmissionCorrections({
+      serviceClient: adleServiceClient,
+      parentUserId: user.id,
+      childId: submission.child_id,
+      submissionId: submission.id,
+    });
+    if (intake.enabled && intake.blocked.length > 0) {
+      console.info("[adle-canonical-intake] approved corrections retained in backlog", {
+        submissionId: submission.id,
+        blocked: intake.blocked,
+      });
+    }
+  } catch (adleIntakeError) {
+    console.error(
+      `[adle-canonical-intake] intake failed for submission ${submission.id} (approval unaffected)`,
+      adleIntakeError,
     );
   }
 

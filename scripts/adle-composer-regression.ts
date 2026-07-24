@@ -904,21 +904,17 @@ function dueFixture(count: number) {
     "missing_teaching_metadata recorded",
   );
 
-  // Empty dictionary: the two real items stay, nothing is invented.
+  // Empty dictionary: exact learner targets fail closed and nothing is invented.
   const emptyPlan = composeDailyPlan(
     planFacts({ learningItems: LESSON_ITEMS.slice(0, 2), dictionary: buildDictionary([]) }),
     TODAY,
   );
   assert(!emptyPlan.partTwo.composed, "empty dictionary blocks the lesson");
   assert(
-    emptyPlan.partTwo.skips.some((skip) => skip.reason === "no_diagnostic_eligible_words"),
-    "no_diagnostic_eligible_words recorded on an empty dictionary",
+    emptyPlan.partTwo.skips.some((skip) => skip.reason === "canonical_target_content_incomplete"),
+    "canonical_target_content_incomplete recorded on an empty dictionary",
   );
-  assert(
-    emptyPlan.partTwo.skips.some((skip) => skip.reason === "missing_required_words"),
-    "missing_required_words recorded on an empty dictionary",
-  );
-  assert(emptyPlan.partTwo.lessonWords.length === 2, "no invented words, no generic lists");
+  assert(emptyPlan.partTwo.lessonWords.length === 0, "incomplete exact targets are not presented or substituted");
 
   // Unknown micro-skill.
   const unknownSkillItems = [
