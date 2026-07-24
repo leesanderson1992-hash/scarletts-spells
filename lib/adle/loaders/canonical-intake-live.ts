@@ -16,6 +16,7 @@ import { loadDynamicPrefixProfiles } from "../morphology/dynamic-prefix-profile-
 import { isDynamicPrefixRouteEnabled } from "../morphology/dynamic-prefix-staging-access";
 import { ADLE_PILOT_CHILD_BAND } from "./composer-facts-loader";
 import { loadAdleLessonRouteActivations } from "./lesson-route-activations";
+import { resolveAdleRouteActivationEnvironment } from "../route-activation-environment";
 
 type AdleClient = SupabaseClient;
 
@@ -45,7 +46,7 @@ function throwQuery(
   throw new Error(`${context}: ${error?.message ?? "unknown error"}`);
 }
 
-async function productionRouteFacts(client: AdleClient, childId: string) {
+async function routeActivationFacts(client: AdleClient, childId: string) {
   const enabled = new Set<string>();
   const readyPairs = new Set<string>();
 
@@ -63,12 +64,14 @@ async function productionRouteFacts(client: AdleClient, childId: string) {
   }
 
   if (isBaseWordFamilyPilotEnabledForChild(childId)) {
+    const activationEnvironment = resolveAdleRouteActivationEnvironment();
+    if (!activationEnvironment) return { enabled, readyPairs };
     const activations = await loadAdleLessonRouteActivations(client, {
       microSkillKeys: [
         "D4_MOR_BASE_WORDS_PRESERVE_BASE",
         "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
       ],
-      environmentKey: "production",
+      environmentKey: activationEnvironment,
     });
     const activatedSkills = new Set(
       activations
@@ -249,7 +252,7 @@ export async function intakeApprovedSubmissionCorrections(params: {
           .eq("event_type", "resolver_visibility_enabled")
           .eq("new_resolver_visibility_status", "visible")
       : Promise.resolve({ data: [], error: null }),
-    productionRouteFacts(client, params.childId),
+    routeActivationFacts(client, params.childId),
   ]);
   if (supportsError) throwQuery("canonical intake supports", supportsError);
   if (contentError) throwQuery("canonical intake content", contentError);

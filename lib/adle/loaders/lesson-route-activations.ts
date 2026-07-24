@@ -5,6 +5,7 @@ import {
   type AdleLessonRouteKey,
   type AdleRouteActivationStatus,
 } from "../lesson-route-registry";
+import type { AdleRouteActivationEnvironment } from "../route-activation-environment";
 
 export interface AdleLessonRouteActivation {
   microSkillKey: string;
@@ -24,7 +25,7 @@ type RouteActivationQueryError = { code?: string | null; message?: string | null
  * errors remain operational failures and must surface.
  */
 function activationTableIsUnavailable(error: RouteActivationQueryError): boolean {
-  if (error.code === "42P01") return true;
+  if (error.code === "42P01" || error.code === "PGRST205") return true;
   const message = error.message?.toLowerCase() ?? "";
   return message.includes("adle_lesson_route_activations")
     && (message.includes("does not exist") || message.includes("could not find"));
@@ -34,7 +35,7 @@ export async function loadAdleLessonRouteActivations(
   client: SupabaseClient,
   input: {
     microSkillKeys: readonly string[];
-    environmentKey?: "local" | "staging" | "production";
+    environmentKey: AdleRouteActivationEnvironment;
   },
 ): Promise<AdleLessonRouteActivation[]> {
   if (input.microSkillKeys.length === 0) return [];
@@ -42,7 +43,7 @@ export async function loadAdleLessonRouteActivations(
     .from("adle_lesson_route_activations")
     .select("micro_skill_key,lesson_route_key,payload_version,activation_status,content_version,readiness_report")
     .in("micro_skill_key", [...input.microSkillKeys])
-    .eq("environment_key", input.environmentKey ?? "production")
+    .eq("environment_key", input.environmentKey)
     .eq("row_status", "active");
   if (error) {
     if (activationTableIsUnavailable(error)) return [];

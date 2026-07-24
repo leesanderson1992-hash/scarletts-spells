@@ -43,7 +43,7 @@ function argument(name: string): string | null {
 function loadManifest(): {
   path: string;
   manifest: AdleCurriculumImportManifest;
-  manifestSha256: string;
+  manifestFileSha256: string;
 } {
   const path = resolve(argument("--manifest") ?? DEFAULT_MANIFEST);
   const raw = readFileSync(path);
@@ -53,7 +53,7 @@ function loadManifest(): {
   return {
     path,
     manifest: manifest as AdleCurriculumImportManifest,
-    manifestSha256: sha256(raw),
+    manifestFileSha256: sha256(raw),
   };
 }
 
@@ -130,7 +130,7 @@ async function main() {
   assertProductionApplyDisabled();
   const command = process.argv[2] ?? "dry-run";
   assert(["preflight", "dry-run", "apply", "verify", "pause-route", "rollback-plan"].includes(command), "use preflight, dry-run, apply, verify, pause-route, or rollback-plan");
-  const { path, manifest, manifestSha256 } = loadManifest();
+  const { path, manifest, manifestFileSha256 } = loadManifest();
   assert(
     sha256(readFileSync(resolve(manifest.sourcePackagePath))) === manifest.sourcePackageSha256,
     "source package checksum mismatch",
@@ -160,16 +160,16 @@ async function main() {
   if (command === "apply" || command === "pause-route") {
     assert(process.argv.includes("--apply"), "mutation requires --apply");
     assert(argument("--confirm") === PRODUCTION_CONFIRM, `mutation requires --confirm ${PRODUCTION_CONFIRM}`);
-    assert(argument("--manifest-sha256") === manifestSha256, "manifest SHA-256 acknowledgement mismatch");
+    assert(argument("--manifest-file-sha256") === manifestFileSha256, "manifest file SHA-256 acknowledgement mismatch");
     assert(report.blockers.length === 0 || command === "pause-route", `preflight blockers: ${report.blockers.join(", ")}`);
     const { data, error } = await db.rpc("apply_adle_curriculum_activation_manifest_v1", {
       p_manifest: manifest,
-      p_manifest_sha256: manifestSha256,
+      p_manifest_file_sha256: manifestFileSha256,
       p_environment_key: "production",
       p_applied_by: required("ADLE_CURRICULUM_APPLIED_BY"),
     });
     if (error) throw new Error(`activation manifest apply failed: ${error.message}`);
-    console.log(JSON.stringify({ mode: command, manifestId: data, manifestSha256, routes: manifest.routes.length }, null, 2));
+    console.log(JSON.stringify({ mode: command, manifestId: data, manifestFileSha256, routes: manifest.routes.length }, null, 2));
     return;
   }
   if (command === "verify")
@@ -177,7 +177,7 @@ async function main() {
   console.log(JSON.stringify({
     mode: command,
     manifestPath: path,
-    manifestSha256,
+    manifestFileSha256,
     sourcePackageSha256: manifest.sourcePackageSha256,
     requestedRoutes: manifest.routes,
     ...report,

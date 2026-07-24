@@ -12,13 +12,12 @@ import type { AssignmentAttemptEventWrite, LessonCompletionWrite } from "./sessi
 import type { BaseWordTransferMissWrite } from "../base-word-transfer-evidence";
 import type { WordLabReflectionWrite } from "./word-lab-completion-loader";
 import { loadAdleLessonRouteActivations } from "./lesson-route-activations";
+import { resolveAdleRouteActivationEnvironment } from "../route-activation-environment";
 
 export const BASE_WORD_PILOT_MICRO_SKILLS = [
   "D4_MOR_BASE_WORDS_PRESERVE_BASE",
   "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
 ] as const;
-const BASE_WORD_PILOT_CONTENT_VERSION = "d4-mor-base-word-family-v2";
-
 type FamilyRow = { id: string; base_family_key: string; micro_skill_key: string; row_status: "active" | "draft" | "rejected" | "superseded"; review_status: "approved_for_first_exposure" | "in_review" | "draft" | "ai_draft" | "changes_requested" | "approved_for_guided_review" | "rejected" | "superseded" };
 type MemberRow = { base_word_family_id: string; canonical_word_id: string; member_role: BaseWordFamilyMemberFact["memberRole"]; assignment_eligible: boolean; row_status: BaseWordFamilyMemberFact["rowStatus"]; review_status: BaseWordFamilyMemberFact["reviewStatus"] };
 
@@ -31,20 +30,24 @@ export async function loadBaseWordFamilyPilotReadiness(params: {
   childId: string;
   planDate: string;
 }): Promise<{ payload: BaseWordFamilyLessonSnapshotV1 | null; readinessReason: string | null }> {
+  const activationEnvironment = resolveAdleRouteActivationEnvironment();
+  if (!activationEnvironment) {
+    return { payload: null, readinessReason: "adle_route_activation_environment_not_configured" };
+  }
   const activations = await loadAdleLessonRouteActivations(params.client, {
     microSkillKeys: BASE_WORD_PILOT_MICRO_SKILLS,
-    environmentKey: "production",
+    environmentKey: activationEnvironment,
   });
-  const productionEnabledSkills = new Set(
+  const enabledContentVersionBySkill = new Map(
     activations
       .filter(
         (activation) =>
           activation.lessonRouteKey === "base_word_family_v1" &&
           activation.activationStatus === "production_enabled",
       )
-      .map((activation) => activation.microSkillKey),
+      .map((activation) => [activation.microSkillKey, activation.contentVersion] as const),
   );
-  if (productionEnabledSkills.size === 0)
+  if (enabledContentVersionBySkill.size === 0)
     return { payload: null, readinessReason: "adle_route_not_production_enabled" };
   const { facts } = await loadDailyPlanFacts(params.client, { childId: params.childId, today: params.planDate as import("../review-scheduler").IsoDate });
   const [familyResult, memberResult, runResult] = await Promise.all([
@@ -61,11 +64,11 @@ export async function loadBaseWordFamilyPilotReadiness(params: {
       const baseFamilyKey = keyById.get(row.base_word_family_id);
       return baseFamilyKey ? [{ baseFamilyKey, canonicalWordId: row.canonical_word_id, memberRole: row.member_role, assignmentEligible: row.assignment_eligible, complexityLevel: null, rowStatus: row.row_status, reviewStatus: row.review_status }] : [];
     });
-  const candidates = BASE_WORD_PILOT_MICRO_SKILLS.filter((microSkillKey) => productionEnabledSkills.has(microSkillKey)).map((microSkillKey) => ({ microSkillKey, selection: selectBaseWordFamilyLesson(params.childId, microSkillKey, { learningItems: facts.learningItems, families, members }) }))
+  const candidates = BASE_WORD_PILOT_MICRO_SKILLS.filter((microSkillKey) => enabledContentVersionBySkill.has(microSkillKey)).map((microSkillKey) => ({ microSkillKey, selection: selectBaseWordFamilyLesson(params.childId, microSkillKey, { learningItems: facts.learningItems, families, members }) }))
     .filter((candidate) => candidate.selection.skipReasons.length === 0);
   const candidate = candidates[0];
   if (!candidate) {
-    const reasons = BASE_WORD_PILOT_MICRO_SKILLS.filter((microSkillKey) => productionEnabledSkills.has(microSkillKey)).map((microSkillKey) => selectBaseWordFamilyLesson(params.childId, microSkillKey, { learningItems: facts.learningItems, families, members }).skipReasons.join(",")).filter(Boolean);
+    const reasons = BASE_WORD_PILOT_MICRO_SKILLS.filter((microSkillKey) => enabledContentVersionBySkill.has(microSkillKey)).map((microSkillKey) => selectBaseWordFamilyLesson(params.childId, microSkillKey, { learningItems: facts.learningItems, families, members }).skipReasons.join(",")).filter(Boolean);
     return { payload: null, readinessReason: reasons.join(";") || "no_supported_base_word_skill_ready" };
   }
   const { microSkillKey, selection } = candidate;
@@ -76,7 +79,7 @@ export async function loadBaseWordFamilyPilotReadiness(params: {
   });
   if (authenticTargets.some((target) => target === null)) return { payload: null, readinessReason: "authentic_target_provenance_missing" };
   const readModel = await loadBaseWordFamilyLessonReadModel(params.client, {
-    microSkillKey, contentVersion: BASE_WORD_PILOT_CONTENT_VERSION,
+    microSkillKey, contentVersion: enabledContentVersionBySkill.get(microSkillKey)!,
     authenticTargets: authenticTargets as NonNullable<(typeof authenticTargets)[number]>[],
     sections: selection.guidedFamilySections.map((section) => ({ baseFamilyKey: section.baseFamilyKey, authenticTargetWordIds: [...section.authenticTargetWordIds], guidedWordIds: [...section.guidedWordIds] })),
     independentSlots: selection.slots.map(({ canonicalWordId, provenance, baseFamilyKey, learningItemId }) => ({ canonicalWordId, provenance, baseFamilyKey, learningItemId })),

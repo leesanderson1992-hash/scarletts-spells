@@ -1,10 +1,13 @@
 begin;
 
+create extension if not exists pgcrypto with schema extensions;
+
 create table if not exists public.adle_curriculum_import_manifests (
   id uuid primary key default gen_random_uuid(),
   manifest_key text not null,
   schema_version integer not null,
-  manifest_sha256 text not null,
+  manifest_file_sha256 text not null,
+  manifest_payload_sha256 text not null,
   source_package_path text not null,
   source_package_sha256 text not null,
   approval_refs jsonb not null,
@@ -16,7 +19,9 @@ create table if not exists public.adle_curriculum_import_manifests (
   applied_at timestamptz not null default timezone('utc', now()),
   constraint adle_curriculum_import_manifests_schema_check check (schema_version > 0),
   constraint adle_curriculum_import_manifests_hash_check check (
-    manifest_sha256 ~ '^[a-f0-9]{64}$' and source_package_sha256 ~ '^[a-f0-9]{64}$'
+    manifest_file_sha256 ~ '^[a-f0-9]{64}$'
+    and manifest_payload_sha256 ~ '^[a-f0-9]{64}$'
+    and source_package_sha256 ~ '^[a-f0-9]{64}$'
   ),
   constraint adle_curriculum_import_manifests_approval_check check (
     jsonb_typeof(approval_refs) = 'array' and jsonb_array_length(approval_refs) > 0
@@ -24,7 +29,7 @@ create table if not exists public.adle_curriculum_import_manifests (
   constraint adle_curriculum_import_manifests_payload_check check (jsonb_typeof(manifest_payload) = 'object'),
   constraint adle_curriculum_import_manifests_environment_check check (environment_key in ('local', 'staging', 'production')),
   constraint adle_curriculum_import_manifests_status_check check (row_status in ('active', 'superseded', 'rejected')),
-  unique (environment_key, manifest_sha256)
+  unique (environment_key, manifest_payload_sha256)
 );
 
 create table if not exists public.adle_lesson_route_activations (
@@ -46,7 +51,7 @@ create table if not exists public.adle_lesson_route_activations (
   constraint adle_lesson_route_activations_route_check check (btrim(lesson_route_key) <> ''),
   constraint adle_lesson_route_activations_payload_check check (payload_version > 0),
   constraint adle_lesson_route_activations_environment_check check (environment_key in ('local', 'staging', 'production')),
-  constraint adle_lesson_route_activations_registered_route_check check (lesson_route_key in ('base_word_family_v1', 'generic_first_exposure_v1', 'review_v1')),
+  constraint adle_lesson_route_activations_registered_route_check check (lesson_route_key = 'base_word_family_v1'),
   constraint adle_lesson_route_activations_status_check check (activation_status in ('content_review', 'ready_for_proof', 'production_enabled', 'paused', 'retired')),
   constraint adle_lesson_route_activations_content_check check (btrim(content_version) <> ''),
   constraint adle_lesson_route_activations_report_check check (jsonb_typeof(readiness_report) = 'object'),
@@ -70,7 +75,7 @@ grant select, insert, update on public.adle_lesson_route_activations to service_
 
 create or replace function public.apply_adle_curriculum_activation_manifest_v1(
   p_manifest jsonb,
-  p_manifest_sha256 text,
+  p_manifest_file_sha256 text,
   p_environment_key text,
   p_applied_by text
 ) returns uuid
@@ -80,10 +85,11 @@ declare
   v_route jsonb;
   v_skill public.micro_skill_catalog%rowtype;
   v_import_batch_id uuid;
+  v_manifest_payload_sha256 text;
 begin
   if p_environment_key not in ('local', 'staging', 'production')
      or p_manifest->>'schemaVersion' <> '1'
-     or p_manifest_sha256 !~ '^[a-f0-9]{64}$'
+     or p_manifest_file_sha256 !~ '^[a-f0-9]{64}$'
      or nullif(btrim(p_applied_by), '') is null
      or jsonb_typeof(p_manifest->'approvalRefs') <> 'array'
      or jsonb_array_length(p_manifest->'approvalRefs') = 0
@@ -94,6 +100,10 @@ begin
      or jsonb_array_length(p_manifest->'routes') = 0 then
     raise exception 'invalid ADLE curriculum activation manifest';
   end if;
+  v_manifest_payload_sha256 := encode(
+    extensions.digest(convert_to(p_manifest::text, 'utf8'), 'sha256'),
+    'hex'
+  );
   v_import_batch_id := (p_manifest->'routes'->0->>'importBatchId')::uuid;
   if exists (
     select 1 from jsonb_array_elements(p_manifest->'routes') route
@@ -105,21 +115,21 @@ begin
   ) then raise exception 'activation manifest import batch is not applied'; end if;
 
   insert into public.adle_curriculum_import_manifests (
-    manifest_key, schema_version, manifest_sha256, source_package_path,
+    manifest_key, schema_version, manifest_file_sha256, manifest_payload_sha256, source_package_path,
     source_package_sha256, approval_refs, manifest_payload, import_batch_id,
     environment_key, applied_by
   ) values (
-    p_manifest->>'manifestKey', 1, p_manifest_sha256,
+    p_manifest->>'manifestKey', 1, p_manifest_file_sha256, v_manifest_payload_sha256,
     p_manifest->>'sourcePackagePath', p_manifest->>'sourcePackageSha256',
     p_manifest->'approvalRefs', p_manifest, v_import_batch_id,
     p_environment_key, p_applied_by
-  ) on conflict (environment_key, manifest_sha256) do nothing
+  ) on conflict (environment_key, manifest_payload_sha256) do nothing
   returning id into v_manifest_id;
   if v_manifest_id is null then
     select id into v_manifest_id
     from public.adle_curriculum_import_manifests
     where environment_key = p_environment_key
-      and manifest_sha256 = p_manifest_sha256
+      and manifest_payload_sha256 = v_manifest_payload_sha256
       and manifest_payload = p_manifest;
     if v_manifest_id is null then
       raise exception 'manifest hash already exists with different immutable payload';
@@ -131,7 +141,7 @@ begin
     where micro_skill_key = v_route->>'microSkillKey'
       and mastery_domain_key = 'D4' and is_active and is_assignable;
     if not found then raise exception 'activation requires active assignable D4 micro-skill %', v_route->>'microSkillKey'; end if;
-    if v_route->>'lessonRouteKey' not in ('base_word_family_v1', 'generic_first_exposure_v1', 'review_v1')
+    if v_route->>'lessonRouteKey' <> 'base_word_family_v1'
        or (v_route->>'payloadVersion')::integer <> 1 then
       raise exception 'activation requires a registered route and payload version';
     end if;
