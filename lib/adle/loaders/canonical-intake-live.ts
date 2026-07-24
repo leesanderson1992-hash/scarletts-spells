@@ -15,6 +15,8 @@ import { isBaseWordFamilyPilotEnabledForChild } from "../morphology/base-word-fa
 import { loadDynamicPrefixProfiles } from "../morphology/dynamic-prefix-profile-loader";
 import { isDynamicPrefixRouteEnabled } from "../morphology/dynamic-prefix-staging-access";
 import { ADLE_PILOT_CHILD_BAND } from "./composer-facts-loader";
+import { loadAdleLessonRouteActivations } from "./lesson-route-activations";
+import { resolveAdleRouteActivationEnvironment } from "../route-activation-environment";
 
 type AdleClient = SupabaseClient;
 
@@ -44,7 +46,7 @@ function throwQuery(
   throw new Error(`${context}: ${error?.message ?? "unknown error"}`);
 }
 
-async function productionRouteFacts(client: AdleClient, childId: string) {
+async function routeActivationFacts(client: AdleClient, childId: string) {
   const enabled = new Set<string>();
   const readyPairs = new Set<string>();
 
@@ -62,9 +64,29 @@ async function productionRouteFacts(client: AdleClient, childId: string) {
   }
 
   if (isBaseWordFamilyPilotEnabledForChild(childId)) {
+    const activationEnvironment = resolveAdleRouteActivationEnvironment();
+    if (!activationEnvironment) return { enabled, readyPairs };
+    const activations = await loadAdleLessonRouteActivations(client, {
+      microSkillKeys: [
+        "D4_MOR_BASE_WORDS_PRESERVE_BASE",
+        "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      ],
+      environmentKey: activationEnvironment,
+    });
+    const activatedSkills = new Set(
+      activations
+        .filter(
+          (activation) =>
+            activation.lessonRouteKey === "base_word_family_v1" &&
+            activation.activationStatus === "production_enabled",
+        )
+        .map((activation) => activation.microSkillKey),
+    );
+    if (activatedSkills.size === 0) return { enabled, readyPairs };
     const { data: familyRows, error: familyError } = await client
       .from("canonical_teaching_dictionary_base_word_families")
       .select("id, micro_skill_key")
+      .in("micro_skill_key", [...activatedSkills])
       .eq("row_status", "active")
       .eq("review_status", "approved_for_first_exposure");
     if (familyError) throwQuery("canonical intake base families", familyError);
@@ -88,6 +110,7 @@ async function productionRouteFacts(client: AdleClient, childId: string) {
       for (const row of memberRows ?? []) {
         const skill = familyById.get((row as any).base_word_family_id);
         if (!skill) continue;
+        if (!activatedSkills.has(skill)) continue;
         enabled.add(skill);
         readyPairs.add(
           canonicalWordSkillPair((row as any).canonical_word_id, skill),
@@ -229,7 +252,7 @@ export async function intakeApprovedSubmissionCorrections(params: {
           .eq("event_type", "resolver_visibility_enabled")
           .eq("new_resolver_visibility_status", "visible")
       : Promise.resolve({ data: [], error: null }),
-    productionRouteFacts(client, params.childId),
+    routeActivationFacts(client, params.childId),
   ]);
   if (supportsError) throwQuery("canonical intake supports", supportsError);
   if (contentError) throwQuery("canonical intake content", contentError);

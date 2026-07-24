@@ -13,6 +13,9 @@ type Client = SupabaseClient;
 export interface BaseWordFamilyReadModelRequest {
   microSkillKey: string;
   contentVersion: string;
+  /** The immutable family-data batch selected by the active route manifest.
+   * Omitted only by the read-only curriculum inventory, which never assigns. */
+  importBatchId?: string;
   authenticTargets: BaseWordFamilyAuthenticTarget[];
   sections: Array<{ baseFamilyKey: string; authenticTargetWordIds: string[]; guidedWordIds: string[] }>;
   independentSlots: BaseWordFamilyIndependentSlot[];
@@ -67,13 +70,15 @@ export async function loadBaseWordFamilyLessonReadModel(
   if (request.authenticTargets.length !== 2 || request.sections.length < 1 || request.sections.length > 2 || request.independentSlots.length !== 6) return null;
   const familyKeys = request.sections.map((section) => section.baseFamilyKey);
   if (new Set(familyKeys).size !== familyKeys.length) return null;
-  const families = await readRows<FamilyRow>(
-    client.from("canonical_teaching_dictionary_base_word_families")
+  let familyQuery = client.from("canonical_teaching_dictionary_base_word_families")
       .select("id, base_family_key, base_meaning, etymology_route")
       .eq("micro_skill_key", request.microSkillKey)
       .eq("row_status", "active")
       .eq("review_status", "approved_for_first_exposure")
-      .in("base_family_key", familyKeys),
+      .in("base_family_key", familyKeys);
+  if (request.importBatchId) familyQuery = familyQuery.eq("import_batch_id", request.importBatchId);
+  const families = await readRows<FamilyRow>(
+    familyQuery,
     "loadBaseWordFamilyLessonReadModel:families",
   );
   if (!families || families.length !== familyKeys.length || families.some((family) => family.etymology_route === null)) return null;
