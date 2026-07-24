@@ -1,0 +1,38 @@
+{
+  "packageKey": "adle_canonical_un_prefix_2026_07_21",
+  "packageVersion": 1,
+  "reviewedBy": "Katie Sanderson",
+  "reviewedAt": "2026-07-21T00:00:00Z",
+  "activation": { "dynamicPrefixRouteEnabled": false, "createsLearningItems": false, "createsMicroSkillBindings": false },
+  "sourceFiles": [
+    "data/adle/approved/d4-mor/v1/d4-mor-prefixes-un-pilot-source-fixture.json",
+    "docs/implementation/seed-data/teaching-dictionary/candidates/2026-06-29-phase-5-source-intake/brysbaert_biemiller_test_based_aoa_master_source.xlsx",
+    "docs/implementation/seed-data/teaching-dictionary/candidates/2026-06-29-phase-5-source-intake/british_frequency_bnc_1_2_all_freq_source.txt"
+  ],
+  "words": [
+    {
+      "wordKey": "untidy_en_gb", "canonicalWord": "untidy", "frequencyBand": "low", "ageBand": "upper_primary", "complexityBand": "high",
+      "pronunciation": { "ipa": "/ʌntˈaɪdi/", "cmu": "AH0 N T AY1 D IY0", "syllables": 3, "stressPattern": "unstressed-primary-unstressed", "hasSchwa": false },
+      "morphology": { "prefix": "un", "base": "tidy", "suffix": "", "parts": ["un", "tidy"], "joins": [{ "after": "un", "before": "tidy", "type": "none" }], "transformationNotes": "None. Concatenate un + tidy.", "meaning": "not tidy (neat and ordered)", "d4WordBankRow": 34 },
+      "enrichment": { "wordfreqZipf": 2.61, "wordfreqBand": "low", "bnc": null, "aoaTestBased": 6 },
+      "dictation": { "sentence": "The untidy desk needed sorting.", "audioText": "The untidy desk needed sorting." },
+      "fieldReviews": ["canonical_spelling", "morphology", "meaning", "frequency", "age", "complexity", "pronunciation", "dictation", "audio_text"]
+    },
+    {
+      "wordKey": "unnatural_en_gb", "canonicalWord": "unnatural", "frequencyBand": "medium", "ageBand": "early_primary", "complexityBand": "high",
+      "pronunciation": { "ipa": "/ʌnnˈætʃəɹəl/", "cmu": "AH0 N N AE1 CH ER0 AH0 L", "syllables": 4, "stressPattern": "unstressed-primary-unstressed-unstressed", "hasSchwa": true },
+      "morphology": { "prefix": "un", "base": "natural", "suffix": "", "parts": ["un", "natural"], "joins": [{ "after": "un", "before": "natural", "type": "none" }], "transformationNotes": "None. The n at the start of natural stays, so the join is nn.", "meaning": "not natural", "d4WordBankRow": 36 },
+      "enrichment": { "wordfreqZipf": 3.48, "wordfreqBand": "medium", "bnc": null, "aoaTestBased": 2 },
+      "dictation": { "sentence": "A building is unnatural.", "audioText": "A building is unnatural." },
+      "fieldReviews": ["canonical_spelling", "morphology", "meaning", "frequency", "age", "complexity", "pronunciation", "dictation", "audio_text"]
+    },
+    {
+      "wordKey": "unnecessary_en_gb", "canonicalWord": "unnecessary", "frequencyBand": "high", "ageBand": "early_primary", "complexityBand": "high",
+      "pronunciation": { "ipa": "/ʌnnˈɛsəsəɹi/", "cmu": "AH0 N N EH1 S AH0 S EH2 R IY0", "syllables": 5, "stressPattern": "unstressed-primary-unstressed-secondary-unstressed", "hasSchwa": true },
+      "morphology": { "prefix": "un", "base": "necessary", "suffix": "", "parts": ["un", "necessary"], "joins": [{ "after": "un", "before": "necessary", "type": "none" }], "transformationNotes": "None. The n at the start of necessary stays, so the join is nn.", "meaning": "not necessary", "d4WordBankRow": 35 },
+      "enrichment": { "wordfreqZipf": 4.18, "wordfreqBand": "high", "bnc": { "frequency": 19, "band": "medium" }, "aoaTestBased": 2 },
+      "dictation": { "sentence": "Having a tantrum is unnecessary.", "audioText": "Having a tantrum is unnecessary." },
+      "fieldReviews": ["canonical_spelling", "morphology", "meaning", "frequency", "age", "complexity", "pronunciation", "dictation", "audio_text"]
+    }
+  ]
+}
