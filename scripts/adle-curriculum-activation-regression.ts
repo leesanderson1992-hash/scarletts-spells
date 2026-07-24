@@ -84,12 +84,20 @@ assert.equal(validateAdleCurriculumImportManifest({
 }).valid, false, "routes without consumers are rejected");
 assert.equal(validateAdleCurriculumImportManifest({
   ...validManifest,
+  routes: [{ ...validManifest.routes[0], microSkillKey: "D4_MOR_PREFIX_UN" }],
+}).valid, false, "a Base Word route rejects an incompatible D4 micro-skill before any database call");
+assert.equal(validateAdleCurriculumImportManifest({
+  ...validManifest,
   approvalRefs: [],
 }).valid, false, "manifest approval references are mandatory");
 assert.equal(validateAdleCurriculumImportManifest({
   ...validManifest,
   routes: [{ ...validManifest.routes[0], contentImportBatchId: "not-a-uuid" }],
 }).valid, false, "a staging content-batch reference must be a UUID");
+assert.equal(validateAdleCurriculumImportManifest({
+  ...validManifest,
+  routes: [{ ...validManifest.routes[0], requestedStatus: "enabled" }],
+}).valid, false, "an unknown activation status is rejected before any database call");
 
 const migration = readFileSync(
   "supabase/migrations/20260723100000_add_adle_curriculum_route_activations.sql",

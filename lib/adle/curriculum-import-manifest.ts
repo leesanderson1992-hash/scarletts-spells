@@ -40,6 +40,13 @@ export interface AdleCurriculumManifestValidation {
 
 const SHA256 = /^[a-f0-9]{64}$/;
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+const ACTIVATION_STATUSES = new Set<AdleRouteActivationStatus>([
+  "content_review",
+  "ready_for_proof",
+  "production_enabled",
+  "paused",
+  "retired",
+]);
 
 export function validateAdleCurriculumImportManifest(
   input: unknown,
@@ -61,14 +68,21 @@ export function validateAdleCurriculumImportManifest(
   }
   if (!Array.isArray(value.routes) || value.routes.length === 0) errors.push("missing_routes");
   for (const route of value.routes ?? []) {
+    if (!route || typeof route !== "object") {
+      errors.push("invalid_route");
+      continue;
+    }
     const definition = getAdleLessonRouteDefinition(route.lessonRouteKey);
     if (!definition) errors.push(`route_not_registered:${route.lessonRouteKey}`);
     else if (!definition.payloadVersions.includes(route.payloadVersion)) errors.push(`unsupported_payload:${route.lessonRouteKey}:${route.payloadVersion}`);
+    else if (!definition.compatibleMicroSkillKeys.includes(route.microSkillKey)) errors.push(`micro_skill_not_compatible:${route.lessonRouteKey}:${route.microSkillKey}`);
     if (!route.microSkillKey?.startsWith("D4_")) errors.push(`invalid_micro_skill:${route.microSkillKey}`);
     if (!route.contentVersion?.trim()) errors.push(`missing_content_version:${route.microSkillKey}`);
     if (!UUID.test(route.importBatchId ?? "")) errors.push(`invalid_import_batch_id:${route.microSkillKey}`);
     if (route.contentImportBatchId && !UUID.test(route.contentImportBatchId)) errors.push(`invalid_content_import_batch_id:${route.microSkillKey}`);
-    if (route.requestedStatus === "production_enabled" && Object.keys(route.readinessReport ?? {}).length === 0) errors.push(`missing_readiness_report:${route.microSkillKey}`);
+    if (!ACTIVATION_STATUSES.has(route.requestedStatus)) errors.push(`invalid_requested_status:${route.microSkillKey}`);
+    if (!route.readinessReport || typeof route.readinessReport !== "object" || Array.isArray(route.readinessReport)) errors.push(`invalid_readiness_report:${route.microSkillKey}`);
+    else if (route.requestedStatus === "production_enabled" && Object.keys(route.readinessReport).length === 0) errors.push(`missing_readiness_report:${route.microSkillKey}`);
   }
   const identities = (value.routes ?? []).map((route) => `${route.microSkillKey}\u0000${route.lessonRouteKey}`);
   if (new Set(identities).size !== identities.length) errors.push("duplicate_route_identity");
