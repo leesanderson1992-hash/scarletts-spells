@@ -6,6 +6,8 @@ import {
   getAdleLessonRouteDefinition,
 } from "../lib/adle/lesson-route-registry";
 import { validateAdleCurriculumImportManifest } from "../lib/adle/curriculum-import-manifest";
+import { loadAdleLessonRouteActivations } from "../lib/adle/loaders/lesson-route-activations";
+import type { SupabaseClient } from "@supabase/supabase-js";
 
 const BASE_SKILLS = [
   "D4_MOR_BASE_WORDS_PRESERVE_BASE",
@@ -89,11 +91,66 @@ assert(migration.includes("apply_adle_curriculum_activation_manifest_v1"));
 assert(migration.includes("production_enabled"));
 assert(migration.includes("excludedBatchStatuses"));
 assert(migration.includes("security definer"));
+assert(migration.includes("enable row level security"), "activation tables enable RLS");
+assert(migration.includes("revoke all on public.adle_curriculum_import_manifests from public, anon, authenticated"), "manifest table is not public");
+assert(migration.includes("revoke all on public.adle_lesson_route_activations from public, anon, authenticated"), "activation table is not public");
+assert(migration.includes("grant select, insert, update on public.adle_lesson_route_activations to service_role"), "only service role receives activation writes");
+assert(migration.includes("on conflict (environment_key, manifest_sha256) do nothing"), "manifest replay has an idempotent identity");
+assert(migration.includes("set row_status = 'superseded'"), "route changes retain history instead of deleting activation rows");
+assert(migration.includes("requestedStatus' = 'paused'"), "rollback is represented as a paused activation state");
 assert.equal(ADLE_LESSON_ROUTE_REGISTRY.size, 3);
 
 const intakeLoader = readFileSync("lib/adle/loaders/canonical-intake-live.ts", "utf8");
 const baseLoader = readFileSync("lib/adle/loaders/base-word-family-pilot-loader.ts", "utf8");
 assert(intakeLoader.includes("loadAdleLessonRouteActivations"));
 assert(baseLoader.includes("adle_route_not_production_enabled"));
+const productionCli = readFileSync("scripts/adle-curriculum-production.ts", "utf8");
+assert(productionCli.includes("assertProductionApplyDisabled();"), "production CLI always checks the disabled-apply boundary first");
+assert(productionCli.includes('assert(!process.argv.includes("--apply")'), "production CLI rejects --apply while this programme is under review");
 
-console.log("adle-curriculum-activation-regression: ok");
+function activationQueryClient(error: { code: string; message: string }): SupabaseClient {
+  return {
+    from: (table: string) => {
+      assert.equal(table, "adle_lesson_route_activations");
+      return {
+        select: () => ({
+          in: () => ({
+            eq: () => ({
+              eq: async () => ({
+                data: null,
+                error,
+              }),
+            }),
+          }),
+        }),
+      };
+    },
+  } as unknown as SupabaseClient;
+}
+async function verifyMissingActivationTableFailsClosed(): Promise<void> {
+  assert.deepEqual(
+    await loadAdleLessonRouteActivations(activationQueryClient({
+      code: "42P01",
+      message: 'relation "adle_lesson_route_activations" does not exist',
+    }), {
+      microSkillKeys: BASE_SKILLS,
+      environmentKey: "production",
+    }),
+    [],
+    "an unapplied activation migration fails closed as no enabled routes",
+  );
+  await assert.rejects(
+    () => loadAdleLessonRouteActivations(activationQueryClient({
+      code: "42501",
+      message: "permission denied for table adle_lesson_route_activations",
+    }), { microSkillKeys: BASE_SKILLS, environmentKey: "production" }),
+    /permission denied/,
+    "a permission failure must not be hidden as an unavailable migration",
+  );
+  console.log("adle-curriculum-activation-regression: ok");
+}
+
+verifyMissingActivationTableFailsClosed().catch((error: unknown) => {
+  console.error(error instanceof Error ? error.stack : error);
+  process.exitCode = 1;
+});
