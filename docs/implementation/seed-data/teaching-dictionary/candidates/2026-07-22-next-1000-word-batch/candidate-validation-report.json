@@ -1,0 +1,18 @@
+{
+  "schemaVersion": "next_teaching_dictionary_batch_validation_v1",
+  "status": "valid_human_review_required",
+  "issues": [],
+  "counts": {
+    "words": 1000,
+    "metadata": 1000,
+    "mappings": 1001,
+    "dictations": 1000,
+    "sources": 5
+  },
+  "protectedTableCounts": {
+    "adle_learning_items": 3,
+    "learning_items": 12,
+    "assignment_items": 24,
+    "child_word_treasures": 3
+  }
+}
