@@ -20,6 +20,10 @@ const PRODUCTION_REF = "wwohrqtunajrbwxyssjf";
 const PRODUCTION_CONFIRM = "APPLY-ADLE-CURRICULUM-TO-SCARLETTS-SPELLS";
 const DEFAULT_MANIFEST = "data/adle/import-manifests/adle-production-manifest.json";
 
+function assertProductionApplyDisabled() {
+  assert(!process.argv.includes("--apply"), "Production activation is disabled while this route-activation programme is under review; require a separately authorised release change.");
+}
+
 function required(name: string): string {
   const value = process.env[name];
   if (!value) throw new Error(`Missing ${name}`);
@@ -123,6 +127,7 @@ async function inventory(
 }
 
 async function main() {
+  assertProductionApplyDisabled();
   const command = process.argv[2] ?? "dry-run";
   assert(["preflight", "dry-run", "apply", "verify", "pause-route", "rollback-plan"].includes(command), "use preflight, dry-run, apply, verify, pause-route, or rollback-plan");
   const { path, manifest, manifestSha256 } = loadManifest();
