@@ -86,6 +86,10 @@ assert.equal(validateAdleCurriculumImportManifest({
   ...validManifest,
   approvalRefs: [],
 }).valid, false, "manifest approval references are mandatory");
+assert.equal(validateAdleCurriculumImportManifest({
+  ...validManifest,
+  routes: [{ ...validManifest.routes[0], contentImportBatchId: "not-a-uuid" }],
+}).valid, false, "a staging content-batch reference must be a UUID");
 
 const migration = readFileSync(
   "supabase/migrations/20260723100000_add_adle_curriculum_route_activations.sql",
@@ -104,16 +108,26 @@ assert(migration.includes("manifest_file_sha256"), "raw manifest file provenance
 assert(migration.includes("manifest_payload_sha256"), "database-owned canonical payload digest is stored");
 assert(migration.includes("extensions.digest(convert_to(p_manifest::text"), "database computes the canonical payload digest");
 assert(migration.includes("on conflict (environment_key, manifest_payload_sha256) do nothing"), "manifest replay has a payload-bound idempotent identity");
+const stagingContentReferenceMigration = readFileSync(
+  "supabase/migrations/20260724110000_allow_staging_existing_approved_activation_content.sql",
+  "utf8",
+);
+assert(stagingContentReferenceMigration.includes("p_environment_key <> 'staging' and v_content_import_batch_id <> v_import_batch_id"), "only staging can borrow content from another batch");
 assert(migration.includes("set row_status = 'superseded'"), "route changes retain history instead of deleting activation rows");
 assert(migration.includes("requestedStatus' = 'paused'"), "rollback is represented as a paused activation state");
 assert.equal(ADLE_LESSON_ROUTE_REGISTRY.size, 1, "only Base Word has an activation consumer");
 
 const intakeLoader = readFileSync("lib/adle/loaders/canonical-intake-live.ts", "utf8");
 const baseLoader = readFileSync("lib/adle/loaders/base-word-family-pilot-loader.ts", "utf8");
+const activationLoader = readFileSync("lib/adle/loaders/lesson-route-activations.ts", "utf8");
+const baseWordReadModel = readFileSync("lib/adle/loaders/base-word-family-lesson-read-model.ts", "utf8");
 assert(intakeLoader.includes("loadAdleLessonRouteActivations"));
 assert(baseLoader.includes("adle_route_not_production_enabled"));
 assert(intakeLoader.includes("resolveAdleRouteActivationEnvironment"));
 assert(baseLoader.includes("resolveAdleRouteActivationEnvironment"));
+assert(activationLoader.includes("import_manifest_id") && activationLoader.includes("import_batch_id"), "activation resolution binds a route to its immutable manifest batch");
+assert(baseLoader.includes("activation.importBatchId"), "Base Word selection scopes family facts to the enabled manifest batch");
+assert(baseWordReadModel.includes('.eq("import_batch_id", request.importBatchId)'), "Base Word payload compilation cannot read families from another active batch");
 const productionCli = readFileSync("scripts/adle-curriculum-production.ts", "utf8");
 assert(productionCli.includes("assertProductionApplyDisabled();"), "production CLI always checks the disabled-apply boundary first");
 assert(productionCli.includes('assert(!process.argv.includes("--apply")'), "production CLI rejects --apply while this programme is under review");

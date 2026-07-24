@@ -13,6 +13,8 @@ export interface AdleLessonRouteActivation {
   payloadVersion: number;
   activationStatus: AdleRouteActivationStatus;
   contentVersion: string;
+  /** Immutable family-data batch selected by the activation manifest. */
+  importBatchId: string;
   readinessReport: Record<string, unknown>;
 }
 
@@ -41,7 +43,7 @@ export async function loadAdleLessonRouteActivations(
   if (input.microSkillKeys.length === 0) return [];
   const { data, error } = await client
     .from("adle_lesson_route_activations")
-    .select("micro_skill_key,lesson_route_key,payload_version,activation_status,content_version,readiness_report")
+    .select("micro_skill_key,lesson_route_key,payload_version,activation_status,content_version,import_manifest_id,readiness_report")
     .in("micro_skill_key", [...input.microSkillKeys])
     .eq("environment_key", input.environmentKey)
     .eq("row_status", "active");
@@ -49,9 +51,27 @@ export async function loadAdleLessonRouteActivations(
     if (activationTableIsUnavailable(error)) return [];
     throw new Error(`loadAdleLessonRouteActivations: ${error.message}`);
   }
-  return (data ?? []).flatMap((row) => {
+  const rows = data ?? [];
+  const manifestIds = [...new Set(rows.map((row) => row.import_manifest_id).filter((id): id is string => typeof id === "string"))];
+  if (manifestIds.length === 0) return [];
+  const { data: manifests, error: manifestsError } = await client
+    .from("adle_curriculum_import_manifests")
+    .select("id,import_batch_id")
+    .in("id", manifestIds);
+  if (manifestsError) throw new Error(`loadAdleLessonRouteActivations: ${manifestsError.message}`);
+  const importBatchByManifestId = new Map(
+    (manifests ?? []).flatMap((manifest) =>
+      typeof manifest.id === "string" && typeof manifest.import_batch_id === "string"
+        ? [[manifest.id, manifest.import_batch_id] as const]
+        : [],
+    ),
+  );
+  return rows.flatMap((row) => {
     const definition = getAdleLessonRouteDefinition(row.lesson_route_key);
-    if (!definition || !definition.payloadVersions.includes(row.payload_version)) {
+    const importBatchId = typeof row.import_manifest_id === "string"
+      ? importBatchByManifestId.get(row.import_manifest_id)
+      : undefined;
+    if (!definition || !definition.payloadVersions.includes(row.payload_version) || !importBatchId) {
       return [];
     }
     return [{
@@ -60,6 +80,7 @@ export async function loadAdleLessonRouteActivations(
       payloadVersion: row.payload_version,
       activationStatus: row.activation_status as AdleRouteActivationStatus,
       contentVersion: row.content_version,
+      importBatchId,
       readinessReport: row.readiness_report as Record<string, unknown>,
     }];
   });

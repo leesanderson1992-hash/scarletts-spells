@@ -27,6 +27,8 @@ export interface AdleCurriculumImportManifest {
     requestedStatus: AdleRouteActivationStatus;
     contentVersion: string;
     importBatchId: string;
+    /** Staging-only reference to separately approved, already-imported content. */
+    contentImportBatchId?: string;
     readinessReport: Record<string, unknown>;
   }>;
 }
@@ -65,6 +67,7 @@ export function validateAdleCurriculumImportManifest(
     if (!route.microSkillKey?.startsWith("D4_")) errors.push(`invalid_micro_skill:${route.microSkillKey}`);
     if (!route.contentVersion?.trim()) errors.push(`missing_content_version:${route.microSkillKey}`);
     if (!UUID.test(route.importBatchId ?? "")) errors.push(`invalid_import_batch_id:${route.microSkillKey}`);
+    if (route.contentImportBatchId && !UUID.test(route.contentImportBatchId)) errors.push(`invalid_content_import_batch_id:${route.microSkillKey}`);
     if (route.requestedStatus === "production_enabled" && Object.keys(route.readinessReport ?? {}).length === 0) errors.push(`missing_readiness_report:${route.microSkillKey}`);
   }
   const identities = (value.routes ?? []).map((route) => `${route.microSkillKey}\u0000${route.lessonRouteKey}`);

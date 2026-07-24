@@ -6,7 +6,7 @@
  * every mutating command, records opaque IDs only in .tmp, and cleans up by
  * import batch and child ID. Never point it at Scarlett's account.
  *
- * Commands: preflight | load | setup | verify | verify-completed | verify-retry | cleanup | recover
+ * Commands: preflight | load | activate | pause | setup | verify | verify-completed | verify-retry | cleanup | recover
  */
 import { createHash } from "node:crypto";
 import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
@@ -39,7 +39,8 @@ type CsvRow = Record<string, string>;
 type State = {
   host: string; batchId: string; createdMicroSkill: boolean; parentUserId: string | null; childId: string | null;
   assignmentId: string | null; planDate: string | null; parentEmail: string | null; parentPassword: string | null;
-  wordIds: Record<string, string>; baselineCounts: Record<string, number>;
+  wordIds: Record<string, string>; baselineCounts: Record<string, number>; contentVersion?: string | null;
+  contentImportBatchId?: string | null; activationManifestIds?: string[];
 };
 
 function assert(value: unknown, message: string): asserts value { if (!value) throw new Error(`FAIL: ${message}`); }
@@ -47,7 +48,6 @@ function sha(value: string) { return createHash("sha256").update(value).digest("
 function value(row: CsvRow, key: string) { return row[key] === "" ? null : row[key]; }
 function bool(value: string) { return value === "TRUE"; }
 function json(value: string) { return JSON.parse(value) as Record<string, unknown> | unknown[]; }
-function parts(value: string) { return value ? value.split("|").map((entry) => entry.trim()).filter(Boolean) : []; }
 
 /** Small RFC-4180 reader; fixture CSVs are committed and validator-approved. */
 function csv(file: string): CsvRow[] {
@@ -90,7 +90,7 @@ function mutating(command: string) {
 }
 
 async function count(client: SupabaseClient, table: string, filters: Array<[string, string]> = []) {
-  let query: any = client.from(table).select("id", { count: "exact", head: true });
+  let query = client.from(table).select("id", { count: "exact", head: true });
   for (const [column, item] of filters) query = query.eq(column, item);
   const { count: result, error } = await query;
   if (error) throw new Error(`${table} count: ${error.message}`);
@@ -111,6 +111,18 @@ async function auditCounts(db: SupabaseClient) {
 }
 
 async function removeFixtureBatch(db: SupabaseClient, batchId: string, removeCreatedMicroSkill: boolean) {
+  const { data: manifests, error: manifestsError } = await db
+    .from("adle_curriculum_import_manifests")
+    .select("id")
+    .eq("import_batch_id", batchId);
+  if (manifestsError) throw new Error(`cleanup activation manifests: ${manifestsError.message}`);
+  const manifestIds = (manifests ?? []).map((row) => row.id);
+  if (manifestIds.length) {
+    const { error } = await db.from("adle_lesson_route_activations").delete().in("import_manifest_id", manifestIds);
+    if (error) throw new Error(`cleanup route activations: ${error.message}`);
+    const { error: manifestDeleteError } = await db.from("adle_curriculum_import_manifests").delete().in("id", manifestIds);
+    if (manifestDeleteError) throw new Error(`cleanup activation manifests: ${manifestDeleteError.message}`);
+  }
   for (const table of ["canonical_teaching_dictionary_field_reviews", "canonical_teaching_dictionary_readiness_reports", "canonical_teaching_dictionary_content_versions", "canonical_teaching_dictionary_base_word_family_members", "canonical_teaching_dictionary_base_word_families", "canonical_teaching_dictionary_dictation_sentences", "canonical_teaching_dictionary_word_support", "canonical_teaching_dictionary_word_metadata", "canonical_teaching_dictionary_words", "canonical_teaching_dictionary_sources"] as const) {
     const { error } = await db.from(table).delete().eq("import_batch_id", batchId);
     if (error) throw new Error(`cleanup ${table}: ${error.message}`);
@@ -150,34 +162,122 @@ async function load(db: SupabaseClient) {
   save({ host: new URL(process.env.NEXT_PUBLIC_SUPABASE_URL ?? process.env.SUPABASE_URL!).hostname, batchId, createdMicroSkill, parentUserId: null, childId: null, assignmentId: null, planDate: null, parentEmail: null, parentPassword: null, wordIds: {}, baselineCounts });
   try {
     const sourceRows = csv("teaching_content_sources.csv").map((row, index) => ({ import_batch_id: batchId, row_status: "active", ...provenance("teaching_content_sources.csv", row, index), source_key: row.source_key, source_category: row.source_category, source_name: value(row, "source_name"), source_url: value(row, "source_url"), source_licence: value(row, "source_licence"), source_use_note: value(row, "source_use_note"), importability_status: row.importability_status, legal_review_status: row.legal_review_status }));
-    if (sourceRows.length) { const { error } = await db.from("canonical_teaching_dictionary_sources").insert(sourceRows); if (error) throw new Error(`insert sources: ${error.message}`); }
+    if (sourceRows.length) {
+      const sourceKeys = sourceRows.map((row) => row.source_key);
+      const { data: existingSources, error: existingSourcesError } = await db
+        .from("canonical_teaching_dictionary_sources")
+        .select("source_key")
+        .in("source_key", sourceKeys)
+        .eq("row_status", "active");
+      if (existingSourcesError) throw new Error(`read existing sources: ${existingSourcesError.message}`);
+      const existingSourceKeys = new Set((existingSources ?? []).map((row) => row.source_key));
+      const missingSourceRows = sourceRows.filter((row) => !existingSourceKeys.has(row.source_key));
+      if (missingSourceRows.length) {
+        const { error } = await db.from("canonical_teaching_dictionary_sources").insert(missingSourceRows);
+        if (error) throw new Error(`insert sources: ${error.message}`);
+      }
+    }
     const wordRows = csv("canonical_words.csv").map((row, index) => ({ import_batch_id: batchId, source_id: null, row_status: row.row_status, ...provenance("canonical_words.csv", row, index), word_key: row.word_key, normalised_word: row.normalised_word, display_word: row.display_word, dialect_code: row.dialect_code, frequency_band: row.frequency_band, age_band: row.age_band, complexity_band: row.complexity_band, source_category: row.source_category, source_name: value(row, "source_name"), source_url: value(row, "source_url"), source_licence: value(row, "source_licence"), source_use_note: value(row, "source_use_note"), confidence: row.confidence, review_status: row.review_status }));
-    const { data: insertedWords, error: wordsError } = await db.from("canonical_teaching_dictionary_words").insert(wordRows).select("id, word_key"); if (wordsError) throw new Error(`insert words: ${wordsError.message}`);
-    const wordIds = Object.fromEntries((insertedWords ?? []).map((row: any) => [row.word_key, row.id])) as Record<string, string>;
-    assert(Object.keys(wordIds).length === 9, "all fixture words inserted");
+    const wordKeys = wordRows.map((row) => row.word_key);
+    const { data: existingWords, error: existingWordsError } = await db.from("canonical_teaching_dictionary_words").select("id, word_key").in("word_key", wordKeys).eq("row_status", "active");
+    if (existingWordsError) throw new Error(`read existing words: ${existingWordsError.message}`);
+    const existingWordIds = Object.fromEntries((existingWords ?? []).map((row) => [row.word_key, row.id])) as Record<string, string>;
+    const missingWordRows = wordRows.filter((row) => !existingWordIds[row.word_key]);
+    const { data: insertedWords, error: wordsError } = missingWordRows.length
+      ? await db.from("canonical_teaching_dictionary_words").insert(missingWordRows).select("id, word_key")
+      : { data: [], error: null };
+    if (wordsError) throw new Error(`insert words: ${wordsError.message}`);
+    const wordIds = { ...existingWordIds, ...Object.fromEntries((insertedWords ?? []).map((row) => [row.word_key, row.id])) } as Record<string, string>;
+    assert(Object.keys(wordIds).length === 9, "all fixture words resolve to active canonical identities");
     const metadataRows = csv("canonical_word_metadata.csv").map((row, index) => ({ import_batch_id: batchId, canonical_word_id: wordIds[row.word_key], source_id: null, row_status: "active", ...provenance("canonical_word_metadata.csv", row, index), syllables: value(row, "syllables"), phoneme_hint: value(row, "phoneme_hint"), grapheme_notes: value(row, "grapheme_notes"), stress_pattern: value(row, "stress_pattern"), has_schwa: bool(row.has_schwa), morphemes: value(row, "morphemes"), morphology_notes: value(row, "morphology_notes"), irregularity_notes: value(row, "irregularity_notes"), source_category: row.source_category, source_name: value(row, "source_name"), source_url: value(row, "source_url"), source_licence: value(row, "source_licence"), source_use_note: value(row, "source_use_note"), confidence: row.confidence, review_status: row.review_status }));
     const supportRows = csv("micro_skill_word_support.csv").map((row, index) => ({ import_batch_id: batchId, canonical_word_id: wordIds[row.word_key], source_id: null, row_status: "active", ...provenance("micro_skill_word_support.csv", row, index), micro_skill_key: row.micro_skill_key, support_role: row.support_role, source_category: row.source_category, source_name: value(row, "source_name"), source_url: value(row, "source_url"), source_licence: value(row, "source_licence"), source_use_note: value(row, "source_use_note"), confidence: row.confidence, review_status: row.review_status, review_notes: value(row, "review_notes") }));
-    for (const [table, rows] of [["canonical_teaching_dictionary_word_metadata", metadataRows], ["canonical_teaching_dictionary_word_support", supportRows]] as const) { const { error } = await db.from(table).insert(rows); if (error) throw new Error(`insert ${table}: ${error.message}`); }
+    const existingMetadata = await db.from("canonical_teaching_dictionary_word_metadata").select("canonical_word_id").in("canonical_word_id", Object.values(wordIds)).eq("row_status", "active");
+    if (existingMetadata.error) throw new Error(`read existing metadata: ${existingMetadata.error.message}`);
+    const metadataWordIds = new Set((existingMetadata.data ?? []).map((row) => row.canonical_word_id));
+    const missingMetadataRows = metadataRows.filter((row) => !metadataWordIds.has(row.canonical_word_id));
+    if (missingMetadataRows.length) { const { error } = await db.from("canonical_teaching_dictionary_word_metadata").insert(missingMetadataRows); if (error) throw new Error(`insert canonical_teaching_dictionary_word_metadata: ${error.message}`); }
+    const existingSupport = await db.from("canonical_teaching_dictionary_word_support").select("canonical_word_id").eq("micro_skill_key", SKILL).in("canonical_word_id", Object.values(wordIds)).eq("row_status", "active");
+    if (existingSupport.error) throw new Error(`read existing support: ${existingSupport.error.message}`);
+    const supportWordIds = new Set((existingSupport.data ?? []).map((row) => row.canonical_word_id));
+    const missingSupportRows = supportRows.filter((row) => !supportWordIds.has(row.canonical_word_id));
+    if (missingSupportRows.length) { const { error } = await db.from("canonical_teaching_dictionary_word_support").insert(missingSupportRows); if (error) throw new Error(`insert canonical_teaching_dictionary_word_support: ${error.message}`); }
     const dictationRows = Object.entries(INTERACTIVE_MEMBER_SUPPORT).map(([wordKey, support], index) => ({ import_batch_id: batchId, canonical_word_id: wordIds[wordKey], row_status: "active", ...provenance("interactive_dictation_review.csv", { word_key: wordKey, dictation_sentence: support.sentence }, index), dictation_sentence: support.sentence, dictation_target_token_index: support.tokenIndex, audio_text: support.sentence, source_category: "internal_authored", source_name: "ADLE base-word staging proof", source_url: null, source_licence: "internal", source_use_note: "Disposable, reviewed contextual dictation sentence for staging proof.", confidence: "high", review_status: "approved_for_first_exposure", reviewed_by: "staging-proof", reviewed_at: now }));
-    const { data: insertedDictation, error: dictationError } = await db.from("canonical_teaching_dictionary_dictation_sentences").insert(dictationRows).select("id, canonical_word_id");
+    const { data: existingDictation, error: existingDictationError } = await db.from("canonical_teaching_dictionary_dictation_sentences").select("id, canonical_word_id").in("canonical_word_id", Object.values(wordIds)).eq("row_status", "active");
+    if (existingDictationError) throw new Error(`read existing dictation sentences: ${existingDictationError.message}`);
+    const dictationWordIds = new Set((existingDictation ?? []).map((row) => row.canonical_word_id));
+    const missingDictationRows = dictationRows.filter((row) => !dictationWordIds.has(row.canonical_word_id));
+    const { data: insertedDictation, error: dictationError } = missingDictationRows.length
+      ? await db.from("canonical_teaching_dictionary_dictation_sentences").insert(missingDictationRows).select("id, canonical_word_id")
+      : { data: [], error: null };
     if (dictationError) throw new Error(`insert dictation sentences: ${dictationError.message}`);
-    const dictationIdByWordId = new Map((insertedDictation ?? []).map((row: any) => [row.canonical_word_id, row.id]));
+    const dictationIdByWordId = new Map([...(existingDictation ?? []), ...(insertedDictation ?? [])].map((row) => [row.canonical_word_id, row.id]));
     const familyInput = csv("base_word_families.csv"); const { data: insertedFamilies, error: familiesError } = await db.from("canonical_teaching_dictionary_base_word_families").insert(familyInput.map((row, index) => ({ import_batch_id: batchId, base_family_key: row.base_family_key, micro_skill_key: row.micro_skill_key, base_word_id: wordIds[row.base_word_key], base_meaning: row.base_meaning, etymology_route: json(row.etymology_route), row_status: "active", ...provenance("base_word_families.csv", row, index), source_category: row.source_category, source_name: value(row, "source_name"), source_url: value(row, "source_url"), source_licence: value(row, "source_licence"), source_use_note: value(row, "source_use_note"), confidence: row.confidence, review_status: row.review_status, reviewed_by: value(row, "reviewed_by"), reviewed_at: value(row, "reviewed_at") }))).select("id, base_family_key"); if (familiesError) throw new Error(`insert families: ${familiesError.message}`);
-    const familyIds = Object.fromEntries((insertedFamilies ?? []).map((row: any) => [row.base_family_key, row.id])) as Record<string, string>;
+    const familyIds = Object.fromEntries((insertedFamilies ?? []).map((row) => [row.base_family_key, row.id])) as Record<string, string>;
     const memberRows = csv("base_word_family_members.csv").map((row, index) => {
       const support = INTERACTIVE_MEMBER_SUPPORT[row.word_key];
       assert(support, `interactive meaning and contextual dictation exist for ${row.word_key}`);
       return { import_batch_id: batchId, base_word_family_id: familyIds[row.base_family_key], canonical_word_id: wordIds[row.word_key], member_role: row.member_role, word_sum: row.word_sum, morphology_parts: json(row.morphology_parts), morphology_joins: json(row.morphology_joins), transformation_notes: value(row, "transformation_notes"), child_friendly_meaning: support.meaning, dictation_sentence_id: dictationIdByWordId.get(wordIds[row.word_key]), dictation_sentence: support.sentence, dictation_target_token_index: support.tokenIndex, audio_text: support.sentence, assignment_eligible: bool(row.assignment_eligible), row_status: "active", ...provenance("base_word_family_members.csv", row, index), source_category: row.source_category, source_name: value(row, "source_name"), source_url: value(row, "source_url"), source_licence: value(row, "source_licence"), source_use_note: value(row, "source_use_note"), confidence: row.confidence, review_status: row.review_status, reviewed_by: value(row, "reviewed_by"), reviewed_at: value(row, "reviewed_at") };
     });
     { const { error } = await db.from("canonical_teaching_dictionary_base_word_family_members").insert(memberRows); if (error) throw new Error(`insert family members: ${error.message}`); }
-    const contentInput = csv("teaching_content_versions.csv")[0]; assert(contentInput, "fixture has teaching content");
-    const { data: content, error: contentError } = await db.from("canonical_teaching_dictionary_content_versions").insert({ import_batch_id: batchId, source_id: null, ...provenance("teaching_content_versions.csv", contentInput, 0), micro_skill_key: contentInput.micro_skill_key, content_version: contentInput.content_version, version_status: contentInput.version_status, is_active: bool(contentInput.is_active), teaching_objective: contentInput.teaching_objective, child_friendly_explanation: contentInput.child_friendly_explanation, rule_explanation: contentInput.rule_explanation, memory_tip: value(contentInput, "memory_tip"), common_misconceptions: contentInput.common_misconceptions, first_exposure_progression: parts(contentInput.first_exposure_progression), guided_practice_progression: parts(contentInput.guided_practice_progression), review_proofreading_progression: parts(contentInput.review_proofreading_progression), example_selection_guidance: contentInput.example_selection_guidance, contrast_policy_guidance: contentInput.contrast_policy_guidance, sample_preview_word_key: contentInput.sample_preview_word_key, source_category: contentInput.source_category, source_name: value(contentInput, "source_name"), source_url: value(contentInput, "source_url"), source_licence: value(contentInput, "source_licence"), source_use_note: value(contentInput, "source_use_note"), confidence: contentInput.confidence, supersedes_content_version: value(contentInput, "supersedes_content_version"), final_readiness_review_status: contentInput.final_readiness_review_status, final_readiness_reviewed_by: value(contentInput, "final_readiness_reviewed_by"), final_readiness_reviewed_at: value(contentInput, "final_readiness_reviewed_at"), created_by: "adle-base-word-family-staging-proof" }).select("id").single();
-    if (contentError || !content) throw new Error(`insert teaching content: ${contentError?.message}`);
-    const reviewRows = csv("teaching_content_field_reviews.csv").map((row, index) => ({ import_batch_id: batchId, teaching_content_version_id: (content as { id: string }).id, ...provenance("teaching_content_field_reviews.csv", row, index), field_key: row.field_key, review_gate: row.review_gate, review_status: row.review_status, reviewed_by: value(row, "reviewed_by"), reviewed_at: value(row, "reviewed_at"), review_notes: value(row, "review_notes") }));
-    { const { error } = await db.from("canonical_teaching_dictionary_field_reviews").insert(reviewRows); if (error) throw new Error(`insert field reviews: ${error.message}`); }
-    save({ host: new URL(process.env.NEXT_PUBLIC_SUPABASE_URL ?? process.env.SUPABASE_URL!).hostname, batchId, createdMicroSkill, parentUserId: null, childId: null, assignmentId: null, planDate: null, parentEmail: null, parentPassword: null, wordIds, baselineCounts });
+    const { data: content, error: contentError } = await db.from("canonical_teaching_dictionary_content_versions").select("content_version, import_batch_id").eq("micro_skill_key", SKILL).eq("version_status", "active").eq("is_active", true).eq("final_readiness_review_status", "signed_off").maybeSingle();
+    if (contentError || !content) throw new Error(`read signed-off staging content: ${contentError?.message}`);
+    const contentVersion = content.content_version;
+    save({ host: new URL(process.env.NEXT_PUBLIC_SUPABASE_URL ?? process.env.SUPABASE_URL!).hostname, batchId, createdMicroSkill, parentUserId: null, childId: null, assignmentId: null, planDate: null, parentEmail: null, parentPassword: null, wordIds, baselineCounts, contentVersion, contentImportBatchId: content.import_batch_id });
     console.log(JSON.stringify({ status: "fixture_loaded", batchId, wordCount: Object.keys(wordIds).length, familyCount: Object.keys(familyIds).length }));
   } catch (error) { try { await removeFixtureBatch(db, batchId, createdMicroSkill); rmSync(STATE_PATH, { force: true }); } catch (cleanupError) { throw new Error(`${error instanceof Error ? error.message : String(error)}; cleanup failed: ${cleanupError instanceof Error ? cleanupError.message : String(cleanupError)}`); } throw error; }
+}
+
+function activationManifest(current: State, requestedStatus: "production_enabled" | "paused") {
+  assert(current.contentVersion && current.contentImportBatchId, "load must resolve signed-off staging content before activation");
+  const fixtureManifest = readFileSync(resolve(FIXTURE, "fixture-manifest.json"), "utf8");
+  return {
+    schemaVersion: 1,
+    manifestKey: `adle-base-word-staging-proof-${current.batchId}-${requestedStatus}`,
+    sourcePackagePath: "docs/implementation/seed-data/staging-fixtures/adle-base-word-family-pilot-v1",
+    sourcePackageSha256: sha(fixtureManifest),
+    approvalRefs: ["staging-proof:reviewed-existing-content-only"],
+    excludedBatchStatuses: ["in_review"],
+    artifacts: [{ artifactKind: "route_specialised_content", path: "fixture-manifest.json", sha256: sha(fixtureManifest), rowCount: 1, lessonRouteKey: "base_word_family_v1" }],
+    routes: [{
+      microSkillKey: SKILL,
+      lessonRouteKey: "base_word_family_v1",
+      payloadVersion: 1,
+      requestedStatus,
+      contentVersion: current.contentVersion,
+      importBatchId: current.batchId,
+      contentImportBatchId: current.contentImportBatchId,
+      readinessReport: requestedStatus === "production_enabled"
+        ? { stagingProof: true, existingApprovedContent: true, fixtureBatchId: current.batchId }
+        : { stagingProof: true, rollback: "paused" },
+    }],
+  };
+}
+
+async function applyActivation(db: SupabaseClient, requestedStatus: "production_enabled" | "paused") {
+  mutating(requestedStatus === "paused" ? "pause" : "activate");
+  assert(process.env.ADLE_ROUTE_ACTIVATION_ENVIRONMENT === "staging", "activation proof requires ADLE_ROUTE_ACTIVATION_ENVIRONMENT=staging");
+  const current = state();
+  const input = activationManifest(current, requestedStatus);
+  const { data: manifestId, error } = await db.rpc("apply_adle_curriculum_activation_manifest_v1", {
+    p_manifest: input,
+    p_manifest_file_sha256: sha(JSON.stringify(input)),
+    p_environment_key: "staging",
+    p_applied_by: "adle-base-word-family-staging-proof",
+  });
+  if (error || typeof manifestId !== "string") throw new Error(`apply staging activation manifest: ${error?.message ?? "missing manifest id"}`);
+  const { data: activation, error: activationError } = await db
+    .from("adle_lesson_route_activations")
+    .select("activation_status, environment_key, content_version, import_manifest_id")
+    .eq("micro_skill_key", SKILL)
+    .eq("lesson_route_key", "base_word_family_v1")
+    .eq("environment_key", "staging")
+    .eq("row_status", "active")
+    .maybeSingle();
+  if (activationError || !activation) throw new Error(`read staging route activation: ${activationError?.message}`);
+  assert(activation.activation_status === requestedStatus, `route activation is ${requestedStatus}`);
+  assert(activation.content_version === current.contentVersion && activation.import_manifest_id === manifestId, "route activation retains reviewed content identity");
+  save({ ...current, activationManifestIds: [...(current.activationManifestIds ?? []), manifestId] });
+  console.log(JSON.stringify({ status: requestedStatus === "paused" ? "route_paused" : "route_activated", manifestId, environment: "staging" }));
 }
 
 async function setup(db: SupabaseClient) {
@@ -199,7 +299,8 @@ async function setup(db: SupabaseClient) {
     const generated = await generateGuardedBaseWordFamilyPilot({ client: db, parentUserId: user.user.id, childId: child.id, planDate: safePlanDate });
     const assignmentId = generated.assignmentId; assert(typeof assignmentId === "string", `guarded generator readiness: ${generated.readinessReason ?? "unknown"}`);
     save({ ...current, parentUserId: user.user.id, childId: child.id, assignmentId, planDate: safePlanDate, parentEmail: email, parentPassword: password });
-    console.log(JSON.stringify({ status: "assignment_generated", childId: child.id, assignmentId, planDate: safePlanDate, loginEmail: email, loginPassword: password }));
+    // Login credentials remain only in the ignored local proof state; never print them.
+    console.log(JSON.stringify({ status: "assignment_generated", childId: child.id, assignmentId, planDate: safePlanDate }));
   } catch (error) { await db.from("children").delete().eq("id", child.id); await db.auth.admin.deleteUser(user.user.id); throw error; }
 }
 
@@ -247,12 +348,14 @@ async function main() {
   const command = process.argv[2]; const db = client();
   if (command === "preflight") { console.log(JSON.stringify({ status: "preflight_ok", fixtureFingerprint: await preflight(db) })); return; }
   if (command === "load") return load(db);
+  if (command === "activate") return applyActivation(db, "production_enabled");
+  if (command === "pause") return applyActivation(db, "paused");
   if (command === "setup") return setup(db);
   if (command === "verify") return verify(db);
   if (command === "verify-completed") return verifyCompleted(db, false);
   if (command === "verify-retry") return verifyCompleted(db, true);
   if (command === "cleanup") return cleanup(db);
   if (command === "recover") return recover(db);
-  throw new Error("Use preflight, load, setup, verify, verify-completed, verify-retry, cleanup, or recover.");
+  throw new Error("Use preflight, load, activate, pause, setup, verify, verify-completed, verify-retry, cleanup, or recover.");
 }
 main().catch((error) => { console.error(error instanceof Error ? error.message : error); process.exit(1); });

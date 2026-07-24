@@ -13,6 +13,8 @@ type Client = SupabaseClient;
 export interface BaseWordFamilyReadModelRequest {
   microSkillKey: string;
   contentVersion: string;
+  /** The immutable family-data batch selected by the active route manifest. */
+  importBatchId: string;
   authenticTargets: BaseWordFamilyAuthenticTarget[];
   sections: Array<{ baseFamilyKey: string; authenticTargetWordIds: string[]; guidedWordIds: string[] }>;
   independentSlots: BaseWordFamilyIndependentSlot[];
@@ -70,6 +72,7 @@ export async function loadBaseWordFamilyLessonReadModel(
   const families = await readRows<FamilyRow>(
     client.from("canonical_teaching_dictionary_base_word_families")
       .select("id, base_family_key, base_meaning, etymology_route")
+      .eq("import_batch_id", request.importBatchId)
       .eq("micro_skill_key", request.microSkillKey)
       .eq("row_status", "active")
       .eq("review_status", "approved_for_first_exposure")
