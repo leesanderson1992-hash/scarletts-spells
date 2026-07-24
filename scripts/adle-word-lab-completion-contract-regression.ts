@@ -1,4 +1,6 @@
 import { readFileSync } from "node:fs";
+import { inspectRegisteredRouteCompatibility } from "../lib/adle/curriculum-readiness/route-selection";
+import { ADLE_CURRICULUM_ROUTE_REGISTRY } from "../lib/adle/curriculum-readiness/route-registry";
 
 function assert(condition: unknown, message: string): asserts condition {
   if (!condition) throw new Error(`FAIL: ${message}`);
@@ -12,7 +14,7 @@ const environment = readFileSync(".env.example", "utf8");
 
 assert(action.includes("isMorphologyUnPilotEnabledForChild") && action.includes("resolveMorphologyPilotRuntime"), "atomic completion remains behind allowlist and valid-payload resolution");
 assert(action.includes('ADLE_WORD_LAB_ATOMIC_COMPLETION_ENABLED === "enabled"'), "atomic completion has an explicit default-off comparison switch");
-assert(action.includes("if (morphologyPilot !== null && atomicWordLabCompletionEnabled)"), "atomic RPC routing requires both a valid pilot payload and the enabled switch");
+assert(action.includes("if (morphologyPilot !== null && dynamicPrefix === null && atomicWordLabCompletionEnabled)"), "the legacy-only atomic RPC must never receive a generic v2 payload");
 assert(action.includes("persistWordLabCompletion") && action.includes("extractAuthoredTargetToken(rawAttempt, sentence.targetTokenIndex)"), "Word Lab uses the atomic helper and authored target-token correctness");
 assert(environment.includes("ADLE_MORPHOLOGY_UN_PILOT_ENABLED=disabled") && environment.includes("ADLE_WORD_LAB_ATOMIC_COMPLETION_ENABLED=disabled"), "pilot and atomic boundary default disabled");
 
@@ -39,5 +41,21 @@ for (const contract of [
 assert(payload.includes('value.schemaVersion !== 1') && payload.includes('value.experienceProfile !== "word_lab_v1"'), "unsupported payloads fail closed");
 assert(payload.includes("expectedActivityIds") && payload.includes("entry.canonicalWordId !== lesson[index].canonicalWordId"), "v1 snapshots retain renderer and authored-token structural invariants");
 assert(resume.includes("schemaVersion: 1") && resume.includes("MORPHOLOGY_RESUME_TTL_MS") && resume.includes("parsed.contentVersion !== contentVersion"), "resume stays schema/content-version scoped and expiring");
+
+const routeInspection = inspectRegisteredRouteCompatibility({
+  childId: "fixture-child",
+  canonicalWordId: "fixture-word",
+  microSkillKey: "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+  routeId: "base_word_lab",
+  routeVersion: "v2",
+  routes: ADLE_CURRICULUM_ROUTE_REGISTRY,
+});
+assert(routeInspection.ready, "registered route inspection reports a supported micro-skill without selecting or compiling a lesson");
+const unsupportedInspection = inspectRegisteredRouteCompatibility({
+  ...routeInspection,
+  microSkillKey: "D4_MOR_PREFIXES_UN",
+  routes: ADLE_CURRICULUM_ROUTE_REGISTRY,
+});
+assert(!unsupportedInspection.ready && unsupportedInspection.selectorBlockers.includes("ROUTE_MICRO_SKILL_UNSUPPORTED"), "route inspection reports unsupported micro-skills without falling through to another route");
 
 console.log("ADLE Word Lab completion contract regression passed");
