@@ -15,7 +15,12 @@ Shared architecture is reused, while each micro-skill still receives an intentio
 
 ## Current Status
 
-Status: `7-UI-H complete; atomic route 39.4% faster with durable contract verified; production current-child Word Lab rollout live`.
+Status: `Base Word Lab is released in production for eligible base-word learners; the fixed-word un- Word Lab remains a legacy gated pilot. Current Dynamic Prefix availability is recorded in the release registry.`
+
+The current capability and release truth is recorded in
+[`adle-current-state-and-release-registry.md`](adle-current-state-and-release-registry.md).
+This roadmap remains the programme narrative; the registry prevents historical
+pilot documentation from being mistaken for current runtime scope.
 
 The 7S reflection recall-gate live/manual proof is recorded in the proof register. PR 7-UI-B added the typed activity-template registry foundation. PR 7-UI-C generated structurally reconciled D4_MOR category-v1 candidate source artifacts under `docs/implementation/seed-data/adle-7-ui/generated/d4-mor-category-v1/`. PR 7-UI-D records human approval for the D4_MOR category-v1 content/schema candidate under `docs/implementation/seed-data/adle-7-ui/review/d4-mor-human-review-pack/`. PR 7-UI-E freezes that approved candidate plus the approval record into the immutable approved source package under `data/adle/approved/d4-mor/v1/`. PR 7-UI-F adds the reusable D4_MOR primitive/view-model layer. PR 7-UI-G implements the guarded `D4_MOR_PREFIXES_UN` Word Lab, including atomic assignment persistence, private reflections, strict payload/resume validation and authenticated engineering QA recorded in `docs/implementation/qa/adle-7-ui-g-observation-ledger.md`.
 
@@ -74,7 +79,7 @@ Only one category should normally be the active implementation focus at a time.
 
 | Family | Current status | Source of row truth |
 |---|---|---|
-| D4_MOR | Active foundation category; `D4_MOR_PREFIXES_UN` engineering-complete gated pilot, remaining category not activated | Global matrix + D4_MOR matrix + approved package manifest + 7-UI-G ledger |
+| D4_MOR | Active foundation category; Base Word Lab is production-enabled for `PRESERVE_BASE` and `IDENTIFY_BASE`; fixed-word `un-` is a gated legacy pilot; current Prefix availability is governed by the release registry | Release registry + global matrix + D4_MOR matrix + approved package manifest |
 | D4_PG | In scope, unaudited for 7-UI | Global matrix |
 | D4_PAT | In scope, unaudited for 7-UI | Global matrix |
 | D4_INF | In scope, unaudited for 7-UI | Global matrix |
@@ -85,7 +90,15 @@ Only one category should normally be the active implementation focus at a time.
 
 ## Morphology Rollout
 
-First vertical proof candidate: `D4_MOR_PREFIXES_UN`.
+The first released D4_MOR capability is Base Word Lab. It serves
+`D4_MOR_BASE_WORDS_PRESERVE_BASE` and `D4_MOR_BASE_WORDS_IDENTIFY_BASE` when
+the child has eligible verified authentic targets. Its six-word / 18-item
+contract is stable. `bed`, `foot`, and `sun` remain unavailable because their
+reviewed family data is incomplete.
+
+`D4_MOR_PREFIXES_UN` remains a fixed-word legacy pilot rather than a reusable
+release. Current Dynamic Prefix routes and their per-profile activation states
+are recorded in the release registry.
 
 Current `D4_MOR_PREFIXES_UN` readiness:
 `current-child_word_lab_rollout_live`. Human content/schema and owner approval,
@@ -121,7 +134,8 @@ No assignment, attempt, reflection, reward or other learner completion data was
 created for the rollout check. The explicit valid Word Lab assignment snapshot
 is still required, so generic ADLE and all other D4_MOR skills remain unchanged.
 
-After proof and contract freeze, finish morphology in coherent groups:
+After each remaining prefix profile has separate approval and release evidence,
+finish morphology in coherent groups:
 
 1. Base-word skills.
 2. Remaining prefix skills.
@@ -130,7 +144,7 @@ After proof and contract freeze, finish morphology in coherent groups:
 5. Word families.
 6. Roots.
 
-Category completion requires every production D4_MOR micro-skill to reach its intended rich experience, not just shared components existing.
+Category completion requires every production D4_MOR micro-skill to reach its intended rich experience, not just shared components existing. Until then, an approved correction can enter ADLE only when its micro-skill is explicitly production-enabled in the lesson-support registry.
 
 ## Proof Gates
 

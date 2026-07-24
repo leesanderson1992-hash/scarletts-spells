@@ -9,7 +9,8 @@ When documents overlap, the authority listed here wins.
 
 | Truth area | Authoritative source | Supporting sources | Must not live in |
 |---|---|---|---|
-| Programme status | `docs/implementation/adle-7-ui-roadmap.md` | `docs/implementation/version-3-roadmap.md` as index | Category packs, runtime files |
+| Programme narrative | `docs/implementation/adle-7-ui-roadmap.md` | `docs/implementation/version-3-roadmap.md` as index | Category packs, runtime files |
+| Current lesson release scope | `docs/implementation/adle-current-state-and-release-registry.md` | D4_MOR matrix and production runbooks | Historical pilot plans |
 | Micro-skill status | `docs/implementation/seed-data/adle-7-ui/control-matrix/adle-7-ui-global-control-matrix.csv` | `docs/implementation/adle-7-ui-control-matrix.md` | Hand-maintained prose tables |
 | Runtime architecture | `docs/architecture/adle-activity-platform-architecture.md` | `docs/contracts/adle-template-development-contract.md` | Category design packs |
 | Template rules | `docs/contracts/adle-template-development-contract.md` | `docs/product/areas/adle-template-catalog.md` | Per-micro-skill content |

@@ -117,6 +117,12 @@ When docs overlap:
 - [docs/qa/writing-engine-documentation-truth-audit.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/qa/writing-engine-documentation-truth-audit.md:1)
 - [docs/support/vercel-launch-checklist.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/support/vercel-launch-checklist.md:1)
 
+### Operations and database records
+
+- [docs/operations/supabase-migration-policy.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/operations/supabase-migration-policy.md:1)
+- [docs/operations/supabase-baseline-reconciliation-plan.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/operations/supabase-baseline-reconciliation-plan.md:1)
+- [docs/operations/staging-base-word-family-ledger-exception-2026-07-19.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/operations/staging-base-word-family-ledger-exception-2026-07-19.md:1)
+
 ## Supporting references
 
 - [docs/support/reward-source-of-truth-definitions.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/support/reward-source-of-truth-definitions.md:1)
