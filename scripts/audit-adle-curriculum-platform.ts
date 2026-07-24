@@ -1,0 +1,59 @@
+/** Read-only production inventory for registered and activated ADLE routes. */
+import { createClient } from "@supabase/supabase-js";
+
+import { ADLE_LESSON_ROUTE_REGISTRY } from "../lib/adle/lesson-route-registry";
+
+const PRODUCTION_REF = "wwohrqtunajrbwxyssjf";
+function required(name: string) {
+  const value = process.env[name];
+  if (!value) throw new Error(`Missing ${name}`);
+  return value;
+}
+
+async function main() {
+  const url = required("NEXT_PUBLIC_SUPABASE_URL");
+  const host = new URL(url).hostname;
+  if (!host.includes(PRODUCTION_REF) || required("ADLE_CURRICULUM_PRODUCTION_HOST") !== host)
+    throw new Error("Audit is pinned to the acknowledged Scarlett Spells production host");
+  const db = createClient(url, required("SUPABASE_SERVICE_ROLE_KEY"), {
+    auth: { autoRefreshToken: false, persistSession: false },
+  });
+  const [activations, skills, content, supports, families, learningItems, inReview] = await Promise.all([
+    db.from("adle_lesson_route_activations").select("micro_skill_key,lesson_route_key,payload_version,activation_status,content_version,readiness_report,row_status").eq("environment_key", "production").eq("row_status", "active"),
+    db.from("micro_skill_catalog").select("micro_skill_key,mastery_domain_key,is_active,is_assignable").eq("mastery_domain_key", "D4"),
+    db.from("canonical_teaching_dictionary_content_versions").select("micro_skill_key,content_version,version_status,is_active,final_readiness_review_status"),
+    db.from("canonical_teaching_dictionary_word_support").select("canonical_word_id,micro_skill_key,support_role,row_status,review_status").eq("row_status", "active"),
+    db.from("canonical_teaching_dictionary_base_word_families").select("id,micro_skill_key,row_status,review_status").eq("row_status", "active"),
+    db.from("adle_learning_items").select("id,canonical_word_id,micro_skill_key,item_status,row_status").eq("row_status", "active"),
+    db.from("canonical_teaching_dictionary_import_batches").select("id", { count: "exact", head: true }).eq("batch_status", "in_review"),
+  ]);
+  for (const result of [activations, skills, content, supports, families, learningItems, inReview])
+    if (result.error) throw new Error(result.error.message);
+  const catalog = new Map((skills.data ?? []).map((skill) => [skill.micro_skill_key, skill]));
+  const routeRows = (activations.data ?? []).map((activation) => {
+    const definition = ADLE_LESSON_ROUTE_REGISTRY.get(activation.lesson_route_key);
+    const skill = catalog.get(activation.micro_skill_key);
+    const blockers: string[] = [];
+    if (!definition) blockers.push("route_not_registered");
+    if (!skill || !skill.is_active || !skill.is_assignable) blockers.push("inactive_or_non_assignable_micro_skill");
+    if (!(content.data ?? []).some((row) => row.micro_skill_key === activation.micro_skill_key && row.content_version === activation.content_version && row.version_status === "active" && row.is_active && row.final_readiness_review_status === "signed_off")) blockers.push("signed_off_content_missing");
+    if (!(supports.data ?? []).some((row) => row.micro_skill_key === activation.micro_skill_key && ["support_example", "review_example"].includes(row.support_role) && row.review_status === "approved_for_first_exposure")) blockers.push("approved_word_support_missing");
+    if (activation.lesson_route_key === "base_word_family_v1" && !(families.data ?? []).some((row) => row.micro_skill_key === activation.micro_skill_key && row.review_status === "approved_for_first_exposure")) blockers.push("approved_base_family_missing");
+    return { ...activation, registered: Boolean(definition), blockers };
+  });
+  console.log(JSON.stringify({
+    mode: "read_only_production_inventory",
+    registeredRoutes: [...ADLE_LESSON_ROUTE_REGISTRY.keys()],
+    activations: routeRows,
+    activeD4Skills: (skills.data ?? []).filter((skill) => skill.is_active && skill.is_assignable).length,
+    activeLearningItems: (learningItems.data ?? []).length,
+    inReviewBatchCount: inReview.count ?? 0,
+    mutationPerformed: false,
+  }, null, 2));
+}
+
+main().catch((error: unknown) => {
+  console.error(error instanceof Error ? error.message : String(error));
+  process.exit(1);
+});
+
