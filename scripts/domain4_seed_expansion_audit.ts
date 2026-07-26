@@ -79,6 +79,23 @@ type TableRow = Record<string, unknown> & { id?: string };
 const ARTIFACT_DIR = "docs/implementation/seed-data/domain4-seed-expansion";
 const PAGE_SIZE = 1000;
 
+function createDomain4Client(url: string, serviceRoleKey: string) {
+  return createClient(url, serviceRoleKey, {
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
+}
+
+type Domain4Client = ReturnType<typeof createDomain4Client>;
+type QueryResult = {
+  data: unknown[] | null;
+  error: { message: string } | null;
+};
+interface FilterQuery extends PromiseLike<QueryResult> {
+  eq(column: string, value: unknown): FilterQuery;
+  in(column: string, values: readonly unknown[]): FilterQuery;
+  order(column: string): FilterQuery;
+}
+
 function loadDotEnvLocal() {
   const envPath = ".env.local";
 
@@ -153,7 +170,9 @@ function summarizeChangedFamilies(
   currentRows: CatalogFamily[],
   artifactRows: ArtifactFamily[],
 ) {
-  const currentByKey = new Map(currentRows.map((row) => [row.skill_family_key, row]));
+  const currentByKey = new Map(
+    currentRows.map((row) => [row.skill_family_key, row]),
+  );
   const changes: string[] = [];
 
   for (const artifact of artifactRows) {
@@ -180,7 +199,9 @@ function summarizeChangedClusters(
   currentRows: CatalogCluster[],
   artifactRows: ArtifactCluster[],
 ) {
-  const currentByKey = new Map(currentRows.map((row) => [row.skill_cluster_key, row]));
+  const currentByKey = new Map(
+    currentRows.map((row) => [row.skill_cluster_key, row]),
+  );
   const changes: string[] = [];
 
   for (const artifact of artifactRows) {
@@ -208,7 +229,9 @@ function summarizeChangedMicroSkills(
   currentRows: CatalogMicroSkill[],
   artifactRows: ArtifactMicroSkill[],
 ) {
-  const currentByKey = new Map(currentRows.map((row) => [row.micro_skill_key, row]));
+  const currentByKey = new Map(
+    currentRows.map((row) => [row.micro_skill_key, row]),
+  );
   const changes: string[] = [];
 
   for (const artifact of artifactRows) {
@@ -225,7 +248,10 @@ function summarizeChangedMicroSkills(
       current.practice_route !== artifact.practice_route ||
       current.is_active !== artifact.is_active ||
       current.is_assignable !== artifact.is_assignable ||
-      !arraysEqual(current.allowed_template_keys ?? [], artifact.allowed_template_keys ?? []) ||
+      !arraysEqual(
+        current.allowed_template_keys ?? [],
+        artifact.allowed_template_keys ?? [],
+      ) ||
       !jsonEqual(current.metadata, artifact.metadata)
     ) {
       changes.push(artifact.micro_skill_key);
@@ -249,14 +275,20 @@ function countValues(rows: TableRow[], column: string, keys: Set<string>) {
   return counts;
 }
 
-function countJsonMentions(rows: TableRow[], columns: string[], keys: Set<string>) {
+function countJsonMentions(
+  rows: TableRow[],
+  columns: string[],
+  keys: Set<string>,
+) {
   let count = 0;
 
   for (const row of rows) {
     const haystack = columns
       .map((column) => row[column])
       .filter((value) => value !== null && value !== undefined)
-      .map((value) => (typeof value === "string" ? value : JSON.stringify(value)))
+      .map((value) =>
+        typeof value === "string" ? value : JSON.stringify(value),
+      )
       .join("\n");
 
     if ([...keys].some((key) => haystack.includes(key))) {
@@ -268,23 +300,20 @@ function countJsonMentions(rows: TableRow[], columns: string[], keys: Set<string
 }
 
 async function fetchAll<T extends TableRow>(
-  // Supabase's generated DB type is not wired into this standalone utility.
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  supabase: ReturnType<typeof createClient<any>>,
+  supabase: Domain4Client,
   table: string,
   columns: string,
-  apply?: (query: any) => any,
+  apply?: (query: FilterQuery) => PromiseLike<QueryResult>,
 ) {
   const rows: T[] = [];
   let from = 0;
 
   while (true) {
-    let query = supabase.from(table).select(columns).range(from, from + PAGE_SIZE - 1);
-
-    if (apply) {
-      query = apply(query);
-    }
-
+    const baseQuery = supabase
+      .from(table)
+      .select(columns)
+      .range(from, from + PAGE_SIZE - 1) as unknown as FilterQuery;
+    const query = apply ? apply(baseQuery) : baseQuery;
     const { data, error } = await query;
 
     if (error) {
@@ -386,11 +415,12 @@ function buildReferenceSummary(input: {
         "micro_skill_key",
         input.staleMicroSkillKeys,
       ),
-      spelling_catalog_review_case_decisions_linked_micro_skill_key: countValues(
-        input.rows.spelling_catalog_review_case_decisions,
-        "linked_micro_skill_key",
-        input.staleMicroSkillKeys,
-      ),
+      spelling_catalog_review_case_decisions_linked_micro_skill_key:
+        countValues(
+          input.rows.spelling_catalog_review_case_decisions,
+          "linked_micro_skill_key",
+          input.staleMicroSkillKeys,
+        ),
     },
     linked_rows: {
       learning_items: learningItemsWithStaleKeys.length,
@@ -402,14 +432,17 @@ function buildReferenceSummary(input: {
         input.rows.learning_item_evidence.filter((row) =>
           staleWritingIssueIds.has(String(row.writing_issue_id ?? "")),
         ).length,
-      assignment_items_by_learning_item_id:
-        input.rows.assignment_items.filter((row) =>
-          staleLearningItemIds.has(String(row.learning_item_id ?? "")),
-        ).length,
+      assignment_items_by_learning_item_id: input.rows.assignment_items.filter(
+        (row) => staleLearningItemIds.has(String(row.learning_item_id ?? "")),
+      ).length,
       writing_issues: writingIssuesWithStaleKeys.length,
     },
     metadata_snapshots: {
-      learning_items: countJsonMentions(input.rows.learning_items, ["metadata"], allStaleKeys),
+      learning_items: countJsonMentions(
+        input.rows.learning_items,
+        ["metadata"],
+        allStaleKeys,
+      ),
       learning_item_evidence: countJsonMentions(
         input.rows.learning_item_evidence,
         ["metadata", "source_context"],
@@ -417,7 +450,13 @@ function buildReferenceSummary(input: {
       ),
       assignment_items: countJsonMentions(
         input.rows.assignment_items,
-        ["metadata", "prompt_data", "expected_answer", "source_entity_id", "template_key"],
+        [
+          "metadata",
+          "prompt_data",
+          "expected_answer",
+          "source_entity_id",
+          "template_key",
+        ],
         allStaleKeys,
       ),
       writing_issues: countJsonMentions(
@@ -447,7 +486,12 @@ function buildReferenceSummary(input: {
       ),
       spelling_canonical_mapping_recommendations: countJsonMentions(
         input.rows.spelling_canonical_mapping_recommendations,
-        ["metadata", "recommendation_note", "review_note", "reviewed_event_source_entity_id"],
+        [
+          "metadata",
+          "recommendation_note",
+          "review_note",
+          "reviewed_event_source_entity_id",
+        ],
         allStaleKeys,
       ),
       spelling_catalog_review_case_decisions: countJsonMentions(
@@ -463,16 +507,25 @@ function buildReferenceSummary(input: {
 
 function totalDirectReferences(summary: ReferenceSummary) {
   return Object.values(summary.direct_columns).reduce((total, counts) => {
-    return total + Object.values(counts).reduce((innerTotal, count) => innerTotal + count, 0);
+    return (
+      total +
+      Object.values(counts).reduce((innerTotal, count) => innerTotal + count, 0)
+    );
   }, 0);
 }
 
 function totalMetadataReferences(summary: ReferenceSummary) {
-  return Object.values(summary.metadata_snapshots).reduce((total, count) => total + count, 0);
+  return Object.values(summary.metadata_snapshots).reduce(
+    (total, count) => total + count,
+    0,
+  );
 }
 
 function totalLinkedRows(summary: ReferenceSummary) {
-  return Object.values(summary.linked_rows).reduce((total, count) => total + count, 0);
+  return Object.values(summary.linked_rows).reduce(
+    (total, count) => total + count,
+    0,
+  );
 }
 
 async function main() {
@@ -486,9 +539,7 @@ async function main() {
       ? process.argv[outputArgIndex + 1]
       : null;
 
-  const supabase = createClient(url, serviceRoleKey, {
-    auth: { persistSession: false, autoRefreshToken: false },
-  });
+  const supabase = createDomain4Client(url, serviceRoleKey);
 
   const artifactFamilies = readJson<ArtifactFamily[]>(
     path.join(ARTIFACT_DIR, "families.json"),
@@ -514,7 +565,8 @@ async function main() {
       supabase,
       "micro_skill_clusters",
       "id, mastery_domain_key, skill_family_key, skill_cluster_key, display_name, is_active, is_assignable, metadata",
-      (query) => query.eq("mastery_domain_key", "D4").order("skill_cluster_key"),
+      (query) =>
+        query.eq("mastery_domain_key", "D4").order("skill_cluster_key"),
     ),
     fetchAll<CatalogMicroSkill>(
       supabase,
@@ -525,24 +577,31 @@ async function main() {
   ]);
 
   const currentFamilyKeys = keySet(families.map((row) => row.skill_family_key));
-  const currentClusterKeys = keySet(clusters.map((row) => row.skill_cluster_key));
-  const currentMicroSkillKeys = keySet(microSkills.map((row) => row.micro_skill_key));
-  const artifactFamilyKeys = keySet(artifactFamilies.map((row) => row.skill_family_key));
-  const artifactClusterKeys = keySet(artifactClusters.map((row) => row.skill_cluster_key));
+  const currentClusterKeys = keySet(
+    clusters.map((row) => row.skill_cluster_key),
+  );
+  const currentMicroSkillKeys = keySet(
+    microSkills.map((row) => row.micro_skill_key),
+  );
+  const artifactFamilyKeys = keySet(
+    artifactFamilies.map((row) => row.skill_family_key),
+  );
+  const artifactClusterKeys = keySet(
+    artifactClusters.map((row) => row.skill_cluster_key),
+  );
   const artifactMicroSkillKeys = keySet(
     artifactMicroSkills.map((row) => row.micro_skill_key),
   );
 
-  const staleFamilyKeys = keySet(difference(currentFamilyKeys, artifactFamilyKeys));
-  const staleClusterKeys = keySet(difference(currentClusterKeys, artifactClusterKeys));
+  const staleFamilyKeys = keySet(
+    difference(currentFamilyKeys, artifactFamilyKeys),
+  );
+  const staleClusterKeys = keySet(
+    difference(currentClusterKeys, artifactClusterKeys),
+  );
   const staleMicroSkillKeys = keySet(
     difference(currentMicroSkillKeys, artifactMicroSkillKeys),
   );
-
-  const allCurrentOrStaleMicroSkillKeys = keySet([
-    ...currentMicroSkillKeys,
-    ...artifactMicroSkillKeys,
-  ]);
 
   const rows = {
     learning_items: await fetchAll<TableRow>(
@@ -630,19 +689,39 @@ async function main() {
     },
     taxonomy_key_diff: {
       families: {
-        stale_in_db_not_artifact: difference(currentFamilyKeys, artifactFamilyKeys),
-        new_in_artifact_not_db: difference(artifactFamilyKeys, currentFamilyKeys),
+        stale_in_db_not_artifact: difference(
+          currentFamilyKeys,
+          artifactFamilyKeys,
+        ),
+        new_in_artifact_not_db: difference(
+          artifactFamilyKeys,
+          currentFamilyKeys,
+        ),
         shared_changed: summarizeChangedFamilies(families, artifactFamilies),
-        shared_unchanged: intersection(currentFamilyKeys, artifactFamilyKeys).filter(
-          (key) => !summarizeChangedFamilies(families, artifactFamilies).includes(key),
+        shared_unchanged: intersection(
+          currentFamilyKeys,
+          artifactFamilyKeys,
+        ).filter(
+          (key) =>
+            !summarizeChangedFamilies(families, artifactFamilies).includes(key),
         ),
       },
       clusters: {
-        stale_in_db_not_artifact: difference(currentClusterKeys, artifactClusterKeys),
-        new_in_artifact_not_db: difference(artifactClusterKeys, currentClusterKeys),
+        stale_in_db_not_artifact: difference(
+          currentClusterKeys,
+          artifactClusterKeys,
+        ),
+        new_in_artifact_not_db: difference(
+          artifactClusterKeys,
+          currentClusterKeys,
+        ),
         shared_changed: summarizeChangedClusters(clusters, artifactClusters),
-        shared_unchanged: intersection(currentClusterKeys, artifactClusterKeys).filter(
-          (key) => !summarizeChangedClusters(clusters, artifactClusters).includes(key),
+        shared_unchanged: intersection(
+          currentClusterKeys,
+          artifactClusterKeys,
+        ).filter(
+          (key) =>
+            !summarizeChangedClusters(clusters, artifactClusters).includes(key),
         ),
       },
       micro_skills: {
@@ -654,12 +733,19 @@ async function main() {
           artifactMicroSkillKeys,
           currentMicroSkillKeys,
         ),
-        shared_changed: summarizeChangedMicroSkills(microSkills, artifactMicroSkills),
+        shared_changed: summarizeChangedMicroSkills(
+          microSkills,
+          artifactMicroSkills,
+        ),
         shared_unchanged: intersection(
           currentMicroSkillKeys,
           artifactMicroSkillKeys,
         ).filter(
-          (key) => !summarizeChangedMicroSkills(microSkills, artifactMicroSkills).includes(key),
+          (key) =>
+            !summarizeChangedMicroSkills(
+              microSkills,
+              artifactMicroSkills,
+            ).includes(key),
         ),
       },
     },
@@ -696,7 +782,8 @@ async function main() {
       ],
     },
     blockers_before_mutation:
-      totalDirectReferences(referenceSummary) > 0 || totalMetadataReferences(referenceSummary) > 0
+      totalDirectReferences(referenceSummary) > 0 ||
+      totalMetadataReferences(referenceSummary) > 0
         ? [
             "Stale keys are still referenced. Back up/export and clear disposable dependent rows before deletion.",
           ]

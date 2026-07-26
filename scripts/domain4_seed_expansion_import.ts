@@ -3,7 +3,21 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 
 type JsonRecord = Record<string, unknown>;
-type SupabaseClient = ReturnType<typeof createClient<any>>;
+function createDomain4Client(url: string, serviceRoleKey: string) {
+  return createClient(url, serviceRoleKey, {
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
+}
+type SupabaseClient = ReturnType<typeof createDomain4Client>;
+type QueryResult = {
+  data: unknown[] | null;
+  error: { message: string } | null;
+};
+interface FilterQuery extends PromiseLike<QueryResult> {
+  eq(column: string, value: unknown): FilterQuery;
+  in(column: string, values: readonly unknown[]): FilterQuery;
+  order(column: string): FilterQuery;
+}
 
 type ArtifactFamily = {
   mastery_domain_key: string;
@@ -54,7 +68,8 @@ type AuditReport = {
 type TableRow = Record<string, unknown> & { id?: string };
 
 const ARTIFACT_DIR = "docs/implementation/seed-data/domain4-seed-expansion";
-const AUDIT_PATH = ".tmp/domain4-seed-expansion-audit/latest-read-only-audit.json";
+const AUDIT_PATH =
+  ".tmp/domain4-seed-expansion-audit/latest-read-only-audit.json";
 const BACKUP_ROOT = ".tmp/catalog-reset-backups";
 const PAGE_SIZE = 1000;
 
@@ -79,7 +94,10 @@ function loadDotEnvLocal() {
       continue;
     }
 
-    process.env[key] = rawValueParts.join("=").trim().replace(/^['"]|['"]$/g, "");
+    process.env[key] = rawValueParts
+      .join("=")
+      .trim()
+      .replace(/^['"]|['"]$/g, "");
   }
 }
 
@@ -109,22 +127,23 @@ async function fetchAll<T extends TableRow>(
   supabase: SupabaseClient,
   table: string,
   columns: string,
-  apply?: (query: any) => any,
+  apply?: (query: FilterQuery) => PromiseLike<QueryResult>,
 ) {
   const rows: T[] = [];
   let from = 0;
 
   while (true) {
-    let query = supabase.from(table).select(columns).range(from, from + PAGE_SIZE - 1);
-
-    if (apply) {
-      query = apply(query);
-    }
-
+    const baseQuery = supabase
+      .from(table)
+      .select(columns)
+      .range(from, from + PAGE_SIZE - 1) as unknown as FilterQuery;
+    const query = apply ? apply(baseQuery) : baseQuery;
     const { data, error } = await query;
 
     if (error) {
-      throw new Error(`Backup/export query failed for ${table}: ${error.message}`);
+      throw new Error(
+        `Backup/export query failed for ${table}: ${error.message}`,
+      );
     }
 
     rows.push(...((data ?? []) as unknown as T[]));
@@ -168,14 +187,26 @@ async function exportBackup(input: {
     (query) => query.eq("mastery_domain_key", "D4").order("micro_skill_key"),
   );
 
-  exports.learning_items = await fetchAll(input.supabase, "learning_items", "*");
+  exports.learning_items = await fetchAll(
+    input.supabase,
+    "learning_items",
+    "*",
+  );
   exports.learning_item_evidence = await fetchAll(
     input.supabase,
     "learning_item_evidence",
     "*",
   );
-  exports.assignment_items = await fetchAll(input.supabase, "assignment_items", "*");
-  exports.writing_issues = await fetchAll(input.supabase, "writing_issues", "*");
+  exports.assignment_items = await fetchAll(
+    input.supabase,
+    "assignment_items",
+    "*",
+  );
+  exports.writing_issues = await fetchAll(
+    input.supabase,
+    "writing_issues",
+    "*",
+  );
   exports.writing_issue_suggestions = await fetchAll(
     input.supabase,
     "writing_issue_suggestions",
@@ -292,7 +323,9 @@ async function validateFinalState(input: {
     (row) => row.is_active === true && row.is_assignable === true,
   );
   const proofRows = [
-    ...families.filter((row) => String(row.skill_family_key).includes("D4_PROOF")),
+    ...families.filter((row) =>
+      String(row.skill_family_key).includes("D4_PROOF"),
+    ),
     ...clusters.filter(
       (row) =>
         String(row.skill_family_key).includes("D4_PROOF") ||
@@ -315,8 +348,10 @@ async function validateFinalState(input: {
 
   const failures: string[] = [];
 
-  if (families.length !== 8) failures.push(`Expected 8 D4 families, found ${families.length}.`);
-  if (clusters.length !== 47) failures.push(`Expected 47 D4 clusters, found ${clusters.length}.`);
+  if (families.length !== 8)
+    failures.push(`Expected 8 D4 families, found ${families.length}.`);
+  if (clusters.length !== 47)
+    failures.push(`Expected 47 D4 clusters, found ${clusters.length}.`);
   if (microSkills.length !== 240) {
     failures.push(`Expected 240 D4 micro-skills, found ${microSkills.length}.`);
   }
@@ -326,7 +361,9 @@ async function validateFinalState(input: {
     );
   }
   if (proofRows.length !== 0) {
-    failures.push(`Expected no D4_PROOF taxonomy rows, found ${proofRows.length}.`);
+    failures.push(
+      `Expected no D4_PROOF taxonomy rows, found ${proofRows.length}.`,
+    );
   }
   if (remainingStaleMicroSkills.length !== 0) {
     failures.push(
@@ -334,10 +371,14 @@ async function validateFinalState(input: {
     );
   }
   if (remainingStaleClusters.length !== 0) {
-    failures.push(`Expected stale cluster rows deleted, found ${remainingStaleClusters.length}.`);
+    failures.push(
+      `Expected stale cluster rows deleted, found ${remainingStaleClusters.length}.`,
+    );
   }
   if (microSkills.some((row) => row.practice_route !== "word_practice")) {
-    failures.push("Expected all D4 micro-skills to remain word_practice in this pass.");
+    failures.push(
+      "Expected all D4 micro-skills to remain word_practice in this pass.",
+    );
   }
 
   return {
@@ -357,16 +398,17 @@ async function validateFinalState(input: {
 async function main() {
   loadDotEnvLocal();
 
-  const supabase = createClient(
+  const supabase = createDomain4Client(
     readRequiredEnv("NEXT_PUBLIC_SUPABASE_URL"),
     readRequiredEnv("SUPABASE_SERVICE_ROLE_KEY"),
-    { auth: { persistSession: false, autoRefreshToken: false } },
   );
 
   const audit = readJson<AuditReport>(AUDIT_PATH);
 
   if (audit.blockers_before_mutation.length > 0) {
-    throw new Error(`Refusing mutation because audit has blockers: ${audit.blockers_before_mutation.join("; ")}`);
+    throw new Error(
+      `Refusing mutation because audit has blockers: ${audit.blockers_before_mutation.join("; ")}`,
+    );
   }
 
   const staleReferenceTotals = audit.dependent_reference_totals_for_stale_keys;
@@ -381,11 +423,20 @@ async function main() {
     );
   }
 
-  const families = readJson<ArtifactFamily[]>(path.join(ARTIFACT_DIR, "families.json"));
-  const clusters = readJson<ArtifactCluster[]>(path.join(ARTIFACT_DIR, "clusters.json"));
-  const microSkills = readJson<ArtifactMicroSkill[]>(path.join(ARTIFACT_DIR, "micro-skills.json"));
+  const families = readJson<ArtifactFamily[]>(
+    path.join(ARTIFACT_DIR, "families.json"),
+  );
+  const clusters = readJson<ArtifactCluster[]>(
+    path.join(ARTIFACT_DIR, "clusters.json"),
+  );
+  const microSkills = readJson<ArtifactMicroSkill[]>(
+    path.join(ARTIFACT_DIR, "micro-skills.json"),
+  );
 
-  const backupDir = path.join(BACKUP_ROOT, `domain4-seed-expansion-${timestampForPath()}`);
+  const backupDir = path.join(
+    BACKUP_ROOT,
+    `domain4-seed-expansion-${timestampForPath()}`,
+  );
   const exportedRows = await exportBackup({ audit, backupDir, supabase });
 
   const deletedRows = {
@@ -432,7 +483,8 @@ async function main() {
 
   const finalValidation = await validateFinalState({
     supabase,
-    staleMicroSkillKeys: audit.taxonomy_key_diff.micro_skills.stale_in_db_not_artifact,
+    staleMicroSkillKeys:
+      audit.taxonomy_key_diff.micro_skills.stale_in_db_not_artifact,
     staleClusterKeys: audit.taxonomy_key_diff.clusters.stale_in_db_not_artifact,
   });
 
