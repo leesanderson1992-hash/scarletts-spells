@@ -72,10 +72,6 @@ function isLowercaseLetter(char: string | undefined) {
   return typeof char === "string" && /^[a-z]$/.test(char);
 }
 
-function isUppercaseLetter(char: string | undefined) {
-  return typeof char === "string" && /^[A-Z]$/.test(char);
-}
-
 function normalizeConfidence(confidence: number) {
   return Math.min(1, Math.max(0, Number(confidence.toFixed(2))));
 }

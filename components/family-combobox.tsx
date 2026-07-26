@@ -67,8 +67,14 @@ export function FamilyCombobox({
   placeholder = "Search word families",
 }: FamilyComboboxProps) {
   const contextOptions = useContext(FamilyComboboxOptionsContext);
-  const options = directOptions ?? contextOptions ?? [];
-  const allOptions = directAllOptions ?? contextOptions ?? options;
+  const options = useMemo(
+    () => directOptions ?? contextOptions ?? [],
+    [contextOptions, directOptions],
+  );
+  const allOptions = useMemo(
+    () => directAllOptions ?? contextOptions ?? options,
+    [contextOptions, directAllOptions, options],
+  );
   const defaultOption =
     allOptions.find((option) => option.value === defaultValue) ?? null;
   const [query, setQuery] = useState(defaultOption?.label ?? "");
@@ -77,11 +83,18 @@ export function FamilyCombobox({
   const [showAllFamilies, setShowAllFamilies] = useState(false);
 
   useEffect(() => {
-    const nextDefaultOption =
-      allOptions.find((option) => option.value === defaultValue) ?? null;
-    setSelectedValue(defaultValue);
-    setQuery(nextDefaultOption?.label ?? "");
-    setShowAllFamilies(false);
+    let active = true;
+    queueMicrotask(() => {
+      if (!active) return;
+      const nextDefaultOption =
+        allOptions.find((option) => option.value === defaultValue) ?? null;
+      setSelectedValue(defaultValue);
+      setQuery(nextDefaultOption?.label ?? "");
+      setShowAllFamilies(false);
+    });
+    return () => {
+      active = false;
+    };
   }, [allOptions, defaultValue]);
 
   const filteredOptions = useMemo(() => {

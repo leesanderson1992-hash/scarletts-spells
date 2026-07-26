@@ -36,7 +36,7 @@ export async function GET(request: NextRequest) {
   // The callback needs to attach any session cookies to the same response
   // object that performs the redirect, otherwise production can appear to
   // "forget" the login immediately after a magic link is opened.
-  let response = NextResponse.redirect(new URL(next, request.url));
+  const response = NextResponse.redirect(new URL(next, request.url));
 
   const supabase = createServerClient(url, anonKey, {
     cookies: {

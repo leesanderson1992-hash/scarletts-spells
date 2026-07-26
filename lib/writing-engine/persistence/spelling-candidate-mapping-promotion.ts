@@ -3,9 +3,6 @@ import { createClient } from "@/lib/supabase/server";
 import {
   type ParentLocalPendingSpellingCandidateMappingRecord,
   type ParentLocalPromotedSpellingCandidateMappingRecord,
-  type ParentLocalSpellingCandidateMappingRecord,
-  type SpellingCandidateMappingRecord,
-  createSupabaseSpellingCandidateMappingRepositoryBase,
   normaliseSpellingCandidateMappingRecord,
   toParentLocalPendingRecord,
   toParentLocalPromotedRecord,

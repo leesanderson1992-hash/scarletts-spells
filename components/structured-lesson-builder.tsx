@@ -419,15 +419,15 @@ function TemplateDialog({
           <>
             The template{" "}
             <span className="font-medium text-[color:var(--ink)]">
-              "{state.templateLabel}"
+              &ldquo;{state.templateLabel}&rdquo;
             </span>{" "}
             suggests the title{" "}
             <span className="font-medium text-[color:var(--ink)]">
-              "{state.suggestedTitle}"
+              &ldquo;{state.suggestedTitle}&rdquo;
             </span>
             , but the current task title is{" "}
             <span className="font-medium text-[color:var(--ink)]">
-              "{state.existingTitle}"
+              &ldquo;{state.existingTitle}&rdquo;
             </span>
             .
           </>
@@ -532,7 +532,7 @@ function TemplateDialog({
             onClick={onApplyBodyAndReplaceTitle}
             className="rounded-2xl border border-[var(--border)] bg-white px-4 py-3 text-left text-sm font-medium text-[color:var(--ink)] transition hover:border-[var(--scarlett)]"
           >
-            Apply body and replace title with "{state.suggestedTitle}"
+            Apply body and replace title with &ldquo;{state.suggestedTitle}&rdquo;
           </button>
         </div>
       ) : null}
@@ -573,7 +573,7 @@ export function StructuredLessonBuilder({
   );
 
   useEffect(() => {
-    setCurrentTaskTitle(taskTitle);
+    queueMicrotask(() => setCurrentTaskTitle(taskTitle));
   }, [taskTitle]);
 
   useEffect(() => {
@@ -624,18 +624,6 @@ export function StructuredLessonBuilder({
       isMounted = false;
     };
   }, []);
-
-  useEffect(() => {
-    const selectedTemplateSelection = decodeTemplateSelection(selectedTemplateValue);
-    if (selectedTemplateSelection?.kind !== "personal") {
-      return;
-    }
-
-    const stillExists = personalTemplates.some((template) => template.id === selectedTemplateSelection.id);
-    if (!stillExists) {
-      setSelectedTemplateValue("");
-    }
-  }, [personalTemplates, selectedTemplateValue]);
 
   useEffect(() => {
     if (!formId) {

@@ -8,10 +8,9 @@ import type {
   WritingEngineStage2d1WordMapRoute,
   WritingEngineStage2d1WordRead,
 } from "../assignments/stage2d1-word-map-content";
+import type { SupabaseClient } from "@supabase/supabase-js";
 
-type SupabaseServerClient = {
-  from(table: string): any;
-};
+type SupabaseServerClient = Pick<SupabaseClient, "from">;
 
 type Stage2d1LearningItemRow = {
   id: string;

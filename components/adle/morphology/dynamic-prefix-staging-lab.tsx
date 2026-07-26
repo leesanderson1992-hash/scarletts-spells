@@ -12,10 +12,23 @@ export function DynamicPrefixStagingLab(props: { payload: DynamicPrefixLessonPay
   const word = props.payload.words.lesson[index];
   const dictation = props.payload.activities.dictation[index];
   useEffect(() => {
-    const saved = sessionStorage.getItem(key);
-    if (saved) {
-      try { const state = JSON.parse(saved) as { index?: number; reflection?: string }; setIndex(Math.max(0, Math.min(3, state.index ?? 0))); setReflection(state.reflection ?? ""); } catch { /* corrupt proof state is disposable */ }
-    }
+    let active = true;
+    queueMicrotask(() => {
+      if (!active) return;
+      const saved = sessionStorage.getItem(key);
+      if (saved) {
+        try {
+          const state = JSON.parse(saved) as { index?: number; reflection?: string };
+          setIndex(Math.max(0, Math.min(3, state.index ?? 0)));
+          setReflection(state.reflection ?? "");
+        } catch {
+          /* corrupt proof state is disposable */
+        }
+      }
+    });
+    return () => {
+      active = false;
+    };
   }, [key]);
   useEffect(() => { sessionStorage.setItem(key, JSON.stringify({ index, reflection })); }, [index, key, reflection]);
   return <section className="brand-card grid gap-5 rounded-3xl p-5 md:p-7">

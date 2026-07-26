@@ -303,9 +303,11 @@ export function MorphologyGuidedLesson(props: {
               )?.assignmentBindings[state.buildIndex] ?? "",
             );
             const buildCount = props.payload.activities.find((activity) => activity.type === "prefix_choice")?.assignmentBindings.length ?? 1;
-            state.buildIndex + 1 < buildCount
-              ? update({ buildIndex: state.buildIndex + 1, helpLevel: 0 })
-              : update({ stage: "controlled", helpLevel: 0 });
+            if (state.buildIndex + 1 < buildCount) {
+              update({ buildIndex: state.buildIndex + 1, helpLevel: 0 });
+            } else {
+              update({ stage: "controlled", helpLevel: 0 });
+            }
           }}
         />
       ) : null}

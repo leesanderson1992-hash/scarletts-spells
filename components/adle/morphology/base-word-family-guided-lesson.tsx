@@ -17,8 +17,6 @@ const INITIAL: BaseWordFamilyResumeState = {
 
 type Part = { id: string; sourceText: string; surfaceText: string; gloss?: string; kind?: string };
 function parts(word: BaseWordFamilySnapshotWord): Part[] { return word.parts.filter((part): part is Part => !!part && typeof part === "object" && typeof (part as Part).id === "string" && typeof (part as Part).sourceText === "string" && typeof (part as Part).surfaceText === "string"); }
-function baseCutCount(word: BaseWordFamilySnapshotWord | undefined): number { const wordParts = word ? parts(word) : []; const baseIndex = wordParts.findIndex((part) => part.kind === "base"); return baseIndex < 0 || wordParts.filter((part) => part.kind === "base").length !== 1 ? 0 : (baseIndex > 0 ? 1 : 0) + (baseIndex < wordParts.length - 1 ? 1 : 0); }
-
 function guideBeat(stage: BaseWordFamilyResumeState["stage"]): GuideBeatV1 {
   const copy: Record<BaseWordFamilyResumeState["stage"], { say: string; goal: string; waitFor: string }> = {
     intro: { say: "Let’s use a familiar base word to unlock a whole family of words.", goal: "Learn the base-word strategy", waitFor: "your next step" },
@@ -49,7 +47,25 @@ export function BaseWordFamilyGuidedLesson(props: {
   const [clueOpen, setClueOpen] = useState(false);
   const key = baseWordFamilyResumeKey(props.assignmentId ?? props.previewId ?? "base-word-family", props.payload.contentVersion);
   const update = (patch: Partial<BaseWordFamilyResumeState>) => { setClueOpen(false); setState((current) => ({ ...current, ...patch })); };
-  useEffect(() => { try { const saved = window.localStorage.getItem(key); const restored = saved ? normaliseBaseWordFamilyResume(JSON.parse(saved), props.payload) : null; if (restored) setState(restored); } catch { /* Resume is optional. */ } setHydrated(true); }, [key, props.payload]);
+  useEffect(() => {
+    let active = true;
+    queueMicrotask(() => {
+      if (!active) return;
+      try {
+        const saved = window.localStorage.getItem(key);
+        const restored = saved
+          ? normaliseBaseWordFamilyResume(JSON.parse(saved), props.payload)
+          : null;
+        if (restored) setState(restored);
+      } catch {
+        /* Resume is optional. */
+      }
+      setHydrated(true);
+    });
+    return () => {
+      active = false;
+    };
+  }, [key, props.payload]);
   useEffect(() => { if (!hydrated) return; try { window.localStorage.setItem(key, JSON.stringify(state)); } catch { /* Resume is optional. */ } }, [hydrated, key, state]);
   if (!hydrated) return <div role="status" aria-live="polite" className="brand-card rounded-3xl p-8 text-center text-sm text-[color:var(--mid)]">Preparing the base-word Word Lab…</div>;
   const guidedWords = props.payload.familySections.flatMap((section) => section.guidedWords);

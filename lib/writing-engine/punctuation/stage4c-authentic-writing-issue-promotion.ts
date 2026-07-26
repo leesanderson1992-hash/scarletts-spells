@@ -1,6 +1,5 @@
 import type { WritingIssueRow } from "../../writing-practice/types";
 
-import type { WritingIssueRepository } from "../core/writing-issues";
 import type { WritingEngineStage4bAuthenticSubmissionVerificationResult } from "./stage4b-authentic-submission-verification-types";
 import type {
   WritingEngineStage4cAuthenticWritingIssuePromotionBuildResult,

@@ -788,13 +788,6 @@ export default async function DashboardPage({
     ]),
   );
 
-  const wordStateByWord = new Map(
-    Array.from(new Set([...targetWords, ...reviewWords, ...activeCanonicalWords])).map((word) => [
-      word,
-      getWordStateFromRewardState(rewardStateByWord.get(word)),
-    ]),
-  );
-
   const activeQueueWords = Array.from(
     new Set([...targetWords, ...reviewWords, ...activeCanonicalWords]),
   ).filter((word) => getWordStateFromRewardState(rewardStateByWord.get(word)) !== "gold_bar");

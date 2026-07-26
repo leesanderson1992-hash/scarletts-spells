@@ -15,8 +15,16 @@ export function CoverShutter(props: { word: string; splitPoints: number[]; initi
   const slideStartX = useRef<number | null>(null);
   const slideDistanceRef = useRef(0);
   const reducedMotion = useReducedMotion();
-  useEffect(() => { if (state !== "look") { setShowCoverFallback(false); return; } const timer = window.setTimeout(() => setShowCoverFallback(true), 3000); return () => window.clearTimeout(timer); }, [state]);
-  function change(next: ShutterState) { setState(next); props.onStateChange?.(next, attempt); }
+  useEffect(() => {
+    if (state !== "look") return;
+    const timer = window.setTimeout(() => setShowCoverFallback(true), 3000);
+    return () => window.clearTimeout(timer);
+  }, [state]);
+  function change(next: ShutterState) {
+    if (next !== "look") setShowCoverFallback(false);
+    setState(next);
+    props.onStateChange?.(next, attempt);
+  }
   function closeShutter() { slideStartX.current = null; slideDistanceRef.current = 0; setSlideDistance(0); change("cover"); playInteractionSound("shutter", props.muted); window.setTimeout(() => change("write"), reducedMotion ? 0 : 300); }
   function beginSlide(event: PointerEvent<HTMLButtonElement>) { if (state !== "look") return; slideStartX.current = event.clientX; slideDistanceRef.current = 0; event.currentTarget.setPointerCapture(event.pointerId); }
   function moveSlide(event: PointerEvent<HTMLButtonElement>) { if (slideStartX.current === null) return; const distance = Math.max(0, event.clientX - slideStartX.current); slideDistanceRef.current = distance; setSlideDistance(distance); }

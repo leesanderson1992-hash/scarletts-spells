@@ -109,11 +109,6 @@ export type SeedUploadImportPlan = {
   sourceFileSha256: string;
 };
 
-type CsvRecord = {
-  rowNumber: number;
-  values: Record<string, string>;
-};
-
 function sha256Text(value: string) {
   return crypto.createHash("sha256").update(value).digest("hex");
 }

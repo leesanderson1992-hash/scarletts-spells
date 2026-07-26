@@ -48,7 +48,7 @@ function invalidDelete(message: string): DeleteActionResult {
 }
 
 function replacePathnameKeepQuery(path: string, nextPathname: string) {
-  const [_, rawQuery] = path.split("?");
+  const rawQuery = path.split("?")[1];
   const nextQuery = new URLSearchParams(rawQuery ?? "").toString();
   return nextQuery ? `${nextPathname}?${nextQuery}` : nextPathname;
 }
