@@ -1,0 +1,53 @@
+{
+  "schemaVersion": "teaching_dictionary_adle_smoke_receipt_v1",
+  "generatedAt": "2026-07-26T15:20:58Z",
+  "target": "staging",
+  "projectRef": "jlhotktspjvffslvuyfz",
+  "releaseId": "2026-07-26-next-1000-canonical-words-v1",
+  "batchId": "c3ea5444-3569-5fc2-adb8-ff9aafa04feb",
+  "packageSha256": "9235360b150d571614f0631425e8a50a097ef567500c5240a0a904111ef1eb37",
+  "status": "passed",
+  "fixtureTransaction": "rolled_back",
+  "scenario": {
+    "authenticWord": "ending",
+    "authenticAttempt": "endding",
+    "microSkillKey": "D4_INF_ING_ENDINGS_REGULAR",
+    "selectorFeature": "suffix:ing",
+    "lessonWords": [
+      {
+        "word": "ending",
+        "provenance": "learning_item"
+      },
+      {
+        "word": "carrying",
+        "provenance": "stretch"
+      },
+      {
+        "word": "containing",
+        "provenance": "stretch"
+      },
+      {
+        "word": "happening",
+        "provenance": "stretch"
+      },
+      {
+        "word": "forgetting",
+        "provenance": "stretch"
+      }
+    ]
+  },
+  "assertions": {
+    "authenticCanonicalIdRetained": true,
+    "supportLinkRequired": false,
+    "canonicalIntakeEligibleThroughSelectorProfile": true,
+    "activeTeachingContentRequired": true,
+    "activeSelectorProfileRequired": true,
+    "reviewedExactFeatureRequired": true,
+    "transferWordsMatchSuffixIng": true,
+    "insufficientCandidatesFailClosed": true,
+    "missingProfileFailsClosedForUnlinkedTarget": true,
+    "persistentLearningItemWrites": 0,
+    "persistentSelectorProfileWrites": 0
+  },
+  "releaseProtectedCounts": "unchanged; see receipts/staging.json"
+}

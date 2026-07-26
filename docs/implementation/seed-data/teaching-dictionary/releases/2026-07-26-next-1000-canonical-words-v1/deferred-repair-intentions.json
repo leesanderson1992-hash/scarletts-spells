@@ -1,0 +1,26 @@
+[
+  {
+    "word": "govern",
+    "repair_type": "metadata_add",
+    "review_status": "approved",
+    "reviewed_by": "OpenAI-assisted review",
+    "reviewed_at": "2026-07-25",
+    "review_notes": "Approved as a metadata_add repair entry; implementation should preserve the canonical word identity for govern."
+  },
+  {
+    "word": "governor",
+    "repair_type": "metadata_add",
+    "review_status": "approved",
+    "reviewed_by": "OpenAI-assisted review",
+    "reviewed_at": "2026-07-25",
+    "review_notes": "Approved as a metadata_add repair entry; implementation should preserve the canonical word identity for governor."
+  },
+  {
+    "word": "tall",
+    "repair_type": "metadata_add",
+    "review_status": "approved",
+    "reviewed_by": "OpenAI-assisted review",
+    "reviewed_at": "2026-07-25",
+    "review_notes": "Approved as a metadata_add repair entry; implementation should preserve the canonical word identity for tall."
+  }
+]

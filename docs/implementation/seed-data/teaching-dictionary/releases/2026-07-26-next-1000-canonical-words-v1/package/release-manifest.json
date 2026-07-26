@@ -1,0 +1,62 @@
+{
+  "schemaVersion": "canonical_word_release_manifest_v1",
+  "releaseId": "2026-07-26-next-1000-canonical-words-v1",
+  "packageType": "canonical_word_batch_v1",
+  "packageSchemaVersion": "v1",
+  "packageSha256": "9235360b150d571614f0631425e8a50a097ef567500c5240a0a904111ef1eb37",
+  "workbookSha256": "8e192dd4386871583a10b6c2c80798e2291dc0c841ad5868ecefbc6c09588d3e",
+  "sourceCommit": "f5d79548c00a112c6c7ada9f750ad75189993678",
+  "requiredMigrationVersions": [
+    "20260724140000",
+    "20260726150000",
+    "20260726170000",
+    "20260726173000"
+  ],
+  "fileSha256": {
+    "canonical_words.csv": "dc7f2372fa9a76de6946bd3cfedb560c71aa7865dbdf475a1d42d1bf84ccc725",
+    "canonical_word_metadata.csv": "11528b83f3b08f06df47fb48059c1c9f535893593635348c06e3b45b540f029c",
+    "canonical_word_morphology.csv": "5c6443b394c94657a7164bfc25ce5e0fac9eca86068ad34c5ed8c0ddba815a7d",
+    "dictation_sentences.csv": "01c2496eae0504d4f87421d8d7eebee00fb507fe92f9748a88af229c457371d6",
+    "teaching_content_sources.csv": "e6045eca4e3a9740a0c9bdbd31041dcac890532d525d90ef5711f5871ccc2a4c"
+  },
+  "rowCounts": {
+    "sources": 5,
+    "words": 1000,
+    "metadata": 1000,
+    "morphology": 1000,
+    "dictations": 1000,
+    "repairs": 0,
+    "deferredRepairIntents": 3
+  },
+  "reviewerSummary": {
+    "reviewers": [
+      "OpenAI-assisted final sentence audit",
+      "OpenAI-assisted linguistic audit",
+      "OpenAI-assisted review"
+    ],
+    "reviewedDates": [
+      "2026-07-25",
+      "2026-07-26"
+    ]
+  },
+  "sourceApprovalSummary": {
+    "importable": 5,
+    "legalPassedOrNotRequired": 5
+  },
+  "expectedTargetTables": [
+    "canonical_teaching_dictionary_sources",
+    "canonical_teaching_dictionary_words",
+    "canonical_teaching_dictionary_word_metadata",
+    "canonical_teaching_dictionary_word_morphology",
+    "canonical_teaching_dictionary_dictation_sentences"
+  ],
+  "prohibitedTableFamilies": [
+    "learner",
+    "assignment",
+    "evidence",
+    "proficiency",
+    "reward",
+    "word_treasure"
+  ],
+  "deferredRepairIntentFile": "deferred-repair-intentions.json"
+}
