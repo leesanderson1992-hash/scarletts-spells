@@ -1,0 +1,61 @@
+name: Quality and security
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: quality-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Use Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install locked dependencies
+        run: npm ci
+
+      - name: Audit production dependencies
+        run: npm run security:audit:production
+
+      - name: Report full dependency audit
+        continue-on-error: true
+        run: npm run security:audit:full
+
+      - name: Lint repository with zero warnings
+        run: npm run lint -- --max-warnings 0
+
+      - name: Type-check operational scripts
+        run: npm run typecheck:scripts
+
+      - name: Run deterministic ADLE regressions
+        run: |
+          npm run adle:canonical-intake-regression
+          npm run adle:composer-regression
+          npx tsx scripts/adle-dynamic-prefix-runtime-regression.ts
+          npx tsx scripts/adle-dynamic-prefix-word-lab-regression.ts
+
+      - name: Run deterministic seed-import regressions
+        run: |
+          npm run writing-engine:seed-import-dry-run-regression
+          npm run writing-engine:seed-import-candidate-review-regression
+          npm run writing-engine:seed-import-hidden-canonical-adoption-regression
+
+      - name: Build production application
+        run: npm run build
