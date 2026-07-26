@@ -57,6 +57,12 @@ one active canonical word and `expected_active_metadata_count` must be `0`.
 The transaction adds an approved metadata row and never changes the word
 identity or creates teaching, learner or runtime records.
 
+`metadata_replace` is reserved for review-provenance completion. It requires
+one active metadata row and a SHA-256 fingerprint of every current factual,
+source, status and reviewer value. The release rejects any factual difference,
+supersedes the prior metadata row for audit, and inserts its identical factual
+replacement with the reviewed-by/date fields completed.
+
 ## Canonical package format v2
 
 Required files:

@@ -242,11 +242,12 @@ function validateRepairs(rows: CsvRow[]): void {
   uniqueValues(rows, "word_key", "canonical_word_repairs.csv");
   for (const [index, row] of rows.entries()) {
     const rowNumber = index + 2;
-    if (row.repair_type !== "metadata_add") {
+    if (!["metadata_add", "metadata_replace"].includes(row.repair_type)) {
       throw new Error(`canonical_word_repairs.csv row ${rowNumber} uses unsupported repair_type.`);
     }
-    if (row.expected_active_metadata_count !== "0") {
-      throw new Error(`canonical_word_repairs.csv row ${rowNumber} must expect zero active metadata rows.`);
+    const expectedCount = row.repair_type === "metadata_add" ? "0" : "1";
+    if (row.expected_active_metadata_count !== expectedCount) {
+      throw new Error(`canonical_word_repairs.csv row ${rowNumber} has an invalid active-metadata precondition.`);
     }
     for (const field of [
       "syllables",
@@ -269,6 +270,12 @@ function validateRepairs(rows: CsvRow[]): void {
     }
     if (!["approved", "approved_for_first_exposure"].includes(row.review_status)) {
       throw new Error(`canonical_word_repairs.csv row ${rowNumber} is not approved.`);
+    }
+    if (
+      row.repair_type === "metadata_replace" &&
+      !/^[a-f0-9]{64}$/i.test(normaliseCell(row.expected_active_metadata_sha256))
+    ) {
+      throw new Error(`canonical_word_repairs.csv row ${rowNumber} lacks an active metadata fingerprint.`);
     }
   }
 }

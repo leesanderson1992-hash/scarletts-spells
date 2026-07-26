@@ -212,7 +212,23 @@ async function main(): Promise<void> {
   badRepairPrecondition.expected_active_metadata_count = "1";
   mustThrow(
     () => validateCanonicalRepairCsv({ "canonical_word_repairs.csv": [badRepairPrecondition] }),
-    /must expect zero active metadata rows/,
+    /invalid active-metadata precondition/,
+  );
+  const reviewOnlyReplacement = {
+    ...approvedRepair,
+    repair_type: "metadata_replace",
+    expected_active_metadata_count: "1",
+    expected_active_metadata_sha256: "a".repeat(64),
+    review_status: "approved_for_first_exposure",
+  };
+  assert.equal(
+    validateCanonicalRepairCsv({ "canonical_word_repairs.csv": [reviewOnlyReplacement] }).repairs,
+    1,
+  );
+  reviewOnlyReplacement.expected_active_metadata_sha256 = "not-a-hash";
+  mustThrow(
+    () => validateCanonicalRepairCsv({ "canonical_word_repairs.csv": [reviewOnlyReplacement] }),
+    /active metadata fingerprint/,
   );
 
   const fingerprint: ReleaseManifestFingerprint = {

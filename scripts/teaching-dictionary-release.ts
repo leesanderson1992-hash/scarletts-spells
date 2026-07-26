@@ -278,6 +278,64 @@ function parseBoolean(value: string): boolean {
   return fail(`Invalid boolean value ${JSON.stringify(value)}.`);
 }
 
+const METADATA_REPLACEMENT_FIELDS = [
+  "syllables",
+  "phoneme_hint",
+  "grapheme_notes",
+  "stress_pattern",
+  "has_schwa",
+  "morphemes",
+  "morphology_notes",
+  "irregularity_notes",
+  "source_category",
+  "source_name",
+  "source_url",
+  "source_licence",
+  "source_use_note",
+  "confidence",
+  "review_status",
+  "reviewed_by",
+  "reviewed_at",
+] as const;
+
+function metadataFingerprint(metadata: Record<string, unknown>): string {
+  return sha256Bytes(
+    canonicalJson(
+      Object.fromEntries(
+        METADATA_REPLACEMENT_FIELDS.map((field) => [field, metadata[field] ?? null]),
+      ),
+    ),
+  );
+}
+
+function assertReplacementPreservesFacts(
+  repair: CsvRow,
+  metadata: Record<string, unknown>,
+): void {
+  const comparisons: Array<[string, unknown, unknown]> = [
+    ["syllables", repair.syllables, metadata.syllables ?? ""],
+    ["phoneme_hint", repair.phoneme_hint, metadata.phoneme_hint ?? ""],
+    ["grapheme_notes", nullable(repair.grapheme_notes), metadata.grapheme_notes ?? null],
+    ["stress_pattern", repair.stress_pattern, metadata.stress_pattern ?? ""],
+    ["has_schwa", parseBoolean(repair.has_schwa), metadata.has_schwa],
+    ["morphemes", repair.morphemes, metadata.morphemes ?? ""],
+    ["morphology_notes", repair.morphology_notes, metadata.morphology_notes ?? ""],
+    ["irregularity_notes", nullable(repair.irregularity_notes), metadata.irregularity_notes ?? null],
+    ["source_category", repair.source_category, metadata.source_category ?? ""],
+    ["source_name", nullable(repair.source_name), metadata.source_name ?? null],
+    ["source_url", nullable(repair.source_url), metadata.source_url ?? null],
+    ["source_licence", nullable(repair.source_licence), metadata.source_licence ?? null],
+    ["source_use_note", nullable(repair.source_use_note), metadata.source_use_note ?? null],
+    ["confidence", repair.confidence, metadata.confidence ?? ""],
+    ["review_status", "approved_for_first_exposure", metadata.review_status ?? ""],
+  ];
+  for (const [field, replacement, existing] of comparisons) {
+    if (replacement !== existing) {
+      fail(`Replacement repair for ${repair.word_key} would alter ${field}; use a separately reviewed factual repair.`);
+    }
+  }
+}
+
 function quoteIdentifier(value: string): string {
   if (!/^[a-z_][a-z0-9_]*$/i.test(value)) fail(`Unsafe SQL identifier ${value}.`);
   return `"${value.replace(/"/g, '""')}"`;
@@ -891,16 +949,23 @@ async function databasePlan(
       [repair.word_key],
     );
     if (word.rowCount !== 1) fail(`Repair target ${repair.word_key} is not one active canonical word.`);
-    const metadata = await client.query<{ count: string }>(
+    const metadata = await client.query<Record<string, unknown>>(
       `
-        select count(*)::text as count
+        select *
         from public.canonical_teaching_dictionary_word_metadata
         where canonical_word_id = $1 and row_status = 'active'
       `,
       [word.rows[0].id],
     );
-    if (Number(metadata.rows[0].count) !== Number(repair.expected_active_metadata_count)) {
+    if ((metadata.rowCount ?? metadata.rows.length) !== Number(repair.expected_active_metadata_count)) {
       fail(`Repair precondition failed for ${repair.word_key}: active metadata count changed.`);
+    }
+    if (repair.repair_type === "metadata_replace") {
+      const active = metadata.rows[0];
+      if (metadataFingerprint(active) !== repair.expected_active_metadata_sha256) {
+        fail(`Repair precondition failed for ${repair.word_key}: active metadata facts changed.`);
+      }
+      assertReplacementPreservesFacts(repair, active);
     }
   }
 
@@ -1249,6 +1314,45 @@ async function supersedeReusedWordFacts(
   }
 }
 
+/** Preserve the old metadata row as audit history before a review-only replacement. */
+async function supersedeReplacementRepairMetadata(
+  client: pg.Client,
+  pkg: LoadedCanonicalPackage,
+): Promise<void> {
+  const replacements = (pkg.csv["canonical_word_repairs.csv"] ?? []).filter(
+    (repair) => repair.repair_type === "metadata_replace",
+  );
+  if (!replacements.length) return;
+  const ids = await repairWordIds(client, replacements);
+  if (ids.size !== replacements.length) fail("A metadata replacement target changed after preflight.");
+  const active = await client.query<Record<string, unknown>>(
+    `select * from public.canonical_teaching_dictionary_word_metadata
+     where canonical_word_id = any($1::uuid[]) and row_status = 'active'
+     order by canonical_word_id for update`,
+    [[...ids.values()]],
+  );
+  if ((active.rowCount ?? active.rows.length) !== replacements.length) {
+    fail("A metadata replacement target no longer has exactly one active row.");
+  }
+  for (const replacement of replacements) {
+    const wordId = ids.get(replacement.word_key)!;
+    const current = active.rows.find((row) => row.canonical_word_id === wordId);
+    if (!current || metadataFingerprint(current) !== replacement.expected_active_metadata_sha256) {
+      fail(`Replacement repair precondition changed for ${replacement.word_key}.`);
+    }
+    assertReplacementPreservesFacts(replacement, current);
+  }
+  const result = await client.query(
+    `update public.canonical_teaching_dictionary_word_metadata
+     set row_status = 'superseded', updated_at = now()
+     where canonical_word_id = any($1::uuid[]) and row_status = 'active'`,
+    [[...ids.values()]],
+  );
+  if (result.rowCount !== replacements.length) {
+    fail("Unable to supersede every replaced metadata row.");
+  }
+}
+
 async function insertRows(
   client: pg.Client,
   spec: TableSpec,
@@ -1479,6 +1583,7 @@ async function releaseCommand(): Promise<void> {
       ],
     );
     await supersedeReusedWordFacts(client, plan, rows);
+    await supersedeReplacementRepairMetadata(client, pkg);
     await insertRows(client, TABLE_SPECS.sources, rows.sources ?? []);
     await insertRows(client, TABLE_SPECS.words, rows.wordInserts ?? []);
     await insertRows(client, TABLE_SPECS.metadata, rows.metadata ?? []);
