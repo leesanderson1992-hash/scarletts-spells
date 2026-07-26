@@ -387,6 +387,31 @@ function reviewersFrom(csv: Record<string, CsvRow[]>): { reviewers: string[]; re
   };
 }
 
+const RECONCILIATION_FACT_FIELDS = [
+  "word_key", "syllables", "phoneme_hint", "grapheme_notes", "stress_pattern",
+  "has_schwa", "morphemes", "morphology_notes", "irregularity_notes",
+  "source_category", "source_name", "source_url", "source_licence",
+  "source_use_note", "confidence", "review_status", "reviewed_by", "reviewed_at",
+] as const;
+
+function reconciliationFacts(row: CsvRow): Record<string, string> {
+  return Object.fromEntries(RECONCILIATION_FACT_FIELDS.map((field) => [field, row[field] ?? ""]));
+}
+
+function assertReconciliationMatchesEvidence(
+  repairs: CsvRow[],
+  evidence: LoadedCanonicalPackage,
+): void {
+  const evidenceRows = evidence.csv["canonical_word_repairs.csv"] ?? [];
+  const byKey = new Map(evidenceRows.map((row) => [row.word_key, row]));
+  for (const repair of repairs) {
+    const evidenceRow = byKey.get(repair.word_key);
+    if (!evidenceRow || canonicalJson(reconciliationFacts(repair)) !== canonicalJson(reconciliationFacts(evidenceRow))) {
+      fail(`Production reconciliation facts for ${repair.word_key} do not match verified staging evidence.`);
+    }
+  }
+}
+
 async function prepare(): Promise<void> {
   const workbook = resolve(arg("--workbook") ?? fail("--workbook is required."));
   const candidateCsv = resolve(arg("--candidate-csv") ?? fail("--candidate-csv is required."));
@@ -542,6 +567,27 @@ async function prepareRepair(): Promise<void> {
   const repairsContent = await readFile(repairsPath, "utf8");
   const csv = { "canonical_word_repairs.csv": parseCsv(repairsContent) };
   const counts = validateCanonicalRepairCsv(csv);
+  const evidenceReleaseId = arg("--production-reconciliation-evidence");
+  let productionBaselineReconciliation: ReleaseManifest["productionBaselineReconciliation"];
+  if (evidenceReleaseId) {
+    const evidence = await loadCanonicalPackage(resolve(DEFAULT_RELEASE_ROOT, evidenceReleaseId));
+    if (evidence.manifest.packageType !== CANONICAL_REPAIR_PACKAGE_TYPE) {
+      fail("Production reconciliation evidence must be a canonical repair release.");
+    }
+    assertReconciliationMatchesEvidence(csv["canonical_word_repairs.csv"], evidence);
+    const approvals = reviewersFrom(csv);
+    if (approvals.reviewers.length !== 1 || approvals.reviewedDates.length !== 1) {
+      fail("Production reconciliation requires exactly one named approval and review date.");
+    }
+    productionBaselineReconciliation = {
+      targetEnvironment: "production",
+      stagingEvidenceReleaseId: evidence.manifest.releaseId,
+      stagingEvidencePackageSha256: evidence.manifest.packageSha256,
+      approvedBy: approvals.reviewers[0],
+      approvedAt: approvals.reviewedDates[0],
+      justification: "Production lacks the approved metadata rows already present and verified in staging; factual values are identical to the staging evidence package.",
+    };
+  }
   const fileSha256 = { "canonical_word_repairs.csv": sha256Bytes(repairsContent) };
   const fingerprint: ReleaseManifestFingerprint = {
     schemaVersion: CANONICAL_PACKAGE_SCHEMA,
@@ -559,6 +605,7 @@ async function prepareRepair(): Promise<void> {
     prohibitedTableFamilies: [...PROHIBITED_TABLE_FAMILIES],
     deferredRepairIntentFile: null,
     deferredRepairIntentsSha256: null,
+    ...(productionBaselineReconciliation ? { productionBaselineReconciliation } : {}),
   };
   const manifest: ReleaseManifest = {
     ...fingerprint,
@@ -651,6 +698,17 @@ function sourceComparable(row: Record<string, unknown>): Record<string, unknown>
 }
 
 async function verifyStagingProof(pkg: LoadedCanonicalPackage): Promise<Record<string, unknown>> {
+  const reconciliation = pkg.manifest.productionBaselineReconciliation;
+  const evidence = reconciliation
+    ? await loadCanonicalPackage(resolve(DEFAULT_RELEASE_ROOT, reconciliation.stagingEvidenceReleaseId))
+    : pkg;
+  if (reconciliation) {
+    if (reconciliation.targetEnvironment !== "production") fail("Invalid reconciliation target policy.");
+    if (evidence.manifest.packageSha256 !== reconciliation.stagingEvidencePackageSha256) {
+      fail("Production reconciliation evidence hash does not match its manifest.");
+    }
+    assertReconciliationMatchesEvidence(pkg.csv["canonical_word_repairs.csv"] ?? [], evidence);
+  }
   const client = clientFor("staging");
   await client.connect();
   try {
@@ -660,20 +718,28 @@ async function verifyStagingProof(pkg: LoadedCanonicalPackage): Promise<Record<s
         from public.canonical_teaching_dictionary_import_batches
         where release_id = $1
       `,
-      [pkg.manifest.releaseId],
+      [evidence.manifest.releaseId],
     );
     if (
       result.rowCount !== 1 ||
-      result.rows[0].package_sha256 !== pkg.manifest.packageSha256 ||
+      result.rows[0].package_sha256 !== evidence.manifest.packageSha256 ||
       result.rows[0].batch_status !== "applied" ||
       result.rows[0].verification_summary?.status !== "verified"
     ) {
-      fail("Production release requires the exact package to be applied and verified in staging.");
+      fail(reconciliation
+        ? "Production reconciliation requires its factual evidence package to be applied and verified in staging."
+        : "Production release requires the exact package to be applied and verified in staging.");
     }
     return {
       stagingBatchId: result.rows[0].id,
       stagingPackageSha256: result.rows[0].package_sha256,
       stagingVerificationStatus: result.rows[0].verification_summary.status,
+      ...(reconciliation ? {
+        proofMode: "production_baseline_reconciliation",
+        evidenceReleaseId: evidence.manifest.releaseId,
+        reconciliationApprovedBy: reconciliation.approvedBy,
+        reconciliationApprovedAt: reconciliation.approvedAt,
+      } : {}),
     };
   } finally {
     await client.end();
@@ -1493,6 +1559,9 @@ async function planCommand(): Promise<void> {
   const target = (arg("--target") ?? fail("--target is required.")) as TargetEnvironment;
   if (!(target in TARGETS)) fail("--target must be staging or production.");
   const pkg = await loadCanonicalPackage(releasePath);
+  if (pkg.manifest.productionBaselineReconciliation && target !== "production") {
+    fail("Production baseline reconciliation packages cannot be applied to staging.");
+  }
   const stagingProof = target === "production" ? await verifyStagingProof(pkg) : undefined;
   const client = clientFor(target);
   await client.connect();
@@ -1514,6 +1583,9 @@ async function releaseCommand(): Promise<void> {
   const target = (arg("--target") ?? fail("--target is required.")) as TargetEnvironment;
   if (!(target in TARGETS)) fail("--target must be staging or production.");
   const pkg = await loadCanonicalPackage(releasePath);
+  if (pkg.manifest.productionBaselineReconciliation && target !== "production") {
+    fail("Production baseline reconciliation packages cannot be applied to staging.");
+  }
   const confirmation = arg("--confirm");
   if (confirmation !== confirmationToken(pkg, target)) {
     fail(`Exact confirmation required: ${confirmationToken(pkg, target)}`);

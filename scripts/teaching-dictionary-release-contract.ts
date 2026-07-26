@@ -75,6 +75,14 @@ export type ReleaseManifest = {
   prohibitedTableFamilies: string[];
   deferredRepairIntentFile: string | null;
   deferredRepairIntentsSha256: string | null;
+  productionBaselineReconciliation?: {
+    targetEnvironment: "production";
+    stagingEvidenceReleaseId: string;
+    stagingEvidencePackageSha256: string;
+    approvedBy: string;
+    approvedAt: string;
+    justification: string;
+  };
 };
 
 export type ReleaseManifestFingerprint = Omit<ReleaseManifest, "packageSha256">;
@@ -484,6 +492,20 @@ export async function loadCanonicalPackage(releasePath: string): Promise<LoadedC
     manifest.packageSchemaVersion !== "v2"
   ) {
     throw new Error("Release manifest has an unsupported canonical package type.");
+  }
+  if (manifest.productionBaselineReconciliation) {
+    const reconciliation = manifest.productionBaselineReconciliation;
+    if (
+      manifest.packageType !== CANONICAL_REPAIR_PACKAGE_TYPE ||
+      reconciliation.targetEnvironment !== "production" ||
+      !reconciliation.stagingEvidenceReleaseId ||
+      !/^[a-f0-9]{64}$/i.test(reconciliation.stagingEvidencePackageSha256) ||
+      !reconciliation.approvedBy ||
+      !reconciliation.approvedAt ||
+      !reconciliation.justification
+    ) {
+      throw new Error("Release manifest has an invalid production reconciliation policy.");
+    }
   }
 
   const names = (await readdir(packageDir)).sort();

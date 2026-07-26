@@ -167,6 +167,12 @@ npm run teaching-dictionary:prepare-repair -- \
   --release-id "<repair-release-id>"
 ```
 
+For an approved production baseline difference, add
+`--production-reconciliation-evidence "<verified-staging-repair-release-id>"`.
+The command rejects any factual difference from that evidence and produces a
+production-only package. Ordinary repair releases continue to require the
+exact same package in staging.
+
 The repair CSV must include the exact active `word_key`, the current-state
 precondition, all reviewed factual metadata, provenance and named approval.
 Run the ordinary `plan`, staging `release`, `verify`, and same-package

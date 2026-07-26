@@ -63,6 +63,14 @@ source, status and reviewer value. The release rejects any factual difference,
 supersedes the prior metadata row for audit, and inserts its identical factual
 replacement with the reviewed-by/date fields completed.
 
+When production genuinely lacks a factual row already present in staging, a
+reviewed repair may declare `productionBaselineReconciliation`. This exception
+is production-only. Its factual, source, licence and approval fields must match
+an immutable repair package that is already applied and verified in staging;
+only the environment-specific repair type and current-state precondition may
+differ. The evidence release ID, evidence hash, approver, date and justification
+are hash-covered in the production package and persisted in its ledger proof.
+
 ## Canonical package format v2
 
 Required files:
