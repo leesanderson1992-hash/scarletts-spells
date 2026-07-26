@@ -114,7 +114,8 @@ class FakeQueryBuilder {
     private readonly state: Required<HarnessState>,
   ) {}
 
-  select(_columns: string) {
+  select(columns: string) {
+    void columns;
     return this;
   }
 
@@ -439,12 +440,12 @@ function loadRecordReviewWorkVerificationAction(state: Required<HarnessState>): 
     },
   };
 
-  const module = loadTsModule<{
+  const loadedModule = loadTsModule<{
     recordReviewWorkVerificationAction: (formData: FormData) => Promise<void>;
   }>(actionSourcePath, { stubModules });
 
   return {
-    action: module.recordReviewWorkVerificationAction,
+    action: loadedModule.recordReviewWorkVerificationAction,
     result: {
       redirects,
       recordCalls,

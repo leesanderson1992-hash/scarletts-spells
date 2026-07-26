@@ -18,9 +18,13 @@ const WRITE_GUARD_TABLES = [
   "assignment_items",
 ] as const;
 
-type SupabaseFromClient = {
-  from(table: string): any;
-};
+function createBaseClient(url: string, key: string) {
+  return createClient(url, key, {
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
+}
+
+type SupabaseFromClient = ReturnType<typeof createBaseClient>;
 
 function readEnv(name: string) {
   const value = process.env[name]?.trim();
@@ -59,12 +63,7 @@ function createReadLoggedSupabase(input: {
   serviceRoleKey: string;
   tableReads: string[];
 }) {
-  const client = createClient(input.url, input.serviceRoleKey, {
-    auth: {
-      autoRefreshToken: false,
-      persistSession: false,
-    },
-  });
+  const client = createBaseClient(input.url, input.serviceRoleKey);
 
   return new Proxy(client, {
     get(target, property, receiver) {
@@ -109,12 +108,7 @@ async function writeGuardCounts(supabase: SupabaseFromClient) {
 async function main() {
   const { url, serviceRoleKey } = readLocalSupabaseConfig();
   const tableReads: string[] = [];
-  const guardSupabase = createClient(url, serviceRoleKey, {
-    auth: {
-      autoRefreshToken: false,
-      persistSession: false,
-    },
-  });
+  const guardSupabase = createBaseClient(url, serviceRoleKey);
   const resolverSupabase = createReadLoggedSupabase({
     url,
     serviceRoleKey,

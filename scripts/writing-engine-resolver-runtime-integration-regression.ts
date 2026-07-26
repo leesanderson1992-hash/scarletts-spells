@@ -83,7 +83,7 @@ function loadHarness(overrides: Partial<HarnessState> = {}) {
     process.cwd(),
     "app/courses/review/resolver-visible-priority.ts",
   );
-  const module = loadTsModule<{
+  const loadedModule = loadTsModule<{
     resolveScopedMicroSkillForSubmissionSuggestion: (input: {
       supabase: unknown;
       parentUserId: string;
@@ -163,7 +163,7 @@ function loadHarness(overrides: Partial<HarnessState> = {}) {
     },
   });
 
-  return { state, module };
+  return { state, module: loadedModule };
 }
 
 async function resolveWithGate(
@@ -289,7 +289,7 @@ async function testParentLocalIsNotGlobalTruth() {
 }
 
 async function testBlockedResolverVisibleDoesNotFallThrough() {
-  const { module, result } = await resolveWithGate({
+  const { module: loadedModule, result } = await resolveWithGate({
     resolverVisibleResolution: {
       status: "blocked",
       reason: "conflicting_visible_micro_skills",
@@ -308,7 +308,7 @@ async function testBlockedResolverVisibleDoesNotFallThrough() {
   assert.equal(result.source, "unresolved");
   assert.equal(result.blocked, true);
 
-  const metadata = module.mergeScopedSubmissionMicroSkillResolutionMetadata({
+  const metadata = loadedModule.mergeScopedSubmissionMicroSkillResolutionMetadata({
     metadata: null,
     resolution: {
       canonicalResolution: { status: "resolved" },

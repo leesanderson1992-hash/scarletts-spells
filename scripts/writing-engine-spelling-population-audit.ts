@@ -10,9 +10,7 @@ type OptionalRows<T> = {
   error?: string;
 };
 
-type SupabaseLike = {
-  from(table: string): any;
-};
+type SupabaseLike = ReturnType<typeof createReadOnlySupabase>;
 
 type MisspellingInstanceRow = {
   id: string;

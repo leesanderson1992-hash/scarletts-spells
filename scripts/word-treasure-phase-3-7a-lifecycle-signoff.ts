@@ -24,7 +24,13 @@ const TARGET_WORD = "because";
 const ORIGINAL_MISSPELLING = "becuase";
 const MICRO_SKILL_KEY = "phase_3_7a_spelling_transfer";
 
-type SupabaseClient = ReturnType<typeof createClient<any, "public">>;
+function createWordTreasureClient(url: string, key: string) {
+  return createClient(url, key, {
+    auth: { autoRefreshToken: false, persistSession: false },
+  });
+}
+
+type SupabaseClient = ReturnType<typeof createWordTreasureClient>;
 type RowCountMap = Map<string, number>;
 
 function loadEnvFile(path: string) {
@@ -232,7 +238,7 @@ async function createCourseScaffold(input: {
     },
     "Failed to create course",
   );
-  const module = await insertSingle(
+  const courseModule = await insertSingle(
     input.supabase,
     "course_modules",
     {
@@ -246,7 +252,7 @@ async function createCourseScaffold(input: {
     "Failed to create course module",
   );
 
-  return { courseId: course.id, moduleId: module.id };
+  return { courseId: course.id, moduleId: courseModule.id };
 }
 
 async function createTask(input: {
@@ -520,12 +526,7 @@ async function main() {
   process.env.SUPABASE_URL = supabaseUrl;
   process.env.SUPABASE_SERVICE_ROLE_KEY = serviceRoleKey;
 
-  const supabase = createClient(supabaseUrl, serviceRoleKey, {
-    auth: {
-      autoRefreshToken: false,
-      persistSession: false,
-    },
-  });
+  const supabase = createWordTreasureClient(supabaseUrl, serviceRoleKey);
   const stamp = Date.now();
   const email = `phase-3-7a-lifecycle-${stamp}@example.test`;
   const password = `${randomUUID()}Aa1!`;

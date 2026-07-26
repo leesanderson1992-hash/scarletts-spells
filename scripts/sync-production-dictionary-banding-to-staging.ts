@@ -18,6 +18,14 @@ const BANDING_SOURCE_PATH = "adle-banding-run:banding_v1.1_2026-07-04";
 const BANDING_VERSION = "banding_v1.1_2026-07-04";
 const CHUNK_SIZE = 200;
 
+function createStagingClient(url: string, key: string) {
+  return createClient(url, key, {
+    auth: { autoRefreshToken: false, persistSession: false },
+  });
+}
+
+type StagingClient = ReturnType<typeof createStagingClient>;
+
 function required(name: string): string {
   const value = process.env[name]?.trim();
   if (!value) throw new Error(`Missing ${name}.`);
@@ -28,7 +36,7 @@ function chunks<T>(values: T[]): T[][] {
   return Array.from({ length: Math.ceil(values.length / CHUNK_SIZE) }, (_, index) => values.slice(index * CHUNK_SIZE, (index + 1) * CHUNK_SIZE));
 }
 
-async function allStagingIds(db: any, table: string, ids: string[]): Promise<Set<string>> {
+async function allStagingIds(db: StagingClient, table: string, ids: string[]): Promise<Set<string>> {
   const result = new Set<string>();
   for (const part of chunks(ids)) {
     const { data, error } = await db.from(table).select("id").in("id", part);
@@ -38,7 +46,7 @@ async function allStagingIds(db: any, table: string, ids: string[]): Promise<Set
   return result;
 }
 
-async function insertChunks(db: any, table: string, rows: Record<string, unknown>[]): Promise<void> {
+async function insertChunks(db: StagingClient, table: string, rows: Record<string, unknown>[]): Promise<void> {
   for (const part of chunks(rows)) {
     const { error } = await db.from(table).insert(part);
     if (error) throw new Error(`Insert ${table}: ${error.message}`);
@@ -61,7 +69,7 @@ async function main() {
   if (new URL(productionUrl).host === STAGING_HOST || new URL(productionUrl).hostname === "127.0.0.1") throw new Error("Refusing a non-production source database.");
 
   const production = new pg.Pool({ connectionString: productionUrl, ssl: { rejectUnauthorized: false } });
-  const staging = createClient(stagingUrl, stagingKey, { auth: { autoRefreshToken: false, persistSession: false } });
+  const staging = createStagingClient(stagingUrl, stagingKey);
 
   try {
     const { rows: batches } = await production.query<Record<string, unknown>>("select * from public.canonical_teaching_dictionary_import_batches where source_folder_path = $1", [BANDING_SOURCE_PATH]);

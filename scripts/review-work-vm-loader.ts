@@ -50,12 +50,12 @@ export function loadTsModule<TModule = Record<string, unknown>>(
       fileName: modulePath,
     }).outputText;
 
-    const module = { exports: {} as Record<string, unknown> };
-    moduleCache.set(modulePath, module.exports);
+    const loadedModule = { exports: {} as Record<string, unknown> };
+    moduleCache.set(modulePath, loadedModule.exports);
 
     const context = vm.createContext({
-      module,
-      exports: module.exports,
+      module: loadedModule,
+      exports: loadedModule.exports,
       require(specifier: string) {
         if (specifier in options.stubModules) {
           return options.stubModules[specifier];
@@ -91,9 +91,9 @@ export function loadTsModule<TModule = Record<string, unknown>>(
     });
 
     vm.runInContext(transpiled, context, { filename: modulePath });
-    moduleCache.set(modulePath, module.exports);
+    moduleCache.set(modulePath, loadedModule.exports);
 
-    return module.exports;
+    return loadedModule.exports;
   }
 
   return loadModule(entryPath) as TModule;
