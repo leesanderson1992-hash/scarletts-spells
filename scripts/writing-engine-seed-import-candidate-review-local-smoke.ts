@@ -114,7 +114,7 @@ function psqlJson(dbUrl: string, sql: string, dbContainer?: string) {
       encoding: "utf8",
       stdio: ["ignore", "pipe", "pipe"],
     }).trim();
-  } catch (error) {
+  } catch {
     const container =
       dbContainer ?? process.env.LOCAL_SUPABASE_DB_CONTAINER ?? "supabase_db_scarletts-spells";
     output = execFileSync(
@@ -203,7 +203,15 @@ select jsonb_build_object(
   );
 }
 
-async function countTable(client: { from: (table: string) => any }, table: string) {
+function createSmokeClient(url: string, key: string) {
+  return createClient(url, key, {
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
+}
+
+type SmokeClient = ReturnType<typeof createSmokeClient>;
+
+async function countTable(client: SmokeClient, table: string) {
   const { count, error } = await client.from(table).select("*", {
     count: "exact",
     head: true,
@@ -214,7 +222,7 @@ async function countTable(client: { from: (table: string) => any }, table: strin
   return count ?? 0;
 }
 
-async function protectedCounts(client: { from: (table: string) => any }) {
+async function protectedCounts(client: SmokeClient) {
   return Object.fromEntries(
     await Promise.all(
       PROTECTED_TABLES.map(async (table) => [table, await countTable(client, table)]),
@@ -222,7 +230,7 @@ async function protectedCounts(client: { from: (table: string) => any }) {
   );
 }
 
-async function fetchSmokeSkill(client: { from: (table: string) => any }) {
+async function fetchSmokeSkill(client: SmokeClient) {
   const { data, error } = await client
     .from("micro_skill_catalog")
     .select("micro_skill_key, mastery_domain_key, is_active, is_assignable")
@@ -272,12 +280,7 @@ async function main() {
   );
   fs.mkdirSync(outDir, { recursive: true });
 
-  const client = createClient(supabaseUrl, serviceRoleKey, {
-    auth: {
-      persistSession: false,
-      autoRefreshToken: false,
-    },
-  });
+  const client = createSmokeClient(supabaseUrl, serviceRoleKey);
 
   const before = await protectedCounts(client);
   const skill = await fetchSmokeSkill(client);

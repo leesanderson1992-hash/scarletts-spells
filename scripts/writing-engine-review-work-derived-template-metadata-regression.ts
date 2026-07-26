@@ -3,10 +3,6 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 
 const workspaceRoot = process.cwd();
-const reviewDetailPagePath = path.join(
-  workspaceRoot,
-  "app/courses/review/[submissionId]/page.tsx",
-);
 const suggestedIssuesPanelPath = path.join(
   workspaceRoot,
   "app/courses/review/suggested-issues-panel.tsx",
@@ -29,7 +25,6 @@ const derivedTemplateMetadataPath = path.join(
 );
 
 function testDerivedTemplateMetadataSourceGuardrails() {
-  const pageSource = readFileSync(reviewDetailPagePath, "utf8");
   const suggestedIssuesPanelSource = readFileSync(suggestedIssuesPanelPath, "utf8");
   const actionsSource = readFileSync(reviewActionsPath, "utf8");
   const utilsSource = readFileSync(reviewUtilsPath, "utf8");

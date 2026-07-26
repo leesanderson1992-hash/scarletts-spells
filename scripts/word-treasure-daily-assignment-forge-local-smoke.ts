@@ -110,8 +110,14 @@ function assertNoError(error: { message?: string } | null, label: string) {
   }
 }
 
+function createWordTreasureClient(url: string, key: string) {
+  return createClient(url, key, {
+    auth: { autoRefreshToken: false, persistSession: false },
+  });
+}
+
 async function countRows(
-  supabase: ReturnType<typeof createClient<any, "public">>,
+  supabase: ReturnType<typeof createWordTreasureClient>,
   table: string,
   childId: string,
 ) {
@@ -149,12 +155,7 @@ async function main() {
   process.env.NEXT_PUBLIC_SUPABASE_URL = supabaseUrl;
   process.env.SUPABASE_SERVICE_ROLE_KEY = serviceRoleKey;
 
-  const supabase = createClient(supabaseUrl, serviceRoleKey, {
-    auth: {
-      autoRefreshToken: false,
-      persistSession: false,
-    },
-  });
+  const supabase = createWordTreasureClient(supabaseUrl, serviceRoleKey);
   const stamp = Date.now();
   const email = `phase-3-5-forge-smoke-${stamp}@example.test`;
   const password = `${randomUUID()}Aa1!`;

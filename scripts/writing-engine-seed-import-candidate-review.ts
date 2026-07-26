@@ -788,7 +788,15 @@ export async function runCandidateReviewImport(
   };
 }
 
-async function countTable(client: { from: (table: string) => any }, table: string) {
+function createCandidateReviewClient(url: string, key: string) {
+  return createClient(url, key, {
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
+}
+
+type CandidateReviewClient = ReturnType<typeof createCandidateReviewClient>;
+
+async function countTable(client: CandidateReviewClient, table: string) {
   const { count, error } = await client.from(table).select("*", {
     count: "exact",
     head: true,
@@ -803,12 +811,7 @@ function createSupabaseCandidateReviewImportAdapter(
   supabaseUrl: string,
   serviceRoleKey: string,
 ): CandidateReviewImportAdapter {
-  const client = createClient(supabaseUrl, serviceRoleKey, {
-    auth: {
-      persistSession: false,
-      autoRefreshToken: false,
-    },
-  });
+  const client = createCandidateReviewClient(supabaseUrl, serviceRoleKey);
 
   return {
     async assertSeedStorageReady() {

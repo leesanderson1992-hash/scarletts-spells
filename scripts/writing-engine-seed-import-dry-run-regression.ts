@@ -4,7 +4,6 @@ import os from "os";
 import path from "path";
 
 import {
-  applyReadOnlyCatalogCanonicalComparison,
   buildSeedImportDryRunReport,
   getSeedImportDryRunHelp,
   renderMarkdownSummary,
@@ -487,7 +486,8 @@ function testNoMutationGuardRefusesWritesAndRpc() {
     },
   };
   const fakeClient = {
-    from(_table: string) {
+    from(table: string) {
+      void table;
       return fakeBuilder;
     },
   };

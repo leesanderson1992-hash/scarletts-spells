@@ -16,7 +16,13 @@ import {
 } from "../lib/writing-engine/persistence/returned-correction-repair";
 import type { ReturnedCorrectionRouteBridgeAttempt } from "../lib/writing-engine/persistence/returned-correction-route-bridge";
 
-type SupabaseClientLike = ReturnType<typeof createClient<any, "public">>;
+function createRepairClient(url: string, key: string) {
+  return createClient(url, key, {
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
+}
+
+type SupabaseClientLike = ReturnType<typeof createRepairClient>;
 
 type Args = {
   childId?: string;
@@ -826,9 +832,7 @@ async function main() {
   const supabaseUrl = assertRequired(args.supabaseUrl, "Supabase URL");
   const supabaseKey = assertRequired(args.supabaseKey, "Supabase key");
   const childId = assertRequired(args.childId, "--child-id");
-  const supabase = createClient(supabaseUrl, supabaseKey, {
-    auth: { persistSession: false, autoRefreshToken: false },
-  });
+  const supabase = createRepairClient(supabaseUrl, supabaseKey);
   const nowIso = new Date().toISOString();
   const issues = await loadCandidateIssues({
     supabase,

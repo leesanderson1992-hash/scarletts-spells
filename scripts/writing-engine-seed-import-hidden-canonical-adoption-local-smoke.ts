@@ -178,7 +178,15 @@ function assertAllowedTarget(args: Args) {
   );
 }
 
-async function countTable(client: { from: (table: string) => any }, table: string) {
+function createSmokeClient(url: string, key: string) {
+  return createClient(url, key, {
+    auth: { autoRefreshToken: false, persistSession: false },
+  });
+}
+
+type SmokeClient = ReturnType<typeof createSmokeClient>;
+
+async function countTable(client: SmokeClient, table: string) {
   const { count, error } = await client.from(table).select("*", {
     count: "exact",
     head: true,
@@ -189,7 +197,7 @@ async function countTable(client: { from: (table: string) => any }, table: strin
   return count ?? 0;
 }
 
-async function protectedCounts(client: { from: (table: string) => any }) {
+async function protectedCounts(client: SmokeClient) {
   return Object.fromEntries(
     await Promise.all(
       PROTECTED_TABLES.map(async (table) => [table, await countTable(client, table)]),
@@ -197,7 +205,7 @@ async function protectedCounts(client: { from: (table: string) => any }) {
   );
 }
 
-async function fetchSmokeSkill(client: { from: (table: string) => any }) {
+async function fetchSmokeSkill(client: SmokeClient) {
   const { data, error } = await client
     .from("micro_skill_catalog")
     .select("micro_skill_key, mastery_domain_key, is_active, is_assignable")
@@ -219,7 +227,7 @@ async function fetchSmokeSkill(client: { from: (table: string) => any }) {
 }
 
 async function fetchMicroSkillSnapshot(
-  client: { from: (table: string) => any },
+  client: SmokeClient,
   microSkillKey: string,
 ) {
   const [count, rowResult] = await Promise.all([
@@ -242,7 +250,7 @@ async function fetchMicroSkillSnapshot(
 }
 
 async function insertSyntheticSeedRow(input: {
-  client: { from: (table: string) => any };
+  client: SmokeClient;
   microSkillKey: string;
   stamp: string;
 }) {
@@ -370,12 +378,7 @@ async function main() {
   }
 
   const target = assertAllowedTarget(args);
-  const client = createClient(target.supabaseUrl, target.serviceRoleKey, {
-    auth: {
-      autoRefreshToken: false,
-      persistSession: false,
-    },
-  });
+  const client = createSmokeClient(target.supabaseUrl, target.serviceRoleKey);
 
   const skill = await fetchSmokeSkill(client);
   const microSkillBefore = await fetchMicroSkillSnapshot(client, skill.micro_skill_key);
@@ -531,7 +534,7 @@ async function main() {
 }
 
 async function countTableWithFilter(
-  client: { from: (table: string) => any },
+  client: SmokeClient,
   table: string,
   column: string,
   value: string,

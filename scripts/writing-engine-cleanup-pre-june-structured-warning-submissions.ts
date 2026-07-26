@@ -28,6 +28,7 @@ type Finding = {
 };
 
 type SubmissionRow = {
+  [key: string]: string | null | undefined;
   id: string;
   task_id: string;
   course_id: string;
@@ -63,7 +64,8 @@ type CleanupPlan = {
   >;
 };
 
-type RelatedRows = Record<string, any[]>;
+type RelatedRow = Record<string, string | null | undefined> & { id: string };
+type RelatedRows = Record<string, RelatedRow[]>;
 
 type CanonicalLineageSubmissionExclusion = {
   submissionId: string;
@@ -103,7 +105,7 @@ type DeletePlan = {
     ids: string[];
     note?: string;
   }>;
-  manualReview: Record<string, any[]>;
+  manualReview: Record<string, RelatedRow[]>;
   relatedRows: RelatedRows;
   protectedWritingIssueIds: string[];
   protectedCatalogReviewCaseIds: string[];
@@ -112,18 +114,12 @@ type DeletePlan = {
   skippedDraftIds: string[];
 };
 
-type SupabaseLike = {
-  from(table: string): any;
-};
-
 function readEnv(name: string) {
   const value = process.env[name]?.trim();
   return value && value.length > 0 ? value : null;
 }
 
-function isPlainObject(value: unknown): value is Record<string, unknown> {
-  return Boolean(value) && typeof value === "object" && !Array.isArray(value);
-}
+type SupabaseLike = ReturnType<typeof createSupabase>;
 
 function uniq(values: Array<string | null | undefined>) {
   return Array.from(new Set(values.filter((value): value is string => Boolean(value))));
@@ -244,7 +240,7 @@ function createSupabase(url: string, key: string) {
       autoRefreshToken: false,
       persistSession: false,
     },
-  }) as unknown as SupabaseLike;
+  });
 }
 
 async function countRows(supabase: SupabaseLike, table: string) {
@@ -271,7 +267,7 @@ async function fetchByIds(
     return [];
   }
 
-  const rows: any[] = [];
+  const rows: RelatedRow[] = [];
   for (const idsChunk of chunk(ids)) {
     const { data, error } = await supabase
       .from(table)
@@ -283,7 +279,7 @@ async function fetchByIds(
       throw new Error(`Unable to read ${table}.${column}: ${error.message}`);
     }
 
-    rows.push(...(data ?? []));
+    rows.push(...((data ?? []) as unknown as RelatedRow[]));
   }
 
   return rows;
@@ -295,7 +291,7 @@ async function fetchOrByColumns(
   clauses: Array<{ column: string; ids: string[] }>,
   select = "*",
 ) {
-  const byId = new Map<string, any>();
+  const byId = new Map<string, RelatedRow>();
 
   for (const clause of clauses) {
     const rows = await fetchByIds(supabase, table, clause.ids, select, clause.column);
@@ -410,19 +406,20 @@ async function deriveCleanupPlan(input: {
   } satisfies CleanupPlan;
 }
 
-function keyForSubmission(row: {
-  parent_user_id: string;
-  child_id: string;
-  task_id: string;
-}) {
+function keyForSubmission(
+  row: Pick<SubmissionRow, "parent_user_id" | "child_id" | "task_id"> | RelatedRow,
+) {
+  if (!row.parent_user_id || !row.child_id || !row.task_id) {
+    throw new Error("Submission lineage row is missing its parent, child, or task key.");
+  }
   return `${row.parent_user_id}:${row.child_id}:${row.task_id}`;
 }
 
-function ids(rows: any[]) {
+function ids(rows: RelatedRow[]) {
   return uniq(rows.map((row) => row.id));
 }
 
-function rowsById(rows: any[]) {
+function rowsById(rows: RelatedRow[]) {
   return new Map(rows.map((row) => [row.id, row]));
 }
 
@@ -692,10 +689,12 @@ function deriveCanonicalLineageExclusions(input: {
   );
   const protectedDecisions = input.relatedRows.spelling_catalog_review_case_decisions.filter(
     (decision) =>
-      protectedDecisionIdSet.has(decision.id) || protectedCaseIdSet.has(decision.case_id),
+      protectedDecisionIdSet.has(decision.id) ||
+      Boolean(decision.case_id && protectedCaseIdSet.has(decision.case_id)),
   );
-  const protectedDecisionsByCaseId = new Map<string, any[]>();
+  const protectedDecisionsByCaseId = new Map<string, RelatedRow[]>();
   protectedDecisions.forEach((decision) => {
+    if (!decision.case_id) return;
     const rows = protectedDecisionsByCaseId.get(decision.case_id) ?? [];
     rows.push(decision);
     protectedDecisionsByCaseId.set(decision.case_id, rows);
@@ -728,7 +727,7 @@ function deriveCanonicalLineageExclusions(input: {
   const addExclusion = (
     submissionId: string | null | undefined,
     reason: string,
-    catalogCase: any,
+    catalogCase: RelatedRow,
   ) => {
     if (!submissionId || !selectedSubmissionIdSet.has(submissionId)) {
       return;
@@ -867,7 +866,9 @@ function buildDeletePlan(relatedRows: RelatedRows): DeletePlan {
     (issue) => !protectedWritingIssueIdSet.has(issue.id),
   );
   const deletableCorrectionAttempts = relatedRows.writing_issue_correction_attempts.filter(
-    (attempt) => !protectedWritingIssueIdSet.has(attempt.writing_issue_id),
+    (attempt) =>
+      !attempt.writing_issue_id ||
+      !protectedWritingIssueIdSet.has(attempt.writing_issue_id),
   );
   const protectedCatalogReviewCaseIds = uniq([
     ...relatedRows.canonical_mapping_source_case_references.map(
@@ -886,7 +887,13 @@ function buildDeletePlan(relatedRows: RelatedRows): DeletePlan {
       (row) => row.source_decision_id,
     ),
     ...relatedRows.spelling_catalog_review_case_decisions
-      .filter((decision) => protectedCatalogReviewCaseIdSet.has(decision.case_id))
+      .filter(
+        (decision) =>
+          Boolean(
+            decision.case_id &&
+              protectedCatalogReviewCaseIdSet.has(decision.case_id),
+          ),
+      )
       .map((decision) => decision.id),
   ]);
   const protectedCatalogReviewCaseDecisionIdSet = new Set(
@@ -1032,21 +1039,34 @@ function buildDeletePlan(relatedRows: RelatedRows): DeletePlan {
   const protectedCaseIdsAtRisk = protectedCatalogReviewCases
     .filter(
       (catalogCase) =>
-        plannedCascadeDeleteIds.task_submissions.includes(catalogCase.task_submission_id) ||
-        plannedCascadeDeleteIds.misspelling_instances.includes(
-          catalogCase.source_misspelling_instance_id,
-        ) ||
-        plannedForeignKeyMutationIds.writing_samples.includes(
-          catalogCase.writing_sample_id,
-        ) ||
-        plannedForeignKeyMutationIds.writing_issue_suggestions.includes(
-          catalogCase.source_suggestion_id,
+        Boolean(
+          (catalogCase.task_submission_id &&
+            plannedCascadeDeleteIds.task_submissions.includes(
+              catalogCase.task_submission_id,
+            )) ||
+            (catalogCase.source_misspelling_instance_id &&
+              plannedCascadeDeleteIds.misspelling_instances.includes(
+                catalogCase.source_misspelling_instance_id,
+              )) ||
+            (catalogCase.writing_sample_id &&
+              plannedForeignKeyMutationIds.writing_samples.includes(
+                catalogCase.writing_sample_id,
+              )) ||
+            (catalogCase.source_suggestion_id &&
+              plannedForeignKeyMutationIds.writing_issue_suggestions.includes(
+                catalogCase.source_suggestion_id,
+              )),
         ),
     )
     .map((catalogCase) => catalogCase.id);
   const protectedCaseIdsAtRiskSet = new Set(protectedCaseIdsAtRisk);
   const protectedDecisionIdsAtRisk = protectedCatalogReviewCaseDecisions
-    .filter((decision) => protectedCaseIdsAtRiskSet.has(decision.case_id))
+    .filter(
+      (decision) =>
+        Boolean(
+          decision.case_id && protectedCaseIdsAtRiskSet.has(decision.case_id),
+        ),
+    )
     .map((decision) => decision.id);
   const cascadeRisk = {
     protectedCaseUpstreamIds,
@@ -1258,6 +1278,7 @@ async function verifyApply(input: {
     const changedProtectedCaseIds = protectedCaseSnapshots
       .filter((snapshot) => {
         const current = protectedCasesById.get(snapshot.id);
+        if (!current) return true;
         return (
           current.task_submission_id !== snapshot.task_submission_id ||
           current.source_misspelling_instance_id !==
@@ -1293,6 +1314,7 @@ async function verifyApply(input: {
     const changedProtectedDecisionIds = protectedDecisionSnapshots
       .filter((snapshot) => {
         const current = protectedDecisionsById.get(snapshot.id);
+        if (!current) return true;
         return (
           current.case_id !== snapshot.case_id ||
           current.canonical_mapping_id !== snapshot.canonical_mapping_id ||

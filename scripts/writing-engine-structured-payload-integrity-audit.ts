@@ -130,9 +130,7 @@ type AuditData = {
   completions: TaskCompletionRow[];
 };
 
-type SupabaseLike = {
-  from(table: string): any;
-};
+type SupabaseLike = ReturnType<typeof createReadOnlySupabase>;
 
 const READ_PAGE_SIZE = 1000;
 const QUERY_TIMEOUT_MS = 10_000;

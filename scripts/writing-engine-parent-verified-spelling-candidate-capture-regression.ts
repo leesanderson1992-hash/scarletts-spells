@@ -158,7 +158,8 @@ class FakeQueryBuilder {
     private readonly result: HarnessResult,
   ) {}
 
-  select(_columns: string) {
+  select(columns: string) {
+    void columns;
     return this;
   }
 
@@ -583,12 +584,12 @@ function loadCaptureSubmissionSpellingCandidateMapping(state: Required<HarnessSt
     },
   };
 
-  const module = loadTsModule<{
+  const loadedModule = loadTsModule<{
     captureSubmissionSpellingCandidateMapping: (formData: FormData) => Promise<void>;
   }>(actionSourcePath, { stubModules });
 
   return {
-    action: module.captureSubmissionSpellingCandidateMapping,
+    action: loadedModule.captureSubmissionSpellingCandidateMapping,
     result,
   };
 }
@@ -627,7 +628,8 @@ class FakeAddMissedWordQueryBuilder {
     private readonly result: AddMissedWordHarnessResult,
   ) {}
 
-  select(_columns: string) {
+  select(columns: string) {
+    void columns;
     return this;
   }
 
@@ -906,12 +908,12 @@ function loadAddMissedWordToSubmissionReview(state: Required<HarnessState>) {
     },
   };
 
-  const module = loadTsModule<{
+  const loadedModule = loadTsModule<{
     addMissedWordToSubmissionReview: (formData: FormData) => Promise<void>;
   }>(actionSourcePath, { stubModules });
 
   return {
-    action: module.addMissedWordToSubmissionReview,
+    action: loadedModule.addMissedWordToSubmissionReview,
     result,
   };
 }
@@ -1248,10 +1250,6 @@ function testSourceGuardrailsStayIntact() {
     workspaceRoot,
     "app/courses/review/suggested-issues-panel.tsx",
   );
-  const reviewActionsPath = path.join(
-    workspaceRoot,
-    "app/courses/review/actions.ts",
-  );
   const candidateMappingActionsPath = path.join(
     workspaceRoot,
     "app/courses/review/actions/candidate-mapping-actions.ts",
@@ -1271,7 +1269,6 @@ function testSourceGuardrailsStayIntact() {
 
   const pageSource = readFileSync(reviewDetailPagePath, "utf8");
   const suggestedIssuesPanelSource = readFileSync(suggestedIssuesPanelPath, "utf8");
-  const actionsSource = readFileSync(reviewActionsPath, "utf8");
   const candidateMappingActionsSource = readFileSync(candidateMappingActionsPath, "utf8");
   const lessonSubmissionReviewActionsSource = readFileSync(
     lessonSubmissionReviewActionsPath,
