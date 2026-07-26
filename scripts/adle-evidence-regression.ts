@@ -51,7 +51,6 @@ import {
   createReviewBundle,
   resolveBundleReview,
   REVIEW_POLICY_V1,
-  type ReviewBundleFact,
   type ReviewOutcomeEvent,
   type ScheduleWordFact,
 } from "../lib/adle/review-scheduler";
