@@ -1,5 +1,10 @@
 # Version 3.0 Phase 5: Implementation Order
 
+> **Historical implementation sequence.** Local-only import restrictions and
+> required `micro_skill_word_support.csv` guidance no longer define the
+> supported release path. Use
+> `docs/operations/teaching-dictionary-release-runbook.md`.
+
 ## Purpose
 
 This document defines the safe implementation order for the rest of Version

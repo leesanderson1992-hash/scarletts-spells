@@ -113,6 +113,9 @@ REQUIRED_FILES = {
 }
 
 OPTIONAL_FILES = {
+    "canonical_word_morphology.csv": [
+        "word_key", "raw_morpholex_segmentation", "raw_morpholex_pos", "morphology_parts", "feature_keys", "morphology_joins", "transformation_notes", "word_sum", "analysis_status", "source_category", "source_name", "source_url", "source_licence", "source_use_note", "confidence", "review_status", "reviewed_by", "reviewed_at", "review_notes",
+    ],
     "dictation_sentences.csv": [
         "word_key", "display_word", "age_band", "complexity_band", "dictation_sentence",
         "dictation_target_token_index", "audio_text", "source_category", "source_name",
@@ -392,7 +395,9 @@ def load_csv_folder(folder: Path) -> tuple[dict[str, list[dict[str, str]]], list
         if path.name not in accepted_files:
             add_issue(issues, "error", path.name, None, None, "Unexpected CSV file is not part of the Phase 5C teaching dictionary contract.")
 
-    for file_name, headers in REQUIRED_FILES.items():
+    canonical_only = (folder / "canonical_word_morphology.csv").exists() and not (folder / "micro_skill_word_support.csv").exists()
+    required = REQUIRED_FILES if not canonical_only else {key: value for key, value in REQUIRED_FILES.items() if key not in {"micro_skill_word_support.csv", "teaching_content_versions.csv", "teaching_content_field_reviews.csv"}}
+    for file_name, headers in required.items():
         path = folder / file_name
         if not path.exists():
             add_issue(issues, "error", file_name, None, None, "Required CSV file is missing.")
@@ -410,6 +415,9 @@ def load_csv_folder(folder: Path) -> tuple[dict[str, list[dict[str, str]]], list
             issues.extend(file_issues)
         else:
             data[file_name] = []
+
+    for file_name in REQUIRED_FILES:
+        data.setdefault(file_name, [])
 
     return data, issues
 
@@ -1073,6 +1081,18 @@ def validate(folder: Path) -> dict[str, Any]:
     catalog = load_micro_skill_catalog()
     validate_enums(data, issues)
     validate_word_shapes(data["canonical_words.csv"], "canonical_words.csv", issues)
+    # Canonical-word readiness packages are deliberately pre-review and contain
+    # no lesson content or support links. Their dedicated candidate validator
+    # owns the review gates; this generic validator must still accept the
+    # import shape without pretending that draft rows are active content.
+    if (folder / "canonical_word_morphology.csv").exists() and not (folder / "micro_skill_word_support.csv").exists():
+        words = {clean(row["word_key"]) for row in data["canonical_words.csv"]}
+        for row in data["canonical_word_morphology.csv"]:
+            if clean(row["word_key"]) not in words:
+                add_issue(issues, "error", "canonical_word_morphology.csv", row_number(row), "word_key", "Morphology row has no canonical word.")
+            if parse_json_array(row["morphology_parts"]) is None or parse_json_array(row["feature_keys"]) is None or parse_json_array(row["morphology_joins"]) is None:
+                add_issue(issues, "error", "canonical_word_morphology.csv", row_number(row), "morphology_parts", "Structured morphology fields must be JSON arrays.")
+        return build_report(folder, [], issues)
     validate_global_references(data, catalog, issues)
     validate_active_versions(data, issues)
 
