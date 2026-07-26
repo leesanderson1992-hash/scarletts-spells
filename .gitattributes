@@ -1,0 +1,3 @@
+# Reviewed Teaching Dictionary CSV packages preserve their source line endings;
+# a CR before LF is a record terminator here, not trailing content.
+docs/implementation/seed-data/teaching-dictionary/** -text whitespace=cr-at-eol

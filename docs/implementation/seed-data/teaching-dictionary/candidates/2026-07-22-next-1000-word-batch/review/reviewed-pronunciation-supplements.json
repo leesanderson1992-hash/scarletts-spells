@@ -1,0 +1,57 @@
+{
+  "schemaVersion": "reviewed_pronunciation_supplements_v1",
+  "reviewedBy": "Katie Sanderson",
+  "reviewedAt": "2026-07-26",
+  "sourceNote": "British IPA supplied by the content owner in the PR #10 import review. Syllable, stress and schwa fields are the structured representation of the supplied IPA.",
+  "rows": [
+    {
+      "word_key": "co_own_en_gb",
+      "british_ipa": "/ˌkəʊˈəʊn/",
+      "syllables": "2",
+      "stress_pattern": "secondary-primary",
+      "has_schwa": "FALSE"
+    },
+    {
+      "word_key": "co_author_en_gb",
+      "british_ipa": "/ˌkəʊˈɔːθə/",
+      "syllables": "3",
+      "stress_pattern": "secondary-primary-unstressed",
+      "has_schwa": "TRUE"
+    },
+    {
+      "word_key": "re_enter_en_gb",
+      "british_ipa": "/ˌriːˈentə/",
+      "syllables": "3",
+      "stress_pattern": "secondary-primary-unstressed",
+      "has_schwa": "TRUE"
+    },
+    {
+      "word_key": "re_escape_en_gb",
+      "british_ipa": "/ˌriːɪˈskeɪp/",
+      "syllables": "3",
+      "stress_pattern": "secondary-unstressed-primary",
+      "has_schwa": "FALSE"
+    },
+    {
+      "word_key": "co_operate_en_gb",
+      "british_ipa": "/kəʊˈɒpəreɪt/",
+      "syllables": "4",
+      "stress_pattern": "unstressed-primary-unstressed-unstressed",
+      "has_schwa": "TRUE"
+    },
+    {
+      "word_key": "re_examine_en_gb",
+      "british_ipa": "/ˌriːɪɡˈzæmɪn/",
+      "syllables": "4",
+      "stress_pattern": "secondary-unstressed-primary-unstressed",
+      "has_schwa": "FALSE"
+    },
+    {
+      "word_key": "re_elect_en_gb",
+      "british_ipa": "/ˌriːɪˈlekt/",
+      "syllables": "3",
+      "stress_pattern": "secondary-unstressed-primary",
+      "has_schwa": "FALSE"
+    }
+  ]
+}

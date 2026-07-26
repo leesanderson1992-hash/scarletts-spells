@@ -1,0 +1,53 @@
+{
+  "schemaVersion": "canonical_word_release_manifest_v2",
+  "releaseId": "2026-07-26-tall-factual-metadata-repair-v2",
+  "packageType": "canonical_word_repair_v1",
+  "packageSchemaVersion": "v2",
+  "workbookSha256": "b021e09f1fabc56cb69ec78c82dcd0e814ed81facb97d11d9a7aeb332bc5286a",
+  "sourceCommit": "94601bc2dde21ed39b7d48586859705cdecafef6",
+  "requiredMigrationVersions": [
+    "20260724140000",
+    "20260726150000",
+    "20260726170000",
+    "20260726173000",
+    "20260726174000"
+  ],
+  "fileSha256": {
+    "canonical_word_repairs.csv": "25dd8ea248dd9a676560fe2fdc0829fd8e25ada091d00cfcb6ae4c6e121bcf9c"
+  },
+  "rowCounts": {
+    "sources": 0,
+    "words": 0,
+    "metadata": 0,
+    "morphology": 0,
+    "dictations": 0,
+    "repairs": 1,
+    "deferredRepairIntents": 0
+  },
+  "reviewerSummary": {
+    "reviewers": [
+      "Katie Sanderson"
+    ],
+    "reviewedDates": [
+      "2026-07-26"
+    ]
+  },
+  "sourceApprovalSummary": {
+    "importable": 0,
+    "legalPassedOrNotRequired": 0
+  },
+  "expectedTargetTables": [
+    "canonical_teaching_dictionary_word_metadata"
+  ],
+  "prohibitedTableFamilies": [
+    "learner",
+    "assignment",
+    "evidence",
+    "proficiency",
+    "reward",
+    "word_treasure"
+  ],
+  "deferredRepairIntentFile": null,
+  "deferredRepairIntentsSha256": null,
+  "packageSha256": "2233a599a4dcd7b1e5d817108b5e260c835fea211dbdf9973586ef26e59c3e5d"
+}
