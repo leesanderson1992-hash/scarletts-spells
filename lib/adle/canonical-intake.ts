@@ -9,6 +9,7 @@ export type CanonicalIntakeBlockReason =
   | "canonical_target_ambiguous"
   | "canonical_target_not_approved"
   | "canonical_target_skill_support_missing"
+  | "canonical_target_selector_profile_missing"
   | "inactive_or_non_assignable_micro_skill"
   | "canonical_target_content_incomplete"
   | "adle_route_not_production_enabled"
@@ -68,12 +69,20 @@ export interface CanonicalIntakeContentFact {
   ruleExplanation: string | null;
 }
 
+export interface CanonicalIntakeSelectorProfileFact {
+  microSkillKey: string;
+  rowStatus: string;
+  reviewStatus: string;
+  allowedAgeBands: readonly string[];
+}
+
 export interface CanonicalIntakeReadinessFacts {
   candidate: CanonicalIntakeCandidateFact;
   canonicalMappings: readonly CanonicalIntakeMappingFact[];
   words: readonly CanonicalIntakeWordFact[];
   microSkills: readonly CanonicalIntakeMicroSkillFact[];
   supports: readonly CanonicalIntakeSupportFact[];
+  selectorProfiles?: readonly CanonicalIntakeSelectorProfileFact[];
   contentVersions: readonly CanonicalIntakeContentFact[];
   productionEnabledSkillKeys: ReadonlySet<string>;
   routeSpecificReadyWordSkillPairs: ReadonlySet<string>;
@@ -216,8 +225,16 @@ export function resolveCanonicalIntakeReadiness(
       APPROVED_REVIEW_STATUSES.has(support.reviewStatus) &&
       NON_CONTRAST_ROLES.has(support.supportRole),
   );
-  if (!hasExactSupport) {
-    return blocked(candidate, "canonical_target_skill_support_missing", {
+  const selectorProfile = (facts.selectorProfiles ?? []).find(
+    (profile) =>
+      profile.microSkillKey === candidate.microSkillKey &&
+      profile.rowStatus === "active" &&
+      APPROVED_REVIEW_STATUSES.has(profile.reviewStatus) &&
+      (word.ageBand === null || profile.allowedAgeBands.includes(word.ageBand)),
+  );
+  const usesSelectorProfile = selectorProfile !== undefined;
+  if (!usesSelectorProfile && !hasExactSupport) {
+    return blocked(candidate, "canonical_target_selector_profile_missing", {
       canonicalWordId: word.canonicalWordId,
       microSkillKey: candidate.microSkillKey,
     });
@@ -232,9 +249,10 @@ export function resolveCanonicalIntakeReadiness(
     content.finalReadinessReviewStatus === "signed_off" &&
     Boolean(content.childFriendlyExplanation?.trim()) &&
     Boolean(content.ruleExplanation?.trim()) &&
-    facts.routeSpecificReadyWordSkillPairs.has(
-      canonicalWordSkillPair(word.canonicalWordId, candidate.microSkillKey),
-    );
+    (usesSelectorProfile ||
+      facts.routeSpecificReadyWordSkillPairs.has(
+        canonicalWordSkillPair(word.canonicalWordId, candidate.microSkillKey),
+      ));
   if (!completeContent) {
     return blocked(candidate, "canonical_target_content_incomplete", {
       canonicalWordId: word.canonicalWordId,

@@ -35,6 +35,10 @@ import { computeAllSkillProficiency, notYetSecureSkillKeys } from "../micro-skil
 import { taughtWordHistoryProviderFromFacts } from "../taught-word-history";
 import { ADLE_CANONICAL_INTAKE_FEATURE_FLAG } from "../canonical-intake";
 import { resolveSharedWordReviewPolicy } from "../shared-word-routes";
+import type {
+  ReviewedWordMorphology,
+  TransferSelectorProfile,
+} from "../transfer-selector-profile";
 import type { IsoDate, ReviewPolicy, SchedulerRowStatus } from "../review-scheduler";
 import {
   activityTemplateFromRow,
@@ -163,6 +167,8 @@ export async function loadDailyPlanFacts(
     authenticUseRows,
     slippageRows,
     wordMetadataRows,
+    transferSelectorProfileRows,
+    reviewedMorphologyRows,
   ] = await Promise.all([
     loadActiveReviewPolicy(client),
     rows<ReviewBundleRow>(
@@ -304,6 +310,42 @@ export async function loadDailyPlanFacts(
         .eq("row_status", "active"),
       "loadDailyPlanFacts:wordMetadata",
     ),
+    rows<{
+      micro_skill_key: string;
+      selector_kind: "affix" | "base_word_family";
+      feature_type: "prefix" | "suffix" | "base" | "root";
+      feature_key: string;
+      permitted_transformations: unknown;
+      required_transfer_words: number;
+      allowed_age_bands: unknown;
+      row_status: "draft" | "active" | "retired";
+      review_status: string;
+    }>(
+      client
+        .from("canonical_teaching_dictionary_transfer_selector_profiles")
+        .select(
+          "micro_skill_key,selector_kind,feature_type,feature_key,permitted_transformations,required_transfer_words,allowed_age_bands,row_status,review_status",
+        )
+        .eq("row_status", "active"),
+      "loadDailyPlanFacts:transferSelectorProfiles",
+    ),
+    rows<{
+      canonical_word_id: string;
+      morphology_parts: unknown;
+      feature_keys: unknown;
+      transformation_notes: string | null;
+      analysis_status: "approved" | "not_applicable" | "rejected" | "in_review";
+      row_status: "draft" | "active" | "retired";
+      review_status: string;
+    }>(
+      client
+        .from("canonical_teaching_dictionary_word_morphology")
+        .select(
+          "canonical_word_id,morphology_parts,feature_keys,transformation_notes,analysis_status,row_status,review_status",
+        )
+        .eq("row_status", "active"),
+      "loadDailyPlanFacts:reviewedMorphology",
+    ),
   ]);
 
   if (bandingVersionRows.length !== 1) {
@@ -335,6 +377,57 @@ export async function loadDailyPlanFacts(
     wordMetadataRows.map((row) => [row.canonical_word_id, wordStructuralMetadataFromRow(row)]),
   );
   const frequencyBandByWordId = new Map(words.map((word) => [word.canonicalWordId, word.frequencyBand]));
+  const transferSelectorProfiles: TransferSelectorProfile[] =
+    transferSelectorProfileRows.map((row) => ({
+      microSkillKey: row.micro_skill_key,
+      selectorKind: row.selector_kind,
+      featureType: row.feature_type,
+      featureKey: row.feature_key.trim().toLowerCase(),
+      permittedTransformations: Array.isArray(row.permitted_transformations)
+        ? row.permitted_transformations.map(String)
+        : [],
+      requiredTransferWords: row.required_transfer_words,
+      allowedAgeBands: Array.isArray(row.allowed_age_bands)
+        ? row.allowed_age_bands.map(String)
+        : [],
+      rowStatus: row.row_status,
+      reviewStatus: row.review_status,
+    }));
+  const reviewedMorphology: ReviewedWordMorphology[] =
+    reviewedMorphologyRows.map((row) => {
+      const storedKeys = Array.isArray(row.feature_keys)
+        ? row.feature_keys.map(String)
+        : [];
+      const parts = Array.isArray(row.morphology_parts)
+        ? row.morphology_parts
+        : [];
+      const derivedKeys = parts.flatMap((part) => {
+        if (typeof part !== "object" || part === null) return [];
+        const value = part as Record<string, unknown>;
+        const type = String(value.type ?? "").trim().toLowerCase();
+        const text = String(value.text ?? "").trim().toLowerCase();
+        return ["prefix", "suffix", "base", "root"].includes(type) && text
+          ? [`${type}:${text}`]
+          : [];
+      });
+      return {
+        canonicalWordId: row.canonical_word_id,
+        featureKeys: [
+          ...new Set([
+            ...storedKeys
+              .filter((key) => key.includes(":"))
+              .map((key) => key.trim().toLowerCase()),
+            ...derivedKeys,
+          ]),
+        ],
+        transformations: row.transformation_notes?.trim()
+          ? [row.transformation_notes.trim()]
+          : [],
+        analysisStatus: row.analysis_status,
+        rowStatus: row.row_status,
+        reviewStatus: row.review_status,
+      };
+    });
 
   // Primary micro-skill per word (Slice 6 pin, see module header).
   const microSkillKeyByWordId = new Map<string, string>();
@@ -493,6 +586,8 @@ export async function loadDailyPlanFacts(
       overrides,
       activeBandingVersion,
       activeTeachingSkillKeys,
+      transferSelectorProfiles,
+      reviewedMorphology,
     },
     childBand,
     taughtHistory: taughtWordHistoryProviderFromFacts(

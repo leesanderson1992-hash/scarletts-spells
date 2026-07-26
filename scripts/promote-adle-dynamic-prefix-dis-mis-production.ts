@@ -48,8 +48,7 @@ async function main() {
   const { pkg, words, sha256, blockers } = await load();
   if (arg("--environment") !== "production" || arg("--profile") !== PROFILE_KEY || arg("--confirm-package-sha256") !== sha256 || !process.argv.includes("--apply")) fail("Use --apply --environment production --profile D4_MOR_PREFIXES_DIS_MIS --confirm-package-sha256 <exact hash>.");
   if (blockers.length) fail(blockers.join("; "));
-  const databaseUrl = arg("--database-url");
-  if (!databaseUrl) fail("--database-url is required.");
+  const databaseUrl = arg("--database-url") ?? fail("--database-url is required.");
   const target = new URL(databaseUrl);
   if (!target.hostname.includes(PRODUCTION_REF) && !target.username.includes(PRODUCTION_REF)) fail("Refusing a database other than the named production project.");
 

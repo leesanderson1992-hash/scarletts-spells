@@ -7,7 +7,9 @@ const stagingHost = "jlhotktspjvffslvuyfz.supabase.co";
 const keys = ["D4_MOR_PREFIXES_DIS_MIS", "D4_MOR_PREFIXES_IN_IM_IL_IR", "D4_MOR_PREFIXES_RE_PRE", "D4_MOR_PREFIXES_SUB_INTER_SUPER"] as const;
 const prefix = "dynamic-prefix-four-profile-selector-proof:2026-07-22:";
 const required = (key: string) => { const value = process.env[key]?.trim(); if (!value) throw new Error(`Missing ${key}`); return value; };
-const assert = (value: unknown, message: string): asserts value => { if (!value) throw new Error(message); };
+function assert(value: unknown, message: string): asserts value {
+  if (!value) throw new Error(message);
+}
 
 async function main() {
   if (process.env.ADLE_DYNAMIC_PREFIX_ACCEPT_STAGING !== "disposable-data-only") throw new Error("Refusing without disposable-data-only acknowledgement.");

@@ -49,6 +49,16 @@ function throwQuery(
 async function routeActivationFacts(client: AdleClient, childId: string) {
   const enabled = new Set<string>();
   const readyPairs = new Set<string>();
+  const { data: selectorProfiles, error: selectorProfileError } = await client
+    .from("canonical_teaching_dictionary_transfer_selector_profiles")
+    .select("micro_skill_key,row_status,review_status,allowed_age_bands")
+    .eq("row_status", "active")
+    .eq("review_status", "approved_for_first_exposure");
+  if (selectorProfileError)
+    throwQuery("canonical intake transfer selector profiles", selectorProfileError);
+  for (const profile of selectorProfiles ?? []) {
+    enabled.add((profile as any).micro_skill_key);
+  }
 
   if (isDynamicPrefixRouteEnabled()) {
     const { profiles } = await loadDynamicPrefixProfiles(client, childId);
@@ -118,7 +128,7 @@ async function routeActivationFacts(client: AdleClient, childId: string) {
       }
     }
   }
-  return { enabled, readyPairs };
+  return { enabled, readyPairs, selectorProfiles: selectorProfiles ?? [] };
 }
 
 async function persistEligibleIntake(
@@ -307,6 +317,14 @@ export async function intakeApprovedSubmissionCorrections(params: {
         supportRole: support.support_role,
         rowStatus: support.row_status,
         reviewStatus: support.review_status,
+      })),
+      selectorProfiles: routeFacts.selectorProfiles.map((profile: any) => ({
+        microSkillKey: profile.micro_skill_key,
+        rowStatus: profile.row_status,
+        reviewStatus: profile.review_status,
+        allowedAgeBands: Array.isArray(profile.allowed_age_bands)
+          ? profile.allowed_age_bands.map(String)
+          : [],
       })),
       contentVersions: (content ?? []).map((entry: any) => ({
         microSkillKey: entry.micro_skill_key,

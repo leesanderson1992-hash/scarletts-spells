@@ -142,6 +142,29 @@ assert(
     unknown.reason === "inactive_or_non_assignable_micro_skill",
   "Unknown or invented labels must fail closed.",
 );
+const profileFacts = facts(SKILL_A);
+profileFacts.supports = [];
+profileFacts.routeSpecificReadyWordSkillPairs = new Set();
+profileFacts.selectorProfiles = [{
+  microSkillKey: SKILL_A,
+  rowStatus: "active",
+  reviewStatus: "approved_for_first_exposure",
+  allowedAgeBands: ["middle_primary"],
+}];
+const profileReady = resolveCanonicalIntakeReadiness(profileFacts);
+assert(
+  profileReady.status === "eligible",
+  "An active reviewed selector profile must replace speculative exact-word support.",
+);
+const missingProfileFacts = facts(SKILL_A);
+missingProfileFacts.supports = [];
+missingProfileFacts.routeSpecificReadyWordSkillPairs = new Set();
+const missingProfile = resolveCanonicalIntakeReadiness(missingProfileFacts);
+assert(
+  missingProfile.status === "blocked" &&
+    missingProfile.reason === "canonical_target_selector_profile_missing",
+  "An unlinked target without a selector profile must fail closed.",
+);
 
 const items = [
   item("item-a", SKILL_A, "2026-07-20"),
