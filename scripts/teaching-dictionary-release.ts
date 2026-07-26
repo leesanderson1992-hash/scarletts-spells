@@ -12,7 +12,7 @@ import {
   writeFile,
 } from "node:fs/promises";
 import { tmpdir } from "node:os";
-import { basename, dirname, relative, resolve } from "node:path";
+import { dirname, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import pg from "pg";
 
@@ -31,7 +31,6 @@ import {
   parseCsv,
   sha256Bytes,
   sha256File,
-  stringifyCsv,
   validateCanonicalCsv,
   validateCanonicalRepairCsv,
   type CsvRow,
@@ -1137,7 +1136,7 @@ async function buildTableRows(
 
   const sources = sourceRows
     .filter((row) => plan.newSourceKeys.includes(row.source_key))
-    .map((row, index) => ({
+    .map((row) => ({
       id: stableUuid("source", row.source_key),
       import_batch_id: batchId,
       row_status: "active",
@@ -1732,10 +1731,11 @@ async function verifyCommand(): Promise<void> {
       [existing.rows[0].id],
     );
     const previousSummary = existing.rows[0].verification_summary ?? {};
-    const reusedBeforeState =
-      existing.rows[0].source_metadata?.reused_word_before_state ?? [];
+    const reusedBeforeState = (
+      existing.rows[0].source_metadata?.reused_word_before_state ?? []
+    ) as Array<{ word: { word_key: string; id: string } }>;
     const reusedWordIds = Object.fromEntries(
-      reusedBeforeState.map((entry: Record<string, any>) => [
+      reusedBeforeState.map((entry) => [
         entry.word.word_key,
         entry.word.id,
       ]),
