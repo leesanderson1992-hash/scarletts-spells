@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { AppShell } from "@/components/app-shell";
 import { ChildSwitcher } from "@/components/child-switcher";
 import { GoldForgePanel } from "@/components/gold-forge-panel";
+import { PendingAdleLearningSection } from "@/components/pending-adle-learning-section";
 import {
   GoldBarIcon,
   GoldCoinIcon,
@@ -45,6 +46,7 @@ import {
 } from "@/lib/rewards/read-model";
 import { type SpellingRewardStateRow } from "@/lib/rewards/spelling-rewards";
 import { createClient } from "@/lib/supabase/server";
+import { loadPendingAdleLearningForChild } from "@/lib/adle/loaders/pending-learning";
 import { getCanonicalParentProgressForChild } from "@/lib/writing-practice/parent-progress";
 import { getCanonicalActivePracticeWordsForChild } from "@/lib/writing-practice/practice-runtime";
 import { getPositiveEvidenceCandidatesForSuggestions } from "@/lib/writing-practice/positive-evidence";
@@ -538,6 +540,10 @@ export default async function InsightsPage({
           parentUserId: user.id,
           childId: selectedChild.id,
         })
+      : null;
+  const pendingAdleLearning =
+    mode === "parent"
+      ? await loadPendingAdleLearningForChild(selectedChild.id)
       : null;
   const { data: transferSuggestionRows } =
     mode === "parent"
@@ -1166,6 +1172,14 @@ export default async function InsightsPage({
             </p>
           ) : null}
         </section>
+
+        {pendingAdleLearning ? (
+          <PendingAdleLearningSection
+            result={pendingAdleLearning}
+            queueHref={buildScopedPath("/insights/adle-pending", selectedChild.id, "parent")}
+            previewLimit={10}
+          />
+        ) : null}
 
         {!hasCanonicalParentProgress ? (
           <section className="rounded-3xl border border-zinc-200 bg-white p-6 shadow-sm">
