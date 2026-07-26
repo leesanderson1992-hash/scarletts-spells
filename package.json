@@ -8,6 +8,8 @@
     "start": "next start",
     "typecheck:scripts": "npx tsc -p tsconfig.scripts.json --noEmit",
     "lint": "eslint",
+    "security:audit:production": "npm audit --omit=dev --audit-level=high",
+    "security:audit:full": "npm audit --audit-level=high",
     "teaching-dictionary:prepare": "tsx scripts/teaching-dictionary-release.ts prepare",
     "teaching-dictionary:prepare-repair": "tsx scripts/teaching-dictionary-release.ts prepare-repair",
     "teaching-dictionary:plan": "tsx scripts/teaching-dictionary-release.ts plan",
@@ -166,10 +168,11 @@
   "dependencies": {
     "@supabase/ssr": "^0.10.2",
     "@supabase/supabase-js": "^2.104.0",
-    "next": "16.2.4",
+    "next": "16.2.12",
     "react": "19.2.4",
     "react-dom": "19.2.4",
-    "server-only": "^0.0.1"
+    "server-only": "^0.0.1",
+    "sharp": "^0.35.3"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
@@ -178,10 +181,14 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
-    "eslint-config-next": "16.2.4",
+    "eslint-config-next": "16.2.12",
     "pg": "^8.22.0",
     "tailwindcss": "^4",
     "tsx": "^4.23.1",
     "typescript": "^5"
+  },
+  "overrides": {
+    "postcss": "8.5.23",
+    "sharp": "$sharp"
   }
 }
