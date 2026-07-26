@@ -318,7 +318,7 @@ export async function intakeApprovedSubmissionCorrections(params: {
         rowStatus: support.row_status,
         reviewStatus: support.review_status,
       })),
-      selectorProfiles: routeFacts.selectorProfiles.map((profile: any) => ({
+      selectorProfiles: (routeFacts.selectorProfiles ?? []).map((profile: any) => ({
         microSkillKey: profile.micro_skill_key,
         rowStatus: profile.row_status,
         reviewStatus: profile.review_status,
