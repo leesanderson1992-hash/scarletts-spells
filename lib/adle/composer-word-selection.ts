@@ -280,8 +280,20 @@ export function selectLessonWords(
         )
         .map((word) => word.canonicalWordId)
     : [];
-  const profileSelection = profileMode ? selectTransferWords({ profile, morphology: dictionary.reviewedMorphology!, excludedCanonicalWordIds: new Set([...usedWordIds, ...hasActiveItem, ...profileIneligibleWordIds]), childAgeBand: childBand.allowedAgeBands[0] ?? "", take: Math.max(1, policy.lessonWordCount - slots.length) }) : null;
-  if (profileSelection && !profileSelection.ok) {
+  const profileSelection = profileMode
+    ? selectTransferWords({
+        profile,
+        morphology: dictionary.reviewedMorphology!,
+        excludedCanonicalWordIds: new Set([
+          ...usedWordIds,
+          ...hasActiveItem,
+          ...profileIneligibleWordIds,
+        ]),
+        childAgeBand: childBand.allowedAgeBands[0] ?? "",
+        take: Math.max(1, policy.lessonWordCount - slots.length),
+      })
+    : null;
+  if (profileSelection !== null && profileSelection.ok === false) {
     return { slots: [], probePlan: null, stretchItemIntakes: [], deferredOutlierWordIds: [], skipReasons: [profileSelection.reason], complexityWindow: null };
   }
   const profileWordIds = new Set(profileSelection?.ok ? profileSelection.canonicalWordIds : []);
