@@ -64,14 +64,6 @@ export type WritingEngineStage6aGrammarProofreadingAnalysisResult = {
   results: WritingEngineStage6aGrammarProofreadingResult[];
 };
 
-function isWordLike(char: string | undefined) {
-  return typeof char === "string" && /[A-Za-z0-9]/.test(char);
-}
-
-function isLowercaseLetter(char: string | undefined) {
-  return typeof char === "string" && /^[a-z]$/.test(char);
-}
-
 function normalizeConfidence(confidence: number) {
   return Math.min(1, Math.max(0, Number(confidence.toFixed(2))));
 }

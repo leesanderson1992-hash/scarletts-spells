@@ -68,10 +68,6 @@ export async function syncEarnedGoldBars(input: {
     parentUserId,
     childId,
     wordRows,
-    taskRows: _taskRows,
-    completionRows: _completionRows,
-    submissionRows: _submissionRows,
-    focusRows: _focusRows,
   } = input;
 
   const { data: existingEvents } = await supabase

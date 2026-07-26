@@ -21,7 +21,6 @@ export const BASE_WORD_MICRO_SKILLS = [
 ] as const;
 
 type RowStatus = "active" | "draft" | "rejected" | "superseded";
-type ReviewStatus = "approved_for_first_exposure" | "in_review" | "draft" | "ai_draft" | "changes_requested" | "approved_for_guided_review" | "rejected" | "superseded";
 
 export interface BaseWordTeachingContentFact {
   id: string;

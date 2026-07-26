@@ -3,7 +3,7 @@ import type { DynamicPrefixLessonPayloadV2, DynamicPrefixSelection } from "./dyn
 
 /** Builds the exact persisted shape for a reviewed Dynamic Prefix v2 snapshot. */
 export function buildDynamicPrefixAssignmentPlan(params: { basePlan: ComposedDailyPlan; facts: DailyPlanFacts; selection: DynamicPrefixSelection; payload: DynamicPrefixLessonPayloadV2 }): ComposedDailyPlan {
-  const { basePlan, facts, selection, payload } = params;
+  const { basePlan, selection, payload } = params;
   const authentic = new Map(selection.authenticTargets.map((item) => [item.canonicalWordId, item]));
   const guided = payload.activities.guided ?? {
     splitCanonicalWordIds: [payload.words.lesson[0].canonicalWordId],
