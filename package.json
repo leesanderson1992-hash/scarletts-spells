@@ -14,6 +14,7 @@
     "teaching-dictionary:release": "tsx scripts/teaching-dictionary-release.ts release",
     "teaching-dictionary:verify": "tsx scripts/teaching-dictionary-release.ts verify",
     "teaching-dictionary:deactivate": "tsx scripts/teaching-dictionary-release.ts deactivate",
+    "teaching-dictionary:apply-required-migrations": "tsx scripts/apply-teaching-dictionary-release-migrations.ts",
     "teaching-dictionary:release-regression": "tsx scripts/teaching-dictionary-release-regression.ts",
     "maintenance:duplicate-submission-cleanup": "npx tsx scripts/cleanup-duplicate-task-submissions.ts",
     "adle:preview": "rm -rf .tmp/adle-preview && npx tsc --outDir .tmp/adle-preview --rootDir . --module commonjs --target es2022 --moduleResolution node --esModuleInterop --skipLibCheck --noEmit false scripts/adle-preview.ts && node --env-file=.env.local .tmp/adle-preview/scripts/adle-preview.js",
