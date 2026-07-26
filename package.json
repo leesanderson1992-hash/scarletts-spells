@@ -9,6 +9,7 @@
     "typecheck:scripts": "npx tsc -p tsconfig.scripts.json --noEmit",
     "lint": "eslint",
     "teaching-dictionary:prepare": "tsx scripts/teaching-dictionary-release.ts prepare",
+    "teaching-dictionary:prepare-repair": "tsx scripts/teaching-dictionary-release.ts prepare-repair",
     "teaching-dictionary:plan": "tsx scripts/teaching-dictionary-release.ts plan",
     "teaching-dictionary:release": "tsx scripts/teaching-dictionary-release.ts release",
     "teaching-dictionary:verify": "tsx scripts/teaching-dictionary-release.ts verify",

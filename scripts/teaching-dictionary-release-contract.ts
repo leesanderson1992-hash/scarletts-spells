@@ -3,6 +3,10 @@ import { readFile, readdir } from "node:fs/promises";
 import { basename, resolve } from "node:path";
 
 export const CANONICAL_PACKAGE_TYPE = "canonical_word_batch_v1";
+export const CANONICAL_REPAIR_PACKAGE_TYPE = "canonical_word_repair_v1";
+export type CanonicalPackageType =
+  | typeof CANONICAL_PACKAGE_TYPE
+  | typeof CANONICAL_REPAIR_PACKAGE_TYPE;
 export const CANONICAL_PACKAGE_SCHEMA = "canonical_word_release_manifest_v2";
 export const IMPORTER_VERSION = "teaching_dictionary_release_v1";
 export const REQUIRED_MIGRATION_VERSIONS = [
@@ -23,6 +27,7 @@ export const CANONICAL_REQUIRED_FILES = [
 ] as const;
 
 export const CANONICAL_OPTIONAL_FILES = ["canonical_word_repairs.csv"] as const;
+export const CANONICAL_REPAIR_REQUIRED_FILES = ["canonical_word_repairs.csv"] as const;
 
 export const PROHIBITED_TABLE_FAMILIES = [
   "learner",
@@ -50,7 +55,7 @@ export type ReleaseCounts = {
 export type ReleaseManifest = {
   schemaVersion: typeof CANONICAL_PACKAGE_SCHEMA;
   releaseId: string;
-  packageType: typeof CANONICAL_PACKAGE_TYPE;
+  packageType: CanonicalPackageType;
   packageSchemaVersion: "v2";
   packageSha256: string;
   workbookSha256: string;
@@ -80,6 +85,12 @@ export type LoadedCanonicalPackage = {
   manifest: ReleaseManifest;
   csv: Record<string, CsvRow[]>;
 };
+
+export function requiredFilesForPackage(packageType: CanonicalPackageType): readonly string[] {
+  return packageType === CANONICAL_REPAIR_PACKAGE_TYPE
+    ? CANONICAL_REPAIR_REQUIRED_FILES
+    : CANONICAL_REQUIRED_FILES;
+}
 
 export function sha256Bytes(value: Uint8Array | string): string {
   return createHash("sha256").update(value).digest("hex");
@@ -432,6 +443,29 @@ export function validateCanonicalCsv(csv: Record<string, CsvRow[]>): ReleaseCoun
   };
 }
 
+export function validateCanonicalRepairCsv(csv: Record<string, CsvRow[]>): ReleaseCounts {
+  const repairs = csv["canonical_word_repairs.csv"] ?? [];
+  validateRepairs(repairs);
+  return {
+    sources: 0,
+    words: 0,
+    metadata: 0,
+    morphology: 0,
+    dictations: 0,
+    repairs: repairs.length,
+    deferredRepairIntents: 0,
+  };
+}
+
+export function validatePackageCsv(
+  packageType: CanonicalPackageType,
+  csv: Record<string, CsvRow[]>,
+): ReleaseCounts {
+  return packageType === CANONICAL_REPAIR_PACKAGE_TYPE
+    ? validateCanonicalRepairCsv(csv)
+    : validateCanonicalCsv(csv);
+}
+
 export async function loadCanonicalPackage(releasePath: string): Promise<LoadedCanonicalPackage> {
   const releaseDir = resolve(releasePath);
   const packageDir = resolve(releaseDir, "package");
@@ -439,27 +473,30 @@ export async function loadCanonicalPackage(releasePath: string): Promise<LoadedC
   const manifest = JSON.parse(await readFile(manifestPath, "utf8")) as ReleaseManifest;
   if (
     manifest.schemaVersion !== CANONICAL_PACKAGE_SCHEMA ||
-    manifest.packageType !== CANONICAL_PACKAGE_TYPE ||
+    ![CANONICAL_PACKAGE_TYPE, CANONICAL_REPAIR_PACKAGE_TYPE].includes(manifest.packageType) ||
     manifest.packageSchemaVersion !== "v2"
   ) {
-    throw new Error("Release manifest is not canonical_word_batch_v1.");
+    throw new Error("Release manifest has an unsupported canonical package type.");
   }
 
   const names = (await readdir(packageDir)).sort();
   const accepted = new Set<string>([
-    ...CANONICAL_REQUIRED_FILES,
-    ...CANONICAL_OPTIONAL_FILES,
+    ...requiredFilesForPackage(manifest.packageType),
+    ...(manifest.packageType === CANONICAL_PACKAGE_TYPE ? CANONICAL_OPTIONAL_FILES : []),
     "release-manifest.json",
   ]);
   const unexpected = names.filter((name) => !accepted.has(name));
   if (unexpected.length) throw new Error(`Release package contains unexpected files: ${unexpected.join(", ")}.`);
-  for (const fileName of CANONICAL_REQUIRED_FILES) {
+  for (const fileName of requiredFilesForPackage(manifest.packageType)) {
     if (!names.includes(fileName)) throw new Error(`Release package is missing ${fileName}.`);
   }
 
   const csv: Record<string, CsvRow[]> = {};
   const fileSha256: Record<string, string> = {};
-  for (const fileName of [...CANONICAL_REQUIRED_FILES, ...CANONICAL_OPTIONAL_FILES]) {
+  for (const fileName of [
+    ...requiredFilesForPackage(manifest.packageType),
+    ...(manifest.packageType === CANONICAL_PACKAGE_TYPE ? CANONICAL_OPTIONAL_FILES : []),
+  ]) {
     if (!names.includes(fileName)) continue;
     const path = resolve(packageDir, fileName);
     csv[fileName] = await readCsv(path);
@@ -488,7 +525,7 @@ export async function loadCanonicalPackage(releasePath: string): Promise<LoadedC
   if (calculatedPackageSha !== declaredPackageSha) {
     throw new Error("Release package SHA-256 does not match the manifest.");
   }
-  const counts = validateCanonicalCsv(csv);
+  const counts = validatePackageCsv(manifest.packageType, csv);
   counts.deferredRepairIntents = manifest.rowCounts.deferredRepairIntents ?? 0;
   if (canonicalJson(counts) !== canonicalJson(manifest.rowCounts)) {
     throw new Error("Release package row counts do not match the manifest.");

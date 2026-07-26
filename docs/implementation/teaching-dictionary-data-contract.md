@@ -49,6 +49,14 @@ value preconditions and complete reviewed replacement values. A repair
 intention without the factual replacement data is retained as a deferred
 worklist and is not imported.
 
+A repair-only package contains only `release-manifest.json` and
+`canonical_word_repairs.csv`. It has zero word, morphology, dictation and
+source rows; its approved repair workbook and the CSV are both hash-verified.
+For the supported `metadata_add` repair, the word key must resolve to exactly
+one active canonical word and `expected_active_metadata_count` must be `0`.
+The transaction adds an approved metadata row and never changes the word
+identity or creates teaching, learner or runtime records.
+
 ## Canonical package format v2
 
 Required files:

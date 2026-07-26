@@ -18,6 +18,7 @@ import pg from "pg";
 
 import {
   CANONICAL_OPTIONAL_FILES,
+  CANONICAL_REPAIR_PACKAGE_TYPE,
   CANONICAL_PACKAGE_SCHEMA,
   CANONICAL_PACKAGE_TYPE,
   CANONICAL_REQUIRED_FILES,
@@ -32,6 +33,7 @@ import {
   sha256File,
   stringifyCsv,
   validateCanonicalCsv,
+  validateCanonicalRepairCsv,
   type CsvRow,
   type LoadedCanonicalPackage,
   type ReleaseManifest,
@@ -461,6 +463,67 @@ async function prepare(): Promise<void> {
   }
 }
 
+/** Prepare an immutable, metadata-only factual repair release. */
+async function prepareRepair(): Promise<void> {
+  const workbook = resolve(arg("--workbook") ?? fail("--workbook is required."));
+  const repairsPath = resolve(arg("--repairs") ?? fail("--repairs is required."));
+  const releaseId = arg("--release-id") ?? fail("--release-id is required.");
+  if (!/^[a-z0-9][a-z0-9._-]{7,119}$/i.test(releaseId)) {
+    fail("--release-id must be an explicit 8-120 character identifier.");
+  }
+  const releaseRoot = resolve(arg("--release-root") ?? DEFAULT_RELEASE_ROOT);
+  const releaseDir = resolve(releaseRoot, releaseId);
+  if (relative(releaseRoot, releaseDir).startsWith("..")) fail("Release path escapes the release root.");
+  try {
+    await readdir(releaseDir);
+    fail(`Release ${releaseId} already exists. Approved releases are immutable; use a new release ID.`);
+  } catch (error) {
+    if (error instanceof Error && !("code" in error && error.code === "ENOENT")) throw error;
+  }
+
+  const repairsContent = await readFile(repairsPath, "utf8");
+  const csv = { "canonical_word_repairs.csv": parseCsv(repairsContent) };
+  const counts = validateCanonicalRepairCsv(csv);
+  const fileSha256 = { "canonical_word_repairs.csv": sha256Bytes(repairsContent) };
+  const fingerprint: ReleaseManifestFingerprint = {
+    schemaVersion: CANONICAL_PACKAGE_SCHEMA,
+    releaseId,
+    packageType: CANONICAL_REPAIR_PACKAGE_TYPE,
+    packageSchemaVersion: "v2",
+    workbookSha256: await sha256File(workbook),
+    sourceCommit: sourceCommit(),
+    requiredMigrationVersions: [...REQUIRED_MIGRATION_VERSIONS],
+    fileSha256,
+    rowCounts: counts,
+    reviewerSummary: reviewersFrom(csv),
+    sourceApprovalSummary: { importable: 0, legalPassedOrNotRequired: 0 },
+    expectedTargetTables: [TABLE_SPECS.metadata.table],
+    prohibitedTableFamilies: [...PROHIBITED_TABLE_FAMILIES],
+    deferredRepairIntentFile: null,
+    deferredRepairIntentsSha256: null,
+  };
+  const manifest: ReleaseManifest = {
+    ...fingerprint,
+    packageSha256: packageSha256(fingerprint),
+  };
+  await mkdir(resolve(releaseDir, "package"), { recursive: true });
+  await mkdir(resolve(releaseDir, "receipts"), { recursive: true });
+  await copyFile(workbook, resolve(releaseDir, "approved-workbook.xlsx"));
+  await writeFile(resolve(releaseDir, "package", "canonical_word_repairs.csv"), repairsContent);
+  await writeFile(
+    resolve(releaseDir, "package", "release-manifest.json"),
+    `${JSON.stringify(manifest, null, 2)}\n`,
+  );
+  await loadCanonicalPackage(releaseDir);
+  console.log(JSON.stringify({
+    status: "prepared_and_verified",
+    releaseDir,
+    releaseId,
+    packageSha256: manifest.packageSha256,
+    rowCounts: counts,
+  }, null, 2));
+}
+
 function databaseUrl(target: TargetEnvironment): string {
   const envName = TARGETS[target].databaseUrlEnv;
   const value = process.env[envName];
@@ -749,7 +812,7 @@ async function databasePlan(
     };
   }
 
-  const sources = pkg.csv["teaching_content_sources.csv"];
+  const sources = pkg.csv["teaching_content_sources.csv"] ?? [];
   const sourceKeys = sources.map((row) => row.source_key);
   const sourceResult = await client.query(
     `
@@ -780,7 +843,7 @@ async function databasePlan(
     reusedSourceKeys.push(source.source_key);
   }
 
-  const words = pkg.csv["canonical_words.csv"];
+  const words = pkg.csv["canonical_words.csv"] ?? [];
   const wordKeys = words.map((row) => row.word_key);
   const normalisedWords = words.map((row) => row.normalised_word);
   const collisions = await client.query<{
@@ -927,11 +990,11 @@ async function buildTableRows(
   plan: DatabasePlan,
 ): Promise<TableRows> {
   const batchId = plan.batchId;
-  const sourceRows = pkg.csv["teaching_content_sources.csv"];
-  const wordRows = pkg.csv["canonical_words.csv"];
-  const metadataRows = pkg.csv["canonical_word_metadata.csv"];
-  const morphologyRows = pkg.csv["canonical_word_morphology.csv"];
-  const dictationRows = pkg.csv["dictation_sentences.csv"];
+  const sourceRows = pkg.csv["teaching_content_sources.csv"] ?? [];
+  const wordRows = pkg.csv["canonical_words.csv"] ?? [];
+  const metadataRows = pkg.csv["canonical_word_metadata.csv"] ?? [];
+  const morphologyRows = pkg.csv["canonical_word_morphology.csv"] ?? [];
+  const dictationRows = pkg.csv["dictation_sentences.csv"] ?? [];
   const repairs = pkg.csv["canonical_word_repairs.csv"] ?? [];
   const wordIds = new Map(
     wordRows.map((row) => [
@@ -1657,6 +1720,7 @@ function usage(): string {
 Teaching Dictionary release CLI
 
   prepare    --workbook <xlsx> --candidate-csv <folder> --release-id <id> [--release-root <folder>]
+  prepare-repair --workbook <xlsx> --repairs <csv> --release-id <id> [--release-root <folder>]
   plan       --release <release-folder> --target staging|production
   release    --release <release-folder> --target staging|production --confirm <exact-token>
   verify     --release <release-folder> --target staging|production
@@ -1675,6 +1739,9 @@ export async function main(): Promise<void> {
   switch (command()) {
     case "prepare":
       await prepare();
+      break;
+    case "prepare-repair":
+      await prepareRepair();
       break;
     case "plan":
       await planCommand();

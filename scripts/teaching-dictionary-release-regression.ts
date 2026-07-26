@@ -5,11 +5,13 @@ import { resolve } from "node:path";
 import {
   CANONICAL_PACKAGE_SCHEMA,
   CANONICAL_PACKAGE_TYPE,
+  CANONICAL_REPAIR_PACKAGE_TYPE,
   canonicalJson,
   packageSha256,
   parseCsv,
   stringifyCsv,
   validateCanonicalCsv,
+  validateCanonicalRepairCsv,
   type CsvRow,
   type ReleaseManifestFingerprint,
 } from "./teaching-dictionary-release-contract";
@@ -178,6 +180,41 @@ async function main(): Promise<void> {
   ];
   mustThrow(() => validateCanonicalCsv(incompleteRepair), /missing columns/);
 
+  const approvedRepair: CsvRow = {
+    word_key: "tall_en_gb",
+    repair_type: "metadata_add",
+    expected_active_metadata_count: "0",
+    syllables: "1",
+    phoneme_hint: "/tˈɔːl/",
+    stress_pattern: "primary",
+    has_schwa: "FALSE",
+    morphemes: "tall",
+    morphology_notes: "Free base word.",
+    source_category: "internal_authored",
+    source_name: "Reviewed evidence",
+    source_licence: "internal",
+    source_use_note: "Reviewed factual repair.",
+    confidence: "high",
+    review_status: "approved",
+    reviewed_by: "Reviewer",
+    reviewed_at: "2026-07-26",
+  };
+  assert.deepEqual(validateCanonicalRepairCsv({ "canonical_word_repairs.csv": [approvedRepair] }), {
+    sources: 0,
+    words: 0,
+    metadata: 0,
+    morphology: 0,
+    dictations: 0,
+    repairs: 1,
+    deferredRepairIntents: 0,
+  });
+  const badRepairPrecondition = structuredClone(approvedRepair);
+  badRepairPrecondition.expected_active_metadata_count = "1";
+  mustThrow(
+    () => validateCanonicalRepairCsv({ "canonical_word_repairs.csv": [badRepairPrecondition] }),
+    /must expect zero active metadata rows/,
+  );
+
   const fingerprint: ReleaseManifestFingerprint = {
     schemaVersion: CANONICAL_PACKAGE_SCHEMA,
     releaseId: "release-example-v1",
@@ -203,6 +240,7 @@ async function main(): Promise<void> {
     deferredRepairIntentFile: null,
     deferredRepairIntentsSha256: null,
   };
+  assert.equal(CANONICAL_REPAIR_PACKAGE_TYPE, "canonical_word_repair_v1");
   const firstHash = packageSha256(fingerprint);
   const secondHash = packageSha256(structuredClone(fingerprint));
   assert.equal(firstHash, secondHash, "Package fingerprint must be deterministic.");

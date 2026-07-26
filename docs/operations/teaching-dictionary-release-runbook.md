@@ -154,6 +154,25 @@ package’s new-word count.
 - Do not edit a prepared package. Prepare a new release ID.
 - Do not use Dashboard SQL Editor to work around a failed gate.
 
+## Factual metadata repair release
+
+Use a separate, immutable repair release when an existing canonical word has a
+reviewed factual omission. Do not add a placeholder word solely to satisfy a
+batch shape.
+
+```bash
+npm run teaching-dictionary:prepare-repair -- \
+  --workbook "<approved-repair-workbook.xlsx>" \
+  --repairs "<approved-canonical-word-repairs.csv>" \
+  --release-id "<repair-release-id>"
+```
+
+The repair CSV must include the exact active `word_key`, the current-state
+precondition, all reviewed factual metadata, provenance and named approval.
+Run the ordinary `plan`, staging `release`, `verify`, and same-package
+production promotion commands afterwards. A precondition mismatch blocks the
+release; do not use SQL to override it.
+
 ## Deactivation
 
 ```bash
