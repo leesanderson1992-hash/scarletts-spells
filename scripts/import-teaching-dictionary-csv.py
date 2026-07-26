@@ -24,7 +24,7 @@ from urllib.parse import urlparse
 
 ROOT = Path(__file__).resolve().parents[1]
 VALIDATOR_PATH = ROOT / "scripts/validate-teaching-dictionary-csv.py"
-EXPECTED_MIGRATION_VERSION = "20260720100000"
+EXPECTED_MIGRATION_VERSION = "20260724140000"
 LOCAL_CONFIRMATION_TOKEN = "canonical-teaching-dictionary-local-dev"
 ADVISORY_LOCK_NAME = "canonical_teaching_dictionary_import"
 VALIDATOR_VERSION = "version_3_phase_5c_teaching_dictionary_csv_v4"
@@ -35,6 +35,7 @@ CONTENT_TABLES_IN_IMPORT_ORDER = [
     "canonical_teaching_dictionary_sources",
     "canonical_teaching_dictionary_words",
     "canonical_teaching_dictionary_word_metadata",
+    "canonical_teaching_dictionary_word_morphology",
     "canonical_teaching_dictionary_word_support",
     "canonical_teaching_dictionary_dictation_sentences",
     "canonical_teaching_dictionary_base_word_families",
@@ -48,6 +49,7 @@ ALL_STORAGE_TABLES = [IMPORT_BATCH_TABLE, *CONTENT_TABLES_IN_IMPORT_ORDER]
 CSV_FILES = [
     "canonical_words.csv",
     "canonical_word_metadata.csv",
+    "canonical_word_morphology.csv",
     "micro_skill_word_support.csv",
     "teaching_content_versions.csv",
     "teaching_content_field_reviews.csv",
@@ -137,6 +139,9 @@ CONTENT_TABLE_COLUMNS = {
         "source_use_note",
         "confidence",
         "review_status",
+    ],
+    "canonical_teaching_dictionary_word_morphology": [
+        "id", "import_batch_id", "canonical_word_id", "row_status", "source_sheet", "source_row_number", "source_row_hash", "source_metadata", "raw_morpholex_segmentation", "raw_morpholex_pos", "morphology_parts", "feature_keys", "morphology_joins", "transformation_notes", "word_sum", "analysis_status", "source_category", "source_name", "source_url", "source_licence", "source_use_note", "confidence", "review_status", "reviewed_by", "reviewed_at", "review_notes",
     ],
     "canonical_teaching_dictionary_word_support": [
         "id",
@@ -277,6 +282,7 @@ UNIQUE_KEY_FIELDS = {
     "canonical_teaching_dictionary_sources": ["source_key"],
     "canonical_teaching_dictionary_words": ["word_key"],
     "canonical_teaching_dictionary_word_metadata": ["canonical_word_id"],
+    "canonical_teaching_dictionary_word_morphology": ["canonical_word_id"],
     "canonical_teaching_dictionary_word_support": ["canonical_word_id", "micro_skill_key", "support_role"],
     "canonical_teaching_dictionary_dictation_sentences": ["canonical_word_id"],
     "canonical_teaching_dictionary_base_word_families": ["base_family_key"],
@@ -539,6 +545,13 @@ def build_planned_rows(folder: Path, validation_report: dict[str, Any]) -> dict[
                 "confidence": row["confidence"],
                 "review_status": row["review_status"],
             }
+        )
+
+    for row in data.get("canonical_word_morphology.csv", []):
+        word_key = clean(row["word_key"])
+        planned["canonical_teaching_dictionary_word_morphology"].append(
+            {"id": stable_uuid("word_morphology", word_key), "canonical_word_id": word_ids.get(word_key), "row_status": "active", **row_base("canonical_word_morphology.csv", row),
+             "raw_morpholex_segmentation": row["raw_morpholex_segmentation"], "raw_morpholex_pos": row["raw_morpholex_pos"], "morphology_parts": json.loads(row["morphology_parts"]), "feature_keys": json.loads(row["feature_keys"]), "morphology_joins": json.loads(row["morphology_joins"]), "transformation_notes": row["transformation_notes"], "word_sum": row["word_sum"], "analysis_status": row["analysis_status"], "source_category": row["source_category"], "source_name": row["source_name"], "source_url": row["source_url"], "source_licence": row["source_licence"], "source_use_note": row["source_use_note"], "confidence": row["confidence"], "review_status": row["review_status"], "reviewed_by": row["reviewed_by"], "reviewed_at": row["reviewed_at"], "review_notes": row["review_notes"]}
         )
 
     for row in data.get("dictation_sentences.csv", []):

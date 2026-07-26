@@ -2,25 +2,19 @@
 
 ## Current Hosted State
 
-Hosted production schema is currently behaviour-correct for recent Writing
-Engine work, but the Supabase migration ledger is not aligned with the local
-migration directory.
+Baseline reconciliation is complete for local, staging and production. The
+active foundation is:
 
-The hosted `supabase_migrations.schema_migrations` table currently contains
-only:
+```text
+20260525123937_baseline_current_production_schema
+```
 
-- version: `20260421`
-- name: `add_false_positive_to_misspelling_instances`
+Historical duplicate/date-only migrations are archived audit material and must
+not be replayed. All database changes after the baseline use unique
+`YYYYMMDDHHMMSS` forward migrations and an explicit hosted-ledger preflight.
 
-Recent hosted schema reality has been verified for:
-
-- `task_submission_payloads`
-- canonical spelling mapping tables and events
-- spelling catalog review case decisions
-- canonical/admin RPC signatures
-
-Treat hosted production as a manually reconciled baseline for the existing
-historical migrations.
+Staging project `jlhotktspjvffslvuyfz` and production project
+`wwohrqtunajrbwxyssjf` remain separate release targets.
 
 ## Historical Migration Risk
 
@@ -59,6 +53,23 @@ Every DB-changing slice must declare one deployment method before work begins:
 
 Production DB deployment requires an explicit migration-ledger check before
 applying any migration.
+
+## Schema migrations versus content releases
+
+Schema migrations create or change database structures. Reviewed Teaching
+Dictionary rows are content releases and must not be embedded in migrations.
+
+Teaching Dictionary content uses
+`docs/operations/teaching-dictionary-release-runbook.md`:
+
+- prepare and fingerprint the approved workbook package;
+- require the relevant forward-migration ledger versions;
+- release and verify staging;
+- release the identical package to production.
+
+The Supabase Dashboard SQL Editor is an emergency diagnostic surface, not a
+normal migration or content-import mechanism. Do not execute generated bulk SQL
+or manually insert migration-ledger rows.
 
 ## 4E.3 Release Boundary
 
@@ -110,35 +121,33 @@ Any DB-changing resolver-visible stage must also:
 - preserve resolver visibility as a first-class, explicit, audited,
   reversible, exact-pair contract rather than metadata-only authority
 
-## Selected Permanent Strategy
+## Historical Baseline Strategy (completed)
 
-Option B is the selected permanent migration strategy: archive the historical
+Option B was the selected permanent migration strategy: archive the historical
 duplicate-version migrations outside the active Supabase migration directory
-and create a new reproducible baseline from trusted production or staging
-schema.
+and create a reproducible baseline from trusted production or staging schema.
 
-Current production remains behaviour-correct but manually reconciled. The
-existing hosted schema should be treated as the source of truth for the
-baseline project, while the hosted migration ledger should be treated as
-incomplete until a later production ledger/release decision is explicitly
-approved.
+The baseline reconciliation and production ledger repair described below are
+completed historical evidence. The current operational rule is the opening
+state of this document: use unique forward migrations and an explicit
+hosted-ledger preflight for every database change.
 
 Historical migrations must be retained for audit and debugging, but they will
 later be archived outside active `supabase/migrations`. They must not be
 deleted, casually renamed, replayed with `supabase db push`, or repaired as a
 single duplicate version.
 
-The future baseline migration must use a unique timestamp version, for example:
+The completed baseline migration uses the unique timestamp version:
 
 ```text
 YYYYMMDDHHMMSS_baseline_current_schema.sql
 ```
 
-## Option B Baseline Runbook
+## Option B Baseline Runbook (historical record)
 
-This runbook is planning documentation. It does not authorize production
-mutation, migration repair, `supabase db push`, destructive reset, migration
-file movement, or baseline migration generation by itself.
+This historical record does not authorize production mutation, migration
+repair, `supabase db push`, destructive reset, migration file movement, or
+baseline migration generation by itself.
 
 The detailed Phase 1 plan lives in
 `docs/operations/supabase-baseline-reconciliation-plan.md`.
