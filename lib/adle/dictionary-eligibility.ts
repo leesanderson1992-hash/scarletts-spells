@@ -170,6 +170,20 @@ export function isRecognisable(word: DictionaryWordFact): boolean {
   return isActive(word.rowStatus) && word.normalisedWord.trim() !== "";
 }
 
+/** Canonical readiness for an authentic word whose route was established by a
+ * real approved correction. Unlike legacy transfer examples it deliberately
+ * does not require a pre-imported word-to-skill support mapping. */
+export function isCanonicalWordReadyForAssignment(
+  word: DictionaryWordFact,
+  childBand: ChildBandProfile,
+  activeTeachingSkillKeys: ReadonlySet<string>,
+  microSkillKey: string,
+): boolean {
+  return isRecognisable(word) && ASSIGNMENT_APPROVED_WORD_REVIEW_STATUSES.includes(word.reviewStatus) &&
+    childBand.allowedFrequencyBands.includes(word.frequencyBand ?? "") && childBand.allowedAgeBands.includes(word.ageBand ?? "") &&
+    activeTeachingSkillKeys.has(microSkillKey);
+}
+
 function hasApprovedSupportMapping(
   word: DictionaryWordFact,
   supports: readonly WordSupportFact[],

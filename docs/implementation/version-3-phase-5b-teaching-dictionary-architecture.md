@@ -1,5 +1,10 @@
 # Version 3.0 Phase 5B: Teaching Dictionary Architecture
 
+> **Historical architecture document.** The active contract now separates
+> canonical-word readiness from independently governed micro-skill teaching
+> content. Package and release guidance here is superseded by
+> `docs/implementation/teaching-dictionary-data-contract.md`.
+
 ## Purpose
 
 Phase 5B designs the Canonical Teaching Dictionary architecture that can later

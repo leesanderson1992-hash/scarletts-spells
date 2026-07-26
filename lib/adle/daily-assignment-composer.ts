@@ -65,6 +65,8 @@ export type ComposerSkipReason =
   | "missing_teaching_metadata"
   | "missing_activity_strategy"
   | "canonical_target_content_incomplete"
+  | "transfer_profile_unavailable"
+  | "insufficient_transfer_words"
   | "missing_required_words"
   | "unknown_micro_skill";
 

@@ -22,6 +22,7 @@
 
 import {
   effectiveComplexityLevel,
+  isCanonicalWordReadyForAssignment,
   isAssignmentDiagnosticEligible,
   APPROVED_SUPPORT_REVIEW_STATUSES,
   type BandingOverrideFact,
@@ -39,6 +40,7 @@ import {
 } from "./learning-items";
 import { addDays, type IsoDate, type SchedulerRowStatus } from "./review-scheduler";
 import type { ComposerPolicy } from "./composer-policy";
+import { selectTransferWords, type ReviewedWordMorphology, type TransferSelectorProfile } from "./transfer-selector-profile";
 
 export interface ComposerDictionaryFacts {
   words: readonly DictionaryWordFact[];
@@ -47,6 +49,11 @@ export interface ComposerDictionaryFacts {
   overrides: readonly BandingOverrideFact[];
   activeBandingVersion: BandingVersionFact;
   activeTeachingSkillKeys: ReadonlySet<string>;
+  /** Present for canonical-word readiness. A skill enters profile mode only
+   * when its reviewed profile exists; unmigrated skills retain legacy support
+   * mappings until their activation gate is moved to the profile contract. */
+  transferSelectorProfiles?: readonly TransferSelectorProfile[];
+  reviewedMorphology?: readonly ReviewedWordMorphology[];
 }
 export interface ProbeRunFact {
   childId: string;
@@ -73,6 +80,8 @@ export type WordSelectionSkipReason =
   | "probe_cap_reached"
   | "no_diagnostic_eligible_words"
   | "canonical_target_content_incomplete"
+  | "transfer_profile_unavailable"
+  | "insufficient_transfer_words"
   | "missing_required_words";
 
 export interface WordSelectionFacts {
@@ -156,6 +165,11 @@ export function selectLessonWords(
   const bandingByWord = new Map(dictionary.bandings.map((b) => [b.canonicalWordId, b]));
   const overrideByWord = new Map(dictionary.overrides.map((o) => [o.canonicalWordId, o]));
   const wordById = new Map(dictionary.words.map((w) => [w.canonicalWordId, w]));
+  const profile = dictionary.transferSelectorProfiles?.find(
+    (row) => row.microSkillKey === microSkillKey,
+  );
+  const profileMode =
+    profile !== undefined && dictionary.reviewedMorphology !== undefined;
   const levelOf = (canonicalWordId: string): number | null =>
     effectiveComplexityLevel(
       bandingByWord.get(canonicalWordId) ?? null,
@@ -173,10 +187,10 @@ export function selectLessonWords(
   const usedWordIds = new Set<string>();
   const itemByWordId = new Map(skillItems.map((item) => [item.canonicalWordId, item]));
 
-  // A real learner target is never replaceable by a same-skill dictionary
-  // word. Every exact target must still be an active, approved, child-banded
-  // word with an approved non-contrast support link to this error-specific
-  // micro-skill; otherwise the whole Part 2 route fails closed.
+  // A real learner target is never replaceable by a transfer word. In
+  // profile mode the approved correction supplies the error-specific
+  // micro-skill, so the canonical target needs factual readiness and active
+  // teaching content, not a speculative word-to-skill support row.
   const incompleteExactTarget = skillItems.find((item) => {
     const word = wordById.get(item.canonicalWordId);
     if (!word) return true;
@@ -188,10 +202,10 @@ export function selectLessonWords(
         support.rowStatus === "active" &&
         APPROVED_SUPPORT_REVIEW_STATUSES.includes(support.reviewStatus),
     );
-    return !hasExactSupport || !isAssignmentDiagnosticEligible(
-      { word, supports, activeTeachingSkillKeys: dictionary.activeTeachingSkillKeys },
-      childBand,
-    );
+    return (profileMode && !profile) || (!profileMode && !hasExactSupport) ||
+      (profileMode
+        ? !isCanonicalWordReadyForAssignment(word, childBand, dictionary.activeTeachingSkillKeys, microSkillKey)
+        : !isAssignmentDiagnosticEligible({ word, supports, activeTeachingSkillKeys: dictionary.activeTeachingSkillKeys }, childBand));
   });
   if (incompleteExactTarget) {
     return {
@@ -253,6 +267,36 @@ export function selectLessonWords(
       .map((item) => item.canonicalWordId),
   );
   const newWordCandidates: EligibleWord[] = [];
+  const profileIneligibleWordIds = profileMode
+    ? dictionary.words
+        .filter(
+          (word) =>
+            !isCanonicalWordReadyForAssignment(
+              word,
+              childBand,
+              dictionary.activeTeachingSkillKeys,
+              microSkillKey,
+            ),
+        )
+        .map((word) => word.canonicalWordId)
+    : [];
+  const profileSelection = profileMode
+    ? selectTransferWords({
+        profile,
+        morphology: dictionary.reviewedMorphology!,
+        excludedCanonicalWordIds: new Set([
+          ...usedWordIds,
+          ...hasActiveItem,
+          ...profileIneligibleWordIds,
+        ]),
+        childAgeBand: childBand.allowedAgeBands[0] ?? "",
+        take: Math.max(1, policy.lessonWordCount - slots.length),
+      })
+    : null;
+  if (profileSelection !== null && profileSelection.ok === false) {
+    return { slots: [], probePlan: null, stretchItemIntakes: [], deferredOutlierWordIds: [], skipReasons: [profileSelection.reason], complexityWindow: null };
+  }
+  const profileWordIds = new Set(profileSelection?.ok ? profileSelection.canonicalWordIds : []);
   for (const word of dictionary.words) {
     if (usedWordIds.has(word.canonicalWordId) || hasActiveItem.has(word.canonicalWordId)) {
       continue;
@@ -264,15 +308,12 @@ export function selectLessonWords(
         support.rowStatus === "active" &&
         APPROVED_SUPPORT_REVIEW_STATUSES.includes(support.reviewStatus),
     );
-    if (!mappedToSkill) {
+    if ((profileMode && !profileWordIds.has(word.canonicalWordId)) || (!profileMode && !mappedToSkill)) {
       continue;
     }
-    if (
-      !isAssignmentDiagnosticEligible(
-        { word, supports, activeTeachingSkillKeys: dictionary.activeTeachingSkillKeys },
-        childBand,
-      )
-    ) {
+    if (profileMode
+      ? !isCanonicalWordReadyForAssignment(word, childBand, dictionary.activeTeachingSkillKeys, microSkillKey)
+      : !isAssignmentDiagnosticEligible({ word, supports, activeTeachingSkillKeys: dictionary.activeTeachingSkillKeys }, childBand)) {
       continue;
     }
     if (facts.taughtHistory.wasTaughtOrProbed(childId, word.canonicalWordId)) {

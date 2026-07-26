@@ -8,6 +8,14 @@
     "start": "next start",
     "typecheck:scripts": "npx tsc -p tsconfig.scripts.json --noEmit",
     "lint": "eslint",
+    "teaching-dictionary:prepare": "tsx scripts/teaching-dictionary-release.ts prepare",
+    "teaching-dictionary:prepare-repair": "tsx scripts/teaching-dictionary-release.ts prepare-repair",
+    "teaching-dictionary:plan": "tsx scripts/teaching-dictionary-release.ts plan",
+    "teaching-dictionary:release": "tsx scripts/teaching-dictionary-release.ts release",
+    "teaching-dictionary:verify": "tsx scripts/teaching-dictionary-release.ts verify",
+    "teaching-dictionary:deactivate": "tsx scripts/teaching-dictionary-release.ts deactivate",
+    "teaching-dictionary:apply-required-migrations": "tsx scripts/apply-teaching-dictionary-release-migrations.ts",
+    "teaching-dictionary:release-regression": "tsx scripts/teaching-dictionary-release-regression.ts",
     "maintenance:duplicate-submission-cleanup": "npx tsx scripts/cleanup-duplicate-task-submissions.ts",
     "adle:preview": "rm -rf .tmp/adle-preview && npx tsc --outDir .tmp/adle-preview --rootDir . --module commonjs --target es2022 --moduleResolution node --esModuleInterop --skipLibCheck --noEmit false scripts/adle-preview.ts && node --env-file=.env.local .tmp/adle-preview/scripts/adle-preview.js",
     "adle:child-identity-check": "rm -rf .tmp/adle-child-identity-check && npx tsc --outDir .tmp/adle-child-identity-check --rootDir . --module commonjs --target es2022 --moduleResolution node --esModuleInterop --skipLibCheck --noEmit false scripts/adle-child-identity-check.ts && node --env-file=.env.local .tmp/adle-child-identity-check/scripts/adle-child-identity-check.js",
@@ -166,11 +174,14 @@
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
+    "@types/pg": "^8.20.0",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.2.4",
+    "pg": "^8.22.0",
     "tailwindcss": "^4",
+    "tsx": "^4.23.1",
     "typescript": "^5"
   }
 }

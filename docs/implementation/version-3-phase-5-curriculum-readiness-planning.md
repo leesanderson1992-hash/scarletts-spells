@@ -1,5 +1,11 @@
 # Version 3.0 Phase 5A: Curriculum Readiness Rules
 
+> **Historical planning document.** Its readiness vocabulary remains useful,
+> but its local-only import boundary and mandatory word-support package
+> assumptions are superseded by
+> `docs/implementation/teaching-dictionary-data-contract.md` and
+> `docs/operations/teaching-dictionary-release-runbook.md`.
+
 ## Purpose
 
 Phase 5A turns the completed Phase 4 curriculum metadata audit into
