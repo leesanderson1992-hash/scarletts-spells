@@ -59,6 +59,10 @@ export interface MorphologyWordSnapshot {
   /** Per-word teaching prefix; absent only on legacy fixed-prefix snapshots. */
   prefixText?: string;
   prefixLabel?: string;
+  /** New position-aware snapshots use these fields; legacy prefix fields stay readable. */
+  affixPosition?: "before" | "after";
+  affixText?: string;
+  affixLabel?: string;
 }
 
 export interface MorphologyActivityV1 {
@@ -89,6 +93,8 @@ export interface MorphologyActivityV1 {
   discoveryCards?: MorphologyDiscoveryCardV1[];
   meaningBins?: Array<{ id: string; label: string; description: string }>;
   prefixLabel?: string;
+  affixTerm?: "prefix" | "suffix";
+  affixPosition?: "before" | "after";
 }
 
 export interface MorphologyIntroductionScreenV1 {

@@ -26,6 +26,8 @@ import { isMorphologyUnPilotEnabledForChild } from "@/lib/adle/morphology/pilot-
 import { resolveMorphologyPilotRuntime } from "@/lib/adle/morphology/payload";
 import { resolveDynamicPrefixRuntime } from "@/lib/adle/morphology/dynamic-prefix-runtime";
 import { isDynamicPrefixRouteEnabled } from "@/lib/adle/morphology/dynamic-prefix-staging-access";
+import { resolveDynamicAffixRuntime } from "@/lib/adle/morphology/dynamic-affix-runtime";
+import { isDynamicSuffixRouteEnabled } from "@/lib/adle/morphology/dynamic-suffix-route-gate";
 import { isBaseWordFamilyPilotEnabledForChild } from "@/lib/adle/morphology/base-word-family-pilot-access";
 import { resolveBaseWordFamilyPilotRuntime } from "@/lib/adle/morphology/base-word-family-pilot-contract";
 import { type ChildLearningReflection } from "@/lib/adle/morphology/reflections";
@@ -107,6 +109,10 @@ export default async function AdleSessionPage({ searchParams }: AdleSessionPageP
     isDynamicPrefixRouteEnabled(),
     readModel.partTwo.items,
   );
+  const dynamicSuffixPayload = resolveDynamicAffixRuntime(
+    isDynamicSuffixRouteEnabled(),
+    readModel.partTwo.items,
+  );
   const baseWordFamilyPilotPayload = resolveBaseWordFamilyPilotRuntime(
     isBaseWordFamilyPilotEnabledForChild(selectedChild.id),
     readModel.partTwo.items,
@@ -175,7 +181,7 @@ export default async function AdleSessionPage({ searchParams }: AdleSessionPageP
         ) : readModel.state === "completed" ? (
           <div className="grid gap-4">
             {resolvedSearchParams?.completionTrace && /^[0-9a-f-]{36}$/i.test(resolvedSearchParams.completionTrace) ? <WordLabCompletionPerformanceObserver traceId={resolvedSearchParams.completionTrace} /> : null}
-            {(dynamicPrefixPayload ?? morphologyPilotPayload ?? baseWordFamilyPilotPayload) && readModel.assignmentId ? <ClearCompletedMorphologyResume assignmentId={readModel.assignmentId} contentVersion={(dynamicPrefixPayload ?? morphologyPilotPayload ?? baseWordFamilyPilotPayload)!.contentVersion} /> : null}
+            {(dynamicSuffixPayload ?? dynamicPrefixPayload ?? morphologyPilotPayload ?? baseWordFamilyPilotPayload) && readModel.assignmentId ? <ClearCompletedMorphologyResume assignmentId={readModel.assignmentId} contentVersion={(dynamicSuffixPayload ?? dynamicPrefixPayload ?? morphologyPilotPayload ?? baseWordFamilyPilotPayload)!.contentVersion} /> : null}
             {celebration !== null ? (
               <AdleSessionCelebration model={celebration} planDate={readModel.planDate} backPath={backPath} />
             ) : (
@@ -198,7 +204,7 @@ export default async function AdleSessionPage({ searchParams }: AdleSessionPageP
             partOne={readModel.partOne}
             partTwo={readModel.partTwo}
             morphologyPilotPayload={morphologyPilotPayload}
-            dynamicPrefixPayload={dynamicPrefixPayload}
+            dynamicPrefixPayload={dynamicSuffixPayload ?? dynamicPrefixPayload}
             baseWordFamilyPilotPayload={baseWordFamilyPilotPayload}
           />
         )}

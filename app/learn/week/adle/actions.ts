@@ -58,6 +58,8 @@ import {
 import { isMorphologyUnPilotEnabledForChild } from "@/lib/adle/morphology/pilot-access";
 import { resolveDynamicPrefixRuntime } from "@/lib/adle/morphology/dynamic-prefix-runtime";
 import { isDynamicPrefixRouteEnabled } from "@/lib/adle/morphology/dynamic-prefix-staging-access";
+import { resolveDynamicAffixRuntime } from "@/lib/adle/morphology/dynamic-affix-runtime";
+import { isDynamicSuffixRouteEnabled } from "@/lib/adle/morphology/dynamic-suffix-route-gate";
 import { extractAuthoredTargetToken, resolveMorphologyPilotRuntime, type MorphologyLessonPayloadV1 } from "@/lib/adle/morphology/payload";
 import { isBaseWordFamilyPilotEnabledForChild } from "@/lib/adle/morphology/base-word-family-pilot-access";
 import { resolveBaseWordFamilyPilotRuntime } from "@/lib/adle/morphology/base-word-family-pilot-contract";
@@ -449,7 +451,11 @@ export async function completeAdleLessonPartAction(formData: FormData) {
     isDynamicPrefixRouteEnabled(),
     readModel.partTwo.items,
   );
-  const wordLabPayload = dynamicPrefix ?? morphologyPilot;
+  const dynamicSuffix = resolveDynamicAffixRuntime(
+    isDynamicSuffixRouteEnabled(),
+    readModel.partTwo.items,
+  );
+  const wordLabPayload = dynamicSuffix ?? dynamicPrefix ?? morphologyPilot;
   const atomicWordLabCompletionEnabled = process.env.ADLE_WORD_LAB_ATOMIC_COMPLETION_ENABLED === "enabled";
   const learningReflection = readFormValue(formData, "learningReflection");
   if (readModel.partTwo.complete && wordLabPayload === null) {
@@ -526,7 +532,7 @@ export async function completeAdleLessonPartAction(formData: FormData) {
   }
   const learningItems = ((learningItemRows.data ?? []) as LearningItemRow[]).map(learningItemFromRow);
 
-  const scheduledProductionItems = dynamicPrefix === null ? productionItems : productionItems.filter((item) => item.adleLearningItemRef !== null);
+  const scheduledProductionItems = dynamicPrefix === null && dynamicSuffix === null ? productionItems : productionItems.filter((item) => item.adleLearningItemRef !== null);
   const lessonResult = onLessonCompleted(policy, {
     childId,
     microSkillKey,
@@ -547,7 +553,7 @@ export async function completeAdleLessonPartAction(formData: FormData) {
     probeAttempts,
   });
 
-  if (morphologyPilot !== null && dynamicPrefix === null && atomicWordLabCompletionEnabled) {
+  if (morphologyPilot !== null && dynamicPrefix === null && dynamicSuffix === null && atomicWordLabCompletionEnabled) {
     const reflection = buildMorphologyReflection(context, morphologyPilot, learningReflection);
     const result = await timer.measure("atomic_durable_completion", () => persistWordLabCompletion(serviceClient, {
       parentUserId: context.parentUserId,

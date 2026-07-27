@@ -64,7 +64,8 @@ function bindingItem(
   return items.find(
     (item) =>
       item.promptData.pilotActivityId === binding ||
-      item.promptData.dynamicPrefixActivityId === binding,
+      item.promptData.dynamicPrefixActivityId === binding ||
+      item.promptData.dynamicAffixActivityId === binding,
   );
 }
 
@@ -634,8 +635,9 @@ function SplitBuild(props: {
   onCorrect: () => void;
   onComplete: () => void;
 }) {
-  const prefix = props.word.parts.find((part) => part.role === "prefix")?.text;
-  const baseOrRoot = props.word.parts.filter((part) => part.role !== "prefix").map((part) => part.text).join("");
+  const suffix = props.word.affixPosition === "after" || props.word.parts.some((part) => part.role === "suffix");
+  const affix = props.word.affixText ?? props.word.parts.find((part) => part.role === (suffix ? "suffix" : "prefix"))?.text;
+  const baseOrRoot = props.word.parts.filter((part) => part.role !== (suffix ? "suffix" : "prefix")).map((part) => part.text).join("");
   return (
     <SplitHandle
       word={props.word.displayWord}
@@ -645,8 +647,8 @@ function SplitBuild(props: {
       muted={props.muted}
       missMessage={props.missMessage}
       repeatedMissMessage={props.repeatedMissMessage}
-      correctHeading={prefix ? `Yes — ${prefix}- is at the front of the word.` : undefined}
-      correctExplanation={prefix && baseOrRoot ? `${prefix} + ${baseOrRoot} makes ${props.word.displayWord}.` : undefined}
+      correctHeading={affix ? `Yes — ${suffix ? `-${affix} is at the end` : `${affix}- is at the front`} of the word.` : undefined}
+      correctExplanation={affix && baseOrRoot ? (suffix ? `${baseOrRoot} + ${affix} makes ${props.word.displayWord}.` : `${affix} + ${baseOrRoot} makes ${props.word.displayWord}.`) : undefined}
       onMiss={props.onMiss}
       onCorrect={props.onCorrect}
       onContinue={props.onComplete}
@@ -742,6 +744,8 @@ function PrefixBuild(props: {
   const target = choices.find((choice) => choice.status === "target");
   const baseWord = build?.baseWord ?? props.activity.baseWord ?? "base word";
   const targetMeaning = build?.targetMeaning ?? props.activity.targetMeaning;
+  const term = props.activity.affixTerm ?? "prefix";
+  const suffix = props.activity.affixPosition === "after";
   return (
     <div className="grid gap-4">
       {props.totalBuilds > 1 ? (
@@ -758,13 +762,13 @@ function PrefixBuild(props: {
         tiles={choices.map((choice) => ({
           id: choice.text,
           text: choice.label,
-          role: "prefix" as const,
+          role: suffix ? "suffix" as const : "prefix" as const,
           gloss: choice.meaning ?? undefined,
         }))}
         expectedIds={target ? [target.text] : []}
         fixedTiles={[{ id: baseWord, text: baseWord, role: "base" }]}
-        fixedTilesPosition="after"
-        label={targetMeaning ? `Build the word meaning ${targetMeaning}` : `Choose a prefix for ${baseWord}`}
+        fixedTilesPosition={suffix ? "before" : "after"}
+        label={targetMeaning ? `Build the word that means ${targetMeaning}` : `Choose a ${term} for ${baseWord}`}
         muted={props.muted}
         onComplete={props.onComplete}
         onInvalid={(ids) => {
@@ -773,12 +777,12 @@ function PrefixBuild(props: {
           setMisses(nextMisses);
           setMessage(
             choice?.status === "valid_alternative"
-              ? `${choice.outcome ?? choice.label} means ${choice.meaning}. ${props.beat.onPartial ?? "Choose the prefix that makes this word."}`
+              ? `${choice.outcome ?? choice.label} means ${choice.meaning}. ${props.beat.onPartial ?? `Choose the ${term} that makes this word.`}`
               : nextMisses > 1
                 ? (props.beat.onRepeatedMisconception ??
-                  `Choose ${target?.label ?? "the right prefix"} to make the word.`)
+                  `Choose ${target?.label ?? `the right ${term}`} to make the word.`)
                 : (props.beat.onMisconception ??
-                  `That prefix does not make the word we need with ${baseWord}.`),
+                  `That ${term} does not make the word we need with ${baseWord}.`),
           );
         }}
       />
