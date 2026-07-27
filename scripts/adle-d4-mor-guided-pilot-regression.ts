@@ -113,6 +113,7 @@ assert(railSource.includes('fixedTilesPosition?: "before" | "after"') && railSou
 assert(!railSource.includes('`${id} placed in position') && railSource.includes('`${tileLabel} placed in position'), "assembly announcements use child-facing tile text instead of internal identifiers");
 assert(appShellSource.includes("inline-flex min-h-11 items-center rounded-full") && adlePageSource.includes('className="mt-3 inline-flex min-h-11 items-center'), "learner-shell navigation targets retain a 44px minimum height");
 assert(!diffSource.includes('props.attempt.toLocaleLowerCase') && diffSource.includes("a sentence starts with a capital letter"), "sentence diff preserves authored case and prompts for the initial capital");
+assert(diffSource.includes('allWordsMatch') && diffSource.includes('"Your sentence matches."'), "fully correct dictation receives affirmative feedback");
 assert(lessonSource.includes('autoCapitalize="sentences"') && lessonSource.includes("Remember recap") && lessonSource.includes('name="learningReflection"'), "Remember flows into a private written reflection");
 assert(lessonSource.includes("event.preventDefault()") && lessonSource.includes("props.onPreviewComplete ? undefined : completeAdleLessonPartAction"), "preview completion cannot invoke the authenticated lesson action");
 assert(!splitSource.includes('type="range"') && !splitSource.includes("Drag the split handle"), "Split removes the range slider");
