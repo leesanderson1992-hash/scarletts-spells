@@ -1,0 +1,32 @@
+{
+  "profile": "D4_MOR_SUFFIXES_NESS",
+  "status": "production_enabled",
+  "productionProject": "wwohrqtunajrbwxyssjf",
+  "importBatchId": "71693a19-7553-4afb-abe0-dd15d0329bdd",
+  "packageSha256": "5cc28373c6a10f12fd3b74f0f29480c923905236a0aad4efaab11cceb3f0d4d3",
+  "migration": "20260727110000_add_dynamic_suffix_dictionary_profiles",
+  "profileFacts": {
+    "active": true,
+    "approvedForFirstExposure": true,
+    "productionEnabled": true,
+    "eligibleMembers": 4,
+    "allMembersSafe": true
+  },
+  "protectedCountsUnchanged": {
+    "learningItems": 5,
+    "assignments": 60,
+    "evidence": 4,
+    "scheduling": 3
+  },
+  "productionGate": "ADLE_DYNAMIC_SUFFIX_PRODUCTION_ENABLED=enabled",
+  "deployment": {
+    "id": "dpl_9WUhZZbVuZLjBQTnsxuPiTWhgkc8",
+    "url": "https://scarletts-spells-ivrpppdse-leesanderson1992-hashs-projects.vercel.app",
+    "alias": "https://scarletts-spells.vercel.app",
+    "status": "Ready"
+  },
+  "smoke": {
+    "route": "/learn/week/adle/dynamic-suffix",
+    "result": "307 redirect to /login"
+  }
+}
