@@ -20,8 +20,8 @@
   },
   "productionGate": "ADLE_DYNAMIC_SUFFIX_PRODUCTION_ENABLED=enabled",
   "deployment": {
-    "id": "dpl_9WUhZZbVuZLjBQTnsxuPiTWhgkc8",
-    "url": "https://scarletts-spells-ivrpppdse-leesanderson1992-hashs-projects.vercel.app",
+    "id": "dpl_9vMAtoWJ2YragUnLqWFW873BpVT8",
+    "url": "https://scarletts-spells-u0eqj3j0t-leesanderson1992-hashs-projects.vercel.app",
     "alias": "https://scarletts-spells.vercel.app",
     "status": "Ready"
   },
