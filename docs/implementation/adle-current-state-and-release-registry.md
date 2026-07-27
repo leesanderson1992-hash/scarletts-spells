@@ -1,6 +1,6 @@
 # ADLE Current State and Lesson Release Registry
 
-Updated: 2026-07-23
+Updated: 2026-07-27
 
 ## Purpose
 
@@ -29,7 +29,7 @@ approval records.
 | Dynamic Prefix Word Lab: `in-` / `im-` / `il-` / `ir-` | `D4_MOR_PREFIXES_IN_IM_IL_IR` | `staging_approved` | Select up to four verified authentic targets, then approved same-profile transfers | Staging correction and independent proof completed 2026-07-22. The profile remains production-disabled pending separate written production approval. |
 | Dynamic Prefix Word Lab: `re-` / `pre-` | `D4_MOR_PREFIXES_RE_PRE` | `production_enabled` | `adle-dynamic-prefix-re-pre-production-receipt-2026-07-23.json` | Production batch `016705bb-9a87-44ce-a610-596132240b9b` retained four complete rows, created `preschool`, `rebuild` and `return`, and enabled one reviewed profile with seven safe members. Public deployment `dpl_5tYTL3c9J3gJ4i7uxCQMspQVRupK` is Ready; no other new prefix profile changed. |
 | Dynamic Prefix Word Lab: `sub-` / `inter-` / `super-` | `D4_MOR_PREFIXES_SUB_INTER_SUPER` | `staging_approved` | Select up to four verified authentic targets, then approved same-profile transfers | Staging proof and child-feedback correction completed 2026-07-23: 18-item contract, three prefix-form cleavers, explicit examples, instructed `Under`/`Between`/`Above or beyond` sort, meaning-led build, `inter + national` teaching build, and accessible slide/fallback Cover/Spell. The profile remains production-disabled pending separate written approval. |
-| Dynamic Suffix Word Lab: `-ness` | `D4_MOR_SUFFIXES_NESS` | `awaiting_content` | When approved, select up to four verified authentic targets, then approved same-profile transfers | Staging migration and guarded package import completed 2026-07-27; package `5cc28373c6a10f12fd3b74f0f29480c923905236a0aad4efaab11cceb3f0d4d3` created one disabled reviewed profile with four members. The import smoke is recorded in `adle-dynamic-suffix-ness-staging-import-smoke-2026-07-27.md`. Disposable-child runtime proof remains required before `staging_approved`. |
+| Dynamic Suffix Word Lab: `-ness` | `D4_MOR_SUFFIXES_NESS` | `staging_approved` | Select up to four verified authentic targets, then approved same-profile transfers | Staging migration and guarded package import completed 2026-07-27; package `5cc28373c6a10f12fd3b74f0f29480c923905236a0aad4efaab11cceb3f0d4d3` created one reviewed profile with four eligible members. The approved-child staging runtime proof completed the immutable 16-item lesson, reload/resume, completion evidence and scheduling checks. See `adle-dynamic-suffix-ness-staging-runtime-proof-2026-07-27.md`. The profile and production route gate remain disabled pending separate written production approval. |
 | All other D4 micro-skills | all remaining keys | `awaiting_content` | none | Reviewed corrections stay in the parent-review backlog. |
 
 ## Dynamic Prefix Word Lab contract
