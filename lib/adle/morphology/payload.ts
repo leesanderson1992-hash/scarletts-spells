@@ -143,6 +143,7 @@ export interface MorphologyLessonPayloadV1 {
   experienceProfile: "word_lab_v1";
   guide: {
     persona: "prefix_scout";
+    displayName?: string;
     narrationEnabled: boolean;
     beats: GuideBeatV1[];
   };
@@ -314,7 +315,7 @@ export function validateMorphologyLessonPayload(value: unknown): MorphologyLesso
   if (!isRecord(value) || value.schemaVersion !== 1 || value.experience !== MORPHOLOGY_LESSON_EXPERIENCE || value.microSkillId !== MORPHOLOGY_UN_MICRO_SKILL || value.experienceProfile !== "word_lab_v1") {
     return null;
   }
-  if (typeof value.contentVersion !== "string" || value.contentVersion.trim() === "" || !isRecord(value.guide) || value.guide.persona !== "prefix_scout" || typeof value.guide.narrationEnabled !== "boolean" || !Array.isArray(value.guide.beats)) {
+  if (typeof value.contentVersion !== "string" || value.contentVersion.trim() === "" || !isRecord(value.guide) || value.guide.persona !== "prefix_scout" || (value.guide.displayName !== undefined && typeof value.guide.displayName !== "string") || typeof value.guide.narrationEnabled !== "boolean" || !Array.isArray(value.guide.beats)) {
     return null;
   }
   if (!isRecord(value.words) || !isWord(value.words.anchor) || !Array.isArray(value.words.lesson) || !Array.isArray(value.words.stretch)) {

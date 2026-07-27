@@ -186,6 +186,7 @@ export function MorphologyGuidedLesson(props: {
       silent={state.stage === "dictation" || state.stage === "controlled"}
       help={help}
       onHelp={() => update({ helpLevel: Math.min(2, state.helpLevel + 1) })}
+      guideName={props.payload.guide.displayName}
       phases={hasMeaningSort ? undefined : ["Learn", "Discover", "Split", "Build", "Remember"]}
       phaseCues={hasMeaningSort ? undefined : ["Learn the idea", "Explore the meaning", "Find the word parts", "Build a word", "Remember and reflect"]}
     >

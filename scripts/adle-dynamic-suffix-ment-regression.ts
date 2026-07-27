@@ -124,6 +124,7 @@ const targetPositions = payload.activities.guided.builds.map((build) => {
 assert(new Set(targetPositions).size > 1, "target suffix position varies deterministically");
 const runtime = dynamicAffixRuntime(payload);
 assert(runtime, "adapts -ment to the shared position-aware runtime");
+assert.equal(runtime.guide.displayName, "Suffix Scout");
 const introduction = runtime.activities.find((activity) => activity.type === "introduction");
 assert.equal(introduction?.introScreens?.[0]?.meaningCallout, meaningStatement);
 assert.equal(runtime.activities.filter((activity) => activity.type === "meaning_sort").length, 0);
