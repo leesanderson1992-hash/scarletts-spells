@@ -26,7 +26,9 @@ async function main() {
   if (process.argv.includes("--validate")) { console.log("Dynamic suffix -able/-ible package validation passed."); return; }
   if (process.argv[process.argv.indexOf("--environment") + 1] !== "staging") fail("pass --environment staging");
   if (process.env.ADLE_DYNAMIC_SUFFIX_ACCEPT_STAGING !== "disposable-data-only") fail("set ADLE_DYNAMIC_SUFFIX_ACCEPT_STAGING=disposable-data-only");
-  const url = process.env.ADLE_DYNAMIC_SUFFIX_STAGING_DATABASE_URL; if (!url || !new URL(url).hostname.includes("jlhotktspjvffslvuyfz")) fail("staging database URL is required");
+  const url = process.env.ADLE_DYNAMIC_SUFFIX_STAGING_DATABASE_URL;
+  const stagingUrl = url ? new URL(url) : null;
+  if (!stagingUrl || !stagingUrl.hostname.endsWith("pooler.supabase.com") || !stagingUrl.username.includes("jlhotktspjvffslvuyfz")) fail("a valid staging database URL is required");
   const client = new pg.Client({ connectionString: url, ssl: { rejectUnauthorized: false } }); await client.connect();
   try {
     await client.query("begin");
