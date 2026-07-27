@@ -1,0 +1,10 @@
+{
+  "profile": "D4_MOR_SUFFIXES_ABLE_IBLE",
+  "status": "production_promoted",
+  "batchId": "a276c839-aab5-493a-a1b1-377e28e7fe52",
+  "packageSha256": "6f5361d811d019797ee2cbe8446cc5df7ab5a2315429fd4a62aa88ff46895145",
+  "members": 4,
+  "safeMembers": 4,
+  "productionEnabled": true,
+  "prohibitedWrites": { "learningItems": 5, "assignments": 60, "evidence": 4, "scheduling": 3 }
+}
