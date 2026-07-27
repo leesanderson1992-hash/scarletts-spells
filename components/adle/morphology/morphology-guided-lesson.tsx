@@ -448,6 +448,11 @@ function LearnIntroduction(props: {
             {paragraph}
           </p>
         ))}
+        {screen.meaningCallout ? (
+          <p className="rounded-2xl border-2 border-cyan-200 bg-cyan-100 px-5 py-4 text-xl font-black text-cyan-950">
+            {screen.meaningCallout}
+          </p>
+        ) : null}
       </div>
       {screen.model ? (
         <div

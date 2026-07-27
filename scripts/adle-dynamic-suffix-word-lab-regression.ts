@@ -39,7 +39,8 @@ const runtime = dynamicAffixRuntime(payload);
 assert(runtime, "adapts a valid suffix snapshot for the shared Word Lab");
 assert.equal(runtime.activities.find((activity) => activity.type === "strip_build")?.assignmentBindings.length, 2);
 assert.equal(runtime.activities.find((activity) => activity.type === "prefix_choice")?.affixTerm, "suffix");
-assert.deepEqual(runtime.activities.find((activity) => activity.type === "introduction")?.introScreens?.[0]?.paragraphs.slice(0, 2), ["A suffix is added to the end of a word.", "The suffix -ness means state or quality."]);
+assert.deepEqual(runtime.activities.find((activity) => activity.type === "introduction")?.introScreens?.[0]?.paragraphs.slice(0, 2), ["A suffix is added to the end of a word.", "-ness is spelled n-e-s-s."]);
+assert.equal(runtime.activities.find((activity) => activity.type === "introduction")?.introScreens?.[0]?.meaningCallout, "The suffix -ness means state or quality.");
 const builds = payload.activities.guided.builds;
 assert.notDeepEqual(builds[0]!.choices.map((choice) => choice.text), builds[1]!.choices.map((choice) => choice.text), "suffix choices rotate deterministically between builds");
 assert.equal(normaliseSessionWord("Happiness"), normaliseSessionWord("happiness"), "capitalised controlled spelling is correct");
@@ -77,7 +78,7 @@ assert(ableIblePayload.activities.introduction.spellingRules.includes("Use -able
 assert(ableIblePayload.activities.introduction.spellingRules.includes("Use -ible when the base is not a full standalone word: sens- → sensible."));
 assert.notDeepEqual(ableIblePayload.activities.guided.builds[0]!.choices.map((choice) => choice.text), ableIblePayload.activities.guided.builds[1]!.choices.map((choice) => choice.text), "mixed suffix choices rotate deterministically");
 const ableIbleRuntime = dynamicAffixRuntime(ableIblePayload)!;
-assert.equal(ableIbleRuntime.activities.find((activity) => activity.type === "introduction")?.introScreens?.[0]?.paragraphs.includes("The suffixes -able and -ible mean can be."), true);
+assert.equal(ableIbleRuntime.activities.find((activity) => activity.type === "introduction")?.introScreens?.[0]?.meaningCallout, "The suffixes -able and -ible mean can be.");
 const basePlan = { childId: "child", planDate: "2026-07-27", composerPolicyVersion: "test", schedulePolicyVersion: "test", throttle: {}, partOne: {}, partTwo: {}, budget: { budgetResponses: 0, estimatedResponses: 0, guidedWordCount: 0, introTrimmed: false, trims: [] } } as unknown as ComposedDailyPlan;
 assert.equal(buildDynamicAffixAssignmentPlan({ basePlan, selection: ableIbleSelection, payload: ableIblePayload }).partTwo.sections.flatMap((section) => section.items).length, 16, "keeps the 16-item contract");
 const incomplete = { ...ableIbleProfile, wordsByCanonicalId: new Map(ableIbleProfile.wordsByCanonicalId) };

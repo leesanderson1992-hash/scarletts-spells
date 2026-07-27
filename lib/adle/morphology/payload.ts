@@ -101,6 +101,8 @@ export interface MorphologyIntroductionScreenV1 {
   id: string;
   title: string;
   paragraphs: string[];
+  /** A single, visually distinct child-facing definition or meaning. */
+  meaningCallout?: string;
   model?: { prefix: string; base: string; result: string };
   wordCards?: Array<{ base: string; derived: string; meaning: string }>;
   /** Reviewed profile examples, used by mixed-prefix family explainers. */
@@ -431,6 +433,7 @@ function isActivity(value: unknown): value is MorphologyActivityV1 {
 
 function isIntroductionScreen(value: unknown): value is MorphologyIntroductionScreenV1 {
   if (!isRecord(value) || typeof value.id !== "string" || typeof value.title !== "string" || typeof value.ctaLabel !== "string" || !Array.isArray(value.paragraphs) || !value.paragraphs.every((paragraph) => typeof paragraph === "string")) return false;
+  if (value.meaningCallout !== undefined && typeof value.meaningCallout !== "string") return false;
   if (value.model !== undefined && (!isRecord(value.model) || typeof value.model.prefix !== "string" || typeof value.model.base !== "string" || typeof value.model.result !== "string")) return false;
   if (value.wordCards !== undefined && (!Array.isArray(value.wordCards) || !value.wordCards.every((card) => isRecord(card) && typeof card.base === "string" && typeof card.derived === "string" && typeof card.meaning === "string"))) return false;
   return true;

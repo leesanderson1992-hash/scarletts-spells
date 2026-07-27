@@ -15,7 +15,7 @@
     ],
     "introContent": {
       "title": "What are -able and -ible?",
-      "paragraphs": ["The suffixes -able and -ible both mean can be. They sound alike, so look carefully at the part before the suffix."],
+      "paragraphs": ["These suffixes sound alike, so look carefully at the part before the suffix."],
       "spellingRules": ["Use -able when the root word is a complete, recognisable standalone word: wash → washable.", "Use -ible when the base is not a full standalone word: sens- → sensible.", "This is a helpful spelling test for these words."],
       "examples": [{ "affix": "able", "base": "wash", "word": "washable", "meaning": "can be washed" }, { "affix": "ible", "base": "sens", "word": "sensible", "meaning": "able to be sensed or understood" }]
     },
