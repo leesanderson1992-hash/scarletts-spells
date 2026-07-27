@@ -14,7 +14,7 @@ import { compileDynamicAffixWordLabPayload, selectDynamicAffixWordLab } from "@/
 import { loadDynamicSuffixProfiles } from "@/lib/adle/morphology/dynamic-suffix-profile-loader";
 import { isDynamicSuffixRouteEnabled } from "@/lib/adle/morphology/dynamic-suffix-route-gate";
 
-export async function createDynamicSuffixStagingAssignmentAction(formData: FormData) {
+export async function createDynamicSuffixAssignmentAction(formData: FormData) {
   const childId = typeof formData.get("childId") === "string" ? String(formData.get("childId")) : "";
   if (!isDynamicSuffixRouteEnabled() || !childId) redirect("/learn/week");
   const userClient = await createClient(); const { data: { user } } = await userClient.auth.getUser();
