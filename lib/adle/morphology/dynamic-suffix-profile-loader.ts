@@ -18,10 +18,22 @@ function joins(value: unknown) {
 /** Service-role-only dictionary read; all incomplete suffix facts reject the profile. */
 export async function loadDynamicSuffixProfiles(client: SupabaseClient, childId: string, options: { allowStagingProfiles?: boolean } = {}): Promise<{ profiles: DynamicAffixProfile[]; learningItems: LearningItemFact[] }> {
   const [{ data: profileRows, error: profileError }, { data: itemRows, error: itemError }] = await Promise.all([
-    client.from("canonical_teaching_dictionary_suffix_profiles").select("id,micro_skill_key,suffix_label,suffix_text,suffix_meaning,meaning_bins,include_meaning_sort,suffix_choices,intro_content,reflection_prompt_key,reflection_prompt_text,production_enabled,row_status,review_status,canonical_teaching_dictionary_suffix_members(canonical_word_id,member_role,suffix_variant,semantic_base_text,semantic_base_kind,base_meaning,new_word_meaning,meaning_bin_key,teaching_split_parts,teaching_split_joins,true_morphology_parts,true_morphology_joins,true_morphology_transformations,transformation_notes,true_morphology_provenance,assignment_eligible,row_status,review_status,canonical_teaching_dictionary_words!inner(display_word,frequency_band,age_band,complexity_band,row_status,review_status,canonical_teaching_dictionary_dictation_sentences(dictation_sentence,dictation_target_token_index,audio_text,row_status,review_status),canonical_teaching_dictionary_word_metadata(syllables,phoneme_hint,stress_pattern,has_schwa,row_status,review_status)))").in("micro_skill_key", DYNAMIC_SUFFIX_PROFILE_KEYS).eq("row_status", "active").eq("review_status", "approved_for_first_exposure"),
+    client.from("canonical_teaching_dictionary_suffix_profiles").select("id,micro_skill_key,suffix_label,suffix_text,suffix_meaning,meaning_bins,include_meaning_sort,suffix_choices,intro_content,reflection_prompt_key,reflection_prompt_text,production_enabled,row_status,review_status,canonical_teaching_dictionary_suffix_members(canonical_word_id,member_role,suffix_variant,semantic_base_text,semantic_base_kind,base_meaning,new_word_meaning,meaning_bin_key,teaching_split_parts,teaching_split_joins,true_morphology_parts,true_morphology_joins,true_morphology_transformations,transformation_notes,true_morphology_provenance,assignment_eligible,row_status,review_status)").in("micro_skill_key", DYNAMIC_SUFFIX_PROFILE_KEYS).eq("row_status", "active").eq("review_status", "approved_for_first_exposure"),
     client.from("adle_learning_items").select("id,child_id,canonical_word_id,micro_skill_key,item_status,source_kind,source_ref,source_attempt_text,reteach_priority,ejected_on,intake_on,row_status").eq("child_id", childId).in("micro_skill_key", DYNAMIC_SUFFIX_PROFILE_KEYS).eq("row_status", "active"),
   ]);
   if (profileError || itemError) throw new Error(`loadDynamicSuffixProfiles: ${profileError?.message ?? itemError?.message}`);
+  const wordIds = [...new Set((profileRows ?? []).flatMap((profile: any) => (profile.canonical_teaching_dictionary_suffix_members ?? []).map((member: Member) => member.canonical_word_id)))];
+  const [{ data: dictionaryWords, error: wordsError }, { data: dictations, error: dictationError }, { data: metadata, error: metadataError }] = wordIds.length
+    ? await Promise.all([
+      client.from("canonical_teaching_dictionary_words").select("id,display_word,frequency_band,age_band,complexity_band,row_status,review_status").in("id", wordIds),
+      client.from("canonical_teaching_dictionary_dictation_sentences").select("canonical_word_id,dictation_sentence,dictation_target_token_index,audio_text,row_status,review_status").in("canonical_word_id", wordIds),
+      client.from("canonical_teaching_dictionary_word_metadata").select("canonical_word_id,syllables,phoneme_hint,stress_pattern,has_schwa,row_status,review_status").in("canonical_word_id", wordIds),
+    ])
+    : [{ data: [], error: null }, { data: [], error: null }, { data: [], error: null }];
+  if (wordsError || dictationError || metadataError) throw new Error(`loadDynamicSuffixProfiles dictionary: ${wordsError?.message ?? dictationError?.message ?? metadataError?.message}`);
+  const wordsById = new Map((dictionaryWords ?? []).map((word: any) => [word.id, word]));
+  const dictationsByWordId = new Map<string, any[]>(); for (const dictation of dictations ?? []) dictationsByWordId.set((dictation as any).canonical_word_id, [...(dictationsByWordId.get((dictation as any).canonical_word_id) ?? []), dictation]);
+  const metadataByWordId = new Map<string, any[]>(); for (const entry of metadata ?? []) metadataByWordId.set((entry as any).canonical_word_id, [...(metadataByWordId.get((entry as any).canonical_word_id) ?? []), entry]);
   const profiles: DynamicAffixProfile[] = [];
   for (const raw of profileRows ?? []) {
     const row: any = raw;
@@ -29,12 +41,9 @@ export async function loadDynamicSuffixProfiles(client: SupabaseClient, childId:
     const words = new Map<string, DynamicAffixWord>();
     let safe = true;
     for (const member of (row.canonical_teaching_dictionary_suffix_members ?? []) as Member[]) {
-      const word = member.canonical_teaching_dictionary_words;
-      const dictation = word?.canonical_teaching_dictionary_dictation_sentences?.find((entry: any) => entry.row_status === "active" && entry.review_status === "approved_for_first_exposure");
-      const metadataRows = word?.canonical_teaching_dictionary_word_metadata;
-      const metadata = Array.isArray(metadataRows)
-        ? metadataRows.find((entry: any) => entry.row_status === "active" && entry.review_status === "approved_for_first_exposure")
-        : metadataRows;
+      const word = wordsById.get(member.canonical_word_id);
+      const dictation = dictationsByWordId.get(member.canonical_word_id)?.find((entry: any) => entry.row_status === "active" && entry.review_status === "approved_for_first_exposure");
+      const metadata = metadataByWordId.get(member.canonical_word_id)?.find((entry: any) => entry.row_status === "active" && entry.review_status === "approved_for_first_exposure");
       const teachingParts = parts(member.teaching_split_parts); const trueParts = parts(member.true_morphology_parts);
       const split = teachingParts.filter((part) => part.role === "suffix").map((part) => part.start);
       const suffixPart = teachingParts.find((part) => part.role === "suffix");
