@@ -529,6 +529,7 @@ function Discovery(props: {
   const card = cards[props.index];
   const prefix = card.prefixLabel ?? activity.prefixLabel ?? "un-";
   const legacy = !activity.prefixLabel && !card.prefixLabel;
+  const affixTerm = activity.affixTerm ?? "prefix";
   const [selected, setSelected] = useState<string | null>(null);
   const correct = selected === card.derivedMeaning;
   return (
@@ -554,7 +555,7 @@ function Discovery(props: {
           <p className="mt-2 text-lg font-bold">
             {props.addedPrefix
               ? "New word meaning: choose the best match"
-              : "Add the prefix to find out"}
+              : `Add the ${affixTerm} to find out`}
           </p>
         </section>
       </div>
