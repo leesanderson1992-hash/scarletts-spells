@@ -92,7 +92,9 @@ export function MorphologyGuidedLesson(props: {
     [props.payload.activities],
   );
   useEffect(() => {
-    const frame = window.requestAnimationFrame(() => {
+    // Resume restoration must also run when a lesson reloads in a background
+    // tab; requestAnimationFrame may be throttled indefinitely there.
+    const timer = window.setTimeout(() => {
       const restored = readMorphologyResume<unknown>(
         key,
         props.payload.contentVersion,
@@ -104,8 +106,8 @@ export function MorphologyGuidedLesson(props: {
       );
       if (normalised) setState(normalised);
       setHydrated(true);
-    });
-    return () => window.cancelAnimationFrame(frame);
+    }, 0);
+    return () => window.clearTimeout(timer);
   }, [
     guidedBindings,
     key,

@@ -16,10 +16,13 @@ import { dynamicAffixRuntime } from "../lib/adle/morphology/dynamic-affix-runtim
 import { normaliseSessionWord } from "../lib/adle/session-correctness";
 
 const packageFile = resolve("docs/implementation/seed-data/teaching-dictionary/candidates/2026-07-27-dynamic-suffix-ment/reviewed-staging-package.json");
+const guidedLessonSource = readFileSync(resolve("components/adle/morphology/morphology-guided-lesson.tsx"), "utf8");
 const reviewed = JSON.parse(readFileSync(packageFile, "utf8"));
 const meaningStatement = "Add -ment to a word to turn an action into a thing, process or result.";
 assert.equal(reviewed.profile.introContent.meaningStatement, meaningStatement);
 assert.equal(JSON.stringify(reviewed).split(meaningStatement).length - 1, 1, "approved meaning statement appears exactly once");
+assert(guidedLessonSource.includes("window.setTimeout(() =>"), "resume hydration is not animation-frame gated");
+assert(!guidedLessonSource.includes("window.requestAnimationFrame(() =>"), "background reload cannot stall resume hydration");
 assert.deepEqual(reviewed.words.map((word: any) => word.word), ["enjoyment", "payment", "agreement", "movement"]);
 assert(reviewed.words.every((word: any) => word.reviewedFacts?.frequencyBand
   && word.reviewedFacts?.ageBand && word.reviewedFacts?.complexityBand
