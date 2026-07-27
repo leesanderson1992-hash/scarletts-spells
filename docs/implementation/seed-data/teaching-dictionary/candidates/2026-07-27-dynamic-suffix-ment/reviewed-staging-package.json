@@ -1,0 +1,452 @@
+{
+  "schemaVersion": 1,
+  "profile": {
+    "microSkillKey": "D4_MOR_SUFFIXES_MENT",
+    "suffixLabel": "-ment",
+    "suffixText": "ment",
+    "suffixMeaning": "a thing, process or result from an action",
+    "meaningBins": [
+      {
+        "id": "action_thing_process_result",
+        "label": "THING, PROCESS OR RESULT",
+        "description": "a thing, process or result from an action"
+      }
+    ],
+    "includeMeaningSort": false,
+    "suffixChoices": [
+      {
+        "text": "ment",
+        "label": "-ment",
+        "outcome": null,
+        "meaning": "a thing, process or result from an action",
+        "status": "target"
+      },
+      {
+        "text": "mant",
+        "label": "-mant",
+        "outcome": null,
+        "meaning": null,
+        "status": "unsupported"
+      },
+      {
+        "text": "mint",
+        "label": "-mint",
+        "outcome": null,
+        "meaning": null,
+        "status": "unsupported"
+      }
+    ],
+    "introContent": {
+      "title": "What is the suffix -ment?",
+      "meaningStatement": "Add -ment to a word to turn an action into a thing, process or result.",
+      "paragraphs": [
+        "A suffix is added to the end of a base or root."
+      ],
+      "spellingRules": [
+        "Spell the suffix m-e-n-t, even when its vowel is difficult to hear.",
+        "In these lesson words, keep the whole base before adding -ment.",
+        "Keep the final e in agree + ment → agreement and move + ment → movement."
+      ],
+      "examples": [
+        {
+          "affix": "ment",
+          "base": "enjoy",
+          "word": "enjoyment",
+          "meaning": "the feeling or process of enjoying"
+        },
+        {
+          "affix": "ment",
+          "base": "move",
+          "word": "movement",
+          "meaning": "the action or process of moving"
+        }
+      ]
+    },
+    "reflection": {
+      "promptKey": "ment-base-preservation-v1",
+      "promptText": "How did keeping the whole base and adding -ment help you spell and understand the new word?"
+    }
+  },
+  "words": [
+    {
+      "word": "enjoyment",
+      "memberRole": "transfer",
+      "suffixVariant": "ment",
+      "semanticBaseText": "enjoy",
+      "semanticBaseKind": "base",
+      "baseMeaning": "enjoy: to take pleasure in something",
+      "newWordMeaning": "the feeling or process of enjoying",
+      "meaningBinKey": "action_thing_process_result",
+      "teaching": {
+        "parts": [
+          {
+            "id": "base",
+            "kind": "base",
+            "sourceText": "enjoy",
+            "surfaceText": "enjoy",
+            "displayRange": {
+              "start": 0,
+              "end": 5
+            }
+          },
+          {
+            "id": "suffix",
+            "kind": "suffix",
+            "sourceText": "ment",
+            "surfaceText": "ment",
+            "gloss": "thing, process or result from an action",
+            "displayRange": {
+              "start": 5,
+              "end": 9
+            }
+          }
+        ],
+        "joins": [
+          {
+            "afterPartId": "base",
+            "beforePartId": "suffix",
+            "joinType": "none"
+          }
+        ]
+      },
+      "trueMorphology": {
+        "parts": [
+          {
+            "id": "base",
+            "kind": "base",
+            "sourceText": "enjoy",
+            "surfaceText": "enjoy",
+            "displayRange": {
+              "start": 0,
+              "end": 5
+            }
+          },
+          {
+            "id": "suffix",
+            "kind": "suffix",
+            "sourceText": "ment",
+            "surfaceText": "ment",
+            "displayRange": {
+              "start": 5,
+              "end": 9
+            }
+          }
+        ],
+        "joins": [
+          {
+            "afterPartId": "base",
+            "beforePartId": "suffix",
+            "joinType": "none"
+          }
+        ],
+        "transformations": [],
+        "notes": "No spelling transformation: enjoy + ment.",
+        "provenance": {
+          "source": "Human-approved D4_MOR category v1 word analysis",
+          "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+          "sheet": "Word Bank",
+          "row": 79
+        }
+      },
+      "reviewedFacts": {
+        "frequencyBand": "medium",
+        "ageBand": "middle_primary",
+        "complexityBand": "medium",
+        "syllables": "3",
+        "phonemeHint": "/ɛndʒˈɔɪmənt/",
+        "stressPattern": "unstressed-primary-unstressed",
+        "hasSchwa": true
+      },
+      "dictation": {
+        "sentence": "Her smile showed her enjoyment of the game.",
+        "targetTokenIndex": 4,
+        "audioText": "Her smile showed her enjoyment of the game."
+      }
+    },
+    {
+      "word": "payment",
+      "memberRole": "transfer",
+      "suffixVariant": "ment",
+      "semanticBaseText": "pay",
+      "semanticBaseKind": "base",
+      "baseMeaning": "pay: to give money for something",
+      "newWordMeaning": "money given, or the act of paying",
+      "meaningBinKey": "action_thing_process_result",
+      "teaching": {
+        "parts": [
+          {
+            "id": "base",
+            "kind": "base",
+            "sourceText": "pay",
+            "surfaceText": "pay",
+            "displayRange": {
+              "start": 0,
+              "end": 3
+            }
+          },
+          {
+            "id": "suffix",
+            "kind": "suffix",
+            "sourceText": "ment",
+            "surfaceText": "ment",
+            "gloss": "thing, process or result from an action",
+            "displayRange": {
+              "start": 3,
+              "end": 7
+            }
+          }
+        ],
+        "joins": [
+          {
+            "afterPartId": "base",
+            "beforePartId": "suffix",
+            "joinType": "none"
+          }
+        ]
+      },
+      "trueMorphology": {
+        "parts": [
+          {
+            "id": "base",
+            "kind": "base",
+            "sourceText": "pay",
+            "surfaceText": "pay",
+            "displayRange": {
+              "start": 0,
+              "end": 3
+            }
+          },
+          {
+            "id": "suffix",
+            "kind": "suffix",
+            "sourceText": "ment",
+            "surfaceText": "ment",
+            "displayRange": {
+              "start": 3,
+              "end": 7
+            }
+          }
+        ],
+        "joins": [
+          {
+            "afterPartId": "base",
+            "beforePartId": "suffix",
+            "joinType": "none"
+          }
+        ],
+        "transformations": [],
+        "notes": "No spelling transformation: pay + ment.",
+        "provenance": {
+          "source": "Human-approved D4_MOR category v1 word analysis",
+          "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+          "sheet": "Word Bank",
+          "row": 80
+        }
+      },
+      "reviewedFacts": {
+        "frequencyBand": "high",
+        "ageBand": "middle_primary",
+        "complexityBand": "medium",
+        "syllables": "2",
+        "phonemeHint": "/pˈeɪmənt/",
+        "stressPattern": "primary-unstressed",
+        "hasSchwa": true
+      },
+      "dictation": {
+        "sentence": "Dad made a payment for the new bicycle.",
+        "targetTokenIndex": 3,
+        "audioText": "Dad made a payment for the new bicycle."
+      }
+    },
+    {
+      "word": "agreement",
+      "memberRole": "transfer",
+      "suffixVariant": "ment",
+      "semanticBaseText": "agree",
+      "semanticBaseKind": "base",
+      "baseMeaning": "agree: to share an opinion or decision",
+      "newWordMeaning": "a result reached by agreeing",
+      "meaningBinKey": "action_thing_process_result",
+      "teaching": {
+        "parts": [
+          {
+            "id": "base",
+            "kind": "base",
+            "sourceText": "agree",
+            "surfaceText": "agree",
+            "displayRange": {
+              "start": 0,
+              "end": 5
+            }
+          },
+          {
+            "id": "suffix",
+            "kind": "suffix",
+            "sourceText": "ment",
+            "surfaceText": "ment",
+            "gloss": "thing, process or result from an action",
+            "displayRange": {
+              "start": 5,
+              "end": 9
+            }
+          }
+        ],
+        "joins": [
+          {
+            "afterPartId": "base",
+            "beforePartId": "suffix",
+            "joinType": "none"
+          }
+        ]
+      },
+      "trueMorphology": {
+        "parts": [
+          {
+            "id": "base",
+            "kind": "base",
+            "sourceText": "agree",
+            "surfaceText": "agree",
+            "displayRange": {
+              "start": 0,
+              "end": 5
+            }
+          },
+          {
+            "id": "suffix",
+            "kind": "suffix",
+            "sourceText": "ment",
+            "surfaceText": "ment",
+            "displayRange": {
+              "start": 5,
+              "end": 9
+            }
+          }
+        ],
+        "joins": [
+          {
+            "afterPartId": "base",
+            "beforePartId": "suffix",
+            "joinType": "none"
+          }
+        ],
+        "transformations": [],
+        "notes": "No spelling transformation: agree + ment. The final e is retained.",
+        "provenance": {
+          "source": "Human-approved D4_MOR category v1 word analysis",
+          "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+          "sheet": "Word Bank",
+          "row": 83
+        }
+      },
+      "reviewedFacts": {
+        "frequencyBand": "high",
+        "ageBand": "early_primary",
+        "complexityBand": "medium",
+        "syllables": "3",
+        "phonemeHint": "/ɐɡɹˈiːmənt/",
+        "stressPattern": "unstressed-primary-unstressed",
+        "hasSchwa": true
+      },
+      "dictation": {
+        "sentence": "We made an agreement to share the computer fairly.",
+        "targetTokenIndex": 3,
+        "audioText": "We made an agreement to share the computer fairly."
+      }
+    },
+    {
+      "word": "movement",
+      "memberRole": "transfer",
+      "suffixVariant": "ment",
+      "semanticBaseText": "move",
+      "semanticBaseKind": "base",
+      "baseMeaning": "move: to change position",
+      "newWordMeaning": "the action or process of moving",
+      "meaningBinKey": "action_thing_process_result",
+      "teaching": {
+        "parts": [
+          {
+            "id": "base",
+            "kind": "base",
+            "sourceText": "move",
+            "surfaceText": "move",
+            "displayRange": {
+              "start": 0,
+              "end": 4
+            }
+          },
+          {
+            "id": "suffix",
+            "kind": "suffix",
+            "sourceText": "ment",
+            "surfaceText": "ment",
+            "gloss": "thing, process or result from an action",
+            "displayRange": {
+              "start": 4,
+              "end": 8
+            }
+          }
+        ],
+        "joins": [
+          {
+            "afterPartId": "base",
+            "beforePartId": "suffix",
+            "joinType": "none"
+          }
+        ]
+      },
+      "trueMorphology": {
+        "parts": [
+          {
+            "id": "base",
+            "kind": "base",
+            "sourceText": "move",
+            "surfaceText": "move",
+            "displayRange": {
+              "start": 0,
+              "end": 4
+            }
+          },
+          {
+            "id": "suffix",
+            "kind": "suffix",
+            "sourceText": "ment",
+            "surfaceText": "ment",
+            "displayRange": {
+              "start": 4,
+              "end": 8
+            }
+          }
+        ],
+        "joins": [
+          {
+            "afterPartId": "base",
+            "beforePartId": "suffix",
+            "joinType": "none"
+          }
+        ],
+        "transformations": [],
+        "notes": "No spelling transformation: move + ment. The final e is retained.",
+        "provenance": {
+          "source": "Human-approved D4_MOR category v1 word analysis",
+          "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+          "sheet": "Word Bank",
+          "row": 82
+        }
+      },
+      "reviewedFacts": {
+        "frequencyBand": "high",
+        "ageBand": "lower_secondary",
+        "complexityBand": "medium",
+        "syllables": "2",
+        "phonemeHint": "/mˈuːvmənt/",
+        "stressPattern": "primary-unstressed",
+        "hasSchwa": true
+      },
+      "dictation": {
+        "sentence": "The camera detected movement.",
+        "targetTokenIndex": 3,
+        "audioText": "The camera detected movement."
+      }
+    }
+  ]
+}

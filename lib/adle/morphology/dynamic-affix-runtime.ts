@@ -10,7 +10,8 @@ export function dynamicAffixRuntime(payload: unknown): MorphologyLessonPayloadV1
   if (!first || split.some((word) => !word)) return null;
   const term = snapshot.affix.position === "after" ? "suffix" : "prefix";
   const pluralAffix = snapshot.affix.position === "after" && snapshot.affix.label.includes(" and ");
-  const affixMeaningSentence = `The ${pluralAffix ? "suffixes" : term} ${snapshot.affix.label} ${pluralAffix ? "mean" : "means"} ${snapshot.affix.meaning}.`;
+  const affixMeaningSentence = snapshot.activities.introduction.meaningStatement
+    ?? `The ${pluralAffix ? "suffixes" : term} ${snapshot.affix.label} ${pluralAffix ? "mean" : "means"} ${snapshot.affix.meaning}.`;
   const beats: GuideBeatV1[] = [
     { id: "intro", activityId: "introduction", state: "invite", goal: `notice the ${term}`, waitFor: "continue", onComplete: "discover" },
     { id: "discover", activityId: "discover", state: "observe", goal: "notice meaning", waitFor: "choose", onComplete: "strip-build" },

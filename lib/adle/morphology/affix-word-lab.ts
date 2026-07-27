@@ -54,7 +54,14 @@ export interface DynamicAffixProfile {
   transferCanonicalWordIds: readonly string[];
   choices: AffixChoice[];
   reflection: { promptKey: string; promptText: string };
-  introduction: { title: string; paragraphs: string[]; spellingRules: string[]; examples: Array<{ affix: string; base: string; word: string; meaning: string }> };
+  introduction: {
+    title: string;
+    paragraphs: string[];
+    spellingRules: string[];
+    examples: Array<{ affix: string; base: string; word: string; meaning: string }>;
+    /** Optional reviewed sentence used verbatim as the prominent meaning callout. */
+    meaningStatement?: string;
+  };
 }
 
 export interface DynamicAffixSelection { profile: DynamicAffixProfile; authenticTargets: LearningItemFact[]; transfers: DynamicAffixWord[]; }

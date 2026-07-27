@@ -4,7 +4,7 @@ import type { LearningItemFact } from "../learning-items";
 import type { MorphologyPartRole } from "./payload";
 import type { DynamicAffixProfile, DynamicAffixWord } from "./affix-word-lab";
 
-export const DYNAMIC_SUFFIX_PROFILE_KEYS = ["D4_MOR_SUFFIXES_NESS", "D4_MOR_SUFFIXES_ABLE_IBLE"] as const;
+export const DYNAMIC_SUFFIX_PROFILE_KEYS = ["D4_MOR_SUFFIXES_NESS", "D4_MOR_SUFFIXES_ABLE_IBLE", "D4_MOR_SUFFIXES_MENT"] as const;
 
 type Member = any;
 
@@ -37,7 +37,7 @@ export async function loadDynamicSuffixProfiles(client: SupabaseClient, childId:
   const profiles: DynamicAffixProfile[] = [];
   for (const raw of profileRows ?? []) {
     const row: any = raw;
-    if (!Array.isArray(row.meaning_bins) || !Array.isArray(row.suffix_choices) || !row.intro_content?.title || !Array.isArray(row.intro_content.paragraphs) || !Array.isArray(row.intro_content.spellingRules) || !Array.isArray(row.intro_content.examples) || typeof row.include_meaning_sort !== "boolean" || !row.reflection_prompt_key || !row.reflection_prompt_text) continue;
+    if (!Array.isArray(row.meaning_bins) || !Array.isArray(row.suffix_choices) || !row.intro_content?.title || !Array.isArray(row.intro_content.paragraphs) || !Array.isArray(row.intro_content.spellingRules) || !Array.isArray(row.intro_content.examples) || (row.intro_content.meaningStatement !== undefined && typeof row.intro_content.meaningStatement !== "string") || typeof row.include_meaning_sort !== "boolean" || !row.reflection_prompt_key || !row.reflection_prompt_text) continue;
     const words = new Map<string, DynamicAffixWord>();
     let safe = true;
     for (const member of (row.canonical_teaching_dictionary_suffix_members ?? []) as Member[]) {
