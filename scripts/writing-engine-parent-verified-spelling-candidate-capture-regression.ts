@@ -108,6 +108,8 @@ type HarnessResult = {
   redirects: RedirectSignal[];
   verificationCalls: ParentVerificationCall[];
   candidateInserts: CandidateMappingInsert[];
+  promotionCalls: Array<Record<string, unknown>>;
+  recommendationInserts: number;
   suggestionUpdateCalls: Array<Record<string, unknown>>;
 };
 
@@ -334,11 +336,41 @@ function loadCaptureSubmissionSpellingCandidateMapping(state: Required<HarnessSt
     redirects: [],
     verificationCalls: [],
     candidateInserts: [],
+    promotionCalls: [],
+    recommendationInserts: 0,
     suggestionUpdateCalls: [],
   };
 
   const stubModules: Record<string, unknown> = {
     "server-only": {},
+    "./actions/review-completion-actions": {
+      async approveSubmissionReviewImpl() {},
+      async deleteSubmissionFromReviewImpl() {},
+      async finaliseWritingIssueClassificationImpl() {},
+      async returnSubmissionToChildImpl() {},
+    },
+    "./actions/positive-evidence-actions": {
+      async bulkConfirmSubmissionPositiveEvidenceImpl() {},
+      async bulkDismissSubmissionPositiveEvidenceImpl() {},
+      async confirmSubmissionPositiveEvidenceImpl() {},
+      async dismissSubmissionPositiveEvidenceImpl() {},
+    },
+    "./actions/catalog-review-case-actions": {
+      async captureSpellingCatalogReviewCaseImpl() {},
+    },
+    "./actions/adle-paused-words-actions": {
+      async releaseAdlePausedWordImpl() {},
+    },
+    "./canonical-spelling-backfill-actions": {
+      async backfillPendingSubmissionSuggestionCanonicalMicroSkill(input: {
+        suggestion: Record<string, unknown>;
+      }) {
+        return input.suggestion;
+      },
+      normaliseExistingParentVerificationLookupRow(value: unknown) {
+        return value;
+      },
+    },
     "next/cache": {
       revalidatePath() {},
     },
@@ -407,6 +439,28 @@ function loadCaptureSubmissionSpellingCandidateMapping(state: Required<HarnessSt
     "@/lib/rewards/course-coins": {
       async maybeAwardTaskSubmissionApprovalCoins() {},
     },
+    "@/lib/rewards/free-writing-evidence": {
+      async confirmFreeWritingEvidenceCandidates() {},
+    },
+    "@/lib/rewards/word-treasures": {
+      async createOrUpdateGoldenNuggetFromParentApproval() {},
+    },
+    "@/lib/supabase/service-role": {
+      createServiceRoleClient() {
+        return {};
+      },
+    },
+    "@/lib/adle/loaders/authentic-use-live-emission": {
+      async emitAdleAuthenticUseFromApprovedSubmission() {},
+    },
+    "@/lib/adle/loaders/canonical-intake-live": {
+      async intakeApprovedSubmissionCorrections() {
+        return { enabled: false, blocked: [] };
+      },
+    },
+    "@/lib/rewards/adle-reward-bridge": {
+      async recordAdleAuthenticUsesForRewards() {},
+    },
     "@/lib/writing-engine/persistence/learning-items": {
       async getCanonicalSubmissionSpellingCatalogEntries() {
         return [];
@@ -464,6 +518,51 @@ function loadCaptureSubmissionSpellingCandidateMapping(state: Required<HarnessSt
             return {
               id: "candidate-1",
               parent_verification_id: input.parentVerificationId,
+              parent_user_id: input.parentUserId,
+              child_id: input.childId,
+              task_submission_id: input.taskSubmissionId,
+              writing_sample_id: input.writingSampleId,
+              source_suggestion_id: input.sourceSuggestionId,
+              source_misspelling_instance_id: input.sourceMisspellingInstanceId,
+              source_provenance: input.sourceProvenance,
+              reviewed_event_source_entity_id: input.reviewedEventSourceEntityId,
+              original_child_spelling: input.originalChildSpelling,
+              original_correct_spelling: input.originalCorrectSpelling,
+              misspelling_normalized: input.misspellingNormalized,
+              correct_spelling_normalized: input.correctSpellingNormalized,
+              micro_skill_key: input.microSkillKey,
+              candidate_status: "pending_parent_promotion",
+              promotion_scope: "parent_local",
+              metadata: input.metadata ?? {},
+            };
+          },
+          async findConflictingScopedPromotedMappings() {
+            return [];
+          },
+          async promoteParentLocalPending(input: Record<string, unknown>) {
+            result.promotionCalls.push(input);
+            const candidate = result.candidateInserts.at(-1)!;
+            return {
+              record: {
+                id: "candidate-1",
+                parent_verification_id: candidate.parentVerificationId,
+                parent_user_id: candidate.parentUserId,
+                child_id: candidate.childId,
+                task_submission_id: candidate.taskSubmissionId,
+                writing_sample_id: candidate.writingSampleId,
+                source_suggestion_id: candidate.sourceSuggestionId,
+                source_misspelling_instance_id: candidate.sourceMisspellingInstanceId,
+                source_provenance: candidate.sourceProvenance,
+                reviewed_event_source_entity_id: candidate.reviewedEventSourceEntityId,
+                original_child_spelling: candidate.originalChildSpelling,
+                original_correct_spelling: candidate.originalCorrectSpelling,
+                misspelling_normalized: candidate.misspellingNormalized,
+                correct_spelling_normalized: candidate.correctSpellingNormalized,
+                micro_skill_key: candidate.microSkillKey,
+                candidate_status: "parent_local_promoted",
+                promotion_scope: "parent_local",
+                metadata: candidate.metadata ?? {},
+              },
             };
           },
         };
@@ -476,9 +575,7 @@ function loadCaptureSubmissionSpellingCandidateMapping(state: Required<HarnessSt
             return null;
           },
           async insertPendingAdminReview() {
-            throw new Error(
-              "PCRM recommendation capture is outside candidate-capture regression.",
-            );
+            result.recommendationInserts += 1;
           },
         };
       },
@@ -614,6 +711,8 @@ async function runAction(stateOverrides: HarnessState, formData: FormData) {
     redirect: redirect.url,
     verificationCalls: result.verificationCalls,
     candidateInserts: result.candidateInserts,
+    promotionCalls: result.promotionCalls,
+    recommendationInserts: result.recommendationInserts,
     suggestionUpdateCalls: result.suggestionUpdateCalls,
   };
 }
@@ -711,6 +810,24 @@ function loadAddMissedWordToSubmissionReview(state: Required<HarnessState>) {
 
   const stubModules: Record<string, unknown> = {
     "server-only": {},
+    "./actions/review-completion-actions": {
+      async approveSubmissionReviewImpl() {},
+      async deleteSubmissionFromReviewImpl() {},
+      async finaliseWritingIssueClassificationImpl() {},
+      async returnSubmissionToChildImpl() {},
+    },
+    "./actions/positive-evidence-actions": {
+      async bulkConfirmSubmissionPositiveEvidenceImpl() {},
+      async bulkDismissSubmissionPositiveEvidenceImpl() {},
+      async confirmSubmissionPositiveEvidenceImpl() {},
+      async dismissSubmissionPositiveEvidenceImpl() {},
+    },
+    "./actions/catalog-review-case-actions": {
+      async captureSpellingCatalogReviewCaseImpl() {},
+    },
+    "./actions/adle-paused-words-actions": {
+      async releaseAdlePausedWordImpl() {},
+    },
     "next/cache": {
       revalidatePath() {},
     },
@@ -778,6 +895,28 @@ function loadAddMissedWordToSubmissionReview(state: Required<HarnessState>) {
     },
     "@/lib/rewards/course-coins": {
       async maybeAwardTaskSubmissionApprovalCoins() {},
+    },
+    "@/lib/rewards/free-writing-evidence": {
+      async confirmFreeWritingEvidenceCandidates() {},
+    },
+    "@/lib/rewards/word-treasures": {
+      async createOrUpdateGoldenNuggetFromParentApproval() {},
+    },
+    "@/lib/supabase/service-role": {
+      createServiceRoleClient() {
+        return {};
+      },
+    },
+    "@/lib/adle/loaders/authentic-use-live-emission": {
+      async emitAdleAuthenticUseFromApprovedSubmission() {},
+    },
+    "@/lib/adle/loaders/canonical-intake-live": {
+      async intakeApprovedSubmissionCorrections() {
+        return { enabled: false, blocked: [] };
+      },
+    },
+    "@/lib/rewards/adle-reward-bridge": {
+      async recordAdleAuthenticUsesForRewards() {},
     },
     "@/lib/writing-engine/persistence/learning-items": {
       async getCanonicalSubmissionSpellingCatalogEntries() {
@@ -983,13 +1122,13 @@ function assertRedirectMessage(url: string, key: "saved" | "error", expected: st
   assert.equal(params.get(key), expected, `Unexpected redirect URL: ${url}`);
 }
 
-async function testUnmappedLessonSubmissionRowCreatesPendingCandidateMapping() {
+async function testUnmappedLessonSubmissionRowPromotesParentLocalCandidateMapping() {
   const outcome = await runAction({}, buildFormData());
 
   assertRedirectMessage(
     outcome.redirect,
     "saved",
-    "Saved as verified evidence. Candidate mapping captured. Not used for future suggestions until promoted.",
+    "Saved for Scarlett and sent for admin review.",
   );
   assert.equal(outcome.verificationCalls.length, 1);
   assert.equal(outcome.verificationCalls[0]?.decision, "overridden");
@@ -1025,9 +1164,11 @@ async function testUnmappedLessonSubmissionRowCreatesPendingCandidateMapping() {
   );
   assert.equal(outcome.suggestionUpdateCalls.length, 1);
   assert.equal(outcome.suggestionUpdateCalls[0]?.suggestion_status, "accepted");
+  assert.equal(outcome.promotionCalls.length, 1);
+  assert.equal(outcome.recommendationInserts, 1);
 }
 
-async function testParentAddedMissedWordCreatesPendingCandidateMapping() {
+async function testParentAddedMissedWordPromotesParentLocalCandidateMapping() {
   const outcome = await runAction(
     {
       misspelling: {
@@ -1051,7 +1192,7 @@ async function testParentAddedMissedWordCreatesPendingCandidateMapping() {
   assertRedirectMessage(
     outcome.redirect,
     "saved",
-    "Saved as verified evidence. Candidate mapping captured. Not used for future suggestions until promoted.",
+    "Saved for Scarlett and sent for admin review.",
   );
   assert.equal(outcome.verificationCalls.length, 1);
   assert.equal(outcome.candidateInserts.length, 1);
@@ -1061,6 +1202,8 @@ async function testParentAddedMissedWordCreatesPendingCandidateMapping() {
   );
   assert.equal(outcome.candidateInserts[0]?.sourceSuggestionId, null);
   assert.equal(outcome.suggestionUpdateCalls.length, 0);
+  assert.equal(outcome.promotionCalls.length, 1);
+  assert.equal(outcome.recommendationInserts, 1);
 }
 
 async function testFreeTextMicroSkillKeyRejected() {
@@ -1287,7 +1430,7 @@ function testSourceGuardrailsStayIntact() {
   );
   assert.match(
     suggestedIssuesPanelSource,
-    /not be used for[\s\S]*future suggestions until promoted\./i,
+    /This mapping is currently used only for this child\/parent scope\./,
   );
   assert.match(
     suggestedIssuesPanelSource,
@@ -1295,15 +1438,15 @@ function testSourceGuardrailsStayIntact() {
   );
   assert.match(
     suggestedIssuesPanelSource,
-    /Saved as verified evidence\./,
+    /Saved locally\. Send for admin review to finish this route\./,
   );
   assert.match(
     suggestedIssuesPanelSource,
-    /Candidate mapping captured\./,
+    /Save locally and send for admin review/,
   );
   assert.match(
     suggestedIssuesPanelSource,
-    /This will let future suggestions for this child use this mapping\.|Not used for future suggestions until promoted\./,
+    /This mapping is currently used only for this child\/parent scope\./,
   );
   assert.match(
     pageSource,
@@ -1336,8 +1479,8 @@ function testSourceGuardrailsStayIntact() {
 }
 
 async function main() {
-  await testUnmappedLessonSubmissionRowCreatesPendingCandidateMapping();
-  await testParentAddedMissedWordCreatesPendingCandidateMapping();
+  await testUnmappedLessonSubmissionRowPromotesParentLocalCandidateMapping();
+  await testParentAddedMissedWordPromotesParentLocalCandidateMapping();
   await testFreeTextMicroSkillKeyRejected();
   await testInactiveMicroSkillKeyRejected();
   await testNonAssignableOrOutOfScopeMicroSkillRejected();

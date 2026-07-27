@@ -188,10 +188,15 @@ assert.match(
   /\.eq\("issue_status", "child_responded"\)[\s\S]*\.is\("final_classification", null\)/,
   "Bridge update must fail closed once the issue is no longer an unfinalised child response.",
 );
+assert.match(
+  reviewCompletionActions,
+  /const \{ supabase, submission \} = await getOwnedSubmission\(submissionId, user\.id\);[\s\S]*?const adleServiceClient = createServiceRoleClient\(\);/,
+  "The privileged ADLE client must be created only after authenticated, parent-owned submission lookup.",
+);
 assert.doesNotMatch(
   reviewCompletionActions,
-  /createServiceRoleClient|SERVICE_ROLE|service-role/,
-  "Stage C bridge must not introduce service-role access.",
+  /SUPABASE_SERVICE_ROLE_KEY/,
+  "Stage C bridge must not expose the service-role secret directly.",
 );
 assert.match(
   diagnostics,
