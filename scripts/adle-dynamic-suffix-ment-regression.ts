@@ -23,6 +23,8 @@ assert.equal(reviewed.profile.introContent.meaningStatement, meaningStatement);
 assert.equal(JSON.stringify(reviewed).split(meaningStatement).length - 1, 1, "approved meaning statement appears exactly once");
 assert(guidedLessonSource.includes("window.setTimeout(() =>"), "resume hydration is not animation-frame gated");
 assert(!guidedLessonSource.includes("window.requestAnimationFrame(() =>"), "background reload cannot stall resume hydration");
+assert(guidedLessonSource.includes('return "Try another split"'), "intermediate cleavers announce another split");
+assert(guidedLessonSource.includes('hasMeaningSort ? "Continue to meanings" : "Build a word"'), "final suffix cleaver advances directly to build");
 assert.deepEqual(reviewed.words.map((word: any) => word.word), ["enjoyment", "payment", "agreement", "movement"]);
 assert(reviewed.words.every((word: any) => word.reviewedFacts?.frequencyBand
   && word.reviewedFacts?.ageBand && word.reviewedFacts?.complexityBand

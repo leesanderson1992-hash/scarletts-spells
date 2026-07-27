@@ -239,6 +239,11 @@ export function MorphologyGuidedLesson(props: {
           muted={state.muted}
           missMessage={beat.onSlip}
           repeatedMissMessage={beat.onRepeatedMisconception}
+          continueLabel={(() => {
+            const splitCount = props.payload.activities.find((activity) => activity.type === "strip_build")?.assignmentBindings.length ?? 1;
+            if (state.splitIndex + 1 < splitCount) return "Try another split";
+            return hasMeaningSort ? "Continue to meanings" : "Build a word";
+          })()}
           onMiss={(splitMisses) => update({ splitMisses })}
           onCorrect={() => update({ splitCorrect: true })}
           onComplete={() => {
@@ -640,6 +645,7 @@ function SplitBuild(props: {
   muted: boolean;
   missMessage?: string;
   repeatedMissMessage?: string;
+  continueLabel: string;
   onMiss: (misses: number) => void;
   onCorrect: () => void;
   onComplete: () => void;
@@ -661,6 +667,7 @@ function SplitBuild(props: {
       prompt={suffix ? "Find where the base/root ends and the suffix begins at the end of the word." : undefined}
       missPrompt={suffix ? "Not there yet. Look for the suffix at the end of the word." : undefined}
       repeatedMissPrompt={suffix && affix ? `The suffix -${affix} is at the end. Chop just before it.` : undefined}
+      continueLabel={props.continueLabel}
       onMiss={props.onMiss}
       onCorrect={props.onCorrect}
       onContinue={props.onComplete}
