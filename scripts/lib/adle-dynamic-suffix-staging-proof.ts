@@ -86,6 +86,18 @@ export function runDynamicSuffixStagingProof(config: ProofConfig) {
         row_status: "active",
       });
       if (itemError) throw itemError;
+      // The scheduled materializer discovers active children through the
+      // established learning_items bridge, then the ADLE composer selects the
+      // reviewed canonical target above. Both rows are fixture-owned.
+      const { error: bridgeError } = await db.from("learning_items").insert({
+        child_id: child.id,
+        parent_user_id: user.user.id,
+        micro_skill_key: config.profileKey,
+        progress_state: "golden_nugget",
+        is_active: true,
+        metadata: { target_word: config.targetWord, disposable_suffix_proof: tag },
+      });
+      if (bridgeError) throw bridgeError;
       const next = {
         parentId: user.user.id,
         childId: child.id,
@@ -148,6 +160,7 @@ export function runDynamicSuffixStagingProof(config: ProofConfig) {
     await db.auth.admin.deleteUser(state.parentId);
     const checks = await Promise.all([
       db.from("children").select("id", { count: "exact", head: true }).eq("id", state.childId),
+      db.from("learning_items").select("id", { count: "exact", head: true }).eq("child_id", state.childId),
       db.from("adle_learning_items").select("id", { count: "exact", head: true }).eq("child_id", state.childId),
       db.from("daily_assignments").select("id", { count: "exact", head: true }).eq("child_id", state.childId),
       db.from("adle_assignment_attempt_events").select("id", { count: "exact", head: true }).eq("child_id", state.childId),
