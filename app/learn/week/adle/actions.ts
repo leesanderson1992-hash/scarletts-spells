@@ -532,13 +532,18 @@ export async function completeAdleLessonPartAction(formData: FormData) {
   }
   const learningItems = ((learningItemRows.data ?? []) as LearningItemRow[]).map(learningItemFromRow);
 
-  const scheduledProductionItems = dynamicPrefix === null && dynamicSuffix === null ? productionItems : productionItems.filter((item) => item.adleLearningItemRef !== null);
+  const scheduledProductionItems = dynamicSuffix !== null
+    ? productionItems
+    : dynamicPrefix !== null
+      ? productionItems.filter((item) => item.adleLearningItemRef !== null)
+      : productionItems;
   const lessonResult = onLessonCompleted(policy, {
     childId,
     microSkillKey,
     completedOn: planDate,
     sourceRef: lessonSourceRef,
     bundleId: randomUUID(),
+    scheduleAllProducedWords: dynamicSuffix !== null,
     producedWords: producedWords.filter((word) => scheduledProductionItems.some((item) => item.canonicalWordId === word.canonicalWordId)),
     learningItems,
   });

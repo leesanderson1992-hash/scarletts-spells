@@ -113,7 +113,7 @@ export function runDynamicSuffixStagingProof(config: ProofConfig) {
     if (error || !assignment) throw new Error(error?.message ?? "Assignment missing");
     assert(assignment.status === "completed", "assignment is completed");
     const [items, attempts, reflections, taught, schedules] = await Promise.all([
-      db.from("assignment_items").select("id,status,micro_skill_key,canonical_word_id").eq("daily_assignment_id", assignment.id),
+      db.from("assignment_items").select("id,status,metadata").eq("daily_assignment_id", assignment.id),
       db.from("adle_assignment_attempt_events").select("attempt_kind,attempt_text,evidence_class,canonical_word_id").eq("daily_assignment_id", assignment.id),
       db.from("adle_child_learning_reflections").select("prompt_key,reflection_text").eq("daily_assignment_id", assignment.id),
       db.from("adle_taught_word_history").select("canonical_word_id").eq("child_id", state.childId).eq("row_status", "active"),
@@ -121,7 +121,7 @@ export function runDynamicSuffixStagingProof(config: ProofConfig) {
     ]);
     for (const result of [items, attempts, reflections, taught, schedules]) if (result.error) throw result.error;
     assert(items.data?.length === 16 && items.data.every((row) => row.status === "completed"), "16 completed immutable items");
-    assert(items.data?.every((row) => row.micro_skill_key === config.profileKey), "all items are scoped to the selected profile");
+    assert(items.data?.every((row) => row.metadata?.microSkillKey === config.profileKey), "all items are scoped to the selected profile");
     assert(attempts.data?.length === 14, "14 attempt events");
     assert(attempts.data?.filter((row) => row.attempt_kind === "guided_practice").length === 6, "6 guided events");
     assert(attempts.data?.filter((row) => row.attempt_kind === "lesson_production").length === 4, "4 controlled events");

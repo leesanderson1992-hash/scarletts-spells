@@ -17,6 +17,7 @@ import { normaliseSessionWord } from "../lib/adle/session-correctness";
 
 const packageFile = resolve("docs/implementation/seed-data/teaching-dictionary/candidates/2026-07-27-dynamic-suffix-ment/reviewed-staging-package.json");
 const guidedLessonSource = readFileSync(resolve("components/adle/morphology/morphology-guided-lesson.tsx"), "utf8");
+const completionActionSource = readFileSync(resolve("app/learn/week/adle/actions.ts"), "utf8");
 const reviewed = JSON.parse(readFileSync(packageFile, "utf8"));
 const meaningStatement = "Add -ment to a word to turn an action into a thing, process or result.";
 assert.equal(reviewed.profile.introContent.meaningStatement, meaningStatement);
@@ -25,6 +26,9 @@ assert(guidedLessonSource.includes("window.setTimeout(() =>"), "resume hydration
 assert(!guidedLessonSource.includes("window.requestAnimationFrame(() =>"), "background reload cannot stall resume hydration");
 assert(guidedLessonSource.includes('return "Try another split"'), "intermediate cleavers announce another split");
 assert(guidedLessonSource.includes('hasMeaningSort ? "Continue to meanings" : "Build a word"'), "final suffix cleaver advances directly to build");
+assert(completionActionSource.includes("dynamicSuffix !== null\n    ? productionItems")
+  && completionActionSource.includes("scheduleAllProducedWords: dynamicSuffix !== null"),
+  "suffix completion teaches and schedules all four selected lesson words");
 assert.deepEqual(reviewed.words.map((word: any) => word.word), ["enjoyment", "payment", "agreement", "movement"]);
 assert(reviewed.words.every((word: any) => word.reviewedFacts?.frequencyBand
   && word.reviewedFacts?.ageBand && word.reviewedFacts?.complexityBand
