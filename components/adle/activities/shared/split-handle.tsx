@@ -35,6 +35,9 @@ export function SplitHandle(props: {
   repeatedMissMessage?: string;
   correctHeading?: string;
   correctExplanation?: string;
+  prompt?: string;
+  missPrompt?: string;
+  repeatedMissPrompt?: string;
   continueLabel?: string;
   onMiss: (misses: number) => void;
   onCorrect: () => void;
@@ -116,7 +119,7 @@ export function SplitHandle(props: {
     );
   }
 
-  const feedback = scaffolded ? props.repeatedMissMessage ?? "un- is the first two letters. Chop after the n." : props.misses > 0 ? props.missMessage ?? "Not there yet. Look for the prefix un- at the front." : "";
+  const feedback = scaffolded ? props.repeatedMissMessage ?? props.repeatedMissPrompt ?? "un- is the first two letters. Chop after the n." : props.misses > 0 ? props.missMessage ?? props.missPrompt ?? "Not there yet. Look for the prefix un- at the front." : "";
   return (
     <div className="text-center">
       <p className="mb-2 text-sm font-bold text-cyan-100">Move the cleaver between two letters, then strike.</p>
@@ -164,7 +167,7 @@ export function SplitHandle(props: {
           );
         })}
       </div>
-      <div role="status" aria-live="polite" className={`mx-auto mt-4 min-h-16 max-w-xl rounded-2xl p-3 text-sm font-bold ${feedback ? scaffolded ? "bg-cyan-100 text-cyan-950" : "bg-red-100 text-red-950" : "bg-transparent text-cyan-100"}`}>{feedback || "Find the end of the prefix at the front of the word."}</div>
+      <div role="status" aria-live="polite" className={`mx-auto mt-4 min-h-16 max-w-xl rounded-2xl p-3 text-sm font-bold ${feedback ? scaffolded ? "bg-cyan-100 text-cyan-950" : "bg-red-100 text-red-950" : "bg-transparent text-cyan-100"}`}>{feedback || props.prompt || "Find the end of the prefix at the front of the word."}</div>
     </div>
   );
 }

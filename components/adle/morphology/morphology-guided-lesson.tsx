@@ -650,6 +650,9 @@ function SplitBuild(props: {
       repeatedMissMessage={props.repeatedMissMessage}
       correctHeading={affix ? `Yes — ${suffix ? `-${affix} is at the end` : `${affix}- is at the front`} of the word.` : undefined}
       correctExplanation={affix && baseOrRoot ? (suffix ? `${baseOrRoot} + ${affix} makes ${props.word.displayWord}.` : `${affix} + ${baseOrRoot} makes ${props.word.displayWord}.`) : undefined}
+      prompt={suffix ? "Find where the base/root ends and the suffix begins at the end of the word." : undefined}
+      missPrompt={suffix ? "Not there yet. Look for the suffix at the end of the word." : undefined}
+      repeatedMissPrompt={suffix && affix ? `The suffix -${affix} is at the end. Chop just before it.` : undefined}
       onMiss={props.onMiss}
       onCorrect={props.onCorrect}
       onContinue={props.onComplete}
@@ -1072,7 +1075,7 @@ function ReflectionForm(props: {
       </label>
       {ready ? (
         <>
-          <MeaningCards payload={props.payload} />
+          {props.payload.activities.some((activity) => activity.type === "meaning_sort") ? <MeaningCards payload={props.payload} /> : null}
           <FinishWordLabButton />
         </>
       ) : (

@@ -126,10 +126,13 @@ export function compileDynamicAffixWordLabPayload(selection: DynamicAffixSelecti
   // meaning-led build per immutable word, yielding exactly sixteen items.
   const direct = lesson.find((word) => word.teachingBaseText === word.semanticBaseText) ?? lesson[0];
   const changed = lesson.find((word) => word.teachingBaseText !== word.semanticBaseText && word.canonicalWordId !== direct.canonicalWordId) ?? lesson.find((word) => word.canonicalWordId !== direct.canonicalWordId) ?? direct;
-  const buildFor = (word: typeof lesson[number]) => {
+  const buildFor = (word: typeof lesson[number], buildIndex: number) => {
     const choices = profile.choices.map((choice) => choice.text === word.affixText ? { ...choice, status: "target" as const } : choice.status === "target" ? { ...choice, status: "valid_alternative" as const } : choice);
     if (choices.filter((choice) => choice.status === "target").length !== 1) return null;
-    return { canonicalWordId: word.canonicalWordId, baseWord: word.teachingBaseText, targetMeaning: word.derivedMeaning, choices };
+    // The immutable payload carries a stable rotation: repeated builds do not
+    // teach the child that the correct affix is always in the same place.
+    const offset = profile.position === "after" && choices.length > 1 ? (buildIndex + 1) % choices.length : 0;
+    return { canonicalWordId: word.canonicalWordId, baseWord: word.teachingBaseText, targetMeaning: word.derivedMeaning, choices: choices.map((_, index) => choices[(index + offset) % choices.length]) };
   };
   const builds = lesson.map(buildFor);
   if (builds.some((build) => build === null)) return null;

@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { compileDynamicAffixWordLabPayload, selectDynamicAffixWordLab, validateDynamicAffixWordLabPayload, type DynamicAffixProfile, type DynamicAffixWord } from "../lib/adle/morphology/affix-word-lab";
 import { dynamicAffixRuntime } from "../lib/adle/morphology/dynamic-affix-runtime";
+import { normaliseSessionWord } from "../lib/adle/session-correctness";
 
 function word(id: string, base: string, teaching: string, display: string, transfer = true): DynamicAffixWord {
   const sentence = `Please spell ${display}.`;
@@ -36,5 +37,9 @@ const runtime = dynamicAffixRuntime(payload);
 assert(runtime, "adapts a valid suffix snapshot for the shared Word Lab");
 assert.equal(runtime.activities.find((activity) => activity.type === "strip_build")?.assignmentBindings.length, 2);
 assert.equal(runtime.activities.find((activity) => activity.type === "prefix_choice")?.affixTerm, "suffix");
+assert.deepEqual(runtime.activities.find((activity) => activity.type === "introduction")?.introScreens?.[0]?.paragraphs.slice(0, 2), ["A suffix is added to the end of a word.", "The suffix -ness means state or quality."]);
+const builds = payload.activities.guided.builds;
+assert.notDeepEqual(builds[0]!.choices.map((choice) => choice.text), builds[1]!.choices.map((choice) => choice.text), "suffix choices rotate deterministically between builds");
+assert.equal(normaliseSessionWord("Happiness"), normaliseSessionWord("happiness"), "capitalised controlled spelling is correct");
 assert.equal(selectDynamicAffixWordLab({ profiles: [{ ...profile, productionEnabled: false }], learningItems: [item("kindness", "2026-07-01")] }), null);
 console.log("Dynamic suffix Word Lab regression passed.");
