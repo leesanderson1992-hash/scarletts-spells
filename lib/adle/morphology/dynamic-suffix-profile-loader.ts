@@ -4,7 +4,7 @@ import type { LearningItemFact } from "../learning-items";
 import type { MorphologyPartRole } from "./payload";
 import type { DynamicAffixProfile, DynamicAffixWord } from "./affix-word-lab";
 
-export const DYNAMIC_SUFFIX_PROFILE_KEYS = ["D4_MOR_SUFFIXES_NESS"] as const;
+export const DYNAMIC_SUFFIX_PROFILE_KEYS = ["D4_MOR_SUFFIXES_NESS", "D4_MOR_SUFFIXES_ABLE_IBLE"] as const;
 
 type Member = any;
 

@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 1,
+  "profile": {
+    "microSkillKey": "D4_MOR_SUFFIXES_ABLE_IBLE",
+    "suffixLabel": "-able and -ible",
+    "suffixText": "able/ible",
+    "suffixMeaning": "can be",
+    "meaningBins": [{ "id": "can_be", "label": "CAN BE", "description": "can be" }],
+    "includeMeaningSort": false,
+    "suffixChoices": [
+      { "text": "able", "label": "-able", "outcome": null, "meaning": "can be", "status": "target" },
+      { "text": "ible", "label": "-ible", "outcome": null, "meaning": "can be", "status": "target" },
+      { "text": "abel", "label": "-abel", "outcome": null, "meaning": null, "status": "unsupported" },
+      { "text": "ibel", "label": "-ibel", "outcome": null, "meaning": null, "status": "unsupported" }
+    ],
+    "introContent": {
+      "title": "What are -able and -ible?",
+      "paragraphs": ["The suffixes -able and -ible both mean can be. They sound alike, so look carefully at the part before the suffix."],
+      "spellingRules": ["Use -able when the root word is a complete, recognisable standalone word: wash → washable.", "Use -ible when the base is not a full standalone word: sens- → sensible.", "This is a helpful spelling test for these words."],
+      "examples": [{ "affix": "able", "base": "wash", "word": "washable", "meaning": "can be washed" }, { "affix": "ible", "base": "sens", "word": "sensible", "meaning": "able to be sensed or understood" }]
+    },
+    "reflection": { "promptKey": "able-ible-base-test-v1", "promptText": "How did the complete-word or bound-root test help you choose -able or -ible?" }
+  },
+  "words": [
+    {
+      "word": "comfortable", "memberRole": "transfer", "suffixVariant": "able", "semanticBaseText": "comfort", "semanticBaseKind": "base", "baseMeaning": "comfort: a pleasant, relaxed feeling", "newWordMeaning": "able to give comfort; pleasant to sit in or use", "meaningBinKey": "can_be",
+      "dictation": { "sentence": "This chair feels comfortable.", "targetTokenIndex": 3, "audioText": "This chair feels comfortable." },
+      "teaching": { "parts": [{ "id": "base", "kind": "base", "sourceText": "comfort", "surfaceText": "comfort", "displayRange": { "start": 0, "end": 7 } }, { "id": "suffix", "kind": "suffix", "sourceText": "able", "surfaceText": "able", "gloss": "can be", "displayRange": { "start": 7, "end": 11 } }], "joins": [{ "afterPartId": "base", "beforePartId": "suffix", "joinType": "none" }] },
+      "trueMorphology": { "parts": [{ "id": "base", "kind": "base", "sourceText": "comfort", "surfaceText": "comfort", "displayRange": { "start": 0, "end": 7 } }, { "id": "suffix", "kind": "suffix", "sourceText": "able", "surfaceText": "able", "displayRange": { "start": 7, "end": 11 } }], "joins": [{ "afterPartId": "base", "beforePartId": "suffix", "joinType": "none" }], "transformations": [], "notes": "Complete standalone base comfort + -able.", "provenance": { "source": "MorphoLex-en reviewed record", "reference": "comfortable: comfort + able" } }
+    },
+    {
+      "word": "enjoyable", "memberRole": "transfer", "suffixVariant": "able", "semanticBaseText": "enjoy", "semanticBaseKind": "base", "baseMeaning": "enjoy: to take pleasure in something", "newWordMeaning": "able to be enjoyed", "meaningBinKey": "can_be",
+      "dictation": { "sentence": "The funny film was enjoyable and made us smile.", "targetTokenIndex": 4, "audioText": "The funny film was enjoyable and made us smile." },
+      "teaching": { "parts": [{ "id": "base", "kind": "base", "sourceText": "enjoy", "surfaceText": "enjoy", "displayRange": { "start": 0, "end": 5 } }, { "id": "suffix", "kind": "suffix", "sourceText": "able", "surfaceText": "able", "gloss": "can be", "displayRange": { "start": 5, "end": 9 } }], "joins": [{ "afterPartId": "base", "beforePartId": "suffix", "joinType": "none" }] },
+      "trueMorphology": { "parts": [{ "id": "prefix", "kind": "prefix", "sourceText": "en", "surfaceText": "en", "displayRange": { "start": 0, "end": 2 } }, { "id": "root", "kind": "root", "sourceText": "joy", "surfaceText": "joy", "displayRange": { "start": 2, "end": 5 } }, { "id": "suffix", "kind": "suffix", "sourceText": "able", "surfaceText": "able", "displayRange": { "start": 5, "end": 9 } }], "joins": [{ "afterPartId": "prefix", "beforePartId": "root", "joinType": "none" }, { "afterPartId": "root", "beforePartId": "suffix", "joinType": "none" }], "transformations": [], "notes": "Child teaching uses the complete standalone word enjoy; canonical morphology retains en + joy + able.", "provenance": { "source": "MorphoLex-en reviewed record", "reference": "enjoyable: en + joy + able" } }
+    },
+    {
+      "word": "possible", "memberRole": "transfer", "suffixVariant": "ible", "semanticBaseText": "poss", "semanticBaseKind": "root", "baseMeaning": "poss-: able or able to do", "newWordMeaning": "able to happen or be done", "meaningBinKey": "can_be",
+      "dictation": { "sentence": "It is possible to finish the puzzle if we work together.", "targetTokenIndex": 2, "audioText": "It is possible to finish the puzzle if we work together." },
+      "teaching": { "parts": [{ "id": "root", "kind": "root", "sourceText": "poss", "surfaceText": "poss", "displayRange": { "start": 0, "end": 4 } }, { "id": "suffix", "kind": "suffix", "sourceText": "ible", "surfaceText": "ible", "gloss": "can be", "displayRange": { "start": 4, "end": 8 } }], "joins": [{ "afterPartId": "root", "beforePartId": "suffix", "joinType": "none" }] },
+      "trueMorphology": { "parts": [{ "id": "root", "kind": "root", "sourceText": "poss", "surfaceText": "poss", "displayRange": { "start": 0, "end": 4 } }, { "id": "suffix", "kind": "suffix", "sourceText": "ible", "surfaceText": "ible", "displayRange": { "start": 4, "end": 8 } }], "joins": [{ "afterPartId": "root", "beforePartId": "suffix", "joinType": "none" }], "transformations": [], "notes": "poss- is a bound root, not a complete standalone word.", "provenance": { "source": "Reviewed D4_MOR word analysis", "reference": "possible: poss + ible" } }
+    },
+    {
+      "word": "visible", "memberRole": "transfer", "suffixVariant": "ible", "semanticBaseText": "vis", "semanticBaseKind": "root", "baseMeaning": "vis-: see", "newWordMeaning": "able to be seen", "meaningBinKey": "can_be",
+      "dictation": { "sentence": "The moon was visible because we could see it clearly.", "targetTokenIndex": 3, "audioText": "The moon was visible because we could see it clearly." },
+      "teaching": { "parts": [{ "id": "root", "kind": "root", "sourceText": "vis", "surfaceText": "vis", "displayRange": { "start": 0, "end": 3 } }, { "id": "suffix", "kind": "suffix", "sourceText": "ible", "surfaceText": "ible", "gloss": "can be", "displayRange": { "start": 3, "end": 7 } }], "joins": [{ "afterPartId": "root", "beforePartId": "suffix", "joinType": "none" }] },
+      "trueMorphology": { "parts": [{ "id": "root", "kind": "root", "sourceText": "vis", "surfaceText": "vis", "displayRange": { "start": 0, "end": 3 } }, { "id": "suffix", "kind": "suffix", "sourceText": "ible", "surfaceText": "ible", "displayRange": { "start": 3, "end": 7 } }], "joins": [{ "afterPartId": "root", "beforePartId": "suffix", "joinType": "none" }], "transformations": [], "notes": "vis- is a bound root, not a complete standalone word.", "provenance": { "source": "Reviewed D4_MOR word analysis", "reference": "visible: vis + ible" } }
+    }
+  ]
+}

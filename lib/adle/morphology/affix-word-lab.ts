@@ -122,10 +122,17 @@ export function compileDynamicAffixWordLabPayload(selection: DynamicAffixSelecti
   });
   if (words.some((word) => word === null)) return null;
   const lesson = words as DynamicAffixLessonPayloadV3["words"]["lesson"];
-  // Standard NESS form: two cleavers (prefer transformed after direct) and one
-  // meaning-led build per immutable word, yielding exactly sixteen items.
+  // One-form lessons use two contrasting cleavers. A mixed suffix profile
+  // instead guarantees one cleaver for every selected spelling form; this
+  // keeps the -able/-ible base test visible without adding an item.
   const direct = lesson.find((word) => word.teachingBaseText === word.semanticBaseText) ?? lesson[0];
   const changed = lesson.find((word) => word.teachingBaseText !== word.semanticBaseText && word.canonicalWordId !== direct.canonicalWordId) ?? lesson.find((word) => word.canonicalWordId !== direct.canonicalWordId) ?? direct;
+  const suffixForms = [...new Set(lesson.map((word) => word.affixText))];
+  const formCleavers = suffixForms.map((form) => lesson.find((word) => word.affixText === form)).filter((word): word is typeof lesson[number] => Boolean(word));
+  const splitCanonicalWordIds = suffixForms.length > 1
+    ? formCleavers.map((word) => word.canonicalWordId)
+    : [direct.canonicalWordId, changed.canonicalWordId];
+  if (splitCanonicalWordIds.length !== 2 || new Set(splitCanonicalWordIds).size !== 2) return null;
   const buildFor = (word: typeof lesson[number], buildIndex: number) => {
     const choices = profile.choices.map((choice) => choice.text === word.affixText ? { ...choice, status: "target" as const } : choice.status === "target" ? { ...choice, status: "valid_alternative" as const } : choice);
     if (choices.filter((choice) => choice.status === "target").length !== 1) return null;
@@ -136,7 +143,7 @@ export function compileDynamicAffixWordLabPayload(selection: DynamicAffixSelecti
   };
   const builds = lesson.map(buildFor);
   if (builds.some((build) => build === null)) return null;
-  return { schemaVersion: 3, experience: "D4_MOR_GUIDED", contentVersion: DYNAMIC_AFFIX_WORD_LAB_CONTENT_VERSION, microSkillId: profile.microSkillKey, experienceProfile: DYNAMIC_AFFIX_WORD_LAB_PROFILE, affix: { position: profile.position, text: profile.affixText, label: profile.affixLabel, meaning: profile.affixMeaning }, authenticCanonicalWordIds: selection.authenticTargets.map((item) => item.canonicalWordId), words: { lesson }, activities: { introduction: profile.introduction, discovery: lesson.map((word) => ({ canonicalWordId: word.canonicalWordId, word: word.displayWord, baseWord: word.semanticBaseText, baseMeaning: word.baseMeaning, derivedMeaning: word.derivedMeaning, distractorMeaning: word.baseMeaning, affixLabel: word.affixLabel })), meaningBins: profile.meaningBins, guided: { splitCanonicalWordIds: [direct.canonicalWordId, changed.canonicalWordId], builds: builds as NonNullable<typeof builds[number]>[], includeMeaningSort: profile.includeMeaningSort }, dictation: lesson.map((word) => { const source = profile.wordsByCanonicalId.get(word.canonicalWordId)!; return { canonicalWordId: word.canonicalWordId, targetWord: word.displayWord, sentence: source.dictationSentence, targetTokenIndex: source.dictationTargetTokenIndex }; }), reflection: profile.reflection } };
+  return { schemaVersion: 3, experience: "D4_MOR_GUIDED", contentVersion: DYNAMIC_AFFIX_WORD_LAB_CONTENT_VERSION, microSkillId: profile.microSkillKey, experienceProfile: DYNAMIC_AFFIX_WORD_LAB_PROFILE, affix: { position: profile.position, text: profile.affixText, label: profile.affixLabel, meaning: profile.affixMeaning }, authenticCanonicalWordIds: selection.authenticTargets.map((item) => item.canonicalWordId), words: { lesson }, activities: { introduction: profile.introduction, discovery: lesson.map((word) => ({ canonicalWordId: word.canonicalWordId, word: word.displayWord, baseWord: word.semanticBaseText, baseMeaning: word.baseMeaning, derivedMeaning: word.derivedMeaning, distractorMeaning: word.baseMeaning, affixLabel: word.affixLabel })), meaningBins: profile.meaningBins, guided: { splitCanonicalWordIds, builds: builds as NonNullable<typeof builds[number]>[], includeMeaningSort: profile.includeMeaningSort }, dictation: lesson.map((word) => { const source = profile.wordsByCanonicalId.get(word.canonicalWordId)!; return { canonicalWordId: word.canonicalWordId, targetWord: word.displayWord, sentence: source.dictationSentence, targetTokenIndex: source.dictationTargetTokenIndex }; }), reflection: profile.reflection } };
 }
 
 export function validateDynamicAffixWordLabPayload(value: unknown): value is DynamicAffixLessonPayloadV3 {
