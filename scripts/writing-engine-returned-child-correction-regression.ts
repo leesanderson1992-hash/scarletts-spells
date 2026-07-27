@@ -8,6 +8,7 @@ const structuredLessonResponsePath = "components/structured-lesson-response.tsx"
 const returnedIssueRetryControlsPath = "components/returned-issue-retry-controls.tsx";
 const lessonResponsesPath = "lib/lessons/responses.ts";
 const learnActionsPath = "app/learn/actions.ts";
+const submissionProcessingPath = "lib/courses/submission-processing.ts";
 const taskPagePath = "app/learn/modules/[moduleId]/tasks/[taskId]/page.tsx";
 const reviewDetailPagePath = "app/courses/review/[submissionId]/page.tsx";
 const reviewCompletionActionsPath =
@@ -32,6 +33,7 @@ const structuredLessonResponse = readFileSync(structuredLessonResponsePath, "utf
 const returnedIssueRetryControls = readFileSync(returnedIssueRetryControlsPath, "utf8");
 const lessonResponses = readFileSync(lessonResponsesPath, "utf8");
 const learnActions = readFileSync(learnActionsPath, "utf8");
+const submissionProcessing = readFileSync(submissionProcessingPath, "utf8");
 const taskPage = readFileSync(taskPagePath, "utf8");
 const reviewDetailPage = readFileSync(reviewDetailPagePath, "utf8");
 const reviewCompletionActions = readFileSync(reviewCompletionActionsPath, "utf8");
@@ -140,18 +142,18 @@ assert.match(
 );
 assert.match(
   learnActions,
-  /const retryModeValue = formData\.get\(`returned_issue_retry_mode:\$\{issue\.issue_id\}`\)[\s\S]*submittedAttempt\.slice\(0, 500\)[\s\S]*attempted_correction: attemptedCorrection/,
-  "Returned issue form parsing must bound and persist retry text into draft metadata.",
+  /const retryModeValue = formData\.get\(`returned_issue_retry_mode:\$\{issue\.issue_id\}`\)[\s\S]*const attemptedCorrection =\s*retryMode === "stick"[\s\S]*issue\.observed_text\?\.trim\(\)\.slice\(0, 500\) \|\| null[\s\S]*submittedAttempt\.length > 0[\s\S]*submittedAttempt\.slice\(0, 500\)[\s\S]*issue\.attempted_correction \?\? null[\s\S]*attempted_correction: attemptedCorrection/,
+  "Retry parsing must persist a bounded first try for stick, a bounded submitted retry for try-again, or the existing saved retry when no new text is supplied.",
 );
 assert.match(
-  learnActions,
-  /if \(issue\.attempted_correction\?\.trim\(\)\) \{[\s\S]*return issue\.attempted_correction\.trim\(\);[\s\S]*\}/,
-  "Correction-attempt inserts must prefer the dedicated retry input over full-field fallback text.",
+  submissionProcessing,
+  /const attemptedCorrection = issue\.attempted_correction \?\? null;[\s\S]*getReturnedCorrectionEvidenceFlags\([\s\S]*attemptedCorrection,[\s\S]*attempted_correction: attemptedCorrection[\s\S]*retry_mode: issue\.retry_mode \?\? "try_again"/,
+  "Correction-attempt persistence must consume the form-resolved retry value and derive evidence from that same value.",
 );
 assert.match(
-  learnActions,
-  /\.from\("writing_issue_correction_attempts"\)[\s\S]*\.insert\(attemptRows\)/,
-  "Returned child resubmission must continue to write durable correction attempts.",
+  submissionProcessing,
+  /\.from\("writing_issue_correction_attempts"\)\.insert\(rows\)/,
+  "Submission processing must continue to write durable correction attempts.",
 );
 assert.match(
   learnActions,

@@ -293,17 +293,31 @@ assert.doesNotMatch(
   "Stage D repair script must not create rewards, daily assignments, or browser service-role paths.",
 );
 
-const appSources = [
-  "app/courses/review/actions/review-completion-actions.ts",
+const clientOrRouteHelperSources = [
   "app/courses/review/actions/returned-correction-route-helpers.ts",
   "app/courses/review/unified-spelling-review-table.tsx",
 ].map((path) => readFileSync(path, "utf8"));
-for (const source of appSources) {
+for (const source of clientOrRouteHelperSources) {
   assert.doesNotMatch(
     source,
     /SUPABASE_SERVICE_ROLE_KEY|createServiceRoleClient|service-role/i,
     "Browser/client review paths must not expose service-role access.",
   );
 }
+
+const reviewCompletionActionsSource = readFileSync(
+  "app/courses/review/actions/review-completion-actions.ts",
+  "utf8",
+);
+assert.match(
+  reviewCompletionActionsSource,
+  /const \{ supabase, submission \} = await getOwnedSubmission\(submissionId, user\.id\);[\s\S]*?const adleServiceClient = createServiceRoleClient\(\);/,
+  "The privileged ADLE client must be created only after authenticated, parent-owned submission lookup.",
+);
+assert.doesNotMatch(
+  reviewCompletionActionsSource,
+  /SUPABASE_SERVICE_ROLE_KEY/,
+  "The server action must not expose the service-role secret directly.",
+);
 
 console.log("writing-engine-returned-correction-stage-d-repair-regression: ok");

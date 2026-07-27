@@ -268,6 +268,46 @@ function loadRecordReviewWorkVerificationAction(state: Required<HarnessState>): 
   const providerInputs: Array<{ anchorMicroSkillKey: string | null }> = [];
 
   const stubModules: Record<string, unknown> = {
+    "server-only": {},
+    "./actions/lesson-submission-review-actions": {
+      async addMissedWordToSubmissionReviewImpl() {},
+      async acceptSubmissionReviewIssueImpl() {},
+      async rejectSubmissionReviewIssueImpl() {},
+    },
+    "./actions/review-completion-actions": {
+      async approveSubmissionReviewImpl() {},
+      async deleteSubmissionFromReviewImpl() {},
+      async finaliseWritingIssueClassificationImpl() {},
+      async returnSubmissionToChildImpl() {},
+    },
+    "./actions/positive-evidence-actions": {
+      async bulkConfirmSubmissionPositiveEvidenceImpl() {},
+      async bulkDismissSubmissionPositiveEvidenceImpl() {},
+      async confirmSubmissionPositiveEvidenceImpl() {},
+      async dismissSubmissionPositiveEvidenceImpl() {},
+    },
+    "./actions/candidate-mapping-actions": {
+      async captureSubmissionSpellingCandidateMappingImpl() {},
+      async promoteParentLocalCandidateMappingImpl() {},
+      async recommendParentLocalCanonicalMappingImpl() {},
+      async revertParentLocalCandidateMappingImpl() {},
+    },
+    "./actions/catalog-review-case-actions": {
+      async captureSpellingCatalogReviewCaseImpl() {},
+    },
+    "./actions/adle-paused-words-actions": {
+      async releaseAdlePausedWordImpl() {},
+    },
+    "./canonical-spelling-backfill-actions": {
+      async backfillPendingSubmissionSuggestionCanonicalMicroSkill(input: {
+        suggestion: Record<string, unknown>;
+      }) {
+        return input.suggestion;
+      },
+      async resolveScopedMicroSkillForSubmissionSuggestion() {
+        return { microSkillKey: state.canonicalMappingMicroSkillKey, blocked: false };
+      },
+    },
     "next/cache": {
       revalidatePath() {},
     },
@@ -342,6 +382,11 @@ function loadRecordReviewWorkVerificationAction(state: Required<HarnessState>): 
     "@/lib/writing-engine/persistence/review-work-canonical-submission-spelling": {
       async getCanonicalSubmissionSpellingCatalogEntries() {
         return [];
+      },
+    },
+    "@/lib/writing-engine/persistence/spelling-canonical-mappings": {
+      async findResolverVisibleExactPairMapping() {
+        return { status: "unresolved", reason: "no_visible_mapping" };
       },
     },
     "@/lib/writing-engine/persistence/spelling-candidate-mappings": {
