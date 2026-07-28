@@ -13,6 +13,8 @@ type ImportConfig = {
   expectedWords: readonly string[];
   expectedMeaningStatement?: string;
   requireReviewedFacts?: boolean;
+  expectedIncludeMeaningSort?: boolean;
+  expectedMeaningBinCount?: number;
 };
 
 const tokenAt = (sentence: string, index: number) =>
@@ -33,8 +35,8 @@ export async function runDynamicSuffixStagingImport(config: ImportConfig) {
   if (
     pkg?.schemaVersion !== 1
     || pkg.profile?.microSkillKey !== config.profileKey
-    || pkg.profile?.includeMeaningSort !== false
-    || pkg.profile?.meaningBins?.length !== 1
+    || pkg.profile?.includeMeaningSort !== (config.expectedIncludeMeaningSort ?? false)
+    || pkg.profile?.meaningBins?.length !== (config.expectedMeaningBinCount ?? 1)
     || !Array.isArray(pkg.profile?.suffixChoices)
     || !Array.isArray(pkg.words)
     || pkg.words.length !== 4

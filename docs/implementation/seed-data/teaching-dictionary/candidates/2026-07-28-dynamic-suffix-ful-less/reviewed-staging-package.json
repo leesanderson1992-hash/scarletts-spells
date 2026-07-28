@@ -1,0 +1,228 @@
+{
+  "schemaVersion": 1,
+  "profile": {
+    "microSkillKey": "D4_MOR_SUFFIXES_FUL_LESS",
+    "suffixLabel": "-ful and -less",
+    "suffixText": "ful/less",
+    "suffixMeaning": "full of or without",
+    "meaningBins": [
+      { "id": "full_of", "label": "FULL OF", "description": "full of or having" },
+      { "id": "without", "label": "WITHOUT", "description": "without or not having" }
+    ],
+    "includeMeaningSort": true,
+    "suffixChoices": [
+      { "text": "ful", "label": "-ful", "outcome": null, "meaning": "full of", "status": "target" },
+      { "text": "less", "label": "-less", "outcome": null, "meaning": "without", "status": "target" },
+      { "text": "full", "label": "-full", "outcome": null, "meaning": null, "status": "unsupported" },
+      { "text": "les", "label": "-les", "outcome": null, "meaning": null, "status": "unsupported" }
+    ],
+    "introContent": {
+      "title": "What are the suffixes -ful and -less?",
+      "meaningStatement": "The suffix -ful means full of or having. The suffix -less means without or not having.",
+      "paragraphs": [
+        "A suffix is a group of letters added to the end of a word."
+      ],
+      "spellingRules": [
+        "Remember: -ful means full of.",
+        "There is only one l in the suffix -ful.",
+        "Remember: -less means without."
+      ],
+      "examples": [
+        { "affix": "ful", "base": "care", "word": "careful", "meaning": "full of care" },
+        { "affix": "ful", "base": "hope", "word": "hopeful", "meaning": "full of hope" },
+        { "affix": "ful", "base": "help", "word": "helpful", "meaning": "giving help" },
+        { "affix": "ful", "base": "colour", "word": "colourful", "meaning": "full of colour" },
+        { "affix": "less", "base": "care", "word": "careless", "meaning": "without care" },
+        { "affix": "less", "base": "hope", "word": "hopeless", "meaning": "without hope" },
+        { "affix": "less", "base": "help", "word": "helpless", "meaning": "unable to help yourself" },
+        { "affix": "less", "base": "colour", "word": "colourless", "meaning": "without colour" }
+      ]
+    },
+    "reflection": {
+      "promptKey": "ful-less-opposite-meanings-v1",
+      "promptText": "How did -ful or -less change the meaning of the base word, and how did the base help you spell the new word?"
+    }
+  },
+  "words": [
+    {
+      "word": "careful",
+      "memberRole": "transfer",
+      "suffixVariant": "ful",
+      "semanticBaseText": "care",
+      "semanticBaseKind": "base",
+      "baseMeaning": "kind attention or concern",
+      "newWordMeaning": "full of care",
+      "meaningBinKey": "full_of",
+      "teaching": {
+        "parts": [
+          { "id": "base", "kind": "base", "sourceText": "care", "surfaceText": "care", "displayRange": { "start": 0, "end": 4 } },
+          { "id": "suffix", "kind": "suffix", "sourceText": "ful", "surfaceText": "ful", "gloss": "full of", "displayRange": { "start": 4, "end": 7 } }
+        ],
+        "joins": [
+          { "afterPartId": "base", "beforePartId": "suffix", "joinType": "none" }
+        ]
+      },
+      "trueMorphology": {
+        "parts": [
+          { "id": "root", "kind": "root", "sourceText": "care", "surfaceText": "care", "displayRange": { "start": 0, "end": 4 } },
+          { "id": "suffix", "kind": "suffix", "sourceText": "ful", "surfaceText": "ful", "displayRange": { "start": 4, "end": 7 } }
+        ],
+        "joins": [
+          { "afterPartId": "root", "beforePartId": "suffix", "joinType": "none" }
+        ],
+        "transformations": [],
+        "notes": "The complete teaching base care is preserved before -ful.",
+        "provenance": { "source": "MorphoLex-en reviewed record", "reference": "careful: care + ful" }
+      },
+      "reviewedFacts": {
+        "frequencyBand": "high",
+        "ageBand": "early_primary",
+        "complexityBand": "medium",
+        "syllables": "2",
+        "phonemeHint": "/kˈeəfəl/",
+        "stressPattern": "primary-unstressed",
+        "hasSchwa": true
+      },
+      "dictation": {
+        "sentence": "Be careful near the deep pond.",
+        "targetTokenIndex": 1,
+        "audioText": "Be careful near the deep pond."
+      }
+    },
+    {
+      "word": "careless",
+      "memberRole": "transfer",
+      "suffixVariant": "less",
+      "semanticBaseText": "care",
+      "semanticBaseKind": "base",
+      "baseMeaning": "kind attention or concern",
+      "newWordMeaning": "without care",
+      "meaningBinKey": "without",
+      "teaching": {
+        "parts": [
+          { "id": "base", "kind": "base", "sourceText": "care", "surfaceText": "care", "displayRange": { "start": 0, "end": 4 } },
+          { "id": "suffix", "kind": "suffix", "sourceText": "less", "surfaceText": "less", "gloss": "without", "displayRange": { "start": 4, "end": 8 } }
+        ],
+        "joins": [
+          { "afterPartId": "base", "beforePartId": "suffix", "joinType": "none" }
+        ]
+      },
+      "trueMorphology": {
+        "parts": [
+          { "id": "root", "kind": "root", "sourceText": "care", "surfaceText": "care", "displayRange": { "start": 0, "end": 4 } },
+          { "id": "suffix", "kind": "suffix", "sourceText": "less", "surfaceText": "less", "displayRange": { "start": 4, "end": 8 } }
+        ],
+        "joins": [
+          { "afterPartId": "root", "beforePartId": "suffix", "joinType": "none" }
+        ],
+        "transformations": [],
+        "notes": "The complete teaching base care is preserved before -less.",
+        "provenance": { "source": "MorphoLex-en reviewed record", "reference": "careless: care + less" }
+      },
+      "reviewedFacts": {
+        "frequencyBand": "medium",
+        "ageBand": "early_primary",
+        "complexityBand": "medium",
+        "syllables": "2",
+        "phonemeHint": "/kˈeələs/",
+        "stressPattern": "primary-unstressed",
+        "hasSchwa": true
+      },
+      "dictation": {
+        "sentence": "A careless spill made a puddle.",
+        "targetTokenIndex": 1,
+        "audioText": "A careless spill made a puddle."
+      }
+    },
+    {
+      "word": "hopeful",
+      "memberRole": "transfer",
+      "suffixVariant": "ful",
+      "semanticBaseText": "hope",
+      "semanticBaseKind": "base",
+      "baseMeaning": "a feeling that something good may happen",
+      "newWordMeaning": "full of hope",
+      "meaningBinKey": "full_of",
+      "teaching": {
+        "parts": [
+          { "id": "base", "kind": "base", "sourceText": "hope", "surfaceText": "hope", "displayRange": { "start": 0, "end": 4 } },
+          { "id": "suffix", "kind": "suffix", "sourceText": "ful", "surfaceText": "ful", "gloss": "full of", "displayRange": { "start": 4, "end": 7 } }
+        ],
+        "joins": [
+          { "afterPartId": "base", "beforePartId": "suffix", "joinType": "none" }
+        ]
+      },
+      "trueMorphology": {
+        "parts": [
+          { "id": "root", "kind": "root", "sourceText": "hope", "surfaceText": "hope", "displayRange": { "start": 0, "end": 4 } },
+          { "id": "suffix", "kind": "suffix", "sourceText": "ful", "surfaceText": "ful", "displayRange": { "start": 4, "end": 7 } }
+        ],
+        "joins": [
+          { "afterPartId": "root", "beforePartId": "suffix", "joinType": "none" }
+        ],
+        "transformations": [],
+        "notes": "The complete teaching base hope is preserved before -ful.",
+        "provenance": { "source": "MorphoLex-en reviewed record", "reference": "hopeful: hope + ful" }
+      },
+      "reviewedFacts": {
+        "frequencyBand": "medium",
+        "ageBand": "middle_primary",
+        "complexityBand": "medium",
+        "syllables": "2",
+        "phonemeHint": "/hˈəʊpfəl/",
+        "stressPattern": "primary-unstressed",
+        "hasSchwa": true
+      },
+      "dictation": {
+        "sentence": "We felt hopeful that the missing dog would come home.",
+        "targetTokenIndex": 2,
+        "audioText": "We felt hopeful that the missing dog would come home."
+      }
+    },
+    {
+      "word": "hopeless",
+      "memberRole": "transfer",
+      "suffixVariant": "less",
+      "semanticBaseText": "hope",
+      "semanticBaseKind": "base",
+      "baseMeaning": "a feeling that something good may happen",
+      "newWordMeaning": "without hope",
+      "meaningBinKey": "without",
+      "teaching": {
+        "parts": [
+          { "id": "base", "kind": "base", "sourceText": "hope", "surfaceText": "hope", "displayRange": { "start": 0, "end": 4 } },
+          { "id": "suffix", "kind": "suffix", "sourceText": "less", "surfaceText": "less", "gloss": "without", "displayRange": { "start": 4, "end": 8 } }
+        ],
+        "joins": [
+          { "afterPartId": "base", "beforePartId": "suffix", "joinType": "none" }
+        ]
+      },
+      "trueMorphology": {
+        "parts": [
+          { "id": "root", "kind": "root", "sourceText": "hope", "surfaceText": "hope", "displayRange": { "start": 0, "end": 4 } },
+          { "id": "suffix", "kind": "suffix", "sourceText": "less", "surfaceText": "less", "displayRange": { "start": 4, "end": 8 } }
+        ],
+        "joins": [
+          { "afterPartId": "root", "beforePartId": "suffix", "joinType": "none" }
+        ],
+        "transformations": [],
+        "notes": "The complete teaching base hope is preserved before -less.",
+        "provenance": { "source": "MorphoLex-en reviewed record", "reference": "hopeless: hope + less" }
+      },
+      "reviewedFacts": {
+        "frequencyBand": "medium",
+        "ageBand": "early_primary",
+        "complexityBand": "medium",
+        "syllables": "2",
+        "phonemeHint": "/hˈəʊpləs/",
+        "stressPattern": "primary-unstressed",
+        "hasSchwa": true
+      },
+      "dictation": {
+        "sentence": "The broken toy seemed hopeless until Dad found the missing part.",
+        "targetTokenIndex": 4,
+        "audioText": "The broken toy seemed hopeless until Dad found the missing part."
+      }
+    }
+  ]
+}

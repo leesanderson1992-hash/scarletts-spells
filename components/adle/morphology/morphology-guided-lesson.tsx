@@ -103,6 +103,11 @@ export function MorphologyGuidedLesson(props: {
         restored,
         props.payload.words.lesson.map((word) => word.canonicalWordId),
         guidedBindings,
+        {
+          introScreenCount: props.payload.activities.find((activity) => activity.type === "introduction")?.introScreens?.length,
+          splitCount: props.payload.activities.find((activity) => activity.type === "strip_build")?.assignmentBindings.length,
+          buildCount: props.payload.activities.find((activity) => activity.type === "prefix_choice")?.assignmentBindings.length,
+        },
       );
       if (normalised) setState(normalised);
       setHydrated(true);
@@ -196,11 +201,14 @@ export function MorphologyGuidedLesson(props: {
         <LearnIntroduction
           payload={props.payload}
           index={state.introIndex}
-          onNext={() =>
-            state.introIndex < 2
+          onNext={() => {
+            const introCount = props.payload.activities.find(
+              (candidate) => candidate.type === "introduction",
+            )?.introScreens?.length ?? 1;
+            return state.introIndex < introCount - 1
               ? update({ introIndex: state.introIndex + 1, helpLevel: 0 })
-              : update({ stage: "discover", helpLevel: 0 })
-          }
+              : update({ stage: "discover", helpLevel: 0 });
+          }}
         />
       ) : null}
       {state.stage === "discover" ? (
@@ -276,7 +284,9 @@ export function MorphologyGuidedLesson(props: {
               destination: word.effect,
             }))}
             bins={meaningBins(props.payload)}
-            instruction="Read the word. Think about what the prefix means. Then choose the meaning label that fits."
+            instruction={props.payload.words.anchor.affixPosition === "after"
+              ? "Read the word. Decide what the suffix means. Then choose the meaning label that fits."
+              : "Read the word. Think about what the prefix means. Then choose the meaning label that fits."}
             muted={state.muted}
             incorrectMessage={beat.onMisconception}
             repeatedIncorrectMessage={beat.onRepeatedMisconception}
@@ -434,6 +444,7 @@ function LearnIntroduction(props: {
     (candidate) => candidate.type === "introduction",
   )!;
   const screen = activity.introScreens![props.index];
+  const total = activity.introScreens!.length;
   return (
     <section
       className="grid gap-5 text-center"
@@ -441,7 +452,7 @@ function LearnIntroduction(props: {
     >
       <div>
         <p className="text-xs font-black uppercase tracking-[.2em] text-cyan-200">
-          Learn {props.index + 1} of 3
+          Learn {props.index + 1} of {total}
         </p>
         <h1
           id={`intro-${screen.id}`}

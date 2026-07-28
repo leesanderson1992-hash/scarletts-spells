@@ -11,6 +11,9 @@ type ProofConfig = {
   reflectionKey: string;
   statePath: string;
   stagingHost: string;
+  expectedItemCount?: number;
+  expectedAttemptCount?: number;
+  expectedGuidedCount?: number;
 };
 type State = {
   parentId: string;
@@ -120,10 +123,13 @@ export function runDynamicSuffixStagingProof(config: ProofConfig) {
       db.from("adle_review_schedule_words").select("canonical_word_id").eq("child_id", state.childId).eq("row_status", "active"),
     ]);
     for (const result of [items, attempts, reflections, taught, schedules]) if (result.error) throw result.error;
-    assert(items.data?.length === 16 && items.data.every((row) => row.status === "completed"), "16 completed immutable items");
+    const expectedItemCount = config.expectedItemCount ?? 16;
+    const expectedAttemptCount = config.expectedAttemptCount ?? 14;
+    const expectedGuidedCount = config.expectedGuidedCount ?? 6;
+    assert(items.data?.length === expectedItemCount && items.data.every((row) => row.status === "completed"), `${expectedItemCount} completed immutable items`);
     assert(items.data?.every((row) => row.metadata?.microSkillKey === config.profileKey), "all items are scoped to the selected profile");
-    assert(attempts.data?.length === 14, "14 attempt events");
-    assert(attempts.data?.filter((row) => row.attempt_kind === "guided_practice").length === 6, "6 guided events");
+    assert(attempts.data?.length === expectedAttemptCount, `${expectedAttemptCount} attempt events`);
+    assert(attempts.data?.filter((row) => row.attempt_kind === "guided_practice").length === expectedGuidedCount, `${expectedGuidedCount} guided events`);
     assert(attempts.data?.filter((row) => row.attempt_kind === "lesson_production").length === 4, "4 controlled events");
     assert(attempts.data?.filter((row) => row.attempt_kind === "lesson_dictation").length === 4, "4 dictation events");
     assert(reflections.data?.length === 1 && reflections.data[0]?.prompt_key === config.reflectionKey

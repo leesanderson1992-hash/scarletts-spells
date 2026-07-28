@@ -49,12 +49,16 @@ export function normaliseMorphologyLessonResume(
   value: unknown,
   canonicalWordIds: readonly string[],
   validGuidedBindings: readonly string[],
+  limits: { introScreenCount?: number; splitCount?: number; buildCount?: number } = {},
 ): MorphologyLessonResumeState | null {
   if (!isRecord(value) || !LESSON_STAGES.includes(value.stage as MorphologyLessonStage)) return null;
-  if (!Number.isInteger(value.introIndex) || Number(value.introIndex) < 0 || Number(value.introIndex) > 2 || !Number.isInteger(value.discoverIndex) || Number(value.discoverIndex) < 0 || Number(value.discoverIndex) > 3 || !Number.isInteger(value.splitMisses) || Number(value.splitMisses) < 0 || Number(value.splitMisses) > 2 || !Number.isInteger(value.controlledIndex) || Number(value.controlledIndex) < 0 || Number(value.controlledIndex) > 3 || !Number.isInteger(value.dictationIndex) || Number(value.dictationIndex) < 0 || Number(value.dictationIndex) > 3 || !Number.isInteger(value.helpLevel) || Number(value.helpLevel) < 0 || Number(value.helpLevel) > 2) return null;
+  const maxIntroIndex = Math.max(0, (limits.introScreenCount ?? 3) - 1);
+  const maxSplitIndex = Math.max(0, (limits.splitCount ?? 4) - 1);
+  const maxBuildIndex = Math.max(0, (limits.buildCount ?? 4) - 1);
+  if (!Number.isInteger(value.introIndex) || Number(value.introIndex) < 0 || Number(value.introIndex) > maxIntroIndex || !Number.isInteger(value.discoverIndex) || Number(value.discoverIndex) < 0 || Number(value.discoverIndex) > 3 || !Number.isInteger(value.splitMisses) || Number(value.splitMisses) < 0 || Number(value.splitMisses) > 2 || !Number.isInteger(value.controlledIndex) || Number(value.controlledIndex) < 0 || Number(value.controlledIndex) > 3 || !Number.isInteger(value.dictationIndex) || Number(value.dictationIndex) < 0 || Number(value.dictationIndex) > 3 || !Number.isInteger(value.helpLevel) || Number(value.helpLevel) < 0 || Number(value.helpLevel) > 2) return null;
   if (typeof value.discoverAddedPrefix !== "boolean" || typeof value.splitCorrect !== "boolean" || typeof value.matchComplete !== "boolean" || typeof value.checkedSentence !== "boolean" || typeof value.muted !== "boolean" || typeof value.reflectionText !== "string" || value.reflectionText.length > 2000 || !isStringRecord(value.controlledAttempts) || !isBooleanRecord(value.controlledChecked) || !isStringRecord(value.sentenceAttempts) || !Array.isArray(value.guidedBindings) || !value.guidedBindings.every((entry) => typeof entry === "string")) return null;
-  if (value.splitIndex !== undefined && (!Number.isInteger(value.splitIndex) || Number(value.splitIndex) < 0 || Number(value.splitIndex) > 3)) return null;
-  if (value.buildIndex !== undefined && (!Number.isInteger(value.buildIndex) || Number(value.buildIndex) < 0 || Number(value.buildIndex) > 3)) return null;
+  if (value.splitIndex !== undefined && (!Number.isInteger(value.splitIndex) || Number(value.splitIndex) < 0 || Number(value.splitIndex) > maxSplitIndex)) return null;
+  if (value.buildIndex !== undefined && (!Number.isInteger(value.buildIndex) || Number(value.buildIndex) < 0 || Number(value.buildIndex) > maxBuildIndex)) return null;
   const wordIds = new Set(canonicalWordIds);
   if (Object.keys(value.controlledAttempts).some((id) => !wordIds.has(id)) || Object.keys(value.controlledChecked).some((id) => !wordIds.has(id)) || Object.keys(value.sentenceAttempts).some((id) => !wordIds.has(id))) return null;
   const bindingSet = new Set(validGuidedBindings);

@@ -85,6 +85,15 @@ export interface DynamicAffixLessonPayloadV3 {
   };
 }
 
+export function dynamicAffixExpectedItemCount(payload: DynamicAffixLessonPayloadV3) {
+  return 2
+    + payload.activities.guided.splitCanonicalWordIds.length
+    + (payload.activities.guided.includeMeaningSort ? payload.words.lesson.length : 0)
+    + payload.activities.guided.builds.length
+    + payload.words.lesson.length
+    + payload.activities.dictation.length;
+}
+
 function authenticFor(profile: DynamicAffixProfile, items: readonly LearningItemFact[]) {
   const seen = new Set<string>();
   return selectableLearningItems(items)
@@ -140,15 +149,29 @@ export function compileDynamicAffixWordLabPayload(selection: DynamicAffixSelecti
     ? formCleavers.map((word) => word.canonicalWordId)
     : [direct.canonicalWordId, changed.canonicalWordId];
   if (splitCanonicalWordIds.length !== 2 || new Set(splitCanonicalWordIds).size !== 2) return null;
+  const splitIds = new Set(splitCanonicalWordIds);
+  const buildWords = profile.includeMeaningSort
+    ? suffixForms.map((form) =>
+        lesson.find((word) => word.affixText === form && !splitIds.has(word.canonicalWordId))
+        ?? lesson.find((word) => word.affixText === form),
+      ).filter((word): word is typeof lesson[number] => Boolean(word))
+    : lesson;
+  if (
+    buildWords.length !== (profile.includeMeaningSort ? suffixForms.length : DYNAMIC_AFFIX_WORD_LAB_WORD_COUNT)
+    || new Set(buildWords.map((word) => word.canonicalWordId)).size !== buildWords.length
+  ) return null;
   const buildFor = (word: typeof lesson[number], buildIndex: number) => {
     const choices = profile.choices.map((choice) => choice.text === word.affixText ? { ...choice, status: "target" as const } : choice.status === "target" ? { ...choice, status: "valid_alternative" as const } : choice);
     if (choices.filter((choice) => choice.status === "target").length !== 1) return null;
     // The immutable payload carries a stable rotation: repeated builds do not
     // teach the child that the correct affix is always in the same place.
-    const offset = profile.position === "after" && choices.length > 1 ? (buildIndex + 1) % choices.length : 0;
+    const wordSeed = [...word.displayWord].reduce((total, letter) => total + letter.charCodeAt(0), 0);
+    const offset = profile.position === "after" && choices.length > 1
+      ? (wordSeed + (buildIndex * 2) + 1) % choices.length
+      : 0;
     return { canonicalWordId: word.canonicalWordId, baseWord: word.teachingBaseText, targetMeaning: word.derivedMeaning, choices: choices.map((_, index) => choices[(index + offset) % choices.length]) };
   };
-  const builds = lesson.map(buildFor);
+  const builds = buildWords.map(buildFor);
   if (builds.some((build) => build === null)) return null;
   return { schemaVersion: 3, experience: "D4_MOR_GUIDED", contentVersion: DYNAMIC_AFFIX_WORD_LAB_CONTENT_VERSION, microSkillId: profile.microSkillKey, experienceProfile: DYNAMIC_AFFIX_WORD_LAB_PROFILE, affix: { position: profile.position, text: profile.affixText, label: profile.affixLabel, meaning: profile.affixMeaning }, authenticCanonicalWordIds: selection.authenticTargets.map((item) => item.canonicalWordId), words: { lesson }, activities: { introduction: profile.introduction, discovery: lesson.map((word) => ({ canonicalWordId: word.canonicalWordId, word: word.displayWord, baseWord: word.semanticBaseText, baseMeaning: word.baseMeaning, derivedMeaning: word.derivedMeaning, distractorMeaning: word.baseMeaning, affixLabel: word.affixLabel })), meaningBins: profile.meaningBins, guided: { splitCanonicalWordIds, builds: builds as NonNullable<typeof builds[number]>[], includeMeaningSort: profile.includeMeaningSort }, dictation: lesson.map((word) => { const source = profile.wordsByCanonicalId.get(word.canonicalWordId)!; return { canonicalWordId: word.canonicalWordId, targetWord: word.displayWord, sentence: source.dictationSentence, targetTokenIndex: source.dictationTargetTokenIndex }; }), reflection: profile.reflection } };
 }
@@ -156,5 +179,25 @@ export function compileDynamicAffixWordLabPayload(selection: DynamicAffixSelecti
 export function validateDynamicAffixWordLabPayload(value: unknown): value is DynamicAffixLessonPayloadV3 {
   if (!value || typeof value !== "object") return false;
   const payload = value as DynamicAffixLessonPayloadV3;
-  return payload.schemaVersion === 3 && payload.experienceProfile === DYNAMIC_AFFIX_WORD_LAB_PROFILE && payload.words?.lesson?.length === 4 && payload.authenticCanonicalWordIds.length >= 1 && payload.authenticCanonicalWordIds.length <= 4 && payload.affix?.position !== undefined && payload.activities.guided.splitCanonicalWordIds.length === 2 && payload.activities.guided.builds.length === 4 && !payload.activities.guided.includeMeaningSort && payload.activities.meaningBins.length === 1 && payload.words.lesson.every((word) => word.splitPoints.length === 1 && word.parts.map((part) => part.text).join("") === word.displayWord);
+  if (
+    payload.schemaVersion !== 3
+    || payload.experienceProfile !== DYNAMIC_AFFIX_WORD_LAB_PROFILE
+    || payload.words?.lesson?.length !== 4
+    || payload.authenticCanonicalWordIds.length < 1
+    || payload.authenticCanonicalWordIds.length > 4
+    || payload.affix?.position === undefined
+    || payload.activities.guided.splitCanonicalWordIds.length !== 2
+  ) return false;
+  const suffixForms = new Set(payload.words.lesson.map((word) => word.affixText));
+  const hasMeaningSort = payload.activities.guided.includeMeaningSort;
+  const validMeaningShape = hasMeaningSort
+    ? payload.activities.meaningBins.length > 1 && payload.activities.guided.builds.length === suffixForms.size
+    : payload.activities.meaningBins.length === 1 && payload.activities.guided.builds.length === 4;
+  return validMeaningShape
+    && dynamicAffixExpectedItemCount(payload) === (hasMeaningSort ? 18 : 16)
+    && payload.words.lesson.every((word) =>
+      word.splitPoints.length === 1
+      && word.parts.map((part) => part.text).join("") === word.displayWord
+      && payload.activities.meaningBins.some((bin) => bin.id === word.effect),
+    );
 }
