@@ -1,0 +1,60 @@
+{
+  "schemaVersion": 1,
+  "profile": {
+    "microSkillKey": "D4_MOR_SUFFIXES_AL",
+    "suffixLabel": "-al",
+    "suffixText": "al",
+    "suffixMeaning": "related to or connected with",
+    "meaningBins": [{ "id": "connected_with", "label": "CONNECTED WITH", "description": "connected with" }],
+    "includeMeaningSort": false,
+    "suffixChoices": [
+      { "text": "al", "label": "-al", "outcome": null, "meaning": "connected with", "status": "target" },
+      { "text": "el", "label": "-el", "outcome": null, "meaning": null, "status": "unsupported" },
+      { "text": "il", "label": "-il", "outcome": null, "meaning": null, "status": "unsupported" }
+    ],
+    "introContent": {
+      "title": "What is the suffix -al?",
+      "meaningStatement": "-al turns a naming word into a describing word meaning “connected with.”",
+      "paragraphs": [
+        "A suffix is a group of letters added to the end of a word.",
+        "The suffix -al usually means related to or connected with.",
+        "In these examples, -al turns a naming word into a describing word. It does not mean every word ending in -al follows this rule."
+      ],
+      "spellingRules": ["In these lesson words, keep the whole naming word and add a-l."],
+      "examples": [
+        { "affix": "al", "base": "music", "word": "musical", "meaning": "connected with music" },
+        { "affix": "al", "base": "season", "word": "seasonal", "meaning": "connected with a season" }
+      ]
+    },
+    "reflection": {
+      "promptKey": "al-connected-with-v1",
+      "promptText": "How did -al change a naming word into a describing word?"
+    }
+  },
+  "words": [
+    {
+      "word": "musical", "memberRole": "transfer", "suffixVariant": "al", "semanticBaseText": "music", "semanticBaseKind": "base", "baseMeaning": "sounds organised to make a song or tune", "newWordMeaning": "connected with music", "meaningBinKey": "connected_with",
+      "teaching": { "parts": [{ "id": "base", "kind": "base", "sourceText": "music", "surfaceText": "music", "displayRange": { "start": 0, "end": 5 } }, { "id": "suffix", "kind": "suffix", "sourceText": "al", "surfaceText": "al", "gloss": "connected with", "displayRange": { "start": 5, "end": 7 } }], "joins": [{ "afterPartId": "base", "beforePartId": "suffix", "joinType": "none" }] },
+      "trueMorphology": { "parts": [{ "id": "base", "kind": "base", "sourceText": "music", "surfaceText": "music", "displayRange": { "start": 0, "end": 5 } }, { "id": "suffix", "kind": "suffix", "sourceText": "al", "surfaceText": "al", "gloss": "to do with", "displayRange": { "start": 5, "end": 7 } }], "joins": [{ "afterPartId": "base", "beforePartId": "suffix", "joinType": "none" }], "transformations": [], "notes": "No spelling transformation: music + al.", "provenance": { "source": "Human-approved D4_MOR category v1 word analysis", "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx", "sheet": "Word Bank", "row": 100 } },
+      "reviewedFacts": { "frequencyBand": "high", "ageBand": "early_primary", "complexityBand": "medium", "syllables": "3", "phonemeHint": "/mjˈuːzɪkəl/", "stressPattern": "primary-unstressed-unstressed", "hasSchwa": true }, "dictation": { "sentence": "We watched a musical at the theatre.", "targetTokenIndex": 3, "audioText": "We watched a musical at the theatre." }
+    },
+    {
+      "word": "national", "memberRole": "transfer", "suffixVariant": "al", "semanticBaseText": "nation", "semanticBaseKind": "base", "baseMeaning": "a country and its people", "newWordMeaning": "connected with a nation", "meaningBinKey": "connected_with",
+      "teaching": { "parts": [{ "id": "base", "kind": "base", "sourceText": "nation", "surfaceText": "nation", "displayRange": { "start": 0, "end": 6 } }, { "id": "suffix", "kind": "suffix", "sourceText": "al", "surfaceText": "al", "gloss": "connected with", "displayRange": { "start": 6, "end": 8 } }], "joins": [{ "afterPartId": "base", "beforePartId": "suffix", "joinType": "none" }] },
+      "trueMorphology": { "parts": [{ "id": "base", "kind": "base", "sourceText": "nation", "surfaceText": "nation", "displayRange": { "start": 0, "end": 6 } }, { "id": "suffix", "kind": "suffix", "sourceText": "al", "surfaceText": "al", "gloss": "to do with", "displayRange": { "start": 6, "end": 8 } }], "joins": [{ "afterPartId": "base", "beforePartId": "suffix", "joinType": "none" }], "transformations": [], "notes": "No spelling transformation: nation + al.", "provenance": { "source": "Human-approved D4_MOR category v1 word analysis", "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx", "sheet": "Word Bank", "row": 101 } },
+      "reviewedFacts": { "frequencyBand": "high", "ageBand": "mid_secondary", "complexityBand": "medium", "syllables": "3", "phonemeHint": "/nˈæʃənəl/", "stressPattern": "primary-unstressed-unstressed", "hasSchwa": true }, "dictation": { "sentence": "A national event takes place across the whole country.", "targetTokenIndex": 1, "audioText": "A national event takes place across the whole country." }
+    },
+    {
+      "word": "personal", "memberRole": "transfer", "suffixVariant": "al", "semanticBaseText": "person", "semanticBaseKind": "base", "baseMeaning": "a human being", "newWordMeaning": "connected with a person", "meaningBinKey": "connected_with",
+      "teaching": { "parts": [{ "id": "base", "kind": "base", "sourceText": "person", "surfaceText": "person", "displayRange": { "start": 0, "end": 6 } }, { "id": "suffix", "kind": "suffix", "sourceText": "al", "surfaceText": "al", "gloss": "connected with", "displayRange": { "start": 6, "end": 8 } }], "joins": [{ "afterPartId": "base", "beforePartId": "suffix", "joinType": "none" }] },
+      "trueMorphology": { "parts": [{ "id": "base", "kind": "base", "sourceText": "person", "surfaceText": "person", "displayRange": { "start": 0, "end": 6 } }, { "id": "suffix", "kind": "suffix", "sourceText": "al", "surfaceText": "al", "gloss": "to do with", "displayRange": { "start": 6, "end": 8 } }], "joins": [{ "afterPartId": "base", "beforePartId": "suffix", "joinType": "none" }], "transformations": [], "notes": "No spelling transformation: person + al.", "provenance": { "source": "Human-approved D4_MOR category v1 word analysis", "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx", "sheet": "Word Bank", "row": 104 } },
+      "reviewedFacts": { "frequencyBand": "high", "ageBand": "early_primary", "complexityBand": "medium", "syllables": "3", "phonemeHint": "/pˈɜːsənəl/", "stressPattern": "primary-unstressed-unstressed", "hasSchwa": true }, "dictation": { "sentence": "The diary was personal, so Mia kept it private.", "targetTokenIndex": 3, "audioText": "The diary was personal, so Mia kept it private." }
+    },
+    {
+      "word": "seasonal", "memberRole": "transfer", "suffixVariant": "al", "semanticBaseText": "season", "semanticBaseKind": "base", "baseMeaning": "one part of the year, such as summer", "newWordMeaning": "connected with a season", "meaningBinKey": "connected_with",
+      "teaching": { "parts": [{ "id": "base", "kind": "base", "sourceText": "season", "surfaceText": "season", "displayRange": { "start": 0, "end": 6 } }, { "id": "suffix", "kind": "suffix", "sourceText": "al", "surfaceText": "al", "gloss": "connected with", "displayRange": { "start": 6, "end": 8 } }], "joins": [{ "afterPartId": "base", "beforePartId": "suffix", "joinType": "none" }] },
+      "trueMorphology": { "parts": [{ "id": "base", "kind": "base", "sourceText": "season", "surfaceText": "season", "displayRange": { "start": 0, "end": 6 } }, { "id": "suffix", "kind": "suffix", "sourceText": "al", "surfaceText": "al", "gloss": "to do with", "displayRange": { "start": 6, "end": 8 } }], "joins": [{ "afterPartId": "base", "beforePartId": "suffix", "joinType": "none" }], "transformations": [], "notes": "No spelling transformation: season + al.", "provenance": { "source": "Human-approved D4_MOR category v1 word analysis", "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx", "sheet": "Word Bank", "row": 105 } },
+      "reviewedFacts": { "frequencyBand": "medium", "ageBand": "middle_primary", "complexityBand": "medium", "syllables": "3", "phonemeHint": "/ˈsiːzənəl/", "stressPattern": "primary-unstressed-unstressed", "hasSchwa": true }, "dictation": { "sentence": "The shop sells seasonal fruit in the summer.", "targetTokenIndex": 3, "audioText": "The shop sells seasonal fruit in the summer." }
+    }
+  ]
+}
