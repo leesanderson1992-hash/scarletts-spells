@@ -68,17 +68,38 @@ The disposable child, auth user, learning item, assignment, attempts,
 reflection, taught history, review schedules, and related fixture-owned rows
 were removed. The cleanup verifier passed with no fixture residue.
 
-A fresh, untouched 18-item lesson is prepared under the existing staging test
-account:
+A fresh 18-item lesson was prepared under the existing staging test account:
 
 - child: `FUL LESS Child Verification`;
 - child id: `8108e996-6a37-462d-a717-e4c1b1a661b8`;
 - assignment: `0ea3fc92-859f-4e00-8308-2cfcc30bdd60`;
-- starting state: pending, 18 pending items, zero attempts, zero taught words,
+- initial state: pending, 18 pending items, zero attempts, zero taught words,
   and zero schedules.
 
-Automated staging proof has passed, but final owner/child verification has not
-yet been recorded. The profile is therefore
-`staging_verification_pending`, not `staging_approved`. Production remains
-disabled and requires final child approval followed by separate written
-production authorisation.
+The child completed that dedicated lesson with no requested changes. The
+staging ledger confirms 18 completed items; 16 events (eight guided, four
+controlled-spelling, and four dictation); one
+`ful-less-opposite-meanings-v1` reflection; four taught-word-history records;
+and four active review schedules. Evidence is scoped to this profile, and the
+staging profile remains `production_enabled = false`.
+
+`D4_MOR_SUFFIXES_FUL_LESS` is therefore `staging_approved`. Production still
+requires separate written authorisation; this status does not enable the live
+gate or write any production data.
+
+## Production preparation
+
+The guarded shared production promoter now accepts this exact reviewed package
+only when all of the following are supplied after written authorisation:
+
+- `--apply --environment production`;
+- `--profile D4_MOR_SUFFIXES_FUL_LESS`;
+- the exact package SHA-256 above; and
+- the named production pooler database URL.
+
+It validates the two-form, two-bin profile shape and four reviewed members,
+applies the narrowly scoped 18-item persistence migration only if it is not
+already recorded, refuses an existing active production profile, and proves
+that it made no learner, assignment, evidence, or scheduling writes. The
+production activation, gate change, deployment, smoke test, and receipt remain
+deliberately unperformed.

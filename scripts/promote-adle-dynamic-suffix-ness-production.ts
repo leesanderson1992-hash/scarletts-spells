@@ -7,14 +7,25 @@ import pg from "pg";
 const ROOT = resolve(import.meta.dirname, "..");
 const fail = (message: string): never => { throw new Error(`Dynamic suffix production promotion refused: ${message}`); };
 const PROFILE_KEY = process.argv[process.argv.indexOf("--profile") + 1] ?? "D4_MOR_SUFFIXES_NESS";
-const PACKAGE_FOLDERS: Record<string, string> = {
-  D4_MOR_SUFFIXES_NESS: "2026-07-27-dynamic-suffix-ness",
-  D4_MOR_SUFFIXES_ABLE_IBLE: "2026-07-27-dynamic-suffix-able-ible",
-  D4_MOR_SUFFIXES_MENT: "2026-07-27-dynamic-suffix-ment",
+const PRODUCTION_PROFILES = {
+  D4_MOR_SUFFIXES_NESS: { folder: "2026-07-27-dynamic-suffix-ness", includeMeaningSort: false, meaningBinCount: 1, suffixVariants: ["ness"] },
+  D4_MOR_SUFFIXES_ABLE_IBLE: { folder: "2026-07-27-dynamic-suffix-able-ible", includeMeaningSort: false, meaningBinCount: 1, suffixVariants: ["able", "ible"] },
+  D4_MOR_SUFFIXES_MENT: { folder: "2026-07-27-dynamic-suffix-ment", includeMeaningSort: false, meaningBinCount: 1, suffixVariants: ["ment"] },
+  // This is deliberately listed only after the separate staging proof and
+  // child verification. Applying it still requires the explicit production
+  // command and the exact reviewed package hash below.
+  D4_MOR_SUFFIXES_FUL_LESS: { folder: "2026-07-28-dynamic-suffix-ful-less", includeMeaningSort: true, meaningBinCount: 2, suffixVariants: ["ful", "less"] },
 };
-const PACKAGE_FOLDER = PACKAGE_FOLDERS[PROFILE_KEY] ?? fail("profile is not separately approved for production promotion");
+const PROFILE_CONFIG = PRODUCTION_PROFILES[PROFILE_KEY as keyof typeof PRODUCTION_PROFILES]
+  ?? fail("profile is not separately approved for production promotion");
+const PACKAGE_FOLDER = PROFILE_CONFIG.folder;
 const PACKAGE_PATH = resolve(ROOT, `docs/implementation/seed-data/teaching-dictionary/candidates/${PACKAGE_FOLDER}/reviewed-staging-package.json`);
-const MIGRATION_PATH = resolve(ROOT, "supabase/migrations/20260727110000_add_dynamic_suffix_dictionary_profiles.sql");
+const MIGRATIONS = [
+  { version: "20260727110000", name: "add_dynamic_suffix_dictionary_profiles", path: resolve(ROOT, "supabase/migrations/20260727110000_add_dynamic_suffix_dictionary_profiles.sql") },
+  ...(PROFILE_KEY === "D4_MOR_SUFFIXES_FUL_LESS"
+    ? [{ version: "20260728100000", name: "allow_ful_less_dynamic_suffix_18_item_plan", path: resolve(ROOT, "supabase/migrations/20260728100000_allow_ful_less_dynamic_suffix_18_item_plan.sql") }]
+    : []),
+];
 const PRODUCTION_HOST = "aws-0-eu-west-1.pooler.supabase.com";
 const PRODUCTION_USER = "postgres.wwohrqtunajrbwxyssjf";
 const sha256 = (value: string) => createHash("sha256").update(value).digest("hex");
@@ -31,17 +42,39 @@ type PackageWord = {
 type Package = { schemaVersion: number; profile: any; words: PackageWord[] };
 
 function validate(pkg: Package) {
-  if (pkg.schemaVersion !== 1 || pkg.profile?.microSkillKey !== PROFILE_KEY || pkg.profile?.includeMeaningSort !== false || pkg.profile?.meaningBins?.length !== 1 || !Array.isArray(pkg.words) || pkg.words.length !== 4) fail("expected the reviewed four-word suffix package");
+  if (
+    pkg.schemaVersion !== 1
+    || pkg.profile?.microSkillKey !== PROFILE_KEY
+    || pkg.profile?.includeMeaningSort !== PROFILE_CONFIG.includeMeaningSort
+    || pkg.profile?.meaningBins?.length !== PROFILE_CONFIG.meaningBinCount
+    || !Array.isArray(pkg.words)
+    || pkg.words.length !== 4
+  ) fail("expected the reviewed four-word suffix package shape");
+  const variants = new Set<string>();
   for (const word of pkg.words) {
     const teaching = word.teaching?.parts as any[];
     const trueParts = word.trueMorphology?.parts as any[];
     const suffixes = teaching?.filter((part) => part.kind === "suffix") ?? [];
     if (suffixes.length !== 1 || suffixes[0].surfaceText !== word.suffixVariant || teaching.map((part) => part.surfaceText).join("") !== word.word || trueParts.map((part) => part.surfaceText).join("") !== word.word || !word.trueMorphology?.provenance || tokenAt(word.dictation?.sentence ?? "", word.dictation?.targetTokenIndex) !== word.word || word.dictation.audioText !== word.dictation.sentence) fail(`invalid reviewed facts for ${word.word}`);
+    variants.add(word.suffixVariant);
   }
+  if (variants.size !== PROFILE_CONFIG.suffixVariants.length || PROFILE_CONFIG.suffixVariants.some((variant) => !variants.has(variant))) fail("reviewed suffix forms do not match the approved profile");
 }
 
 function source(packageSha256: string, word?: PackageWord) {
   return { package_sha256: packageSha256, promoted_profile: PROFILE_KEY, word, prohibited_writes: { learner: 0, assignment: 0, evidence: 0, scheduling: 0 } };
+}
+
+async function applyRequiredMigrations(client: pg.Client) {
+  for (const migration of MIGRATIONS) {
+    const existing = await client.query("select 1 from supabase_migrations.schema_migrations where version=$1", [migration.version]);
+    if (existing.rowCount) continue;
+    await client.query(readFileSync(migration.path, "utf8"));
+    await client.query(
+      "insert into supabase_migrations.schema_migrations (version,name,statements) values ($1,$2,null)",
+      [migration.version, migration.name],
+    );
+  }
 }
 
 async function apply(pkg: Package, raw: string, databaseUrl: string) {
@@ -53,8 +86,7 @@ async function apply(pkg: Package, raw: string, databaseUrl: string) {
   try {
     await client.query("begin");
     const before = await client.query("select (select count(*) from adle_learning_items) learning_items,(select count(*) from daily_assignments) assignments,(select count(*) from adle_assignment_attempt_events) evidence,(select count(*) from adle_review_schedule_words) scheduling");
-    await client.query(readFileSync(MIGRATION_PATH, "utf8"));
-    await client.query("insert into supabase_migrations.schema_migrations (version,name,statements) values ('20260727110000','add_dynamic_suffix_dictionary_profiles',null) on conflict (version) do nothing");
+    await applyRequiredMigrations(client);
     const active = await client.query("select id from canonical_teaching_dictionary_suffix_profiles where micro_skill_key=$1 and row_status='active' for update", [PROFILE_KEY]);
     if (active.rowCount) fail(`${PROFILE_KEY} already has an active production profile`);
     const words = await client.query("select w.id,w.normalised_word,w.frequency_band,w.age_band,w.complexity_band,(select count(*) from canonical_teaching_dictionary_word_metadata m where m.canonical_word_id=w.id and m.row_status='active' and m.review_status='approved_for_first_exposure') metadata,(select count(*) from canonical_teaching_dictionary_dictation_sentences d where d.canonical_word_id=w.id and d.row_status='active' and d.review_status='approved_for_first_exposure') dictation from canonical_teaching_dictionary_words w where w.normalised_word=any($1) and w.row_status='active' and w.review_status='approved_for_first_exposure' for update", [pkg.words.map((word) => word.word)]);
@@ -88,7 +120,7 @@ async function apply(pkg: Package, raw: string, databaseUrl: string) {
 async function main() {
   const raw = readFileSync(PACKAGE_PATH, "utf8"); const pkg = JSON.parse(raw) as Package; validate(pkg); const packageSha256 = sha256(raw);
   if (process.argv.includes("--validate")) { console.log(JSON.stringify({ profile: PROFILE_KEY, packageSha256, valid: true })); return; }
-  if (!process.argv.includes("--apply") || arg("--environment") !== "production" || arg("--profile") !== PROFILE_KEY || !Object.hasOwn(PACKAGE_FOLDERS, PROFILE_KEY) || arg("--confirm-package-sha256") !== packageSha256) fail("use --apply --environment production --profile <approved suffix profile> --confirm-package-sha256 <exact>");
+  if (!process.argv.includes("--apply") || arg("--environment") !== "production" || arg("--profile") !== PROFILE_KEY || !Object.hasOwn(PRODUCTION_PROFILES, PROFILE_KEY) || arg("--confirm-package-sha256") !== packageSha256) fail("use --apply --environment production --profile <approved suffix profile> --confirm-package-sha256 <exact>");
   await apply(pkg, raw, arg("--database-url") ?? fail("--database-url is required"));
 }
 main().catch((error) => { console.error(error instanceof Error ? error.message : String(error)); process.exitCode = 1; });
