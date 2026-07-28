@@ -14,6 +14,7 @@ const PRODUCTION_PROFILES = {
   D4_MOR_SUFFIXES_ITY: { folder: "2026-07-28-dynamic-suffix-ity", includeMeaningSort: false, meaningBinCount: 1, suffixVariants: ["ity"] },
   D4_MOR_SUFFIXES_AL: { folder: "2026-07-28-dynamic-suffix-al", includeMeaningSort: false, meaningBinCount: 1, suffixVariants: ["al"] },
   D4_MOR_SUFFIXES_OUS: { folder: "2026-07-28-dynamic-suffix-ous", includeMeaningSort: false, meaningBinCount: 1, suffixVariants: ["ous"] },
+  D4_MOR_SUFFIXES_LY: { folder: "2026-07-28-dynamic-suffix-ly", includeMeaningSort: false, meaningBinCount: 1, suffixVariants: ["ly"] },
   // This is deliberately listed only after the separate staging proof and
   // child verification. Applying it still requires the explicit production
   // command and the exact reviewed package hash below.

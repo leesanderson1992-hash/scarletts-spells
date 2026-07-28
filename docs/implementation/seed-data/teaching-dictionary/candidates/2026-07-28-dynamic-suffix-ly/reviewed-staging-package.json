@@ -1,0 +1,452 @@
+{
+  "schemaVersion": 1,
+  "profile": {
+    "microSkillKey": "D4_MOR_SUFFIXES_LY",
+    "suffixLabel": "-ly",
+    "suffixText": "ly",
+    "suffixMeaning": "in a certain way",
+    "meaningBins": [
+      {
+        "id": "in_a_certain_way",
+        "label": "IN A CERTAIN WAY",
+        "description": "in a certain way"
+      }
+    ],
+    "includeMeaningSort": false,
+    "suffixChoices": [
+      {
+        "text": "ly",
+        "label": "-ly",
+        "outcome": null,
+        "meaning": "in a certain way",
+        "status": "target"
+      },
+      {
+        "text": "ley",
+        "label": "-ley",
+        "outcome": null,
+        "meaning": null,
+        "status": "unsupported"
+      },
+      {
+        "text": "lly",
+        "label": "-lly",
+        "outcome": null,
+        "meaning": null,
+        "status": "unsupported"
+      }
+    ],
+    "introContent": {
+      "title": "What is the suffix -ly?",
+      "meaningStatement": "-ly tells us how something is done.",
+      "paragraphs": [
+        "A suffix is a group of letters added to the end of a word.",
+        "The suffix -ly often means in a certain way. It usually changes a describing word into a word that tells us how something happens."
+      ],
+      "spellingRules": [
+        "quick + ly → quickly; slow + ly → slowly; quiet + ly → quietly.",
+        "happy → happi + ly: change y to i.",
+        "gentle → gently and true → truly are examples of other spelling changes."
+      ],
+      "examples": [
+        {
+          "affix": "ly",
+          "base": "quick",
+          "word": "quickly",
+          "meaning": "in a quick way"
+        },
+        {
+          "affix": "ly",
+          "base": "happy",
+          "word": "happily",
+          "meaning": "in a happy way"
+        }
+      ]
+    },
+    "reflection": {
+      "promptKey": "ly-how-done-v1",
+      "promptText": "How does -ly help us say how something is done?"
+    }
+  },
+  "words": [
+    {
+      "word": "quickly",
+      "memberRole": "transfer",
+      "suffixVariant": "ly",
+      "semanticBaseText": "quick",
+      "semanticBaseKind": "base",
+      "baseMeaning": "moving fast",
+      "newWordMeaning": "in a quick way",
+      "meaningBinKey": "in_a_certain_way",
+      "teaching": {
+        "parts": [
+          {
+            "id": "base",
+            "kind": "base",
+            "sourceText": "quick",
+            "surfaceText": "quick",
+            "displayRange": {
+              "start": 0,
+              "end": 5
+            }
+          },
+          {
+            "id": "suffix",
+            "kind": "suffix",
+            "sourceText": "ly",
+            "surfaceText": "ly",
+            "gloss": "in a certain way",
+            "displayRange": {
+              "start": 5,
+              "end": 7
+            }
+          }
+        ],
+        "joins": [
+          {
+            "afterPartId": "base",
+            "beforePartId": "suffix",
+            "joinType": "none"
+          }
+        ]
+      },
+      "trueMorphology": {
+        "parts": [
+          {
+            "id": "base",
+            "kind": "base",
+            "sourceText": "quick",
+            "surfaceText": "quick",
+            "displayRange": {
+              "start": 0,
+              "end": 5
+            }
+          },
+          {
+            "id": "suffix",
+            "kind": "suffix",
+            "sourceText": "ly",
+            "surfaceText": "ly",
+            "displayRange": {
+              "start": 5,
+              "end": 7
+            }
+          }
+        ],
+        "joins": [
+          {
+            "afterPartId": "base",
+            "beforePartId": "suffix",
+            "joinType": "none"
+          }
+        ],
+        "transformations": [],
+        "notes": "No spelling transformation: quick + ly.",
+        "provenance": {
+          "source": "Human-reviewed D4_MOR -ly staging analysis",
+          "word": "quickly"
+        }
+      },
+      "reviewedFacts": {
+        "frequencyBand": "high",
+        "ageBand": "early_primary",
+        "complexityBand": "medium",
+        "phonemeHint": "/kwˈɪkli/",
+        "syllables": "2",
+        "stressPattern": "primary-unstressed",
+        "hasSchwa": false
+      },
+      "dictation": {
+        "sentence": "Please walk quickly to the gate.",
+        "targetTokenIndex": 2,
+        "audioText": "Please walk quickly to the gate."
+      }
+    },
+    {
+      "word": "slowly",
+      "memberRole": "transfer",
+      "suffixVariant": "ly",
+      "semanticBaseText": "slow",
+      "semanticBaseKind": "base",
+      "baseMeaning": "not fast",
+      "newWordMeaning": "in a slow way",
+      "meaningBinKey": "in_a_certain_way",
+      "teaching": {
+        "parts": [
+          {
+            "id": "base",
+            "kind": "base",
+            "sourceText": "slow",
+            "surfaceText": "slow",
+            "displayRange": {
+              "start": 0,
+              "end": 4
+            }
+          },
+          {
+            "id": "suffix",
+            "kind": "suffix",
+            "sourceText": "ly",
+            "surfaceText": "ly",
+            "gloss": "in a certain way",
+            "displayRange": {
+              "start": 4,
+              "end": 6
+            }
+          }
+        ],
+        "joins": [
+          {
+            "afterPartId": "base",
+            "beforePartId": "suffix",
+            "joinType": "none"
+          }
+        ]
+      },
+      "trueMorphology": {
+        "parts": [
+          {
+            "id": "base",
+            "kind": "base",
+            "sourceText": "slow",
+            "surfaceText": "slow",
+            "displayRange": {
+              "start": 0,
+              "end": 4
+            }
+          },
+          {
+            "id": "suffix",
+            "kind": "suffix",
+            "sourceText": "ly",
+            "surfaceText": "ly",
+            "displayRange": {
+              "start": 4,
+              "end": 6
+            }
+          }
+        ],
+        "joins": [
+          {
+            "afterPartId": "base",
+            "beforePartId": "suffix",
+            "joinType": "none"
+          }
+        ],
+        "transformations": [],
+        "notes": "No spelling transformation: slow + ly.",
+        "provenance": {
+          "source": "Human-reviewed D4_MOR -ly staging analysis",
+          "word": "slowly"
+        }
+      },
+      "reviewedFacts": {
+        "frequencyBand": "high",
+        "ageBand": "early_primary",
+        "complexityBand": "medium",
+        "phonemeHint": "/slˈəʊli/",
+        "syllables": "2",
+        "stressPattern": "primary-unstressed",
+        "hasSchwa": false
+      },
+      "dictation": {
+        "sentence": "The tortoise moved slowly.",
+        "targetTokenIndex": 3,
+        "audioText": "The tortoise moved slowly."
+      }
+    },
+    {
+      "word": "quietly",
+      "memberRole": "transfer",
+      "suffixVariant": "ly",
+      "semanticBaseText": "quiet",
+      "semanticBaseKind": "base",
+      "baseMeaning": "making little noise",
+      "newWordMeaning": "in a quiet way",
+      "meaningBinKey": "in_a_certain_way",
+      "teaching": {
+        "parts": [
+          {
+            "id": "base",
+            "kind": "base",
+            "sourceText": "quiet",
+            "surfaceText": "quiet",
+            "displayRange": {
+              "start": 0,
+              "end": 5
+            }
+          },
+          {
+            "id": "suffix",
+            "kind": "suffix",
+            "sourceText": "ly",
+            "surfaceText": "ly",
+            "gloss": "in a certain way",
+            "displayRange": {
+              "start": 5,
+              "end": 7
+            }
+          }
+        ],
+        "joins": [
+          {
+            "afterPartId": "base",
+            "beforePartId": "suffix",
+            "joinType": "none"
+          }
+        ]
+      },
+      "trueMorphology": {
+        "parts": [
+          {
+            "id": "base",
+            "kind": "base",
+            "sourceText": "quiet",
+            "surfaceText": "quiet",
+            "displayRange": {
+              "start": 0,
+              "end": 5
+            }
+          },
+          {
+            "id": "suffix",
+            "kind": "suffix",
+            "sourceText": "ly",
+            "surfaceText": "ly",
+            "displayRange": {
+              "start": 5,
+              "end": 7
+            }
+          }
+        ],
+        "joins": [
+          {
+            "afterPartId": "base",
+            "beforePartId": "suffix",
+            "joinType": "none"
+          }
+        ],
+        "transformations": [],
+        "notes": "No spelling transformation: quiet + ly.",
+        "provenance": {
+          "source": "Human-reviewed D4_MOR -ly staging analysis",
+          "word": "quietly"
+        }
+      },
+      "reviewedFacts": {
+        "frequencyBand": "high",
+        "ageBand": "early_primary",
+        "complexityBand": "medium",
+        "phonemeHint": "/kwˈaɪətli/",
+        "syllables": "3",
+        "stressPattern": "primary-unstressed-unstressed",
+        "hasSchwa": true
+      },
+      "dictation": {
+        "sentence": "Please close the door quietly.",
+        "targetTokenIndex": 4,
+        "audioText": "Please close the door quietly."
+      }
+    },
+    {
+      "word": "happily",
+      "memberRole": "transfer",
+      "suffixVariant": "ly",
+      "semanticBaseText": "happy",
+      "semanticBaseKind": "base",
+      "baseMeaning": "feeling pleased",
+      "newWordMeaning": "in a happy way",
+      "meaningBinKey": "in_a_certain_way",
+      "teaching": {
+        "parts": [
+          {
+            "id": "base",
+            "kind": "base",
+            "sourceText": "happy",
+            "surfaceText": "happi",
+            "displayRange": {
+              "start": 0,
+              "end": 5
+            }
+          },
+          {
+            "id": "suffix",
+            "kind": "suffix",
+            "sourceText": "ly",
+            "surfaceText": "ly",
+            "gloss": "in a certain way",
+            "displayRange": {
+              "start": 5,
+              "end": 7
+            }
+          }
+        ],
+        "joins": [
+          {
+            "afterPartId": "base",
+            "beforePartId": "suffix",
+            "joinType": "none"
+          }
+        ]
+      },
+      "trueMorphology": {
+        "parts": [
+          {
+            "id": "base",
+            "kind": "base",
+            "sourceText": "happy",
+            "surfaceText": "happi",
+            "displayRange": {
+              "start": 0,
+              "end": 5
+            }
+          },
+          {
+            "id": "suffix",
+            "kind": "suffix",
+            "sourceText": "ly",
+            "surfaceText": "ly",
+            "displayRange": {
+              "start": 5,
+              "end": 7
+            }
+          }
+        ],
+        "joins": [
+          {
+            "afterPartId": "base",
+            "beforePartId": "suffix",
+            "joinType": "none"
+          }
+        ],
+        "transformations": [
+          {
+            "type": "change_final_y_to_i",
+            "from": "happy",
+            "to": "happi",
+            "explanation": "change y to i before -ly"
+          }
+        ],
+        "notes": "happy → happi + ly: change y to i.",
+        "provenance": {
+          "source": "Human-reviewed D4_MOR -ly staging analysis",
+          "word": "happily"
+        }
+      },
+      "reviewedFacts": {
+        "frequencyBand": "high",
+        "ageBand": "early_primary",
+        "complexityBand": "medium",
+        "phonemeHint": "/hˈæpɪli/",
+        "syllables": "3",
+        "stressPattern": "primary-unstressed-unstressed",
+        "hasSchwa": true
+      },
+      "dictation": {
+        "sentence": "The children played happily.",
+        "targetTokenIndex": 3,
+        "audioText": "The children played happily."
+      }
+    }
+  ]
+}
