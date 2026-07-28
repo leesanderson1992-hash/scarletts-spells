@@ -19,6 +19,7 @@ import { normaliseSessionWord } from "../lib/adle/session-correctness";
 const packagePath = resolve("docs/implementation/seed-data/teaching-dictionary/candidates/2026-07-28-dynamic-suffix-ful-less/reviewed-staging-package.json");
 const reviewed = JSON.parse(readFileSync(packagePath, "utf8"));
 const rendererSource = readFileSync(resolve("components/adle/morphology/morphology-guided-lesson.tsx"), "utf8");
+const persistenceMigration = readFileSync(resolve("supabase/migrations/20260728100000_allow_ful_less_dynamic_suffix_18_item_plan.sql"), "utf8");
 const meaningStatement = "The suffix -ful means full of or having. The suffix -less means without or not having.";
 
 assert.equal(reviewed.profile.introContent.meaningStatement, meaningStatement);
@@ -31,6 +32,11 @@ assert.deepEqual(
 );
 assert(rendererSource.includes("Decide what the suffix means"), "meaning sort uses suffix language");
 assert(rendererSource.includes("introScreens!.length"), "introduction supports profile-driven screen counts");
+assert(persistenceMigration.includes("D4_MOR_SUFFIXES_FUL_LESS")
+  && persistenceMigration.includes("dynamic_affix_v3")
+  && persistenceMigration.includes("includeMeaningSort")
+  && persistenceMigration.includes("D4_MOR_PREFIXES_SUB_INTER_SUPER"),
+  "database guard permits only the reviewed 18-item suffix and existing prefix exceptions");
 assert.deepEqual(reviewed.words.map((word: any) => word.word), ["careful", "careless", "hopeful", "hopeless"]);
 assert(reviewed.words.every((word: any) => !word.baseMeaning.startsWith(`${word.semanticBaseText}:`)), "base meanings do not repeat word labels");
 assert.deepEqual(reviewed.words.map((word: any) => word.newWordMeaning), ["full of care", "without care", "full of hope", "without hope"]);
