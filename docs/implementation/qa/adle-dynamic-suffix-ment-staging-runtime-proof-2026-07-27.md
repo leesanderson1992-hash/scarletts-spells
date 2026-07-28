@@ -74,3 +74,18 @@ created the revised package with SHA-256
 `c73bb6051e73e59d5a40178e3d6f19960aeff5873e4be72ac4d404e7e7223807`.
 A fresh 16-item assignment for the dedicated parent test child is ready for
 the final child verification. Production remains disabled.
+
+## Final child verification — 2026-07-28
+
+The dedicated child completed revised staging assignment
+`048c01bc-aade-4310-aec4-a70cbd883d9c`. The assignment and all 16 immutable
+items are completed. Its evidence contains exactly six guided events, four
+controlled-spelling events, and four full-sentence dictation events, plus one
+`ment-base-preservation-v1` reflection, four taught-word-history records, and
+four active review schedules.
+
+The revised noun-maker explanation and the unprefixed base definitions passed
+final child verification. `D4_MOR_SUFFIXES_MENT` is ready for separately
+authorised production import, profile activation, gate verification, and a
+production deployment; it remains production-disabled until those actions are
+explicitly approved.
