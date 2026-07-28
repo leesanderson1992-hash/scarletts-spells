@@ -8,7 +8,7 @@ runDynamicSuffixStagingImport({
   stagingProjectRef: "jlhotktspjvffslvuyfz",
   displayName: "-ment",
   expectedWords: ["enjoyment", "payment", "agreement", "movement"],
-  expectedMeaningStatement: "Add -ment to a word to turn an action into a thing, process or result.",
+  expectedMeaningStatement: "-ment turns something you do into the name of the action or result.",
   requireReviewedFacts: true,
 }).catch((error) => {
   console.error(error);

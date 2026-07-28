@@ -4,12 +4,12 @@
     "microSkillKey": "D4_MOR_SUFFIXES_MENT",
     "suffixLabel": "-ment",
     "suffixText": "ment",
-    "suffixMeaning": "a thing, process or result from an action",
+    "suffixMeaning": "the name of an action or result",
     "meaningBins": [
       {
         "id": "action_thing_process_result",
-        "label": "THING, PROCESS OR RESULT",
-        "description": "a thing, process or result from an action"
+        "label": "ACTION OR RESULT",
+        "description": "the name of an action or result"
       }
     ],
     "includeMeaningSort": false,
@@ -18,7 +18,7 @@
         "text": "ment",
         "label": "-ment",
         "outcome": null,
-        "meaning": "a thing, process or result from an action",
+        "meaning": "the name of an action or result",
         "status": "target"
       },
       {
@@ -38,9 +38,10 @@
     ],
     "introContent": {
       "title": "What is the suffix -ment?",
-      "meaningStatement": "Add -ment to a word to turn an action into a thing, process or result.",
+      "meaningStatement": "-ment turns something you do into the name of the action or result.",
       "paragraphs": [
-        "A suffix is added to the end of a base or root."
+        "A suffix is added to the end of a base or root.",
+        "The suffix -ment is a noun maker. We can take a verb like enjoy and, when we add -ment to the end, it turns it into a noun."
       ],
       "spellingRules": [
         "Spell the suffix m-e-n-t, even when its vowel is difficult to hear.",
@@ -74,7 +75,7 @@
       "suffixVariant": "ment",
       "semanticBaseText": "enjoy",
       "semanticBaseKind": "base",
-      "baseMeaning": "enjoy: to take pleasure in something",
+      "baseMeaning": "to take pleasure in something",
       "newWordMeaning": "the feeling or process of enjoying",
       "meaningBinKey": "action_thing_process_result",
       "teaching": {
@@ -94,7 +95,7 @@
             "kind": "suffix",
             "sourceText": "ment",
             "surfaceText": "ment",
-            "gloss": "thing, process or result from an action",
+            "gloss": "the name of an action or result",
             "displayRange": {
               "start": 5,
               "end": 9
@@ -169,7 +170,7 @@
       "suffixVariant": "ment",
       "semanticBaseText": "pay",
       "semanticBaseKind": "base",
-      "baseMeaning": "pay: to give money for something",
+      "baseMeaning": "to give money for something",
       "newWordMeaning": "money given, or the act of paying",
       "meaningBinKey": "action_thing_process_result",
       "teaching": {
@@ -189,7 +190,7 @@
             "kind": "suffix",
             "sourceText": "ment",
             "surfaceText": "ment",
-            "gloss": "thing, process or result from an action",
+            "gloss": "the name of an action or result",
             "displayRange": {
               "start": 3,
               "end": 7
@@ -264,7 +265,7 @@
       "suffixVariant": "ment",
       "semanticBaseText": "agree",
       "semanticBaseKind": "base",
-      "baseMeaning": "agree: to share an opinion or decision",
+      "baseMeaning": "to share an opinion or decision",
       "newWordMeaning": "a result reached by agreeing",
       "meaningBinKey": "action_thing_process_result",
       "teaching": {
@@ -284,7 +285,7 @@
             "kind": "suffix",
             "sourceText": "ment",
             "surfaceText": "ment",
-            "gloss": "thing, process or result from an action",
+            "gloss": "the name of an action or result",
             "displayRange": {
               "start": 5,
               "end": 9
@@ -359,7 +360,7 @@
       "suffixVariant": "ment",
       "semanticBaseText": "move",
       "semanticBaseKind": "base",
-      "baseMeaning": "move: to change position",
+      "baseMeaning": "to change position",
       "newWordMeaning": "the action or process of moving",
       "meaningBinKey": "action_thing_process_result",
       "teaching": {
@@ -379,7 +380,7 @@
             "kind": "suffix",
             "sourceText": "ment",
             "surfaceText": "ment",
-            "gloss": "thing, process or result from an action",
+            "gloss": "the name of an action or result",
             "displayRange": {
               "start": 4,
               "end": 8

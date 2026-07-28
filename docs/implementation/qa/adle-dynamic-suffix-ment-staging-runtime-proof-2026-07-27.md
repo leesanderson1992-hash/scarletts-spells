@@ -59,3 +59,18 @@ were removed. The cleanup verifier found zero residual fixture rows.
 `D4_MOR_SUFFIXES_MENT` is therefore `staging_approved`. Production remains
 disabled and requires separate written approval, production import, profile
 activation, gate verification, deployment, and a production receipt.
+
+## Content revision — 2026-07-28
+
+Child feedback replaced the opening explanation with the clearer noun-maker
+language: `-ment turns something you do into the name of the action or result.`
+The supporting explanation now says that `-ment` turns a verb such as `enjoy`
+into a noun. The base-meaning cards no longer repeat `enjoy:`, `pay:`,
+`agree:`, or `move:` before their definitions because the base word is already
+shown separately.
+
+The guarded staging importer superseded the previous staging-only profile and
+created the revised package with SHA-256
+`c73bb6051e73e59d5a40178e3d6f19960aeff5873e4be72ac4d404e7e7223807`.
+A fresh 16-item assignment for the dedicated parent test child is ready for
+the final child verification. Production remains disabled.

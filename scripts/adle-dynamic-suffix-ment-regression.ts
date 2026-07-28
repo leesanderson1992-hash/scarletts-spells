@@ -19,9 +19,10 @@ const packageFile = resolve("docs/implementation/seed-data/teaching-dictionary/c
 const guidedLessonSource = readFileSync(resolve("components/adle/morphology/morphology-guided-lesson.tsx"), "utf8");
 const completionActionSource = readFileSync(resolve("app/learn/week/adle/actions.ts"), "utf8");
 const reviewed = JSON.parse(readFileSync(packageFile, "utf8"));
-const meaningStatement = "Add -ment to a word to turn an action into a thing, process or result.";
+const meaningStatement = "-ment turns something you do into the name of the action or result.";
 assert.equal(reviewed.profile.introContent.meaningStatement, meaningStatement);
 assert.equal(JSON.stringify(reviewed).split(meaningStatement).length - 1, 1, "approved meaning statement appears exactly once");
+assert(reviewed.profile.introContent.paragraphs.includes("The suffix -ment is a noun maker. We can take a verb like enjoy and, when we add -ment to the end, it turns it into a noun."), "introduction teaches -ment as a noun maker");
 assert(guidedLessonSource.includes("window.setTimeout(() =>"), "resume hydration is not animation-frame gated");
 assert(!guidedLessonSource.includes("window.requestAnimationFrame(() =>"), "background reload cannot stall resume hydration");
 assert(guidedLessonSource.includes('return "Try another split"'), "intermediate cleavers announce another split");
@@ -120,10 +121,10 @@ for (const id of payload.activities.guided.splitCanonicalWordIds) {
 assert.equal(payload.words.lesson.find((word) => word.displayWord === "agreement")?.teachingBaseText, "agree");
 assert.equal(payload.words.lesson.find((word) => word.displayWord === "movement")?.teachingBaseText, "move");
 assert.deepEqual(payload.activities.discovery.map((entry) => [entry.baseMeaning, entry.derivedMeaning]), [
-  ["enjoy: to take pleasure in something", "the feeling or process of enjoying"],
-  ["pay: to give money for something", "money given, or the act of paying"],
-  ["agree: to share an opinion or decision", "a result reached by agreeing"],
-  ["move: to change position", "the action or process of moving"],
+  ["to take pleasure in something", "the feeling or process of enjoying"],
+  ["to give money for something", "money given, or the act of paying"],
+  ["to share an opinion or decision", "a result reached by agreeing"],
+  ["to change position", "the action or process of moving"],
 ]);
 const targetPositions = payload.activities.guided.builds.map((build) => {
   assert.equal(build.baseWord + "ment", payload.words.lesson.find((word) => word.canonicalWordId === build.canonicalWordId)?.displayWord);

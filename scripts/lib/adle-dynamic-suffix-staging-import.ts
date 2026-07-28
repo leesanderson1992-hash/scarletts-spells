@@ -106,10 +106,16 @@ export async function runDynamicSuffixStagingImport(config: ImportConfig) {
       + "(select count(*) from adle_review_schedule_words) scheduling",
     );
     const existing = await client.query(
-      "select id from canonical_teaching_dictionary_suffix_profiles where micro_skill_key=$1 and row_status='active' for update",
+      "select id,production_enabled from canonical_teaching_dictionary_suffix_profiles where micro_skill_key=$1 and row_status='active' for update",
       [config.profileKey],
     );
-    if (existing.rowCount) fail("active profile already exists");
+    if (existing.rowCount) {
+      if (existing.rows.some((row) => row.production_enabled === true)) fail("an active production-enabled profile cannot be replaced");
+      for (const row of existing.rows) {
+        await client.query("update canonical_teaching_dictionary_suffix_members set row_status='superseded' where suffix_profile_id=$1 and row_status='active'", [row.id]);
+        await client.query("update canonical_teaching_dictionary_suffix_profiles set row_status='superseded' where id=$1 and row_status='active'", [row.id]);
+      }
+    }
     const words = await client.query(
       "select id,normalised_word from canonical_teaching_dictionary_words "
       + "where normalised_word=any($1) and row_status='active' and review_status='approved_for_first_exposure'",
