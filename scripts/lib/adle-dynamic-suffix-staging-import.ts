@@ -10,7 +10,10 @@ type ImportConfig = {
   validatorVersion: string;
   stagingProjectRef: string;
   displayName: string;
-  expectedWords: readonly string[];
+  /** An explicit seed remains immutable; roster imports may omit this. */
+  expectedWords?: readonly string[];
+  /** Reviewed roster imports may contain more than the four lesson words. */
+  minimumMemberCount?: number;
   expectedMeaningStatement?: string;
   requireReviewedFacts?: boolean;
   expectedIncludeMeaningSort?: boolean;
@@ -39,16 +42,16 @@ export async function runDynamicSuffixStagingImport(config: ImportConfig) {
     || pkg.profile?.meaningBins?.length !== (config.expectedMeaningBinCount ?? 1)
     || !Array.isArray(pkg.profile?.suffixChoices)
     || !Array.isArray(pkg.words)
-    || pkg.words.length !== 4
+    || pkg.words.length < (config.minimumMemberCount ?? 4)
   ) fail("invalid profile envelope");
   if (config.expectedMeaningStatement !== undefined && pkg.profile?.introContent?.meaningStatement !== config.expectedMeaningStatement) {
     fail("the reviewed meaning statement does not match the approved wording");
   }
   const packageWords = pkg.words.map((word: any) => word.word);
-  if (
-    new Set(packageWords).size !== 4
-    || [...packageWords].sort().join("|") !== [...config.expectedWords].sort().join("|")
-  ) fail("the reviewed four-word set changed");
+  if (new Set(packageWords).size !== packageWords.length) fail("reviewed roster contains a duplicate word");
+  if (config.expectedWords && [...packageWords].sort().join("|") !== [...config.expectedWords].sort().join("|")) {
+    fail("the reviewed word set changed");
+  }
   const targetForms = new Set(
     pkg.profile.suffixChoices.filter((choice: any) => choice.status === "target").map((choice: any) => choice.text),
   );
@@ -172,7 +175,7 @@ export async function runDynamicSuffixStagingImport(config: ImportConfig) {
         packageHash,
         config.validatorVersion,
         { errors: 0 },
-        { profiles: 1, members: 4 },
+        { profiles: 1, members: pkg.words.length },
         { production_enabled: false, learner_writes: 0 },
         { package_sha256: packageHash, prohibited_writes: { production: 0, learner: 0, assignment: 0, evidence: 0, scheduling: 0 } },
         `ADLE guarded Dynamic Suffix ${config.displayName} staging importer`,
@@ -258,7 +261,7 @@ export async function runDynamicSuffixStagingImport(config: ImportConfig) {
       packageSha256: packageHash,
       productionEnabled: false,
       profiles: 1,
-      members: 4,
+      members: pkg.words.length,
     }));
   } catch (error) {
     await client.query("rollback");

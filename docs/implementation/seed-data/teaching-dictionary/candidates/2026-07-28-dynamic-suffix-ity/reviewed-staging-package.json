@@ -1,0 +1,67 @@
+{
+  "schemaVersion": 1,
+  "profile": {
+    "microSkillKey": "D4_MOR_SUFFIXES_ITY",
+    "suffixLabel": "-ity",
+    "suffixText": "ity",
+    "suffixMeaning": "the state or quality of being",
+    "meaningBins": [{ "id": "state_or_quality", "label": "STATE OR QUALITY OF BEING", "description": "the state or quality of being" }],
+    "includeMeaningSort": false,
+    "suffixChoices": [
+      { "text": "ity", "label": "-ity", "outcome": null, "meaning": "the state or quality of being", "status": "target" },
+      { "text": "ety", "label": "-ety", "outcome": null, "meaning": null, "status": "unsupported" },
+      { "text": "ityy", "label": "-ityy", "outcome": null, "meaning": null, "status": "unsupported" }
+    ],
+    "introContent": {
+      "title": "What is the suffix -ity?",
+      "meaningStatement": "-ity turns a describing word into the name of a quality or state.",
+      "paragraphs": [
+        "A suffix is a group of letters added to the end of a word.",
+        "The suffix -ity means the state or quality of being.",
+        "Sometimes the base changes before -ity is added. These examples show useful spelling changes, not one rule for every word ending in -ity."
+      ],
+      "spellingRules": [
+        "equal + ity → equality.",
+        "possible changes to possibil before -ity: possible → possibility.",
+        "responsible changes from -ible to -ibility: responsible → responsibility.",
+        "curious changes to curios before -ity: curious → curiosity."
+      ],
+      "examples": [
+        { "affix": "ity", "base": "equal", "word": "equality", "meaning": "the state of being equal" },
+        { "affix": "ity", "base": "possible", "word": "possibility", "meaning": "the state of being possible" },
+        { "affix": "ity", "base": "responsible", "word": "responsibility", "meaning": "the state or duty of being responsible" },
+        { "affix": "ity", "base": "curious", "word": "curiosity", "meaning": "the quality of wanting to know" }
+      ]
+    },
+    "reflection": {
+      "promptKey": "ity-quality-state-v1",
+      "promptText": "How does -ity change a describing word into the name of a quality or state?"
+    }
+  },
+  "words": [
+    {
+      "word": "equality", "memberRole": "transfer", "suffixVariant": "ity", "semanticBaseText": "equal", "semanticBaseKind": "base", "baseMeaning": "the same in amount, value or importance", "newWordMeaning": "the state of being equal", "meaningBinKey": "state_or_quality",
+      "teaching": { "parts": [{ "id": "base", "kind": "base", "sourceText": "equal", "surfaceText": "equal", "displayRange": { "start": 0, "end": 5 } }, { "id": "suffix", "kind": "suffix", "sourceText": "ity", "surfaceText": "ity", "gloss": "the state or quality of being", "displayRange": { "start": 5, "end": 8 } }], "joins": [{ "afterPartId": "base", "beforePartId": "suffix", "joinType": "none" }] },
+      "trueMorphology": { "parts": [{ "id": "base", "kind": "base", "sourceText": "equal", "surfaceText": "equal", "displayRange": { "start": 0, "end": 5 } }, { "id": "suffix", "kind": "suffix", "sourceText": "ity", "surfaceText": "ity", "gloss": "state or quality", "displayRange": { "start": 5, "end": 8 } }], "joins": [{ "afterPartId": "base", "beforePartId": "suffix", "joinType": "none" }], "transformations": [], "notes": "No spelling transformation: equal + ity.", "provenance": { "source": "Human-reviewed D4_MOR -ity staging analysis", "artifact": "reviewed-staging-package.json", "word": "equality" } },
+      "reviewedFacts": { "frequencyBand": "high", "ageBand": "upper_primary", "complexityBand": "medium", "syllables": "4", "phonemeHint": "/ɪˈkwɒləti/", "stressPattern": "unstressed-primary-unstressed-unstressed", "hasSchwa": true }, "dictation": { "sentence": "Equality means everyone is treated fairly.", "targetTokenIndex": 0, "audioText": "Equality means everyone is treated fairly." }
+    },
+    {
+      "word": "possibility", "memberRole": "transfer", "suffixVariant": "ity", "semanticBaseText": "possible", "semanticBaseKind": "base", "baseMeaning": "able to happen or be true", "newWordMeaning": "the state of being possible", "meaningBinKey": "state_or_quality",
+      "teaching": { "parts": [{ "id": "base", "kind": "base", "sourceText": "possible", "surfaceText": "possibil", "displayRange": { "start": 0, "end": 8 } }, { "id": "suffix", "kind": "suffix", "sourceText": "ity", "surfaceText": "ity", "gloss": "the state or quality of being", "displayRange": { "start": 8, "end": 11 } }], "joins": [{ "afterPartId": "base", "beforePartId": "suffix", "joinType": "none" }] },
+      "trueMorphology": { "parts": [{ "id": "base", "kind": "base", "sourceText": "possible", "surfaceText": "possibil", "displayRange": { "start": 0, "end": 8 } }, { "id": "suffix", "kind": "suffix", "sourceText": "ity", "surfaceText": "ity", "gloss": "state or quality", "displayRange": { "start": 8, "end": 11 } }], "joins": [{ "afterPartId": "base", "beforePartId": "suffix", "joinType": "none" }], "transformations": [{ "type": "replace_final", "from": "le", "to": "il", "explanation": "possible changes to possibil before -ity is added" }], "notes": "possible → possibil + ity: the final spelling changes before the suffix.", "provenance": { "source": "Human-reviewed D4_MOR -ity staging analysis", "artifact": "reviewed-staging-package.json", "word": "possibility" } },
+      "reviewedFacts": { "frequencyBand": "high", "ageBand": "upper_primary", "complexityBand": "medium", "syllables": "5", "phonemeHint": "/pˌɒsəbˈɪlɪti/", "stressPattern": "secondary-unstressed-primary-unstressed-unstressed", "hasSchwa": true }, "dictation": { "sentence": "There is a possibility that snow will close the school.", "targetTokenIndex": 3, "audioText": "There is a possibility that snow will close the school." }
+    },
+    {
+      "word": "responsibility", "memberRole": "transfer", "suffixVariant": "ity", "semanticBaseText": "responsible", "semanticBaseKind": "base", "baseMeaning": "trusted to do what is right or expected", "newWordMeaning": "the state or duty of being responsible", "meaningBinKey": "state_or_quality",
+      "teaching": { "parts": [{ "id": "base", "kind": "base", "sourceText": "responsible", "surfaceText": "responsibil", "displayRange": { "start": 0, "end": 11 } }, { "id": "suffix", "kind": "suffix", "sourceText": "ity", "surfaceText": "ity", "gloss": "the state or quality of being", "displayRange": { "start": 11, "end": 14 } }], "joins": [{ "afterPartId": "base", "beforePartId": "suffix", "joinType": "none" }] },
+      "trueMorphology": { "parts": [{ "id": "base", "kind": "base", "sourceText": "responsible", "surfaceText": "responsibil", "displayRange": { "start": 0, "end": 11 } }, { "id": "suffix", "kind": "suffix", "sourceText": "ity", "surfaceText": "ity", "gloss": "state or quality", "displayRange": { "start": 11, "end": 14 } }], "joins": [{ "afterPartId": "base", "beforePartId": "suffix", "joinType": "none" }], "transformations": [{ "type": "replace_final", "from": "ible", "to": "ibility", "explanation": "responsible changes from -ible to -ibility" }], "notes": "responsible → responsibil + ity: -ible changes to -ibility.", "provenance": { "source": "Human-reviewed D4_MOR -ity staging analysis", "artifact": "reviewed-staging-package.json", "word": "responsibility" } },
+      "reviewedFacts": { "frequencyBand": "medium", "ageBand": "upper_primary", "complexityBand": "high", "syllables": "6", "phonemeHint": "/rɪˌspɒnsəˈbɪləti/", "stressPattern": "unstressed-secondary-unstressed-primary-unstressed-unstressed", "hasSchwa": true }, "dictation": { "sentence": "It is your responsibility to feed the rabbit.", "targetTokenIndex": 3, "audioText": "It is your responsibility to feed the rabbit." }
+    },
+    {
+      "word": "curiosity", "memberRole": "transfer", "suffixVariant": "ity", "semanticBaseText": "curious", "semanticBaseKind": "base", "baseMeaning": "wanting to know or learn", "newWordMeaning": "the quality of wanting to know", "meaningBinKey": "state_or_quality",
+      "teaching": { "parts": [{ "id": "base", "kind": "base", "sourceText": "curious", "surfaceText": "curios", "displayRange": { "start": 0, "end": 6 } }, { "id": "suffix", "kind": "suffix", "sourceText": "ity", "surfaceText": "ity", "gloss": "the state or quality of being", "displayRange": { "start": 6, "end": 9 } }], "joins": [{ "afterPartId": "base", "beforePartId": "suffix", "joinType": "none" }] },
+      "trueMorphology": { "parts": [{ "id": "base", "kind": "base", "sourceText": "curious", "surfaceText": "curios", "displayRange": { "start": 0, "end": 6 } }, { "id": "suffix", "kind": "suffix", "sourceText": "ity", "surfaceText": "ity", "gloss": "state or quality", "displayRange": { "start": 6, "end": 9 } }], "joins": [{ "afterPartId": "base", "beforePartId": "suffix", "joinType": "none" }], "transformations": [{ "type": "remove_letter", "from": "u", "explanation": "curious changes to curios before -ity is added" }], "notes": "curious → curios + ity: remove the final u before the suffix.", "provenance": { "source": "Human-reviewed D4_MOR -ity staging analysis", "artifact": "reviewed-staging-package.json", "word": "curiosity" } },
+      "reviewedFacts": { "frequencyBand": "medium", "ageBand": "middle_primary", "complexityBand": "high", "syllables": "5", "phonemeHint": "/kjˌʊɹɪˈɒsɪti/", "stressPattern": "secondary-unstressed-primary-unstressed-unstressed", "hasSchwa": true }, "dictation": { "sentence": "Curiosity led her to explore.", "targetTokenIndex": 0, "audioText": "Curiosity led her to explore." }
+    }
+  ]
+}
