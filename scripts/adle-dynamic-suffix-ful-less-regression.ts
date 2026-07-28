@@ -8,6 +8,7 @@ import {
   dynamicAffixExpectedItemCount,
   selectDynamicAffixWordLab,
   validateDynamicAffixWordLabPayload,
+  type DynamicAffixLessonPayloadV3,
   type DynamicAffixProfile,
   type DynamicAffixWord,
 } from "../lib/adle/morphology/affix-word-lab";
@@ -126,7 +127,7 @@ assert.deepEqual(
   ["ful", "less"],
 );
 for (const id of payload.activities.guided.splitCanonicalWordIds) {
-  const word = payload.words.lesson.find((entry) => entry.canonicalWordId === id)!;
+  const word: DynamicAffixLessonPayloadV3["words"]["lesson"][number] = payload.words.lesson.find((entry) => entry.canonicalWordId === id)!;
   assert.deepEqual(word.splitPoints, [word.teachingBaseText.length]);
 }
 assert.deepEqual(
