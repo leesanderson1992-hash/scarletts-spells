@@ -731,7 +731,7 @@ function MeaningOverview(props: {
   );
   const suffixProfile = props.payload.words.anchor.affixPosition === "after";
   const affixLabel = suffixProfile
-    ? props.payload.words.anchor.affixLabel ?? "the suffix"
+    ? activity?.prefixLabel ?? props.payload.words.anchor.affixLabel ?? "the suffix"
     : activity?.prefixLabel ?? "un-";
   return (
     <section

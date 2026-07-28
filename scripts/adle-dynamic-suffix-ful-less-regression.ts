@@ -33,7 +33,7 @@ assert.deepEqual(
 );
 assert(rendererSource.includes("Decide what the suffix means"), "meaning sort uses suffix language");
 assert(
-  rendererSource.includes('props.payload.words.anchor.affixLabel ?? "the suffix"')
+  rendererSource.includes('activity?.prefixLabel ?? props.payload.words.anchor.affixLabel ?? "the suffix"')
     && rendererSource.includes('"Suffix meanings, four words"'),
   "meaning overview uses the reviewed suffix label rather than the legacy un- fallback",
 );
@@ -157,6 +157,7 @@ const runtime = dynamicAffixRuntime(payload);
 assert(runtime, "adapts -ful/-less to the shared position-aware runtime");
 assert.equal(runtime.activities.filter((activity) => activity.type === "meaning_sort").length, 1);
 assert.equal(runtime.activities.find((activity) => activity.type === "meaning_sort")?.assignmentBindings.length, 4);
+assert.equal(runtime.activities.find((activity) => activity.type === "meaning_sort")?.prefixLabel, "-ful and -less");
 const intro = runtime.activities.find((activity) => activity.type === "introduction");
 assert.equal(intro?.introScreens?.length, 5);
 assert.equal(intro?.introScreens?.[0]?.meaningCallout, meaningStatement);
