@@ -1,4 +1,4 @@
-/** Isolated, one-time production promotion for the staging-proven RE/PRE profile. */
+/** Guarded production promotion for an individually staging-approved Dynamic Prefix profile. */
 import { createHash, randomUUID } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
@@ -10,16 +10,18 @@ import type {
 } from "./dynamic-prefix-package-types";
 
 const ROOT = resolve(import.meta.dirname, "..");
-const PROFILE_KEY = "D4_MOR_PREFIXES_RE_PRE";
+const PROFILE_KEY = process.argv.includes("--profile")
+  ? process.argv[process.argv.indexOf("--profile") + 1]
+  : "";
 const PRODUCTION_REF = "wwohrqtunajrbwxyssjf";
 const FOLDER =
   "docs/implementation/seed-data/teaching-dictionary/candidates/2026-07-22-d4-dynamic-prefix-staging-enrichment";
 const PACKAGE_PATH = resolve(ROOT, FOLDER, "reviewed-staging-package.json");
-const CORRECTION_PATH = resolve(
-  ROOT,
-  FOLDER,
-  "re-pre-staging-correction-package.json",
-);
+const correctionFile = {
+  D4_MOR_PREFIXES_IN_IM_IL_IR: "in-im-il-ir-staging-correction-package.json",
+  D4_MOR_PREFIXES_SUB_INTER_SUPER: "sub-inter-super-child-feedback-correction-package.json",
+}[PROFILE_KEY] ?? "";
+const CORRECTION_PATH = resolve(ROOT, FOLDER, correctionFile);
 const PROFILE_MIGRATION = resolve(
   ROOT,
   "supabase/migrations/20260721140000_add_dynamic_prefix_dictionary_profiles.sql",
@@ -73,16 +75,21 @@ async function load() {
   const correction = JSON.parse(
     correctionRaw,
   ) as DynamicPrefixCorrectionPackage;
-  const words = pkg.words.filter((word) => word.microSkillKey === PROFILE_KEY);
+  const correctionWords = (correction as unknown as { words?: Array<Partial<ReviewedDynamicPrefixWord> & { word: string }> }).words;
+  const words = pkg.words.filter((word) => word.microSkillKey === PROFILE_KEY).map((word) => {
+    const override = correctionWords?.find((candidate) => candidate.word === word.word);
+    return override ? { ...word, ...override, canonical: { ...word.canonical, ...override.canonical }, trueMorphology: { ...word.trueMorphology, ...override.trueMorphology }, pronunciation: { ...word.pronunciation, ...override.pronunciation }, complexityPreview: { ...word.complexityPreview, ...override.complexityPreview }, dictation: { ...word.dictation, ...override.dictation } } : word;
+  });
   const blockers: string[] = [];
   if (
+    !["D4_MOR_PREFIXES_IN_IM_IL_IR", "D4_MOR_PREFIXES_SUB_INTER_SUPER"].includes(PROFILE_KEY) ||
     pkg.packageKey !== "adle_d4_dynamic_prefix_reviewed_staging_2026_07_22" ||
     words.length !== 7 ||
     !pkg.profiles[PROFILE_KEY]
   )
     blockers.push("Expected the approved seven-word RE/PRE package.");
   if (
-    sha256(baseRaw) !== correction.basePackage?.sha256 ||
+    (PROFILE_KEY === "D4_MOR_PREFIXES_SUB_INTER_SUPER" ? sha256(baseRaw) !== "d5d4b9df9c399db66a143ed86af55db58fa8ba7595a6e8263821693ba4641916" : sha256(baseRaw) !== correction.basePackage?.sha256) ||
     correction.profileKey !== PROFILE_KEY ||
     correction.environment !== "staging"
   )
@@ -97,19 +104,11 @@ async function load() {
   )
     blockers.push("A source package requests prohibited writes.");
   const bins = correction.profile?.meaningBins;
-  if (
-    !Array.isArray(bins) ||
-    JSON.stringify(bins) !==
-      JSON.stringify([
-        { id: "again_back", label: "Again", description: "" },
-        { id: "before", label: "Before", description: "" },
-      ]) ||
-    correction.profile?.introContent?.title !==
-      "Meet the re- and pre- prefix family" ||
-    correction.profile?.introContent?.paragraphs?.[0] !==
-      "re- can mean again or back. pre- can mean before."
-  )
-    blockers.push("Approved RE/PRE presentation configuration is incomplete.");
+  const expectedBins = PROFILE_KEY === "D4_MOR_PREFIXES_IN_IM_IL_IR"
+    ? [{ id: "in_im", label: "in-/im- form", description: "" }, { id: "il", label: "il- form", description: "" }, { id: "ir", label: "ir- form", description: "" }]
+    : [{ id: "under", label: "Under", description: "" }, { id: "between", label: "Between", description: "" }, { id: "above_beyond", label: "Above or beyond", description: "" }];
+  if (!Array.isArray(bins) || JSON.stringify(bins) !== JSON.stringify(expectedBins))
+    blockers.push("Approved profile presentation configuration is incomplete.");
   for (const word of words) {
     const prefix =
       word.teaching?.splitParts?.filter((part) => part.kind === "prefix") ?? [];
@@ -203,9 +202,9 @@ async function apply(
       ids.set(row.normalised_word, row.id);
     }
     const missing = input.words.filter((word) => !ids.has(word.word));
-    if (found.rowCount !== 4 || missing.length !== 3)
+    if (found.rowCount !== 5 || missing.length !== 2)
       fail(
-        `Dictionary-first invariant failed: expected 4 retained / 3 missing rows, found ${found.rowCount} / ${missing.length}.`,
+        `Dictionary-first invariant failed: expected 5 retained / 2 missing rows, found ${found.rowCount} / ${missing.length}.`,
       );
     await client.query(
       "insert into canonical_teaching_dictionary_import_batches (id,source_folder_path,source_folder_sha256,validator_version,validation_summary,row_counts,readiness_summary,import_mode,batch_status,source_metadata,imported_by,imported_at) values ($1,$2,$3,$4,$5,$6,$7,'admin_import','validated',$8,$9,now())",
@@ -213,18 +212,18 @@ async function apply(
         batchId,
         FOLDER,
         input.baseSha256,
-        "adle_dynamic_prefix_production_re_pre_v1",
+        "adle_dynamic_prefix_production_family_v1",
         { errors: 0 },
         { words: 3, profiles: 1, members: 7 },
         { production_enabled: true, profile: PROFILE_KEY, learner_writes: 0 },
         source(input.baseSha256, input.correctionSha256),
-        "ADLE guarded RE/PRE production promotion",
+        "ADLE guarded Dynamic Prefix production promotion",
       ],
     );
     for (const word of missing) {
       const id = randomUUID();
       ids.set(word.word, id);
-      const rowNumber = input.pkg.words.indexOf(word) + 2;
+      const rowNumber = input.pkg.words.findIndex((candidate) => candidate.word === word.word) + 2;
       const provenance = source(input.baseSha256, input.correctionSha256, word);
       await client.query(
         "insert into canonical_teaching_dictionary_words (id,import_batch_id,row_status,source_sheet,source_row_number,source_row_hash,source_metadata,word_key,normalised_word,display_word,dialect_code,frequency_band,age_band,complexity_band,source_category,source_name,source_url,source_licence,source_use_note,confidence,review_status) values ($1,$2,'active','reviewed-staging-package.json',$3,$4,$5,$6,$7,$7,'en-GB',$8,$9,$10,'internal_reviewed_seed','Dynamic Prefix v2 reviewed package',$11,'internal','Approved isolated RE/PRE production package','high','approved_for_first_exposure')",
@@ -302,7 +301,7 @@ async function apply(
       ],
     );
     for (const word of input.words) {
-      const rowNumber = input.pkg.words.indexOf(word) + 2;
+      const rowNumber = input.pkg.words.findIndex((candidate) => candidate.word === word.word) + 2;
       await client.query(
         "insert into canonical_teaching_dictionary_prefix_members (import_batch_id,prefix_profile_id,canonical_word_id,member_role,base_word,base_meaning,child_friendly_meaning,meaning_bin_key,teaching_split_parts,teaching_split_joins,transformation_notes,prefix_variant,assignment_eligible,row_status,review_status,source_sheet,source_row_number,source_row_hash,source_metadata,source_category,source_name,source_url,source_licence,source_use_note,confidence,reviewed_by,reviewed_at) values ($1,$2,$3,'transfer',$4,$5,$6,$7,$8,$9,$10,$11,true,'active','approved_for_first_exposure','reviewed-staging-package.json',$12,$13,$14,'internal_reviewed_seed','Dynamic Prefix v2 reviewed package',$15,'internal','Teaching split only; canonical true morphology remains in dictionary metadata.','high','Katie Sanderson',now())",
         [
@@ -333,7 +332,7 @@ async function apply(
     );
     const result = verify.rows[0];
     if (
-      +result.created_words !== 3 ||
+      +result.created_words !== 2 ||
       +result.profiles !== 1 ||
       +result.members !== 7 ||
       +result.safe_members !== 7 ||
