@@ -5,14 +5,19 @@ import { resolve } from "node:path";
 import pg from "pg";
 
 const ROOT = resolve(import.meta.dirname, "..");
+const fail = (message: string): never => { throw new Error(`Dynamic suffix production promotion refused: ${message}`); };
 const PROFILE_KEY = process.argv[process.argv.indexOf("--profile") + 1] ?? "D4_MOR_SUFFIXES_NESS";
-const PACKAGE_FOLDER = PROFILE_KEY === "D4_MOR_SUFFIXES_ABLE_IBLE" ? "2026-07-27-dynamic-suffix-able-ible" : "2026-07-27-dynamic-suffix-ness";
+const PACKAGE_FOLDERS: Record<string, string> = {
+  D4_MOR_SUFFIXES_NESS: "2026-07-27-dynamic-suffix-ness",
+  D4_MOR_SUFFIXES_ABLE_IBLE: "2026-07-27-dynamic-suffix-able-ible",
+  D4_MOR_SUFFIXES_MENT: "2026-07-27-dynamic-suffix-ment",
+};
+const PACKAGE_FOLDER = PACKAGE_FOLDERS[PROFILE_KEY] ?? fail("profile is not separately approved for production promotion");
 const PACKAGE_PATH = resolve(ROOT, `docs/implementation/seed-data/teaching-dictionary/candidates/${PACKAGE_FOLDER}/reviewed-staging-package.json`);
 const MIGRATION_PATH = resolve(ROOT, "supabase/migrations/20260727110000_add_dynamic_suffix_dictionary_profiles.sql");
 const PRODUCTION_HOST = "aws-0-eu-west-1.pooler.supabase.com";
 const PRODUCTION_USER = "postgres.wwohrqtunajrbwxyssjf";
 const sha256 = (value: string) => createHash("sha256").update(value).digest("hex");
-const fail = (message: string): never => { throw new Error(`Dynamic suffix production promotion refused: ${message}`); };
 const arg = (name: string) => { const index = process.argv.indexOf(name); return index < 0 ? undefined : process.argv[index + 1]; };
 const tokenAt = (sentence: string, index: number) => sentence.trim().split(/\s+/).map((token) => token.toLowerCase().replace(/[^a-z'-]/g, "")).filter(Boolean)[index] ?? "";
 
@@ -83,7 +88,7 @@ async function apply(pkg: Package, raw: string, databaseUrl: string) {
 async function main() {
   const raw = readFileSync(PACKAGE_PATH, "utf8"); const pkg = JSON.parse(raw) as Package; validate(pkg); const packageSha256 = sha256(raw);
   if (process.argv.includes("--validate")) { console.log(JSON.stringify({ profile: PROFILE_KEY, packageSha256, valid: true })); return; }
-  if (!process.argv.includes("--apply") || arg("--environment") !== "production" || arg("--profile") !== PROFILE_KEY || !["D4_MOR_SUFFIXES_NESS", "D4_MOR_SUFFIXES_ABLE_IBLE"].includes(PROFILE_KEY) || arg("--confirm-package-sha256") !== packageSha256) fail("use --apply --environment production --profile <approved suffix profile> --confirm-package-sha256 <exact>");
+  if (!process.argv.includes("--apply") || arg("--environment") !== "production" || arg("--profile") !== PROFILE_KEY || !Object.hasOwn(PACKAGE_FOLDERS, PROFILE_KEY) || arg("--confirm-package-sha256") !== packageSha256) fail("use --apply --environment production --profile <approved suffix profile> --confirm-package-sha256 <exact>");
   await apply(pkg, raw, arg("--database-url") ?? fail("--database-url is required"));
 }
 main().catch((error) => { console.error(error instanceof Error ? error.message : String(error)); process.exitCode = 1; });
