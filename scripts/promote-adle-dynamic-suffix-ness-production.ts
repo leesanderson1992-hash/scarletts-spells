@@ -21,6 +21,14 @@ const PROFILE_CONFIG = PRODUCTION_PROFILES[PROFILE_KEY as keyof typeof PRODUCTIO
 const PACKAGE_FOLDER = PROFILE_CONFIG.folder;
 const PACKAGE_PATH = resolve(ROOT, `docs/implementation/seed-data/teaching-dictionary/candidates/${PACKAGE_FOLDER}/reviewed-staging-package.json`);
 const MIGRATIONS = [
+  // The mixed-form 18-item contract builds on the atomic plan RPC, then the
+  // existing reviewed SUB/INTER/SUPER exception, before it can add the exact
+  // FUL/LESS exception. Each migration is checked in schema_migrations before
+  // execution, so a later authorised retry cannot reapply it.
+  ...(PROFILE_KEY === "D4_MOR_SUFFIXES_FUL_LESS" ? [
+    { version: "20260714120000", name: "add_adle_atomic_composed_plan_rpc", path: resolve(ROOT, "supabase/migrations/20260714120000_add_adle_atomic_composed_plan_rpc.sql") },
+    { version: "20260723143000", name: "allow_sub_inter_super_dynamic_prefix_18_item_plan", path: resolve(ROOT, "supabase/migrations/20260723143000_allow_sub_inter_super_dynamic_prefix_18_item_plan.sql") },
+  ] : []),
   { version: "20260727110000", name: "add_dynamic_suffix_dictionary_profiles", path: resolve(ROOT, "supabase/migrations/20260727110000_add_dynamic_suffix_dictionary_profiles.sql") },
   ...(PROFILE_KEY === "D4_MOR_SUFFIXES_FUL_LESS"
     ? [{ version: "20260728100000", name: "allow_ful_less_dynamic_suffix_18_item_plan", path: resolve(ROOT, "supabase/migrations/20260728100000_allow_ful_less_dynamic_suffix_18_item_plan.sql") }]

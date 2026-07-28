@@ -1,0 +1,37 @@
+{
+  "profile": "D4_MOR_SUFFIXES_FUL_LESS",
+  "status": "production_enabled",
+  "productionProject": "wwohrqtunajrbwxyssjf",
+  "importBatchId": "81547b52-0fd5-44d4-8e07-55a3565c04c8",
+  "packageSha256": "fa5d07a334dd1aae42f8784629c102466bf64535fee1adfa3e5c8448efb78fa3",
+  "migrations": [
+    "20260714120000_add_adle_atomic_composed_plan_rpc",
+    "20260723143000_allow_sub_inter_super_dynamic_prefix_18_item_plan",
+    "20260727110000_add_dynamic_suffix_dictionary_profiles",
+    "20260728100000_allow_ful_less_dynamic_suffix_18_item_plan"
+  ],
+  "profileFacts": {
+    "active": true,
+    "approvedForFirstExposure": true,
+    "productionEnabled": true,
+    "eligibleMembers": 4,
+    "allMembersSafe": true
+  },
+  "protectedCountsUnchanged": {
+    "learningItems": 5,
+    "assignments": 62,
+    "evidence": 4,
+    "scheduling": 3
+  },
+  "productionGate": "ADLE_DYNAMIC_SUFFIX_PRODUCTION_ENABLED=enabled",
+  "deployment": {
+    "id": "dpl_7B2seUmXBffNRcMJsmAjkKScwppT",
+    "url": "https://scarletts-spells-5ea6tdm8c-leesanderson1992-hashs-projects.vercel.app",
+    "alias": "https://scarletts-spells.vercel.app",
+    "status": "Ready"
+  },
+  "smoke": {
+    "route": "/learn/week/adle/dynamic-suffix",
+    "result": "307 redirect to /login"
+  }
+}

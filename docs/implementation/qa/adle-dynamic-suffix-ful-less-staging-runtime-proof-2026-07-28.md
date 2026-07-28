@@ -100,6 +100,20 @@ only when all of the following are supplied after written authorisation:
 It validates the two-form, two-bin profile shape and four reviewed members,
 applies the narrowly scoped 18-item persistence migration only if it is not
 already recorded, refuses an existing active production profile, and proves
-that it made no learner, assignment, evidence, or scheduling writes. The
-production activation, gate change, deployment, smoke test, and receipt remain
-deliberately unperformed.
+that it made no learner, assignment, evidence, or scheduling writes.
+
+## Production promotion — 2026-07-28
+
+Written production authorisation was received and the guarded promoter created
+batch `81547b52-0fd5-44d4-8e07-55a3565c04c8`: one active,
+`production_enabled` profile and four safe reviewed members. It applied the
+required atomic-plan, prior reviewed 18-item, suffix-profile, and exact
+FUL/LESS 18-item migrations only where missing. Protected production counts
+were unchanged: five learning items, 62 assignments, four evidence rows, and
+three scheduling rows.
+
+The production gate is enabled. Deployment `dpl_7B2seUmXBffNRcMJsmAjkKScwppT`
+is Ready at `https://scarletts-spells.vercel.app`; the live dynamic-suffix
+route returned the expected unauthenticated `307` redirect to `/login`.
+The immutable production receipt is
+`adle-dynamic-suffix-ful-less-production-receipt-2026-07-28.json`.
