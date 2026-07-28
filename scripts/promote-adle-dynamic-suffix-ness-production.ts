@@ -12,6 +12,7 @@ const PRODUCTION_PROFILES = {
   D4_MOR_SUFFIXES_ABLE_IBLE: { folder: "2026-07-27-dynamic-suffix-able-ible", includeMeaningSort: false, meaningBinCount: 1, suffixVariants: ["able", "ible"] },
   D4_MOR_SUFFIXES_MENT: { folder: "2026-07-27-dynamic-suffix-ment", includeMeaningSort: false, meaningBinCount: 1, suffixVariants: ["ment"] },
   D4_MOR_SUFFIXES_ITY: { folder: "2026-07-28-dynamic-suffix-ity", includeMeaningSort: false, meaningBinCount: 1, suffixVariants: ["ity"] },
+  D4_MOR_SUFFIXES_AL: { folder: "2026-07-28-dynamic-suffix-al", includeMeaningSort: false, meaningBinCount: 1, suffixVariants: ["al"] },
   D4_MOR_SUFFIXES_OUS: { folder: "2026-07-28-dynamic-suffix-ous", includeMeaningSort: false, meaningBinCount: 1, suffixVariants: ["ous"] },
   // This is deliberately listed only after the separate staging proof and
   // child verification. Applying it still requires the explicit production
