@@ -729,7 +729,10 @@ function MeaningOverview(props: {
   const activity = props.payload.activities.find(
     (candidate) => candidate.type === "meaning_sort",
   );
-  const prefix = activity?.prefixLabel ?? "un-";
+  const suffixProfile = props.payload.words.anchor.affixPosition === "after";
+  const affixLabel = suffixProfile
+    ? props.payload.words.anchor.affixLabel ?? "the suffix"
+    : activity?.prefixLabel ?? "un-";
   return (
     <section
       className="grid gap-5 text-center"
@@ -737,13 +740,15 @@ function MeaningOverview(props: {
     >
       <div>
         <p className="text-xs font-black uppercase tracking-[.18em] text-cyan-200">
-          What {prefix} can do
+          What {affixLabel} can do
         </p>
         <h2
           id="meaning-overview-heading"
           className="mt-1 text-3xl font-black text-white"
         >
-          {activity?.prefixLabel
+          {suffixProfile
+            ? "Suffix meanings, four words"
+            : activity?.prefixLabel
             ? "Meaning patterns, four words"
             : "Two jobs, four words"}
         </h2>
