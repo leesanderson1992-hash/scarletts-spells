@@ -1,0 +1,13 @@
+{
+  "profileKey": "D4_MOR_SUFFIXES_ITY",
+  "promotedAt": "2026-07-28",
+  "productionBatchId": "9c509ea0-76f7-43ae-814f-2a81bc703111",
+  "packageSha256": "e8213cf5c71f51afb4914cb1df85326dd3061188ffabbb70f7a0b20a8ff72e1f",
+  "productionEnabled": true,
+  "safeMembers": 4,
+  "createdReviewedWords": ["equality", "responsibility"],
+  "learnerWrites": 0,
+  "deploymentId": "dpl_2ySvCpDPzuRYc5mEBTPyrmihHhNX",
+  "deploymentUrl": "https://scarletts-spells.vercel.app",
+  "routeSmoke": "GET /learn/week/adle/dynamic-suffix returned the expected authenticated 307 login redirect."
+}
