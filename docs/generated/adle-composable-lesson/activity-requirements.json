@@ -1,0 +1,715 @@
+{
+  "activities": [
+    {
+      "answerVisibility": "guided",
+      "applicableRecipes": [
+        "fixed_un_prefix:v1",
+        "dynamic_prefix_word_lab:v2",
+        "dynamic_affix_word_lab:v3",
+        "base_word_family:v1"
+      ],
+      "compiledOnlyFields": [
+        "canonicalWordIds"
+      ],
+      "contradictionRules": [
+        "decomposition_must_reconstruct_display_word"
+      ],
+      "evidenceMode": "guided_completion",
+      "kind": "cleaver",
+      "optionalFacts": [
+        {
+          "factKey": "affix_form",
+          "owner": "micro_skill_profile"
+        }
+      ],
+      "requiredFacts": [
+        {
+          "factKey": "teaching_decomposition",
+          "owner": "word_micro_skill_support"
+        },
+        {
+          "factKey": "canonical_morphology",
+          "owner": "canonical_word"
+        },
+        {
+          "factKey": "base_or_root",
+          "owner": "word_micro_skill_support"
+        },
+        {
+          "factKey": "joins",
+          "owner": "canonical_word"
+        },
+        {
+          "factKey": "transformations",
+          "owner": "canonical_word"
+        }
+      ],
+      "requirementVersion": 1,
+      "roleRequirements": [
+        "authentic_target",
+        "transfer",
+        "guided_example",
+        "review"
+      ]
+    },
+    {
+      "answerVisibility": "guided",
+      "applicableRecipes": [
+        "closed_compound_word_lab:v1"
+      ],
+      "compiledOnlyFields": [
+        "pieceOrder",
+        "assignmentBindings"
+      ],
+      "contradictionRules": [
+        "ordered_components_must_reconstruct_display_word",
+        "join_must_match_compound_classification"
+      ],
+      "evidenceMode": "guided_completion",
+      "kind": "compound_jigsaw",
+      "optionalFacts": [
+        {
+          "factKey": "pronunciation",
+          "owner": "canonical_word"
+        }
+      ],
+      "requiredFacts": [
+        {
+          "factKey": "canonical_identity",
+          "owner": "canonical_word"
+        },
+        {
+          "factKey": "display_word",
+          "owner": "canonical_word"
+        },
+        {
+          "factKey": "compound_components",
+          "owner": "word_micro_skill_support"
+        },
+        {
+          "factKey": "teaching_decomposition",
+          "owner": "word_micro_skill_support"
+        },
+        {
+          "factKey": "canonical_morphology",
+          "owner": "canonical_word"
+        },
+        {
+          "factKey": "joins",
+          "owner": "canonical_word"
+        }
+      ],
+      "requirementVersion": 1,
+      "roleRequirements": [
+        "authentic_target",
+        "transfer",
+        "guided_example",
+        "review"
+      ]
+    },
+    {
+      "answerVisibility": "recall_neutral",
+      "applicableRecipes": [
+        "*"
+      ],
+      "compiledOnlyFields": [
+        "canonicalWordIds",
+        "answerComparator"
+      ],
+      "contradictionRules": [
+        "answer_comparator_must_match_route_policy"
+      ],
+      "evidenceMode": "independent_word",
+      "kind": "cover_check",
+      "optionalFacts": [
+        {
+          "factKey": "teaching_decomposition",
+          "owner": "word_micro_skill_support"
+        }
+      ],
+      "requiredFacts": [
+        {
+          "factKey": "canonical_identity",
+          "owner": "canonical_word",
+          "roles": [
+            "authentic_target",
+            "transfer",
+            "review"
+          ]
+        },
+        {
+          "factKey": "display_word",
+          "owner": "canonical_word",
+          "roles": [
+            "authentic_target",
+            "transfer",
+            "review"
+          ]
+        },
+        {
+          "factKey": "pronunciation",
+          "owner": "canonical_word",
+          "roles": [
+            "authentic_target",
+            "transfer",
+            "review"
+          ]
+        },
+        {
+          "factKey": "word_micro_skill_support",
+          "owner": "word_micro_skill_support",
+          "roles": [
+            "authentic_target",
+            "transfer",
+            "review"
+          ]
+        },
+        {
+          "factKey": "assignment_binding",
+          "owner": "compiled_assignment_snapshot"
+        }
+      ],
+      "requirementVersion": 1,
+      "roleRequirements": [
+        "authentic_target",
+        "transfer",
+        "review"
+      ]
+    },
+    {
+      "answerVisibility": "recall_neutral",
+      "applicableRecipes": [
+        "generic_first_exposure:v1"
+      ],
+      "compiledOnlyFields": [
+        "probeKey"
+      ],
+      "contradictionRules": [],
+      "evidenceMode": "diagnostic",
+      "kind": "diagnostic_probe",
+      "optionalFacts": [
+        {
+          "factKey": "pronunciation",
+          "owner": "canonical_word"
+        },
+        {
+          "factKey": "phonemes",
+          "owner": "canonical_word"
+        }
+      ],
+      "requiredFacts": [
+        {
+          "factKey": "canonical_identity",
+          "owner": "canonical_word",
+          "roles": [
+            "authentic_target",
+            "transfer",
+            "review"
+          ]
+        },
+        {
+          "factKey": "display_word",
+          "owner": "canonical_word",
+          "roles": [
+            "authentic_target",
+            "transfer",
+            "review"
+          ]
+        },
+        {
+          "factKey": "assignment_binding",
+          "owner": "compiled_assignment_snapshot"
+        }
+      ],
+      "requirementVersion": 1,
+      "roleRequirements": [
+        "authentic_target",
+        "transfer",
+        "review"
+      ]
+    },
+    {
+      "answerVisibility": "recall_neutral",
+      "applicableRecipes": [
+        "*"
+      ],
+      "compiledOnlyFields": [
+        "canonicalWordIds",
+        "sentenceOrder"
+      ],
+      "contradictionRules": [
+        "dictation_target_must_resolve_complete_target"
+      ],
+      "evidenceMode": "independent_sentence",
+      "kind": "dictation",
+      "optionalFacts": [
+        {
+          "factKey": "pronunciation",
+          "owner": "canonical_word"
+        }
+      ],
+      "requiredFacts": [
+        {
+          "factKey": "canonical_identity",
+          "owner": "canonical_word",
+          "roles": [
+            "authentic_target",
+            "transfer",
+            "review"
+          ]
+        },
+        {
+          "factKey": "display_word",
+          "owner": "canonical_word",
+          "roles": [
+            "authentic_target",
+            "transfer",
+            "review"
+          ]
+        },
+        {
+          "factKey": "dictation_sentence",
+          "owner": "canonical_word",
+          "roles": [
+            "authentic_target",
+            "transfer",
+            "review"
+          ]
+        },
+        {
+          "factKey": "dictation_target",
+          "owner": "canonical_word",
+          "roles": [
+            "authentic_target",
+            "transfer",
+            "review"
+          ]
+        },
+        {
+          "factKey": "dictation_audio",
+          "owner": "canonical_word",
+          "roles": [
+            "authentic_target",
+            "transfer",
+            "review"
+          ]
+        },
+        {
+          "factKey": "assignment_binding",
+          "owner": "compiled_assignment_snapshot"
+        }
+      ],
+      "requirementVersion": 1,
+      "roleRequirements": [
+        "authentic_target",
+        "transfer",
+        "review"
+      ]
+    },
+    {
+      "answerVisibility": "teaching",
+      "applicableRecipes": [
+        "dynamic_prefix_word_lab:v2",
+        "dynamic_affix_word_lab:v3"
+      ],
+      "compiledOnlyFields": [
+        "presentationOrder"
+      ],
+      "contradictionRules": [
+        "meaning_must_not_contradict_canonical_definition"
+      ],
+      "evidenceMode": "none",
+      "kind": "discovery",
+      "optionalFacts": [
+        {
+          "factKey": "pronunciation",
+          "owner": "canonical_word"
+        },
+        {
+          "factKey": "meaning_group",
+          "owner": "word_micro_skill_support"
+        }
+      ],
+      "requiredFacts": [
+        {
+          "factKey": "canonical_identity",
+          "owner": "canonical_word"
+        },
+        {
+          "factKey": "word_micro_skill_support",
+          "owner": "word_micro_skill_support"
+        },
+        {
+          "factKey": "child_meaning",
+          "owner": "word_micro_skill_support"
+        }
+      ],
+      "requirementVersion": 1,
+      "roleRequirements": [
+        "authentic_target",
+        "transfer",
+        "guided_example",
+        "review"
+      ]
+    },
+    {
+      "answerVisibility": "teaching",
+      "applicableRecipes": [
+        "base_word_family:v1"
+      ],
+      "compiledOnlyFields": [
+        "familySectionKey"
+      ],
+      "contradictionRules": [
+        "family_membership_must_be_explicit"
+      ],
+      "evidenceMode": "none",
+      "kind": "family_reveal",
+      "optionalFacts": [
+        {
+          "factKey": "pronunciation",
+          "owner": "canonical_word"
+        }
+      ],
+      "requiredFacts": [
+        {
+          "factKey": "base_or_root",
+          "owner": "word_micro_skill_support"
+        },
+        {
+          "factKey": "family_section",
+          "owner": "cluster_recipe"
+        },
+        {
+          "factKey": "child_meaning",
+          "owner": "word_micro_skill_support"
+        }
+      ],
+      "requirementVersion": 1,
+      "roleRequirements": [
+        "authentic_target",
+        "transfer",
+        "guided_example",
+        "review"
+      ]
+    },
+    {
+      "answerVisibility": "guided",
+      "applicableRecipes": [
+        "generic_first_exposure:v1"
+      ],
+      "compiledOnlyFields": [
+        "promptKey",
+        "assignmentBindings"
+      ],
+      "contradictionRules": [],
+      "evidenceMode": "guided_completion",
+      "kind": "guided_prompt",
+      "optionalFacts": [
+        {
+          "factKey": "pronunciation",
+          "owner": "canonical_word"
+        }
+      ],
+      "requiredFacts": [
+        {
+          "factKey": "canonical_identity",
+          "owner": "canonical_word"
+        },
+        {
+          "factKey": "display_word",
+          "owner": "canonical_word"
+        }
+      ],
+      "requirementVersion": 1,
+      "roleRequirements": [
+        "authentic_target",
+        "transfer",
+        "guided_example",
+        "review"
+      ]
+    },
+    {
+      "answerVisibility": "teaching",
+      "applicableRecipes": [
+        "*"
+      ],
+      "compiledOnlyFields": [
+        "assignmentBindings"
+      ],
+      "contradictionRules": [],
+      "evidenceMode": "none",
+      "kind": "introduction",
+      "optionalFacts": [
+        {
+          "factKey": "display_word",
+          "owner": "canonical_word"
+        },
+        {
+          "factKey": "pronunciation",
+          "owner": "canonical_word"
+        }
+      ],
+      "requiredFacts": [
+        {
+          "factKey": "micro_skill_content",
+          "owner": "micro_skill_profile"
+        }
+      ],
+      "requirementVersion": 1,
+      "roleRequirements": []
+    },
+    {
+      "answerVisibility": "guided",
+      "applicableRecipes": [
+        "closed_compound_word_lab:v1"
+      ],
+      "compiledOnlyFields": [
+        "wordOrder",
+        "meaningOrder"
+      ],
+      "contradictionRules": [
+        "meaning_must_not_repeat_target_as_definition"
+      ],
+      "evidenceMode": "guided_completion",
+      "kind": "meaning_match",
+      "optionalFacts": [
+        {
+          "factKey": "meaning_group",
+          "owner": "word_micro_skill_support"
+        }
+      ],
+      "requiredFacts": [
+        {
+          "factKey": "canonical_identity",
+          "owner": "canonical_word"
+        },
+        {
+          "factKey": "whole_word_meaning",
+          "owner": "word_micro_skill_support"
+        },
+        {
+          "factKey": "child_meaning",
+          "owner": "word_micro_skill_support"
+        }
+      ],
+      "requirementVersion": 1,
+      "roleRequirements": [
+        "authentic_target",
+        "transfer",
+        "guided_example",
+        "review"
+      ]
+    },
+    {
+      "answerVisibility": "guided",
+      "applicableRecipes": [
+        "dynamic_prefix_word_lab:v2",
+        "dynamic_affix_word_lab:v3"
+      ],
+      "compiledOnlyFields": [
+        "meaningGroupOrder",
+        "wordOrder"
+      ],
+      "contradictionRules": [
+        "meaning_group_must_be_profile_declared"
+      ],
+      "evidenceMode": "guided_completion",
+      "kind": "meaning_sort",
+      "optionalFacts": [
+        {
+          "factKey": "child_meaning",
+          "owner": "word_micro_skill_support"
+        }
+      ],
+      "requiredFacts": [
+        {
+          "factKey": "whole_word_meaning",
+          "owner": "word_micro_skill_support"
+        },
+        {
+          "factKey": "meaning_group",
+          "owner": "word_micro_skill_support"
+        }
+      ],
+      "requirementVersion": 1,
+      "roleRequirements": [
+        "authentic_target",
+        "transfer",
+        "guided_example",
+        "review"
+      ]
+    },
+    {
+      "answerVisibility": "recall_neutral",
+      "applicableRecipes": [
+        "generic_first_exposure:v1"
+      ],
+      "compiledOnlyFields": [
+        "canonicalWordIds"
+      ],
+      "contradictionRules": [],
+      "evidenceMode": "independent_sentence",
+      "kind": "must_use_writing",
+      "optionalFacts": [
+        {
+          "factKey": "whole_word_meaning",
+          "owner": "word_micro_skill_support"
+        }
+      ],
+      "requiredFacts": [
+        {
+          "factKey": "canonical_identity",
+          "owner": "canonical_word",
+          "roles": [
+            "authentic_target",
+            "transfer",
+            "review"
+          ]
+        },
+        {
+          "factKey": "display_word",
+          "owner": "canonical_word",
+          "roles": [
+            "authentic_target",
+            "transfer",
+            "review"
+          ]
+        },
+        {
+          "factKey": "assignment_binding",
+          "owner": "compiled_assignment_snapshot"
+        }
+      ],
+      "requirementVersion": 1,
+      "roleRequirements": [
+        "authentic_target",
+        "transfer",
+        "review"
+      ]
+    },
+    {
+      "answerVisibility": "post_submit",
+      "applicableRecipes": [
+        "*"
+      ],
+      "compiledOnlyFields": [
+        "promptKey",
+        "missedWordIds"
+      ],
+      "contradictionRules": [],
+      "evidenceMode": "reflection",
+      "kind": "reflection",
+      "optionalFacts": [],
+      "requiredFacts": [
+        {
+          "factKey": "reflection_prompt",
+          "owner": "micro_skill_profile"
+        },
+        {
+          "factKey": "prior_attempt_summary",
+          "owner": "compiled_assignment_snapshot"
+        }
+      ],
+      "requirementVersion": 1,
+      "roleRequirements": []
+    },
+    {
+      "answerVisibility": "guided",
+      "applicableRecipes": [
+        "generic_first_exposure:v1"
+      ],
+      "compiledOnlyFields": [
+        "canonicalWordIds",
+        "groupOrder"
+      ],
+      "contradictionRules": [],
+      "evidenceMode": "none",
+      "kind": "review_quick_sort",
+      "optionalFacts": [
+        {
+          "factKey": "child_meaning",
+          "owner": "word_micro_skill_support",
+          "roles": [
+            "review"
+          ]
+        }
+      ],
+      "requiredFacts": [
+        {
+          "factKey": "canonical_identity",
+          "owner": "canonical_word",
+          "roles": [
+            "review"
+          ]
+        },
+        {
+          "factKey": "meaning_group",
+          "owner": "word_micro_skill_support",
+          "roles": [
+            "review"
+          ]
+        }
+      ],
+      "requirementVersion": 1,
+      "roleRequirements": [
+        "review"
+      ]
+    },
+    {
+      "answerVisibility": "guided",
+      "applicableRecipes": [
+        "fixed_un_prefix:v1",
+        "dynamic_prefix_word_lab:v2",
+        "dynamic_affix_word_lab:v3",
+        "base_word_family:v1"
+      ],
+      "compiledOnlyFields": [
+        "choiceOrder",
+        "canonicalWordIds"
+      ],
+      "contradictionRules": [
+        "build_must_reconstruct_display_word"
+      ],
+      "evidenceMode": "guided_completion",
+      "kind": "word_build",
+      "optionalFacts": [
+        {
+          "factKey": "affix_form",
+          "owner": "micro_skill_profile"
+        },
+        {
+          "factKey": "base_or_root",
+          "owner": "word_micro_skill_support"
+        }
+      ],
+      "requiredFacts": [
+        {
+          "factKey": "teaching_decomposition",
+          "owner": "word_micro_skill_support"
+        },
+        {
+          "factKey": "joins",
+          "owner": "canonical_word"
+        },
+        {
+          "factKey": "transformations",
+          "owner": "canonical_word"
+        },
+        {
+          "factKey": "child_meaning",
+          "owner": "word_micro_skill_support"
+        }
+      ],
+      "requirementVersion": 1,
+      "roleRequirements": [
+        "authentic_target",
+        "transfer",
+        "guided_example",
+        "review"
+      ]
+    }
+  ],
+  "generatedNotice": "Generated by scripts/generate-adle-composable-architecture.ts. Do not edit by hand.",
+  "version": "adle_activity_requirements_v1"
+}
