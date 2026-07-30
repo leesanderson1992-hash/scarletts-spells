@@ -1,0 +1,38 @@
+{
+  "auditVersion": "d4_mor_word_families_retirement_v1",
+  "deletedCounts": {
+    "canonical_teaching_dictionary_field_reviews": 22,
+    "canonical_teaching_dictionary_readiness_reports": 2,
+    "canonical_teaching_dictionary_content_versions": 2,
+    "canonical_teaching_dictionary_word_support": 3,
+    "canonical_teaching_dictionary_skill_level_allocation": 2,
+    "micro_skill_catalog": 2,
+    "micro_skill_clusters": 1
+  },
+  "environment": "staging",
+  "generatedAt": "2026-07-29T15:19:10.871Z",
+  "postRemovalProof": {
+    "activeD4MorphologyMicroSkills": 25,
+    "remainingClusterRows": 0,
+    "remainingTargetRows": 0,
+    "zeroRuntimeReferencesBeforeDeletion": true
+  },
+  "preflightExport": {
+    "path": "docs/implementation/qa/adle-d4-mor-word-families-staging-preflight-export-2026-07-29.json",
+    "sha256": "03d0986d7a242ca0ce493569cd0b165a323dc7eff4bfa12f67a64deac760bfff"
+  },
+  "projectRef": "jlhotktspjvffslvuyfz",
+  "productionChanged": false,
+  "preserved": [
+    "canonical_teaching_dictionary_words",
+    "canonical_teaching_dictionary_sources",
+    "canonical_teaching_dictionary_import_batches",
+    "frozen July 2026 approved D4_MOR package",
+    "frozen human-review artifacts"
+  ],
+  "targetCluster": "D4_MOR_WORD_FAMILIES",
+  "targetMicroSkills": [
+    "D4_MOR_WORD_FAMILIES_PRONUNCIATION_SHIFT",
+    "D4_MOR_WORD_FAMILIES_RELATED_WORD_SUPPORT"
+  ]
+}

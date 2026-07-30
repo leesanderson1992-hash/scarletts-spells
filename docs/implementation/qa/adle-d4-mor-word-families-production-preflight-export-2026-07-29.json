@@ -1,0 +1,1025 @@
+{
+  "auditVersion": "d4_mor_word_families_retirement_v1",
+  "blockers": [],
+  "environment": "production",
+  "expectedPostRemoval": {
+    "activeD4MorphologyMicroSkills": 25,
+    "activeD4MicroSkills": 241
+  },
+  "exportedRows": {
+    "canonical_teaching_dictionary_content_versions": [
+      {
+        "id": "3cfbb664-4322-5c6d-8553-a1a67208963a",
+        "import_batch_id": "7107cca0-00f8-4800-879e-39055c57fdf8",
+        "source_id": null,
+        "source_sheet": "teaching_content_versions.csv",
+        "source_row_number": 192,
+        "source_row_hash": "b8c8192f57ac4b8f7918013fcaa4149ba9bd886a5a9b44dc33f12a98cf48d483",
+        "source_metadata": {
+          "csv_file": "teaching_content_versions.csv",
+          "row_source": {
+            "source_url": "docs/implementation/seed-data/teaching-dictionary/candidates/2026-06-29-phase-5-source-intake/csv/teaching_content_versions.csv",
+            "source_name": "Katie Sanderson teaching content review",
+            "source_licence": "internal",
+            "source_category": "internal_authored",
+            "source_use_note": "Human-authored and human-reviewed Teaching Dictionary micro-skill content supplied by Katie Sanderson; approved for candidate readiness validation, not imported to Supabase by this pass."
+          },
+          "source_row_number": 192
+        },
+        "micro_skill_key": "D4_MOR_WORD_FAMILIES_PRONUNCIATION_SHIFT",
+        "content_version": "human_reviewed_v1",
+        "version_status": "active",
+        "is_active": true,
+        "teaching_objective": "Child can use meaning parts to spell word families with pronunciation shifts.",
+        "child_friendly_explanation": "Big words are easier when you find the smaller meaning parts: base words, prefixes, suffixes, compounds, roots, or related words.",
+        "rule_explanation": "Related words can keep similar spelling even when the pronunciation changes.",
+        "memory_tip": null,
+        "common_misconceptions": "Child may spell the whole word by sound, lose the base word, change an affix unnecessarily, or miss a stable root/meaning chunk.",
+        "first_exposure_progression": [
+          "Introduce the meaning part; identify it in a clear model word; mark the boundary; explain what the part means or does; then spell from parts."
+        ],
+        "guided_practice_progression": [
+          "Use words where the target base, affix, root, compound part, or related-word cue for word families with pronunciation shifts is clear. Prompt the child to find the meaning part first, then spell and join the parts."
+        ],
+        "review_proofreading_progression": [
+          "Review: Use mixed morphology retrieval and ask the child to explain the base, prefix, suffix, compound, root, or related word that supports the spelling. Proofreading: In proofreading, ask the child to box the meaning parts and check that the base/root spelling has been preserved where the rule says it should."
+        ],
+        "example_selection_guidance": "Start with familiar words where the meaning part is visible; avoid opaque word histories and multiple new morphemes in one item.",
+        "contrast_policy_guidance": "Contrast related morphemes only after the target part is secure. Avoid teaching several prefixes, suffixes, or roots together unless the comparison is the lesson target.",
+        "sample_preview_word_key": "nature_en_gb",
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review",
+        "source_url": "docs/implementation/seed-data/teaching-dictionary/candidates/2026-06-29-phase-5-source-intake/csv/teaching_content_versions.csv",
+        "source_licence": "internal",
+        "source_use_note": "Human-authored and human-reviewed Teaching Dictionary micro-skill content supplied by Katie Sanderson; approved for candidate readiness validation, not imported to Supabase by this pass.",
+        "confidence": "medium",
+        "supersedes_content_version": "draft_source_intake_v1",
+        "final_readiness_review_status": "signed_off",
+        "final_readiness_reviewed_by": "Katie Sanderson",
+        "final_readiness_reviewed_at": "2026-07-01T00:00:00+00:00",
+        "created_by": "phase_5f_import_planner",
+        "created_at": "2026-07-09T06:18:53.696879+00:00",
+        "updated_at": "2026-07-09T06:18:53.696879+00:00"
+      },
+      {
+        "id": "dc5cb813-b1c0-5157-98a2-3fe25d7bfea9",
+        "import_batch_id": "7107cca0-00f8-4800-879e-39055c57fdf8",
+        "source_id": null,
+        "source_sheet": "teaching_content_versions.csv",
+        "source_row_number": 191,
+        "source_row_hash": "6b4cfeea126fda3e15ca902e647702f0ee04be23921143a3cbeb074c55bf31ad",
+        "source_metadata": {
+          "csv_file": "teaching_content_versions.csv",
+          "row_source": {
+            "source_url": "docs/implementation/seed-data/teaching-dictionary/candidates/2026-06-29-phase-5-source-intake/csv/teaching_content_versions.csv",
+            "source_name": "Katie Sanderson teaching content review",
+            "source_licence": "internal",
+            "source_category": "internal_authored",
+            "source_use_note": "Human-authored and human-reviewed Teaching Dictionary micro-skill content supplied by Katie Sanderson; approved for candidate readiness validation, not imported to Supabase by this pass."
+          },
+          "source_row_number": 191
+        },
+        "micro_skill_key": "D4_MOR_WORD_FAMILIES_RELATED_WORD_SUPPORT",
+        "content_version": "human_reviewed_v1",
+        "version_status": "active",
+        "is_active": true,
+        "teaching_objective": "Child can use meaning parts to spell using related words to support spelling.",
+        "child_friendly_explanation": "Big words are easier when you find the smaller meaning parts: base words, prefixes, suffixes, compounds, roots, or related words.",
+        "rule_explanation": "A related word can make a hidden, unclear, or difficult spelling clearer.",
+        "memory_tip": null,
+        "common_misconceptions": "Child may spell the whole word by sound, lose the base word, change an affix unnecessarily, or miss a stable root/meaning chunk.",
+        "first_exposure_progression": [
+          "Introduce the meaning part; identify it in a clear model word; mark the boundary; explain what the part means or does; then spell from parts."
+        ],
+        "guided_practice_progression": [
+          "Use words where the target base, affix, root, compound part, or related-word cue for using related words to support spelling is clear. Prompt the child to find the meaning part first, then spell and join the parts."
+        ],
+        "review_proofreading_progression": [
+          "Review: Use mixed morphology retrieval and ask the child to explain the base, prefix, suffix, compound, root, or related word that supports the spelling. Proofreading: In proofreading, ask the child to box the meaning parts and check that the base/root spelling has been preserved where the rule says it should."
+        ],
+        "example_selection_guidance": "Start with familiar words where the meaning part is visible; avoid opaque word histories and multiple new morphemes in one item.",
+        "contrast_policy_guidance": "Contrast related morphemes only after the target part is secure. Avoid teaching several prefixes, suffixes, or roots together unless the comparison is the lesson target.",
+        "sample_preview_word_key": "sign_en_gb",
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson teaching content review",
+        "source_url": "docs/implementation/seed-data/teaching-dictionary/candidates/2026-06-29-phase-5-source-intake/csv/teaching_content_versions.csv",
+        "source_licence": "internal",
+        "source_use_note": "Human-authored and human-reviewed Teaching Dictionary micro-skill content supplied by Katie Sanderson; approved for candidate readiness validation, not imported to Supabase by this pass.",
+        "confidence": "medium",
+        "supersedes_content_version": "draft_source_intake_v1",
+        "final_readiness_review_status": "signed_off",
+        "final_readiness_reviewed_by": "Katie Sanderson",
+        "final_readiness_reviewed_at": "2026-07-01T00:00:00+00:00",
+        "created_by": "phase_5f_import_planner",
+        "created_at": "2026-07-09T06:18:53.696879+00:00",
+        "updated_at": "2026-07-09T06:18:53.696879+00:00"
+      }
+    ],
+    "canonical_teaching_dictionary_field_reviews": [
+      {
+        "id": "7c22a0bd-1d0b-5e23-adf0-f399b0a871fc",
+        "import_batch_id": "7107cca0-00f8-4800-879e-39055c57fdf8",
+        "teaching_content_version_id": "dc5cb813-b1c0-5157-98a2-3fe25d7bfea9",
+        "source_sheet": "teaching_content_field_reviews.csv",
+        "source_row_number": 2081,
+        "source_row_hash": "6892bd82964cb761e7b410e0016d4acf32fd3d34c44831e8d77d734f37cb9aa0",
+        "source_metadata": {
+          "csv_file": "teaching_content_field_reviews.csv",
+          "row_source": {},
+          "source_row_number": 2081
+        },
+        "field_key": "teaching_objective",
+        "review_gate": "pedagogy",
+        "review_status": "approved_for_first_exposure",
+        "reviewed_by": "Katie Sanderson",
+        "reviewed_at": "2026-07-01T00:00:00+00:00",
+        "review_notes": "Katie confirmed this teaching-content workbook is ready; source category encoded as internal_authored and confidence as medium.",
+        "created_at": "2026-07-09T06:18:53.696879+00:00",
+        "updated_at": "2026-07-09T06:18:53.696879+00:00"
+      },
+      {
+        "id": "d3f13abe-f0d1-5ff8-a2a7-fce3e609fc67",
+        "import_batch_id": "7107cca0-00f8-4800-879e-39055c57fdf8",
+        "teaching_content_version_id": "dc5cb813-b1c0-5157-98a2-3fe25d7bfea9",
+        "source_sheet": "teaching_content_field_reviews.csv",
+        "source_row_number": 2082,
+        "source_row_hash": "dca0e764b83a3e12d16001d8911c3ae8bc51cb0ec94d7facd59c75375d949663",
+        "source_metadata": {
+          "csv_file": "teaching_content_field_reviews.csv",
+          "row_source": {},
+          "source_row_number": 2082
+        },
+        "field_key": "child_friendly_explanation",
+        "review_gate": "child_language",
+        "review_status": "approved_for_first_exposure",
+        "reviewed_by": "Katie Sanderson",
+        "reviewed_at": "2026-07-01T00:00:00+00:00",
+        "review_notes": "Katie confirmed this teaching-content workbook is ready; source category encoded as internal_authored and confidence as medium.",
+        "created_at": "2026-07-09T06:18:53.696879+00:00",
+        "updated_at": "2026-07-09T06:18:53.696879+00:00"
+      },
+      {
+        "id": "c8d8dbcd-149b-525e-a1e2-edbfc0a93676",
+        "import_batch_id": "7107cca0-00f8-4800-879e-39055c57fdf8",
+        "teaching_content_version_id": "dc5cb813-b1c0-5157-98a2-3fe25d7bfea9",
+        "source_sheet": "teaching_content_field_reviews.csv",
+        "source_row_number": 2083,
+        "source_row_hash": "4748ab8197f46374582f6b62724470105b1b8ae8b879d53ff0d8a479c57898e7",
+        "source_metadata": {
+          "csv_file": "teaching_content_field_reviews.csv",
+          "row_source": {},
+          "source_row_number": 2083
+        },
+        "field_key": "rule_explanation",
+        "review_gate": "pedagogy",
+        "review_status": "approved_for_first_exposure",
+        "reviewed_by": "Katie Sanderson",
+        "reviewed_at": "2026-07-01T00:00:00+00:00",
+        "review_notes": "Katie confirmed this teaching-content workbook is ready; source category encoded as internal_authored and confidence as medium.",
+        "created_at": "2026-07-09T06:18:53.696879+00:00",
+        "updated_at": "2026-07-09T06:18:53.696879+00:00"
+      },
+      {
+        "id": "a56fc94d-933a-5a08-babd-0d8288ec4c91",
+        "import_batch_id": "7107cca0-00f8-4800-879e-39055c57fdf8",
+        "teaching_content_version_id": "dc5cb813-b1c0-5157-98a2-3fe25d7bfea9",
+        "source_sheet": "teaching_content_field_reviews.csv",
+        "source_row_number": 2084,
+        "source_row_hash": "6675c845a88b4d8a6a614f0dd45a76aa0a5e180b3fab4b4aed67f0afb2ca74af",
+        "source_metadata": {
+          "csv_file": "teaching_content_field_reviews.csv",
+          "row_source": {},
+          "source_row_number": 2084
+        },
+        "field_key": "common_misconceptions",
+        "review_gate": "pedagogy",
+        "review_status": "approved_for_first_exposure",
+        "reviewed_by": "Katie Sanderson",
+        "reviewed_at": "2026-07-01T00:00:00+00:00",
+        "review_notes": "Katie confirmed this teaching-content workbook is ready; source category encoded as internal_authored and confidence as medium.",
+        "created_at": "2026-07-09T06:18:53.696879+00:00",
+        "updated_at": "2026-07-09T06:18:53.696879+00:00"
+      },
+      {
+        "id": "c907a201-225e-539f-81cc-3903146a4cfd",
+        "import_batch_id": "7107cca0-00f8-4800-879e-39055c57fdf8",
+        "teaching_content_version_id": "dc5cb813-b1c0-5157-98a2-3fe25d7bfea9",
+        "source_sheet": "teaching_content_field_reviews.csv",
+        "source_row_number": 2085,
+        "source_row_hash": "60c3f5ca722ea09ee1f08cf9e859b857a2252af58c9d98e8ace560714d77bbf5",
+        "source_metadata": {
+          "csv_file": "teaching_content_field_reviews.csv",
+          "row_source": {},
+          "source_row_number": 2085
+        },
+        "field_key": "first_exposure_progression",
+        "review_gate": "pedagogy",
+        "review_status": "approved_for_first_exposure",
+        "reviewed_by": "Katie Sanderson",
+        "reviewed_at": "2026-07-01T00:00:00+00:00",
+        "review_notes": "Katie confirmed this teaching-content workbook is ready; source category encoded as internal_authored and confidence as medium.",
+        "created_at": "2026-07-09T06:18:53.696879+00:00",
+        "updated_at": "2026-07-09T06:18:53.696879+00:00"
+      },
+      {
+        "id": "6333f5ab-7168-5f7c-bdfe-abdbbcd5d3f2",
+        "import_batch_id": "7107cca0-00f8-4800-879e-39055c57fdf8",
+        "teaching_content_version_id": "dc5cb813-b1c0-5157-98a2-3fe25d7bfea9",
+        "source_sheet": "teaching_content_field_reviews.csv",
+        "source_row_number": 2086,
+        "source_row_hash": "dfb7b67e437292f70c761f9eecc33ac35095ceba0ee18ba5dd44ea542c05a104",
+        "source_metadata": {
+          "csv_file": "teaching_content_field_reviews.csv",
+          "row_source": {},
+          "source_row_number": 2086
+        },
+        "field_key": "guided_practice_progression",
+        "review_gate": "pedagogy",
+        "review_status": "approved_for_first_exposure",
+        "reviewed_by": "Katie Sanderson",
+        "reviewed_at": "2026-07-01T00:00:00+00:00",
+        "review_notes": "Katie confirmed this teaching-content workbook is ready; source category encoded as internal_authored and confidence as medium.",
+        "created_at": "2026-07-09T06:18:53.696879+00:00",
+        "updated_at": "2026-07-09T06:18:53.696879+00:00"
+      },
+      {
+        "id": "83aa8c0c-797d-5401-bd20-b68b41a447ae",
+        "import_batch_id": "7107cca0-00f8-4800-879e-39055c57fdf8",
+        "teaching_content_version_id": "dc5cb813-b1c0-5157-98a2-3fe25d7bfea9",
+        "source_sheet": "teaching_content_field_reviews.csv",
+        "source_row_number": 2087,
+        "source_row_hash": "4f09305fe9df68786cdb62a7a88b5b58a3dbe9228e93f4837e588817e4619c82",
+        "source_metadata": {
+          "csv_file": "teaching_content_field_reviews.csv",
+          "row_source": {},
+          "source_row_number": 2087
+        },
+        "field_key": "review_proofreading_progression",
+        "review_gate": "pedagogy",
+        "review_status": "approved_for_first_exposure",
+        "reviewed_by": "Katie Sanderson",
+        "reviewed_at": "2026-07-01T00:00:00+00:00",
+        "review_notes": "Katie confirmed this teaching-content workbook is ready; source category encoded as internal_authored and confidence as medium.",
+        "created_at": "2026-07-09T06:18:53.696879+00:00",
+        "updated_at": "2026-07-09T06:18:53.696879+00:00"
+      },
+      {
+        "id": "943ebc64-2ad9-517f-85ee-4b561c7f1ad4",
+        "import_batch_id": "7107cca0-00f8-4800-879e-39055c57fdf8",
+        "teaching_content_version_id": "dc5cb813-b1c0-5157-98a2-3fe25d7bfea9",
+        "source_sheet": "teaching_content_field_reviews.csv",
+        "source_row_number": 2088,
+        "source_row_hash": "80ef71cc0b7452f4e9ba4e7650d38bd1e7d7e356d0ac7062c434ae18a2d61d11",
+        "source_metadata": {
+          "csv_file": "teaching_content_field_reviews.csv",
+          "row_source": {},
+          "source_row_number": 2088
+        },
+        "field_key": "example_selection_guidance",
+        "review_gate": "pedagogy",
+        "review_status": "approved_for_first_exposure",
+        "reviewed_by": "Katie Sanderson",
+        "reviewed_at": "2026-07-01T00:00:00+00:00",
+        "review_notes": "Katie confirmed this teaching-content workbook is ready; source category encoded as internal_authored and confidence as medium.",
+        "created_at": "2026-07-09T06:18:53.696879+00:00",
+        "updated_at": "2026-07-09T06:18:53.696879+00:00"
+      },
+      {
+        "id": "cfd074a6-d9a6-5aa4-9b0e-458403211c34",
+        "import_batch_id": "7107cca0-00f8-4800-879e-39055c57fdf8",
+        "teaching_content_version_id": "dc5cb813-b1c0-5157-98a2-3fe25d7bfea9",
+        "source_sheet": "teaching_content_field_reviews.csv",
+        "source_row_number": 2089,
+        "source_row_hash": "ca259145819eed48cef98a840335fedd82fc999ca270a3889885f21930fbebf1",
+        "source_metadata": {
+          "csv_file": "teaching_content_field_reviews.csv",
+          "row_source": {},
+          "source_row_number": 2089
+        },
+        "field_key": "contrast_policy_guidance",
+        "review_gate": "pedagogy",
+        "review_status": "approved_for_first_exposure",
+        "reviewed_by": "Katie Sanderson",
+        "reviewed_at": "2026-07-01T00:00:00+00:00",
+        "review_notes": "Katie confirmed this teaching-content workbook is ready; source category encoded as internal_authored and confidence as medium.",
+        "created_at": "2026-07-09T06:18:53.696879+00:00",
+        "updated_at": "2026-07-09T06:18:53.696879+00:00"
+      },
+      {
+        "id": "b9e29121-b18c-5a0c-ab65-8e23ac1506f5",
+        "import_batch_id": "7107cca0-00f8-4800-879e-39055c57fdf8",
+        "teaching_content_version_id": "dc5cb813-b1c0-5157-98a2-3fe25d7bfea9",
+        "source_sheet": "teaching_content_field_reviews.csv",
+        "source_row_number": 2090,
+        "source_row_hash": "4c96dc79fc3a78ac0eb48c849d87f897c10359c207e5d85406cfe614f2988b72",
+        "source_metadata": {
+          "csv_file": "teaching_content_field_reviews.csv",
+          "row_source": {},
+          "source_row_number": 2090
+        },
+        "field_key": "source",
+        "review_gate": "source_licence",
+        "review_status": "approved_for_first_exposure",
+        "reviewed_by": "Katie Sanderson",
+        "reviewed_at": "2026-07-01T00:00:00+00:00",
+        "review_notes": "Katie confirmed this teaching-content workbook is ready; source category encoded as internal_authored and confidence as medium.",
+        "created_at": "2026-07-09T06:18:53.696879+00:00",
+        "updated_at": "2026-07-09T06:18:53.696879+00:00"
+      },
+      {
+        "id": "8dbe11d7-3f44-5578-a208-daecc1c38b13",
+        "import_batch_id": "7107cca0-00f8-4800-879e-39055c57fdf8",
+        "teaching_content_version_id": "dc5cb813-b1c0-5157-98a2-3fe25d7bfea9",
+        "source_sheet": "teaching_content_field_reviews.csv",
+        "source_row_number": 2091,
+        "source_row_hash": "3c308fed8fddfde87e1f043b45e62e5e81b6e95fa2a78108fd2b9b453eb018c2",
+        "source_metadata": {
+          "csv_file": "teaching_content_field_reviews.csv",
+          "row_source": {},
+          "source_row_number": 2091
+        },
+        "field_key": "licence",
+        "review_gate": "source_licence",
+        "review_status": "approved_for_first_exposure",
+        "reviewed_by": "Katie Sanderson",
+        "reviewed_at": "2026-07-01T00:00:00+00:00",
+        "review_notes": "Katie confirmed this teaching-content workbook is ready; source category encoded as internal_authored and confidence as medium.",
+        "created_at": "2026-07-09T06:18:53.696879+00:00",
+        "updated_at": "2026-07-09T06:18:53.696879+00:00"
+      },
+      {
+        "id": "feba69c2-10de-5b11-bfae-018549f255f0",
+        "import_batch_id": "7107cca0-00f8-4800-879e-39055c57fdf8",
+        "teaching_content_version_id": "3cfbb664-4322-5c6d-8553-a1a67208963a",
+        "source_sheet": "teaching_content_field_reviews.csv",
+        "source_row_number": 2092,
+        "source_row_hash": "86f2589d190a4d3dd8148449b088f4ab32f50beebfe95bba179b36ddd185b99e",
+        "source_metadata": {
+          "csv_file": "teaching_content_field_reviews.csv",
+          "row_source": {},
+          "source_row_number": 2092
+        },
+        "field_key": "teaching_objective",
+        "review_gate": "pedagogy",
+        "review_status": "approved_for_first_exposure",
+        "reviewed_by": "Katie Sanderson",
+        "reviewed_at": "2026-07-01T00:00:00+00:00",
+        "review_notes": "Katie confirmed this teaching-content workbook is ready; source category encoded as internal_authored and confidence as medium.",
+        "created_at": "2026-07-09T06:18:53.696879+00:00",
+        "updated_at": "2026-07-09T06:18:53.696879+00:00"
+      },
+      {
+        "id": "edd41b2b-d7c3-559d-9096-c2f25b63a609",
+        "import_batch_id": "7107cca0-00f8-4800-879e-39055c57fdf8",
+        "teaching_content_version_id": "3cfbb664-4322-5c6d-8553-a1a67208963a",
+        "source_sheet": "teaching_content_field_reviews.csv",
+        "source_row_number": 2093,
+        "source_row_hash": "438a03869df9a15175322f58ac0e545f55433dcfd6cd777f9698f7a252e9c8cb",
+        "source_metadata": {
+          "csv_file": "teaching_content_field_reviews.csv",
+          "row_source": {},
+          "source_row_number": 2093
+        },
+        "field_key": "child_friendly_explanation",
+        "review_gate": "child_language",
+        "review_status": "approved_for_first_exposure",
+        "reviewed_by": "Katie Sanderson",
+        "reviewed_at": "2026-07-01T00:00:00+00:00",
+        "review_notes": "Katie confirmed this teaching-content workbook is ready; source category encoded as internal_authored and confidence as medium.",
+        "created_at": "2026-07-09T06:18:53.696879+00:00",
+        "updated_at": "2026-07-09T06:18:53.696879+00:00"
+      },
+      {
+        "id": "fffed8b5-7911-5938-8662-9e520ad2a019",
+        "import_batch_id": "7107cca0-00f8-4800-879e-39055c57fdf8",
+        "teaching_content_version_id": "3cfbb664-4322-5c6d-8553-a1a67208963a",
+        "source_sheet": "teaching_content_field_reviews.csv",
+        "source_row_number": 2094,
+        "source_row_hash": "8e0d4fb904e41378439f159bbb6aa69c760b54b69703d2da9b410fe63c7da06a",
+        "source_metadata": {
+          "csv_file": "teaching_content_field_reviews.csv",
+          "row_source": {},
+          "source_row_number": 2094
+        },
+        "field_key": "rule_explanation",
+        "review_gate": "pedagogy",
+        "review_status": "approved_for_first_exposure",
+        "reviewed_by": "Katie Sanderson",
+        "reviewed_at": "2026-07-01T00:00:00+00:00",
+        "review_notes": "Katie confirmed this teaching-content workbook is ready; source category encoded as internal_authored and confidence as medium.",
+        "created_at": "2026-07-09T06:18:53.696879+00:00",
+        "updated_at": "2026-07-09T06:18:53.696879+00:00"
+      },
+      {
+        "id": "87ff44ee-8603-5977-bd81-e02ab079ffb7",
+        "import_batch_id": "7107cca0-00f8-4800-879e-39055c57fdf8",
+        "teaching_content_version_id": "3cfbb664-4322-5c6d-8553-a1a67208963a",
+        "source_sheet": "teaching_content_field_reviews.csv",
+        "source_row_number": 2095,
+        "source_row_hash": "4679d32d2661ca1874997de03550400dc7023b41332ec02653d8bafbaa12c859",
+        "source_metadata": {
+          "csv_file": "teaching_content_field_reviews.csv",
+          "row_source": {},
+          "source_row_number": 2095
+        },
+        "field_key": "common_misconceptions",
+        "review_gate": "pedagogy",
+        "review_status": "approved_for_first_exposure",
+        "reviewed_by": "Katie Sanderson",
+        "reviewed_at": "2026-07-01T00:00:00+00:00",
+        "review_notes": "Katie confirmed this teaching-content workbook is ready; source category encoded as internal_authored and confidence as medium.",
+        "created_at": "2026-07-09T06:18:53.696879+00:00",
+        "updated_at": "2026-07-09T06:18:53.696879+00:00"
+      },
+      {
+        "id": "a6770bd1-cfd5-5cdc-b6ad-ccba4725e536",
+        "import_batch_id": "7107cca0-00f8-4800-879e-39055c57fdf8",
+        "teaching_content_version_id": "3cfbb664-4322-5c6d-8553-a1a67208963a",
+        "source_sheet": "teaching_content_field_reviews.csv",
+        "source_row_number": 2096,
+        "source_row_hash": "4fd21a5218514c0ceb1a982bd77d99325ff05b666f293e1a68c11e756222c25d",
+        "source_metadata": {
+          "csv_file": "teaching_content_field_reviews.csv",
+          "row_source": {},
+          "source_row_number": 2096
+        },
+        "field_key": "first_exposure_progression",
+        "review_gate": "pedagogy",
+        "review_status": "approved_for_first_exposure",
+        "reviewed_by": "Katie Sanderson",
+        "reviewed_at": "2026-07-01T00:00:00+00:00",
+        "review_notes": "Katie confirmed this teaching-content workbook is ready; source category encoded as internal_authored and confidence as medium.",
+        "created_at": "2026-07-09T06:18:53.696879+00:00",
+        "updated_at": "2026-07-09T06:18:53.696879+00:00"
+      },
+      {
+        "id": "20ca8c18-1897-54c3-a888-a87fbc112994",
+        "import_batch_id": "7107cca0-00f8-4800-879e-39055c57fdf8",
+        "teaching_content_version_id": "3cfbb664-4322-5c6d-8553-a1a67208963a",
+        "source_sheet": "teaching_content_field_reviews.csv",
+        "source_row_number": 2097,
+        "source_row_hash": "ea0257df9fb15773747dcf8a5e0664b7b597e48c691e8090c2ee23628f95c92a",
+        "source_metadata": {
+          "csv_file": "teaching_content_field_reviews.csv",
+          "row_source": {},
+          "source_row_number": 2097
+        },
+        "field_key": "guided_practice_progression",
+        "review_gate": "pedagogy",
+        "review_status": "approved_for_first_exposure",
+        "reviewed_by": "Katie Sanderson",
+        "reviewed_at": "2026-07-01T00:00:00+00:00",
+        "review_notes": "Katie confirmed this teaching-content workbook is ready; source category encoded as internal_authored and confidence as medium.",
+        "created_at": "2026-07-09T06:18:53.696879+00:00",
+        "updated_at": "2026-07-09T06:18:53.696879+00:00"
+      },
+      {
+        "id": "c3fb64ae-51ee-5a2b-8335-75bd0d30d448",
+        "import_batch_id": "7107cca0-00f8-4800-879e-39055c57fdf8",
+        "teaching_content_version_id": "3cfbb664-4322-5c6d-8553-a1a67208963a",
+        "source_sheet": "teaching_content_field_reviews.csv",
+        "source_row_number": 2098,
+        "source_row_hash": "bee42177b4238955b759ee7b759d8ee20fa8fa047538a671b74bde5d5c2d1e41",
+        "source_metadata": {
+          "csv_file": "teaching_content_field_reviews.csv",
+          "row_source": {},
+          "source_row_number": 2098
+        },
+        "field_key": "review_proofreading_progression",
+        "review_gate": "pedagogy",
+        "review_status": "approved_for_first_exposure",
+        "reviewed_by": "Katie Sanderson",
+        "reviewed_at": "2026-07-01T00:00:00+00:00",
+        "review_notes": "Katie confirmed this teaching-content workbook is ready; source category encoded as internal_authored and confidence as medium.",
+        "created_at": "2026-07-09T06:18:53.696879+00:00",
+        "updated_at": "2026-07-09T06:18:53.696879+00:00"
+      },
+      {
+        "id": "9e2ce019-e93d-5ce0-9868-7358347504d3",
+        "import_batch_id": "7107cca0-00f8-4800-879e-39055c57fdf8",
+        "teaching_content_version_id": "3cfbb664-4322-5c6d-8553-a1a67208963a",
+        "source_sheet": "teaching_content_field_reviews.csv",
+        "source_row_number": 2099,
+        "source_row_hash": "dd5189f54096b8f5f3212350af8ea2ea9c4819d9c21d991bb385a59843b6a284",
+        "source_metadata": {
+          "csv_file": "teaching_content_field_reviews.csv",
+          "row_source": {},
+          "source_row_number": 2099
+        },
+        "field_key": "example_selection_guidance",
+        "review_gate": "pedagogy",
+        "review_status": "approved_for_first_exposure",
+        "reviewed_by": "Katie Sanderson",
+        "reviewed_at": "2026-07-01T00:00:00+00:00",
+        "review_notes": "Katie confirmed this teaching-content workbook is ready; source category encoded as internal_authored and confidence as medium.",
+        "created_at": "2026-07-09T06:18:53.696879+00:00",
+        "updated_at": "2026-07-09T06:18:53.696879+00:00"
+      },
+      {
+        "id": "43c81fe9-a749-5e37-8e10-a9124ff9f669",
+        "import_batch_id": "7107cca0-00f8-4800-879e-39055c57fdf8",
+        "teaching_content_version_id": "3cfbb664-4322-5c6d-8553-a1a67208963a",
+        "source_sheet": "teaching_content_field_reviews.csv",
+        "source_row_number": 2100,
+        "source_row_hash": "8c504a4c86e6a529395908a32db1809ed5d5e4220aa523fea62158b73f183c13",
+        "source_metadata": {
+          "csv_file": "teaching_content_field_reviews.csv",
+          "row_source": {},
+          "source_row_number": 2100
+        },
+        "field_key": "contrast_policy_guidance",
+        "review_gate": "pedagogy",
+        "review_status": "approved_for_first_exposure",
+        "reviewed_by": "Katie Sanderson",
+        "reviewed_at": "2026-07-01T00:00:00+00:00",
+        "review_notes": "Katie confirmed this teaching-content workbook is ready; source category encoded as internal_authored and confidence as medium.",
+        "created_at": "2026-07-09T06:18:53.696879+00:00",
+        "updated_at": "2026-07-09T06:18:53.696879+00:00"
+      },
+      {
+        "id": "ef5803f8-a9e2-58f3-86c4-f274f37590ff",
+        "import_batch_id": "7107cca0-00f8-4800-879e-39055c57fdf8",
+        "teaching_content_version_id": "3cfbb664-4322-5c6d-8553-a1a67208963a",
+        "source_sheet": "teaching_content_field_reviews.csv",
+        "source_row_number": 2101,
+        "source_row_hash": "03900adc775928e8d663dbbe2d9a7d9cb91a27639cb047f1dbd6aebe8f50e5d0",
+        "source_metadata": {
+          "csv_file": "teaching_content_field_reviews.csv",
+          "row_source": {},
+          "source_row_number": 2101
+        },
+        "field_key": "source",
+        "review_gate": "source_licence",
+        "review_status": "approved_for_first_exposure",
+        "reviewed_by": "Katie Sanderson",
+        "reviewed_at": "2026-07-01T00:00:00+00:00",
+        "review_notes": "Katie confirmed this teaching-content workbook is ready; source category encoded as internal_authored and confidence as medium.",
+        "created_at": "2026-07-09T06:18:53.696879+00:00",
+        "updated_at": "2026-07-09T06:18:53.696879+00:00"
+      },
+      {
+        "id": "b2c6578a-8eec-5334-bdb9-b03872b1b9f8",
+        "import_batch_id": "7107cca0-00f8-4800-879e-39055c57fdf8",
+        "teaching_content_version_id": "3cfbb664-4322-5c6d-8553-a1a67208963a",
+        "source_sheet": "teaching_content_field_reviews.csv",
+        "source_row_number": 2102,
+        "source_row_hash": "d24ef749606b059a40bca7beea266d90cb1dcbeac283ac1fd5b40ee43a640733",
+        "source_metadata": {
+          "csv_file": "teaching_content_field_reviews.csv",
+          "row_source": {},
+          "source_row_number": 2102
+        },
+        "field_key": "licence",
+        "review_gate": "source_licence",
+        "review_status": "approved_for_first_exposure",
+        "reviewed_by": "Katie Sanderson",
+        "reviewed_at": "2026-07-01T00:00:00+00:00",
+        "review_notes": "Katie confirmed this teaching-content workbook is ready; source category encoded as internal_authored and confidence as medium.",
+        "created_at": "2026-07-09T06:18:53.696879+00:00",
+        "updated_at": "2026-07-09T06:18:53.696879+00:00"
+      }
+    ],
+    "canonical_teaching_dictionary_readiness_reports": [
+      {
+        "id": "65ecc56f-72d5-5465-b41b-74c21ca665a6",
+        "import_batch_id": "7107cca0-00f8-4800-879e-39055c57fdf8",
+        "teaching_content_version_id": "3cfbb664-4322-5c6d-8553-a1a67208963a",
+        "validator_version": "version_3_phase_5c_teaching_dictionary_csv_v3",
+        "readiness_state": "ready_for_first_exposure",
+        "first_exposure_allowed": true,
+        "guided_review_allowed": true,
+        "blockers": [],
+        "warnings": [],
+        "p0_field_statuses": [],
+        "p1_field_statuses": [],
+        "p2_field_statuses": [],
+        "source_summary": {
+          "source_name": "Katie Sanderson teaching content review",
+          "source_category": "internal_authored"
+        },
+        "licence_summary": {
+          "source_licence": "internal",
+          "source_use_note": "Human-authored and human-reviewed Teaching Dictionary micro-skill content supplied by Katie Sanderson; approved for candidate readiness validation, not imported to Supabase by this pass."
+        },
+        "review_summary": {
+          "is_active": true,
+          "version_status": "active",
+          "final_readiness_review_status": "signed_off"
+        },
+        "activity_progression_summary": {
+          "first_exposure_progression": [
+            "Introduce the meaning part; identify it in a clear model word; mark the boundary; explain what the part means or does; then spell from parts."
+          ],
+          "guided_practice_progression": [
+            "Use words where the target base, affix, root, compound part, or related-word cue for word families with pronunciation shifts is clear. Prompt the child to find the meaning part first, then spell and join the parts."
+          ],
+          "review_proofreading_progression": [
+            "Review: Use mixed morphology retrieval and ask the child to explain the base, prefix, suffix, compound, root, or related word that supports the spelling. Proofreading: In proofreading, ask the child to box the meaning parts and check that the base/root spelling has been preserved where the rule says it should."
+          ]
+        },
+        "report_metadata": {
+          "dry_run_only": true,
+          "validator_generated_at": "1970-01-01T00:00:00+00:00"
+        },
+        "generated_at": "1970-01-01T00:00:00+00:00",
+        "created_at": "2026-07-09T06:18:53.696879+00:00"
+      },
+      {
+        "id": "03f90c51-02ee-57e4-a3e6-1fb2d4efc8d9",
+        "import_batch_id": "7107cca0-00f8-4800-879e-39055c57fdf8",
+        "teaching_content_version_id": "dc5cb813-b1c0-5157-98a2-3fe25d7bfea9",
+        "validator_version": "version_3_phase_5c_teaching_dictionary_csv_v3",
+        "readiness_state": "content_gap",
+        "first_exposure_allowed": false,
+        "guided_review_allowed": false,
+        "blockers": [
+          {
+            "message": "Missing reviewed support example words.",
+            "severity": "blocking_first_exposure",
+            "field_key": "support_role:support_example",
+            "review_gate": "pedagogy",
+            "blocker_reason": "missing_ordered_example_words"
+          },
+          {
+            "message": "D4_MOR first-exposure content requires morphology metadata support.",
+            "severity": "blocking_first_exposure",
+            "field_key": "morphology_metadata",
+            "review_gate": "pedagogy",
+            "blocker_reason": "missing_rule_explanation"
+          }
+        ],
+        "warnings": [
+          "Active content version is not readiness-ready."
+        ],
+        "p0_field_statuses": [],
+        "p1_field_statuses": [],
+        "p2_field_statuses": [],
+        "source_summary": {
+          "source_name": "Katie Sanderson teaching content review",
+          "source_category": "internal_authored"
+        },
+        "licence_summary": {
+          "source_licence": "internal",
+          "source_use_note": "Human-authored and human-reviewed Teaching Dictionary micro-skill content supplied by Katie Sanderson; approved for candidate readiness validation, not imported to Supabase by this pass."
+        },
+        "review_summary": {
+          "is_active": true,
+          "version_status": "active",
+          "final_readiness_review_status": "signed_off"
+        },
+        "activity_progression_summary": {
+          "first_exposure_progression": [
+            "Introduce the meaning part; identify it in a clear model word; mark the boundary; explain what the part means or does; then spell from parts."
+          ],
+          "guided_practice_progression": [
+            "Use words where the target base, affix, root, compound part, or related-word cue for using related words to support spelling is clear. Prompt the child to find the meaning part first, then spell and join the parts."
+          ],
+          "review_proofreading_progression": [
+            "Review: Use mixed morphology retrieval and ask the child to explain the base, prefix, suffix, compound, root, or related word that supports the spelling. Proofreading: In proofreading, ask the child to box the meaning parts and check that the base/root spelling has been preserved where the rule says it should."
+          ]
+        },
+        "report_metadata": {
+          "dry_run_only": true,
+          "validator_generated_at": "1970-01-01T00:00:00+00:00"
+        },
+        "generated_at": "1970-01-01T00:00:00+00:00",
+        "created_at": "2026-07-09T06:18:53.696879+00:00"
+      }
+    ],
+    "canonical_teaching_dictionary_skill_level_allocation": [
+      {
+        "id": "8c56a224-d4c0-41e7-be3d-00ae567c7bf7",
+        "micro_skill_key": "D4_MOR_WORD_FAMILIES_PRONUNCIATION_SHIFT",
+        "complexity_level": 1,
+        "allocation": 1,
+        "banding_version": "banding_v1.1_2026-07-04",
+        "import_batch_id": "7c56e545-ab27-4122-b29f-81021e921737",
+        "computed_at": "2026-07-09T06:19:53.573404+00:00",
+        "row_status": "active",
+        "created_at": "2026-07-09T06:19:53.573404+00:00",
+        "updated_at": "2026-07-09T06:19:53.573404+00:00"
+      },
+      {
+        "id": "6d00fc7b-f63b-46ee-b0cb-1e0080dc91ac",
+        "micro_skill_key": "D4_MOR_WORD_FAMILIES_PRONUNCIATION_SHIFT",
+        "complexity_level": 3,
+        "allocation": 2,
+        "banding_version": "banding_v1.1_2026-07-04",
+        "import_batch_id": "7c56e545-ab27-4122-b29f-81021e921737",
+        "computed_at": "2026-07-09T06:19:53.573404+00:00",
+        "row_status": "active",
+        "created_at": "2026-07-09T06:19:53.573404+00:00",
+        "updated_at": "2026-07-09T06:19:53.573404+00:00"
+      }
+    ],
+    "canonical_teaching_dictionary_word_support": [
+      {
+        "id": "54e79045-414f-5ef1-ac06-ac6c1fbeff6b",
+        "import_batch_id": "7107cca0-00f8-4800-879e-39055c57fdf8",
+        "canonical_word_id": "593d01fa-fab8-565d-83c7-f41fe867e27e",
+        "source_id": null,
+        "row_status": "active",
+        "source_sheet": "micro_skill_word_support.csv",
+        "source_row_number": 957,
+        "source_row_hash": "12fe9fc3ddafc4afbcad2bc3dcb8d9de54ebc450bbf3bf2a0d858be8baa2c24f",
+        "source_metadata": {
+          "csv_file": "micro_skill_word_support.csv",
+          "row_source": {
+            "source_url": "docs/implementation/seed-data/teaching-dictionary/candidates/2026-06-29-phase-5-source-intake",
+            "source_name": "Katie Sanderson remaining blocker review",
+            "source_licence": "internal",
+            "source_category": "internal_authored",
+            "source_use_note": "Human-reviewed remaining-blocker completion for Teaching Dictionary morphology/support readiness; candidate CSV only, not imported by this pass."
+          },
+          "source_row_number": 957
+        },
+        "micro_skill_key": "D4_MOR_WORD_FAMILIES_PRONUNCIATION_SHIFT",
+        "support_role": "support_example",
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson remaining blocker review",
+        "source_url": "docs/implementation/seed-data/teaching-dictionary/candidates/2026-06-29-phase-5-source-intake",
+        "source_licence": "internal",
+        "source_use_note": "Human-reviewed remaining-blocker completion for Teaching Dictionary morphology/support readiness; candidate CSV only, not imported by this pass.",
+        "confidence": "medium",
+        "review_status": "approved_for_first_exposure",
+        "review_notes": "Human-reviewed morphology support example added to clear remaining Teaching Dictionary support/metadata blocker.",
+        "reviewed_by": null,
+        "reviewed_at": null,
+        "created_at": "2026-07-09T06:18:53.696879+00:00",
+        "updated_at": "2026-07-09T06:18:53.696879+00:00"
+      },
+      {
+        "id": "4fd2a531-021b-5f37-9419-f1bd4403c098",
+        "import_batch_id": "7107cca0-00f8-4800-879e-39055c57fdf8",
+        "canonical_word_id": "6af26769-8014-52a3-a40d-0caaccf9ebb3",
+        "source_id": null,
+        "row_status": "active",
+        "source_sheet": "micro_skill_word_support.csv",
+        "source_row_number": 958,
+        "source_row_hash": "d888699f84a3ed1e14fbb7cb60965835cc84bb2c05628c71100ed37ee12fffbc",
+        "source_metadata": {
+          "csv_file": "micro_skill_word_support.csv",
+          "row_source": {
+            "source_url": "docs/implementation/seed-data/teaching-dictionary/candidates/2026-06-29-phase-5-source-intake",
+            "source_name": "Katie Sanderson remaining blocker review",
+            "source_licence": "internal",
+            "source_category": "internal_authored",
+            "source_use_note": "Human-reviewed remaining-blocker completion for Teaching Dictionary morphology/support readiness; candidate CSV only, not imported by this pass."
+          },
+          "source_row_number": 958
+        },
+        "micro_skill_key": "D4_MOR_WORD_FAMILIES_PRONUNCIATION_SHIFT",
+        "support_role": "support_example",
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson remaining blocker review",
+        "source_url": "docs/implementation/seed-data/teaching-dictionary/candidates/2026-06-29-phase-5-source-intake",
+        "source_licence": "internal",
+        "source_use_note": "Human-reviewed remaining-blocker completion for Teaching Dictionary morphology/support readiness; candidate CSV only, not imported by this pass.",
+        "confidence": "medium",
+        "review_status": "approved_for_first_exposure",
+        "review_notes": "Human-reviewed morphology support example added to clear remaining Teaching Dictionary support/metadata blocker.",
+        "reviewed_by": null,
+        "reviewed_at": null,
+        "created_at": "2026-07-09T06:18:53.696879+00:00",
+        "updated_at": "2026-07-09T06:18:53.696879+00:00"
+      },
+      {
+        "id": "a71b9e39-a40d-5db2-af71-c7fad36456fb",
+        "import_batch_id": "7107cca0-00f8-4800-879e-39055c57fdf8",
+        "canonical_word_id": "bd80fcac-79ff-573b-a0eb-a16530b15d4b",
+        "source_id": null,
+        "row_status": "active",
+        "source_sheet": "micro_skill_word_support.csv",
+        "source_row_number": 959,
+        "source_row_hash": "7ed153bf48ca4d51fce36c221f20f406c94b886d460987cf01179fc70ccbc245",
+        "source_metadata": {
+          "csv_file": "micro_skill_word_support.csv",
+          "row_source": {
+            "source_url": "docs/implementation/seed-data/teaching-dictionary/candidates/2026-06-29-phase-5-source-intake",
+            "source_name": "Katie Sanderson remaining blocker review",
+            "source_licence": "internal",
+            "source_category": "internal_authored",
+            "source_use_note": "Human-reviewed remaining-blocker completion for Teaching Dictionary morphology/support readiness; candidate CSV only, not imported by this pass."
+          },
+          "source_row_number": 959
+        },
+        "micro_skill_key": "D4_MOR_WORD_FAMILIES_PRONUNCIATION_SHIFT",
+        "support_role": "support_example",
+        "source_category": "internal_authored",
+        "source_name": "Katie Sanderson remaining blocker review",
+        "source_url": "docs/implementation/seed-data/teaching-dictionary/candidates/2026-06-29-phase-5-source-intake",
+        "source_licence": "internal",
+        "source_use_note": "Human-reviewed remaining-blocker completion for Teaching Dictionary morphology/support readiness; candidate CSV only, not imported by this pass.",
+        "confidence": "medium",
+        "review_status": "approved_for_first_exposure",
+        "review_notes": "Human-reviewed morphology support example added to clear remaining Teaching Dictionary support/metadata blocker.",
+        "reviewed_by": null,
+        "reviewed_at": null,
+        "created_at": "2026-07-09T06:18:53.696879+00:00",
+        "updated_at": "2026-07-09T06:18:53.696879+00:00"
+      }
+    ],
+    "micro_skill_catalog": [
+      {
+        "id": "3f82060c-885b-4854-90d7-f0811a3eb63a",
+        "mastery_domain_key": "D4",
+        "skill_family_key": "D4_MOR",
+        "skill_cluster_key": "D4_MOR_WORD_FAMILIES",
+        "micro_skill_key": "D4_MOR_WORD_FAMILIES_PRONUNCIATION_SHIFT",
+        "display_name": "Preserve spelling across pronunciation shifts",
+        "practice_route": "word_practice",
+        "is_assignable": true,
+        "is_active": true,
+        "allowed_template_keys": [
+          "T02",
+          "T01",
+          "T04",
+          "T03",
+          "T05",
+          "T06",
+          "T09",
+          "T10",
+          "T11",
+          "T12"
+        ],
+        "metadata": {
+          "cluster_name": "Word families and related forms",
+          "seed_version": "domain4-seed-expansion-v1",
+          "example_words": [
+            "magic/magician",
+            "music/musician",
+            "define/definition",
+            "electric/electricity"
+          ],
+          "teaching_point": "Related words can keep similar spelling even when the pronunciation changes.",
+          "source_workbook": "docs/D4 Seeding Map Finale Final.xlsx",
+          "starter_word_bank": [
+            {
+              "word": "magic/magician",
+              "difficulty": "seed",
+              "common_wrong_spellings": []
+            },
+            {
+              "word": "music/musician",
+              "difficulty": "seed",
+              "common_wrong_spellings": []
+            },
+            {
+              "word": "define/definition",
+              "difficulty": "seed",
+              "common_wrong_spellings": []
+            },
+            {
+              "word": "electric/electricity",
+              "difficulty": "seed",
+              "common_wrong_spellings": []
+            }
+          ],
+          "developmental_foundation": "Morphological awareness",
+          "unsupported_runtime_notes": [
+            "Task templates and family-level mappings are repo artifacts/config until dedicated schema exists.",
+            "Resolver adoption is intentionally separate from taxonomy seeding."
+          ]
+        },
+        "created_at": "2026-06-07T19:09:32.69761+00:00",
+        "updated_at": "2026-06-07T19:09:32.69761+00:00"
+      },
+      {
+        "id": "61bc4d85-909f-4390-8b0a-b3696081cc5f",
+        "mastery_domain_key": "D4",
+        "skill_family_key": "D4_MOR",
+        "skill_cluster_key": "D4_MOR_WORD_FAMILIES",
+        "micro_skill_key": "D4_MOR_WORD_FAMILIES_RELATED_WORD_SUPPORT",
+        "display_name": "Use related words to support spelling",
+        "practice_route": "word_practice",
+        "is_assignable": true,
+        "is_active": true,
+        "allowed_template_keys": [
+          "T02",
+          "T01",
+          "T04",
+          "T03",
+          "T05",
+          "T06",
+          "T09",
+          "T10",
+          "T11",
+          "T12"
+        ],
+        "metadata": {
+          "cluster_name": "Word families and related forms",
+          "seed_version": "domain4-seed-expansion-v1",
+          "example_words": [
+            "sign/signature",
+            "bomb/bombard",
+            "nature/natural",
+            "heal/health"
+          ],
+          "teaching_point": "A related word can make a hidden, unclear, or difficult spelling clearer.",
+          "source_workbook": "docs/D4 Seeding Map Finale Final.xlsx",
+          "starter_word_bank": [
+            {
+              "word": "sign/signature",
+              "difficulty": "seed",
+              "common_wrong_spellings": []
+            },
+            {
+              "word": "bomb/bombard",
+              "difficulty": "seed",
+              "common_wrong_spellings": []
+            },
+            {
+              "word": "nature/natural",
+              "difficulty": "seed",
+              "common_wrong_spellings": []
+            },
+            {
+              "word": "heal/health",
+              "difficulty": "seed",
+              "common_wrong_spellings": []
+            }
+          ],
+          "developmental_foundation": "Morphological awareness",
+          "unsupported_runtime_notes": [
+            "Task templates and family-level mappings are repo artifacts/config until dedicated schema exists.",
+            "Resolver adoption is intentionally separate from taxonomy seeding."
+          ]
+        },
+        "created_at": "2026-06-07T19:09:32.69761+00:00",
+        "updated_at": "2026-06-07T19:09:32.69761+00:00"
+      }
+    ],
+    "micro_skill_clusters": [
+      {
+        "id": "949f2dc4-8765-4ae9-bfe5-860283c4797e",
+        "mastery_domain_key": "D4",
+        "skill_family_key": "D4_MOR",
+        "skill_cluster_key": "D4_MOR_WORD_FAMILIES",
+        "display_name": "Word families and related forms",
+        "is_assignable": true,
+        "is_active": true,
+        "metadata": {
+          "purpose": "Use related words to support spelling, including pronunciation shifts",
+          "seed_version": "domain4-seed-expansion-v1",
+          "source_workbook": "docs/D4 Seeding Map Finale Final.xlsx"
+        },
+        "created_at": "2026-06-07T12:20:18.321538+00:00",
+        "updated_at": "2026-06-07T12:20:18.321538+00:00"
+      }
+    ]
+  },
+  "generatedAt": "2026-07-29T15:38:29.148Z",
+  "projectRef": "wwohrqtunajrbwxyssjf",
+  "referenceProof": {
+    "assignmentSnapshotReferences": 0,
+    "directReferenceSets": [
+      {
+        "column": "micro_skill_key",
+        "count": 2,
+        "table": "canonical_teaching_dictionary_content_versions"
+      },
+      {
+        "column": "micro_skill_key",
+        "count": 2,
+        "table": "canonical_teaching_dictionary_skill_level_allocation"
+      },
+      {
+        "column": "micro_skill_key",
+        "count": 3,
+        "table": "canonical_teaching_dictionary_word_support"
+      },
+      {
+        "column": "micro_skill_key",
+        "count": 2,
+        "table": "micro_skill_catalog"
+      },
+      {
+        "column": "skill_cluster_key",
+        "count": 2,
+        "table": "micro_skill_catalog"
+      },
+      {
+        "column": "skill_cluster_key",
+        "count": 1,
+        "table": "micro_skill_clusters"
+      }
+    ],
+    "readinessReportReferences": 2,
+    "taughtHistorySourceReferences": 0,
+    "unexpectedDirectReferences": []
+  },
+  "rowCounts": {
+    "canonical_teaching_dictionary_content_versions": 2,
+    "canonical_teaching_dictionary_field_reviews": 22,
+    "canonical_teaching_dictionary_readiness_reports": 2,
+    "canonical_teaching_dictionary_skill_level_allocation": 2,
+    "canonical_teaching_dictionary_word_support": 3,
+    "micro_skill_catalog": 2,
+    "micro_skill_clusters": 1
+  },
+  "targetCluster": "D4_MOR_WORD_FAMILIES",
+  "targetMicroSkills": [
+    "D4_MOR_WORD_FAMILIES_PRONUNCIATION_SHIFT",
+    "D4_MOR_WORD_FAMILIES_RELATED_WORD_SUPPORT"
+  ]
+}

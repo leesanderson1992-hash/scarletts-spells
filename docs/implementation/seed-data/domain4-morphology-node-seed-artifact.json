@@ -3,7 +3,7 @@
   "storage_type": "metadata_only_seed_rows",
   "assignable_in_mvp1": false,
   "reason": "The current runtime catalog requires an assignable practice_route. Morphology nodes are preserved here until the catalog can represent non-assignable nodes without fabricated routes.",
-  "morphology_node_count": 104,
+  "morphology_node_count": 96,
   "nodes": [
     {
       "cluster_id": "D4_MOR_BASE_WORDS",
@@ -498,110 +498,6 @@
         "bedroom",
         "raincoat",
         "notebook"
-      ]
-    },
-    {
-      "cluster_id": "D4_MOR_WORD_FAMILIES",
-      "family_id": "D4_MOR",
-      "cluster_name": "Word families",
-      "node_id": "D4_MOR_WORD_FAMILIES_FAMILY_BASE",
-      "node_name": "Use word family to preserve spelling",
-      "developmental_foundation": "Morphological spelling control",
-      "teaching_point": "Word parts and meaning help preserve spellings even when pronunciation changes or when words become longer.",
-      "example_words": [
-        "sign/signal",
-        "heal/health"
-      ]
-    },
-    {
-      "cluster_id": "D4_MOR_WORD_FAMILIES",
-      "family_id": "D4_MOR",
-      "cluster_name": "Word families",
-      "node_id": "D4_MOR_WORD_FAMILIES_FAMILY_VOWEL",
-      "node_name": "Use word family to recover hidden vowels",
-      "developmental_foundation": "Morphological spelling control",
-      "teaching_point": "Word parts and meaning help preserve spellings even when pronunciation changes or when words become longer.",
-      "example_words": [
-        "differ/different",
-        "define/definition"
-      ]
-    },
-    {
-      "cluster_id": "D4_MOR_WORD_FAMILIES",
-      "family_id": "D4_MOR",
-      "cluster_name": "Word families",
-      "node_id": "D4_MOR_WORD_FAMILIES_FAMILY_CONSONANT",
-      "node_name": "Use word family to recover hidden consonants",
-      "developmental_foundation": "Morphological spelling control",
-      "teaching_point": "Word parts and meaning help preserve spellings even when pronunciation changes or when words become longer.",
-      "example_words": [
-        "sign/signature",
-        "bomb/bombard"
-      ]
-    },
-    {
-      "cluster_id": "D4_MOR_WORD_FAMILIES",
-      "family_id": "D4_MOR",
-      "cluster_name": "Word families",
-      "node_id": "D4_MOR_WORD_FAMILIES_FAMILY_MEANING",
-      "node_name": "Use family meaning to choose spelling",
-      "developmental_foundation": "Morphological spelling control",
-      "teaching_point": "Word parts and meaning help preserve spellings even when pronunciation changes or when words become longer.",
-      "example_words": [
-        "magic/magician",
-        "music/musician"
-      ]
-    },
-    {
-      "cluster_id": "D4_MOR_WORD_FAMILIES",
-      "family_id": "D4_MOR",
-      "cluster_name": "Word families",
-      "node_id": "D4_MOR_WORD_FAMILIES_FAMILY_SUFFIX",
-      "node_name": "Spell word families with suffixes",
-      "developmental_foundation": "Morphological spelling control",
-      "teaching_point": "Word parts and meaning help preserve spellings even when pronunciation changes or when words become longer.",
-      "example_words": [
-        "act/action/active"
-      ]
-    },
-    {
-      "cluster_id": "D4_MOR_WORD_FAMILIES",
-      "family_id": "D4_MOR",
-      "cluster_name": "Word families",
-      "node_id": "D4_MOR_WORD_FAMILIES_FAMILY_STRESS",
-      "node_name": "Handle stress shifts in word families",
-      "developmental_foundation": "Morphological spelling control",
-      "teaching_point": "Word parts and meaning help preserve spellings even when pronunciation changes or when words become longer.",
-      "example_words": [
-        "photograph/photography"
-      ]
-    },
-    {
-      "cluster_id": "D4_MOR_WORD_FAMILIES",
-      "family_id": "D4_MOR",
-      "cluster_name": "Word families",
-      "node_id": "D4_MOR_WORD_FAMILIES_FAMILY_PROOF",
-      "node_name": "Proofread with word-family support",
-      "developmental_foundation": "Morphological spelling control",
-      "teaching_point": "Word parts and meaning help preserve spellings even when pronunciation changes or when words become longer.",
-      "example_words": [
-        "sinature/signature",
-        "difrent/different"
-      ]
-    },
-    {
-      "cluster_id": "D4_MOR_WORD_FAMILIES",
-      "family_id": "D4_MOR",
-      "cluster_name": "Word families",
-      "node_id": "D4_MOR_WORD_FAMILIES_FAMILY_REVIEW",
-      "node_name": "Review word-family spelling",
-      "developmental_foundation": "Morphological spelling control",
-      "teaching_point": "Word parts and meaning help preserve spellings even when pronunciation changes or when words become longer.",
-      "example_words": [
-        "sign",
-        "signal",
-        "signature",
-        "design"
       ]
     },
     {

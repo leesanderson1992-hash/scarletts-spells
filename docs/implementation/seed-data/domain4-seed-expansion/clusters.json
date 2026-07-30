@@ -468,19 +468,6 @@
     "skill_family_key": "D4_MOR"
   },
   {
-    "display_name": "Word families and related forms",
-    "is_active": true,
-    "is_assignable": true,
-    "mastery_domain_key": "D4",
-    "metadata": {
-      "purpose": "Use related words to support spelling, including pronunciation shifts",
-      "seed_version": "domain4-seed-expansion-v1",
-      "source_workbook": "docs/D4 Seeding Map Finale Final.xlsx"
-    },
-    "skill_cluster_key": "D4_MOR_WORD_FAMILIES",
-    "skill_family_key": "D4_MOR"
-  },
-  {
     "display_name": "Greek and Latin roots",
     "is_active": true,
     "is_assignable": true,

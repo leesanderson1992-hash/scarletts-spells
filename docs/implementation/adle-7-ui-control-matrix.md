@@ -24,8 +24,14 @@ The global control matrix is generated from the current repository taxonomy at:
 Current inventory:
 
 - 8 ADLE family categories.
-- 240 active D4 micro-skills in programme scope.
-- 24 D4_MOR micro-skills have draft authored category source from the retained workbook.
+- 241 active D4 micro-skills in current programme scope.
+- 25 current D4_MOR micro-skills: 18 production-enabled first-impression
+  lessons, 2 later-phase base-word transfer skills, and 5 awaiting
+  first-impression implementation.
+- The frozen July 2026 D4_MOR package remains immutable historical evidence
+  for its original 24-key taxonomy. Its two word-family keys are retired from
+  current taxonomy; later `-ly`, `-tion`, and `-sion` additions are current
+  live taxonomy but were not part of that historical package.
 - Non-morphology categories are intentionally visible as `unaudited_not_started` or `not_started` so they remain in programme scope.
 
 Current family counts:
@@ -35,7 +41,7 @@ Current family counts:
 | D4_PG | 116 |
 | D4_PAT | 28 |
 | D4_INF | 28 |
-| D4_MOR | 24 |
+| D4_MOR | 25 |
 | D4_SYL | 17 |
 | D4_HOM | 13 |
 | D4_SCHWA | 9 |

@@ -1,0 +1,574 @@
+{
+  "schemaVersion": "d4_mor_morphology_profile_package_v1",
+  "contentVersion": "d4_mor_remaining_profiles_v1_2026_07_29",
+  "profileType": "root",
+  "microSkillKey": "D4_MOR_ROOTS_ROOT_FAMILY_SPELLING",
+  "stagingEnabled": false,
+  "productionEnabled": false,
+  "runtimeSelectionAllowed": false,
+  "profileReviewStatus": "profile_specific_human_review_required",
+  "reviewBoundary": "Roster, teaching source and historical analyses are human-reviewed. The new profile reflection/shape and released dictionary facts require their own approval before staging activation.",
+  "reviewedIntroduction": {
+    "title": "Root families keep their spelling",
+    "childFriendlyExplanation": "A root is the family surname — it's spelled the same on every family member. act: act, actor, action, active, react. The endings change, the sounds shift, but a-c-t never breaks.",
+    "ruleExplanation": "Root spelling is invariant across derivatives: act/action/actor, medic/medical/medicine, sign/signal/signature. Anchor the root, then vary the affixes.",
+    "watchForCue": "Learn the surname once — act, medic, sign — and trust it in every relative, whatever the ending sounds like.",
+    "sourceApprovalStatus": "human_approved",
+    "sourceReviewerDecision": "approved"
+  },
+  "reflection": {
+    "promptKey": "root-family-stable-spelling-v1",
+    "promptText": "What spelling stayed the same across this root family?",
+    "reviewStatus": "profile_specific_human_review_required"
+  },
+  "immutableLessonShape": {
+    "itemCount": 16,
+    "guidedShape": [
+      "two root-family discoveries",
+      "four meaning matches"
+    ],
+    "independentProduction": [
+      "one controlled spelling item per roster word",
+      "one reviewed full-sentence dictation per roster word"
+    ],
+    "guidedInteractionsInflateIndependentMastery": false
+  },
+  "selectionPolicy": {
+    "rosterSize": 4,
+    "selectionKind": "fixed_reviewed_profile_membership",
+    "requiresExplicitMembership": true,
+    "requiresExplicitTransferEligibility": true,
+    "existingAssignmentSnapshotsImmutable": true
+  },
+  "eligibilityRequirements": [
+    "active approved_for_first_exposure canonical identity",
+    "clean child-facing component/root meanings",
+    "clean child-facing whole-word meaning",
+    "reviewed child teaching decomposition",
+    "canonical ordered morphology parts",
+    "canonical morphology joins",
+    "canonical morphology transformations",
+    "canonical morphology notes and provenance",
+    "pronunciation, syllables, stress, schwa and phoneme facts",
+    "frequency, age and complexity bands",
+    "reviewed dictation sentence, audio text and complete target location",
+    "explicit profile membership",
+    "explicit transfer eligibility"
+  ],
+  "members": [
+    {
+      "displayWord": "action",
+      "assignmentEligible": false,
+      "transferEligible": false,
+      "runtimeReadiness": "blocked_pending_complete_released_dictionary_facts",
+      "approvedHistoricalAnalysis": {
+        "analysisKey": "D4_MOR_ROOTS_ROOT_FAMILY_SPELLING::action",
+        "microSkillKey": "D4_MOR_ROOTS_ROOT_FAMILY_SPELLING",
+        "displayWord": "action",
+        "role": "anchor",
+        "parts": [
+          {
+            "id": "part_1",
+            "kind": "root",
+            "morphemeKey": "root_ACT",
+            "sourceText": "act",
+            "surfaceText": "act",
+            "gloss": "do",
+            "displayRange": {
+              "start": 0,
+              "end": 3
+            },
+            "source": {
+              "morphemesJsonIndex": 0
+            }
+          },
+          {
+            "id": "part_2",
+            "kind": "suffix",
+            "morphemeKey": "suffix_ION",
+            "sourceText": "ion",
+            "surfaceText": "ion",
+            "gloss": "noun-maker",
+            "displayRange": {
+              "start": 3,
+              "end": 6
+            },
+            "source": {
+              "morphemesJsonIndex": 1
+            }
+          }
+        ],
+        "joins": [
+          {
+            "afterPartId": "part_1",
+            "beforePartId": "part_2",
+            "joinType": "none",
+            "surfaceText": "",
+            "displayRange": {
+              "start": 3,
+              "end": 3
+            }
+          }
+        ],
+        "joiningStrategy": "concatenate",
+        "transformations": [],
+        "derivedViewModel": {
+          "splitPoints": [
+            3
+          ]
+        },
+        "sourceSplitPoints": [
+          3
+        ],
+        "validation": {
+          "status": "pass",
+          "reconstructedDisplayWord": "action",
+          "warnings": []
+        },
+        "source": {
+          "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+          "sheet": "Word Bank",
+          "row": 163
+        },
+        "sourceCandidateStatus": "structurally_reconciled_candidate",
+        "approvalStatus": "human_approved",
+        "humanReviewStatus": "approved",
+        "approvalScope": "d4_mor_category_v1",
+        "activationStatus": "not_activated",
+        "runtimeEnabled": false
+      }
+    },
+    {
+      "displayWord": "active",
+      "assignmentEligible": false,
+      "transferEligible": false,
+      "runtimeReadiness": "blocked_pending_complete_released_dictionary_facts",
+      "approvedHistoricalAnalysis": {
+        "analysisKey": "D4_MOR_ROOTS_ROOT_FAMILY_SPELLING::active",
+        "microSkillKey": "D4_MOR_ROOTS_ROOT_FAMILY_SPELLING",
+        "displayWord": "active",
+        "role": "lesson_word",
+        "parts": [
+          {
+            "id": "part_1",
+            "kind": "root",
+            "morphemeKey": "root_ACT",
+            "sourceText": "act",
+            "surfaceText": "act",
+            "gloss": "do",
+            "displayRange": {
+              "start": 0,
+              "end": 3
+            },
+            "source": {
+              "morphemesJsonIndex": 0
+            }
+          },
+          {
+            "id": "part_2",
+            "kind": "suffix",
+            "morphemeKey": null,
+            "sourceText": "ive",
+            "surfaceText": "ive",
+            "gloss": "adjective ending",
+            "displayRange": {
+              "start": 3,
+              "end": 6
+            },
+            "source": {
+              "morphemesJsonIndex": 1
+            }
+          }
+        ],
+        "joins": [
+          {
+            "afterPartId": "part_1",
+            "beforePartId": "part_2",
+            "joinType": "none",
+            "surfaceText": "",
+            "displayRange": {
+              "start": 3,
+              "end": 3
+            }
+          }
+        ],
+        "joiningStrategy": "concatenate",
+        "transformations": [],
+        "derivedViewModel": {
+          "splitPoints": [
+            3
+          ]
+        },
+        "sourceSplitPoints": [
+          3
+        ],
+        "validation": {
+          "status": "pass",
+          "reconstructedDisplayWord": "active",
+          "warnings": []
+        },
+        "source": {
+          "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+          "sheet": "Word Bank",
+          "row": 165
+        },
+        "sourceCandidateStatus": "structurally_reconciled_candidate",
+        "approvalStatus": "human_approved",
+        "humanReviewStatus": "approved",
+        "approvalScope": "d4_mor_category_v1",
+        "activationStatus": "not_activated",
+        "runtimeEnabled": false
+      }
+    },
+    {
+      "displayWord": "actor",
+      "assignmentEligible": false,
+      "transferEligible": false,
+      "runtimeReadiness": "blocked_pending_complete_released_dictionary_facts",
+      "approvedHistoricalAnalysis": {
+        "analysisKey": "D4_MOR_ROOTS_ROOT_FAMILY_SPELLING::actor",
+        "microSkillKey": "D4_MOR_ROOTS_ROOT_FAMILY_SPELLING",
+        "displayWord": "actor",
+        "role": "lesson_word",
+        "parts": [
+          {
+            "id": "part_1",
+            "kind": "root",
+            "morphemeKey": "root_ACT",
+            "sourceText": "act",
+            "surfaceText": "act",
+            "gloss": "do",
+            "displayRange": {
+              "start": 0,
+              "end": 3
+            },
+            "source": {
+              "morphemesJsonIndex": 0
+            }
+          },
+          {
+            "id": "part_2",
+            "kind": "suffix",
+            "morphemeKey": null,
+            "sourceText": "or",
+            "surfaceText": "or",
+            "gloss": "one who",
+            "displayRange": {
+              "start": 3,
+              "end": 5
+            },
+            "source": {
+              "morphemesJsonIndex": 1
+            }
+          }
+        ],
+        "joins": [
+          {
+            "afterPartId": "part_1",
+            "beforePartId": "part_2",
+            "joinType": "none",
+            "surfaceText": "",
+            "displayRange": {
+              "start": 3,
+              "end": 3
+            }
+          }
+        ],
+        "joiningStrategy": "concatenate",
+        "transformations": [],
+        "derivedViewModel": {
+          "splitPoints": [
+            3
+          ]
+        },
+        "sourceSplitPoints": [
+          3
+        ],
+        "validation": {
+          "status": "pass",
+          "reconstructedDisplayWord": "actor",
+          "warnings": []
+        },
+        "source": {
+          "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+          "sheet": "Word Bank",
+          "row": 164
+        },
+        "sourceCandidateStatus": "structurally_reconciled_candidate",
+        "approvalStatus": "human_approved",
+        "humanReviewStatus": "approved",
+        "approvalScope": "d4_mor_category_v1",
+        "activationStatus": "not_activated",
+        "runtimeEnabled": false
+      }
+    },
+    {
+      "displayWord": "react",
+      "assignmentEligible": false,
+      "transferEligible": false,
+      "runtimeReadiness": "blocked_pending_complete_released_dictionary_facts",
+      "approvedHistoricalAnalysis": {
+        "analysisKey": "D4_MOR_ROOTS_ROOT_FAMILY_SPELLING::react",
+        "microSkillKey": "D4_MOR_ROOTS_ROOT_FAMILY_SPELLING",
+        "displayWord": "react",
+        "role": "lesson_word",
+        "parts": [
+          {
+            "id": "part_1",
+            "kind": "prefix",
+            "morphemeKey": "prefix_RE",
+            "sourceText": "re",
+            "surfaceText": "re",
+            "gloss": "back / again",
+            "displayRange": {
+              "start": 0,
+              "end": 2
+            },
+            "source": {
+              "morphemesJsonIndex": 0
+            }
+          },
+          {
+            "id": "part_2",
+            "kind": "root",
+            "morphemeKey": "root_ACT",
+            "sourceText": "act",
+            "surfaceText": "act",
+            "gloss": "do",
+            "displayRange": {
+              "start": 2,
+              "end": 5
+            },
+            "source": {
+              "morphemesJsonIndex": 1
+            }
+          }
+        ],
+        "joins": [
+          {
+            "afterPartId": "part_1",
+            "beforePartId": "part_2",
+            "joinType": "none",
+            "surfaceText": "",
+            "displayRange": {
+              "start": 2,
+              "end": 2
+            }
+          }
+        ],
+        "joiningStrategy": "concatenate",
+        "transformations": [],
+        "derivedViewModel": {
+          "splitPoints": [
+            2
+          ]
+        },
+        "sourceSplitPoints": [
+          2
+        ],
+        "validation": {
+          "status": "pass",
+          "reconstructedDisplayWord": "react",
+          "warnings": []
+        },
+        "source": {
+          "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+          "sheet": "Word Bank",
+          "row": 166
+        },
+        "sourceCandidateStatus": "structurally_reconciled_candidate",
+        "approvalStatus": "human_approved",
+        "humanReviewStatus": "approved",
+        "approvalScope": "d4_mor_category_v1",
+        "activationStatus": "not_activated",
+        "runtimeEnabled": false
+      }
+    }
+  ],
+  "approvedHistoricalDistractors": {
+    "microSkillKey": "D4_MOR_ROOTS_ROOT_FAMILY_SPELLING",
+    "distractors": [
+      {
+        "distractorKey": "D4_MOR_ROOTS_ROOT_FAMILY_SPELLING::distractor_1",
+        "displayText": "acshun",
+        "rationale": "",
+        "identity": "distractor"
+      },
+      {
+        "distractorKey": "D4_MOR_ROOTS_ROOT_FAMILY_SPELLING::distractor_2",
+        "displayText": "medisin",
+        "rationale": "",
+        "identity": "distractor"
+      },
+      {
+        "distractorKey": "D4_MOR_ROOTS_ROOT_FAMILY_SPELLING::distractor_3",
+        "displayText": "akt",
+        "rationale": "",
+        "identity": "distractor"
+      }
+    ],
+    "designNote": "family-breaking respellings",
+    "source": {
+      "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+      "sheet": "Distractor Tiles",
+      "row": 25
+    },
+    "sourceCandidateStatus": "structurally_reconciled_candidate",
+    "approvalStatus": "human_approved",
+    "humanReviewStatus": "approved",
+    "approvalScope": "d4_mor_category_v1",
+    "activationStatus": "not_activated",
+    "runtimeEnabled": false
+  },
+  "referencedMorphemes": [
+    {
+      "morphemeKey": "prefix_RE",
+      "kind": "prefix",
+      "canonicalText": "re",
+      "gloss": "again / back",
+      "function": "repeats an action",
+      "exampleWords": [
+        "replay",
+        "rebuild",
+        "return",
+        "redo",
+        "rewrite"
+      ],
+      "distractorGlosses": [
+        "not",
+        "before",
+        "wrongly"
+      ],
+      "variantGroupKey": null,
+      "variantOf": null,
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Morpheme Glosses",
+        "row": 3,
+        "sourceValue": "re"
+      },
+      "sourceCandidateStatus": "structurally_reconciled_candidate",
+      "approvalStatus": "human_approved",
+      "humanReviewStatus": "approved",
+      "approvalScope": "d4_mor_category_v1",
+      "activationStatus": "not_activated",
+      "runtimeEnabled": false
+    },
+    {
+      "morphemeKey": "root_ACT",
+      "kind": "root",
+      "canonicalText": "act",
+      "gloss": "do (Latin)",
+      "function": "",
+      "exampleWords": [
+        "act",
+        "action",
+        "actor",
+        "active",
+        "react"
+      ],
+      "distractorGlosses": [
+        "see",
+        "say",
+        "build"
+      ],
+      "variantGroupKey": null,
+      "variantOf": null,
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Morpheme Glosses",
+        "row": 32,
+        "sourceValue": "act"
+      },
+      "sourceCandidateStatus": "structurally_reconciled_candidate",
+      "approvalStatus": "human_approved",
+      "humanReviewStatus": "approved",
+      "approvalScope": "d4_mor_category_v1",
+      "activationStatus": "not_activated",
+      "runtimeEnabled": false
+    },
+    {
+      "morphemeKey": "suffix_ION",
+      "kind": "suffix",
+      "canonicalText": "ion",
+      "gloss": "act or result of (noun-maker)",
+      "function": "verb → noun",
+      "exampleWords": [
+        "action",
+        "construction",
+        "prediction"
+      ],
+      "distractorGlosses": [
+        "full of",
+        "without",
+        "can be done"
+      ],
+      "variantGroupKey": null,
+      "variantOf": null,
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Morpheme Glosses",
+        "row": 25,
+        "sourceValue": "ion"
+      },
+      "sourceCandidateStatus": "structurally_reconciled_candidate",
+      "approvalStatus": "human_approved",
+      "humanReviewStatus": "approved",
+      "approvalScope": "d4_mor_category_v1",
+      "activationStatus": "not_activated",
+      "runtimeEnabled": false
+    }
+  ],
+  "provenance": {
+    "approvedManifest": "data/adle/approved/d4-mor/v1/d4-mor-v1-manifest.json",
+    "approvedContent": "data/adle/approved/d4-mor/v1/d4-mor-v1-content.json",
+    "approvedWordAnalyses": "data/adle/approved/d4-mor/v1/d4-mor-v1-word-analyses.json",
+    "approvedMorphemeCatalog": "data/adle/approved/d4-mor/v1/d4-mor-v1-morpheme-catalog.json",
+    "currentTaxonomy": "docs/implementation/seed-data/domain4-seed-expansion/micro-skills.json",
+    "approvedManifestSha256": "c279282665e8653ae18a4d72d7c9c35424a8e84224513d093ee62fb150d6af7a",
+    "currentTaxonomySha256": "b91de6ebb3a6e41fb8bf1f41792187dd4bebedcc6837ec86cb1c395ed5235511"
+  },
+  "rootKind": "root_family",
+  "rootContract": {
+    "identityFields": [
+      "root identity",
+      "surface form",
+      "meaning",
+      "origin",
+      "variant group",
+      "artifact-card facts"
+    ],
+    "canonicalMorphologyAuthoritative": true,
+    "letterSubstringNeverImpliesEligibility": true
+  },
+  "rootArtifacts": [
+    {
+      "rootArtifactKey": "ROOT_ACT",
+      "rootText": "act",
+      "themeKey": "latin",
+      "meaning": "do",
+      "originLine": "Latin agere/actus, 'to do'",
+      "descendantWords": [
+        "act",
+        "action",
+        "actor",
+        "react"
+      ],
+      "microLore": "An actor is a do-er; a reaction is a doing-back.",
+      "variantGroupKey": null,
+      "variantOf": null,
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Root Artifact Cards",
+        "row": 8,
+        "sourceValue": "act"
+      },
+      "sourceCandidateStatus": "structurally_reconciled_candidate",
+      "approvalStatus": "human_approved",
+      "humanReviewStatus": "approved",
+      "approvalScope": "d4_mor_category_v1",
+      "activationStatus": "not_activated",
+      "runtimeEnabled": false
+    }
+  ]
+}

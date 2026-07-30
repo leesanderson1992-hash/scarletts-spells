@@ -1,0 +1,438 @@
+{
+  "schemaVersion": "d4_mor_morphology_profile_package_v1",
+  "contentVersion": "d4_mor_remaining_profiles_v1_2026_07_29",
+  "profileType": "compound",
+  "microSkillKey": "D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS",
+  "stagingEnabled": false,
+  "productionEnabled": false,
+  "runtimeSelectionAllowed": false,
+  "profileReviewStatus": "profile_specific_human_review_required",
+  "reviewBoundary": "Roster, teaching source and historical analyses are human-reviewed. The new profile reflection/shape and released dictionary facts require their own approval before staging activation.",
+  "reviewedIntroduction": {
+    "title": "Closed compound words",
+    "childFriendlyExplanation": "Some words are two whole words glued into one: foot + ball = football, rain + bow = rainbow. Both little words keep ALL their letters — two Keepers, one word.",
+    "ruleExplanation": "Closed compounds join two complete base words with no letters lost, even where letters double up at the join: book + keeper = bookkeeper.",
+    "watchForCue": "Find BOTH little words first. Spell each one whole, then push them together — nothing falls off at the join.",
+    "sourceApprovalStatus": "human_approved",
+    "sourceReviewerDecision": "approved"
+  },
+  "reflection": {
+    "promptKey": "closed-compounds-two-bases-v1",
+    "promptText": "How do the two smaller words help you spell a closed compound?",
+    "reviewStatus": "profile_specific_human_review_required"
+  },
+  "immutableLessonShape": {
+    "itemCount": 16,
+    "guidedShape": [
+      "two discovery/build interactions",
+      "four meaning matches"
+    ],
+    "independentProduction": [
+      "one controlled spelling item per roster word",
+      "one reviewed full-sentence dictation per roster word"
+    ],
+    "guidedInteractionsInflateIndependentMastery": false
+  },
+  "selectionPolicy": {
+    "rosterSize": 4,
+    "selectionKind": "fixed_reviewed_profile_membership",
+    "requiresExplicitMembership": true,
+    "requiresExplicitTransferEligibility": true,
+    "existingAssignmentSnapshotsImmutable": true
+  },
+  "eligibilityRequirements": [
+    "active approved_for_first_exposure canonical identity",
+    "clean child-facing component/root meanings",
+    "clean child-facing whole-word meaning",
+    "reviewed child teaching decomposition",
+    "canonical ordered morphology parts",
+    "canonical morphology joins",
+    "canonical morphology transformations",
+    "canonical morphology notes and provenance",
+    "pronunciation, syllables, stress, schwa and phoneme facts",
+    "frequency, age and complexity bands",
+    "reviewed dictation sentence, audio text and complete target location",
+    "explicit profile membership",
+    "explicit transfer eligibility"
+  ],
+  "members": [
+    {
+      "displayWord": "football",
+      "assignmentEligible": false,
+      "transferEligible": false,
+      "runtimeReadiness": "blocked_pending_complete_released_dictionary_facts",
+      "approvedHistoricalAnalysis": {
+        "analysisKey": "D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS::football",
+        "microSkillKey": "D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS",
+        "displayWord": "football",
+        "role": "anchor",
+        "parts": [
+          {
+            "id": "part_1",
+            "kind": "base",
+            "morphemeKey": null,
+            "sourceText": "foot",
+            "surfaceText": "foot",
+            "gloss": "",
+            "displayRange": {
+              "start": 0,
+              "end": 4
+            },
+            "source": {
+              "morphemesJsonIndex": 0
+            }
+          },
+          {
+            "id": "part_2",
+            "kind": "base",
+            "morphemeKey": null,
+            "sourceText": "ball",
+            "surfaceText": "ball",
+            "gloss": "",
+            "displayRange": {
+              "start": 4,
+              "end": 8
+            },
+            "source": {
+              "morphemesJsonIndex": 1
+            }
+          }
+        ],
+        "joins": [
+          {
+            "afterPartId": "part_1",
+            "beforePartId": "part_2",
+            "joinType": "none",
+            "surfaceText": "",
+            "displayRange": {
+              "start": 4,
+              "end": 4
+            }
+          }
+        ],
+        "joiningStrategy": "concatenate",
+        "transformations": [],
+        "derivedViewModel": {
+          "splitPoints": [
+            4
+          ]
+        },
+        "sourceSplitPoints": [
+          4
+        ],
+        "validation": {
+          "status": "pass",
+          "reconstructedDisplayWord": "football",
+          "warnings": []
+        },
+        "source": {
+          "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+          "sheet": "Word Bank",
+          "row": 114
+        },
+        "sourceCandidateStatus": "structurally_reconciled_candidate",
+        "approvalStatus": "human_approved",
+        "humanReviewStatus": "approved",
+        "approvalScope": "d4_mor_category_v1",
+        "activationStatus": "not_activated",
+        "runtimeEnabled": false
+      }
+    },
+    {
+      "displayWord": "bedroom",
+      "assignmentEligible": false,
+      "transferEligible": false,
+      "runtimeReadiness": "blocked_pending_complete_released_dictionary_facts",
+      "approvedHistoricalAnalysis": {
+        "analysisKey": "D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS::bedroom",
+        "microSkillKey": "D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS",
+        "displayWord": "bedroom",
+        "role": "lesson_word",
+        "parts": [
+          {
+            "id": "part_1",
+            "kind": "base",
+            "morphemeKey": null,
+            "sourceText": "bed",
+            "surfaceText": "bed",
+            "gloss": "",
+            "displayRange": {
+              "start": 0,
+              "end": 3
+            },
+            "source": {
+              "morphemesJsonIndex": 0
+            }
+          },
+          {
+            "id": "part_2",
+            "kind": "base",
+            "morphemeKey": null,
+            "sourceText": "room",
+            "surfaceText": "room",
+            "gloss": "",
+            "displayRange": {
+              "start": 3,
+              "end": 7
+            },
+            "source": {
+              "morphemesJsonIndex": 1
+            }
+          }
+        ],
+        "joins": [
+          {
+            "afterPartId": "part_1",
+            "beforePartId": "part_2",
+            "joinType": "none",
+            "surfaceText": "",
+            "displayRange": {
+              "start": 3,
+              "end": 3
+            }
+          }
+        ],
+        "joiningStrategy": "concatenate",
+        "transformations": [],
+        "derivedViewModel": {
+          "splitPoints": [
+            3
+          ]
+        },
+        "sourceSplitPoints": [
+          3
+        ],
+        "validation": {
+          "status": "pass",
+          "reconstructedDisplayWord": "bedroom",
+          "warnings": []
+        },
+        "source": {
+          "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+          "sheet": "Word Bank",
+          "row": 116
+        },
+        "sourceCandidateStatus": "structurally_reconciled_candidate",
+        "approvalStatus": "human_approved",
+        "humanReviewStatus": "approved",
+        "approvalScope": "d4_mor_category_v1",
+        "activationStatus": "not_activated",
+        "runtimeEnabled": false
+      }
+    },
+    {
+      "displayWord": "playground",
+      "assignmentEligible": false,
+      "transferEligible": false,
+      "runtimeReadiness": "blocked_pending_complete_released_dictionary_facts",
+      "approvedHistoricalAnalysis": {
+        "analysisKey": "D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS::playground",
+        "microSkillKey": "D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS",
+        "displayWord": "playground",
+        "role": "lesson_word",
+        "parts": [
+          {
+            "id": "part_1",
+            "kind": "base",
+            "morphemeKey": null,
+            "sourceText": "play",
+            "surfaceText": "play",
+            "gloss": "",
+            "displayRange": {
+              "start": 0,
+              "end": 4
+            },
+            "source": {
+              "morphemesJsonIndex": 0
+            }
+          },
+          {
+            "id": "part_2",
+            "kind": "base",
+            "morphemeKey": null,
+            "sourceText": "ground",
+            "surfaceText": "ground",
+            "gloss": "",
+            "displayRange": {
+              "start": 4,
+              "end": 10
+            },
+            "source": {
+              "morphemesJsonIndex": 1
+            }
+          }
+        ],
+        "joins": [
+          {
+            "afterPartId": "part_1",
+            "beforePartId": "part_2",
+            "joinType": "none",
+            "surfaceText": "",
+            "displayRange": {
+              "start": 4,
+              "end": 4
+            }
+          }
+        ],
+        "joiningStrategy": "concatenate",
+        "transformations": [],
+        "derivedViewModel": {
+          "splitPoints": [
+            4
+          ]
+        },
+        "sourceSplitPoints": [
+          4
+        ],
+        "validation": {
+          "status": "pass",
+          "reconstructedDisplayWord": "playground",
+          "warnings": []
+        },
+        "source": {
+          "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+          "sheet": "Word Bank",
+          "row": 118
+        },
+        "sourceCandidateStatus": "structurally_reconciled_candidate",
+        "approvalStatus": "human_approved",
+        "humanReviewStatus": "approved",
+        "approvalScope": "d4_mor_category_v1",
+        "activationStatus": "not_activated",
+        "runtimeEnabled": false
+      }
+    },
+    {
+      "displayWord": "rainbow",
+      "assignmentEligible": false,
+      "transferEligible": false,
+      "runtimeReadiness": "blocked_pending_complete_released_dictionary_facts",
+      "approvedHistoricalAnalysis": {
+        "analysisKey": "D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS::rainbow",
+        "microSkillKey": "D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS",
+        "displayWord": "rainbow",
+        "role": "lesson_word",
+        "parts": [
+          {
+            "id": "part_1",
+            "kind": "base",
+            "morphemeKey": null,
+            "sourceText": "rain",
+            "surfaceText": "rain",
+            "gloss": "",
+            "displayRange": {
+              "start": 0,
+              "end": 4
+            },
+            "source": {
+              "morphemesJsonIndex": 0
+            }
+          },
+          {
+            "id": "part_2",
+            "kind": "base",
+            "morphemeKey": null,
+            "sourceText": "bow",
+            "surfaceText": "bow",
+            "gloss": "",
+            "displayRange": {
+              "start": 4,
+              "end": 7
+            },
+            "source": {
+              "morphemesJsonIndex": 1
+            }
+          }
+        ],
+        "joins": [
+          {
+            "afterPartId": "part_1",
+            "beforePartId": "part_2",
+            "joinType": "none",
+            "surfaceText": "",
+            "displayRange": {
+              "start": 4,
+              "end": 4
+            }
+          }
+        ],
+        "joiningStrategy": "concatenate",
+        "transformations": [],
+        "derivedViewModel": {
+          "splitPoints": [
+            4
+          ]
+        },
+        "sourceSplitPoints": [
+          4
+        ],
+        "validation": {
+          "status": "pass",
+          "reconstructedDisplayWord": "rainbow",
+          "warnings": []
+        },
+        "source": {
+          "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+          "sheet": "Word Bank",
+          "row": 115
+        },
+        "sourceCandidateStatus": "structurally_reconciled_candidate",
+        "approvalStatus": "human_approved",
+        "humanReviewStatus": "approved",
+        "approvalScope": "d4_mor_category_v1",
+        "activationStatus": "not_activated",
+        "runtimeEnabled": false
+      }
+    }
+  ],
+  "approvedHistoricalDistractors": {
+    "microSkillKey": "D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS",
+    "distractors": [
+      {
+        "distractorKey": "D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS::distractor_1",
+        "displayText": "futball",
+        "rationale": "corrupted first base",
+        "identity": "distractor"
+      },
+      {
+        "distractorKey": "D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS::distractor_2",
+        "displayText": "bal",
+        "rationale": "letter lost at join",
+        "identity": "distractor"
+      }
+    ],
+    "designNote": "corrupted/clipped base tiles",
+    "source": {
+      "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+      "sheet": "Distractor Tiles",
+      "row": 18
+    },
+    "sourceCandidateStatus": "structurally_reconciled_candidate",
+    "approvalStatus": "human_approved",
+    "humanReviewStatus": "approved",
+    "approvalScope": "d4_mor_category_v1",
+    "activationStatus": "not_activated",
+    "runtimeEnabled": false
+  },
+  "referencedMorphemes": [],
+  "provenance": {
+    "approvedManifest": "data/adle/approved/d4-mor/v1/d4-mor-v1-manifest.json",
+    "approvedContent": "data/adle/approved/d4-mor/v1/d4-mor-v1-content.json",
+    "approvedWordAnalyses": "data/adle/approved/d4-mor/v1/d4-mor-v1-word-analyses.json",
+    "approvedMorphemeCatalog": "data/adle/approved/d4-mor/v1/d4-mor-v1-morpheme-catalog.json",
+    "currentTaxonomy": "docs/implementation/seed-data/domain4-seed-expansion/micro-skills.json",
+    "approvedManifestSha256": "c279282665e8653ae18a4d72d7c9c35424a8e84224513d093ee62fb150d6af7a",
+    "currentTaxonomySha256": "b91de6ebb3a6e41fb8bf1f41792187dd4bebedcc6837ec86cb1c395ed5235511"
+  },
+  "compoundKind": "closed",
+  "compoundContract": {
+    "joinsAreTeachingFacts": [
+      "none",
+      "space",
+      "hyphen"
+    ],
+    "answerComparison": "separator_significant",
+    "forbiddenNormaliser": "affix_normaliser_that_removes_spacing_or_punctuation",
+    "dictationTargetLocation": "reviewed_single_token_or_exact_span"
+  }
+}

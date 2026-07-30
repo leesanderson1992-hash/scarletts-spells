@@ -7962,7 +7962,7 @@
           "word": "watch"
         }
       ],
-      "teaching_point": "After w, the letter a often sounds like /o/ or /\u0252/ rather than short /a/.",
+      "teaching_point": "After w, the letter a often sounds like /o/ or /ɒ/ rather than short /a/.",
       "unsupported_runtime_notes": [
         "Task templates and family-level mappings are repo artifacts/config until dedicated schema exists.",
         "Resolver adoption is intentionally separate from taxonomy seeding."
@@ -9172,7 +9172,7 @@
           "word": "should"
         }
       ],
-      "teaching_point": "The common words could, would, and should are spelled with ould. The mnemonic \u201cOh U Lucky Duck\u201d can help children remember the unusual ould letter string.",
+      "teaching_point": "The common words could, would, and should are spelled with ould. The mnemonic “Oh U Lucky Duck” can help children remember the unusual ould letter string.",
       "unsupported_runtime_notes": [
         "Task templates and family-level mappings are repo artifacts/config until dedicated schema exists.",
         "Resolver adoption is intentionally separate from taxonomy seeding."
@@ -10497,7 +10497,7 @@
           "word": "unkind"
         }
       ],
-      "teaching_point": "The prefix un- is added before a base word and usually means \u201cnot\u201d or \u201copposite of\u201d; the base word is usually preserved.",
+      "teaching_point": "The prefix un- is added before a base word and usually means “not” or “opposite of”; the base word is usually preserved.",
       "unsupported_runtime_notes": [
         "Task templates and family-level mappings are repo artifacts/config until dedicated schema exists.",
         "Resolver adoption is intentionally separate from taxonomy seeding."
@@ -11168,13 +11168,110 @@
           "word": "visible"
         }
       ],
-      "teaching_point": "The suffixes -able and -ible are stable endings meaning \u201cable to be\u201d or \u201ccapable of\u201d.",
+      "teaching_point": "The suffixes -able and -ible are stable endings meaning “able to be” or “capable of”.",
       "unsupported_runtime_notes": [
         "Task templates and family-level mappings are repo artifacts/config until dedicated schema exists.",
         "Resolver adoption is intentionally separate from taxonomy seeding."
       ]
     },
     "micro_skill_key": "D4_MOR_SUFFIXES_ABLE_IBLE",
+    "practice_route": "word_practice",
+    "skill_cluster_key": "D4_MOR_SUFFIXES",
+    "skill_family_key": "D4_MOR"
+  },
+  {
+    "allowed_template_keys": [
+      "T01",
+      "T02",
+      "T03",
+      "T04",
+      "T05",
+      "T06"
+    ],
+    "display_name": "Spell words with suffix -ly",
+    "is_active": true,
+    "is_assignable": true,
+    "mastery_domain_key": "D4",
+    "metadata": {
+      "example_words": [
+        "quickly",
+        "slowly",
+        "quietly",
+        "happily"
+      ],
+      "seed_version": "dynamic-suffix-ly-v1"
+    },
+    "micro_skill_key": "D4_MOR_SUFFIXES_LY",
+    "practice_route": "word_practice",
+    "skill_cluster_key": "D4_MOR_SUFFIXES",
+    "skill_family_key": "D4_MOR"
+  },
+  {
+    "allowed_template_keys": [
+      "T02",
+      "T01",
+      "T04",
+      "T03",
+      "T05",
+      "T06",
+      "T09",
+      "T10",
+      "T11",
+      "T12"
+    ],
+    "display_name": "Spell words with suffix -sion",
+    "is_active": true,
+    "is_assignable": true,
+    "mastery_domain_key": "D4",
+    "metadata": {
+      "cluster_name": "Derivational suffixes",
+      "developmental_foundation": "Morphological awareness",
+      "example_words": [
+        "decision",
+        "division",
+        "confusion",
+        "expansion"
+      ],
+      "seed_version": "dynamic-suffix-sion-production-v1",
+      "source_workbook": "reviewed dynamic suffix -sion package",
+      "teaching_point": "The suffix -sion usually forms a noun for an action, process or result."
+    },
+    "micro_skill_key": "D4_MOR_SUFFIXES_SION",
+    "practice_route": "word_practice",
+    "skill_cluster_key": "D4_MOR_SUFFIXES",
+    "skill_family_key": "D4_MOR"
+  },
+  {
+    "allowed_template_keys": [
+      "T02",
+      "T01",
+      "T04",
+      "T03",
+      "T05",
+      "T06",
+      "T09",
+      "T10",
+      "T11",
+      "T12"
+    ],
+    "display_name": "Spell words with suffix -tion",
+    "is_active": true,
+    "is_assignable": true,
+    "mastery_domain_key": "D4",
+    "metadata": {
+      "cluster_name": "Derivational suffixes",
+      "developmental_foundation": "Morphological awareness",
+      "example_words": [
+        "action",
+        "invention",
+        "education",
+        "celebration"
+      ],
+      "seed_version": "dynamic-suffix-tion-production-v1",
+      "source_workbook": "reviewed dynamic suffix -tion package",
+      "teaching_point": "The suffix -tion usually forms a noun for an action, process or result."
+    },
+    "micro_skill_key": "D4_MOR_SUFFIXES_TION",
     "practice_route": "word_practice",
     "skill_cluster_key": "D4_MOR_SUFFIXES",
     "skill_family_key": "D4_MOR"
@@ -11299,128 +11396,6 @@
     "micro_skill_key": "D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED",
     "practice_route": "word_practice",
     "skill_cluster_key": "D4_MOR_COMPOUND_WORDS",
-    "skill_family_key": "D4_MOR"
-  },
-  {
-    "allowed_template_keys": [
-      "T02",
-      "T01",
-      "T04",
-      "T03",
-      "T05",
-      "T06",
-      "T09",
-      "T10",
-      "T11",
-      "T12"
-    ],
-    "display_name": "Use related words to support spelling",
-    "is_active": true,
-    "is_assignable": true,
-    "mastery_domain_key": "D4",
-    "metadata": {
-      "cluster_name": "Word families and related forms",
-      "developmental_foundation": "Morphological awareness",
-      "example_words": [
-        "sign/signature",
-        "bomb/bombard",
-        "nature/natural",
-        "heal/health"
-      ],
-      "seed_version": "domain4-seed-expansion-v1",
-      "source_workbook": "docs/D4 Seeding Map Finale Final.xlsx",
-      "starter_word_bank": [
-        {
-          "common_wrong_spellings": [],
-          "difficulty": "seed",
-          "word": "sign/signature"
-        },
-        {
-          "common_wrong_spellings": [],
-          "difficulty": "seed",
-          "word": "bomb/bombard"
-        },
-        {
-          "common_wrong_spellings": [],
-          "difficulty": "seed",
-          "word": "nature/natural"
-        },
-        {
-          "common_wrong_spellings": [],
-          "difficulty": "seed",
-          "word": "heal/health"
-        }
-      ],
-      "teaching_point": "A related word can make a hidden, unclear, or difficult spelling clearer.",
-      "unsupported_runtime_notes": [
-        "Task templates and family-level mappings are repo artifacts/config until dedicated schema exists.",
-        "Resolver adoption is intentionally separate from taxonomy seeding."
-      ]
-    },
-    "micro_skill_key": "D4_MOR_WORD_FAMILIES_RELATED_WORD_SUPPORT",
-    "practice_route": "word_practice",
-    "skill_cluster_key": "D4_MOR_WORD_FAMILIES",
-    "skill_family_key": "D4_MOR"
-  },
-  {
-    "allowed_template_keys": [
-      "T02",
-      "T01",
-      "T04",
-      "T03",
-      "T05",
-      "T06",
-      "T09",
-      "T10",
-      "T11",
-      "T12"
-    ],
-    "display_name": "Preserve spelling across pronunciation shifts",
-    "is_active": true,
-    "is_assignable": true,
-    "mastery_domain_key": "D4",
-    "metadata": {
-      "cluster_name": "Word families and related forms",
-      "developmental_foundation": "Morphological awareness",
-      "example_words": [
-        "magic/magician",
-        "music/musician",
-        "define/definition",
-        "electric/electricity"
-      ],
-      "seed_version": "domain4-seed-expansion-v1",
-      "source_workbook": "docs/D4 Seeding Map Finale Final.xlsx",
-      "starter_word_bank": [
-        {
-          "common_wrong_spellings": [],
-          "difficulty": "seed",
-          "word": "magic/magician"
-        },
-        {
-          "common_wrong_spellings": [],
-          "difficulty": "seed",
-          "word": "music/musician"
-        },
-        {
-          "common_wrong_spellings": [],
-          "difficulty": "seed",
-          "word": "define/definition"
-        },
-        {
-          "common_wrong_spellings": [],
-          "difficulty": "seed",
-          "word": "electric/electricity"
-        }
-      ],
-      "teaching_point": "Related words can keep similar spelling even when the pronunciation changes.",
-      "unsupported_runtime_notes": [
-        "Task templates and family-level mappings are repo artifacts/config until dedicated schema exists.",
-        "Resolver adoption is intentionally separate from taxonomy seeding."
-      ]
-    },
-    "micro_skill_key": "D4_MOR_WORD_FAMILIES_PRONUNCIATION_SHIFT",
-    "practice_route": "word_practice",
-    "skill_cluster_key": "D4_MOR_WORD_FAMILIES",
     "skill_family_key": "D4_MOR"
   },
   {
@@ -13375,7 +13350,7 @@
       "T10",
       "T11"
     ],
-    "display_name": "Choose there, their, and they\u2019re by meaning",
+    "display_name": "Choose there, their, and they’re by meaning",
     "is_active": true,
     "is_assignable": true,
     "mastery_domain_key": "D4",
@@ -13385,7 +13360,7 @@
       "example_words": [
         "there",
         "their",
-        "they\u2019re"
+        "they’re"
       ],
       "seed_version": "domain4-seed-expansion-v1",
       "source_workbook": "docs/D4 Seeding Map Finale Final.xlsx",
@@ -13403,10 +13378,10 @@
         {
           "common_wrong_spellings": [],
           "difficulty": "seed",
-          "word": "they\u2019re"
+          "word": "they’re"
         }
       ],
-      "teaching_point": "The words there, their, and they\u2019re sound alike but have different grammar roles: place, possession, and contraction.",
+      "teaching_point": "The words there, their, and they’re sound alike but have different grammar roles: place, possession, and contraction.",
       "unsupported_runtime_notes": [
         "Task templates and family-level mappings are repo artifacts/config until dedicated schema exists.",
         "Resolver adoption is intentionally separate from taxonomy seeding."
@@ -13540,7 +13515,7 @@
       "T10",
       "T11"
     ],
-    "display_name": "Choose your and you\u2019re by meaning",
+    "display_name": "Choose your and you’re by meaning",
     "is_active": true,
     "is_assignable": true,
     "mastery_domain_key": "D4",
@@ -13549,7 +13524,7 @@
       "developmental_foundation": "Meaning/context spelling",
       "example_words": [
         "your",
-        "you\u2019re"
+        "you’re"
       ],
       "seed_version": "domain4-seed-expansion-v1",
       "source_workbook": "docs/D4 Seeding Map Finale Final.xlsx",
@@ -13562,10 +13537,10 @@
         {
           "common_wrong_spellings": [],
           "difficulty": "seed",
-          "word": "you\u2019re"
+          "word": "you’re"
         }
       ],
-      "teaching_point": "Your shows possession; you\u2019re is the contraction of you are. Children should use the sentence meaning to choose the correct spelling.",
+      "teaching_point": "Your shows possession; you’re is the contraction of you are. Children should use the sentence meaning to choose the correct spelling.",
       "unsupported_runtime_notes": [
         "Task templates and family-level mappings are repo artifacts/config until dedicated schema exists.",
         "Resolver adoption is intentionally separate from taxonomy seeding."
@@ -13587,7 +13562,7 @@
       "T10",
       "T11"
     ],
-    "display_name": "Choose its and it\u2019s by meaning",
+    "display_name": "Choose its and it’s by meaning",
     "is_active": true,
     "is_assignable": true,
     "mastery_domain_key": "D4",
@@ -13596,7 +13571,7 @@
       "developmental_foundation": "Meaning/context spelling",
       "example_words": [
         "its",
-        "it\u2019s"
+        "it’s"
       ],
       "seed_version": "domain4-seed-expansion-v1",
       "source_workbook": "docs/D4 Seeding Map Finale Final.xlsx",
@@ -13609,10 +13584,10 @@
         {
           "common_wrong_spellings": [],
           "difficulty": "seed",
-          "word": "it\u2019s"
+          "word": "it’s"
         }
       ],
-      "teaching_point": "Its shows possession; it\u2019s is the contraction of it is or it has. Children should use the sentence meaning to choose the correct spelling.",
+      "teaching_point": "Its shows possession; it’s is the contraction of it is or it has. Children should use the sentence meaning to choose the correct spelling.",
       "unsupported_runtime_notes": [
         "Task templates and family-level mappings are repo artifacts/config until dedicated schema exists.",
         "Resolver adoption is intentionally separate from taxonomy seeding."
@@ -13634,7 +13609,7 @@
       "T10",
       "T11"
     ],
-    "display_name": "Choose who\u2019s and whose by meaning",
+    "display_name": "Choose who’s and whose by meaning",
     "is_active": true,
     "is_assignable": true,
     "mastery_domain_key": "D4",
@@ -13642,7 +13617,7 @@
       "cluster_name": "Contraction and possessive homophones",
       "developmental_foundation": "Meaning/context spelling",
       "example_words": [
-        "who\u2019s",
+        "who’s",
         "whose"
       ],
       "seed_version": "domain4-seed-expansion-v1",
@@ -13651,7 +13626,7 @@
         {
           "common_wrong_spellings": [],
           "difficulty": "seed",
-          "word": "who\u2019s"
+          "word": "who’s"
         },
         {
           "common_wrong_spellings": [],
@@ -13659,7 +13634,7 @@
           "word": "whose"
         }
       ],
-      "teaching_point": "Who\u2019s is the contraction of who is or who has; whose shows possession. Children should use meaning to choose the correct spelling.",
+      "teaching_point": "Who’s is the contraction of who is or who has; whose shows possession. Children should use meaning to choose the correct spelling.",
       "unsupported_runtime_notes": [
         "Task templates and family-level mappings are repo artifacts/config until dedicated schema exists.",
         "Resolver adoption is intentionally separate from taxonomy seeding."
@@ -13681,7 +13656,7 @@
       "T10",
       "T11"
     ],
-    "display_name": "Choose we\u2019re and were by meaning",
+    "display_name": "Choose we’re and were by meaning",
     "is_active": true,
     "is_assignable": true,
     "mastery_domain_key": "D4",
@@ -13689,7 +13664,7 @@
       "cluster_name": "Contraction and possessive homophones",
       "developmental_foundation": "Meaning/context spelling",
       "example_words": [
-        "we\u2019re",
+        "we’re",
         "were"
       ],
       "seed_version": "domain4-seed-expansion-v1",
@@ -13698,7 +13673,7 @@
         {
           "common_wrong_spellings": [],
           "difficulty": "seed",
-          "word": "we\u2019re"
+          "word": "we’re"
         },
         {
           "common_wrong_spellings": [],
@@ -13706,7 +13681,7 @@
           "word": "were"
         }
       ],
-      "teaching_point": "We\u2019re is the contraction of we are; were is a past-tense verb. Children should use sentence grammar to choose the correct spelling.",
+      "teaching_point": "We’re is the contraction of we are; were is a past-tense verb. Children should use sentence grammar to choose the correct spelling.",
       "unsupported_runtime_notes": [
         "Task templates and family-level mappings are repo artifacts/config until dedicated schema exists.",
         "Resolver adoption is intentionally separate from taxonomy seeding."

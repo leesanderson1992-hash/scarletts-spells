@@ -31,14 +31,22 @@ Human approval record:
 
 ## Scope
 
-D4_MOR has 24 active assignable micro-skills in the repository taxonomy across:
+D4_MOR has 25 active assignable micro-skills in the current repository
+taxonomy across:
 
 - base words;
 - prefixes;
 - suffixes;
 - compounds;
-- word families;
 - roots.
+
+The frozen July 2026 category-v1 source package still contains its original
+24 human-reviewed keys as immutable historical evidence. The current taxonomy
+retires `D4_MOR_WORD_FAMILIES_PRONUNCIATION_SHIFT` and
+`D4_MOR_WORD_FAMILIES_RELATED_WORD_SUPPORT`, and adds the later live
+`D4_MOR_SUFFIXES_LY`, `D4_MOR_SUFFIXES_TION`, and
+`D4_MOR_SUFFIXES_SION` keys. The approved package is not rewritten to mimic
+that later taxonomy.
 
 The category matrix is:
 
@@ -149,8 +157,7 @@ After `D4_MOR_PREFIXES_UN` vertical proof and category contract freeze:
 2. Remaining prefix skills.
 3. Suffix skills.
 4. Compounds.
-5. Word families.
-6. Roots.
+5. Roots.
 
 ## Completion Rule
 

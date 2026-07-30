@@ -24,6 +24,9 @@ CANDIDATE_DIR = ROOT / "docs/implementation/seed-data/adle-7-ui/generated/d4-mor
 REVIEW_DIR = ROOT / "docs/implementation/seed-data/adle-7-ui/review/d4-mor-human-review-pack"
 SOURCE_DIR = ROOT / "docs/implementation/seed-data/adle-7-ui/source-artifacts/2026-07-10-d4-mor"
 APPROVED_DIR = ROOT / "data/adle/approved/d4-mor/v1"
+CURRENT_TAXONOMY = (
+    ROOT / "docs/implementation/seed-data/domain4-seed-expansion/micro-skills.json"
+)
 
 WORKBOOK = SOURCE_DIR / "D4_MOR_content_workbook_v1.xlsx"
 RETAINED_DESIGN_PACK = SOURCE_DIR / "D4_MOR_template_design_pack.md"
@@ -74,6 +77,15 @@ EXPECTED_COUNTS = {
     "experienceProfiles": 1,
     "exceptionRows": 74,
     "spotChecks": 18,
+}
+RETIRED_CURRENT_TAXONOMY_KEYS = {
+    "D4_MOR_WORD_FAMILIES_PRONUNCIATION_SHIFT",
+    "D4_MOR_WORD_FAMILIES_RELATED_WORD_SUPPORT",
+}
+POST_PACKAGE_CURRENT_TAXONOMY_KEYS = {
+    "D4_MOR_SUFFIXES_LY",
+    "D4_MOR_SUFFIXES_SION",
+    "D4_MOR_SUFFIXES_TION",
 }
 
 FORBIDDEN_DIFF_PATHS = [
@@ -505,6 +517,33 @@ def validate_package(
     if approval_inputs["approval"]["scope"]["approvedMicroSkills"] != len(content["microSkillContent"]):
         errors.append("approval/content coverage mismatch")
 
+    historical_keys = {
+        item["microSkillKey"] for item in content["microSkillContent"]
+    }
+    current_keys = {
+        row["micro_skill_key"]
+        for row in read_json(CURRENT_TAXONOMY)
+        if row["skill_family_key"] == "D4_MOR"
+        and row["is_active"] is True
+        and row["is_assignable"] is True
+    }
+    if len(historical_keys) != 24:
+        errors.append("immutable historical package must retain its original 24-key coverage")
+    if len(current_keys) != 25:
+        errors.append("current live taxonomy must contain 25 D4_MOR keys")
+    if not RETIRED_CURRENT_TAXONOMY_KEYS.issubset(historical_keys):
+        errors.append("historical package lost retired word-family evidence")
+    if RETIRED_CURRENT_TAXONOMY_KEYS & current_keys:
+        errors.append("retired word-family keys reappeared in current taxonomy")
+    if not POST_PACKAGE_CURRENT_TAXONOMY_KEYS.issubset(current_keys):
+        errors.append("current taxonomy is missing later -ly, -tion, or -sion additions")
+    if POST_PACKAGE_CURRENT_TAXONOMY_KEYS & historical_keys:
+        errors.append("historical package was rewritten with post-package suffix additions")
+    if len(historical_keys & current_keys) != 22:
+        errors.append("historical/current D4_MOR overlap must be exactly 22 keys")
+    if "D4_MOR_ROOTS_ROOT_FAMILY_SPELLING" not in current_keys:
+        errors.append("current taxonomy must retain root-family spelling")
+
     if errors:
         raise RuntimeError("; ".join(errors))
 
@@ -654,6 +693,9 @@ def main() -> None:
                 "package": manifest_data["packageKey"],
                 "content_version": manifest_data["contentVersion"],
                 "micro_skills": manifest_data["counts"]["microSkills"],
+                "current_taxonomy_micro_skills": 25,
+                "current_taxonomy_overlap_with_historical_package": 22,
+                "retired_historical_micro_skills": sorted(RETIRED_CURRENT_TAXONOMY_KEYS),
                 "word_analyses": manifest_data["counts"]["wordAnalyses"],
                 "morphemes": manifest_data["counts"]["morphemes"],
                 "activation_status": manifest_data["activationStatus"],

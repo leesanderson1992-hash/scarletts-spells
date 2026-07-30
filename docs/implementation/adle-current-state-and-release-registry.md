@@ -1,6 +1,6 @@
 # ADLE Current State and Lesson Release Registry
 
-Updated: 2026-07-28
+Updated: 2026-07-30
 
 ## Purpose
 
@@ -22,6 +22,11 @@ approval records.
 
 ## Current capability register
 
+Current D4_MOR position: 25 live micro-skills — 18 production-enabled
+first-impression lessons, 0 staging-approved first-impression lessons, 2
+later-phase base-word transfer skills marked `not_required_first_impression`,
+and 5 first-impression lessons awaiting implementation.
+
 | Lesson capability | Micro-skill(s) | State | Selection rule | Notes |
 |---|---|---|---|---|
 | Base Word Lab | `D4_MOR_BASE_WORDS_PRESERVE_BASE`, `D4_MOR_BASE_WORDS_IDENTIFY_BASE` | `production_enabled` | Two verified authentic targets sharing a supported micro-skill; six independent words and up to two approved families | 18-item immutable snapshot. `bed`, `foot`, and `sun` remain blocked. |
@@ -39,11 +44,23 @@ approval records.
 | Dynamic Suffix Word Lab: `-ly` | `D4_MOR_SUFFIXES_LY` | `production_enabled` | Reviewed set of `quickly`, `slowly`, `quietly`, and `happily`; later complete, reviewed same-profile roster members may be selected as authentic targets or transfers | Production promotion completed 2026-07-28 after child approval: batch `338c204b-b1c7-4a17-a60d-c8b2e259c32c` enabled the reviewed four-member profile with no learner-data writes. The live suffix gate is enabled and deployment `dpl_GhSp6CvMgESfweWmmCCJWCQuSZ1X` is Ready. See `adle-dynamic-suffix-ly-production-receipt-2026-07-28.json`. |
 | Dynamic Suffix Word Lab: `-ment` | `D4_MOR_SUFFIXES_MENT` | `production_enabled` | Select up to four verified authentic targets, then approved same-profile transfers to make the fixed four-word lesson | Production promotion completed 2026-07-28: batch `dc5a3ee6-9cce-4f54-8592-269db0ea8225` created one active reviewed profile with four safe members and no learner-data writes. The live gate is enabled and deployment `dpl_5bPXxBtR4ffwqqiQYHSfJ9G4nxzj` is Ready. See `adle-dynamic-suffix-ment-production-receipt-2026-07-28.json`. |
 | Dynamic Suffix Word Lab: `-ful` / `-less` | `D4_MOR_SUFFIXES_FUL_LESS` | `production_enabled` | Fixed paired set of `careful`, `careless`, `hopeful`, and `hopeless`; 18-item lesson with two form-specific Cleavers, four meaning matches, and one meaning-led build per suffix | Production batch `81547b52-0fd5-44d4-8e07-55a3565c04c8` created one active reviewed profile with four safe members and no learner-data writes. The suffix gate is enabled and deployment `dpl_7B2seUmXBffNRcMJsmAjkKScwppT` is Ready. See `adle-dynamic-suffix-ful-less-production-receipt-2026-07-28.json`. |
-| Later-phase base-word capabilities | `D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX`, `D4_MOR_BASE_WORDS_BASE_PLUS_PREFIX`, `D4_MOR_BASE_WORDS_BASE_IN_COMPOUND`, `D4_MOR_BASE_WORDS_BASE_MEANING`, `D4_MOR_BASE_WORDS_BASE_PROOF`, `D4_MOR_BASE_WORDS_BASE_REVIEW` | `not_required_first_impression` | Used only when an already-taught word needs transfer, meaning, proof, or review work | No standalone first-impression ADLE profile is required. |
-| Later-phase prefix capabilities | `D4_MOR_PREFIXES_PREFIX_BASE_BOUNDARY`, `D4_MOR_PREFIXES_PREFIX_PROOF`, `D4_MOR_PREFIXES_PREFIX_REVIEW` | `not_required_first_impression` | Used inside or after a taught prefix profile | No standalone first-impression ADLE profile is required. |
-| Later-phase suffix capabilities | `D4_MOR_SUFFIXES_SUFFIX_BASE_CHANGE`, `D4_MOR_SUFFIXES_SUFFIX_REVIEW` | `not_required_first_impression` | Used inside or after a taught suffix profile | No standalone first-impression ADLE profile is required. |
-| Remaining first-impression suffix lessons | `D4_MOR_SUFFIXES_TION`, `D4_MOR_SUFFIXES_SION` | `awaiting_content` | none | These are the only outstanding suffix first-impression profiles. `-tion` / `-sion` should be planned together because their spelling and meaning contrasts interact. |
-| All other D4 micro-skills | all remaining keys | `awaiting_content` | none | Reviewed corrections stay in the parent-review backlog. |
+| Dynamic Suffix Word Lab: `-tion` | `D4_MOR_SUFFIXES_TION` | `production_enabled` | Reviewed set of `action`, `invention`, `education`, and `celebration`; later complete, reviewed same-profile roster members may be selected as authentic targets or transfers | Child verification of the revised introduction and shared affix reflection completed 2026-07-29. Production batch `7c468fef-c50c-4a17-a6b0-587793c2f96e` created one active reviewed profile with four safe members, created the catalog entry, and made no learner-data writes. The suffix gate is enabled and deployment `dpl_4buaEgrUvNFYBm2WsfknLPcSd5X8` is Ready. See `adle-dynamic-suffix-tion-production-receipt-2026-07-29.json`. |
+| Dynamic Suffix Word Lab: `-sion` | `D4_MOR_SUFFIXES_SION` | `production_enabled` | Reviewed set of `decision`, `division`, `confusion`, and `expansion`; later complete, reviewed same-profile roster members may be selected as authentic targets or transfers | Production promotion completed 2026-07-29: batch `d5f11ec9-1b93-499f-9ed3-ffbe17b591ae` created one active reviewed profile with four safe members and no learner-data writes. The suffix gate is enabled and deployment `dpl_Ar4QxewDxY64Lz1t2hSLjMF2Po9k` is Ready. See `adle-dynamic-suffix-sion-production-receipt-2026-07-29.json`. |
+| Later-phase base-word capabilities | `D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX`, `D4_MOR_BASE_WORDS_BASE_PLUS_PREFIX` | `not_required_first_impression` | Used only when an already-taught word needs base-plus-affix transfer work | No standalone first-impression ADLE profile is required. Historical morphology-node aliases such as base meaning/proof/review are not current live micro-skills. |
+| Remaining first-impression suffix lessons | none currently | — | — | All currently planned suffix first-impression profiles are production-enabled. |
+| Closed Compound Word Lab | `D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS` | `production_enabled` | Select four verified authentic targets first, then deterministically rotate the explicit seven-word approved pool | Production batch `2f6db9a1-f844-4577-9631-c3740f6ea7ae` activated seven explicit compound facts after child-completed staging verification. The 18-item Word Lab is independently gated by `ADLE_CLOSED_COMPOUND_PRODUCTION_ENABLED=enabled`; deployment `dpl_7QNw3SyH4weqWj573LT4LDDHHvUy` is Ready. |
+| Open/Hyphenated Compound Word Lab | `D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED` | `awaiting_content` | none | Reviewed four-word roster: `ice cream`, `post office`, `twenty-one`, `part-time`; multi-token dictation span and separator-significant comparison are required. |
+| Common Greek Roots Lab | `D4_MOR_ROOTS_COMMON_GREEK_ROOTS` | `awaiting_content` | none | Reviewed four-word roster: `telephone`, `telescope`, `microphone`, `microscope`; runtime eligibility remains fail-closed. |
+| Common Latin Roots Lab | `D4_MOR_ROOTS_COMMON_LATIN_ROOTS` | `awaiting_content` | none | Reviewed four-word roster: `transport`, `export`, `construct`, `structure`; runtime eligibility remains fail-closed. |
+| Root-Family Spelling Lab | `D4_MOR_ROOTS_ROOT_FAMILY_SPELLING` | `awaiting_content` | none | Reviewed four-word roster: `action`, `active`, `actor`, `react`. This current root-specific key is retained; it is not the retired general word-family cluster. |
+| Science/Maths Roots Lab | `D4_MOR_ROOTS_SCIENCE_MATH_ROOTS` | `awaiting_content` | none | Reviewed four-word roster: `biology`, `geography`, `thermometer`, `triangle`; runtime eligibility remains fail-closed. |
+
+`D4_MOR_WORD_FAMILIES_PRONUNCIATION_SHIFT` and
+`D4_MOR_WORD_FAMILIES_RELATED_WORD_SUPPORT` were retired from current staging
+and production taxonomy on 2026-07-29 after separate zero-learner-reference
+audits and written production approval. Their frozen July 2026 approved-package
+and human-review records remain historical evidence and are not current
+taxonomy.
 
 ## Dynamic Prefix Word Lab contract
 

@@ -1,0 +1,600 @@
+{
+  "schemaVersion": "d4_mor_morphology_profile_package_v1",
+  "contentVersion": "d4_mor_remaining_profiles_v1_2026_07_29",
+  "profileType": "root",
+  "microSkillKey": "D4_MOR_ROOTS_COMMON_LATIN_ROOTS",
+  "stagingEnabled": false,
+  "productionEnabled": false,
+  "runtimeSelectionAllowed": false,
+  "profileReviewStatus": "profile_specific_human_review_required",
+  "reviewBoundary": "Roster, teaching source and historical analyses are human-reviewed. The new profile reflection/shape and released dictionary facts require their own approval before staging activation.",
+  "reviewedIntroduction": {
+    "title": "Common Latin roots",
+    "childFriendlyExplanation": "Two thousand years ago the Romans spoke Latin — and their word-bricks are still inside our words! port = carry (transport, export, import). struct = build (structure, construct). Spot the Roman brick and half the word is spelled.",
+    "ruleExplanation": "Latin roots keep stable spelling across word families: port (carry), struct (build), rupt (break), tract (pull), dict (say), scrib/script (write). Spell root as a fixed chunk, then add affixes.",
+    "watchForCue": "Find the Roman brick first — port, struct, rupt — spell it as one chunk, then add the front and end parts.",
+    "sourceApprovalStatus": "human_approved",
+    "sourceReviewerDecision": "approved"
+  },
+  "reflection": {
+    "promptKey": "latin-root-meaning-v1",
+    "promptText": "How did the Latin root meaning help you build or understand a word?",
+    "reviewStatus": "profile_specific_human_review_required"
+  },
+  "immutableLessonShape": {
+    "itemCount": 18,
+    "guidedShape": [
+      "root-meaning practice",
+      "meaning-led builds"
+    ],
+    "independentProduction": [
+      "one controlled spelling item per roster word",
+      "one reviewed full-sentence dictation per roster word"
+    ],
+    "guidedInteractionsInflateIndependentMastery": false
+  },
+  "selectionPolicy": {
+    "rosterSize": 4,
+    "selectionKind": "fixed_reviewed_profile_membership",
+    "requiresExplicitMembership": true,
+    "requiresExplicitTransferEligibility": true,
+    "existingAssignmentSnapshotsImmutable": true
+  },
+  "eligibilityRequirements": [
+    "active approved_for_first_exposure canonical identity",
+    "clean child-facing component/root meanings",
+    "clean child-facing whole-word meaning",
+    "reviewed child teaching decomposition",
+    "canonical ordered morphology parts",
+    "canonical morphology joins",
+    "canonical morphology transformations",
+    "canonical morphology notes and provenance",
+    "pronunciation, syllables, stress, schwa and phoneme facts",
+    "frequency, age and complexity bands",
+    "reviewed dictation sentence, audio text and complete target location",
+    "explicit profile membership",
+    "explicit transfer eligibility"
+  ],
+  "members": [
+    {
+      "displayWord": "transport",
+      "assignmentEligible": false,
+      "transferEligible": false,
+      "runtimeReadiness": "blocked_pending_complete_released_dictionary_facts",
+      "approvedHistoricalAnalysis": {
+        "analysisKey": "D4_MOR_ROOTS_COMMON_LATIN_ROOTS::transport",
+        "microSkillKey": "D4_MOR_ROOTS_COMMON_LATIN_ROOTS",
+        "displayWord": "transport",
+        "role": "anchor",
+        "parts": [
+          {
+            "id": "part_1",
+            "kind": "prefix",
+            "morphemeKey": "prefix_TRANS",
+            "sourceText": "trans",
+            "surfaceText": "trans",
+            "gloss": "across",
+            "displayRange": {
+              "start": 0,
+              "end": 5
+            },
+            "source": {
+              "morphemesJsonIndex": 0
+            }
+          },
+          {
+            "id": "part_2",
+            "kind": "root",
+            "morphemeKey": "root_PORT",
+            "sourceText": "port",
+            "surfaceText": "port",
+            "gloss": "carry",
+            "displayRange": {
+              "start": 5,
+              "end": 9
+            },
+            "source": {
+              "morphemesJsonIndex": 1
+            }
+          }
+        ],
+        "joins": [
+          {
+            "afterPartId": "part_1",
+            "beforePartId": "part_2",
+            "joinType": "none",
+            "surfaceText": "",
+            "displayRange": {
+              "start": 5,
+              "end": 5
+            }
+          }
+        ],
+        "joiningStrategy": "concatenate",
+        "transformations": [],
+        "derivedViewModel": {
+          "splitPoints": [
+            5
+          ]
+        },
+        "sourceSplitPoints": [
+          5
+        ],
+        "validation": {
+          "status": "pass",
+          "reconstructedDisplayWord": "transport",
+          "warnings": []
+        },
+        "source": {
+          "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+          "sheet": "Word Bank",
+          "row": 142
+        },
+        "sourceCandidateStatus": "structurally_reconciled_candidate",
+        "approvalStatus": "human_approved",
+        "humanReviewStatus": "approved",
+        "approvalScope": "d4_mor_category_v1",
+        "activationStatus": "not_activated",
+        "runtimeEnabled": false
+      }
+    },
+    {
+      "displayWord": "export",
+      "assignmentEligible": false,
+      "transferEligible": false,
+      "runtimeReadiness": "blocked_pending_complete_released_dictionary_facts",
+      "approvedHistoricalAnalysis": {
+        "analysisKey": "D4_MOR_ROOTS_COMMON_LATIN_ROOTS::export",
+        "microSkillKey": "D4_MOR_ROOTS_COMMON_LATIN_ROOTS",
+        "displayWord": "export",
+        "role": "lesson_word",
+        "parts": [
+          {
+            "id": "part_1",
+            "kind": "prefix",
+            "morphemeKey": null,
+            "sourceText": "ex",
+            "surfaceText": "ex",
+            "gloss": "out",
+            "displayRange": {
+              "start": 0,
+              "end": 2
+            },
+            "source": {
+              "morphemesJsonIndex": 0
+            }
+          },
+          {
+            "id": "part_2",
+            "kind": "root",
+            "morphemeKey": "root_PORT",
+            "sourceText": "port",
+            "surfaceText": "port",
+            "gloss": "carry",
+            "displayRange": {
+              "start": 2,
+              "end": 6
+            },
+            "source": {
+              "morphemesJsonIndex": 1
+            }
+          }
+        ],
+        "joins": [
+          {
+            "afterPartId": "part_1",
+            "beforePartId": "part_2",
+            "joinType": "none",
+            "surfaceText": "",
+            "displayRange": {
+              "start": 2,
+              "end": 2
+            }
+          }
+        ],
+        "joiningStrategy": "concatenate",
+        "transformations": [],
+        "derivedViewModel": {
+          "splitPoints": [
+            2
+          ]
+        },
+        "sourceSplitPoints": [
+          2
+        ],
+        "validation": {
+          "status": "pass",
+          "reconstructedDisplayWord": "export",
+          "warnings": []
+        },
+        "source": {
+          "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+          "sheet": "Word Bank",
+          "row": 143
+        },
+        "sourceCandidateStatus": "structurally_reconciled_candidate",
+        "approvalStatus": "human_approved",
+        "humanReviewStatus": "approved",
+        "approvalScope": "d4_mor_category_v1",
+        "activationStatus": "not_activated",
+        "runtimeEnabled": false
+      }
+    },
+    {
+      "displayWord": "construct",
+      "assignmentEligible": false,
+      "transferEligible": false,
+      "runtimeReadiness": "blocked_pending_complete_released_dictionary_facts",
+      "approvedHistoricalAnalysis": {
+        "analysisKey": "D4_MOR_ROOTS_COMMON_LATIN_ROOTS::construct",
+        "microSkillKey": "D4_MOR_ROOTS_COMMON_LATIN_ROOTS",
+        "displayWord": "construct",
+        "role": "lesson_word",
+        "parts": [
+          {
+            "id": "part_1",
+            "kind": "prefix",
+            "morphemeKey": null,
+            "sourceText": "con",
+            "surfaceText": "con",
+            "gloss": "together",
+            "displayRange": {
+              "start": 0,
+              "end": 3
+            },
+            "source": {
+              "morphemesJsonIndex": 0
+            }
+          },
+          {
+            "id": "part_2",
+            "kind": "root",
+            "morphemeKey": "root_STRUCT",
+            "sourceText": "struct",
+            "surfaceText": "struct",
+            "gloss": "build",
+            "displayRange": {
+              "start": 3,
+              "end": 9
+            },
+            "source": {
+              "morphemesJsonIndex": 1
+            }
+          }
+        ],
+        "joins": [
+          {
+            "afterPartId": "part_1",
+            "beforePartId": "part_2",
+            "joinType": "none",
+            "surfaceText": "",
+            "displayRange": {
+              "start": 3,
+              "end": 3
+            }
+          }
+        ],
+        "joiningStrategy": "concatenate",
+        "transformations": [],
+        "derivedViewModel": {
+          "splitPoints": [
+            3
+          ]
+        },
+        "sourceSplitPoints": [
+          3
+        ],
+        "validation": {
+          "status": "pass",
+          "reconstructedDisplayWord": "construct",
+          "warnings": []
+        },
+        "source": {
+          "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+          "sheet": "Word Bank",
+          "row": 145
+        },
+        "sourceCandidateStatus": "structurally_reconciled_candidate",
+        "approvalStatus": "human_approved",
+        "humanReviewStatus": "approved",
+        "approvalScope": "d4_mor_category_v1",
+        "activationStatus": "not_activated",
+        "runtimeEnabled": false
+      }
+    },
+    {
+      "displayWord": "structure",
+      "assignmentEligible": false,
+      "transferEligible": false,
+      "runtimeReadiness": "blocked_pending_complete_released_dictionary_facts",
+      "approvedHistoricalAnalysis": {
+        "analysisKey": "D4_MOR_ROOTS_COMMON_LATIN_ROOTS::structure",
+        "microSkillKey": "D4_MOR_ROOTS_COMMON_LATIN_ROOTS",
+        "displayWord": "structure",
+        "role": "lesson_word",
+        "parts": [
+          {
+            "id": "part_1",
+            "kind": "root",
+            "morphemeKey": "root_STRUCT",
+            "sourceText": "struct",
+            "surfaceText": "struct",
+            "gloss": "build",
+            "displayRange": {
+              "start": 0,
+              "end": 6
+            },
+            "source": {
+              "morphemesJsonIndex": 0
+            }
+          },
+          {
+            "id": "part_2",
+            "kind": "suffix",
+            "morphemeKey": null,
+            "sourceText": "ure",
+            "surfaceText": "ure",
+            "gloss": "noun ending",
+            "displayRange": {
+              "start": 6,
+              "end": 9
+            },
+            "source": {
+              "morphemesJsonIndex": 1
+            }
+          }
+        ],
+        "joins": [
+          {
+            "afterPartId": "part_1",
+            "beforePartId": "part_2",
+            "joinType": "none",
+            "surfaceText": "",
+            "displayRange": {
+              "start": 6,
+              "end": 6
+            }
+          }
+        ],
+        "joiningStrategy": "concatenate",
+        "transformations": [],
+        "derivedViewModel": {
+          "splitPoints": [
+            6
+          ]
+        },
+        "sourceSplitPoints": [
+          6
+        ],
+        "validation": {
+          "status": "pass",
+          "reconstructedDisplayWord": "structure",
+          "warnings": []
+        },
+        "source": {
+          "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+          "sheet": "Word Bank",
+          "row": 144
+        },
+        "sourceCandidateStatus": "structurally_reconciled_candidate",
+        "approvalStatus": "human_approved",
+        "humanReviewStatus": "approved",
+        "approvalScope": "d4_mor_category_v1",
+        "activationStatus": "not_activated",
+        "runtimeEnabled": false
+      }
+    }
+  ],
+  "approvedHistoricalDistractors": {
+    "microSkillKey": "D4_MOR_ROOTS_COMMON_LATIN_ROOTS",
+    "distractors": [
+      {
+        "distractorKey": "D4_MOR_ROOTS_COMMON_LATIN_ROOTS::distractor_1",
+        "displayText": "pot",
+        "rationale": "corrupted port",
+        "identity": "distractor"
+      },
+      {
+        "distractorKey": "D4_MOR_ROOTS_COMMON_LATIN_ROOTS::distractor_2",
+        "displayText": "stuct",
+        "rationale": "",
+        "identity": "distractor"
+      },
+      {
+        "distractorKey": "D4_MOR_ROOTS_COMMON_LATIN_ROOTS::distractor_3",
+        "displayText": "rup",
+        "rationale": "",
+        "identity": "distractor"
+      }
+    ],
+    "designNote": "corrupted root chunks",
+    "source": {
+      "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+      "sheet": "Distractor Tiles",
+      "row": 22
+    },
+    "sourceCandidateStatus": "structurally_reconciled_candidate",
+    "approvalStatus": "human_approved",
+    "humanReviewStatus": "approved",
+    "approvalScope": "d4_mor_category_v1",
+    "activationStatus": "not_activated",
+    "runtimeEnabled": false
+  },
+  "referencedMorphemes": [
+    {
+      "morphemeKey": "prefix_TRANS",
+      "kind": "prefix",
+      "canonicalText": "trans",
+      "gloss": "across",
+      "function": "movement across",
+      "exampleWords": [
+        "transport",
+        "transfer",
+        "translate"
+      ],
+      "distractorGlosses": [
+        "under",
+        "three",
+        "light"
+      ],
+      "variantGroupKey": null,
+      "variantOf": null,
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Morpheme Glosses",
+        "row": 14,
+        "sourceValue": "trans"
+      },
+      "sourceCandidateStatus": "structurally_reconciled_candidate",
+      "approvalStatus": "human_approved",
+      "humanReviewStatus": "approved",
+      "approvalScope": "d4_mor_category_v1",
+      "activationStatus": "not_activated",
+      "runtimeEnabled": false
+    },
+    {
+      "morphemeKey": "root_PORT",
+      "kind": "root",
+      "canonicalText": "port",
+      "gloss": "carry (Latin)",
+      "function": "",
+      "exampleWords": [
+        "transport",
+        "export",
+        "import",
+        "portable"
+      ],
+      "distractorGlosses": [
+        "build",
+        "break",
+        "write"
+      ],
+      "variantGroupKey": null,
+      "variantOf": null,
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Morpheme Glosses",
+        "row": 26,
+        "sourceValue": "port"
+      },
+      "sourceCandidateStatus": "structurally_reconciled_candidate",
+      "approvalStatus": "human_approved",
+      "humanReviewStatus": "approved",
+      "approvalScope": "d4_mor_category_v1",
+      "activationStatus": "not_activated",
+      "runtimeEnabled": false
+    },
+    {
+      "morphemeKey": "root_STRUCT",
+      "kind": "root",
+      "canonicalText": "struct",
+      "gloss": "build (Latin)",
+      "function": "",
+      "exampleWords": [
+        "structure",
+        "construct",
+        "instruct",
+        "destruction"
+      ],
+      "distractorGlosses": [
+        "carry",
+        "pull",
+        "say"
+      ],
+      "variantGroupKey": null,
+      "variantOf": null,
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Morpheme Glosses",
+        "row": 27,
+        "sourceValue": "struct"
+      },
+      "sourceCandidateStatus": "structurally_reconciled_candidate",
+      "approvalStatus": "human_approved",
+      "humanReviewStatus": "approved",
+      "approvalScope": "d4_mor_category_v1",
+      "activationStatus": "not_activated",
+      "runtimeEnabled": false
+    }
+  ],
+  "provenance": {
+    "approvedManifest": "data/adle/approved/d4-mor/v1/d4-mor-v1-manifest.json",
+    "approvedContent": "data/adle/approved/d4-mor/v1/d4-mor-v1-content.json",
+    "approvedWordAnalyses": "data/adle/approved/d4-mor/v1/d4-mor-v1-word-analyses.json",
+    "approvedMorphemeCatalog": "data/adle/approved/d4-mor/v1/d4-mor-v1-morpheme-catalog.json",
+    "currentTaxonomy": "docs/implementation/seed-data/domain4-seed-expansion/micro-skills.json",
+    "approvedManifestSha256": "c279282665e8653ae18a4d72d7c9c35424a8e84224513d093ee62fb150d6af7a",
+    "currentTaxonomySha256": "b91de6ebb3a6e41fb8bf1f41792187dd4bebedcc6837ec86cb1c395ed5235511"
+  },
+  "rootKind": "common_latin",
+  "rootContract": {
+    "identityFields": [
+      "root identity",
+      "surface form",
+      "meaning",
+      "origin",
+      "variant group",
+      "artifact-card facts"
+    ],
+    "canonicalMorphologyAuthoritative": true,
+    "letterSubstringNeverImpliesEligibility": true
+  },
+  "rootArtifacts": [
+    {
+      "rootArtifactKey": "ROOT_PORT",
+      "rootText": "port",
+      "themeKey": "latin",
+      "meaning": "carry",
+      "originLine": "Latin portare, 'to carry'",
+      "descendantWords": [
+        "transport",
+        "export",
+        "import",
+        "portable"
+      ],
+      "microLore": "Roman merchants carried goods to the port — the carrying-place.",
+      "variantGroupKey": null,
+      "variantOf": null,
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Root Artifact Cards",
+        "row": 2,
+        "sourceValue": "port"
+      },
+      "sourceCandidateStatus": "structurally_reconciled_candidate",
+      "approvalStatus": "human_approved",
+      "humanReviewStatus": "approved",
+      "approvalScope": "d4_mor_category_v1",
+      "activationStatus": "not_activated",
+      "runtimeEnabled": false
+    },
+    {
+      "rootArtifactKey": "ROOT_STRUCT",
+      "rootText": "struct",
+      "themeKey": "latin",
+      "meaning": "build",
+      "originLine": "Latin struere/structus, 'to build'",
+      "descendantWords": [
+        "structure",
+        "construct",
+        "instruct",
+        "destruction"
+      ],
+      "microLore": "Roman engineers were master builders — roads, walls, aqueducts.",
+      "variantGroupKey": null,
+      "variantOf": null,
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Root Artifact Cards",
+        "row": 3,
+        "sourceValue": "struct"
+      },
+      "sourceCandidateStatus": "structurally_reconciled_candidate",
+      "approvalStatus": "human_approved",
+      "humanReviewStatus": "approved",
+      "approvalScope": "d4_mor_category_v1",
+      "activationStatus": "not_activated",
+      "runtimeEnabled": false
+    }
+  ]
+}

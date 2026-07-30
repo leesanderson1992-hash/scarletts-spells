@@ -30,11 +30,68 @@ EXCLUDED_MAPPING_FAMILY_IDS = ["D4_PROOF"]
 
 EXPECTED_COUNTS = {
     "ready_families": 8,
-    "clusters": 47,
-    "micro_skills": 240,
+    "clusters": 46,
+    "micro_skills": 241,
     "task_templates": 12,
     "family_level_template_mappings": 40,
 }
+
+RETIRED_CLUSTER_IDS = {"D4_MOR_WORD_FAMILIES"}
+CURRENT_TAXONOMY_ADDITIONS = [
+    {
+        "allowed_template_keys": ["T01", "T02", "T03", "T04", "T05", "T06"],
+        "display_name": "Spell words with suffix -ly",
+        "is_active": True,
+        "is_assignable": True,
+        "mastery_domain_key": "D4",
+        "metadata": {
+            "example_words": ["quickly", "slowly", "quietly", "happily"],
+            "seed_version": "dynamic-suffix-ly-v1",
+        },
+        "micro_skill_key": "D4_MOR_SUFFIXES_LY",
+        "practice_route": "word_practice",
+        "skill_cluster_key": "D4_MOR_SUFFIXES",
+        "skill_family_key": "D4_MOR",
+    },
+    {
+        "allowed_template_keys": ["T02", "T01", "T04", "T03", "T05", "T06", "T09", "T10", "T11", "T12"],
+        "display_name": "Spell words with suffix -sion",
+        "is_active": True,
+        "is_assignable": True,
+        "mastery_domain_key": "D4",
+        "metadata": {
+            "cluster_name": "Derivational suffixes",
+            "developmental_foundation": "Morphological awareness",
+            "example_words": ["decision", "division", "confusion", "expansion"],
+            "seed_version": "dynamic-suffix-sion-production-v1",
+            "source_workbook": "reviewed dynamic suffix -sion package",
+            "teaching_point": "The suffix -sion usually forms a noun for an action, process or result.",
+        },
+        "micro_skill_key": "D4_MOR_SUFFIXES_SION",
+        "practice_route": "word_practice",
+        "skill_cluster_key": "D4_MOR_SUFFIXES",
+        "skill_family_key": "D4_MOR",
+    },
+    {
+        "allowed_template_keys": ["T02", "T01", "T04", "T03", "T05", "T06", "T09", "T10", "T11", "T12"],
+        "display_name": "Spell words with suffix -tion",
+        "is_active": True,
+        "is_assignable": True,
+        "mastery_domain_key": "D4",
+        "metadata": {
+            "cluster_name": "Derivational suffixes",
+            "developmental_foundation": "Morphological awareness",
+            "example_words": ["action", "invention", "education", "celebration"],
+            "seed_version": "dynamic-suffix-tion-production-v1",
+            "source_workbook": "reviewed dynamic suffix -tion package",
+            "teaching_point": "The suffix -tion usually forms a noun for an action, process or result.",
+        },
+        "micro_skill_key": "D4_MOR_SUFFIXES_TION",
+        "practice_route": "word_practice",
+        "skill_cluster_key": "D4_MOR_SUFFIXES",
+        "skill_family_key": "D4_MOR",
+    },
+]
 
 DIPHTHONG_NODE_IDS = [
     "D4_PG_DIPHTHONGS_OU",
@@ -426,12 +483,21 @@ def main() -> None:
 
     families = [normalize_family(record) for record in family_rows]
     clusters = [
-        normalize_cluster(record, ready_family_ids) for record in cluster_rows
+        normalize_cluster(record, ready_family_ids)
+        for record in cluster_rows
+        if clean_string(record.get("cluster_id")) not in RETIRED_CLUSTER_IDS
     ]
     micro_skills = [
         normalize_micro_skill(record, ready_family_ids, allowed_template_keys_by_family)
         for record in micro_skill_rows
+        if clean_string(record.get("cluster_id")) not in RETIRED_CLUSTER_IDS
     ]
+    existing_micro_skill_keys = {row["micro_skill_key"] for row in micro_skills}
+    micro_skills.extend(
+        row
+        for row in CURRENT_TAXONOMY_ADDITIONS
+        if row["micro_skill_key"] not in existing_micro_skill_keys
+    )
     task_templates = [
         normalize_task_template(record) for record in task_template_rows
     ]
@@ -486,8 +552,8 @@ def main() -> None:
                 "Validation summary:",
                 "",
                 "- `8` Ready Domain 4 families",
-                "- `47` clusters",
-                "- `240` micro-skills",
+                "- `46` current clusters",
+                "- `241` current micro-skills",
                 "- `12` task templates in repo artifact/config",
                 "- `40` family-level mappings in repo artifact/config",
                 "- no duplicate family, cluster, or micro-skill IDs",
@@ -541,15 +607,15 @@ def main() -> None:
                 "Rows upserted from these artifacts:",
                 "",
                 "- `micro_skill_families`: `8`",
-                "- `micro_skill_clusters`: `47`",
-                "- `micro_skill_catalog`: `240`",
+                "- `micro_skill_clusters`: `46`",
+                "- `micro_skill_catalog`: `241`",
                 "",
                 "Final live validation:",
                 "",
                 "- `8` Domain 4 families",
-                "- `47` Domain 4 clusters",
-                "- `240` Domain 4 micro-skills",
-                "- `240` active assignable Domain 4 micro-skills",
+                "- `46` current Domain 4 clusters",
+                "- `241` current Domain 4 micro-skills",
+                "- `241` active assignable Domain 4 micro-skills",
                 "- `0` `D4_PROOF` taxonomy rows",
                 "- stale direct column references: `0`",
                 "- stale linked rows: `0`",

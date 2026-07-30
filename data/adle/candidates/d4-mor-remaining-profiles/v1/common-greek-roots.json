@@ -1,0 +1,623 @@
+{
+  "schemaVersion": "d4_mor_morphology_profile_package_v1",
+  "contentVersion": "d4_mor_remaining_profiles_v1_2026_07_29",
+  "profileType": "root",
+  "microSkillKey": "D4_MOR_ROOTS_COMMON_GREEK_ROOTS",
+  "stagingEnabled": false,
+  "productionEnabled": false,
+  "runtimeSelectionAllowed": false,
+  "profileReviewStatus": "profile_specific_human_review_required",
+  "reviewBoundary": "Roster, teaching source and historical analyses are human-reviewed. The new profile reflection/shape and released dictionary facts require their own approval before staging activation.",
+  "reviewedIntroduction": {
+    "title": "Common Greek roots",
+    "childFriendlyExplanation": "The ancient Greeks gave us word-treasures too: tele = far (telephone, telescope), phon = sound, graph = write/draw, photo = light. Greek roots carry secret signs — ph says /f/, ch says /k/ — that mark a word as Greek.",
+    "ruleExplanation": "Greek roots keep stable spelling and distinctive graphemes: phon (sound), graph (write), photo (light), tele (far), scope (look), micro (small). ph=/f/ and ch=/k/ signal Greek origin.",
+    "watchForCue": "An /f/ in a science-y word is often the Greek sign ph — telephone, graph, photo. Spot the Greek treasure marks.",
+    "sourceApprovalStatus": "human_approved",
+    "sourceReviewerDecision": "approved"
+  },
+  "reflection": {
+    "promptKey": "greek-root-meaning-v1",
+    "promptText": "How did the Greek root meaning help you build or understand a word?",
+    "reviewStatus": "profile_specific_human_review_required"
+  },
+  "immutableLessonShape": {
+    "itemCount": 18,
+    "guidedShape": [
+      "root-meaning practice",
+      "meaning-led builds"
+    ],
+    "independentProduction": [
+      "one controlled spelling item per roster word",
+      "one reviewed full-sentence dictation per roster word"
+    ],
+    "guidedInteractionsInflateIndependentMastery": false
+  },
+  "selectionPolicy": {
+    "rosterSize": 4,
+    "selectionKind": "fixed_reviewed_profile_membership",
+    "requiresExplicitMembership": true,
+    "requiresExplicitTransferEligibility": true,
+    "existingAssignmentSnapshotsImmutable": true
+  },
+  "eligibilityRequirements": [
+    "active approved_for_first_exposure canonical identity",
+    "clean child-facing component/root meanings",
+    "clean child-facing whole-word meaning",
+    "reviewed child teaching decomposition",
+    "canonical ordered morphology parts",
+    "canonical morphology joins",
+    "canonical morphology transformations",
+    "canonical morphology notes and provenance",
+    "pronunciation, syllables, stress, schwa and phoneme facts",
+    "frequency, age and complexity bands",
+    "reviewed dictation sentence, audio text and complete target location",
+    "explicit profile membership",
+    "explicit transfer eligibility"
+  ],
+  "members": [
+    {
+      "displayWord": "telephone",
+      "assignmentEligible": false,
+      "transferEligible": false,
+      "runtimeReadiness": "blocked_pending_complete_released_dictionary_facts",
+      "approvedHistoricalAnalysis": {
+        "analysisKey": "D4_MOR_ROOTS_COMMON_GREEK_ROOTS::telephone",
+        "microSkillKey": "D4_MOR_ROOTS_COMMON_GREEK_ROOTS",
+        "displayWord": "telephone",
+        "role": "anchor",
+        "parts": [
+          {
+            "id": "part_1",
+            "kind": "root",
+            "morphemeKey": "root_TELE",
+            "sourceText": "tele",
+            "surfaceText": "tele",
+            "gloss": "far",
+            "displayRange": {
+              "start": 0,
+              "end": 4
+            },
+            "source": {
+              "morphemesJsonIndex": 0
+            }
+          },
+          {
+            "id": "part_2",
+            "kind": "root",
+            "morphemeKey": null,
+            "sourceText": "phone",
+            "surfaceText": "phone",
+            "gloss": "sound",
+            "displayRange": {
+              "start": 4,
+              "end": 9
+            },
+            "source": {
+              "morphemesJsonIndex": 1
+            }
+          }
+        ],
+        "joins": [
+          {
+            "afterPartId": "part_1",
+            "beforePartId": "part_2",
+            "joinType": "none",
+            "surfaceText": "",
+            "displayRange": {
+              "start": 4,
+              "end": 4
+            }
+          }
+        ],
+        "joiningStrategy": "concatenate",
+        "transformations": [],
+        "derivedViewModel": {
+          "splitPoints": [
+            4
+          ]
+        },
+        "sourceSplitPoints": [
+          4
+        ],
+        "validation": {
+          "status": "pass",
+          "reconstructedDisplayWord": "telephone",
+          "warnings": []
+        },
+        "source": {
+          "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+          "sheet": "Word Bank",
+          "row": 149
+        },
+        "sourceCandidateStatus": "structurally_reconciled_candidate",
+        "approvalStatus": "human_approved",
+        "humanReviewStatus": "approved",
+        "approvalScope": "d4_mor_category_v1",
+        "activationStatus": "not_activated",
+        "runtimeEnabled": false
+      }
+    },
+    {
+      "displayWord": "telescope",
+      "assignmentEligible": false,
+      "transferEligible": false,
+      "runtimeReadiness": "blocked_pending_complete_released_dictionary_facts",
+      "approvedHistoricalAnalysis": {
+        "analysisKey": "D4_MOR_ROOTS_COMMON_GREEK_ROOTS::telescope",
+        "microSkillKey": "D4_MOR_ROOTS_COMMON_GREEK_ROOTS",
+        "displayWord": "telescope",
+        "role": "lesson_word",
+        "parts": [
+          {
+            "id": "part_1",
+            "kind": "root",
+            "morphemeKey": "root_TELE",
+            "sourceText": "tele",
+            "surfaceText": "tele",
+            "gloss": "far",
+            "displayRange": {
+              "start": 0,
+              "end": 4
+            },
+            "source": {
+              "morphemesJsonIndex": 0
+            }
+          },
+          {
+            "id": "part_2",
+            "kind": "root",
+            "morphemeKey": "root_SCOPE",
+            "sourceText": "scope",
+            "surfaceText": "scope",
+            "gloss": "look",
+            "displayRange": {
+              "start": 4,
+              "end": 9
+            },
+            "source": {
+              "morphemesJsonIndex": 1
+            }
+          }
+        ],
+        "joins": [
+          {
+            "afterPartId": "part_1",
+            "beforePartId": "part_2",
+            "joinType": "none",
+            "surfaceText": "",
+            "displayRange": {
+              "start": 4,
+              "end": 4
+            }
+          }
+        ],
+        "joiningStrategy": "concatenate",
+        "transformations": [],
+        "derivedViewModel": {
+          "splitPoints": [
+            4
+          ]
+        },
+        "sourceSplitPoints": [
+          4
+        ],
+        "validation": {
+          "status": "pass",
+          "reconstructedDisplayWord": "telescope",
+          "warnings": []
+        },
+        "source": {
+          "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+          "sheet": "Word Bank",
+          "row": 150
+        },
+        "sourceCandidateStatus": "structurally_reconciled_candidate",
+        "approvalStatus": "human_approved",
+        "humanReviewStatus": "approved",
+        "approvalScope": "d4_mor_category_v1",
+        "activationStatus": "not_activated",
+        "runtimeEnabled": false
+      }
+    },
+    {
+      "displayWord": "microphone",
+      "assignmentEligible": false,
+      "transferEligible": false,
+      "runtimeReadiness": "blocked_pending_complete_released_dictionary_facts",
+      "approvedHistoricalAnalysis": {
+        "analysisKey": "D4_MOR_ROOTS_COMMON_GREEK_ROOTS::microphone",
+        "microSkillKey": "D4_MOR_ROOTS_COMMON_GREEK_ROOTS",
+        "displayWord": "microphone",
+        "role": "lesson_word",
+        "parts": [
+          {
+            "id": "part_1",
+            "kind": "root",
+            "morphemeKey": "root_MICRO",
+            "sourceText": "micro",
+            "surfaceText": "micro",
+            "gloss": "small",
+            "displayRange": {
+              "start": 0,
+              "end": 5
+            },
+            "source": {
+              "morphemesJsonIndex": 0
+            }
+          },
+          {
+            "id": "part_2",
+            "kind": "root",
+            "morphemeKey": null,
+            "sourceText": "phone",
+            "surfaceText": "phone",
+            "gloss": "sound",
+            "displayRange": {
+              "start": 5,
+              "end": 10
+            },
+            "source": {
+              "morphemesJsonIndex": 1
+            }
+          }
+        ],
+        "joins": [
+          {
+            "afterPartId": "part_1",
+            "beforePartId": "part_2",
+            "joinType": "none",
+            "surfaceText": "",
+            "displayRange": {
+              "start": 5,
+              "end": 5
+            }
+          }
+        ],
+        "joiningStrategy": "concatenate",
+        "transformations": [],
+        "derivedViewModel": {
+          "splitPoints": [
+            5
+          ]
+        },
+        "sourceSplitPoints": [
+          5
+        ],
+        "validation": {
+          "status": "pass",
+          "reconstructedDisplayWord": "microphone",
+          "warnings": []
+        },
+        "source": {
+          "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+          "sheet": "Word Bank",
+          "row": 152
+        },
+        "sourceCandidateStatus": "structurally_reconciled_candidate",
+        "approvalStatus": "human_approved",
+        "humanReviewStatus": "approved",
+        "approvalScope": "d4_mor_category_v1",
+        "activationStatus": "not_activated",
+        "runtimeEnabled": false
+      }
+    },
+    {
+      "displayWord": "microscope",
+      "assignmentEligible": false,
+      "transferEligible": false,
+      "runtimeReadiness": "blocked_pending_complete_released_dictionary_facts",
+      "approvedHistoricalAnalysis": {
+        "analysisKey": "D4_MOR_ROOTS_COMMON_GREEK_ROOTS::microscope",
+        "microSkillKey": "D4_MOR_ROOTS_COMMON_GREEK_ROOTS",
+        "displayWord": "microscope",
+        "role": "lesson_word",
+        "parts": [
+          {
+            "id": "part_1",
+            "kind": "root",
+            "morphemeKey": "root_MICRO",
+            "sourceText": "micro",
+            "surfaceText": "micro",
+            "gloss": "small",
+            "displayRange": {
+              "start": 0,
+              "end": 5
+            },
+            "source": {
+              "morphemesJsonIndex": 0
+            }
+          },
+          {
+            "id": "part_2",
+            "kind": "root",
+            "morphemeKey": "root_SCOPE",
+            "sourceText": "scope",
+            "surfaceText": "scope",
+            "gloss": "look",
+            "displayRange": {
+              "start": 5,
+              "end": 10
+            },
+            "source": {
+              "morphemesJsonIndex": 1
+            }
+          }
+        ],
+        "joins": [
+          {
+            "afterPartId": "part_1",
+            "beforePartId": "part_2",
+            "joinType": "none",
+            "surfaceText": "",
+            "displayRange": {
+              "start": 5,
+              "end": 5
+            }
+          }
+        ],
+        "joiningStrategy": "concatenate",
+        "transformations": [],
+        "derivedViewModel": {
+          "splitPoints": [
+            5
+          ]
+        },
+        "sourceSplitPoints": [
+          5
+        ],
+        "validation": {
+          "status": "pass",
+          "reconstructedDisplayWord": "microscope",
+          "warnings": []
+        },
+        "source": {
+          "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+          "sheet": "Word Bank",
+          "row": 154
+        },
+        "sourceCandidateStatus": "structurally_reconciled_candidate",
+        "approvalStatus": "human_approved",
+        "humanReviewStatus": "approved",
+        "approvalScope": "d4_mor_category_v1",
+        "activationStatus": "not_activated",
+        "runtimeEnabled": false
+      }
+    }
+  ],
+  "approvedHistoricalDistractors": {
+    "microSkillKey": "D4_MOR_ROOTS_COMMON_GREEK_ROOTS",
+    "distractors": [
+      {
+        "distractorKey": "D4_MOR_ROOTS_COMMON_GREEK_ROOTS::distractor_1",
+        "displayText": "fone",
+        "rationale": "",
+        "identity": "distractor"
+      },
+      {
+        "distractorKey": "D4_MOR_ROOTS_COMMON_GREEK_ROOTS::distractor_2",
+        "displayText": "foto",
+        "rationale": "",
+        "identity": "distractor"
+      },
+      {
+        "distractorKey": "D4_MOR_ROOTS_COMMON_GREEK_ROOTS::distractor_3",
+        "displayText": "graf",
+        "rationale": "",
+        "identity": "distractor"
+      }
+    ],
+    "designNote": "missing Greek ph/graph signature",
+    "source": {
+      "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+      "sheet": "Distractor Tiles",
+      "row": 23
+    },
+    "sourceCandidateStatus": "structurally_reconciled_candidate",
+    "approvalStatus": "human_approved",
+    "humanReviewStatus": "approved",
+    "approvalScope": "d4_mor_category_v1",
+    "activationStatus": "not_activated",
+    "runtimeEnabled": false
+  },
+  "referencedMorphemes": [
+    {
+      "morphemeKey": "root_MICRO",
+      "kind": "root",
+      "canonicalText": "micro",
+      "gloss": "small (Greek)",
+      "function": "",
+      "exampleWords": [
+        "microscope",
+        "microphone",
+        "microwave"
+      ],
+      "distractorGlosses": [
+        "large",
+        "far",
+        "many"
+      ],
+      "variantGroupKey": null,
+      "variantOf": null,
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Morpheme Glosses",
+        "row": 41,
+        "sourceValue": "micro"
+      },
+      "sourceCandidateStatus": "structurally_reconciled_candidate",
+      "approvalStatus": "human_approved",
+      "humanReviewStatus": "approved",
+      "approvalScope": "d4_mor_category_v1",
+      "activationStatus": "not_activated",
+      "runtimeEnabled": false
+    },
+    {
+      "morphemeKey": "root_SCOPE",
+      "kind": "root",
+      "canonicalText": "scope",
+      "gloss": "look / watch (Greek)",
+      "function": "",
+      "exampleWords": [
+        "telescope",
+        "microscope",
+        "periscope"
+      ],
+      "distractorGlosses": [
+        "sound",
+        "carry",
+        "heat"
+      ],
+      "variantGroupKey": null,
+      "variantOf": null,
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Morpheme Glosses",
+        "row": 40,
+        "sourceValue": "scope"
+      },
+      "sourceCandidateStatus": "structurally_reconciled_candidate",
+      "approvalStatus": "human_approved",
+      "humanReviewStatus": "approved",
+      "approvalScope": "d4_mor_category_v1",
+      "activationStatus": "not_activated",
+      "runtimeEnabled": false
+    },
+    {
+      "morphemeKey": "root_TELE",
+      "kind": "root",
+      "canonicalText": "tele",
+      "gloss": "far (Greek)",
+      "function": "",
+      "exampleWords": [
+        "telephone",
+        "telescope",
+        "television"
+      ],
+      "distractorGlosses": [
+        "sound",
+        "light",
+        "write"
+      ],
+      "variantGroupKey": null,
+      "variantOf": null,
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Morpheme Glosses",
+        "row": 36,
+        "sourceValue": "tele"
+      },
+      "sourceCandidateStatus": "structurally_reconciled_candidate",
+      "approvalStatus": "human_approved",
+      "humanReviewStatus": "approved",
+      "approvalScope": "d4_mor_category_v1",
+      "activationStatus": "not_activated",
+      "runtimeEnabled": false
+    }
+  ],
+  "provenance": {
+    "approvedManifest": "data/adle/approved/d4-mor/v1/d4-mor-v1-manifest.json",
+    "approvedContent": "data/adle/approved/d4-mor/v1/d4-mor-v1-content.json",
+    "approvedWordAnalyses": "data/adle/approved/d4-mor/v1/d4-mor-v1-word-analyses.json",
+    "approvedMorphemeCatalog": "data/adle/approved/d4-mor/v1/d4-mor-v1-morpheme-catalog.json",
+    "currentTaxonomy": "docs/implementation/seed-data/domain4-seed-expansion/micro-skills.json",
+    "approvedManifestSha256": "c279282665e8653ae18a4d72d7c9c35424a8e84224513d093ee62fb150d6af7a",
+    "currentTaxonomySha256": "b91de6ebb3a6e41fb8bf1f41792187dd4bebedcc6837ec86cb1c395ed5235511"
+  },
+  "rootKind": "common_greek",
+  "rootContract": {
+    "identityFields": [
+      "root identity",
+      "surface form",
+      "meaning",
+      "origin",
+      "variant group",
+      "artifact-card facts"
+    ],
+    "canonicalMorphologyAuthoritative": true,
+    "letterSubstringNeverImpliesEligibility": true
+  },
+  "rootArtifacts": [
+    {
+      "rootArtifactKey": "ROOT_MICRO",
+      "rootText": "micro",
+      "themeKey": "greek",
+      "meaning": "small",
+      "originLine": "Greek mikros, 'small'",
+      "descendantWords": [
+        "microscope",
+        "microphone",
+        "microwave"
+      ],
+      "microLore": "A microscope makes the small world visible.",
+      "variantGroupKey": null,
+      "variantOf": null,
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Root Artifact Cards",
+        "row": 16,
+        "sourceValue": "micro"
+      },
+      "sourceCandidateStatus": "structurally_reconciled_candidate",
+      "approvalStatus": "human_approved",
+      "humanReviewStatus": "approved",
+      "approvalScope": "d4_mor_category_v1",
+      "activationStatus": "not_activated",
+      "runtimeEnabled": false
+    },
+    {
+      "rootArtifactKey": "ROOT_SCOPE",
+      "rootText": "scope",
+      "themeKey": "greek",
+      "meaning": "look / watch",
+      "originLine": "Greek skopein, 'to look'",
+      "descendantWords": [
+        "telescope",
+        "microscope",
+        "periscope"
+      ],
+      "microLore": "Greek lookouts watched from towers; a telescope is a far-looker.",
+      "variantGroupKey": null,
+      "variantOf": null,
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Root Artifact Cards",
+        "row": 15,
+        "sourceValue": "scope"
+      },
+      "sourceCandidateStatus": "structurally_reconciled_candidate",
+      "approvalStatus": "human_approved",
+      "humanReviewStatus": "approved",
+      "approvalScope": "d4_mor_category_v1",
+      "activationStatus": "not_activated",
+      "runtimeEnabled": false
+    },
+    {
+      "rootArtifactKey": "ROOT_TELE",
+      "rootText": "tele",
+      "themeKey": "greek",
+      "meaning": "far",
+      "originLine": "Greek tele, 'far off'",
+      "descendantWords": [
+        "telephone",
+        "telescope",
+        "television"
+      ],
+      "microLore": "Greek messengers ran far — now tele- words carry sound and sight far.",
+      "variantGroupKey": null,
+      "variantOf": null,
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Root Artifact Cards",
+        "row": 11,
+        "sourceValue": "tele"
+      },
+      "sourceCandidateStatus": "structurally_reconciled_candidate",
+      "approvalStatus": "human_approved",
+      "humanReviewStatus": "approved",
+      "approvalScope": "d4_mor_category_v1",
+      "activationStatus": "not_activated",
+      "runtimeEnabled": false
+    }
+  ]
+}

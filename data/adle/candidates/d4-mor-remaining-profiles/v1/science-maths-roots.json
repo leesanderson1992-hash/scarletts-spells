@@ -1,0 +1,855 @@
+{
+  "schemaVersion": "d4_mor_morphology_profile_package_v1",
+  "contentVersion": "d4_mor_remaining_profiles_v1_2026_07_29",
+  "profileType": "root",
+  "microSkillKey": "D4_MOR_ROOTS_SCIENCE_MATH_ROOTS",
+  "stagingEnabled": false,
+  "productionEnabled": false,
+  "runtimeSelectionAllowed": false,
+  "profileReviewStatus": "profile_specific_human_review_required",
+  "reviewBoundary": "Roster, teaching source and historical analyses are human-reviewed. The new profile reflection/shape and released dictionary facts require their own approval before staging activation.",
+  "reviewedIntroduction": {
+    "title": "Science and maths roots",
+    "childFriendlyExplanation": "School subject words look scary until you see the bricks: thermometer = therm (heat) + meter (measure). Triangle = tri (three) + angle. Once you know ten bricks, you can spell (and understand!) a hundred subject words.",
+    "ruleExplanation": "Subject vocabulary is built from productive roots: meter (measure), therm (heat), bio (life), geo (earth), tri (three), cent (hundred), poly (many), hydro (water). Spell root-by-root.",
+    "watchForCue": "Break the scary word into bricks you know: therm + o + meter. Spell each brick — the word spells itself.",
+    "sourceApprovalStatus": "human_approved",
+    "sourceReviewerDecision": "approved"
+  },
+  "reflection": {
+    "promptKey": "science-maths-root-meaning-v1",
+    "promptText": "How did the root meaning help you spell this science or maths word?",
+    "reviewStatus": "profile_specific_human_review_required"
+  },
+  "immutableLessonShape": {
+    "itemCount": 18,
+    "guidedShape": [
+      "root-meaning practice",
+      "meaning-led builds"
+    ],
+    "independentProduction": [
+      "one controlled spelling item per roster word",
+      "one reviewed full-sentence dictation per roster word"
+    ],
+    "guidedInteractionsInflateIndependentMastery": false
+  },
+  "selectionPolicy": {
+    "rosterSize": 4,
+    "selectionKind": "fixed_reviewed_profile_membership",
+    "requiresExplicitMembership": true,
+    "requiresExplicitTransferEligibility": true,
+    "existingAssignmentSnapshotsImmutable": true
+  },
+  "eligibilityRequirements": [
+    "active approved_for_first_exposure canonical identity",
+    "clean child-facing component/root meanings",
+    "clean child-facing whole-word meaning",
+    "reviewed child teaching decomposition",
+    "canonical ordered morphology parts",
+    "canonical morphology joins",
+    "canonical morphology transformations",
+    "canonical morphology notes and provenance",
+    "pronunciation, syllables, stress, schwa and phoneme facts",
+    "frequency, age and complexity bands",
+    "reviewed dictation sentence, audio text and complete target location",
+    "explicit profile membership",
+    "explicit transfer eligibility"
+  ],
+  "members": [
+    {
+      "displayWord": "biology",
+      "assignmentEligible": false,
+      "transferEligible": false,
+      "runtimeReadiness": "blocked_pending_complete_released_dictionary_facts",
+      "approvedHistoricalAnalysis": {
+        "analysisKey": "D4_MOR_ROOTS_SCIENCE_MATH_ROOTS::biology",
+        "microSkillKey": "D4_MOR_ROOTS_SCIENCE_MATH_ROOTS",
+        "displayWord": "biology",
+        "role": "lesson_word",
+        "parts": [
+          {
+            "id": "part_1",
+            "kind": "root",
+            "morphemeKey": "root_BIO",
+            "sourceText": "bio",
+            "surfaceText": "bio",
+            "gloss": "life",
+            "displayRange": {
+              "start": 0,
+              "end": 3
+            },
+            "source": {
+              "morphemesJsonIndex": 0
+            }
+          },
+          {
+            "id": "part_2",
+            "kind": "suffix",
+            "morphemeKey": null,
+            "sourceText": "logy",
+            "surfaceText": "logy",
+            "gloss": "study of (Greek)",
+            "displayRange": {
+              "start": 3,
+              "end": 7
+            },
+            "source": {
+              "morphemesJsonIndex": 1
+            }
+          }
+        ],
+        "joins": [
+          {
+            "afterPartId": "part_1",
+            "beforePartId": "part_2",
+            "joinType": "none",
+            "surfaceText": "",
+            "displayRange": {
+              "start": 3,
+              "end": 3
+            }
+          }
+        ],
+        "joiningStrategy": "concatenate",
+        "transformations": [],
+        "derivedViewModel": {
+          "splitPoints": [
+            3
+          ]
+        },
+        "sourceSplitPoints": [
+          3
+        ],
+        "validation": {
+          "status": "pass",
+          "reconstructedDisplayWord": "biology",
+          "warnings": []
+        },
+        "source": {
+          "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+          "sheet": "Word Bank",
+          "row": 159
+        },
+        "sourceCandidateStatus": "structurally_reconciled_candidate",
+        "approvalStatus": "human_approved",
+        "humanReviewStatus": "approved",
+        "approvalScope": "d4_mor_category_v1",
+        "activationStatus": "not_activated",
+        "runtimeEnabled": false
+      }
+    },
+    {
+      "displayWord": "geography",
+      "assignmentEligible": false,
+      "transferEligible": false,
+      "runtimeReadiness": "blocked_pending_complete_released_dictionary_facts",
+      "approvedHistoricalAnalysis": {
+        "analysisKey": "D4_MOR_ROOTS_SCIENCE_MATH_ROOTS::geography",
+        "microSkillKey": "D4_MOR_ROOTS_SCIENCE_MATH_ROOTS",
+        "displayWord": "geography",
+        "role": "lesson_word",
+        "parts": [
+          {
+            "id": "part_1",
+            "kind": "root",
+            "morphemeKey": "root_GEO",
+            "sourceText": "geo",
+            "surfaceText": "geo",
+            "gloss": "earth",
+            "displayRange": {
+              "start": 0,
+              "end": 3
+            },
+            "source": {
+              "morphemesJsonIndex": 0
+            }
+          },
+          {
+            "id": "part_2",
+            "kind": "root",
+            "morphemeKey": "root_GRAPH",
+            "sourceText": "graph",
+            "surfaceText": "graph",
+            "gloss": "write / draw",
+            "displayRange": {
+              "start": 3,
+              "end": 8
+            },
+            "source": {
+              "morphemesJsonIndex": 1
+            }
+          },
+          {
+            "id": "part_3",
+            "kind": "suffix",
+            "morphemeKey": null,
+            "sourceText": "y",
+            "surfaceText": "y",
+            "gloss": "noun ending",
+            "displayRange": {
+              "start": 8,
+              "end": 9
+            },
+            "source": {
+              "morphemesJsonIndex": 2
+            }
+          }
+        ],
+        "joins": [
+          {
+            "afterPartId": "part_1",
+            "beforePartId": "part_2",
+            "joinType": "none",
+            "surfaceText": "",
+            "displayRange": {
+              "start": 3,
+              "end": 3
+            }
+          },
+          {
+            "afterPartId": "part_2",
+            "beforePartId": "part_3",
+            "joinType": "none",
+            "surfaceText": "",
+            "displayRange": {
+              "start": 8,
+              "end": 8
+            }
+          }
+        ],
+        "joiningStrategy": "concatenate",
+        "transformations": [],
+        "derivedViewModel": {
+          "splitPoints": [
+            3,
+            8
+          ]
+        },
+        "sourceSplitPoints": [
+          3,
+          8
+        ],
+        "validation": {
+          "status": "pass",
+          "reconstructedDisplayWord": "geography",
+          "warnings": []
+        },
+        "source": {
+          "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+          "sheet": "Word Bank",
+          "row": 160
+        },
+        "sourceCandidateStatus": "structurally_reconciled_candidate",
+        "approvalStatus": "human_approved",
+        "humanReviewStatus": "approved",
+        "approvalScope": "d4_mor_category_v1",
+        "activationStatus": "not_activated",
+        "runtimeEnabled": false
+      }
+    },
+    {
+      "displayWord": "thermometer",
+      "assignmentEligible": false,
+      "transferEligible": false,
+      "runtimeReadiness": "blocked_pending_complete_released_dictionary_facts",
+      "approvedHistoricalAnalysis": {
+        "analysisKey": "D4_MOR_ROOTS_SCIENCE_MATH_ROOTS::thermometer",
+        "microSkillKey": "D4_MOR_ROOTS_SCIENCE_MATH_ROOTS",
+        "displayWord": "thermometer",
+        "role": "anchor",
+        "parts": [
+          {
+            "id": "part_1",
+            "kind": "root",
+            "morphemeKey": "root_THERM",
+            "sourceText": "therm",
+            "surfaceText": "therm",
+            "gloss": "heat",
+            "displayRange": {
+              "start": 0,
+              "end": 5
+            },
+            "source": {
+              "morphemesJsonIndex": 0
+            }
+          },
+          {
+            "id": "part_2",
+            "kind": "base",
+            "morphemeKey": null,
+            "sourceText": "o",
+            "surfaceText": "o",
+            "gloss": "connector",
+            "displayRange": {
+              "start": 5,
+              "end": 6
+            },
+            "source": {
+              "morphemesJsonIndex": 1
+            }
+          },
+          {
+            "id": "part_3",
+            "kind": "root",
+            "morphemeKey": "root_METER",
+            "sourceText": "meter",
+            "surfaceText": "meter",
+            "gloss": "measure",
+            "displayRange": {
+              "start": 6,
+              "end": 11
+            },
+            "source": {
+              "morphemesJsonIndex": 2
+            }
+          }
+        ],
+        "joins": [
+          {
+            "afterPartId": "part_1",
+            "beforePartId": "part_2",
+            "joinType": "none",
+            "surfaceText": "",
+            "displayRange": {
+              "start": 5,
+              "end": 5
+            }
+          },
+          {
+            "afterPartId": "part_2",
+            "beforePartId": "part_3",
+            "joinType": "none",
+            "surfaceText": "",
+            "displayRange": {
+              "start": 6,
+              "end": 6
+            }
+          }
+        ],
+        "joiningStrategy": "concatenate",
+        "transformations": [],
+        "derivedViewModel": {
+          "splitPoints": [
+            5,
+            6
+          ]
+        },
+        "sourceSplitPoints": [
+          5,
+          6
+        ],
+        "validation": {
+          "status": "pass",
+          "reconstructedDisplayWord": "thermometer",
+          "warnings": []
+        },
+        "source": {
+          "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+          "sheet": "Word Bank",
+          "row": 156
+        },
+        "sourceCandidateStatus": "structurally_reconciled_candidate",
+        "approvalStatus": "human_approved",
+        "humanReviewStatus": "approved",
+        "approvalScope": "d4_mor_category_v1",
+        "activationStatus": "not_activated",
+        "runtimeEnabled": false
+      }
+    },
+    {
+      "displayWord": "triangle",
+      "assignmentEligible": false,
+      "transferEligible": false,
+      "runtimeReadiness": "blocked_pending_complete_released_dictionary_facts",
+      "approvedHistoricalAnalysis": {
+        "analysisKey": "D4_MOR_ROOTS_SCIENCE_MATH_ROOTS::triangle",
+        "microSkillKey": "D4_MOR_ROOTS_SCIENCE_MATH_ROOTS",
+        "displayWord": "triangle",
+        "role": "lesson_word",
+        "parts": [
+          {
+            "id": "part_1",
+            "kind": "root",
+            "morphemeKey": "root_TRI",
+            "sourceText": "tri",
+            "surfaceText": "tri",
+            "gloss": "three",
+            "displayRange": {
+              "start": 0,
+              "end": 3
+            },
+            "source": {
+              "morphemesJsonIndex": 0
+            }
+          },
+          {
+            "id": "part_2",
+            "kind": "base",
+            "morphemeKey": null,
+            "sourceText": "angle",
+            "surfaceText": "angle",
+            "gloss": "",
+            "displayRange": {
+              "start": 3,
+              "end": 8
+            },
+            "source": {
+              "morphemesJsonIndex": 1
+            }
+          }
+        ],
+        "joins": [
+          {
+            "afterPartId": "part_1",
+            "beforePartId": "part_2",
+            "joinType": "none",
+            "surfaceText": "",
+            "displayRange": {
+              "start": 3,
+              "end": 3
+            }
+          }
+        ],
+        "joiningStrategy": "concatenate",
+        "transformations": [],
+        "derivedViewModel": {
+          "splitPoints": [
+            3
+          ]
+        },
+        "sourceSplitPoints": [
+          3
+        ],
+        "validation": {
+          "status": "pass",
+          "reconstructedDisplayWord": "triangle",
+          "warnings": []
+        },
+        "source": {
+          "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+          "sheet": "Word Bank",
+          "row": 157
+        },
+        "sourceCandidateStatus": "structurally_reconciled_candidate",
+        "approvalStatus": "human_approved",
+        "humanReviewStatus": "approved",
+        "approvalScope": "d4_mor_category_v1",
+        "activationStatus": "not_activated",
+        "runtimeEnabled": false
+      }
+    }
+  ],
+  "approvedHistoricalDistractors": {
+    "microSkillKey": "D4_MOR_ROOTS_SCIENCE_MATH_ROOTS",
+    "distractors": [
+      {
+        "distractorKey": "D4_MOR_ROOTS_SCIENCE_MATH_ROOTS::distractor_1",
+        "displayText": "thurm",
+        "rationale": "",
+        "identity": "distractor"
+      },
+      {
+        "distractorKey": "D4_MOR_ROOTS_SCIENCE_MATH_ROOTS::distractor_2",
+        "displayText": "miter",
+        "rationale": "",
+        "identity": "distractor"
+      },
+      {
+        "distractorKey": "D4_MOR_ROOTS_SCIENCE_MATH_ROOTS::distractor_3",
+        "displayText": "senti",
+        "rationale": "",
+        "identity": "distractor"
+      }
+    ],
+    "designNote": "phonetic root corruptions",
+    "source": {
+      "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+      "sheet": "Distractor Tiles",
+      "row": 24
+    },
+    "sourceCandidateStatus": "structurally_reconciled_candidate",
+    "approvalStatus": "human_approved",
+    "humanReviewStatus": "approved",
+    "approvalScope": "d4_mor_category_v1",
+    "activationStatus": "not_activated",
+    "runtimeEnabled": false
+  },
+  "referencedMorphemes": [
+    {
+      "morphemeKey": "root_BIO",
+      "kind": "root",
+      "canonicalText": "bio",
+      "gloss": "life (Greek)",
+      "function": "",
+      "exampleWords": [
+        "biology",
+        "biography",
+        "antibiotic"
+      ],
+      "distractorGlosses": [
+        "earth",
+        "light",
+        "water"
+      ],
+      "variantGroupKey": null,
+      "variantOf": null,
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Morpheme Glosses",
+        "row": 44,
+        "sourceValue": "bio"
+      },
+      "sourceCandidateStatus": "structurally_reconciled_candidate",
+      "approvalStatus": "human_approved",
+      "humanReviewStatus": "approved",
+      "approvalScope": "d4_mor_category_v1",
+      "activationStatus": "not_activated",
+      "runtimeEnabled": false
+    },
+    {
+      "morphemeKey": "root_GEO",
+      "kind": "root",
+      "canonicalText": "geo",
+      "gloss": "earth (Greek)",
+      "function": "",
+      "exampleWords": [
+        "geography",
+        "geology",
+        "geometry"
+      ],
+      "distractorGlosses": [
+        "life",
+        "water",
+        "far"
+      ],
+      "variantGroupKey": null,
+      "variantOf": null,
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Morpheme Glosses",
+        "row": 45,
+        "sourceValue": "geo"
+      },
+      "sourceCandidateStatus": "structurally_reconciled_candidate",
+      "approvalStatus": "human_approved",
+      "humanReviewStatus": "approved",
+      "approvalScope": "d4_mor_category_v1",
+      "activationStatus": "not_activated",
+      "runtimeEnabled": false
+    },
+    {
+      "morphemeKey": "root_GRAPH",
+      "kind": "root",
+      "canonicalText": "graph",
+      "gloss": "write / draw (Greek)",
+      "function": "",
+      "exampleWords": [
+        "photograph",
+        "paragraph",
+        "autograph",
+        "graphics"
+      ],
+      "distractorGlosses": [
+        "sound",
+        "measure",
+        "life"
+      ],
+      "variantGroupKey": null,
+      "variantOf": null,
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Morpheme Glosses",
+        "row": 38,
+        "sourceValue": "graph"
+      },
+      "sourceCandidateStatus": "structurally_reconciled_candidate",
+      "approvalStatus": "human_approved",
+      "humanReviewStatus": "approved",
+      "approvalScope": "d4_mor_category_v1",
+      "activationStatus": "not_activated",
+      "runtimeEnabled": false
+    },
+    {
+      "morphemeKey": "root_METER",
+      "kind": "root",
+      "canonicalText": "meter",
+      "gloss": "measure (Greek)",
+      "function": "",
+      "exampleWords": [
+        "thermometer",
+        "centimetre",
+        "speedometer",
+        "perimeter"
+      ],
+      "distractorGlosses": [
+        "heat",
+        "look",
+        "build"
+      ],
+      "variantGroupKey": "VARIANT_METER_METRE",
+      "variantOf": null,
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Morpheme Glosses",
+        "row": 43,
+        "sourceValue": "meter/metre"
+      },
+      "sourceCandidateStatus": "structurally_reconciled_candidate",
+      "approvalStatus": "human_approved",
+      "humanReviewStatus": "approved",
+      "approvalScope": "d4_mor_category_v1",
+      "activationStatus": "not_activated",
+      "runtimeEnabled": false
+    },
+    {
+      "morphemeKey": "root_THERM",
+      "kind": "root",
+      "canonicalText": "therm",
+      "gloss": "heat (Greek)",
+      "function": "",
+      "exampleWords": [
+        "thermometer",
+        "thermal",
+        "thermos"
+      ],
+      "distractorGlosses": [
+        "water",
+        "light",
+        "earth"
+      ],
+      "variantGroupKey": null,
+      "variantOf": null,
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Morpheme Glosses",
+        "row": 42,
+        "sourceValue": "therm"
+      },
+      "sourceCandidateStatus": "structurally_reconciled_candidate",
+      "approvalStatus": "human_approved",
+      "humanReviewStatus": "approved",
+      "approvalScope": "d4_mor_category_v1",
+      "activationStatus": "not_activated",
+      "runtimeEnabled": false
+    },
+    {
+      "morphemeKey": "root_TRI",
+      "kind": "root",
+      "canonicalText": "tri",
+      "gloss": "three (Greek/Latin)",
+      "function": "",
+      "exampleWords": [
+        "triangle",
+        "tricycle",
+        "trio",
+        "triple"
+      ],
+      "distractorGlosses": [
+        "hundred",
+        "many",
+        "two"
+      ],
+      "variantGroupKey": null,
+      "variantOf": null,
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Morpheme Glosses",
+        "row": 46,
+        "sourceValue": "tri"
+      },
+      "sourceCandidateStatus": "structurally_reconciled_candidate",
+      "approvalStatus": "human_approved",
+      "humanReviewStatus": "approved",
+      "approvalScope": "d4_mor_category_v1",
+      "activationStatus": "not_activated",
+      "runtimeEnabled": false
+    }
+  ],
+  "provenance": {
+    "approvedManifest": "data/adle/approved/d4-mor/v1/d4-mor-v1-manifest.json",
+    "approvedContent": "data/adle/approved/d4-mor/v1/d4-mor-v1-content.json",
+    "approvedWordAnalyses": "data/adle/approved/d4-mor/v1/d4-mor-v1-word-analyses.json",
+    "approvedMorphemeCatalog": "data/adle/approved/d4-mor/v1/d4-mor-v1-morpheme-catalog.json",
+    "currentTaxonomy": "docs/implementation/seed-data/domain4-seed-expansion/micro-skills.json",
+    "approvedManifestSha256": "c279282665e8653ae18a4d72d7c9c35424a8e84224513d093ee62fb150d6af7a",
+    "currentTaxonomySha256": "b91de6ebb3a6e41fb8bf1f41792187dd4bebedcc6837ec86cb1c395ed5235511"
+  },
+  "rootKind": "science_maths",
+  "rootContract": {
+    "identityFields": [
+      "root identity",
+      "surface form",
+      "meaning",
+      "origin",
+      "variant group",
+      "artifact-card facts"
+    ],
+    "canonicalMorphologyAuthoritative": true,
+    "letterSubstringNeverImpliesEligibility": true
+  },
+  "rootArtifacts": [
+    {
+      "rootArtifactKey": "ROOT_BIO",
+      "rootText": "bio",
+      "themeKey": "greek",
+      "meaning": "life",
+      "originLine": "Greek bios, 'life'",
+      "descendantWords": [
+        "biology",
+        "biography",
+        "antibiotic"
+      ],
+      "microLore": "A biography is life-writing; biology is the study of life.",
+      "variantGroupKey": null,
+      "variantOf": null,
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Root Artifact Cards",
+        "row": 19,
+        "sourceValue": "bio"
+      },
+      "sourceCandidateStatus": "structurally_reconciled_candidate",
+      "approvalStatus": "human_approved",
+      "humanReviewStatus": "approved",
+      "approvalScope": "d4_mor_category_v1",
+      "activationStatus": "not_activated",
+      "runtimeEnabled": false
+    },
+    {
+      "rootArtifactKey": "ROOT_GEO",
+      "rootText": "geo",
+      "themeKey": "greek",
+      "meaning": "earth",
+      "originLine": "Greek ge, 'earth'",
+      "descendantWords": [
+        "geography",
+        "geology",
+        "geometry"
+      ],
+      "microLore": "Gaia was the Greek earth goddess — geo- words map her world.",
+      "variantGroupKey": null,
+      "variantOf": null,
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Root Artifact Cards",
+        "row": 20,
+        "sourceValue": "geo"
+      },
+      "sourceCandidateStatus": "structurally_reconciled_candidate",
+      "approvalStatus": "human_approved",
+      "humanReviewStatus": "approved",
+      "approvalScope": "d4_mor_category_v1",
+      "activationStatus": "not_activated",
+      "runtimeEnabled": false
+    },
+    {
+      "rootArtifactKey": "ROOT_GRAPH",
+      "rootText": "graph",
+      "themeKey": "greek",
+      "meaning": "write / draw",
+      "originLine": "Greek graphein, 'to write'",
+      "descendantWords": [
+        "photograph",
+        "paragraph",
+        "autograph"
+      ],
+      "microLore": "Greek scholars wrote on scrolls; an autograph is self-writing.",
+      "variantGroupKey": null,
+      "variantOf": null,
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Root Artifact Cards",
+        "row": 13,
+        "sourceValue": "graph"
+      },
+      "sourceCandidateStatus": "structurally_reconciled_candidate",
+      "approvalStatus": "human_approved",
+      "humanReviewStatus": "approved",
+      "approvalScope": "d4_mor_category_v1",
+      "activationStatus": "not_activated",
+      "runtimeEnabled": false
+    },
+    {
+      "rootArtifactKey": "ROOT_METER",
+      "rootText": "meter",
+      "themeKey": "greek",
+      "meaning": "measure",
+      "originLine": "Greek metron, 'measure'",
+      "descendantWords": [
+        "thermometer",
+        "centimetre",
+        "perimeter"
+      ],
+      "microLore": "Perimeter: the measure around; geometry: earth-measuring.",
+      "variantGroupKey": "ROOT_VARIANT_METER_METRE",
+      "variantOf": null,
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Root Artifact Cards",
+        "row": 18,
+        "sourceValue": "meter/metre"
+      },
+      "sourceCandidateStatus": "structurally_reconciled_candidate",
+      "approvalStatus": "human_approved",
+      "humanReviewStatus": "approved",
+      "approvalScope": "d4_mor_category_v1",
+      "activationStatus": "not_activated",
+      "runtimeEnabled": false
+    },
+    {
+      "rootArtifactKey": "ROOT_THERM",
+      "rootText": "therm",
+      "themeKey": "greek",
+      "meaning": "heat",
+      "originLine": "Greek therme, 'heat'",
+      "descendantWords": [
+        "thermometer",
+        "thermal",
+        "thermos"
+      ],
+      "microLore": "Greek hot springs were called thermae — the Romans borrowed them for their baths.",
+      "variantGroupKey": null,
+      "variantOf": null,
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Root Artifact Cards",
+        "row": 17,
+        "sourceValue": "therm"
+      },
+      "sourceCandidateStatus": "structurally_reconciled_candidate",
+      "approvalStatus": "human_approved",
+      "humanReviewStatus": "approved",
+      "approvalScope": "d4_mor_category_v1",
+      "activationStatus": "not_activated",
+      "runtimeEnabled": false
+    },
+    {
+      "rootArtifactKey": "ROOT_TRI",
+      "rootText": "tri",
+      "themeKey": "greek",
+      "meaning": "three",
+      "originLine": "Greek/Latin tri-, 'three'",
+      "descendantWords": [
+        "triangle",
+        "tricycle",
+        "trio",
+        "triple"
+      ],
+      "microLore": "A trident has three points — Poseidon's three-toothed spear.",
+      "variantGroupKey": null,
+      "variantOf": null,
+      "source": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Root Artifact Cards",
+        "row": 22,
+        "sourceValue": "tri"
+      },
+      "sourceCandidateStatus": "structurally_reconciled_candidate",
+      "approvalStatus": "human_approved",
+      "humanReviewStatus": "approved",
+      "approvalScope": "d4_mor_category_v1",
+      "activationStatus": "not_activated",
+      "runtimeEnabled": false
+    }
+  ]
+}

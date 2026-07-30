@@ -1,0 +1,92 @@
+{
+  "packageKey": "d4_mor_remaining_profiles_v1",
+  "schemaVersion": "d4_mor_morphology_profile_package_v1",
+  "contentVersion": "d4_mor_remaining_profiles_v1_2026_07_29",
+  "stagingEnabled": false,
+  "productionEnabled": false,
+  "runtimeSelectionAllowed": false,
+  "profileCount": 6,
+  "profiles": [
+    {
+      "microSkillKey": "D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS",
+      "path": "data/adle/candidates/d4-mor-remaining-profiles/v1/closed-compounds.json",
+      "profileType": "compound",
+      "itemCount": 16,
+      "memberCount": 4,
+      "runtimeSelectionAllowed": false,
+      "profileReviewStatus": "profile_specific_human_review_required"
+    },
+    {
+      "microSkillKey": "D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED",
+      "path": "data/adle/candidates/d4-mor-remaining-profiles/v1/open-hyphenated-compounds.json",
+      "profileType": "compound",
+      "itemCount": 18,
+      "memberCount": 4,
+      "runtimeSelectionAllowed": false,
+      "profileReviewStatus": "profile_specific_human_review_required"
+    },
+    {
+      "microSkillKey": "D4_MOR_ROOTS_COMMON_GREEK_ROOTS",
+      "path": "data/adle/candidates/d4-mor-remaining-profiles/v1/common-greek-roots.json",
+      "profileType": "root",
+      "itemCount": 18,
+      "memberCount": 4,
+      "runtimeSelectionAllowed": false,
+      "profileReviewStatus": "profile_specific_human_review_required"
+    },
+    {
+      "microSkillKey": "D4_MOR_ROOTS_COMMON_LATIN_ROOTS",
+      "path": "data/adle/candidates/d4-mor-remaining-profiles/v1/common-latin-roots.json",
+      "profileType": "root",
+      "itemCount": 18,
+      "memberCount": 4,
+      "runtimeSelectionAllowed": false,
+      "profileReviewStatus": "profile_specific_human_review_required"
+    },
+    {
+      "microSkillKey": "D4_MOR_ROOTS_ROOT_FAMILY_SPELLING",
+      "path": "data/adle/candidates/d4-mor-remaining-profiles/v1/root-family-spelling.json",
+      "profileType": "root",
+      "itemCount": 16,
+      "memberCount": 4,
+      "runtimeSelectionAllowed": false,
+      "profileReviewStatus": "profile_specific_human_review_required"
+    },
+    {
+      "microSkillKey": "D4_MOR_ROOTS_SCIENCE_MATH_ROOTS",
+      "path": "data/adle/candidates/d4-mor-remaining-profiles/v1/science-maths-roots.json",
+      "profileType": "root",
+      "itemCount": 18,
+      "memberCount": 4,
+      "runtimeSelectionAllowed": false,
+      "profileReviewStatus": "profile_specific_human_review_required"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "data/adle/candidates/d4-mor-remaining-profiles/v1/closed-compounds.json",
+      "sha256": "63fcf2e27f50a40ea3e8a141e2a88337b91b6de01b9357994e9cc908bc2a6d01"
+    },
+    {
+      "path": "data/adle/candidates/d4-mor-remaining-profiles/v1/open-hyphenated-compounds.json",
+      "sha256": "2cee2601eaede4dd83b7cd473836f8623af0c7f6a432b9afd622d3cf326e86d3"
+    },
+    {
+      "path": "data/adle/candidates/d4-mor-remaining-profiles/v1/common-greek-roots.json",
+      "sha256": "053a08c863bf4d9842c839e6a0dcca3a7870a754021abbc61e2c1b3f59631a2d"
+    },
+    {
+      "path": "data/adle/candidates/d4-mor-remaining-profiles/v1/common-latin-roots.json",
+      "sha256": "676c88c127ef455a6e6403bc2e29c182638ae72f816f37175674951c27f5b0d5"
+    },
+    {
+      "path": "data/adle/candidates/d4-mor-remaining-profiles/v1/root-family-spelling.json",
+      "sha256": "ee5581eaf1d10747c60be7c94d57ee1de8373c846463a2ec6cadd07ad1c50b26"
+    },
+    {
+      "path": "data/adle/candidates/d4-mor-remaining-profiles/v1/science-maths-roots.json",
+      "sha256": "7ac426971e3a4af92460bf9887238eb4303840c30a0c8649f855548c441b5c33"
+    }
+  ],
+  "releaseBoundary": "Preparation only. Each profile needs complete immutable Teaching Dictionary facts, profile-specific human approval, staging import/proof and separate written production authority."
+}

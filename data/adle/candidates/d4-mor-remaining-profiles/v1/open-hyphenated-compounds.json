@@ -1,0 +1,438 @@
+{
+  "schemaVersion": "d4_mor_morphology_profile_package_v1",
+  "contentVersion": "d4_mor_remaining_profiles_v1_2026_07_29",
+  "profileType": "compound",
+  "microSkillKey": "D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED",
+  "stagingEnabled": false,
+  "productionEnabled": false,
+  "runtimeSelectionAllowed": false,
+  "profileReviewStatus": "profile_specific_human_review_required",
+  "reviewBoundary": "Roster, teaching source and historical analyses are human-reviewed. The new profile reflection/shape and released dictionary facts require their own approval before staging activation.",
+  "reviewedIntroduction": {
+    "title": "Open and hyphenated compounds",
+    "childFriendlyExplanation": "Some two-word teams stay apart (ice cream), and some hold hands with a hyphen (well-known). The words themselves stay perfectly spelled — the skill is knowing whether they're glued, hyphenated, or separate. Hyphenated compound: Join the words with a hyphen when they work together as one describing idea. Open compound: Leave a space when the two words belong together but are usually written separately.",
+    "ruleExplanation": "Open compounds keep a space (ice cream, living room); hyphenated compounds join with - (twenty-one, part-time). Each word part keeps its full spelling.",
+    "watchForCue": "Spell each word perfectly first; then ask — glued, hyphen, or space? Learn each team's style like a name.",
+    "sourceApprovalStatus": "human_approved",
+    "sourceReviewerDecision": "approved_with_amendment"
+  },
+  "reflection": {
+    "promptKey": "compound-join-style-v1",
+    "promptText": "What tells you whether compound parts need no gap, a space, or a hyphen?",
+    "reviewStatus": "profile_specific_human_review_required"
+  },
+  "immutableLessonShape": {
+    "itemCount": 18,
+    "guidedShape": [
+      "four join-style decisions",
+      "one form-preserving build for each word"
+    ],
+    "independentProduction": [
+      "one controlled spelling item per roster word",
+      "one reviewed full-sentence dictation per roster word"
+    ],
+    "guidedInteractionsInflateIndependentMastery": false
+  },
+  "selectionPolicy": {
+    "rosterSize": 4,
+    "selectionKind": "fixed_reviewed_profile_membership",
+    "requiresExplicitMembership": true,
+    "requiresExplicitTransferEligibility": true,
+    "existingAssignmentSnapshotsImmutable": true
+  },
+  "eligibilityRequirements": [
+    "active approved_for_first_exposure canonical identity",
+    "clean child-facing component/root meanings",
+    "clean child-facing whole-word meaning",
+    "reviewed child teaching decomposition",
+    "canonical ordered morphology parts",
+    "canonical morphology joins",
+    "canonical morphology transformations",
+    "canonical morphology notes and provenance",
+    "pronunciation, syllables, stress, schwa and phoneme facts",
+    "frequency, age and complexity bands",
+    "reviewed dictation sentence, audio text and complete target location",
+    "explicit profile membership",
+    "explicit transfer eligibility"
+  ],
+  "members": [
+    {
+      "displayWord": "ice cream",
+      "assignmentEligible": false,
+      "transferEligible": false,
+      "runtimeReadiness": "blocked_pending_complete_released_dictionary_facts",
+      "approvedHistoricalAnalysis": {
+        "analysisKey": "D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED::ice_cream",
+        "microSkillKey": "D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED",
+        "displayWord": "ice cream",
+        "role": "anchor",
+        "parts": [
+          {
+            "id": "part_1",
+            "kind": "base",
+            "morphemeKey": null,
+            "sourceText": "ice",
+            "surfaceText": "ice",
+            "gloss": "",
+            "displayRange": {
+              "start": 0,
+              "end": 3
+            },
+            "source": {
+              "morphemesJsonIndex": 0
+            }
+          },
+          {
+            "id": "part_2",
+            "kind": "base",
+            "morphemeKey": null,
+            "sourceText": "cream",
+            "surfaceText": "cream",
+            "gloss": "",
+            "displayRange": {
+              "start": 4,
+              "end": 9
+            },
+            "source": {
+              "morphemesJsonIndex": 1
+            }
+          }
+        ],
+        "joins": [
+          {
+            "afterPartId": "part_1",
+            "beforePartId": "part_2",
+            "joinType": "space",
+            "surfaceText": " ",
+            "displayRange": {
+              "start": 3,
+              "end": 4
+            }
+          }
+        ],
+        "joiningStrategy": "space",
+        "transformations": [],
+        "derivedViewModel": {
+          "splitPoints": [
+            3
+          ]
+        },
+        "sourceSplitPoints": [
+          3
+        ],
+        "validation": {
+          "status": "pass",
+          "reconstructedDisplayWord": "ice cream",
+          "warnings": []
+        },
+        "source": {
+          "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+          "sheet": "Word Bank",
+          "row": 121
+        },
+        "sourceCandidateStatus": "structurally_reconciled_candidate",
+        "approvalStatus": "human_approved",
+        "humanReviewStatus": "approved",
+        "approvalScope": "d4_mor_category_v1",
+        "activationStatus": "not_activated",
+        "runtimeEnabled": false
+      }
+    },
+    {
+      "displayWord": "post office",
+      "assignmentEligible": false,
+      "transferEligible": false,
+      "runtimeReadiness": "blocked_pending_complete_released_dictionary_facts",
+      "approvedHistoricalAnalysis": {
+        "analysisKey": "D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED::post_office",
+        "microSkillKey": "D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED",
+        "displayWord": "post office",
+        "role": "lesson_word",
+        "parts": [
+          {
+            "id": "part_1",
+            "kind": "base",
+            "morphemeKey": null,
+            "sourceText": "post",
+            "surfaceText": "post",
+            "gloss": "",
+            "displayRange": {
+              "start": 0,
+              "end": 4
+            },
+            "source": {
+              "morphemesJsonIndex": 0
+            }
+          },
+          {
+            "id": "part_2",
+            "kind": "base",
+            "morphemeKey": null,
+            "sourceText": "office",
+            "surfaceText": "office",
+            "gloss": "",
+            "displayRange": {
+              "start": 5,
+              "end": 11
+            },
+            "source": {
+              "morphemesJsonIndex": 1
+            }
+          }
+        ],
+        "joins": [
+          {
+            "afterPartId": "part_1",
+            "beforePartId": "part_2",
+            "joinType": "space",
+            "surfaceText": " ",
+            "displayRange": {
+              "start": 4,
+              "end": 5
+            }
+          }
+        ],
+        "joiningStrategy": "space",
+        "transformations": [],
+        "derivedViewModel": {
+          "splitPoints": [
+            4
+          ]
+        },
+        "sourceSplitPoints": [
+          4
+        ],
+        "validation": {
+          "status": "pass",
+          "reconstructedDisplayWord": "post office",
+          "warnings": []
+        },
+        "source": {
+          "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+          "sheet": "Word Bank",
+          "row": 126
+        },
+        "sourceCandidateStatus": "structurally_reconciled_candidate",
+        "approvalStatus": "human_approved",
+        "humanReviewStatus": "approved",
+        "approvalScope": "d4_mor_category_v1",
+        "activationStatus": "not_activated",
+        "runtimeEnabled": false
+      }
+    },
+    {
+      "displayWord": "twenty-one",
+      "assignmentEligible": false,
+      "transferEligible": false,
+      "runtimeReadiness": "blocked_pending_complete_released_dictionary_facts",
+      "approvedHistoricalAnalysis": {
+        "analysisKey": "D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED::twenty_one",
+        "microSkillKey": "D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED",
+        "displayWord": "twenty-one",
+        "role": "lesson_word",
+        "parts": [
+          {
+            "id": "part_1",
+            "kind": "base",
+            "morphemeKey": null,
+            "sourceText": "twenty",
+            "surfaceText": "twenty",
+            "gloss": "",
+            "displayRange": {
+              "start": 0,
+              "end": 6
+            },
+            "source": {
+              "morphemesJsonIndex": 0
+            }
+          },
+          {
+            "id": "part_2",
+            "kind": "base",
+            "morphemeKey": null,
+            "sourceText": "one",
+            "surfaceText": "one",
+            "gloss": "",
+            "displayRange": {
+              "start": 7,
+              "end": 10
+            },
+            "source": {
+              "morphemesJsonIndex": 1
+            }
+          }
+        ],
+        "joins": [
+          {
+            "afterPartId": "part_1",
+            "beforePartId": "part_2",
+            "joinType": "hyphen",
+            "surfaceText": "-",
+            "displayRange": {
+              "start": 6,
+              "end": 7
+            }
+          }
+        ],
+        "joiningStrategy": "hyphen",
+        "transformations": [],
+        "derivedViewModel": {
+          "splitPoints": [
+            6
+          ]
+        },
+        "sourceSplitPoints": [
+          6
+        ],
+        "validation": {
+          "status": "pass",
+          "reconstructedDisplayWord": "twenty-one",
+          "warnings": []
+        },
+        "source": {
+          "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+          "sheet": "Word Bank",
+          "row": 123
+        },
+        "sourceCandidateStatus": "structurally_reconciled_candidate",
+        "approvalStatus": "human_approved",
+        "humanReviewStatus": "approved",
+        "approvalScope": "d4_mor_category_v1",
+        "activationStatus": "not_activated",
+        "runtimeEnabled": false
+      }
+    },
+    {
+      "displayWord": "part-time",
+      "assignmentEligible": false,
+      "transferEligible": false,
+      "runtimeReadiness": "blocked_pending_complete_released_dictionary_facts",
+      "approvedHistoricalAnalysis": {
+        "analysisKey": "D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED::part_time",
+        "microSkillKey": "D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED",
+        "displayWord": "part-time",
+        "role": "lesson_word",
+        "parts": [
+          {
+            "id": "part_1",
+            "kind": "base",
+            "morphemeKey": null,
+            "sourceText": "part",
+            "surfaceText": "part",
+            "gloss": "",
+            "displayRange": {
+              "start": 0,
+              "end": 4
+            },
+            "source": {
+              "morphemesJsonIndex": 0
+            }
+          },
+          {
+            "id": "part_2",
+            "kind": "base",
+            "morphemeKey": null,
+            "sourceText": "time",
+            "surfaceText": "time",
+            "gloss": "",
+            "displayRange": {
+              "start": 5,
+              "end": 9
+            },
+            "source": {
+              "morphemesJsonIndex": 1
+            }
+          }
+        ],
+        "joins": [
+          {
+            "afterPartId": "part_1",
+            "beforePartId": "part_2",
+            "joinType": "hyphen",
+            "surfaceText": "-",
+            "displayRange": {
+              "start": 4,
+              "end": 5
+            }
+          }
+        ],
+        "joiningStrategy": "hyphen",
+        "transformations": [],
+        "derivedViewModel": {
+          "splitPoints": [
+            4
+          ]
+        },
+        "sourceSplitPoints": [
+          4
+        ],
+        "validation": {
+          "status": "pass",
+          "reconstructedDisplayWord": "part-time",
+          "warnings": []
+        },
+        "source": {
+          "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+          "sheet": "Word Bank",
+          "row": 125
+        },
+        "sourceCandidateStatus": "structurally_reconciled_candidate",
+        "approvalStatus": "human_approved",
+        "humanReviewStatus": "approved",
+        "approvalScope": "d4_mor_category_v1",
+        "activationStatus": "not_activated",
+        "runtimeEnabled": false
+      }
+    }
+  ],
+  "approvedHistoricalDistractors": {
+    "microSkillKey": "D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED",
+    "distractors": [
+      {
+        "distractorKey": "D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED::distractor_1",
+        "displayText": "icecream",
+        "rationale": "wrongly glued tile",
+        "identity": "distractor"
+      },
+      {
+        "distractorKey": "D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED::distractor_2",
+        "displayText": "twenty one",
+        "rationale": "missing hyphen option",
+        "identity": "distractor"
+      }
+    ],
+    "designNote": "style distractors (glue/space/hyphen chooser)",
+    "source": {
+      "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+      "sheet": "Distractor Tiles",
+      "row": 19
+    },
+    "sourceCandidateStatus": "structurally_reconciled_candidate",
+    "approvalStatus": "human_approved",
+    "humanReviewStatus": "approved",
+    "approvalScope": "d4_mor_category_v1",
+    "activationStatus": "not_activated",
+    "runtimeEnabled": false
+  },
+  "referencedMorphemes": [],
+  "provenance": {
+    "approvedManifest": "data/adle/approved/d4-mor/v1/d4-mor-v1-manifest.json",
+    "approvedContent": "data/adle/approved/d4-mor/v1/d4-mor-v1-content.json",
+    "approvedWordAnalyses": "data/adle/approved/d4-mor/v1/d4-mor-v1-word-analyses.json",
+    "approvedMorphemeCatalog": "data/adle/approved/d4-mor/v1/d4-mor-v1-morpheme-catalog.json",
+    "currentTaxonomy": "docs/implementation/seed-data/domain4-seed-expansion/micro-skills.json",
+    "approvedManifestSha256": "c279282665e8653ae18a4d72d7c9c35424a8e84224513d093ee62fb150d6af7a",
+    "currentTaxonomySha256": "b91de6ebb3a6e41fb8bf1f41792187dd4bebedcc6837ec86cb1c395ed5235511"
+  },
+  "compoundKind": "open_and_hyphenated",
+  "compoundContract": {
+    "joinsAreTeachingFacts": [
+      "none",
+      "space",
+      "hyphen"
+    ],
+    "answerComparison": "separator_significant",
+    "forbiddenNormaliser": "affix_normaliser_that_removes_spacing_or_punctuation",
+    "dictationTargetLocation": "reviewed_token_span_required"
+  }
+}
