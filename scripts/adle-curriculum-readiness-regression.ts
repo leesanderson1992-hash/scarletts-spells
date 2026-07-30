@@ -42,6 +42,20 @@ const routes = [
     implementationState: "registered" as const,
     newAssignmentCapable: true,
     requiresAuthenticSelectableItem: false,
+    payloadKind: "base_word_family_snapshot_v1" as const,
+    payloadVersions: [1],
+    activationAuthority: "database_route_activation" as const,
+    compatibilityScope: { kind: "declared_micro_skills" as const },
+    recipes: [{ recipeKey: "alternate_base_lab", recipeVersion: "v1" }],
+    legacyDetectionRules: ["fixture"],
+    requiredActivities: ["cover_check" as const],
+    intentionalItemCounts: [1],
+    wordCounts: {
+      lesson: [1, 1] as const,
+      authentic: [0, 1] as const,
+      transfer: [0, 1] as const,
+    },
+    coverageRequirements: ["none" as const],
   },
 ];
 

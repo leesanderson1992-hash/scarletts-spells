@@ -2,6 +2,17 @@ import type { ActivityTemplateKey } from "./activity-template-registry";
 
 /** Only routes with an application consumer may be activated by this PR. */
 export type AdleLessonRouteKey = "base_word_family_v1";
+
+/**
+ * Compatibility projection for the existing database activation consumer.
+ * The canonical descriptive inventory is curriculum-readiness/route-registry;
+ * this key remains unchanged for persisted manifests and runtime readers.
+ */
+export const BASE_WORD_ROUTE_COMPATIBILITY_PROJECTION = {
+  lessonRouteKey: "base_word_family_v1",
+  canonicalRouteId: "base_word_lab",
+  canonicalRouteVersion: "v2",
+} as const;
 export type AdleRouteActivationStatus =
   | "content_review"
   | "ready_for_proof"
