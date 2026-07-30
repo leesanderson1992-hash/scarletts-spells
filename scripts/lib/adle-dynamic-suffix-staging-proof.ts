@@ -1,3 +1,5 @@
+/* Database proof rows are narrowed through explicit runtime assertions. */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { createClient } from "@supabase/supabase-js";

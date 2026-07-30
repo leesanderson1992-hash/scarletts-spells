@@ -116,6 +116,7 @@ export function MorphologyGuidedLesson(props: {
   }, [
     guidedBindings,
     key,
+    props.payload.activities,
     props.payload.contentVersion,
     props.payload.words.lesson,
   ]);
@@ -578,7 +579,7 @@ function Discovery(props: {
           </p>
           <p className="mt-2 text-lg font-bold">
             {props.addedPrefix
-              ? "New word meaning: choose the best match"
+              ? "Choose the new-word meaning below."
               : `Add the ${affixTerm} to find out`}
           </p>
         </section>
@@ -664,6 +665,17 @@ function SplitBuild(props: {
   const suffix = props.word.affixPosition === "after" || props.word.parts.some((part) => part.role === "suffix");
   const affix = props.word.affixText ?? props.word.parts.find((part) => part.role === (suffix ? "suffix" : "prefix"))?.text;
   const baseOrRoot = props.word.parts.filter((part) => part.role !== (suffix ? "suffix" : "prefix")).map((part) => part.text).join("");
+  const semanticBaseOrRoot = props.word.semanticBaseText;
+  const visibleSplitDiffersFromSemanticBase = Boolean(
+    suffix && semanticBaseOrRoot && baseOrRoot && semanticBaseOrRoot !== baseOrRoot,
+  );
+  const correctExplanation = affix && baseOrRoot
+    ? visibleSplitDiffersFromSemanticBase
+      ? `The visible ending -${affix} begins after ${baseOrRoot}. The base word is ${semanticBaseOrRoot}, so this split finds the ending in the finished word; it is not a letter-for-letter building rule.`
+      : suffix
+        ? `${baseOrRoot} + ${affix} makes ${props.word.displayWord}.`
+        : `${affix} + ${baseOrRoot} makes ${props.word.displayWord}.`
+    : undefined;
   return (
     <SplitHandle
       word={props.word.displayWord}
@@ -674,7 +686,7 @@ function SplitBuild(props: {
       missMessage={props.missMessage}
       repeatedMissMessage={props.repeatedMissMessage}
       correctHeading={affix ? `Yes — ${suffix ? `-${affix} is at the end` : `${affix}- is at the front`} of the word.` : undefined}
-      correctExplanation={affix && baseOrRoot ? (suffix ? `${baseOrRoot} + ${affix} makes ${props.word.displayWord}.` : `${affix} + ${baseOrRoot} makes ${props.word.displayWord}.`) : undefined}
+      correctExplanation={correctExplanation}
       prompt={suffix ? "Find where the base/root ends and the suffix begins at the end of the word." : undefined}
       missPrompt={suffix ? "Not there yet. Look for the suffix at the end of the word." : undefined}
       repeatedMissPrompt={suffix && affix ? `The suffix -${affix} is at the end. Chop just before it.` : undefined}

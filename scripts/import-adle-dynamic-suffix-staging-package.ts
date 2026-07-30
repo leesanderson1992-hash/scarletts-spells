@@ -1,3 +1,5 @@
+/* Reviewed package JSON is validated before any guarded staging write. */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";

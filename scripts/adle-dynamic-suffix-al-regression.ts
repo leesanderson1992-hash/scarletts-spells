@@ -1,3 +1,5 @@
+/* Reviewed fixture objects are deliberately asserted at runtime. */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import {

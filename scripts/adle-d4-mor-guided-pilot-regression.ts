@@ -124,7 +124,7 @@ assert(splitSource.includes("Continue to meanings") && splitSource.includes("dis
 assert(splitSource.includes("continueButton.current?.focus()") && splitSource.includes("ref={continueButton}"), "Split transfers focus to the held-success continuation action");
 assert(splitSource.includes("boundaryButtons.current[lastWrongBoundary]?.focus()") && splitSource.includes("props.misses === 1"), "Split restores focus to the attempted boundary after the first wrong chop");
 assert(sceneSource.includes('["Learn", "Discover", "Split", "Match", "Build", "Remember"]') && !guideSource.includes("props.beat.state"), "Learn is first and internal Guide states are hidden from children");
-assert(lessonSource.includes("Watch the meaning change") && lessonSource.includes("Add un-") && lessonSource.includes("Base/root word meaning:") && lessonSource.includes("New word meaning: choose the best match"), "Discover contrasts the base/root meaning with the new word meaning instead of separated prefix/base toggles");
+assert(lessonSource.includes("Watch the meaning change") && lessonSource.includes("Add un-") && lessonSource.includes("Base/root word meaning:") && lessonSource.includes("Choose the new-word meaning below."), "Discover contrasts the base/root meaning with the new word meaning instead of separated prefix/base toggles");
 assert(lessonSource.includes("cards.length - 1") && lessonSource.includes('meaning === card.derivedMeaning ? "snap" : "resist"'), "Discover completes all cards and gives audible choice feedback");
 assert(lessonSource.includes("Two jobs, four words") && lessonSource.includes("matchComplete"), "NOT/REVERSE overview appears immediately after sorting");
 const coverSource = readFileSync("components/adle/activities/shared/cover-shutter.tsx", "utf8");

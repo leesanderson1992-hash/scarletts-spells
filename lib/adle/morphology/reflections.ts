@@ -102,7 +102,6 @@ export async function getAssignmentLearningReflection(client: SupabaseClient, in
     .eq("parent_user_id", input.parentUserId)
     .eq("child_id", input.childId)
     .eq("daily_assignment_id", input.assignmentId)
-    .in("prompt_key", [MORPHOLOGY_REFLECTION_PROMPT_KEY, BASE_WORD_FAMILY_REFLECTION_PROMPT_KEY])
     .maybeSingle();
   if (error) throw new Error(`getAssignmentLearningReflection: ${error.message}`);
   return data ? fromRow(data as unknown as ReflectionRow) : null;

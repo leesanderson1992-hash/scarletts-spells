@@ -1,3 +1,5 @@
+/* Reviewed fixture objects are deliberately asserted at runtime. */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import {
@@ -27,7 +29,7 @@ const toWord = (word: any): DynamicAffixWord => ({
   affixVariant: word.suffixVariant, affixMeaning: "the state or quality of being", parts: mapParts(word.teaching.parts), joins: mapJoins(word.teaching.joins), splitPoints: [word.teaching.parts.find((part: any) => part.kind === "suffix").displayRange.start], dictationSentence: word.dictation.sentence, dictationTargetTokenIndex: word.dictation.targetTokenIndex,
   trueMorphology: { parts: mapParts(word.trueMorphology.parts), joins: mapJoins(word.trueMorphology.joins), transformations: word.trueMorphology.transformations, notes: word.trueMorphology.notes, provenance: word.trueMorphology.provenance }, approvedTransfer: true,
 });
-const words = reviewed.words.map(toWord);
+const words: DynamicAffixWord[] = (reviewed.words as any[]).map(toWord);
 assert.deepEqual(words.map((word) => `${word.teachingBaseText}|${word.affixVariant}`), ["equal|ity", "possibil|ity", "responsibil|ity", "curios|ity"]);
 for (const word of words) {
   assert.equal(word.splitPoints[0], word.teachingBaseText.length, `${word.displayWord}: suffix boundary is after teaching base`);

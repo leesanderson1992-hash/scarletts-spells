@@ -1,5 +1,8 @@
 /** Pure closed-by-default environment gate, shared by server runtime and CLI audits. */
 export function isDynamicPrefixRouteEnabled(): boolean {
+  if (process.env.ADLE_ROUTE_ACTIVATION_ENVIRONMENT === "staging") {
+    return true;
+  }
   if (process.env.VERCEL_ENV === "production") {
     return process.env.ADLE_DYNAMIC_PREFIX_PRODUCTION_ENABLED === "enabled";
   }

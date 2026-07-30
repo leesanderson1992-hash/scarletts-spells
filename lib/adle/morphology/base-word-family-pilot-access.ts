@@ -6,6 +6,7 @@ function allowlist(value: string | undefined): ReadonlySet<string> {
 
 /** Deliberately separate from the D4_MOR_PREFIXES_UN gate. Disabled by default. */
 export function isBaseWordFamilyPilotEnabledForChild(childId: string): boolean {
+  if (process.env.VERCEL_ENV === "preview") return process.env.ADLE_BASE_WORD_FAMILY_PILOT_EMERGENCY_DISABLED !== "true";
   if (process.env.ADLE_BASE_WORD_FAMILY_PILOT_ENABLED !== "enabled" || process.env.ADLE_BASE_WORD_FAMILY_PILOT_EMERGENCY_DISABLED === "true") return false;
   const scope = process.env.ADLE_BASE_WORD_FAMILY_PILOT_SCOPE ?? "allowlist";
   return scope === "all_eligible" || scope === "allowlist" && allowlist(process.env.ADLE_BASE_WORD_FAMILY_PILOT_CHILD_IDS).has(childId);

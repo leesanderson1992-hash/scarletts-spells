@@ -1,4 +1,5 @@
 /** Staging-only dictionary intake for reviewed -ity profile members absent from staging. */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { createHash, randomUUID } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";

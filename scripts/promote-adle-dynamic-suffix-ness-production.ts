@@ -1,4 +1,5 @@
 /** Guarded production promotion for a separately authorised Dynamic Suffix profile. */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { createHash, randomUUID } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
@@ -15,6 +16,8 @@ const PRODUCTION_PROFILES = {
   D4_MOR_SUFFIXES_AL: { folder: "2026-07-28-dynamic-suffix-al", includeMeaningSort: false, meaningBinCount: 1, suffixVariants: ["al"] },
   D4_MOR_SUFFIXES_OUS: { folder: "2026-07-28-dynamic-suffix-ous", includeMeaningSort: false, meaningBinCount: 1, suffixVariants: ["ous"] },
   D4_MOR_SUFFIXES_LY: { folder: "2026-07-28-dynamic-suffix-ly", includeMeaningSort: false, meaningBinCount: 1, suffixVariants: ["ly"] },
+  D4_MOR_SUFFIXES_TION: { folder: "2026-07-29-dynamic-suffix-tion", includeMeaningSort: false, meaningBinCount: 1, suffixVariants: ["tion"] },
+  D4_MOR_SUFFIXES_SION: { folder: "2026-07-29-dynamic-suffix-sion", includeMeaningSort: false, meaningBinCount: 1, suffixVariants: ["sion"] },
   // This is deliberately listed only after the separate staging proof and
   // child verification. Applying it still requires the explicit production
   // command and the exact reviewed package hash below.
@@ -90,6 +93,42 @@ async function applyRequiredMigrations(client: pg.Client) {
   }
 }
 
+async function ensureProductionMicroSkill(client: pg.Client) {
+  const catalogDetails = {
+    D4_MOR_SUFFIXES_TION: {
+      displayName: "Spell words with suffix -tion",
+      seedVersion: "dynamic-suffix-tion-production-v1",
+      exampleWords: ["action", "invention", "education", "celebration"],
+      teachingPoint: "The suffix -tion usually forms a noun for an action, process or result.",
+    },
+    D4_MOR_SUFFIXES_SION: {
+      displayName: "Spell words with suffix -sion",
+      seedVersion: "dynamic-suffix-sion-production-v1",
+      exampleWords: ["decision", "division", "confusion", "expansion"],
+      teachingPoint: "The suffix -sion usually forms a noun for an action, process or result.",
+    },
+  }[PROFILE_KEY];
+  if (!catalogDetails) return;
+  await client.query(
+    "insert into micro_skill_catalog (mastery_domain_key,skill_family_key,skill_cluster_key,micro_skill_key,display_name,practice_route,is_assignable,is_active,allowed_template_keys,metadata) values ('D4','D4_MOR','D4_MOR_SUFFIXES',$1,$2,'word_practice',true,true,$3,$4) on conflict (micro_skill_key) do nothing",
+    [
+      PROFILE_KEY,
+      catalogDetails.displayName,
+      ["T02", "T01", "T04", "T03", "T05", "T06", "T09", "T10", "T11", "T12"],
+      {
+        cluster_name: "Derivational suffixes",
+        seed_version: catalogDetails.seedVersion,
+        example_words: catalogDetails.exampleWords,
+        teaching_point: catalogDetails.teachingPoint,
+        source_workbook: `reviewed dynamic suffix ${PROFILE_KEY.replace("D4_MOR_SUFFIXES_", "-").toLowerCase()} package`,
+        developmental_foundation: "Morphological awareness",
+      },
+    ],
+  );
+  const catalog = await client.query("select is_active,is_assignable from micro_skill_catalog where micro_skill_key=$1", [PROFILE_KEY]);
+  if (catalog.rowCount !== 1 || !catalog.rows[0].is_active || !catalog.rows[0].is_assignable) fail("the production micro-skill catalog entry is unavailable");
+}
+
 async function apply(pkg: Package, raw: string, databaseUrl: string) {
   const target = new URL(databaseUrl);
   if (target.hostname !== PRODUCTION_HOST || target.username !== PRODUCTION_USER || target.port !== "5432" || target.pathname !== "/postgres") fail("database URL is not the named production pooler target");
@@ -100,6 +139,7 @@ async function apply(pkg: Package, raw: string, databaseUrl: string) {
     await client.query("begin");
     const before = await client.query("select (select count(*) from adle_learning_items) learning_items,(select count(*) from daily_assignments) assignments,(select count(*) from adle_assignment_attempt_events) evidence,(select count(*) from adle_review_schedule_words) scheduling");
     await applyRequiredMigrations(client);
+    await ensureProductionMicroSkill(client);
     const active = await client.query("select id from canonical_teaching_dictionary_suffix_profiles where micro_skill_key=$1 and row_status='active' for update", [PROFILE_KEY]);
     if (active.rowCount) fail(`${PROFILE_KEY} already has an active production profile`);
     const existingWords = await client.query("select normalised_word from canonical_teaching_dictionary_words where normalised_word=any($1) and row_status='active' for update", [pkg.words.map((word) => word.word)]);
@@ -108,7 +148,7 @@ async function apply(pkg: Package, raw: string, databaseUrl: string) {
     if (missingWords.some((word) => !word.reviewedFacts)) fail("a missing production word lacks reviewed factual metadata");
     const batchId = randomUUID();
     await client.query("insert into canonical_teaching_dictionary_import_batches (id,source_folder_path,source_folder_sha256,validator_version,validation_summary,row_counts,readiness_summary,import_mode,batch_status,source_metadata,imported_by,imported_at) values ($1,$2,$3,'adle_dynamic_suffix_production_profile_v1',$4,$5,$6,'admin_import','validated',$7,'ADLE guarded Dynamic Suffix production promotion',now())", [batchId, `docs/implementation/seed-data/teaching-dictionary/candidates/${PACKAGE_FOLDER}`, packageSha256, { errors: 0 }, { profiles: 1, members: pkg.words.length, created_words: missingWords.length }, { production_enabled: true, profile: PROFILE_KEY, learner_writes: 0 }, source(packageSha256)]);
-    for (const [index, word] of missingWords.entries()) {
+    for (const word of missingWords) {
       const facts = word.reviewedFacts!; const wordId = randomUUID(); const row = pkg.words.indexOf(word) + 2; const metadata = source(packageSha256, word);
       await client.query("insert into canonical_teaching_dictionary_words (id,import_batch_id,row_status,source_sheet,source_row_number,source_row_hash,source_metadata,word_key,normalised_word,display_word,dialect_code,frequency_band,age_band,complexity_band,source_category,source_name,source_url,source_licence,source_use_note,confidence,review_status) values ($1,$2,'active','reviewed-staging-package.json',$3,$4,$5,$6,$7,$7,'en-GB',$8,$9,$10,'internal_reviewed_seed','Dynamic Suffix v3 approved package',$11,'internal','Exact reviewed package promotion authorised for production.','high','approved_for_first_exposure')", [wordId, batchId, row, sha256(JSON.stringify(word)), metadata, `${word.word}_en_gb`, word.word, facts.frequencyBand, facts.ageBand, facts.complexityBand, PACKAGE_PATH]);
       await client.query("insert into canonical_teaching_dictionary_word_metadata (import_batch_id,canonical_word_id,row_status,source_sheet,source_row_number,source_row_hash,source_metadata,syllables,phoneme_hint,stress_pattern,has_schwa,morphemes,morphology_notes,source_category,source_name,source_url,source_licence,source_use_note,confidence,review_status,reviewed_by,reviewed_at) values ($1,$2,'active','reviewed-staging-package.json',$3,$4,$5,$6,$7,$8,$9,$10,$11,'internal_reviewed_seed','Dynamic Suffix v3 approved package',$12,'internal','Human-reviewed true morphology retained as provenance.','high','approved_for_first_exposure','Katie Sanderson',now())", [batchId, wordId, row, sha256(JSON.stringify(word.trueMorphology)), metadata, facts.syllables, facts.phonemeHint, facts.stressPattern, facts.hasSchwa, `Base: ${word.semanticBaseText} + Suffix: ${word.suffixVariant}`, word.trueMorphology.notes, PACKAGE_PATH]);

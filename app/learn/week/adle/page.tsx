@@ -34,6 +34,7 @@ import { type ChildLearningReflection } from "@/lib/adle/morphology/reflections"
 import { ClearCompletedMorphologyResume } from "@/components/adle/morphology/clear-completed-resume";
 import { WordLabCompletionPerformanceObserver } from "@/components/adle/morphology/completion-performance-observer";
 import { loadAdleCompletedRouteDetails } from "@/lib/adle/loaders/completed-route-loader";
+import { validateClosedCompoundLessonPayload } from "@/lib/adle/morphology/closed-compound-word-lab";
 
 type AdleSessionPageProps = {
   searchParams?: Promise<{
@@ -117,6 +118,12 @@ export default async function AdleSessionPage({ searchParams }: AdleSessionPageP
     isBaseWordFamilyPilotEnabledForChild(selectedChild.id),
     readModel.partTwo.items,
   );
+  const closedCompoundSource = readModel.partTwo.items.find(
+    (item) => item.promptData.closedCompoundActivityId === "intro-root",
+  )?.promptData.closedCompoundLesson;
+  const closedCompoundPayload = validateClosedCompoundLessonPayload(closedCompoundSource)
+    ? closedCompoundSource
+    : null;
 
   // Slice 7a-D: on the completed screen, read the child's Word Treasure state and
   // derive today's celebration (Nugget->Forge from lesson completion + any
@@ -181,7 +188,7 @@ export default async function AdleSessionPage({ searchParams }: AdleSessionPageP
         ) : readModel.state === "completed" ? (
           <div className="grid gap-4">
             {resolvedSearchParams?.completionTrace && /^[0-9a-f-]{36}$/i.test(resolvedSearchParams.completionTrace) ? <WordLabCompletionPerformanceObserver traceId={resolvedSearchParams.completionTrace} /> : null}
-            {(dynamicSuffixPayload ?? dynamicPrefixPayload ?? morphologyPilotPayload ?? baseWordFamilyPilotPayload) && readModel.assignmentId ? <ClearCompletedMorphologyResume assignmentId={readModel.assignmentId} contentVersion={(dynamicSuffixPayload ?? dynamicPrefixPayload ?? morphologyPilotPayload ?? baseWordFamilyPilotPayload)!.contentVersion} /> : null}
+            {(closedCompoundPayload ?? dynamicSuffixPayload ?? dynamicPrefixPayload ?? morphologyPilotPayload ?? baseWordFamilyPilotPayload) && readModel.assignmentId ? <ClearCompletedMorphologyResume assignmentId={readModel.assignmentId} contentVersion={(closedCompoundPayload ?? dynamicSuffixPayload ?? dynamicPrefixPayload ?? morphologyPilotPayload ?? baseWordFamilyPilotPayload)!.contentVersion} /> : null}
             {celebration !== null ? (
               <AdleSessionCelebration model={celebration} planDate={readModel.planDate} backPath={backPath} />
             ) : (

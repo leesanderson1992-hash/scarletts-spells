@@ -1,4 +1,5 @@
 /** Creates the post-proof owner/child staging lesson; production is never contacted. */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { createClient } from "@supabase/supabase-js";
 
 const PROFILE = "D4_MOR_SUFFIXES_AL";

@@ -12,6 +12,7 @@ export function dynamicAffixRuntime(payload: unknown): MorphologyLessonPayloadV1
   const pluralAffix = snapshot.affix.position === "after" && snapshot.affix.label.includes(" and ");
   const affixMeaningSentence = snapshot.activities.introduction.meaningStatement
     ?? `The ${pluralAffix ? "suffixes" : term} ${snapshot.affix.label} ${pluralAffix ? "mean" : "means"} ${snapshot.affix.meaning}.`;
+  const reflectionPrompt = `We have been learning about ${snapshot.affix.label}. How does ${snapshot.affix.label} affect the word when it is added on?`;
   const exampleScreens = snapshot.activities.guided.includeMeaningSort
     ? [...new Set(snapshot.words.lesson.map((word) => word.affixText))].map((form) => ({
         id: `examples-${form}`,
@@ -46,7 +47,7 @@ export function dynamicAffixRuntime(payload: unknown): MorphologyLessonPayloadV1
     { id: "build-word", type: "prefix_choice", assignmentBindings: snapshot.activities.guided.builds.map((build) => `guided-build-${build.canonicalWordId}`), answerVisibility: "guided", evidenceMode: "guided_completion", affixTerm: term, affixPosition: snapshot.affix.position, builds: snapshot.activities.guided.builds.map((build) => ({ canonicalWordId: build.canonicalWordId, baseWord: build.baseWord, targetMeaning: build.targetMeaning, prefixChoices: build.choices })), baseWord: snapshot.activities.guided.builds[0].baseWord, targetMeaning: snapshot.activities.guided.builds[0].targetMeaning, prefixChoices: snapshot.activities.guided.builds[0].choices },
     { id: "controlled-spelling", type: "look_cover_write_check", assignmentBindings: words.map((word) => `controlled-${word.canonicalWordId}`), answerVisibility: "recall_neutral", evidenceMode: "first_exposure_word" },
     { id: "dictation", type: "sentence_dictation", assignmentBindings: words.map((word) => `dictation-${word.canonicalWordId}`), answerVisibility: "recall_neutral", evidenceMode: "first_exposure_word", sentences: snapshot.activities.dictation },
-    { id: "reflection", type: "reflection", assignmentBindings: [], answerVisibility: "post_submit", evidenceMode: "none", promptKey: snapshot.activities.reflection.promptKey, promptText: snapshot.activities.reflection.promptText },
+    { id: "reflection", type: "reflection", assignmentBindings: [], answerVisibility: "post_submit", evidenceMode: "none", promptKey: snapshot.activities.reflection.promptKey, promptText: reflectionPrompt },
   ] };
 }
 

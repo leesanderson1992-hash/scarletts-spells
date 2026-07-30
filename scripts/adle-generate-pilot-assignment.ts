@@ -1,12 +1,15 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
-import { ensureAdleDailyPlan, getExistingAdleDailyPlanId, persistComposedAdleDailyPlan } from "../lib/adle/loaders/daily-plan-surface";
+import { ensureAdleDailyPlan, getExistingAdleDailyPlanId, getExistingAdleSessionPlanId, persistComposedAdleDailyPlan } from "../lib/adle/loaders/daily-plan-surface";
 import { previewAdleDailyPlan } from "../lib/adle/loaders/daily-plan-preview";
 import type { IsoDate } from "../lib/adle/review-scheduler";
 import { loadDailyPlanFacts } from "../lib/adle/loaders/composer-facts-loader";
 import { composeDailyPlan } from "../lib/adle/daily-assignment-composer";
 import { buildMorphologyUnPilotPlan } from "../lib/adle/morphology/pilot-plan";
 import { validateMorphologyLessonPayload } from "../lib/adle/morphology/payload";
+import { loadClosedCompoundProfiles } from "../lib/adle/morphology/closed-compound-profile-loader";
+import { compileClosedCompoundLesson } from "../lib/adle/morphology/closed-compound-word-lab";
+import { buildClosedCompoundAssignmentPlan } from "../lib/adle/morphology/closed-compound-assignment-plan";
 
 const CONFIRM_TOKEN = "ADLE-7P-GENERATE";
 
@@ -190,6 +193,51 @@ async function main(): Promise<void> {
     if ((existingRows ?? []).length > 0) throw new Error("Refusing to generate: an ADLE assignment already exists for this child and date.");
     const result = await generateGuardedBaseWordFamilyPilot({ client, parentUserId, childId, planDate: assignmentDate });
     console.log(JSON.stringify({ mode: result.assignmentId ? "guarded_base_word_family_pilot_generated" : "guarded_base_word_family_pilot_not_ready", experience, assignmentId: result.assignmentId, readinessReason: result.readinessReason }, null, 2));
+    return;
+  }
+  if (experience === "d4-mor-closed-compounds") {
+    const hostname = new URL(url).hostname;
+    if (!hostname.startsWith("jlhotktspjvffslvuyfz.")) {
+      throw new Error("Refusing to generate closed-compounds verification outside the staging Supabase project.");
+    }
+    const existing = await getExistingAdleSessionPlanId({
+      userClient: client,
+      parentUserId,
+      childId,
+      planDate: assignmentDate,
+    });
+    if (existing) {
+      throw new Error(`Refusing to generate: an ADLE session assignment ${existing} already exists for ${assignmentDate}.`);
+    }
+    const loaded = await loadClosedCompoundProfiles(client, childId, { allowStagingProfiles: true });
+    const payload = loaded.profiles
+      .map((profile) => compileClosedCompoundLesson(profile, loaded.learningItems))
+      .find((candidate) => candidate !== null);
+    if (!payload) {
+      throw new Error("Refusing to generate: the closed-compounds dictionary profile is not ready for this child.");
+    }
+    const { facts } = await loadDailyPlanFacts(client, { childId, today: assignmentDate });
+    const plan = buildClosedCompoundAssignmentPlan(composeDailyPlan(facts, assignmentDate), payload);
+    const assignmentId = await persistComposedAdleDailyPlan({
+      userClient: client,
+      serviceClient: client,
+      parentUserId,
+      childId,
+      planDate: assignmentDate,
+      plan,
+    });
+    if (!assignmentId) {
+      throw new Error("Refusing to generate: no immutable closed-compounds assignment was created.");
+    }
+    console.log(JSON.stringify({
+      mode: "guarded_closed_compounds_staging_generated",
+      assignmentId,
+      experience,
+      project: hostname.split(".")[0],
+      planDate: assignmentDate,
+      wordBindings: payload.words.lesson.map((word) => ({ canonicalWordId: word.canonicalWordId, word: word.displayWord })),
+      itemCount: plan.partTwo.sections.flatMap((section) => section.items).length,
+    }, null, 2));
     return;
   }
   if (experience !== null) throw new Error(`Unsupported --experience ${experience}.`);

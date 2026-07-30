@@ -1,10 +1,12 @@
+/* Supabase relation rows are runtime-validated at this fail-closed boundary. */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 import type { LearningItemFact } from "../learning-items";
 import type { MorphologyPartRole } from "./payload";
 import type { DynamicAffixProfile, DynamicAffixWord } from "./affix-word-lab";
 
-export const DYNAMIC_SUFFIX_PROFILE_KEYS = ["D4_MOR_SUFFIXES_NESS", "D4_MOR_SUFFIXES_ABLE_IBLE", "D4_MOR_SUFFIXES_MENT", "D4_MOR_SUFFIXES_FUL_LESS", "D4_MOR_SUFFIXES_AL", "D4_MOR_SUFFIXES_ITY", "D4_MOR_SUFFIXES_OUS", "D4_MOR_SUFFIXES_LY"] as const;
+export const DYNAMIC_SUFFIX_PROFILE_KEYS = ["D4_MOR_SUFFIXES_NESS", "D4_MOR_SUFFIXES_ABLE_IBLE", "D4_MOR_SUFFIXES_MENT", "D4_MOR_SUFFIXES_FUL_LESS", "D4_MOR_SUFFIXES_AL", "D4_MOR_SUFFIXES_ITY", "D4_MOR_SUFFIXES_OUS", "D4_MOR_SUFFIXES_LY", "D4_MOR_SUFFIXES_TION", "D4_MOR_SUFFIXES_SION"] as const;
 
 type Member = any;
 

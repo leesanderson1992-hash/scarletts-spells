@@ -61,6 +61,7 @@ import { isDynamicPrefixRouteEnabled } from "@/lib/adle/morphology/dynamic-prefi
 import { resolveDynamicAffixRuntime } from "@/lib/adle/morphology/dynamic-affix-runtime";
 import { isDynamicSuffixRouteEnabled } from "@/lib/adle/morphology/dynamic-suffix-route-gate";
 import { extractAuthoredTargetToken, resolveMorphologyPilotRuntime, type MorphologyLessonPayloadV1 } from "@/lib/adle/morphology/payload";
+import { validateClosedCompoundLessonPayload } from "@/lib/adle/morphology/closed-compound-word-lab";
 import { isBaseWordFamilyPilotEnabledForChild } from "@/lib/adle/morphology/base-word-family-pilot-access";
 import { resolveBaseWordFamilyPilotRuntime } from "@/lib/adle/morphology/base-word-family-pilot-contract";
 import { BASE_WORD_FAMILY_ASSIGNMENT_SOURCE, BASE_WORD_FAMILY_ASSIGNMENT_TITLE } from "@/lib/adle/morphology/base-word-family-pilot-plan";
@@ -455,7 +456,13 @@ export async function completeAdleLessonPartAction(formData: FormData) {
     isDynamicSuffixRouteEnabled(),
     readModel.partTwo.items,
   );
-  const wordLabPayload = dynamicSuffix ?? dynamicPrefix ?? morphologyPilot;
+  const compoundSource = readModel.partTwo.items.find((item) => item.promptData.closedCompoundActivityId === "intro-root")?.promptData.closedCompoundLesson;
+  const compoundPayload = validateClosedCompoundLessonPayload(compoundSource) ? compoundSource : null;
+  const compoundRuntime = compoundPayload ? ({ microSkillId: compoundPayload.microSkillId, contentVersion: compoundPayload.contentVersion, activities: [
+    { type: "sentence_dictation", sentences: compoundPayload.activities.dictation },
+    { type: "reflection", promptKey: compoundPayload.activities.reflection.promptKey, promptText: compoundPayload.activities.reflection.promptText },
+  ] } as unknown as MorphologyLessonPayloadV1) : null;
+  const wordLabPayload = compoundRuntime ?? dynamicSuffix ?? dynamicPrefix ?? morphologyPilot;
   const atomicWordLabCompletionEnabled = process.env.ADLE_WORD_LAB_ATOMIC_COMPLETION_ENABLED === "enabled";
   const learningReflection = readFormValue(formData, "learningReflection");
   if (readModel.partTwo.complete && wordLabPayload === null) {
@@ -543,7 +550,7 @@ export async function completeAdleLessonPartAction(formData: FormData) {
     completedOn: planDate,
     sourceRef: lessonSourceRef,
     bundleId: randomUUID(),
-    scheduleAllProducedWords: dynamicSuffix !== null,
+    scheduleAllProducedWords: dynamicSuffix !== null || compoundRuntime !== null,
     producedWords: producedWords.filter((word) => scheduledProductionItems.some((item) => item.canonicalWordId === word.canonicalWordId)),
     learningItems,
   });
@@ -558,7 +565,7 @@ export async function completeAdleLessonPartAction(formData: FormData) {
     probeAttempts,
   });
 
-  if (morphologyPilot !== null && dynamicPrefix === null && dynamicSuffix === null && atomicWordLabCompletionEnabled) {
+  if (morphologyPilot !== null && dynamicPrefix === null && dynamicSuffix === null && compoundRuntime === null && atomicWordLabCompletionEnabled) {
     const reflection = buildMorphologyReflection(context, morphologyPilot, learningReflection);
     const result = await timer.measure("atomic_durable_completion", () => persistWordLabCompletion(serviceClient, {
       parentUserId: context.parentUserId,

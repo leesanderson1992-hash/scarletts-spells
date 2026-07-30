@@ -1,0 +1,22 @@
+{
+  "schemaVersion": "d4_mor_closed_compound_fact_review_v1",
+  "microSkillKey": "D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS",
+  "selectionPolicy": "target_first_then_deterministic_pool_rotation",
+  "status": "human_approved_pending_guarded_staging_dictionary_release",
+  "approval": {
+    "approvedAt": "2026-07-29",
+    "scope": "reusable closed-compound lesson copy and seven-word initial pool",
+    "productionAuthority": false
+  },
+  "approvedPoolProposal": [
+    {"word":"bedroom","firstWord":"bed","secondWord":"room","firstWordMeaning":"furniture that you sleep in","secondWordMeaning":"a space inside a building","definition":"a room where someone sleeps","dictation":"Mother took the baby to the bedroom.","targetTokenIndex":6},
+    {"word":"breakthrough","firstWord":"break","secondWord":"through","firstWordMeaning":"to break something","secondWordMeaning":"from one side to the other","definition":"an important new discovery or success","dictation":"The research made a breakthrough.","targetTokenIndex":4},
+    {"word":"football","firstWord":"foot","secondWord":"ball","firstWordMeaning":"the part at the end of your leg","secondWordMeaning":"a round object used in games","definition":"a game where players kick a ball into goals","dictation":"Children play football in the playground.","targetTokenIndex":2},
+    {"word":"playground","firstWord":"play","secondWord":"ground","firstWordMeaning":"to have fun with games or toys","secondWordMeaning":"the surface under your feet","definition":"an outdoor place where children play","dictation":"The children played in the playground.","targetTokenIndex":5},
+    {"word":"rainbow","firstWord":"rain","secondWord":"bow","firstWordMeaning":"water that falls from clouds","secondWordMeaning":"a curved shape","definition":"a curved band of colours seen in the sky after rain","dictation":"A rainbow appeared after rain.","targetTokenIndex":1},
+    {"word":"sunshine","firstWord":"sun","secondWord":"shine","firstWordMeaning":"the bright star in the sky","secondWordMeaning":"to give out bright light","definition":"light and warmth from the sun","dictation":"The sunshine changed the view outside.","targetTokenIndex":1},
+    {"word":"weekend","firstWord":"week","secondWord":"end","firstWordMeaning":"seven days","secondWordMeaning":"the last part of something","definition":"Saturday and Sunday, at the end of the week","dictation":"We camped at the weekend.","targetTokenIndex":4}
+  ],
+  "excludedFromClosedCompoundPool": ["photograph", "thermometer", "therefore"],
+  "releaseRequirements": ["approved canonical identity and bands", "reviewed structured teaching split and canonical morphology", "approved pronunciation and dictation facts", "per-word approved closed-compound fact with provenance", "profile-specific human approval"]
+}

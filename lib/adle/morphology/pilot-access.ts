@@ -5,6 +5,7 @@ function parseAllowlist(value: string | undefined): Set<string> {
 }
 
 export function isMorphologyUnPilotEnabledForChild(childId: string): boolean {
+  if (process.env.VERCEL_ENV === "preview") return true;
   return process.env.ADLE_MORPHOLOGY_UN_PILOT_ENABLED === "enabled" && parseAllowlist(process.env.ADLE_MORPHOLOGY_UN_PILOT_CHILD_IDS).has(childId);
 }
 

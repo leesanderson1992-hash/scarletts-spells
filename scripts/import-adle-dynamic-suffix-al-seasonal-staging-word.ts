@@ -1,4 +1,5 @@
 /** Staging-only dictionary-first intake for the one reviewed -al word absent from staging. */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { createHash, randomUUID } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";

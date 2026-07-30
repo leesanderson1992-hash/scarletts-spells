@@ -1,3 +1,5 @@
+/* Reviewed fixture objects are deliberately asserted at runtime. */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 const pkg=JSON.parse(readFileSync("docs/implementation/seed-data/teaching-dictionary/candidates/2026-07-28-dynamic-suffix-ous/reviewed-staging-package.json","utf8"));

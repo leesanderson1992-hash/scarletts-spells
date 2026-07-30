@@ -63,6 +63,15 @@ export interface MorphologyWordSnapshot {
   affixPosition?: "before" | "after";
   affixText?: string;
   affixLabel?: string;
+  /**
+   * The semantic base/root is deliberately allowed to differ from the
+   * child-facing visible split (for example, act → action is ac|tion in a
+   * suffix cleaver).  It keeps explanation copy accurate without changing
+   * the one-boundary teaching activity.
+   */
+  semanticBaseText?: string;
+  semanticBaseKind?: "base" | "root";
+  teachingBaseText?: string;
 }
 
 export interface MorphologyActivityV1 {

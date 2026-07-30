@@ -36,6 +36,8 @@ import { GuidedActivity } from "@/components/adle/activities/guided-activity";
 import { ReflectionActivity } from "@/components/adle/activities/reflection-activity";
 import type { MorphologyLessonPayloadV1 } from "@/lib/adle/morphology/payload";
 import type { BaseWordFamilyLessonSnapshotV1 } from "@/lib/adle/morphology/base-word-family-payload";
+import { validateClosedCompoundLessonPayload, type ClosedCompoundLessonPayloadV1 } from "@/lib/adle/morphology/closed-compound-word-lab";
+import { ClosedCompoundGuidedLesson } from "@/components/adle/morphology/closed-compound-guided-lesson";
 
 const MorphologyGuidedLesson = dynamic(
   () =>
@@ -352,6 +354,14 @@ function LessonPart(props: { childId: string; assignmentId: string; items: AdleS
 
 export function AdleSessionRunner(props: AdleSessionRunnerProps) {
   const { partOne, partTwo } = props;
+  const compoundSource = partTwo.items.find((item) => item.promptData.closedCompoundActivityId === "intro-root")?.promptData.closedCompoundLesson;
+  const closedCompoundPayload: ClosedCompoundLessonPayloadV1 | null = validateClosedCompoundLessonPayload(compoundSource) ? compoundSource : null;
+
+  // A profile-declared closed-compound lesson is its own complete Word Lab.
+  // It must not be hidden behind the generic daily review panel.
+  if (closedCompoundPayload && props.assignmentId && partTwo.present && !partTwo.complete) {
+    return <ClosedCompoundGuidedLesson childId={props.childId} assignmentId={props.assignmentId} items={partTwo.items} payload={closedCompoundPayload} />;
+  }
 
   if (props.baseWordFamilyPilotPayload && props.assignmentId) {
     return <BaseWordFamilyPart childId={props.childId} assignmentId={props.assignmentId} payload={props.baseWordFamilyPilotPayload} />;

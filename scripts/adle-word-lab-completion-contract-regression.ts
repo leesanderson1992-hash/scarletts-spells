@@ -14,7 +14,7 @@ const environment = readFileSync(".env.example", "utf8");
 
 assert(action.includes("isMorphologyUnPilotEnabledForChild") && action.includes("resolveMorphologyPilotRuntime"), "atomic completion remains behind allowlist and valid-payload resolution");
 assert(action.includes('ADLE_WORD_LAB_ATOMIC_COMPLETION_ENABLED === "enabled"'), "atomic completion has an explicit default-off comparison switch");
-assert(action.includes("if (morphologyPilot !== null && dynamicPrefix === null && atomicWordLabCompletionEnabled)"), "the legacy-only atomic RPC must never receive a generic v2 payload");
+assert(action.includes("if (morphologyPilot !== null && dynamicPrefix === null && dynamicSuffix === null && compoundRuntime === null && atomicWordLabCompletionEnabled)"), "the legacy-only atomic RPC must never receive a generic v2 or compound payload");
 assert(action.includes("persistWordLabCompletion") && action.includes("extractAuthoredTargetToken(rawAttempt, sentence.targetTokenIndex)"), "Word Lab uses the atomic helper and authored target-token correctness");
 assert(environment.includes("ADLE_MORPHOLOGY_UN_PILOT_ENABLED=disabled") && environment.includes("ADLE_WORD_LAB_ATOMIC_COMPLETION_ENABLED=disabled"), "pilot and atomic boundary default disabled");
 
