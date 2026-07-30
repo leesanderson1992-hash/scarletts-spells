@@ -76,6 +76,7 @@
     "adle:live-readiness-audit": "npx tsx scripts/adle-production-readiness-audit.ts --mode live/strict --format json",
     "adle:architecture-inventory-generate": "npx tsx scripts/generate-adle-composable-architecture.ts",
     "adle:architecture-drift-check": "npx tsx scripts/generate-adle-composable-architecture.ts --check",
+    "adle:composable-documentation-regression": "npx tsx scripts/adle-composable-documentation-regression.ts",
     "adle:d4-mor-ui-primitives-regression": "rm -rf .tmp/adle-d4-mor-ui-primitives-regression && npx tsc --outDir .tmp/adle-d4-mor-ui-primitives-regression --rootDir . --module commonjs --target es2022 --moduleResolution node --esModuleInterop --resolveJsonModule --skipLibCheck --noEmit false scripts/adle-d4-mor-ui-primitives-regression.ts && node .tmp/adle-d4-mor-ui-primitives-regression/scripts/adle-d4-mor-ui-primitives-regression.js",
     "adle:d4-mor-guided-pilot-regression": "rm -rf .tmp/adle-d4-mor-guided-pilot-regression && npx tsc --outDir .tmp/adle-d4-mor-guided-pilot-regression --rootDir . --module commonjs --target es2022 --moduleResolution node --esModuleInterop --resolveJsonModule --skipLibCheck --noEmit false scripts/adle-d4-mor-guided-pilot-regression.ts && node .tmp/adle-d4-mor-guided-pilot-regression/scripts/adle-d4-mor-guided-pilot-regression.js",
     "adle:d4-mor-bundle-regression": "node scripts/adle-d4-mor-bundle-regression.mjs",

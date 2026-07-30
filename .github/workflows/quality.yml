@@ -52,6 +52,18 @@ jobs:
           npx tsx scripts/adle-dynamic-prefix-runtime-regression.ts
           npx tsx scripts/adle-dynamic-prefix-word-lab-regression.ts
 
+      - name: Protect ADLE production semantics
+        run: npm run adle:semantic-production-baseline
+
+      - name: Validate ADLE composable architecture
+        run: |
+          npm run adle:composable-contract-regression
+          npm run adle:composable-compatibility-regression
+          npm run adle:production-readiness-audit-regression
+          npm run adle:composable-documentation-regression
+          npm run adle:architecture-drift-check
+          npm run adle:repository-readiness-report
+
       - name: Run deterministic seed-import regressions
         run: |
           npm run writing-engine:seed-import-dry-run-regression
