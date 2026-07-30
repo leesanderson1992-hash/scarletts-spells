@@ -22,6 +22,18 @@ Every template must declare:
 - evidence class label;
 - scheduler/reward boundary statement.
 
+Machine-readable fact requirements for current activity kinds are owned by
+`lib/adle/composable-lesson/activity-requirements.ts` and published for review
+at
+`docs/generated/adle-composable-lesson/route-and-activity-reference.md`.
+Handwritten template documentation explains rationale and interaction
+boundaries; it must not duplicate the generated activity or route inventory.
+
+Every future composable activity snapshot must use the discriminated activity
+union in `lib/adle/composable-lesson/contracts.ts`. Conditions must use its
+typed condition variants. Opaque expressions such as
+`when: "meaning_bins_gt_1"` are not permitted.
+
 ## Template Versus Configuration
 
 Use configuration when the cognitive task, interaction state machine, answer model, answer visibility, and evidence semantics are the same.
@@ -61,3 +73,7 @@ Before runtime enablement, a template needs representative proof for:
 - mobile layout;
 - attempt capture compatibility;
 - evidence/scheduler/reward non-regression.
+
+Compatibility assessment is not selection. A template must preserve separate
+support, authentic-target, transfer and selected states, and it must fail
+closed on every required fact owned by the activity-requirement registry.

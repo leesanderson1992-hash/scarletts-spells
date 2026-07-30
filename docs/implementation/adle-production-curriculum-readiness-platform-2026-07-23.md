@@ -2,6 +2,12 @@
 
 Date: 2026-07-23
 
+Status: supporting Base Word-specific implementation record. It documents the
+first database-backed activation consumer and its release boundary; it is not
+the current all-route inventory. Current structured routes are owned by
+`lib/adle/curriculum-readiness/route-registry.ts`, with generated reference
+under `docs/generated/adle-composable-lesson/`.
+
 ## Purpose
 
 This implementation adds one fail-closed readiness and activation boundary for

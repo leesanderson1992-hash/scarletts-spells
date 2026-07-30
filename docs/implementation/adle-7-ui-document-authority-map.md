@@ -13,6 +13,10 @@ When documents overlap, the authority listed here wins.
 | Current lesson release scope | `docs/implementation/adle-current-state-and-release-registry.md` | D4_MOR matrix and production runbooks | Historical pilot plans |
 | Micro-skill status | `docs/implementation/seed-data/adle-7-ui/control-matrix/adle-7-ui-global-control-matrix.csv` | `docs/implementation/adle-7-ui-control-matrix.md` | Hand-maintained prose tables |
 | Runtime architecture | `docs/architecture/adle-activity-platform-architecture.md` | `docs/contracts/adle-template-development-contract.md` | Category design packs |
+| Structured route inventory | `lib/adle/curriculum-readiness/route-registry.ts` | Generated route reference under `docs/generated/adle-composable-lesson/` | Hand-maintained route tables |
+| Activity fact requirements | `lib/adle/composable-lesson/activity-requirements.ts` | Generated activity reference under `docs/generated/adle-composable-lesson/` | Category packs and React components |
+| Compatibility and blocker taxonomy | `lib/adle/composable-lesson/compatibility.ts` | Generated blocker reference under `docs/generated/adle-composable-lesson/` | Readiness prose |
+| Production-readiness audit policy | `lib/adle/composable-lesson/readiness-audit.ts` | Generated repository report; live report when explicitly run | Release receipts |
 | Template rules | `docs/contracts/adle-template-development-contract.md` | `docs/product/areas/adle-template-catalog.md` | Per-micro-skill content |
 | Teaching-content rules | `docs/contracts/adle-teaching-content-authoring-contract.md` | Phase 5A/5B teaching dictionary docs | React components |
 | Category design process | `docs/contracts/adle-category-design-pack-contract.md` | Active category pack | Main roadmap |
@@ -24,6 +28,7 @@ When documents overlap, the authority listed here wins.
 | Proof status | `docs/implementation/seed-data/adle-7-ui/control-matrix/adle-7-ui-proof-register.csv` | QA records linked from the register | Long matrix notes |
 | Architecture decisions | `docs/implementation/seed-data/adle-7-ui/control-matrix/adle-7-ui-decision-register.csv` | Architecture docs once decisions are accepted | Silent assumptions in code |
 | Source-artifact provenance | `docs/implementation/seed-data/adle-7-ui/source-artifacts/source-artifact-register.csv` | Artifact retention folders | Downloads, local-only notes |
+| Temporary composable migration sequencing | `docs/implementation/adle-composable-lesson-migration-tracker.md` until all listed routes migrate or are explicitly retired | Route-specific PRs | Permanent architecture ownership |
 
 ## Conflict Rules
 
@@ -31,3 +36,7 @@ When documents overlap, the authority listed here wins.
 - Category packs may define learning interactions, but cannot redefine evidence, scheduling, persistence, reward, or global accessibility rules.
 - Content workbooks may contain teaching copy, but become runtime truth only after review, versioning, and activation under the teaching-content contract.
 - Renderer code implements accepted contracts; it does not create new teaching, evidence, or scheduling policy.
+- Generated architecture files are projections of code registries. They must
+  be regenerated or drift-checked, never edited as a second source of truth.
+- Production receipts and immutable approved packages remain historical
+  evidence. They do not become current route or activity inventories.

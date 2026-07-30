@@ -15,6 +15,18 @@ This contract defines how reviewed teaching content supports 7-UI without hard-c
 | Assignment payload | stable semantic snapshot needed by old assignments |
 | Frontend | assets, layout, animation, sound, visual effects, scene implementation |
 
+The machine-readable consumer requirements for these ownership layers live in
+`lib/adle/composable-lesson/activity-requirements.ts`. Its generated reference
+is
+`docs/generated/adle-composable-lesson/activity-requirements.json`. That
+registry may require existing approved facts; it must not infer or author a
+missing meaning, decomposition, morphology, pronunciation, band, dictation,
+join, transformation or provenance fact.
+
+Readiness assessment consumes those requirements without becoming a selector.
+In particular, dictionary support, authentic-target eligibility, transfer
+eligibility and assignment selection are distinct states.
+
 ## Prohibited Patterns
 
 Do not hard-code teaching copy into React components.
