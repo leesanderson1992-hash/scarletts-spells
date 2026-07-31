@@ -26,11 +26,14 @@ Dictionary content. Those facts are generated from the code registries under
 
 ## Approved Sequence
 
-1. **Complete in staging; production untouched:** explicit persisted route
-   metadata now retains current payload sniffing and legacy adapters. Schema,
-   writer, explicit/legacy, fail-closed, resume/completion, reward and rollback
-   evidence is recorded in
+1. **Complete in staging and production:** explicit persisted route metadata
+   now retains current payload sniffing and legacy adapters. Schema, writer,
+   explicit/legacy, fail-closed, resume/completion, reward and rollback evidence
+   is recorded in
    `docs/implementation/qa/adle-explicit-route-metadata-staging-proof-2026-07-31.md`.
+   The additive schema-first production release and rollback target are
+   recorded in
+   `docs/implementation/qa/adle-explicit-route-metadata-production-receipt-2026-07-31.md`.
 2. Migrate the generic composer to emit the versioned snapshot contract.
 3. Extract a shared position-aware affix compiler without changing Dynamic
    Prefix V2 or Dynamic Affix V3 semantics.
@@ -61,5 +64,5 @@ For stage 1, the exit evidence is:
 - staging project-pin, schema, application, in-flight resume and rollback
   receipts.
 
-Stage 2 is now the next stage. It remains separate from this completed staging
-proof and requires its own approved implementation scope.
+Stage 2 is now the next stage. It remains separate from this completed
+production release and requires its own approved implementation scope.

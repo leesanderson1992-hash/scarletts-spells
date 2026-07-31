@@ -1,6 +1,6 @@
 # ADLE Current State and Lesson Release Registry
 
-Updated: 2026-07-30
+Updated: 2026-07-31
 
 ## Purpose
 
@@ -26,6 +26,14 @@ Current D4_MOR position: 25 live micro-skills — 18 production-enabled
 first-impression lessons, 0 staging-approved first-impression lessons, 2
 later-phase base-word transfer skills marked `not_required_first_impression`,
 and 5 first-impression lessons awaiting implementation.
+
+The shared ADLE routing foundation was promoted on 2026-07-31. Newly composed
+Generic, Dynamic Prefix V2, Dynamic Affix V3, Closed Compound V1 and Base Word
+Family assignments now persist explicit immutable route metadata. Historical
+metadata-free assignments, including fixed legacy `un-`, retain their existing
+readers. This infrastructure release changed no capability state, selection,
+lesson behavior or Teaching Dictionary content. See
+`docs/implementation/qa/adle-explicit-route-metadata-production-receipt-2026-07-31.md`.
 
 | Lesson capability | Micro-skill(s) | State | Selection rule | Notes |
 |---|---|---|---|---|
