@@ -10,6 +10,7 @@ const migrationPath =
   "supabase/migrations/20260731200000_add_adle_generic_lesson_snapshot_v2.sql";
 const migration = readFileSync(migrationPath, "utf8");
 const writer = readFileSync("lib/adle/loaders/daily-plan-surface.ts", "utf8");
+const stagingHarness = readFileSync("scripts/apply-adle-generic-snapshot-staging-migration.ts", "utf8");
 
 match(migration, /add column compiled_lesson_snapshot jsonb null/);
 match(migration, /daily_assignments_compiled_lesson_snapshot_v2_check/);
@@ -45,5 +46,12 @@ equal(genericSnapshotMode("enforce"), "enforce");
 equal(genericSnapshotWritesEnabled("off"), false);
 equal(genericSnapshotWritesEnabled("observe"), true);
 equal(genericSnapshotWritesEnabled("enforce"), true);
+
+match(stagingHarness, /const STAGING_PROJECT_REF = "jlhotktspjvffslvuyfz"/);
+match(stagingHarness, /const PRODUCTION_PROJECT_REF = "wwohrqtunajrbwxyssjf"/);
+match(stagingHarness, /--environment staging/);
+match(stagingHarness, /--confirm-generic-snapshot-migration/);
+match(stagingHarness, /production and unknown targets are rejected/);
+ok(!stagingHarness.includes("SAND8624erson"), "staging harness contains no credential literal");
 
 console.log("ADLE generic snapshot migration regression passed.");
