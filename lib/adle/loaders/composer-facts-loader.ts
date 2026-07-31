@@ -195,7 +195,7 @@ export async function loadDailyPlanFacts(
     rows<FamilyMethodRow>(
       client
         .from("adle_family_methods")
-        .select("family_key, family_name, guided_question_sequence, review_sort_dimension, production_task, row_status")
+        .select("family_key, family_name, guided_question_sequence, review_sort_dimension, production_task, content_version, import_batch_id, row_status")
         .eq("row_status", "active"),
       "loadDailyPlanFacts:familyMethods",
     ),
@@ -203,7 +203,7 @@ export async function loadDailyPlanFacts(
       client
         .from("adle_activity_templates")
         .select(
-          "template_key, phase, min_words_required, requires_sentence_context, requires_contrast_words, evidence_kind, child_facing_copy, purpose, child_response, row_status",
+          "template_key, phase, min_words_required, requires_sentence_context, requires_contrast_words, evidence_kind, child_facing_copy, purpose, child_response, content_version, import_batch_id, row_status",
         )
         .eq("row_status", "active"),
       "loadDailyPlanFacts:activityTemplates",
@@ -211,7 +211,7 @@ export async function loadDailyPlanFacts(
     rows<TeachingContentRow>(
       client
         .from("canonical_teaching_dictionary_content_versions")
-        .select("micro_skill_key, teaching_objective, child_friendly_explanation, rule_explanation, common_misconceptions")
+        .select("micro_skill_key, teaching_objective, child_friendly_explanation, rule_explanation, common_misconceptions, content_version, source_row_hash, import_batch_id")
         .eq("is_active", true),
       "loadDailyPlanFacts:teachingContent",
     ),

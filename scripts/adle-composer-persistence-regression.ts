@@ -28,6 +28,7 @@ import {
   planAssignmentPersistence,
   type ExistingAssignmentHeaderFact,
 } from "../lib/adle/assignment-persistence";
+import { compileGenericLessonSnapshot } from "../lib/adle/composable-lesson/generic-snapshot-compiler";
 import {
   addDays,
   createReviewBundle,
@@ -76,6 +77,8 @@ const FAMILY_METHODS: FamilyMethodFact[] = [
     guidedQuestionSequence: ["PG_SOUND_NOTICE", "PG_GRAPHEME_MAP", "CONTROLLED_SPELLING", "DICTATION_OR_WRITING"],
     reviewSortDimension: "REVIEW_QUICK_SORT(sound/spelling cue)",
     productionTask: "Dictation_No_Image or Must_Use_Freewriting",
+    contentVersion: "fixture-family-pg-v1",
+    importBatchId: "fixture-batch",
     rowStatus: "active",
   },
   {
@@ -84,6 +87,8 @@ const FAMILY_METHODS: FamilyMethodFact[] = [
     guidedQuestionSequence: ["PAT_PATTERN_SPOT", "PAT_RULE_APPLY", "CONTROLLED_SPELLING", "DICTATION_OR_WRITING"],
     reviewSortDimension: "REVIEW_QUICK_SORT(rule/pattern)",
     productionTask: "Dictation_No_Image or Must_Use_Freewriting",
+    contentVersion: "fixture-family-pat-v1",
+    importBatchId: "fixture-batch",
     rowStatus: "active",
   },
 ];
@@ -103,6 +108,8 @@ function template(
     childFacingCopy: "",
     purpose: "",
     childResponse: "",
+    contentVersion: `fixture-${templateKey}-v1`,
+    importBatchId: "fixture-batch",
     rowStatus: "active",
     ...overrides,
   };
@@ -132,6 +139,9 @@ const TEACHING_CONTENT = new Map<string, TeachingContentFact>(
       childFriendlyExplanation: `explanation ${skill}`,
       ruleExplanation: `rule ${skill}`,
       commonMisconceptions: `misconceptions ${skill}`,
+      contentVersion: `fixture-${skill}-v1`,
+      sourceRowHash: `fixture-${skill}-hash`,
+      importBatchId: "fixture-batch",
     },
   ]),
 );
@@ -243,7 +253,8 @@ function facts(overrides: Partial<DailyPlanFacts> = {}): DailyPlanFacts {
 
 // --- Insert plan: ordered, deterministic, provenance-preserving --------------
 
-const plan = composeDailyPlan(facts(), TODAY);
+const planInputFacts = facts();
+const plan = composeDailyPlan(planInputFacts, TODAY);
 assert(plan.partTwo.composed, "fixture day composes a lesson");
 const persistence = planAssignmentPersistence(plan, { parentUserId: PARENT, existingHeaders: [] });
 assert(
@@ -277,6 +288,27 @@ items.forEach((draft, index) => {
   assert(!("learningItemId" in draft), "legacy learning_item_id is never set on ADLE drafts");
 });
 assert(new Set(items.map((draft) => draft.sourceEntityId)).size === items.length, "source_entity_ids unique");
+
+const compiledSnapshot = compileGenericLessonSnapshot({
+  facts: planInputFacts,
+  plan,
+  persistence: persistence as typeof persistence & {
+    action: "insert";
+    header: NonNullable<typeof persistence.header>;
+  },
+});
+assert(compiledSnapshot.ok, "the real composer insert plan compiles to a valid V2 snapshot");
+if (compiledSnapshot.ok) {
+  assert(compiledSnapshot.snapshot.activities.length === items.length, "snapshot binds every real composer item");
+  assert(
+    compiledSnapshot.snapshot.words.filter((word) => word.role === "review").length === 2,
+    "snapshot preserves the two review roles",
+  );
+  assert(
+    compiledSnapshot.snapshot.words.filter((word) => word.role === "authentic_target" || word.role === "transfer").length === 5,
+    "snapshot preserves all five selected lesson roles",
+  );
+}
 
 // Lesson-word rows keep their ADLE learning-item linkage in metadata.
 const controlledRows = items.filter((draft) => draft.metadata.sectionKey === "lesson_production");

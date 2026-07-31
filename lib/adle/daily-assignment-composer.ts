@@ -79,6 +79,9 @@ export interface FamilyMethodFact {
   /** Raw sheet value, e.g. "REVIEW_QUICK_SORT(sound/spelling cue)". */
   reviewSortDimension: string;
   productionTask: string;
+  /** Immutable imported-content provenance consumed by snapshot compilation. */
+  contentVersion?: string;
+  importBatchId?: string;
   rowStatus: SchedulerRowStatus;
 }
 
@@ -95,6 +98,9 @@ export interface ActivityTemplateFact {
   purpose: string;
   /** Slice 7a: expected child response modality (display hint only). */
   childResponse: string;
+  /** Immutable imported-content provenance consumed by snapshot compilation. */
+  contentVersion?: string;
+  importBatchId?: string;
   rowStatus: SchedulerRowStatus;
 }
 
@@ -117,6 +123,10 @@ export interface TeachingContentFact {
   childFriendlyExplanation: string;
   ruleExplanation: string;
   commonMisconceptions: string;
+  /** Immutable Teaching Dictionary provenance consumed by snapshots. */
+  contentVersion?: string;
+  sourceRowHash?: string;
+  importBatchId?: string;
 }
 
 export interface ReviewWordFact {

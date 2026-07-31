@@ -163,6 +163,8 @@ export interface FamilyMethodRow {
   guided_question_sequence: string[];
   review_sort_dimension: string;
   production_task: string;
+  content_version?: string;
+  import_batch_id?: string;
   row_status: string;
 }
 
@@ -173,6 +175,8 @@ export function familyMethodFromRow(row: FamilyMethodRow): FamilyMethodFact {
     guidedQuestionSequence: row.guided_question_sequence,
     reviewSortDimension: row.review_sort_dimension,
     productionTask: row.production_task,
+    contentVersion: row.content_version,
+    importBatchId: row.import_batch_id,
     rowStatus: row.row_status as SchedulerRowStatus,
   };
 }
@@ -187,6 +191,8 @@ export interface ActivityTemplateRow {
   child_facing_copy: string;
   purpose: string | null;
   child_response: string | null;
+  content_version?: string;
+  import_batch_id?: string;
   row_status: string;
 }
 
@@ -204,6 +210,8 @@ export function activityTemplateFromRow(row: ActivityTemplateRow): ActivityTempl
     // non-string into the payload.
     purpose: row.purpose ?? "",
     childResponse: row.child_response ?? "",
+    contentVersion: row.content_version,
+    importBatchId: row.import_batch_id,
     rowStatus: row.row_status as SchedulerRowStatus,
   };
 }
@@ -239,6 +247,9 @@ export interface TeachingContentRow {
   child_friendly_explanation: string | null;
   rule_explanation: string | null;
   common_misconceptions: string | null;
+  content_version?: string;
+  source_row_hash?: string;
+  import_batch_id?: string;
 }
 
 export function teachingContentFromRow(row: TeachingContentRow): TeachingContentFact {
@@ -248,6 +259,9 @@ export function teachingContentFromRow(row: TeachingContentRow): TeachingContent
     childFriendlyExplanation: row.child_friendly_explanation ?? "",
     ruleExplanation: row.rule_explanation ?? "",
     commonMisconceptions: row.common_misconceptions ?? "",
+    contentVersion: row.content_version,
+    sourceRowHash: row.source_row_hash,
+    importBatchId: row.import_batch_id,
   };
 }
 

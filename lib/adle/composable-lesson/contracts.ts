@@ -193,6 +193,13 @@ export interface CompiledLessonSnapshot {
   };
 }
 
+/** Explicit aliases for the original runtime-neutral snapshot vocabulary.
+ * Their structure and meaning remain frozen at schema version 1; route-
+ * specific production snapshots use separately versioned contracts. */
+export type ActivitySnapshotV1 = LessonActivitySnapshot;
+export type LessonWordSnapshotV1 = LessonWordSnapshot;
+export type CompiledLessonSnapshotV1 = CompiledLessonSnapshot;
+
 export function isLessonActivityKind(value: string): value is LessonActivityKind {
   return LESSON_ACTIVITY_KINDS.includes(value as LessonActivityKind);
 }

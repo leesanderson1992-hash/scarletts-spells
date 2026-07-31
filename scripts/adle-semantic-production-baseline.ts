@@ -10,6 +10,7 @@ const regressions = [
   "adle-composer-persistence-regression.ts",
   "adle-composer-payload-regression.ts",
   "adle-activity-registry-regression.ts",
+  "adle-generic-snapshot-contract-regression.ts",
   "adle-curriculum-readiness-regression.ts",
   "adle-dynamic-prefix-assignment-plan-regression.ts",
   "adle-dynamic-prefix-runtime-regression.ts",
