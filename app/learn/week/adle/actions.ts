@@ -56,14 +56,10 @@ import {
   persistReviewSessionCompletion,
 } from "@/lib/adle/loaders/session-completion-loader";
 import { isMorphologyUnPilotEnabledForChild } from "@/lib/adle/morphology/pilot-access";
-import { resolveDynamicPrefixRuntime } from "@/lib/adle/morphology/dynamic-prefix-runtime";
 import { isDynamicPrefixRouteEnabled } from "@/lib/adle/morphology/dynamic-prefix-staging-access";
-import { resolveDynamicAffixRuntime } from "@/lib/adle/morphology/dynamic-affix-runtime";
 import { isDynamicSuffixRouteEnabled } from "@/lib/adle/morphology/dynamic-suffix-route-gate";
-import { extractAuthoredTargetToken, resolveMorphologyPilotRuntime, type MorphologyLessonPayloadV1 } from "@/lib/adle/morphology/payload";
-import { validateClosedCompoundLessonPayload } from "@/lib/adle/morphology/closed-compound-word-lab";
+import { extractAuthoredTargetToken, type MorphologyLessonPayloadV1 } from "@/lib/adle/morphology/payload";
 import { isBaseWordFamilyPilotEnabledForChild } from "@/lib/adle/morphology/base-word-family-pilot-access";
-import { resolveBaseWordFamilyPilotRuntime } from "@/lib/adle/morphology/base-word-family-pilot-contract";
 import { BASE_WORD_FAMILY_ASSIGNMENT_SOURCE, BASE_WORD_FAMILY_ASSIGNMENT_TITLE } from "@/lib/adle/morphology/base-word-family-pilot-plan";
 import { baseWordTransferMissWrites } from "@/lib/adle/base-word-transfer-evidence";
 import { persistBaseWordFamilyPilotCompletion } from "@/lib/adle/loaders/base-word-family-pilot-loader";
@@ -73,6 +69,10 @@ import {
   persistWordLabCompletion,
   type WordLabReflectionWrite,
 } from "@/lib/adle/loaders/word-lab-completion-loader";
+import {
+  emitLessonRouteResolutionEvent,
+  resolvePersistedLessonRoute,
+} from "@/lib/adle/composable-lesson/route-resolution";
 
 function readFormValue(formData: FormData, key: string): string | null {
   const value = formData.get(key);
@@ -282,6 +282,23 @@ export async function completeAdleReviewPartAction(formData: FormData) {
   if (readModel.partOne.complete) {
     finishWith(context, "Today's review is already recorded.");
   }
+  const routeResolution = resolvePersistedLessonRoute({
+    lessonRouteMetadata: readModel.lessonRouteMetadata,
+    items: readModel.partTwo.items,
+    runtimeContext: {
+      morphologyUnEnabled: isMorphologyUnPilotEnabledForChild(childId),
+      dynamicPrefixEnabled: isDynamicPrefixRouteEnabled(),
+      dynamicAffixEnabled: isDynamicSuffixRouteEnabled(),
+      baseWordFamilyEnabled: isBaseWordFamilyPilotEnabledForChild(childId),
+    },
+  });
+  emitLessonRouteResolutionEvent(
+    routeResolution,
+    readModel.assignmentGenerationSource,
+  );
+  if (routeResolution.status === "blocked") {
+    finishWith(context, "This Word Lab needs a grown-up check before it can continue.");
+  }
   // Crash-retry guard: production events for this plan date mean the
   // scheduler writes already landed — re-mark the items and stop.
   if (await hasProductionOutcomeEventsOn(serviceClient, childId, planDate)) {
@@ -444,24 +461,42 @@ export async function completeAdleLessonPartAction(formData: FormData) {
     finishWith(context, "Nothing to record for today's lesson.");
   }
   const lessonSourceRef = `lesson:${childId}:${planDate}:${microSkillKey}`;
-  const morphologyPilot = resolveMorphologyPilotRuntime(
-    isMorphologyUnPilotEnabledForChild(childId),
-    readModel.partTwo.items,
+  const routeResolution = resolvePersistedLessonRoute({
+    lessonRouteMetadata: readModel.lessonRouteMetadata,
+    items: readModel.partTwo.items,
+    runtimeContext: {
+      morphologyUnEnabled: isMorphologyUnPilotEnabledForChild(childId),
+      dynamicPrefixEnabled: isDynamicPrefixRouteEnabled(),
+      dynamicAffixEnabled: isDynamicSuffixRouteEnabled(),
+      baseWordFamilyEnabled: isBaseWordFamilyPilotEnabledForChild(childId),
+    },
+  });
+  emitLessonRouteResolutionEvent(
+    routeResolution,
+    readModel.assignmentGenerationSource,
   );
-  const dynamicPrefix = resolveDynamicPrefixRuntime(
-    isDynamicPrefixRouteEnabled(),
-    readModel.partTwo.items,
-  );
-  const dynamicSuffix = resolveDynamicAffixRuntime(
-    isDynamicSuffixRouteEnabled(),
-    readModel.partTwo.items,
-  );
-  const compoundSource = readModel.partTwo.items.find((item) => item.promptData.closedCompoundActivityId === "intro-root")?.promptData.closedCompoundLesson;
-  const compoundPayload = validateClosedCompoundLessonPayload(compoundSource) ? compoundSource : null;
-  const compoundRuntime = compoundPayload ? ({ microSkillId: compoundPayload.microSkillId, contentVersion: compoundPayload.contentVersion, activities: [
-    { type: "sentence_dictation", sentences: compoundPayload.activities.dictation },
-    { type: "reflection", promptKey: compoundPayload.activities.reflection.promptKey, promptText: compoundPayload.activities.reflection.promptText },
-  ] } as unknown as MorphologyLessonPayloadV1) : null;
+  if (
+    routeResolution.status === "blocked" ||
+    routeResolution.runtime.adapterKey === "base_word_family_v1"
+  ) {
+    finishWith(context, "This Word Lab needs a grown-up check before it can continue.");
+  }
+  const morphologyPilot =
+    routeResolution.runtime.adapterKey === "morphology_guided_v1"
+      ? routeResolution.runtime.payload
+      : null;
+  const dynamicPrefix =
+    routeResolution.runtime.adapterKey === "dynamic_prefix_v2"
+      ? routeResolution.runtime.payload
+      : null;
+  const dynamicSuffix =
+    routeResolution.runtime.adapterKey === "dynamic_affix_v3"
+      ? routeResolution.runtime.payload
+      : null;
+  const compoundRuntime =
+    routeResolution.runtime.adapterKey === "closed_compound_v1"
+      ? routeResolution.runtime.completionPayload
+      : null;
   const wordLabPayload = compoundRuntime ?? dynamicSuffix ?? dynamicPrefix ?? morphologyPilot;
   const atomicWordLabCompletionEnabled = process.env.ADLE_WORD_LAB_ATOMIC_COMPLETION_ENABLED === "enabled";
   const learningReflection = readFormValue(formData, "learningReflection");
@@ -661,10 +696,28 @@ export async function completeBaseWordFamilyLessonAction(formData: FormData) {
     userClient: context.userClient, parentUserId: context.parentUserId, childId: context.childId,
     planDate: context.planDate, assignmentId: context.assignmentId,
   });
-  const payload = resolveBaseWordFamilyPilotRuntime(true, readModel.partTwo.items);
-  if (!payload || readModel.partTwo.items.length !== 18) {
+  const routeResolution = resolvePersistedLessonRoute({
+    lessonRouteMetadata: readModel.lessonRouteMetadata,
+    items: readModel.partTwo.items,
+    runtimeContext: {
+      morphologyUnEnabled: isMorphologyUnPilotEnabledForChild(context.childId),
+      dynamicPrefixEnabled: isDynamicPrefixRouteEnabled(),
+      dynamicAffixEnabled: isDynamicSuffixRouteEnabled(),
+      baseWordFamilyEnabled: true,
+    },
+  });
+  emitLessonRouteResolutionEvent(
+    routeResolution,
+    readModel.assignmentGenerationSource,
+  );
+  if (
+    routeResolution.status === "blocked" ||
+    routeResolution.runtime.adapterKey !== "base_word_family_v1" ||
+    readModel.partTwo.items.length !== 18
+  ) {
     finishWith(context, "This Word Lab needs a grown-up check before it can continue.");
   }
+  const payload = routeResolution.runtime.payload;
   const controlledAttempts = parseAttempts(formData, "baseWordControlledAttempts");
   const sentenceAttempts = parseAttempts(formData, "baseWordSentenceAttempts");
   const reflection = readFormValue(formData, "baseWordReflection");

@@ -11,8 +11,10 @@ const migration = readFileSync("supabase/migrations/20260717120000_add_adle_word
 const payload = readFileSync("lib/adle/morphology/payload.ts", "utf8");
 const resume = readFileSync("lib/adle/morphology/resume.ts", "utf8");
 const environment = readFileSync(".env.example", "utf8");
+const resolver = readFileSync("lib/adle/composable-lesson/route-resolution.ts", "utf8");
 
-assert(action.includes("isMorphologyUnPilotEnabledForChild") && action.includes("resolveMorphologyPilotRuntime"), "atomic completion remains behind allowlist and valid-payload resolution");
+assert(action.includes("isMorphologyUnPilotEnabledForChild") && action.includes("resolvePersistedLessonRoute"), "atomic completion remains behind allowlist and the shared persisted-route resolution boundary");
+assert(resolver.includes("resolveMorphologyPilotRuntime") && resolver.includes("assignment_binding_mismatch"), "fixed un- completion still requires its original payload and binding validator");
 assert(action.includes('ADLE_WORD_LAB_ATOMIC_COMPLETION_ENABLED === "enabled"'), "atomic completion has an explicit default-off comparison switch");
 assert(action.includes("if (morphologyPilot !== null && dynamicPrefix === null && dynamicSuffix === null && compoundRuntime === null && atomicWordLabCompletionEnabled)"), "the legacy-only atomic RPC must never receive a generic v2 or compound payload");
 assert(action.includes("persistWordLabCompletion") && action.includes("extractAuthoredTargetToken(rawAttempt, sentence.targetTokenIndex)"), "Word Lab uses the atomic helper and authored target-token correctness");

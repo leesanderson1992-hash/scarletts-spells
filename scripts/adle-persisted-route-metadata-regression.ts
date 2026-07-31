@@ -1,0 +1,134 @@
+import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+
+import {
+  ADLE_NEW_ASSIGNMENT_ROUTE_IDS,
+  createPersistedRouteMetadata,
+  parsePersistedLessonRouteMetadata,
+  validatePersistedRouteMetadataCompatibility,
+} from "../lib/adle/composable-lesson/persisted-route-metadata";
+import { ADLE_CURRICULUM_ROUTE_REGISTRY } from "../lib/adle/curriculum-readiness/route-registry";
+import { ADLE_IMPLEMENTED_RUNTIME_ADAPTER_KEYS } from "../lib/adle/composable-lesson/route-resolution";
+
+const expected = {
+  generic_composer: {
+    route: "v1",
+    recipe: "generic_first_exposure:v1",
+    payload: "composed_daily_plan:1",
+  },
+  dynamic_prefix_word_lab: {
+    route: "v2",
+    recipe: "dynamic_prefix_word_lab:v2",
+    payload: "dynamic_prefix_lesson_v2:2",
+  },
+  dynamic_affix_word_lab: {
+    route: "v3",
+    recipe: "dynamic_affix_word_lab:v3",
+    payload: "dynamic_affix_lesson_v3:3",
+  },
+  closed_compound_word_lab: {
+    route: "v1",
+    recipe: "closed_compound_word_lab:v1",
+    payload: "closed_compound_lesson_v1:1",
+  },
+  base_word_lab: {
+    route: "v2",
+    recipe: "base_word_family:v1",
+    payload: "base_word_family_snapshot_v1:1",
+  },
+} as const;
+
+assert.deepEqual(
+  [...ADLE_NEW_ASSIGNMENT_ROUTE_IDS].sort(),
+  Object.keys(expected).sort(),
+);
+
+for (const routeId of ADLE_NEW_ASSIGNMENT_ROUTE_IDS) {
+  const metadata = createPersistedRouteMetadata(routeId);
+  assert.equal(metadata.metadataSchemaVersion, 1);
+  assert.equal(metadata.route.routeId, routeId);
+  assert.equal(metadata.route.routeVersion, expected[routeId].route);
+  assert.equal(
+    `${metadata.recipe.recipeKey}:${metadata.recipe.recipeVersion}`,
+    expected[routeId].recipe,
+  );
+  assert.equal(
+    `${metadata.payload.kind}:${metadata.payload.version}`,
+    expected[routeId].payload,
+  );
+  assert.deepEqual(parsePersistedLessonRouteMetadata(metadata), {
+    ok: true,
+    metadata,
+  });
+  assert.deepEqual(validatePersistedRouteMetadataCompatibility(metadata), {
+    ok: true,
+  });
+}
+
+const fixed = ADLE_CURRICULUM_ROUTE_REGISTRY.find(
+  (route) => route.routeId === "fixed_un_prefix_word_lab",
+);
+assert(fixed);
+assert.equal(fixed.newAssignmentCapable, false);
+assert.equal(fixed.implementationState, "legacy_render_only");
+assert.equal(
+  (ADLE_NEW_ASSIGNMENT_ROUTE_IDS as readonly string[]).includes(fixed.routeId),
+  false,
+);
+assert.deepEqual(
+  [...new Set(ADLE_CURRICULUM_ROUTE_REGISTRY.map((route) => route.runtimeAdapterKey))].sort(),
+  [...ADLE_IMPLEMENTED_RUNTIME_ADAPTER_KEYS].sort(),
+  "every canonical route adapter has exactly one runtime implementation",
+);
+
+assert.equal(
+  parsePersistedLessonRouteMetadata(null).ok,
+  false,
+  "the parser accepts only a complete non-null document",
+);
+assert.deepEqual(
+  parsePersistedLessonRouteMetadata({
+    ...createPersistedRouteMetadata("generic_composer"),
+    metadataSchemaVersion: 2,
+  }),
+  { ok: false, blocker: "unsupported_metadata_schema_version" },
+);
+assert.equal(
+  parsePersistedLessonRouteMetadata({
+    ...createPersistedRouteMetadata("generic_composer"),
+    route: { routeId: "generic_composer" },
+  }).ok,
+  false,
+);
+assert.deepEqual(
+  validatePersistedRouteMetadataCompatibility({
+    ...createPersistedRouteMetadata("generic_composer"),
+    route: { routeId: "generic_composer", routeVersion: "v999" },
+  }),
+  { ok: false, blocker: "unsupported_route_version" },
+);
+assert.deepEqual(
+  validatePersistedRouteMetadataCompatibility({
+    ...createPersistedRouteMetadata("generic_composer"),
+    recipe: { recipeKey: "wrong", recipeVersion: "v1" },
+  }),
+  { ok: false, blocker: "recipe_mismatch" },
+);
+assert.deepEqual(
+  validatePersistedRouteMetadataCompatibility({
+    ...createPersistedRouteMetadata("generic_composer"),
+    payload: { kind: "dynamic_affix_lesson_v3", version: 3 },
+  }),
+  { ok: false, blocker: "payload_kind_mismatch" },
+);
+
+const fixedPlanSource = readFileSync(
+  "lib/adle/morphology/pilot-plan.ts",
+  "utf8",
+);
+assert(
+  fixedPlanSource.includes("lessonRouteMetadata: null"),
+  "fixed un- remains an explicit metadata-free compatibility writer",
+);
+
+console.log("ADLE persisted route metadata regression passed.");

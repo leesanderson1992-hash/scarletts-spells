@@ -42,6 +42,7 @@ export interface AdleSessionItem {
   microSkillKey: string | null;
   adleLearningItemRef: string | null;
   promptData: Record<string, unknown>;
+  itemMetadata?: Record<string, unknown>;
 }
 
 export const ADLE_PART_ONE_SECTION_KEYS = [
@@ -62,6 +63,8 @@ export interface AdleDailyPlanReadModel {
   state: "empty" | "ready" | "completed";
   planDate: IsoDate;
   assignmentId: string | null;
+  lessonRouteMetadata: unknown | null;
+  assignmentGenerationSource: string | null;
   partOne: { items: AdleSessionItem[]; present: boolean; complete: boolean };
   partTwo: { items: AdleSessionItem[]; present: boolean; complete: boolean };
 }
@@ -90,6 +93,7 @@ function sessionItemFromRow(row: AssignmentItemRow): AdleSessionItem {
     adleLearningItemRef:
       typeof metadata.adleLearningItemRef === "string" ? metadata.adleLearningItemRef : null,
     promptData: row.prompt_data ?? {},
+    itemMetadata: metadata,
   };
 }
 
@@ -246,6 +250,7 @@ export async function ensureAdleDailyPlan(params: EnsureAdleDailyPlanParams): Pr
       target_words: header.targetWords,
       review_words: header.reviewWords,
       assignment_generation_source: header.assignmentGenerationSource,
+      lesson_route_metadata: header.lessonRouteMetadata,
     })
     .select("id")
     .maybeSingle();
@@ -303,21 +308,42 @@ export async function getAdleDailyPlanReadModel(params: {
       state: "empty",
       planDate,
       assignmentId: null,
+      lessonRouteMetadata: null,
+      assignmentGenerationSource: null,
       partOne: { items: [], present: false, complete: false },
       partTwo: { items: [], present: false, complete: false },
     };
   }
-  const { data, error } = await userClient
-    .from("assignment_items")
-    .select("id, position, status, template_key, target_word, prompt_data, metadata")
-    .eq("parent_user_id", parentUserId)
-    .eq("child_id", childId)
-    .eq("daily_assignment_id", assignmentId)
-    .order("position", { ascending: true });
-  if (error) {
-    throw new Error(`getAdleDailyPlanReadModel: ${error.message}`);
+  const [headerResult, itemsResult] = await Promise.all([
+    userClient
+      .from("daily_assignments")
+      .select("lesson_route_metadata, assignment_generation_source")
+      .eq("id", assignmentId)
+      .eq("parent_user_id", parentUserId)
+      .eq("child_id", childId)
+      .maybeSingle(),
+    userClient
+      .from("assignment_items")
+      .select("id, position, status, template_key, target_word, prompt_data, metadata")
+      .eq("parent_user_id", parentUserId)
+      .eq("child_id", childId)
+      .eq("daily_assignment_id", assignmentId)
+      .order("position", { ascending: true }),
+  ]);
+  if (headerResult.error) {
+    throw new Error(`getAdleDailyPlanReadModel:header: ${headerResult.error.message}`);
   }
-  const items = ((data ?? []) as unknown as AssignmentItemRow[]).map(sessionItemFromRow);
+  if (itemsResult.error) {
+    throw new Error(`getAdleDailyPlanReadModel:items: ${itemsResult.error.message}`);
+  }
+  if (!headerResult.data) {
+    throw new Error("getAdleDailyPlanReadModel: assignment header not found");
+  }
+  const header = headerResult.data as {
+    lesson_route_metadata: unknown | null;
+    assignment_generation_source: string | null;
+  };
+  const items = ((itemsResult.data ?? []) as unknown as AssignmentItemRow[]).map(sessionItemFromRow);
   const partOneItems = items.filter((item) =>
     (ADLE_PART_ONE_SECTION_KEYS as readonly string[]).includes(item.sectionKey),
   );
@@ -341,5 +367,13 @@ export async function getAdleDailyPlanReadModel(params: {
       : (partOne.present ? partOne.complete : true) && (partTwo.present ? partTwo.complete : true)
         ? "completed"
         : "ready";
-  return { state, planDate, assignmentId, partOne, partTwo };
+  return {
+    state,
+    planDate,
+    assignmentId,
+    lessonRouteMetadata: header.lesson_route_metadata,
+    assignmentGenerationSource: header.assignment_generation_source,
+    partOne,
+    partTwo,
+  };
 }

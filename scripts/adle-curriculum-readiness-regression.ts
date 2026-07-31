@@ -47,6 +47,8 @@ const routes = [
     activationAuthority: "database_route_activation" as const,
     compatibilityScope: { kind: "declared_micro_skills" as const },
     recipes: [{ recipeKey: "alternate_base_lab", recipeVersion: "v1" }],
+    runtimeAdapterKey: "base_word_family_v1" as const,
+    rendererKey: "base_word_family_guided" as const,
     legacyDetectionRules: ["fixture"],
     requiredActivities: ["cover_check" as const],
     intentionalItemCounts: [1],

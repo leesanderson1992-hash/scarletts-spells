@@ -17,10 +17,12 @@ assert(resolveBaseWordFamilyPilotRuntime(true, [...items, { ...items[0], id: "du
 const page = readFileSync("app/learn/week/adle/page.tsx", "utf8");
 const runner = readFileSync("components/adle-session-runner.tsx", "utf8");
 const actions = readFileSync("app/learn/week/adle/actions.ts", "utf8");
+const resolver = readFileSync("lib/adle/composable-lesson/route-resolution.ts", "utf8");
 const migration = readFileSync("supabase/migrations/20260718110000_add_adle_base_word_family_pilot_guard.sql", "utf8");
 const sharedRouteMigration = readFileSync("supabase/migrations/20260722200000_add_shared_route_base_word_completion.sql", "utf8");
 const loader = readFileSync("lib/adle/loaders/base-word-family-pilot-loader.ts", "utf8");
-assert(page.includes("getExistingAdleSessionPlanId") && page.includes("resolveBaseWordFamilyPilotRuntime"), "ADLE page resolves the separate assignment only through its validator");
+assert(page.includes("getExistingAdleSessionPlanId") && page.includes("resolvePersistedLessonRoute"), "ADLE page resolves the assignment through the shared persisted-route boundary");
+assert(resolver.includes("resolveBaseWordFamilyPilotRuntime") && resolver.includes("base_word_family_v1"), "the shared route boundary preserves the dedicated Base Word validator and adapter");
 assert(runner.includes("completeBaseWordFamilyLessonAction") && runner.includes("baseWordSentenceAttempts"), "renderer submits only the base-word independent attempt contract");
 assert(actions.includes("completeBaseWordFamilyLessonAction") && actions.includes("authenticIds") && actions.includes("baseWordTransferMissWrites"), "completion schedules authentic targets and isolates transfer evidence");
 assert(!actions.slice(actions.indexOf("completeBaseWordFamilyLessonAction")).includes("completeAdleLessonPartAction(formData)"), "base-word completion never delegates to generic lesson completion");

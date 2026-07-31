@@ -4,6 +4,7 @@ import { compileMorphologyUnPilotPayload, extractAuthoredTargetToken, morphology
 import { MORPHOLOGY_RESUME_TTL_MS, clearMorphologyResume, normaliseMorphologyLessonResume, parseMorphologyResume, readMorphologyResume, serialiseMorphologyResume, writeMorphologyResume } from "../lib/adle/morphology/resume";
 import type { AdleSessionItem } from "../lib/adle/loaders/daily-plan-surface";
 import { isAttemptCorrect } from "../lib/adle/session-correctness";
+import { resolvePersistedLessonRoute } from "../lib/adle/composable-lesson/route-resolution";
 
 function assert(condition: unknown, message: string): asserts condition { if (!condition) throw new Error(`FAIL: ${message}`); }
 const words = ["unhappy", "unfair", "unkind", "unlock", "untidy", "unnatural", "unnecessary"];
@@ -48,6 +49,12 @@ assert(specs.length === 16, "pilot binding contract contains exactly 16 items");
 const items: AdleSessionItem[] = specs.map((spec, index) => ({ id: `item-${index}`, sectionKey: spec.sectionKey, templateKey: spec.templateKey, position: index + 1, status: "ready", targetWord: spec.targetWord, canonicalWordId: spec.canonicalWordId, microSkillKey: "D4_MOR_PREFIXES_UN", adleLearningItemRef: null, promptData: { pilotActivityId: spec.binding, ...(spec.binding === "intro-root" ? { morphologyLesson: payload } : {}) } }));
 assert(resolveMorphologyPilotRuntime(false, items) === null, "valid payload without gate falls back");
 assert(resolveMorphologyPilotRuntime(true, items) !== null, "valid bound payload with gate resolves");
+const legacyRoute = resolvePersistedLessonRoute({
+  lessonRouteMetadata: null,
+  items,
+  runtimeContext: { morphologyUnEnabled: true, dynamicPrefixEnabled: true, dynamicAffixEnabled: true, baseWordFamilyEnabled: true },
+});
+assert(legacyRoute.status === "resolved_legacy" && legacyRoute.runtime.adapterKey === "morphology_guided_v1", "metadata-free fixed un- remains on its versioned legacy reader");
 assert(resolveMorphologyPilotRuntime(true, items.slice(0, -1)) === null, "missing assignment binding falls back");
 assert(resolveMorphologyPilotRuntime(true, [...items, { ...items[0], id: "duplicate" }]) === null, "duplicate assignment binding falls back");
 assert(resolveMorphologyPilotRuntime(true, items.map((item, index) => index === 2 ? { ...item, templateKey: "MOR_MEANING_MATCH" } : item)) === null, "wrong template binding falls back");

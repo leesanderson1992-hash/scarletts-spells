@@ -31,6 +31,7 @@
 
 import type { LearningItemFact } from "./learning-items";
 import type { ComposedDailyPlan, PlanItemCandidate } from "./daily-assignment-composer";
+import type { PersistedLessonRouteMetadataV1 } from "./composable-lesson/contracts";
 import type { IsoDate } from "./review-scheduler";
 
 export const ADLE_DAILY_ASSIGNMENT_TITLE = "ADLE Daily Plan";
@@ -56,6 +57,7 @@ export interface AssignmentHeaderDraft {
   /** Part 1 review words (display) in session-mix presentation order. */
   reviewWords: string[];
   assignmentGenerationSource: string;
+  lessonRouteMetadata: PersistedLessonRouteMetadataV1 | null;
 }
 
 export interface AssignmentItemDraft {
@@ -206,6 +208,7 @@ export function planAssignmentPersistence(
       targetWords,
       reviewWords,
       assignmentGenerationSource: ADLE_ASSIGNMENT_GENERATION_SOURCE,
+      lessonRouteMetadata: plan.lessonRouteMetadata,
     },
     items: candidates.map((candidate) => itemDraft(plan, params.parentUserId, candidate)),
     learningItemIntakes: plan.partTwo.composed ? [...plan.partTwo.stretchItemIntakes] : [],

@@ -59,6 +59,9 @@ jobs:
         run: |
           npm run adle:composable-contract-regression
           npm run adle:composable-compatibility-regression
+          npm run adle:persisted-route-metadata-regression
+          npm run adle:route-resolution-regression
+          npm run adle:route-metadata-migration-regression
           npm run adle:production-readiness-audit-regression
           npm run adle:composable-documentation-regression
           npm run adle:architecture-drift-check

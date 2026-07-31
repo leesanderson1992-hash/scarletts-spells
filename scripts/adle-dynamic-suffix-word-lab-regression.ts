@@ -4,6 +4,8 @@ import { dynamicAffixRuntime } from "../lib/adle/morphology/dynamic-affix-runtim
 import { buildDynamicAffixAssignmentPlan } from "../lib/adle/morphology/dynamic-affix-assignment-plan";
 import type { ComposedDailyPlan } from "../lib/adle/daily-assignment-composer";
 import { normaliseSessionWord } from "../lib/adle/session-correctness";
+import { resolvePersistedLessonRoute } from "../lib/adle/composable-lesson/route-resolution";
+import { createPersistedRouteMetadata } from "../lib/adle/composable-lesson/persisted-route-metadata";
 
 function word(id: string, base: string, teaching: string, display: string, transfer = true): DynamicAffixWord {
   const sentence = `Please spell ${display}.`;
@@ -80,7 +82,16 @@ assert.notDeepEqual(ableIblePayload.activities.guided.builds[0]!.choices.map((ch
 const ableIbleRuntime = dynamicAffixRuntime(ableIblePayload)!;
 assert.equal(ableIbleRuntime.activities.find((activity) => activity.type === "introduction")?.introScreens?.[0]?.meaningCallout, "The suffixes -able and -ible mean can be.");
 const basePlan = { childId: "child", planDate: "2026-07-27", composerPolicyVersion: "test", schedulePolicyVersion: "test", throttle: {}, partOne: {}, partTwo: {}, budget: { budgetResponses: 0, estimatedResponses: 0, guidedWordCount: 0, introTrimmed: false, trims: [] } } as unknown as ComposedDailyPlan;
-assert.equal(buildDynamicAffixAssignmentPlan({ basePlan, selection: ableIbleSelection, payload: ableIblePayload }).partTwo.sections.flatMap((section) => section.items).length, 16, "keeps the 16-item contract");
+const ableIblePlan = buildDynamicAffixAssignmentPlan({ basePlan, selection: ableIbleSelection, payload: ableIblePayload });
+assert.equal(ableIblePlan.partTwo.sections.flatMap((section) => section.items).length, 16, "keeps the 16-item contract");
+assert.equal(ableIblePlan.lessonRouteMetadata?.route.routeId, "dynamic_affix_word_lab");
+const resolvedAffix = resolvePersistedLessonRoute({
+  lessonRouteMetadata: createPersistedRouteMetadata("dynamic_affix_word_lab"),
+  items: ableIblePlan.partTwo.sections.flatMap((section) => section.items).map((entry, index) => ({ id: `affix-${index}`, sectionKey: entry.sectionKey, templateKey: entry.templateKey, canonicalWordId: entry.canonicalWordId, targetWord: entry.targetWord, promptData: entry.payload })),
+  runtimeContext: { morphologyUnEnabled: true, dynamicPrefixEnabled: true, dynamicAffixEnabled: true, baseWordFamilyEnabled: true },
+});
+assert.equal(resolvedAffix.status, "resolved_explicit");
+assert(resolvedAffix.runtime.adapterKey === "dynamic_affix_v3");
 const incomplete = { ...ableIbleProfile, wordsByCanonicalId: new Map(ableIbleProfile.wordsByCanonicalId) };
 incomplete.wordsByCanonicalId.set("visible", { ...ableIbleWords[3]!, dictationTargetTokenIndex: 0 });
 assert.equal(compileDynamicAffixWordLabPayload(selectDynamicAffixWordLab({ profiles: [incomplete], learningItems: [ableIbleItem] })!), null, "fails closed when reviewed dictation facts are incomplete");

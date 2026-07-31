@@ -39,10 +39,11 @@ Current implementation has:
 - item-level attempt capture;
 - separate evidence, scheduler, and reward paths.
 
-The composable-lesson foundation adds descriptive contracts and audit tooling
-without changing that baseline. Current production compilers still emit their
-existing payloads, and current runtime adapters still reconstruct those
-payloads through their existing readers.
+The composable-lesson foundation added descriptive contracts and audit
+tooling. The explicit-route stage then adds assignment-level route identity
+without changing the existing lesson payloads: new assignment writers persist
+the versioned route, recipe and raw payload contract, while the current runtime
+adapters continue to reconstruct the same payloads.
 
 This is enough for warm shells and current dictation-style rendering, but not enough for many rich templates.
 
@@ -86,10 +87,36 @@ word-role, snapshot, validator, compiler and provenance references. Activity
 snapshots are discriminated unions with typed conditions; there is no generic
 string-expression workflow language.
 
-This contract is a proposed compilation target only. No production compiler
-emits it and no production renderer consumes it in the foundation change.
-Persisted prefix, suffix, compound, Base Word and generic assignments remain
-authoritative for their existing readers.
+The full compiled snapshot remains a proposed compilation target. The smaller
+`PersistedLessonRouteMetadataV1` contract is now the assignment-level routing
+boundary for new assignments. Persisted prefix, suffix, compound, Base Word
+and generic item payloads remain authoritative teaching snapshots for their
+existing validators and adapters.
+
+## Persisted Route Resolution
+
+`daily_assignments.lesson_route_metadata` is the sole authoritative route
+metadata location. It is nullable for historical assignments, structurally
+validated, immutable after insertion and has no default.
+
+Resolution follows three rules:
+
+1. valid metadata resolves the exact route, recipe and raw payload version
+   through the canonical route registry;
+2. absent metadata uses the registered historical discriminator and payload
+   reader;
+3. present invalid, unsupported or contradictory metadata blocks and never
+   falls back to payload sniffing.
+
+The server page and completion actions call the same resolver. A blocked route
+renders a child-safe grown-up-check state and writes no attempts, evidence,
+schedules or rewards. Resume state remains route-specific and unchanged;
+route identity is loaded from the assignment on every server request.
+
+The metadata stores no compiler, renderer, activity-contract or content
+version. Compiler/adapter/renderer identity is derived from the canonical
+registry, activity detail remains in immutable assignment items, and content
+versions remain in existing rich payloads.
 
 ## Canonical Factual Inventories
 
@@ -155,17 +182,28 @@ The shared runtime owns activity framing, progress, attempt identity, timings, r
 
 ## Versioning And Old Payloads
 
-Open decision: exact storage location for `templateVersion`.
-
-Until approved, documentation accepts only this direction:
+The exact activity-template version storage decision remains separate from
+assignment-level route identity. The current compatibility policy is:
 
 - old payloads must never be silently reinterpreted under new semantics;
 - missing/unsupported versions fall to safe fallback or explicit unsupported handling;
 - assignment data stores semantic teaching payloads, not visual layout details.
 
-The foundation closes the descriptive snapshot shape but does not resolve
-storage or migrate old rows. Existing payload sniffing, adapters, resume keys
-and fallback behaviour remain in place until route-specific migration PRs.
+Historical rows are not backfilled. Existing payload sniffing is restricted to
+metadata-free assignments and retained compatibility cases. Existing payload
+validators, adapters and resume keys remain in place until route-specific
+migration and retirement proofs are separately approved.
+
+## Route Metadata Rollout And Rollback
+
+The additive database schema is deployed before metadata-writing application
+code. Staging must use the pinned staging project and prove explicit routes,
+metadata-free historical routes, resume, completion and application rollback.
+
+Application rollback is the normal recovery path. The nullable column,
+constraints, index, compatible RPCs and any written metadata remain in place;
+older application versions ignore the additional field and continue creating
+metadata-free assignments that the legacy readers support.
 
 ## Determinism And Resumability
 

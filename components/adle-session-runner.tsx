@@ -34,10 +34,9 @@ import { QuickSortActivity } from "@/components/adle/activities/quick-sort-activ
 import { SpellingField } from "@/components/adle/activities/shared/spelling-field";
 import { GuidedActivity } from "@/components/adle/activities/guided-activity";
 import { ReflectionActivity } from "@/components/adle/activities/reflection-activity";
-import type { MorphologyLessonPayloadV1 } from "@/lib/adle/morphology/payload";
 import type { BaseWordFamilyLessonSnapshotV1 } from "@/lib/adle/morphology/base-word-family-payload";
-import { validateClosedCompoundLessonPayload, type ClosedCompoundLessonPayloadV1 } from "@/lib/adle/morphology/closed-compound-word-lab";
 import { ClosedCompoundGuidedLesson } from "@/components/adle/morphology/closed-compound-guided-lesson";
+import type { LessonRouteResolutionResult } from "@/lib/adle/composable-lesson/route-resolution";
 
 const MorphologyGuidedLesson = dynamic(
   () =>
@@ -69,9 +68,10 @@ type AdleSessionRunnerProps = {
   planDate: string;
   partOne: { items: AdleSessionItem[]; present: boolean; complete: boolean };
   partTwo: { items: AdleSessionItem[]; present: boolean; complete: boolean };
-  morphologyPilotPayload?: MorphologyLessonPayloadV1 | null;
-  dynamicPrefixPayload?: MorphologyLessonPayloadV1 | null;
-  baseWordFamilyPilotPayload?: BaseWordFamilyLessonSnapshotV1 | null;
+  routeResolution: Extract<
+    LessonRouteResolutionResult,
+    { status: "resolved_explicit" | "resolved_legacy" }
+  >;
 };
 
 function itemsIn(items: readonly AdleSessionItem[], sectionKey: string): AdleSessionItem[] {
@@ -354,17 +354,16 @@ function LessonPart(props: { childId: string; assignmentId: string; items: AdleS
 
 export function AdleSessionRunner(props: AdleSessionRunnerProps) {
   const { partOne, partTwo } = props;
-  const compoundSource = partTwo.items.find((item) => item.promptData.closedCompoundActivityId === "intro-root")?.promptData.closedCompoundLesson;
-  const closedCompoundPayload: ClosedCompoundLessonPayloadV1 | null = validateClosedCompoundLessonPayload(compoundSource) ? compoundSource : null;
+  const { runtime } = props.routeResolution;
 
   // A profile-declared closed-compound lesson is its own complete Word Lab.
   // It must not be hidden behind the generic daily review panel.
-  if (closedCompoundPayload && props.assignmentId && partTwo.present && !partTwo.complete) {
-    return <ClosedCompoundGuidedLesson childId={props.childId} assignmentId={props.assignmentId} items={partTwo.items} payload={closedCompoundPayload} />;
+  if (runtime.adapterKey === "closed_compound_v1" && props.assignmentId && partTwo.present && !partTwo.complete) {
+    return <ClosedCompoundGuidedLesson childId={props.childId} assignmentId={props.assignmentId} items={partTwo.items} payload={runtime.payload} />;
   }
 
-  if (props.baseWordFamilyPilotPayload && props.assignmentId) {
-    return <BaseWordFamilyPart childId={props.childId} assignmentId={props.assignmentId} payload={props.baseWordFamilyPilotPayload} />;
+  if (runtime.adapterKey === "base_word_family_v1" && props.assignmentId) {
+    return <BaseWordFamilyPart childId={props.childId} assignmentId={props.assignmentId} payload={runtime.payload} />;
   }
 
   return (
@@ -381,8 +380,8 @@ export function AdleSessionRunner(props: AdleSessionRunnerProps) {
       ) : null}
 
       {partTwo.present && (partOne.complete || !partOne.present) && !partTwo.complete ? (
-        (props.dynamicPrefixPayload ?? props.morphologyPilotPayload) ? (
-          <MorphologyGuidedLesson childId={props.childId} assignmentId={props.assignmentId} items={partTwo.items} payload={(props.dynamicPrefixPayload ?? props.morphologyPilotPayload)!} />
+        runtime.rendererKey === "morphology_guided" ? (
+          <MorphologyGuidedLesson childId={props.childId} assignmentId={props.assignmentId} items={partTwo.items} payload={runtime.payload} />
         ) : (
           <LessonPart childId={props.childId} assignmentId={props.assignmentId} items={partTwo.items} />
         )

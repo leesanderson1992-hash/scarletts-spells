@@ -28,6 +28,7 @@
           "recipeVersion": "v1"
         }
       ],
+      "rendererKey": "base_word_family_guided",
       "requiredActivities": [
         "introduction",
         "family_reveal",
@@ -40,6 +41,7 @@
       "requiresAuthenticSelectableItem": true,
       "routeId": "base_word_lab",
       "routeVersion": "v2",
+      "runtimeAdapterKey": "base_word_family_v1",
       "supportedMicroSkillKeys": [
         "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
         "D4_MOR_BASE_WORDS_PRESERVE_BASE"
@@ -85,6 +87,7 @@
           "recipeVersion": "v1"
         }
       ],
+      "rendererKey": "closed_compound_guided",
       "requiredActivities": [
         "introduction",
         "compound_jigsaw",
@@ -96,6 +99,7 @@
       "requiresAuthenticSelectableItem": false,
       "routeId": "closed_compound_word_lab",
       "routeVersion": "v1",
+      "runtimeAdapterKey": "closed_compound_v1",
       "supportedMicroSkillKeys": [
         "D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS"
       ],
@@ -143,6 +147,7 @@
           "recipeVersion": "v3"
         }
       ],
+      "rendererKey": "morphology_guided",
       "requiredActivities": [
         "introduction",
         "discovery",
@@ -155,6 +160,7 @@
       "requiresAuthenticSelectableItem": true,
       "routeId": "dynamic_affix_word_lab",
       "routeVersion": "v3",
+      "runtimeAdapterKey": "dynamic_affix_v3",
       "supportedMicroSkillKeys": [
         "D4_MOR_SUFFIXES_ABLE_IBLE",
         "D4_MOR_SUFFIXES_AL",
@@ -211,6 +217,7 @@
           "recipeVersion": "v2"
         }
       ],
+      "rendererKey": "morphology_guided",
       "requiredActivities": [
         "introduction",
         "discovery",
@@ -224,6 +231,7 @@
       "requiresAuthenticSelectableItem": true,
       "routeId": "dynamic_prefix_word_lab",
       "routeVersion": "v2",
+      "runtimeAdapterKey": "dynamic_prefix_v2",
       "supportedMicroSkillKeys": [
         "D4_MOR_PREFIXES_DIS_MIS",
         "D4_MOR_PREFIXES_IN_IM_IL_IR",
@@ -272,6 +280,7 @@
           "recipeVersion": "v1"
         }
       ],
+      "rendererKey": "morphology_guided",
       "requiredActivities": [
         "introduction",
         "discovery",
@@ -284,6 +293,7 @@
       "requiresAuthenticSelectableItem": false,
       "routeId": "fixed_un_prefix_word_lab",
       "routeVersion": "v1",
+      "runtimeAdapterKey": "morphology_guided_v1",
       "supportedMicroSkillKeys": [
         "D4_MOR_PREFIXES_UN"
       ],
@@ -326,6 +336,7 @@
           "recipeVersion": "v1"
         }
       ],
+      "rendererKey": "generic_session",
       "requiredActivities": [
         "introduction",
         "guided_prompt",
@@ -335,6 +346,7 @@
       "requiresAuthenticSelectableItem": true,
       "routeId": "generic_composer",
       "routeVersion": "v1",
+      "runtimeAdapterKey": "generic_composer_v1",
       "supportedMicroSkillKeys": [],
       "wordCounts": {
         "authentic": [

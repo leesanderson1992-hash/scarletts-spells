@@ -122,6 +122,8 @@ const plan = buildDynamicPrefixAssignmentPlan({
   selection,
   payload,
 });
+assert.equal(plan.lessonRouteMetadata?.route.routeId, "dynamic_prefix_word_lab");
+assert.equal(plan.lessonRouteMetadata?.payload.version, 2);
 const all = plan.partTwo.sections.flatMap((section) => section.items);
 assert.equal(all.length, 16);
 assert.equal(

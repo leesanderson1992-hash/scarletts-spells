@@ -13,6 +13,7 @@ import type { BaseWordTransferMissWrite } from "../base-word-transfer-evidence";
 import type { WordLabReflectionWrite } from "./word-lab-completion-loader";
 import { loadAdleLessonRouteActivations } from "./lesson-route-activations";
 import { resolveAdleRouteActivationEnvironment } from "../route-activation-environment";
+import { createPersistedRouteMetadata } from "../composable-lesson/persisted-route-metadata";
 
 export const BASE_WORD_PILOT_MICRO_SKILLS = [
   "D4_MOR_BASE_WORDS_PRESERVE_BASE",
@@ -105,8 +106,9 @@ export async function persistBaseWordFamilyPilotAssignment(params: {
   if (!payload) throw new Error("Refusing base-word pilot persistence: malformed reviewed snapshot.");
   const items = buildBaseWordFamilyPilotItems({ payload, parentUserId: params.parentUserId, childId: params.childId, planDate: params.planDate });
   if (items.length !== BASE_WORD_FAMILY_ASSIGNMENT_ITEM_COUNT) throw new Error("Refusing base-word pilot persistence: assignment binding count drift.");
-  const { data, error } = await params.client.rpc("persist_adle_base_word_family_pilot_v1", {
+  const { data, error } = await params.client.rpc("persist_adle_base_word_family_pilot_v2", {
     p_parent_user_id: params.parentUserId, p_child_id: params.childId, p_plan_date: params.planDate, p_payload: payload, p_items: items,
+    p_route_metadata: createPersistedRouteMetadata("base_word_lab"),
   });
   if (error) throw new Error(`persistBaseWordFamilyPilotAssignment: ${error.message}`);
   if (typeof data !== "string" || data.length === 0) throw new Error("persistBaseWordFamilyPilotAssignment: RPC returned no assignment id");

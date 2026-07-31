@@ -42,6 +42,7 @@ export function buildMorphologyUnPilotPlan(params: { basePlan: ComposedDailyPlan
   ];
   return {
     ...basePlan,
+    lessonRouteMetadata: null,
     partOne: { dueQueue: [], presentationOrder: [], sections: [], skips: [] },
     partTwo: {
       composed: true,

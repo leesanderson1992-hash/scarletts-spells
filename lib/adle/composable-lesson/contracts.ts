@@ -15,6 +15,85 @@ export type LessonRecipeReference = {
   recipeVersion: string;
 };
 
+/**
+ * Assignment-level identity for the immutable lesson contract selected by an
+ * existing writer. These keys describe persisted behaviour; they do not
+ * activate a route or select curriculum content.
+ */
+export type LessonRouteId =
+  | "generic_composer"
+  | "base_word_lab"
+  | "dynamic_prefix_word_lab"
+  | "fixed_un_prefix_word_lab"
+  | "dynamic_affix_word_lab"
+  | "closed_compound_word_lab";
+
+export type LessonPayloadKind =
+  | "composed_daily_plan"
+  | "morphology_guided_v1"
+  | "dynamic_prefix_lesson_v2"
+  | "dynamic_affix_lesson_v3"
+  | "closed_compound_lesson_v1"
+  | "base_word_family_snapshot_v1";
+
+export type VersionedLessonRouteReference = {
+  routeId: LessonRouteId;
+  routeVersion: string;
+};
+
+export type VersionedLessonPayloadReference = {
+  kind: LessonPayloadKind;
+  version: number;
+};
+
+export type PersistedLessonRouteMetadataV1 = {
+  metadataSchemaVersion: 1;
+  route: VersionedLessonRouteReference;
+  recipe: LessonRecipeReference;
+  payload: VersionedLessonPayloadReference;
+};
+
+export type LessonRuntimeAdapterKey =
+  | "generic_composer_v1"
+  | "morphology_guided_v1"
+  | "dynamic_prefix_v2"
+  | "dynamic_affix_v3"
+  | "closed_compound_v1"
+  | "base_word_family_v1";
+
+export type LessonRendererKey =
+  | "generic_session"
+  | "morphology_guided"
+  | "closed_compound_guided"
+  | "base_word_family_guided";
+
+export type LessonRouteResolutionSource =
+  | "persisted_metadata"
+  | "legacy_detection";
+
+export const LESSON_ROUTE_RESOLUTION_BLOCKER_CODES = [
+  "malformed_metadata",
+  "unsupported_metadata_schema_version",
+  "unknown_route",
+  "unsupported_route_version",
+  "recipe_mismatch",
+  "payload_kind_mismatch",
+  "payload_version_mismatch",
+  "duplicate_metadata_source",
+  "root_item_missing",
+  "root_item_duplicate",
+  "persisted_payload_missing",
+  "persisted_payload_malformed",
+  "assignment_binding_mismatch",
+  "route_unavailable",
+  "multiple_legacy_routes",
+  "explicit_legacy_disagreement",
+  "unsupported_legacy_payload",
+] as const;
+
+export type LessonRouteResolutionBlockerCode =
+  (typeof LESSON_ROUTE_RESOLUTION_BLOCKER_CODES)[number];
+
 export type AssignmentWordRole =
   | "authentic_target"
   | "transfer"

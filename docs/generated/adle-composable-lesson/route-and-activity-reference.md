@@ -6,14 +6,14 @@
 
 ## Routes
 
-| Route | Payload | State | Skills | Items | Activities |
-|---|---|---|---:|---|---|
-| base_word_lab:v2 | base_word_family_snapshot_v1 1 | registered | 2 | 18 | introduction, family_reveal, cleaver, word_build, cover_check, dictation, reflection |
-| closed_compound_word_lab:v1 | closed_compound_lesson_v1 1 | registered | 1 | 18 | introduction, compound_jigsaw, meaning_match, cover_check, dictation, reflection |
-| dynamic_affix_word_lab:v3 | dynamic_affix_lesson_v3 3 | registered | 10 | 16/18 | introduction, discovery, cleaver, word_build, cover_check, dictation, reflection |
-| dynamic_prefix_word_lab:v2 | dynamic_prefix_lesson_v2 2 | registered | 5 | 16/18 | introduction, discovery, cleaver, meaning_sort, word_build, cover_check, dictation, reflection |
-| fixed_un_prefix_word_lab:v1 | morphology_guided_v1 1 | legacy_render_only | 1 | variable | introduction, discovery, cleaver, word_build, cover_check, dictation, reflection |
-| generic_composer:v1 | composed_daily_plan 1 | registered | fallback | variable | introduction, guided_prompt, cover_check, dictation |
+| Route | Recipe | Payload | Adapter | Renderer | State | Skills | Items | Activities |
+|---|---|---|---|---|---|---:|---|---|
+| base_word_lab:v2 | base_word_family:v1 | base_word_family_snapshot_v1 1 | base_word_family_v1 | base_word_family_guided | registered | 2 | 18 | introduction, family_reveal, cleaver, word_build, cover_check, dictation, reflection |
+| closed_compound_word_lab:v1 | closed_compound_word_lab:v1 | closed_compound_lesson_v1 1 | closed_compound_v1 | closed_compound_guided | registered | 1 | 18 | introduction, compound_jigsaw, meaning_match, cover_check, dictation, reflection |
+| dynamic_affix_word_lab:v3 | dynamic_affix_word_lab:v3 | dynamic_affix_lesson_v3 3 | dynamic_affix_v3 | morphology_guided | registered | 10 | 16/18 | introduction, discovery, cleaver, word_build, cover_check, dictation, reflection |
+| dynamic_prefix_word_lab:v2 | dynamic_prefix_word_lab:v2 | dynamic_prefix_lesson_v2 2 | dynamic_prefix_v2 | morphology_guided | registered | 5 | 16/18 | introduction, discovery, cleaver, meaning_sort, word_build, cover_check, dictation, reflection |
+| fixed_un_prefix_word_lab:v1 | fixed_un_prefix:v1 | morphology_guided_v1 1 | morphology_guided_v1 | morphology_guided | legacy_render_only | 1 | variable | introduction, discovery, cleaver, word_build, cover_check, dictation, reflection |
+| generic_composer:v1 | generic_first_exposure:v1 | composed_daily_plan 1 | generic_composer_v1 | generic_session | registered | fallback | variable | introduction, guided_prompt, cover_check, dictation |
 
 ## Activity requirements
 
@@ -42,6 +42,7 @@
 - `affix_form_missing`: affix form missing.
 - `answer_comparator_mismatch`: answer comparator mismatch.
 - `assignment_binding_failure`: assignment binding failure.
+- `assignment_binding_mismatch`: assignment binding mismatch.
 - `authentic_target_not_approved`: authentic target not approved.
 - `banding_facts_missing`: banding facts missing.
 - `base_or_root_missing`: base or root missing.
@@ -51,24 +52,40 @@
 - `decomposition_missing`: decomposition missing.
 - `dictation_sentence_missing`: dictation sentence missing.
 - `dictation_target_missing_or_mismatched`: dictation target missing or mismatched.
+- `duplicate_metadata_source`: duplicate metadata source.
+- `explicit_legacy_disagreement`: explicit legacy disagreement.
 - `form_coverage_failure`: form coverage failure.
 - `group_composition_failure`: group composition failure.
 - `insufficient_authentic_targets`: insufficient authentic targets.
 - `insufficient_transfer_words`: insufficient transfer words.
 - `invalid_join`: invalid join.
+- `malformed_metadata`: malformed metadata.
 - `meaning_facts_missing`: meaning facts missing.
 - `meaning_group_missing`: meaning group missing.
 - `microskill_content_missing`: microskill content missing.
 - `microskill_incompatible`: microskill incompatible.
 - `morphology_reconstruction_mismatch`: morphology reconstruction mismatch.
+- `multiple_legacy_routes`: multiple legacy routes.
+- `payload_kind_mismatch`: payload kind mismatch.
+- `payload_version_mismatch`: payload version mismatch.
 - `payload_version_unsupported`: payload version unsupported.
 - `persisted_payload_invalid`: persisted payload invalid.
+- `persisted_payload_malformed`: persisted payload malformed.
+- `persisted_payload_missing`: persisted payload missing.
 - `profile_coverage_failure`: profile coverage failure.
 - `pronunciation_facts_missing`: pronunciation facts missing.
 - `recipe_count_failure`: recipe count failure.
+- `recipe_mismatch`: recipe mismatch.
+- `root_item_duplicate`: root item duplicate.
+- `root_item_missing`: root item missing.
 - `route_or_profile_unavailable`: route or profile unavailable.
+- `route_unavailable`: route unavailable.
 - `runtime_reconstruction_failure`: runtime reconstruction failure.
 - `taxonomy_binding_missing`: taxonomy binding missing.
 - `transfer_not_approved`: transfer not approved.
 - `transformation_missing_or_invalid`: transformation missing or invalid.
+- `unknown_route`: unknown route.
+- `unsupported_legacy_payload`: unsupported legacy payload.
+- `unsupported_metadata_schema_version`: unsupported metadata schema version.
+- `unsupported_route_version`: unsupported route version.
 - `word_microskill_support_missing`: word microskill support missing.

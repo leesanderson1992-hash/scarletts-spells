@@ -3,6 +3,12 @@ import { dirname } from "node:path";
 
 import { ADLE_ACTIVITY_REQUIREMENT_REGISTRY } from "../lib/adle/composable-lesson/activity-requirements";
 import { COMPATIBILITY_BLOCKER_CODES } from "../lib/adle/composable-lesson/compatibility";
+import { LESSON_ROUTE_RESOLUTION_BLOCKER_CODES } from "../lib/adle/composable-lesson/contracts";
+import {
+  ADLE_NEW_ASSIGNMENT_ROUTE_IDS,
+  ADLE_ROUTE_METADATA_SCHEMA_VERSION,
+  createPersistedRouteMetadata,
+} from "../lib/adle/composable-lesson/persisted-route-metadata";
 import {
   auditProductionReadiness,
   readinessAuditMarkdown,
@@ -41,7 +47,12 @@ const activities = [...ADLE_ACTIVITY_REQUIREMENT_REGISTRY].sort((left, right) =>
 const readiness = auditProductionReadiness(
   buildRepositoryReadinessInput("repository/report"),
 );
-const blockers = [...COMPATIBILITY_BLOCKER_CODES]
+const blockers = [
+  ...new Set([
+    ...COMPATIBILITY_BLOCKER_CODES,
+    ...LESSON_ROUTE_RESOLUTION_BLOCKER_CODES,
+  ]),
+]
   .sort()
   .map((code) => ({
     code,
@@ -57,11 +68,11 @@ const routeActivityMarkdown = [
   "",
   "## Routes",
   "",
-  "| Route | Payload | State | Skills | Items | Activities |",
-  "|---|---|---|---:|---|---|",
+  "| Route | Recipe | Payload | Adapter | Renderer | State | Skills | Items | Activities |",
+  "|---|---|---|---|---|---|---:|---|---|",
   ...routes.map(
     (route) =>
-      `| ${route.routeId}:${route.routeVersion} | ${route.payloadKind} ${route.payloadVersions.join("/")} | ${route.implementationState} | ${route.supportedMicroSkillKeys.length || "fallback"} | ${route.intentionalItemCounts.join("/") || "variable"} | ${route.requiredActivities.join(", ")} |`,
+      `| ${route.routeId}:${route.routeVersion} | ${route.recipes.map((recipe) => `${recipe.recipeKey}:${recipe.recipeVersion}`).join(", ")} | ${route.payloadKind} ${route.payloadVersions.join("/")} | ${route.runtimeAdapterKey} | ${route.rendererKey} | ${route.implementationState} | ${route.supportedMicroSkillKeys.length || "fallback"} | ${route.intentionalItemCounts.join("/") || "variable"} | ${route.requiredActivities.join(", ")} |`,
   ),
   "",
   "## Activity requirements",
@@ -103,6 +114,19 @@ const outputs = new Map<string, string>([
   [
     `${outputRoot}/blocker-reference.json`,
     json({ generatedNotice: GENERATED_NOTICE, blockers }),
+  ],
+  [
+    `${outputRoot}/route-metadata-contract.json`,
+    json({
+      generatedNotice: GENERATED_NOTICE,
+      metadataSchemaVersion: ADLE_ROUTE_METADATA_SCHEMA_VERSION,
+      authoritativeStorage: "daily_assignments.lesson_route_metadata",
+      writers: ADLE_NEW_ASSIGNMENT_ROUTE_IDS.map((routeId) =>
+        createPersistedRouteMetadata(routeId),
+      ),
+      blockerCodes: [...LESSON_ROUTE_RESOLUTION_BLOCKER_CODES],
+      legacyFallback: "metadata_absent_only",
+    }),
   ],
   [
     `${outputRoot}/repository-readiness.json`,

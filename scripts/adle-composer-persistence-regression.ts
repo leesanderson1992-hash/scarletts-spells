@@ -246,6 +246,10 @@ function facts(overrides: Partial<DailyPlanFacts> = {}): DailyPlanFacts {
 const plan = composeDailyPlan(facts(), TODAY);
 assert(plan.partTwo.composed, "fixture day composes a lesson");
 const persistence = planAssignmentPersistence(plan, { parentUserId: PARENT, existingHeaders: [] });
+assert(
+  persistence.header?.lessonRouteMetadata?.route.routeId === "generic_composer",
+  "new generic assignments persist the canonical explicit route metadata",
+);
 
 assert(persistence.action === "insert", "fresh day plans an insert");
 assert(persistence.header !== null, "insert carries the daily_assignments header");

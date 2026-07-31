@@ -1,6 +1,9 @@
 import type {
   LessonActivityKind,
+  LessonPayloadKind,
   LessonRecipeReference,
+  LessonRendererKey,
+  LessonRuntimeAdapterKey,
 } from "../composable-lesson/contracts";
 
 /**
@@ -20,13 +23,7 @@ export type CurriculumActivationAuthority =
   | "environment_profile_and_child_gates"
   | "database_route_activation";
 
-export type CurriculumPayloadKind =
-  | "composed_daily_plan"
-  | "morphology_guided_v1"
-  | "dynamic_prefix_lesson_v2"
-  | "dynamic_affix_lesson_v3"
-  | "closed_compound_lesson_v1"
-  | "base_word_family_snapshot_v1";
+export type CurriculumPayloadKind = LessonPayloadKind;
 
 export type CurriculumCompatibilityScope =
   | { kind: "declared_micro_skills" }
@@ -45,6 +42,8 @@ export interface CurriculumRouteDefinition {
   activationAuthority: CurriculumActivationAuthority;
   compatibilityScope: CurriculumCompatibilityScope;
   recipes: readonly LessonRecipeReference[];
+  runtimeAdapterKey: LessonRuntimeAdapterKey;
+  rendererKey: LessonRendererKey;
   legacyDetectionRules: readonly string[];
   requiredActivities: readonly LessonActivityKind[];
   intentionalItemCounts: readonly number[];
@@ -75,6 +74,8 @@ export const ADLE_CURRICULUM_ROUTE_REGISTRY: readonly CurriculumRouteDefinition[
     activationAuthority: "generic_composer_policy",
     compatibilityScope: { kind: "generic_composer_fallback" },
     recipes: [{ recipeKey: "generic_first_exposure", recipeVersion: "v1" }],
+    runtimeAdapterKey: "generic_composer_v1",
+    rendererKey: "generic_session",
     legacyDetectionRules: ["no recognised rich-lesson root payload"],
     requiredActivities: [
       "introduction",
@@ -101,6 +102,8 @@ export const ADLE_CURRICULUM_ROUTE_REGISTRY: readonly CurriculumRouteDefinition[
     activationAuthority: "database_route_activation",
     compatibilityScope: { kind: "declared_micro_skills" },
     recipes: [{ recipeKey: "base_word_family", recipeVersion: "v1" }],
+    runtimeAdapterKey: "base_word_family_v1",
+    rendererKey: "base_word_family_guided",
     legacyDetectionRules: ["prompt_data.pilotActivityId=strategy-intro"],
     requiredActivities: [
       "introduction",
@@ -133,6 +136,8 @@ export const ADLE_CURRICULUM_ROUTE_REGISTRY: readonly CurriculumRouteDefinition[
     activationAuthority: "environment_and_profile_gates",
     compatibilityScope: { kind: "declared_micro_skills" },
     recipes: [{ recipeKey: "dynamic_prefix_word_lab", recipeVersion: "v2" }],
+    runtimeAdapterKey: "dynamic_prefix_v2",
+    rendererKey: "morphology_guided",
     legacyDetectionRules: ["prompt_data.dynamicPrefixActivityId=intro-root"],
     requiredActivities: [
       "introduction",
@@ -160,6 +165,8 @@ export const ADLE_CURRICULUM_ROUTE_REGISTRY: readonly CurriculumRouteDefinition[
     activationAuthority: "environment_profile_and_child_gates",
     compatibilityScope: { kind: "declared_micro_skills" },
     recipes: [{ recipeKey: "fixed_un_prefix", recipeVersion: "v1" }],
+    runtimeAdapterKey: "morphology_guided_v1",
+    rendererKey: "morphology_guided",
     legacyDetectionRules: ["payload.experience=D4_MOR_GUIDED", "payload.microSkillId=D4_MOR_PREFIXES_UN"],
     requiredActivities: [
       "introduction",
@@ -197,6 +204,8 @@ export const ADLE_CURRICULUM_ROUTE_REGISTRY: readonly CurriculumRouteDefinition[
     activationAuthority: "environment_and_profile_gates",
     compatibilityScope: { kind: "declared_micro_skills" },
     recipes: [{ recipeKey: "dynamic_affix_word_lab", recipeVersion: "v3" }],
+    runtimeAdapterKey: "dynamic_affix_v3",
+    rendererKey: "morphology_guided",
     legacyDetectionRules: ["prompt_data.dynamicAffixActivityId=intro-root"],
     requiredActivities: [
       "introduction",
@@ -223,6 +232,8 @@ export const ADLE_CURRICULUM_ROUTE_REGISTRY: readonly CurriculumRouteDefinition[
     activationAuthority: "environment_and_profile_gates",
     compatibilityScope: { kind: "declared_micro_skills" },
     recipes: [{ recipeKey: "closed_compound_word_lab", recipeVersion: "v1" }],
+    runtimeAdapterKey: "closed_compound_v1",
+    rendererKey: "closed_compound_guided",
     legacyDetectionRules: ["prompt_data.closedCompoundActivityId=intro-root"],
     requiredActivities: [
       "introduction",
@@ -274,6 +285,9 @@ export function validateCurriculumRouteRegistry(
     }
     if (route.recipes.length === 0) {
       errors.push(`route_without_recipes:${key}`);
+    }
+    if (!route.runtimeAdapterKey || !route.rendererKey) {
+      errors.push(`route_without_runtime_binding:${key}`);
     }
     if (new Set(route.requiredActivities).size !== route.requiredActivities.length) {
       errors.push(`duplicate_route_activity:${key}`);

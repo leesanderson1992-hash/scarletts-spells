@@ -1,4 +1,5 @@
 import type { ComposedDailyPlan, PlanItemCandidate, PlanSection } from "../daily-assignment-composer";
+import { createPersistedRouteMetadata } from "../composable-lesson/persisted-route-metadata";
 import { dynamicAffixExpectedItemCount, type DynamicAffixLessonPayloadV3, type DynamicAffixSelection } from "./affix-word-lab";
 
 /** Persists new position-aware snapshots without changing legacy prefix bindings. */
@@ -27,5 +28,5 @@ export function buildDynamicAffixAssignmentPlan(params: { basePlan: ComposedDail
   ];
   const expectedItems = dynamicAffixExpectedItemCount(payload);
   if (sections.flatMap((section) => section.items).length !== expectedItems) throw new Error(`Dynamic Affix snapshot must contain exactly ${expectedItems} items.`);
-  return { ...params.basePlan, partOne: { dueQueue: [], presentationOrder: [], sections: [], skips: [] }, partTwo: { composed: true, microSkillKey: payload.microSkillId, selectionAudit: [], lessonWords: payload.words.lesson.map((word) => ({ canonicalWordId: word.canonicalWordId, provenance: authentic.has(word.canonicalWordId) ? "learning_item" : "stretch", learningItemId: authentic.get(word.canonicalWordId)?.learningItemId ?? null, complexityLevel: null })), probePlan: null, stretchItemIntakes: [], sections, skips: [] }, budget: { ...params.basePlan.budget, estimatedResponses: expectedItems, guidedWordCount: 4, introTrimmed: false, trims: [] } };
+  return { ...params.basePlan, lessonRouteMetadata: createPersistedRouteMetadata("dynamic_affix_word_lab"), partOne: { dueQueue: [], presentationOrder: [], sections: [], skips: [] }, partTwo: { composed: true, microSkillKey: payload.microSkillId, selectionAudit: [], lessonWords: payload.words.lesson.map((word) => ({ canonicalWordId: word.canonicalWordId, provenance: authentic.has(word.canonicalWordId) ? "learning_item" : "stretch", learningItemId: authentic.get(word.canonicalWordId)?.learningItemId ?? null, complexityLevel: null })), probePlan: null, stretchItemIntakes: [], sections, skips: [] }, budget: { ...params.basePlan.budget, estimatedResponses: expectedItems, guidedWordCount: 4, introTrimmed: false, trims: [] } };
 }

@@ -1,4 +1,5 @@
 import type { ComposedDailyPlan, DailyPlanFacts, PlanItemCandidate, PlanSection } from "../daily-assignment-composer";
+import { createPersistedRouteMetadata } from "../composable-lesson/persisted-route-metadata";
 import type { DynamicPrefixLessonPayloadV2, DynamicPrefixSelection } from "./dynamic-prefix-word-lab";
 
 /** Builds the exact persisted shape for a reviewed Dynamic Prefix v2 snapshot. */
@@ -30,5 +31,5 @@ export function buildDynamicPrefixAssignmentPlan(params: { basePlan: ComposedDai
     { sectionKey: "lesson_production", purpose: "Controlled spelling", items: payload.words.lesson.map((word) => item({ sectionKey: "lesson_production", templateKey: "CONTROLLED_SPELLING", canonicalWordId: word.canonicalWordId, targetWord: word.displayWord, learningItemId: authentic.get(word.canonicalWordId)?.learningItemId ?? null, payload: { dynamicPrefixActivityId: `controlled-${word.canonicalWordId}`, source: word.source }, expectedEvidenceKind: "controlled_spelling", provenance: "dynamic_prefix_v2" })) },
     { sectionKey: "lesson_dictation", purpose: "Contextual dictation", items: payload.activities.dictation.map((sentence) => item({ sectionKey: "lesson_dictation", templateKey: "DICTATION_NO_IMAGE", canonicalWordId: sentence.canonicalWordId, targetWord: sentence.targetWord, learningItemId: authentic.get(sentence.canonicalWordId)?.learningItemId ?? null, payload: { dynamicPrefixActivityId: `dictation-${sentence.canonicalWordId}`, sentence: sentence.sentence }, expectedEvidenceKind: "dictation", provenance: "dynamic_prefix_v2" })) },
   ];
-  return { ...basePlan, partOne: { dueQueue: [], presentationOrder: [], sections: [], skips: [] }, partTwo: { composed: true, microSkillKey: payload.microSkillId, selectionAudit: [], lessonWords, probePlan: null, stretchItemIntakes: [], sections, skips: [] }, budget: { ...basePlan.budget, estimatedResponses: sections.flatMap((section) => section.items).length, guidedWordCount: payload.words.lesson.length, introTrimmed: false, trims: [] } };
+  return { ...basePlan, lessonRouteMetadata: createPersistedRouteMetadata("dynamic_prefix_word_lab"), partOne: { dueQueue: [], presentationOrder: [], sections: [], skips: [] }, partTwo: { composed: true, microSkillKey: payload.microSkillId, selectionAudit: [], lessonWords, probePlan: null, stretchItemIntakes: [], sections, skips: [] }, budget: { ...basePlan.budget, estimatedResponses: sections.flatMap((section) => section.items).length, guidedWordCount: payload.words.lesson.length, introTrimmed: false, trims: [] } };
 }

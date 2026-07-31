@@ -23,18 +23,17 @@ import {
 } from "@/lib/rewards/adle-session-celebration";
 import { AdleSessionCelebration } from "@/components/adle/adle-session-celebration";
 import { isMorphologyUnPilotEnabledForChild } from "@/lib/adle/morphology/pilot-access";
-import { resolveMorphologyPilotRuntime } from "@/lib/adle/morphology/payload";
-import { resolveDynamicPrefixRuntime } from "@/lib/adle/morphology/dynamic-prefix-runtime";
 import { isDynamicPrefixRouteEnabled } from "@/lib/adle/morphology/dynamic-prefix-staging-access";
-import { resolveDynamicAffixRuntime } from "@/lib/adle/morphology/dynamic-affix-runtime";
 import { isDynamicSuffixRouteEnabled } from "@/lib/adle/morphology/dynamic-suffix-route-gate";
 import { isBaseWordFamilyPilotEnabledForChild } from "@/lib/adle/morphology/base-word-family-pilot-access";
-import { resolveBaseWordFamilyPilotRuntime } from "@/lib/adle/morphology/base-word-family-pilot-contract";
 import { type ChildLearningReflection } from "@/lib/adle/morphology/reflections";
 import { ClearCompletedMorphologyResume } from "@/components/adle/morphology/clear-completed-resume";
 import { WordLabCompletionPerformanceObserver } from "@/components/adle/morphology/completion-performance-observer";
 import { loadAdleCompletedRouteDetails } from "@/lib/adle/loaders/completed-route-loader";
-import { validateClosedCompoundLessonPayload } from "@/lib/adle/morphology/closed-compound-word-lab";
+import {
+  emitLessonRouteResolutionEvent,
+  resolvePersistedLessonRoute,
+} from "@/lib/adle/composable-lesson/route-resolution";
 
 type AdleSessionPageProps = {
   searchParams?: Promise<{
@@ -102,28 +101,31 @@ export default async function AdleSessionPage({ searchParams }: AdleSessionPageP
   });
 
   const backPath = buildScopedPath("/learn/week", selectedChild.id, mode);
-  const morphologyPilotPayload = resolveMorphologyPilotRuntime(
-    isMorphologyUnPilotEnabledForChild(selectedChild.id),
-    readModel.partTwo.items,
-  );
-  const dynamicPrefixPayload = resolveDynamicPrefixRuntime(
-    isDynamicPrefixRouteEnabled(),
-    readModel.partTwo.items,
-  );
-  const dynamicSuffixPayload = resolveDynamicAffixRuntime(
-    isDynamicSuffixRouteEnabled(),
-    readModel.partTwo.items,
-  );
-  const baseWordFamilyPilotPayload = resolveBaseWordFamilyPilotRuntime(
-    isBaseWordFamilyPilotEnabledForChild(selectedChild.id),
-    readModel.partTwo.items,
-  );
-  const closedCompoundSource = readModel.partTwo.items.find(
-    (item) => item.promptData.closedCompoundActivityId === "intro-root",
-  )?.promptData.closedCompoundLesson;
-  const closedCompoundPayload = validateClosedCompoundLessonPayload(closedCompoundSource)
-    ? closedCompoundSource
+  const routeResolution = readModel.assignmentId
+    ? resolvePersistedLessonRoute({
+        lessonRouteMetadata: readModel.lessonRouteMetadata,
+        items: readModel.partTwo.items,
+        runtimeContext: {
+          morphologyUnEnabled: isMorphologyUnPilotEnabledForChild(selectedChild.id),
+          dynamicPrefixEnabled: isDynamicPrefixRouteEnabled(),
+          dynamicAffixEnabled: isDynamicSuffixRouteEnabled(),
+          baseWordFamilyEnabled: isBaseWordFamilyPilotEnabledForChild(selectedChild.id),
+        },
+      })
     : null;
+  if (routeResolution) {
+    emitLessonRouteResolutionEvent(
+      routeResolution,
+      readModel.assignmentGenerationSource,
+    );
+  }
+  const resolvedContentVersion =
+    routeResolution &&
+    routeResolution.status !== "blocked" &&
+    routeResolution.runtime.payload &&
+    "contentVersion" in routeResolution.runtime.payload
+      ? routeResolution.runtime.payload.contentVersion
+      : null;
 
   // Slice 7a-D: on the completed screen, read the child's Word Treasure state and
   // derive today's celebration (Nugget->Forge from lesson completion + any
@@ -188,7 +190,7 @@ export default async function AdleSessionPage({ searchParams }: AdleSessionPageP
         ) : readModel.state === "completed" ? (
           <div className="grid gap-4">
             {resolvedSearchParams?.completionTrace && /^[0-9a-f-]{36}$/i.test(resolvedSearchParams.completionTrace) ? <WordLabCompletionPerformanceObserver traceId={resolvedSearchParams.completionTrace} /> : null}
-            {(closedCompoundPayload ?? dynamicSuffixPayload ?? dynamicPrefixPayload ?? morphologyPilotPayload ?? baseWordFamilyPilotPayload) && readModel.assignmentId ? <ClearCompletedMorphologyResume assignmentId={readModel.assignmentId} contentVersion={(closedCompoundPayload ?? dynamicSuffixPayload ?? dynamicPrefixPayload ?? morphologyPilotPayload ?? baseWordFamilyPilotPayload)!.contentVersion} /> : null}
+            {resolvedContentVersion && readModel.assignmentId ? <ClearCompletedMorphologyResume assignmentId={readModel.assignmentId} contentVersion={resolvedContentVersion} /> : null}
             {celebration !== null ? (
               <AdleSessionCelebration model={celebration} planDate={readModel.planDate} backPath={backPath} />
             ) : (
@@ -203,18 +205,29 @@ export default async function AdleSessionPage({ searchParams }: AdleSessionPageP
               </section>
             ) : null}
           </div>
-        ) : (
+        ) : routeResolution?.status === "blocked" ? (
+          <div className="brand-card rounded-3xl p-4 md:p-5" role="alert">
+            <p className="brand-eyebrow">Word Lab paused</p>
+            <h2 className="mt-1 text-lg font-semibold text-[color:var(--ink)]">
+              This Word Lab needs a grown-up check before it can continue.
+            </h2>
+            <p className="mt-2 text-sm text-[color:var(--mid)]">
+              Your work is safe. Please go back to your week and ask your grown-up for help.
+            </p>
+            <Link href={backPath} className="brand-primary-btn mt-4 inline-flex">
+              Back to my week
+            </Link>
+          </div>
+        ) : routeResolution ? (
           <AdleSessionRunner
             childId={selectedChild.id}
             assignmentId={readModel.assignmentId ?? ""}
             planDate={readModel.planDate}
             partOne={readModel.partOne}
             partTwo={readModel.partTwo}
-            morphologyPilotPayload={morphologyPilotPayload}
-            dynamicPrefixPayload={dynamicSuffixPayload ?? dynamicPrefixPayload}
-            baseWordFamilyPilotPayload={baseWordFamilyPilotPayload}
+            routeResolution={routeResolution}
           />
-        )}
+        ) : null}
       </section>
     </AppShell>
   );

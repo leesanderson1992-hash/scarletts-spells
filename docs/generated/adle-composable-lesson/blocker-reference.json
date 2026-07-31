@@ -21,6 +21,10 @@
       "label": "assignment binding failure"
     },
     {
+      "code": "assignment_binding_mismatch",
+      "label": "assignment binding mismatch"
+    },
+    {
       "code": "authentic_target_not_approved",
       "label": "authentic target not approved"
     },
@@ -57,6 +61,14 @@
       "label": "dictation target missing or mismatched"
     },
     {
+      "code": "duplicate_metadata_source",
+      "label": "duplicate metadata source"
+    },
+    {
+      "code": "explicit_legacy_disagreement",
+      "label": "explicit legacy disagreement"
+    },
+    {
       "code": "form_coverage_failure",
       "label": "form coverage failure"
     },
@@ -75,6 +87,10 @@
     {
       "code": "invalid_join",
       "label": "invalid join"
+    },
+    {
+      "code": "malformed_metadata",
+      "label": "malformed metadata"
     },
     {
       "code": "meaning_facts_missing",
@@ -97,12 +113,32 @@
       "label": "morphology reconstruction mismatch"
     },
     {
+      "code": "multiple_legacy_routes",
+      "label": "multiple legacy routes"
+    },
+    {
+      "code": "payload_kind_mismatch",
+      "label": "payload kind mismatch"
+    },
+    {
+      "code": "payload_version_mismatch",
+      "label": "payload version mismatch"
+    },
+    {
       "code": "payload_version_unsupported",
       "label": "payload version unsupported"
     },
     {
       "code": "persisted_payload_invalid",
       "label": "persisted payload invalid"
+    },
+    {
+      "code": "persisted_payload_malformed",
+      "label": "persisted payload malformed"
+    },
+    {
+      "code": "persisted_payload_missing",
+      "label": "persisted payload missing"
     },
     {
       "code": "profile_coverage_failure",
@@ -117,8 +153,24 @@
       "label": "recipe count failure"
     },
     {
+      "code": "recipe_mismatch",
+      "label": "recipe mismatch"
+    },
+    {
+      "code": "root_item_duplicate",
+      "label": "root item duplicate"
+    },
+    {
+      "code": "root_item_missing",
+      "label": "root item missing"
+    },
+    {
       "code": "route_or_profile_unavailable",
       "label": "route or profile unavailable"
+    },
+    {
+      "code": "route_unavailable",
+      "label": "route unavailable"
     },
     {
       "code": "runtime_reconstruction_failure",
@@ -135,6 +187,22 @@
     {
       "code": "transformation_missing_or_invalid",
       "label": "transformation missing or invalid"
+    },
+    {
+      "code": "unknown_route",
+      "label": "unknown route"
+    },
+    {
+      "code": "unsupported_legacy_payload",
+      "label": "unsupported legacy payload"
+    },
+    {
+      "code": "unsupported_metadata_schema_version",
+      "label": "unsupported metadata schema version"
+    },
+    {
+      "code": "unsupported_route_version",
+      "label": "unsupported route version"
     },
     {
       "code": "word_microskill_support_missing",

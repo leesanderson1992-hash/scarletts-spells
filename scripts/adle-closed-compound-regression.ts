@@ -5,6 +5,10 @@ import { readFileSync } from "node:fs";
 import { CLOSED_COMPOUND_CONTENT_VERSION, CLOSED_COMPOUND_MICRO_SKILL, compileClosedCompoundLesson, isClosedCompoundAnswerCorrect, validateClosedCompoundLessonPayload } from "../lib/adle/morphology/closed-compound-word-lab";
 import { normaliseClosedCompoundResume } from "../lib/adle/morphology/closed-compound-resume";
 import { isClosedCompoundRouteEnabled } from "../lib/adle/morphology/closed-compound-route-gate";
+import { buildClosedCompoundAssignmentPlan } from "../lib/adle/morphology/closed-compound-assignment-plan";
+import type { ComposedDailyPlan } from "../lib/adle/daily-assignment-composer";
+import { resolvePersistedLessonRoute } from "../lib/adle/composable-lesson/route-resolution";
+import { createPersistedRouteMetadata } from "../lib/adle/composable-lesson/persisted-route-metadata";
 
 assert(isClosedCompoundAnswerCorrect("Football", "football"));
 assert(!isClosedCompoundAnswerCorrect("foot ball", "football"));
@@ -18,6 +22,16 @@ const profile: any = { microSkillKey: CLOSED_COMPOUND_MICRO_SKILL, productionEna
 const selected = compileClosedCompoundLesson(profile, [{ childId: "child-a", learningItemId: "item", canonicalWordId: "rainbow", microSkillKey: CLOSED_COMPOUND_MICRO_SKILL, sourceKind: "verified_misspelling", sourceRef: "test", sourceAttemptText: "rain bow", reteachPriority: false, itemStatus: "pending", ejectedOn: null, intakeOn: "2026-07-29", rowStatus: "active" }]);
 assert(selected?.words.lesson[0]?.displayWord === "rainbow", "targets are selected before the rotating pool");
 assert(selected?.words.lesson.length === 4, "the seven-word pool composes a four-word snapshot");
+const compoundBase = { childId: "child-a", planDate: "2026-07-29", composerPolicyVersion: "test", schedulePolicyVersion: "test", throttle: {}, partOne: {}, partTwo: {}, budget: { budgetResponses: 0, estimatedResponses: 0, guidedWordCount: 0, introTrimmed: false, trims: [] } } as unknown as ComposedDailyPlan;
+const compoundPlan = buildClosedCompoundAssignmentPlan(compoundBase, selected!);
+assert.equal(compoundPlan.lessonRouteMetadata?.route.routeId, "closed_compound_word_lab");
+const resolvedCompound = resolvePersistedLessonRoute({
+  lessonRouteMetadata: createPersistedRouteMetadata("closed_compound_word_lab"),
+  items: compoundPlan.partTwo.sections.flatMap((section) => section.items).map((entry, index) => ({ id: `compound-${index}`, sectionKey: entry.sectionKey, templateKey: entry.templateKey, canonicalWordId: entry.canonicalWordId, targetWord: entry.targetWord, promptData: entry.payload })),
+  runtimeContext: { morphologyUnEnabled: true, dynamicPrefixEnabled: true, dynamicAffixEnabled: true, baseWordFamilyEnabled: true },
+});
+assert.equal(resolvedCompound.status, "resolved_explicit");
+assert(resolvedCompound.runtime.adapterKey === "closed_compound_v1");
 const duplicatedDictationProfile = { ...profile, wordsByCanonicalId: new Map(pool.map((entry) => [entry.canonicalWordId, { ...entry, audioText: "A shared sentence.", dictationSentence: "A shared sentence." }])) };
 assert(compileClosedCompoundLesson(duplicatedDictationProfile, []) === null, "duplicate dictation sentences fail closed instead of repeating a sentence in one lesson");
 const selectedIds = selected!.words.lesson.map((entry) => entry.canonicalWordId);
