@@ -23,6 +23,7 @@ function item(overrides: Partial<AdleSessionItem>): AdleSessionItem {
     adleLearningItemRef: null,
     promptData: {},
     ...overrides,
+    sourceEntityId: overrides.sourceEntityId ?? `fixture:${overrides.id ?? "review-reflection-1"}`,
   };
 }
 

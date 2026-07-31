@@ -11,6 +11,7 @@ const regressions = [
   "adle-composer-payload-regression.ts",
   "adle-activity-registry-regression.ts",
   "adle-generic-snapshot-contract-regression.ts",
+  "adle-generic-snapshot-reader-regression.ts",
   "adle-curriculum-readiness-regression.ts",
   "adle-dynamic-prefix-assignment-plan-regression.ts",
   "adle-dynamic-prefix-runtime-regression.ts",

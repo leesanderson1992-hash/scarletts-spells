@@ -101,10 +101,12 @@ export default async function AdleSessionPage({ searchParams }: AdleSessionPageP
   });
 
   const backPath = buildScopedPath("/learn/week", selectedChild.id, mode);
+  const assignmentItems = [...readModel.partOne.items, ...readModel.partTwo.items]
+    .sort((left, right) => left.position - right.position);
   const routeResolution = readModel.assignmentId
     ? resolvePersistedLessonRoute({
         lessonRouteMetadata: readModel.lessonRouteMetadata,
-        items: readModel.partTwo.items,
+        items: assignmentItems,
         runtimeContext: {
           morphologyUnEnabled: isMorphologyUnPilotEnabledForChild(selectedChild.id),
           dynamicPrefixEnabled: isDynamicPrefixRouteEnabled(),
@@ -205,7 +207,10 @@ export default async function AdleSessionPage({ searchParams }: AdleSessionPageP
               </section>
             ) : null}
           </div>
-        ) : routeResolution?.status === "blocked" ? (
+        ) : (
+          routeResolution?.status === "blocked" ||
+          readModel.genericSnapshotResolution?.status === "blocked"
+        ) ? (
           <div className="brand-card rounded-3xl p-4 md:p-5" role="alert">
             <p className="brand-eyebrow">Word Lab paused</p>
             <h2 className="mt-1 text-lg font-semibold text-[color:var(--ink)]">

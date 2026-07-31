@@ -28,11 +28,22 @@ import type { IsoDate } from "../review-scheduler";
 import { loadDailyPlanFacts } from "./composer-facts-loader";
 import { insertLearningItemIntakes } from "./session-completion-loader";
 import { BASE_WORD_FAMILY_ASSIGNMENT_SOURCE, BASE_WORD_FAMILY_ASSIGNMENT_TITLE } from "../morphology/base-word-family-pilot-plan";
+import { compileGenericLessonSnapshot } from "../composable-lesson/generic-snapshot-compiler";
+import {
+  genericSnapshotMode,
+  genericSnapshotWritesEnabled,
+} from "../composable-lesson/generic-snapshot-mode";
+import {
+  emitGenericSnapshotResolutionEvent,
+  resolveGenericLessonSnapshot,
+  type GenericSnapshotResolutionResult,
+} from "../composable-lesson/generic-snapshot-reader";
 
 type Client = SupabaseClient;
 
 export interface AdleSessionItem {
   id: string;
+  sourceEntityId: string;
   sectionKey: string;
   templateKey: string;
   position: number;
@@ -65,12 +76,15 @@ export interface AdleDailyPlanReadModel {
   assignmentId: string | null;
   lessonRouteMetadata: unknown | null;
   assignmentGenerationSource: string | null;
+  compiledLessonSnapshot: unknown | null;
+  genericSnapshotResolution: GenericSnapshotResolutionResult<AdleSessionItem> | null;
   partOne: { items: AdleSessionItem[]; present: boolean; complete: boolean };
   partTwo: { items: AdleSessionItem[]; present: boolean; complete: boolean };
 }
 
 interface AssignmentItemRow {
   id: string;
+  source_entity_id: string | null;
   position: number;
   status: string;
   template_key: string | null;
@@ -83,6 +97,7 @@ function sessionItemFromRow(row: AssignmentItemRow): AdleSessionItem {
   const metadata = row.metadata ?? {};
   return {
     id: row.id,
+    sourceEntityId: row.source_entity_id ?? "",
     sectionKey: typeof metadata.sectionKey === "string" ? metadata.sectionKey : "",
     templateKey: row.template_key ?? "",
     position: row.position,
@@ -177,6 +192,12 @@ export async function persistComposedAdleDailyPlan(params: EnsureAdleDailyPlanPa
   const persistence = planAssignmentPersistence(plan, { parentUserId, existingHeaders });
   if (persistence.action === "noop") return persistence.noopReason === "existing_active_plan" ? (await findAdleHeader(userClient, parentUserId, childId, planDate))?.id ?? null : null;
   if (!persistence.header) return null;
+  if (
+    genericSnapshotWritesEnabled() &&
+    persistence.header.lessonRouteMetadata?.route.routeId === "generic_composer"
+  ) {
+    throw new Error("persistComposedAdleDailyPlan: generic plans require the snapshot-aware ensure path");
+  }
   const { data, error } = await serviceClient.rpc("persist_adle_composed_daily_plan_v1", {
     p_parent_user_id: parentUserId,
     p_child_id: childId,
@@ -238,6 +259,36 @@ export async function ensureAdleDailyPlan(params: EnsureAdleDailyPlanParams): Pr
   const header = persistence.header;
   if (header === null) {
     return null;
+  }
+  const snapshotMode = genericSnapshotMode();
+  if (genericSnapshotWritesEnabled(snapshotMode)) {
+    const compiled = compileGenericLessonSnapshot({
+      facts,
+      plan,
+      persistence: persistence as typeof persistence & {
+        action: "insert";
+        header: NonNullable<typeof persistence.header>;
+      },
+    });
+    if (!compiled.ok) {
+      throw new Error(
+        `ensureAdleDailyPlan:snapshot: ${compiled.blockers.map((entry) => entry.code).join(",")}`,
+      );
+    }
+    const { data, error } = await serviceClient.rpc("persist_adle_generic_daily_plan_v2", {
+      p_parent_user_id: parentUserId,
+      p_child_id: childId,
+      p_plan_date: planDate,
+      p_header: header,
+      p_items: persistence.items,
+      p_intakes: persistence.learningItemIntakes,
+      p_snapshot: compiled.snapshot,
+    });
+    if (error) throw new Error(`ensureAdleDailyPlan:snapshotRpc: ${error.message}`);
+    if (typeof data !== "string" || data.length === 0) {
+      throw new Error("ensureAdleDailyPlan: snapshot RPC returned no assignment id");
+    }
+    return data;
   }
   const { data: insertedHeader, error: insertError } = await userClient
     .from("daily_assignments")
@@ -310,6 +361,8 @@ export async function getAdleDailyPlanReadModel(params: {
       assignmentId: null,
       lessonRouteMetadata: null,
       assignmentGenerationSource: null,
+      compiledLessonSnapshot: null,
+      genericSnapshotResolution: null,
       partOne: { items: [], present: false, complete: false },
       partTwo: { items: [], present: false, complete: false },
     };
@@ -317,14 +370,14 @@ export async function getAdleDailyPlanReadModel(params: {
   const [headerResult, itemsResult] = await Promise.all([
     userClient
       .from("daily_assignments")
-      .select("lesson_route_metadata, assignment_generation_source")
+      .select("lesson_route_metadata, assignment_generation_source, compiled_lesson_snapshot")
       .eq("id", assignmentId)
       .eq("parent_user_id", parentUserId)
       .eq("child_id", childId)
       .maybeSingle(),
     userClient
       .from("assignment_items")
-      .select("id, position, status, template_key, target_word, prompt_data, metadata")
+      .select("id, source_entity_id, position, status, template_key, target_word, prompt_data, metadata")
       .eq("parent_user_id", parentUserId)
       .eq("child_id", childId)
       .eq("daily_assignment_id", assignmentId)
@@ -342,8 +395,32 @@ export async function getAdleDailyPlanReadModel(params: {
   const header = headerResult.data as {
     lesson_route_metadata: unknown | null;
     assignment_generation_source: string | null;
+    compiled_lesson_snapshot: unknown | null;
   };
-  const items = ((itemsResult.data ?? []) as unknown as AssignmentItemRow[]).map(sessionItemFromRow);
+  const rawItems = ((itemsResult.data ?? []) as unknown as AssignmentItemRow[]).map(sessionItemFromRow);
+  const isExplicitGeneric =
+    typeof header.lesson_route_metadata === "object" &&
+    header.lesson_route_metadata !== null &&
+    (header.lesson_route_metadata as { route?: { routeId?: unknown } }).route?.routeId === "generic_composer";
+  const genericSnapshotResolution =
+    isExplicitGeneric || header.compiled_lesson_snapshot !== null
+      ? resolveGenericLessonSnapshot({
+          mode: genericSnapshotMode(),
+          lessonRouteMetadata: header.lesson_route_metadata,
+          assignmentGenerationSource: header.assignment_generation_source,
+          compiledLessonSnapshot: header.compiled_lesson_snapshot,
+          items: rawItems,
+        })
+      : null;
+  if (genericSnapshotResolution) {
+    emitGenericSnapshotResolutionEvent(
+      genericSnapshotResolution,
+      header.assignment_generation_source,
+    );
+  }
+  const items = genericSnapshotResolution?.status === "resolved"
+    ? genericSnapshotResolution.items
+    : rawItems;
   const partOneItems = items.filter((item) =>
     (ADLE_PART_ONE_SECTION_KEYS as readonly string[]).includes(item.sectionKey),
   );
@@ -373,6 +450,8 @@ export async function getAdleDailyPlanReadModel(params: {
     assignmentId,
     lessonRouteMetadata: header.lesson_route_metadata,
     assignmentGenerationSource: header.assignment_generation_source,
+    compiledLessonSnapshot: header.compiled_lesson_snapshot,
+    genericSnapshotResolution,
     partOne,
     partTwo,
   };

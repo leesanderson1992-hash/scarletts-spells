@@ -480,6 +480,7 @@ export function validateCompiledGenericLessonSnapshot(
     const items = [...context.items].sort((a, b) => a.position - b.position);
     if (items.length !== snapshot.assignment.itemCount || items.length !== snapshot.activities.length) blockers.push(blocker("snapshot_item_count_mismatch"));
     const itemBySource = new Map(items.map((item) => [item.sourceEntityId, item]));
+    const wordById = new Map(snapshot.words.map((word) => [word.wordSnapshotId, word]));
     for (const activity of snapshot.activities) {
       const item = itemBySource.get(activity.itemBinding.sourceEntityId);
       if (!item) {
@@ -489,6 +490,60 @@ export function validateCompiledGenericLessonSnapshot(
       if (item.position !== activity.itemBinding.position || item.position !== activity.order) blockers.push(blocker("item_position_mismatch", activity));
       if (item.sectionKey !== activity.sectionKey) blockers.push(blocker("item_section_mismatch", activity));
       if (item.templateKey !== activity.templateKey) blockers.push(blocker("item_template_mismatch", activity));
+      const boundWords = activity.wordSnapshotIds
+        .map((wordId) => wordById.get(wordId))
+        .filter((word): word is LessonWordSnapshotV2 => Boolean(word));
+      if (item.canonicalWordId !== null) {
+        if (
+          boundWords.length !== 1 ||
+          boundWords[0].canonicalWordId !== item.canonicalWordId ||
+          boundWords[0].displayWord !== item.targetWord
+        ) blockers.push(blocker("word_identity_mismatch", activity));
+      }
+      if (activity.sectionKey.startsWith("review_") && boundWords.some((word) => word.role !== "review")) {
+        blockers.push(blocker("invalid_word_role", activity));
+      }
+      if (activity.sectionKey === "lesson_probe" && boundWords.some((word) => word.role !== "probe")) {
+        blockers.push(blocker("invalid_word_role", activity));
+      }
+      if (
+        activity.part === "lesson" &&
+        activity.sectionKey !== "lesson_probe" &&
+        boundWords.some((word) => word.role !== "authentic_target" && word.role !== "transfer")
+      ) blockers.push(blocker("invalid_word_role", activity));
+      if (activity.templateKey === "REVIEW_QUICK_SORT" || activity.templateKey === "DIAGNOSTIC_DICTATION_PROBE") {
+        const payloadWords = Array.isArray(item.promptData.words)
+          ? item.promptData.words.flatMap((value) => {
+              if (!record(value) || !nonEmptyString(value.canonicalWordId) || !nonEmptyString(value.targetWord)) return [];
+              return [{ canonicalWordId: value.canonicalWordId, targetWord: value.targetWord }];
+            })
+          : [];
+        const snapshotWords = boundWords.map((word) => ({
+          canonicalWordId: word.canonicalWordId,
+          targetWord: word.displayWord,
+        }));
+        if (!sameJson(payloadWords, snapshotWords)) blockers.push(blocker("word_identity_mismatch", activity));
+      }
+      if (activity.templateKey === "DICTATION_SENTENCE_CONTEXT" && item.promptData.requiresSentenceContext !== true) {
+        blockers.push(blocker("activity_requirement_failed", activity));
+      }
+      if (activity.templateKey === "REVIEW_DICTATION" && !nonEmptyString(item.promptData.bundleId)) {
+        blockers.push(blocker("activity_requirement_failed", activity));
+      }
+      if (activity.templateKey === "ERROR_REFLECTION_CUE") {
+        if (item.promptData.conditional !== "on_misspelling" || activity.condition.kind !== "on_misspelling") {
+          blockers.push(blocker("activity_requirement_failed", activity));
+        } else {
+          const productionItem = itemBySource.get(activity.condition.productionItemSourceEntityId);
+          if (
+            !productionItem ||
+            productionItem.sectionKey !== "review_production" ||
+            productionItem.canonicalWordId !== item.canonicalWordId
+          ) blockers.push(blocker("activity_requirement_failed", activity));
+        }
+      } else if (activity.condition.kind !== "always") {
+        blockers.push(blocker("activity_requirement_failed", activity));
+      }
     }
     for (const item of items) {
       if (!itemBindings.includes(item.sourceEntityId)) blockers.push({ code: "unbound_assignment_item", position: item.position, templateKey: item.templateKey });

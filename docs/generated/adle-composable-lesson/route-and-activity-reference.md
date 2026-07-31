@@ -38,6 +38,7 @@
 ## Blockers
 
 - `activity_binding_unresolved`: activity binding unresolved.
+- `activity_requirement_failed`: activity requirement failed.
 - `activity_requirement_unmet`: activity requirement unmet.
 - `affix_form_missing`: affix form missing.
 - `answer_comparator_mismatch`: answer comparator mismatch.
@@ -48,22 +49,39 @@
 - `base_or_root_missing`: base or root missing.
 - `canonical_identity_missing`: canonical identity missing.
 - `canonical_status_unapproved`: canonical status unapproved.
+- `compiler_version_mismatch`: compiler version mismatch.
+- `completion_binding_mismatch`: completion binding mismatch.
 - `compound_component_missing`: compound component missing.
 - `decomposition_missing`: decomposition missing.
 - `dictation_sentence_missing`: dictation sentence missing.
 - `dictation_target_missing_or_mismatched`: dictation target missing or mismatched.
+- `duplicate_activity_id`: duplicate activity id.
+- `duplicate_item_binding`: duplicate item binding.
 - `duplicate_metadata_source`: duplicate metadata source.
+- `duplicate_word_binding`: duplicate word binding.
+- `duplicate_word_snapshot_id`: duplicate word snapshot id.
+- `evidence_binding_mismatch`: evidence binding mismatch.
 - `explicit_legacy_disagreement`: explicit legacy disagreement.
+- `fingerprint_mismatch`: fingerprint mismatch.
 - `form_coverage_failure`: form coverage failure.
 - `group_composition_failure`: group composition failure.
 - `insufficient_authentic_targets`: insufficient authentic targets.
 - `insufficient_transfer_words`: insufficient transfer words.
 - `invalid_join`: invalid join.
+- `invalid_word_role`: invalid word role.
+- `item_position_mismatch`: item position mismatch.
+- `item_section_mismatch`: item section mismatch.
+- `item_template_mismatch`: item template mismatch.
+- `malformed_content_provenance`: malformed content provenance.
+- `malformed_fingerprint`: malformed fingerprint.
 - `malformed_metadata`: malformed metadata.
+- `malformed_snapshot`: malformed snapshot.
 - `meaning_facts_missing`: meaning facts missing.
 - `meaning_group_missing`: meaning group missing.
 - `microskill_content_missing`: microskill content missing.
 - `microskill_incompatible`: microskill incompatible.
+- `missing_item_binding`: missing item binding.
+- `missing_word_binding`: missing word binding.
 - `morphology_reconstruction_mismatch`: morphology reconstruction mismatch.
 - `multiple_legacy_routes`: multiple legacy routes.
 - `payload_kind_mismatch`: payload kind mismatch.
@@ -76,16 +94,32 @@
 - `pronunciation_facts_missing`: pronunciation facts missing.
 - `recipe_count_failure`: recipe count failure.
 - `recipe_mismatch`: recipe mismatch.
+- `requirement_registry_version_mismatch`: requirement registry version mismatch.
+- `reward_role_mismatch`: reward role mismatch.
 - `root_item_duplicate`: root item duplicate.
 - `root_item_missing`: root item missing.
 - `route_or_profile_unavailable`: route or profile unavailable.
 - `route_unavailable`: route unavailable.
 - `runtime_reconstruction_failure`: runtime reconstruction failure.
+- `schedule_role_mismatch`: schedule role mismatch.
+- `snapshot_assignment_source_mismatch`: snapshot assignment source mismatch.
+- `snapshot_item_count_mismatch`: snapshot item count mismatch.
+- `snapshot_payload_mismatch`: snapshot payload mismatch.
+- `snapshot_recipe_mismatch`: snapshot recipe mismatch.
+- `snapshot_route_mismatch`: snapshot route mismatch.
+- `snapshot_runtime_mismatch`: snapshot runtime mismatch.
+- `snapshot_without_explicit_generic_route`: snapshot without explicit generic route.
 - `taxonomy_binding_missing`: taxonomy binding missing.
 - `transfer_not_approved`: transfer not approved.
 - `transformation_missing_or_invalid`: transformation missing or invalid.
+- `unbound_assignment_item`: unbound assignment item.
 - `unknown_route`: unknown route.
 - `unsupported_legacy_payload`: unsupported legacy payload.
 - `unsupported_metadata_schema_version`: unsupported metadata schema version.
 - `unsupported_route_version`: unsupported route version.
+- `unsupported_snapshot_schema_version`: unsupported snapshot schema version.
+- `unsupported_template`: unsupported template.
+- `unsupported_template_shape`: unsupported template shape.
+- `validator_version_mismatch`: validator version mismatch.
+- `word_identity_mismatch`: word identity mismatch.
 - `word_microskill_support_missing`: word microskill support missing.

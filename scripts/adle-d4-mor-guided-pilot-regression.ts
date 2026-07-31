@@ -46,7 +46,7 @@ assert(validateMorphologyLessonPayload(malformedOldPayload) === null, "malformed
 
 const specs = morphologyPilotBindingSpecs(payload);
 assert(specs.length === 16, "pilot binding contract contains exactly 16 items");
-const items: AdleSessionItem[] = specs.map((spec, index) => ({ id: `item-${index}`, sectionKey: spec.sectionKey, templateKey: spec.templateKey, position: index + 1, status: "ready", targetWord: spec.targetWord, canonicalWordId: spec.canonicalWordId, microSkillKey: "D4_MOR_PREFIXES_UN", adleLearningItemRef: null, promptData: { pilotActivityId: spec.binding, ...(spec.binding === "intro-root" ? { morphologyLesson: payload } : {}) } }));
+const items: AdleSessionItem[] = specs.map((spec, index) => ({ id: `item-${index}`, sourceEntityId: `fixture:item-${index}`, sectionKey: spec.sectionKey, templateKey: spec.templateKey, position: index + 1, status: "ready", targetWord: spec.targetWord, canonicalWordId: spec.canonicalWordId, microSkillKey: "D4_MOR_PREFIXES_UN", adleLearningItemRef: null, promptData: { pilotActivityId: spec.binding, ...(spec.binding === "intro-root" ? { morphologyLesson: payload } : {}) } }));
 assert(resolveMorphologyPilotRuntime(false, items) === null, "valid payload without gate falls back");
 assert(resolveMorphologyPilotRuntime(true, items) !== null, "valid bound payload with gate resolves");
 const legacyRoute = resolvePersistedLessonRoute({

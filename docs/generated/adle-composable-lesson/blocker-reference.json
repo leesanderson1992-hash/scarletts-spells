@@ -5,6 +5,10 @@
       "label": "activity binding unresolved"
     },
     {
+      "code": "activity_requirement_failed",
+      "label": "activity requirement failed"
+    },
+    {
       "code": "activity_requirement_unmet",
       "label": "activity requirement unmet"
     },
@@ -45,6 +49,14 @@
       "label": "canonical status unapproved"
     },
     {
+      "code": "compiler_version_mismatch",
+      "label": "compiler version mismatch"
+    },
+    {
+      "code": "completion_binding_mismatch",
+      "label": "completion binding mismatch"
+    },
+    {
       "code": "compound_component_missing",
       "label": "compound component missing"
     },
@@ -61,12 +73,36 @@
       "label": "dictation target missing or mismatched"
     },
     {
+      "code": "duplicate_activity_id",
+      "label": "duplicate activity id"
+    },
+    {
+      "code": "duplicate_item_binding",
+      "label": "duplicate item binding"
+    },
+    {
       "code": "duplicate_metadata_source",
       "label": "duplicate metadata source"
     },
     {
+      "code": "duplicate_word_binding",
+      "label": "duplicate word binding"
+    },
+    {
+      "code": "duplicate_word_snapshot_id",
+      "label": "duplicate word snapshot id"
+    },
+    {
+      "code": "evidence_binding_mismatch",
+      "label": "evidence binding mismatch"
+    },
+    {
       "code": "explicit_legacy_disagreement",
       "label": "explicit legacy disagreement"
+    },
+    {
+      "code": "fingerprint_mismatch",
+      "label": "fingerprint mismatch"
     },
     {
       "code": "form_coverage_failure",
@@ -89,8 +125,36 @@
       "label": "invalid join"
     },
     {
+      "code": "invalid_word_role",
+      "label": "invalid word role"
+    },
+    {
+      "code": "item_position_mismatch",
+      "label": "item position mismatch"
+    },
+    {
+      "code": "item_section_mismatch",
+      "label": "item section mismatch"
+    },
+    {
+      "code": "item_template_mismatch",
+      "label": "item template mismatch"
+    },
+    {
+      "code": "malformed_content_provenance",
+      "label": "malformed content provenance"
+    },
+    {
+      "code": "malformed_fingerprint",
+      "label": "malformed fingerprint"
+    },
+    {
       "code": "malformed_metadata",
       "label": "malformed metadata"
+    },
+    {
+      "code": "malformed_snapshot",
+      "label": "malformed snapshot"
     },
     {
       "code": "meaning_facts_missing",
@@ -107,6 +171,14 @@
     {
       "code": "microskill_incompatible",
       "label": "microskill incompatible"
+    },
+    {
+      "code": "missing_item_binding",
+      "label": "missing item binding"
+    },
+    {
+      "code": "missing_word_binding",
+      "label": "missing word binding"
     },
     {
       "code": "morphology_reconstruction_mismatch",
@@ -157,6 +229,14 @@
       "label": "recipe mismatch"
     },
     {
+      "code": "requirement_registry_version_mismatch",
+      "label": "requirement registry version mismatch"
+    },
+    {
+      "code": "reward_role_mismatch",
+      "label": "reward role mismatch"
+    },
+    {
       "code": "root_item_duplicate",
       "label": "root item duplicate"
     },
@@ -177,6 +257,38 @@
       "label": "runtime reconstruction failure"
     },
     {
+      "code": "schedule_role_mismatch",
+      "label": "schedule role mismatch"
+    },
+    {
+      "code": "snapshot_assignment_source_mismatch",
+      "label": "snapshot assignment source mismatch"
+    },
+    {
+      "code": "snapshot_item_count_mismatch",
+      "label": "snapshot item count mismatch"
+    },
+    {
+      "code": "snapshot_payload_mismatch",
+      "label": "snapshot payload mismatch"
+    },
+    {
+      "code": "snapshot_recipe_mismatch",
+      "label": "snapshot recipe mismatch"
+    },
+    {
+      "code": "snapshot_route_mismatch",
+      "label": "snapshot route mismatch"
+    },
+    {
+      "code": "snapshot_runtime_mismatch",
+      "label": "snapshot runtime mismatch"
+    },
+    {
+      "code": "snapshot_without_explicit_generic_route",
+      "label": "snapshot without explicit generic route"
+    },
+    {
       "code": "taxonomy_binding_missing",
       "label": "taxonomy binding missing"
     },
@@ -187,6 +299,10 @@
     {
       "code": "transformation_missing_or_invalid",
       "label": "transformation missing or invalid"
+    },
+    {
+      "code": "unbound_assignment_item",
+      "label": "unbound assignment item"
     },
     {
       "code": "unknown_route",
@@ -203,6 +319,26 @@
     {
       "code": "unsupported_route_version",
       "label": "unsupported route version"
+    },
+    {
+      "code": "unsupported_snapshot_schema_version",
+      "label": "unsupported snapshot schema version"
+    },
+    {
+      "code": "unsupported_template",
+      "label": "unsupported template"
+    },
+    {
+      "code": "unsupported_template_shape",
+      "label": "unsupported template shape"
+    },
+    {
+      "code": "validator_version_mismatch",
+      "label": "validator version mismatch"
+    },
+    {
+      "code": "word_identity_mismatch",
+      "label": "word identity mismatch"
     },
     {
       "code": "word_microskill_support_missing",
