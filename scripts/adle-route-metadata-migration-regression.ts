@@ -9,6 +9,10 @@ const stagingHarness = readFileSync(
   "scripts/apply-adle-route-metadata-staging-migration.ts",
   "utf8",
 );
+const validatorCorrection = readFileSync(
+  "supabase/migrations/20260731123000_fix_adle_route_metadata_structural_validator.sql",
+  "utf8",
+);
 
 assert(migration.includes("add column lesson_route_metadata jsonb null"));
 assert(!migration.includes("lesson_route_metadata jsonb not null"));
@@ -24,6 +28,13 @@ assert(migration.includes("persist_adle_base_word_family_pilot_v1(uuid,uuid,date
 assert(migration.includes("to service_role"));
 assert(!migration.match(/\bdelete\s+from\b/i));
 assert(!migration.match(/\bdrop\s+column\b/i));
+assert(!migration.includes("jsonb_object_length"));
+assert(!validatorCorrection.includes("jsonb_object_length"));
+assert(
+  migration.includes("jsonb_object_keys") &&
+    validatorCorrection.includes("jsonb_object_keys"),
+  "both fresh and forward-correction migrations use PostgreSQL's supported object-key API",
+);
 assert(
   stagingHarness.includes('const STAGING_PROJECT_REF = "jlhotktspjvffslvuyfz"') &&
     stagingHarness.includes(

@@ -11,20 +11,20 @@ set search_path = public, pg_temp
 as $$
 begin
   if jsonb_typeof(p_metadata) <> 'object'
-    or jsonb_object_length(p_metadata) <> 4
+    or (select count(*) from jsonb_object_keys(p_metadata)) <> 4
     or jsonb_typeof(p_metadata->'metadataSchemaVersion') <> 'number'
     or (p_metadata->>'metadataSchemaVersion') !~ '^[0-9]+$'
     or (p_metadata->>'metadataSchemaVersion')::integer <> 1
     or jsonb_typeof(p_metadata->'route') <> 'object'
-    or jsonb_object_length(p_metadata->'route') <> 2
+    or (select count(*) from jsonb_object_keys(p_metadata->'route')) <> 2
     or nullif(btrim(p_metadata#>>'{route,routeId}'), '') is null
     or nullif(btrim(p_metadata#>>'{route,routeVersion}'), '') is null
     or jsonb_typeof(p_metadata->'recipe') <> 'object'
-    or jsonb_object_length(p_metadata->'recipe') <> 2
+    or (select count(*) from jsonb_object_keys(p_metadata->'recipe')) <> 2
     or nullif(btrim(p_metadata#>>'{recipe,recipeKey}'), '') is null
     or nullif(btrim(p_metadata#>>'{recipe,recipeVersion}'), '') is null
     or jsonb_typeof(p_metadata->'payload') <> 'object'
-    or jsonb_object_length(p_metadata->'payload') <> 2
+    or (select count(*) from jsonb_object_keys(p_metadata->'payload')) <> 2
     or nullif(btrim(p_metadata#>>'{payload,kind}'), '') is null
     or jsonb_typeof(p_metadata#>'{payload,version}') <> 'number'
     or (p_metadata#>>'{payload,version}') !~ '^[0-9]+$'

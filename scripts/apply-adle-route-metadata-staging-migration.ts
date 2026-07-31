@@ -7,11 +7,22 @@ import pg from "pg";
 
 const STAGING_PROJECT_REF = "jlhotktspjvffslvuyfz";
 const PRODUCTION_PROJECT_REF = "wwohrqtunajrbwxyssjf";
-const MIGRATION_VERSION = "20260731120000";
-const MIGRATION_NAME = "add_adle_lesson_route_metadata";
-const MIGRATION_FILE = resolve(
-  "supabase/migrations/20260731120000_add_adle_lesson_route_metadata.sql",
-);
+const TARGET_MIGRATIONS = [
+  {
+    version: "20260731120000",
+    name: "add_adle_lesson_route_metadata",
+    file: resolve(
+      "supabase/migrations/20260731120000_add_adle_lesson_route_metadata.sql",
+    ),
+  },
+  {
+    version: "20260731123000",
+    name: "fix_adle_route_metadata_structural_validator",
+    file: resolve(
+      "supabase/migrations/20260731123000_fix_adle_route_metadata_structural_validator.sql",
+    ),
+  },
+] as const;
 const DATABASE_URL_ENV = "ADLE_ROUTE_METADATA_STAGING_DATABASE_URL";
 
 function requiredDatabaseUrl(): string {
@@ -58,16 +69,10 @@ async function main() {
   try {
     const identity = await client.query<{
       database: string;
-      target_applied: boolean;
       route_column_exists: boolean;
     }>(`
       select
         current_database() as database,
-        exists(
-          select 1
-          from supabase_migrations.schema_migrations
-          where version = '${MIGRATION_VERSION}'
-        ) as target_applied,
         exists(
           select 1
           from information_schema.columns
@@ -80,15 +85,23 @@ async function main() {
     if (!before || before.database !== "postgres") {
       throw new Error("Unexpected staging database identity.");
     }
-    if (before.target_applied || before.route_column_exists) {
-      throw new Error(
-        "Route-metadata migration or schema already exists; refusing an ambiguous replay.",
-      );
-    }
 
     const ledger = await client.query<{ name: string; version: string }>(
       "select version, name from supabase_migrations.schema_migrations order by version",
     );
+    const appliedVersions = new Set(ledger.rows.map((row) => row.version));
+    const pendingMigrations = TARGET_MIGRATIONS.filter(
+      (migration) => !appliedVersions.has(migration.version),
+    );
+    if (pendingMigrations.length === 0) {
+      throw new Error("All route-metadata staging migrations are already applied.");
+    }
+    const foundationApplied = appliedVersions.has(TARGET_MIGRATIONS[0].version);
+    if (foundationApplied !== before.route_column_exists) {
+      throw new Error(
+        "Route-metadata schema and migration ledger disagree; refusing an ambiguous replay.",
+      );
+    }
     workdir = mkdtempSync(join(tmpdir(), "adle-route-metadata-migration-"));
     const supabaseDir = join(workdir, "supabase");
     const migrationsDir = join(supabaseDir, "migrations");
@@ -104,10 +117,12 @@ async function main() {
         `-- Mirrored hosted staging ledger entry ${row.version}; deliberately empty in this disposable workspace.\n`,
       );
     }
-    writeFileSync(
-      join(migrationsDir, basename(MIGRATION_FILE)),
-      readFileSync(MIGRATION_FILE, "utf8"),
-    );
+    for (const migration of TARGET_MIGRATIONS) {
+      writeFileSync(
+        join(migrationsDir, basename(migration.file)),
+        readFileSync(migration.file, "utf8"),
+      );
+    }
 
     const args = [
       "supabase",
@@ -133,16 +148,24 @@ async function main() {
     if (result.status !== 0) {
       throw new Error(`Supabase migration ${apply ? "apply" : "dry run"} failed.`);
     }
-    if (!output.includes(basename(MIGRATION_FILE))) {
-      throw new Error("The reviewed route-metadata migration was not selected.");
+    for (const migration of pendingMigrations) {
+      if (!output.includes(basename(migration.file))) {
+        throw new Error(
+          `The reviewed route-metadata migration ${basename(migration.file)} was not selected.`,
+        );
+      }
     }
 
     const selectedMigrationFiles = [
       ...output.matchAll(/20\d{12}_[a-zA-Z0-9_]+[.]sql/g),
     ].map((match) => match[0]);
+    const pendingFiles = new Set(
+      pendingMigrations.map((migration) => basename(migration.file)),
+    );
     if (
-      selectedMigrationFiles.some(
-        (file) => file !== basename(MIGRATION_FILE),
+      selectedMigrationFiles.some((file) => !pendingFiles.has(file)) ||
+      pendingMigrations.some(
+        (migration) => !selectedMigrationFiles.includes(basename(migration.file)),
       )
     ) {
       throw new Error(
@@ -157,7 +180,7 @@ async function main() {
             mode: "dry_run",
             projectRef: STAGING_PROJECT_REF,
             mirroredLedgerEntries: ledger.rowCount ?? ledger.rows.length,
-            selectedMigration: basename(MIGRATION_FILE),
+            selectedMigrations: [...pendingFiles],
             mutationPerformed: false,
           },
           null,
@@ -180,8 +203,12 @@ async function main() {
       select
         exists(
           select 1 from supabase_migrations.schema_migrations
-          where version = '${MIGRATION_VERSION}'
-            and name = '${MIGRATION_NAME}'
+          where (version, name) in (
+            ${TARGET_MIGRATIONS.map(
+              (migration) => `('${migration.version}', '${migration.name}')`,
+            ).join(",\n            ")}
+          )
+          having count(*) = ${TARGET_MIGRATIONS.length}
         ) as target_applied,
         exists(
           select 1 from information_schema.columns
@@ -223,7 +250,9 @@ async function main() {
         {
           mode: "applied",
           projectRef: STAGING_PROJECT_REF,
-          migrationVersion: MIGRATION_VERSION,
+          migrationVersions: TARGET_MIGRATIONS.map(
+            (migration) => migration.version,
+          ),
           verification,
           learnerRowsCreated: 0,
         },
