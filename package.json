@@ -78,6 +78,7 @@
     "adle:generic-snapshot-reader-regression": "npx tsx scripts/adle-generic-snapshot-reader-regression.ts",
     "adle:generic-snapshot-migration-regression": "npx tsx scripts/adle-generic-snapshot-migration-regression.ts",
     "adle:generic-snapshot-staging-migration": "npx tsx scripts/apply-adle-generic-snapshot-staging-migration.ts",
+    "adle:generic-snapshot-staging-proof": "npx tsx scripts/adle-generic-snapshot-staging-proof.ts",
     "adle:production-readiness-audit-regression": "npx tsx scripts/adle-production-readiness-audit-regression.ts",
     "adle:repository-readiness-report": "npx tsx scripts/adle-production-readiness-audit.ts --mode repository/report --format markdown",
     "adle:live-readiness-audit": "npx tsx scripts/adle-production-readiness-audit.ts --mode live/strict --format json",

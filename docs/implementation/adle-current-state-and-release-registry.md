@@ -35,6 +35,17 @@ readers. This infrastructure release changed no capability state, selection,
 lesson behavior or Teaching Dictionary content. See
 `docs/implementation/qa/adle-explicit-route-metadata-production-receipt-2026-07-31.md`.
 
+The Generic Composer V2 snapshot reader is implemented and proven on the
+pinned staging project only. New generic plans can compile an immutable,
+content-fingerprinted assignment snapshot; enforce mode reconstructs the
+existing session read model and preserves review, lesson, attempt, evidence,
+scheduler, reward, completion and resume behaviour. Explicit snapshot-absent
+and metadata-free assignments retain compatibility readers, while a present
+invalid snapshot blocks with zero learner writes. This foundation changes no
+lesson capability state or Teaching Dictionary activation. Production rollout
+is deferred. See
+`docs/implementation/qa/adle-generic-snapshot-v2-staging-rollback-proof-2026-07-31.md`.
+
 | Lesson capability | Micro-skill(s) | State | Selection rule | Notes |
 |---|---|---|---|---|
 | Base Word Lab | `D4_MOR_BASE_WORDS_PRESERVE_BASE`, `D4_MOR_BASE_WORDS_IDENTIFY_BASE` | `production_enabled` | Two verified authentic targets sharing a supported micro-skill; six independent words and up to two approved families | 18-item immutable snapshot. `bed`, `foot`, and `sun` remain blocked. |

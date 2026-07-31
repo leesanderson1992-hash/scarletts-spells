@@ -87,11 +87,31 @@ word-role, snapshot, validator, compiler and provenance references. Activity
 snapshots are discriminated unions with typed conditions; there is no generic
 string-expression workflow language.
 
-The full compiled snapshot remains a proposed compilation target. The smaller
-`PersistedLessonRouteMetadataV1` contract is now the assignment-level routing
-boundary for new assignments. Persisted prefix, suffix, compound, Base Word
-and generic item payloads remain authoritative teaching snapshots for their
+The generic composer now implements `CompiledLessonSnapshotV2`. It compiles
+only after `composeDailyPlan` and `planAssignmentPersistence` have finalised a
+real insert, binds every activity to its deterministic
+`assignment_items.source_entity_id`, and persists the header, route metadata,
+snapshot, variable-count items and stretch intakes in one service-role RPC.
+The smaller `PersistedLessonRouteMetadataV1` contract remains the
+assignment-level routing boundary for every route. Prefix, suffix, compound
+and Base Word payloads remain authoritative teaching snapshots for their
 existing validators and adapters.
+
+Generic V2 snapshots live only in nullable, immutable
+`daily_assignments.compiled_lesson_snapshot`; they are never duplicated into
+route metadata or item payloads. `assignment_items.prompt_data` remains the
+authoritative activity-input source. The snapshot owns semantic identities,
+ordered bindings, word roles, conditions, attempt/evidence classes,
+schedule/reward roles and the canonical content fingerprint.
+
+`ADLE_GENERIC_SNAPSHOT_MODE` supports `off`, `observe` and `enforce`, with
+`off` as the safe default. A present snapshot is validated in every mode.
+Observe mode retains the item-derived projection only after field-by-field
+parity; enforce mode reconstructs the same read model from validated snapshot
+activities plus bound item rows. A present invalid or unsupported snapshot
+blocks the entire assignment before either completion action writes. Snapshot
+absence alone enters compatibility for explicit pre-snapshot generic and
+metadata-free historical assignments.
 
 ## Persisted Route Resolution
 
@@ -194,7 +214,7 @@ metadata-free assignments and retained compatibility cases. Existing payload
 validators, adapters and resume keys remain in place until route-specific
 migration and retirement proofs are separately approved.
 
-## Route Metadata Rollout And Rollback
+## Route And Snapshot Rollout And Rollback
 
 The additive database schema is deployed before metadata-writing application
 code. Staging must use the pinned staging project and prove explicit routes,
@@ -204,6 +224,13 @@ Application rollback is the normal recovery path. The nullable column,
 constraints, index, compatible RPCs and any written metadata remain in place;
 older application versions ignore the additional field and continue creating
 metadata-free assignments that the legacy readers support.
+
+The generic V2 schema follows the same rule: deploy the nullable/no-backfill
+column and atomic writer before snapshot-writing code, prove observe parity,
+then enable the snapshot reader. Older application commits do not select the
+snapshot column and therefore continue reading and completing snapshot-bearing
+assignments from their unchanged item rows. Rollback never deletes or rewrites
+an immutable snapshot.
 
 ## Determinism And Resumability
 

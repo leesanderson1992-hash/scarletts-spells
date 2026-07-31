@@ -11,6 +11,7 @@ const migrationPath =
 const migration = readFileSync(migrationPath, "utf8");
 const writer = readFileSync("lib/adle/loaders/daily-plan-surface.ts", "utf8");
 const stagingHarness = readFileSync("scripts/apply-adle-generic-snapshot-staging-migration.ts", "utf8");
+const proofHarness = readFileSync("scripts/adle-generic-snapshot-staging-proof.ts", "utf8");
 
 match(migration, /add column compiled_lesson_snapshot jsonb null/);
 match(migration, /daily_assignments_compiled_lesson_snapshot_v2_check/);
@@ -53,5 +54,14 @@ match(stagingHarness, /--environment staging/);
 match(stagingHarness, /--confirm-generic-snapshot-migration/);
 match(stagingHarness, /production and unknown targets are rejected/);
 ok(!stagingHarness.includes("SAND8624erson"), "staging harness contains no credential literal");
+
+match(proofHarness, /const STAGING_REF = "jlhotktspjvffslvuyfz"/);
+match(proofHarness, /const PRODUCTION_REF = "wwohrqtunajrbwxyssjf"/);
+match(proofHarness, /const STAGING_POOLER = "aws-1-eu-central-1\.pooler\.supabase\.com"/);
+match(proofHarness, /ADLE-GENERIC-SNAPSHOT-STAGING-FIXTURE-V2/);
+match(proofHarness, /persist_adle_generic_daily_plan_v2/);
+match(proofHarness, /compiled_lesson_snapshot/);
+match(proofHarness, /exactFixtureResidue: 0/);
+ok(!proofHarness.includes("SAND8624erson"), "proof harness contains no credential literal");
 
 console.log("ADLE generic snapshot migration regression passed.");

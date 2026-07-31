@@ -34,7 +34,12 @@ Dictionary content. Those facts are generated from the code registries under
    The additive schema-first production release and rollback target are
    recorded in
    `docs/implementation/qa/adle-explicit-route-metadata-production-receipt-2026-07-31.md`.
-2. Migrate the generic composer to emit the versioned snapshot contract.
+2. **Implemented and staging-proven; production rollout deferred:** the
+   generic composer emits immutable `CompiledLessonSnapshotV2`, persists it
+   atomically with the finalised plan, and reads it through observe/enforce
+   precedence without changing the session runner or completion semantics.
+   Staging evidence, application rollback and forward restoration are in
+   `docs/implementation/qa/adle-generic-snapshot-v2-staging-rollback-proof-2026-07-31.md`.
 3. Extract a shared position-aware affix compiler without changing Dynamic
    Prefix V2 or Dynamic Affix V3 semantics.
 4. Migrate Dynamic Prefix and Dynamic Affix routes independently.
@@ -64,5 +69,19 @@ For stage 1, the exit evidence is:
 - staging project-pin, schema, application, in-flight resume and rollback
   receipts.
 
-Stage 2 is now the next stage. It remains separate from this completed
-production release and requires its own approved implementation scope.
+For stage 2, staging exit evidence includes:
+
+- exact V2 parser/compiler/validator and all 32 template mappings;
+- nullable/no-backfill schema, immutable trigger and service-only atomic RPC;
+- observe and enforce Preview deployments against the pinned staging project;
+- snapshot/item parity, atomic failure, concurrency/idempotency and blocked
+  zero-write database proofs;
+- authenticated browser review and lesson completion with attempt, evidence,
+  scheduling, dictation precedence and resume verification;
+- pre-snapshot application rollback against a snapshot-bearing assignment;
+- forward restoration plus explicit snapshot-absent and metadata-free legacy
+  compatibility reads;
+- exact disposable fixture cleanup.
+
+Production migration/application rollout is intentionally not performed by
+this stage and remains the only deferred rollout step.

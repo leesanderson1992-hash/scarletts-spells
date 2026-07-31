@@ -243,6 +243,31 @@ When persistence is authorized:
 - do not update proficiency merely by assignment creation
 - do not update Word Treasure merely by assignment creation
 
+### Generic snapshot V2 addendum (2026-07-31)
+
+For a new `generic_composer:v1` insert, persistence additionally requires:
+
+- compile `CompiledLessonSnapshotV2` only after composition and persistence
+  planning have fixed the header and ordered items;
+- persist one nullable immutable snapshot at
+  `daily_assignments.compiled_lesson_snapshot`, with no historical backfill;
+- bind every snapshot activity to the exact deterministic
+  `assignment_items.source_entity_id` and contiguous position;
+- keep `assignment_items.prompt_data` authoritative for runtime inputs;
+- fingerprint only consumed composer, schedule, banding, family, activity and
+  Teaching Dictionary content versions using canonical JSON and SHA-256;
+- write header, route metadata, snapshot, variable-count items and stretch
+  intakes atomically through `persist_adle_generic_daily_plan_v2`;
+- validate every present snapshot in `off`, `observe` and `enforce` modes;
+- block the complete assignment before review or lesson writes when a present
+  snapshot is invalid, unsupported or diverges from its bound rows;
+- use compatibility only when the snapshot is absent, including explicit
+  pre-snapshot generic and metadata-free historical assignments.
+
+`MUST_USE_FREEWRITING` and `REVIEW_MUST_USE_WRITING` remain registered and
+legacy-readable but are not safe for new V2 compilation until a sentence-level
+evidence contract exists.
+
 ## Acceptance criteria
 
 - every generated ADLE item traces to an active `learning_item`
