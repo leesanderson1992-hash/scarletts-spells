@@ -22,6 +22,13 @@ const TARGET_MIGRATIONS = [
       "supabase/migrations/20260731123000_fix_adle_route_metadata_structural_validator.sql",
     ),
   },
+  {
+    version: "20260731124500",
+    name: "grant_adle_route_metadata_validator",
+    file: resolve(
+      "supabase/migrations/20260731124500_grant_adle_route_metadata_validator.sql",
+    ),
+  },
 ] as const;
 const DATABASE_URL_ENV = "ADLE_ROUTE_METADATA_STAGING_DATABASE_URL";
 
@@ -195,6 +202,8 @@ async function main() {
       base_v2_exists: boolean;
       composed_rpc_exists: boolean;
       constraint_exists: boolean;
+      validator_authenticated_execute: boolean;
+      validator_service_execute: boolean;
       index_exists: boolean;
       route_column_exists: boolean;
       target_applied: boolean;
@@ -229,6 +238,16 @@ async function main() {
           where tgname = 'daily_assignments_lesson_route_metadata_immutable'
             and not tgisinternal
         ) as trigger_exists,
+        has_function_privilege(
+          'authenticated',
+          'public.adle_lesson_route_metadata_is_valid_v1(jsonb)',
+          'EXECUTE'
+        ) as validator_authenticated_execute,
+        has_function_privilege(
+          'service_role',
+          'public.adle_lesson_route_metadata_is_valid_v1(jsonb)',
+          'EXECUTE'
+        ) as validator_service_execute,
         to_regprocedure(
           'public.persist_adle_composed_daily_plan_v1(uuid,uuid,date,jsonb,jsonb,jsonb)'
         ) is not null as composed_rpc_exists,

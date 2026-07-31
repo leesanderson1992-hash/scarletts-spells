@@ -13,6 +13,10 @@ const validatorCorrection = readFileSync(
   "supabase/migrations/20260731123000_fix_adle_route_metadata_structural_validator.sql",
   "utf8",
 );
+const validatorGrant = readFileSync(
+  "supabase/migrations/20260731124500_grant_adle_route_metadata_validator.sql",
+  "utf8",
+);
 
 assert(migration.includes("add column lesson_route_metadata jsonb null"));
 assert(!migration.includes("lesson_route_metadata jsonb not null"));
@@ -34,6 +38,16 @@ assert(
   migration.includes("jsonb_object_keys") &&
     validatorCorrection.includes("jsonb_object_keys"),
   "both fresh and forward-correction migrations use PostgreSQL's supported object-key API",
+);
+assert(
+  migration.includes(
+    "to authenticated, service_role;",
+  ) &&
+    validatorGrant.includes(
+      "to authenticated, service_role;",
+    ) &&
+    !validatorGrant.match(/\b(insert|update|delete)\s+(into|public[.])?/i),
+  "fresh and forward migrations grant only validator execution needed by authenticated assignment updates",
 );
 assert(
   stagingHarness.includes('const STAGING_PROJECT_REF = "jlhotktspjvffslvuyfz"') &&

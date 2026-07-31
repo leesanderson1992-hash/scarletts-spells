@@ -83,5 +83,14 @@ assert(
     dispatchIndex > clientIndex,
   "identity validation must complete before client creation and setup/cleanup dispatch",
 );
+assert(
+  source.includes("const planDate = getDateOnly()") &&
+    source.includes("assignment_date: planDate") &&
+    source.includes('assignment_generation_source: "adle_composer_v1"') &&
+    source.includes('title: "ADLE Daily Plan"') &&
+    source.includes("metadata: { ...(item.metadata ?? {}), planDate }") &&
+    source.includes("adle-closed-compound-browser-smoke:${assignment.id}:${item.position}"),
+  "the disposable clone must use today's date and fixture-owned item provenance",
+);
 
 console.log("Closed Compound staging browser-smoke project pin regression passed.");

@@ -41,6 +41,11 @@ $$;
 
 revoke all on function public.adle_lesson_route_metadata_is_valid_v1(jsonb)
 from public, anon, authenticated;
+-- PostgreSQL re-evaluates CHECK constraints during ordinary authenticated
+-- assignment status updates. Grant only the pure structural predicate needed
+-- by that constraint; table/RPC privileges remain unchanged.
+grant execute on function public.adle_lesson_route_metadata_is_valid_v1(jsonb)
+to authenticated, service_role;
 
 alter table public.daily_assignments
   add column lesson_route_metadata jsonb null;
