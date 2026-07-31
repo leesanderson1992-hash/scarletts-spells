@@ -408,6 +408,14 @@ export function validateCompiledGenericLessonSnapshot(
   if (record(value) && value.snapshotSchemaVersion !== GENERIC_LESSON_SNAPSHOT_SCHEMA_VERSION) {
     return { ok: false, blockers: [blocker("unsupported_snapshot_schema_version")] };
   }
+  if (
+    record(value) &&
+    ((record(value.provenance) && typeof value.provenance.sourceFingerprint === "string" && !/^[a-f0-9]{64}$/.test(value.provenance.sourceFingerprint)) ||
+      (Array.isArray(value.words) && value.words.some((word) =>
+        record(word) && typeof word.factFingerprint === "string" && !/^[a-f0-9]{64}$/.test(word.factFingerprint))))
+  ) {
+    return { ok: false, blockers: [blocker("malformed_fingerprint")] };
+  }
   const snapshot = parseShape(value);
   if (!snapshot) return { ok: false, blockers: [blocker("malformed_snapshot")] };
   const blockers: GenericSnapshotBlocker[] = [];
@@ -430,11 +438,48 @@ export function validateCompiledGenericLessonSnapshot(
   const contentIds = snapshot.contentVersions.map((entry) => entry.contentRefId);
   if (new Set(contentIds).size !== contentIds.length) blockers.push(blocker("malformed_content_provenance"));
   const knownContentIds = new Set(contentIds);
+  const contentById = new Map(snapshot.contentVersions.map((entry) => [entry.contentRefId, entry]));
+  const coreContentKinds = ["composer_policy", "schedule_policy", "banding"] as const;
+  for (const kind of coreContentKinds) {
+    if (snapshot.contentVersions.filter((entry) => entry.kind === kind).length !== 1) {
+      blockers.push(blocker("malformed_content_provenance"));
+    }
+  }
+  for (const entry of snapshot.contentVersions) {
+    if (entry.contentRefId !== `${entry.kind}:${entry.key}:${entry.version}`) {
+      blockers.push(blocker("malformed_content_provenance"));
+    }
+  }
+  const composerPolicy = snapshot.contentVersions.find((entry) => entry.kind === "composer_policy");
+  const schedulePolicy = snapshot.contentVersions.find((entry) => entry.kind === "schedule_policy");
+  if (composerPolicy && (composerPolicy.key !== composerPolicy.version || composerPolicy.version.trim() === "")) {
+    blockers.push(blocker("malformed_content_provenance"));
+  }
+  if (schedulePolicy && (schedulePolicy.key !== schedulePolicy.version || schedulePolicy.version.trim() === "")) {
+    blockers.push(blocker("malformed_content_provenance"));
+  }
   const wordIds = snapshot.words.map((word) => word.wordSnapshotId);
   if (new Set(wordIds).size !== wordIds.length) blockers.push(blocker("duplicate_word_snapshot_id"));
+  if (snapshot.words.some((word, index) => word.order !== index + 1)) blockers.push(blocker("word_identity_mismatch"));
   const knownWordIds = new Set(wordIds);
   for (const word of snapshot.words) {
     if (!word.contentVersionRefs.every((entry) => knownContentIds.has(entry))) blockers.push(blocker("malformed_content_provenance"));
+    if (new Set(word.contentVersionRefs).size !== word.contentVersionRefs.length) blockers.push(blocker("malformed_content_provenance"));
+    const wordContent = word.contentVersionRefs.flatMap((id) => {
+      const entry = contentById.get(id);
+      return entry ? [entry] : [];
+    });
+    if (!wordContent.some((entry) => entry.kind === "banding")) blockers.push(blocker("malformed_content_provenance"));
+    if (word.familyKey !== null && !wordContent.some((entry) => entry.kind === "family_method" && entry.key === word.familyKey)) blockers.push(blocker("malformed_content_provenance"));
+    if (word.microSkillKey !== null && !wordContent.some((entry) => entry.kind === "teaching_content" && entry.key === word.microSkillKey)) blockers.push(blocker("malformed_content_provenance"));
+    const validSourceBinding =
+      (word.selectionProvenance === "learning_item" && word.source.kind === "learning_item" && word.learningItemId !== null && word.source.referenceId === word.learningItemId) ||
+      (word.selectionProvenance === "probe_miss" && word.source.kind === "probe_miss" && word.learningItemId !== null && word.source.referenceId === word.learningItemId) ||
+      (word.selectionProvenance === "stretch" && word.source.kind === "stretch_intake" && word.learningItemId !== null && word.source.referenceId === word.learningItemId) ||
+      (word.selectionProvenance === "review_schedule" && word.source.kind === "review_schedule" && word.role === "review" && word.learningItemId === null && word.source.referenceId !== null) ||
+      (word.selectionProvenance === "diagnostic_probe" && word.source.kind === "diagnostic_probe" && word.role === "probe" && word.learningItemId === null && word.source.referenceId !== null) ||
+      (word.selectionProvenance === "teaching_content" && word.source.kind === "teaching_content");
+    if (!validSourceBinding) blockers.push(blocker("invalid_word_role"));
     const { factFingerprint, ...fingerprintInput } = word;
     void factFingerprint;
     if (fingerprintLessonWord(fingerprintInput) !== word.factFingerprint) blockers.push(blocker("fingerprint_mismatch"));
@@ -442,6 +487,7 @@ export function validateCompiledGenericLessonSnapshot(
 
   const activityIds = snapshot.activities.map((activity) => activity.activityId);
   if (new Set(activityIds).size !== activityIds.length) blockers.push(blocker("duplicate_activity_id"));
+  if (snapshot.activities.some((activity, index) => activity.order !== index + 1 || activity.itemBinding.position !== index + 1)) blockers.push(blocker("item_position_mismatch"));
   const itemBindings = snapshot.activities.map((activity) => activity.itemBinding.sourceEntityId);
   if (new Set(itemBindings).size !== itemBindings.length) blockers.push(blocker("duplicate_item_binding"));
   for (const activity of snapshot.activities) {
@@ -464,9 +510,15 @@ export function validateCompiledGenericLessonSnapshot(
     if (!activity.wordSnapshotIds.every((entry) => knownWordIds.has(entry))) blockers.push(blocker("missing_word_binding", activity));
     if (new Set(activity.wordSnapshotIds).size !== activity.wordSnapshotIds.length) blockers.push(blocker("duplicate_word_binding", activity));
     if (!activity.contentVersionRefs.every((entry) => knownContentIds.has(entry))) blockers.push(blocker("malformed_content_provenance", activity));
+    if (new Set(activity.contentVersionRefs).size !== activity.contentVersionRefs.length) blockers.push(blocker("malformed_content_provenance", activity));
+    if (!activity.contentVersionRefs.some((id) => {
+      const entry = contentById.get(id);
+      return entry?.kind === "activity_template" && entry.key === activity.templateKey;
+    })) blockers.push(blocker("malformed_content_provenance", activity));
   }
 
   const segments = new Map(snapshot.segments.map((segment) => [segment.segmentId, segment]));
+  if (segments.size !== 2 || snapshot.segments.length !== 2) blockers.push(blocker("completion_binding_mismatch"));
   for (const part of ["review", "lesson"] as const) {
     const segment = segments.get(part);
     const expectedActivities = snapshot.activities.filter((activity) => activity.part === part).map((activity) => activity.activityId);
@@ -474,6 +526,22 @@ export function validateCompiledGenericLessonSnapshot(
     if (!segment || !sameJson(segment.activityIds, expectedActivities) || !sameJson(segment.wordSnapshotIds, expectedWords)) {
       blockers.push(blocker("completion_binding_mismatch"));
     }
+  }
+
+  const reviewWords = snapshot.words.filter((word) => word.role === "review");
+  const lessonWords = snapshot.words.filter((word) => word.role !== "review");
+  const expectedReviewFamilies = [...new Set(reviewWords.flatMap((word) => word.familyKey ? [word.familyKey] : []))].sort();
+  const expectedReviewSkills = [...new Set(reviewWords.flatMap((word) => word.microSkillKey ? [word.microSkillKey] : []))].sort();
+  if (!sameJson(snapshot.taxonomy.reviewFamilyKeys, expectedReviewFamilies) || !sameJson(snapshot.taxonomy.reviewMicroSkillKeys, expectedReviewSkills)) {
+    blockers.push(blocker("word_identity_mismatch"));
+  }
+  if (lessonWords.length === 0) {
+    if (snapshot.taxonomy.lesson !== null) blockers.push(blocker("word_identity_mismatch"));
+  } else if (
+    snapshot.taxonomy.lesson === null ||
+    lessonWords.some((word) => word.familyKey !== snapshot.taxonomy.lesson?.familyKey || word.microSkillKey !== snapshot.taxonomy.lesson?.microSkillKey)
+  ) {
+    blockers.push(blocker("word_identity_mismatch"));
   }
 
   if (context.items) {

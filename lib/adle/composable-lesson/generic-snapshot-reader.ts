@@ -108,9 +108,30 @@ export function resolveGenericLessonSnapshot<T extends GenericSnapshotReadableIt
     };
   }
   const itemBySource = new Map(legacyItems.map((item) => [item.sourceEntityId, item]));
+  const wordBySnapshotId = new Map(
+    validated.snapshot.words.map((word) => [word.wordSnapshotId, word]),
+  );
   const snapshotItems = validated.snapshot.activities.flatMap((activity) => {
     const item = itemBySource.get(activity.itemBinding.sourceEntityId);
-    return item ? [item] : [];
+    if (!item) return [];
+    const boundWords = activity.wordSnapshotIds.flatMap((id) => {
+      const word = wordBySnapshotId.get(id);
+      return word ? [word] : [];
+    });
+    const boundWord = item.canonicalWordId === null
+      ? null
+      : boundWords.find((word) => word.canonicalWordId === item.canonicalWordId) ?? null;
+    return [{
+      ...item,
+      sourceEntityId: activity.itemBinding.sourceEntityId,
+      sectionKey: activity.sectionKey,
+      templateKey: activity.templateKey,
+      position: activity.itemBinding.position,
+      targetWord: boundWord?.displayWord ?? item.targetWord,
+      canonicalWordId: boundWord?.canonicalWordId ?? item.canonicalWordId,
+      microSkillKey: boundWord?.microSkillKey ?? item.microSkillKey,
+      adleLearningItemRef: boundWord?.learningItemId ?? item.adleLearningItemRef,
+    }];
   });
   if (snapshotItems.length !== legacyItems.length) {
     return {

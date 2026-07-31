@@ -187,5 +187,26 @@ assert(runnerSource.includes("props.routeResolution") && !runnerSource.includes(
 const lessonCompletion = actionSource.slice(actionSource.indexOf("export async function completeAdleLessonPartAction"));
 assert(lessonCompletion.indexOf("resolvePersistedLessonRoute") < lessonCompletion.indexOf("parseAttempts(formData"));
 assert(lessonCompletion.indexOf("resolvePersistedLessonRoute") < lessonCompletion.indexOf("insertAssignmentAttemptEvents"));
+const reviewCompletion = actionSource.slice(
+  actionSource.indexOf("export async function completeAdleReviewPartAction"),
+  actionSource.indexOf("export async function completeAdleLessonPartAction"),
+);
+for (const completion of [reviewCompletion, lessonCompletion]) {
+  assert(completion.includes("blockInvalidGenericSnapshot(context, readModel)"));
+  assert(completion.indexOf("blockInvalidGenericSnapshot(context, readModel)") < completion.indexOf("parseAttempts(formData"));
+  assert(completion.includes("items: allSessionItems(readModel)"));
+}
+const blockerHelper = actionSource.slice(
+  actionSource.indexOf("function blockInvalidGenericSnapshot"),
+  actionSource.indexOf("function withParam"),
+);
+assert(blockerHelper.includes('genericSnapshotResolution?.status === "blocked"'));
+for (const forbiddenWrite of [
+  "insertAssignmentAttemptEvents",
+  "persistLessonCompletion",
+  "persistReviewSessionCompletion",
+  "markItemsCompleted",
+  "scheduleLessonReward",
+]) assert(!blockerHelper.includes(forbiddenWrite), `snapshot blocker performs zero ${forbiddenWrite} writes`);
 
 console.log("ADLE route resolution regression passed.");

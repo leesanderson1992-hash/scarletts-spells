@@ -194,6 +194,24 @@ async function markItemsCompleted(
   });
 }
 
+function allSessionItems(readModel: Awaited<ReturnType<typeof getAdleDailyPlanReadModel>>): AdleSessionItem[] {
+  return [...readModel.partOne.items, ...readModel.partTwo.items]
+    .sort((left, right) => left.position - right.position);
+}
+
+/** A present generic snapshot is an assignment-wide contract. Validate it
+ * before either part can write attempts, evidence, scheduler state, rewards,
+ * or completion flags; a malformed snapshot must never degrade to item-row
+ * compatibility. */
+function blockInvalidGenericSnapshot(
+  context: SessionActionContext,
+  readModel: Awaited<ReturnType<typeof getAdleDailyPlanReadModel>>,
+): void {
+  if (readModel.genericSnapshotResolution?.status === "blocked") {
+    finishWith(context, "This Word Lab needs a grown-up check before it can continue.");
+  }
+}
+
 function withParam(path: string, key: string, value: string): string {
   return `${path}${path.includes("?") ? "&" : "?"}${key}=${encodeURIComponent(value)}`;
 }
@@ -276,6 +294,7 @@ export async function completeAdleReviewPartAction(formData: FormData) {
     planDate,
     assignmentId: context.assignmentId,
   });
+  blockInvalidGenericSnapshot(context, readModel);
   if (!readModel.partOne.present) {
     finishWith(context, "There is no review part today.");
   }
@@ -284,7 +303,7 @@ export async function completeAdleReviewPartAction(formData: FormData) {
   }
   const routeResolution = resolvePersistedLessonRoute({
     lessonRouteMetadata: readModel.lessonRouteMetadata,
-    items: readModel.partTwo.items,
+    items: allSessionItems(readModel),
     runtimeContext: {
       morphologyUnEnabled: isMorphologyUnPilotEnabledForChild(childId),
       dynamicPrefixEnabled: isDynamicPrefixRouteEnabled(),
@@ -449,6 +468,7 @@ export async function completeAdleLessonPartAction(formData: FormData) {
     planDate,
     assignmentId: context.assignmentId,
   }));
+  blockInvalidGenericSnapshot(context, readModel);
   if (!readModel.partTwo.present) {
     finishWith(context, "There is no lesson today — review-only days are a good thing.");
   }
@@ -463,7 +483,7 @@ export async function completeAdleLessonPartAction(formData: FormData) {
   const lessonSourceRef = `lesson:${childId}:${planDate}:${microSkillKey}`;
   const routeResolution = resolvePersistedLessonRoute({
     lessonRouteMetadata: readModel.lessonRouteMetadata,
-    items: readModel.partTwo.items,
+    items: allSessionItems(readModel),
     runtimeContext: {
       morphologyUnEnabled: isMorphologyUnPilotEnabledForChild(childId),
       dynamicPrefixEnabled: isDynamicPrefixRouteEnabled(),
@@ -696,9 +716,10 @@ export async function completeBaseWordFamilyLessonAction(formData: FormData) {
     userClient: context.userClient, parentUserId: context.parentUserId, childId: context.childId,
     planDate: context.planDate, assignmentId: context.assignmentId,
   });
+  blockInvalidGenericSnapshot(context, readModel);
   const routeResolution = resolvePersistedLessonRoute({
     lessonRouteMetadata: readModel.lessonRouteMetadata,
-    items: readModel.partTwo.items,
+    items: allSessionItems(readModel),
     runtimeContext: {
       morphologyUnEnabled: isMorphologyUnPilotEnabledForChild(context.childId),
       dynamicPrefixEnabled: isDynamicPrefixRouteEnabled(),

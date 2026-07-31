@@ -213,7 +213,24 @@ function compile(inputFacts = facts(), inputPlan = planWith()): CompiledLessonSn
   return result.snapshot;
 }
 
-const snapshot = compile();
+const compiledPlan = planWith();
+const compiledPersistence = planAssignmentPersistence(compiledPlan, { parentUserId: PARENT, existingHeaders: [] });
+ok(compiledPersistence.action === "insert" && compiledPersistence.header);
+const validationItems = compiledPersistence.items.map((item) => ({
+  sourceEntityId: item.sourceEntityId,
+  position: item.position,
+  sectionKey: item.metadata.sectionKey,
+  templateKey: item.templateKey,
+  canonicalWordId: item.metadata.canonicalWordId,
+  targetWord: item.targetWord,
+  promptData: item.promptData,
+}));
+const validationContext = {
+  lessonRouteMetadata: compiledPersistence.header.lessonRouteMetadata,
+  assignmentGenerationSource: compiledPersistence.header.assignmentGenerationSource,
+  items: validationItems,
+};
+const snapshot = compile(facts(), compiledPlan);
 equal(snapshot.snapshotSchemaVersion, 2, "compiler emits V2");
 equal(snapshot.activities.length, 7, "one snapshot activity per assignment item");
 deepStrictEqual(snapshot.words.map((word) => word.role), ["review", "authentic_target"], "role-bound review and lesson words are explicit");
@@ -221,6 +238,7 @@ equal(snapshot.activities.find((activity) => activity.templateKey === "CONTROLLE
 equal(snapshot.activities.find((activity) => activity.templateKey === "DICTATION_NO_IMAGE")?.scheduleRole, "lesson_final");
 equal(snapshot.activities.find((activity) => activity.templateKey === "ERROR_REFLECTION_CUE")?.condition.kind, "on_misspelling");
 equal(validateCompiledGenericLessonSnapshot(snapshot).ok, true, "compiled snapshot validates independently");
+equal(validateCompiledGenericLessonSnapshot(snapshot, validationContext).ok, true, "compiled snapshot validates against every persisted item field");
 deepStrictEqual(compile(), snapshot, "identical inputs produce a byte-deterministic snapshot");
 equal(compile(facts({ addUnrelated: true })).provenance.sourceFingerprint, snapshot.provenance.sourceFingerprint, "unrelated content does not alter the fingerprint");
 notEqual(compile(facts({ relevantTemplateVersion: "template-v2" })).provenance.sourceFingerprint, snapshot.provenance.sourceFingerprint, "consumed content-version changes alter the fingerprint");
@@ -233,10 +251,71 @@ const duplicateActivity = structuredClone(snapshot);
 duplicateActivity.activities = [duplicateActivity.activities[0], duplicateActivity.activities[0], ...duplicateActivity.activities.slice(2)];
 ok(!validateCompiledGenericLessonSnapshot(duplicateActivity).ok, "duplicate activities fail closed");
 
+function blockerCodes(value: unknown, items = validationItems): string[] {
+  const result = validateCompiledGenericLessonSnapshot(value, { ...validationContext, items });
+  return result.ok ? [] : result.blockers.map((entry) => entry.code);
+}
+
+const duplicateWord = structuredClone(snapshot);
+duplicateWord.words = [duplicateWord.words[0], duplicateWord.words[0], ...duplicateWord.words.slice(2)];
+ok(blockerCodes(duplicateWord).includes("duplicate_word_snapshot_id"), "duplicate word IDs fail closed");
+
+const missingBinding = structuredClone(snapshot);
+missingBinding.activities[0].itemBinding.sourceEntityId = "missing-item";
+ok(blockerCodes(missingBinding).includes("missing_item_binding"), "missing item bindings fail closed");
+
+const duplicateBinding = structuredClone(snapshot);
+duplicateBinding.activities[1].itemBinding.sourceEntityId = duplicateBinding.activities[0].itemBinding.sourceEntityId;
+ok(blockerCodes(duplicateBinding).includes("duplicate_item_binding"), "duplicate item bindings fail closed");
+
+const extraItems = [...validationItems, { ...validationItems[0], sourceEntityId: "extra-item", position: 99 }];
+const extraCodes = blockerCodes(snapshot, extraItems);
+ok(extraCodes.includes("snapshot_item_count_mismatch") && extraCodes.includes("unbound_assignment_item"), "extra assignment items fail closed");
+
+for (const [field, expectedCode, replacement] of [
+  ["position", "item_position_mismatch", 99],
+  ["sectionKey", "item_section_mismatch", "lesson_probe"],
+  ["templateKey", "item_template_mismatch", "DICTATION_NO_IMAGE"],
+] as const) {
+  const mismatchedItems = validationItems.map((item, index) => index === 1 ? { ...item, [field]: replacement } : item);
+  ok(blockerCodes(snapshot, mismatchedItems).includes(expectedCode), `${field} mismatches fail closed`);
+}
+
+const roleMismatch = structuredClone(snapshot);
+roleMismatch.words[0].role = "authentic_target";
+ok(blockerCodes(roleMismatch).includes("invalid_word_role"), "review/lesson word role mismatches fail closed");
+
+const promptMismatchItems = validationItems.map((item, index) => index === 0
+  ? { ...item, promptData: { ...item.promptData, words: [{ canonicalWordId: "wrong", targetWord: "wrong" }] } }
+  : item);
+ok(blockerCodes(snapshot, promptMismatchItems).includes("word_identity_mismatch"), "prompt word identity mismatches fail closed");
+
+const conditionMismatch = structuredClone(snapshot);
+const reflection = conditionMismatch.activities.find((activity) => activity.templateKey === "ERROR_REFLECTION_CUE");
+ok(reflection);
+reflection.condition = { kind: "always" };
+ok(blockerCodes(conditionMismatch).includes("activity_requirement_failed"), "conditional reflection mismatch fails closed");
+
+const scheduleMismatch = structuredClone(snapshot);
+scheduleMismatch.activities.find((activity) => activity.templateKey === "DICTATION_NO_IMAGE")!.scheduleRole = "none";
+ok(blockerCodes(scheduleMismatch).includes("schedule_role_mismatch"), "schedule role mismatch fails closed");
+
+const rewardMismatch = structuredClone(snapshot);
+rewardMismatch.activities.find((activity) => activity.templateKey === "CONTROLLED_SPELLING")!.rewardRole = "none";
+ok(blockerCodes(rewardMismatch).includes("reward_role_mismatch"), "reward role mismatch fails closed");
+
+const malformedProvenance = structuredClone(snapshot);
+malformedProvenance.contentVersions[0].contentRefId = "not-canonical";
+ok(blockerCodes(malformedProvenance).includes("malformed_content_provenance"), "malformed content provenance fails closed");
+
 const fingerprintMismatch = structuredClone(snapshot);
 fingerprintMismatch.taxonomy.reviewFamilyKeys = ["CHANGED"];
 const fingerprintResult = validateCompiledGenericLessonSnapshot(fingerprintMismatch);
 ok(!fingerprintResult.ok && fingerprintResult.blockers.some((entry) => entry.code === "fingerprint_mismatch"), "fingerprint mismatch is typed");
+
+const malformedFingerprint = structuredClone(snapshot);
+malformedFingerprint.provenance.sourceFingerprint = "not-a-sha256";
+deepStrictEqual(validateCompiledGenericLessonSnapshot(malformedFingerprint), { ok: false, blockers: [{ code: "malformed_fingerprint" }] });
 
 const unsupportedPlan = planWith("MUST_USE_FREEWRITING");
 const unsupportedPersistence = planAssignmentPersistence(unsupportedPlan, { parentUserId: PARENT, existingHeaders: [] });

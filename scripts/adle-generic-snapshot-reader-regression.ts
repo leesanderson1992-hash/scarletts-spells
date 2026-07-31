@@ -42,7 +42,11 @@ const wordDraft: Omit<LessonWordSnapshotV2, "factFingerprint"> = {
   role: "authentic_target",
   selectionProvenance: "learning_item",
   source: { kind: "learning_item", referenceId: "learning-1" },
-  contentVersionRefs: [],
+  contentVersionRefs: [
+    "banding:banding-v1:banding-v1",
+    "family_method:D4_PG:family-pg-v1",
+    "teaching_content:SKILL_PG:content-pg-v1",
+  ],
 };
 const word = { ...wordDraft, factFingerprint: fingerprintLessonWord(wordDraft) };
 const snapshotBase: Omit<CompiledLessonSnapshotV2, "provenance"> = {
@@ -76,7 +80,10 @@ const snapshotBase: Omit<CompiledLessonSnapshotV2, "provenance"> = {
       inputSource: "assignment_items.prompt_data",
     },
     wordSnapshotIds: [word.wordSnapshotId],
-    contentVersionRefs: [],
+    contentVersionRefs: [
+      "activity_template:CONTROLLED_SPELLING:template-v1",
+      ...word.contentVersionRefs,
+    ].sort(),
     condition: { kind: "always" },
     answerVisibility: "teaching",
     evidence: {
@@ -93,7 +100,14 @@ const snapshotBase: Omit<CompiledLessonSnapshotV2, "provenance"> = {
     { segmentId: "review", wordSnapshotIds: [], activityIds: [] },
     { segmentId: "lesson", wordSnapshotIds: [word.wordSnapshotId], activityIds: ["generic:1:CONTROLLED_SPELLING"] },
   ],
-  contentVersions: [],
+  contentVersions: [
+    { contentRefId: "composer_policy:composer-v1:composer-v1", kind: "composer_policy", key: "composer-v1", version: "composer-v1", sourceRowHash: null },
+    { contentRefId: "schedule_policy:schedule-v1:schedule-v1", kind: "schedule_policy", key: "schedule-v1", version: "schedule-v1", sourceRowHash: null },
+    { contentRefId: "banding:banding-v1:banding-v1", kind: "banding", key: "banding-v1", version: "banding-v1", sourceRowHash: null },
+    { contentRefId: "family_method:D4_PG:family-pg-v1", kind: "family_method", key: "D4_PG", version: "family-pg-v1", sourceRowHash: null },
+    { contentRefId: "teaching_content:SKILL_PG:content-pg-v1", kind: "teaching_content", key: "SKILL_PG", version: "content-pg-v1", sourceRowHash: "hash-pg" },
+    { contentRefId: "activity_template:CONTROLLED_SPELLING:template-v1", kind: "activity_template", key: "CONTROLLED_SPELLING", version: "template-v1", sourceRowHash: null },
+  ],
 };
 const provenance = {
   sourceKind: "compiled_generic_assignment" as const,
