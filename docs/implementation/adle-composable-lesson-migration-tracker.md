@@ -34,12 +34,19 @@ Dictionary content. Those facts are generated from the code registries under
    The additive schema-first production release and rollback target are
    recorded in
    `docs/implementation/qa/adle-explicit-route-metadata-production-receipt-2026-07-31.md`.
-2. **Implemented and staging-proven; production rollout deferred:** the
+2. **Implemented and staging-proven; production rollout stopped before
+   mutation on 2026-08-01:** the
    generic composer emits immutable `CompiledLessonSnapshotV2`, persists it
    atomically with the finalised plan, and reads it through observe/enforce
    precedence without changing the session runner or completion semantics.
    Staging evidence, application rollback and forward restoration are in
    `docs/implementation/qa/adle-generic-snapshot-v2-staging-rollback-proof-2026-07-31.md`.
+   The production preflight found complete 32-template contract coverage and
+   safe historical readers, but zero deterministic production-fact lesson
+   compilations because candidate micro-skills had at most three approved
+   support words against the unchanged five-word composer requirement. No V2
+   migration or deployment was performed. See
+   `docs/implementation/qa/adle-route-metadata-and-generic-snapshot-v2-production-rollout-receipt-2026-08-01.md`.
 3. Extract a shared position-aware affix compiler without changing Dynamic
    Prefix V2 or Dynamic Affix V3 semantics.
 4. Migrate Dynamic Prefix and Dynamic Affix routes independently.
@@ -83,5 +90,7 @@ For stage 2, staging exit evidence includes:
   compatibility reads;
 - exact disposable fixture cleanup.
 
-Production migration/application rollout is intentionally not performed by
-this stage and remains the only deferred rollout step.
+Production migration/application rollout remains deferred after the
+2026-08-01 pre-mutation stop. Stage 3 is not eligible until Stage 2 receives a
+fresh separately authorised production rollout after the production-facts
+compiler gate can pass without changing this migration's behaviour scope.
