@@ -15,6 +15,17 @@
 | fixed_un_prefix_word_lab:v1 | fixed_un_prefix:v1 | morphology_guided_v1 1 | morphology_guided_v1 | morphology_guided | legacy_render_only | 1 | variable | introduction, discovery, cleaver, word_build, cover_check, dictation, reflection |
 | generic_composer:v1 | generic_first_exposure:v1 | composed_daily_plan 1 | generic_composer_v1 | generic_session | registered | fallback | variable | introduction, guided_prompt, cover_check, dictation |
 
+## Dark common Word Lab recipes
+
+> This registry is not an activation switch. Only fixture and candidate recipes exist in the foundation stage.
+
+| Recipe | Status | Route | Family | Clusters | Microskills | Words | Activities |
+|---|---|---|---|---|---|---:|---|
+| fixture_cluster_recipe:v1 | fixture | fixture_common_word_lab:v1 | FIXTURE_FAMILY | FIXTURE_CLUSTER | none | 4-4 | strategy_notice:v1, guided_map:v1, cover_check:v1, dictation:v1, reflection:v1 |
+| fixture_family_default:v1 | fixture | fixture_common_word_lab:v1 | FIXTURE_FAMILY | family default | none | 4-4 | strategy_notice:v1, guided_map:v1, cover_check:v1, dictation:v1, reflection:v1 |
+| fixture_microskill_variant:v1 | fixture | fixture_common_word_lab:v1 | FIXTURE_FAMILY | FIXTURE_CLUSTER | FIXTURE_MICRO_SKILL | 4-4 | strategy_notice:v1, guided_map:v1, cover_check:v1, dictation:v1, reflection:v1 |
+| inflection_transformation:v1 | candidate | inflection_word_lab:v1 | D4_INF | D4_INF_COMPARATIVE_SUPERLATIVE, D4_INF_ING_ENDINGS, D4_INF_IRREGULAR_INFLECTIONS, D4_INF_PAST_TENSE_ED, D4_INF_PLURALS, D4_INF_PRESENT_TENSE | none | 4-4 | strategy_notice:v1, guided_map:v1, cover_check:v1, dictation:v1, reflection:v1 |
+
 ## Activity requirements
 
 | Activity | Visibility | Evidence | Required facts |
@@ -38,9 +49,13 @@
 ## Blockers
 
 - `activity_binding_unresolved`: activity binding unresolved.
+- `activity_contract_mismatch`: activity contract mismatch.
 - `activity_requirement_failed`: activity requirement failed.
 - `activity_requirement_unmet`: activity requirement unmet.
+- `activity_selector_failed`: activity selector failed.
 - `affix_form_missing`: affix form missing.
+- `ambiguous_recipe`: ambiguous recipe.
+- `ambiguous_route`: ambiguous route.
 - `answer_comparator_mismatch`: answer comparator mismatch.
 - `assignment_binding_failure`: assignment binding failure.
 - `assignment_binding_mismatch`: assignment binding mismatch.
@@ -52,12 +67,15 @@
 - `compiler_version_mismatch`: compiler version mismatch.
 - `completion_binding_mismatch`: completion binding mismatch.
 - `compound_component_missing`: compound component missing.
+- `coverage_requirement_failed`: coverage requirement failed.
 - `decomposition_missing`: decomposition missing.
 - `dictation_sentence_missing`: dictation sentence missing.
 - `dictation_target_missing_or_mismatched`: dictation target missing or mismatched.
 - `duplicate_activity_id`: duplicate activity id.
+- `duplicate_activity_order`: duplicate activity order.
 - `duplicate_item_binding`: duplicate item binding.
 - `duplicate_metadata_source`: duplicate metadata source.
+- `duplicate_recipe`: duplicate recipe.
 - `duplicate_word_binding`: duplicate word binding.
 - `duplicate_word_snapshot_id`: duplicate word snapshot id.
 - `evidence_binding_mismatch`: evidence binding mismatch.
@@ -68,19 +86,24 @@
 - `insufficient_authentic_targets`: insufficient authentic targets.
 - `insufficient_transfer_words`: insufficient transfer words.
 - `invalid_join`: invalid join.
+- `invalid_word_count`: invalid word count.
 - `invalid_word_role`: invalid word role.
+- `invalid_word_role_count`: invalid word role count.
 - `item_position_mismatch`: item position mismatch.
 - `item_section_mismatch`: item section mismatch.
 - `item_template_mismatch`: item template mismatch.
 - `malformed_content_provenance`: malformed content provenance.
 - `malformed_fingerprint`: malformed fingerprint.
 - `malformed_metadata`: malformed metadata.
+- `malformed_recipe`: malformed recipe.
 - `malformed_snapshot`: malformed snapshot.
 - `meaning_facts_missing`: meaning facts missing.
 - `meaning_group_missing`: meaning group missing.
 - `microskill_content_missing`: microskill content missing.
 - `microskill_incompatible`: microskill incompatible.
 - `missing_item_binding`: missing item binding.
+- `missing_recipe`: missing recipe.
+- `missing_route`: missing route.
 - `missing_word_binding`: missing word binding.
 - `morphology_reconstruction_mismatch`: morphology reconstruction mismatch.
 - `multiple_legacy_routes`: multiple legacy routes.
@@ -94,25 +117,36 @@
 - `pronunciation_facts_missing`: pronunciation facts missing.
 - `recipe_count_failure`: recipe count failure.
 - `recipe_mismatch`: recipe mismatch.
+- `recipe_route_mismatch`: recipe route mismatch.
+- `recipe_status_not_allowed`: recipe status not allowed.
+- `recipe_taxonomy_mismatch`: recipe taxonomy mismatch.
 - `requirement_registry_version_mismatch`: requirement registry version mismatch.
+- `resume_assignment_mismatch`: resume assignment mismatch.
+- `resume_fingerprint_mismatch`: resume fingerprint mismatch.
+- `resume_schema_mismatch`: resume schema mismatch.
 - `reward_role_mismatch`: reward role mismatch.
 - `root_item_duplicate`: root item duplicate.
 - `root_item_missing`: root item missing.
+- `route_not_available`: route not available.
+- `route_not_common_word_lab`: route not common word lab.
 - `route_or_profile_unavailable`: route or profile unavailable.
 - `route_unavailable`: route unavailable.
 - `runtime_reconstruction_failure`: runtime reconstruction failure.
 - `schedule_role_mismatch`: schedule role mismatch.
 - `snapshot_assignment_source_mismatch`: snapshot assignment source mismatch.
+- `snapshot_fingerprint_mismatch`: snapshot fingerprint mismatch.
 - `snapshot_item_count_mismatch`: snapshot item count mismatch.
 - `snapshot_payload_mismatch`: snapshot payload mismatch.
 - `snapshot_recipe_mismatch`: snapshot recipe mismatch.
 - `snapshot_route_mismatch`: snapshot route mismatch.
 - `snapshot_runtime_mismatch`: snapshot runtime mismatch.
+- `snapshot_shape_invalid`: snapshot shape invalid.
 - `snapshot_without_explicit_generic_route`: snapshot without explicit generic route.
 - `taxonomy_binding_missing`: taxonomy binding missing.
 - `transfer_not_approved`: transfer not approved.
 - `transformation_missing_or_invalid`: transformation missing or invalid.
 - `unbound_assignment_item`: unbound assignment item.
+- `unknown_activity_plugin`: unknown activity plugin.
 - `unknown_route`: unknown route.
 - `unsupported_legacy_payload`: unsupported legacy payload.
 - `unsupported_metadata_schema_version`: unsupported metadata schema version.
@@ -123,3 +157,4 @@
 - `validator_version_mismatch`: validator version mismatch.
 - `word_identity_mismatch`: word identity mismatch.
 - `word_microskill_support_missing`: word microskill support missing.
+- `word_role_conflict`: word role conflict.

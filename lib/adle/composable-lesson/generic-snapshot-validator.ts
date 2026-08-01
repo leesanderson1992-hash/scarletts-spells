@@ -1,6 +1,9 @@
-import { createHash } from "node:crypto";
-
+import {
+  canonicalSnapshotJson,
+  fingerprintSnapshotValue,
+} from "./canonical-fingerprint";
 import type { PersistedLessonRouteMetadataV1 } from "./contracts";
+export { canonicalSnapshotJson, fingerprintSnapshotValue } from "./canonical-fingerprint";
 import {
   GENERIC_ACTIVITY_REQUIREMENTS_VERSION,
   GENERIC_LESSON_SNAPSHOT_COMPILER_VERSION,
@@ -64,39 +67,6 @@ function stringArray(value: unknown): value is string[] {
 
 function oneOf<T extends string>(value: unknown, values: readonly T[]): value is T {
   return typeof value === "string" && values.includes(value as T);
-}
-
-function sha256(value: string): string {
-  return createHash("sha256").update(value, "utf8").digest("hex");
-}
-
-function canonicalValue(value: unknown, path: string): unknown {
-  if (value === null || typeof value === "string" || typeof value === "boolean") return value;
-  if (typeof value === "number") {
-    if (!Number.isFinite(value)) throw new Error(`canonical_json_non_finite:${path}`);
-    return value;
-  }
-  if (Array.isArray(value)) return value.map((entry, index) => canonicalValue(entry, `${path}[${index}]`));
-  if (!record(value)) throw new Error(`canonical_json_unsupported:${path}`);
-  const prototype = Object.getPrototypeOf(value);
-  if (prototype !== Object.prototype && prototype !== null) {
-    throw new Error(`canonical_json_prototype:${path}`);
-  }
-  const result: Record<string, unknown> = {};
-  for (const key of Object.keys(value).sort()) {
-    const child = value[key];
-    if (child === undefined) throw new Error(`canonical_json_undefined:${path}.${key}`);
-    result[key] = canonicalValue(child, `${path}.${key}`);
-  }
-  return result;
-}
-
-export function canonicalSnapshotJson(value: unknown): string {
-  return JSON.stringify(canonicalValue(value, "$"));
-}
-
-export function fingerprintSnapshotValue(value: unknown): string {
-  return sha256(canonicalSnapshotJson(value));
 }
 
 export function fingerprintLessonWord(

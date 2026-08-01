@@ -12,6 +12,18 @@
       "snapshotSchemaVersion": 2,
       "validatorVersion": "adle_generic_snapshot_validator_v2",
       "writer": "persist_adle_generic_daily_plan_v2"
+    },
+    {
+      "authoritativeStorage": "not persisted; future route-neutral column",
+      "compilerVersion": "adle_word_lab_compiler_v1",
+      "legacyFallback": "not applicable; live composer unchanged",
+      "payload": "word_lab_snapshot_v1",
+      "reader": "common Word Lab shell fixture only",
+      "recipe": "fixture/candidate registry only",
+      "route": "route-neutral; no production route activated",
+      "snapshotSchemaVersion": "word_lab_snapshot_v1",
+      "validatorVersion": "adle_word_lab_validator_v1",
+      "writer": "not implemented in dark foundation"
     }
   ]
 }

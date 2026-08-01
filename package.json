@@ -70,6 +70,7 @@
     "adle:closed-compound-browser-smoke-project-pin-regression": "npx tsx scripts/adle-closed-compound-browser-smoke-project-pin-regression.ts",
     "adle:semantic-production-baseline": "npx tsx scripts/adle-semantic-production-baseline.ts",
     "adle:composable-contract-regression": "npx tsx scripts/adle-composable-lesson-contract-regression.ts",
+    "adle:word-lab-foundation-regression": "npx tsx scripts/adle-word-lab-foundation-regression.ts",
     "adle:composable-compatibility-regression": "npx tsx scripts/adle-composable-compatibility-regression.ts",
     "adle:persisted-route-metadata-regression": "npx tsx scripts/adle-persisted-route-metadata-regression.ts",
     "adle:route-resolution-regression": "npx tsx scripts/adle-route-resolution-regression.ts",
