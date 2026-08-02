@@ -25,7 +25,11 @@ import {
   validateDynamicPrefixWordLabPayload,
   type DynamicPrefixLessonPayloadV2,
 } from "../lib/adle/morphology/dynamic-prefix-word-lab";
-import { fingerprintSerializableProofValue } from "./lib/adle-staging-proof-serialization";
+import {
+  expectedAssignmentItemProofProjection,
+  fingerprintSerializableProofValue,
+  persistedAssignmentItemProofProjection,
+} from "./lib/adle-staging-proof-serialization";
 
 const STAGING_REF = "jlhotktspjvffslvuyfz";
 const STAGING_HOST = `${STAGING_REF}.supabase.co`;
@@ -405,17 +409,14 @@ async function verifyMode(
       fingerprintSerializableProofValue(header.lesson_route_metadata) === fingerprintSerializableProofValue(persistence.header.lessonRouteMetadata),
       `${fixture.profileKey}: route metadata`,
     );
-    const persistedProjection = persistedItems.map((item: any) => ({
-      sourceEntityId: item.source_entity_id,
-      templateKey: item.template_key,
-      targetWord: item.target_word,
-      position: item.position,
-      status: item.status,
-      promptData: item.prompt_data,
-      metadata: item.metadata,
-    }));
+    const persistedProjection = persistedItems.map((item: any) =>
+      persistedAssignmentItemProofProjection(item),
+    );
+    const expectedProjection = persistence.items.map((item) =>
+      expectedAssignmentItemProofProjection(item),
+    );
     assert(
-      fingerprintSerializableProofValue(persistedProjection) === fingerprintSerializableProofValue(persistence.items),
+      fingerprintSerializableProofValue(persistedProjection) === fingerprintSerializableProofValue(expectedProjection),
       `${fixture.profileKey}: persisted assignment projection`,
     );
     const root = (persistedItems as any[]).find(
