@@ -12,6 +12,7 @@ import {
 import { buildDynamicAffixAssignmentPlan } from "../lib/adle/morphology/dynamic-affix-assignment-plan";
 import { dynamicAffixRuntime } from "../lib/adle/morphology/dynamic-affix-runtime";
 import { normaliseSessionWord } from "../lib/adle/session-correctness";
+import { assertDynamicAffixSharedParity } from "./lib/adle-shared-affix-parity-fixtures";
 
 const reviewed = JSON.parse(readFileSync("docs/implementation/seed-data/teaching-dictionary/candidates/2026-07-28-dynamic-suffix-al/reviewed-staging-package.json", "utf8"));
 const statement = "-al turns a naming word into a describing word meaning “connected with.”";
@@ -38,6 +39,7 @@ const selection = selectDynamicAffixWordLab({ profiles: [profile], learningItems
 assert(selection);
 const payload = compileDynamicAffixWordLabPayload(selection);
 assert(payload && validateDynamicAffixWordLabPayload(payload));
+assertDynamicAffixSharedParity(selection, payload, "AL reviewed fixture");
 assert.equal(payload.activities.guided.splitCanonicalWordIds.length, 2);
 assert.equal(payload.activities.guided.builds.length, 4);
 assert.equal(payload.activities.guided.includeMeaningSort, false);

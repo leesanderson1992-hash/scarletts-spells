@@ -27,6 +27,15 @@ Readiness assessment consumes those requirements without becoming a selector.
 In particular, dictionary support, authentic-target eligibility, transfer
 eligibility and assignment selection are distinct states.
 
+The dark shared affix compiler consumes the same reviewed facts through a
+normalised serialisable projection. It requires declared affix forms, semantic
+base/root, child teaching surface, decomposition, joins, Cleaver split,
+meaning group, dictation, and reviewed true-morphology transformations and
+provenance. It never infers a transformation from spelling. Current Prefix V2
+uses only its explicit legacy projection marker because its released profile
+does not contain Affix V3's true-morphology envelope. Missing facts return
+typed blockers; authoring data is not repaired or weakened by the compiler.
+
 ## Prohibited Patterns
 
 Do not hard-code teaching copy into React components.

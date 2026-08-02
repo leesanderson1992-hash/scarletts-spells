@@ -6,6 +6,7 @@ import { compileDynamicAffixWordLabPayload, selectDynamicAffixWordLab, validateD
 import { buildDynamicAffixAssignmentPlan } from "../lib/adle/morphology/dynamic-affix-assignment-plan";
 import { dynamicAffixRuntime } from "../lib/adle/morphology/dynamic-affix-runtime";
 import { normaliseSessionWord } from "../lib/adle/session-correctness";
+import { assertDynamicAffixSharedParity } from "./lib/adle-shared-affix-parity-fixtures";
 
 const packagePath = "docs/implementation/seed-data/teaching-dictionary/candidates/2026-07-29-dynamic-suffix-sion/reviewed-staging-package.json";
 const pkg = JSON.parse(readFileSync(packagePath, "utf8"));
@@ -50,6 +51,7 @@ const profile: DynamicAffixProfile = { microSkillKey: pkg.profile.microSkillKey,
 const item = { learningItemId: "sion-item", childId: "child", canonicalWordId: "decision", microSkillKey: profile.microSkillKey, itemStatus: "pending" as const, sourceKind: "verified_misspelling" as const, sourceRef: "test", sourceAttemptText: "decishun", reteachPriority: false, ejectedOn: null, intakeOn: "2026-07-29", rowStatus: "active" as const };
 const selection = selectDynamicAffixWordLab({ profiles: [profile], learningItems: [item] }); assert(selection);
 const payload = compileDynamicAffixWordLabPayload(selection); assert(payload && validateDynamicAffixWordLabPayload(payload));
+assertDynamicAffixSharedParity(selection, payload, "SION reviewed fixture");
 assert.equal(payload.activities.guided.includeMeaningSort, false); assert.equal(payload.activities.guided.splitCanonicalWordIds.length, 2); assert.equal(payload.activities.guided.builds.length, 4);
 const positions = payload.activities.guided.builds.map((build) => { assert.deepEqual(new Set(build.choices.map((choice) => choice.text)), new Set(["sion", "tion", "cion"])); assert.equal(build.baseWord + "sion", payload.words.lesson.find((word) => word.canonicalWordId === build.canonicalWordId)?.displayWord); return build.choices.findIndex((choice) => choice.status === "target"); });
 assert(new Set(positions).size > 1, "correct suffix tile ordering varies deterministically");

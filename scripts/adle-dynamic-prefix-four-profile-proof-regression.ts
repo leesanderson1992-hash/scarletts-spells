@@ -9,6 +9,7 @@ import {
 } from "../lib/adle/morphology/dynamic-prefix-word-lab";
 import { dynamicPrefixRuntime } from "../lib/adle/morphology/dynamic-prefix-runtime";
 import type { LearningItemFact } from "../lib/adle/learning-items";
+import { assertDynamicPrefixSharedParity } from "./lib/adle-shared-affix-parity-fixtures";
 
 type ReviewedPart = {
   id: string;
@@ -183,6 +184,7 @@ for (const [key, config] of Object.entries(pkg.profiles)) {
       payload && validateDynamicPrefixWordLabPayload(payload),
       `${key}: valid payload ${n}`,
     );
+    assertDynamicPrefixSharedParity(selection, payload, `${key}: fixture ${n}`);
     assert.equal(payload.words.lesson.length, 4);
     assert.equal(
       payload.activities.build.choices.filter(

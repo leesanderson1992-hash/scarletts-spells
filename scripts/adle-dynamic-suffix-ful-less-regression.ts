@@ -18,6 +18,7 @@ import { buildDynamicAffixAssignmentPlan } from "../lib/adle/morphology/dynamic-
 import { dynamicAffixRuntime } from "../lib/adle/morphology/dynamic-affix-runtime";
 import { normaliseMorphologyLessonResume } from "../lib/adle/morphology/resume";
 import { normaliseSessionWord } from "../lib/adle/session-correctness";
+import { assertDynamicAffixSharedParity } from "./lib/adle-shared-affix-parity-fixtures";
 
 const packagePath = resolve("docs/implementation/seed-data/teaching-dictionary/candidates/2026-07-28-dynamic-suffix-ful-less/reviewed-staging-package.json");
 const reviewed = JSON.parse(readFileSync(packagePath, "utf8"));
@@ -126,6 +127,7 @@ const selection = selectDynamicAffixWordLab({ profiles: [profile], learningItems
 assert(selection, "selects the reviewed -ful/-less profile");
 const payload = compileDynamicAffixWordLabPayload(selection);
 assert(payload && validateDynamicAffixWordLabPayload(payload), "compiles and validates the reviewed mixed-meaning payload");
+assertDynamicAffixSharedParity(selection, payload, "FUL/LESS reviewed fixture");
 assert.equal(payload.activities.guided.includeMeaningSort, true);
 assert.deepEqual(payload.activities.meaningBins.map((bin) => bin.id), ["full_of", "without"]);
 assert.equal(payload.activities.guided.splitCanonicalWordIds.length, 2);

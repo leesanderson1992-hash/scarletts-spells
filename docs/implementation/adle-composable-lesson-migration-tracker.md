@@ -47,9 +47,16 @@ Dictionary content. Those facts are generated from the code registries under
    support words against the unchanged five-word composer requirement. No V2
    migration or deployment was performed. See
    `docs/implementation/qa/adle-route-metadata-and-generic-snapshot-v2-production-rollout-receipt-2026-08-01.md`.
-3. Extract a shared position-aware affix compiler without changing Dynamic
-   Prefix V2 or Dynamic Affix V3 semantics.
-4. Migrate Dynamic Prefix and Dynamic Affix routes independently.
+3. **Complete in shadow on 2026-08-01:** extracted a pure, serialisable,
+   position-aware shared affix compiler without changing Dynamic Prefix V2 or
+   Dynamic Affix V3 selectors, compilers, payloads, writers, runtime or
+   completion semantics. All 15 profiles map declaratively. Local fixture and
+   mutation regressions plus the pinned select-only staging proof cover 75
+   eligible words in 300 authentic-slot cases with exact V2/V3 payload and
+   binding parity and zero remote writes. The redacted receipt is
+   `docs/implementation/qa/adle-shared-affix-staging-proof-2026-08-01.json`.
+4. Migrate Dynamic Prefix next. Migrate Dynamic Affix independently only
+   after the Prefix migration and its rollback evidence are complete.
 5. Address Closed Compound authentic/transfer coupling and comparator policy
    in separately approved behaviour-change PRs.
 6. Migrate Closed Compound only after those decisions and fresh semantic
@@ -91,6 +98,23 @@ For stage 2, staging exit evidence includes:
 - exact disposable fixture cleanup.
 
 Production migration/application rollout remains deferred after the
-2026-08-01 pre-mutation stop. Stage 3 is not eligible until Stage 2 receives a
-fresh separately authorised production rollout after the production-facts
-compiler gate can pass without changing this migration's behaviour scope.
+2026-08-01 pre-mutation stop. The completed dark Stage 3 compiler extraction
+does not persist or activate Generic Snapshot V2 and therefore did not depend
+on that rollout. Stage 4 route migration remains ineligible until Stage 2
+receives a fresh separately authorised production rollout after the
+production-facts compiler gate can pass without changing this migration's
+behaviour scope.
+
+For stage 3, exit evidence includes:
+
+- exact Prefix V2 and Affix V3 compatibility adapters with unchanged payload
+  versions;
+- declarative mappings for five Prefix and ten Affix profiles and no
+  production microskill literal in the shared compiler;
+- exhaustive reviewed-fixture, mutation, order, fingerprint, runtime and
+  assignment-binding regressions;
+- generated profile/blocker inventories and documentation drift gates;
+- pinned staging project rejection of production, nine select requests, zero
+  remote writes, 15 profiles, 75 eligible words and 300 authentic-slot parity
+  cases;
+- both authoritative compilers and all historical readers retained.

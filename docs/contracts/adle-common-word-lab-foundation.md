@@ -68,3 +68,14 @@ entries, assignment persistence, completion actions, Generic Snapshot V2,
 current Word Lab payloads, or historical readers and resume formats. A future
 stage must add route-neutral storage and atomic persistence in staging before
 any live route can adopt `WordLabSnapshotV1`.
+
+## Shared affix compiler relationship
+
+The dark position-aware affix compiler is a sibling compilation boundary, not
+a Common Word Lab route migration. It reuses the repository's versioned route
+and recipe references plus canonical SHA-256 fingerprint helper, but it does
+not call `compileWordLabSnapshot`, resolve a common recipe, persist
+`WordLabSnapshotV1`, change `AdleSessionRunner`, or render through the common
+shell. Its typed policies reproduce current Prefix V2 and Affix V3 payloads in
+tests and a select-only staging proof. See
+`docs/contracts/adle-shared-affix-compiler-contract.md`.

@@ -6,6 +6,7 @@ import type { ComposedDailyPlan } from "../lib/adle/daily-assignment-composer";
 import { normaliseSessionWord } from "../lib/adle/session-correctness";
 import { resolvePersistedLessonRoute } from "../lib/adle/composable-lesson/route-resolution";
 import { createPersistedRouteMetadata } from "../lib/adle/composable-lesson/persisted-route-metadata";
+import { assertDynamicAffixSharedParity } from "./lib/adle-shared-affix-parity-fixtures";
 
 function word(id: string, base: string, teaching: string, display: string, transfer = true): DynamicAffixWord {
   const sentence = `Please spell ${display}.`;
@@ -25,12 +26,15 @@ for (const count of [1, 2, 3, 4, 5]) {
   const payload = compileDynamicAffixWordLabPayload(selection);
   assert(payload, `compiles immutable NESS payload at ${count}`);
   assert(validateDynamicAffixWordLabPayload(payload), `validates immutable NESS payload at ${count}`);
+  assertDynamicAffixSharedParity(selection, payload, `NESS fixture with ${count} authentic targets`);
   assert.equal(payload.activities.guided.splitCanonicalWordIds.length, 2);
   assert.equal(payload.activities.guided.builds.length, 4);
   assert.equal(payload.activities.guided.includeMeaningSort, false);
 }
-const payload = compileDynamicAffixWordLabPayload(selectDynamicAffixWordLab({ profiles: [profile], learningItems: [item("happiness", "2026-07-01")] })!);
+const happinessSelection = selectDynamicAffixWordLab({ profiles: [profile], learningItems: [item("happiness", "2026-07-01")] })!;
+const payload = compileDynamicAffixWordLabPayload(happinessSelection);
 assert(payload);
+assertDynamicAffixSharedParity(happinessSelection, payload, "NESS transformed fixture");
 const happiness = payload.words.lesson.find((entry) => entry.canonicalWordId === "happiness")!;
 assert.equal(happiness.semanticBaseText, "happy");
 assert.equal(happiness.teachingBaseText, "happi");
@@ -73,6 +77,7 @@ const ableIbleItem = { ...item("comfortable", "2026-07-01"), microSkillKey: able
 const ableIbleSelection = selectDynamicAffixWordLab({ profiles: [ableIbleProfile], learningItems: [ableIbleItem] })!;
 const ableIblePayload = compileDynamicAffixWordLabPayload(ableIbleSelection);
 assert(ableIblePayload, "compiles complete -able/-ible facts");
+assertDynamicAffixSharedParity(ableIbleSelection, ableIblePayload, "ABLE/IBLE fixture");
 assert.deepEqual(ableIblePayload.activities.guided.splitCanonicalWordIds.map((id) => ableIblePayload.words.lesson.find((word) => word.canonicalWordId === id)!.affixText), ["able", "ible"], "uses one cleaver per selected suffix form");
 assert.equal(ableIblePayload.activities.guided.builds.length, 4);
 assert.equal(ableIblePayload.activities.guided.includeMeaningSort, false);

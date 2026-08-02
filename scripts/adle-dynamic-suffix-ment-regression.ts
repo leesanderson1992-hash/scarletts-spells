@@ -16,6 +16,7 @@ import {
 import { buildDynamicAffixAssignmentPlan } from "../lib/adle/morphology/dynamic-affix-assignment-plan";
 import { dynamicAffixRuntime } from "../lib/adle/morphology/dynamic-affix-runtime";
 import { normaliseSessionWord } from "../lib/adle/session-correctness";
+import { assertDynamicAffixSharedParity } from "./lib/adle-shared-affix-parity-fixtures";
 
 const packageFile = resolve("docs/implementation/seed-data/teaching-dictionary/candidates/2026-07-27-dynamic-suffix-ment/reviewed-staging-package.json");
 const guidedLessonSource = readFileSync(resolve("components/adle/morphology/morphology-guided-lesson.tsx"), "utf8");
@@ -111,6 +112,7 @@ const selection = selectDynamicAffixWordLab({ profiles: [profile], learningItems
 assert(selection, "selects the reviewed -ment profile");
 const payload = compileDynamicAffixWordLabPayload(selection);
 assert(payload && validateDynamicAffixWordLabPayload(payload), "compiles and validates the reviewed -ment payload");
+assertDynamicAffixSharedParity(selection, payload, "MENT reviewed fixture");
 assert.equal(payload.words.lesson.length, 4);
 assert.equal(payload.activities.guided.includeMeaningSort, false);
 assert.equal(payload.activities.meaningBins.length, 1);

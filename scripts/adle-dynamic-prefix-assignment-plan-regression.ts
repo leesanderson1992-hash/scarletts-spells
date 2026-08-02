@@ -9,6 +9,7 @@ import {
   selectDynamicPrefixWordLab,
   type DynamicPrefixProfile,
 } from "../lib/adle/morphology/dynamic-prefix-word-lab";
+import { assertDynamicPrefixSharedParity } from "./lib/adle-shared-affix-parity-fixtures";
 
 const makeWord = (id: string, displayWord: string) => {
   const dictationSentence = `Use ${displayWord}.`;
@@ -100,6 +101,7 @@ const selection = selectDynamicPrefixWordLab({
   learningItems: [authentic],
 })!;
 const payload = compileDynamicPrefixWordLabPayload(selection)!;
+assertDynamicPrefixSharedParity(selection, payload, "Prefix assignment-plan fixture");
 const base = {
   childId: "child",
   planDate: "2026-07-21",

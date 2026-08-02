@@ -130,6 +130,21 @@ structured parts, for example `suffix:ing` and `root:vis`. Coarse source labels
 such as `SUFFIX` are retained as evidence but cannot activate a selector by
 themselves.
 
+## Shared affix compiler projection
+
+The shared affix compiler is a read-only consumer of facts already accepted by
+the current Dynamic Prefix V2 and Dynamic Affix V3 profile loaders. Selection
+remains outside compilation. The projection preserves reviewed semantic base,
+teaching surface, form, meanings, child decomposition, true morphology,
+transformations, provenance and dictation. It does not write a Teaching
+Dictionary table, add a column, loosen loader readiness, activate a profile or
+author a missing transformation.
+
+The select-only staging proof uses the pinned staging project and permits only
+GET/HEAD. It creates no learner fixture or assignment and records only redacted
+hashes and counts. Production access is rejected. Its receipt is
+`docs/implementation/qa/adle-shared-affix-staging-proof-2026-08-01.json`.
+
 ## Database release invariants
 
 - Canonical batches contain 1–1,000 reviewed canonical entries.

@@ -25,6 +25,22 @@ const routeMetadata = readFileSync(
   "docs/generated/adle-composable-lesson/route-metadata-contract.json",
   "utf8",
 );
+const sharedAffix = readFileSync(
+  "docs/contracts/adle-shared-affix-compiler-contract.md",
+  "utf8",
+);
+const affixProfiles = readFileSync(
+  "docs/contracts/adle-affix-profile-development-contract.md",
+  "utf8",
+);
+const sharedAffixInventory = readFileSync(
+  "docs/generated/adle-composable-lesson/shared-affix-profiles.json",
+  "utf8",
+);
+const sharedAffixReceipt = readFileSync(
+  "docs/implementation/qa/adle-shared-affix-staging-proof-2026-08-01.json",
+  "utf8",
+);
 
 for (const source of [architecture, authority, template, teaching]) {
   assert(
@@ -40,6 +56,29 @@ assert(
     architecture.includes("absent metadata") &&
     architecture.includes("never") &&
     architecture.includes("falls back"),
+);
+assert(
+  sharedAffix.includes("no production route") &&
+    sharedAffix.includes("Dynamic Prefix V2 and Dynamic Affix V3 remain authoritative") &&
+    sharedAffix.includes("no microskill-key branch") &&
+    sharedAffix.includes("performs no remote write"),
+);
+assert(
+  affixProfiles.includes("inventory, not an activation switch") &&
+    affixProfiles.includes("never gain a microskill literal"),
+);
+assert(
+  sharedAffixInventory.includes('"activationAuthority": "none_shadow_only"') &&
+    sharedAffixInventory.includes('"compilerVersion": 1') &&
+    sharedAffixInventory.includes('"D4_MOR_PREFIXES_UN"') &&
+    sharedAffixInventory.includes('"D4_MOR_SUFFIXES_SION"'),
+);
+assert(
+  sharedAffixReceipt.includes('"profileCount": 15') &&
+    sharedAffixReceipt.includes('"eligibleWordCount": 75') &&
+    sharedAffixReceipt.includes('"authenticSlotCases": 300') &&
+    sharedAffixReceipt.includes('"remoteWriteRequests": 0') &&
+    sharedAffixReceipt.includes('"productionHostRejected": true'),
 );
 assert(
   routeMetadata.includes('"metadataSchemaVersion": 1') &&

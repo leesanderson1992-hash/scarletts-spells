@@ -2,6 +2,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
+import { compileDynamicAffixWordLabPayload, validateDynamicAffixWordLabPayload } from "../lib/adle/morphology/affix-word-lab";
+import { assertDynamicAffixSharedParity } from "./lib/adle-shared-affix-parity-fixtures";
+import { loadReviewedAffixPackageFixture } from "./lib/adle-reviewed-affix-package-fixture";
 const pkg=JSON.parse(readFileSync("docs/implementation/seed-data/teaching-dictionary/candidates/2026-07-28-dynamic-suffix-ous/reviewed-staging-package.json","utf8"));
 const rule="-ous turns a naming word into a describing word meaning “full of” or “having.”";
 assert.equal(pkg.profile.introContent.meaningStatement,rule); assert.equal(JSON.stringify(pkg).split(rule).length-1,1);
@@ -10,4 +13,8 @@ assert.deepEqual(pkg.words.map((w:any)=>w.teaching.parts.map((p:any)=>p.surfaceT
 assert.match(pkg.words[2].trueMorphology.notes,/drop the final e/); assert.match(pkg.words[3].trueMorphology.notes,/change y to i/);
 assert(pkg.profile.introContent.spellingRules.some((x:string)=>x.includes("courage keeps its final e")));
 for(const word of pkg.words){assert.equal(word.teaching.parts.map((p:any)=>p.surfaceText).join(""),word.word);assert.equal(word.dictation.audioText,word.dictation.sentence);assert(word.trueMorphology.provenance);}
+const fixture = loadReviewedAffixPackageFixture("docs/implementation/seed-data/teaching-dictionary/candidates/2026-07-28-dynamic-suffix-ous/reviewed-staging-package.json");
+const payload = compileDynamicAffixWordLabPayload(fixture.selection);
+assert(payload && validateDynamicAffixWordLabPayload(payload));
+assertDynamicAffixSharedParity(fixture.selection, payload, "OUS reviewed fixture");
 console.log("Dynamic suffix -ous package regression passed.");

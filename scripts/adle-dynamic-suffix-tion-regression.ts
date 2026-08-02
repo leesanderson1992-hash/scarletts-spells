@@ -12,6 +12,7 @@ import {
 import { buildDynamicAffixAssignmentPlan } from "../lib/adle/morphology/dynamic-affix-assignment-plan";
 import { dynamicAffixRuntime } from "../lib/adle/morphology/dynamic-affix-runtime";
 import { normaliseSessionWord } from "../lib/adle/session-correctness";
+import { assertDynamicAffixSharedParity } from "./lib/adle-shared-affix-parity-fixtures";
 
 const packagePath = "docs/implementation/seed-data/teaching-dictionary/candidates/2026-07-29-dynamic-suffix-tion/reviewed-staging-package.json";
 const pkg = JSON.parse(readFileSync(packagePath, "utf8"));
@@ -74,6 +75,7 @@ const selection = selectDynamicAffixWordLab({ profiles: [profile], learningItems
 assert(selection, "reviewed -tion profile is selected only for its own learning item");
 const payload = compileDynamicAffixWordLabPayload(selection);
 assert(payload && validateDynamicAffixWordLabPayload(payload), "valid reviewed profile compiles");
+assertDynamicAffixSharedParity(selection, payload, "TION reviewed fixture");
 assert.equal(payload.activities.guided.includeMeaningSort, false);
 assert.equal(payload.activities.guided.splitCanonicalWordIds.length, 2);
 assert.equal(payload.activities.guided.builds.length, 4);

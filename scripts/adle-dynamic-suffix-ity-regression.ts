@@ -12,6 +12,7 @@ import {
 import { buildDynamicAffixAssignmentPlan } from "../lib/adle/morphology/dynamic-affix-assignment-plan";
 import { dynamicAffixRuntime } from "../lib/adle/morphology/dynamic-affix-runtime";
 import { normaliseSessionWord } from "../lib/adle/session-correctness";
+import { assertDynamicAffixSharedParity } from "./lib/adle-shared-affix-parity-fixtures";
 
 const reviewed = JSON.parse(readFileSync("docs/implementation/seed-data/teaching-dictionary/candidates/2026-07-28-dynamic-suffix-ity/reviewed-staging-package.json", "utf8"));
 const statement = "-ity turns a describing word into the name of a quality or state.";
@@ -45,6 +46,7 @@ const selection = selectDynamicAffixWordLab({ profiles: [profile], learningItems
 assert(selection);
 const payload = compileDynamicAffixWordLabPayload(selection);
 assert(payload && validateDynamicAffixWordLabPayload(payload));
+assertDynamicAffixSharedParity(selection, payload, "ITY reviewed fixture");
 assert.deepEqual(payload.activities.guided.splitCanonicalWordIds, ["equality", "possibility"], "direct and spelling-change Cleavers are selected");
 assert.equal(payload.activities.guided.builds.length, 4);
 const positions = payload.activities.guided.builds.map((build) => { assert.deepEqual(new Set(build.choices.map((choice) => choice.text)), new Set(["ity", "ety", "ityy"])); return build.choices.findIndex((choice) => choice.status === "target"); });

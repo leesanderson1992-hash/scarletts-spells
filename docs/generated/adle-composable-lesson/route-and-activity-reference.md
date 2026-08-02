@@ -46,6 +46,28 @@
 | review_quick_sort:v1 | guided | none | canonical_word.canonical_identity, word_micro_skill_support.meaning_group |
 | word_build:v1 | guided | guided_completion | word_micro_skill_support.teaching_decomposition, canonical_word.joins, canonical_word.transformations, word_micro_skill_support.child_meaning |
 
+## Dark shared affix compiler
+
+> This position-aware compiler and its V2/V3 adapters run only in regressions and the select-only staging proof. Existing production compilers remain authoritative.
+
+| Profile | Route | Position | Forms | Items | Split | Build | Meaning |
+|---|---|---|---|---:|---|---|---|
+| D4_MOR_PREFIXES_UN | dynamic_prefix_word_lab:v2 | before | un | 16 | first_words | different_form_from_first_or_first | sort_all_words |
+| D4_MOR_PREFIXES_DIS_MIS | dynamic_prefix_word_lab:v2 | before | dis, mis | 16 | first_words | different_form_from_first_or_first | sort_all_words |
+| D4_MOR_PREFIXES_IN_IM_IL_IR | dynamic_prefix_word_lab:v2 | before | in, im, il, ir | 16 | guided_budget_after_form_builds | one_per_represented_form | none |
+| D4_MOR_PREFIXES_RE_PRE | dynamic_prefix_word_lab:v2 | before | re, pre | 16 | first_words | different_form_from_first_or_first | sort_all_words |
+| D4_MOR_PREFIXES_SUB_INTER_SUPER | dynamic_prefix_word_lab:v2 | before | sub, inter, super | 18 | distinct_forms_then_fill | different_form_from_first_or_first | sort_all_words |
+| D4_MOR_SUFFIXES_NESS | dynamic_affix_word_lab:v3 | after | ness | 16 | one_per_form_else_direct_and_changed | every_lesson_word | none |
+| D4_MOR_SUFFIXES_ABLE_IBLE | dynamic_affix_word_lab:v3 | after | able, ible | 16 | one_per_form_else_direct_and_changed | every_lesson_word | none |
+| D4_MOR_SUFFIXES_MENT | dynamic_affix_word_lab:v3 | after | ment | 16 | one_per_form_else_direct_and_changed | every_lesson_word | none |
+| D4_MOR_SUFFIXES_FUL_LESS | dynamic_affix_word_lab:v3 | after | ful, less | 18 | one_per_form_else_direct_and_changed | one_per_represented_form_prefer_non_split | sort_all_words |
+| D4_MOR_SUFFIXES_AL | dynamic_affix_word_lab:v3 | after | al | 16 | one_per_form_else_direct_and_changed | every_lesson_word | none |
+| D4_MOR_SUFFIXES_ITY | dynamic_affix_word_lab:v3 | after | ity | 16 | one_per_form_else_direct_and_changed | every_lesson_word | none |
+| D4_MOR_SUFFIXES_LY | dynamic_affix_word_lab:v3 | after | ly | 16 | one_per_form_else_direct_and_changed | every_lesson_word | none |
+| D4_MOR_SUFFIXES_OUS | dynamic_affix_word_lab:v3 | after | ous | 16 | one_per_form_else_direct_and_changed | every_lesson_word | none |
+| D4_MOR_SUFFIXES_TION | dynamic_affix_word_lab:v3 | after | tion | 16 | one_per_form_else_direct_and_changed | every_lesson_word | none |
+| D4_MOR_SUFFIXES_SION | dynamic_affix_word_lab:v3 | after | sion | 16 | one_per_form_else_direct_and_changed | every_lesson_word | none |
+
 ## Blockers
 
 - `activity_binding_unresolved`: activity binding unresolved.
@@ -59,11 +81,13 @@
 - `answer_comparator_mismatch`: answer comparator mismatch.
 - `assignment_binding_failure`: assignment binding failure.
 - `assignment_binding_mismatch`: assignment binding mismatch.
+- `assignment_item_count_mismatch`: assignment item count mismatch.
 - `authentic_target_not_approved`: authentic target not approved.
 - `banding_facts_missing`: banding facts missing.
 - `base_or_root_missing`: base or root missing.
 - `canonical_identity_missing`: canonical identity missing.
 - `canonical_status_unapproved`: canonical status unapproved.
+- `compatibility_adapter_mismatch`: compatibility adapter mismatch.
 - `compiler_version_mismatch`: compiler version mismatch.
 - `completion_binding_mismatch`: completion binding mismatch.
 - `compound_component_missing`: compound component missing.
@@ -76,6 +100,7 @@
 - `duplicate_item_binding`: duplicate item binding.
 - `duplicate_metadata_source`: duplicate metadata source.
 - `duplicate_recipe`: duplicate recipe.
+- `duplicate_word`: duplicate word.
 - `duplicate_word_binding`: duplicate word binding.
 - `duplicate_word_snapshot_id`: duplicate word snapshot id.
 - `evidence_binding_mismatch`: evidence binding mismatch.
@@ -84,8 +109,12 @@
 - `form_coverage_failure`: form coverage failure.
 - `group_composition_failure`: group composition failure.
 - `insufficient_authentic_targets`: insufficient authentic targets.
+- `insufficient_form_coverage`: insufficient form coverage.
+- `insufficient_meaning_group_coverage`: insufficient meaning group coverage.
 - `insufficient_transfer_words`: insufficient transfer words.
+- `invalid_choice_policy`: invalid choice policy.
 - `invalid_join`: invalid join.
+- `invalid_position`: invalid position.
 - `invalid_word_count`: invalid word count.
 - `invalid_word_role`: invalid word role.
 - `invalid_word_role_count`: invalid word role count.
@@ -101,9 +130,17 @@
 - `meaning_group_missing`: meaning group missing.
 - `microskill_content_missing`: microskill content missing.
 - `microskill_incompatible`: microskill incompatible.
+- `missing_affix_form`: missing affix form.
+- `missing_decomposition`: missing decomposition.
 - `missing_item_binding`: missing item binding.
+- `missing_meaning_facts`: missing meaning facts.
+- `missing_profile_copy`: missing profile copy.
 - `missing_recipe`: missing recipe.
+- `missing_reviewed_dictation`: missing reviewed dictation.
 - `missing_route`: missing route.
+- `missing_semantic_base`: missing semantic base.
+- `missing_teaching_surface`: missing teaching surface.
+- `missing_transformation`: missing transformation.
 - `missing_word_binding`: missing word binding.
 - `morphology_reconstruction_mismatch`: morphology reconstruction mismatch.
 - `multiple_legacy_routes`: multiple legacy routes.
@@ -120,6 +157,7 @@
 - `recipe_route_mismatch`: recipe route mismatch.
 - `recipe_status_not_allowed`: recipe status not allowed.
 - `recipe_taxonomy_mismatch`: recipe taxonomy mismatch.
+- `reconstruction_mismatch`: reconstruction mismatch.
 - `requirement_registry_version_mismatch`: requirement registry version mismatch.
 - `resume_assignment_mismatch`: resume assignment mismatch.
 - `resume_fingerprint_mismatch`: resume fingerprint mismatch.
@@ -133,6 +171,7 @@
 - `route_unavailable`: route unavailable.
 - `runtime_reconstruction_failure`: runtime reconstruction failure.
 - `schedule_role_mismatch`: schedule role mismatch.
+- `selected_word_not_in_profile`: selected word not in profile.
 - `snapshot_assignment_source_mismatch`: snapshot assignment source mismatch.
 - `snapshot_fingerprint_mismatch`: snapshot fingerprint mismatch.
 - `snapshot_item_count_mismatch`: snapshot item count mismatch.
@@ -148,13 +187,18 @@
 - `unbound_assignment_item`: unbound assignment item.
 - `unknown_activity_plugin`: unknown activity plugin.
 - `unknown_route`: unknown route.
+- `unresolved_activity_binding`: unresolved activity binding.
 - `unsupported_legacy_payload`: unsupported legacy payload.
 - `unsupported_metadata_schema_version`: unsupported metadata schema version.
 - `unsupported_route_version`: unsupported route version.
 - `unsupported_snapshot_schema_version`: unsupported snapshot schema version.
 - `unsupported_template`: unsupported template.
 - `unsupported_template_shape`: unsupported template shape.
+- `unsupported_transformation`: unsupported transformation.
 - `validator_version_mismatch`: validator version mismatch.
 - `word_identity_mismatch`: word identity mismatch.
 - `word_microskill_support_missing`: word microskill support missing.
 - `word_role_conflict`: word role conflict.
+- `wrong_authentic_count`: wrong authentic count.
+- `wrong_lesson_count`: wrong lesson count.
+- `wrong_transfer_count`: wrong transfer count.

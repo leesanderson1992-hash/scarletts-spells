@@ -1,0 +1,115 @@
+{
+  "receiptVersion": "adle_shared_affix_staging_proof_v1",
+  "recordedOn": "2026-08-02T06:30:19.185Z",
+  "status": "passed",
+  "projectPin": {
+    "expectedProjectRefHash": "2b8435f30ba5425d60086acaa31c8c707c2d8460f6b5a26ac513967433d5e1ef",
+    "observedHostHash": "7499b756ccdd58dfffe7ca685040b1ba1c571d624a6a8ff5c880844498cf54a6",
+    "productionHostRejected": true
+  },
+  "access": {
+    "mode": "select_only",
+    "readRequests": 9,
+    "remoteWriteRequests": 0,
+    "learnerRowsRead": 0,
+    "learnerRowsWritten": 0,
+    "dictionaryRowsWritten": 0,
+    "assignmentsCreated": 0
+  },
+  "coverage": {
+    "profileCount": 15,
+    "prefixProfileCount": 5,
+    "affixProfileCount": 10,
+    "eligibleWordCount": 75,
+    "authenticSlotsPerWord": 4,
+    "authenticSlotCases": 300,
+    "profiles": [
+      {
+        "profileHash": "0bc594a4b1ed227ee03da2ad7635792e6fe90525f64029f0d3ed3cc2679253b2",
+        "eligibleWordCount": 7,
+        "authenticSlotCases": 28
+      },
+      {
+        "profileHash": "248e3a4e62e489d5af47233fee6cae587bfda4dd073d7a2bd4c4cbd9e61a1f1e",
+        "eligibleWordCount": 4,
+        "authenticSlotCases": 16
+      },
+      {
+        "profileHash": "2a5c376c73fd4ef488c4d4fbb01e688d76f31bd4647e69979b58edac34dc77ff",
+        "eligibleWordCount": 4,
+        "authenticSlotCases": 16
+      },
+      {
+        "profileHash": "3a0d4f28d8fd9d3b513125af602a452d3e98707ff53845584096e476ffe5697b",
+        "eligibleWordCount": 7,
+        "authenticSlotCases": 28
+      },
+      {
+        "profileHash": "52b15ffcceb517a281a4da96e74ec4662c67c6a592a6de84f0bb32aecf5dae18",
+        "eligibleWordCount": 7,
+        "authenticSlotCases": 28
+      },
+      {
+        "profileHash": "5e9f6aa06ba40ff5740fed4b4e32c35f4286574c44d344f1fa51669ba57a6fbd",
+        "eligibleWordCount": 4,
+        "authenticSlotCases": 16
+      },
+      {
+        "profileHash": "6956952bde587d33f45c8ffebed7e7bed95aab767c7512fd0952431b79967ab6",
+        "eligibleWordCount": 4,
+        "authenticSlotCases": 16
+      },
+      {
+        "profileHash": "6a7a652a40184298198fe9519b94e50ba322aac96f2fbb9eee8cf9e58842b2fc",
+        "eligibleWordCount": 7,
+        "authenticSlotCases": 28
+      },
+      {
+        "profileHash": "6c7344bff722b5aa8c68a26a875ca4c5727fc2cc0dfedbf43d0648a922d74ae6",
+        "eligibleWordCount": 4,
+        "authenticSlotCases": 16
+      },
+      {
+        "profileHash": "891ef91e23f38e36045d066f3d422150a5fc2dfcef4147b9ff4abf9a5674c3b4",
+        "eligibleWordCount": 7,
+        "authenticSlotCases": 28
+      },
+      {
+        "profileHash": "98781140c6f28474b4d1e738a8bd409306c2c55e222f94a1a3395a84a2148391",
+        "eligibleWordCount": 4,
+        "authenticSlotCases": 16
+      },
+      {
+        "profileHash": "a07acf517509d719223b1a01b26ffce0363ad56b9bfbe9f25b2345b25ed16746",
+        "eligibleWordCount": 4,
+        "authenticSlotCases": 16
+      },
+      {
+        "profileHash": "cbc0783a6b9dfdccf37b952ea27dad80c6f88446befcb54ca2f67e1cd0486fa2",
+        "eligibleWordCount": 4,
+        "authenticSlotCases": 16
+      },
+      {
+        "profileHash": "e314a2f9b232ab9916d13c848c59792cdc74a9704bb4970b8edba053695921cb",
+        "eligibleWordCount": 4,
+        "authenticSlotCases": 16
+      },
+      {
+        "profileHash": "e43de7b6b01d22da16e3e2fc5b25356c9e46acf6011be2a7e457b21cf9b1b141",
+        "eligibleWordCount": 4,
+        "authenticSlotCases": 16
+      }
+    ],
+    "aggregateLessonFingerprint": "5a1d2c02c9dc8033e7e9aba25e977f34e1ce87e465bac73e0aa70d0c01afc282"
+  },
+  "parity": {
+    "prefixPayloadVersion": 2,
+    "affixPayloadVersion": 3,
+    "selectors": "unchanged_authoritative",
+    "payloads": "exact_canonical_parity",
+    "runtimeReconstruction": "passed",
+    "assignmentBindings": "passed",
+    "routesActivated": false,
+    "persistenceChanged": false
+  }
+}
