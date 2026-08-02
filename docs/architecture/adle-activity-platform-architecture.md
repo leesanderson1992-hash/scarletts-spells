@@ -159,9 +159,9 @@ The generated shared-affix profile and blocker inventories describe typed
 position, split, build, meaning, count and role policies for all five Prefix V2
 and ten Affix V3 profiles. Dynamic Prefix keeps its unchanged selector and V2
 contract but reaches the shared compiler through a guarded authority boundary:
-four profiles can advance through shadow, enforced-parity and
-shared-authoritative modes, while `un-` remains explicitly legacy pending an
-exact normal-path source proof. Dynamic Affix remains dark on its existing
+all five approved profiles advance through shadow, enforced-parity and
+shared-authoritative modes after exact `un-` normal-path source release.
+Dynamic Affix remains dark on its existing
 compiler and writer. This boundary does not alter the activity registry,
 `AdleSessionRunner`, route metadata, persistence contract, Generic Snapshot or
 Common Word Lab shell.

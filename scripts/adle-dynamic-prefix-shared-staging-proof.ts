@@ -42,7 +42,7 @@ const STAGING_VERCEL_PROJECT = "scarletts-spells-staged";
 const STAGING_VERCEL_PROJECT_ID = "prj_oJkffstOtacc4juYloXajHpjJUha";
 const PRODUCTION_VERCEL_PROJECT = "scarletts-spells";
 const PRODUCTION_VERCEL_PROJECT_ID = "prj_PShWdOn82RyJ4P6BND0DBZ1TSIEl";
-const CONFIRMATION = "ADLE-DYNAMIC-PREFIX-SHARED-STAGING-V1";
+const CONFIRMATION = "ADLE-DYNAMIC-PREFIX-ALL-FIVE-STAGING-V2";
 const STATE_PATH = resolve(".tmp/adle-dynamic-prefix-shared-staging-proof-state.json");
 const SOURCE_PREFIX = "dynamic-prefix-shared-staging-proof:";
 const PROFILE_KEYS = [...DYNAMIC_PREFIX_MIGRATED_PROFILE_KEYS];
@@ -71,7 +71,7 @@ type ModeEvidence = {
 };
 
 type State = {
-  receiptVersion: "adle_dynamic_prefix_shared_staging_proof_v1";
+  receiptVersion: "adle_dynamic_prefix_shared_staging_proof_v2";
   runId: string;
   gitSha: string;
   planDate: string;
@@ -228,13 +228,13 @@ function basePlan(childId: string, planDate: string): ComposedDailyPlan {
 async function preflight(db: SupabaseClient): Promise<void> {
   assert(projectProductionRejectionVerified(), "production identity rejection guard");
   const snapshot = await dictionarySnapshot(db);
-  assert(snapshot.profileCount === 4, `expected four normal-path staging profiles, received ${snapshot.profileCount}`);
-  assert(snapshot.memberCount === 28, `expected 28 staged Prefix members, received ${snapshot.memberCount}`);
-  assert(snapshot.canonicalWordCount === 28, `expected 28 staged Prefix words, received ${snapshot.canonicalWordCount}`);
-  assert(snapshot.metadataCount === 28, `expected 28 staged metadata rows, received ${snapshot.metadataCount}`);
+  assert(snapshot.profileCount === 5, `expected five normal-path staging profiles, received ${snapshot.profileCount}`);
+  assert(snapshot.memberCount === 35, `expected 35 staged Prefix members, received ${snapshot.memberCount}`);
+  assert(snapshot.canonicalWordCount === 35, `expected 35 staged Prefix words, received ${snapshot.canonicalWordCount}`);
+  assert(snapshot.metadataCount === 35, `expected 35 staged metadata rows, received ${snapshot.metadataCount}`);
   assert(
-    snapshot.dictationWordCount === 28,
-    `expected dictation coverage for all 28 staged words, received ${snapshot.dictationWordCount}`,
+    snapshot.dictationWordCount === 35,
+    `expected dictation coverage for all 35 staged words, received ${snapshot.dictationWordCount}`,
   );
   assert(
     snapshot.dictationCount >= snapshot.dictationWordCount,
@@ -251,7 +251,7 @@ async function preflight(db: SupabaseClient): Promise<void> {
     dictationWordCount: snapshot.dictationWordCount,
     dictationCount: snapshot.dictationCount,
     dictionaryFingerprint: snapshot.fingerprint,
-    unNormalPathProfilePresent: false,
+    unNormalPathProfilePresent: true,
   }));
 }
 
@@ -259,7 +259,7 @@ async function setup(db: SupabaseClient): Promise<void> {
   mutating("setup");
   assert(!existsSync(STATE_PATH), "proof state already exists; cleanup or recover it first");
   const baselineDictionary = await dictionarySnapshot(db);
-  assert(baselineDictionary.profileCount === 4, "setup requires exactly four normal-path staging profiles");
+  assert(baselineDictionary.profileCount === 5, "setup requires exactly five normal-path staging profiles");
   const runId = randomUUID();
   const suffix = `${Date.now()}-${runId.slice(0, 8)}`;
   const parentEmail = `adle-prefix-shared-${suffix}@example.test`;
@@ -326,7 +326,7 @@ async function setup(db: SupabaseClient): Promise<void> {
       });
     }
     saveState({
-      receiptVersion: "adle_dynamic_prefix_shared_staging_proof_v1",
+      receiptVersion: "adle_dynamic_prefix_shared_staging_proof_v2",
       runId,
       gitSha: required("ADLE_DYNAMIC_PREFIX_PROOF_GIT_SHA"),
       planDate,
@@ -499,7 +499,7 @@ async function verifyCompleted(db: SupabaseClient): Promise<void> {
   const shared = current.modes.shared_authoritative;
   assert(shared, "shared-authoritative evidence is missing");
   const completedKeys = [
-    "D4_MOR_PREFIXES_DIS_MIS",
+    "D4_MOR_PREFIXES_UN",
     "D4_MOR_PREFIXES_SUB_INTER_SUPER",
   ];
   const results = [];
@@ -538,15 +538,30 @@ async function verifyCompleted(db: SupabaseClient): Promise<void> {
     }
     const { data: learningItem, error: learningItemError } = await db
       .from("adle_learning_items")
-      .select("item_status")
+      .select("canonical_word_id,item_status")
       .eq("id", fixture.learningItemId)
       .single();
     if (learningItemError) throw learningItemError;
+    const { data: authenticAttempt, error: authenticAttemptError } = await db
+      .from("adle_assignment_attempt_events")
+      .select("is_correct")
+      .eq("daily_assignment_id", assignment.assignmentId)
+      .eq("canonical_word_id", learningItem.canonical_word_id)
+      .eq("attempt_kind", "lesson_dictation")
+      .single();
+    if (authenticAttemptError) throw authenticAttemptError;
+    const authenticPassed = authenticAttempt.is_correct === true;
+    const expectedScheduleCount = authenticPassed ? 1 : 0;
+    const expectedItemStatus = authenticPassed ? "awaiting_review_outcome" : "pending";
     assert(completedItems === fixture.expectedItemCount, `${profileKey}: all assignment items complete`);
     assert(counts.attempts === expectedAttempts, `${profileKey}: attempt count`);
     assert(counts.reflections === 1, `${profileKey}: one reflection`);
-    assert(counts.taught === 1 && counts.scheduled === 1 && counts.bundles === 1, `${profileKey}: authentic-only taught/schedule state`);
-    assert(learningItem?.item_status === "awaiting_review_outcome", `${profileKey}: authentic item awaiting review`);
+    assert(counts.taught === 1, `${profileKey}: one authentic taught-history event`);
+    assert(
+      counts.scheduled === expectedScheduleCount && counts.bundles === expectedScheduleCount,
+      `${profileKey}: authentic scheduling follows the final dictation result`,
+    );
+    assert(learningItem.item_status === expectedItemStatus, `${profileKey}: authentic item transition follows the final dictation result`);
     assert(counts.treasures === 0 && counts.rewardEvents === 0, `${profileKey}: missing-treasure reward path is side-effect free`);
     results.push({
       profileKey,
@@ -555,6 +570,8 @@ async function verifyCompleted(db: SupabaseClient): Promise<void> {
       reflections: counts.reflections,
       taught: counts.taught,
       scheduled: counts.scheduled,
+      authenticPassed,
+      itemStatus: learningItem.item_status,
       rewardBehavior: "missing_word_treasure_graceful",
     });
   }

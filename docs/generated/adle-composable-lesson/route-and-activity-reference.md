@@ -48,11 +48,11 @@
 
 ## Shared affix compiler
 
-> Dynamic Prefix V2 has a guarded four-profile compiler-authority boundary. `un-` remains explicitly legacy pending an exact source proof. Dynamic Affix V3 remains dark.
+> Dynamic Prefix V2 has guarded shared-compiler authority for all five approved profiles. Dynamic Affix V3 remains dark.
 
 | Profile | Route | Position | Forms | Items | Split | Build | Meaning | Compiler authority |
 |---|---|---|---|---:|---|---|---|---|
-| D4_MOR_PREFIXES_UN | dynamic_prefix_word_lab:v2 | before | un | 16 | first_words | different_form_from_first_or_first | sort_all_words | legacy_pending_exact_source |
+| D4_MOR_PREFIXES_UN | dynamic_prefix_word_lab:v2 | before | un | 16 | first_words | different_form_from_first_or_first | sort_all_words | shared_migration |
 | D4_MOR_PREFIXES_DIS_MIS | dynamic_prefix_word_lab:v2 | before | dis, mis | 16 | first_words | different_form_from_first_or_first | sort_all_words | shared_migration |
 | D4_MOR_PREFIXES_IN_IM_IL_IR | dynamic_prefix_word_lab:v2 | before | in, im, il, ir | 16 | guided_budget_after_form_builds | one_per_represented_form | none | shared_migration |
 | D4_MOR_PREFIXES_RE_PRE | dynamic_prefix_word_lab:v2 | before | re, pre | 16 | first_words | different_form_from_first_or_first | sort_all_words | shared_migration |

@@ -86,12 +86,12 @@ const basePlan = {
 
 assert.deepEqual(
   DYNAMIC_PREFIX_COMPILER_AUTHORITIES.map((entry) => entry.microSkillKey).sort(),
-  ["D4_MOR_PREFIXES_UN", ...DYNAMIC_PREFIX_MIGRATED_PROFILE_KEYS].sort(),
+  [...DYNAMIC_PREFIX_MIGRATED_PROFILE_KEYS].sort(),
   "all five production Prefix profiles have explicit compiler authority",
 );
 assert.equal(
   getDynamicPrefixCompilerAuthority("D4_MOR_PREFIXES_UN"),
-  "legacy_pending_exact_source",
+  "shared_migration",
 );
 for (const key of DYNAMIC_PREFIX_MIGRATED_PROFILE_KEYS) {
   assert.equal(getDynamicPrefixCompilerAuthority(key), "shared_migration");
@@ -106,7 +106,7 @@ for (const fixture of loadReviewedPrefixPackageFixtures()) {
     DYNAMIC_PREFIX_MIGRATED_PROFILE_KEYS.includes(
       fixture.profile.microSkillKey as (typeof DYNAMIC_PREFIX_MIGRATED_PROFILE_KEYS)[number],
     ),
-    `${fixture.profile.microSkillKey}: reviewed fixture is in the four-profile migration`,
+    `${fixture.profile.microSkillKey}: reviewed fixture is in the five-profile migration`,
   );
   for (const target of fixture.words) {
     for (const authenticPosition of [0, 1, 2, 3]) {
@@ -152,7 +152,7 @@ for (const fixture of loadReviewedPrefixPackageFixtures()) {
     }
   }
 }
-assert.equal(exhaustiveCases, 112, "four profiles x seven words x four authentic positions");
+assert.equal(exhaustiveCases, 140, "five profiles x seven words x four authentic positions");
 
 const fixture = loadReviewedPrefixPackageFixtures()[0]!;
 const selection = selectionWithAuthenticAt(fixture.profile, fixture.words, fixture.words[0]!, 0);
@@ -259,24 +259,25 @@ const unknown = compileDynamicPrefixWordLabDecision(unknownSelection, {
 });
 assert(!unknown.ok && unknown.blockerCode === "missing_profile_mapping");
 
-const unSelection = {
-  ...selection,
-  profile: { ...selection.profile, microSkillKey: "D4_MOR_PREFIXES_UN" },
-  authenticTargets: selection.authenticTargets.map((entry) => ({
-    ...entry,
-    microSkillKey: "D4_MOR_PREFIXES_UN",
-  })),
-};
+const unFixture = loadReviewedPrefixPackageFixtures().find(
+  (entry) => entry.profile.microSkillKey === "D4_MOR_PREFIXES_UN",
+)!;
+const unSelection = selectionWithAuthenticAt(
+  unFixture.profile,
+  unFixture.words,
+  unFixture.words[0]!,
+  0,
+);
 const unDecision = compileDynamicPrefixWordLabDecision(unSelection, {
   mode: "shared_authoritative",
-  sharedCompiler: () => {
-    throw new Error("deferred un- must not call the shared compiler");
+  legacyCompiler: () => {
+    throw new Error("shared-authoritative un- must not call the legacy compiler");
   },
 });
 assert(unDecision.ok);
-assert.equal(unDecision.authority, "legacy_pending_exact_source");
-assert.equal(unDecision.parity, "legacy_deferred");
-assert.equal(unDecision.metrics.legacyInvoked, true);
+assert.equal(unDecision.authority, "shared_migration");
+assert.equal(unDecision.parity, "not_run");
+assert.equal(unDecision.metrics.legacyInvoked, false);
 
 const planBlockers = [
   "assignment_plan_mismatch",

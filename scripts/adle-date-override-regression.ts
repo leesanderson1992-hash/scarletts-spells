@@ -42,4 +42,14 @@ assert(
   "non-admin date override fails closed",
 );
 
+assert(
+  resolveAdlePlanDateOverride({
+    requestedDate: "2026-07-10",
+    fallbackDate: "2026-07-09",
+    isAdmin: false,
+    isStagingQa: true,
+  }) === "2026-07-10",
+  "exact staging QA role can use the existing date override",
+);
+
 console.log("ADLE date override regression passed.");

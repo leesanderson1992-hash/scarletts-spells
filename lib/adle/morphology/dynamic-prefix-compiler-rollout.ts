@@ -23,6 +23,7 @@ import {
 } from "./shared-affix-compiler";
 
 export const DYNAMIC_PREFIX_MIGRATED_PROFILE_KEYS = [
+  "D4_MOR_PREFIXES_UN",
   "D4_MOR_PREFIXES_DIS_MIS",
   "D4_MOR_PREFIXES_IN_IM_IL_IR",
   "D4_MOR_PREFIXES_RE_PRE",
@@ -30,7 +31,6 @@ export const DYNAMIC_PREFIX_MIGRATED_PROFILE_KEYS = [
 ] as const;
 
 export const DYNAMIC_PREFIX_COMPILER_AUTHORITIES = [
-  { microSkillKey: "D4_MOR_PREFIXES_UN", authority: "legacy_pending_exact_source" },
   ...DYNAMIC_PREFIX_MIGRATED_PROFILE_KEYS.map((microSkillKey) => ({
     microSkillKey,
     authority: "shared_migration" as const,

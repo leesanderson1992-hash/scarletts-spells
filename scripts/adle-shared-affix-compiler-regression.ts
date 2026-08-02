@@ -99,7 +99,7 @@ for (const fixture of loadReviewedPrefixPackageFixtures()) {
     prefixTargetCases += 1;
   }
 }
-assert.equal(prefixTargetCases, 28, "all 28 reviewed mixed-prefix fixture targets run through both compilers");
+assert.equal(prefixTargetCases, 35, "all 35 reviewed Prefix fixture targets run through both compilers");
 
 let suffixTargetCases = 0;
 let transformedInput: AffixLessonCompilationInputV1 | null = null;

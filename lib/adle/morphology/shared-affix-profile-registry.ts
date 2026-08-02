@@ -121,7 +121,7 @@ export const SHARED_AFFIX_PROFILE_REGISTRY = [
     ["un"],
     prefixPolicy(),
     PREFIX_GENERIC_INTRO,
-    { introduction: "optional", dictionaryReadiness: "legacy_prefix_projection" },
+    { introduction: "optional", dictionaryReadiness: "full" },
   ),
   prefix("D4_MOR_PREFIXES_DIS_MIS", ["dis", "mis"]),
   prefix(

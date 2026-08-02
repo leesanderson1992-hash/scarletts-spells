@@ -146,12 +146,10 @@ const prefixAuthorityKeys = DYNAMIC_PREFIX_COMPILER_AUTHORITIES
 if (JSON.stringify(prefixProfileKeys) !== JSON.stringify(prefixAuthorityKeys)) {
   registryErrors.push("dynamic_prefix_compiler_authority_profile_mismatch");
 }
-if (
-  DYNAMIC_PREFIX_COMPILER_AUTHORITIES.filter(
-    (entry) => entry.authority === "legacy_pending_exact_source",
-  ).map((entry) => entry.microSkillKey).join(",") !== "D4_MOR_PREFIXES_UN"
-) {
-  registryErrors.push("dynamic_prefix_un_authority_drift");
+if (DYNAMIC_PREFIX_COMPILER_AUTHORITIES.some(
+  (entry) => entry.authority !== "shared_migration",
+)) {
+  registryErrors.push("dynamic_prefix_shared_authority_drift");
 }
 const usedPolicyVariants = {
   split: [...new Set(SHARED_AFFIX_PROFILE_REGISTRY.map((entry) => entry.policy.split.kind))].sort(),
@@ -247,7 +245,7 @@ const routeActivityMarkdown = [
   "",
   "## Shared affix compiler",
   "",
-  "> Dynamic Prefix V2 has a guarded four-profile compiler-authority boundary. `un-` remains explicitly legacy pending an exact source proof. Dynamic Affix V3 remains dark.",
+  "> Dynamic Prefix V2 has guarded shared-compiler authority for all five approved profiles. Dynamic Affix V3 remains dark.",
   "",
   "| Profile | Route | Position | Forms | Items | Split | Build | Meaning | Compiler authority |",
   "|---|---|---|---|---:|---|---|---|---|",
@@ -291,7 +289,7 @@ const outputs = new Map<string, string>([
     json({
       generatedNotice: GENERATED_NOTICE,
       activationAuthority: {
-        dynamicPrefix: "guarded_four_profile_compiler_authority",
+        dynamicPrefix: "all_five_shared_compiler_authority",
         dynamicAffix: "none_dark_foundation",
       },
       compilerVersion: SHARED_AFFIX_COMPILER_VERSION,

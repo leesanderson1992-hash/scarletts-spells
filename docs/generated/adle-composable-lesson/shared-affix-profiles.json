@@ -1,13 +1,13 @@
 {
   "activationAuthority": {
     "dynamicAffix": "none_dark_foundation",
-    "dynamicPrefix": "guarded_four_profile_compiler_authority"
+    "dynamicPrefix": "all_five_shared_compiler_authority"
   },
   "compilerVersion": 1,
   "dynamicPrefixCompilerRollout": {
     "authorities": [
       {
-        "authority": "legacy_pending_exact_source",
+        "authority": "shared_migration",
         "microSkillKey": "D4_MOR_PREFIXES_UN"
       },
       {
@@ -30,6 +30,7 @@
     "defaultMode": "shadow",
     "environmentVariable": "ADLE_DYNAMIC_PREFIX_COMPILER_MODE",
     "migratedProfileKeys": [
+      "D4_MOR_PREFIXES_UN",
       "D4_MOR_PREFIXES_DIS_MIS",
       "D4_MOR_PREFIXES_IN_IM_IL_IR",
       "D4_MOR_PREFIXES_RE_PRE",
@@ -125,7 +126,7 @@
         "title": "Today’s prefix choices"
       },
       "prefixRequirements": {
-        "dictionaryReadiness": "legacy_prefix_projection",
+        "dictionaryReadiness": "full",
         "introduction": "optional"
       },
       "recipeKey": "dynamic_prefix_word_lab",

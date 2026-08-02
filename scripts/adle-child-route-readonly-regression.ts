@@ -13,7 +13,7 @@ assert(
   "child ADLE route must not import or call ensureAdleDailyPlan",
 );
 assert(
-  page.includes("getExistingAdleDailyPlanId"),
+  page.includes("getExistingAdleSessionPlanId"),
   "child ADLE route should read an existing ADLE header before loading the read model",
 );
 assert(

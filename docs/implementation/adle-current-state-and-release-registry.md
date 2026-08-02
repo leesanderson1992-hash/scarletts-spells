@@ -102,12 +102,12 @@ renderable. Production activation was explicitly approved on 2026-07-21 and is
 controlled by the independent `ADLE_DYNAMIC_PREFIX_PRODUCTION_ENABLED` gate.
 
 The V2 boundary accepts reviewed per-skill profiles rather than a dedicated
-`un-` renderer. Four profiles (`DIS_MIS`, `IN_IM_IL_IR`, `RE_PRE`, and
-`SUB_INTER_SUPER`) have guarded shared-compiler migration authority through
-shadow, enforced-parity and shared-authoritative modes. `un-` remains on
-explicit `legacy_pending_exact_source` authority because staging lacks its
-normal approved profile row and the select-only proof projection is not an
-exact production source. Missing mappings/content, fingerprints, adapter
+`un-` renderer. All five profiles (`UN`, `DIS_MIS`, `IN_IM_IL_IR`, `RE_PRE`,
+and `SUB_INTER_SUPER`) have guarded shared-compiler migration authority through
+shadow, enforced-parity and shared-authoritative modes. The `un-` source is the
+approved production profile/member projection, released to staging only by
+immutable package `adle_dynamic_prefix_un_profile_staging_v1_2026_08_02`;
+synthetic and fixture-only projections are not authority. Missing mappings/content, fingerprints, adapter
 parity, plan bindings or counts fail closed before assignment persistence in
 enforced/shared modes. The full writer, lifecycle, rollback and cleanup proof
 passed on the pinned staging project on 2026-08-02; see
@@ -116,6 +116,14 @@ passed on the pinned staging project on 2026-08-02; see
 The future reviewed-correction bridge must create ADLE candidates only for
 `production_enabled` keys. Raw, pending, rejected, dictionary-missing, and
 `awaiting_content` corrections must never create an ADLE assignment.
+
+The manual child-QA launcher is staging-only at
+`/admin/adle-dynamic-prefix-qa`. It requires the exact pinned staging Supabase
+and Vercel identities, authentication, an admin or explicit QA-user allowlist,
+and an owned active child. It calls the normal selector and shared assignment
+writer, returns only normal `/learn/week/adle` child-session links, and returns
+HTTP `404` for production or unknown identities. It is not linked from
+production learner or parent navigation.
 
 ## Prefix profile and compiler migration state
 
@@ -127,12 +135,11 @@ source provenance. A profile with any incomplete reviewed fact fails closed.
 
 All five listed production profiles are independently dictionary-backed and
 production-enabled. The global route gate does not override a profile record.
-Compiler migration does not change profile activation or Teaching Dictionary
-facts. The four-profile compiler boundary has passed guarded staging proof;
-production deployment remains separately authorised and has not occurred. A
-later `un-` migration must first establish an exact production-authority
-fixture and equivalent normal staging profile path; its current synthetic
-projection must not be counted.
+Compiler migration does not change production profile activation or Teaching
+Dictionary facts. The approved `un-` staging release creates only one disabled
+profile and seven members resolved by environment-local `word_key`; it does not
+change canonical word, metadata, morphology or dictation rows. Production
+application rollout remains separately authorised and has not occurred.
 
 ## Documentation update rule
 

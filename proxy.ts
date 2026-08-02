@@ -46,9 +46,16 @@ function copyResponseState(from: NextResponse, to: NextResponse) {
   });
 }
 
+function requestHeadersWithPath(request: NextRequest, pathname: string) {
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.set("x-scarletts-pathname", pathname);
+  return requestHeaders;
+}
+
 export async function proxy(request: NextRequest) {
   const env = readSupabaseEnv();
   const { pathname } = request.nextUrl;
+  const requestHeaders = requestHeadersWithPath(request, pathname);
 
   if (!env) {
     if (isProtectedPath(pathname)) {
@@ -62,13 +69,13 @@ export async function proxy(request: NextRequest) {
     }
 
     return NextResponse.next({
-      request,
+      request: { headers: requestHeaders },
     });
   }
 
   const { url, anonKey } = env;
   let response = NextResponse.next({
-    request,
+    request: { headers: requestHeaders },
   });
 
   if (pathname === "/login") {
@@ -86,7 +93,7 @@ export async function proxy(request: NextRequest) {
         });
 
         response = NextResponse.next({
-          request,
+          request: { headers: requestHeadersWithPath(request, pathname) },
         });
 
         cookiesToSet.forEach(({ name, value, options }) => {

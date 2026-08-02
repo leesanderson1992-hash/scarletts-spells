@@ -1,127 +1,200 @@
-# Dynamic Prefix V2 shared compiler migration — staging proof
+# Dynamic Prefix all-five shared compiler staging receipt
 
-Date: 2026-08-02
+Timestamp: 2026-08-02 (Europe/London)
+Status: staging proof complete; production rollout not authorised
 
-Scope: disposable staging proof only; no production database mutation or
-deployment
+## Scope and immutable source
 
-## Decision
+This receipt closes the staging-only implementation and proof for migrating
+`D4_MOR_PREFIXES_UN` to the same shared Prefix compiler authority as the other
+four Dynamic Prefix profiles and for adding the guarded manual child-QA
+launcher. Dynamic Prefix V2, selection, assignment planning, persisted route
+metadata, runtime reconstruction, the learner renderer and all lifecycle
+semantics remained the compatibility contract.
 
-The four approved Dynamic Prefix V2 profiles passed the guarded compiler
-authority sequence `shadow` → `enforced_parity` → `shared_authoritative` on the
-normal assignment-writer path. Their public V2 payloads, persisted plans,
-bindings, item counts, learner runtime and completion effects remained exact.
+- Baseline commit: `cf85325b1f14006d461903a08873188e6635fdfd`
+- Implementation proof commit: `79170e637cb478690da80b2a0532b0c3462d7123`
+- Staging Supabase project: `jlhotktspjvffslvuyfz`
+- Staging Vercel project: `scarletts-spells-staged`
+- Staging Vercel project ID: `prj_oJkffstOtacc4juYloXajHpjJUha`
+- Release ID: `adle_dynamic_prefix_un_profile_staging_v1_2026_08_02`
+- Content ID: `d4_mor_prefixes_un_approved_profile_2026_07_28`
+- Staging batch ID: `fcaa7d68-7289-58bc-accc-a466e9ff3039`
+- Staging profile ID: `49701290-6da6-57d6-a900-689ba07ff37d`
+- Package SHA-256: `456e4ce4a65ea0944e244704c10563ad498062405db21c7498bf3ce3ed8137bf`
+- Package source SHA-256: `d7a69aa4d0d8c00c15706742f949334b821aaf4a1aeb380e43944c6fc3544189`
+- Approved production profile SHA-256: `c93012180fa6d50b78effd6e63900d0d3fe9987201fafe894f85ecd7762d7336`
+- Approved production members SHA-256: `c3dc1b18f5c2f9b46a1d2c87232b871b37c8803557174b24e0715db319531a5f`
+- Approved production projection SHA-256: `892d8e99aa030da6626f0e46d1ccba680988a4447f648c7da8529ba6e8561b6d`
+- Canonical reviewed package: `adle_canonical_un_prefix_2026_07_21`
+- Canonical reviewed package SHA-256: `4d93822664e3790da805ca934a7c2149218cbd3fba47d072e566bbf806d78b31d`
 
-`D4_MOR_PREFIXES_UN` was not synthesised, mutated, invoked through the proof
-writer, or counted as migration evidence. It remains explicitly
-`legacy_pending_exact_source`. The legacy compiler is retained.
+The staging read-back hashes are environment-local projections because profile
+and word IDs are environment-local:
 
-## Pinned identities and source
+- profile: `3e32e0c0c0becc61485cb5973b1fd3efe572ed20d388f73b4996ea3a8518b6d6`
+- members: `853e545a4c96a7cd68091cf5d31ae5a219ea52ce6e835b4b8010d1e2c32d93ae`
+- combined projection: `02de4142d08d52b2e2911751cec9647409bbcaf8c7c66ad134e32f947ba6efae`
 
-- Runtime proof commit: `3abe87c6686eca35eb1f78c75f8b0153a1a3d658`.
-- Supabase staging project: `jlhotktspjvffslvuyfz`.
-- Vercel staging project: `scarletts-spells-staged` /
-  `prj_oJkffstOtacc4juYloXajHpjJUha`.
-- Production Supabase `wwohrqtunajrbwxyssjf` and production Vercel project
-  `scarletts-spells` / `prj_PShWdOn82RyJ4P6BND0DBZ1TSIEl` were explicitly
-  rejected before credentials or writes.
-- The preflight found exactly four migrated profiles, 28 active approved
-  members, 28 canonical words, 28 metadata rows and 28 eligible dictation rows
-  covering all 28 approved words.
-- The protected dictionary fingerprint before and after the proof was
-  `c9b231b879123536833af14e777150ba2c1394e63a5b44e25039043c7bd67a0c`.
+The release inserted exactly one immutable import batch, one disabled profile
+and seven members. It inserted zero canonical words, metadata, morphology,
+dictations or learner rows. Before and after release, the governed dictionary
+projection contained seven words, seven metadata rows, zero morphology rows
+and seven dictations, with fingerprint
+`a31d946e17288ebdb6f40c2fb8cfab02434d36bc02c92d924ef188c9bb5a8c13`.
+The release verifier and the post-cleanup verifier both passed. A guarded
+deactivation attempt correctly stopped because persisted `un-` assignments
+existed and made no mutation.
 
-No schema migration, RPC, Teaching Dictionary row, profile row, Common Word
-Lab activation, Generic Snapshot V2 activation or Dynamic Affix writer change
-was part of this proof.
+## Authority and rollout proof
 
-## Mode deployments and writer proof
+All five policy-registry entries are `shared_migration` and dictionary-ready.
+The expected immutable assignment sizes are 16, 16, 16, 16 and 18 items in
+catalog order.
 
-| Mode | Preview deployment | Writer result | Legacy compiler |
-|---|---|---|---|
-| `shadow` | `dpl_2hn8U7YmnNLbnJucq8Tx74RzJuCV` — `https://scarletts-spells-staged-jrh4vncef.vercel.app` | Four exact assignments: `16 / 16 / 16 / 18` | Invoked four times for comparison |
-| `enforced_parity` | `dpl_6XTQGVfKeUiKHnafemtruLxzFQ9a` — `https://scarletts-spells-staged-bh7od5da2.vercel.app` | Four exact assignments: `16 / 16 / 16 / 18` | Invoked four times; all parity checks matched |
-| `shared_authoritative` | `dpl_Db8GBHVRPRVgv2wPK4PX44eZsTZb` — `https://scarletts-spells-staged-28glkyqkk.vercel.app` | Four exact assignments: `16 / 16 / 16 / 18` | Zero invocations; comparison and legacy duration both zero |
+| Mode | Deployment | URL | Prefix V2 parity | Legacy calls |
+|---|---|---|---:|---:|
+| shadow | `dpl_9g4uHbdHPKmb6CXsM88gbSjBTfDf` | `https://scarletts-spells-staged-fwxqkoict.vercel.app` | five of five | 5 |
+| enforced parity | `dpl_6rc32Mas4boHyL5c6dqaut5P8CmF` | `https://scarletts-spells-staged-atgw302lq.vercel.app` | five of five | 5 |
+| shared authoritative | `dpl_JDNCaaeR1S8DenNti74XBA2kUHML` | `https://scarletts-spells-staged-m1j7jdglq.vercel.app` | five of five | 0 |
 
-Each mode emitted four redacted, low-cardinality decision events. Shadow and
-enforced parity recorded four matches and positive legacy durations. Shared
-authority recorded `parity=not_run`, `legacyMs=0` and `compareMs=0` for all
-four profiles. Shadow and enforced assignments were reset to zero assignment
-and item residue before the next mode.
+Each mode had exact payload, plan, binding and item-count parity. Shadow and
+enforced parity intentionally called both compilers. Shared-authoritative mode
+called only the shared compiler, had no fallback and recorded zero legacy
+calls. Each disposable mode transition began and ended with zero exact fixture
+residue.
 
-The deterministic fingerprints were identical across all three modes:
+## Lifecycle and rollback
 
-| Profile | Payload fingerprint | Source fingerprint | Lesson fingerprint |
-|---|---|---|---|
-| `D4_MOR_PREFIXES_DIS_MIS` | `c1e5517d3afa434dae4469165203b859434f8dd2150112306cd78c63c77e42df` | `362dc7eb2ab505ac197243e12a940bf633429fc5f5a1a1260c1eaa9702289efc` | `78e9d105e3820798ec79977b9ec4465fb71ef7560d7b583638b008351f8dd469` |
-| `D4_MOR_PREFIXES_IN_IM_IL_IR` | `5c95d2cba29034372e197556f085c88b7393734b6dd82d0150aa59be718e791c` | `055733c209d4873072d858e101e45022d9b5c2f2991ff29c056737d1d21c74a5` | `8b443ba561a4445ce31d6f42ef0b68af7a126f07a7e6263a8a5e59ef9f845685` |
-| `D4_MOR_PREFIXES_RE_PRE` | `932b6cae80ec9a4aab2a2ad2c5e04ad1059483ec1333ff2bb90055fbdabf3d28` | `fa4c15d00e508703fb7cf80d981d0862e32a7c8f688262610b7710f635a574bb` | `28d726aa36a0666184566194916769c2960932d4cdf3b3b4b7bc14dddf631bd1` |
-| `D4_MOR_PREFIXES_SUB_INTER_SUPER` | `08fb8f7f12f2a455c24da7df03908449e28c8dbc07267fc179729797d01defeb` | `024171eca18cc4dc2fd9517da4bc67756fd59a4d7023b6ca66e2e41efbdd3f7d` | `e60e27bb3a0c0728bc079e7585461540c1a560fa9cc76ddf23d972e2d234746c` |
+The normal assignment writer created all proof assignments. The unchanged
+learner experience completed all five shared-created assignments:
 
-## Learner lifecycle and persistence
+| Profile | Items | Attempt events | Reflections | Result |
+|---|---:|---:|---:|---|
+| `D4_MOR_PREFIXES_UN` | 16 | 14 | 1 | complete |
+| `D4_MOR_PREFIXES_DIS_MIS` | 16 | 14 | 1 | complete |
+| `D4_MOR_PREFIXES_IN_IM_IL_IR` | 16 | 14 | 1 | complete |
+| `D4_MOR_PREFIXES_RE_PRE` | 16 | 14 | 1 | complete |
+| `D4_MOR_PREFIXES_SUB_INTER_SUPER` | 18 | 16 | 1 | complete |
 
-Two representative shared-authoritative lessons were completed through the
-authenticated child route:
+The proof covered reload/resume, correct and incorrect feedback, attempt
+capture, reflection, taught history, authentic-word schedule transitions and
+the missing-treasure reward path. The `un-` lesson was reloaded after its first
+persisted activity and resumed at the next activity. An in-session browser
+interruption during the `IN_IM_IL_IR` dictation was recovered; the persisted
+fourth-sentence input and activity position resumed and completed.
 
-- `D4_MOR_PREFIXES_DIS_MIS`: 16 assignment items and 14 learner attempts;
-- `D4_MOR_PREFIXES_SUB_INTER_SUPER`: 18 assignment items and 16 learner
-  attempts.
+The application was rolled back to exact baseline
+`cf85325b1f14006d461903a08873188e6635fdfd` in deployment
+`dpl_CETdpE9FQTYUYdCt9UT759TfM2hL`
+(`https://scarletts-spells-staged-5u1w96woe.vercel.app`). A shared-created
+16-item `RE_PRE` Prefix V2 assignment rendered and completed through that
+unchanged historical reader with 14 attempts, one taught-history row, one
+schedule, one review bundle and the authentic item in
+`awaiting_review_outcome`. The shared-authoritative forward deployment was
+then restored.
 
-Both saved the instructed reflection, one taught-history event and one active
-next-day schedule, and both handled an absent optional Word Treasure row
-gracefully. The 16-item run reloaded after its first controlled spelling and
-resumed on the next word. The 18-item run was deliberately recovered after a
-browser interruption and resumed at the fourth controlled word, proving that
-completed items were persisted independently. Both finished with a completion
-trace, rendered the all-done state and retained the saved reflection.
+## Manual QA launcher
 
-## Deployment rollback and forward restoration
+The launcher is available only at `/admin/adle-dynamic-prefix-qa`. It uses the
+normal selector and shared writer and returns the normal learner route; it does
+not construct payloads or render a preview.
 
-Baseline commit `1f78d5e67f6d225dd128b37b29b796a0ee2384d4` was deployed only as Preview
-`dpl_DDaf38ivUADLm29ymucvbXVTyzXi` at
-`https://scarletts-spells-staged-17l0ol7mr.vercel.app`, explicitly linked to
-the pinned staging project. It opened a `D4_MOR_PREFIXES_RE_PRE` assignment
-created by the shared-authoritative writer, completed all 16 activities,
-persisted the reflection and rendered the all-done state.
+The pinned QA proof deployment was
+`dpl_8vEnbZkEJAXEzyqENcGLTzuFLmXp` at
+`https://scarletts-spells-staged-dcy27zbi9.vercel.app`. An otherwise identical
+deployment without the exact custom Vercel identity returned `404`, proving
+the unknown-environment guard.
 
-Returning to shared-authoritative deployment
-`dpl_Db8GBHVRPRVgv2wPK4PX44eZsTZb` immediately rendered the same completed
-assignment and reflection. The detached rollback worktree was then removed;
-`git worktree list` contained only the primary repository.
+Login prerequisite: authenticate as the explicitly allowlisted staging owner
+`katiesanderson8624@gmail.com` (`dfa79b46-5c32-4c67-bdde-32910224b19a`) and
+select the owned active child `ADLE Prefix QA`
+(`2128f0d7-07de-4f4a-82fc-1464eb2bbedc`).
 
-## Cleanup audit
+The fixed-order all-five action created these intentionally retained manual-QA
+assignments. Repeating the same action returned `existing` for all five and
+created no duplicates.
 
-The proof harness deleted the disposable identities, children, learning rows,
-assignments and items, attempts, reflections, taught history, schedules and
-generated reward references. The exact-fixture residue audit returned zero.
-The profile/dictionary audit returned unchanged with the same protected
-fingerprint, and a fresh post-cleanup preflight again found `4 / 28 / 28 / 28`
-profile/member/metadata/dictation coverage and no normal-path `un-` profile.
-Ignored credential/state files were removed.
+| Profile | Assignment ID | Date | Items | Initial status |
+|---|---|---|---:|---|
+| `UN` | `e51b817d-e60c-4001-9abd-2d5734a94ecf` | 2026-08-10 | 16 | created |
+| `DIS_MIS` | `1d21cc47-35a0-4f49-a542-a9d8d17d554a` | 2026-08-11 | 16 | created |
+| `IN_IM_IL_IR` | `e2fdc42e-7e9f-4f28-8203-acc52352a788` | 2026-08-12 | 16 | created |
+| `RE_PRE` | `b49b82c2-3d95-4264-8759-c0253e97416e` | 2026-08-13 | 16 | created |
+| `SUB_INTER_SUPER` | `7bb8dc68-efd9-4b30-ade2-415f4ff7e5e2` | 2026-08-14 | 18 | created |
 
-## Final local verification
+All five persisted `dynamic_prefix_lesson_v2` version 2 route payloads and
+normal `adle_composer_v1` source metadata. Each returned child link opened the
+existing learner renderer and the expected introduction. Direct link paths
+are:
 
-- ESLint, application TypeScript, script TypeScript and the production Next.js
-  build passed on the final tree.
-- The semantic production baseline passed all 31 regressions. Focused suites
-  also passed the exhaustive 112 migrated-profile/authentic-position cases,
-  three authority modes, mutation and fingerprint blockers, assignment
-  plan/binding/count zero-write gates, Prefix V2 history/runtime, Dynamic Affix
-  V3, Common Word Lab, composable lesson, completion, evidence, scheduler and
-  reward behavior.
-- The isolated compiler benchmark used 50 warmups and 500 decisions per
-  profile/mode combination. Against gates of p95 ≤ 10 ms, p99 ≤ 20 ms and heap
-  delta ≤ 5 MB per decision, the worst observed values were p95 5.212 ms, p99
-  18.104 ms and 0.030 MB per decision.
-- All 12 generated architecture inventory files regenerated cleanly; the drift
-  and documentation regressions passed.
-- The baseline-to-final diff contains no Supabase migration, Teaching
-  Dictionary content, Dynamic Affix writer, Common Word Lab, or package-lock
-  change.
+- `UN`: `/learn/week/adle?child=2128f0d7-07de-4f4a-82fc-1464eb2bbedc&mode=child&adleDate=2026-08-10`
+- `DIS_MIS`: `/learn/week/adle?child=2128f0d7-07de-4f4a-82fc-1464eb2bbedc&mode=child&adleDate=2026-08-11`
+- `IN_IM_IL_IR`: `/learn/week/adle?child=2128f0d7-07de-4f4a-82fc-1464eb2bbedc&mode=child&adleDate=2026-08-12`
+- `RE_PRE`: `/learn/week/adle?child=2128f0d7-07de-4f4a-82fc-1464eb2bbedc&mode=child&adleDate=2026-08-13`
+- `SUB_INTER_SUPER`: `/learn/week/adle?child=2128f0d7-07de-4f4a-82fc-1464eb2bbedc&mode=child&adleDate=2026-08-14`
+
+The retained fixture verifier binds the owner, child and one selectable source
+row per non-`un-` profile. It reports five existing selectable `un-` rows and
+one governed retained-QA row for each other profile. The retained rows are
+owned by the named staging owner; no disposable automated owner or child is
+retained.
+
+## Visual and interaction result
+
+The five lessons were inspected and completed in the unchanged renderer at
+desktop width. Introduction, all profile-specific Cleavers, meaning sort,
+builds, controlled spelling, Cover Check, dictations, reflection, completion,
+correct/incorrect feedback, activity order, word order, cuts, choices, audio,
+animation and resume behavior matched the persisted Prefix V2 contract. At
+390 by 844, all five introductions and normal lesson links rendered with a
+390-pixel document width and no horizontal document overflow.
+
+One pre-existing renderer note was recorded separately: on the narrow mobile
+viewport, the horizontally scrollable progress-pill row initially clips its
+later labels. It is not a compiler/data difference, does not clip lesson copy
+or controls, and no renderer change was made in this migration.
+
+## Tests, performance and cleanup
+
+The exact-source validator; old/shared mutation and exhaustive-position
+parity; deterministic Prefix V2, plan and binding tests; historical reads;
+route, date-override, resume, completion, evidence, scheduling and reward
+regressions; shared-affix suite; semantic production baseline; documentation
+generation/drift; TypeScript; lint; build; and performance gates passed. The
+exhaustive authority suite covered 140 cases. The compiler benchmark remained
+under the 10 ms p95, 20 ms p99 and 5 MB heap gates (observed p95 below 1 ms,
+p99 approximately 1.235 ms and estimated heap below 0.03 MB during the rollout
+proof). The final rerun remained green at worst-case p95 5.487 ms, p99 11.137
+ms and estimated heap 0.031 MB per decision.
+
+One pre-existing standalone-script issue remains outside this migration: the
+isolated `adle:attempt-capture-regression` wrapper invokes TypeScript without
+the repository's strict narrowing options and reports `blockers` narrowing
+errors in two unchanged Generic Snapshot files. The same attempt-capture
+regression passes inside the 31-test semantic production baseline, and both
+the application and scripts TypeScript projects pass. The baseline files were
+not changed to conceal or mix that unrelated wrapper defect into this stage.
+
+Before release, protected staging counts were 76 learning items, 39
+assignments, 666 assignment items, 396 attempts, 97 schedules and zero reward
+rows. Final guarded cleanup deleted every exact disposable proof owner, child,
+assignment and lifecycle row and reported `exactFixtureResidue: 0`. The
+governed profile/dictionary projection remained unchanged. Only the five named
+manual-QA assignments and their named existing staging child were retained.
 
 ## Production boundary
 
-No production database or Vercel deployment was read through proof
-credentials, mutated, deployed or promoted. Production rollout remains a
-separate decision requiring explicit written authorization and every gate in
-`adle-dynamic-prefix-shared-compiler-production-rollout-checklist.md`.
+No production deployment, data mutation, profile activation or identity use
+occurred. The production-mode and unknown-environment regression proves the
+implemented launcher resolves to `404`; the unknown-identity staging
+deployment also returned `404`. The live production application remains the
+unchanged baseline, so an anonymous live probe continues through its existing
+global authentication redirect rather than exercising this unreleased page.
+An authenticated live-production `404` is therefore a later, separately
+authorised production-rollout check, not something this staging-only task could
+mutate production to demonstrate.
+
+Dynamic Affix and Common Word Lab were not changed or activated. No database
+migration or RPC was added. The legacy Prefix compiler remains for the later
+explicit retirement decision after production rollout and observation.

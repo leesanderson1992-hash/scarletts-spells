@@ -191,3 +191,23 @@ npm run teaching-dictionary:deactivate -- \
 The command discovers every foreign-key reference to released words. Any
 runtime dependency blocks deactivation. Used content must be corrected with a
 reviewed repair release.
+
+## Governed Dynamic Prefix profile-only staging release
+
+The approved `un-` production projection is an exceptional profile/member
+release over seven already-approved staging words. It is not a canonical-word
+batch and must use its dedicated guarded tool:
+
+```bash
+npm run adle:dynamic-prefix-un-release:validate
+npm run adle:dynamic-prefix-un-release:plan -- --target staging
+npm run adle:dynamic-prefix-un-release:release -- \
+  --target staging --apply --confirm "<exact token from plan>"
+npm run adle:dynamic-prefix-un-release:verify -- --target staging
+```
+
+The tool pins project `jlhotktspjvffslvuyfz`, permanently rejects production,
+uses a serializable transaction and advisory lock, and verifies exact readback,
+row counts, immutable IDs, protected counts and dictionary fingerprints. Its
+deactivate/reactivate commands require their own package-SHA confirmation and
+never delete rows. Deactivation blocks after an `un-` assignment exists.

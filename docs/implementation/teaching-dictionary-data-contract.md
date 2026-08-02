@@ -145,6 +145,13 @@ GET/HEAD. It creates no learner fixture or assignment and records only redacted
 hashes and counts. Production access is rejected. Its receipt is
 `docs/implementation/qa/adle-shared-affix-staging-proof-2026-08-01.json`.
 
+The exact approved `D4_MOR_PREFIXES_UN` profile/member projection is governed
+by immutable release `adle_dynamic_prefix_un_profile_staging_v1_2026_08_02`.
+That staging-only release resolves the seven existing canonical identities by
+`word_key`, inserts one disabled profile and seven members, and fingerprints
+the protected dictionary before and after. It must create or update zero
+canonical word, metadata, morphology, dictation or learner/runtime rows.
+
 ## Database release invariants
 
 - Canonical batches contain 1–1,000 reviewed canonical entries.

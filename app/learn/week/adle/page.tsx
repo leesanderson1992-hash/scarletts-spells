@@ -24,6 +24,7 @@ import {
 import { AdleSessionCelebration } from "@/components/adle/adle-session-celebration";
 import { isMorphologyUnPilotEnabledForChild } from "@/lib/adle/morphology/pilot-access";
 import { isDynamicPrefixRouteEnabled } from "@/lib/adle/morphology/dynamic-prefix-staging-access";
+import { isDynamicPrefixQaAuthorizedForUser } from "@/lib/adle/morphology/dynamic-prefix-qa-access";
 import { isDynamicSuffixRouteEnabled } from "@/lib/adle/morphology/dynamic-suffix-route-gate";
 import { isBaseWordFamilyPilotEnabledForChild } from "@/lib/adle/morphology/base-word-family-pilot-access";
 import { type ChildLearningReflection } from "@/lib/adle/morphology/reflections";
@@ -75,6 +76,7 @@ export default async function AdleSessionPage({ searchParams }: AdleSessionPageP
     requestedDate: resolvedSearchParams?.adleDate,
     fallbackDate: actualToday,
     isAdmin: isAdminUser(user),
+    isStagingQa: isDynamicPrefixQaAuthorizedForUser(user),
   });
   if (planDate === null) {
     notFound();

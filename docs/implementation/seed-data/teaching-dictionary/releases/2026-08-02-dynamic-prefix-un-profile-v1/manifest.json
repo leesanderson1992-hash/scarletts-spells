@@ -1,0 +1,72 @@
+{
+  "schemaVersion": "dynamic_prefix_profile_release_v1",
+  "releaseId": "adle_dynamic_prefix_un_profile_staging_v1_2026_08_02",
+  "contentId": "d4_mor_prefixes_un_approved_profile_2026_07_28",
+  "target": {
+    "environment": "staging",
+    "supabaseProjectRef": "jlhotktspjvffslvuyfz",
+    "productionEnabled": false
+  },
+  "source": {
+    "path": "data/adle/pilots/d4-mor-prefixes-un/v1/lesson.json",
+    "sha256": "d7a69aa4d0d8c00c15706742f949334b821aaf4a1aeb380e43944c6fc3544189",
+    "approvedProductionProfileId": "424dd982-8454-44a8-8f35-670fb8f343cd",
+    "approvedProductionBatchId": "897c6cce-86cb-4b12-a6b7-698fb33152da",
+    "approvedProductionProfileSha256": "c93012180fa6d50b78effd6e63900d0d3fe9987201fafe894f85ecd7762d7336",
+    "approvedProductionMembersSha256": "c3dc1b18f5c2f9b46a1d2c87232b871b37c8803557174b24e0715db319531a5f",
+    "approvedProductionProjectionSha256": "892d8e99aa030da6626f0e46d1ccba680988a4447f648c7da8529ba6e8561b6d",
+    "canonicalThreeWordPackageId": "adle_canonical_un_prefix_2026_07_21",
+    "canonicalThreeWordPackageSha256": "4d93822664e3790da805ca934a7c2149218cbd3fba47d072e566bbf806d78b31d"
+  },
+  "activation": {
+    "production": false,
+    "canonicalWords": false,
+    "wordMetadata": false,
+    "wordMorphology": false,
+    "dictations": false,
+    "learningItems": false,
+    "assignments": false,
+    "evidence": false,
+    "scheduling": false,
+    "rewards": false
+  },
+  "rowCounts": {
+    "importBatches": 1,
+    "profiles": 1,
+    "members": 7,
+    "canonicalWords": 0,
+    "wordMetadata": 0,
+    "wordMorphology": 0,
+    "dictations": 0,
+    "learnerRows": 0
+  },
+  "profile": {
+    "microSkillKey": "D4_MOR_PREFIXES_UN",
+    "prefixLabel": "un-",
+    "prefixText": "un",
+    "prefixMeaning": "not or reverse",
+    "meaningBins": [
+      { "id": "not", "label": "NOT", "description": "not" },
+      { "id": "reverse", "label": "REVERSE", "description": "reverse" }
+    ],
+    "prefixChoices": [
+      { "text": "un", "label": "un-", "outcome": null, "meaning": null, "status": "target" },
+      { "text": "", "label": "no prefix", "outcome": null, "meaning": null, "status": "target" }
+    ],
+    "reflectionPromptKey": "dynamic-prefix-un-observation-v2",
+    "reflectionPromptText": "What did you notice about what un- does in these words?",
+    "introContent": null,
+    "productionEnabled": false,
+    "rowStatus": "active",
+    "reviewStatus": "approved_for_first_exposure"
+  },
+  "members": [
+    { "wordKey": "unhappy_en_gb", "displayWord": "unhappy", "memberRole": "transfer", "baseWord": "happy", "baseMeaning": "feeling pleased", "childFriendlyMeaning": "not happy", "meaningBinKey": "not", "prefixVariant": "un" },
+    { "wordKey": "unfair_en_gb", "displayWord": "unfair", "memberRole": "transfer", "baseWord": "fair", "baseMeaning": "fair and equal", "childFriendlyMeaning": "not fair", "meaningBinKey": "not", "prefixVariant": "un" },
+    { "wordKey": "unkind_en_gb", "displayWord": "unkind", "memberRole": "transfer", "baseWord": "kind", "baseMeaning": "caring and helpful", "childFriendlyMeaning": "not kind", "meaningBinKey": "not", "prefixVariant": "un" },
+    { "wordKey": "unlock_en_gb", "displayWord": "unlock", "memberRole": "transfer", "baseWord": "lock", "baseMeaning": "close with a lock", "childFriendlyMeaning": "reverse the lock", "meaningBinKey": "reverse", "prefixVariant": "un" },
+    { "wordKey": "untidy_en_gb", "displayWord": "untidy", "memberRole": "transfer", "baseWord": "tidy", "baseMeaning": "neat and ordered", "childFriendlyMeaning": "not tidy", "meaningBinKey": "not", "prefixVariant": "un" },
+    { "wordKey": "unnatural_en_gb", "displayWord": "unnatural", "memberRole": "transfer", "baseWord": "natural", "baseMeaning": "natural", "childFriendlyMeaning": "not natural", "meaningBinKey": "not", "prefixVariant": "un" },
+    { "wordKey": "unnecessary_en_gb", "displayWord": "unnecessary", "memberRole": "transfer", "baseWord": "necessary", "baseMeaning": "necessary", "childFriendlyMeaning": "not necessary", "meaningBinKey": "not", "prefixVariant": "un" }
+  ]
+}

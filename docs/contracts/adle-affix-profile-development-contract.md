@@ -1,7 +1,7 @@
 # ADLE shared affix profile development contract
 
 Status: authoring and drift contract for the shared affix compiler. Dynamic
-Prefix has a guarded four-profile writer boundary; Dynamic Affix remains dark.
+Prefix has a guarded all-five-profile writer boundary; Dynamic Affix remains dark.
 
 ## Adding or changing a profile mapping
 
@@ -29,8 +29,9 @@ Every selected word must provide:
 - an affix form declared by the profile and its display label/meaning;
 - child-facing parts, joins and one reviewed Cleaver split;
 - one contextual dictation with the exact target token and matching audio;
-- reviewed true morphology, transformations, notes and provenance, or the
-  narrow current Prefix V2 legacy projection marker.
+- reviewed true morphology, transformations, notes and provenance at the
+  Teaching Dictionary boundary while preserving the established Prefix V2
+  public snapshot.
 
 The compiler reconstructs only from these facts. It does not infer a spelling
 change. Supported current transformation types are generated in

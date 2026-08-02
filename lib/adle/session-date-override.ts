@@ -4,6 +4,7 @@ export function resolveAdlePlanDateOverride(params: {
   requestedDate: string | undefined;
   fallbackDate: string;
   isAdmin: boolean;
+  isStagingQa?: boolean;
 }): string | null {
   const requested = params.requestedDate?.trim();
   if (!requested) {
@@ -12,7 +13,7 @@ export function resolveAdlePlanDateOverride(params: {
   if (!ISO_DATE_ONLY.test(requested)) {
     return null;
   }
-  if (!params.isAdmin) {
+  if (!params.isAdmin && !params.isStagingQa) {
     return null;
   }
   return requested;

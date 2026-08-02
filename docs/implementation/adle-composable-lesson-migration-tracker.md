@@ -55,14 +55,16 @@ Dictionary content. Those facts are generated from the code registries under
    eligible words in 300 authentic-slot cases with exact V2/V3 payload and
    binding parity and zero remote writes. The redacted receipt is
    `docs/implementation/qa/adle-shared-affix-staging-proof-2026-08-01.json`.
-4. **Implemented and staging-proven on 2026-08-02; production rollout requires
-   separate authorization:** migrated
-   compiler authority for `DIS_MIS`, `IN_IM_IL_IR`, `RE_PRE`, and
-   `SUB_INTER_SUPER` behind shadow, enforced-parity and shared-authoritative
-   modes while preserving Prefix V2. `un-` remains explicitly
-   `legacy_pending_exact_source` until a separate normal-path source proof.
-   The normal-writer, 16/18-item lifecycle, interruption/resume, completion,
-   rollback, forward-restore and zero-residue evidence is recorded in
+4. **All-five implementation and staging proof complete on 2026-08-02;
+   production rollout
+   requires separate authorization:** the first four profiles passed the
+   recorded staging proof, then the exact approved production `un-` profile
+   was packaged for a governed staging-only normal-path release. `UN`,
+   `DIS_MIS`, `IN_IM_IL_IR`, `RE_PRE`, and `SUB_INTER_SUPER` now share the
+   shadow, enforced-parity and shared-authoritative lifecycle while preserving
+   Prefix V2. The all-five normal-writer, 16/18-item lifecycle,
+   interruption/resume, completion, rollback, forward-restore, launcher and
+   zero-residue evidence is recorded in
    `docs/implementation/qa/adle-dynamic-prefix-shared-compiler-staging-proof-2026-08-02.md`.
    This is an internal V2 compiler migration, not Generic Snapshot activation.
    Migrate Dynamic Affix independently only in a later authorised stage.
@@ -127,19 +129,19 @@ For stage 3, exit evidence includes:
   cases;
 - both authoritative compilers and all historical readers retained.
 
-For stage 4, exit evidence includes:
+For stage 4, final all-five exit evidence includes:
 
-- exact four-profile V2 payload, plan, binding, runtime and learner-behavior
+- exact five-profile V2 payload, plan, binding, runtime and learner-behavior
   parity under shadow, enforced-parity and shared-authoritative modes;
-- explicit `un-` legacy authority with no synthetic projection counted as a
-  migrated normal writer path;
+- immutable exact-production `un-` source release with one staging profile,
+  seven members and zero canonical/dictation/learner fact writes;
 - fingerprint, mutation, deterministic-order, fail-closed and zero-write
   regressions plus compiler/action performance gates;
 - staging identity rejection of production, normal-path assignment creation,
   16/18-item lifecycle, resume, completion, evidence, schedules and rewards;
 - pre-migration deployment rollback against a shared-created V2 assignment,
   forward restoration and exact disposable cleanup;
-- no database, Teaching Dictionary, Dynamic Affix, Generic Snapshot or Common
-  Word Lab change; and
-- legacy compiler retention until a later exact-source `un-` stage and
+- no database migration, RPC, Dynamic Affix, Generic Snapshot or Common Word
+  Lab change; and
+- legacy compiler retention until a later explicit retirement stage after
   production observation across all five profiles.
