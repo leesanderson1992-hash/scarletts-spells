@@ -75,6 +75,7 @@
     "adle:dynamic-prefix-shared-authority-regression": "npx tsx scripts/adle-dynamic-prefix-shared-authority-regression.ts",
     "adle:dynamic-prefix-compiler-benchmark": "npx tsx scripts/adle-dynamic-prefix-compiler-benchmark.ts",
     "adle:dynamic-prefix-shared-staging-proof": "npx tsx scripts/adle-dynamic-prefix-shared-staging-proof.ts",
+    "adle:dynamic-prefix-shared-staging-proof-regression": "npx tsx scripts/adle-dynamic-prefix-shared-staging-proof-regression.ts",
     "adle:composable-contract-regression": "npx tsx scripts/adle-composable-lesson-contract-regression.ts",
     "adle:word-lab-foundation-regression": "npx tsx scripts/adle-word-lab-foundation-regression.ts",
     "adle:composable-compatibility-regression": "npx tsx scripts/adle-composable-compatibility-regression.ts",

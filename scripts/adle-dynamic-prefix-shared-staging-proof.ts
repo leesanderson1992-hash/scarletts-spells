@@ -25,6 +25,7 @@ import {
   validateDynamicPrefixWordLabPayload,
   type DynamicPrefixLessonPayloadV2,
 } from "../lib/adle/morphology/dynamic-prefix-word-lab";
+import { fingerprintSerializableProofValue } from "./lib/adle-staging-proof-serialization";
 
 const STAGING_REF = "jlhotktspjvffslvuyfz";
 const STAGING_HOST = `${STAGING_REF}.supabase.co`;
@@ -401,7 +402,7 @@ async function verifyMode(
     });
     assert(persistence.action === "insert" && persistence.header, `${fixture.profileKey}: persistence projection`);
     assert(
-      fingerprintSnapshotValue(header.lesson_route_metadata) === fingerprintSnapshotValue(persistence.header.lessonRouteMetadata),
+      fingerprintSerializableProofValue(header.lesson_route_metadata) === fingerprintSerializableProofValue(persistence.header.lessonRouteMetadata),
       `${fixture.profileKey}: route metadata`,
     );
     const persistedProjection = persistedItems.map((item: any) => ({
@@ -414,7 +415,7 @@ async function verifyMode(
       metadata: item.metadata,
     }));
     assert(
-      fingerprintSnapshotValue(persistedProjection) === fingerprintSnapshotValue(persistence.items),
+      fingerprintSerializableProofValue(persistedProjection) === fingerprintSerializableProofValue(persistence.items),
       `${fixture.profileKey}: persisted assignment projection`,
     );
     const root = (persistedItems as any[]).find(
@@ -424,7 +425,7 @@ async function verifyMode(
     assert(
       persistedPayload
       && validateDynamicPrefixWordLabPayload(persistedPayload)
-      && fingerprintSnapshotValue(persistedPayload) === fingerprintSnapshotValue(decision.payload),
+      && fingerprintSerializableProofValue(persistedPayload) === fingerprintSerializableProofValue(decision.payload),
       `${fixture.profileKey}: persisted V2 payload parity`,
     );
     assert(header.assignment_generation_source === "adle_composer_v1", `${fixture.profileKey}: generation source`);
@@ -433,7 +434,7 @@ async function verifyMode(
       childId: fixture.childId,
       assignmentId: header.id,
       itemCount: persistedItems.length,
-      payloadFingerprint: fingerprintSnapshotValue(persistedPayload),
+      payloadFingerprint: fingerprintSerializableProofValue(persistedPayload),
       sourceFingerprint: decision.sharedLesson.provenance.sourceFingerprint,
       lessonFingerprint: decision.sharedLesson.fingerprint,
       legacyInvoked: decision.metrics.legacyInvoked,
