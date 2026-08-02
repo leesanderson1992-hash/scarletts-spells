@@ -55,13 +55,17 @@ Dictionary content. Those facts are generated from the code registries under
    eligible words in 300 authentic-slot cases with exact V2/V3 payload and
    binding parity and zero remote writes. The redacted receipt is
    `docs/implementation/qa/adle-shared-affix-staging-proof-2026-08-01.json`.
-4. **Implementation complete locally; guarded staging proof pending:** migrate
+4. **Implemented and staging-proven on 2026-08-02; production rollout requires
+   separate authorization:** migrated
    compiler authority for `DIS_MIS`, `IN_IM_IL_IR`, `RE_PRE`, and
    `SUB_INTER_SUPER` behind shadow, enforced-parity and shared-authoritative
    modes while preserving Prefix V2. `un-` remains explicitly
    `legacy_pending_exact_source` until a separate normal-path source proof.
+   The normal-writer, 16/18-item lifecycle, interruption/resume, completion,
+   rollback, forward-restore and zero-residue evidence is recorded in
+   `docs/implementation/qa/adle-dynamic-prefix-shared-compiler-staging-proof-2026-08-02.md`.
    This is an internal V2 compiler migration, not Generic Snapshot activation.
-   Migrate Dynamic Affix independently only after Prefix rollback evidence.
+   Migrate Dynamic Affix independently only in a later authorised stage.
 5. Address Closed Compound authentic/transfer coupling and comparator policy
    in separately approved behaviour-change PRs.
 6. Migrate Closed Compound only after those decisions and fresh semantic

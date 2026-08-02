@@ -1,6 +1,6 @@
 # ADLE Current State and Lesson Release Registry
 
-Updated: 2026-07-31
+Updated: 2026-08-02
 
 ## Purpose
 
@@ -109,7 +109,9 @@ explicit `legacy_pending_exact_source` authority because staging lacks its
 normal approved profile row and the select-only proof projection is not an
 exact production source. Missing mappings/content, fingerprints, adapter
 parity, plan bindings or counts fail closed before assignment persistence in
-enforced/shared modes.
+enforced/shared modes. The full writer, lifecycle, rollback and cleanup proof
+passed on the pinned staging project on 2026-08-02; see
+`docs/implementation/qa/adle-dynamic-prefix-shared-compiler-staging-proof-2026-08-02.md`.
 
 The future reviewed-correction bridge must create ADLE candidates only for
 `production_enabled` keys. Raw, pending, rejected, dictionary-missing, and
@@ -126,10 +128,11 @@ source provenance. A profile with any incomplete reviewed fact fails closed.
 All five listed production profiles are independently dictionary-backed and
 production-enabled. The global route gate does not override a profile record.
 Compiler migration does not change profile activation or Teaching Dictionary
-facts. The four-profile compiler boundary requires guarded staging proof before
-any separately authorised production deployment. A later `un-` migration must
-first establish an exact production-authority fixture and equivalent normal
-staging profile path; its current synthetic projection must not be counted.
+facts. The four-profile compiler boundary has passed guarded staging proof;
+production deployment remains separately authorised and has not occurred. A
+later `un-` migration must first establish an exact production-authority
+fixture and equivalent normal staging profile path; its current synthetic
+projection must not be counted.
 
 ## Documentation update rule
 
