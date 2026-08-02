@@ -46,27 +46,27 @@
 | review_quick_sort:v1 | guided | none | canonical_word.canonical_identity, word_micro_skill_support.meaning_group |
 | word_build:v1 | guided | guided_completion | word_micro_skill_support.teaching_decomposition, canonical_word.joins, canonical_word.transformations, word_micro_skill_support.child_meaning |
 
-## Dark shared affix compiler
+## Shared affix compiler
 
-> This position-aware compiler and its V2/V3 adapters run only in regressions and the select-only staging proof. Existing production compilers remain authoritative.
+> Dynamic Prefix V2 has a guarded four-profile compiler-authority boundary. `un-` remains explicitly legacy pending an exact source proof. Dynamic Affix V3 remains dark.
 
-| Profile | Route | Position | Forms | Items | Split | Build | Meaning |
-|---|---|---|---|---:|---|---|---|
-| D4_MOR_PREFIXES_UN | dynamic_prefix_word_lab:v2 | before | un | 16 | first_words | different_form_from_first_or_first | sort_all_words |
-| D4_MOR_PREFIXES_DIS_MIS | dynamic_prefix_word_lab:v2 | before | dis, mis | 16 | first_words | different_form_from_first_or_first | sort_all_words |
-| D4_MOR_PREFIXES_IN_IM_IL_IR | dynamic_prefix_word_lab:v2 | before | in, im, il, ir | 16 | guided_budget_after_form_builds | one_per_represented_form | none |
-| D4_MOR_PREFIXES_RE_PRE | dynamic_prefix_word_lab:v2 | before | re, pre | 16 | first_words | different_form_from_first_or_first | sort_all_words |
-| D4_MOR_PREFIXES_SUB_INTER_SUPER | dynamic_prefix_word_lab:v2 | before | sub, inter, super | 18 | distinct_forms_then_fill | different_form_from_first_or_first | sort_all_words |
-| D4_MOR_SUFFIXES_NESS | dynamic_affix_word_lab:v3 | after | ness | 16 | one_per_form_else_direct_and_changed | every_lesson_word | none |
-| D4_MOR_SUFFIXES_ABLE_IBLE | dynamic_affix_word_lab:v3 | after | able, ible | 16 | one_per_form_else_direct_and_changed | every_lesson_word | none |
-| D4_MOR_SUFFIXES_MENT | dynamic_affix_word_lab:v3 | after | ment | 16 | one_per_form_else_direct_and_changed | every_lesson_word | none |
-| D4_MOR_SUFFIXES_FUL_LESS | dynamic_affix_word_lab:v3 | after | ful, less | 18 | one_per_form_else_direct_and_changed | one_per_represented_form_prefer_non_split | sort_all_words |
-| D4_MOR_SUFFIXES_AL | dynamic_affix_word_lab:v3 | after | al | 16 | one_per_form_else_direct_and_changed | every_lesson_word | none |
-| D4_MOR_SUFFIXES_ITY | dynamic_affix_word_lab:v3 | after | ity | 16 | one_per_form_else_direct_and_changed | every_lesson_word | none |
-| D4_MOR_SUFFIXES_LY | dynamic_affix_word_lab:v3 | after | ly | 16 | one_per_form_else_direct_and_changed | every_lesson_word | none |
-| D4_MOR_SUFFIXES_OUS | dynamic_affix_word_lab:v3 | after | ous | 16 | one_per_form_else_direct_and_changed | every_lesson_word | none |
-| D4_MOR_SUFFIXES_TION | dynamic_affix_word_lab:v3 | after | tion | 16 | one_per_form_else_direct_and_changed | every_lesson_word | none |
-| D4_MOR_SUFFIXES_SION | dynamic_affix_word_lab:v3 | after | sion | 16 | one_per_form_else_direct_and_changed | every_lesson_word | none |
+| Profile | Route | Position | Forms | Items | Split | Build | Meaning | Compiler authority |
+|---|---|---|---|---:|---|---|---|---|
+| D4_MOR_PREFIXES_UN | dynamic_prefix_word_lab:v2 | before | un | 16 | first_words | different_form_from_first_or_first | sort_all_words | legacy_pending_exact_source |
+| D4_MOR_PREFIXES_DIS_MIS | dynamic_prefix_word_lab:v2 | before | dis, mis | 16 | first_words | different_form_from_first_or_first | sort_all_words | shared_migration |
+| D4_MOR_PREFIXES_IN_IM_IL_IR | dynamic_prefix_word_lab:v2 | before | in, im, il, ir | 16 | guided_budget_after_form_builds | one_per_represented_form | none | shared_migration |
+| D4_MOR_PREFIXES_RE_PRE | dynamic_prefix_word_lab:v2 | before | re, pre | 16 | first_words | different_form_from_first_or_first | sort_all_words | shared_migration |
+| D4_MOR_PREFIXES_SUB_INTER_SUPER | dynamic_prefix_word_lab:v2 | before | sub, inter, super | 18 | distinct_forms_then_fill | different_form_from_first_or_first | sort_all_words | shared_migration |
+| D4_MOR_SUFFIXES_NESS | dynamic_affix_word_lab:v3 | after | ness | 16 | one_per_form_else_direct_and_changed | every_lesson_word | none | dark_no_writer |
+| D4_MOR_SUFFIXES_ABLE_IBLE | dynamic_affix_word_lab:v3 | after | able, ible | 16 | one_per_form_else_direct_and_changed | every_lesson_word | none | dark_no_writer |
+| D4_MOR_SUFFIXES_MENT | dynamic_affix_word_lab:v3 | after | ment | 16 | one_per_form_else_direct_and_changed | every_lesson_word | none | dark_no_writer |
+| D4_MOR_SUFFIXES_FUL_LESS | dynamic_affix_word_lab:v3 | after | ful, less | 18 | one_per_form_else_direct_and_changed | one_per_represented_form_prefer_non_split | sort_all_words | dark_no_writer |
+| D4_MOR_SUFFIXES_AL | dynamic_affix_word_lab:v3 | after | al | 16 | one_per_form_else_direct_and_changed | every_lesson_word | none | dark_no_writer |
+| D4_MOR_SUFFIXES_ITY | dynamic_affix_word_lab:v3 | after | ity | 16 | one_per_form_else_direct_and_changed | every_lesson_word | none | dark_no_writer |
+| D4_MOR_SUFFIXES_LY | dynamic_affix_word_lab:v3 | after | ly | 16 | one_per_form_else_direct_and_changed | every_lesson_word | none | dark_no_writer |
+| D4_MOR_SUFFIXES_OUS | dynamic_affix_word_lab:v3 | after | ous | 16 | one_per_form_else_direct_and_changed | every_lesson_word | none | dark_no_writer |
+| D4_MOR_SUFFIXES_TION | dynamic_affix_word_lab:v3 | after | tion | 16 | one_per_form_else_direct_and_changed | every_lesson_word | none | dark_no_writer |
+| D4_MOR_SUFFIXES_SION | dynamic_affix_word_lab:v3 | after | sion | 16 | one_per_form_else_direct_and_changed | every_lesson_word | none | dark_no_writer |
 
 ## Blockers
 
@@ -75,6 +75,7 @@
 - `activity_requirement_failed`: activity requirement failed.
 - `activity_requirement_unmet`: activity requirement unmet.
 - `activity_selector_failed`: activity selector failed.
+- `adapter_payload_invalid`: adapter payload invalid.
 - `affix_form_missing`: affix form missing.
 - `ambiguous_recipe`: ambiguous recipe.
 - `ambiguous_route`: ambiguous route.
@@ -82,6 +83,7 @@
 - `assignment_binding_failure`: assignment binding failure.
 - `assignment_binding_mismatch`: assignment binding mismatch.
 - `assignment_item_count_mismatch`: assignment item count mismatch.
+- `assignment_plan_mismatch`: assignment plan mismatch.
 - `authentic_target_not_approved`: authentic target not approved.
 - `banding_facts_missing`: banding facts missing.
 - `base_or_root_missing`: base or root missing.
@@ -121,6 +123,8 @@
 - `item_position_mismatch`: item position mismatch.
 - `item_section_mismatch`: item section mismatch.
 - `item_template_mismatch`: item template mismatch.
+- `legacy_payload_invalid`: legacy payload invalid.
+- `lesson_fingerprint_mismatch`: lesson fingerprint mismatch.
 - `malformed_content_provenance`: malformed content provenance.
 - `malformed_fingerprint`: malformed fingerprint.
 - `malformed_metadata`: malformed metadata.
@@ -135,6 +139,7 @@
 - `missing_item_binding`: missing item binding.
 - `missing_meaning_facts`: missing meaning facts.
 - `missing_profile_copy`: missing profile copy.
+- `missing_profile_mapping`: missing profile mapping.
 - `missing_recipe`: missing recipe.
 - `missing_reviewed_dictation`: missing reviewed dictation.
 - `missing_route`: missing route.
@@ -172,6 +177,8 @@
 - `runtime_reconstruction_failure`: runtime reconstruction failure.
 - `schedule_role_mismatch`: schedule role mismatch.
 - `selected_word_not_in_profile`: selected word not in profile.
+- `semantic_parity_mismatch`: semantic parity mismatch.
+- `shared_compiler_blocked`: shared compiler blocked.
 - `snapshot_assignment_source_mismatch`: snapshot assignment source mismatch.
 - `snapshot_fingerprint_mismatch`: snapshot fingerprint mismatch.
 - `snapshot_item_count_mismatch`: snapshot item count mismatch.
@@ -181,6 +188,7 @@
 - `snapshot_runtime_mismatch`: snapshot runtime mismatch.
 - `snapshot_shape_invalid`: snapshot shape invalid.
 - `snapshot_without_explicit_generic_route`: snapshot without explicit generic route.
+- `source_fingerprint_mismatch`: source fingerprint mismatch.
 - `taxonomy_binding_missing`: taxonomy binding missing.
 - `transfer_not_approved`: transfer not approved.
 - `transformation_missing_or_invalid`: transformation missing or invalid.
@@ -190,6 +198,7 @@
 - `unresolved_activity_binding`: unresolved activity binding.
 - `unsupported_legacy_payload`: unsupported legacy payload.
 - `unsupported_metadata_schema_version`: unsupported metadata schema version.
+- `unsupported_rollout_state`: unsupported rollout state.
 - `unsupported_route_version`: unsupported route version.
 - `unsupported_snapshot_schema_version`: unsupported snapshot schema version.
 - `unsupported_template`: unsupported template.

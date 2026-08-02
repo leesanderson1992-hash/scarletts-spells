@@ -1,6 +1,7 @@
 # ADLE shared affix profile development contract
 
-Status: authoring and drift contract for the shadow shared affix compiler.
+Status: authoring and drift contract for the shared affix compiler. Dynamic
+Prefix has a guarded four-profile writer boundary; Dynamic Affix remains dark.
 
 ## Adding or changing a profile mapping
 
@@ -8,7 +9,8 @@ A production Dynamic Prefix V2 or Dynamic Affix V3 microskill must have exactly
 one entry in `SHARED_AFFIX_PROFILE_REGISTRY`. The mapping declares route and
 recipe version, position, reviewed forms, split/build/meaning/choice policies,
 intentional assignment count, legacy guided shape, schedule role and reward
-role. It may hold released fallback Prefix introduction copy. The shared
+role. Prefix entries also declare introduction/example and dictionary-readiness
+requirements. They may hold released fallback Prefix introduction copy. The shared
 compiler must never gain a microskill literal to support the mapping.
 
 The production selector and profile loader remain the selection authority. A
@@ -48,10 +50,16 @@ determinism under reviewed-fact shuffling, and absence of production
 microskill literals in the compiler. Run the semantic production baseline and
 generated architecture drift check after any mapping change.
 
-## Activation prohibition
+## Activation separation
 
-This registry is inventory, not an activation switch. Do not import the shared
-compiler from production selectors, assignment writers, route resolution,
-runtime adapters, renderers or completion actions. Route migration, persisted
-shared snapshots and retirement of V2/V3 readers require separate approval and
-rollback proof.
+This registry is inventory, not an activation switch. Prefix activation remains
+owned by Teaching Dictionary profile state and the route environment gate. The
+Prefix assignment writer may reach the shared compiler only through
+`dynamic-prefix-compiler-rollout.ts`, whose separate authority registry and
+mode control shadow, enforced and shared behavior. Direct imports from Prefix
+selectors, route resolution, runtime adapters, renderers or completion actions
+are prohibited.
+
+Dynamic Affix assignment writers must not import the shared compiler. Affix
+writer migration, persisted shared snapshots and retirement of V2/V3 readers
+require separate approval and rollback proof.

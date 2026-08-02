@@ -3,6 +3,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import type { LearningItemFact } from "../learning-items";
 import type { DynamicPrefixProfile, DynamicPrefixWord } from "./dynamic-prefix-word-lab";
 import type { MorphologyPartRole } from "./payload";
+import { getSharedAffixProfileMapping } from "./shared-affix-profile-registry";
 
 export const DYNAMIC_PREFIX_PROFILE_KEYS = [
   "D4_MOR_PREFIXES_UN",
@@ -135,8 +136,6 @@ function parseIntroduction(value: unknown): DictionaryIntroduction | null | unde
   };
 }
 
-const INITIAL_UN_PROFILE = "D4_MOR_PREFIXES_UN";
-
 /**
  * Dictionary-first runtime read. The approved D4 package may enrich this
  * table during review/import, but is never an assignment-time content source.
@@ -162,14 +161,19 @@ export async function loadDynamicPrefixProfiles(client: SupabaseClient, childId:
   );
   const profiles: DynamicPrefixProfile[] = [];
   for (const source of typedProfileRows) {
+    const mapping = getSharedAffixProfileMapping(source.micro_skill_key);
+    const requirements = mapping?.routeId === "dynamic_prefix_word_lab"
+      ? mapping.prefixRequirements
+      : null;
+    if (!mapping || !requirements) continue;
     const introduction = parseIntroduction(source.intro_content);
     const introductionValid =
       source.intro_content === null
       || source.intro_content === undefined
       || introduction !== undefined;
-    const requiresProfileIntroduction = source.micro_skill_key === "D4_MOR_PREFIXES_RE_PRE" || source.micro_skill_key === "D4_MOR_PREFIXES_SUB_INTER_SUPER";
-    const requiresThreeExamples = source.micro_skill_key === "D4_MOR_PREFIXES_SUB_INTER_SUPER";
-    if (!Array.isArray(source.meaning_bins) || !Array.isArray(source.prefix_choices) || !source.reflection_prompt_key || !source.reflection_prompt_text || !introductionValid || (requiresProfileIntroduction && !introduction) || (requiresThreeExamples && introduction?.examples?.length !== 3)) continue;
+    const requiresProfileIntroduction = requirements.introduction === "required";
+    const requiredExampleCount = requirements.introductionExampleCount;
+    if (!Array.isArray(source.meaning_bins) || !Array.isArray(source.prefix_choices) || !source.reflection_prompt_key || !source.reflection_prompt_text || !introductionValid || (requiresProfileIntroduction && !introduction) || (requiredExampleCount !== undefined && introduction?.examples?.length !== requiredExampleCount)) continue;
     const words = new Map<string, DynamicPrefixWord>();
     let safe = true;
     for (const member of (source.canonical_teaching_dictionary_prefix_members ?? []) as DictionaryMember[]) {
@@ -178,7 +182,7 @@ export async function loadDynamicPrefixProfiles(client: SupabaseClient, childId:
       const metadata = metadataByCanonicalWordId.get(member.canonical_word_id);
       const readyParts = member.teaching_split_parts.filter(isReadyDictionaryPart);
       const readyJoins = member.teaching_split_joins.filter(isReadyDictionaryJoin);
-      const requiresFullDictionaryReadiness = source.micro_skill_key !== INITIAL_UN_PROFILE;
+      const requiresFullDictionaryReadiness = requirements.dictionaryReadiness === "full";
       const metadataReady = !requiresFullDictionaryReadiness || Boolean(
         word?.frequency_band && word.age_band && word.complexity_band
         && metadata?.syllables && metadata.phoneme_hint && metadata.stress_pattern
@@ -193,7 +197,9 @@ export async function loadDynamicPrefixProfiles(client: SupabaseClient, childId:
       if (!prefixText || !teachingBuildText || `${prefixText}${teachingBuildText}` !== word.display_word) { safe = false; break; }
       words.set(member.canonical_word_id, { canonicalWordId: member.canonical_word_id, displayWord: word.display_word, audioText: dictation.audio_text, baseWord: member.base_word, teachingBuildText, baseMeaning: member.base_meaning, derivedMeaning: member.child_friendly_meaning, effect: member.meaning_bin_key, parts: readyParts.map((part) => ({ id: part.id, text: part.surfaceText, sourceText: part.sourceText, role: part.kind as MorphologyPartRole, gloss: part.gloss || undefined, start: part.displayRange.start, end: part.displayRange.end })), joins: readyJoins.map((join) => ({ afterPartId: join.afterPartId, beforePartId: join.beforePartId, joinType: join.joinType })), splitPoints: cleaverSplitPoints, dictationSentence: dictation.dictation_sentence, dictationTargetTokenIndex: dictation.dictation_target_token_index, prefixText, prefixLabel: `${prefixText}-`, prefixMeaning: prefixPart?.gloss || undefined, approvedTransfer: member.member_role === "transfer" });
     }
-    if (!safe || words.size < 4) continue;
+    const loadedForms = [...new Set([...words.values()].map((word) => word.prefixText).filter((form): form is string => Boolean(form)))].sort();
+    const declaredForms = [...mapping.forms].sort();
+    if (!safe || words.size < 4 || loadedForms.join("\u0000") !== declaredForms.join("\u0000")) continue;
     profiles.push({ microSkillKey: source.micro_skill_key, productionEnabled: source.production_enabled === true || options.allowStagingProfiles === true, prefixLabel: source.prefix_label, prefixText: source.prefix_text, prefixMeaning: source.prefix_meaning, meaningBins: source.meaning_bins, wordsByCanonicalId: words, transferCanonicalWordIds: (source.canonical_teaching_dictionary_prefix_members as DictionaryMember[]).filter((member) => member.member_role === "transfer").map((member) => member.canonical_word_id), prefixChoices: source.prefix_choices, reflection: { promptKey: source.reflection_prompt_key, promptText: source.reflection_prompt_text }, introduction: introduction ? { title: introduction.title, paragraphs: introduction.paragraphs, examples: introduction.examples } : undefined });
   }
   const typedItemRows = (itemRows ?? []) as unknown as LearningItemRow[];

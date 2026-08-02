@@ -41,6 +41,26 @@ const sharedAffixReceipt = readFileSync(
   "docs/implementation/qa/adle-shared-affix-staging-proof-2026-08-01.json",
   "utf8",
 );
+const sharedCompiler = readFileSync(
+  "lib/adle/morphology/shared-affix-compiler.ts",
+  "utf8",
+);
+const prefixWriter = readFileSync(
+  "app/learn/week/adle/dynamic-prefix/actions.ts",
+  "utf8",
+);
+const affixWriter = readFileSync(
+  "lib/adle/morphology/affix-word-lab.ts",
+  "utf8",
+);
+const migrationTracker = readFileSync(
+  "docs/implementation/adle-composable-lesson-migration-tracker.md",
+  "utf8",
+);
+const productionChecklist = readFileSync(
+  "docs/implementation/qa/adle-dynamic-prefix-shared-compiler-production-rollout-checklist.md",
+  "utf8",
+);
 
 for (const source of [architecture, authority, template, teaching]) {
   assert(
@@ -58,20 +78,48 @@ assert(
     architecture.includes("falls back"),
 );
 assert(
-  sharedAffix.includes("no production route") &&
-    sharedAffix.includes("Dynamic Prefix V2 and Dynamic Affix V3 remain authoritative") &&
-    sharedAffix.includes("no microskill-key branch") &&
-    sharedAffix.includes("performs no remote write"),
+  sharedAffix.includes("guarded writer authority for four profiles") &&
+    sharedAffix.includes("legacy_pending_exact_source") &&
+    sharedAffix.includes("Dynamic Affix V3 remains dark") &&
+    sharedAffix.includes("microskill-key branch") &&
+    sharedAffix.includes("no catch-and-call-legacy path"),
 );
 assert(
   affixProfiles.includes("inventory, not an activation switch") &&
-    affixProfiles.includes("never gain a microskill literal"),
+    affixProfiles.includes("never gain a microskill literal") &&
+    affixProfiles.includes("dynamic-prefix-compiler-rollout.ts"),
 );
 assert(
-  sharedAffixInventory.includes('"activationAuthority": "none_shadow_only"') &&
+  sharedAffixInventory.includes('"dynamicPrefix": "guarded_four_profile_compiler_authority"') &&
+    sharedAffixInventory.includes('"dynamicAffix": "none_dark_foundation"') &&
+    sharedAffixInventory.includes('"defaultMode": "shadow"') &&
+    sharedAffixInventory.includes('"legacy_pending_exact_source"') &&
     sharedAffixInventory.includes('"compilerVersion": 1') &&
     sharedAffixInventory.includes('"D4_MOR_PREFIXES_UN"') &&
     sharedAffixInventory.includes('"D4_MOR_SUFFIXES_SION"'),
+);
+assert(!sharedCompiler.includes("D4_MOR_"), "shared compiler has no production microskill literal");
+assert(
+  prefixWriter.includes("compileDynamicPrefixWordLabDecision") &&
+    prefixWriter.includes("canPersistDynamicPrefixCompilerDecision") &&
+    !prefixWriter.includes("shared-affix-compiler") &&
+    !prefixWriter.includes("dynamic-prefix-legacy-compiler"),
+  "Prefix writer reaches compiler authority only through the rollout boundary",
+);
+assert(
+  !affixWriter.includes("dynamic-prefix-compiler-rollout") &&
+    !affixWriter.includes("compileSharedAffixLesson"),
+  "Dynamic Affix writer state remains dark",
+);
+assert(
+  migrationTracker.includes("internal V2 compiler migration") &&
+    migrationTracker.includes("legacy_pending_exact_source") &&
+    migrationTracker.includes("do not depend on its production rollout"),
+);
+assert(
+  productionChecklist.includes("Status: not authorised") &&
+    productionChecklist.includes("no production deployment or mutation") &&
+    productionChecklist.includes("Retain the old compiler"),
 );
 assert(
   sharedAffixReceipt.includes('"profileCount": 15') &&

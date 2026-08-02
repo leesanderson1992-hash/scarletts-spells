@@ -55,8 +55,13 @@ Dictionary content. Those facts are generated from the code registries under
    eligible words in 300 authentic-slot cases with exact V2/V3 payload and
    binding parity and zero remote writes. The redacted receipt is
    `docs/implementation/qa/adle-shared-affix-staging-proof-2026-08-01.json`.
-4. Migrate Dynamic Prefix next. Migrate Dynamic Affix independently only
-   after the Prefix migration and its rollback evidence are complete.
+4. **Implementation complete locally; guarded staging proof pending:** migrate
+   compiler authority for `DIS_MIS`, `IN_IM_IL_IR`, `RE_PRE`, and
+   `SUB_INTER_SUPER` behind shadow, enforced-parity and shared-authoritative
+   modes while preserving Prefix V2. `un-` remains explicitly
+   `legacy_pending_exact_source` until a separate normal-path source proof.
+   This is an internal V2 compiler migration, not Generic Snapshot activation.
+   Migrate Dynamic Affix independently only after Prefix rollback evidence.
 5. Address Closed Compound authentic/transfer coupling and comparator policy
    in separately approved behaviour-change PRs.
 6. Migrate Closed Compound only after those decisions and fresh semantic
@@ -97,13 +102,12 @@ For stage 2, staging exit evidence includes:
   compatibility reads;
 - exact disposable fixture cleanup.
 
-Production migration/application rollout remains deferred after the
-2026-08-01 pre-mutation stop. The completed dark Stage 3 compiler extraction
-does not persist or activate Generic Snapshot V2 and therefore did not depend
-on that rollout. Stage 4 route migration remains ineligible until Stage 2
-receives a fresh separately authorised production rollout after the
-production-facts compiler gate can pass without changing this migration's
-behaviour scope.
+Production Generic Snapshot migration/application rollout remains deferred
+after the 2026-08-01 pre-mutation stop. The completed Stage 3 extraction and
+Stage 4 internal Prefix V2 compiler-authority migration do not persist or
+activate Generic Snapshot V2 and do not depend on its production rollout. Any
+future route migration onto Generic Snapshot still requires a fresh,
+separately authorised Stage 2 production rollout.
 
 For stage 3, exit evidence includes:
 
@@ -118,3 +122,20 @@ For stage 3, exit evidence includes:
   remote writes, 15 profiles, 75 eligible words and 300 authentic-slot parity
   cases;
 - both authoritative compilers and all historical readers retained.
+
+For stage 4, exit evidence includes:
+
+- exact four-profile V2 payload, plan, binding, runtime and learner-behavior
+  parity under shadow, enforced-parity and shared-authoritative modes;
+- explicit `un-` legacy authority with no synthetic projection counted as a
+  migrated normal writer path;
+- fingerprint, mutation, deterministic-order, fail-closed and zero-write
+  regressions plus compiler/action performance gates;
+- staging identity rejection of production, normal-path assignment creation,
+  16/18-item lifecycle, resume, completion, evidence, schedules and rewards;
+- pre-migration deployment rollback against a shared-created V2 assignment,
+  forward restoration and exact disposable cleanup;
+- no database, Teaching Dictionary, Dynamic Affix, Generic Snapshot or Common
+  Word Lab change; and
+- legacy compiler retention until a later exact-source `un-` stage and
+  production observation across all five profiles.

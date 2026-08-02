@@ -9,6 +9,11 @@ export interface SharedAffixProfileMappingV1 {
   position: "before" | "after";
   forms: readonly string[];
   policy: SharedAffixLessonPolicyV1;
+  prefixRequirements?: {
+    introduction: "optional" | "required";
+    introductionExampleCount?: number;
+    dictionaryReadiness: "full" | "legacy_prefix_projection";
+  };
   prefixFallbackIntroduction?: {
     title: string;
     paragraphs: string[];
@@ -73,6 +78,10 @@ const prefix = (
   forms: readonly string[],
   policy: SharedAffixLessonPolicyV1 = prefixPolicy(),
   prefixFallbackIntroduction: PrefixFallbackIntroduction = PREFIX_GENERIC_INTRO,
+  prefixRequirements: NonNullable<SharedAffixProfileMappingV1["prefixRequirements"]> = {
+    introduction: "optional",
+    dictionaryReadiness: "full",
+  },
 ): SharedAffixProfileMappingV1 => ({
   microSkillKey,
   routeId: "dynamic_prefix_word_lab",
@@ -82,6 +91,7 @@ const prefix = (
   position: "before",
   forms,
   policy,
+  prefixRequirements,
   prefixFallbackIntroduction: {
     title: prefixFallbackIntroduction.title,
     paragraphs: [...prefixFallbackIntroduction.paragraphs],
@@ -106,7 +116,13 @@ const suffix = (
 });
 
 export const SHARED_AFFIX_PROFILE_REGISTRY = [
-  prefix("D4_MOR_PREFIXES_UN", ["un"]),
+  prefix(
+    "D4_MOR_PREFIXES_UN",
+    ["un"],
+    prefixPolicy(),
+    PREFIX_GENERIC_INTRO,
+    { introduction: "optional", dictionaryReadiness: "legacy_prefix_projection" },
+  ),
   prefix("D4_MOR_PREFIXES_DIS_MIS", ["dis", "mis"]),
   prefix(
     "D4_MOR_PREFIXES_IN_IM_IL_IR",
@@ -127,7 +143,13 @@ export const SHARED_AFFIX_PROFILE_REGISTRY = [
       ],
     },
   ),
-  prefix("D4_MOR_PREFIXES_RE_PRE", ["re", "pre"]),
+  prefix(
+    "D4_MOR_PREFIXES_RE_PRE",
+    ["re", "pre"],
+    prefixPolicy(),
+    PREFIX_GENERIC_INTRO,
+    { introduction: "required", dictionaryReadiness: "full" },
+  ),
   prefix(
     "D4_MOR_PREFIXES_SUB_INTER_SUPER",
     ["sub", "inter", "super"],
@@ -136,6 +158,12 @@ export const SHARED_AFFIX_PROFILE_REGISTRY = [
       legacyGuidedShape: "explicit",
       expectedAssignmentItemCount: 18,
     }),
+    PREFIX_GENERIC_INTRO,
+    {
+      introduction: "required",
+      introductionExampleCount: 3,
+      dictionaryReadiness: "full",
+    },
   ),
   suffix("D4_MOR_SUFFIXES_NESS", ["ness"]),
   suffix("D4_MOR_SUFFIXES_ABLE_IBLE", ["able", "ible"]),
@@ -172,8 +200,14 @@ export function validateSharedAffixProfileRegistry(): string[] {
     if (profile.position === "before" && profile.routeId !== "dynamic_prefix_word_lab") {
       errors.push(`position_route_mismatch:${profile.microSkillKey}`);
     }
+    if (profile.position === "before" && !profile.prefixRequirements) {
+      errors.push(`missing_prefix_requirements:${profile.microSkillKey}`);
+    }
     if (profile.position === "after" && profile.routeId !== "dynamic_affix_word_lab") {
       errors.push(`position_route_mismatch:${profile.microSkillKey}`);
+    }
+    if (profile.position === "after" && profile.prefixRequirements) {
+      errors.push(`unexpected_prefix_requirements:${profile.microSkillKey}`);
     }
   }
   return errors.sort();

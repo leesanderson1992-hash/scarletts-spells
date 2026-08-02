@@ -11,9 +11,9 @@ import {
 import { buildDynamicAffixAssignmentPlan } from "../lib/adle/morphology/dynamic-affix-assignment-plan";
 import { buildDynamicPrefixAssignmentPlan } from "../lib/adle/morphology/dynamic-prefix-assignment-plan";
 import {
-  compileDynamicPrefixWordLabPayload,
   validateDynamicPrefixWordLabPayload,
 } from "../lib/adle/morphology/dynamic-prefix-word-lab";
+import { compileDynamicPrefixWordLabPayloadLegacy } from "../lib/adle/morphology/dynamic-prefix-legacy-compiler";
 import { compileSharedAffixLesson } from "../lib/adle/morphology/shared-affix-compiler";
 import {
   adaptSharedAffixLessonToDynamicAffixV3,
@@ -92,7 +92,7 @@ let representativePrefix: ReturnType<typeof assertDynamicPrefixSharedParity> | n
 for (const fixture of loadReviewedPrefixPackageFixtures()) {
   for (const word of fixture.words) {
     const selection = selectReviewedPrefixFixture(fixture.profile, word);
-    const authoritative = compileDynamicPrefixWordLabPayload(selection);
+    const authoritative = compileDynamicPrefixWordLabPayloadLegacy(selection);
     assert(authoritative && validateDynamicPrefixWordLabPayload(authoritative));
     const shadow = assertDynamicPrefixSharedParity(selection, authoritative, `${fixture.profile.microSkillKey}:${word.canonicalWordId}`);
     representativePrefix ??= shadow;
@@ -125,7 +125,7 @@ const prefixSelection = selectReviewedPrefixFixture(
   loadReviewedPrefixPackageFixtures()[0]!.profile,
   loadReviewedPrefixPackageFixtures()[0]!.words[0]!,
 );
-const prefixPayload = compileDynamicPrefixWordLabPayload(prefixSelection)!;
+const prefixPayload = compileDynamicPrefixWordLabPayloadLegacy(prefixSelection)!;
 const prefixPlan = buildDynamicPrefixAssignmentPlan({
   basePlan,
   facts: {} as DailyPlanFacts,

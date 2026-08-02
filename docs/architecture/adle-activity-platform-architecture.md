@@ -155,14 +155,16 @@ Generated route, activity, blocker and repository-readiness references live in
 handwritten sources of truth. Run `npm run adle:architecture-drift-check` to
 detect drift.
 
-The generated shared-affix profile and blocker inventories describe a dark,
-non-activating compiler. All five Prefix V2 and ten Affix V3 profiles are
-mapped to typed position, split, build, meaning, count and role policies.
-Existing V2/V3 selectors, compilers, assignment writers and runtime adapters
-remain production authority; the shared compiler runs only in regression and
-the host-pinned select-only staging proof. It does not alter the activity
-registry, `AdleSessionRunner`, route metadata, persistence or Common Word Lab
-shell.
+The generated shared-affix profile and blocker inventories describe typed
+position, split, build, meaning, count and role policies for all five Prefix V2
+and ten Affix V3 profiles. Dynamic Prefix keeps its unchanged selector and V2
+contract but reaches the shared compiler through a guarded authority boundary:
+four profiles can advance through shadow, enforced-parity and
+shared-authoritative modes, while `un-` remains explicitly legacy pending an
+exact normal-path source proof. Dynamic Affix remains dark on its existing
+compiler and writer. This boundary does not alter the activity registry,
+`AdleSessionRunner`, route metadata, persistence contract, Generic Snapshot or
+Common Word Lab shell.
 
 The existing `base_word_family_v1` activation registry remains the persisted
 Base Word compatibility projection. It points to the canonical descriptive

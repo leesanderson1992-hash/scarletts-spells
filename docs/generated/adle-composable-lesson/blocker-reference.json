@@ -21,6 +21,10 @@
       "label": "activity selector failed"
     },
     {
+      "code": "adapter_payload_invalid",
+      "label": "adapter payload invalid"
+    },
+    {
       "code": "affix_form_missing",
       "label": "affix form missing"
     },
@@ -47,6 +51,10 @@
     {
       "code": "assignment_item_count_mismatch",
       "label": "assignment item count mismatch"
+    },
+    {
+      "code": "assignment_plan_mismatch",
+      "label": "assignment plan mismatch"
     },
     {
       "code": "authentic_target_not_approved",
@@ -205,6 +213,14 @@
       "label": "item template mismatch"
     },
     {
+      "code": "legacy_payload_invalid",
+      "label": "legacy payload invalid"
+    },
+    {
+      "code": "lesson_fingerprint_mismatch",
+      "label": "lesson fingerprint mismatch"
+    },
+    {
       "code": "malformed_content_provenance",
       "label": "malformed content provenance"
     },
@@ -259,6 +275,10 @@
     {
       "code": "missing_profile_copy",
       "label": "missing profile copy"
+    },
+    {
+      "code": "missing_profile_mapping",
+      "label": "missing profile mapping"
     },
     {
       "code": "missing_recipe",
@@ -409,6 +429,14 @@
       "label": "selected word not in profile"
     },
     {
+      "code": "semantic_parity_mismatch",
+      "label": "semantic parity mismatch"
+    },
+    {
+      "code": "shared_compiler_blocked",
+      "label": "shared compiler blocked"
+    },
+    {
       "code": "snapshot_assignment_source_mismatch",
       "label": "snapshot assignment source mismatch"
     },
@@ -445,6 +473,10 @@
       "label": "snapshot without explicit generic route"
     },
     {
+      "code": "source_fingerprint_mismatch",
+      "label": "source fingerprint mismatch"
+    },
+    {
       "code": "taxonomy_binding_missing",
       "label": "taxonomy binding missing"
     },
@@ -479,6 +511,10 @@
     {
       "code": "unsupported_metadata_schema_version",
       "label": "unsupported metadata schema version"
+    },
+    {
+      "code": "unsupported_rollout_state",
+      "label": "unsupported rollout state"
     },
     {
       "code": "unsupported_route_version",

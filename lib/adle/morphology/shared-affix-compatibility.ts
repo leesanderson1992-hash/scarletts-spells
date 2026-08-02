@@ -14,7 +14,7 @@ import {
   type DynamicPrefixProfile,
   type DynamicPrefixSelection,
   type DynamicPrefixWord,
-} from "./dynamic-prefix-word-lab";
+} from "./dynamic-prefix-contracts";
 import { compileSharedAffixLesson } from "./shared-affix-compiler";
 import {
   SHARED_AFFIX_PROFILE_VERSION,

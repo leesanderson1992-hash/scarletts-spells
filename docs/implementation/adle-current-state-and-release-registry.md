@@ -92,25 +92,30 @@ key. Any additional authentic targets remain pending for a later lesson.
 
 ## Dynamic Prefix Word Lab implementation state
 
-The generic v2 selector and immutable payload compiler live in
-`lib/adle/morphology/dynamic-prefix-word-lab.ts`. A separate preview-gated v2
+The generic v2 selector and stable public compiler boundary live in
+`lib/adle/morphology/dynamic-prefix-word-lab.ts`; inert V2 contracts and
+validation live in `dynamic-prefix-contracts.ts`. A separate preview-gated v2
 assignment and child route has passed the disposable staging proof recorded in
 `docs/implementation/qa/adle-dynamic-prefix-stage-one-proof.md`. The legacy
 fixed `un-` v1 payload, bindings, renderer, and snapshots remain unchanged and
 renderable. Production activation was explicitly approved on 2026-07-21 and is
 controlled by the independent `ADLE_DYNAMIC_PREFIX_PRODUCTION_ENABLED` gate.
 
-The v2 compiler accepts reviewed per-skill profiles rather than a dedicated
-`un-` renderer. A profile must provide approved analysis, meanings, dictation,
-and transfer words for its own micro-skill. Missing profile content, missing
-analysis or dictation, insufficient transfers, non-authentic items, and
-non-production-enabled skills fail closed without an assignment.
+The V2 boundary accepts reviewed per-skill profiles rather than a dedicated
+`un-` renderer. Four profiles (`DIS_MIS`, `IN_IM_IL_IR`, `RE_PRE`, and
+`SUB_INTER_SUPER`) have guarded shared-compiler migration authority through
+shadow, enforced-parity and shared-authoritative modes. `un-` remains on
+explicit `legacy_pending_exact_source` authority because staging lacks its
+normal approved profile row and the select-only proof projection is not an
+exact production source. Missing mappings/content, fingerprints, adapter
+parity, plan bindings or counts fail closed before assignment persistence in
+enforced/shared modes.
 
 The future reviewed-correction bridge must create ADLE candidates only for
 `production_enabled` keys. Raw, pending, rejected, dictionary-missing, and
 `awaiting_content` corrections must never create an ADLE assignment.
 
-## Remaining prefix-profile preparation
+## Prefix profile and compiler migration state
 
 The dynamic profile loader is dictionary-first. It reads only active,
 `approved_for_first_exposure` profile, member, word, dictation/audio and
@@ -118,10 +123,13 @@ banding facts. Per-word morphology records retain ordered parts, joins,
 transformation notes, child-friendly meaning, prefix variant, micro-skill and
 source provenance. A profile with any incomplete reviewed fact fails closed.
 
-The four prepared profiles are intentionally stored with
-`production_enabled = false`. The global production route gate does not
-override a profile record. A separate staging proof and explicit written
-approval are required for each profile before changing that value.
+All five listed production profiles are independently dictionary-backed and
+production-enabled. The global route gate does not override a profile record.
+Compiler migration does not change profile activation or Teaching Dictionary
+facts. The four-profile compiler boundary requires guarded staging proof before
+any separately authorised production deployment. A later `un-` migration must
+first establish an exact production-authority fixture and equivalent normal
+staging profile path; its current synthetic projection must not be counted.
 
 ## Documentation update rule
 
