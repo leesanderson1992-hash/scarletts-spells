@@ -32,6 +32,7 @@ import {
   fingerprintSerializableProofValue,
   persistedAssignmentItemProofProjection,
 } from "./lib/adle-staging-proof-serialization";
+import { approvedDictationCoverage } from "./lib/adle-staging-dictionary-coverage";
 
 const STAGING_REF = "jlhotktspjvffslvuyfz";
 const STAGING_HOST = `${STAGING_REF}.supabase.co`;
@@ -194,18 +195,14 @@ async function dictionarySnapshot(db: SupabaseClient) {
     .eq("review_status", "approved_for_first_exposure")
     .order("canonical_word_id");
   if (metadataError) throw new Error(`dictionary metadata snapshot: ${metadataError.message}`);
-  const dictationCount = members.reduce(
-    (total: number, member: any) => total + (
-      member.canonical_teaching_dictionary_words?.canonical_teaching_dictionary_dictation_sentences?.length ?? 0
-    ),
-    0,
-  );
+  const dictationCoverage = approvedDictationCoverage(members);
   return {
     profileCount: orderedProfiles.length,
     memberCount: members.length,
     canonicalWordCount: canonicalWordIds.length,
     metadataCount: metadata?.length ?? 0,
-    dictationCount,
+    dictationWordCount: dictationCoverage.wordCount,
+    dictationCount: dictationCoverage.rowCount,
     fingerprint: fingerprintSnapshotValue({ profiles: orderedProfiles, metadata }),
   };
 }
@@ -235,7 +232,14 @@ async function preflight(db: SupabaseClient): Promise<void> {
   assert(snapshot.memberCount === 28, `expected 28 staged Prefix members, received ${snapshot.memberCount}`);
   assert(snapshot.canonicalWordCount === 28, `expected 28 staged Prefix words, received ${snapshot.canonicalWordCount}`);
   assert(snapshot.metadataCount === 28, `expected 28 staged metadata rows, received ${snapshot.metadataCount}`);
-  assert(snapshot.dictationCount === 28, `expected 28 staged dictation rows, received ${snapshot.dictationCount}`);
+  assert(
+    snapshot.dictationWordCount === 28,
+    `expected dictation coverage for all 28 staged words, received ${snapshot.dictationWordCount}`,
+  );
+  assert(
+    snapshot.dictationCount >= snapshot.dictationWordCount,
+    `expected at least one approved dictation row per staged word, received ${snapshot.dictationCount}`,
+  );
   console.log(JSON.stringify({
     status: "preflight_passed",
     stagingSupabaseProject: STAGING_REF,
@@ -244,6 +248,7 @@ async function preflight(db: SupabaseClient): Promise<void> {
     profileCount: snapshot.profileCount,
     memberCount: snapshot.memberCount,
     metadataCount: snapshot.metadataCount,
+    dictationWordCount: snapshot.dictationWordCount,
     dictationCount: snapshot.dictationCount,
     dictionaryFingerprint: snapshot.fingerprint,
     unNormalPathProfilePresent: false,

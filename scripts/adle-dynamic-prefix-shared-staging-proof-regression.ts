@@ -9,6 +9,7 @@ import {
   fingerprintSerializableProofValue,
   persistedAssignmentItemProofProjection,
 } from "./lib/adle-staging-proof-serialization";
+import { approvedDictationCoverage } from "./lib/adle-staging-dictionary-coverage";
 
 assert.deepEqual(
   activeAdlePolicyProofProjection(),
@@ -17,6 +18,29 @@ assert.deepEqual(
     schedulePolicyVersion: REVIEW_POLICY_V1.schedulePolicyVersion,
   },
   "proof recomposition uses the same versioned policies as the normal writer",
+);
+
+assert.deepEqual(
+  approvedDictationCoverage([
+    {
+      canonical_teaching_dictionary_words: {
+        canonical_teaching_dictionary_dictation_sentences: [
+          { row_status: "active", review_status: "approved_for_first_exposure" },
+          { row_status: "active", review_status: "approved_for_first_exposure" },
+          { row_status: "retired", review_status: "approved_for_first_exposure" },
+        ],
+      },
+    },
+    {
+      canonical_teaching_dictionary_words: {
+        canonical_teaching_dictionary_dictation_sentences: [
+          { row_status: "active", review_status: "approved_for_first_exposure" },
+        ],
+      },
+    },
+  ]),
+  { wordCount: 2, rowCount: 3 },
+  "proof requires every staged word to have coverage without assuming one sentence row per word",
 );
 
 const inMemory = {
