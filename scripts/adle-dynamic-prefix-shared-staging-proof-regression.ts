@@ -1,10 +1,23 @@
 import assert from "node:assert/strict";
 
+import { COMPOSER_POLICY_V1 } from "../lib/adle/composer-policy";
+import { REVIEW_POLICY_V1 } from "../lib/adle/review-scheduler";
 import {
+  activeAdlePolicyProofProjection,
+  assignmentItemProjectionMismatchPaths,
   expectedAssignmentItemProofProjection,
   fingerprintSerializableProofValue,
   persistedAssignmentItemProofProjection,
 } from "./lib/adle-staging-proof-serialization";
+
+assert.deepEqual(
+  activeAdlePolicyProofProjection(),
+  {
+    composerPolicyVersion: COMPOSER_POLICY_V1.composerPolicyVersion,
+    schedulePolicyVersion: REVIEW_POLICY_V1.schedulePolicyVersion,
+  },
+  "proof recomposition uses the same versioned policies as the normal writer",
+);
 
 const inMemory = {
   activity: {
@@ -47,6 +60,15 @@ assert.equal(
   fingerprintSerializableProofValue(expectedAssignmentItemProofProjection(expectedDraft)),
   fingerprintSerializableProofValue(persistedAssignmentItemProofProjection(persistedRow)),
   "proof compares the persisted item fields rather than write-only draft fields",
+);
+
+assert.deepEqual(
+  assignmentItemProjectionMismatchPaths(
+    [expectedAssignmentItemProofProjection(expectedDraft)],
+    [persistedAssignmentItemProofProjection({ ...persistedRow, status: "completed" })],
+  ),
+  ["[0].status"],
+  "proof mismatch diagnostics disclose field paths without fixture content",
 );
 
 console.log("Dynamic Prefix shared staging proof serialization regression passed.");

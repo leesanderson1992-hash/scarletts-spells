@@ -26,6 +26,8 @@ import {
   type DynamicPrefixLessonPayloadV2,
 } from "../lib/adle/morphology/dynamic-prefix-word-lab";
 import {
+  activeAdlePolicyProofProjection,
+  assignmentItemProjectionMismatchPaths,
   expectedAssignmentItemProofProjection,
   fingerprintSerializableProofValue,
   persistedAssignmentItemProofProjection,
@@ -212,8 +214,7 @@ function basePlan(childId: string, planDate: string): ComposedDailyPlan {
   return {
     childId,
     planDate,
-    composerPolicyVersion: "staging-proof-existing-policy",
-    schedulePolicyVersion: "staging-proof-existing-policy",
+    ...activeAdlePolicyProofProjection(),
     throttle: {},
     partOne: {},
     partTwo: {},
@@ -415,9 +416,13 @@ async function verifyMode(
     const expectedProjection = persistence.items.map((item) =>
       expectedAssignmentItemProofProjection(item),
     );
+    const projectionMismatches = assignmentItemProjectionMismatchPaths(
+      expectedProjection,
+      persistedProjection,
+    );
     assert(
-      fingerprintSerializableProofValue(persistedProjection) === fingerprintSerializableProofValue(expectedProjection),
-      `${fixture.profileKey}: persisted assignment projection`,
+      projectionMismatches.length === 0,
+      `${fixture.profileKey}: persisted assignment projection (${projectionMismatches.join(",")})`,
     );
     const root = (persistedItems as any[]).find(
       (item) => item.prompt_data?.dynamicPrefixActivityId === "intro-root",

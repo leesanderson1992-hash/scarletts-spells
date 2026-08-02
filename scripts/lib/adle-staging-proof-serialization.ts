@@ -1,4 +1,13 @@
 import { fingerprintSnapshotValue } from "../../lib/adle/composable-lesson/canonical-fingerprint";
+import { COMPOSER_POLICY_V1 } from "../../lib/adle/composer-policy";
+import { REVIEW_POLICY_V1 } from "../../lib/adle/review-scheduler";
+
+export function activeAdlePolicyProofProjection() {
+  return {
+    composerPolicyVersion: COMPOSER_POLICY_V1.composerPolicyVersion,
+    schedulePolicyVersion: REVIEW_POLICY_V1.schedulePolicyVersion,
+  };
+}
 
 /** Match the JSONB boundary: optional undefined properties are not persisted. */
 export function fingerprintSerializableProofValue(value: unknown): string {
@@ -47,4 +56,35 @@ export function persistedAssignmentItemProofProjection(item: PersistedAssignment
     promptData: item.prompt_data,
     metadata: item.metadata,
   };
+}
+
+export function assignmentItemProjectionMismatchPaths(
+  expected: readonly Record<string, unknown>[],
+  persisted: readonly Record<string, unknown>[],
+): string[] {
+  const mismatches: string[] = [];
+  const serialise = (value: unknown): unknown => JSON.parse(JSON.stringify(value)) as unknown;
+  const visit = (expectedValue: unknown, persistedValue: unknown, path: string): void => {
+    if (fingerprintSerializableProofValue(expectedValue) === fingerprintSerializableProofValue(persistedValue)) return;
+    const expectedObject = expectedValue !== null && typeof expectedValue === "object";
+    const persistedObject = persistedValue !== null && typeof persistedValue === "object";
+    if (!expectedObject || !persistedObject || Array.isArray(expectedValue) !== Array.isArray(persistedValue)) {
+      mismatches.push(path);
+      return;
+    }
+    if (Array.isArray(expectedValue) && Array.isArray(persistedValue)) {
+      const length = Math.max(expectedValue.length, persistedValue.length);
+      for (let index = 0; index < length; index += 1) {
+        visit(expectedValue[index], persistedValue[index], `${path}[${index}]`);
+      }
+      return;
+    }
+    const expectedRecord = expectedValue as Record<string, unknown>;
+    const persistedRecord = persistedValue as Record<string, unknown>;
+    for (const key of new Set([...Object.keys(expectedRecord), ...Object.keys(persistedRecord)])) {
+      visit(expectedRecord[key], persistedRecord[key], path ? `${path}.${key}` : key);
+    }
+  };
+  visit(serialise(expected), serialise(persisted), "");
+  return mismatches;
 }
