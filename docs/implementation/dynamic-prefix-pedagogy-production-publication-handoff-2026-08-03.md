@@ -17,6 +17,21 @@ database allowance were applied only to staging. Production publication is
 therefore incomplete and requires a separately authorised, ordered data,
 configuration, deployment, and observation release.
 
+## Read-only preflight implementation update
+
+The separately guarded production release envelope and its regression coverage
+are now implemented locally. The complete read-only production preflight passed
+on 2026-08-03 and is recorded in the
+[preflight report](qa/adle-dynamic-prefix-pedagogy-production-preflight-2026-08-03.md).
+Production publication remains incomplete: the 20-item migration is absent,
+the five profile projections retain their prior production values, compiler
+mode still resolves to `shadow`, and the
+[production receipt](qa/adle-dynamic-prefix-pedagogy-production-receipt-pending.md)
+is explicitly pending.
+
+The implemented tool contract is
+[ADLE Dynamic Prefix pedagogy production release](../contracts/adle-dynamic-prefix-pedagogy-production-release-contract.md).
+
 ## Verified handoff baseline
 
 - Repository: `/Users/katiesanderson/Documents/Scarletts Spells/scarletts-spells`.
