@@ -11,6 +11,8 @@ import {
   PROFILE_MUTATION_FIELDS,
   PROTECTED_TABLES,
   PRODUCTION_RELEASE_FLAG,
+  PRODUCTION_IMPORTER_VERSION,
+  PRODUCTION_PACKAGE_TYPE,
   PRODUCTION_SUPABASE_REF,
   PRODUCTION_VERCEL_PROJECT_ID,
   PRODUCTION_VERCEL_PROJECT_NAME,
@@ -26,6 +28,7 @@ import {
   canonical,
   loadAcceptedManifest,
   productionBatchId,
+  productionReleaseLedgerFields,
   profilePlan,
   validateManifestBytes,
   withReadOnlyTransaction,
@@ -71,6 +74,18 @@ drifted[drifted.length - 2] = drifted[drifted.length - 2] === 0x20 ? 0x0a : 0x20
 expectFailure(() => validateManifestBytes(drifted), /Immutable package drift/);
 assert.notEqual(productionBatchId(), "10a761b4-4e00-4e7b-8fc9-edc5af5a9d35", "production and staging batch IDs are distinct");
 assert.equal(productionBatchId(), productionBatchId(), "production batch ID is deterministic");
+const releaseLedger = productionReleaseLedgerFields("dynamic_prefix_pedagogy_release_v1");
+assert.deepEqual(releaseLedger, {
+  releaseId: "adle_dynamic_prefix_pedagogy_production_v1_2026_08_03",
+  packageType: PRODUCTION_PACKAGE_TYPE,
+  packageSchemaVersion: "dynamic_prefix_pedagogy_release_v1",
+  workbookSha256: ACCEPTED_PACKAGE_SHA256,
+  packageSha256: ACCEPTED_PACKAGE_SHA256,
+  targetEnvironment: "production",
+  importerVersion: PRODUCTION_IMPORTER_VERSION,
+});
+expectFailure(() => productionReleaseLedgerFields(""), /schema version is required/);
+expectFailure(() => productionReleaseLedgerFields("v1", "not-a-sha"), /SHA-256 is malformed/);
 
 assert.deepEqual(PROFILE_MUTATION_FIELDS, ["meaning_bins", "prefix_choices", "intro_content"]);
 assertExpectedProfileColumns([...EXPECTED_PROFILE_COLUMNS]);
@@ -155,6 +170,19 @@ const planRegion = source.slice(source.indexOf("async function planCommand"), so
 assert(!/client\.query\(\s*[`\"']\s*(insert|update|delete|alter|create|drop|truncate|grant|revoke)/i.test(planRegion), "plan command contains no write query");
 assert(source.includes("protectedSnapshotBefore"), "release receipt retains the protected baseline");
 assert(source.includes("previousProfiles"), "release receipt retains the complete rollback projection");
+for (const releaseField of [
+  "release_id",
+  "package_type",
+  "package_schema_version",
+  "workbook_sha256",
+  "package_sha256",
+  "target_environment",
+  "importer_version",
+  "verification_summary",
+]) {
+  assert(source.includes(releaseField), `production receipt persists required release field: ${releaseField}`);
+}
+assert(source.includes("immutable_human_reviewed_manifest"), "workbook ledger hash basis is explicit");
 assert(source.includes("narrow reviewed 20-item migration must be applied"), "publication blocks until the 20-item migration is present");
 assert.equal(canonical(PROFILE_MUTATION_FIELDS), '["meaning_bins","prefix_choices","intro_content"]');
 

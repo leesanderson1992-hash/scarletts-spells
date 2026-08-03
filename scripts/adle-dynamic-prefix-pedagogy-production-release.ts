@@ -21,6 +21,8 @@ export const READ_ONLY_RELEASE_FLAG_VALUE = "read-only-preflight";
 export const MUTATING_RELEASE_FLAG_VALUE = "authorised-production-release";
 export const RELEASE_CONFIRMATION = `publish-${PRODUCTION_RELEASE_ID}-${ACCEPTED_PACKAGE_SHA256.slice(0, 16)}`;
 export const DEACTIVATE_CONFIRMATION = `restore-${PRODUCTION_RELEASE_ID}-${ACCEPTED_PACKAGE_SHA256.slice(0, 16)}`;
+export const PRODUCTION_PACKAGE_TYPE = "micro_skill_content_batch_v1";
+export const PRODUCTION_IMPORTER_VERSION = "dynamic_prefix_pedagogy_production_release_v2";
 export const PROFILE_MUTATION_FIELDS = ["meaning_bins", "prefix_choices", "intro_content"] as const;
 export const READ_ONLY_BEGIN_SQL = "begin transaction isolation level repeatable read read only";
 
@@ -115,6 +117,25 @@ export type PrefixManifest = {
   prefixDefinitions: PrefixDefinition[];
   profiles: PrefixProfile[];
 };
+
+export function productionReleaseLedgerFields(
+  packageSchemaVersion: string,
+  packageSha256 = ACCEPTED_PACKAGE_SHA256,
+) {
+  if (!packageSchemaVersion.trim()) fail("Production package schema version is required.");
+  if (!/^[0-9a-f]{64}$/.test(packageSha256)) fail("Production package SHA-256 is malformed.");
+  return {
+    releaseId: PRODUCTION_RELEASE_ID,
+    packageType: PRODUCTION_PACKAGE_TYPE,
+    packageSchemaVersion,
+    // This micro-skill content release has no separate workbook. Its immutable,
+    // human-reviewed manifest is both the review surface and released package.
+    workbookSha256: packageSha256,
+    packageSha256,
+    targetEnvironment: "production" as const,
+    importerVersion: PRODUCTION_IMPORTER_VERSION,
+  };
+}
 
 type QueryResult<Row extends Record<string, unknown> = Record<string, unknown>> = {
   rows: Row[];
@@ -687,9 +708,43 @@ async function releaseCommand(loaded: Awaited<ReturnType<typeof loadAcceptedMani
     const existing = await client.query("select id from public.canonical_teaching_dictionary_import_batches where id=$1", [batchId]);
     if (existing.rowCount) fail("The deterministic production release batch already exists.");
     const previousProfiles = rows.map((row) => ({ id: row.id, microSkillKey: row.micro_skill_key, ...currentProjection(row) }));
+    const ledger = productionReleaseLedgerFields(loaded.manifest.schemaVersion, loaded.packageSha256);
     await client.query(
-      `insert into public.canonical_teaching_dictionary_import_batches(id,source_folder_path,source_folder_sha256,validator_version,validation_summary,row_counts,readiness_summary,import_mode,batch_status,source_metadata,imported_by,imported_at) values($1,$2,$3,$4,$5,$6,$7,'production_release','applied',$8,$9,now())`,
-      [batchId, "docs/implementation/seed-data/teaching-dictionary/releases/2026-08-03-dynamic-prefix-pedagogy-v1", loaded.packageSha256, PRODUCTION_RELEASE_ID, { errors: 0, warnings: 0 }, { profiles: 5, profileFields: 15 }, { production_enabled: true, learner_writes: 0 }, { releaseId: PRODUCTION_RELEASE_ID, acceptedStagingReleaseId: loaded.manifest.releaseId, packageSha256: loaded.packageSha256, sourceCommit: baselineGitSha, previousProfiles, protectedSnapshotBefore: protectedBefore, planSha256: planned.plan.planSha256 }, loaded.manifest.review.approvedBy],
+      `insert into public.canonical_teaching_dictionary_import_batches(
+        id,source_folder_path,source_folder_sha256,validator_version,validation_summary,row_counts,readiness_summary,
+        import_mode,batch_status,source_metadata,imported_by,imported_at,
+        release_id,package_type,package_schema_version,workbook_sha256,package_sha256,target_environment,importer_version,verification_summary
+      ) values(
+        $1,$2,$3,$4,$5,$6,$7,'production_release','applied',$8,$9,now(),
+        $10,$11,$12,$13,$14,$15,$16,'{}'::jsonb
+      )`,
+      [
+        batchId,
+        "docs/implementation/seed-data/teaching-dictionary/releases/2026-08-03-dynamic-prefix-pedagogy-v1",
+        loaded.packageSha256,
+        PRODUCTION_RELEASE_ID,
+        { errors: 0, warnings: 0, package_schema: loaded.manifest.schemaVersion },
+        { profiles: 5, profileFields: 15 },
+        { production_enabled: true, learner_writes: 0 },
+        {
+          releaseId: PRODUCTION_RELEASE_ID,
+          acceptedStagingReleaseId: loaded.manifest.releaseId,
+          packageSha256: loaded.packageSha256,
+          workbookSha256Basis: "immutable_human_reviewed_manifest",
+          sourceCommit: baselineGitSha,
+          previousProfiles,
+          protectedSnapshotBefore: protectedBefore,
+          planSha256: planned.plan.planSha256,
+        },
+        loaded.manifest.review.approvedBy,
+        ledger.releaseId,
+        ledger.packageType,
+        ledger.packageSchemaVersion,
+        ledger.workbookSha256,
+        ledger.packageSha256,
+        ledger.targetEnvironment,
+        ledger.importerVersion,
+      ],
     );
     for (const [index, profile] of loaded.manifest.profiles.entries()) {
       const row = rows[index] ?? fail(`Missing locked profile ${profile.microSkillKey}.`);
@@ -728,12 +783,38 @@ async function verifyCommand(loaded: Awaited<ReturnType<typeof loadAcceptedManif
       const profiles = profilePlan(loaded.manifest, loaded.definitions, rows);
       if (profiles.some((profile) => profile.changedFields.length)) fail("Production profiles do not equal the accepted projection.");
       assessMembers(loaded.manifest, await readMembers(client));
-      const batch = await client.query<{ source_folder_sha256: string; source_metadata: Record<string, unknown>; batch_status: string }>(
-        "select source_folder_sha256,source_metadata,batch_status from public.canonical_teaching_dictionary_import_batches where id=$1",
+      const batch = await client.query<{
+        source_folder_sha256: string;
+        source_metadata: Record<string, unknown>;
+        batch_status: string;
+        release_id: string | null;
+        package_type: string | null;
+        package_schema_version: string | null;
+        workbook_sha256: string | null;
+        package_sha256: string | null;
+        target_environment: string | null;
+        importer_version: string | null;
+      }>(
+        `select source_folder_sha256,source_metadata,batch_status,release_id,package_type,package_schema_version,
+          workbook_sha256,package_sha256,target_environment,importer_version
+        from public.canonical_teaching_dictionary_import_batches where id=$1`,
         [productionBatchId(loaded.packageSha256)],
       );
       const receipt = batch.rows[0] ?? fail("Production release batch receipt is missing.");
-      if (receipt.source_folder_sha256 !== loaded.packageSha256 || receipt.batch_status !== "applied" || receipt.source_metadata?.releaseId !== PRODUCTION_RELEASE_ID) fail("Production release receipt identity mismatch.");
+      const ledger = productionReleaseLedgerFields(loaded.manifest.schemaVersion, loaded.packageSha256);
+      if (
+        receipt.source_folder_sha256 !== loaded.packageSha256
+        || receipt.batch_status !== "applied"
+        || receipt.source_metadata?.releaseId !== PRODUCTION_RELEASE_ID
+        || receipt.source_metadata?.workbookSha256Basis !== "immutable_human_reviewed_manifest"
+        || receipt.release_id !== ledger.releaseId
+        || receipt.package_type !== ledger.packageType
+        || receipt.package_schema_version !== ledger.packageSchemaVersion
+        || receipt.workbook_sha256 !== ledger.workbookSha256
+        || receipt.package_sha256 !== ledger.packageSha256
+        || receipt.target_environment !== ledger.targetEnvironment
+        || receipt.importer_version !== ledger.importerVersion
+      ) fail("Production release receipt identity mismatch.");
       const snapshot = await protectedSnapshot(client);
       assertProtectedSnapshotEqual(receipt.source_metadata.protectedSnapshotBefore as ProtectedSnapshot, snapshot);
       return { status: "verified", environment: "production", vercel, packageSha256: loaded.packageSha256, profiles: 5, protectedSnapshotSha256: canonicalHash(snapshot), mutationPerformed: false };
