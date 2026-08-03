@@ -79,6 +79,9 @@ the explicitly named manual-QA assignments; clean disposable automation rows.
 The completed 2026-08-03 engineering pass is recorded in the
 [staging receipt](adle-dynamic-prefix-pedagogy-ux-2026-08-03/staging-receipt.md)
 and [25-image evidence index](adle-dynamic-prefix-pedagogy-ux-2026-08-03/adle-dynamic-prefix-pedagogy-ux-2026-08-03.md).
-These checklist boxes remain intentionally available for the final human and
-child acceptance pass; engineering evidence does not waive that publication
-gate.
+The final human screenshot and child acceptance pass completed on 2026-08-03.
+The checklist remains reusable for later production observation, but it is no
+longer an open gate for the completed staging stage. Accepted commit:
+`f2b86d2037a4780a2cf3e3642f75e15319e5f199`. Production publication remains a
+separate release boundary documented in the
+[production publication handoff](../dynamic-prefix-pedagogy-production-publication-handoff-2026-08-03.md).

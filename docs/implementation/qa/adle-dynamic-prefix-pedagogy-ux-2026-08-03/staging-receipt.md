@@ -111,5 +111,21 @@ a hydration race in the repeated keyboard setup. The harness was corrected to
 use a 90-second real `load` boundary and one worker; the final complete run
 passed. These were test-readiness failures, not relaxed product assertions.
 
-Production deployment and production data mutation were not performed. No
-branch or commit was pushed.
+At staging-receipt creation, production deployment and production data mutation
+had not been performed, and the implementation commit had not been pushed.
+
+## Post-receipt acceptance closeout
+
+- Human screenshot and child acceptance were recorded on 2026-08-03.
+- Accepted commit: `f2b86d2037a4780a2cf3e3642f75e15319e5f199`.
+- The commit was pushed to `origin/main`; local and remote divergence became
+  `0/0`.
+- Vercel automatically deployed that exact commit to production deployment
+  `dpl_9ywWLPvywZAKTF1ZuN99Q7HL1Hsw`, status Ready.
+- This automatic application deployment did not publish the staging-only
+  profile projection or apply the staging-only 20-item database allowance to
+  production.
+- Production currently has no explicit `ADLE_DYNAMIC_PREFIX_COMPILER_MODE`, so
+  application source resolves `shadow`.
+- Production data/configuration publication remains a separate release defined
+  by the [production publication handoff](../../dynamic-prefix-pedagogy-production-publication-handoff-2026-08-03.md).

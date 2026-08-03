@@ -20,3 +20,8 @@ Release validation, planning, application, verification, and deactivation all
 reject production and unknown Supabase identities. Application is restricted
 to the five existing reviewed profile JSONB projections and checks that
 protected learner-table counts do not change.
+
+The staging package and child-facing evidence were accepted on 2026-08-03.
+This package remains immutable and staging-pinned. Production must reuse these
+exact manifest bytes through a separate guarded production release envelope;
+see the [production publication handoff](../../../../dynamic-prefix-pedagogy-production-publication-handoff-2026-08-03.md).

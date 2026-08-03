@@ -154,6 +154,11 @@ pedagogy refinement is: reviewed 12-form profile content; one separate card per
 target; safe selected-prefix feedback; deterministic three-or-more Build
 choices; a genuine in-/im-/il-/ir- Prefix Form Sort with 20 total items; no
 Prefix results card; resumed typed Reflection; 79%/80% Cover interaction proof;
-all-five desktop/mobile staging evidence; and an unpushed local commit pending
-human acceptance. The staging execution and exact 25-image set are linked from
-the [2026-08-03 receipt](qa/adle-dynamic-prefix-pedagogy-ux-2026-08-03/staging-receipt.md).
+all-five desktop/mobile staging evidence; and human/child acceptance. Those
+exit criteria completed on 2026-08-03. Accepted commit
+`f2b86d2037a4780a2cf3e3642f75e15319e5f199` is synchronized on `main`; the
+staging execution and exact 25-image set are linked from the
+[2026-08-03 receipt](qa/adle-dynamic-prefix-pedagogy-ux-2026-08-03/staging-receipt.md).
+Production data/configuration publication is the next separately authorised
+release stage, not a continuation of compiler migration; see the
+[production publication handoff](dynamic-prefix-pedagogy-production-publication-handoff-2026-08-03.md).

@@ -1,6 +1,6 @@
 # ADLE Current State and Lesson Release Registry
 
-Updated: 2026-08-02
+Updated: 2026-08-03
 
 ## Purpose
 
@@ -135,8 +135,14 @@ from 16 to 20 items. The implementation, governed staging release, five core
 normal-path completions, final three-card recapture, and 25-image evidence set
 are recorded in the [2026-08-03 staging receipt](qa/adle-dynamic-prefix-pedagogy-ux-2026-08-03/staging-receipt.md)
 and [evidence index](qa/adle-dynamic-prefix-pedagogy-ux-2026-08-03/adle-dynamic-prefix-pedagogy-ux-2026-08-03.md).
-Publication remains gated on human screenshot review and child acceptance;
-production is unchanged.
+Human screenshot and child acceptance completed on 2026-08-03. The accepted
+commit `f2b86d2037a4780a2cf3e3642f75e15319e5f199` was pushed to `main` and
+automatically deployed to the production Vercel project as Ready deployment
+`dpl_9ywWLPvywZAKTF1ZuN99Q7HL1Hsw`. Production pedagogy publication is not yet
+complete: the reviewed profile projection and narrow 20-item allowance remain
+staging-only, and production currently has no explicit compiler-mode setting,
+so source resolves the safe `shadow` default. The next release boundary is
+defined by the [production publication handoff](dynamic-prefix-pedagogy-production-publication-handoff-2026-08-03.md).
 
 ## Prefix profile and compiler migration state
 
@@ -151,8 +157,11 @@ production-enabled. The global route gate does not override a profile record.
 Compiler migration does not change production profile activation or Teaching
 Dictionary facts. The approved `un-` staging release creates only one disabled
 profile and seven members resolved by environment-local `word_key`; it does not
-change canonical word, metadata, morphology or dictation rows. Production
-application rollout remains separately authorised and has not occurred.
+change canonical word, metadata, morphology or dictation rows. The accepted
+application commit is deployed to production in the safe `shadow`
+default. Production data publication, the 20-item persistence allowance, and
+explicit shared-authoritative activation remain separately authorised and have
+not occurred.
 
 ## Documentation update rule
 

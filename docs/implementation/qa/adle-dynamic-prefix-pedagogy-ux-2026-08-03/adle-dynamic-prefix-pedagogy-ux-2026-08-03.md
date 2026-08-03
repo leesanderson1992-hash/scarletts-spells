@@ -16,3 +16,7 @@ Validation: exactly 25 files, each a readable PNG at 1440×900, losslessly
 encoded with `sharp`. The complete set is 10,636,207 bytes after optimization.
 The `sub-/inter-/super-` Learn and Reflection captures were refreshed on the
 final Preview after the reviewed three-card desktop grid correction.
+
+Acceptance: human screenshot and child acceptance completed on 2026-08-03.
+The accepted implementation is commit
+`f2b86d2037a4780a2cf3e3642f75e15319e5f199`.
