@@ -88,3 +88,7 @@ instead of returning the required HTTP `404`. Production is shadow with prior
 profile content restored, so natural production observation has not begun.
 See the [rollback receipt](adle-dynamic-prefix-pedagogy-production-rollback-receipt-2026-08-03.md)
 and [production publication handoff](../dynamic-prefix-pedagogy-production-publication-handoff-2026-08-03.md).
+The exact pre-auth production route safeguard was subsequently live-proved on
+Ready shadow deployment `dpl_55owTwtRpD7p8vfceiQdZTSn4A7c`: the canonical QA
+route returned HTTP `404` with zero redirects, while the authorised staging
+launcher still rendered. This proof does not start production observation.

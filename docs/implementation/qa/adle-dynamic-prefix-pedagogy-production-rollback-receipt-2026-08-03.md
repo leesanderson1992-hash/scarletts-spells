@@ -116,7 +116,40 @@ dictation, credential, secret value, or personal information is recorded here.
 - Current pedagogy content: prior production projection restored.
 - Publication outcome: **ROLLED BACK — NOT COMPLETE**.
 
-The next production attempt must first make the live production QA route return
-the required HTTP `404` without relying only on the source-level route
-regression. A new guarded plan and explicit publication authority are required
-before republishing content or reactivating shared-authoritative mode.
+## Pre-auth production QA safeguard proof
+
+- Narrow corrective commit:
+  `ff034e626ec0a217393e0ae3c17e2b902ece2fe0`
+  (`fix(adle): return production QA 404 before auth`).
+- Automatic shadow deployment: `dpl_55owTwtRpD7p8vfceiQdZTSn4A7c`, Ready,
+  production project `scarletts-spells`
+  (`prj_PShWdOn82RyJ4P6BND0DBZ1TSIEl`), sourced from the exact corrective
+  commit.
+- Production compiler override remained absent; runtime mode remained
+  `shadow`.
+- Stable production alias, exact route with query: initial and final HTTP
+  `404`, zero redirects, no `Location` header, and
+  `Cache-Control: private, no-store`.
+- A request carrying a cookie also returned HTTP `404` with zero redirects.
+- The trailing-slash form was canonicalised by Next/Vercel with HTTP `308` to
+  the exact route, whose final response was HTTP `404`; it never entered the
+  login flow.
+- Unrelated `/admin/canonical-mappings` retained its normal unauthenticated
+  HTTP `307` redirect to `/login`.
+- The pinned staging Preview retained its existing SSO/authentication boundary.
+  In the existing authorised browser session, the launcher rendered its
+  `Dynamic Prefix Word Lab launcher` heading and staging-only label. No form
+  was submitted and no staging assignment was created or changed.
+- Post-deployment production plan remained read-only and reported restored
+  profile SHA-256
+  `93b831183a5ab5601b9dc89615bde0a84880b8a3ba6142de2c8419fc812521f1`,
+  protected snapshot SHA-256
+  `64d8613911e934927f6ce21e221d0930eeffb7001ef4b9e3a8556679f2e0565e`,
+  zero Prefix V2 assignments, deactivated release batch, and retained rollback
+  projection.
+
+Result: `PRE_AUTH_PRODUCTION_QA_404_PROVED`.
+
+Production publication remains incomplete. A new guarded read-only plan and
+renewed explicit authority are required before republishing content,
+reactivating shared-authoritative mode, or beginning observation.

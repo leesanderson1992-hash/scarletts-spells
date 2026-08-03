@@ -18,10 +18,12 @@ did not begin.
 
 See the
 [production attempt and rollback receipt](qa/adle-dynamic-prefix-pedagogy-production-rollback-receipt-2026-08-03.md).
-A future attempt requires a narrowly reviewed pre-auth denial for this exact QA
-path: `proxy.ts` currently redirects every unauthenticated `/admin` request
-before the page-level production `notFound()` guard can run. A new plan and
-authority are required after the live route itself satisfies the `404` gate.
+Corrective commit `ff034e626ec0a217393e0ae3c17e2b902ece2fe0` now evaluates the
+exact QA path before `/admin` authentication. Ready shadow deployment
+`dpl_55owTwtRpD7p8vfceiQdZTSn4A7c` live-proved the canonical route as HTTP
+`404` with zero redirects, while unrelated admin authentication and authorised
+staging launcher access remained intact. A fresh plan and renewed authority
+are still required before content republication or compiler activation.
 
 ## Executive recommendation
 

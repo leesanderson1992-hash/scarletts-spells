@@ -168,3 +168,8 @@ and all five prior profile projections were restored. Production observation
 did not begin. See the
 [production rollback receipt](qa/adle-dynamic-prefix-pedagogy-production-rollback-receipt-2026-08-03.md)
 and [production publication handoff](dynamic-prefix-pedagogy-production-publication-handoff-2026-08-03.md).
+The exact pre-auth route defect was corrected by commit
+`ff034e626ec0a217393e0ae3c17e2b902ece2fe0`; Ready shadow deployment
+`dpl_55owTwtRpD7p8vfceiQdZTSn4A7c` live-proved HTTP `404` with zero redirects
+for the canonical QA path. This does not reactivate the pedagogy release or
+start observation.

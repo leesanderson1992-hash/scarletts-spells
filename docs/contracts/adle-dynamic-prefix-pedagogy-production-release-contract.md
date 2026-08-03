@@ -1,7 +1,8 @@
 # ADLE Dynamic Prefix pedagogy production release contract
 
-Status: authorised production attempt rolled back on a failed live QA-route
-gate; production is shadow with prior profile content restored.
+Status: authorised production attempt rolled back; the corrective pre-auth
+production QA `404` is now live-proved in shadow, while pedagogy publication
+remains incomplete with prior profile content restored.
 
 ## Immutable source
 
@@ -61,6 +62,11 @@ The 2026-08-03 attempt is recorded in the
 The content release itself verified, but the live production QA URL returned a
 login redirect rather than the required HTTP `404`. Guarded rollback removed
 the compiler override and restored the exact prior five-profile projection.
+Corrective commit `ff034e626ec0a217393e0ae3c17e2b902ece2fe0` now returns the
+exact QA launcher route as a pre-auth HTTP `404` in production. Ready shadow
+deployment `dpl_55owTwtRpD7p8vfceiQdZTSn4A7c` proved zero redirects for the
+canonical route while unrelated admin authentication and authorised staging
+launcher access remained intact.
 
 ## Mechanical identity gates
 

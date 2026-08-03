@@ -150,6 +150,14 @@ the prior content projection; the additive narrow migration remains applied.
 See the [production rollback receipt](qa/adle-dynamic-prefix-pedagogy-production-rollback-receipt-2026-08-03.md)
 and [production publication handoff](dynamic-prefix-pedagogy-production-publication-handoff-2026-08-03.md).
 
+Corrective commit `ff034e626ec0a217393e0ae3c17e2b902ece2fe0` moved the exact
+QA launcher denial ahead of `/admin` authentication. Production shadow
+deployment `dpl_55owTwtRpD7p8vfceiQdZTSn4A7c` is Ready and live-proved the
+canonical route as HTTP `404` with zero redirects. Unrelated admin login flow
+and authorised staging launcher access remain intact. This closes only the
+pre-auth route defect; content publication, shared-authoritative activation,
+and observation remain incomplete and require new authority.
+
 ## Prefix profile and compiler migration state
 
 The dynamic profile loader is dictionary-first. It reads only active,
