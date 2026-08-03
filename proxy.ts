@@ -1,5 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { shouldPreAuthNotFoundDynamicPrefixQa } from "@/lib/adle/morphology/dynamic-prefix-qa-policy";
 import { readSupabaseEnv } from "@/lib/supabase/env";
 
 const protectedRoutes = [
@@ -53,8 +54,15 @@ function requestHeadersWithPath(request: NextRequest, pathname: string) {
 }
 
 export async function proxy(request: NextRequest) {
-  const env = readSupabaseEnv();
   const { pathname } = request.nextUrl;
+  if (shouldPreAuthNotFoundDynamicPrefixQa(pathname, process.env)) {
+    return new NextResponse(null, {
+      status: 404,
+      headers: { "Cache-Control": "private, no-store" },
+    });
+  }
+
+  const env = readSupabaseEnv();
   const requestHeaders = requestHeadersWithPath(request, pathname);
 
   if (!env) {

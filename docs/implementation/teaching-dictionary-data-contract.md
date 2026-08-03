@@ -164,6 +164,20 @@ reviewed learner-facing order. The guarded transaction captures the previous pro
 projections and must leave learner, assignment, attempt, schedule, and reward
 counts unchanged.
 
+The separately governed production release ID is
+`adle_dynamic_prefix_pedagogy_production_v1_2026_08_03`, with accepted package
+SHA-256
+`9890cf6149b3a411b2ea1aa4cd097b1727fa12678b72a52d3d36572c9f400a10`.
+Its Teaching Dictionary ledger package type is
+`micro_skill_content_batch_v1`. Because this reviewed micro-skill package has
+no separate workbook, the immutable human-reviewed manifest is the review
+surface and its accepted SHA is persisted as both the required workbook/source
+fingerprint and package fingerprint, with that basis recorded in receipt
+metadata. The 2026-08-03 production content transaction verified, but the
+later live QA-route activation gate failed; guarded deactivation restored the
+prior profile projection and marked the batch `deactivated`. See the
+[production rollback receipt](qa/adle-dynamic-prefix-pedagogy-production-rollback-receipt-2026-08-03.md).
+
 ## Database release invariants
 
 - Canonical batches contain 1–1,000 reviewed canonical entries.

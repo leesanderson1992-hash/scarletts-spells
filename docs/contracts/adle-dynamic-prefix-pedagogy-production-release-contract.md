@@ -1,6 +1,7 @@
 # ADLE Dynamic Prefix pedagogy production release contract
 
-Status: guarded tooling implemented; production publication not authorised or complete.
+Status: authorised production attempt rolled back on a failed live QA-route
+gate; production is shadow with prior profile content restored.
 
 ## Immutable source
 
@@ -25,12 +26,12 @@ The guarded tool is
 - `plan`: opens a repeatable-read, explicitly read-only transaction and returns
   exact profile deltas, rollback hashes, protected table counts/hashes,
   migration/function facts, Prefix V2 counts/readability, and Vercel facts;
-- `release`: future mutation command; requires the production flag, exact
+- `release`: mutation command; requires the production flag, exact
   publication token, a just-reviewed plan SHA, the 20-item migration in the
   ledger and live function, a serializable transaction, and an advisory lock;
 - `verify`: read-only equality and protected-snapshot verification after a
-  future content release and before compiler-mode activation;
-- `deactivate`: future exact three-field restore from the five complete
+  content release and before compiler-mode activation;
+- `deactivate`: exact three-field restore from the five complete
   projections retained in the deterministic production batch receipt.
 
 `validate`, `plan`, and `verify` accept only:
@@ -45,6 +46,21 @@ They additionally require their distinct exact `--confirm` token. `release`
 also requires `--confirm-plan-sha256` from an immediately preceding plan.
 These acknowledgements are intentionally not embedded in the mutation npm
 scripts.
+
+Production release receipts use Teaching Dictionary ledger package type
+`micro_skill_content_batch_v1` and schema
+`dynamic_prefix_pedagogy_release_v1`. This package has no separate workbook;
+the immutable human-reviewed manifest is its review surface, so the accepted
+manifest SHA is persisted as both the required workbook/source fingerprint and
+package fingerprint. The ledger records that basis explicitly and verification
+requires exact equality across release ID, type, schema, both hashes, target
+environment, and importer version.
+
+The 2026-08-03 attempt is recorded in the
+[production rollback receipt](../implementation/qa/adle-dynamic-prefix-pedagogy-production-rollback-receipt-2026-08-03.md).
+The content release itself verified, but the live production QA URL returned a
+login redirect rather than the required HTTP `404`. Guarded rollback removed
+the compiler override and restored the exact prior five-profile projection.
 
 ## Mechanical identity gates
 

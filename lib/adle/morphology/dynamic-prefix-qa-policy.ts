@@ -37,6 +37,40 @@ export function isPinnedDynamicPrefixQaEnvironment(env: QaEnvironment): boolean 
   }
 }
 
+function decodedPathname(pathname: string): string {
+  let decoded = pathname;
+  for (let pass = 0; pass < 3; pass += 1) {
+    try {
+      const next = decodeURIComponent(decoded);
+      if (next === decoded) break;
+      decoded = next;
+    } catch {
+      break;
+    }
+  }
+  const withoutTrailingSlashes = decoded.replace(/\/+$/, "");
+  return withoutTrailingSlashes || "/";
+}
+
+/** Exact launcher surface only; query/RSC variants retain this pathname. */
+export function isDynamicPrefixQaLauncherPath(pathname: string): boolean {
+  return decodedPathname(pathname) === DYNAMIC_PREFIX_QA_PATH;
+}
+
+/**
+ * The staging project's stable alias also has VERCEL_ENV=production, so its
+ * complete pinned identity takes precedence. Every other Vercel production
+ * deployment denies the exact launcher surface before authentication.
+ */
+export function shouldPreAuthNotFoundDynamicPrefixQa(
+  pathname: string,
+  env: QaEnvironment,
+): boolean {
+  return isDynamicPrefixQaLauncherPath(pathname)
+    && env.VERCEL_ENV === "production"
+    && !isPinnedDynamicPrefixQaEnvironment(env);
+}
+
 export function isDynamicPrefixQaUserAuthorized(params: {
   userId: string;
   isAdmin: boolean;

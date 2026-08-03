@@ -40,6 +40,7 @@
     "adle:cover-shutter-threshold-regression": "tsx scripts/adle-cover-shutter-threshold-regression.ts",
     "adle:cover-shutter-interaction-regression": "playwright test --config=playwright.adle.config.ts tests/adle/cover-shutter-interaction.spec.ts",
     "adle:dynamic-prefix-qa-regression": "tsx scripts/adle-dynamic-prefix-qa-regression.ts",
+    "adle:dynamic-prefix-qa-proxy-regression": "tsx scripts/adle-dynamic-prefix-qa-proxy-regression.ts",
     "maintenance:duplicate-submission-cleanup": "npx tsx scripts/cleanup-duplicate-task-submissions.ts",
     "adle:preview": "rm -rf .tmp/adle-preview && npx tsc --outDir .tmp/adle-preview --rootDir . --module commonjs --target es2022 --moduleResolution node --esModuleInterop --skipLibCheck --noEmit false scripts/adle-preview.ts && node --env-file=.env.local .tmp/adle-preview/scripts/adle-preview.js",
     "adle:child-identity-check": "rm -rf .tmp/adle-child-identity-check && npx tsc --outDir .tmp/adle-child-identity-check --rootDir . --module commonjs --target es2022 --moduleResolution node --esModuleInterop --skipLibCheck --noEmit false scripts/adle-child-identity-check.ts && node --env-file=.env.local .tmp/adle-child-identity-check/scripts/adle-child-identity-check.js",

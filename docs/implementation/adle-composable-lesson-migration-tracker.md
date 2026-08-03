@@ -159,6 +159,12 @@ exit criteria completed on 2026-08-03. Accepted commit
 `f2b86d2037a4780a2cf3e3642f75e15319e5f199` is synchronized on `main`; the
 staging execution and exact 25-image set are linked from the
 [2026-08-03 receipt](qa/adle-dynamic-prefix-pedagogy-ux-2026-08-03/staging-receipt.md).
-Production data/configuration publication is the next separately authorised
-release stage, not a continuation of compiler migration; see the
-[production publication handoff](dynamic-prefix-pedagogy-production-publication-handoff-2026-08-03.md).
+An authorised production publication attempt ran on 2026-08-03. The narrow
+20-item persistence migration applied successfully and remains in place. The
+accepted five-profile projection and shared-authoritative deployment both
+verified, but the live production QA route returned a login redirect rather
+than the required HTTP `404`. The release was therefore rolled back to shadow
+and all five prior profile projections were restored. Production observation
+did not begin. See the
+[production rollback receipt](qa/adle-dynamic-prefix-pedagogy-production-rollback-receipt-2026-08-03.md)
+and [production publication handoff](dynamic-prefix-pedagogy-production-publication-handoff-2026-08-03.md).

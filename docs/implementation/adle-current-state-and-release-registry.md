@@ -138,11 +138,17 @@ and [evidence index](qa/adle-dynamic-prefix-pedagogy-ux-2026-08-03/adle-dynamic-
 Human screenshot and child acceptance completed on 2026-08-03. The accepted
 commit `f2b86d2037a4780a2cf3e3642f75e15319e5f199` was pushed to `main` and
 automatically deployed to the production Vercel project as Ready deployment
-`dpl_9ywWLPvywZAKTF1ZuN99Q7HL1Hsw`. Production pedagogy publication is not yet
-complete: the reviewed profile projection and narrow 20-item allowance remain
-staging-only, and production currently has no explicit compiler-mode setting,
-so source resolves the safe `shadow` default. The next release boundary is
-defined by the [production publication handoff](dynamic-prefix-pedagogy-production-publication-handoff-2026-08-03.md).
+`dpl_9ywWLPvywZAKTF1ZuN99Q7HL1Hsw`. An authorised production attempt on
+2026-08-03 applied and verified only the narrow 20-item persistence allowance,
+published and verified the five accepted JSONB projections, and created a
+Ready shared-authoritative deployment. The live production QA URL returned a
+login redirect instead of the required HTTP `404`, so the activation gate
+failed. The compiler override was removed, a deliberate shadow deployment was
+made Ready, and guarded deactivation restored all five prior content
+projections. Production therefore remains on the safe `shadow` default with
+the prior content projection; the additive narrow migration remains applied.
+See the [production rollback receipt](qa/adle-dynamic-prefix-pedagogy-production-rollback-receipt-2026-08-03.md)
+and [production publication handoff](dynamic-prefix-pedagogy-production-publication-handoff-2026-08-03.md).
 
 ## Prefix profile and compiler migration state
 
@@ -157,11 +163,15 @@ production-enabled. The global route gate does not override a profile record.
 Compiler migration does not change production profile activation or Teaching
 Dictionary facts. The approved `un-` staging release creates only one disabled
 profile and seven members resolved by environment-local `word_key`; it does not
-change canonical word, metadata, morphology or dictation rows. The accepted
-application commit is deployed to production in the safe `shadow`
-default. Production data publication, the 20-item persistence allowance, and
-explicit shared-authoritative activation remain separately authorised and have
-not occurred.
+change canonical word, metadata, morphology or dictation rows. Corrective
+application commit `bf78e04d8ed935ba1a747766adb29bafd2bc6fbb` is deployed to
+production in the safe `shadow` default. Migration `20260803113000` is applied
+and remains a narrow, inactive allowance until an accepted pedagogy payload is
+compiled. The accepted five-profile projection and explicit
+shared-authoritative mode were verified during the authorised attempt, then
+restored to the prior content/shadow state when the live QA-route gate failed.
+Publication and the seven-day production observation window have not
+completed.
 
 ## Documentation update rule
 

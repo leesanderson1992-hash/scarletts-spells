@@ -2,6 +2,27 @@
 
 Date: 2026-08-03
 
+## Execution outcome — rolled back
+
+The authorised production sequence ran on 2026-08-03. Migration
+`20260803113000` applied and verified, the accepted five-profile projection
+published and verified, and an exact-commit shared-authoritative deployment
+became Ready. The live stable-alias request to
+`/admin/adle-dynamic-prefix-qa` returned HTTP `307` to `/login`, not the
+required HTTP `404`. The activation gate therefore failed without being
+weakened. The compiler override was removed, a deliberate shadow deployment
+became Ready, and guarded deactivation restored the complete prior
+five-profile projection. The additive narrow migration remains applied; no
+production learner fixture was created and the seven-day observation window
+did not begin.
+
+See the
+[production attempt and rollback receipt](qa/adle-dynamic-prefix-pedagogy-production-rollback-receipt-2026-08-03.md).
+A future attempt requires a narrowly reviewed pre-auth denial for this exact QA
+path: `proxy.ts` currently redirects every unauthenticated `/admin` request
+before the page-level production `notFound()` guard can run. A new plan and
+authority are required after the live route itself satisfies the `404` gate.
+
 ## Executive recommendation
 
 The next stage is **production publication and observation** of the accepted
@@ -23,11 +44,10 @@ The separately guarded production release envelope and its regression coverage
 are now implemented locally. The complete read-only production preflight passed
 on 2026-08-03 and is recorded in the
 [preflight report](qa/adle-dynamic-prefix-pedagogy-production-preflight-2026-08-03.md).
-Production publication remains incomplete: the 20-item migration is absent,
-the five profile projections retain their prior production values, compiler
-mode still resolves to `shadow`, and the
-[production receipt](qa/adle-dynamic-prefix-pedagogy-production-receipt-pending.md)
-is explicitly pending.
+This section records the pre-execution state. The later attempt applied the
+20-item migration, then restored the five prior profile projections and shadow
+mode after the live QA-route gate failed. The completed attempt record is the
+[rollback receipt](qa/adle-dynamic-prefix-pedagogy-production-rollback-receipt-2026-08-03.md).
 
 The implemented tool contract is
 [ADLE Dynamic Prefix pedagogy production release](../contracts/adle-dynamic-prefix-pedagogy-production-release-contract.md).

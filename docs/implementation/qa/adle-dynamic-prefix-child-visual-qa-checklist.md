@@ -82,6 +82,9 @@ and [25-image evidence index](adle-dynamic-prefix-pedagogy-ux-2026-08-03/adle-dy
 The final human screenshot and child acceptance pass completed on 2026-08-03.
 The checklist remains reusable for later production observation, but it is no
 longer an open gate for the completed staging stage. Accepted commit:
-`f2b86d2037a4780a2cf3e3642f75e15319e5f199`. Production publication remains a
-separate release boundary documented in the
-[production publication handoff](../dynamic-prefix-pedagogy-production-publication-handoff-2026-08-03.md).
+`f2b86d2037a4780a2cf3e3642f75e15319e5f199`. The authorised 2026-08-03
+production attempt was rolled back because the live QA URL redirected to login
+instead of returning the required HTTP `404`. Production is shadow with prior
+profile content restored, so natural production observation has not begun.
+See the [rollback receipt](adle-dynamic-prefix-pedagogy-production-rollback-receipt-2026-08-03.md)
+and [production publication handoff](../dynamic-prefix-pedagogy-production-publication-handoff-2026-08-03.md).
