@@ -20,9 +20,11 @@ export const PRODUCTION_RELEASE_FLAG = "ADLE_DYNAMIC_PREFIX_PEDAGOGY_PRODUCTION_
 export const READ_ONLY_RELEASE_FLAG_VALUE = "read-only-preflight";
 export const MUTATING_RELEASE_FLAG_VALUE = "authorised-production-release";
 export const RELEASE_CONFIRMATION = `publish-${PRODUCTION_RELEASE_ID}-${ACCEPTED_PACKAGE_SHA256.slice(0, 16)}`;
+export const REACTIVATE_CONFIRMATION = `reactivate-${PRODUCTION_RELEASE_ID}-${ACCEPTED_PACKAGE_SHA256.slice(0, 16)}`;
 export const DEACTIVATE_CONFIRMATION = `restore-${PRODUCTION_RELEASE_ID}-${ACCEPTED_PACKAGE_SHA256.slice(0, 16)}`;
 export const PRODUCTION_PACKAGE_TYPE = "micro_skill_content_batch_v1";
 export const PRODUCTION_IMPORTER_VERSION = "dynamic_prefix_pedagogy_production_release_v2";
+export const PRODUCTION_SOURCE_FOLDER = "docs/implementation/seed-data/teaching-dictionary/releases/2026-08-03-dynamic-prefix-pedagogy-v1";
 export const PROFILE_MUTATION_FIELDS = ["meaning_bins", "prefix_choices", "intro_content"] as const;
 export const READ_ONLY_BEGIN_SQL = "begin transaction isolation level repeatable read read only";
 
@@ -251,7 +253,7 @@ export async function loadAcceptedManifest() {
   return validateManifestBytes(await readFile(ACCEPTED_MANIFEST_PATH));
 }
 
-type ReleaseCommand = "validate" | "plan" | "release" | "verify" | "deactivate";
+type ReleaseCommand = "validate" | "plan" | "release" | "reactivate" | "verify" | "deactivate";
 
 export function assertProductionEnvelope(input: {
   command: ReleaseCommand;
@@ -260,7 +262,7 @@ export function assertProductionEnvelope(input: {
   confirmation?: string;
 }): void {
   if (input.environment !== "production") fail("Production envelope requires --environment production.");
-  const mutating = input.command === "release" || input.command === "deactivate";
+  const mutating = input.command === "release" || input.command === "reactivate" || input.command === "deactivate";
   const allowedReadOnlyFlag = input.releaseFlag === READ_ONLY_RELEASE_FLAG_VALUE || input.releaseFlag === MUTATING_RELEASE_FLAG_VALUE;
   if (!mutating && !allowedReadOnlyFlag) {
     fail(`${input.command} requires ${PRODUCTION_RELEASE_FLAG}=${READ_ONLY_RELEASE_FLAG_VALUE}.`);
@@ -270,6 +272,9 @@ export function assertProductionEnvelope(input: {
   }
   if (input.command === "release" && input.confirmation !== RELEASE_CONFIRMATION) {
     fail(`Release requires the exact production confirmation token.`);
+  }
+  if (input.command === "reactivate" && input.confirmation !== REACTIVATE_CONFIRMATION) {
+    fail(`Reactivate requires the exact production reactivation confirmation token.`);
   }
   if (input.command === "deactivate" && input.confirmation !== DEACTIVATE_CONFIRMATION) {
     fail(`Deactivate requires the exact production restore confirmation token.`);
@@ -686,6 +691,80 @@ function confirmationPlanSha(): string {
   return arg("--confirm-plan-sha256") ?? fail("Mutation requires --confirm-plan-sha256 from an immediately preceding read-only plan.");
 }
 
+export type ProductionReleaseReceipt = {
+  id?: string;
+  source_folder_path: string;
+  source_folder_sha256: string;
+  validator_version: string;
+  import_mode: string;
+  batch_status: string;
+  source_metadata: Record<string, unknown>;
+  release_id: string | null;
+  package_type: string | null;
+  package_schema_version: string | null;
+  workbook_sha256: string | null;
+  package_sha256: string | null;
+  target_environment: string | null;
+  importer_version: string | null;
+};
+
+export function assertReactivationReceipt(
+  receipt: ProductionReleaseReceipt,
+  packageSchemaVersion: string,
+  packageSha256 = ACCEPTED_PACKAGE_SHA256,
+): {
+  previousProfiles: Array<Record<string, unknown>>;
+  protectedSnapshotBefore: ProtectedSnapshot;
+} {
+  const ledger = productionReleaseLedgerFields(packageSchemaVersion, packageSha256);
+  const metadata = receipt.source_metadata;
+  if (
+    receipt.source_folder_path !== PRODUCTION_SOURCE_FOLDER
+    || receipt.source_folder_sha256 !== packageSha256
+    || receipt.validator_version !== PRODUCTION_RELEASE_ID
+    || receipt.import_mode !== "production_release"
+    || receipt.batch_status !== "deactivated"
+    || receipt.release_id !== ledger.releaseId
+    || receipt.package_type !== ledger.packageType
+    || receipt.package_schema_version !== ledger.packageSchemaVersion
+    || receipt.workbook_sha256 !== ledger.workbookSha256
+    || receipt.package_sha256 !== ledger.packageSha256
+    || receipt.target_environment !== ledger.targetEnvironment
+    || receipt.importer_version !== ledger.importerVersion
+    || metadata.releaseId !== PRODUCTION_RELEASE_ID
+    || metadata.acceptedStagingReleaseId !== ACCEPTED_STAGING_RELEASE_ID
+    || metadata.packageSha256 !== packageSha256
+    || metadata.workbookSha256Basis !== "immutable_human_reviewed_manifest"
+  ) fail("Production reactivation receipt identity mismatch.");
+
+  const previousProfiles = metadata.previousProfiles;
+  if (!Array.isArray(previousProfiles) || previousProfiles.length !== PROFILE_KEYS.length) {
+    fail("Complete five-profile reactivation rollback projection is unavailable.");
+  }
+  for (const [index, profile] of previousProfiles.entries()) {
+    if (
+      !profile
+      || typeof profile !== "object"
+      || typeof profile.id !== "string"
+      || profile.microSkillKey !== PROFILE_KEYS[index]
+      || !PROFILE_MUTATION_FIELDS.every((field) => Object.hasOwn(profile, field))
+    ) fail("Retained reactivation rollback projection identity is incomplete or out of order.");
+  }
+
+  const protectedSnapshotBefore = metadata.protectedSnapshotBefore;
+  if (!protectedSnapshotBefore || typeof protectedSnapshotBefore !== "object" || Array.isArray(protectedSnapshotBefore)) {
+    fail("Protected production snapshot is missing from the retained reactivation receipt.");
+  }
+  const expectedProtectedKeys = PROTECTED_TABLES.map(([schema, table]) => `${schema}.${table}`);
+  if (Object.keys(protectedSnapshotBefore).sort().join("|") !== expectedProtectedKeys.sort().join("|")) {
+    fail("Protected production snapshot in the retained reactivation receipt is incomplete.");
+  }
+  return {
+    previousProfiles: previousProfiles as Array<Record<string, unknown>>,
+    protectedSnapshotBefore: protectedSnapshotBefore as ProtectedSnapshot,
+  };
+}
+
 async function releaseCommand(loaded: Awaited<ReturnType<typeof loadAcceptedManifest>>) {
   const baselineGitSha = gitSha();
   const vercel = readVercelFacts(baselineGitSha);
@@ -763,6 +842,133 @@ async function releaseCommand(loaded: Awaited<ReturnType<typeof loadAcceptedMani
     assertProtectedSnapshotEqual(protectedBefore, protectedAfter);
     await client.query("commit");
     return { status: "released", environment: "production", productionReleaseId: PRODUCTION_RELEASE_ID, batchId, packageSha256: loaded.packageSha256, planSha256: planned.plan.planSha256, protectedSnapshotSha256: canonicalHash(protectedAfter) };
+  } catch (error) {
+    await client.query("rollback").catch(() => undefined);
+    throw error;
+  } finally {
+    await client.end();
+  }
+}
+
+async function reactivateCommand(loaded: Awaited<ReturnType<typeof loadAcceptedManifest>>) {
+  const baselineGitSha = gitSha();
+  const vercel = readVercelFacts(baselineGitSha);
+  const client = clientForProduction();
+  await client.connect();
+  try {
+    await client.query("begin transaction isolation level serializable read write");
+    await client.query("select pg_advisory_xact_lock($1)", [ADVISORY_LOCK_KEY]);
+    await assertProfileSchema(client);
+    const rows = await readProfiles(client, true);
+    const batchId = productionBatchId(loaded.packageSha256);
+    const batch = await client.query<ProductionReleaseReceipt>(
+      `select id,source_folder_path,source_folder_sha256,validator_version,import_mode,batch_status,source_metadata,
+        release_id,package_type,package_schema_version,workbook_sha256,package_sha256,target_environment,importer_version
+      from public.canonical_teaching_dictionary_import_batches where id=$1 for update`,
+      [batchId],
+    );
+    const receipt = batch.rows[0] ?? fail("Production reactivation receipt is missing.");
+    const retained = assertReactivationReceipt(receipt, loaded.manifest.schemaVersion, loaded.packageSha256);
+    const currentRollbackProjection = rows.map((row) => ({
+      id: row.id,
+      microSkillKey: row.micro_skill_key,
+      ...currentProjection(row),
+    }));
+    if (canonical(currentRollbackProjection) !== canonical(retained.previousProfiles)) {
+      fail("Current production profiles do not equal the retained rollback projection.");
+    }
+
+    const protectedBefore = await protectedSnapshot(client);
+    assertProtectedSnapshotEqual(retained.protectedSnapshotBefore, protectedBefore);
+    const members = assessMembers(loaded.manifest, await readMembers(client));
+    if (members.length !== PROFILE_KEYS.length) fail("Five member projections are required for reactivation.");
+    const planned = await collectPlan(client, loaded, vercel, baselineGitSha);
+    if (!planned.plan.migration.present || !planned.plan.migration.approvedTwentyItemGuardPresent) {
+      fail("The narrow reviewed 20-item migration must be applied and verified before profile reactivation.");
+    }
+    if (planned.plan.planSha256 !== confirmationPlanSha()) {
+      fail("Production plan SHA changed; re-run read-only plan and review it before reactivation.");
+    }
+
+    for (const [index, profile] of loaded.manifest.profiles.entries()) {
+      const row = rows[index] ?? fail(`Missing locked profile ${profile.microSkillKey}.`);
+      const next = releasedProjection(profile, loaded.definitions);
+      const updated = await client.query(
+        `update public.canonical_teaching_dictionary_prefix_profiles set meaning_bins=$1,prefix_choices=$2,intro_content=$3 where id=$4 and micro_skill_key=$5 and production_enabled=true and row_status='active' and review_status='approved_for_first_exposure'`,
+        [JSON.stringify(next.meaning_bins), JSON.stringify(next.prefix_choices), JSON.stringify(next.intro_content), row.id, profile.microSkillKey],
+      );
+      if (updated.rowCount !== 1) fail(`Guarded reactivation update failed for ${profile.microSkillKey}.`);
+    }
+
+    const afterRows = await readProfiles(client);
+    for (const [index, row] of rows.entries()) {
+      if (canonical(nonTargetProfile(row)) !== canonical(nonTargetProfile(afterRows[index]!))) {
+        fail(`Non-target profile field changed during reactivation for ${String(row.micro_skill_key)}.`);
+      }
+    }
+    const afterPlan = profilePlan(loaded.manifest, loaded.definitions, afterRows);
+    if (afterPlan.some((profile) => profile.changedFields.length)) {
+      fail("Reactivated production profiles do not equal the exact accepted projection.");
+    }
+    const protectedAfter = await protectedSnapshot(client);
+    assertProtectedSnapshotEqual(protectedBefore, protectedAfter);
+    assertProtectedSnapshotEqual(retained.protectedSnapshotBefore, protectedAfter);
+
+    const verificationSummary = {
+      status: "reactivated_and_transactionally_verified",
+      profiles: PROFILE_KEYS.length,
+      mutableFields: [...PROFILE_MUTATION_FIELDS],
+      packageSha256: loaded.packageSha256,
+      planSha256: planned.plan.planSha256,
+      protectedSnapshotSha256: canonicalHash(protectedAfter),
+      rollbackProjectionRetained: true,
+    };
+    const receiptUpdate = await client.query(
+      `update public.canonical_teaching_dictionary_import_batches
+      set batch_status='applied',deactivated_at=null,deactivation_note=null,updated_at=now(),verified_at=now(),
+        verification_summary=$1,
+        source_metadata=source_metadata || jsonb_build_object(
+          'reactivatedAt',to_jsonb(now()),
+          'reactivation',jsonb_build_object(
+            'sourceCommit',$2::text,
+            'planSha256',$3::text,
+            'packageSha256',$4::text,
+            'protectedSnapshotSha256',$5::text,
+            'rollbackProjectionRetained',true
+          )
+        )
+      where id=$6 and batch_status='deactivated'`,
+      [verificationSummary, baselineGitSha, planned.plan.planSha256, loaded.packageSha256, canonicalHash(protectedAfter), batchId],
+    );
+    if (receiptUpdate.rowCount !== 1) fail("The deterministic production receipt was not reactivated exactly once.");
+    const updatedBatch = await client.query<ProductionReleaseReceipt>(
+      `select id,source_folder_path,source_folder_sha256,validator_version,import_mode,batch_status,source_metadata,
+        release_id,package_type,package_schema_version,workbook_sha256,package_sha256,target_environment,importer_version
+      from public.canonical_teaching_dictionary_import_batches where id=$1`,
+      [batchId],
+    );
+    const updatedReceipt = updatedBatch.rows[0] ?? fail("Reactivated production receipt disappeared.");
+    if (updatedReceipt.batch_status !== "applied") fail("Production receipt did not transition to applied.");
+    if (canonical(updatedReceipt.source_metadata.previousProfiles) !== canonical(retained.previousProfiles)) {
+      fail("Reactivation altered the retained rollback projection.");
+    }
+    if (canonical(updatedReceipt.source_metadata.protectedSnapshotBefore) !== canonical(retained.protectedSnapshotBefore)) {
+      fail("Reactivation altered the retained protected snapshot.");
+    }
+
+    await client.query("commit");
+    return {
+      status: "reactivated",
+      environment: "production",
+      productionReleaseId: PRODUCTION_RELEASE_ID,
+      batchId,
+      packageSha256: loaded.packageSha256,
+      planSha256: planned.plan.planSha256,
+      profiles: PROFILE_KEYS.length,
+      exactMutableProfileFields: [...PROFILE_MUTATION_FIELDS],
+      rollbackProjectionRetained: true,
+      protectedSnapshotSha256: canonicalHash(protectedAfter),
+    };
   } catch (error) {
     await client.query("rollback").catch(() => undefined);
     throw error;
@@ -871,7 +1077,7 @@ async function deactivateCommand(loaded: Awaited<ReturnType<typeof loadAcceptedM
 
 async function main() {
   const command = (process.argv[2] ?? "validate") as ReleaseCommand;
-  if (!["validate", "plan", "release", "verify", "deactivate"].includes(command)) fail(`Unknown production release command: ${command}.`);
+  if (!["validate", "plan", "release", "reactivate", "verify", "deactivate"].includes(command)) fail(`Unknown production release command: ${command}.`);
   assertProductionEnvelope({
     command,
     environment: arg("--environment"),
@@ -890,12 +1096,13 @@ async function main() {
       productionBatchId: productionBatchId(loaded.packageSha256),
       definitions: loaded.manifest.prefixDefinitions.length,
       profiles: loaded.manifest.profiles.length,
-      supportedCommands: ["validate", "plan", "release", "verify", "deactivate"],
+      supportedCommands: ["validate", "plan", "release", "reactivate", "verify", "deactivate"],
       mutationPerformed: false,
     }, null, 2));
   }
   if (command === "plan") return console.log(JSON.stringify(await planCommand(loaded), null, 2));
   if (command === "release") return console.log(JSON.stringify(await releaseCommand(loaded), null, 2));
+  if (command === "reactivate") return console.log(JSON.stringify(await reactivateCommand(loaded), null, 2));
   if (command === "verify") return console.log(JSON.stringify(await verifyCommand(loaded), null, 2));
   return console.log(JSON.stringify(await deactivateCommand(loaded), null, 2));
 }

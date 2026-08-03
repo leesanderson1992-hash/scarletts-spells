@@ -13,16 +13,20 @@ import {
   PRODUCTION_RELEASE_FLAG,
   PRODUCTION_IMPORTER_VERSION,
   PRODUCTION_PACKAGE_TYPE,
+  PRODUCTION_RELEASE_ID,
+  PRODUCTION_SOURCE_FOLDER,
   PRODUCTION_SUPABASE_REF,
   PRODUCTION_VERCEL_PROJECT_ID,
   PRODUCTION_VERCEL_PROJECT_NAME,
   READ_ONLY_BEGIN_SQL,
   READ_ONLY_RELEASE_FLAG_VALUE,
+  REACTIVATE_CONFIRMATION,
   RELEASE_CONFIRMATION,
   STAGING_SUPABASE_REF,
   assertExpectedProfileColumns,
   assertProductionDatabaseTarget,
   assertProductionEnvelope,
+  assertReactivationReceipt,
   assertProtectedSnapshotEqual,
   assessVercelFacts,
   canonical,
@@ -33,6 +37,7 @@ import {
   validateManifestBytes,
   withReadOnlyTransaction,
   type ProtectedSnapshot,
+  type ProductionReleaseReceipt,
   type Queryable,
 } from "./adle-dynamic-prefix-pedagogy-production-release";
 
@@ -63,6 +68,9 @@ expectFailure(() => assertProductionEnvelope({ command: "plan", environment: "st
 expectFailure(() => assertProductionEnvelope({ command: "release", environment: "production", releaseFlag: READ_ONLY_RELEASE_FLAG_VALUE, confirmation: RELEASE_CONFIRMATION }), /authorised-production-release/);
 expectFailure(() => assertProductionEnvelope({ command: "release", environment: "production", releaseFlag: MUTATING_RELEASE_FLAG_VALUE }), /confirmation token/);
 assert.doesNotThrow(() => assertProductionEnvelope({ command: "release", environment: "production", releaseFlag: MUTATING_RELEASE_FLAG_VALUE, confirmation: RELEASE_CONFIRMATION }));
+expectFailure(() => assertProductionEnvelope({ command: "reactivate", environment: "production", releaseFlag: READ_ONLY_RELEASE_FLAG_VALUE, confirmation: REACTIVATE_CONFIRMATION }), /authorised-production-release/);
+expectFailure(() => assertProductionEnvelope({ command: "reactivate", environment: "production", releaseFlag: MUTATING_RELEASE_FLAG_VALUE, confirmation: RELEASE_CONFIRMATION }), /reactivation confirmation/);
+assert.doesNotThrow(() => assertProductionEnvelope({ command: "reactivate", environment: "production", releaseFlag: MUTATING_RELEASE_FLAG_VALUE, confirmation: REACTIVATE_CONFIRMATION }));
 expectFailure(() => assertProductionEnvelope({ command: "deactivate", environment: "production", releaseFlag: MUTATING_RELEASE_FLAG_VALUE, confirmation: RELEASE_CONFIRMATION }), /restore confirmation/);
 assert.doesNotThrow(() => assertProductionEnvelope({ command: "deactivate", environment: "production", releaseFlag: MUTATING_RELEASE_FLAG_VALUE, confirmation: DEACTIVATE_CONFIRMATION }));
 
@@ -114,6 +122,54 @@ for (const profile of projectionPlan) {
   assert.match(profile.rollbackProjectionSha256, /^[a-f0-9]{64}$/);
 }
 
+const retainedProtectedSnapshot = Object.fromEntries(PROTECTED_TABLES.map(([schema, table], index) => [
+  `${schema}.${table}`,
+  { present: true, count: index, sha256: index.toString(16).padStart(64, "0") },
+])) as ProtectedSnapshot;
+const retainedPreviousProfiles = fixtureRows.map((row) => ({
+  id: row.id,
+  microSkillKey: row.micro_skill_key,
+  meaning_bins: row.meaning_bins,
+  prefix_choices: row.prefix_choices,
+  intro_content: row.intro_content,
+}));
+const reactivationReceipt: ProductionReleaseReceipt = {
+  id: productionBatchId(),
+  source_folder_path: PRODUCTION_SOURCE_FOLDER,
+  source_folder_sha256: ACCEPTED_PACKAGE_SHA256,
+  validator_version: PRODUCTION_RELEASE_ID,
+  import_mode: "production_release",
+  batch_status: "deactivated",
+  source_metadata: {
+    releaseId: PRODUCTION_RELEASE_ID,
+    acceptedStagingReleaseId: validated.manifest.releaseId,
+    packageSha256: ACCEPTED_PACKAGE_SHA256,
+    workbookSha256Basis: "immutable_human_reviewed_manifest",
+    previousProfiles: retainedPreviousProfiles,
+    protectedSnapshotBefore: retainedProtectedSnapshot,
+  },
+  release_id: releaseLedger.releaseId,
+  package_type: releaseLedger.packageType,
+  package_schema_version: releaseLedger.packageSchemaVersion,
+  workbook_sha256: releaseLedger.workbookSha256,
+  package_sha256: releaseLedger.packageSha256,
+  target_environment: releaseLedger.targetEnvironment,
+  importer_version: releaseLedger.importerVersion,
+};
+const retained = assertReactivationReceipt(reactivationReceipt, validated.manifest.schemaVersion);
+assert.deepEqual(retained.previousProfiles, retainedPreviousProfiles);
+assert.deepEqual(retained.protectedSnapshotBefore, retainedProtectedSnapshot);
+expectFailure(() => assertReactivationReceipt({ ...reactivationReceipt, batch_status: "applied" }, validated.manifest.schemaVersion), /identity mismatch/);
+expectFailure(() => assertReactivationReceipt({ ...reactivationReceipt, package_sha256: "f".repeat(64) }, validated.manifest.schemaVersion), /identity mismatch/);
+expectFailure(() => assertReactivationReceipt({
+  ...reactivationReceipt,
+  source_metadata: { ...reactivationReceipt.source_metadata, previousProfiles: retainedPreviousProfiles.slice(0, 4) },
+}, validated.manifest.schemaVersion), /Complete five-profile/);
+expectFailure(() => assertReactivationReceipt({
+  ...reactivationReceipt,
+  source_metadata: { ...reactivationReceipt.source_metadata, protectedSnapshotBefore: {} },
+}, validated.manifest.schemaVersion), /snapshot.*incomplete/);
+
 const snapshot: ProtectedSnapshot = {
   "public.assignment_items": { present: true, count: 4, sha256: "a".repeat(64) },
   "auth.users": { present: true, count: 2, sha256: "b".repeat(64) },
@@ -160,6 +216,10 @@ assert(transactionQueries.every((query) => !/^\s*(insert|update|delete|alter|cre
 const source = await readFile("scripts/adle-dynamic-prefix-pedagogy-production-release.ts", "utf8");
 assert(source.includes("begin transaction isolation level repeatable read read only"), "plan is database-enforced read-only");
 assert(source.includes("set meaning_bins=$1,prefix_choices=$2,intro_content=$3"), "release update names only the three allowed profile fields");
+assert(source.includes("Current production profiles do not equal the retained rollback projection"), "reactivation requires exact retained rollback equality");
+assert(source.includes("where id=$6 and batch_status='deactivated'"), "reactivation transitions only the exact deactivated deterministic receipt");
+assert(source.includes("rollbackProjectionRetained"), "reactivation records retained rollback readiness");
+assert(source.includes("Reactivation altered the retained rollback projection"), "reactivation verifies rollback projection retention before commit");
 assert(!/update public\.canonical_teaching_dictionary_prefix_members/i.test(source), "member rows cannot be updated");
 assert(!/set\s+production_enabled\s*=|,\s*production_enabled\s*=/i.test(source), "profile activation cannot be changed");
 const mutationTargets = [...source.matchAll(/\b(?:insert\s+into|update|delete\s+from)\s+(?:public\.)?([a-z_][a-z0-9_]*)/gi)]

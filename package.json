@@ -33,6 +33,7 @@
     "adle:dynamic-prefix-pedagogy-production:validate": "ADLE_DYNAMIC_PREFIX_PEDAGOGY_PRODUCTION_RELEASE=read-only-preflight tsx --env-file=.env.local scripts/adle-dynamic-prefix-pedagogy-production-release.ts validate --environment production",
     "adle:dynamic-prefix-pedagogy-production:plan": "ADLE_DYNAMIC_PREFIX_PEDAGOGY_PRODUCTION_RELEASE=read-only-preflight tsx --env-file=.env.local scripts/adle-dynamic-prefix-pedagogy-production-release.ts plan --environment production",
     "adle:dynamic-prefix-pedagogy-production:release": "tsx --env-file=.env.local scripts/adle-dynamic-prefix-pedagogy-production-release.ts release",
+    "adle:dynamic-prefix-pedagogy-production:reactivate": "tsx --env-file=.env.local scripts/adle-dynamic-prefix-pedagogy-production-release.ts reactivate",
     "adle:dynamic-prefix-pedagogy-production:verify": "ADLE_DYNAMIC_PREFIX_PEDAGOGY_PRODUCTION_RELEASE=read-only-preflight tsx --env-file=.env.local scripts/adle-dynamic-prefix-pedagogy-production-release.ts verify --environment production",
     "adle:dynamic-prefix-pedagogy-production:deactivate": "tsx --env-file=.env.local scripts/adle-dynamic-prefix-pedagogy-production-release.ts deactivate",
     "adle:dynamic-prefix-pedagogy-production-regression": "tsx scripts/adle-dynamic-prefix-pedagogy-production-release-regression.ts",
