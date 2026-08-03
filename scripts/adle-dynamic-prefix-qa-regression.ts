@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
 import { resolveAdlePlanDateOverride } from "../lib/adle/session-date-override";
+import { DYNAMIC_PREFIX_QA_PROFILES } from "../lib/adle/morphology/dynamic-prefix-qa-catalog";
 import {
   DYNAMIC_PREFIX_QA_PATH,
   DYNAMIC_PREFIX_QA_PRODUCTION_SUPABASE_REF,
@@ -35,6 +36,8 @@ assert.equal(isDynamicPrefixQaUserAuthorized({ userId: "other", isAdmin: false, 
 assert.equal(resolveAdlePlanDateOverride({ requestedDate: "2026-08-08", fallbackDate: "2026-08-02", isAdmin: false, isStagingQa: true }), "2026-08-08");
 assert.equal(resolveAdlePlanDateOverride({ requestedDate: "2026-08-08", fallbackDate: "2026-08-02", isAdmin: false, isStagingQa: false }), null);
 assert.equal(DYNAMIC_PREFIX_QA_PATH, "/admin/adle-dynamic-prefix-qa");
+assert.deepEqual(DYNAMIC_PREFIX_QA_PROFILES.map((profile) => profile.expectedItemCount), [16, 16, 20, 16, 18]);
+assert.equal(DYNAMIC_PREFIX_QA_PROFILES[2]?.meaningEvidenceLabel, "Prefix Form Sort (equivalent)");
 
 const writer = readFileSync("lib/adle/morphology/dynamic-prefix-assignment-writer.ts", "utf8");
 const actions = readFileSync("app/admin/adle-dynamic-prefix-qa/actions.ts", "utf8");

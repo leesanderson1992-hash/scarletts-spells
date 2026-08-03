@@ -125,6 +125,19 @@ writer, returns only normal `/learn/week/adle` child-session links, and returns
 HTTP `404` for production or unknown identities. It is not linked from
 production learner or parent navigation.
 
+The local `dynamic_prefix_pedagogy_v1` stage is a deliberate child-tested
+presentation refinement rather than compiler parity maintenance. It adds
+separate Learn 2/3 teaching cards, selected-prefix corrective feedback,
+deterministic three-or-more-choice Build pools, Prefix-specific Reflection,
+Prefix result-card suppression, and an 80% Cover track threshold. The
+in-/im-/il-/ir- profile gains a genuine four-form choice activity and moves
+from 16 to 20 items. The implementation, governed staging release, five core
+normal-path completions, final three-card recapture, and 25-image evidence set
+are recorded in the [2026-08-03 staging receipt](qa/adle-dynamic-prefix-pedagogy-ux-2026-08-03/staging-receipt.md)
+and [evidence index](qa/adle-dynamic-prefix-pedagogy-ux-2026-08-03/adle-dynamic-prefix-pedagogy-ux-2026-08-03.md).
+Publication remains gated on human screenshot review and child acceptance;
+production is unchanged.
+
 ## Prefix profile and compiler migration state
 
 The dynamic profile loader is dictionary-first. It reads only active,

@@ -8,6 +8,7 @@ import {
 export const DYNAMIC_PREFIX_WORD_LAB_CONTENT_VERSION = "d4_mor_prefix_word_lab_v2";
 export const DYNAMIC_PREFIX_WORD_LAB_PROFILE = "prefix_word_lab_v2";
 export const DYNAMIC_PREFIX_WORD_LAB_WORD_COUNT = 4;
+export const DYNAMIC_PREFIX_PEDAGOGY_VERSION = "dynamic_prefix_pedagogy_v1" as const;
 /** First released dynamic profile; legacy fixed v1 remains independently supported. */
 export const DYNAMIC_PREFIX_INITIAL_PROFILE_KEY = "D4_MOR_PREFIXES_UN";
 
@@ -34,6 +35,33 @@ export interface DynamicPrefixWord {
   approvedTransfer: boolean;
 }
 
+export interface PrefixTeachingCardV1 {
+  text: string;
+  label: string;
+  meaning: string;
+  rules: [string, ...string[]];
+  example?: {
+    prefix: string;
+    base: string;
+    word: string;
+    meaning: string;
+  };
+}
+
+export interface PrefixChoiceAuditV1 {
+  word: string;
+  choiceVerdicts: Record<string, boolean>;
+}
+
+export interface DynamicPrefixPedagogyV1 {
+  version: typeof DYNAMIC_PREFIX_PEDAGOGY_VERSION;
+  teachingCards: PrefixTeachingCardV1[];
+  validChoiceAudit: PrefixChoiceAuditV1[];
+  meaningCheckKind: "meaning" | "prefix_form";
+  meaningResultsPresentation: "none";
+  coverClosePolicy: { kind: "track_ratio"; threshold: 0.8 };
+}
+
 export interface DynamicPrefixProfile {
   microSkillKey: string;
   productionEnabled: boolean;
@@ -41,7 +69,7 @@ export interface DynamicPrefixProfile {
   prefixLabel?: string;
   prefixText?: string;
   prefixMeaning?: string;
-  meaningBins: Array<{ id: string; label: string; description: string }>;
+  meaningBins: Array<{ id: string; label: string; description: string; prefixText?: string }>;
   /** Reviewed target + transfer corpus for precisely this micro-skill. */
   wordsByCanonicalId: ReadonlyMap<string, DynamicPrefixWord>;
   transferCanonicalWordIds: readonly string[];
@@ -50,6 +78,9 @@ export interface DynamicPrefixProfile {
     label: string;
     outcome: string | null;
     meaning: string | null;
+    rules?: readonly string[];
+    example?: PrefixTeachingCardV1["example"];
+    reviewedSource?: string;
     status: "target" | "valid_alternative" | "unsupported";
   }>;
   reflection: { promptKey: string; promptText: string };
@@ -65,6 +96,8 @@ export interface DynamicPrefixProfile {
       meaning: string;
     }>;
   };
+  /** Required for newly released pedagogy snapshots; omitted by historical profiles. */
+  pedagogy?: DynamicPrefixPedagogyV1;
 }
 
 export interface DynamicPrefixSelection {
@@ -79,6 +112,7 @@ export interface DynamicPrefixLessonPayloadV2 {
   contentVersion: string;
   microSkillId: string;
   experienceProfile: "prefix_word_lab_v2";
+  presentationPolicyVersion?: typeof DYNAMIC_PREFIX_PEDAGOGY_VERSION;
   prefix: { text: string; label: string; meaning: string };
   authenticCanonicalWordIds: string[];
   words: {
@@ -100,6 +134,7 @@ export interface DynamicPrefixLessonPayloadV2 {
         word: string;
         meaning: string;
       }>;
+      teachingCards?: PrefixTeachingCardV1[];
     };
     discovery: Array<{
       canonicalWordId: string;
@@ -127,6 +162,8 @@ export interface DynamicPrefixLessonPayloadV2 {
         choices: DynamicPrefixProfile["prefixChoices"];
       }>;
       includeMeaningSort: boolean;
+      meaningCheckKind?: "meaning" | "prefix_form";
+      meaningResultsPresentation?: "none" | "overview_and_reflection";
     };
     dictation: Array<{
       canonicalWordId: string;
@@ -135,7 +172,54 @@ export interface DynamicPrefixLessonPayloadV2 {
       targetTokenIndex: number;
     }>;
     reflection: DynamicPrefixProfile["reflection"];
+    controlledPolicy?: {
+      coverClosePolicy: { kind: "track_ratio"; threshold: 0.8 };
+    };
   };
+}
+
+function validTeachingCard(value: PrefixTeachingCardV1): boolean {
+  return Boolean(
+    value
+    && value.text?.trim()
+    && value.label?.trim()
+    && value.meaning?.trim()
+    && Array.isArray(value.rules)
+    && value.rules.length > 0
+    && value.rules.every((rule) => rule.trim()),
+  );
+}
+
+function validPedagogyPayload(payload: DynamicPrefixLessonPayloadV2): boolean {
+  if (payload.presentationPolicyVersion === undefined) return true;
+  if (payload.presentationPolicyVersion !== DYNAMIC_PREFIX_PEDAGOGY_VERSION) return false;
+  const cards = payload.activities.introduction.teachingCards;
+  const guided = payload.activities.guided;
+  const controlled = payload.activities.controlledPolicy;
+  if (
+    !cards
+    || cards.length === 0
+    || cards.some((card) => !validTeachingCard(card))
+    || new Set(cards.map((card) => card.text)).size !== cards.length
+    || !guided
+    || !guided.includeMeaningSort
+    || !["meaning", "prefix_form"].includes(String(guided.meaningCheckKind))
+    || guided.meaningResultsPresentation !== "none"
+    || controlled?.coverClosePolicy.kind !== "track_ratio"
+    || controlled.coverClosePolicy.threshold !== 0.8
+  ) return false;
+  const byText = new Map(cards.map((card) => [card.text, card]));
+  return payload.words.lesson.every((word) => Boolean(word.prefixText && byText.has(word.prefixText)))
+    && guided.builds.every((build) => build.choices.length >= 3
+      && new Set(build.choices.map((choice) => choice.text)).size === build.choices.length
+      && build.choices.every((choice) => Boolean(
+        choice.text.trim()
+        && choice.label.trim()
+        && choice.meaning?.trim()
+        && choice.rules?.length
+        && choice.rules.every((rule) => rule.trim())
+        && choice.reviewedSource?.trim(),
+      )));
 }
 
 export function resolveDynamicPrefixFacts(
@@ -199,6 +283,7 @@ export function validateDynamicPrefixWordLabPayload(
     && validExamples,
   );
   return validIntroduction
+    && validPedagogyPayload(payload)
     && validGuided
     && payload.words.lesson.every((word, index) =>
       word.parts.length >= 2

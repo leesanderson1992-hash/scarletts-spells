@@ -42,6 +42,8 @@ export interface MorphologyWordSnapshot {
   canonicalWordId: string;
   displayWord: string;
   audioText: string;
+  /** Reviewed base word, carried by Dynamic Prefix snapshots. */
+  baseWord?: string;
   baseMeaning: string;
   derivedMeaning: string;
   effect: MorphologyEffect;
@@ -100,10 +102,22 @@ export interface MorphologyActivityV1 {
   promptText?: string;
   introScreens?: MorphologyIntroductionScreenV1[];
   discoveryCards?: MorphologyDiscoveryCardV1[];
-  meaningBins?: Array<{ id: string; label: string; description: string }>;
+  meaningBins?: Array<{ id: string; label: string; description: string; prefixText?: string }>;
   prefixLabel?: string;
   affixTerm?: "prefix" | "suffix";
   affixPosition?: "before" | "after";
+  meaningCheckKind?: "meaning" | "prefix_form";
+  meaningResultsPresentation?: "none" | "overview_and_reflection";
+  teachingCards?: MorphologyPrefixTeachingCardV1[];
+  coverClosePolicy?: { kind: "track_ratio"; threshold: 0.8 };
+}
+
+export interface MorphologyPrefixTeachingCardV1 {
+  text: string;
+  label: string;
+  meaning: string;
+  rules: [string, ...string[]];
+  example?: { prefix: string; base: string; word: string; meaning: string };
 }
 
 export interface MorphologyIntroductionScreenV1 {
@@ -116,6 +130,7 @@ export interface MorphologyIntroductionScreenV1 {
   wordCards?: Array<{ base: string; derived: string; meaning: string }>;
   /** Reviewed profile examples, used by mixed-prefix family explainers. */
   examples?: Array<{ prefix: string; prefixMeaning?: string; base: string; word: string; meaning: string }>;
+  teachingCards?: MorphologyPrefixTeachingCardV1[];
   ctaLabel: string;
 }
 
@@ -134,6 +149,9 @@ export interface PrefixChoiceV1 {
   label: string;
   outcome: string | null;
   meaning: string | null;
+  rules?: readonly string[];
+  example?: { prefix: string; base: string; word: string; meaning: string };
+  reviewedSource?: string;
   status: "target" | "valid_alternative" | "unsupported";
 }
 

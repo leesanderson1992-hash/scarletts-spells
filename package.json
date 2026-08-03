@@ -24,6 +24,15 @@
     "adle:dynamic-prefix-un-release:verify": "tsx scripts/adle-dynamic-prefix-un-profile-release.ts verify",
     "adle:dynamic-prefix-un-release:deactivate": "tsx scripts/adle-dynamic-prefix-un-profile-release.ts deactivate",
     "adle:dynamic-prefix-un-release:reactivate": "tsx scripts/adle-dynamic-prefix-un-profile-release.ts reactivate",
+    "adle:dynamic-prefix-pedagogy:validate": "tsx scripts/adle-dynamic-prefix-pedagogy-release.ts validate",
+    "adle:dynamic-prefix-pedagogy:plan": "tsx scripts/adle-dynamic-prefix-pedagogy-release.ts plan",
+    "adle:dynamic-prefix-pedagogy:release": "tsx scripts/adle-dynamic-prefix-pedagogy-release.ts release",
+    "adle:dynamic-prefix-pedagogy:verify": "tsx scripts/adle-dynamic-prefix-pedagogy-release.ts verify",
+    "adle:dynamic-prefix-pedagogy:deactivate": "tsx scripts/adle-dynamic-prefix-pedagogy-release.ts deactivate",
+    "adle:dynamic-prefix-pedagogy-regression": "tsx scripts/adle-dynamic-prefix-pedagogy-regression.ts",
+    "adle:dynamic-prefix-20-item-persistence-regression": "tsx scripts/adle-dynamic-prefix-20-item-persistence-regression.ts",
+    "adle:cover-shutter-threshold-regression": "tsx scripts/adle-cover-shutter-threshold-regression.ts",
+    "adle:cover-shutter-interaction-regression": "playwright test --config=playwright.adle.config.ts tests/adle/cover-shutter-interaction.spec.ts",
     "adle:dynamic-prefix-qa-regression": "tsx scripts/adle-dynamic-prefix-qa-regression.ts",
     "maintenance:duplicate-submission-cleanup": "npx tsx scripts/cleanup-duplicate-task-submissions.ts",
     "adle:preview": "rm -rf .tmp/adle-preview && npx tsc --outDir .tmp/adle-preview --rootDir . --module commonjs --target es2022 --moduleResolution node --esModuleInterop --skipLibCheck --noEmit false scripts/adle-preview.ts && node --env-file=.env.local .tmp/adle-preview/scripts/adle-preview.js",
@@ -211,6 +220,7 @@
     "sharp": "^0.35.3"
   },
   "devDependencies": {
+    "@playwright/test": "^1.62.1",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/pg": "^8.20.0",

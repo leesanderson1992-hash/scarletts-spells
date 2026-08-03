@@ -42,6 +42,14 @@ export interface SharedAffixChoiceV1 {
   label: string;
   outcome: string | null;
   meaning: string | null;
+  rules?: readonly string[];
+  example?: {
+    prefix: string;
+    base: string;
+    word: string;
+    meaning: string;
+  };
+  reviewedSource?: string;
   status: "target" | "valid_alternative" | "unsupported";
 }
 
@@ -49,6 +57,7 @@ export interface SharedAffixMeaningGroupV1 {
   id: string;
   label: string;
   description: string;
+  prefixText?: string;
 }
 
 export type SharedAffixTransformationV1 =
@@ -134,7 +143,7 @@ export interface SharedAffixLessonPolicyV1 {
   legacyGuidedShape: "omit" | "explicit";
   schedule: { kind: "authentic_targets" } | { kind: "all_lesson_words" };
   reward: { kind: "all_lesson_words" };
-  expectedAssignmentItemCount: 16 | 18;
+  expectedAssignmentItemCount: 16 | 18 | 20;
 }
 
 export type SharedAffixIntroductionV1 =
@@ -150,6 +159,13 @@ export type SharedAffixIntroductionV1 =
         base: string;
         word: string;
         meaning: string;
+      }>;
+      teachingCards?: Array<{
+        text: string;
+        label: string;
+        meaning: string;
+        rules: [string, ...string[]];
+        example?: { prefix: string; base: string; word: string; meaning: string };
       }>;
     }
   | {
@@ -171,6 +187,16 @@ export interface NormalisedAffixTeachingProfileV1 {
   choices: readonly SharedAffixChoiceV1[];
   introduction: SharedAffixIntroductionV1;
   reflection: { promptKey: string; promptText: string };
+  prefixPresentation?: {
+    version: "dynamic_prefix_pedagogy_v1";
+    meaningCheckKind: "meaning" | "prefix_form";
+    meaningResultsPresentation: "none";
+    coverClosePolicy: { kind: "track_ratio"; threshold: 0.8 };
+    validChoiceAudit: readonly {
+      word: string;
+      choiceVerdicts: Readonly<Record<string, boolean>>;
+    }[];
+  };
 }
 
 export interface AffixLessonCompilationInputV1 {
@@ -241,6 +267,9 @@ export interface CompiledAffixLessonV1 {
     primaryBuild: CompiledSharedAffixBuildV1;
     builds: readonly CompiledSharedAffixBuildV1[];
     includeMeaningSort: boolean;
+    meaningCheckKind?: "meaning" | "prefix_form";
+    meaningResultsPresentation?: "none" | "overview_and_reflection";
+    coverClosePolicy?: { kind: "track_ratio"; threshold: 0.8 };
     dictationWordIds: readonly string[];
   };
   assignmentBindings: readonly SharedAffixAssignmentBindingV1[];

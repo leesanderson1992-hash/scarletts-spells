@@ -64,3 +64,17 @@ are prohibited.
 Dynamic Affix assignment writers must not import the shared compiler. Affix
 writer migration, persisted shared snapshots and retirement of V2/V3 readers
 require separate approval and rollback proof.
+
+## Reviewed Prefix presentation policy
+
+`dynamic_prefix_pedagogy_v1` is content-driven. Its immutable release catalog
+owns prefix labels, meanings, rules, examples, target forms, deterministic
+choice order, meaning/category mappings, and per-member valid-choice audits.
+The database profile projection is assignment-time authority; renderers must
+not contain microskill prose or generate copy.
+
+New pedagogy snapshots serialize one teaching-card array for Learn, selected-
+prefix feedback, and Reflection. Incorrect feedback describes only the selected
+record and ends with `Try again.` It must not identify or direct the child to
+the target. The `prefix_form` meaning policy is reserved for a real form-choice
+activity and must not be labelled Meaning Sort in learner copy.

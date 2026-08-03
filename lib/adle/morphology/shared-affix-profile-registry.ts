@@ -9,6 +9,13 @@ export interface SharedAffixProfileMappingV1 {
   position: "before" | "after";
   forms: readonly string[];
   policy: SharedAffixLessonPolicyV1;
+  prefixPedagogy?: {
+    version: "dynamic_prefix_pedagogy_v1";
+    meaningCheckKind: "meaning" | "prefix_form";
+    meaningResultsPresentation: "none";
+    coverClosePolicy: { kind: "track_ratio"; threshold: 0.8 };
+    policy: SharedAffixLessonPolicyV1;
+  };
   prefixRequirements?: {
     introduction: "optional" | "required";
     introductionExampleCount?: number;
@@ -82,6 +89,10 @@ const prefix = (
     introduction: "optional",
     dictionaryReadiness: "full",
   },
+  pedagogyOverride?: {
+    meaningCheckKind: "meaning" | "prefix_form";
+    policy: SharedAffixLessonPolicyV1;
+  },
 ): SharedAffixProfileMappingV1 => ({
   microSkillKey,
   routeId: "dynamic_prefix_word_lab",
@@ -91,6 +102,13 @@ const prefix = (
   position: "before",
   forms,
   policy,
+  prefixPedagogy: {
+    version: "dynamic_prefix_pedagogy_v1",
+    meaningCheckKind: pedagogyOverride?.meaningCheckKind ?? "meaning",
+    meaningResultsPresentation: "none",
+    coverClosePolicy: { kind: "track_ratio", threshold: 0.8 },
+    policy: pedagogyOverride?.policy ?? policy,
+  },
   prefixRequirements,
   prefixFallbackIntroduction: {
     title: prefixFallbackIntroduction.title,
@@ -99,6 +117,19 @@ const prefix = (
     ...(prefixFallbackIntroduction.profileParagraphs ? { profileParagraphs: [...prefixFallbackIntroduction.profileParagraphs] } : {}),
   },
 });
+
+const IN_IM_IL_IR_LEGACY_POLICY = prefixPolicy({
+  split: { kind: "guided_budget_after_form_builds", guidedSlotCount: 6 },
+  build: { kind: "one_per_represented_form", formOrder: ["in", "im", "il", "ir"] },
+  meaning: { kind: "none" },
+  legacyGuidedShape: "explicit",
+});
+
+const IN_IM_IL_IR_PEDAGOGY_POLICY: SharedAffixLessonPolicyV1 = {
+  ...IN_IM_IL_IR_LEGACY_POLICY,
+  meaning: { kind: "sort_all_words" },
+  expectedAssignmentItemCount: 20,
+};
 
 const suffix = (
   microSkillKey: string,
@@ -127,12 +158,7 @@ export const SHARED_AFFIX_PROFILE_REGISTRY = [
   prefix(
     "D4_MOR_PREFIXES_IN_IM_IL_IR",
     ["in", "im", "il", "ir"],
-    prefixPolicy({
-      split: { kind: "guided_budget_after_form_builds", guidedSlotCount: 6 },
-      build: { kind: "one_per_represented_form", formOrder: ["in", "im", "il", "ir"] },
-      meaning: { kind: "none" },
-      legacyGuidedShape: "explicit",
-    }),
+    IN_IM_IL_IR_LEGACY_POLICY,
     {
       title: "What is a prefix?",
       paragraphs: ["A prefix is a group of letters added to the beginning of a word. It can help to make a new word and change its meaning."],
@@ -142,6 +168,8 @@ export const SHARED_AFFIX_PROFILE_REGISTRY = [
         "Use im- before b, m or p; il- before l; and ir- before r. Use in- before the other letters.",
       ],
     },
+    { introduction: "optional", dictionaryReadiness: "full" },
+    { meaningCheckKind: "prefix_form", policy: IN_IM_IL_IR_PEDAGOGY_POLICY },
   ),
   prefix(
     "D4_MOR_PREFIXES_RE_PRE",
@@ -203,11 +231,17 @@ export function validateSharedAffixProfileRegistry(): string[] {
     if (profile.position === "before" && !profile.prefixRequirements) {
       errors.push(`missing_prefix_requirements:${profile.microSkillKey}`);
     }
+    if (profile.position === "before" && !profile.prefixPedagogy) {
+      errors.push(`missing_prefix_pedagogy:${profile.microSkillKey}`);
+    }
     if (profile.position === "after" && profile.routeId !== "dynamic_affix_word_lab") {
       errors.push(`position_route_mismatch:${profile.microSkillKey}`);
     }
     if (profile.position === "after" && profile.prefixRequirements) {
       errors.push(`unexpected_prefix_requirements:${profile.microSkillKey}`);
+    }
+    if (profile.position === "after" && profile.prefixPedagogy) {
+      errors.push(`unexpected_prefix_pedagogy:${profile.microSkillKey}`);
     }
   }
   return errors.sort();

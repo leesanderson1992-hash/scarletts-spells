@@ -250,7 +250,7 @@ const routeActivityMarkdown = [
   "| Profile | Route | Position | Forms | Items | Split | Build | Meaning | Compiler authority |",
   "|---|---|---|---|---:|---|---|---|---|",
   ...SHARED_AFFIX_PROFILE_REGISTRY.map((profile) =>
-    `| ${profile.microSkillKey} | ${profile.routeId}:${profile.routeVersion} | ${profile.position} | ${profile.forms.join(", ")} | ${profile.policy.expectedAssignmentItemCount} | ${profile.policy.split.kind} | ${profile.policy.build.kind} | ${profile.policy.meaning.kind} | ${DYNAMIC_PREFIX_COMPILER_AUTHORITIES.find((entry) => entry.microSkillKey === profile.microSkillKey)?.authority ?? "dark_no_writer"} |`,
+    `| ${profile.microSkillKey} | ${profile.routeId}:${profile.routeVersion} | ${profile.position} | ${profile.forms.join(", ")} | ${(profile.prefixPedagogy?.policy ?? profile.policy).expectedAssignmentItemCount} | ${(profile.prefixPedagogy?.policy ?? profile.policy).split.kind} | ${(profile.prefixPedagogy?.policy ?? profile.policy).build.kind} | ${(profile.prefixPedagogy?.policy ?? profile.policy).meaning.kind} | ${DYNAMIC_PREFIX_COMPILER_AUTHORITIES.find((entry) => entry.microSkillKey === profile.microSkillKey)?.authority ?? "dark_no_writer"} |`,
   ),
   "",
   "## Blockers",

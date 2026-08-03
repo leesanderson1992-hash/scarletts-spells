@@ -96,6 +96,7 @@ function prefixIntroduction(
       profileTitle: profile.introduction.title,
       profileParagraphs: [...profile.introduction.paragraphs],
       profileExamples: profile.introduction.examples?.map((example) => ({ ...example })),
+      ...(profile.pedagogy ? { teachingCards: profile.pedagogy.teachingCards.map((card) => ({ ...card, rules: [...card.rules] as [string, ...string[]], ...(card.example ? { example: { ...card.example } } : {}) })) } : {}),
     };
   }
   const fallback = mapping.prefixFallbackIntroduction!;
@@ -105,6 +106,7 @@ function prefixIntroduction(
     paragraphs: [...fallback.paragraphs],
     ...(fallback.profileTitle ? { profileTitle: fallback.profileTitle } : {}),
     ...(fallback.profileParagraphs ? { profileParagraphs: [...fallback.profileParagraphs] } : {}),
+    ...(profile.pedagogy ? { teachingCards: profile.pedagogy.teachingCards.map((card) => ({ ...card, rules: [...card.rules] as [string, ...string[]], ...(card.example ? { example: { ...card.example } } : {}) })) } : {}),
   };
 }
 
@@ -115,6 +117,20 @@ export function normaliseDynamicPrefixSelection(
   const mapping = getSharedAffixProfileMapping(selection.profile.microSkillKey);
   if (!mapping || mapping.routeId !== "dynamic_prefix_word_lab") {
     return { ok: false, blockers: [{ code: "selected_word_not_in_profile", detail: selection.profile.microSkillKey }] };
+  }
+  const declaredPedagogy = selection.profile.pedagogy ? mapping.prefixPedagogy : undefined;
+  if (
+    selection.profile.pedagogy
+    && (
+      !declaredPedagogy
+      || declaredPedagogy.version !== selection.profile.pedagogy.version
+      || declaredPedagogy.meaningCheckKind !== selection.profile.pedagogy.meaningCheckKind
+      || declaredPedagogy.meaningResultsPresentation !== selection.profile.pedagogy.meaningResultsPresentation
+      || declaredPedagogy.coverClosePolicy.kind !== selection.profile.pedagogy.coverClosePolicy.kind
+      || declaredPedagogy.coverClosePolicy.threshold !== selection.profile.pedagogy.coverClosePolicy.threshold
+    )
+  ) {
+    return { ok: false, blockers: [{ code: "invalid_choice_policy", detail: "prefix_presentation_policy_mismatch" }] };
   }
   const selectionIds = selectedIds(selection);
   const normalisedWords: SharedAffixWordInputV1[] = [];
@@ -135,7 +151,7 @@ export function normaliseDynamicPrefixSelection(
       teachingSurfaceText: affix.teachingSurfaceText,
       baseMeaning: word.baseMeaning,
       derivedMeaning: word.derivedMeaning,
-      meaningGroupId: word.effect,
+      meaningGroupId: declaredPedagogy?.meaningCheckKind === "prefix_form" ? affix.text : word.effect,
       affixForm: affix.text,
       affixLabel: affix.label,
       affixMeaning: affix.meaning,
@@ -179,10 +195,22 @@ export function normaliseDynamicPrefixSelection(
         choices: selection.profile.prefixChoices.map((choice) => ({ ...choice })),
         introduction: prefixIntroduction(selection.profile, mapping),
         reflection: { ...selection.profile.reflection },
+        ...(declaredPedagogy ? {
+          prefixPresentation: {
+            version: declaredPedagogy.version,
+            meaningCheckKind: declaredPedagogy.meaningCheckKind,
+            meaningResultsPresentation: declaredPedagogy.meaningResultsPresentation,
+            coverClosePolicy: declaredPedagogy.coverClosePolicy,
+            validChoiceAudit: selection.profile.pedagogy!.validChoiceAudit.map((audit) => ({
+              word: audit.word,
+              choiceVerdicts: { ...audit.choiceVerdicts },
+            })),
+          },
+        } : {}),
       },
       words: normalisedWords.sort((left, right) => left.canonicalWordId.localeCompare(right.canonicalWordId)),
       selection: selectionIds,
-      policy: mapping.policy,
+      policy: declaredPedagogy?.policy ?? mapping.policy,
       provenance: {
         sourceKind,
         profileVersion: DYNAMIC_PREFIX_WORD_LAB_PROFILE,
@@ -315,10 +343,14 @@ export function adaptSharedAffixLessonToDynamicPrefixV2(
   }));
   const wordById = new Map(words.map((word) => [word.canonicalWordId, word]));
   const sourceById = new Map(lesson.words.map((word) => [word.canonicalWordId, word]));
-  const guided = input.policy.legacyGuidedShape === "explicit" ? {
+  const guided = (input.policy.legacyGuidedShape === "explicit" || input.profile.prefixPresentation) ? {
     splitCanonicalWordIds: [...lesson.activities.splitCanonicalWordIds],
     builds: lesson.activities.builds.map((build) => ({ ...build, choices: build.choices.map((choice) => ({ ...choice })) })),
     includeMeaningSort: lesson.activities.includeMeaningSort,
+    ...(input.profile.prefixPresentation ? {
+      meaningCheckKind: input.profile.prefixPresentation.meaningCheckKind,
+      meaningResultsPresentation: input.profile.prefixPresentation.meaningResultsPresentation,
+    } : {}),
   } : undefined;
   return {
     ok: true,
@@ -328,6 +360,7 @@ export function adaptSharedAffixLessonToDynamicPrefixV2(
       contentVersion: DYNAMIC_PREFIX_WORD_LAB_CONTENT_VERSION,
       microSkillId: lesson.taxonomy.microSkillKey,
       experienceProfile: DYNAMIC_PREFIX_WORD_LAB_PROFILE,
+      ...(input.profile.prefixPresentation ? { presentationPolicyVersion: input.profile.prefixPresentation.version } : {}),
       prefix: { ...lesson.header },
       authenticCanonicalWordIds: lesson.words.filter((word) => word.role === "authentic_target").map((word) => word.canonicalWordId),
       words: { lesson: words },
@@ -338,6 +371,7 @@ export function adaptSharedAffixLessonToDynamicPrefixV2(
           ...(lesson.introduction.profileTitle ? { profileTitle: lesson.introduction.profileTitle } : {}),
           ...(lesson.introduction.profileParagraphs ? { profileParagraphs: [...lesson.introduction.profileParagraphs] } : {}),
           ...(lesson.introduction.profileExamples ? { profileExamples: lesson.introduction.profileExamples.map((example) => ({ ...example })) } : {}),
+          ...(lesson.introduction.teachingCards ? { teachingCards: lesson.introduction.teachingCards.map((card) => ({ ...card, rules: [...card.rules] as [string, ...string[]], ...(card.example ? { example: { ...card.example } } : {}) })) } : {}),
         },
         discovery: lesson.words.map((word) => ({
           canonicalWordId: word.canonicalWordId,
@@ -357,6 +391,7 @@ export function adaptSharedAffixLessonToDynamicPrefixV2(
           return { canonicalWordId: id, targetWord: word.displayWord, sentence: source.dictation.sentence, targetTokenIndex: source.dictation.targetTokenIndex };
         }),
         reflection: { ...lesson.reflection },
+        ...(input.profile.prefixPresentation ? { controlledPolicy: { coverClosePolicy: input.profile.prefixPresentation.coverClosePolicy } } : {}),
       },
     },
   };

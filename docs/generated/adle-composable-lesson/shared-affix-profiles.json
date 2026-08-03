@@ -125,6 +125,59 @@
         ],
         "title": "Today’s prefix choices"
       },
+      "prefixPedagogy": {
+        "coverClosePolicy": {
+          "kind": "track_ratio",
+          "threshold": 0.8
+        },
+        "meaningCheckKind": "meaning",
+        "meaningResultsPresentation": "none",
+        "policy": {
+          "authenticTargetCount": {
+            "max": 4,
+            "min": 1
+          },
+          "build": {
+            "count": 1,
+            "kind": "different_form_from_first_or_first"
+          },
+          "choiceOrder": {
+            "kind": "declared"
+          },
+          "expectedAssignmentItemCount": 16,
+          "legacyGuidedShape": "omit",
+          "lessonWordCount": 4,
+          "meaning": {
+            "kind": "sort_all_words"
+          },
+          "primaryBuild": {
+            "kind": "different_form_from_first_or_first"
+          },
+          "requiredFormCoverage": {
+            "count": 1,
+            "kind": "minimum_distinct"
+          },
+          "requiredMeaningCoverage": {
+            "count": 1,
+            "kind": "minimum_distinct"
+          },
+          "reward": {
+            "kind": "all_lesson_words"
+          },
+          "schedule": {
+            "kind": "authentic_targets"
+          },
+          "split": {
+            "count": 1,
+            "kind": "first_words"
+          },
+          "transferCount": {
+            "max": 3,
+            "min": 0
+          }
+        },
+        "version": "dynamic_prefix_pedagogy_v1"
+      },
       "prefixRequirements": {
         "dictionaryReadiness": "full",
         "introduction": "optional"
@@ -190,6 +243,59 @@
           "A prefix goes at the beginning of a word. Different prefix forms can change what a word means."
         ],
         "title": "Today’s prefix choices"
+      },
+      "prefixPedagogy": {
+        "coverClosePolicy": {
+          "kind": "track_ratio",
+          "threshold": 0.8
+        },
+        "meaningCheckKind": "meaning",
+        "meaningResultsPresentation": "none",
+        "policy": {
+          "authenticTargetCount": {
+            "max": 4,
+            "min": 1
+          },
+          "build": {
+            "count": 1,
+            "kind": "different_form_from_first_or_first"
+          },
+          "choiceOrder": {
+            "kind": "declared"
+          },
+          "expectedAssignmentItemCount": 16,
+          "legacyGuidedShape": "omit",
+          "lessonWordCount": 4,
+          "meaning": {
+            "kind": "sort_all_words"
+          },
+          "primaryBuild": {
+            "kind": "different_form_from_first_or_first"
+          },
+          "requiredFormCoverage": {
+            "count": 1,
+            "kind": "minimum_distinct"
+          },
+          "requiredMeaningCoverage": {
+            "count": 1,
+            "kind": "minimum_distinct"
+          },
+          "reward": {
+            "kind": "all_lesson_words"
+          },
+          "schedule": {
+            "kind": "authentic_targets"
+          },
+          "split": {
+            "count": 1,
+            "kind": "first_words"
+          },
+          "transferCount": {
+            "max": 3,
+            "min": 0
+          }
+        },
+        "version": "dynamic_prefix_pedagogy_v1"
       },
       "prefixRequirements": {
         "dictionaryReadiness": "full",
@@ -269,6 +375,64 @@
         "profileTitle": "Meet the in- prefix family",
         "title": "What is a prefix?"
       },
+      "prefixPedagogy": {
+        "coverClosePolicy": {
+          "kind": "track_ratio",
+          "threshold": 0.8
+        },
+        "meaningCheckKind": "prefix_form",
+        "meaningResultsPresentation": "none",
+        "policy": {
+          "authenticTargetCount": {
+            "max": 4,
+            "min": 1
+          },
+          "build": {
+            "formOrder": [
+              "in",
+              "im",
+              "il",
+              "ir"
+            ],
+            "kind": "one_per_represented_form"
+          },
+          "choiceOrder": {
+            "kind": "declared"
+          },
+          "expectedAssignmentItemCount": 20,
+          "legacyGuidedShape": "explicit",
+          "lessonWordCount": 4,
+          "meaning": {
+            "kind": "sort_all_words"
+          },
+          "primaryBuild": {
+            "kind": "different_form_from_first_or_first"
+          },
+          "requiredFormCoverage": {
+            "count": 1,
+            "kind": "minimum_distinct"
+          },
+          "requiredMeaningCoverage": {
+            "count": 1,
+            "kind": "minimum_distinct"
+          },
+          "reward": {
+            "kind": "all_lesson_words"
+          },
+          "schedule": {
+            "kind": "authentic_targets"
+          },
+          "split": {
+            "guidedSlotCount": 6,
+            "kind": "guided_budget_after_form_builds"
+          },
+          "transferCount": {
+            "max": 3,
+            "min": 0
+          }
+        },
+        "version": "dynamic_prefix_pedagogy_v1"
+      },
       "prefixRequirements": {
         "dictionaryReadiness": "full",
         "introduction": "optional"
@@ -334,6 +498,59 @@
           "A prefix goes at the beginning of a word. Different prefix forms can change what a word means."
         ],
         "title": "Today’s prefix choices"
+      },
+      "prefixPedagogy": {
+        "coverClosePolicy": {
+          "kind": "track_ratio",
+          "threshold": 0.8
+        },
+        "meaningCheckKind": "meaning",
+        "meaningResultsPresentation": "none",
+        "policy": {
+          "authenticTargetCount": {
+            "max": 4,
+            "min": 1
+          },
+          "build": {
+            "count": 1,
+            "kind": "different_form_from_first_or_first"
+          },
+          "choiceOrder": {
+            "kind": "declared"
+          },
+          "expectedAssignmentItemCount": 16,
+          "legacyGuidedShape": "omit",
+          "lessonWordCount": 4,
+          "meaning": {
+            "kind": "sort_all_words"
+          },
+          "primaryBuild": {
+            "kind": "different_form_from_first_or_first"
+          },
+          "requiredFormCoverage": {
+            "count": 1,
+            "kind": "minimum_distinct"
+          },
+          "requiredMeaningCoverage": {
+            "count": 1,
+            "kind": "minimum_distinct"
+          },
+          "reward": {
+            "kind": "all_lesson_words"
+          },
+          "schedule": {
+            "kind": "authentic_targets"
+          },
+          "split": {
+            "count": 1,
+            "kind": "first_words"
+          },
+          "transferCount": {
+            "max": 3,
+            "min": 0
+          }
+        },
+        "version": "dynamic_prefix_pedagogy_v1"
       },
       "prefixRequirements": {
         "dictionaryReadiness": "full",
@@ -401,6 +618,59 @@
           "A prefix goes at the beginning of a word. Different prefix forms can change what a word means."
         ],
         "title": "Today’s prefix choices"
+      },
+      "prefixPedagogy": {
+        "coverClosePolicy": {
+          "kind": "track_ratio",
+          "threshold": 0.8
+        },
+        "meaningCheckKind": "meaning",
+        "meaningResultsPresentation": "none",
+        "policy": {
+          "authenticTargetCount": {
+            "max": 4,
+            "min": 1
+          },
+          "build": {
+            "count": 1,
+            "kind": "different_form_from_first_or_first"
+          },
+          "choiceOrder": {
+            "kind": "declared"
+          },
+          "expectedAssignmentItemCount": 18,
+          "legacyGuidedShape": "explicit",
+          "lessonWordCount": 4,
+          "meaning": {
+            "kind": "sort_all_words"
+          },
+          "primaryBuild": {
+            "kind": "different_form_from_first_or_first"
+          },
+          "requiredFormCoverage": {
+            "count": 1,
+            "kind": "minimum_distinct"
+          },
+          "requiredMeaningCoverage": {
+            "count": 1,
+            "kind": "minimum_distinct"
+          },
+          "reward": {
+            "kind": "all_lesson_words"
+          },
+          "schedule": {
+            "kind": "authentic_targets"
+          },
+          "split": {
+            "count": 3,
+            "kind": "distinct_forms_then_fill"
+          },
+          "transferCount": {
+            "max": 3,
+            "min": 0
+          }
+        },
+        "version": "dynamic_prefix_pedagogy_v1"
       },
       "prefixRequirements": {
         "dictionaryReadiness": "full",

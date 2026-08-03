@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { useFormStatus } from "react-dom";
 import { completeAdleLessonPartAction } from "@/app/learn/week/adle/actions";
 import {
@@ -25,8 +25,10 @@ import type {
   MorphologyLessonPayloadV1,
   MorphologyWordSnapshot,
 } from "@/lib/adle/morphology/payload";
+import { morphologyMeaningSortItems } from "@/lib/adle/morphology/meaning-sort-items";
 import { normaliseSessionWord } from "@/lib/adle/session-correctness";
 import { WordLabScene } from "./word-lab-scene";
+import { PrefixTeachingCards, SelectedPrefixFeedback } from "./prefix-teaching-cards";
 
 type Stage = MorphologyLessonStage;
 type LessonState = MorphologyLessonResumeState;
@@ -151,6 +153,8 @@ export function MorphologyGuidedLesson(props: {
   const hasMeaningSort = props.payload.activities.some(
     (activity) => activity.type === "meaning_sort",
   );
+  const meaningActivity = props.payload.activities.find((activity) => activity.type === "meaning_sort");
+  const showMeaningOverview = meaningActivity?.meaningResultsPresentation !== "none";
   const phase =
     state.stage === "learn"
       ? 0
@@ -272,25 +276,30 @@ export function MorphologyGuidedLesson(props: {
         />
       ) : null}
       {state.stage === "match" ? (
-        state.matchComplete ? (
+        state.matchComplete && showMeaningOverview ? (
           <MeaningOverview
             payload={props.payload}
             onNext={() => update({ stage: "build", helpLevel: 0 })}
           />
         ) : (
           <BinSort
-            items={props.payload.words.lesson.map((word) => ({
-              id: word.displayWord,
-              text: word.displayWord,
-              destination: word.effect,
-            }))}
+            items={morphologyMeaningSortItems(
+              props.payload,
+              meaningActivity?.meaningCheckKind ?? "meaning",
+            )}
             bins={meaningBins(props.payload)}
             instruction={props.payload.words.anchor.affixPosition === "after"
               ? "Read the word. Decide what the suffix means. Then choose the meaning label that fits."
-              : "Read the word. Think about what the prefix means. Then choose the meaning label that fits."}
+              : meaningActivity?.meaningCheckKind === "prefix_form"
+                ? "Read the base word. Choose the prefix form that belongs before its first letter."
+                : "Read the word. Think about what the prefix means. Then choose the meaning label that fits."}
             muted={state.muted}
             incorrectMessage={beat.onMisconception}
             repeatedIncorrectMessage={beat.onRepeatedMisconception}
+            renderIncorrectFeedback={meaningActivity?.teachingCards ? (selectedBin) => {
+              const card = meaningActivity.teachingCards?.find((candidate) => candidate.text === selectedBin.prefixText);
+              return card ? <SelectedPrefixFeedback card={card} /> : null;
+            } : undefined}
             onComplete={() =>
               update({
                 guidedBindings: [
@@ -302,6 +311,7 @@ export function MorphologyGuidedLesson(props: {
                   ]),
                 ],
                 matchComplete: true,
+                ...(showMeaningOverview ? {} : { stage: "build" as const }),
                 helpLevel: 0,
               })
             }
@@ -347,6 +357,7 @@ export function MorphologyGuidedLesson(props: {
             ] === true
           }
           muted={state.muted}
+          closePolicy={props.payload.activities.find((activity) => activity.type === "look_cover_write_check")?.coverClosePolicy}
           onAttempt={(attempt) =>
             update({
               controlledAttempts: {
@@ -517,6 +528,7 @@ function LearnIntroduction(props: {
           ))}
         </div>
       ) : null}
+      {screen.teachingCards ? <PrefixTeachingCards cards={screen.teachingCards} /> : null}
       {screen.examples ? (
         <div className="grid gap-3 sm:grid-cols-3">
           {screen.examples.map((example) => (
@@ -785,7 +797,7 @@ function PrefixBuild(props: {
   onComplete: () => void;
 }) {
   const build = props.activity.builds?.[props.buildIndex];
-  const [message, setMessage] = useState("");
+  const [message, setMessage] = useState<ReactNode>("");
   const [misses, setMisses] = useState(0);
   const choices = build?.prefixChoices ?? props.activity.prefixChoices ?? [];
   const target = choices.find((choice) => choice.status === "target");
@@ -823,7 +835,9 @@ function PrefixBuild(props: {
           const nextMisses = misses + 1;
           setMisses(nextMisses);
           setMessage(
-            choice?.status === "valid_alternative"
+            choice?.meaning && choice.rules?.length && props.activity.teachingCards
+              ? <SelectedPrefixFeedback card={{ text: choice.text, label: choice.label, meaning: choice.meaning, rules: [...choice.rules] as [string, ...string[]], ...(choice.example ? { example: choice.example } : {}) }} />
+              : choice?.status === "valid_alternative"
               ? `${choice.outcome ?? choice.label} means ${choice.meaning}. ${props.beat.onPartial ?? `Choose the ${term} that makes this word.`}`
               : nextMisses > 1
                 ? (props.beat.onRepeatedMisconception ??
@@ -849,6 +863,7 @@ function Controlled(props: {
   attempt: string;
   checked: boolean;
   muted: boolean;
+  closePolicy?: { kind: "track_ratio"; threshold: 0.8 };
   onAttempt: (attempt: string) => void;
   onChecked: () => void;
   onNext: () => void;
@@ -867,6 +882,7 @@ function Controlled(props: {
           props.checked ? "check" : props.attempt ? "write" : "look"
         }
         muted={props.muted}
+        closePolicy={props.closePolicy}
         onStateChange={(_, attempt) => attempt && props.onAttempt(attempt)}
         onComplete={(attempt) => {
           props.onAttempt(attempt);
@@ -993,6 +1009,9 @@ function ReflectionForm(props: {
       detail: `Compare “${props.state.sentenceAttempts[sentence.canonicalWordId] || "nothing"}” with “${sentence.sentence}”.`,
     }));
   const misses = [...controlledMisses, ...sentenceMisses];
+  const prefixCards = reflection.teachingCards;
+  const prefixPedagogy = Boolean(prefixCards?.length);
+  const meaningResultsPresentation = props.payload.activities.find((activity) => activity.type === "meaning_sort")?.meaningResultsPresentation;
   const ready = props.state.reflectionText.trim().length > 0;
   return (
     <form
@@ -1072,7 +1091,21 @@ function ReflectionForm(props: {
           ),
         )}
       />
-      <section
+      {prefixPedagogy ? (
+        <section className="grid gap-4" aria-labelledby="prefix-reflection-heading">
+          <h2 id="prefix-reflection-heading" className="text-center text-2xl font-black text-white">Today we studied:</h2>
+          <PrefixTeachingCards cards={prefixCards!} compact />
+          <p className="text-center text-xl font-black text-white">
+            {prefixCards!.length === 1
+              ? "How does this prefix change a word’s meaning?"
+              : "How do these prefixes change the words’ meanings?"}
+          </p>
+          <div className="rounded-2xl border border-white/15 bg-white/[.07] p-4 text-left text-cyan-50">
+            <p className="font-black">Did you get anything incorrect above?</p>
+            <p className="mt-2">Take a moment to think of one rule to remember next time.</p>
+          </div>
+        </section>
+      ) : <section
         className="rounded-3xl border border-white/15 bg-white/[.07] p-4 text-left"
         aria-labelledby="remember-recap-heading"
       >
@@ -1103,9 +1136,9 @@ function ReflectionForm(props: {
             Use your reflection to explain the pattern you noticed.
           </p>
         )}
-      </section>
+      </section>}
       <label className="text-left text-base font-black text-white">
-        {reflection.promptText}
+        {prefixPedagogy ? "Write your rule to remember:" : reflection.promptText}
         <textarea
           name="learningReflection"
           required
@@ -1118,7 +1151,7 @@ function ReflectionForm(props: {
       </label>
       {ready ? (
         <>
-          {props.payload.activities.some((activity) => activity.type === "meaning_sort") ? <MeaningCards payload={props.payload} /> : null}
+          {props.payload.activities.some((activity) => activity.type === "meaning_sort") && meaningResultsPresentation !== "none" ? <MeaningCards payload={props.payload} /> : null}
           <FinishWordLabButton />
         </>
       ) : (

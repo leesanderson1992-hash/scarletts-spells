@@ -1,7 +1,14 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 import type { LearningItemFact } from "../learning-items";
-import type { DynamicPrefixProfile, DynamicPrefixWord } from "./dynamic-prefix-word-lab";
+import {
+  DYNAMIC_PREFIX_PEDAGOGY_VERSION,
+  type DynamicPrefixPedagogyV1,
+  type DynamicPrefixProfile,
+  type DynamicPrefixWord,
+  type PrefixChoiceAuditV1,
+  type PrefixTeachingCardV1,
+} from "./dynamic-prefix-word-lab";
 import type { MorphologyPartRole } from "./payload";
 import { getSharedAffixProfileMapping } from "./shared-affix-profile-registry";
 
@@ -52,6 +59,12 @@ type DictionaryIntroduction = {
   title: string;
   paragraphs: string[];
   examples?: DictionaryIntroductionExample[];
+  presentationPolicyVersion?: string;
+  teachingCards?: PrefixTeachingCardV1[];
+  meaningCheckKind?: "meaning" | "prefix_form";
+  meaningResultsPresentation?: "none";
+  coverClosePolicy?: { kind: "track_ratio"; threshold: 0.8 };
+  validChoiceAudit?: PrefixChoiceAuditV1[];
 };
 type DictionaryProfileRow = {
   micro_skill_key: string;
@@ -96,6 +109,26 @@ function isIntroductionExample(value: unknown): value is DictionaryIntroductionE
     && Boolean(example.meaning.trim());
 }
 
+function isTeachingCard(value: unknown): value is PrefixTeachingCardV1 {
+  if (typeof value !== "object" || value === null) return false;
+  const card = value as Record<string, unknown>;
+  return typeof card.text === "string" && Boolean(card.text.trim())
+    && typeof card.label === "string" && Boolean(card.label.trim())
+    && typeof card.meaning === "string" && Boolean(card.meaning.trim())
+    && Array.isArray(card.rules) && card.rules.length > 0
+    && card.rules.every((rule) => typeof rule === "string" && Boolean(rule.trim()))
+    && (card.example === undefined || isIntroductionExample(card.example));
+}
+
+function isChoiceAudit(value: unknown): value is PrefixChoiceAuditV1 {
+  if (typeof value !== "object" || value === null) return false;
+  const audit = value as Record<string, unknown>;
+  if (typeof audit.word !== "string" || !audit.word.trim()) return false;
+  if (typeof audit.choiceVerdicts !== "object" || audit.choiceVerdicts === null || Array.isArray(audit.choiceVerdicts)) return false;
+  const verdicts = Object.values(audit.choiceVerdicts as Record<string, unknown>);
+  return verdicts.length > 0 && verdicts.every((verdict) => typeof verdict === "boolean");
+}
+
 function isReadyDictionaryPart(part: DictionaryPart): part is ReadyDictionaryPart {
   return Boolean(
     part.id
@@ -126,6 +159,12 @@ function parseIntroduction(value: unknown): DictionaryIntroduction | null | unde
     || (introduction.examples !== undefined
       && (!Array.isArray(introduction.examples)
         || !introduction.examples.every(isIntroductionExample)))
+    || (introduction.teachingCards !== undefined
+      && (!Array.isArray(introduction.teachingCards)
+        || !introduction.teachingCards.every(isTeachingCard)))
+    || (introduction.validChoiceAudit !== undefined
+      && (!Array.isArray(introduction.validChoiceAudit)
+        || !introduction.validChoiceAudit.every(isChoiceAudit)))
   ) {
     return undefined;
   }
@@ -133,6 +172,59 @@ function parseIntroduction(value: unknown): DictionaryIntroduction | null | unde
     title: introduction.title,
     paragraphs: introduction.paragraphs as string[],
     examples: introduction.examples as DictionaryIntroductionExample[] | undefined,
+    presentationPolicyVersion: introduction.presentationPolicyVersion as string | undefined,
+    teachingCards: introduction.teachingCards as PrefixTeachingCardV1[] | undefined,
+    meaningCheckKind: introduction.meaningCheckKind as "meaning" | "prefix_form" | undefined,
+    meaningResultsPresentation: introduction.meaningResultsPresentation as "none" | undefined,
+    coverClosePolicy: introduction.coverClosePolicy as { kind: "track_ratio"; threshold: 0.8 } | undefined,
+    validChoiceAudit: introduction.validChoiceAudit as PrefixChoiceAuditV1[] | undefined,
+  };
+}
+
+function pedagogyFromIntroduction(
+  introduction: DictionaryIntroduction | null | undefined,
+  profileKey: string,
+  forms: readonly string[],
+  choices: DynamicPrefixProfile["prefixChoices"],
+  wordNamesByForm: ReadonlyMap<string, readonly string[]>,
+): DynamicPrefixPedagogyV1 | null | undefined {
+  if (!introduction || introduction.presentationPolicyVersion === undefined) return undefined;
+  void profileKey;
+  const choiceForms = choices.map((choice) => choice.text);
+  const sortedChoiceForms = [...choiceForms].sort();
+  if (
+    introduction.presentationPolicyVersion !== DYNAMIC_PREFIX_PEDAGOGY_VERSION
+    || !introduction.teachingCards
+    || introduction.teachingCards.map((card) => card.text).join("|") !== forms.join("|")
+    || new Set(introduction.teachingCards.map((card) => card.text)).size !== forms.length
+    || !["meaning", "prefix_form"].includes(String(introduction.meaningCheckKind))
+    || introduction.meaningResultsPresentation !== "none"
+    || introduction.coverClosePolicy?.kind !== "track_ratio"
+    || introduction.coverClosePolicy.threshold !== 0.8
+    || !introduction.validChoiceAudit
+    || introduction.validChoiceAudit.length !== [...wordNamesByForm.values()].flat().length
+    || new Set(introduction.validChoiceAudit.map((audit) => audit.word)).size !== introduction.validChoiceAudit.length
+    || choices.length < 3
+    || new Set(choices.map((choice) => choice.text)).size !== choices.length
+    || choices.some((choice) => !choice.text?.trim() || !choice.label?.trim() || !choice.meaning?.trim() || !choice.rules?.length || choice.rules.some((rule) => !rule.trim()) || !choice.reviewedSource?.trim())
+  ) return null;
+  for (const [form, words] of wordNamesByForm) {
+    for (const word of words) {
+      const audit = introduction.validChoiceAudit.find((entry) => entry.word === word);
+      if (
+        !audit
+        || Object.keys(audit.choiceVerdicts).sort().join("|") !== sortedChoiceForms.join("|")
+        || Object.entries(audit.choiceVerdicts).filter(([, valid]) => valid).map(([choice]) => choice).join("|") !== form
+      ) return null;
+    }
+  }
+  return {
+    version: DYNAMIC_PREFIX_PEDAGOGY_VERSION,
+    teachingCards: introduction.teachingCards,
+    validChoiceAudit: introduction.validChoiceAudit.map((audit) => ({ ...audit, choiceVerdicts: { ...audit.choiceVerdicts } })),
+    meaningCheckKind: introduction.meaningCheckKind!,
+    meaningResultsPresentation: "none",
+    coverClosePolicy: introduction.coverClosePolicy,
   };
 }
 
@@ -173,7 +265,9 @@ export async function loadDynamicPrefixProfiles(client: SupabaseClient, childId:
       || introduction !== undefined;
     const requiresProfileIntroduction = requirements.introduction === "required";
     const requiredExampleCount = requirements.introductionExampleCount;
-    if (!Array.isArray(source.meaning_bins) || !Array.isArray(source.prefix_choices) || !source.reflection_prompt_key || !source.reflection_prompt_text || !introductionValid || (requiresProfileIntroduction && !introduction) || (requiredExampleCount !== undefined && introduction?.examples?.length !== requiredExampleCount)) continue;
+    const usesTeachingCardIntroduction =
+      introduction?.presentationPolicyVersion === DYNAMIC_PREFIX_PEDAGOGY_VERSION;
+    if (!Array.isArray(source.meaning_bins) || !Array.isArray(source.prefix_choices) || !source.reflection_prompt_key || !source.reflection_prompt_text || !introductionValid || (requiresProfileIntroduction && !introduction) || (!usesTeachingCardIntroduction && requiredExampleCount !== undefined && introduction?.examples?.length !== requiredExampleCount)) continue;
     const words = new Map<string, DynamicPrefixWord>();
     let safe = true;
     for (const member of (source.canonical_teaching_dictionary_prefix_members ?? []) as DictionaryMember[]) {
@@ -200,7 +294,11 @@ export async function loadDynamicPrefixProfiles(client: SupabaseClient, childId:
     const loadedForms = [...new Set([...words.values()].map((word) => word.prefixText).filter((form): form is string => Boolean(form)))].sort();
     const declaredForms = [...mapping.forms].sort();
     if (!safe || words.size < 4 || loadedForms.join("\u0000") !== declaredForms.join("\u0000")) continue;
-    profiles.push({ microSkillKey: source.micro_skill_key, productionEnabled: source.production_enabled === true || options.allowStagingProfiles === true, prefixLabel: source.prefix_label, prefixText: source.prefix_text, prefixMeaning: source.prefix_meaning, meaningBins: source.meaning_bins, wordsByCanonicalId: words, transferCanonicalWordIds: (source.canonical_teaching_dictionary_prefix_members as DictionaryMember[]).filter((member) => member.member_role === "transfer").map((member) => member.canonical_word_id), prefixChoices: source.prefix_choices, reflection: { promptKey: source.reflection_prompt_key, promptText: source.reflection_prompt_text }, introduction: introduction ? { title: introduction.title, paragraphs: introduction.paragraphs, examples: introduction.examples } : undefined });
+    const wordNamesByForm = new Map<string, string[]>();
+    for (const word of words.values()) wordNamesByForm.set(word.prefixText!, [...(wordNamesByForm.get(word.prefixText!) ?? []), word.displayWord]);
+    const pedagogy = pedagogyFromIntroduction(introduction, source.micro_skill_key, mapping.forms, source.prefix_choices, wordNamesByForm);
+    if (pedagogy === null) continue;
+    profiles.push({ microSkillKey: source.micro_skill_key, productionEnabled: source.production_enabled === true || options.allowStagingProfiles === true, prefixLabel: source.prefix_label, prefixText: source.prefix_text, prefixMeaning: source.prefix_meaning, meaningBins: source.meaning_bins, wordsByCanonicalId: words, transferCanonicalWordIds: (source.canonical_teaching_dictionary_prefix_members as DictionaryMember[]).filter((member) => member.member_role === "transfer").map((member) => member.canonical_word_id), prefixChoices: source.prefix_choices, reflection: { promptKey: source.reflection_prompt_key, promptText: source.reflection_prompt_text }, introduction: introduction ? { title: introduction.title, paragraphs: introduction.paragraphs, examples: introduction.examples } : undefined, ...(pedagogy ? { pedagogy } : {}) });
   }
   const typedItemRows = (itemRows ?? []) as unknown as LearningItemRow[];
   return {

@@ -54,7 +54,7 @@
 |---|---|---|---|---:|---|---|---|---|
 | D4_MOR_PREFIXES_UN | dynamic_prefix_word_lab:v2 | before | un | 16 | first_words | different_form_from_first_or_first | sort_all_words | shared_migration |
 | D4_MOR_PREFIXES_DIS_MIS | dynamic_prefix_word_lab:v2 | before | dis, mis | 16 | first_words | different_form_from_first_or_first | sort_all_words | shared_migration |
-| D4_MOR_PREFIXES_IN_IM_IL_IR | dynamic_prefix_word_lab:v2 | before | in, im, il, ir | 16 | guided_budget_after_form_builds | one_per_represented_form | none | shared_migration |
+| D4_MOR_PREFIXES_IN_IM_IL_IR | dynamic_prefix_word_lab:v2 | before | in, im, il, ir | 20 | guided_budget_after_form_builds | one_per_represented_form | sort_all_words | shared_migration |
 | D4_MOR_PREFIXES_RE_PRE | dynamic_prefix_word_lab:v2 | before | re, pre | 16 | first_words | different_form_from_first_or_first | sort_all_words | shared_migration |
 | D4_MOR_PREFIXES_SUB_INTER_SUPER | dynamic_prefix_word_lab:v2 | before | sub, inter, super | 18 | distinct_forms_then_fill | different_form_from_first_or_first | sort_all_words | shared_migration |
 | D4_MOR_SUFFIXES_NESS | dynamic_affix_word_lab:v3 | after | ness | 16 | one_per_form_else_direct_and_changed | every_lesson_word | none | dark_no_writer |

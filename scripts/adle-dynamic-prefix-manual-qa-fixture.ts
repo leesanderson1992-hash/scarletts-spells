@@ -4,7 +4,7 @@ const STAGING_REF = "jlhotktspjvffslvuyfz";
 const PRODUCTION_REF = "wwohrqtunajrbwxyssjf";
 const CONFIRMATION = "ADLE-DYNAMIC-PREFIX-RETAINED-QA-V1";
 const SOURCE_PREFIX = "dynamic-prefix-retained-manual-qa:";
-const SELECTABLE_STATUSES = ["pending", "awaiting_review_outcome"];
+const SELECTABLE_STATUSES = ["pending", "pending_reteach"];
 const PROFILE_ORDER = [
   "D4_MOR_PREFIXES_UN",
   "D4_MOR_PREFIXES_DIS_MIS",
@@ -84,7 +84,7 @@ async function coverage(db: SupabaseClient, childId: string) {
   }));
 }
 
-async function canonicalTarget(db: SupabaseClient, profileKey: string): Promise<string> {
+async function canonicalTarget(db: SupabaseClient, childId: string, profileKey: string): Promise<string> {
   const { data: profile, error } = await db
     .from("canonical_teaching_dictionary_prefix_profiles")
     .select("canonical_teaching_dictionary_prefix_members(canonical_word_id,assignment_eligible,row_status,review_status)")
@@ -106,7 +106,17 @@ async function canonicalTarget(db: SupabaseClient, profileKey: string): Promise<
     )
     .sort((left, right) => left.canonical_word_id.localeCompare(right.canonical_word_id));
   assert(members.length === 7, `${profileKey}: exactly seven approved eligible members`);
-  return members[0].canonical_word_id as string;
+  const { data: existing, error: existingError } = await db
+    .from("adle_learning_items")
+    .select("canonical_word_id")
+    .eq("child_id", childId)
+    .eq("micro_skill_key", profileKey)
+    .eq("row_status", "active");
+  if (existingError) throw new Error(`${profileKey}: existing learning items: ${existingError.message}`);
+  const used = new Set((existing ?? []).map((row) => row.canonical_word_id));
+  const available = members.find((member) => !used.has(member.canonical_word_id));
+  assert(available, `${profileKey}: an unused reviewed member remains for retained QA`);
+  return available.canonical_word_id;
 }
 
 async function plan(db: SupabaseClient) {
@@ -125,7 +135,7 @@ async function apply(db: SupabaseClient): Promise<void> {
   const intakeOn = new Date().toISOString().slice(0, 10);
   const created = [];
   for (const profileKey of before.missingProfiles) {
-    const canonicalWordId = await canonicalTarget(db, profileKey);
+    const canonicalWordId = await canonicalTarget(db, before.childId, profileKey);
     const { data, error } = await db.from("adle_learning_items").insert({
       child_id: before.childId,
       canonical_word_id: canonicalWordId,

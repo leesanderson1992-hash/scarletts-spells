@@ -28,7 +28,7 @@ import type {
 } from "@/lib/adle/ui/morphology-primitives";
 import type { MorphologyLessonPayloadV1 } from "@/lib/adle/morphology/payload";
 import type { AdleSessionItem } from "@/lib/adle/loaders/daily-plan-surface";
-import { TransformationAnimation } from "@/components/adle/activities/shared";
+import { CoverShutter, TransformationAnimation } from "@/components/adle/activities/shared";
 import { clearMorphologyResume, morphologyResumeKey } from "@/lib/adle/morphology/resume";
 
 const DEV_GUIDED_ASSIGNMENT_ID = "dev-morphology-guided";
@@ -63,6 +63,7 @@ export function MorphologyPrimitivesPreview(props: {
   const [guidedRun, setGuidedRun] = useState(0);
   const [guidedComplete, setGuidedComplete] = useState(false);
   const [previewReflection, setPreviewReflection] = useState("");
+  const [coverCompleteCount, setCoverCompleteCount] = useState(0);
   const reducedMotion = useReducedMotionPreference();
   const famous = props.sequences.find((sequence) => sequence.displayWord === "famous");
   const longWord = props.sequences.find((sequence) => sequence.displayWord === "unnecessary");
@@ -89,6 +90,12 @@ export function MorphologyPrimitivesPreview(props: {
     >
       <div className="grid gap-5">
         <button type="button" className="brand-primary-btn" onClick={() => setGuided(true)}>Run guided lesson</button>
+        <PreviewPanel title="Dynamic Prefix Cover threshold" caption="Development-only fixture for the Prefix 80% track-ratio policy.">
+          <div data-testid="dynamic-prefix-cover-fixture">
+            <CoverShutter word="unhappy" splitPoints={[2]} closePolicy={{ kind: "track_ratio", threshold: 0.8 }} muted onComplete={() => setCoverCompleteCount((count) => count + 1)} />
+            <output data-testid="dynamic-prefix-cover-completions" className="sr-only">{coverCompleteCount}</output>
+          </div>
+        </PreviewPanel>
         <InstructionPanel
           instruction="These examples use approved D4_MOR v1 records and the approved un- pilot fixture."
           teachingCue="The preview composes primitives only; it does not submit, score, assign, or activate anything."

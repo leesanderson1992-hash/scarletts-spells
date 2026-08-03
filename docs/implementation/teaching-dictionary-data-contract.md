@@ -152,6 +152,18 @@ That staging-only release resolves the seven existing canonical identities by
 the protected dictionary before and after. It must create or update zero
 canonical word, metadata, morphology, dictation or learner/runtime rows.
 
+The five-profile child-facing Prefix catalog is governed by immutable staging
+release `adle_dynamic_prefix_pedagogy_staging_v1_2026_08_03_r2`. It updates only
+existing active reviewed profile JSONB fields (`meaning_bins`,
+`prefix_choices`, and `intro_content`). The package contains all 12 definitions,
+ordered pools, selected-category mappings, and a seven-member validity audit per
+profile. Each member audit is a complete choice-verdict matrix: every selectable
+form is explicitly accepted or rejected and exactly one declared target is
+accepted. JSONB key order is ignored; the separate choice array retains the
+reviewed learner-facing order. The guarded transaction captures the previous profile
+projections and must leave learner, assignment, attempt, schedule, and reward
+counts unchanged.
+
 ## Database release invariants
 
 - Canonical batches contain 1–1,000 reviewed canonical entries.

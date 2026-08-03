@@ -109,6 +109,41 @@ function validateProfile(input: AffixLessonCompilationInputV1): SharedAffixBlock
   if (profile.choices.length === 0) {
     blockers.push(blocker("invalid_choice_policy", profile.profileKey));
   }
+  if (profile.prefixPresentation) {
+    const cards = profile.introduction.kind === "prefix_v2" ? profile.introduction.teachingCards : undefined;
+    if (
+      profile.prefixPresentation.version !== "dynamic_prefix_pedagogy_v1"
+      || profile.prefixPresentation.meaningResultsPresentation !== "none"
+      || profile.prefixPresentation.coverClosePolicy.kind !== "track_ratio"
+      || profile.prefixPresentation.coverClosePolicy.threshold !== 0.8
+      || !cards
+      || cards.map((card) => card.text).join("|") !== profile.forms.join("|")
+      || cards.some((card) => !validText(card.label) || !validText(card.meaning) || !card.rules.length || card.rules.some((rule) => !validText(rule)))
+    ) blockers.push(blocker("missing_profile_copy", `${profile.profileKey}:pedagogy`));
+    if (
+      profile.choices.length < 3
+      || new Set(profile.choices.map((choice) => choice.text)).size !== profile.choices.length
+      || profile.forms.some((form) => !profile.choices.some((choice) => choice.text === form))
+      || profile.choices.some((choice) => !validText(choice.text) || !validText(choice.label) || !validText(choice.meaning ?? undefined) || !choice.rules?.length || choice.rules.some((rule) => !validText(rule)) || !validText(choice.reviewedSource))
+    ) blockers.push(blocker("invalid_choice_policy", `${profile.profileKey}:reviewed_choices`));
+    const choiceForms = profile.choices.map((choice) => choice.text);
+    const sortedChoiceForms = [...choiceForms].sort();
+    const audits = profile.prefixPresentation.validChoiceAudit;
+    if (
+      audits.length === 0
+      || new Set(audits.map((audit) => audit.word)).size !== audits.length
+      || audits.some((audit) =>
+        !validText(audit.word)
+        || Object.keys(audit.choiceVerdicts).sort().join("|") !== sortedChoiceForms.join("|")
+        || Object.values(audit.choiceVerdicts).filter(Boolean).length !== 1
+      )
+    ) blockers.push(blocker("invalid_choice_policy", `${profile.profileKey}:member_choice_audit`));
+    if (
+      profile.meaningGroups.some((group) => !validText(group.prefixText))
+      || (profile.prefixPresentation.meaningCheckKind === "prefix_form"
+        && profile.forms.some((form) => !profile.meaningGroups.some((group) => group.id === form && group.prefixText === form)))
+    ) blockers.push(blocker("missing_meaning_facts", `${profile.profileKey}:selected_feedback`));
+  }
   return blockers;
 }
 
@@ -221,6 +256,18 @@ function selectedWords(
       continue;
     }
     blockers.push(...validateWord(word, input));
+    if (input.profile.prefixPresentation) {
+      const audit = input.profile.prefixPresentation.validChoiceAudit.find(
+        (entry) => entry.word === word.displayWord,
+      );
+      if (
+        !audit
+        || audit.choiceVerdicts[word.affixForm] !== true
+        || Object.entries(audit.choiceVerdicts).some(
+          ([form, valid]) => form !== word.affixForm && valid,
+        )
+      ) blockers.push(blocker("invalid_choice_policy", `${word.displayWord}:member_choice_audit`));
+    }
     words.push({ ...word, role: authentic.has(id) ? "authentic_target" : "transfer" });
   }
   const distinctForms = new Set(words.map((word) => word.affixForm)).size;
@@ -431,6 +478,11 @@ export function compileSharedAffixLesson(
       primaryBuild,
       builds: completeBuilds,
       includeMeaningSort,
+      ...(input.profile.prefixPresentation ? {
+        meaningCheckKind: input.profile.prefixPresentation.meaningCheckKind,
+        meaningResultsPresentation: input.profile.prefixPresentation.meaningResultsPresentation,
+        coverClosePolicy: input.profile.prefixPresentation.coverClosePolicy,
+      } : {}),
       dictationWordIds: words.map((word) => word.canonicalWordId),
     },
     assignmentBindings: bindings,

@@ -145,3 +145,15 @@ For stage 4, final all-five exit evidence includes:
   Lab change; and
 - legacy compiler retention until a later explicit retirement stage after
   production observation across all five profiles.
+
+## Post-migration Prefix pedagogy stage
+
+This is not another migration stage and does not reopen compiler parity. The
+shared-authoritative Prefix path remains fixed. Exit evidence for the bounded
+pedagogy refinement is: reviewed 12-form profile content; one separate card per
+target; safe selected-prefix feedback; deterministic three-or-more Build
+choices; a genuine in-/im-/il-/ir- Prefix Form Sort with 20 total items; no
+Prefix results card; resumed typed Reflection; 79%/80% Cover interaction proof;
+all-five desktop/mobile staging evidence; and an unpushed local commit pending
+human acceptance. The staging execution and exact 25-image set are linked from
+the [2026-08-03 receipt](qa/adle-dynamic-prefix-pedagogy-ux-2026-08-03/staging-receipt.md).

@@ -95,9 +95,11 @@ assignment identity, word text, meanings, dictation or payloads.
 
 ## Protected behavior
 
-The migration does not change Prefix selection, V2 persistence, route metadata,
-runtime, renderer, resume storage, completion, attempts, evidence, taught
-history, review schedules, rewards or child-facing feedback. Common Word Lab
+The compiler migration does not change Prefix selection, V2 persistence, route metadata,
+resume storage, completion, attempts, evidence, taught history, review schedules or rewards.
+The subsequent `dynamic_prefix_pedagogy_v1` presentation stage deliberately
+changes Prefix teaching and feedback through additive typed policy while retaining those
+persistence boundaries. Common Word Lab
 and Generic Snapshot are not activated. No database migration or Teaching
 Dictionary mutation is part of compiler authority.
 
@@ -116,3 +118,20 @@ dictionary facts unchanged.
 The legacy compiler remains as the shadow/parity oracle and rollback aid until
 production rollout and observation complete across all five profiles and a
 separate retirement stage is approved.
+
+## Dynamic Prefix pedagogy presentation
+
+New reviewed Prefix profiles may opt into `dynamic_prefix_pedagogy_v1`. The
+profile projection must supply one complete teaching card per declared target,
+at least three deterministic reviewed choices, selected-category mappings, and
+a complete choice-verdict matrix for every eligible member. Every matrix must
+cover the full selectable pool and accept exactly one declared target. Choice
+order remains governed by the separate reviewed choice array because JSONB
+object-key order is not semantic. Missing labels, meanings, rules, sources,
+audit verdicts, or mappings block before persistence.
+
+The in-/im-/il-/ir- profile uses a four-category Prefix Form Sort and therefore
+has 20 assignment bindings. Other Prefix counts remain 16, 16, 16 and 18.
+Prefix results presentation is `none`; Dynamic Affix retains its established
+overview behavior. Prefix controlled spelling opts into an element-relative
+80% Cover track threshold without changing other Cover consumers.

@@ -1,0 +1,137 @@
+{
+  "schemaVersion": "dynamic_prefix_pedagogy_release_v1",
+  "releaseId": "adle_dynamic_prefix_pedagogy_staging_v1_2026_08_03_r2",
+  "target": {
+    "environment": "staging",
+    "supabaseProjectRef": "jlhotktspjvffslvuyfz",
+    "productionEnabled": false
+  },
+  "review": {
+    "approvedBy": "Katie Sanderson",
+    "approvedOn": "2026-08-03",
+    "sources": [
+      "data/adle/approved/d4-mor/v1/d4-mor-v1-content.json",
+      "docs/implementation/seed-data/teaching-dictionary/candidates/2026-07-22-d4-dynamic-prefix-staging-enrichment/reviewed-staging-package.json",
+      "docs/implementation/seed-data/teaching-dictionary/releases/2026-08-02-dynamic-prefix-un-profile-v1/manifest.json"
+    ]
+  },
+  "prefixDefinitions": [
+    { "text": "un", "label": "un-", "meaning": "not, the opposite of, or reverse", "rules": ["Add un- to the beginning of a base word. Keep every letter in un- and in the base word."], "example": { "prefix": "un", "base": "happy", "word": "unhappy", "meaning": "not happy" } },
+    { "text": "dis", "label": "dis-", "meaning": "not or the opposite", "rules": ["Add dis- to the beginning of a base word. Keep every letter in dis- and in the base word."], "example": { "prefix": "dis", "base": "agree", "word": "disagree", "meaning": "not having the same opinion" } },
+    { "text": "mis", "label": "mis-", "meaning": "wrongly or badly", "rules": ["Add mis- to the beginning when something is done wrongly or badly. Keep the base word’s spelling."], "example": { "prefix": "mis", "base": "spell", "word": "misspell", "meaning": "spell wrongly" } },
+    { "text": "in", "label": "in-", "meaning": "not", "rules": ["Use in- before most other letters."], "example": { "prefix": "in", "base": "visible", "word": "invisible", "meaning": "not able to be seen" } },
+    { "text": "im", "label": "im-", "meaning": "not", "rules": ["Use im- before b, m or p."], "example": { "prefix": "im", "base": "possible", "word": "impossible", "meaning": "not able to happen or be done" } },
+    { "text": "il", "label": "il-", "meaning": "not", "rules": ["Use il- before l."], "example": { "prefix": "il", "base": "legal", "word": "illegal", "meaning": "not allowed by law or rules" } },
+    { "text": "ir", "label": "ir-", "meaning": "not", "rules": ["Use ir- before r."], "example": { "prefix": "ir", "base": "regular", "word": "irregular", "meaning": "not regular" } },
+    { "text": "re", "label": "re-", "meaning": "again or back", "rules": ["Use re- at the beginning when the new word means again or back. Keep the base word’s spelling."], "example": { "prefix": "re", "base": "build", "word": "rebuild", "meaning": "build again" } },
+    { "text": "pre", "label": "pre-", "meaning": "before", "rules": ["Use pre- at the beginning when the new word means before. Keep the base word’s spelling."], "example": { "prefix": "pre", "base": "view", "word": "preview", "meaning": "view before" } },
+    { "text": "sub", "label": "sub-", "meaning": "under", "rules": ["Spell sub- as one fixed chunk at the beginning of the word."], "example": { "prefix": "sub", "base": "marine", "word": "submarine", "meaning": "a boat that travels under the sea" } },
+    { "text": "inter", "label": "inter-", "meaning": "between", "rules": ["Spell inter- as one fixed chunk at the beginning of the word."], "example": { "prefix": "inter", "base": "national", "word": "international", "meaning": "involving more than one country" } },
+    { "text": "super", "label": "super-", "meaning": "above or beyond", "rules": ["Spell super- as one fixed chunk at the beginning of the word."], "example": { "prefix": "super", "base": "hero", "word": "superhero", "meaning": "a hero with special powers" } }
+  ],
+  "profiles": [
+    {
+      "microSkillKey": "D4_MOR_PREFIXES_UN",
+      "targetForms": ["un"],
+      "choiceForms": ["un", "dis", "mis"],
+      "introContent": { "title": "Meet un-", "paragraphs": ["un- can make a word mean not, the opposite of, or reverse an action."] },
+      "meaningCheckKind": "meaning",
+      "meaningBins": [
+        { "id": "not", "label": "NOT", "description": "not", "prefixText": "un" },
+        { "id": "reverse", "label": "REVERSE", "description": "reverse", "prefixText": "un" }
+      ],
+      "validChoiceAudit": [
+        { "word": "unhappy", "choiceVerdicts": { "un": true, "dis": false, "mis": false } },
+        { "word": "unfair", "choiceVerdicts": { "un": true, "dis": false, "mis": false } },
+        { "word": "unkind", "choiceVerdicts": { "un": true, "dis": false, "mis": false } },
+        { "word": "unlock", "choiceVerdicts": { "un": true, "dis": false, "mis": false } },
+        { "word": "untidy", "choiceVerdicts": { "un": true, "dis": false, "mis": false } },
+        { "word": "unnatural", "choiceVerdicts": { "un": true, "dis": false, "mis": false } },
+        { "word": "unnecessary", "choiceVerdicts": { "un": true, "dis": false, "mis": false } }
+      ]
+    },
+    {
+      "microSkillKey": "D4_MOR_PREFIXES_DIS_MIS",
+      "targetForms": ["dis", "mis"],
+      "choiceForms": ["dis", "mis", "un"],
+      "introContent": { "title": "Meet dis- and mis-", "paragraphs": ["dis- and mis- change meanings in different ways. Study each rule before choosing."] },
+      "meaningCheckKind": "meaning",
+      "meaningBins": [
+        { "id": "not_or_opposite", "label": "NOT OR OPPOSITE", "description": "not or the opposite", "prefixText": "dis" },
+        { "id": "wrongly_or_badly", "label": "WRONGLY OR BADLY", "description": "wrongly or badly", "prefixText": "mis" }
+      ],
+      "validChoiceAudit": [
+        { "word": "disagree", "choiceVerdicts": { "dis": true, "mis": false, "un": false } },
+        { "word": "disappear", "choiceVerdicts": { "dis": true, "mis": false, "un": false } },
+        { "word": "dishonest", "choiceVerdicts": { "dis": true, "mis": false, "un": false } },
+        { "word": "dissatisfied", "choiceVerdicts": { "dis": true, "mis": false, "un": false } },
+        { "word": "misbehave", "choiceVerdicts": { "dis": false, "mis": true, "un": false } },
+        { "word": "mislead", "choiceVerdicts": { "dis": false, "mis": true, "un": false } },
+        { "word": "misspell", "choiceVerdicts": { "dis": false, "mis": true, "un": false } }
+      ]
+    },
+    {
+      "microSkillKey": "D4_MOR_PREFIXES_IN_IM_IL_IR",
+      "targetForms": ["in", "im", "il", "ir"],
+      "choiceForms": ["in", "im", "il", "ir"],
+      "introContent": { "title": "Meet the in- prefix family", "paragraphs": ["in-, im-, il- and ir- can all mean not. The first letter of the base word helps us choose the form."] },
+      "meaningCheckKind": "prefix_form",
+      "meaningBins": [
+        { "id": "in", "label": "in-", "description": "Use before most other letters", "prefixText": "in" },
+        { "id": "im", "label": "im-", "description": "Use before b, m or p", "prefixText": "im" },
+        { "id": "il", "label": "il-", "description": "Use before l", "prefixText": "il" },
+        { "id": "ir", "label": "ir-", "description": "Use before r", "prefixText": "ir" }
+      ],
+      "validChoiceAudit": [
+        { "word": "illegal", "choiceVerdicts": { "in": false, "im": false, "il": true, "ir": false } },
+        { "word": "impatient", "choiceVerdicts": { "in": false, "im": true, "il": false, "ir": false } },
+        { "word": "impossible", "choiceVerdicts": { "in": false, "im": true, "il": false, "ir": false } },
+        { "word": "incorrect", "choiceVerdicts": { "in": true, "im": false, "il": false, "ir": false } },
+        { "word": "invisible", "choiceVerdicts": { "in": true, "im": false, "il": false, "ir": false } },
+        { "word": "irregular", "choiceVerdicts": { "in": false, "im": false, "il": false, "ir": true } },
+        { "word": "irresponsible", "choiceVerdicts": { "in": false, "im": false, "il": false, "ir": true } }
+      ]
+    },
+    {
+      "microSkillKey": "D4_MOR_PREFIXES_RE_PRE",
+      "targetForms": ["re", "pre"],
+      "choiceForms": ["re", "pre", "un"],
+      "introContent": { "title": "Meet re- and pre-", "paragraphs": ["re- can mean again or back. pre- can mean before."] },
+      "meaningCheckKind": "meaning",
+      "meaningBins": [
+        { "id": "again_back", "label": "AGAIN OR BACK", "description": "again or back", "prefixText": "re" },
+        { "id": "before", "label": "BEFORE", "description": "before", "prefixText": "pre" }
+      ],
+      "validChoiceAudit": [
+        { "word": "predict", "choiceVerdicts": { "re": false, "pre": true, "un": false } },
+        { "word": "preheat", "choiceVerdicts": { "re": false, "pre": true, "un": false } },
+        { "word": "preschool", "choiceVerdicts": { "re": false, "pre": true, "un": false } },
+        { "word": "preview", "choiceVerdicts": { "re": false, "pre": true, "un": false } },
+        { "word": "rebuild", "choiceVerdicts": { "re": true, "pre": false, "un": false } },
+        { "word": "replay", "choiceVerdicts": { "re": true, "pre": false, "un": false } },
+        { "word": "return", "choiceVerdicts": { "re": true, "pre": false, "un": false } }
+      ]
+    },
+    {
+      "microSkillKey": "D4_MOR_PREFIXES_SUB_INTER_SUPER",
+      "targetForms": ["sub", "inter", "super"],
+      "choiceForms": ["sub", "inter", "super"],
+      "introContent": { "title": "Meet sub-, inter- and super-", "paragraphs": ["These prefixes tell us about being under, between, above or beyond."] },
+      "meaningCheckKind": "meaning",
+      "meaningBins": [
+        { "id": "under", "label": "UNDER", "description": "under", "prefixText": "sub" },
+        { "id": "between", "label": "BETWEEN", "description": "between", "prefixText": "inter" },
+        { "id": "above_beyond", "label": "ABOVE OR BEYOND", "description": "above or beyond", "prefixText": "super" }
+      ],
+      "validChoiceAudit": [
+        { "word": "interact", "choiceVerdicts": { "sub": false, "inter": true, "super": false } },
+        { "word": "international", "choiceVerdicts": { "sub": false, "inter": true, "super": false } },
+        { "word": "subheading", "choiceVerdicts": { "sub": true, "inter": false, "super": false } },
+        { "word": "submarine", "choiceVerdicts": { "sub": true, "inter": false, "super": false } },
+        { "word": "subway", "choiceVerdicts": { "sub": true, "inter": false, "super": false } },
+        { "word": "superhero", "choiceVerdicts": { "sub": false, "inter": false, "super": true } },
+        { "word": "supermarket", "choiceVerdicts": { "sub": false, "inter": false, "super": true } }
+      ]
+    }
+  ]
+}

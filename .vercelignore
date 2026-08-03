@@ -1,0 +1,7 @@
+.tmp/
+.next/
+test-results/
+playwright-report/
+.env*
+docs/implementation/qa/
+supabase/migrations/

@@ -11,9 +11,12 @@ const selection = selectDynamicPrefixWordLab({ profiles: [profile], learningItem
 assert(selection);
 const payload = compileDynamicPrefixWordLabPayload(selection);
 assert(payload);
+assert.equal(payload.presentationPolicyVersion, undefined, "historical Prefix V2 remains marker-free and readable");
 assertDynamicPrefixSharedParity(selection, payload, "Prefix runtime fixture");
 const runtime = dynamicPrefixRuntime(payload);
 assert(runtime && runtime.words.lesson.length === 4 && runtime.activities.find((activity) => activity.type === "sentence_dictation")?.sentences?.length === 4);
+assert.equal(runtime.activities.find((activity) => activity.type === "meaning_sort")?.meaningResultsPresentation, "none", "historical Prefix V2 suppresses the results overview through the runtime adapter");
+assert.equal(runtime.activities.find((activity) => activity.type === "reflection")?.teachingCards, undefined, "historical Prefix V2 does not require new teaching cards");
 assert(runtime?.activities.find((activity) => activity.type === "discovery")?.discoveryCards?.every((card) => card.prefixLabel === "un-"), "runtime retains per-word prefix labels for discovery");
 assert(!dynamicPrefixRuntime({ ...payload, schemaVersion: 1 }));
 const wordsForItems = payload.words.lesson;
