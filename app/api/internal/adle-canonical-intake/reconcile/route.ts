@@ -40,7 +40,7 @@ export async function GET(request: NextRequest) {
 
   const summary = await runCanonicalIntakeReconciliationSweep({
     serviceClient: createServiceRoleClient(),
-    leaseOwner: `vercel-cron:${randomUUID()}`,
+    leaseOwner: `canonical-intake-safety-sweep:${randomUUID()}`,
     limit: 25,
   });
   return NextResponse.json(summary, {

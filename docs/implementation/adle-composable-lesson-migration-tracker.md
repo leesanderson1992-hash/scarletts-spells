@@ -197,6 +197,14 @@ classification, safe admin notification, event plus five-minute
 reconciliation, learning-item/source idempotency, zero reconciliation-created
 assignments, staging migration/runtime proof, and a guarded cleanup receipt.
 
+The staging project remains on Vercel Hobby. Its five-minute safety sweep is
+therefore implemented by staging-only Supabase Cron calling the existing
+secret-protected application route; Vercel Cron retains only its supported
+daily jobs. The two accidentally removed, unassigned staging-only learning
+items were explicitly accepted as disposable, making 83 learning items the
+reviewed protected baseline. This decision does not authorize production
+mutation or inferred row reconstruction.
+
 Production intake remains disabled. Production schema application, enablement,
 targeted processing of submission
 `2824a8d5-3839-443f-8450-ecfa524f28bf`, and broader backlog replay require a

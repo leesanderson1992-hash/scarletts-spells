@@ -211,10 +211,13 @@ demand, learning-item, or assignment mutation is authorised by this stage.
 The real staging data path has proved the locked `12 activated / 1
 pending_content / 1 Teaching Content Demand / 0 Resolver Demands` result,
 idempotent replay, and bounded safety-sweep worker with no assignment write.
-Full staging closure remains blocked by the Hobby plan's rejection of the
-required five-minute Vercel cron and by exact disposition/restoration of two
-pre-existing unassigned staging learning-item rows removed by an early cleanup
-harness defect. The corrected cleanup now deletes proof-owned items only. See
+The owner accepted the two previously removed, unassigned staging-only learning
+items as disposable; the post-cleanup count of 83 is the reviewed staging
+baseline and no inferred reconstruction was written. Because Vercel Hobby only
+supports daily Cron schedules, the five-minute staging sweep is now supplied
+by a guarded Supabase `pg_cron`/`pg_net` scheduler that calls the unchanged
+application-owned route with Vault-held bearer and Vercel-bypass credentials.
+Migration `20260804234500` is staging-only and production-rejecting. See
 the [2026-08-04 staging receipt](qa/adle-canonical-intake-staging-receipt-2026-08-04.md).
 Production intake remains disabled; a separate production plan is still
 required.

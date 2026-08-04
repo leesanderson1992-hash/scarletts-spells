@@ -40,7 +40,24 @@ notification without creating an assignment.
 
 ## Operations and privacy
 
-- The event queue is primary; the five-minute cron is the missed-event sweep.
+- The event queue is primary; the five-minute safety sweep is the missed-event
+  fallback.
+- On the staging Vercel Hobby project, Supabase Cron invokes the stable staging
+  application route every five minutes. The route remains application-owned
+  and requires its existing bearer secret; Supabase Vault also supplies the
+  exact Vercel automation-bypass token.
+- Validate project `scarletts-spells-staged`, staging database identity, the
+  scheduler migration ledger/hash, empty or expected intake state, and the
+  protected learner snapshot before activation. Unknown and production
+  database identities are rejected.
+- Activate with the guarded scheduler operator only after the exact source
+  deployment is Ready. Verification requires an active named Cron job, ready
+  Vault secrets, successful HTTP responses from at least two natural scheduled
+  invocations, and no learner-table mutation.
+- Roll back by running the guarded deactivation command, removing the staging
+  `CRON_SECRET` value and exact automation bypass, and redeploying only when the
+  application environment changed. Preserve scheduler audit metadata and the
+  intake event history.
 - Inspect oldest unresolved demand, retry/failed jobs, activation latency, and
   duplicate-constraint errors.
 - A disabled feature flag makes the worker a no-op and stops new intake.

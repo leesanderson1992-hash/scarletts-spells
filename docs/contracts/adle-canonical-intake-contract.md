@@ -69,11 +69,24 @@ learning-item/source persistence function. Blocked candidates atomically
 upsert the technical candidate, stable demand, link, and event.
 
 Governed Teaching Dictionary and Dynamic Prefix releases enqueue affected
-targets when the intake queue exists. A protected five-minute cron route claims
-bounded jobs with leases and retries. Both paths reuse the same evaluator.
+targets when the intake queue exists. The application-owned, `CRON_SECRET`-
+protected route claims bounded jobs with leases and retries. On Vercel Hobby,
+staging schedules that route every five minutes with Supabase `pg_cron` and
+`pg_net`; the bearer token and the exact Vercel automation-bypass token are
+held in Supabase Vault. Vercel's daily-only Cron configuration does not contain
+this job. Both event and safety-sweep paths reuse the same evaluator.
 Successful activation resolves the link and notification while preserving the
 demand and history. The reconciler has no assignment-table write; only the
 normal daily composer can later select an activated item.
+
+Migration
+`20260804234500_add_adle_canonical_intake_supabase_scheduler.sql` owns the
+staging scheduler configuration, dispatch, activation, deactivation, and safe
+status contract. Its schema constraints pin the target to the stable staging
+host, the five-minute expression, and the two reviewed Vault secret names.
+Activation and deactivation require distinct staging-ref confirmation tokens;
+ordinary client roles have no table or function access. Production is not a
+valid target of this staging migration or its operator.
 
 ## Admin and security boundary
 

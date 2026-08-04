@@ -45,14 +45,12 @@ assert.doesNotMatch(
   stagingProof,
   /deleteIn\("adle_learning_items", "id", state\.learningItemIds\)/,
 );
-assert.deepEqual(
-  config.crons.find(
+assert.equal(
+  config.crons.some(
     (entry) => entry.path === "/api/internal/adle-canonical-intake/reconcile",
   ),
-  {
-    path: "/api/internal/adle-canonical-intake/reconcile",
-    schedule: "*/5 * * * *",
-  },
+  false,
+  "Vercel Hobby delegates the five-minute safety sweep to guarded Supabase Cron",
 );
 
 console.log("adle-canonical-intake-reconciliation-regression: ok");

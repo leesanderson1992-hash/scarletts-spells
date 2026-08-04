@@ -1,8 +1,8 @@
 # ADLE Canonical Intake Staging Receipt — 2026-08-04
 
-Status: `PARTIAL_STAGING_PROOF_COMPLETE_SCHEDULER_AND_CLEANUP_RESTORE_BLOCKED`
+Status: `HOBBY_SCHEDULER_IMPLEMENTED_ACTIVATION_PROOF_PENDING`
 
-Last updated at `2026-08-04T21:06:01Z`.
+Last updated at `2026-08-04T23:55:00Z`.
 
 ## Repository gate
 
@@ -42,7 +42,7 @@ learner response is recorded here.
 - durable candidate, demand, link, queue, and append-only event migration;
 - stable token-keyed demand that later attaches a canonical-word ID;
 - approval seed, candidate-isolated reconciliation, bounded leases/retries, and
-  five-minute protected cron;
+  protected safety-sweep route and a staging-only Supabase Cron trigger;
 - governed Teaching Dictionary and Prefix release enqueue hooks;
 - service-role-only functions and RLS;
 - safe admin badge, demand table, checklist, workflow actions, and audit history;
@@ -192,7 +192,7 @@ rows, one demand, 12 proof-owned learning items, 13 mappings, and their exact
 links/events. Post-cleanup candidate and demand counts were `0 / 0`; all other
 protected counts in the table remained unchanged.
 
-## Staging cleanup discrepancy
+## Staging cleanup disposition
 
 An earlier failed proof pass correctly reused two pre-existing staging learning
 items. The first version of the cleanup harness derived its deletion set from
@@ -213,9 +213,10 @@ explicit decision that those unassigned staging rows were disposable.
 The staging project backup page was checked read-only after cleanup. It states
 that the Free plan does not include project backups, so no scheduled or
 point-in-time backup is available for an exact restore. No billing change was
-attempted. The remaining safe resolution is therefore an explicit owner
-decision on the two unassigned staging rows; recreating guessed rows would
-weaken the audit boundary.
+attempted. The owner explicitly accepted the two unassigned staging-only rows
+as disposable and directed the combined Hobby-compatible resolution to
+proceed. The protected learning-item count of 83 is therefore the reviewed new
+staging baseline. No guessed replacement row was created.
 
 The staging API-gateway logs were also audited read-only. They retain the exact
 cleanup request and show, from the persistence RPC response lengths, that two
@@ -226,9 +227,9 @@ log event. Call ordering can suggest candidate-to-item associations but cannot
 prove the complete original rows. This is insufficient authority for an exact
 restore, so no inferred reconstruction was written.
 
-## Preview deployment blocker
+## Vercel Hobby scheduler resolution
 
-The exact application configuration remains blocked from deployment because the
+The original exact application configuration could not deploy because the
 staging project is on the Hobby plan:
 
 ```text
@@ -236,15 +237,24 @@ Hobby accounts are limited to daily cron jobs.
 This cron expression (*/5 * * * *) would run more than once per day.
 ```
 
-The required five-minute safety sweep was not weakened to a daily schedule. The
-manual invocation above proves the bounded worker itself, but it is not evidence
-that Vercel will invoke the route every five minutes.
+The required sweep was not weakened to a daily schedule. The approved combined
+solution removes only that unsupported entry from `vercel.json` and uses
+staging Supabase `pg_cron` plus `pg_net` to invoke the unchanged bounded route
+every five minutes. The application still authenticates the bearer token, and
+Supabase Vault supplies both that token and the exact Vercel automation-bypass
+token. Production and unknown database identities are rejected by the operator
+and the persisted scheduler contract is pinned to the stable staging host.
 
-Smallest safe remedy: upgrade the staging Vercel project to a plan that permits
-the reviewed five-minute schedule, or separately approve and plan an equivalent
-five-minute scheduler with the same secret, bounded-worker, retry, and no-direct-
-assignment guarantees. After that external state change, resume from the
-already-verified empty staging schema and deploy the exact implementation SHA.
-Separately, resolve the two-row staging cleanup discrepancy from an
-authoritative backup/audit source or explicitly classify those unassigned rows
-as disposable. Only then can this receipt be marked fully complete.
+Migration `20260804234500_add_adle_canonical_intake_supabase_scheduler.sql` was
+applied and ledgered on staging with source SHA-256
+`d6764d83fcab0ef4a75c5dec72eca82554134cd0a53c2f53bd7f67725a1d6bba`.
+Installed extensions are `pg_cron 1.6.4`, `pg_net 0.20.3`, and
+`supabase_vault 0.3.1`. Before activation there were zero scheduler config
+rows, zero named Cron jobs, zero intake candidates/demands, and ordinary client
+roles could not execute the activation function. Protected counts were exactly
+83 learning items, 50 daily assignments, 852 assignment items, 560 attempts,
+110 schedules, and zero rewards.
+
+The final exact-source deployment, guarded secret activation, two natural Cron
+invocations, rollback-readiness check, and final protected-state verification
+remain to be appended before this receipt is marked complete.
