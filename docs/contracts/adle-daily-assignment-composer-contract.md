@@ -243,6 +243,15 @@ When persistence is authorized:
 - do not update proficiency merely by assignment creation
 - do not update Word Treasure merely by assignment creation
 
+### Canonical-intake boundary (2026-08-04)
+
+Canonical intake may create or reuse an active `adle_learning_item` and its
+source lineage only after the route-aware readiness evaluator passes. A
+`pending_mapping` or `pending_content` candidate is not composer-eligible and
+must not create an unusable active item. Intake reconciliation never selects a
+date, builds a payload, writes an assignment, or overwrites a daily plan. Once
+activated, the item enters the unchanged composer and persistence path.
+
 ### Generic snapshot V2 addendum (2026-07-31)
 
 For a new `generic_composer:v1` insert, persistence additionally requires:

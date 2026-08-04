@@ -34,12 +34,12 @@ import type {
   TaughtWordHistoryWithAttempt,
 } from "../composer-completions";
 import type { AuthenticUseEventFact } from "../evidence-pricing";
-import { ADLE_CANONICAL_INTAKE_FEATURE_FLAG } from "../canonical-intake";
+import { isCanonicalIntakeEnabled } from "../canonical-intake";
 
 type AdleClient = SupabaseClient;
 
 function sharedRouteStorageEnabled(): boolean {
-  return process.env[ADLE_CANONICAL_INTAKE_FEATURE_FLAG] === "enabled";
+  return isCanonicalIntakeEnabled();
 }
 
 const PRODUCTION_EVENT_TYPES = [

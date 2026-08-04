@@ -217,3 +217,22 @@ an unused release’s wholly new factual rows. It must block when any runtime
 table references a released word. A release that refreshed an existing
 canonical identity requires a reviewed restoration or repair release rather
 than generic deactivation.
+
+## Canonical-intake teaching demand (2026-08-04)
+
+A reviewed resolver-visible mapping establishes the target token before
+Teaching Dictionary existence is tested. When the exact word row or another
+route-required reviewed dependency is missing, the intake candidate is
+`pending_content` and links to one stable Teaching Content Demand. It is not a
+Resolver Demand.
+
+Teaching facts remain solely in governed dictionary sources. Intake stores
+only evidence references, demand workflow, reconciliation work, and history.
+Creating a canonical row attaches its ID to the existing token-keyed demand; it
+does not duplicate or complete it. Governed word and Prefix releases enqueue
+affected targets when the queue contract is available.
+
+The mapping `urnlocked -> unlocked` remains exact while the missing reviewed
+`unlocked` package is reported as `canonical_word_missing`,
+`teaching_content`, and `pending_content`. Runtime code must not substitute
+`unlock` or infer missing teaching facts.

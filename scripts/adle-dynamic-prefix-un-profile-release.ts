@@ -500,6 +500,19 @@ async function release(loaded: LoadedPackage): Promise<void> {
       );
     }
     const projection = await readReleasedProjection(client, loaded.manifest);
+    const intakeQueueFunction = await client.query<{ available: boolean }>(
+      "select to_regprocedure('public.adle_enqueue_canonical_intake_by_target(text,text,text)') is not null as available",
+    );
+    let reconciliationJobs = 0;
+    if (intakeQueueFunction.rows[0]?.available) {
+      for (const member of loaded.manifest.members) {
+        const queued = await client.query<{ enqueued_count: number }>(
+          "select public.adle_enqueue_canonical_intake_by_target($1,$2,$3) as enqueued_count",
+          [member.displayWord, "prefix_profile_release", `dynamic_prefix_profile_release:${loaded.manifest.releaseId}:${loaded.packageSha256}`],
+        );
+        reconciliationJobs += Number(queued.rows[0]?.enqueued_count ?? 0);
+      }
+    }
     const dictionaryAfter = await dictionarySnapshot(client, loaded.manifest);
     const protectedAfter = await protectedCounts(client);
     if (dictionaryBefore.fingerprint !== dictionaryAfter.fingerprint) fail("Protected dictionary facts changed during profile release.");
@@ -513,6 +526,7 @@ async function release(loaded: LoadedPackage): Promise<void> {
       ...projection,
       approvedProductionProjectionSha256: APPROVED_PRODUCTION_PROJECTION_SHA,
       created: { batches: 1, profiles: 1, members: 7 },
+      reconciliationJobs,
       updated: { canonicalWords: 0, metadata: 0, morphology: 0, dictations: 0, learnerRows: 0 },
       dictionaryFingerprint: dictionaryAfter.fingerprint,
       protectedCounts: protectedAfter,
@@ -613,6 +627,17 @@ async function setActivation(loaded: LoadedPackage, activate: boolean): Promise<
         [batchId],
       );
       await readReleasedProjection(client, loaded.manifest, "active");
+      const intakeQueueFunction = await client.query<{ available: boolean }>(
+        "select to_regprocedure('public.adle_enqueue_canonical_intake_by_target(text,text,text)') is not null as available",
+      );
+      if (intakeQueueFunction.rows[0]?.available) {
+        for (const member of loaded.manifest.members) {
+          await client.query(
+            "select public.adle_enqueue_canonical_intake_by_target($1,$2,$3)",
+            [member.displayWord, "prefix_profile_reactivation", `dynamic_prefix_profile_reactivation:${loaded.manifest.releaseId}:${loaded.packageSha256}`],
+          );
+        }
+      }
     }
     const dictionaryAfter = await dictionarySnapshot(client, loaded.manifest);
     const protectedAfter = await protectedCounts(client);

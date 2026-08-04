@@ -1,5 +1,7 @@
 import Link from "next/link";
 
+/* eslint-disable @typescript-eslint/no-explicit-any -- additive intake demand table precedes generated Supabase types */
+
 import { requireAdminUser } from "@/lib/admin/access";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 
@@ -160,6 +162,21 @@ async function getSeedImportRowSummary() {
   );
 }
 
+async function getUnresolvedIntakeDemandCount(): Promise<number | null> {
+  const supabase = createServiceRoleClient() as any;
+  const { count, error } = await supabase
+    .from("adle_canonical_intake_demands")
+    .select("id", { count: "exact", head: true })
+    .in("notification_status", ["unread", "open"])
+    .not("lifecycle_status", "in", "(activated,rejected,superseded)");
+  if (error) {
+    // The application can deploy fail-closed before the reviewed migration.
+    if (error.code === "42P01" || error.code === "PGRST205") return null;
+    throw error;
+  }
+  return count ?? 0;
+}
+
 function StatusPills({ summary }: { summary: QueueSummary }) {
   if (summary.statusCounts.length === 0) {
     return (
@@ -277,14 +294,21 @@ export default async function AdminSpellingReviewPage() {
   let catalogGapSummary: QueueSummary | null = null;
   let recommendationSummary: QueueSummary | null = null;
   let seedImportRowSummary: QueueSummary | null = null;
+  let unresolvedIntakeDemandCount: number | null = null;
   let hasError = false;
 
   try {
-    [catalogGapSummary, recommendationSummary, seedImportRowSummary] =
+    [
+      catalogGapSummary,
+      recommendationSummary,
+      seedImportRowSummary,
+      unresolvedIntakeDemandCount,
+    ] =
       await Promise.all([
         getCatalogGapSummary(),
         getCanonicalRecommendationSummary(),
         getSeedImportRowSummary(),
+        getUnresolvedIntakeDemandCount(),
       ]);
   } catch {
     hasError = true;
@@ -321,6 +345,11 @@ export default async function AdminSpellingReviewPage() {
             className="ml-0 mt-3 inline-flex min-h-10 items-center justify-center rounded-xl border border-[var(--border)] bg-white px-4 py-2 text-sm font-semibold text-[color:var(--ink)] transition hover:bg-[var(--mist)] focus:outline-none focus:ring-2 focus:ring-[var(--scarlett)] focus:ring-offset-2 sm:ml-3 sm:mt-4"
           >
             Open ADLE intake readiness
+            {unresolvedIntakeDemandCount !== null ? (
+              <span className="ml-2 rounded-full bg-[var(--scarlett)] px-2 py-0.5 text-xs text-white" aria-label={`${unresolvedIntakeDemandCount} unresolved intake demands`}>
+                {unresolvedIntakeDemandCount}
+              </span>
+            ) : null}
           </Link>
         </header>
 

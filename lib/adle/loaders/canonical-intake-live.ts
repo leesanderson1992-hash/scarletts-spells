@@ -4,13 +4,18 @@ import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 import {
-  ADLE_CANONICAL_INTAKE_FEATURE_FLAG,
   canonicalWordSkillPair,
+  isCanonicalIntakeEnabled,
   resolveCanonicalIntakeReadiness,
   type CanonicalIntakeBlockReason,
   type CanonicalIntakeMappingFact,
   type CanonicalIntakeResolution,
+  type CanonicalIntakeRouteReadinessFact,
+  type IntakeCandidateState,
+  type IntakeDemandType,
+  type IntakeReadinessBlocker,
 } from "../canonical-intake";
+import { resolveCanonicalIntakeRoute } from "../canonical-intake/route-readiness";
 import { isBaseWordFamilyPilotEnabledForChild } from "../morphology/base-word-family-pilot-access";
 import { loadDynamicPrefixProfiles } from "../morphology/dynamic-prefix-profile-loader";
 import { isDynamicPrefixRouteEnabled } from "../morphology/dynamic-prefix-staging-access";
@@ -25,10 +30,17 @@ export interface CanonicalIntakeLiveResult {
   eligible: number;
   inserted: number;
   strengthened: number;
+  pendingMapping: number;
+  pendingContent: number;
+  demandsCreated: number;
   blocked: Array<{
     candidateMappingId: string;
     reason: CanonicalIntakeBlockReason;
     evidence: Record<string, unknown>;
+    candidateState: IntakeCandidateState;
+    demandType: IntakeDemandType;
+    blockers: IntakeReadinessBlocker[];
+    demandId?: string;
   }>;
 }
 
@@ -49,6 +61,7 @@ function throwQuery(
 async function routeActivationFacts(client: AdleClient, childId: string) {
   const enabled = new Set<string>();
   const readyPairs = new Set<string>();
+  const routeReadiness: CanonicalIntakeRouteReadinessFact[] = [];
   const { data: selectorProfiles, error: selectorProfileError } = await client
     .from("canonical_teaching_dictionary_transfer_selector_profiles")
     .select("micro_skill_key,row_status,review_status,allowed_age_bands")
@@ -61,6 +74,14 @@ async function routeActivationFacts(client: AdleClient, childId: string) {
   }
 
   if (isDynamicPrefixRouteEnabled()) {
+    const { data: rawPrefixProfiles, error: rawPrefixError } = await client
+      .from("canonical_teaching_dictionary_prefix_profiles")
+      .select(
+        "micro_skill_key,production_enabled,row_status,review_status,canonical_teaching_dictionary_prefix_members(canonical_word_id,assignment_eligible,row_status,review_status)",
+      )
+      .like("micro_skill_key", "D4_MOR_PREFIXES_%");
+    if (rawPrefixError)
+      throwQuery("canonical intake Prefix readiness facts", rawPrefixError);
     const { profiles } = await loadDynamicPrefixProfiles(client, childId);
     for (const profile of profiles) {
       if (!profile.productionEnabled) continue;
@@ -71,11 +92,49 @@ async function routeActivationFacts(client: AdleClient, childId: string) {
         );
       }
     }
+    for (const rawProfile of rawPrefixProfiles ?? []) {
+      const profile = rawProfile as any;
+      if (
+        profile.production_enabled !== true ||
+        profile.row_status !== "active" ||
+        profile.review_status !== "approved_for_first_exposure"
+      )
+        continue;
+      enabled.add(profile.micro_skill_key);
+      for (const rawMember of
+        profile.canonical_teaching_dictionary_prefix_members ?? []) {
+        const member = rawMember as any;
+        const pair = canonicalWordSkillPair(
+          member.canonical_word_id,
+          profile.micro_skill_key,
+        );
+        const memberApproved =
+          member.assignment_eligible === true &&
+          member.row_status === "active" &&
+          member.review_status === "approved_for_first_exposure";
+        routeReadiness.push({
+          canonicalWordId: member.canonical_word_id,
+          microSkillKey: profile.micro_skill_key,
+          ready: memberApproved && readyPairs.has(pair),
+          blockers: !memberApproved
+            ? ["profile_member_unapproved"]
+            : readyPairs.has(pair)
+              ? []
+              : ["payload_not_compilable"],
+          evidence: [
+            {
+              source: "canonical_teaching_dictionary_prefix_members",
+              status: member.review_status,
+            },
+          ],
+        });
+      }
+    }
   }
 
   if (isBaseWordFamilyPilotEnabledForChild(childId)) {
     const activationEnvironment = resolveAdleRouteActivationEnvironment();
-    if (!activationEnvironment) return { enabled, readyPairs };
+    if (!activationEnvironment) return { enabled, readyPairs, routeReadiness };
     const activations = await loadAdleLessonRouteActivations(client, {
       microSkillKeys: [
         "D4_MOR_BASE_WORDS_PRESERVE_BASE",
@@ -92,7 +151,8 @@ async function routeActivationFacts(client: AdleClient, childId: string) {
         )
         .map((activation) => activation.microSkillKey),
     );
-    if (activatedSkills.size === 0) return { enabled, readyPairs };
+    if (activatedSkills.size === 0)
+      return { enabled, readyPairs, routeReadiness };
     const { data: familyRows, error: familyError } = await client
       .from("canonical_teaching_dictionary_base_word_families")
       .select("id, micro_skill_key")
@@ -128,7 +188,12 @@ async function routeActivationFacts(client: AdleClient, childId: string) {
       }
     }
   }
-  return { enabled, readyPairs, selectorProfiles: selectorProfiles ?? [] };
+  return {
+    enabled,
+    readyPairs,
+    routeReadiness,
+    selectorProfiles: selectorProfiles ?? [],
+  };
 }
 
 async function persistEligibleIntake(
@@ -150,6 +215,61 @@ async function persistEligibleIntake(
   return Boolean((data as Array<{ inserted?: boolean }> | null)?.[0]?.inserted);
 }
 
+async function persistBlockedIntake(
+  client: AdleClient,
+  resolution: Extract<CanonicalIntakeResolution, { status: "blocked" }>,
+  normalizedTargetToken: string,
+): Promise<{ demandId: string | null; demandCreated: boolean }> {
+  const readiness = resolution.readiness;
+  const primary = readiness.blockers[0];
+  const { data, error } = await client.rpc(
+    "adle_record_canonical_intake_blocked",
+    {
+      p_candidate_mapping_id: resolution.candidateMappingId,
+      p_normalized_target_token:
+        readiness.canonicalTargetToken ?? normalizedTargetToken,
+      p_canonical_word_id: readiness.canonicalWordId ?? null,
+      p_target_identity_status: readiness.targetIdentityStatus,
+      p_route_id: readiness.routeId,
+      p_route_version: readiness.routeVersion,
+      p_micro_skill_key: readiness.microSkillKey,
+      p_candidate_state: readiness.candidateState,
+      p_blockers: readiness.blockers,
+      p_readiness_fingerprint: readiness.readinessFingerprint,
+      p_demand_type: primary.demandType,
+      p_primary_blocker_code: primary.code,
+    },
+  );
+  if (error) throwQuery("canonical intake blocked persistence", error);
+  const row = (data as
+    | Array<{ demand_id?: string; demand_created?: boolean }>
+    | null)?.[0];
+  return {
+    demandId: typeof row?.demand_id === "string" ? row.demand_id : null,
+    demandCreated: row?.demand_created === true,
+  };
+}
+
+async function seedApprovedCandidate(
+  client: AdleClient,
+  candidate: {
+    id: string;
+    correct_spelling_normalized: string;
+    micro_skill_key: string;
+  },
+) {
+  const route = resolveCanonicalIntakeRoute(candidate.micro_skill_key);
+  const { error } = await client.rpc("adle_seed_canonical_intake_candidate", {
+    p_candidate_mapping_id: candidate.id,
+    p_normalized_target_token: candidate.correct_spelling_normalized,
+    p_route_id: route.routeId,
+    p_route_version: route.routeVersion,
+    p_micro_skill_key: candidate.micro_skill_key,
+    p_source_ref: `parent_approval:${candidate.id}`,
+  });
+  if (error) throwQuery("canonical intake candidate seed", error);
+}
+
 /** Failure-isolated caller hook: the feature flag is the first gate and no
  * candidate outside the approved submission/child scope is read or written. */
 export async function intakeApprovedSubmissionCorrections(params: {
@@ -158,19 +278,24 @@ export async function intakeApprovedSubmissionCorrections(params: {
   childId: string;
   submissionId: string;
   dryRun?: boolean;
+  candidateMappingIds?: readonly string[];
+  seedCandidates?: boolean;
 }): Promise<CanonicalIntakeLiveResult> {
   const result: CanonicalIntakeLiveResult = {
     enabled: false,
     eligible: 0,
     inserted: 0,
     strengthened: 0,
+    pendingMapping: 0,
+    pendingContent: 0,
+    demandsCreated: 0,
     blocked: [],
   };
-  if (process.env[ADLE_CANONICAL_INTAKE_FEATURE_FLAG] !== "enabled")
+  if (!isCanonicalIntakeEnabled())
     return result;
   result.enabled = true;
   const client = params.serviceClient;
-  const { data: candidateRows, error: candidateError } = await client
+  let candidateQuery = client
     .from("parent_verified_spelling_candidate_mappings")
     .select(
       "id,parent_user_id,child_id,misspelling_normalized,correct_spelling_normalized,micro_skill_key,candidate_status,updated_at",
@@ -182,8 +307,18 @@ export async function intakeApprovedSubmissionCorrections(params: {
       "parent_local_promoted",
       "global_canonical_promoted",
     ]);
+  if (params.candidateMappingIds?.length) {
+    candidateQuery = candidateQuery.in("id", [...params.candidateMappingIds]);
+  }
+  const { data: candidateRows, error: candidateError } = await candidateQuery;
   if (candidateError) throwQuery("canonical intake candidates", candidateError);
   if ((candidateRows ?? []).length === 0) return result;
+
+  if (!params.dryRun && params.seedCandidates !== false) {
+    for (const candidate of candidateRows ?? []) {
+      await seedApprovedCandidate(client, candidate as any);
+    }
+  }
 
   const corrections = [
     ...new Set(
@@ -336,16 +471,37 @@ export async function intakeApprovedSubmissionCorrections(params: {
       })),
       productionEnabledSkillKeys: routeFacts.enabled,
       routeSpecificReadyWordSkillPairs: routeFacts.readyPairs,
+      routeReadiness: routeFacts.routeReadiness,
       allowedFrequencyBands: new Set(
         ADLE_PILOT_CHILD_BAND.allowedFrequencyBands,
       ),
       allowedAgeBands: new Set(ADLE_PILOT_CHILD_BAND.allowedAgeBands),
     });
     if (resolution.status === "blocked") {
+      const readiness = resolution.readiness;
+      let persisted: { demandId: string | null; demandCreated: boolean } = {
+        demandId: null,
+        demandCreated: false,
+      };
+      if (!params.dryRun) {
+        persisted = await persistBlockedIntake(
+          client,
+          resolution,
+          candidate.correct_spelling_normalized,
+        );
+      }
+      if (readiness.candidateState === "pending_content")
+        result.pendingContent += 1;
+      else result.pendingMapping += 1;
+      if (persisted.demandCreated) result.demandsCreated += 1;
       result.blocked.push({
         candidateMappingId: resolution.candidateMappingId,
         reason: resolution.reason,
         evidence: resolution.evidence,
+        candidateState: readiness.candidateState,
+        demandType: readiness.blockers[0].demandType,
+        blockers: readiness.blockers,
+        ...(persisted.demandId ? { demandId: persisted.demandId } : {}),
       });
       continue;
     }
@@ -357,4 +513,147 @@ export async function intakeApprovedSubmissionCorrections(params: {
     }
   }
   return result;
+}
+
+export interface CanonicalIntakeSweepResult {
+  enabled: boolean;
+  claimed: number;
+  completed: number;
+  retried: number;
+  failed: number;
+  inserted: number;
+  strengthened: number;
+  pendingMapping: number;
+  pendingContent: number;
+}
+
+/** Bounded event/safety-sweep worker. It reuses the same submission-scoped
+ * evaluator path as the parent approval hook; database uniqueness makes
+ * repeated sibling processing safe and reconciliation never writes an
+ * assignment. */
+export async function runCanonicalIntakeReconciliationSweep(params: {
+  serviceClient: AdleClient;
+  leaseOwner: string;
+  limit?: number;
+}): Promise<CanonicalIntakeSweepResult> {
+  const summary: CanonicalIntakeSweepResult = {
+    enabled: isCanonicalIntakeEnabled(),
+    claimed: 0,
+    completed: 0,
+    retried: 0,
+    failed: 0,
+    inserted: 0,
+    strengthened: 0,
+    pendingMapping: 0,
+    pendingContent: 0,
+  };
+  if (!summary.enabled) return summary;
+
+  const client = params.serviceClient;
+  const limit = Math.max(1, Math.min(params.limit ?? 25, 100));
+  const { data: unresolved, error: unresolvedError } = await client
+    .from("adle_canonical_intake_candidates")
+    .select("id")
+    .in("candidate_state", [
+      "pending_mapping",
+      "pending_content",
+      "error_retryable",
+    ])
+    .order("priority", { ascending: false })
+    .order("first_seen_at", { ascending: true })
+    .limit(limit);
+  if (unresolvedError)
+    throwQuery("canonical intake safety sweep candidates", unresolvedError);
+  for (const row of unresolved ?? []) {
+    const { error } = await client.rpc(
+      "adle_enqueue_canonical_intake_candidate",
+      {
+        p_candidate_id: (row as any).id,
+        p_trigger_type: "safety_sweep",
+        p_source_ref: "cron:adle-canonical-intake",
+      },
+    );
+    if (error) throwQuery("canonical intake safety sweep enqueue", error);
+  }
+
+  const { data: jobs, error: claimError } = await client.rpc(
+    "adle_claim_canonical_intake_jobs",
+    {
+      p_limit: limit,
+      p_lease_owner: params.leaseOwner,
+      p_lease_seconds: 240,
+    },
+  );
+  if (claimError) throwQuery("canonical intake queue claim", claimError);
+  summary.claimed = (jobs ?? []).length;
+
+  for (const rawJob of jobs ?? []) {
+    const job = rawJob as any;
+    try {
+      const { data: intakeCandidate, error: intakeCandidateError } =
+        await client
+          .from("adle_canonical_intake_candidates")
+          .select("source_candidate_mapping_id")
+          .eq("id", job.candidate_id)
+          .single();
+      if (intakeCandidateError)
+        throwQuery(
+          "canonical intake reconciler candidate",
+          intakeCandidateError,
+        );
+      const { data: source, error: sourceError } = await client
+        .from("parent_verified_spelling_candidate_mappings")
+        .select("parent_user_id,child_id,task_submission_id")
+        .eq(
+          "id",
+          (intakeCandidate as any).source_candidate_mapping_id,
+        )
+        .single();
+      if (sourceError)
+        throwQuery("canonical intake reconciler source", sourceError);
+      if (!(source as any).task_submission_id)
+        throw new Error("canonical intake reconciler source has no submission");
+
+      const outcome = await intakeApprovedSubmissionCorrections({
+        serviceClient: client,
+        parentUserId: (source as any).parent_user_id,
+        childId: (source as any).child_id,
+        submissionId: (source as any).task_submission_id,
+        candidateMappingIds: [
+          (intakeCandidate as any).source_candidate_mapping_id,
+        ],
+        seedCandidates: false,
+      });
+      summary.completed += 1;
+      summary.inserted += outcome.inserted;
+      summary.strengthened += outcome.strengthened;
+      summary.pendingMapping += outcome.pendingMapping;
+      summary.pendingContent += outcome.pendingContent;
+    } catch (error) {
+      const attemptCount = Number(job.attempt_count ?? 1);
+      const failed = attemptCount >= 5;
+      const delaySeconds = Math.min(300, 15 * 2 ** Math.max(0, attemptCount - 1));
+      const { error: updateError } = await client
+        .from("adle_canonical_intake_reconciliation_queue")
+        .update({
+          job_status: failed ? "failed" : "retry",
+          available_at: new Date(Date.now() + delaySeconds * 1000).toISOString(),
+          lease_owner: null,
+          lease_expires_at: null,
+          last_error_code: "candidate_reconciliation_failed",
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", job.job_id);
+      if (updateError)
+        throwQuery("canonical intake queue retry update", updateError);
+      if (failed) summary.failed += 1;
+      else summary.retried += 1;
+      console.error("[adle-canonical-intake] reconciliation candidate failed", {
+        jobId: job.job_id,
+        attemptCount,
+        error: error instanceof Error ? error.message : "unknown error",
+      });
+    }
+  }
+  return summary;
 }

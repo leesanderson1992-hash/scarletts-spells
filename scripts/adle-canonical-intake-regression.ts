@@ -58,7 +58,17 @@ function facts(
       candidateStatus,
       verifiedOn: "2026-07-22",
     },
-    canonicalMappings: [],
+    canonicalMappings: [
+      {
+        mappingId: `mapping-${skill}`,
+        misspellingNormalized: MISSPELLING_BY_SKILL.get(skill) ?? `miss-${skill}`,
+        correctSpellingNormalized: "playing",
+        microSkillKey: skill,
+        mappingStatus: "active",
+        resolverVisibilityStatus: "visible",
+        hasVisibilityEnableEvent: true,
+      },
+    ],
     words: [
       {
         canonicalWordId: WORD,

@@ -186,3 +186,18 @@ zero-legacy authority suite passed. Natural production observation is active
 from `2026-08-03T21:56:39Z` through `2026-08-10T21:56:39Z`; no production
 learner fixture was created. This remains a post-migration Prefix pedagogy
 stage, and legacy compiler retirement remains separately gated.
+
+## Automatic canonical-intake stage
+
+This is a queue/readiness stage, not another lesson compiler migration. It
+preserves the normal composer and shared-authoritative Dynamic Prefix path.
+Exit evidence requires candidate-level partial success, stable content versus
+resolver demands, exact `urnlocked -> unlocked -> pending_content`
+classification, safe admin notification, event plus five-minute
+reconciliation, learning-item/source idempotency, zero reconciliation-created
+assignments, staging migration/runtime proof, and a guarded cleanup receipt.
+
+Production intake remains disabled. Production schema application, enablement,
+targeted processing of submission
+`2824a8d5-3839-443f-8450-ecfa524f28bf`, and broader backlog replay require a
+fresh plan and separate explicit authority.

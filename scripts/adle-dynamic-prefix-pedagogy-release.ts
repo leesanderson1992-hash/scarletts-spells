@@ -129,6 +129,37 @@ async function protectedCounts(client: pg.Client) {
   return result.rows[0] as Record<string, number>;
 }
 
+async function enqueueCanonicalIntakeForProfiles(
+  client: pg.Client,
+  microSkillKeys: string[],
+  sourceReference: string,
+) {
+  const available = await client.query<{ available: boolean }>(
+    "select to_regprocedure('public.adle_enqueue_canonical_intake_by_target(text,text,text)') is not null as available",
+  );
+  if (!available.rows[0]?.available) return 0;
+
+  const targets = await client.query<{ normalised_word: string }>(
+    `select distinct w.normalised_word
+       from canonical_teaching_dictionary_prefix_profiles p
+       join canonical_teaching_dictionary_prefix_members m on m.prefix_profile_id=p.id
+       join canonical_teaching_dictionary_words w on w.id=m.canonical_word_id
+      where p.micro_skill_key=any($1::text[])
+        and p.row_status='active'
+        and m.row_status='active'`,
+    [microSkillKeys],
+  );
+  let enqueued = 0;
+  for (const { normalised_word } of targets.rows) {
+    const result = await client.query<{ enqueued_count: number }>(
+      "select public.adle_enqueue_canonical_intake_by_target($1,$2,$3) as enqueued_count",
+      [normalised_word, "prefix_profile_release", sourceReference],
+    );
+    enqueued += Number(result.rows[0]?.enqueued_count ?? 0);
+  }
+  return enqueued;
+}
+
 async function plan(manifest: Manifest, packageSha256: string, definitions: Map<string, Definition>) {
   const client = await connect();
   try {
@@ -163,10 +194,15 @@ async function release(manifest: Manifest, packageSha256: string, definitions: M
       await client.query("update canonical_teaching_dictionary_prefix_profiles set meaning_bins=$1,prefix_choices=$2,intro_content=$3 where micro_skill_key=$4 and row_status='active' and review_status='approved_for_first_exposure'", [JSON.stringify(next.meaningBins), JSON.stringify(next.prefixChoices), JSON.stringify(next.introContent), profile.microSkillKey]);
     }
     await client.query("update canonical_teaching_dictionary_import_batches set source_folder_sha256=$1,source_metadata=source_metadata || $2::jsonb,batch_status='applied',deactivated_at=null,deactivation_note=null where id=$3", [packageSha256, JSON.stringify({ releaseId: manifest.releaseId, packageSha256 }), BATCH_ID]);
+    const reconciliationJobs = await enqueueCanonicalIntakeForProfiles(
+      client,
+      manifest.profiles.map((profile) => profile.microSkillKey),
+      `dynamic_prefix_pedagogy_release:${manifest.releaseId}:${packageSha256}`,
+    );
     const afterCounts = await protectedCounts(client);
     if (canonical(beforeCounts) !== canonical(afterCounts)) fail("Protected learner counts changed during profile-only release.");
     await client.query("commit");
-    console.log(JSON.stringify({ status: "released", batchId: BATCH_ID, packageSha256, protectedCounts: afterCounts }, null, 2));
+    console.log(JSON.stringify({ status: "released", batchId: BATCH_ID, packageSha256, reconciliationJobs, protectedCounts: afterCounts }, null, 2));
   } catch (error) { await client.query("rollback"); throw error; } finally { await client.end(); }
 }
 

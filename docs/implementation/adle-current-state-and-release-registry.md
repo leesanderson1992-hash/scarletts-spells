@@ -195,6 +195,21 @@ All five compiler authorities remain `shared_migration`, production resolves
 compiler calls in that mode. Observation has started but has not completed;
 legacy retirement is not authorised.
 
+## Automatic canonical intake implementation (2026-08-04)
+
+Implementation began from baseline
+`3f9dd67519a8967ab65753f210215ee358d3a389`. It adds one typed route-aware
+evaluator, durable candidate/demand/link/queue/event storage, a five-minute
+protected reconciler, content-release enqueue hooks, and the existing-pattern
+admin demand dashboard.
+
+The accepted current-submission classification is 12 ready candidates plus one
+`pending_content` Teaching Content Demand for exact target `unlocked`, with zero
+Resolver Demands. `urnlocked -> unlocked` remains the reviewed mapping.
+Production intake remains disabled and no production schema, configuration,
+demand, learning-item, or assignment mutation is authorised by this stage.
+Staging proof and receipt must complete before a separate production plan.
+
 ## Documentation update rule
 
 Every activation or retirement must update this register, the D4_MOR readiness

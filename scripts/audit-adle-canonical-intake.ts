@@ -171,6 +171,8 @@ async function main(): Promise<void> {
   );
 
   const blockerCounts: Record<string, number> = {};
+  const demandTypeCounts: Record<string, number> = {};
+  const candidateStateCounts: Record<string, number> = {};
   const eligible: Array<{
     candidateMappingId: string;
     childId: string;
@@ -280,14 +282,16 @@ async function main(): Promise<void> {
     else {
       blockerCounts[resolution.reason] =
         (blockerCounts[resolution.reason] ?? 0) + 1;
-      if (
-        resolution.reason === "canonical_target_not_found" ||
-        resolution.reason === "canonical_target_ambiguous"
-      )
+      const readiness = resolution.readiness;
+      const demandType = readiness.blockers[0].demandType;
+      demandTypeCounts[demandType] = (demandTypeCounts[demandType] ?? 0) + 1;
+      candidateStateCounts[readiness.candidateState] =
+        (candidateStateCounts[readiness.candidateState] ?? 0) + 1;
+      if (readiness.targetIdentityStatus === "unresolved")
         unresolvedTargetText.push({
           candidateMappingId: candidate.id,
           correctSpelling: candidate.correct_spelling_normalized,
-          reason: resolution.reason,
+          reason: readiness.blockers[0].code,
         });
     }
   }
@@ -339,6 +343,8 @@ async function main(): Promise<void> {
         ).length,
         eligible,
         blockerCounts,
+        demandTypeCounts,
+        candidateStateCounts,
         unresolvedTargetText,
         multiSkillWords,
         schedulesNeedingLinkage,

@@ -6,7 +6,7 @@ function assert(value: unknown, message: string): asserts value {
 
 const loader = readFileSync("lib/adle/loaders/canonical-intake-live.ts", "utf8");
 const featureGate = loader.indexOf(
-  'if (process.env[ADLE_CANONICAL_INTAKE_FEATURE_FLAG] !== "enabled")',
+  "if (!isCanonicalIntakeEnabled())",
 );
 const firstRead = loader.indexOf('.from("parent_verified_spelling_candidate_mappings")');
 

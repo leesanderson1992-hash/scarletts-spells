@@ -33,7 +33,7 @@ import { priceWordEvidence } from "../evidence-pricing";
 import { computeWordEvidenceState, type WordEvidenceStateResult } from "../word-evidence-state";
 import { computeAllSkillProficiency, notYetSecureSkillKeys } from "../micro-skill-proficiency";
 import { taughtWordHistoryProviderFromFacts } from "../taught-word-history";
-import { ADLE_CANONICAL_INTAKE_FEATURE_FLAG } from "../canonical-intake";
+import { isCanonicalIntakeEnabled } from "../canonical-intake";
 import { resolveSharedWordReviewPolicy } from "../shared-word-routes";
 import type {
   ReviewedWordMorphology,
@@ -138,7 +138,7 @@ export async function loadDailyPlanFacts(
 ): Promise<DailyPlanFactsLoad> {
   const { childId, today } = params;
   const childBand = params.childBand ?? ADLE_PILOT_CHILD_BAND;
-  const sharedRoutesEnabled = process.env[ADLE_CANONICAL_INTAKE_FEATURE_FLAG] === "enabled";
+  const sharedRoutesEnabled = isCanonicalIntakeEnabled();
   const scheduleWordQuery = (client.from("adle_review_schedule_words") as any)
     .select(sharedRoutesEnabled
       ? "id, child_id, canonical_word_id, bundle_id, membership_status, catch_up_stage, next_retest_due_on, failed_review_on, pre_retirement_check_due_on, last_28_day_review_on, reteach_cycle_count, taught_on, row_status, adle_review_schedule_word_routes(learning_item_id, micro_skill_key, attachment_ordinal, attached_on, row_status)"

@@ -1672,6 +1672,31 @@ async function releaseCommand(): Promise<void> {
       `,
       [plan.batchId, verified],
     );
+    // The governed release is the authoritative content-ready event. Enqueue
+    // only already-pending candidates, inside the same transaction, when the
+    // additive canonical-intake migration is present. This writes no learner
+    // item or assignment and remains a no-op for pre-migration deployments.
+    await client.query("reset role");
+    const intakeQueueFunction = await client.query<{ available: boolean }>(
+      `select to_regprocedure('public.adle_enqueue_canonical_intake_by_target(text,text,text)') is not null as available`,
+    );
+    if (intakeQueueFunction.rows[0]?.available) {
+      const releasedTargets = new Set(
+        (pkg.csv["canonical_words.csv"] ?? [])
+          .map((row) => row.normalised_word?.trim().toLowerCase())
+          .filter(Boolean),
+      );
+      for (const targetToken of releasedTargets) {
+        await client.query(
+          "select public.adle_enqueue_canonical_intake_by_target($1,$2,$3)",
+          [
+            targetToken,
+            "teaching_dictionary_release",
+            `teaching-dictionary-release:${pkg.manifest.releaseId}`,
+          ],
+        );
+      }
+    }
     await client.query("commit");
 
     const protectedAfter = await tableCounts(client, PROTECTED_TABLES);
