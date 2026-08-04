@@ -152,6 +152,50 @@ if (readyOutcome.status === "ready") {
   assert.equal(readyOutcome.canonicalWordId, WORD_ID);
 }
 
+const routeCertifiedPrefixMember = facts();
+routeCertifiedPrefixMember.words = [
+  {
+    canonicalWordId: WORD_ID,
+    normalisedWord: "unlocked",
+    rowStatus: "active",
+    reviewStatus: "approved_for_first_exposure",
+    frequencyBand: "low",
+    ageBand: "middle_primary",
+  },
+];
+routeCertifiedPrefixMember.routeSpecificReadyWordSkillPairs = new Set([
+  canonicalWordSkillPair(WORD_ID, SKILL),
+]);
+routeCertifiedPrefixMember.routeReadiness = [
+  {
+    canonicalWordId: WORD_ID,
+    microSkillKey: SKILL,
+    ready: true,
+    blockers: [],
+  },
+];
+assert.equal(
+  evaluateCanonicalIntakeReadiness(routeCertifiedPrefixMember).status,
+  "ready",
+  "a complete reviewed Prefix member uses its route-owned assignment eligibility",
+);
+
+const uncertifiedOutOfBand = facts();
+uncertifiedOutOfBand.words = routeCertifiedPrefixMember.words;
+uncertifiedOutOfBand.routeSpecificReadyWordSkillPairs = new Set([
+  canonicalWordSkillPair(WORD_ID, SKILL),
+]);
+const uncertifiedOutcome = evaluateCanonicalIntakeReadiness(
+  uncertifiedOutOfBand,
+);
+assert.equal(uncertifiedOutcome.status, "blocked");
+if (uncertifiedOutcome.status === "blocked") {
+  assert.equal(
+    uncertifiedOutcome.blockers[0].code,
+    "canonical_word_out_of_child_band",
+  );
+}
+
 const keyBeforeWord = canonicalIntakeDemandStableKey({
   demandType: "teaching_content",
   normalizedTargetToken: "unlocked",

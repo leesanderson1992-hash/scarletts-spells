@@ -62,6 +62,7 @@ async function routeActivationFacts(client: AdleClient, childId: string) {
   const enabled = new Set<string>();
   const readyPairs = new Set<string>();
   const routeReadiness: CanonicalIntakeRouteReadinessFact[] = [];
+  const activationEnvironment = resolveAdleRouteActivationEnvironment();
   const { data: selectorProfiles, error: selectorProfileError } = await client
     .from("canonical_teaching_dictionary_transfer_selector_profiles")
     .select("micro_skill_key,row_status,review_status,allowed_age_bands")
@@ -74,6 +75,8 @@ async function routeActivationFacts(client: AdleClient, childId: string) {
   }
 
   if (isDynamicPrefixRouteEnabled()) {
+    const allowStagingProfiles =
+      activationEnvironment === "staging" || process.env.VERCEL_ENV === "preview";
     const { data: rawPrefixProfiles, error: rawPrefixError } = await client
       .from("canonical_teaching_dictionary_prefix_profiles")
       .select(
@@ -82,7 +85,9 @@ async function routeActivationFacts(client: AdleClient, childId: string) {
       .like("micro_skill_key", "D4_MOR_PREFIXES_%");
     if (rawPrefixError)
       throwQuery("canonical intake Prefix readiness facts", rawPrefixError);
-    const { profiles } = await loadDynamicPrefixProfiles(client, childId);
+    const { profiles } = await loadDynamicPrefixProfiles(client, childId, {
+      allowStagingProfiles,
+    });
     for (const profile of profiles) {
       if (!profile.productionEnabled) continue;
       enabled.add(profile.microSkillKey);
@@ -95,7 +100,7 @@ async function routeActivationFacts(client: AdleClient, childId: string) {
     for (const rawProfile of rawPrefixProfiles ?? []) {
       const profile = rawProfile as any;
       if (
-        profile.production_enabled !== true ||
+        (profile.production_enabled !== true && !allowStagingProfiles) ||
         profile.row_status !== "active" ||
         profile.review_status !== "approved_for_first_exposure"
       )
@@ -133,7 +138,6 @@ async function routeActivationFacts(client: AdleClient, childId: string) {
   }
 
   if (isBaseWordFamilyPilotEnabledForChild(childId)) {
-    const activationEnvironment = resolveAdleRouteActivationEnvironment();
     if (!activationEnvironment) return { enabled, readyPairs, routeReadiness };
     const activations = await loadAdleLessonRouteActivations(client, {
       microSkillKeys: [

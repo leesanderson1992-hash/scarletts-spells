@@ -21,5 +21,17 @@ assert(
   loader.includes('client.rpc("adle_persist_canonical_intake"'),
   "eligible intake persists only through the atomic database boundary",
 );
+assert(
+  loader.includes('activationEnvironment === "staging"') &&
+    loader.includes('process.env.VERCEL_ENV === "preview"') &&
+    loader.includes("allowStagingProfiles,"),
+  "staging intake evaluates approved staging Prefix profiles without enabling them in production",
+);
+assert(
+  loader.includes(
+    "(profile.production_enabled !== true && !allowStagingProfiles)",
+  ),
+  "production intake still requires the Prefix profile production flag",
+);
 
 console.log("adle-canonical-intake-live-regression: ok");

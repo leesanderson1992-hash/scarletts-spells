@@ -36,12 +36,25 @@ urnlocked
 
 `unlock` is not a substitute and must never be inferred.
 
+For Dynamic Prefix, a complete reviewed profile member carries the route's own
+assignment-eligibility decision. The canonical word must still have non-empty
+age and frequency bands, but a route-certified member is not rejected solely
+because the generic pilot band excludes it. Without both a ready route record
+and the exact ready word/skill pair, the generic child-band gate remains
+fail-closed.
+
 ## Durable state
 
 Migration `20260804210000_add_adle_canonical_intake_demands.sql` adds one
 technical candidate per source candidate mapping, a stable demand keyed by
 demand type/target/route/version/microskill, unique active links, a leased
 reconciliation queue, and append-only intake events.
+
+Migration
+`20260804223000_qualify_adle_canonical_intake_blocked_links.sql` qualifies the
+blocked-state function's link/queue columns so they cannot collide with its
+table-shaped output parameters. It does not change the persisted contract or
+grants.
 
 The normalized token remains after a later canonical-word ID is attached.
 Blockers may be replaced without replacing the demand. New source links, not

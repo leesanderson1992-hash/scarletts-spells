@@ -208,7 +208,16 @@ The accepted current-submission classification is 12 ready candidates plus one
 Resolver Demands. `urnlocked -> unlocked` remains the reviewed mapping.
 Production intake remains disabled and no production schema, configuration,
 demand, learning-item, or assignment mutation is authorised by this stage.
-Staging proof and receipt must complete before a separate production plan.
+The real staging data path has proved the locked `12 activated / 1
+pending_content / 1 Teaching Content Demand / 0 Resolver Demands` result,
+idempotent replay, and bounded safety-sweep worker with no assignment write.
+Full staging closure remains blocked by the Hobby plan's rejection of the
+required five-minute Vercel cron and by exact disposition/restoration of two
+pre-existing unassigned staging learning-item rows removed by an early cleanup
+harness defect. The corrected cleanup now deletes proof-owned items only. See
+the [2026-08-04 staging receipt](qa/adle-canonical-intake-staging-receipt-2026-08-04.md).
+Production intake remains disabled; a separate production plan is still
+required.
 
 ## Documentation update rule
 

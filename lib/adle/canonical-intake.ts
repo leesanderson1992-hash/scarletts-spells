@@ -537,9 +537,24 @@ export function evaluateCanonicalIntakeReadiness(
     });
   }
 
+  const pair = canonicalWordSkillPair(
+    word.canonicalWordId,
+    candidate.microSkillKey,
+  );
+  const explicitRouteReadiness = facts.routeReadiness?.find(
+    (entry) =>
+      entry.canonicalWordId === word.canonicalWordId &&
+      entry.microSkillKey === candidate.microSkillKey,
+  );
+  const routeCertifiedDynamicPrefixMember =
+    isDynamicPrefixIntakeSkill(candidate.microSkillKey) &&
+    explicitRouteReadiness?.ready === true &&
+    facts.routeSpecificReadyWordSkillPairs.has(pair);
+
   if (
-    !facts.allowedFrequencyBands.has(word.frequencyBand) ||
-    !facts.allowedAgeBands.has(word.ageBand)
+    (!facts.allowedFrequencyBands.has(word.frequencyBand) ||
+      !facts.allowedAgeBands.has(word.ageBand)) &&
+    !routeCertifiedDynamicPrefixMember
   ) {
     return blockedOutcome({
       facts,
@@ -551,11 +566,6 @@ export function evaluateCanonicalIntakeReadiness(
     });
   }
 
-  const explicitRouteReadiness = facts.routeReadiness?.find(
-    (entry) =>
-      entry.canonicalWordId === word.canonicalWordId &&
-      entry.microSkillKey === candidate.microSkillKey,
-  );
   if (explicitRouteReadiness && !explicitRouteReadiness.ready) {
     return blockedOutcome({
       facts,
@@ -574,10 +584,6 @@ export function evaluateCanonicalIntakeReadiness(
     });
   }
 
-  const pair = canonicalWordSkillPair(
-    word.canonicalWordId,
-    candidate.microSkillKey,
-  );
   if (isDynamicPrefixIntakeSkill(candidate.microSkillKey)) {
     if (!facts.routeSpecificReadyWordSkillPairs.has(pair)) {
       return blockedOutcome({

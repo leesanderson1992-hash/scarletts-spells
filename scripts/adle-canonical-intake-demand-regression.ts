@@ -5,6 +5,10 @@ const migration = readFileSync(
   "supabase/migrations/20260804210000_add_adle_canonical_intake_demands.sql",
   "utf8",
 );
+const blockedFunctionCorrection = readFileSync(
+  "supabase/migrations/20260804223000_qualify_adle_canonical_intake_blocked_links.sql",
+  "utf8",
+);
 const page = readFileSync(
   "app/admin/adle-canonical-intake-readiness/page.tsx",
   "utf8",
@@ -33,6 +37,22 @@ assert.match(migration, /create or replace function public\.adle_seed_canonical_
 assert.match(migration, /canonical intake seed differs from reviewed source/);
 assert.match(migration, /enable row level security/g);
 assert.match(migration, /grant execute .* to service_role/g);
+assert.match(
+  blockedFunctionCorrection,
+  /where link\.candidate_id = v_candidate\.id/,
+);
+assert.match(
+  blockedFunctionCorrection,
+  /on conflict on constraint adle_canonical_intake_candidate_dema_candidate_id_demand_id_key/,
+);
+assert.match(
+  blockedFunctionCorrection,
+  /where queue\.candidate_id = v_candidate\.id/,
+);
+assert.match(
+  blockedFunctionCorrection,
+  /grant execute on function public\.adle_record_canonical_intake_blocked[\s\S]*to service_role/,
+);
 
 assert.match(page, /Teaching Dictionary content is required for/);
 assert.match(page, /Mapping identity:/);

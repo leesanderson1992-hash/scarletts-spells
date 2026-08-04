@@ -17,6 +17,10 @@ const prefixRelease = readFileSync(
   "scripts/adle-dynamic-prefix-pedagogy-release.ts",
   "utf8",
 );
+const stagingProof = readFileSync(
+  "scripts/adle-canonical-intake-staging-proof.ts",
+  "utf8",
+);
 const config = JSON.parse(readFileSync("vercel.json", "utf8")) as {
   crons: Array<{ path: string; schedule: string }>;
 };
@@ -35,6 +39,12 @@ assert.match(cron, /timingSafeEqual/);
 assert.match(cron, /runCanonicalIntakeReconciliationSweep/);
 assert.match(dictionaryRelease, /adle_enqueue_canonical_intake_by_target/);
 assert.match(prefixRelease, /adle_enqueue_canonical_intake_by_target/);
+assert.match(stagingProof, /\.in\("source_ref", proofSourceRefs\)/);
+assert.match(stagingProof, /proofOwnedItemIds/);
+assert.doesNotMatch(
+  stagingProof,
+  /deleteIn\("adle_learning_items", "id", state\.learningItemIds\)/,
+);
 assert.deepEqual(
   config.crons.find(
     (entry) => entry.path === "/api/internal/adle-canonical-intake/reconcile",
