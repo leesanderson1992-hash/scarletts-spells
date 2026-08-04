@@ -217,6 +217,15 @@ attempted. The remaining safe resolution is therefore an explicit owner
 decision on the two unassigned staging rows; recreating guessed rows would
 weaken the audit boundary.
 
+The staging API-gateway logs were also audited read-only. They retain the exact
+cleanup request and show, from the persistence RPC response lengths, that two
+calls reused existing learning items rather than inserting new rows. They do
+not retain the RPC request or response bodies, and the deleted rows' original
+source references and other provenance fields are not present in any retained
+log event. Call ordering can suggest candidate-to-item associations but cannot
+prove the complete original rows. This is insufficient authority for an exact
+restore, so no inferred reconstruction was written.
+
 ## Preview deployment blocker
 
 The exact application configuration remains blocked from deployment because the
