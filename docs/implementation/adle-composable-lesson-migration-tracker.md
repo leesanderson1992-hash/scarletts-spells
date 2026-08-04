@@ -205,6 +205,13 @@ items were explicitly accepted as disposable, making 83 learning items the
 reviewed protected baseline. This decision does not authorize production
 mutation or inferred row reconstruction.
 
+Staging closure completed on deployment
+`dpl_45ocUBot4BxyQARWx1c16mjKE95m` from exact local commit `b17b061`. The
+stable route retained its `401` unauthenticated boundary, guarded access
+returned `200`, and natural Supabase Cron runs at `22:10Z` and `22:15Z`
+succeeded with unchanged protected counts. Intake remains disabled; production
+enablement is still a separate stage.
+
 Production intake remains disabled. Production schema application, enablement,
 targeted processing of submission
 `2824a8d5-3839-443f-8450-ecfa524f28bf`, and broader backlog replay require a

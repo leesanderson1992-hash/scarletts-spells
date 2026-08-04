@@ -219,6 +219,9 @@ by a guarded Supabase `pg_cron`/`pg_net` scheduler that calls the unchanged
 application-owned route with Vault-held bearer and Vercel-bypass credentials.
 Migration `20260804234500` is staging-only and production-rejecting. See
 the [2026-08-04 staging receipt](qa/adle-canonical-intake-staging-receipt-2026-08-04.md).
+The exact deployment at local commit `b17b061` is Ready; two natural scheduler
+invocations five minutes apart returned HTTP `200` with no timeout and no
+protected learner-row change. Canonical intake itself remains disabled.
 Production intake remains disabled; a separate production plan is still
 required.
 

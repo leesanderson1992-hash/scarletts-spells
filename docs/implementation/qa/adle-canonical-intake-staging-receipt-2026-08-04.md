@@ -1,8 +1,8 @@
 # ADLE Canonical Intake Staging Receipt — 2026-08-04
 
-Status: `HOBBY_SCHEDULER_IMPLEMENTED_ACTIVATION_PROOF_PENDING`
+Status: `CANONICAL_INTAKE_STAGING_PROOF_COMPLETE`
 
-Last updated at `2026-08-04T23:55:00Z`.
+Last updated at `2026-08-04T22:17:55Z`.
 
 ## Repository gate
 
@@ -15,7 +15,12 @@ Last updated at `2026-08-04T23:55:00Z`.
   - `13b16b11c1c7dc0c6b15890acd8c6218081e9d48`
   - `157754f7c311b4aa6dbe831a69c7ac2e3b29a7c9`
   - `b691c4f28d1959c834990c1abe0dc198f131cfb1`
-- Current worktree: clean after the final Preview proof
+  - `72c0cb0` — staging evidence checkpoint
+  - `0cdb4f4` — staging backup boundary
+  - `babb76d` — cleanup log audit
+  - `b17b06134eda87caabe497e05b6bbc7f4e954351` — Hobby scheduler
+- Deployable scheduler checkpoint worktree: clean
+- Divergence after the deployable checkpoint: `0 behind / 7 ahead`
 - Production mutation: none
 
 ## Read-only identities
@@ -255,6 +260,68 @@ roles could not execute the activation function. Protected counts were exactly
 83 learning items, 50 daily assignments, 852 assignment items, 560 attempts,
 110 schedules, and zero rewards.
 
-The final exact-source deployment, guarded secret activation, two natural Cron
-invocations, rollback-readiness check, and final protected-state verification
-remain to be appended before this receipt is marked complete.
+## Hobby scheduler live proof
+
+The first deployment attempt failed closed before application deployment
+because the initial `CRON_SECRET` value contained a trailing newline. No Cron
+job was active. The operator was corrected to pass the exact trimmed value and
+its focused regression now locks that boundary. No secret value was printed,
+committed, or retained in this receipt.
+
+The final deliberate staging deployment was made from a clean worktree at the
+exact local checkpoint:
+
+- Vercel project: `scarletts-spells-staged` /
+  `prj_oJkffstOtacc4juYloXajHpjJUha`
+- Deployment: `dpl_45ocUBot4BxyQARWx1c16mjKE95m`
+- Immutable URL: `scarletts-spells-staged-mfy48jare.vercel.app`
+- Stable alias: `scarletts-spells-staged.vercel.app`
+- State/target: `READY` / staging project's production target
+- Source metadata SHA:
+  `b17b06134eda87caabe497e05b6bbc7f4e954351`
+- Source-tree metadata: `clean-main`
+- Project configuration: only the two supported daily Vercel Cron jobs;
+  canonical intake is absent from Vercel Cron.
+
+The route itself remained the authentication authority:
+
+- unauthenticated stable-route request: HTTP `401`;
+- guarded manual request with both encrypted headers: HTTP `200`;
+- response: intake disabled, zero claimed/completed/retried/failed jobs, zero
+  inserted/strengthened items, and zero pending mapping/content work.
+
+The staging-only activation created named Cron job ID `1` with schedule
+`*/5 * * * *`. The persisted status proved the exact stable staging target,
+both Vault credentials ready, active job state, and no timeout/error. Two
+natural invocations then ran without manual dispatch:
+
+| Scheduled start (UTC) | Cron result | HTTP result | Timed out |
+|---|---|---:|---|
+| `2026-08-04T22:10:00.178763Z` | `succeeded` | `200` | no |
+| `2026-08-04T22:15:00.078840Z` | `succeeded` | `200` | no |
+
+After the second invocation, protected staging counts remained exact:
+
+| Table | Count |
+|---|---:|
+| Learning items | 83 |
+| Daily assignments | 50 |
+| Assignment items | 852 |
+| Attempt events | 560 |
+| Review schedules | 110 |
+| Reward events | 0 |
+| Canonical-intake candidates | 0 |
+| Canonical-intake demands | 0 |
+
+Rollback readiness is retained without deactivating the successful scheduler:
+the service-role-only deactivation function unschedules the exact named job,
+the guarded operator removes the staging application secret and exact bypass,
+and the prior application deployment remains available. Ordinary roles cannot
+invoke activation or deactivation. Temporary local credential files were
+deleted after proof.
+
+The combined solution is therefore complete on staging. Canonical intake
+remains disabled, no assignment was created by reconciliation, and production
+was neither configured nor mutated. Production migration, enablement, targeted
+submission processing, and backlog replay still require a separate guarded
+production plan and explicit authority.
