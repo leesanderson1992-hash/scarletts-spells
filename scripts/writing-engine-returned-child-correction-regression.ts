@@ -69,7 +69,7 @@ assert.doesNotMatch(
 
 assert.match(
   appShell,
-  /showAdminNav\?: boolean[\s\S]*if \(showAdminNav\)[\s\S]*title: "Admin"[\s\S]*Catalog Review[\s\S]*href: "\/admin\/catalog-review"[\s\S]*Canonical Recommendations[\s\S]*href: "\/admin\/canonical-recommendations"/,
+  /showAdminNav\?: boolean[\s\S]*if \(showAdminNav\)[\s\S]*label: "Admin"[\s\S]*children: \[[\s\S]*Catalog Review[\s\S]*href: "\/admin\/catalog-review"[\s\S]*Canonical Recommendations[\s\S]*href: "\/admin\/canonical-recommendations"/,
   "Parent navigation must expose existing admin review surfaces only behind explicit admin-nav opt-in.",
 );
 assert.doesNotMatch(

@@ -48,32 +48,28 @@ function getNavSections(mode: AppMode, showAdminNav: boolean): NavSection[] {
     ];
   }
 
-  const sections: NavSection[] = [
+  const parentItems: NavItem[] = [
+    { label: "Dashboard", href: "/dashboard" },
+    { label: "ADLE Spelling", href: "/learn/week/adle" },
     {
-      title: "Parent mode",
-      items: [
-        { label: "Dashboard", href: "/dashboard" },
-        { label: "ADLE Spelling", href: "/learn/week/adle" },
-        {
-          label: "Courses",
-          href: "/courses",
-          children: [
-            { label: "Courses", href: "/courses" },
-            { label: "Review Work", href: "/courses/review" },
-            { label: "Analyse Writing", href: "/analyse" },
-          ],
-        },
-        { label: "Insights", href: "/insights" },
-        { label: "Settings", href: "/settings" },
-        { label: "Children", href: "/children" },
+      label: "Courses",
+      href: "/courses",
+      children: [
+        { label: "Courses", href: "/courses" },
+        { label: "Review Work", href: "/courses/review" },
+        { label: "Analyse Writing", href: "/analyse" },
       ],
     },
+    { label: "Insights", href: "/insights" },
+    { label: "Settings", href: "/settings" },
+    { label: "Children", href: "/children" },
   ];
 
   if (showAdminNav) {
-    sections.push({
-      title: "Admin",
-      items: [
+    parentItems.push({
+      label: "Admin",
+      href: "/admin/spelling-review",
+      children: [
         { label: "Spelling Review", href: "/admin/spelling-review" },
         { label: "Catalog Review", href: "/admin/catalog-review" },
         {
@@ -81,15 +77,25 @@ function getNavSections(mode: AppMode, showAdminNav: boolean): NavSection[] {
           href: "/admin/canonical-recommendations",
         },
         { label: "Seed Import Review", href: "/admin/seed-import-review" },
+        { label: "Canonical Mappings", href: "/admin/canonical-mappings" },
         {
           label: "Resolver Readiness",
           href: "/admin/spelling-canonical-resolver-readiness",
+        },
+        {
+          label: "ADLE Canonical Intake Readiness",
+          href: "/admin/adle-canonical-intake-readiness",
         },
       ],
     });
   }
 
-  return sections;
+  return [
+    {
+      title: "Parent mode",
+      items: parentItems,
+    },
+  ];
 }
 
 function isCurrentNavItem(currentPath: string, href: string) {

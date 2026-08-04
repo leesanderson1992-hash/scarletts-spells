@@ -3,6 +3,7 @@ import { existsSync, readFileSync } from "node:fs";
 
 const hubPagePath = "app/admin/spelling-review/page.tsx";
 const appShellPath = "components/app-shell.tsx";
+const dashboardPagePath = "app/dashboard/page.tsx";
 const catalogActionPath = "app/admin/catalog-review/actions.ts";
 const recommendationActionPath = "app/admin/canonical-recommendations/actions.ts";
 const resolverPath =
@@ -12,6 +13,7 @@ assert.ok(existsSync(hubPagePath), "Admin Spelling Review hub page must exist.")
 
 const hubPage = readFileSync(hubPagePath, "utf8");
 const appShell = readFileSync(appShellPath, "utf8");
+const dashboardPage = readFileSync(dashboardPagePath, "utf8");
 const catalogAction = readFileSync(catalogActionPath, "utf8");
 const recommendationAction = readFileSync(recommendationActionPath, "utf8");
 const resolver = readFileSync(resolverPath, "utf8");
@@ -68,8 +70,8 @@ assert.match(
 );
 assert.match(
   appShell,
-  /showAdminNav\?: boolean[\s\S]*if \(showAdminNav\)[\s\S]*label: "Spelling Review", href: "\/admin\/spelling-review"/,
-  "Admin navigation must include the spelling-review hub when admin navigation is explicitly enabled.",
+  /if \(showAdminNav\)[\s\S]*parentItems\.push\(\{[\s\S]*label: "Admin"[\s\S]*children: \[[\s\S]*label: "Spelling Review", href: "\/admin\/spelling-review"/,
+  "Admin navigation must be one nested parent-menu item when explicitly enabled.",
 );
 assert.match(
   appShell,
@@ -85,6 +87,41 @@ assert.match(
   appShell,
   /label: "Seed Import Review", href: "\/admin\/seed-import-review"/,
   "Admin navigation must include the seed-import review link.",
+);
+assert.match(
+  appShell,
+  /label: "Canonical Mappings", href: "\/admin\/canonical-mappings"/,
+  "Admin navigation must include the canonical-mappings link.",
+);
+assert.match(
+  appShell,
+  /label: "Resolver Readiness"[\s\S]*href: "\/admin\/spelling-canonical-resolver-readiness"/,
+  "Admin navigation must include the resolver-readiness link.",
+);
+assert.match(
+  appShell,
+  /label: "ADLE Canonical Intake Readiness"[\s\S]*href: "\/admin\/adle-canonical-intake-readiness"/,
+  "Admin navigation must include the ADLE canonical-intake readiness link.",
+);
+assert.doesNotMatch(
+  appShell,
+  /\/admin\/adle-dynamic-prefix-qa/,
+  "Production parent navigation must exclude the staging-only Dynamic Prefix QA launcher.",
+);
+assert.match(
+  dashboardPage,
+  /import \{ isAdminUser \} from "@\/lib\/admin\/access";/,
+  "The dashboard must use the existing server-side admin allowlist check.",
+);
+assert.match(
+  dashboardPage,
+  /const showAdminNav = mode === "parent" && isAdminUser\(user\);/,
+  "The dashboard must enable admin navigation only for allowlisted users in parent mode.",
+);
+assert.equal(
+  dashboardPage.match(/showAdminNav=\{showAdminNav\}/g)?.length,
+  2,
+  "Both dashboard AppShell render paths must receive the authorized admin-navigation flag.",
 );
 assert.doesNotMatch(
   hubPage,

@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 
 import { AppShell } from "@/components/app-shell";
 import { GoldForgePanel } from "@/components/gold-forge-panel";
+import { isAdminUser } from "@/lib/admin/access";
 import {
   buildScopedPath,
   getActiveChildIdFromCookies,
@@ -314,6 +315,7 @@ export default async function DashboardPage({
 
   const resolvedSearchParams = await searchParams;
   const mode = normaliseAppMode(resolvedSearchParams?.mode);
+  const showAdminNav = mode === "parent" && isAdminUser(user);
   const activeChildIdFromCookie = await getActiveChildIdFromCookies();
 
   const { data: children } = await supabase
@@ -564,6 +566,7 @@ export default async function DashboardPage({
         activeChildId={activeScopedChild.id}
         availableChildren={activeChildren}
         userEmail={user.email}
+        showAdminNav={showAdminNav}
       >
         <div className="brand-page px-6 py-8">
           <div className="mx-auto flex w-full max-w-6xl flex-col gap-5">
@@ -926,6 +929,7 @@ export default async function DashboardPage({
       activeChildId={activeScopedChild?.id ?? null}
       availableChildren={activeChildren}
       userEmail={user.email}
+      showAdminNav={showAdminNav}
     >
     <div className="brand-page px-6 py-12">
       <div className="mx-auto flex w-full max-w-5xl flex-col gap-8">
