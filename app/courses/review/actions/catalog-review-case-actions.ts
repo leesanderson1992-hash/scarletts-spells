@@ -25,6 +25,24 @@ type ExistingOpenCatalogReviewCase = {
   metadata: Record<string, unknown> | null;
 };
 
+function hasMeaningfulMicroSkillKey(value: string | null | undefined) {
+  return Boolean(
+    value &&
+    value.trim().length > 0 &&
+    value.trim().toLowerCase() !== "unknown",
+  );
+}
+
+function getLearningItemIdFromFinalisationResult(value: unknown) {
+  if (!value || typeof value !== "object" || !("learning_item_id" in value)) {
+    return null;
+  }
+
+  return typeof value.learning_item_id === "string"
+    ? value.learning_item_id
+    : null;
+}
+
 function normaliseRedirectPath(value: FormDataEntryValue | null) {
   return typeof value === "string" && value.startsWith("/courses/review/")
     ? value
@@ -74,6 +92,42 @@ async function captureReturnedCorrectionCatalogReviewCase(input: {
     );
   }
 
+  if (!input.finalClassification) {
+    redirect(
+      buildRedirectWithMessage(
+        input.safeRedirectPath,
+        "error",
+        "Choose the learning outcome before sending this correction to catalog review.",
+      ),
+    );
+  }
+
+  if (
+    routeContext.issue.final_classification &&
+    routeContext.issue.final_classification !== input.finalClassification
+  ) {
+    redirect(
+      buildRedirectWithMessage(
+        input.safeRedirectPath,
+        "error",
+        "This correction was already saved with a different review outcome.",
+      ),
+    );
+  }
+
+  if (
+    !routeContext.issue.final_classification &&
+    hasMeaningfulMicroSkillKey(routeContext.issue.micro_skill_key)
+  ) {
+    redirect(
+      buildRedirectWithMessage(
+        input.safeRedirectPath,
+        "error",
+        "This correction already has a learning route. Save the outcome with that route instead.",
+      ),
+    );
+  }
+
   const { data: existingOpenCaseData } = await input.supabase
     .from("spelling_catalog_review_cases")
     .select("id, metadata")
@@ -83,7 +137,8 @@ async function captureReturnedCorrectionCatalogReviewCase(input: {
     .eq("case_status", "open")
     .limit(1)
     .maybeSingle();
-  const existingOpenCase = existingOpenCaseData as ExistingOpenCatalogReviewCase | null;
+  const existingOpenCase =
+    existingOpenCaseData as ExistingOpenCatalogReviewCase | null;
   const nowIso = new Date().toISOString();
   const metadata = {
     ...(existingOpenCase?.metadata ?? {}),
@@ -155,13 +210,46 @@ async function captureReturnedCorrectionCatalogReviewCase(input: {
     }
   }
 
+  if (!routeContext.issue.final_classification) {
+    const { data: finalisationResult, error: finalisationError } =
+      await input.supabase.rpc(
+        "finalise_writing_issue_classification_and_learning_item",
+        {
+          p_writing_issue_id: routeContext.issue.id,
+          p_parent_user_id: input.parentUserId,
+          p_child_id: input.submission.child_id,
+          p_final_classification: input.finalClassification,
+        },
+      );
+
+    if (finalisationError) {
+      redirect(
+        buildRedirectWithMessage(
+          input.safeRedirectPath,
+          "error",
+          "Catalog review was opened, but the outcome could not be saved yet. Please retry.",
+        ),
+      );
+    }
+
+    if (getLearningItemIdFromFinalisationResult(finalisationResult)) {
+      redirect(
+        buildRedirectWithMessage(
+          input.safeRedirectPath,
+          "error",
+          "Catalog review cannot defer an outcome that already created a learning item.",
+        ),
+      );
+    }
+  }
+
   revalidateReviewQueueAndDetailBestEffort(input.safeRedirectPath);
 
   redirect(
     buildRedirectWithMessage(
       input.safeRedirectPath,
       "saved",
-      "Returned correction sent to catalog review.",
+      "Outcome saved and returned correction sent to catalog review.",
     ),
   );
 }
@@ -218,7 +306,11 @@ export async function captureSpellingCatalogReviewCaseImpl(formData: FormData) {
       ? finalClassification
       : null;
 
-  const { submission } = await getOwnedSubmission(submissionId, user.id, supabase);
+  const { submission } = await getOwnedSubmission(
+    submissionId,
+    user.id,
+    supabase,
+  );
 
   if (!submission) {
     redirect(
@@ -246,7 +338,11 @@ export async function captureSpellingCatalogReviewCaseImpl(formData: FormData) {
     });
   }
 
-  const linkedSample = await getLinkedWritingSample(supabase, submission.id, user.id);
+  const linkedSample = await getLinkedWritingSample(
+    supabase,
+    submission.id,
+    user.id,
+  );
 
   if (!linkedSample) {
     redirect(
@@ -279,9 +375,14 @@ export async function captureSpellingCatalogReviewCaseImpl(formData: FormData) {
     );
   }
 
-  const correctSpelling = misspelling.suggested_word ?? misspelling.corrected_word;
-  const misspellingNormalized = normaliseWordForLookup(misspelling.misspelled_word ?? "");
-  const correctSpellingNormalized = normaliseWordForLookup(correctSpelling ?? "");
+  const correctSpelling =
+    misspelling.suggested_word ?? misspelling.corrected_word;
+  const misspellingNormalized = normaliseWordForLookup(
+    misspelling.misspelled_word ?? "",
+  );
+  const correctSpellingNormalized = normaliseWordForLookup(
+    correctSpelling ?? "",
+  );
 
   if (!misspellingNormalized || !correctSpellingNormalized) {
     redirect(
@@ -312,7 +413,8 @@ export async function captureSpellingCatalogReviewCaseImpl(formData: FormData) {
     positionStart: misspelling.position_start,
     positionEnd: misspelling.position_end,
     suggestedCategoryCode: misspelling.error_type,
-    suggestedMicroSkillKey: existingSuggestion?.suggested_micro_skill_key ?? null,
+    suggestedMicroSkillKey:
+      existingSuggestion?.suggested_micro_skill_key ?? null,
     notes: existingSuggestion?.notes ?? misspelling.notes,
   });
 
@@ -326,33 +428,36 @@ export async function captureSpellingCatalogReviewCaseImpl(formData: FormData) {
     );
   }
 
-  const [{ data: existingVerification }, { data: existingCandidateMapping }, { data: existingIssue }] =
-    await Promise.all([
-      supabase
-        .from("parent_verifications")
-        .select("id")
-        .eq("parent_user_id", user.id)
-        .eq("source_entity_id", verificationTarget.sourceRef.sourceEntityId)
-        .limit(1)
-        .maybeSingle(),
-      supabase
-        .from("parent_verified_spelling_candidate_mappings")
-        .select("id")
-        .eq("parent_user_id", user.id)
-        .eq("child_id", submission.child_id)
-        .eq("task_submission_id", submission.id)
-        .eq("source_misspelling_instance_id", misspelling.id)
-        .limit(1)
-        .maybeSingle(),
-      supabase
-        .from("writing_issues")
-        .select("id")
-        .eq("parent_user_id", user.id)
-        .eq("task_submission_id", submission.id)
-        .eq("source_misspelling_instance_id", misspelling.id)
-        .limit(1)
-        .maybeSingle(),
-    ]);
+  const [
+    { data: existingVerification },
+    { data: existingCandidateMapping },
+    { data: existingIssue },
+  ] = await Promise.all([
+    supabase
+      .from("parent_verifications")
+      .select("id")
+      .eq("parent_user_id", user.id)
+      .eq("source_entity_id", verificationTarget.sourceRef.sourceEntityId)
+      .limit(1)
+      .maybeSingle(),
+    supabase
+      .from("parent_verified_spelling_candidate_mappings")
+      .select("id")
+      .eq("parent_user_id", user.id)
+      .eq("child_id", submission.child_id)
+      .eq("task_submission_id", submission.id)
+      .eq("source_misspelling_instance_id", misspelling.id)
+      .limit(1)
+      .maybeSingle(),
+    supabase
+      .from("writing_issues")
+      .select("id")
+      .eq("parent_user_id", user.id)
+      .eq("task_submission_id", submission.id)
+      .eq("source_misspelling_instance_id", misspelling.id)
+      .limit(1)
+      .maybeSingle(),
+  ]);
 
   if (existingVerification || existingCandidateMapping || existingIssue) {
     redirect(
@@ -373,7 +478,8 @@ export async function captureSpellingCatalogReviewCaseImpl(formData: FormData) {
     .eq("case_status", "open")
     .limit(1)
     .maybeSingle();
-  const existingOpenCase = existingOpenCaseData as ExistingOpenCatalogReviewCase | null;
+  const existingOpenCase =
+    existingOpenCaseData as ExistingOpenCatalogReviewCase | null;
   const nowIso = new Date().toISOString();
   const isParentAddedMissedWord = isParentAuthoredMisspellingRow({
     notes: misspelling.notes,
@@ -399,7 +505,8 @@ export async function captureSpellingCatalogReviewCaseImpl(formData: FormData) {
       .from("spelling_catalog_review_cases")
       .update({
         source_suggestion_id: existingSuggestion?.id ?? null,
-        reviewed_event_source_entity_id: verificationTarget.sourceRef.sourceEntityId,
+        reviewed_event_source_entity_id:
+          verificationTarget.sourceRef.sourceEntityId,
         original_child_spelling: misspelling.misspelled_word,
         original_correct_spelling: correctSpelling,
         misspelling_normalized: misspellingNormalized,
@@ -432,7 +539,8 @@ export async function captureSpellingCatalogReviewCaseImpl(formData: FormData) {
         source_suggestion_id: existingSuggestion?.id ?? null,
         source_misspelling_instance_id: misspelling.id,
         source_provenance: sourceProvenance,
-        reviewed_event_source_entity_id: verificationTarget.sourceRef.sourceEntityId,
+        reviewed_event_source_entity_id:
+          verificationTarget.sourceRef.sourceEntityId,
         original_child_spelling: misspelling.misspelled_word,
         original_correct_spelling: correctSpelling,
         misspelling_normalized: misspellingNormalized,

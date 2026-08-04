@@ -3,6 +3,19 @@ import { redirect } from "next/navigation";
 import { createOrUpdateGoldenNuggetFromParentApproval } from "@/lib/rewards/word-treasures";
 import { createClient } from "@/lib/supabase/server";
 import { getReviewWorkCandidateCaptureMicroSkillCatalogEntry } from "@/lib/writing-engine/persistence/learning-items";
+import {
+  applyReturnedCorrectionRepairPlan,
+  type ReturnedCorrectionRepairAttempt,
+} from "@/lib/writing-engine/persistence/returned-correction-repair-apply";
+import {
+  buildReturnedCorrectionRepairPlan,
+  type ReturnedCorrectionRepairCandidateMapping,
+  type ReturnedCorrectionRepairCatalogEntry,
+  type ReturnedCorrectionRepairCatalogReviewCase,
+  type ReturnedCorrectionRepairEvidence,
+  type ReturnedCorrectionRepairIssue,
+  type ReturnedCorrectionRepairLearningLink,
+} from "@/lib/writing-engine/persistence/returned-correction-repair";
 import { createSupabaseSpellingCanonicalRecommendationRepository } from "@/lib/writing-engine/persistence/spelling-canonical-recommendations";
 import {
   createSupabaseSpellingCandidateMappingRepository,
@@ -52,7 +65,9 @@ function getRecommendationSourceRowType(input: {
   sourceProvenance: string;
   metadata: Record<string, unknown>;
 }) {
-  if (readMetadataString(input.metadata, "source_route") === "returned_correction") {
+  if (
+    readMetadataString(input.metadata, "source_route") === "returned_correction"
+  ) {
     return "returned_correction" as const;
   }
 
@@ -68,16 +83,20 @@ function isOpenRecommendationDuplicateError(error: unknown) {
 
   return (
     message.includes("duplicate key") ||
-    message.includes("spelling_canonical_mapping_recommendations_open_candidate_idx") ||
-    message.includes("spelling_canonical_mapping_recommendations_open_source_idx") ||
-    message.includes("spelling_canonical_mapping_recommendations_open_event_idx")
+    message.includes(
+      "spelling_canonical_mapping_recommendations_open_candidate_idx",
+    ) ||
+    message.includes(
+      "spelling_canonical_mapping_recommendations_open_source_idx",
+    ) ||
+    message.includes(
+      "spelling_canonical_mapping_recommendations_open_event_idx",
+    )
   );
 }
 
 type AutoRecommendationResult =
-  | { status: "sent" }
-  | { status: "already_sent" }
-  | { status: "failed" };
+  { status: "sent" } | { status: "already_sent" } | { status: "failed" };
 
 async function createAdminRecommendationForPromotedCandidateMapping(input: {
   supabase: Awaited<ReturnType<typeof createClient>>;
@@ -124,7 +143,10 @@ async function createAdminRecommendationForPromotedCandidateMapping(input: {
           : null,
       sourceCorrectionAttemptId:
         sourceRowType === "returned_correction"
-          ? readMetadataString(input.candidateMapping.metadata, "correction_attempt_id")
+          ? readMetadataString(
+              input.candidateMapping.metadata,
+              "correction_attempt_id",
+            )
           : null,
       parentVerificationId: input.candidateMapping.parent_verification_id,
       sourceSuggestionId: input.candidateMapping.source_suggestion_id,
@@ -136,10 +158,12 @@ async function createAdminRecommendationForPromotedCandidateMapping(input: {
       originalChildSpelling: input.candidateMapping.original_child_spelling,
       originalCorrectSpelling: input.candidateMapping.original_correct_spelling,
       misspellingNormalized: input.candidateMapping.misspelling_normalized,
-      correctSpellingNormalized: input.candidateMapping.correct_spelling_normalized,
+      correctSpellingNormalized:
+        input.candidateMapping.correct_spelling_normalized,
       microSkillKey: input.candidateMapping.micro_skill_key,
       metadata: {
-        source_candidate_mapping_status: input.candidateMapping.candidate_status,
+        source_candidate_mapping_status:
+          input.candidateMapping.candidate_status,
         source_candidate_mapping_scope: input.candidateMapping.promotion_scope,
         source_candidate_mapping_metadata: input.candidateMapping.metadata,
         action_source: input.actionSource,
@@ -175,7 +199,8 @@ async function promoteAndRecommendParentLocalCandidateMapping(input: {
       parentUserId: input.parentUserId,
       childId: input.childId,
       misspellingNormalized: input.candidateMapping.misspelling_normalized,
-      correctSpellingNormalized: input.candidateMapping.correct_spelling_normalized,
+      correctSpellingNormalized:
+        input.candidateMapping.correct_spelling_normalized,
       microSkillKey: input.candidateMapping.micro_skill_key,
       excludeId: input.candidateMapping.id,
     });
@@ -186,13 +211,14 @@ async function promoteAndRecommendParentLocalCandidateMapping(input: {
     );
   }
 
-  const promotionResult = await candidateMappingRepository.promoteParentLocalPending({
-    id: input.candidateMapping.id,
-    parentUserId: input.parentUserId,
-    childId: input.childId,
-    actionSource: input.promotionActionSource,
-    nowIso: new Date().toISOString(),
-  });
+  const promotionResult =
+    await candidateMappingRepository.promoteParentLocalPending({
+      id: input.candidateMapping.id,
+      parentUserId: input.parentUserId,
+      childId: input.childId,
+      actionSource: input.promotionActionSource,
+      nowIso: new Date().toISOString(),
+    });
   const recommendationResult =
     await createAdminRecommendationForPromotedCandidateMapping({
       supabase: input.supabase,
@@ -243,6 +269,214 @@ function getLearningItemIdFromFinalisationResult(value: unknown) {
     : null;
 }
 
+async function repairFinalisedReturnedCorrectionAfterRouteCapture(input: {
+  supabase: Awaited<ReturnType<typeof createClient>>;
+  issue: ReturnedCorrectionRepairIssue;
+  parentUserId: string;
+  selectedMicroSkillKey: string;
+  safeRedirectPath: string;
+}) {
+  const sourceMisspellingId = input.issue.source_misspelling_instance_id;
+  if (!sourceMisspellingId) {
+    redirect(
+      buildRedirectWithMessage(
+        input.safeRedirectPath,
+        "error",
+        "The route was saved, but the original spelling lineage is missing.",
+      ),
+    );
+  }
+
+  const [
+    attemptsResult,
+    candidateMappingsResult,
+    catalogResult,
+    catalogReviewCasesResult,
+    learningItemLinksResult,
+    learningItemEvidenceResult,
+  ] = await Promise.all([
+    input.supabase
+      .from("writing_issue_correction_attempts")
+      .select(
+        [
+          "id",
+          "writing_issue_id",
+          "child_id",
+          "parent_user_id",
+          "task_submission_id",
+          "attempted_correction",
+          "attempt_notes",
+          "corrected_independently",
+          "reflection",
+          "metadata",
+          "created_at",
+        ].join(", "),
+      )
+      .eq("writing_issue_id", input.issue.id)
+      .eq("parent_user_id", input.parentUserId)
+      .eq("child_id", input.issue.child_id)
+      .order("created_at", { ascending: false }),
+    input.supabase
+      .from("parent_verified_spelling_candidate_mappings")
+      .select(
+        [
+          "id",
+          "parent_user_id",
+          "child_id",
+          "task_submission_id",
+          "source_misspelling_instance_id",
+          "micro_skill_key",
+          "candidate_status",
+          "promotion_scope",
+          "metadata",
+          "updated_at",
+          "original_child_spelling",
+          "original_correct_spelling",
+        ].join(", "),
+      )
+      .eq("parent_user_id", input.parentUserId)
+      .eq("child_id", input.issue.child_id)
+      .eq("source_misspelling_instance_id", sourceMisspellingId)
+      .eq("micro_skill_key", input.selectedMicroSkillKey)
+      .in("candidate_status", [
+        "pending_parent_promotion",
+        "parent_local_promoted",
+        "admin_review_requested",
+      ])
+      .order("updated_at", { ascending: false }),
+    input.supabase
+      .from("micro_skill_catalog")
+      .select(
+        [
+          "micro_skill_key",
+          "mastery_domain_key",
+          "skill_family_key",
+          "skill_cluster_key",
+          "practice_route",
+          "display_name",
+          "is_active",
+          "is_assignable",
+        ].join(", "),
+      )
+      .eq("micro_skill_key", input.selectedMicroSkillKey),
+    input.supabase
+      .from("spelling_catalog_review_cases")
+      .select("id, source_misspelling_instance_id, case_status")
+      .eq("parent_user_id", input.parentUserId)
+      .eq("child_id", input.issue.child_id)
+      .eq("source_misspelling_instance_id", sourceMisspellingId),
+    input.supabase
+      .from("learning_item_issue_links")
+      .select("id, learning_item_id, writing_issue_id, link_role")
+      .eq("writing_issue_id", input.issue.id),
+    input.supabase
+      .from("learning_item_evidence")
+      .select(
+        "id, learning_item_id, writing_issue_id, evidence_type, source_context, metadata",
+      )
+      .eq("writing_issue_id", input.issue.id),
+  ]);
+
+  const failedResult = [
+    attemptsResult,
+    candidateMappingsResult,
+    catalogResult,
+    catalogReviewCasesResult,
+    learningItemLinksResult,
+    learningItemEvidenceResult,
+  ].find((result) => result.error);
+
+  if (failedResult?.error) {
+    console.error(
+      "Returned correction repair context failed to load.",
+      failedResult.error,
+    );
+    redirect(
+      buildRedirectWithMessage(
+        input.safeRedirectPath,
+        "error",
+        "The route was saved, but the previously saved outcome could not be repaired yet.",
+      ),
+    );
+  }
+
+  const attempts = (
+    (attemptsResult.data ?? []) as unknown as ReturnedCorrectionRepairAttempt[]
+  ).map((attempt) => ({
+    ...attempt,
+    metadata: parseObjectMetadata(attempt.metadata),
+  }));
+  const candidateMappings = (
+    (candidateMappingsResult.data ??
+      []) as unknown as ReturnedCorrectionRepairCandidateMapping[]
+  ).map((mapping) => ({
+    ...mapping,
+    metadata: parseObjectMetadata(mapping.metadata),
+  }));
+  const catalogEntries = (catalogResult.data ??
+    []) as unknown as ReturnedCorrectionRepairCatalogEntry[];
+
+  const plan = buildReturnedCorrectionRepairPlan({
+    parentUserId: input.parentUserId,
+    issue: input.issue,
+    attempts,
+    candidateMappings,
+    catalogEntries,
+    catalogReviewCases: (catalogReviewCasesResult.data ??
+      []) as ReturnedCorrectionRepairCatalogReviewCase[],
+    canonicalRecommendations: [],
+    learningItemLinks: (learningItemLinksResult.data ??
+      []) as ReturnedCorrectionRepairLearningLink[],
+    learningItemEvidence: (learningItemEvidenceResult.data ?? []).map(
+      (evidence) => ({
+        ...evidence,
+        metadata: parseObjectMetadata(evidence.metadata),
+      }),
+    ) as ReturnedCorrectionRepairEvidence[],
+    nowIso: new Date().toISOString(),
+  });
+
+  if (
+    plan.bucket === "already_repaired" &&
+    input.issue.micro_skill_key === input.selectedMicroSkillKey &&
+    plan.existingLearningItemIds.length === 1
+  ) {
+    return plan.existingLearningItemIds[0];
+  }
+
+  if (!plan.safeToApply) {
+    redirect(
+      buildRedirectWithMessage(
+        input.safeRedirectPath,
+        "error",
+        `The route was saved, but the previous outcome needs manual review: ${plan.reasons.join(" ")}`,
+      ),
+    );
+  }
+
+  const result = await applyReturnedCorrectionRepairPlan({
+    supabase: input.supabase,
+    issue: input.issue,
+    attempts,
+    plan,
+    catalogEntries,
+    nowIso: new Date().toISOString(),
+  });
+
+  if (!result.repaired || !result.learningItemId) {
+    redirect(
+      buildRedirectWithMessage(
+        input.safeRedirectPath,
+        "error",
+        result.reason ??
+          "The route was saved, but the previous outcome could not be linked to learning yet.",
+      ),
+    );
+  }
+
+  return result.learningItemId;
+}
+
 async function finaliseReturnedCorrectionAfterRouteCapture(input: {
   supabase: Awaited<ReturnType<typeof createClient>>;
   parentUserId: string;
@@ -264,6 +498,7 @@ async function finaliseReturnedCorrectionAfterRouteCapture(input: {
       [
         "id",
         "child_id",
+        "parent_user_id",
         "task_submission_id",
         "issue_status",
         "final_classification",
@@ -271,6 +506,7 @@ async function finaliseReturnedCorrectionAfterRouteCapture(input: {
         "suggested_replacement",
         "approved_replacement",
         "micro_skill_key",
+        "theme_key",
         "source_misspelling_instance_id",
         "metadata",
       ].join(", "),
@@ -281,6 +517,7 @@ async function finaliseReturnedCorrectionAfterRouteCapture(input: {
     .maybeSingle<{
       id: string;
       child_id: string;
+      parent_user_id: string;
       task_submission_id: string | null;
       issue_status: string;
       final_classification: string | null;
@@ -288,6 +525,7 @@ async function finaliseReturnedCorrectionAfterRouteCapture(input: {
       suggested_replacement: string | null;
       approved_replacement: string | null;
       micro_skill_key: string | null;
+      theme_key: string | null;
       source_misspelling_instance_id: string | null;
       metadata: Record<string, unknown> | null;
     }>();
@@ -302,66 +540,99 @@ async function finaliseReturnedCorrectionAfterRouteCapture(input: {
     );
   }
 
+  let learningItemId: string | null = null;
+
   if (currentIssue.final_classification) {
-    return;
-  }
+    if (
+      currentIssue.final_classification !== input.finalClassification ||
+      !doesFinalClassificationCreateLearningItem(input.finalClassification)
+    ) {
+      redirect(
+        buildRedirectWithMessage(
+          input.safeRedirectPath,
+          "error",
+          "This outcome was already saved with a different review reason.",
+        ),
+      );
+    }
 
-  const { error: updateError } = await input.supabase
-    .from("writing_issues")
-    .update({
-      micro_skill_key: input.selectedMicroSkillKey,
-      metadata: {
-        ...parseObjectMetadata(currentIssue.metadata),
-        returned_correction_route_bridge: {
-          ...input.routeMetadata,
-          micro_skill_key: input.selectedMicroSkillKey,
-          bridged_at: nowIso,
+    learningItemId = await repairFinalisedReturnedCorrectionAfterRouteCapture({
+      supabase: input.supabase,
+      issue: currentIssue as ReturnedCorrectionRepairIssue,
+      parentUserId: input.parentUserId,
+      selectedMicroSkillKey: input.selectedMicroSkillKey,
+      safeRedirectPath: input.safeRedirectPath,
+    });
+  } else {
+    const { error: updateError } = await input.supabase
+      .from("writing_issues")
+      .update({
+        micro_skill_key: input.selectedMicroSkillKey,
+        metadata: {
+          ...parseObjectMetadata(currentIssue.metadata),
+          returned_correction_route_bridge: {
+            ...input.routeMetadata,
+            micro_skill_key: input.selectedMicroSkillKey,
+            bridged_at: nowIso,
+          },
         },
-      },
-      updated_at: nowIso,
-    })
-    .eq("id", currentIssue.id)
-    .eq("parent_user_id", input.parentUserId)
-    .eq("child_id", input.childId)
-    .eq("issue_status", "child_responded")
-    .is("final_classification", null);
+        updated_at: nowIso,
+      })
+      .eq("id", currentIssue.id)
+      .eq("parent_user_id", input.parentUserId)
+      .eq("child_id", input.childId)
+      .eq("issue_status", "child_responded")
+      .is("final_classification", null);
 
-  if (updateError) {
+    if (updateError) {
+      redirect(
+        buildRedirectWithMessage(
+          input.safeRedirectPath,
+          "error",
+          "The route was saved, but the returned correction outcome could not be linked to it yet.",
+        ),
+      );
+    }
+
+    const { data: finalisationResult, error: finalisationError } =
+      await input.supabase.rpc(
+        "finalise_writing_issue_classification_and_learning_item",
+        {
+          p_writing_issue_id: currentIssue.id,
+          p_parent_user_id: input.parentUserId,
+          p_child_id: input.childId,
+          p_final_classification: input.finalClassification,
+        },
+      );
+
+    if (finalisationError) {
+      redirect(
+        buildRedirectWithMessage(
+          input.safeRedirectPath,
+          "error",
+          "The route was saved, but the returned correction outcome could not be saved yet.",
+        ),
+      );
+    }
+
+    if (!doesFinalClassificationCreateLearningItem(input.finalClassification)) {
+      return;
+    }
+
+    learningItemId =
+      getLearningItemIdFromFinalisationResult(finalisationResult);
+  }
+
+  if (!learningItemId) {
     redirect(
       buildRedirectWithMessage(
         input.safeRedirectPath,
         "error",
-        "The route was saved, but the returned correction outcome could not be linked to it yet.",
+        "The outcome was saved, but its learning item could not be linked yet.",
       ),
     );
   }
 
-  const { data: finalisationResult, error: finalisationError } =
-    await input.supabase.rpc(
-      "finalise_writing_issue_classification_and_learning_item",
-      {
-        p_writing_issue_id: currentIssue.id,
-        p_parent_user_id: input.parentUserId,
-        p_child_id: input.childId,
-        p_final_classification: input.finalClassification,
-      },
-    );
-
-  if (finalisationError) {
-    redirect(
-      buildRedirectWithMessage(
-        input.safeRedirectPath,
-        "error",
-        "The route was saved, but the returned correction outcome could not be saved yet.",
-      ),
-    );
-  }
-
-  if (!doesFinalClassificationCreateLearningItem(input.finalClassification)) {
-    return;
-  }
-
-  const learningItemId = getLearningItemIdFromFinalisationResult(finalisationResult);
   const { data: finalisedIssue } = await input.supabase
     .from("writing_issues")
     .select(
@@ -422,7 +693,8 @@ async function finaliseReturnedCorrectionAfterRouteCapture(input: {
       sourceIssueId: finalisedIssue.id,
       sourceLearningItemId: learningItemId,
       sourceSubmissionId: finalisedIssue.task_submission_id,
-      sourceMisspellingInstanceId: finalisedIssue.source_misspelling_instance_id,
+      sourceMisspellingInstanceId:
+        finalisedIssue.source_misspelling_instance_id,
       microSkillKey: finalisedIssue.micro_skill_key,
       correctionAttemptedAt: latestAttempt?.created_at ?? null,
       metadata: {
@@ -471,10 +743,11 @@ async function captureReturnedCorrectionCandidateMapping(input: {
     );
   }
 
-  const catalogEntry = await getReviewWorkCandidateCaptureMicroSkillCatalogEntry({
-    supabase: input.supabase,
-    microSkillKey: input.selectedMicroSkillKey,
-  });
+  const catalogEntry =
+    await getReviewWorkCandidateCaptureMicroSkillCatalogEntry({
+      supabase: input.supabase,
+      microSkillKey: input.selectedMicroSkillKey,
+    });
 
   if (!catalogEntry) {
     redirect(
@@ -525,16 +798,20 @@ async function captureReturnedCorrectionCandidateMapping(input: {
     .eq("parent_user_id", input.parentUserId)
     .eq("child_id", input.submission.child_id)
     .eq("source_misspelling_instance_id", routeContext.misspelling.id)
-    .in("candidate_status", ["pending_parent_promotion", "parent_local_promoted"])
+    .in("candidate_status", [
+      "pending_parent_promotion",
+      "parent_local_promoted",
+    ])
     .limit(1)
     .maybeSingle();
 
   if (existingCandidateMapping) {
-    const candidateMapping = await candidateMappingRepository.findByIdForParentChild({
-      id: existingCandidateMapping.id,
-      parentUserId: input.parentUserId,
-      childId: input.submission.child_id,
-    });
+    const candidateMapping =
+      await candidateMappingRepository.findByIdForParentChild({
+        id: existingCandidateMapping.id,
+        parentUserId: input.parentUserId,
+        childId: input.submission.child_id,
+      });
 
     if (!candidateMapping) {
       redirect(
@@ -546,9 +823,9 @@ async function captureReturnedCorrectionCandidateMapping(input: {
       );
     }
 
-    let combinedResult:
-      | Awaited<ReturnType<typeof promoteAndRecommendParentLocalCandidateMapping>>
-      | null = null;
+    let combinedResult: Awaited<
+      ReturnType<typeof promoteAndRecommendParentLocalCandidateMapping>
+    > | null = null;
 
     try {
       combinedResult = await promoteAndRecommendParentLocalCandidateMapping({
@@ -617,18 +894,22 @@ async function captureReturnedCorrectionCandidateMapping(input: {
   let parentVerificationId: string | null = null;
 
   try {
-    const verificationResult = await recordStage7dParentVerificationWithoutPromotion({
-      supabase: input.supabase,
-      childId: input.submission.child_id,
-      parentUserId: input.parentUserId,
-      decision: "overridden",
-      verifiedMicroSkillKey: input.selectedMicroSkillKey,
-      note: "Returned correction classified for parent-local candidate capture.",
-      target: routeContext.verificationTarget,
-    });
+    const verificationResult =
+      await recordStage7dParentVerificationWithoutPromotion({
+        supabase: input.supabase,
+        childId: input.submission.child_id,
+        parentUserId: input.parentUserId,
+        decision: "overridden",
+        verifiedMicroSkillKey: input.selectedMicroSkillKey,
+        note: "Returned correction classified for parent-local candidate capture.",
+        target: routeContext.verificationTarget,
+      });
     parentVerificationId = verificationResult.verificationRecord.id;
   } catch (error) {
-    console.error("Returned correction candidate verification failed before redirect.", error);
+    console.error(
+      "Returned correction candidate verification failed before redirect.",
+      error,
+    );
     redirect(
       buildRedirectWithMessage(
         input.safeRedirectPath,
@@ -650,7 +931,8 @@ async function captureReturnedCorrectionCandidateMapping(input: {
       sourceSuggestionId: routeContext.issue.source_suggestion_id,
       sourceMisspellingInstanceId: routeContext.misspelling.id,
       sourceProvenance: routeContext.sourceProvenance,
-      reviewedEventSourceEntityId: routeContext.verificationTarget.sourceRef.sourceEntityId,
+      reviewedEventSourceEntityId:
+        routeContext.verificationTarget.sourceRef.sourceEntityId,
       originalChildSpelling: routeContext.originalChildSpelling,
       originalCorrectSpelling: routeContext.originalCorrectSpelling,
       misspellingNormalized: routeContext.misspellingNormalized,
@@ -664,7 +946,10 @@ async function captureReturnedCorrectionCandidateMapping(input: {
       },
     });
   } catch (error) {
-    console.error("Returned correction candidate mapping creation failed before redirect.", error);
+    console.error(
+      "Returned correction candidate mapping creation failed before redirect.",
+      error,
+    );
     redirect(
       buildRedirectWithMessage(
         input.safeRedirectPath,
@@ -684,9 +969,9 @@ async function captureReturnedCorrectionCandidateMapping(input: {
     );
   }
 
-  let combinedResult:
-    | Awaited<ReturnType<typeof promoteAndRecommendParentLocalCandidateMapping>>
-    | null = null;
+  let combinedResult: Awaited<
+    ReturnType<typeof promoteAndRecommendParentLocalCandidateMapping>
+  > | null = null;
 
   try {
     combinedResult = await promoteAndRecommendParentLocalCandidateMapping({
@@ -752,17 +1037,22 @@ async function captureReturnedCorrectionCandidateMapping(input: {
   );
 }
 
-export async function captureSubmissionSpellingCandidateMappingImpl(formData: FormData) {
+export async function captureSubmissionSpellingCandidateMappingImpl(
+  formData: FormData,
+) {
   const submissionId = formData.get("submission_id");
   const redirectPath = formData.get("redirect_path");
   const misspellingInstanceId = formData.get("misspelling_instance_id");
   const originalWritingIssueId = formData.get("original_writing_issue_id");
   const correctionAttemptId = formData.get("correction_attempt_id");
   const finalClassification = formData.get("final_classification");
-  const selectedMicroSkillKey = normaliseMicroSkillKey(formData.get("micro_skill_key"));
+  const selectedMicroSkillKey = normaliseMicroSkillKey(
+    formData.get("micro_skill_key"),
+  );
 
   const safeRedirectPath =
-    typeof redirectPath === "string" && redirectPath.startsWith("/courses/review/")
+    typeof redirectPath === "string" &&
+    redirectPath.startsWith("/courses/review/")
       ? redirectPath
       : "/courses/review";
 
@@ -809,7 +1099,11 @@ export async function captureSubmissionSpellingCandidateMappingImpl(formData: Fo
     redirect("/login");
   }
 
-  const { submission } = await getOwnedSubmission(submissionId, user.id, supabase);
+  const { submission } = await getOwnedSubmission(
+    submissionId,
+    user.id,
+    supabase,
+  );
 
   if (!submission) {
     redirect(
@@ -837,7 +1131,11 @@ export async function captureSubmissionSpellingCandidateMappingImpl(formData: Fo
     });
   }
 
-  const linkedSample = await getLinkedWritingSample(supabase, submission.id, user.id);
+  const linkedSample = await getLinkedWritingSample(
+    supabase,
+    submission.id,
+    user.id,
+  );
 
   if (!linkedSample) {
     redirect(
@@ -873,23 +1171,23 @@ export async function captureSubmissionSpellingCandidateMappingImpl(formData: Fo
     notes: misspelling.notes,
   });
 
-  const suggestion =
-    isParentAddedMissedWord
-      ? null
-      : await findOrCreateSuggestionForMisspelling({
-          supabase,
-          parentUserId: user.id,
-          childId: submission.child_id,
-          taskSubmissionId: submission.id,
-          writingSampleId: linkedSample.id,
-          misspellingInstanceId: misspelling.id,
-          observedText: misspelling.misspelled_word,
-          suggestedReplacement: misspelling.suggested_word ?? misspelling.corrected_word,
-          contextText: misspelling.context_text,
-          positionStart: misspelling.position_start,
-          positionEnd: misspelling.position_end,
-          suggestedMicroSkillKey: "unknown",
-        });
+  const suggestion = isParentAddedMissedWord
+    ? null
+    : await findOrCreateSuggestionForMisspelling({
+        supabase,
+        parentUserId: user.id,
+        childId: submission.child_id,
+        taskSubmissionId: submission.id,
+        writingSampleId: linkedSample.id,
+        misspellingInstanceId: misspelling.id,
+        observedText: misspelling.misspelled_word,
+        suggestedReplacement:
+          misspelling.suggested_word ?? misspelling.corrected_word,
+        contextText: misspelling.context_text,
+        positionStart: misspelling.position_start,
+        positionEnd: misspelling.position_end,
+        suggestedMicroSkillKey: "unknown",
+      });
 
   if (!isParentAddedMissedWord && !suggestion) {
     redirect(
@@ -901,7 +1199,8 @@ export async function captureSubmissionSpellingCandidateMappingImpl(formData: Fo
     );
   }
 
-  const existingSuggestedMicroSkillKey = suggestion?.suggested_micro_skill_key ?? null;
+  const existingSuggestedMicroSkillKey =
+    suggestion?.suggested_micro_skill_key ?? null;
   const hasExistingCanonicalSuggestedMicroSkillKey =
     typeof existingSuggestedMicroSkillKey === "string" &&
     existingSuggestedMicroSkillKey.trim().length > 0 &&
@@ -917,10 +1216,11 @@ export async function captureSubmissionSpellingCandidateMappingImpl(formData: Fo
     );
   }
 
-  const catalogEntry = await getReviewWorkCandidateCaptureMicroSkillCatalogEntry({
-    supabase,
-    microSkillKey: selectedMicroSkillKey,
-  });
+  const catalogEntry =
+    await getReviewWorkCandidateCaptureMicroSkillCatalogEntry({
+      supabase,
+      microSkillKey: selectedMicroSkillKey,
+    });
 
   if (!catalogEntry) {
     redirect(
@@ -962,9 +1262,11 @@ export async function captureSubmissionSpellingCandidateMappingImpl(formData: Fo
     );
   }
 
-  const misspellingNormalized = normaliseWordForLookup(misspelling.misspelled_word ?? "");
+  const misspellingNormalized = normaliseWordForLookup(
+    misspelling.misspelled_word ?? "",
+  );
   const correctSpellingNormalized = normaliseWordForLookup(
-    (misspelling.suggested_word ?? misspelling.corrected_word) ?? "",
+    misspelling.suggested_word ?? misspelling.corrected_word ?? "",
   );
 
   if (!misspellingNormalized || !correctSpellingNormalized) {
@@ -981,7 +1283,8 @@ export async function captureSubmissionSpellingCandidateMappingImpl(formData: Fo
     taskSubmissionId: submission.id,
     writingSampleId: linkedSample.id,
     observedText: misspelling.misspelled_word,
-    suggestedReplacement: misspelling.suggested_word ?? misspelling.corrected_word,
+    suggestedReplacement:
+      misspelling.suggested_word ?? misspelling.corrected_word,
     contextText: misspelling.context_text,
     positionStart: misspelling.position_start,
     positionEnd: misspelling.position_end,
@@ -1054,20 +1357,24 @@ export async function captureSubmissionSpellingCandidateMappingImpl(formData: Fo
 
   if (!parentVerificationId) {
     try {
-      const verificationResult = await recordStage7dParentVerificationWithoutPromotion({
-        supabase,
-        childId: submission.child_id,
-        parentUserId: user.id,
-        decision: "overridden",
-        verifiedMicroSkillKey: selectedMicroSkillKey,
-        note: isParentAddedMissedWord
-          ? "Parent-added missed word classified for candidate capture."
-          : "Lesson spelling row classified for candidate capture.",
-        target: verificationTarget,
-      });
+      const verificationResult =
+        await recordStage7dParentVerificationWithoutPromotion({
+          supabase,
+          childId: submission.child_id,
+          parentUserId: user.id,
+          decision: "overridden",
+          verifiedMicroSkillKey: selectedMicroSkillKey,
+          note: isParentAddedMissedWord
+            ? "Parent-added missed word classified for candidate capture."
+            : "Lesson spelling row classified for candidate capture.",
+          target: verificationTarget,
+        });
       parentVerificationId = verificationResult.verificationRecord.id;
     } catch (error) {
-      console.error("Candidate capture verification failed before redirect.", error);
+      console.error(
+        "Candidate capture verification failed before redirect.",
+        error,
+      );
       redirect(
         buildRedirectWithMessage(
           safeRedirectPath,
@@ -1078,10 +1385,11 @@ export async function captureSubmissionSpellingCandidateMappingImpl(formData: Fo
     }
   }
 
-  let candidateMapping =
-    parentVerificationId
-      ? await candidateMappingRepository.findByParentVerificationId(parentVerificationId)
-      : null;
+  let candidateMapping = parentVerificationId
+    ? await candidateMappingRepository.findByParentVerificationId(
+        parentVerificationId,
+      )
+    : null;
 
   if (!candidateMapping && parentVerificationId) {
     try {
@@ -1096,10 +1404,11 @@ export async function captureSubmissionSpellingCandidateMappingImpl(formData: Fo
         sourceProvenance: isParentAddedMissedWord
           ? "lesson_submission_parent_added_missed_word"
           : "lesson_submission_existing_output",
-        reviewedEventSourceEntityId: verificationTarget.sourceRef.sourceEntityId,
+        reviewedEventSourceEntityId:
+          verificationTarget.sourceRef.sourceEntityId,
         originalChildSpelling: misspelling.misspelled_word ?? null,
         originalCorrectSpelling:
-          (misspelling.suggested_word ?? misspelling.corrected_word) ?? null,
+          misspelling.suggested_word ?? misspelling.corrected_word ?? null,
         misspellingNormalized,
         correctSpellingNormalized,
         microSkillKey: selectedMicroSkillKey,
@@ -1111,7 +1420,10 @@ export async function captureSubmissionSpellingCandidateMappingImpl(formData: Fo
         },
       });
     } catch (error) {
-      console.error("Candidate mapping creation failed before redirect.", error);
+      console.error(
+        "Candidate mapping creation failed before redirect.",
+        error,
+      );
       redirect(
         buildRedirectWithMessage(
           safeRedirectPath,
@@ -1140,7 +1452,10 @@ export async function captureSubmissionSpellingCandidateMappingImpl(formData: Fo
         parentUserId: user.id,
       });
     } catch (error) {
-      console.error("Candidate capture could not mark the suggestion reviewed.", error);
+      console.error(
+        "Candidate capture could not mark the suggestion reviewed.",
+        error,
+      );
       redirect(
         buildRedirectWithMessage(
           safeRedirectPath,
@@ -1151,9 +1466,9 @@ export async function captureSubmissionSpellingCandidateMappingImpl(formData: Fo
     }
   }
 
-  let combinedResult:
-    | Awaited<ReturnType<typeof promoteAndRecommendParentLocalCandidateMapping>>
-    | null = null;
+  let combinedResult: Awaited<
+    ReturnType<typeof promoteAndRecommendParentLocalCandidateMapping>
+  > | null = null;
 
   try {
     combinedResult = await promoteAndRecommendParentLocalCandidateMapping({
@@ -1201,12 +1516,15 @@ export async function captureSubmissionSpellingCandidateMappingImpl(formData: Fo
   );
 }
 
-export async function promoteParentLocalCandidateMappingImpl(formData: FormData) {
+export async function promoteParentLocalCandidateMappingImpl(
+  formData: FormData,
+) {
   const candidateMappingId = formData.get("candidate_mapping_id");
   const submissionId = formData.get("submission_id");
   const redirectPath = formData.get("redirect_path");
   const safeRedirectPath =
-    typeof redirectPath === "string" && redirectPath.startsWith("/courses/review/")
+    typeof redirectPath === "string" &&
+    redirectPath.startsWith("/courses/review/")
       ? redirectPath
       : "/courses/review";
 
@@ -1253,11 +1571,12 @@ export async function promoteParentLocalCandidateMappingImpl(formData: FormData)
 
   const candidateMappingRepository =
     createSupabaseSpellingCandidateMappingRepository(supabase);
-  const candidateMapping = await candidateMappingRepository.findByIdForParentChild({
-    id: candidateMappingId,
-    parentUserId: user.id,
-    childId: submission.child_id,
-  });
+  const candidateMapping =
+    await candidateMappingRepository.findByIdForParentChild({
+      id: candidateMappingId,
+      parentUserId: user.id,
+      childId: submission.child_id,
+    });
 
   if (!candidateMapping) {
     redirect(
@@ -1272,8 +1591,10 @@ export async function promoteParentLocalCandidateMappingImpl(formData: FormData)
   if (
     candidateMapping.task_submission_id !== submission.id ||
     candidateMapping.promotion_scope !== "parent_local" ||
-    (candidateMapping.source_provenance !== "lesson_submission_existing_output" &&
-      candidateMapping.source_provenance !== "lesson_submission_parent_added_missed_word")
+    (candidateMapping.source_provenance !==
+      "lesson_submission_existing_output" &&
+      candidateMapping.source_provenance !==
+        "lesson_submission_parent_added_missed_word")
   ) {
     redirect(
       buildRedirectWithMessage(
@@ -1283,10 +1604,11 @@ export async function promoteParentLocalCandidateMappingImpl(formData: FormData)
       ),
     );
   }
-  const catalogEntry = await getReviewWorkCandidateCaptureMicroSkillCatalogEntry({
-    supabase,
-    microSkillKey: candidateMapping.micro_skill_key,
-  });
+  const catalogEntry =
+    await getReviewWorkCandidateCaptureMicroSkillCatalogEntry({
+      supabase,
+      microSkillKey: candidateMapping.micro_skill_key,
+    });
 
   if (!catalogEntry) {
     redirect(
@@ -1362,9 +1684,9 @@ export async function promoteParentLocalCandidateMappingImpl(formData: FormData)
     );
   }
 
-  let combinedResult:
-    | Awaited<ReturnType<typeof promoteAndRecommendParentLocalCandidateMapping>>
-    | null = null;
+  let combinedResult: Awaited<
+    ReturnType<typeof promoteAndRecommendParentLocalCandidateMapping>
+  > | null = null;
 
   try {
     combinedResult = await promoteAndRecommendParentLocalCandidateMapping({
@@ -1377,7 +1699,10 @@ export async function promoteParentLocalCandidateMappingImpl(formData: FormData)
         "review_work_parent_local_promotion_auto_recommendation",
     });
   } catch (error) {
-    console.error("Parent-local candidate promotion failed before redirect.", error);
+    console.error(
+      "Parent-local candidate promotion failed before redirect.",
+      error,
+    );
     redirect(
       buildRedirectWithMessage(
         safeRedirectPath,
@@ -1412,12 +1737,15 @@ export async function promoteParentLocalCandidateMappingImpl(formData: FormData)
   );
 }
 
-export async function revertParentLocalCandidateMappingImpl(formData: FormData) {
+export async function revertParentLocalCandidateMappingImpl(
+  formData: FormData,
+) {
   const candidateMappingId = formData.get("candidate_mapping_id");
   const submissionId = formData.get("submission_id");
   const redirectPath = formData.get("redirect_path");
   const safeRedirectPath =
-    typeof redirectPath === "string" && redirectPath.startsWith("/courses/review/")
+    typeof redirectPath === "string" &&
+    redirectPath.startsWith("/courses/review/")
       ? redirectPath
       : "/courses/review";
 
@@ -1464,11 +1792,12 @@ export async function revertParentLocalCandidateMappingImpl(formData: FormData) 
 
   const candidateMappingRepository =
     createSupabaseSpellingCandidateMappingRepository(supabase);
-  const candidateMapping = await candidateMappingRepository.findByIdForParentChild({
-    id: candidateMappingId,
-    parentUserId: user.id,
-    childId: submission.child_id,
-  });
+  const candidateMapping =
+    await candidateMappingRepository.findByIdForParentChild({
+      id: candidateMappingId,
+      parentUserId: user.id,
+      childId: submission.child_id,
+    });
 
   if (!candidateMapping) {
     redirect(
@@ -1501,20 +1830,24 @@ export async function revertParentLocalCandidateMappingImpl(formData: FormData) 
     redirect(buildRedirectWithMessage(safeRedirectPath, "error", errorMessage));
   }
 
-  let reversionResult:
-    | Awaited<ReturnType<typeof candidateMappingRepository.revertParentLocalPromoted>>
-    | null = null;
+  let reversionResult: Awaited<
+    ReturnType<typeof candidateMappingRepository.revertParentLocalPromoted>
+  > | null = null;
 
   try {
-    reversionResult = await candidateMappingRepository.revertParentLocalPromoted({
-      id: candidateMapping.id,
-      parentUserId: user.id,
-      childId: submission.child_id,
-      actionSource: "review_work_parent_local_reversal",
-      nowIso: new Date().toISOString(),
-    });
+    reversionResult =
+      await candidateMappingRepository.revertParentLocalPromoted({
+        id: candidateMapping.id,
+        parentUserId: user.id,
+        childId: submission.child_id,
+        actionSource: "review_work_parent_local_reversal",
+        nowIso: new Date().toISOString(),
+      });
   } catch (error) {
-    console.error("Parent-local candidate reversion failed before redirect.", error);
+    console.error(
+      "Parent-local candidate reversion failed before redirect.",
+      error,
+    );
     redirect(
       buildRedirectWithMessage(
         safeRedirectPath,
@@ -1537,12 +1870,15 @@ export async function revertParentLocalCandidateMappingImpl(formData: FormData) 
   );
 }
 
-export async function recommendParentLocalCanonicalMappingImpl(formData: FormData) {
+export async function recommendParentLocalCanonicalMappingImpl(
+  formData: FormData,
+) {
   const candidateMappingId = formData.get("candidate_mapping_id");
   const submissionId = formData.get("submission_id");
   const redirectPath = formData.get("redirect_path");
   const safeRedirectPath =
-    typeof redirectPath === "string" && redirectPath.startsWith("/courses/review/")
+    typeof redirectPath === "string" &&
+    redirectPath.startsWith("/courses/review/")
       ? redirectPath
       : "/courses/review";
 
@@ -1589,11 +1925,12 @@ export async function recommendParentLocalCanonicalMappingImpl(formData: FormDat
 
   const candidateMappingRepository =
     createSupabaseSpellingCandidateMappingRepository(supabase);
-  const candidateMapping = await candidateMappingRepository.findByIdForParentChild({
-    id: candidateMappingId,
-    parentUserId: user.id,
-    childId: submission.child_id,
-  });
+  const candidateMapping =
+    await candidateMappingRepository.findByIdForParentChild({
+      id: candidateMappingId,
+      parentUserId: user.id,
+      childId: submission.child_id,
+    });
 
   if (!candidateMapping) {
     redirect(
@@ -1609,8 +1946,10 @@ export async function recommendParentLocalCanonicalMappingImpl(formData: FormDat
     candidateMapping.task_submission_id !== submission.id ||
     candidateMapping.promotion_scope !== "parent_local" ||
     candidateMapping.candidate_status !== "parent_local_promoted" ||
-    (candidateMapping.source_provenance !== "lesson_submission_existing_output" &&
-      candidateMapping.source_provenance !== "lesson_submission_parent_added_missed_word")
+    (candidateMapping.source_provenance !==
+      "lesson_submission_existing_output" &&
+      candidateMapping.source_provenance !==
+        "lesson_submission_parent_added_missed_word")
   ) {
     redirect(
       buildRedirectWithMessage(
@@ -1624,10 +1963,11 @@ export async function recommendParentLocalCanonicalMappingImpl(formData: FormDat
     | "lesson_submission_existing_output"
     | "lesson_submission_parent_added_missed_word";
 
-  const catalogEntry = await getReviewWorkCandidateCaptureMicroSkillCatalogEntry({
-    supabase,
-    microSkillKey: candidateMapping.micro_skill_key,
-  });
+  const catalogEntry =
+    await getReviewWorkCandidateCaptureMicroSkillCatalogEntry({
+      supabase,
+      microSkillKey: candidateMapping.micro_skill_key,
+    });
 
   if (!catalogEntry) {
     redirect(
@@ -1698,21 +2038,29 @@ export async function recommendParentLocalCanonicalMappingImpl(formData: FormDat
       childId: submission.child_id,
       taskSubmissionId: candidateMapping.task_submission_id,
       writingSampleId: candidateMapping.writing_sample_id,
-      sourceMisspellingInstanceId: candidateMapping.source_misspelling_instance_id,
+      sourceMisspellingInstanceId:
+        candidateMapping.source_misspelling_instance_id,
       sourceWritingIssueId:
         sourceRowType === "returned_correction"
-          ? readMetadataString(candidateMapping.metadata, "original_writing_issue_id")
+          ? readMetadataString(
+              candidateMapping.metadata,
+              "original_writing_issue_id",
+            )
           : null,
       sourceCorrectionAttemptId:
         sourceRowType === "returned_correction"
-          ? readMetadataString(candidateMapping.metadata, "correction_attempt_id")
+          ? readMetadataString(
+              candidateMapping.metadata,
+              "correction_attempt_id",
+            )
           : null,
       parentVerificationId: candidateMapping.parent_verification_id,
       sourceSuggestionId: candidateMapping.source_suggestion_id,
       candidateMappingId: candidateMapping.id,
       sourceRowType,
       sourceProvenance,
-      reviewedEventSourceEntityId: candidateMapping.reviewed_event_source_entity_id,
+      reviewedEventSourceEntityId:
+        candidateMapping.reviewed_event_source_entity_id,
       originalChildSpelling: candidateMapping.original_child_spelling,
       originalCorrectSpelling: candidateMapping.original_correct_spelling,
       misspellingNormalized: candidateMapping.misspelling_normalized,
@@ -1732,7 +2080,9 @@ export async function recommendParentLocalCanonicalMappingImpl(formData: FormDat
 
     if (
       message.includes("duplicate key") ||
-      message.includes("spelling_canonical_mapping_recommendations_open_candidate_idx")
+      message.includes(
+        "spelling_canonical_mapping_recommendations_open_candidate_idx",
+      )
     ) {
       redirect(
         buildRedirectWithMessage(
@@ -1743,7 +2093,10 @@ export async function recommendParentLocalCanonicalMappingImpl(formData: FormDat
       );
     }
 
-    console.error("Parent canonical recommendation capture failed before redirect.", error);
+    console.error(
+      "Parent canonical recommendation capture failed before redirect.",
+      error,
+    );
     redirect(
       buildRedirectWithMessage(
         safeRedirectPath,

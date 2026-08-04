@@ -1691,7 +1691,7 @@ assert.match(
 );
 assert.match(
   tableSource,
-  /function handleOutcomeChange\(nextOutcome: string\) \{[\s\S]*setSelectedOutcome\(nextOutcome\)[\s\S]*!isLearningRelevantOutcome\(nextOutcome\)[\s\S]*!recommendationMatchesOption[\s\S]*!recommendationOption[\s\S]*familyKey\.length > 0[\s\S]*clusterKey\.length > 0[\s\S]*microSkillKey\.length > 0[\s\S]*setFamilyKey\(recommendationOption\.skillFamilyKey\)[\s\S]*setClusterKey\(recommendationOption\.skillClusterKey \?\? ""\)[\s\S]*setMicroSkillKey\(recommendationOption\.microSkillKey\)/,
+  /function handleOutcomeChange\([\s\S]*nextOutcome: string[\s\S]*form: HTMLFormElement \| null[\s\S]*setSelectedOutcome\(nextOutcome\)[\s\S]*!isLearningRelevantOutcome\(nextOutcome\)[\s\S]*!recommendationMatchesOption[\s\S]*!recommendationOption[\s\S]*familyKey\.length > 0[\s\S]*clusterKey\.length > 0[\s\S]*microSkillKey\.length > 0[\s\S]*setFamilyKey\(recommendationOption\.skillFamilyKey\)[\s\S]*setClusterKey\(recommendationOption\.skillClusterKey \?\? ""\)[\s\S]*setMicroSkillKey\(recommendationOption\.microSkillKey\)/,
   "Returned route selectors must auto-populate from a prefillable recommendation when the route opens after outcome selection.",
 );
 assert.match(
@@ -1741,7 +1741,7 @@ assert.match(
 );
 assert.match(
   tableSource,
-  /name="micro_skill_key" value=\{microSkillKey\}/,
+  /name="micro_skill_key"\s+value=\{microSkillKey\}/,
   "Parent overrides and recommendation confirmations must submit through the existing selected micro-skill flow.",
 );
 assert.match(
@@ -1756,13 +1756,13 @@ assert.match(
 );
 assert.match(
   reviewPageSource,
-  /function hasReturnedCorrectionResponse\(rows: UnifiedSpellingReviewItem\[\]\)[\s\S]*row\.source === "returned_correction"[\s\S]*row\.state === "child_responded"[\s\S]*!row\.correctionOutcome/,
-  "Review phase detection must inspect unified rows for returned child responses.",
+  /function hasReturnedCorrectionRows\(rows: UnifiedSpellingReviewItem\[\]\)[\s\S]*row\.source === "returned_correction"/,
+  "Review phase detection must preserve returned-correction routing while any returned row remains in the thread.",
 );
 assert.match(
   reviewPageSource,
-  /function getReviewWorkflowPhase\(input:[\s\S]*parentReviewStatus[\s\S]*unifiedSpellingReviewItems[\s\S]*input\.parentReviewStatus === "approved"[\s\S]*hasReturnedCorrectionResponse\(input\.unifiedSpellingReviewItems\)[\s\S]*return "returned_correction"[\s\S]*input\.parentReviewStatus === "pending"[\s\S]*return "prepare_retry"/,
-  "Pending submissions with returned child-response rows must enter returned-correction mode before plain pending submissions enter prepare-retry mode.",
+  /function getReviewWorkflowPhase\(input:[\s\S]*parentReviewStatus[\s\S]*unifiedSpellingReviewItems[\s\S]*input\.parentReviewStatus === "approved"[\s\S]*hasReturnedCorrectionRows\(input\.unifiedSpellingReviewItems\)[\s\S]*return "returned_correction"[\s\S]*input\.parentReviewStatus === "pending"[\s\S]*return "prepare_retry"/,
+  "Pending submissions containing returned rows must remain in returned-correction mode before plain pending submissions enter prepare-retry mode.",
 );
 assert.match(
   reviewPageSource,

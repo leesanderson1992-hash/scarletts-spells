@@ -190,7 +190,7 @@ assert.match(
 );
 assert.match(
   reviewCompletionActions,
-  /const \{ supabase, submission \} = await getOwnedSubmission\(submissionId, user\.id\);[\s\S]*?const adleServiceClient = createServiceRoleClient\(\);/,
+  /const \{ supabase, submission \} = await getOwnedSubmission\([\s\S]*submissionId,[\s\S]*user\.id,[\s\S]*\);[\s\S]*?const adleServiceClient = createServiceRoleClient\(\);/,
   "The privileged ADLE client must be created only after authenticated, parent-owned submission lookup.",
 );
 assert.doesNotMatch(

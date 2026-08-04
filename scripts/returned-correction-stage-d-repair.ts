@@ -1,5 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 
+import { applyReturnedCorrectionRepairPlan } from "../lib/writing-engine/persistence/returned-correction-repair-apply";
 import {
   buildReturnedCorrectionRepairPlan,
   getReturnedCorrectionRepairAttemptEvidenceType,
@@ -750,6 +751,9 @@ async function ensureEvidence(input: {
   return mutationCount;
 }
 
+// Retained temporarily for backwards-readable Stage D audit history; live apply uses
+// the shared idempotent applier imported above.
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 async function applyPlan(input: {
   supabase: SupabaseClientLike;
   issue: ReturnedCorrectionRepairIssue;
@@ -859,7 +863,7 @@ async function main() {
         continue;
       }
 
-      const result = await applyPlan({
+      const result = await applyReturnedCorrectionRepairPlan({
         supabase,
         issue,
         attempts: rows.attempts.filter(

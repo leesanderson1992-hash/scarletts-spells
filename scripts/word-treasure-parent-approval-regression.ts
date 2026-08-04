@@ -10,10 +10,15 @@ const learnActionsPath = "app/learn/actions.ts";
 const reviewCompletionActionsPath =
   "app/courses/review/actions/review-completion-actions.ts";
 const wordTreasuresPath = "lib/rewards/word-treasures.ts";
+const submissionProcessingPath = "lib/courses/submission-processing.ts";
+const candidateMappingActionsPath =
+  "app/courses/review/actions/candidate-mapping-actions.ts";
 
 const learnActions = readFileSync(learnActionsPath, "utf8");
 const reviewCompletionActions = readFileSync(reviewCompletionActionsPath, "utf8");
 const wordTreasures = readFileSync(wordTreasuresPath, "utf8");
+const submissionProcessing = readFileSync(submissionProcessingPath, "utf8");
+const candidateMappingActions = readFileSync(candidateMappingActionsPath, "utf8");
 
 assert.equal(
   returnedCorrectionMatchesApprovedReplacement({
@@ -66,8 +71,8 @@ assert.doesNotMatch(
   "Correction attempts must not always be recorded as independently corrected.",
 );
 assert.match(
-  learnActions,
-  /approved_replacement_match: evidenceFlags\.markedFixed/,
+  submissionProcessing,
+  /approved_replacement_match: evidence(?:Flags)?\.markedFixed/,
   "Correction attempt metadata must preserve approved-replacement match truth.",
 );
 
@@ -75,6 +80,11 @@ assert.match(
   reviewCompletionActions,
   /finalise_writing_issue_classification_and_learning_item[\s\S]*createOrUpdateGoldenNuggetFromParentApproval/,
   "Parent finalisation must create/update Word Treasure only after the finalisation RPC.",
+);
+assert.match(
+  candidateMappingActions,
+  /repairFinalisedReturnedCorrectionAfterRouteCapture[\s\S]*createOrUpdateGoldenNuggetFromParentApproval/,
+  "Legacy finalised returned corrections must update Word Treasure only after route repair links the learning item.",
 );
 assert.match(
   reviewCompletionActions,

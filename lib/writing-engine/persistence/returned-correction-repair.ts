@@ -151,7 +151,10 @@ function hasMeaningfulMicroSkillKey(value: string | null | undefined) {
   );
 }
 
-function readMetadataString(metadata: Record<string, unknown> | null, key: string) {
+function readMetadataString(
+  metadata: Record<string, unknown> | null,
+  key: string,
+) {
   const value = metadata?.[key];
 
   return typeof value === "string" && value.trim().length > 0
@@ -223,7 +226,10 @@ function getMatchingParentLocalMappings(input: {
       return false;
     }
 
-    if (readMetadataString(mapping.metadata, "source_route") !== "returned_correction") {
+    if (
+      readMetadataString(mapping.metadata, "source_route") !==
+      "returned_correction"
+    ) {
       return false;
     }
 
@@ -244,7 +250,8 @@ function getMatchingParentLocalMappings(input: {
     }
 
     return Boolean(
-      mapping.task_submission_id && returnedSubmissionIds.has(mapping.task_submission_id),
+      mapping.task_submission_id &&
+      returnedSubmissionIds.has(mapping.task_submission_id),
     );
   });
 }
@@ -258,6 +265,26 @@ export function buildReturnedCorrectionRepairPlan(
   const issueEvidence = input.learningItemEvidence.filter(
     (evidence) => evidence.writing_issue_id === input.issue.id,
   );
+  const linkedLearningItemIdSet = new Set(
+    issueLinks.map((link) => link.learning_item_id),
+  );
+  const linkedIssueEvidence = issueEvidence.filter((evidence) =>
+    linkedLearningItemIdSet.has(evidence.learning_item_id),
+  );
+  const recordedAttemptIds = new Set(
+    linkedIssueEvidence
+      .filter(
+        (evidence) => evidence.source_context === "child_correction_attempt",
+      )
+      .map((evidence) =>
+        readMetadataString(evidence.metadata ?? null, "correction_attempt_id"),
+      )
+      .filter((value): value is string => typeof value === "string"),
+  );
+  const hasCompleteRepairEvidence =
+    linkedIssueEvidence.some(
+      (evidence) => evidence.source_context === "finalised_issue_outcome",
+    ) && input.attempts.every((attempt) => recordedAttemptIds.has(attempt.id));
   const linkedLearningItemIds = uniqueValues(
     issueLinks.map((link) => link.learning_item_id),
   );
@@ -270,10 +297,11 @@ export function buildReturnedCorrectionRepairPlan(
     input.catalogEntries.map((entry) => [entry.micro_skill_key, entry]),
   );
   const durableCatalog = hasMeaningfulMicroSkillKey(input.issue.micro_skill_key)
-    ? catalogByKey.get(input.issue.micro_skill_key as string) ?? null
+    ? (catalogByKey.get(input.issue.micro_skill_key as string) ?? null)
     : null;
   const durableRouteReady =
-    Boolean(durableCatalog?.is_active) && Boolean(durableCatalog?.is_assignable);
+    Boolean(durableCatalog?.is_active) &&
+    Boolean(durableCatalog?.is_assignable);
   const learningRelevant = LEARNING_RELEVANT_CLASSIFICATIONS.has(
     input.issue.final_classification ?? "",
   );
@@ -294,11 +322,13 @@ export function buildReturnedCorrectionRepairPlan(
     attempts: input.attempts,
     candidateMappings: input.candidateMappings,
   });
-  const activeAssignablePromotedMappings = matchingPromotedMappings.filter((mapping) => {
-    const entry = catalogByKey.get(mapping.micro_skill_key);
+  const activeAssignablePromotedMappings = matchingPromotedMappings.filter(
+    (mapping) => {
+      const entry = catalogByKey.get(mapping.micro_skill_key);
 
-    return Boolean(entry?.is_active) && Boolean(entry?.is_assignable);
-  });
+      return Boolean(entry?.is_active) && Boolean(entry?.is_assignable);
+    },
+  );
   const distinctActivePromotedKeys = uniqueValues(
     activeAssignablePromotedMappings.map((mapping) => mapping.micro_skill_key),
   );
@@ -309,7 +339,9 @@ export function buildReturnedCorrectionRepairPlan(
     returnedSubmissionIds,
     observedText: input.issue.observed_text,
     correctionText:
-      input.issue.approved_replacement ?? input.issue.suggested_replacement ?? null,
+      input.issue.approved_replacement ??
+      input.issue.suggested_replacement ??
+      null,
     finalClassification: input.issue.final_classification,
     durableMicroSkillKey: input.issue.micro_skill_key,
     parentLocalRouteStatus:
@@ -320,7 +352,8 @@ export function buildReturnedCorrectionRepairPlan(
           : "none",
     adminRouteStatus: adminReviewCase ? "admin_deferred_open" : "none",
     catalog: {
-      microSkillKey: durableCatalog?.micro_skill_key ?? input.issue.micro_skill_key,
+      microSkillKey:
+        durableCatalog?.micro_skill_key ?? input.issue.micro_skill_key,
       exists: Boolean(durableCatalog),
       active: Boolean(durableCatalog?.is_active),
       assignable: Boolean(durableCatalog?.is_assignable),
@@ -361,17 +394,25 @@ export function buildReturnedCorrectionRepairPlan(
     ]);
   }
 
-  if (issueLinks.length > 0) {
+  if (issueLinks.length > 0 && linkedLearningItemIdSet.size > 1) {
+    return unsafe("manual_review", [
+      "Multiple learning items are linked to this writing issue; manual review is required.",
+    ]);
+  }
+
+  if (issueLinks.length > 0 && hasCompleteRepairEvidence) {
     return {
       ...base,
       bucket: "already_repaired",
       proposedAction: "none",
       safeToApply: false,
-      reasons: ["A learning item issue link already exists for this writing issue."],
+      reasons: [
+        "A learning item issue link already exists for this writing issue.",
+      ],
     };
   }
 
-  if (issueEvidence.length > 0) {
+  if (issueEvidence.length > 0 && issueLinks.length === 0) {
     return unsafe("manual_review", [
       "Learning item evidence exists for this issue without an issue link; manual review is required before repair.",
     ]);
@@ -413,7 +454,10 @@ export function buildReturnedCorrectionRepairPlan(
     };
   }
 
-  if (durableCatalog && (!durableCatalog.is_active || !durableCatalog.is_assignable)) {
+  if (
+    durableCatalog &&
+    (!durableCatalog.is_active || !durableCatalog.is_assignable)
+  ) {
     return unsafe("manual_review", [
       "Durable route exists but the catalog row is inactive or non-assignable.",
     ]);
@@ -445,7 +489,8 @@ export function buildReturnedCorrectionRepairPlan(
   });
 
   if (bridgeResolution.status === "bridged") {
-    const bridgeCatalog = catalogByKey.get(bridgeResolution.microSkillKey) ?? null;
+    const bridgeCatalog =
+      catalogByKey.get(bridgeResolution.microSkillKey) ?? null;
 
     return {
       ...base,
@@ -457,7 +502,8 @@ export function buildReturnedCorrectionRepairPlan(
         practiceRoute: bridgeCatalog?.practice_route ?? null,
       },
       bucket: "repairable_parent_local_bridge",
-      proposedAction: "attach_parent_local_route_and_create_or_strengthen_learning_item",
+      proposedAction:
+        "attach_parent_local_route_and_create_or_strengthen_learning_item",
       proposedMutations: [
         {
           type: "attach_parent_local_route",
@@ -523,12 +569,14 @@ export function summarizeReturnedCorrectionRepairPlans(
     repairableParentLocalBridge: plans.filter(
       (plan) => plan.bucket === "repairable_parent_local_bridge",
     ).length,
-    adminDeferred: plans.filter((plan) => plan.bucket === "deferred_admin_route")
-      .length,
+    adminDeferred: plans.filter(
+      (plan) => plan.bucket === "deferred_admin_route",
+    ).length,
     unsafeManualReview: plans.filter(
       (plan) => plan.bucket === "unsafe_manual_review",
     ).length,
-    alreadyRepaired: plans.filter((plan) => plan.bucket === "already_repaired").length,
+    alreadyRepaired: plans.filter((plan) => plan.bucket === "already_repaired")
+      .length,
   };
 }
 

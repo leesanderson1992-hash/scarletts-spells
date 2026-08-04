@@ -76,7 +76,10 @@ function getStructuredSubmissionPayloadTypeForReview(task: {
 function parseFreeWritingEvidenceCandidateIds(formData: FormData) {
   return formData
     .getAll("free_writing_evidence_candidate_id")
-    .filter((value): value is string => typeof value === "string" && value.trim().length > 0)
+    .filter(
+      (value): value is string =>
+        typeof value === "string" && value.trim().length > 0,
+    )
     .map((value) => value.trim());
 }
 
@@ -276,7 +279,8 @@ async function bridgeReturnedCorrectionParentLocalRoute(input: {
     .eq("child_id", input.issue.child_id)
     .order("created_at", { ascending: false });
 
-  const attempts = (attemptRows ?? []) as ReturnedCorrectionRouteBridgeAttempt[];
+  const attempts = (attemptRows ??
+    []) as ReturnedCorrectionRouteBridgeAttempt[];
 
   if (attempts.length === 0 || !input.issue.source_misspelling_instance_id) {
     return null;
@@ -300,7 +304,10 @@ async function bridgeReturnedCorrectionParentLocalRoute(input: {
     )
     .eq("parent_user_id", input.parentUserId)
     .eq("child_id", input.issue.child_id)
-    .eq("source_misspelling_instance_id", input.issue.source_misspelling_instance_id)
+    .eq(
+      "source_misspelling_instance_id",
+      input.issue.source_misspelling_instance_id,
+    )
     .eq("candidate_status", "parent_local_promoted")
     .eq("promotion_scope", "parent_local")
     .order("updated_at", { ascending: false });
@@ -328,7 +335,8 @@ async function bridgeReturnedCorrectionParentLocalRoute(input: {
     issue: input.issue,
     attempts,
     candidateMappings,
-    catalogEntries: (catalogRows ?? []) as ReturnedCorrectionRouteBridgeCatalogEntry[],
+    catalogEntries: (catalogRows ??
+      []) as ReturnedCorrectionRouteBridgeCatalogEntry[],
     nowIso: new Date().toISOString(),
   });
 
@@ -448,7 +456,10 @@ async function materializeReturnedSpellingIssuesFromCandidates(input: {
       suggestion.misspelling_instance_id &&
       !suggestionByMisspellingId.has(suggestion.misspelling_instance_id)
     ) {
-      suggestionByMisspellingId.set(suggestion.misspelling_instance_id, suggestion);
+      suggestionByMisspellingId.set(
+        suggestion.misspelling_instance_id,
+        suggestion,
+      );
     }
   });
 
@@ -488,7 +499,8 @@ async function materializeReturnedSpellingIssuesFromCandidates(input: {
     const suggestion = suggestionByMisspellingId.get(misspelling.id) ?? null;
     const isParentAddedMissedWord = isParentAuthoredMisspellingRow(misspelling);
     const observedText =
-      getTrimmedOrNull(suggestion?.observed_text) ?? misspelling.misspelled_word;
+      getTrimmedOrNull(suggestion?.observed_text) ??
+      misspelling.misspelled_word;
     const approvedReplacement =
       getTrimmedOrNull(suggestion?.suggested_replacement) ??
       getTrimmedOrNull(misspelling.suggested_word) ??
@@ -527,7 +539,9 @@ async function materializeReturnedSpellingIssuesFromCandidates(input: {
       parent_review_note:
         childNote ??
         getChildSafeReturnedIssueNote(
-          sourceFieldKey ? input.safeFieldFeedback[sourceFieldKey] ?? null : null,
+          sourceFieldKey
+            ? (input.safeFieldFeedback[sourceFieldKey] ?? null)
+            : null,
         ),
       notes: "Materialized during structured returned-work send-back.",
       metadata: {
@@ -545,7 +559,9 @@ async function materializeReturnedSpellingIssuesFromCandidates(input: {
     };
   });
 
-  const { error } = await input.supabase.from("writing_issues").insert(rowsToInsert);
+  const { error } = await input.supabase
+    .from("writing_issues")
+    .insert(rowsToInsert);
 
   if (error) {
     redirect(
@@ -565,12 +581,19 @@ export async function deleteSubmissionFromReviewImpl(formData: FormData) {
   const redirectPath = formData.get("redirect_path");
 
   const safeRedirectPath =
-    typeof redirectPath === "string" && redirectPath.startsWith("/courses/review")
+    typeof redirectPath === "string" &&
+    redirectPath.startsWith("/courses/review")
       ? redirectPath
       : "/courses/review";
 
   if (typeof submissionId !== "string" || !submissionId) {
-    redirect(buildRedirectWithMessage(safeRedirectPath, "error", "We couldn't find that submission."));
+    redirect(
+      buildRedirectWithMessage(
+        safeRedirectPath,
+        "error",
+        "We couldn't find that submission.",
+      ),
+    );
   }
 
   const {
@@ -581,7 +604,10 @@ export async function deleteSubmissionFromReviewImpl(formData: FormData) {
     redirect("/login");
   }
 
-  const { supabase, submission } = await getOwnedSubmission(submissionId, user.id);
+  const { supabase, submission } = await getOwnedSubmission(
+    submissionId,
+    user.id,
+  );
 
   if (!submission) {
     redirect(
@@ -617,7 +643,9 @@ export async function deleteSubmissionFromReviewImpl(formData: FormData) {
 
   const { data: task } = await supabase
     .from("course_tasks")
-    .select("id, title, task_type, monthly_goal_total, coin_reward_trigger, gold_coin_reward_amount")
+    .select(
+      "id, title, task_type, monthly_goal_total, coin_reward_trigger, gold_coin_reward_amount",
+    )
     .eq("id", submission.task_id)
     .eq("course_id", submission.course_id)
     .eq("parent_user_id", user.id)
@@ -654,16 +682,21 @@ export async function deleteSubmissionFromReviewImpl(formData: FormData) {
   revalidatePath("/learn");
   revalidatePath("/learn/week");
 
-  redirect(buildRedirectWithMessage("/courses/review", "saved", "Submission deleted."));
+  redirect(
+    buildRedirectWithMessage("/courses/review", "saved", "Submission deleted."),
+  );
 }
 
-export async function finaliseWritingIssueClassificationImpl(formData: FormData) {
+export async function finaliseWritingIssueClassificationImpl(
+  formData: FormData,
+) {
   const writingIssueId = formData.get("writing_issue_id");
   const redirectPath = formData.get("redirect_path");
   const finalClassification = formData.get("final_classification");
 
   const safeRedirectPath =
-    typeof redirectPath === "string" && redirectPath.startsWith("/courses/review")
+    typeof redirectPath === "string" &&
+    redirectPath.startsWith("/courses/review")
       ? redirectPath
       : "/courses/review";
 
@@ -718,7 +751,10 @@ export async function finaliseWritingIssueClassificationImpl(formData: FormData)
     );
   }
 
-  if (issue.issue_status === "finalised" || issue.final_classification !== null) {
+  if (
+    issue.issue_status === "finalised" ||
+    issue.final_classification !== null
+  ) {
     redirect(
       buildRedirectWithMessage(
         safeRedirectPath,
@@ -757,6 +793,16 @@ export async function finaliseWritingIssueClassificationImpl(formData: FormData)
 
       routeReady = Boolean(bridgeResult);
     }
+
+    if (!routeReady) {
+      redirect(
+        buildRedirectWithMessage(
+          safeRedirectPath,
+          "error",
+          "Choose an active learning route or send this spelling to admin review before saving the outcome.",
+        ),
+      );
+    }
   }
 
   const { data: finalisationResult, error } = await supabase.rpc(
@@ -784,25 +830,24 @@ export async function finaliseWritingIssueClassificationImpl(formData: FormData)
 
   const createdLearningItem = Boolean(
     finalisationResult &&
-      typeof finalisationResult === "object" &&
-      "created_learning_item" in finalisationResult &&
-      finalisationResult.created_learning_item,
+    typeof finalisationResult === "object" &&
+    "created_learning_item" in finalisationResult &&
+    finalisationResult.created_learning_item,
   );
   const reusedLearningItem = Boolean(
     finalisationResult &&
-      typeof finalisationResult === "object" &&
-      "reused_learning_item" in finalisationResult &&
-      finalisationResult.reused_learning_item,
+    typeof finalisationResult === "object" &&
+    "reused_learning_item" in finalisationResult &&
+    finalisationResult.reused_learning_item,
   );
   const linkedLearningItemExists = Boolean(
     finalisationResult &&
-      typeof finalisationResult === "object" &&
-      "learning_item_id" in finalisationResult &&
-      finalisationResult.learning_item_id,
+    typeof finalisationResult === "object" &&
+    "learning_item_id" in finalisationResult &&
+    finalisationResult.learning_item_id,
   );
-  const createsLearningItem = doesFinalClassificationCreateLearningItem(
-    finalClassification,
-  );
+  const createsLearningItem =
+    doesFinalClassificationCreateLearningItem(finalClassification);
   let wordTreasureCreatedOrUpdated = false;
 
   if (createsLearningItem && linkedLearningItemExists) {
@@ -877,11 +922,15 @@ export async function finaliseWritingIssueClassificationImpl(formData: FormData)
       "saved",
       wordTreasureCreatedOrUpdated && createdLearningItem
         ? `Final classification saved: ${finalClassification}. Golden Nugget created.`
-        : wordTreasureCreatedOrUpdated && reusedLearningItem && linkedLearningItemExists
+        : wordTreasureCreatedOrUpdated &&
+            reusedLearningItem &&
+            linkedLearningItemExists
           ? `Final classification saved: ${finalClassification}. Existing learning item strengthened.`
-          : wordTreasureCreatedOrUpdated && createsLearningItem && linkedLearningItemExists
-              ? `Final classification saved: ${finalClassification}. Linked learning item confirmed.`
-              : `Final classification saved: ${finalClassification}.`,
+          : wordTreasureCreatedOrUpdated &&
+              createsLearningItem &&
+              linkedLearningItemExists
+            ? `Final classification saved: ${finalClassification}. Linked learning item confirmed.`
+            : `Final classification saved: ${finalClassification}.`,
     ),
   );
 }
@@ -892,12 +941,19 @@ export async function returnSubmissionToChildImpl(formData: FormData) {
   const parentNote = formData.get("parent_review_note");
 
   const safeRedirectPath =
-    typeof redirectPath === "string" && redirectPath.startsWith("/courses/review")
+    typeof redirectPath === "string" &&
+    redirectPath.startsWith("/courses/review")
       ? redirectPath
       : "/courses/review";
 
   if (typeof submissionId !== "string" || !submissionId) {
-    redirect(buildRedirectWithMessage(safeRedirectPath, "error", "We couldn't find that submission."));
+    redirect(
+      buildRedirectWithMessage(
+        safeRedirectPath,
+        "error",
+        "We couldn't find that submission.",
+      ),
+    );
   }
 
   const safeParentNote =
@@ -913,7 +969,10 @@ export async function returnSubmissionToChildImpl(formData: FormData) {
     redirect("/login");
   }
 
-  const { supabase, submission } = await getOwnedSubmission(submissionId, user.id);
+  const { supabase, submission } = await getOwnedSubmission(
+    submissionId,
+    user.id,
+  );
 
   if (!submission) {
     redirect(
@@ -1058,9 +1117,9 @@ export async function returnSubmissionToChildImpl(formData: FormData) {
 
   const hydratedIssuesToSendBack = issuesToSendBack.map((issue) => {
     const matchedLessonField = issue.source_field_key
-      ? structuredLessonReviewContext?.reviewableFields.find(
+      ? (structuredLessonReviewContext?.reviewableFields.find(
           (field) => field.key === issue.source_field_key,
-        ) ?? null
+        ) ?? null)
       : inferStructuredLessonFieldMatch({
           reviewContext: structuredLessonReviewContext,
           observedText: issue.observed_text,
@@ -1069,11 +1128,14 @@ export async function returnSubmissionToChildImpl(formData: FormData) {
           parentReviewNote: issue.parent_review_note,
         });
 
-    const resolvedSourceFieldKey = issue.source_field_key ?? matchedLessonField?.key ?? null;
+    const resolvedSourceFieldKey =
+      issue.source_field_key ?? matchedLessonField?.key ?? null;
     const resolvedChildNote =
       getChildSafeReturnedIssueNote(issue.parent_review_note) ??
       getChildSafeReturnedIssueNote(
-        resolvedSourceFieldKey ? safeFieldFeedback[resolvedSourceFieldKey] ?? null : null,
+        resolvedSourceFieldKey
+          ? (safeFieldFeedback[resolvedSourceFieldKey] ?? null)
+          : null,
       ) ??
       getChildSafeReturnedIssueNote(matchedLessonField?.feedback) ??
       getChildSafeReturnedIssueNote(safeParentNote);
@@ -1085,8 +1147,8 @@ export async function returnSubmissionToChildImpl(formData: FormData) {
     };
   });
 
-  const returnedIssuePayload: ReturnedWritingIssueDraftPayload[] = hydratedIssuesToSendBack.map(
-    (issue) => ({
+  const returnedIssuePayload: ReturnedWritingIssueDraftPayload[] =
+    hydratedIssuesToSendBack.map((issue) => ({
       issue_id: issue.id,
       observed_text: issue.observed_text ?? null,
       approved_replacement: issue.approved_replacement ?? null,
@@ -1095,13 +1157,13 @@ export async function returnSubmissionToChildImpl(formData: FormData) {
       context_text: issue.context_text ?? null,
       position_start:
         typeof issue.position_start === "number" ? issue.position_start : null,
-      position_end: typeof issue.position_end === "number" ? issue.position_end : null,
+      position_end:
+        typeof issue.position_end === "number" ? issue.position_end : null,
       allow_confidence:
         Boolean(issue.source_misspelling_instance_id) ||
         looksLikeWordIssue(issue.observed_text, issue.approved_replacement),
       issue_status: "sent_back_to_child",
-    }),
-  );
+    }));
 
   const draftPayloadSeed = getStructuredDraftPayloadSeed({
     existingDraftPayload: existingDraft?.draft_payload,
@@ -1130,7 +1192,8 @@ export async function returnSubmissionToChildImpl(formData: FormData) {
         course_id: submission.course_id,
         child_id: submission.child_id,
         parent_user_id: user.id,
-        draft_text: existingDraft?.draft_text ?? submission.submission_text ?? "",
+        draft_text:
+          existingDraft?.draft_text ?? submission.submission_text ?? "",
         draft_review_summary: existingDraft?.draft_review_summary ?? null,
         draft_payload: mergedDraftPayload,
         updated_at: new Date().toISOString(),
@@ -1193,8 +1256,10 @@ export async function returnSubmissionToChildImpl(formData: FormData) {
 
     const metadataBackfillTargets = hydratedIssuesToSendBack.filter(
       (issue) =>
-        (issue.resolvedSourceFieldKey && issue.resolvedSourceFieldKey !== issue.source_field_key) ||
-        (issue.resolvedChildNote && issue.resolvedChildNote !== issue.parent_review_note),
+        (issue.resolvedSourceFieldKey &&
+          issue.resolvedSourceFieldKey !== issue.source_field_key) ||
+        (issue.resolvedChildNote &&
+          issue.resolvedChildNote !== issue.parent_review_note),
     );
 
     for (const issue of metadataBackfillTargets) {
@@ -1224,7 +1289,9 @@ export async function returnSubmissionToChildImpl(formData: FormData) {
   revalidatePath("/learn");
   revalidatePath("/learn/week");
 
-  redirect(buildRedirectWithMessage(safeRedirectPath, "saved", "Sent back to child."));
+  redirect(
+    buildRedirectWithMessage(safeRedirectPath, "saved", "Sent back to child."),
+  );
 }
 
 export async function approveSubmissionReviewImpl(formData: FormData) {
@@ -1232,12 +1299,19 @@ export async function approveSubmissionReviewImpl(formData: FormData) {
   const redirectPath = formData.get("redirect_path");
 
   const safeRedirectPath =
-    typeof redirectPath === "string" && redirectPath.startsWith("/courses/review")
+    typeof redirectPath === "string" &&
+    redirectPath.startsWith("/courses/review")
       ? redirectPath
       : "/courses/review";
 
   if (typeof submissionId !== "string" || !submissionId) {
-    redirect(buildRedirectWithMessage(safeRedirectPath, "error", "We couldn't find that submission."));
+    redirect(
+      buildRedirectWithMessage(
+        safeRedirectPath,
+        "error",
+        "We couldn't find that submission.",
+      ),
+    );
   }
 
   const {
@@ -1248,7 +1322,10 @@ export async function approveSubmissionReviewImpl(formData: FormData) {
     redirect("/login");
   }
 
-  const { supabase, submission } = await getOwnedSubmission(submissionId, user.id);
+  const { supabase, submission } = await getOwnedSubmission(
+    submissionId,
+    user.id,
+  );
 
   if (!submission) {
     redirect(
@@ -1274,7 +1351,9 @@ export async function approveSubmissionReviewImpl(formData: FormData) {
 
   const { data: task } = await supabase
     .from("course_tasks")
-    .select("id, title, task_type, lesson_schema, monthly_goal_total, coin_reward_trigger, gold_coin_reward_amount")
+    .select(
+      "id, title, task_type, lesson_schema, monthly_goal_total, coin_reward_trigger, gold_coin_reward_amount",
+    )
     .eq("id", submission.task_id)
     .eq("course_id", submission.course_id)
     .eq("parent_user_id", user.id)
@@ -1290,12 +1369,13 @@ export async function approveSubmissionReviewImpl(formData: FormData) {
     );
   }
 
-  const unifiedSpellingReviewItems = await loadUnifiedSpellingReviewItemsForSubmission({
-    supabase,
-    submissionId: submission.id,
-    parentUserId: user.id,
-    childId: submission.child_id,
-  });
+  const unifiedSpellingReviewItems =
+    await loadUnifiedSpellingReviewItemsForSubmission({
+      supabase,
+      submissionId: submission.id,
+      parentUserId: user.id,
+      childId: submission.child_id,
+    });
   const unifiedCompletionSummary = summarizeUnifiedSpellingReviewCompletion(
     unifiedSpellingReviewItems,
   );
@@ -1312,7 +1392,9 @@ export async function approveSubmissionReviewImpl(formData: FormData) {
   }
   const { data: linkedWritingIssues } = await supabase
     .from("writing_issues")
-    .select("source_misspelling_instance_id, issue_status, final_classification")
+    .select(
+      "source_misspelling_instance_id, issue_status, final_classification",
+    )
     .eq("task_submission_id", submission.id)
     .eq("parent_user_id", user.id);
 
@@ -1377,10 +1459,13 @@ export async function approveSubmissionReviewImpl(formData: FormData) {
       submissionId: submission.id,
     });
     if (intake.enabled && intake.blocked.length > 0) {
-      console.info("[adle-canonical-intake] approved corrections retained in backlog", {
-        submissionId: submission.id,
-        blocked: intake.blocked,
-      });
+      console.info(
+        "[adle-canonical-intake] approved corrections retained in backlog",
+        {
+          submissionId: submission.id,
+          blocked: intake.blocked,
+        },
+      );
     }
   } catch (adleIntakeError) {
     console.error(
@@ -1407,7 +1492,8 @@ export async function approveSubmissionReviewImpl(formData: FormData) {
     );
   }
 
-  const structuredPayloadType = getStructuredSubmissionPayloadTypeForReview(task);
+  const structuredPayloadType =
+    getStructuredSubmissionPayloadTypeForReview(task);
   let shouldDeleteDraft = true;
 
   if (structuredPayloadType) {
@@ -1449,5 +1535,7 @@ export async function approveSubmissionReviewImpl(formData: FormData) {
   revalidatePath("/learn/week");
   revalidatePath("/insights");
 
-  redirect(buildRedirectWithMessage(safeRedirectPath, "saved", "Submission approved."));
+  redirect(
+    buildRedirectWithMessage(safeRedirectPath, "saved", "Submission approved."),
+  );
 }

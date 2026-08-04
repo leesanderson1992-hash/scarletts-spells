@@ -191,6 +191,19 @@ assert.equal(
   "no_action",
 );
 
+const linkedWithMissingEvidence = plan({
+  learningItemLinks: [
+    {
+      id: "link-1",
+      learning_item_id: "learning-item-1",
+      writing_issue_id: "issue-1",
+      link_role: "origin",
+    },
+  ],
+});
+assert.equal(linkedWithMissingEvidence.bucket, "repairable_durable_route");
+assert.equal(linkedWithMissingEvidence.safeToApply, true);
+
 const alreadyLinked = plan({
   learningItemLinks: [
     {
@@ -198,6 +211,23 @@ const alreadyLinked = plan({
       learning_item_id: "learning-item-1",
       writing_issue_id: "issue-1",
       link_role: "origin",
+    },
+  ],
+  learningItemEvidence: [
+    {
+      id: "evidence-final",
+      learning_item_id: "learning-item-1",
+      writing_issue_id: "issue-1",
+      evidence_type: "incorrect_use",
+      source_context: "finalised_issue_outcome",
+    },
+    {
+      id: "evidence-attempt",
+      learning_item_id: "learning-item-1",
+      writing_issue_id: "issue-1",
+      evidence_type: "corrected_after_prompt",
+      source_context: "child_correction_attempt",
+      metadata: { correction_attempt_id: "attempt-1" },
     },
   ],
 });
@@ -287,6 +317,11 @@ assert.match(
   /mutationsApplied[\s\S]*summary[\s\S]*proposedMutations[\s\S]*rows/,
   "Output must include mutation counts, summary, proposed mutations, and per-row records.",
 );
+assert.match(
+  repairScript,
+  /applyReturnedCorrectionRepairPlan/,
+  "Stage D command and parent route capture must reuse the extracted idempotent repair applier.",
+);
 assert.doesNotMatch(
   repairScript,
   /maybeAward|gold_coin|word_treasure|daily_assignments|assignment_items|createServiceRoleClient|service-role/i,
@@ -311,7 +346,7 @@ const reviewCompletionActionsSource = readFileSync(
 );
 assert.match(
   reviewCompletionActionsSource,
-  /const \{ supabase, submission \} = await getOwnedSubmission\(submissionId, user\.id\);[\s\S]*?const adleServiceClient = createServiceRoleClient\(\);/,
+  /const \{ supabase, submission \} = await getOwnedSubmission\([\s\S]*submissionId,[\s\S]*user\.id,[\s\S]*\);[\s\S]*?const adleServiceClient = createServiceRoleClient\(\);/,
   "The privileged ADLE client must be created only after authenticated, parent-owned submission lookup.",
 );
 assert.doesNotMatch(

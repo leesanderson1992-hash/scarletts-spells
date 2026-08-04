@@ -10,7 +10,10 @@ import {
   normaliseAppMode,
   selectChildById,
 } from "@/lib/children";
-import { formatCourseDate, getActiveChildrenForUser } from "@/lib/courses/queries";
+import {
+  formatCourseDate,
+  getActiveChildrenForUser,
+} from "@/lib/courses/queries";
 import {
   getFreeWritingEvidenceCandidatesForReview,
   type FreeWritingEvidenceReviewCandidate,
@@ -98,13 +101,8 @@ type MisspellingReviewRow = {
   position_end: number | null;
 };
 
-function hasReturnedCorrectionResponse(rows: UnifiedSpellingReviewItem[]) {
-  return rows.some(
-    (row) =>
-      row.source === "returned_correction" &&
-      row.state === "child_responded" &&
-      !row.correctionOutcome,
-  );
+function hasReturnedCorrectionRows(rows: UnifiedSpellingReviewItem[]) {
+  return rows.some((row) => row.source === "returned_correction");
 }
 
 function getReviewWorkflowPhase(input: {
@@ -115,7 +113,7 @@ function getReviewWorkflowPhase(input: {
     return "read_only";
   }
 
-  if (hasReturnedCorrectionResponse(input.unifiedSpellingReviewItems)) {
+  if (hasReturnedCorrectionRows(input.unifiedSpellingReviewItems)) {
     return "returned_correction";
   }
 
@@ -137,7 +135,10 @@ async function buildScopedSuggestedMicroSkillKeysByMisspellingId(input: {
   writingIssueSuggestions: WritingIssueSuggestionRow[];
   sourceType: "lesson_submission" | "manual_writing_sample";
 }) {
-  if (input.sourceType !== "lesson_submission" || input.misspellings.length === 0) {
+  if (
+    input.sourceType !== "lesson_submission" ||
+    input.misspellings.length === 0
+  ) {
     return {} as Record<string, string>;
   }
 
@@ -151,7 +152,9 @@ async function buildScopedSuggestedMicroSkillKeysByMisspellingId(input: {
   const normalizedMisspellings = Array.from(
     new Set(
       input.misspellings
-        .map((misspelling) => normaliseWordForLookup(misspelling.misspelled_word))
+        .map((misspelling) =>
+          normaliseWordForLookup(misspelling.misspelled_word),
+        )
         .filter((value): value is string => Boolean(value)),
     ),
   );
@@ -173,7 +176,9 @@ async function buildScopedSuggestedMicroSkillKeysByMisspellingId(input: {
   );
 
   unresolvedMisspellings.forEach((misspelling) => {
-    const normalizedMisspelling = normaliseWordForLookup(misspelling.misspelled_word);
+    const normalizedMisspelling = normaliseWordForLookup(
+      misspelling.misspelled_word,
+    );
     const normalizedCorrectSpelling = normaliseWordForLookup(
       misspelling.suggested_word ?? misspelling.corrected_word,
     );
@@ -182,11 +187,13 @@ async function buildScopedSuggestedMicroSkillKeysByMisspellingId(input: {
       return;
     }
 
-    const exactLocalMatches = ((promotedCandidateRows ?? []) as Array<{
-      misspelling_normalized?: string;
-      correct_spelling_normalized?: string;
-      micro_skill_key?: string;
-    }>).filter(
+    const exactLocalMatches = (
+      (promotedCandidateRows ?? []) as Array<{
+        misspelling_normalized?: string;
+        correct_spelling_normalized?: string;
+        micro_skill_key?: string;
+      }>
+    ).filter(
       (mapping) =>
         mapping.misspelling_normalized === normalizedMisspelling &&
         mapping.correct_spelling_normalized === normalizedCorrectSpelling &&
@@ -194,11 +201,14 @@ async function buildScopedSuggestedMicroSkillKeysByMisspellingId(input: {
         mapping.micro_skill_key.trim().length > 0,
     );
     const distinctLocalMicroSkillKeys = Array.from(
-      new Set(exactLocalMatches.map((mapping) => mapping.micro_skill_key as string)),
+      new Set(
+        exactLocalMatches.map((mapping) => mapping.micro_skill_key as string),
+      ),
     );
 
     if (distinctLocalMicroSkillKeys.length === 1) {
-      suggestedMicroSkillKeysByMisspellingId[misspelling.id] = distinctLocalMicroSkillKeys[0];
+      suggestedMicroSkillKeysByMisspellingId[misspelling.id] =
+        distinctLocalMicroSkillKeys[0];
     }
   });
 
@@ -228,12 +238,15 @@ async function buildDerivedTemplateMetadataByMicroSkillKey(input: {
     const matchedSuggestion = input.writingIssueSuggestions.find(
       (suggestion) => suggestion.misspelling_instance_id === misspelling.id,
     );
-    const matchedSuggestedMicroSkillKey = matchedSuggestion?.suggested_micro_skill_key ?? null;
+    const matchedSuggestedMicroSkillKey =
+      matchedSuggestion?.suggested_micro_skill_key ?? null;
     const matchedSuggestionMicroSkillKey = hasCanonicalMicroSkillKey(
       matchedSuggestedMicroSkillKey,
     )
       ? matchedSuggestedMicroSkillKey
-      : input.canonicalSuggestedMicroSkillKeysByMisspellingId?.[misspelling.id] ?? null;
+      : (input.canonicalSuggestedMicroSkillKeysByMisspellingId?.[
+          misspelling.id
+        ] ?? null);
 
     if (hasCanonicalMicroSkillKey(matchedSuggestionMicroSkillKey)) {
       microSkillKeys.add(matchedSuggestionMicroSkillKey);
@@ -270,12 +283,14 @@ function LessonParentActionsSection(props: {
 }) {
   const approvalBlocked = !props.completionSummary.canComplete;
   const blockingReasons = props.completionSummary.blockingReasons;
-  const confirmableEvidenceCandidates = props.freeWritingEvidenceCandidates.filter(
-    (candidate) => candidate.canConfirm,
-  );
-  const duplicateEvidenceCandidates = props.freeWritingEvidenceCandidates.filter(
-    (candidate) => !candidate.canConfirm,
-  );
+  const confirmableEvidenceCandidates =
+    props.freeWritingEvidenceCandidates.filter(
+      (candidate) => candidate.canConfirm,
+    );
+  const duplicateEvidenceCandidates =
+    props.freeWritingEvidenceCandidates.filter(
+      (candidate) => !candidate.canConfirm,
+    );
   const renderEvidenceConfirmationInputs = () =>
     confirmableEvidenceCandidates.length > 0 ? (
       <div className="grid gap-2 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3">
@@ -298,7 +313,9 @@ function LessonParentActionsSection(props: {
               <span>
                 <span className="font-semibold">{candidate.matched_word}</span>
                 {" in "}
-                <span className="font-mono text-xs">{candidate.source_field_key}</span>
+                <span className="font-mono text-xs">
+                  {candidate.source_field_key}
+                </span>
                 {candidate.would_award_golden_bar
                   ? " can become a confirmed Gold Bar."
                   : " can count as confirmed forge evidence."}
@@ -331,8 +348,8 @@ function LessonParentActionsSection(props: {
 
       {props.showZeroSuggestionGuidance ? (
         <div className="mt-4 rounded-2xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm leading-6 text-sky-900">
-          No suggestions found. Please check the work and mark it complete when you are
-          satisfied.
+          No suggestions found. Please check the work and mark it complete when
+          you are satisfied.
         </div>
       ) : null}
 
@@ -343,8 +360,8 @@ function LessonParentActionsSection(props: {
               Free-writing evidence
             </p>
             <p className="mt-1 text-sm leading-6 text-[color:var(--mid)]">
-              These matches are only estimates until you confirm them during approve
-              or send-back.
+              These matches are only estimates until you confirm them during
+              approve or send-back.
             </p>
           </div>
           {confirmableEvidenceCandidates.length > 0 ? (
@@ -355,15 +372,18 @@ function LessonParentActionsSection(props: {
                   className="rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-800"
                 >
                   {candidate.matched_word}
-                  {candidate.would_award_golden_bar ? " · possible Gold Bar" : ""}
+                  {candidate.would_award_golden_bar
+                    ? " · possible Gold Bar"
+                    : ""}
                 </span>
               ))}
             </div>
           ) : null}
           {duplicateEvidenceCandidates.length > 0 ? (
             <p className="text-xs uppercase tracking-[0.16em] text-[color:var(--mid)]">
-              {duplicateEvidenceCandidates.length} duplicate or already-confirmed
-              match{duplicateEvidenceCandidates.length === 1 ? "" : "es"} skipped.
+              {duplicateEvidenceCandidates.length} duplicate or
+              already-confirmed match
+              {duplicateEvidenceCandidates.length === 1 ? "" : "es"} skipped.
             </p>
           ) : null}
         </div>
@@ -376,10 +396,13 @@ function LessonParentActionsSection(props: {
         <input type="hidden" name="submission_id" value={props.submissionId} />
         <input type="hidden" name="redirect_path" value={props.redirectPath} />
         <div>
-          <p className="text-sm font-medium text-[color:var(--ink)]">Add missed word</p>
+          <p className="text-sm font-medium text-[color:var(--ink)]">
+            Add missed word
+          </p>
           <p className="mt-1 text-sm leading-6 text-[color:var(--mid)]">
-            Save a missed word the parent spotted in this lesson. It will appear as
-            parent-authored review input, not as Suggested Issues engine output.
+            Save a missed word the parent spotted in this lesson. It will appear
+            as parent-authored review input, not as Suggested Issues engine
+            output.
           </p>
         </div>
         <div className="grid gap-3 md:grid-cols-2">
@@ -411,8 +434,16 @@ function LessonParentActionsSection(props: {
 
       <div className="mt-4 grid gap-3">
         <form action={approveSubmissionReview} className="grid gap-2">
-          <input type="hidden" name="submission_id" value={props.submissionId} />
-          <input type="hidden" name="redirect_path" value={props.redirectPath} />
+          <input
+            type="hidden"
+            name="submission_id"
+            value={props.submissionId}
+          />
+          <input
+            type="hidden"
+            name="redirect_path"
+            value={props.redirectPath}
+          />
           {renderEvidenceConfirmationInputs()}
           <button
             className="brand-primary-btn disabled:cursor-not-allowed disabled:opacity-60"
@@ -431,13 +462,22 @@ function LessonParentActionsSection(props: {
           </div>
         ) : (
           <p className="text-xs uppercase tracking-[0.16em] text-[color:var(--mid)]">
-            Approval is available once unified spelling review items are resolved.
+            Approval is available once unified spelling review items are
+            resolved.
           </p>
         )}
 
         <form action={returnSubmissionToChild} className="grid gap-3">
-          <input type="hidden" name="submission_id" value={props.submissionId} />
-          <input type="hidden" name="redirect_path" value={props.redirectPath} />
+          <input
+            type="hidden"
+            name="submission_id"
+            value={props.submissionId}
+          />
+          <input
+            type="hidden"
+            name="redirect_path"
+            value={props.redirectPath}
+          />
           {renderEvidenceConfirmationInputs()}
           <label className="grid gap-1 text-sm text-[color:var(--ink)]">
             <span className="font-medium">Parent note</span>
@@ -475,7 +515,9 @@ function LessonParentActionsSection(props: {
                     {field.value}
                   </p>
                   <label className="mt-3 grid gap-1 text-sm text-[color:var(--ink)]">
-                    <span className="font-medium">Feedback for this answer</span>
+                    <span className="font-medium">
+                      Feedback for this answer
+                    </span>
                     <textarea
                       name={`field_feedback__${field.key}`}
                       rows={3}
@@ -490,7 +532,10 @@ function LessonParentActionsSection(props: {
           ) : null}
 
           <div className="grid gap-3">
-            <button className="brand-secondary-btn justify-center" type="submit">
+            <button
+              className="brand-secondary-btn justify-center"
+              type="submit"
+            >
               Send back to child
             </button>
           </div>
@@ -500,7 +545,10 @@ function LessonParentActionsSection(props: {
   );
 }
 
-function renderHighlightedText(text: string, misspellings: MisspellingReviewRow[]) {
+function renderHighlightedText(
+  text: string,
+  misspellings: MisspellingReviewRow[],
+) {
   const validRanges = [...misspellings]
     .filter(
       (row) =>
@@ -509,7 +557,9 @@ function renderHighlightedText(text: string, misspellings: MisspellingReviewRow[
         row.position_start >= 0 &&
         row.position_end > row.position_start,
     )
-    .sort((left, right) => (left.position_start ?? 0) - (right.position_start ?? 0));
+    .sort(
+      (left, right) => (left.position_start ?? 0) - (right.position_start ?? 0),
+    );
 
   if (validRanges.length === 0) {
     return text;
@@ -638,9 +688,10 @@ export default async function CourseReviewDetailPage({
     ]);
 
     const misspellings = (misspellingRows ?? []) as MisspellingReviewRow[];
-    const writingIssues = (writingIssueRows ?? []) as ReviewWritingIssueWithSourceSuggestionRow[];
-    const writingIssueSuggestions =
-      (writingIssueSuggestionRows ?? []) as WritingIssueSuggestionRow[];
+    const writingIssues = (writingIssueRows ??
+      []) as ReviewWritingIssueWithSourceSuggestionRow[];
+    const writingIssueSuggestions = (writingIssueSuggestionRows ??
+      []) as WritingIssueSuggestionRow[];
     const parentManualSuggestionIds = new Set(
       writingIssueSuggestions
         .filter((suggestion) => suggestion.source_type === "parent_manual")
@@ -705,7 +756,8 @@ export default async function CourseReviewDetailPage({
                   {manualSample.title?.trim() || "Manual writing sample"}
                 </h1>
                 <p className="mt-2 text-sm leading-6 text-[color:var(--mid)]">
-                  Entered through {manualSample.source?.trim() || "Add Writing Sample"} ·{" "}
+                  Entered through{" "}
+                  {manualSample.source?.trim() || "Add Writing Sample"} ·{" "}
                   {formatCourseDate(manualSampleDate.slice(0, 10))}
                 </p>
               </div>
@@ -774,7 +826,11 @@ export default async function CourseReviewDetailPage({
 
           <ManualSampleParentIssueSection
             writingSampleId={manualSample.id}
-            redirectPath={buildScopedPath(`/courses/review/${reviewEntryId}`, selectedChild.id, mode)}
+            redirectPath={buildScopedPath(
+              `/courses/review/${reviewEntryId}`,
+              selectedChild.id,
+              mode,
+            )}
             isCompleted={Boolean(manualSample.review_completed_at)}
             completedAt={
               typeof manualSample.review_completed_at === "string"
@@ -783,18 +839,24 @@ export default async function CourseReviewDetailPage({
             }
           />
 
-          <ManualSampleParentAuthoredIssuesSection rows={parentAuthoredManualIssues} />
+          <ManualSampleParentAuthoredIssuesSection
+            rows={parentAuthoredManualIssues}
+          />
 
-        <SuggestedIssuesPanel
-          model={panelModel}
-          submissionId={reviewEntryId}
-          redirectPath={buildScopedPath(`/courses/review/${reviewEntryId}`, selectedChild.id, mode)}
-          candidateCaptureMicroSkillProvider={{
-            status: "blocked",
-            reason: "no_options_available",
-          }}
-          pendingCandidateMappingsByMisspellingId={new Map()}
-        />
+          <SuggestedIssuesPanel
+            model={panelModel}
+            submissionId={reviewEntryId}
+            redirectPath={buildScopedPath(
+              `/courses/review/${reviewEntryId}`,
+              selectedChild.id,
+              mode,
+            )}
+            candidateCaptureMicroSkillProvider={{
+              status: "blocked",
+              reason: "no_options_available",
+            }}
+            pendingCandidateMappingsByMisspellingId={new Map()}
+          />
         </section>
       </AppShell>
     );
@@ -803,7 +865,9 @@ export default async function CourseReviewDetailPage({
   const submissionId = reviewEntry.id;
   const { data: submission } = await supabase
     .from("task_submissions")
-    .select("id, task_id, course_id, child_id, submission_text, submitted_at, parent_review_status, parent_review_note, parent_reviewed_at")
+    .select(
+      "id, task_id, course_id, child_id, submission_text, submitted_at, parent_review_status, parent_review_note, parent_reviewed_at",
+    )
     .eq("id", submissionId)
     .eq("parent_user_id", user.id)
     .eq("child_id", selectedChild.id)
@@ -915,10 +979,15 @@ export default async function CourseReviewDetailPage({
     : { data: [], error: null };
 
   const misspellings = (misspellingQuery.data ?? []) as MisspellingReviewRow[];
-  const parentAddedMissedWords = misspellings.filter((row) => isParentAuthoredMisspellingRow(row));
-  const engineMisspellings = misspellings.filter((row) => !isParentAuthoredMisspellingRow(row));
+  const parentAddedMissedWords = misspellings.filter((row) =>
+    isParentAuthoredMisspellingRow(row),
+  );
+  const engineMisspellings = misspellings.filter(
+    (row) => !isParentAuthoredMisspellingRow(row),
+  );
   const writingIssues = (writingIssueRows ?? []) as WritingIssueRow[];
-  const writingIssueSuggestions = (writingIssueSuggestionRows ?? []) as WritingIssueSuggestionRow[];
+  const writingIssueSuggestions = (writingIssueSuggestionRows ??
+    []) as WritingIssueSuggestionRow[];
   const canonicalSuggestedMicroSkillKeysByMisspellingId =
     await buildScopedSuggestedMicroSkillKeysByMisspellingId({
       supabase,
@@ -964,9 +1033,13 @@ export default async function CourseReviewDetailPage({
       Boolean(parentVerificationError),
   });
   const parsedSubmission = parseSubmissionReview(submission.submission_text);
-  const submissionStatus = getSubmissionStatusLabel(submission.parent_review_status);
+  const submissionStatus = getSubmissionStatusLabel(
+    submission.parent_review_status,
+  );
   const lessonSchema =
-    task?.lesson_schema && typeof task.lesson_schema === "object" && !Array.isArray(task.lesson_schema)
+    task?.lesson_schema &&
+    typeof task.lesson_schema === "object" &&
+    !Array.isArray(task.lesson_schema)
       ? task.lesson_schema
       : null;
   const reviewableFields = extractReviewableLessonFields(
@@ -991,7 +1064,7 @@ export default async function CourseReviewDetailPage({
                 {task?.title ?? "Lesson submission"}
               </h1>
               <p className="mt-2 text-sm leading-6 text-[color:var(--mid)]">
-                {(course?.title ?? "Course")} · {(module?.title ?? "Module")} ·{" "}
+                {course?.title ?? "Course"} · {module?.title ?? "Module"} ·{" "}
                 {formatCourseDate(submission.submitted_at.slice(0, 10))}
               </p>
             </div>
@@ -1027,7 +1100,9 @@ export default async function CourseReviewDetailPage({
                   Submission status
                 </th>
                 <td className="px-4 py-3">
-                  <span className={`rounded-full border px-3 py-1 text-xs font-medium ${submissionStatus.tone}`}>
+                  <span
+                    className={`rounded-full border px-3 py-1 text-xs font-medium ${submissionStatus.tone}`}
+                  >
                     {submissionStatus.label}
                   </span>
                 </td>
@@ -1036,7 +1111,9 @@ export default async function CourseReviewDetailPage({
                 <th className="w-44 bg-[rgba(255,247,220,0.35)] px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-[color:var(--mid)]">
                   Source type
                 </th>
-                <td className="px-4 py-3 text-[color:var(--ink)]">Lesson submission</td>
+                <td className="px-4 py-3 text-[color:var(--ink)]">
+                  Lesson submission
+                </td>
               </tr>
               <tr>
                 <th className="w-44 bg-[rgba(255,247,220,0.35)] px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-[color:var(--mid)]">
@@ -1059,7 +1136,8 @@ export default async function CourseReviewDetailPage({
             <p className="whitespace-pre-wrap text-sm leading-7 text-[color:var(--ink)]">
               {linkedSample?.sample_text
                 ? renderHighlightedText(linkedSample.sample_text, misspellings)
-                : parsedSubmission.writtenResponse || "No written response on this submission."}
+                : parsedSubmission.writtenResponse ||
+                  "No written response on this submission."}
             </p>
           </div>
           {submission.parent_review_note?.trim() ? (
@@ -1082,18 +1160,27 @@ export default async function CourseReviewDetailPage({
               : []
           }
           submissionId={submission.id}
-          redirectPath={buildScopedPath(`/courses/review/${reviewEntryId}`, selectedChild.id, mode)}
+          redirectPath={buildScopedPath(
+            `/courses/review/${reviewEntryId}`,
+            selectedChild.id,
+            mode,
+          )}
           reviewWorkflowPhase={reviewWorkflowPhase}
         />
 
         <LessonParentActionsSection
           submissionId={submission.id}
-          redirectPath={buildScopedPath(`/courses/review/${reviewEntryId}`, selectedChild.id, mode)}
+          redirectPath={buildScopedPath(
+            `/courses/review/${reviewEntryId}`,
+            selectedChild.id,
+            mode,
+          )}
           parentReviewNote={submission.parent_review_note}
           reviewableFields={reviewableFields}
           completionSummary={unifiedCompletionSummary}
           showZeroSuggestionGuidance={
-            submission.parent_review_status === "pending" && panelModel.state === "empty_result"
+            submission.parent_review_status === "pending" &&
+            panelModel.state === "empty_result"
           }
           freeWritingEvidenceCandidates={freeWritingEvidenceCandidates}
         />

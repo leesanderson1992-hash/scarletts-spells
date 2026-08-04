@@ -204,7 +204,7 @@ assert.match(
 );
 assert.match(
   reviewCompletionActions,
-  /\.from\("misspelling_instances"\)[\s\S]*\.from\("writing_issues"\)\.insert\(rowsToInsert\)/,
+  /\.from\("misspelling_instances"\)[\s\S]*\.from\("writing_issues"\)[\s\S]*\.insert\(rowsToInsert\)/,
   "Send-back must materialize eligible raw misspelling candidates into durable writing_issues.",
 );
 assert.match(
@@ -264,7 +264,7 @@ assert.ok(
 );
 assert.match(
   reviewCompletionActions,
-  /returnedIssuePayload: ReturnedWritingIssueDraftPayload\[\] = hydratedIssuesToSendBack\.map\([\s\S]*issue_id: issue\.id[\s\S]*observed_text: issue\.observed_text[\s\S]*approved_replacement: issue\.approved_replacement[\s\S]*allow_confidence:[\s\S]*Boolean\(issue\.source_misspelling_instance_id\)/,
+  /returnedIssuePayload: ReturnedWritingIssueDraftPayload\[\] =\s*hydratedIssuesToSendBack\.map\([\s\S]*issue_id: issue\.id[\s\S]*observed_text: issue\.observed_text[\s\S]*approved_replacement: issue\.approved_replacement[\s\S]*allow_confidence:[\s\S]*Boolean\(issue\.source_misspelling_instance_id\)/,
   "Durable parent-added missed-word issues with source misspelling lineage must appear in __writing_issue_feedback with retry confidence enabled.",
 );
 assert.match(
@@ -277,10 +277,10 @@ assert.match(
   /finalClassificationNeedsAssignableRoute[\s\S]*micro_skill_key[\s\S]*micro_skill_catalog[\s\S]*bridgeReturnedCorrectionParentLocalRoute[\s\S]*finalise_writing_issue_classification_and_learning_item/,
   "Learning-gap final classification should bridge a promoted durable route when available before calling the finalisation RPC.",
 );
-assert.doesNotMatch(
+assert.match(
   reviewCompletionActions,
-  /Choose an active assignable skill route before saving this learning outcome/,
-  "Returned correction final classification must allow the parent reason to save while an admin route is still pending.",
+  /if \(!routeReady\) \{[\s\S]*Choose an active learning route or send this spelling to admin review before saving the outcome/,
+  "Direct learning-gap finalisation must reject rows without an active route or verified parent-local bridge.",
 );
 assert.match(
   reviewCompletionActions,
@@ -366,8 +366,8 @@ assert.match(
 );
 assert.match(
   reviewDetailPage,
-  /hasReturnedCorrectionResponse[\s\S]*row\.source === "returned_correction"[\s\S]*row\.state === "child_responded"/,
-  "Review Work detail must detect returned child-response rows before choosing the UI phase.",
+  /hasReturnedCorrectionRows[\s\S]*row\.source === "returned_correction"/,
+  "Review Work detail must keep any returned-correction thread in routing mode until approval.",
 );
 assert.match(
   reviewDetailPage,
@@ -421,7 +421,7 @@ assert.match(
 );
 assert.match(
   unifiedSpellingReviewTable,
-  /<option value="">Choose learning route<\/option>[\s\S]*<option value=\{NO_MATCHING_SKILL_VALUE\}>No matching skill<\/option>/,
+  /<option value="">Choose learning route<\/option>[\s\S]*<option value=\{NO_MATCHING_SKILL_VALUE\}>\s*No matching skill\s*<\/option>/,
   "No matching skill must appear as a UI-only Family selector option.",
 );
 assert.match(
@@ -446,7 +446,7 @@ assert.match(
 );
 assert.match(
   unifiedSpellingReviewTable,
-  /\{row\.source === "returned_correction" \? "Unknown" : "Choose skill"\}/,
+  /row\.source === "returned_correction"[\s\S]*\? "Unknown"[\s\S]*: "Choose skill"/,
   "Micro-skill placeholder must be Choose skill for current rows and Unknown for returned rows.",
 );
 assert.doesNotMatch(
@@ -529,6 +529,21 @@ assert.match(
   /action=\{finaliseWritingIssueClassification\}/,
   "Unified compact table must use the existing final-classification action.",
 );
+assert.doesNotMatch(
+  unifiedSpellingReviewTable,
+  /Save reason/,
+  "Returned correction review must not require a separate Save reason action.",
+);
+assert.match(
+  unifiedSpellingReviewTable,
+  /!isLearningRelevantOutcome\(nextOutcome\)[\s\S]*existingAssignableRouteOption[\s\S]*form\?\.requestSubmit\(\)/,
+  "Non-learning outcomes and already-routed learning outcomes must submit directly from the outcome dropdown.",
+);
+assert.match(
+  unifiedSpellingReviewTable,
+  /Choose a learning route to save this outcome\./,
+  "Route-less learning outcomes must remain local until the parent chooses a route.",
+);
 assert.match(
   unifiedSpellingReviewTable,
   /const selectedOutcomeNeedsRoute = isLearningRelevantOutcome\(selectedOutcome\)[\s\S]*const returnedRouteIsOpen =[\s\S]*selectedOutcomeNeedsRoute[\s\S]*categorisation_needed[\s\S]*not_applicable[\s\S]*const routeIsOpen = currentRouteIsOpen \|\| returnedRouteIsOpen/,
@@ -602,7 +617,12 @@ assert.match(
 );
 assert.match(
   candidateMappingActions,
-  /\.eq\("source_misspelling_instance_id", routeContext\.misspelling\.id\)[\s\S]*\.in\("candidate_status", \["pending_parent_promotion", "parent_local_promoted"\][\s\S]*sourceMisspellingInstanceId: routeContext\.misspelling\.id[\s\S]*sourceProvenance: routeContext\.sourceProvenance[\s\S]*action_source: "review_work_returned_correction_candidate_capture"/,
+  /repairFinalisedReturnedCorrectionAfterRouteCapture[\s\S]*buildReturnedCorrectionRepairPlan[\s\S]*applyReturnedCorrectionRepairPlan/,
+  "Candidate capture must repair legacy finalised unknown rows through the idempotent Stage D applier.",
+);
+assert.match(
+  candidateMappingActions,
+  /\.eq\("source_misspelling_instance_id", routeContext\.misspelling\.id\)[\s\S]*\.in\("candidate_status", \[[\s\S]*"pending_parent_promotion"[\s\S]*"parent_local_promoted"[\s\S]*sourceMisspellingInstanceId: routeContext\.misspelling\.id[\s\S]*sourceProvenance: routeContext\.sourceProvenance[\s\S]*action_source: "review_work_returned_correction_candidate_capture"/,
   "Returned candidate mappings must use original misspelling lineage with returned provenance metadata.",
 );
 assert.doesNotMatch(
@@ -624,6 +644,11 @@ assert.match(
   catalogReviewCaseActions,
   /captureReturnedCorrectionCatalogReviewCase[\s\S]*loadReturnedCorrectionRouteContext[\s\S]*spelling_catalog_review_cases/,
   "Catalog review action must bridge returned corrections into admin/catalog cases.",
+);
+assert.match(
+  catalogReviewCaseActions,
+  /spelling_catalog_review_cases[\s\S]*finalise_writing_issue_classification_and_learning_item[\s\S]*getLearningItemIdFromFinalisationResult/,
+  "No-matching-skill deferral must create its guarded catalog case before durably saving the outcome without a learning item.",
 );
 assert.match(
   catalogReviewCaseActions,

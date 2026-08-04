@@ -343,6 +343,16 @@ function loadCaptureSubmissionSpellingCandidateMapping(state: Required<HarnessSt
 
   const stubModules: Record<string, unknown> = {
     "server-only": {},
+    "@/lib/writing-engine/persistence/returned-correction-repair-apply": {
+      async applyReturnedCorrectionRepairPlan() {
+        return { repaired: false, learningItemId: null };
+      },
+    },
+    "@/lib/writing-engine/persistence/returned-correction-repair": {
+      buildReturnedCorrectionRepairPlan() {
+        return { safeToApply: false, reasons: [] };
+      },
+    },
     "./actions/review-completion-actions": {
       async approveSubmissionReviewImpl() {},
       async deleteSubmissionFromReviewImpl() {},
@@ -810,6 +820,16 @@ function loadAddMissedWordToSubmissionReview(state: Required<HarnessState>) {
 
   const stubModules: Record<string, unknown> = {
     "server-only": {},
+    "@/lib/writing-engine/persistence/returned-correction-repair-apply": {
+      async applyReturnedCorrectionRepairPlan() {
+        return { repaired: false, learningItemId: null };
+      },
+    },
+    "@/lib/writing-engine/persistence/returned-correction-repair": {
+      buildReturnedCorrectionRepairPlan() {
+        return { safeToApply: false, reasons: [] };
+      },
+    },
     "./actions/review-completion-actions": {
       async approveSubmissionReviewImpl() {},
       async deleteSubmissionFromReviewImpl() {},

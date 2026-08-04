@@ -1,7 +1,10 @@
 import { buildStage7dReviewWorkVerificationTarget } from "@/lib/writing-engine/review/stage7d-parent-verification";
 
 import type { ReviewSupabase } from "./_shared";
-import { normaliseWordForLookup, isParentAuthoredMisspellingRow } from "../review-utils";
+import {
+  normaliseWordForLookup,
+  isParentAuthoredMisspellingRow,
+} from "../review-utils";
 
 const ROUTABLE_RETURNED_CLASSIFICATIONS = new Set([
   "fragile_knowledge",
@@ -13,6 +16,7 @@ type ReturnedWritingIssueRouteRow = {
   id: string;
   task_submission_id: string;
   child_id: string;
+  issue_status: string;
   source_misspelling_instance_id: string | null;
   source_suggestion_id: string | null;
   final_classification: string | null;
@@ -73,7 +77,9 @@ function parseMetadata(value: unknown): Record<string, unknown> {
 }
 
 function readString(value: unknown) {
-  return typeof value === "string" && value.trim().length > 0 ? value.trim() : null;
+  return typeof value === "string" && value.trim().length > 0
+    ? value.trim()
+    : null;
 }
 
 function isParentAuthoredReturnedIssue(input: {
@@ -105,6 +111,7 @@ export async function loadReturnedCorrectionRouteContext(input: {
         "id",
         "task_submission_id",
         "child_id",
+        "issue_status",
         "source_misspelling_instance_id",
         "source_suggestion_id",
         "final_classification",
@@ -212,13 +219,18 @@ export async function loadReturnedCorrectionRouteContext(input: {
   }
 
   const misspellingNormalized = normaliseWordForLookup(originalChildSpelling);
-  const correctSpellingNormalized = normaliseWordForLookup(originalCorrectSpelling);
+  const correctSpellingNormalized = normaliseWordForLookup(
+    originalCorrectSpelling,
+  );
 
   if (!misspellingNormalized || !correctSpellingNormalized) {
     return null;
   }
 
-  const isParentAuthored = isParentAuthoredReturnedIssue({ issue, misspelling });
+  const isParentAuthored = isParentAuthoredReturnedIssue({
+    issue,
+    misspelling,
+  });
   const sourceProvenance = isParentAuthored
     ? "lesson_submission_parent_added_missed_word"
     : "lesson_submission_existing_output";

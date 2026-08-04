@@ -34,9 +34,7 @@ type UnifiedSpellingReviewTableProps = {
 };
 
 export type UnifiedSpellingReviewWorkflowPhase =
-  | "prepare_retry"
-  | "returned_correction"
-  | "read_only";
+  "prepare_retry" | "returned_correction" | "read_only";
 
 type FamilyOption = {
   key: string;
@@ -73,7 +71,9 @@ function IconActionButton({
 }
 
 function isMeaningfulSkill(value: string | null) {
-  return Boolean(value && value.trim().length > 0 && value.toLowerCase() !== "unknown");
+  return Boolean(
+    value && value.trim().length > 0 && value.toLowerCase() !== "unknown",
+  );
 }
 
 function formatCatalogKeyFallbackLabel(value: string | null) {
@@ -153,7 +153,10 @@ function sourceMarker(row: UnifiedSpellingReviewItem) {
 }
 
 function statusLabel(row: UnifiedSpellingReviewItem) {
-  if (row.categorisationStatus === "sent_to_admin" || row.state === "sent_to_admin") {
+  if (
+    row.categorisationStatus === "sent_to_admin" ||
+    row.state === "sent_to_admin"
+  ) {
     return "Admin route pending";
   }
 
@@ -238,7 +241,8 @@ function phaseHeading(phase: UnifiedSpellingReviewWorkflowPhase) {
       return {
         eyebrow: "Spelling review",
         title: "Spelling correction summary",
-        description: "Review the spelling decisions recorded for this submission.",
+        description:
+          "Review the spelling decisions recorded for this submission.",
       };
   }
 }
@@ -251,7 +255,9 @@ function findOption(
     return null;
   }
 
-  return options.find((option) => option.microSkillKey === microSkillKey) ?? null;
+  return (
+    options.find((option) => option.microSkillKey === microSkillKey) ?? null
+  );
 }
 
 function recommendationBadge(row: UnifiedSpellingReviewItem) {
@@ -259,13 +265,15 @@ function recommendationBadge(row: UnifiedSpellingReviewItem) {
     case "known_match":
       return {
         label: "Known Match",
-        title: "Readable canonical mapping supports this spelling pair. Please still confirm or change before approving.",
+        title:
+          "Readable canonical mapping supports this spelling pair. Please still confirm or change before approving.",
         className: "border-emerald-200 bg-emerald-50 text-emerald-800",
       };
     case "your_match":
       return {
         label: "Your saved match",
-        title: "A saved match for this child supports this spelling pair. Please still confirm or change before approving.",
+        title:
+          "A saved match for this child supports this spelling pair. Please still confirm or change before approving.",
         className: "border-sky-200 bg-sky-50 text-sky-800",
       };
     case "possible_match":
@@ -273,13 +281,15 @@ function recommendationBadge(row: UnifiedSpellingReviewItem) {
         label: `Possible Match · ${Math.round(
           row.microSkillRecommendation?.confidencePercent ?? 0,
         )}%`,
-        title: "Pattern or reviewed evidence suggests this route. The percentage is engine confidence only, not parent confirmation.",
+        title:
+          "Pattern or reviewed evidence suggests this route. The percentage is engine confidence only, not parent confirmation.",
         className: "border-violet-200 bg-violet-50 text-violet-800",
       };
     case "no_match_yet":
       return {
         label: "No Match Yet",
-        title: "No confident existing skill suggestion is available. Choose a skill or send to catalog review.",
+        title:
+          "No confident existing skill suggestion is available. Choose a skill or send to catalog review.",
         className: "border-[var(--border)] bg-white text-[color:var(--mid)]",
       };
     case "check_manually":
@@ -297,7 +307,8 @@ function recommendationBadge(row: UnifiedSpellingReviewItem) {
 function noMatchYetBadge() {
   return {
     label: "No Match Yet",
-    title: "No confident existing skill suggestion is available. Choose a skill or send to catalog review.",
+    title:
+      "No confident existing skill suggestion is available. Choose a skill or send to catalog review.",
     className: "border-[var(--border)] bg-white text-[color:var(--mid)]",
   };
 }
@@ -307,7 +318,9 @@ function isLearningRelevantOutcome(value: string | null) {
 }
 
 function outcomeLabel(value: UnifiedSpellingReviewItem["correctionOutcome"]) {
-  return value ? getWritingIssueFinalClassificationLabel(value) : "Choose outcome";
+  return value
+    ? getWritingIssueFinalClassificationLabel(value)
+    : "Choose outcome";
 }
 
 function UnifiedSpellingReviewTableRow({
@@ -348,8 +361,18 @@ function UnifiedSpellingReviewTableRow({
     (row.correctionOutcome === "fragile_knowledge" ||
       row.correctionOutcome === "concept_gap" ||
       row.correctionOutcome === "transfer_failure");
-  const [selectedOutcome, setSelectedOutcome] = useState(row.correctionOutcome ?? "");
+  const [selectedOutcome, setSelectedOutcome] = useState(
+    row.correctionOutcome ?? "",
+  );
   const selectedOutcomeNeedsRoute = isLearningRelevantOutcome(selectedOutcome);
+  const existingAssignableRouteOption = findOption(
+    options,
+    isMeaningfulSkill(row.microSkillKey)
+      ? row.microSkillKey
+      : isMeaningfulSkill(row.verifiedMicroSkillKey)
+        ? row.verifiedMicroSkillKey
+        : null,
+  );
   const returnedRouteIsOpen =
     routeControlsAllowed &&
     (returnedIssueOutcomeNeedsRoute || selectedOutcomeNeedsRoute) &&
@@ -375,16 +398,15 @@ function UnifiedSpellingReviewTableRow({
       (recommendationOption?.skillClusterKey ?? "");
   const recommendationPrefillAllowed =
     routeIsOpen && recommendationMatchesOption;
-  const initialSkillCandidate =
-    isMeaningfulSkill(row.verifiedMicroSkillKey)
-      ? row.verifiedMicroSkillKey
-      : isMeaningfulSkill(row.microSkillKey)
-        ? row.microSkillKey
-        : isMeaningfulSkill(row.suggestedMicroSkillKey)
-          ? row.suggestedMicroSkillKey
-          : recommendationPrefillAllowed
-            ? row.microSkillRecommendation?.recommendedMicroSkillKey ?? ""
-            : "";
+  const initialSkillCandidate = isMeaningfulSkill(row.verifiedMicroSkillKey)
+    ? row.verifiedMicroSkillKey
+    : isMeaningfulSkill(row.microSkillKey)
+      ? row.microSkillKey
+      : isMeaningfulSkill(row.suggestedMicroSkillKey)
+        ? row.suggestedMicroSkillKey
+        : recommendationPrefillAllowed
+          ? (row.microSkillRecommendation?.recommendedMicroSkillKey ?? "")
+          : "";
   const initialSkill = initialSkillCandidate ?? "";
   const initialSkillOption = findOption(options, initialSkill ?? null);
   const firstFamily = initialSkillOption?.skillFamilyKey ?? "";
@@ -395,7 +417,7 @@ function UnifiedSpellingReviewTableRow({
   );
   const firstCluster =
     initialSkillOption?.skillFamilyKey === familyKey
-      ? initialSkillOption.skillClusterKey ?? ""
+      ? (initialSkillOption.skillClusterKey ?? "")
       : "";
   const [clusterKey, setClusterKey] = useState(firstCluster);
   const filteredMicroSkills = useMemo(
@@ -406,12 +428,17 @@ function UnifiedSpellingReviewTableRow({
             option.skillFamilyKey === familyKey &&
             (option.skillClusterKey ?? "") === clusterKey,
         )
-        .sort((left, right) => left.displayName.localeCompare(right.displayName)),
+        .sort((left, right) =>
+          left.displayName.localeCompare(right.displayName),
+        ),
     [clusterKey, familyKey, options],
   );
   const [microSkillKey, setMicroSkillKey] = useState(initialSkill ?? "");
   const [detailsOpen, setDetailsOpen] = useState(false);
-  function handleOutcomeChange(nextOutcome: string) {
+  function handleOutcomeChange(
+    nextOutcome: string,
+    form: HTMLFormElement | null,
+  ) {
     setSelectedOutcome(nextOutcome);
 
     if (
@@ -422,12 +449,22 @@ function UnifiedSpellingReviewTableRow({
       clusterKey.length > 0 ||
       microSkillKey.length > 0
     ) {
+      if (
+        !isLearningRelevantOutcome(nextOutcome) ||
+        Boolean(existingAssignableRouteOption)
+      ) {
+        form?.requestSubmit();
+      }
       return;
     }
 
     setFamilyKey(recommendationOption.skillFamilyKey);
     setClusterKey(recommendationOption.skillClusterKey ?? "");
     setMicroSkillKey(recommendationOption.microSkillKey);
+
+    if (existingAssignableRouteOption) {
+      form?.requestSubmit();
+    }
   }
   const suggestedSkillIsUsable = isMeaningfulSkill(row.suggestedMicroSkillKey);
   const noMatchingSkillSelected = familyKey === NO_MATCHING_SKILL_VALUE;
@@ -451,9 +488,6 @@ function UnifiedSpellingReviewTableRow({
     row.state === "child_responded" &&
     !row.correctionOutcome &&
     Boolean(row.sourceIds.originalWritingIssueId);
-  const canSaveOutcomeDirectly =
-    canFinalClassify &&
-    selectedOutcome.length > 0;
   const canMarkNotIssueBeforeRetry =
     reviewWorkflowPhase === "prepare_retry" &&
     row.source !== "returned_correction" &&
@@ -466,11 +500,12 @@ function UnifiedSpellingReviewTableRow({
   const currentFamilySelectorOpen = routeIsOpen;
   const dependentSkillDisabled = skillDisabled || noMatchingSkillSelected;
   const selectedSkillOption = findOption(options, microSkillKey);
-  const recommendationBadgeModel =
-    routeIsOpen
-      ? recommendationBadge(row) ??
-        (!selectedSkillOption && !suggestedSkillIsUsable ? noMatchYetBadge() : null)
-      : null;
+  const recommendationBadgeModel = routeIsOpen
+    ? (recommendationBadge(row) ??
+      (!selectedSkillOption && !suggestedSkillIsUsable
+        ? noMatchYetBadge()
+        : null))
+    : null;
   const detailsId = `spelling-review-details-${row.id.replace(/[^a-zA-Z0-9_-]/g, "-")}`;
   const historicalFullAnswerAttempt =
     typeof row.provenance.metadata.historical_full_answer_attempt === "string"
@@ -518,7 +553,10 @@ function UnifiedSpellingReviewTableRow({
           </button>
         </td>
         <td className="max-w-[9rem] px-3 py-2 align-top text-sm text-[color:var(--ink)]">
-          <span className="block truncate" title={row.expectedCorrection ?? "Unknown"}>
+          <span
+            className="block truncate"
+            title={row.expectedCorrection ?? "Unknown"}
+          >
             {row.expectedCorrection ?? "Unknown"}
           </span>
         </td>
@@ -542,14 +580,30 @@ function UnifiedSpellingReviewTableRow({
         {showRouteColumns ? (
           <td className="min-w-44 px-3 py-2 align-top">
             {canFinalClassify ? (
-              <form action={finaliseWritingIssueClassification} className="grid gap-1">
-                <input type="hidden" name="writing_issue_id" value={row.sourceIds.originalWritingIssueId ?? ""} />
-                <input type="hidden" name="redirect_path" value={redirectPath} />
+              <form
+                action={finaliseWritingIssueClassification}
+                className="grid gap-1"
+              >
+                <input
+                  type="hidden"
+                  name="writing_issue_id"
+                  value={row.sourceIds.originalWritingIssueId ?? ""}
+                />
+                <input
+                  type="hidden"
+                  name="redirect_path"
+                  value={redirectPath}
+                />
                 <select
                   name="final_classification"
                   required
                   value={selectedOutcome}
-                  onChange={(event) => handleOutcomeChange(event.target.value)}
+                  onChange={(event) =>
+                    handleOutcomeChange(
+                      event.target.value,
+                      event.currentTarget.form,
+                    )
+                  }
                   aria-label={`Outcome for ${row.observedText}`}
                   className="h-8 w-full rounded border border-[var(--border)] bg-white px-2 text-xs text-[color:var(--ink)]"
                 >
@@ -562,13 +616,11 @@ function UnifiedSpellingReviewTableRow({
                     </option>
                   ))}
                 </select>
-                <button
-                  type="submit"
-                  disabled={!canSaveOutcomeDirectly}
-                  className="inline-flex h-7 w-fit items-center rounded border border-emerald-200 bg-emerald-50 px-2 text-[11px] font-semibold text-emerald-800 disabled:border-[var(--border)] disabled:bg-white disabled:text-[color:var(--mid)]"
-                >
-                  Save reason
-                </button>
+                {selectedOutcomeNeedsRoute && !existingAssignableRouteOption ? (
+                  <p className="text-[11px] leading-4 text-[color:var(--mid)]">
+                    Choose a learning route to save this outcome.
+                  </p>
+                ) : null}
               </form>
             ) : row.correctionOutcome ? (
               <p className="text-sm font-medium text-[color:var(--ink)]">
@@ -599,7 +651,9 @@ function UnifiedSpellingReviewTableRow({
                 >
                   <option value="">Choose learning route</option>
                   {currentFamilySelectorOpen ? (
-                    <option value={NO_MATCHING_SKILL_VALUE}>No matching skill</option>
+                    <option value={NO_MATCHING_SKILL_VALUE}>
+                      No matching skill
+                    </option>
                   ) : null}
                   {families.map((family) => (
                     <option key={family.key} value={family.key}>
@@ -621,7 +675,10 @@ function UnifiedSpellingReviewTableRow({
                 >
                   <option value="">Choose cluster</option>
                   {clusters.map((cluster) => (
-                    <option key={cluster.key || "unclustered"} value={cluster.key}>
+                    <option
+                      key={cluster.key || "unclustered"}
+                      value={cluster.key}
+                    >
                       {cluster.label}
                     </option>
                   ))}
@@ -639,10 +696,15 @@ function UnifiedSpellingReviewTableRow({
                   className="w-full rounded border border-[var(--border)] bg-white px-2 py-1 text-xs text-[color:var(--ink)] disabled:bg-[rgba(255,247,220,0.35)] disabled:text-[color:var(--mid)]"
                 >
                   <option value="">
-                    {row.source === "returned_correction" ? "Unknown" : "Choose skill"}
+                    {row.source === "returned_correction"
+                      ? "Unknown"
+                      : "Choose skill"}
                   </option>
                   {filteredMicroSkills.map((option) => (
-                    <option key={option.microSkillKey} value={option.microSkillKey}>
+                    <option
+                      key={option.microSkillKey}
+                      value={option.microSkillKey}
+                    >
                       {option.displayName}
                     </option>
                   ))}
@@ -668,180 +730,285 @@ function UnifiedSpellingReviewTableRow({
         {showActionsColumn ? (
           <td className="overflow-visible px-3 py-2">
             <div className="flex items-center gap-1.5 overflow-visible">
-          {canConfirmSuggested ? (
-            <form action={recordReviewWorkVerificationAction}>
-              <input type="hidden" name="redirect_path" value={redirectPath} />
-              <input type="hidden" name="misspelling_instance_id" value={sourceMisspellingId ?? ""} />
-              <input type="hidden" name="task_submission_id" value={submissionId} />
-              <input type="hidden" name="writing_sample_id" value={row.sourceIds.writingSampleId ?? ""} />
-              <IconActionButton
-                type="submit"
-                name="decision"
-                value="accepted"
-                icon="✓"
-                helpText="Confirm suggested skill"
-                ariaLabel={`Confirm suggested skill for ${row.observedText}`}
-                className="border border-emerald-200 bg-emerald-50 text-emerald-800"
-              />
-            </form>
-          ) : null}
-
-          {canSaveOverride && suggestedSkillIsUsable ? (
-            <form action={recordReviewWorkVerificationAction}>
-              <input type="hidden" name="redirect_path" value={redirectPath} />
-              <input type="hidden" name="misspelling_instance_id" value={sourceMisspellingId ?? ""} />
-              <input type="hidden" name="task_submission_id" value={submissionId} />
-              <input type="hidden" name="writing_sample_id" value={row.sourceIds.writingSampleId ?? ""} />
-              <input type="hidden" name="decision" value="overridden" />
-              <input type="hidden" name="verified_micro_skill_key" value={microSkillKey} />
-              <IconActionButton
-                type="submit"
-                icon="!"
-                helpText="Apply selected skill instead of engine suggestion"
-                ariaLabel={`Apply selected skill instead of engine suggestion for ${row.observedText}`}
-                className="border border-sky-200 bg-sky-50 text-sky-800"
-              />
-            </form>
-          ) : null}
-
-          {(canSaveOverride && !suggestedSkillIsUsable) || canSaveReturnedSuggestedRoute ? (
-            <form action={captureSubmissionSpellingCandidateMapping}>
-              <input type="hidden" name="submission_id" value={submissionId} />
-              <input type="hidden" name="redirect_path" value={redirectPath} />
-              {returnedRouteIsOpen ? (
-                <>
+              {canConfirmSuggested ? (
+                <form action={recordReviewWorkVerificationAction}>
                   <input
                     type="hidden"
-                    name="original_writing_issue_id"
-                    value={row.sourceIds.originalWritingIssueId ?? ""}
+                    name="redirect_path"
+                    value={redirectPath}
                   />
                   <input
                     type="hidden"
-                    name="correction_attempt_id"
-                    value={row.sourceIds.correctionAttemptId ?? ""}
+                    name="misspelling_instance_id"
+                    value={sourceMisspellingId ?? ""}
                   />
                   <input
                     type="hidden"
-                    name="final_classification"
-                    value={selectedOutcome}
-                  />
-                </>
-              ) : (
-                <input type="hidden" name="misspelling_instance_id" value={sourceMisspellingId ?? ""} />
-              )}
-              <input type="hidden" name="micro_skill_key" value={microSkillKey} />
-              <IconActionButton
-                type="submit"
-                icon="!"
-                helpText="Use this skill and send for admin review"
-                ariaLabel={`Use this skill for ${row.observedText} and send for admin review`}
-                className="border border-sky-200 bg-sky-50 text-sky-800"
-              />
-            </form>
-          ) : null}
-
-          {currentRouteIsOpen || canMarkNotIssueBeforeRetry ? (
-            <form action={recordReviewWorkVerificationAction}>
-              <input type="hidden" name="redirect_path" value={redirectPath} />
-              <input type="hidden" name="misspelling_instance_id" value={sourceMisspellingId ?? ""} />
-              <input type="hidden" name="task_submission_id" value={submissionId} />
-              <input type="hidden" name="writing_sample_id" value={row.sourceIds.writingSampleId ?? ""} />
-              <IconActionButton
-                type="submit"
-                name="decision"
-                value="false_positive"
-                icon="✕"
-                helpText="Reject as not an issue"
-                ariaLabel={`Reject ${row.observedText} as not an issue`}
-                className="border border-rose-200 bg-rose-50 text-rose-800"
-              />
-            </form>
-          ) : null}
-
-          {canSendToAdmin ? (
-            <form action={captureSpellingCatalogReviewCase}>
-              <input type="hidden" name="submission_id" value={submissionId} />
-              <input type="hidden" name="redirect_path" value={redirectPath} />
-              {returnedRouteIsOpen ? (
-                <>
-                  <input
-                    type="hidden"
-                    name="original_writing_issue_id"
-                    value={row.sourceIds.originalWritingIssueId ?? ""}
+                    name="task_submission_id"
+                    value={submissionId}
                   />
                   <input
                     type="hidden"
-                    name="correction_attempt_id"
-                    value={row.sourceIds.correctionAttemptId ?? ""}
+                    name="writing_sample_id"
+                    value={row.sourceIds.writingSampleId ?? ""}
+                  />
+                  <IconActionButton
+                    type="submit"
+                    name="decision"
+                    value="accepted"
+                    icon="✓"
+                    helpText="Confirm suggested skill"
+                    ariaLabel={`Confirm suggested skill for ${row.observedText}`}
+                    className="border border-emerald-200 bg-emerald-50 text-emerald-800"
+                  />
+                </form>
+              ) : null}
+
+              {canSaveOverride && suggestedSkillIsUsable ? (
+                <form action={recordReviewWorkVerificationAction}>
+                  <input
+                    type="hidden"
+                    name="redirect_path"
+                    value={redirectPath}
                   />
                   <input
                     type="hidden"
-                    name="final_classification"
-                    value={selectedOutcome}
+                    name="misspelling_instance_id"
+                    value={sourceMisspellingId ?? ""}
                   />
-                </>
-              ) : (
-                <input type="hidden" name="misspelling_instance_id" value={sourceMisspellingId ?? ""} />
-              )}
-              <IconActionButton
-                type="submit"
-                icon="⚑"
-                helpText="No matching skill: send to admin review"
-                ariaLabel={`No matching skill for ${row.observedText}. Send this word and correction to admin catalog review.`}
-                className="border border-amber-200 bg-amber-50 text-amber-800"
-              />
-            </form>
-          ) : null}
+                  <input
+                    type="hidden"
+                    name="task_submission_id"
+                    value={submissionId}
+                  />
+                  <input
+                    type="hidden"
+                    name="writing_sample_id"
+                    value={row.sourceIds.writingSampleId ?? ""}
+                  />
+                  <input type="hidden" name="decision" value="overridden" />
+                  <input
+                    type="hidden"
+                    name="verified_micro_skill_key"
+                    value={microSkillKey}
+                  />
+                  <IconActionButton
+                    type="submit"
+                    icon="!"
+                    helpText="Apply selected skill instead of engine suggestion"
+                    ariaLabel={`Apply selected skill instead of engine suggestion for ${row.observedText}`}
+                    className="border border-sky-200 bg-sky-50 text-sky-800"
+                  />
+                </form>
+              ) : null}
 
-          {row.sourceIds.candidateMappingId &&
-          row.categorisationStatus === "parent_local_pending" ? (
-            <form action={promoteParentLocalCandidateMapping}>
-              <input type="hidden" name="candidate_mapping_id" value={row.sourceIds.candidateMappingId} />
-              <input type="hidden" name="submission_id" value={submissionId} />
-              <input type="hidden" name="redirect_path" value={redirectPath} />
-              <IconActionButton
-                type="submit"
-                icon="↑"
-                helpText="Save locally and send for admin review"
-                ariaLabel={`Save ${row.observedText} locally and send for admin review`}
-                className="border border-emerald-200 bg-emerald-50 text-xs text-emerald-800"
-              />
-            </form>
-          ) : null}
+              {(canSaveOverride && !suggestedSkillIsUsable) ||
+              canSaveReturnedSuggestedRoute ? (
+                <form action={captureSubmissionSpellingCandidateMapping}>
+                  <input
+                    type="hidden"
+                    name="submission_id"
+                    value={submissionId}
+                  />
+                  <input
+                    type="hidden"
+                    name="redirect_path"
+                    value={redirectPath}
+                  />
+                  {returnedRouteIsOpen ? (
+                    <>
+                      <input
+                        type="hidden"
+                        name="original_writing_issue_id"
+                        value={row.sourceIds.originalWritingIssueId ?? ""}
+                      />
+                      <input
+                        type="hidden"
+                        name="correction_attempt_id"
+                        value={row.sourceIds.correctionAttemptId ?? ""}
+                      />
+                      <input
+                        type="hidden"
+                        name="final_classification"
+                        value={selectedOutcome}
+                      />
+                    </>
+                  ) : (
+                    <input
+                      type="hidden"
+                      name="misspelling_instance_id"
+                      value={sourceMisspellingId ?? ""}
+                    />
+                  )}
+                  <input
+                    type="hidden"
+                    name="micro_skill_key"
+                    value={microSkillKey}
+                  />
+                  <IconActionButton
+                    type="submit"
+                    icon="!"
+                    helpText="Use this skill and send for admin review"
+                    ariaLabel={`Use this skill for ${row.observedText} and send for admin review`}
+                    className="border border-sky-200 bg-sky-50 text-sky-800"
+                  />
+                </form>
+              ) : null}
 
-          {row.sourceIds.candidateMappingId &&
-          row.categorisationStatus === "parent_local_promoted" ? (
-            <form action={revertParentLocalCandidateMapping}>
-              <input type="hidden" name="candidate_mapping_id" value={row.sourceIds.candidateMappingId} />
-              <input type="hidden" name="submission_id" value={submissionId} />
-              <input type="hidden" name="redirect_path" value={redirectPath} />
-              <IconActionButton
-                type="submit"
-                icon="↩"
-                helpText="Revert parent-local skill route to pending"
-                ariaLabel={`Revert parent-local skill route for ${row.observedText}`}
-                className="border border-[var(--border)] bg-white text-xs text-[color:var(--ink)]"
-              />
-            </form>
-          ) : null}
+              {currentRouteIsOpen || canMarkNotIssueBeforeRetry ? (
+                <form action={recordReviewWorkVerificationAction}>
+                  <input
+                    type="hidden"
+                    name="redirect_path"
+                    value={redirectPath}
+                  />
+                  <input
+                    type="hidden"
+                    name="misspelling_instance_id"
+                    value={sourceMisspellingId ?? ""}
+                  />
+                  <input
+                    type="hidden"
+                    name="task_submission_id"
+                    value={submissionId}
+                  />
+                  <input
+                    type="hidden"
+                    name="writing_sample_id"
+                    value={row.sourceIds.writingSampleId ?? ""}
+                  />
+                  <IconActionButton
+                    type="submit"
+                    name="decision"
+                    value="false_positive"
+                    icon="✕"
+                    helpText="Reject as not an issue"
+                    ariaLabel={`Reject ${row.observedText} as not an issue`}
+                    className="border border-rose-200 bg-rose-50 text-rose-800"
+                  />
+                </form>
+              ) : null}
 
-          {row.sourceIds.canonicalRecommendationId ? (
-            <span
-              title="Sent for admin review"
-              aria-label={`${row.observedText} pairing sent for admin review`}
-              className="inline-flex h-7 items-center rounded border border-violet-200 bg-violet-50 px-2 text-[11px] font-semibold text-violet-800"
-            >
-              Sent for admin review
-            </span>
-          ) : row.categorisationStatus === "parent_local_promoted" ? (
-            <span
-              title="Saved locally. Needs admin review."
-              aria-label={`${row.observedText} pairing saved locally and needs admin review`}
-              className="inline-flex h-7 items-center rounded border border-sky-200 bg-sky-50 px-2 text-[11px] font-semibold text-sky-800"
-            >
-              Needs admin review
-            </span>
-          ) : null}
+              {canSendToAdmin ? (
+                <form action={captureSpellingCatalogReviewCase}>
+                  <input
+                    type="hidden"
+                    name="submission_id"
+                    value={submissionId}
+                  />
+                  <input
+                    type="hidden"
+                    name="redirect_path"
+                    value={redirectPath}
+                  />
+                  {returnedRouteIsOpen ? (
+                    <>
+                      <input
+                        type="hidden"
+                        name="original_writing_issue_id"
+                        value={row.sourceIds.originalWritingIssueId ?? ""}
+                      />
+                      <input
+                        type="hidden"
+                        name="correction_attempt_id"
+                        value={row.sourceIds.correctionAttemptId ?? ""}
+                      />
+                      <input
+                        type="hidden"
+                        name="final_classification"
+                        value={selectedOutcome}
+                      />
+                    </>
+                  ) : (
+                    <input
+                      type="hidden"
+                      name="misspelling_instance_id"
+                      value={sourceMisspellingId ?? ""}
+                    />
+                  )}
+                  <IconActionButton
+                    type="submit"
+                    icon="⚑"
+                    helpText="No matching skill: send to admin review"
+                    ariaLabel={`No matching skill for ${row.observedText}. Send this word and correction to admin catalog review.`}
+                    className="border border-amber-200 bg-amber-50 text-amber-800"
+                  />
+                </form>
+              ) : null}
+
+              {row.sourceIds.candidateMappingId &&
+              row.categorisationStatus === "parent_local_pending" ? (
+                <form action={promoteParentLocalCandidateMapping}>
+                  <input
+                    type="hidden"
+                    name="candidate_mapping_id"
+                    value={row.sourceIds.candidateMappingId}
+                  />
+                  <input
+                    type="hidden"
+                    name="submission_id"
+                    value={submissionId}
+                  />
+                  <input
+                    type="hidden"
+                    name="redirect_path"
+                    value={redirectPath}
+                  />
+                  <IconActionButton
+                    type="submit"
+                    icon="↑"
+                    helpText="Save locally and send for admin review"
+                    ariaLabel={`Save ${row.observedText} locally and send for admin review`}
+                    className="border border-emerald-200 bg-emerald-50 text-xs text-emerald-800"
+                  />
+                </form>
+              ) : null}
+
+              {row.sourceIds.candidateMappingId &&
+              row.categorisationStatus === "parent_local_promoted" ? (
+                <form action={revertParentLocalCandidateMapping}>
+                  <input
+                    type="hidden"
+                    name="candidate_mapping_id"
+                    value={row.sourceIds.candidateMappingId}
+                  />
+                  <input
+                    type="hidden"
+                    name="submission_id"
+                    value={submissionId}
+                  />
+                  <input
+                    type="hidden"
+                    name="redirect_path"
+                    value={redirectPath}
+                  />
+                  <IconActionButton
+                    type="submit"
+                    icon="↩"
+                    helpText="Revert parent-local skill route to pending"
+                    ariaLabel={`Revert parent-local skill route for ${row.observedText}`}
+                    className="border border-[var(--border)] bg-white text-xs text-[color:var(--ink)]"
+                  />
+                </form>
+              ) : null}
+
+              {row.sourceIds.canonicalRecommendationId ? (
+                <span
+                  title="Sent for admin review"
+                  aria-label={`${row.observedText} pairing sent for admin review`}
+                  className="inline-flex h-7 items-center rounded border border-violet-200 bg-violet-50 px-2 text-[11px] font-semibold text-violet-800"
+                >
+                  Sent for admin review
+                </span>
+              ) : row.categorisationStatus === "parent_local_promoted" ? (
+                <span
+                  title="Saved locally. Needs admin review."
+                  aria-label={`${row.observedText} pairing saved locally and needs admin review`}
+                  className="inline-flex h-7 items-center rounded border border-sky-200 bg-sky-50 px-2 text-[11px] font-semibold text-sky-800"
+                >
+                  Needs admin review
+                </span>
+              ) : null}
             </div>
           </td>
         ) : null}
@@ -860,21 +1027,29 @@ function UnifiedSpellingReviewTableRow({
                   : routeText(row)}
               </p>
               {row.parentNote ? <p>Parent note: {row.parentNote}</p> : null}
-              {row.childReflection ? <p>Reflection: {row.childReflection}</p> : null}
-              {selectedSkillOption && reviewWorkflowPhase !== "prepare_retry" ? (
+              {row.childReflection ? (
+                <p>Reflection: {row.childReflection}</p>
+              ) : null}
+              {selectedSkillOption &&
+              reviewWorkflowPhase !== "prepare_retry" ? (
                 <p>Skill: {selectedSkillOption.displayName}</p>
               ) : null}
-              {row.microSkillRecommendation && reviewWorkflowPhase !== "prepare_retry" ? (
+              {row.microSkillRecommendation &&
+              reviewWorkflowPhase !== "prepare_retry" ? (
                 <p>
-                  Spelling helper:
-                  {" "}
+                  Spelling helper:{" "}
                   {row.microSkillRecommendation.recommendationStatus}
                   {" · "}
                   {row.microSkillRecommendation.reason}
                 </p>
               ) : null}
               {row.correctionOutcome ? (
-                <p>Outcome: {getWritingIssueFinalClassificationLabel(row.correctionOutcome)}</p>
+                <p>
+                  Outcome:{" "}
+                  {getWritingIssueFinalClassificationLabel(
+                    row.correctionOutcome,
+                  )}
+                </p>
               ) : null}
               {historicalFullAnswerAttempt ? (
                 <p>Child response/context: {historicalFullAnswerAttempt}</p>
@@ -882,22 +1057,25 @@ function UnifiedSpellingReviewTableRow({
               {detailContextText ? <p>Context: {detailContextText}</p> : null}
               {detailPositionStart !== null && detailPositionEnd !== null ? (
                 <p>
-                  Position:
-                  {" "}
-                  {detailPositionStart}
-                  -
-                  {detailPositionEnd}
+                  Position: {detailPositionStart}-{detailPositionEnd}
                 </p>
               ) : null}
               <p>Source: {marker.title}</p>
-              <p>Misspelling instance: {row.sourceIds.misspellingInstanceId ?? "None"}</p>
+              <p>
+                Misspelling instance:{" "}
+                {row.sourceIds.misspellingInstanceId ?? "None"}
+              </p>
               <p>Writing issue: {row.sourceIds.writingIssueId ?? "None"}</p>
-              <p>Correction attempt: {row.sourceIds.correctionAttemptId ?? "None"}</p>
-              <p>Original issue: {row.sourceIds.originalWritingIssueId ?? "None"}</p>
+              <p>
+                Correction attempt:{" "}
+                {row.sourceIds.correctionAttemptId ?? "None"}
+              </p>
+              <p>
+                Original issue: {row.sourceIds.originalWritingIssueId ?? "None"}
+              </p>
               {row.sourceIds.canonicalRecommendationId ? (
                 <p>
-                  Canonical recommendation:
-                  {" "}
+                  Canonical recommendation:{" "}
                   {row.sourceIds.canonicalRecommendationStatus ?? "pending"}
                 </p>
               ) : null}
@@ -964,7 +1142,9 @@ export function UnifiedSpellingReviewTable({
       </div>
 
       <div className="mt-4 overflow-x-auto rounded-2xl border border-[var(--border)] bg-white">
-        <table className={`${showRouteColumns ? "min-w-[1120px]" : showActionsColumn ? "min-w-[720px]" : "min-w-[620px]"} w-full border-collapse text-left`}>
+        <table
+          className={`${showRouteColumns ? "min-w-[1120px]" : showActionsColumn ? "min-w-[720px]" : "min-w-[620px]"} w-full border-collapse text-left`}
+        >
           <thead>
             <tr className="bg-[rgba(255,247,220,0.45)] text-[11px] font-semibold uppercase tracking-[0.12em] text-[color:var(--mid)]">
               <th className="px-3 py-2">Word</th>
