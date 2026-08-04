@@ -175,7 +175,15 @@ surface and its accepted SHA is persisted as both the required workbook/source
 fingerprint and package fingerprint, with that basis recorded in receipt
 metadata. The 2026-08-03 production content transaction verified, but the
 later live QA-route activation gate failed; guarded deactivation restored the
-prior profile projection and marked the batch `deactivated`. See the
+prior profile projection and marked the batch `deactivated`. Renewed authority
+used a fresh plan-bound `reactivate` command against that same deterministic
+receipt—no second catalog or batch—to republish only `meaning_bins`,
+`prefix_choices`, and `intro_content`. The batch is now `applied`, accepted
+profile projection SHA-256 is
+`1abb9e9332cf947ae67cb020eb0cf05bc2c793f061096a1a991e88ddce2e0384`,
+and the retained rollback and protected snapshots remain exact. Natural
+production observation began on 2026-08-03 after shared-authoritative and live
+route verification. See the
 [production rollback receipt](qa/adle-dynamic-prefix-pedagogy-production-rollback-receipt-2026-08-03.md).
 
 ## Database release invariants

@@ -1,8 +1,9 @@
 # ADLE Dynamic Prefix pedagogy production release contract
 
-Status: authorised production attempt rolled back; the corrective pre-auth
-production QA `404` is now live-proved in shadow, while pedagogy publication
-remains incomplete with prior profile content restored.
+Status: renewed guarded publication is active in `shared_authoritative`; the
+seven-consecutive-day natural production observation window began on
+2026-08-03. The legacy compiler and exact shadow/content rollback paths remain
+present.
 
 ## Immutable source
 
@@ -30,6 +31,12 @@ The guarded tool is
 - `release`: mutation command; requires the production flag, exact
   publication token, a just-reviewed plan SHA, the 20-item migration in the
   ledger and live function, a serializable transaction, and an advisory lock;
+- `reactivate`: narrowly reuses only the existing deactivated deterministic
+  receipt; requires a distinct confirmation token and fresh plan SHA, exact
+  release/package/target/importer identity, complete retained rollback and
+  protected snapshots, and current-profile equality with that rollback. It
+  cannot insert a second batch and updates only the same three release-owned
+  profile fields;
 - `verify`: read-only equality and protected-snapshot verification after a
   content release and before compiler-mode activation;
 - `deactivate`: exact three-field restore from the five complete
@@ -44,7 +51,8 @@ The mutation commands accept only:
 `ADLE_DYNAMIC_PREFIX_PEDAGOGY_PRODUCTION_RELEASE=authorised-production-release`
 
 They additionally require their distinct exact `--confirm` token. `release`
-also requires `--confirm-plan-sha256` from an immediately preceding plan.
+and `reactivate` also require `--confirm-plan-sha256` from an immediately
+preceding plan.
 These acknowledgements are intentionally not embedded in the mutation npm
 scripts.
 
@@ -68,6 +76,16 @@ deployment `dpl_55owTwtRpD7p8vfceiQdZTSn4A7c` proved zero redirects for the
 canonical route while unrelated admin authentication and authorised staging
 launcher access remained intact.
 
+Renewed authority used guarded-tool commit
+`2c6ed3bafed708b3104332c87907be77e45c0ab2` and fresh plan SHA-256
+`eb2d8039e7e9af922d5325611d7487db4eaaa7c8eebc36f592973cedc24f4661`
+to reactivate that same deterministic batch. Verification proved the accepted
+five-profile projection and unchanged protected state before deliberate Ready
+shared-authoritative deployment `dpl_6RfsgoWpYnqpkQzVR6hhJsuseo6R`. The live
+QA `404`, unrelated admin login, authorised staging access, five-profile
+shared authority, and zero legacy invocation gates all passed. The complete
+history and active observation table are in the linked receipt.
+
 ## Mechanical identity gates
 
 - Production Supabase is pinned to `wwohrqtunajrbwxyssjf`.
@@ -80,7 +98,7 @@ launcher access remained intact.
 - Before content publication the compiler-mode key must be absent, making the
   source fallback `shadow`; an already configured key blocks the preflight.
 
-## Permitted future data delta
+## Applied data delta
 
 Only these fields on the five existing profile rows may change:
 
@@ -114,7 +132,7 @@ rows are never printed.
 
 ## Migration boundary
 
-`release` is blocked until
+`release` and `reactivate` are blocked until
 `20260803113000_allow_in_im_il_ir_dynamic_prefix_20_item_plan.sql` is present in
 the production migration ledger and the live composed-plan function contains
 the matching narrow 20-item guard. The plan also requires the 16-item default,
@@ -143,11 +161,15 @@ reviewed for database rollback.
 - only the three approved fields are mutable;
 - profile activation and member rows have no update path;
 - all five rollback projections are captured;
+- reactivation rejects active, missing, incomplete, out-of-order, or
+  identity-mismatched receipts and requires exact current rollback equality;
+- reactivation preserves the original rollback and protected snapshots while
+  transitioning only the same deterministic receipt back to `applied`;
 - protected presence/count/hash drift fails;
 - Vercel project, deployment SHA/readiness, and compiler-mode assumptions fail
   closed;
 - the plan transaction is explicitly read-only and contains no write query;
-- the future release remains blocked until the narrow migration is verified.
+- publication remains blocked until the narrow migration is verified.
 
 The full validation matrix and current read-only findings are recorded in the
 [production preflight report](../implementation/qa/adle-dynamic-prefix-pedagogy-production-preflight-2026-08-03.md).

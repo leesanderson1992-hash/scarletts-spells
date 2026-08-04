@@ -1,7 +1,8 @@
 # ADLE shared position-aware affix compiler contract
 
-Status: Dynamic Prefix V2 guarded shared writer authority for all five
-approved profiles; Dynamic Affix V3 remains dark.
+Status: Dynamic Prefix V2 shared writer authority is active in production for
+all five approved profiles under seven-day natural observation;
+Dynamic Affix V3 remains dark.
 
 ## Authority and boundary
 
@@ -114,6 +115,14 @@ Staging proof must pin Supabase `jlhotktspjvffslvuyfz` and Vercel
 production identities, exercise normal writer paths, verify learner lifecycle
 and rollback compatibility, clean every disposable row, and prove profile and
 dictionary facts unchanged.
+
+Production activation on 2026-08-03 uses Ready deployment
+`dpl_6RfsgoWpYnqpkQzVR6hhJsuseo6R` from exact commit
+`2c6ed3bafed708b3104332c87907be77e45c0ab2`. The accepted five-profile
+projection, protected snapshot, retained content rollback, pre-auth QA `404`,
+unrelated admin authentication, authorised staging access, all-five
+`shared_migration` authority, and zero legacy invocation were proved before
+natural observation began. No production learner fixture was created.
 
 The legacy compiler remains as the shadow/parity oracle and rollback aid until
 production rollout and observation complete across all five profiles and a

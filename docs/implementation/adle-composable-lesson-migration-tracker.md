@@ -171,5 +171,18 @@ and [production publication handoff](dynamic-prefix-pedagogy-production-publicat
 The exact pre-auth route defect was corrected by commit
 `ff034e626ec0a217393e0ae3c17e2b902ece2fe0`; Ready shadow deployment
 `dpl_55owTwtRpD7p8vfceiQdZTSn4A7c` live-proved HTTP `404` with zero redirects
-for the canonical QA path. This does not reactivate the pedagogy release or
-start observation.
+for the canonical QA path. That corrective checkpoint did not itself
+reactivate the pedagogy release or start observation.
+
+Renewed guarded authority added deterministic same-receipt reactivation in
+commit `2c6ed3bafed708b3104332c87907be77e45c0ab2`. Fresh plan SHA-256
+`eb2d8039e7e9af922d5325611d7487db4eaaa7c8eebc36f592973cedc24f4661`
+verified restored content, migration, retained rollback, protected state, and
+zero production Prefix V2 assignments before reactivation. The same batch is
+now `applied`, the accepted profile projection is exact, and Ready deliberate
+deployment `dpl_6RfsgoWpYnqpkQzVR6hhJsuseo6R` resolves
+`shared_authoritative`. Live QA/admin/staging gates and the five-profile
+zero-legacy authority suite passed. Natural production observation is active
+from `2026-08-03T21:56:39Z` through `2026-08-10T21:56:39Z`; no production
+learner fixture was created. This remains a post-migration Prefix pedagogy
+stage, and legacy compiler retirement remains separately gated.

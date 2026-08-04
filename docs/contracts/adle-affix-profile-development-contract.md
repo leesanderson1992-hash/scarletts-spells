@@ -1,7 +1,8 @@
 # ADLE shared affix profile development contract
 
 Status: authoring and drift contract for the shared affix compiler. Dynamic
-Prefix has a guarded all-five-profile writer boundary; Dynamic Affix remains dark.
+Prefix has an active, observed all-five-profile production writer boundary;
+Dynamic Affix remains dark.
 
 ## Adding or changing a profile mapping
 

@@ -145,8 +145,9 @@ Ready shared-authoritative deployment. The live production QA URL returned a
 login redirect instead of the required HTTP `404`, so the activation gate
 failed. The compiler override was removed, a deliberate shadow deployment was
 made Ready, and guarded deactivation restored all five prior content
-projections. Production therefore remains on the safe `shadow` default with
-the prior content projection; the additive narrow migration remains applied.
+projections. Production therefore returned to the safe `shadow` default with
+the prior content projection at that checkpoint; the additive narrow migration
+remained applied.
 See the [production rollback receipt](qa/adle-dynamic-prefix-pedagogy-production-rollback-receipt-2026-08-03.md)
 and [production publication handoff](dynamic-prefix-pedagogy-production-publication-handoff-2026-08-03.md).
 
@@ -155,8 +156,20 @@ QA launcher denial ahead of `/admin` authentication. Production shadow
 deployment `dpl_55owTwtRpD7p8vfceiQdZTSn4A7c` is Ready and live-proved the
 canonical route as HTTP `404` with zero redirects. Unrelated admin login flow
 and authorised staging launcher access remain intact. This closes only the
-pre-auth route defect; content publication, shared-authoritative activation,
-and observation remain incomplete and require new authority.
+pre-auth route defect in the historical rollback sequence.
+
+Renewed authority then added guarded same-receipt reactivation in commit
+`2c6ed3bafed708b3104332c87907be77e45c0ab2`. Fresh production plan SHA-256
+`eb2d8039e7e9af922d5325611d7487db4eaaa7c8eebc36f592973cedc24f4661`
+reconfirmed the restored profiles, retained rollback, migration, zero Prefix
+V2 assignments, and protected hash before the exact accepted projection was
+reactivated and verified. Deliberate shared-authoritative deployment
+`dpl_6RfsgoWpYnqpkQzVR6hhJsuseo6R` is Ready from that exact commit and owns the
+stable aliases. Production QA remains a pre-auth HTTP `404`; unrelated admin
+and authorised staging access remain intact. The seven-consecutive-day
+natural observation window is active from `2026-08-03T21:56:39Z` through
+`2026-08-10T21:56:39Z`. No production learner fixture was created, and the
+legacy compiler remains present.
 
 ## Prefix profile and compiler migration state
 
@@ -171,15 +184,16 @@ production-enabled. The global route gate does not override a profile record.
 Compiler migration does not change production profile activation or Teaching
 Dictionary facts. The approved `un-` staging release creates only one disabled
 profile and seven members resolved by environment-local `word_key`; it does not
-change canonical word, metadata, morphology or dictation rows. Corrective
-application commit `bf78e04d8ed935ba1a747766adb29bafd2bc6fbb` is deployed to
-production in the safe `shadow` default. Migration `20260803113000` is applied
-and remains a narrow, inactive allowance until an accepted pedagogy payload is
-compiled. The accepted five-profile projection and explicit
-shared-authoritative mode were verified during the authorised attempt, then
-restored to the prior content/shadow state when the live QA-route gate failed.
-Publication and the seven-day production observation window have not
-completed.
+change canonical word, metadata, morphology or dictation rows. Migration
+`20260803113000` remains the narrow persistence allowance. The accepted
+five-profile projection is active with canonical projection SHA-256
+`1abb9e9332cf947ae67cb020eb0cf05bc2c793f061096a1a991e88ddce2e0384`;
+protected production snapshot SHA-256 remains
+`64d8613911e934927f6ce21e221d0930eeffb7001ef4b9e3a8556679f2e0565e`.
+All five compiler authorities remain `shared_migration`, production resolves
+`shared_authoritative`, and the designed 140-position suite proves zero legacy
+compiler calls in that mode. Observation has started but has not completed;
+legacy retirement is not authorised.
 
 ## Documentation update rule
 

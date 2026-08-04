@@ -86,7 +86,8 @@ assert(
     architecture.includes("falls back"),
 );
 assert(
-  sharedAffix.includes("shared writer authority for all five") &&
+  sharedAffix.includes("shared writer authority is active in production") &&
+    sharedAffix.includes("under seven-day natural observation") &&
     sharedAffix.includes("adle_dynamic_prefix_un_profile_staging_v1_2026_08_02") &&
     sharedAffix.includes("Dynamic Affix V3 remains dark") &&
     sharedAffix.includes("microskill-key branch") &&

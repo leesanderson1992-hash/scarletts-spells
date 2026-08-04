@@ -84,11 +84,17 @@ The checklist remains reusable for later production observation, but it is no
 longer an open gate for the completed staging stage. Accepted commit:
 `f2b86d2037a4780a2cf3e3642f75e15319e5f199`. The authorised 2026-08-03
 production attempt was rolled back because the live QA URL redirected to login
-instead of returning the required HTTP `404`. Production is shadow with prior
-profile content restored, so natural production observation has not begun.
+instead of returning the required HTTP `404`. That first attempt returned
+production to shadow with prior profile content restored.
 See the [rollback receipt](adle-dynamic-prefix-pedagogy-production-rollback-receipt-2026-08-03.md)
 and [production publication handoff](../dynamic-prefix-pedagogy-production-publication-handoff-2026-08-03.md).
 The exact pre-auth production route safeguard was subsequently live-proved on
 Ready shadow deployment `dpl_55owTwtRpD7p8vfceiQdZTSn4A7c`: the canonical QA
 route returned HTTP `404` with zero redirects, while the authorised staging
-launcher still rendered. This proof does not start production observation.
+launcher still rendered. Renewed guarded publication then verified the same
+accepted five-profile package, preserved the original rollback projection and
+protected snapshot, and activated Ready shared-authoritative deployment
+`dpl_6RfsgoWpYnqpkQzVR6hhJsuseo6R`. Natural production observation is now in
+progress from `2026-08-03T21:56:39Z` through `2026-08-10T21:56:39Z`. The
+observation must use natural assignments only, record absent profile coverage
+honestly, and must not retire the legacy compiler.

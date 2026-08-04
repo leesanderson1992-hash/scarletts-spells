@@ -2,7 +2,30 @@
 
 Date: 2026-08-03
 
-## Execution outcome — rolled back
+## Renewed execution outcome — activated and observing
+
+Renewed guarded authority completed publication on 2026-08-03. Commit
+`2c6ed3bafed708b3104332c87907be77e45c0ab2` added a fresh-plan-bound
+reactivation path for the same deactivated deterministic receipt. Plan
+SHA-256
+`eb2d8039e7e9af922d5325611d7487db4eaaa7c8eebc36f592973cedc24f4661`
+verified the exact accepted package, restored projection, complete retained
+rollback, protected state, narrow migration, shadow mode, and zero Prefix V2
+assignments. The same batch returned to `applied`; only `meaning_bins`,
+`prefix_choices`, and `intro_content` changed, and immediate verification
+proved exact package equality.
+
+Deliberate production deployment `dpl_6RfsgoWpYnqpkQzVR6hhJsuseo6R` is Ready
+from that exact commit with `shared_authoritative`. Exact, query-bearing, and
+cookie-bearing production QA requests return HTTP `404` with zero redirects;
+the trailing slash canonicalises only to that `404`; unrelated admin login and
+authorised staging access remain intact. All five profiles retain
+`shared_migration`, and the 140-position authority suite proves zero legacy
+calls in shared-authoritative mode. No production learner fixture was created.
+Natural observation runs from `2026-08-03T21:56:39Z` through
+`2026-08-10T21:56:39Z`. The legacy compiler remains present.
+
+## Initial execution outcome — rolled back
 
 The authorised production sequence ran on 2026-08-03. Migration
 `20260803113000` applied and verified, the accepted five-profile projection
@@ -23,24 +46,25 @@ exact QA path before `/admin` authentication. Ready shadow deployment
 `dpl_55owTwtRpD7p8vfceiQdZTSn4A7c` live-proved the canonical route as HTTP
 `404` with zero redirects, while unrelated admin authentication and authorised
 staging launcher access remained intact. A fresh plan and renewed authority
-are still required before content republication or compiler activation.
+were still required at that checkpoint before content republication or
+compiler activation.
 
 ## Executive recommendation
 
-The next stage is **production publication and observation** of the accepted
-`dynamic_prefix_pedagogy_v1` package. It is not another pedagogy-design stage,
-not compiler-parity maintenance, and not legacy-compiler retirement.
+The active stage is **seven-consecutive-day natural production observation**
+of the accepted `dynamic_prefix_pedagogy_v1` package. It is not another
+pedagogy-design stage, compiler-parity maintenance, or legacy-compiler
+retirement.
 
-The accepted implementation is already on `main` and Vercel has automatically
-deployed that exact commit to the production project. Production remains safe
-at the handoff boundary because the production project has no explicit
-`ADLE_DYNAMIC_PREFIX_COMPILER_MODE`; the application therefore resolves the
-existing `shadow` default. The accepted profile projection and narrow 20-item
-database allowance were applied only to staging. Production publication is
-therefore incomplete and requires a separately authorised, ordered data,
-configuration, deployment, and observation release.
+The accepted projection and the narrow 20-item persistence allowance are live
+in production, and the production project explicitly resolves
+`shared_authoritative`. Safety remains bounded by the retained shadow
+redeployment path, complete five-profile rollback projection, unchanged
+protected snapshot, zero synthetic production learner data, and the still
+present legacy compiler. Observation completion and any later retirement
+decision remain separate gates.
 
-## Read-only preflight implementation update
+## Read-only preflight implementation update (historical)
 
 The separately guarded production release envelope and its regression coverage
 are now implemented locally. The complete read-only production preflight passed
@@ -54,7 +78,10 @@ mode after the live QA-route gate failed. The completed attempt record is the
 The implemented tool contract is
 [ADLE Dynamic Prefix pedagogy production release](../contracts/adle-dynamic-prefix-pedagogy-production-release-contract.md).
 
-## Verified handoff baseline
+## Verified original handoff baseline (historical)
+
+The following bullets preserve the pre-publication handoff snapshot. They are
+superseded as live state by the renewed execution outcome above.
 
 - Repository: `/Users/katiesanderson/Documents/Scarletts Spells/scarletts-spells`.
 - Branch: `main`.
@@ -118,7 +145,8 @@ manifest bytes as its only teaching catalog. The production tool must:
 - use a distinct production release ID and batch ID;
 - pin `wwohrqtunajrbwxyssjf` and reject staging plus unknown projects;
 - require an explicit production environment flag and confirmation token;
-- implement `validate`, read-only `plan`, `release`, `verify`, and `deactivate`;
+- implement `validate`, read-only `plan`, `release`, guarded same-receipt
+  `reactivate`, `verify`, and `deactivate`;
 - update only `meaning_bins`, `prefix_choices`, and `intro_content` on the five
   existing active reviewed Prefix profiles;
 - leave `production_enabled` and every member/word row unchanged;
