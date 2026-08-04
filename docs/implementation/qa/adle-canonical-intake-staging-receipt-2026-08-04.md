@@ -2,7 +2,7 @@
 
 Status: `PARTIAL_STAGING_PROOF_COMPLETE_SCHEDULER_AND_CLEANUP_RESTORE_BLOCKED`
 
-Last updated at `2026-08-04T20:51:38Z`.
+Last updated at `2026-08-04T21:04:25Z`.
 
 ## Repository gate
 
@@ -14,7 +14,8 @@ Last updated at `2026-08-04T20:51:38Z`.
 - Local implementation commits:
   - `13b16b11c1c7dc0c6b15890acd8c6218081e9d48`
   - `157754f7c311b4aa6dbe831a69c7ac2e3b29a7c9`
-- Current worktree: intentional staging-proof corrections pending commit
+  - `b691c4f28d1959c834990c1abe0dc198f131cfb1`
+- Current worktree: clean after the final Preview proof
 - Production mutation: none
 
 ## Read-only identities
@@ -110,11 +111,11 @@ still requires the approved five-minute schedule.
 
 - Vercel project: `scarletts-spells-staged` /
   `prj_oJkffstOtacc4juYloXajHpjJUha`
-- Deployment: `dpl_8tJ5yRyrfEDGkjztAamx5QdxytJ9`
-- URL: `https://scarletts-spells-staged-hxtcr5uyz.vercel.app`
+- Deployment: `dpl_HJoqf7F4st1REWRsDUGhCYf29o9W`
+- URL: `https://scarletts-spells-staged-g8d47wbyw.vercel.app`
 - State: `Ready`
 - Repository checkpoint represented by the application tree:
-  `157754f7c311b4aa6dbe831a69c7ac2e3b29a7c9`
+  `b691c4f28d1959c834990c1abe0dc198f131cfb1`
 - Difference from the committed application configuration: the Preview input
   omitted the five-minute cron entry because the Hobby plan rejects it.
 
@@ -166,6 +167,12 @@ the unread Teaching Content Demand row. The existing static admin regressions
 prove the required wording, checklist, aggregate-only child count, prohibited
 activation/assignment actions, and authorization contract. An authenticated
 visual pass was not performed because no credential was copied into the pinned
+Preview.
+
+The final Ready Preview repeated the same application-level unauthenticated
+login result after passing Vercel deployment protection through the existing
+authenticated browser session. Direct unauthenticated HTTP requests stopped at
+Vercel SSO (`302`) before reaching the application, as expected for a protected
 Preview.
 
 Protected counts during the successful proof changed only by the twelve owned
