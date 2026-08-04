@@ -2,7 +2,7 @@
 
 Status: `PARTIAL_STAGING_PROOF_COMPLETE_SCHEDULER_AND_CLEANUP_RESTORE_BLOCKED`
 
-Last updated at `2026-08-04T21:04:25Z`.
+Last updated at `2026-08-04T21:06:01Z`.
 
 ## Repository gate
 
@@ -209,6 +209,13 @@ exactly from current database authority because their IDs and original source
 references were deleted with them. No approximate replacement was created.
 Exact restoration requires an authoritative staging backup/audit source or an
 explicit decision that those unassigned staging rows were disposable.
+
+The staging project backup page was checked read-only after cleanup. It states
+that the Free plan does not include project backups, so no scheduled or
+point-in-time backup is available for an exact restore. No billing change was
+attempted. The remaining safe resolution is therefore an explicit owner
+decision on the two unassigned staging rows; recreating guessed rows would
+weaken the audit boundary.
 
 ## Preview deployment blocker
 
