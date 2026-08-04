@@ -1,6 +1,6 @@
 # ADLE Canonical Intake Staging Receipt — 2026-08-04
 
-Status: `STAGING_MIGRATION_VERIFIED_PREVIEW_PENDING`
+Status: `BLOCKED_AT_PINNED_PREVIEW_CRON_PLAN`
 
 Recorded at `2026-08-04T19:59:42Z`.
 
@@ -86,6 +86,31 @@ visible project name, URL, and ref all matched the approved staging identity.
   - rewards: 0
 
 The migration itself created no candidate, demand, learner item, assignment,
-attempt, schedule, or reward fixture. The next gate is a pinned staging Preview
-from the exact local implementation commit, followed by disposable runtime
-proof and guarded cleanup.
+attempt, schedule, or reward fixture.
+
+## Preview deployment blocker
+
+Local implementation checkpoint:
+`13b16b11c1c7dc0c6b15890acd8c6218081e9d48`.
+
+The exact-SHA pinned Preview was attempted with intake enabled and the reviewed
+Dynamic Prefix staging/QA identity flags. Vercel rejected the deployment before
+creating a deployment because the staging project is on the Hobby plan:
+
+```text
+Hobby accounts are limited to daily cron jobs.
+This cron expression (*/5 * * * *) would run more than once per day.
+```
+
+The required five-minute safety sweep was not weakened to a daily schedule.
+Deployment inventory showed no new Preview from this attempt. Consequently no
+staging fixture, demand, notification, learning item, assignment, cron request,
+or cleanup action ran.
+
+Smallest safe remedy: upgrade the staging Vercel project to a plan that permits
+the reviewed five-minute schedule, or separately approve and plan an equivalent
+five-minute scheduler with the same secret, bounded-worker, retry, and no-direct-
+assignment guarantees. After that external state change, resume from the
+already-verified empty staging schema, deploy the exact implementation SHA, run
+the disposable fixture matrix and guarded cleanup, then replace this blocker
+status with completed staging evidence.
