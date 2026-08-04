@@ -187,12 +187,16 @@ export async function loadReturnedCorrectionRouteContext(input: {
       ].join(", "),
     )
     .eq("writing_issue_id", issue.id)
-    .eq("task_submission_id", input.currentTaskSubmissionId)
     .eq("parent_user_id", input.parentUserId)
     .eq("child_id", input.childId);
 
   if (input.correctionAttemptId) {
     attemptQuery = attemptQuery.eq("id", input.correctionAttemptId);
+  } else {
+    attemptQuery = attemptQuery.eq(
+      "task_submission_id",
+      input.currentTaskSubmissionId,
+    );
   }
 
   const { data: attemptData } = await attemptQuery
@@ -203,6 +207,31 @@ export async function loadReturnedCorrectionRouteContext(input: {
   const attempt = attemptData as ReturnedCorrectionAttemptRouteRow | null;
 
   if (!attempt) {
+    return null;
+  }
+
+  const threadSubmissionIds = [
+    ...new Set([
+      issue.task_submission_id,
+      attempt.task_submission_id,
+      input.currentTaskSubmissionId,
+    ]),
+  ];
+  const { data: threadSubmissionData } = await input.supabase
+    .from("task_submissions")
+    .select("id, task_id")
+    .in("id", threadSubmissionIds)
+    .eq("parent_user_id", input.parentUserId)
+    .eq("child_id", input.childId);
+  const threadSubmissions = (threadSubmissionData ?? []) as Array<{
+    id: string;
+    task_id: string;
+  }>;
+
+  if (
+    threadSubmissions.length !== threadSubmissionIds.length ||
+    new Set(threadSubmissions.map((submission) => submission.task_id)).size !== 1
+  ) {
     return null;
   }
 

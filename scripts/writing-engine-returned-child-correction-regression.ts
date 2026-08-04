@@ -592,8 +592,8 @@ assert.match(
 );
 assert.match(
   returnedCorrectionRouteHelpers,
-  /\.from\("writing_issue_correction_attempts"\)[\s\S]*\.eq\("writing_issue_id", issue\.id\)[\s\S]*\.eq\("task_submission_id", input\.currentTaskSubmissionId\)/,
-  "Returned route helper must anchor returned routing to the current correction attempt.",
+  /\.from\("writing_issue_correction_attempts"\)[\s\S]*\.eq\("writing_issue_id", issue\.id\)[\s\S]*input\.correctionAttemptId[\s\S]*attemptQuery\.eq\("id", input\.correctionAttemptId\)[\s\S]*task_submissions[\s\S]*threadSubmissionIds[\s\S]*submission\.task_id/,
+  "Returned route helper must accept an explicit historical attempt only after proving the original, attempted, and current submissions share one owned lesson thread.",
 );
 assert.match(
   returnedCorrectionRouteHelpers,
