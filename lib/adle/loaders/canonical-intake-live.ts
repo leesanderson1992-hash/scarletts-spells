@@ -633,6 +633,19 @@ export async function runCanonicalIntakeReconciliationSweep(params: {
       summary.strengthened += outcome.strengthened;
       summary.pendingMapping += outcome.pendingMapping;
       summary.pendingContent += outcome.pendingContent;
+      const { error: completeError } = await client
+        .from("adle_canonical_intake_reconciliation_queue")
+        .update({
+          job_status: "completed",
+          lease_owner: null,
+          lease_expires_at: null,
+          last_error_code: null,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", job.job_id)
+        .eq("lease_owner", params.leaseOwner);
+      if (completeError)
+        throwQuery("canonical intake queue completion update", completeError);
     } catch (error) {
       const attemptCount = Number(job.attempt_count ?? 1);
       const failed = attemptCount >= 5;

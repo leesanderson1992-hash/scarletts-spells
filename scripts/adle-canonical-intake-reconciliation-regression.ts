@@ -33,6 +33,10 @@ assert.match(loader, /candidateMappingIds:/);
 assert.match(loader, /pendingContent/);
 assert.match(loader, /pendingMapping/);
 assert.match(loader, /attemptCount >= 5/);
+assert.match(
+  loader,
+  /job_status: "completed"[\s\S]*?lease_owner: null[\s\S]*?canonical intake queue completion update/,
+);
 assert.doesNotMatch(loader, /\.from\("daily_assignments"\)|\.from\("assignment_items"\)/);
 assert.match(cron, /CRON_SECRET/);
 assert.match(cron, /timingSafeEqual/);
