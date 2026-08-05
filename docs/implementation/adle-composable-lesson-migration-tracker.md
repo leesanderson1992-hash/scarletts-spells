@@ -217,12 +217,19 @@ targeted processing of submission
 `2824a8d5-3839-443f-8450-ecfa524f28bf`, and broader backlog replay require a
 fresh plan and separate explicit authority.
 
-The separately authorised production run on 2026-08-05 pushed the accepted
-chain and applied the two empty additive intake-schema migrations. It stopped
-at the mandatory scheduler gate before setting the feature flag: production
-has no accepted five-minute scheduler artifact, while the staging Supabase
-Cron migration is explicitly production-rejecting. Protected production state
-was unchanged and no intake or learner row was created. The named submission
-and wider backlog remain unprocessed. The exact evidence and smallest safe
-remedy are recorded in the
+The separately authorised production run on 2026-08-05 first stopped at the
+missing-scheduler gate, then resumed after a production-pinned Supabase Cron
+artifact and queue-completion fix were reviewed and pushed. Natural five-minute
+runs passed. The named submission alone reconciled to 12 active Prefix items,
+one exact `unlocked` Teaching Content Demand, and zero Resolver Demands. The
+normal composer persisted one 18-item `SUB/INTER/SUPER` Prefix V2 assignment
+with shared authority and zero legacy calls.
+
+The real learner route did not render because the daily-plan wrapper selects
+the deferred Generic Snapshot column `compiled_lesson_snapshot`, which is not
+present in production. This is the previously recorded Generic Snapshot
+production boundary, not a Prefix compiler or intake failure. The authorized
+fail-safe disabled future intake and preserved every valid row. Wider backlog
+replay did not occur. Controlled end-to-end trigger proof remains blocked and
+the exact evidence and smallest separately gated remedies are recorded in the
 [production release receipt](qa/adle-canonical-intake-production-release-receipt-2026-08-05.md).

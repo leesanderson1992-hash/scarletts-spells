@@ -272,7 +272,7 @@ place. The legacy compiler remains present.
 |---:|---|---|---|---|---|---|---|
 | 1 | 2026-08-03 | All profiles: 0 at start | None | Shared-authoritative contract proved; legacy calls 0 | None at start; protected state exact | Baseline regressions green; no historical production Prefix V2 payload exists | In progress |
 | 2 | 2026-08-04 | Pending natural traffic | Pending | Pending | Pending | Pending | Pending |
-| 3 | 2026-08-05 | Pending natural traffic | Pending | Pending | Pending | Pending | Pending |
+| 3 | 2026-08-05 | `SUB/INTER/SUPER`: 1 controlled authentic assignment | 18 | Shared-authoritative; legacy calls 0 | Assignment persisted normally; real learner route blocked by absent deferred Generic Snapshot column, digest `4110052863`; lesson not completed | Prefix V2 payload/ordering valid; controlled trigger proof not yet earned | Boundary failure recorded; observation continues without fabricated completion |
 | 4 | 2026-08-06 | Pending natural traffic | Pending | Pending | Pending | Pending | Pending |
 | 5 | 2026-08-07 | Pending natural traffic | Pending | Pending | Pending | Pending | Pending |
 | 6 | 2026-08-08 | Pending natural traffic | Pending | Pending | Pending | Pending | Pending |

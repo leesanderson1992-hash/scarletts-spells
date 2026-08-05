@@ -3,14 +3,26 @@
 ## Outcome
 
 ```text
-BLOCKED_BEFORE_CANONICAL_INTAKE_ENABLEMENT
+BLOCKED_AT_EXISTING_GENERIC_SNAPSHOT_SCHEMA_BOUNDARY
 ```
 
-The guarded production release stopped at the mandatory five-minute scheduler
-gate. The accepted application and additive intake schema are present in
-production, but canonical intake remains disabled. The named submission was
-not reconciled, no demand or learning item was created, and no assignment was
-generated.
+The guarded production release first stopped at the mandatory five-minute
+scheduler gate, then resumed under renewed authority after a production-pinned
+Supabase Cron implementation was reviewed and published. Targeted canonical
+intake succeeded: twelve route-ready candidates activated, exact target
+`unlocked` remained `pending_content`, and one Teaching Content Demand was
+created with zero Resolver Demands. The normal composer also created one
+18-item Dynamic Prefix V2 assignment.
+
+The required real learner-route gate then failed before lesson rendering. The
+application wrapper selected the deferred Generic Snapshot column
+`daily_assignments.compiled_lesson_snapshot`, which does not exist in the
+production schema because that separately governed migration remains
+unpublished. The runtime returned digest `4110052863`. The release therefore
+did not claim controlled end-to-end proof. In accordance with the authorized
+post-activation rollback gate, future canonical intake was disabled again;
+the valid learning items, demand, assignment, lineage, and append-only audit
+history were preserved.
 
 ## Repository and deployment
 
@@ -29,8 +41,10 @@ generated.
 - Stable production aliases resolved to the Ready deployment.
 - Dynamic Prefix continued to resolve `shared_authoritative`; Dynamic Affix
   remained paused.
-- `ADLE_CANONICAL_INTAKE_ENABLED` was empty and therefore disabled before and
-  after the attempted release.
+- `ADLE_CANONICAL_INTAKE_ENABLED` was empty and therefore disabled during the
+  initial attempt. It was later set to the exact supported value `enabled` for
+  targeted publication, then set to a non-enabled value after the learner
+  runtime gate failed.
 
 ## Read-only production preflight
 
@@ -82,6 +96,18 @@ The staging-only scheduler migration
 not applied to production. Its constraints, confirmation token, target host,
 Vault names, and operator reject production.
 
+The reviewed production sibling was subsequently applied and ledgered:
+
+| Migration | Source SHA-256 |
+|---|---|
+| `20260805070000_add_adle_canonical_intake_production_scheduler.sql` | `6b48415192a6570b824bc98de2dff10b7377e08bdeb43a53da038c161a75b8a9` |
+
+It pins production database/project identity, the stable production route,
+the exact `*/5 * * * *` schedule, and a production-only Vault secret name.
+RLS, fixed search paths, service-role-only grants, separate confirmation
+tokens, and rollback/status functions were verified. No Vercel deployment
+protection bypass is stored or sent in production.
+
 ## Validation
 
 The exact accepted commit chain passed:
@@ -122,32 +148,178 @@ staging-only by design. Reusing or editing it for production would bypass its
 identity gates and would constitute a new, unreviewed production migration.
 The release therefore stopped before enabling canonical intake.
 
+## Resumed scheduler publication
+
+The narrow scheduler correction and queue-completion fix were committed and
+pushed without force:
+
+| Commit | Purpose |
+|---|---|
+| `b065d8f450eb4c15e1d96cde6293a8498291b1d8` | Production-pinned five-minute Supabase Cron scheduler and guarded operator |
+| `59b2ab87a64461495db0260ddf98a683a206ccd5` | Mark successfully processed reconciliation jobs completed instead of leaving leases open |
+
+Ready deployments included:
+
+- `dpl_Rd5jf33Xh4DNAwPi2ZQ2tspwyrwh` from `b065d8f`;
+- `dpl_BpwdoBrwcfvEy87Q2ckrqeTx3xiX` from `59b2ab8`;
+- `dpl_8ADovZ49fdgAi6o4MW7YBKLURoZf` from `59b2ab8` with canonical intake enabled;
+- rollback deployment `dpl_2YAyGAd1Y3kA22ajW3JVnS5u9yZ6`, rebuilt from the same `59b2ab8` source with intake disabled.
+
+The stable production alias resolved to each deliberate deployment only after
+Ready state. Before activation the application route returned `401` with no
+redirect when unauthenticated and a correctly authenticated bounded invocation
+returned `200` with intake disabled. Natural production Cron invocations at
+`2026-08-05T05:55:00Z` and `2026-08-05T06:00:00Z` returned HTTP `200` without
+timeout. Later natural runs also succeeded, including the no-active-queue run
+starting `2026-08-05T06:15:00.207417Z`. After rollback deployment and feature
+disablement, the `06:25:00Z` natural run also succeeded with zero active jobs
+and unchanged `12 activated / 1 pending_content` candidate state.
+
+## Targeted submission reconciliation
+
+Fresh read-only plan SHA-256:
+
+```text
+33f6405a3782f7dc68c184cde1826529142afb8e150da15f203874437ceca023
+```
+
+The plan covered only the approved submission named in the release authority.
+It matched the exact expected `12 ready / 1 pending_content / 1 Teaching
+Content Demand / 0 Resolver Demands` result before mutation. The guarded
+reconciler then reported:
+
+```text
+claimed=13 completed=13 inserted=12
+pending_mapping=0 pending_content=1
+```
+
+Verification proved:
+
+- twelve active, pending Dynamic Prefix learning items and twelve source
+  lineage rows, spanning all five Prefix microskills;
+- exact target `unlocked` retained with no `unlock` substitution;
+- one stable `teaching_content` demand, primary blocker
+  `canonical_word_missing`, one waiting link, occurrence count one, and one
+  safe affected-child aggregate;
+- visible admin wording `Teaching Dictionary content is required for
+  unlocked`, resolved/visible mapping status, the governed content checklist,
+  and no direct activate/assign action;
+- zero Resolver Demands and zero learning item for `unlocked`;
+- an idempotent replay inserted no item, lineage, demand, link, notification,
+  occurrence, or assignment duplicate;
+- zero non-target canonical-intake candidates and zero active queue jobs.
+
+The twelve items remained active/pending after normal assignment generation:
+`UN=1`, `DIS/MIS=2`, `IN/IM/IL/IR=3`, `RE/PRE=3`, and
+`SUB/INTER/SUPER=3`.
+
+## Normal composer and learner-runtime gate
+
+The authenticated existing-child flow displayed `Begin Dynamic Prefix Word
+Lab` and invoked the normal queue, selector, shared compiler, assignment plan,
+and atomic persistence path. It created assignment
+`b84a41d2-4bf5-4079-b80f-d7d7611dd862` for `2026-08-05`:
+
+- selected profile `D4_MOR_PREFIXES_SUB_INTER_SUPER` through normal priority;
+- authentic words `international`, `superhero`, and `subway`;
+- transfer word `interact`;
+- 18 complete ordered items;
+- payload `dynamic_prefix_lesson_v2` / schema version 2;
+- route and recipe `dynamic_prefix_word_lab` / version 2;
+- `shared_authoritative` compiler authority and zero legacy compiler calls.
+
+The assignment was not hand-built, forced to a profile, completed, or written
+by reconciliation. No existing daily plan was overwritten. The genuine child
+URL is intentionally redacted from this durable receipt.
+
+Opening that real learner URL returned the application error page. Production
+logs identify the exact pre-existing schema boundary:
+
+```text
+getAdleDailyPlanReadModel:header:
+column daily_assignments.compiled_lesson_snapshot does not exist
+digest 4110052863
+```
+
+`lib/adle/loaders/daily-plan-surface.ts` currently selects that optional
+Generic Snapshot column unconditionally. Production deliberately lacks
+migration `20260731200000_add_adle_generic_lesson_snapshot_v2.sql` because its
+separate rollout was deferred. This canonical-intake release neither changed
+Generic Snapshot nor applied that migration, as required by scope.
+
+## Protected-state result
+
+The final reviewed protected snapshot SHA-256 is:
+
+```text
+ae685c15975a4a6b84dec19fa6710bae9013d170696064ec4bf1247b1938d1c6
+```
+
+Only the authorized child-flow changes appeared in protected learner tables:
+
+- `adle_learning_items`: `5 -> 17`;
+- `daily_assignments`: `76 -> 77`;
+- `assignment_items`: `24 -> 42`.
+
+Attempts, evidence, taught history, schedules, rewards, review outcomes,
+curriculum words/metadata/morphology/dictation, and all other reviewed learner
+tables retained their prior counts and row hashes. `auth.users` remained at
+four rows but its row hash changed during normal authenticated production
+activity; no user was created. No synthetic learner, child, correction,
+attempt, evidence, schedule, reward, or taught-history fixture was created.
+
+## Wider backlog boundary
+
+The wider backlog was not processed. Read-only coarse audit found nine
+candidates across seven submissions, all outside the Dynamic Prefix target
+scope: one resolver blocker, three established-target
+`canonical_word_missing` blockers, and five routes needing their own
+authoritative readiness adapter. Those five rows are not safe to classify from
+the coarse diagnostic alone. A separate exact plan and authority remain
+required before any bounded replay.
+
+Read-only candidate inventory proposed for that future plan (not executed):
+
+| Candidate ID | Submission ID | Microskill | Coarse blocker |
+|---|---|---|---|
+| `bf6ed86b-2844-442a-8ad5-9f447d95589b` | `0b625412-5b92-4ed0-af93-f1442ed46d27` | `D4_PAT_CONTRACTIONS_PRONOUN_VERB` | Route evaluator required |
+| `fca59884-1625-423b-8af0-d7f33aca7197` | `0b625412-5b92-4ed0-af93-f1442ed46d27` | `D4_IRRE_TRICKY_WORDS_COMMON_HIGH_FREQUENCY` | Route evaluator required |
+| `2f44cadc-3d86-4235-951e-bcc22c8d3a1e` | `469f7055-0e2a-4e2e-9b6b-fedf914af03a` | `D4_IRRE_TRICKY_WORDS_COMMON_HIGH_FREQUENCY` | Route evaluator required |
+| `c5614753-f43f-446d-b42d-5da920a5da6f` | `469f7055-0e2a-4e2e-9b6b-fedf914af03a` | `D4_PG_LONG_IGH_Y_FINAL` | Route evaluator required |
+| `fa35d57f-d7ae-45ee-8e05-870f408a90ae` | `7b8b6f32-e9e7-49bc-a88c-15e49f2db855` | `D4_PG_LONG_EE_E_OPEN` | Resolver |
+| `bd780be6-6fdf-4703-ac55-65c4027af09f` | `7e924fa3-a7f3-466d-8200-69b9aba36163` | `D4_PG_LONG_OA_OA` | Canonical word missing |
+| `86324f61-fbd1-4621-8274-68a984848f1f` | `8b9152a5-8f64-40d1-b6d8-31dca6feb23d` | `D4_IRRE_TRICKY_WORDS_COMPLEX_HIGH_FREQUENCY` | Route evaluator required |
+| `905ff358-f670-4b71-bc6f-25eb02a2365e` | `dc589f4c-002c-4368-ad87-0065d190a89e` | `D4_SCHWA_MEDIAL_COMMON_WEAK_VOWELS` | Canonical word missing |
+| `71deea87-9d0b-42ef-8c1c-90bc55a2328d` | `eca91189-ac1d-4adb-9836-eba1862b6e4f` | `D4_MOR_BASE_WORDS_BASE_PLUS_PREFIX` | Canonical word missing |
+
 ## Mutation and rollback boundary
 
-- `ADLE_CANONICAL_INTAKE_ENABLED` was not set to `enabled`.
-- No reconciliation job was enqueued or claimed.
-- Submission `2824a8d5-3839-443f-8450-ecfa524f28bf` was not processed.
-- No candidate, demand, demand link, notification, learning item, lineage,
-  assignment, attempt, evidence, schedule, reward, or taught-history row was
-  created by this run.
+- `ADLE_CANONICAL_INTAKE_ENABLED` is no longer effectively enabled.
+- The production scheduler remains active but the disabled application worker
+  safely performs no intake processing.
+- The named submission's valid candidate, demand, link, learning-item,
+  lineage, assignment, and event history is retained for diagnosis and forward
+  resolution.
+- No valid child evidence was deleted or rolled back.
 - The wider historical backlog was not processed or planned for execution.
 - No synthetic learner or correction was created.
 - Dynamic Prefix compiler configuration and curriculum projections were not
   changed.
-- No application rollback was required because intake never became enabled.
-- The empty additive schema and its audit-safe ledger entries remain in place.
+- The pending assignment remains intact; it was not completed or overwritten.
+- The additive schema, scheduler configuration, Vault-held secret, and
+  audit-safe ledger entries remain in place.
 
 ## Smallest safe remedy
 
-Before this release can resume, create and review a production-specific sibling
-to the staging scheduler migration and operator. It must pin the production
-database identity, stable production route, exact five-minute expression,
-production-only Vault names, distinct activation/deactivation confirmation
-tokens, service-role grants, protected-state checks, and rollback/status proof.
-It must also provision matching production route authentication without
-printing or committing either secret. After that artifact passes focused
-regression and a fresh guarded production preflight, resume at the disabled
-application verification gate. Do not replay the named submission or enable
-future intake before the production scheduler succeeds naturally.
+Production publication remains incomplete. The smallest scoped remedy is a
+separately reviewed compatibility change in the daily-plan wrapper: when
+Generic Snapshot is not production-enabled and PostgREST reports only the
+missing optional `compiled_lesson_snapshot` column, re-query the existing
+header fields and treat the snapshot as absent. A broader alternative is the
+separately governed Generic Snapshot V2 production migration and rollout.
+Neither remedy is authorized by this release, so no Generic Snapshot source or
+schema was changed.
 
-Production publication is incomplete. Dynamic Affix work did not begin.
+After one remedy is independently approved, deployed, and verified, reopen the
+existing genuine assignment and require the learner route to render before
+re-enabling future canonical intake. Dynamic Affix work did not begin.

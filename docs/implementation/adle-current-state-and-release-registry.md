@@ -226,21 +226,33 @@ Production intake remains disabled; a separate production plan is still
 required.
 
 The guarded production publication began on 2026-08-05. The accepted
-eight-commit application chain was pushed and Ready deployment
-`dpl_5wkJxQZrpL1Qi67frk7i8dm9dL88` sourced exact commit `2649551`. The two
-additive intake migrations (`20260804210000` and `20260804223000`) were applied
-and verified with all five intake tables empty and protected snapshot SHA-256
-unchanged at
-`7d1a31fd1f797facea7656685fe7c49a3a45e38e92560409c32173266a68bcf5`.
-Publication then stopped before feature enablement: Vercel Hobby has no
-five-minute application Cron, production Supabase has no `pg_cron`/`pg_net`
-or scheduler Vault entries, and the accepted scheduler artifact is deliberately
-staging-only and production-rejecting. The named submission and wider backlog
-remain unprocessed, no intake demand/learning item/assignment was created, and
-canonical intake remains disabled. See the
+application chain and additive intake schema were published, then the first
+attempt stopped before enablement because production lacked a reviewed
+five-minute scheduler. A production-pinned Supabase Cron sibling was added by
+`b065d8f` and the successful-job completion fix by `59b2ab8`. Migration
+`20260805070000` is now applied; natural five-minute invocations returned HTTP
+`200` and the scheduler remains active.
+
+Under renewed authority, only submission
+`2824a8d5-3839-443f-8450-ecfa524f28bf` was reconciled from exact plan SHA-256
+`33f6405a3782f7dc68c184cde1826529142afb8e150da15f203874437ceca023`.
+It produced 12 active/reused Prefix learning items, one `pending_content`
+candidate for exact target `unlocked`, one Teaching Content Demand, and zero
+Resolver Demands. The normal composer created one 18-item
+`D4_MOR_PREFIXES_SUB_INTER_SUPER` Dynamic Prefix V2 assignment using
+`shared_authoritative` with zero legacy calls.
+
+The real learner route then exposed a pre-existing deferred Generic Snapshot
+schema mismatch: the wrapper selected absent column
+`daily_assignments.compiled_lesson_snapshot` and returned digest `4110052863`.
+Generic Snapshot was not changed. Future canonical intake was disabled again
+and Ready rollback deployment `dpl_2YAyGAd1Y3kA22ajW3JVnS5u9yZ6` serves the
+stable alias. Valid learning items, demand, lineage, assignment, and audit
+history remain intact. The wider backlog remains unprocessed. Controlled
+end-to-end Prefix trigger proof is blocked until a separately authorized
+wrapper compatibility change or Generic Snapshot rollout restores the real
+learner route. See the
 [production release receipt](qa/adle-canonical-intake-production-release-receipt-2026-08-05.md).
-A reviewed production-specific scheduler artifact and fresh release authority
-are required before resuming.
 
 ## Documentation update rule
 

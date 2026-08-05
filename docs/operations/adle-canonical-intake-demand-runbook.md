@@ -81,3 +81,12 @@ Use the distinct confirmation value for each mutating operation. On Vercel
 Hobby, do not weaken the fallback to a daily schedule. Keep canonical intake
 disabled until status proves the exact target and schedule and at least two
 natural authenticated invocations have returned HTTP `200` without timeout.
+
+If a downstream real learner-route gate fails after valid learning items are
+created, set `ADLE_CANONICAL_INTAKE_ENABLED` to a non-enabled value and redeploy
+the exact reviewed source. Leave the scheduler installed so its authenticated
+invocations safely no-op. Preserve candidate, demand, queue, learning-item,
+lineage, assignment, and event history; do not bulk-delete correct child state.
+Any missing optional lesson-wrapper schema must be resolved through that
+feature's separately authorized compatibility or migration process before
+future intake is re-enabled.

@@ -118,3 +118,12 @@ email, raw answer, dictation, or secret. Exact flag value
 
 Staging evidence is required first. Production migration, enablement, targeted
 replay, and backlog processing remain separately authorised operations.
+
+The 2026-08-05 targeted production publication proved the intake contract for
+one approved submission: twelve Prefix candidates activated, exact target
+`unlocked` remained one Teaching Content Demand, and zero Resolver Demands or
+reconciliation-created assignments appeared. The normal composer then created
+one Prefix V2 assignment. Its learner route exposed a separately deferred
+Generic Snapshot column mismatch, so future intake was disabled and all valid
+state was preserved. This contract does not authorize that wrapper or schema
+remedy, nor any wider backlog replay.
