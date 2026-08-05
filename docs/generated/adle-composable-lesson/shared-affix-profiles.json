@@ -126,6 +126,20 @@
         "title": "Today’s prefix choices"
       },
       "prefixPedagogy": {
+        "cleaverFeedbackPolicy": {
+          "firstMiss": [
+            "Look for the prefix at the start of the word.",
+            "Use today’s prefix cards to help.",
+            "Try again."
+          ],
+          "kind": "prefix_teaching_cards_retry_v1",
+          "repeatedMiss": [
+            "Look for the prefix at the start of the word.",
+            "Use today’s prefix cards to help.",
+            "Try again."
+          ],
+          "revealCorrectBoundaryAfterMisses": false
+        },
         "coverClosePolicy": {
           "kind": "track_ratio",
           "threshold": 0.8
@@ -245,6 +259,20 @@
         "title": "Today’s prefix choices"
       },
       "prefixPedagogy": {
+        "cleaverFeedbackPolicy": {
+          "firstMiss": [
+            "Look for the prefix at the start of the word.",
+            "Use today’s prefix cards to help.",
+            "Try again."
+          ],
+          "kind": "prefix_teaching_cards_retry_v1",
+          "repeatedMiss": [
+            "Look for the prefix at the start of the word.",
+            "Use today’s prefix cards to help.",
+            "Try again."
+          ],
+          "revealCorrectBoundaryAfterMisses": false
+        },
         "coverClosePolicy": {
           "kind": "track_ratio",
           "threshold": 0.8
@@ -376,6 +404,20 @@
         "title": "What is a prefix?"
       },
       "prefixPedagogy": {
+        "cleaverFeedbackPolicy": {
+          "firstMiss": [
+            "Look for the prefix at the start of the word.",
+            "Use today’s prefix cards to help.",
+            "Try again."
+          ],
+          "kind": "prefix_teaching_cards_retry_v1",
+          "repeatedMiss": [
+            "Look for the prefix at the start of the word.",
+            "Use today’s prefix cards to help.",
+            "Try again."
+          ],
+          "revealCorrectBoundaryAfterMisses": false
+        },
         "coverClosePolicy": {
           "kind": "track_ratio",
           "threshold": 0.8
@@ -500,6 +542,20 @@
         "title": "Today’s prefix choices"
       },
       "prefixPedagogy": {
+        "cleaverFeedbackPolicy": {
+          "firstMiss": [
+            "Look for the prefix at the start of the word.",
+            "Use today’s prefix cards to help.",
+            "Try again."
+          ],
+          "kind": "prefix_teaching_cards_retry_v1",
+          "repeatedMiss": [
+            "Look for the prefix at the start of the word.",
+            "Use today’s prefix cards to help.",
+            "Try again."
+          ],
+          "revealCorrectBoundaryAfterMisses": false
+        },
         "coverClosePolicy": {
           "kind": "track_ratio",
           "threshold": 0.8
@@ -620,6 +676,20 @@
         "title": "Today’s prefix choices"
       },
       "prefixPedagogy": {
+        "cleaverFeedbackPolicy": {
+          "firstMiss": [
+            "Look for the prefix at the start of the word.",
+            "Use today’s prefix cards to help.",
+            "Try again."
+          ],
+          "kind": "prefix_teaching_cards_retry_v1",
+          "repeatedMiss": [
+            "Look for the prefix at the start of the word.",
+            "Use today’s prefix cards to help.",
+            "Try again."
+          ],
+          "revealCorrectBoundaryAfterMisses": false
+        },
         "coverClosePolicy": {
           "kind": "track_ratio",
           "threshold": 0.8

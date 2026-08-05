@@ -239,3 +239,16 @@ candidate/demand state remained idempotent and wider backlog replay did not
 occur. Controlled end-to-end trigger proof is complete; child completion and
 Generic Snapshot publication remain separate. Exact evidence is in the
 [production release receipt](qa/adle-canonical-intake-production-release-receipt-2026-08-05.md).
+
+The genuine child later completed that 18-item assignment. Read-only audit
+confirmed the trigger path but found a profile-unsafe hard-coded `un-` Cleaver
+fallback, no Reflection display for a derivable non-target Dictation slip, and
+missing taught/evidence pricing for transfer target `interact`. The focused
+staging correction at `053633b8f92ff031420ce46e2ffc1c526f9707df` now uses one
+typed non-answer-revealing Prefix retry policy, derives context slips from the
+existing sentence attempt, and separates evidence-bearing words from
+schedule-bearing words at completion. Staging produced four `0.75` evidence
+entries and only three schedules; `interact` remained unscheduled and its
+actual breadth stayed fail-closed because support is `in_review`. The existing
+production completion was not rewritten. Publication and final lifecycle
+acceptance require a separately authorised production stage.

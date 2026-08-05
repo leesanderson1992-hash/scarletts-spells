@@ -360,3 +360,30 @@ real correction
 This establishes `CONTROLLED_END_TO_END_PREFIX_TRIGGER_PROVED`. It does not
 claim lesson completion; that remains dependent on the child completing the
 existing assignment naturally. Dynamic Affix work did not begin.
+
+## Immutable completion audit update — 2026-08-05
+
+The child subsequently completed the same genuine assignment. Read-only audit
+found 18 unique completed positions, zero incomplete positions and 16 durable
+attempt events: eight guided, four Cover Check/controlled and four Dictation.
+Cover Check and Dictation exist for `international`, `superhero`, `subway` and
+transfer word `interact`; all four stored Dictation target outcomes are
+correct. The full sentence attempt remains stored, and one non-target
+substitution in the `subway` sentence is derivable from it. Individual wrong
+Cleaver retry boundaries are not reconstructable from the guided ledger.
+
+The three authentic targets each have one taught event, one `0.75` lesson
+evidence contribution, one learning-item transition, review-bundle membership,
+a schedule and applicable reward behavior. Production `interact` has its two
+attempts but no taught event or priced evidence, remains unseen at score zero,
+and correctly has no learning item, bundle, schedule, catch-up or reteach row.
+The missing transfer taught/evidence result is a confirmed historical
+completion defect. Its current `in_review` support projection separately and
+correctly blocks breadth credit.
+
+No production row was changed by this audit and no evidence was backfilled.
+The staging-only prospective correction is documented in the
+[focused staging receipt](adle-dynamic-prefix-feedback-reflection-staging-receipt-2026-08-05.md).
+`CONTROLLED_END_TO_END_PREFIX_TRIGGER_PROVED` is retained; lifecycle status is
+`CONTROLLED_END_TO_END_PREFIX_LIFECYCLE_AUDIT_REQUIRED` until separately
+authorised production publication and future natural observation.

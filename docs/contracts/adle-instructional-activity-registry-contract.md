@@ -255,3 +255,13 @@ Required behavior:
 
 This protects the evidence quality of the retry: it should be recall after a
 teaching reveal, not copy-from-screen transcription.
+
+### Prefix Dictation context reflection (amended 2026-08-05)
+
+Dynamic Prefix Reflection may show up to three derived non-target sentence
+spelling changes while keeping them separate from target-word errors. It states
+when the target was correct, uses edit-specific wording for substitutions,
+insertions and omissions, and retains the established Prefix teaching cards,
+questions and child-authored response. Additional context slips collapse to a
+count summary. Reload derives the same result from the existing persisted
+Dictation attempt; no second raw response or assessment event is written.

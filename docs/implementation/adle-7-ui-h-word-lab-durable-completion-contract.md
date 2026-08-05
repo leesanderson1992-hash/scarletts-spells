@@ -26,6 +26,21 @@ correctness only from the authored target token position before it builds the
 trusted RPC input. Private reflection remains outside attempts, evidence,
 mastery, scheduling and rewards.
 
+Current composable Prefix completion separates four word decisions:
+evidence eligibility, schedule eligibility, learning-item transition
+eligibility and schedule-coupled reward eligibility. Authentic targets are
+eligible for all established paths. Transfer targets remain evidence-eligible
+and write one final taught production, but are excluded from review bundles,
+schedules, learning-item transitions and schedule-coupled rewards. Cover Check
+and Dictation attempts remain independently durable while their same-session
+successes price only once.
+
+Prefix Reflection derives non-target Dictation context slips from the stored
+sentence. The versioned token analysis ignores case and sentence-edge
+punctuation, normalizes apostrophes, retains internal apostrophes/hyphens, and
+uses stable minimum-edit alignment. Derived context is not a second attempt
+store and remains independent from target correctness.
+
 Reward follow-up remains reward-owned, best-effort and idempotent after the core
 commit. It has separate timing and is retried by a completed resubmission; it is
 not included in durable database completion latency.

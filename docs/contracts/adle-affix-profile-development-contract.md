@@ -79,3 +79,19 @@ prefix feedback, and Reflection. Incorrect feedback describes only the selected
 record and ends with `Try again.` It must not identify or direct the child to
 the target. The `prefix_form` meaning policy is reserved for a real form-choice
 activity and must not be labelled Meaning Sort in learner copy.
+
+Dynamic Prefix Cleaver retries use the additive
+`prefix_teaching_cards_retry_v1` presentation policy. Its shared default is
+profile-neutral, points the child back to today's Prefix cards, ends with
+`Try again.`, and never names the target prefix or reveals the correct split.
+Missing policy data on historical Prefix V2 payloads resolves to that safe
+route default. A more specific hint is allowed only when reviewed as
+`non_answer_revealing` and serialized through route data. Dynamic Affix keeps
+its existing explicit suffix feedback behavior.
+
+Prefix Dictation evaluates the authored target token independently from the
+rest of the sentence. Deterministic token alignment may derive non-target
+substitutions, insertions and omissions from the existing full-sentence
+attempt for Reflection, but those context slips never change target evidence,
+learning-item state, scheduling or rewards and never create another raw-answer
+store.

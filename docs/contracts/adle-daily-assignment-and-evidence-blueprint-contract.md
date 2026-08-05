@@ -256,6 +256,21 @@ Caps and validity:
   evidence to come from writing that passed parent review (existing Review
   Work flow)
 
+Transfer words practised in a lesson are evidence-bearing even though they are
+not schedule-bearing. A correct transfer target records the independent
+controlled and Dictation attempts, writes one authoritative taught-history
+production, prices exactly one same-session controlled lesson contribution at
+`0.75`, and recomputes word state. It contributes breadth only when the normal
+support, banding and approval gates pass. Transfer participation alone creates
+no unresolved learning item, review-bundle membership, spaced schedule,
+catch-up entry, reteach transition or schedule-coupled reward.
+
+For sentence Dictation, target-token correctness is the evidence fact. A
+capitalization-, punctuation-, or non-target-token difference does not reduce
+the target's score. Non-target spelling changes may be derived for Reflection
+from the existing sentence attempt, but they are not slippage deductions and
+do not create learning items or schedules.
+
 Deductions (slippage):
 - an uncorrected misspelling of a secure/review_retired/mastered word in real
   writing: deduct half the context's positive weight (authentic slip = -1.0),

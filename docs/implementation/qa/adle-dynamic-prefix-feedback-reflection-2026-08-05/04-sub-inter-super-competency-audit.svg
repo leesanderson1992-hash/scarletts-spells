@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="900" viewBox="0 0 1440 900">
+  <rect width="1440" height="900" fill="#fbfaf7"/>
+  <rect x="80" y="70" width="1280" height="760" rx="28" fill="#ffffff" stroke="#d8d4ca" stroke-width="2"/>
+  <text x="130" y="145" font-family="Arial, sans-serif" font-size="34" font-weight="700" fill="#24313a">Dynamic Prefix staging competency audit</text>
+  <text x="130" y="187" font-family="Arial, sans-serif" font-size="20" fill="#58636b">D4_MOR_PREFIXES_SUB_INTER_SUPER · redacted verifier summary · 2026-08-05</text>
+
+  <rect x="130" y="230" width="1180" height="90" rx="18" fill="#eaf6ef"/>
+  <text x="165" y="269" font-family="Arial, sans-serif" font-size="22" font-weight="700" fill="#17613a">Completion verified</text>
+  <text x="165" y="302" font-family="Arial, sans-serif" font-size="19" fill="#234b35">18/18 items complete · 16 durable attempts · no duplicate attempt identities</text>
+
+  <text x="130" y="375" font-family="Arial, sans-serif" font-size="23" font-weight="700" fill="#24313a">Word</text>
+  <text x="410" y="375" font-family="Arial, sans-serif" font-size="23" font-weight="700" fill="#24313a">Cover</text>
+  <text x="530" y="375" font-family="Arial, sans-serif" font-size="23" font-weight="700" fill="#24313a">Dictation</text>
+  <text x="685" y="375" font-family="Arial, sans-serif" font-size="23" font-weight="700" fill="#24313a">Taught</text>
+  <text x="810" y="375" font-family="Arial, sans-serif" font-size="23" font-weight="700" fill="#24313a">Evidence</text>
+  <text x="965" y="375" font-family="Arial, sans-serif" font-size="23" font-weight="700" fill="#24313a">State</text>
+  <text x="1100" y="375" font-family="Arial, sans-serif" font-size="23" font-weight="700" fill="#24313a">Scheduled</text>
+  <line x1="130" y1="392" x2="1310" y2="392" stroke="#d8d4ca" stroke-width="2"/>
+
+  <g font-family="Arial, sans-serif" font-size="21" fill="#24313a">
+    <text x="130" y="438">international</text><text x="430" y="438">1 ✓</text><text x="560" y="438">1 ✓</text><text x="708" y="438">1 ✓</text><text x="828" y="438">0.75</text><text x="965" y="438">active</text><text x="1135" y="438">yes</text>
+    <text x="130" y="493">superhero</text><text x="430" y="493">1 ✓</text><text x="560" y="493">1 ✓</text><text x="708" y="493">1 ✓</text><text x="828" y="493">0.75</text><text x="965" y="493">active</text><text x="1135" y="493">yes</text>
+    <text x="130" y="548">subway</text><text x="430" y="548">1 ✓</text><text x="560" y="548">1 ✓</text><text x="708" y="548">1 ✓</text><text x="828" y="548">0.75</text><text x="965" y="548">active</text><text x="1135" y="548">yes</text>
+    <text x="130" y="603" font-weight="700">interact (transfer)</text><text x="430" y="603">1 ✓</text><text x="560" y="603">1 ✓</text><text x="708" y="603">1 ✓</text><text x="828" y="603">0.75</text><text x="965" y="603">active</text><text x="1135" y="603">no</text>
+  </g>
+
+  <line x1="130" y1="630" x2="1310" y2="630" stroke="#d8d4ca" stroke-width="2"/>
+  <text x="130" y="680" font-family="Arial, sans-serif" font-size="21" font-weight="700" fill="#24313a">Evidence-bearing words: 4</text>
+  <text x="520" y="680" font-family="Arial, sans-serif" font-size="21" font-weight="700" fill="#24313a">Schedule-bearing words: 3</text>
+  <text x="970" y="680" font-family="Arial, sans-serif" font-size="21" font-weight="700" fill="#24313a">Transfer learning items: 0</text>
+
+  <rect x="130" y="720" width="1180" height="70" rx="15" fill="#f4f1e8"/>
+  <text x="165" y="751" font-family="Arial, sans-serif" font-size="18" fill="#4d4a40">Same-session Cover + Dictation do not stack. Each correct word prices once under evidence_policy_v1_2026-07-04.</text>
+  <text x="165" y="778" font-family="Arial, sans-serif" font-size="18" fill="#4d4a40">interact has Level 3 banding; actual breadth remains withheld while its support mapping is in_review.</text>
+</svg>

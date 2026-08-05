@@ -23,6 +23,9 @@ does not authorise a renderer change in this stage.
 - [ ] Inspect the introduction and profile-specific explanation.
 - [ ] On genuine Learn 2/3, verify one separate meaning/rule card per target prefix.
 - [ ] Complete the first Cleaver and verify the exact instructed cut.
+- [ ] Make a Cleaver miss and verify the retry is profile-neutral, points to
+  today's Prefix cards, ends with `Try again.`, and reveals neither the target
+  prefix nor the correct boundary; repeat the miss and confirm the same rule.
 - [ ] Inspect every profile-specific Cleaver arrangement; no duplicate or
   skipped split activity.
 - [ ] Deliberately choose one wrong Meaning Sort category and verify feedback describes only the selected prefix and ends `Try again.`
@@ -33,6 +36,9 @@ does not authorise a renderer change in this stage.
 - [ ] Complete controlled spelling, Cover Check, each dictation and reflection.
 - [ ] Verify Cover remains open at 79%, snaps fully closed at 80%, protects the answer, and does not complete before Check.
 - [ ] Verify Reflection begins `Today we studied:`, reuses the Learn cards, contains the meaning and rule prompts, and retains typed text after reload.
+- [ ] Enter a Dictation with the target correct and one neutral non-target
+  spelling change. Confirm target correctness is preserved, Reflection labels
+  the context separately, and reload restores it without duplication.
 - [ ] Verify correct-answer and incorrect-answer feedback, audio triggers and
   animation triggers.
 - [ ] Reload mid-lesson after a persisted activity; verify resume starts at the
@@ -98,3 +104,11 @@ protected snapshot, and activated Ready shared-authoritative deployment
 progress from `2026-08-03T21:56:39Z` through `2026-08-10T21:56:39Z`. The
 observation must use natural assignments only, record absent profile coverage
 honestly, and must not retire the legacy compiler.
+
+The focused 2026-08-05 staging pass is recorded in the
+[feedback/evidence receipt](adle-dynamic-prefix-feedback-reflection-staging-receipt-2026-08-05.md)
+and [four-image index](adle-dynamic-prefix-feedback-reflection-2026-08-05/adle-dynamic-prefix-feedback-reflection-2026-08-05.md).
+It proved safe Cleaver feedback, target/context Dictation separation, resumed
+Reflection, four evidence-bearing words and authentic-only scheduling. The
+production lifecycle remains audit-required until separately authorised
+publication; no historical production evidence was changed.

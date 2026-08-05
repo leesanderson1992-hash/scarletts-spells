@@ -144,3 +144,11 @@ has 20 assignment bindings. Other Prefix counts remain 16, 16, 16 and 18.
 Prefix results presentation is `none`; Dynamic Affix retains its established
 overview behavior. Prefix controlled spelling opts into an element-relative
 80% Cover track threshold without changing other Cover consumers.
+
+Prefix pedagogy snapshots also carry an additive Cleaver feedback policy.
+The shared compiler declares one profile-neutral retry policy for all five
+Prefix profiles; renderers do not branch on microskill keys. Its first and
+repeated feedback are non-answer-revealing, refer to the serialized teaching
+cards, and suppress correct-boundary reveal. Historical Prefix V2 snapshots
+without the field remain readable through the compatibility adapter's same
+safe default. Dynamic Affix snapshots do not inherit this Prefix-only policy.

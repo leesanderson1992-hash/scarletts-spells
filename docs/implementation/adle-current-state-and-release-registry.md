@@ -255,8 +255,19 @@ resume initialization rendered without learner writes. Deliberate deployment
 `dpl_2Ynhce4ofYSfh8mtLCLnwi2J4mB8` restored future canonical intake, and the
 natural five-minute scheduler re-evaluated the existing pending candidate
 idempotently. Generic Snapshot remains deferred, Dynamic Affix remains paused,
-the wider backlog remains unprocessed, and child completion is still pending.
-Controlled end-to-end Prefix trigger proof is now recorded. See the
+and the wider backlog remains unprocessed. The child subsequently completed
+the genuine assignment. Completion preserved 18/18 items and the authentic
+target paths, but exposed two prospective corrections: a hard-coded `un-`
+Cleaver retry leaked into the `sub-/inter-/super-` profile, and transfer word
+`interact` captured both attempts without taught/evidence pricing. A non-target
+Dictation substitution also remained absent from Prefix Reflection despite the
+full sentence being stored. The staging-only correction at local commit
+`053633b8f92ff031420ce46e2ffc1c526f9707df` proved profile-neutral feedback,
+derived context Reflection, and four evidence-bearing versus three
+schedule-bearing words. Production history remains immutable and the lifecycle
+status remains `CONTROLLED_END_TO_END_PREFIX_LIFECYCLE_AUDIT_REQUIRED` pending
+separate publication authority. Controlled end-to-end Prefix trigger proof is
+retained. See the
 [production release receipt](qa/adle-canonical-intake-production-release-receipt-2026-08-05.md).
 
 ## Documentation update rule
