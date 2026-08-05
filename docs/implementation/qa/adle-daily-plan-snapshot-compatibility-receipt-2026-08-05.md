@@ -66,8 +66,38 @@ It proves:
 The existing Generic Snapshot reader, route-resolution and persisted-metadata
 regressions remain unchanged and green.
 
-## Staging and production proof
+## Pinned staging compatibility proof
 
-Pending the exact corrective commit, pinned staging compatibility check, and
-guarded production publication. No environment or learner mutation is
-authorised by this receipt alone.
+The clean corrective tree was deployed to the staging Vercel project
+`scarletts-spells-staged` as pinned Preview
+`dpl_376DkMKAdaYyqKNKbiVs58zTGDBG`. Vercel reported the deployment `Ready`.
+
+The guarded live proof then ran the real `getAdleDailyPlanReadModel` against
+the existing staging Dynamic Prefix assignment without creating or changing
+curriculum or learner data:
+
+```text
+assignment: 1af67bae-3840-4bbc-90c1-3aa39a7115b3
+plan date: 2026-08-08
+route: dynamic_prefix_word_lab / v2
+items: 18
+schema capability: available
+Generic Snapshot reader invoked: false
+read-model state: completed
+```
+
+Assignment items, attempts and reflections were counted immediately before
+and after the read; all three counts were identical. The separate schema
+fixture proves the same real read model and route resolution with capability
+`deferred_absent`, while a Snapshot-required route fails closed. Together,
+these cover both legitimate schema states without applying a migration.
+
+The fresh deployment hostname reached the existing application login policy;
+no credential was copied to the new hostname and no learner activity was
+performed through the browser.
+
+## Production proof
+
+Pending guarded production publication and read-only opening of the preserved
+assignment `b84a41d2-4bf5-4079-b80f-d7d7611dd862`. Generic Snapshot remains
+deferred. No production mutation is authorised by this receipt alone.
