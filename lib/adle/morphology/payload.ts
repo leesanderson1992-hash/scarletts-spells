@@ -76,6 +76,18 @@ export interface MorphologyWordSnapshot {
   teachingBaseText?: string;
 }
 
+export interface PrefixCleaverFeedbackPolicyV1 {
+  kind: "prefix_teaching_cards_retry_v1";
+  firstMiss: [string, ...string[]];
+  repeatedMiss: [string, ...string[]];
+  revealCorrectBoundaryAfterMisses: false;
+  reviewedHint?: {
+    text: string;
+    disclosure: "non_answer_revealing";
+    source: string;
+  };
+}
+
 export interface MorphologyActivityV1 {
   id: string;
   type:
@@ -109,6 +121,9 @@ export interface MorphologyActivityV1 {
   meaningCheckKind?: "meaning" | "prefix_form";
   meaningResultsPresentation?: "none" | "overview_and_reflection";
   teachingCards?: MorphologyPrefixTeachingCardV1[];
+  /** Prefix-only retry copy. Suffix consumers retain their explicit prompts. */
+  cleaverFeedbackPolicy?: PrefixCleaverFeedbackPolicyV1;
+  dictationContextPolicyVersion?: "dictation_target_context_v1";
   coverClosePolicy?: { kind: "track_ratio"; threshold: 0.8 };
 }
 

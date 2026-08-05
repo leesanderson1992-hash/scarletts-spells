@@ -53,6 +53,17 @@ export interface ProducedWordAttempt {
   correct: boolean;
 }
 
+/** Evidence, scheduling, learning-item, and reward eligibility are separate
+ * curriculum decisions. In particular, a transfer word can be evidence-
+ * bearing without entering the review scheduler. */
+export interface CompletionWordPolicy {
+  canonicalWordId: string;
+  evidenceEligible: boolean;
+  scheduleEligible: boolean;
+  learningItemTransitionEligible: boolean;
+  rewardEligible: boolean;
+}
+
 // ---------------------------------------------------------------------------
 // Lesson completion
 // ---------------------------------------------------------------------------
@@ -67,6 +78,9 @@ export interface LessonCompletionParams {
   bundleId: string;
   /** All five produced lesson words with raw attempts. */
   producedWords: readonly ProducedWordAttempt[];
+  /** Omitted by historical callers, which retain the original all-word
+   * evidence/schedule/transition behavior. */
+  wordPolicies?: readonly CompletionWordPolicy[];
   /** The child's learning items (any status) — matched by (word, skill). */
   learningItems: readonly LearningItemFact[];
   /** Guarded pilots may schedule their fixed authentic target set even when
@@ -106,7 +120,30 @@ export function onLessonCompleted(
       .map((item) => [item.canonicalWordId, item]),
   );
 
-  const taughtEvents: TaughtWordHistoryWithAttempt[] = params.producedWords.map((word) => ({
+  const policies = new Map<string, CompletionWordPolicy>();
+  for (const word of params.producedWords) {
+    policies.set(word.canonicalWordId, {
+      canonicalWordId: word.canonicalWordId,
+      evidenceEligible: true,
+      scheduleEligible: true,
+      learningItemTransitionEligible: true,
+      rewardEligible: true,
+    });
+  }
+  if (params.wordPolicies) {
+    if (
+      params.wordPolicies.length !== params.producedWords.length
+      || new Set(params.wordPolicies.map((policy) => policy.canonicalWordId)).size !== params.wordPolicies.length
+      || params.wordPolicies.some((policy) => !policies.has(policy.canonicalWordId))
+    ) {
+      throw new Error("onLessonCompleted: word policies must match produced words exactly");
+    }
+    for (const policy of params.wordPolicies) policies.set(policy.canonicalWordId, policy);
+  }
+
+  const taughtEvents: TaughtWordHistoryWithAttempt[] = params.producedWords
+    .filter((word) => policies.get(word.canonicalWordId)?.evidenceEligible)
+    .map((word) => ({
     childId: params.childId,
     canonicalWordId: word.canonicalWordId,
     eventKind: "taught" as TaughtWordEventKind,
@@ -114,11 +151,13 @@ export function onLessonCompleted(
     sourceRef: params.sourceRef,
     rowStatus: "active",
     attemptText: word.attemptText,
-  }));
+    }));
 
   const scheduled = params.scheduleAllProducedWords
-    ? params.producedWords
-    : params.producedWords.filter((word) => word.correct);
+    ? params.producedWords.filter((word) => policies.get(word.canonicalWordId)?.scheduleEligible)
+    : params.producedWords.filter((word) =>
+        word.correct && policies.get(word.canonicalWordId)?.scheduleEligible,
+      );
   let bundle: ReviewBundleFact | null = null;
   let scheduleWords: ScheduleWordFact[] = [];
   if (scheduled.length > 0) {
@@ -144,6 +183,7 @@ export function onLessonCompleted(
 
   const itemTransitions: LearningItemFact[] = [];
   for (const word of params.producedWords) {
+    if (!policies.get(word.canonicalWordId)?.learningItemTransitionEligible) continue;
     const item = itemByWordId.get(word.canonicalWordId);
     if (item === undefined) {
       continue;

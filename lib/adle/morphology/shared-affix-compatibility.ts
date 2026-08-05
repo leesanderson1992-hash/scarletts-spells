@@ -201,6 +201,14 @@ export function normaliseDynamicPrefixSelection(
             meaningCheckKind: declaredPedagogy.meaningCheckKind,
             meaningResultsPresentation: declaredPedagogy.meaningResultsPresentation,
             coverClosePolicy: declaredPedagogy.coverClosePolicy,
+            cleaverFeedbackPolicy: {
+              ...declaredPedagogy.cleaverFeedbackPolicy,
+              firstMiss: [...declaredPedagogy.cleaverFeedbackPolicy.firstMiss] as [string, ...string[]],
+              repeatedMiss: [...declaredPedagogy.cleaverFeedbackPolicy.repeatedMiss] as [string, ...string[]],
+              ...(declaredPedagogy.cleaverFeedbackPolicy.reviewedHint
+                ? { reviewedHint: { ...declaredPedagogy.cleaverFeedbackPolicy.reviewedHint } }
+                : {}),
+            },
             validChoiceAudit: selection.profile.pedagogy!.validChoiceAudit.map((audit) => ({
               word: audit.word,
               choiceVerdicts: { ...audit.choiceVerdicts },
@@ -350,6 +358,14 @@ export function adaptSharedAffixLessonToDynamicPrefixV2(
     ...(input.profile.prefixPresentation ? {
       meaningCheckKind: input.profile.prefixPresentation.meaningCheckKind,
       meaningResultsPresentation: input.profile.prefixPresentation.meaningResultsPresentation,
+      cleaverFeedbackPolicy: {
+        ...input.profile.prefixPresentation.cleaverFeedbackPolicy,
+        firstMiss: [...input.profile.prefixPresentation.cleaverFeedbackPolicy.firstMiss] as [string, ...string[]],
+        repeatedMiss: [...input.profile.prefixPresentation.cleaverFeedbackPolicy.repeatedMiss] as [string, ...string[]],
+        ...(input.profile.prefixPresentation.cleaverFeedbackPolicy.reviewedHint
+          ? { reviewedHint: { ...input.profile.prefixPresentation.cleaverFeedbackPolicy.reviewedHint } }
+          : {}),
+      },
     } : {}),
   } : undefined;
   return {

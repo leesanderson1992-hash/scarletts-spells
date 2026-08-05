@@ -116,6 +116,13 @@ function validateProfile(input: AffixLessonCompilationInputV1): SharedAffixBlock
       || profile.prefixPresentation.meaningResultsPresentation !== "none"
       || profile.prefixPresentation.coverClosePolicy.kind !== "track_ratio"
       || profile.prefixPresentation.coverClosePolicy.threshold !== 0.8
+      || profile.prefixPresentation.cleaverFeedbackPolicy.kind !== "prefix_teaching_cards_retry_v1"
+      || profile.prefixPresentation.cleaverFeedbackPolicy.revealCorrectBoundaryAfterMisses !== false
+      || !profile.prefixPresentation.cleaverFeedbackPolicy.firstMiss.length
+      || !profile.prefixPresentation.cleaverFeedbackPolicy.repeatedMiss.length
+      || profile.prefixPresentation.cleaverFeedbackPolicy.firstMiss.at(-1) !== "Try again."
+      || profile.prefixPresentation.cleaverFeedbackPolicy.repeatedMiss.at(-1) !== "Try again."
+      || [...profile.prefixPresentation.cleaverFeedbackPolicy.firstMiss, ...profile.prefixPresentation.cleaverFeedbackPolicy.repeatedMiss].some((line) => !validText(line))
       || !cards
       || cards.map((card) => card.text).join("|") !== profile.forms.join("|")
       || cards.some((card) => !validText(card.label) || !validText(card.meaning) || !card.rules.length || card.rules.some((rule) => !validText(rule)))
@@ -481,6 +488,7 @@ export function compileSharedAffixLesson(
       ...(input.profile.prefixPresentation ? {
         meaningCheckKind: input.profile.prefixPresentation.meaningCheckKind,
         meaningResultsPresentation: input.profile.prefixPresentation.meaningResultsPresentation,
+        cleaverFeedbackPolicy: input.profile.prefixPresentation.cleaverFeedbackPolicy,
         coverClosePolicy: input.profile.prefixPresentation.coverClosePolicy,
       } : {}),
       dictationWordIds: words.map((word) => word.canonicalWordId),

@@ -2,13 +2,30 @@ import type { LearningItemFact } from "../learning-items";
 import {
   extractAuthoredTargetToken,
   type MorphologyEffect,
+  type PrefixCleaverFeedbackPolicyV1,
   type MorphologyWordSnapshot,
 } from "./payload";
+
+export type { PrefixCleaverFeedbackPolicyV1 } from "./payload";
 
 export const DYNAMIC_PREFIX_WORD_LAB_CONTENT_VERSION = "d4_mor_prefix_word_lab_v2";
 export const DYNAMIC_PREFIX_WORD_LAB_PROFILE = "prefix_word_lab_v2";
 export const DYNAMIC_PREFIX_WORD_LAB_WORD_COUNT = 4;
 export const DYNAMIC_PREFIX_PEDAGOGY_VERSION = "dynamic_prefix_pedagogy_v1" as const;
+export const DEFAULT_PREFIX_CLEAVER_FEEDBACK_POLICY: PrefixCleaverFeedbackPolicyV1 = {
+  kind: "prefix_teaching_cards_retry_v1",
+  firstMiss: [
+    "Look for the prefix at the start of the word.",
+    "Use today’s prefix cards to help.",
+    "Try again.",
+  ],
+  repeatedMiss: [
+    "Look for the prefix at the start of the word.",
+    "Use today’s prefix cards to help.",
+    "Try again.",
+  ],
+  revealCorrectBoundaryAfterMisses: false,
+};
 /** First released dynamic profile; legacy fixed v1 remains independently supported. */
 export const DYNAMIC_PREFIX_INITIAL_PROFILE_KEY = "D4_MOR_PREFIXES_UN";
 
@@ -164,6 +181,7 @@ export interface DynamicPrefixLessonPayloadV2 {
       includeMeaningSort: boolean;
       meaningCheckKind?: "meaning" | "prefix_form";
       meaningResultsPresentation?: "none" | "overview_and_reflection";
+      cleaverFeedbackPolicy?: PrefixCleaverFeedbackPolicyV1;
     };
     dictation: Array<{
       canonicalWordId: string;
@@ -208,6 +226,23 @@ function validPedagogyPayload(payload: DynamicPrefixLessonPayloadV2): boolean {
     || controlled?.coverClosePolicy.kind !== "track_ratio"
     || controlled.coverClosePolicy.threshold !== 0.8
   ) return false;
+  if (guided.cleaverFeedbackPolicy !== undefined) {
+    const policy = guided.cleaverFeedbackPolicy;
+    if (
+      policy.kind !== "prefix_teaching_cards_retry_v1"
+      || policy.revealCorrectBoundaryAfterMisses !== false
+      || !policy.firstMiss.length
+      || !policy.repeatedMiss.length
+      || [...policy.firstMiss, ...policy.repeatedMiss].some((line) => !line.trim())
+      || policy.firstMiss.at(-1) !== "Try again."
+      || policy.repeatedMiss.at(-1) !== "Try again."
+      || (policy.reviewedHint !== undefined && (
+        !policy.reviewedHint.text.trim()
+        || policy.reviewedHint.disclosure !== "non_answer_revealing"
+        || !policy.reviewedHint.source.trim()
+      ))
+    ) return false;
+  }
   const byText = new Map(cards.map((card) => [card.text, card]));
   return payload.words.lesson.every((word) => Boolean(word.prefixText && byText.has(word.prefixText)))
     && guided.builds.every((build) => build.choices.length >= 3

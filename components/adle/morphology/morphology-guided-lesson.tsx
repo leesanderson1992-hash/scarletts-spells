@@ -24,8 +24,13 @@ import {
 import type {
   MorphologyLessonPayloadV1,
   MorphologyWordSnapshot,
+  PrefixCleaverFeedbackPolicyV1,
 } from "@/lib/adle/morphology/payload";
 import { morphologyMeaningSortItems } from "@/lib/adle/morphology/meaning-sort-items";
+import {
+  analyseDictationSentence,
+  type DictationContextSlip,
+} from "@/lib/adle/morphology/dictation-context";
 import { normaliseSessionWord } from "@/lib/adle/session-correctness";
 import { WordLabScene } from "./word-lab-scene";
 import { PrefixTeachingCards, SelectedPrefixFeedback } from "./prefix-teaching-cards";
@@ -252,6 +257,9 @@ export function MorphologyGuidedLesson(props: {
           muted={state.muted}
           missMessage={beat.onSlip}
           repeatedMissMessage={beat.onRepeatedMisconception}
+          feedbackPolicy={props.payload.activities.find(
+            (activity) => activity.type === "strip_build",
+          )?.cleaverFeedbackPolicy}
           continueLabel={(() => {
             const splitCount = props.payload.activities.find((activity) => activity.type === "strip_build")?.assignmentBindings.length ?? 1;
             if (state.splitIndex + 1 < splitCount) return "Try another split";
@@ -669,6 +677,7 @@ function SplitBuild(props: {
   muted: boolean;
   missMessage?: string;
   repeatedMissMessage?: string;
+  feedbackPolicy?: PrefixCleaverFeedbackPolicyV1;
   continueLabel: string;
   onMiss: (misses: number) => void;
   onCorrect: () => void;
@@ -688,6 +697,8 @@ function SplitBuild(props: {
         ? `${baseOrRoot} + ${affix} makes ${props.word.displayWord}.`
         : `${affix} + ${baseOrRoot} makes ${props.word.displayWord}.`
     : undefined;
+  const prefixFeedback = !suffix ? props.feedbackPolicy : undefined;
+  const policyText = (lines: readonly string[]) => lines.join("\n\n");
   return (
     <SplitHandle
       word={props.word.displayWord}
@@ -695,13 +706,14 @@ function SplitBuild(props: {
       misses={props.misses}
       correct={props.correct}
       muted={props.muted}
-      missMessage={props.missMessage}
-      repeatedMissMessage={props.repeatedMissMessage}
+      missMessage={prefixFeedback ? policyText(prefixFeedback.firstMiss) : props.missMessage}
+      repeatedMissMessage={prefixFeedback ? policyText(prefixFeedback.repeatedMiss) : props.repeatedMissMessage}
       correctHeading={affix ? `Yes — ${suffix ? `-${affix} is at the end` : `${affix}- is at the front`} of the word.` : undefined}
       correctExplanation={correctExplanation}
       prompt={suffix ? "Find where the base/root ends and the suffix begins at the end of the word." : undefined}
       missPrompt={suffix ? "Not there yet. Look for the suffix at the end of the word." : undefined}
       repeatedMissPrompt={suffix && affix ? `The suffix -${affix} is at the end. Chop just before it.` : undefined}
+      revealCorrectBoundaryAfterMisses={prefixFeedback?.revealCorrectBoundaryAfterMisses}
       continueLabel={props.continueLabel}
       onMiss={props.onMiss}
       onCorrect={props.onCorrect}
@@ -1011,6 +1023,19 @@ function ReflectionForm(props: {
   const misses = [...controlledMisses, ...sentenceMisses];
   const prefixCards = reflection.teachingCards;
   const prefixPedagogy = Boolean(prefixCards?.length);
+  const prefixContextAnalyses = prefixPedagogy && dictation.dictationContextPolicyVersion === "dictation_target_context_v1"
+    ? (dictation.sentences ?? []).map((sentence) => ({
+        canonicalWordId: sentence.canonicalWordId,
+        analysis: analyseDictationSentence(
+          sentence.sentence,
+          props.state.sentenceAttempts[sentence.canonicalWordId] ?? "",
+          sentence.targetTokenIndex,
+        ),
+      }))
+    : [];
+  const prefixContextSlips = prefixContextAnalyses.flatMap(({ canonicalWordId, analysis }) =>
+    analysis.contextSlips.map((slip) => ({ canonicalWordId, targetCorrect: analysis.targetCorrect, slip })),
+  );
   const meaningResultsPresentation = props.payload.activities.find((activity) => activity.type === "meaning_sort")?.meaningResultsPresentation;
   const ready = props.state.reflectionText.trim().length > 0;
   return (
@@ -1104,6 +1129,40 @@ function ReflectionForm(props: {
             <p className="font-black">Did you get anything incorrect above?</p>
             <p className="mt-2">Take a moment to think of one rule to remember next time.</p>
           </div>
+          {prefixContextSlips.length > 0 ? (
+            <section
+              className="rounded-2xl border border-amber-200/40 bg-amber-50 p-4 text-left text-amber-950"
+              aria-labelledby="prefix-dictation-context-heading"
+            >
+              <h3 id="prefix-dictation-context-heading" className="text-lg font-black">
+                Another part of the sentence to check
+              </h3>
+              {prefixContextSlips.some((entry) => entry.targetCorrect) ? (
+                <p className="mt-2 font-semibold">You spelled the target word correctly.</p>
+              ) : null}
+              <p className="mt-2">
+                {prefixContextSlips.length === 1
+                  ? "You also changed another word in the sentence:"
+                  : "You also changed some words in the sentence:"}
+              </p>
+              <ul className="mt-3 grid gap-2">
+                {prefixContextSlips.slice(0, 3).map((entry, index) => (
+                  <li
+                    key={`${entry.canonicalWordId}-${entry.slip.edit.kind}-${index}`}
+                    className="rounded-xl bg-white/70 p-3 font-semibold"
+                  >
+                    {dictationContextSlipText(entry.slip)}
+                  </li>
+                ))}
+              </ul>
+              {prefixContextSlips.length > 3 ? (
+                <p className="mt-2 text-sm font-semibold">
+                  There {prefixContextSlips.length - 3 === 1 ? "is" : "are"} {prefixContextSlips.length - 3} more sentence {prefixContextSlips.length - 3 === 1 ? "change" : "changes"} to check.
+                </p>
+              ) : null}
+              <p className="mt-3 font-black">What will you check next time?</p>
+            </section>
+          ) : null}
         </section>
       ) : <section
         className="rounded-3xl border border-white/15 bg-white/[.07] p-4 text-left"
@@ -1161,6 +1220,16 @@ function ReflectionForm(props: {
       )}
     </form>
   );
+}
+
+function dictationContextSlipText(slip: DictationContextSlip): string {
+  if (slip.edit.kind === "substitution") {
+    return `You wrote “${slip.edit.attemptedToken}”. The sentence word was “${slip.edit.expectedToken}”.`;
+  }
+  if (slip.edit.kind === "omission") {
+    return `You left out “${slip.edit.expectedToken}”.`;
+  }
+  return `You added “${slip.edit.attemptedToken}”.`;
 }
 
 function FinishWordLabButton() {

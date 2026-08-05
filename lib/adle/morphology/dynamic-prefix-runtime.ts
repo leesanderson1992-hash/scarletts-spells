@@ -1,5 +1,9 @@
 import type { GuideBeatV1, MorphologyLessonPayloadV1 } from "./payload";
-import { validateDynamicPrefixWordLabPayload, type DynamicPrefixLessonPayloadV2 } from "./dynamic-prefix-word-lab";
+import {
+  DEFAULT_PREFIX_CLEAVER_FEEDBACK_POLICY,
+  validateDynamicPrefixWordLabPayload,
+  type DynamicPrefixLessonPayloadV2,
+} from "./dynamic-prefix-word-lab";
 
 /**
  * Presents a v2 immutable snapshot through the shared Word Lab mechanics.
@@ -48,11 +52,20 @@ export function dynamicPrefixRuntime(payload: unknown): MorphologyLessonPayloadV
     activities: [
       { id: "introduction", type: "introduction", assignmentBindings: ["intro-root", "intro-words"], answerVisibility: "teaching", evidenceMode: "none", introScreens, ...(teachingCards ? { teachingCards } : {}) },
       { id: "discover", type: "discovery", assignmentBindings: [], answerVisibility: "teaching", evidenceMode: "none", prefixLabel: snapshot.prefix.label, discoveryCards: snapshot.activities.discovery },
-      { id: "strip-build", type: "strip_build", assignmentBindings: bindings.strip, answerVisibility: "guided", evidenceMode: "guided_completion", wordIds: splitWords.map((word) => word!.canonicalWordId) },
+      {
+        id: "strip-build",
+        type: "strip_build",
+        assignmentBindings: bindings.strip,
+        answerVisibility: "guided",
+        evidenceMode: "guided_completion",
+        wordIds: splitWords.map((word) => word!.canonicalWordId),
+        cleaverFeedbackPolicy:
+          guided.cleaverFeedbackPolicy ?? DEFAULT_PREFIX_CLEAVER_FEEDBACK_POLICY,
+      },
       ...(guided.includeMeaningSort ? [{ id: "meaning-match", type: "meaning_sort" as const, assignmentBindings: bindings.meaning, answerVisibility: "guided" as const, evidenceMode: "guided_completion" as const, prefixLabel: snapshot.prefix.label, meaningBins: snapshot.activities.meaningBins, meaningCheckKind: guided.meaningCheckKind ?? "meaning", meaningResultsPresentation: "none" as const, ...(teachingCards ? { teachingCards } : {}) }] : []),
       { id: "build-word", type: "prefix_choice", assignmentBindings: bindings.build, answerVisibility: "guided", evidenceMode: "guided_completion", builds: builds.map(({ word, choices, targetMeaning }) => ({ canonicalWordId: word!.canonicalWordId, baseWord: word!.baseWord, targetMeaning, prefixChoices: choices })), baseWord: builds[0].word!.baseWord, targetMeaning: builds[0].targetMeaning, prefixChoices: builds[0].choices, ...(teachingCards ? { teachingCards } : {}) },
       { id: "controlled-spelling", type: "look_cover_write_check", assignmentBindings: bindings.controlled, answerVisibility: "recall_neutral", evidenceMode: "first_exposure_word", ...(snapshot.activities.controlledPolicy?.coverClosePolicy ? { coverClosePolicy: snapshot.activities.controlledPolicy.coverClosePolicy } : {}) },
-      { id: "dictation", type: "sentence_dictation", assignmentBindings: bindings.dictation, answerVisibility: "recall_neutral", evidenceMode: "first_exposure_word", sentences: snapshot.activities.dictation.map((sentence) => ({ canonicalWordId: sentence.canonicalWordId, targetWord: sentence.targetWord, sentence: sentence.sentence, targetTokenIndex: sentence.targetTokenIndex })) },
+      { id: "dictation", type: "sentence_dictation", assignmentBindings: bindings.dictation, answerVisibility: "recall_neutral", evidenceMode: "first_exposure_word", dictationContextPolicyVersion: "dictation_target_context_v1", sentences: snapshot.activities.dictation.map((sentence) => ({ canonicalWordId: sentence.canonicalWordId, targetWord: sentence.targetWord, sentence: sentence.sentence, targetTokenIndex: sentence.targetTokenIndex })) },
       { id: "reflection", type: "reflection", assignmentBindings: [], answerVisibility: "post_submit", evidenceMode: "none", promptKey: snapshot.activities.reflection.promptKey, promptText: snapshot.activities.reflection.promptText, ...(teachingCards ? { teachingCards } : {}) },
     ],
   };

@@ -192,6 +192,7 @@ export interface NormalisedAffixTeachingProfileV1 {
     meaningCheckKind: "meaning" | "prefix_form";
     meaningResultsPresentation: "none";
     coverClosePolicy: { kind: "track_ratio"; threshold: 0.8 };
+    cleaverFeedbackPolicy: import("./payload").PrefixCleaverFeedbackPolicyV1;
     validChoiceAudit: readonly {
       word: string;
       choiceVerdicts: Readonly<Record<string, boolean>>;
@@ -269,6 +270,7 @@ export interface CompiledAffixLessonV1 {
     includeMeaningSort: boolean;
     meaningCheckKind?: "meaning" | "prefix_form";
     meaningResultsPresentation?: "none" | "overview_and_reflection";
+    cleaverFeedbackPolicy?: import("./payload").PrefixCleaverFeedbackPolicyV1;
     coverClosePolicy?: { kind: "track_ratio"; threshold: 0.8 };
     dictationWordIds: readonly string[];
   };

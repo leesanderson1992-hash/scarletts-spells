@@ -38,6 +38,7 @@ export function SplitHandle(props: {
   prompt?: string;
   missPrompt?: string;
   repeatedMissPrompt?: string;
+  revealCorrectBoundaryAfterMisses?: boolean;
   continueLabel?: string;
   onMiss: (misses: number) => void;
   onCorrect: () => void;
@@ -55,7 +56,9 @@ export function SplitHandle(props: {
   const continueButton = useRef<HTMLButtonElement | null>(null);
   const boundaryButtons = useRef<Array<HTMLButtonElement | null>>([]);
   const splitPoint = props.splitPoints[0];
-  const scaffolded = props.misses >= 2;
+  const repeatedMiss = props.misses >= 2;
+  const scaffolded =
+    props.revealCorrectBoundaryAfterMisses !== false && repeatedMiss;
 
   useEffect(() => () => timers.current.forEach((timer) => window.clearTimeout(timer)), []);
   useEffect(() => {
@@ -111,15 +114,19 @@ export function SplitHandle(props: {
           <span className="rounded-2xl bg-amber-100 px-5 py-4 text-3xl font-black text-amber-950">{props.word.slice(splitPoint)}</span>
         </div>
         <div className="mx-auto max-w-xl rounded-2xl border border-emerald-300/40 bg-emerald-50 p-4 text-emerald-950">
-          <h2 id="split-correct-heading" className="text-xl font-black">{props.correctHeading ?? "Yes — un- is the first two letters."}</h2>
-          <p className="mt-1 text-base font-semibold">{props.correctExplanation ?? "un + happy makes unhappy."}</p>
+          <h2 id="split-correct-heading" className="text-xl font-black">{props.correctHeading ?? "Yes — you found the word parts."}</h2>
+          <p className="mt-1 text-base font-semibold">{props.correctExplanation ?? "The word is split at the reviewed boundary."}</p>
         </div>
         <button ref={continueButton} type="button" onClick={props.onContinue} className="mx-auto min-h-12 rounded-full bg-cyan-300 px-7 font-black text-slate-950">{props.continueLabel ?? "Continue to meanings"}</button>
       </section>
     );
   }
 
-  const feedback = scaffolded ? props.repeatedMissMessage ?? props.repeatedMissPrompt ?? "un- is the first two letters. Chop after the n." : props.misses > 0 ? props.missMessage ?? props.missPrompt ?? "Not there yet. Look for the prefix un- at the front." : "";
+  const feedback = repeatedMiss
+    ? props.repeatedMissMessage ?? props.repeatedMissPrompt ?? "Look again for the word-part boundary."
+    : props.misses > 0
+      ? props.missMessage ?? props.missPrompt ?? "Not there yet. Look again for the word parts."
+      : "";
   return (
     <div className="text-center">
       <p className="mb-2 text-sm font-bold text-cyan-100">Move the cleaver between two letters, then strike.</p>
@@ -167,7 +174,7 @@ export function SplitHandle(props: {
           );
         })}
       </div>
-      <div role="status" aria-live="polite" className={`mx-auto mt-4 min-h-16 max-w-xl rounded-2xl p-3 text-sm font-bold ${feedback ? scaffolded ? "bg-cyan-100 text-cyan-950" : "bg-red-100 text-red-950" : "bg-transparent text-cyan-100"}`}>{feedback || props.prompt || "Find the end of the prefix at the front of the word."}</div>
+      <div role="status" aria-live="polite" className={`mx-auto mt-4 min-h-16 max-w-xl whitespace-pre-line rounded-2xl p-3 text-sm font-bold ${feedback ? repeatedMiss ? "bg-cyan-100 text-cyan-950" : "bg-red-100 text-red-950" : "bg-transparent text-cyan-100"}`}>{feedback || props.prompt || "Find the word-part boundary."}</div>
     </div>
   );
 }

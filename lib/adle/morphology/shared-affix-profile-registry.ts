@@ -1,4 +1,5 @@
 import type { SharedAffixLessonPolicyV1 } from "./shared-affix-contracts";
+import { DEFAULT_PREFIX_CLEAVER_FEEDBACK_POLICY } from "./dynamic-prefix-contracts";
 
 export interface SharedAffixProfileMappingV1 {
   microSkillKey: string;
@@ -14,6 +15,7 @@ export interface SharedAffixProfileMappingV1 {
     meaningCheckKind: "meaning" | "prefix_form";
     meaningResultsPresentation: "none";
     coverClosePolicy: { kind: "track_ratio"; threshold: 0.8 };
+    cleaverFeedbackPolicy: typeof DEFAULT_PREFIX_CLEAVER_FEEDBACK_POLICY;
     policy: SharedAffixLessonPolicyV1;
   };
   prefixRequirements?: {
@@ -107,6 +109,7 @@ const prefix = (
     meaningCheckKind: pedagogyOverride?.meaningCheckKind ?? "meaning",
     meaningResultsPresentation: "none",
     coverClosePolicy: { kind: "track_ratio", threshold: 0.8 },
+    cleaverFeedbackPolicy: DEFAULT_PREFIX_CLEAVER_FEEDBACK_POLICY,
     policy: pedagogyOverride?.policy ?? policy,
   },
   prefixRequirements,

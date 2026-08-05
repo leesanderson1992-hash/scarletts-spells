@@ -18,6 +18,7 @@ import {
   onProbeCompleted,
   onReviewSessionCompleted,
   pauseItemsForParentReview,
+  type CompletionWordPolicy,
   type ProbeWordOutcome,
   type ProducedWordAttempt,
   type ReviewItemOutcome,
@@ -59,6 +60,7 @@ import { isMorphologyUnPilotEnabledForChild } from "@/lib/adle/morphology/pilot-
 import { isDynamicPrefixRouteEnabled } from "@/lib/adle/morphology/dynamic-prefix-staging-access";
 import { isDynamicSuffixRouteEnabled } from "@/lib/adle/morphology/dynamic-suffix-route-gate";
 import { extractAuthoredTargetToken, type MorphologyLessonPayloadV1 } from "@/lib/adle/morphology/payload";
+import { analyseDictationSentence } from "@/lib/adle/morphology/dictation-context";
 import { isBaseWordFamilyPilotEnabledForChild } from "@/lib/adle/morphology/base-word-family-pilot-access";
 import { BASE_WORD_FAMILY_ASSIGNMENT_SOURCE, BASE_WORD_FAMILY_ASSIGNMENT_TITLE } from "@/lib/adle/morphology/base-word-family-pilot-plan";
 import { baseWordTransferMissWrites } from "@/lib/adle/base-word-transfer-evidence";
@@ -518,6 +520,20 @@ export async function completeAdleLessonPartAction(formData: FormData) {
       ? routeResolution.runtime.completionPayload
       : null;
   const wordLabPayload = compoundRuntime ?? dynamicSuffix ?? dynamicPrefix ?? morphologyPilot;
+  const dynamicPrefixAuthenticIds = new Set(
+    dynamicPrefix !== null
+      ? productionItems
+          .filter((item) => item.adleLearningItemRef !== null)
+          .map((item) => item.canonicalWordId)
+          .filter((canonicalWordId): canonicalWordId is string => canonicalWordId !== null)
+      : [],
+  );
+  const rewardProductionItems = dynamicPrefix !== null
+    ? productionItems.filter((item) =>
+        item.canonicalWordId !== null
+        && dynamicPrefixAuthenticIds.has(item.canonicalWordId),
+      )
+    : productionItems;
   const atomicWordLabCompletionEnabled = process.env.ADLE_WORD_LAB_ATOMIC_COMPLETION_ENABLED === "enabled";
   const learningReflection = readFormValue(formData, "learningReflection");
   if (readModel.partTwo.complete && wordLabPayload === null) {
@@ -531,7 +547,7 @@ export async function completeAdleLessonPartAction(formData: FormData) {
   if (taughtCompletionExists && wordLabPayload !== null && !atomicWordLabCompletionEnabled) {
     await timer.measure("reflection_persistence", () => persistMorphologyReflection(context, wordLabPayload, learningReflection));
     await timer.measure("assignment_completion", () => markItemsCompleted(context, readModel.partTwo.items));
-    scheduleLessonReward(context, productionItems, timer);
+    scheduleLessonReward(context, rewardProductionItems, timer);
     finishWith(context, "Today's lesson is already recorded.", completionTraceId, timer, "batched_retry");
   }
   if (taughtCompletionExists && wordLabPayload === null) {
@@ -557,7 +573,14 @@ export async function completeAdleLessonPartAction(formData: FormData) {
     const derived = new Map<string, string>();
     for (const sentence of sentenceActivity?.sentences ?? []) {
       const rawAttempt = dictationSentenceAttempts.get(sentence.canonicalWordId) ?? "";
-      derived.set(sentence.canonicalWordId, extractAuthoredTargetToken(rawAttempt, sentence.targetTokenIndex));
+      const targetAttempt = dynamicPrefix !== null
+        ? analyseDictationSentence(
+            sentence.sentence,
+            rawAttempt,
+            sentence.targetTokenIndex,
+          ).targetAttemptedToken ?? ""
+        : extractAuthoredTargetToken(rawAttempt, sentence.targetTokenIndex);
+      derived.set(sentence.canonicalWordId, targetAttempt);
     }
     dictationAttempts = derived;
   }
@@ -594,11 +617,28 @@ export async function completeAdleLessonPartAction(formData: FormData) {
   }
   const learningItems = ((learningItemRows.data ?? []) as LearningItemRow[]).map(learningItemFromRow);
 
+  // Preserve each route's scheduling set independently from its evidence set.
+  // Dynamic Prefix transfer words remain absent here while still appearing
+  // in producedWords and the taught-history/evidence path below.
   const scheduledProductionItems = dynamicSuffix !== null
     ? productionItems
     : dynamicPrefix !== null
       ? productionItems.filter((item) => item.adleLearningItemRef !== null)
       : productionItems;
+  const completionWordPolicies: CompletionWordPolicy[] | undefined = dynamicPrefix !== null
+    ? producedWords.map((word) => {
+        const authentic = scheduledProductionItems.some(
+          (item) => item.canonicalWordId === word.canonicalWordId,
+        );
+        return {
+          canonicalWordId: word.canonicalWordId,
+          evidenceEligible: true,
+          scheduleEligible: authentic,
+          learningItemTransitionEligible: authentic,
+          rewardEligible: authentic,
+        };
+      })
+    : undefined;
   const lessonResult = onLessonCompleted(policy, {
     childId,
     microSkillKey,
@@ -606,7 +646,8 @@ export async function completeAdleLessonPartAction(formData: FormData) {
     sourceRef: lessonSourceRef,
     bundleId: randomUUID(),
     scheduleAllProducedWords: dynamicSuffix !== null || compoundRuntime !== null,
-    producedWords: producedWords.filter((word) => scheduledProductionItems.some((item) => item.canonicalWordId === word.canonicalWordId)),
+    producedWords,
+    ...(completionWordPolicies ? { wordPolicies: completionWordPolicies } : {}),
     learningItems,
   });
   const attemptEvents = buildLessonAttemptEvents({
@@ -634,7 +675,7 @@ export async function completeAdleLessonPartAction(formData: FormData) {
       lesson: lessonResult,
       reflection,
     }));
-    scheduleLessonReward(context, productionItems, timer);
+    scheduleLessonReward(context, rewardProductionItems, timer);
     finishWith(
       context,
       result.status === "already_completed" ? "Today's lesson is already recorded." : "Lesson finished. New words join review tomorrow.",
@@ -651,7 +692,7 @@ export async function completeAdleLessonPartAction(formData: FormData) {
       timer.measure("reflection_persistence", () => persistMorphologyReflection(context, wordLabPayload, learningReflection)),
     ]);
     await timer.measure("assignment_completion", () => markItemsCompleted(context, readModel.partTwo.items));
-    scheduleLessonReward(context, productionItems, timer);
+    scheduleLessonReward(context, rewardProductionItems, timer);
     finishWith(context, "Lesson finished. New words join review tomorrow.", completionTraceId, timer, "instrumented_batched_completion");
   }
 
@@ -701,7 +742,7 @@ export async function completeAdleLessonPartAction(formData: FormData) {
     }
   }
 
-  scheduleLessonReward(context, productionItems);
+  scheduleLessonReward(context, rewardProductionItems);
   await timer.measure("assignment_completion", () => markItemsCompleted(context, readModel.partTwo.items));
   finishWith(context, "Lesson finished. New words join review tomorrow.");
 }
