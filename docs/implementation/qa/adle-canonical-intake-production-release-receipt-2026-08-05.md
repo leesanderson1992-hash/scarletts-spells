@@ -387,3 +387,23 @@ The staging-only prospective correction is documented in the
 `CONTROLLED_END_TO_END_PREFIX_TRIGGER_PROVED` is retained; lifecycle status is
 `CONTROLLED_END_TO_END_PREFIX_LIFECYCLE_AUDIT_REQUIRED` until separately
 authorised production publication and future natural observation.
+
+## Prefix feedback and transfer-evidence publication closeout
+
+The separately authorised prospective correction was published on 2026-08-05
+from exact source `d9695bfd65374d4c6f5a9f9b56c507bdbc5bc0a6`. Git-sourced Ready deployment
+`dpl_5sCXLE6Y4sDZw7kFnqmGTEDesAsw` owns the stable production aliases. The
+production canonical-intake variable was explicitly restored to the supported
+`enabled` value; natural scheduler calls at 21:30Z and 21:35Z returned `200`
+without timeout and re-evaluated only the existing pending `unlocked` candidate
+idempotently.
+
+The completed assignment remained 18/18 with exact before/after fingerprint
+`02efb97bfbb1d908c85960da9b13b04254e10cfd51df7fe872676204128e7684`.
+Historical `interact` evidence was not backfilled. The wider backlog was not
+processed. The full production publication record is the
+[feedback/Reflection production receipt](adle-dynamic-prefix-feedback-reflection-production-receipt-2026-08-05.md).
+
+The implementation is live prospectively, but final lifecycle acceptance still
+requires sufficient future natural evidence. Status therefore remains
+`CONTROLLED_END_TO_END_PREFIX_LIFECYCLE_AUDIT_REQUIRED`.

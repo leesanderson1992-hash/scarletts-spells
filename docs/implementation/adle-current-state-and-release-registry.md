@@ -270,6 +270,16 @@ separate publication authority. Controlled end-to-end Prefix trigger proof is
 retained. See the
 [production release receipt](qa/adle-canonical-intake-production-release-receipt-2026-08-05.md).
 
+That correction is now published prospectively at Git-sourced production
+deployment `dpl_5sCXLE6Y4sDZw7kFnqmGTEDesAsw` from exact source `d9695bfd`.
+Canonical intake is runtime-proved enabled by a natural successful five-minute
+sweep; one demand/link and the 12/1 candidate state remained idempotent. The
+historical completed assignment and missing historical `interact` taught/
+evidence rows remain untouched. Future natural observation—not synthetic or
+backfilled evidence—must prove the corrected Cleaver, Dictation Reflection and
+transfer outcome before lifecycle acceptance can close. See the
+[focused production receipt](qa/adle-dynamic-prefix-feedback-reflection-production-receipt-2026-08-05.md).
+
 ## Documentation update rule
 
 Every activation or retirement must update this register, the D4_MOR readiness

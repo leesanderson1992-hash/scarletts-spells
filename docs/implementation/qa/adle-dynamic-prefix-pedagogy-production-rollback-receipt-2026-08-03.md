@@ -278,6 +278,27 @@ place. The legacy compiler remains present.
 | 6 | 2026-08-08 | Pending natural traffic | Pending | Pending | Pending | Pending | Pending |
 | 7 | 2026-08-09 | Pending natural traffic | Pending | Pending | Pending | Pending | Pending |
 
+### Day 3 completion and prospective correction publication
+
+The genuine `SUB/INTER/SUPER` assignment was subsequently completed 18/18.
+Read-only audit preserved exact history and found the profile-unsafe fixed
+`un-` Cleaver fallback, one derivable non-target Dictation slip omitted from
+Reflection, and missing taught/evidence pricing for transfer word `interact`.
+The three authentic targets retained correct evidence and schedules; historical
+`interact` retained its Cover Check and Dictation attempts but no taught row,
+priced evidence, learning item, bundle or schedule.
+
+Staging-accepted corrective source `d9695bfd` was published prospectively as
+Ready production deployment `dpl_5sCXLE6Y4sDZw7kFnqmGTEDesAsw`. Natural
+five-minute scheduler calls remained HTTP `200` and idempotent. The immutable
+assignment fingerprint remained
+`02efb97bfbb1d908c85960da9b13b04254e10cfd51df7fe872676204128e7684`.
+No backfill or synthetic production lesson was created. Trigger proof remains
+valid, while lifecycle status stays
+`CONTROLLED_END_TO_END_PREFIX_LIFECYCLE_AUDIT_REQUIRED` until future natural
+traffic exercises the corrected behavior. See the
+[focused production receipt](adle-dynamic-prefix-feedback-reflection-production-receipt-2026-08-05.md).
+
 No production child, assignment, attempt, evidence, schedule, reward, or
 taught-history fixture was created. No raw learner response, dictation,
 credential, secret value, or personal information is recorded. Observation is

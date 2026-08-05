@@ -250,5 +250,9 @@ existing sentence attempt, and separates evidence-bearing words from
 schedule-bearing words at completion. Staging produced four `0.75` evidence
 entries and only three schedules; `interact` remained unscheduled and its
 actual breadth stayed fail-closed because support is `in_review`. The existing
-production completion was not rewritten. Publication and final lifecycle
-acceptance require a separately authorised production stage.
+production completion was not rewritten. The accepted correction was published
+prospectively from `d9695bfd` as Ready deployment
+`dpl_5sCXLE6Y4sDZw7kFnqmGTEDesAsw`; canonical intake and its natural scheduler
+remain enabled and idempotent. Final lifecycle acceptance still requires
+sufficient future natural evidence, so
+`CONTROLLED_END_TO_END_PREFIX_LIFECYCLE_AUDIT_REQUIRED` remains current.
