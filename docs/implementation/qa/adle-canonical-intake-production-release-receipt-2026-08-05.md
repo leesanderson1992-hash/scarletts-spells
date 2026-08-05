@@ -322,12 +322,12 @@ Read-only candidate inventory proposed for that future plan (not executed):
   `9ec9d9cbe10002b04a55141c0bbd098ec9be150560767b262e36e5970d07de77`;
   attempts and reflections remained zero.
 - `ADLE_CANONICAL_INTAKE_ENABLED` is again configured with the supported
-  `enabled` value. The natural `2026-08-05T08:20:00Z` scheduler call returned
+  `enabled` value. The natural `2026-08-05T08:35:00Z` scheduler call returned
   HTTP `200`; the existing pending candidate was re-evaluated at
-  `2026-08-05T08:20:05Z`, proving enabled runtime execution.
+  `2026-08-05T08:35:03Z`, proving enabled runtime execution.
 - That safety sweep remained idempotent: 12 candidates stayed `activated`,
-  one stayed `pending_content`, one Teaching Content Demand remained, all 18
-  reconciliation jobs were completed, and no active queue job remained.
+  one stayed `pending_content`, one occurrence-one Teaching Content Demand and
+  one waiting link remained, and no active queue job remained.
 - The named submission's valid candidate, demand, link, learning-item,
   lineage, assignment, and event history is retained for diagnosis and forward
   resolution.
