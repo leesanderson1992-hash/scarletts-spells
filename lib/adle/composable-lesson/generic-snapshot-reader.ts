@@ -43,7 +43,7 @@ export type GenericSnapshotResolutionResult<T extends GenericSnapshotReadableIte
   | {
       status: "blocked";
       mode: GenericSnapshotMode;
-      source: "snapshot_v2";
+      source: "snapshot_v2" | "snapshot_column_unavailable";
       snapshot: null;
       items: readonly [];
       blockers: readonly GenericSnapshotBlocker[];
@@ -70,11 +70,43 @@ export function resolveGenericLessonSnapshot<T extends GenericSnapshotReadableIt
   mode: GenericSnapshotMode;
   lessonRouteMetadata: unknown | null;
   assignmentGenerationSource: string | null;
-  compiledLessonSnapshot: unknown | null;
+  compiledLessonSnapshot: unknown | null | undefined;
   items: readonly T[];
+  snapshotColumn?: "available" | "deferred_absent";
+  requiresSnapshot?: boolean;
 }): GenericSnapshotResolutionResult<T> {
   const legacyItems = [...input.items].sort((left, right) => left.position - right.position);
+  if (input.snapshotColumn === "deferred_absent") {
+    if (input.requiresSnapshot !== true) {
+      return {
+        status: "compatibility",
+        mode: input.mode,
+        source: "snapshot_absent",
+        snapshot: null,
+        items: legacyItems,
+        blockers: [],
+      };
+    }
+    return {
+      status: "blocked",
+      mode: input.mode,
+      source: "snapshot_column_unavailable",
+      snapshot: null,
+      items: [],
+      blockers: [{ code: "snapshot_column_unavailable" }],
+    };
+  }
   if (input.compiledLessonSnapshot === null || input.compiledLessonSnapshot === undefined) {
+    if (input.requiresSnapshot === true) {
+      return {
+        status: "blocked",
+        mode: input.mode,
+        source: "snapshot_v2",
+        snapshot: null,
+        items: [],
+        blockers: [{ code: "snapshot_missing_for_explicit_generic_route" }],
+      };
+    }
     return {
       status: "compatibility",
       mode: input.mode,
@@ -97,7 +129,7 @@ export function resolveGenericLessonSnapshot<T extends GenericSnapshotReadableIt
       promptData: item.promptData,
     })),
   });
-  if (!validated.ok) {
+  if (validated.ok === false) {
     return {
       status: "blocked",
       mode: input.mode,

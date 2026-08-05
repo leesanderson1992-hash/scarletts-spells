@@ -441,12 +441,20 @@
       "label": "snapshot assignment source mismatch"
     },
     {
+      "code": "snapshot_column_unavailable",
+      "label": "snapshot column unavailable"
+    },
+    {
       "code": "snapshot_fingerprint_mismatch",
       "label": "snapshot fingerprint mismatch"
     },
     {
       "code": "snapshot_item_count_mismatch",
       "label": "snapshot item count mismatch"
+    },
+    {
+      "code": "snapshot_missing_for_explicit_generic_route",
+      "label": "snapshot missing for explicit generic route"
     },
     {
       "code": "snapshot_payload_mismatch",

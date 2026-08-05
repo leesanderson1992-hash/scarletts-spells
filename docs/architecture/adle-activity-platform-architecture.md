@@ -113,6 +113,14 @@ blocks the entire assignment before either completion action writes. Snapshot
 absence alone enters compatibility for explicit pre-snapshot generic and
 metadata-free historical assignments.
 
+The daily-plan wrapper supports the separately governed state where the
+Snapshot migration is deferred. It caches a server-only exact-column
+capability probe and chooses either the full header projection or the baseline
+route/source projection. This keeps non-generic route payloads readable
+without treating an unavailable column as a null snapshot. Unknown errors
+remain fatal, and any route that actually requires Generic Snapshot blocks
+rather than degrading to another adapter.
+
 ## Persisted Route Resolution
 
 `daily_assignments.lesson_route_metadata` is the sole authoritative route

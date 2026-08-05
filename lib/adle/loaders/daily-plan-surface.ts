@@ -38,6 +38,11 @@ import {
   resolveGenericLessonSnapshot,
   type GenericSnapshotResolutionResult,
 } from "../composable-lesson/generic-snapshot-reader";
+import {
+  dailyPlanHeaderProjection,
+  getCachedDailyPlanSnapshotCapability,
+  type DailyPlanSnapshotCapability,
+} from "./daily-plan-snapshot-capability";
 
 type Client = SupabaseClient;
 
@@ -76,7 +81,8 @@ export interface AdleDailyPlanReadModel {
   assignmentId: string | null;
   lessonRouteMetadata: unknown | null;
   assignmentGenerationSource: string | null;
-  compiledLessonSnapshot: unknown | null;
+  snapshotCapability: DailyPlanSnapshotCapability | null;
+  compiledLessonSnapshot: unknown | null | undefined;
   genericSnapshotResolution: GenericSnapshotResolutionResult<AdleSessionItem> | null;
   partOne: { items: AdleSessionItem[]; present: boolean; complete: boolean };
   partTwo: { items: AdleSessionItem[]; present: boolean; complete: boolean };
@@ -270,7 +276,7 @@ export async function ensureAdleDailyPlan(params: EnsureAdleDailyPlanParams): Pr
         header: NonNullable<typeof persistence.header>;
       },
     });
-    if (!compiled.ok) {
+    if (compiled.ok === false) {
       throw new Error(
         `ensureAdleDailyPlan:snapshot: ${compiled.blockers.map((entry) => entry.code).join(",")}`,
       );
@@ -361,16 +367,29 @@ export async function getAdleDailyPlanReadModel(params: {
       assignmentId: null,
       lessonRouteMetadata: null,
       assignmentGenerationSource: null,
+      snapshotCapability: null,
       compiledLessonSnapshot: null,
       genericSnapshotResolution: null,
       partOne: { items: [], present: false, complete: false },
       partTwo: { items: [], present: false, complete: false },
     };
   }
+  const snapshotMode = genericSnapshotMode();
+  const snapshotCapability = await getCachedDailyPlanSnapshotCapability({
+    mode: snapshotMode,
+    cacheKey: process.env.NEXT_PUBLIC_SUPABASE_URL ?? "default",
+    probe: async () => {
+      const { error } = await userClient
+        .from("daily_assignments")
+        .select("compiled_lesson_snapshot")
+        .limit(0);
+      return { error };
+    },
+  });
   const [headerResult, itemsResult] = await Promise.all([
     userClient
       .from("daily_assignments")
-      .select("lesson_route_metadata, assignment_generation_source, compiled_lesson_snapshot")
+      .select(dailyPlanHeaderProjection(snapshotCapability))
       .eq("id", assignmentId)
       .eq("parent_user_id", parentUserId)
       .eq("child_id", childId)
@@ -392,24 +411,29 @@ export async function getAdleDailyPlanReadModel(params: {
   if (!headerResult.data) {
     throw new Error("getAdleDailyPlanReadModel: assignment header not found");
   }
-  const header = headerResult.data as {
+  const header = headerResult.data as unknown as {
     lesson_route_metadata: unknown | null;
     assignment_generation_source: string | null;
-    compiled_lesson_snapshot: unknown | null;
+    compiled_lesson_snapshot?: unknown | null;
   };
   const rawItems = ((itemsResult.data ?? []) as unknown as AssignmentItemRow[]).map(sessionItemFromRow);
   const isExplicitGeneric =
     typeof header.lesson_route_metadata === "object" &&
     header.lesson_route_metadata !== null &&
     (header.lesson_route_metadata as { route?: { routeId?: unknown } }).route?.routeId === "generic_composer";
+  const compiledLessonSnapshot = snapshotCapability.genericSnapshotColumn === "available"
+    ? header.compiled_lesson_snapshot ?? null
+    : undefined;
   const genericSnapshotResolution =
-    isExplicitGeneric || header.compiled_lesson_snapshot !== null
+    isExplicitGeneric || compiledLessonSnapshot !== null && compiledLessonSnapshot !== undefined
       ? resolveGenericLessonSnapshot({
-          mode: genericSnapshotMode(),
+          mode: snapshotMode,
           lessonRouteMetadata: header.lesson_route_metadata,
           assignmentGenerationSource: header.assignment_generation_source,
-          compiledLessonSnapshot: header.compiled_lesson_snapshot,
+          compiledLessonSnapshot,
           items: rawItems,
+          snapshotColumn: snapshotCapability.genericSnapshotColumn,
+          requiresSnapshot: isExplicitGeneric && snapshotMode !== "off",
         })
       : null;
   if (genericSnapshotResolution) {
@@ -450,7 +474,8 @@ export async function getAdleDailyPlanReadModel(params: {
     assignmentId,
     lessonRouteMetadata: header.lesson_route_metadata,
     assignmentGenerationSource: header.assignment_generation_source,
-    compiledLessonSnapshot: header.compiled_lesson_snapshot,
+    snapshotCapability,
+    compiledLessonSnapshot,
     genericSnapshotResolution,
     partOne,
     partTwo,

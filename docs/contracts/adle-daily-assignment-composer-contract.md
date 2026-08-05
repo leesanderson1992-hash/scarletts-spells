@@ -277,6 +277,27 @@ For a new `generic_composer:v1` insert, persistence additionally requires:
 legacy-readable but are not safe for new V2 compilation until a sentence-level
 evidence contract exists.
 
+### Deferred snapshot-column read compatibility (2026-08-05)
+
+The daily-plan reader treats the Generic Snapshot column as an explicit
+database capability. A server-only, process-cached, read-only probe checks only
+`daily_assignments.compiled_lesson_snapshot`. Exact PostgreSQL `42703` or
+PostgREST `PGRST204` signatures naming that column and relation establish
+`deferred_absent`; every other schema, permission, query or transport error is
+fatal.
+
+When available, the reader selects the complete header projection and
+distinguishes a null, valid or invalid snapshot. When deferred, it selects the
+baseline route/source projection and marks the snapshot value unavailable
+rather than collapsing it to null. Explicit non-generic routes—including
+Dynamic Prefix V2, Dynamic Affix V3, Closed Compound and Base Word—continue
+through their existing persisted metadata and payload adapters. Metadata-free
+and explicit pre-snapshot generic assignments retain their authorised
+compatibility reader while Snapshot mode is off. A generic assignment that
+requires Snapshot under an active mode fails closed with
+`snapshot_column_unavailable`. The compatibility reader never writes,
+synthesises or migrates a snapshot.
+
 ## Acceptance criteria
 
 - every generated ADLE item traces to an active `learning_item`

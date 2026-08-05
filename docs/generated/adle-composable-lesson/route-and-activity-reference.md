@@ -180,8 +180,10 @@
 - `semantic_parity_mismatch`: semantic parity mismatch.
 - `shared_compiler_blocked`: shared compiler blocked.
 - `snapshot_assignment_source_mismatch`: snapshot assignment source mismatch.
+- `snapshot_column_unavailable`: snapshot column unavailable.
 - `snapshot_fingerprint_mismatch`: snapshot fingerprint mismatch.
 - `snapshot_item_count_mismatch`: snapshot item count mismatch.
+- `snapshot_missing_for_explicit_generic_route`: snapshot missing for explicit generic route.
 - `snapshot_payload_mismatch`: snapshot payload mismatch.
 - `snapshot_recipe_mismatch`: snapshot recipe mismatch.
 - `snapshot_route_mismatch`: snapshot route mismatch.

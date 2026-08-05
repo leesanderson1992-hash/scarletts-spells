@@ -240,6 +240,8 @@ export interface CompiledLessonSnapshotV2 {
 }
 
 export const GENERIC_SNAPSHOT_BLOCKER_CODES = [
+  "snapshot_column_unavailable",
+  "snapshot_missing_for_explicit_generic_route",
   "malformed_snapshot",
   "unsupported_snapshot_schema_version",
   "compiler_version_mismatch",

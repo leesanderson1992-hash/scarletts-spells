@@ -120,6 +120,7 @@
     "adle:route-metadata-migration-regression": "npx tsx scripts/adle-route-metadata-migration-regression.ts",
     "adle:generic-snapshot-contract-regression": "npx tsx scripts/adle-generic-snapshot-contract-regression.ts",
     "adle:generic-snapshot-reader-regression": "npx tsx scripts/adle-generic-snapshot-reader-regression.ts",
+    "adle:daily-plan-snapshot-compatibility-regression": "npx tsx scripts/adle-daily-plan-snapshot-compatibility-regression.ts",
     "adle:generic-snapshot-migration-regression": "npx tsx scripts/adle-generic-snapshot-migration-regression.ts",
     "adle:generic-snapshot-staging-migration": "npx tsx scripts/apply-adle-generic-snapshot-staging-migration.ts",
     "adle:generic-snapshot-staging-proof": "npx tsx scripts/adle-generic-snapshot-staging-proof.ts",
