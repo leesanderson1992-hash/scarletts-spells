@@ -225,11 +225,17 @@ one exact `unlocked` Teaching Content Demand, and zero Resolver Demands. The
 normal composer persisted one 18-item `SUB/INTER/SUPER` Prefix V2 assignment
 with shared authority and zero legacy calls.
 
-The real learner route did not render because the daily-plan wrapper selects
-the deferred Generic Snapshot column `compiled_lesson_snapshot`, which is not
-present in production. This is the previously recorded Generic Snapshot
-production boundary, not a Prefix compiler or intake failure. The authorized
-fail-safe disabled future intake and preserved every valid row. Wider backlog
-replay did not occur. Controlled end-to-end trigger proof remains blocked and
-the exact evidence and smallest separately gated remedies are recorded in the
+The real learner route initially did not render because the daily-plan wrapper
+selected deferred Generic Snapshot column `compiled_lesson_snapshot`, which is
+not present in production. This was the recorded Generic Snapshot production
+boundary, not a Prefix compiler or intake failure. The fail-safe disabled
+future intake and preserved every valid row. Narrow compatibility commits
+`b9e2b9a` / `ad6bcf7` added a cached exact-column capability check and explicit
+baseline/full projections without changing schema or Snapshot activation. The
+preserved 18-item Prefix V2 assignment now renders its genuine first screen,
+retains an unchanged learner-state fingerprint, and initializes resume. Future
+canonical intake and its natural five-minute scheduler are enabled again;
+candidate/demand state remained idempotent and wider backlog replay did not
+occur. Controlled end-to-end trigger proof is complete; child completion and
+Generic Snapshot publication remain separate. Exact evidence is in the
 [production release receipt](qa/adle-canonical-intake-production-release-receipt-2026-08-05.md).

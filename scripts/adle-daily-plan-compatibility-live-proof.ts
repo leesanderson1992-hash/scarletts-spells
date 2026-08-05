@@ -1,11 +1,13 @@
 import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
 
-import { createClient } from "@supabase/supabase-js";
+import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
 import { getAdleDailyPlanReadModel } from "../lib/adle/loaders/daily-plan-surface";
 
 const STAGING_REF = "jlhotktspjvffslvuyfz";
 const PRODUCTION_REF = "wwohrqtunajrbwxyssjf";
+type LiveClient = SupabaseClient<any, "public", "public">;
 
 function required(name: string): string {
   const value = process.env[name]?.trim();
@@ -21,7 +23,7 @@ function argument(name: string): string {
 }
 
 async function countForAssignment(
-  client: ReturnType<typeof createClient>,
+  client: LiveClient,
   table: string,
   assignmentId: string,
 ): Promise<number> {
@@ -31,6 +33,31 @@ async function countForAssignment(
     .eq("daily_assignment_id", assignmentId);
   if (error) throw new Error(`${table}: ${error.message}`);
   return count ?? 0;
+}
+
+function fingerprint(value: unknown): string {
+  return createHash("sha256").update(JSON.stringify(value)).digest("hex");
+}
+
+async function assignmentSnapshot(
+  client: LiveClient,
+  assignmentId: string,
+): Promise<Record<string, unknown>> {
+  const [header, items, attempts, reflections] = await Promise.all([
+    client.from("daily_assignments").select("*").eq("id", assignmentId).single(),
+    client.from("assignment_items").select("*").eq("daily_assignment_id", assignmentId).order("position"),
+    client.from("adle_assignment_attempt_events").select("*").eq("daily_assignment_id", assignmentId).order("id"),
+    client.from("adle_child_learning_reflections").select("*").eq("daily_assignment_id", assignmentId).order("id"),
+  ]);
+  for (const [label, result] of Object.entries({ header, items, attempts, reflections })) {
+    if (result.error) throw new Error(`${label}: ${result.error.message}`);
+  }
+  return {
+    header: header.data,
+    items: items.data ?? [],
+    attempts: attempts.data ?? [],
+    reflections: reflections.data ?? [],
+  };
 }
 
 async function main(): Promise<void> {
@@ -68,11 +95,12 @@ async function main(): Promise<void> {
   assert.equal(assignments?.length, 1, "expected exactly one guarded assignment");
   const assignment = assignments[0];
 
-  const before = {
+  const beforeCounts = {
     items: await countForAssignment(client, "assignment_items", assignment.id),
     attempts: await countForAssignment(client, "adle_assignment_attempt_events", assignment.id),
     reflections: await countForAssignment(client, "adle_child_learning_reflections", assignment.id),
   };
+  const beforeSnapshot = await assignmentSnapshot(client, assignment.id);
   const readModel = await getAdleDailyPlanReadModel({
     userClient: client,
     parentUserId: assignment.parent_user_id,
@@ -80,12 +108,14 @@ async function main(): Promise<void> {
     planDate,
     assignmentId: assignment.id,
   });
-  const after = {
+  const afterCounts = {
     items: await countForAssignment(client, "assignment_items", assignment.id),
     attempts: await countForAssignment(client, "adle_assignment_attempt_events", assignment.id),
     reflections: await countForAssignment(client, "adle_child_learning_reflections", assignment.id),
   };
-  assert.deepEqual(after, before, "read-only proof must not write learner state");
+  const afterSnapshot = await assignmentSnapshot(client, assignment.id);
+  assert.deepEqual(afterCounts, beforeCounts, "read-only proof must not change learner row counts");
+  assert.deepEqual(afterSnapshot, beforeSnapshot, "read-only proof must not change assignment or learner state");
   assert(readModel.state === "ready" || readModel.state === "completed", "assignment read model must be readable");
   assert.equal(readModel.genericSnapshotResolution, null, "non-Generic route must not invoke Generic Snapshot reader");
   const routeMetadata = readModel.lessonRouteMetadata as { route?: { routeId?: unknown; routeVersion?: unknown } } | null;
@@ -98,10 +128,12 @@ async function main(): Promise<void> {
     routeId: routeMetadata?.route?.routeId ?? null,
     routeVersion: routeMetadata?.route?.routeVersion ?? null,
     snapshotCapability: readModel.snapshotCapability?.genericSnapshotColumn ?? null,
-    itemCount: before.items,
+    itemCount: beforeCounts.items,
     genericSnapshotReaderInvoked: readModel.genericSnapshotResolution !== null,
-    learnerWriteCountsBefore: before,
-    learnerWriteCountsAfter: after,
+    learnerWriteCountsBefore: beforeCounts,
+    learnerWriteCountsAfter: afterCounts,
+    assignmentStateFingerprintBefore: fingerprint(beforeSnapshot),
+    assignmentStateFingerprintAfter: fingerprint(afterSnapshot),
     mutationPerformed: false,
   }, null, 2)}\n`);
 }

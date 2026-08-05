@@ -3,8 +3,13 @@
 ## Outcome
 
 ```text
-BLOCKED_AT_EXISTING_GENERIC_SNAPSHOT_SCHEMA_BOUNDARY
+CONTROLLED_END_TO_END_PREFIX_TRIGGER_PROVED
 ```
+
+The earlier blocked result and digest remain recorded below as part of the
+release chronology. A separately authorised, narrow compatibility correction
+was subsequently published and proved against the preserved assignment; it
+did not promote Generic Snapshot or change production schema.
 
 The guarded production release first stopped at the mandatory five-minute
 scheduler gate, then resumed under renewed authority after a production-pinned
@@ -292,11 +297,37 @@ Read-only candidate inventory proposed for that future plan (not executed):
 | `905ff358-f670-4b71-bc6f-25eb02a2365e` | `dc589f4c-002c-4368-ad87-0065d190a89e` | `D4_SCHWA_MEDIAL_COMMON_WEAK_VOWELS` | Canonical word missing |
 | `71deea87-9d0b-42ef-8c1c-90bc55a2328d` | `eca91189-ac1d-4adb-9836-eba1862b6e4f` | `D4_MOR_BASE_WORDS_BASE_PLUS_PREFIX` | Canonical word missing |
 
-## Mutation and rollback boundary
+## Compatibility correction and final operating boundary
 
-- `ADLE_CANONICAL_INTAKE_ENABLED` is no longer effectively enabled.
-- The production scheduler remains active but the disabled application worker
-  safely performs no intake processing.
+- Corrective commits `b9e2b9a54b7f50a45e4d4ec5864ca3c37409c7cd`
+  and `ad6bcf778b5fb541d490dd7fa37a4c6fc09baac2` were pushed without force.
+- The daily-plan reader now performs one cached, read-only capability probe
+  and chooses between two explicit projections. Only exact absence of
+  `daily_assignments.compiled_lesson_snapshot` selects the baseline
+  projection; unrelated database failures remain hard failures.
+- Ready production deployment
+  `dpl_A1keeyi91vV7T2m4rGSKYsnNjrH7` first proved the correction while
+  canonical intake remained disabled. Deliberate Ready deployment
+  `dpl_2Ynhce4ofYSfh8mtLCLnwi2J4mB8` then restored future intake on the same
+  source chain and owns the stable aliases.
+- The preserved assignment
+  `b84a41d2-4bf5-4079-b80f-d7d7611dd862` read with capability
+  `deferred_absent`, explicit route `dynamic_prefix_word_lab` version 2, all
+  18 items, and no Generic Snapshot-reader invocation.
+- Its first child-facing screen rendered `What is a prefix?` with no digest or
+  browser error. Reload/resume initialization succeeded without starting an
+  activity.
+- Assignment items, attempts and reflections retained exact before/after
+  fingerprint
+  `9ec9d9cbe10002b04a55141c0bbd098ec9be150560767b262e36e5970d07de77`;
+  attempts and reflections remained zero.
+- `ADLE_CANONICAL_INTAKE_ENABLED` is again configured with the supported
+  `enabled` value. The natural `2026-08-05T08:20:00Z` scheduler call returned
+  HTTP `200`; the existing pending candidate was re-evaluated at
+  `2026-08-05T08:20:05Z`, proving enabled runtime execution.
+- That safety sweep remained idempotent: 12 candidates stayed `activated`,
+  one stayed `pending_content`, one Teaching Content Demand remained, all 18
+  reconciliation jobs were completed, and no active queue job remained.
 - The named submission's valid candidate, demand, link, learning-item,
   lineage, assignment, and event history is retained for diagnosis and forward
   resolution.
@@ -308,18 +339,24 @@ Read-only candidate inventory proposed for that future plan (not executed):
 - The pending assignment remains intact; it was not completed or overwritten.
 - The additive schema, scheduler configuration, Vault-held secret, and
   audit-safe ledger entries remain in place.
+- Generic Snapshot V2 and its deferred migration remain unpublished. Dynamic
+  Affix remains paused. Common Word Lab and the wider backlog remain untouched.
 
-## Smallest safe remedy
+## Corrective outcome
 
-Production publication remains incomplete. The smallest scoped remedy is a
-separately reviewed compatibility change in the daily-plan wrapper: when
-Generic Snapshot is not production-enabled and PostgREST reports only the
-missing optional `compiled_lesson_snapshot` column, re-query the existing
-header fields and treat the snapshot as absent. A broader alternative is the
-separately governed Generic Snapshot V2 production migration and rollout.
-Neither remedy is authorized by this release, so no Generic Snapshot source or
-schema was changed.
+The separately authorised smallest remedy was implemented and live-proved.
+The genuine chain now reaches the learner runtime:
 
-After one remedy is independently approved, deployed, and verified, reopen the
-existing genuine assignment and require the learner route to render before
-re-enabling future canonical intake. Dynamic Affix work did not begin.
+```text
+real correction
+→ parent approval
+→ canonical mapping
+→ candidate-level intake
+→ learning items and pending-content demand
+→ normal Dynamic Prefix V2 composition
+→ genuine learner route
+```
+
+This establishes `CONTROLLED_END_TO_END_PREFIX_TRIGGER_PROVED`. It does not
+claim lesson completion; that remains dependent on the child completing the
+existing assignment naturally. Dynamic Affix work did not begin.

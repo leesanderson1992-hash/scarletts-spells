@@ -245,13 +245,18 @@ Resolver Demands. The normal composer created one 18-item
 The real learner route then exposed a pre-existing deferred Generic Snapshot
 schema mismatch: the wrapper selected absent column
 `daily_assignments.compiled_lesson_snapshot` and returned digest `4110052863`.
-Generic Snapshot was not changed. Future canonical intake was disabled again
-and Ready rollback deployment `dpl_2YAyGAd1Y3kA22ajW3JVnS5u9yZ6` serves the
-stable alias. Valid learning items, demand, lineage, assignment, and audit
-history remain intact. The wider backlog remains unprocessed. Controlled
-end-to-end Prefix trigger proof is blocked until a separately authorized
-wrapper compatibility change or Generic Snapshot rollout restores the real
-learner route. See the
+The valid intake, demand, lineage and assignment rows were preserved while
+future intake was disabled. A separately authorised compatibility correction
+(`b9e2b9a` / `ad6bcf7`) now selects one of two explicit daily-plan projections
+after a cached exact-column capability check. Production deployment
+`dpl_A1keeyi91vV7T2m4rGSKYsnNjrH7` proved the preserved 18-item Prefix V2
+assignment with capability `deferred_absent`; its genuine first screen and
+resume initialization rendered without learner writes. Deliberate deployment
+`dpl_2Ynhce4ofYSfh8mtLCLnwi2J4mB8` restored future canonical intake, and the
+natural five-minute scheduler re-evaluated the existing pending candidate
+idempotently. Generic Snapshot remains deferred, Dynamic Affix remains paused,
+the wider backlog remains unprocessed, and child completion is still pending.
+Controlled end-to-end Prefix trigger proof is now recorded. See the
 [production release receipt](qa/adle-canonical-intake-production-release-receipt-2026-08-05.md).
 
 ## Documentation update rule

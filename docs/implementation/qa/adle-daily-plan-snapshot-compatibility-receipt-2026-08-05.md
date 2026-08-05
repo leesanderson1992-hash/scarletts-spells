@@ -69,8 +69,9 @@ regressions remain unchanged and green.
 ## Pinned staging compatibility proof
 
 The clean corrective tree was deployed to the staging Vercel project
-`scarletts-spells-staged` as pinned Preview
-`dpl_376DkMKAdaYyqKNKbiVs58zTGDBG`. Vercel reported the deployment `Ready`.
+`scarletts-spells-staged` as pinned Previews
+`dpl_376DkMKAdaYyqKNKbiVs58zTGDBG` and, after adding the read-only proof
+operator, `dpl_E5x8Kt52LZ5uQF6T5Ed5BR6LxJa6`. Vercel reported both `Ready`.
 
 The guarded live proof then ran the real `getAdleDailyPlanReadModel` against
 the existing staging Dynamic Prefix assignment without creating or changing
@@ -98,6 +99,43 @@ performed through the browser.
 
 ## Production proof
 
-Pending guarded production publication and read-only opening of the preserved
-assignment `b84a41d2-4bf5-4079-b80f-d7d7611dd862`. Generic Snapshot remains
-deferred. No production mutation is authorised by this receipt alone.
+Corrective source chain:
+
+```text
+b9e2b9a54b7f50a45e4d4ec5864ca3c37409c7cd
+ad6bcf778b5fb541d490dd7fa37a4c6fc09baac2
+```
+
+Automatic deployment `dpl_A1keeyi91vV7T2m4rGSKYsnNjrH7` became Ready and
+owned the stable aliases while canonical intake remained disabled. The
+preserved production assignment
+`b84a41d2-4bf5-4079-b80f-d7d7611dd862` then read as:
+
+```text
+route: dynamic_prefix_word_lab / v2
+schema capability: deferred_absent
+items: 18
+Generic Snapshot reader invoked: false
+read-model state: ready
+```
+
+The authenticated genuine learner route rendered `What is a prefix?`, the
+Prefix lesson progress navigation, and the first-screen call to action without
+digest or browser error. A reload proved resume initialization. No activity
+was answered or completed.
+
+The complete assignment/item/attempt/reflection projection retained identical
+before/after SHA-256:
+
+```text
+9ec9d9cbe10002b04a55141c0bbd098ec9be150560767b262e36e5970d07de77
+```
+
+Attempts and reflections remained zero. Canonical intake was then restored to
+the supported `enabled` value and deliberate deployment
+`dpl_2Ynhce4ofYSfh8mtLCLnwi2J4mB8` became Ready on the same source chain. The
+natural five-minute scheduler returned HTTP `200` and re-evaluated the one
+pending-content candidate without changing the locked 12/1 candidate result,
+duplicating its demand, or creating an assignment.
+
+Generic Snapshot remains deferred; no Snapshot migration was applied.
