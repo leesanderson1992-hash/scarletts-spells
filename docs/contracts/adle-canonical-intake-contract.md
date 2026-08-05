@@ -88,13 +88,18 @@ Activation and deactivation require distinct staging-ref confirmation tokens;
 ordinary client roles have no table or function access. Production is not a
 valid target of this staging migration or its operator.
 
-Production publication on 2026-08-05 stopped before feature enablement because
-there is no accepted production equivalent of that scheduler contract.
-Production had no `pg_cron`/`pg_net` extensions, no scheduler Vault entries,
-and no five-minute job. The empty additive intake schema remains deployed, but
-the feature flag remains disabled. A production-specific, identity-pinned
-scheduler migration and operator must be reviewed before activation; the
-staging migration must never be repurposed or edited in place.
+Production publication on 2026-08-05 initially stopped before feature
+enablement because production had no equivalent scheduler contract.
+Migration `20260805070000_add_adle_canonical_intake_production_scheduler.sql`
+and `adle-canonical-intake-production-scheduler.ts` provide the separate
+production-pinned sibling. They fix the production database ref, project
+name/ID, stable route, five-minute expression, Vault bearer-secret name, and
+distinct configure/activate/deactivate confirmations. Production does not use
+staging deployment protection, so it does not create or send the staging
+Vercel-bypass credential. Configuration installs the matching Vercel
+`CRON_SECRET` before activation; activation is a separate operation performed
+only after the exact-source deployment is Ready. The staging migration remains
+unchanged and must never be repurposed or edited in place.
 
 ## Admin and security boundary
 

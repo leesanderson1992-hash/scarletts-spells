@@ -71,9 +71,13 @@ The staging scheduler migration and operator are not reusable in production:
 their persisted constraints, confirmation tokens, target host, and Vault names
 are deliberately staging-only. Do not modify those values in an SQL console.
 
-Production activation requires a separately reviewed sibling migration and
-operator that pin the production identity and stable route, retain the exact
-five-minute schedule, use production-only Vault names, and provide guarded
-activation, status, natural-run, and deactivation proof. On Vercel Hobby, do
-not weaken the fallback to a daily schedule. Keep canonical intake disabled
-until that production scheduler has passed a natural authenticated invocation.
+Production activation uses migration
+`20260805070000_add_adle_canonical_intake_production_scheduler.sql` and the
+`adle:canonical-intake-production-scheduler` operator. The operator requires a
+production-linked temporary Vercel directory, rejects staging/unknown database
+identities, and separates `configure` from `activate` so the matching bearer
+secret reaches an exact-source Ready deployment before any Cron job starts.
+Use the distinct confirmation value for each mutating operation. On Vercel
+Hobby, do not weaken the fallback to a daily schedule. Keep canonical intake
+disabled until status proves the exact target and schedule and at least two
+natural authenticated invocations have returned HTTP `200` without timeout.
