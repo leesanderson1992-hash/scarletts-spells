@@ -216,3 +216,13 @@ Production intake remains disabled. Production schema application, enablement,
 targeted processing of submission
 `2824a8d5-3839-443f-8450-ecfa524f28bf`, and broader backlog replay require a
 fresh plan and separate explicit authority.
+
+The separately authorised production run on 2026-08-05 pushed the accepted
+chain and applied the two empty additive intake-schema migrations. It stopped
+at the mandatory scheduler gate before setting the feature flag: production
+has no accepted five-minute scheduler artifact, while the staging Supabase
+Cron migration is explicitly production-rejecting. Protected production state
+was unchanged and no intake or learner row was created. The named submission
+and wider backlog remain unprocessed. The exact evidence and smallest safe
+remedy are recorded in the
+[production release receipt](qa/adle-canonical-intake-production-release-receipt-2026-08-05.md).

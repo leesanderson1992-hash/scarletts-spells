@@ -64,3 +64,16 @@ notification without creating an assignment.
 - Forward-disable instead of deleting candidates, demands, links, or events.
 - Use only aggregate affected-child counts in receipts. Do not copy child
   identity, email, raw answers, dictations, notes, database URLs, or secrets.
+
+## Production scheduler boundary
+
+The staging scheduler migration and operator are not reusable in production:
+their persisted constraints, confirmation tokens, target host, and Vault names
+are deliberately staging-only. Do not modify those values in an SQL console.
+
+Production activation requires a separately reviewed sibling migration and
+operator that pin the production identity and stable route, retain the exact
+five-minute schedule, use production-only Vault names, and provide guarded
+activation, status, natural-run, and deactivation proof. On Vercel Hobby, do
+not weaken the fallback to a daily schedule. Keep canonical intake disabled
+until that production scheduler has passed a natural authenticated invocation.

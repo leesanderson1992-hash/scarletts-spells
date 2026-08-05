@@ -225,6 +225,23 @@ protected learner-row change. Canonical intake itself remains disabled.
 Production intake remains disabled; a separate production plan is still
 required.
 
+The guarded production publication began on 2026-08-05. The accepted
+eight-commit application chain was pushed and Ready deployment
+`dpl_5wkJxQZrpL1Qi67frk7i8dm9dL88` sourced exact commit `2649551`. The two
+additive intake migrations (`20260804210000` and `20260804223000`) were applied
+and verified with all five intake tables empty and protected snapshot SHA-256
+unchanged at
+`7d1a31fd1f797facea7656685fe7c49a3a45e38e92560409c32173266a68bcf5`.
+Publication then stopped before feature enablement: Vercel Hobby has no
+five-minute application Cron, production Supabase has no `pg_cron`/`pg_net`
+or scheduler Vault entries, and the accepted scheduler artifact is deliberately
+staging-only and production-rejecting. The named submission and wider backlog
+remain unprocessed, no intake demand/learning item/assignment was created, and
+canonical intake remains disabled. See the
+[production release receipt](qa/adle-canonical-intake-production-release-receipt-2026-08-05.md).
+A reviewed production-specific scheduler artifact and fresh release authority
+are required before resuming.
+
 ## Documentation update rule
 
 Every activation or retirement must update this register, the D4_MOR readiness

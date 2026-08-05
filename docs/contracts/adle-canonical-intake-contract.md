@@ -88,6 +88,14 @@ Activation and deactivation require distinct staging-ref confirmation tokens;
 ordinary client roles have no table or function access. Production is not a
 valid target of this staging migration or its operator.
 
+Production publication on 2026-08-05 stopped before feature enablement because
+there is no accepted production equivalent of that scheduler contract.
+Production had no `pg_cron`/`pg_net` extensions, no scheduler Vault entries,
+and no five-minute job. The empty additive intake schema remains deployed, but
+the feature flag remains disabled. A production-specific, identity-pinned
+scheduler migration and operator must be reviewed before activation; the
+staging migration must never be repurposed or edited in place.
+
 ## Admin and security boundary
 
 `/admin/adle-canonical-intake-readiness` uses `requireAdminUser()`. It displays
