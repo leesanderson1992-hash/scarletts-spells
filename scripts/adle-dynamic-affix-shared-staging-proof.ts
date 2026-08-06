@@ -24,6 +24,7 @@ import { selectDynamicAffixWordLab, type DynamicAffixLessonPayloadV3 } from "../
 import { PROFICIENCY_POLICY_V1, stateCredit } from "../lib/adle/proficiency-policy";
 import { computeWordEvidenceState } from "../lib/adle/word-evidence-state";
 import {
+  activeAdlePolicyProofProjection,
   assignmentItemProjectionMismatchPaths,
   expectedAssignmentItemProofProjection,
   persistedAssignmentItemProofProjection,
@@ -155,7 +156,7 @@ async function profileSnapshot(db: SupabaseClient) {
   return { profileCount: projections.length, memberCount: projections.reduce((sum, row) => sum + row.memberIds.length, 0), diagnostics: loaded.diagnostics, projections, fingerprint: fingerprintSnapshotValue(projections) };
 }
 function basePlan(childId: string, planDate: string): ComposedDailyPlan {
-  return { childId, planDate, composerPolicyVersion: "adle_composer_v1", schedulePolicyVersion: "adle_review_schedule_v1", throttle: {}, partOne: {}, partTwo: {}, budget: { budgetResponses: 0, estimatedResponses: 0, guidedWordCount: 0, introTrimmed: false, trims: [] } } as unknown as ComposedDailyPlan;
+  return { childId, planDate, ...activeAdlePolicyProofProjection(), throttle: {}, partOne: {}, partTwo: {}, budget: { budgetResponses: 0, estimatedResponses: 0, guidedWordCount: 0, introTrimmed: false, trims: [] } } as unknown as ComposedDailyPlan;
 }
 
 async function preflight(db: SupabaseClient) {
