@@ -69,6 +69,27 @@ type WriterParams = Omit<PreviewParams, "purpose"> & {
   planDate: string;
 };
 
+function emitCandidateReadinessDiagnostics(
+  diagnostics: Awaited<ReturnType<typeof loadDynamicSuffixProfiles>>["diagnostics"],
+  purpose: PreviewParams["purpose"],
+): void {
+  if (diagnostics.length === 0) return;
+  const counts = diagnostics.reduce<Record<string, number>>((result, diagnostic) => {
+    const key = `${diagnostic.profileKey}:${diagnostic.blockerCode}`;
+    result[key] = (result[key] ?? 0) + 1;
+    return result;
+  }, {});
+  console.warn(JSON.stringify({
+    event: "adle_dynamic_affix_candidate_readiness",
+    routeId: "dynamic_affix_word_lab",
+    routeVersion: "v3",
+    purpose,
+    blockerCounts: counts,
+    deploymentSha: process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 12) ?? null,
+    environment: process.env.VERCEL_ENV ?? process.env.NODE_ENV ?? "unknown",
+  }));
+}
+
 async function existingProfileKey(
   serviceClient: SupabaseClient,
   assignmentId: string,
@@ -93,6 +114,7 @@ export async function previewDynamicAffixAssignment(
   const loaded = await loadDynamicSuffixProfiles(params.serviceClient, params.childId, {
     allowStagingProfiles: params.allowStagingProfiles,
   });
+  emitCandidateReadinessDiagnostics(loaded.diagnostics, params.purpose);
   const selectable = params.requiredProfileKey
     ? {
         profiles: loaded.profiles.filter((profile) => profile.microSkillKey === params.requiredProfileKey),

@@ -19,7 +19,11 @@ export const DYNAMIC_SUFFIX_PROFILE_KEYS = [
 
 export type DynamicSuffixProfileLoadDiagnostic = {
   profileKey: string;
-  blockerCode: "profile_validation_failed" | "member_validation_failed";
+  blockerCode:
+    | "profile_validation_failed"
+    | "member_validation_failed"
+    | "micro_skill_not_route_ready"
+    | "insufficient_route_ready_candidates";
   memberIndex?: number;
 };
 
@@ -97,6 +101,12 @@ type LearningItemRow = {
   ejected_on: unknown;
   intake_on: unknown;
   row_status: unknown;
+};
+type MicroSkillRow = {
+  micro_skill_key: unknown;
+  mastery_domain_key: unknown;
+  is_active: unknown;
+  is_assignable: unknown;
 };
 
 const PART_ROLES = new Set<MorphologyPartRole>(["prefix", "base", "root", "suffix", "connector"]);
@@ -245,13 +255,24 @@ export async function loadDynamicSuffixProfiles(
   learningItems: LearningItemFact[];
   diagnostics: DynamicSuffixProfileLoadDiagnostic[];
 }> {
-  const [{ data: rawProfiles, error: profileError }, { data: rawItems, error: itemError }] = await Promise.all([
+  const [
+    { data: rawProfiles, error: profileError },
+    { data: rawItems, error: itemError },
+    { data: rawSkills, error: skillError },
+  ] = await Promise.all([
     client.from("canonical_teaching_dictionary_suffix_profiles").select("id,micro_skill_key,suffix_label,suffix_text,suffix_meaning,meaning_bins,include_meaning_sort,suffix_choices,intro_content,reflection_prompt_key,reflection_prompt_text,production_enabled,row_status,review_status,canonical_teaching_dictionary_suffix_members(canonical_word_id,member_role,suffix_variant,semantic_base_text,semantic_base_kind,base_meaning,new_word_meaning,meaning_bin_key,teaching_split_parts,teaching_split_joins,true_morphology_parts,true_morphology_joins,true_morphology_transformations,transformation_notes,true_morphology_provenance,assignment_eligible,row_status,review_status)").in("micro_skill_key", DYNAMIC_SUFFIX_PROFILE_KEYS).eq("row_status", "active").eq("review_status", "approved_for_first_exposure"),
     client.from("adle_learning_items").select("id,child_id,canonical_word_id,micro_skill_key,item_status,source_kind,source_ref,source_attempt_text,reteach_priority,ejected_on,intake_on,row_status").eq("child_id", childId).in("micro_skill_key", DYNAMIC_SUFFIX_PROFILE_KEYS).eq("row_status", "active"),
+    client.from("micro_skill_catalog").select("micro_skill_key,mastery_domain_key,is_active,is_assignable").in("micro_skill_key", DYNAMIC_SUFFIX_PROFILE_KEYS),
   ]);
-  if (profileError || itemError) throw new Error(`loadDynamicSuffixProfiles: ${profileError?.message ?? itemError?.message}`);
+  if (profileError || itemError || skillError) throw new Error(`loadDynamicSuffixProfiles: ${profileError?.message ?? itemError?.message ?? skillError?.message}`);
   const profileRows = records<ProfileRow>(rawProfiles);
   const itemRows = records<LearningItemRow>(rawItems);
+  const routeReadySkillKeys = new Set(
+    records<MicroSkillRow>(rawSkills)
+      .filter((row) => row.mastery_domain_key === "D4" && row.is_active === true && row.is_assignable === true)
+      .map((row) => text(row.micro_skill_key))
+      .filter((key): key is string => key !== null),
+  );
   const wordIds = [...new Set(profileRows.flatMap((profile) =>
     records<MemberRow>(profile.canonical_teaching_dictionary_suffix_members)
       .map((member) => text(member.canonical_word_id))
@@ -288,6 +309,10 @@ export async function loadDynamicSuffixProfiles(
   const diagnostics: DynamicSuffixProfileLoadDiagnostic[] = [];
   for (const row of profileRows) {
     const profileKey = text(row.micro_skill_key) ?? "invalid_profile";
+    if (!routeReadySkillKeys.has(profileKey)) {
+      diagnostics.push({ profileKey, blockerCode: "micro_skill_not_route_ready" });
+      continue;
+    }
     const bins = meaningBins(row.meaning_bins);
     const declaredChoices = choices(row.suffix_choices);
     const intro = introduction(row.intro_content);
@@ -307,7 +332,6 @@ export async function loadDynamicSuffixProfiles(
       continue;
     }
     const words = new Map<string, DynamicAffixWord>();
-    let memberFailed = false;
     for (const [memberIndex, member] of members.entries()) {
       const canonicalWordId = text(member.canonical_word_id);
       const word = canonicalWordId ? wordsById.get(canonicalWordId) : undefined;
@@ -375,8 +399,7 @@ export async function loadDynamicSuffixProfiles(
       );
       if (!valid || !canonicalWordId || !displayWord || !dictationSentence || !audioText || !teachingParts || !trueParts || !teachingJoins || !trueJoins || !provenance) {
         diagnostics.push({ profileKey, blockerCode: "member_validation_failed", memberIndex });
-        memberFailed = true;
-        break;
+        continue;
       }
       words.set(canonicalWordId, {
         canonicalWordId,
@@ -405,8 +428,8 @@ export async function loadDynamicSuffixProfiles(
         approvedTransfer: member.member_role === "transfer",
       });
     }
-    if (memberFailed || words.size < 4) {
-      if (!memberFailed) diagnostics.push({ profileKey, blockerCode: "profile_validation_failed" });
+    if (words.size < 4) {
+      diagnostics.push({ profileKey, blockerCode: "insufficient_route_ready_candidates" });
       continue;
     }
     profiles.push({
@@ -419,10 +442,6 @@ export async function loadDynamicSuffixProfiles(
       meaningBins: bins,
       includeMeaningSort: row.include_meaning_sort,
       wordsByCanonicalId: words,
-      transferCanonicalWordIds: members
-        .filter((member) => member.member_role === "transfer")
-        .map((member) => text(member.canonical_word_id))
-        .filter((id): id is string => id !== null),
       choices: declaredChoices,
       reflection: {
         promptKey: row.reflection_prompt_key as string,

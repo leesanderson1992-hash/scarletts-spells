@@ -104,7 +104,6 @@ const profile: DynamicAffixProfile = {
   meaningBins: reviewed.profile.meaningBins,
   includeMeaningSort: reviewed.profile.includeMeaningSort,
   wordsByCanonicalId: new Map(words.map((word) => [word.canonicalWordId, word])),
-  transferCanonicalWordIds: words.map((word) => word.canonicalWordId),
   choices: reviewed.profile.suffixChoices,
   reflection: reviewed.profile.reflection,
   introduction: reviewed.profile.introContent,
@@ -218,9 +217,12 @@ incompleteProfile.wordsByCanonicalId.set("hopeless", {
   trueMorphology: { ...incompleteProfile.wordsByCanonicalId.get("hopeless")!.trueMorphology, provenance: {} },
 });
 assert.equal(
-  compileDynamicAffixWordLabPayload(selectDynamicAffixWordLab({ profiles: [incompleteProfile], learningItems: [authentic] })!),
+  (() => {
+    const candidate = selectDynamicAffixWordLab({ profiles: [incompleteProfile], learningItems: [authentic] });
+    return candidate ? compileDynamicAffixWordLabPayload(candidate) : null;
+  })(),
   null,
-  "fails closed when canonical provenance is incomplete",
+  "incomplete canonical provenance fails before compilation",
 );
 assert.equal(
   selectDynamicAffixWordLab({ profiles: [{ ...profile, productionEnabled: false }], learningItems: [authentic] }),

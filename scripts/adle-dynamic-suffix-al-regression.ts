@@ -33,7 +33,7 @@ for (const word of words) {
   assert.equal(word.splitPoints[0], word.teachingBaseText.length, `${word.displayWord}: direct suffix boundary`);
   assert.equal(`${word.teachingBaseText}al`, word.displayWord, `${word.displayWord}: reconstructs`);
 }
-const profile: DynamicAffixProfile = { microSkillKey: reviewed.profile.microSkillKey, position: "after", productionEnabled: true, affixLabel: "-al", affixText: "al", affixMeaning: "related to or connected with", meaningBins: reviewed.profile.meaningBins, includeMeaningSort: false, wordsByCanonicalId: new Map(words.map((word) => [word.canonicalWordId, word])), transferCanonicalWordIds: words.map((word) => word.canonicalWordId), choices: reviewed.profile.suffixChoices, reflection: reviewed.profile.reflection, introduction: reviewed.profile.introContent };
+const profile: DynamicAffixProfile = { microSkillKey: reviewed.profile.microSkillKey, position: "after", productionEnabled: true, affixLabel: "-al", affixText: "al", affixMeaning: "related to or connected with", meaningBins: reviewed.profile.meaningBins, includeMeaningSort: false, wordsByCanonicalId: new Map(words.map((word) => [word.canonicalWordId, word])), choices: reviewed.profile.suffixChoices, reflection: reviewed.profile.reflection, introduction: reviewed.profile.introContent };
 const item = { learningItemId: "al", childId: "child", canonicalWordId: "musical", microSkillKey: profile.microSkillKey, itemStatus: "pending" as const, sourceKind: "verified_misspelling" as const, sourceRef: "test", sourceAttemptText: "musicel", reteachPriority: false, ejectedOn: null, intakeOn: "2026-07-28", rowStatus: "active" as const };
 const selection = selectDynamicAffixWordLab({ profiles: [profile], learningItems: [item] });
 assert(selection);
@@ -52,5 +52,6 @@ assert.equal(normaliseSessionWord("Musical"), normaliseSessionWord("musical"), "
 const basePlan = { childId: "child", planDate: "2026-07-28", composerPolicyVersion: "test", schedulePolicyVersion: "test", throttle: {}, partOne: {}, partTwo: {}, budget: { budgetResponses: 0, estimatedResponses: 0, guidedWordCount: 0, introTrimmed: false, trims: [] } } as any;
 assert.equal(buildDynamicAffixAssignmentPlan({ basePlan, selection, payload }).partTwo.sections.flatMap((section: any) => section.items).length, 16);
 const incomplete = { ...profile, wordsByCanonicalId: new Map(profile.wordsByCanonicalId) }; incomplete.wordsByCanonicalId.set("seasonal", { ...incomplete.wordsByCanonicalId.get("seasonal")!, trueMorphology: { ...incomplete.wordsByCanonicalId.get("seasonal")!.trueMorphology, provenance: {} } });
-assert.equal(compileDynamicAffixWordLabPayload(selectDynamicAffixWordLab({ profiles: [incomplete], learningItems: [item] })!), null, "incomplete provenance fails closed");
+const incompleteSelection = selectDynamicAffixWordLab({ profiles: [incomplete], learningItems: [item] });
+assert.equal(incompleteSelection ? compileDynamicAffixWordLabPayload(incompleteSelection) : null, null, "incomplete provenance fails before compilation");
 console.log("Dynamic suffix -al regression passed.");

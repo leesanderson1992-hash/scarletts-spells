@@ -68,7 +68,7 @@ assert.deepEqual(pkg.words.map((word: any) => [word.baseMeaning, word.newWordMea
 
 const profile: DynamicAffixProfile = {
   microSkillKey: pkg.profile.microSkillKey, position: "after", productionEnabled: true, affixLabel: "-tion", affixText: "tion", affixMeaning: pkg.profile.suffixMeaning,
-  meaningBins: pkg.profile.meaningBins, includeMeaningSort: false, wordsByCanonicalId: new Map(words.map((word) => [word.canonicalWordId, word])), transferCanonicalWordIds: words.map((word) => word.canonicalWordId), choices: pkg.profile.suffixChoices, reflection: pkg.profile.reflection, introduction: pkg.profile.introContent,
+  meaningBins: pkg.profile.meaningBins, includeMeaningSort: false, wordsByCanonicalId: new Map(words.map((word) => [word.canonicalWordId, word])), choices: pkg.profile.suffixChoices, reflection: pkg.profile.reflection, introduction: pkg.profile.introContent,
 };
 const item = { learningItemId: "tion-item", childId: "child", canonicalWordId: "invention", microSkillKey: profile.microSkillKey, itemStatus: "pending" as const, sourceKind: "verified_misspelling" as const, sourceRef: "test", sourceAttemptText: "invenshun", reteachPriority: false, ejectedOn: null, intakeOn: "2026-07-29", rowStatus: "active" as const };
 const selection = selectDynamicAffixWordLab({ profiles: [profile], learningItems: [item] });
@@ -94,6 +94,7 @@ const basePlan = { childId: "child", planDate: "2026-07-29", composerPolicyVersi
 assert.equal(buildDynamicAffixAssignmentPlan({ basePlan, selection, payload }).partTwo.sections.flatMap((section: any) => section.items).length, 16, "keeps immutable sixteen-item contract");
 const incomplete = { ...profile, wordsByCanonicalId: new Map(profile.wordsByCanonicalId) };
 incomplete.wordsByCanonicalId.set("invention", { ...incomplete.wordsByCanonicalId.get("invention")!, trueMorphology: { ...incomplete.wordsByCanonicalId.get("invention")!.trueMorphology, provenance: {} } });
-assert.equal(compileDynamicAffixWordLabPayload(selectDynamicAffixWordLab({ profiles: [incomplete], learningItems: [item] })!), null, "missing provenance fails closed");
+const incompleteSelection = selectDynamicAffixWordLab({ profiles: [incomplete], learningItems: [item] });
+assert.equal(incompleteSelection ? compileDynamicAffixWordLabPayload(incompleteSelection) : null, null, "missing provenance fails before compilation");
 assert.equal(selectDynamicAffixWordLab({ profiles: [{ ...profile, productionEnabled: false }], learningItems: [item] }), null, "production-disabled profile is isolated outside staging");
 console.log("Dynamic suffix -tion regression passed.");

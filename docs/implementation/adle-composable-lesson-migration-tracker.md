@@ -67,14 +67,18 @@ Dictionary content. Those facts are generated from the code registries under
    zero-residue evidence is recorded in
    `docs/implementation/qa/adle-dynamic-prefix-shared-compiler-staging-proof-2026-08-02.md`.
    This is an internal V2 compiler migration, not Generic Snapshot activation.
-5. **Implementation complete; staging proof in progress on 2026-08-06:** all
-   ten Dynamic Affix profiles retain the unchanged selector and public V3
+5. **Shared compiler staging accepted; deterministic selection correction in
+   progress on 2026-08-06:** all ten Dynamic Affix profiles retain the public V3
    contract behind `legacy_authoritative`, `shadow`, `enforced_parity`, and
-   `shared_authoritative` modes. The normal readiness page and action now share
-   one writer; exact V3 bytes, plan/runtime/bindings, authentic-only scheduling,
-   all-word evidence/reward behavior, rollback compatibility and zero-residue
-   proof are the staging acceptance gate. This stage does not activate Generic
-   Snapshot or change Prefix, content, schema, or production.
+   `shared_authoritative` modes. The original staging programme passed, but its
+   cross-environment raw fingerprint exposed UUID and relation-order coupling.
+   The authorised `dynamic_affix_transfer_selection_v1` correction now selects
+   from every reviewed, route-ready profile member using coverage-first stable
+   curriculum facts. Raw environment integrity remains separate from
+   `shared_affix_profile_semantic_fingerprint_v2`; V3, plan, bindings and runtime
+   still independently guard selected lesson order. Production remains
+   `legacy_authoritative` until focused staging reacceptance. This stage does
+   not activate Generic Snapshot or change Prefix, content or schema.
 6. Address Closed Compound authentic/transfer coupling and comparator policy
    in separately approved behaviour-change PRs.
 7. Migrate Closed Compound only after those decisions and fresh semantic

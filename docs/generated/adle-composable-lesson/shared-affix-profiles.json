@@ -70,8 +70,36 @@
     "owner": "ADLE composable lesson migration",
     "retirementGate": "separate production observation; zero blockers or mismatch; green performance and rollback proof"
   },
+  "dynamicAffixFingerprintContracts": {
+    "crossEnvironmentSemantic": "shared_affix_profile_semantic_fingerprint_v2",
+    "environmentIntegrity": "dynamic_affix_environment_integrity_fingerprint_v1",
+    "selectedLessonOrderIsSemantic": true
+  },
   "dynamicAffixParityRegression": "scripts/adle-dynamic-affix-shared-authority-regression.ts",
+  "dynamicAffixProfileFingerprintAudit": "scripts/adle-dynamic-affix-profile-fingerprint-audit.ts",
+  "dynamicAffixSemanticFingerprintRegression": "scripts/adle-dynamic-affix-semantic-fingerprint-regression.ts",
   "dynamicAffixStagingProof": "scripts/adle-dynamic-affix-shared-staging-proof.ts",
+  "dynamicAffixTransferSelection": {
+    "candidateAuthority": "all reviewed assignment-eligible Teaching Dictionary suffix-profile members",
+    "candidateOrderAuthority": "none; relation, insertion, UUID and timestamp order are ignored",
+    "coverageOrder": [
+      "declared_suffix_forms",
+      "meaning_sort_groups",
+      "direct_changed_cleaver_contrast"
+    ],
+    "curriculumRank": [
+      "declared_form_order",
+      "declared_meaning_group_order",
+      "direct_before_changed",
+      "normalised_en_GB_word"
+    ],
+    "lessonOrder": [
+      "authentic_oldest_first",
+      "deterministically_selected_transfers"
+    ],
+    "policyVersion": "dynamic_affix_transfer_selection_v1"
+  },
+  "dynamicAffixTransferSelectionRegression": "scripts/adle-dynamic-affix-transfer-selection-regression.ts",
   "dynamicPrefixCompilerRollout": {
     "authorities": [
       {

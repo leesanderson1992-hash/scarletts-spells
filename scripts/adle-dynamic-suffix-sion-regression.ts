@@ -47,7 +47,7 @@ for (const word of words) {
 }
 assert.deepEqual(pkg.words.map((word: any) => [word.baseMeaning, word.newWordMeaning]), [["to choose after thinking", "the result of deciding"], ["to separate into parts", "the action of dividing"], ["to make someone unable to understand", "the state of being confused"], ["to become larger", "the process of expanding"]]);
 
-const profile: DynamicAffixProfile = { microSkillKey: pkg.profile.microSkillKey, position: "after", productionEnabled: true, affixLabel: "-sion", affixText: "sion", affixMeaning: pkg.profile.suffixMeaning, meaningBins: pkg.profile.meaningBins, includeMeaningSort: false, wordsByCanonicalId: new Map(words.map((word) => [word.canonicalWordId, word])), transferCanonicalWordIds: words.map((word) => word.canonicalWordId), choices: pkg.profile.suffixChoices, reflection: pkg.profile.reflection, introduction: pkg.profile.introContent };
+const profile: DynamicAffixProfile = { microSkillKey: pkg.profile.microSkillKey, position: "after", productionEnabled: true, affixLabel: "-sion", affixText: "sion", affixMeaning: pkg.profile.suffixMeaning, meaningBins: pkg.profile.meaningBins, includeMeaningSort: false, wordsByCanonicalId: new Map(words.map((word) => [word.canonicalWordId, word])), choices: pkg.profile.suffixChoices, reflection: pkg.profile.reflection, introduction: pkg.profile.introContent };
 const item = { learningItemId: "sion-item", childId: "child", canonicalWordId: "decision", microSkillKey: profile.microSkillKey, itemStatus: "pending" as const, sourceKind: "verified_misspelling" as const, sourceRef: "test", sourceAttemptText: "decishun", reteachPriority: false, ejectedOn: null, intakeOn: "2026-07-29", rowStatus: "active" as const };
 const selection = selectDynamicAffixWordLab({ profiles: [profile], learningItems: [item] }); assert(selection);
 const payload = compileDynamicAffixWordLabPayload(selection); assert(payload && validateDynamicAffixWordLabPayload(payload));
@@ -60,6 +60,7 @@ assert.equal(normaliseSessionWord("Decision"), normaliseSessionWord("decision"))
 const basePlan = { childId: "child", planDate: "2026-07-29", composerPolicyVersion: "test", schedulePolicyVersion: "test", throttle: {}, partOne: {}, partTwo: {}, budget: { budgetResponses: 0, estimatedResponses: 0, guidedWordCount: 0, introTrimmed: false, trims: [] } } as any;
 assert.equal(buildDynamicAffixAssignmentPlan({ basePlan, selection, payload }).partTwo.sections.flatMap((section: any) => section.items).length, 16);
 const incomplete = { ...profile, wordsByCanonicalId: new Map(profile.wordsByCanonicalId) }; incomplete.wordsByCanonicalId.set("decision", { ...incomplete.wordsByCanonicalId.get("decision")!, trueMorphology: { ...incomplete.wordsByCanonicalId.get("decision")!.trueMorphology, provenance: {} } });
-assert.equal(compileDynamicAffixWordLabPayload(selectDynamicAffixWordLab({ profiles: [incomplete], learningItems: [item] })!), null, "missing provenance fails closed");
+const incompleteSelection = selectDynamicAffixWordLab({ profiles: [incomplete], learningItems: [item] });
+assert.equal(incompleteSelection ? compileDynamicAffixWordLabPayload(incompleteSelection) : null, null, "missing provenance fails before compilation");
 assert.equal(selectDynamicAffixWordLab({ profiles: [{ ...profile, productionEnabled: false }], learningItems: [item] }), null, "production-disabled profile is isolated outside staging");
 console.log("Dynamic suffix -sion regression passed.");

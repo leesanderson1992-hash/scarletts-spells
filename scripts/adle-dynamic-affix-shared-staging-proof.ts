@@ -19,6 +19,10 @@ import {
 } from "../lib/adle/morphology/dynamic-affix-compiler-rollout";
 import { validateDynamicAffixV3ForNewWrite } from "../lib/adle/morphology/dynamic-affix-v3-compatibility";
 import {
+  fingerprintDynamicAffixEnvironmentIntegrityV1,
+  fingerprintDynamicAffixSemanticProfilesV2,
+} from "../lib/adle/morphology/dynamic-affix-semantic-fingerprint";
+import {
   canonicalDynamicAffixPublicV3Bytes,
   compileDynamicAffixSelectionThroughSharedCompiler,
 } from "../lib/adle/morphology/shared-affix-compatibility";
@@ -150,13 +154,31 @@ async function protectedCounts(db: SupabaseClient) {
 }
 async function profileSnapshot(db: SupabaseClient) {
   const loaded = await loadDynamicSuffixProfiles(db, "00000000-0000-0000-0000-000000000000", { allowStagingProfiles: true });
+  const { data: rawIdentityRows, error: rawIdentityError } = await db
+    .from("canonical_teaching_dictionary_suffix_profiles")
+    .select("id,micro_skill_key,canonical_teaching_dictionary_suffix_members(id,canonical_word_id)")
+    .in("micro_skill_key", loaded.profiles.map((profile) => profile.microSkillKey))
+    .eq("row_status", "active")
+    .eq("review_status", "approved_for_first_exposure");
+  if (rawIdentityError) throw new Error(`profile integrity identity: ${rawIdentityError.message}`);
   const projections = loaded.profiles.map((profile) => ({
     profileKey: profile.microSkillKey,
     productionEnabled: profile.productionEnabled,
     memberIds: [...profile.wordsByCanonicalId.keys()],
     memberWords: [...profile.wordsByCanonicalId.values()].map((word) => word.displayWord),
   }));
-  return { profileCount: projections.length, memberCount: projections.reduce((sum, row) => sum + row.memberIds.length, 0), diagnostics: loaded.diagnostics, projections, fingerprint: fingerprintSnapshotValue(projections) };
+  return {
+    profileCount: projections.length,
+    memberCount: projections.reduce((sum, row) => sum + row.memberIds.length, 0),
+    diagnostics: loaded.diagnostics,
+    projections,
+    legacyRawFingerprint: fingerprintSnapshotValue(projections),
+    environmentIntegrityFingerprint: fingerprintDynamicAffixEnvironmentIntegrityV1(
+      loaded.profiles,
+      { projectIdentity: STAGING_REF, rawProfileAndMemberIdentity: rawIdentityRows ?? [] },
+    ),
+    semanticProfileFingerprintV2: fingerprintDynamicAffixSemanticProfilesV2(loaded.profiles),
+  };
 }
 function basePlan(childId: string, planDate: string): ComposedDailyPlan {
   return { childId, planDate, ...activeAdlePolicyProofProjection(), throttle: {}, partOne: {}, partTwo: {}, budget: { budgetResponses: 0, estimatedResponses: 0, guidedWordCount: 0, introTrimmed: false, trims: [] } } as unknown as ComposedDailyPlan;
@@ -167,7 +189,7 @@ async function preflight(db: SupabaseClient) {
   assert.equal(profiles.profileCount, 10);
   assert.equal(profiles.memberCount, 40);
   assert.deepEqual(profiles.diagnostics, []);
-  assert(profiles.projections.every((profile) => profile.productionEnabled && profile.memberIds.length === 4));
+  assert(profiles.projections.every((profile) => profile.productionEnabled && profile.memberIds.length >= 4));
   console.log(JSON.stringify({ status: "preflight_passed", stagingSupabaseProject: STAGING_REF, stagingVercelProject: STAGING_VERCEL_PROJECT, productionIdentityRejected: true, profiles }));
 }
 
@@ -435,7 +457,7 @@ async function cleanup(db: SupabaseClient) {
   const finalCounts = await protectedCounts(db);
   assert.deepEqual(finalCounts, state.baselineProtectedCounts, "protected counts did not return to baseline");
   rmSync(STATE_PATH, { force: true });
-  console.log(JSON.stringify({ status: "cleanup_verified", exactFixtureResidue: 0, residue, profileProjectionUnchanged: true, profileFingerprint: finalProfiles.fingerprint, protectedCountsRestored: true }));
+  console.log(JSON.stringify({ status: "cleanup_verified", exactFixtureResidue: 0, residue, profileProjectionUnchanged: true, semanticProfileFingerprintV2: finalProfiles.semanticProfileFingerprintV2, environmentIntegrityFingerprint: finalProfiles.environmentIntegrityFingerprint, protectedCountsRestored: true }));
 }
 
 async function main() {

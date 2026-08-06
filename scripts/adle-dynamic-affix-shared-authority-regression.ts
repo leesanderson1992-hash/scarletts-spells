@@ -368,5 +368,5 @@ console.log(JSON.stringify({
   transformationClasses: ["direct", ...transformationTypes],
   tionSionTeachingTrueMorphologyWords,
   payloadVersion: 3,
-  selector: "unchanged",
+  selector: "teaching_dictionary_dynamic_v1",
 }));

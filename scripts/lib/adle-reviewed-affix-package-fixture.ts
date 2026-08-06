@@ -74,7 +74,6 @@ export function loadReviewedAffixPackageFixture(
     meaningBins: reviewed.profile.meaningBins,
     includeMeaningSort: reviewed.profile.includeMeaningSort,
     wordsByCanonicalId: new Map(words.map((word) => [word.canonicalWordId, word])),
-    transferCanonicalWordIds: words.map((word) => word.canonicalWordId),
     choices: reviewed.profile.suffixChoices,
     reflection: reviewed.profile.reflection,
     introduction: reviewed.profile.introContent,

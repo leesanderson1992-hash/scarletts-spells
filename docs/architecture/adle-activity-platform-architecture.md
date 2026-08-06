@@ -169,8 +169,12 @@ and ten Affix V3 profiles. Dynamic Prefix keeps its unchanged selector and V2
 contract but reaches the shared compiler through a guarded authority boundary:
 all five approved profiles advance through shadow, enforced-parity and
 shared-authoritative modes after exact `un-` normal-path source release.
-Dynamic Affix remains dark on its existing
-compiler and writer. This boundary does not alter the activity registry,
+Dynamic Affix profiles govern membership and pedagogy rather than a fixed
+transfer roster. `dynamic_affix_transfer_selection_v1` selects reviewed,
+route-ready members with coverage-first semantic ranking that is independent
+of UUID and database order, then preserves the selected order through the
+existing V3 compiler boundary. Production remains `legacy_authoritative` until
+the focused correction proof passes. This boundary does not alter the activity registry,
 `AdleSessionRunner`, route metadata, persistence contract, Generic Snapshot or
 Common Word Lab shell.
 

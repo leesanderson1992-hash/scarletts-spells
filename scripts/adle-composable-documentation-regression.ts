@@ -102,6 +102,8 @@ assert(
 assert(
   affixProfiles.includes("inventory, not an activation switch") &&
     affixProfiles.includes("never gain a microskill literal") &&
+    affixProfiles.includes("They do not define a fixed production transfer roster") &&
+    affixProfiles.includes("dynamic_affix_transfer_selection_v1") &&
     affixProfiles.includes("dynamic-prefix-compiler-rollout.ts") &&
     affixProfiles.includes("dynamic-affix-compiler-rollout.ts"),
 );
@@ -110,6 +112,8 @@ assert(
     sharedAffixInventory.includes('"dynamicAffix": "all_ten_guarded_shared_compiler_authority"') &&
     sharedAffixInventory.includes('"defaultMode": "shadow"') &&
     sharedAffixInventory.includes('"defaultMode": "legacy_authoritative"') &&
+    sharedAffixInventory.includes('"policyVersion": "dynamic_affix_transfer_selection_v1"') &&
+    sharedAffixInventory.includes('"crossEnvironmentSemantic": "shared_affix_profile_semantic_fingerprint_v2"') &&
     sharedAffixInventory.includes('"authority": "shared_migration"') &&
     sharedAffixInventory.includes('"compilerVersion": 1') &&
     sharedAffixInventory.includes('"D4_MOR_PREFIXES_UN"') &&

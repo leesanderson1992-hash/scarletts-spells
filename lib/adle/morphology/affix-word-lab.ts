@@ -1,5 +1,9 @@
 import { compareOldestItemFirst, selectableLearningItems, type LearningItemFact } from "../learning-items";
-import { extractAuthoredTargetToken, type MorphologyEffect, type MorphologyWordSnapshot } from "./payload";
+import type { MorphologyEffect, MorphologyWordSnapshot } from "./payload";
+import {
+  isDynamicAffixWordLessonReady,
+  selectDynamicAffixTransfers,
+} from "./dynamic-affix-transfer-selection";
 
 /**
  * Position-aware Word Lab core. Prefix v2 remains supported by its adapter;
@@ -51,7 +55,6 @@ export interface DynamicAffixProfile {
   meaningBins: Array<{ id: string; label: string; description: string }>;
   includeMeaningSort: boolean;
   wordsByCanonicalId: ReadonlyMap<string, DynamicAffixWord>;
-  transferCanonicalWordIds: readonly string[];
   choices: AffixChoice[];
   reflection: { promptKey: string; promptText: string };
   introduction: {
@@ -108,22 +111,18 @@ export function selectDynamicAffixWordLab(params: { profiles: readonly DynamicAf
     .sort((left, right) => right.authentic.length - left.authentic.length || Number(right.authentic.some((item) => item.reteachPriority)) - Number(left.authentic.some((item) => item.reteachPriority)) || compareOldestItemFirst(left.authentic[0], right.authentic[0]) || left.profile.microSkillKey.localeCompare(right.profile.microSkillKey))[0];
   if (!candidate) return null;
   const authenticTargets = candidate.authentic.slice(0, DYNAMIC_AFFIX_WORD_LAB_WORD_COUNT);
-  const used = new Set(authenticTargets.map((item) => item.canonicalWordId));
-  const transfers: DynamicAffixWord[] = [];
-  for (const id of candidate.profile.transferCanonicalWordIds) {
-    const word = candidate.profile.wordsByCanonicalId.get(id);
-    if (word?.approvedTransfer && !used.has(id)) { transfers.push(word); used.add(id); }
-    if (used.size === DYNAMIC_AFFIX_WORD_LAB_WORD_COUNT) break;
-  }
-  return used.size === DYNAMIC_AFFIX_WORD_LAB_WORD_COUNT ? { profile: candidate.profile, authenticTargets, transfers } : null;
-}
-
-function isReconstructable(word: DynamicAffixWord, profile: DynamicAffixProfile) {
-  const affix = word.affixVariant;
-  const expected = profile.position === "before" ? `${affix}${word.teachingBaseText}` : `${word.teachingBaseText}${affix}`;
-  const point = profile.position === "before" ? affix.length : word.teachingBaseText.length;
-  const valid = Boolean(word.displayWord && word.semanticBaseText && word.teachingBaseText && affix && expected === word.displayWord && word.parts.length >= 2 && word.joins.length === word.parts.length - 1 && word.parts.map((part) => part.text).join("") === word.displayWord && word.splitPoints.length === 1 && word.splitPoints[0] === point && point > 0 && point < word.displayWord.length && word.audioText === word.dictationSentence && extractAuthoredTargetToken(word.dictationSentence, word.dictationTargetTokenIndex) === word.displayWord && word.trueMorphology.parts.length >= 2 && word.trueMorphology.joins.length === word.trueMorphology.parts.length - 1 && word.trueMorphology.parts.map((part) => part.text).join("") === word.displayWord && word.trueMorphology.notes !== undefined && word.trueMorphology.provenance && Object.keys(word.trueMorphology.provenance).length > 0);
-  return valid;
+  const authenticWords = authenticTargets
+    .map((item) => candidate.profile.wordsByCanonicalId.get(item.canonicalWordId))
+    .filter((word): word is DynamicAffixWord => Boolean(word));
+  if (authenticWords.length !== authenticTargets.length) return null;
+  const transferSelection = selectDynamicAffixTransfers({
+    profile: candidate.profile,
+    authenticWords,
+    count: DYNAMIC_AFFIX_WORD_LAB_WORD_COUNT - authenticTargets.length,
+  });
+  return transferSelection.ok
+    ? { profile: candidate.profile, authenticTargets, transfers: [...transferSelection.selected] }
+    : null;
 }
 
 export function compileDynamicAffixWordLabPayload(selection: DynamicAffixSelection): DynamicAffixLessonPayloadV3 | null {
@@ -133,7 +132,7 @@ export function compileDynamicAffixWordLabPayload(selection: DynamicAffixSelecti
   if (selected.length !== DYNAMIC_AFFIX_WORD_LAB_WORD_COUNT || new Set(selected.map((entry) => entry.id)).size !== DYNAMIC_AFFIX_WORD_LAB_WORD_COUNT) return null;
   const words = selected.map((entry) => {
     const word = profile.wordsByCanonicalId.get(entry.id);
-    if (!word || !isReconstructable(word, profile) || !profile.meaningBins.some((bin) => bin.id === word.effect)) return null;
+    if (!word || !isDynamicAffixWordLessonReady(profile, word)) return null;
     return { canonicalWordId: word.canonicalWordId, displayWord: word.displayWord, audioText: word.audioText, baseMeaning: word.baseMeaning, derivedMeaning: word.derivedMeaning, effect: word.effect, parts: word.parts, joins: word.joins, splitPoints: word.splitPoints, semanticBaseText: word.semanticBaseText, semanticBaseKind: word.semanticBaseKind, teachingBaseText: word.teachingBaseText, affixText: word.affixVariant, affixLabel: `-${word.affixVariant}`, source: entry.source };
   });
   if (words.some((word) => word === null)) return null;

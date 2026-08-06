@@ -89,7 +89,6 @@ const profile: DynamicAffixProfile = {
   meaningBins: reviewed.profile.meaningBins,
   includeMeaningSort: reviewed.profile.includeMeaningSort,
   wordsByCanonicalId: new Map(words.map((word) => [word.canonicalWordId, word])),
-  transferCanonicalWordIds: words.map((word) => word.canonicalWordId),
   choices: reviewed.profile.suffixChoices,
   reflection: reviewed.profile.reflection,
   introduction: reviewed.profile.introContent,
@@ -126,9 +125,9 @@ assert.equal(payload.words.lesson.find((word) => word.displayWord === "agreement
 assert.equal(payload.words.lesson.find((word) => word.displayWord === "movement")?.teachingBaseText, "move");
 assert.deepEqual(payload.activities.discovery.map((entry) => [entry.baseMeaning, entry.derivedMeaning]), [
   ["to take pleasure in something", "the feeling or process of enjoying"],
-  ["to give money for something", "money given, or the act of paying"],
   ["to share an opinion or decision", "a result reached by agreeing"],
   ["to change position", "the action or process of moving"],
+  ["to give money for something", "money given, or the act of paying"],
 ]);
 const targetPositions = payload.activities.guided.builds.map((build) => {
   assert.equal(build.baseWord + "ment", payload.words.lesson.find((word) => word.canonicalWordId === build.canonicalWordId)?.displayWord);
@@ -164,9 +163,12 @@ incompleteProfile.wordsByCanonicalId.set("movement", {
   trueMorphology: { ...incompleteProfile.wordsByCanonicalId.get("movement")!.trueMorphology, provenance: {} },
 });
 assert.equal(
-  compileDynamicAffixWordLabPayload(selectDynamicAffixWordLab({ profiles: [incompleteProfile], learningItems: [authentic] })!),
+  (() => {
+    const candidate = selectDynamicAffixWordLab({ profiles: [incompleteProfile], learningItems: [authentic] });
+    return candidate ? compileDynamicAffixWordLabPayload(candidate) : null;
+  })(),
   null,
-  "fails closed when canonical provenance is incomplete",
+  "incomplete canonical provenance fails before compilation",
 );
 assert.equal(
   selectDynamicAffixWordLab({ profiles: [{ ...profile, productionEnabled: false }], learningItems: [authentic] }),

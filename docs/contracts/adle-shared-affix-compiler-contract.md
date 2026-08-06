@@ -17,7 +17,7 @@ The route registry remains authoritative for public route and payload versions.
 The Prefix and Affix writer boundaries are:
 
 ```text
-unchanged route selector and selected-word order
+route selector and governed deterministic selected-word order
 → typed compiler-authority decision
 → normalised reviewed facts
 → pure shared compiler
@@ -33,9 +33,11 @@ profile is projected to staging only through immutable release
 `adle_dynamic_prefix_un_profile_staging_v1_2026_08_02`; synthetic and fixture-
 only facts are not runtime authority.
 
-Dynamic Affix V3 retains the existing compiler explicitly as its legacy oracle,
-keeps `selectDynamicAffixWordLab` unchanged, and routes both normal assignment
-entry points through one consolidated writer. The shared adapter is eligible
+Dynamic Affix V3 retains the existing compiler explicitly as its legacy oracle
+and routes both normal assignment entry points through one consolidated writer.
+Its selector uses every reviewed, route-ready Teaching Dictionary member in the
+selected suffix profile rather than a fixed four-word relation roster. The
+shared adapter is eligible
 only through `dynamic-affix-compiler-rollout.ts`; there is no direct writer-to-
 compiler import and no V4 payload.
 
@@ -50,6 +52,22 @@ Fact order is canonicalized for hashing. `lessonWordIds`, authentic IDs,
 transfer IDs, pedagogical arrays and activity order remain exact. Prefix V2
 continues to persist its established public snapshot rather than a new true-
 morphology envelope.
+
+Dynamic Affix transfer selection is governed by
+`dynamic_affix_transfer_selection_v1`. Authentic targets remain oldest-first
+and precede transfers. Transfers fill missing declared forms, Meaning Sort
+groups and the established direct/changed Cleaver contrast before applying the
+declared form order, meaning-group order, direct-before-changed rank and
+normalized en-GB word-text tie-break. UUID, row, relation, insertion and
+timestamp order are not inputs. Selection happens before either compiler.
+
+`dynamic_affix_environment_integrity_fingerprint_v1` retains operational IDs
+and raw relation representation for same-environment drift checks only.
+`shared_affix_profile_semantic_fingerprint_v2` projects the reviewed candidate
+pool and versioned selection policy through stable word identity for staging ↔
+production equivalence. Selected lesson order remains exact in V3, plan,
+binding and runtime parity; semantic fingerprint equality alone never permits
+a write.
 
 ## Declarative policy
 
@@ -111,7 +129,9 @@ assignment identity, word text, meanings, dictation or payloads.
 
 The compiler migration does not change Prefix selection, V2 persistence, route metadata,
 resume storage, completion, attempts, evidence, taught history, review schedules or rewards.
-It also preserves Dynamic Affix selection, V3 public bytes, item order, runtime,
+The subsequent authorised Dynamic Affix selection correction changes only
+which reviewed transfer members are chosen and their deterministic order; it
+preserves the V3 schema, activity structure, item counts, runtime adapter,
 resume, Reflection and all-word rewards. Dynamic Affix authentic words retain
 learning-item transitions and scheduling; transfer words retain taught history,
 evidence, state/breadth effects and rewards but do not receive learning items,

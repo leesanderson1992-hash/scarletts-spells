@@ -17,10 +17,25 @@ requirements. They may hold released fallback Prefix introduction copy. The shar
 compiler must never gain a microskill literal to support the mapping.
 
 The production selector and profile loader remain the selection authority. A
-mapping cannot activate a profile, broaden a candidate set, change form or
-meaning coverage, add an activity, or supply a missing Teaching Dictionary
-fact. New profile work must update the existing route registry and loader
-allowlist under their own authorised behavior change before it can be mapped.
+mapping cannot activate a profile, add an activity, or supply a missing
+Teaching Dictionary fact. New profile work must update the existing route
+registry and loader allowlist under its own authorised behaviour change before
+it can be mapped.
+
+Dynamic Affix profiles define governed eligibility and pedagogical constraints.
+They do not define a fixed production transfer roster. Transfer candidates are
+selected dynamically from all reviewed, route-ready Teaching Dictionary
+members of the selected profile using the versioned
+`dynamic_affix_transfer_selection_v1` policy.
+
+That policy preserves authentic words first in their existing oldest-first
+order. Transfer selection then fills coverage gaps in this order: declared
+suffix forms, Meaning Sort groups, and the existing direct-versus-changed
+Cleaver contrast for one-form profiles. Remaining ties use declared form order,
+declared meaning-group order, direct before changed, and normalized en-GB word
+text. Database UUIDs, relation order, insertion order and timestamps are never
+ranking inputs. The resulting transfer order is lesson semantics and must be
+preserved by V3, assignment-plan and runtime parity.
 
 ## Reviewed word requirements
 
@@ -45,9 +60,9 @@ compiler validation, a reviewed package fixture and mutation coverage.
 
 Every current regression fixture must compile through both the authoritative
 compiler and shared compiler plus compatibility adapter. For every reviewed
-or live assignment-eligible target, use the unchanged selector to place the
-target in every intended authentic slot, then compare payloads, validators,
-runtime reconstruction and assignment bindings.
+or live assignment-eligible target, use the deterministic Teaching Dictionary
+selector to place the target in every intended authentic slot, then compare
+payloads, validators, runtime reconstruction and assignment bindings.
 
 Tests must also prove exact blockers for removed/contradictory facts,
 determinism under reviewed-fact shuffling, and absence of production
