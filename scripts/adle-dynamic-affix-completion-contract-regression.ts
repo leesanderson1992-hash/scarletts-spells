@@ -180,6 +180,9 @@ const completionAction = readFileSync("app/learn/week/adle/actions.ts", "utf8");
 assert(completionAction.includes("deriveDynamicAffixCompletionPolicy"));
 assert(completionAction.includes("scheduleAllProducedWords: dynamicSuffix !== null"));
 assert(completionAction.includes("dynamicAffixCompletionPolicy.wordPolicies"));
+assert(completionAction.includes("requireSharedRouteStorage: dynamicSuffix !== null"));
+const completionLoader = readFileSync("lib/adle/loaders/session-completion-loader.ts", "utf8");
+assert(completionLoader.includes("sharedRouteStorageEnabled() || options.requireSharedRouteStorage === true"));
 
 console.log(JSON.stringify({
   status: "passed",

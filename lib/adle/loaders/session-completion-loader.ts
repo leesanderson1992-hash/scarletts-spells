@@ -504,10 +504,23 @@ export interface LessonCompletionWrite {
   itemTransitions: readonly LearningItemFact[];
 }
 
+export interface LessonCompletionPersistenceOptions {
+  /**
+   * Dynamic Affix V3 owns explicit authentic learning-item routes even when
+   * canonical intake is independently disabled. The intake feature flag may
+   * gate intake processing, but it must not erase the route attached to a
+   * newly scheduled authentic word.
+   */
+  requireSharedRouteStorage?: boolean;
+}
+
 export async function persistLessonCompletion(
   client: AdleClient,
   write: LessonCompletionWrite,
+  options: LessonCompletionPersistenceOptions = {},
 ): Promise<void> {
+  const routeStorageEnabled =
+    sharedRouteStorageEnabled() || options.requireSharedRouteStorage === true;
   if (write.bundle !== null) {
     const { error } = await client.from("adle_review_bundles").insert({
       id: write.bundle.bundleId,
@@ -549,7 +562,7 @@ export async function persistLessonCompletion(
         ]),
       );
       const oldRouteCounts = new Map<string, number>();
-      if (sharedRouteStorageEnabled() && previousScheduleById.size > 0) {
+      if (routeStorageEnabled && previousScheduleById.size > 0) {
         const { data: previousRoutes, error: previousRoutesError } =
           await client
             .from("adle_review_schedule_word_routes")
@@ -609,7 +622,7 @@ export async function persistLessonCompletion(
         fail("persistLessonCompletion:insertWord", insertError);
       }
 
-      if (sharedRouteStorageEnabled()) {
+      if (routeStorageEnabled) {
         const [
           { data: currentSchedules, error: currentSchedulesError },
           { data: activeItems, error: activeItemsError },

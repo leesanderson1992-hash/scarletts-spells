@@ -705,7 +705,9 @@ export async function completeAdleLessonPartAction(formData: FormData) {
   if (wordLabPayload !== null) {
     await Promise.all([
       timer.measure("attempt_persistence", () => insertAssignmentAttemptEvents(serviceClient, attemptEvents)),
-      timer.measure("lesson_persistence", () => persistLessonCompletion(serviceClient, lessonResult)),
+      timer.measure("lesson_persistence", () => persistLessonCompletion(serviceClient, lessonResult, {
+        requireSharedRouteStorage: dynamicSuffix !== null,
+      })),
       timer.measure("reflection_persistence", () => persistMorphologyReflection(context, wordLabPayload, learningReflection)),
     ]);
     await timer.measure("assignment_completion", () => markItemsCompleted(context, readModel.partTwo.items));
