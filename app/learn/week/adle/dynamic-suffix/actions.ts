@@ -17,7 +17,9 @@ export async function createDynamicSuffixAssignmentAction(formData: FormData) {
   if (!selectChildById(await getActiveChildrenForUser(userClient, user.id), childId)) redirect("/learn/week");
   const planDate = getDateOnly();
   const serviceClient = createServiceRoleClient();
-  const result = await createDynamicAffixAssignment({ userClient, serviceClient, parentUserId: user.id, childId, planDate, allowStagingProfiles: process.env.VERCEL_ENV === "preview" });
+  const allowStagingProfiles = process.env.ADLE_ROUTE_ACTIVATION_ENVIRONMENT === "staging"
+    || process.env.VERCEL_ENV === "preview";
+  const result = await createDynamicAffixAssignment({ userClient, serviceClient, parentUserId: user.id, childId, planDate, allowStagingProfiles });
   if (result.status === "conflict" || result.status === "not_ready") redirect(`${buildScopedPath("/learn/week/adle/dynamic-suffix", childId, "child")}&error=not-ready`);
   redirect(buildScopedPath("/learn/week/adle", childId, "child"));
 }

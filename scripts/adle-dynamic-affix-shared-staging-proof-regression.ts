@@ -11,6 +11,8 @@ import {
 } from "./lib/adle-staging-proof-serialization";
 
 const proof = readFileSync("scripts/adle-dynamic-affix-shared-staging-proof.ts", "utf8");
+const readinessPage = readFileSync("app/learn/week/adle/dynamic-suffix/page.tsx", "utf8");
+const writerAction = readFileSync("app/learn/week/adle/dynamic-suffix/actions.ts", "utf8");
 assert(proof.includes('const STAGING_REF = "jlhotktspjvffslvuyfz"'));
 assert(proof.includes('const STAGING_VERCEL_PROJECT_ID = "prj_oJkffstOtacc4juYloXajHpjJUha"'));
 assert(proof.includes('const PRODUCTION_REF = "wwohrqtunajrbwxyssjf"'));
@@ -22,6 +24,8 @@ assert(proof.includes('const CONFIRMATION = "ADLE-DYNAMIC-AFFIX-STAGING-V1"'));
 assert(proof.includes("public_payload_byte_mismatch"));
 assert(proof.includes("enforced mismatch changed staging rows"));
 assert(proof.includes("exactFixtureResidue: 0"));
+assert(readinessPage.includes('process.env.ADLE_ROUTE_ACTIVATION_ENVIRONMENT === "staging"'), "readiness permits staging profiles on the pinned stable staging target");
+assert(writerAction.includes('process.env.ADLE_ROUTE_ACTIVATION_ENVIRONMENT === "staging"'), "writer permits staging profiles on the pinned stable staging target");
 for (const className of ["direct_one_form", "changed_one_form", "replace_remove", "two_form", "two_form_meaning", "visible_tion", "visible_sion"]) {
   assert(proof.includes(className), `missing staging class ${className}`);
 }
