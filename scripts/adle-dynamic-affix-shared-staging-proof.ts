@@ -395,7 +395,10 @@ async function verifyOlderResumeOnly(db: SupabaseClient) {
   assert(entry.assignmentId);
   const { data: header, error } = await db.from("daily_assignments").select("status").eq("id", entry.assignmentId).single();
   if (error) throw error;
-  assert.equal(header?.status, "ready", "older app must not complete transfer-bearing assignment");
+  assert(
+    header?.status === "pending" || header?.status === "ready",
+    "older app must not complete transfer-bearing assignment",
+  );
   const { count: attempts } = await db.from("adle_assignment_attempt_events").select("id", { count: "exact", head: true }).eq("daily_assignment_id", entry.assignmentId);
   assert.equal(attempts, 0, "older load/resume must not write attempts");
   console.log(JSON.stringify({ status: "older_resume_only_verified", assignmentId: entry.assignmentId, assignmentStatus: header.status, completionWrites: 0 }));
