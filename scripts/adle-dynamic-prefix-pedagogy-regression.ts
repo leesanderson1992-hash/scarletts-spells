@@ -187,11 +187,13 @@ const teachingCardsRenderer = readFileSync("components/adle/morphology/prefix-te
 const loader = readFileSync("lib/adle/morphology/dynamic-prefix-profile-loader.ts", "utf8");
 const release = readFileSync("scripts/adle-dynamic-prefix-pedagogy-release.ts", "utf8");
 assert(renderer.includes('meaningResultsPresentation !== "none"'));
+assert(renderer.includes('!prefixPedagogy && props.payload.activities.some((activity) => activity.type === "meaning_sort")'));
 assert(renderer.includes('stage: "build" as const'));
 assert(renderer.includes("Today we studied:"));
-assert(renderer.includes("How does this prefix change a word’s meaning?"));
-assert(renderer.includes("How do these prefixes change the words’ meanings?"));
-assert(renderer.includes("Take a moment to think of one rule to remember next time."));
+assert(renderer.includes("Reflection Time"));
+assert(renderer.includes("Did you get anything wrong below? Make yourself one rule for next time!"));
+assert(renderer.includes("Put in your own words how each of the target prefixes change a word."));
+assert(renderer.includes("Mistakes"));
 assert(teachingCardsRenderer.includes('props.cards.length === 3'));
 assert(teachingCardsRenderer.includes('md:grid-cols-2 lg:grid-cols-3'), "three-card Prefix teaching sets remain visible in one desktop row");
 assert(loader.includes("usesTeachingCardIntroduction"), "teaching-card packages supersede legacy blended-example counts");

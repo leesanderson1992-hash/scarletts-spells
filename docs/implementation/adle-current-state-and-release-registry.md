@@ -280,6 +280,21 @@ backfilled evidence—must prove the corrected Cleaver, Dictation Reflection and
 transfer outcome before lifecycle acceptance can close. See the
 [focused production receipt](qa/adle-dynamic-prefix-feedback-reflection-production-receipt-2026-08-05.md).
 
+The next natural `re-/pre-` assignment
+`c5e661bc-8d10-44f5-8108-2df467299adb` supplied accepted child-facing Meaning
+Sort feedback and Dictation-context Reflection observations. An initial audit
+correctly found no final form submission; after the explicit completion press,
+the re-audit proved 16/16 completion, 14 unique attempt events, one private
+Reflection, four taught events, four session-capped `0.75` evidence entries,
+three authentic schedules, no transfer schedule, and three idempotent Forge
+transitions. No evidence was backfilled. The omitted Cleaver-error interaction
+remains required in the next natural lesson. A prospective Reflection
+presentation amendment orders the page as teaching recap, `Reflection Time`,
+task, target-prefix prompt, Mistakes, then Reflection, with the legacy
+MeaningCards boxes suppressed for Prefix. Lifecycle status remains
+`CONTROLLED_END_TO_END_PREFIX_LIFECYCLE_AUDIT_REQUIRED`. See the
+[RE/PRE durability audit](qa/adle-dynamic-prefix-re-pre-production-audit-2026-08-06.md).
+
 ## Documentation update rule
 
 Every activation or retirement must update this register, the D4_MOR readiness

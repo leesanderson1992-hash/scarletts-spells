@@ -256,3 +256,13 @@ prospectively from `d9695bfd` as Ready deployment
 remain enabled and idempotent. Final lifecycle acceptance still requires
 sufficient future natural evidence, so
 `CONTROLLED_END_TO_END_PREFIX_LIFECYCLE_AUDIT_REQUIRED` remains current.
+The subsequent natural `re-/pre-` child-facing flow initially stopped before
+the final form submission, then completed durably after the explicit completion
+press. The re-audit proves 16/16 items, 14 unique attempts, one Reflection,
+four taught/`0.75` evidence outcomes, authentic-only scheduling, transfer
+isolation, and three Forge transitions without backfill. That chronology is
+recorded in the
+[2026-08-06 durability audit](qa/adle-dynamic-prefix-re-pre-production-audit-2026-08-06.md).
+The Reflection layout is being reordered prospectively and its legacy Prefix
+MeaningCards summary boxes are suppressed, while the omitted Cleaver-error
+proof remains an open gate.

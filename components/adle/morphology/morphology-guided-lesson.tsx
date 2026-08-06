@@ -1036,6 +1036,19 @@ function ReflectionForm(props: {
   const prefixContextSlips = prefixContextAnalyses.flatMap(({ canonicalWordId, analysis }) =>
     analysis.contextSlips.map((slip) => ({ canonicalWordId, targetCorrect: analysis.targetCorrect, slip })),
   );
+  const prefixTargetMisses = prefixPedagogy
+    ? Array.from(new Set([
+        ...controlledMisses.map((miss) => miss.label),
+        ...prefixContextAnalyses
+          .filter(({ analysis }) => !analysis.targetCorrect)
+          .map(({ canonicalWordId }) =>
+            props.payload.words.lesson.find((word) =>
+              word.canonicalWordId === canonicalWordId,
+            )?.displayWord,
+          )
+          .filter((word): word is string => Boolean(word)),
+      ]))
+    : [];
   const meaningResultsPresentation = props.payload.activities.find((activity) => activity.type === "meaning_sort")?.meaningResultsPresentation;
   const ready = props.state.reflectionText.trim().length > 0;
   return (
@@ -1117,52 +1130,94 @@ function ReflectionForm(props: {
         )}
       />
       {prefixPedagogy ? (
-        <section className="grid gap-4" aria-labelledby="prefix-reflection-heading">
-          <h2 id="prefix-reflection-heading" className="text-center text-2xl font-black text-white">Today we studied:</h2>
-          <PrefixTeachingCards cards={prefixCards!} compact />
-          <p className="text-center text-xl font-black text-white">
-            {prefixCards!.length === 1
-              ? "How does this prefix change a word’s meaning?"
-              : "How do these prefixes change the words’ meanings?"}
-          </p>
-          <div className="rounded-2xl border border-white/15 bg-white/[.07] p-4 text-left text-cyan-50">
-            <p className="font-black">Did you get anything incorrect above?</p>
-            <p className="mt-2">Take a moment to think of one rule to remember next time.</p>
-          </div>
-          {prefixContextSlips.length > 0 ? (
+        <section className="grid gap-5" aria-labelledby="prefix-reflection-heading">
+          <section className="grid gap-4" aria-labelledby="prefix-study-heading">
+            <h2 id="prefix-study-heading" className="text-center text-2xl font-black text-white">
+              Today we studied:
+            </h2>
+            <PrefixTeachingCards cards={prefixCards!} compact />
+          </section>
+
+          <section className="grid gap-4" aria-labelledby="prefix-reflection-heading">
+            <h2 id="prefix-reflection-heading" className="text-center text-3xl font-black text-white">
+              Reflection Time
+            </h2>
+            <div className="rounded-2xl border border-white/15 bg-white/[.07] p-4 text-left text-cyan-50">
+              <p className="text-xs font-black uppercase tracking-[.18em] text-cyan-200">Task</p>
+              <p className="mt-2 text-lg font-black">
+                Did you get anything wrong below? Make yourself one rule for next time!
+              </p>
+              <p className="mt-3">
+                Put in your own words how each of the target prefixes change a word.
+              </p>
+            </div>
+
             <section
               className="rounded-2xl border border-amber-200/40 bg-amber-50 p-4 text-left text-amber-950"
-              aria-labelledby="prefix-dictation-context-heading"
+              aria-labelledby="prefix-mistakes-heading"
             >
-              <h3 id="prefix-dictation-context-heading" className="text-lg font-black">
-                Another part of the sentence to check
+              <h3 id="prefix-mistakes-heading" className="text-lg font-black">
+                Mistakes
               </h3>
-              {prefixContextSlips.some((entry) => entry.targetCorrect) ? (
-                <p className="mt-2 font-semibold">You spelled the target word correctly.</p>
-              ) : null}
-              <p className="mt-2">
-                {prefixContextSlips.length === 1
-                  ? "You also changed another word in the sentence:"
-                  : "You also changed some words in the sentence:"}
-              </p>
-              <ul className="mt-3 grid gap-2">
-                {prefixContextSlips.slice(0, 3).map((entry, index) => (
-                  <li
-                    key={`${entry.canonicalWordId}-${entry.slip.edit.kind}-${index}`}
-                    className="rounded-xl bg-white/70 p-3 font-semibold"
-                  >
-                    {dictationContextSlipText(entry.slip)}
-                  </li>
-                ))}
-              </ul>
-              {prefixContextSlips.length > 3 ? (
-                <p className="mt-2 text-sm font-semibold">
-                  There {prefixContextSlips.length - 3 === 1 ? "is" : "are"} {prefixContextSlips.length - 3} more sentence {prefixContextSlips.length - 3 === 1 ? "change" : "changes"} to check.
+              {prefixTargetMisses.length === 0 && prefixContextSlips.length === 0 ? (
+                <p className="mt-2 font-semibold">
+                  No spelling mistakes are recorded here. Think about any practice choices you changed too.
                 </p>
               ) : null}
-              <p className="mt-3 font-black">What will you check next time?</p>
+              {prefixTargetMisses.length > 0 ? (
+                <div className="mt-3">
+                  <p className="font-semibold">Target words to check:</p>
+                  <ul className="mt-2 grid gap-2">
+                    {prefixTargetMisses.map((word) => (
+                      <li key={word} className="rounded-xl bg-white/70 p-3 font-semibold">
+                        {word}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ) : null}
+              {prefixContextSlips.length > 0 ? (
+                <div className="mt-3">
+                  {prefixContextSlips.some((entry) => entry.targetCorrect) ? (
+                    <p className="font-semibold">You spelled the target word correctly.</p>
+                  ) : null}
+                  <p className="mt-2">
+                    {prefixContextSlips.length === 1
+                      ? "You also changed another word in the sentence:"
+                      : "You also changed some words in the sentence:"}
+                  </p>
+                  <ul className="mt-3 grid gap-2">
+                    {prefixContextSlips.slice(0, 3).map((entry, index) => (
+                      <li
+                        key={`${entry.canonicalWordId}-${entry.slip.edit.kind}-${index}`}
+                        className="rounded-xl bg-white/70 p-3 font-semibold"
+                      >
+                        {dictationContextSlipText(entry.slip)}
+                      </li>
+                    ))}
+                  </ul>
+                  {prefixContextSlips.length > 3 ? (
+                    <p className="mt-2 text-sm font-semibold">
+                      There {prefixContextSlips.length - 3 === 1 ? "is" : "are"} {prefixContextSlips.length - 3} more sentence {prefixContextSlips.length - 3 === 1 ? "change" : "changes"} to check.
+                    </p>
+                  ) : null}
+                </div>
+              ) : null}
             </section>
-          ) : null}
+
+            <label className="text-left text-base font-black text-white">
+              Reflection
+              <textarea
+                name="learningReflection"
+                required
+                maxLength={2000}
+                autoFocus
+                value={props.state.reflectionText}
+                onChange={(event) => props.onReflectionText(event.target.value)}
+                className="mt-2 min-h-32 w-full rounded-2xl bg-white p-4 text-lg font-normal text-slate-950 focus:outline-none focus:ring-4 focus:ring-cyan-300/30"
+              />
+            </label>
+          </section>
         </section>
       ) : <section
         className="rounded-3xl border border-white/15 bg-white/[.07] p-4 text-left"
@@ -1196,21 +1251,23 @@ function ReflectionForm(props: {
           </p>
         )}
       </section>}
-      <label className="text-left text-base font-black text-white">
-        {prefixPedagogy ? "Write your rule to remember:" : reflection.promptText}
-        <textarea
-          name="learningReflection"
-          required
-          maxLength={2000}
-          autoFocus
-          value={props.state.reflectionText}
-          onChange={(event) => props.onReflectionText(event.target.value)}
-          className="mt-2 min-h-32 w-full rounded-2xl bg-white p-4 text-lg font-normal text-slate-950 focus:outline-none focus:ring-4 focus:ring-cyan-300/30"
-        />
-      </label>
+      {!prefixPedagogy ? (
+        <label className="text-left text-base font-black text-white">
+          {reflection.promptText}
+          <textarea
+            name="learningReflection"
+            required
+            maxLength={2000}
+            autoFocus
+            value={props.state.reflectionText}
+            onChange={(event) => props.onReflectionText(event.target.value)}
+            className="mt-2 min-h-32 w-full rounded-2xl bg-white p-4 text-lg font-normal text-slate-950 focus:outline-none focus:ring-4 focus:ring-cyan-300/30"
+          />
+        </label>
+      ) : null}
       {ready ? (
         <>
-          {props.payload.activities.some((activity) => activity.type === "meaning_sort") && meaningResultsPresentation !== "none" ? <MeaningCards payload={props.payload} /> : null}
+          {!prefixPedagogy && props.payload.activities.some((activity) => activity.type === "meaning_sort") && meaningResultsPresentation !== "none" ? <MeaningCards payload={props.payload} /> : null}
           <FinishWordLabButton />
         </>
       ) : (
