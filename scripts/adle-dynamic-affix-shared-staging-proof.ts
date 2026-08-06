@@ -18,7 +18,10 @@ import {
   type DynamicAffixCompilerMode,
 } from "../lib/adle/morphology/dynamic-affix-compiler-rollout";
 import { validateDynamicAffixV3ForNewWrite } from "../lib/adle/morphology/dynamic-affix-v3-compatibility";
-import { canonicalDynamicAffixPublicV3Bytes } from "../lib/adle/morphology/shared-affix-compatibility";
+import {
+  canonicalDynamicAffixPublicV3Bytes,
+  compileDynamicAffixSelectionThroughSharedCompiler,
+} from "../lib/adle/morphology/shared-affix-compatibility";
 import { loadDynamicSuffixProfiles } from "../lib/adle/morphology/dynamic-suffix-profile-loader";
 import { selectDynamicAffixWordLab, type DynamicAffixLessonPayloadV3 } from "../lib/adle/morphology/affix-word-lab";
 import { PROFICIENCY_POLICY_V1, stateCredit } from "../lib/adle/proficiency-policy";
@@ -264,9 +267,24 @@ async function verifyMode(db: SupabaseClient, mode: DynamicAffixCompilerMode) {
     const before = await protectedCounts(db);
     const loaded = await loadDynamicSuffixProfiles(db, entry.childId, { allowStagingProfiles: true });
     const selection = selectDynamicAffixWordLab(loaded)!;
-    const shared = compileDynamicAffixWordLabDecision(selection, { mode: "shared_authoritative", sourceKind: "teaching_dictionary" });
-    assert(shared.ok && shared.sharedLesson);
-    const blocked = compileDynamicAffixWordLabDecision(selection, { mode, sharedCompiler: () => ({ ok: true, input: {} as any, lesson: shared.sharedLesson!, payload: { ...shared.payload, activities: { ...shared.payload.activities, reflection: { ...shared.payload.activities.reflection, promptText: `${shared.payload.activities.reflection.promptText}:staging-mismatch` } } } }) });
+    const shared = compileDynamicAffixSelectionThroughSharedCompiler(
+      selection,
+      "teaching_dictionary",
+    );
+    assert(shared.ok);
+    const blocked = compileDynamicAffixWordLabDecision(selection, { mode, sharedCompiler: () => ({
+      ...shared,
+      payload: {
+        ...shared.payload,
+        activities: {
+          ...shared.payload.activities,
+          reflection: {
+            ...shared.payload.activities.reflection,
+            promptText: `${shared.payload.activities.reflection.promptText}:staging-mismatch`,
+          },
+        },
+      },
+    }) });
     assert(!blocked.ok && blocked.blockerCode === "public_payload_byte_mismatch");
     assert.deepEqual(await protectedCounts(db), before, "enforced mismatch changed staging rows");
     mismatchZeroWrite = true;
