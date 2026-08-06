@@ -1,9 +1,77 @@
 {
   "activationAuthority": {
-    "dynamicAffix": "none_dark_foundation",
+    "dynamicAffix": "all_ten_guarded_shared_compiler_authority",
     "dynamicPrefix": "all_five_shared_compiler_authority"
   },
   "compilerVersion": 1,
+  "dynamicAffixCompilerRollout": {
+    "authorities": [
+      {
+        "authority": "shared_migration",
+        "microSkillKey": "D4_MOR_SUFFIXES_NESS"
+      },
+      {
+        "authority": "shared_migration",
+        "microSkillKey": "D4_MOR_SUFFIXES_ABLE_IBLE"
+      },
+      {
+        "authority": "shared_migration",
+        "microSkillKey": "D4_MOR_SUFFIXES_MENT"
+      },
+      {
+        "authority": "shared_migration",
+        "microSkillKey": "D4_MOR_SUFFIXES_FUL_LESS"
+      },
+      {
+        "authority": "shared_migration",
+        "microSkillKey": "D4_MOR_SUFFIXES_AL"
+      },
+      {
+        "authority": "shared_migration",
+        "microSkillKey": "D4_MOR_SUFFIXES_ITY"
+      },
+      {
+        "authority": "shared_migration",
+        "microSkillKey": "D4_MOR_SUFFIXES_OUS"
+      },
+      {
+        "authority": "shared_migration",
+        "microSkillKey": "D4_MOR_SUFFIXES_LY"
+      },
+      {
+        "authority": "shared_migration",
+        "microSkillKey": "D4_MOR_SUFFIXES_TION"
+      },
+      {
+        "authority": "shared_migration",
+        "microSkillKey": "D4_MOR_SUFFIXES_SION"
+      }
+    ],
+    "defaultMode": "legacy_authoritative",
+    "environmentVariable": "ADLE_DYNAMIC_AFFIX_COMPILER_MODE",
+    "migratedProfileKeys": [
+      "D4_MOR_SUFFIXES_NESS",
+      "D4_MOR_SUFFIXES_ABLE_IBLE",
+      "D4_MOR_SUFFIXES_MENT",
+      "D4_MOR_SUFFIXES_FUL_LESS",
+      "D4_MOR_SUFFIXES_AL",
+      "D4_MOR_SUFFIXES_ITY",
+      "D4_MOR_SUFFIXES_OUS",
+      "D4_MOR_SUFFIXES_LY",
+      "D4_MOR_SUFFIXES_TION",
+      "D4_MOR_SUFFIXES_SION"
+    ],
+    "modes": [
+      "legacy_authoritative",
+      "shadow",
+      "enforced_parity",
+      "shared_authoritative"
+    ],
+    "owner": "ADLE composable lesson migration",
+    "retirementGate": "separate production observation; zero blockers or mismatch; green performance and rollback proof"
+  },
+  "dynamicAffixParityRegression": "scripts/adle-dynamic-affix-shared-authority-regression.ts",
+  "dynamicAffixStagingProof": "scripts/adle-dynamic-affix-shared-staging-proof.ts",
   "dynamicPrefixCompilerRollout": {
     "authorities": [
       {
@@ -789,7 +857,7 @@
           "kind": "all_lesson_words"
         },
         "schedule": {
-          "kind": "all_lesson_words"
+          "kind": "authentic_targets"
         },
         "split": {
           "count": 2,
@@ -844,7 +912,7 @@
           "kind": "all_lesson_words"
         },
         "schedule": {
-          "kind": "all_lesson_words"
+          "kind": "authentic_targets"
         },
         "split": {
           "count": 2,
@@ -898,7 +966,7 @@
           "kind": "all_lesson_words"
         },
         "schedule": {
-          "kind": "all_lesson_words"
+          "kind": "authentic_targets"
         },
         "split": {
           "count": 2,
@@ -953,7 +1021,7 @@
           "kind": "all_lesson_words"
         },
         "schedule": {
-          "kind": "all_lesson_words"
+          "kind": "authentic_targets"
         },
         "split": {
           "count": 2,
@@ -1007,7 +1075,7 @@
           "kind": "all_lesson_words"
         },
         "schedule": {
-          "kind": "all_lesson_words"
+          "kind": "authentic_targets"
         },
         "split": {
           "count": 2,
@@ -1061,7 +1129,7 @@
           "kind": "all_lesson_words"
         },
         "schedule": {
-          "kind": "all_lesson_words"
+          "kind": "authentic_targets"
         },
         "split": {
           "count": 2,
@@ -1115,7 +1183,7 @@
           "kind": "all_lesson_words"
         },
         "schedule": {
-          "kind": "all_lesson_words"
+          "kind": "authentic_targets"
         },
         "split": {
           "count": 2,
@@ -1169,7 +1237,7 @@
           "kind": "all_lesson_words"
         },
         "schedule": {
-          "kind": "all_lesson_words"
+          "kind": "authentic_targets"
         },
         "split": {
           "count": 2,
@@ -1223,7 +1291,7 @@
           "kind": "all_lesson_words"
         },
         "schedule": {
-          "kind": "all_lesson_words"
+          "kind": "authentic_targets"
         },
         "split": {
           "count": 2,
@@ -1277,7 +1345,7 @@
           "kind": "all_lesson_words"
         },
         "schedule": {
-          "kind": "all_lesson_words"
+          "kind": "authentic_targets"
         },
         "split": {
           "count": 2,

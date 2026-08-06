@@ -1,8 +1,10 @@
 # ADLE shared affix profile development contract
 
 Status: authoring and drift contract for the shared affix compiler. Dynamic
-Prefix has an active, observed all-five-profile production writer boundary;
-Dynamic Affix remains dark.
+Prefix has an active, observed all-five-profile production writer boundary.
+Dynamic Affix V3 has a guarded all-ten-profile writer boundary whose default
+remains `legacy_authoritative` until an authorised environment selects another
+mode.
 
 ## Adding or changing a profile mapping
 
@@ -54,17 +56,19 @@ generated architecture drift check after any mapping change.
 
 ## Activation separation
 
-This registry is inventory, not an activation switch. Prefix activation remains
-owned by Teaching Dictionary profile state and the route environment gate. The
-Prefix assignment writer may reach the shared compiler only through
-`dynamic-prefix-compiler-rollout.ts`, whose separate authority registry and
-mode control shadow, enforced and shared behavior. Direct imports from Prefix
+This registry is inventory, not an activation switch. Prefix and Affix
+activation remain owned by Teaching Dictionary profile state and their route
+environment gates. Assignment writers may reach the shared compiler only
+through `dynamic-prefix-compiler-rollout.ts` or
+`dynamic-affix-compiler-rollout.ts`. Each boundary owns its authority registry,
+mode, fail-closed policy and telemetry. Direct shared-compiler imports from
 selectors, route resolution, runtime adapters, renderers or completion actions
 are prohibited.
 
-Dynamic Affix assignment writers must not import the shared compiler. Affix
-writer migration, persisted shared snapshots and retirement of V2/V3 readers
-require separate approval and rollback proof.
+Dynamic Affix retains its V3 payload and historical readers. Its rollout adds
+no persisted shared snapshot, content/profile write or historical backfill.
+Retirement of either legacy compiler or any V2/V3 reader requires separate
+approval after production observation.
 
 ## Reviewed Prefix presentation policy
 

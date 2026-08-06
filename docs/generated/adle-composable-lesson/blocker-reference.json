@@ -89,6 +89,10 @@
       "label": "completion binding mismatch"
     },
     {
+      "code": "completion_role_mismatch",
+      "label": "completion role mismatch"
+    },
+    {
       "code": "compound_component_missing",
       "label": "compound component missing"
     },
@@ -249,6 +253,10 @@
       "label": "meaning group missing"
     },
     {
+      "code": "member_validation_failed",
+      "label": "member validation failed"
+    },
+    {
       "code": "microskill_content_missing",
       "label": "microskill content missing"
     },
@@ -345,8 +353,16 @@
       "label": "profile coverage failure"
     },
     {
+      "code": "profile_validation_failed",
+      "label": "profile validation failed"
+    },
+    {
       "code": "pronunciation_facts_missing",
       "label": "pronunciation facts missing"
+    },
+    {
+      "code": "public_payload_byte_mismatch",
+      "label": "public payload byte mismatch"
     },
     {
       "code": "recipe_count_failure",

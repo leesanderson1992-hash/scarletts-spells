@@ -1,5 +1,23 @@
 {
   "compilerVersion": 1,
+  "dynamicAffixRolloutBlockers": [
+    "missing_profile_mapping",
+    "profile_validation_failed",
+    "member_validation_failed",
+    "legacy_payload_invalid",
+    "selected_word_not_in_profile",
+    "shared_compiler_blocked",
+    "source_fingerprint_mismatch",
+    "lesson_fingerprint_mismatch",
+    "adapter_payload_invalid",
+    "public_payload_byte_mismatch",
+    "semantic_parity_mismatch",
+    "assignment_plan_mismatch",
+    "assignment_binding_mismatch",
+    "assignment_item_count_mismatch",
+    "completion_role_mismatch",
+    "unsupported_rollout_state"
+  ],
   "dynamicPrefixRolloutBlockers": [
     "missing_profile_mapping",
     "legacy_payload_invalid",

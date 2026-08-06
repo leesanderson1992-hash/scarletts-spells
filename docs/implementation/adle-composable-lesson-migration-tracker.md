@@ -67,14 +67,21 @@ Dictionary content. Those facts are generated from the code registries under
    zero-residue evidence is recorded in
    `docs/implementation/qa/adle-dynamic-prefix-shared-compiler-staging-proof-2026-08-02.md`.
    This is an internal V2 compiler migration, not Generic Snapshot activation.
-   Migrate Dynamic Affix independently only in a later authorised stage.
-5. Address Closed Compound authentic/transfer coupling and comparator policy
+5. **Implementation complete; staging proof in progress on 2026-08-06:** all
+   ten Dynamic Affix profiles retain the unchanged selector and public V3
+   contract behind `legacy_authoritative`, `shadow`, `enforced_parity`, and
+   `shared_authoritative` modes. The normal readiness page and action now share
+   one writer; exact V3 bytes, plan/runtime/bindings, authentic-only scheduling,
+   all-word evidence/reward behavior, rollback compatibility and zero-residue
+   proof are the staging acceptance gate. This stage does not activate Generic
+   Snapshot or change Prefix, content, schema, or production.
+6. Address Closed Compound authentic/transfer coupling and comparator policy
    in separately approved behaviour-change PRs.
-6. Migrate Closed Compound only after those decisions and fresh semantic
+7. Migrate Closed Compound only after those decisions and fresh semantic
    fixtures.
-7. Migrate Base Word Family last, preserving its database activation
+8. Migrate Base Word Family last, preserving its database activation
    compatibility projection and shared-word scheduling behaviour.
-8. Remove a legacy reader only after old assignment reconstruction,
+9. Remove a legacy reader only after old assignment reconstruction,
    resume/hydration and rollback proofs pass.
 
 ## Completion Evidence

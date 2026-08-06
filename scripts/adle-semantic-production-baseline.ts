@@ -25,6 +25,8 @@ const regressions = [
   "adle-dynamic-suffix-al-regression.ts",
   "adle-dynamic-suffix-tion-regression.ts",
   "adle-dynamic-suffix-sion-regression.ts",
+  "adle-dynamic-affix-shared-authority-regression.ts",
+  "adle-dynamic-affix-completion-contract-regression.ts",
   "adle-shared-affix-compiler-regression.ts",
   "adle-closed-compound-regression.ts",
   "adle-base-word-family-selection-regression.ts",

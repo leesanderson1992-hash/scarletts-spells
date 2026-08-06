@@ -54,7 +54,11 @@ const prefixRouteAction = readFileSync(
   "utf8",
 );
 const affixWriter = readFileSync(
-  "lib/adle/morphology/affix-word-lab.ts",
+  "lib/adle/morphology/dynamic-affix-assignment-writer.ts",
+  "utf8",
+);
+const affixRouteAction = readFileSync(
+  "app/learn/week/adle/dynamic-suffix/actions.ts",
   "utf8",
 );
 const migrationTracker = readFileSync(
@@ -89,19 +93,23 @@ assert(
   sharedAffix.includes("shared writer authority is active in production") &&
     sharedAffix.includes("under seven-day natural observation") &&
     sharedAffix.includes("adle_dynamic_prefix_un_profile_staging_v1_2026_08_02") &&
-    sharedAffix.includes("Dynamic Affix V3 remains dark") &&
+    sharedAffix.includes("all-ten-profile guarded compiler boundary") &&
+    sharedAffix.includes("ADLE_DYNAMIC_AFFIX_COMPILER_MODE") &&
+    sharedAffix.includes("invalid non-empty value fails closed") &&
     sharedAffix.includes("microskill-key branch") &&
     sharedAffix.includes("no catch-and-call-legacy path"),
 );
 assert(
   affixProfiles.includes("inventory, not an activation switch") &&
     affixProfiles.includes("never gain a microskill literal") &&
-    affixProfiles.includes("dynamic-prefix-compiler-rollout.ts"),
+    affixProfiles.includes("dynamic-prefix-compiler-rollout.ts") &&
+    affixProfiles.includes("dynamic-affix-compiler-rollout.ts"),
 );
 assert(
   sharedAffixInventory.includes('"dynamicPrefix": "all_five_shared_compiler_authority"') &&
-    sharedAffixInventory.includes('"dynamicAffix": "none_dark_foundation"') &&
+    sharedAffixInventory.includes('"dynamicAffix": "all_ten_guarded_shared_compiler_authority"') &&
     sharedAffixInventory.includes('"defaultMode": "shadow"') &&
+    sharedAffixInventory.includes('"defaultMode": "legacy_authoritative"') &&
     sharedAffixInventory.includes('"authority": "shared_migration"') &&
     sharedAffixInventory.includes('"compilerVersion": 1') &&
     sharedAffixInventory.includes('"D4_MOR_PREFIXES_UN"') &&
@@ -121,14 +129,22 @@ assert(
   "normal Prefix action and QA launcher share one assignment writer",
 );
 assert(
-  !affixWriter.includes("dynamic-prefix-compiler-rollout") &&
-    !affixWriter.includes("compileSharedAffixLesson"),
-  "Dynamic Affix writer state remains dark",
+  affixWriter.includes("compileDynamicAffixWordLabDecision") &&
+    affixWriter.includes("canPersistDynamicAffixCompilerDecision") &&
+    !affixWriter.includes("compileSharedAffixLesson") &&
+    !affixWriter.includes("dynamic-affix-legacy-compiler"),
+  "Dynamic Affix writer reaches compiler authority only through the rollout boundary",
 );
 assert(
-  migrationTracker.includes("internal V2 compiler migration") &&
+  affixRouteAction.includes("createDynamicAffixAssignment") &&
+    !affixRouteAction.includes("compileDynamicAffixWordLabDecision"),
+  "normal Affix action and readiness page share one assignment writer",
+);
+assert(
+    migrationTracker.includes("internal V2 compiler migration") &&
     migrationTracker.includes("exact-production `un-` source release") &&
-    migrationTracker.includes("do not depend on its production rollout"),
+    migrationTracker.includes("do not depend on its production rollout") &&
+    migrationTracker.includes("ten Dynamic Affix profiles"),
 );
 assert(
   productionChecklist.includes("Status: not authorised") &&

@@ -77,7 +77,7 @@ const suffixPolicy = (includeMeaningSort: boolean): SharedAffixLessonPolicyV1 =>
   meaning: includeMeaningSort ? { kind: "sort_all_words" } : { kind: "none" },
   choiceOrder: { kind: "stable_suffix_rotation" },
   legacyGuidedShape: "explicit",
-  schedule: { kind: "all_lesson_words" },
+  schedule: { kind: "authentic_targets" },
   reward: { kind: "all_lesson_words" },
   expectedAssignmentItemCount: includeMeaningSort ? 18 : 16,
 });

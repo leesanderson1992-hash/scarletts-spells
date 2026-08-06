@@ -1,4 +1,8 @@
-import { canonicalSnapshotJson } from "../composable-lesson/canonical-fingerprint";
+import {
+  canonicalSnapshotJson,
+  fingerprintSnapshotValue,
+} from "../composable-lesson/canonical-fingerprint";
+import { createHash } from "node:crypto";
 import type { LearningItemFact } from "../learning-items";
 import {
   DYNAMIC_AFFIX_WORD_LAB_CONTENT_VERSION,
@@ -43,6 +47,27 @@ export type SharedAffixShadowResult<Payload> =
       payload: Payload;
     }
   | { ok: false; blockers: readonly SharedAffixBlocker[] };
+
+function serialisable(value: unknown): unknown {
+  return JSON.parse(JSON.stringify(value)) as unknown;
+}
+
+/** Canonical public bytes preserve every V3 field and every authored array order. */
+export function canonicalDynamicAffixPublicV3Bytes(
+  payload: DynamicAffixLessonPayloadV3,
+): string {
+  return canonicalSnapshotJson(serialisable(payload));
+}
+
+export function fingerprintDynamicAffixPublicV3(
+  payload: DynamicAffixLessonPayloadV3,
+): string {
+  return fingerprintSnapshotValue(serialisable(payload));
+}
+
+export function fingerprintDynamicAffixPublicV3Bytes(publicBytes: string): string {
+  return createHash("sha256").update(publicBytes, "utf8").digest("hex");
+}
 
 const GENERIC_PREFIX_TITLE = "What is a prefix?";
 const GENERIC_PREFIX_PARAGRAPHS = [
@@ -513,7 +538,6 @@ export function compareSharedAffixPayloadParity(
   authoritativePayload: DynamicPrefixLessonPayloadV2 | DynamicAffixLessonPayloadV3,
   adaptedPayload: DynamicPrefixLessonPayloadV2 | DynamicAffixLessonPayloadV3,
 ): SharedAffixCompatibilityResult<true> {
-  const serialisable = (value: unknown) => JSON.parse(JSON.stringify(value)) as unknown;
   if (canonicalSnapshotJson(serialisable(authoritativePayload)) !== canonicalSnapshotJson(serialisable(adaptedPayload))) {
     return { ok: false, blockers: [{ code: "compatibility_adapter_mismatch", detail: "payload" }] };
   }

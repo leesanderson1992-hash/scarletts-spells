@@ -1,6 +1,22 @@
 import type { ComposedDailyPlan, PlanItemCandidate, PlanSection } from "../daily-assignment-composer";
+import { canonicalSnapshotJson } from "../composable-lesson/canonical-fingerprint";
 import { createPersistedRouteMetadata } from "../composable-lesson/persisted-route-metadata";
 import { dynamicAffixExpectedItemCount, type DynamicAffixLessonPayloadV3, type DynamicAffixSelection } from "./affix-word-lab";
+import type { CompiledAffixLessonV1 } from "./shared-affix-contracts";
+
+export type DynamicAffixAssignmentPlanValidationResult =
+  | { ok: true }
+  | {
+      ok: false;
+      blockerCode:
+        | "assignment_plan_mismatch"
+        | "assignment_binding_mismatch"
+        | "assignment_item_count_mismatch";
+    };
+
+function canonical(value: unknown): string {
+  return canonicalSnapshotJson(JSON.parse(JSON.stringify(value)) as unknown);
+}
 
 /** Persists new position-aware snapshots without changing legacy prefix bindings. */
 export function buildDynamicAffixAssignmentPlan(params: { basePlan: ComposedDailyPlan; selection: DynamicAffixSelection; payload: DynamicAffixLessonPayloadV3 }): ComposedDailyPlan {
@@ -29,4 +45,62 @@ export function buildDynamicAffixAssignmentPlan(params: { basePlan: ComposedDail
   const expectedItems = dynamicAffixExpectedItemCount(payload);
   if (sections.flatMap((section) => section.items).length !== expectedItems) throw new Error(`Dynamic Affix snapshot must contain exactly ${expectedItems} items.`);
   return { ...params.basePlan, lessonRouteMetadata: createPersistedRouteMetadata("dynamic_affix_word_lab"), partOne: { dueQueue: [], presentationOrder: [], sections: [], skips: [] }, partTwo: { composed: true, microSkillKey: payload.microSkillId, selectionAudit: [], lessonWords: payload.words.lesson.map((word) => ({ canonicalWordId: word.canonicalWordId, provenance: authentic.has(word.canonicalWordId) ? "learning_item" : "stretch", learningItemId: authentic.get(word.canonicalWordId)?.learningItemId ?? null, complexityLevel: null })), probePlan: null, stretchItemIntakes: [], sections, skips: [] }, budget: { ...params.basePlan.budget, estimatedResponses: expectedItems, guidedWordCount: 4, introTrimmed: false, trims: [] } };
+}
+
+/** Strictly validates only newly prepared plans before they cross persistence. */
+export function validateDynamicAffixAssignmentPlanAgainstSharedLesson(params: {
+  plan: ComposedDailyPlan;
+  payload: DynamicAffixLessonPayloadV3;
+  lesson: CompiledAffixLessonV1;
+}): DynamicAffixAssignmentPlanValidationResult {
+  const { plan, payload, lesson } = params;
+  const items = plan.partTwo.sections.flatMap((section) => section.items);
+  if (
+    items.length !== lesson.assignmentBindings.length
+    || items.length !== dynamicAffixExpectedItemCount(payload)
+    || items.length !== plan.budget.estimatedResponses
+  ) {
+    return { ok: false, blockerCode: "assignment_item_count_mismatch" };
+  }
+  const actualBindings = items.map((item) => {
+    const activityId = item.payload && typeof item.payload === "object"
+      ? (item.payload as { dynamicAffixActivityId?: unknown }).dynamicAffixActivityId
+      : null;
+    return {
+      activityId: typeof activityId === "string" ? activityId : "",
+      sectionKey: item.sectionKey,
+      templateKey: item.templateKey,
+      canonicalWordId: item.canonicalWordId,
+      expectedEvidenceKind: item.expectedEvidenceKind,
+    };
+  });
+  if (canonical(actualBindings) !== canonical(lesson.assignmentBindings)) {
+    return { ok: false, blockerCode: "assignment_binding_mismatch" };
+  }
+  const root = items.find((item) =>
+    item.payload && typeof item.payload === "object"
+      && (item.payload as { dynamicAffixActivityId?: unknown }).dynamicAffixActivityId === "intro-root",
+  );
+  const rootPayload = root?.payload && typeof root.payload === "object"
+    ? (root.payload as { dynamicAffixLesson?: unknown }).dynamicAffixLesson
+    : null;
+  const roleByWordId = new Map(payload.words.lesson.map((word) => [word.canonicalWordId, word.source]));
+  const production = items.filter((item) => item.sectionKey === "lesson_production");
+  const roleReferencesAgree = production.length === payload.words.lesson.length
+    && production.every((item) => {
+      if (!item.canonicalWordId) return false;
+      const source = roleByWordId.get(item.canonicalWordId);
+      return source === "authentic"
+        ? item.learningItemId !== null
+        : source === "transfer" && item.learningItemId === null;
+    });
+  if (
+    canonical(rootPayload) !== canonical(payload)
+    || canonical(plan.lessonRouteMetadata) !== canonical(createPersistedRouteMetadata("dynamic_affix_word_lab"))
+    || plan.partTwo.microSkillKey !== lesson.taxonomy.microSkillKey
+    || !roleReferencesAgree
+  ) {
+    return { ok: false, blockerCode: "assignment_plan_mismatch" };
+  }
+  return { ok: true };
 }

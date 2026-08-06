@@ -1,0 +1,24 @@
+import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+
+const environmentIndex = process.argv.indexOf("--environment");
+assert.equal(process.argv[environmentIndex + 1], "production", "production observation requires --environment production");
+assert(process.argv.includes("--read-only"), "production observation requires --read-only");
+assert(!process.argv.includes("--apply") && !process.argv.includes("--write"), "production observation permanently rejects write flags");
+const inputIndex = process.argv.indexOf("--input");
+assert(inputIndex >= 0 && process.argv[inputIndex + 1], "production observation requires --input <exported-jsonl>");
+const deploymentIndex = process.argv.indexOf("--deployment-sha");
+assert(deploymentIndex >= 0 && /^[0-9a-f]{40}$/.test(process.argv[deploymentIndex + 1] ?? ""), "production observation requires --deployment-sha <40-hex>");
+const deploymentSha = process.argv[deploymentIndex + 1]!;
+const sinceIndex = process.argv.indexOf("--since");
+assert(sinceIndex >= 0 && !Number.isNaN(Date.parse(process.argv[sinceIndex + 1] ?? "")), "production observation requires --since <ISO timestamp>");
+const since = process.argv[sinceIndex + 1]!;
+const rows = readFileSync(process.argv[inputIndex + 1]!, "utf8").split(/\r?\n/).filter(Boolean).map((line) => JSON.parse(line) as Record<string, unknown>);
+const events = rows.filter((row) => row.event === "adle_dynamic_affix_compiler_decision");
+const blockers = rows.filter((row) => row.event === "adle_dynamic_affix_compiler_blocker");
+assert(events.length > 0, "observation export contains no Dynamic Affix compiler decisions");
+assert(events.every((row) => row.deploymentSha === deploymentSha.slice(0, 12)), "observation contains another deployment SHA");
+assert(events.every((row) => row.rolloutMode === "shared_authoritative" && row.parityOutcome === "not_run" && row.legacyInvoked === false), "observation contains non-authoritative or legacy decisions");
+assert.equal(blockers.length, 0, "observation contains blocker events");
+assert(events.every((row) => typeof row.profileKey === "string" && !String(row.profileKey).includes("@")), "observation telemetry is not PII-free");
+console.log(JSON.stringify({ status: "read_only_observation_passed", deploymentSha, since, decisions: events.length, blockers: 0, mismatches: 0, legacyCalls: 0 }));

@@ -7,7 +7,7 @@ import { getAdleDailyPlanReadModel } from "../lib/adle/loaders/daily-plan-surfac
 
 const STAGING_REF = "jlhotktspjvffslvuyfz";
 const PRODUCTION_REF = "wwohrqtunajrbwxyssjf";
-type LiveClient = SupabaseClient<any, "public", "public">;
+type LiveClient = SupabaseClient;
 
 function required(name: string): string {
   const value = process.env[name]?.trim();

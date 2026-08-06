@@ -1,8 +1,10 @@
 # ADLE shared position-aware affix compiler contract
 
 Status: Dynamic Prefix V2 shared writer authority is active in production for
-all five approved profiles under seven-day natural observation;
-Dynamic Affix V3 remains dark.
+all five approved profiles under seven-day natural observation. Dynamic Affix
+V3 has an all-ten-profile guarded compiler boundary; production remains on its
+unchanged pre-migration application and configuration pending separate release
+authority.
 
 ## Authority and boundary
 
@@ -12,15 +14,15 @@ policy for five Prefix V2 and ten Affix V3 profiles. Teaching Dictionary rows
 remain authoritative for reviewed profile, member, word and dictation content.
 The route registry remains authoritative for public route and payload versions.
 
-The Prefix writer boundary is:
+The Prefix and Affix writer boundaries are:
 
 ```text
-unchanged Prefix selector and selected-word order
+unchanged route selector and selected-word order
 → typed compiler-authority decision
 → normalised reviewed facts
 → pure shared compiler
 → fingerprint validation
-→ unchanged DynamicPrefixLessonPayloadV2 adapter and validator
+→ unchanged DynamicPrefixLessonPayloadV2 or DynamicAffixLessonPayloadV3 adapter and validator
 → assignment-plan/binding/count validation
 → existing atomic persistence
 ```
@@ -31,8 +33,11 @@ profile is projected to staging only through immutable release
 `adle_dynamic_prefix_un_profile_staging_v1_2026_08_02`; synthetic and fixture-
 only facts are not runtime authority.
 
-Dynamic Affix V3 remains authoritative on its existing compiler and writer.
-The shared Affix adapter is still regression-only.
+Dynamic Affix V3 retains the existing compiler explicitly as its legacy oracle,
+keeps `selectDynamicAffixWordLab` unchanged, and routes both normal assignment
+entry points through one consolidated writer. The shared adapter is eligible
+only through `dynamic-affix-compiler-rollout.ts`; there is no direct writer-to-
+compiler import and no V4 payload.
 
 ## Input and selection rules
 
@@ -70,6 +75,14 @@ Missing or invalid values resolve to `shadow`. In shared-authoritative mode,
 there is no catch-and-call-legacy path. Application deployment rollback is the
 rollback mechanism for all five profiles.
 
+`ADLE_DYNAMIC_AFFIX_COMPILER_MODE` accepts `legacy_authoritative`, `shadow`,
+`enforced_parity`, and `shared_authoritative`. Unset or blank means
+`legacy_authoritative`; an invalid non-empty value fails closed. Shadow returns
+the exact canonical legacy V3 bytes after comparison, enforced parity blocks
+before persistence on disagreement, and shared authority never calls legacy or
+falls back to it. Application deployment rollback is the Affix rollback
+mechanism for all ten profiles.
+
 The flag owner is ADLE composable lesson migration. Retirement requires a
 separately recorded deletion decision after production rollout, seven
 production days, 50 successful migrated assignments, at least five per profile,
@@ -98,6 +111,12 @@ assignment identity, word text, meanings, dictation or payloads.
 
 The compiler migration does not change Prefix selection, V2 persistence, route metadata,
 resume storage, completion, attempts, evidence, taught history, review schedules or rewards.
+It also preserves Dynamic Affix selection, V3 public bytes, item order, runtime,
+resume, Reflection and all-word rewards. Dynamic Affix authentic words retain
+learning-item transitions and scheduling; transfer words retain taught history,
+evidence, state/breadth effects and rewards but do not receive learning items,
+review bundles or schedules. New writes fail closed on role/item/schedule
+disagreement; historical V3 readers remain unchanged.
 The subsequent `dynamic_prefix_pedagogy_v1` presentation stage deliberately
 changes Prefix teaching and feedback through additive typed policy while retaining those
 persistence boundaries. Common Word Lab

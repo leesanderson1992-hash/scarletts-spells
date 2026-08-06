@@ -48,7 +48,7 @@
 
 ## Shared affix compiler
 
-> Dynamic Prefix V2 has guarded shared-compiler authority for all five approved profiles. Dynamic Affix V3 remains dark.
+> Dynamic Prefix V2 has guarded shared-compiler authority for all five approved profiles. Dynamic Affix V3 has guarded authority for all ten approved profiles; its unset rollout mode remains legacy-authoritative.
 
 | Profile | Route | Position | Forms | Items | Split | Build | Meaning | Compiler authority |
 |---|---|---|---|---:|---|---|---|---|
@@ -57,16 +57,16 @@
 | D4_MOR_PREFIXES_IN_IM_IL_IR | dynamic_prefix_word_lab:v2 | before | in, im, il, ir | 20 | guided_budget_after_form_builds | one_per_represented_form | sort_all_words | shared_migration |
 | D4_MOR_PREFIXES_RE_PRE | dynamic_prefix_word_lab:v2 | before | re, pre | 16 | first_words | different_form_from_first_or_first | sort_all_words | shared_migration |
 | D4_MOR_PREFIXES_SUB_INTER_SUPER | dynamic_prefix_word_lab:v2 | before | sub, inter, super | 18 | distinct_forms_then_fill | different_form_from_first_or_first | sort_all_words | shared_migration |
-| D4_MOR_SUFFIXES_NESS | dynamic_affix_word_lab:v3 | after | ness | 16 | one_per_form_else_direct_and_changed | every_lesson_word | none | dark_no_writer |
-| D4_MOR_SUFFIXES_ABLE_IBLE | dynamic_affix_word_lab:v3 | after | able, ible | 16 | one_per_form_else_direct_and_changed | every_lesson_word | none | dark_no_writer |
-| D4_MOR_SUFFIXES_MENT | dynamic_affix_word_lab:v3 | after | ment | 16 | one_per_form_else_direct_and_changed | every_lesson_word | none | dark_no_writer |
-| D4_MOR_SUFFIXES_FUL_LESS | dynamic_affix_word_lab:v3 | after | ful, less | 18 | one_per_form_else_direct_and_changed | one_per_represented_form_prefer_non_split | sort_all_words | dark_no_writer |
-| D4_MOR_SUFFIXES_AL | dynamic_affix_word_lab:v3 | after | al | 16 | one_per_form_else_direct_and_changed | every_lesson_word | none | dark_no_writer |
-| D4_MOR_SUFFIXES_ITY | dynamic_affix_word_lab:v3 | after | ity | 16 | one_per_form_else_direct_and_changed | every_lesson_word | none | dark_no_writer |
-| D4_MOR_SUFFIXES_LY | dynamic_affix_word_lab:v3 | after | ly | 16 | one_per_form_else_direct_and_changed | every_lesson_word | none | dark_no_writer |
-| D4_MOR_SUFFIXES_OUS | dynamic_affix_word_lab:v3 | after | ous | 16 | one_per_form_else_direct_and_changed | every_lesson_word | none | dark_no_writer |
-| D4_MOR_SUFFIXES_TION | dynamic_affix_word_lab:v3 | after | tion | 16 | one_per_form_else_direct_and_changed | every_lesson_word | none | dark_no_writer |
-| D4_MOR_SUFFIXES_SION | dynamic_affix_word_lab:v3 | after | sion | 16 | one_per_form_else_direct_and_changed | every_lesson_word | none | dark_no_writer |
+| D4_MOR_SUFFIXES_NESS | dynamic_affix_word_lab:v3 | after | ness | 16 | one_per_form_else_direct_and_changed | every_lesson_word | none | shared_migration |
+| D4_MOR_SUFFIXES_ABLE_IBLE | dynamic_affix_word_lab:v3 | after | able, ible | 16 | one_per_form_else_direct_and_changed | every_lesson_word | none | shared_migration |
+| D4_MOR_SUFFIXES_MENT | dynamic_affix_word_lab:v3 | after | ment | 16 | one_per_form_else_direct_and_changed | every_lesson_word | none | shared_migration |
+| D4_MOR_SUFFIXES_FUL_LESS | dynamic_affix_word_lab:v3 | after | ful, less | 18 | one_per_form_else_direct_and_changed | one_per_represented_form_prefer_non_split | sort_all_words | shared_migration |
+| D4_MOR_SUFFIXES_AL | dynamic_affix_word_lab:v3 | after | al | 16 | one_per_form_else_direct_and_changed | every_lesson_word | none | shared_migration |
+| D4_MOR_SUFFIXES_ITY | dynamic_affix_word_lab:v3 | after | ity | 16 | one_per_form_else_direct_and_changed | every_lesson_word | none | shared_migration |
+| D4_MOR_SUFFIXES_LY | dynamic_affix_word_lab:v3 | after | ly | 16 | one_per_form_else_direct_and_changed | every_lesson_word | none | shared_migration |
+| D4_MOR_SUFFIXES_OUS | dynamic_affix_word_lab:v3 | after | ous | 16 | one_per_form_else_direct_and_changed | every_lesson_word | none | shared_migration |
+| D4_MOR_SUFFIXES_TION | dynamic_affix_word_lab:v3 | after | tion | 16 | one_per_form_else_direct_and_changed | every_lesson_word | none | shared_migration |
+| D4_MOR_SUFFIXES_SION | dynamic_affix_word_lab:v3 | after | sion | 16 | one_per_form_else_direct_and_changed | every_lesson_word | none | shared_migration |
 
 ## Blockers
 
@@ -92,6 +92,7 @@
 - `compatibility_adapter_mismatch`: compatibility adapter mismatch.
 - `compiler_version_mismatch`: compiler version mismatch.
 - `completion_binding_mismatch`: completion binding mismatch.
+- `completion_role_mismatch`: completion role mismatch.
 - `compound_component_missing`: compound component missing.
 - `coverage_requirement_failed`: coverage requirement failed.
 - `decomposition_missing`: decomposition missing.
@@ -132,6 +133,7 @@
 - `malformed_snapshot`: malformed snapshot.
 - `meaning_facts_missing`: meaning facts missing.
 - `meaning_group_missing`: meaning group missing.
+- `member_validation_failed`: member validation failed.
 - `microskill_content_missing`: microskill content missing.
 - `microskill_incompatible`: microskill incompatible.
 - `missing_affix_form`: missing affix form.
@@ -156,7 +158,9 @@
 - `persisted_payload_malformed`: persisted payload malformed.
 - `persisted_payload_missing`: persisted payload missing.
 - `profile_coverage_failure`: profile coverage failure.
+- `profile_validation_failed`: profile validation failed.
 - `pronunciation_facts_missing`: pronunciation facts missing.
+- `public_payload_byte_mismatch`: public payload byte mismatch.
 - `recipe_count_failure`: recipe count failure.
 - `recipe_mismatch`: recipe mismatch.
 - `recipe_route_mismatch`: recipe route mismatch.

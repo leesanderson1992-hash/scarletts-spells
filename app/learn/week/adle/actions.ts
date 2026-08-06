@@ -59,6 +59,7 @@ import {
 import { isMorphologyUnPilotEnabledForChild } from "@/lib/adle/morphology/pilot-access";
 import { isDynamicPrefixRouteEnabled } from "@/lib/adle/morphology/dynamic-prefix-staging-access";
 import { isDynamicSuffixRouteEnabled } from "@/lib/adle/morphology/dynamic-suffix-route-gate";
+import { deriveDynamicAffixCompletionPolicy } from "@/lib/adle/morphology/dynamic-affix-completion-policy";
 import { extractAuthoredTargetToken, type MorphologyLessonPayloadV1 } from "@/lib/adle/morphology/payload";
 import { analyseDictationSentence } from "@/lib/adle/morphology/dictation-context";
 import { isBaseWordFamilyPilotEnabledForChild } from "@/lib/adle/morphology/base-word-family-pilot-access";
@@ -520,6 +521,15 @@ export async function completeAdleLessonPartAction(formData: FormData) {
       ? routeResolution.runtime.completionPayload
       : null;
   const wordLabPayload = compoundRuntime ?? dynamicSuffix ?? dynamicPrefix ?? morphologyPilot;
+  const dynamicAffixCompletionPolicy = dynamicSuffix !== null
+    ? deriveDynamicAffixCompletionPolicy({
+        allItems: allSessionItems(readModel),
+        productionItems,
+      })
+    : null;
+  if (dynamicAffixCompletionPolicy && !dynamicAffixCompletionPolicy.ok) {
+    finishWith(context, "This Word Lab needs a grown-up check before it can continue.");
+  }
   const dynamicPrefixAuthenticIds = new Set(
     dynamicPrefix !== null
       ? productionItems
@@ -621,11 +631,18 @@ export async function completeAdleLessonPartAction(formData: FormData) {
   // Dynamic Prefix transfer words remain absent here while still appearing
   // in producedWords and the taught-history/evidence path below.
   const scheduledProductionItems = dynamicSuffix !== null
-    ? productionItems
+    ? productionItems.filter((item) =>
+        dynamicAffixCompletionPolicy?.ok
+        && item.canonicalWordId !== null
+        && dynamicAffixCompletionPolicy.scheduledCanonicalWordIds.includes(item.canonicalWordId),
+      )
     : dynamicPrefix !== null
       ? productionItems.filter((item) => item.adleLearningItemRef !== null)
       : productionItems;
-  const completionWordPolicies: CompletionWordPolicy[] | undefined = dynamicPrefix !== null
+  const completionWordPolicies: CompletionWordPolicy[] | undefined = dynamicSuffix !== null
+    && dynamicAffixCompletionPolicy?.ok
+    ? dynamicAffixCompletionPolicy.wordPolicies
+    : dynamicPrefix !== null
     ? producedWords.map((word) => {
         const authentic = scheduledProductionItems.some(
           (item) => item.canonicalWordId === word.canonicalWordId,
