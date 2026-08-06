@@ -198,8 +198,13 @@ async function setup(db: SupabaseClient) {
       const authentic = definition.authenticWords.map((word) => byWord.get(word));
       assert(authentic.every(Boolean), `${definition.purpose}: authentic display word missing`);
       const learningItemIds: string[] = [];
-      for (const word of authentic) {
-        const { data: row, error } = await db.from("adle_learning_items").insert({ child_id: child.id, canonical_word_id: word!.canonicalWordId, micro_skill_key: definition.profileKey, item_status: "pending", source_kind: "verified_misspelling", source_ref: `${SOURCE_PREFIX}${runId}:${definition.purpose}`, source_attempt_text: null, reteach_priority: false, intake_on: planDate, row_status: "active" }).select("id").single();
+      for (const [authenticIndex, word] of authentic.entries()) {
+        const intakeDate = new Date(`${planDate}T00:00:00.000Z`);
+        intakeDate.setUTCDate(
+          intakeDate.getUTCDate() - (authentic.length - authenticIndex - 1),
+        );
+        const intakeOn = intakeDate.toISOString().slice(0, 10);
+        const { data: row, error } = await db.from("adle_learning_items").insert({ child_id: child.id, canonical_word_id: word!.canonicalWordId, micro_skill_key: definition.profileKey, item_status: "pending", source_kind: "verified_misspelling", source_ref: `${SOURCE_PREFIX}${runId}:${definition.purpose}`, source_attempt_text: null, reteach_priority: false, intake_on: intakeOn, row_status: "active" }).select("id").single();
         if (error || !row) throw new Error(`${definition.purpose}: learning item: ${error?.message}`);
         learningItemIds.push(row.id);
       }
