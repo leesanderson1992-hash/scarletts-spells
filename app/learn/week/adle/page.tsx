@@ -5,12 +5,13 @@ import { AppShell } from "@/components/app-shell";
 import { AdleSessionRunner } from "@/components/adle-session-runner";
 import {
   buildScopedPath,
+  findChildById,
   getActiveChildIdFromCookies,
   normaliseAppMode,
   selectChildById,
 } from "@/lib/children";
 import { getActiveChildrenForUser } from "@/lib/courses/queries";
-import { getDateOnly } from "@/lib/courses/progress";
+import { getLondonPracticeDate } from "@/lib/practice-date";
 import { createClient } from "@/lib/supabase/server";
 import { isAdminUser } from "@/lib/admin/access";
 import {
@@ -63,15 +64,14 @@ export default async function AdleSessionPage({ searchParams }: AdleSessionPageP
   const mode = normaliseAppMode(resolvedSearchParams?.mode ?? "child");
   const activeChildIdFromCookie = await getActiveChildIdFromCookies();
   const children = await getActiveChildrenForUser(supabase, user.id);
-  const selectedChild = selectChildById(
-    children,
-    resolvedSearchParams?.child ?? activeChildIdFromCookie,
-  );
+  const selectedChild = resolvedSearchParams?.child
+    ? findChildById(children, resolvedSearchParams.child)
+    : selectChildById(children, activeChildIdFromCookie);
   if (!selectedChild) {
     notFound();
   }
 
-  const actualToday = getDateOnly();
+  const actualToday = getLondonPracticeDate();
   const planDate = resolveAdlePlanDateOverride({
     requestedDate: resolvedSearchParams?.adleDate,
     fallbackDate: actualToday,

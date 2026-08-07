@@ -30,6 +30,8 @@ import { createClient } from "@/lib/supabase/server";
 import { parseAnalysisRow } from "@/lib/writing-engine/spelling/legacy-analysis";
 import { getCanonicalActivePracticeWordsForChild } from "@/lib/writing-practice/practice-runtime";
 import { CreateChildForm } from "./create-child-form";
+import { TodaysAdleSection, type TodayAdleChildRow } from "./todays-adle-section";
+import { loadParentAdleTodayStatuses } from "@/lib/adle/today-assignment-service";
 
 type DashboardPageProps = {
   searchParams?: Promise<{
@@ -332,6 +334,23 @@ export default async function DashboardPage({
 
   const activeScopedChild =
     activeChildren.length > 0 ? selectedChild ?? activeChildren[0] : null;
+
+  const adleTodayStatusesPromise = mode === "parent" && activeChildren.length > 0
+    ? loadParentAdleTodayStatuses({
+        userClient: supabase,
+        parentUserId: user.id,
+        childIds: activeChildren.map((child) => child.id),
+      }).catch((error) => {
+        console.error("[parent-dashboard] ADLE today status load failed", error);
+        return activeChildren.map((child) => ({
+          childId: child.id,
+          practiceDate: "",
+          state: "error" as const,
+          assignmentId: null,
+          href: null,
+        }));
+      })
+    : Promise.resolve([]);
 
   const latestSample =
     activeScopedChild && mode === "parent"
@@ -921,6 +940,43 @@ export default async function DashboardPage({
     (sum, row) => sum + row.totalModules,
     0,
   );
+  const adleTodayStatuses = await adleTodayStatusesPromise;
+  const adleStatusByChild = new Map(
+    adleTodayStatuses.map((status) => [status.childId, status]),
+  );
+  const adleRows: TodayAdleChildRow[] = activeChildren.map((child) => {
+    const status = adleStatusByChild.get(child.id);
+    const childName = [child.first_name, child.last_name].filter(Boolean).join(" ");
+    if (status?.state === "ready" && status.assignmentId && status.href) {
+      return {
+        childId: child.id,
+        childName,
+        initialState: {
+          state: "ready" as const,
+          assignmentId: status.assignmentId,
+          href: status.href,
+        },
+      };
+    }
+    if (status?.state === "completed" && status.assignmentId && status.href) {
+      return {
+        childId: child.id,
+        childName,
+        initialState: {
+          state: "completed" as const,
+          assignmentId: status.assignmentId,
+          href: status.href,
+        },
+      };
+    }
+    return {
+      childId: child.id,
+      childName,
+      initialState: status?.state === "error"
+        ? { state: "failed" as const }
+        : { state: "empty" as const },
+    };
+  });
 
   return (
     <AppShell
@@ -954,6 +1010,8 @@ export default async function DashboardPage({
           </section>
         ) : (
           <>
+            {mode === "parent" ? <TodaysAdleSection rows={adleRows} /> : null}
+
             <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
               <Link
                 href={reviewWorkPath}

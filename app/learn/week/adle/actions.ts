@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { after } from "next/server";
 import { randomUUID } from "node:crypto";
 
-import { buildScopedPath, getActiveChildIdFromCookies, selectChildById } from "@/lib/children";
+import { buildScopedPath, findChildById, getActiveChildIdFromCookies } from "@/lib/children";
 import { getActiveChildrenForUser } from "@/lib/courses/queries";
 import { createClient } from "@/lib/supabase/server";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
@@ -141,7 +141,7 @@ async function resolveSessionContext(formData: FormData, assignmentKind: "standa
     redirect("/login");
   }
   const children = await getActiveChildrenForUser(userClient, user.id);
-  const selectedChild = selectChildById(children, childId);
+  const selectedChild = findChildById(children, childId);
   if (!selectedChild) {
     redirect(buildScopedPath("/learn/week", fallbackChildId, "child"));
   }

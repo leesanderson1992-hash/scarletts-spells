@@ -1,6 +1,6 @@
 # ADLE Current State and Lesson Release Registry
 
-Updated: 2026-08-03
+Updated: 2026-08-07
 
 ## Purpose
 
@@ -8,6 +8,16 @@ This is the current operational release register for ADLE lesson capabilities.
 It distinguishes historical pilots from routes that can genuinely be selected
 for learners. It does not replace the programme roadmap or teaching-content
 approval records.
+
+The parent-dashboard manual ADLE entry point is implemented as a temporary
+application layer over the existing production curriculum authorities. It
+does not change any route capability state or selector/compiler policy. The
+parent supplies only the child action; `selectPartTwoSkill` chooses the next
+micro-skill and the activated specialist route remains authoritative for words
+and compilation. Generic Snapshot remains excluded, automatic Daily ADLE and
+review orchestration remain deferred, and parent-triggered assignment items
+carry observational `parent_manual` provenance. See
+`docs/implementation/parent-dashboard-manual-adle-generation.md`.
 
 ## Release states
 

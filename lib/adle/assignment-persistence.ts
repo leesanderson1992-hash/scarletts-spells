@@ -105,12 +105,16 @@ export interface PersistencePlanParams {
   parentUserId: string;
   /** Existing daily_assignments rows for this child and date (any title). */
   existingHeaders: readonly ExistingAssignmentHeaderFact[];
+  generationTrigger?: AdleGenerationTrigger;
 }
+
+export type AdleGenerationTrigger = "parent_manual" | "automatic_scheduler";
 
 function itemDraft(
   plan: ComposedDailyPlan,
   parentUserId: string,
   candidate: PlanItemCandidate,
+  generationTrigger?: AdleGenerationTrigger,
 ): AssignmentItemDraft {
   return {
     childId: plan.childId,
@@ -134,6 +138,7 @@ function itemDraft(
       adleLearningItemRef: candidate.learningItemId,
       composerPolicyVersion: plan.composerPolicyVersion,
       schedulePolicyVersion: plan.schedulePolicyVersion,
+      ...(generationTrigger ? { generationTrigger } : {}),
     },
   };
 }
@@ -210,7 +215,9 @@ export function planAssignmentPersistence(
       assignmentGenerationSource: ADLE_ASSIGNMENT_GENERATION_SOURCE,
       lessonRouteMetadata: plan.lessonRouteMetadata,
     },
-    items: candidates.map((candidate) => itemDraft(plan, params.parentUserId, candidate)),
+    items: candidates.map((candidate) =>
+      itemDraft(plan, params.parentUserId, candidate, params.generationTrigger),
+    ),
     learningItemIntakes: plan.partTwo.composed ? [...plan.partTwo.stretchItemIntakes] : [],
   };
 }

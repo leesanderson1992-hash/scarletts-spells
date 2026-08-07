@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 
 import { buildScopedPath } from "@/lib/children";
 import { getActiveChildrenForUser } from "@/lib/courses/queries";
-import { getDateOnly } from "@/lib/courses/progress";
+import { getLondonPracticeDate } from "@/lib/practice-date";
 import { createClient } from "@/lib/supabase/server";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import {
@@ -22,7 +22,7 @@ export async function createDynamicPrefixStagingAssignmentAction(formData: FormD
     (candidate) => candidate.id === childId,
   );
   if (!child) redirect("/learn/week");
-  const planDate = getDateOnly();
+  const planDate = getLondonPracticeDate();
   const serviceClient = createServiceRoleClient();
   const result = await createDynamicPrefixAssignment({
     userClient,

@@ -3,6 +3,7 @@ import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 import { composeDailyPlan, type ComposedDailyPlan } from "../daily-assignment-composer";
+import type { AdleGenerationTrigger } from "../assignment-persistence";
 import { getExistingAdleSessionPlanId, persistComposedAdleDailyPlan } from "../loaders/daily-plan-surface";
 import { loadDailyPlanFacts } from "../loaders/composer-facts-loader";
 import {
@@ -57,6 +58,7 @@ type WriterParams = {
   planDate: string;
   requiredProfileKey?: DynamicPrefixQaProfileKey;
   allowStagingProfiles: boolean;
+  generationTrigger?: AdleGenerationTrigger;
 };
 
 async function existingProfileKey(
@@ -210,6 +212,7 @@ export async function persistPreparedDynamicPrefixAssignment(params: WriterParam
     childId: params.childId,
     planDate: params.prepared.planDate,
     plan: params.prepared.plan,
+    generationTrigger: params.generationTrigger,
   });
   if (!assignmentId) {
     return {

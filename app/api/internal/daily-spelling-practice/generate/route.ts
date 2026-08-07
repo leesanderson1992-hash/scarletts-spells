@@ -3,6 +3,7 @@ import { timingSafeEqual } from "node:crypto";
 import { NextResponse, type NextRequest } from "next/server";
 
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
+import { getLondonPracticeDate } from "@/lib/practice-date";
 import {
   createSupabaseDailySpellingPracticeMaterializationRepositories,
   runDailySpellingPracticeMaterialization,
@@ -10,25 +11,6 @@ import {
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
-
-function getLondonDateOnly(now = new Date()) {
-  const parts = new Intl.DateTimeFormat("en-GB", {
-    timeZone: "Europe/London",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  }).formatToParts(now);
-  const partByType = new Map(parts.map((part) => [part.type, part.value]));
-  const year = partByType.get("year");
-  const month = partByType.get("month");
-  const day = partByType.get("day");
-
-  if (!year || !month || !day) {
-    throw new Error("Unable to compute Europe/London practice date.");
-  }
-
-  return `${year}-${month}-${day}`;
-}
 
 function isValidDateOnly(value: string | null) {
   return Boolean(value && /^\d{4}-\d{2}-\d{2}$/.test(value));
@@ -87,7 +69,7 @@ function getPracticeDate(request: NextRequest) {
     throw new Error("Use YYYY-MM-DD for the practice date.");
   }
 
-  return getLondonDateOnly();
+  return getLondonPracticeDate();
 }
 
 export async function GET(request: NextRequest) {

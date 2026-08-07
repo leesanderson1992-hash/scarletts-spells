@@ -24,6 +24,7 @@ export function buildBaseWordFamilyPilotItems(params: {
   parentUserId: string;
   childId: string;
   planDate: string;
+  generationTrigger?: "parent_manual" | "automatic_scheduler";
 }): BaseWordFamilyPersistedItem[] {
   const { payload, parentUserId, childId, planDate } = params;
   return baseWordFamilyPilotBindingSpecs(payload).map((spec, index) => ({
@@ -38,6 +39,7 @@ export function buildBaseWordFamilyPilotItems(params: {
       planDate, sectionKey: spec.sectionKey, canonicalWordId: spec.canonicalWordId,
       microSkillKey: payload.microSkillKey,
       ...(payload.independentSlots.find((slot) => slot.canonicalWordId === spec.canonicalWordId) ?? {}),
+      ...(params.generationTrigger ? { generationTrigger: params.generationTrigger } : {}),
     },
   }));
 }
