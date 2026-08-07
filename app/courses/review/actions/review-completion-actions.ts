@@ -39,7 +39,6 @@ import {
 import {
   buildFalsePositiveSuppressionSet,
   buildVerifiedMisspellingIdSet,
-  hasActionableReturnedIssues,
   isParentAuthoredMisspellingRow,
   isSuppressedFalsePositivePair,
 } from "../review-utils";
@@ -885,6 +884,98 @@ export async function finaliseWritingIssueClassificationImpl(
   );
 }
 
+export async function saveWritingIssueReasonDraftImpl(formData: FormData) {
+  const writingIssueId = formData.get("writing_issue_id");
+  const submissionId = formData.get("submission_id");
+  const redirectPath = formData.get("redirect_path");
+  const draftFinalClassification = formData.get("final_classification");
+  const safeRedirectPath =
+    typeof redirectPath === "string" &&
+    redirectPath.startsWith("/courses/review/")
+      ? redirectPath
+      : "/courses/review";
+
+  if (
+    typeof writingIssueId !== "string" ||
+    !writingIssueId ||
+    typeof submissionId !== "string" ||
+    !submissionId
+  ) {
+    redirect(
+      buildRedirectWithMessage(
+        safeRedirectPath,
+        "error",
+        "We couldn't find that returned correction.",
+      ),
+    );
+  }
+
+  if (
+    typeof draftFinalClassification !== "string" ||
+    !isWritingIssueFinalClassification(draftFinalClassification)
+  ) {
+    redirect(
+      buildRedirectWithMessage(
+        safeRedirectPath,
+        "error",
+        "Choose a valid reason before saving.",
+      ),
+    );
+  }
+
+  const {
+    data: { user },
+  } = await (await createClient()).auth.getUser();
+
+  if (!user) {
+    redirect("/login");
+  }
+
+  const { supabase, submission } = await getOwnedSubmission(
+    submissionId,
+    user.id,
+  );
+
+  if (!submission) {
+    redirect(
+      buildRedirectWithMessage(
+        safeRedirectPath,
+        "error",
+        "That submission is no longer available for review.",
+      ),
+    );
+  }
+
+  const { error } = await supabase.rpc("save_writing_issue_reason_draft", {
+    p_writing_issue_id: writingIssueId,
+    p_current_submission_id: submission.id,
+    p_parent_user_id: user.id,
+    p_child_id: submission.child_id,
+    p_draft_final_classification: draftFinalClassification,
+  });
+
+  if (error) {
+    redirect(
+      buildRedirectWithMessage(
+        safeRedirectPath,
+        "error",
+        error.message.includes("Admin has already acted")
+          ? "Admin has already acted on this route. Use the controlled repair path before choosing a non-learning reason."
+          : "We couldn't save that reason draft just yet.",
+      ),
+    );
+  }
+
+  revalidateReviewQueueAndDetail(safeRedirectPath);
+  redirect(
+    buildRedirectWithMessage(
+      safeRedirectPath,
+      "saved",
+      "Reason draft saved. You can change it until the work is approved.",
+    ),
+  );
+}
+
 export async function returnSubmissionToChildImpl(formData: FormData) {
   const submissionId = formData.get("submission_id");
   const redirectPath = formData.get("redirect_path");
@@ -1340,41 +1431,158 @@ export async function approveSubmissionReviewImpl(formData: FormData) {
       ),
     );
   }
-  const { data: linkedWritingIssues } = await supabase
-    .from("writing_issues")
-    .select(
-      "source_misspelling_instance_id, issue_status, final_classification",
-    )
-    .eq("task_submission_id", submission.id)
-    .eq("parent_user_id", user.id);
 
-  if (hasActionableReturnedIssues(linkedWritingIssues ?? [])) {
+  for (const row of unifiedSpellingReviewItems) {
+    const draftClassification = row.draftFinalClassification;
+    const learningReason =
+      draftClassification !== null &&
+      doesFinalClassificationCreateLearningItem(draftClassification);
+    const knownMatch = row.knownMatchAutoResolution;
+    const knownRouteIsCurrent =
+      knownMatch !== null && row.microSkillKey === knownMatch.microSkillKey;
+    const hasAdminHandoff = Boolean(
+      row.sourceIds.catalogReviewCaseId ||
+        row.sourceIds.canonicalRecommendationId,
+    );
+
+    if (
+      row.source !== "returned_correction" ||
+      !learningReason ||
+      !knownMatch ||
+      !knownRouteIsCurrent ||
+      hasAdminHandoff
+    ) {
+      continue;
+    }
+
+    let canonicalMatch: Awaited<
+      ReturnType<typeof findResolverVisibleExactPairMapping>
+    >;
+
+    try {
+      canonicalMatch = await findResolverVisibleExactPairMapping({
+        misspellingNormalized: row.observedText,
+        correctSpellingNormalized: row.expectedCorrection,
+      });
+    } catch (canonicalError) {
+      console.error("Known spelling match approval validation failed.", canonicalError);
+      redirect(
+        buildRedirectWithMessage(
+          safeRedirectPath,
+          "error",
+          "We couldn't validate every known spelling route. The saved reasons remain editable.",
+        ),
+      );
+    }
+
+    if (
+      canonicalMatch.status !== "resolved" ||
+      canonicalMatch.mappingId !== knownMatch.canonicalMappingId ||
+      canonicalMatch.microSkillKey !== knownMatch.microSkillKey
+    ) {
+      redirect(
+        buildRedirectWithMessage(
+          safeRedirectPath,
+          "error",
+          "A known spelling route changed before approval. Review the row and retry; no reason was finalised.",
+        ),
+      );
+    }
+  }
+
+  const { data: approvalResult, error: approvalError } = await supabase.rpc(
+    "approve_task_submission_with_reason_drafts",
+    {
+      p_submission_id: submission.id,
+      p_parent_user_id: user.id,
+      p_child_id: submission.child_id,
+    },
+  );
+
+  if (approvalError) {
     redirect(
       buildRedirectWithMessage(
         safeRedirectPath,
         "error",
-        "Final classification is still needed for returned writing issues before this submission can be approved.",
+        "We couldn't finalise every saved reason, so the work was not approved. Your drafts are unchanged.",
       ),
     );
   }
 
-  const { error } = await supabase
-    .from("task_submissions")
-    .update({
-      parent_review_status: "approved",
-      parent_reviewed_at: new Date().toISOString(),
-    })
-    .eq("id", submission.id)
-    .eq("parent_user_id", user.id);
+  const approvalRecord =
+    approvalResult && typeof approvalResult === "object"
+      ? (approvalResult as Record<string, unknown>)
+      : {};
+  const issueResults = Array.isArray(approvalRecord.issue_results)
+    ? approvalRecord.issue_results.filter(
+        (value): value is Record<string, unknown> =>
+          Boolean(value) && typeof value === "object" && !Array.isArray(value),
+      )
+    : [];
+  const learningItemIdByIssueId = new Map<string, string>();
 
-  if (error) {
-    redirect(
-      buildRedirectWithMessage(
-        safeRedirectPath,
-        "error",
-        "We couldn't approve that submission just yet.",
-      ),
-    );
+  issueResults.forEach((result) => {
+    const issueId = result.writing_issue_id;
+    const learningItemId = result.learning_item_id;
+    if (typeof issueId === "string" && typeof learningItemId === "string") {
+      learningItemIdByIssueId.set(issueId, learningItemId);
+    }
+  });
+
+  if (learningItemIdByIssueId.size > 0) {
+    const { data: finalisedIssues } = await supabase
+      .from("writing_issues")
+      .select(
+        "id, child_id, task_submission_id, observed_text, suggested_replacement, approved_replacement, micro_skill_key, source_misspelling_instance_id, final_classification",
+      )
+      .in("id", [...learningItemIdByIssueId.keys()])
+      .eq("parent_user_id", user.id)
+      .eq("child_id", submission.child_id);
+
+    for (const issue of finalisedIssues ?? []) {
+      const learningItemId = learningItemIdByIssueId.get(issue.id);
+      const correctedWord =
+        getTrimmedOrNull(issue.approved_replacement) ??
+        getTrimmedOrNull(issue.suggested_replacement);
+      if (!learningItemId || !correctedWord) {
+        continue;
+      }
+
+      const { data: latestAttempt } = await supabase
+        .from("writing_issue_correction_attempts")
+        .select("created_at")
+        .eq("writing_issue_id", issue.id)
+        .eq("parent_user_id", user.id)
+        .eq("child_id", submission.child_id)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle<{ created_at: string }>();
+
+      try {
+        await createOrUpdateGoldenNuggetFromParentApproval({
+          childId: issue.child_id,
+          parentUserId: user.id,
+          correctedWord,
+          originalMisspelling: issue.observed_text,
+          sourceIssueId: issue.id,
+          sourceLearningItemId: learningItemId,
+          sourceSubmissionId: issue.task_submission_id,
+          sourceMisspellingInstanceId: issue.source_misspelling_instance_id,
+          microSkillKey: issue.micro_skill_key,
+          correctionAttemptedAt: latestAttempt?.created_at ?? null,
+          metadata: {
+            final_classification: issue.final_classification,
+            learning_item_id: learningItemId,
+            finalisation_source: "submission_reason_draft_approval",
+          },
+        });
+      } catch (wordTreasureError) {
+        console.error(
+          `[reason-draft-approval] Word Treasure reconciliation failed for issue ${issue.id} (approval unaffected)`,
+          wordTreasureError,
+        );
+      }
+    }
   }
 
   // ADLE Slice 6: live authentic-use emission (Slice 4 open-question-3).

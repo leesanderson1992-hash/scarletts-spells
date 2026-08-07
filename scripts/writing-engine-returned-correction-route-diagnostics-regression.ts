@@ -60,6 +60,10 @@ function buildReturnedRow(
       metadata: {},
     },
     ...overrides,
+    draftFinalClassification: overrides.draftFinalClassification ?? null,
+    draftFinalClassificationUpdatedAt:
+      overrides.draftFinalClassificationUpdatedAt ?? null,
+    readyForApproval: overrides.readyForApproval ?? false,
   };
 }
 

@@ -91,12 +91,15 @@ export type UnifiedSpellingReviewItem = {
   latestChildAttempt: string | null;
   childReflection: WritingIssueReflection | null;
   correctionOutcome: WritingIssueFinalClassification | null;
+  draftFinalClassification: WritingIssueFinalClassification | null;
+  draftFinalClassificationUpdatedAt: string | null;
   suggestedMicroSkillKey: string | null;
   verifiedMicroSkillKey: string | null;
   microSkillKey: string | null;
   microSkillRecommendation: WritingEngineStage2aRecommendationResult | null;
   knownMatchAutoResolution: UnifiedSpellingReviewKnownMatchAutoResolution | null;
   terminalStatus: UnifiedSpellingReviewTerminalStatus | null;
+  readyForApproval: boolean;
   parentNote: string | null;
   sourceIds: {
     currentTaskSubmissionId: string;
@@ -178,6 +181,8 @@ export type UnifiedSpellingReviewWritingIssueRow = {
   source_suggestion_id: string | null;
   issue_status: WritingIssueStatus;
   final_classification: WritingIssueFinalClassification | null;
+  draft_final_classification?: WritingIssueFinalClassification | null;
+  draft_final_classification_updated_at?: string | null;
   observed_text: string | null;
   suggested_replacement?: string | null;
   approved_replacement: string | null;
@@ -302,16 +307,19 @@ export function summarizeUnifiedSpellingReviewCompletion(
   const unresolvedReturnedCorrectionIds = new Set<string>();
 
   rows.forEach((row) => {
-    if (row.terminalStatus) {
+    if (row.terminalStatus || row.readyForApproval) {
       return;
     }
 
+    const effectiveClassification =
+      row.correctionOutcome ?? row.draftFinalClassification;
+
     const deferredRouteBlocks =
       row.source === "returned_correction" &&
-      !row.correctionOutcome &&
+      !effectiveClassification &&
       (row.categorisationStatus === "unsupported_returned_correction_route" ||
         (row.categorisationStatus === "sent_to_admin" &&
-          returnedFinalClassificationNeedsRoute(row.correctionOutcome)));
+          returnedFinalClassificationNeedsRoute(effectiveClassification)));
 
     unresolvedItemIds.add(row.id);
 
@@ -359,7 +367,7 @@ export function summarizeUnifiedSpellingReviewCompletion(
         returnedFinalClassificationCount,
         "needs",
         "need",
-      )} final classification.`,
+      )} a saved reason.`,
     );
   }
 
@@ -942,6 +950,10 @@ export function buildUnifiedSpellingReviewItems(
       latestChildAttempt: null,
       childReflection: null,
       correctionOutcome: writingIssue?.final_classification ?? null,
+      draftFinalClassification:
+        writingIssue?.draft_final_classification ?? null,
+      draftFinalClassificationUpdatedAt:
+        writingIssue?.draft_final_classification_updated_at ?? null,
       suggestedMicroSkillKey,
       verifiedMicroSkillKey: verification?.verified_micro_skill_key ?? null,
       microSkillKey:
@@ -952,6 +964,7 @@ export function buildUnifiedSpellingReviewItems(
       microSkillRecommendation: null,
       knownMatchAutoResolution: null,
       terminalStatus,
+      readyForApproval: terminalStatus !== null,
       parentNote:
         verification?.verification_notes ??
         writingIssue?.parent_review_note ??
@@ -1024,6 +1037,26 @@ export function buildUnifiedSpellingReviewItems(
         ? attempt?.attempted_correction
         : null;
 
+    const draftFinalClassification =
+      issue.draft_final_classification ?? null;
+    const hasLearningReason = returnedFinalClassificationNeedsRoute(
+      draftFinalClassification,
+    );
+    const knownMatchRouteIsCurrent = Boolean(
+      knownMatchAutoResolution &&
+        issue.micro_skill_key === knownMatchAutoResolution.microSkillKey,
+    );
+    const hasDurableAdminHandoff = Boolean(
+      catalogReviewCase || canonicalRecommendation,
+    );
+    const readyForApproval = Boolean(
+      !issue.final_classification &&
+        draftFinalClassification &&
+        (!hasLearningReason ||
+          knownMatchRouteIsCurrent ||
+          hasDurableAdminHandoff),
+    );
+
     return [
       {
         id: `returned:${issue.id}:${attempt?.id ?? "no-current-attempt"}`,
@@ -1040,6 +1073,9 @@ export function buildUnifiedSpellingReviewItems(
         latestChildAttempt: childAttemptDisplay,
         childReflection: attempt?.reflection ?? null,
         correctionOutcome: issue.final_classification,
+        draftFinalClassification,
+        draftFinalClassificationUpdatedAt:
+          issue.draft_final_classification_updated_at ?? null,
         suggestedMicroSkillKey: null,
         verifiedMicroSkillKey: null,
         microSkillKey: candidateMapping?.micro_skill_key ?? issue.micro_skill_key,
@@ -1055,6 +1091,7 @@ export function buildUnifiedSpellingReviewItems(
               : knownMatchAutoResolution && issue.final_classification
                 ? "resolved_known_match"
                 : null,
+        readyForApproval,
         parentNote: issue.parent_review_note ?? issue.notes ?? attempt?.attempt_notes ?? null,
         sourceIds: {
           currentTaskSubmissionId: input.submissionId,
@@ -1326,7 +1363,7 @@ export async function loadUnifiedSpellingReviewItemsForSubmission(input: {
     supabase
       .from("writing_issues")
       .select(
-        "id, task_submission_id, source_misspelling_instance_id, source_suggestion_id, issue_status, final_classification, observed_text, suggested_replacement, approved_replacement, micro_skill_key, parent_review_note, notes, metadata, child_responded_at, final_classified_at",
+        "id, task_submission_id, source_misspelling_instance_id, source_suggestion_id, issue_status, final_classification, draft_final_classification, draft_final_classification_updated_at, observed_text, suggested_replacement, approved_replacement, micro_skill_key, parent_review_note, notes, metadata, child_responded_at, final_classified_at",
       )
       .eq("task_submission_id", input.submissionId)
       .eq("parent_user_id", input.parentUserId)
@@ -1408,7 +1445,7 @@ export async function loadUnifiedSpellingReviewItemsForSubmission(input: {
       ? await supabase
           .from("writing_issues")
           .select(
-            "id, task_submission_id, source_misspelling_instance_id, source_suggestion_id, issue_status, final_classification, observed_text, suggested_replacement, approved_replacement, micro_skill_key, parent_review_note, notes, metadata, child_responded_at, final_classified_at",
+            "id, task_submission_id, source_misspelling_instance_id, source_suggestion_id, issue_status, final_classification, draft_final_classification, draft_final_classification_updated_at, observed_text, suggested_replacement, approved_replacement, micro_skill_key, parent_review_note, notes, metadata, child_responded_at, final_classified_at",
           )
           .eq("parent_user_id", input.parentUserId)
           .eq("child_id", input.childId)
@@ -1419,7 +1456,7 @@ export async function loadUnifiedSpellingReviewItemsForSubmission(input: {
       ? await supabase
           .from("writing_issues")
           .select(
-            "id, task_submission_id, source_misspelling_instance_id, source_suggestion_id, issue_status, final_classification, observed_text, suggested_replacement, approved_replacement, micro_skill_key, parent_review_note, notes, metadata, child_responded_at, final_classified_at",
+            "id, task_submission_id, source_misspelling_instance_id, source_suggestion_id, issue_status, final_classification, draft_final_classification, draft_final_classification_updated_at, observed_text, suggested_replacement, approved_replacement, micro_skill_key, parent_review_note, notes, metadata, child_responded_at, final_classified_at",
           )
           .eq("parent_user_id", input.parentUserId)
           .eq("child_id", input.childId)

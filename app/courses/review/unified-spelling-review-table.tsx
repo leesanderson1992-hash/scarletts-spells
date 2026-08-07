@@ -12,10 +12,10 @@ import {
 import {
   captureSpellingCatalogReviewCase,
   captureSubmissionSpellingCandidateMapping,
-  finaliseWritingIssueClassification,
   promoteParentLocalCandidateMapping,
   recordReviewWorkVerificationAction,
   revertParentLocalCandidateMapping,
+  saveWritingIssueReasonDraft,
 } from "./actions";
 
 const NO_MATCHING_SKILL_VALUE = "__no_matching_skill__";
@@ -165,7 +165,11 @@ function statusLabel(row: UnifiedSpellingReviewItem) {
   }
 
   if (row.knownMatchAutoResolution) {
-    return "Resolved route";
+    return row.readyForApproval ? "Ready" : "Resolved route";
+  }
+
+  if (row.readyForApproval) {
+    return "Ready";
   }
 
   if (
@@ -394,11 +398,11 @@ function UnifiedSpellingReviewTableRow({
     row.state !== "locally_promoted";
   const returnedIssueOutcomeNeedsRoute =
     row.source === "returned_correction" &&
-    (row.correctionOutcome === "fragile_knowledge" ||
-      row.correctionOutcome === "concept_gap" ||
-      row.correctionOutcome === "transfer_failure");
+    isLearningRelevantOutcome(
+      row.correctionOutcome ?? row.draftFinalClassification ?? "",
+    );
   const [selectedOutcome, setSelectedOutcome] = useState(
-    row.correctionOutcome ?? "",
+    row.draftFinalClassification ?? row.correctionOutcome ?? "",
   );
   const selectedOutcomeNeedsRoute = isLearningRelevantOutcome(selectedOutcome);
   const existingAssignableRouteOption = findOption(
@@ -478,13 +482,6 @@ function UnifiedSpellingReviewTableRow({
     row.terminalStatus !== "not_an_issue" &&
     Boolean(row.sourceIds.originalWritingIssueId) &&
     Boolean(row.sourceIds.correctionAttemptId);
-  const knownMatchCanAutoResolve =
-    routeControlsAllowed &&
-    row.source === "returned_correction" &&
-    row.state === "child_responded" &&
-    !row.correctionOutcome &&
-    !knownMatchEditOpen &&
-    Boolean(row.knownMatchAutoResolution);
   const editableRouteIsOpen = routeIsOpen || knownMatchEditOpen;
   const showRouteSelectors =
     editableRouteIsOpen || Boolean(row.knownMatchAutoResolution);
@@ -493,33 +490,7 @@ function UnifiedSpellingReviewTableRow({
     form: HTMLFormElement | null,
   ) {
     setSelectedOutcome(nextOutcome);
-
-    if (
-      isLearningRelevantOutcome(nextOutcome) &&
-      knownMatchCanAutoResolve
-    ) {
-      form?.requestSubmit();
-      return;
-    }
-
-    if (
-      !isLearningRelevantOutcome(nextOutcome) ||
-      !recommendationMatchesOption ||
-      !recommendationOption ||
-      familyKey.length > 0 ||
-      clusterKey.length > 0 ||
-      microSkillKey.length > 0
-    ) {
-      if (!isLearningRelevantOutcome(nextOutcome)) {
-        form?.requestSubmit();
-      }
-      return;
-    }
-
-    setFamilyKey(recommendationOption.skillFamilyKey);
-    setClusterKey(recommendationOption.skillClusterKey ?? "");
-    setMicroSkillKey(recommendationOption.microSkillKey);
-
+    form?.requestSubmit();
   }
   const suggestedSkillIsUsable = isMeaningfulSkill(row.suggestedMicroSkillKey);
   const noMatchingSkillSelected = familyKey === NO_MATCHING_SKILL_VALUE;
@@ -536,7 +507,7 @@ function UnifiedSpellingReviewTableRow({
     noMatchingSkillSelected &&
     Boolean(submissionId) &&
     (!knownMatchEditOpen || selectedOutcomeNeedsRoute);
-  const canFinalClassify =
+  const canEditReason =
     routeControlsAllowed &&
     row.source === "returned_correction" &&
     row.state === "child_responded" &&
@@ -648,9 +619,9 @@ function UnifiedSpellingReviewTableRow({
         </td>
         {showRouteColumns ? (
           <td className="min-w-44 px-3 py-2 align-top">
-            {canFinalClassify ? (
+            {canEditReason ? (
               <form
-                action={finaliseWritingIssueClassification}
+                action={saveWritingIssueReasonDraft}
                 className="grid gap-1"
               >
                 <input
@@ -660,16 +631,14 @@ function UnifiedSpellingReviewTableRow({
                 />
                 <input
                   type="hidden"
+                  name="submission_id"
+                  value={submissionId}
+                />
+                <input
+                  type="hidden"
                   name="redirect_path"
                   value={redirectPath}
                 />
-                {knownMatchCanAutoResolve && row.knownMatchAutoResolution ? (
-                  <input
-                    type="hidden"
-                    name="known_match_micro_skill_key"
-                    value={row.knownMatchAutoResolution.microSkillKey}
-                  />
-                ) : null}
                 <select
                   name="final_classification"
                   required
@@ -692,9 +661,14 @@ function UnifiedSpellingReviewTableRow({
                     </option>
                   ))}
                 </select>
+                {row.draftFinalClassificationUpdatedAt ? (
+                  <p className="text-[11px] leading-4 text-[color:var(--mid)]">
+                    Draft saved. Editable until approval.
+                  </p>
+                ) : null}
                 {selectedOutcomeNeedsRoute && !existingAssignableRouteOption ? (
                   <p className="text-[11px] leading-4 text-[color:var(--mid)]">
-                    Choose a learning route to save this outcome.
+                    Choose a learning route or send it to admin before approval.
                   </p>
                 ) : null}
               </form>

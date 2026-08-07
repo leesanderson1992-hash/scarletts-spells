@@ -20,6 +20,7 @@ type ReturnedWritingIssueRouteRow = {
   source_misspelling_instance_id: string | null;
   source_suggestion_id: string | null;
   final_classification: string | null;
+  draft_final_classification: string | null;
   observed_text: string | null;
   suggested_replacement: string | null;
   approved_replacement: string | null;
@@ -115,6 +116,7 @@ export async function loadReturnedCorrectionRouteContext(input: {
         "source_misspelling_instance_id",
         "source_suggestion_id",
         "final_classification",
+        "draft_final_classification",
         "observed_text",
         "suggested_replacement",
         "approved_replacement",
@@ -136,7 +138,10 @@ export async function loadReturnedCorrectionRouteContext(input: {
   }
 
   const routeFinalClassification =
-    issue.final_classification ?? input.finalClassificationOverride ?? null;
+    issue.final_classification ??
+    issue.draft_final_classification ??
+    input.finalClassificationOverride ??
+    null;
 
   if (
     !routeFinalClassification ||
@@ -306,7 +311,9 @@ export async function loadReturnedCorrectionRouteContext(input: {
       final_classification: routeFinalClassification,
       final_classification_source: issue.final_classification
         ? "durable_issue"
-        : "pending_parent_route_intent",
+        : issue.draft_final_classification
+          ? "parent_reason_draft"
+          : "pending_parent_route_intent",
       context_text: misspelling.context_text,
       position_start: misspelling.position_start,
       position_end: misspelling.position_end,

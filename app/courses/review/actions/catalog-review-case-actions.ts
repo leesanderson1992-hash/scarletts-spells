@@ -33,16 +33,6 @@ function hasMeaningfulMicroSkillKey(value: string | null | undefined) {
   );
 }
 
-function getLearningItemIdFromFinalisationResult(value: unknown) {
-  if (!value || typeof value !== "object" || !("learning_item_id" in value)) {
-    return null;
-  }
-
-  return typeof value.learning_item_id === "string"
-    ? value.learning_item_id
-    : null;
-}
-
 function normaliseRedirectPath(value: FormDataEntryValue | null) {
   return typeof value === "string" && value.startsWith("/courses/review/")
     ? value
@@ -111,6 +101,19 @@ async function captureReturnedCorrectionCatalogReviewCase(input: {
         input.safeRedirectPath,
         "error",
         "This correction was already saved with a different review outcome.",
+      ),
+    );
+  }
+
+  if (
+    !routeContext.issue.final_classification &&
+    routeContext.issue.draft_final_classification !== input.finalClassification
+  ) {
+    redirect(
+      buildRedirectWithMessage(
+        input.safeRedirectPath,
+        "error",
+        "The saved reason changed before the catalog handoff. Review the row and retry.",
       ),
     );
   }
@@ -210,46 +213,13 @@ async function captureReturnedCorrectionCatalogReviewCase(input: {
     }
   }
 
-  if (!routeContext.issue.final_classification) {
-    const { data: finalisationResult, error: finalisationError } =
-      await input.supabase.rpc(
-        "finalise_writing_issue_classification_and_learning_item",
-        {
-          p_writing_issue_id: routeContext.issue.id,
-          p_parent_user_id: input.parentUserId,
-          p_child_id: input.submission.child_id,
-          p_final_classification: input.finalClassification,
-        },
-      );
-
-    if (finalisationError) {
-      redirect(
-        buildRedirectWithMessage(
-          input.safeRedirectPath,
-          "error",
-          "Catalog review was opened, but the outcome could not be saved yet. Please retry.",
-        ),
-      );
-    }
-
-    if (getLearningItemIdFromFinalisationResult(finalisationResult)) {
-      redirect(
-        buildRedirectWithMessage(
-          input.safeRedirectPath,
-          "error",
-          "Catalog review cannot defer an outcome that already created a learning item.",
-        ),
-      );
-    }
-  }
-
   revalidateReviewQueueAndDetailBestEffort(input.safeRedirectPath);
 
   redirect(
     buildRedirectWithMessage(
       input.safeRedirectPath,
       "saved",
-      "Outcome saved and returned correction sent to catalog review.",
+      "Returned correction sent to catalog review. The reason remains editable until approval.",
     ),
   );
 }

@@ -120,8 +120,8 @@ assert.match(
 );
 assert.match(
   learnActions,
-  /after\(async \(\) =>[\s\S]*processTaskSubmission/,
-  "Evidence processing must not delay the child submission redirect.",
+  /await processTaskSubmission\(result\.submissionId\)/,
+  "Evidence processing must receive an immediate durable attempt before the child submission redirects.",
 );
 assert.match(
   submissionProcessor,

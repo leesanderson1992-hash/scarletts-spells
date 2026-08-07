@@ -930,9 +930,9 @@ assert.equal(completionSummary.unresolvedCategorisationCount, 4);
 assert.equal(completionSummary.deferredUnsupportedRouteCount, 0);
 assert.ok(
   completionSummary.blockingReasons.some((reason) =>
-    reason.includes("returned correction") && reason.includes("final classification"),
+    reason.includes("returned correction") && reason.includes("saved reason"),
   ),
-  "Returned corrections without final classification must block completion.",
+  "Returned corrections without a saved reason draft must block completion.",
 );
 assert.ok(
   completionSummary.blockingReasons.some((reason) =>
@@ -1817,8 +1817,8 @@ assert.match(
 );
 assert.match(
   tableSource,
-  /function handleOutcomeChange\([\s\S]*nextOutcome: string[\s\S]*form: HTMLFormElement \| null[\s\S]*setSelectedOutcome\(nextOutcome\)[\s\S]*!isLearningRelevantOutcome\(nextOutcome\)[\s\S]*!recommendationMatchesOption[\s\S]*!recommendationOption[\s\S]*familyKey\.length > 0[\s\S]*clusterKey\.length > 0[\s\S]*microSkillKey\.length > 0[\s\S]*setFamilyKey\(recommendationOption\.skillFamilyKey\)[\s\S]*setClusterKey\(recommendationOption\.skillClusterKey \?\? ""\)[\s\S]*setMicroSkillKey\(recommendationOption\.microSkillKey\)/,
-  "Returned route selectors must auto-populate from a prefillable recommendation when the route opens after outcome selection.",
+  /row\.draftFinalClassification \?\? row\.correctionOutcome[\s\S]*const returnedRouteIsOpen =[\s\S]*selectedOutcomeNeedsRoute[\s\S]*const recommendationPrefillAllowed =[\s\S]*routeIsOpen && recommendationMatchesOption[\s\S]*recommendationPrefillAllowed[\s\S]*recommendedMicroSkillKey/,
+  "A saved learning-reason draft must reopen the route and prefill a structurally valid recommendation after autosave.",
 );
 assert.match(
   tableSource,
@@ -1967,8 +1967,8 @@ assert.match(
 );
 assert.match(
   tableSource,
-  /knownMatchCanAutoResolve[\s\S]*Boolean\(row\.knownMatchAutoResolution\)[\s\S]*form\?\.requestSubmit\(\)[\s\S]*name="known_match_micro_skill_key"[\s\S]*row\.knownMatchAutoResolution\.microSkillKey/,
-  "A persisted known match should auto-submit the reason with its exact durable route.",
+  /row\.draftFinalClassification \?\? row\.correctionOutcome[\s\S]*form\?\.requestSubmit\(\)[\s\S]*action=\{saveWritingIssueReasonDraft\}/,
+  "A persisted known match should autosave an editable reason draft without finalising the route.",
 );
 assert.match(
   tableSource,

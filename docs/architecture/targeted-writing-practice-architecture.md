@@ -837,6 +837,13 @@ Detection authority boundary:
 - the resolver interprets and categorises the resulting known pair for
   curriculum use; it does not depend on heuristic discovery first
 
+Parent reason selection is a two-stage boundary. Dropdown changes persist as
+an editable draft on the writing issue. Only submission approval commits the
+final classification and creates learning items, evidence, starting competency,
+and Word Treasure effects. The approval transaction derives returned issues
+through the task retry thread so an earlier source issue cannot be omitted or
+attached to an unrelated submission.
+
 Practical implication:
 - finalized issue history must survive even if `replaceAnalysisForSample()` regenerates all misspelling rows
 

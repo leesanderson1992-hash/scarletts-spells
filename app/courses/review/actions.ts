@@ -10,6 +10,7 @@ import {
   deleteSubmissionFromReviewImpl,
   finaliseWritingIssueClassificationImpl,
   returnSubmissionToChildImpl,
+  saveWritingIssueReasonDraftImpl,
 } from "./actions/review-completion-actions";
 import {
   bulkConfirmSubmissionPositiveEvidenceImpl,
@@ -85,6 +86,10 @@ export async function bulkDismissSubmissionPositiveEvidence(formData: FormData) 
 
 export async function finaliseWritingIssueClassification(formData: FormData) {
   return finaliseWritingIssueClassificationImpl(formData);
+}
+
+export async function saveWritingIssueReasonDraft(formData: FormData) {
+  return saveWritingIssueReasonDraftImpl(formData);
 }
 
 export async function returnSubmissionToChild(formData: FormData) {

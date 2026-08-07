@@ -531,8 +531,8 @@ assert.match(
 );
 assert.match(
   unifiedSpellingReviewTable,
-  /action=\{finaliseWritingIssueClassification\}/,
-  "Unified compact table must use the existing final-classification action.",
+  /action=\{saveWritingIssueReasonDraft\}/,
+  "Unified compact table must autosave an editable reason draft.",
 );
 assert.doesNotMatch(
   unifiedSpellingReviewTable,
@@ -541,8 +541,8 @@ assert.doesNotMatch(
 );
 assert.match(
   unifiedSpellingReviewTable,
-  /if \(!isLearningRelevantOutcome\(nextOutcome\)\) \{[\s\S]*form\?\.requestSubmit\(\)/,
-  "Non-learning outcomes must submit directly from the outcome dropdown.",
+  /function handleOutcomeChange[\s\S]*setSelectedOutcome\(nextOutcome\)[\s\S]*form\?\.requestSubmit\(\)/,
+  "Every reason choice must autosave directly from the outcome dropdown.",
 );
 assert.doesNotMatch(
   unifiedSpellingReviewTable,
@@ -551,7 +551,7 @@ assert.doesNotMatch(
 );
 assert.match(
   unifiedSpellingReviewTable,
-  /Choose a learning route to save this outcome\./,
+  /Choose a learning route or send it to admin before approval\./,
   "Route-less learning outcomes must remain local until the parent chooses a route.",
 );
 assert.match(
@@ -582,13 +582,13 @@ assert.match(
 );
 assert.match(
   returnedCorrectionRouteHelpers,
-  /const routeFinalClassification =[\s\S]*issue\.final_classification \?\? input\.finalClassificationOverride[\s\S]*!ROUTABLE_RETURNED_CLASSIFICATIONS\.has\(routeFinalClassification\)/,
-  "Returned route helper must accept durable or pending learning-gap route intent.",
+  /const routeFinalClassification =[\s\S]*issue\.final_classification \?\?[\s\S]*issue\.draft_final_classification \?\?[\s\S]*input\.finalClassificationOverride[\s\S]*!ROUTABLE_RETURNED_CLASSIFICATIONS\.has\(routeFinalClassification\)/,
+  "Returned route helper must prefer a durable reason, then its saved draft, before request intent.",
 );
 assert.match(
   returnedCorrectionRouteHelpers,
-  /final_classification: routeFinalClassification,[\s\S]*final_classification_source:[\s\S]*pending_parent_route_intent/,
-  "Returned route metadata must distinguish pending parent route intent from durable issue final classification.",
+  /final_classification: routeFinalClassification,[\s\S]*final_classification_source:[\s\S]*parent_reason_draft[\s\S]*pending_parent_route_intent/,
+  "Returned route metadata must distinguish saved drafts from durable issue final classification and unsaved request intent.",
 );
 assert.match(
   returnedCorrectionRouteHelpers,
@@ -665,10 +665,15 @@ assert.match(
   /captureReturnedCorrectionCatalogReviewCase[\s\S]*loadReturnedCorrectionRouteContext[\s\S]*spelling_catalog_review_cases/,
   "Catalog review action must bridge returned corrections into admin/catalog cases.",
 );
+assert.doesNotMatch(
+  catalogReviewCaseActions,
+  /finalise_writing_issue_classification_and_learning_item/,
+  "No-matching-skill handoff must not finalise an editable reason draft.",
+);
 assert.match(
   catalogReviewCaseActions,
-  /spelling_catalog_review_cases[\s\S]*finalise_writing_issue_classification_and_learning_item[\s\S]*getLearningItemIdFromFinalisationResult/,
-  "No-matching-skill deferral must create its guarded catalog case before durably saving the outcome without a learning item.",
+  /draft_final_classification !== input\.finalClassification[\s\S]*spelling_catalog_review_cases[\s\S]*reason remains editable until approval/,
+  "No-matching-skill handoff must require the saved draft and leave it editable until approval.",
 );
 assert.match(
   catalogReviewCaseActions,

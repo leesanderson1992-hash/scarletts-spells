@@ -175,14 +175,26 @@ reason deliberately resolve at different times:
 - the row displays the Family, Cluster, and Micro-skill controls locked with a
   `Known Match` badge and a pencil edit action
 - no learning item or admin-review artifact exists at this point
-- the reason selector remains enabled and the row continues to block overall
-  completion
-- a learning reason independently revalidates canonical truth before
-  finalisation and learning-item creation/reuse
-- checking-only and not-an-issue reasons finalise without a learning item
+- the reason selector autosaves `draft_final_classification`, remains enabled,
+  and can be changed until the parent approves the work
+- draft reasons are readiness evidence only: they do not finalise the writing
+  issue, create a learning item, emit learning evidence, or update Word
+  Treasure
+- approval independently revalidates canonical truth, then atomically applies
+  every latest draft reason and marks the submission approved
+- learning reasons create/reuse the learning item during approval;
+  checking-only and not-an-issue finalise without a learning item
 - the pencil unlocks only the route; an unchanged route creates no artifact,
   while a different route records parent disagreement and requires durable
   admin handoff
+
+Reason and route are separate review decisions. `concept_gap`,
+`fragile_knowledge`, and `transfer_failure` create initial learning competency
+levels 1, 2, and 3 respectively and record incorrect-use evidence. `checking_only`
+and `not_an_issue` create no learning item or learning evidence. A pending admin
+handoff remains editable between learning reasons. Changing a draft to a
+non-learning reason supersedes an untouched handoff; an already-actioned admin
+decision requires controlled repair.
 
 Returned parent-added words need an obvious categorisation route if no skill
 exists.

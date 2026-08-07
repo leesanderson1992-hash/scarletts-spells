@@ -2,7 +2,6 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { after } from "next/server";
 
 import {
   getDateOnly,
@@ -673,9 +672,16 @@ export async function submitTaskResponse(formData: FormData) {
     ));
   }
 
-  after(async () => {
-    await processTaskSubmission(result.submissionId);
-  });
+  // The outbox row makes processing retry-safe, but the first attempt must be
+  // claimed before this request finishes. A best-effort `after()` callback can
+  // be dropped by a serverless response boundary, leaving Review Work stuck in
+  // "Preparing" until the recovery cron eventually runs.
+  const processingResult = await processTaskSubmission(result.submissionId);
+  if (processingResult.status === "failed") {
+    console.error("[course-task-submission] immediate processing failed", {
+      submissionId: result.submissionId,
+    });
+  }
 
   revalidateLearnSurfacePaths(redirectPath);
   revalidatePath("/courses/review");

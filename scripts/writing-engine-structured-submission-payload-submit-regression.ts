@@ -18,9 +18,18 @@ const submitSource = actions.slice(submitStart, saveDraftStart);
 
 assert.match(submitSource, /submission_request_id/, "Submit requires a client request id.");
 assert.match(submitSource, /submit_course_task_response_once/, "Submit uses the atomic RPC.");
-assert.match(submitSource, /after\(async \(\) =>[\s\S]*processTaskSubmission/, "Auxiliary work runs after the response boundary.");
+assert.match(
+  submitSource,
+  /await processTaskSubmission\(result\.submissionId\)/,
+  "The durable processing job must receive an immediate awaited attempt before redirect.",
+);
+assert.doesNotMatch(
+  submitSource,
+  /after\(async \(\) =>[\s\S]*processTaskSubmission/,
+  "Submission analysis must not rely on a best-effort post-response callback.",
+);
 assert.doesNotMatch(submitSource, /from\("task_submissions"\)\.insert/, "The action cannot directly insert submissions.");
-assert.doesNotMatch(submitSource, /writing_samples|misspelling_instances|detectAndStoreFreeWritingEvidenceCandidates/, "The child wait path excludes analysis and evidence.");
+assert.doesNotMatch(submitSource, /from\("writing_samples"\)|from\("misspelling_instances"\)|detectAndStoreFreeWritingEvidenceCandidates/, "The action delegates analysis and evidence to the idempotent processing boundary.");
 
 assert.match(migration, /add column if not exists submission_request_id uuid/);
 assert.match(migration, /task_submissions_request_idempotency_idx/);
