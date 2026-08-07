@@ -97,6 +97,16 @@ function main() {
     tableSource,
     /action=\{finaliseWritingIssueClassification\}/,
   );
+  assert.match(
+    tableSource,
+    /const returnedRouteIsOpen =[\s\S]*!row\.knownMatchAutoResolution[\s\S]*selectedOutcomeNeedsRoute/,
+    "A learning-reason draft must not unlock a durably resolved known-match route.",
+  );
+  assert.match(
+    tableSource,
+    /const editableRouteIsOpen = routeIsOpen \|\| knownMatchEditOpen/,
+    "The pencil-controlled known-match edit state remains the explicit route unlock.",
+  );
 
   const migrationSource = readFileSync(
     "supabase/migrations/20260807173000_add_editable_writing_issue_reason_drafts.sql",

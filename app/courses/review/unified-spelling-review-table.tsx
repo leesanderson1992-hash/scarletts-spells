@@ -415,6 +415,7 @@ function UnifiedSpellingReviewTableRow({
   );
   const returnedRouteIsOpen =
     routeControlsAllowed &&
+    !row.knownMatchAutoResolution &&
     (returnedIssueOutcomeNeedsRoute || selectedOutcomeNeedsRoute) &&
     Boolean(row.sourceIds.originalWritingIssueId) &&
     Boolean(row.sourceIds.correctionAttemptId) &&

@@ -1817,8 +1817,8 @@ assert.match(
 );
 assert.match(
   tableSource,
-  /row\.draftFinalClassification \?\? row\.correctionOutcome[\s\S]*const returnedRouteIsOpen =[\s\S]*selectedOutcomeNeedsRoute[\s\S]*const recommendationPrefillAllowed =[\s\S]*routeIsOpen && recommendationMatchesOption[\s\S]*recommendationPrefillAllowed[\s\S]*recommendedMicroSkillKey/,
-  "A saved learning-reason draft must reopen the route and prefill a structurally valid recommendation after autosave.",
+  /row\.draftFinalClassification \?\? row\.correctionOutcome[\s\S]*const returnedRouteIsOpen =[\s\S]*!row\.knownMatchAutoResolution[\s\S]*selectedOutcomeNeedsRoute[\s\S]*const recommendationPrefillAllowed =[\s\S]*routeIsOpen && recommendationMatchesOption[\s\S]*recommendationPrefillAllowed[\s\S]*recommendedMicroSkillKey/,
+  "A saved learning-reason draft may reopen a non-known route and prefill a structurally valid recommendation after autosave without unlocking a known match.",
 );
 assert.match(
   tableSource,
@@ -1974,6 +1974,11 @@ assert.match(
   tableSource,
   /knownMatchEditEligible[\s\S]*Boolean\(row\.knownMatchAutoResolution\)[\s\S]*icon=\{knownMatchEditOpen \? "×" : "✎"\}[\s\S]*toggleKnownMatchEdit/,
   "Durably pre-resolved known matches should expose a pencil-only learning-route edit with canonical cancel restoration.",
+);
+assert.match(
+  tableSource,
+  /const editableRouteIsOpen = routeIsOpen \|\| knownMatchEditOpen/,
+  "Known-match selectors must only become editable through the explicit pencil state.",
 );
 assert.match(
   tableSource,
