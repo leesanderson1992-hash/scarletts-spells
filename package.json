@@ -8,6 +8,7 @@
     "start": "next start",
     "typecheck:scripts": "npx tsc -p tsconfig.scripts.json --noEmit",
     "lint": "eslint",
+    "child-switcher:regression": "tsx scripts/child-switcher-regression.ts",
     "security:audit:production": "npm audit --omit=dev --audit-level=high",
     "security:audit:full": "npm audit --audit-level=high",
     "teaching-dictionary:prepare": "tsx scripts/teaching-dictionary-release.ts prepare",

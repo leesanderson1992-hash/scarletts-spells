@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 
 import {
   ACTIVE_CHILD_COOKIE_NAME,
+  replaceChildInScopedPath,
 } from "@/lib/children";
 import { createClient } from "@/lib/supabase/server";
 
@@ -307,6 +308,8 @@ export async function setActiveChildContext(formData: FormData) {
       sameSite: "lax",
       path: "/",
     });
+
+    redirect(replaceChildInScopedPath(redirectPath, child.id));
   }
 
   redirect(redirectPath);
