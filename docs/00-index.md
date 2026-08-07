@@ -1,5 +1,7 @@
 # Docs Index
 
+- [Parent dashboard manual ADLE generation](implementation/parent-dashboard-manual-adle-generation.md)
+
 ## Purpose
 
 This index groups the documentation by role so there is one clear place to look for each kind of truth.

@@ -22,6 +22,7 @@ import {
   ADLE_ASSIGNMENT_GENERATION_SOURCE,
   ADLE_DAILY_ASSIGNMENT_TITLE,
   planAssignmentPersistence,
+  type AdleGenerationTrigger,
   type ExistingAssignmentHeaderFact,
 } from "../assignment-persistence";
 import type { IsoDate } from "../review-scheduler";
@@ -190,12 +191,19 @@ export interface EnsureAdleDailyPlanParams {
   planDate: IsoDate;
 }
 
-export async function persistComposedAdleDailyPlan(params: EnsureAdleDailyPlanParams & { plan: ComposedDailyPlan }): Promise<string | null> {
+export async function persistComposedAdleDailyPlan(params: EnsureAdleDailyPlanParams & {
+  plan: ComposedDailyPlan;
+  generationTrigger?: AdleGenerationTrigger;
+}): Promise<string | null> {
   const { userClient, serviceClient, parentUserId, childId, planDate, plan } = params;
   const { data: headerRows, error: headersError } = await userClient.from("daily_assignments").select("child_id, assignment_date, title, status").eq("parent_user_id", parentUserId).eq("child_id", childId).eq("assignment_date", planDate);
   if (headersError) throw new Error(`persistComposedAdleDailyPlan:headers: ${headersError.message}`);
   const existingHeaders: ExistingAssignmentHeaderFact[] = (headerRows ?? []).map((row) => ({ childId: (row as { child_id: string }).child_id, assignmentDate: (row as { assignment_date: string }).assignment_date, title: (row as { title: string | null }).title ?? "", status: (row as { status: string }).status }));
-  const persistence = planAssignmentPersistence(plan, { parentUserId, existingHeaders });
+  const persistence = planAssignmentPersistence(plan, {
+    parentUserId,
+    existingHeaders,
+    generationTrigger: params.generationTrigger,
+  });
   if (persistence.action === "noop") return persistence.noopReason === "existing_active_plan" ? (await findAdleHeader(userClient, parentUserId, childId, planDate))?.id ?? null : null;
   if (!persistence.header) return null;
   if (

@@ -3,6 +3,7 @@ import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 import { composeDailyPlan, type ComposedDailyPlan } from "../daily-assignment-composer";
+import type { AdleGenerationTrigger } from "../assignment-persistence";
 import { getExistingAdleSessionPlanId, persistComposedAdleDailyPlan } from "../loaders/daily-plan-surface";
 import { loadDailyPlanFacts } from "../loaders/composer-facts-loader";
 import {
@@ -67,6 +68,7 @@ type WriterParams = Omit<PreviewParams, "purpose"> & {
   userClient: SupabaseClient;
   parentUserId: string;
   planDate: string;
+  generationTrigger?: AdleGenerationTrigger;
 };
 
 function emitCandidateReadinessDiagnostics(
@@ -256,6 +258,7 @@ export async function persistPreparedDynamicAffixAssignment(params: WriterParams
     childId: params.childId,
     planDate: params.prepared.planDate,
     plan: params.prepared.plan,
+    generationTrigger: params.generationTrigger,
   });
   if (!assignmentId) {
     return {

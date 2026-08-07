@@ -7,6 +7,18 @@ type ChildLike = {
   id: string;
 };
 
+/** Exact matching for security-sensitive explicit child identifiers. */
+export function findChildById<T extends ChildLike>(
+  children: T[] | null | undefined,
+  requestedChildId: string | null | undefined,
+): T | null {
+  if (!children || !requestedChildId) {
+    return null;
+  }
+
+  return children.find((child) => child.id === requestedChildId) ?? null;
+}
+
 export function selectChildById<T extends ChildLike>(
   children: T[] | null | undefined,
   requestedChildId: string | null | undefined,

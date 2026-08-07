@@ -1,9 +1,9 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { buildScopedPath, selectChildById } from "@/lib/children";
+import { buildScopedPath, findChildById } from "@/lib/children";
 import { getActiveChildrenForUser } from "@/lib/courses/queries";
-import { getDateOnly } from "@/lib/courses/progress";
+import { getLondonPracticeDate } from "@/lib/practice-date";
 import { createClient } from "@/lib/supabase/server";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { createDynamicAffixAssignment } from "@/lib/adle/morphology/dynamic-affix-assignment-writer";
@@ -14,8 +14,8 @@ export async function createDynamicSuffixAssignmentAction(formData: FormData) {
   if (!isDynamicSuffixRouteEnabled() || !childId) redirect("/learn/week");
   const userClient = await createClient(); const { data: { user } } = await userClient.auth.getUser();
   if (!user) redirect("/login");
-  if (!selectChildById(await getActiveChildrenForUser(userClient, user.id), childId)) redirect("/learn/week");
-  const planDate = getDateOnly();
+  if (!findChildById(await getActiveChildrenForUser(userClient, user.id), childId)) redirect("/learn/week");
+  const planDate = getLondonPracticeDate();
   const serviceClient = createServiceRoleClient();
   const allowStagingProfiles = process.env.ADLE_ROUTE_ACTIVATION_ENVIRONMENT === "staging"
     || process.env.VERCEL_ENV === "preview";

@@ -30,6 +30,7 @@ export async function loadBaseWordFamilyPilotReadiness(params: {
   client: SupabaseClient;
   childId: string;
   planDate: string;
+  requiredMicroSkillKey?: string;
 }): Promise<{ payload: BaseWordFamilyLessonSnapshotV1 | null; readinessReason: string | null }> {
   const activationEnvironment = resolveAdleRouteActivationEnvironment();
   if (!activationEnvironment) {
@@ -43,6 +44,9 @@ export async function loadBaseWordFamilyPilotReadiness(params: {
     (activation) =>
       activation.lessonRouteKey === "base_word_family_v1" &&
       activation.activationStatus === "production_enabled",
+  ).filter(
+    (activation) =>
+      !params.requiredMicroSkillKey || activation.microSkillKey === params.requiredMicroSkillKey,
   );
   if (enabledActivations.length === 0)
     return { payload: null, readinessReason: "adle_route_not_production_enabled" };
@@ -101,10 +105,17 @@ export async function persistBaseWordFamilyPilotAssignment(params: {
   childId: string;
   planDate: string;
   payload: BaseWordFamilyLessonSnapshotV1;
+  generationTrigger?: "parent_manual" | "automatic_scheduler";
 }): Promise<string> {
   const payload = validateBaseWordFamilyLessonSnapshot(params.payload);
   if (!payload) throw new Error("Refusing base-word pilot persistence: malformed reviewed snapshot.");
-  const items = buildBaseWordFamilyPilotItems({ payload, parentUserId: params.parentUserId, childId: params.childId, planDate: params.planDate });
+  const items = buildBaseWordFamilyPilotItems({
+    payload,
+    parentUserId: params.parentUserId,
+    childId: params.childId,
+    planDate: params.planDate,
+    generationTrigger: params.generationTrigger,
+  });
   if (items.length !== BASE_WORD_FAMILY_ASSIGNMENT_ITEM_COUNT) throw new Error("Refusing base-word pilot persistence: assignment binding count drift.");
   const { data, error } = await params.client.rpc("persist_adle_base_word_family_pilot_v2", {
     p_parent_user_id: params.parentUserId, p_child_id: params.childId, p_plan_date: params.planDate, p_payload: payload, p_items: items,
@@ -121,9 +132,16 @@ export async function generateGuardedBaseWordFamilyPilot(params: {
   parentUserId: string;
   childId: string;
   planDate: string;
+  requiredMicroSkillKey?: string;
+  generationTrigger?: "parent_manual" | "automatic_scheduler";
 }): Promise<{ assignmentId: string | null; readinessReason: string | null }> {
   assertBaseWordFamilyPilotEnabledForChild(params.childId);
-  const readiness = await loadBaseWordFamilyPilotReadiness({ client: params.client, childId: params.childId, planDate: params.planDate });
+  const readiness = await loadBaseWordFamilyPilotReadiness({
+    client: params.client,
+    childId: params.childId,
+    planDate: params.planDate,
+    requiredMicroSkillKey: params.requiredMicroSkillKey,
+  });
   if (!readiness.payload) return { assignmentId: null, readinessReason: readiness.readinessReason ?? "not_ready" };
   return { assignmentId: await persistBaseWordFamilyPilotAssignment({ ...params, payload: readiness.payload }), readinessReason: null };
 }
