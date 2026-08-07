@@ -327,6 +327,8 @@ export async function ensureParentAdleTodayAssignment(params: {
       return result;
     }
 
+    const allowStagingProfiles =
+      process.env.ADLE_ROUTE_ACTIVATION_ENVIRONMENT === "staging";
     let generatedAssignmentId: string | null = null;
     let blockerCode: string | null = null;
     if (routeId === "dynamic_prefix_word_lab") {
@@ -339,7 +341,7 @@ export async function ensureParentAdleTodayAssignment(params: {
           childId: params.childId,
           planDate: practiceDate,
           requiredProfileKey: selection.microSkillKey as DynamicPrefixQaProfileKey,
-          allowStagingProfiles: false,
+          allowStagingProfiles,
           generationTrigger: "parent_manual",
         });
         generatedAssignmentId = result.assignmentId;
@@ -357,7 +359,7 @@ export async function ensureParentAdleTodayAssignment(params: {
           childId: params.childId,
           planDate: practiceDate,
           requiredProfileKey: selection.microSkillKey,
-          allowStagingProfiles: false,
+          allowStagingProfiles,
           generationTrigger: "parent_manual",
         });
         generatedAssignmentId = result.assignmentId;
@@ -371,7 +373,7 @@ export async function ensureParentAdleTodayAssignment(params: {
         const loaded = await loadClosedCompoundProfiles(
           params.serviceClient,
           params.childId,
-          { allowStagingProfiles: false },
+          { allowStagingProfiles },
         );
         const profile = loaded.profiles.find(
           (candidate) => candidate.microSkillKey === selection.microSkillKey,

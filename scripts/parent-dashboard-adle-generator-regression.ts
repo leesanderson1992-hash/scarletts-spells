@@ -74,7 +74,11 @@ assert.doesNotMatch(ui, /Choose|Prefix lesson|Affix lesson|name="route"|name="wo
 assert.match(ui, /disabled=\{isPending\}/);
 assert.match(service, /selectPartTwoSkill\(/);
 assert.match(service, /candidate\.routeId !== "generic_composer"/);
-assert.match(service, /allowStagingProfiles: false/);
+assert.match(
+  service,
+  /process\.env\.ADLE_ROUTE_ACTIVATION_ENVIRONMENT === "staging"/,
+);
+assert.match(service, /allowStagingProfiles,/);
 assert.match(service, /generationTrigger: "parent_manual"/);
 assert.match(migration, /create unique index if not exists/);
 assert.match(migration, /child_id, assignment_date/);
