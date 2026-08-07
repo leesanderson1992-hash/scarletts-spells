@@ -289,6 +289,8 @@ export async function addMissedWordToSubmissionReviewImpl(formData: FormData) {
       markedCareless: false,
       detectedErrorPattern,
       selectedWordFamilyId,
+      detectionSource: null,
+      canonicalDetection: null,
     }),
   });
 

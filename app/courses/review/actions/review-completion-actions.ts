@@ -25,12 +25,7 @@ import {
   loadUnifiedSpellingReviewItemsForSubmission,
   summarizeUnifiedSpellingReviewCompletion,
 } from "@/lib/writing-engine/persistence/unified-spelling-review-items";
-import {
-  resolveReturnedCorrectionParentLocalRouteBridge,
-  type ReturnedCorrectionRouteBridgeAttempt,
-  type ReturnedCorrectionRouteBridgeCandidateMapping,
-  type ReturnedCorrectionRouteBridgeCatalogEntry,
-} from "@/lib/writing-engine/persistence/returned-correction-route-bridge";
+import { findResolverVisibleExactPairMapping } from "@/lib/writing-engine/persistence/spelling-canonical-mappings";
 
 import {
   buildRedirectWithMessage,
@@ -245,127 +240,6 @@ function parseObjectMetadata(value: unknown): Record<string, unknown> {
   return value && typeof value === "object" && !Array.isArray(value)
     ? (value as Record<string, unknown>)
     : {};
-}
-
-async function isActiveAssignableMicroSkillRoute(input: {
-  supabase: ReviewSupabase;
-  microSkillKey: string | null | undefined;
-}) {
-  if (!isMeaningfulMicroSkillKey(input.microSkillKey)) {
-    return false;
-  }
-
-  const { data: catalogEntry } = await input.supabase
-    .from("micro_skill_catalog")
-    .select("id, is_active, is_assignable")
-    .eq("micro_skill_key", input.microSkillKey)
-    .eq("is_active", true)
-    .eq("is_assignable", true)
-    .maybeSingle();
-
-  return Boolean(catalogEntry);
-}
-
-async function bridgeReturnedCorrectionParentLocalRoute(input: {
-  supabase: ReviewSupabase;
-  parentUserId: string;
-  issue: FinalClassificationIssueRow;
-}) {
-  const { data: attemptRows } = await input.supabase
-    .from("writing_issue_correction_attempts")
-    .select("id, task_submission_id")
-    .eq("writing_issue_id", input.issue.id)
-    .eq("parent_user_id", input.parentUserId)
-    .eq("child_id", input.issue.child_id)
-    .order("created_at", { ascending: false });
-
-  const attempts = (attemptRows ??
-    []) as ReturnedCorrectionRouteBridgeAttempt[];
-
-  if (attempts.length === 0 || !input.issue.source_misspelling_instance_id) {
-    return null;
-  }
-
-  const { data: candidateMappingRows } = await input.supabase
-    .from("parent_verified_spelling_candidate_mappings")
-    .select(
-      [
-        "id",
-        "parent_user_id",
-        "child_id",
-        "task_submission_id",
-        "source_misspelling_instance_id",
-        "micro_skill_key",
-        "candidate_status",
-        "promotion_scope",
-        "metadata",
-        "updated_at",
-      ].join(", "),
-    )
-    .eq("parent_user_id", input.parentUserId)
-    .eq("child_id", input.issue.child_id)
-    .eq(
-      "source_misspelling_instance_id",
-      input.issue.source_misspelling_instance_id,
-    )
-    .eq("candidate_status", "parent_local_promoted")
-    .eq("promotion_scope", "parent_local")
-    .order("updated_at", { ascending: false });
-
-  const candidateMappings = (candidateMappingRows ??
-    []) as unknown as ReturnedCorrectionRouteBridgeCandidateMapping[];
-  const microSkillKeys = [
-    ...new Set(
-      candidateMappings
-        .map((mapping) => mapping.micro_skill_key)
-        .filter(isMeaningfulMicroSkillKey),
-    ),
-  ];
-
-  const { data: catalogRows } =
-    microSkillKeys.length > 0
-      ? await input.supabase
-          .from("micro_skill_catalog")
-          .select("micro_skill_key, is_active, is_assignable")
-          .in("micro_skill_key", microSkillKeys)
-      : { data: [] };
-
-  const bridgeResolution = resolveReturnedCorrectionParentLocalRouteBridge({
-    parentUserId: input.parentUserId,
-    issue: input.issue,
-    attempts,
-    candidateMappings,
-    catalogEntries: (catalogRows ??
-      []) as ReturnedCorrectionRouteBridgeCatalogEntry[],
-    nowIso: new Date().toISOString(),
-  });
-
-  if (bridgeResolution.status !== "bridged") {
-    return null;
-  }
-
-  const nextMetadata = {
-    ...parseObjectMetadata(input.issue.metadata),
-    returned_correction_route_bridge: bridgeResolution.bridgeMetadata,
-  };
-  const { error } = await input.supabase
-    .from("writing_issues")
-    .update({
-      micro_skill_key: bridgeResolution.microSkillKey,
-      metadata: nextMetadata,
-      updated_at: bridgeResolution.bridgeMetadata.bridged_at,
-    })
-    .eq("id", input.issue.id)
-    .eq("parent_user_id", input.parentUserId)
-    .eq("child_id", input.issue.child_id)
-    .eq("issue_status", "child_responded")
-    .is("final_classification", null);
-
-  if (error) {
-    return null;
-  }
-
-  return bridgeResolution;
 }
 
 async function materializeReturnedSpellingIssuesFromCandidates(input: {
@@ -693,6 +567,9 @@ export async function finaliseWritingIssueClassificationImpl(
   const writingIssueId = formData.get("writing_issue_id");
   const redirectPath = formData.get("redirect_path");
   const finalClassification = formData.get("final_classification");
+  const proposedKnownMatchMicroSkillKey = formData.get(
+    "known_match_micro_skill_key",
+  );
 
   const safeRedirectPath =
     typeof redirectPath === "string" &&
@@ -755,6 +632,27 @@ export async function finaliseWritingIssueClassificationImpl(
     issue.issue_status === "finalised" ||
     issue.final_classification !== null
   ) {
+    const knownMatchMetadata = parseObjectMetadata(
+      parseObjectMetadata(issue.metadata).known_match_auto_resolution,
+    );
+    const alreadyAutoResolvedKnownMatch =
+      issue.issue_status === "finalised" &&
+      issue.final_classification === finalClassification &&
+      knownMatchMetadata.authority === "known_match" &&
+      typeof proposedKnownMatchMicroSkillKey === "string" &&
+      knownMatchMetadata.micro_skill_key ===
+        proposedKnownMatchMicroSkillKey.trim();
+
+    if (alreadyAutoResolvedKnownMatch) {
+      redirect(
+        buildRedirectWithMessage(
+          safeRedirectPath,
+          "saved",
+          "That known spelling match was already resolved.",
+        ),
+      );
+    }
+
     redirect(
       buildRedirectWithMessage(
         safeRedirectPath,
@@ -779,27 +677,79 @@ export async function finaliseWritingIssueClassificationImpl(
       finalClassification satisfies WritingIssueFinalClassification,
     )
   ) {
-    let routeReady = await isActiveAssignableMicroSkillRoute({
-      supabase,
-      microSkillKey: issue.micro_skill_key,
-    });
-
-    if (!routeReady) {
-      const bridgeResult = await bridgeReturnedCorrectionParentLocalRoute({
-        supabase,
-        parentUserId: user.id,
-        issue,
-      });
-
-      routeReady = Boolean(bridgeResult);
-    }
-
-    if (!routeReady) {
+    if (
+      typeof proposedKnownMatchMicroSkillKey !== "string" ||
+      !isMeaningfulMicroSkillKey(proposedKnownMatchMicroSkillKey)
+    ) {
       redirect(
         buildRedirectWithMessage(
           safeRedirectPath,
           "error",
-          "Choose an active learning route or send this spelling to admin review before saving the outcome.",
+          "Confirm a suggested route and send it to admin review before saving this outcome.",
+        ),
+      );
+    }
+
+    const knownMatchMetadata = parseObjectMetadata(
+      parseObjectMetadata(issue.metadata).known_match_auto_resolution,
+    );
+    const persistedMappingId =
+      typeof knownMatchMetadata.canonical_mapping_id === "string"
+        ? knownMatchMetadata.canonical_mapping_id
+        : null;
+    const persistedMicroSkillKey =
+      typeof knownMatchMetadata.micro_skill_key === "string"
+        ? knownMatchMetadata.micro_skill_key
+        : null;
+
+    if (
+      knownMatchMetadata.authority !== "known_match" ||
+      !persistedMappingId ||
+      !persistedMicroSkillKey ||
+      persistedMicroSkillKey !== proposedKnownMatchMicroSkillKey.trim() ||
+      issue.micro_skill_key !== persistedMicroSkillKey
+    ) {
+      redirect(
+        buildRedirectWithMessage(
+          safeRedirectPath,
+          "error",
+          "That route is not a durably resolved known match. Review it and send any disagreement to admin.",
+        ),
+      );
+    }
+
+    const correctedSpelling =
+      issue.approved_replacement ?? issue.suggested_replacement;
+    let canonicalMatch: Awaited<
+      ReturnType<typeof findResolverVisibleExactPairMapping>
+    >;
+
+    try {
+      canonicalMatch = await findResolverVisibleExactPairMapping({
+        misspellingNormalized: issue.observed_text,
+        correctSpellingNormalized: correctedSpelling,
+      });
+    } catch (error) {
+      console.error("Known spelling match validation failed.", error);
+      redirect(
+        buildRedirectWithMessage(
+          safeRedirectPath,
+          "error",
+          "We couldn't validate that known spelling match just yet.",
+        ),
+      );
+    }
+
+    if (
+      canonicalMatch.status !== "resolved" ||
+      canonicalMatch.mappingId !== persistedMappingId ||
+      canonicalMatch.microSkillKey !== persistedMicroSkillKey
+    ) {
+      redirect(
+        buildRedirectWithMessage(
+          safeRedirectPath,
+          "error",
+          "That known spelling match is no longer active and unambiguous. Review the route before saving the outcome.",
         ),
       );
     }

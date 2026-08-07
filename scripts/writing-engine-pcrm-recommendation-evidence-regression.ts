@@ -12,8 +12,6 @@ const repositoryPath =
   "lib/writing-engine/persistence/spelling-canonical-recommendations.ts";
 const completionHelperPath =
   "lib/writing-engine/persistence/unified-spelling-review-items.ts";
-const reviewCompletionActionPath =
-  "app/courses/review/actions/review-completion-actions.ts";
 const candidateMappingRepositoryPath =
   "lib/writing-engine/persistence/spelling-candidate-mapping-repository.ts";
 const canonicalMappingRepositoryPath =
@@ -37,7 +35,6 @@ assert.ok(existsSync(repositoryPath), "Expected PCRM-B repository to exist.");
 const migration = readFileSync(migrationPath, "utf8");
 const repository = readFileSync(repositoryPath, "utf8");
 const completionHelper = readFileSync(completionHelperPath, "utf8");
-const reviewCompletionAction = readFileSync(reviewCompletionActionPath, "utf8");
 const candidateMappingRepository = readFileSync(
   candidateMappingRepositoryPath,
   "utf8",
@@ -53,11 +50,6 @@ const reviewActionBarrel = readFileSync(reviewActionBarrelPath, "utf8");
 const unifiedSpellingReviewTable = readFileSync(unifiedSpellingReviewTablePath, "utf8");
 const suggestedIssuesPanel = readFileSync(suggestedIssuesPanelPath, "utf8");
 const catalogReviewCaseAction = readFileSync(catalogReviewCaseActionPath, "utf8");
-const completionSummarySection = completionHelper.slice(
-  completionHelper.indexOf("export function summarizeUnifiedSpellingReviewCompletion"),
-  completionHelper.indexOf("function parseMetadata"),
-);
-
 assert.match(
   migration,
   /create table if not exists public\.spelling_canonical_mapping_recommendations/,
@@ -283,11 +275,6 @@ assert.match(
 );
 assert.doesNotMatch(
   candidateMappingAction,
-  /\.from\("parent_verified_spelling_candidate_mappings"\)[\s\S]*\.update\(/,
-  "PCRM-C recommendation capture must not mutate parent-local candidate mappings.",
-);
-assert.doesNotMatch(
-  candidateMappingAction,
   /spelling_canonical_mappings|createSpellingCanonicalMappingAdmin|\b(insert|update|delete)\b[\s\S]*micro_skill_catalog/,
   "PCRM-C parent action must not write canonical mapping truth or catalog truth.",
 );
@@ -338,8 +325,20 @@ const promotedRows = [
 const promotedSummary = summarizeUnifiedSpellingReviewCompletion(promotedRows);
 assert.equal(
   promotedSummary.canComplete,
+  false,
+  "Parent-local promoted rows must block until durable admin handoff exists.",
+);
+
+const handedOffSummary = summarizeUnifiedSpellingReviewCompletion([
+  {
+    ...promotedRows[0],
+    terminalStatus: "sent_to_admin",
+  },
+] as unknown as UnifiedSpellingReviewItem[]);
+assert.equal(
+  handedOffSummary.canComplete,
   true,
-  "Parent-local promoted rows must remain completion-safe.",
+  "A durable admin handoff must make the row completion-safe without waiting for admin resolution.",
 );
 
 const pendingRows = [
@@ -357,15 +356,10 @@ assert.equal(
   "Parent-local pending rows must still block completion.",
 );
 
-assert.doesNotMatch(
-  `${completionSummarySection}\n${reviewCompletionAction}`,
-  /spelling_canonical_mapping_recommendations|recommendation_status|pending_admin_review/,
-  "Completion gating must not consult recommendation/admin-review evidence.",
-);
 assert.match(
   completionHelper,
-  /row\.categorisationStatus === "parent_local_pending"/,
-  "Completion gating must continue to block pending parent-local mapping.",
+  /canonicalRecommendation[\s\S]*"sent_to_admin"/,
+  "The read model must convert durable recommendation evidence into terminal admin handoff state.",
 );
 assert.match(
   completionHelper,

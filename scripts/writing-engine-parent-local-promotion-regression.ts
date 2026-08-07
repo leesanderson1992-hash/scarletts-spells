@@ -162,6 +162,34 @@ function createHarness(overrides: Partial<HarnessState> = {}) {
 
   const stubModules = {
     "server-only": {},
+    "@/lib/writing-engine/persistence/returned-correction-repair-apply": {
+      async applyReturnedCorrectionRepairPlan() {
+        return { repaired: false, learningItemId: null };
+      },
+    },
+    "@/lib/writing-engine/persistence/returned-correction-repair": {
+      buildReturnedCorrectionRepairPlan() {
+        return { safeToApply: false, reasons: [] };
+      },
+    },
+    "./actions/review-completion-actions": {
+      async approveSubmissionReviewImpl() {},
+      async deleteSubmissionFromReviewImpl() {},
+      async finaliseWritingIssueClassificationImpl() {},
+      async returnSubmissionToChildImpl() {},
+    },
+    "./actions/positive-evidence-actions": {
+      async bulkConfirmSubmissionPositiveEvidenceImpl() {},
+      async bulkDismissSubmissionPositiveEvidenceImpl() {},
+      async confirmSubmissionPositiveEvidenceImpl() {},
+      async dismissSubmissionPositiveEvidenceImpl() {},
+    },
+    "./actions/catalog-review-case-actions": {
+      async captureSpellingCatalogReviewCaseImpl() {},
+    },
+    "./actions/adle-paused-words-actions": {
+      async releaseAdlePausedWordImpl() {},
+    },
     "next/cache": {
       revalidatePath() {},
     },
@@ -230,6 +258,28 @@ function createHarness(overrides: Partial<HarnessState> = {}) {
     "@/lib/rewards/course-coins": {
       async maybeAwardTaskSubmissionApprovalCoins() {},
     },
+    "@/lib/rewards/free-writing-evidence": {
+      async confirmFreeWritingEvidenceCandidates() {},
+    },
+    "@/lib/rewards/word-treasures": {
+      async createOrUpdateGoldenNuggetFromParentApproval() {},
+    },
+    "@/lib/rewards/adle-reward-bridge": {
+      async recordAdleAuthenticUsesForRewards() {},
+    },
+    "@/lib/supabase/service-role": {
+      createServiceRoleClient() {
+        return {};
+      },
+    },
+    "@/lib/adle/loaders/authentic-use-live-emission": {
+      async emitAdleAuthenticUseFromApprovedSubmission() {},
+    },
+    "@/lib/adle/loaders/canonical-intake-live": {
+      async intakeApprovedSubmissionCorrections() {
+        return { enabled: false, blocked: [] };
+      },
+    },
     "@/lib/writing-engine/persistence/learning-items": {
       async getCanonicalSubmissionSpellingCatalogEntries() {
         return [];
@@ -250,6 +300,9 @@ function createHarness(overrides: Partial<HarnessState> = {}) {
       },
     },
     "@/lib/writing-engine/persistence/spelling-canonical-mappings": {
+      async findRecommendationCanonicalExactPairMappings() {
+        return [];
+      },
       async findResolverVisibleExactPairMapping() {
         return {
           status: "unresolved",

@@ -79,6 +79,10 @@ Main-row statuses must be one word only. Preferred statuses:
 - `Done`
 - `Blocked`
 
+The bounded exception is `Resolved route` for a returned correction whose
+canonical learning route is already durable but whose parent reason is still
+required.
+
 Any longer status explanation belongs in `Details`, not the main row.
 
 Skill column rules:
@@ -163,6 +167,22 @@ Examples:
 Final classification is not admin categorisation. Child reflection may inform
 parent judgment, but it must not decide the canonical correction outcome by
 itself. `unknown` `micro_skill_key` is not complete categorisation.
+
+For one active, resolver-visible, exact canonical spelling match, route and
+reason deliberately resolve at different times:
+- returned-correction processing persists `known_match_auto_resolution`, the
+  canonical mapping id, and the assigned micro-skill before parent review
+- the row displays the Family, Cluster, and Micro-skill controls locked with a
+  `Known Match` badge and a pencil edit action
+- no learning item or admin-review artifact exists at this point
+- the reason selector remains enabled and the row continues to block overall
+  completion
+- a learning reason independently revalidates canonical truth before
+  finalisation and learning-item creation/reuse
+- checking-only and not-an-issue reasons finalise without a learning item
+- the pencil unlocks only the route; an unchanged route creates no artifact,
+  while a different route records parent disagreement and requires durable
+  admin handoff
 
 Returned parent-added words need an obvious categorisation route if no skill
 exists.
@@ -261,9 +281,9 @@ Rules:
 - completion gating must not count `checking_only` returned rows as unresolved
   categorisation or deferred-route blockers
 - learning-gap returned outcomes such as `fragile_knowledge`, `concept_gap`,
-  and `transfer_failure` can save the parent reason and allow lesson
-  completion even when no safe route exists yet; learning item, Golden Nugget,
-  mastery, and assignment effects remain deferred until route support exists
+  and `transfer_failure` require either a revalidated canonical known route or
+  a durable admin handoff; a locally saved or advisory route alone is not
+  terminal
 - parent-added current rows remain `P`
 - parent-added returned rows remain `P·R`
 

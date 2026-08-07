@@ -32,6 +32,8 @@ function buildReturnedRow(
     latestChildAttempt: "because",
     childReflection: "medium",
     correctionOutcome: null,
+    knownMatchAutoResolution: null,
+    terminalStatus: null,
     suggestedMicroSkillKey: null,
     verifiedMicroSkillKey: null,
     microSkillKey: "unknown",

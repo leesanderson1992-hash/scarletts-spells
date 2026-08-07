@@ -69,6 +69,18 @@ export type UnifiedSpellingReviewCategorisationStatus =
   | "unsupported_returned_correction_route"
   | "not_applicable";
 
+export type UnifiedSpellingReviewTerminalStatus =
+  | "resolved_known_match"
+  | "sent_to_admin"
+  | "not_an_issue";
+
+export type UnifiedSpellingReviewKnownMatchAutoResolution = {
+  authority: "known_match";
+  canonicalMappingId: string;
+  microSkillKey: string;
+  resolvedAt: string;
+};
+
 export type UnifiedSpellingReviewItem = {
   id: string;
   source: UnifiedSpellingReviewSource;
@@ -83,6 +95,8 @@ export type UnifiedSpellingReviewItem = {
   verifiedMicroSkillKey: string | null;
   microSkillKey: string | null;
   microSkillRecommendation: WritingEngineStage2aRecommendationResult | null;
+  knownMatchAutoResolution: UnifiedSpellingReviewKnownMatchAutoResolution | null;
+  terminalStatus: UnifiedSpellingReviewTerminalStatus | null;
   parentNote: string | null;
   sourceIds: {
     currentTaskSubmissionId: string;
@@ -246,6 +260,37 @@ function verbForCount(count: number, singular: string, plural: string) {
   return count === 1 ? singular : plural;
 }
 
+function readKnownMatchAutoResolution(
+  metadata: Record<string, unknown> | null | undefined,
+): UnifiedSpellingReviewKnownMatchAutoResolution | null {
+  const value = metadata?.known_match_auto_resolution;
+
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    return null;
+  }
+
+  const record = value as Record<string, unknown>;
+  const canonicalMappingId = getMetadataString(record, "canonical_mapping_id");
+  const microSkillKey = getMetadataString(record, "micro_skill_key");
+  const resolvedAt = getMetadataString(record, "resolved_at");
+
+  if (
+    record.authority !== "known_match" ||
+    !canonicalMappingId ||
+    !microSkillKey ||
+    !resolvedAt
+  ) {
+    return null;
+  }
+
+  return {
+    authority: "known_match",
+    canonicalMappingId,
+    microSkillKey,
+    resolvedAt,
+  };
+}
+
 export function summarizeUnifiedSpellingReviewCompletion(
   rows: UnifiedSpellingReviewItem[],
 ): UnifiedSpellingReviewCompletionSummary {
@@ -257,9 +302,10 @@ export function summarizeUnifiedSpellingReviewCompletion(
   const unresolvedReturnedCorrectionIds = new Set<string>();
 
   rows.forEach((row) => {
-    const categorisationBlocks =
-      row.categorisationStatus === "categorisation_needed" ||
-      row.categorisationStatus === "parent_local_pending";
+    if (row.terminalStatus) {
+      return;
+    }
+
     const deferredRouteBlocks =
       row.source === "returned_correction" &&
       !row.correctionOutcome &&
@@ -267,25 +313,22 @@ export function summarizeUnifiedSpellingReviewCompletion(
         (row.categorisationStatus === "sent_to_admin" &&
           returnedFinalClassificationNeedsRoute(row.correctionOutcome)));
 
+    unresolvedItemIds.add(row.id);
+
     if (row.state === "pending_parent_review") {
       parentDecisionCount += 1;
-      unresolvedItemIds.add(row.id);
-    }
-
-    if (row.source === "returned_correction" && row.state === "child_responded") {
+    } else if (
+      row.source === "returned_correction" &&
+      row.state === "child_responded"
+    ) {
       returnedFinalClassificationCount += 1;
-      unresolvedItemIds.add(row.id);
       unresolvedReturnedCorrectionIds.add(row.id);
-    }
-
-    if (categorisationBlocks) {
+    } else {
       unresolvedCategorisationCount += 1;
-      unresolvedItemIds.add(row.id);
     }
 
     if (deferredRouteBlocks) {
       deferredUnsupportedRouteCount += 1;
-      unresolvedItemIds.add(row.id);
 
       if (row.source === "returned_correction") {
         unresolvedReturnedCorrectionIds.add(row.id);
@@ -876,6 +919,13 @@ export function buildUnifiedSpellingReviewItems(
       candidateMapping,
       suggestedMicroSkillKey,
     });
+    const terminalStatus: UnifiedSpellingReviewTerminalStatus | null =
+      verification?.decision === "false_positive" ||
+      verification?.decision === "not_a_learning_issue"
+        ? "not_an_issue"
+        : catalogReviewCase || canonicalRecommendation
+          ? "sent_to_admin"
+          : null;
 
     const item = {
       id: `misspelling:${misspelling.id}`,
@@ -900,6 +950,8 @@ export function buildUnifiedSpellingReviewItems(
         verification?.suggested_micro_skill_key ??
         suggestedMicroSkillKey,
       microSkillRecommendation: null,
+      knownMatchAutoResolution: null,
+      terminalStatus,
       parentNote:
         verification?.verification_notes ??
         writingIssue?.parent_review_note ??
@@ -959,6 +1011,8 @@ export function buildUnifiedSpellingReviewItems(
     }
 
     const issueMetadata = parseMetadata(issue.metadata);
+    const knownMatchAutoResolution =
+      readKnownMatchAutoResolution(issueMetadata);
     const sourceKind = getMetadataString(issueMetadata, "source_kind");
     const parentAuthored =
       sourceKind === "parent_authored_missed_word" ||
@@ -990,6 +1044,17 @@ export function buildUnifiedSpellingReviewItems(
         verifiedMicroSkillKey: null,
         microSkillKey: candidateMapping?.micro_skill_key ?? issue.micro_skill_key,
         microSkillRecommendation: null,
+        knownMatchAutoResolution,
+        terminalStatus:
+          issue.final_classification === "not_an_issue" ||
+          issue.final_classification === "checking_only"
+            ? "not_an_issue"
+            : (catalogReviewCase || canonicalRecommendation) &&
+                issue.final_classification
+              ? "sent_to_admin"
+              : knownMatchAutoResolution && issue.final_classification
+                ? "resolved_known_match"
+                : null,
         parentNote: issue.parent_review_note ?? issue.notes ?? attempt?.attempt_notes ?? null,
         sourceIds: {
           currentTaskSubmissionId: input.submissionId,

@@ -1385,6 +1385,8 @@ async function testAddMissedWordPersistsParentAddedReviewInput() {
         markedCareless: false,
         detectedErrorPattern: "tricky_whole_word_error",
         selectedWordFamilyId: null,
+        detectionSource: null,
+        canonicalDetection: null,
       }),
     }),
   );
@@ -1480,9 +1482,13 @@ function testSourceGuardrailsStayIntact() {
     candidateMappingActionsSource,
     /promotion_scope: "parent_local"/,
   );
+  assert.doesNotMatch(
+    candidateMappingActionsSource,
+    /That row already carries canonical suggestion truth/,
+  );
   assert.match(
     candidateMappingActionsSource,
-    /"That row already carries canonical suggestion truth\. Use the existing Review Work actions instead\."/,
+    /existingSuggestedMicroSkillKey === selectedMicroSkillKey[\s\S]*decision: acceptingExistingSuggestion \? "accepted" : "overridden"/,
   );
   assert.match(
     lessonSubmissionReviewActionsSource,

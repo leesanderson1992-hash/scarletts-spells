@@ -199,6 +199,16 @@ assert.match(
 );
 assert.match(
   reviewCompletionActions,
+  /known_match_auto_resolution[\s\S]*persistedMappingId[\s\S]*findResolverVisibleExactPairMapping\([\s\S]*canonicalMatch\.mappingId !== persistedMappingId/,
+  "Known-match finalisation must independently revalidate the durably persisted exact canonical route server-side.",
+);
+assert.match(
+  submissionProcessing,
+  /preResolveReturnedCorrectionKnownMatch\([\s\S]*issue_status: "child_responded"/,
+  "Known-match route persistence must happen during returned-correction processing before the open child-response state is exposed.",
+);
+assert.match(
+  reviewCompletionActions,
   /if \(!input\.structuredPayloadType\) \{[\s\S]*return false;[\s\S]*\}/,
   "Candidate materialization must stay scoped to structured lesson/test returns.",
 );
@@ -274,13 +284,13 @@ assert.match(
 );
 assert.match(
   reviewCompletionActions,
-  /finalClassificationNeedsAssignableRoute[\s\S]*micro_skill_key[\s\S]*micro_skill_catalog[\s\S]*bridgeReturnedCorrectionParentLocalRoute[\s\S]*finalise_writing_issue_classification_and_learning_item/,
-  "Learning-gap final classification should bridge a promoted durable route when available before calling the finalisation RPC.",
+  /finalClassificationNeedsAssignableRoute[\s\S]*proposedKnownMatchMicroSkillKey[\s\S]*findResolverVisibleExactPairMapping[\s\S]*finalise_writing_issue_classification_and_learning_item/,
+  "Direct learning-gap finalisation should accept only a server-validated canonical known match before calling the finalisation RPC.",
 );
 assert.match(
   reviewCompletionActions,
-  /if \(!routeReady\) \{[\s\S]*Choose an active learning route or send this spelling to admin review before saving the outcome/,
-  "Direct learning-gap finalisation must reject rows without an active route or verified parent-local bridge.",
+  /typeof proposedKnownMatchMicroSkillKey !== "string"[\s\S]*Confirm a suggested route and send it to admin review before saving this outcome/,
+  "Direct learning-gap finalisation must reject advisory routes that have not used the admin-handoff action.",
 );
 assert.match(
   reviewCompletionActions,
@@ -461,7 +471,7 @@ assert.match(
 );
 assert.match(
   unifiedSpellingReviewTable,
-  /const canSendToAdmin =[\s\S]*routeIsOpen && noMatchingSkillSelected[\s\S]*captureSpellingCatalogReviewCase/,
+  /const canSendToAdmin =[\s\S]*editableRouteIsOpen &&[\s\S]*noMatchingSkillSelected &&[\s\S]*captureSpellingCatalogReviewCase/,
   "No matching skill must route through catalog review without persisting a sentinel micro_skill_key.",
 );
 assert.match(
@@ -491,18 +501,13 @@ assert.doesNotMatch(
 );
 assert.match(
   unifiedSpellingReviewTable,
-  /<IconActionButton[\s\S]*icon="✓"[\s\S]*helpText="Confirm suggested skill"[\s\S]*ariaLabel=\{`Confirm suggested skill/,
-  "Confirm icon must expose reliable hover/help and accessible text.",
+  /icon=\{knownMatchEditOpen \? "×" : "✎"\}[\s\S]*Edit learning route and send disagreement to admin/,
+  "Known-match pencil must expose reliable hover/help and accessible text.",
 );
 assert.match(
   unifiedSpellingReviewTable,
   /<IconActionButton[\s\S]*icon="✕"[\s\S]*helpText="Reject as not an issue"[\s\S]*ariaLabel=\{`Reject/,
   "Reject icon must expose reliable hover/help and accessible text.",
-);
-assert.match(
-  unifiedSpellingReviewTable,
-  /<IconActionButton[\s\S]*icon="!"[\s\S]*helpText="Apply selected skill instead of engine suggestion"[\s\S]*ariaLabel=\{`Apply selected skill instead of engine suggestion/,
-  "Override icon must expose reliable hover/help and accessible text.",
 );
 assert.match(
   unifiedSpellingReviewTable,
@@ -516,7 +521,7 @@ assert.match(
 );
 assert.match(
   unifiedSpellingReviewTable,
-  /<IconActionButton[\s\S]*icon="↑"[\s\S]*helpText="Save locally and send for admin review"[\s\S]*<IconActionButton[\s\S]*icon="↩"[\s\S]*helpText="Revert parent-local skill route to pending"/,
+  /: "↑"[\s\S]*: "Save locally and send for admin review"[\s\S]*<IconActionButton[\s\S]*icon="↩"[\s\S]*helpText="Revert parent-local skill route to pending"/,
   "Parent-local promote and revert icons must expose reliable hover/help and accessible text.",
 );
 assert.match(
@@ -536,8 +541,13 @@ assert.doesNotMatch(
 );
 assert.match(
   unifiedSpellingReviewTable,
-  /!isLearningRelevantOutcome\(nextOutcome\)[\s\S]*existingAssignableRouteOption[\s\S]*form\?\.requestSubmit\(\)/,
-  "Non-learning outcomes and already-routed learning outcomes must submit directly from the outcome dropdown.",
+  /if \(!isLearningRelevantOutcome\(nextOutcome\)\) \{[\s\S]*form\?\.requestSubmit\(\)/,
+  "Non-learning outcomes must submit directly from the outcome dropdown.",
+);
+assert.doesNotMatch(
+  unifiedSpellingReviewTable,
+  /Boolean\(existingAssignableRouteOption\)[\s\S]{0,120}form\?\.requestSubmit\(\)/,
+  "Advisory existing routes must wait for explicit parent input and admin handoff.",
 );
 assert.match(
   unifiedSpellingReviewTable,
@@ -614,6 +624,16 @@ assert.match(
   candidateMappingActions,
   /captureReturnedCorrectionCandidateMapping[\s\S]*loadReturnedCorrectionRouteContext[\s\S]*insertPending/,
   "Candidate capture action must bridge returned corrections into parent-local candidate mappings.",
+);
+assert.match(
+  candidateMappingActions,
+  /knownMatchMicroSkillKey === input\.selectedMicroSkillKey[\s\S]*No admin review was created/,
+  "Submitting the unchanged canonical route must not create an admin artifact.",
+);
+assert.match(
+  candidateMappingActions,
+  /known_match_disagreement:[\s\S]*canonical_micro_skill_key: knownMatchMicroSkillKey[\s\S]*selected_micro_skill_key: input\.selectedMicroSkillKey/,
+  "Changing a canonical route must persist explicit parent disagreement provenance.",
 );
 assert.match(
   candidateMappingActions,

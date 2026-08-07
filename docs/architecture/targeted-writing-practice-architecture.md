@@ -224,6 +224,15 @@ Durable Structured Submission Payloads architecture boundary:
     into durable returned correction targets
   - final classification for returned corrections targets the original
     `writing_issue.id`
+  - route resolution and workflow completion are separate: durable
+    `writing_issues.metadata.known_match_auto_resolution` locks a governed
+    canonical route before parent review, while the row remains non-terminal
+    until the parent reason is saved
+  - returned-correction processing may persist canonical route provenance, but
+    must not create a learning item or admin-review artifact before the reason
+  - canonical-route disagreement must retain the original known-match
+    provenance and create durable admin-handoff evidence for the replacement
+    route
   - `task_submission_payloads` remain submitted evidence, not returned
     correction lifecycle truth
   - returned-correction admin/catalog-review and parent-local promotion need a
@@ -814,8 +823,19 @@ Default rule:
 
 Rules:
 - they may seed `writing_issue_suggestions`
-- they may be deleted and recreated during reanalysis
+- reanalysis builds a complete derived replacement before an atomic persistence
+  step, reusing matching occurrence IDs and preserving reviewed rows
 - they must not become the durable issue lifecycle record
+
+Detection authority boundary:
+- heuristics discover previously unknown spelling mistakes
+- approved resolver-visible canonical mappings recognise spelling mistakes the
+  system already knows
+- token-only canonical detection additionally requires explicit audited
+  `automatic_detection_eligibility = token_safe`; context-dependent valid-word
+  mappings remain excluded
+- the resolver interprets and categorises the resulting known pair for
+  curriculum use; it does not depend on heuristic discovery first
 
 Practical implication:
 - finalized issue history must survive even if `replaceAnalysisForSample()` regenerates all misspelling rows

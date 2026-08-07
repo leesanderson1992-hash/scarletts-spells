@@ -66,10 +66,10 @@ function shouldSkipToken(token: Token) {
   return false;
 }
 
-export function detectMisspellings(text: string): DetectedMisspelling[] {
+export function detectMisspellingsFromTokens(tokens: Token[]): DetectedMisspelling[] {
   const seen = new Set<string>();
 
-  return tokenizeText(text).flatMap((token) => {
+  return tokens.flatMap((token) => {
     if (shouldSkipToken(token)) {
       return [];
     }
@@ -131,11 +131,15 @@ export function detectMisspellings(text: string): DetectedMisspelling[] {
   });
 }
 
-export function analyseSpellingSample(
-  text: string,
+export function detectMisspellings(text: string): DetectedMisspelling[] {
+  return detectMisspellingsFromTokens(tokenizeText(text));
+}
+
+export function analyseSpellingTokens(
+  tokens: Token[],
   startDate: Date | string = new Date(),
 ): SpellingAnalysisResult {
-  const misspellings = detectMisspellings(text);
+  const misspellings = detectMisspellingsFromTokens(tokens);
   const mainTargetFamily = selectWordFamily(
     misspellings.map((item) => ({
       misspelling: item.misspelling,
@@ -155,4 +159,11 @@ export function analyseSpellingSample(
     ),
     reviewSchedule: scheduleReview(startDate),
   };
+}
+
+export function analyseSpellingSample(
+  text: string,
+  startDate: Date | string = new Date(),
+): SpellingAnalysisResult {
+  return analyseSpellingTokens(tokenizeText(text), startDate);
 }

@@ -169,6 +169,10 @@ const reviewCompletionActions = readFileSync(
   "app/courses/review/actions/review-completion-actions.ts",
   "utf8",
 );
+const candidateMappingActions = readFileSync(
+  "app/courses/review/actions/candidate-mapping-actions.ts",
+  "utf8",
+);
 const diagnostics = readFileSync(
   "lib/writing-engine/persistence/returned-correction-learning-route-diagnostics.ts",
   "utf8",
@@ -179,14 +183,14 @@ const unifiedSpellingReviewTable = readFileSync(
 );
 
 assert.match(
-  reviewCompletionActions,
-  /resolveReturnedCorrectionParentLocalRouteBridge[\s\S]*returned_correction_route_bridge[\s\S]*\.from\("writing_issues"\)[\s\S]*\.update\(\{[\s\S]*micro_skill_key: bridgeResolution\.microSkillKey[\s\S]*finalise_writing_issue_classification_and_learning_item/,
-  "Finalisation must attach the verified parent-local route to the durable issue before the learning-item RPC.",
+  candidateMappingActions,
+  /finaliseReturnedCorrectionAfterRouteCapture[\s\S]*returned_correction_route_bridge:[\s\S]*micro_skill_key: input\.selectedMicroSkillKey[\s\S]*finalise_writing_issue_classification_and_learning_item/,
+  "Candidate handoff finalisation must attach the verified parent-local route to the durable issue before the learning-item RPC.",
 );
 assert.match(
-  reviewCompletionActions,
+  candidateMappingActions,
   /\.eq\("issue_status", "child_responded"\)[\s\S]*\.is\("final_classification", null\)/,
-  "Bridge update must fail closed once the issue is no longer an unfinalised child response.",
+  "Candidate handoff route updates must fail closed once the issue is no longer an unfinalised child response.",
 );
 assert.match(
   reviewCompletionActions,

@@ -101,6 +101,30 @@ export type SetResolverVisibilityForCanonicalMappingInput = {
   metadata?: Record<string, unknown>;
 };
 
+export type CanonicalAutomaticDetectionEligibility =
+  | "token_safe"
+  | "context_required"
+  | "disabled";
+
+export type SetCanonicalAutomaticDetectionEligibilityInput = {
+  mappingId: string;
+  eligibility: CanonicalAutomaticDetectionEligibility;
+  adminUserId: string;
+  adminEmail?: string | null;
+  note: string;
+  metadata?: Record<string, unknown>;
+};
+
+export type ResolverVisibleTokenSafeCanonicalMapping = {
+  mappingId: string;
+  misspellingNormalized: string;
+  correctSpellingNormalized: string;
+  microSkillKey: string;
+  dialectCode: string;
+  normalizationVersion: string;
+  authorityReference: string;
+};
+
 export type AdoptSpellingCanonicalMappingRecommendationInput = {
   recommendationId: string;
   adminUserId: string;
@@ -305,6 +329,39 @@ export async function disableResolverVisibilityForCanonicalMappingAdmin(input: {
     targetStatus: "disabled",
     mapping: input.mapping,
   });
+}
+
+export async function setCanonicalAutomaticDetectionEligibilityAdmin(input: {
+  supabase?: ServiceRoleClient;
+  mapping: SetCanonicalAutomaticDetectionEligibilityInput;
+}) {
+  const supabase = input.supabase ?? createServiceRoleClient();
+  const { mapping } = input;
+  const { data, error } = await supabase.rpc(
+    "set_spelling_canonical_mapping_auto_detection_admin",
+    {
+      p_admin_email: mapping.adminEmail ?? null,
+      p_admin_user_id: mapping.adminUserId,
+      p_mapping_id: mapping.mappingId,
+      p_metadata: mapping.metadata ?? {},
+      p_new_eligibility: mapping.eligibility,
+      p_note: mapping.note,
+    },
+  );
+
+  if (error) {
+    throw new Error(
+      error.message || "Failed to update canonical automatic detection eligibility.",
+    );
+  }
+
+  if (typeof data !== "string") {
+    throw new Error(
+      "Canonical automatic detection eligibility RPC did not return a mapping id.",
+    );
+  }
+
+  return data;
 }
 
 export async function adoptSpellingCanonicalMappingRecommendationAdmin(input: {
@@ -661,4 +718,83 @@ export async function findResolverVisibleExactPairMapping(input: {
     dialectCode: selectedMapping.dialect_code,
     normalizationVersion: selectedMapping.normalization_version,
   };
+}
+
+export async function findResolverVisibleTokenSafeCanonicalMappings(input: {
+  supabase?: ServiceRoleClient;
+  observedNormalizedTokens: string[];
+  dialectCode?: string | null;
+  normalizationVersion?: string | null;
+}): Promise<ResolverVisibleTokenSafeCanonicalMapping[]> {
+  const observedNormalizedTokens = dedupeStrings(
+    input.observedNormalizedTokens
+      .map((token) => normalizeLookupText(token))
+      .filter((token): token is string => Boolean(token)),
+  );
+
+  if (observedNormalizedTokens.length === 0) {
+    return [];
+  }
+
+  const supabase = input.supabase ?? createServiceRoleClient();
+  const dialectCode = normalizeLookupCode(input.dialectCode, "en-GB");
+  const normalizationVersion = normalizeLookupCode(
+    input.normalizationVersion,
+    "spelling_normalize_v1",
+  );
+  const { data, error } = await supabase.rpc(
+    "find_resolver_visible_token_safe_canonical_mappings",
+    {
+      p_dialect_code: dialectCode,
+      p_normalization_version: normalizationVersion,
+      p_observed_normalized_tokens: observedNormalizedTokens,
+    },
+  );
+
+  if (error) {
+    throw new Error(
+      error.message ||
+        "Failed to read resolver-visible token-safe canonical mappings.",
+    );
+  }
+
+  return ((data ?? []) as unknown[]).flatMap((value) => {
+    if (!value || typeof value !== "object") {
+      return [];
+    }
+
+    const row = value as Partial<{
+      mapping_id: string;
+      misspelling_normalized: string;
+      correct_spelling_normalized: string;
+      micro_skill_key: string;
+      dialect_code: string;
+      normalization_version: string;
+      authority_reference: string;
+    }>;
+
+    if (
+      typeof row.mapping_id !== "string" ||
+      typeof row.misspelling_normalized !== "string" ||
+      typeof row.correct_spelling_normalized !== "string" ||
+      typeof row.micro_skill_key !== "string" ||
+      typeof row.dialect_code !== "string" ||
+      typeof row.normalization_version !== "string" ||
+      typeof row.authority_reference !== "string"
+    ) {
+      return [];
+    }
+
+    return [
+      {
+        mappingId: row.mapping_id,
+        misspellingNormalized: row.misspelling_normalized,
+        correctSpellingNormalized: row.correct_spelling_normalized,
+        microSkillKey: row.micro_skill_key,
+        dialectCode: row.dialect_code,
+        normalizationVersion: row.normalization_version,
+        authorityReference: row.authority_reference,
+      },
+    ];
+  });
 }

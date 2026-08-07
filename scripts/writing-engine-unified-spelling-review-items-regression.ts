@@ -924,9 +924,9 @@ assert.equal(
 const completionSummary = summarizeUnifiedSpellingReviewCompletion(rows);
 assert.equal(completionSummary.canComplete, false);
 assert.equal(completionSummary.totalItemCount, 13);
-assert.equal(completionSummary.unresolvedItemCount, 7);
+assert.equal(completionSummary.unresolvedItemCount, 10);
 assert.equal(completionSummary.unresolvedReturnedCorrectionCount, 3);
-assert.equal(completionSummary.unresolvedCategorisationCount, 2);
+assert.equal(completionSummary.unresolvedCategorisationCount, 4);
 assert.equal(completionSummary.deferredUnsupportedRouteCount, 0);
 assert.ok(
   completionSummary.blockingReasons.some((reason) =>
@@ -940,28 +940,153 @@ assert.ok(
   ),
   "Rows needing categorisation or parent-local promotion must block completion.",
 );
+
+const knownMatchRows = buildUnifiedSpellingReviewItems({
+  ...input,
+  misspellings: [],
+  writingIssueSuggestions: [],
+  parentVerifications: [],
+  historicalParentVerifications: [],
+  writingIssues: [],
+  correctionAttempts: [
+    {
+      id: "attempt-known-match",
+      writing_issue_id: "issue-known-match",
+      task_submission_id: "submission-current",
+      attempted_correction: "address",
+      attempt_notes: null,
+      reflection: "easy",
+      metadata: { source: "child_retry" },
+      created_at: "2026-05-26T10:00:00.000Z",
+    },
+  ],
+  returnedWritingIssues: [
+    {
+      id: "issue-known-match",
+      task_submission_id: "submission-previous",
+      source_misspelling_instance_id: "miss-known-match",
+      source_suggestion_id: "suggestion-known-match",
+      issue_status: "finalised",
+      final_classification: "concept_gap",
+      observed_text: "adress",
+      suggested_replacement: "address",
+      approved_replacement: "address",
+      micro_skill_key: "d4.double_consonant",
+      parent_review_note: null,
+      notes: null,
+      metadata: {
+        source_kind: "misspelling_instance",
+        known_match_auto_resolution: {
+          authority: "known_match",
+          canonical_mapping_id: "canonical-known-match",
+          micro_skill_key: "d4.double_consonant",
+          resolved_at: "2026-05-26T10:05:00.000Z",
+        },
+      },
+    },
+  ],
+  candidateMappings: [],
+  catalogReviewCases: [],
+  canonicalRecommendations: [],
+});
+assert.equal(knownMatchRows.length, 1);
+assert.equal(knownMatchRows[0]?.terminalStatus, "resolved_known_match");
+assert.equal(
+  knownMatchRows[0]?.knownMatchAutoResolution?.canonicalMappingId,
+  "canonical-known-match",
+);
+assert.equal(
+  summarizeUnifiedSpellingReviewCompletion(knownMatchRows).canComplete,
+  true,
+  "Durably auto-resolved known matches must stop blocking completion without admin evidence.",
+);
+
+const preResolvedKnownMatchRows = buildUnifiedSpellingReviewItems({
+  ...input,
+  misspellings: [],
+  writingIssueSuggestions: [],
+  parentVerifications: [],
+  historicalParentVerifications: [],
+  writingIssues: [],
+  correctionAttempts: [
+    {
+      id: "attempt-pre-resolved-known-match",
+      writing_issue_id: "issue-pre-resolved-known-match",
+      task_submission_id: "submission-current",
+      attempted_correction: "wash",
+      attempt_notes: null,
+      reflection: "medium",
+      metadata: { source: "child_retry" },
+      created_at: "2026-08-07T10:00:00.000Z",
+    },
+  ],
+  returnedWritingIssues: [
+    {
+      id: "issue-pre-resolved-known-match",
+      task_submission_id: "submission-previous",
+      source_misspelling_instance_id: "miss-pre-resolved-known-match",
+      source_suggestion_id: "suggestion-pre-resolved-known-match",
+      issue_status: "child_responded",
+      final_classification: null,
+      observed_text: "wosh",
+      suggested_replacement: "wash",
+      approved_replacement: "wash",
+      micro_skill_key: "d4.wash",
+      parent_review_note: null,
+      notes: null,
+      metadata: {
+        source_kind: "misspelling_instance",
+        known_match_auto_resolution: {
+          authority: "known_match",
+          canonical_mapping_id: "canonical-wosh-wash",
+          micro_skill_key: "d4.wash",
+          resolved_at: "2026-08-07T10:00:00.000Z",
+        },
+      },
+    },
+  ],
+  candidateMappings: [],
+  catalogReviewCases: [],
+  canonicalRecommendations: [],
+});
+assert.equal(preResolvedKnownMatchRows.length, 1);
+assert.equal(preResolvedKnownMatchRows[0]?.terminalStatus, null);
+assert.equal(
+  preResolvedKnownMatchRows[0]?.knownMatchAutoResolution?.microSkillKey,
+  "d4.wash",
+);
+assert.equal(
+  summarizeUnifiedSpellingReviewCompletion(preResolvedKnownMatchRows)
+    .canComplete,
+  false,
+  "A durably resolved route must continue to block completion until its reason is saved.",
+);
+
 const terminalRows: UnifiedSpellingReviewItem[] = [
-  engineRow,
-  overriddenRow,
+  { ...engineRow, terminalStatus: "sent_to_admin" },
+  { ...overriddenRow, terminalStatus: "sent_to_admin" },
   falsePositiveRow,
   notLearningRow,
   {
     ...parentAddedRow,
     state: "locally_promoted",
     categorisationStatus: "parent_local_promoted",
+    terminalStatus: "sent_to_admin",
   },
   {
     ...returnedAdminRow,
     state: "resolved",
     correctionOutcome: "concept_gap",
+    terminalStatus: "sent_to_admin",
   },
   {
     ...returnedMappingRow,
     state: "resolved",
     categorisationStatus: "parent_local_promoted",
     correctionOutcome: "concept_gap",
+    terminalStatus: "sent_to_admin",
   },
-  terminalNoAttemptReturnedRow,
+  { ...terminalNoAttemptReturnedRow, terminalStatus: "sent_to_admin" },
 ];
 const terminalSummary = summarizeUnifiedSpellingReviewCompletion(terminalRows);
 assert.equal(terminalSummary.canComplete, true);
@@ -1032,7 +1157,7 @@ const unsupportedReturnedSummary = summarizeUnifiedSpellingReviewCompletion([
     categorisationStatus: "unsupported_returned_correction_route",
   },
 ]);
-assert.equal(unsupportedReturnedSummary.canComplete, true);
+assert.equal(unsupportedReturnedSummary.canComplete, false);
 assert.equal(unsupportedReturnedSummary.deferredUnsupportedRouteCount, 0);
 
 const adminDeferredReturnedSummary = summarizeUnifiedSpellingReviewCompletion([
@@ -1041,6 +1166,7 @@ const adminDeferredReturnedSummary = summarizeUnifiedSpellingReviewCompletion([
     state: "resolved",
     correctionOutcome: "concept_gap",
     categorisationStatus: "sent_to_admin",
+    terminalStatus: "sent_to_admin",
   },
 ]);
 assert.equal(adminDeferredReturnedSummary.canComplete, true);
@@ -1736,8 +1862,8 @@ assert.doesNotMatch(
 );
 assert.match(
   tableSource,
-  /const selectedSuggested =[\s\S]*microSkillKey === row\.suggestedMicroSkillKey/,
-  "Confirm-as-accepted should remain tied to existing engine suggested skill, not Slice 2A recommendation data.",
+  /const canSendSelectedRouteToAdmin =[\s\S]*editableRouteIsOpen[\s\S]*microSkillKey\.length > 0/,
+  "All non-known selected routes should use the explicit admin-handoff path.",
 );
 assert.match(
   tableSource,
@@ -1806,8 +1932,8 @@ assert.match(
 );
 assert.match(
   tableSource,
-  /const showRouteSelectors = routeIsOpen[\s\S]*showRouteSelectors \? \([\s\S]*Learning route family[\s\S]*\) : \([\s\S]*Learning route appears only for learning outcomes\./,
-  "Returned-correction rows must hide learning-route selectors until a learning-relevant outcome opens routing.",
+  /const showRouteSelectors =[\s\S]*Boolean\(row\.knownMatchAutoResolution\)[\s\S]*showRouteSelectors \? \([\s\S]*Learning route family/,
+  "Pre-resolved known matches must display their locked learning-route selectors before a reason is selected.",
 );
 assert.match(
   tableSource,
@@ -1836,8 +1962,18 @@ assert.match(
 );
 assert.match(
   tableSource,
-  /canSaveReturnedSuggestedRoute[\s\S]*captureSubmissionSpellingCandidateMapping/,
-  "Returned-correction selected suggestions should still expose an explicit route-save action.",
+  /canSendSelectedRouteToAdmin[\s\S]*captureSubmissionSpellingCandidateMapping/,
+  "Returned-correction selected suggestions should expose an explicit admin-handoff action.",
+);
+assert.match(
+  tableSource,
+  /knownMatchCanAutoResolve[\s\S]*Boolean\(row\.knownMatchAutoResolution\)[\s\S]*form\?\.requestSubmit\(\)[\s\S]*name="known_match_micro_skill_key"[\s\S]*row\.knownMatchAutoResolution\.microSkillKey/,
+  "A persisted known match should auto-submit the reason with its exact durable route.",
+);
+assert.match(
+  tableSource,
+  /knownMatchEditEligible[\s\S]*Boolean\(row\.knownMatchAutoResolution\)[\s\S]*icon=\{knownMatchEditOpen \? "×" : "✎"\}[\s\S]*toggleKnownMatchEdit/,
+  "Durably pre-resolved known matches should expose a pencil-only learning-route edit with canonical cancel restoration.",
 );
 assert.match(
   tableSource,

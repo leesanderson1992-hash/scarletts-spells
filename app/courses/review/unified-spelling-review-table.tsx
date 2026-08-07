@@ -153,6 +153,21 @@ function sourceMarker(row: UnifiedSpellingReviewItem) {
 }
 
 function statusLabel(row: UnifiedSpellingReviewItem) {
+  if (row.terminalStatus === "sent_to_admin") {
+    return "Admin route pending";
+  }
+
+  if (
+    row.terminalStatus === "resolved_known_match" ||
+    row.terminalStatus === "not_an_issue"
+  ) {
+    return "Done";
+  }
+
+  if (row.knownMatchAutoResolution) {
+    return "Resolved route";
+  }
+
   if (
     row.categorisationStatus === "sent_to_admin" ||
     row.state === "sent_to_admin"
@@ -193,7 +208,7 @@ function statusLabel(row: UnifiedSpellingReviewItem) {
   }
 
   if (row.state === "resolved") {
-    return "Done";
+    return "Review needed";
   }
 
   if (row.state === "categorisation_needed") {
@@ -204,6 +219,18 @@ function statusLabel(row: UnifiedSpellingReviewItem) {
 }
 
 function routeText(row: UnifiedSpellingReviewItem) {
+  if (row.knownMatchAutoResolution) {
+    return "Known match applied. Use the pencil if the learning route needs admin review.";
+  }
+
+  if (row.terminalStatus === "sent_to_admin") {
+    return "Sent to admin for route review. The parent review can be completed now.";
+  }
+
+  if (row.terminalStatus === "not_an_issue") {
+    return "No learning route is needed for this row.";
+  }
+
   switch (row.categorisationStatus) {
     case "categorised":
       return "Skill route is categorised.";
@@ -304,6 +331,15 @@ function recommendationBadge(row: UnifiedSpellingReviewItem) {
   }
 }
 
+function knownMatchBadge() {
+  return {
+    label: "Known Match",
+    title:
+      "This learning route is resolved from an active resolver-visible canonical spelling match.",
+    className: "border-emerald-200 bg-emerald-50 text-emerald-800",
+  };
+}
+
 function noMatchYetBadge() {
   return {
     label: "No Match Yet",
@@ -384,7 +420,6 @@ function UnifiedSpellingReviewTableRow({
       (selectedOutcomeNeedsRoute &&
         row.categorisationStatus === "not_applicable"));
   const routeIsOpen = currentRouteIsOpen || returnedRouteIsOpen;
-  const showRouteSelectors = routeIsOpen;
   const recommendationOption = findOption(
     options,
     row.microSkillRecommendation?.recommendedMicroSkillKey ?? null,
@@ -435,11 +470,37 @@ function UnifiedSpellingReviewTableRow({
   );
   const [microSkillKey, setMicroSkillKey] = useState(initialSkill ?? "");
   const [detailsOpen, setDetailsOpen] = useState(false);
+  const [knownMatchEditOpen, setKnownMatchEditOpen] = useState(false);
+  const knownMatchEditEligible =
+    row.source === "returned_correction" &&
+    Boolean(row.knownMatchAutoResolution) &&
+    row.terminalStatus !== "sent_to_admin" &&
+    row.terminalStatus !== "not_an_issue" &&
+    Boolean(row.sourceIds.originalWritingIssueId) &&
+    Boolean(row.sourceIds.correctionAttemptId);
+  const knownMatchCanAutoResolve =
+    routeControlsAllowed &&
+    row.source === "returned_correction" &&
+    row.state === "child_responded" &&
+    !row.correctionOutcome &&
+    !knownMatchEditOpen &&
+    Boolean(row.knownMatchAutoResolution);
+  const editableRouteIsOpen = routeIsOpen || knownMatchEditOpen;
+  const showRouteSelectors =
+    editableRouteIsOpen || Boolean(row.knownMatchAutoResolution);
   function handleOutcomeChange(
     nextOutcome: string,
     form: HTMLFormElement | null,
   ) {
     setSelectedOutcome(nextOutcome);
+
+    if (
+      isLearningRelevantOutcome(nextOutcome) &&
+      knownMatchCanAutoResolve
+    ) {
+      form?.requestSubmit();
+      return;
+    }
 
     if (
       !isLearningRelevantOutcome(nextOutcome) ||
@@ -449,10 +510,7 @@ function UnifiedSpellingReviewTableRow({
       clusterKey.length > 0 ||
       microSkillKey.length > 0
     ) {
-      if (
-        !isLearningRelevantOutcome(nextOutcome) ||
-        Boolean(existingAssignableRouteOption)
-      ) {
+      if (!isLearningRelevantOutcome(nextOutcome)) {
         form?.requestSubmit();
       }
       return;
@@ -462,26 +520,22 @@ function UnifiedSpellingReviewTableRow({
     setClusterKey(recommendationOption.skillClusterKey ?? "");
     setMicroSkillKey(recommendationOption.microSkillKey);
 
-    if (existingAssignableRouteOption) {
-      form?.requestSubmit();
-    }
   }
   const suggestedSkillIsUsable = isMeaningfulSkill(row.suggestedMicroSkillKey);
   const noMatchingSkillSelected = familyKey === NO_MATCHING_SKILL_VALUE;
-  const selectedSuggested =
-    suggestedSkillIsUsable &&
-    microSkillKey === row.suggestedMicroSkillKey &&
-    !noMatchingSkillSelected;
-  const canConfirmSuggested = currentRouteIsOpen && selectedSuggested;
-  const canSaveOverride =
-    routeIsOpen &&
+  const selectedKnownMatchRoute =
+    row.knownMatchAutoResolution?.microSkillKey ?? null;
+  const canSendSelectedRouteToAdmin =
+    editableRouteIsOpen &&
     microSkillKey.length > 0 &&
-    !selectedSuggested &&
-    !noMatchingSkillSelected;
-  const canSaveReturnedSuggestedRoute =
-    returnedRouteIsOpen && selectedSuggested && microSkillKey.length > 0;
+    !noMatchingSkillSelected &&
+    (!knownMatchEditOpen || selectedOutcomeNeedsRoute) &&
+    (!knownMatchEditOpen || microSkillKey !== selectedKnownMatchRoute);
   const canSendToAdmin =
-    routeIsOpen && noMatchingSkillSelected && Boolean(submissionId);
+    editableRouteIsOpen &&
+    noMatchingSkillSelected &&
+    Boolean(submissionId) &&
+    (!knownMatchEditOpen || selectedOutcomeNeedsRoute);
   const canFinalClassify =
     routeControlsAllowed &&
     row.source === "returned_correction" &&
@@ -496,16 +550,18 @@ function UnifiedSpellingReviewTableRow({
     row.state !== "not_an_issue" &&
     row.state !== "resolved" &&
     row.state !== "sent_to_admin";
-  const skillDisabled = !routeIsOpen;
-  const currentFamilySelectorOpen = routeIsOpen;
+  const skillDisabled = !editableRouteIsOpen;
+  const currentFamilySelectorOpen = editableRouteIsOpen;
   const dependentSkillDisabled = skillDisabled || noMatchingSkillSelected;
   const selectedSkillOption = findOption(options, microSkillKey);
-  const recommendationBadgeModel = routeIsOpen
-    ? (recommendationBadge(row) ??
+  const recommendationBadgeModel = row.knownMatchAutoResolution
+    ? knownMatchBadge()
+    : routeIsOpen
+      ? (recommendationBadge(row) ??
       (!selectedSkillOption && !suggestedSkillIsUsable
         ? noMatchYetBadge()
         : null))
-    : null;
+      : null;
   const detailsId = `spelling-review-details-${row.id.replace(/[^a-zA-Z0-9_-]/g, "-")}`;
   const historicalFullAnswerAttempt =
     typeof row.provenance.metadata.historical_full_answer_attempt === "string"
@@ -533,6 +589,19 @@ function UnifiedSpellingReviewTableRow({
   function handleClusterChange(nextClusterKey: string) {
     setClusterKey(nextClusterKey);
     setMicroSkillKey("");
+  }
+
+  function toggleKnownMatchEdit() {
+    if (knownMatchEditOpen) {
+      const canonicalOption = findOption(options, selectedKnownMatchRoute);
+      setFamilyKey(canonicalOption?.skillFamilyKey ?? "");
+      setClusterKey(canonicalOption?.skillClusterKey ?? "");
+      setMicroSkillKey(canonicalOption?.microSkillKey ?? "");
+      setKnownMatchEditOpen(false);
+      return;
+    }
+
+    setKnownMatchEditOpen(true);
   }
 
   return (
@@ -594,6 +663,13 @@ function UnifiedSpellingReviewTableRow({
                   name="redirect_path"
                   value={redirectPath}
                 />
+                {knownMatchCanAutoResolve && row.knownMatchAutoResolution ? (
+                  <input
+                    type="hidden"
+                    name="known_match_micro_skill_key"
+                    value={row.knownMatchAutoResolution.microSkillKey}
+                  />
+                ) : null}
                 <select
                   name="final_classification"
                   required
@@ -642,7 +718,11 @@ function UnifiedSpellingReviewTableRow({
                   onChange={(event) => handleFamilyChange(event.target.value)}
                   disabled={skillDisabled}
                   title={
-                    row.source === "returned_correction" && !returnedRouteIsOpen
+                    row.knownMatchAutoResolution && !knownMatchEditOpen
+                      ? "Known match route is locked. Use the pencil to edit it."
+                      : row.source === "returned_correction" &&
+                    !returnedRouteIsOpen &&
+                    !knownMatchEditOpen
                       ? "Returned correction skill routing is displayed from existing bridge records only."
                       : "Choose learning route."
                   }
@@ -666,7 +746,11 @@ function UnifiedSpellingReviewTableRow({
                   onChange={(event) => handleClusterChange(event.target.value)}
                   disabled={dependentSkillDisabled || clusters.length === 0}
                   title={
-                    row.source === "returned_correction" && !returnedRouteIsOpen
+                    row.knownMatchAutoResolution && !knownMatchEditOpen
+                      ? "Known match route is locked. Use the pencil to edit it."
+                      : row.source === "returned_correction" &&
+                    !returnedRouteIsOpen &&
+                    !knownMatchEditOpen
                       ? "Returned correction skill routing is displayed from existing bridge records only."
                       : "This outcome needs an active spelling skill before it can go to practice."
                   }
@@ -688,7 +772,11 @@ function UnifiedSpellingReviewTableRow({
                   onChange={(event) => setMicroSkillKey(event.target.value)}
                   disabled={dependentSkillDisabled}
                   title={
-                    row.source === "returned_correction" && !returnedRouteIsOpen
+                    row.knownMatchAutoResolution && !knownMatchEditOpen
+                      ? "Known match route is locked. Use the pencil to edit it."
+                      : row.source === "returned_correction" &&
+                    !returnedRouteIsOpen &&
+                    !knownMatchEditOpen
                       ? "Returned correction skill routing is displayed from existing bridge records only."
                       : "This outcome needs an active spelling skill before it can go to practice."
                   }
@@ -730,80 +818,26 @@ function UnifiedSpellingReviewTableRow({
         {showActionsColumn ? (
           <td className="overflow-visible px-3 py-2">
             <div className="flex items-center gap-1.5 overflow-visible">
-              {canConfirmSuggested ? (
-                <form action={recordReviewWorkVerificationAction}>
-                  <input
-                    type="hidden"
-                    name="redirect_path"
-                    value={redirectPath}
-                  />
-                  <input
-                    type="hidden"
-                    name="misspelling_instance_id"
-                    value={sourceMisspellingId ?? ""}
-                  />
-                  <input
-                    type="hidden"
-                    name="task_submission_id"
-                    value={submissionId}
-                  />
-                  <input
-                    type="hidden"
-                    name="writing_sample_id"
-                    value={row.sourceIds.writingSampleId ?? ""}
-                  />
-                  <IconActionButton
-                    type="submit"
-                    name="decision"
-                    value="accepted"
-                    icon="✓"
-                    helpText="Confirm suggested skill"
-                    ariaLabel={`Confirm suggested skill for ${row.observedText}`}
-                    className="border border-emerald-200 bg-emerald-50 text-emerald-800"
-                  />
-                </form>
+              {knownMatchEditEligible ? (
+                <IconActionButton
+                  type="button"
+                  icon={knownMatchEditOpen ? "×" : "✎"}
+                  helpText={
+                    knownMatchEditOpen
+                      ? "Cancel learning route edit"
+                      : "Edit learning route and send disagreement to admin"
+                  }
+                  ariaLabel={
+                    knownMatchEditOpen
+                      ? `Cancel learning route edit for ${row.observedText}`
+                      : `Edit the known learning route for ${row.observedText}`
+                  }
+                  onClick={toggleKnownMatchEdit}
+                  className="border border-sky-200 bg-sky-50 text-sky-800"
+                />
               ) : null}
 
-              {canSaveOverride && suggestedSkillIsUsable ? (
-                <form action={recordReviewWorkVerificationAction}>
-                  <input
-                    type="hidden"
-                    name="redirect_path"
-                    value={redirectPath}
-                  />
-                  <input
-                    type="hidden"
-                    name="misspelling_instance_id"
-                    value={sourceMisspellingId ?? ""}
-                  />
-                  <input
-                    type="hidden"
-                    name="task_submission_id"
-                    value={submissionId}
-                  />
-                  <input
-                    type="hidden"
-                    name="writing_sample_id"
-                    value={row.sourceIds.writingSampleId ?? ""}
-                  />
-                  <input type="hidden" name="decision" value="overridden" />
-                  <input
-                    type="hidden"
-                    name="verified_micro_skill_key"
-                    value={microSkillKey}
-                  />
-                  <IconActionButton
-                    type="submit"
-                    icon="!"
-                    helpText="Apply selected skill instead of engine suggestion"
-                    ariaLabel={`Apply selected skill instead of engine suggestion for ${row.observedText}`}
-                    className="border border-sky-200 bg-sky-50 text-sky-800"
-                  />
-                </form>
-              ) : null}
-
-              {(canSaveOverride && !suggestedSkillIsUsable) ||
-              canSaveReturnedSuggestedRoute ? (
+              {canSendSelectedRouteToAdmin ? (
                 <form action={captureSubmissionSpellingCandidateMapping}>
                   <input
                     type="hidden"
@@ -815,7 +849,7 @@ function UnifiedSpellingReviewTableRow({
                     name="redirect_path"
                     value={redirectPath}
                   />
-                  {returnedRouteIsOpen ? (
+                  {returnedRouteIsOpen || knownMatchEditOpen ? (
                     <>
                       <input
                         type="hidden"
@@ -830,7 +864,7 @@ function UnifiedSpellingReviewTableRow({
                       <input
                         type="hidden"
                         name="final_classification"
-                        value={selectedOutcome}
+                        value={selectedOutcome || row.correctionOutcome || ""}
                       />
                     </>
                   ) : (
@@ -901,7 +935,7 @@ function UnifiedSpellingReviewTableRow({
                     name="redirect_path"
                     value={redirectPath}
                   />
-                  {returnedRouteIsOpen ? (
+                  {returnedRouteIsOpen || knownMatchEditOpen ? (
                     <>
                       <input
                         type="hidden"
@@ -916,7 +950,7 @@ function UnifiedSpellingReviewTableRow({
                       <input
                         type="hidden"
                         name="final_classification"
-                        value={selectedOutcome}
+                        value={selectedOutcome || row.correctionOutcome || ""}
                       />
                     </>
                   ) : (
@@ -937,7 +971,9 @@ function UnifiedSpellingReviewTableRow({
               ) : null}
 
               {row.sourceIds.candidateMappingId &&
-              row.categorisationStatus === "parent_local_pending" ? (
+              !row.sourceIds.canonicalRecommendationId &&
+              (row.categorisationStatus === "parent_local_pending" ||
+                row.categorisationStatus === "parent_local_promoted") ? (
                 <form action={promoteParentLocalCandidateMapping}>
                   <input
                     type="hidden"
@@ -956,9 +992,17 @@ function UnifiedSpellingReviewTableRow({
                   />
                   <IconActionButton
                     type="submit"
-                    icon="↑"
-                    helpText="Save locally and send for admin review"
-                    ariaLabel={`Save ${row.observedText} locally and send for admin review`}
+                    icon={
+                      row.categorisationStatus === "parent_local_promoted"
+                        ? "!"
+                        : "↑"
+                    }
+                    helpText={
+                      row.categorisationStatus === "parent_local_promoted"
+                        ? "Retry sending this route for admin review"
+                        : "Save locally and send for admin review"
+                    }
+                    ariaLabel={`Send ${row.observedText} for admin review`}
                     className="border border-emerald-200 bg-emerald-50 text-xs text-emerald-800"
                   />
                 </form>

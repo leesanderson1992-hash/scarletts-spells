@@ -743,6 +743,42 @@ async function captureReturnedCorrectionCandidateMapping(input: {
     );
   }
 
+  const knownMatchResolution = parseObjectMetadata(
+    parseObjectMetadata(routeContext.issue.metadata)
+      .known_match_auto_resolution,
+  );
+  const knownMatchMicroSkillKey =
+    knownMatchResolution.authority === "known_match" &&
+    typeof knownMatchResolution.micro_skill_key === "string"
+      ? knownMatchResolution.micro_skill_key
+      : null;
+
+  if (knownMatchMicroSkillKey === input.selectedMicroSkillKey) {
+    redirect(
+      buildRedirectWithMessage(
+        input.safeRedirectPath,
+        "saved",
+        "The known learning route is unchanged. No admin review was created.",
+      ),
+    );
+  }
+
+  const routeMetadata = knownMatchMicroSkillKey
+    ? {
+        ...routeContext.routeMetadata,
+        known_match_disagreement: {
+          authority: "parent",
+          canonical_mapping_id:
+            typeof knownMatchResolution.canonical_mapping_id === "string"
+              ? knownMatchResolution.canonical_mapping_id
+              : null,
+          canonical_micro_skill_key: knownMatchMicroSkillKey,
+          selected_micro_skill_key: input.selectedMicroSkillKey,
+          recorded_at: new Date().toISOString(),
+        },
+      }
+    : routeContext.routeMetadata;
+
   const catalogEntry =
     await getReviewWorkCandidateCaptureMicroSkillCatalogEntry({
       supabase: input.supabase,
@@ -872,7 +908,7 @@ async function captureReturnedCorrectionCandidateMapping(input: {
       selectedMicroSkillKey: candidateMapping.micro_skill_key,
       finalClassification: input.finalClassification,
       routeMetadata: {
-        ...routeContext.routeMetadata,
+        ...routeMetadata,
         candidate_mapping_id: candidateMapping.id,
       },
       safeRedirectPath: input.safeRedirectPath,
@@ -939,7 +975,7 @@ async function captureReturnedCorrectionCandidateMapping(input: {
       correctSpellingNormalized: routeContext.correctSpellingNormalized,
       microSkillKey: input.selectedMicroSkillKey,
       metadata: {
-        ...routeContext.routeMetadata,
+        ...routeMetadata,
         candidate_status: "pending_parent_promotion",
         promotion_scope: "parent_local",
         action_source: "review_work_returned_correction_candidate_capture",
@@ -1018,7 +1054,7 @@ async function captureReturnedCorrectionCandidateMapping(input: {
     selectedMicroSkillKey: input.selectedMicroSkillKey,
     finalClassification: input.finalClassification,
     routeMetadata: {
-      ...routeContext.routeMetadata,
+      ...routeMetadata,
       candidate_mapping_id: candidateMapping.id,
     },
     safeRedirectPath: input.safeRedirectPath,
@@ -1206,16 +1242,6 @@ export async function captureSubmissionSpellingCandidateMappingImpl(
     existingSuggestedMicroSkillKey.trim().length > 0 &&
     existingSuggestedMicroSkillKey.trim().toLowerCase() !== "unknown";
 
-  if (!isParentAddedMissedWord && hasExistingCanonicalSuggestedMicroSkillKey) {
-    redirect(
-      buildRedirectWithMessage(
-        safeRedirectPath,
-        "error",
-        "That row already carries canonical suggestion truth. Use the existing Review Work actions instead.",
-      ),
-    );
-  }
-
   const catalogEntry =
     await getReviewWorkCandidateCaptureMicroSkillCatalogEntry({
       supabase,
@@ -1356,17 +1382,25 @@ export async function captureSubmissionSpellingCandidateMappingImpl(
   }
 
   if (!parentVerificationId) {
+    const acceptingExistingSuggestion =
+      hasExistingCanonicalSuggestedMicroSkillKey &&
+      existingSuggestedMicroSkillKey === selectedMicroSkillKey;
+
     try {
       const verificationResult =
         await recordStage7dParentVerificationWithoutPromotion({
           supabase,
           childId: submission.child_id,
           parentUserId: user.id,
-          decision: "overridden",
-          verifiedMicroSkillKey: selectedMicroSkillKey,
+          decision: acceptingExistingSuggestion ? "accepted" : "overridden",
+          verifiedMicroSkillKey: acceptingExistingSuggestion
+            ? null
+            : selectedMicroSkillKey,
           note: isParentAddedMissedWord
             ? "Parent-added missed word classified for candidate capture."
-            : "Lesson spelling row classified for candidate capture.",
+            : acceptingExistingSuggestion
+              ? "Parent confirmed the suggested route for admin review."
+              : "Lesson spelling row classified for candidate capture.",
           target: verificationTarget,
         });
       parentVerificationId = verificationResult.verificationRecord.id;

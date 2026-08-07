@@ -7,6 +7,10 @@ import { normaliseLessonDraftPayload } from "@/lib/lessons/responses";
 import { maybeAwardDailyCheckInCoins } from "@/lib/rewards/course-coins";
 import { detectAndStoreFreeWritingEvidenceCandidates } from "@/lib/rewards/free-writing-evidence";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
+import {
+  preResolveReturnedCorrectionKnownMatch,
+  type ReturnedCorrectionKnownMatchIssue,
+} from "@/lib/writing-engine/persistence/returned-correction-known-match";
 import { replaceAnalysisForSample } from "@/lib/writing-engine/spelling/legacy-analysis";
 
 const MAX_ATTEMPTS = 8;
@@ -135,10 +139,12 @@ async function processReturnedCorrections(
   if (issues.length === 0) return;
   const supabase = createServiceRoleClient();
   const issueIds = issues.map((issue) => issue.issue_id);
-  const [{ data: eligible }, { data: existingAttempts }] = await Promise.all([
+  const [eligibleResult, existingAttemptsResult] = await Promise.all([
     supabase
       .from("writing_issues")
-      .select("id")
+      .select(
+        "id, child_id, parent_user_id, issue_status, final_classification, observed_text, suggested_replacement, approved_replacement, micro_skill_key, metadata",
+      )
       .eq("parent_user_id", submission.parent_user_id)
       .eq("child_id", submission.child_id)
       .in("id", issueIds)
@@ -149,6 +155,10 @@ async function processReturnedCorrections(
       .eq("task_submission_id", submission.id)
       .in("writing_issue_id", issueIds),
   ]);
+  if (eligibleResult.error) throw eligibleResult.error;
+  if (existingAttemptsResult.error) throw existingAttemptsResult.error;
+  const eligible = (eligibleResult.data ?? []) as ReturnedCorrectionKnownMatchIssue[];
+  const existingAttempts = existingAttemptsResult.data ?? [];
   const eligibleIds = new Set((eligible ?? []).map((row) => row.id));
   const existingIds = new Set((existingAttempts ?? []).map((row) => row.writing_issue_id));
   const rows = issues
@@ -182,6 +192,19 @@ async function processReturnedCorrections(
     const { error } = await supabase.from("writing_issue_correction_attempts").insert(rows);
     if (error) throw error;
   }
+
+  // Canonical route resolution deliberately happens after retry evidence is
+  // durable and before the issue becomes visible as child_responded. A lookup
+  // failure fails the job; it is never treated as "no known match".
+  await Promise.all(
+    eligible.map((issue) =>
+      preResolveReturnedCorrectionKnownMatch({
+        supabase,
+        issue,
+      }),
+    ),
+  );
+
   const { error } = await supabase
     .from("writing_issues")
     .update({ issue_status: "child_responded", child_responded_at: new Date().toISOString() })
