@@ -55,6 +55,7 @@
     "adle:canonical-intake-readiness-regression": "npx tsx scripts/adle-canonical-intake-readiness-regression.ts",
     "adle:canonical-intake-demand-regression": "npx tsx scripts/adle-canonical-intake-demand-regression.ts",
     "adle:canonical-intake-reconciliation-regression": "npx tsx scripts/adle-canonical-intake-reconciliation-regression.ts",
+    "adle:dynamic-affix-persistence-contract-regression": "npx tsx scripts/adle-dynamic-affix-persistence-contract-regression.ts",
     "adle:canonical-intake-scheduler-regression": "npx tsx scripts/adle-canonical-intake-scheduler-regression.ts",
     "adle:canonical-intake-staging-scheduler": "npx tsx scripts/adle-canonical-intake-staging-scheduler.ts",
     "adle:canonical-intake-production-scheduler-regression": "npx tsx scripts/adle-canonical-intake-production-scheduler-regression.ts",
