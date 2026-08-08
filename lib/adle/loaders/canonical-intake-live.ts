@@ -284,6 +284,8 @@ async function persistEligibleIntake(
     p_correct_spelling_normalized: resolution.correctSpellingNormalized,
     p_source_ref: resolution.sourceRef,
     p_verified_on: resolution.verifiedOn,
+    p_route_id: resolution.routeId,
+    p_route_version: resolution.routeVersion,
   });
   if (error) throwQuery("canonical intake atomic persistence", error);
   return Boolean((data as Array<{ inserted?: boolean }> | null)?.[0]?.inserted);
