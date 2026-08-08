@@ -305,6 +305,27 @@ MeaningCards boxes suppressed for Prefix. Lifecycle status remains
 `CONTROLLED_END_TO_END_PREFIX_LIFECYCLE_AUDIT_REQUIRED`. See the
 [RE/PRE durability audit](qa/adle-dynamic-prefix-re-pre-production-audit-2026-08-06.md).
 
+## Dynamic Affix canonical-intake repair and natural `-al` completion (2026-08-08)
+
+The direct Production repair added migration
+`20260808093000_fix_dynamic_affix_canonical_intake_persistence`, which makes
+the persistence boundary validate an exact reviewed, production-enabled suffix
+profile member and retain `dynamic_affix_word_lab:v3`; it no longer silently
+downgrades a governed suffix target to generic word-level intake. The same
+release added an audited, idempotent canonical-mapping supersession RPC. It
+superseded the old hidden `confushon → confusion` SION-syllable mapping and
+published the reviewed `D4_MOR_SUFFIXES_SION` replacement.
+
+All 29 existing approved Test 2 suffix candidates were reconciled in place:
+29 active Dynamic Affix V3 candidates and 29 active learning items, with zero
+duplicate active learning-item identities and no parent-approval rewrite. The
+normal parent generator then created the `D4_MOR_SUFFIXES_AL` Dynamic Affix V3
+assignment `4ee5f1e2-985b-4da2-8c5b-acdc2fe0dd1e`. It completed naturally:
+16/16 items, one Reflection, three authentic bindings and one transfer binding;
+the parent reported no complaint. Production deployment
+`dpl_C7g2wGXiQJw2JHktR3HXmYxFNvBb` is Ready. See the
+[completion audit](qa/adle-dynamic-affix-al-production-completion-audit-2026-08-08.md).
+
 ## Documentation update rule
 
 Every activation or retirement must update this register, the D4_MOR readiness
