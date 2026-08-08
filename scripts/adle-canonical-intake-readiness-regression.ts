@@ -8,6 +8,7 @@ import {
   type CanonicalIntakeReadinessFacts,
   type IntakeReadinessBlockerCode,
 } from "../lib/adle/canonical-intake";
+import { resolveCanonicalIntakeRoute } from "../lib/adle/canonical-intake/route-readiness";
 
 const SKILL = "D4_MOR_PREFIXES_UN";
 const WORD_ID = "word-unlocked";
@@ -212,5 +213,113 @@ const keyAfterWord = canonicalIntakeDemandStableKey({
 });
 assert.equal(keyBeforeWord, keyAfterWord);
 assert.equal(keyBeforeWord.length, 64);
+
+const AFFIX_SKILL = "D4_MOR_SUFFIXES_MENT";
+const AFFIX_WORD_ID = "word-enjoyment";
+const affixFacts = facts();
+affixFacts.candidate = {
+  ...affixFacts.candidate,
+  candidateMappingId: "candidate-enjoymint",
+  misspellingNormalized: "enjoymint",
+  correctSpellingNormalized: "enjoyment",
+  microSkillKey: AFFIX_SKILL,
+};
+affixFacts.canonicalMappings = [{
+  mappingId: "mapping-enjoymint-enjoyment",
+  misspellingNormalized: "enjoymint",
+  correctSpellingNormalized: "enjoyment",
+  microSkillKey: AFFIX_SKILL,
+  mappingStatus: "active",
+  resolverVisibilityStatus: "visible",
+  hasVisibilityEnableEvent: true,
+}];
+affixFacts.words = [{
+  canonicalWordId: AFFIX_WORD_ID,
+  normalisedWord: "enjoyment",
+  rowStatus: "active",
+  reviewStatus: "approved_for_first_exposure",
+  frequencyBand: "low",
+  ageBand: "middle_primary",
+}];
+affixFacts.microSkills = [{
+  microSkillKey: AFFIX_SKILL,
+  masteryDomainKey: "D4",
+  isActive: true,
+  isAssignable: true,
+}];
+affixFacts.productionEnabledSkillKeys = new Set([AFFIX_SKILL]);
+affixFacts.routeSpecificReadyWordSkillPairs = new Set([
+  canonicalWordSkillPair(AFFIX_WORD_ID, AFFIX_SKILL),
+]);
+affixFacts.routeReadiness = [{
+  canonicalWordId: AFFIX_WORD_ID,
+  microSkillKey: AFFIX_SKILL,
+  ready: true,
+  blockers: [],
+}];
+const affixReady = evaluateCanonicalIntakeReadiness(affixFacts);
+assert.equal(affixReady.status, "ready");
+assert.deepEqual(resolveCanonicalIntakeRoute(AFFIX_SKILL), {
+  routeId: "dynamic_affix_word_lab",
+  routeVersion: "v3",
+});
+
+const affixInBandWords = affixFacts.words.map((word) => ({
+  ...word,
+  frequencyBand: "high",
+}));
+const affixWrongMember = {
+  ...affixFacts,
+  words: affixInBandWords,
+  routeSpecificReadyWordSkillPairs: new Set<string>(),
+};
+const wrongMemberOutcome = evaluateCanonicalIntakeReadiness(affixWrongMember);
+assert.equal(wrongMemberOutcome.status, "blocked");
+if (wrongMemberOutcome.status === "blocked") {
+  assert.equal(wrongMemberOutcome.blockers[0].code, "profile_membership_missing");
+}
+
+const affixWrongSkill = {
+  ...affixFacts,
+  candidate: { ...affixFacts.candidate, microSkillKey: "D4_MOR_SUFFIXES_NESS" },
+  canonicalMappings: [{ ...affixFacts.canonicalMappings[0]!, microSkillKey: "D4_MOR_SUFFIXES_NESS" }],
+  microSkills: [{ ...affixFacts.microSkills[0]!, microSkillKey: "D4_MOR_SUFFIXES_NESS" }],
+  words: affixInBandWords,
+  productionEnabledSkillKeys: new Set(["D4_MOR_SUFFIXES_NESS"]),
+  routeSpecificReadyWordSkillPairs: new Set<string>(),
+};
+const wrongSkillOutcome = evaluateCanonicalIntakeReadiness(affixWrongSkill);
+assert.equal(wrongSkillOutcome.status, "blocked");
+if (wrongSkillOutcome.status === "blocked") {
+  assert.equal(wrongSkillOutcome.blockers[0].code, "profile_membership_missing");
+}
+
+const affixDisabled = { ...affixFacts, productionEnabledSkillKeys: new Set<string>() };
+const disabledOutcome = evaluateCanonicalIntakeReadiness(affixDisabled);
+assert.equal(disabledOutcome.status, "blocked");
+if (disabledOutcome.status === "blocked") {
+  assert.equal(disabledOutcome.blockers[0].code, "profile_not_enabled");
+}
+
+const affixInvalidMember = {
+  ...affixFacts,
+  words: affixInBandWords,
+  routeReadiness: [{
+    canonicalWordId: AFFIX_WORD_ID,
+    microSkillKey: AFFIX_SKILL,
+    ready: false,
+    blockers: ["payload_not_compilable" as const],
+  }],
+};
+const invalidMemberOutcome = evaluateCanonicalIntakeReadiness(affixInvalidMember);
+assert.equal(invalidMemberOutcome.status, "blocked");
+if (invalidMemberOutcome.status === "blocked") {
+  assert.equal(invalidMemberOutcome.blockers[0].code, "payload_not_compilable");
+}
+
+assert.deepEqual(resolveCanonicalIntakeRoute("D4_MOR_SPELLING_OTHER"), {
+  routeId: "adle_word_level",
+  routeVersion: "v1",
+});
 
 console.log("adle-canonical-intake-readiness-regression: ok");
