@@ -3,19 +3,9 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import type { LearningItemFact } from "../learning-items";
 import type { MorphologyPartRole, MorphologyWordSnapshot } from "./payload";
 import type { DynamicAffixProfile, DynamicAffixWord } from "./affix-word-lab";
+import { DYNAMIC_SUFFIX_PROFILE_KEYS } from "./dynamic-suffix-profile-keys";
 
-export const DYNAMIC_SUFFIX_PROFILE_KEYS = [
-  "D4_MOR_SUFFIXES_NESS",
-  "D4_MOR_SUFFIXES_ABLE_IBLE",
-  "D4_MOR_SUFFIXES_MENT",
-  "D4_MOR_SUFFIXES_FUL_LESS",
-  "D4_MOR_SUFFIXES_AL",
-  "D4_MOR_SUFFIXES_ITY",
-  "D4_MOR_SUFFIXES_OUS",
-  "D4_MOR_SUFFIXES_LY",
-  "D4_MOR_SUFFIXES_TION",
-  "D4_MOR_SUFFIXES_SION",
-] as const;
+export { DYNAMIC_SUFFIX_PROFILE_KEYS } from "./dynamic-suffix-profile-keys";
 
 export type DynamicSuffixProfileLoadDiagnostic = {
   profileKey: string;

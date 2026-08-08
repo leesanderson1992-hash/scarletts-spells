@@ -33,5 +33,16 @@ assert(
   ),
   "production intake still requires the Prefix profile production flag",
 );
+assert(
+  loader.includes("loadDynamicSuffixProfiles(client, childId, { allowStagingProfiles })") &&
+    loader.includes('canonical_teaching_dictionary_suffix_members') &&
+    loader.includes('source: "canonical_teaching_dictionary_suffix_members"'),
+  "Dynamic Affix intake reuses the reviewed suffix loader and certifies exact profile members",
+);
+assert(
+  loader.includes("isDynamicSuffixRouteEnabled()") &&
+    loader.includes("DYNAMIC_SUFFIX_PROFILE_KEYS"),
+  "Dynamic Affix intake remains closed unless its existing route gate and governed profile keys are enabled",
+);
 
 console.log("adle-canonical-intake-live-regression: ok");

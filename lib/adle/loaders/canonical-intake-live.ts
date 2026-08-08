@@ -19,6 +19,11 @@ import { resolveCanonicalIntakeRoute } from "../canonical-intake/route-readiness
 import { isBaseWordFamilyPilotEnabledForChild } from "../morphology/base-word-family-pilot-access";
 import { loadDynamicPrefixProfiles } from "../morphology/dynamic-prefix-profile-loader";
 import { isDynamicPrefixRouteEnabled } from "../morphology/dynamic-prefix-staging-access";
+import {
+  DYNAMIC_SUFFIX_PROFILE_KEYS,
+  loadDynamicSuffixProfiles,
+} from "../morphology/dynamic-suffix-profile-loader";
+import { isDynamicSuffixRouteEnabled } from "../morphology/dynamic-suffix-route-gate";
 import { ADLE_PILOT_CHILD_BAND } from "./composer-facts-loader";
 import { loadAdleLessonRouteActivations } from "./lesson-route-activations";
 import { resolveAdleRouteActivationEnvironment } from "../route-activation-environment";
@@ -130,6 +135,71 @@ async function routeActivationFacts(client: AdleClient, childId: string) {
             {
               source: "canonical_teaching_dictionary_prefix_members",
               status: member.review_status,
+            },
+          ],
+        });
+      }
+    }
+  }
+
+  if (isDynamicSuffixRouteEnabled()) {
+    const allowStagingProfiles =
+      activationEnvironment === "staging" || process.env.VERCEL_ENV === "preview";
+    const [{ data: rawSuffixProfiles, error: rawSuffixError }, loaded] =
+      await Promise.all([
+        client
+          .from("canonical_teaching_dictionary_suffix_profiles")
+          .select(
+            "micro_skill_key,production_enabled,row_status,review_status,canonical_teaching_dictionary_suffix_members(canonical_word_id,assignment_eligible,row_status,review_status)",
+          )
+          .in("micro_skill_key", DYNAMIC_SUFFIX_PROFILE_KEYS),
+        loadDynamicSuffixProfiles(client, childId, { allowStagingProfiles }),
+      ]);
+    if (rawSuffixError)
+      throwQuery("canonical intake Affix readiness facts", rawSuffixError);
+
+    const loadedProfileByKey = new Map(
+      loaded.profiles.map((profile) => [profile.microSkillKey, profile]),
+    );
+    for (const rawProfile of rawSuffixProfiles ?? []) {
+      const profile = rawProfile as any;
+      const profileKey = profile.micro_skill_key as string;
+      const profileEligible =
+        (profile.production_enabled === true || allowStagingProfiles) &&
+        profile.row_status === "active" &&
+        profile.review_status === "approved_for_first_exposure";
+      const loadedProfile = profileEligible
+        ? loadedProfileByKey.get(profileKey)
+        : undefined;
+      if (loadedProfile?.productionEnabled) enabled.add(profileKey);
+      for (const rawMember of
+        profile.canonical_teaching_dictionary_suffix_members ?? []) {
+        const member = rawMember as any;
+        const canonicalWordId = member.canonical_word_id as string;
+        const pair = canonicalWordSkillPair(canonicalWordId, profileKey);
+        const memberApproved =
+          member.assignment_eligible === true &&
+          member.row_status === "active" &&
+          member.review_status === "approved_for_first_exposure";
+        const memberReady =
+          Boolean(loadedProfile?.wordsByCanonicalId.has(canonicalWordId)) &&
+          memberApproved;
+        if (memberReady) readyPairs.add(pair);
+        routeReadiness.push({
+          canonicalWordId,
+          microSkillKey: profileKey,
+          ready: memberReady,
+          blockers: !profileEligible
+            ? ["profile_not_enabled"]
+            : !memberApproved
+              ? ["profile_member_unapproved"]
+              : memberReady
+                ? []
+                : ["payload_not_compilable"],
+          evidence: [
+            {
+              source: "canonical_teaching_dictionary_suffix_members",
+              status: member.review_status as string,
             },
           ],
         });

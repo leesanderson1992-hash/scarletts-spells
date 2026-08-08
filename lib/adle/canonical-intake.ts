@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
 
 import {
+  isDynamicAffixIntakeSkill,
   isDynamicPrefixIntakeSkill,
   resolveCanonicalIntakeRoute,
 } from "./canonical-intake/route-readiness";
@@ -546,15 +547,16 @@ export function evaluateCanonicalIntakeReadiness(
       entry.canonicalWordId === word.canonicalWordId &&
       entry.microSkillKey === candidate.microSkillKey,
   );
-  const routeCertifiedDynamicPrefixMember =
-    isDynamicPrefixIntakeSkill(candidate.microSkillKey) &&
+  const routeCertifiedAffixMember =
+    (isDynamicPrefixIntakeSkill(candidate.microSkillKey) ||
+      isDynamicAffixIntakeSkill(candidate.microSkillKey)) &&
     explicitRouteReadiness?.ready === true &&
     facts.routeSpecificReadyWordSkillPairs.has(pair);
 
   if (
     (!facts.allowedFrequencyBands.has(word.frequencyBand) ||
       !facts.allowedAgeBands.has(word.ageBand)) &&
-    !routeCertifiedDynamicPrefixMember
+    !routeCertifiedAffixMember
   ) {
     return blockedOutcome({
       facts,
@@ -584,7 +586,10 @@ export function evaluateCanonicalIntakeReadiness(
     });
   }
 
-  if (isDynamicPrefixIntakeSkill(candidate.microSkillKey)) {
+  if (
+    isDynamicPrefixIntakeSkill(candidate.microSkillKey) ||
+    isDynamicAffixIntakeSkill(candidate.microSkillKey)
+  ) {
     if (!facts.routeSpecificReadyWordSkillPairs.has(pair)) {
       return blockedOutcome({
         facts,
