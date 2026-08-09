@@ -11,17 +11,17 @@ import {
 } from "../lib/adle/morphology/affix-word-lab";
 import { buildDynamicAffixAssignmentPlan } from "../lib/adle/morphology/dynamic-affix-assignment-plan";
 import { dynamicAffixRuntime } from "../lib/adle/morphology/dynamic-affix-runtime";
+import { DYNAMIC_SUFFIX_PROFILE_KEYS } from "../lib/adle/morphology/dynamic-suffix-profile-keys";
 import { normaliseSessionWord } from "../lib/adle/session-correctness";
 import { assertDynamicAffixSharedParity } from "./lib/adle-shared-affix-parity-fixtures";
 
 const packagePath = "docs/implementation/seed-data/teaching-dictionary/candidates/2026-07-29-dynamic-suffix-tion/reviewed-staging-package.json";
 const pkg = JSON.parse(readFileSync(packagePath, "utf8"));
-const loader = readFileSync("lib/adle/morphology/dynamic-suffix-profile-loader.ts", "utf8");
 const importer = readFileSync("scripts/import-adle-dynamic-suffix-tion-staging-package.ts", "utf8");
 const statement = "The suffix -tion usually means the action, process or result of.";
 const reflectionPrompt = "We have been learning about -tion. How does -tion affect the word when it is added on?";
 
-assert(loader.includes('"D4_MOR_SUFFIXES_TION"'), "-tion is an allowlisted dynamic suffix profile");
+assert(DYNAMIC_SUFFIX_PROFILE_KEYS.includes("D4_MOR_SUFFIXES_TION"), "-tion is an allowlisted dynamic suffix profile");
 assert.equal(pkg.profile.microSkillKey, "D4_MOR_SUFFIXES_TION");
 assert.equal(pkg.profile.introContent.meaningStatement, statement);
 assert.equal(JSON.stringify(pkg).split(statement).length - 1, 1, "prominent suffix meaning appears exactly once");
