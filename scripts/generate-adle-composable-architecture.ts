@@ -21,6 +21,7 @@ import {
 import {
   ADLE_NEW_ASSIGNMENT_ROUTE_IDS,
   ADLE_ROUTE_METADATA_SCHEMA_VERSION,
+  ADLE_ROUTE_METADATA_SCHEMA_VERSION_V2,
   createPersistedRouteMetadata,
 } from "../lib/adle/composable-lesson/persisted-route-metadata";
 import {
@@ -390,6 +391,12 @@ const outputs = new Map<string, string>([
     json({
       generatedNotice: GENERATED_NOTICE,
       metadataSchemaVersion: ADLE_ROUTE_METADATA_SCHEMA_VERSION,
+      acceptedMetadataSchemaVersions: [
+        ADLE_ROUTE_METADATA_SCHEMA_VERSION,
+        ADLE_ROUTE_METADATA_SCHEMA_VERSION_V2,
+      ],
+      activeWriterMetadataSchemaVersion: ADLE_ROUTE_METADATA_SCHEMA_VERSION,
+      releaseAuthorityMetadataSchemaVersion: ADLE_ROUTE_METADATA_SCHEMA_VERSION_V2,
       authoritativeStorage: "daily_assignments.lesson_route_metadata",
       writers: ADLE_NEW_ASSIGNMENT_ROUTE_IDS.map((routeId) =>
         createPersistedRouteMetadata(routeId),

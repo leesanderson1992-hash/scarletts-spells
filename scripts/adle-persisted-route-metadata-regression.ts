@@ -4,6 +4,7 @@ import { readFileSync } from "node:fs";
 import {
   ADLE_NEW_ASSIGNMENT_ROUTE_IDS,
   createPersistedRouteMetadata,
+  createPersistedRouteMetadataV2,
   parsePersistedLessonRouteMetadata,
   validatePersistedRouteMetadataCompatibility,
 } from "../lib/adle/composable-lesson/persisted-route-metadata";
@@ -89,9 +90,35 @@ assert.equal(
 assert.deepEqual(
   parsePersistedLessonRouteMetadata({
     ...createPersistedRouteMetadata("generic_composer"),
-    metadataSchemaVersion: 2,
+    metadataSchemaVersion: 3,
   }),
   { ok: false, blocker: "unsupported_metadata_schema_version" },
+);
+
+const releaseAuthority = {
+  activationRevisionId: "11111111-1111-4111-8111-111111111111",
+  releaseManifestId: "22222222-2222-4222-8222-222222222222",
+  releaseKey: "base-word-v2-release-fixture",
+  releaseManifestSha256: "a".repeat(64),
+  dependencyFingerprint: "b".repeat(64),
+};
+const v2 = createPersistedRouteMetadataV2("base_word_lab", releaseAuthority);
+assert.equal(v2.metadataSchemaVersion, 2);
+assert.deepEqual(v2.curriculumRelease, releaseAuthority);
+assert.deepEqual(parsePersistedLessonRouteMetadata(v2), { ok: true, metadata: v2 });
+assert.deepEqual(validatePersistedRouteMetadataCompatibility(v2), { ok: true });
+assert.throws(
+  () => createPersistedRouteMetadataV2("generic_composer", releaseAuthority),
+  /has not adopted curriculum release authority/,
+  "existing routes cannot emit release metadata before governed adoption",
+);
+assert.equal(
+  parsePersistedLessonRouteMetadata({
+    ...v2,
+    curriculumRelease: { ...releaseAuthority, dependencyFingerprint: "invalid" },
+  }).ok,
+  false,
+  "metadata v2 fails closed on malformed release provenance",
 );
 assert.equal(
   parsePersistedLessonRouteMetadata({

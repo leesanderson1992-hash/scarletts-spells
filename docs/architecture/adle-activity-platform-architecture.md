@@ -92,10 +92,13 @@ only after `composeDailyPlan` and `planAssignmentPersistence` have finalised a
 real insert, binds every activity to its deterministic
 `assignment_items.source_entity_id`, and persists the header, route metadata,
 snapshot, variable-count items and stretch intakes in one service-role RPC.
-The smaller `PersistedLessonRouteMetadataV1` contract remains the
-assignment-level routing boundary for every route. Prefix, suffix, compound
-and Base Word payloads remain authoritative teaching snapshots for their
-existing validators and adapters.
+The smaller versioned persisted-route metadata contract remains the
+assignment-level routing boundary for every route. Schema v1 remains the live
+writer contract. The dark schema v2 foundation can additionally retain an
+immutable curriculum release and operational activation revision; no current
+route emits it until separately integrated. Prefix, suffix, compound and Base
+Word payloads remain authoritative teaching snapshots for their existing
+validators and adapters.
 
 Generic V2 snapshots live only in nullable, immutable
 `daily_assignments.compiled_lesson_snapshot`; they are never duplicated into

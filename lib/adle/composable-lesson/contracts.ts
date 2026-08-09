@@ -53,6 +53,31 @@ export type PersistedLessonRouteMetadataV1 = {
   payload: VersionedLessonPayloadReference;
 };
 
+export type PersistedCurriculumReleaseAuthorityV2 = {
+  activationRevisionId: string;
+  releaseManifestId: string;
+  releaseKey: string;
+  releaseManifestSha256: string;
+  dependencyFingerprint: string;
+};
+
+/**
+ * Assignment provenance for release-ledger routes. The operational activation
+ * revision is retained for audit but is deliberately excluded from the
+ * immutable curriculum release identity and dependency fingerprint.
+ */
+export type PersistedLessonRouteMetadataV2 = {
+  metadataSchemaVersion: 2;
+  route: VersionedLessonRouteReference;
+  recipe: LessonRecipeReference;
+  payload: VersionedLessonPayloadReference;
+  curriculumRelease: PersistedCurriculumReleaseAuthorityV2;
+};
+
+export type PersistedLessonRouteMetadata =
+  | PersistedLessonRouteMetadataV1
+  | PersistedLessonRouteMetadataV2;
+
 export type LessonRuntimeAdapterKey =
   | "generic_composer_v1"
   | "morphology_guided_v1"
