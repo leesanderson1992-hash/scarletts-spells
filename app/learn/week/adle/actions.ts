@@ -76,6 +76,7 @@ import {
   emitLessonRouteResolutionEvent,
   resolvePersistedLessonRoute,
 } from "@/lib/adle/composable-lesson/route-resolution";
+import { baseWordAssignmentRuntimeAllowed } from "@/lib/adle/loaders/curriculum-release-authority";
 
 function readFormValue(formData: FormData, key: string): string | null {
   const value = formData.get(key);
@@ -776,6 +777,13 @@ export async function completeBaseWordFamilyLessonAction(formData: FormData) {
     userClient: context.userClient, parentUserId: context.parentUserId, childId: context.childId,
     planDate: context.planDate, assignmentId: context.assignmentId,
   });
+  if (!(await baseWordAssignmentRuntimeAllowed({
+    client: context.serviceClient,
+    lessonRouteMetadata: readModel.lessonRouteMetadata,
+    assignmentCompleted: readModel.state === "completed",
+  }))) {
+    finishWith(context, "This Word Lab needs a grown-up check before it can continue.");
+  }
   blockInvalidGenericSnapshot(context, readModel);
   const routeResolution = resolvePersistedLessonRoute({
     lessonRouteMetadata: readModel.lessonRouteMetadata,

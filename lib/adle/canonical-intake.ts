@@ -8,6 +8,7 @@ import {
 } from "./canonical-intake/route-readiness";
 import type { IsoDate } from "./review-scheduler";
 import { canonicalWordSkillPair } from "./canonical-intake/keys";
+import type { PersistedCurriculumReleaseAuthorityV2 } from "./composable-lesson/contracts";
 
 export { canonicalWordSkillPair } from "./canonical-intake/keys";
 
@@ -86,6 +87,7 @@ export type IntakeReadinessOutcome =
       readinessFingerprint: string;
       evidence: CurriculumEvidence[];
       routeActivationId?: string;
+      curriculumRelease?: PersistedCurriculumReleaseAuthorityV2;
     }
   | {
       status: "blocked";
@@ -182,6 +184,7 @@ export interface CanonicalIntakeRouteReadinessFact {
   blockers: readonly IntakeReadinessBlockerCode[];
   evidence?: readonly CurriculumEvidence[];
   routeActivationId?: string;
+  curriculumRelease?: PersistedCurriculumReleaseAuthorityV2;
 }
 
 export interface CanonicalIntakeReadinessFacts {
@@ -215,6 +218,7 @@ export interface CanonicalIntakeEligible {
   routeVersion: string;
   readinessFingerprint: string;
   routeActivationId?: string;
+  curriculumRelease?: PersistedCurriculumReleaseAuthorityV2;
 }
 
 export interface CanonicalIntakeBlocked {
@@ -527,7 +531,10 @@ export function evaluateCanonicalIntakeReadiness(
     });
   }
 
-  if (word.frequencyBand === null || word.ageBand === null) {
+  if (
+    !isBaseWordIntakeSkill(candidate.microSkillKey) &&
+    (word.frequencyBand === null || word.ageBand === null)
+  ) {
     return blockedOutcome({
       facts,
       codes: ["metadata_missing"],
@@ -556,10 +563,13 @@ export function evaluateCanonicalIntakeReadiness(
     isBaseWordIntakeSkill(candidate.microSkillKey) &&
     explicitRouteReadiness?.ready === true &&
     Boolean(explicitRouteReadiness.routeActivationId) &&
+    Boolean(explicitRouteReadiness.curriculumRelease) &&
     facts.routeSpecificReadyWordSkillPairs.has(pair);
 
   if (
-    (!facts.allowedFrequencyBands.has(word.frequencyBand) ||
+    (word.frequencyBand === null ||
+      word.ageBand === null ||
+      !facts.allowedFrequencyBands.has(word.frequencyBand) ||
       !facts.allowedAgeBands.has(word.ageBand)) &&
     !routeCertifiedAffixMember &&
     !routeCertifiedBaseWordMember
@@ -596,6 +606,7 @@ export function evaluateCanonicalIntakeReadiness(
     if (
       explicitRouteReadiness?.ready !== true ||
       !explicitRouteReadiness.routeActivationId ||
+      !explicitRouteReadiness.curriculumRelease ||
       !facts.routeSpecificReadyWordSkillPairs.has(pair)
     ) {
       return blockedOutcome({
@@ -703,10 +714,14 @@ export function evaluateCanonicalIntakeReadiness(
       microSkill: candidate.microSkillKey,
       routePairReady: facts.routeSpecificReadyWordSkillPairs.has(pair),
       routeActivationId: explicitRouteReadiness?.routeActivationId ?? null,
+      curriculumRelease: explicitRouteReadiness?.curriculumRelease ?? null,
     }),
     evidence,
     ...(explicitRouteReadiness?.routeActivationId
       ? { routeActivationId: explicitRouteReadiness.routeActivationId }
+      : {}),
+    ...(explicitRouteReadiness?.curriculumRelease
+      ? { curriculumRelease: explicitRouteReadiness.curriculumRelease }
       : {}),
   };
 }
@@ -771,6 +786,9 @@ export function resolveCanonicalIntakeReadiness(
     readinessFingerprint: readiness.readinessFingerprint,
     ...(readiness.routeActivationId
       ? { routeActivationId: readiness.routeActivationId }
+      : {}),
+    ...(readiness.curriculumRelease
+      ? { curriculumRelease: readiness.curriculumRelease }
       : {}),
   };
 }
