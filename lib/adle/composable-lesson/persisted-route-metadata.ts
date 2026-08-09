@@ -1,7 +1,10 @@
 import type {
   LessonRouteId,
   LessonRouteResolutionBlockerCode,
+  PersistedCurriculumReleaseAuthorityV2,
+  PersistedLessonRouteMetadata,
   PersistedLessonRouteMetadataV1,
+  PersistedLessonRouteMetadataV2,
 } from "./contracts";
 import {
   ADLE_CURRICULUM_ROUTE_REGISTRY,
@@ -9,6 +12,7 @@ import {
 } from "../curriculum-readiness/route-registry";
 
 export const ADLE_ROUTE_METADATA_SCHEMA_VERSION = 1 as const;
+export const ADLE_ROUTE_METADATA_SCHEMA_VERSION_V2 = 2 as const;
 
 export const ADLE_NEW_ASSIGNMENT_ROUTE_IDS = [
   "generic_composer",
@@ -19,7 +23,7 @@ export const ADLE_NEW_ASSIGNMENT_ROUTE_IDS = [
 ] as const satisfies readonly LessonRouteId[];
 
 export type PersistedRouteMetadataParseResult =
-  | { ok: true; metadata: PersistedLessonRouteMetadataV1 }
+  | { ok: true; metadata: PersistedLessonRouteMetadata }
   | {
       ok: false;
       blocker:
@@ -43,15 +47,39 @@ function nonEmptyString(value: unknown): value is string {
   return typeof value === "string" && value.trim().length > 0;
 }
 
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+const SHA256 = /^[a-f0-9]{64}$/;
+
+function validCurriculumReleaseAuthority(
+  value: unknown,
+): value is PersistedCurriculumReleaseAuthorityV2 {
+  return isRecord(value) &&
+    hasOnlyKeys(value, [
+      "activationRevisionId",
+      "releaseManifestId",
+      "releaseKey",
+      "releaseManifestSha256",
+      "dependencyFingerprint",
+    ]) &&
+    typeof value.activationRevisionId === "string" &&
+    UUID.test(value.activationRevisionId) &&
+    typeof value.releaseManifestId === "string" &&
+    UUID.test(value.releaseManifestId) &&
+    nonEmptyString(value.releaseKey) &&
+    typeof value.releaseManifestSha256 === "string" &&
+    SHA256.test(value.releaseManifestSha256) &&
+    typeof value.dependencyFingerprint === "string" &&
+    SHA256.test(value.dependencyFingerprint);
+}
+
 export function parsePersistedLessonRouteMetadata(
   value: unknown,
 ): PersistedRouteMetadataParseResult {
   if (!isRecord(value)) {
     return { ok: false, blocker: "malformed_metadata" };
   }
-  if (
-    value.metadataSchemaVersion !== ADLE_ROUTE_METADATA_SCHEMA_VERSION
-  ) {
+  if (value.metadataSchemaVersion !== ADLE_ROUTE_METADATA_SCHEMA_VERSION &&
+      value.metadataSchemaVersion !== ADLE_ROUTE_METADATA_SCHEMA_VERSION_V2) {
     return {
       ok: false,
       blocker:
@@ -60,8 +88,15 @@ export function parsePersistedLessonRouteMetadata(
           : "malformed_metadata",
     };
   }
+  const isV2 = value.metadataSchemaVersion === ADLE_ROUTE_METADATA_SCHEMA_VERSION_V2;
   if (
-    !hasOnlyKeys(value, [
+    !hasOnlyKeys(value, isV2 ? [
+      "metadataSchemaVersion",
+      "route",
+      "recipe",
+      "payload",
+      "curriculumRelease",
+    ] : [
       "metadataSchemaVersion",
       "route",
       "recipe",
@@ -79,13 +114,36 @@ export function parsePersistedLessonRouteMetadata(
     !nonEmptyString(value.recipe.recipeVersion) ||
     !nonEmptyString(value.payload.kind) ||
     !Number.isInteger(value.payload.version) ||
-    (value.payload.version as number) <= 0
+    (value.payload.version as number) <= 0 ||
+    (isV2 && !validCurriculumReleaseAuthority(value.curriculumRelease))
   ) {
     return { ok: false, blocker: "malformed_metadata" };
   }
   return {
     ok: true,
-    metadata: value as PersistedLessonRouteMetadataV1,
+    metadata: value as PersistedLessonRouteMetadata,
+  };
+}
+
+export function createPersistedRouteMetadataV2(
+  routeId: (typeof ADLE_NEW_ASSIGNMENT_ROUTE_IDS)[number],
+  curriculumRelease: PersistedCurriculumReleaseAuthorityV2,
+): PersistedLessonRouteMetadataV2 {
+  if (!validCurriculumReleaseAuthority(curriculumRelease)) {
+    throw new Error("Invalid ADLE curriculum release authority.");
+  }
+  const v1 = createPersistedRouteMetadata(routeId);
+  const route = getCurriculumRouteDefinition(
+    v1.route.routeId,
+    v1.route.routeVersion,
+  );
+  if (route?.activationAuthority !== "database_route_activation") {
+    throw new Error(`Route ${routeId} has not adopted curriculum release authority.`);
+  }
+  return {
+    ...v1,
+    metadataSchemaVersion: ADLE_ROUTE_METADATA_SCHEMA_VERSION_V2,
+    curriculumRelease,
   };
 }
 
@@ -130,7 +188,7 @@ export function createPersistedRouteMetadata(
 }
 
 export function validatePersistedRouteMetadataCompatibility(
-  metadata: PersistedLessonRouteMetadataV1,
+  metadata: PersistedLessonRouteMetadata,
 ):
   | { ok: true }
   | { ok: false; blocker: LessonRouteResolutionBlockerCode } {
@@ -146,6 +204,12 @@ export function validatePersistedRouteMetadataCompatibility(
       ok: false,
       blocker: routeIdExists ? "unsupported_route_version" : "unknown_route",
     };
+  }
+  if (
+    metadata.metadataSchemaVersion === ADLE_ROUTE_METADATA_SCHEMA_VERSION_V2 &&
+    route.activationAuthority !== "database_route_activation"
+  ) {
+    return { ok: false, blocker: "route_unavailable" };
   }
   if (
     !route.recipes.some(

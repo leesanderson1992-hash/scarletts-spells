@@ -65,7 +65,7 @@ assert(blocker({}).includes("malformed_metadata"));
 assert(
   blocker({
     ...createPersistedRouteMetadata("generic_composer"),
-    metadataSchemaVersion: 2,
+    metadataSchemaVersion: 3,
   }).includes("unsupported_metadata_schema_version"),
 );
 assert(
