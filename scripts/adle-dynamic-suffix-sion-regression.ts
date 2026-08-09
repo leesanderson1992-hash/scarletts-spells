@@ -5,17 +5,17 @@ import { readFileSync } from "node:fs";
 import { compileDynamicAffixWordLabPayload, selectDynamicAffixWordLab, validateDynamicAffixWordLabPayload, type DynamicAffixProfile, type DynamicAffixWord } from "../lib/adle/morphology/affix-word-lab";
 import { buildDynamicAffixAssignmentPlan } from "../lib/adle/morphology/dynamic-affix-assignment-plan";
 import { dynamicAffixRuntime } from "../lib/adle/morphology/dynamic-affix-runtime";
+import { DYNAMIC_SUFFIX_PROFILE_KEYS } from "../lib/adle/morphology/dynamic-suffix-profile-keys";
 import { normaliseSessionWord } from "../lib/adle/session-correctness";
 import { assertDynamicAffixSharedParity } from "./lib/adle-shared-affix-parity-fixtures";
 
 const packagePath = "docs/implementation/seed-data/teaching-dictionary/candidates/2026-07-29-dynamic-suffix-sion/reviewed-staging-package.json";
 const pkg = JSON.parse(readFileSync(packagePath, "utf8"));
-const loader = readFileSync("lib/adle/morphology/dynamic-suffix-profile-loader.ts", "utf8");
 const importer = readFileSync("scripts/import-adle-dynamic-suffix-sion-staging-package.ts", "utf8");
 const rule = "-sion turns an action into the name of the action or result.";
 const reflectionPrompt = "We have been learning about -sion. How does -sion affect the word when it is added on?";
 
-assert(loader.includes('"D4_MOR_SUFFIXES_SION"'), "-sion is allowlisted");
+assert(DYNAMIC_SUFFIX_PROFILE_KEYS.includes("D4_MOR_SUFFIXES_SION"), "-sion is allowlisted");
 assert.equal(pkg.profile.microSkillKey, "D4_MOR_SUFFIXES_SION");
 assert.equal(pkg.profile.introContent.meaningStatement, rule);
 assert.equal(JSON.stringify(pkg).split(rule).length - 1, 1, "approved rule appears once");
