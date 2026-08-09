@@ -164,9 +164,10 @@ const unsupportedMapping = missingExactSupport.mappingInspections.find(
   (entry) => entry.mappingId === "mapping-plaing",
 );
 assert(unsupportedMapping?.mappingTruthValidity.status === "READY", "missing exact support does not invalidate the approved correction relationship");
-assert(unsupportedMapping?.wordSkillSupportCompleteness.blockers.some((entry) => entry.code === "TARGET_SKILL_SUPPORT_MISSING"), "missing exact support is reported as its own curriculum dependency");
-assert(unsupportedMapping?.runtimeIntakeUsability.status === "BLOCKED", "missing exact support blocks the current intake projection");
-assert(missingExactSupport.targets.find((target) => target.microSkillKey === SKILL_B)?.assignmentReadinessByChild[0]?.decision.status === "BLOCKED", "missing exact support blocks assignment readiness without substituting another word");
+assert(unsupportedMapping?.wordSkillSupportCompleteness.status === "READY", "exact Base Word route content replaces redundant generic word_support");
+assert(unsupportedMapping?.wordSkillSupportCompleteness.evidence.some((entry) => entry.source === "route_content_authority"), "Base Word support readiness records its specialist authority");
+assert(unsupportedMapping?.runtimeIntakeUsability.status === "READY", "exact specialist authority keeps the intake projection ready without word_support");
+assert(missingExactSupport.targets.find((target) => target.microSkillKey === SKILL_B)?.assignmentReadinessByChild[0]?.decision.status === "READY", "exact specialist authority keeps Base Word assignment readiness independent of word_support");
 
 const sameSkillDifferentWord = resolveCurriculumReadinessInventory({
   ...facts,
@@ -175,7 +176,16 @@ const sameSkillDifferentWord = resolveCurriculumReadinessInventory({
     facts.supports[1],
   ],
 });
-assert(sameSkillDifferentWord.mappingInspections.find((entry) => entry.mappingId === "mapping-plaiing")?.wordSkillSupportCompleteness.status === "BLOCKED", "same-skill support for another word cannot satisfy exact target support");
+assert(sameSkillDifferentWord.mappingInspections.find((entry) => entry.mappingId === "mapping-plaiing")?.wordSkillSupportCompleteness.status === "READY", "Base Word route authority does not borrow or require generic support rows");
+
+const missingSpecialistAndGenericSupport = resolveCurriculumReadinessInventory({
+  ...facts,
+  supports: facts.supports.filter((support) => support.microSkillKey !== SKILL_B),
+  routeContent: facts.routeContent.map((content) => content.microSkillKey === SKILL_B
+    ? { ...content, ready: false, blockers: ["BASE_WORD_RELEASE_AUTHORITY_MISSING"] }
+    : content),
+});
+assert(missingSpecialistAndGenericSupport.mappingInspections.find((entry) => entry.mappingId === "mapping-plaing")?.wordSkillSupportCompleteness.status === "BLOCKED", "missing specialist authority cannot manufacture support readiness");
 
 const missingCanonical = resolveCurriculumReadinessInventory({
   ...facts,

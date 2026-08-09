@@ -40,6 +40,12 @@ export interface CurriculumRouteDefinition {
   payloadKind: CurriculumPayloadKind;
   payloadVersions: readonly number[];
   activationAuthority: CurriculumActivationAuthority;
+  /** Defaults to canonical_word_support. Specialist routes may instead prove
+   * word/skill authority inside their exact immutable route content. */
+  wordSupportAuthority?: "canonical_word_support" | "route_content";
+  /** Defaults to the mutable canonical dictionary projection. A release-bound
+   * route can instead provide the exact target semantics in route content. */
+  canonicalContentAuthority?: "canonical_dictionary" | "route_content";
   compatibilityScope: CurriculumCompatibilityScope;
   recipes: readonly LessonRecipeReference[];
   runtimeAdapterKey: LessonRuntimeAdapterKey;
@@ -100,6 +106,8 @@ export const ADLE_CURRICULUM_ROUTE_REGISTRY: readonly CurriculumRouteDefinition[
     payloadKind: "base_word_family_snapshot_v1",
     payloadVersions: [1],
     activationAuthority: "database_route_activation",
+    wordSupportAuthority: "route_content",
+    canonicalContentAuthority: "route_content",
     compatibilityScope: { kind: "declared_micro_skills" },
     recipes: [{ recipeKey: "base_word_family", recipeVersion: "v1" }],
     runtimeAdapterKey: "base_word_family_v1",

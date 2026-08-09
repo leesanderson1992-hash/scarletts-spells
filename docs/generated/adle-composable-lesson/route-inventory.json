@@ -3,6 +3,7 @@
   "routes": [
     {
       "activationAuthority": "database_route_activation",
+      "canonicalContentAuthority": "route_content",
       "compatibilityScope": {
         "kind": "declared_micro_skills"
       },
@@ -59,7 +60,8 @@
           4,
           4
         ]
-      }
+      },
+      "wordSupportAuthority": "route_content"
     },
     {
       "activationAuthority": "environment_and_profile_gates",

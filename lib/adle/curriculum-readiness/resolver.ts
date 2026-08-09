@@ -342,6 +342,27 @@ function wordSkillSupportCompleteness(params: {
   if (!params.canonicalWordId) {
     return decision([blocker("TARGET_SKILL_SUPPORT_UNRESOLVED", "word_skill_support", params.microSkillKey)]);
   }
+  const routeContentAuthority = facts.routes
+    .filter((route) =>
+      route.wordSupportAuthority === "route_content" &&
+      route.supportedMicroSkillKeys.includes(params.microSkillKey),
+    )
+    .flatMap((route) => facts.routeContent.filter((content) =>
+      content.ready &&
+      content.canonicalWordId === params.canonicalWordId &&
+      content.microSkillKey === params.microSkillKey &&
+      content.routeId === route.routeId &&
+      content.routeVersion === route.routeVersion,
+    ))[0];
+  if (routeContentAuthority) {
+    return decision([], [{
+      source: "route_content_authority",
+      id: routeContentAuthority.dependencyFingerprint,
+      field: "word_support_authority",
+      observed: "route_content",
+      required: "route_content",
+    }]);
+  }
   const supported = facts.supports.some((support) =>
     support.canonicalWordId === params.canonicalWordId &&
     support.microSkillKey === params.microSkillKey &&
@@ -358,8 +379,30 @@ function wordSkillSupportCompleteness(params: {
 
 function canonicalContentCompleteness(
   canonicalWordId: string | null,
+  microSkillKey: string,
   facts: CurriculumReadinessFacts,
 ): CurriculumDecision {
+  const routeContentAuthority = canonicalWordId
+    ? facts.routes
+        .filter((route) => route.canonicalContentAuthority === "route_content")
+        .flatMap((route) => facts.routeContent.filter((content) =>
+          content.ready &&
+          content.canonicalWordId === canonicalWordId &&
+          content.microSkillKey === microSkillKey &&
+          route.supportedMicroSkillKeys.includes(microSkillKey) &&
+          content.routeId === route.routeId &&
+          content.routeVersion === route.routeVersion,
+        ))[0]
+    : null;
+  if (routeContentAuthority) {
+    return decision([], [{
+      source: "route_content_authority",
+      id: routeContentAuthority.dependencyFingerprint,
+      field: "canonical_content_authority",
+      observed: "route_content",
+      required: "route_content",
+    }]);
+  }
   const word = canonicalWordId
     ? facts.words.find((candidate) => candidate.canonicalWordId === canonicalWordId)
     : null;
@@ -496,7 +539,7 @@ export function resolveCurriculumReadinessInventory(facts: CurriculumReadinessFa
   const mappingInspections = facts.mappings.slice().sort((a, b) => a.mappingId.localeCompare(b.mappingId)).map((mapping) => {
     const resolved = targetForMapping(mapping, facts);
     const mappingTruthValidity = decision(resolved.blockers, resolved.evidence);
-    const canonicalCompleteness = canonicalContentCompleteness(resolved.canonicalWordId, facts);
+    const canonicalCompleteness = canonicalContentCompleteness(resolved.canonicalWordId, mapping.microSkillKey, facts);
     const supportCompleteness = wordSkillSupportCompleteness({
       canonicalWordId: resolved.canonicalWordId,
       microSkillKey: mapping.microSkillKey,
@@ -530,7 +573,7 @@ export function resolveCurriculumReadinessInventory(facts: CurriculumReadinessFa
     value.learningItemIds.push(inspection.learningItemId); value.childIds.push(inspection.childId); targetIds.set(inspection.targetKey, value);
   }
   const targets = [...targetIds.entries()].sort(([left], [right]) => left.localeCompare(right)).map(([targetKey, target]) => {
-    const canonicalCompleteness = canonicalContentCompleteness(target.canonicalWordId, facts);
+    const canonicalCompleteness = canonicalContentCompleteness(target.canonicalWordId, target.microSkillKey, facts);
     const supportCompleteness = wordSkillSupportCompleteness(target, facts);
     const routes = facts.routes.map((route) => routeInspection(route, target, null, facts));
     const childIds = [...new Set(target.childIds)].sort();

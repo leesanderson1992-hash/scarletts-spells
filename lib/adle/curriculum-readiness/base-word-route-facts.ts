@@ -66,20 +66,20 @@ export interface BaseWordDictationFact {
   audioText: string | null;
 }
 
-export interface BaseWordSupportFact {
-  id: string;
-  canonicalWordId: string;
-  microSkillKey: string;
-  supportRole: string;
-  rowStatus: string;
-  reviewStatus: string;
+export interface BaseWordReleaseAuthorityFact {
+  activationRevisionId: string;
+  releaseManifestId: string;
+  dependencyFingerprint: string;
+  familyAuthorityId: string;
+  teachingContentAuthorityId: string;
+  dictionaryClosureAuthorityId: string;
 }
 
 export interface BaseWordRouteFactInput {
   canonicalWordId: string;
   microSkillKey: string;
+  releaseAuthority: BaseWordReleaseAuthorityFact | null;
   words: readonly BaseWordDictionaryWordFact[];
-  supports: readonly BaseWordSupportFact[];
   teachingContent: readonly BaseWordTeachingContentFact[];
   families: readonly BaseWordFamilyDetailFact[];
   members: readonly BaseWordFamilyMemberDetailFact[];
@@ -96,6 +96,7 @@ export function observeBaseWordRouteActivation(params: {
   microSkillKey: string;
   environmentKey: "local" | "staging" | "production";
   environmentEnabled: boolean;
+  releaseAuthorityEnabled: boolean;
   childEnabled: boolean;
 }): RouteActivationFact {
   return {
@@ -105,8 +106,7 @@ export function observeBaseWordRouteActivation(params: {
     routeVersion: BASE_WORD_ROUTE_VERSION,
     environmentKey: params.environmentKey,
     environmentEnabled: params.environmentEnabled,
-    // The existing Base Word pilot has no separate profile/family switch.
-    profileOrFamilyEnabled: true,
+    profileOrFamilyEnabled: params.releaseAuthorityEnabled,
     childEnabled: params.childEnabled,
   };
 }
@@ -146,23 +146,31 @@ export function inspectBaseWordRouteContent(input: BaseWordRouteFactInput): Rout
   const facts: CurriculumEvidence[] = [];
   const dependencyIds: string[] = [];
   if (!supported(input.microSkillKey)) blockers.push("BASE_WORD_MICRO_SKILL_UNSUPPORTED");
+  const authority = input.releaseAuthority;
+  if (!authority) {
+    blockers.push("BASE_WORD_RELEASE_AUTHORITY_MISSING");
+  } else {
+    dependencyIds.push(
+      `activation:${authority.activationRevisionId}`,
+      `release:${authority.releaseManifestId}`,
+      `family:${authority.familyAuthorityId}`,
+      `teaching:${authority.teachingContentAuthorityId}`,
+      `closure:${authority.dictionaryClosureAuthorityId}`,
+    );
+    facts.push(
+      evidence("adle_route_activation_revisions", authority.activationRevisionId),
+      evidence("adle_curriculum_release_manifests", authority.releaseManifestId),
+      evidence("adle_curriculum_dependency_authorities", authority.familyAuthorityId, "authority_type", "family_membership", "family_membership"),
+      evidence("adle_curriculum_dependency_authorities", authority.teachingContentAuthorityId, "authority_type", "teaching_content", "teaching_content"),
+      evidence("adle_curriculum_dependency_authorities", authority.dictionaryClosureAuthorityId, "authority_type", "teaching_dictionary_closure", "teaching_dictionary_closure"),
+    );
+  }
   const word = input.words.find((row) => row.canonicalWordId === input.canonicalWordId);
   if (!word || !approved(word.rowStatus, word.reviewStatus)) {
-    blockers.push("BASE_WORD_TARGET_WORD_NOT_APPROVED");
+    blockers.push("BASE_WORD_DICTIONARY_CLOSURE_MISSING");
   } else {
     dependencyIds.push(`word:${word.canonicalWordId}`);
-    facts.push(evidence("canonical_teaching_dictionary_words", word.canonicalWordId, "review_status", word.reviewStatus, "approved_for_first_exposure"));
-  }
-  const support = input.supports.find((row) =>
-    row.canonicalWordId === input.canonicalWordId &&
-    row.microSkillKey === input.microSkillKey &&
-    approved(row.rowStatus, row.reviewStatus) &&
-    (row.supportRole === "support_example" || row.supportRole === "review_example"),
-  );
-  if (!support) blockers.push("BASE_WORD_EXACT_SUPPORT_MISSING");
-  else {
-    dependencyIds.push(`support:${support.id}`);
-    facts.push(evidence("canonical_teaching_dictionary_word_support", support.id));
+    facts.push(evidence("adle_teaching_dictionary_closure_words", word.canonicalWordId));
   }
   const content = input.teachingContent.find((row) =>
     row.microSkillKey === input.microSkillKey &&
@@ -176,7 +184,7 @@ export function inspectBaseWordRouteContent(input: BaseWordRouteFactInput): Rout
   if (!content) blockers.push("BASE_WORD_SIGNED_OFF_TEACHING_CONTENT_MISSING");
   else {
     dependencyIds.push(`content:${content.id}:${content.contentVersion}`);
-    facts.push(evidence("canonical_teaching_dictionary_content_versions", content.id, "content_version", content.contentVersion));
+    facts.push(evidence("adle_curriculum_dependency_authorities", content.id, "content_version", content.contentVersion));
   }
   const familyById = new Map(input.families
     .filter((row) => row.microSkillKey === input.microSkillKey && approved(row.rowStatus, row.reviewStatus))
@@ -190,8 +198,10 @@ export function inspectBaseWordRouteContent(input: BaseWordRouteFactInput): Rout
   if (eligibleTarget) {
     const family = familyById.get(eligibleTarget.familyId)!;
     dependencyIds.push(`family:${family.familyId}`, `member:${eligibleTarget.memberId}`);
-    facts.push(evidence("canonical_teaching_dictionary_base_word_families", family.familyId));
-    facts.push(evidence("canonical_teaching_dictionary_base_word_family_members", eligibleTarget.memberId, "member_role", eligibleTarget.memberRole, "authentic_target"));
+    if (authority) {
+      facts.push(evidence("adle_curriculum_dependency_authorities", authority.familyAuthorityId, "family_id", family.familyId));
+      facts.push(evidence("adle_curriculum_dependency_authorities", authority.familyAuthorityId, "member_role", `${eligibleTarget.memberId}:${eligibleTarget.memberRole}`, `${eligibleTarget.memberId}:authentic_target`));
+    }
     blockers.push(...completeMember(eligibleTarget));
     if (!family.baseMeaning?.trim()) blockers.push("BASE_WORD_FAMILY_MEANING_MISSING");
     if (family.etymologyRoute === null) blockers.push("BASE_WORD_FAMILY_ETYMOLOGY_ROUTE_MISSING");
@@ -208,7 +218,7 @@ export function inspectBaseWordRouteContent(input: BaseWordRouteFactInput): Rout
     blockers.push("BASE_WORD_DICTATION_MISSING");
   } else {
     dependencyIds.push(`dictation:${sentence.id}`);
-    facts.push(evidence("canonical_teaching_dictionary_dictation_sentences", sentence.id));
+    facts.push(evidence("adle_teaching_dictionary_closure_words", sentence.id));
   }
   const uniqueBlockers = [...new Set(blockers)].sort();
   return {
@@ -216,7 +226,7 @@ export function inspectBaseWordRouteContent(input: BaseWordRouteFactInput): Rout
     microSkillKey: input.microSkillKey,
     routeId: BASE_WORD_ROUTE_ID,
     routeVersion: BASE_WORD_ROUTE_VERSION,
-    dependencyFingerprint: canonicalHash({
+    dependencyFingerprint: authority?.dependencyFingerprint ?? canonicalHash({
       route: `${BASE_WORD_ROUTE_ID}:${BASE_WORD_ROUTE_VERSION}`,
       target: input.canonicalWordId,
       skill: input.microSkillKey,

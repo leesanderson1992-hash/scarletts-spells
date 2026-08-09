@@ -68,6 +68,7 @@
     "adle:base-word-canonical-intake-route-regression": "npx tsx scripts/adle-base-word-canonical-intake-route-regression.ts",
     "adle:base-word-release-authority-regression": "npx tsx scripts/adle-base-word-release-authority-regression.ts",
     "adle:base-word-canonical-intake-persistence-contract-regression": "npx tsx scripts/adle-base-word-canonical-intake-persistence-contract-regression.ts",
+    "adle:base-word-curriculum-readiness-regression": "npx tsx scripts/adle-base-word-curriculum-readiness-regression.ts",
     "adle:canonical-intake-review-hook-regression": "npx tsx scripts/adle-canonical-intake-review-hook-regression.ts",
     "adle:canonical-intake-audit": "npx tsx scripts/audit-adle-canonical-intake.ts",
     "adle:curriculum-readiness-regression": "npx tsx scripts/adle-curriculum-readiness-regression.ts",
