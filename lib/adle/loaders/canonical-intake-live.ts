@@ -16,6 +16,11 @@ import {
   type IntakeReadinessBlocker,
 } from "../canonical-intake";
 import { resolveCanonicalIntakeRoute } from "../canonical-intake/route-readiness";
+import {
+  compileBaseWordCanonicalIntakeRouteFacts,
+  selectGovernedBaseWordIntakeActivations,
+} from "../canonical-intake/base-word-route-readiness";
+import { getCurriculumRouteDefinition } from "../curriculum-readiness/route-registry";
 import { isBaseWordFamilyPilotEnabledForChild } from "../morphology/base-word-family-pilot-access";
 import { loadDynamicPrefixProfiles } from "../morphology/dynamic-prefix-profile-loader";
 import { isDynamicPrefixRouteEnabled } from "../morphology/dynamic-prefix-staging-access";
@@ -29,6 +34,11 @@ import { loadAdleLessonRouteActivations } from "./lesson-route-activations";
 import { resolveAdleRouteActivationEnvironment } from "../route-activation-environment";
 
 type AdleClient = SupabaseClient;
+
+const BASE_WORD_ROUTE = getCurriculumRouteDefinition("base_word_lab", "v2") ??
+  (() => {
+    throw new Error("Base Word route is not registered");
+  })();
 
 export interface CanonicalIntakeLiveResult {
   enabled: boolean;
@@ -210,57 +220,60 @@ async function routeActivationFacts(client: AdleClient, childId: string) {
   if (isBaseWordFamilyPilotEnabledForChild(childId)) {
     if (!activationEnvironment) return { enabled, readyPairs, routeReadiness };
     const activations = await loadAdleLessonRouteActivations(client, {
-      microSkillKeys: [
-        "D4_MOR_BASE_WORDS_PRESERVE_BASE",
-        "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
-      ],
+      microSkillKeys: BASE_WORD_ROUTE.supportedMicroSkillKeys,
       environmentKey: activationEnvironment,
     });
-    const activatedSkills = new Set(
-      activations
-        .filter(
-          (activation) =>
-            activation.lessonRouteKey === "base_word_family_v1" &&
-            activation.activationStatus === "production_enabled",
-        )
-        .map((activation) => activation.microSkillKey),
-    );
-    if (activatedSkills.size === 0)
+    const activeBaseWordActivations =
+      selectGovernedBaseWordIntakeActivations(activations);
+    if (activeBaseWordActivations.length === 0)
       return { enabled, readyPairs, routeReadiness };
+    const activatedSkills = new Set(
+      activeBaseWordActivations.map((activation) => activation.microSkillKey),
+    );
+    const importBatchIds = [
+      ...new Set(
+        activeBaseWordActivations.map((activation) => activation.importBatchId),
+      ),
+    ];
     const { data: familyRows, error: familyError } = await client
       .from("canonical_teaching_dictionary_base_word_families")
-      .select("id, micro_skill_key")
+      .select("id,micro_skill_key,import_batch_id,row_status,review_status")
       .in("micro_skill_key", [...activatedSkills])
-      .eq("row_status", "active")
-      .eq("review_status", "approved_for_first_exposure");
+      .in("import_batch_id", importBatchIds);
     if (familyError) throwQuery("canonical intake base families", familyError);
-    const familyById = new Map(
-      (familyRows ?? []).map((row: any) => [
-        row.id as string,
-        row.micro_skill_key as string,
-      ]),
-    );
-    const familyIds = [...familyById.keys()];
+    const familyIds = (familyRows ?? []).map((row: any) => row.id as string);
+    let memberRows: any[] = [];
     if (familyIds.length > 0) {
-      const { data: memberRows, error: memberError } = await client
+      const { data: memberData, error: memberError } = await client
         .from("canonical_teaching_dictionary_base_word_family_members")
-        .select("base_word_family_id, canonical_word_id")
-        .in("base_word_family_id", familyIds)
-        .eq("assignment_eligible", true)
-        .eq("row_status", "active")
-        .eq("review_status", "approved_for_first_exposure");
+        .select("base_word_family_id,canonical_word_id,import_batch_id,member_role,assignment_eligible,row_status,review_status")
+        .in("base_word_family_id", familyIds);
       if (memberError)
         throwQuery("canonical intake base family members", memberError);
-      for (const row of memberRows ?? []) {
-        const skill = familyById.get((row as any).base_word_family_id);
-        if (!skill) continue;
-        if (!activatedSkills.has(skill)) continue;
-        enabled.add(skill);
-        readyPairs.add(
-          canonicalWordSkillPair((row as any).canonical_word_id, skill),
-        );
-      }
+      memberRows = memberData ?? [];
     }
+    const baseFacts = compileBaseWordCanonicalIntakeRouteFacts({
+      activations,
+      families: (familyRows ?? []).map((row: any) => ({
+        id: row.id,
+        microSkillKey: row.micro_skill_key,
+        importBatchId: row.import_batch_id,
+        rowStatus: row.row_status,
+        reviewStatus: row.review_status,
+      })),
+      members: memberRows.map((row: any) => ({
+        baseWordFamilyId: row.base_word_family_id,
+        canonicalWordId: row.canonical_word_id,
+        importBatchId: row.import_batch_id,
+        memberRole: row.member_role,
+        assignmentEligible: row.assignment_eligible,
+        rowStatus: row.row_status,
+        reviewStatus: row.review_status,
+      })),
+    });
+    for (const skill of baseFacts.enabledSkills) enabled.add(skill);
+    for (const pair of baseFacts.readyPairs) readyPairs.add(pair);
+    routeReadiness.push(...baseFacts.routeReadiness);
   }
   return {
     enabled,
@@ -286,6 +299,7 @@ async function persistEligibleIntake(
     p_verified_on: resolution.verifiedOn,
     p_route_id: resolution.routeId,
     p_route_version: resolution.routeVersion,
+    p_route_activation_id: resolution.routeActivationId ?? null,
   });
   if (error) throwQuery("canonical intake atomic persistence", error);
   return Boolean((data as Array<{ inserted?: boolean }> | null)?.[0]?.inserted);

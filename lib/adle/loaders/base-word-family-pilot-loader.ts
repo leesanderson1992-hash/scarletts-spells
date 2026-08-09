@@ -20,7 +20,7 @@ export const BASE_WORD_PILOT_MICRO_SKILLS = [
   "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
 ] as const;
 type FamilyRow = { id: string; base_family_key: string; micro_skill_key: string; row_status: "active" | "draft" | "rejected" | "superseded"; review_status: "approved_for_first_exposure" | "in_review" | "draft" | "ai_draft" | "changes_requested" | "approved_for_guided_review" | "rejected" | "superseded" };
-type MemberRow = { base_word_family_id: string; canonical_word_id: string; member_role: BaseWordFamilyMemberFact["memberRole"]; assignment_eligible: boolean; row_status: BaseWordFamilyMemberFact["rowStatus"]; review_status: BaseWordFamilyMemberFact["reviewStatus"] };
+type MemberRow = { import_batch_id: string; base_word_family_id: string; canonical_word_id: string; member_role: BaseWordFamilyMemberFact["memberRole"]; assignment_eligible: boolean; row_status: BaseWordFamilyMemberFact["rowStatus"]; review_status: BaseWordFamilyMemberFact["reviewStatus"] };
 
 /**
  * Loads only existing verified learning items and reviewed curriculum data.
@@ -63,12 +63,13 @@ export async function loadBaseWordFamilyPilotReadiness(params: {
     const familyRows = (familyData ?? []) as FamilyRow[];
     const familyIds = familyRows.map((row) => row.id);
     const { data: memberData, error: memberError } = familyIds.length
-      ? await params.client.from("canonical_teaching_dictionary_base_word_family_members").select("base_word_family_id, canonical_word_id, member_role, assignment_eligible, row_status, review_status").in("base_word_family_id", familyIds)
+      ? await params.client.from("canonical_teaching_dictionary_base_word_family_members").select("import_batch_id, base_word_family_id, canonical_word_id, member_role, assignment_eligible, row_status, review_status").in("base_word_family_id", familyIds).eq("import_batch_id", activation.importBatchId)
       : { data: [], error: null };
     if (memberError) throw new Error(`loadBaseWordFamilyPilotReadiness: ${memberError.message}`);
     const keyById = new Map(familyRows.map((row) => [row.id, row.base_family_key]));
     const families: BaseWordFamilyFact[] = familyRows.map((row) => ({ baseFamilyKey: row.base_family_key, microSkillKey: row.micro_skill_key, rowStatus: row.row_status, reviewStatus: row.review_status }));
     const members: BaseWordFamilyMemberFact[] = ((memberData ?? []) as MemberRow[]).flatMap((row) => {
+      if (row.import_batch_id !== activation.importBatchId) return [];
       const baseFamilyKey = keyById.get(row.base_word_family_id);
       return baseFamilyKey ? [{ baseFamilyKey, canonicalWordId: row.canonical_word_id, memberRole: row.member_role, assignmentEligible: row.assignment_eligible, complexityLevel: null, rowStatus: row.row_status, reviewStatus: row.review_status }] : [];
     });

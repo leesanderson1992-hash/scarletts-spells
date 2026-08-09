@@ -17,7 +17,7 @@ function member(baseFamilyKey: string, canonicalWordId: string, memberRole: "bas
   return { baseFamilyKey, canonicalWordId, memberRole, assignmentEligible: true, complexityLevel: level, rowStatus: "active" as const, reviewStatus: "approved_for_first_exposure" as const };
 }
 function facts(items: readonly LearningItemFact[], members: readonly BaseWordFamilyMemberFact[] = [
-  member("PLAY", "play", "base"), member("PLAY", "replayed", "authentic_target"), member("PLAY", "replay", "transfer"), member("PLAY", "playing", "transfer"), member("PLAY", "playful", "transfer"), member("PLAY", "plays", "transfer"),
+  member("PLAY", "play", "base"), member("PLAY", "replayed", "authentic_target"), member("PLAY", "replay", "authentic_target"), member("PLAY", "playing", "transfer"), member("PLAY", "playful", "transfer"), member("PLAY", "plays", "transfer"),
   member("GOVERN", "govern", "base"), member("GOVERN", "government", "authentic_target"), member("GOVERN", "governor", "transfer"),
 ]): BaseWordFamilySelectionFacts {
   return { learningItems: items, families: ["PLAY", "GOVERN"].map((baseFamilyKey) => ({ baseFamilyKey, microSkillKey: SKILL, rowStatus: "active", reviewStatus: "approved_for_first_exposure" })), members };
@@ -52,11 +52,11 @@ const identifyFacts: BaseWordFamilySelectionFacts = {
     { ...item("action", "action", "2026-07-01"), microSkillKey: IDENTIFY_BASE },
     { ...item("happiness", "happiness", "2026-07-02"), microSkillKey: IDENTIFY_BASE },
   ],
-  families: ["ACT", "HAPPY", "BED", "SUN"].map((baseFamilyKey) => ({ baseFamilyKey, microSkillKey: IDENTIFY_BASE, rowStatus: "active" as const, reviewStatus: "approved_for_first_exposure" as const })),
+  families: ["ACT", "HAPPY", "BED", "FOOT", "SUN"].map((baseFamilyKey) => ({ baseFamilyKey, microSkillKey: IDENTIFY_BASE, rowStatus: "active" as const, reviewStatus: "approved_for_first_exposure" as const })),
   members: [
     member("ACT", "act", "base"), member("ACT", "action", "authentic_target"), member("ACT", "react", "transfer"), member("ACT", "interact", "transfer"), member("ACT", "active", "transfer"),
     member("HAPPY", "happy", "base"), member("HAPPY", "happiness", "authentic_target"), member("HAPPY", "unhappy", "transfer"),
-    member("BED", "bed", "authentic_target"), member("SUN", "sun", "authentic_target"),
+    member("BED", "bed", "base"), member("FOOT", "foot", "base"), member("SUN", "sun", "base"),
   ],
 };
 const yToIPair = selectBaseWordFamilyLesson(CHILD, IDENTIFY_BASE, identifyFacts);
@@ -82,5 +82,15 @@ const blocked = selectBaseWordFamilyLesson(CHILD, IDENTIFY_BASE, {
   ],
 });
 assert(blocked.slots.length === 0 && blocked.skipReasons.length > 0, "blocked families must fail closed rather than gain unrelated fallback words");
+for (const supportOnlyWord of ["bed", "foot", "sun"]) {
+  const supportRoleAttempt = selectBaseWordFamilyLesson(CHILD, IDENTIFY_BASE, {
+    ...identifyFacts,
+    learningItems: [
+      { ...item(`${supportOnlyWord}-item`, supportOnlyWord, "2026-07-01"), microSkillKey: IDENTIFY_BASE },
+      { ...item("action-pair", "action", "2026-07-02"), microSkillKey: IDENTIFY_BASE },
+    ],
+  });
+  assert(supportRoleAttempt.slots.length === 0 && supportRoleAttempt.skipReasons.includes("authentic_target_missing_reviewed_family_member"), `${supportOnlyWord} remains a valid base member but cannot become an authentic target`);
+}
 
 console.log("adle-base-word-family-selection-regression: ok");

@@ -6,6 +6,7 @@ import { resolve } from "node:path";
 const root = resolve(import.meta.dirname, "..");
 const guardedMigration = readFileSync(resolve(root, "supabase/migrations/20260808093000_fix_dynamic_affix_canonical_intake_persistence.sql"), "utf8");
 const migration = readFileSync(resolve(root, "supabase/migrations/20260809100000_reconcile_dynamic_affix_canonical_intake_persistence.sql"), "utf8");
+const baseWordMigration = readFileSync(resolve(root, "supabase/migrations/20260809120000_guard_base_word_canonical_intake_persistence.sql"), "utf8");
 const rollbackProof = readFileSync(resolve(root, "scripts/sql/prove-adle-canonical-intake-persistence-local.sql"), "utf8");
 const live = readFileSync(resolve(root, "lib/adle/loaders/canonical-intake-live.ts"), "utf8");
 
@@ -37,6 +38,18 @@ assert.match(migration, /'learningItemId', v_learning_item_id,[\s\S]*'inserted',
 assert.match(migration, /revoke all on function public\.adle_persist_canonical_intake\([\s\S]*from public, anon, authenticated/);
 assert.match(migration, /grant execute on function public\.adle_persist_canonical_intake\([\s\S]*to service_role/);
 assert.doesNotMatch(migration, /base_word|D4_MOR_BASE/i, "BW-0 must not introduce Base Word behaviour");
+
+const baseArgumentsBlock = baseWordMigration.match(/create function public\.adle_persist_canonical_intake\(([\s\S]*?)\)\s*returns table/)?.[1];
+assert(baseArgumentsBlock, "BW-1 canonical-intake function signature is missing");
+assert.equal(baseArgumentsBlock.match(/^\s*p_[a-z_]+\s+(?:uuid|text|date)(?: default null)?,?$/gm)?.length, 12, "BW-1 canonical-intake function must expose twelve arguments");
+assert.match(baseArgumentsBlock, /p_route_activation_id uuid default null/);
+assert.match(baseWordMigration, /Dynamic Affix candidate must request dynamic_affix_word_lab:v3/);
+assert.match(baseWordMigration, /Dynamic Prefix candidate requested an invalid route/);
+assert.match(baseWordMigration, /generic candidate requested an invalid route/);
+assert.match(baseWordMigration, /update public\.adle_canonical_intake_candidate_demands[\s\S]*link_status = 'resolved'/);
+assert.match(baseWordMigration, /update public\.adle_canonical_intake_demands demand[\s\S]*lifecycle_status = 'activated'/);
+assert.match(baseWordMigration, /update public\.adle_canonical_intake_reconciliation_queue[\s\S]*job_status = 'completed'/);
+assert.match(baseWordMigration, /'candidate_activated'/);
 
 assert.match(rollbackProof, /^begin;/m);
 assert.match(rollbackProof, /^rollback;/m);
