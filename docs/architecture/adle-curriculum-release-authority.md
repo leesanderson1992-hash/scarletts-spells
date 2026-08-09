@@ -1,7 +1,8 @@
 # ADLE curriculum release authority
 
-Status: BW-2A-1 dark foundation. No current route consumes this authority and
-no Base Word release or activation is created by these migrations.
+Status: BW-2A-2 Production-dark foundation and Base Word integration. No Base
+Word release or operational activation exists until the separately governed
+BW-2B publication.
 
 ## Decision
 
@@ -148,7 +149,12 @@ parser/constraint, and transactional proof. It does not:
 - change learner gates or environment variables;
 - change shared task or activity UI.
 
-BW-2A-2 will add governed Base Word family and teaching-content authority
-publishers, audit Base Word `word_support`, integrate exact revision checks at
-intake and assignment boundaries, emit metadata v2, and prove the complete
-route while all Production learner gates remain closed.
+BW-2A-2 added governed Base Word family and teaching-content authority
+publishers, exact revision checks at intake and assignment boundaries, and
+metadata-v2 emission. BW-2A-3 aligns the read-only curriculum-readiness
+inventory with that established contract: exact Base Word family membership,
+teaching content, and Teaching Dictionary closure replace the redundant
+specialist `word_support` dependency. Generic-route `word_support` remains
+unchanged. The fixed Base Word v2 lesson is ready only for two verified
+authentic targets from two distinct governed families; all learner gates stay
+closed until BW-2B.

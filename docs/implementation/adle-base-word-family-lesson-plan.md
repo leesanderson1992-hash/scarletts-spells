@@ -256,7 +256,7 @@ incomplete, unrelated, and unsuitable words cannot be selected.
 - Add a pure selector alongside the existing composer word selection that
   consumes learning-item facts plus Stage 1 family facts.
 - Enforce two distinct verified authentic targets for the same eligible
-  micro-skill; allow one or two authentic families; prioritise oldest
+  micro-skill from two distinct governed families; prioritise oldest
   authentic targets; fill to exactly six with reviewed words from those
   authentic families only.
 - Preserve the complexity window, taught-history exclusions, explicit skip
@@ -327,8 +327,8 @@ not a default.
 ## Acceptance and regression criteria
 
 - Two distinct verified authentic words for one eligible base-word micro-skill
-  produce an exact six-word lesson using one or two reviewed authentic
-  families, with up to eight guided-display words.
+  produce an exact six-word lesson only when they come from two distinct
+  governed families, with up to eight guided-display words.
 - One authentic target, duplicate corrected targets, unverified routes,
   unrelated families, missing family facts, unsuitable candidates, missing
   independent-production support, and insufficient family words fail closed
