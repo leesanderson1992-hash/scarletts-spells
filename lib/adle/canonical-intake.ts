@@ -1,11 +1,15 @@
 import { createHash } from "node:crypto";
 
 import {
+  isBaseWordIntakeSkill,
   isDynamicAffixIntakeSkill,
   isDynamicPrefixIntakeSkill,
   resolveCanonicalIntakeRoute,
 } from "./canonical-intake/route-readiness";
 import type { IsoDate } from "./review-scheduler";
+import { canonicalWordSkillPair } from "./canonical-intake/keys";
+
+export { canonicalWordSkillPair } from "./canonical-intake/keys";
 
 export const ADLE_CANONICAL_INTAKE_FEATURE_FLAG =
   "ADLE_CANONICAL_INTAKE_ENABLED";
@@ -81,6 +85,7 @@ export type IntakeReadinessOutcome =
       microSkillKey: string;
       readinessFingerprint: string;
       evidence: CurriculumEvidence[];
+      routeActivationId?: string;
     }
   | {
       status: "blocked";
@@ -176,6 +181,7 @@ export interface CanonicalIntakeRouteReadinessFact {
   ready: boolean;
   blockers: readonly IntakeReadinessBlockerCode[];
   evidence?: readonly CurriculumEvidence[];
+  routeActivationId?: string;
 }
 
 export interface CanonicalIntakeReadinessFacts {
@@ -208,6 +214,7 @@ export interface CanonicalIntakeEligible {
   routeId: string;
   routeVersion: string;
   readinessFingerprint: string;
+  routeActivationId?: string;
 }
 
 export interface CanonicalIntakeBlocked {
@@ -246,13 +253,6 @@ function stableJson(value: unknown): string {
 
 function fingerprint(value: unknown): string {
   return createHash("sha256").update(stableJson(value)).digest("hex");
-}
-
-export function canonicalWordSkillPair(
-  canonicalWordId: string,
-  microSkillKey: string,
-): string {
-  return `${canonicalWordId}\u0000${microSkillKey}`;
 }
 
 export function canonicalIntakeDemandStableKey(input: {
@@ -552,11 +552,17 @@ export function evaluateCanonicalIntakeReadiness(
       isDynamicAffixIntakeSkill(candidate.microSkillKey)) &&
     explicitRouteReadiness?.ready === true &&
     facts.routeSpecificReadyWordSkillPairs.has(pair);
+  const routeCertifiedBaseWordMember =
+    isBaseWordIntakeSkill(candidate.microSkillKey) &&
+    explicitRouteReadiness?.ready === true &&
+    Boolean(explicitRouteReadiness.routeActivationId) &&
+    facts.routeSpecificReadyWordSkillPairs.has(pair);
 
   if (
     (!facts.allowedFrequencyBands.has(word.frequencyBand) ||
       !facts.allowedAgeBands.has(word.ageBand)) &&
-    !routeCertifiedAffixMember
+    !routeCertifiedAffixMember &&
+    !routeCertifiedBaseWordMember
   ) {
     return blockedOutcome({
       facts,
@@ -586,7 +592,23 @@ export function evaluateCanonicalIntakeReadiness(
     });
   }
 
-  if (
+  if (isBaseWordIntakeSkill(candidate.microSkillKey)) {
+    if (
+      explicitRouteReadiness?.ready !== true ||
+      !explicitRouteReadiness.routeActivationId ||
+      !facts.routeSpecificReadyWordSkillPairs.has(pair)
+    ) {
+      return blockedOutcome({
+        facts,
+        codes: ["profile_membership_missing"],
+        targetIdentityStatus: "established",
+        targetToken,
+        canonicalWordId: word.canonicalWordId,
+        canonicalMappingId: mapping.mappingId,
+        evidence: [...(explicitRouteReadiness?.evidence ?? [])],
+      });
+    }
+  } else if (
     isDynamicPrefixIntakeSkill(candidate.microSkillKey) ||
     isDynamicAffixIntakeSkill(candidate.microSkillKey)
   ) {
@@ -680,8 +702,12 @@ export function evaluateCanonicalIntakeReadiness(
       route,
       microSkill: candidate.microSkillKey,
       routePairReady: facts.routeSpecificReadyWordSkillPairs.has(pair),
+      routeActivationId: explicitRouteReadiness?.routeActivationId ?? null,
     }),
     evidence,
+    ...(explicitRouteReadiness?.routeActivationId
+      ? { routeActivationId: explicitRouteReadiness.routeActivationId }
+      : {}),
   };
 }
 
@@ -743,5 +769,8 @@ export function resolveCanonicalIntakeReadiness(
     routeId: readiness.routeId,
     routeVersion: readiness.routeVersion,
     readinessFingerprint: readiness.readinessFingerprint,
+    ...(readiness.routeActivationId
+      ? { routeActivationId: readiness.routeActivationId }
+      : {}),
   };
 }

@@ -8,6 +8,7 @@ import {
 import type { AdleRouteActivationEnvironment } from "../route-activation-environment";
 
 export interface AdleLessonRouteActivation {
+  activationId: string;
   microSkillKey: string;
   lessonRouteKey: AdleLessonRouteKey;
   payloadVersion: number;
@@ -43,7 +44,7 @@ export async function loadAdleLessonRouteActivations(
   if (input.microSkillKeys.length === 0) return [];
   const { data, error } = await client
     .from("adle_lesson_route_activations")
-    .select("micro_skill_key,lesson_route_key,payload_version,activation_status,content_version,import_manifest_id,readiness_report")
+    .select("id,micro_skill_key,lesson_route_key,payload_version,activation_status,content_version,import_manifest_id,readiness_report")
     .in("micro_skill_key", [...input.microSkillKeys])
     .eq("environment_key", input.environmentKey)
     .eq("row_status", "active");
@@ -56,12 +57,32 @@ export async function loadAdleLessonRouteActivations(
   if (manifestIds.length === 0) return [];
   const { data: manifests, error: manifestsError } = await client
     .from("adle_curriculum_import_manifests")
-    .select("id,import_batch_id")
-    .in("id", manifestIds);
+    .select("id,import_batch_id,environment_key,row_status")
+    .in("id", manifestIds)
+    .eq("environment_key", input.environmentKey)
+    .eq("row_status", "active");
   if (manifestsError) throw new Error(`loadAdleLessonRouteActivations: ${manifestsError.message}`);
+  const batchIds = [...new Set(
+    (manifests ?? []).map((manifest) => manifest.import_batch_id)
+      .filter((id): id is string => typeof id === "string"),
+  )];
+  if (batchIds.length === 0) return [];
+  const { data: batches, error: batchesError } = await client
+    .from("canonical_teaching_dictionary_import_batches")
+    .select("id")
+    .in("id", batchIds)
+    .eq("batch_status", "applied");
+  if (batchesError)
+    throw new Error(`loadAdleLessonRouteActivations: ${batchesError.message}`);
+  const appliedBatchIds = new Set(
+    (batches ?? []).map((batch) => batch.id)
+      .filter((id): id is string => typeof id === "string"),
+  );
   const importBatchByManifestId = new Map(
     (manifests ?? []).flatMap((manifest) =>
-      typeof manifest.id === "string" && typeof manifest.import_batch_id === "string"
+      typeof manifest.id === "string" &&
+      typeof manifest.import_batch_id === "string" &&
+      appliedBatchIds.has(manifest.import_batch_id)
         ? [[manifest.id, manifest.import_batch_id] as const]
         : [],
     ),
@@ -75,6 +96,7 @@ export async function loadAdleLessonRouteActivations(
       return [];
     }
     return [{
+      activationId: row.id,
       microSkillKey: row.micro_skill_key,
       lessonRouteKey: definition.lessonRouteKey,
       payloadVersion: row.payload_version,

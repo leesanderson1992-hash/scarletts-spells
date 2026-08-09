@@ -110,6 +110,13 @@ function facts(
     routeSpecificReadyWordSkillPairs: new Set([
       canonicalWordSkillPair(WORD, skill),
     ]),
+    routeReadiness: [{
+      canonicalWordId: WORD,
+      microSkillKey: skill,
+      ready: true,
+      blockers: [],
+      routeActivationId: `activation-${skill}`,
+    }],
     allowedFrequencyBands: new Set(["high"]),
     allowedAgeBands: new Set(["middle_primary"]),
   };
@@ -163,8 +170,9 @@ profileFacts.selectorProfiles = [{
 }];
 const profileReady = resolveCanonicalIntakeReadiness(profileFacts);
 assert(
-  profileReady.status === "eligible",
-  "An active reviewed selector profile must replace speculative exact-word support.",
+  profileReady.status === "blocked" &&
+    profileReady.reason === "canonical_target_selector_profile_missing",
+  "A Base Word selector profile must not replace exact activated authentic-target membership.",
 );
 const missingProfileFacts = facts(SKILL_A);
 missingProfileFacts.supports = [];

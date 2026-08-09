@@ -10,6 +10,7 @@ const migrationPath =
   "supabase/migrations/20260731200000_add_adle_generic_lesson_snapshot_v2.sql";
 const migration = readFileSync(migrationPath, "utf8");
 const writer = readFileSync("lib/adle/loaders/daily-plan-surface.ts", "utf8");
+const snapshotCapability = readFileSync("lib/adle/loaders/daily-plan-snapshot-capability.ts", "utf8");
 const stagingHarness = readFileSync("scripts/apply-adle-generic-snapshot-staging-migration.ts", "utf8");
 const proofHarness = readFileSync("scripts/adle-generic-snapshot-staging-proof.ts", "utf8");
 
@@ -37,7 +38,9 @@ match(writer, /compileGenericLessonSnapshot/);
 match(writer, /persist_adle_generic_daily_plan_v2/);
 match(writer, /p_snapshot: compiled\.snapshot/);
 match(writer, /generic plans require the snapshot-aware ensure path/);
-match(writer, /compiled_lesson_snapshot, assignment_generation_source|assignment_generation_source, compiled_lesson_snapshot/);
+match(writer, /dailyPlanHeaderProjection\(snapshotCapability\)/);
+match(snapshotCapability, /lesson_route_metadata, assignment_generation_source/);
+match(snapshotCapability, /compiled_lesson_snapshot/);
 match(writer, /source_entity_id/);
 
 equal(genericSnapshotMode(undefined), "off");

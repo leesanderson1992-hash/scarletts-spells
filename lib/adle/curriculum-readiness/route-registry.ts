@@ -314,3 +314,26 @@ export function getCurriculumRouteDefinition(
     ) ?? null
   );
 }
+
+/**
+ * Returns the single registered route that is allowed to create new
+ * assignments for a declared micro-skill. The registry is the authority;
+ * callers must not maintain a parallel micro-skill-to-route map.
+ */
+export function getNewAssignmentCurriculumRouteForMicroSkill(
+  microSkillKey: string,
+): CurriculumRouteDefinition | null {
+  const matches = ADLE_CURRICULUM_ROUTE_REGISTRY.filter(
+    (route) =>
+      route.implementationState === "registered" &&
+      route.newAssignmentCapable &&
+      route.compatibilityScope.kind === "declared_micro_skills" &&
+      route.supportedMicroSkillKeys.includes(microSkillKey),
+  );
+  if (matches.length > 1) {
+    throw new Error(
+      `ambiguous new-assignment curriculum route for ${microSkillKey}`,
+    );
+  }
+  return matches[0] ?? null;
+}

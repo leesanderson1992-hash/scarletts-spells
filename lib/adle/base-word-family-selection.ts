@@ -124,10 +124,20 @@ export function selectBaseWordFamilyLesson(
   const selectedAuthentic = uniqueAuthenticItems.slice(0, BASE_WORD_AUTHENTIC_FAMILY_LIMIT);
   const authenticFamilyByItem = new Map<string, string>();
   for (const item of selectedAuthentic) {
-    const familyKey = (familiesByWord.get(item.canonicalWordId) ?? []).sort()[0];
+    const familyKey = (familiesByWord.get(item.canonicalWordId) ?? [])
+      .sort()
+      .find((candidateFamilyKey) =>
+        (membersByFamily.get(candidateFamilyKey) ?? []).some(
+          (member) =>
+            member.canonicalWordId === item.canonicalWordId &&
+            member.memberRole === "authentic_target" &&
+            member.assignmentEligible,
+        ),
+      );
     if (!familyKey) return empty(["authentic_target_missing_reviewed_family_member"]);
     const member = (membersByFamily.get(familyKey) ?? []).find((candidate) => candidate.canonicalWordId === item.canonicalWordId);
-    if (!member?.assignmentEligible) return empty(["authentic_target_family_unavailable"]);
+    if (!member || member.memberRole !== "authentic_target" || !member.assignmentEligible)
+      return empty(["authentic_target_family_unavailable"]);
     authenticFamilyByItem.set(item.learningItemId, familyKey);
   }
 
