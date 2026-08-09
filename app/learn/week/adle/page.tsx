@@ -13,6 +13,7 @@ import {
 import { getActiveChildrenForUser } from "@/lib/courses/queries";
 import { getLondonPracticeDate } from "@/lib/practice-date";
 import { createClient } from "@/lib/supabase/server";
+import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { isAdminUser } from "@/lib/admin/access";
 import {
   getExistingAdleSessionPlanId,
@@ -36,6 +37,7 @@ import {
   emitLessonRouteResolutionEvent,
   resolvePersistedLessonRoute,
 } from "@/lib/adle/composable-lesson/route-resolution";
+import { baseWordAssignmentRuntimeAllowed } from "@/lib/adle/loaders/curriculum-release-authority";
 
 type AdleSessionPageProps = {
   searchParams?: Promise<{
@@ -117,6 +119,12 @@ export default async function AdleSessionPage({ searchParams }: AdleSessionPageP
         },
       })
     : null;
+  const runtimeSafetyBlocked = readModel.assignmentId !== null &&
+    !(await baseWordAssignmentRuntimeAllowed({
+      client: createServiceRoleClient(),
+      lessonRouteMetadata: readModel.lessonRouteMetadata,
+      assignmentCompleted: readModel.state === "completed",
+    }));
   if (routeResolution) {
     emitLessonRouteResolutionEvent(
       routeResolution,
@@ -211,6 +219,7 @@ export default async function AdleSessionPage({ searchParams }: AdleSessionPageP
           </div>
         ) : (
           routeResolution?.status === "blocked" ||
+          runtimeSafetyBlocked ||
           readModel.genericSnapshotResolution?.status === "blocked"
         ) ? (
           <div className="brand-card rounded-3xl p-4 md:p-5" role="alert">

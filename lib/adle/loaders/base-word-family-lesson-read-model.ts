@@ -7,12 +7,16 @@ import type {
   BaseWordFamilySnapshotSection,
   BaseWordFamilySnapshotWord,
 } from "../morphology/base-word-family-payload";
+import type { ActivatedBaseWordReleaseAuthority } from "../curriculum-release-activation";
 
 type Client = SupabaseClient;
 
 export interface BaseWordFamilyReadModelRequest {
   microSkillKey: string;
   contentVersion: string;
+  /** Required by the assignment path. When present, every lesson fact is
+   * read from the frozen release dependencies rather than mutable sources. */
+  releaseAuthority?: ActivatedBaseWordReleaseAuthority;
   /** The immutable family-data batch selected by the active route manifest.
    * Omitted only by the read-only curriculum inventory, which never assigns. */
   importBatchId?: string;
@@ -70,6 +74,59 @@ export async function loadBaseWordFamilyLessonReadModel(
   if (request.authenticTargets.length !== 2 || request.sections.length < 1 || request.sections.length > 2 || request.independentSlots.length !== 6) return null;
   const familyKeys = request.sections.map((section) => section.baseFamilyKey);
   if (new Set(familyKeys).size !== familyKeys.length) return null;
+  if (request.releaseAuthority) {
+    const authority = request.releaseAuthority;
+    if (authority.microSkillKey !== request.microSkillKey ||
+        authority.family.microSkillKey !== request.microSkillKey ||
+        authority.teachingContent.microSkillKey !== request.microSkillKey ||
+        authority.teachingContent.contentVersion !== request.contentVersion) return null;
+    const familyByKey = new Map(authority.family.families.map((family) => [family.baseFamilyKey, family]));
+    const closureById = new Map(authority.dictionaryWords.map((word) => [word.canonicalWordId, word]));
+    const sections: BaseWordFamilySnapshotSection[] = [];
+    for (const requested of request.sections) {
+      const family = familyByKey.get(requested.baseFamilyKey);
+      if (!family) return null;
+      const word = (canonicalWordId: string): BaseWordFamilySnapshotWord | null => {
+        const member = family.members.find((candidate) => candidate.canonicalWordId === canonicalWordId);
+        const closure = closureById.get(canonicalWordId);
+        if (!member || !closure || !member.assignmentEligible || !member.wordSum.trim() ||
+            member.morphologyParts.length === 0 || !member.childFriendlyMeaning.trim()) return null;
+        return {
+          canonicalWordId,
+          displayWord: closure.displayWord,
+          wordSum: member.wordSum,
+          parts: member.morphologyParts,
+          joins: member.morphologyJoins,
+          transformations: member.morphologyTransformations as BaseWordFamilySnapshotWord["transformations"],
+          transformationNotes: member.transformationNotes,
+          childFriendlyMeaning: member.childFriendlyMeaning,
+          dictationSentence: closure.dictationSentence,
+          dictationTargetTokenIndex: closure.dictationTargetTokenIndex,
+          audioText: closure.audioText,
+        };
+      };
+      const baseWord = word(family.baseWordId);
+      const guidedWords = requested.guidedWordIds.map(word);
+      if (!baseWord || guidedWords.some((entry) => entry === null) ||
+          !requested.guidedWordIds.includes(baseWord.canonicalWordId)) return null;
+      sections.push({
+        baseFamilyKey: family.baseFamilyKey,
+        baseWord,
+        baseMeaning: family.baseMeaning,
+        etymologyRoute: family.etymologyRoute,
+        authenticTargetWordIds: requested.authenticTargetWordIds,
+        guidedWords: guidedWords as BaseWordFamilySnapshotWord[],
+      });
+    }
+    return {
+      microSkillKey: request.microSkillKey,
+      contentVersion: request.contentVersion,
+      authenticTargets: request.authenticTargets,
+      familySections: sections,
+      independentSlots: request.independentSlots,
+      pilotLessonNumber: request.pilotLessonNumber,
+    };
+  }
   let familyQuery = client.from("canonical_teaching_dictionary_base_word_families")
       .select("id, base_family_key, base_meaning, etymology_route")
       .eq("micro_skill_key", request.microSkillKey)

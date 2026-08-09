@@ -18,7 +18,6 @@ import {
 import { resolveCanonicalIntakeRoute } from "../canonical-intake/route-readiness";
 import {
   compileBaseWordCanonicalIntakeRouteFacts,
-  selectGovernedBaseWordIntakeActivations,
 } from "../canonical-intake/base-word-route-readiness";
 import { getCurriculumRouteDefinition } from "../curriculum-readiness/route-registry";
 import { isBaseWordFamilyPilotEnabledForChild } from "../morphology/base-word-family-pilot-access";
@@ -30,8 +29,9 @@ import {
 } from "../morphology/dynamic-suffix-profile-loader";
 import { isDynamicSuffixRouteEnabled } from "../morphology/dynamic-suffix-route-gate";
 import { ADLE_PILOT_CHILD_BAND } from "./composer-facts-loader";
-import { loadAdleLessonRouteActivations } from "./lesson-route-activations";
 import { resolveAdleRouteActivationEnvironment } from "../route-activation-environment";
+import { loadEnabledBaseWordReleaseAuthorities } from "./curriculum-release-authority";
+import { isBaseWordIntakeSkill } from "../canonical-intake/route-readiness";
 
 type AdleClient = SupabaseClient;
 
@@ -77,6 +77,12 @@ async function routeActivationFacts(client: AdleClient, childId: string) {
   const enabled = new Set<string>();
   const readyPairs = new Set<string>();
   const routeReadiness: CanonicalIntakeRouteReadinessFact[] = [];
+  const baseWordClosureWords: Array<{
+    activationRevisionId: string;
+    microSkillKey: string;
+    canonicalWordId: string;
+    normalisedWord: string;
+  }> = [];
   const activationEnvironment = resolveAdleRouteActivationEnvironment();
   const { data: selectorProfiles, error: selectorProfileError } = await client
     .from("canonical_teaching_dictionary_transfer_selector_profiles")
@@ -218,59 +224,27 @@ async function routeActivationFacts(client: AdleClient, childId: string) {
   }
 
   if (isBaseWordFamilyPilotEnabledForChild(childId)) {
-    if (!activationEnvironment) return { enabled, readyPairs, routeReadiness };
-    const activations = await loadAdleLessonRouteActivations(client, {
-      microSkillKeys: BASE_WORD_ROUTE.supportedMicroSkillKeys,
-      environmentKey: activationEnvironment,
-    });
-    const activeBaseWordActivations =
-      selectGovernedBaseWordIntakeActivations(activations);
-    if (activeBaseWordActivations.length === 0)
-      return { enabled, readyPairs, routeReadiness };
-    const activatedSkills = new Set(
-      activeBaseWordActivations.map((activation) => activation.microSkillKey),
-    );
-    const importBatchIds = [
-      ...new Set(
-        activeBaseWordActivations.map((activation) => activation.importBatchId),
-      ),
-    ];
-    const { data: familyRows, error: familyError } = await client
-      .from("canonical_teaching_dictionary_base_word_families")
-      .select("id,micro_skill_key,import_batch_id,row_status,review_status")
-      .in("micro_skill_key", [...activatedSkills])
-      .in("import_batch_id", importBatchIds);
-    if (familyError) throwQuery("canonical intake base families", familyError);
-    const familyIds = (familyRows ?? []).map((row: any) => row.id as string);
-    let memberRows: any[] = [];
-    if (familyIds.length > 0) {
-      const { data: memberData, error: memberError } = await client
-        .from("canonical_teaching_dictionary_base_word_family_members")
-        .select("base_word_family_id,canonical_word_id,import_batch_id,member_role,assignment_eligible,row_status,review_status")
-        .in("base_word_family_id", familyIds);
-      if (memberError)
-        throwQuery("canonical intake base family members", memberError);
-      memberRows = memberData ?? [];
+    if (!activationEnvironment) {
+      return { enabled, readyPairs, routeReadiness, selectorProfiles: selectorProfiles ?? [], baseWordClosureWords };
     }
+    const activations = await loadEnabledBaseWordReleaseAuthorities({
+      client,
+      environmentKey: activationEnvironment,
+      microSkillKeys: BASE_WORD_ROUTE.supportedMicroSkillKeys,
+    });
     const baseFacts = compileBaseWordCanonicalIntakeRouteFacts({
       activations,
-      families: (familyRows ?? []).map((row: any) => ({
-        id: row.id,
-        microSkillKey: row.micro_skill_key,
-        importBatchId: row.import_batch_id,
-        rowStatus: row.row_status,
-        reviewStatus: row.review_status,
-      })),
-      members: memberRows.map((row: any) => ({
-        baseWordFamilyId: row.base_word_family_id,
-        canonicalWordId: row.canonical_word_id,
-        importBatchId: row.import_batch_id,
-        memberRole: row.member_role,
-        assignmentEligible: row.assignment_eligible,
-        rowStatus: row.row_status,
-        reviewStatus: row.review_status,
-      })),
     });
+    for (const activation of activations) {
+      for (const word of activation.dictionaryWords) {
+        baseWordClosureWords.push({
+          activationRevisionId: activation.activationRevisionId,
+          microSkillKey: activation.microSkillKey,
+          canonicalWordId: word.canonicalWordId,
+          normalisedWord: word.normalisedWord,
+        });
+      }
+    }
     for (const skill of baseFacts.enabledSkills) enabled.add(skill);
     for (const pair of baseFacts.readyPairs) readyPairs.add(pair);
     routeReadiness.push(...baseFacts.routeReadiness);
@@ -280,6 +254,7 @@ async function routeActivationFacts(client: AdleClient, childId: string) {
     readyPairs,
     routeReadiness,
     selectorProfiles: selectorProfiles ?? [],
+    baseWordClosureWords,
   };
 }
 
@@ -300,6 +275,9 @@ async function persistEligibleIntake(
     p_route_id: resolution.routeId,
     p_route_version: resolution.routeVersion,
     p_route_activation_id: resolution.routeActivationId ?? null,
+    p_release_manifest_id: resolution.curriculumRelease?.releaseManifestId ?? null,
+    p_release_manifest_sha256: resolution.curriculumRelease?.releaseManifestSha256 ?? null,
+    p_dependency_fingerprint: resolution.curriculumRelease?.dependencyFingerprint ?? null,
   });
   if (error) throwQuery("canonical intake atomic persistence", error);
   return Boolean((data as Array<{ inserted?: boolean }> | null)?.[0]?.inserted);
@@ -510,6 +488,28 @@ export async function intakeApprovedSubmissionCorrections(params: {
 
   for (const row of candidateRows ?? []) {
     const candidate = row as any;
+    const exactBaseWordReadiness = routeFacts.routeReadiness.find((entry) =>
+      entry.microSkillKey === candidate.micro_skill_key &&
+      entry.curriculumRelease &&
+      routeFacts.baseWordClosureWords.some((word) =>
+        word.activationRevisionId === entry.routeActivationId &&
+        word.microSkillKey === candidate.micro_skill_key &&
+        word.normalisedWord === candidate.correct_spelling_normalized,
+      ),
+    );
+    const exactBaseWordWords = isBaseWordIntakeSkill(candidate.micro_skill_key) && exactBaseWordReadiness
+      ? routeFacts.baseWordClosureWords
+          .filter((word) => word.activationRevisionId === exactBaseWordReadiness.routeActivationId &&
+            word.microSkillKey === candidate.micro_skill_key && word.normalisedWord === candidate.correct_spelling_normalized)
+          .map((word) => ({
+            canonicalWordId: word.canonicalWordId,
+            normalisedWord: word.normalisedWord,
+            rowStatus: "active",
+            reviewStatus: "approved_for_first_exposure",
+            frequencyBand: null,
+            ageBand: null,
+          }))
+      : null;
     const resolution = resolveCanonicalIntakeReadiness({
       candidate: {
         candidateMappingId: candidate.id,
@@ -522,7 +522,7 @@ export async function intakeApprovedSubmissionCorrections(params: {
         verifiedOn: isoDate(candidate.updated_at),
       },
       canonicalMappings: mappingFacts,
-      words: (words ?? []).map((word: any) => ({
+      words: exactBaseWordWords ?? (words ?? []).map((word: any) => ({
         canonicalWordId: word.id,
         normalisedWord: word.normalised_word,
         rowStatus: word.row_status,

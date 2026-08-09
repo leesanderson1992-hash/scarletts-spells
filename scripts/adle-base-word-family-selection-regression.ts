@@ -30,7 +30,7 @@ assert(mixed.guidedFamilySections.flatMap((section) => section.guidedWordIds).le
 assert(mixed.guidedFamilySections.every((section) => section.authenticTargetWordIds.every((word) => section.guidedWordIds.includes(word))), "guided display must retain authentic targets");
 
 const same = selectBaseWordFamilyLesson(CHILD, SKILL, facts([item("a", "replayed", "2026-07-01"), item("b", "replay", "2026-07-02")]));
-assert(same.baseFamilyKeys.join("|") === "PLAY" && same.slots.length === 6, "two targets in one family remain supported");
+assert(same.slots.length === 0 && same.skipReasons.includes("two_distinct_authentic_families_required"), "same-family targets must fail before the fixed two-family 18-binding lesson is compiled");
 
 const one = selectBaseWordFamilyLesson(CHILD, SKILL, facts([item("a", "replayed", "2026-07-01")]));
 assert(one.skipReasons.includes("insufficient_verified_authentic_targets"), "one authentic target must fail closed");

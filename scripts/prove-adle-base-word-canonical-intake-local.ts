@@ -9,6 +9,9 @@ if (process.argv[2] !== CONFIRMATION) {
 }
 const container = process.env.ADLE_LOCAL_SUPABASE_DB_CONTAINER?.trim() ||
   "supabase_db_scarletts-spells";
+execFileSync("npx", ["tsx", "scripts/adle-base-word-release-authority-regression.ts"], {
+  stdio: "inherit",
+});
 function psql(sql: string): string {
   return execFileSync("docker", [
     "exec", "-i", container, "psql", "-U", "postgres", "-d", "postgres",
@@ -30,13 +33,19 @@ const contract = JSON.parse(psql(`
 `).trim()) as Record<string, unknown>;
 if (contract.functionCount !== 1) throw new Error(`Expected one persistence RPC: ${JSON.stringify(contract)}`);
 const signature = String(contract.signature ?? "");
-if (signature.split(",").length !== 12 || !signature.endsWith("p_route_activation_id uuid")) {
+if (signature.split(",").length !== 15 || !signature.endsWith("p_dependency_fingerprint text")) {
   throw new Error(`Unexpected canonical-intake persistence signature: ${signature}`);
 }
 if (contract.serviceExecute !== true || contract.anonExecute !== false || contract.authenticatedExecute !== false || contract.publicExecute !== false) {
   throw new Error(`Unexpected canonical-intake persistence grants: ${JSON.stringify(contract)}`);
 }
 const output = psql(readFileSync(resolve("scripts/sql/prove-adle-base-word-canonical-intake-local.sql"), "utf8"));
-const receiptLine = output.split("\n").find((line) => line.includes("BW1_RECEIPT:"));
+const receiptLine = output.split("\n").find((line) => line.includes("BW2A2_RECEIPT:"));
 if (!receiptLine) throw new Error(`Local proof returned no receipt:\n${output}`);
-console.log(receiptLine.slice(receiptLine.indexOf("BW1_RECEIPT:") + "BW1_RECEIPT:".length));
+const receipt = JSON.parse(receiptLine.slice(receiptLine.indexOf("BW2A2_RECEIPT:") + "BW2A2_RECEIPT:".length));
+const residue = Number(psql(`
+  select count(*) from public.adle_curriculum_dependency_authorities
+  where authority_key like 'bw2a2\\_%' escape '\\';
+`).trim());
+if (residue !== 0) throw new Error(`BW-2A-2 proof fixture residue remains: ${residue}`);
+console.log(JSON.stringify({ ...receipt, fixtureResidue: residue }, null, 2));

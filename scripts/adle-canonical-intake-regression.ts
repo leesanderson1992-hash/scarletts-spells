@@ -115,7 +115,14 @@ function facts(
       microSkillKey: skill,
       ready: true,
       blockers: [],
-      routeActivationId: `activation-${skill}`,
+      routeActivationId: "11111111-1111-4111-8111-111111111111",
+      curriculumRelease: {
+        activationRevisionId: "11111111-1111-4111-8111-111111111111",
+        releaseManifestId: "22222222-2222-4222-8222-222222222222",
+        releaseKey: `release-${skill}`,
+        releaseManifestSha256: "a".repeat(64),
+        dependencyFingerprint: "b".repeat(64),
+      },
     }],
     allowedFrequencyBands: new Set(["high"]),
     allowedAgeBands: new Set(["middle_primary"]),
@@ -371,14 +378,15 @@ for (const [skill, companion] of [
   [SKILL_B, "canonical-player"],
 ] as const) {
   const familyKey = `proof-family-${skill}`;
+  const companionFamilyKey = `proof-companion-family-${skill}`;
   const baseSelection = selectBaseWordFamilyLesson(CHILD, skill, {
     learningItems: [
       item(`playing-${skill}`, skill, "2026-07-20"),
       { ...item(`companion-${skill}`, skill, "2026-07-21"), canonicalWordId: companion },
     ],
-    families: [{ baseFamilyKey: familyKey, microSkillKey: skill, rowStatus: "active", reviewStatus: "approved_for_first_exposure" }],
+    families: [familyKey, companionFamilyKey].map((baseFamilyKey) => ({ baseFamilyKey, microSkillKey: skill, rowStatus: "active" as const, reviewStatus: "approved_for_first_exposure" as const })),
     members: [WORD, companion, "transfer-1", "transfer-2", "transfer-3", "transfer-4"].map((canonicalWordId, index) => ({
-      baseFamilyKey: familyKey,
+      baseFamilyKey: index === 0 || index === 2 || index === 4 ? familyKey : companionFamilyKey,
       canonicalWordId,
       memberRole: index === 0 ? "authentic_target" as const : index === 1 ? "authentic_target" as const : "transfer" as const,
       assignmentEligible: true,

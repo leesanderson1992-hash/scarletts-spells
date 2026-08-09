@@ -46,6 +46,7 @@ export interface BaseWordGuidedFamilySection {
 
 export type BaseWordFamilySelectionSkipReason =
   | "insufficient_verified_authentic_targets"
+  | "two_distinct_authentic_families_required"
   | "authentic_target_missing_reviewed_family_member"
   | "authentic_target_family_unavailable"
   | "selected_family_missing_transfer_word"
@@ -87,9 +88,10 @@ function empty(skipReasons: readonly BaseWordFamilySelectionSkipReason[]): BaseW
 }
 
 /**
- * Select exactly six independent words from one or two reviewed families.
- * Two verified authentic targets share the diagnostic micro-skill, not
- * necessarily a base family. The existing generic composer remains untouched.
+ * Select exactly six independent words from two distinct reviewed families.
+ * The fixed 18-binding Base Word lesson has one guided section per authentic
+ * family, so a same-family pair must fail before compilation. The existing
+ * generic composer remains untouched.
  */
 export function selectBaseWordFamilyLesson(
   childId: string,
@@ -142,6 +144,8 @@ export function selectBaseWordFamilyLesson(
   }
 
   const familyKeys = [...new Set(selectedAuthentic.map((item) => authenticFamilyByItem.get(item.learningItemId)!))];
+  if (familyKeys.length !== BASE_WORD_AUTHENTIC_FAMILY_LIMIT)
+    return empty(["two_distinct_authentic_families_required"]);
   const slots: BaseWordLessonSlot[] = [];
   const deferredAuthenticLearningItemIds = uniqueAuthenticItems.slice(BASE_WORD_AUTHENTIC_FAMILY_LIMIT).map((item) => item.learningItemId);
   let complexityWindow: { min: number; max: number } | null = null;

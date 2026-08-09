@@ -66,6 +66,7 @@
     "adle:canonical-intake-staging-proof": "NODE_OPTIONS=--conditions=react-server npx tsx scripts/adle-canonical-intake-staging-proof.ts",
     "adle:canonical-intake-live-regression": "npx tsx scripts/adle-canonical-intake-live-regression.ts",
     "adle:base-word-canonical-intake-route-regression": "npx tsx scripts/adle-base-word-canonical-intake-route-regression.ts",
+    "adle:base-word-release-authority-regression": "npx tsx scripts/adle-base-word-release-authority-regression.ts",
     "adle:base-word-canonical-intake-persistence-contract-regression": "npx tsx scripts/adle-base-word-canonical-intake-persistence-contract-regression.ts",
     "adle:canonical-intake-review-hook-regression": "npx tsx scripts/adle-canonical-intake-review-hook-regression.ts",
     "adle:canonical-intake-audit": "npx tsx scripts/audit-adle-canonical-intake.ts",
