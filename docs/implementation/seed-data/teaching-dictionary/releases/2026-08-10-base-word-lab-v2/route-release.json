@@ -1,0 +1,63 @@
+{
+  "schemaVersion": 2,
+  "releaseKey": "adle_base_word_lab_v2_2026_08_10",
+  "route": {
+    "routeId": "base_word_lab",
+    "routeVersion": "v2",
+    "activationRouteKey": "base_word_family_v1",
+    "payloadVersion": 1
+  },
+  "approvalRefs": [
+    "architecture:model-c-approved:2026-08-09",
+    "github:pull/32",
+    "production-goal:bw-2b:2026-08-10"
+  ],
+  "microSkills": [
+    {
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "dependencies": [
+        {
+          "authorityKey": "base_word_family_membership:identify-base:adle_base_word_family_meanings_v1_2026_08_09",
+          "authorityType": "family_membership",
+          "authoritySchemaVersion": 1,
+          "semanticFingerprint": "bb3cbfc0ea1d7b6d29397331fe5990ba8020fde06e48e0c7e794ce7da57f71ce"
+        },
+        {
+          "authorityKey": "adle_base_word_identify_teaching_content_human_reviewed_v1_2026_08_10",
+          "authorityType": "teaching_content",
+          "authoritySchemaVersion": 1,
+          "semanticFingerprint": "2a74c4105b9e9b04ee165df7c797c888216d15571b2616c62a6f316d47be952d"
+        },
+        {
+          "authorityKey": "adle_base_word_dictionary_closure_v1_2026_08_10",
+          "authorityType": "teaching_dictionary_closure",
+          "authoritySchemaVersion": 1,
+          "semanticFingerprint": "dc9a945600d853a2a3b4e805ffae04b6e4681c5d14488e0618462349a9b2bf2b"
+        }
+      ]
+    },
+    {
+      "microSkillKey": "D4_MOR_BASE_WORDS_PRESERVE_BASE",
+      "dependencies": [
+        {
+          "authorityKey": "base_word_family_membership:preserve-base:adle_base_word_family_meanings_v1_2026_08_09",
+          "authorityType": "family_membership",
+          "authoritySchemaVersion": 1,
+          "semanticFingerprint": "b3e1e1f71ecf6f6e996998280431e283eda6efb3c31d8767cffa112247ce27de"
+        },
+        {
+          "authorityKey": "adle_base_word_preserve_teaching_content_human_reviewed_v1_2026_08_10",
+          "authorityType": "teaching_content",
+          "authoritySchemaVersion": 1,
+          "semanticFingerprint": "3e9c5b611d6b0bb8b5aa2746d8c6e92be61c2d659798cd5ab81d997a967161c3"
+        },
+        {
+          "authorityKey": "adle_base_word_dictionary_closure_v1_2026_08_10",
+          "authorityType": "teaching_dictionary_closure",
+          "authoritySchemaVersion": 1,
+          "semanticFingerprint": "dc9a945600d853a2a3b4e805ffae04b6e4681c5d14488e0618462349a9b2bf2b"
+        }
+      ]
+    }
+  ]
+}

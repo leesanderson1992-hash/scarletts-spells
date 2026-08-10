@@ -1,0 +1,46 @@
+{
+  "schemaVersion": "adle_base_word_route_release_package_v1",
+  "releaseKey": "adle_base_word_lab_v2_2026_08_10",
+  "familyImportBatchId": "ddc8993b-26ca-57da-8383-1efec1be8ee1",
+  "sourceMainSha": "abb5d971a4ef162d94e57dab738be07b7ec99492",
+  "approvalRefs": [
+    "architecture:model-c-approved:2026-08-09",
+    "github:pull/32",
+    "production-goal:bw-2b:2026-08-10"
+  ],
+  "sourceClassification": "legacy_pre_release_ledger_projection",
+  "counts": {
+    "microSkills": 2,
+    "familyAuthorities": 2,
+    "teachingContentAuthorities": 2,
+    "dictionaryClosureWords": 225,
+    "routeDependencies": 6
+  },
+  "sourceFiles": {
+    "teaching-content-d4_mor_base_words_identify_base.json": {
+      "sha256": "79d24b0485005421deae489f188a9b1875831b007b1fd14e419776e97f8a9b1e"
+    },
+    "teaching-content-d4_mor_base_words_preserve_base.json": {
+      "sha256": "d7accd9b3716c3672d5b981b51740952aac74d93a11b7ca83b243c28e201e12b"
+    },
+    "teaching-content-source-provenance.json": {
+      "sha256": "8dc0bf8d75dd5db023f8c6c83cd95e9410da9308153ebd164651eb7afbc057fc"
+    },
+    "teaching-dictionary-closure.json": {
+      "sha256": "c6a965f0c50ac71161fa77d489b53d6c5a1204284139a84f4a3f15069468754c"
+    },
+    "teaching-dictionary-source-bindings.json": {
+      "sha256": "f523ccff899064990638e29935c5d8be572168c397523566396409420b88026f"
+    },
+    "route-release.json": {
+      "sha256": "048c44dcbc4ffaae19e3cd90e898c36a15a940d46997505216bb67822bec4b2d"
+    }
+  },
+  "operationalEffects": {
+    "routeRelease": true,
+    "activation": false,
+    "environmentChange": false,
+    "learnerWrites": false
+  },
+  "packageSha256": "3cf19a6d14cb3873d4129a0fd099903969a2d839d0a4ccb7d2a67a3f27b5dac1"
+}

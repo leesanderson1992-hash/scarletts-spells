@@ -1,0 +1,22 @@
+[
+  {
+    "authorityKey": "adle_base_word_identify_teaching_content_human_reviewed_v1_2026_08_10",
+    "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+    "contentVersionId": "05322a1f-3b8c-56a7-b5ce-4b7ce79d511d",
+    "importBatchId": "7107cca0-00f8-4800-879e-39055c57fdf8",
+    "sourceRowHash": "24d95b5c3bab59b4d14014c76cb92507bc29ba7a15865f4dc049407645905401",
+    "reviewedBy": "Katie Sanderson",
+    "reviewedAt": "2026-07-01T00:00:00.000Z",
+    "sourceClassification": "legacy_pre_release_ledger_projection"
+  },
+  {
+    "authorityKey": "adle_base_word_preserve_teaching_content_human_reviewed_v1_2026_08_10",
+    "microSkillKey": "D4_MOR_BASE_WORDS_PRESERVE_BASE",
+    "contentVersionId": "a326dd33-6c7e-57af-9712-b324e63125d5",
+    "importBatchId": "7107cca0-00f8-4800-879e-39055c57fdf8",
+    "sourceRowHash": "69253ae1ada1df967c3b3ab388a59b2809d05f2d561eb835030ca74e9678c472",
+    "reviewedBy": "Katie Sanderson",
+    "reviewedAt": "2026-07-01T00:00:00.000Z",
+    "sourceClassification": "legacy_pre_release_ledger_projection"
+  }
+]

@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "authorityKey": "adle_base_word_identify_teaching_content_human_reviewed_v1_2026_08_10",
+  "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+  "approvalRefs": [
+    "architecture:model-c-approved:2026-08-09",
+    "github:pull/32",
+    "production-goal:bw-2b:2026-08-10"
+  ],
+  "content": {
+    "contentVersionId": "05322a1f-3b8c-56a7-b5ce-4b7ce79d511d",
+    "contentVersion": "human_reviewed_v1",
+    "teachingObjective": "Child can use meaning parts to spell finding the base word.",
+    "childFriendlyExplanation": "Big words are easier when you find the smaller meaning parts: base words, prefixes, suffixes, compounds, roots, or related words.",
+    "ruleExplanation": "Longer words often contain a base word; finding the base helps children preserve the spelling.",
+    "memoryTip": "",
+    "commonMisconceptions": "Child may spell the whole word by sound, lose the base word, change an affix unnecessarily, or miss a stable root/meaning chunk.",
+    "firstExposureProgression": [
+      "Introduce the meaning part; identify it in a clear model word; mark the boundary; explain what the part means or does; then spell from parts."
+    ],
+    "guidedPracticeProgression": [
+      "Use words where the target base, affix, root, compound part, or related-word cue for finding the base word is clear. Prompt the child to find the meaning part first, then spell and join the parts."
+    ],
+    "reviewProofreadingProgression": [
+      "Review: Use mixed morphology retrieval and ask the child to explain the base, prefix, suffix, compound, root, or related word that supports the spelling. Proofreading: In proofreading, ask the child to box the meaning parts and check that the base/root spelling has been preserved where the rule says it should."
+    ],
+    "exampleSelectionGuidance": "Start with familiar words where the meaning part is visible; avoid opaque word histories and multiple new morphemes in one item.",
+    "contrastPolicyGuidance": "Contrast related morphemes only after the target part is secure. Avoid teaching several prefixes, suffixes, or roots together unless the comparison is the lesson target."
+  }
+}
