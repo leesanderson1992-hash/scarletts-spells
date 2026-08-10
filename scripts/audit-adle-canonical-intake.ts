@@ -52,7 +52,9 @@ async function main(): Promise<void> {
       .limit(20000),
     db
       .from("micro_skill_catalog")
-      .select("micro_skill_key,mastery_domain_key,is_active,is_assignable")
+      .select(
+        "micro_skill_key,mastery_domain_key,skill_cluster_key,is_active,is_assignable",
+      )
       .limit(5000),
     db
       .from("spelling_canonical_mappings")
@@ -247,6 +249,7 @@ async function main(): Promise<void> {
       microSkills: (skillResult.data ?? []).map((row: any) => ({
         microSkillKey: row.micro_skill_key,
         masteryDomainKey: row.mastery_domain_key,
+        skillClusterKey: row.skill_cluster_key,
         isActive: row.is_active,
         isAssignable: row.is_assignable,
       })),
