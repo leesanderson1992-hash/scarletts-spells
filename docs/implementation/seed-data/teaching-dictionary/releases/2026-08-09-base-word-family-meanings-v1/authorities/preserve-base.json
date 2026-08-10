@@ -1,0 +1,554 @@
+{
+  "schemaVersion": "base_word_family_authority_source_v1",
+  "authoritySchemaVersion": "1",
+  "authorityKey": "base_word_family_membership:preserve-base:adle_base_word_family_meanings_v1_2026_08_09",
+  "microSkillKey": "D4_MOR_BASE_WORDS_PRESERVE_BASE",
+  "importBatchId": "ddc8993b-26ca-57da-8383-1efec1be8ee1",
+  "approvalRefs": [
+    "commit:e4219122b7e68f37a47af6fa4152e65d19083cd3",
+    "file:docs/implementation/seed-data/teaching-dictionary/candidates/2026-06-29-phase-5-source-intake/MORPHOLOGY_FAMILY_MEANINGS_REVIEW.md#sha256:1428d31e53bbfd27fb2de2fc94bd4f3264dcde408b1ac63c5461e9f6f376c7bc",
+    "meaning-pair-sha256:acdc53a6c5f8aa3cbb73908539d7dd0020307dcd948fc7b7791b676872b09221"
+  ],
+  "families": [
+    {
+      "familyId": "8fb3127e-2eb4-5bd9-92c1-d98a66957f9d",
+      "baseFamilyKey": "govern_base_family",
+      "baseWordKey": "govern_en_gb",
+      "baseMeaning": "to lead or rule a country",
+      "etymologyRoute": {
+        "relation_type": "etymological_root",
+        "origin_language": "Latin via Old French",
+        "origin_form": "gubernare",
+        "literal_meaning": "to steer or rule",
+        "child_facing_meaning": "to lead or rule a country",
+        "semantic_connection": "The visible base govern is kept in governor and government; the endings build related words without changing that base spelling.",
+        "evidence": {
+          "source_name": "Online Etymology Dictionary",
+          "source_url": "https://www.etymonline.com/search?q=govern",
+          "verification_status": "linked_for_human_review"
+        }
+      },
+      "members": [
+        {
+          "memberId": "528a2811-4940-5261-bd9b-eb5c2eb0c48d",
+          "wordKey": "govern_en_gb",
+          "memberRole": "base",
+          "assignmentEligible": true,
+          "complexityLevel": null,
+          "wordSum": "govern",
+          "morphologyParts": [
+            {
+              "id": "part_1",
+              "kind": "base",
+              "morphemeKey": null,
+              "sourceText": "govern",
+              "surfaceText": "govern",
+              "gloss": "lead or rule",
+              "displayRange": {
+                "start": 0,
+                "end": 6
+              }
+            }
+          ],
+          "morphologyJoins": [],
+          "morphologyTransformations": [],
+          "transformationNotes": "Keep govern unchanged while adding the ending.",
+          "childFriendlyMeaning": "to officially lead and make decisions for a country or area"
+        },
+        {
+          "memberId": "fa475b62-0bb2-5f8c-a7a2-5ed42b3b48a3",
+          "wordKey": "government_en_gb",
+          "memberRole": "authentic_target",
+          "assignmentEligible": true,
+          "complexityLevel": null,
+          "wordSum": "govern + ment → government",
+          "morphologyParts": [
+            {
+              "id": "part_1",
+              "kind": "base",
+              "morphemeKey": null,
+              "sourceText": "govern",
+              "surfaceText": "govern",
+              "gloss": "lead or rule",
+              "displayRange": {
+                "start": 0,
+                "end": 6
+              }
+            },
+            {
+              "id": "part_2",
+              "kind": "suffix",
+              "morphemeKey": null,
+              "sourceText": "ment",
+              "surfaceText": "ment",
+              "gloss": "result or state",
+              "displayRange": {
+                "start": 6,
+                "end": 10
+              }
+            }
+          ],
+          "morphologyJoins": [
+            {
+              "afterPartId": "part_1",
+              "beforePartId": "part_2",
+              "joinType": "none"
+            }
+          ],
+          "morphologyTransformations": [],
+          "transformationNotes": "Keep govern unchanged while adding the ending.",
+          "childFriendlyMeaning": "the people who govern a country or area"
+        },
+        {
+          "memberId": "2a82cb87-5c7c-5f32-9326-79bfd70ca9e3",
+          "wordKey": "governor_en_gb",
+          "memberRole": "transfer",
+          "assignmentEligible": true,
+          "complexityLevel": null,
+          "wordSum": "govern + or → governor",
+          "morphologyParts": [
+            {
+              "id": "part_1",
+              "kind": "base",
+              "morphemeKey": null,
+              "sourceText": "govern",
+              "surfaceText": "govern",
+              "gloss": "lead or rule",
+              "displayRange": {
+                "start": 0,
+                "end": 6
+              }
+            },
+            {
+              "id": "part_2",
+              "kind": "suffix",
+              "morphemeKey": null,
+              "sourceText": "or",
+              "surfaceText": "or",
+              "gloss": "person who",
+              "displayRange": {
+                "start": 6,
+                "end": 8
+              }
+            }
+          ],
+          "morphologyJoins": [
+            {
+              "afterPartId": "part_1",
+              "beforePartId": "part_2",
+              "joinType": "none"
+            }
+          ],
+          "morphologyTransformations": [],
+          "transformationNotes": "Keep govern unchanged while adding the ending.",
+          "childFriendlyMeaning": "a person who governs a region or organisation"
+        }
+      ]
+    },
+    {
+      "familyId": "cfdb2d58-a4a9-5030-b2db-7eef58c81e4c",
+      "baseFamilyKey": "play_base_family",
+      "baseWordKey": "play_en_gb",
+      "baseMeaning": "to take part in a game or have fun",
+      "etymologyRoute": {
+        "relation_type": "free_base",
+        "origin_language": "Modern English",
+        "origin_form": "play",
+        "literal_meaning": "to take part in a game or have fun",
+        "child_facing_meaning": "to take part in a game or have fun",
+        "semantic_connection": "The visible English base play is recorded in this family’s reviewed word sums; a human reviewer must confirm every member remains semantically appropriate.",
+        "evidence": {
+          "source_name": "Online Etymology Dictionary",
+          "source_url": "https://www.etymonline.com/search?q=play",
+          "verification_status": "linked_for_human_review"
+        }
+      },
+      "members": [
+        {
+          "memberId": "7d8b3867-5b9d-5fec-8ff9-9c25a1705151",
+          "wordKey": "play_en_gb",
+          "memberRole": "base",
+          "assignmentEligible": true,
+          "complexityLevel": null,
+          "wordSum": "play",
+          "morphologyParts": [
+            {
+              "id": "part_1",
+              "kind": "base",
+              "morphemeKey": null,
+              "sourceText": "play",
+              "surfaceText": "play",
+              "gloss": "",
+              "displayRange": {
+                "start": 0,
+                "end": 4
+              },
+              "source": {
+                "morphemesJsonIndex": 0
+              }
+            }
+          ],
+          "morphologyJoins": [],
+          "morphologyTransformations": [],
+          "transformationNotes": "The base word is play.",
+          "childFriendlyMeaning": "to take part in a game or have fun"
+        },
+        {
+          "memberId": "eca7b4bb-6306-5851-b8c0-18c5977e06dd",
+          "wordKey": "played_en_gb",
+          "memberRole": "authentic_target",
+          "assignmentEligible": true,
+          "complexityLevel": null,
+          "wordSum": "play + ed → played",
+          "morphologyParts": [
+            {
+              "id": "part_1",
+              "kind": "base",
+              "morphemeKey": null,
+              "sourceText": "play",
+              "surfaceText": "play",
+              "gloss": "",
+              "displayRange": {
+                "start": 0,
+                "end": 4
+              },
+              "source": {
+                "morphemesJsonIndex": 0
+              }
+            },
+            {
+              "id": "part_2",
+              "kind": "suffix",
+              "morphemeKey": null,
+              "sourceText": "ed",
+              "surfaceText": "ed",
+              "gloss": "in the past",
+              "displayRange": {
+                "start": 4,
+                "end": 6
+              },
+              "source": {
+                "morphemesJsonIndex": 1
+              }
+            }
+          ],
+          "morphologyJoins": [
+            {
+              "afterPartId": "part_1",
+              "beforePartId": "part_2",
+              "joinType": "none",
+              "surfaceText": "",
+              "displayRange": {
+                "start": 4,
+                "end": 4
+              }
+            }
+          ],
+          "morphologyTransformations": [],
+          "transformationNotes": "Keep play unchanged and add -ed for something that happened before.",
+          "childFriendlyMeaning": "took part in a game or had fun earlier"
+        },
+        {
+          "memberId": "d29b5e5d-520f-5be0-aad4-ca4508214643",
+          "wordKey": "player_en_gb",
+          "memberRole": "authentic_target",
+          "assignmentEligible": true,
+          "complexityLevel": null,
+          "wordSum": "play + er → player",
+          "morphologyParts": [
+            {
+              "id": "part_1",
+              "kind": "base",
+              "morphemeKey": null,
+              "sourceText": "play",
+              "surfaceText": "play",
+              "gloss": "",
+              "displayRange": {
+                "start": 0,
+                "end": 4
+              },
+              "source": {
+                "morphemesJsonIndex": 0
+              }
+            },
+            {
+              "id": "part_2",
+              "kind": "suffix",
+              "morphemeKey": null,
+              "sourceText": "er",
+              "surfaceText": "er",
+              "gloss": "one who",
+              "displayRange": {
+                "start": 4,
+                "end": 6
+              },
+              "source": {
+                "morphemesJsonIndex": 1
+              }
+            }
+          ],
+          "morphologyJoins": [
+            {
+              "afterPartId": "part_1",
+              "beforePartId": "part_2",
+              "joinType": "none",
+              "surfaceText": "",
+              "displayRange": {
+                "start": 4,
+                "end": 4
+              }
+            }
+          ],
+          "morphologyTransformations": [],
+          "transformationNotes": "Keep play unchanged and add -er to name someone who plays.",
+          "childFriendlyMeaning": "a person who plays a game"
+        },
+        {
+          "memberId": "d26386c9-f163-553b-b4cc-97cb7057978b",
+          "wordKey": "playing_en_gb",
+          "memberRole": "transfer",
+          "assignmentEligible": true,
+          "complexityLevel": null,
+          "wordSum": "play + ing → playing",
+          "morphologyParts": [
+            {
+              "id": "part_1",
+              "kind": "base",
+              "morphemeKey": null,
+              "sourceText": "play",
+              "surfaceText": "play",
+              "gloss": "",
+              "displayRange": {
+                "start": 0,
+                "end": 4
+              },
+              "source": {
+                "morphemesJsonIndex": 0
+              }
+            },
+            {
+              "id": "part_2",
+              "kind": "suffix",
+              "morphemeKey": null,
+              "sourceText": "ing",
+              "surfaceText": "ing",
+              "gloss": "happening now",
+              "displayRange": {
+                "start": 4,
+                "end": 7
+              },
+              "source": {
+                "morphemesJsonIndex": 1
+              }
+            }
+          ],
+          "morphologyJoins": [
+            {
+              "afterPartId": "part_1",
+              "beforePartId": "part_2",
+              "joinType": "none",
+              "surfaceText": "",
+              "displayRange": {
+                "start": 4,
+                "end": 4
+              }
+            }
+          ],
+          "morphologyTransformations": [],
+          "transformationNotes": "Keep play unchanged and add -ing for something happening now.",
+          "childFriendlyMeaning": "taking part in a game or having fun right now"
+        },
+        {
+          "memberId": "5d76169d-f325-5a8f-9ddb-e72c1a88a653",
+          "wordKey": "plays_en_gb",
+          "memberRole": "transfer",
+          "assignmentEligible": true,
+          "complexityLevel": null,
+          "wordSum": "play + s → plays",
+          "morphologyParts": [
+            {
+              "id": "part_1",
+              "kind": "base",
+              "morphemeKey": null,
+              "sourceText": "play",
+              "surfaceText": "play",
+              "gloss": "",
+              "displayRange": {
+                "start": 0,
+                "end": 4
+              },
+              "source": {
+                "morphemesJsonIndex": 0
+              }
+            },
+            {
+              "id": "part_2",
+              "kind": "suffix",
+              "morphemeKey": null,
+              "sourceText": "s",
+              "surfaceText": "s",
+              "gloss": "after",
+              "displayRange": {
+                "start": 4,
+                "end": 5
+              },
+              "source": {
+                "morphemesJsonIndex": 1
+              }
+            }
+          ],
+          "morphologyJoins": [
+            {
+              "afterPartId": "part_1",
+              "beforePartId": "part_2",
+              "joinType": "none",
+              "surfaceText": "",
+              "displayRange": {
+                "start": 4,
+                "end": 4
+              }
+            }
+          ],
+          "morphologyTransformations": [],
+          "transformationNotes": "The spelling of the base is kept in the longer word.",
+          "childFriendlyMeaning": "takes part in a game or has fun"
+        },
+        {
+          "memberId": "8adb63b3-243f-522a-8323-a7ee2ef69ac8",
+          "wordKey": "replay_en_gb",
+          "memberRole": "transfer",
+          "assignmentEligible": true,
+          "complexityLevel": null,
+          "wordSum": "re + play → replay",
+          "morphologyParts": [
+            {
+              "id": "part_1",
+              "kind": "prefix",
+              "morphemeKey": "prefix_RE",
+              "sourceText": "re",
+              "surfaceText": "re",
+              "gloss": "again",
+              "displayRange": {
+                "start": 0,
+                "end": 2
+              },
+              "source": {
+                "morphemesJsonIndex": 0
+              }
+            },
+            {
+              "id": "part_2",
+              "kind": "base",
+              "morphemeKey": null,
+              "sourceText": "play",
+              "surfaceText": "play",
+              "gloss": "",
+              "displayRange": {
+                "start": 2,
+                "end": 6
+              },
+              "source": {
+                "morphemesJsonIndex": 1
+              }
+            }
+          ],
+          "morphologyJoins": [
+            {
+              "afterPartId": "part_1",
+              "beforePartId": "part_2",
+              "joinType": "none",
+              "surfaceText": "",
+              "displayRange": {
+                "start": 2,
+                "end": 2
+              }
+            }
+          ],
+          "morphologyTransformations": [],
+          "transformationNotes": "Put re- before play; the spelling of play stays the same.",
+          "childFriendlyMeaning": "to play again"
+        },
+        {
+          "memberId": "21ad545b-1730-577a-973f-b9367443167a",
+          "wordKey": "replayed_en_gb",
+          "memberRole": "transfer",
+          "assignmentEligible": true,
+          "complexityLevel": null,
+          "wordSum": "re + play + ed → replayed",
+          "morphologyParts": [
+            {
+              "id": "part_1",
+              "kind": "prefix",
+              "morphemeKey": "prefix_RE",
+              "sourceText": "re",
+              "surfaceText": "re",
+              "gloss": "again",
+              "displayRange": {
+                "start": 0,
+                "end": 2
+              },
+              "source": {
+                "morphemesJsonIndex": 0
+              }
+            },
+            {
+              "id": "part_2",
+              "kind": "base",
+              "morphemeKey": null,
+              "sourceText": "play",
+              "surfaceText": "play",
+              "gloss": "",
+              "displayRange": {
+                "start": 2,
+                "end": 6
+              },
+              "source": {
+                "morphemesJsonIndex": 1
+              }
+            },
+            {
+              "id": "part_3",
+              "kind": "suffix",
+              "morphemeKey": null,
+              "sourceText": "ed",
+              "surfaceText": "ed",
+              "gloss": "in the past",
+              "displayRange": {
+                "start": 6,
+                "end": 8
+              },
+              "source": {
+                "morphemesJsonIndex": 2
+              }
+            }
+          ],
+          "morphologyJoins": [
+            {
+              "afterPartId": "part_1",
+              "beforePartId": "part_2",
+              "joinType": "none",
+              "surfaceText": "",
+              "displayRange": {
+                "start": 2,
+                "end": 2
+              }
+            },
+            {
+              "afterPartId": "part_2",
+              "beforePartId": "part_3",
+              "joinType": "none",
+              "surfaceText": "",
+              "displayRange": {
+                "start": 6,
+                "end": 6
+              }
+            }
+          ],
+          "morphologyTransformations": [],
+          "transformationNotes": "Put re- before play and add -ed; the spelling of play stays the same.",
+          "childFriendlyMeaning": "played again"
+        }
+      ]
+    }
+  ]
+}
