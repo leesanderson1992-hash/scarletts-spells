@@ -123,19 +123,65 @@ const stagingContentReferenceMigration = readFileSync(
 assert(stagingContentReferenceMigration.includes("p_environment_key <> 'staging' and v_content_import_batch_id <> v_import_batch_id"), "only staging can borrow content from another batch");
 assert(migration.includes("set row_status = 'superseded'"), "route changes retain history instead of deleting activation rows");
 assert(migration.includes("requestedStatus' = 'paused'"), "rollback is represented as a paused activation state");
-assert.equal(ADLE_LESSON_ROUTE_REGISTRY.size, 1, "only Base Word has an activation consumer");
+assert.equal(ADLE_LESSON_ROUTE_REGISTRY.size, 1, "the legacy v1 registry remains readable for historical manifests");
 
 const intakeLoader = readFileSync("lib/adle/loaders/canonical-intake-live.ts", "utf8");
 const baseLoader = readFileSync("lib/adle/loaders/base-word-family-pilot-loader.ts", "utf8");
 const activationLoader = readFileSync("lib/adle/loaders/lesson-route-activations.ts", "utf8");
+const releaseAuthorityLoader = readFileSync("lib/adle/loaders/curriculum-release-authority.ts", "utf8");
 const baseWordReadModel = readFileSync("lib/adle/loaders/base-word-family-lesson-read-model.ts", "utf8");
-assert(intakeLoader.includes("loadAdleLessonRouteActivations"));
-assert(baseLoader.includes("adle_route_not_production_enabled"));
+const foundationMigration = readFileSync(
+  "supabase/migrations/20260809140000_add_adle_release_authority_foundation.sql",
+  "utf8",
+);
+const baseWordReleaseMigration = readFileSync(
+  "supabase/migrations/20260809150000_integrate_base_word_release_authority.sql",
+  "utf8",
+);
+const releaseAuthorityProof = readFileSync(
+  "scripts/sql/prove-adle-base-word-canonical-intake-local.sql",
+  "utf8",
+);
+
+assert(!intakeLoader.includes("loadAdleLessonRouteActivations"), "Base Word intake no longer consumes legacy v1 activations");
+assert(!baseLoader.includes("loadAdleLessonRouteActivations"), "Base Word assignment no longer consumes legacy v1 activations");
+assert(intakeLoader.includes("loadEnabledBaseWordReleaseAuthorities"), "Base Word intake resolves Model C release authority");
+assert(baseLoader.includes("loadEnabledBaseWordReleaseAuthorities"), "Base Word assignment resolves the same Model C authority");
 assert(intakeLoader.includes("resolveAdleRouteActivationEnvironment"));
 assert(baseLoader.includes("resolveAdleRouteActivationEnvironment"));
-assert(activationLoader.includes("import_manifest_id") && activationLoader.includes("import_batch_id"), "activation resolution binds a route to its immutable manifest batch");
-assert(baseLoader.includes("activation.importBatchId"), "Base Word selection scopes family facts to the enabled manifest batch");
-assert(baseWordReadModel.includes('.eq("import_batch_id", request.importBatchId)'), "Base Word payload compilation cannot read families from another active batch");
+assert(activationLoader.includes("import_manifest_id") && activationLoader.includes("import_batch_id"), "the legacy v1 loader remains available for historical routes");
+for (const table of [
+  "adle_route_activation_heads",
+  "adle_route_activation_revisions",
+  "adle_curriculum_release_manifests",
+  "adle_curriculum_release_dependencies",
+  "adle_curriculum_dependency_authorities",
+  "adle_teaching_dictionary_closure_words",
+]) {
+  assert(releaseAuthorityLoader.includes(table), `Model C loader resolves ${table}`);
+}
+assert(releaseAuthorityLoader.includes("adle_route_activation_revision_is_current_v2"), "Model C loader rejects stale activation revisions");
+assert(releaseAuthorityLoader.includes('row.activation_status === "enabled"'), "paused and safety-revoked revisions cannot create new Base Word work");
+assert(baseLoader.includes("releaseAuthority: activation"), "selection and compilation retain the exact activated release");
+assert(baseWordReadModel.includes("request.releaseAuthority"), "the lesson read model consumes frozen release dependencies");
+assert(
+  baseWordReadModel.indexOf("if (request.releaseAuthority)") <
+    baseWordReadModel.indexOf('.eq("import_batch_id", request.importBatchId)'),
+  "the Model C read path returns frozen release facts before the legacy inventory-only batch path",
+);
+assert(foundationMigration.includes("adle_curriculum_release_manifests"), "immutable release identity is stored separately from operational activation");
+assert(foundationMigration.includes("adle_route_activation_revisions"));
+assert(foundationMigration.includes("adle_route_activation_heads"));
+assert(foundationMigration.includes("p_expected_current_revision_id"), "activation updates use compare-and-swap protection");
+assert(foundationMigration.includes("ADLE activation revision compare-and-swap failed"), "stale activation writes fail closed");
+assert(foundationMigration.includes("activation_status in ('enabled', 'paused', 'safety_revoked')"));
+assert(foundationMigration.includes("block_incomplete"), "safety revocation blocks incomplete assignments");
+assert(baseWordReleaseMigration.includes("adle_route_activation_revision_is_current_v2"), "Base Word persistence verifies the exact current release revision");
+assert(baseWordReleaseMigration.includes("Base Word release authority changed before assignment persistence"), "release-switch races fail closed");
+assert(releaseAuthorityProof.includes("if (select release_manifest_id from public.adle_route_activation_revisions where id=v_pause)<>v_release_two"), "pause preserves immutable release identity");
+assert(releaseAuthorityProof.includes("'enabled','allow_existing','{\"proof\":true}',v_pause"), "re-enable creates a new operational revision for the same release");
+assert(releaseAuthorityProof.includes("'safety_revoked','block_incomplete'"), "transactional proof covers safety revocation");
+assert(releaseAuthorityProof.includes("stale activation revision remained current"), "transactional proof rejects stale activation revisions");
 const productionCli = readFileSync("scripts/adle-curriculum-production.ts", "utf8");
 assert(productionCli.includes("assertProductionApplyDisabled();"), "production CLI always checks the disabled-apply boundary first");
 assert(productionCli.includes('assert(!process.argv.includes("--apply")'), "production CLI rejects --apply while this programme is under review");
@@ -238,7 +284,11 @@ async function verifyMissingActivationTableFailsClosed(): Promise<void> {
         childId: "fixture-child",
         planDate: "2026-07-24",
       }),
-      { payload: null, readinessReason: "adle_route_activation_environment_not_configured" },
+      {
+        payload: null,
+        readinessReason: "adle_route_activation_environment_not_configured",
+        releaseAuthority: null,
+      },
       "Base Word stays blocked without an explicit activation environment",
     );
   } finally {
