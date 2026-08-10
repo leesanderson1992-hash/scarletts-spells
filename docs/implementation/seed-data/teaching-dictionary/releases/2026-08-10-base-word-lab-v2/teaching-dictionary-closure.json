@@ -1,0 +1,2040 @@
+{
+  "schemaVersion": 1,
+  "authorityKey": "adle_base_word_dictionary_closure_v1_2026_08_10",
+  "approvalRefs": [
+    "architecture:model-c-approved:2026-08-09",
+    "github:pull/32",
+    "production-goal:bw-2b:2026-08-10"
+  ],
+  "capabilities": [
+    "canonical_word_identity_display",
+    "canonical_dictation"
+  ],
+  "words": [
+    {
+      "wordKey": "act_en_gb",
+      "normalisedWord": "act",
+      "displayWord": "act",
+      "dialectCode": "en-GB",
+      "dictationSentence": "Please act out the story with your group.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "Please act out the story with your group."
+    },
+    {
+      "wordKey": "action_en_gb",
+      "normalisedWord": "action",
+      "displayWord": "action",
+      "dialectCode": "en-GB",
+      "dictationSentence": "His quick action stopped the cup from falling.",
+      "dictationTargetTokenIndex": 2,
+      "audioText": "His quick action stopped the cup from falling."
+    },
+    {
+      "wordKey": "activity_en_gb",
+      "normalisedWord": "activity",
+      "displayWord": "activity",
+      "dialectCode": "en-GB",
+      "dictationSentence": "Painting was our favourite activity at the club.",
+      "dictationTargetTokenIndex": 4,
+      "audioText": "Painting was our favourite activity at the club."
+    },
+    {
+      "wordKey": "actor_en_gb",
+      "normalisedWord": "actor",
+      "displayWord": "actor",
+      "dialectCode": "en-GB",
+      "dictationSentence": "The actor performed a funny scene on the stage.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "The actor performed a funny scene on the stage."
+    },
+    {
+      "wordKey": "actual_en_gb",
+      "normalisedWord": "actual",
+      "displayWord": "actual",
+      "dialectCode": "en-GB",
+      "dictationSentence": "The actual score was ten, not our guess of twelve.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "The actual score was ten, not our guess of twelve."
+    },
+    {
+      "wordKey": "angle_en_gb",
+      "normalisedWord": "angle",
+      "displayWord": "angle",
+      "dialectCode": "en-GB",
+      "dictationSentence": "An angle is the space where two lines meet.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "An angle is the space where two lines meet."
+    },
+    {
+      "wordKey": "babies_en_gb",
+      "normalisedWord": "babies",
+      "displayWord": "babies",
+      "dialectCode": "en-GB",
+      "dictationSentence": "The babies slept quietly in their cots.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "The babies slept quietly in their cots."
+    },
+    {
+      "wordKey": "baby_en_gb",
+      "normalisedWord": "baby",
+      "displayWord": "baby",
+      "dialectCode": "en-GB",
+      "dictationSentence": "Mother took the baby to the bedroom.",
+      "dictationTargetTokenIndex": 3,
+      "audioText": "Mother took the baby to the bedroom."
+    },
+    {
+      "wordKey": "bake_en_gb",
+      "normalisedWord": "bake",
+      "displayWord": "bake",
+      "dialectCode": "en-GB",
+      "dictationSentence": "Please bake the cake until it is golden.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "Please bake the cake until it is golden."
+    },
+    {
+      "wordKey": "baked_en_gb",
+      "normalisedWord": "baked",
+      "displayWord": "baked",
+      "dialectCode": "en-GB",
+      "dictationSentence": "We baked bread until the crust was golden.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "We baked bread until the crust was golden."
+    },
+    {
+      "wordKey": "bed_en_gb",
+      "normalisedWord": "bed",
+      "displayWord": "bed",
+      "dialectCode": "en-GB",
+      "dictationSentence": "I sleep in my bed at night.",
+      "dictationTargetTokenIndex": 4,
+      "audioText": "I sleep in my bed at night."
+    },
+    {
+      "wordKey": "big_en_gb",
+      "normalisedWord": "big",
+      "displayWord": "big",
+      "dialectCode": "en-GB",
+      "dictationSentence": "The big elephant was bigger than the horse and the biggest animal at the zoo.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "The big elephant was bigger than the horse and the biggest animal at the zoo."
+    },
+    {
+      "wordKey": "bigger_en_gb",
+      "normalisedWord": "bigger",
+      "displayWord": "bigger",
+      "dialectCode": "en-GB",
+      "dictationSentence": "The big elephant was bigger than the horse and the biggest animal at the zoo.",
+      "dictationTargetTokenIndex": 4,
+      "audioText": "The big elephant was bigger than the horse and the biggest animal at the zoo."
+    },
+    {
+      "wordKey": "biggest_en_gb",
+      "normalisedWord": "biggest",
+      "displayWord": "biggest",
+      "dialectCode": "en-GB",
+      "dictationSentence": "The big elephant was bigger than the horse and the biggest animal at the zoo.",
+      "dictationTargetTokenIndex": 10,
+      "audioText": "The big elephant was bigger than the horse and the biggest animal at the zoo."
+    },
+    {
+      "wordKey": "book_en_gb",
+      "normalisedWord": "book",
+      "displayWord": "book",
+      "dialectCode": "en-GB",
+      "dictationSentence": "The teacher read a book in the library.",
+      "dictationTargetTokenIndex": 4,
+      "audioText": "The teacher read a book in the library."
+    },
+    {
+      "wordKey": "books_en_gb",
+      "normalisedWord": "books",
+      "displayWord": "books",
+      "dialectCode": "en-GB",
+      "dictationSentence": "We borrowed three books from the library.",
+      "dictationTargetTokenIndex": 3,
+      "audioText": "We borrowed three books from the library."
+    },
+    {
+      "wordKey": "brave_en_gb",
+      "normalisedWord": "brave",
+      "displayWord": "brave",
+      "dialectCode": "en-GB",
+      "dictationSentence": "The brave cub grew braver and became the bravest lion.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "The brave cub grew braver and became the bravest lion."
+    },
+    {
+      "wordKey": "braver_en_gb",
+      "normalisedWord": "braver",
+      "displayWord": "braver",
+      "dialectCode": "en-GB",
+      "dictationSentence": "The brave cub grew braver and became the bravest lion.",
+      "dictationTargetTokenIndex": 4,
+      "audioText": "The brave cub grew braver and became the bravest lion."
+    },
+    {
+      "wordKey": "bravest_en_gb",
+      "normalisedWord": "bravest",
+      "displayWord": "bravest",
+      "dialectCode": "en-GB",
+      "dictationSentence": "The brave cub grew braver and became the bravest lion.",
+      "dictationTargetTokenIndex": 8,
+      "audioText": "The brave cub grew braver and became the bravest lion."
+    },
+    {
+      "wordKey": "busier_en_gb",
+      "normalisedWord": "busier",
+      "displayWord": "busier",
+      "dialectCode": "en-GB",
+      "dictationSentence": "The busy shop grew busier until lunchtime was the busiest hour.",
+      "dictationTargetTokenIndex": 4,
+      "audioText": "The busy shop grew busier until lunchtime was the busiest hour."
+    },
+    {
+      "wordKey": "busiest_en_gb",
+      "normalisedWord": "busiest",
+      "displayWord": "busiest",
+      "dialectCode": "en-GB",
+      "dictationSentence": "The busy shop grew busier until lunchtime was the busiest hour.",
+      "dictationTargetTokenIndex": 9,
+      "audioText": "The busy shop grew busier until lunchtime was the busiest hour."
+    },
+    {
+      "wordKey": "busy_en_gb",
+      "normalisedWord": "busy",
+      "displayWord": "busy",
+      "dialectCode": "en-GB",
+      "dictationSentence": "The busy shop grew busier until lunchtime was the busiest hour.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "The busy shop grew busier until lunchtime was the busiest hour."
+    },
+    {
+      "wordKey": "car_en_gb",
+      "normalisedWord": "car",
+      "displayWord": "car",
+      "dialectCode": "en-GB",
+      "dictationSentence": "The car carried our family to the beach.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "The car carried our family to the beach."
+    },
+    {
+      "wordKey": "care_en_gb",
+      "normalisedWord": "care",
+      "displayWord": "care",
+      "dialectCode": "en-GB",
+      "dictationSentence": "The nurse treated his cut with care.",
+      "dictationTargetTokenIndex": 6,
+      "audioText": "The nurse treated his cut with care."
+    },
+    {
+      "wordKey": "careful_en_gb",
+      "normalisedWord": "careful",
+      "displayWord": "careful",
+      "dialectCode": "en-GB",
+      "dictationSentence": "Be careful near the deep pond.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "Be careful near the deep pond."
+    },
+    {
+      "wordKey": "careless_en_gb",
+      "normalisedWord": "careless",
+      "displayWord": "careless",
+      "dialectCode": "en-GB",
+      "dictationSentence": "A careless spill made a puddle.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "A careless spill made a puddle."
+    },
+    {
+      "wordKey": "carried_en_gb",
+      "normalisedWord": "carried",
+      "displayWord": "carried",
+      "dialectCode": "en-GB",
+      "dictationSentence": "Sam carried the heavy bag.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "Sam carried the heavy bag."
+    },
+    {
+      "wordKey": "carries_en_gb",
+      "normalisedWord": "carries",
+      "displayWord": "carries",
+      "dialectCode": "en-GB",
+      "dictationSentence": "The ant carries a crumb home.",
+      "dictationTargetTokenIndex": 2,
+      "audioText": "The ant carries a crumb home."
+    },
+    {
+      "wordKey": "carry_en_gb",
+      "normalisedWord": "carry",
+      "displayWord": "carry",
+      "dialectCode": "en-GB",
+      "dictationSentence": "Please carry the small box to the table.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "Please carry the small box to the table."
+    },
+    {
+      "wordKey": "cars_en_gb",
+      "normalisedWord": "cars",
+      "displayWord": "cars",
+      "dialectCode": "en-GB",
+      "dictationSentence": "The cars stopped when the traffic light turned red.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "The cars stopped when the traffic light turned red."
+    },
+    {
+      "wordKey": "cat_en_gb",
+      "normalisedWord": "cat",
+      "displayWord": "cat",
+      "dialectCode": "en-GB",
+      "dictationSentence": "The dog chased the cat around the park.",
+      "dictationTargetTokenIndex": 4,
+      "audioText": "The dog chased the cat around the park."
+    },
+    {
+      "wordKey": "cats_en_gb",
+      "normalisedWord": "cats",
+      "displayWord": "cats",
+      "dialectCode": "en-GB",
+      "dictationSentence": "The cats chased leaves around the garden.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "The cats chased leaves around the garden."
+    },
+    {
+      "wordKey": "child_en_gb",
+      "normalisedWord": "child",
+      "displayWord": "child",
+      "dialectCode": "en-GB",
+      "dictationSentence": "The child smiled and waved to us.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "The child smiled and waved to us."
+    },
+    {
+      "wordKey": "children_en_gb",
+      "normalisedWord": "children",
+      "displayWord": "children",
+      "dialectCode": "en-GB",
+      "dictationSentence": "Children play football in the playground.",
+      "dictationTargetTokenIndex": 0,
+      "audioText": "Children play football in the playground."
+    },
+    {
+      "wordKey": "cities_en_gb",
+      "normalisedWord": "cities",
+      "displayWord": "cities",
+      "dialectCode": "en-GB",
+      "dictationSentence": "Large cities have many streets, buildings and people.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "Large cities have many streets, buildings and people."
+    },
+    {
+      "wordKey": "city_en_gb",
+      "normalisedWord": "city",
+      "displayWord": "city",
+      "dialectCode": "en-GB",
+      "dictationSentence": "We met near the city after lunch.",
+      "dictationTargetTokenIndex": 4,
+      "audioText": "We met near the city after lunch."
+    },
+    {
+      "wordKey": "clean_en_gb",
+      "normalisedWord": "clean",
+      "displayWord": "clean",
+      "dialectCode": "en-GB",
+      "dictationSentence": "The plate was clean after we washed away the dirt.",
+      "dictationTargetTokenIndex": 3,
+      "audioText": "The plate was clean after we washed away the dirt."
+    },
+    {
+      "wordKey": "cleaned_en_gb",
+      "normalisedWord": "cleaned",
+      "displayWord": "cleaned",
+      "dialectCode": "en-GB",
+      "dictationSentence": "Mia cleaned the muddy table with a cloth.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "Mia cleaned the muddy table with a cloth."
+    },
+    {
+      "wordKey": "copied_en_gb",
+      "normalisedWord": "copied",
+      "displayWord": "copied",
+      "dialectCode": "en-GB",
+      "dictationSentence": "Sam copied the sentence neatly into his book.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "Sam copied the sentence neatly into his book."
+    },
+    {
+      "wordKey": "copy_en_gb",
+      "normalisedWord": "copy",
+      "displayWord": "copy",
+      "dialectCode": "en-GB",
+      "dictationSentence": "Please copy the sentence into your book.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "Please copy the sentence into your book."
+    },
+    {
+      "wordKey": "cried_en_gb",
+      "normalisedWord": "cried",
+      "displayWord": "cried",
+      "dialectCode": "en-GB",
+      "dictationSentence": "The baby cried for her mum.",
+      "dictationTargetTokenIndex": 2,
+      "audioText": "The baby cried for her mum."
+    },
+    {
+      "wordKey": "cries_en_gb",
+      "normalisedWord": "cries",
+      "displayWord": "cries",
+      "dialectCode": "en-GB",
+      "dictationSentence": "The baby cries when she is tired.",
+      "dictationTargetTokenIndex": 2,
+      "audioText": "The baby cries when she is tired."
+    },
+    {
+      "wordKey": "cry_en_gb",
+      "normalisedWord": "cry",
+      "displayWord": "cry",
+      "dialectCode": "en-GB",
+      "dictationSentence": "Please cry if you feel hurt or upset.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "Please cry if you feel hurt or upset."
+    },
+    {
+      "wordKey": "danger_en_gb",
+      "normalisedWord": "danger",
+      "displayWord": "danger",
+      "dialectCode": "en-GB",
+      "dictationSentence": "The warning sign told us about danger near the deep water.",
+      "dictationTargetTokenIndex": 6,
+      "audioText": "The warning sign told us about danger near the deep water."
+    },
+    {
+      "wordKey": "dangerous_en_gb",
+      "normalisedWord": "dangerous",
+      "displayWord": "dangerous",
+      "dialectCode": "en-GB",
+      "dictationSentence": "The broken bridge was dangerous, so nobody crossed it.",
+      "dictationTargetTokenIndex": 4,
+      "audioText": "The broken bridge was dangerous, so nobody crossed it."
+    },
+    {
+      "wordKey": "define_en_gb",
+      "normalisedWord": "define",
+      "displayWord": "define",
+      "dialectCode": "en-GB",
+      "dictationSentence": "Please define the new word in simple language.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "Please define the new word in simple language."
+    },
+    {
+      "wordKey": "definition_en_gb",
+      "normalisedWord": "definition",
+      "displayWord": "definition",
+      "dialectCode": "en-GB",
+      "dictationSentence": "A definition explains what a word means.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "A definition explains what a word means."
+    },
+    {
+      "wordKey": "die_en_gb",
+      "normalisedWord": "die",
+      "displayWord": "die",
+      "dialectCode": "en-GB",
+      "dictationSentence": "Leaves can die without water.",
+      "dictationTargetTokenIndex": 2,
+      "audioText": "Leaves can die without water."
+    },
+    {
+      "wordKey": "dislike_en_gb",
+      "normalisedWord": "dislike",
+      "displayWord": "dislike",
+      "dialectCode": "en-GB",
+      "dictationSentence": "I dislike bitter food, so I choose something else politely.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "I dislike bitter food, so I choose something else politely."
+    },
+    {
+      "wordKey": "dog_en_gb",
+      "normalisedWord": "dog",
+      "displayWord": "dog",
+      "dialectCode": "en-GB",
+      "dictationSentence": "The dog chased the cat around the park.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "The dog chased the cat around the park."
+    },
+    {
+      "wordKey": "dogs_en_gb",
+      "normalisedWord": "dogs",
+      "displayWord": "dogs",
+      "dialectCode": "en-GB",
+      "dictationSentence": "The dogs wagged their tails when we arrived.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "The dogs wagged their tails when we arrived."
+    },
+    {
+      "wordKey": "dying_en_gb",
+      "normalisedWord": "dying",
+      "displayWord": "dying",
+      "dialectCode": "en-GB",
+      "dictationSentence": "The plant was dying because it had no water.",
+      "dictationTargetTokenIndex": 3,
+      "audioText": "The plant was dying because it had no water."
+    },
+    {
+      "wordKey": "enjoy_en_gb",
+      "normalisedWord": "enjoy",
+      "displayWord": "enjoy",
+      "dialectCode": "en-GB",
+      "dictationSentence": "Please enjoy the story with your family.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "Please enjoy the story with your family."
+    },
+    {
+      "wordKey": "enjoyable_en_gb",
+      "normalisedWord": "enjoyable",
+      "displayWord": "enjoyable",
+      "dialectCode": "en-GB",
+      "dictationSentence": "The funny film was enjoyable and made us smile.",
+      "dictationTargetTokenIndex": 4,
+      "audioText": "The funny film was enjoyable and made us smile."
+    },
+    {
+      "wordKey": "enjoyment_en_gb",
+      "normalisedWord": "enjoyment",
+      "displayWord": "enjoyment",
+      "dialectCode": "en-GB",
+      "dictationSentence": "Her smile showed her enjoyment of the game.",
+      "dictationTargetTokenIndex": 4,
+      "audioText": "Her smile showed her enjoyment of the game."
+    },
+    {
+      "wordKey": "face_en_gb",
+      "normalisedWord": "face",
+      "displayWord": "face",
+      "dialectCode": "en-GB",
+      "dictationSentence": "Sam hurt his face during the game.",
+      "dictationTargetTokenIndex": 3,
+      "audioText": "Sam hurt his face during the game."
+    },
+    {
+      "wordKey": "facial_en_gb",
+      "normalisedWord": "facial",
+      "displayWord": "facial",
+      "dialectCode": "en-GB",
+      "dictationSentence": "Her facial expression showed surprise.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "Her facial expression showed surprise."
+    },
+    {
+      "wordKey": "fair_en_gb",
+      "normalisedWord": "fair",
+      "displayWord": "fair",
+      "dialectCode": "en-GB",
+      "dictationSentence": "It was fair because each child had the same number of turns.",
+      "dictationTargetTokenIndex": 2,
+      "audioText": "It was fair because each child had the same number of turns."
+    },
+    {
+      "wordKey": "fast_en_gb",
+      "normalisedWord": "fast",
+      "displayWord": "fast",
+      "dialectCode": "en-GB",
+      "dictationSentence": "The fast rabbit ran faster than the fox and was the fastest animal.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "The fast rabbit ran faster than the fox and was the fastest animal."
+    },
+    {
+      "wordKey": "faster_en_gb",
+      "normalisedWord": "faster",
+      "displayWord": "faster",
+      "dialectCode": "en-GB",
+      "dictationSentence": "The fast rabbit ran faster than the fox and was the fastest animal.",
+      "dictationTargetTokenIndex": 4,
+      "audioText": "The fast rabbit ran faster than the fox and was the fastest animal."
+    },
+    {
+      "wordKey": "fastest_en_gb",
+      "normalisedWord": "fastest",
+      "displayWord": "fastest",
+      "dialectCode": "en-GB",
+      "dictationSentence": "The fast rabbit ran faster than the fox and was the fastest animal.",
+      "dictationTargetTokenIndex": 11,
+      "audioText": "The fast rabbit ran faster than the fox and was the fastest animal."
+    },
+    {
+      "wordKey": "foot_en_gb",
+      "normalisedWord": "foot",
+      "displayWord": "foot",
+      "dialectCode": "en-GB",
+      "dictationSentence": "Sam hurt his foot during the game.",
+      "dictationTargetTokenIndex": 3,
+      "audioText": "Sam hurt his foot during the game."
+    },
+    {
+      "wordKey": "geography_en_gb",
+      "normalisedWord": "geography",
+      "displayWord": "geography",
+      "dialectCode": "en-GB",
+      "dictationSentence": "Geography teaches us about places, people and the earth.",
+      "dictationTargetTokenIndex": 0,
+      "audioText": "Geography teaches us about places, people and the earth."
+    },
+    {
+      "wordKey": "go_en_gb",
+      "normalisedWord": "go",
+      "displayWord": "go",
+      "dialectCode": "en-GB",
+      "dictationSentence": "We go to the park after school.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "We go to the park after school."
+    },
+    {
+      "wordKey": "goes_en_gb",
+      "normalisedWord": "goes",
+      "displayWord": "goes",
+      "dialectCode": "en-GB",
+      "dictationSentence": "The bus goes past our house.",
+      "dictationTargetTokenIndex": 2,
+      "audioText": "The bus goes past our house."
+    },
+    {
+      "wordKey": "govern_en_gb",
+      "normalisedWord": "govern",
+      "displayWord": "govern",
+      "dialectCode": "en-GB",
+      "dictationSentence": "Leaders govern a country by making rules.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "Leaders govern a country by making rules."
+    },
+    {
+      "wordKey": "government_en_gb",
+      "normalisedWord": "government",
+      "displayWord": "government",
+      "dialectCode": "en-GB",
+      "dictationSentence": "The government makes decisions and laws for the country.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "The government makes decisions and laws for the country."
+    },
+    {
+      "wordKey": "governor_en_gb",
+      "normalisedWord": "governor",
+      "displayWord": "governor",
+      "dialectCode": "en-GB",
+      "dictationSentence": "The governor leads a state or region.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "The governor leads a state or region."
+    },
+    {
+      "wordKey": "grab_en_gb",
+      "normalisedWord": "grab",
+      "displayWord": "grab",
+      "dialectCode": "en-GB",
+      "dictationSentence": "Please grab the rope before it falls.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "Please grab the rope before it falls."
+    },
+    {
+      "wordKey": "grabbed_en_gb",
+      "normalisedWord": "grabbed",
+      "displayWord": "grabbed",
+      "dialectCode": "en-GB",
+      "dictationSentence": "Mia grabbed the rope before it fell.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "Mia grabbed the rope before it fell."
+    },
+    {
+      "wordKey": "graph_en_gb",
+      "normalisedWord": "graph",
+      "displayWord": "graph",
+      "dialectCode": "en-GB",
+      "dictationSentence": "A graph displays information using lines, bars or points.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "A graph displays information using lines, bars or points."
+    },
+    {
+      "wordKey": "graphic_en_gb",
+      "normalisedWord": "graphic",
+      "displayWord": "graphic",
+      "dialectCode": "en-GB",
+      "dictationSentence": "The graphic showed the results clearly.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "The graphic showed the results clearly."
+    },
+    {
+      "wordKey": "grow_en_gb",
+      "normalisedWord": "grow",
+      "displayWord": "grow",
+      "dialectCode": "en-GB",
+      "dictationSentence": "Please grow a bean plant on the windowsill.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "Please grow a bean plant on the windowsill."
+    },
+    {
+      "wordKey": "grown_en_gb",
+      "normalisedWord": "grown",
+      "displayWord": "grown",
+      "dialectCode": "en-GB",
+      "dictationSentence": "The tiny seed had grown into a tall plant.",
+      "dictationTargetTokenIndex": 4,
+      "audioText": "The tiny seed had grown into a tall plant."
+    },
+    {
+      "wordKey": "happier_en_gb",
+      "normalisedWord": "happier",
+      "displayWord": "happier",
+      "dialectCode": "en-GB",
+      "dictationSentence": "Mia felt happy after lunch and even happier when her friend arrived.",
+      "dictationTargetTokenIndex": 7,
+      "audioText": "Mia felt happy after lunch and even happier when her friend arrived."
+    },
+    {
+      "wordKey": "happiness_en_gb",
+      "normalisedWord": "happiness",
+      "displayWord": "happiness",
+      "dialectCode": "en-GB",
+      "dictationSentence": "Winning was fun, but helping her friend brought greater happiness.",
+      "dictationTargetTokenIndex": 9,
+      "audioText": "Winning was fun, but helping her friend brought greater happiness."
+    },
+    {
+      "wordKey": "happy_en_gb",
+      "normalisedWord": "happy",
+      "displayWord": "happy",
+      "dialectCode": "en-GB",
+      "dictationSentence": "Mia felt happy after lunch and even happier when her friend arrived.",
+      "dictationTargetTokenIndex": 2,
+      "audioText": "Mia felt happy after lunch and even happier when her friend arrived."
+    },
+    {
+      "wordKey": "help_en_gb",
+      "normalisedWord": "help",
+      "displayWord": "help",
+      "dialectCode": "en-GB",
+      "dictationSentence": "Please help your friend carry the books.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "Please help your friend carry the books."
+    },
+    {
+      "wordKey": "helpful_en_gb",
+      "normalisedWord": "helpful",
+      "displayWord": "helpful",
+      "dialectCode": "en-GB",
+      "dictationSentence": "Mia was helpful and carried the books for her teacher.",
+      "dictationTargetTokenIndex": 2,
+      "audioText": "Mia was helpful and carried the books for her teacher."
+    },
+    {
+      "wordKey": "hop_en_gb",
+      "normalisedWord": "hop",
+      "displayWord": "hop",
+      "dialectCode": "en-GB",
+      "dictationSentence": "Please hop on one foot to the line.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "Please hop on one foot to the line."
+    },
+    {
+      "wordKey": "hope_en_gb",
+      "normalisedWord": "hope",
+      "displayWord": "hope",
+      "dialectCode": "en-GB",
+      "dictationSentence": "We hope the sun will shine tomorrow.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "We hope the sun will shine tomorrow."
+    },
+    {
+      "wordKey": "hoped_en_gb",
+      "normalisedWord": "hoped",
+      "displayWord": "hoped",
+      "dialectCode": "en-GB",
+      "dictationSentence": "We hoped the rain would stop before the picnic.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "We hoped the rain would stop before the picnic."
+    },
+    {
+      "wordKey": "hopeful_en_gb",
+      "normalisedWord": "hopeful",
+      "displayWord": "hopeful",
+      "dialectCode": "en-GB",
+      "dictationSentence": "We felt hopeful that the missing dog would come home.",
+      "dictationTargetTokenIndex": 2,
+      "audioText": "We felt hopeful that the missing dog would come home."
+    },
+    {
+      "wordKey": "hopeless_en_gb",
+      "normalisedWord": "hopeless",
+      "displayWord": "hopeless",
+      "dialectCode": "en-GB",
+      "dictationSentence": "The broken toy seemed hopeless until Dad found the missing part.",
+      "dictationTargetTokenIndex": 4,
+      "audioText": "The broken toy seemed hopeless until Dad found the missing part."
+    },
+    {
+      "wordKey": "hoping_en_gb",
+      "normalisedWord": "hoping",
+      "displayWord": "hoping",
+      "dialectCode": "en-GB",
+      "dictationSentence": "We were hoping for sunshine on sports day.",
+      "dictationTargetTokenIndex": 2,
+      "audioText": "We were hoping for sunshine on sports day."
+    },
+    {
+      "wordKey": "hopped_en_gb",
+      "normalisedWord": "hopped",
+      "displayWord": "hopped",
+      "dialectCode": "en-GB",
+      "dictationSentence": "A rabbit hopped through the garden.",
+      "dictationTargetTokenIndex": 2,
+      "audioText": "A rabbit hopped through the garden."
+    },
+    {
+      "wordKey": "hot_en_gb",
+      "normalisedWord": "hot",
+      "displayWord": "hot",
+      "dialectCode": "en-GB",
+      "dictationSentence": "The hot sand grew hotter at noon, the hottest part of the day.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "The hot sand grew hotter at noon, the hottest part of the day."
+    },
+    {
+      "wordKey": "hotter_en_gb",
+      "normalisedWord": "hotter",
+      "displayWord": "hotter",
+      "dialectCode": "en-GB",
+      "dictationSentence": "The hot sand grew hotter at noon, the hottest part of the day.",
+      "dictationTargetTokenIndex": 4,
+      "audioText": "The hot sand grew hotter at noon, the hottest part of the day."
+    },
+    {
+      "wordKey": "hottest_en_gb",
+      "normalisedWord": "hottest",
+      "displayWord": "hottest",
+      "dialectCode": "en-GB",
+      "dictationSentence": "The hot sand grew hotter at noon, the hottest part of the day.",
+      "dictationTargetTokenIndex": 8,
+      "audioText": "The hot sand grew hotter at noon, the hottest part of the day."
+    },
+    {
+      "wordKey": "impossible_en_gb",
+      "normalisedWord": "impossible",
+      "displayWord": "impossible",
+      "dialectCode": "en-GB",
+      "dictationSentence": "It is impossible for a person to breathe underwater without help.",
+      "dictationTargetTokenIndex": 2,
+      "audioText": "It is impossible for a person to breathe underwater without help."
+    },
+    {
+      "wordKey": "inform_en_gb",
+      "normalisedWord": "inform",
+      "displayWord": "inform",
+      "dialectCode": "en-GB",
+      "dictationSentence": "Please inform an adult if you are hurt.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "Please inform an adult if you are hurt."
+    },
+    {
+      "wordKey": "information_en_gb",
+      "normalisedWord": "information",
+      "displayWord": "information",
+      "dialectCode": "en-GB",
+      "dictationSentence": "The sign gave us information about opening times.",
+      "dictationTargetTokenIndex": 4,
+      "audioText": "The sign gave us information about opening times."
+    },
+    {
+      "wordKey": "interact_en_gb",
+      "normalisedWord": "interact",
+      "displayWord": "interact",
+      "dialectCode": "en-GB",
+      "dictationSentence": "The children interact kindly in the game.",
+      "dictationTargetTokenIndex": 2,
+      "audioText": "The children interact kindly in the game."
+    },
+    {
+      "wordKey": "joy_en_gb",
+      "normalisedWord": "joy",
+      "displayWord": "joy",
+      "dialectCode": "en-GB",
+      "dictationSentence": "The surprise puppy filled the family with joy.",
+      "dictationTargetTokenIndex": 7,
+      "audioText": "The surprise puppy filled the family with joy."
+    },
+    {
+      "wordKey": "jump_en_gb",
+      "normalisedWord": "jump",
+      "displayWord": "jump",
+      "dialectCode": "en-GB",
+      "dictationSentence": "Please jump over the little puddle.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "Please jump over the little puddle."
+    },
+    {
+      "wordKey": "jumped_en_gb",
+      "normalisedWord": "jumped",
+      "displayWord": "jumped",
+      "dialectCode": "en-GB",
+      "dictationSentence": "The frog jumped from the bank into the pond.",
+      "dictationTargetTokenIndex": 2,
+      "audioText": "The frog jumped from the bank into the pond."
+    },
+    {
+      "wordKey": "jumping_en_gb",
+      "normalisedWord": "jumping",
+      "displayWord": "jumping",
+      "dialectCode": "en-GB",
+      "dictationSentence": "The children were jumping over the little puddles.",
+      "dictationTargetTokenIndex": 3,
+      "audioText": "The children were jumping over the little puddles."
+    },
+    {
+      "wordKey": "jumps_en_gb",
+      "normalisedWord": "jumps",
+      "displayWord": "jumps",
+      "dialectCode": "en-GB",
+      "dictationSentence": "The frog jumps from the rock into the pond.",
+      "dictationTargetTokenIndex": 2,
+      "audioText": "The frog jumps from the rock into the pond."
+    },
+    {
+      "wordKey": "kind_en_gb",
+      "normalisedWord": "kind",
+      "displayWord": "kind",
+      "dialectCode": "en-GB",
+      "dictationSentence": "Sam was kind and shared his lunch with a friend.",
+      "dictationTargetTokenIndex": 2,
+      "audioText": "Sam was kind and shared his lunch with a friend."
+    },
+    {
+      "wordKey": "kindness_en_gb",
+      "normalisedWord": "kindness",
+      "displayWord": "kindness",
+      "dialectCode": "en-GB",
+      "dictationSentence": "Mia showed kindness by helping the new pupil.",
+      "dictationTargetTokenIndex": 2,
+      "audioText": "Mia showed kindness by helping the new pupil."
+    },
+    {
+      "wordKey": "knife_en_gb",
+      "normalisedWord": "knife",
+      "displayWord": "knife",
+      "dialectCode": "en-GB",
+      "dictationSentence": "We used the knife while preparing lunch.",
+      "dictationTargetTokenIndex": 3,
+      "audioText": "We used the knife while preparing lunch."
+    },
+    {
+      "wordKey": "knives_en_gb",
+      "normalisedWord": "knives",
+      "displayWord": "knives",
+      "dialectCode": "en-GB",
+      "dictationSentence": "The sharp knives were kept safely away from children.",
+      "dictationTargetTokenIndex": 2,
+      "audioText": "The sharp knives were kept safely away from children."
+    },
+    {
+      "wordKey": "large_larger_largest_en_gb",
+      "normalisedWord": "large",
+      "displayWord": "large",
+      "dialectCode": "en-GB",
+      "dictationSentence": "A large box sat inside a larger box, which was inside the largest box.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "A large box sat inside a larger box, which was inside the largest box."
+    },
+    {
+      "wordKey": "larger_en_gb",
+      "normalisedWord": "larger",
+      "displayWord": "larger",
+      "dialectCode": "en-GB",
+      "dictationSentence": "A large box sat inside a larger box, which was inside the largest box.",
+      "dictationTargetTokenIndex": 6,
+      "audioText": "A large box sat inside a larger box, which was inside the largest box."
+    },
+    {
+      "wordKey": "largest_en_gb",
+      "normalisedWord": "largest",
+      "displayWord": "largest",
+      "dialectCode": "en-GB",
+      "dictationSentence": "A large box sat inside a larger box, which was inside the largest box.",
+      "dictationTargetTokenIndex": 12,
+      "audioText": "A large box sat inside a larger box, which was inside the largest box."
+    },
+    {
+      "wordKey": "late_en_gb",
+      "normalisedWord": "late",
+      "displayWord": "late",
+      "dialectCode": "en-GB",
+      "dictationSentence": "The bus was late and arrived after the expected time.",
+      "dictationTargetTokenIndex": 3,
+      "audioText": "The bus was late and arrived after the expected time."
+    },
+    {
+      "wordKey": "later_en_gb",
+      "normalisedWord": "later",
+      "displayWord": "later",
+      "dialectCode": "en-GB",
+      "dictationSentence": "We can finish the game later.",
+      "dictationTargetTokenIndex": 5,
+      "audioText": "We can finish the game later."
+    },
+    {
+      "wordKey": "latest_en_gb",
+      "normalisedWord": "latest",
+      "displayWord": "latest",
+      "dialectCode": "en-GB",
+      "dictationSentence": "The latest bus is the last one to arrive.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "The latest bus is the last one to arrive."
+    },
+    {
+      "wordKey": "laugh_en_gb",
+      "normalisedWord": "laugh",
+      "displayWord": "laugh",
+      "dialectCode": "en-GB",
+      "dictationSentence": "Please laugh at the funny part of the story.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "Please laugh at the funny part of the story."
+    },
+    {
+      "wordKey": "laughed_en_gb",
+      "normalisedWord": "laughed",
+      "displayWord": "laughed",
+      "dialectCode": "en-GB",
+      "dictationSentence": "The children laughed at the funny joke.",
+      "dictationTargetTokenIndex": 2,
+      "audioText": "The children laughed at the funny joke."
+    },
+    {
+      "wordKey": "lie_en_gb",
+      "normalisedWord": "lie",
+      "displayWord": "lie",
+      "dialectCode": "en-GB",
+      "dictationSentence": "Please lie on the rug and rest.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "Please lie on the rug and rest."
+    },
+    {
+      "wordKey": "like_en_gb",
+      "normalisedWord": "like",
+      "displayWord": "like",
+      "dialectCode": "en-GB",
+      "dictationSentence": "I like the new playground.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "I like the new playground."
+    },
+    {
+      "wordKey": "liked_en_gb",
+      "normalisedWord": "liked",
+      "displayWord": "liked",
+      "dialectCode": "en-GB",
+      "dictationSentence": "We liked the funny film.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "We liked the funny film."
+    },
+    {
+      "wordKey": "look_en_gb",
+      "normalisedWord": "look",
+      "displayWord": "look",
+      "dialectCode": "en-GB",
+      "dictationSentence": "Please look both ways before crossing.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "Please look both ways before crossing."
+    },
+    {
+      "wordKey": "looked_en_gb",
+      "normalisedWord": "looked",
+      "displayWord": "looked",
+      "dialectCode": "en-GB",
+      "dictationSentence": "We looked under the bed for the missing shoe.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "We looked under the bed for the missing shoe."
+    },
+    {
+      "wordKey": "looking_en_gb",
+      "normalisedWord": "looking",
+      "displayWord": "looking",
+      "dialectCode": "en-GB",
+      "dictationSentence": "We are looking for the lost glove.",
+      "dictationTargetTokenIndex": 2,
+      "audioText": "We are looking for the lost glove."
+    },
+    {
+      "wordKey": "lying_en_gb",
+      "normalisedWord": "lying",
+      "displayWord": "lying",
+      "dialectCode": "en-GB",
+      "dictationSentence": "The puppy was lying on the rug.",
+      "dictationTargetTokenIndex": 3,
+      "audioText": "The puppy was lying on the rug."
+    },
+    {
+      "wordKey": "made_en_gb",
+      "normalisedWord": "made",
+      "displayWord": "made",
+      "dialectCode": "en-GB",
+      "dictationSentence": "Mia made a boat from folded paper.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "Mia made a boat from folded paper."
+    },
+    {
+      "wordKey": "magic_en_gb",
+      "normalisedWord": "magic",
+      "displayWord": "magic",
+      "dialectCode": "en-GB",
+      "dictationSentence": "The magician did a trick with magic.",
+      "dictationTargetTokenIndex": 6,
+      "audioText": "The magician did a trick with magic."
+    },
+    {
+      "wordKey": "magician_en_gb",
+      "normalisedWord": "magician",
+      "displayWord": "magician",
+      "dialectCode": "en-GB",
+      "dictationSentence": "The magician performed a trick with a silk scarf.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "The magician performed a trick with a silk scarf."
+    },
+    {
+      "wordKey": "make_en_gb",
+      "normalisedWord": "make",
+      "displayWord": "make",
+      "dialectCode": "en-GB",
+      "dictationSentence": "Please make a paper boat for the water tray.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "Please make a paper boat for the water tray."
+    },
+    {
+      "wordKey": "making_en_gb",
+      "normalisedWord": "making",
+      "displayWord": "making",
+      "dialectCode": "en-GB",
+      "dictationSentence": "Mia was making a model from cardboard.",
+      "dictationTargetTokenIndex": 2,
+      "audioText": "Mia was making a model from cardboard."
+    },
+    {
+      "wordKey": "map_en_gb",
+      "normalisedWord": "map",
+      "displayWord": "map",
+      "dialectCode": "en-GB",
+      "dictationSentence": "Please map the route from school to the park.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "Please map the route from school to the park."
+    },
+    {
+      "wordKey": "mapped_en_gb",
+      "normalisedWord": "mapped",
+      "displayWord": "mapped",
+      "dialectCode": "en-GB",
+      "dictationSentence": "We mapped the safest route through the forest.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "We mapped the safest route through the forest."
+    },
+    {
+      "wordKey": "misread_en_gb",
+      "normalisedWord": "misread",
+      "displayWord": "misread",
+      "dialectCode": "en-GB",
+      "dictationSentence": "I misread the number on the clock.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "I misread the number on the clock."
+    },
+    {
+      "wordKey": "mistake_en_gb",
+      "normalisedWord": "mistake",
+      "displayWord": "mistake",
+      "dialectCode": "en-GB",
+      "dictationSentence": "I made a mistake and wrote six instead of nine.",
+      "dictationTargetTokenIndex": 3,
+      "audioText": "I made a mistake and wrote six instead of nine."
+    },
+    {
+      "wordKey": "natural_en_gb",
+      "normalisedWord": "natural",
+      "displayWord": "natural",
+      "dialectCode": "en-GB",
+      "dictationSentence": "The natural cave formed without people building it.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "The natural cave formed without people building it."
+    },
+    {
+      "wordKey": "nature_en_gb",
+      "normalisedWord": "nature",
+      "displayWord": "nature",
+      "dialectCode": "en-GB",
+      "dictationSentence": "We explored nature by looking at plants and animals outdoors.",
+      "dictationTargetTokenIndex": 2,
+      "audioText": "We explored nature by looking at plants and animals outdoors."
+    },
+    {
+      "wordKey": "nice_en_gb",
+      "normalisedWord": "nice",
+      "displayWord": "nice",
+      "dialectCode": "en-GB",
+      "dictationSentence": "The nice day became nicer when the nicest surprise arrived.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "The nice day became nicer when the nicest surprise arrived."
+    },
+    {
+      "wordKey": "nicer_en_gb",
+      "normalisedWord": "nicer",
+      "displayWord": "nicer",
+      "dialectCode": "en-GB",
+      "dictationSentence": "The nice day became nicer when the nicest surprise arrived.",
+      "dictationTargetTokenIndex": 4,
+      "audioText": "The nice day became nicer when the nicest surprise arrived."
+    },
+    {
+      "wordKey": "nicest_en_gb",
+      "normalisedWord": "nicest",
+      "displayWord": "nicest",
+      "dialectCode": "en-GB",
+      "dictationSentence": "The nice day became nicer when the nicest surprise arrived.",
+      "dictationTargetTokenIndex": 7,
+      "audioText": "The nice day became nicer when the nicest surprise arrived."
+    },
+    {
+      "wordKey": "one_en_gb",
+      "normalisedWord": "one",
+      "displayWord": "one",
+      "dialectCode": "en-GB",
+      "dictationSentence": "One bee landed on the flower.",
+      "dictationTargetTokenIndex": 0,
+      "audioText": "One bee landed on the flower."
+    },
+    {
+      "wordKey": "person_en_gb",
+      "normalisedWord": "person",
+      "displayWord": "person",
+      "dialectCode": "en-GB",
+      "dictationSentence": "The person smiled and waved to us.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "The person smiled and waved to us."
+    },
+    {
+      "wordKey": "personal_en_gb",
+      "normalisedWord": "personal",
+      "displayWord": "personal",
+      "dialectCode": "en-GB",
+      "dictationSentence": "The diary was personal, so Mia kept it private.",
+      "dictationTargetTokenIndex": 3,
+      "audioText": "The diary was personal, so Mia kept it private."
+    },
+    {
+      "wordKey": "photo_en_gb",
+      "normalisedWord": "photo",
+      "displayWord": "photo",
+      "dialectCode": "en-GB",
+      "dictationSentence": "We looked at the photo to find information.",
+      "dictationTargetTokenIndex": 4,
+      "audioText": "We looked at the photo to find information."
+    },
+    {
+      "wordKey": "photograph_en_gb",
+      "normalisedWord": "photograph",
+      "displayWord": "photograph",
+      "dialectCode": "en-GB",
+      "dictationSentence": "A photograph is a picture made with a camera.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "A photograph is a picture made with a camera."
+    },
+    {
+      "wordKey": "photography_en_gb",
+      "normalisedWord": "photography",
+      "displayWord": "photography",
+      "dialectCode": "en-GB",
+      "dictationSentence": "Photography is the art of taking pictures with a camera.",
+      "dictationTargetTokenIndex": 0,
+      "audioText": "Photography is the art of taking pictures with a camera."
+    },
+    {
+      "wordKey": "plan_en_gb",
+      "normalisedWord": "plan",
+      "displayWord": "plan",
+      "dialectCode": "en-GB",
+      "dictationSentence": "Please plan the project before you begin.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "Please plan the project before you begin."
+    },
+    {
+      "wordKey": "planned_en_gb",
+      "normalisedWord": "planned",
+      "displayWord": "planned",
+      "dialectCode": "en-GB",
+      "dictationSentence": "We planned the party before buying the food.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "We planned the party before buying the food."
+    },
+    {
+      "wordKey": "play_en_gb",
+      "normalisedWord": "play",
+      "displayWord": "play",
+      "dialectCode": "en-GB",
+      "dictationSentence": "Children play football in the playground.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "Children play football in the playground."
+    },
+    {
+      "wordKey": "played_en_gb",
+      "normalisedWord": "played",
+      "displayWord": "played",
+      "dialectCode": "en-GB",
+      "dictationSentence": "The children played football after school.",
+      "dictationTargetTokenIndex": 2,
+      "audioText": "The children played football after school."
+    },
+    {
+      "wordKey": "player_en_gb",
+      "normalisedWord": "player",
+      "displayWord": "player",
+      "dialectCode": "en-GB",
+      "dictationSentence": "The player kicked the ball to a friend.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "The player kicked the ball to a friend."
+    },
+    {
+      "wordKey": "playing_en_gb",
+      "normalisedWord": "playing",
+      "displayWord": "playing",
+      "dialectCode": "en-GB",
+      "dictationSentence": "The children were playing football in the park.",
+      "dictationTargetTokenIndex": 3,
+      "audioText": "The children were playing football in the park."
+    },
+    {
+      "wordKey": "plays_en_gb",
+      "normalisedWord": "plays",
+      "displayWord": "plays",
+      "dialectCode": "en-GB",
+      "dictationSentence": "Mia plays the piano after school.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "Mia plays the piano after school."
+    },
+    {
+      "wordKey": "port_en_gb",
+      "normalisedWord": "port",
+      "displayWord": "port",
+      "dialectCode": "en-GB",
+      "dictationSentence": "The ship sailed into the port.",
+      "dictationTargetTokenIndex": 5,
+      "audioText": "The ship sailed into the port."
+    },
+    {
+      "wordKey": "possibility_en_gb",
+      "normalisedWord": "possibility",
+      "displayWord": "possibility",
+      "dialectCode": "en-GB",
+      "dictationSentence": "There is a possibility that snow will close the school.",
+      "dictationTargetTokenIndex": 3,
+      "audioText": "There is a possibility that snow will close the school."
+    },
+    {
+      "wordKey": "possible_en_gb",
+      "normalisedWord": "possible",
+      "displayWord": "possible",
+      "dialectCode": "en-GB",
+      "dictationSentence": "It is possible to finish the puzzle if we work together.",
+      "dictationTargetTokenIndex": 2,
+      "audioText": "It is possible to finish the puzzle if we work together."
+    },
+    {
+      "wordKey": "quick_en_gb",
+      "normalisedWord": "quick",
+      "displayWord": "quick",
+      "dialectCode": "en-GB",
+      "dictationSentence": "The quick rabbit reached the burrow in seconds.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "The quick rabbit reached the burrow in seconds."
+    },
+    {
+      "wordKey": "quickest_en_gb",
+      "normalisedWord": "quickest",
+      "displayWord": "quickest",
+      "dialectCode": "en-GB",
+      "dictationSentence": "Mia was the quickest runner and finished before everyone else.",
+      "dictationTargetTokenIndex": 3,
+      "audioText": "Mia was the quickest runner and finished before everyone else."
+    },
+    {
+      "wordKey": "quickly_en_gb",
+      "normalisedWord": "quickly",
+      "displayWord": "quickly",
+      "dialectCode": "en-GB",
+      "dictationSentence": "Please walk quickly to the gate.",
+      "dictationTargetTokenIndex": 2,
+      "audioText": "Please walk quickly to the gate."
+    },
+    {
+      "wordKey": "read_en_gb",
+      "normalisedWord": "read",
+      "displayWord": "read",
+      "dialectCode": "en-GB",
+      "dictationSentence": "The teacher read a book in the library.",
+      "dictationTargetTokenIndex": 2,
+      "audioText": "The teacher read a book in the library."
+    },
+    {
+      "wordKey": "readable_en_gb",
+      "normalisedWord": "readable",
+      "displayWord": "readable",
+      "dialectCode": "en-GB",
+      "dictationSentence": "Her neat handwriting was readable and easy to understand.",
+      "dictationTargetTokenIndex": 4,
+      "audioText": "Her neat handwriting was readable and easy to understand."
+    },
+    {
+      "wordKey": "reading_en_gb",
+      "normalisedWord": "reading",
+      "displayWord": "reading",
+      "dialectCode": "en-GB",
+      "dictationSentence": "Sam was reading a story about space.",
+      "dictationTargetTokenIndex": 2,
+      "audioText": "Sam was reading a story about space."
+    },
+    {
+      "wordKey": "reads_en_gb",
+      "normalisedWord": "reads",
+      "displayWord": "reads",
+      "dialectCode": "en-GB",
+      "dictationSentence": "Sam reads a story before bed.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "Sam reads a story before bed."
+    },
+    {
+      "wordKey": "replay_en_gb",
+      "normalisedWord": "replay",
+      "displayWord": "replay",
+      "dialectCode": "en-GB",
+      "dictationSentence": "Please replay the song from the beginning.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "Please replay the song from the beginning."
+    },
+    {
+      "wordKey": "replayed_en_gb",
+      "normalisedWord": "replayed",
+      "displayWord": "replayed",
+      "dialectCode": "en-GB",
+      "dictationSentence": "We replayed the song from the beginning.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "We replayed the song from the beginning."
+    },
+    {
+      "wordKey": "rewrite_en_gb",
+      "normalisedWord": "rewrite",
+      "displayWord": "rewrite",
+      "dialectCode": "en-GB",
+      "dictationSentence": "Please rewrite the sentence more clearly.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "Please rewrite the sentence more clearly."
+    },
+    {
+      "wordKey": "run_en_gb",
+      "normalisedWord": "run",
+      "displayWord": "run",
+      "dialectCode": "en-GB",
+      "dictationSentence": "Please run to the finish line.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "Please run to the finish line."
+    },
+    {
+      "wordKey": "runner_en_gb",
+      "normalisedWord": "runner",
+      "displayWord": "runner",
+      "dialectCode": "en-GB",
+      "dictationSentence": "The runner crossed the finish line first.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "The runner crossed the finish line first."
+    },
+    {
+      "wordKey": "running_en_gb",
+      "normalisedWord": "running",
+      "displayWord": "running",
+      "dialectCode": "en-GB",
+      "dictationSentence": "The runner was running towards the finish line.",
+      "dictationTargetTokenIndex": 3,
+      "audioText": "The runner was running towards the finish line."
+    },
+    {
+      "wordKey": "runs_en_gb",
+      "normalisedWord": "runs",
+      "displayWord": "runs",
+      "dialectCode": "en-GB",
+      "dictationSentence": "The river runs through the valley to the sea.",
+      "dictationTargetTokenIndex": 2,
+      "audioText": "The river runs through the valley to the sea."
+    },
+    {
+      "wordKey": "sad_en_gb",
+      "normalisedWord": "sad",
+      "displayWord": "sad",
+      "dialectCode": "en-GB",
+      "dictationSentence": "The sad ending grew sadder, and the final scene was the saddest.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "The sad ending grew sadder, and the final scene was the saddest."
+    },
+    {
+      "wordKey": "sadder_en_gb",
+      "normalisedWord": "sadder",
+      "displayWord": "sadder",
+      "dialectCode": "en-GB",
+      "dictationSentence": "The sad ending grew sadder, and the final scene was the saddest.",
+      "dictationTargetTokenIndex": 4,
+      "audioText": "The sad ending grew sadder, and the final scene was the saddest."
+    },
+    {
+      "wordKey": "saddest_en_gb",
+      "normalisedWord": "saddest",
+      "displayWord": "saddest",
+      "dialectCode": "en-GB",
+      "dictationSentence": "The sad ending grew sadder, and the final scene was the saddest.",
+      "dictationTargetTokenIndex": 11,
+      "audioText": "The sad ending grew sadder, and the final scene was the saddest."
+    },
+    {
+      "wordKey": "sadly_en_gb",
+      "normalisedWord": "sadly",
+      "displayWord": "sadly",
+      "dialectCode": "en-GB",
+      "dictationSentence": "Sadly, the party had to end.",
+      "dictationTargetTokenIndex": 0,
+      "audioText": "Sadly, the party had to end."
+    },
+    {
+      "wordKey": "sadness_en_gb",
+      "normalisedWord": "sadness",
+      "displayWord": "sadness",
+      "dialectCode": "en-GB",
+      "dictationSentence": "Tears showed her sadness when her friend moved away.",
+      "dictationTargetTokenIndex": 3,
+      "audioText": "Tears showed her sadness when her friend moved away."
+    },
+    {
+      "wordKey": "sign_en_gb",
+      "normalisedWord": "sign",
+      "displayWord": "sign",
+      "dialectCode": "en-GB",
+      "dictationSentence": "We used the sign during our lesson.",
+      "dictationTargetTokenIndex": 3,
+      "audioText": "We used the sign during our lesson."
+    },
+    {
+      "wordKey": "signal_en_gb",
+      "normalisedWord": "signal",
+      "displayWord": "signal",
+      "dialectCode": "en-GB",
+      "dictationSentence": "The green signal told us to cross.",
+      "dictationTargetTokenIndex": 2,
+      "audioText": "The green signal told us to cross."
+    },
+    {
+      "wordKey": "signature_en_gb",
+      "normalisedWord": "signature",
+      "displayWord": "signature",
+      "dialectCode": "en-GB",
+      "dictationSentence": "We used the signature during our lesson.",
+      "dictationTargetTokenIndex": 3,
+      "audioText": "We used the signature during our lesson."
+    },
+    {
+      "wordKey": "sit_en_gb",
+      "normalisedWord": "sit",
+      "displayWord": "sit",
+      "dialectCode": "en-GB",
+      "dictationSentence": "Please sit on the bench beside me.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "Please sit on the bench beside me."
+    },
+    {
+      "wordKey": "sitting_en_gb",
+      "normalisedWord": "sitting",
+      "displayWord": "sitting",
+      "dialectCode": "en-GB",
+      "dictationSentence": "The cat was sitting on the warm windowsill.",
+      "dictationTargetTokenIndex": 3,
+      "audioText": "The cat was sitting on the warm windowsill."
+    },
+    {
+      "wordKey": "small_smaller_smallest_en_gb",
+      "normalisedWord": "small",
+      "displayWord": "small",
+      "dialectCode": "en-GB",
+      "dictationSentence": "The small shell was beside a smaller shell and the smallest pebble.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "The small shell was beside a smaller shell and the smallest pebble."
+    },
+    {
+      "wordKey": "smaller_en_gb",
+      "normalisedWord": "smaller",
+      "displayWord": "smaller",
+      "dialectCode": "en-GB",
+      "dictationSentence": "The small shell was beside a smaller shell and the smallest pebble.",
+      "dictationTargetTokenIndex": 6,
+      "audioText": "The small shell was beside a smaller shell and the smallest pebble."
+    },
+    {
+      "wordKey": "smallest_en_gb",
+      "normalisedWord": "smallest",
+      "displayWord": "smallest",
+      "dialectCode": "en-GB",
+      "dictationSentence": "The small shell was beside a smaller shell and the smallest pebble.",
+      "dictationTargetTokenIndex": 10,
+      "audioText": "The small shell was beside a smaller shell and the smallest pebble."
+    },
+    {
+      "wordKey": "smile_en_gb",
+      "normalisedWord": "smile",
+      "displayWord": "smile",
+      "dialectCode": "en-GB",
+      "dictationSentence": "Please smile when the camera takes the photo.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "Please smile when the camera takes the photo."
+    },
+    {
+      "wordKey": "smiled_en_gb",
+      "normalisedWord": "smiled",
+      "displayWord": "smiled",
+      "dialectCode": "en-GB",
+      "dictationSentence": "The baby smiled when Mum came home.",
+      "dictationTargetTokenIndex": 2,
+      "audioText": "The baby smiled when Mum came home."
+    },
+    {
+      "wordKey": "smiling_en_gb",
+      "normalisedWord": "smiling",
+      "displayWord": "smiling",
+      "dialectCode": "en-GB",
+      "dictationSentence": "Mia was smiling because her friend had arrived.",
+      "dictationTargetTokenIndex": 2,
+      "audioText": "Mia was smiling because her friend had arrived."
+    },
+    {
+      "wordKey": "stop_en_gb",
+      "normalisedWord": "stop",
+      "displayWord": "stop",
+      "dialectCode": "en-GB",
+      "dictationSentence": "Please stop at the red signal.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "Please stop at the red signal."
+    },
+    {
+      "wordKey": "stopped_en_gb",
+      "normalisedWord": "stopped",
+      "displayWord": "stopped",
+      "dialectCode": "en-GB",
+      "dictationSentence": "The car stopped at the red light.",
+      "dictationTargetTokenIndex": 2,
+      "audioText": "The car stopped at the red light."
+    },
+    {
+      "wordKey": "stopping_en_gb",
+      "normalisedWord": "stopping",
+      "displayWord": "stopping",
+      "dialectCode": "en-GB",
+      "dictationSentence": "The crossing guard was stopping the traffic safely.",
+      "dictationTargetTokenIndex": 4,
+      "audioText": "The crossing guard was stopping the traffic safely."
+    },
+    {
+      "wordKey": "stories_en_gb",
+      "normalisedWord": "stories",
+      "displayWord": "stories",
+      "dialectCode": "en-GB",
+      "dictationSentence": "Grandad told stories about his childhood.",
+      "dictationTargetTokenIndex": 2,
+      "audioText": "Grandad told stories about his childhood."
+    },
+    {
+      "wordKey": "story_en_gb",
+      "normalisedWord": "story",
+      "displayWord": "story",
+      "dialectCode": "en-GB",
+      "dictationSentence": "The author and writer planned a story.",
+      "dictationTargetTokenIndex": 6,
+      "audioText": "The author and writer planned a story."
+    },
+    {
+      "wordKey": "sun_en_gb",
+      "normalisedWord": "sun",
+      "displayWord": "sun",
+      "dialectCode": "en-GB",
+      "dictationSentence": "The sun changed the view outside.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "The sun changed the view outside."
+    },
+    {
+      "wordKey": "swim_en_gb",
+      "normalisedWord": "swim",
+      "displayWord": "swim",
+      "dialectCode": "en-GB",
+      "dictationSentence": "Please swim between the flags at the pool.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "Please swim between the flags at the pool."
+    },
+    {
+      "wordKey": "swimming_en_gb",
+      "normalisedWord": "swimming",
+      "displayWord": "swimming",
+      "dialectCode": "en-GB",
+      "dictationSentence": "The duck was swimming across the pond.",
+      "dictationTargetTokenIndex": 3,
+      "audioText": "The duck was swimming across the pond."
+    },
+    {
+      "wordKey": "take_en_gb",
+      "normalisedWord": "take",
+      "displayWord": "take",
+      "dialectCode": "en-GB",
+      "dictationSentence": "Please take one apple from the bowl.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "Please take one apple from the bowl."
+    },
+    {
+      "wordKey": "tall_en_gb",
+      "normalisedWord": "tall",
+      "displayWord": "tall",
+      "dialectCode": "en-GB",
+      "dictationSentence": "The tall tree was taller than the house and the tallest in the park.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "The tall tree was taller than the house and the tallest in the park."
+    },
+    {
+      "wordKey": "taller_en_gb",
+      "normalisedWord": "taller",
+      "displayWord": "taller",
+      "dialectCode": "en-GB",
+      "dictationSentence": "The tall tree was taller than the house and the tallest in the park.",
+      "dictationTargetTokenIndex": 4,
+      "audioText": "The tall tree was taller than the house and the tallest in the park."
+    },
+    {
+      "wordKey": "tallest_en_gb",
+      "normalisedWord": "tallest",
+      "displayWord": "tallest",
+      "dialectCode": "en-GB",
+      "dictationSentence": "The tall tree was taller than the house and the tallest in the park.",
+      "dictationTargetTokenIndex": 10,
+      "audioText": "The tall tree was taller than the house and the tallest in the park."
+    },
+    {
+      "wordKey": "thank_en_gb",
+      "normalisedWord": "thank",
+      "displayWord": "thank",
+      "dialectCode": "en-GB",
+      "dictationSentence": "Please thank your friend for helping.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "Please thank your friend for helping."
+    },
+    {
+      "wordKey": "thankful_en_gb",
+      "normalisedWord": "thankful",
+      "displayWord": "thankful",
+      "dialectCode": "en-GB",
+      "dictationSentence": "Mia was thankful when her friend returned the lost bag.",
+      "dictationTargetTokenIndex": 2,
+      "audioText": "Mia was thankful when her friend returned the lost bag."
+    },
+    {
+      "wordKey": "tie_en_gb",
+      "normalisedWord": "tie",
+      "displayWord": "tie",
+      "dialectCode": "en-GB",
+      "dictationSentence": "Please tie your shoelaces in a firm bow.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "Please tie your shoelaces in a firm bow."
+    },
+    {
+      "wordKey": "transport_en_gb",
+      "normalisedWord": "transport",
+      "displayWord": "transport",
+      "dialectCode": "en-GB",
+      "dictationSentence": "The bus is our transport to school.",
+      "dictationTargetTokenIndex": 4,
+      "audioText": "The bus is our transport to school."
+    },
+    {
+      "wordKey": "triangle_en_gb",
+      "normalisedWord": "triangle",
+      "displayWord": "triangle",
+      "dialectCode": "en-GB",
+      "dictationSentence": "A triangle is a shape with three straight sides.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "A triangle is a shape with three straight sides."
+    },
+    {
+      "wordKey": "tried_en_gb",
+      "normalisedWord": "tried",
+      "displayWord": "tried",
+      "dialectCode": "en-GB",
+      "dictationSentence": "Sam tried the puzzle again after a short rest.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "Sam tried the puzzle again after a short rest."
+    },
+    {
+      "wordKey": "tries_en_gb",
+      "normalisedWord": "tries",
+      "displayWord": "tries",
+      "dialectCode": "en-GB",
+      "dictationSentence": "Sam tries again when a puzzle feels difficult.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "Sam tries again when a puzzle feels difficult."
+    },
+    {
+      "wordKey": "try_en_gb",
+      "normalisedWord": "try",
+      "displayWord": "try",
+      "dialectCode": "en-GB",
+      "dictationSentence": "Please try the puzzle again after a rest.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "Please try the puzzle again after a rest."
+    },
+    {
+      "wordKey": "twenty_one_en_gb",
+      "normalisedWord": "twenty-one",
+      "displayWord": "twenty-one",
+      "dialectCode": "en-GB",
+      "dictationSentence": "There are twenty-one children in our class.",
+      "dictationTargetTokenIndex": 2,
+      "audioText": "There are twenty-one children in our class."
+    },
+    {
+      "wordKey": "tying_en_gb",
+      "normalisedWord": "tying",
+      "displayWord": "tying",
+      "dialectCode": "en-GB",
+      "dictationSentence": "Sam was tying his shoelaces in a bow.",
+      "dictationTargetTokenIndex": 2,
+      "audioText": "Sam was tying his shoelaces in a bow."
+    },
+    {
+      "wordKey": "unfair_en_gb",
+      "normalisedWord": "unfair",
+      "displayWord": "unfair",
+      "dialectCode": "en-GB",
+      "dictationSentence": "It was unfair when one child had three turns and another had none.",
+      "dictationTargetTokenIndex": 2,
+      "audioText": "It was unfair when one child had three turns and another had none."
+    },
+    {
+      "wordKey": "unhappy_en_gb",
+      "normalisedWord": "unhappy",
+      "displayWord": "unhappy",
+      "dialectCode": "en-GB",
+      "dictationSentence": "The lost child felt unhappy and began to cry.",
+      "dictationTargetTokenIndex": 4,
+      "audioText": "The lost child felt unhappy and began to cry."
+    },
+    {
+      "wordKey": "unkind_en_gb",
+      "normalisedWord": "unkind",
+      "displayWord": "unkind",
+      "dialectCode": "en-GB",
+      "dictationSentence": "It is unkind to leave someone out.",
+      "dictationTargetTokenIndex": 2,
+      "audioText": "It is unkind to leave someone out."
+    },
+    {
+      "wordKey": "use_en_gb",
+      "normalisedWord": "use",
+      "displayWord": "use",
+      "dialectCode": "en-GB",
+      "dictationSentence": "We use a ruler to draw lines.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "We use a ruler to draw lines."
+    },
+    {
+      "wordKey": "useful_en_gb",
+      "normalisedWord": "useful",
+      "displayWord": "useful",
+      "dialectCode": "en-GB",
+      "dictationSentence": "A torch is useful when it is dark.",
+      "dictationTargetTokenIndex": 3,
+      "audioText": "A torch is useful when it is dark."
+    },
+    {
+      "wordKey": "vie_en_gb",
+      "normalisedWord": "vie",
+      "displayWord": "vie",
+      "dialectCode": "en-GB",
+      "dictationSentence": "The runners vie for the gold medal.",
+      "dictationTargetTokenIndex": 2,
+      "audioText": "The runners vie for the gold medal."
+    },
+    {
+      "wordKey": "vying_en_gb",
+      "normalisedWord": "vying",
+      "displayWord": "vying",
+      "dialectCode": "en-GB",
+      "dictationSentence": "The two teams were vying for first place.",
+      "dictationTargetTokenIndex": 4,
+      "audioText": "The two teams were vying for first place."
+    },
+    {
+      "wordKey": "walk_en_gb",
+      "normalisedWord": "walk",
+      "displayWord": "walk",
+      "dialectCode": "en-GB",
+      "dictationSentence": "Please walk carefully on the icy path.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "Please walk carefully on the icy path."
+    },
+    {
+      "wordKey": "walked_en_gb",
+      "normalisedWord": "walked",
+      "displayWord": "walked",
+      "dialectCode": "en-GB",
+      "dictationSentence": "We walked to school through the park.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "We walked to school through the park."
+    },
+    {
+      "wordKey": "want_en_gb",
+      "normalisedWord": "want",
+      "displayWord": "want",
+      "dialectCode": "en-GB",
+      "dictationSentence": "Please want the toy without taking it from someone.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "Please want the toy without taking it from someone."
+    },
+    {
+      "wordKey": "wanted_en_gb",
+      "normalisedWord": "wanted",
+      "displayWord": "wanted",
+      "dialectCode": "en-GB",
+      "dictationSentence": "Mia wanted a drink because she was thirsty.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "Mia wanted a drink because she was thirsty."
+    },
+    {
+      "wordKey": "watch_en_gb",
+      "normalisedWord": "watch",
+      "displayWord": "watch",
+      "dialectCode": "en-GB",
+      "dictationSentence": "Please watch the bird build its nest.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "Please watch the bird build its nest."
+    },
+    {
+      "wordKey": "watches_en_gb",
+      "normalisedWord": "watches",
+      "displayWord": "watches",
+      "dialectCode": "en-GB",
+      "dictationSentence": "Mia watches the birds from her window.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "Mia watches the birds from her window."
+    },
+    {
+      "wordKey": "weigh_en_gb",
+      "normalisedWord": "weigh",
+      "displayWord": "weigh",
+      "dialectCode": "en-GB",
+      "dictationSentence": "Please weigh the flour before making bread.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "Please weigh the flour before making bread."
+    },
+    {
+      "wordKey": "weight_en_gb",
+      "normalisedWord": "weight",
+      "displayWord": "weight",
+      "dialectCode": "en-GB",
+      "dictationSentence": "The scale showed the weight of the parcel.",
+      "dictationTargetTokenIndex": 4,
+      "audioText": "The scale showed the weight of the parcel."
+    },
+    {
+      "wordKey": "wish_en_gb",
+      "normalisedWord": "wish",
+      "displayWord": "wish",
+      "dialectCode": "en-GB",
+      "dictationSentence": "Please wish for sunshine on our picnic day.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "Please wish for sunshine on our picnic day."
+    },
+    {
+      "wordKey": "wishes_en_gb",
+      "normalisedWord": "wishes",
+      "displayWord": "wishes",
+      "dialectCode": "en-GB",
+      "dictationSentence": "The child wishes for snow on Christmas Day.",
+      "dictationTargetTokenIndex": 2,
+      "audioText": "The child wishes for snow on Christmas Day."
+    },
+    {
+      "wordKey": "wolf_en_gb",
+      "normalisedWord": "wolf",
+      "displayWord": "wolf",
+      "dialectCode": "en-GB",
+      "dictationSentence": "The wolf hunted with its pack in the forest.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "The wolf hunted with its pack in the forest."
+    },
+    {
+      "wordKey": "wolves_en_gb",
+      "normalisedWord": "wolves",
+      "displayWord": "wolves",
+      "dialectCode": "en-GB",
+      "dictationSentence": "The wolves hunted together as a pack.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "The wolves hunted together as a pack."
+    },
+    {
+      "wordKey": "word_en_gb",
+      "normalisedWord": "word",
+      "displayWord": "word",
+      "dialectCode": "en-GB",
+      "dictationSentence": "We used the word during our lesson.",
+      "dictationTargetTokenIndex": 3,
+      "audioText": "We used the word during our lesson."
+    },
+    {
+      "wordKey": "words_en_gb",
+      "normalisedWord": "words",
+      "displayWord": "words",
+      "dialectCode": "en-GB",
+      "dictationSentence": "A sentence is made from words in a clear order.",
+      "dictationTargetTokenIndex": 5,
+      "audioText": "A sentence is made from words in a clear order."
+    },
+    {
+      "wordKey": "work_en_gb",
+      "normalisedWord": "work",
+      "displayWord": "work",
+      "dialectCode": "en-GB",
+      "dictationSentence": "Please work with your team to finish the model.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "Please work with your team to finish the model."
+    },
+    {
+      "wordKey": "worker_en_gb",
+      "normalisedWord": "worker",
+      "displayWord": "worker",
+      "dialectCode": "en-GB",
+      "dictationSentence": "The worker repaired the road with the team.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "The worker repaired the road with the team."
+    },
+    {
+      "wordKey": "write_en_gb",
+      "normalisedWord": "write",
+      "displayWord": "write",
+      "dialectCode": "en-GB",
+      "dictationSentence": "Please write your name at the top of the page.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "Please write your name at the top of the page."
+    },
+    {
+      "wordKey": "writer_en_gb",
+      "normalisedWord": "writer",
+      "displayWord": "writer",
+      "dialectCode": "en-GB",
+      "dictationSentence": "The author and writer planned a story.",
+      "dictationTargetTokenIndex": 3,
+      "audioText": "The author and writer planned a story."
+    },
+    {
+      "wordKey": "writing_en_gb",
+      "normalisedWord": "writing",
+      "displayWord": "writing",
+      "dialectCode": "en-GB",
+      "dictationSentence": "Mia was writing a letter to her grandmother.",
+      "dictationTargetTokenIndex": 2,
+      "audioText": "Mia was writing a letter to her grandmother."
+    }
+  ]
+}
