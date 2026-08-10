@@ -296,7 +296,7 @@ async function publishCommand(accepted: AcceptedPackage): Promise<any> {
         const published = await client.query<{ id: string }>(`select public.publish_adle_base_word_teaching_content_authority_v1($1::jsonb,$2,'legacy_pre_release_ledger_projection',$3) id`, [content, accepted.fileHashes[`teaching-content-${content.microSkillKey.toLowerCase()}.json`], PUBLISHED_BY]);
         receipts.push({ authorityType: "teaching_content", authorityKey: content.authorityKey, authorityId: published.rows[0]?.id });
       }
-      const closurePublished = await client.query<{ id: string }>(`select public.publish_adle_teaching_dictionary_closure_v1($1::jsonb,$2,$3::jsonb,'legacy_pre_release_ledger_projection',$4) id`, [accepted.closure, accepted.fileHashes["teaching-dictionary-closure.json"], accepted.bindings, PUBLISHED_BY]);
+      const closurePublished = await client.query<{ id: string }>(`select public.publish_adle_teaching_dictionary_closure_v1($1::jsonb,$2,$3::jsonb,'legacy_pre_release_ledger_projection',$4) id`, [accepted.closure, accepted.fileHashes["teaching-dictionary-closure.json"], JSON.stringify(accepted.bindings), PUBLISHED_BY]);
       receipts.push({ authorityType: "teaching_dictionary_closure", authorityKey: accepted.closure.authorityKey, authorityId: closurePublished.rows[0]?.id });
       const releasePublished = await client.query<{ id: string }>(`select public.publish_adle_curriculum_release_v2($1::jsonb,$2,$3) id`, [accepted.release, accepted.fileHashes["route-release.json"], PUBLISHED_BY]);
       const protectedAfter = await protectedSnapshot(client);

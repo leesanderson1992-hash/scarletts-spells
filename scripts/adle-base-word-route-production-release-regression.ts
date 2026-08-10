@@ -53,6 +53,7 @@ assert.match(source, /transaction isolation level serializable/);
 assert.match(source, /confirm-plan-sha256/);
 assert.match(source, /publish_adle_base_word_teaching_content_authority_v1/);
 assert.match(source, /publish_adle_teaching_dictionary_closure_v1/);
+assert.match(source, /JSON\.stringify\(accepted\.bindings\)/);
 assert.match(source, /publish_adle_curriculum_release_v2/);
 assert.match(source, /set_adle_route_activation_revision_v2/);
 assert.match(source, /allowlist:emergency-disabled/);
