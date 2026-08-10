@@ -2,12 +2,14 @@
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
-import { PGlite } from "@electric-sql/pglite";
-
 const CONFIRMATION = "PROVE_BASE_WORD_FAMILY_MEANING_RELEASE_LOCALLY";
 async function main(): Promise<void> {
   if (process.argv.at(-1) !== CONFIRMATION) throw new Error(`Refusing local transactional proof without: -- ${CONFIRMATION}`);
 
+  // The Codex workspace supplies this optional isolated PostgreSQL runtime;
+  // production application installs and CI do not need to bundle it.
+  const pgliteModule = "@electric-sql/pglite";
+  const { PGlite } = await import(pgliteModule);
   const db = new PGlite();
   await db.exec(`
   create schema if not exists public;
@@ -72,11 +74,11 @@ await db.exec("release savepoint prove_member_delete");
 if (!familyUpdateBlocked || !memberDeleteBlocked) throw new Error(`Applied Base Word family release rows were not immutable: ${JSON.stringify({ familyUpdateError, memberDeleteError })}`);
 
 await db.query(`update public.canonical_teaching_dictionary_base_word_families set base_family_key='old-family-still-legacy' where id=$1`, [OLD_FAMILY]);
-const legacy = await db.query<{ base_family_key: string }>(`select base_family_key from public.canonical_teaching_dictionary_base_word_families where id=$1`, [OLD_FAMILY]);
+const legacy = await db.query(`select base_family_key from public.canonical_teaching_dictionary_base_word_families where id=$1`, [OLD_FAMILY]) as { rows: Array<{ base_family_key: string }> };
 if (legacy.rows[0]?.base_family_key !== "old-family-still-legacy") throw new Error("The narrow trigger unexpectedly reclassified a legacy batch.");
-const constraint = await db.query<{ definition: string }>(`select pg_get_constraintdef(oid) definition from pg_constraint where conname='canonical_teaching_dictionary_import_batches_release_fields_check'`);
+const constraint = await db.query(`select pg_get_constraintdef(oid) definition from pg_constraint where conname='canonical_teaching_dictionary_import_batches_release_fields_check'`) as { rows: Array<{ definition: string }> };
 if (!constraint.rows[0]?.definition.includes("base_word_family_batch_v1")) throw new Error("The release ledger does not accept the reviewed package type.");
-const privilege = await db.query<{ family_insert: boolean; member_insert: boolean; family_update: boolean; member_update: boolean; family_delete: boolean; member_delete: boolean }>(`
+const privilege = await db.query(`
   select
     has_table_privilege('teaching_dictionary_releaser','public.canonical_teaching_dictionary_base_word_families','INSERT') family_insert,
     has_table_privilege('teaching_dictionary_releaser','public.canonical_teaching_dictionary_base_word_family_members','INSERT') member_insert,
@@ -84,13 +86,13 @@ const privilege = await db.query<{ family_insert: boolean; member_insert: boolea
     has_table_privilege('teaching_dictionary_releaser','public.canonical_teaching_dictionary_base_word_family_members','UPDATE') member_update,
     has_table_privilege('teaching_dictionary_releaser','public.canonical_teaching_dictionary_base_word_families','DELETE') family_delete,
     has_table_privilege('teaching_dictionary_releaser','public.canonical_teaching_dictionary_base_word_family_members','DELETE') member_delete
-`);
+`) as { rows: Array<{ family_insert: boolean; member_insert: boolean; family_update: boolean; member_update: boolean; family_delete: boolean; member_delete: boolean }> };
 const grants = privilege.rows[0];
 if (!grants?.family_insert || !grants.member_insert || grants.family_update || grants.member_update || grants.family_delete || grants.member_delete) {
   throw new Error(`Teaching Dictionary release role is not insert-only: ${JSON.stringify(grants)}`);
 }
 await db.exec("rollback");
-const residue = await db.query<{ count: number }>(`select count(*)::int count from public.canonical_teaching_dictionary_import_batches`);
+const residue = await db.query(`select count(*)::int count from public.canonical_teaching_dictionary_import_batches`) as { rows: Array<{ count: number }> };
 if (residue.rows[0]?.count !== 0) throw new Error("Transactional family release proof left residue.");
 await db.close();
 
