@@ -6,7 +6,7 @@ import { resolve } from "node:path";
 import { selectBaseWordFamilyLesson } from "../lib/adle/base-word-family-selection";
 import { compileBaseWordFamilyLessonSnapshot, validateBaseWordFamilyLessonSnapshot } from "../lib/adle/morphology/base-word-family-payload";
 import { BASE_WORD_FAMILY_ASSIGNMENT_ITEM_COUNT, baseWordFamilyPilotBindingSpecs } from "../lib/adle/morphology/base-word-family-pilot-contract";
-import { ACCEPTED_PACKAGE_SHA256, IMPORT_BATCH_ID, RELEASE_ID, loadAcceptedPackage } from "./adle-base-word-family-meaning-production-release";
+import { ACCEPTED_PACKAGE_SHA256, IMPORT_BATCH_ID, RELEASE_ID, jsonbRecordsetParameter, loadAcceptedPackage } from "./adle-base-word-family-meaning-production-release";
 
 function assert(value: unknown, message: string): asserts value { if (!value) throw new Error(message); }
 const root = resolve(process.cwd());
@@ -14,6 +14,10 @@ const auditRun = spawnSync("python3", [resolve(root, "scripts/audit-base-word-fa
 assert(auditRun.status === 0, auditRun.stderr || "family-meaning audit failed");
 const audit = JSON.parse(auditRun.stdout);
 const loaded = loadAcceptedPackage();
+
+const recordsetFixture = [{ id: "family-1", nested: { role: "base" } }];
+const recordsetParameter = jsonbRecordsetParameter(recordsetFixture);
+assert(typeof recordsetParameter === "string" && JSON.stringify(JSON.parse(recordsetParameter)) === JSON.stringify(recordsetFixture), "node-postgres jsonb recordsets must be passed as explicit JSON text, not native arrays");
 
 assert(loaded.manifest.releaseId === RELEASE_ID && loaded.manifest.importBatchId === IMPORT_BATCH_ID && loaded.manifest.packageSha256 === ACCEPTED_PACKAGE_SHA256, "release identity must be immutable");
 assert(audit.counts.families === 87 && audit.counts.members === 227 && audit.counts.missingOrUnreviewed === 0, "all 87/227 reviewed rows must resolve");

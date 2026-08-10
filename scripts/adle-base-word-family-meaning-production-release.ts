@@ -113,6 +113,10 @@ export function sha256(value: string | Buffer): string {
   return createHash("sha256").update(value).digest("hex");
 }
 
+export function jsonbRecordsetParameter(rows: unknown[]): string {
+  return JSON.stringify(rows);
+}
+
 function parseJson(path: string): any {
   return JSON.parse(readFileSync(path, "utf8"));
 }
@@ -638,7 +642,7 @@ async function insertReleaseRows(client: pg.Client, loaded: LoadedPackage, bindi
       id uuid,import_batch_id uuid,base_family_key text,micro_skill_key text,base_word_id uuid,base_meaning text,etymology_route jsonb,row_status text,
       source_sheet text,source_row_number integer,source_row_hash text,source_metadata jsonb,source_category text,source_name text,source_url text,source_licence text,
       source_use_note text,confidence text,review_status text,reviewed_by text,reviewed_at timestamptz)`,
-    [families],
+    [jsonbRecordsetParameter(families)],
   );
   await client.query(
     `insert into public.canonical_teaching_dictionary_base_word_family_members(
@@ -655,7 +659,7 @@ async function insertReleaseRows(client: pg.Client, loaded: LoadedPackage, bindi
       morphology_transformations jsonb,transformation_notes text,child_friendly_meaning text,dictation_sentence_id uuid,dictation_sentence text,
       dictation_target_token_index integer,audio_text text,assignment_eligible boolean,row_status text,source_sheet text,source_row_number integer,source_row_hash text,
       source_metadata jsonb,source_category text,source_name text,source_url text,source_licence text,source_use_note text,confidence text,review_status text,reviewed_by text,reviewed_at timestamptz)`,
-    [members],
+    [jsonbRecordsetParameter(members)],
   );
 }
 
