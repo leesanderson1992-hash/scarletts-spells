@@ -23,7 +23,7 @@ export const RELEASE_KEY = "adle_base_word_lab_v2_2026_08_10";
 export const PACKAGE_SHA256 = "3cf19a6d14cb3873d4129a0fd099903969a2d839d0a4ccb7d2a67a3f27b5dac1";
 export const FAMILY_BATCH_ID = "ddc8993b-26ca-57da-8383-1efec1be8ee1";
 export const PROOF_CHILD_ID = "2498bb47-0b09-47c9-bfc1-18f95b52d35c";
-export const NON_PROOF_CHILD_ID = "e4f9fc37-371d-4593-ad0d-bb16b586e818";
+export const NON_PROOF_CHILD_ID = "e4f9fc37-3f85-4eb5-9fbd-4eabf4f2528e";
 export const SKILLS = [
   "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
   "D4_MOR_BASE_WORDS_PRESERVE_BASE",

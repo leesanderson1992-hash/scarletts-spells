@@ -57,6 +57,8 @@ assert.match(source, /JSON\.stringify\(accepted\.bindings\)/);
 assert.match(source, /publish_adle_curriculum_release_v2/);
 assert.match(source, /set_adle_route_activation_revision_v2/);
 assert.match(source, /allowlist:emergency-disabled/);
+assert.match(source, /PROOF_CHILD_ID = "2498bb47-0b09-47c9-bfc1-18f95b52d35c"/);
+assert.match(source, /NON_PROOF_CHILD_ID = "e4f9fc37-3f85-4eb5-9fbd-4eabf4f2528e"/);
 assert.match(source, /safety-revoke/);
 assert.doesNotMatch(source, /all_eligible/);
 assert.doesNotMatch(source, /insert into public\.adle_learning_items/);
