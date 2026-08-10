@@ -7,10 +7,26 @@ import { strict as assert } from "node:assert";
 
 import { resolveCanonicalIntakeReadiness } from "../lib/adle/canonical-intake";
 import { selectBaseWordFamilyLesson } from "../lib/adle/base-word-family-selection";
+import { getCurriculumRouteDefinition } from "../lib/adle/curriculum-readiness/route-registry";
 
 const CHILD = "shared-route-proof-child";
 const PRESERVE = "D4_MOR_BASE_WORDS_PRESERVE_BASE";
 const IDENTIFY = "D4_MOR_BASE_WORDS_IDENTIFY_BASE";
+const BASE_WORD_ROUTE = getCurriculumRouteDefinition("base_word_lab", "v2");
+if (
+  BASE_WORD_ROUTE?.routeOwnership.kind !== "skill_clusters" ||
+  BASE_WORD_ROUTE.routeOwnership.skillClusterKeys.length !== 1
+) {
+  throw new Error("Base Word route must have one canonical cluster owner");
+}
+const BASE_WORD_CLUSTER = BASE_WORD_ROUTE.routeOwnership.skillClusterKeys[0]!;
+const RELEASE_ID = "11111111-1111-4111-8111-111111111111";
+const RELEASE_SHA256 = "a".repeat(64);
+const DEPENDENCY_FINGERPRINT = "b".repeat(64);
+const ACTIVATION_IDS = {
+  [PRESERVE]: "22222222-2222-4222-8222-222222222222",
+  [IDENTIFY]: "33333333-3333-4333-8333-333333333333",
+} as const;
 const routes = [
   { misspelling: "reelly", word: "really", skill: PRESERVE },
   { misspelling: "realy", word: "really", skill: IDENTIFY },
@@ -21,12 +37,26 @@ const routes = [
 function readiness(route: (typeof routes)[number]) {
   return resolveCanonicalIntakeReadiness({
     candidate: { candidateMappingId: `candidate:${route.misspelling}`, parentUserId: "parent", childId: CHILD, misspellingNormalized: route.misspelling, correctSpellingNormalized: route.word, microSkillKey: route.skill, candidateStatus: "parent_local_promoted", verifiedOn: "2026-07-23" },
-    canonicalMappings: [{ mappingId: `mapping:${route.misspelling}`, misspellingNormalized: route.misspelling, correctSpellingNormalized: route.word, microSkillKey: route.skill, mappingStatus: "active", resolverVisibilityStatus: "hidden", hasVisibilityEnableEvent: false }],
+    canonicalMappings: [{ mappingId: `mapping:${route.misspelling}`, misspellingNormalized: route.misspelling, correctSpellingNormalized: route.word, microSkillKey: route.skill, mappingStatus: "active", resolverVisibilityStatus: "visible", hasVisibilityEnableEvent: true }],
     words: [{ canonicalWordId: `word:${route.word}`, normalisedWord: route.word, rowStatus: "active", reviewStatus: "approved_for_first_exposure", frequencyBand: "common", ageBand: "7-8" }],
-    microSkills: [{ microSkillKey: route.skill, masteryDomainKey: "D4", isActive: true, isAssignable: true }],
+    microSkills: [{ microSkillKey: route.skill, masteryDomainKey: "D4", skillClusterKey: BASE_WORD_CLUSTER, isActive: true, isAssignable: true }],
     supports: [{ canonicalWordId: `word:${route.word}`, microSkillKey: route.skill, supportRole: "support_example", rowStatus: "active", reviewStatus: "approved_for_first_exposure" }],
     contentVersions: [{ microSkillKey: route.skill, versionStatus: "active", isActive: true, finalReadinessReviewStatus: "signed_off", childFriendlyExplanation: "Find the base word before spelling.", ruleExplanation: "Use the reviewed base-word route." }],
     productionEnabledSkillKeys: new Set([route.skill]), routeSpecificReadyWordSkillPairs: new Set([`word:${route.word}\u0000${route.skill}`]),
+    routeReadiness: [{
+      canonicalWordId: `word:${route.word}`,
+      microSkillKey: route.skill,
+      ready: true,
+      blockers: [],
+      routeActivationId: ACTIVATION_IDS[route.skill],
+      curriculumRelease: {
+        activationRevisionId: ACTIVATION_IDS[route.skill],
+        releaseManifestId: RELEASE_ID,
+        releaseKey: "base-word-shared-route-regression-v1",
+        releaseManifestSha256: RELEASE_SHA256,
+        dependencyFingerprint: DEPENDENCY_FINGERPRINT,
+      },
+    }],
     allowedFrequencyBands: new Set(["common"]), allowedAgeBands: new Set(["7-8"]),
   });
 }

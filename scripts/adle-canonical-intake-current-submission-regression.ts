@@ -63,6 +63,7 @@ const outcomes = candidates.map(([misspelling, target, microSkillKey], index) =>
       {
         microSkillKey,
         masteryDomainKey: "D4",
+        skillClusterKey: "D4_MOR_PREFIXES",
         isActive: true,
         isAssignable: true,
       },

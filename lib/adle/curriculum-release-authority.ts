@@ -142,6 +142,8 @@ export function validateAdleCurriculumReleaseManifestV2(
       const route = isRecord(input.route) && nonEmpty(input.route.routeId) && nonEmpty(input.route.routeVersion)
         ? getCurriculumRouteDefinition(input.route.routeId, input.route.routeVersion)
         : null;
+      // A release may only be published once the route's current recipe and
+      // compiler support the skill. Route ownership alone is insufficient.
       if (!route?.supportedMicroSkillKeys.includes(entry.microSkillKey)) {
         errors.push(`micro_skill_not_supported:${entry.microSkillKey}`);
       }

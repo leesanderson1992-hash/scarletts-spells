@@ -21,6 +21,8 @@ import {
   type ActivatedBaseWordReleaseAuthority,
 } from "../curriculum-release-activation";
 
+/** Current fixed 2-authentic/4-transfer/18-binding recipe support. Route
+ * ownership is broader and derives from the canonical Base Word cluster. */
 export const BASE_WORD_PILOT_MICRO_SKILLS = [
   "D4_MOR_BASE_WORDS_PRESERVE_BASE",
   "D4_MOR_BASE_WORDS_IDENTIFY_BASE",

@@ -24,9 +24,24 @@ declare
   v_metadata jsonb; v_old_metadata jsonb; v_old_payload jsonb; v_rejected boolean := false; v_i integer;
   v_etymology jsonb := '{"relation_type":"free_base","origin_language":"English","origin_form":"proof","literal_meaning":"proof","child_facing_meaning":"proof family","semantic_connection":"transaction proof","evidence":{"source_name":"BW-2A-2 proof","source_url":"https://example.invalid/bw2a2","verification_status":"linked_for_human_review"}}';
 begin
+  if not public.adle_micro_skill_owns_base_word_lab_v2('D4_MOR_BASE_WORDS_BASE_PLUS_PREFIX')
+     or not public.adle_micro_skill_owns_base_word_lab_v2('D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX')
+     or public.adle_micro_skill_owns_base_word_lab_v2('D4_MOR_PREFIXES_UN') then
+    raise exception 'Base Word cluster route ownership proof failed';
+  end if;
+  if pg_get_functiondef(to_regprocedure(
+    'public.adle_persist_canonical_intake(uuid,uuid,text,uuid,uuid,text,text,text,date,text,text,uuid,uuid,text,text)'
+  )) not like '%v_is_base_word boolean := public.adle_micro_skill_owns_base_word_lab_v2(p_micro_skill_key);%' then
+    raise exception 'canonical-intake persistence is not cluster-owned';
+  end if;
   if not exists (select 1 from public.micro_skill_catalog where micro_skill_key=v_skill and is_active and is_assignable) then
-    insert into public.micro_skill_catalog(mastery_domain_key,skill_family_key,micro_skill_key,display_name,practice_route,is_assignable,is_active)
-    values ('D4','base_words',v_skill,'BW-2A-2 local proof','word_practice',true,true);
+    insert into public.micro_skill_catalog(
+      mastery_domain_key, skill_family_key, skill_cluster_key, micro_skill_key,
+      display_name, practice_route, is_assignable, is_active
+    ) values (
+      'D4', 'base_words', 'D4_MOR_BASE_WORDS', v_skill,
+      'BW-2A-2 local proof', 'word_practice', true, true
+    );
   end if;
   insert into auth.users(id) values(v_parent);
   insert into public.children(id,parent_user_id,first_name) values(v_child,v_parent,'BW2A2 Proof');

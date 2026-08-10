@@ -12,7 +12,10 @@ import {
   compileBaseWordCanonicalIntakeRouteFacts,
 } from "../lib/adle/canonical-intake/base-word-route-readiness";
 import { selectBaseWordFamilyLesson } from "../lib/adle/base-word-family-selection";
-import { getNewAssignmentCurriculumRouteForMicroSkill } from "../lib/adle/curriculum-readiness/route-registry";
+import {
+  getCurriculumRouteOwnerForTaxonomy,
+  getNewAssignmentCurriculumRouteForMicroSkill,
+} from "../lib/adle/curriculum-readiness/route-registry";
 import { compileBaseWordFamilyLessonSnapshot } from "../lib/adle/morphology/base-word-family-payload";
 import { BASE_WORD_FAMILY_PREVIEW_READ_MODEL } from "../lib/adle/morphology/base-word-family-preview-fixture";
 import { buildBaseWordFamilyPilotItems } from "../lib/adle/morphology/base-word-family-pilot-plan";
@@ -20,6 +23,23 @@ import type { ActivatedBaseWordReleaseAuthority } from "../lib/adle/curriculum-r
 import type { PersistedCurriculumReleaseAuthorityV2 } from "../lib/adle/composable-lesson/contracts";
 
 const SKILLS = ["D4_MOR_BASE_WORDS_IDENTIFY_BASE", "D4_MOR_BASE_WORDS_PRESERVE_BASE"] as const;
+const BASE_WORD_CLUSTER = "D4_MOR_BASE_WORDS";
+const CLUSTER_SKILLS = [
+  "D4_MOR_BASE_WORDS_BASE_PLUS_PREFIX",
+  "D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX",
+  ...SKILLS,
+] as const;
+const approvedD4Content = JSON.parse(
+  readFileSync("data/adle/approved/d4-mor/v1/d4-mor-v1-content.json", "utf8"),
+) as { microSkillContent: Array<{ microSkillKey: string; clusterKey: string }> };
+assert.deepEqual(
+  approvedD4Content.microSkillContent
+    .filter((entry) => entry.clusterKey === BASE_WORD_CLUSTER)
+    .map((entry) => entry.microSkillKey)
+    .sort(),
+  [...CLUSTER_SKILLS].sort(),
+  "the repository-approved Base Word cluster inventory changed",
+);
 const WORD_ID = "word-playing";
 const ACTIVATION_ID = "11111111-1111-4111-8111-111111111111";
 const RELEASE_ID = "22222222-2222-4222-8222-222222222222";
@@ -33,13 +53,17 @@ const CURRICULUM_RELEASE: PersistedCurriculumReleaseAuthorityV2 = {
   dependencyFingerprint: "b".repeat(64),
 };
 
-for (const skill of SKILLS) {
-  assert.equal(isBaseWordIntakeSkill(skill), true);
-  assert.deepEqual(resolveCanonicalIntakeRoute(skill), { routeId: "base_word_lab", routeVersion: "v2" });
-  assert.equal(getNewAssignmentCurriculumRouteForMicroSkill(skill)?.routeId, "base_word_lab");
+for (const skill of CLUSTER_SKILLS) {
+  assert.equal(isBaseWordIntakeSkill(skill, BASE_WORD_CLUSTER), true);
+  assert.deepEqual(resolveCanonicalIntakeRoute(skill, BASE_WORD_CLUSTER), { routeId: "base_word_lab", routeVersion: "v2" });
+  assert.equal(getCurriculumRouteOwnerForTaxonomy({ microSkillKey: skill, skillClusterKey: BASE_WORD_CLUSTER })?.routeId, "base_word_lab");
 }
-assert.equal(isBaseWordIntakeSkill("D4_MOR_BASE_WORDS_INVENTED"), false);
-assert.deepEqual(resolveCanonicalIntakeRoute("D4_MOR_BASE_WORDS_INVENTED"), { routeId: "adle_word_level", routeVersion: "v1" });
+for (const skill of SKILLS)
+  assert.equal(getNewAssignmentCurriculumRouteForMicroSkill(skill)?.routeId, "base_word_lab");
+for (const skill of CLUSTER_SKILLS.slice(0, 2))
+  assert.equal(getNewAssignmentCurriculumRouteForMicroSkill(skill), null, `${skill} has route ownership but no recipe support`);
+assert.equal(isBaseWordIntakeSkill("D4_MOR_BASE_WORDS_INVENTED", "D4_MOR_ROOTS"), false);
+assert.deepEqual(resolveCanonicalIntakeRoute("D4_MOR_BASE_WORDS_INVENTED", "D4_MOR_ROOTS"), { routeId: "adle_word_level", routeVersion: "v1" });
 assert.deepEqual(resolveCanonicalIntakeRoute("D4_MOR_PREFIXES_UN"), { routeId: "dynamic_prefix_word_lab", routeVersion: "v2" });
 assert.deepEqual(resolveCanonicalIntakeRoute("D4_MOR_SUFFIXES_MENT"), { routeId: "dynamic_affix_word_lab", routeVersion: "v3" });
 assert.deepEqual(resolveCanonicalIntakeRoute("D4_MOR_SPELLING_OTHER"), { routeId: "adle_word_level", routeVersion: "v1" });
@@ -103,7 +127,7 @@ function facts(skill: string = SKILLS[0]): CanonicalIntakeReadinessFacts {
     candidate: { candidateMappingId: `candidate-${skill}`, parentUserId: "parent-1", childId: "child-1", misspellingNormalized: "plaing", correctSpellingNormalized: "playing", microSkillKey: skill, candidateStatus: "parent_local_promoted", verifiedOn: "2026-08-09" },
     canonicalMappings: [{ mappingId: `mapping-${skill}`, misspellingNormalized: "plaing", correctSpellingNormalized: "playing", microSkillKey: skill, mappingStatus: "active", resolverVisibilityStatus: "visible", hasVisibilityEnableEvent: true }],
     words: [{ canonicalWordId: WORD_ID, normalisedWord: "playing", rowStatus: "active", reviewStatus: "approved_for_first_exposure", frequencyBand: "low", ageBand: "middle_primary" }],
-    microSkills: [{ microSkillKey: skill, masteryDomainKey: "D4", isActive: true, isAssignable: true }],
+    microSkills: [{ microSkillKey: skill, masteryDomainKey: "D4", skillClusterKey: BASE_WORD_CLUSTER, isActive: true, isAssignable: true }],
     supports: [], selectorProfiles: [], contentVersions: [],
     productionEnabledSkillKeys: new Set([skill]),
     routeSpecificReadyWordSkillPairs: new Set([canonicalWordSkillPair(WORD_ID, skill)]),
@@ -119,6 +143,105 @@ for (const skill of SKILLS) {
     assert.equal(`${outcome.routeId}:${outcome.routeVersion}`, "base_word_lab:v2");
     assert.equal(outcome.routeActivationId, ACTIVATION_ID);
   }
+}
+
+for (const skill of CLUSTER_SKILLS.slice(0, 2)) {
+  const blocked = facts(skill);
+  blocked.productionEnabledSkillKeys = new Set();
+  blocked.routeSpecificReadyWordSkillPairs = new Set();
+  blocked.routeReadiness = [];
+  const outcome = resolveCanonicalIntakeReadiness(blocked);
+  assert.equal(outcome.status, "blocked");
+  if (outcome.status === "blocked") {
+    assert.equal(`${outcome.readiness.routeId}:${outcome.readiness.routeVersion}`, "base_word_lab:v2");
+    assert.equal(outcome.readiness.microSkillKey, skill, "diagnostic identity remains unchanged");
+    assert.equal(outcome.readiness.blockers[0].code, "profile_not_enabled");
+  }
+}
+
+const scarlettLegacyRecords = [
+  { word: "dislike", misspelling: "dislyk", microSkillKey: "D4_MOR_BASE_WORDS_BASE_PLUS_PREFIX", sourceKind: "canonical_candidate" },
+  { word: "misplace", misspelling: "misplac", microSkillKey: "D4_MOR_BASE_WORDS_BASE_PLUS_PREFIX", sourceKind: "canonical_candidate" },
+  { word: "immigrants", misspelling: "imergrants", microSkillKey: "D4_MOR_BASE_WORDS_BASE_PLUS_PREFIX", sourceKind: "legacy_learning_item" },
+  { word: "careful", misspelling: "carful", microSkillKey: "D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX", sourceKind: "canonical_candidate" },
+  { word: "colourful", misspelling: "colorful", microSkillKey: "D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX", sourceKind: "canonical_candidate" },
+  { word: "government", misspelling: "goviment", microSkillKey: "D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX", sourceKind: "legacy_learning_item" },
+] as const;
+const releasedAuthorityFiles = [
+  "identify-base.json",
+  "preserve-base.json",
+].map((fileName) => JSON.parse(readFileSync(
+  `docs/implementation/seed-data/teaching-dictionary/releases/2026-08-09-base-word-family-meanings-v1/authorities/${fileName}`,
+  "utf8",
+)) as {
+  microSkillKey: string;
+  families: Array<{ baseFamilyKey: string; members: Array<{ wordKey: string; memberRole: string; assignmentEligible: boolean }> }>;
+});
+const releasedAuthenticTargets = new Map(
+  releasedAuthorityFiles.flatMap((authority) =>
+    authority.families.flatMap((family) =>
+      family.members
+        .filter((member) => member.memberRole === "authentic_target" && member.assignmentEligible)
+        .map((member) => [member.wordKey.replace(/_en_gb$/, ""), {
+          microSkillKey: authority.microSkillKey,
+          baseFamilyKey: family.baseFamilyKey,
+          memberRole: member.memberRole,
+        }] as const),
+    ),
+  ),
+);
+assert.deepEqual(releasedAuthenticTargets.get("careful"), {
+  microSkillKey: "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+  baseFamilyKey: "care_base_family",
+  memberRole: "authentic_target",
+});
+assert.deepEqual(releasedAuthenticTargets.get("dislike"), {
+  microSkillKey: "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+  baseFamilyKey: "like_base_family",
+  memberRole: "authentic_target",
+});
+assert.deepEqual(releasedAuthenticTargets.get("government"), {
+  microSkillKey: "D4_MOR_BASE_WORDS_PRESERVE_BASE",
+  baseFamilyKey: "govern_base_family",
+  memberRole: "authentic_target",
+});
+for (const word of ["misplace", "immigrants", "colourful"])
+  assert.equal(releasedAuthenticTargets.has(word), false, `${word} is not a released authentic target`);
+for (const record of scarlettLegacyRecords) {
+  const legacyFacts = facts(record.microSkillKey);
+  const wordId = `word-${record.word}`;
+  legacyFacts.candidate = {
+    ...legacyFacts.candidate,
+    candidateMappingId: `candidate-${record.word}`,
+    misspellingNormalized: record.misspelling,
+    correctSpellingNormalized: record.word,
+  };
+  legacyFacts.canonicalMappings = [{
+    ...legacyFacts.canonicalMappings[0],
+    mappingId: `mapping-${record.word}`,
+    misspellingNormalized: record.misspelling,
+    correctSpellingNormalized: record.word,
+  }];
+  legacyFacts.words = [{
+    canonicalWordId: wordId,
+    normalisedWord: record.word,
+    rowStatus: "active",
+    reviewStatus: "approved_for_first_exposure",
+    frequencyBand: "high",
+    ageBand: "middle_primary",
+  }];
+  legacyFacts.productionEnabledSkillKeys = new Set();
+  legacyFacts.routeSpecificReadyWordSkillPairs = new Set();
+  legacyFacts.routeReadiness = [];
+  const preservedSource = structuredClone(legacyFacts.candidate);
+  const outcome = resolveCanonicalIntakeReadiness(legacyFacts);
+  assert.equal(outcome.status, "blocked", `${record.word} must remain blocked without an exact release`);
+  if (outcome.status === "blocked") {
+    assert.equal(`${outcome.readiness.routeId}:${outcome.readiness.routeVersion}`, "base_word_lab:v2");
+    assert.equal(outcome.readiness.microSkillKey, record.microSkillKey);
+    assert.equal(outcome.readiness.blockers[0].code, "profile_not_enabled");
+  }
+  assert.deepEqual(legacyFacts.candidate, preservedSource, `${record.word} historical diagnostic lineage changed`);
 }
 
 const selectorOnly = facts();

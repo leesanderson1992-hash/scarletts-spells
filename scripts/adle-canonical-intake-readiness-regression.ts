@@ -47,6 +47,7 @@ function facts(): CanonicalIntakeReadinessFacts {
       {
         microSkillKey: SKILL,
         masteryDomainKey: "D4",
+        skillClusterKey: "D4_MOR_PREFIXES",
         isActive: true,
         isAssignable: true,
       },
@@ -244,6 +245,7 @@ affixFacts.words = [{
 affixFacts.microSkills = [{
   microSkillKey: AFFIX_SKILL,
   masteryDomainKey: "D4",
+  skillClusterKey: "D4_MOR_SUFFIXES",
   isActive: true,
   isAssignable: true,
 }];

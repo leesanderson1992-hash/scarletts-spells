@@ -39,6 +39,7 @@ const routes = [
     routeId: "alternate_base_lab",
     routeVersion: "v1",
     supportedMicroSkillKeys: [SKILL_A],
+    routeOwnership: { kind: "declared_micro_skills" as const },
     implementationState: "registered" as const,
     newAssignmentCapable: true,
     requiresAuthenticSelectableItem: false,

@@ -29,10 +29,19 @@ export type CurriculumCompatibilityScope =
   | { kind: "declared_micro_skills" }
   | { kind: "generic_composer_fallback" };
 
+export type CurriculumRouteOwnershipScope =
+  | { kind: "declared_micro_skills" }
+  | { kind: "skill_clusters"; skillClusterKeys: readonly string[] }
+  | { kind: "generic_composer_fallback" };
+
 export interface CurriculumRouteDefinition {
   routeId: string;
   routeVersion: string;
+  /** Recipe/compiler support, not route ownership. A cluster-owned route can
+   * own additional micro-skills while keeping them fail-closed until their
+   * governed curriculum and recipe are ready. */
   supportedMicroSkillKeys: readonly string[];
+  routeOwnership: CurriculumRouteOwnershipScope;
   implementationState: CurriculumRouteImplementationState;
   /** Route code can compile new assignments only after observed gates allow it. */
   newAssignmentCapable: boolean;
@@ -72,6 +81,7 @@ export const ADLE_CURRICULUM_ROUTE_REGISTRY: readonly CurriculumRouteDefinition[
     routeId: "generic_composer",
     routeVersion: "v1",
     supportedMicroSkillKeys: [],
+    routeOwnership: { kind: "generic_composer_fallback" },
     implementationState: "registered",
     newAssignmentCapable: true,
     requiresAuthenticSelectableItem: true,
@@ -100,6 +110,10 @@ export const ADLE_CURRICULUM_ROUTE_REGISTRY: readonly CurriculumRouteDefinition[
       "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
       "D4_MOR_BASE_WORDS_PRESERVE_BASE",
     ],
+    routeOwnership: {
+      kind: "skill_clusters",
+      skillClusterKeys: ["D4_MOR_BASE_WORDS"],
+    },
     implementationState: "registered",
     newAssignmentCapable: true,
     requiresAuthenticSelectableItem: true,
@@ -136,6 +150,7 @@ export const ADLE_CURRICULUM_ROUTE_REGISTRY: readonly CurriculumRouteDefinition[
       "D4_MOR_PREFIXES_SUB_INTER_SUPER",
       "D4_MOR_PREFIXES_UN",
     ],
+    routeOwnership: { kind: "declared_micro_skills" },
     implementationState: "registered",
     newAssignmentCapable: true,
     requiresAuthenticSelectableItem: true,
@@ -165,6 +180,7 @@ export const ADLE_CURRICULUM_ROUTE_REGISTRY: readonly CurriculumRouteDefinition[
     routeId: "fixed_un_prefix_word_lab",
     routeVersion: "v1",
     supportedMicroSkillKeys: ["D4_MOR_PREFIXES_UN"],
+    routeOwnership: { kind: "declared_micro_skills" },
     implementationState: "legacy_render_only",
     newAssignmentCapable: false,
     requiresAuthenticSelectableItem: false,
@@ -204,6 +220,7 @@ export const ADLE_CURRICULUM_ROUTE_REGISTRY: readonly CurriculumRouteDefinition[
       "D4_MOR_SUFFIXES_SION",
       "D4_MOR_SUFFIXES_TION",
     ],
+    routeOwnership: { kind: "declared_micro_skills" },
     implementationState: "registered",
     newAssignmentCapable: true,
     requiresAuthenticSelectableItem: true,
@@ -232,6 +249,7 @@ export const ADLE_CURRICULUM_ROUTE_REGISTRY: readonly CurriculumRouteDefinition[
     routeId: "closed_compound_word_lab",
     routeVersion: "v1",
     supportedMicroSkillKeys: ["D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS"],
+    routeOwnership: { kind: "declared_micro_skills" },
     implementationState: "registered",
     newAssignmentCapable: true,
     requiresAuthenticSelectableItem: false,
@@ -273,6 +291,16 @@ export function validateCurriculumRouteRegistry(
       route.compatibilityScope.kind !== "generic_composer_fallback"
     ) {
       errors.push(`route_without_supported_skills:${key}`);
+    }
+    if (
+      route.routeOwnership.kind === "skill_clusters" &&
+      (route.routeOwnership.skillClusterKeys.length === 0 ||
+        [...route.routeOwnership.skillClusterKeys].some(
+          (cluster, index, clusters) =>
+            !cluster || (index > 0 && clusters[index - 1] >= cluster),
+        ))
+    ) {
+      errors.push(`invalid_route_owned_clusters:${key}`);
     }
     if (
       [...route.supportedMicroSkillKeys].some(
@@ -324,9 +352,40 @@ export function getCurriculumRouteDefinition(
 }
 
 /**
- * Returns the single registered route that is allowed to create new
- * assignments for a declared micro-skill. The registry is the authority;
- * callers must not maintain a parallel micro-skill-to-route map.
+ * Resolves instructional route ownership from canonical taxonomy facts.
+ * This deliberately does not assert release, activation, or recipe readiness.
+ */
+export function getCurriculumRouteOwnerForTaxonomy(input: {
+  microSkillKey: string;
+  skillClusterKey: string | null;
+}): CurriculumRouteDefinition | null {
+  const matches = ADLE_CURRICULUM_ROUTE_REGISTRY.filter((route) => {
+    if (
+      route.implementationState !== "registered" ||
+      route.routeOwnership.kind === "generic_composer_fallback"
+    ) {
+      return false;
+    }
+    if (route.routeOwnership.kind === "skill_clusters") {
+      return Boolean(
+        input.skillClusterKey &&
+          route.routeOwnership.skillClusterKeys.includes(input.skillClusterKey),
+      );
+    }
+    return route.supportedMicroSkillKeys.includes(input.microSkillKey);
+  });
+  if (matches.length > 1) {
+    throw new Error(
+      `ambiguous curriculum route owner for ${input.microSkillKey}`,
+    );
+  }
+  return matches[0] ?? null;
+}
+
+/**
+ * Returns the single registered route whose current recipe/compiler may
+ * create new assignments for a micro-skill. This is deliberately narrower
+ * than route ownership for cluster-owned routes.
  */
 export function getNewAssignmentCurriculumRouteForMicroSkill(
   microSkillKey: string,
@@ -335,7 +394,7 @@ export function getNewAssignmentCurriculumRouteForMicroSkill(
     (route) =>
       route.implementationState === "registered" &&
       route.newAssignmentCapable &&
-      route.compatibilityScope.kind === "declared_micro_skills" &&
+      route.compatibilityScope.kind !== "generic_composer_fallback" &&
       route.supportedMicroSkillKeys.includes(microSkillKey),
   );
   if (matches.length > 1) {
