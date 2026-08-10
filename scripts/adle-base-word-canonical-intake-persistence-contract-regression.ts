@@ -6,6 +6,10 @@ const clusterOwnershipMigration = readFileSync(
   "supabase/migrations/20260810160000_generalise_base_word_cluster_route_authority.sql",
   "utf8",
 );
+const baseLedMigration = readFileSync(
+  "supabase/migrations/20260810201000_bind_base_led_family_selection.sql",
+  "utf8",
+);
 const proof = readFileSync("scripts/sql/prove-adle-base-word-canonical-intake-local.sql", "utf8");
 const runner = readFileSync("scripts/prove-adle-base-word-canonical-intake-local.ts", "utf8");
 
@@ -31,6 +35,12 @@ assert.match(clusterOwnershipMigration, /canonical-intake Base Word ownership gu
 assert.match(clusterOwnershipMigration, /D4_MOR_BASE_WORDS_BASE_PLUS_PREFIX/);
 assert.match(clusterOwnershipMigration, /D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX/);
 assert.match(clusterOwnershipMigration, /D4_MOR_PREFIXES_UN/);
+assert.match(baseLedMigration, /family_authority\.schema_version = 1/);
+assert.match(baseLedMigration, /family_authority\.schema_version = 2/);
+assert.match(baseLedMigration, /reviewed family relationship/);
+assert.match(baseLedMigration, /queued_family_practice/);
+assert.match(baseLedMigration, /generated_family_practice/);
+assert.match(baseLedMigration, /item\.item_status in \('pending','pending_reteach'\)/, "v2 assignment persistence rejects learner items that are no longer selectable");
 assert.doesNotMatch(
   clusterOwnershipMigration,
   /update\s+public\.(parent_verified_spelling_candidate_mappings|adle_learning_items|learning_items)/i,
@@ -66,10 +76,14 @@ assert.match(proof, /intake replay changed learning item/);
 assert.match(proof, /parent approval replay drift/);
 assert.match(proof, /canonical intake learning-item semantics drift/);
 assert.match(proof, /canonical intake immutable source lineage drift/);
-assert.match(proof, /base-role member was accepted as authentic/);
+assert.match(proof, /structural base members did not retain genuine learner authenticity/);
+assert.match(proof, /source membership incorrectly authorised a different micro-skill/);
 assert.match(proof, /intake route\/release provenance drift/);
 assert.match(proof, /persist_adle_base_word_family_pilot_v2/);
 assert.match(proof, /bindingsPerAssignment',18/);
+assert.match(proof, /base-led completion replay was not idempotent/);
+assert.match(proof, /generated family practice entered learner review scheduling/);
+assert.match(proof, /queued verified learner evidence was downgraded/);
 assert.match(proof, /old closure followed mutable source/);
 assert.match(proof, /old assignment provenance changed/);
 assert.match(proof, /safety revocation did not block incomplete assignment/);

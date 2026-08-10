@@ -389,7 +389,7 @@ for (const [skill, companion] of [
     members: [WORD, companion, "transfer-1", "transfer-2", "transfer-3", "transfer-4"].map((canonicalWordId, index) => ({
       baseFamilyKey: index === 0 || index === 2 || index === 4 ? familyKey : companionFamilyKey,
       canonicalWordId,
-      memberRole: index === 0 ? "authentic_target" as const : index === 1 ? "authentic_target" as const : "transfer" as const,
+      memberRole: index < 2 ? "authentic_target" as const : index < 4 ? "base" as const : "transfer" as const,
       assignmentEligible: true,
       complexityLevel: 1,
       rowStatus: "active" as const,

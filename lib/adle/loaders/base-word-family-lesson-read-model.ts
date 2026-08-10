@@ -8,6 +8,10 @@ import type {
   BaseWordFamilySnapshotWord,
 } from "../morphology/base-word-family-payload";
 import type { ActivatedBaseWordReleaseAuthority } from "../curriculum-release-activation";
+import {
+  baseWordFamilyAuthorityAppliesToMicroSkill,
+  baseWordFamilyMemberAppliesToMicroSkill,
+} from "../curriculum-release-activation";
 
 type Client = SupabaseClient;
 
@@ -77,7 +81,7 @@ export async function loadBaseWordFamilyLessonReadModel(
   if (request.releaseAuthority) {
     const authority = request.releaseAuthority;
     if (authority.microSkillKey !== request.microSkillKey ||
-        authority.family.microSkillKey !== request.microSkillKey ||
+        !baseWordFamilyAuthorityAppliesToMicroSkill(authority.family, request.microSkillKey) ||
         authority.teachingContent.microSkillKey !== request.microSkillKey ||
         authority.teachingContent.contentVersion !== request.contentVersion) return null;
     const familyByKey = new Map(authority.family.families.map((family) => [family.baseFamilyKey, family]));
@@ -89,7 +93,8 @@ export async function loadBaseWordFamilyLessonReadModel(
       const word = (canonicalWordId: string): BaseWordFamilySnapshotWord | null => {
         const member = family.members.find((candidate) => candidate.canonicalWordId === canonicalWordId);
         const closure = closureById.get(canonicalWordId);
-        if (!member || !closure || !member.assignmentEligible || !member.wordSum.trim() ||
+        if (!member || !closure || !member.assignmentEligible ||
+            !baseWordFamilyMemberAppliesToMicroSkill(authority.family, member, request.microSkillKey) || !member.wordSum.trim() ||
             member.morphologyParts.length === 0 || !member.childFriendlyMeaning.trim()) return null;
         return {
           canonicalWordId,

@@ -63,9 +63,30 @@ export interface BaseWordFamilyAuthenticTarget {
 
 export interface BaseWordFamilyIndependentSlot {
   canonicalWordId: string;
+  /** Legacy projection retained so immutable schema-v1 assignments continue
+   * to render. New assignments use assignmentRole + learnerProvenance as the
+   * authoritative, non-conflated semantics. */
   provenance: "authentic_target" | "transfer";
+  assignmentRole?: "primary_authentic_target" | "queued_family_practice" | "generated_family_practice";
+  learnerProvenance?: "verified_misspelling" | "generated_family_practice";
   baseFamilyKey: string;
   learningItemId: string | null;
+}
+
+export function baseWordSlotAssignmentRole(slot: BaseWordFamilyIndependentSlot):
+  "primary_authentic_target" | "queued_family_practice" | "generated_family_practice" {
+  return slot.assignmentRole ?? (slot.provenance === "authentic_target"
+    ? "primary_authentic_target"
+    : "generated_family_practice");
+}
+
+export function baseWordSlotHasLearnerEvidence(slot: BaseWordFamilyIndependentSlot): boolean {
+  return slot.learnerProvenance === "verified_misspelling" ||
+    (slot.learnerProvenance === undefined && slot.provenance === "authentic_target");
+}
+
+export function baseWordSlotIsGeneratedPractice(slot: BaseWordFamilyIndependentSlot): boolean {
+  return baseWordSlotAssignmentRole(slot) === "generated_family_practice";
 }
 
 export type BaseWordFamilyActivityType =
@@ -155,7 +176,18 @@ export function validateBaseWordFamilyLessonSnapshot(value: unknown): BaseWordFa
   if (!independent.every((word) => guided.some((guidedWord) => guidedWord.canonicalWordId === word.canonicalWordId))) return null;
   const slots = value.independentSlots;
   if (slots.length !== independent.length || !slots.every((slot) => isRecord(slot) && typeof slot.canonicalWordId === "string" && (slot.provenance === "authentic_target" || slot.provenance === "transfer") && typeof slot.baseFamilyKey === "string" && (slot.learningItemId === null || typeof slot.learningItemId === "string")) || slots.map((slot) => (slot as BaseWordFamilyIndependentSlot).canonicalWordId).join("|") !== independent.map((word) => word.canonicalWordId).join("|")) return null;
-  if (slots.filter((slot) => (slot as BaseWordFamilyIndependentSlot).provenance === "authentic_target").length !== 2 || slots.filter((slot) => (slot as BaseWordFamilyIndependentSlot).provenance === "transfer").length !== 4 || !slots.filter((slot) => (slot as BaseWordFamilyIndependentSlot).provenance === "authentic_target").every((slot) => targetIds.includes((slot as BaseWordFamilyIndependentSlot).canonicalWordId))) return null;
+  const hasAssignmentSemantics = slots.some((slot) => isRecord(slot) && (slot.assignmentRole !== undefined || slot.learnerProvenance !== undefined));
+  if (hasAssignmentSemantics) {
+    if (!slots.every((slot) => isRecord(slot) &&
+      ["primary_authentic_target", "queued_family_practice", "generated_family_practice"].includes(String(slot.assignmentRole)) &&
+      ["verified_misspelling", "generated_family_practice"].includes(String(slot.learnerProvenance)))) return null;
+    const typed = slots as unknown as BaseWordFamilyIndependentSlot[];
+    const primaries = typed.filter((slot) => slot.assignmentRole === "primary_authentic_target");
+    if (primaries.length !== 2 || typed.filter((slot) => slot.assignmentRole !== "primary_authentic_target").length !== 4 ||
+        !primaries.every((slot) => slot.provenance === "authentic_target" && targetIds.includes(slot.canonicalWordId) && slot.learnerProvenance === "verified_misspelling" && typeof slot.learningItemId === "string") ||
+        typed.some((slot) => slot.assignmentRole === "queued_family_practice" && (slot.provenance !== "transfer" || slot.learnerProvenance !== "verified_misspelling" || typeof slot.learningItemId !== "string")) ||
+        typed.some((slot) => slot.assignmentRole === "generated_family_practice" && (slot.provenance !== "transfer" || slot.learnerProvenance !== "generated_family_practice" || slot.learningItemId !== null))) return null;
+  } else if (slots.filter((slot) => (slot as BaseWordFamilyIndependentSlot).provenance === "authentic_target").length !== 2 || slots.filter((slot) => (slot as BaseWordFamilyIndependentSlot).provenance === "transfer").length !== 4 || !slots.filter((slot) => (slot as BaseWordFamilyIndependentSlot).provenance === "authentic_target").every((slot) => targetIds.includes((slot as BaseWordFamilyIndependentSlot).canonicalWordId))) return null;
   const activities = value.activities;
   const expectedActivityTypes: BaseWordFamilyActivityType[] = ["strategy_intro", ...sections.flatMap(() => ["family_reveal" as const, "base_cleave" as const]), "word_sum_builder", "controlled_spelling", "sentence_dictation", "reflection"];
   if (activities.length !== expectedActivityTypes.length || activities.some((activity, index) => !isRecord(activity) || activity.type !== expectedActivityTypes[index] || !["teaching", "guided", "recall_neutral", "post_submit"].includes(String(activity.answerVisibility)) || !Array.isArray(activity.wordIds) || !activity.wordIds.every((id) => typeof id === "string"))) return null;

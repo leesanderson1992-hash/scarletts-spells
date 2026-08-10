@@ -12,16 +12,20 @@ declare
   v_batch uuid := gen_random_uuid(); v_content uuid := gen_random_uuid();
   v_family_a uuid := gen_random_uuid(); v_family_b uuid := gen_random_uuid();
   v_words uuid[] := array[gen_random_uuid(),gen_random_uuid(),gen_random_uuid(),gen_random_uuid(),gen_random_uuid(),gen_random_uuid(),gen_random_uuid(),gen_random_uuid()];
+  v_members uuid[] := array[gen_random_uuid(),gen_random_uuid(),gen_random_uuid(),gen_random_uuid(),gen_random_uuid(),gen_random_uuid(),gen_random_uuid(),gen_random_uuid()];
   v_names text[] := array['proofplay','proofplaying','proofplayful','proofreplay','proofgovern','proofgovernment','proofgovernor','proofgoverning'];
   v_roles text[] := array['base','authentic_target','transfer','transfer','base','authentic_target','transfer','transfer'];
   v_family_authority uuid; v_content_authority uuid; v_closure_one uuid; v_closure_two uuid;
   v_release_one uuid; v_release_two uuid; v_revision_one uuid; v_revision_two uuid;
   v_pause uuid; v_reenabled uuid; v_revoked uuid;
-  v_family_manifest jsonb; v_content_manifest jsonb; v_closure_manifest jsonb; v_release_manifest jsonb;
+  v_family_manifest jsonb; v_invalid_manifest jsonb; v_content_manifest jsonb; v_closure_manifest jsonb; v_release_manifest jsonb;
   v_release_sha text; v_dependency_fp text; v_closure_fp text;
   v_source uuid; v_mapping uuid; v_verification uuid; v_item uuid; v_replay_item uuid; v_inserted boolean;
-  v_items uuid[] := array[]::uuid[]; v_payload jsonb; v_binding_items jsonb; v_assignment_one uuid; v_replay_assignment uuid; v_assignment_two uuid;
-  v_metadata jsonb; v_old_metadata jsonb; v_old_payload jsonb; v_rejected boolean := false; v_i integer;
+  v_items uuid[] := array[]::uuid[]; v_payload jsonb; v_binding_items jsonb; v_assignment_one uuid; v_replay_assignment uuid;
+  v_assignment_item_ids uuid[]; v_attempts jsonb; v_lesson jsonb; v_completion jsonb; v_bundle uuid := gen_random_uuid(); v_lesson_source_ref text;
+  v_schedule_count integer; v_taught_count integer; v_transfer_event_count integer;
+  v_metadata jsonb; v_old_metadata jsonb; v_old_payload jsonb; v_rejected boolean := false; v_i integer; v_target_index integer;
+  v_nonbase_index integer;
   v_etymology jsonb := '{"relation_type":"free_base","origin_language":"English","origin_form":"proof","literal_meaning":"proof","child_facing_meaning":"proof family","semantic_connection":"transaction proof","evidence":{"source_name":"BW-2A-2 proof","source_url":"https://example.invalid/bw2a2","verification_status":"linked_for_human_review"}}';
 begin
   if not public.adle_micro_skill_owns_base_word_lab_v2('D4_MOR_BASE_WORDS_BASE_PLUS_PREFIX')
@@ -43,6 +47,11 @@ begin
       'BW-2A-2 local proof', 'word_practice', true, true
     );
   end if;
+  insert into public.adle_review_policy_versions(
+    schedule_policy_version,is_active,interval_ladder_days,catch_up_offsets_days,
+    session_cap,pre_retirement_check_gap_days,formula_reference,activated_at
+  ) values('base-led-proof-v1',false,array[1,3,7],array[1,2],6,7,'rollback-only Base Word proof',timezone('utc',now()))
+  on conflict (schedule_policy_version) do nothing;
   insert into auth.users(id) values(v_parent);
   insert into public.children(id,parent_user_id,first_name) values(v_child,v_parent,'BW2A2 Proof');
   insert into public.courses(id,parent_user_id,child_id,title) values(v_course,v_parent,v_child,'BW2A2 Proof');
@@ -74,10 +83,10 @@ begin
     (v_family_b,v_batch,'PROOF_GOVERN',v_skill,v_words[5],'govern meaning',v_etymology,'active','BW2A2',3,repeat('b',64),'internal_reviewed_seed','BW-2A-2 proof','internal','rollback-only','high','approved_for_first_exposure');
   for v_i in 1..8 loop
     insert into public.canonical_teaching_dictionary_base_word_family_members(
-      import_batch_id,base_word_family_id,canonical_word_id,member_role,word_sum,morphology_parts,morphology_joins,morphology_transformations,
+      id,import_batch_id,base_word_family_id,canonical_word_id,member_role,word_sum,morphology_parts,morphology_joins,morphology_transformations,
       transformation_notes,child_friendly_meaning,dictation_sentence,dictation_target_token_index,audio_text,assignment_eligible,row_status,
       source_sheet,source_row_number,source_row_hash,source_category,source_name,source_licence,source_use_note,confidence,review_status
-    ) values(v_batch,case when v_i<=4 then v_family_a else v_family_b end,v_words[v_i],v_roles[v_i],v_names[v_i],
+    ) values(v_members[v_i],v_batch,case when v_i<=4 then v_family_a else v_family_b end,v_words[v_i],v_roles[v_i],v_names[v_i],
       jsonb_build_array(jsonb_build_object('id','part-'||v_i,'kind','base','sourceText',v_names[v_i],'surfaceText',v_names[v_i])),
       '[]','[]','',v_names[v_i]||' meaning','Spell '||v_names[v_i]||'.',1,'Spell '||v_names[v_i]||'.',true,'active',
       'BW2A2',v_i+1,repeat(((v_i+1)%10)::text,64),'internal_reviewed_seed','BW-2A-2 proof','internal','rollback-only','high','approved_for_first_exposure');
@@ -97,20 +106,93 @@ begin
     'Find and preserve the base.','Keep the base visible.','The base carries meaning.','','','[]','[]','[]','','',
     'internal_reviewed_seed','BW-2A-2 proof','internal','rollback-only','high','signed_off','BW-2A-2 proof',timezone('utc',now()));
 
-  select jsonb_build_object('schemaVersion',1,'authorityKey',v_tag||'-family','microSkillKey',v_skill,'importBatchId',v_batch,
-    'approvalRefs',jsonb_build_array('review:bw2a2'), 'families', jsonb_agg(jsonb_build_object(
-      'familyId',family.id,'baseFamilyKey',family.base_family_key,'baseWordId',family.base_word_id,'baseMeaning',family.base_meaning,'etymologyRoute',family.etymology_route,
-      'members',(select jsonb_agg(jsonb_build_object('memberId',member.id,'canonicalWordId',member.canonical_word_id,'memberRole',member.member_role,
-        'assignmentEligible',member.assignment_eligible,'complexityLevel',null,'wordSum',member.word_sum,'morphologyParts',member.morphology_parts,
-        'morphologyJoins',member.morphology_joins,'morphologyTransformations',member.morphology_transformations,
-        'transformationNotes',coalesce(member.transformation_notes,''),'childFriendlyMeaning',member.child_friendly_meaning)
-        order by member.canonical_word_id::text,member.id::text)
+  select jsonb_build_object(
+    'schemaVersion',2,
+    'authorityKey',v_tag||'-family-v2',
+    'skillClusterKey','D4_MOR_BASE_WORDS',
+    'sourceAuthorities',jsonb_build_array(jsonb_build_object(
+      'authorityKey','batch:'||v_batch::text,
+      'sourceKind','teaching_dictionary_import_batch',
+      'sourceId',v_batch,
+      'sourceFingerprint',repeat('3',64)
+    )),
+    'approvalRefs',jsonb_build_array('review:bw2a2-base-led'),
+    'families',jsonb_agg(jsonb_build_object(
+      'familyId',family.id,
+      'baseFamilyKey',family.base_family_key,
+      'baseWordId',family.base_word_id,
+      'baseMeaning',family.base_meaning,
+      'etymologyRoute',family.etymology_route,
+      'sourceFingerprint',family.source_row_hash,
+      'members',(select jsonb_agg(jsonb_build_object(
+        'memberId',member.id,
+        'canonicalWordId',member.canonical_word_id,
+        'structuralRole',case when member.canonical_word_id=family.base_word_id then 'base' else 'family_member' end,
+        'applicableMicroSkillKeys',jsonb_build_array(v_skill),
+        'assignmentEligible',member.assignment_eligible,
+        'complexityLevel',null,
+        'wordSum',member.word_sum,
+        'morphologyParts',member.morphology_parts,
+        'morphologyJoins',member.morphology_joins,
+        'morphologyTransformations',member.morphology_transformations,
+        'transformationNotes',coalesce(member.transformation_notes,''),
+        'childFriendlyMeaning',member.child_friendly_meaning,
+        'morphologySource',jsonb_build_object(
+          'sourceKind','base_word_family_member',
+          'sourceId',member.id,
+          'sourceFingerprint',member.source_row_hash,
+          'sourceAuthorityKey','batch:'||v_batch::text
+        )) order by member.canonical_word_id::text,member.id::text)
         from public.canonical_teaching_dictionary_base_word_family_members member
-        where member.base_word_family_id=family.id and member.import_batch_id=family.import_batch_id and member.row_status='active' and member.review_status='approved_for_first_exposure')
+        where member.base_word_family_id=family.id and member.import_batch_id=family.import_batch_id
+          and member.row_status='active' and member.review_status='approved_for_first_exposure')
     ) order by family.base_family_key,family.id::text)) into v_family_manifest
   from public.canonical_teaching_dictionary_base_word_families family
   where family.import_batch_id=v_batch and family.micro_skill_key=v_skill and family.row_status='active' and family.review_status='approved_for_first_exposure';
-  v_family_authority := public.publish_adle_base_word_family_membership_authority_v1(v_family_manifest,repeat('d',64),'release_ledger','BW-2A-2 proof');
+  v_invalid_manifest := jsonb_set(
+    jsonb_set(v_family_manifest,'{authorityKey}',to_jsonb(v_tag||'-invalid-applicability')),
+    '{families,0,members,0,applicableMicroSkillKeys}',
+    jsonb_build_array('D4_MOR_BASE_WORDS_IDENTIFY_BASE')
+  );
+  v_rejected:=false;
+  begin
+    perform public.publish_adle_base_word_family_membership_authority_v2(
+      v_invalid_manifest,repeat('9',64),'release_ledger','BW invalid applicability proof');
+  exception when others then v_rejected:=true; end;
+  if not v_rejected then raise exception 'source membership incorrectly authorised a different micro-skill'; end if;
+  v_invalid_manifest := jsonb_set(
+    jsonb_set(
+      jsonb_set(v_family_manifest,'{authorityKey}',to_jsonb(v_tag||'-invalid-source-authority')),
+      '{sourceAuthorities}',
+      (v_family_manifest->'sourceAuthorities') || jsonb_build_array(jsonb_build_object(
+        'authorityKey','repo:proof','sourceKind','approved_repository_artifact',
+        'sourceId','data/adle/approved/d4-mor/v1/d4-mor-v1-word-analyses.json',
+        'sourceFingerprint',repeat('4',64)
+      ))
+    ),
+    '{families,0,members,0,morphologySource,sourceAuthorityKey}',to_jsonb('repo:proof'::text)
+  );
+  v_rejected:=false;
+  begin
+    perform public.publish_adle_base_word_family_membership_authority_v2(
+      v_invalid_manifest,repeat('8',64),'release_ledger','BW invalid source authority proof');
+  exception when others then v_rejected:=true; end;
+  if not v_rejected then raise exception 'source membership incorrectly named a different immutable authority'; end if;
+  select member.ordinality - 1 into strict v_nonbase_index
+  from jsonb_array_elements(v_family_manifest#>'{families,0,members}') with ordinality member(value,ordinality)
+  where member.value->>'structuralRole'='family_member'
+  order by member.ordinality limit 1;
+  v_invalid_manifest := jsonb_set(
+    jsonb_set(v_family_manifest,'{authorityKey}',to_jsonb(v_tag||'-invalid-structural-base')),
+    array['families','0','members',v_nonbase_index::text,'structuralRole'],to_jsonb('base'::text)
+  );
+  v_rejected:=false;
+  begin
+    perform public.publish_adle_base_word_family_membership_authority_v2(
+      v_invalid_manifest,repeat('7',64),'release_ledger','BW duplicate structural base proof');
+  exception when others then v_rejected:=true; end;
+  if not v_rejected then raise exception 'family authority accepted more than one structural base'; end if;
+  v_family_authority := public.publish_adle_base_word_family_membership_authority_v2(v_family_manifest,repeat('d',64),'release_ledger','BW base-led proof');
 
   select jsonb_build_object('schemaVersion',1,'authorityKey',v_tag||'-content','microSkillKey',v_skill,'approvalRefs',jsonb_build_array('review:bw2a2'),
     'content',jsonb_build_object('contentVersionId',id,'contentVersion',content_version,'teachingObjective',teaching_objective,
@@ -136,79 +218,173 @@ begin
   v_release_manifest := jsonb_build_object('schemaVersion',2,'releaseKey',v_tag||'-release-1','route',jsonb_build_object(
     'routeId','base_word_lab','routeVersion','v2','activationRouteKey','base_word_family_v1','payloadVersion',1),
     'approvalRefs',jsonb_build_array('review:bw2a2'),'microSkills',jsonb_build_array(jsonb_build_object('microSkillKey',v_skill,'dependencies',jsonb_build_array(
-      jsonb_build_object('authorityType','family_membership','authorityKey',v_tag||'-family','authoritySchemaVersion',1,'semanticFingerprint',(select semantic_fingerprint from public.adle_curriculum_dependency_authorities where id=v_family_authority)),
+      jsonb_build_object('authorityType','family_membership','authorityKey',v_tag||'-family-v2','authoritySchemaVersion',2,'semanticFingerprint',(select semantic_fingerprint from public.adle_curriculum_dependency_authorities where id=v_family_authority)),
       jsonb_build_object('authorityType','teaching_content','authorityKey',v_tag||'-content','authoritySchemaVersion',1,'semanticFingerprint',(select semantic_fingerprint from public.adle_curriculum_dependency_authorities where id=v_content_authority)),
       jsonb_build_object('authorityType','teaching_dictionary_closure','authorityKey',v_tag||'-closure-1','authoritySchemaVersion',1,'semanticFingerprint',v_closure_fp)))));
   v_release_one := public.publish_adle_curriculum_release_v2(v_release_manifest,repeat('1',64),'BW-2A-2 proof');
   select release_manifest_sha256,dependency_fingerprint into v_release_sha,v_dependency_fp from public.adle_curriculum_release_manifests where id=v_release_one;
   v_revision_one := public.set_adle_route_activation_revision_v2(v_release_sha,v_skill,'local','enabled','allow_existing','{"proof":true}',null,'BW-2A-2 proof','enable release one');
 
-  for v_i in 1..2 loop
+  -- The two structural base members and one historical transfer-role member
+  -- are all genuine learner evidence under family-authority v2. Permanent v1
+  -- member roles are deliberately irrelevant to current authenticity.
+  for v_i in 1..3 loop
+    v_target_index := (array[1,5,3])[v_i];
     insert into public.parent_verifications(child_id,parent_user_id,domain_module,source_type,source_entity_id,task_submission_id,suggested_micro_skill_key,decision,verified_micro_skill_key,metadata)
     values(v_child,v_parent,'spelling','bw2a2-proof',v_tag||'-verification-'||v_i,v_submission,v_skill,'accepted',v_skill,jsonb_build_object('proofTag',v_tag)) returning id into v_verification;
     insert into public.parent_verified_spelling_candidate_mappings(parent_user_id,child_id,parent_verification_id,task_submission_id,source_provenance,
       reviewed_event_source_entity_id,original_child_spelling,original_correct_spelling,misspelling_normalized,correct_spelling_normalized,micro_skill_key,
       candidate_status,promotion_scope,metadata)
     values(v_parent,v_child,v_verification,v_submission,'lesson_submission_parent_added_missed_word',v_tag||'-candidate-'||v_i,
-      'miss'||v_i,v_names[case when v_i=1 then 2 else 6 end],'miss'||v_i,v_names[case when v_i=1 then 2 else 6 end],v_skill,
+      'miss'||v_i,v_names[v_target_index],'miss'||v_i,v_names[v_target_index],v_skill,
       'parent_local_promoted','parent_local',jsonb_build_object('proofTag',v_tag)) returning id into v_source;
     insert into public.spelling_canonical_mappings(misspelling_normalized,correct_spelling_normalized,micro_skill_key,mapping_status,resolver_visibility_status,
       created_by_admin_user_id,decision_note,source_candidate_mapping_id,metadata)
-    values('miss'||v_i,v_names[case when v_i=1 then 2 else 6 end],v_skill,'active','visible',v_parent,'BW-2A-2 proof',v_source,jsonb_build_object('proofTag',v_tag)) returning id into v_mapping;
-    perform public.adle_seed_canonical_intake_candidate(v_source,v_names[case when v_i=1 then 2 else 6 end],'base_word_lab','v2',v_skill,v_tag||'-seed-'||v_i);
-    select learning_item_id,inserted into v_item,v_inserted from public.adle_persist_canonical_intake(v_child,v_words[case when v_i=1 then 2 else 6 end],v_skill,
-      v_source,v_mapping,'miss'||v_i,v_names[case when v_i=1 then 2 else 6 end],'verified:'||v_source,current_date,'base_word_lab','v2',
+    values('miss'||v_i,v_names[v_target_index],v_skill,'active','visible',v_parent,'BW-2A-2 proof',v_source,jsonb_build_object('proofTag',v_tag)) returning id into v_mapping;
+    perform public.adle_seed_canonical_intake_candidate(v_source,v_names[v_target_index],'base_word_lab','v2',v_skill,v_tag||'-seed-'||v_i);
+    select learning_item_id,inserted into v_item,v_inserted from public.adle_persist_canonical_intake(v_child,v_words[v_target_index],v_skill,
+      v_source,v_mapping,'miss'||v_i,v_names[v_target_index],'verified:'||v_source,current_date,'base_word_lab','v2',
       v_revision_one,v_release_one,v_release_sha,v_dependency_fp);
     if not v_inserted then raise exception 'first intake did not create learning item'; end if;
-    select learning_item_id into v_replay_item from public.adle_persist_canonical_intake(v_child,v_words[case when v_i=1 then 2 else 6 end],v_skill,
-      v_source,v_mapping,'miss'||v_i,v_names[case when v_i=1 then 2 else 6 end],'verified:'||v_source,current_date,'base_word_lab','v2',
+    select learning_item_id into v_replay_item from public.adle_persist_canonical_intake(v_child,v_words[v_target_index],v_skill,
+      v_source,v_mapping,'miss'||v_i,v_names[v_target_index],'verified:'||v_source,current_date,'base_word_lab','v2',
       v_revision_one,v_release_one,v_release_sha,v_dependency_fp);
     if v_replay_item<>v_item then raise exception 'intake replay changed learning item'; end if;
     v_items := array_append(v_items,v_item);
   end loop;
-  if (select count(*) from public.parent_verifications where metadata->>'proofTag'=v_tag)<>2 then raise exception 'parent approval replay drift'; end if;
-  if (select count(*) from public.adle_learning_items where id=any(v_items) and item_status='pending' and source_kind='verified_misspelling' and row_status='active')<>2 then
+  if (select count(*) from public.parent_verifications where metadata->>'proofTag'=v_tag)<>3 then raise exception 'parent approval replay drift'; end if;
+  if (select count(*) from public.adle_learning_items where id=any(v_items) and item_status='pending' and source_kind='verified_misspelling' and row_status='active')<>3 then
     raise exception 'canonical intake learning-item semantics drift';
   end if;
-  if (select count(*) from public.adle_learning_item_sources where learning_item_id=any(v_items) and row_status='active')<>2 then
+  if (select count(*) from public.adle_learning_item_sources where learning_item_id=any(v_items) and row_status='active')<>3 then
     raise exception 'canonical intake immutable source lineage drift';
   end if;
   if exists(select 1 from public.adle_canonical_intake_candidates where child_id=v_child and (route_id<>'base_word_lab' or route_version<>'v2' or route_activation_revision_id<>v_revision_one or curriculum_release_manifest_id<>v_release_one)) then
     raise exception 'intake route/release provenance drift'; end if;
-  v_rejected:=false;
-  begin
-    perform * from public.adle_persist_canonical_intake(v_child,v_words[1],v_skill,v_source,v_mapping,'miss2',v_names[6],'verified:'||v_source,current_date,
-      'base_word_lab','v2',v_revision_one,v_release_one,v_release_sha,v_dependency_fp);
-  exception when others then v_rejected:=true; end;
-  if not v_rejected then raise exception 'base-role member was accepted as authentic'; end if;
+  if (select count(*) from public.adle_canonical_intake_candidates where child_id=v_child
+      and canonical_word_id in (v_words[1],v_words[5]) and candidate_state='activated')<>2 then
+    raise exception 'structural base members did not retain genuine learner authenticity';
+  end if;
 
   v_payload := jsonb_build_object('experience','D4_MOR_BASE_WORD_FAMILY','schemaVersion',1,'microSkillKey',v_skill,'contentVersion','bw2a2-content-v1',
     'familySections',jsonb_build_array(jsonb_build_object('baseFamilyKey','PROOF_PLAY'),jsonb_build_object('baseFamilyKey','PROOF_GOVERN')),
-    'authenticTargets',jsonb_build_array(jsonb_build_object('canonicalWordId',v_words[2]),jsonb_build_object('canonicalWordId',v_words[6])),
+    'authenticTargets',jsonb_build_array(
+      jsonb_build_object('canonicalWordId',v_words[1],'learningItemId',v_items[1]),
+      jsonb_build_object('canonicalWordId',v_words[5],'learningItemId',v_items[2])),
     'independentSlots',jsonb_build_array(
-      jsonb_build_object('canonicalWordId',v_words[2],'baseFamilyKey','PROOF_PLAY','provenance','authentic_target','learningItemId',v_items[1]),
-      jsonb_build_object('canonicalWordId',v_words[6],'baseFamilyKey','PROOF_GOVERN','provenance','authentic_target','learningItemId',v_items[2]),
-      jsonb_build_object('canonicalWordId',v_words[3],'baseFamilyKey','PROOF_PLAY','provenance','transfer','learningItemId',null),
-      jsonb_build_object('canonicalWordId',v_words[7],'baseFamilyKey','PROOF_GOVERN','provenance','transfer','learningItemId',null),
-      jsonb_build_object('canonicalWordId',v_words[4],'baseFamilyKey','PROOF_PLAY','provenance','transfer','learningItemId',null),
-      jsonb_build_object('canonicalWordId',v_words[8],'baseFamilyKey','PROOF_GOVERN','provenance','transfer','learningItemId',null)),
+      jsonb_build_object('canonicalWordId',v_words[1],'baseFamilyKey','PROOF_PLAY','provenance','authentic_target','assignmentRole','primary_authentic_target','learnerProvenance','verified_misspelling','learningItemId',v_items[1]),
+      jsonb_build_object('canonicalWordId',v_words[5],'baseFamilyKey','PROOF_GOVERN','provenance','authentic_target','assignmentRole','primary_authentic_target','learnerProvenance','verified_misspelling','learningItemId',v_items[2]),
+      jsonb_build_object('canonicalWordId',v_words[3],'baseFamilyKey','PROOF_PLAY','provenance','transfer','assignmentRole','queued_family_practice','learnerProvenance','verified_misspelling','learningItemId',v_items[3]),
+      jsonb_build_object('canonicalWordId',v_words[7],'baseFamilyKey','PROOF_GOVERN','provenance','transfer','assignmentRole','generated_family_practice','learnerProvenance','generated_family_practice','learningItemId',null),
+      jsonb_build_object('canonicalWordId',v_words[2],'baseFamilyKey','PROOF_PLAY','provenance','transfer','assignmentRole','generated_family_practice','learnerProvenance','generated_family_practice','learningItemId',null),
+      jsonb_build_object('canonicalWordId',v_words[6],'baseFamilyKey','PROOF_GOVERN','provenance','transfer','assignmentRole','generated_family_practice','learnerProvenance','generated_family_practice','learningItemId',null)),
     'independentWords',(select jsonb_agg(jsonb_build_object('canonicalWordId',word.canonical_word_id,'displayWord',word.display_word,
       'dictationSentence',word.dictation_sentence,'dictationTargetTokenIndex',word.dictation_target_token_index,'audioText',word.audio_text)
-      order by array_position(array[v_words[2],v_words[6],v_words[3],v_words[7],v_words[4],v_words[8]],word.canonical_word_id))
-      from public.adle_teaching_dictionary_closure_words word where word.authority_id=v_closure_one and word.canonical_word_id=any(array[v_words[2],v_words[6],v_words[3],v_words[7],v_words[4],v_words[8]])));
+      order by array_position(array[v_words[1],v_words[5],v_words[3],v_words[7],v_words[2],v_words[6]],word.canonical_word_id))
+      from public.adle_teaching_dictionary_closure_words word where word.authority_id=v_closure_one and word.canonical_word_id=any(array[v_words[1],v_words[5],v_words[3],v_words[7],v_words[2],v_words[6]])));
   v_metadata := jsonb_build_object('metadataSchemaVersion',2,'route',jsonb_build_object('routeId','base_word_lab','routeVersion','v2'),
     'recipe',jsonb_build_object('recipeKey','base_word_family','recipeVersion','v1'),'payload',jsonb_build_object('kind','base_word_family_snapshot_v1','version',1),
     'curriculumRelease',jsonb_build_object('activationRevisionId',v_revision_one,'releaseManifestId',v_release_one,'releaseKey',v_tag||'-release-1',
       'releaseManifestSha256',v_release_sha,'dependencyFingerprint',v_dependency_fp));
-  v_binding_items := (select jsonb_agg(jsonb_build_object('childId',v_child,'parentUserId',v_parent,'position',n,'domainModule','spelling','itemType','lesson',
-      'sourceType','adle_base_word_family_pilot','sourceEntityId',v_tag||'-one-'||n,'templateKey','CONTROLLED_SPELLING','targetWord',null,
-      'promptData','{}'::jsonb,'metadata',jsonb_build_object('planDate',(current_date+10)::text,'microSkillKey',v_skill)) order by n) from generate_series(1,18)n);
+  v_binding_items := (select jsonb_agg(jsonb_build_object(
+      'childId',v_child,'parentUserId',v_parent,'position',n,'domainModule','spelling','itemType','lesson',
+      'sourceType','adle_base_word_family_pilot','sourceEntityId',v_tag||'-one-'||n,
+      'templateKey',case when n=1 then 'MOR_STRIP_BUILD' when n between 2 and 6 then 'MOR_STRIP_BUILD'
+        when n between 7 and 12 then 'CONTROLLED_SPELLING' else 'DICTATION_NO_IMAGE' end,
+      'targetWord',case when n between 7 and 12 then v_payload->'independentWords'->(n-7)->>'displayWord'
+        when n between 13 and 18 then v_payload->'independentWords'->(n-13)->>'displayWord' else null end,
+      'promptData','{}'::jsonb,
+      'metadata',jsonb_build_object(
+        'planDate',(current_date+10)::text,
+        'microSkillKey',v_skill,
+        'sectionKey',case when n=1 then 'lesson_intro' when n between 2 and 6 then 'guided_practice'
+          when n between 7 and 12 then 'lesson_production' else 'lesson_dictation' end
+      ) || case when n between 7 and 12 then v_payload->'independentSlots'->(n-7)
+               when n between 13 and 18 then v_payload->'independentSlots'->(n-13)
+               else '{}'::jsonb end
+    ) order by n) from generate_series(1,18)n);
+  update public.adle_learning_items set item_status='awaiting_review_outcome' where id=v_items[3];
+  v_rejected:=false;
+  begin
+    perform public.persist_adle_base_word_family_pilot_v2(v_parent,v_child,current_date+10,v_payload,v_binding_items,
+      v_metadata,v_revision_one,v_release_one,v_release_sha,v_dependency_fp);
+  exception when others then v_rejected:=true; end;
+  update public.adle_learning_items set item_status='pending' where id=v_items[3];
+  if not v_rejected then raise exception 'assignment accepted learner evidence that was no longer selectable'; end if;
   v_assignment_one := public.persist_adle_base_word_family_pilot_v2(v_parent,v_child,current_date+10,v_payload,v_binding_items,
     v_metadata,v_revision_one,v_release_one,v_release_sha,v_dependency_fp);
   select lesson_route_metadata,prompt_data->'baseWordFamilyLesson' into v_old_metadata,v_old_payload from public.daily_assignments assignment
   left join public.assignment_items item on item.daily_assignment_id=assignment.id and item.position=1 where assignment.id=v_assignment_one;
   v_replay_assignment := public.persist_adle_base_word_family_pilot_v2(v_parent,v_child,current_date+10,v_payload,v_binding_items,v_metadata,v_revision_one,v_release_one,v_release_sha,v_dependency_fp);
   if v_replay_assignment<>v_assignment_one or (select count(*) from public.assignment_items where daily_assignment_id=v_assignment_one)<>18 then raise exception 'assignment replay/binding drift'; end if;
+
+  v_lesson_source_ref := 'lesson:'||v_child||':'||(current_date+10)::text||':'||v_skill;
+  select array_agg(id order by position), jsonb_agg(jsonb_build_object(
+    'childId',v_child,
+    'parentUserId',v_parent,
+    'dailyAssignmentId',v_assignment_one,
+    'assignmentItemId',id,
+    'canonicalWordId',metadata->>'canonicalWordId',
+    'microSkillKey',v_skill,
+    'sectionKey',metadata->>'sectionKey',
+    'templateKey',template_key,
+    'targetWord',target_word,
+    'attemptText',coalesce(target_word,'guided'),
+    'isCorrect',true,
+    'attemptKind',case when position between 1 and 6 then 'guided_practice'
+      when position between 7 and 12 then 'lesson_production' else 'lesson_dictation' end,
+    'evidenceClass',case when position between 1 and 6 then 'guided_practice_attempt' else 'first_exposure_lesson_attempt' end,
+    'sourceRef',v_lesson_source_ref||':'||position
+  ) order by position)
+  into v_assignment_item_ids,v_attempts
+  from public.assignment_items where daily_assignment_id=v_assignment_one;
+  v_lesson := jsonb_build_object(
+    'bundle',jsonb_build_object('bundleId',v_bundle,'childId',v_child,'sourceRef',v_lesson_source_ref,
+      'intervalIndex',0,'nextDueOn',(current_date+11)::text,'schedulePolicyVersion','base-led-proof-v1','bundleStatus','active'),
+    'scheduleWords',(select jsonb_agg(jsonb_build_object(
+      'canonicalWordId',word_id,'membershipStatus','scheduled','catchUpStage',0,'nextRetestDueOn','',
+      'failedReviewOn','','preRetirementCheckDueOn','','last28DayReviewOn','','reteachCycleCount',0,'taughtOn',(current_date+10)::text
+    ) order by ordinal) from unnest(array[v_words[1],v_words[5],v_words[3]]) with ordinality scheduled(word_id,ordinal)),
+    'taughtEvents',(select jsonb_agg(jsonb_build_object(
+      'canonicalWordId',word_id,'eventKind','taught','occurredOn',(current_date+10)::text,'attemptText','proof'
+    ) order by ordinal) from unnest(array[v_words[1],v_words[5],v_words[3]]) with ordinality taught(word_id,ordinal)),
+    'itemTransitions',(select jsonb_agg(jsonb_build_object(
+      'learningItemId',item_id,'itemStatus','awaiting_review_outcome','reteachPriority',false,'ejectedOn','','rowStatus','active'
+    ) order by ordinal) from unnest(v_items) with ordinality transition(item_id,ordinal)),
+    'reflection',jsonb_build_object('childId',v_child,'parentUserId',v_parent,'assignmentId',v_assignment_one,
+      'microSkillKey',v_skill,'contentVersion','bw2a2-content-v1','promptKey','base-word-family-observation-v1',
+      'promptText','What did you notice?','reflectionText','The base word identifies each family.')
+  );
+  v_completion := public.complete_adle_base_word_family_pilot_v2(
+    v_parent,v_child,v_assignment_one,current_date+10,v_skill,v_lesson_source_ref,
+    v_assignment_item_ids,v_attempts,v_lesson,
+    jsonb_build_array(jsonb_build_object('canonicalWordId',v_words[7],'attemptText','proof miss'))
+  );
+  if v_completion->>'status'<>'completed' then raise exception 'base-led completion did not complete'; end if;
+  v_completion := public.complete_adle_base_word_family_pilot_v2(
+    v_parent,v_child,v_assignment_one,current_date+10,v_skill,v_lesson_source_ref,
+    v_assignment_item_ids,v_attempts,v_lesson,
+    jsonb_build_array(jsonb_build_object('canonicalWordId',v_words[7],'attemptText','proof miss'))
+  );
+  if v_completion->>'status'<>'already_completed' then raise exception 'base-led completion replay was not idempotent'; end if;
+  select count(*) into v_schedule_count from public.adle_review_schedule_words
+    where child_id=v_child and bundle_id=v_bundle and row_status='active';
+  select count(*) into v_taught_count from public.adle_taught_word_history
+    where child_id=v_child and source_ref=v_lesson_source_ref and row_status='active';
+  select count(*) into v_transfer_event_count from public.adle_base_word_transfer_miss_events
+    where child_id=v_child and micro_skill_key=v_skill and lesson_source_ref=v_lesson_source_ref and row_status='active';
+  if v_schedule_count<>3 or v_taught_count<>3 or v_transfer_event_count<>1 then
+    raise exception 'learner-backed scheduling/evidence cardinality drifted: schedules %, taught %, generated misses %',v_schedule_count,v_taught_count,v_transfer_event_count;
+  end if;
+  if exists(select 1 from public.adle_review_schedule_words where child_id=v_child and canonical_word_id=any(array[v_words[2],v_words[6],v_words[7]]) and row_status='active') then
+    raise exception 'generated family practice entered learner review scheduling';
+  end if;
+  if exists(select 1 from public.adle_base_word_transfer_miss_events where child_id=v_child and canonical_word_id=v_words[3]) then
+    raise exception 'queued verified learner evidence was downgraded to synthetic transfer evidence';
+  end if;
+  if (select count(*) from public.adle_learning_items where id=any(v_items) and item_status='awaiting_review_outcome' and row_status='active')<>3 then
+    raise exception 'not every learner-backed slot retained its normal item transition';
+  end if;
 
   update public.canonical_teaching_dictionary_words set display_word=display_word||'-new' where id=any(v_words);
   update public.canonical_teaching_dictionary_dictation_sentences set dictation_sentence=dictation_sentence||' New.',audio_text=audio_text||' New.' where canonical_word_id=any(v_words);
@@ -230,17 +406,16 @@ begin
   v_revision_two:=public.set_adle_route_activation_revision_v2(v_release_sha,v_skill,'local','enabled','allow_existing','{"proof":true}',v_revision_one,'BW-2A-2 proof','switch closure');
   v_payload:=jsonb_set(v_payload,'{independentWords}',(select jsonb_agg(jsonb_build_object('canonicalWordId',word.canonical_word_id,'displayWord',word.display_word,
     'dictationSentence',word.dictation_sentence,'dictationTargetTokenIndex',word.dictation_target_token_index,'audioText',word.audio_text)
-    order by array_position(array[v_words[2],v_words[6],v_words[3],v_words[7],v_words[4],v_words[8]],word.canonical_word_id))
-    from public.adle_teaching_dictionary_closure_words word where word.authority_id=v_closure_two and word.canonical_word_id=any(array[v_words[2],v_words[6],v_words[3],v_words[7],v_words[4],v_words[8]])));
+    order by array_position(array[v_words[1],v_words[5],v_words[3],v_words[7],v_words[2],v_words[6]],word.canonical_word_id))
+    from public.adle_teaching_dictionary_closure_words word where word.authority_id=v_closure_two and word.canonical_word_id=any(array[v_words[1],v_words[5],v_words[3],v_words[7],v_words[2],v_words[6]])));
   v_metadata:=jsonb_set(jsonb_set(jsonb_set(jsonb_set(v_metadata,'{curriculumRelease,activationRevisionId}',to_jsonb(v_revision_two)),
     '{curriculumRelease,releaseManifestId}',to_jsonb(v_release_two)),'{curriculumRelease,releaseKey}',to_jsonb(v_tag||'-release-2')),
     '{curriculumRelease,releaseManifestSha256}',to_jsonb(v_release_sha));
   v_metadata:=jsonb_set(v_metadata,'{curriculumRelease,dependencyFingerprint}',to_jsonb(v_dependency_fp));
-  v_assignment_two:=public.persist_adle_base_word_family_pilot_v2(v_parent,v_child,current_date+11,v_payload,
-    (select jsonb_agg(jsonb_build_object('childId',v_child,'parentUserId',v_parent,'position',n,'domainModule','spelling','itemType','lesson',
-      'sourceType','adle_base_word_family_pilot','sourceEntityId',v_tag||'-two-'||n,'templateKey','CONTROLLED_SPELLING','targetWord',null,
-      'promptData','{}'::jsonb,'metadata',jsonb_build_object('planDate',(current_date+11)::text,'microSkillKey',v_skill)) order by n) from generate_series(1,18)n),
-    v_metadata,v_revision_two,v_release_two,v_release_sha,v_dependency_fp);
+  if not exists(select 1 from public.adle_teaching_dictionary_closure_words
+      where authority_id=v_closure_two and display_word like '%-new') then
+    raise exception 'new immutable closure did not retain its newly published semantics';
+  end if;
   if (select lesson_route_metadata from public.daily_assignments where id=v_assignment_one)<>v_old_metadata then raise exception 'old assignment provenance changed'; end if;
   v_pause:=public.set_adle_route_activation_revision_v2(v_release_sha,v_skill,'local','paused','allow_existing','{"proof":true}',v_revision_two,'BW-2A-2 proof','pause');
   if (select release_manifest_id from public.adle_route_activation_revisions where id=v_pause)<>v_release_two then raise exception 'pause changed release'; end if;
@@ -249,9 +424,15 @@ begin
   if public.adle_incomplete_assignment_runtime_policy_v2(v_revision_two)<>'block_incomplete' then raise exception 'safety revocation did not block incomplete assignment'; end if;
   if public.adle_route_activation_revision_is_current_v2(v_revision_two,v_release_two,v_release_sha,v_dependency_fp) then raise exception 'stale activation revision remained current'; end if;
   insert into bw2a2_receipt values(jsonb_build_object('route','base_word_lab:v2','releaseCount',2,'activationLifecycle',jsonb_build_array('enabled','paused','enabled','safety_revoked'),
-    'learningItemsFromRealRpc',cardinality(v_items),'intakeReplay',true,'parentApprovalCount',2,'baseRoleRejected',true,'twoFamilies',2,'authenticTargets',2,
-    'transfers',4,'independentWords',6,'bindingsPerAssignment',18,'assignments',2,'metadataSchemaVersion',2,'assignmentReplayPreserved',true,
-    'oldClosureFrozen',true,'newClosureUsed',true,'oldAssignmentUnchanged',true,'safetyPolicy','block_incomplete'));
+    'learningItemsFromRealRpc',cardinality(v_items),'intakeReplay',true,'parentApprovalCount',3,'baseRoleAcceptedFromLearnerEvidence',true,
+    'historicalTransferRoleAcceptedFromLearnerEvidence',true,'wrongSkillSourceRejected',true,
+    'wrongSourceAuthorityRejected',true,'duplicateStructuralBaseRejected',true,
+    'staleLearnerEvidenceRejected',true,
+    'queuedFamilyPracticeRetainsLearningItem',true,'twoFamilies',2,'authenticTargets',2,
+    'familyPracticeWords',4,'independentWords',6,'bindingsPerAssignment',18,'assignments',1,'metadataSchemaVersion',2,'assignmentReplayPreserved',true,
+    'learnerBackedSchedules',v_schedule_count,'generatedPracticeSchedules',0,'completionReplayIdempotent',true,
+    'generatedTransferEvidenceOnly',true,'queuedEvidenceNotDowngraded',true,
+    'oldClosureFrozen',true,'newClosureCoexists',true,'oldAssignmentUnchanged',true,'safetyPolicy','block_incomplete'));
 end;
 $proof$;
 

@@ -15,6 +15,20 @@ assert(missedTransfers.length === 4 && missedTransfers.every((write) => !targetI
 assert(baseWordTransferMissWrites({ payload, childId: "child", lessonSourceRef: "lesson:child:2026-07-18:D4_MOR_BASE_WORDS_PRESERVE_BASE", occurredOn: "2026-07-18", finalAttempts: payload.independentWords.map((word) => ({ canonicalWordId: word.canonicalWordId, attemptText: word.displayWord, correct: true })) }).length === 0, "correct transfer words create neither evidence nor review burden");
 assert(baseWordTransferMissWrites({ payload, childId: "child", lessonSourceRef: "lesson:child:2026-07-18:D4_MOR_BASE_WORDS_PRESERVE_BASE", occurredOn: "2026-07-18", finalAttempts: payload.independentWords.map((word) => ({ canonicalWordId: word.canonicalWordId, attemptText: "", correct: false })) }).length === 0, "empty attempts do not create transfer evidence");
 
+const baseLedPayload = {
+  ...payload,
+  independentSlots: payload.independentSlots.map((slot, index) => index < 2
+    ? { ...slot, assignmentRole: "primary_authentic_target" as const, learnerProvenance: "verified_misspelling" as const }
+    : index === 2
+      ? { ...slot, assignmentRole: "queued_family_practice" as const, learnerProvenance: "verified_misspelling" as const, learningItemId: "queued-learning-item" }
+      : { ...slot, assignmentRole: "generated_family_practice" as const, learnerProvenance: "generated_family_practice" as const }),
+};
+const baseLedMisses = baseWordTransferMissWrites({
+  payload: baseLedPayload, childId: "child", lessonSourceRef: "lesson:child:2026-08-10:D4_MOR_BASE_WORDS_PRESERVE_BASE", occurredOn: "2026-08-10",
+  finalAttempts: baseLedPayload.independentWords.map((word) => ({ canonicalWordId: word.canonicalWordId, attemptText: "wrong", correct: false })),
+});
+assert(baseLedMisses.length === 3 && !baseLedMisses.some((write) => write.canonicalWordId === baseLedPayload.independentSlots[2].canonicalWordId), "a queued verified misspelling retains learner scheduling and never enters synthetic transfer evidence");
+
 const migration = readFileSync("supabase/migrations/20260718100000_add_adle_base_word_transfer_evidence.sql", "utf8");
 const loader = readFileSync("lib/adle/loaders/base-word-transfer-evidence-loader.ts", "utf8");
 assert(migration.includes("unique (child_id, canonical_word_id, micro_skill_key, lesson_source_ref)"), "one lesson can contribute at most one transfer miss per word");

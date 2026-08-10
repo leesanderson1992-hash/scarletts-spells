@@ -24,7 +24,7 @@ const loader = readFileSync("lib/adle/loaders/base-word-family-pilot-loader.ts",
 assert(page.includes("getExistingAdleSessionPlanId") && page.includes("resolvePersistedLessonRoute"), "ADLE page resolves the assignment through the shared persisted-route boundary");
 assert(resolver.includes("resolveBaseWordFamilyPilotRuntime") && resolver.includes("base_word_family_v1"), "the shared route boundary preserves the dedicated Base Word validator and adapter");
 assert(runner.includes("completeBaseWordFamilyLessonAction") && runner.includes("baseWordSentenceAttempts"), "renderer submits only the base-word independent attempt contract");
-assert(actions.includes("completeBaseWordFamilyLessonAction") && actions.includes("authenticIds") && actions.includes("baseWordTransferMissWrites"), "completion schedules authentic targets and isolates transfer evidence");
+assert(actions.includes("completeBaseWordFamilyLessonAction") && actions.includes("learnerBackedIds") && actions.includes("baseWordTransferMissWrites"), "completion schedules every learner-backed word and isolates generated family-practice evidence");
 assert(!actions.slice(actions.indexOf("completeBaseWordFamilyLessonAction")).includes("completeAdleLessonPartAction(formData)"), "base-word completion never delegates to generic lesson completion");
 assert(migration.includes("complete_adle_base_word_family_pilot_v1") && migration.includes("Transfer words cannot enter base-word pilot scheduling"), "database boundary rejects transfer scheduling");
 assert(loader.includes('complete_adle_base_word_family_pilot_v2'), "Base Word Lab action persists through the V2 shared-route boundary");

@@ -1,4 +1,5 @@
 import type { BaseWordFamilyLessonSnapshotV1 } from "./morphology/base-word-family-payload";
+import { baseWordSlotIsGeneratedPractice } from "./morphology/base-word-family-payload";
 import type { IsoDate } from "./review-scheduler";
 
 export interface BaseWordTransferMissWrite {
@@ -30,7 +31,7 @@ export function baseWordTransferMissWrites(params: {
   const attempts = new Map(params.finalAttempts.map((attempt) => [attempt.canonicalWordId, attempt]));
   const writes: BaseWordTransferMissWrite[] = [];
   for (const slot of params.payload.independentSlots) {
-    if (slot.provenance !== "transfer") continue;
+    if (!baseWordSlotIsGeneratedPractice(slot)) continue;
     const attempt = attempts.get(slot.canonicalWordId);
     if (!attempt || attempt.correct || !attempt.attemptText.trim()) continue;
     writes.push({

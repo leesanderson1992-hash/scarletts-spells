@@ -50,6 +50,8 @@
       "routeVersion": "v2",
       "runtimeAdapterKey": "base_word_family_v1",
       "supportedMicroSkillKeys": [
+        "D4_MOR_BASE_WORDS_BASE_PLUS_PREFIX",
+        "D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX",
         "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
         "D4_MOR_BASE_WORDS_PRESERVE_BASE"
       ],

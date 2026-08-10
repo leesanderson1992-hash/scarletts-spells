@@ -44,12 +44,12 @@ const productionMorphologySkills = ADLE_CURRICULUM_ROUTE_REGISTRY.filter(
 ).flatMap((route) => route.supportedMicroSkillKeys);
 assert.equal(
   new Set(productionMorphologySkills).size,
-  18,
+  20,
   "all production-enabled morphology skills have exactly one current route",
 );
 assert.equal(
   productionMorphologySkills.length,
-  18,
+  20,
   "production morphology route declarations must not overlap",
 );
 

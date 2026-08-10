@@ -65,6 +65,7 @@ import { analyseDictationSentence } from "@/lib/adle/morphology/dictation-contex
 import { isBaseWordFamilyPilotEnabledForChild } from "@/lib/adle/morphology/base-word-family-pilot-access";
 import { BASE_WORD_FAMILY_ASSIGNMENT_SOURCE, BASE_WORD_FAMILY_ASSIGNMENT_TITLE } from "@/lib/adle/morphology/base-word-family-pilot-plan";
 import { baseWordTransferMissWrites } from "@/lib/adle/base-word-transfer-evidence";
+import { baseWordSlotAssignmentRole, baseWordSlotHasLearnerEvidence } from "@/lib/adle/morphology/base-word-family-payload";
 import { persistBaseWordFamilyPilotCompletion } from "@/lib/adle/loaders/base-word-family-pilot-loader";
 import { BASE_WORD_FAMILY_REFLECTION_PROMPT_KEY, upsertChildLearningReflection } from "@/lib/adle/morphology/reflections";
 import { safeCompletionTraceId, WordLabCompletionTimer } from "@/lib/adle/completion-timing";
@@ -816,9 +817,10 @@ export async function completeBaseWordFamilyLessonAction(formData: FormData) {
     const attemptText = extractAuthoredTargetToken(rawSentence, word.dictationTargetTokenIndex);
     return { canonicalWordId: word.canonicalWordId, attemptText, correct: isAttemptCorrect(attemptText, word.displayWord) };
   });
-  const authenticIds = new Set(payload.independentSlots.filter((slot) => slot.provenance === "authentic_target").map((slot) => slot.canonicalWordId));
-  const authenticProductionItems = readModel.partTwo.items.filter((item) => item.sectionKey === "lesson_production" && item.canonicalWordId !== null && authenticIds.has(item.canonicalWordId));
-  if (authenticProductionItems.length !== 2) finishWith(context, "This Word Lab needs a grown-up check before it can continue.");
+  const primaryIds = new Set(payload.independentSlots.filter((slot) => baseWordSlotAssignmentRole(slot) === "primary_authentic_target").map((slot) => slot.canonicalWordId));
+  const learnerBackedIds = new Set(payload.independentSlots.filter(baseWordSlotHasLearnerEvidence).map((slot) => slot.canonicalWordId));
+  const authenticProductionItems = readModel.partTwo.items.filter((item) => item.sectionKey === "lesson_production" && item.canonicalWordId !== null && primaryIds.has(item.canonicalWordId));
+  if (authenticProductionItems.length !== 2 || learnerBackedIds.size < 2 || learnerBackedIds.size > 6) finishWith(context, "This Word Lab needs a grown-up check before it can continue.");
   const { data: learningItemRows, error: itemsError } = await context.serviceClient.from("adle_learning_items")
     .select("id, child_id, canonical_word_id, micro_skill_key, item_status, source_kind, source_ref, source_attempt_text, reteach_priority, ejected_on, intake_on, row_status")
     .eq("child_id", context.childId).eq("row_status", "active");
@@ -829,7 +831,7 @@ export async function completeBaseWordFamilyLessonAction(formData: FormData) {
     sourceRef: `lesson:${context.childId}:${context.planDate}:${payload.microSkillKey}`,
     bundleId: randomUUID(),
     scheduleAllProducedWords: true,
-    producedWords: finalAttempts.filter((attempt) => authenticIds.has(attempt.canonicalWordId)),
+    producedWords: finalAttempts.filter((attempt) => learnerBackedIds.has(attempt.canonicalWordId)),
     learningItems: ((learningItemRows ?? []) as LearningItemRow[]).map(learningItemFromRow),
   });
   const sourceRef = `lesson:${context.childId}:${context.planDate}:${payload.microSkillKey}`;
