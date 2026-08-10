@@ -113,7 +113,11 @@ export type UnifiedSpellingReviewItem = {
     catalogReviewCaseId: string | null;
     candidateMappingId: string | null;
     canonicalRecommendationId: string | null;
-    canonicalRecommendationStatus: "recommended" | "pending_admin_review" | null;
+    canonicalRecommendationStatus:
+      | "recommended"
+      | "pending_admin_review"
+      | "accepted"
+      | null;
   };
   provenance: {
     parentAuthored: boolean;
@@ -223,7 +227,7 @@ export type UnifiedSpellingReviewCatalogReviewCaseRow = {
 export type UnifiedSpellingReviewCanonicalRecommendationRow = {
   id: string;
   candidate_mapping_id: string | null;
-  recommendation_status: "recommended" | "pending_admin_review";
+  recommendation_status: "recommended" | "pending_admin_review" | "accepted";
 };
 
 export type BuildUnifiedSpellingReviewItemsInput = {
@@ -1556,7 +1560,11 @@ export async function loadUnifiedSpellingReviewItemsForSubmission(input: {
           .eq("parent_user_id", input.parentUserId)
           .eq("child_id", input.childId)
           .in("candidate_mapping_id", candidateMappingIds)
-          .in("recommendation_status", ["recommended", "pending_admin_review"])
+          .in("recommendation_status", [
+            "recommended",
+            "pending_admin_review",
+            "accepted",
+          ])
           .order("created_at", { ascending: false })
       : { data: [] };
 
