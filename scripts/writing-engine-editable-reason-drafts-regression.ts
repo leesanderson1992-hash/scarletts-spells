@@ -128,6 +128,29 @@ function main() {
     /Admin has already acted on this learning route/,
   );
 
+  const acceptedHandoffMigrationSource = readFileSync(
+    "supabase/migrations/20260810101500_preserve_accepted_recommendation_approval_handoff.sql",
+    "utf8",
+  );
+  assert.match(
+    acceptedHandoffMigrationSource,
+    /create or replace function public\.approve_task_submission_with_reason_drafts/,
+  );
+  assert.match(
+    acceptedHandoffMigrationSource,
+    /recommendation\.recommendation_status in \('recommended', 'pending_admin_review', 'accepted'\)/,
+    "An accepted canonical recommendation must remain durable admin-handoff authority inside the atomic approval transaction.",
+  );
+  assert.match(
+    acceptedHandoffMigrationSource,
+    /finalise_writing_issue_classification_and_learning_item[\s\S]*parent_review_status = 'approved'/,
+    "The forward replacement must preserve atomic issue finalisation and submission approval.",
+  );
+  assert.match(
+    acceptedHandoffMigrationSource,
+    /grant execute on function public\.approve_task_submission_with_reason_drafts\([\s\S]*authenticated, service_role/,
+  );
+
   const candidateActionSource = readFileSync(
     "app/courses/review/actions/candidate-mapping-actions.ts",
     "utf8",
