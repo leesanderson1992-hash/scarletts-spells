@@ -1001,6 +1001,79 @@ assert.equal(
   "Durably auto-resolved known matches must stop blocking completion without admin evidence.",
 );
 
+const acceptedRecommendationRows = buildUnifiedSpellingReviewItems({
+  ...input,
+  misspellings: [],
+  writingIssueSuggestions: [],
+  parentVerifications: [],
+  historicalParentVerifications: [],
+  writingIssues: [],
+  correctionAttempts: [
+    {
+      id: "attempt-accepted-recommendation",
+      writing_issue_id: "issue-accepted-recommendation",
+      task_submission_id: "submission-current",
+      attempted_correction: "activity",
+      attempt_notes: null,
+      reflection: "medium",
+      metadata: { source: "child_retry" },
+      created_at: "2026-08-10T09:50:00.000Z",
+    },
+  ],
+  returnedWritingIssues: [
+    {
+      id: "issue-accepted-recommendation",
+      task_submission_id: "submission-previous",
+      source_misspelling_instance_id: "miss-accepted-recommendation",
+      source_suggestion_id: "suggestion-accepted-recommendation",
+      issue_status: "child_responded",
+      final_classification: null,
+      draft_final_classification: "fragile_knowledge",
+      draft_final_classification_updated_at: "2026-08-10T09:51:00.000Z",
+      observed_text: "acitvity",
+      suggested_replacement: "activity",
+      approved_replacement: "activity",
+      micro_skill_key: "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      parent_review_note: null,
+      notes: null,
+      metadata: { source_kind: "parent_authored_missed_word" },
+    },
+  ],
+  candidateMappings: [
+    {
+      id: "candidate-accepted-recommendation",
+      source_misspelling_instance_id: "miss-accepted-recommendation",
+      micro_skill_key: "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      candidate_status: "parent_local_promoted",
+      promotion_scope: "parent_local",
+    },
+  ],
+  catalogReviewCases: [],
+  canonicalRecommendations: [
+    {
+      id: "recommendation-accepted",
+      candidate_mapping_id: "candidate-accepted-recommendation",
+      recommendation_status: "accepted",
+    },
+  ],
+});
+assert.equal(acceptedRecommendationRows.length, 1);
+assert.equal(acceptedRecommendationRows[0]?.readyForApproval, true);
+assert.equal(
+  acceptedRecommendationRows[0]?.sourceIds.canonicalRecommendationStatus,
+  "accepted",
+);
+assert.equal(
+  summarizeUnifiedSpellingReviewCompletion(acceptedRecommendationRows).canComplete,
+  true,
+  "Admin acceptance must remain a durable handoff while the parent finalises the saved reason.",
+);
+assert.match(
+  helperSource,
+  /\.in\("recommendation_status", \[[\s\S]*"recommended"[\s\S]*"pending_admin_review"[\s\S]*"accepted"[\s\S]*\]\)/,
+  "The live loader must retain accepted recommendations as durable admin handoff authority.",
+);
+
 const preResolvedKnownMatchRows = buildUnifiedSpellingReviewItems({
   ...input,
   misspellings: [],
