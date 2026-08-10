@@ -359,6 +359,11 @@ function testRetiredRuntimeSurfacesAreGone() {
     /saveManualWritingSampleIntake[\s\S]*replaceAnalysisForSample[\s\S]*redirect\(location\)/,
     "/analyse actions must delegate to intake persistence and hand off to Review Work.",
   );
+  assert.match(
+    analyseActions,
+    /replaceAnalysisForSample\([\s\S]*createServiceRoleClient\(\)[\s\S]*sample[\s\S]*parentUserId/,
+    "/analyse must use the service-role boundary for the service-only canonical resolver after parent/child ownership is established.",
+  );
   assert.doesNotMatch(
     analyseActions,
     /parent_verifications|writing_issues|learning_items|assignment_items|daily_assignments|word_progress/,
