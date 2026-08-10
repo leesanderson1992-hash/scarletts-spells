@@ -1,0 +1,105 @@
+{
+  "schemaVersion": "base_word_family_release_v1",
+  "releaseId": "adle_base_word_family_meanings_v1_2026_08_09",
+  "packageType": "base_word_family_batch_v1",
+  "packageSchemaVersion": "v1",
+  "sourceCommit": "e4219122b7e68f37a47af6fa4152e65d19083cd3",
+  "requiredMigrationVersions": [
+    "20260809160000"
+  ],
+  "requiredMigrations": [
+    {
+      "version": "20260809160000",
+      "path": "supabase/migrations/20260809160000_allow_base_word_family_release_ledger.sql",
+      "sha256": "af80543ad3a66413c21934033240280c8984341a645b3a59c601111dabdb25da"
+    }
+  ],
+  "predecessorImportBatchId": "d659485d-7bd2-44ca-815e-f5a3995eb068",
+  "importBatchId": "ddc8993b-26ca-57da-8383-1efec1be8ee1",
+  "workbookSha256": "acdc53a6c5f8aa3cbb73908539d7dd0020307dcd948fc7b7791b676872b09221",
+  "workbookSha256Basis": "reviewed_word_teaching_gloss_projection",
+  "sourceFiles": {
+    "families": {
+      "path": "docs/implementation/seed-data/teaching-dictionary/candidates/2026-06-29-phase-5-source-intake/csv/base_word_families.csv",
+      "sha256": "11c4683ca25a457864c6bd4ebc68ce31423d86ced150b49270d3810cee3066d8"
+    },
+    "members": {
+      "path": "docs/implementation/seed-data/teaching-dictionary/candidates/2026-06-29-phase-5-source-intake/csv/base_word_family_members.csv",
+      "sha256": "9fa50843c1f7ac7772e9f77c1caba3f2ed04fdcb0194a1f61f7c4acb5c953ccc"
+    },
+    "generator": {
+      "path": "scripts/populate-base-word-family-meanings.py",
+      "sha256": "df5ff9cadf719593da9fb0c012c65f14d946faef472d59ace8fd6c59a8844600"
+    },
+    "reviewReceipt": {
+      "path": "docs/implementation/seed-data/teaching-dictionary/candidates/2026-06-29-phase-5-source-intake/MORPHOLOGY_FAMILY_MEANINGS_REVIEW.md",
+      "sha256": "1428d31e53bbfd27fb2de2fc94bd4f3264dcde408b1ac63c5461e9f6f376c7bc"
+    }
+  },
+  "review": {
+    "approvedBy": "Katie Sanderson",
+    "approvedAt": "2026-07-24T15:53:22+01:00",
+    "meaningPairSha256": "acdc53a6c5f8aa3cbb73908539d7dd0020307dcd948fc7b7791b676872b09221"
+  },
+  "rowCounts": {
+    "baseWordFamilies": 87,
+    "baseWordFamilyMembers": 227,
+    "missingOrUnreviewedMeanings": 0
+  },
+  "meaningClassCounts": {
+    "generated_and_reviewed": 32,
+    "reviewed_override": 43,
+    "reviewed_source": 152
+  },
+  "roleCounts": {
+    "authentic_target": 119,
+    "base": 87,
+    "transfer": 21
+  },
+  "skills": {
+    "D4_MOR_BASE_WORDS_IDENTIFY_BASE": {
+      "families": 85,
+      "members": 217,
+      "roles": {
+        "authentic_target": 116,
+        "base": 85,
+        "transfer": 16
+      }
+    },
+    "D4_MOR_BASE_WORDS_PRESERVE_BASE": {
+      "families": 2,
+      "members": 10,
+      "roles": {
+        "authentic_target": 3,
+        "base": 2,
+        "transfer": 5
+      }
+    }
+  },
+  "authorityManifests": [
+    {
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "authorityKey": "base_word_family_membership:identify-base:adle_base_word_family_meanings_v1_2026_08_09",
+      "path": "authorities/identify-base.json",
+      "sha256": "d0ed82bf048cc8295113d1e431a0f48569b132c76b8c735fb7ef3e67a0479ed8",
+      "families": 85,
+      "members": 217
+    },
+    {
+      "microSkillKey": "D4_MOR_BASE_WORDS_PRESERVE_BASE",
+      "authorityKey": "base_word_family_membership:preserve-base:adle_base_word_family_meanings_v1_2026_08_09",
+      "path": "authorities/preserve-base.json",
+      "sha256": "53ec33c854e8d5ebe5ec4e9d32dfe94d07b1a798ebde6d946825b3115783825d",
+      "families": 2,
+      "members": 10
+    }
+  ],
+  "semanticNote": "child_friendly_meaning is the reviewed word teaching gloss used by the current Base Word member projection; it is not asserted to be a family-disambiguated canonical dictionary definition",
+  "operationalEffects": {
+    "createsRouteRelease": false,
+    "createsActivationRevision": false,
+    "changesLearnerGate": false,
+    "writesLearnerData": false
+  },
+  "packageSha256": "c6b5c3db64d902f7a3b2e18e60d822baef4c48d0fec855cb211edca564676576"
+}
