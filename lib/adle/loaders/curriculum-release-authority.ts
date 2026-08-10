@@ -6,6 +6,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { parsePersistedLessonRouteMetadata } from "../composable-lesson/persisted-route-metadata";
 import {
   BASE_WORD_RELEASE_DEPENDENCY_TYPES,
+  baseWordFamilyAuthorityAppliesToMicroSkill,
   type ActivatedBaseWordReleaseAuthority,
   type BaseWordDictionaryClosureWord,
   type BaseWordFamilyAuthorityFamily,
@@ -25,27 +26,48 @@ function string(value: unknown): value is string {
 }
 
 function familyProjection(value: unknown): BaseWordFamilyAuthorityProjection | null {
-  if (!record(value) || value.schemaVersion !== 1 || !string(value.microSkillKey) ||
-      !string(value.importBatchId) || !Array.isArray(value.families)) return null;
+  if (!record(value) || ![1, 2].includes(value.schemaVersion) || !Array.isArray(value.families)) return null;
+  if (value.schemaVersion === 1 && (!string(value.microSkillKey) || !string(value.importBatchId))) return null;
+  if (value.schemaVersion === 2 && (value.skillClusterKey !== "D4_MOR_BASE_WORDS" ||
+      !Array.isArray(value.sourceAuthorities) || value.sourceAuthorities.length === 0 ||
+      !value.sourceAuthorities.every((source: unknown) => record(source) && string(source.authorityKey) &&
+        ["teaching_dictionary_import_batch", "approved_repository_artifact"].includes(source.sourceKind) &&
+        string(source.sourceId) && typeof source.sourceFingerprint === "string" && /^[a-f0-9]{64}$/.test(source.sourceFingerprint)))) return null;
   const families: BaseWordFamilyAuthorityFamily[] = [];
   for (const rawFamily of value.families) {
     if (!record(rawFamily) || !string(rawFamily.familyId) || !string(rawFamily.baseFamilyKey) ||
         !string(rawFamily.baseWordId) || !string(rawFamily.baseMeaning) ||
         !record(rawFamily.etymologyRoute) || !Array.isArray(rawFamily.members)) return null;
+    if (value.schemaVersion === 2 && (typeof rawFamily.sourceFingerprint !== "string" ||
+        !/^[a-f0-9]{64}$/.test(rawFamily.sourceFingerprint))) return null;
     const members: BaseWordFamilyAuthorityMember[] = [];
     for (const rawMember of rawFamily.members) {
       if (!record(rawMember) || !string(rawMember.memberId) || !string(rawMember.canonicalWordId) ||
-          !["base", "authentic_target", "transfer", "optional_transfer_check"].includes(rawMember.memberRole) ||
           typeof rawMember.assignmentEligible !== "boolean" ||
           !(rawMember.complexityLevel === null || Number.isInteger(rawMember.complexityLevel)) ||
           !string(rawMember.wordSum) || !Array.isArray(rawMember.morphologyParts) ||
           !Array.isArray(rawMember.morphologyJoins) || !Array.isArray(rawMember.morphologyTransformations) ||
           typeof rawMember.transformationNotes !== "string" || !string(rawMember.childFriendlyMeaning)) return null;
+      if (value.schemaVersion === 1 &&
+          !["base", "authentic_target", "transfer", "optional_transfer_check"].includes(rawMember.memberRole)) return null;
+      if (value.schemaVersion === 2 && (
+          !["base", "family_member"].includes(rawMember.structuralRole) ||
+          !Array.isArray(rawMember.applicableMicroSkillKeys) || rawMember.applicableMicroSkillKeys.length === 0 ||
+          !rawMember.applicableMicroSkillKeys.every(string) ||
+          new Set(rawMember.applicableMicroSkillKeys).size !== rawMember.applicableMicroSkillKeys.length ||
+          !record(rawMember.morphologySource) ||
+          !["base_word_family_member", "approved_repository_analysis"].includes(rawMember.morphologySource.sourceKind) ||
+          !string(rawMember.morphologySource.sourceId) || !/^[a-f0-9]{64}$/.test(rawMember.morphologySource.sourceFingerprint) ||
+          !string(rawMember.morphologySource.sourceAuthorityKey) ||
+          !value.sourceAuthorities.some((source: unknown) => record(source) && source.authorityKey === rawMember.morphologySource.sourceAuthorityKey)
+      )) return null;
       members.push(rawMember as BaseWordFamilyAuthorityMember);
     }
     families.push({ ...rawFamily, members } as BaseWordFamilyAuthorityFamily);
   }
-  return { schemaVersion: 1, microSkillKey: value.microSkillKey, importBatchId: value.importBatchId, families };
+  return value.schemaVersion === 1
+    ? { schemaVersion: 1, microSkillKey: value.microSkillKey, importBatchId: value.importBatchId, families }
+    : { schemaVersion: 2, skillClusterKey: "D4_MOR_BASE_WORDS", sourceAuthorities: value.sourceAuthorities, families };
 }
 
 function teachingProjection(value: unknown): BaseWordTeachingContentAuthorityProjection | null {
@@ -170,7 +192,7 @@ export async function loadEnabledBaseWordReleaseAuthorities(params: {
         audioText: row.audio_text,
       } satisfies BaseWordDictionaryClosureWord));
     if (!familyAuthority || !teachingAuthority || !closureAuthority || !family || !teachingContent ||
-        family.microSkillKey !== revision.micro_skill_key || teachingContent.microSkillKey !== revision.micro_skill_key ||
+        !baseWordFamilyAuthorityAppliesToMicroSkill(family, revision.micro_skill_key) || teachingContent.microSkillKey !== revision.micro_skill_key ||
         dictionaryWords.length === 0) continue;
     const { data: current, error: currentError } = await params.client.rpc(
       "adle_route_activation_revision_is_current_v2",

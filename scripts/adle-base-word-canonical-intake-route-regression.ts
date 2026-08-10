@@ -58,10 +58,8 @@ for (const skill of CLUSTER_SKILLS) {
   assert.deepEqual(resolveCanonicalIntakeRoute(skill, BASE_WORD_CLUSTER), { routeId: "base_word_lab", routeVersion: "v2" });
   assert.equal(getCurriculumRouteOwnerForTaxonomy({ microSkillKey: skill, skillClusterKey: BASE_WORD_CLUSTER })?.routeId, "base_word_lab");
 }
-for (const skill of SKILLS)
-  assert.equal(getNewAssignmentCurriculumRouteForMicroSkill(skill)?.routeId, "base_word_lab");
-for (const skill of CLUSTER_SKILLS.slice(0, 2))
-  assert.equal(getNewAssignmentCurriculumRouteForMicroSkill(skill), null, `${skill} has route ownership but no recipe support`);
+for (const skill of CLUSTER_SKILLS)
+  assert.equal(getNewAssignmentCurriculumRouteForMicroSkill(skill)?.routeId, "base_word_lab", `${skill} shares the governed Base Word family recipe boundary`);
 assert.equal(isBaseWordIntakeSkill("D4_MOR_BASE_WORDS_INVENTED", "D4_MOR_ROOTS"), false);
 assert.deepEqual(resolveCanonicalIntakeRoute("D4_MOR_BASE_WORDS_INVENTED", "D4_MOR_ROOTS"), { routeId: "adle_word_level", routeVersion: "v1" });
 assert.deepEqual(resolveCanonicalIntakeRoute("D4_MOR_PREFIXES_UN"), { routeId: "dynamic_prefix_word_lab", routeVersion: "v2" });
@@ -110,7 +108,10 @@ function compileMembership(memberOverride = member(WORD_ID), activationOverride:
 }
 assert.equal(compileMembership().readyPairs.has(canonicalWordSkillPair(WORD_ID, SKILLS[0])), true);
 assert.equal(compileBaseWordCanonicalIntakeRouteFacts({ activations: [{ ...activation, family: { ...activation.family, families: [] } }] }).readyPairs.size, 0, "missing exact membership fails");
-assert.equal(compileMembership(member(WORD_ID), { ...activation, family: { ...activation.family, microSkillKey: SKILLS[1] } }).readyPairs.size, 0, "wrong family skill fails");
+const wrongFamilySkill = structuredClone(activation);
+if (wrongFamilySkill.family.schemaVersion !== 1) throw new Error("historical fixture must use family authority v1");
+wrongFamilySkill.family.microSkillKey = SKILLS[1];
+assert.equal(compileMembership(member(WORD_ID), wrongFamilySkill).readyPairs.size, 0, "wrong family skill fails");
 for (const memberRole of ["base", "transfer", "optional_transfer_check"]) {
   const result = compileMembership(member(`word-${memberRole}`, memberRole as "base" | "transfer" | "optional_transfer_check"));
   assert.equal(result.readyPairs.size, 0, `${memberRole} cannot be an authentic target`);
@@ -121,6 +122,32 @@ for (const canonicalWordId of ["bed", "foot", "sun"]) {
   const result = compileMembership(member(canonicalWordId, "base"));
   assert.equal(result.readyPairs.size, 0, `${canonicalWordId} remains support-only through its base role`);
 }
+const baseLedSkill = "D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX";
+const baseLedActivation: ActivatedBaseWordReleaseAuthority = {
+  ...activation,
+  microSkillKey: baseLedSkill,
+  family: {
+    schemaVersion: 2,
+    skillClusterKey: BASE_WORD_CLUSTER,
+    sourceAuthorities: [{ authorityKey: "batch:proof", sourceKind: "teaching_dictionary_import_batch", sourceId: "77777777-7777-4777-8777-777777777777", sourceFingerprint: "1".repeat(64) }],
+    families: [{
+      familyId: "family-care", baseFamilyKey: "CARE", baseWordId: "word-care", baseMeaning: "care", etymologyRoute: { kind: "base" }, sourceFingerprint: "2".repeat(64),
+      members: [{
+        memberId: "member-careful", canonicalWordId: "word-careful", structuralRole: "family_member", applicableMicroSkillKeys: [baseLedSkill],
+        morphologySource: { sourceKind: "base_word_family_member", sourceId: "88888888-8888-4888-8888-888888888888", sourceFingerprint: "f".repeat(64), sourceAuthorityKey: "batch:proof" },
+        assignmentEligible: true, complexityLevel: null, wordSum: "care + ful", morphologyParts: [{ text: "care" }, { text: "ful" }], morphologyJoins: [], morphologyTransformations: [], transformationNotes: "", childFriendlyMeaning: "showing care",
+      }],
+    }],
+  },
+  teachingContent: { ...activation.teachingContent, microSkillKey: baseLedSkill },
+  dictionaryWords: [{ ...activation.dictionaryWords[0], canonicalWordId: "word-careful", wordKey: "careful_en_gb", normalisedWord: "careful", displayWord: "careful", dictationSentence: "Be careful now.", dictationTargetTokenIndex: 1, audioText: "Be careful now." }],
+};
+assert.equal(compileBaseWordCanonicalIntakeRouteFacts({ activations: [baseLedActivation] }).readyPairs.has(canonicalWordSkillPair("word-careful", baseLedSkill)), true, "family-authority v2 accepts a genuine misspelling through reviewed base relationship without a permanent authentic role");
+const baseAsLearnerTarget = structuredClone(baseLedActivation);
+const baseAsLearnerMember = baseAsLearnerTarget.family.families[0].members[0];
+if (!("structuralRole" in baseAsLearnerMember)) throw new Error("base-led fixture must use family authority v2");
+baseAsLearnerMember.structuralRole = "base";
+assert.equal(compileBaseWordCanonicalIntakeRouteFacts({ activations: [baseAsLearnerTarget] }).readyPairs.size, 1, "a structural base member is not blacklisted from genuine learner evidence");
 
 function facts(skill: string = SKILLS[0]): CanonicalIntakeReadinessFacts {
   return {
@@ -271,11 +298,13 @@ const membershipCompiler = readFileSync("lib/adle/canonical-intake/base-word-rou
 const assignmentLoader = readFileSync("lib/adle/loaders/base-word-family-pilot-loader.ts", "utf8");
 const assignmentSelector = readFileSync("lib/adle/base-word-family-selection.ts", "utf8");
 const migration = readFileSync("supabase/migrations/20260809150000_integrate_base_word_release_authority.sql", "utf8");
+const baseLedMigration = readFileSync("supabase/migrations/20260810201000_bind_base_led_family_selection.sql", "utf8");
 assert.match(loader, /BASE_WORD_ROUTE\.supportedMicroSkillKeys/);
 assert.match(loader, /loadEnabledBaseWordReleaseAuthorities/);
 assert.match(membershipCompiler, /memberRole === "authentic_target"/);
 assert.match(membershipCompiler, /curriculumRelease: persistedReleaseAuthority/);
 assert.match(migration, /member->>'memberRole' = 'authentic_target'/);
+assert.match(baseLedMigration, /member->'applicableMicroSkillKeys' \? p_micro_skill_key/);
 assert.match(migration, /family_authority\.semantic_projection/);
 assert.match(migration, /p_route_activation_id uuid default null/);
 assert.match(assignmentLoader, /loadEnabledBaseWordReleaseAuthorities/);

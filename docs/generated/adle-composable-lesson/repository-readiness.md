@@ -6,16 +6,18 @@
 
 Mode: `repository/report`
 
-Input fingerprint: `37da3eae229bc8bae913aa6e6fc249a0b47de5e0fe0439b8d035604949a02651`
+Input fingerprint: `1f273f272c0da4e90abcb7b28b3fb48edd900d4ac3cd7251679f3126ee3637be`
 
-Production morphology micro-skills: 18
-Structurally declared: 18
+Production morphology micro-skills: 20
+Structurally declared: 20
 Ready: 0
 Blocked: 0
-Not assessed: 18
+Not assessed: 20
 
 | Micro-skill | Route | Status | Blockers |
 |---|---|---|---|
+| D4_MOR_BASE_WORDS_BASE_PLUS_PREFIX | base_word_lab:v2 | not_assessed | none |
+| D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX | base_word_lab:v2 | not_assessed | none |
 | D4_MOR_BASE_WORDS_IDENTIFY_BASE | base_word_lab:v2 | not_assessed | none |
 | D4_MOR_BASE_WORDS_PRESERVE_BASE | base_word_lab:v2 | not_assessed | none |
 | D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS | closed_compound_word_lab:v1 | not_assessed | none |

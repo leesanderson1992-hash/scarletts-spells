@@ -21,6 +21,10 @@ import { loadBaseWordFamilyLessonReadModel } from "./base-word-family-lesson-rea
 import { isBaseWordFamilyPilotEnabledForChild } from "../morphology/base-word-family-pilot-access";
 import { compileBaseWordFamilyLessonSnapshot } from "../morphology/base-word-family-payload";
 import {
+  baseWordFamilyMemberAppliesToMicroSkill,
+  baseWordFamilyMemberStructuralRole,
+} from "../curriculum-release-activation";
+import {
   loadEnabledBaseWordReleaseAuthorities,
   type ActivatedBaseWordReleaseAuthority,
 } from "./curriculum-release-authority";
@@ -49,6 +53,7 @@ interface ProjectedBaseWordAuthority {
 }
 
 function projectAuthority(authority: ActivatedBaseWordReleaseAuthority): ProjectedBaseWordAuthority {
+  const closureWordIds = new Set(authority.dictionaryWords.map((word) => word.canonicalWordId));
   return {
     releaseAuthority: {
       activationRevisionId: authority.activationRevisionId,
@@ -57,6 +62,7 @@ function projectAuthority(authority: ActivatedBaseWordReleaseAuthority): Project
       familyAuthorityId: authority.familyAuthorityId,
       teachingContentAuthorityId: authority.teachingContentAuthorityId,
       dictionaryClosureAuthorityId: authority.dictionaryClosureAuthorityId,
+      familyAuthoritySchemaVersion: authority.family.schemaVersion,
     },
     words: authority.dictionaryWords.map((word) => ({
       canonicalWordId: word.canonicalWordId,
@@ -89,7 +95,12 @@ function projectAuthority(authority: ActivatedBaseWordReleaseAuthority): Project
       baseFamilyKey: family.baseFamilyKey,
       microSkillKey: authority.microSkillKey,
       canonicalWordId: member.canonicalWordId,
-      memberRole: member.memberRole,
+      memberRole: baseWordFamilyMemberStructuralRole(member) === "base" ? "base" as const : "transfer" as const,
+      applicableMicroSkillKeys: authority.family.schemaVersion === 2 && "applicableMicroSkillKeys" in member ? member.applicableMicroSkillKeys : [authority.microSkillKey],
+      authenticSelectionEligible: authority.family.schemaVersion === 2
+        ? baseWordFamilyMemberAppliesToMicroSkill(authority.family, member, authority.microSkillKey)
+        : "memberRole" in member && member.memberRole === "authentic_target",
+      lessonContentEligible: closureWordIds.has(member.canonicalWordId),
       assignmentEligible: member.assignmentEligible,
       complexityLevel: member.complexityLevel,
       rowStatus: "active" as const,
@@ -165,12 +176,12 @@ export async function loadBaseWordCurriculumReadinessFacts(params: {
   for (const item of selectionKeys.values()) {
     const childSkillKey = `${item.childId}\u0000${item.microSkillKey}`;
     if (payloadByChildSkill.has(childSkillKey)) continue;
-    const selection = selectBaseWordFamilyLesson(item.childId, item.microSkillKey, { learningItems: activeItems, families, members });
+    const activated = projectedBySkill.get(item.microSkillKey);
+    const selection = selectBaseWordFamilyLesson(item.childId, item.microSkillKey, { familyAuthoritySchemaVersion: activated?.authority.family.schemaVersion, learningItems: activeItems, families, members });
     if (selection.skipReasons.length > 0) {
       payloadByChildSkill.set(childSkillKey, null);
       continue;
     }
-    const activated = projectedBySkill.get(item.microSkillKey);
     if (!activated) {
       payloadByChildSkill.set(childSkillKey, false);
       continue;
@@ -180,11 +191,11 @@ export async function loadBaseWordCurriculumReadinessFacts(params: {
         microSkillKey: item.microSkillKey,
         contentVersion: activated.authority.teachingContent.contentVersion,
         releaseAuthority: activated.authority,
-        authenticTargets: selection.slots.filter((slot) => slot.provenance === "authentic_target").map((slot) => ({
+        authenticTargets: selection.slots.filter((slot) => slot.assignmentRole === "primary_authentic_target").map((slot) => ({
           canonicalWordId: slot.canonicalWordId, learningItemId: slot.learningItemId!, sourceRef: activeItems.find((candidate) => candidate.learningItemId === slot.learningItemId)?.sourceRef ?? "",
         })),
         sections: selection.guidedFamilySections.map((section) => ({ ...section, authenticTargetWordIds: [...section.authenticTargetWordIds], guidedWordIds: [...section.guidedWordIds] })),
-        independentSlots: selection.slots.map((slot) => ({ canonicalWordId: slot.canonicalWordId, provenance: slot.provenance, baseFamilyKey: slot.baseFamilyKey, learningItemId: slot.learningItemId })),
+        independentSlots: selection.slots.map((slot) => ({ canonicalWordId: slot.canonicalWordId, provenance: slot.provenance, assignmentRole: slot.assignmentRole, learnerProvenance: slot.learnerProvenance, baseFamilyKey: slot.baseFamilyKey, learningItemId: slot.learningItemId })),
         pilotLessonNumber: 1,
       });
       if (!readModel) payloadByChildSkill.set(childSkillKey, false);
@@ -199,6 +210,7 @@ export async function loadBaseWordCurriculumReadinessFacts(params: {
   }
   const routeSelections = [...selectionKeys.values()].map((item) => inspectBaseWordRouteSelection({
     childId: item.childId, canonicalWordId: item.canonicalWordId, microSkillKey: item.microSkillKey,
+    familyAuthoritySchemaVersion: projectedBySkill.get(item.microSkillKey)?.authority.family.schemaVersion,
     learningItems: activeItems, families, members, payloadCompilable: payloadByChildSkill.get(`${item.childId}\u0000${item.microSkillKey}`) ?? null,
   })).sort((left, right) => `${left.childId}\u0000${left.canonicalWordId}\u0000${left.microSkillKey}`.localeCompare(`${right.childId}\u0000${right.canonicalWordId}\u0000${right.microSkillKey}`));
   const routeActivation = [...new Set(activeItems.map((item) => `${item.childId}\u0000${item.microSkillKey}`))]

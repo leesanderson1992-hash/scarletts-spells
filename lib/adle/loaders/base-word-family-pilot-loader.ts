@@ -17,16 +17,17 @@ import {
   loadEnabledBaseWordReleaseAuthorities,
 } from "./curriculum-release-authority";
 import {
+  baseWordFamilyMemberAppliesToMicroSkill,
+  baseWordFamilyMemberStructuralRole,
   persistedReleaseAuthority,
   type ActivatedBaseWordReleaseAuthority,
 } from "../curriculum-release-activation";
+import { getCurriculumRouteDefinition } from "../curriculum-readiness/route-registry";
 
 /** Current fixed 2-authentic/4-transfer/18-binding recipe support. Route
  * ownership is broader and derives from the canonical Base Word cluster. */
-export const BASE_WORD_PILOT_MICRO_SKILLS = [
-  "D4_MOR_BASE_WORDS_PRESERVE_BASE",
-  "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
-] as const;
+export const BASE_WORD_PILOT_MICRO_SKILLS = getCurriculumRouteDefinition("base_word_lab", "v2")
+  ?.supportedMicroSkillKeys ?? [];
 /**
  * Loads only existing verified learning items and reviewed curriculum data.
  * It never creates a substitute target or turns a raw attempt into a lesson.
@@ -61,6 +62,7 @@ export async function loadBaseWordFamilyPilotReadiness(params: {
   const candidates: Array<{ activation: ActivatedBaseWordReleaseAuthority; microSkillKey: string; selection: ReturnType<typeof selectBaseWordFamilyLesson> }> = [];
   const reasons: string[] = [];
   for (const activation of enabledActivations) {
+    const closureWordIds = new Set(activation.dictionaryWords.map((word) => word.canonicalWordId));
     const families: BaseWordFamilyFact[] = activation.family.families.map((family) => ({
       baseFamilyKey: family.baseFamilyKey,
       microSkillKey: activation.microSkillKey,
@@ -71,14 +73,21 @@ export async function loadBaseWordFamilyPilotReadiness(params: {
       family.members.map((member) => ({
         baseFamilyKey: family.baseFamilyKey,
         canonicalWordId: member.canonicalWordId,
-        memberRole: member.memberRole,
+        memberRole: baseWordFamilyMemberStructuralRole(member) === "base" ? "base" as const : "transfer" as const,
+        applicableMicroSkillKeys: activation.family.schemaVersion === 2 && "applicableMicroSkillKeys" in member
+          ? member.applicableMicroSkillKeys
+          : [activation.microSkillKey],
+        authenticSelectionEligible: activation.family.schemaVersion === 2
+          ? baseWordFamilyMemberAppliesToMicroSkill(activation.family, member, activation.microSkillKey)
+          : "memberRole" in member && member.memberRole === "authentic_target",
+        lessonContentEligible: closureWordIds.has(member.canonicalWordId),
         assignmentEligible: member.assignmentEligible,
         complexityLevel: member.complexityLevel,
         rowStatus: "active" as const,
         reviewStatus: "approved_for_first_exposure" as const,
       })),
     );
-    const selection = selectBaseWordFamilyLesson(params.childId, activation.microSkillKey, { learningItems: facts.learningItems, families, members });
+    const selection = selectBaseWordFamilyLesson(params.childId, activation.microSkillKey, { familyAuthoritySchemaVersion: activation.family.schemaVersion, learningItems: facts.learningItems, families, members });
     if (selection.skipReasons.length === 0 && selection.baseFamilyKeys.length === 2)
       candidates.push({ activation, microSkillKey: activation.microSkillKey, selection });
     else reasons.push(selection.skipReasons.join(","));
@@ -89,7 +98,7 @@ export async function loadBaseWordFamilyPilotReadiness(params: {
   }
   const { activation, microSkillKey, selection } = candidate;
   const pilotLessonNumber = (runCount ?? 0) + 1;
-  const authenticTargets = selection.slots.filter((slot) => slot.provenance === "authentic_target").map((slot) => {
+  const authenticTargets = selection.slots.filter((slot) => slot.assignmentRole === "primary_authentic_target").map((slot) => {
     const item = facts.learningItems.find((candidate) => candidate.learningItemId === slot.learningItemId);
     return item ? { canonicalWordId: slot.canonicalWordId, learningItemId: item.learningItemId, sourceRef: item.sourceRef } : null;
   });
@@ -99,7 +108,7 @@ export async function loadBaseWordFamilyPilotReadiness(params: {
     releaseAuthority: activation,
     authenticTargets: authenticTargets as NonNullable<(typeof authenticTargets)[number]>[],
     sections: selection.guidedFamilySections.map((section) => ({ baseFamilyKey: section.baseFamilyKey, authenticTargetWordIds: [...section.authenticTargetWordIds], guidedWordIds: [...section.guidedWordIds] })),
-    independentSlots: selection.slots.map(({ canonicalWordId, provenance, baseFamilyKey, learningItemId }) => ({ canonicalWordId, provenance, baseFamilyKey, learningItemId })),
+    independentSlots: selection.slots.map(({ canonicalWordId, provenance, assignmentRole, learnerProvenance, baseFamilyKey, learningItemId }) => ({ canonicalWordId, provenance, assignmentRole, learnerProvenance, baseFamilyKey, learningItemId })),
     pilotLessonNumber,
   });
   if (!readModel) return { payload: null, releaseAuthority: null, readinessReason: "reviewed_family_read_model_unavailable" };

@@ -8,10 +8,9 @@ export const BASE_WORD_RELEASE_DEPENDENCY_TYPES = [
 
 export type BaseWordReleaseDependencyType = (typeof BASE_WORD_RELEASE_DEPENDENCY_TYPES)[number];
 
-export interface BaseWordFamilyAuthorityMember {
+interface BaseWordFamilyAuthorityMemberCommon {
   memberId: string;
   canonicalWordId: string;
-  memberRole: "base" | "authentic_target" | "transfer" | "optional_transfer_check";
   assignmentEligible: boolean;
   complexityLevel: number | null;
   wordSum: string;
@@ -22,20 +21,89 @@ export interface BaseWordFamilyAuthorityMember {
   childFriendlyMeaning: string;
 }
 
+export interface BaseWordFamilyAuthorityMemberV1 extends BaseWordFamilyAuthorityMemberCommon {
+  memberRole: "base" | "authentic_target" | "transfer" | "optional_transfer_check";
+}
+
+export interface BaseWordFamilyAuthorityMemberV2 extends BaseWordFamilyAuthorityMemberCommon {
+  structuralRole: "base" | "family_member";
+  applicableMicroSkillKeys: string[];
+  morphologySource: {
+    sourceKind: "base_word_family_member" | "approved_repository_analysis";
+    sourceId: string;
+    sourceFingerprint: string;
+    sourceAuthorityKey: string;
+  };
+}
+
+export type BaseWordFamilyAuthorityMember =
+  | BaseWordFamilyAuthorityMemberV1
+  | BaseWordFamilyAuthorityMemberV2;
+
 export interface BaseWordFamilyAuthorityFamily {
   familyId: string;
   baseFamilyKey: string;
   baseWordId: string;
   baseMeaning: string;
   etymologyRoute: Record<string, unknown>;
+  /** Required and verified for schema v2; absent from historical v1. */
+  sourceFingerprint?: string;
   members: BaseWordFamilyAuthorityMember[];
 }
 
-export interface BaseWordFamilyAuthorityProjection {
+export interface BaseWordFamilyAuthorityProjectionV1 {
   schemaVersion: 1;
   microSkillKey: string;
   importBatchId: string;
   families: BaseWordFamilyAuthorityFamily[];
+}
+
+/** Cluster-shared family truth. Learner authenticity and assignment role are
+ * deliberately absent; exact micro-skill applicability remains reviewed and
+ * immutable per member. */
+export interface BaseWordFamilyAuthorityProjectionV2 {
+  schemaVersion: 2;
+  skillClusterKey: "D4_MOR_BASE_WORDS";
+  sourceAuthorities: Array<{
+    authorityKey: string;
+    sourceKind: "teaching_dictionary_import_batch" | "approved_repository_artifact";
+    sourceId: string;
+    sourceFingerprint: string;
+  }>;
+  families: BaseWordFamilyAuthorityFamily[];
+}
+
+export type BaseWordFamilyAuthorityProjection =
+  | BaseWordFamilyAuthorityProjectionV1
+  | BaseWordFamilyAuthorityProjectionV2;
+
+export function baseWordFamilyAuthorityAppliesToMicroSkill(
+  authority: BaseWordFamilyAuthorityProjection,
+  microSkillKey: string,
+): boolean {
+  return authority.schemaVersion === 1
+    ? authority.microSkillKey === microSkillKey
+    : authority.families.some((family) => family.members.some((member) =>
+      "applicableMicroSkillKeys" in member && member.applicableMicroSkillKeys.includes(microSkillKey),
+    ));
+}
+
+export function baseWordFamilyMemberAppliesToMicroSkill(
+  authority: BaseWordFamilyAuthorityProjection,
+  member: BaseWordFamilyAuthorityMember,
+  microSkillKey: string,
+): boolean {
+  return authority.schemaVersion === 1
+    ? authority.microSkillKey === microSkillKey
+    : "applicableMicroSkillKeys" in member && member.applicableMicroSkillKeys.includes(microSkillKey);
+}
+
+export function baseWordFamilyMemberStructuralRole(
+  member: BaseWordFamilyAuthorityMember,
+): "base" | "family_member" {
+  return "structuralRole" in member
+    ? member.structuralRole
+    : member.memberRole === "base" ? "base" : "family_member";
 }
 
 export interface BaseWordTeachingContentAuthorityProjection {

@@ -47,6 +47,7 @@ function member(params: {
   family: BaseWordFamilyDetailFact;
   word: string;
   role: BaseWordFamilyMemberDetailFact["memberRole"];
+  authenticSelectionEligible?: boolean;
 }): BaseWordFamilyMemberDetailFact {
   return {
     memberId: `member:${params.word}`,
@@ -54,6 +55,8 @@ function member(params: {
     baseFamilyKey: params.family.baseFamilyKey,
     canonicalWordId: params.word,
     memberRole: params.role,
+    applicableMicroSkillKeys: [SKILL],
+    authenticSelectionEligible: params.authenticSelectionEligible ?? true,
     assignmentEligible: true,
     complexityLevel: 1,
     rowStatus: "active",
@@ -114,11 +117,22 @@ const missingClosure = inspectBaseWordRouteContent({ ...input(), words: [], dict
 assert(missingClosure.blockers.includes("BASE_WORD_DICTIONARY_CLOSURE_MISSING") && missingClosure.blockers.includes("BASE_WORD_DICTATION_MISSING"), "missing Teaching Dictionary closure fails closed");
 
 for (const role of ["base", "transfer"] as const) {
-  const wrongRole = inspectBaseWordRouteContent({
+  const historicalV1WrongRole = inspectBaseWordRouteContent({
     ...input(),
-    members: familyAMembers.map((entry) => entry.canonicalWordId === WORD_A ? { ...entry, memberRole: role } : entry),
+    releaseAuthority: { ...input().releaseAuthority!, familyAuthoritySchemaVersion: 1 },
+    members: familyAMembers.map((entry) => entry.canonicalWordId === WORD_A
+      ? { ...entry, memberRole: role, authenticSelectionEligible: false }
+      : entry),
   });
-  assert(wrongRole.blockers.includes("BASE_WORD_TARGET_MEMBER_NOT_ASSIGNMENT_ELIGIBLE"), `${role} member cannot become an authentic target`);
+  assert(historicalV1WrongRole.blockers.includes("BASE_WORD_TARGET_MEMBER_NOT_ASSIGNMENT_ELIGIBLE"), `historical v1 ${role} role remains replay-compatible`);
+  const baseLedV2 = inspectBaseWordRouteContent({
+    ...input(),
+    releaseAuthority: { ...input().releaseAuthority!, familyAuthoritySchemaVersion: 2 },
+    members: familyAMembers.map((entry) => entry.canonicalWordId === WORD_A
+      ? { ...entry, memberRole: role, authenticSelectionEligible: true }
+      : entry),
+  });
+  assert.equal(baseLedV2.ready, true, `v2 ${role} compatibility projection does not override genuine learner evidence`);
 }
 
 const learningItems = [
@@ -148,8 +162,8 @@ const twoFamilies = inspectBaseWordRouteSelection({
 assert.equal(twoFamilies.ready, true, "two authentic targets from two governed families are ready");
 const selection = selectBaseWordFamilyLesson(CHILD, SKILL, { learningItems, families: exactFamilies, members: exactMembers });
 assert.equal(selection.baseFamilyKeys.length, 2);
-assert.equal(selection.slots.filter((slot) => slot.provenance === "authentic_target").length, 2);
-assert.equal(selection.slots.filter((slot) => slot.provenance === "transfer").length, 4);
+assert.equal(selection.slots.filter((slot) => slot.assignmentRole === "primary_authentic_target").length, 2);
+assert.equal(selection.slots.filter((slot) => slot.assignmentRole !== "primary_authentic_target").length, 4);
 assert.equal(selection.slots.length, 6);
 
 const activation = observeBaseWordRouteActivation({

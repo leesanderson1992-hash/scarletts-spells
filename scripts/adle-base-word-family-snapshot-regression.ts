@@ -19,6 +19,17 @@ assert(validateBaseWordFamilyLessonSnapshot({ ...valid, familySections: [{ ...va
 assert(validateBaseWordFamilyLessonSnapshot({ ...valid, independentWords: valid.independentWords.map((entry, index) => index === 0 ? { ...entry, parts: [] } : entry) }) === null, "malformed morphology parts fail closed");
 assert(validateBaseWordFamilyLessonSnapshot({ ...valid, independentWords: valid.independentWords.map((entry, index) => index === 0 ? { ...entry, dictationTargetTokenIndex: 0 } : entry) }) === null, "a wrong dictation target token index fails closed");
 assert(validateBaseWordFamilyLessonSnapshot({ ...valid, activities: valid.activities.map((activity) => activity.type === "controlled_spelling" ? { ...activity, answerVisibility: "teaching" } : activity) }) === null, "recall activities must never expose answers before an independent attempt");
+const baseLed = {
+  ...valid,
+  independentSlots: valid.independentSlots.map((slot, index) => index < 2
+    ? { ...slot, assignmentRole: "primary_authentic_target" as const, learnerProvenance: "verified_misspelling" as const }
+    : index === 2
+      ? { ...slot, assignmentRole: "queued_family_practice" as const, learnerProvenance: "verified_misspelling" as const, learningItemId: "queued-learning-item" }
+      : { ...slot, assignmentRole: "generated_family_practice" as const, learnerProvenance: "generated_family_practice" as const }),
+};
+assert(validateBaseWordFamilyLessonSnapshot(baseLed) !== null, "the additive base-led slot contract preserves two primaries while retaining a queued learning item");
+assert(validateBaseWordFamilyLessonSnapshot({ ...baseLed, independentSlots: baseLed.independentSlots.map((slot, index) => index === 2 ? { ...slot, learningItemId: null } : slot) }) === null, "queued family practice fails closed without its learner-item identity");
+assert(validateBaseWordFamilyLessonSnapshot({ ...baseLed, independentSlots: baseLed.independentSlots.map((slot, index) => index === 3 ? { ...slot, learningItemId: "synthetic-item" } : slot) }) === null, "generated family practice cannot impersonate learner evidence");
 const baseItems = buildBaseWordFamilyPilotItems({ payload: valid, parentUserId: "parent", childId: "child", planDate: "2026-07-31" });
 const resolvedBase = resolvePersistedLessonRoute({
   lessonRouteMetadata: createPersistedRouteMetadata("base_word_lab"),
@@ -26,4 +37,10 @@ const resolvedBase = resolvePersistedLessonRoute({
   runtimeContext: { morphologyUnEnabled: true, dynamicPrefixEnabled: true, dynamicAffixEnabled: true, baseWordFamilyEnabled: true },
 });
 assert(resolvedBase.status === "resolved_explicit" && resolvedBase.runtime.adapterKey === "base_word_family_v1", "Base Word keeps its stronger snapshot adapter behind explicit metadata");
+const baseLedItems = buildBaseWordFamilyPilotItems({ payload: baseLed, parentUserId: "parent", childId: "child", planDate: "2026-08-10" });
+assert(baseLedItems.length === 18 && baseLedItems.filter((item) => item.metadata.assignmentRole === "queued_family_practice" && item.metadata.learningItemId === "queued-learning-item").length === 2, "the queued learner provenance is frozen on both independent bindings without changing the 18-item writer plan");
+
+const mismatchedRole = structuredClone(baseLed);
+mismatchedRole.independentSlots[2].provenance = "authentic_target";
+assert(validateBaseWordFamilyLessonSnapshot(mismatchedRole) === null, "schema-v2 assignment roles cannot disagree with the legacy compatibility projection");
 console.log("adle-base-word-family-snapshot-regression: ok");

@@ -12,15 +12,14 @@ import type {
   RouteContentFact,
   RouteSelectionFact,
 } from "./resolver";
+import { getCurriculumRouteDefinition } from "./route-registry";
 
 export const BASE_WORD_ROUTE_ID = "base_word_lab";
 export const BASE_WORD_ROUTE_VERSION = "v2";
 /** Micro-skills supported by the current governed 2+4/18 assignment recipe.
  * Route ownership is broader and derives from the canonical Base Word cluster. */
-export const BASE_WORD_RECIPE_MICRO_SKILLS = [
-  "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
-  "D4_MOR_BASE_WORDS_PRESERVE_BASE",
-] as const;
+export const BASE_WORD_RECIPE_MICRO_SKILLS = getCurriculumRouteDefinition("base_word_lab", "v2")
+  ?.supportedMicroSkillKeys ?? [];
 
 type RowStatus = "active" | "draft" | "rejected" | "superseded";
 
@@ -75,6 +74,7 @@ export interface BaseWordReleaseAuthorityFact {
   familyAuthorityId: string;
   teachingContentAuthorityId: string;
   dictionaryClosureAuthorityId: string;
+  familyAuthoritySchemaVersion?: 1 | 2;
 }
 
 export interface BaseWordRouteFactInput {
@@ -195,21 +195,23 @@ export function inspectBaseWordRouteContent(input: BaseWordRouteFactInput): Rout
     member.canonicalWordId === input.canonicalWordId && familyById.has(member.familyId) && approved(member.rowStatus, member.reviewStatus),
   );
   if (targetMembers.length === 0) blockers.push("BASE_WORD_TARGET_FAMILY_MEMBER_MISSING");
-  const eligibleTarget = targetMembers.find((member) => member.memberRole === "authentic_target" && member.assignmentEligible);
+  const eligibleTarget = targetMembers.find((member) => member.assignmentEligible && member.authenticSelectionEligible !== false);
   if (targetMembers.length > 0 && !eligibleTarget) blockers.push("BASE_WORD_TARGET_MEMBER_NOT_ASSIGNMENT_ELIGIBLE");
   if (eligibleTarget) {
     const family = familyById.get(eligibleTarget.familyId)!;
     dependencyIds.push(`family:${family.familyId}`, `member:${eligibleTarget.memberId}`);
     if (authority) {
       facts.push(evidence("adle_curriculum_dependency_authorities", authority.familyAuthorityId, "family_id", family.familyId));
-      facts.push(evidence("adle_curriculum_dependency_authorities", authority.familyAuthorityId, "member_role", `${eligibleTarget.memberId}:${eligibleTarget.memberRole}`, `${eligibleTarget.memberId}:authentic_target`));
+      facts.push(evidence("adle_curriculum_dependency_authorities", authority.familyAuthorityId, "family_relationship", `${eligibleTarget.memberId}:${eligibleTarget.baseFamilyKey}`, `${eligibleTarget.memberId}:${eligibleTarget.baseFamilyKey}`));
     }
     blockers.push(...completeMember(eligibleTarget));
     if (!family.baseMeaning?.trim()) blockers.push("BASE_WORD_FAMILY_MEANING_MISSING");
     if (family.etymologyRoute === null) blockers.push("BASE_WORD_FAMILY_ETYMOLOGY_ROUTE_MISSING");
     const transfers = input.members.filter((member) =>
       member.familyId === family.familyId && approved(member.rowStatus, member.reviewStatus) && member.assignmentEligible &&
-      (member.memberRole === "base" || member.memberRole === "transfer") && member.canonicalWordId !== input.canonicalWordId,
+      member.lessonContentEligible !== false &&
+      (!member.applicableMicroSkillKeys || member.applicableMicroSkillKeys.includes(input.microSkillKey)) &&
+      member.canonicalWordId !== input.canonicalWordId,
     );
     if (transfers.length === 0) blockers.push("BASE_WORD_FAMILY_TRANSFER_POOL_EMPTY");
   }
@@ -248,14 +250,16 @@ export function inspectBaseWordRouteSelection(params: {
   families: readonly BaseWordFamilyDetailFact[];
   members: readonly BaseWordFamilyMemberDetailFact[];
   payloadCompilable: boolean | null;
+  familyAuthoritySchemaVersion?: 1 | 2;
 }): RouteSelectionFact {
   const selection = selectBaseWordFamilyLesson(params.childId, params.microSkillKey, {
+    familyAuthoritySchemaVersion: params.familyAuthoritySchemaVersion,
     learningItems: params.learningItems,
     families: params.families,
     members: params.members,
   });
   const selected = selection.slots.some((slot) =>
-    slot.canonicalWordId === params.canonicalWordId && slot.provenance === "authentic_target",
+    slot.canonicalWordId === params.canonicalWordId && slot.assignmentRole === "primary_authentic_target",
   );
   const selectorBlockers = selection.skipReasons.length > 0
     ? [...selection.skipReasons]

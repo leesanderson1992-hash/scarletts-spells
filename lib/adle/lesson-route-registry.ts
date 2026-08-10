@@ -92,6 +92,8 @@ export const ADLE_LESSON_ROUTE_REGISTRY: ReadonlyMap<AdleLessonRouteKey, AdleLes
     lessonRouteKey: "base_word_family_v1",
     payloadVersions: [1],
     compatibleMicroSkillKeys: [
+      "D4_MOR_BASE_WORDS_BASE_PLUS_PREFIX",
+      "D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX",
       "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
       "D4_MOR_BASE_WORDS_PRESERVE_BASE",
     ],
@@ -100,7 +102,7 @@ export const ADLE_LESSON_ROUTE_REGISTRY: ReadonlyMap<AdleLessonRouteKey, AdleLes
     authenticTargets: { min: 2, max: 2 },
     practiceWords: { min: 6, max: 6 },
     transferWords: { min: 4, max: 4 },
-    requiredSharedFields: ["canonical_word", "micro_skill", "teaching_content", "word_support"],
+    requiredSharedFields: ["canonical_word", "micro_skill", "teaching_content"],
     requiredRouteFields: ["base_family", "word_sum", "morphology", "meaning", "dictation"],
   })],
 ]);

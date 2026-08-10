@@ -67,6 +67,7 @@
     "adle:canonical-intake-live-regression": "npx tsx scripts/adle-canonical-intake-live-regression.ts",
     "adle:base-word-canonical-intake-route-regression": "npx tsx scripts/adle-base-word-canonical-intake-route-regression.ts",
     "adle:base-word-release-authority-regression": "npx tsx scripts/adle-base-word-release-authority-regression.ts",
+    "adle:base-word-base-led-family-authority-regression": "npx tsx scripts/adle-base-word-base-led-family-authority-regression.ts",
     "adle:base-word-family-meaning-release:audit": "python3 scripts/audit-base-word-family-meaning-release.py",
     "adle:base-word-family-meaning-release:build": "python3 scripts/build-base-word-family-meaning-release.py",
     "adle:base-word-family-meaning-release:validate": "npx tsx scripts/adle-base-word-family-meaning-production-release.ts validate",
