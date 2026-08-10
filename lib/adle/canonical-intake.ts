@@ -149,6 +149,7 @@ export interface CanonicalIntakeWordFact {
 export interface CanonicalIntakeMicroSkillFact {
   microSkillKey: string;
   masteryDomainKey: string;
+  skillClusterKey: string | null;
   isActive: boolean;
   isAssignable: boolean;
 }
@@ -318,6 +319,30 @@ function createBlocker(input: {
   };
 }
 
+function candidateMicroSkillFact(
+  facts: CanonicalIntakeReadinessFacts,
+): CanonicalIntakeMicroSkillFact | undefined {
+  return facts.microSkills.find(
+    (entry) => entry.microSkillKey === facts.candidate.microSkillKey,
+  );
+}
+
+function canonicalIntakeRouteForFacts(facts: CanonicalIntakeReadinessFacts) {
+  const skill = candidateMicroSkillFact(facts);
+  return resolveCanonicalIntakeRoute(
+    facts.candidate.microSkillKey,
+    skill?.skillClusterKey ?? null,
+  );
+}
+
+function isBaseWordCandidate(facts: CanonicalIntakeReadinessFacts): boolean {
+  const skill = candidateMicroSkillFact(facts);
+  return isBaseWordIntakeSkill(
+    facts.candidate.microSkillKey,
+    skill?.skillClusterKey ?? null,
+  );
+}
+
 function blockedOutcome(input: {
   facts: CanonicalIntakeReadinessFacts;
   codes: [IntakeReadinessBlockerCode, ...IntakeReadinessBlockerCode[]];
@@ -327,7 +352,7 @@ function blockedOutcome(input: {
   canonicalMappingId?: string;
   evidence?: CurriculumEvidence[];
 }): Extract<IntakeReadinessOutcome, { status: "blocked" }> {
-  const route = resolveCanonicalIntakeRoute(input.facts.candidate.microSkillKey);
+  const route = canonicalIntakeRouteForFacts(input.facts);
   const blockers = input.codes.map((code) =>
     createBlocker({
       code,
@@ -374,7 +399,8 @@ export function evaluateCanonicalIntakeReadiness(
 ): IntakeReadinessOutcome {
   const { candidate } = facts;
   const targetToken = normalizeToken(candidate.correctSpellingNormalized);
-  const route = resolveCanonicalIntakeRoute(candidate.microSkillKey);
+  const route = canonicalIntakeRouteForFacts(facts);
+  const baseWordCandidate = isBaseWordCandidate(facts);
 
   if (!APPROVED_CANDIDATE_STATUSES.has(candidate.candidateStatus)) {
     return blockedOutcome({
@@ -452,9 +478,7 @@ export function evaluateCanonicalIntakeReadiness(
   }
 
   const mapping = exactVisibleMappings[0];
-  const skill = facts.microSkills.find(
-    (entry) => entry.microSkillKey === candidate.microSkillKey,
-  );
+  const skill = candidateMicroSkillFact(facts);
   if (
     !skill ||
     !skill.isActive ||
@@ -532,7 +556,7 @@ export function evaluateCanonicalIntakeReadiness(
   }
 
   if (
-    !isBaseWordIntakeSkill(candidate.microSkillKey) &&
+    !baseWordCandidate &&
     (word.frequencyBand === null || word.ageBand === null)
   ) {
     return blockedOutcome({
@@ -560,7 +584,7 @@ export function evaluateCanonicalIntakeReadiness(
     explicitRouteReadiness?.ready === true &&
     facts.routeSpecificReadyWordSkillPairs.has(pair);
   const routeCertifiedBaseWordMember =
-    isBaseWordIntakeSkill(candidate.microSkillKey) &&
+    baseWordCandidate &&
     explicitRouteReadiness?.ready === true &&
     Boolean(explicitRouteReadiness.routeActivationId) &&
     Boolean(explicitRouteReadiness.curriculumRelease) &&
@@ -602,7 +626,7 @@ export function evaluateCanonicalIntakeReadiness(
     });
   }
 
-  if (isBaseWordIntakeSkill(candidate.microSkillKey)) {
+  if (baseWordCandidate) {
     if (
       explicitRouteReadiness?.ready !== true ||
       !explicitRouteReadiness.routeActivationId ||

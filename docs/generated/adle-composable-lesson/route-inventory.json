@@ -41,6 +41,12 @@
       ],
       "requiresAuthenticSelectableItem": true,
       "routeId": "base_word_lab",
+      "routeOwnership": {
+        "kind": "skill_clusters",
+        "skillClusterKeys": [
+          "D4_MOR_BASE_WORDS"
+        ]
+      },
       "routeVersion": "v2",
       "runtimeAdapterKey": "base_word_family_v1",
       "supportedMicroSkillKeys": [
@@ -100,6 +106,9 @@
       ],
       "requiresAuthenticSelectableItem": false,
       "routeId": "closed_compound_word_lab",
+      "routeOwnership": {
+        "kind": "declared_micro_skills"
+      },
       "routeVersion": "v1",
       "runtimeAdapterKey": "closed_compound_v1",
       "supportedMicroSkillKeys": [
@@ -161,6 +170,9 @@
       ],
       "requiresAuthenticSelectableItem": true,
       "routeId": "dynamic_affix_word_lab",
+      "routeOwnership": {
+        "kind": "declared_micro_skills"
+      },
       "routeVersion": "v3",
       "runtimeAdapterKey": "dynamic_affix_v3",
       "supportedMicroSkillKeys": [
@@ -232,6 +244,9 @@
       ],
       "requiresAuthenticSelectableItem": true,
       "routeId": "dynamic_prefix_word_lab",
+      "routeOwnership": {
+        "kind": "declared_micro_skills"
+      },
       "routeVersion": "v2",
       "runtimeAdapterKey": "dynamic_prefix_v2",
       "supportedMicroSkillKeys": [
@@ -294,6 +309,9 @@
       ],
       "requiresAuthenticSelectableItem": false,
       "routeId": "fixed_un_prefix_word_lab",
+      "routeOwnership": {
+        "kind": "declared_micro_skills"
+      },
       "routeVersion": "v1",
       "runtimeAdapterKey": "morphology_guided_v1",
       "supportedMicroSkillKeys": [
@@ -347,6 +365,9 @@
       ],
       "requiresAuthenticSelectableItem": true,
       "routeId": "generic_composer",
+      "routeOwnership": {
+        "kind": "generic_composer_fallback"
+      },
       "routeVersion": "v1",
       "runtimeAdapterKey": "generic_composer_v1",
       "supportedMicroSkillKeys": [],

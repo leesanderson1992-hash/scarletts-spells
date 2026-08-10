@@ -325,8 +325,12 @@ async function seedApprovedCandidate(
     correct_spelling_normalized: string;
     micro_skill_key: string;
   },
+  skillClusterKey: string | null,
 ) {
-  const route = resolveCanonicalIntakeRoute(candidate.micro_skill_key);
+  const route = resolveCanonicalIntakeRoute(
+    candidate.micro_skill_key,
+    skillClusterKey,
+  );
   const { error } = await client.rpc("adle_seed_canonical_intake_candidate", {
     p_candidate_mapping_id: candidate.id,
     p_normalized_target_token: candidate.correct_spelling_normalized,
@@ -382,12 +386,6 @@ export async function intakeApprovedSubmissionCorrections(params: {
   if (candidateError) throwQuery("canonical intake candidates", candidateError);
   if ((candidateRows ?? []).length === 0) return result;
 
-  if (!params.dryRun && params.seedCandidates !== false) {
-    for (const candidate of candidateRows ?? []) {
-      await seedApprovedCandidate(client, candidate as any);
-    }
-  }
-
   const corrections = [
     ...new Set(
       (candidateRows ?? []).map(
@@ -420,7 +418,9 @@ export async function intakeApprovedSubmissionCorrections(params: {
       .in("normalised_word", corrections),
     client
       .from("micro_skill_catalog")
-      .select("micro_skill_key,mastery_domain_key,is_active,is_assignable")
+      .select(
+        "micro_skill_key,mastery_domain_key,skill_cluster_key,is_active,is_assignable",
+      )
       .in("micro_skill_key", skillKeys),
     client
       .from("spelling_canonical_mappings")
@@ -433,6 +433,19 @@ export async function intakeApprovedSubmissionCorrections(params: {
   if (wordsError) throwQuery("canonical intake words", wordsError);
   if (skillsError) throwQuery("canonical intake skills", skillsError);
   if (mappingsError) throwQuery("canonical intake mappings", mappingsError);
+  const skillByKey = new Map(
+    (skills ?? []).map((skill: any) => [skill.micro_skill_key as string, skill]),
+  );
+  if (!params.dryRun && params.seedCandidates !== false) {
+    for (const rawCandidate of candidateRows ?? []) {
+      const candidate = rawCandidate as any;
+      await seedApprovedCandidate(
+        client,
+        candidate,
+        skillByKey.get(candidate.micro_skill_key)?.skill_cluster_key ?? null,
+      );
+    }
+  }
   const wordIds = (words ?? []).map((row: any) => row.id as string);
   const mappingIds = (mappings ?? []).map((row: any) => row.id as string);
   const [
@@ -488,6 +501,11 @@ export async function intakeApprovedSubmissionCorrections(params: {
 
   for (const row of candidateRows ?? []) {
     const candidate = row as any;
+    const candidateSkill = skillByKey.get(candidate.micro_skill_key);
+    const baseWordCandidate = isBaseWordIntakeSkill(
+      candidate.micro_skill_key,
+      candidateSkill?.skill_cluster_key ?? null,
+    );
     const exactBaseWordReadiness = routeFacts.routeReadiness.find((entry) =>
       entry.microSkillKey === candidate.micro_skill_key &&
       entry.curriculumRelease &&
@@ -497,7 +515,7 @@ export async function intakeApprovedSubmissionCorrections(params: {
         word.normalisedWord === candidate.correct_spelling_normalized,
       ),
     );
-    const exactBaseWordWords = isBaseWordIntakeSkill(candidate.micro_skill_key) && exactBaseWordReadiness
+    const exactBaseWordWords = baseWordCandidate && exactBaseWordReadiness
       ? routeFacts.baseWordClosureWords
           .filter((word) => word.activationRevisionId === exactBaseWordReadiness.routeActivationId &&
             word.microSkillKey === candidate.micro_skill_key && word.normalisedWord === candidate.correct_spelling_normalized)
@@ -533,6 +551,7 @@ export async function intakeApprovedSubmissionCorrections(params: {
       microSkills: (skills ?? []).map((skill: any) => ({
         microSkillKey: skill.micro_skill_key,
         masteryDomainKey: skill.mastery_domain_key,
+        skillClusterKey: skill.skill_cluster_key,
         isActive: skill.is_active,
         isAssignable: skill.is_assignable,
       })),

@@ -2,6 +2,10 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
 const migration = readFileSync("supabase/migrations/20260809150000_integrate_base_word_release_authority.sql", "utf8");
+const clusterOwnershipMigration = readFileSync(
+  "supabase/migrations/20260810160000_generalise_base_word_cluster_route_authority.sql",
+  "utf8",
+);
 const proof = readFileSync("scripts/sql/prove-adle-base-word-canonical-intake-local.sql", "utf8");
 const runner = readFileSync("scripts/prove-adle-base-word-canonical-intake-local.ts", "utf8");
 
@@ -21,6 +25,17 @@ assert.match(migration, /member->>'memberRole' = 'authentic_target'/);
 assert.match(migration, /closure_word\.canonical_word_id = p_canonical_word_id/);
 assert.match(migration, /for share of head, revision, release, skill/);
 assert.match(migration, /v_route_id := 'base_word_lab';[\s\S]*v_route_version := 'v2'/);
+assert.match(clusterOwnershipMigration, /skill\.skill_cluster_key = 'D4_MOR_BASE_WORDS'/);
+assert.match(clusterOwnershipMigration, /adle_micro_skill_owns_base_word_lab_v2\(p_micro_skill_key\)/);
+assert.match(clusterOwnershipMigration, /canonical-intake Base Word ownership guard differs from the reviewed predecessor/);
+assert.match(clusterOwnershipMigration, /D4_MOR_BASE_WORDS_BASE_PLUS_PREFIX/);
+assert.match(clusterOwnershipMigration, /D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX/);
+assert.match(clusterOwnershipMigration, /D4_MOR_PREFIXES_UN/);
+assert.doesNotMatch(
+  clusterOwnershipMigration,
+  /update\s+public\.(parent_verified_spelling_candidate_mappings|adle_learning_items|learning_items)/i,
+  "route generalisation must not rewrite historical learner lineage",
+);
 
 for (const preserved of [
   "Dynamic Affix candidate must request dynamic_affix_word_lab:v3",
@@ -43,6 +58,8 @@ assert.doesNotMatch(migration, /alter table public\.adle_learning_items[\s\S]*(r
 assert.match(proof, /^begin;/m);
 assert.match(proof, /^rollback;/m);
 assert.match(proof, /adle_seed_canonical_intake_candidate/);
+assert.match(proof, /Base Word cluster route ownership proof failed/);
+assert.match(proof, /canonical-intake persistence is not cluster-owned/);
 assert.match(proof, /public\.adle_persist_canonical_intake\(/);
 assert.doesNotMatch(proof, /insert\s+into\s+public\.adle_learning_items/i);
 assert.match(proof, /intake replay changed learning item/);

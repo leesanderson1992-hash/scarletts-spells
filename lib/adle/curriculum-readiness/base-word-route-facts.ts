@@ -15,7 +15,9 @@ import type {
 
 export const BASE_WORD_ROUTE_ID = "base_word_lab";
 export const BASE_WORD_ROUTE_VERSION = "v2";
-export const BASE_WORD_MICRO_SKILLS = [
+/** Micro-skills supported by the current governed 2+4/18 assignment recipe.
+ * Route ownership is broader and derives from the canonical Base Word cluster. */
+export const BASE_WORD_RECIPE_MICRO_SKILLS = [
   "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
   "D4_MOR_BASE_WORDS_PRESERVE_BASE",
 ] as const;
@@ -120,7 +122,7 @@ function approved(rowStatus: string, reviewStatus: string): boolean {
 }
 
 function supported(microSkillKey: string): boolean {
-  return (BASE_WORD_MICRO_SKILLS as readonly string[]).includes(microSkillKey);
+  return (BASE_WORD_RECIPE_MICRO_SKILLS as readonly string[]).includes(microSkillKey);
 }
 
 function canonicalHash(value: unknown): string {

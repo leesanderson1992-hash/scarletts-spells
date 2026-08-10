@@ -16,6 +16,8 @@ export function compileBaseWordCanonicalIntakeRouteFacts(input: {
   readyPairs: ReadonlySet<string>;
   routeReadiness: readonly CanonicalIntakeRouteReadinessFact[];
 } {
+  // supportedMicroSkillKeys is the current released recipe boundary. Route
+  // ownership itself is cluster-derived in canonical-intake/route-readiness.
   const activations = input.activations.filter((activation) =>
     BASE_WORD_ROUTE.supportedMicroSkillKeys.includes(activation.microSkillKey) &&
     activation.family.microSkillKey === activation.microSkillKey &&

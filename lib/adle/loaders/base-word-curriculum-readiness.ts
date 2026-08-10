@@ -4,7 +4,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 
 import { selectBaseWordFamilyLesson } from "../base-word-family-selection";
 import {
-  BASE_WORD_MICRO_SKILLS,
+  BASE_WORD_RECIPE_MICRO_SKILLS,
   inspectBaseWordRouteContent,
   inspectBaseWordRouteSelection,
   observeBaseWordRouteActivation,
@@ -25,7 +25,7 @@ import {
   type ActivatedBaseWordReleaseAuthority,
 } from "./curriculum-release-authority";
 
-const BASE_SKILLS = new Set<string>(BASE_WORD_MICRO_SKILLS);
+const BASE_SKILLS = new Set<string>(BASE_WORD_RECIPE_MICRO_SKILLS);
 
 function environmentEnabled(): boolean {
   return process.env.ADLE_BASE_WORD_FAMILY_PILOT_ENABLED === "enabled"
@@ -126,7 +126,7 @@ export async function loadBaseWordCurriculumReadinessFacts(params: {
     loadEnabledBaseWordReleaseAuthorities({
       client: params.client,
       environmentKey: params.environmentKey,
-      microSkillKeys: BASE_WORD_MICRO_SKILLS,
+      microSkillKeys: BASE_WORD_RECIPE_MICRO_SKILLS,
     }),
   ]);
   const projectedBySkill = new Map(authorities.map((authority) => [authority.microSkillKey, {

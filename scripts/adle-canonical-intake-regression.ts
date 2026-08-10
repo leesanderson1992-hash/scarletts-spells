@@ -83,6 +83,7 @@ function facts(
       {
         microSkillKey: skill,
         masteryDomainKey: "D4",
+        skillClusterKey: "D4_MOR_BASE_WORDS",
         isActive: true,
         isAssignable: true,
       },
