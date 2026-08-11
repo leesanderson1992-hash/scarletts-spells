@@ -27,6 +27,10 @@ for (const family of [...prefix, ...suffix]) {
   assert.ok(family.members.length >= 3, `${family.baseFamilyKey} supports a two-family six-word lesson`);
   assert.ok(family.members.every((member: { structuralRole: string }) => member.structuralRole === "base" || member.structuralRole === "family_member"), "no permanent authentic/transfer member role");
 }
+for (const family of [...prefix, ...suffix].filter((entry: { sourceFamily: string }) => entry.sourceFamily === "new_release")) {
+  assert.equal(family.etymologyRoute.origin_form, family.baseWordKey.replace(/_en_gb$/, ""), `${family.baseFamilyKey} carries its visible free-base form`);
+  assert.equal(family.etymologyRoute.evidence.verification_status, "linked_for_human_review", `${family.baseFamilyKey} uses the governed family-source verification label`);
+}
 assert.ok(prefix.find((family: { baseFamilyKey: string }) => family.baseFamilyKey === "tie_base_family")?.members.some((member: { wordKey: string }) => member.wordKey === "untie_en_gb"));
 assert.match(migration, /adle_micro_skill_owns_base_word_lab_v2\(p_manifest->>'microSkillKey'\)/, "teaching content follows canonical cluster ownership");
 assert.doesNotMatch(migration, /BASE_PLUS_PREFIX[\s\S]*BASE_PLUS_SUFFIX/, "migration adds no second hard-coded Base Word allowlist");
