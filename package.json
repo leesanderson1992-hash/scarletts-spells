@@ -139,6 +139,8 @@
     "adle:compound-word-lesson-v2-regression": "npx tsx scripts/adle-compound-word-lesson-v2-regression.ts",
     "adle:compound-word-publication-review:build": "npx tsx scripts/build-adle-compound-word-v2-publication-review.ts --write",
     "adle:compound-word-publication-review:regression": "npx tsx scripts/adle-compound-word-publication-review-regression.ts",
+    "adle:compound-word-v2-release:build": "npx tsx scripts/build-adle-compound-word-v2-release.ts",
+    "adle:compound-word-v2-release:regression": "npx tsx scripts/adle-compound-word-v2-release-regression.ts",
     "adle:semantic-production-baseline": "npx tsx scripts/adle-semantic-production-baseline.ts",
     "adle:shared-affix-compiler-regression": "npx tsx scripts/adle-shared-affix-compiler-regression.ts",
     "adle:shared-affix-production-parity-regression": "npx tsx scripts/adle-shared-affix-production-parity-regression.ts",
