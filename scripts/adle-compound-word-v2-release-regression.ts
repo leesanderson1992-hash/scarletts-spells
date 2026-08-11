@@ -53,6 +53,11 @@ const migration=readFileSync(resolve(ROOT,"supabase/migrations/20260811210000_pu
 for(const token of ["compound_structure","publish_adle_compound_word_structure_authority_v1","publish_adle_teaching_dictionary_closure_v2","compound_word_lab:v2","prevent_adle_release_authority_mutation"])assert.match(migration,new RegExp(token.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")));
 for(const forbidden of ["insert into public.adle_route_activation_revisions","insert into public.adle_learning_items","insert into public.daily_assignments"])assert.equal(migration.includes(forbidden),false);
 
+const compatibilityMigration=readFileSync(resolve(ROOT,"supabase/migrations/20260811211000_allow_governed_compound_dictation_projection.sql"),"utf8");
+for(const exactAuthority of ["adle_closed_compound_production_profile_v1","data/adle/candidates/d4-mor-remaining-profiles/v1/closed-compounds-dictionary-pool-review.json","841f13b525f6be22274ad3fa0b40957e43f9fadae72ecc873003c38b32096547"])assert.match(compatibilityMigration,new RegExp(exactAuthority.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")));
+assert.equal(compatibilityMigration.includes("v_dict_batch.batch_status = 'validated'"),true);
+for(const forbidden of ["insert into public.adle_route_activation_revisions","insert into public.adle_learning_items","insert into public.daily_assignments","update public.teaching_dictionary_dictation_sentences"])assert.equal(compatibilityMigration.includes(forbidden),false);
+
 console.log(JSON.stringify({status:"passed",approvedStructures:14,newCanonicalWords:17,closureWords:41,routeReleases:2,v1Compatible:true,productionDark:true},null,2));
 }
 
