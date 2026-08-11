@@ -58,6 +58,10 @@ for(const exactAuthority of ["adle_closed_compound_production_profile_v1","data/
 assert.equal(compatibilityMigration.includes("v_dict_batch.batch_status = 'validated'"),true);
 for(const forbidden of ["insert into public.adle_route_activation_revisions","insert into public.adle_learning_items","insert into public.daily_assignments","update public.teaching_dictionary_dictation_sentences"])assert.equal(compatibilityMigration.includes(forbidden),false);
 
+const fingerprintMigration=readFileSync(resolve(ROOT,"supabase/migrations/20260811212000_stabilize_compound_structure_fingerprint.sql"),"utf8");
+for(const token of ['collate "C"',"adle_snapshot_json_sha256_v1","publish_adle_compound_word_structure_authority_v1"])assert.match(fingerprintMigration,new RegExp(token.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")));
+for(const forbidden of ["insert into public.adle_route_activation_revisions","insert into public.adle_learning_items","insert into public.daily_assignments"])assert.equal(fingerprintMigration.includes(forbidden),false);
+
 console.log(JSON.stringify({status:"passed",approvedStructures:14,newCanonicalWords:17,closureWords:41,routeReleases:2,v1Compatible:true,productionDark:true},null,2));
 }
 

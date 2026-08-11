@@ -17,7 +17,7 @@ import {
 
 const ROOT=execFileSync("git",["rev-parse","--show-toplevel"],{encoding:"utf8"}).trim();
 const DIR=resolve(ROOT,"docs/implementation/seed-data/teaching-dictionary/releases/2026-08-11-compound-word-v2-route-releases");
-const MIGRATIONS=["20260811130000_add_general_compound_word_structure_v2.sql","20260811210000_publish_compound_word_v2_release_authority.sql","20260811211000_allow_governed_compound_dictation_projection.sql"] as const;
+const MIGRATIONS=["20260811130000_add_general_compound_word_structure_v2.sql","20260811210000_publish_compound_word_v2_release_authority.sql","20260811211000_allow_governed_compound_dictation_projection.sql","20260811212000_stabilize_compound_structure_fingerprint.sql"] as const;
 const SKILLS=["D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS","D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED"] as const;
 const PUBLISHED_BY="Katie Sanderson / Codex governed CW-3B-1";
 const PROJECT_REF="wwohrqtunajrbwxyssjf";
