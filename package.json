@@ -135,6 +135,7 @@
     "adle:d4-mor-remaining-profile-packages": "python3 scripts/build-d4-mor-remaining-profile-packages.py",
     "adle:d4-mor-current-taxonomy-reconcile": "npx tsx scripts/reconcile-d4-mor-current-taxonomy.ts",
     "adle:closed-compound-browser-smoke-project-pin-regression": "npx tsx scripts/adle-closed-compound-browser-smoke-project-pin-regression.ts",
+    "adle:compound-word-structure-v2-regression": "npx tsx scripts/adle-compound-word-structure-v2-regression.ts",
     "adle:semantic-production-baseline": "npx tsx scripts/adle-semantic-production-baseline.ts",
     "adle:shared-affix-compiler-regression": "npx tsx scripts/adle-shared-affix-compiler-regression.ts",
     "adle:shared-affix-production-parity-regression": "npx tsx scripts/adle-shared-affix-production-parity-regression.ts",
