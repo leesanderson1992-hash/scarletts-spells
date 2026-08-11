@@ -1,0 +1,252 @@
+{
+  "schema_version": 1,
+  "approval_key": "compound_word_v2_publication_content_review_2026_08_11",
+  "approval_status": "approved_to_proceed",
+  "reviewer": "Katie Sanderson",
+  "approved_at": "2026-08-11T20:09:55Z",
+  "approval_statement": "These have all be verified by me and approved to proceed with",
+  "approval_reference": "sha256:4d59997206c4faf5c05eac37f9c4dd23d5581d3600327a7a8d0ef758b4c1338f",
+  "source_workbook": {
+    "file_name": "compound-word-v2-publication-readiness-review-resolved.xlsx",
+    "sha256": "4d59997206c4faf5c05eac37f9c4dd23d5581d3600327a7a8d0ef758b4c1338f",
+    "decision_summary_sheet": "Decision Summary",
+    "resolved_review_sheet": "Resolved Review",
+    "human_decisions_sheet": "Human Decisions"
+  },
+  "review_summary": {
+    "rows_reviewed": 14,
+    "approved_unchanged": 7,
+    "approved_with_refinement_or_correction": 7,
+    "content_rows_left_unresolved": 0
+  },
+  "taxonomy_decision": "Keep open + hyphenated together under D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED",
+  "separate_migration_note": "Audit existing closed-v1 words breakthrough, sunshine and weekend for carry-forward into v2; they are not in this 14-row review.",
+  "scope_guard": "Content approval only. This is not Teaching Dictionary import authority, Compound v2 publication authority, route release, Model C activation, learner activation, or Production learner-data mutation.",
+  "rows": [
+    {
+      "micro_skill_key": "D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS",
+      "whole_word": "bedroom",
+      "decision": "APPROVE",
+      "final_component_meanings": [
+        "furniture that you sleep in",
+        "a space inside a building"
+      ],
+      "final_whole_meaning": "a room where someone sleeps",
+      "final_relationship": "A bedroom is a room with a bed, used for sleeping.",
+      "final_dictation_sentence": "Mother took the baby to the bedroom.",
+      "dictation_target_start": 6,
+      "dictation_target_end_exclusive": 7,
+      "assignment_eligible": true,
+      "review_notes": "Existing governed facts are coherent; approve the proposed semantic relationship."
+    },
+    {
+      "micro_skill_key": "D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS",
+      "whole_word": "football",
+      "decision": "APPROVE",
+      "final_component_meanings": [
+        "the part at the end of your leg",
+        "a round object used in games"
+      ],
+      "final_whole_meaning": "a game where players kick a ball into goals",
+      "final_relationship": "Football is a game played with a ball mainly using the feet.",
+      "final_dictation_sentence": "Children play football in the playground.",
+      "dictation_target_start": 2,
+      "dictation_target_end_exclusive": 3,
+      "assignment_eligible": true,
+      "review_notes": "Existing governed facts are coherent; approve the proposed semantic relationship."
+    },
+    {
+      "micro_skill_key": "D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS",
+      "whole_word": "grandmother",
+      "decision": "APPROVE_WITH_CORRECTION",
+      "final_component_meanings": [
+        "in family words, one generation further away than a parent or child",
+        "a female parent"
+      ],
+      "final_whole_meaning": "the mother of one of your parents",
+      "final_relationship": "A grandmother is the mother of one of your parents; grand shows that she is one generation further back in the family.",
+      "final_dictation_sentence": "Mia wrote a letter to her grandmother.",
+      "dictation_target_start": 6,
+      "dictation_target_end_exclusive": 7,
+      "assignment_eligible": true,
+      "review_notes": "Resolve the ambiguity in favour of the family-generation sense of grand. Do not use the ordinary 'impressive/important' adjective sense."
+    },
+    {
+      "micro_skill_key": "D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS",
+      "whole_word": "homework",
+      "decision": "APPROVE_WITH_CORRECTION",
+      "final_component_meanings": [
+        "the place where you live",
+        "a job or task that needs effort"
+      ],
+      "final_whole_meaning": "school work that a teacher asks a pupil to do at home",
+      "final_relationship": "Homework is work, meaning tasks to complete, that a pupil does at home.",
+      "final_dictation_sentence": "I finished my homework before tea.",
+      "dictation_target_start": 3,
+      "dictation_target_end_exclusive": 4,
+      "assignment_eligible": true,
+      "review_notes": "Correct work from the verb sense ('to do a job') to the noun sense needed by the compound."
+    },
+    {
+      "micro_skill_key": "D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS",
+      "whole_word": "playground",
+      "decision": "APPROVE",
+      "final_component_meanings": [
+        "to have fun with games or toys",
+        "the surface under your feet"
+      ],
+      "final_whole_meaning": "an outdoor place where children play",
+      "final_relationship": "A playground is ground set aside for children to play on.",
+      "final_dictation_sentence": "The children played in the playground.",
+      "dictation_target_start": 5,
+      "dictation_target_end_exclusive": 6,
+      "assignment_eligible": true,
+      "review_notes": "Existing governed facts are coherent; approve the proposed semantic relationship."
+    },
+    {
+      "micro_skill_key": "D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS",
+      "whole_word": "rainbow",
+      "decision": "APPROVE_WITH_REFINEMENT",
+      "final_component_meanings": [
+        "water that falls from clouds",
+        "a curved shape"
+      ],
+      "final_whole_meaning": "a curved band of colours seen in the sky after rain",
+      "final_relationship": "A rainbow is a bow-shaped curve of colours that can appear when sunlight shines through drops of rain.",
+      "final_dictation_sentence": "A rainbow appeared after rain.",
+      "dictation_target_start": 1,
+      "dictation_target_end_exclusive": 2,
+      "assignment_eligible": true,
+      "review_notes": "Refine the relationship for scientific/semantic accuracy while keeping the child-facing link to rain + bow."
+    },
+    {
+      "micro_skill_key": "D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS",
+      "whole_word": "sunflower",
+      "decision": "APPROVE",
+      "final_component_meanings": [
+        "the star that gives Earth light and heat",
+        "the part of a plant that is often brightly coloured and makes seeds"
+      ],
+      "final_whole_meaning": "a tall plant with a large yellow flower head",
+      "final_relationship": "A sunflower is a flower with a large round yellow head that looks like the sun.",
+      "final_dictation_sentence": "The sunflower grew beside the fence.",
+      "dictation_target_start": 1,
+      "dictation_target_end_exclusive": 2,
+      "assignment_eligible": true,
+      "review_notes": "Approve canonical whole-word creation, meanings, relationship, dictation and assignment eligibility."
+    },
+    {
+      "micro_skill_key": "D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED",
+      "whole_word": "ice cream",
+      "decision": "APPROVE_WITH_REFINEMENT",
+      "final_component_meanings": [
+        "water that has frozen solid",
+        "the thick, rich part of milk"
+      ],
+      "final_whole_meaning": "a sweet frozen food made mainly from milk or cream",
+      "final_relationship": "Ice cream is a sweet frozen food; ice tells us that it is frozen, and cream points to the milk or cream used to make it.",
+      "final_dictation_sentence": "We had ice cream after the park.",
+      "dictation_target_start": 2,
+      "dictation_target_end_exclusive": 4,
+      "assignment_eligible": true,
+      "review_notes": "Approve cream canonical creation. Treat the relationship as explanatory rather than a strict literal sum."
+    },
+    {
+      "micro_skill_key": "D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED",
+      "whole_word": "living room",
+      "decision": "APPROVE_WITH_REFINEMENT",
+      "final_component_meanings": [
+        "spending everyday life in a home",
+        "a space inside a building"
+      ],
+      "final_whole_meaning": "a room in a home where people sit and spend time together",
+      "final_relationship": "A living room is a room used for everyday living, such as sitting, talking and relaxing together.",
+      "final_dictation_sentence": "We read together in the living room.",
+      "dictation_target_start": 5,
+      "dictation_target_end_exclusive": 7,
+      "assignment_eligible": true,
+      "review_notes": "Use the compound-specific sense of living rather than the broad abstract definition 'the way people live'."
+    },
+    {
+      "micro_skill_key": "D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED",
+      "whole_word": "mother-in-law",
+      "decision": "APPROVE_WITH_CORRECTION",
+      "final_component_meanings": [
+        "a female parent",
+        "part of the fixed expression in-law",
+        "part of the fixed expression in-law, which means related through marriage"
+      ],
+      "final_whole_meaning": "the mother of a person's husband or wife",
+      "final_relationship": "A mother-in-law is a mother connected to someone through marriage; in-law is a fixed expression that shows that family relationship.",
+      "final_dictation_sentence": "Her mother-in-law came for lunch.",
+      "dictation_target_start": 1,
+      "dictation_target_end_exclusive": 2,
+      "assignment_eligible": true,
+      "review_notes": "Resolve the ambiguity by treating in-law as a fixed non-literal family expression. Keep mother | in | law structurally for spelling, but do not teach ordinary meanings of in + law as the semantic sum. Canonical in/law rows may retain ordinary dictionary meanings; the compound structure should pin these compound-specific senses."
+    },
+    {
+      "micro_skill_key": "D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED",
+      "whole_word": "part-time",
+      "decision": "APPROVE",
+      "final_component_meanings": [
+        "some, but not all, of something",
+        "the hours spent doing an activity"
+      ],
+      "final_whole_meaning": "for fewer hours than a full-time job or course",
+      "final_relationship": "Part-time work or study takes only part of the usual working time.",
+      "final_dictation_sentence": "Dad works part-time at the library.",
+      "dictation_target_start": 2,
+      "dictation_target_end_exclusive": 3,
+      "assignment_eligible": true,
+      "review_notes": "Approve canonical whole/component creation, meanings, relationship, dictation and assignment eligibility."
+    },
+    {
+      "micro_skill_key": "D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED",
+      "whole_word": "post office",
+      "decision": "APPROVE",
+      "final_component_meanings": [
+        "letters and parcels that are sent and delivered",
+        "a room or place where people do work"
+      ],
+      "final_whole_meaning": "a place where letters and parcels are sent and collected",
+      "final_relationship": "A post office is an office where people send and collect post.",
+      "final_dictation_sentence": "We bought stamps at the post office.",
+      "dictation_target_start": 5,
+      "dictation_target_end_exclusive": 7,
+      "assignment_eligible": true,
+      "review_notes": "Approve post office and office canonical creation, the noun sense of post, meanings, relationship, dictation and assignment eligibility."
+    },
+    {
+      "micro_skill_key": "D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED",
+      "whole_word": "twenty-one",
+      "decision": "APPROVE",
+      "final_component_meanings": [
+        "the number 20",
+        "the number 1"
+      ],
+      "final_whole_meaning": "twenty and one more: the number 21",
+      "final_relationship": "Twenty-one combines twenty and one to make the number 21.",
+      "final_dictation_sentence": "There are twenty-one children in our class.",
+      "dictation_target_start": 2,
+      "dictation_target_end_exclusive": 3,
+      "assignment_eligible": true,
+      "review_notes": "Approve twenty canonical creation, its numeric meaning, relationship and assignment eligibility; retain governed whole/dictation/span facts."
+    },
+    {
+      "micro_skill_key": "D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED",
+      "whole_word": "well-known",
+      "decision": "APPROVE_WITH_CORRECTION",
+      "final_component_meanings": [
+        "to a high degree; very",
+        "recognised or familiar to people"
+      ],
+      "final_whole_meaning": "known by many people",
+      "final_relationship": "Something well-known is known by many people; well strengthens the meaning of known.",
+      "final_dictation_sentence": "The castle is a well-known landmark.",
+      "dictation_target_start": 4,
+      "dictation_target_end_exclusive": 5,
+      "assignment_eligible": true,
+      "review_notes": "Use the adverb sense of well ('to a high degree; very') and avoid implying that the phrase is simply 'known well enough'."
+    }
+  ]
+}

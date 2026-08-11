@@ -13,6 +13,10 @@ const csvPath = resolve(
   ROOT,
   "data/adle/review/d4-mor/v2/compound-word-v2-publication-readiness-review.csv",
 );
+const approvalPath = resolve(
+  ROOT,
+  "data/adle/review/d4-mor/v2/compound-word-v2-publication-review-approval.json",
+);
 const built = buildCompoundWordPublicationReviewPackage();
 const candidateText = `${JSON.stringify(built.candidate, null, 2)}\n`;
 assert.equal(
@@ -177,6 +181,118 @@ assert.ok(csvLines[0].includes("component_to_whole_relationship"));
 assert.ok(csvLines[0].includes("dictation_target_end_exclusive"));
 assert.ok(csvLines[0].includes("review_decision"));
 
+const approval = JSON.parse(readFileSync(approvalPath, "utf8")) as {
+  schema_version: number;
+  approval_status: string;
+  reviewer: string;
+  approved_at: string;
+  approval_statement: string;
+  approval_reference: string;
+  source_workbook: { file_name: string; sha256: string };
+  review_summary: {
+    rows_reviewed: number;
+    approved_unchanged: number;
+    approved_with_refinement_or_correction: number;
+    content_rows_left_unresolved: number;
+  };
+  taxonomy_decision: string;
+  scope_guard: string;
+  rows: Array<{
+    micro_skill_key: string;
+    whole_word: string;
+    decision: "APPROVE" | "APPROVE_WITH_REFINEMENT" | "APPROVE_WITH_CORRECTION";
+    final_component_meanings: string[];
+    final_whole_meaning: string;
+    final_relationship: string;
+    final_dictation_sentence: string;
+    dictation_target_start: number;
+    dictation_target_end_exclusive: number;
+    assignment_eligible: boolean;
+    review_notes: string;
+  }>;
+};
+assert.equal(approval.schema_version, 1);
+assert.equal(approval.approval_status, "approved_to_proceed");
+assert.equal(approval.reviewer, "Katie Sanderson");
+assert.match(approval.approved_at, /^2026-08-11T\d{2}:\d{2}:\d{2}Z$/);
+assert.equal(
+  approval.approval_statement,
+  "These have all be verified by me and approved to proceed with",
+);
+assert.equal(
+  approval.source_workbook.file_name,
+  "compound-word-v2-publication-readiness-review-resolved.xlsx",
+);
+assert.equal(
+  approval.source_workbook.sha256,
+  "4d59997206c4faf5c05eac37f9c4dd23d5581d3600327a7a8d0ef758b4c1338f",
+);
+assert.equal(
+  approval.approval_reference,
+  `sha256:${approval.source_workbook.sha256}`,
+);
+assert.deepEqual(approval.review_summary, {
+  rows_reviewed: 14,
+  approved_unchanged: 7,
+  approved_with_refinement_or_correction: 7,
+  content_rows_left_unresolved: 0,
+});
+assert.equal(
+  approval.taxonomy_decision,
+  "Keep open + hyphenated together under D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED",
+);
+assert.match(approval.scope_guard, /not Teaching Dictionary import authority/);
+assert.equal(approval.rows.length, 14);
+
+const approvalRows = new Map(approval.rows.map((row) => [row.whole_word, row]));
+assert.equal(approvalRows.size, 14);
+assert.deepEqual([...approvalRows.keys()].sort(), [...rows.keys()].sort());
+assert.equal(
+  approval.rows.filter((row) => row.decision === "APPROVE").length,
+  7,
+);
+assert.equal(
+  approval.rows.filter((row) => row.decision !== "APPROVE").length,
+  7,
+);
+for (const [wholeWord, row] of approvalRows) {
+  const candidateRow = rows.get(wholeWord)!;
+  assert.equal(row.micro_skill_key, candidateRow.micro_skill_key);
+  assert.equal(
+    row.final_component_meanings.length,
+    candidateRow.component_count,
+    `${wholeWord} retains one reviewed meaning per governed component`,
+  );
+  assert.ok(row.final_component_meanings.every((meaning) => meaning.trim().length > 0));
+  assert.ok(row.final_whole_meaning.trim().length > 0);
+  assert.ok(row.final_relationship.trim().length > 0);
+  assert.ok(row.review_notes.trim().length > 0);
+  assert.equal(row.assignment_eligible, true);
+  const tokens =
+    row.final_dictation_sentence.match(/[\p{L}]+(?:['’-][\p{L}]+)*/gu) ?? [];
+  assert.equal(
+    tokens
+      .slice(row.dictation_target_start, row.dictation_target_end_exclusive)
+      .join(" ")
+      .toLocaleLowerCase("en-GB"),
+    wholeWord.toLocaleLowerCase("en-GB"),
+    `${wholeWord} approval preserves the exact governed dictation target`,
+  );
+}
+assert.deepEqual(approvalRows.get("mother-in-law")!.final_component_meanings, [
+  "a female parent",
+  "part of the fixed expression in-law",
+  "part of the fixed expression in-law, which means related through marriage",
+]);
+assert.equal(
+  approvalRows.get("homework")!.final_component_meanings[1],
+  "a job or task that needs effort",
+);
+assert.equal(
+  approvalRows.get("well-known")!.final_component_meanings[0],
+  "to a high degree; very",
+);
+
 console.log(
-  "Compound Word v2 publication review regression passed: deterministic 14-row CSV/candidate package, 17 non-authoritative canonical proposals, exact spans, and no publication or activation authority.",
+  "Compound Word v2 publication review regression passed: deterministic 14-row CSV/candidate package, hash-bound 14-row human approval, 17 non-authoritative canonical proposals, exact spans, and no publication or activation authority.",
 );
