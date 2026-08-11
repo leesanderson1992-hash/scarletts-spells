@@ -45,7 +45,7 @@ export interface ActivityTemplateDefinition {
   fallbackBehaviour: ActivityTemplateFallbackBehaviour;
   capturesAttempt: boolean;
   activityMode: ActivityMode;
-  richExperience?: "D4_MOR_GUIDED";
+  richExperience?: "D4_MOR_GUIDED" | "D4_MOR_COMPOUND_WORD";
   supportedPayloadVersions?: readonly number[];
 }
 
@@ -128,6 +128,8 @@ const TEMPLATE_DEFINITIONS = {
   MOR_STRIP_BUILD: guidedDefinition("MOR_STRIP_BUILD", "morphology"),
   MOR_MEANING_MATCH: guidedDefinition("MOR_MEANING_MATCH", "morphology"),
   MOR_BUILD_WORD: guidedDefinition("MOR_BUILD_WORD", "morphology"),
+  MOR_COMPOUND_JIGSAW: compoundDefinition("MOR_COMPOUND_JIGSAW"),
+  MOR_COMPOUND_MEANING_CONNECTION: compoundDefinition("MOR_COMPOUND_MEANING_CONNECTION"),
   PAT_PATTERN_SPOT: guidedDefinition("PAT_PATTERN_SPOT", "pattern"),
   PAT_RULE_APPLY: guidedDefinition("PAT_RULE_APPLY", "pattern"),
   SYL_SPLIT: guidedDefinition("SYL_SPLIT", "syllable"),
@@ -266,6 +268,14 @@ function guidedDefinition(
   return templateFamily === "morphology"
     ? { ...result, richExperience: "D4_MOR_GUIDED", supportedPayloadVersions: [1] }
     : result;
+}
+
+function compoundDefinition(templateKey: string): ActivityTemplateDefinition {
+  return {
+    ...definition(templateKey, "morphology", ["guided_practice"], "guided_prompt", true, "guided"),
+    richExperience: "D4_MOR_COMPOUND_WORD",
+    supportedPayloadVersions: [1, 2],
+  };
 }
 
 function fallback(

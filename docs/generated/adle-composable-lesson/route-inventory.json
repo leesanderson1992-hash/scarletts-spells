@@ -132,6 +132,67 @@
       }
     },
     {
+      "activationAuthority": "database_route_activation",
+      "canonicalContentAuthority": "route_content",
+      "compatibilityScope": {
+        "kind": "declared_micro_skills"
+      },
+      "coverageRequirements": [
+        "unique_dictation_sentences"
+      ],
+      "implementationState": "registered",
+      "intentionalItemCounts": [
+        18
+      ],
+      "legacyDetectionRules": [],
+      "newAssignmentCapable": false,
+      "payloadKind": "compound_word_lesson_v2",
+      "payloadVersions": [
+        2
+      ],
+      "recipes": [
+        {
+          "recipeKey": "compound_word_lab",
+          "recipeVersion": "v2"
+        }
+      ],
+      "rendererKey": "compound_word_guided",
+      "requiredActivities": [
+        "introduction",
+        "compound_jigsaw",
+        "meaning_match",
+        "cover_check",
+        "dictation",
+        "reflection"
+      ],
+      "requiresAuthenticSelectableItem": true,
+      "routeId": "compound_word_lab",
+      "routeOwnership": {
+        "kind": "recipe_contract_only"
+      },
+      "routeVersion": "v2",
+      "runtimeAdapterKey": "compound_word_v2",
+      "supportedMicroSkillKeys": [
+        "D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS",
+        "D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED"
+      ],
+      "wordCounts": {
+        "authentic": [
+          1,
+          4
+        ],
+        "lesson": [
+          4,
+          4
+        ],
+        "transfer": [
+          0,
+          3
+        ]
+      },
+      "wordSupportAuthority": "route_content"
+    },
+    {
       "activationAuthority": "environment_and_profile_gates",
       "compatibilityScope": {
         "kind": "declared_micro_skills"

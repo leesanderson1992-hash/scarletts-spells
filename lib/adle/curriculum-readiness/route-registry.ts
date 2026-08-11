@@ -32,6 +32,7 @@ export type CurriculumCompatibilityScope =
 export type CurriculumRouteOwnershipScope =
   | { kind: "declared_micro_skills" }
   | { kind: "skill_clusters"; skillClusterKeys: readonly string[] }
+  | { kind: "recipe_contract_only" }
   | { kind: "generic_composer_fallback" };
 
 export interface CurriculumRouteDefinition {
@@ -275,6 +276,39 @@ export const ADLE_CURRICULUM_ROUTE_REGISTRY: readonly CurriculumRouteDefinition[
     wordCounts: { lesson: [4, 4], authentic: [0, 4], transfer: [0, 4] },
     coverageRequirements: ["unique_dictation_sentences"],
   },
+  {
+    routeId: "compound_word_lab",
+    routeVersion: "v2",
+    supportedMicroSkillKeys: [
+      "D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS",
+      "D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED",
+    ],
+    routeOwnership: { kind: "recipe_contract_only" },
+    implementationState: "registered",
+    newAssignmentCapable: false,
+    requiresAuthenticSelectableItem: true,
+    payloadKind: "compound_word_lesson_v2",
+    payloadVersions: [2],
+    activationAuthority: "database_route_activation",
+    wordSupportAuthority: "route_content",
+    canonicalContentAuthority: "route_content",
+    compatibilityScope: { kind: "declared_micro_skills" },
+    recipes: [{ recipeKey: "compound_word_lab", recipeVersion: "v2" }],
+    runtimeAdapterKey: "compound_word_v2",
+    rendererKey: "compound_word_guided",
+    legacyDetectionRules: [],
+    requiredActivities: [
+      "introduction",
+      "compound_jigsaw",
+      "meaning_match",
+      "cover_check",
+      "dictation",
+      "reflection",
+    ],
+    intentionalItemCounts: [18],
+    wordCounts: { lesson: [4, 4], authentic: [1, 4], transfer: [0, 3] },
+    coverageRequirements: ["unique_dictation_sentences"],
+  },
 ] as const;
 
 export function validateCurriculumRouteRegistry(
@@ -364,6 +398,7 @@ export function getCurriculumRouteOwnerForTaxonomy(input: {
   const matches = ADLE_CURRICULUM_ROUTE_REGISTRY.filter((route) => {
     if (
       route.implementationState !== "registered" ||
+      route.routeOwnership.kind === "recipe_contract_only" ||
       route.routeOwnership.kind === "generic_composer_fallback"
     ) {
       return false;

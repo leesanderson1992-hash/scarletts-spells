@@ -65,6 +65,8 @@ const TIER_C_TEMPLATES = [
   "MOR_STRIP_BUILD",
   "MOR_MEANING_MATCH",
   "MOR_BUILD_WORD",
+  "MOR_COMPOUND_JIGSAW",
+  "MOR_COMPOUND_MEANING_CONNECTION",
   "PAT_PATTERN_SPOT",
   "PAT_RULE_APPLY",
   "SYL_SPLIT",
@@ -107,7 +109,7 @@ assert(
 );
 
 // --- Drift guard: the registry knows exactly the active template set ---------
-// (32 active templates in adle_activity_templates, verified 2026-07-07.)
+// (32 active generic templates plus two route-owned Compound modes.)
 
 const ACTIVE_TEMPLATES = [
   "CONTROLLED_SPELLING",
@@ -127,6 +129,8 @@ const ACTIVE_TEMPLATES = [
   "MEMORY_CUE",
   "MICRO_READ_ONLY_INTRO",
   "MOR_BUILD_WORD",
+  "MOR_COMPOUND_JIGSAW",
+  "MOR_COMPOUND_MEANING_CONNECTION",
   "MOR_MEANING_MATCH",
   "MOR_STRIP_BUILD",
   "MUST_USE_FREEWRITING",
@@ -144,7 +148,7 @@ const ACTIVE_TEMPLATES = [
   "SYL_SPLIT",
 ];
 const registeredKeys: ReadonlySet<string> = new Set(listRegisteredActivityTemplateKeys());
-assert(ACTIVE_TEMPLATES.length === 32, "the pinned active template set has 32 entries");
+assert(ACTIVE_TEMPLATES.length === 34, "the pinned shared template set has 34 entries");
 for (const templateKey of ACTIVE_TEMPLATES) {
   assert(registeredKeys.has(templateKey), `registry knows active template ${templateKey}`);
 }

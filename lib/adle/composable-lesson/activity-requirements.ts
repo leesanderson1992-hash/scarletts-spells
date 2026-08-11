@@ -38,6 +38,7 @@ export type ActivityFactKey =
   | "base_or_root"
   | "affix_form"
   | "compound_components"
+  | "component_to_whole_relationship"
   | "dictation_sentence"
   | "dictation_target"
   | "dictation_audio"
@@ -218,7 +219,7 @@ export const ADLE_ACTIVITY_REQUIREMENT_REGISTRY = [
     roleRequirements: lessonRoles,
     answerVisibility: "guided",
     evidenceMode: "guided_completion",
-    applicableRecipes: ["closed_compound_word_lab:v1"],
+    applicableRecipes: ["closed_compound_word_lab:v1", "compound_word_lab:v2"],
   }),
   definition("meaning_match", {
     requiredFacts: [
@@ -226,13 +227,13 @@ export const ADLE_ACTIVITY_REQUIREMENT_REGISTRY = [
       support("whole_word_meaning"),
       support("child_meaning"),
     ],
-    optionalFacts: [support("meaning_group")],
+    optionalFacts: [support("meaning_group"), support("component_to_whole_relationship")],
     compiledOnlyFields: ["wordOrder", "meaningOrder"],
     contradictionRules: ["meaning_must_not_repeat_target_as_definition"],
     roleRequirements: lessonRoles,
     answerVisibility: "guided",
     evidenceMode: "guided_completion",
-    applicableRecipes: ["closed_compound_word_lab:v1"],
+    applicableRecipes: ["closed_compound_word_lab:v1", "compound_word_lab:v2"],
   }),
   definition("meaning_sort", {
     requiredFacts: [

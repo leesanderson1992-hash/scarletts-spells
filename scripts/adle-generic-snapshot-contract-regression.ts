@@ -37,7 +37,7 @@ const expectedFamilySequences = {
 
 equal(validateGenericSnapshotTemplateRegistry().length, 0, "template registry is internally valid");
 equal(validateGenericSnapshotRequirementRegistry().length, 0, "requirement registry covers every mapping");
-equal(GENERIC_SNAPSHOT_TEMPLATE_REGISTRY.length, 32, "all 32 generic templates are mapped");
+equal(GENERIC_SNAPSHOT_TEMPLATE_REGISTRY.length, 34, "all shared templates are mapped");
 deepStrictEqual(
   GENERIC_SNAPSHOT_TEMPLATE_REGISTRY.map((entry) => entry.templateKey).sort(),
   listRegisteredActivityTemplateKeys(),
@@ -57,7 +57,15 @@ deepStrictEqual(
     .map((entry) => entry.templateKey)
     .sort(),
   ["MUST_USE_FREEWRITING", "REVIEW_MUST_USE_WRITING"],
-  "only the two unimplemented sentence-writing shapes are blocked",
+  "only the two unimplemented sentence-writing shapes are legacy-only",
+);
+deepStrictEqual(
+  GENERIC_SNAPSHOT_TEMPLATE_REGISTRY
+    .filter((entry) => entry.compileSupport === "route_specific")
+    .map((entry) => entry.templateKey)
+    .sort(),
+  ["MOR_COMPOUND_JIGSAW", "MOR_COMPOUND_MEANING_CONNECTION"],
+  "Compound modes are canonical shared registrations owned by the specialist route",
 );
 
 function candidate(

@@ -861,6 +861,108 @@
     },
     {
       "answerVisibility": "guided",
+      "compileSupport": "route_specific",
+      "contractVersion": 2,
+      "evidence": {
+        "attemptKind": "guided_practice",
+        "capture": "optional",
+        "evidenceClass": "guided_practice_attempt",
+        "mode": "guided_completion"
+      },
+      "kind": "guided_prompt",
+      "rendererKind": "guided_prompt",
+      "requirements": [
+        {
+          "availability": "compile",
+          "key": "assignment_binding",
+          "required": true
+        },
+        {
+          "availability": "compile",
+          "key": "template_content_version",
+          "required": true
+        },
+        {
+          "availability": "compile",
+          "key": "canonical_identity",
+          "required": true
+        },
+        {
+          "availability": "compile",
+          "key": "display_word",
+          "required": true
+        },
+        {
+          "availability": "compile",
+          "key": "word_role_binding",
+          "required": true
+        },
+        {
+          "availability": "compile",
+          "key": "micro_skill_content",
+          "required": true
+        }
+      ],
+      "rewardRole": "none",
+      "scheduleRole": "none",
+      "supportedSections": [
+        "guided_practice"
+      ],
+      "templateKey": "MOR_COMPOUND_JIGSAW"
+    },
+    {
+      "answerVisibility": "guided",
+      "compileSupport": "route_specific",
+      "contractVersion": 2,
+      "evidence": {
+        "attemptKind": "guided_practice",
+        "capture": "optional",
+        "evidenceClass": "guided_practice_attempt",
+        "mode": "guided_completion"
+      },
+      "kind": "guided_prompt",
+      "rendererKind": "guided_prompt",
+      "requirements": [
+        {
+          "availability": "compile",
+          "key": "assignment_binding",
+          "required": true
+        },
+        {
+          "availability": "compile",
+          "key": "template_content_version",
+          "required": true
+        },
+        {
+          "availability": "compile",
+          "key": "canonical_identity",
+          "required": true
+        },
+        {
+          "availability": "compile",
+          "key": "display_word",
+          "required": true
+        },
+        {
+          "availability": "compile",
+          "key": "word_role_binding",
+          "required": true
+        },
+        {
+          "availability": "compile",
+          "key": "micro_skill_content",
+          "required": true
+        }
+      ],
+      "rewardRole": "none",
+      "scheduleRole": "none",
+      "supportedSections": [
+        "guided_practice"
+      ],
+      "templateKey": "MOR_COMPOUND_MEANING_CONNECTION"
+    },
+    {
+      "answerVisibility": "guided",
       "compileSupport": "supported",
       "contractVersion": 2,
       "evidence": {
