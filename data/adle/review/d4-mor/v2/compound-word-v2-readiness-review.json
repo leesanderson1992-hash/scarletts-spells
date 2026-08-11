@@ -1,0 +1,1038 @@
+{
+  "schema_version": 1,
+  "purpose": "CW-1 deterministic review projection; not a curriculum release or activation",
+  "source_as_of": "2026-08-11",
+  "approved_analysis_source": "data/adle/approved/d4-mor/v1/d4-mor-v1-word-analyses.json",
+  "canonical_identity_source": "Production canonical Teaching Dictionary queried inside BEGIN READ ONLY",
+  "summary": {
+    "reviewed_words": 14,
+    "whole_canonical_words": 6,
+    "complete_canonical_component_identity": 6,
+    "complete_component_and_whole_meanings": 4,
+    "reviewed_component_to_whole_relationships": 0,
+    "dictation_ready": 6,
+    "dictation_target_span_ready": 5,
+    "publication_ready": 0,
+    "human_review_required": 14
+  },
+  "rows": [
+    {
+      "micro_skill_key": "D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS",
+      "whole_word": "bedroom",
+      "whole_canonical_word_id": "471b01bb-6a54-595d-95e2-b1a06edcbc8a",
+      "component_count": 2,
+      "ordered_component_surfaces": [
+        "bed",
+        "room"
+      ],
+      "ordered_component_canonical_word_ids": [
+        "a69eab89-ea57-5cce-82c7-1378290b4614",
+        "6edd2d51-c382-5f75-961b-eac559db8dd0"
+      ],
+      "components": [
+        {
+          "ordinal": 1,
+          "display_surface": "bed",
+          "canonical_word_id": "a69eab89-ea57-5cce-82c7-1378290b4614",
+          "meaning": "furniture that you sleep in",
+          "sense": null
+        },
+        {
+          "ordinal": 2,
+          "display_surface": "room",
+          "canonical_word_id": "6edd2d51-c382-5f75-961b-eac559db8dd0",
+          "meaning": "a space inside a building",
+          "sense": null
+        }
+      ],
+      "ordered_join_kinds": [
+        "none"
+      ],
+      "joins": [
+        {
+          "ordinal": 1,
+          "kind": "none"
+        }
+      ],
+      "reconstructed_written_form": "bedroom",
+      "whole_child_friendly_meaning": "a room where someone sleeps",
+      "component_to_whole_relationship": null,
+      "dictation_status": "approved_for_first_exposure",
+      "dictation_target_span_status": "ready_single_token",
+      "structure_provenance": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Word Bank",
+        "row": 116,
+        "approval_status": "human_approved",
+        "human_review_status": "approved",
+        "released_fact_provenance": {
+          "package_sha256": "841f13b525f6be22274ad3fa0b40957e43f9fadae72ecc873003c38b32096547",
+          "approved_review_artifact": "data/adle/candidates/d4-mor-remaining-profiles/v1/closed-compounds-dictionary-pool-review.json"
+        },
+        "released_fact_source": {
+          "sheet": "closed-compounds-dictionary-pool-review.json",
+          "row": 2,
+          "row_hash": "79f4e209ca603f0195d509253aa25bf747a0099c1cc53c67f6675d2fcab16556",
+          "review_status": "approved_for_first_exposure"
+        }
+      },
+      "assignment_eligible": true,
+      "transfer_eligible": true,
+      "publication_ready": false,
+      "current_blocker": "component_to_whole_relationship_missing",
+      "publication_blockers": [
+        "component_to_whole_relationship_missing"
+      ],
+      "human_review_required": [
+        "component_to_whole_relationship_missing"
+      ]
+    },
+    {
+      "micro_skill_key": "D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS",
+      "whole_word": "football",
+      "whole_canonical_word_id": "2c8be08f-1205-5422-9799-f95b43a455f8",
+      "component_count": 2,
+      "ordered_component_surfaces": [
+        "foot",
+        "ball"
+      ],
+      "ordered_component_canonical_word_ids": [
+        "377bae8a-c334-5d33-81ae-6c4186772d7d",
+        "c95a7b7f-0cac-5513-b374-95cba442dca7"
+      ],
+      "components": [
+        {
+          "ordinal": 1,
+          "display_surface": "foot",
+          "canonical_word_id": "377bae8a-c334-5d33-81ae-6c4186772d7d",
+          "meaning": "the part at the end of your leg",
+          "sense": null
+        },
+        {
+          "ordinal": 2,
+          "display_surface": "ball",
+          "canonical_word_id": "c95a7b7f-0cac-5513-b374-95cba442dca7",
+          "meaning": "a round object used in games",
+          "sense": null
+        }
+      ],
+      "ordered_join_kinds": [
+        "none"
+      ],
+      "joins": [
+        {
+          "ordinal": 1,
+          "kind": "none"
+        }
+      ],
+      "reconstructed_written_form": "football",
+      "whole_child_friendly_meaning": "a game where players kick a ball into goals",
+      "component_to_whole_relationship": null,
+      "dictation_status": "approved_for_first_exposure",
+      "dictation_target_span_status": "ready_single_token",
+      "structure_provenance": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Word Bank",
+        "row": 114,
+        "approval_status": "human_approved",
+        "human_review_status": "approved",
+        "released_fact_provenance": {
+          "package_sha256": "841f13b525f6be22274ad3fa0b40957e43f9fadae72ecc873003c38b32096547",
+          "approved_review_artifact": "data/adle/candidates/d4-mor-remaining-profiles/v1/closed-compounds-dictionary-pool-review.json"
+        },
+        "released_fact_source": {
+          "sheet": "closed-compounds-dictionary-pool-review.json",
+          "row": 4,
+          "row_hash": "f845b2716eea47aa8ccf1f7d5c80abe4f0b98e7edbe1c198cedaab09c91e4f88",
+          "review_status": "approved_for_first_exposure"
+        }
+      },
+      "assignment_eligible": true,
+      "transfer_eligible": true,
+      "publication_ready": false,
+      "current_blocker": "component_to_whole_relationship_missing",
+      "publication_blockers": [
+        "component_to_whole_relationship_missing"
+      ],
+      "human_review_required": [
+        "component_to_whole_relationship_missing"
+      ]
+    },
+    {
+      "micro_skill_key": "D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS",
+      "whole_word": "grandmother",
+      "whole_canonical_word_id": null,
+      "component_count": 2,
+      "ordered_component_surfaces": [
+        "grand",
+        "mother"
+      ],
+      "ordered_component_canonical_word_ids": [
+        null,
+        "6f8a5d74-5775-5048-88b0-4763da263be6"
+      ],
+      "components": [
+        {
+          "ordinal": 1,
+          "display_surface": "grand",
+          "canonical_word_id": null,
+          "meaning": null,
+          "sense": null
+        },
+        {
+          "ordinal": 2,
+          "display_surface": "mother",
+          "canonical_word_id": "6f8a5d74-5775-5048-88b0-4763da263be6",
+          "meaning": null,
+          "sense": null
+        }
+      ],
+      "ordered_join_kinds": [
+        "none"
+      ],
+      "joins": [
+        {
+          "ordinal": 1,
+          "kind": "none"
+        }
+      ],
+      "reconstructed_written_form": "grandmother",
+      "whole_child_friendly_meaning": null,
+      "component_to_whole_relationship": null,
+      "dictation_status": "missing",
+      "dictation_target_span_status": "missing",
+      "structure_provenance": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Word Bank",
+        "row": 120,
+        "approval_status": "human_approved",
+        "human_review_status": "approved",
+        "released_fact_provenance": null,
+        "released_fact_source": null
+      },
+      "assignment_eligible": false,
+      "transfer_eligible": false,
+      "publication_ready": false,
+      "current_blocker": "whole_canonical_word_missing",
+      "publication_blockers": [
+        "whole_canonical_word_missing",
+        "component_canonical_word_missing",
+        "whole_meaning_missing",
+        "component_meanings_missing",
+        "component_to_whole_relationship_missing",
+        "dictation_missing"
+      ],
+      "human_review_required": [
+        "whole_canonical_word_missing",
+        "component_canonical_word_missing",
+        "whole_meaning_missing",
+        "component_meanings_missing",
+        "component_to_whole_relationship_missing",
+        "dictation_missing"
+      ]
+    },
+    {
+      "micro_skill_key": "D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS",
+      "whole_word": "homework",
+      "whole_canonical_word_id": null,
+      "component_count": 2,
+      "ordered_component_surfaces": [
+        "home",
+        "work"
+      ],
+      "ordered_component_canonical_word_ids": [
+        "98a80cb8-1b07-5ab4-a5eb-f663f1979578",
+        "bbc78002-6a13-5653-b4ef-050e756879d7"
+      ],
+      "components": [
+        {
+          "ordinal": 1,
+          "display_surface": "home",
+          "canonical_word_id": "98a80cb8-1b07-5ab4-a5eb-f663f1979578",
+          "meaning": null,
+          "sense": null
+        },
+        {
+          "ordinal": 2,
+          "display_surface": "work",
+          "canonical_word_id": "bbc78002-6a13-5653-b4ef-050e756879d7",
+          "meaning": null,
+          "sense": null
+        }
+      ],
+      "ordered_join_kinds": [
+        "none"
+      ],
+      "joins": [
+        {
+          "ordinal": 1,
+          "kind": "none"
+        }
+      ],
+      "reconstructed_written_form": "homework",
+      "whole_child_friendly_meaning": null,
+      "component_to_whole_relationship": null,
+      "dictation_status": "missing",
+      "dictation_target_span_status": "missing",
+      "structure_provenance": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Word Bank",
+        "row": 119,
+        "approval_status": "human_approved",
+        "human_review_status": "approved",
+        "released_fact_provenance": null,
+        "released_fact_source": null
+      },
+      "assignment_eligible": false,
+      "transfer_eligible": false,
+      "publication_ready": false,
+      "current_blocker": "whole_canonical_word_missing",
+      "publication_blockers": [
+        "whole_canonical_word_missing",
+        "whole_meaning_missing",
+        "component_meanings_missing",
+        "component_to_whole_relationship_missing",
+        "dictation_missing"
+      ],
+      "human_review_required": [
+        "whole_canonical_word_missing",
+        "whole_meaning_missing",
+        "component_meanings_missing",
+        "component_to_whole_relationship_missing",
+        "dictation_missing"
+      ]
+    },
+    {
+      "micro_skill_key": "D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS",
+      "whole_word": "playground",
+      "whole_canonical_word_id": "c4566186-8c4b-5c33-9755-5db34d1f110e",
+      "component_count": 2,
+      "ordered_component_surfaces": [
+        "play",
+        "ground"
+      ],
+      "ordered_component_canonical_word_ids": [
+        "7824cfc5-f8c2-57ac-ba9e-d806161371e8",
+        "c17a1ace-38d0-59bd-a584-7ec3a9bc129e"
+      ],
+      "components": [
+        {
+          "ordinal": 1,
+          "display_surface": "play",
+          "canonical_word_id": "7824cfc5-f8c2-57ac-ba9e-d806161371e8",
+          "meaning": "to have fun with games or toys",
+          "sense": null
+        },
+        {
+          "ordinal": 2,
+          "display_surface": "ground",
+          "canonical_word_id": "c17a1ace-38d0-59bd-a584-7ec3a9bc129e",
+          "meaning": "the surface under your feet",
+          "sense": null
+        }
+      ],
+      "ordered_join_kinds": [
+        "none"
+      ],
+      "joins": [
+        {
+          "ordinal": 1,
+          "kind": "none"
+        }
+      ],
+      "reconstructed_written_form": "playground",
+      "whole_child_friendly_meaning": "an outdoor place where children play",
+      "component_to_whole_relationship": null,
+      "dictation_status": "approved_for_first_exposure",
+      "dictation_target_span_status": "ready_single_token",
+      "structure_provenance": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Word Bank",
+        "row": 118,
+        "approval_status": "human_approved",
+        "human_review_status": "approved",
+        "released_fact_provenance": {
+          "package_sha256": "841f13b525f6be22274ad3fa0b40957e43f9fadae72ecc873003c38b32096547",
+          "approved_review_artifact": "data/adle/candidates/d4-mor-remaining-profiles/v1/closed-compounds-dictionary-pool-review.json"
+        },
+        "released_fact_source": {
+          "sheet": "closed-compounds-dictionary-pool-review.json",
+          "row": 5,
+          "row_hash": "fa108e050b7726eb62872e83fd4cb3873f57ad357d51ea16cd049ecf2380a8ca",
+          "review_status": "approved_for_first_exposure"
+        }
+      },
+      "assignment_eligible": true,
+      "transfer_eligible": true,
+      "publication_ready": false,
+      "current_blocker": "component_to_whole_relationship_missing",
+      "publication_blockers": [
+        "component_to_whole_relationship_missing"
+      ],
+      "human_review_required": [
+        "component_to_whole_relationship_missing"
+      ]
+    },
+    {
+      "micro_skill_key": "D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS",
+      "whole_word": "rainbow",
+      "whole_canonical_word_id": "a6a30d2e-cd03-543e-b7cf-f8020bf9dbd9",
+      "component_count": 2,
+      "ordered_component_surfaces": [
+        "rain",
+        "bow"
+      ],
+      "ordered_component_canonical_word_ids": [
+        "369d9884-1928-53ca-97ea-6d9c3e6a46ca",
+        "5d62fd50-5ec5-5e1d-9548-5c3c30ef4229"
+      ],
+      "components": [
+        {
+          "ordinal": 1,
+          "display_surface": "rain",
+          "canonical_word_id": "369d9884-1928-53ca-97ea-6d9c3e6a46ca",
+          "meaning": "water that falls from clouds",
+          "sense": null
+        },
+        {
+          "ordinal": 2,
+          "display_surface": "bow",
+          "canonical_word_id": "5d62fd50-5ec5-5e1d-9548-5c3c30ef4229",
+          "meaning": "a curved shape",
+          "sense": null
+        }
+      ],
+      "ordered_join_kinds": [
+        "none"
+      ],
+      "joins": [
+        {
+          "ordinal": 1,
+          "kind": "none"
+        }
+      ],
+      "reconstructed_written_form": "rainbow",
+      "whole_child_friendly_meaning": "a curved band of colours seen in the sky after rain",
+      "component_to_whole_relationship": null,
+      "dictation_status": "approved_for_first_exposure",
+      "dictation_target_span_status": "ready_single_token",
+      "structure_provenance": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Word Bank",
+        "row": 115,
+        "approval_status": "human_approved",
+        "human_review_status": "approved",
+        "released_fact_provenance": {
+          "package_sha256": "841f13b525f6be22274ad3fa0b40957e43f9fadae72ecc873003c38b32096547",
+          "approved_review_artifact": "data/adle/candidates/d4-mor-remaining-profiles/v1/closed-compounds-dictionary-pool-review.json"
+        },
+        "released_fact_source": {
+          "sheet": "closed-compounds-dictionary-pool-review.json",
+          "row": 6,
+          "row_hash": "452b341900d2babfc984a7a8aecee4363fc95aed9e582dd590e5b511dd851ac7",
+          "review_status": "approved_for_first_exposure"
+        }
+      },
+      "assignment_eligible": true,
+      "transfer_eligible": true,
+      "publication_ready": false,
+      "current_blocker": "component_to_whole_relationship_missing",
+      "publication_blockers": [
+        "component_to_whole_relationship_missing"
+      ],
+      "human_review_required": [
+        "component_to_whole_relationship_missing"
+      ]
+    },
+    {
+      "micro_skill_key": "D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS",
+      "whole_word": "sunflower",
+      "whole_canonical_word_id": null,
+      "component_count": 2,
+      "ordered_component_surfaces": [
+        "sun",
+        "flower"
+      ],
+      "ordered_component_canonical_word_ids": [
+        "ef54e01f-d0d4-5bc7-b518-c1a56b341554",
+        "7133c536-ab7f-523a-a760-5c26ee1b934f"
+      ],
+      "components": [
+        {
+          "ordinal": 1,
+          "display_surface": "sun",
+          "canonical_word_id": "ef54e01f-d0d4-5bc7-b518-c1a56b341554",
+          "meaning": null,
+          "sense": null
+        },
+        {
+          "ordinal": 2,
+          "display_surface": "flower",
+          "canonical_word_id": "7133c536-ab7f-523a-a760-5c26ee1b934f",
+          "meaning": null,
+          "sense": null
+        }
+      ],
+      "ordered_join_kinds": [
+        "none"
+      ],
+      "joins": [
+        {
+          "ordinal": 1,
+          "kind": "none"
+        }
+      ],
+      "reconstructed_written_form": "sunflower",
+      "whole_child_friendly_meaning": null,
+      "component_to_whole_relationship": null,
+      "dictation_status": "missing",
+      "dictation_target_span_status": "missing",
+      "structure_provenance": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Word Bank",
+        "row": 117,
+        "approval_status": "human_approved",
+        "human_review_status": "approved",
+        "released_fact_provenance": null,
+        "released_fact_source": null
+      },
+      "assignment_eligible": false,
+      "transfer_eligible": false,
+      "publication_ready": false,
+      "current_blocker": "whole_canonical_word_missing",
+      "publication_blockers": [
+        "whole_canonical_word_missing",
+        "whole_meaning_missing",
+        "component_meanings_missing",
+        "component_to_whole_relationship_missing",
+        "dictation_missing"
+      ],
+      "human_review_required": [
+        "whole_canonical_word_missing",
+        "whole_meaning_missing",
+        "component_meanings_missing",
+        "component_to_whole_relationship_missing",
+        "dictation_missing"
+      ]
+    },
+    {
+      "micro_skill_key": "D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED",
+      "whole_word": "ice cream",
+      "whole_canonical_word_id": "f760df54-4322-53f3-94ea-a9f795808871",
+      "component_count": 2,
+      "ordered_component_surfaces": [
+        "ice",
+        "cream"
+      ],
+      "ordered_component_canonical_word_ids": [
+        "39013043-2bb2-50c5-b00f-e0eec697206f",
+        null
+      ],
+      "components": [
+        {
+          "ordinal": 1,
+          "display_surface": "ice",
+          "canonical_word_id": "39013043-2bb2-50c5-b00f-e0eec697206f",
+          "meaning": null,
+          "sense": null
+        },
+        {
+          "ordinal": 2,
+          "display_surface": "cream",
+          "canonical_word_id": null,
+          "meaning": null,
+          "sense": null
+        }
+      ],
+      "ordered_join_kinds": [
+        "space"
+      ],
+      "joins": [
+        {
+          "ordinal": 1,
+          "kind": "space"
+        }
+      ],
+      "reconstructed_written_form": "ice cream",
+      "whole_child_friendly_meaning": null,
+      "component_to_whole_relationship": null,
+      "dictation_status": "approved_for_first_exposure",
+      "dictation_target_span_status": "requires_multi_token_span_review",
+      "structure_provenance": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Word Bank",
+        "row": 121,
+        "approval_status": "human_approved",
+        "human_review_status": "approved",
+        "released_fact_provenance": null,
+        "released_fact_source": null
+      },
+      "assignment_eligible": false,
+      "transfer_eligible": false,
+      "publication_ready": false,
+      "current_blocker": "component_canonical_word_missing",
+      "publication_blockers": [
+        "component_canonical_word_missing",
+        "whole_meaning_missing",
+        "component_meanings_missing",
+        "component_to_whole_relationship_missing",
+        "dictation_target_span_review_required"
+      ],
+      "human_review_required": [
+        "component_canonical_word_missing",
+        "whole_meaning_missing",
+        "component_meanings_missing",
+        "component_to_whole_relationship_missing",
+        "dictation_target_span_review_required"
+      ]
+    },
+    {
+      "micro_skill_key": "D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED",
+      "whole_word": "living room",
+      "whole_canonical_word_id": null,
+      "component_count": 2,
+      "ordered_component_surfaces": [
+        "living",
+        "room"
+      ],
+      "ordered_component_canonical_word_ids": [
+        null,
+        "6edd2d51-c382-5f75-961b-eac559db8dd0"
+      ],
+      "components": [
+        {
+          "ordinal": 1,
+          "display_surface": "living",
+          "canonical_word_id": null,
+          "meaning": null,
+          "sense": null
+        },
+        {
+          "ordinal": 2,
+          "display_surface": "room",
+          "canonical_word_id": "6edd2d51-c382-5f75-961b-eac559db8dd0",
+          "meaning": null,
+          "sense": null
+        }
+      ],
+      "ordered_join_kinds": [
+        "space"
+      ],
+      "joins": [
+        {
+          "ordinal": 1,
+          "kind": "space"
+        }
+      ],
+      "reconstructed_written_form": "living room",
+      "whole_child_friendly_meaning": null,
+      "component_to_whole_relationship": null,
+      "dictation_status": "missing",
+      "dictation_target_span_status": "missing",
+      "structure_provenance": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Word Bank",
+        "row": 122,
+        "approval_status": "human_approved",
+        "human_review_status": "approved",
+        "released_fact_provenance": null,
+        "released_fact_source": null
+      },
+      "assignment_eligible": false,
+      "transfer_eligible": false,
+      "publication_ready": false,
+      "current_blocker": "whole_canonical_word_missing",
+      "publication_blockers": [
+        "whole_canonical_word_missing",
+        "component_canonical_word_missing",
+        "whole_meaning_missing",
+        "component_meanings_missing",
+        "component_to_whole_relationship_missing",
+        "dictation_missing"
+      ],
+      "human_review_required": [
+        "whole_canonical_word_missing",
+        "component_canonical_word_missing",
+        "whole_meaning_missing",
+        "component_meanings_missing",
+        "component_to_whole_relationship_missing",
+        "dictation_missing"
+      ]
+    },
+    {
+      "micro_skill_key": "D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED",
+      "whole_word": "mother-in-law",
+      "whole_canonical_word_id": null,
+      "component_count": 3,
+      "ordered_component_surfaces": [
+        "mother",
+        "in",
+        "law"
+      ],
+      "ordered_component_canonical_word_ids": [
+        "6f8a5d74-5775-5048-88b0-4763da263be6",
+        null,
+        null
+      ],
+      "components": [
+        {
+          "ordinal": 1,
+          "display_surface": "mother",
+          "canonical_word_id": "6f8a5d74-5775-5048-88b0-4763da263be6",
+          "meaning": null,
+          "sense": null
+        },
+        {
+          "ordinal": 2,
+          "display_surface": "in",
+          "canonical_word_id": null,
+          "meaning": null,
+          "sense": null
+        },
+        {
+          "ordinal": 3,
+          "display_surface": "law",
+          "canonical_word_id": null,
+          "meaning": null,
+          "sense": null
+        }
+      ],
+      "ordered_join_kinds": [
+        "hyphen",
+        "hyphen"
+      ],
+      "joins": [
+        {
+          "ordinal": 1,
+          "kind": "hyphen"
+        },
+        {
+          "ordinal": 2,
+          "kind": "hyphen"
+        }
+      ],
+      "reconstructed_written_form": "mother-in-law",
+      "whole_child_friendly_meaning": null,
+      "component_to_whole_relationship": null,
+      "dictation_status": "missing",
+      "dictation_target_span_status": "missing",
+      "structure_provenance": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Word Bank",
+        "row": 127,
+        "approval_status": "human_approved",
+        "human_review_status": "approved",
+        "released_fact_provenance": null,
+        "released_fact_source": null
+      },
+      "assignment_eligible": false,
+      "transfer_eligible": false,
+      "publication_ready": false,
+      "current_blocker": "whole_canonical_word_missing",
+      "publication_blockers": [
+        "whole_canonical_word_missing",
+        "component_canonical_word_missing",
+        "whole_meaning_missing",
+        "component_meanings_missing",
+        "component_to_whole_relationship_missing",
+        "dictation_missing"
+      ],
+      "human_review_required": [
+        "whole_canonical_word_missing",
+        "component_canonical_word_missing",
+        "whole_meaning_missing",
+        "component_meanings_missing",
+        "component_to_whole_relationship_missing",
+        "dictation_missing"
+      ]
+    },
+    {
+      "micro_skill_key": "D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED",
+      "whole_word": "part-time",
+      "whole_canonical_word_id": null,
+      "component_count": 2,
+      "ordered_component_surfaces": [
+        "part",
+        "time"
+      ],
+      "ordered_component_canonical_word_ids": [
+        null,
+        "a08c0b36-d678-5222-b33e-0b234fbeb7b4"
+      ],
+      "components": [
+        {
+          "ordinal": 1,
+          "display_surface": "part",
+          "canonical_word_id": null,
+          "meaning": null,
+          "sense": null
+        },
+        {
+          "ordinal": 2,
+          "display_surface": "time",
+          "canonical_word_id": "a08c0b36-d678-5222-b33e-0b234fbeb7b4",
+          "meaning": null,
+          "sense": null
+        }
+      ],
+      "ordered_join_kinds": [
+        "hyphen"
+      ],
+      "joins": [
+        {
+          "ordinal": 1,
+          "kind": "hyphen"
+        }
+      ],
+      "reconstructed_written_form": "part-time",
+      "whole_child_friendly_meaning": null,
+      "component_to_whole_relationship": null,
+      "dictation_status": "missing",
+      "dictation_target_span_status": "missing",
+      "structure_provenance": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Word Bank",
+        "row": 125,
+        "approval_status": "human_approved",
+        "human_review_status": "approved",
+        "released_fact_provenance": null,
+        "released_fact_source": null
+      },
+      "assignment_eligible": false,
+      "transfer_eligible": false,
+      "publication_ready": false,
+      "current_blocker": "whole_canonical_word_missing",
+      "publication_blockers": [
+        "whole_canonical_word_missing",
+        "component_canonical_word_missing",
+        "whole_meaning_missing",
+        "component_meanings_missing",
+        "component_to_whole_relationship_missing",
+        "dictation_missing"
+      ],
+      "human_review_required": [
+        "whole_canonical_word_missing",
+        "component_canonical_word_missing",
+        "whole_meaning_missing",
+        "component_meanings_missing",
+        "component_to_whole_relationship_missing",
+        "dictation_missing"
+      ]
+    },
+    {
+      "micro_skill_key": "D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED",
+      "whole_word": "post office",
+      "whole_canonical_word_id": null,
+      "component_count": 2,
+      "ordered_component_surfaces": [
+        "post",
+        "office"
+      ],
+      "ordered_component_canonical_word_ids": [
+        "518da046-6e4c-56c5-ba5c-9fd0850d4738",
+        null
+      ],
+      "components": [
+        {
+          "ordinal": 1,
+          "display_surface": "post",
+          "canonical_word_id": "518da046-6e4c-56c5-ba5c-9fd0850d4738",
+          "meaning": null,
+          "sense": null
+        },
+        {
+          "ordinal": 2,
+          "display_surface": "office",
+          "canonical_word_id": null,
+          "meaning": null,
+          "sense": null
+        }
+      ],
+      "ordered_join_kinds": [
+        "space"
+      ],
+      "joins": [
+        {
+          "ordinal": 1,
+          "kind": "space"
+        }
+      ],
+      "reconstructed_written_form": "post office",
+      "whole_child_friendly_meaning": null,
+      "component_to_whole_relationship": null,
+      "dictation_status": "missing",
+      "dictation_target_span_status": "missing",
+      "structure_provenance": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Word Bank",
+        "row": 126,
+        "approval_status": "human_approved",
+        "human_review_status": "approved",
+        "released_fact_provenance": null,
+        "released_fact_source": null
+      },
+      "assignment_eligible": false,
+      "transfer_eligible": false,
+      "publication_ready": false,
+      "current_blocker": "whole_canonical_word_missing",
+      "publication_blockers": [
+        "whole_canonical_word_missing",
+        "component_canonical_word_missing",
+        "whole_meaning_missing",
+        "component_meanings_missing",
+        "component_to_whole_relationship_missing",
+        "dictation_missing"
+      ],
+      "human_review_required": [
+        "whole_canonical_word_missing",
+        "component_canonical_word_missing",
+        "whole_meaning_missing",
+        "component_meanings_missing",
+        "component_to_whole_relationship_missing",
+        "dictation_missing"
+      ]
+    },
+    {
+      "micro_skill_key": "D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED",
+      "whole_word": "twenty-one",
+      "whole_canonical_word_id": "d652ffba-1ab7-5027-81e1-77275214ceaf",
+      "component_count": 2,
+      "ordered_component_surfaces": [
+        "twenty",
+        "one"
+      ],
+      "ordered_component_canonical_word_ids": [
+        null,
+        "e9be258c-42ea-5876-9b94-dd3706e5d4d8"
+      ],
+      "components": [
+        {
+          "ordinal": 1,
+          "display_surface": "twenty",
+          "canonical_word_id": null,
+          "meaning": null,
+          "sense": null
+        },
+        {
+          "ordinal": 2,
+          "display_surface": "one",
+          "canonical_word_id": "e9be258c-42ea-5876-9b94-dd3706e5d4d8",
+          "meaning": null,
+          "sense": null
+        }
+      ],
+      "ordered_join_kinds": [
+        "hyphen"
+      ],
+      "joins": [
+        {
+          "ordinal": 1,
+          "kind": "hyphen"
+        }
+      ],
+      "reconstructed_written_form": "twenty-one",
+      "whole_child_friendly_meaning": null,
+      "component_to_whole_relationship": null,
+      "dictation_status": "approved_for_first_exposure",
+      "dictation_target_span_status": "ready_single_token",
+      "structure_provenance": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Word Bank",
+        "row": 123,
+        "approval_status": "human_approved",
+        "human_review_status": "approved",
+        "released_fact_provenance": null,
+        "released_fact_source": null
+      },
+      "assignment_eligible": false,
+      "transfer_eligible": false,
+      "publication_ready": false,
+      "current_blocker": "component_canonical_word_missing",
+      "publication_blockers": [
+        "component_canonical_word_missing",
+        "whole_meaning_missing",
+        "component_meanings_missing",
+        "component_to_whole_relationship_missing"
+      ],
+      "human_review_required": [
+        "component_canonical_word_missing",
+        "whole_meaning_missing",
+        "component_meanings_missing",
+        "component_to_whole_relationship_missing"
+      ]
+    },
+    {
+      "micro_skill_key": "D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED",
+      "whole_word": "well-known",
+      "whole_canonical_word_id": null,
+      "component_count": 2,
+      "ordered_component_surfaces": [
+        "well",
+        "known"
+      ],
+      "ordered_component_canonical_word_ids": [
+        "6efd4600-f744-5e18-b522-33a6c59154c3",
+        null
+      ],
+      "components": [
+        {
+          "ordinal": 1,
+          "display_surface": "well",
+          "canonical_word_id": "6efd4600-f744-5e18-b522-33a6c59154c3",
+          "meaning": null,
+          "sense": null
+        },
+        {
+          "ordinal": 2,
+          "display_surface": "known",
+          "canonical_word_id": null,
+          "meaning": null,
+          "sense": null
+        }
+      ],
+      "ordered_join_kinds": [
+        "hyphen"
+      ],
+      "joins": [
+        {
+          "ordinal": 1,
+          "kind": "hyphen"
+        }
+      ],
+      "reconstructed_written_form": "well-known",
+      "whole_child_friendly_meaning": null,
+      "component_to_whole_relationship": null,
+      "dictation_status": "missing",
+      "dictation_target_span_status": "missing",
+      "structure_provenance": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Word Bank",
+        "row": 124,
+        "approval_status": "human_approved",
+        "human_review_status": "approved",
+        "released_fact_provenance": null,
+        "released_fact_source": null
+      },
+      "assignment_eligible": false,
+      "transfer_eligible": false,
+      "publication_ready": false,
+      "current_blocker": "whole_canonical_word_missing",
+      "publication_blockers": [
+        "whole_canonical_word_missing",
+        "component_canonical_word_missing",
+        "whole_meaning_missing",
+        "component_meanings_missing",
+        "component_to_whole_relationship_missing",
+        "dictation_missing"
+      ],
+      "human_review_required": [
+        "whole_canonical_word_missing",
+        "component_canonical_word_missing",
+        "whole_meaning_missing",
+        "component_meanings_missing",
+        "component_to_whole_relationship_missing",
+        "dictation_missing"
+      ]
+    }
+  ]
+}
