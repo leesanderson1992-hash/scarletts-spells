@@ -18,7 +18,12 @@ alter table public.adle_curriculum_dependency_authorities
     check (authority_type in ('family_membership','compound_structure','teaching_content','teaching_dictionary_closure')),
   drop constraint adle_curriculum_dependency_authorities_source_check,
   add constraint adle_curriculum_dependency_authorities_source_check
-    check (source_classification in ('release_ledger','legacy_pre_release_ledger_projection','mixed_governed_sources'));
+    check (source_classification in (
+      'release_ledger',
+      'legacy_pre_release_ledger_projection',
+      'composite_release_and_legacy_projection',
+      'mixed_governed_sources'
+    ));
 
 alter table public.adle_curriculum_release_dependencies
   drop constraint adle_curriculum_release_dependencies_type_check,
@@ -127,7 +132,7 @@ create or replace function public.publish_adle_teaching_content_authority_v1(
 ) returns uuid language plpgsql security definer set search_path=public,extensions as $$
 declare v_id uuid; v_content public.canonical_teaching_dictionary_content_versions%rowtype; v_projection jsonb; v_fp text; v_sha text;
 begin
- if p_manifest_file_sha256 !~ '^[a-f0-9]{64}$' or p_source_classification not in ('release_ledger','legacy_pre_release_ledger_projection','mixed_governed_sources') or nullif(btrim(p_published_by),'') is null or jsonb_typeof(p_manifest)<>'object' or (select count(*) from jsonb_object_keys(p_manifest))<>5 or p_manifest->>'schemaVersion'<>'1' or p_manifest->>'microSkillKey' not in ('D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS','D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED') or jsonb_typeof(p_manifest->'content')<>'object' or nullif(p_manifest#>>'{content,contentVersionId}','') is null then raise exception 'invalid shared teaching-content authority manifest'; end if;
+ if p_manifest_file_sha256 !~ '^[a-f0-9]{64}$' or p_source_classification not in ('release_ledger','legacy_pre_release_ledger_projection','composite_release_and_legacy_projection','mixed_governed_sources') or nullif(btrim(p_published_by),'') is null or jsonb_typeof(p_manifest)<>'object' or (select count(*) from jsonb_object_keys(p_manifest))<>5 or p_manifest->>'schemaVersion'<>'1' or p_manifest->>'microSkillKey' not in ('D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS','D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED') or jsonb_typeof(p_manifest->'content')<>'object' or nullif(p_manifest#>>'{content,contentVersionId}','') is null then raise exception 'invalid shared teaching-content authority manifest'; end if;
  select * into v_content from public.canonical_teaching_dictionary_content_versions where id=(p_manifest#>>'{content,contentVersionId}')::uuid and micro_skill_key=p_manifest->>'microSkillKey' and version_status='active' and is_active and final_readiness_review_status='signed_off' for share;
  if not found then raise exception 'teaching content is not active and signed off'; end if;
  v_projection:=jsonb_build_object('schemaVersion',1,'microSkillKey',v_content.micro_skill_key,'contentVersionId',v_content.id,'contentVersion',v_content.content_version,'teachingObjective',v_content.teaching_objective,'childFriendlyExplanation',v_content.child_friendly_explanation,'ruleExplanation',v_content.rule_explanation,'memoryTip',coalesce(v_content.memory_tip,''),'commonMisconceptions',coalesce(v_content.common_misconceptions,''),'firstExposureProgression',v_content.first_exposure_progression,'guidedPracticeProgression',v_content.guided_practice_progression,'reviewProofreadingProgression',v_content.review_proofreading_progression,'exampleSelectionGuidance',coalesce(v_content.example_selection_guidance,''),'contrastPolicyGuidance',coalesce(v_content.contrast_policy_guidance,''));
