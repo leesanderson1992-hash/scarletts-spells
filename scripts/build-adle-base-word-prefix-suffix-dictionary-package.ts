@@ -5,7 +5,7 @@ import { createHash } from "node:crypto";
 import { copyFile, mkdir, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { CANONICAL_PACKAGE_SCHEMA, CANONICAL_PACKAGE_TYPE, IMPORTER_VERSION, REQUIRED_MIGRATION_VERSIONS, canonicalJson, packageSha256, type ReleaseManifestFingerprint } from "./teaching-dictionary-release-contract";
+import { CANONICAL_PACKAGE_SCHEMA, CANONICAL_PACKAGE_TYPE, REQUIRED_MIGRATION_VERSIONS, canonicalJson, packageSha256, type ReleaseManifestFingerprint } from "./teaching-dictionary-release-contract";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const RELEASE_ID = "2026-08-11-base-word-prefix-suffix-canonical-v1";

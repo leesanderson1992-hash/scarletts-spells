@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+/* eslint-disable @typescript-eslint/no-explicit-any -- legacy v1 release JSON is deliberately runtime-projected into the immutable v2 source artifact. */
 /* Builds immutable, key-addressed source artifacts for the Base+Prefix and
  * Base+Suffix family-v2 publication.  Database IDs are resolved only by the
  * guarded publisher immediately before the serializable transaction. */
