@@ -1,0 +1,2400 @@
+{
+  "schemaVersion": 1,
+  "sourceFile": "data/adle/approved/d4-mor/v2/base-word-prefix-suffix-family-source-v1.json",
+  "approval": {
+    "reviewedBy": "Katie Sanderson",
+    "reviewedAt": "2026-08-11T00:00:00.000Z",
+    "sourceFile": "base-word-prefix-suffix-readiness-audit-resolved (1).xlsx",
+    "sourceSha256": "2af66d22ee827b9e8487475542037b43acbd8fb9468a4abc26d9b833d5f4e69a",
+    "sourceSheet": "Resolved Audit",
+    "sourceReference": "codex-goal:169f46ab-01cf-4468-bc3d-10c8352815ec"
+  },
+  "reusedRelease": "adle_base_word_family_meanings_v1_2026_08_09",
+  "families": {
+    "D4_MOR_BASE_WORDS_BASE_PLUS_PREFIX": [
+      {
+        "familyId": "946078de-b7e3-577a-aca6-4f6a34d073b7",
+        "baseFamilyKey": "like_base_family",
+        "baseWordKey": "like_en_gb",
+        "baseMeaning": "to enjoy or think something is good",
+        "etymologyRoute": {
+          "relation_type": "free_base",
+          "origin_language": "Modern English",
+          "origin_form": "like",
+          "literal_meaning": "to enjoy or think something is good",
+          "child_facing_meaning": "to enjoy or think something is good",
+          "semantic_connection": "The visible English base like is recorded in this family’s reviewed word sums; a human reviewer must confirm every member remains semantically appropriate.",
+          "evidence": {
+            "source_name": "Online Etymology Dictionary",
+            "source_url": "https://www.etymonline.com/search?q=like",
+            "verification_status": "linked_for_human_review"
+          }
+        },
+        "members": [
+          {
+            "wordKey": "dislike_en_gb",
+            "wordSum": "dis + like → dislike",
+            "childFriendlyMeaning": "to not like something",
+            "structuralRole": "family_member",
+            "assignmentEligible": true,
+            "morphologyParts": [
+              {
+                "id": "part_1",
+                "kind": "prefix",
+                "morphemeKey": null,
+                "sourceText": "dis",
+                "surfaceText": "dis",
+                "gloss": "",
+                "displayRange": {
+                  "start": 0,
+                  "end": 3
+                },
+                "source": {
+                  "morphemesJsonIndex": 0
+                }
+              },
+              {
+                "id": "part_2",
+                "kind": "base",
+                "morphemeKey": null,
+                "sourceText": "like",
+                "surfaceText": "like",
+                "gloss": "",
+                "displayRange": {
+                  "start": 3,
+                  "end": 7
+                },
+                "source": {
+                  "morphemesJsonIndex": 1
+                }
+              }
+            ],
+            "morphologyJoins": [
+              {
+                "afterPartId": "part_1",
+                "beforePartId": "part_2",
+                "joinType": "none",
+                "surfaceText": "",
+                "displayRange": {
+                  "start": 3,
+                  "end": 3
+                }
+              }
+            ],
+            "morphologyTransformations": [],
+            "transformationNotes": "The spelling of the base is kept in the longer word."
+          },
+          {
+            "wordKey": "like_en_gb",
+            "wordSum": "like",
+            "childFriendlyMeaning": "to find something pleasant",
+            "structuralRole": "base",
+            "assignmentEligible": true,
+            "morphologyParts": [
+              {
+                "id": "part_1",
+                "kind": "base",
+                "morphemeKey": null,
+                "sourceText": "like",
+                "surfaceText": "like",
+                "gloss": "",
+                "displayRange": {
+                  "start": 0,
+                  "end": 4
+                },
+                "source": {
+                  "morphemesJsonIndex": 0
+                }
+              }
+            ],
+            "morphologyJoins": [],
+            "morphologyTransformations": [],
+            "transformationNotes": "The spelling of the base is kept in the longer word."
+          },
+          {
+            "wordKey": "liked_en_gb",
+            "wordSum": "like + d → liked",
+            "childFriendlyMeaning": "found something pleasant earlier",
+            "structuralRole": "family_member",
+            "assignmentEligible": true,
+            "morphologyParts": [
+              {
+                "id": "part_1",
+                "kind": "base",
+                "morphemeKey": null,
+                "sourceText": "like",
+                "surfaceText": "like",
+                "gloss": "",
+                "displayRange": {
+                  "start": 0,
+                  "end": 4
+                },
+                "source": {
+                  "morphemesJsonIndex": 0
+                }
+              },
+              {
+                "id": "part_2",
+                "kind": "suffix",
+                "morphemeKey": null,
+                "sourceText": "d",
+                "surfaceText": "d",
+                "gloss": "",
+                "displayRange": {
+                  "start": 4,
+                  "end": 5
+                },
+                "source": {
+                  "morphemesJsonIndex": 1
+                }
+              }
+            ],
+            "morphologyJoins": [
+              {
+                "afterPartId": "part_1",
+                "beforePartId": "part_2",
+                "joinType": "none",
+                "surfaceText": "",
+                "displayRange": {
+                  "start": 4,
+                  "end": 4
+                }
+              }
+            ],
+            "morphologyTransformations": [],
+            "transformationNotes": "The spelling of the base is kept in the longer word."
+          }
+        ],
+        "sourceFamily": "existing_release"
+      },
+      {
+        "familyId": "cfdb2d58-a4a9-5030-b2db-7eef58c81e4c",
+        "baseFamilyKey": "play_base_family",
+        "baseWordKey": "play_en_gb",
+        "baseMeaning": "to take part in a game or have fun",
+        "etymologyRoute": {
+          "relation_type": "free_base",
+          "origin_language": "Modern English",
+          "origin_form": "play",
+          "literal_meaning": "to take part in a game or have fun",
+          "child_facing_meaning": "to take part in a game or have fun",
+          "semantic_connection": "The visible English base play is recorded in this family’s reviewed word sums; a human reviewer must confirm every member remains semantically appropriate.",
+          "evidence": {
+            "source_name": "Online Etymology Dictionary",
+            "source_url": "https://www.etymonline.com/search?q=play",
+            "verification_status": "linked_for_human_review"
+          }
+        },
+        "members": [
+          {
+            "wordKey": "play_en_gb",
+            "wordSum": "play",
+            "childFriendlyMeaning": "to take part in a game or have fun",
+            "structuralRole": "base",
+            "assignmentEligible": true,
+            "morphologyParts": [
+              {
+                "id": "part_1",
+                "kind": "base",
+                "morphemeKey": null,
+                "sourceText": "play",
+                "surfaceText": "play",
+                "gloss": "",
+                "displayRange": {
+                  "start": 0,
+                  "end": 4
+                },
+                "source": {
+                  "morphemesJsonIndex": 0
+                }
+              }
+            ],
+            "morphologyJoins": [],
+            "morphologyTransformations": [],
+            "transformationNotes": "The base word is play."
+          },
+          {
+            "wordKey": "played_en_gb",
+            "wordSum": "play + ed → played",
+            "childFriendlyMeaning": "took part in a game or had fun earlier",
+            "structuralRole": "family_member",
+            "assignmentEligible": true,
+            "morphologyParts": [
+              {
+                "id": "part_1",
+                "kind": "base",
+                "morphemeKey": null,
+                "sourceText": "play",
+                "surfaceText": "play",
+                "gloss": "",
+                "displayRange": {
+                  "start": 0,
+                  "end": 4
+                },
+                "source": {
+                  "morphemesJsonIndex": 0
+                }
+              },
+              {
+                "id": "part_2",
+                "kind": "suffix",
+                "morphemeKey": null,
+                "sourceText": "ed",
+                "surfaceText": "ed",
+                "gloss": "in the past",
+                "displayRange": {
+                  "start": 4,
+                  "end": 6
+                },
+                "source": {
+                  "morphemesJsonIndex": 1
+                }
+              }
+            ],
+            "morphologyJoins": [
+              {
+                "afterPartId": "part_1",
+                "beforePartId": "part_2",
+                "joinType": "none",
+                "surfaceText": "",
+                "displayRange": {
+                  "start": 4,
+                  "end": 4
+                }
+              }
+            ],
+            "morphologyTransformations": [],
+            "transformationNotes": "Keep play unchanged and add -ed for something that happened before."
+          },
+          {
+            "wordKey": "player_en_gb",
+            "wordSum": "play + er → player",
+            "childFriendlyMeaning": "a person who plays a game",
+            "structuralRole": "family_member",
+            "assignmentEligible": true,
+            "morphologyParts": [
+              {
+                "id": "part_1",
+                "kind": "base",
+                "morphemeKey": null,
+                "sourceText": "play",
+                "surfaceText": "play",
+                "gloss": "",
+                "displayRange": {
+                  "start": 0,
+                  "end": 4
+                },
+                "source": {
+                  "morphemesJsonIndex": 0
+                }
+              },
+              {
+                "id": "part_2",
+                "kind": "suffix",
+                "morphemeKey": null,
+                "sourceText": "er",
+                "surfaceText": "er",
+                "gloss": "one who",
+                "displayRange": {
+                  "start": 4,
+                  "end": 6
+                },
+                "source": {
+                  "morphemesJsonIndex": 1
+                }
+              }
+            ],
+            "morphologyJoins": [
+              {
+                "afterPartId": "part_1",
+                "beforePartId": "part_2",
+                "joinType": "none",
+                "surfaceText": "",
+                "displayRange": {
+                  "start": 4,
+                  "end": 4
+                }
+              }
+            ],
+            "morphologyTransformations": [],
+            "transformationNotes": "Keep play unchanged and add -er to name someone who plays."
+          },
+          {
+            "wordKey": "playing_en_gb",
+            "wordSum": "play + ing → playing",
+            "childFriendlyMeaning": "taking part in a game or having fun right now",
+            "structuralRole": "family_member",
+            "assignmentEligible": true,
+            "morphologyParts": [
+              {
+                "id": "part_1",
+                "kind": "base",
+                "morphemeKey": null,
+                "sourceText": "play",
+                "surfaceText": "play",
+                "gloss": "",
+                "displayRange": {
+                  "start": 0,
+                  "end": 4
+                },
+                "source": {
+                  "morphemesJsonIndex": 0
+                }
+              },
+              {
+                "id": "part_2",
+                "kind": "suffix",
+                "morphemeKey": null,
+                "sourceText": "ing",
+                "surfaceText": "ing",
+                "gloss": "happening now",
+                "displayRange": {
+                  "start": 4,
+                  "end": 7
+                },
+                "source": {
+                  "morphemesJsonIndex": 1
+                }
+              }
+            ],
+            "morphologyJoins": [
+              {
+                "afterPartId": "part_1",
+                "beforePartId": "part_2",
+                "joinType": "none",
+                "surfaceText": "",
+                "displayRange": {
+                  "start": 4,
+                  "end": 4
+                }
+              }
+            ],
+            "morphologyTransformations": [],
+            "transformationNotes": "Keep play unchanged and add -ing for something happening now."
+          },
+          {
+            "wordKey": "plays_en_gb",
+            "wordSum": "play + s → plays",
+            "childFriendlyMeaning": "takes part in a game or has fun",
+            "structuralRole": "family_member",
+            "assignmentEligible": true,
+            "morphologyParts": [
+              {
+                "id": "part_1",
+                "kind": "base",
+                "morphemeKey": null,
+                "sourceText": "play",
+                "surfaceText": "play",
+                "gloss": "",
+                "displayRange": {
+                  "start": 0,
+                  "end": 4
+                },
+                "source": {
+                  "morphemesJsonIndex": 0
+                }
+              },
+              {
+                "id": "part_2",
+                "kind": "suffix",
+                "morphemeKey": null,
+                "sourceText": "s",
+                "surfaceText": "s",
+                "gloss": "after",
+                "displayRange": {
+                  "start": 4,
+                  "end": 5
+                },
+                "source": {
+                  "morphemesJsonIndex": 1
+                }
+              }
+            ],
+            "morphologyJoins": [
+              {
+                "afterPartId": "part_1",
+                "beforePartId": "part_2",
+                "joinType": "none",
+                "surfaceText": "",
+                "displayRange": {
+                  "start": 4,
+                  "end": 4
+                }
+              }
+            ],
+            "morphologyTransformations": [],
+            "transformationNotes": "The spelling of the base is kept in the longer word."
+          },
+          {
+            "wordKey": "replay_en_gb",
+            "wordSum": "re + play → replay",
+            "childFriendlyMeaning": "to play again",
+            "structuralRole": "family_member",
+            "assignmentEligible": true,
+            "morphologyParts": [
+              {
+                "id": "part_1",
+                "kind": "prefix",
+                "morphemeKey": "prefix_RE",
+                "sourceText": "re",
+                "surfaceText": "re",
+                "gloss": "again",
+                "displayRange": {
+                  "start": 0,
+                  "end": 2
+                },
+                "source": {
+                  "morphemesJsonIndex": 0
+                }
+              },
+              {
+                "id": "part_2",
+                "kind": "base",
+                "morphemeKey": null,
+                "sourceText": "play",
+                "surfaceText": "play",
+                "gloss": "",
+                "displayRange": {
+                  "start": 2,
+                  "end": 6
+                },
+                "source": {
+                  "morphemesJsonIndex": 1
+                }
+              }
+            ],
+            "morphologyJoins": [
+              {
+                "afterPartId": "part_1",
+                "beforePartId": "part_2",
+                "joinType": "none",
+                "surfaceText": "",
+                "displayRange": {
+                  "start": 2,
+                  "end": 2
+                }
+              }
+            ],
+            "morphologyTransformations": [],
+            "transformationNotes": "Put re- before play; the spelling of play stays the same."
+          },
+          {
+            "wordKey": "replayed_en_gb",
+            "wordSum": "re + play + ed → replayed",
+            "childFriendlyMeaning": "played again",
+            "structuralRole": "family_member",
+            "assignmentEligible": true,
+            "morphologyParts": [
+              {
+                "id": "part_1",
+                "kind": "prefix",
+                "morphemeKey": "prefix_RE",
+                "sourceText": "re",
+                "surfaceText": "re",
+                "gloss": "again",
+                "displayRange": {
+                  "start": 0,
+                  "end": 2
+                },
+                "source": {
+                  "morphemesJsonIndex": 0
+                }
+              },
+              {
+                "id": "part_2",
+                "kind": "base",
+                "morphemeKey": null,
+                "sourceText": "play",
+                "surfaceText": "play",
+                "gloss": "",
+                "displayRange": {
+                  "start": 2,
+                  "end": 6
+                },
+                "source": {
+                  "morphemesJsonIndex": 1
+                }
+              },
+              {
+                "id": "part_3",
+                "kind": "suffix",
+                "morphemeKey": null,
+                "sourceText": "ed",
+                "surfaceText": "ed",
+                "gloss": "in the past",
+                "displayRange": {
+                  "start": 6,
+                  "end": 8
+                },
+                "source": {
+                  "morphemesJsonIndex": 2
+                }
+              }
+            ],
+            "morphologyJoins": [
+              {
+                "afterPartId": "part_1",
+                "beforePartId": "part_2",
+                "joinType": "none",
+                "surfaceText": "",
+                "displayRange": {
+                  "start": 2,
+                  "end": 2
+                }
+              },
+              {
+                "afterPartId": "part_2",
+                "beforePartId": "part_3",
+                "joinType": "none",
+                "surfaceText": "",
+                "displayRange": {
+                  "start": 6,
+                  "end": 6
+                }
+              }
+            ],
+            "morphologyTransformations": [],
+            "transformationNotes": "Put re- before play and add -ed; the spelling of play stays the same."
+          }
+        ],
+        "sourceFamily": "existing_release"
+      },
+      {
+        "familyId": "939a22ea-e705-528f-ac61-063b53af2fc8",
+        "baseFamilyKey": "tie_base_family",
+        "baseWordKey": "tie_en_gb",
+        "baseMeaning": "to fasten with a knot",
+        "etymologyRoute": {
+          "relation_type": "free_base",
+          "origin_language": "Modern English",
+          "origin_form": "tie",
+          "literal_meaning": "to fasten with a knot",
+          "child_facing_meaning": "to fasten with a knot",
+          "semantic_connection": "The visible English base tie is recorded in this family’s reviewed word sums; a human reviewer must confirm every member remains semantically appropriate.",
+          "evidence": {
+            "source_name": "Online Etymology Dictionary",
+            "source_url": "https://www.etymonline.com/search?q=tie",
+            "verification_status": "linked_for_human_review"
+          }
+        },
+        "members": [
+          {
+            "wordKey": "tie_en_gb",
+            "wordSum": "tie",
+            "childFriendlyMeaning": "to fasten something with a knot",
+            "structuralRole": "base",
+            "assignmentEligible": true,
+            "morphologyParts": [
+              {
+                "id": "part_1",
+                "kind": "base",
+                "morphemeKey": null,
+                "sourceText": "tie",
+                "surfaceText": "tie",
+                "gloss": "",
+                "displayRange": {
+                  "start": 0,
+                  "end": 3
+                },
+                "source": {
+                  "morphemesJsonIndex": 0
+                }
+              }
+            ],
+            "morphologyJoins": [],
+            "morphologyTransformations": [],
+            "transformationNotes": "The spelling of the base is kept in the longer word."
+          },
+          {
+            "wordKey": "tying_en_gb",
+            "wordSum": "tie → tying",
+            "childFriendlyMeaning": "fastening something with a knot",
+            "structuralRole": "family_member",
+            "assignmentEligible": true,
+            "morphologyParts": [
+              {
+                "id": "part_1",
+                "kind": "base",
+                "morphemeKey": null,
+                "sourceText": "tie",
+                "surfaceText": "tying",
+                "gloss": "",
+                "displayRange": {
+                  "start": 0,
+                  "end": 5
+                },
+                "source": {
+                  "morphemesJsonIndex": 0
+                }
+              }
+            ],
+            "morphologyJoins": [],
+            "morphologyTransformations": [],
+            "transformationNotes": "A reviewer must confirm the detailed word sum and spelling transformation."
+          },
+          {
+            "wordKey": "untie_en_gb",
+            "wordSum": "un + tie → untie",
+            "childFriendlyMeaning": "to undo something that is tied",
+            "structuralRole": "family_member",
+            "assignmentEligible": true,
+            "morphologyParts": [
+              {
+                "id": "part_1",
+                "kind": "prefix",
+                "morphemeKey": null,
+                "sourceText": "un",
+                "surfaceText": "un",
+                "gloss": "",
+                "displayRange": {
+                  "start": 0,
+                  "end": 2
+                }
+              },
+              {
+                "id": "part_2",
+                "kind": "suffix",
+                "morphemeKey": null,
+                "sourceText": "tie",
+                "surfaceText": "tie",
+                "gloss": "",
+                "displayRange": {
+                  "start": 2,
+                  "end": 5
+                }
+              }
+            ],
+            "morphologyJoins": [],
+            "morphologyTransformations": [],
+            "transformationNotes": ""
+          }
+        ],
+        "sourceFamily": "existing_release"
+      },
+      {
+        "familyId": "ee6b227d-e9eb-51d0-ad03-624471ca9c0f",
+        "baseFamilyKey": "write_base_family",
+        "baseWordKey": "write_en_gb",
+        "baseMeaning": "to make words with letters",
+        "etymologyRoute": {
+          "relation_type": "free_base",
+          "origin_language": "Modern English",
+          "origin_form": "write",
+          "literal_meaning": "to make words with letters",
+          "child_facing_meaning": "to make words with letters",
+          "semantic_connection": "The visible English base write is recorded in this family’s reviewed word sums; a human reviewer must confirm every member remains semantically appropriate.",
+          "evidence": {
+            "source_name": "Online Etymology Dictionary",
+            "source_url": "https://www.etymonline.com/search?q=write",
+            "verification_status": "linked_for_human_review"
+          }
+        },
+        "members": [
+          {
+            "wordKey": "rewrite_en_gb",
+            "wordSum": "re + write → rewrite",
+            "childFriendlyMeaning": "to write something again",
+            "structuralRole": "family_member",
+            "assignmentEligible": true,
+            "morphologyParts": [
+              {
+                "id": "part_1",
+                "kind": "prefix",
+                "morphemeKey": null,
+                "sourceText": "re",
+                "surfaceText": "re",
+                "gloss": "",
+                "displayRange": {
+                  "start": 0,
+                  "end": 2
+                },
+                "source": {
+                  "morphemesJsonIndex": 0
+                }
+              },
+              {
+                "id": "part_2",
+                "kind": "base",
+                "morphemeKey": null,
+                "sourceText": "write",
+                "surfaceText": "write",
+                "gloss": "",
+                "displayRange": {
+                  "start": 2,
+                  "end": 7
+                },
+                "source": {
+                  "morphemesJsonIndex": 1
+                }
+              }
+            ],
+            "morphologyJoins": [
+              {
+                "afterPartId": "part_1",
+                "beforePartId": "part_2",
+                "joinType": "none",
+                "surfaceText": "",
+                "displayRange": {
+                  "start": 2,
+                  "end": 2
+                }
+              }
+            ],
+            "morphologyTransformations": [],
+            "transformationNotes": "The spelling of the base is kept in the longer word."
+          },
+          {
+            "wordKey": "write_en_gb",
+            "wordSum": "write",
+            "childFriendlyMeaning": "to make letters or words",
+            "structuralRole": "base",
+            "assignmentEligible": true,
+            "morphologyParts": [
+              {
+                "id": "part_1",
+                "kind": "base",
+                "morphemeKey": null,
+                "sourceText": "write",
+                "surfaceText": "write",
+                "gloss": "",
+                "displayRange": {
+                  "start": 0,
+                  "end": 5
+                },
+                "source": {
+                  "morphemesJsonIndex": 0
+                }
+              }
+            ],
+            "morphologyJoins": [],
+            "morphologyTransformations": [],
+            "transformationNotes": "The spelling of the base is kept in the longer word."
+          },
+          {
+            "wordKey": "writer_en_gb",
+            "wordSum": "write + r → writer",
+            "childFriendlyMeaning": "a person who writes",
+            "structuralRole": "family_member",
+            "assignmentEligible": true,
+            "morphologyParts": [
+              {
+                "id": "part_1",
+                "kind": "base",
+                "morphemeKey": null,
+                "sourceText": "write",
+                "surfaceText": "write",
+                "gloss": "",
+                "displayRange": {
+                  "start": 0,
+                  "end": 5
+                },
+                "source": {
+                  "morphemesJsonIndex": 0
+                }
+              },
+              {
+                "id": "part_2",
+                "kind": "suffix",
+                "morphemeKey": null,
+                "sourceText": "r",
+                "surfaceText": "r",
+                "gloss": "",
+                "displayRange": {
+                  "start": 5,
+                  "end": 6
+                },
+                "source": {
+                  "morphemesJsonIndex": 1
+                }
+              }
+            ],
+            "morphologyJoins": [
+              {
+                "afterPartId": "part_1",
+                "beforePartId": "part_2",
+                "joinType": "none",
+                "surfaceText": "",
+                "displayRange": {
+                  "start": 5,
+                  "end": 5
+                }
+              }
+            ],
+            "morphologyTransformations": [],
+            "transformationNotes": "The spelling of the base is kept in the longer word."
+          },
+          {
+            "wordKey": "writing_en_gb",
+            "wordSum": "write + ing → writing",
+            "childFriendlyMeaning": "letters or words that have been written right now",
+            "structuralRole": "family_member",
+            "assignmentEligible": true,
+            "morphologyParts": [
+              {
+                "id": "part_1",
+                "kind": "base",
+                "morphemeKey": null,
+                "sourceText": "write",
+                "surfaceText": "writ",
+                "gloss": "",
+                "displayRange": {
+                  "start": 0,
+                  "end": 4
+                },
+                "source": {
+                  "morphemesJsonIndex": 0
+                }
+              },
+              {
+                "id": "part_2",
+                "kind": "suffix",
+                "morphemeKey": null,
+                "sourceText": "ing",
+                "surfaceText": "ing",
+                "gloss": "",
+                "displayRange": {
+                  "start": 4,
+                  "end": 7
+                },
+                "source": {
+                  "morphemesJsonIndex": 1
+                }
+              }
+            ],
+            "morphologyJoins": [
+              {
+                "afterPartId": "part_1",
+                "beforePartId": "part_2",
+                "joinType": "none",
+                "surfaceText": "",
+                "displayRange": {
+                  "start": 4,
+                  "end": 4
+                }
+              }
+            ],
+            "morphologyTransformations": [],
+            "transformationNotes": "The final e is dropped before the ending is added."
+          }
+        ],
+        "sourceFamily": "existing_release"
+      },
+      {
+        "familyId": "64dc301a-85dc-5565-8da3-3bf1660134e9",
+        "baseFamilyKey": "lock_base_family",
+        "baseWordKey": "lock_en_gb",
+        "baseMeaning": "to fasten something so it cannot be opened",
+        "etymologyRoute": {
+          "relation_type": "free_base",
+          "origin_language": "English",
+          "origin_form": null,
+          "literal_meaning": "to fasten something so it cannot be opened",
+          "child_facing_meaning": "to fasten something so it cannot be opened",
+          "semantic_connection": "The visible base is retained in each reviewed family member.",
+          "evidence": {
+            "source_name": "Katie Sanderson approved Base Word workbook",
+            "source_url": "local:base-word-prefix-suffix-readiness-audit-resolved (1).xlsx",
+            "verification_status": "human_approved"
+          }
+        },
+        "members": [
+          {
+            "wordKey": "lock_en_gb",
+            "wordSum": "lock",
+            "childFriendlyMeaning": "to fasten something so it cannot be opened",
+            "structuralRole": "base",
+            "assignmentEligible": true,
+            "morphologyParts": [
+              {
+                "id": "part_1",
+                "kind": "base",
+                "morphemeKey": null,
+                "sourceText": "lock",
+                "surfaceText": "lock",
+                "gloss": "",
+                "displayRange": {
+                  "start": 0,
+                  "end": 4
+                }
+              }
+            ],
+            "morphologyJoins": [],
+            "morphologyTransformations": [],
+            "transformationNotes": ""
+          },
+          {
+            "wordKey": "locking_en_gb",
+            "wordSum": "lock + ing → locking",
+            "childFriendlyMeaning": "fastening something so it cannot be opened right now",
+            "structuralRole": "family_member",
+            "assignmentEligible": true,
+            "morphologyParts": [
+              {
+                "id": "part_1",
+                "kind": "base",
+                "morphemeKey": null,
+                "sourceText": "lock",
+                "surfaceText": "lock",
+                "gloss": "",
+                "displayRange": {
+                  "start": 0,
+                  "end": 4
+                }
+              },
+              {
+                "id": "part_2",
+                "kind": "suffix",
+                "morphemeKey": null,
+                "sourceText": "ing",
+                "surfaceText": "ing",
+                "gloss": "",
+                "displayRange": {
+                  "start": 4,
+                  "end": 7
+                }
+              }
+            ],
+            "morphologyJoins": [],
+            "morphologyTransformations": [],
+            "transformationNotes": ""
+          },
+          {
+            "wordKey": "unlock_en_gb",
+            "wordSum": "un + lock → unlock",
+            "childFriendlyMeaning": "to open something by undoing a lock",
+            "structuralRole": "family_member",
+            "assignmentEligible": true,
+            "morphologyParts": [
+              {
+                "id": "part_1",
+                "kind": "prefix",
+                "morphemeKey": null,
+                "sourceText": "un",
+                "surfaceText": "un",
+                "gloss": "",
+                "displayRange": {
+                  "start": 0,
+                  "end": 2
+                }
+              },
+              {
+                "id": "part_2",
+                "kind": "suffix",
+                "morphemeKey": null,
+                "sourceText": "lock",
+                "surfaceText": "lock",
+                "gloss": "",
+                "displayRange": {
+                  "start": 2,
+                  "end": 6
+                }
+              }
+            ],
+            "morphologyJoins": [],
+            "morphologyTransformations": [],
+            "transformationNotes": ""
+          }
+        ],
+        "sourceFamily": "new_release"
+      },
+      {
+        "familyId": "0fbc2b8f-fd59-5bde-8001-46e17583010b",
+        "baseFamilyKey": "migrant_base_family",
+        "baseWordKey": "migrant_en_gb",
+        "baseMeaning": "a person who moves from one place or country to another",
+        "etymologyRoute": {
+          "relation_type": "free_base",
+          "origin_language": "English",
+          "origin_form": null,
+          "literal_meaning": "a person who moves from one place or country to another",
+          "child_facing_meaning": "a person who moves from one place or country to another",
+          "semantic_connection": "The visible base is retained in each reviewed family member.",
+          "evidence": {
+            "source_name": "Katie Sanderson approved Base Word workbook",
+            "source_url": "local:base-word-prefix-suffix-readiness-audit-resolved (1).xlsx",
+            "verification_status": "human_approved"
+          }
+        },
+        "members": [
+          {
+            "wordKey": "immigrant_en_gb",
+            "wordSum": "im + migrant → immigrant",
+            "childFriendlyMeaning": "a person who comes to live in a country from another country",
+            "structuralRole": "family_member",
+            "assignmentEligible": true,
+            "morphologyParts": [
+              {
+                "id": "part_1",
+                "kind": "prefix",
+                "morphemeKey": null,
+                "sourceText": "im",
+                "surfaceText": "im",
+                "gloss": "",
+                "displayRange": {
+                  "start": 0,
+                  "end": 2
+                }
+              },
+              {
+                "id": "part_2",
+                "kind": "suffix",
+                "morphemeKey": null,
+                "sourceText": "migrant",
+                "surfaceText": "migrant",
+                "gloss": "",
+                "displayRange": {
+                  "start": 2,
+                  "end": 9
+                }
+              }
+            ],
+            "morphologyJoins": [],
+            "morphologyTransformations": [],
+            "transformationNotes": ""
+          },
+          {
+            "wordKey": "immigrants_en_gb",
+            "wordSum": "im + migrant + s → immigrants",
+            "childFriendlyMeaning": "people who come to live in a country from another country",
+            "structuralRole": "family_member",
+            "assignmentEligible": true,
+            "morphologyParts": [
+              {
+                "id": "part_1",
+                "kind": "prefix",
+                "morphemeKey": null,
+                "sourceText": "im",
+                "surfaceText": "im",
+                "gloss": "",
+                "displayRange": {
+                  "start": 0,
+                  "end": 2
+                }
+              },
+              {
+                "id": "part_2",
+                "kind": "suffix",
+                "morphemeKey": null,
+                "sourceText": "migrant",
+                "surfaceText": "migrant",
+                "gloss": "",
+                "displayRange": {
+                  "start": 2,
+                  "end": 9
+                }
+              },
+              {
+                "id": "part_3",
+                "kind": "suffix",
+                "morphemeKey": null,
+                "sourceText": "s",
+                "surfaceText": "s",
+                "gloss": "",
+                "displayRange": {
+                  "start": 9,
+                  "end": 10
+                }
+              }
+            ],
+            "morphologyJoins": [],
+            "morphologyTransformations": [],
+            "transformationNotes": ""
+          },
+          {
+            "wordKey": "migrant_en_gb",
+            "wordSum": "migrant",
+            "childFriendlyMeaning": "a person who moves from one place or country to another",
+            "structuralRole": "base",
+            "assignmentEligible": true,
+            "morphologyParts": [
+              {
+                "id": "part_1",
+                "kind": "base",
+                "morphemeKey": null,
+                "sourceText": "migrant",
+                "surfaceText": "migrant",
+                "gloss": "",
+                "displayRange": {
+                  "start": 0,
+                  "end": 7
+                }
+              }
+            ],
+            "morphologyJoins": [],
+            "morphologyTransformations": [],
+            "transformationNotes": ""
+          }
+        ],
+        "sourceFamily": "new_release"
+      },
+      {
+        "familyId": "7ee4e07b-d631-5701-82ce-f0b6f9896652",
+        "baseFamilyKey": "place_base_family",
+        "baseWordKey": "place_en_gb",
+        "baseMeaning": "a particular position or area",
+        "etymologyRoute": {
+          "relation_type": "free_base",
+          "origin_language": "English",
+          "origin_form": null,
+          "literal_meaning": "a particular position or area",
+          "child_facing_meaning": "a particular position or area",
+          "semantic_connection": "The visible base is retained in each reviewed family member.",
+          "evidence": {
+            "source_name": "Katie Sanderson approved Base Word workbook",
+            "source_url": "local:base-word-prefix-suffix-readiness-audit-resolved (1).xlsx",
+            "verification_status": "human_approved"
+          }
+        },
+        "members": [
+          {
+            "wordKey": "misplace_en_gb",
+            "wordSum": "mis + place → misplace",
+            "childFriendlyMeaning": "to put something in the wrong place",
+            "structuralRole": "family_member",
+            "assignmentEligible": true,
+            "morphologyParts": [
+              {
+                "id": "part_1",
+                "kind": "prefix",
+                "morphemeKey": null,
+                "sourceText": "mis",
+                "surfaceText": "mis",
+                "gloss": "",
+                "displayRange": {
+                  "start": 0,
+                  "end": 3
+                }
+              },
+              {
+                "id": "part_2",
+                "kind": "suffix",
+                "morphemeKey": null,
+                "sourceText": "place",
+                "surfaceText": "place",
+                "gloss": "",
+                "displayRange": {
+                  "start": 3,
+                  "end": 8
+                }
+              }
+            ],
+            "morphologyJoins": [],
+            "morphologyTransformations": [],
+            "transformationNotes": ""
+          },
+          {
+            "wordKey": "place_en_gb",
+            "wordSum": "place",
+            "childFriendlyMeaning": "a particular position or area",
+            "structuralRole": "base",
+            "assignmentEligible": true,
+            "morphologyParts": [
+              {
+                "id": "part_1",
+                "kind": "base",
+                "morphemeKey": null,
+                "sourceText": "place",
+                "surfaceText": "place",
+                "gloss": "",
+                "displayRange": {
+                  "start": 0,
+                  "end": 5
+                }
+              }
+            ],
+            "morphologyJoins": [],
+            "morphologyTransformations": [],
+            "transformationNotes": ""
+          },
+          {
+            "wordKey": "replace_en_gb",
+            "wordSum": "re + place → replace",
+            "childFriendlyMeaning": "to put something back or put a new thing in its place",
+            "structuralRole": "family_member",
+            "assignmentEligible": true,
+            "morphologyParts": [
+              {
+                "id": "part_1",
+                "kind": "prefix",
+                "morphemeKey": null,
+                "sourceText": "re",
+                "surfaceText": "re",
+                "gloss": "",
+                "displayRange": {
+                  "start": 0,
+                  "end": 2
+                }
+              },
+              {
+                "id": "part_2",
+                "kind": "suffix",
+                "morphemeKey": null,
+                "sourceText": "place",
+                "surfaceText": "place",
+                "gloss": "",
+                "displayRange": {
+                  "start": 2,
+                  "end": 7
+                }
+              }
+            ],
+            "morphologyJoins": [],
+            "morphologyTransformations": [],
+            "transformationNotes": ""
+          }
+        ],
+        "sourceFamily": "new_release"
+      },
+      {
+        "familyId": "f6a7f8c2-5bcf-58ec-867c-22a49467c3b0",
+        "baseFamilyKey": "view_base_family",
+        "baseWordKey": "view_en_gb",
+        "baseMeaning": "to look at or watch something",
+        "etymologyRoute": {
+          "relation_type": "free_base",
+          "origin_language": "English",
+          "origin_form": null,
+          "literal_meaning": "to look at or watch something",
+          "child_facing_meaning": "to look at or watch something",
+          "semantic_connection": "The visible base is retained in each reviewed family member.",
+          "evidence": {
+            "source_name": "Katie Sanderson approved Base Word workbook",
+            "source_url": "local:base-word-prefix-suffix-readiness-audit-resolved (1).xlsx",
+            "verification_status": "human_approved"
+          }
+        },
+        "members": [
+          {
+            "wordKey": "preview_en_gb",
+            "wordSum": "pre + view → preview",
+            "childFriendlyMeaning": "to see or show something before it is fully available",
+            "structuralRole": "family_member",
+            "assignmentEligible": true,
+            "morphologyParts": [
+              {
+                "id": "part_1",
+                "kind": "prefix",
+                "morphemeKey": null,
+                "sourceText": "pre",
+                "surfaceText": "pre",
+                "gloss": "",
+                "displayRange": {
+                  "start": 0,
+                  "end": 3
+                }
+              },
+              {
+                "id": "part_2",
+                "kind": "suffix",
+                "morphemeKey": null,
+                "sourceText": "view",
+                "surfaceText": "view",
+                "gloss": "",
+                "displayRange": {
+                  "start": 3,
+                  "end": 7
+                }
+              }
+            ],
+            "morphologyJoins": [],
+            "morphologyTransformations": [],
+            "transformationNotes": ""
+          },
+          {
+            "wordKey": "review_en_gb",
+            "wordSum": "re + view → review",
+            "childFriendlyMeaning": "to look at something again to check or think about it",
+            "structuralRole": "family_member",
+            "assignmentEligible": true,
+            "morphologyParts": [
+              {
+                "id": "part_1",
+                "kind": "prefix",
+                "morphemeKey": null,
+                "sourceText": "re",
+                "surfaceText": "re",
+                "gloss": "",
+                "displayRange": {
+                  "start": 0,
+                  "end": 2
+                }
+              },
+              {
+                "id": "part_2",
+                "kind": "suffix",
+                "morphemeKey": null,
+                "sourceText": "view",
+                "surfaceText": "view",
+                "gloss": "",
+                "displayRange": {
+                  "start": 2,
+                  "end": 6
+                }
+              }
+            ],
+            "morphologyJoins": [],
+            "morphologyTransformations": [],
+            "transformationNotes": ""
+          },
+          {
+            "wordKey": "view_en_gb",
+            "wordSum": "view",
+            "childFriendlyMeaning": "to look at or watch something",
+            "structuralRole": "base",
+            "assignmentEligible": true,
+            "morphologyParts": [
+              {
+                "id": "part_1",
+                "kind": "base",
+                "morphemeKey": null,
+                "sourceText": "view",
+                "surfaceText": "view",
+                "gloss": "",
+                "displayRange": {
+                  "start": 0,
+                  "end": 4
+                }
+              }
+            ],
+            "morphologyJoins": [],
+            "morphologyTransformations": [],
+            "transformationNotes": ""
+          }
+        ],
+        "sourceFamily": "new_release"
+      }
+    ],
+    "D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX": [
+      {
+        "familyId": "555b06f1-21e4-55da-9aeb-59ac467cb922",
+        "baseFamilyKey": "care_base_family",
+        "baseWordKey": "care_en_gb",
+        "baseMeaning": "to look after someone or something",
+        "etymologyRoute": {
+          "relation_type": "free_base",
+          "origin_language": "Modern English",
+          "origin_form": "care",
+          "literal_meaning": "to look after someone or something",
+          "child_facing_meaning": "to look after someone or something",
+          "semantic_connection": "The visible English base care is recorded in this family’s reviewed word sums; a human reviewer must confirm every member remains semantically appropriate.",
+          "evidence": {
+            "source_name": "Online Etymology Dictionary",
+            "source_url": "https://www.etymonline.com/search?q=care",
+            "verification_status": "linked_for_human_review"
+          }
+        },
+        "members": [
+          {
+            "wordKey": "care_en_gb",
+            "wordSum": "care",
+            "childFriendlyMeaning": "to feel concern for someone or something",
+            "structuralRole": "base",
+            "assignmentEligible": true,
+            "morphologyParts": [
+              {
+                "id": "part_1",
+                "kind": "base",
+                "morphemeKey": null,
+                "sourceText": "care",
+                "surfaceText": "care",
+                "gloss": "",
+                "displayRange": {
+                  "start": 0,
+                  "end": 4
+                },
+                "source": {
+                  "morphemesJsonIndex": 0
+                }
+              }
+            ],
+            "morphologyJoins": [],
+            "morphologyTransformations": [],
+            "transformationNotes": "The spelling of the base is kept in the longer word."
+          },
+          {
+            "wordKey": "careful_en_gb",
+            "wordSum": "care + ful → careful",
+            "childFriendlyMeaning": "taking care to avoid mistakes or danger",
+            "structuralRole": "family_member",
+            "assignmentEligible": true,
+            "morphologyParts": [
+              {
+                "id": "part_1",
+                "kind": "base",
+                "morphemeKey": null,
+                "sourceText": "care",
+                "surfaceText": "care",
+                "gloss": "",
+                "displayRange": {
+                  "start": 0,
+                  "end": 4
+                },
+                "source": {
+                  "morphemesJsonIndex": 0
+                }
+              },
+              {
+                "id": "part_2",
+                "kind": "suffix",
+                "morphemeKey": null,
+                "sourceText": "ful",
+                "surfaceText": "ful",
+                "gloss": "",
+                "displayRange": {
+                  "start": 4,
+                  "end": 7
+                },
+                "source": {
+                  "morphemesJsonIndex": 1
+                }
+              }
+            ],
+            "morphologyJoins": [
+              {
+                "afterPartId": "part_1",
+                "beforePartId": "part_2",
+                "joinType": "none",
+                "surfaceText": "",
+                "displayRange": {
+                  "start": 4,
+                  "end": 4
+                }
+              }
+            ],
+            "morphologyTransformations": [],
+            "transformationNotes": "The spelling of the base is kept in the longer word."
+          },
+          {
+            "wordKey": "careless_en_gb",
+            "wordSum": "care + less → careless",
+            "childFriendlyMeaning": "without enough care",
+            "structuralRole": "family_member",
+            "assignmentEligible": true,
+            "morphologyParts": [
+              {
+                "id": "part_1",
+                "kind": "base",
+                "morphemeKey": null,
+                "sourceText": "care",
+                "surfaceText": "care",
+                "gloss": "",
+                "displayRange": {
+                  "start": 0,
+                  "end": 4
+                },
+                "source": {
+                  "morphemesJsonIndex": 0
+                }
+              },
+              {
+                "id": "part_2",
+                "kind": "suffix",
+                "morphemeKey": null,
+                "sourceText": "less",
+                "surfaceText": "less",
+                "gloss": "",
+                "displayRange": {
+                  "start": 4,
+                  "end": 8
+                },
+                "source": {
+                  "morphemesJsonIndex": 1
+                }
+              }
+            ],
+            "morphologyJoins": [
+              {
+                "afterPartId": "part_1",
+                "beforePartId": "part_2",
+                "joinType": "none",
+                "surfaceText": "",
+                "displayRange": {
+                  "start": 4,
+                  "end": 4
+                }
+              }
+            ],
+            "morphologyTransformations": [],
+            "transformationNotes": "The spelling of the base is kept in the longer word."
+          }
+        ],
+        "sourceFamily": "existing_release"
+      },
+      {
+        "familyId": "8fb3127e-2eb4-5bd9-92c1-d98a66957f9d",
+        "baseFamilyKey": "govern_base_family",
+        "baseWordKey": "govern_en_gb",
+        "baseMeaning": "to lead or rule a country",
+        "etymologyRoute": {
+          "relation_type": "etymological_root",
+          "origin_language": "Latin via Old French",
+          "origin_form": "gubernare",
+          "literal_meaning": "to steer or rule",
+          "child_facing_meaning": "to lead or rule a country",
+          "semantic_connection": "The visible base govern is kept in governor and government; the endings build related words without changing that base spelling.",
+          "evidence": {
+            "source_name": "Online Etymology Dictionary",
+            "source_url": "https://www.etymonline.com/search?q=govern",
+            "verification_status": "linked_for_human_review"
+          }
+        },
+        "members": [
+          {
+            "wordKey": "govern_en_gb",
+            "wordSum": "govern",
+            "childFriendlyMeaning": "to officially lead and make decisions for a country or area",
+            "structuralRole": "base",
+            "assignmentEligible": true,
+            "morphologyParts": [
+              {
+                "id": "part_1",
+                "kind": "base",
+                "morphemeKey": null,
+                "sourceText": "govern",
+                "surfaceText": "govern",
+                "gloss": "lead or rule",
+                "displayRange": {
+                  "start": 0,
+                  "end": 6
+                }
+              }
+            ],
+            "morphologyJoins": [],
+            "morphologyTransformations": [],
+            "transformationNotes": "Keep govern unchanged while adding the ending."
+          },
+          {
+            "wordKey": "government_en_gb",
+            "wordSum": "govern + ment → government",
+            "childFriendlyMeaning": "the people who govern a country or area",
+            "structuralRole": "family_member",
+            "assignmentEligible": true,
+            "morphologyParts": [
+              {
+                "id": "part_1",
+                "kind": "base",
+                "morphemeKey": null,
+                "sourceText": "govern",
+                "surfaceText": "govern",
+                "gloss": "lead or rule",
+                "displayRange": {
+                  "start": 0,
+                  "end": 6
+                }
+              },
+              {
+                "id": "part_2",
+                "kind": "suffix",
+                "morphemeKey": null,
+                "sourceText": "ment",
+                "surfaceText": "ment",
+                "gloss": "result or state",
+                "displayRange": {
+                  "start": 6,
+                  "end": 10
+                }
+              }
+            ],
+            "morphologyJoins": [
+              {
+                "afterPartId": "part_1",
+                "beforePartId": "part_2",
+                "joinType": "none"
+              }
+            ],
+            "morphologyTransformations": [],
+            "transformationNotes": "Keep govern unchanged while adding the ending."
+          },
+          {
+            "wordKey": "governor_en_gb",
+            "wordSum": "govern + or → governor",
+            "childFriendlyMeaning": "a person who governs a region or organisation",
+            "structuralRole": "family_member",
+            "assignmentEligible": true,
+            "morphologyParts": [
+              {
+                "id": "part_1",
+                "kind": "base",
+                "morphemeKey": null,
+                "sourceText": "govern",
+                "surfaceText": "govern",
+                "gloss": "lead or rule",
+                "displayRange": {
+                  "start": 0,
+                  "end": 6
+                }
+              },
+              {
+                "id": "part_2",
+                "kind": "suffix",
+                "morphemeKey": null,
+                "sourceText": "or",
+                "surfaceText": "or",
+                "gloss": "person who",
+                "displayRange": {
+                  "start": 6,
+                  "end": 8
+                }
+              }
+            ],
+            "morphologyJoins": [
+              {
+                "afterPartId": "part_1",
+                "beforePartId": "part_2",
+                "joinType": "none"
+              }
+            ],
+            "morphologyTransformations": [],
+            "transformationNotes": "Keep govern unchanged while adding the ending."
+          }
+        ],
+        "sourceFamily": "existing_release"
+      },
+      {
+        "familyId": "66aa8e9f-faba-5c85-8abd-8110e5322a32",
+        "baseFamilyKey": "kind_base_family",
+        "baseWordKey": "kind_en_gb",
+        "baseMeaning": "caring and friendly",
+        "etymologyRoute": {
+          "relation_type": "free_base",
+          "origin_language": "Modern English",
+          "origin_form": "kind",
+          "literal_meaning": "caring and friendly",
+          "child_facing_meaning": "caring and friendly",
+          "semantic_connection": "The visible English base kind is recorded in this family’s reviewed word sums; a human reviewer must confirm every member remains semantically appropriate.",
+          "evidence": {
+            "source_name": "Online Etymology Dictionary",
+            "source_url": "https://www.etymonline.com/search?q=kind",
+            "verification_status": "linked_for_human_review"
+          }
+        },
+        "members": [
+          {
+            "wordKey": "kind_en_gb",
+            "wordSum": "kind",
+            "childFriendlyMeaning": "caring and helpful to others",
+            "structuralRole": "base",
+            "assignmentEligible": true,
+            "morphologyParts": [
+              {
+                "id": "part_1",
+                "kind": "base",
+                "morphemeKey": null,
+                "sourceText": "kind",
+                "surfaceText": "kind",
+                "gloss": "",
+                "displayRange": {
+                  "start": 0,
+                  "end": 4
+                },
+                "source": {
+                  "morphemesJsonIndex": 0
+                }
+              }
+            ],
+            "morphologyJoins": [],
+            "morphologyTransformations": [],
+            "transformationNotes": "The spelling of the base is kept in the longer word."
+          },
+          {
+            "wordKey": "kindness_en_gb",
+            "wordSum": "kind + ness → kindness",
+            "childFriendlyMeaning": "the quality of being kind",
+            "structuralRole": "family_member",
+            "assignmentEligible": true,
+            "morphologyParts": [
+              {
+                "id": "part_1",
+                "kind": "base",
+                "morphemeKey": null,
+                "sourceText": "kind",
+                "surfaceText": "kind",
+                "gloss": "",
+                "displayRange": {
+                  "start": 0,
+                  "end": 4
+                },
+                "source": {
+                  "morphemesJsonIndex": 0
+                }
+              },
+              {
+                "id": "part_2",
+                "kind": "suffix",
+                "morphemeKey": null,
+                "sourceText": "ness",
+                "surfaceText": "ness",
+                "gloss": "",
+                "displayRange": {
+                  "start": 4,
+                  "end": 8
+                },
+                "source": {
+                  "morphemesJsonIndex": 1
+                }
+              }
+            ],
+            "morphologyJoins": [
+              {
+                "afterPartId": "part_1",
+                "beforePartId": "part_2",
+                "joinType": "none",
+                "surfaceText": "",
+                "displayRange": {
+                  "start": 4,
+                  "end": 4
+                }
+              }
+            ],
+            "morphologyTransformations": [],
+            "transformationNotes": "The spelling of the base is kept in the longer word."
+          },
+          {
+            "wordKey": "unkind_en_gb",
+            "wordSum": "un + kind → unkind",
+            "childFriendlyMeaning": "not kind; not caring or helpful to others",
+            "structuralRole": "family_member",
+            "assignmentEligible": true,
+            "morphologyParts": [
+              {
+                "id": "part_1",
+                "kind": "prefix",
+                "morphemeKey": null,
+                "sourceText": "un",
+                "surfaceText": "un",
+                "gloss": "",
+                "displayRange": {
+                  "start": 0,
+                  "end": 2
+                },
+                "source": {
+                  "morphemesJsonIndex": 0
+                }
+              },
+              {
+                "id": "part_2",
+                "kind": "base",
+                "morphemeKey": null,
+                "sourceText": "kind",
+                "surfaceText": "kind",
+                "gloss": "",
+                "displayRange": {
+                  "start": 2,
+                  "end": 6
+                },
+                "source": {
+                  "morphemesJsonIndex": 1
+                }
+              }
+            ],
+            "morphologyJoins": [
+              {
+                "afterPartId": "part_1",
+                "beforePartId": "part_2",
+                "joinType": "none",
+                "surfaceText": "",
+                "displayRange": {
+                  "start": 2,
+                  "end": 2
+                }
+              }
+            ],
+            "morphologyTransformations": [],
+            "transformationNotes": "The spelling of the base is kept in the longer word."
+          }
+        ],
+        "sourceFamily": "existing_release"
+      },
+      {
+        "familyId": "0b58ed4f-d5f6-590a-83ad-5cd33581173b",
+        "baseFamilyKey": "colour_base_family",
+        "baseWordKey": "colour_en_gb",
+        "baseMeaning": "what something looks like because of light, such as red, blue or green",
+        "etymologyRoute": {
+          "relation_type": "free_base",
+          "origin_language": "English",
+          "origin_form": null,
+          "literal_meaning": "what something looks like because of light, such as red, blue or green",
+          "child_facing_meaning": "what something looks like because of light, such as red, blue or green",
+          "semantic_connection": "The visible base is retained in each reviewed family member.",
+          "evidence": {
+            "source_name": "Katie Sanderson approved Base Word workbook",
+            "source_url": "local:base-word-prefix-suffix-readiness-audit-resolved (1).xlsx",
+            "verification_status": "human_approved"
+          }
+        },
+        "members": [
+          {
+            "wordKey": "colour_en_gb",
+            "wordSum": "colour",
+            "childFriendlyMeaning": "what something looks like because of light, such as red, blue or green",
+            "structuralRole": "base",
+            "assignmentEligible": true,
+            "morphologyParts": [
+              {
+                "id": "part_1",
+                "kind": "base",
+                "morphemeKey": null,
+                "sourceText": "colour",
+                "surfaceText": "colour",
+                "gloss": "",
+                "displayRange": {
+                  "start": 0,
+                  "end": 6
+                }
+              }
+            ],
+            "morphologyJoins": [],
+            "morphologyTransformations": [],
+            "transformationNotes": ""
+          },
+          {
+            "wordKey": "colourful_en_gb",
+            "wordSum": "colour + ful → colourful",
+            "childFriendlyMeaning": "full of bright or different colours",
+            "structuralRole": "family_member",
+            "assignmentEligible": true,
+            "morphologyParts": [
+              {
+                "id": "part_1",
+                "kind": "base",
+                "morphemeKey": null,
+                "sourceText": "colour",
+                "surfaceText": "colour",
+                "gloss": "",
+                "displayRange": {
+                  "start": 0,
+                  "end": 6
+                }
+              },
+              {
+                "id": "part_2",
+                "kind": "suffix",
+                "morphemeKey": null,
+                "sourceText": "ful",
+                "surfaceText": "ful",
+                "gloss": "",
+                "displayRange": {
+                  "start": 6,
+                  "end": 9
+                }
+              }
+            ],
+            "morphologyJoins": [],
+            "morphologyTransformations": [],
+            "transformationNotes": ""
+          },
+          {
+            "wordKey": "colourless_en_gb",
+            "wordSum": "colour + less → colourless",
+            "childFriendlyMeaning": "without colour",
+            "structuralRole": "family_member",
+            "assignmentEligible": true,
+            "morphologyParts": [
+              {
+                "id": "part_1",
+                "kind": "base",
+                "morphemeKey": null,
+                "sourceText": "colour",
+                "surfaceText": "colour",
+                "gloss": "",
+                "displayRange": {
+                  "start": 0,
+                  "end": 6
+                }
+              },
+              {
+                "id": "part_2",
+                "kind": "suffix",
+                "morphemeKey": null,
+                "sourceText": "less",
+                "surfaceText": "less",
+                "gloss": "",
+                "displayRange": {
+                  "start": 6,
+                  "end": 10
+                }
+              }
+            ],
+            "morphologyJoins": [],
+            "morphologyTransformations": [],
+            "transformationNotes": ""
+          }
+        ],
+        "sourceFamily": "new_release"
+      },
+      {
+        "familyId": "a7da3386-2c1a-50a7-8b84-66b4697f0371",
+        "baseFamilyKey": "paint_base_family",
+        "baseWordKey": "paint_en_gb",
+        "baseMeaning": "to put coloured paint on a surface",
+        "etymologyRoute": {
+          "relation_type": "free_base",
+          "origin_language": "English",
+          "origin_form": null,
+          "literal_meaning": "to put coloured paint on a surface",
+          "child_facing_meaning": "to put coloured paint on a surface",
+          "semantic_connection": "The visible base is retained in each reviewed family member.",
+          "evidence": {
+            "source_name": "Katie Sanderson approved Base Word workbook",
+            "source_url": "local:base-word-prefix-suffix-readiness-audit-resolved (1).xlsx",
+            "verification_status": "human_approved"
+          }
+        },
+        "members": [
+          {
+            "wordKey": "paint_en_gb",
+            "wordSum": "paint",
+            "childFriendlyMeaning": "to put coloured paint on a surface",
+            "structuralRole": "base",
+            "assignmentEligible": true,
+            "morphologyParts": [
+              {
+                "id": "part_1",
+                "kind": "base",
+                "morphemeKey": null,
+                "sourceText": "paint",
+                "surfaceText": "paint",
+                "gloss": "",
+                "displayRange": {
+                  "start": 0,
+                  "end": 5
+                }
+              }
+            ],
+            "morphologyJoins": [],
+            "morphologyTransformations": [],
+            "transformationNotes": ""
+          },
+          {
+            "wordKey": "painter_en_gb",
+            "wordSum": "paint + er → painter",
+            "childFriendlyMeaning": "a person who paints pictures, walls, or other surfaces",
+            "structuralRole": "family_member",
+            "assignmentEligible": true,
+            "morphologyParts": [
+              {
+                "id": "part_1",
+                "kind": "base",
+                "morphemeKey": null,
+                "sourceText": "paint",
+                "surfaceText": "paint",
+                "gloss": "",
+                "displayRange": {
+                  "start": 0,
+                  "end": 5
+                }
+              },
+              {
+                "id": "part_2",
+                "kind": "suffix",
+                "morphemeKey": null,
+                "sourceText": "er",
+                "surfaceText": "er",
+                "gloss": "",
+                "displayRange": {
+                  "start": 5,
+                  "end": 7
+                }
+              }
+            ],
+            "morphologyJoins": [],
+            "morphologyTransformations": [],
+            "transformationNotes": ""
+          },
+          {
+            "wordKey": "painting_en_gb",
+            "wordSum": "paint + ing → painting",
+            "childFriendlyMeaning": "putting paint on something right now",
+            "structuralRole": "family_member",
+            "assignmentEligible": true,
+            "morphologyParts": [
+              {
+                "id": "part_1",
+                "kind": "base",
+                "morphemeKey": null,
+                "sourceText": "paint",
+                "surfaceText": "paint",
+                "gloss": "",
+                "displayRange": {
+                  "start": 0,
+                  "end": 5
+                }
+              },
+              {
+                "id": "part_2",
+                "kind": "suffix",
+                "morphemeKey": null,
+                "sourceText": "ing",
+                "surfaceText": "ing",
+                "gloss": "",
+                "displayRange": {
+                  "start": 5,
+                  "end": 8
+                }
+              }
+            ],
+            "morphologyJoins": [],
+            "morphologyTransformations": [],
+            "transformationNotes": ""
+          }
+        ],
+        "sourceFamily": "new_release"
+      },
+      {
+        "familyId": "23ee652c-e201-5a43-8c86-73a9e43e2f0e",
+        "baseFamilyKey": "slow_base_family",
+        "baseWordKey": "slow_en_gb",
+        "baseMeaning": "not moving or happening quickly",
+        "etymologyRoute": {
+          "relation_type": "free_base",
+          "origin_language": "English",
+          "origin_form": null,
+          "literal_meaning": "not moving or happening quickly",
+          "child_facing_meaning": "not moving or happening quickly",
+          "semantic_connection": "The visible base is retained in each reviewed family member.",
+          "evidence": {
+            "source_name": "Katie Sanderson approved Base Word workbook",
+            "source_url": "local:base-word-prefix-suffix-readiness-audit-resolved (1).xlsx",
+            "verification_status": "human_approved"
+          }
+        },
+        "members": [
+          {
+            "wordKey": "slow_en_gb",
+            "wordSum": "slow",
+            "childFriendlyMeaning": "not moving or happening quickly",
+            "structuralRole": "base",
+            "assignmentEligible": true,
+            "morphologyParts": [
+              {
+                "id": "part_1",
+                "kind": "base",
+                "morphemeKey": null,
+                "sourceText": "slow",
+                "surfaceText": "slow",
+                "gloss": "",
+                "displayRange": {
+                  "start": 0,
+                  "end": 4
+                }
+              }
+            ],
+            "morphologyJoins": [],
+            "morphologyTransformations": [],
+            "transformationNotes": ""
+          },
+          {
+            "wordKey": "slower_en_gb",
+            "wordSum": "slow + er → slower",
+            "childFriendlyMeaning": "more slow; taking more time",
+            "structuralRole": "family_member",
+            "assignmentEligible": true,
+            "morphologyParts": [
+              {
+                "id": "part_1",
+                "kind": "base",
+                "morphemeKey": null,
+                "sourceText": "slow",
+                "surfaceText": "slow",
+                "gloss": "",
+                "displayRange": {
+                  "start": 0,
+                  "end": 4
+                }
+              },
+              {
+                "id": "part_2",
+                "kind": "suffix",
+                "morphemeKey": null,
+                "sourceText": "er",
+                "surfaceText": "er",
+                "gloss": "",
+                "displayRange": {
+                  "start": 4,
+                  "end": 6
+                }
+              }
+            ],
+            "morphologyJoins": [],
+            "morphologyTransformations": [],
+            "transformationNotes": ""
+          },
+          {
+            "wordKey": "slowly_en_gb",
+            "wordSum": "slow + ly → slowly",
+            "childFriendlyMeaning": "in a slow way",
+            "structuralRole": "family_member",
+            "assignmentEligible": true,
+            "morphologyParts": [
+              {
+                "id": "part_1",
+                "kind": "base",
+                "morphemeKey": null,
+                "sourceText": "slow",
+                "surfaceText": "slow",
+                "gloss": "",
+                "displayRange": {
+                  "start": 0,
+                  "end": 4
+                }
+              },
+              {
+                "id": "part_2",
+                "kind": "suffix",
+                "morphemeKey": null,
+                "sourceText": "ly",
+                "surfaceText": "ly",
+                "gloss": "",
+                "displayRange": {
+                  "start": 4,
+                  "end": 6
+                }
+              }
+            ],
+            "morphologyJoins": [],
+            "morphologyTransformations": [],
+            "transformationNotes": ""
+          }
+        ],
+        "sourceFamily": "new_release"
+      },
+      {
+        "familyId": "583b2ca0-501e-586c-8c80-0a92d1e2cda4",
+        "baseFamilyKey": "sweet_base_family",
+        "baseWordKey": "sweet_en_gb",
+        "baseMeaning": "having a sugary taste",
+        "etymologyRoute": {
+          "relation_type": "free_base",
+          "origin_language": "English",
+          "origin_form": null,
+          "literal_meaning": "having a sugary taste",
+          "child_facing_meaning": "having a sugary taste",
+          "semantic_connection": "The visible base is retained in each reviewed family member.",
+          "evidence": {
+            "source_name": "Katie Sanderson approved Base Word workbook",
+            "source_url": "local:base-word-prefix-suffix-readiness-audit-resolved (1).xlsx",
+            "verification_status": "human_approved"
+          }
+        },
+        "members": [
+          {
+            "wordKey": "sweet_en_gb",
+            "wordSum": "sweet",
+            "childFriendlyMeaning": "having a sugary taste",
+            "structuralRole": "base",
+            "assignmentEligible": true,
+            "morphologyParts": [
+              {
+                "id": "part_1",
+                "kind": "base",
+                "morphemeKey": null,
+                "sourceText": "sweet",
+                "surfaceText": "sweet",
+                "gloss": "",
+                "displayRange": {
+                  "start": 0,
+                  "end": 5
+                }
+              }
+            ],
+            "morphologyJoins": [],
+            "morphologyTransformations": [],
+            "transformationNotes": ""
+          },
+          {
+            "wordKey": "sweetly_en_gb",
+            "wordSum": "sweet + ly → sweetly",
+            "childFriendlyMeaning": "in a sweet or pleasant way",
+            "structuralRole": "family_member",
+            "assignmentEligible": true,
+            "morphologyParts": [
+              {
+                "id": "part_1",
+                "kind": "base",
+                "morphemeKey": null,
+                "sourceText": "sweet",
+                "surfaceText": "sweet",
+                "gloss": "",
+                "displayRange": {
+                  "start": 0,
+                  "end": 5
+                }
+              },
+              {
+                "id": "part_2",
+                "kind": "suffix",
+                "morphemeKey": null,
+                "sourceText": "ly",
+                "surfaceText": "ly",
+                "gloss": "",
+                "displayRange": {
+                  "start": 5,
+                  "end": 7
+                }
+              }
+            ],
+            "morphologyJoins": [],
+            "morphologyTransformations": [],
+            "transformationNotes": ""
+          },
+          {
+            "wordKey": "sweetness_en_gb",
+            "wordSum": "sweet + ness → sweetness",
+            "childFriendlyMeaning": "the quality of being sweet",
+            "structuralRole": "family_member",
+            "assignmentEligible": true,
+            "morphologyParts": [
+              {
+                "id": "part_1",
+                "kind": "base",
+                "morphemeKey": null,
+                "sourceText": "sweet",
+                "surfaceText": "sweet",
+                "gloss": "",
+                "displayRange": {
+                  "start": 0,
+                  "end": 5
+                }
+              },
+              {
+                "id": "part_2",
+                "kind": "suffix",
+                "morphemeKey": null,
+                "sourceText": "ness",
+                "surfaceText": "ness",
+                "gloss": "",
+                "displayRange": {
+                  "start": 5,
+                  "end": 9
+                }
+              }
+            ],
+            "morphologyJoins": [],
+            "morphologyTransformations": [],
+            "transformationNotes": ""
+          }
+        ],
+        "sourceFamily": "new_release"
+      },
+      {
+        "familyId": "52d435d4-e94f-5fc1-8e74-ee5d8a75906a",
+        "baseFamilyKey": "wind_base_family",
+        "baseWordKey": "wind_en_gb",
+        "baseMeaning": "moving air outdoors",
+        "etymologyRoute": {
+          "relation_type": "free_base",
+          "origin_language": "English",
+          "origin_form": null,
+          "literal_meaning": "moving air outdoors",
+          "child_facing_meaning": "moving air outdoors",
+          "semantic_connection": "The visible base is retained in each reviewed family member.",
+          "evidence": {
+            "source_name": "Katie Sanderson approved Base Word workbook",
+            "source_url": "local:base-word-prefix-suffix-readiness-audit-resolved (1).xlsx",
+            "verification_status": "human_approved"
+          }
+        },
+        "members": [
+          {
+            "wordKey": "wind_en_gb",
+            "wordSum": "wind",
+            "childFriendlyMeaning": "moving air outdoors",
+            "structuralRole": "base",
+            "assignmentEligible": true,
+            "morphologyParts": [
+              {
+                "id": "part_1",
+                "kind": "base",
+                "morphemeKey": null,
+                "sourceText": "wind",
+                "surfaceText": "wind",
+                "gloss": "",
+                "displayRange": {
+                  "start": 0,
+                  "end": 4
+                }
+              }
+            ],
+            "morphologyJoins": [],
+            "morphologyTransformations": [],
+            "transformationNotes": ""
+          },
+          {
+            "wordKey": "windier_en_gb",
+            "wordSum": "wind + ier → windier",
+            "childFriendlyMeaning": "more windy",
+            "structuralRole": "family_member",
+            "assignmentEligible": true,
+            "morphologyParts": [
+              {
+                "id": "part_1",
+                "kind": "base",
+                "morphemeKey": null,
+                "sourceText": "wind",
+                "surfaceText": "wind",
+                "gloss": "",
+                "displayRange": {
+                  "start": 0,
+                  "end": 4
+                }
+              },
+              {
+                "id": "part_2",
+                "kind": "suffix",
+                "morphemeKey": null,
+                "sourceText": "ier",
+                "surfaceText": "ier",
+                "gloss": "",
+                "displayRange": {
+                  "start": 4,
+                  "end": 7
+                }
+              }
+            ],
+            "morphologyJoins": [],
+            "morphologyTransformations": [],
+            "transformationNotes": ""
+          },
+          {
+            "wordKey": "windy_en_gb",
+            "wordSum": "wind + y → windy",
+            "childFriendlyMeaning": "with a lot of wind",
+            "structuralRole": "family_member",
+            "assignmentEligible": true,
+            "morphologyParts": [
+              {
+                "id": "part_1",
+                "kind": "base",
+                "morphemeKey": null,
+                "sourceText": "wind",
+                "surfaceText": "wind",
+                "gloss": "",
+                "displayRange": {
+                  "start": 0,
+                  "end": 4
+                }
+              },
+              {
+                "id": "part_2",
+                "kind": "suffix",
+                "morphemeKey": null,
+                "sourceText": "y",
+                "surfaceText": "y",
+                "gloss": "",
+                "displayRange": {
+                  "start": 4,
+                  "end": 5
+                }
+              }
+            ],
+            "morphologyJoins": [],
+            "morphologyTransformations": [],
+            "transformationNotes": ""
+          }
+        ],
+        "sourceFamily": "new_release"
+      }
+    ]
+  }
+}
