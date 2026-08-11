@@ -38,7 +38,7 @@ const WORDS: readonly Word[] = [
 ];
 
 function wordKey(word: string) { return `${word.replace(/'/g, "_")}_en_gb`; }
-function sha(value: string) { return createHash("sha256").update(value).digest("hex"); }
+function sha(value: string | Uint8Array) { return createHash("sha256").update(value).digest("hex"); }
 function csv(rows: readonly Record<string, string>[], headers: readonly string[]) { const esc = (v: string) => /[",\n]/.test(v) ? `"${v.replaceAll('"', '""')}"` : v; return `${headers.join(",")}\n${rows.map(r => headers.map(h => esc(r[h] ?? "")).join(",")).join("\n")}\n`; }
 function targetIndex(sentence: string, word: string) { const tokens = sentence.match(/[A-Za-z]+(?:['’][A-Za-z]+)?/g) ?? []; const i = tokens.findIndex(t => t.toLowerCase() === word.toLowerCase()); if (i < 0 || tokens.filter(t => t.toLowerCase() === word.toLowerCase()).length !== 1) throw new Error(`Dictation target is not exact for ${word}`); return String(i); }
 function parts(word: Word) { const raw = word.wordSum.split("→")[0].trim().split("+").map(v => v.trim()); let offset = 0; return raw.map((sourceText, index) => { const surfaceText = sourceText; const start = offset; offset += surfaceText.length; return { id: `part_${index + 1}`, kind: index === 0 && !["mis", "pre", "re", "un", "im"].includes(sourceText) ? "base" : (["mis", "pre", "re", "un", "im"].includes(sourceText) ? "prefix" : "suffix"), morphemeKey: null, sourceText, surfaceText, gloss: "", displayRange: { start, end: offset } }; }); }
