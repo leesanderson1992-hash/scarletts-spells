@@ -135,6 +135,10 @@ const metadataMigration = readFileSync(
   "supabase/migrations/20260809141000_add_adle_lesson_route_metadata_v2.sql",
   "utf8",
 );
+const compositeClosureMigration = readFileSync(
+  "supabase/migrations/20260811120000_allow_composite_teaching_dictionary_closures.sql",
+  "utf8",
+);
 for (const table of [
   "adle_curriculum_dependency_authorities",
   "adle_teaching_dictionary_closure_words",
@@ -164,6 +168,16 @@ assert.match(metadataMigration, /adle_lesson_route_metadata_is_valid_v1\(lesson_
 assert.match(metadataMigration, /adle_lesson_route_metadata_is_valid_v2\(lesson_route_metadata\)/);
 assert.doesNotMatch(metadataMigration, /update public\.daily_assignments/i,
   "existing immutable assignments are never rewritten");
+assert.match(compositeClosureMigration, /composite_release_and_legacy_projection/);
+assert.match(compositeClosureMigration, /v_word_batch\.release_id is not null[\s\S]*v_word_batch\.package_sha256 is not null[\s\S]*v_word_batch\.verified_at is not null/);
+assert.match(compositeClosureMigration, /v_word_batch\.release_id is null and v_word_batch\.created_at < v_legacy_cutoff/);
+assert.match(compositeClosureMigration, /v_dictation_batch\.release_id is not null[\s\S]*v_dictation_batch\.package_sha256 is not null[\s\S]*v_dictation_batch\.verified_at is not null/);
+assert.match(compositeClosureMigration, /v_dictation_batch\.release_id is null and v_dictation_batch\.created_at < v_legacy_cutoff/);
+assert.match(compositeClosureMigration, /Teaching Dictionary closure publisher predecessor differs from the reviewed contract/);
+assert.doesNotMatch(compositeClosureMigration, /insert into public\.canonical_teaching_dictionary_/i,
+  "composite closure support never repackages or copies Teaching Dictionary rows");
+assert.doesNotMatch(compositeClosureMigration, /update public\.canonical_teaching_dictionary_/i,
+  "composite closure support never mutates Teaching Dictionary source rows");
 
 console.log(JSON.stringify({
   status: "ADLE release authority foundation regression passed",
