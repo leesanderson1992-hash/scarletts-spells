@@ -62,6 +62,10 @@ const fingerprintMigration=readFileSync(resolve(ROOT,"supabase/migrations/202608
 for(const token of ['collate "C"',"adle_snapshot_json_sha256_v1","publish_adle_compound_word_structure_authority_v1"])assert.match(fingerprintMigration,new RegExp(token.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")));
 for(const forbidden of ["insert into public.adle_route_activation_revisions","insert into public.adle_learning_items","insert into public.daily_assignments"])assert.equal(fingerprintMigration.includes(forbidden),false);
 
+const hashConstraintMigration=readFileSync(resolve(ROOT,"supabase/migrations/20260811213000_bind_compound_structure_snapshot_hash.sql"),"utf8");
+for(const token of ["authority_type = 'compound_structure'","adle_snapshot_json_sha256_v1(semantic_projection)","adle_canonical_json_sha256_v1(semantic_projection)"])assert.match(hashConstraintMigration,new RegExp(token.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")));
+for(const forbidden of ["insert into public.adle_route_activation_revisions","insert into public.adle_learning_items","insert into public.daily_assignments"])assert.equal(hashConstraintMigration.includes(forbidden),false);
+
 console.log(JSON.stringify({status:"passed",approvedStructures:14,newCanonicalWords:17,closureWords:41,routeReleases:2,v1Compatible:true,productionDark:true},null,2));
 }
 
