@@ -1,0 +1,3673 @@
+{
+  "schema_version": 1,
+  "package_key": "compound_word_v2_publication_candidate_2026_08_11",
+  "purpose": "CW-3A deterministic human-review candidate only; not a Teaching Dictionary authority, curriculum release, route release, activation, or learner-data mutation",
+  "source_as_of": "2026-08-11",
+  "base_sha": "ca6289327b5a8c7f73f3287271d177d54b5a35b2",
+  "production_state": {
+    "compound_word_v2_dark": true,
+    "model_c_release_rows": 0,
+    "model_c_activation_rows": 0,
+    "migration_20260811130000_applied": false,
+    "evidence": "CW-3A starting-gate read-only Production check"
+  },
+  "source_files": [
+    {
+      "path": "data/adle/review/d4-mor/v2/compound-word-v2-readiness-review.json",
+      "sha256": "3bbfb1a16d20aab0c6ad99168b77faab3ec0e383bb9126ba00cf84e19ddb3cb1"
+    },
+    {
+      "path": "data/adle/review/d4-mor/v2/compound-word-v2-publication-review-input.json",
+      "sha256": "aa414798f7b652a0cdc6e38e165c0f4816b91dad0d5d7dd1174e260ad6bdc15d"
+    },
+    {
+      "path": "data/adle/approved/d4-mor/v1/d4-mor-v1-word-analyses.json",
+      "sha256": "bc723072afbc1b7aa1fc4d39b180cd437c17b29376d78c34dec5b0aa3aa91a49"
+    },
+    {
+      "path": "data/adle/candidates/d4-mor-remaining-profiles/v1/closed-compounds-dictionary-pool-review.json",
+      "sha256": "841f13b525f6be22274ad3fa0b40957e43f9fadae72ecc873003c38b32096547"
+    },
+    {
+      "path": "docs/implementation/seed-data/teaching-dictionary/candidates/2026-06-29-phase-5-source-intake/csv/dictation_sentences.csv",
+      "sha256": "1bbc0c7d7786eb58c96cdfc66cf3609a64d0cecbbb3bf719ffdb6fc4eb0e8a1d"
+    },
+    {
+      "path": "docs/implementation/seed-data/teaching-dictionary/releases/2026-08-09-base-word-family-meanings-v1/audit/family-meaning-audit.csv",
+      "sha256": "926b00888d298d82832033a5131ae7fdaded6b26e2d85333ce5f015cbd278331"
+    }
+  ],
+  "review_state": "human_review_required",
+  "summary": {
+    "total_rows": 14,
+    "completely_reusable": 0,
+    "semantic_relationship_only": 4,
+    "missing_whole_canonical_identity": 8,
+    "missing_component_canonical_identity": 8,
+    "missing_component_or_whole_meanings": 10,
+    "proposed_meaning_facts": 26,
+    "missing_dictation": 8,
+    "missing_or_uncertain_target_span": 0,
+    "proposed_dictation_spans_tied_to_sentence_review": 8,
+    "proposed_semantic_relationships": 14,
+    "genuine_ambiguity": 2,
+    "publication_ready": 0,
+    "proposed_canonical_word_rows": 17,
+    "classification_counts": {
+      "ready_by_existing_governed_reuse": 0,
+      "semantic_relationship_review_only": 4,
+      "canonical_identity_review_required": 0,
+      "meaning_review_required": 0,
+      "dictation_review_required": 0,
+      "multiple_review_items_required": 10
+    }
+  },
+  "proposed_canonical_words": [
+    {
+      "canonical_word_id": null,
+      "review_state": "proposed_for_review",
+      "canonical_words_csv": {
+        "word_key": "grand_en_gb",
+        "normalised_word": "grand",
+        "display_word": "grand",
+        "dialect_code": "en-GB",
+        "frequency_band": "medium",
+        "age_band": "middle_primary",
+        "complexity_band": "low",
+        "source_category": "internal_authored",
+        "source_name": "CW-3A Compound Word publication readiness proposal",
+        "source_url": "data/adle/review/d4-mor/v2/compound-word-v2-publication-review-input.json",
+        "source_licence": "internal/project-authored",
+        "source_use_note": "Human-review proposal only. This row is not approved curriculum authority and is not importable until a named reviewer approves it.",
+        "confidence": "medium",
+        "review_status": "in_review",
+        "row_status": "draft"
+      },
+      "canonical_word_metadata_csv": {
+        "word_key": "grand_en_gb",
+        "syllables": 1,
+        "phoneme_hint": "/ɡrænd/",
+        "grapheme_notes": "CW-3A British-English pronunciation proposal; human review required.",
+        "stress_pattern": "single",
+        "has_schwa": false,
+        "morphemes": "grand",
+        "morphology_notes": "Proposed single-base canonical component row for Compound Word v2 closure.",
+        "irregularity_notes": "",
+        "source_category": "internal_authored",
+        "source_name": "CW-3A Compound Word publication readiness proposal",
+        "source_url": "data/adle/review/d4-mor/v2/compound-word-v2-publication-review-input.json",
+        "source_licence": "internal/project-authored",
+        "source_use_note": "Human-review proposal only. This row is not approved curriculum authority and is not importable until a named reviewer approves it.",
+        "confidence": "medium",
+        "review_status": "in_review"
+      },
+      "canonical_word_morphology_csv": {
+        "word_key": "grand_en_gb",
+        "morphology_parts": [
+          {
+            "text": "grand",
+            "type": "base"
+          }
+        ],
+        "feature_keys": [],
+        "morphology_joins": [],
+        "transformation_notes": "",
+        "word_sum": "grand",
+        "analysis_status": "in_review",
+        "source_category": "internal_authored",
+        "source_name": "CW-3A Compound Word publication readiness proposal",
+        "source_url": "data/adle/review/d4-mor/v2/compound-word-v2-publication-review-input.json",
+        "source_licence": "internal/project-authored",
+        "source_use_note": "Human-review proposal only. This row is not approved curriculum authority and is not importable until a named reviewer approves it.",
+        "confidence": "medium",
+        "review_status": "in_review",
+        "reviewed_by": null,
+        "reviewed_at": null,
+        "review_notes": "Approve against the existing Teaching Dictionary import contract before creating an append-only release package."
+      },
+      "dictation_sentences_csv": {
+        "word_key": "grand_en_gb",
+        "display_word": "grand",
+        "age_band": "middle_primary",
+        "complexity_band": "low",
+        "dictation_sentence": "The palace has a grand entrance.",
+        "dictation_target_token_index": 4,
+        "dictation_target_start": 4,
+        "dictation_target_end_exclusive": 5,
+        "audio_text": "The palace has a grand entrance.",
+        "source_category": "internal_authored",
+        "source_name": "CW-3A Compound Word publication readiness proposal",
+        "source_url": "data/adle/review/d4-mor/v2/compound-word-v2-publication-review-input.json",
+        "source_licence": "internal/project-authored",
+        "source_use_note": "Human-review proposal only. This row is not approved curriculum authority and is not importable until a named reviewer approves it.",
+        "confidence": "medium",
+        "review_status": "in_review",
+        "reviewed_by": null,
+        "reviewed_at": null,
+        "review_notes": "Proposed British-English sentence; target span is deterministic but the sentence requires human approval."
+      },
+      "proposed_child_friendly_lexical_meaning": {
+        "value": "impressive or important; in family words, grand marks one generation before a parent",
+        "status": "proposed_for_review"
+      },
+      "ambiguity_review": "Approve the family-word sense used for grandmother separately from the common adjective sense of grand."
+    },
+    {
+      "canonical_word_id": null,
+      "review_state": "proposed_for_review",
+      "canonical_words_csv": {
+        "word_key": "grandmother_en_gb",
+        "normalised_word": "grandmother",
+        "display_word": "grandmother",
+        "dialect_code": "en-GB",
+        "frequency_band": "high",
+        "age_band": "early_primary",
+        "complexity_band": "medium",
+        "source_category": "internal_authored",
+        "source_name": "CW-3A Compound Word publication readiness proposal",
+        "source_url": "data/adle/review/d4-mor/v2/compound-word-v2-publication-review-input.json",
+        "source_licence": "internal/project-authored",
+        "source_use_note": "Human-review proposal only. This row is not approved curriculum authority and is not importable until a named reviewer approves it.",
+        "confidence": "medium",
+        "review_status": "in_review",
+        "row_status": "draft"
+      },
+      "canonical_word_metadata_csv": {
+        "word_key": "grandmother_en_gb",
+        "syllables": 3,
+        "phoneme_hint": "/ˈɡrænˌmʌðə/",
+        "grapheme_notes": "CW-3A British-English pronunciation proposal; human review required.",
+        "stress_pattern": "first-secondary",
+        "has_schwa": true,
+        "morphemes": "grand + mother → grandmother",
+        "morphology_notes": "Reuse the human-approved D4 Compound Word analysis for ordered components and governed separators.",
+        "irregularity_notes": "",
+        "source_category": "internal_authored",
+        "source_name": "CW-3A Compound Word publication readiness proposal",
+        "source_url": "data/adle/review/d4-mor/v2/compound-word-v2-publication-review-input.json",
+        "source_licence": "internal/project-authored",
+        "source_use_note": "Human-review proposal only. This row is not approved curriculum authority and is not importable until a named reviewer approves it.",
+        "confidence": "medium",
+        "review_status": "in_review"
+      },
+      "canonical_word_morphology_csv": {
+        "word_key": "grandmother_en_gb",
+        "morphology_parts": [
+          {
+            "text": "grand",
+            "type": "base"
+          },
+          {
+            "text": "mother",
+            "type": "base"
+          }
+        ],
+        "feature_keys": [],
+        "morphology_joins": [
+          "none"
+        ],
+        "transformation_notes": "",
+        "word_sum": "grand + mother → grandmother",
+        "analysis_status": "in_review",
+        "source_category": "internal_authored",
+        "source_name": "CW-3A Compound Word publication readiness proposal",
+        "source_url": "data/adle/review/d4-mor/v2/compound-word-v2-publication-review-input.json",
+        "source_licence": "internal/project-authored",
+        "source_use_note": "Human-review proposal only. This row is not approved curriculum authority and is not importable until a named reviewer approves it.",
+        "confidence": "medium",
+        "review_status": "in_review",
+        "reviewed_by": null,
+        "reviewed_at": null,
+        "review_notes": "Approve against the existing Teaching Dictionary import contract before creating an append-only release package."
+      },
+      "dictation_sentences_csv": {
+        "word_key": "grandmother_en_gb",
+        "display_word": "grandmother",
+        "age_band": "early_primary",
+        "complexity_band": "medium",
+        "dictation_sentence": "Mia wrote a letter to her grandmother.",
+        "dictation_target_token_index": 6,
+        "dictation_target_start": 6,
+        "dictation_target_end_exclusive": 7,
+        "audio_text": "Mia wrote a letter to her grandmother.",
+        "source_category": "internal_authored",
+        "source_name": "CW-3A Compound Word publication readiness proposal",
+        "source_url": "data/adle/review/d4-mor/v2/compound-word-v2-publication-review-input.json",
+        "source_licence": "internal/project-authored",
+        "source_use_note": "Human-review proposal only. This row is not approved curriculum authority and is not importable until a named reviewer approves it.",
+        "confidence": "medium",
+        "review_status": "in_review",
+        "reviewed_by": null,
+        "reviewed_at": null,
+        "review_notes": "Proposed British-English sentence; target span is deterministic but the sentence requires human approval."
+      },
+      "proposed_child_friendly_lexical_meaning": {
+        "value": "the mother of one of your parents",
+        "status": "proposed_for_review"
+      },
+      "ambiguity_review": null
+    },
+    {
+      "canonical_word_id": null,
+      "review_state": "proposed_for_review",
+      "canonical_words_csv": {
+        "word_key": "homework_en_gb",
+        "normalised_word": "homework",
+        "display_word": "homework",
+        "dialect_code": "en-GB",
+        "frequency_band": "high",
+        "age_band": "early_primary",
+        "complexity_band": "medium",
+        "source_category": "internal_authored",
+        "source_name": "CW-3A Compound Word publication readiness proposal",
+        "source_url": "data/adle/review/d4-mor/v2/compound-word-v2-publication-review-input.json",
+        "source_licence": "internal/project-authored",
+        "source_use_note": "Human-review proposal only. This row is not approved curriculum authority and is not importable until a named reviewer approves it.",
+        "confidence": "medium",
+        "review_status": "in_review",
+        "row_status": "draft"
+      },
+      "canonical_word_metadata_csv": {
+        "word_key": "homework_en_gb",
+        "syllables": 2,
+        "phoneme_hint": "/ˈhəʊmwɜːk/",
+        "grapheme_notes": "CW-3A British-English pronunciation proposal; human review required.",
+        "stress_pattern": "first",
+        "has_schwa": false,
+        "morphemes": "home + work → homework",
+        "morphology_notes": "Reuse the human-approved D4 Compound Word analysis for ordered components and governed separators.",
+        "irregularity_notes": "",
+        "source_category": "internal_authored",
+        "source_name": "CW-3A Compound Word publication readiness proposal",
+        "source_url": "data/adle/review/d4-mor/v2/compound-word-v2-publication-review-input.json",
+        "source_licence": "internal/project-authored",
+        "source_use_note": "Human-review proposal only. This row is not approved curriculum authority and is not importable until a named reviewer approves it.",
+        "confidence": "medium",
+        "review_status": "in_review"
+      },
+      "canonical_word_morphology_csv": {
+        "word_key": "homework_en_gb",
+        "morphology_parts": [
+          {
+            "text": "home",
+            "type": "base"
+          },
+          {
+            "text": "work",
+            "type": "base"
+          }
+        ],
+        "feature_keys": [],
+        "morphology_joins": [
+          "none"
+        ],
+        "transformation_notes": "",
+        "word_sum": "home + work → homework",
+        "analysis_status": "in_review",
+        "source_category": "internal_authored",
+        "source_name": "CW-3A Compound Word publication readiness proposal",
+        "source_url": "data/adle/review/d4-mor/v2/compound-word-v2-publication-review-input.json",
+        "source_licence": "internal/project-authored",
+        "source_use_note": "Human-review proposal only. This row is not approved curriculum authority and is not importable until a named reviewer approves it.",
+        "confidence": "medium",
+        "review_status": "in_review",
+        "reviewed_by": null,
+        "reviewed_at": null,
+        "review_notes": "Approve against the existing Teaching Dictionary import contract before creating an append-only release package."
+      },
+      "dictation_sentences_csv": {
+        "word_key": "homework_en_gb",
+        "display_word": "homework",
+        "age_band": "early_primary",
+        "complexity_band": "medium",
+        "dictation_sentence": "I finished my homework before tea.",
+        "dictation_target_token_index": 3,
+        "dictation_target_start": 3,
+        "dictation_target_end_exclusive": 4,
+        "audio_text": "I finished my homework before tea.",
+        "source_category": "internal_authored",
+        "source_name": "CW-3A Compound Word publication readiness proposal",
+        "source_url": "data/adle/review/d4-mor/v2/compound-word-v2-publication-review-input.json",
+        "source_licence": "internal/project-authored",
+        "source_use_note": "Human-review proposal only. This row is not approved curriculum authority and is not importable until a named reviewer approves it.",
+        "confidence": "medium",
+        "review_status": "in_review",
+        "reviewed_by": null,
+        "reviewed_at": null,
+        "review_notes": "Proposed British-English sentence; target span is deterministic but the sentence requires human approval."
+      },
+      "proposed_child_friendly_lexical_meaning": {
+        "value": "school work that a teacher asks a pupil to do at home",
+        "status": "proposed_for_review"
+      },
+      "ambiguity_review": null
+    },
+    {
+      "canonical_word_id": null,
+      "review_state": "proposed_for_review",
+      "canonical_words_csv": {
+        "word_key": "sunflower_en_gb",
+        "normalised_word": "sunflower",
+        "display_word": "sunflower",
+        "dialect_code": "en-GB",
+        "frequency_band": "medium",
+        "age_band": "early_primary",
+        "complexity_band": "medium",
+        "source_category": "internal_authored",
+        "source_name": "CW-3A Compound Word publication readiness proposal",
+        "source_url": "data/adle/review/d4-mor/v2/compound-word-v2-publication-review-input.json",
+        "source_licence": "internal/project-authored",
+        "source_use_note": "Human-review proposal only. This row is not approved curriculum authority and is not importable until a named reviewer approves it.",
+        "confidence": "medium",
+        "review_status": "in_review",
+        "row_status": "draft"
+      },
+      "canonical_word_metadata_csv": {
+        "word_key": "sunflower_en_gb",
+        "syllables": 3,
+        "phoneme_hint": "/ˈsʌnˌflaʊə/",
+        "grapheme_notes": "CW-3A British-English pronunciation proposal; human review required.",
+        "stress_pattern": "first-secondary",
+        "has_schwa": true,
+        "morphemes": "sun + flower → sunflower",
+        "morphology_notes": "Reuse the human-approved D4 Compound Word analysis for ordered components and governed separators.",
+        "irregularity_notes": "",
+        "source_category": "internal_authored",
+        "source_name": "CW-3A Compound Word publication readiness proposal",
+        "source_url": "data/adle/review/d4-mor/v2/compound-word-v2-publication-review-input.json",
+        "source_licence": "internal/project-authored",
+        "source_use_note": "Human-review proposal only. This row is not approved curriculum authority and is not importable until a named reviewer approves it.",
+        "confidence": "medium",
+        "review_status": "in_review"
+      },
+      "canonical_word_morphology_csv": {
+        "word_key": "sunflower_en_gb",
+        "morphology_parts": [
+          {
+            "text": "sun",
+            "type": "base"
+          },
+          {
+            "text": "flower",
+            "type": "base"
+          }
+        ],
+        "feature_keys": [],
+        "morphology_joins": [
+          "none"
+        ],
+        "transformation_notes": "",
+        "word_sum": "sun + flower → sunflower",
+        "analysis_status": "in_review",
+        "source_category": "internal_authored",
+        "source_name": "CW-3A Compound Word publication readiness proposal",
+        "source_url": "data/adle/review/d4-mor/v2/compound-word-v2-publication-review-input.json",
+        "source_licence": "internal/project-authored",
+        "source_use_note": "Human-review proposal only. This row is not approved curriculum authority and is not importable until a named reviewer approves it.",
+        "confidence": "medium",
+        "review_status": "in_review",
+        "reviewed_by": null,
+        "reviewed_at": null,
+        "review_notes": "Approve against the existing Teaching Dictionary import contract before creating an append-only release package."
+      },
+      "dictation_sentences_csv": {
+        "word_key": "sunflower_en_gb",
+        "display_word": "sunflower",
+        "age_band": "early_primary",
+        "complexity_band": "medium",
+        "dictation_sentence": "The sunflower grew beside the fence.",
+        "dictation_target_token_index": 1,
+        "dictation_target_start": 1,
+        "dictation_target_end_exclusive": 2,
+        "audio_text": "The sunflower grew beside the fence.",
+        "source_category": "internal_authored",
+        "source_name": "CW-3A Compound Word publication readiness proposal",
+        "source_url": "data/adle/review/d4-mor/v2/compound-word-v2-publication-review-input.json",
+        "source_licence": "internal/project-authored",
+        "source_use_note": "Human-review proposal only. This row is not approved curriculum authority and is not importable until a named reviewer approves it.",
+        "confidence": "medium",
+        "review_status": "in_review",
+        "reviewed_by": null,
+        "reviewed_at": null,
+        "review_notes": "Proposed British-English sentence; target span is deterministic but the sentence requires human approval."
+      },
+      "proposed_child_friendly_lexical_meaning": {
+        "value": "a tall plant with a large yellow flower head",
+        "status": "proposed_for_review"
+      },
+      "ambiguity_review": null
+    },
+    {
+      "canonical_word_id": null,
+      "review_state": "proposed_for_review",
+      "canonical_words_csv": {
+        "word_key": "cream_en_gb",
+        "normalised_word": "cream",
+        "display_word": "cream",
+        "dialect_code": "en-GB",
+        "frequency_band": "high",
+        "age_band": "early_primary",
+        "complexity_band": "low",
+        "source_category": "internal_authored",
+        "source_name": "CW-3A Compound Word publication readiness proposal",
+        "source_url": "data/adle/review/d4-mor/v2/compound-word-v2-publication-review-input.json",
+        "source_licence": "internal/project-authored",
+        "source_use_note": "Human-review proposal only. This row is not approved curriculum authority and is not importable until a named reviewer approves it.",
+        "confidence": "medium",
+        "review_status": "in_review",
+        "row_status": "draft"
+      },
+      "canonical_word_metadata_csv": {
+        "word_key": "cream_en_gb",
+        "syllables": 1,
+        "phoneme_hint": "/kriːm/",
+        "grapheme_notes": "CW-3A British-English pronunciation proposal; human review required.",
+        "stress_pattern": "single",
+        "has_schwa": false,
+        "morphemes": "cream",
+        "morphology_notes": "Proposed single-base canonical component row for Compound Word v2 closure.",
+        "irregularity_notes": "",
+        "source_category": "internal_authored",
+        "source_name": "CW-3A Compound Word publication readiness proposal",
+        "source_url": "data/adle/review/d4-mor/v2/compound-word-v2-publication-review-input.json",
+        "source_licence": "internal/project-authored",
+        "source_use_note": "Human-review proposal only. This row is not approved curriculum authority and is not importable until a named reviewer approves it.",
+        "confidence": "medium",
+        "review_status": "in_review"
+      },
+      "canonical_word_morphology_csv": {
+        "word_key": "cream_en_gb",
+        "morphology_parts": [
+          {
+            "text": "cream",
+            "type": "base"
+          }
+        ],
+        "feature_keys": [],
+        "morphology_joins": [],
+        "transformation_notes": "",
+        "word_sum": "cream",
+        "analysis_status": "in_review",
+        "source_category": "internal_authored",
+        "source_name": "CW-3A Compound Word publication readiness proposal",
+        "source_url": "data/adle/review/d4-mor/v2/compound-word-v2-publication-review-input.json",
+        "source_licence": "internal/project-authored",
+        "source_use_note": "Human-review proposal only. This row is not approved curriculum authority and is not importable until a named reviewer approves it.",
+        "confidence": "medium",
+        "review_status": "in_review",
+        "reviewed_by": null,
+        "reviewed_at": null,
+        "review_notes": "Approve against the existing Teaching Dictionary import contract before creating an append-only release package."
+      },
+      "dictation_sentences_csv": {
+        "word_key": "cream_en_gb",
+        "display_word": "cream",
+        "age_band": "early_primary",
+        "complexity_band": "low",
+        "dictation_sentence": "She poured cream onto the fruit.",
+        "dictation_target_token_index": 2,
+        "dictation_target_start": 2,
+        "dictation_target_end_exclusive": 3,
+        "audio_text": "She poured cream onto the fruit.",
+        "source_category": "internal_authored",
+        "source_name": "CW-3A Compound Word publication readiness proposal",
+        "source_url": "data/adle/review/d4-mor/v2/compound-word-v2-publication-review-input.json",
+        "source_licence": "internal/project-authored",
+        "source_use_note": "Human-review proposal only. This row is not approved curriculum authority and is not importable until a named reviewer approves it.",
+        "confidence": "medium",
+        "review_status": "in_review",
+        "reviewed_by": null,
+        "reviewed_at": null,
+        "review_notes": "Proposed British-English sentence; target span is deterministic but the sentence requires human approval."
+      },
+      "proposed_child_friendly_lexical_meaning": {
+        "value": "the thick, rich part of milk",
+        "status": "proposed_for_review"
+      },
+      "ambiguity_review": null
+    },
+    {
+      "canonical_word_id": null,
+      "review_state": "proposed_for_review",
+      "canonical_words_csv": {
+        "word_key": "living_en_gb",
+        "normalised_word": "living",
+        "display_word": "living",
+        "dialect_code": "en-GB",
+        "frequency_band": "high",
+        "age_band": "early_primary",
+        "complexity_band": "medium",
+        "source_category": "internal_authored",
+        "source_name": "CW-3A Compound Word publication readiness proposal",
+        "source_url": "data/adle/review/d4-mor/v2/compound-word-v2-publication-review-input.json",
+        "source_licence": "internal/project-authored",
+        "source_use_note": "Human-review proposal only. This row is not approved curriculum authority and is not importable until a named reviewer approves it.",
+        "confidence": "medium",
+        "review_status": "in_review",
+        "row_status": "draft"
+      },
+      "canonical_word_metadata_csv": {
+        "word_key": "living_en_gb",
+        "syllables": 2,
+        "phoneme_hint": "/ˈlɪvɪŋ/",
+        "grapheme_notes": "CW-3A British-English pronunciation proposal; human review required.",
+        "stress_pattern": "first",
+        "has_schwa": false,
+        "morphemes": "living",
+        "morphology_notes": "Proposed single-base canonical component row for Compound Word v2 closure.",
+        "irregularity_notes": "",
+        "source_category": "internal_authored",
+        "source_name": "CW-3A Compound Word publication readiness proposal",
+        "source_url": "data/adle/review/d4-mor/v2/compound-word-v2-publication-review-input.json",
+        "source_licence": "internal/project-authored",
+        "source_use_note": "Human-review proposal only. This row is not approved curriculum authority and is not importable until a named reviewer approves it.",
+        "confidence": "medium",
+        "review_status": "in_review"
+      },
+      "canonical_word_morphology_csv": {
+        "word_key": "living_en_gb",
+        "morphology_parts": [
+          {
+            "text": "living",
+            "type": "base"
+          }
+        ],
+        "feature_keys": [],
+        "morphology_joins": [],
+        "transformation_notes": "",
+        "word_sum": "living",
+        "analysis_status": "in_review",
+        "source_category": "internal_authored",
+        "source_name": "CW-3A Compound Word publication readiness proposal",
+        "source_url": "data/adle/review/d4-mor/v2/compound-word-v2-publication-review-input.json",
+        "source_licence": "internal/project-authored",
+        "source_use_note": "Human-review proposal only. This row is not approved curriculum authority and is not importable until a named reviewer approves it.",
+        "confidence": "medium",
+        "review_status": "in_review",
+        "reviewed_by": null,
+        "reviewed_at": null,
+        "review_notes": "Approve against the existing Teaching Dictionary import contract before creating an append-only release package."
+      },
+      "dictation_sentences_csv": {
+        "word_key": "living_en_gb",
+        "display_word": "living",
+        "age_band": "early_primary",
+        "complexity_band": "medium",
+        "dictation_sentence": "Living near the sea can be exciting.",
+        "dictation_target_token_index": 0,
+        "dictation_target_start": 0,
+        "dictation_target_end_exclusive": 1,
+        "audio_text": "Living near the sea can be exciting.",
+        "source_category": "internal_authored",
+        "source_name": "CW-3A Compound Word publication readiness proposal",
+        "source_url": "data/adle/review/d4-mor/v2/compound-word-v2-publication-review-input.json",
+        "source_licence": "internal/project-authored",
+        "source_use_note": "Human-review proposal only. This row is not approved curriculum authority and is not importable until a named reviewer approves it.",
+        "confidence": "medium",
+        "review_status": "in_review",
+        "reviewed_by": null,
+        "reviewed_at": null,
+        "review_notes": "Proposed British-English sentence; target span is deterministic but the sentence requires human approval."
+      },
+      "proposed_child_friendly_lexical_meaning": {
+        "value": "being alive or the way people live",
+        "status": "proposed_for_review"
+      },
+      "ambiguity_review": null
+    },
+    {
+      "canonical_word_id": null,
+      "review_state": "proposed_for_review",
+      "canonical_words_csv": {
+        "word_key": "living_room_en_gb",
+        "normalised_word": "living room",
+        "display_word": "living room",
+        "dialect_code": "en-GB",
+        "frequency_band": "high",
+        "age_band": "early_primary",
+        "complexity_band": "medium",
+        "source_category": "internal_authored",
+        "source_name": "CW-3A Compound Word publication readiness proposal",
+        "source_url": "data/adle/review/d4-mor/v2/compound-word-v2-publication-review-input.json",
+        "source_licence": "internal/project-authored",
+        "source_use_note": "Human-review proposal only. This row is not approved curriculum authority and is not importable until a named reviewer approves it.",
+        "confidence": "medium",
+        "review_status": "in_review",
+        "row_status": "draft"
+      },
+      "canonical_word_metadata_csv": {
+        "word_key": "living_room_en_gb",
+        "syllables": 3,
+        "phoneme_hint": "/ˈlɪvɪŋ ˌruːm/",
+        "grapheme_notes": "CW-3A British-English pronunciation proposal; human review required.",
+        "stress_pattern": "first-secondary",
+        "has_schwa": false,
+        "morphemes": "living + room → living room",
+        "morphology_notes": "Reuse the human-approved D4 Compound Word analysis for ordered components and governed separators.",
+        "irregularity_notes": "",
+        "source_category": "internal_authored",
+        "source_name": "CW-3A Compound Word publication readiness proposal",
+        "source_url": "data/adle/review/d4-mor/v2/compound-word-v2-publication-review-input.json",
+        "source_licence": "internal/project-authored",
+        "source_use_note": "Human-review proposal only. This row is not approved curriculum authority and is not importable until a named reviewer approves it.",
+        "confidence": "medium",
+        "review_status": "in_review"
+      },
+      "canonical_word_morphology_csv": {
+        "word_key": "living_room_en_gb",
+        "morphology_parts": [
+          {
+            "text": "living",
+            "type": "base"
+          },
+          {
+            "text": "room",
+            "type": "base"
+          }
+        ],
+        "feature_keys": [],
+        "morphology_joins": [
+          "space"
+        ],
+        "transformation_notes": "",
+        "word_sum": "living + room → living room",
+        "analysis_status": "in_review",
+        "source_category": "internal_authored",
+        "source_name": "CW-3A Compound Word publication readiness proposal",
+        "source_url": "data/adle/review/d4-mor/v2/compound-word-v2-publication-review-input.json",
+        "source_licence": "internal/project-authored",
+        "source_use_note": "Human-review proposal only. This row is not approved curriculum authority and is not importable until a named reviewer approves it.",
+        "confidence": "medium",
+        "review_status": "in_review",
+        "reviewed_by": null,
+        "reviewed_at": null,
+        "review_notes": "Approve against the existing Teaching Dictionary import contract before creating an append-only release package."
+      },
+      "dictation_sentences_csv": {
+        "word_key": "living_room_en_gb",
+        "display_word": "living room",
+        "age_band": "early_primary",
+        "complexity_band": "medium",
+        "dictation_sentence": "We read together in the living room.",
+        "dictation_target_token_index": 5,
+        "dictation_target_start": 5,
+        "dictation_target_end_exclusive": 7,
+        "audio_text": "We read together in the living room.",
+        "source_category": "internal_authored",
+        "source_name": "CW-3A Compound Word publication readiness proposal",
+        "source_url": "data/adle/review/d4-mor/v2/compound-word-v2-publication-review-input.json",
+        "source_licence": "internal/project-authored",
+        "source_use_note": "Human-review proposal only. This row is not approved curriculum authority and is not importable until a named reviewer approves it.",
+        "confidence": "medium",
+        "review_status": "in_review",
+        "reviewed_by": null,
+        "reviewed_at": null,
+        "review_notes": "Proposed British-English sentence; target span is deterministic but the sentence requires human approval."
+      },
+      "proposed_child_friendly_lexical_meaning": {
+        "value": "a room in a home where people sit and spend time together",
+        "status": "proposed_for_review"
+      },
+      "ambiguity_review": null
+    },
+    {
+      "canonical_word_id": null,
+      "review_state": "proposed_for_review",
+      "canonical_words_csv": {
+        "word_key": "in_en_gb",
+        "normalised_word": "in",
+        "display_word": "in",
+        "dialect_code": "en-GB",
+        "frequency_band": "high",
+        "age_band": "early_primary",
+        "complexity_band": "low",
+        "source_category": "internal_authored",
+        "source_name": "CW-3A Compound Word publication readiness proposal",
+        "source_url": "data/adle/review/d4-mor/v2/compound-word-v2-publication-review-input.json",
+        "source_licence": "internal/project-authored",
+        "source_use_note": "Human-review proposal only. This row is not approved curriculum authority and is not importable until a named reviewer approves it.",
+        "confidence": "medium",
+        "review_status": "in_review",
+        "row_status": "draft"
+      },
+      "canonical_word_metadata_csv": {
+        "word_key": "in_en_gb",
+        "syllables": 1,
+        "phoneme_hint": "/ɪn/",
+        "grapheme_notes": "CW-3A British-English pronunciation proposal; human review required.",
+        "stress_pattern": "single",
+        "has_schwa": false,
+        "morphemes": "in",
+        "morphology_notes": "Proposed single-base canonical component row for Compound Word v2 closure.",
+        "irregularity_notes": "",
+        "source_category": "internal_authored",
+        "source_name": "CW-3A Compound Word publication readiness proposal",
+        "source_url": "data/adle/review/d4-mor/v2/compound-word-v2-publication-review-input.json",
+        "source_licence": "internal/project-authored",
+        "source_use_note": "Human-review proposal only. This row is not approved curriculum authority and is not importable until a named reviewer approves it.",
+        "confidence": "medium",
+        "review_status": "in_review"
+      },
+      "canonical_word_morphology_csv": {
+        "word_key": "in_en_gb",
+        "morphology_parts": [
+          {
+            "text": "in",
+            "type": "base"
+          }
+        ],
+        "feature_keys": [],
+        "morphology_joins": [],
+        "transformation_notes": "",
+        "word_sum": "in",
+        "analysis_status": "in_review",
+        "source_category": "internal_authored",
+        "source_name": "CW-3A Compound Word publication readiness proposal",
+        "source_url": "data/adle/review/d4-mor/v2/compound-word-v2-publication-review-input.json",
+        "source_licence": "internal/project-authored",
+        "source_use_note": "Human-review proposal only. This row is not approved curriculum authority and is not importable until a named reviewer approves it.",
+        "confidence": "medium",
+        "review_status": "in_review",
+        "reviewed_by": null,
+        "reviewed_at": null,
+        "review_notes": "Approve against the existing Teaching Dictionary import contract before creating an append-only release package."
+      },
+      "dictation_sentences_csv": {
+        "word_key": "in_en_gb",
+        "display_word": "in",
+        "age_band": "early_primary",
+        "complexity_band": "low",
+        "dictation_sentence": "The pencils are in the box.",
+        "dictation_target_token_index": 3,
+        "dictation_target_start": 3,
+        "dictation_target_end_exclusive": 4,
+        "audio_text": "The pencils are in the box.",
+        "source_category": "internal_authored",
+        "source_name": "CW-3A Compound Word publication readiness proposal",
+        "source_url": "data/adle/review/d4-mor/v2/compound-word-v2-publication-review-input.json",
+        "source_licence": "internal/project-authored",
+        "source_use_note": "Human-review proposal only. This row is not approved curriculum authority and is not importable until a named reviewer approves it.",
+        "confidence": "medium",
+        "review_status": "in_review",
+        "reviewed_by": null,
+        "reviewed_at": null,
+        "review_notes": "Proposed British-English sentence; target span is deterministic but the sentence requires human approval."
+      },
+      "proposed_child_friendly_lexical_meaning": {
+        "value": "inside or within something",
+        "status": "proposed_for_review"
+      },
+      "ambiguity_review": "The ordinary lexical meaning does not explain mother-in-law; approve the component's grammatical treatment in that fixed phrase."
+    },
+    {
+      "canonical_word_id": null,
+      "review_state": "proposed_for_review",
+      "canonical_words_csv": {
+        "word_key": "law_en_gb",
+        "normalised_word": "law",
+        "display_word": "law",
+        "dialect_code": "en-GB",
+        "frequency_band": "high",
+        "age_band": "middle_primary",
+        "complexity_band": "medium",
+        "source_category": "internal_authored",
+        "source_name": "CW-3A Compound Word publication readiness proposal",
+        "source_url": "data/adle/review/d4-mor/v2/compound-word-v2-publication-review-input.json",
+        "source_licence": "internal/project-authored",
+        "source_use_note": "Human-review proposal only. This row is not approved curriculum authority and is not importable until a named reviewer approves it.",
+        "confidence": "medium",
+        "review_status": "in_review",
+        "row_status": "draft"
+      },
+      "canonical_word_metadata_csv": {
+        "word_key": "law_en_gb",
+        "syllables": 1,
+        "phoneme_hint": "/lɔː/",
+        "grapheme_notes": "CW-3A British-English pronunciation proposal; human review required.",
+        "stress_pattern": "single",
+        "has_schwa": false,
+        "morphemes": "law",
+        "morphology_notes": "Proposed single-base canonical component row for Compound Word v2 closure.",
+        "irregularity_notes": "",
+        "source_category": "internal_authored",
+        "source_name": "CW-3A Compound Word publication readiness proposal",
+        "source_url": "data/adle/review/d4-mor/v2/compound-word-v2-publication-review-input.json",
+        "source_licence": "internal/project-authored",
+        "source_use_note": "Human-review proposal only. This row is not approved curriculum authority and is not importable until a named reviewer approves it.",
+        "confidence": "medium",
+        "review_status": "in_review"
+      },
+      "canonical_word_morphology_csv": {
+        "word_key": "law_en_gb",
+        "morphology_parts": [
+          {
+            "text": "law",
+            "type": "base"
+          }
+        ],
+        "feature_keys": [],
+        "morphology_joins": [],
+        "transformation_notes": "",
+        "word_sum": "law",
+        "analysis_status": "in_review",
+        "source_category": "internal_authored",
+        "source_name": "CW-3A Compound Word publication readiness proposal",
+        "source_url": "data/adle/review/d4-mor/v2/compound-word-v2-publication-review-input.json",
+        "source_licence": "internal/project-authored",
+        "source_use_note": "Human-review proposal only. This row is not approved curriculum authority and is not importable until a named reviewer approves it.",
+        "confidence": "medium",
+        "review_status": "in_review",
+        "reviewed_by": null,
+        "reviewed_at": null,
+        "review_notes": "Approve against the existing Teaching Dictionary import contract before creating an append-only release package."
+      },
+      "dictation_sentences_csv": {
+        "word_key": "law_en_gb",
+        "display_word": "law",
+        "age_band": "middle_primary",
+        "complexity_band": "medium",
+        "dictation_sentence": "The new law protects wild birds.",
+        "dictation_target_token_index": 2,
+        "dictation_target_start": 2,
+        "dictation_target_end_exclusive": 3,
+        "audio_text": "The new law protects wild birds.",
+        "source_category": "internal_authored",
+        "source_name": "CW-3A Compound Word publication readiness proposal",
+        "source_url": "data/adle/review/d4-mor/v2/compound-word-v2-publication-review-input.json",
+        "source_licence": "internal/project-authored",
+        "source_use_note": "Human-review proposal only. This row is not approved curriculum authority and is not importable until a named reviewer approves it.",
+        "confidence": "medium",
+        "review_status": "in_review",
+        "reviewed_by": null,
+        "reviewed_at": null,
+        "review_notes": "Proposed British-English sentence; target span is deterministic but the sentence requires human approval."
+      },
+      "proposed_child_friendly_lexical_meaning": {
+        "value": "a rule, or the system of rules, that a community must follow",
+        "status": "proposed_for_review"
+      },
+      "ambiguity_review": "Approve the non-literal role of law inside the fixed family phrase in-law."
+    },
+    {
+      "canonical_word_id": null,
+      "review_state": "proposed_for_review",
+      "canonical_words_csv": {
+        "word_key": "mother_in_law_en_gb",
+        "normalised_word": "mother-in-law",
+        "display_word": "mother-in-law",
+        "dialect_code": "en-GB",
+        "frequency_band": "medium",
+        "age_band": "upper_primary",
+        "complexity_band": "high",
+        "source_category": "internal_authored",
+        "source_name": "CW-3A Compound Word publication readiness proposal",
+        "source_url": "data/adle/review/d4-mor/v2/compound-word-v2-publication-review-input.json",
+        "source_licence": "internal/project-authored",
+        "source_use_note": "Human-review proposal only. This row is not approved curriculum authority and is not importable until a named reviewer approves it.",
+        "confidence": "medium",
+        "review_status": "in_review",
+        "row_status": "draft"
+      },
+      "canonical_word_metadata_csv": {
+        "word_key": "mother_in_law_en_gb",
+        "syllables": 4,
+        "phoneme_hint": "/ˈmʌðərɪnˌlɔː/",
+        "grapheme_notes": "CW-3A British-English pronunciation proposal; human review required.",
+        "stress_pattern": "first-secondary",
+        "has_schwa": true,
+        "morphemes": "mother + in + law → mother-in-law",
+        "morphology_notes": "Reuse the human-approved D4 Compound Word analysis for ordered components and governed separators.",
+        "irregularity_notes": "",
+        "source_category": "internal_authored",
+        "source_name": "CW-3A Compound Word publication readiness proposal",
+        "source_url": "data/adle/review/d4-mor/v2/compound-word-v2-publication-review-input.json",
+        "source_licence": "internal/project-authored",
+        "source_use_note": "Human-review proposal only. This row is not approved curriculum authority and is not importable until a named reviewer approves it.",
+        "confidence": "medium",
+        "review_status": "in_review"
+      },
+      "canonical_word_morphology_csv": {
+        "word_key": "mother_in_law_en_gb",
+        "morphology_parts": [
+          {
+            "text": "mother",
+            "type": "base"
+          },
+          {
+            "text": "in",
+            "type": "base"
+          },
+          {
+            "text": "law",
+            "type": "base"
+          }
+        ],
+        "feature_keys": [],
+        "morphology_joins": [
+          "hyphen",
+          "hyphen"
+        ],
+        "transformation_notes": "",
+        "word_sum": "mother + in + law → mother-in-law",
+        "analysis_status": "in_review",
+        "source_category": "internal_authored",
+        "source_name": "CW-3A Compound Word publication readiness proposal",
+        "source_url": "data/adle/review/d4-mor/v2/compound-word-v2-publication-review-input.json",
+        "source_licence": "internal/project-authored",
+        "source_use_note": "Human-review proposal only. This row is not approved curriculum authority and is not importable until a named reviewer approves it.",
+        "confidence": "medium",
+        "review_status": "in_review",
+        "reviewed_by": null,
+        "reviewed_at": null,
+        "review_notes": "Approve against the existing Teaching Dictionary import contract before creating an append-only release package."
+      },
+      "dictation_sentences_csv": {
+        "word_key": "mother_in_law_en_gb",
+        "display_word": "mother-in-law",
+        "age_band": "upper_primary",
+        "complexity_band": "high",
+        "dictation_sentence": "Her mother-in-law came for lunch.",
+        "dictation_target_token_index": 1,
+        "dictation_target_start": 1,
+        "dictation_target_end_exclusive": 2,
+        "audio_text": "Her mother-in-law came for lunch.",
+        "source_category": "internal_authored",
+        "source_name": "CW-3A Compound Word publication readiness proposal",
+        "source_url": "data/adle/review/d4-mor/v2/compound-word-v2-publication-review-input.json",
+        "source_licence": "internal/project-authored",
+        "source_use_note": "Human-review proposal only. This row is not approved curriculum authority and is not importable until a named reviewer approves it.",
+        "confidence": "medium",
+        "review_status": "in_review",
+        "reviewed_by": null,
+        "reviewed_at": null,
+        "review_notes": "Proposed British-English sentence; target span is deterministic but the sentence requires human approval."
+      },
+      "proposed_child_friendly_lexical_meaning": {
+        "value": "the mother of a person's husband or wife",
+        "status": "proposed_for_review"
+      },
+      "ambiguity_review": "Approve in-law as a fixed grammatical unit showing a family link through marriage rather than a literal sum of in and law."
+    },
+    {
+      "canonical_word_id": null,
+      "review_state": "proposed_for_review",
+      "canonical_words_csv": {
+        "word_key": "part_en_gb",
+        "normalised_word": "part",
+        "display_word": "part",
+        "dialect_code": "en-GB",
+        "frequency_band": "high",
+        "age_band": "early_primary",
+        "complexity_band": "low",
+        "source_category": "internal_authored",
+        "source_name": "CW-3A Compound Word publication readiness proposal",
+        "source_url": "data/adle/review/d4-mor/v2/compound-word-v2-publication-review-input.json",
+        "source_licence": "internal/project-authored",
+        "source_use_note": "Human-review proposal only. This row is not approved curriculum authority and is not importable until a named reviewer approves it.",
+        "confidence": "medium",
+        "review_status": "in_review",
+        "row_status": "draft"
+      },
+      "canonical_word_metadata_csv": {
+        "word_key": "part_en_gb",
+        "syllables": 1,
+        "phoneme_hint": "/pɑːt/",
+        "grapheme_notes": "CW-3A British-English pronunciation proposal; human review required.",
+        "stress_pattern": "single",
+        "has_schwa": false,
+        "morphemes": "part",
+        "morphology_notes": "Proposed single-base canonical component row for Compound Word v2 closure.",
+        "irregularity_notes": "",
+        "source_category": "internal_authored",
+        "source_name": "CW-3A Compound Word publication readiness proposal",
+        "source_url": "data/adle/review/d4-mor/v2/compound-word-v2-publication-review-input.json",
+        "source_licence": "internal/project-authored",
+        "source_use_note": "Human-review proposal only. This row is not approved curriculum authority and is not importable until a named reviewer approves it.",
+        "confidence": "medium",
+        "review_status": "in_review"
+      },
+      "canonical_word_morphology_csv": {
+        "word_key": "part_en_gb",
+        "morphology_parts": [
+          {
+            "text": "part",
+            "type": "base"
+          }
+        ],
+        "feature_keys": [],
+        "morphology_joins": [],
+        "transformation_notes": "",
+        "word_sum": "part",
+        "analysis_status": "in_review",
+        "source_category": "internal_authored",
+        "source_name": "CW-3A Compound Word publication readiness proposal",
+        "source_url": "data/adle/review/d4-mor/v2/compound-word-v2-publication-review-input.json",
+        "source_licence": "internal/project-authored",
+        "source_use_note": "Human-review proposal only. This row is not approved curriculum authority and is not importable until a named reviewer approves it.",
+        "confidence": "medium",
+        "review_status": "in_review",
+        "reviewed_by": null,
+        "reviewed_at": null,
+        "review_notes": "Approve against the existing Teaching Dictionary import contract before creating an append-only release package."
+      },
+      "dictation_sentences_csv": {
+        "word_key": "part_en_gb",
+        "display_word": "part",
+        "age_band": "early_primary",
+        "complexity_band": "low",
+        "dictation_sentence": "I read one part of the story.",
+        "dictation_target_token_index": 3,
+        "dictation_target_start": 3,
+        "dictation_target_end_exclusive": 4,
+        "audio_text": "I read one part of the story.",
+        "source_category": "internal_authored",
+        "source_name": "CW-3A Compound Word publication readiness proposal",
+        "source_url": "data/adle/review/d4-mor/v2/compound-word-v2-publication-review-input.json",
+        "source_licence": "internal/project-authored",
+        "source_use_note": "Human-review proposal only. This row is not approved curriculum authority and is not importable until a named reviewer approves it.",
+        "confidence": "medium",
+        "review_status": "in_review",
+        "reviewed_by": null,
+        "reviewed_at": null,
+        "review_notes": "Proposed British-English sentence; target span is deterministic but the sentence requires human approval."
+      },
+      "proposed_child_friendly_lexical_meaning": {
+        "value": "some, but not all, of something",
+        "status": "proposed_for_review"
+      },
+      "ambiguity_review": null
+    },
+    {
+      "canonical_word_id": null,
+      "review_state": "proposed_for_review",
+      "canonical_words_csv": {
+        "word_key": "part_time_en_gb",
+        "normalised_word": "part-time",
+        "display_word": "part-time",
+        "dialect_code": "en-GB",
+        "frequency_band": "medium",
+        "age_band": "middle_primary",
+        "complexity_band": "medium",
+        "source_category": "internal_authored",
+        "source_name": "CW-3A Compound Word publication readiness proposal",
+        "source_url": "data/adle/review/d4-mor/v2/compound-word-v2-publication-review-input.json",
+        "source_licence": "internal/project-authored",
+        "source_use_note": "Human-review proposal only. This row is not approved curriculum authority and is not importable until a named reviewer approves it.",
+        "confidence": "medium",
+        "review_status": "in_review",
+        "row_status": "draft"
+      },
+      "canonical_word_metadata_csv": {
+        "word_key": "part_time_en_gb",
+        "syllables": 2,
+        "phoneme_hint": "/ˌpɑːtˈtaɪm/",
+        "grapheme_notes": "CW-3A British-English pronunciation proposal; human review required.",
+        "stress_pattern": "second",
+        "has_schwa": false,
+        "morphemes": "part + time → part-time",
+        "morphology_notes": "Reuse the human-approved D4 Compound Word analysis for ordered components and governed separators.",
+        "irregularity_notes": "",
+        "source_category": "internal_authored",
+        "source_name": "CW-3A Compound Word publication readiness proposal",
+        "source_url": "data/adle/review/d4-mor/v2/compound-word-v2-publication-review-input.json",
+        "source_licence": "internal/project-authored",
+        "source_use_note": "Human-review proposal only. This row is not approved curriculum authority and is not importable until a named reviewer approves it.",
+        "confidence": "medium",
+        "review_status": "in_review"
+      },
+      "canonical_word_morphology_csv": {
+        "word_key": "part_time_en_gb",
+        "morphology_parts": [
+          {
+            "text": "part",
+            "type": "base"
+          },
+          {
+            "text": "time",
+            "type": "base"
+          }
+        ],
+        "feature_keys": [],
+        "morphology_joins": [
+          "hyphen"
+        ],
+        "transformation_notes": "",
+        "word_sum": "part + time → part-time",
+        "analysis_status": "in_review",
+        "source_category": "internal_authored",
+        "source_name": "CW-3A Compound Word publication readiness proposal",
+        "source_url": "data/adle/review/d4-mor/v2/compound-word-v2-publication-review-input.json",
+        "source_licence": "internal/project-authored",
+        "source_use_note": "Human-review proposal only. This row is not approved curriculum authority and is not importable until a named reviewer approves it.",
+        "confidence": "medium",
+        "review_status": "in_review",
+        "reviewed_by": null,
+        "reviewed_at": null,
+        "review_notes": "Approve against the existing Teaching Dictionary import contract before creating an append-only release package."
+      },
+      "dictation_sentences_csv": {
+        "word_key": "part_time_en_gb",
+        "display_word": "part-time",
+        "age_band": "middle_primary",
+        "complexity_band": "medium",
+        "dictation_sentence": "Dad works part-time at the library.",
+        "dictation_target_token_index": 2,
+        "dictation_target_start": 2,
+        "dictation_target_end_exclusive": 3,
+        "audio_text": "Dad works part-time at the library.",
+        "source_category": "internal_authored",
+        "source_name": "CW-3A Compound Word publication readiness proposal",
+        "source_url": "data/adle/review/d4-mor/v2/compound-word-v2-publication-review-input.json",
+        "source_licence": "internal/project-authored",
+        "source_use_note": "Human-review proposal only. This row is not approved curriculum authority and is not importable until a named reviewer approves it.",
+        "confidence": "medium",
+        "review_status": "in_review",
+        "reviewed_by": null,
+        "reviewed_at": null,
+        "review_notes": "Proposed British-English sentence; target span is deterministic but the sentence requires human approval."
+      },
+      "proposed_child_friendly_lexical_meaning": {
+        "value": "for fewer hours than a full-time job or course",
+        "status": "proposed_for_review"
+      },
+      "ambiguity_review": null
+    },
+    {
+      "canonical_word_id": null,
+      "review_state": "proposed_for_review",
+      "canonical_words_csv": {
+        "word_key": "office_en_gb",
+        "normalised_word": "office",
+        "display_word": "office",
+        "dialect_code": "en-GB",
+        "frequency_band": "high",
+        "age_band": "early_primary",
+        "complexity_band": "medium",
+        "source_category": "internal_authored",
+        "source_name": "CW-3A Compound Word publication readiness proposal",
+        "source_url": "data/adle/review/d4-mor/v2/compound-word-v2-publication-review-input.json",
+        "source_licence": "internal/project-authored",
+        "source_use_note": "Human-review proposal only. This row is not approved curriculum authority and is not importable until a named reviewer approves it.",
+        "confidence": "medium",
+        "review_status": "in_review",
+        "row_status": "draft"
+      },
+      "canonical_word_metadata_csv": {
+        "word_key": "office_en_gb",
+        "syllables": 2,
+        "phoneme_hint": "/ˈɒfɪs/",
+        "grapheme_notes": "CW-3A British-English pronunciation proposal; human review required.",
+        "stress_pattern": "first",
+        "has_schwa": false,
+        "morphemes": "office",
+        "morphology_notes": "Proposed single-base canonical component row for Compound Word v2 closure.",
+        "irregularity_notes": "",
+        "source_category": "internal_authored",
+        "source_name": "CW-3A Compound Word publication readiness proposal",
+        "source_url": "data/adle/review/d4-mor/v2/compound-word-v2-publication-review-input.json",
+        "source_licence": "internal/project-authored",
+        "source_use_note": "Human-review proposal only. This row is not approved curriculum authority and is not importable until a named reviewer approves it.",
+        "confidence": "medium",
+        "review_status": "in_review"
+      },
+      "canonical_word_morphology_csv": {
+        "word_key": "office_en_gb",
+        "morphology_parts": [
+          {
+            "text": "office",
+            "type": "base"
+          }
+        ],
+        "feature_keys": [],
+        "morphology_joins": [],
+        "transformation_notes": "",
+        "word_sum": "office",
+        "analysis_status": "in_review",
+        "source_category": "internal_authored",
+        "source_name": "CW-3A Compound Word publication readiness proposal",
+        "source_url": "data/adle/review/d4-mor/v2/compound-word-v2-publication-review-input.json",
+        "source_licence": "internal/project-authored",
+        "source_use_note": "Human-review proposal only. This row is not approved curriculum authority and is not importable until a named reviewer approves it.",
+        "confidence": "medium",
+        "review_status": "in_review",
+        "reviewed_by": null,
+        "reviewed_at": null,
+        "review_notes": "Approve against the existing Teaching Dictionary import contract before creating an append-only release package."
+      },
+      "dictation_sentences_csv": {
+        "word_key": "office_en_gb",
+        "display_word": "office",
+        "age_band": "early_primary",
+        "complexity_band": "medium",
+        "dictation_sentence": "The school office is near the entrance.",
+        "dictation_target_token_index": 2,
+        "dictation_target_start": 2,
+        "dictation_target_end_exclusive": 3,
+        "audio_text": "The school office is near the entrance.",
+        "source_category": "internal_authored",
+        "source_name": "CW-3A Compound Word publication readiness proposal",
+        "source_url": "data/adle/review/d4-mor/v2/compound-word-v2-publication-review-input.json",
+        "source_licence": "internal/project-authored",
+        "source_use_note": "Human-review proposal only. This row is not approved curriculum authority and is not importable until a named reviewer approves it.",
+        "confidence": "medium",
+        "review_status": "in_review",
+        "reviewed_by": null,
+        "reviewed_at": null,
+        "review_notes": "Proposed British-English sentence; target span is deterministic but the sentence requires human approval."
+      },
+      "proposed_child_friendly_lexical_meaning": {
+        "value": "a room or place where people do work",
+        "status": "proposed_for_review"
+      },
+      "ambiguity_review": null
+    },
+    {
+      "canonical_word_id": null,
+      "review_state": "proposed_for_review",
+      "canonical_words_csv": {
+        "word_key": "post_office_en_gb",
+        "normalised_word": "post office",
+        "display_word": "post office",
+        "dialect_code": "en-GB",
+        "frequency_band": "medium",
+        "age_band": "early_primary",
+        "complexity_band": "medium",
+        "source_category": "internal_authored",
+        "source_name": "CW-3A Compound Word publication readiness proposal",
+        "source_url": "data/adle/review/d4-mor/v2/compound-word-v2-publication-review-input.json",
+        "source_licence": "internal/project-authored",
+        "source_use_note": "Human-review proposal only. This row is not approved curriculum authority and is not importable until a named reviewer approves it.",
+        "confidence": "medium",
+        "review_status": "in_review",
+        "row_status": "draft"
+      },
+      "canonical_word_metadata_csv": {
+        "word_key": "post_office_en_gb",
+        "syllables": 3,
+        "phoneme_hint": "/ˈpəʊst ˌɒfɪs/",
+        "grapheme_notes": "CW-3A British-English pronunciation proposal; human review required.",
+        "stress_pattern": "first-secondary",
+        "has_schwa": false,
+        "morphemes": "post + office → post office",
+        "morphology_notes": "Reuse the human-approved D4 Compound Word analysis for ordered components and governed separators.",
+        "irregularity_notes": "",
+        "source_category": "internal_authored",
+        "source_name": "CW-3A Compound Word publication readiness proposal",
+        "source_url": "data/adle/review/d4-mor/v2/compound-word-v2-publication-review-input.json",
+        "source_licence": "internal/project-authored",
+        "source_use_note": "Human-review proposal only. This row is not approved curriculum authority and is not importable until a named reviewer approves it.",
+        "confidence": "medium",
+        "review_status": "in_review"
+      },
+      "canonical_word_morphology_csv": {
+        "word_key": "post_office_en_gb",
+        "morphology_parts": [
+          {
+            "text": "post",
+            "type": "base"
+          },
+          {
+            "text": "office",
+            "type": "base"
+          }
+        ],
+        "feature_keys": [],
+        "morphology_joins": [
+          "space"
+        ],
+        "transformation_notes": "",
+        "word_sum": "post + office → post office",
+        "analysis_status": "in_review",
+        "source_category": "internal_authored",
+        "source_name": "CW-3A Compound Word publication readiness proposal",
+        "source_url": "data/adle/review/d4-mor/v2/compound-word-v2-publication-review-input.json",
+        "source_licence": "internal/project-authored",
+        "source_use_note": "Human-review proposal only. This row is not approved curriculum authority and is not importable until a named reviewer approves it.",
+        "confidence": "medium",
+        "review_status": "in_review",
+        "reviewed_by": null,
+        "reviewed_at": null,
+        "review_notes": "Approve against the existing Teaching Dictionary import contract before creating an append-only release package."
+      },
+      "dictation_sentences_csv": {
+        "word_key": "post_office_en_gb",
+        "display_word": "post office",
+        "age_band": "early_primary",
+        "complexity_band": "medium",
+        "dictation_sentence": "We bought stamps at the post office.",
+        "dictation_target_token_index": 5,
+        "dictation_target_start": 5,
+        "dictation_target_end_exclusive": 7,
+        "audio_text": "We bought stamps at the post office.",
+        "source_category": "internal_authored",
+        "source_name": "CW-3A Compound Word publication readiness proposal",
+        "source_url": "data/adle/review/d4-mor/v2/compound-word-v2-publication-review-input.json",
+        "source_licence": "internal/project-authored",
+        "source_use_note": "Human-review proposal only. This row is not approved curriculum authority and is not importable until a named reviewer approves it.",
+        "confidence": "medium",
+        "review_status": "in_review",
+        "reviewed_by": null,
+        "reviewed_at": null,
+        "review_notes": "Proposed British-English sentence; target span is deterministic but the sentence requires human approval."
+      },
+      "proposed_child_friendly_lexical_meaning": {
+        "value": "a place where letters and parcels are sent and collected",
+        "status": "proposed_for_review"
+      },
+      "ambiguity_review": null
+    },
+    {
+      "canonical_word_id": null,
+      "review_state": "proposed_for_review",
+      "canonical_words_csv": {
+        "word_key": "twenty_en_gb",
+        "normalised_word": "twenty",
+        "display_word": "twenty",
+        "dialect_code": "en-GB",
+        "frequency_band": "high",
+        "age_band": "early_primary",
+        "complexity_band": "medium",
+        "source_category": "internal_authored",
+        "source_name": "CW-3A Compound Word publication readiness proposal",
+        "source_url": "data/adle/review/d4-mor/v2/compound-word-v2-publication-review-input.json",
+        "source_licence": "internal/project-authored",
+        "source_use_note": "Human-review proposal only. This row is not approved curriculum authority and is not importable until a named reviewer approves it.",
+        "confidence": "medium",
+        "review_status": "in_review",
+        "row_status": "draft"
+      },
+      "canonical_word_metadata_csv": {
+        "word_key": "twenty_en_gb",
+        "syllables": 2,
+        "phoneme_hint": "/ˈtwenti/",
+        "grapheme_notes": "CW-3A British-English pronunciation proposal; human review required.",
+        "stress_pattern": "first",
+        "has_schwa": false,
+        "morphemes": "twenty",
+        "morphology_notes": "Proposed single-base canonical component row for Compound Word v2 closure.",
+        "irregularity_notes": "",
+        "source_category": "internal_authored",
+        "source_name": "CW-3A Compound Word publication readiness proposal",
+        "source_url": "data/adle/review/d4-mor/v2/compound-word-v2-publication-review-input.json",
+        "source_licence": "internal/project-authored",
+        "source_use_note": "Human-review proposal only. This row is not approved curriculum authority and is not importable until a named reviewer approves it.",
+        "confidence": "medium",
+        "review_status": "in_review"
+      },
+      "canonical_word_morphology_csv": {
+        "word_key": "twenty_en_gb",
+        "morphology_parts": [
+          {
+            "text": "twenty",
+            "type": "base"
+          }
+        ],
+        "feature_keys": [],
+        "morphology_joins": [],
+        "transformation_notes": "",
+        "word_sum": "twenty",
+        "analysis_status": "in_review",
+        "source_category": "internal_authored",
+        "source_name": "CW-3A Compound Word publication readiness proposal",
+        "source_url": "data/adle/review/d4-mor/v2/compound-word-v2-publication-review-input.json",
+        "source_licence": "internal/project-authored",
+        "source_use_note": "Human-review proposal only. This row is not approved curriculum authority and is not importable until a named reviewer approves it.",
+        "confidence": "medium",
+        "review_status": "in_review",
+        "reviewed_by": null,
+        "reviewed_at": null,
+        "review_notes": "Approve against the existing Teaching Dictionary import contract before creating an append-only release package."
+      },
+      "dictation_sentences_csv": {
+        "word_key": "twenty_en_gb",
+        "display_word": "twenty",
+        "age_band": "early_primary",
+        "complexity_band": "medium",
+        "dictation_sentence": "There are twenty pencils in the box.",
+        "dictation_target_token_index": 2,
+        "dictation_target_start": 2,
+        "dictation_target_end_exclusive": 3,
+        "audio_text": "There are twenty pencils in the box.",
+        "source_category": "internal_authored",
+        "source_name": "CW-3A Compound Word publication readiness proposal",
+        "source_url": "data/adle/review/d4-mor/v2/compound-word-v2-publication-review-input.json",
+        "source_licence": "internal/project-authored",
+        "source_use_note": "Human-review proposal only. This row is not approved curriculum authority and is not importable until a named reviewer approves it.",
+        "confidence": "medium",
+        "review_status": "in_review",
+        "reviewed_by": null,
+        "reviewed_at": null,
+        "review_notes": "Proposed British-English sentence; target span is deterministic but the sentence requires human approval."
+      },
+      "proposed_child_friendly_lexical_meaning": {
+        "value": "the number 20",
+        "status": "proposed_for_review"
+      },
+      "ambiguity_review": null
+    },
+    {
+      "canonical_word_id": null,
+      "review_state": "proposed_for_review",
+      "canonical_words_csv": {
+        "word_key": "known_en_gb",
+        "normalised_word": "known",
+        "display_word": "known",
+        "dialect_code": "en-GB",
+        "frequency_band": "high",
+        "age_band": "middle_primary",
+        "complexity_band": "medium",
+        "source_category": "internal_authored",
+        "source_name": "CW-3A Compound Word publication readiness proposal",
+        "source_url": "data/adle/review/d4-mor/v2/compound-word-v2-publication-review-input.json",
+        "source_licence": "internal/project-authored",
+        "source_use_note": "Human-review proposal only. This row is not approved curriculum authority and is not importable until a named reviewer approves it.",
+        "confidence": "medium",
+        "review_status": "in_review",
+        "row_status": "draft"
+      },
+      "canonical_word_metadata_csv": {
+        "word_key": "known_en_gb",
+        "syllables": 1,
+        "phoneme_hint": "/nəʊn/",
+        "grapheme_notes": "CW-3A British-English pronunciation proposal; human review required.",
+        "stress_pattern": "single",
+        "has_schwa": false,
+        "morphemes": "known",
+        "morphology_notes": "Proposed single-base canonical component row for Compound Word v2 closure.",
+        "irregularity_notes": "",
+        "source_category": "internal_authored",
+        "source_name": "CW-3A Compound Word publication readiness proposal",
+        "source_url": "data/adle/review/d4-mor/v2/compound-word-v2-publication-review-input.json",
+        "source_licence": "internal/project-authored",
+        "source_use_note": "Human-review proposal only. This row is not approved curriculum authority and is not importable until a named reviewer approves it.",
+        "confidence": "medium",
+        "review_status": "in_review"
+      },
+      "canonical_word_morphology_csv": {
+        "word_key": "known_en_gb",
+        "morphology_parts": [
+          {
+            "text": "known",
+            "type": "base"
+          }
+        ],
+        "feature_keys": [],
+        "morphology_joins": [],
+        "transformation_notes": "",
+        "word_sum": "known",
+        "analysis_status": "in_review",
+        "source_category": "internal_authored",
+        "source_name": "CW-3A Compound Word publication readiness proposal",
+        "source_url": "data/adle/review/d4-mor/v2/compound-word-v2-publication-review-input.json",
+        "source_licence": "internal/project-authored",
+        "source_use_note": "Human-review proposal only. This row is not approved curriculum authority and is not importable until a named reviewer approves it.",
+        "confidence": "medium",
+        "review_status": "in_review",
+        "reviewed_by": null,
+        "reviewed_at": null,
+        "review_notes": "Approve against the existing Teaching Dictionary import contract before creating an append-only release package."
+      },
+      "dictation_sentences_csv": {
+        "word_key": "known_en_gb",
+        "display_word": "known",
+        "age_band": "middle_primary",
+        "complexity_band": "medium",
+        "dictation_sentence": "This story is known around the world.",
+        "dictation_target_token_index": 3,
+        "dictation_target_start": 3,
+        "dictation_target_end_exclusive": 4,
+        "audio_text": "This story is known around the world.",
+        "source_category": "internal_authored",
+        "source_name": "CW-3A Compound Word publication readiness proposal",
+        "source_url": "data/adle/review/d4-mor/v2/compound-word-v2-publication-review-input.json",
+        "source_licence": "internal/project-authored",
+        "source_use_note": "Human-review proposal only. This row is not approved curriculum authority and is not importable until a named reviewer approves it.",
+        "confidence": "medium",
+        "review_status": "in_review",
+        "reviewed_by": null,
+        "reviewed_at": null,
+        "review_notes": "Proposed British-English sentence; target span is deterministic but the sentence requires human approval."
+      },
+      "proposed_child_friendly_lexical_meaning": {
+        "value": "recognised or understood because people have heard or learned about it",
+        "status": "proposed_for_review"
+      },
+      "ambiguity_review": null
+    },
+    {
+      "canonical_word_id": null,
+      "review_state": "proposed_for_review",
+      "canonical_words_csv": {
+        "word_key": "well_known_en_gb",
+        "normalised_word": "well-known",
+        "display_word": "well-known",
+        "dialect_code": "en-GB",
+        "frequency_band": "medium",
+        "age_band": "middle_primary",
+        "complexity_band": "medium",
+        "source_category": "internal_authored",
+        "source_name": "CW-3A Compound Word publication readiness proposal",
+        "source_url": "data/adle/review/d4-mor/v2/compound-word-v2-publication-review-input.json",
+        "source_licence": "internal/project-authored",
+        "source_use_note": "Human-review proposal only. This row is not approved curriculum authority and is not importable until a named reviewer approves it.",
+        "confidence": "medium",
+        "review_status": "in_review",
+        "row_status": "draft"
+      },
+      "canonical_word_metadata_csv": {
+        "word_key": "well_known_en_gb",
+        "syllables": 2,
+        "phoneme_hint": "/ˌwelˈnəʊn/",
+        "grapheme_notes": "CW-3A British-English pronunciation proposal; human review required.",
+        "stress_pattern": "second",
+        "has_schwa": false,
+        "morphemes": "well + known → well-known",
+        "morphology_notes": "Reuse the human-approved D4 Compound Word analysis for ordered components and governed separators.",
+        "irregularity_notes": "",
+        "source_category": "internal_authored",
+        "source_name": "CW-3A Compound Word publication readiness proposal",
+        "source_url": "data/adle/review/d4-mor/v2/compound-word-v2-publication-review-input.json",
+        "source_licence": "internal/project-authored",
+        "source_use_note": "Human-review proposal only. This row is not approved curriculum authority and is not importable until a named reviewer approves it.",
+        "confidence": "medium",
+        "review_status": "in_review"
+      },
+      "canonical_word_morphology_csv": {
+        "word_key": "well_known_en_gb",
+        "morphology_parts": [
+          {
+            "text": "well",
+            "type": "base"
+          },
+          {
+            "text": "known",
+            "type": "base"
+          }
+        ],
+        "feature_keys": [],
+        "morphology_joins": [
+          "hyphen"
+        ],
+        "transformation_notes": "",
+        "word_sum": "well + known → well-known",
+        "analysis_status": "in_review",
+        "source_category": "internal_authored",
+        "source_name": "CW-3A Compound Word publication readiness proposal",
+        "source_url": "data/adle/review/d4-mor/v2/compound-word-v2-publication-review-input.json",
+        "source_licence": "internal/project-authored",
+        "source_use_note": "Human-review proposal only. This row is not approved curriculum authority and is not importable until a named reviewer approves it.",
+        "confidence": "medium",
+        "review_status": "in_review",
+        "reviewed_by": null,
+        "reviewed_at": null,
+        "review_notes": "Approve against the existing Teaching Dictionary import contract before creating an append-only release package."
+      },
+      "dictation_sentences_csv": {
+        "word_key": "well_known_en_gb",
+        "display_word": "well-known",
+        "age_band": "middle_primary",
+        "complexity_band": "medium",
+        "dictation_sentence": "The castle is a well-known landmark.",
+        "dictation_target_token_index": 4,
+        "dictation_target_start": 4,
+        "dictation_target_end_exclusive": 5,
+        "audio_text": "The castle is a well-known landmark.",
+        "source_category": "internal_authored",
+        "source_name": "CW-3A Compound Word publication readiness proposal",
+        "source_url": "data/adle/review/d4-mor/v2/compound-word-v2-publication-review-input.json",
+        "source_licence": "internal/project-authored",
+        "source_use_note": "Human-review proposal only. This row is not approved curriculum authority and is not importable until a named reviewer approves it.",
+        "confidence": "medium",
+        "review_status": "in_review",
+        "reviewed_by": null,
+        "reviewed_at": null,
+        "review_notes": "Proposed British-English sentence; target span is deterministic but the sentence requires human approval."
+      },
+      "proposed_child_friendly_lexical_meaning": {
+        "value": "known by many people",
+        "status": "proposed_for_review"
+      },
+      "ambiguity_review": null
+    }
+  ],
+  "rows": [
+    {
+      "micro_skill_key": "D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS",
+      "whole_word": "bedroom",
+      "whole_canonical_word_id": "471b01bb-6a54-595d-95e2-b1a06edcbc8a",
+      "whole_canonical_identity_status": "approved_existing_governed_reuse",
+      "compound_form": "closed",
+      "component_count": 2,
+      "components": [
+        {
+          "ordinal": 1,
+          "display_surface": "bed",
+          "canonical_word_id": "a69eab89-ea57-5cce-82c7-1378290b4614",
+          "canonical_identity_status": "approved_existing_governed_reuse",
+          "meaning": {
+            "value": "furniture that you sleep in",
+            "status": "approved_existing_governed_reuse",
+            "provenance": "data/adle/candidates/d4-mor-remaining-profiles/v1/closed-compounds-dictionary-pool-review.json#bedroom.firstWordMeaning"
+          },
+          "sense": "furniture that you sleep in"
+        },
+        {
+          "ordinal": 2,
+          "display_surface": "room",
+          "canonical_word_id": "6edd2d51-c382-5f75-961b-eac559db8dd0",
+          "canonical_identity_status": "approved_existing_governed_reuse",
+          "meaning": {
+            "value": "a space inside a building",
+            "status": "approved_existing_governed_reuse",
+            "provenance": "data/adle/candidates/d4-mor-remaining-profiles/v1/closed-compounds-dictionary-pool-review.json#bedroom.secondWordMeaning"
+          },
+          "sense": "a space inside a building"
+        }
+      ],
+      "ordered_component_surfaces": [
+        "bed",
+        "room"
+      ],
+      "ordered_component_canonical_word_ids": [
+        "a69eab89-ea57-5cce-82c7-1378290b4614",
+        "6edd2d51-c382-5f75-961b-eac559db8dd0"
+      ],
+      "ordered_joins": [
+        "none"
+      ],
+      "reconstructed_written_form": "bedroom",
+      "whole_child_friendly_meaning": {
+        "value": "a room where someone sleeps",
+        "status": "approved_existing_governed_reuse",
+        "provenance": "data/adle/candidates/d4-mor-remaining-profiles/v1/closed-compounds-dictionary-pool-review.json#bedroom.definition"
+      },
+      "component_to_whole_relationship": {
+        "value": "A bedroom is a room with a bed, used for sleeping.",
+        "status": "proposed_for_review",
+        "provenance": "CW-3A child-friendly semantic proposal"
+      },
+      "dictation": {
+        "sentence": "Mother took the baby to the bedroom.",
+        "target_start": 6,
+        "target_end_exclusive": 7,
+        "exact_governed_answer": "bedroom",
+        "target_span_status": "exact_deterministic",
+        "review_status": "approved_existing_governed_reuse",
+        "provenance": "data/adle/candidates/d4-mor-remaining-profiles/v1/closed-compounds-dictionary-pool-review.json#bedroom.dictation"
+      },
+      "assignment_eligibility": {
+        "value": true,
+        "status": "approved_existing_governed_reuse",
+        "provenance": "Production canonical_teaching_dictionary_compound_facts#bedroom"
+      },
+      "structure_provenance": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Word Bank",
+        "row": 116,
+        "approval_status": "human_approved",
+        "human_review_status": "approved",
+        "released_fact_provenance": {
+          "package_sha256": "841f13b525f6be22274ad3fa0b40957e43f9fadae72ecc873003c38b32096547",
+          "approved_review_artifact": "data/adle/candidates/d4-mor-remaining-profiles/v1/closed-compounds-dictionary-pool-review.json"
+        },
+        "released_fact_source": {
+          "sheet": "closed-compounds-dictionary-pool-review.json",
+          "row": 2,
+          "row_hash": "79f4e209ca603f0195d509253aa25bf747a0099c1cc53c67f6675d2fcab16556",
+          "review_status": "approved_for_first_exposure"
+        }
+      },
+      "source_provenance": [
+        {
+          "kind": "approved_compound_structure",
+          "value": {
+            "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+            "sheet": "Word Bank",
+            "row": 116,
+            "approval_status": "human_approved",
+            "human_review_status": "approved",
+            "released_fact_provenance": {
+              "package_sha256": "841f13b525f6be22274ad3fa0b40957e43f9fadae72ecc873003c38b32096547",
+              "approved_review_artifact": "data/adle/candidates/d4-mor-remaining-profiles/v1/closed-compounds-dictionary-pool-review.json"
+            },
+            "released_fact_source": {
+              "sheet": "closed-compounds-dictionary-pool-review.json",
+              "row": 2,
+              "row_hash": "79f4e209ca603f0195d509253aa25bf747a0099c1cc53c67f6675d2fcab16556",
+              "review_status": "approved_for_first_exposure"
+            }
+          }
+        },
+        {
+          "kind": "governed_reuse",
+          "value": "approved_structure:source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx#row=116"
+        },
+        {
+          "kind": "governed_reuse",
+          "value": "approved_whole_identity:471b01bb-6a54-595d-95e2-b1a06edcbc8a"
+        },
+        {
+          "kind": "governed_reuse",
+          "value": "approved_component_identity:bed:a69eab89-ea57-5cce-82c7-1378290b4614"
+        },
+        {
+          "kind": "governed_reuse",
+          "value": "approved_component_identity:room:6edd2d51-c382-5f75-961b-eac559db8dd0"
+        },
+        {
+          "kind": "governed_reuse",
+          "value": "approved_meaning:data/adle/candidates/d4-mor-remaining-profiles/v1/closed-compounds-dictionary-pool-review.json#bedroom.firstWordMeaning"
+        },
+        {
+          "kind": "governed_reuse",
+          "value": "approved_meaning:data/adle/candidates/d4-mor-remaining-profiles/v1/closed-compounds-dictionary-pool-review.json#bedroom.secondWordMeaning"
+        },
+        {
+          "kind": "governed_reuse",
+          "value": "approved_whole_meaning:data/adle/candidates/d4-mor-remaining-profiles/v1/closed-compounds-dictionary-pool-review.json#bedroom.definition"
+        },
+        {
+          "kind": "governed_reuse",
+          "value": "approved_dictation:data/adle/candidates/d4-mor-remaining-profiles/v1/closed-compounds-dictionary-pool-review.json#bedroom.dictation"
+        },
+        {
+          "kind": "governed_reuse",
+          "value": "approved_assignment_eligibility:Production canonical_teaching_dictionary_compound_facts#bedroom"
+        }
+      ],
+      "existing_governed_reuse": [
+        "approved_structure:source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx#row=116",
+        "approved_whole_identity:471b01bb-6a54-595d-95e2-b1a06edcbc8a",
+        "approved_component_identity:bed:a69eab89-ea57-5cce-82c7-1378290b4614",
+        "approved_component_identity:room:6edd2d51-c382-5f75-961b-eac559db8dd0",
+        "approved_meaning:data/adle/candidates/d4-mor-remaining-profiles/v1/closed-compounds-dictionary-pool-review.json#bedroom.firstWordMeaning",
+        "approved_meaning:data/adle/candidates/d4-mor-remaining-profiles/v1/closed-compounds-dictionary-pool-review.json#bedroom.secondWordMeaning",
+        "approved_whole_meaning:data/adle/candidates/d4-mor-remaining-profiles/v1/closed-compounds-dictionary-pool-review.json#bedroom.definition",
+        "approved_dictation:data/adle/candidates/d4-mor-remaining-profiles/v1/closed-compounds-dictionary-pool-review.json#bedroom.dictation",
+        "approved_assignment_eligibility:Production canonical_teaching_dictionary_compound_facts#bedroom"
+      ],
+      "publication_ready": false,
+      "current_blocker": "approve_component_to_whole_relationship:bedroom",
+      "publication_blockers": [
+        "approve_component_to_whole_relationship:bedroom"
+      ],
+      "required_action": "Approve or amend the proposed component-to-whole relationship; no other governed fact needs review.",
+      "human_review_required": [
+        "approve_component_to_whole_relationship:bedroom"
+      ],
+      "readiness_classification": "semantic_relationship_review_only",
+      "genuine_ambiguity": null,
+      "review_decision": "pending_human_review"
+    },
+    {
+      "micro_skill_key": "D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS",
+      "whole_word": "football",
+      "whole_canonical_word_id": "2c8be08f-1205-5422-9799-f95b43a455f8",
+      "whole_canonical_identity_status": "approved_existing_governed_reuse",
+      "compound_form": "closed",
+      "component_count": 2,
+      "components": [
+        {
+          "ordinal": 1,
+          "display_surface": "foot",
+          "canonical_word_id": "377bae8a-c334-5d33-81ae-6c4186772d7d",
+          "canonical_identity_status": "approved_existing_governed_reuse",
+          "meaning": {
+            "value": "the part at the end of your leg",
+            "status": "approved_existing_governed_reuse",
+            "provenance": "data/adle/candidates/d4-mor-remaining-profiles/v1/closed-compounds-dictionary-pool-review.json#football.firstWordMeaning"
+          },
+          "sense": "the part at the end of your leg"
+        },
+        {
+          "ordinal": 2,
+          "display_surface": "ball",
+          "canonical_word_id": "c95a7b7f-0cac-5513-b374-95cba442dca7",
+          "canonical_identity_status": "approved_existing_governed_reuse",
+          "meaning": {
+            "value": "a round object used in games",
+            "status": "approved_existing_governed_reuse",
+            "provenance": "data/adle/candidates/d4-mor-remaining-profiles/v1/closed-compounds-dictionary-pool-review.json#football.secondWordMeaning"
+          },
+          "sense": "a round object used in games"
+        }
+      ],
+      "ordered_component_surfaces": [
+        "foot",
+        "ball"
+      ],
+      "ordered_component_canonical_word_ids": [
+        "377bae8a-c334-5d33-81ae-6c4186772d7d",
+        "c95a7b7f-0cac-5513-b374-95cba442dca7"
+      ],
+      "ordered_joins": [
+        "none"
+      ],
+      "reconstructed_written_form": "football",
+      "whole_child_friendly_meaning": {
+        "value": "a game where players kick a ball into goals",
+        "status": "approved_existing_governed_reuse",
+        "provenance": "data/adle/candidates/d4-mor-remaining-profiles/v1/closed-compounds-dictionary-pool-review.json#football.definition"
+      },
+      "component_to_whole_relationship": {
+        "value": "Football is a game played with a ball mainly using the feet.",
+        "status": "proposed_for_review",
+        "provenance": "CW-3A child-friendly semantic proposal"
+      },
+      "dictation": {
+        "sentence": "Children play football in the playground.",
+        "target_start": 2,
+        "target_end_exclusive": 3,
+        "exact_governed_answer": "football",
+        "target_span_status": "exact_deterministic",
+        "review_status": "approved_existing_governed_reuse",
+        "provenance": "data/adle/candidates/d4-mor-remaining-profiles/v1/closed-compounds-dictionary-pool-review.json#football.dictation"
+      },
+      "assignment_eligibility": {
+        "value": true,
+        "status": "approved_existing_governed_reuse",
+        "provenance": "Production canonical_teaching_dictionary_compound_facts#football"
+      },
+      "structure_provenance": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Word Bank",
+        "row": 114,
+        "approval_status": "human_approved",
+        "human_review_status": "approved",
+        "released_fact_provenance": {
+          "package_sha256": "841f13b525f6be22274ad3fa0b40957e43f9fadae72ecc873003c38b32096547",
+          "approved_review_artifact": "data/adle/candidates/d4-mor-remaining-profiles/v1/closed-compounds-dictionary-pool-review.json"
+        },
+        "released_fact_source": {
+          "sheet": "closed-compounds-dictionary-pool-review.json",
+          "row": 4,
+          "row_hash": "f845b2716eea47aa8ccf1f7d5c80abe4f0b98e7edbe1c198cedaab09c91e4f88",
+          "review_status": "approved_for_first_exposure"
+        }
+      },
+      "source_provenance": [
+        {
+          "kind": "approved_compound_structure",
+          "value": {
+            "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+            "sheet": "Word Bank",
+            "row": 114,
+            "approval_status": "human_approved",
+            "human_review_status": "approved",
+            "released_fact_provenance": {
+              "package_sha256": "841f13b525f6be22274ad3fa0b40957e43f9fadae72ecc873003c38b32096547",
+              "approved_review_artifact": "data/adle/candidates/d4-mor-remaining-profiles/v1/closed-compounds-dictionary-pool-review.json"
+            },
+            "released_fact_source": {
+              "sheet": "closed-compounds-dictionary-pool-review.json",
+              "row": 4,
+              "row_hash": "f845b2716eea47aa8ccf1f7d5c80abe4f0b98e7edbe1c198cedaab09c91e4f88",
+              "review_status": "approved_for_first_exposure"
+            }
+          }
+        },
+        {
+          "kind": "governed_reuse",
+          "value": "approved_structure:source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx#row=114"
+        },
+        {
+          "kind": "governed_reuse",
+          "value": "approved_whole_identity:2c8be08f-1205-5422-9799-f95b43a455f8"
+        },
+        {
+          "kind": "governed_reuse",
+          "value": "approved_component_identity:foot:377bae8a-c334-5d33-81ae-6c4186772d7d"
+        },
+        {
+          "kind": "governed_reuse",
+          "value": "approved_component_identity:ball:c95a7b7f-0cac-5513-b374-95cba442dca7"
+        },
+        {
+          "kind": "governed_reuse",
+          "value": "approved_meaning:data/adle/candidates/d4-mor-remaining-profiles/v1/closed-compounds-dictionary-pool-review.json#football.firstWordMeaning"
+        },
+        {
+          "kind": "governed_reuse",
+          "value": "approved_meaning:data/adle/candidates/d4-mor-remaining-profiles/v1/closed-compounds-dictionary-pool-review.json#football.secondWordMeaning"
+        },
+        {
+          "kind": "governed_reuse",
+          "value": "approved_whole_meaning:data/adle/candidates/d4-mor-remaining-profiles/v1/closed-compounds-dictionary-pool-review.json#football.definition"
+        },
+        {
+          "kind": "governed_reuse",
+          "value": "approved_dictation:data/adle/candidates/d4-mor-remaining-profiles/v1/closed-compounds-dictionary-pool-review.json#football.dictation"
+        },
+        {
+          "kind": "governed_reuse",
+          "value": "approved_assignment_eligibility:Production canonical_teaching_dictionary_compound_facts#football"
+        }
+      ],
+      "existing_governed_reuse": [
+        "approved_structure:source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx#row=114",
+        "approved_whole_identity:2c8be08f-1205-5422-9799-f95b43a455f8",
+        "approved_component_identity:foot:377bae8a-c334-5d33-81ae-6c4186772d7d",
+        "approved_component_identity:ball:c95a7b7f-0cac-5513-b374-95cba442dca7",
+        "approved_meaning:data/adle/candidates/d4-mor-remaining-profiles/v1/closed-compounds-dictionary-pool-review.json#football.firstWordMeaning",
+        "approved_meaning:data/adle/candidates/d4-mor-remaining-profiles/v1/closed-compounds-dictionary-pool-review.json#football.secondWordMeaning",
+        "approved_whole_meaning:data/adle/candidates/d4-mor-remaining-profiles/v1/closed-compounds-dictionary-pool-review.json#football.definition",
+        "approved_dictation:data/adle/candidates/d4-mor-remaining-profiles/v1/closed-compounds-dictionary-pool-review.json#football.dictation",
+        "approved_assignment_eligibility:Production canonical_teaching_dictionary_compound_facts#football"
+      ],
+      "publication_ready": false,
+      "current_blocker": "approve_component_to_whole_relationship:football",
+      "publication_blockers": [
+        "approve_component_to_whole_relationship:football"
+      ],
+      "required_action": "Approve or amend the proposed component-to-whole relationship; no other governed fact needs review.",
+      "human_review_required": [
+        "approve_component_to_whole_relationship:football"
+      ],
+      "readiness_classification": "semantic_relationship_review_only",
+      "genuine_ambiguity": null,
+      "review_decision": "pending_human_review"
+    },
+    {
+      "micro_skill_key": "D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS",
+      "whole_word": "grandmother",
+      "whole_canonical_word_id": null,
+      "whole_canonical_identity_status": "proposed_for_review",
+      "compound_form": "closed",
+      "component_count": 2,
+      "components": [
+        {
+          "ordinal": 1,
+          "display_surface": "grand",
+          "canonical_word_id": null,
+          "canonical_identity_status": "proposed_for_review",
+          "meaning": {
+            "value": "in a family word, one generation before a parent",
+            "status": "proposed_for_review",
+            "provenance": "CW-3A proposal from the approved grandmother structure"
+          },
+          "sense": "in a family word, one generation before a parent"
+        },
+        {
+          "ordinal": 2,
+          "display_surface": "mother",
+          "canonical_word_id": "6f8a5d74-5775-5048-88b0-4763da263be6",
+          "canonical_identity_status": "approved_existing_governed_reuse",
+          "meaning": {
+            "value": "a female parent",
+            "status": "proposed_for_review",
+            "provenance": "CW-3A proposal from the approved grandmother structure"
+          },
+          "sense": "a female parent"
+        }
+      ],
+      "ordered_component_surfaces": [
+        "grand",
+        "mother"
+      ],
+      "ordered_component_canonical_word_ids": [
+        null,
+        "6f8a5d74-5775-5048-88b0-4763da263be6"
+      ],
+      "ordered_joins": [
+        "none"
+      ],
+      "reconstructed_written_form": "grandmother",
+      "whole_child_friendly_meaning": {
+        "value": "the mother of one of your parents",
+        "status": "proposed_for_review",
+        "provenance": "CW-3A proposal from the approved grandmother structure"
+      },
+      "component_to_whole_relationship": {
+        "value": "A grandmother is the mother of one of your parents; grand shows she is one generation before your parent.",
+        "status": "proposed_for_review",
+        "provenance": "CW-3A child-friendly semantic proposal"
+      },
+      "dictation": {
+        "sentence": "Mia wrote a letter to her grandmother.",
+        "target_start": 6,
+        "target_end_exclusive": 7,
+        "exact_governed_answer": "grandmother",
+        "target_span_status": "exact_deterministic",
+        "review_status": "proposed_for_review",
+        "provenance": "CW-3A proposed dictation"
+      },
+      "assignment_eligibility": {
+        "value": true,
+        "status": "proposed_for_review",
+        "provenance": "CW-3A proposal for the approved reviewed roster"
+      },
+      "structure_provenance": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Word Bank",
+        "row": 120,
+        "approval_status": "human_approved",
+        "human_review_status": "approved",
+        "released_fact_provenance": null,
+        "released_fact_source": null
+      },
+      "source_provenance": [
+        {
+          "kind": "approved_compound_structure",
+          "value": {
+            "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+            "sheet": "Word Bank",
+            "row": 120,
+            "approval_status": "human_approved",
+            "human_review_status": "approved",
+            "released_fact_provenance": null,
+            "released_fact_source": null
+          }
+        },
+        {
+          "kind": "governed_reuse",
+          "value": "approved_structure:source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx#row=120"
+        },
+        {
+          "kind": "governed_reuse",
+          "value": "approved_component_identity:mother:6f8a5d74-5775-5048-88b0-4763da263be6"
+        }
+      ],
+      "existing_governed_reuse": [
+        "approved_structure:source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx#row=120",
+        "approved_component_identity:mother:6f8a5d74-5775-5048-88b0-4763da263be6"
+      ],
+      "publication_ready": false,
+      "current_blocker": "approve_whole_canonical_identity:grandmother",
+      "publication_blockers": [
+        "approve_whole_canonical_identity:grandmother",
+        "approve_component_canonical_identity:grand",
+        "approve_component_meaning:grand",
+        "approve_component_meaning:mother",
+        "approve_whole_meaning:grandmother",
+        "approve_component_to_whole_relationship:grandmother",
+        "approve_dictation_sentence:grandmother",
+        "approve_assignment_eligibility:grandmother",
+        "resolve_genuine_ambiguity:grandmother"
+      ],
+      "required_action": "Approve append-only canonical rows for grandmother and grand; approve both component senses, the whole meaning, the component-to-whole relationship, the dictation, and assignment eligibility; confirm the family-generation sense of grand.",
+      "human_review_required": [
+        "approve_whole_canonical_identity:grandmother",
+        "approve_component_canonical_identity:grand",
+        "approve_component_meaning:grand",
+        "approve_component_meaning:mother",
+        "approve_whole_meaning:grandmother",
+        "approve_component_to_whole_relationship:grandmother",
+        "approve_dictation_sentence:grandmother",
+        "approve_assignment_eligibility:grandmother",
+        "resolve_genuine_ambiguity:grandmother"
+      ],
+      "readiness_classification": "multiple_review_items_required",
+      "genuine_ambiguity": "Confirm that grand uses the family-generation sense, not the common adjective sense meaning impressive or important.",
+      "review_decision": "pending_human_review"
+    },
+    {
+      "micro_skill_key": "D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS",
+      "whole_word": "homework",
+      "whole_canonical_word_id": null,
+      "whole_canonical_identity_status": "proposed_for_review",
+      "compound_form": "closed",
+      "component_count": 2,
+      "components": [
+        {
+          "ordinal": 1,
+          "display_surface": "home",
+          "canonical_word_id": "98a80cb8-1b07-5ab4-a5eb-f663f1979578",
+          "canonical_identity_status": "approved_existing_governed_reuse",
+          "meaning": {
+            "value": "the place where you live",
+            "status": "proposed_for_review",
+            "provenance": "CW-3A proposal from the approved homework structure"
+          },
+          "sense": "the place where you live"
+        },
+        {
+          "ordinal": 2,
+          "display_surface": "work",
+          "canonical_word_id": "bbc78002-6a13-5653-b4ef-050e756879d7",
+          "canonical_identity_status": "approved_existing_governed_reuse",
+          "meaning": {
+            "value": "to do a job or task",
+            "status": "approved_existing_governed_reuse",
+            "provenance": "docs/implementation/seed-data/teaching-dictionary/releases/2026-08-09-base-word-family-meanings-v1/audit/family-meaning-audit.csv#work_en_gb"
+          },
+          "sense": "to do a job or task"
+        }
+      ],
+      "ordered_component_surfaces": [
+        "home",
+        "work"
+      ],
+      "ordered_component_canonical_word_ids": [
+        "98a80cb8-1b07-5ab4-a5eb-f663f1979578",
+        "bbc78002-6a13-5653-b4ef-050e756879d7"
+      ],
+      "ordered_joins": [
+        "none"
+      ],
+      "reconstructed_written_form": "homework",
+      "whole_child_friendly_meaning": {
+        "value": "school work that a teacher asks a pupil to do at home",
+        "status": "proposed_for_review",
+        "provenance": "CW-3A proposal from the approved homework structure"
+      },
+      "component_to_whole_relationship": {
+        "value": "Homework is work, meaning a job or task, that a pupil does at home.",
+        "status": "proposed_for_review",
+        "provenance": "CW-3A child-friendly semantic proposal"
+      },
+      "dictation": {
+        "sentence": "I finished my homework before tea.",
+        "target_start": 3,
+        "target_end_exclusive": 4,
+        "exact_governed_answer": "homework",
+        "target_span_status": "exact_deterministic",
+        "review_status": "proposed_for_review",
+        "provenance": "CW-3A proposed dictation"
+      },
+      "assignment_eligibility": {
+        "value": true,
+        "status": "proposed_for_review",
+        "provenance": "CW-3A proposal for the approved reviewed roster"
+      },
+      "structure_provenance": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Word Bank",
+        "row": 119,
+        "approval_status": "human_approved",
+        "human_review_status": "approved",
+        "released_fact_provenance": null,
+        "released_fact_source": null
+      },
+      "source_provenance": [
+        {
+          "kind": "approved_compound_structure",
+          "value": {
+            "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+            "sheet": "Word Bank",
+            "row": 119,
+            "approval_status": "human_approved",
+            "human_review_status": "approved",
+            "released_fact_provenance": null,
+            "released_fact_source": null
+          }
+        },
+        {
+          "kind": "governed_reuse",
+          "value": "approved_structure:source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx#row=119"
+        },
+        {
+          "kind": "governed_reuse",
+          "value": "approved_component_identity:home:98a80cb8-1b07-5ab4-a5eb-f663f1979578"
+        },
+        {
+          "kind": "governed_reuse",
+          "value": "approved_component_identity:work:bbc78002-6a13-5653-b4ef-050e756879d7"
+        },
+        {
+          "kind": "governed_reuse",
+          "value": "approved_meaning:docs/implementation/seed-data/teaching-dictionary/releases/2026-08-09-base-word-family-meanings-v1/audit/family-meaning-audit.csv#work_en_gb"
+        }
+      ],
+      "existing_governed_reuse": [
+        "approved_structure:source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx#row=119",
+        "approved_component_identity:home:98a80cb8-1b07-5ab4-a5eb-f663f1979578",
+        "approved_component_identity:work:bbc78002-6a13-5653-b4ef-050e756879d7",
+        "approved_meaning:docs/implementation/seed-data/teaching-dictionary/releases/2026-08-09-base-word-family-meanings-v1/audit/family-meaning-audit.csv#work_en_gb"
+      ],
+      "publication_ready": false,
+      "current_blocker": "approve_whole_canonical_identity:homework",
+      "publication_blockers": [
+        "approve_whole_canonical_identity:homework",
+        "approve_component_meaning:home",
+        "approve_whole_meaning:homework",
+        "approve_component_to_whole_relationship:homework",
+        "approve_dictation_sentence:homework",
+        "approve_assignment_eligibility:homework"
+      ],
+      "required_action": "Approve the append-only canonical homework row; approve the proposed home and whole meanings, component-to-whole relationship, dictation, and assignment eligibility; retain the governed work meaning.",
+      "human_review_required": [
+        "approve_whole_canonical_identity:homework",
+        "approve_component_meaning:home",
+        "approve_whole_meaning:homework",
+        "approve_component_to_whole_relationship:homework",
+        "approve_dictation_sentence:homework",
+        "approve_assignment_eligibility:homework"
+      ],
+      "readiness_classification": "multiple_review_items_required",
+      "genuine_ambiguity": null,
+      "review_decision": "pending_human_review"
+    },
+    {
+      "micro_skill_key": "D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS",
+      "whole_word": "playground",
+      "whole_canonical_word_id": "c4566186-8c4b-5c33-9755-5db34d1f110e",
+      "whole_canonical_identity_status": "approved_existing_governed_reuse",
+      "compound_form": "closed",
+      "component_count": 2,
+      "components": [
+        {
+          "ordinal": 1,
+          "display_surface": "play",
+          "canonical_word_id": "7824cfc5-f8c2-57ac-ba9e-d806161371e8",
+          "canonical_identity_status": "approved_existing_governed_reuse",
+          "meaning": {
+            "value": "to have fun with games or toys",
+            "status": "approved_existing_governed_reuse",
+            "provenance": "data/adle/candidates/d4-mor-remaining-profiles/v1/closed-compounds-dictionary-pool-review.json#playground.firstWordMeaning"
+          },
+          "sense": "to have fun with games or toys"
+        },
+        {
+          "ordinal": 2,
+          "display_surface": "ground",
+          "canonical_word_id": "c17a1ace-38d0-59bd-a584-7ec3a9bc129e",
+          "canonical_identity_status": "approved_existing_governed_reuse",
+          "meaning": {
+            "value": "the surface under your feet",
+            "status": "approved_existing_governed_reuse",
+            "provenance": "data/adle/candidates/d4-mor-remaining-profiles/v1/closed-compounds-dictionary-pool-review.json#playground.secondWordMeaning"
+          },
+          "sense": "the surface under your feet"
+        }
+      ],
+      "ordered_component_surfaces": [
+        "play",
+        "ground"
+      ],
+      "ordered_component_canonical_word_ids": [
+        "7824cfc5-f8c2-57ac-ba9e-d806161371e8",
+        "c17a1ace-38d0-59bd-a584-7ec3a9bc129e"
+      ],
+      "ordered_joins": [
+        "none"
+      ],
+      "reconstructed_written_form": "playground",
+      "whole_child_friendly_meaning": {
+        "value": "an outdoor place where children play",
+        "status": "approved_existing_governed_reuse",
+        "provenance": "data/adle/candidates/d4-mor-remaining-profiles/v1/closed-compounds-dictionary-pool-review.json#playground.definition"
+      },
+      "component_to_whole_relationship": {
+        "value": "A playground is ground set aside for children to play on.",
+        "status": "proposed_for_review",
+        "provenance": "CW-3A child-friendly semantic proposal"
+      },
+      "dictation": {
+        "sentence": "The children played in the playground.",
+        "target_start": 5,
+        "target_end_exclusive": 6,
+        "exact_governed_answer": "playground",
+        "target_span_status": "exact_deterministic",
+        "review_status": "approved_existing_governed_reuse",
+        "provenance": "data/adle/candidates/d4-mor-remaining-profiles/v1/closed-compounds-dictionary-pool-review.json#playground.dictation"
+      },
+      "assignment_eligibility": {
+        "value": true,
+        "status": "approved_existing_governed_reuse",
+        "provenance": "Production canonical_teaching_dictionary_compound_facts#playground"
+      },
+      "structure_provenance": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Word Bank",
+        "row": 118,
+        "approval_status": "human_approved",
+        "human_review_status": "approved",
+        "released_fact_provenance": {
+          "package_sha256": "841f13b525f6be22274ad3fa0b40957e43f9fadae72ecc873003c38b32096547",
+          "approved_review_artifact": "data/adle/candidates/d4-mor-remaining-profiles/v1/closed-compounds-dictionary-pool-review.json"
+        },
+        "released_fact_source": {
+          "sheet": "closed-compounds-dictionary-pool-review.json",
+          "row": 5,
+          "row_hash": "fa108e050b7726eb62872e83fd4cb3873f57ad357d51ea16cd049ecf2380a8ca",
+          "review_status": "approved_for_first_exposure"
+        }
+      },
+      "source_provenance": [
+        {
+          "kind": "approved_compound_structure",
+          "value": {
+            "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+            "sheet": "Word Bank",
+            "row": 118,
+            "approval_status": "human_approved",
+            "human_review_status": "approved",
+            "released_fact_provenance": {
+              "package_sha256": "841f13b525f6be22274ad3fa0b40957e43f9fadae72ecc873003c38b32096547",
+              "approved_review_artifact": "data/adle/candidates/d4-mor-remaining-profiles/v1/closed-compounds-dictionary-pool-review.json"
+            },
+            "released_fact_source": {
+              "sheet": "closed-compounds-dictionary-pool-review.json",
+              "row": 5,
+              "row_hash": "fa108e050b7726eb62872e83fd4cb3873f57ad357d51ea16cd049ecf2380a8ca",
+              "review_status": "approved_for_first_exposure"
+            }
+          }
+        },
+        {
+          "kind": "governed_reuse",
+          "value": "approved_structure:source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx#row=118"
+        },
+        {
+          "kind": "governed_reuse",
+          "value": "approved_whole_identity:c4566186-8c4b-5c33-9755-5db34d1f110e"
+        },
+        {
+          "kind": "governed_reuse",
+          "value": "approved_component_identity:play:7824cfc5-f8c2-57ac-ba9e-d806161371e8"
+        },
+        {
+          "kind": "governed_reuse",
+          "value": "approved_component_identity:ground:c17a1ace-38d0-59bd-a584-7ec3a9bc129e"
+        },
+        {
+          "kind": "governed_reuse",
+          "value": "approved_meaning:data/adle/candidates/d4-mor-remaining-profiles/v1/closed-compounds-dictionary-pool-review.json#playground.firstWordMeaning"
+        },
+        {
+          "kind": "governed_reuse",
+          "value": "approved_meaning:data/adle/candidates/d4-mor-remaining-profiles/v1/closed-compounds-dictionary-pool-review.json#playground.secondWordMeaning"
+        },
+        {
+          "kind": "governed_reuse",
+          "value": "approved_whole_meaning:data/adle/candidates/d4-mor-remaining-profiles/v1/closed-compounds-dictionary-pool-review.json#playground.definition"
+        },
+        {
+          "kind": "governed_reuse",
+          "value": "approved_dictation:data/adle/candidates/d4-mor-remaining-profiles/v1/closed-compounds-dictionary-pool-review.json#playground.dictation"
+        },
+        {
+          "kind": "governed_reuse",
+          "value": "approved_assignment_eligibility:Production canonical_teaching_dictionary_compound_facts#playground"
+        }
+      ],
+      "existing_governed_reuse": [
+        "approved_structure:source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx#row=118",
+        "approved_whole_identity:c4566186-8c4b-5c33-9755-5db34d1f110e",
+        "approved_component_identity:play:7824cfc5-f8c2-57ac-ba9e-d806161371e8",
+        "approved_component_identity:ground:c17a1ace-38d0-59bd-a584-7ec3a9bc129e",
+        "approved_meaning:data/adle/candidates/d4-mor-remaining-profiles/v1/closed-compounds-dictionary-pool-review.json#playground.firstWordMeaning",
+        "approved_meaning:data/adle/candidates/d4-mor-remaining-profiles/v1/closed-compounds-dictionary-pool-review.json#playground.secondWordMeaning",
+        "approved_whole_meaning:data/adle/candidates/d4-mor-remaining-profiles/v1/closed-compounds-dictionary-pool-review.json#playground.definition",
+        "approved_dictation:data/adle/candidates/d4-mor-remaining-profiles/v1/closed-compounds-dictionary-pool-review.json#playground.dictation",
+        "approved_assignment_eligibility:Production canonical_teaching_dictionary_compound_facts#playground"
+      ],
+      "publication_ready": false,
+      "current_blocker": "approve_component_to_whole_relationship:playground",
+      "publication_blockers": [
+        "approve_component_to_whole_relationship:playground"
+      ],
+      "required_action": "Approve or amend the proposed component-to-whole relationship; no other governed fact needs review.",
+      "human_review_required": [
+        "approve_component_to_whole_relationship:playground"
+      ],
+      "readiness_classification": "semantic_relationship_review_only",
+      "genuine_ambiguity": null,
+      "review_decision": "pending_human_review"
+    },
+    {
+      "micro_skill_key": "D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS",
+      "whole_word": "rainbow",
+      "whole_canonical_word_id": "a6a30d2e-cd03-543e-b7cf-f8020bf9dbd9",
+      "whole_canonical_identity_status": "approved_existing_governed_reuse",
+      "compound_form": "closed",
+      "component_count": 2,
+      "components": [
+        {
+          "ordinal": 1,
+          "display_surface": "rain",
+          "canonical_word_id": "369d9884-1928-53ca-97ea-6d9c3e6a46ca",
+          "canonical_identity_status": "approved_existing_governed_reuse",
+          "meaning": {
+            "value": "water that falls from clouds",
+            "status": "approved_existing_governed_reuse",
+            "provenance": "data/adle/candidates/d4-mor-remaining-profiles/v1/closed-compounds-dictionary-pool-review.json#rainbow.firstWordMeaning"
+          },
+          "sense": "water that falls from clouds"
+        },
+        {
+          "ordinal": 2,
+          "display_surface": "bow",
+          "canonical_word_id": "5d62fd50-5ec5-5e1d-9548-5c3c30ef4229",
+          "canonical_identity_status": "approved_existing_governed_reuse",
+          "meaning": {
+            "value": "a curved shape",
+            "status": "approved_existing_governed_reuse",
+            "provenance": "data/adle/candidates/d4-mor-remaining-profiles/v1/closed-compounds-dictionary-pool-review.json#rainbow.secondWordMeaning"
+          },
+          "sense": "a curved shape"
+        }
+      ],
+      "ordered_component_surfaces": [
+        "rain",
+        "bow"
+      ],
+      "ordered_component_canonical_word_ids": [
+        "369d9884-1928-53ca-97ea-6d9c3e6a46ca",
+        "5d62fd50-5ec5-5e1d-9548-5c3c30ef4229"
+      ],
+      "ordered_joins": [
+        "none"
+      ],
+      "reconstructed_written_form": "rainbow",
+      "whole_child_friendly_meaning": {
+        "value": "a curved band of colours seen in the sky after rain",
+        "status": "approved_existing_governed_reuse",
+        "provenance": "data/adle/candidates/d4-mor-remaining-profiles/v1/closed-compounds-dictionary-pool-review.json#rainbow.definition"
+      },
+      "component_to_whole_relationship": {
+        "value": "A rainbow is a bow-shaped curve of colours that appears with rain.",
+        "status": "proposed_for_review",
+        "provenance": "CW-3A child-friendly semantic proposal"
+      },
+      "dictation": {
+        "sentence": "A rainbow appeared after rain.",
+        "target_start": 1,
+        "target_end_exclusive": 2,
+        "exact_governed_answer": "rainbow",
+        "target_span_status": "exact_deterministic",
+        "review_status": "approved_existing_governed_reuse",
+        "provenance": "data/adle/candidates/d4-mor-remaining-profiles/v1/closed-compounds-dictionary-pool-review.json#rainbow.dictation"
+      },
+      "assignment_eligibility": {
+        "value": true,
+        "status": "approved_existing_governed_reuse",
+        "provenance": "Production canonical_teaching_dictionary_compound_facts#rainbow"
+      },
+      "structure_provenance": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Word Bank",
+        "row": 115,
+        "approval_status": "human_approved",
+        "human_review_status": "approved",
+        "released_fact_provenance": {
+          "package_sha256": "841f13b525f6be22274ad3fa0b40957e43f9fadae72ecc873003c38b32096547",
+          "approved_review_artifact": "data/adle/candidates/d4-mor-remaining-profiles/v1/closed-compounds-dictionary-pool-review.json"
+        },
+        "released_fact_source": {
+          "sheet": "closed-compounds-dictionary-pool-review.json",
+          "row": 6,
+          "row_hash": "452b341900d2babfc984a7a8aecee4363fc95aed9e582dd590e5b511dd851ac7",
+          "review_status": "approved_for_first_exposure"
+        }
+      },
+      "source_provenance": [
+        {
+          "kind": "approved_compound_structure",
+          "value": {
+            "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+            "sheet": "Word Bank",
+            "row": 115,
+            "approval_status": "human_approved",
+            "human_review_status": "approved",
+            "released_fact_provenance": {
+              "package_sha256": "841f13b525f6be22274ad3fa0b40957e43f9fadae72ecc873003c38b32096547",
+              "approved_review_artifact": "data/adle/candidates/d4-mor-remaining-profiles/v1/closed-compounds-dictionary-pool-review.json"
+            },
+            "released_fact_source": {
+              "sheet": "closed-compounds-dictionary-pool-review.json",
+              "row": 6,
+              "row_hash": "452b341900d2babfc984a7a8aecee4363fc95aed9e582dd590e5b511dd851ac7",
+              "review_status": "approved_for_first_exposure"
+            }
+          }
+        },
+        {
+          "kind": "governed_reuse",
+          "value": "approved_structure:source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx#row=115"
+        },
+        {
+          "kind": "governed_reuse",
+          "value": "approved_whole_identity:a6a30d2e-cd03-543e-b7cf-f8020bf9dbd9"
+        },
+        {
+          "kind": "governed_reuse",
+          "value": "approved_component_identity:rain:369d9884-1928-53ca-97ea-6d9c3e6a46ca"
+        },
+        {
+          "kind": "governed_reuse",
+          "value": "approved_component_identity:bow:5d62fd50-5ec5-5e1d-9548-5c3c30ef4229"
+        },
+        {
+          "kind": "governed_reuse",
+          "value": "approved_meaning:data/adle/candidates/d4-mor-remaining-profiles/v1/closed-compounds-dictionary-pool-review.json#rainbow.firstWordMeaning"
+        },
+        {
+          "kind": "governed_reuse",
+          "value": "approved_meaning:data/adle/candidates/d4-mor-remaining-profiles/v1/closed-compounds-dictionary-pool-review.json#rainbow.secondWordMeaning"
+        },
+        {
+          "kind": "governed_reuse",
+          "value": "approved_whole_meaning:data/adle/candidates/d4-mor-remaining-profiles/v1/closed-compounds-dictionary-pool-review.json#rainbow.definition"
+        },
+        {
+          "kind": "governed_reuse",
+          "value": "approved_dictation:data/adle/candidates/d4-mor-remaining-profiles/v1/closed-compounds-dictionary-pool-review.json#rainbow.dictation"
+        },
+        {
+          "kind": "governed_reuse",
+          "value": "approved_assignment_eligibility:Production canonical_teaching_dictionary_compound_facts#rainbow"
+        }
+      ],
+      "existing_governed_reuse": [
+        "approved_structure:source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx#row=115",
+        "approved_whole_identity:a6a30d2e-cd03-543e-b7cf-f8020bf9dbd9",
+        "approved_component_identity:rain:369d9884-1928-53ca-97ea-6d9c3e6a46ca",
+        "approved_component_identity:bow:5d62fd50-5ec5-5e1d-9548-5c3c30ef4229",
+        "approved_meaning:data/adle/candidates/d4-mor-remaining-profiles/v1/closed-compounds-dictionary-pool-review.json#rainbow.firstWordMeaning",
+        "approved_meaning:data/adle/candidates/d4-mor-remaining-profiles/v1/closed-compounds-dictionary-pool-review.json#rainbow.secondWordMeaning",
+        "approved_whole_meaning:data/adle/candidates/d4-mor-remaining-profiles/v1/closed-compounds-dictionary-pool-review.json#rainbow.definition",
+        "approved_dictation:data/adle/candidates/d4-mor-remaining-profiles/v1/closed-compounds-dictionary-pool-review.json#rainbow.dictation",
+        "approved_assignment_eligibility:Production canonical_teaching_dictionary_compound_facts#rainbow"
+      ],
+      "publication_ready": false,
+      "current_blocker": "approve_component_to_whole_relationship:rainbow",
+      "publication_blockers": [
+        "approve_component_to_whole_relationship:rainbow"
+      ],
+      "required_action": "Approve or amend the proposed component-to-whole relationship; no other governed fact needs review.",
+      "human_review_required": [
+        "approve_component_to_whole_relationship:rainbow"
+      ],
+      "readiness_classification": "semantic_relationship_review_only",
+      "genuine_ambiguity": null,
+      "review_decision": "pending_human_review"
+    },
+    {
+      "micro_skill_key": "D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS",
+      "whole_word": "sunflower",
+      "whole_canonical_word_id": null,
+      "whole_canonical_identity_status": "proposed_for_review",
+      "compound_form": "closed",
+      "component_count": 2,
+      "components": [
+        {
+          "ordinal": 1,
+          "display_surface": "sun",
+          "canonical_word_id": "ef54e01f-d0d4-5bc7-b518-c1a56b341554",
+          "canonical_identity_status": "approved_existing_governed_reuse",
+          "meaning": {
+            "value": "the star that gives Earth light and heat",
+            "status": "approved_existing_governed_reuse",
+            "provenance": "docs/implementation/seed-data/teaching-dictionary/releases/2026-08-09-base-word-family-meanings-v1/audit/family-meaning-audit.csv#sun_en_gb"
+          },
+          "sense": "the star that gives Earth light and heat"
+        },
+        {
+          "ordinal": 2,
+          "display_surface": "flower",
+          "canonical_word_id": "7133c536-ab7f-523a-a760-5c26ee1b934f",
+          "canonical_identity_status": "approved_existing_governed_reuse",
+          "meaning": {
+            "value": "the part of a plant that is often brightly coloured and makes seeds",
+            "status": "proposed_for_review",
+            "provenance": "CW-3A proposal from the approved sunflower structure"
+          },
+          "sense": "the part of a plant that is often brightly coloured and makes seeds"
+        }
+      ],
+      "ordered_component_surfaces": [
+        "sun",
+        "flower"
+      ],
+      "ordered_component_canonical_word_ids": [
+        "ef54e01f-d0d4-5bc7-b518-c1a56b341554",
+        "7133c536-ab7f-523a-a760-5c26ee1b934f"
+      ],
+      "ordered_joins": [
+        "none"
+      ],
+      "reconstructed_written_form": "sunflower",
+      "whole_child_friendly_meaning": {
+        "value": "a tall plant with a large yellow flower head",
+        "status": "proposed_for_review",
+        "provenance": "CW-3A proposal from the approved sunflower structure"
+      },
+      "component_to_whole_relationship": {
+        "value": "A sunflower is a flower with a large yellow head that looks like the sun.",
+        "status": "proposed_for_review",
+        "provenance": "CW-3A child-friendly semantic proposal"
+      },
+      "dictation": {
+        "sentence": "The sunflower grew beside the fence.",
+        "target_start": 1,
+        "target_end_exclusive": 2,
+        "exact_governed_answer": "sunflower",
+        "target_span_status": "exact_deterministic",
+        "review_status": "proposed_for_review",
+        "provenance": "CW-3A proposed dictation"
+      },
+      "assignment_eligibility": {
+        "value": true,
+        "status": "proposed_for_review",
+        "provenance": "CW-3A proposal for the approved reviewed roster"
+      },
+      "structure_provenance": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Word Bank",
+        "row": 117,
+        "approval_status": "human_approved",
+        "human_review_status": "approved",
+        "released_fact_provenance": null,
+        "released_fact_source": null
+      },
+      "source_provenance": [
+        {
+          "kind": "approved_compound_structure",
+          "value": {
+            "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+            "sheet": "Word Bank",
+            "row": 117,
+            "approval_status": "human_approved",
+            "human_review_status": "approved",
+            "released_fact_provenance": null,
+            "released_fact_source": null
+          }
+        },
+        {
+          "kind": "governed_reuse",
+          "value": "approved_structure:source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx#row=117"
+        },
+        {
+          "kind": "governed_reuse",
+          "value": "approved_component_identity:sun:ef54e01f-d0d4-5bc7-b518-c1a56b341554"
+        },
+        {
+          "kind": "governed_reuse",
+          "value": "approved_component_identity:flower:7133c536-ab7f-523a-a760-5c26ee1b934f"
+        },
+        {
+          "kind": "governed_reuse",
+          "value": "approved_meaning:docs/implementation/seed-data/teaching-dictionary/releases/2026-08-09-base-word-family-meanings-v1/audit/family-meaning-audit.csv#sun_en_gb"
+        }
+      ],
+      "existing_governed_reuse": [
+        "approved_structure:source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx#row=117",
+        "approved_component_identity:sun:ef54e01f-d0d4-5bc7-b518-c1a56b341554",
+        "approved_component_identity:flower:7133c536-ab7f-523a-a760-5c26ee1b934f",
+        "approved_meaning:docs/implementation/seed-data/teaching-dictionary/releases/2026-08-09-base-word-family-meanings-v1/audit/family-meaning-audit.csv#sun_en_gb"
+      ],
+      "publication_ready": false,
+      "current_blocker": "approve_whole_canonical_identity:sunflower",
+      "publication_blockers": [
+        "approve_whole_canonical_identity:sunflower",
+        "approve_component_meaning:flower",
+        "approve_whole_meaning:sunflower",
+        "approve_component_to_whole_relationship:sunflower",
+        "approve_dictation_sentence:sunflower",
+        "approve_assignment_eligibility:sunflower"
+      ],
+      "required_action": "Approve the append-only canonical sunflower row; approve the proposed flower and whole meanings, component-to-whole relationship, dictation, and assignment eligibility; retain the governed sun meaning.",
+      "human_review_required": [
+        "approve_whole_canonical_identity:sunflower",
+        "approve_component_meaning:flower",
+        "approve_whole_meaning:sunflower",
+        "approve_component_to_whole_relationship:sunflower",
+        "approve_dictation_sentence:sunflower",
+        "approve_assignment_eligibility:sunflower"
+      ],
+      "readiness_classification": "multiple_review_items_required",
+      "genuine_ambiguity": null,
+      "review_decision": "pending_human_review"
+    },
+    {
+      "micro_skill_key": "D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED",
+      "whole_word": "ice cream",
+      "whole_canonical_word_id": "f760df54-4322-53f3-94ea-a9f795808871",
+      "whole_canonical_identity_status": "approved_existing_governed_reuse",
+      "compound_form": "open",
+      "component_count": 2,
+      "components": [
+        {
+          "ordinal": 1,
+          "display_surface": "ice",
+          "canonical_word_id": "39013043-2bb2-50c5-b00f-e0eec697206f",
+          "canonical_identity_status": "approved_existing_governed_reuse",
+          "meaning": {
+            "value": "water that has frozen solid",
+            "status": "proposed_for_review",
+            "provenance": "CW-3A proposal from the approved ice cream structure"
+          },
+          "sense": "water that has frozen solid"
+        },
+        {
+          "ordinal": 2,
+          "display_surface": "cream",
+          "canonical_word_id": null,
+          "canonical_identity_status": "proposed_for_review",
+          "meaning": {
+            "value": "the thick, rich part of milk",
+            "status": "proposed_for_review",
+            "provenance": "CW-3A proposal from the approved ice cream structure"
+          },
+          "sense": "the thick, rich part of milk"
+        }
+      ],
+      "ordered_component_surfaces": [
+        "ice",
+        "cream"
+      ],
+      "ordered_component_canonical_word_ids": [
+        "39013043-2bb2-50c5-b00f-e0eec697206f",
+        null
+      ],
+      "ordered_joins": [
+        "space"
+      ],
+      "reconstructed_written_form": "ice cream",
+      "whole_child_friendly_meaning": {
+        "value": "a sweet frozen food made mainly from milk or cream",
+        "status": "proposed_for_review",
+        "provenance": "CW-3A proposal from the approved ice cream structure"
+      },
+      "component_to_whole_relationship": {
+        "value": "Ice cream is a cold, creamy food; ice points to its frozen state and cream to its milk ingredient.",
+        "status": "proposed_for_review",
+        "provenance": "CW-3A child-friendly semantic proposal"
+      },
+      "dictation": {
+        "sentence": "We had ice cream after the park.",
+        "target_start": 2,
+        "target_end_exclusive": 4,
+        "exact_governed_answer": "ice cream",
+        "target_span_status": "exact_deterministic",
+        "review_status": "approved_existing_governed_reuse",
+        "provenance": "docs/implementation/seed-data/teaching-dictionary/candidates/2026-06-29-phase-5-source-intake/csv/dictation_sentences.csv#ice_cream_en_gb"
+      },
+      "assignment_eligibility": {
+        "value": true,
+        "status": "proposed_for_review",
+        "provenance": "CW-3A proposal for the approved reviewed roster"
+      },
+      "structure_provenance": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Word Bank",
+        "row": 121,
+        "approval_status": "human_approved",
+        "human_review_status": "approved",
+        "released_fact_provenance": null,
+        "released_fact_source": null
+      },
+      "source_provenance": [
+        {
+          "kind": "approved_compound_structure",
+          "value": {
+            "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+            "sheet": "Word Bank",
+            "row": 121,
+            "approval_status": "human_approved",
+            "human_review_status": "approved",
+            "released_fact_provenance": null,
+            "released_fact_source": null
+          }
+        },
+        {
+          "kind": "governed_reuse",
+          "value": "approved_structure:source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx#row=121"
+        },
+        {
+          "kind": "governed_reuse",
+          "value": "approved_whole_identity:f760df54-4322-53f3-94ea-a9f795808871"
+        },
+        {
+          "kind": "governed_reuse",
+          "value": "approved_component_identity:ice:39013043-2bb2-50c5-b00f-e0eec697206f"
+        },
+        {
+          "kind": "governed_reuse",
+          "value": "approved_dictation:docs/implementation/seed-data/teaching-dictionary/candidates/2026-06-29-phase-5-source-intake/csv/dictation_sentences.csv#ice_cream_en_gb"
+        }
+      ],
+      "existing_governed_reuse": [
+        "approved_structure:source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx#row=121",
+        "approved_whole_identity:f760df54-4322-53f3-94ea-a9f795808871",
+        "approved_component_identity:ice:39013043-2bb2-50c5-b00f-e0eec697206f",
+        "approved_dictation:docs/implementation/seed-data/teaching-dictionary/candidates/2026-06-29-phase-5-source-intake/csv/dictation_sentences.csv#ice_cream_en_gb"
+      ],
+      "publication_ready": false,
+      "current_blocker": "approve_component_canonical_identity:cream",
+      "publication_blockers": [
+        "approve_component_canonical_identity:cream",
+        "approve_component_meaning:ice",
+        "approve_component_meaning:cream",
+        "approve_whole_meaning:ice cream",
+        "approve_component_to_whole_relationship:ice cream",
+        "approve_assignment_eligibility:ice cream"
+      ],
+      "required_action": "Approve the append-only canonical cream row; approve both component meanings, the whole meaning, the component-to-whole relationship, and assignment eligibility; retain the governed ice cream identity, dictation, and deterministic two-token span.",
+      "human_review_required": [
+        "approve_component_canonical_identity:cream",
+        "approve_component_meaning:ice",
+        "approve_component_meaning:cream",
+        "approve_whole_meaning:ice cream",
+        "approve_component_to_whole_relationship:ice cream",
+        "approve_assignment_eligibility:ice cream"
+      ],
+      "readiness_classification": "multiple_review_items_required",
+      "genuine_ambiguity": null,
+      "review_decision": "pending_human_review"
+    },
+    {
+      "micro_skill_key": "D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED",
+      "whole_word": "living room",
+      "whole_canonical_word_id": null,
+      "whole_canonical_identity_status": "proposed_for_review",
+      "compound_form": "open",
+      "component_count": 2,
+      "components": [
+        {
+          "ordinal": 1,
+          "display_surface": "living",
+          "canonical_word_id": null,
+          "canonical_identity_status": "proposed_for_review",
+          "meaning": {
+            "value": "everyday life or the way people live",
+            "status": "proposed_for_review",
+            "provenance": "CW-3A proposal from the approved living room structure"
+          },
+          "sense": "everyday life or the way people live"
+        },
+        {
+          "ordinal": 2,
+          "display_surface": "room",
+          "canonical_word_id": "6edd2d51-c382-5f75-961b-eac559db8dd0",
+          "canonical_identity_status": "approved_existing_governed_reuse",
+          "meaning": {
+            "value": "a space inside a building",
+            "status": "approved_existing_governed_reuse",
+            "provenance": "data/adle/candidates/d4-mor-remaining-profiles/v1/closed-compounds-dictionary-pool-review.json#bedroom.secondWordMeaning"
+          },
+          "sense": "a space inside a building"
+        }
+      ],
+      "ordered_component_surfaces": [
+        "living",
+        "room"
+      ],
+      "ordered_component_canonical_word_ids": [
+        null,
+        "6edd2d51-c382-5f75-961b-eac559db8dd0"
+      ],
+      "ordered_joins": [
+        "space"
+      ],
+      "reconstructed_written_form": "living room",
+      "whole_child_friendly_meaning": {
+        "value": "a room in a home where people sit and spend time together",
+        "status": "proposed_for_review",
+        "provenance": "CW-3A proposal from the approved living room structure"
+      },
+      "component_to_whole_relationship": {
+        "value": "A living room is a room where people spend everyday time together at home.",
+        "status": "proposed_for_review",
+        "provenance": "CW-3A child-friendly semantic proposal"
+      },
+      "dictation": {
+        "sentence": "We read together in the living room.",
+        "target_start": 5,
+        "target_end_exclusive": 7,
+        "exact_governed_answer": "living room",
+        "target_span_status": "exact_deterministic",
+        "review_status": "proposed_for_review",
+        "provenance": "CW-3A proposed dictation"
+      },
+      "assignment_eligibility": {
+        "value": true,
+        "status": "proposed_for_review",
+        "provenance": "CW-3A proposal for the approved reviewed roster"
+      },
+      "structure_provenance": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Word Bank",
+        "row": 122,
+        "approval_status": "human_approved",
+        "human_review_status": "approved",
+        "released_fact_provenance": null,
+        "released_fact_source": null
+      },
+      "source_provenance": [
+        {
+          "kind": "approved_compound_structure",
+          "value": {
+            "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+            "sheet": "Word Bank",
+            "row": 122,
+            "approval_status": "human_approved",
+            "human_review_status": "approved",
+            "released_fact_provenance": null,
+            "released_fact_source": null
+          }
+        },
+        {
+          "kind": "governed_reuse",
+          "value": "approved_structure:source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx#row=122"
+        },
+        {
+          "kind": "governed_reuse",
+          "value": "approved_component_identity:room:6edd2d51-c382-5f75-961b-eac559db8dd0"
+        },
+        {
+          "kind": "governed_reuse",
+          "value": "approved_meaning:data/adle/candidates/d4-mor-remaining-profiles/v1/closed-compounds-dictionary-pool-review.json#bedroom.secondWordMeaning"
+        }
+      ],
+      "existing_governed_reuse": [
+        "approved_structure:source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx#row=122",
+        "approved_component_identity:room:6edd2d51-c382-5f75-961b-eac559db8dd0",
+        "approved_meaning:data/adle/candidates/d4-mor-remaining-profiles/v1/closed-compounds-dictionary-pool-review.json#bedroom.secondWordMeaning"
+      ],
+      "publication_ready": false,
+      "current_blocker": "approve_whole_canonical_identity:living room",
+      "publication_blockers": [
+        "approve_whole_canonical_identity:living room",
+        "approve_component_canonical_identity:living",
+        "approve_component_meaning:living",
+        "approve_whole_meaning:living room",
+        "approve_component_to_whole_relationship:living room",
+        "approve_dictation_sentence:living room",
+        "approve_assignment_eligibility:living room"
+      ],
+      "required_action": "Approve append-only canonical rows for living room and living; approve the proposed living and whole meanings, component-to-whole relationship, dictation, and assignment eligibility; retain the governed room sense.",
+      "human_review_required": [
+        "approve_whole_canonical_identity:living room",
+        "approve_component_canonical_identity:living",
+        "approve_component_meaning:living",
+        "approve_whole_meaning:living room",
+        "approve_component_to_whole_relationship:living room",
+        "approve_dictation_sentence:living room",
+        "approve_assignment_eligibility:living room"
+      ],
+      "readiness_classification": "multiple_review_items_required",
+      "genuine_ambiguity": null,
+      "review_decision": "pending_human_review"
+    },
+    {
+      "micro_skill_key": "D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED",
+      "whole_word": "mother-in-law",
+      "whole_canonical_word_id": null,
+      "whole_canonical_identity_status": "proposed_for_review",
+      "compound_form": "hyphenated",
+      "component_count": 3,
+      "components": [
+        {
+          "ordinal": 1,
+          "display_surface": "mother",
+          "canonical_word_id": "6f8a5d74-5775-5048-88b0-4763da263be6",
+          "canonical_identity_status": "approved_existing_governed_reuse",
+          "meaning": {
+            "value": "a female parent",
+            "status": "proposed_for_review",
+            "provenance": "CW-3A proposal from the approved mother-in-law structure"
+          },
+          "sense": "a female parent"
+        },
+        {
+          "ordinal": 2,
+          "display_surface": "in",
+          "canonical_word_id": null,
+          "canonical_identity_status": "proposed_for_review",
+          "meaning": {
+            "value": "a linking word inside the fixed family phrase in-law",
+            "status": "proposed_for_review",
+            "provenance": "CW-3A grammatical-component proposal"
+          },
+          "sense": "a linking word inside the fixed family phrase in-law"
+        },
+        {
+          "ordinal": 3,
+          "display_surface": "law",
+          "canonical_word_id": null,
+          "canonical_identity_status": "proposed_for_review",
+          "meaning": {
+            "value": "the system of rules that a community must follow",
+            "status": "proposed_for_review",
+            "provenance": "CW-3A proposal; non-literal inside in-law"
+          },
+          "sense": "the system of rules that a community must follow"
+        }
+      ],
+      "ordered_component_surfaces": [
+        "mother",
+        "in",
+        "law"
+      ],
+      "ordered_component_canonical_word_ids": [
+        "6f8a5d74-5775-5048-88b0-4763da263be6",
+        null,
+        null
+      ],
+      "ordered_joins": [
+        "hyphen",
+        "hyphen"
+      ],
+      "reconstructed_written_form": "mother-in-law",
+      "whole_child_friendly_meaning": {
+        "value": "the mother of a person's husband or wife",
+        "status": "proposed_for_review",
+        "provenance": "CW-3A proposal from the approved mother-in-law structure"
+      },
+      "component_to_whole_relationship": {
+        "value": "A mother-in-law is a mother connected to someone through marriage; the fixed part in-law shows that family link.",
+        "status": "proposed_for_review",
+        "provenance": "CW-3A child-friendly semantic proposal"
+      },
+      "dictation": {
+        "sentence": "Her mother-in-law came for lunch.",
+        "target_start": 1,
+        "target_end_exclusive": 2,
+        "exact_governed_answer": "mother-in-law",
+        "target_span_status": "exact_deterministic",
+        "review_status": "proposed_for_review",
+        "provenance": "CW-3A proposed dictation"
+      },
+      "assignment_eligibility": {
+        "value": true,
+        "status": "proposed_for_review",
+        "provenance": "CW-3A proposal for the approved reviewed roster"
+      },
+      "structure_provenance": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Word Bank",
+        "row": 127,
+        "approval_status": "human_approved",
+        "human_review_status": "approved",
+        "released_fact_provenance": null,
+        "released_fact_source": null
+      },
+      "source_provenance": [
+        {
+          "kind": "approved_compound_structure",
+          "value": {
+            "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+            "sheet": "Word Bank",
+            "row": 127,
+            "approval_status": "human_approved",
+            "human_review_status": "approved",
+            "released_fact_provenance": null,
+            "released_fact_source": null
+          }
+        },
+        {
+          "kind": "governed_reuse",
+          "value": "approved_structure:source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx#row=127"
+        },
+        {
+          "kind": "governed_reuse",
+          "value": "approved_component_identity:mother:6f8a5d74-5775-5048-88b0-4763da263be6"
+        }
+      ],
+      "existing_governed_reuse": [
+        "approved_structure:source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx#row=127",
+        "approved_component_identity:mother:6f8a5d74-5775-5048-88b0-4763da263be6"
+      ],
+      "publication_ready": false,
+      "current_blocker": "approve_whole_canonical_identity:mother-in-law",
+      "publication_blockers": [
+        "approve_whole_canonical_identity:mother-in-law",
+        "approve_component_canonical_identity:in",
+        "approve_component_canonical_identity:law",
+        "approve_component_meaning:mother",
+        "approve_component_meaning:in",
+        "approve_component_meaning:law",
+        "approve_whole_meaning:mother-in-law",
+        "approve_component_to_whole_relationship:mother-in-law",
+        "approve_dictation_sentence:mother-in-law",
+        "approve_assignment_eligibility:mother-in-law",
+        "resolve_genuine_ambiguity:mother-in-law"
+      ],
+      "required_action": "Approve append-only canonical rows for mother-in-law, in, and law; approve all component treatments, the whole meaning, component-to-whole relationship, dictation, and assignment eligibility; decide the exact child-facing treatment of the fixed unit in-law.",
+      "human_review_required": [
+        "approve_whole_canonical_identity:mother-in-law",
+        "approve_component_canonical_identity:in",
+        "approve_component_canonical_identity:law",
+        "approve_component_meaning:mother",
+        "approve_component_meaning:in",
+        "approve_component_meaning:law",
+        "approve_whole_meaning:mother-in-law",
+        "approve_component_to_whole_relationship:mother-in-law",
+        "approve_dictation_sentence:mother-in-law",
+        "approve_assignment_eligibility:mother-in-law",
+        "resolve_genuine_ambiguity:mother-in-law"
+      ],
+      "readiness_classification": "multiple_review_items_required",
+      "genuine_ambiguity": "Confirm the grammatical treatment of in and the non-literal role of law inside the fixed unit in-law; do not teach their ordinary meanings as a literal sum.",
+      "review_decision": "pending_human_review"
+    },
+    {
+      "micro_skill_key": "D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED",
+      "whole_word": "part-time",
+      "whole_canonical_word_id": null,
+      "whole_canonical_identity_status": "proposed_for_review",
+      "compound_form": "hyphenated",
+      "component_count": 2,
+      "components": [
+        {
+          "ordinal": 1,
+          "display_surface": "part",
+          "canonical_word_id": null,
+          "canonical_identity_status": "proposed_for_review",
+          "meaning": {
+            "value": "some, but not all, of something",
+            "status": "proposed_for_review",
+            "provenance": "CW-3A proposal from the approved part-time structure"
+          },
+          "sense": "some, but not all, of something"
+        },
+        {
+          "ordinal": 2,
+          "display_surface": "time",
+          "canonical_word_id": "a08c0b36-d678-5222-b33e-0b234fbeb7b4",
+          "canonical_identity_status": "approved_existing_governed_reuse",
+          "meaning": {
+            "value": "the hours spent doing an activity",
+            "status": "proposed_for_review",
+            "provenance": "CW-3A proposal from the approved part-time structure"
+          },
+          "sense": "the hours spent doing an activity"
+        }
+      ],
+      "ordered_component_surfaces": [
+        "part",
+        "time"
+      ],
+      "ordered_component_canonical_word_ids": [
+        null,
+        "a08c0b36-d678-5222-b33e-0b234fbeb7b4"
+      ],
+      "ordered_joins": [
+        "hyphen"
+      ],
+      "reconstructed_written_form": "part-time",
+      "whole_child_friendly_meaning": {
+        "value": "for fewer hours than a full-time job or course",
+        "status": "proposed_for_review",
+        "provenance": "CW-3A proposal from the approved part-time structure"
+      },
+      "component_to_whole_relationship": {
+        "value": "Part-time work or study takes only part of the usual working time.",
+        "status": "proposed_for_review",
+        "provenance": "CW-3A child-friendly semantic proposal"
+      },
+      "dictation": {
+        "sentence": "Dad works part-time at the library.",
+        "target_start": 2,
+        "target_end_exclusive": 3,
+        "exact_governed_answer": "part-time",
+        "target_span_status": "exact_deterministic",
+        "review_status": "proposed_for_review",
+        "provenance": "CW-3A proposed dictation"
+      },
+      "assignment_eligibility": {
+        "value": true,
+        "status": "proposed_for_review",
+        "provenance": "CW-3A proposal for the approved reviewed roster"
+      },
+      "structure_provenance": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Word Bank",
+        "row": 125,
+        "approval_status": "human_approved",
+        "human_review_status": "approved",
+        "released_fact_provenance": null,
+        "released_fact_source": null
+      },
+      "source_provenance": [
+        {
+          "kind": "approved_compound_structure",
+          "value": {
+            "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+            "sheet": "Word Bank",
+            "row": 125,
+            "approval_status": "human_approved",
+            "human_review_status": "approved",
+            "released_fact_provenance": null,
+            "released_fact_source": null
+          }
+        },
+        {
+          "kind": "governed_reuse",
+          "value": "approved_structure:source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx#row=125"
+        },
+        {
+          "kind": "governed_reuse",
+          "value": "approved_component_identity:time:a08c0b36-d678-5222-b33e-0b234fbeb7b4"
+        }
+      ],
+      "existing_governed_reuse": [
+        "approved_structure:source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx#row=125",
+        "approved_component_identity:time:a08c0b36-d678-5222-b33e-0b234fbeb7b4"
+      ],
+      "publication_ready": false,
+      "current_blocker": "approve_whole_canonical_identity:part-time",
+      "publication_blockers": [
+        "approve_whole_canonical_identity:part-time",
+        "approve_component_canonical_identity:part",
+        "approve_component_meaning:part",
+        "approve_component_meaning:time",
+        "approve_whole_meaning:part-time",
+        "approve_component_to_whole_relationship:part-time",
+        "approve_dictation_sentence:part-time",
+        "approve_assignment_eligibility:part-time"
+      ],
+      "required_action": "Approve append-only canonical rows for part-time and part; approve both component meanings, the whole meaning, component-to-whole relationship, dictation, and assignment eligibility.",
+      "human_review_required": [
+        "approve_whole_canonical_identity:part-time",
+        "approve_component_canonical_identity:part",
+        "approve_component_meaning:part",
+        "approve_component_meaning:time",
+        "approve_whole_meaning:part-time",
+        "approve_component_to_whole_relationship:part-time",
+        "approve_dictation_sentence:part-time",
+        "approve_assignment_eligibility:part-time"
+      ],
+      "readiness_classification": "multiple_review_items_required",
+      "genuine_ambiguity": null,
+      "review_decision": "pending_human_review"
+    },
+    {
+      "micro_skill_key": "D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED",
+      "whole_word": "post office",
+      "whole_canonical_word_id": null,
+      "whole_canonical_identity_status": "proposed_for_review",
+      "compound_form": "open",
+      "component_count": 2,
+      "components": [
+        {
+          "ordinal": 1,
+          "display_surface": "post",
+          "canonical_word_id": "518da046-6e4c-56c5-ba5c-9fd0850d4738",
+          "canonical_identity_status": "approved_existing_governed_reuse",
+          "meaning": {
+            "value": "letters and parcels that are sent and delivered",
+            "status": "proposed_for_review",
+            "provenance": "CW-3A proposal selecting the noun sense required by post office"
+          },
+          "sense": "letters and parcels that are sent and delivered"
+        },
+        {
+          "ordinal": 2,
+          "display_surface": "office",
+          "canonical_word_id": null,
+          "canonical_identity_status": "proposed_for_review",
+          "meaning": {
+            "value": "a room or place where people do work",
+            "status": "proposed_for_review",
+            "provenance": "CW-3A proposal from the approved post office structure"
+          },
+          "sense": "a room or place where people do work"
+        }
+      ],
+      "ordered_component_surfaces": [
+        "post",
+        "office"
+      ],
+      "ordered_component_canonical_word_ids": [
+        "518da046-6e4c-56c5-ba5c-9fd0850d4738",
+        null
+      ],
+      "ordered_joins": [
+        "space"
+      ],
+      "reconstructed_written_form": "post office",
+      "whole_child_friendly_meaning": {
+        "value": "a place where letters and parcels are sent and collected",
+        "status": "proposed_for_review",
+        "provenance": "CW-3A proposal from the approved post office structure"
+      },
+      "component_to_whole_relationship": {
+        "value": "A post office is an office where people send and collect post.",
+        "status": "proposed_for_review",
+        "provenance": "CW-3A child-friendly semantic proposal"
+      },
+      "dictation": {
+        "sentence": "We bought stamps at the post office.",
+        "target_start": 5,
+        "target_end_exclusive": 7,
+        "exact_governed_answer": "post office",
+        "target_span_status": "exact_deterministic",
+        "review_status": "proposed_for_review",
+        "provenance": "CW-3A proposed dictation"
+      },
+      "assignment_eligibility": {
+        "value": true,
+        "status": "proposed_for_review",
+        "provenance": "CW-3A proposal for the approved reviewed roster"
+      },
+      "structure_provenance": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Word Bank",
+        "row": 126,
+        "approval_status": "human_approved",
+        "human_review_status": "approved",
+        "released_fact_provenance": null,
+        "released_fact_source": null
+      },
+      "source_provenance": [
+        {
+          "kind": "approved_compound_structure",
+          "value": {
+            "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+            "sheet": "Word Bank",
+            "row": 126,
+            "approval_status": "human_approved",
+            "human_review_status": "approved",
+            "released_fact_provenance": null,
+            "released_fact_source": null
+          }
+        },
+        {
+          "kind": "governed_reuse",
+          "value": "approved_structure:source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx#row=126"
+        },
+        {
+          "kind": "governed_reuse",
+          "value": "approved_component_identity:post:518da046-6e4c-56c5-ba5c-9fd0850d4738"
+        }
+      ],
+      "existing_governed_reuse": [
+        "approved_structure:source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx#row=126",
+        "approved_component_identity:post:518da046-6e4c-56c5-ba5c-9fd0850d4738"
+      ],
+      "publication_ready": false,
+      "current_blocker": "approve_whole_canonical_identity:post office",
+      "publication_blockers": [
+        "approve_whole_canonical_identity:post office",
+        "approve_component_canonical_identity:office",
+        "approve_component_meaning:post",
+        "approve_component_meaning:office",
+        "approve_whole_meaning:post office",
+        "approve_component_to_whole_relationship:post office",
+        "approve_dictation_sentence:post office",
+        "approve_assignment_eligibility:post office"
+      ],
+      "required_action": "Approve append-only canonical rows for post office and office; approve the noun sense of post, the office and whole meanings, component-to-whole relationship, dictation, and assignment eligibility.",
+      "human_review_required": [
+        "approve_whole_canonical_identity:post office",
+        "approve_component_canonical_identity:office",
+        "approve_component_meaning:post",
+        "approve_component_meaning:office",
+        "approve_whole_meaning:post office",
+        "approve_component_to_whole_relationship:post office",
+        "approve_dictation_sentence:post office",
+        "approve_assignment_eligibility:post office"
+      ],
+      "readiness_classification": "multiple_review_items_required",
+      "genuine_ambiguity": null,
+      "review_decision": "pending_human_review"
+    },
+    {
+      "micro_skill_key": "D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED",
+      "whole_word": "twenty-one",
+      "whole_canonical_word_id": "d652ffba-1ab7-5027-81e1-77275214ceaf",
+      "whole_canonical_identity_status": "approved_existing_governed_reuse",
+      "compound_form": "hyphenated",
+      "component_count": 2,
+      "components": [
+        {
+          "ordinal": 1,
+          "display_surface": "twenty",
+          "canonical_word_id": null,
+          "canonical_identity_status": "proposed_for_review",
+          "meaning": {
+            "value": "the number 20",
+            "status": "proposed_for_review",
+            "provenance": "CW-3A proposal from the approved twenty-one structure"
+          },
+          "sense": "the number 20"
+        },
+        {
+          "ordinal": 2,
+          "display_surface": "one",
+          "canonical_word_id": "e9be258c-42ea-5876-9b94-dd3706e5d4d8",
+          "canonical_identity_status": "approved_existing_governed_reuse",
+          "meaning": {
+            "value": "the number 1",
+            "status": "approved_existing_governed_reuse",
+            "provenance": "docs/implementation/seed-data/teaching-dictionary/releases/2026-08-09-base-word-family-meanings-v1/audit/family-meaning-audit.csv#one_en_gb"
+          },
+          "sense": "the number 1"
+        }
+      ],
+      "ordered_component_surfaces": [
+        "twenty",
+        "one"
+      ],
+      "ordered_component_canonical_word_ids": [
+        null,
+        "e9be258c-42ea-5876-9b94-dd3706e5d4d8"
+      ],
+      "ordered_joins": [
+        "hyphen"
+      ],
+      "reconstructed_written_form": "twenty-one",
+      "whole_child_friendly_meaning": {
+        "value": "twenty and one more: the number 21",
+        "status": "approved_existing_governed_reuse",
+        "provenance": "Production canonical_teaching_dictionary_base_word_family_members#twenty-one"
+      },
+      "component_to_whole_relationship": {
+        "value": "Twenty-one combines twenty and one to make the number 21.",
+        "status": "proposed_for_review",
+        "provenance": "CW-3A child-friendly semantic proposal"
+      },
+      "dictation": {
+        "sentence": "There are twenty-one children in our class.",
+        "target_start": 2,
+        "target_end_exclusive": 3,
+        "exact_governed_answer": "twenty-one",
+        "target_span_status": "exact_deterministic",
+        "review_status": "approved_existing_governed_reuse",
+        "provenance": "docs/implementation/seed-data/teaching-dictionary/candidates/2026-06-29-phase-5-source-intake/csv/dictation_sentences.csv#twenty_one_en_gb"
+      },
+      "assignment_eligibility": {
+        "value": true,
+        "status": "proposed_for_review",
+        "provenance": "CW-3A proposal for the approved reviewed roster"
+      },
+      "structure_provenance": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Word Bank",
+        "row": 123,
+        "approval_status": "human_approved",
+        "human_review_status": "approved",
+        "released_fact_provenance": null,
+        "released_fact_source": null
+      },
+      "source_provenance": [
+        {
+          "kind": "approved_compound_structure",
+          "value": {
+            "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+            "sheet": "Word Bank",
+            "row": 123,
+            "approval_status": "human_approved",
+            "human_review_status": "approved",
+            "released_fact_provenance": null,
+            "released_fact_source": null
+          }
+        },
+        {
+          "kind": "governed_reuse",
+          "value": "approved_structure:source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx#row=123"
+        },
+        {
+          "kind": "governed_reuse",
+          "value": "approved_whole_identity:d652ffba-1ab7-5027-81e1-77275214ceaf"
+        },
+        {
+          "kind": "governed_reuse",
+          "value": "approved_component_identity:one:e9be258c-42ea-5876-9b94-dd3706e5d4d8"
+        },
+        {
+          "kind": "governed_reuse",
+          "value": "approved_meaning:docs/implementation/seed-data/teaching-dictionary/releases/2026-08-09-base-word-family-meanings-v1/audit/family-meaning-audit.csv#one_en_gb"
+        },
+        {
+          "kind": "governed_reuse",
+          "value": "approved_whole_meaning:Production canonical_teaching_dictionary_base_word_family_members#twenty-one"
+        },
+        {
+          "kind": "governed_reuse",
+          "value": "approved_dictation:docs/implementation/seed-data/teaching-dictionary/candidates/2026-06-29-phase-5-source-intake/csv/dictation_sentences.csv#twenty_one_en_gb"
+        }
+      ],
+      "existing_governed_reuse": [
+        "approved_structure:source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx#row=123",
+        "approved_whole_identity:d652ffba-1ab7-5027-81e1-77275214ceaf",
+        "approved_component_identity:one:e9be258c-42ea-5876-9b94-dd3706e5d4d8",
+        "approved_meaning:docs/implementation/seed-data/teaching-dictionary/releases/2026-08-09-base-word-family-meanings-v1/audit/family-meaning-audit.csv#one_en_gb",
+        "approved_whole_meaning:Production canonical_teaching_dictionary_base_word_family_members#twenty-one",
+        "approved_dictation:docs/implementation/seed-data/teaching-dictionary/candidates/2026-06-29-phase-5-source-intake/csv/dictation_sentences.csv#twenty_one_en_gb"
+      ],
+      "publication_ready": false,
+      "current_blocker": "approve_component_canonical_identity:twenty",
+      "publication_blockers": [
+        "approve_component_canonical_identity:twenty",
+        "approve_component_meaning:twenty",
+        "approve_component_to_whole_relationship:twenty-one",
+        "approve_assignment_eligibility:twenty-one"
+      ],
+      "required_action": "Approve the append-only canonical twenty row; approve its component meaning, the proposed component-to-whole relationship, and assignment eligibility; retain the governed whole identity, one meaning, whole meaning, dictation, and exact hyphenated span.",
+      "human_review_required": [
+        "approve_component_canonical_identity:twenty",
+        "approve_component_meaning:twenty",
+        "approve_component_to_whole_relationship:twenty-one",
+        "approve_assignment_eligibility:twenty-one"
+      ],
+      "readiness_classification": "multiple_review_items_required",
+      "genuine_ambiguity": null,
+      "review_decision": "pending_human_review"
+    },
+    {
+      "micro_skill_key": "D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED",
+      "whole_word": "well-known",
+      "whole_canonical_word_id": null,
+      "whole_canonical_identity_status": "proposed_for_review",
+      "compound_form": "hyphenated",
+      "component_count": 2,
+      "components": [
+        {
+          "ordinal": 1,
+          "display_surface": "well",
+          "canonical_word_id": "6efd4600-f744-5e18-b522-33a6c59154c3",
+          "canonical_identity_status": "approved_existing_governed_reuse",
+          "meaning": {
+            "value": "to a great degree",
+            "status": "proposed_for_review",
+            "provenance": "CW-3A proposal selecting the adverb sense required by well-known"
+          },
+          "sense": "to a great degree"
+        },
+        {
+          "ordinal": 2,
+          "display_surface": "known",
+          "canonical_word_id": null,
+          "canonical_identity_status": "proposed_for_review",
+          "meaning": {
+            "value": "recognised or familiar to people",
+            "status": "proposed_for_review",
+            "provenance": "CW-3A proposal from the approved well-known structure"
+          },
+          "sense": "recognised or familiar to people"
+        }
+      ],
+      "ordered_component_surfaces": [
+        "well",
+        "known"
+      ],
+      "ordered_component_canonical_word_ids": [
+        "6efd4600-f744-5e18-b522-33a6c59154c3",
+        null
+      ],
+      "ordered_joins": [
+        "hyphen"
+      ],
+      "reconstructed_written_form": "well-known",
+      "whole_child_friendly_meaning": {
+        "value": "known by many people",
+        "status": "proposed_for_review",
+        "provenance": "CW-3A proposal from the approved well-known structure"
+      },
+      "component_to_whole_relationship": {
+        "value": "Something well-known is known well enough to be recognised by many people.",
+        "status": "proposed_for_review",
+        "provenance": "CW-3A child-friendly semantic proposal"
+      },
+      "dictation": {
+        "sentence": "The castle is a well-known landmark.",
+        "target_start": 4,
+        "target_end_exclusive": 5,
+        "exact_governed_answer": "well-known",
+        "target_span_status": "exact_deterministic",
+        "review_status": "proposed_for_review",
+        "provenance": "CW-3A proposed dictation"
+      },
+      "assignment_eligibility": {
+        "value": true,
+        "status": "proposed_for_review",
+        "provenance": "CW-3A proposal for the approved reviewed roster"
+      },
+      "structure_provenance": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Word Bank",
+        "row": 124,
+        "approval_status": "human_approved",
+        "human_review_status": "approved",
+        "released_fact_provenance": null,
+        "released_fact_source": null
+      },
+      "source_provenance": [
+        {
+          "kind": "approved_compound_structure",
+          "value": {
+            "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+            "sheet": "Word Bank",
+            "row": 124,
+            "approval_status": "human_approved",
+            "human_review_status": "approved",
+            "released_fact_provenance": null,
+            "released_fact_source": null
+          }
+        },
+        {
+          "kind": "governed_reuse",
+          "value": "approved_structure:source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx#row=124"
+        },
+        {
+          "kind": "governed_reuse",
+          "value": "approved_component_identity:well:6efd4600-f744-5e18-b522-33a6c59154c3"
+        }
+      ],
+      "existing_governed_reuse": [
+        "approved_structure:source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx#row=124",
+        "approved_component_identity:well:6efd4600-f744-5e18-b522-33a6c59154c3"
+      ],
+      "publication_ready": false,
+      "current_blocker": "approve_whole_canonical_identity:well-known",
+      "publication_blockers": [
+        "approve_whole_canonical_identity:well-known",
+        "approve_component_canonical_identity:known",
+        "approve_component_meaning:well",
+        "approve_component_meaning:known",
+        "approve_whole_meaning:well-known",
+        "approve_component_to_whole_relationship:well-known",
+        "approve_dictation_sentence:well-known",
+        "approve_assignment_eligibility:well-known"
+      ],
+      "required_action": "Approve append-only canonical rows for well-known and known; approve the adverb sense of well, the known and whole meanings, component-to-whole relationship, dictation, and assignment eligibility.",
+      "human_review_required": [
+        "approve_whole_canonical_identity:well-known",
+        "approve_component_canonical_identity:known",
+        "approve_component_meaning:well",
+        "approve_component_meaning:known",
+        "approve_whole_meaning:well-known",
+        "approve_component_to_whole_relationship:well-known",
+        "approve_dictation_sentence:well-known",
+        "approve_assignment_eligibility:well-known"
+      ],
+      "readiness_classification": "multiple_review_items_required",
+      "genuine_ambiguity": null,
+      "review_decision": "pending_human_review"
+    }
+  ]
+}
