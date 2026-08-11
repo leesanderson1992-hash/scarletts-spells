@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "releaseId": "adle_base_word_prefix_suffix_family_v2_2026_08_11",
+  "packageType": "base_word_family_batch_v1",
+  "packageSchemaVersion": "v2",
+  "approvedSourceSha256": "2af66d22ee827b9e8487475542037b43acbd8fb9468a4abc26d9b833d5f4e69a",
+  "sourceProjectionSha256": "0b83897931e633356d2a2dc1eeada19883437cd998c7bc3cbd85dfb45a9925c4",
+  "familyCounts": {
+    "D4_MOR_BASE_WORDS_BASE_PLUS_PREFIX": 8,
+    "D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX": 8
+  },
+  "memberCounts": {
+    "D4_MOR_BASE_WORDS_BASE_PLUS_PREFIX": 29,
+    "D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX": 24
+  },
+  "productionDark": true,
+  "packageSha256": "239cfc6c46316a97582d48f9f7e9a33594134b3c5a6d1224f08ba6957164855c"
+}

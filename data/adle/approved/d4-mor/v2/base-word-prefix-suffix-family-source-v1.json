@@ -1,0 +1,122 @@
+{
+  "schemaVersion": 1,
+  "sourceKind": "human_approved_workbook_projection",
+  "approval": {
+    "reviewedBy": "Katie Sanderson",
+    "reviewedAt": "2026-08-11T00:00:00.000Z",
+    "sourceFile": "base-word-prefix-suffix-readiness-audit-resolved (1).xlsx",
+    "sourceSha256": "2af66d22ee827b9e8487475542037b43acbd8fb9468a4abc26d9b833d5f4e69a",
+    "sourceSheet": "Resolved Audit",
+    "sourceReference": "codex-goal:169f46ab-01cf-4468-bc3d-10c8352815ec"
+  },
+  "existingFamilyExtensions": [
+    {
+      "baseFamilyKey": "tie_base_family",
+      "microSkillKey": "D4_MOR_BASE_WORDS_BASE_PLUS_PREFIX",
+      "word": "untie",
+      "wordSum": "un + tie → untie",
+      "meaning": "to undo something that is tied"
+    }
+  ],
+  "families": [
+    {
+      "baseFamilyKey": "colour_base_family",
+      "microSkillKey": "D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX",
+      "baseWord": "colour",
+      "baseMeaning": "what something looks like because of light, such as red, blue or green",
+      "members": [
+        { "word": "colour", "wordSum": "colour", "meaning": "what something looks like because of light, such as red, blue or green" },
+        { "word": "colourful", "wordSum": "colour + ful → colourful", "meaning": "full of bright or different colours" },
+        { "word": "colourless", "wordSum": "colour + less → colourless", "meaning": "without colour" }
+      ]
+    },
+    {
+      "baseFamilyKey": "lock_base_family",
+      "microSkillKey": "D4_MOR_BASE_WORDS_BASE_PLUS_PREFIX",
+      "baseWord": "lock",
+      "baseMeaning": "to fasten something so it cannot be opened",
+      "members": [
+        { "word": "lock", "wordSum": "lock", "meaning": "to fasten something so it cannot be opened" },
+        { "word": "locking", "wordSum": "lock + ing → locking", "meaning": "fastening something so it cannot be opened right now" },
+        { "word": "unlock", "wordSum": "un + lock → unlock", "meaning": "to open something by undoing a lock" }
+      ]
+    },
+    {
+      "baseFamilyKey": "migrant_base_family",
+      "microSkillKey": "D4_MOR_BASE_WORDS_BASE_PLUS_PREFIX",
+      "baseWord": "migrant",
+      "baseMeaning": "a person who moves from one place or country to another",
+      "members": [
+        { "word": "immigrant", "wordSum": "im + migrant → immigrant", "meaning": "a person who comes to live in a country from another country" },
+        { "word": "immigrants", "wordSum": "im + migrant + s → immigrants", "meaning": "people who come to live in a country from another country" },
+        { "word": "migrant", "wordSum": "migrant", "meaning": "a person who moves from one place or country to another" }
+      ]
+    },
+    {
+      "baseFamilyKey": "paint_base_family",
+      "microSkillKey": "D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX",
+      "baseWord": "paint",
+      "baseMeaning": "to put coloured paint on a surface",
+      "members": [
+        { "word": "paint", "wordSum": "paint", "meaning": "to put coloured paint on a surface" },
+        { "word": "painter", "wordSum": "paint + er → painter", "meaning": "a person who paints pictures, walls, or other surfaces" },
+        { "word": "painting", "wordSum": "paint + ing → painting", "meaning": "putting paint on something right now" }
+      ]
+    },
+    {
+      "baseFamilyKey": "place_base_family",
+      "microSkillKey": "D4_MOR_BASE_WORDS_BASE_PLUS_PREFIX",
+      "baseWord": "place",
+      "baseMeaning": "a particular position or area",
+      "members": [
+        { "word": "misplace", "wordSum": "mis + place → misplace", "meaning": "to put something in the wrong place" },
+        { "word": "place", "wordSum": "place", "meaning": "a particular position or area" },
+        { "word": "replace", "wordSum": "re + place → replace", "meaning": "to put something back or put a new thing in its place" }
+      ]
+    },
+    {
+      "baseFamilyKey": "slow_base_family",
+      "microSkillKey": "D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX",
+      "baseWord": "slow",
+      "baseMeaning": "not moving or happening quickly",
+      "members": [
+        { "word": "slow", "wordSum": "slow", "meaning": "not moving or happening quickly" },
+        { "word": "slower", "wordSum": "slow + er → slower", "meaning": "more slow; taking more time" },
+        { "word": "slowly", "wordSum": "slow + ly → slowly", "meaning": "in a slow way" }
+      ]
+    },
+    {
+      "baseFamilyKey": "sweet_base_family",
+      "microSkillKey": "D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX",
+      "baseWord": "sweet",
+      "baseMeaning": "having a sugary taste",
+      "members": [
+        { "word": "sweet", "wordSum": "sweet", "meaning": "having a sugary taste" },
+        { "word": "sweetly", "wordSum": "sweet + ly → sweetly", "meaning": "in a sweet or pleasant way" },
+        { "word": "sweetness", "wordSum": "sweet + ness → sweetness", "meaning": "the quality of being sweet" }
+      ]
+    },
+    {
+      "baseFamilyKey": "view_base_family",
+      "microSkillKey": "D4_MOR_BASE_WORDS_BASE_PLUS_PREFIX",
+      "baseWord": "view",
+      "baseMeaning": "to look at or watch something",
+      "members": [
+        { "word": "preview", "wordSum": "pre + view → preview", "meaning": "to see or show something before it is fully available" },
+        { "word": "review", "wordSum": "re + view → review", "meaning": "to look at something again to check or think about it" },
+        { "word": "view", "wordSum": "view", "meaning": "to look at or watch something" }
+      ]
+    },
+    {
+      "baseFamilyKey": "wind_base_family",
+      "microSkillKey": "D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX",
+      "baseWord": "wind",
+      "baseMeaning": "moving air outdoors",
+      "members": [
+        { "word": "wind", "wordSum": "wind", "meaning": "moving air outdoors" },
+        { "word": "windier", "wordSum": "wind + ier → windier", "meaning": "more windy" },
+        { "word": "windy", "wordSum": "wind + y → windy", "meaning": "with a lot of wind" }
+      ]
+    }
+  ]
+}
