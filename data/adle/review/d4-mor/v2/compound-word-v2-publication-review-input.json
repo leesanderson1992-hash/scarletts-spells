@@ -1,0 +1,483 @@
+{
+  "schema_version": 1,
+  "purpose": "CW-3A human-review input only; proposed text is not governed curriculum authority and must not be published without review",
+  "source_as_of": "2026-08-11",
+  "base_sha": "ca6289327b5a8c7f73f3287271d177d54b5a35b2",
+  "review_state": "proposed_for_review",
+  "canonical_word_proposals": [
+    {
+      "word_key": "grand_en_gb",
+      "normalised_word": "grand",
+      "display_word": "grand",
+      "frequency_band": "medium",
+      "age_band": "middle_primary",
+      "complexity_band": "low",
+      "syllables": 1,
+      "phoneme_hint": "/ɡrænd/",
+      "stress_pattern": "single",
+      "has_schwa": false,
+      "child_friendly_lexical_meaning": "impressive or important; in family words, grand marks one generation before a parent",
+      "dictation_sentence": "The palace has a grand entrance.",
+      "dictation_target_start": 4,
+      "dictation_target_end_exclusive": 5,
+      "ambiguity_review": "Approve the family-word sense used for grandmother separately from the common adjective sense of grand."
+    },
+    {
+      "word_key": "grandmother_en_gb",
+      "normalised_word": "grandmother",
+      "display_word": "grandmother",
+      "frequency_band": "high",
+      "age_band": "early_primary",
+      "complexity_band": "medium",
+      "syllables": 3,
+      "phoneme_hint": "/ˈɡrænˌmʌðə/",
+      "stress_pattern": "first-secondary",
+      "has_schwa": true,
+      "child_friendly_lexical_meaning": "the mother of one of your parents",
+      "dictation_sentence": "Mia wrote a letter to her grandmother.",
+      "dictation_target_start": 6,
+      "dictation_target_end_exclusive": 7,
+      "ambiguity_review": null
+    },
+    {
+      "word_key": "homework_en_gb",
+      "normalised_word": "homework",
+      "display_word": "homework",
+      "frequency_band": "high",
+      "age_band": "early_primary",
+      "complexity_band": "medium",
+      "syllables": 2,
+      "phoneme_hint": "/ˈhəʊmwɜːk/",
+      "stress_pattern": "first",
+      "has_schwa": false,
+      "child_friendly_lexical_meaning": "school work that a teacher asks a pupil to do at home",
+      "dictation_sentence": "I finished my homework before tea.",
+      "dictation_target_start": 3,
+      "dictation_target_end_exclusive": 4,
+      "ambiguity_review": null
+    },
+    {
+      "word_key": "sunflower_en_gb",
+      "normalised_word": "sunflower",
+      "display_word": "sunflower",
+      "frequency_band": "medium",
+      "age_band": "early_primary",
+      "complexity_band": "medium",
+      "syllables": 3,
+      "phoneme_hint": "/ˈsʌnˌflaʊə/",
+      "stress_pattern": "first-secondary",
+      "has_schwa": true,
+      "child_friendly_lexical_meaning": "a tall plant with a large yellow flower head",
+      "dictation_sentence": "The sunflower grew beside the fence.",
+      "dictation_target_start": 1,
+      "dictation_target_end_exclusive": 2,
+      "ambiguity_review": null
+    },
+    {
+      "word_key": "cream_en_gb",
+      "normalised_word": "cream",
+      "display_word": "cream",
+      "frequency_band": "high",
+      "age_band": "early_primary",
+      "complexity_band": "low",
+      "syllables": 1,
+      "phoneme_hint": "/kriːm/",
+      "stress_pattern": "single",
+      "has_schwa": false,
+      "child_friendly_lexical_meaning": "the thick, rich part of milk",
+      "dictation_sentence": "She poured cream onto the fruit.",
+      "dictation_target_start": 2,
+      "dictation_target_end_exclusive": 3,
+      "ambiguity_review": null
+    },
+    {
+      "word_key": "living_en_gb",
+      "normalised_word": "living",
+      "display_word": "living",
+      "frequency_band": "high",
+      "age_band": "early_primary",
+      "complexity_band": "medium",
+      "syllables": 2,
+      "phoneme_hint": "/ˈlɪvɪŋ/",
+      "stress_pattern": "first",
+      "has_schwa": false,
+      "child_friendly_lexical_meaning": "being alive or the way people live",
+      "dictation_sentence": "Living near the sea can be exciting.",
+      "dictation_target_start": 0,
+      "dictation_target_end_exclusive": 1,
+      "ambiguity_review": null
+    },
+    {
+      "word_key": "living_room_en_gb",
+      "normalised_word": "living room",
+      "display_word": "living room",
+      "frequency_band": "high",
+      "age_band": "early_primary",
+      "complexity_band": "medium",
+      "syllables": 3,
+      "phoneme_hint": "/ˈlɪvɪŋ ˌruːm/",
+      "stress_pattern": "first-secondary",
+      "has_schwa": false,
+      "child_friendly_lexical_meaning": "a room in a home where people sit and spend time together",
+      "dictation_sentence": "We read together in the living room.",
+      "dictation_target_start": 5,
+      "dictation_target_end_exclusive": 7,
+      "ambiguity_review": null
+    },
+    {
+      "word_key": "in_en_gb",
+      "normalised_word": "in",
+      "display_word": "in",
+      "frequency_band": "high",
+      "age_band": "early_primary",
+      "complexity_band": "low",
+      "syllables": 1,
+      "phoneme_hint": "/ɪn/",
+      "stress_pattern": "single",
+      "has_schwa": false,
+      "child_friendly_lexical_meaning": "inside or within something",
+      "dictation_sentence": "The pencils are in the box.",
+      "dictation_target_start": 3,
+      "dictation_target_end_exclusive": 4,
+      "ambiguity_review": "The ordinary lexical meaning does not explain mother-in-law; approve the component's grammatical treatment in that fixed phrase."
+    },
+    {
+      "word_key": "law_en_gb",
+      "normalised_word": "law",
+      "display_word": "law",
+      "frequency_band": "high",
+      "age_band": "middle_primary",
+      "complexity_band": "medium",
+      "syllables": 1,
+      "phoneme_hint": "/lɔː/",
+      "stress_pattern": "single",
+      "has_schwa": false,
+      "child_friendly_lexical_meaning": "a rule, or the system of rules, that a community must follow",
+      "dictation_sentence": "The new law protects wild birds.",
+      "dictation_target_start": 2,
+      "dictation_target_end_exclusive": 3,
+      "ambiguity_review": "Approve the non-literal role of law inside the fixed family phrase in-law."
+    },
+    {
+      "word_key": "mother_in_law_en_gb",
+      "normalised_word": "mother-in-law",
+      "display_word": "mother-in-law",
+      "frequency_band": "medium",
+      "age_band": "upper_primary",
+      "complexity_band": "high",
+      "syllables": 4,
+      "phoneme_hint": "/ˈmʌðərɪnˌlɔː/",
+      "stress_pattern": "first-secondary",
+      "has_schwa": true,
+      "child_friendly_lexical_meaning": "the mother of a person's husband or wife",
+      "dictation_sentence": "Her mother-in-law came for lunch.",
+      "dictation_target_start": 1,
+      "dictation_target_end_exclusive": 2,
+      "ambiguity_review": "Approve in-law as a fixed grammatical unit showing a family link through marriage rather than a literal sum of in and law."
+    },
+    {
+      "word_key": "part_en_gb",
+      "normalised_word": "part",
+      "display_word": "part",
+      "frequency_band": "high",
+      "age_band": "early_primary",
+      "complexity_band": "low",
+      "syllables": 1,
+      "phoneme_hint": "/pɑːt/",
+      "stress_pattern": "single",
+      "has_schwa": false,
+      "child_friendly_lexical_meaning": "some, but not all, of something",
+      "dictation_sentence": "I read one part of the story.",
+      "dictation_target_start": 3,
+      "dictation_target_end_exclusive": 4,
+      "ambiguity_review": null
+    },
+    {
+      "word_key": "part_time_en_gb",
+      "normalised_word": "part-time",
+      "display_word": "part-time",
+      "frequency_band": "medium",
+      "age_band": "middle_primary",
+      "complexity_band": "medium",
+      "syllables": 2,
+      "phoneme_hint": "/ˌpɑːtˈtaɪm/",
+      "stress_pattern": "second",
+      "has_schwa": false,
+      "child_friendly_lexical_meaning": "for fewer hours than a full-time job or course",
+      "dictation_sentence": "Dad works part-time at the library.",
+      "dictation_target_start": 2,
+      "dictation_target_end_exclusive": 3,
+      "ambiguity_review": null
+    },
+    {
+      "word_key": "office_en_gb",
+      "normalised_word": "office",
+      "display_word": "office",
+      "frequency_band": "high",
+      "age_band": "early_primary",
+      "complexity_band": "medium",
+      "syllables": 2,
+      "phoneme_hint": "/ˈɒfɪs/",
+      "stress_pattern": "first",
+      "has_schwa": false,
+      "child_friendly_lexical_meaning": "a room or place where people do work",
+      "dictation_sentence": "The school office is near the entrance.",
+      "dictation_target_start": 2,
+      "dictation_target_end_exclusive": 3,
+      "ambiguity_review": null
+    },
+    {
+      "word_key": "post_office_en_gb",
+      "normalised_word": "post office",
+      "display_word": "post office",
+      "frequency_band": "medium",
+      "age_band": "early_primary",
+      "complexity_band": "medium",
+      "syllables": 3,
+      "phoneme_hint": "/ˈpəʊst ˌɒfɪs/",
+      "stress_pattern": "first-secondary",
+      "has_schwa": false,
+      "child_friendly_lexical_meaning": "a place where letters and parcels are sent and collected",
+      "dictation_sentence": "We bought stamps at the post office.",
+      "dictation_target_start": 5,
+      "dictation_target_end_exclusive": 7,
+      "ambiguity_review": null
+    },
+    {
+      "word_key": "twenty_en_gb",
+      "normalised_word": "twenty",
+      "display_word": "twenty",
+      "frequency_band": "high",
+      "age_band": "early_primary",
+      "complexity_band": "medium",
+      "syllables": 2,
+      "phoneme_hint": "/ˈtwenti/",
+      "stress_pattern": "first",
+      "has_schwa": false,
+      "child_friendly_lexical_meaning": "the number 20",
+      "dictation_sentence": "There are twenty pencils in the box.",
+      "dictation_target_start": 2,
+      "dictation_target_end_exclusive": 3,
+      "ambiguity_review": null
+    },
+    {
+      "word_key": "known_en_gb",
+      "normalised_word": "known",
+      "display_word": "known",
+      "frequency_band": "high",
+      "age_band": "middle_primary",
+      "complexity_band": "medium",
+      "syllables": 1,
+      "phoneme_hint": "/nəʊn/",
+      "stress_pattern": "single",
+      "has_schwa": false,
+      "child_friendly_lexical_meaning": "recognised or understood because people have heard or learned about it",
+      "dictation_sentence": "This story is known around the world.",
+      "dictation_target_start": 3,
+      "dictation_target_end_exclusive": 4,
+      "ambiguity_review": null
+    },
+    {
+      "word_key": "well_known_en_gb",
+      "normalised_word": "well-known",
+      "display_word": "well-known",
+      "frequency_band": "medium",
+      "age_band": "middle_primary",
+      "complexity_band": "medium",
+      "syllables": 2,
+      "phoneme_hint": "/ˌwelˈnəʊn/",
+      "stress_pattern": "second",
+      "has_schwa": false,
+      "child_friendly_lexical_meaning": "known by many people",
+      "dictation_sentence": "The castle is a well-known landmark.",
+      "dictation_target_start": 4,
+      "dictation_target_end_exclusive": 5,
+      "ambiguity_review": null
+    }
+  ],
+  "rows": [
+    {
+      "whole_word": "bedroom",
+      "component_meanings": [
+        { "value": "furniture that you sleep in", "status": "approved_existing_governed_reuse", "provenance": "data/adle/candidates/d4-mor-remaining-profiles/v1/closed-compounds-dictionary-pool-review.json#bedroom.firstWordMeaning" },
+        { "value": "a space inside a building", "status": "approved_existing_governed_reuse", "provenance": "data/adle/candidates/d4-mor-remaining-profiles/v1/closed-compounds-dictionary-pool-review.json#bedroom.secondWordMeaning" }
+      ],
+      "whole_meaning": { "value": "a room where someone sleeps", "status": "approved_existing_governed_reuse", "provenance": "data/adle/candidates/d4-mor-remaining-profiles/v1/closed-compounds-dictionary-pool-review.json#bedroom.definition" },
+      "component_to_whole_relationship": "A bedroom is a room with a bed, used for sleeping.",
+      "dictation": { "sentence": "Mother took the baby to the bedroom.", "target_start": 6, "target_end_exclusive": 7, "status": "approved_existing_governed_reuse", "provenance": "data/adle/candidates/d4-mor-remaining-profiles/v1/closed-compounds-dictionary-pool-review.json#bedroom.dictation" },
+      "assignment_eligible": { "value": true, "status": "approved_existing_governed_reuse", "provenance": "Production canonical_teaching_dictionary_compound_facts#bedroom" },
+      "genuine_ambiguity": null,
+      "required_action": "Approve or amend the proposed component-to-whole relationship; no other governed fact needs review."
+    },
+    {
+      "whole_word": "football",
+      "component_meanings": [
+        { "value": "the part at the end of your leg", "status": "approved_existing_governed_reuse", "provenance": "data/adle/candidates/d4-mor-remaining-profiles/v1/closed-compounds-dictionary-pool-review.json#football.firstWordMeaning" },
+        { "value": "a round object used in games", "status": "approved_existing_governed_reuse", "provenance": "data/adle/candidates/d4-mor-remaining-profiles/v1/closed-compounds-dictionary-pool-review.json#football.secondWordMeaning" }
+      ],
+      "whole_meaning": { "value": "a game where players kick a ball into goals", "status": "approved_existing_governed_reuse", "provenance": "data/adle/candidates/d4-mor-remaining-profiles/v1/closed-compounds-dictionary-pool-review.json#football.definition" },
+      "component_to_whole_relationship": "Football is a game played with a ball mainly using the feet.",
+      "dictation": { "sentence": "Children play football in the playground.", "target_start": 2, "target_end_exclusive": 3, "status": "approved_existing_governed_reuse", "provenance": "data/adle/candidates/d4-mor-remaining-profiles/v1/closed-compounds-dictionary-pool-review.json#football.dictation" },
+      "assignment_eligible": { "value": true, "status": "approved_existing_governed_reuse", "provenance": "Production canonical_teaching_dictionary_compound_facts#football" },
+      "genuine_ambiguity": null,
+      "required_action": "Approve or amend the proposed component-to-whole relationship; no other governed fact needs review."
+    },
+    {
+      "whole_word": "grandmother",
+      "component_meanings": [
+        { "value": "in a family word, one generation before a parent", "status": "proposed_for_review", "provenance": "CW-3A proposal from the approved grandmother structure" },
+        { "value": "a female parent", "status": "proposed_for_review", "provenance": "CW-3A proposal from the approved grandmother structure" }
+      ],
+      "whole_meaning": { "value": "the mother of one of your parents", "status": "proposed_for_review", "provenance": "CW-3A proposal from the approved grandmother structure" },
+      "component_to_whole_relationship": "A grandmother is the mother of one of your parents; grand shows she is one generation before your parent.",
+      "dictation": { "sentence": "Mia wrote a letter to her grandmother.", "target_start": 6, "target_end_exclusive": 7, "status": "proposed_for_review", "provenance": "CW-3A proposed dictation" },
+      "assignment_eligible": { "value": true, "status": "proposed_for_review", "provenance": "CW-3A proposal for the approved reviewed roster" },
+      "genuine_ambiguity": "Confirm that grand uses the family-generation sense, not the common adjective sense meaning impressive or important.",
+      "required_action": "Approve append-only canonical rows for grandmother and grand; approve both component senses, the whole meaning, the component-to-whole relationship, the dictation, and assignment eligibility; confirm the family-generation sense of grand."
+    },
+    {
+      "whole_word": "homework",
+      "component_meanings": [
+        { "value": "the place where you live", "status": "proposed_for_review", "provenance": "CW-3A proposal from the approved homework structure" },
+        { "value": "to do a job or task", "status": "approved_existing_governed_reuse", "provenance": "docs/implementation/seed-data/teaching-dictionary/releases/2026-08-09-base-word-family-meanings-v1/audit/family-meaning-audit.csv#work_en_gb" }
+      ],
+      "whole_meaning": { "value": "school work that a teacher asks a pupil to do at home", "status": "proposed_for_review", "provenance": "CW-3A proposal from the approved homework structure" },
+      "component_to_whole_relationship": "Homework is work, meaning a job or task, that a pupil does at home.",
+      "dictation": { "sentence": "I finished my homework before tea.", "target_start": 3, "target_end_exclusive": 4, "status": "proposed_for_review", "provenance": "CW-3A proposed dictation" },
+      "assignment_eligible": { "value": true, "status": "proposed_for_review", "provenance": "CW-3A proposal for the approved reviewed roster" },
+      "genuine_ambiguity": null,
+      "required_action": "Approve the append-only canonical homework row; approve the proposed home and whole meanings, component-to-whole relationship, dictation, and assignment eligibility; retain the governed work meaning."
+    },
+    {
+      "whole_word": "playground",
+      "component_meanings": [
+        { "value": "to have fun with games or toys", "status": "approved_existing_governed_reuse", "provenance": "data/adle/candidates/d4-mor-remaining-profiles/v1/closed-compounds-dictionary-pool-review.json#playground.firstWordMeaning" },
+        { "value": "the surface under your feet", "status": "approved_existing_governed_reuse", "provenance": "data/adle/candidates/d4-mor-remaining-profiles/v1/closed-compounds-dictionary-pool-review.json#playground.secondWordMeaning" }
+      ],
+      "whole_meaning": { "value": "an outdoor place where children play", "status": "approved_existing_governed_reuse", "provenance": "data/adle/candidates/d4-mor-remaining-profiles/v1/closed-compounds-dictionary-pool-review.json#playground.definition" },
+      "component_to_whole_relationship": "A playground is ground set aside for children to play on.",
+      "dictation": { "sentence": "The children played in the playground.", "target_start": 5, "target_end_exclusive": 6, "status": "approved_existing_governed_reuse", "provenance": "data/adle/candidates/d4-mor-remaining-profiles/v1/closed-compounds-dictionary-pool-review.json#playground.dictation" },
+      "assignment_eligible": { "value": true, "status": "approved_existing_governed_reuse", "provenance": "Production canonical_teaching_dictionary_compound_facts#playground" },
+      "genuine_ambiguity": null,
+      "required_action": "Approve or amend the proposed component-to-whole relationship; no other governed fact needs review."
+    },
+    {
+      "whole_word": "rainbow",
+      "component_meanings": [
+        { "value": "water that falls from clouds", "status": "approved_existing_governed_reuse", "provenance": "data/adle/candidates/d4-mor-remaining-profiles/v1/closed-compounds-dictionary-pool-review.json#rainbow.firstWordMeaning" },
+        { "value": "a curved shape", "status": "approved_existing_governed_reuse", "provenance": "data/adle/candidates/d4-mor-remaining-profiles/v1/closed-compounds-dictionary-pool-review.json#rainbow.secondWordMeaning" }
+      ],
+      "whole_meaning": { "value": "a curved band of colours seen in the sky after rain", "status": "approved_existing_governed_reuse", "provenance": "data/adle/candidates/d4-mor-remaining-profiles/v1/closed-compounds-dictionary-pool-review.json#rainbow.definition" },
+      "component_to_whole_relationship": "A rainbow is a bow-shaped curve of colours that appears with rain.",
+      "dictation": { "sentence": "A rainbow appeared after rain.", "target_start": 1, "target_end_exclusive": 2, "status": "approved_existing_governed_reuse", "provenance": "data/adle/candidates/d4-mor-remaining-profiles/v1/closed-compounds-dictionary-pool-review.json#rainbow.dictation" },
+      "assignment_eligible": { "value": true, "status": "approved_existing_governed_reuse", "provenance": "Production canonical_teaching_dictionary_compound_facts#rainbow" },
+      "genuine_ambiguity": null,
+      "required_action": "Approve or amend the proposed component-to-whole relationship; no other governed fact needs review."
+    },
+    {
+      "whole_word": "sunflower",
+      "component_meanings": [
+        { "value": "the star that gives Earth light and heat", "status": "approved_existing_governed_reuse", "provenance": "docs/implementation/seed-data/teaching-dictionary/releases/2026-08-09-base-word-family-meanings-v1/audit/family-meaning-audit.csv#sun_en_gb" },
+        { "value": "the part of a plant that is often brightly coloured and makes seeds", "status": "proposed_for_review", "provenance": "CW-3A proposal from the approved sunflower structure" }
+      ],
+      "whole_meaning": { "value": "a tall plant with a large yellow flower head", "status": "proposed_for_review", "provenance": "CW-3A proposal from the approved sunflower structure" },
+      "component_to_whole_relationship": "A sunflower is a flower with a large yellow head that looks like the sun.",
+      "dictation": { "sentence": "The sunflower grew beside the fence.", "target_start": 1, "target_end_exclusive": 2, "status": "proposed_for_review", "provenance": "CW-3A proposed dictation" },
+      "assignment_eligible": { "value": true, "status": "proposed_for_review", "provenance": "CW-3A proposal for the approved reviewed roster" },
+      "genuine_ambiguity": null,
+      "required_action": "Approve the append-only canonical sunflower row; approve the proposed flower and whole meanings, component-to-whole relationship, dictation, and assignment eligibility; retain the governed sun meaning."
+    },
+    {
+      "whole_word": "ice cream",
+      "component_meanings": [
+        { "value": "water that has frozen solid", "status": "proposed_for_review", "provenance": "CW-3A proposal from the approved ice cream structure" },
+        { "value": "the thick, rich part of milk", "status": "proposed_for_review", "provenance": "CW-3A proposal from the approved ice cream structure" }
+      ],
+      "whole_meaning": { "value": "a sweet frozen food made mainly from milk or cream", "status": "proposed_for_review", "provenance": "CW-3A proposal from the approved ice cream structure" },
+      "component_to_whole_relationship": "Ice cream is a cold, creamy food; ice points to its frozen state and cream to its milk ingredient.",
+      "dictation": { "sentence": "We had ice cream after the park.", "target_start": 2, "target_end_exclusive": 4, "status": "approved_existing_governed_reuse", "provenance": "docs/implementation/seed-data/teaching-dictionary/candidates/2026-06-29-phase-5-source-intake/csv/dictation_sentences.csv#ice_cream_en_gb" },
+      "assignment_eligible": { "value": true, "status": "proposed_for_review", "provenance": "CW-3A proposal for the approved reviewed roster" },
+      "genuine_ambiguity": null,
+      "required_action": "Approve the append-only canonical cream row; approve both component meanings, the whole meaning, the component-to-whole relationship, and assignment eligibility; retain the governed ice cream identity, dictation, and deterministic two-token span."
+    },
+    {
+      "whole_word": "living room",
+      "component_meanings": [
+        { "value": "everyday life or the way people live", "status": "proposed_for_review", "provenance": "CW-3A proposal from the approved living room structure" },
+        { "value": "a space inside a building", "status": "approved_existing_governed_reuse", "provenance": "data/adle/candidates/d4-mor-remaining-profiles/v1/closed-compounds-dictionary-pool-review.json#bedroom.secondWordMeaning" }
+      ],
+      "whole_meaning": { "value": "a room in a home where people sit and spend time together", "status": "proposed_for_review", "provenance": "CW-3A proposal from the approved living room structure" },
+      "component_to_whole_relationship": "A living room is a room where people spend everyday time together at home.",
+      "dictation": { "sentence": "We read together in the living room.", "target_start": 5, "target_end_exclusive": 7, "status": "proposed_for_review", "provenance": "CW-3A proposed dictation" },
+      "assignment_eligible": { "value": true, "status": "proposed_for_review", "provenance": "CW-3A proposal for the approved reviewed roster" },
+      "genuine_ambiguity": null,
+      "required_action": "Approve append-only canonical rows for living room and living; approve the proposed living and whole meanings, component-to-whole relationship, dictation, and assignment eligibility; retain the governed room sense."
+    },
+    {
+      "whole_word": "mother-in-law",
+      "component_meanings": [
+        { "value": "a female parent", "status": "proposed_for_review", "provenance": "CW-3A proposal from the approved mother-in-law structure" },
+        { "value": "a linking word inside the fixed family phrase in-law", "status": "proposed_for_review", "provenance": "CW-3A grammatical-component proposal" },
+        { "value": "the system of rules that a community must follow", "status": "proposed_for_review", "provenance": "CW-3A proposal; non-literal inside in-law" }
+      ],
+      "whole_meaning": { "value": "the mother of a person's husband or wife", "status": "proposed_for_review", "provenance": "CW-3A proposal from the approved mother-in-law structure" },
+      "component_to_whole_relationship": "A mother-in-law is a mother connected to someone through marriage; the fixed part in-law shows that family link.",
+      "dictation": { "sentence": "Her mother-in-law came for lunch.", "target_start": 1, "target_end_exclusive": 2, "status": "proposed_for_review", "provenance": "CW-3A proposed dictation" },
+      "assignment_eligible": { "value": true, "status": "proposed_for_review", "provenance": "CW-3A proposal for the approved reviewed roster" },
+      "genuine_ambiguity": "Confirm the grammatical treatment of in and the non-literal role of law inside the fixed unit in-law; do not teach their ordinary meanings as a literal sum.",
+      "required_action": "Approve append-only canonical rows for mother-in-law, in, and law; approve all component treatments, the whole meaning, component-to-whole relationship, dictation, and assignment eligibility; decide the exact child-facing treatment of the fixed unit in-law."
+    },
+    {
+      "whole_word": "part-time",
+      "component_meanings": [
+        { "value": "some, but not all, of something", "status": "proposed_for_review", "provenance": "CW-3A proposal from the approved part-time structure" },
+        { "value": "the hours spent doing an activity", "status": "proposed_for_review", "provenance": "CW-3A proposal from the approved part-time structure" }
+      ],
+      "whole_meaning": { "value": "for fewer hours than a full-time job or course", "status": "proposed_for_review", "provenance": "CW-3A proposal from the approved part-time structure" },
+      "component_to_whole_relationship": "Part-time work or study takes only part of the usual working time.",
+      "dictation": { "sentence": "Dad works part-time at the library.", "target_start": 2, "target_end_exclusive": 3, "status": "proposed_for_review", "provenance": "CW-3A proposed dictation" },
+      "assignment_eligible": { "value": true, "status": "proposed_for_review", "provenance": "CW-3A proposal for the approved reviewed roster" },
+      "genuine_ambiguity": null,
+      "required_action": "Approve append-only canonical rows for part-time and part; approve both component meanings, the whole meaning, component-to-whole relationship, dictation, and assignment eligibility."
+    },
+    {
+      "whole_word": "post office",
+      "component_meanings": [
+        { "value": "letters and parcels that are sent and delivered", "status": "proposed_for_review", "provenance": "CW-3A proposal selecting the noun sense required by post office" },
+        { "value": "a room or place where people do work", "status": "proposed_for_review", "provenance": "CW-3A proposal from the approved post office structure" }
+      ],
+      "whole_meaning": { "value": "a place where letters and parcels are sent and collected", "status": "proposed_for_review", "provenance": "CW-3A proposal from the approved post office structure" },
+      "component_to_whole_relationship": "A post office is an office where people send and collect post.",
+      "dictation": { "sentence": "We bought stamps at the post office.", "target_start": 5, "target_end_exclusive": 7, "status": "proposed_for_review", "provenance": "CW-3A proposed dictation" },
+      "assignment_eligible": { "value": true, "status": "proposed_for_review", "provenance": "CW-3A proposal for the approved reviewed roster" },
+      "genuine_ambiguity": null,
+      "required_action": "Approve append-only canonical rows for post office and office; approve the noun sense of post, the office and whole meanings, component-to-whole relationship, dictation, and assignment eligibility."
+    },
+    {
+      "whole_word": "twenty-one",
+      "component_meanings": [
+        { "value": "the number 20", "status": "proposed_for_review", "provenance": "CW-3A proposal from the approved twenty-one structure" },
+        { "value": "the number 1", "status": "approved_existing_governed_reuse", "provenance": "docs/implementation/seed-data/teaching-dictionary/releases/2026-08-09-base-word-family-meanings-v1/audit/family-meaning-audit.csv#one_en_gb" }
+      ],
+      "whole_meaning": { "value": "twenty and one more: the number 21", "status": "approved_existing_governed_reuse", "provenance": "Production canonical_teaching_dictionary_base_word_family_members#twenty-one" },
+      "component_to_whole_relationship": "Twenty-one combines twenty and one to make the number 21.",
+      "dictation": { "sentence": "There are twenty-one children in our class.", "target_start": 2, "target_end_exclusive": 3, "status": "approved_existing_governed_reuse", "provenance": "docs/implementation/seed-data/teaching-dictionary/candidates/2026-06-29-phase-5-source-intake/csv/dictation_sentences.csv#twenty_one_en_gb" },
+      "assignment_eligible": { "value": true, "status": "proposed_for_review", "provenance": "CW-3A proposal for the approved reviewed roster" },
+      "genuine_ambiguity": null,
+      "required_action": "Approve the append-only canonical twenty row; approve its component meaning, the proposed component-to-whole relationship, and assignment eligibility; retain the governed whole identity, one meaning, whole meaning, dictation, and exact hyphenated span."
+    },
+    {
+      "whole_word": "well-known",
+      "component_meanings": [
+        { "value": "to a great degree", "status": "proposed_for_review", "provenance": "CW-3A proposal selecting the adverb sense required by well-known" },
+        { "value": "recognised or familiar to people", "status": "proposed_for_review", "provenance": "CW-3A proposal from the approved well-known structure" }
+      ],
+      "whole_meaning": { "value": "known by many people", "status": "proposed_for_review", "provenance": "CW-3A proposal from the approved well-known structure" },
+      "component_to_whole_relationship": "Something well-known is known well enough to be recognised by many people.",
+      "dictation": { "sentence": "The castle is a well-known landmark.", "target_start": 4, "target_end_exclusive": 5, "status": "proposed_for_review", "provenance": "CW-3A proposed dictation" },
+      "assignment_eligible": { "value": true, "status": "proposed_for_review", "provenance": "CW-3A proposal for the approved reviewed roster" },
+      "genuine_ambiguity": null,
+      "required_action": "Approve append-only canonical rows for well-known and known; approve the adverb sense of well, the known and whole meanings, component-to-whole relationship, dictation, and assignment eligibility."
+    }
+  ]
+}
