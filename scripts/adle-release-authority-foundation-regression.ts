@@ -105,6 +105,15 @@ assert.equal(validateAdleCurriculumReleaseManifestV2({
   ...manifest,
   requestedStatus: "enabled",
 }).valid, false, "operational status cannot enter the immutable release manifest");
+assert.equal(validateAdleCurriculumReleaseManifestV2({
+  ...manifest,
+  microSkills: manifest.microSkills.map((skill, skillIndex) => skillIndex === 0 ? {
+    ...skill,
+    dependencies: skill.dependencies.map(dependency => dependency.authorityType === "teaching_content"
+      ? { ...dependency, authoritySchemaVersion: 2 }
+      : dependency),
+  } : skill),
+}).valid, false, "schema-v2 adoption remains restricted to family membership");
 
 const closure: AdleTeachingDictionaryClosureManifestV1 = {
   schemaVersion: 1,

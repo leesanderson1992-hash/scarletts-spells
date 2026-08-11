@@ -1,0 +1,267 @@
+[
+  {
+    "wordKey": "care_en_gb",
+    "canonicalWordId": "80e41075-5085-5c1d-9c64-d292fef62e97",
+    "dictationSentenceId": "deab110d-4e81-41d7-8271-02512e93d5ee"
+  },
+  {
+    "wordKey": "careful_en_gb",
+    "canonicalWordId": "5ada7d53-4586-5757-928c-e27d261c147e",
+    "dictationSentenceId": "70bb2d1f-5c69-4700-a501-ccb8b10df8ed"
+  },
+  {
+    "wordKey": "careless_en_gb",
+    "canonicalWordId": "b98a9d29-e6c3-5093-9060-9976488c2396",
+    "dictationSentenceId": "d888c159-3696-49aa-a866-437c2f474bd8"
+  },
+  {
+    "wordKey": "colour_en_gb",
+    "canonicalWordId": "7fa277b9-d96a-5d2e-b53e-d38872174965",
+    "dictationSentenceId": "f4417d05-0a7d-523f-b63f-7df1d4bad100"
+  },
+  {
+    "wordKey": "colourful_en_gb",
+    "canonicalWordId": "479e8116-f29c-52bc-a50c-4ae45f328939",
+    "dictationSentenceId": "3dd5954c-6eed-549b-9fd0-a3aeba6d2e2d"
+  },
+  {
+    "wordKey": "colourless_en_gb",
+    "canonicalWordId": "bf951d26-91d0-50b1-a111-885d11265cc7",
+    "dictationSentenceId": "d185ec0e-f6c2-5392-bffc-331e4a330d5f"
+  },
+  {
+    "wordKey": "dislike_en_gb",
+    "canonicalWordId": "66577bba-d406-51f0-b826-75b19d234d5c",
+    "dictationSentenceId": "d01df400-25b8-46b2-b415-548e1890819d"
+  },
+  {
+    "wordKey": "govern_en_gb",
+    "canonicalWordId": "768018a9-05d4-404c-95ed-0485e4aa75b4",
+    "dictationSentenceId": "33388750-0cc0-42ae-bda6-27fb191c1663"
+  },
+  {
+    "wordKey": "government_en_gb",
+    "canonicalWordId": "7804b931-499e-586b-b74c-a3bd81e80020",
+    "dictationSentenceId": "5bd87930-3d35-4194-aaf7-23f146fdb7a3"
+  },
+  {
+    "wordKey": "governor_en_gb",
+    "canonicalWordId": "7052fee0-35ef-4c1a-97a3-bef6aa156bde",
+    "dictationSentenceId": "9d05ec3e-9ca4-49f7-a411-e36a5305292e"
+  },
+  {
+    "wordKey": "immigrant_en_gb",
+    "canonicalWordId": "8c529c96-ef9b-5197-828e-0938c8cfd292",
+    "dictationSentenceId": "2d8fd74e-692a-5394-a09c-b4ef7f7e686d"
+  },
+  {
+    "wordKey": "immigrants_en_gb",
+    "canonicalWordId": "29e28ce7-f2e3-5543-87dc-78bb8e071b56",
+    "dictationSentenceId": "8b9e1d98-0072-51f2-97be-48e5844d622e"
+  },
+  {
+    "wordKey": "kind_en_gb",
+    "canonicalWordId": "e57c9f39-1882-5ec6-bcba-cd1fdc4221b5",
+    "dictationSentenceId": "6b0f13a1-2d61-4193-b0d1-0fda2263b40d"
+  },
+  {
+    "wordKey": "kindness_en_gb",
+    "canonicalWordId": "39e58033-c336-5f27-a3a3-74d622990752",
+    "dictationSentenceId": "5cc6a6ea-fb45-41c4-b1e9-194d673294da"
+  },
+  {
+    "wordKey": "like_en_gb",
+    "canonicalWordId": "c42b2aa3-d75a-514d-97a5-8923b2e54674",
+    "dictationSentenceId": "d6be7ca6-a16c-4820-a473-df914ebf5201"
+  },
+  {
+    "wordKey": "liked_en_gb",
+    "canonicalWordId": "0a40d520-9111-5f6e-b41c-463c48dc92e9",
+    "dictationSentenceId": "79a1fa9f-992e-4bf2-a331-b99a301aff84"
+  },
+  {
+    "wordKey": "lock_en_gb",
+    "canonicalWordId": "f41b3903-a90b-5762-9ad2-266d5454530a",
+    "dictationSentenceId": "91db2d70-302d-59f0-9edb-66426aa7bc5b"
+  },
+  {
+    "wordKey": "locking_en_gb",
+    "canonicalWordId": "2dffca12-ad03-515d-9624-440ac6a57eaa",
+    "dictationSentenceId": "907dfd9a-7f11-5833-a9df-840490be7c3a"
+  },
+  {
+    "wordKey": "migrant_en_gb",
+    "canonicalWordId": "29ca18d7-1831-5a0a-b6ed-5fc98c22209e",
+    "dictationSentenceId": "e4b985bd-62b3-57bf-af6f-271390bafaed"
+  },
+  {
+    "wordKey": "misplace_en_gb",
+    "canonicalWordId": "ec7d7616-676c-5d4d-b986-dfd2a7c1f97c",
+    "dictationSentenceId": "ec0bef0b-87a9-5f06-92ca-dd3a2978143b"
+  },
+  {
+    "wordKey": "paint_en_gb",
+    "canonicalWordId": "b1066dc4-d778-554b-9d93-cacdc20c9abe",
+    "dictationSentenceId": "9a710e76-f82b-492a-b433-e775cf6be593"
+  },
+  {
+    "wordKey": "painter_en_gb",
+    "canonicalWordId": "28608110-6af9-50fe-bec8-ca67ee64123f",
+    "dictationSentenceId": "edf19c77-796c-5733-a486-dfff09b9111e"
+  },
+  {
+    "wordKey": "painting_en_gb",
+    "canonicalWordId": "665b4749-fafc-518d-9362-04a5f7ee05db",
+    "dictationSentenceId": "2ef3bb7e-a688-5677-80a4-f3bc1f58dd47"
+  },
+  {
+    "wordKey": "place_en_gb",
+    "canonicalWordId": "313ba567-eac5-5de8-81d4-1b661186cd7d",
+    "dictationSentenceId": "e5ab7006-7b71-496a-a8ca-89fd912417d5"
+  },
+  {
+    "wordKey": "play_en_gb",
+    "canonicalWordId": "7824cfc5-f8c2-57ac-ba9e-d806161371e8",
+    "dictationSentenceId": "beb03844-3482-4e51-ba52-81d29be73870"
+  },
+  {
+    "wordKey": "played_en_gb",
+    "canonicalWordId": "b4420679-f1dd-52cb-b1bc-e2c7f7427e80",
+    "dictationSentenceId": "d72bad6e-159f-4390-b6a9-51f420bd8403"
+  },
+  {
+    "wordKey": "player_en_gb",
+    "canonicalWordId": "5b81ec91-1f19-5571-8b48-39417b0a8481",
+    "dictationSentenceId": "791717d7-a916-48cb-80cc-23cc2c6de5e3"
+  },
+  {
+    "wordKey": "playing_en_gb",
+    "canonicalWordId": "4b7bfabb-45c6-5883-9777-6897f4c040e0",
+    "dictationSentenceId": "20f7665a-072f-4a5d-92bc-59f198ae8cf9"
+  },
+  {
+    "wordKey": "plays_en_gb",
+    "canonicalWordId": "c1cc8238-9ce9-53bc-8516-0a41d106677a",
+    "dictationSentenceId": "99488a03-a042-4873-95b0-0fad9966004f"
+  },
+  {
+    "wordKey": "preview_en_gb",
+    "canonicalWordId": "01a8b531-1a64-554d-8c40-00ee0b436abd",
+    "dictationSentenceId": "bfd7ed06-2373-41ab-9bc4-b7cdbc99f4d0"
+  },
+  {
+    "wordKey": "replace_en_gb",
+    "canonicalWordId": "36e7d7ff-66c2-5521-b121-594bdecc06bd",
+    "dictationSentenceId": "7c15f319-7644-5fb8-ac74-1ad05e2679d1"
+  },
+  {
+    "wordKey": "replay_en_gb",
+    "canonicalWordId": "5791a5dd-6576-5fed-9e25-427e9efe7673",
+    "dictationSentenceId": "e6f712ac-a1a0-480f-8a61-d90eb5cf67e1"
+  },
+  {
+    "wordKey": "replayed_en_gb",
+    "canonicalWordId": "0d26f923-ac3e-52ba-bb4e-1ad739ad3035",
+    "dictationSentenceId": "cfabc755-d8a5-4821-a775-f462e78bb14e"
+  },
+  {
+    "wordKey": "review_en_gb",
+    "canonicalWordId": "33c95cae-e281-5a9d-9891-fb4bb77a2464",
+    "dictationSentenceId": "821a46f8-f411-5874-914d-de6a6974695b"
+  },
+  {
+    "wordKey": "rewrite_en_gb",
+    "canonicalWordId": "27512c18-9e73-5aac-8fd7-a37211748fe5",
+    "dictationSentenceId": "60027f4c-a08e-4946-801a-1b534f40398f"
+  },
+  {
+    "wordKey": "slow_en_gb",
+    "canonicalWordId": "567c22bd-043b-525d-80ad-4c510e6a08d2",
+    "dictationSentenceId": "c23d77c8-39a3-55f9-b262-a6d305de1d0b"
+  },
+  {
+    "wordKey": "slower_en_gb",
+    "canonicalWordId": "fcfd59dd-b0b1-50bc-8f3f-d5293fec9b49",
+    "dictationSentenceId": "c23d3ba0-a24e-5456-8f24-ef9726e76245"
+  },
+  {
+    "wordKey": "slowly_en_gb",
+    "canonicalWordId": "23732715-43e0-5b86-87b2-b382f714937c",
+    "dictationSentenceId": "11e3f0a0-7c18-50a2-ad3a-c92acde6c4a9"
+  },
+  {
+    "wordKey": "sweet_en_gb",
+    "canonicalWordId": "f6e96635-b4eb-55f6-80bc-7a829adfa00a",
+    "dictationSentenceId": "969fb8d6-a3ad-51fb-bac5-3a10409e88c3"
+  },
+  {
+    "wordKey": "sweetly_en_gb",
+    "canonicalWordId": "7995fd5c-73e3-5ef0-9878-3bd65e139212",
+    "dictationSentenceId": "7f969b12-d467-58d3-89f6-51882cdc9647"
+  },
+  {
+    "wordKey": "sweetness_en_gb",
+    "canonicalWordId": "7b5eeb0a-f350-5d61-9f36-f813eb9ba6c2",
+    "dictationSentenceId": "d50cf147-4c29-5278-b5a8-f7bf0f30cf17"
+  },
+  {
+    "wordKey": "tie_en_gb",
+    "canonicalWordId": "111ee6ca-ec51-5abc-81d6-f19c5a48bc93",
+    "dictationSentenceId": "a9864572-2269-44f5-b0ac-571bda677b14"
+  },
+  {
+    "wordKey": "tying_en_gb",
+    "canonicalWordId": "805e29b0-2117-5e5d-885a-c44d8e5fbe64",
+    "dictationSentenceId": "169e683e-8fdb-413c-87ea-3fea5107801e"
+  },
+  {
+    "wordKey": "unkind_en_gb",
+    "canonicalWordId": "bf239c62-fdcb-5982-87b3-7dfe295304ce",
+    "dictationSentenceId": "79e8680a-772c-4d42-976f-01dfae852a29"
+  },
+  {
+    "wordKey": "unlock_en_gb",
+    "canonicalWordId": "32b5264e-3acc-5150-88da-c88dc17e43ab",
+    "dictationSentenceId": "6d4f30e6-d11b-41e3-a5a0-30d513ad56f7"
+  },
+  {
+    "wordKey": "untie_en_gb",
+    "canonicalWordId": "e236f7f9-c6e6-504f-a7ae-73c97b978bc8",
+    "dictationSentenceId": "340d7d4d-35cd-5a5d-8cc5-dfb1f9c2f9a6"
+  },
+  {
+    "wordKey": "view_en_gb",
+    "canonicalWordId": "8a308aea-1a2a-5ae0-998b-505f712f8ed5",
+    "dictationSentenceId": "b6dca734-b1c1-5355-9bc6-bf5fea85f8c5"
+  },
+  {
+    "wordKey": "wind_en_gb",
+    "canonicalWordId": "7070a8c3-43e7-5927-a56d-96039c66236a",
+    "dictationSentenceId": "99e1c302-d49e-5287-9732-0c9cb4d909ee"
+  },
+  {
+    "wordKey": "windier_en_gb",
+    "canonicalWordId": "092ee864-4205-5b77-816c-0a9fc63c92c6",
+    "dictationSentenceId": "1cd6d2a1-853e-58ca-af72-e8dfab7cf90a"
+  },
+  {
+    "wordKey": "windy_en_gb",
+    "canonicalWordId": "98328bc7-95db-536f-834a-1f5ef3b58e9f",
+    "dictationSentenceId": "dcf55125-ad66-567d-867f-2309535446b3"
+  },
+  {
+    "wordKey": "write_en_gb",
+    "canonicalWordId": "da3c223a-ca34-5308-9772-ffc95ef39154",
+    "dictationSentenceId": "29bf7a72-0f9f-4348-9630-1b87b84517fb"
+  },
+  {
+    "wordKey": "writer_en_gb",
+    "canonicalWordId": "0486de76-672b-5b32-b39a-06592f26efc8",
+    "dictationSentenceId": "cd717060-801d-4610-bc9b-8f65161ac0a7"
+  },
+  {
+    "wordKey": "writing_en_gb",
+    "canonicalWordId": "e2c0f099-ac92-5ded-ac80-05f40f1135f0",
+    "dictationSentenceId": "0d85df8c-3d03-4588-bb1b-bdc41f5a4a55"
+  }
+]

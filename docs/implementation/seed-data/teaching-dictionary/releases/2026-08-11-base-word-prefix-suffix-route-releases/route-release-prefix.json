@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 2,
+  "releaseKey": "adle_base_word_base_plus_prefix_v2_2026_08_11",
+  "route": {
+    "routeId": "base_word_lab",
+    "routeVersion": "v2",
+    "activationRouteKey": "base_word_family_v1",
+    "payloadVersion": 1
+  },
+  "approvalRefs": [
+    "human-review:katie-sanderson:2026-08-11",
+    "source-workbook-sha256:2af66d22ee827b9e8487475542037b43acbd8fb9468a4abc26d9b833d5f4e69a"
+  ],
+  "microSkills": [
+    {
+      "microSkillKey": "D4_MOR_BASE_WORDS_BASE_PLUS_PREFIX",
+      "dependencies": [
+        {
+          "authorityKey": "base_word_family_membership:d4_mor_base_words_base_plus_prefix:adle_base_word_prefix_suffix_family_v2_2026_08_11",
+          "authorityType": "family_membership",
+          "authoritySchemaVersion": 2,
+          "semanticFingerprint": "9461cb5570d76c3c794af9f4583f9067b62f64bcdaa2976df3cd9993102ea505"
+        },
+        {
+          "authorityKey": "base_word_teaching_content:d4_mor_base_words_base_plus_prefix:human_reviewed_v1_2026_08_11",
+          "authorityType": "teaching_content",
+          "authoritySchemaVersion": 1,
+          "semanticFingerprint": "bac700cc7f2712d23f5e1de432e2d3ee94dec15b9567e84e8b0f194a153f8bf9"
+        },
+        {
+          "authorityKey": "adle_base_word_prefix_suffix_dictionary_closure_v1_2026_08_11",
+          "authorityType": "teaching_dictionary_closure",
+          "authoritySchemaVersion": 1,
+          "semanticFingerprint": "ea6ff2b146240c57b229d3c9c940c6f58f74f917e6eabbff39f89363829f7460"
+        }
+      ]
+    }
+  ]
+}

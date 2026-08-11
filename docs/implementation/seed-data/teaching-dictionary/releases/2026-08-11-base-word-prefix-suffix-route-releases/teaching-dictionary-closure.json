@@ -1,0 +1,491 @@
+{
+  "schemaVersion": 1,
+  "authorityKey": "adle_base_word_prefix_suffix_dictionary_closure_v1_2026_08_11",
+  "approvalRefs": [
+    "human-review:katie-sanderson:2026-08-11",
+    "source-workbook-sha256:2af66d22ee827b9e8487475542037b43acbd8fb9468a4abc26d9b833d5f4e69a"
+  ],
+  "capabilities": [
+    "canonical_word_identity_display",
+    "canonical_dictation"
+  ],
+  "words": [
+    {
+      "wordKey": "care_en_gb",
+      "normalisedWord": "care",
+      "displayWord": "care",
+      "dialectCode": "en-GB",
+      "dictationSentence": "The nurse treated his cut with care.",
+      "dictationTargetTokenIndex": 6,
+      "audioText": "The nurse treated his cut with care."
+    },
+    {
+      "wordKey": "careful_en_gb",
+      "normalisedWord": "careful",
+      "displayWord": "careful",
+      "dialectCode": "en-GB",
+      "dictationSentence": "Be careful near the deep pond.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "Be careful near the deep pond."
+    },
+    {
+      "wordKey": "careless_en_gb",
+      "normalisedWord": "careless",
+      "displayWord": "careless",
+      "dialectCode": "en-GB",
+      "dictationSentence": "A careless spill made a puddle.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "A careless spill made a puddle."
+    },
+    {
+      "wordKey": "colour_en_gb",
+      "normalisedWord": "colour",
+      "displayWord": "colour",
+      "dialectCode": "en-GB",
+      "dictationSentence": "Blue is my favourite colour.",
+      "dictationTargetTokenIndex": 4,
+      "audioText": "Blue is my favourite colour."
+    },
+    {
+      "wordKey": "colourful_en_gb",
+      "normalisedWord": "colourful",
+      "displayWord": "colourful",
+      "dialectCode": "en-GB",
+      "dictationSentence": "The market was full of colourful flags.",
+      "dictationTargetTokenIndex": 5,
+      "audioText": "The market was full of colourful flags."
+    },
+    {
+      "wordKey": "colourless_en_gb",
+      "normalisedWord": "colourless",
+      "displayWord": "colourless",
+      "dialectCode": "en-GB",
+      "dictationSentence": "The liquid was clear and colourless.",
+      "dictationTargetTokenIndex": 5,
+      "audioText": "The liquid was clear and colourless."
+    },
+    {
+      "wordKey": "dislike_en_gb",
+      "normalisedWord": "dislike",
+      "displayWord": "dislike",
+      "dialectCode": "en-GB",
+      "dictationSentence": "I dislike bitter food, so I choose something else politely.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "I dislike bitter food, so I choose something else politely."
+    },
+    {
+      "wordKey": "govern_en_gb",
+      "normalisedWord": "govern",
+      "displayWord": "govern",
+      "dialectCode": "en-GB",
+      "dictationSentence": "Leaders govern a country by making rules.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "Leaders govern a country by making rules."
+    },
+    {
+      "wordKey": "government_en_gb",
+      "normalisedWord": "government",
+      "displayWord": "government",
+      "dialectCode": "en-GB",
+      "dictationSentence": "The government makes decisions and laws for the country.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "The government makes decisions and laws for the country."
+    },
+    {
+      "wordKey": "governor_en_gb",
+      "normalisedWord": "governor",
+      "displayWord": "governor",
+      "dialectCode": "en-GB",
+      "dictationSentence": "The governor leads a state or region.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "The governor leads a state or region."
+    },
+    {
+      "wordKey": "immigrant_en_gb",
+      "normalisedWord": "immigrant",
+      "displayWord": "immigrant",
+      "dialectCode": "en-GB",
+      "dictationSentence": "The immigrant started a new life in the city.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "The immigrant started a new life in the city."
+    },
+    {
+      "wordKey": "immigrants_en_gb",
+      "normalisedWord": "immigrants",
+      "displayWord": "immigrants",
+      "dialectCode": "en-GB",
+      "dictationSentence": "Immigrants built new lives here.",
+      "dictationTargetTokenIndex": 0,
+      "audioText": "Immigrants built new lives here."
+    },
+    {
+      "wordKey": "kind_en_gb",
+      "normalisedWord": "kind",
+      "displayWord": "kind",
+      "dialectCode": "en-GB",
+      "dictationSentence": "Sam was kind and shared his lunch with a friend.",
+      "dictationTargetTokenIndex": 2,
+      "audioText": "Sam was kind and shared his lunch with a friend."
+    },
+    {
+      "wordKey": "kindness_en_gb",
+      "normalisedWord": "kindness",
+      "displayWord": "kindness",
+      "dialectCode": "en-GB",
+      "dictationSentence": "Mia showed kindness by helping the new pupil.",
+      "dictationTargetTokenIndex": 2,
+      "audioText": "Mia showed kindness by helping the new pupil."
+    },
+    {
+      "wordKey": "like_en_gb",
+      "normalisedWord": "like",
+      "displayWord": "like",
+      "dialectCode": "en-GB",
+      "dictationSentence": "I like the new playground.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "I like the new playground."
+    },
+    {
+      "wordKey": "liked_en_gb",
+      "normalisedWord": "liked",
+      "displayWord": "liked",
+      "dialectCode": "en-GB",
+      "dictationSentence": "We liked the funny film.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "We liked the funny film."
+    },
+    {
+      "wordKey": "lock_en_gb",
+      "normalisedWord": "lock",
+      "displayWord": "lock",
+      "dialectCode": "en-GB",
+      "dictationSentence": "Please lock the door before we leave.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "Please lock the door before we leave."
+    },
+    {
+      "wordKey": "locking_en_gb",
+      "normalisedWord": "locking",
+      "displayWord": "locking",
+      "dialectCode": "en-GB",
+      "dictationSentence": "She is locking the gate now.",
+      "dictationTargetTokenIndex": 2,
+      "audioText": "She is locking the gate now."
+    },
+    {
+      "wordKey": "migrant_en_gb",
+      "normalisedWord": "migrant",
+      "displayWord": "migrant",
+      "dialectCode": "en-GB",
+      "dictationSentence": "The migrant travelled to find a new home.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "The migrant travelled to find a new home."
+    },
+    {
+      "wordKey": "misplace_en_gb",
+      "normalisedWord": "misplace",
+      "displayWord": "misplace",
+      "dialectCode": "en-GB",
+      "dictationSentence": "I sometimes misplace my pencil case.",
+      "dictationTargetTokenIndex": 2,
+      "audioText": "I sometimes misplace my pencil case."
+    },
+    {
+      "wordKey": "paint_en_gb",
+      "normalisedWord": "paint",
+      "displayWord": "paint",
+      "dialectCode": "en-GB",
+      "dictationSentence": "Please paint the bright sunset on your paper.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "Please paint the bright sunset on your paper."
+    },
+    {
+      "wordKey": "painter_en_gb",
+      "normalisedWord": "painter",
+      "displayWord": "painter",
+      "dialectCode": "en-GB",
+      "dictationSentence": "The painter carefully covered the wall with blue paint.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "The painter carefully covered the wall with blue paint."
+    },
+    {
+      "wordKey": "painting_en_gb",
+      "normalisedWord": "painting",
+      "displayWord": "painting",
+      "dialectCode": "en-GB",
+      "dictationSentence": "She is painting a picture of the sea.",
+      "dictationTargetTokenIndex": 2,
+      "audioText": "She is painting a picture of the sea."
+    },
+    {
+      "wordKey": "place_en_gb",
+      "normalisedWord": "place",
+      "displayWord": "place",
+      "dialectCode": "en-GB",
+      "dictationSentence": "This is a safe place to play.",
+      "dictationTargetTokenIndex": 4,
+      "audioText": "This is a safe place to play."
+    },
+    {
+      "wordKey": "play_en_gb",
+      "normalisedWord": "play",
+      "displayWord": "play",
+      "dialectCode": "en-GB",
+      "dictationSentence": "Children play football in the playground.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "Children play football in the playground."
+    },
+    {
+      "wordKey": "played_en_gb",
+      "normalisedWord": "played",
+      "displayWord": "played",
+      "dialectCode": "en-GB",
+      "dictationSentence": "The children played football after school.",
+      "dictationTargetTokenIndex": 2,
+      "audioText": "The children played football after school."
+    },
+    {
+      "wordKey": "player_en_gb",
+      "normalisedWord": "player",
+      "displayWord": "player",
+      "dialectCode": "en-GB",
+      "dictationSentence": "The player kicked the ball to a friend.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "The player kicked the ball to a friend."
+    },
+    {
+      "wordKey": "playing_en_gb",
+      "normalisedWord": "playing",
+      "displayWord": "playing",
+      "dialectCode": "en-GB",
+      "dictationSentence": "The children were playing football in the park.",
+      "dictationTargetTokenIndex": 3,
+      "audioText": "The children were playing football in the park."
+    },
+    {
+      "wordKey": "plays_en_gb",
+      "normalisedWord": "plays",
+      "displayWord": "plays",
+      "dialectCode": "en-GB",
+      "dictationSentence": "Mia plays the piano after school.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "Mia plays the piano after school."
+    },
+    {
+      "wordKey": "preview_en_gb",
+      "normalisedWord": "preview",
+      "displayWord": "preview",
+      "dialectCode": "en-GB",
+      "dictationSentence": "We watched a preview of the new film.",
+      "dictationTargetTokenIndex": 3,
+      "audioText": "We watched a preview of the new film."
+    },
+    {
+      "wordKey": "replace_en_gb",
+      "normalisedWord": "replace",
+      "displayWord": "replace",
+      "dialectCode": "en-GB",
+      "dictationSentence": "Please replace the book on the shelf.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "Please replace the book on the shelf."
+    },
+    {
+      "wordKey": "replay_en_gb",
+      "normalisedWord": "replay",
+      "displayWord": "replay",
+      "dialectCode": "en-GB",
+      "dictationSentence": "Please replay the song from the beginning.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "Please replay the song from the beginning."
+    },
+    {
+      "wordKey": "replayed_en_gb",
+      "normalisedWord": "replayed",
+      "displayWord": "replayed",
+      "dialectCode": "en-GB",
+      "dictationSentence": "We replayed the song from the beginning.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "We replayed the song from the beginning."
+    },
+    {
+      "wordKey": "review_en_gb",
+      "normalisedWord": "review",
+      "displayWord": "review",
+      "dialectCode": "en-GB",
+      "dictationSentence": "Review your answers carefully.",
+      "dictationTargetTokenIndex": 0,
+      "audioText": "Review your answers carefully."
+    },
+    {
+      "wordKey": "rewrite_en_gb",
+      "normalisedWord": "rewrite",
+      "displayWord": "rewrite",
+      "dialectCode": "en-GB",
+      "dictationSentence": "Please rewrite the sentence more clearly.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "Please rewrite the sentence more clearly."
+    },
+    {
+      "wordKey": "slow_en_gb",
+      "normalisedWord": "slow",
+      "displayWord": "slow",
+      "dialectCode": "en-GB",
+      "dictationSentence": "The slow train arrived late.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "The slow train arrived late."
+    },
+    {
+      "wordKey": "slower_en_gb",
+      "normalisedWord": "slower",
+      "displayWord": "slower",
+      "dialectCode": "en-GB",
+      "dictationSentence": "This route is slower.",
+      "dictationTargetTokenIndex": 3,
+      "audioText": "This route is slower."
+    },
+    {
+      "wordKey": "slowly_en_gb",
+      "normalisedWord": "slowly",
+      "displayWord": "slowly",
+      "dialectCode": "en-GB",
+      "dictationSentence": "The tortoise moved slowly.",
+      "dictationTargetTokenIndex": 3,
+      "audioText": "The tortoise moved slowly."
+    },
+    {
+      "wordKey": "sweet_en_gb",
+      "normalisedWord": "sweet",
+      "displayWord": "sweet",
+      "dialectCode": "en-GB",
+      "dictationSentence": "The ripe peach tasted sweet.",
+      "dictationTargetTokenIndex": 4,
+      "audioText": "The ripe peach tasted sweet."
+    },
+    {
+      "wordKey": "sweetly_en_gb",
+      "normalisedWord": "sweetly",
+      "displayWord": "sweetly",
+      "dialectCode": "en-GB",
+      "dictationSentence": "The child smiled sweetly at her grandmother.",
+      "dictationTargetTokenIndex": 3,
+      "audioText": "The child smiled sweetly at her grandmother."
+    },
+    {
+      "wordKey": "sweetness_en_gb",
+      "normalisedWord": "sweetness",
+      "displayWord": "sweetness",
+      "dialectCode": "en-GB",
+      "dictationSentence": "The sweetness of the ripe strawberry surprised me.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "The sweetness of the ripe strawberry surprised me."
+    },
+    {
+      "wordKey": "tie_en_gb",
+      "normalisedWord": "tie",
+      "displayWord": "tie",
+      "dialectCode": "en-GB",
+      "dictationSentence": "Please tie your shoelaces in a firm bow.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "Please tie your shoelaces in a firm bow."
+    },
+    {
+      "wordKey": "tying_en_gb",
+      "normalisedWord": "tying",
+      "displayWord": "tying",
+      "dialectCode": "en-GB",
+      "dictationSentence": "Sam was tying his shoelaces in a bow.",
+      "dictationTargetTokenIndex": 2,
+      "audioText": "Sam was tying his shoelaces in a bow."
+    },
+    {
+      "wordKey": "unkind_en_gb",
+      "normalisedWord": "unkind",
+      "displayWord": "unkind",
+      "dialectCode": "en-GB",
+      "dictationSentence": "It is unkind to leave someone out.",
+      "dictationTargetTokenIndex": 2,
+      "audioText": "It is unkind to leave someone out."
+    },
+    {
+      "wordKey": "unlock_en_gb",
+      "normalisedWord": "unlock",
+      "displayWord": "unlock",
+      "dialectCode": "en-GB",
+      "dictationSentence": "Please unlock the door with the silver key.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "Please unlock the door with the silver key."
+    },
+    {
+      "wordKey": "untie_en_gb",
+      "normalisedWord": "untie",
+      "displayWord": "untie",
+      "dialectCode": "en-GB",
+      "dictationSentence": "Please untie the knot before you pull the rope.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "Please untie the knot before you pull the rope."
+    },
+    {
+      "wordKey": "view_en_gb",
+      "normalisedWord": "view",
+      "displayWord": "view",
+      "dialectCode": "en-GB",
+      "dictationSentence": "We stopped to view the painting.",
+      "dictationTargetTokenIndex": 3,
+      "audioText": "We stopped to view the painting."
+    },
+    {
+      "wordKey": "wind_en_gb",
+      "normalisedWord": "wind",
+      "displayWord": "wind",
+      "dialectCode": "en-GB",
+      "dictationSentence": "The wind shook the branches.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "The wind shook the branches."
+    },
+    {
+      "wordKey": "windier_en_gb",
+      "normalisedWord": "windier",
+      "displayWord": "windier",
+      "dialectCode": "en-GB",
+      "dictationSentence": "It became windier as we reached the coast.",
+      "dictationTargetTokenIndex": 2,
+      "audioText": "It became windier as we reached the coast."
+    },
+    {
+      "wordKey": "windy_en_gb",
+      "normalisedWord": "windy",
+      "displayWord": "windy",
+      "dialectCode": "en-GB",
+      "dictationSentence": "It was too windy to fly the kite.",
+      "dictationTargetTokenIndex": 3,
+      "audioText": "It was too windy to fly the kite."
+    },
+    {
+      "wordKey": "write_en_gb",
+      "normalisedWord": "write",
+      "displayWord": "write",
+      "dialectCode": "en-GB",
+      "dictationSentence": "Please write your name at the top of the page.",
+      "dictationTargetTokenIndex": 1,
+      "audioText": "Please write your name at the top of the page."
+    },
+    {
+      "wordKey": "writer_en_gb",
+      "normalisedWord": "writer",
+      "displayWord": "writer",
+      "dialectCode": "en-GB",
+      "dictationSentence": "The author and writer planned a story.",
+      "dictationTargetTokenIndex": 3,
+      "audioText": "The author and writer planned a story."
+    },
+    {
+      "wordKey": "writing_en_gb",
+      "normalisedWord": "writing",
+      "displayWord": "writing",
+      "dialectCode": "en-GB",
+      "dictationSentence": "Mia was writing a letter to her grandmother.",
+      "dictationTargetTokenIndex": 2,
+      "audioText": "Mia was writing a letter to her grandmother."
+    }
+  ]
+}
