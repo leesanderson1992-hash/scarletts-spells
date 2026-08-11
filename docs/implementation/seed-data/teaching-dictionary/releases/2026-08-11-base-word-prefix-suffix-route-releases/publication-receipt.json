@@ -1,0 +1,100 @@
+{
+  "schemaVersion": "base_word_prefix_suffix_production_dark_package_v1",
+  "approval": {
+    "reviewer": "Katie Sanderson",
+    "approvedAt": "2026-08-11T00:00:00.000Z",
+    "workbookSha256": "2af66d22ee827b9e8487475542037b43acbd8fb9468a4abc26d9b833d5f4e69a",
+    "sourceReference": "base-word-prefix-suffix-readiness-audit-resolved (1).xlsx"
+  },
+  "familyBatch": {
+    "releaseId": "adle_base_word_prefix_suffix_family_v2_2026_08_11",
+    "id": "e22350fe-7daa-5480-8782-0e5ab32db8dd",
+    "packageSha256": "080ec6bd7b92128d1c77e4b1e9116970b570b77c8d929e6b5747dfd65ad3331e",
+    "newFamilies": [
+      {
+        "id": "64dc301a-85dc-5565-8da3-3bf1660134e9",
+        "key": "lock_base_family",
+        "sourceRowHash": "200347751dcecfbe506be6cd0f164b6ef95aed06582c1224963688855e38907b"
+      },
+      {
+        "id": "0fbc2b8f-fd59-5bde-8001-46e17583010b",
+        "key": "migrant_base_family",
+        "sourceRowHash": "9bc3ddc4ceb4e17d1390c30051b0b546be12db6a096d57de35b62c59679c130b"
+      },
+      {
+        "id": "7ee4e07b-d631-5701-82ce-f0b6f9896652",
+        "key": "place_base_family",
+        "sourceRowHash": "c31a9614555904aec42f18c6fc24409002ecb41a434df9fe3e5db9f28ca5ec9d"
+      },
+      {
+        "id": "f6a7f8c2-5bcf-58ec-867c-22a49467c3b0",
+        "key": "view_base_family",
+        "sourceRowHash": "24a3dff7c3300f9ca6ba1564fa0863d2e0b89c904672dea4d6c38a576dad5b67"
+      },
+      {
+        "id": "0b58ed4f-d5f6-590a-83ad-5cd33581173b",
+        "key": "colour_base_family",
+        "sourceRowHash": "0513042cdba14ad40433174f304870d4f3076f4d632206f4a8b663fe7bd699cc"
+      },
+      {
+        "id": "a7da3386-2c1a-50a7-8b84-66b4697f0371",
+        "key": "paint_base_family",
+        "sourceRowHash": "801a666fcb15c6c7bee9725158e409e211f02320a35abab5f54b48e4477de433"
+      },
+      {
+        "id": "23ee652c-e201-5a43-8c86-73a9e43e2f0e",
+        "key": "slow_base_family",
+        "sourceRowHash": "2b23e6eebecc71aca5f2053c6a041c683ff6cd43ac681fa72de5322ee0ddc8b7"
+      },
+      {
+        "id": "583b2ca0-501e-586c-8c80-0a92d1e2cda4",
+        "key": "sweet_base_family",
+        "sourceRowHash": "b4a703c7b9895bd5313056ada61735a658f9df9c9832290c3525788f4cbb086a"
+      },
+      {
+        "id": "52d435d4-e94f-5fc1-8e74-ee5d8a75906a",
+        "key": "wind_base_family",
+        "sourceRowHash": "052d7a4ee52b7f1696092fd91009fe0365e23d0de9f775b94d4d96e29f5afef5"
+      }
+    ]
+  },
+  "dictionaryBatch": {
+    "releaseId": "2026-08-11-base-word-prefix-suffix-canonical-v1",
+    "id": "65d6a3d7-1aaa-5e67-92ee-39eb519745a8",
+    "packageSha256": "4ae5f6a2de49b02285028756cffeb8fb11115d8c4deacfc988fd641bc46f5fb2",
+    "newWords": 18
+  },
+  "closure": {
+    "authorityKey": "adle_base_word_prefix_suffix_dictionary_closure_v1_2026_08_11",
+    "semanticFingerprint": "ea6ff2b146240c57b229d3c9c940c6f58f74f917e6eabbff39f89363829f7460",
+    "words": 53
+  },
+  "releases": [
+    {
+      "releaseKey": "adle_base_word_base_plus_prefix_v2_2026_08_11",
+      "manifestSha256": "3a2903c0cca72c86e60564d28c653e5602895ae2f45b7964305854d04067abc8",
+      "dependencyFingerprint": "4e6ad6d67b38af0baa48203791b04dc34a889a90696b020d991db103c7eea59f"
+    },
+    {
+      "releaseKey": "adle_base_word_base_plus_suffix_v2_2026_08_11",
+      "manifestSha256": "d02ef6b4c4fdb508ed0ff7d276e89693eea926347b6f6aca59e14b7b54b3cd80",
+      "dependencyFingerprint": "27b8b6403524fb99050e9985f25569aa986ac37bb4f6f625a74448ab5608adab"
+    }
+  ],
+  "counts": {
+    "prefixFamilies": 8,
+    "prefixMembers": 29,
+    "suffixFamilies": 8,
+    "suffixMembers": 24
+  },
+  "files": {
+    "family-authority-prefix.json": "135d6e58692715729f840084b54ed170ec540104b09bfb57276b651dfd5871a1",
+    "family-authority-suffix.json": "46ae0e15e7044eb523ab519a66252c41f7e60fa285f192b6cf7dde564b20c4f0",
+    "teaching-content-prefix.json": "49748c8b8e3f873a9319f574bef40d713e82c7f6e005ea5d8626e79a319338f9",
+    "teaching-content-suffix.json": "ba0f292d5dbe098b20e2861139c038bbeda536e7dd97ab4a729e169fb92e10df",
+    "teaching-dictionary-closure.json": "1984c6f639f3259482af2de7c9f6dd83c8f6a8e15273d2d3bcd6f5645d91d964",
+    "teaching-dictionary-source-bindings.json": "f0cedeba6db006f7006b5ec8b87690a84be19ccdccd13bdd0e0921fd911f6363",
+    "route-release-prefix.json": "97a58cc5a55f72902d722aa8ec840fa94674c69f7084ae6eb10c2fabafe9b3ba",
+    "route-release-suffix.json": "dcb4290760be0c3cd3a30266cb81fdc9498dcf3adbc468cc9416f01ae7e05285"
+  }
+}

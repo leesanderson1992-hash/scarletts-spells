@@ -3,6 +3,13 @@ import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
+import {
+  fingerprintAdleCurriculumReleaseManifest,
+  teachingDictionaryClosureSemanticProjection,
+  validateAdleCurriculumReleaseManifestV2,
+  validateAdleTeachingDictionaryClosureManifestV1,
+} from "../lib/adle/curriculum-release-authority";
+import { fingerprintSnapshotValue } from "../lib/adle/composable-lesson/canonical-fingerprint";
 import { loadCanonicalPackage } from "./teaching-dictionary-release-contract";
 
 async function main(): Promise<void> {
@@ -40,6 +47,36 @@ assert.equal(pkg.manifest.rowCounts.words, 18);
 assert.equal(pkg.manifest.workbookSha256, source.approval.sourceSha256);
 const dictionaryWords = new Set(pkg.csv["canonical_words.csv"].map(row => row.normalised_word));
 for (const word of ["colour", "immigrant", "lock", "misplace", "painter", "replace", "sweetness", "untie", "view", "windy"]) assert.ok(dictionaryWords.has(word));
+
+const routeReleaseDir = resolve(root, "docs/implementation/seed-data/teaching-dictionary/releases/2026-08-11-base-word-prefix-suffix-route-releases");
+const readRouteArtifact = (name: string) => JSON.parse(readFileSync(resolve(routeReleaseDir, name), "utf8"));
+const closure = readRouteArtifact("teaching-dictionary-closure.json");
+const bindings = readRouteArtifact("teaching-dictionary-source-bindings.json");
+const familyAuthorities = [readRouteArtifact("family-authority-prefix.json"), readRouteArtifact("family-authority-suffix.json")];
+const routeReleases = [readRouteArtifact("route-release-prefix.json"), readRouteArtifact("route-release-suffix.json")];
+const receipt = readRouteArtifact("publication-receipt.json");
+assert.deepEqual(validateAdleTeachingDictionaryClosureManifestV1(closure), { valid: true, errors: [] });
+assert.equal(closure.words.length, 53);
+assert.deepEqual(closure.words.map((word: { wordKey: string }) => word.wordKey), bindings.map((binding: { wordKey: string }) => binding.wordKey));
+assert.equal(fingerprintSnapshotValue(teachingDictionaryClosureSemanticProjection(closure)), receipt.closure.semanticFingerprint);
+assert.deepEqual(familyAuthorities.map(authority => authority.families.length), [8, 8]);
+assert.deepEqual(familyAuthorities.map(authority => authority.families.reduce((count: number, family: { members: unknown[] }) => count + family.members.length, 0)), [29, 24]);
+for (const authority of familyAuthorities) {
+  assert.equal(authority.schemaVersion, 2);
+  assert.ok(authority.families.every((family: { members: Array<Record<string, unknown>> }) => family.members.every(member => !("memberRole" in member))), "family-v2 has no permanent authentic/transfer role");
+}
+for (const [index, release] of routeReleases.entries()) {
+  assert.deepEqual(validateAdleCurriculumReleaseManifestV2(release), { valid: true, errors: [] });
+  assert.equal(release.microSkills.length, 1);
+  assert.equal(release.microSkills[0].dependencies.find((dependency: { authorityType: string }) => dependency.authorityType === "family_membership")?.authoritySchemaVersion, 2);
+  assert.deepEqual(fingerprintAdleCurriculumReleaseManifest(release), {
+    releaseManifestSha256: receipt.releases[index].manifestSha256,
+    dependencyFingerprint: receipt.releases[index].dependencyFingerprint,
+  });
+  assert.equal("activationStatus" in release, false);
+}
+assert.equal(receipt.familyBatch.newFamilies.length, 9);
+assert.equal(receipt.dictionaryBatch.newWords, 18);
 
 console.log(JSON.stringify({ status: "passed", dictionaryPackageSha256: pkg.manifest.packageSha256, projectionSha256: createHash("sha256").update(readFileSync(resolve(root, "docs/implementation/seed-data/teaching-dictionary/releases/2026-08-11-base-word-prefix-suffix-family-v2/family-v2-source-projection.json"))).digest("hex") }, null, 2));
 }

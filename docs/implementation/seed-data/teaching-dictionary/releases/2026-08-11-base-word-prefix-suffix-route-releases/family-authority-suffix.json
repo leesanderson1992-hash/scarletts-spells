@@ -1,0 +1,1325 @@
+{
+  "schemaVersion": 2,
+  "authorityKey": "base_word_family_membership:d4_mor_base_words_base_plus_suffix:adle_base_word_prefix_suffix_family_v2_2026_08_11",
+  "skillClusterKey": "D4_MOR_BASE_WORDS",
+  "sourceAuthorities": [
+    {
+      "authorityKey": "approved_repository_artifact:base-word-prefix-suffix-family-v2:2026-08-11",
+      "sourceKind": "approved_repository_artifact",
+      "sourceId": "docs/implementation/seed-data/teaching-dictionary/releases/2026-08-11-base-word-prefix-suffix-family-v2/family-v2-source-projection.json",
+      "sourceFingerprint": "f4397770645091e5be55737b2edcaeeb5dfb11e3d3b0084f0f400617bb0f92cd"
+    },
+    {
+      "authorityKey": "teaching_dictionary_import_batch:adle_base_word_family_meanings_v1_2026_08_09",
+      "sourceKind": "teaching_dictionary_import_batch",
+      "sourceId": "ddc8993b-26ca-57da-8383-1efec1be8ee1",
+      "sourceFingerprint": "c6b5c3db64d902f7a3b2e18e60d822baef4c48d0fec855cb211edca564676576"
+    },
+    {
+      "authorityKey": "teaching_dictionary_import_batch:adle_base_word_prefix_suffix_family_v2_2026_08_11",
+      "sourceKind": "teaching_dictionary_import_batch",
+      "sourceId": "e22350fe-7daa-5480-8782-0e5ab32db8dd",
+      "sourceFingerprint": "080ec6bd7b92128d1c77e4b1e9116970b570b77c8d929e6b5747dfd65ad3331e"
+    }
+  ],
+  "approvalRefs": [
+    "human-review:katie-sanderson:2026-08-11",
+    "source-workbook-sha256:2af66d22ee827b9e8487475542037b43acbd8fb9468a4abc26d9b833d5f4e69a"
+  ],
+  "families": [
+    {
+      "familyId": "555b06f1-21e4-55da-9aeb-59ac467cb922",
+      "baseFamilyKey": "care_base_family",
+      "baseWordId": "80e41075-5085-5c1d-9c64-d292fef62e97",
+      "baseMeaning": "to look after someone or something",
+      "etymologyRoute": {
+        "relation_type": "free_base",
+        "origin_language": "Modern English",
+        "origin_form": "care",
+        "literal_meaning": "to look after someone or something",
+        "child_facing_meaning": "to look after someone or something",
+        "semantic_connection": "The visible English base care is recorded in this family’s reviewed word sums; a human reviewer must confirm every member remains semantically appropriate.",
+        "evidence": {
+          "source_name": "Online Etymology Dictionary",
+          "source_url": "https://www.etymonline.com/search?q=care",
+          "verification_status": "linked_for_human_review"
+        }
+      },
+      "members": [
+        {
+          "memberId": "4bd76404-2423-5fc9-8fd3-6839eae9db1e",
+          "canonicalWordId": "5ada7d53-4586-5757-928c-e27d261c147e",
+          "structuralRole": "family_member",
+          "applicableMicroSkillKeys": [
+            "D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX"
+          ],
+          "assignmentEligible": true,
+          "complexityLevel": null,
+          "wordSum": "care + ful → careful",
+          "morphologyParts": [
+            {
+              "id": "part_1",
+              "kind": "base",
+              "morphemeKey": null,
+              "sourceText": "care",
+              "surfaceText": "care",
+              "gloss": "",
+              "displayRange": {
+                "start": 0,
+                "end": 4
+              },
+              "source": {
+                "morphemesJsonIndex": 0
+              }
+            },
+            {
+              "id": "part_2",
+              "kind": "suffix",
+              "morphemeKey": null,
+              "sourceText": "ful",
+              "surfaceText": "ful",
+              "gloss": "",
+              "displayRange": {
+                "start": 4,
+                "end": 7
+              },
+              "source": {
+                "morphemesJsonIndex": 1
+              }
+            }
+          ],
+          "morphologyJoins": [
+            {
+              "afterPartId": "part_1",
+              "beforePartId": "part_2",
+              "joinType": "none",
+              "surfaceText": "",
+              "displayRange": {
+                "start": 4,
+                "end": 4
+              }
+            }
+          ],
+          "morphologyTransformations": [],
+          "transformationNotes": "The spelling of the base is kept in the longer word.",
+          "childFriendlyMeaning": "taking care to avoid mistakes or danger",
+          "morphologySource": {
+            "sourceKind": "approved_repository_analysis",
+            "sourceId": "D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX::careful",
+            "sourceFingerprint": "3f1a52a075789dbdad34d55b7476fde7271ea528ca1cc28fbab0a5c7f585f403",
+            "sourceAuthorityKey": "approved_repository_artifact:base-word-prefix-suffix-family-v2:2026-08-11"
+          }
+        },
+        {
+          "memberId": "4dc250b6-0361-517a-8575-6f7ba2a43655",
+          "canonicalWordId": "80e41075-5085-5c1d-9c64-d292fef62e97",
+          "structuralRole": "base",
+          "applicableMicroSkillKeys": [
+            "D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX"
+          ],
+          "assignmentEligible": true,
+          "complexityLevel": null,
+          "wordSum": "care",
+          "morphologyParts": [
+            {
+              "id": "part_1",
+              "kind": "base",
+              "morphemeKey": null,
+              "sourceText": "care",
+              "surfaceText": "care",
+              "gloss": "",
+              "displayRange": {
+                "start": 0,
+                "end": 4
+              },
+              "source": {
+                "morphemesJsonIndex": 0
+              }
+            }
+          ],
+          "morphologyJoins": [],
+          "morphologyTransformations": [],
+          "transformationNotes": "The spelling of the base is kept in the longer word.",
+          "childFriendlyMeaning": "to feel concern for someone or something",
+          "morphologySource": {
+            "sourceKind": "approved_repository_analysis",
+            "sourceId": "D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX::care",
+            "sourceFingerprint": "209f29d78246b897d42bc2cc1cd5642a25749d47bd0d721592a1a8f8dd64d6f0",
+            "sourceAuthorityKey": "approved_repository_artifact:base-word-prefix-suffix-family-v2:2026-08-11"
+          }
+        },
+        {
+          "memberId": "d9c99961-b6da-5f95-844b-76b524442c98",
+          "canonicalWordId": "b98a9d29-e6c3-5093-9060-9976488c2396",
+          "structuralRole": "family_member",
+          "applicableMicroSkillKeys": [
+            "D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX"
+          ],
+          "assignmentEligible": true,
+          "complexityLevel": null,
+          "wordSum": "care + less → careless",
+          "morphologyParts": [
+            {
+              "id": "part_1",
+              "kind": "base",
+              "morphemeKey": null,
+              "sourceText": "care",
+              "surfaceText": "care",
+              "gloss": "",
+              "displayRange": {
+                "start": 0,
+                "end": 4
+              },
+              "source": {
+                "morphemesJsonIndex": 0
+              }
+            },
+            {
+              "id": "part_2",
+              "kind": "suffix",
+              "morphemeKey": null,
+              "sourceText": "less",
+              "surfaceText": "less",
+              "gloss": "",
+              "displayRange": {
+                "start": 4,
+                "end": 8
+              },
+              "source": {
+                "morphemesJsonIndex": 1
+              }
+            }
+          ],
+          "morphologyJoins": [
+            {
+              "afterPartId": "part_1",
+              "beforePartId": "part_2",
+              "joinType": "none",
+              "surfaceText": "",
+              "displayRange": {
+                "start": 4,
+                "end": 4
+              }
+            }
+          ],
+          "morphologyTransformations": [],
+          "transformationNotes": "The spelling of the base is kept in the longer word.",
+          "childFriendlyMeaning": "without enough care",
+          "morphologySource": {
+            "sourceKind": "approved_repository_analysis",
+            "sourceId": "D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX::careless",
+            "sourceFingerprint": "9c3c22c5e1ac043e2822893c49957a68674c5e20c596f55ab16d4c1125a76282",
+            "sourceAuthorityKey": "approved_repository_artifact:base-word-prefix-suffix-family-v2:2026-08-11"
+          }
+        }
+      ],
+      "sourceFingerprint": "8ecbd9b7b08ff0556af5c7150313ecd23d3981e014338fdbca67d7dbaef919c5"
+    },
+    {
+      "familyId": "0b58ed4f-d5f6-590a-83ad-5cd33581173b",
+      "baseFamilyKey": "colour_base_family",
+      "baseWordId": "7fa277b9-d96a-5d2e-b53e-d38872174965",
+      "baseMeaning": "what something looks like because of light, such as red, blue or green",
+      "etymologyRoute": {
+        "relation_type": "free_base",
+        "origin_language": "English",
+        "origin_form": "colour",
+        "literal_meaning": "what something looks like because of light, such as red, blue or green",
+        "child_facing_meaning": "what something looks like because of light, such as red, blue or green",
+        "semantic_connection": "The visible base is retained in each reviewed family member.",
+        "evidence": {
+          "source_name": "Katie Sanderson approved Base Word workbook",
+          "source_url": "local:base-word-prefix-suffix-readiness-audit-resolved (1).xlsx",
+          "verification_status": "linked_for_human_review"
+        }
+      },
+      "members": [
+        {
+          "memberId": "6bb56e90-906c-5d5d-8051-f48f34a73a19",
+          "canonicalWordId": "479e8116-f29c-52bc-a50c-4ae45f328939",
+          "structuralRole": "family_member",
+          "applicableMicroSkillKeys": [
+            "D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX"
+          ],
+          "assignmentEligible": true,
+          "complexityLevel": null,
+          "wordSum": "colour + ful → colourful",
+          "morphologyParts": [
+            {
+              "id": "part_1",
+              "kind": "base",
+              "morphemeKey": null,
+              "sourceText": "colour",
+              "surfaceText": "colour",
+              "gloss": "",
+              "displayRange": {
+                "start": 0,
+                "end": 6
+              }
+            },
+            {
+              "id": "part_2",
+              "kind": "suffix",
+              "morphemeKey": null,
+              "sourceText": "ful",
+              "surfaceText": "ful",
+              "gloss": "",
+              "displayRange": {
+                "start": 6,
+                "end": 9
+              }
+            }
+          ],
+          "morphologyJoins": [],
+          "morphologyTransformations": [],
+          "transformationNotes": "",
+          "childFriendlyMeaning": "full of bright or different colours",
+          "morphologySource": {
+            "sourceKind": "approved_repository_analysis",
+            "sourceId": "D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX::colourful",
+            "sourceFingerprint": "16128bc1876c5c2798fec509224d433263ff7b2fdaed35116e1d7f4b28638190",
+            "sourceAuthorityKey": "approved_repository_artifact:base-word-prefix-suffix-family-v2:2026-08-11"
+          }
+        },
+        {
+          "memberId": "59907ab4-d829-57e9-8684-7dc0b4d22fe8",
+          "canonicalWordId": "7fa277b9-d96a-5d2e-b53e-d38872174965",
+          "structuralRole": "base",
+          "applicableMicroSkillKeys": [
+            "D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX"
+          ],
+          "assignmentEligible": true,
+          "complexityLevel": null,
+          "wordSum": "colour",
+          "morphologyParts": [
+            {
+              "id": "part_1",
+              "kind": "base",
+              "morphemeKey": null,
+              "sourceText": "colour",
+              "surfaceText": "colour",
+              "gloss": "",
+              "displayRange": {
+                "start": 0,
+                "end": 6
+              }
+            }
+          ],
+          "morphologyJoins": [],
+          "morphologyTransformations": [],
+          "transformationNotes": "",
+          "childFriendlyMeaning": "what something looks like because of light, such as red, blue or green",
+          "morphologySource": {
+            "sourceKind": "approved_repository_analysis",
+            "sourceId": "D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX::colour",
+            "sourceFingerprint": "b0aa40d1335f973db78325e932594c14e369d6629a236a352386daa2ea1d3624",
+            "sourceAuthorityKey": "approved_repository_artifact:base-word-prefix-suffix-family-v2:2026-08-11"
+          }
+        },
+        {
+          "memberId": "598a95a7-7c2a-5682-8e9c-686ca342a9ab",
+          "canonicalWordId": "bf951d26-91d0-50b1-a111-885d11265cc7",
+          "structuralRole": "family_member",
+          "applicableMicroSkillKeys": [
+            "D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX"
+          ],
+          "assignmentEligible": true,
+          "complexityLevel": null,
+          "wordSum": "colour + less → colourless",
+          "morphologyParts": [
+            {
+              "id": "part_1",
+              "kind": "base",
+              "morphemeKey": null,
+              "sourceText": "colour",
+              "surfaceText": "colour",
+              "gloss": "",
+              "displayRange": {
+                "start": 0,
+                "end": 6
+              }
+            },
+            {
+              "id": "part_2",
+              "kind": "suffix",
+              "morphemeKey": null,
+              "sourceText": "less",
+              "surfaceText": "less",
+              "gloss": "",
+              "displayRange": {
+                "start": 6,
+                "end": 10
+              }
+            }
+          ],
+          "morphologyJoins": [],
+          "morphologyTransformations": [],
+          "transformationNotes": "",
+          "childFriendlyMeaning": "without colour",
+          "morphologySource": {
+            "sourceKind": "approved_repository_analysis",
+            "sourceId": "D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX::colourless",
+            "sourceFingerprint": "72d8148efde637bd5bbe71d7a7aef6f14467693d2d8c15bbf3b9fd00f6864e6c",
+            "sourceAuthorityKey": "approved_repository_artifact:base-word-prefix-suffix-family-v2:2026-08-11"
+          }
+        }
+      ],
+      "sourceFingerprint": "0513042cdba14ad40433174f304870d4f3076f4d632206f4a8b663fe7bd699cc"
+    },
+    {
+      "familyId": "8fb3127e-2eb4-5bd9-92c1-d98a66957f9d",
+      "baseFamilyKey": "govern_base_family",
+      "baseWordId": "768018a9-05d4-404c-95ed-0485e4aa75b4",
+      "baseMeaning": "to lead or rule a country",
+      "etymologyRoute": {
+        "relation_type": "etymological_root",
+        "origin_language": "Latin via Old French",
+        "origin_form": "gubernare",
+        "literal_meaning": "to steer or rule",
+        "child_facing_meaning": "to lead or rule a country",
+        "semantic_connection": "The visible base govern is kept in governor and government; the endings build related words without changing that base spelling.",
+        "evidence": {
+          "source_name": "Online Etymology Dictionary",
+          "source_url": "https://www.etymonline.com/search?q=govern",
+          "verification_status": "linked_for_human_review"
+        }
+      },
+      "members": [
+        {
+          "memberId": "70fc7d62-17fa-5022-8876-8c4750f05466",
+          "canonicalWordId": "7052fee0-35ef-4c1a-97a3-bef6aa156bde",
+          "structuralRole": "family_member",
+          "applicableMicroSkillKeys": [
+            "D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX"
+          ],
+          "assignmentEligible": true,
+          "complexityLevel": null,
+          "wordSum": "govern + or → governor",
+          "morphologyParts": [
+            {
+              "id": "part_1",
+              "kind": "base",
+              "morphemeKey": null,
+              "sourceText": "govern",
+              "surfaceText": "govern",
+              "gloss": "lead or rule",
+              "displayRange": {
+                "start": 0,
+                "end": 6
+              }
+            },
+            {
+              "id": "part_2",
+              "kind": "suffix",
+              "morphemeKey": null,
+              "sourceText": "or",
+              "surfaceText": "or",
+              "gloss": "person who",
+              "displayRange": {
+                "start": 6,
+                "end": 8
+              }
+            }
+          ],
+          "morphologyJoins": [
+            {
+              "afterPartId": "part_1",
+              "beforePartId": "part_2",
+              "joinType": "none"
+            }
+          ],
+          "morphologyTransformations": [],
+          "transformationNotes": "Keep govern unchanged while adding the ending.",
+          "childFriendlyMeaning": "a person who governs a region or organisation",
+          "morphologySource": {
+            "sourceKind": "approved_repository_analysis",
+            "sourceId": "D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX::governor",
+            "sourceFingerprint": "b2190e1e9567501b97c31012bbb4942c88b39582950c18518ac8573360a00784",
+            "sourceAuthorityKey": "approved_repository_artifact:base-word-prefix-suffix-family-v2:2026-08-11"
+          }
+        },
+        {
+          "memberId": "0005a315-b893-5136-85e3-7daf79321379",
+          "canonicalWordId": "768018a9-05d4-404c-95ed-0485e4aa75b4",
+          "structuralRole": "base",
+          "applicableMicroSkillKeys": [
+            "D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX"
+          ],
+          "assignmentEligible": true,
+          "complexityLevel": null,
+          "wordSum": "govern",
+          "morphologyParts": [
+            {
+              "id": "part_1",
+              "kind": "base",
+              "morphemeKey": null,
+              "sourceText": "govern",
+              "surfaceText": "govern",
+              "gloss": "lead or rule",
+              "displayRange": {
+                "start": 0,
+                "end": 6
+              }
+            }
+          ],
+          "morphologyJoins": [],
+          "morphologyTransformations": [],
+          "transformationNotes": "Keep govern unchanged while adding the ending.",
+          "childFriendlyMeaning": "to officially lead and make decisions for a country or area",
+          "morphologySource": {
+            "sourceKind": "approved_repository_analysis",
+            "sourceId": "D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX::govern",
+            "sourceFingerprint": "e30304923a2a26d5e716e0f36016de22633b8918fe795b0fd5a0a3dfc9a87dd1",
+            "sourceAuthorityKey": "approved_repository_artifact:base-word-prefix-suffix-family-v2:2026-08-11"
+          }
+        },
+        {
+          "memberId": "eac68971-67a9-5fc8-8c90-54f4375c9266",
+          "canonicalWordId": "7804b931-499e-586b-b74c-a3bd81e80020",
+          "structuralRole": "family_member",
+          "applicableMicroSkillKeys": [
+            "D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX"
+          ],
+          "assignmentEligible": true,
+          "complexityLevel": null,
+          "wordSum": "govern + ment → government",
+          "morphologyParts": [
+            {
+              "id": "part_1",
+              "kind": "base",
+              "morphemeKey": null,
+              "sourceText": "govern",
+              "surfaceText": "govern",
+              "gloss": "lead or rule",
+              "displayRange": {
+                "start": 0,
+                "end": 6
+              }
+            },
+            {
+              "id": "part_2",
+              "kind": "suffix",
+              "morphemeKey": null,
+              "sourceText": "ment",
+              "surfaceText": "ment",
+              "gloss": "result or state",
+              "displayRange": {
+                "start": 6,
+                "end": 10
+              }
+            }
+          ],
+          "morphologyJoins": [
+            {
+              "afterPartId": "part_1",
+              "beforePartId": "part_2",
+              "joinType": "none"
+            }
+          ],
+          "morphologyTransformations": [],
+          "transformationNotes": "Keep govern unchanged while adding the ending.",
+          "childFriendlyMeaning": "the people who govern a country or area",
+          "morphologySource": {
+            "sourceKind": "approved_repository_analysis",
+            "sourceId": "D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX::government",
+            "sourceFingerprint": "7197fd2340522c9865eedd0ef2e518005f48d241183e64bd3050433dd0c42b53",
+            "sourceAuthorityKey": "approved_repository_artifact:base-word-prefix-suffix-family-v2:2026-08-11"
+          }
+        }
+      ],
+      "sourceFingerprint": "4d1d54a055fc4bfc9c4d2ef552b05e70aee66f69752e827067aa800fc944b199"
+    },
+    {
+      "familyId": "66aa8e9f-faba-5c85-8abd-8110e5322a32",
+      "baseFamilyKey": "kind_base_family",
+      "baseWordId": "e57c9f39-1882-5ec6-bcba-cd1fdc4221b5",
+      "baseMeaning": "caring and friendly",
+      "etymologyRoute": {
+        "relation_type": "free_base",
+        "origin_language": "Modern English",
+        "origin_form": "kind",
+        "literal_meaning": "caring and friendly",
+        "child_facing_meaning": "caring and friendly",
+        "semantic_connection": "The visible English base kind is recorded in this family’s reviewed word sums; a human reviewer must confirm every member remains semantically appropriate.",
+        "evidence": {
+          "source_name": "Online Etymology Dictionary",
+          "source_url": "https://www.etymonline.com/search?q=kind",
+          "verification_status": "linked_for_human_review"
+        }
+      },
+      "members": [
+        {
+          "memberId": "ec2748c4-8841-5279-84c3-d2352aded462",
+          "canonicalWordId": "39e58033-c336-5f27-a3a3-74d622990752",
+          "structuralRole": "family_member",
+          "applicableMicroSkillKeys": [
+            "D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX"
+          ],
+          "assignmentEligible": true,
+          "complexityLevel": null,
+          "wordSum": "kind + ness → kindness",
+          "morphologyParts": [
+            {
+              "id": "part_1",
+              "kind": "base",
+              "morphemeKey": null,
+              "sourceText": "kind",
+              "surfaceText": "kind",
+              "gloss": "",
+              "displayRange": {
+                "start": 0,
+                "end": 4
+              },
+              "source": {
+                "morphemesJsonIndex": 0
+              }
+            },
+            {
+              "id": "part_2",
+              "kind": "suffix",
+              "morphemeKey": null,
+              "sourceText": "ness",
+              "surfaceText": "ness",
+              "gloss": "",
+              "displayRange": {
+                "start": 4,
+                "end": 8
+              },
+              "source": {
+                "morphemesJsonIndex": 1
+              }
+            }
+          ],
+          "morphologyJoins": [
+            {
+              "afterPartId": "part_1",
+              "beforePartId": "part_2",
+              "joinType": "none",
+              "surfaceText": "",
+              "displayRange": {
+                "start": 4,
+                "end": 4
+              }
+            }
+          ],
+          "morphologyTransformations": [],
+          "transformationNotes": "The spelling of the base is kept in the longer word.",
+          "childFriendlyMeaning": "the quality of being kind",
+          "morphologySource": {
+            "sourceKind": "approved_repository_analysis",
+            "sourceId": "D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX::kindness",
+            "sourceFingerprint": "40d0dd25c3b1bd05341f370a430eef5fb3b2ce0506ba60e557e1c1415dfa00f0",
+            "sourceAuthorityKey": "approved_repository_artifact:base-word-prefix-suffix-family-v2:2026-08-11"
+          }
+        },
+        {
+          "memberId": "9cb52dc8-9c65-5cf7-83f5-2896a144fa2b",
+          "canonicalWordId": "bf239c62-fdcb-5982-87b3-7dfe295304ce",
+          "structuralRole": "family_member",
+          "applicableMicroSkillKeys": [
+            "D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX"
+          ],
+          "assignmentEligible": true,
+          "complexityLevel": null,
+          "wordSum": "un + kind → unkind",
+          "morphologyParts": [
+            {
+              "id": "part_1",
+              "kind": "prefix",
+              "morphemeKey": null,
+              "sourceText": "un",
+              "surfaceText": "un",
+              "gloss": "",
+              "displayRange": {
+                "start": 0,
+                "end": 2
+              },
+              "source": {
+                "morphemesJsonIndex": 0
+              }
+            },
+            {
+              "id": "part_2",
+              "kind": "base",
+              "morphemeKey": null,
+              "sourceText": "kind",
+              "surfaceText": "kind",
+              "gloss": "",
+              "displayRange": {
+                "start": 2,
+                "end": 6
+              },
+              "source": {
+                "morphemesJsonIndex": 1
+              }
+            }
+          ],
+          "morphologyJoins": [
+            {
+              "afterPartId": "part_1",
+              "beforePartId": "part_2",
+              "joinType": "none",
+              "surfaceText": "",
+              "displayRange": {
+                "start": 2,
+                "end": 2
+              }
+            }
+          ],
+          "morphologyTransformations": [],
+          "transformationNotes": "The spelling of the base is kept in the longer word.",
+          "childFriendlyMeaning": "not kind; not caring or helpful to others",
+          "morphologySource": {
+            "sourceKind": "approved_repository_analysis",
+            "sourceId": "D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX::unkind",
+            "sourceFingerprint": "92c97048b99ea7e5611c0ddfa2a5325b263e6d1ee0cf5f613e99e37008811b6e",
+            "sourceAuthorityKey": "approved_repository_artifact:base-word-prefix-suffix-family-v2:2026-08-11"
+          }
+        },
+        {
+          "memberId": "db7d7a53-d3cf-5daf-8722-a730c4f4418e",
+          "canonicalWordId": "e57c9f39-1882-5ec6-bcba-cd1fdc4221b5",
+          "structuralRole": "base",
+          "applicableMicroSkillKeys": [
+            "D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX"
+          ],
+          "assignmentEligible": true,
+          "complexityLevel": null,
+          "wordSum": "kind",
+          "morphologyParts": [
+            {
+              "id": "part_1",
+              "kind": "base",
+              "morphemeKey": null,
+              "sourceText": "kind",
+              "surfaceText": "kind",
+              "gloss": "",
+              "displayRange": {
+                "start": 0,
+                "end": 4
+              },
+              "source": {
+                "morphemesJsonIndex": 0
+              }
+            }
+          ],
+          "morphologyJoins": [],
+          "morphologyTransformations": [],
+          "transformationNotes": "The spelling of the base is kept in the longer word.",
+          "childFriendlyMeaning": "caring and helpful to others",
+          "morphologySource": {
+            "sourceKind": "approved_repository_analysis",
+            "sourceId": "D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX::kind",
+            "sourceFingerprint": "158cc33536f8d0bb2b20aab91a479354e4daed11855e4a42470e8170259b7fae",
+            "sourceAuthorityKey": "approved_repository_artifact:base-word-prefix-suffix-family-v2:2026-08-11"
+          }
+        }
+      ],
+      "sourceFingerprint": "7d2fcb211804db9c840a31d06c7d0ef70a6dbed91916bd3591497b8bc4fb90f5"
+    },
+    {
+      "familyId": "a7da3386-2c1a-50a7-8b84-66b4697f0371",
+      "baseFamilyKey": "paint_base_family",
+      "baseWordId": "b1066dc4-d778-554b-9d93-cacdc20c9abe",
+      "baseMeaning": "to put coloured paint on a surface",
+      "etymologyRoute": {
+        "relation_type": "free_base",
+        "origin_language": "English",
+        "origin_form": "paint",
+        "literal_meaning": "to put coloured paint on a surface",
+        "child_facing_meaning": "to put coloured paint on a surface",
+        "semantic_connection": "The visible base is retained in each reviewed family member.",
+        "evidence": {
+          "source_name": "Katie Sanderson approved Base Word workbook",
+          "source_url": "local:base-word-prefix-suffix-readiness-audit-resolved (1).xlsx",
+          "verification_status": "linked_for_human_review"
+        }
+      },
+      "members": [
+        {
+          "memberId": "eb368b01-5e4f-589c-828b-db76012b04ec",
+          "canonicalWordId": "28608110-6af9-50fe-bec8-ca67ee64123f",
+          "structuralRole": "family_member",
+          "applicableMicroSkillKeys": [
+            "D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX"
+          ],
+          "assignmentEligible": true,
+          "complexityLevel": null,
+          "wordSum": "paint + er → painter",
+          "morphologyParts": [
+            {
+              "id": "part_1",
+              "kind": "base",
+              "morphemeKey": null,
+              "sourceText": "paint",
+              "surfaceText": "paint",
+              "gloss": "",
+              "displayRange": {
+                "start": 0,
+                "end": 5
+              }
+            },
+            {
+              "id": "part_2",
+              "kind": "suffix",
+              "morphemeKey": null,
+              "sourceText": "er",
+              "surfaceText": "er",
+              "gloss": "",
+              "displayRange": {
+                "start": 5,
+                "end": 7
+              }
+            }
+          ],
+          "morphologyJoins": [],
+          "morphologyTransformations": [],
+          "transformationNotes": "",
+          "childFriendlyMeaning": "a person who paints pictures, walls, or other surfaces",
+          "morphologySource": {
+            "sourceKind": "approved_repository_analysis",
+            "sourceId": "D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX::painter",
+            "sourceFingerprint": "643484906778ddbe51e4181f85c6f2dc8cac9f163effda68bced846fcf8943b9",
+            "sourceAuthorityKey": "approved_repository_artifact:base-word-prefix-suffix-family-v2:2026-08-11"
+          }
+        },
+        {
+          "memberId": "d36f7b3b-73ec-5bb5-8d0e-4fe6f2b205e2",
+          "canonicalWordId": "665b4749-fafc-518d-9362-04a5f7ee05db",
+          "structuralRole": "family_member",
+          "applicableMicroSkillKeys": [
+            "D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX"
+          ],
+          "assignmentEligible": true,
+          "complexityLevel": null,
+          "wordSum": "paint + ing → painting",
+          "morphologyParts": [
+            {
+              "id": "part_1",
+              "kind": "base",
+              "morphemeKey": null,
+              "sourceText": "paint",
+              "surfaceText": "paint",
+              "gloss": "",
+              "displayRange": {
+                "start": 0,
+                "end": 5
+              }
+            },
+            {
+              "id": "part_2",
+              "kind": "suffix",
+              "morphemeKey": null,
+              "sourceText": "ing",
+              "surfaceText": "ing",
+              "gloss": "",
+              "displayRange": {
+                "start": 5,
+                "end": 8
+              }
+            }
+          ],
+          "morphologyJoins": [],
+          "morphologyTransformations": [],
+          "transformationNotes": "",
+          "childFriendlyMeaning": "putting paint on something right now",
+          "morphologySource": {
+            "sourceKind": "approved_repository_analysis",
+            "sourceId": "D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX::painting",
+            "sourceFingerprint": "8d828087ec121d2ff4aa245ea6e739199d5efcf10b3971c3e5cc4998d8aaa254",
+            "sourceAuthorityKey": "approved_repository_artifact:base-word-prefix-suffix-family-v2:2026-08-11"
+          }
+        },
+        {
+          "memberId": "2d72d8dc-5878-5f8e-8b80-7153e002c606",
+          "canonicalWordId": "b1066dc4-d778-554b-9d93-cacdc20c9abe",
+          "structuralRole": "base",
+          "applicableMicroSkillKeys": [
+            "D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX"
+          ],
+          "assignmentEligible": true,
+          "complexityLevel": null,
+          "wordSum": "paint",
+          "morphologyParts": [
+            {
+              "id": "part_1",
+              "kind": "base",
+              "morphemeKey": null,
+              "sourceText": "paint",
+              "surfaceText": "paint",
+              "gloss": "",
+              "displayRange": {
+                "start": 0,
+                "end": 5
+              }
+            }
+          ],
+          "morphologyJoins": [],
+          "morphologyTransformations": [],
+          "transformationNotes": "",
+          "childFriendlyMeaning": "to put coloured paint on a surface",
+          "morphologySource": {
+            "sourceKind": "approved_repository_analysis",
+            "sourceId": "D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX::paint",
+            "sourceFingerprint": "ac13090a941e00691e203fb21f8220e486632076fe576c6daccc60aa0711b453",
+            "sourceAuthorityKey": "approved_repository_artifact:base-word-prefix-suffix-family-v2:2026-08-11"
+          }
+        }
+      ],
+      "sourceFingerprint": "801a666fcb15c6c7bee9725158e409e211f02320a35abab5f54b48e4477de433"
+    },
+    {
+      "familyId": "23ee652c-e201-5a43-8c86-73a9e43e2f0e",
+      "baseFamilyKey": "slow_base_family",
+      "baseWordId": "567c22bd-043b-525d-80ad-4c510e6a08d2",
+      "baseMeaning": "not moving or happening quickly",
+      "etymologyRoute": {
+        "relation_type": "free_base",
+        "origin_language": "English",
+        "origin_form": "slow",
+        "literal_meaning": "not moving or happening quickly",
+        "child_facing_meaning": "not moving or happening quickly",
+        "semantic_connection": "The visible base is retained in each reviewed family member.",
+        "evidence": {
+          "source_name": "Katie Sanderson approved Base Word workbook",
+          "source_url": "local:base-word-prefix-suffix-readiness-audit-resolved (1).xlsx",
+          "verification_status": "linked_for_human_review"
+        }
+      },
+      "members": [
+        {
+          "memberId": "00acc40b-0857-5374-8d49-3ad8315fb69f",
+          "canonicalWordId": "23732715-43e0-5b86-87b2-b382f714937c",
+          "structuralRole": "family_member",
+          "applicableMicroSkillKeys": [
+            "D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX"
+          ],
+          "assignmentEligible": true,
+          "complexityLevel": null,
+          "wordSum": "slow + ly → slowly",
+          "morphologyParts": [
+            {
+              "id": "part_1",
+              "kind": "base",
+              "morphemeKey": null,
+              "sourceText": "slow",
+              "surfaceText": "slow",
+              "gloss": "",
+              "displayRange": {
+                "start": 0,
+                "end": 4
+              }
+            },
+            {
+              "id": "part_2",
+              "kind": "suffix",
+              "morphemeKey": null,
+              "sourceText": "ly",
+              "surfaceText": "ly",
+              "gloss": "",
+              "displayRange": {
+                "start": 4,
+                "end": 6
+              }
+            }
+          ],
+          "morphologyJoins": [],
+          "morphologyTransformations": [],
+          "transformationNotes": "",
+          "childFriendlyMeaning": "in a slow way",
+          "morphologySource": {
+            "sourceKind": "approved_repository_analysis",
+            "sourceId": "D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX::slowly",
+            "sourceFingerprint": "849e8ff6637e83a8ed157fe6178b86b009be50048410bba1a5d86f80bd2585f7",
+            "sourceAuthorityKey": "approved_repository_artifact:base-word-prefix-suffix-family-v2:2026-08-11"
+          }
+        },
+        {
+          "memberId": "b9845f22-4896-53a4-8692-da58944fc82c",
+          "canonicalWordId": "567c22bd-043b-525d-80ad-4c510e6a08d2",
+          "structuralRole": "base",
+          "applicableMicroSkillKeys": [
+            "D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX"
+          ],
+          "assignmentEligible": true,
+          "complexityLevel": null,
+          "wordSum": "slow",
+          "morphologyParts": [
+            {
+              "id": "part_1",
+              "kind": "base",
+              "morphemeKey": null,
+              "sourceText": "slow",
+              "surfaceText": "slow",
+              "gloss": "",
+              "displayRange": {
+                "start": 0,
+                "end": 4
+              }
+            }
+          ],
+          "morphologyJoins": [],
+          "morphologyTransformations": [],
+          "transformationNotes": "",
+          "childFriendlyMeaning": "not moving or happening quickly",
+          "morphologySource": {
+            "sourceKind": "approved_repository_analysis",
+            "sourceId": "D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX::slow",
+            "sourceFingerprint": "ef82b8ffbab22c61824931bc4fcb2421b31b58d1ab92fbdb14158bb134e74160",
+            "sourceAuthorityKey": "approved_repository_artifact:base-word-prefix-suffix-family-v2:2026-08-11"
+          }
+        },
+        {
+          "memberId": "df11c4de-55f8-522f-8a77-2278c38b2e8d",
+          "canonicalWordId": "fcfd59dd-b0b1-50bc-8f3f-d5293fec9b49",
+          "structuralRole": "family_member",
+          "applicableMicroSkillKeys": [
+            "D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX"
+          ],
+          "assignmentEligible": true,
+          "complexityLevel": null,
+          "wordSum": "slow + er → slower",
+          "morphologyParts": [
+            {
+              "id": "part_1",
+              "kind": "base",
+              "morphemeKey": null,
+              "sourceText": "slow",
+              "surfaceText": "slow",
+              "gloss": "",
+              "displayRange": {
+                "start": 0,
+                "end": 4
+              }
+            },
+            {
+              "id": "part_2",
+              "kind": "suffix",
+              "morphemeKey": null,
+              "sourceText": "er",
+              "surfaceText": "er",
+              "gloss": "",
+              "displayRange": {
+                "start": 4,
+                "end": 6
+              }
+            }
+          ],
+          "morphologyJoins": [],
+          "morphologyTransformations": [],
+          "transformationNotes": "",
+          "childFriendlyMeaning": "more slow; taking more time",
+          "morphologySource": {
+            "sourceKind": "approved_repository_analysis",
+            "sourceId": "D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX::slower",
+            "sourceFingerprint": "29a2a1b48c6b1611e816ee5fd5e955d26693ababee3a2b9fa3c65b9fff20c68c",
+            "sourceAuthorityKey": "approved_repository_artifact:base-word-prefix-suffix-family-v2:2026-08-11"
+          }
+        }
+      ],
+      "sourceFingerprint": "2b23e6eebecc71aca5f2053c6a041c683ff6cd43ac681fa72de5322ee0ddc8b7"
+    },
+    {
+      "familyId": "583b2ca0-501e-586c-8c80-0a92d1e2cda4",
+      "baseFamilyKey": "sweet_base_family",
+      "baseWordId": "f6e96635-b4eb-55f6-80bc-7a829adfa00a",
+      "baseMeaning": "having a sugary taste",
+      "etymologyRoute": {
+        "relation_type": "free_base",
+        "origin_language": "English",
+        "origin_form": "sweet",
+        "literal_meaning": "having a sugary taste",
+        "child_facing_meaning": "having a sugary taste",
+        "semantic_connection": "The visible base is retained in each reviewed family member.",
+        "evidence": {
+          "source_name": "Katie Sanderson approved Base Word workbook",
+          "source_url": "local:base-word-prefix-suffix-readiness-audit-resolved (1).xlsx",
+          "verification_status": "linked_for_human_review"
+        }
+      },
+      "members": [
+        {
+          "memberId": "220a6c8b-f72b-595e-85bf-fd424b2513dc",
+          "canonicalWordId": "7995fd5c-73e3-5ef0-9878-3bd65e139212",
+          "structuralRole": "family_member",
+          "applicableMicroSkillKeys": [
+            "D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX"
+          ],
+          "assignmentEligible": true,
+          "complexityLevel": null,
+          "wordSum": "sweet + ly → sweetly",
+          "morphologyParts": [
+            {
+              "id": "part_1",
+              "kind": "base",
+              "morphemeKey": null,
+              "sourceText": "sweet",
+              "surfaceText": "sweet",
+              "gloss": "",
+              "displayRange": {
+                "start": 0,
+                "end": 5
+              }
+            },
+            {
+              "id": "part_2",
+              "kind": "suffix",
+              "morphemeKey": null,
+              "sourceText": "ly",
+              "surfaceText": "ly",
+              "gloss": "",
+              "displayRange": {
+                "start": 5,
+                "end": 7
+              }
+            }
+          ],
+          "morphologyJoins": [],
+          "morphologyTransformations": [],
+          "transformationNotes": "",
+          "childFriendlyMeaning": "in a sweet or pleasant way",
+          "morphologySource": {
+            "sourceKind": "approved_repository_analysis",
+            "sourceId": "D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX::sweetly",
+            "sourceFingerprint": "5a516a43b3dabda6c0891789f927c1b8148367c65c0ac9e609208b44e47ef812",
+            "sourceAuthorityKey": "approved_repository_artifact:base-word-prefix-suffix-family-v2:2026-08-11"
+          }
+        },
+        {
+          "memberId": "876ae2ed-1872-5a66-803e-ec46ff67eab3",
+          "canonicalWordId": "7b5eeb0a-f350-5d61-9f36-f813eb9ba6c2",
+          "structuralRole": "family_member",
+          "applicableMicroSkillKeys": [
+            "D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX"
+          ],
+          "assignmentEligible": true,
+          "complexityLevel": null,
+          "wordSum": "sweet + ness → sweetness",
+          "morphologyParts": [
+            {
+              "id": "part_1",
+              "kind": "base",
+              "morphemeKey": null,
+              "sourceText": "sweet",
+              "surfaceText": "sweet",
+              "gloss": "",
+              "displayRange": {
+                "start": 0,
+                "end": 5
+              }
+            },
+            {
+              "id": "part_2",
+              "kind": "suffix",
+              "morphemeKey": null,
+              "sourceText": "ness",
+              "surfaceText": "ness",
+              "gloss": "",
+              "displayRange": {
+                "start": 5,
+                "end": 9
+              }
+            }
+          ],
+          "morphologyJoins": [],
+          "morphologyTransformations": [],
+          "transformationNotes": "",
+          "childFriendlyMeaning": "the quality of being sweet",
+          "morphologySource": {
+            "sourceKind": "approved_repository_analysis",
+            "sourceId": "D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX::sweetness",
+            "sourceFingerprint": "f293a4d169c1b3d11f2c4d9bd92de69e99f7163e75ac7e2788b5e42a901c129f",
+            "sourceAuthorityKey": "approved_repository_artifact:base-word-prefix-suffix-family-v2:2026-08-11"
+          }
+        },
+        {
+          "memberId": "f94a0335-bae0-5bae-805a-8884ee0b2c49",
+          "canonicalWordId": "f6e96635-b4eb-55f6-80bc-7a829adfa00a",
+          "structuralRole": "base",
+          "applicableMicroSkillKeys": [
+            "D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX"
+          ],
+          "assignmentEligible": true,
+          "complexityLevel": null,
+          "wordSum": "sweet",
+          "morphologyParts": [
+            {
+              "id": "part_1",
+              "kind": "base",
+              "morphemeKey": null,
+              "sourceText": "sweet",
+              "surfaceText": "sweet",
+              "gloss": "",
+              "displayRange": {
+                "start": 0,
+                "end": 5
+              }
+            }
+          ],
+          "morphologyJoins": [],
+          "morphologyTransformations": [],
+          "transformationNotes": "",
+          "childFriendlyMeaning": "having a sugary taste",
+          "morphologySource": {
+            "sourceKind": "approved_repository_analysis",
+            "sourceId": "D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX::sweet",
+            "sourceFingerprint": "2d3f3a29acbff106ae1a1073205b0bf59c7816ca8ce158b5c8905d97a45cbd74",
+            "sourceAuthorityKey": "approved_repository_artifact:base-word-prefix-suffix-family-v2:2026-08-11"
+          }
+        }
+      ],
+      "sourceFingerprint": "b4a703c7b9895bd5313056ada61735a658f9df9c9832290c3525788f4cbb086a"
+    },
+    {
+      "familyId": "52d435d4-e94f-5fc1-8e74-ee5d8a75906a",
+      "baseFamilyKey": "wind_base_family",
+      "baseWordId": "7070a8c3-43e7-5927-a56d-96039c66236a",
+      "baseMeaning": "moving air outdoors",
+      "etymologyRoute": {
+        "relation_type": "free_base",
+        "origin_language": "English",
+        "origin_form": "wind",
+        "literal_meaning": "moving air outdoors",
+        "child_facing_meaning": "moving air outdoors",
+        "semantic_connection": "The visible base is retained in each reviewed family member.",
+        "evidence": {
+          "source_name": "Katie Sanderson approved Base Word workbook",
+          "source_url": "local:base-word-prefix-suffix-readiness-audit-resolved (1).xlsx",
+          "verification_status": "linked_for_human_review"
+        }
+      },
+      "members": [
+        {
+          "memberId": "49c515d2-d08f-5d59-8822-517d5f85ed1b",
+          "canonicalWordId": "092ee864-4205-5b77-816c-0a9fc63c92c6",
+          "structuralRole": "family_member",
+          "applicableMicroSkillKeys": [
+            "D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX"
+          ],
+          "assignmentEligible": true,
+          "complexityLevel": null,
+          "wordSum": "wind + ier → windier",
+          "morphologyParts": [
+            {
+              "id": "part_1",
+              "kind": "base",
+              "morphemeKey": null,
+              "sourceText": "wind",
+              "surfaceText": "wind",
+              "gloss": "",
+              "displayRange": {
+                "start": 0,
+                "end": 4
+              }
+            },
+            {
+              "id": "part_2",
+              "kind": "suffix",
+              "morphemeKey": null,
+              "sourceText": "ier",
+              "surfaceText": "ier",
+              "gloss": "",
+              "displayRange": {
+                "start": 4,
+                "end": 7
+              }
+            }
+          ],
+          "morphologyJoins": [],
+          "morphologyTransformations": [],
+          "transformationNotes": "",
+          "childFriendlyMeaning": "more windy",
+          "morphologySource": {
+            "sourceKind": "approved_repository_analysis",
+            "sourceId": "D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX::windier",
+            "sourceFingerprint": "5b83480b5c87aad4de423b27924fb2724e3cb501fb9586e272549aebd26d1cd8",
+            "sourceAuthorityKey": "approved_repository_artifact:base-word-prefix-suffix-family-v2:2026-08-11"
+          }
+        },
+        {
+          "memberId": "19f20ab6-befe-5b8b-8671-79a3b7349aa1",
+          "canonicalWordId": "7070a8c3-43e7-5927-a56d-96039c66236a",
+          "structuralRole": "base",
+          "applicableMicroSkillKeys": [
+            "D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX"
+          ],
+          "assignmentEligible": true,
+          "complexityLevel": null,
+          "wordSum": "wind",
+          "morphologyParts": [
+            {
+              "id": "part_1",
+              "kind": "base",
+              "morphemeKey": null,
+              "sourceText": "wind",
+              "surfaceText": "wind",
+              "gloss": "",
+              "displayRange": {
+                "start": 0,
+                "end": 4
+              }
+            }
+          ],
+          "morphologyJoins": [],
+          "morphologyTransformations": [],
+          "transformationNotes": "",
+          "childFriendlyMeaning": "moving air outdoors",
+          "morphologySource": {
+            "sourceKind": "approved_repository_analysis",
+            "sourceId": "D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX::wind",
+            "sourceFingerprint": "6c7bbe6716e345806449be730aea0c4197a91385603358b01a1dc6ff63525d4f",
+            "sourceAuthorityKey": "approved_repository_artifact:base-word-prefix-suffix-family-v2:2026-08-11"
+          }
+        },
+        {
+          "memberId": "ca715a1b-43a8-56e9-80bb-59e1f3017fb3",
+          "canonicalWordId": "98328bc7-95db-536f-834a-1f5ef3b58e9f",
+          "structuralRole": "family_member",
+          "applicableMicroSkillKeys": [
+            "D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX"
+          ],
+          "assignmentEligible": true,
+          "complexityLevel": null,
+          "wordSum": "wind + y → windy",
+          "morphologyParts": [
+            {
+              "id": "part_1",
+              "kind": "base",
+              "morphemeKey": null,
+              "sourceText": "wind",
+              "surfaceText": "wind",
+              "gloss": "",
+              "displayRange": {
+                "start": 0,
+                "end": 4
+              }
+            },
+            {
+              "id": "part_2",
+              "kind": "suffix",
+              "morphemeKey": null,
+              "sourceText": "y",
+              "surfaceText": "y",
+              "gloss": "",
+              "displayRange": {
+                "start": 4,
+                "end": 5
+              }
+            }
+          ],
+          "morphologyJoins": [],
+          "morphologyTransformations": [],
+          "transformationNotes": "",
+          "childFriendlyMeaning": "with a lot of wind",
+          "morphologySource": {
+            "sourceKind": "approved_repository_analysis",
+            "sourceId": "D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX::windy",
+            "sourceFingerprint": "2a44d78a92523f066c2c2ff030ffb113584d8362904fdbc63cee7ae1483c3d0a",
+            "sourceAuthorityKey": "approved_repository_artifact:base-word-prefix-suffix-family-v2:2026-08-11"
+          }
+        }
+      ],
+      "sourceFingerprint": "052d7a4ee52b7f1696092fd91009fe0365e23d0de9f775b94d4d96e29f5afef5"
+    }
+  ]
+}

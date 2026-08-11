@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "authorityKey": "base_word_teaching_content:d4_mor_base_words_base_plus_suffix:human_reviewed_v1_2026_08_11",
+  "microSkillKey": "D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX",
+  "approvalRefs": [
+    "human-review:katie-sanderson:2026-08-11",
+    "source-workbook-sha256:2af66d22ee827b9e8487475542037b43acbd8fb9468a4abc26d9b833d5f4e69a"
+  ],
+  "content": {
+    "contentVersionId": "1c55dea9-7c98-5b03-bd6c-834ab4092113",
+    "contentVersion": "human_reviewed_v1",
+    "teachingObjective": "Child can use meaning parts to spell base words with suffixes.",
+    "childFriendlyExplanation": "Big words are easier when you find the smaller meaning parts: base words, prefixes, suffixes, compounds, roots, or related words.",
+    "ruleExplanation": "A suffix is added after a base word; children should identify the base before spelling the longer word.",
+    "memoryTip": "",
+    "commonMisconceptions": "Child may spell the whole word by sound, lose the base word, change an affix unnecessarily, or miss a stable root/meaning chunk.",
+    "firstExposureProgression": [
+      "Introduce the meaning part; identify it in a clear model word; mark the boundary; explain what the part means or does; then spell from parts."
+    ],
+    "guidedPracticeProgression": [
+      "Use words where the target base, affix, root, compound part, or related-word cue for base words with suffixes is clear. Prompt the child to find the meaning part first, then spell and join the parts."
+    ],
+    "reviewProofreadingProgression": [
+      "Review: Use mixed morphology retrieval and ask the child to explain the base, prefix, suffix, compound, root, or related word that supports the spelling. Proofreading: In proofreading, ask the child to box the meaning parts and check that the base/root spelling has been preserved where the rule says it should."
+    ],
+    "exampleSelectionGuidance": "Start with familiar words where the meaning part is visible; avoid opaque word histories and multiple new morphemes in one item.",
+    "contrastPolicyGuidance": "Contrast related morphemes only after the target part is secure. Avoid teaching several prefixes, suffixes, or roots together unless the comparison is the lesson target."
+  }
+}

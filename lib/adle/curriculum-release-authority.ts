@@ -4,6 +4,7 @@ import { BASE_WORD_ROUTE_COMPATIBILITY_PROJECTION } from "./lesson-route-registr
 
 export const ADLE_CURRICULUM_RELEASE_MANIFEST_SCHEMA_VERSION = 2 as const;
 export const ADLE_DEPENDENCY_AUTHORITY_SCHEMA_VERSION = 1 as const;
+export const ADLE_FAMILY_MEMBERSHIP_AUTHORITY_SCHEMA_VERSIONS = [1, 2] as const;
 
 export const ADLE_CURRICULUM_DEPENDENCY_TYPES = [
   "family_membership",
@@ -17,7 +18,7 @@ export type AdleCurriculumDependencyType =
 export type AdleCurriculumDependencyReference = {
   authorityKey: string;
   authorityType: AdleCurriculumDependencyType;
-  authoritySchemaVersion: 1;
+  authoritySchemaVersion: 1 | 2;
   semanticFingerprint: string;
 };
 
@@ -173,7 +174,10 @@ export function validateAdleCurriculumReleaseManifestV2(
         seen.add(dependencyType);
         priorOrder = order;
         if (!nonEmpty(dependency.authorityKey)) errors.push(`missing_authority_key:${entry.microSkillKey}:${dependencyType}`);
-        if (dependency.authoritySchemaVersion !== ADLE_DEPENDENCY_AUTHORITY_SCHEMA_VERSION) {
+        const supportedAuthoritySchema = dependencyType === "family_membership"
+          ? (ADLE_FAMILY_MEMBERSHIP_AUTHORITY_SCHEMA_VERSIONS as readonly unknown[]).includes(dependency.authoritySchemaVersion)
+          : dependency.authoritySchemaVersion === ADLE_DEPENDENCY_AUTHORITY_SCHEMA_VERSION;
+        if (!supportedAuthoritySchema) {
           errors.push(`unsupported_authority_schema:${entry.microSkillKey}:${dependencyType}`);
         }
         if (typeof dependency.semanticFingerprint !== "string" || !SHA256.test(dependency.semanticFingerprint)) {
