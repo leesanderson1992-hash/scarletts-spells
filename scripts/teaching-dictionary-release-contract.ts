@@ -425,12 +425,23 @@ export function validateCanonicalCsv(csv: Record<string, CsvRow[]>): ReleaseCoun
       .split(/\s+/)
       .map((token) => token.replace(/^\p{P}+|\p{P}+$/gu, ""));
     const targetIndex = Number.parseInt(row.dictation_target_token_index, 10);
+    const targetEndExclusive = normaliseCell(row.dictation_target_end_exclusive)
+      ? Number.parseInt(row.dictation_target_end_exclusive, 10)
+      : targetIndex + 1;
+    const exactGovernedAnswer = normaliseCell(row.exact_governed_answer) || target || "";
+    const governedTokenCount = targetEndExclusive - targetIndex;
+    const occurrences = tokens.filter((_, tokenIndex) =>
+      tokens.slice(tokenIndex, tokenIndex + governedTokenCount).join(" ").toLocaleLowerCase("en-GB") ===
+      exactGovernedAnswer.toLocaleLowerCase("en-GB")
+    ).length;
     if (
       row.review_status !== "approved_for_first_exposure" ||
       row.dictation_sentence !== row.audio_text ||
       !Number.isInteger(targetIndex) ||
-      tokens[targetIndex]?.toLocaleLowerCase("en-GB") !== target?.toLocaleLowerCase("en-GB") ||
-      tokens.filter((token) => token.toLocaleLowerCase("en-GB") === target?.toLocaleLowerCase("en-GB")).length !== 1 ||
+      !Number.isInteger(targetEndExclusive) || targetEndExclusive <= targetIndex ||
+      exactGovernedAnswer.toLocaleLowerCase("en-GB") !== target?.toLocaleLowerCase("en-GB") ||
+      tokens.slice(targetIndex, targetEndExclusive).join(" ").toLocaleLowerCase("en-GB") !== exactGovernedAnswer.toLocaleLowerCase("en-GB") ||
+      occurrences !== 1 ||
       !normaliseCell(row.reviewed_by) ||
       !normaliseCell(row.reviewed_at)
     ) {

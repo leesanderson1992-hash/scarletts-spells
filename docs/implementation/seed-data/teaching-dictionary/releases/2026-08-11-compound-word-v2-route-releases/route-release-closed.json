@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 2,
+  "releaseKey": "compound-word-v2-d4_mor_compound_words_closed_compounds-2026-08-11",
+  "route": {
+    "routeId": "compound_word_lab",
+    "routeVersion": "v2",
+    "activationRouteKey": "compound_word_lab:v2",
+    "payloadVersion": 2
+  },
+  "approvalRefs": [
+    "data/adle/review/d4-mor/v2/compound-word-v2-publication-review-approval.json",
+    "sha256:4d59997206c4faf5c05eac37f9c4dd23d5581d3600327a7a8d0ef758b4c1338f"
+  ],
+  "microSkills": [
+    {
+      "microSkillKey": "D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS",
+      "dependencies": [
+        {
+          "authorityType": "compound_structure",
+          "authorityKey": "compound-word-v2-approved-14-2026-08-11",
+          "authoritySchemaVersion": 1,
+          "semanticFingerprint": "b07f735a8bced4f5b9dbfd6967b210b45a08d86572d7273473915a244cf33503"
+        },
+        {
+          "authorityType": "teaching_content",
+          "authorityKey": "compound-word-v2-closed-teaching-content-2026-08-11",
+          "authoritySchemaVersion": 1,
+          "semanticFingerprint": "c2231076e3042dd1b4d5e9f8aa55c28163d4c9a6a2aea4b9a14378e7c2511ce7"
+        },
+        {
+          "authorityType": "teaching_dictionary_closure",
+          "authorityKey": "compound-word-v2-dictionary-closure-2026-08-11",
+          "authoritySchemaVersion": 2,
+          "semanticFingerprint": "0f22baf3d425e8684153a45c9abdb3740c05fb52a4a349ecd3f29f479a4c5d72"
+        }
+      ]
+    }
+  ]
+}

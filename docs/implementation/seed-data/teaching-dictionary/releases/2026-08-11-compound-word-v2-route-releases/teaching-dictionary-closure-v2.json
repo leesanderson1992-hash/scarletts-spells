@@ -1,0 +1,385 @@
+{
+  "schemaVersion": 2,
+  "authorityKey": "compound-word-v2-dictionary-closure-2026-08-11",
+  "approvalRefs": [
+    "data/adle/review/d4-mor/v2/compound-word-v2-publication-review-approval.json",
+    "sha256:4d59997206c4faf5c05eac37f9c4dd23d5581d3600327a7a8d0ef758b4c1338f"
+  ],
+  "capabilities": [
+    "canonical_word_identity_display",
+    "canonical_dictation_target_span"
+  ],
+  "words": [
+    {
+      "wordKey": "ball_en_gb",
+      "normalisedWord": "ball",
+      "displayWord": "ball",
+      "dialectCode": "en-GB",
+      "dictation": null
+    },
+    {
+      "wordKey": "bed_en_gb",
+      "normalisedWord": "bed",
+      "displayWord": "bed",
+      "dialectCode": "en-GB",
+      "dictation": null
+    },
+    {
+      "wordKey": "bedroom_en_gb",
+      "normalisedWord": "bedroom",
+      "displayWord": "bedroom",
+      "dialectCode": "en-GB",
+      "dictation": {
+        "sentence": "Mother took the baby to the bedroom.",
+        "targetStart": 6,
+        "targetEndExclusive": 7,
+        "exactGovernedAnswer": "bedroom",
+        "audioText": "Mother took the baby to the bedroom."
+      }
+    },
+    {
+      "wordKey": "bow_en_gb",
+      "normalisedWord": "bow",
+      "displayWord": "bow",
+      "dialectCode": "en-GB",
+      "dictation": null
+    },
+    {
+      "wordKey": "cream_en_gb",
+      "normalisedWord": "cream",
+      "displayWord": "cream",
+      "dialectCode": "en-GB",
+      "dictation": null
+    },
+    {
+      "wordKey": "flower_en_gb",
+      "normalisedWord": "flower",
+      "displayWord": "flower",
+      "dialectCode": "en-GB",
+      "dictation": null
+    },
+    {
+      "wordKey": "foot_en_gb",
+      "normalisedWord": "foot",
+      "displayWord": "foot",
+      "dialectCode": "en-GB",
+      "dictation": null
+    },
+    {
+      "wordKey": "football_en_gb",
+      "normalisedWord": "football",
+      "displayWord": "football",
+      "dialectCode": "en-GB",
+      "dictation": {
+        "sentence": "Children play football in the playground.",
+        "targetStart": 2,
+        "targetEndExclusive": 3,
+        "exactGovernedAnswer": "football",
+        "audioText": "Children play football in the playground."
+      }
+    },
+    {
+      "wordKey": "grand_en_gb",
+      "normalisedWord": "grand",
+      "displayWord": "grand",
+      "dialectCode": "en-GB",
+      "dictation": null
+    },
+    {
+      "wordKey": "grandmother_en_gb",
+      "normalisedWord": "grandmother",
+      "displayWord": "grandmother",
+      "dialectCode": "en-GB",
+      "dictation": {
+        "sentence": "Mia wrote a letter to her grandmother.",
+        "targetStart": 6,
+        "targetEndExclusive": 7,
+        "exactGovernedAnswer": "grandmother",
+        "audioText": "Mia wrote a letter to her grandmother."
+      }
+    },
+    {
+      "wordKey": "ground_en_gb",
+      "normalisedWord": "ground",
+      "displayWord": "ground",
+      "dialectCode": "en-GB",
+      "dictation": null
+    },
+    {
+      "wordKey": "home_en_gb",
+      "normalisedWord": "home",
+      "displayWord": "home",
+      "dialectCode": "en-GB",
+      "dictation": null
+    },
+    {
+      "wordKey": "homework_en_gb",
+      "normalisedWord": "homework",
+      "displayWord": "homework",
+      "dialectCode": "en-GB",
+      "dictation": {
+        "sentence": "I finished my homework before tea.",
+        "targetStart": 3,
+        "targetEndExclusive": 4,
+        "exactGovernedAnswer": "homework",
+        "audioText": "I finished my homework before tea."
+      }
+    },
+    {
+      "wordKey": "ice_cream_en_gb",
+      "normalisedWord": "ice cream",
+      "displayWord": "ice cream",
+      "dialectCode": "en-GB",
+      "dictation": {
+        "sentence": "We had ice cream after the park.",
+        "targetStart": 2,
+        "targetEndExclusive": 4,
+        "exactGovernedAnswer": "ice cream",
+        "audioText": "We had ice cream after the park."
+      }
+    },
+    {
+      "wordKey": "ice_en_gb",
+      "normalisedWord": "ice",
+      "displayWord": "ice",
+      "dialectCode": "en-GB",
+      "dictation": null
+    },
+    {
+      "wordKey": "in_en_gb",
+      "normalisedWord": "in",
+      "displayWord": "in",
+      "dialectCode": "en-GB",
+      "dictation": null
+    },
+    {
+      "wordKey": "known_en_gb",
+      "normalisedWord": "known",
+      "displayWord": "known",
+      "dialectCode": "en-GB",
+      "dictation": null
+    },
+    {
+      "wordKey": "law_en_gb",
+      "normalisedWord": "law",
+      "displayWord": "law",
+      "dialectCode": "en-GB",
+      "dictation": null
+    },
+    {
+      "wordKey": "living_en_gb",
+      "normalisedWord": "living",
+      "displayWord": "living",
+      "dialectCode": "en-GB",
+      "dictation": null
+    },
+    {
+      "wordKey": "living_room_en_gb",
+      "normalisedWord": "living room",
+      "displayWord": "living room",
+      "dialectCode": "en-GB",
+      "dictation": {
+        "sentence": "We read together in the living room.",
+        "targetStart": 5,
+        "targetEndExclusive": 7,
+        "exactGovernedAnswer": "living room",
+        "audioText": "We read together in the living room."
+      }
+    },
+    {
+      "wordKey": "mother_en_gb",
+      "normalisedWord": "mother",
+      "displayWord": "mother",
+      "dialectCode": "en-GB",
+      "dictation": null
+    },
+    {
+      "wordKey": "mother_in_law_en_gb",
+      "normalisedWord": "mother-in-law",
+      "displayWord": "mother-in-law",
+      "dialectCode": "en-GB",
+      "dictation": {
+        "sentence": "Her mother-in-law came for lunch.",
+        "targetStart": 1,
+        "targetEndExclusive": 2,
+        "exactGovernedAnswer": "mother-in-law",
+        "audioText": "Her mother-in-law came for lunch."
+      }
+    },
+    {
+      "wordKey": "office_en_gb",
+      "normalisedWord": "office",
+      "displayWord": "office",
+      "dialectCode": "en-GB",
+      "dictation": null
+    },
+    {
+      "wordKey": "one_en_gb",
+      "normalisedWord": "one",
+      "displayWord": "one",
+      "dialectCode": "en-GB",
+      "dictation": null
+    },
+    {
+      "wordKey": "part_en_gb",
+      "normalisedWord": "part",
+      "displayWord": "part",
+      "dialectCode": "en-GB",
+      "dictation": null
+    },
+    {
+      "wordKey": "part_time_en_gb",
+      "normalisedWord": "part-time",
+      "displayWord": "part-time",
+      "dialectCode": "en-GB",
+      "dictation": {
+        "sentence": "Dad works part-time at the library.",
+        "targetStart": 2,
+        "targetEndExclusive": 3,
+        "exactGovernedAnswer": "part-time",
+        "audioText": "Dad works part-time at the library."
+      }
+    },
+    {
+      "wordKey": "play_en_gb",
+      "normalisedWord": "play",
+      "displayWord": "play",
+      "dialectCode": "en-GB",
+      "dictation": null
+    },
+    {
+      "wordKey": "playground_en_gb",
+      "normalisedWord": "playground",
+      "displayWord": "playground",
+      "dialectCode": "en-GB",
+      "dictation": {
+        "sentence": "The children played in the playground.",
+        "targetStart": 5,
+        "targetEndExclusive": 6,
+        "exactGovernedAnswer": "playground",
+        "audioText": "The children played in the playground."
+      }
+    },
+    {
+      "wordKey": "post_en_gb",
+      "normalisedWord": "post",
+      "displayWord": "post",
+      "dialectCode": "en-GB",
+      "dictation": null
+    },
+    {
+      "wordKey": "post_office_en_gb",
+      "normalisedWord": "post office",
+      "displayWord": "post office",
+      "dialectCode": "en-GB",
+      "dictation": {
+        "sentence": "We bought stamps at the post office.",
+        "targetStart": 5,
+        "targetEndExclusive": 7,
+        "exactGovernedAnswer": "post office",
+        "audioText": "We bought stamps at the post office."
+      }
+    },
+    {
+      "wordKey": "rain_en_gb",
+      "normalisedWord": "rain",
+      "displayWord": "rain",
+      "dialectCode": "en-GB",
+      "dictation": null
+    },
+    {
+      "wordKey": "rainbow_en_gb",
+      "normalisedWord": "rainbow",
+      "displayWord": "rainbow",
+      "dialectCode": "en-GB",
+      "dictation": {
+        "sentence": "A rainbow appeared after rain.",
+        "targetStart": 1,
+        "targetEndExclusive": 2,
+        "exactGovernedAnswer": "rainbow",
+        "audioText": "A rainbow appeared after rain."
+      }
+    },
+    {
+      "wordKey": "room_en_gb",
+      "normalisedWord": "room",
+      "displayWord": "room",
+      "dialectCode": "en-GB",
+      "dictation": null
+    },
+    {
+      "wordKey": "sun_en_gb",
+      "normalisedWord": "sun",
+      "displayWord": "sun",
+      "dialectCode": "en-GB",
+      "dictation": null
+    },
+    {
+      "wordKey": "sunflower_en_gb",
+      "normalisedWord": "sunflower",
+      "displayWord": "sunflower",
+      "dialectCode": "en-GB",
+      "dictation": {
+        "sentence": "The sunflower grew beside the fence.",
+        "targetStart": 1,
+        "targetEndExclusive": 2,
+        "exactGovernedAnswer": "sunflower",
+        "audioText": "The sunflower grew beside the fence."
+      }
+    },
+    {
+      "wordKey": "time_en_gb",
+      "normalisedWord": "time",
+      "displayWord": "time",
+      "dialectCode": "en-GB",
+      "dictation": null
+    },
+    {
+      "wordKey": "twenty_en_gb",
+      "normalisedWord": "twenty",
+      "displayWord": "twenty",
+      "dialectCode": "en-GB",
+      "dictation": null
+    },
+    {
+      "wordKey": "twenty_one_en_gb",
+      "normalisedWord": "twenty-one",
+      "displayWord": "twenty-one",
+      "dialectCode": "en-GB",
+      "dictation": {
+        "sentence": "There are twenty-one children in our class.",
+        "targetStart": 2,
+        "targetEndExclusive": 3,
+        "exactGovernedAnswer": "twenty-one",
+        "audioText": "There are twenty-one children in our class."
+      }
+    },
+    {
+      "wordKey": "well_en_gb",
+      "normalisedWord": "well",
+      "displayWord": "well",
+      "dialectCode": "en-GB",
+      "dictation": null
+    },
+    {
+      "wordKey": "well_known_en_gb",
+      "normalisedWord": "well-known",
+      "displayWord": "well-known",
+      "dialectCode": "en-GB",
+      "dictation": {
+        "sentence": "The castle is a well-known landmark.",
+        "targetStart": 4,
+        "targetEndExclusive": 5,
+        "exactGovernedAnswer": "well-known",
+        "audioText": "The castle is a well-known landmark."
+      }
+    },
+    {
+      "wordKey": "work_en_gb",
+      "normalisedWord": "work",
+      "displayWord": "work",
+      "dialectCode": "en-GB",
+      "dictation": null
+    }
+  ]
+}

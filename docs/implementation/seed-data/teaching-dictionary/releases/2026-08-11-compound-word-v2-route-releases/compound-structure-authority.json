@@ -1,0 +1,680 @@
+{
+  "schemaVersion": 1,
+  "authorityKey": "compound-word-v2-approved-14-2026-08-11",
+  "approvalRefs": [
+    "data/adle/review/d4-mor/v2/compound-word-v2-publication-review-approval.json",
+    "sha256:4d59997206c4faf5c05eac37f9c4dd23d5581d3600327a7a8d0ef758b4c1338f"
+  ],
+  "structures": [
+    {
+      "wholeWordKey": "bedroom_en_gb",
+      "wholeCanonicalWordId": "471b01bb-6a54-595d-95e2-b1a06edcbc8a",
+      "microSkillKey": "D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS",
+      "displayForm": "bedroom",
+      "components": [
+        {
+          "ordinal": 1,
+          "canonicalWordId": "a69eab89-ea57-5cce-82c7-1378290b4614",
+          "displaySurface": "bed",
+          "meaning": "furniture that you sleep in",
+          "sense": "furniture that you sleep in"
+        },
+        {
+          "ordinal": 2,
+          "canonicalWordId": "6edd2d51-c382-5f75-961b-eac559db8dd0",
+          "displaySurface": "room",
+          "meaning": "a space inside a building",
+          "sense": "a space inside a building"
+        }
+      ],
+      "joins": [
+        "none"
+      ],
+      "childFriendlyMeaning": "a room where someone sleeps",
+      "componentToWholeRelationship": "A bedroom is a room with a bed, used for sleeping.",
+      "assignmentEligible": true,
+      "transferEligible": true,
+      "dictation": {
+        "sentence": "Mother took the baby to the bedroom.",
+        "targetStart": 6,
+        "targetEndExclusive": 7,
+        "exactGovernedAnswer": "bedroom"
+      },
+      "morphologyProvenance": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Word Bank",
+        "row": 116,
+        "approval_status": "human_approved",
+        "human_review_status": "approved",
+        "released_fact_provenance": {
+          "package_sha256": "841f13b525f6be22274ad3fa0b40957e43f9fadae72ecc873003c38b32096547",
+          "approved_review_artifact": "data/adle/candidates/d4-mor-remaining-profiles/v1/closed-compounds-dictionary-pool-review.json"
+        },
+        "released_fact_source": {
+          "sheet": "closed-compounds-dictionary-pool-review.json",
+          "row": 2,
+          "row_hash": "79f4e209ca603f0195d509253aa25bf747a0099c1cc53c67f6675d2fcab16556",
+          "review_status": "approved_for_first_exposure"
+        }
+      },
+      "approvalRef": "data/adle/review/d4-mor/v2/compound-word-v2-publication-review-approval.json"
+    },
+    {
+      "wholeWordKey": "football_en_gb",
+      "wholeCanonicalWordId": "2c8be08f-1205-5422-9799-f95b43a455f8",
+      "microSkillKey": "D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS",
+      "displayForm": "football",
+      "components": [
+        {
+          "ordinal": 1,
+          "canonicalWordId": "377bae8a-c334-5d33-81ae-6c4186772d7d",
+          "displaySurface": "foot",
+          "meaning": "the part at the end of your leg",
+          "sense": "the part at the end of your leg"
+        },
+        {
+          "ordinal": 2,
+          "canonicalWordId": "c95a7b7f-0cac-5513-b374-95cba442dca7",
+          "displaySurface": "ball",
+          "meaning": "a round object used in games",
+          "sense": "a round object used in games"
+        }
+      ],
+      "joins": [
+        "none"
+      ],
+      "childFriendlyMeaning": "a game where players kick a ball into goals",
+      "componentToWholeRelationship": "Football is a game played with a ball mainly using the feet.",
+      "assignmentEligible": true,
+      "transferEligible": true,
+      "dictation": {
+        "sentence": "Children play football in the playground.",
+        "targetStart": 2,
+        "targetEndExclusive": 3,
+        "exactGovernedAnswer": "football"
+      },
+      "morphologyProvenance": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Word Bank",
+        "row": 114,
+        "approval_status": "human_approved",
+        "human_review_status": "approved",
+        "released_fact_provenance": {
+          "package_sha256": "841f13b525f6be22274ad3fa0b40957e43f9fadae72ecc873003c38b32096547",
+          "approved_review_artifact": "data/adle/candidates/d4-mor-remaining-profiles/v1/closed-compounds-dictionary-pool-review.json"
+        },
+        "released_fact_source": {
+          "sheet": "closed-compounds-dictionary-pool-review.json",
+          "row": 4,
+          "row_hash": "f845b2716eea47aa8ccf1f7d5c80abe4f0b98e7edbe1c198cedaab09c91e4f88",
+          "review_status": "approved_for_first_exposure"
+        }
+      },
+      "approvalRef": "data/adle/review/d4-mor/v2/compound-word-v2-publication-review-approval.json"
+    },
+    {
+      "wholeWordKey": "grandmother_en_gb",
+      "wholeCanonicalWordId": "73efe7d1-9186-5e4b-933c-4f1d6a1a0ba9",
+      "microSkillKey": "D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS",
+      "displayForm": "grandmother",
+      "components": [
+        {
+          "ordinal": 1,
+          "canonicalWordId": "d7a23051-9d65-5720-b5b8-a2947274f9b3",
+          "displaySurface": "grand",
+          "meaning": "in family words, one generation further away than a parent or child",
+          "sense": "in family words, one generation further away than a parent or child"
+        },
+        {
+          "ordinal": 2,
+          "canonicalWordId": "6f8a5d74-5775-5048-88b0-4763da263be6",
+          "displaySurface": "mother",
+          "meaning": "a female parent",
+          "sense": "a female parent"
+        }
+      ],
+      "joins": [
+        "none"
+      ],
+      "childFriendlyMeaning": "the mother of one of your parents",
+      "componentToWholeRelationship": "A grandmother is the mother of one of your parents; grand shows that she is one generation further back in the family.",
+      "assignmentEligible": true,
+      "transferEligible": true,
+      "dictation": {
+        "sentence": "Mia wrote a letter to her grandmother.",
+        "targetStart": 6,
+        "targetEndExclusive": 7,
+        "exactGovernedAnswer": "grandmother"
+      },
+      "morphologyProvenance": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Word Bank",
+        "row": 120,
+        "approval_status": "human_approved",
+        "human_review_status": "approved",
+        "released_fact_provenance": null,
+        "released_fact_source": null
+      },
+      "approvalRef": "data/adle/review/d4-mor/v2/compound-word-v2-publication-review-approval.json"
+    },
+    {
+      "wholeWordKey": "homework_en_gb",
+      "wholeCanonicalWordId": "8698f26b-912a-5cfc-90da-a55cbe811db0",
+      "microSkillKey": "D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS",
+      "displayForm": "homework",
+      "components": [
+        {
+          "ordinal": 1,
+          "canonicalWordId": "98a80cb8-1b07-5ab4-a5eb-f663f1979578",
+          "displaySurface": "home",
+          "meaning": "the place where you live",
+          "sense": "the place where you live"
+        },
+        {
+          "ordinal": 2,
+          "canonicalWordId": "bbc78002-6a13-5653-b4ef-050e756879d7",
+          "displaySurface": "work",
+          "meaning": "a job or task that needs effort",
+          "sense": "a job or task that needs effort"
+        }
+      ],
+      "joins": [
+        "none"
+      ],
+      "childFriendlyMeaning": "school work that a teacher asks a pupil to do at home",
+      "componentToWholeRelationship": "Homework is work, meaning tasks to complete, that a pupil does at home.",
+      "assignmentEligible": true,
+      "transferEligible": true,
+      "dictation": {
+        "sentence": "I finished my homework before tea.",
+        "targetStart": 3,
+        "targetEndExclusive": 4,
+        "exactGovernedAnswer": "homework"
+      },
+      "morphologyProvenance": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Word Bank",
+        "row": 119,
+        "approval_status": "human_approved",
+        "human_review_status": "approved",
+        "released_fact_provenance": null,
+        "released_fact_source": null
+      },
+      "approvalRef": "data/adle/review/d4-mor/v2/compound-word-v2-publication-review-approval.json"
+    },
+    {
+      "wholeWordKey": "playground_en_gb",
+      "wholeCanonicalWordId": "c4566186-8c4b-5c33-9755-5db34d1f110e",
+      "microSkillKey": "D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS",
+      "displayForm": "playground",
+      "components": [
+        {
+          "ordinal": 1,
+          "canonicalWordId": "7824cfc5-f8c2-57ac-ba9e-d806161371e8",
+          "displaySurface": "play",
+          "meaning": "to have fun with games or toys",
+          "sense": "to have fun with games or toys"
+        },
+        {
+          "ordinal": 2,
+          "canonicalWordId": "c17a1ace-38d0-59bd-a584-7ec3a9bc129e",
+          "displaySurface": "ground",
+          "meaning": "the surface under your feet",
+          "sense": "the surface under your feet"
+        }
+      ],
+      "joins": [
+        "none"
+      ],
+      "childFriendlyMeaning": "an outdoor place where children play",
+      "componentToWholeRelationship": "A playground is ground set aside for children to play on.",
+      "assignmentEligible": true,
+      "transferEligible": true,
+      "dictation": {
+        "sentence": "The children played in the playground.",
+        "targetStart": 5,
+        "targetEndExclusive": 6,
+        "exactGovernedAnswer": "playground"
+      },
+      "morphologyProvenance": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Word Bank",
+        "row": 118,
+        "approval_status": "human_approved",
+        "human_review_status": "approved",
+        "released_fact_provenance": {
+          "package_sha256": "841f13b525f6be22274ad3fa0b40957e43f9fadae72ecc873003c38b32096547",
+          "approved_review_artifact": "data/adle/candidates/d4-mor-remaining-profiles/v1/closed-compounds-dictionary-pool-review.json"
+        },
+        "released_fact_source": {
+          "sheet": "closed-compounds-dictionary-pool-review.json",
+          "row": 5,
+          "row_hash": "fa108e050b7726eb62872e83fd4cb3873f57ad357d51ea16cd049ecf2380a8ca",
+          "review_status": "approved_for_first_exposure"
+        }
+      },
+      "approvalRef": "data/adle/review/d4-mor/v2/compound-word-v2-publication-review-approval.json"
+    },
+    {
+      "wholeWordKey": "rainbow_en_gb",
+      "wholeCanonicalWordId": "a6a30d2e-cd03-543e-b7cf-f8020bf9dbd9",
+      "microSkillKey": "D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS",
+      "displayForm": "rainbow",
+      "components": [
+        {
+          "ordinal": 1,
+          "canonicalWordId": "369d9884-1928-53ca-97ea-6d9c3e6a46ca",
+          "displaySurface": "rain",
+          "meaning": "water that falls from clouds",
+          "sense": "water that falls from clouds"
+        },
+        {
+          "ordinal": 2,
+          "canonicalWordId": "5d62fd50-5ec5-5e1d-9548-5c3c30ef4229",
+          "displaySurface": "bow",
+          "meaning": "a curved shape",
+          "sense": "a curved shape"
+        }
+      ],
+      "joins": [
+        "none"
+      ],
+      "childFriendlyMeaning": "a curved band of colours seen in the sky after rain",
+      "componentToWholeRelationship": "A rainbow is a bow-shaped curve of colours that can appear when sunlight shines through drops of rain.",
+      "assignmentEligible": true,
+      "transferEligible": true,
+      "dictation": {
+        "sentence": "A rainbow appeared after rain.",
+        "targetStart": 1,
+        "targetEndExclusive": 2,
+        "exactGovernedAnswer": "rainbow"
+      },
+      "morphologyProvenance": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Word Bank",
+        "row": 115,
+        "approval_status": "human_approved",
+        "human_review_status": "approved",
+        "released_fact_provenance": {
+          "package_sha256": "841f13b525f6be22274ad3fa0b40957e43f9fadae72ecc873003c38b32096547",
+          "approved_review_artifact": "data/adle/candidates/d4-mor-remaining-profiles/v1/closed-compounds-dictionary-pool-review.json"
+        },
+        "released_fact_source": {
+          "sheet": "closed-compounds-dictionary-pool-review.json",
+          "row": 6,
+          "row_hash": "452b341900d2babfc984a7a8aecee4363fc95aed9e582dd590e5b511dd851ac7",
+          "review_status": "approved_for_first_exposure"
+        }
+      },
+      "approvalRef": "data/adle/review/d4-mor/v2/compound-word-v2-publication-review-approval.json"
+    },
+    {
+      "wholeWordKey": "sunflower_en_gb",
+      "wholeCanonicalWordId": "6dcf0d7b-a87c-5490-bd04-72946a5990e3",
+      "microSkillKey": "D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS",
+      "displayForm": "sunflower",
+      "components": [
+        {
+          "ordinal": 1,
+          "canonicalWordId": "ef54e01f-d0d4-5bc7-b518-c1a56b341554",
+          "displaySurface": "sun",
+          "meaning": "the star that gives Earth light and heat",
+          "sense": "the star that gives Earth light and heat"
+        },
+        {
+          "ordinal": 2,
+          "canonicalWordId": "7133c536-ab7f-523a-a760-5c26ee1b934f",
+          "displaySurface": "flower",
+          "meaning": "the part of a plant that is often brightly coloured and makes seeds",
+          "sense": "the part of a plant that is often brightly coloured and makes seeds"
+        }
+      ],
+      "joins": [
+        "none"
+      ],
+      "childFriendlyMeaning": "a tall plant with a large yellow flower head",
+      "componentToWholeRelationship": "A sunflower is a flower with a large round yellow head that looks like the sun.",
+      "assignmentEligible": true,
+      "transferEligible": true,
+      "dictation": {
+        "sentence": "The sunflower grew beside the fence.",
+        "targetStart": 1,
+        "targetEndExclusive": 2,
+        "exactGovernedAnswer": "sunflower"
+      },
+      "morphologyProvenance": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Word Bank",
+        "row": 117,
+        "approval_status": "human_approved",
+        "human_review_status": "approved",
+        "released_fact_provenance": null,
+        "released_fact_source": null
+      },
+      "approvalRef": "data/adle/review/d4-mor/v2/compound-word-v2-publication-review-approval.json"
+    },
+    {
+      "wholeWordKey": "ice_cream_en_gb",
+      "wholeCanonicalWordId": "f760df54-4322-53f3-94ea-a9f795808871",
+      "microSkillKey": "D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED",
+      "displayForm": "ice cream",
+      "components": [
+        {
+          "ordinal": 1,
+          "canonicalWordId": "39013043-2bb2-50c5-b00f-e0eec697206f",
+          "displaySurface": "ice",
+          "meaning": "water that has frozen solid",
+          "sense": "water that has frozen solid"
+        },
+        {
+          "ordinal": 2,
+          "canonicalWordId": "2821cc0f-3cbd-57b8-be3c-e818e615acf1",
+          "displaySurface": "cream",
+          "meaning": "the thick, rich part of milk",
+          "sense": "the thick, rich part of milk"
+        }
+      ],
+      "joins": [
+        "space"
+      ],
+      "childFriendlyMeaning": "a sweet frozen food made mainly from milk or cream",
+      "componentToWholeRelationship": "Ice cream is a sweet frozen food; ice tells us that it is frozen, and cream points to the milk or cream used to make it.",
+      "assignmentEligible": true,
+      "transferEligible": true,
+      "dictation": {
+        "sentence": "We had ice cream after the park.",
+        "targetStart": 2,
+        "targetEndExclusive": 4,
+        "exactGovernedAnswer": "ice cream"
+      },
+      "morphologyProvenance": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Word Bank",
+        "row": 121,
+        "approval_status": "human_approved",
+        "human_review_status": "approved",
+        "released_fact_provenance": null,
+        "released_fact_source": null
+      },
+      "approvalRef": "data/adle/review/d4-mor/v2/compound-word-v2-publication-review-approval.json"
+    },
+    {
+      "wholeWordKey": "living_room_en_gb",
+      "wholeCanonicalWordId": "05c6eaa4-4cf3-5fc9-a708-34d00ba7150e",
+      "microSkillKey": "D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED",
+      "displayForm": "living room",
+      "components": [
+        {
+          "ordinal": 1,
+          "canonicalWordId": "d76c48ec-93bc-5100-8bfb-9f0e9d2c5f8b",
+          "displaySurface": "living",
+          "meaning": "spending everyday life in a home",
+          "sense": "spending everyday life in a home"
+        },
+        {
+          "ordinal": 2,
+          "canonicalWordId": "6edd2d51-c382-5f75-961b-eac559db8dd0",
+          "displaySurface": "room",
+          "meaning": "a space inside a building",
+          "sense": "a space inside a building"
+        }
+      ],
+      "joins": [
+        "space"
+      ],
+      "childFriendlyMeaning": "a room in a home where people sit and spend time together",
+      "componentToWholeRelationship": "A living room is a room used for everyday living, such as sitting, talking and relaxing together.",
+      "assignmentEligible": true,
+      "transferEligible": true,
+      "dictation": {
+        "sentence": "We read together in the living room.",
+        "targetStart": 5,
+        "targetEndExclusive": 7,
+        "exactGovernedAnswer": "living room"
+      },
+      "morphologyProvenance": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Word Bank",
+        "row": 122,
+        "approval_status": "human_approved",
+        "human_review_status": "approved",
+        "released_fact_provenance": null,
+        "released_fact_source": null
+      },
+      "approvalRef": "data/adle/review/d4-mor/v2/compound-word-v2-publication-review-approval.json"
+    },
+    {
+      "wholeWordKey": "mother_in_law_en_gb",
+      "wholeCanonicalWordId": "e36f28b7-519b-5f86-99ee-4e3521db21e7",
+      "microSkillKey": "D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED",
+      "displayForm": "mother-in-law",
+      "components": [
+        {
+          "ordinal": 1,
+          "canonicalWordId": "6f8a5d74-5775-5048-88b0-4763da263be6",
+          "displaySurface": "mother",
+          "meaning": "a female parent",
+          "sense": "a female parent"
+        },
+        {
+          "ordinal": 2,
+          "canonicalWordId": "68d55f82-0288-58a6-a6fe-286d8ff0666c",
+          "displaySurface": "in",
+          "meaning": "part of the fixed expression in-law",
+          "sense": "part of the fixed expression in-law"
+        },
+        {
+          "ordinal": 3,
+          "canonicalWordId": "0e92223d-dea1-5823-90c0-bb6063e1e802",
+          "displaySurface": "law",
+          "meaning": "part of the fixed expression in-law, which means related through marriage",
+          "sense": "part of the fixed expression in-law, which means related through marriage"
+        }
+      ],
+      "joins": [
+        "hyphen",
+        "hyphen"
+      ],
+      "childFriendlyMeaning": "the mother of a person's husband or wife",
+      "componentToWholeRelationship": "A mother-in-law is a mother connected to someone through marriage; in-law is a fixed expression that shows that family relationship.",
+      "assignmentEligible": true,
+      "transferEligible": true,
+      "dictation": {
+        "sentence": "Her mother-in-law came for lunch.",
+        "targetStart": 1,
+        "targetEndExclusive": 2,
+        "exactGovernedAnswer": "mother-in-law"
+      },
+      "morphologyProvenance": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Word Bank",
+        "row": 127,
+        "approval_status": "human_approved",
+        "human_review_status": "approved",
+        "released_fact_provenance": null,
+        "released_fact_source": null
+      },
+      "approvalRef": "data/adle/review/d4-mor/v2/compound-word-v2-publication-review-approval.json"
+    },
+    {
+      "wholeWordKey": "part_time_en_gb",
+      "wholeCanonicalWordId": "32da8ebe-fa52-56d0-b691-7484c308c342",
+      "microSkillKey": "D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED",
+      "displayForm": "part-time",
+      "components": [
+        {
+          "ordinal": 1,
+          "canonicalWordId": "bab8e900-6eb4-5297-a60d-c9d7c505e7df",
+          "displaySurface": "part",
+          "meaning": "some, but not all, of something",
+          "sense": "some, but not all, of something"
+        },
+        {
+          "ordinal": 2,
+          "canonicalWordId": "a08c0b36-d678-5222-b33e-0b234fbeb7b4",
+          "displaySurface": "time",
+          "meaning": "the hours spent doing an activity",
+          "sense": "the hours spent doing an activity"
+        }
+      ],
+      "joins": [
+        "hyphen"
+      ],
+      "childFriendlyMeaning": "for fewer hours than a full-time job or course",
+      "componentToWholeRelationship": "Part-time work or study takes only part of the usual working time.",
+      "assignmentEligible": true,
+      "transferEligible": true,
+      "dictation": {
+        "sentence": "Dad works part-time at the library.",
+        "targetStart": 2,
+        "targetEndExclusive": 3,
+        "exactGovernedAnswer": "part-time"
+      },
+      "morphologyProvenance": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Word Bank",
+        "row": 125,
+        "approval_status": "human_approved",
+        "human_review_status": "approved",
+        "released_fact_provenance": null,
+        "released_fact_source": null
+      },
+      "approvalRef": "data/adle/review/d4-mor/v2/compound-word-v2-publication-review-approval.json"
+    },
+    {
+      "wholeWordKey": "post_office_en_gb",
+      "wholeCanonicalWordId": "eb77d4b0-9b99-5b74-bbfe-bab801ccc031",
+      "microSkillKey": "D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED",
+      "displayForm": "post office",
+      "components": [
+        {
+          "ordinal": 1,
+          "canonicalWordId": "518da046-6e4c-56c5-ba5c-9fd0850d4738",
+          "displaySurface": "post",
+          "meaning": "letters and parcels that are sent and delivered",
+          "sense": "letters and parcels that are sent and delivered"
+        },
+        {
+          "ordinal": 2,
+          "canonicalWordId": "e6f3e901-23b1-5082-bc72-0ad04cb583ee",
+          "displaySurface": "office",
+          "meaning": "a room or place where people do work",
+          "sense": "a room or place where people do work"
+        }
+      ],
+      "joins": [
+        "space"
+      ],
+      "childFriendlyMeaning": "a place where letters and parcels are sent and collected",
+      "componentToWholeRelationship": "A post office is an office where people send and collect post.",
+      "assignmentEligible": true,
+      "transferEligible": true,
+      "dictation": {
+        "sentence": "We bought stamps at the post office.",
+        "targetStart": 5,
+        "targetEndExclusive": 7,
+        "exactGovernedAnswer": "post office"
+      },
+      "morphologyProvenance": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Word Bank",
+        "row": 126,
+        "approval_status": "human_approved",
+        "human_review_status": "approved",
+        "released_fact_provenance": null,
+        "released_fact_source": null
+      },
+      "approvalRef": "data/adle/review/d4-mor/v2/compound-word-v2-publication-review-approval.json"
+    },
+    {
+      "wholeWordKey": "twenty_one_en_gb",
+      "wholeCanonicalWordId": "d652ffba-1ab7-5027-81e1-77275214ceaf",
+      "microSkillKey": "D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED",
+      "displayForm": "twenty-one",
+      "components": [
+        {
+          "ordinal": 1,
+          "canonicalWordId": "b15cfeb7-16ed-563d-9e45-ab67dbe3660b",
+          "displaySurface": "twenty",
+          "meaning": "the number 20",
+          "sense": "the number 20"
+        },
+        {
+          "ordinal": 2,
+          "canonicalWordId": "e9be258c-42ea-5876-9b94-dd3706e5d4d8",
+          "displaySurface": "one",
+          "meaning": "the number 1",
+          "sense": "the number 1"
+        }
+      ],
+      "joins": [
+        "hyphen"
+      ],
+      "childFriendlyMeaning": "twenty and one more: the number 21",
+      "componentToWholeRelationship": "Twenty-one combines twenty and one to make the number 21.",
+      "assignmentEligible": true,
+      "transferEligible": true,
+      "dictation": {
+        "sentence": "There are twenty-one children in our class.",
+        "targetStart": 2,
+        "targetEndExclusive": 3,
+        "exactGovernedAnswer": "twenty-one"
+      },
+      "morphologyProvenance": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Word Bank",
+        "row": 123,
+        "approval_status": "human_approved",
+        "human_review_status": "approved",
+        "released_fact_provenance": null,
+        "released_fact_source": null
+      },
+      "approvalRef": "data/adle/review/d4-mor/v2/compound-word-v2-publication-review-approval.json"
+    },
+    {
+      "wholeWordKey": "well_known_en_gb",
+      "wholeCanonicalWordId": "93cf04c8-235f-59d5-9249-f93bb9badb76",
+      "microSkillKey": "D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED",
+      "displayForm": "well-known",
+      "components": [
+        {
+          "ordinal": 1,
+          "canonicalWordId": "6efd4600-f744-5e18-b522-33a6c59154c3",
+          "displaySurface": "well",
+          "meaning": "to a high degree; very",
+          "sense": "to a high degree; very"
+        },
+        {
+          "ordinal": 2,
+          "canonicalWordId": "65e3bea3-f1ed-5fdc-a5e1-7e948690fe31",
+          "displaySurface": "known",
+          "meaning": "recognised or familiar to people",
+          "sense": "recognised or familiar to people"
+        }
+      ],
+      "joins": [
+        "hyphen"
+      ],
+      "childFriendlyMeaning": "known by many people",
+      "componentToWholeRelationship": "Something well-known is known by many people; well strengthens the meaning of known.",
+      "assignmentEligible": true,
+      "transferEligible": true,
+      "dictation": {
+        "sentence": "The castle is a well-known landmark.",
+        "targetStart": 4,
+        "targetEndExclusive": 5,
+        "exactGovernedAnswer": "well-known"
+      },
+      "morphologyProvenance": {
+        "artifact": "source-artifacts/2026-07-10-d4-mor/D4_MOR_content_workbook_v1.xlsx",
+        "sheet": "Word Bank",
+        "row": 124,
+        "approval_status": "human_approved",
+        "human_review_status": "approved",
+        "released_fact_provenance": null,
+        "released_fact_source": null
+      },
+      "approvalRef": "data/adle/review/d4-mor/v2/compound-word-v2-publication-review-approval.json"
+    }
+  ]
+}

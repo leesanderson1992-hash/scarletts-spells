@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "baseSha": "7b326b2feb64ccc58c5dff4b087787605e338348",
+  "approvalArtifact": "data/adle/review/d4-mor/v2/compound-word-v2-publication-review-approval.json",
+  "workbookSha256": "4d59997206c4faf5c05eac37f9c4dd23d5581d3600327a7a8d0ef758b4c1338f",
+  "counts": {
+    "approvedStructures": 14,
+    "closureWords": 41,
+    "newCanonicalWords": 17,
+    "teachingContentAuthorities": 2,
+    "routeReleases": 2,
+    "activationRevisions": 0
+  },
+  "productionDark": true
+}

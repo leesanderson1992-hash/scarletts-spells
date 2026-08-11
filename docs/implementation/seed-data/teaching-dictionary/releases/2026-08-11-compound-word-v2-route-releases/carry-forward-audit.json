@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "reviewedAt": "2026-08-11T20:09:55.000Z",
+  "decision": "excluded_pending_new_human_semantic_review",
+  "doesNotBlockApproved14": true,
+  "rows": [
+    {
+      "wholeWord": "breakthrough",
+      "existingV1Sufficient": false,
+      "blocker": "missing reviewed component_to_whole_relationship"
+    },
+    {
+      "wholeWord": "sunshine",
+      "existingV1Sufficient": false,
+      "blocker": "missing reviewed component_to_whole_relationship"
+    },
+    {
+      "wholeWord": "weekend",
+      "existingV1Sufficient": false,
+      "blocker": "missing reviewed component_to_whole_relationship and canonical identities for week and end"
+    }
+  ]
+}

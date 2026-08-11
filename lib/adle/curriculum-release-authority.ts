@@ -5,9 +5,11 @@ import { BASE_WORD_ROUTE_COMPATIBILITY_PROJECTION } from "./lesson-route-registr
 export const ADLE_CURRICULUM_RELEASE_MANIFEST_SCHEMA_VERSION = 2 as const;
 export const ADLE_DEPENDENCY_AUTHORITY_SCHEMA_VERSION = 1 as const;
 export const ADLE_FAMILY_MEMBERSHIP_AUTHORITY_SCHEMA_VERSIONS = [1, 2] as const;
+export const ADLE_TEACHING_DICTIONARY_CLOSURE_AUTHORITY_SCHEMA_VERSIONS = [1, 2] as const;
 
 export const ADLE_CURRICULUM_DEPENDENCY_TYPES = [
   "family_membership",
+  "compound_structure",
   "teaching_content",
   "teaching_dictionary_closure",
 ] as const;
@@ -54,6 +56,29 @@ export type AdleTeachingDictionaryClosureManifestV1 = {
     dictationSentence: string;
     dictationTargetTokenIndex: number;
     audioText: string;
+  }>;
+};
+
+export type AdleTeachingDictionaryClosureManifestV2 = {
+  schemaVersion: 2;
+  authorityKey: string;
+  approvalRefs: string[];
+  capabilities: [
+    "canonical_word_identity_display",
+    "canonical_dictation_target_span",
+  ];
+  words: Array<{
+    wordKey: string;
+    normalisedWord: string;
+    displayWord: string;
+    dialectCode: string;
+    dictation: null | {
+      sentence: string;
+      targetStart: number;
+      targetEndExclusive: number;
+      exactGovernedAnswer: string;
+      audioText: string;
+    };
   }>;
 };
 
@@ -115,13 +140,18 @@ export function validateAdleCurriculumReleaseManifestV2(
       : null;
     if (!route || route.activationAuthority !== "database_route_activation") {
       errors.push("route_not_release_authority_capable");
-    } else if (
-      route.routeId !== BASE_WORD_ROUTE_COMPATIBILITY_PROJECTION.canonicalRouteId ||
-      route.routeVersion !== BASE_WORD_ROUTE_COMPATIBILITY_PROJECTION.canonicalRouteVersion ||
-      input.route.activationRouteKey !== BASE_WORD_ROUTE_COMPATIBILITY_PROJECTION.lessonRouteKey ||
-      !route.payloadVersions.includes(Number(input.route.payloadVersion))
-    ) {
+    } else if (!route.payloadVersions.includes(Number(input.route.payloadVersion))) {
       errors.push("route_activation_compatibility_mismatch");
+    } else {
+      const compatible = route.routeId === BASE_WORD_ROUTE_COMPATIBILITY_PROJECTION.canonicalRouteId
+        ? route.routeVersion === BASE_WORD_ROUTE_COMPATIBILITY_PROJECTION.canonicalRouteVersion &&
+          input.route.activationRouteKey === BASE_WORD_ROUTE_COMPATIBILITY_PROJECTION.lessonRouteKey &&
+          Number(input.route.payloadVersion) === 1
+        : route.routeId === "compound_word_lab" &&
+          route.routeVersion === "v2" &&
+          input.route.activationRouteKey === "compound_word_lab:v2" &&
+          Number(input.route.payloadVersion) === 2;
+      if (!compatible) errors.push("route_activation_compatibility_mismatch");
     }
   }
   if (!Array.isArray(input.approvalRefs) || !uniqueSorted(input.approvalRefs as string[])) {
@@ -176,7 +206,9 @@ export function validateAdleCurriculumReleaseManifestV2(
         if (!nonEmpty(dependency.authorityKey)) errors.push(`missing_authority_key:${entry.microSkillKey}:${dependencyType}`);
         const supportedAuthoritySchema = dependencyType === "family_membership"
           ? (ADLE_FAMILY_MEMBERSHIP_AUTHORITY_SCHEMA_VERSIONS as readonly unknown[]).includes(dependency.authoritySchemaVersion)
-          : dependency.authoritySchemaVersion === ADLE_DEPENDENCY_AUTHORITY_SCHEMA_VERSION;
+          : dependencyType === "teaching_dictionary_closure"
+            ? (ADLE_TEACHING_DICTIONARY_CLOSURE_AUTHORITY_SCHEMA_VERSIONS as readonly unknown[]).includes(dependency.authoritySchemaVersion)
+            : dependency.authoritySchemaVersion === ADLE_DEPENDENCY_AUTHORITY_SCHEMA_VERSION;
         if (!supportedAuthoritySchema) {
           errors.push(`unsupported_authority_schema:${entry.microSkillKey}:${dependencyType}`);
         }
@@ -184,8 +216,15 @@ export function validateAdleCurriculumReleaseManifestV2(
           errors.push(`invalid_semantic_fingerprint:${entry.microSkillKey}:${dependencyType}`);
         }
       }
-      for (const required of ADLE_CURRICULUM_DEPENDENCY_TYPES) {
+      const requiredTypes: readonly AdleCurriculumDependencyType[] =
+        isRecord(input.route) && input.route.routeId === "compound_word_lab"
+          ? ["compound_structure", "teaching_content", "teaching_dictionary_closure"]
+          : ["family_membership", "teaching_content", "teaching_dictionary_closure"];
+      for (const required of requiredTypes) {
         if (!seen.has(required)) errors.push(`missing_dependency:${entry.microSkillKey}:${required}`);
+      }
+      for (const unexpected of [...seen].filter((type) => !requiredTypes.includes(type as AdleCurriculumDependencyType))) {
+        errors.push(`unexpected_dependency:${entry.microSkillKey}:${unexpected}`);
       }
     }
     if (!uniqueSorted(skillKeys)) errors.push("micro_skills_not_unique_sorted");
@@ -268,6 +307,47 @@ export function validateAdleTeachingDictionaryClosureManifestV1(
       }
       if (!Number.isInteger(value.dictationTargetTokenIndex) || Number(value.dictationTargetTokenIndex) < 0) {
         errors.push(`invalid_dictation_target_token_index:${value.wordKey}`);
+      }
+    }
+    if (!uniqueSorted(keys)) errors.push("words_not_unique_sorted");
+  }
+  return { valid: errors.length === 0, errors };
+}
+
+export function teachingDictionaryClosureV2SemanticProjection(
+  manifest: AdleTeachingDictionaryClosureManifestV2,
+): unknown {
+  return { schemaVersion: manifest.schemaVersion, capabilities: manifest.capabilities, words: manifest.words };
+}
+
+export function validateAdleTeachingDictionaryClosureManifestV2(
+  input: unknown,
+): AdleCurriculumReleaseValidation {
+  const errors: string[] = [];
+  if (!isRecord(input)) return { valid: false, errors: ["closure_not_object"] };
+  if (!hasOnlyKeys(input, ["schemaVersion", "authorityKey", "approvalRefs", "capabilities", "words"])) errors.push("invalid_closure_shape");
+  if (input.schemaVersion !== 2) errors.push("unsupported_schema_version");
+  if (!nonEmpty(input.authorityKey)) errors.push("missing_authority_key");
+  if (!Array.isArray(input.approvalRefs) || !uniqueSorted(input.approvalRefs as string[])) errors.push("approval_refs_not_unique_sorted");
+  if (!Array.isArray(input.capabilities) || input.capabilities.length !== 2 || input.capabilities[0] !== "canonical_word_identity_display" || input.capabilities[1] !== "canonical_dictation_target_span") errors.push("unsupported_closure_capabilities");
+  if (!Array.isArray(input.words) || input.words.length === 0) {
+    errors.push("missing_words");
+  } else {
+    const keys: string[] = [];
+    for (const value of input.words) {
+      if (!isRecord(value) || !nonEmpty(value.wordKey)) { errors.push("invalid_word"); continue; }
+      if (!hasOnlyKeys(value, ["wordKey", "normalisedWord", "displayWord", "dialectCode", "dictation"])) errors.push(`invalid_word_shape:${value.wordKey}`);
+      keys.push(value.wordKey);
+      if (![value.normalisedWord, value.displayWord, value.dialectCode].every(nonEmpty)) errors.push(`missing_word_value:${value.wordKey}`);
+      if (typeof value.normalisedWord === "string" && value.normalisedWord !== value.normalisedWord.toLowerCase()) errors.push(`normalised_word_not_lowercase:${value.wordKey}`);
+      if (value.dictation !== null) {
+        if (!isRecord(value.dictation) || !hasOnlyKeys(value.dictation, ["sentence", "targetStart", "targetEndExclusive", "exactGovernedAnswer", "audioText"])) {
+          errors.push(`invalid_dictation_shape:${value.wordKey}`);
+        } else if (![value.dictation.sentence, value.dictation.exactGovernedAnswer, value.dictation.audioText].every(nonEmpty) ||
+          !Number.isInteger(value.dictation.targetStart) || !Number.isInteger(value.dictation.targetEndExclusive) ||
+          Number(value.dictation.targetStart) < 0 || Number(value.dictation.targetEndExclusive) <= Number(value.dictation.targetStart)) {
+          errors.push(`invalid_dictation_span:${value.wordKey}`);
+        }
       }
     }
     if (!uniqueSorted(keys)) errors.push("words_not_unique_sorted");
