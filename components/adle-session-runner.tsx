@@ -35,7 +35,7 @@ import { SpellingField } from "@/components/adle/activities/shared/spelling-fiel
 import { GuidedActivity } from "@/components/adle/activities/guided-activity";
 import { ReflectionActivity } from "@/components/adle/activities/reflection-activity";
 import type { BaseWordFamilyLessonSnapshotV1 } from "@/lib/adle/morphology/base-word-family-payload";
-import { ClosedCompoundGuidedLesson } from "@/components/adle/morphology/closed-compound-guided-lesson";
+import { ClosedCompoundGuidedLesson, CompoundWordGuidedLesson } from "@/components/adle/morphology/closed-compound-guided-lesson";
 import type { LessonRouteResolutionResult } from "@/lib/adle/composable-lesson/route-resolution";
 
 const MorphologyGuidedLesson = dynamic(
@@ -360,6 +360,10 @@ export function AdleSessionRunner(props: AdleSessionRunnerProps) {
   // It must not be hidden behind the generic daily review panel.
   if (runtime.adapterKey === "closed_compound_v1" && props.assignmentId && partTwo.present && !partTwo.complete) {
     return <ClosedCompoundGuidedLesson childId={props.childId} assignmentId={props.assignmentId} items={partTwo.items} payload={runtime.payload} />;
+  }
+
+  if (runtime.adapterKey === "compound_word_v2" && props.assignmentId && partTwo.present && !partTwo.complete) {
+    return <CompoundWordGuidedLesson childId={props.childId} assignmentId={props.assignmentId} items={partTwo.items} payload={runtime.payload} />;
   }
 
   if (runtime.adapterKey === "base_word_family_v1" && props.assignmentId) {

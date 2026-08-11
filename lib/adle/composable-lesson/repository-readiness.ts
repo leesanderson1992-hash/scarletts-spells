@@ -38,6 +38,7 @@ export function buildRepositoryReadinessInput(mode: ReadinessAuditMode): {
   const productionRoutes = ADLE_CURRICULUM_ROUTE_REGISTRY.filter(
     (route) =>
       route.implementationState === "registered" &&
+      route.newAssignmentCapable &&
       route.compatibilityScope.kind === "declared_micro_skills",
   );
   return {

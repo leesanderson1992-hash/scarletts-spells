@@ -22,7 +22,7 @@ export interface GenericSnapshotTemplateDefinition {
   evidence: GenericSnapshotEvidenceBindingV2;
   scheduleRole: GenericSnapshotScheduleRoleV2;
   rewardRole: GenericSnapshotRewardRoleV2;
-  compileSupport: "supported" | "registered_legacy_only";
+  compileSupport: "supported" | "route_specific" | "registered_legacy_only";
 }
 
 const none: GenericSnapshotEvidenceBindingV2 = {
@@ -71,6 +71,10 @@ function guidedPrompt(templateKey: string): GenericSnapshotTemplateDefinition {
   });
 }
 
+function routeGuidedPrompt(templateKey: string): GenericSnapshotTemplateDefinition {
+  return { ...guidedPrompt(templateKey), compileSupport: "route_specific" };
+}
+
 export const GENERIC_SNAPSHOT_TEMPLATE_REGISTRY = [
   intro("MICRO_READ_ONLY_INTRO"),
   intro("LESSON_WORDS_INTRO"),
@@ -87,6 +91,8 @@ export const GENERIC_SNAPSHOT_TEMPLATE_REGISTRY = [
   guidedPrompt("MOR_STRIP_BUILD"),
   guidedPrompt("MOR_MEANING_MATCH"),
   guidedPrompt("MOR_BUILD_WORD"),
+  routeGuidedPrompt("MOR_COMPOUND_JIGSAW"),
+  routeGuidedPrompt("MOR_COMPOUND_MEANING_CONNECTION"),
   guidedPrompt("INF_CONTEXT_CHOICE"),
   guidedPrompt("INF_RULE_CHOICE"),
   guidedPrompt("INF_TRANSFORM"),

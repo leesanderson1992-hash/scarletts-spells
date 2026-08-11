@@ -7,7 +7,29 @@ import { playInteractionSound } from "./sound";
 
 export interface RailTile { id: string; text: string; role?: "prefix" | "base" | "root" | "suffix" | "connector"; gloss?: string }
 
-export function SnapRail(props: { tiles: RailTile[]; expectedIds: string[]; fixedTiles?: RailTile[]; fixedTilesPosition?: "before" | "after"; label: string; recallNeutral?: boolean; muted?: boolean; checkMode?: "automatic" | "manual"; onComplete?: (word: string) => void; onInvalid?: (ids: string[]) => void }) {
+export type SnapRailJoinKind = "none" | "space" | "hyphen";
+
+function separator(kind: SnapRailJoinKind): string {
+  return kind === "space" ? " " : kind === "hyphen" ? "-" : "";
+}
+
+export function assembleSnapRailWord(
+  components: readonly string[],
+  joins: readonly SnapRailJoinKind[] = [],
+): string | null {
+  if (components.length === 0) return null;
+  const governedJoins = joins.length === 0
+    ? Array.from({ length: components.length - 1 }, () => "none" as const)
+    : joins;
+  if (
+    governedJoins.length !== components.length - 1 ||
+    governedJoins.some((join) => !["none", "space", "hyphen"].includes(join))
+  ) return null;
+  return components.reduce((word, component, index) =>
+    index === 0 ? component : `${word}${separator(governedJoins[index - 1])}${component}`, "");
+}
+
+export function SnapRail(props: { tiles: RailTile[]; expectedIds: string[]; joins?: readonly SnapRailJoinKind[]; fixedTiles?: RailTile[]; fixedTilesPosition?: "before" | "after"; label: string; recallNeutral?: boolean; muted?: boolean; checkMode?: "automatic" | "manual"; onComplete?: (word: string) => void; onInvalid?: (ids: string[]) => void }) {
   const [selected, setSelected] = useState<string | null>(null);
   const [placed, setPlaced] = useState<Array<string | null>>(() => Array.from({ length: props.expectedIds.length }, () => null));
   const [completed, setCompleted] = useState(false);
@@ -20,14 +42,23 @@ export function SnapRail(props: { tiles: RailTile[]; expectedIds: string[]; fixe
   function wordFrom(ids: string[]) {
     const placedText = ids.map((id) => props.tiles.find((tile) => tile.id === id)?.text ?? "");
     const fixedText = (props.fixedTiles ?? []).map((tile) => tile.text);
-    return (props.fixedTilesPosition === "before" ? [...fixedText, ...placedText] : [...placedText, ...fixedText]).join("");
+    return assembleSnapRailWord(
+      props.fixedTilesPosition === "before" ? [...fixedText, ...placedText] : [...placedText, ...fixedText],
+      props.joins,
+    );
   }
   function check(ids: string[]) {
     if (ids.every((value, index) => value === props.expectedIds[index])) {
       setCompleted(true);
       setAnnouncement("Word parts joined successfully");
       playInteractionSound("fusion", props.muted);
-      props.onComplete?.(wordFrom(ids));
+      const word = wordFrom(ids);
+      if (word === null) {
+        setAnnouncement("This word-part configuration is incomplete.");
+        props.onInvalid?.(ids);
+        return false;
+      }
+      props.onComplete?.(word);
       return true;
     }
     setAnnouncement(manual ? "That word is not ready yet. Move the blocks and try again." : "Those parts make a different combination");
@@ -67,7 +98,7 @@ export function SnapRail(props: { tiles: RailTile[]; expectedIds: string[]; fixe
     if (slot >= 0) place(id, slot);
   }
   const fixedTiles = <>{(props.fixedTiles ?? []).map((tile) => <span key={tile.id} className="rounded-xl bg-amber-100 px-4 py-3 font-black text-amber-950">{tile.text}</span>)}</>;
-  const placedTiles = <>{placed.map((id, index) => id ? <button key={`placed-${index}`} type="button" onClick={() => remove(index)} aria-label={`Remove ${props.tiles.find((tile) => tile.id === id)?.text ?? "word part"} from block ${index + 1}`} className="min-h-14 rounded-2xl bg-cyan-100 px-4 py-3 text-lg font-black text-cyan-950 shadow-sm transition-transform hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-amber-300/80">{props.tiles.find((tile) => tile.id === id)?.text}</button> : <button key={`slot-${index}`} ref={(node) => { slotRefs.current[index] = node; }} type="button" onClick={() => selected ? place(selected, index) : setAnnouncement("Choose a word-part block from the bank first.")} aria-label={selected ? `Place ${props.tiles.find((tile) => tile.id === selected)?.text ?? "selected word part"} in block ${index + 1}` : `Empty word-part block ${index + 1}`} className={`grid min-h-14 min-w-24 place-items-center rounded-2xl border-2 border-dashed px-4 py-3 text-sm font-black ${selected ? "border-amber-300 bg-amber-100/20 text-amber-100" : "border-cyan-300/70 bg-slate-950/40 text-cyan-100"}`}>{selected ? "Place here" : `Block ${index + 1}`}</button>)}</>;
+  const placedTiles = <>{placed.map((id, index) => <span key={`rail-${index}`} className="contents">{index > 0 && props.joins ? <span aria-hidden="true" className="text-2xl font-black text-amber-200">{separator(props.joins[index - 1]) || <span className="sr-only">joined</span>}</span> : null}{id ? <button type="button" onClick={() => remove(index)} aria-label={`Remove ${props.tiles.find((tile) => tile.id === id)?.text ?? "word part"} from block ${index + 1}`} className="min-h-14 rounded-2xl bg-cyan-100 px-4 py-3 text-lg font-black text-cyan-950 shadow-sm transition-transform hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-amber-300/80">{props.tiles.find((tile) => tile.id === id)?.text}</button> : <button ref={(node) => { slotRefs.current[index] = node; }} type="button" onClick={() => selected ? place(selected, index) : setAnnouncement("Choose a word-part block from the bank first.")} aria-label={selected ? `Place ${props.tiles.find((tile) => tile.id === selected)?.text ?? "selected word part"} in block ${index + 1}` : `Empty word-part block ${index + 1}`} className={`grid min-h-14 min-w-24 place-items-center rounded-2xl border-2 border-dashed px-4 py-3 text-sm font-black ${selected ? "border-amber-300 bg-amber-100/20 text-amber-100" : "border-cyan-300/70 bg-slate-950/40 text-cyan-100"}`}>{selected ? "Place here" : `Block ${index + 1}`}</button>}</span>)}</>;
 
   return <div className="grid gap-4">
     <div className="flex flex-wrap justify-center gap-3">{available.map((tile) => <DraggableTile key={tile.id} {...tile} selected={selected === tile.id} recallNeutral={props.recallNeutral} muted={props.muted} onSelect={(id) => { playInteractionSound("select", props.muted); setSelected(id); }} onDrop={pointerDrop} />)}</div>

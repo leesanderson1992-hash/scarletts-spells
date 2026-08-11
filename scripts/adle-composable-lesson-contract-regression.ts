@@ -34,12 +34,14 @@ assert.deepEqual(
     "fixed_un_prefix_word_lab:v1",
     "dynamic_affix_word_lab:v3",
     "closed_compound_word_lab:v1",
+    "compound_word_lab:v2",
   ]),
 );
 
 const productionMorphologySkills = ADLE_CURRICULUM_ROUTE_REGISTRY.filter(
   (route) =>
     route.implementationState === "registered" &&
+    route.routeOwnership.kind !== "recipe_contract_only" &&
     route.compatibilityScope.kind === "declared_micro_skills",
 ).flatMap((route) => route.supportedMicroSkillKeys);
 assert.equal(
@@ -59,6 +61,12 @@ assert.deepEqual(closed.intentionalItemCounts, [18]);
 assert.deepEqual(closed.wordCounts.lesson, [4, 4]);
 assert(closed.requiredActivities.includes("compound_jigsaw"));
 assert(closed.requiredActivities.includes("meaning_match"));
+
+const compoundV2 = getCurriculumRouteDefinition("compound_word_lab", "v2");
+assert(compoundV2);
+assert.equal(compoundV2.newAssignmentCapable, false);
+assert.deepEqual(compoundV2.routeOwnership, { kind: "recipe_contract_only" });
+assert.deepEqual(compoundV2.intentionalItemCounts, [18]);
 
 const base = getCurriculumRouteDefinition(
   BASE_WORD_ROUTE_COMPATIBILITY_PROJECTION.canonicalRouteId,

@@ -232,6 +232,8 @@ assert(
 );
 const routeRegistry = readFileSync("lib/adle/curriculum-readiness/route-registry.ts", "utf8");
 assert(routeRegistry.includes('routeId: "closed_compound_word_lab"'));
-assert(!routeRegistry.includes('routeId: "compound_word_lab"'));
+assert(routeRegistry.includes('routeId: "compound_word_lab"'));
+assert(routeRegistry.includes('routeOwnership: { kind: "recipe_contract_only" }'));
+assert(routeRegistry.includes('newAssignmentCapable: false'));
 
 console.log("general Compound Word structure v2 regression passed");
