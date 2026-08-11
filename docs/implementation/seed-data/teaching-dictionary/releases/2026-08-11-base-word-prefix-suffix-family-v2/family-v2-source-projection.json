@@ -887,14 +887,14 @@
         "etymologyRoute": {
           "relation_type": "free_base",
           "origin_language": "English",
-          "origin_form": null,
+          "origin_form": "lock",
           "literal_meaning": "to fasten something so it cannot be opened",
           "child_facing_meaning": "to fasten something so it cannot be opened",
           "semantic_connection": "The visible base is retained in each reviewed family member.",
           "evidence": {
             "source_name": "Katie Sanderson approved Base Word workbook",
             "source_url": "local:base-word-prefix-suffix-readiness-audit-resolved (1).xlsx",
-            "verification_status": "human_approved"
+            "verification_status": "linked_for_human_review"
           }
         },
         "members": [
@@ -1005,14 +1005,14 @@
         "etymologyRoute": {
           "relation_type": "free_base",
           "origin_language": "English",
-          "origin_form": null,
+          "origin_form": "migrant",
           "literal_meaning": "a person who moves from one place or country to another",
           "child_facing_meaning": "a person who moves from one place or country to another",
           "semantic_connection": "The visible base is retained in each reviewed family member.",
           "evidence": {
             "source_name": "Katie Sanderson approved Base Word workbook",
             "source_url": "local:base-word-prefix-suffix-readiness-audit-resolved (1).xlsx",
-            "verification_status": "human_approved"
+            "verification_status": "linked_for_human_review"
           }
         },
         "members": [
@@ -1135,14 +1135,14 @@
         "etymologyRoute": {
           "relation_type": "free_base",
           "origin_language": "English",
-          "origin_form": null,
+          "origin_form": "place",
           "literal_meaning": "a particular position or area",
           "child_facing_meaning": "a particular position or area",
           "semantic_connection": "The visible base is retained in each reviewed family member.",
           "evidence": {
             "source_name": "Katie Sanderson approved Base Word workbook",
             "source_url": "local:base-word-prefix-suffix-readiness-audit-resolved (1).xlsx",
-            "verification_status": "human_approved"
+            "verification_status": "linked_for_human_review"
           }
         },
         "members": [
@@ -1253,14 +1253,14 @@
         "etymologyRoute": {
           "relation_type": "free_base",
           "origin_language": "English",
-          "origin_form": null,
+          "origin_form": "view",
           "literal_meaning": "to look at or watch something",
           "child_facing_meaning": "to look at or watch something",
           "semantic_connection": "The visible base is retained in each reviewed family member.",
           "evidence": {
             "source_name": "Katie Sanderson approved Base Word workbook",
             "source_url": "local:base-word-prefix-suffix-readiness-audit-resolved (1).xlsx",
-            "verification_status": "human_approved"
+            "verification_status": "linked_for_human_review"
           }
         },
         "members": [
@@ -1813,14 +1813,14 @@
         "etymologyRoute": {
           "relation_type": "free_base",
           "origin_language": "English",
-          "origin_form": null,
+          "origin_form": "colour",
           "literal_meaning": "what something looks like because of light, such as red, blue or green",
           "child_facing_meaning": "what something looks like because of light, such as red, blue or green",
           "semantic_connection": "The visible base is retained in each reviewed family member.",
           "evidence": {
             "source_name": "Katie Sanderson approved Base Word workbook",
             "source_url": "local:base-word-prefix-suffix-readiness-audit-resolved (1).xlsx",
-            "verification_status": "human_approved"
+            "verification_status": "linked_for_human_review"
           }
         },
         "members": [
@@ -1931,14 +1931,14 @@
         "etymologyRoute": {
           "relation_type": "free_base",
           "origin_language": "English",
-          "origin_form": null,
+          "origin_form": "paint",
           "literal_meaning": "to put coloured paint on a surface",
           "child_facing_meaning": "to put coloured paint on a surface",
           "semantic_connection": "The visible base is retained in each reviewed family member.",
           "evidence": {
             "source_name": "Katie Sanderson approved Base Word workbook",
             "source_url": "local:base-word-prefix-suffix-readiness-audit-resolved (1).xlsx",
-            "verification_status": "human_approved"
+            "verification_status": "linked_for_human_review"
           }
         },
         "members": [
@@ -2049,14 +2049,14 @@
         "etymologyRoute": {
           "relation_type": "free_base",
           "origin_language": "English",
-          "origin_form": null,
+          "origin_form": "slow",
           "literal_meaning": "not moving or happening quickly",
           "child_facing_meaning": "not moving or happening quickly",
           "semantic_connection": "The visible base is retained in each reviewed family member.",
           "evidence": {
             "source_name": "Katie Sanderson approved Base Word workbook",
             "source_url": "local:base-word-prefix-suffix-readiness-audit-resolved (1).xlsx",
-            "verification_status": "human_approved"
+            "verification_status": "linked_for_human_review"
           }
         },
         "members": [
@@ -2167,14 +2167,14 @@
         "etymologyRoute": {
           "relation_type": "free_base",
           "origin_language": "English",
-          "origin_form": null,
+          "origin_form": "sweet",
           "literal_meaning": "having a sugary taste",
           "child_facing_meaning": "having a sugary taste",
           "semantic_connection": "The visible base is retained in each reviewed family member.",
           "evidence": {
             "source_name": "Katie Sanderson approved Base Word workbook",
             "source_url": "local:base-word-prefix-suffix-readiness-audit-resolved (1).xlsx",
-            "verification_status": "human_approved"
+            "verification_status": "linked_for_human_review"
           }
         },
         "members": [
@@ -2285,14 +2285,14 @@
         "etymologyRoute": {
           "relation_type": "free_base",
           "origin_language": "English",
-          "origin_form": null,
+          "origin_form": "wind",
           "literal_meaning": "moving air outdoors",
           "child_facing_meaning": "moving air outdoors",
           "semantic_connection": "The visible base is retained in each reviewed family member.",
           "evidence": {
             "source_name": "Katie Sanderson approved Base Word workbook",
             "source_url": "local:base-word-prefix-suffix-readiness-audit-resolved (1).xlsx",
-            "verification_status": "human_approved"
+            "verification_status": "linked_for_human_review"
           }
         },
         "members": [

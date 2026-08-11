@@ -25,7 +25,7 @@ function canonical(value: unknown): string { if (value === null || value === und
 function sha(value: unknown): string { return createHash("sha256").update(canonical(value)).digest("hex"); }
 function stableId(kind: string, key: string): string { const hash = createHash("sha1").update(`scarletts-spells:base-word-v2:${kind}:${key}`).digest("hex"); return `${hash.slice(0,8)}-${hash.slice(8,12)}-5${hash.slice(13,16)}-8${hash.slice(17,20)}-${hash.slice(20,32)}`; }
 function parts(sum: string): Part[] { const source = sum.split("→")[0].trim().split("+").map(value => value.trim()); let offset = 0; return source.map((text, index) => { const start = offset; offset += text.length; return { id: `part_${index + 1}`, kind: index === 0 && !["im","mis","pre","re","un"].includes(text) ? "base" : (["im","mis","pre","re","un"].includes(text) ? "prefix" : "suffix"), morphemeKey: null, sourceText: text, surfaceText: text, gloss: "", displayRange: { start, end: offset } }; }); }
-function genericRoute(baseMeaning: string) { return { relation_type: "free_base", origin_language: "English", origin_form: null, literal_meaning: baseMeaning, child_facing_meaning: baseMeaning, semantic_connection: "The visible base is retained in each reviewed family member.", evidence: { source_name: "Katie Sanderson approved Base Word workbook", source_url: "local:base-word-prefix-suffix-readiness-audit-resolved (1).xlsx", verification_status: "human_approved" } }; }
+function genericRoute(baseWord: string, baseMeaning: string) { return { relation_type: "free_base", origin_language: "English", origin_form: baseWord, literal_meaning: baseMeaning, child_facing_meaning: baseMeaning, semantic_connection: "The visible base is retained in each reviewed family member.", evidence: { source_name: "Katie Sanderson approved Base Word workbook", source_url: "local:base-word-prefix-suffix-readiness-audit-resolved (1).xlsx", verification_status: "linked_for_human_review" } }; }
 async function oldFamilies() { const entries = await Promise.all(["identify-base.json", "preserve-base.json"].map(async f => JSON.parse(await readFile(resolve(OLD, f), "utf8")))); return entries.flatMap((entry: any) => entry.families ?? []) as any[]; }
 async function main() {
   const source = JSON.parse(await readFile(SOURCE, "utf8"));
@@ -41,7 +41,7 @@ async function main() {
   }
   for (const sourceFamily of source.families as any[]) {
     const members: Member[] = sourceFamily.members.map((m: any) => ({ wordKey: `${m.word}_en_gb`, wordSum: m.wordSum, childFriendlyMeaning: m.meaning, structuralRole: m.word === sourceFamily.baseWord ? "base" : "family_member", assignmentEligible: true, morphologyParts: parts(m.wordSum), morphologyJoins: [], morphologyTransformations: [], transformationNotes: "" }));
-    all[sourceFamily.microSkillKey].push({ familyId: stableId("family", sourceFamily.baseFamilyKey), baseFamilyKey: sourceFamily.baseFamilyKey, baseWordKey: `${sourceFamily.baseWord}_en_gb`, baseMeaning: sourceFamily.baseMeaning, etymologyRoute: genericRoute(sourceFamily.baseMeaning), members, sourceFamily: "new_release" });
+    all[sourceFamily.microSkillKey].push({ familyId: stableId("family", sourceFamily.baseFamilyKey), baseFamilyKey: sourceFamily.baseFamilyKey, baseWordKey: `${sourceFamily.baseWord}_en_gb`, baseMeaning: sourceFamily.baseMeaning, etymologyRoute: genericRoute(sourceFamily.baseWord, sourceFamily.baseMeaning), members, sourceFamily: "new_release" });
   }
   for (const skill of [PREFIX, SUFFIX]) {
     const seen = new Set<string>();
