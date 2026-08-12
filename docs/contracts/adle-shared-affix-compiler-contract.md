@@ -132,11 +132,15 @@ resume storage, completion, attempts, evidence, taught history, review schedules
 The subsequent authorised Dynamic Affix selection correction changes only
 which reviewed transfer members are chosen and their deterministic order; it
 preserves the V3 schema, activity structure, item counts, runtime adapter,
-resume, Reflection and all-word rewards. Dynamic Affix authentic words retain
-learning-item transitions and scheduling; transfer words retain taught history,
-evidence, state/breadth effects and rewards but do not receive learning items,
-review bundles or schedules. New writes fail closed on role/item/schedule
-disagreement; historical V3 readers remain unchanged.
+resume and Reflection. Dynamic Affix authentic words retain learning-item
+transitions, scheduling and the Word Treasure reward bridge. Transfer words
+retain taught history and valid capped evidence, including applicable word-state
+and micro-skill-breadth effects, but do not create a learning item, review
+bundle, schedule, schedule route or Word Treasure reward. In particular, a
+transfer word must not enter the Forge or receive a Golden Award: it is a
+teaching example rather than a child-originated Golden Nugget. New writes fail
+closed on role/item/schedule disagreement; historical V3 readers remain
+unchanged.
 The subsequent `dynamic_prefix_pedagogy_v1` presentation stage deliberately
 changes Prefix teaching and feedback through additive typed policy while retaining those
 persistence boundaries. Common Word Lab
