@@ -90,6 +90,12 @@ assert(!migration.includes("complete_adle_compound_word_v2"), "completion remain
 assert(migration.includes("child_allowlist"));
 assert(migration.includes("jsonb_array_length(p_items) <> 18"));
 assert(migration.includes("Generated Compound practice cannot enter learner scheduling"));
+const lineageRepair = readFileSync("supabase/migrations/20260812170000_restore_shared_adle_assignment_lineage_boundary.sql", "utf8");
+assert(lineageRepair.includes("metadata.adleLearningItemRef"));
+assert(lineageRepair.includes("v_item->>'sourceEntityId',\n      null,"));
+assert(!lineageRepair.includes("alter table public.assignment_items"), "shared lineage repair does not repurpose the legacy FK");
+const assignmentPersistence = readFileSync("lib/adle/assignment-persistence.ts", "utf8");
+assert(!assignmentPersistence.includes("{ learningItemId: candidate.learningItemId }"), "ADLE drafts keep legacy assignment_items.learning_item_id null");
 const authorityLoader = readFileSync("lib/adle/morphology/compound-word-v2-loader.ts", "utf8");
 assert(!authorityLoader.includes("canonical_teaching_dictionary_words!canonical_word_id"), "governed authority loading avoids ambiguous nested PostgREST relationships");
 assert(authorityLoader.includes('.in("structure_id", structureIds)'), "components and joins are fetched through their explicit governed structure identity");
