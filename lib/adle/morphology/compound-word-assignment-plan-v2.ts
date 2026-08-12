@@ -3,7 +3,10 @@ import type {
   PlanItemCandidate,
   PlanSection,
 } from "../daily-assignment-composer";
-import type { PersistedLessonRouteMetadataV1 } from "../composable-lesson/contracts";
+import type {
+  PersistedLessonRouteMetadataV1,
+  PersistedLessonRouteMetadataV2,
+} from "../composable-lesson/contracts";
 import {
   COMPOUND_WORD_LAB_ROUTE_ID,
   COMPOUND_WORD_LAB_ROUTE_VERSION,
@@ -14,7 +17,8 @@ import {
   type CompoundWordLessonPayloadV2,
 } from "./compound-word-lesson-v2";
 
-/** Contract metadata only. The active assignment-writer allow-list excludes this route. */
+/** Historical schema-v1 contract retained for deterministic CW-2 fixtures and
+ * payload replay. New assignments receive immutable release-bound v2 metadata. */
 export const COMPOUND_WORD_LAB_V2_ROUTE_METADATA = {
   metadataSchemaVersion: 1,
   route: {
@@ -35,6 +39,7 @@ export const COMPOUND_WORD_LAB_V2_ROUTE_METADATA = {
 export function buildCompoundWordAssignmentPlanV2(
   basePlan: ComposedDailyPlan,
   payload: CompoundWordLessonPayloadV2,
+  routeMetadata: PersistedLessonRouteMetadataV1 | PersistedLessonRouteMetadataV2 = COMPOUND_WORD_LAB_V2_ROUTE_METADATA,
 ): ComposedDailyPlan {
   let position = 0;
   const item = (
@@ -152,7 +157,7 @@ export function buildCompoundWordAssignmentPlanV2(
   }
   return {
     ...basePlan,
-    lessonRouteMetadata: COMPOUND_WORD_LAB_V2_ROUTE_METADATA,
+    lessonRouteMetadata: routeMetadata,
     partOne: { dueQueue: [], presentationOrder: [], sections: [], skips: [] },
     partTwo: {
       composed: true,

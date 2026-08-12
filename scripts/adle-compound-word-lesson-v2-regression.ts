@@ -148,8 +148,21 @@ function compilePool(pool: readonly CompoundWordStructureV2[], authentic: Compou
 
 const closedPayload = compilePool(closedPool, sunflower);
 const separatedPayload = compilePool(separatedPool, iceCream);
+const hyphenLearnerPayload = compileCompoundWordLessonV2({
+  recipe: recipe(SEPARATED),
+  structures: separatedPool,
+  dictationByCanonicalId: new Map(separatedPool.map((entry) => [entry.wholeCanonicalWordId, dictationFor(entry)])),
+  learningItems: [
+    itemFor(twentyOne, "learning-item-cw2-hyphen-1"),
+    itemFor(motherInLaw, "learning-item-cw2-hyphen-2"),
+  ],
+  selectionSeed: "hyphen-only-authentic",
+});
 assert(closedPayload && validateCompoundWordLessonPayloadV2(closedPayload), "v2 closed lesson compiles");
 assert(separatedPayload && validateCompoundWordLessonPayloadV2(separatedPayload), "one v2 path compiles open, hyphenated, and three-part words");
+assert(hyphenLearnerPayload?.words.lesson.some((word) =>
+  word.structure.wholeWord === "ice cream" && word.lineage.kind === "generated_transfer"
+), "hyphen-only learner evidence deterministically includes lineage-free open transfer practice");
 assert.equal(closedPayload.activities.introduction.readingPages, undefined, "closed v2 can retain its existing introduction");
 assert.equal(separatedPayload.activities.introduction.readingPages?.length, 3, "separated/hyphenated reading is split across three pages");
 assert.deepEqual(
@@ -245,7 +258,7 @@ assert(resolution.status === "resolved_explicit" && resolution.runtime.adapterKe
 const route = ADLE_CURRICULUM_ROUTE_REGISTRY.find((entry) => entry.routeId === "compound_word_lab" && entry.routeVersion === "v2");
 assert(route);
 assert.deepEqual(route.supportedMicroSkillKeys, [CLOSED, SEPARATED]);
-assert.equal(route.newAssignmentCapable, false);
+assert.equal(route.newAssignmentCapable, true);
 assert.deepEqual(route.routeOwnership, { kind: "skill_clusters", skillClusterKeys: ["D4_MOR_COMPOUND_WORDS"] });
 const templates = listRegisteredActivityTemplateKeys();
 assert.equal(templates.filter((key) => key === "MOR_COMPOUND_JIGSAW").length, 1);
@@ -298,7 +311,7 @@ if (duplicateReadingPageKey.activities.introduction.readingPages) {
 assert(!validateCompoundWordLessonPayloadV2(duplicateReadingPageKey), "reading page identity fails closed");
 
 const todayService = readFileSync("lib/adle/today-assignment-service.ts", "utf8");
-assert(!todayService.includes("compileCompoundWordLessonV2"), "CW-2 does not activate the Today writer");
+assert(todayService.includes("generateGuardedCompoundWordAssignment"), "Compound v2 uses the shared guarded Today writer");
 const compoundRenderer = readFileSync("components/adle/morphology/closed-compound-guided-lesson.tsx", "utf8");
 assert(!compoundRenderer.includes("The burglar tried to break in."), "reviewed reading copy remains payload configuration, not renderer code");
 for (const unchanged of ["base_word_lab:v2", "dynamic_prefix_word_lab:v2", "dynamic_affix_word_lab:v3", "generic_composer:v1"]) {

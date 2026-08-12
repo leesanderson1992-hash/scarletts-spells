@@ -35,6 +35,8 @@ import {
 } from "./morphology/dynamic-prefix-assignment-writer";
 import { isDynamicPrefixRouteEnabled } from "./morphology/dynamic-prefix-route-gate";
 import { isDynamicSuffixRouteEnabled } from "./morphology/dynamic-suffix-route-gate";
+import { generateGuardedCompoundWordAssignment } from "./loaders/compound-word-assignment-loader";
+import { COMPOUND_WORD_MICRO_SKILL_KEYS } from "./morphology/compound-word-structure-v2";
 import type { IsoDate } from "./review-scheduler";
 
 type Client = SupabaseClient;
@@ -407,6 +409,23 @@ export async function ensureParentAdleTodayAssignment(params: {
           childId: params.childId,
           planDate: practiceDate,
           requiredMicroSkillKey: selection.microSkillKey,
+          generationTrigger: "parent_manual",
+        });
+        generatedAssignmentId = result.assignmentId;
+        blockerCode = result.readinessReason;
+      }
+    } else if (routeId === "compound_word_lab") {
+      if (!COMPOUND_WORD_MICRO_SKILL_KEYS.includes(
+        selection.microSkillKey as (typeof COMPOUND_WORD_MICRO_SKILL_KEYS)[number],
+      )) blockerCode = "unsupported_compound_word_micro_skill";
+      else {
+        const result = await generateGuardedCompoundWordAssignment({
+          userClient: params.userClient,
+          serviceClient: params.serviceClient,
+          parentUserId: params.parentUserId,
+          childId: params.childId,
+          planDate: practiceDate,
+          microSkillKey: selection.microSkillKey as (typeof COMPOUND_WORD_MICRO_SKILL_KEYS)[number],
           generationTrigger: "parent_manual",
         });
         generatedAssignmentId = result.assignmentId;

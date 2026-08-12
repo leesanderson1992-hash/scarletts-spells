@@ -4,7 +4,7 @@
     "auditVersion": "adle_readiness_audit_v1",
     "containsLearnerIdentity": false,
     "containsRawAttempts": false,
-    "inputFingerprint": "7f536deeaed55c388d84e58823a17374c1863fa564ca0405d7861621af2b00b1",
+    "inputFingerprint": "ca45043d83aec585c7b2679e89074104108b8e18b5d3049b2de13048454d15b4",
     "knownReportOnlyFindings": [
       {
         "code": "transfer_not_approved",
@@ -394,6 +394,202 @@
             "blockers": [],
             "evidence": [
               "payloadVersion=1"
+            ],
+            "stage": "persisted_payload_validation",
+            "status": "ready"
+          },
+          {
+            "blockers": [],
+            "evidence": [],
+            "stage": "runtime_reconstruction",
+            "status": "not_assessed"
+          },
+          {
+            "blockers": [],
+            "evidence": [],
+            "stage": "activity_binding_resolution",
+            "status": "ready"
+          }
+        ],
+        "status": "not_assessed",
+        "wordAssessments": []
+      },
+      {
+        "dependencyFingerprint": "e8dbf1bbf334945e9387c061834fad420b7313e07dcd383ee96de248627f3d8a",
+        "microSkillKey": "D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS",
+        "routeId": "compound_word_lab",
+        "routeVersion": "v2",
+        "stages": [
+          {
+            "blockers": [],
+            "evidence": [
+              "profileDeclared=true",
+              "profileProductionEnabled=true",
+              "route=compound_word_lab:v2",
+              "taxonomyActive=true"
+            ],
+            "stage": "taxonomy_and_route",
+            "status": "ready"
+          },
+          {
+            "blockers": [],
+            "evidence": [
+              "wordAssessmentCount=0"
+            ],
+            "stage": "canonical_word_facts",
+            "status": "not_assessed"
+          },
+          {
+            "blockers": [],
+            "evidence": [],
+            "stage": "word_microskill_support",
+            "status": "not_assessed"
+          },
+          {
+            "blockers": [],
+            "evidence": [
+              "eligibleAuthenticWordCount=not_assessed"
+            ],
+            "stage": "authentic_target_eligibility",
+            "status": "not_assessed"
+          },
+          {
+            "blockers": [],
+            "evidence": [
+              "eligibleTransferWordCount=not_assessed"
+            ],
+            "stage": "transfer_eligibility",
+            "status": "not_assessed"
+          },
+          {
+            "blockers": [],
+            "evidence": [
+              "activity=compound_jigsaw",
+              "activity=cover_check",
+              "activity=dictation",
+              "activity=introduction",
+              "activity=meaning_match",
+              "activity=reflection"
+            ],
+            "stage": "activity_requirements",
+            "status": "ready"
+          },
+          {
+            "blockers": [],
+            "evidence": [],
+            "stage": "group_composition",
+            "status": "not_assessed"
+          },
+          {
+            "blockers": [],
+            "evidence": [
+              "itemCount=18"
+            ],
+            "stage": "assignment_construction",
+            "status": "ready"
+          },
+          {
+            "blockers": [],
+            "evidence": [
+              "payloadVersion=2"
+            ],
+            "stage": "persisted_payload_validation",
+            "status": "ready"
+          },
+          {
+            "blockers": [],
+            "evidence": [],
+            "stage": "runtime_reconstruction",
+            "status": "not_assessed"
+          },
+          {
+            "blockers": [],
+            "evidence": [],
+            "stage": "activity_binding_resolution",
+            "status": "ready"
+          }
+        ],
+        "status": "not_assessed",
+        "wordAssessments": []
+      },
+      {
+        "dependencyFingerprint": "5fed234ce69afc3fb554087cb530790fb78b1529a302cddbb2c5994d204f534e",
+        "microSkillKey": "D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED",
+        "routeId": "compound_word_lab",
+        "routeVersion": "v2",
+        "stages": [
+          {
+            "blockers": [],
+            "evidence": [
+              "profileDeclared=true",
+              "profileProductionEnabled=true",
+              "route=compound_word_lab:v2",
+              "taxonomyActive=true"
+            ],
+            "stage": "taxonomy_and_route",
+            "status": "ready"
+          },
+          {
+            "blockers": [],
+            "evidence": [
+              "wordAssessmentCount=0"
+            ],
+            "stage": "canonical_word_facts",
+            "status": "not_assessed"
+          },
+          {
+            "blockers": [],
+            "evidence": [],
+            "stage": "word_microskill_support",
+            "status": "not_assessed"
+          },
+          {
+            "blockers": [],
+            "evidence": [
+              "eligibleAuthenticWordCount=not_assessed"
+            ],
+            "stage": "authentic_target_eligibility",
+            "status": "not_assessed"
+          },
+          {
+            "blockers": [],
+            "evidence": [
+              "eligibleTransferWordCount=not_assessed"
+            ],
+            "stage": "transfer_eligibility",
+            "status": "not_assessed"
+          },
+          {
+            "blockers": [],
+            "evidence": [
+              "activity=compound_jigsaw",
+              "activity=cover_check",
+              "activity=dictation",
+              "activity=introduction",
+              "activity=meaning_match",
+              "activity=reflection"
+            ],
+            "stage": "activity_requirements",
+            "status": "ready"
+          },
+          {
+            "blockers": [],
+            "evidence": [],
+            "stage": "group_composition",
+            "status": "not_assessed"
+          },
+          {
+            "blockers": [],
+            "evidence": [
+              "itemCount=18"
+            ],
+            "stage": "assignment_construction",
+            "status": "ready"
+          },
+          {
+            "blockers": [],
+            "evidence": [
+              "payloadVersion=2"
             ],
             "stage": "persisted_payload_validation",
             "status": "ready"
@@ -1924,10 +2120,10 @@
     "mutationPerformed": false,
     "summary": {
       "blockedCount": 0,
-      "notAssessedCount": 19,
-      "productionMicroSkillCount": 19,
+      "notAssessedCount": 21,
+      "productionMicroSkillCount": 21,
       "readyCount": 0,
-      "structurallyDeclaredCount": 19
+      "structurallyDeclaredCount": 21
     }
   }
 }

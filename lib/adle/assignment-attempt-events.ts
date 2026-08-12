@@ -1,6 +1,6 @@
 import type { AdleSessionItem } from "./loaders/daily-plan-surface";
 import type { AssignmentAttemptEventWrite } from "./loaders/session-completion-loader";
-import { isAttemptCorrect } from "./session-correctness";
+import { isAttemptCorrect, isExactGovernedFormCorrect } from "./session-correctness";
 
 interface AttemptContext {
   childId: string;
@@ -67,7 +67,11 @@ export function buildLessonAttemptEvents(params: {
   dictationRawAttempts?: ReadonlyMap<string, string>;
   guidedAttempts: ReadonlyMap<string, string>;
   probeAttempts: ReadonlyMap<string, string>;
+  correctness?: "normalised_token" | "exact_governed_form";
 }): AssignmentAttemptEventWrite[] {
+  const correct = params.correctness === "exact_governed_form"
+    ? isExactGovernedFormCorrect
+    : isAttemptCorrect;
   const events: AssignmentAttemptEventWrite[] = [];
   for (const item of params.items) {
     if (item.sectionKey === "lesson_intro" || item.sectionKey === "guided_practice") {
@@ -89,7 +93,7 @@ export function buildLessonAttemptEvents(params: {
       events.push({
         ...attemptEventBase(params.context, item),
         attemptText,
-        isCorrect: isAttemptCorrect(attemptText, item.targetWord),
+        isCorrect: correct(attemptText, item.targetWord),
         attemptKind: "lesson_production",
         evidenceClass: "first_exposure_lesson_attempt",
         sourceRef: params.sourceRef,
@@ -100,8 +104,10 @@ export function buildLessonAttemptEvents(params: {
       const attemptText = params.dictationAttempts.get(item.canonicalWordId) ?? "";
       events.push({
         ...attemptEventBase(params.context, item),
-        attemptText: params.dictationRawAttempts?.get(item.canonicalWordId) ?? attemptText,
-        isCorrect: isAttemptCorrect(attemptText, item.targetWord),
+        attemptText: params.correctness === "exact_governed_form"
+          ? attemptText
+          : params.dictationRawAttempts?.get(item.canonicalWordId) ?? attemptText,
+        isCorrect: correct(attemptText, item.targetWord),
         attemptKind: "lesson_dictation",
         evidenceClass: "first_exposure_lesson_attempt",
         sourceRef: params.sourceRef,

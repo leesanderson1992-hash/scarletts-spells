@@ -141,6 +141,8 @@
     "adle:compound-word-reading-release:build": "npx tsx scripts/build-adle-compound-word-reading-release.ts",
     "adle:compound-word-reading-release:regression": "npx tsx scripts/adle-compound-word-reading-release-regression.ts",
     "adle:compound-word-reading-release:production": "npx tsx scripts/adle-compound-word-reading-production-release.ts",
+    "adle:compound-word-controlled-proof-regression": "npx tsx scripts/adle-compound-word-controlled-proof-regression.ts",
+    "adle:compound-word-controlled-proof:production": "npx tsx --env-file=.env.local scripts/adle-compound-word-controlled-production-proof.ts",
     "adle:compound-word-publication-review:build": "npx tsx scripts/build-adle-compound-word-v2-publication-review.ts --write",
     "adle:compound-word-publication-review:regression": "npx tsx scripts/adle-compound-word-publication-review-regression.ts",
     "adle:compound-word-v2-release:build": "npx tsx scripts/build-adle-compound-word-v2-release.ts",

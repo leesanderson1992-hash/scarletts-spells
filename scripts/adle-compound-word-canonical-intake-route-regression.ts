@@ -35,8 +35,10 @@ for (const skill of [CLOSED, SEPARATED]) {
     routeId: "compound_word_lab",
     routeVersion: "v2",
   });
-  assert.equal(getNewAssignmentCurriculumRouteForMicroSkill(skill), null,
-    "intake ownership must not enable assignment generation");
+  const assignmentRoute = getNewAssignmentCurriculumRouteForMicroSkill(skill);
+  assert.equal(assignmentRoute?.routeId, "compound_word_lab");
+  assert.equal(assignmentRoute?.activationAuthority, "database_route_activation",
+    "assignment capability remains independently gated by exact operational activation");
 }
 assert.equal(isCompoundWordIntakeSkill(CLOSED, "D4_MOR_PREFIXES"), false);
 assert.deepEqual(resolveCanonicalIntakeRoute("D4_MOR_PREFIXES_UN", "D4_MOR_PREFIXES"), {

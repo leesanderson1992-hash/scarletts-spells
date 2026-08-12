@@ -33,6 +33,11 @@ const expected = {
     recipe: "base_word_family:v1",
     payload: "base_word_family_snapshot_v1:1",
   },
+  compound_word_lab: {
+    route: "v2",
+    recipe: "compound_word_lab:v2",
+    payload: "compound_word_lesson_v2:2",
+  },
 } as const;
 
 const closedCompatibility = createLegacyPersistedRouteMetadata("closed_compound_word_lab");
