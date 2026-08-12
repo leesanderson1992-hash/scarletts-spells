@@ -26,7 +26,7 @@ const migration = readFileSync("supabase/migrations/20260812190000_enable_all_el
 assert(migration.includes("create or replace function public.adle_release_activation_allows_child_v2"));
 assert(migration.includes("revision.activation_status = 'enabled'"));
 assert(migration.includes("revision.readiness_report#>>'{scope,kind}' = 'all_eligible'"));
-assert(migration.includes("jsonb_object_length(revision.readiness_report->'scope') = 1"));
+assert(migration.includes("revision.readiness_report->'scope' = '{\"kind\":\"all_eligible\"}'::jsonb"));
 assert(migration.includes("revision.readiness_report#>>'{scope,kind}' = 'child_allowlist'"));
 assert(!migration.includes("set_adle_route_activation_revision_v2("), "the migration changes capability, not activation state");
 assert(!migration.includes("insert into public.daily_assignments"));
