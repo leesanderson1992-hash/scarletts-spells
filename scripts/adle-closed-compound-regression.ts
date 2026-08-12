@@ -8,7 +8,7 @@ import { isClosedCompoundRouteEnabled } from "../lib/adle/morphology/closed-comp
 import { buildClosedCompoundAssignmentPlan } from "../lib/adle/morphology/closed-compound-assignment-plan";
 import type { ComposedDailyPlan } from "../lib/adle/daily-assignment-composer";
 import { resolvePersistedLessonRoute } from "../lib/adle/composable-lesson/route-resolution";
-import { createPersistedRouteMetadata } from "../lib/adle/composable-lesson/persisted-route-metadata";
+import { createLegacyPersistedRouteMetadata } from "../lib/adle/composable-lesson/persisted-route-metadata";
 
 assert(isClosedCompoundAnswerCorrect("Football", "football"));
 assert(!isClosedCompoundAnswerCorrect("foot ball", "football"));
@@ -26,7 +26,7 @@ const compoundBase = { childId: "child-a", planDate: "2026-07-29", composerPolic
 const compoundPlan = buildClosedCompoundAssignmentPlan(compoundBase, selected!);
 assert.equal(compoundPlan.lessonRouteMetadata?.route.routeId, "closed_compound_word_lab");
 const resolvedCompound = resolvePersistedLessonRoute({
-  lessonRouteMetadata: createPersistedRouteMetadata("closed_compound_word_lab"),
+  lessonRouteMetadata: createLegacyPersistedRouteMetadata("closed_compound_word_lab"),
   items: compoundPlan.partTwo.sections.flatMap((section) => section.items).map((entry, index) => ({ id: `compound-${index}`, sectionKey: entry.sectionKey, templateKey: entry.templateKey, canonicalWordId: entry.canonicalWordId, targetWord: entry.targetWord, promptData: entry.payload })),
   runtimeContext: { morphologyUnEnabled: true, dynamicPrefixEnabled: true, dynamicAffixEnabled: true, baseWordFamilyEnabled: true },
 });

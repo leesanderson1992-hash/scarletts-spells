@@ -88,21 +88,6 @@
         "routeId": "dynamic_affix_word_lab",
         "routeVersion": "v3"
       }
-    },
-    {
-      "metadataSchemaVersion": 1,
-      "payload": {
-        "kind": "closed_compound_lesson_v1",
-        "version": 1
-      },
-      "recipe": {
-        "recipeKey": "closed_compound_word_lab",
-        "recipeVersion": "v1"
-      },
-      "route": {
-        "routeId": "closed_compound_word_lab",
-        "routeVersion": "v1"
-      }
     }
   ]
 }

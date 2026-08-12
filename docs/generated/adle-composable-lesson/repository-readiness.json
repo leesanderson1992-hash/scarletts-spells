@@ -4,7 +4,7 @@
     "auditVersion": "adle_readiness_audit_v1",
     "containsLearnerIdentity": false,
     "containsRawAttempts": false,
-    "inputFingerprint": "1f273f272c0da4e90abcb7b28b3fb48edd900d4ac3cd7251679f3126ee3637be",
+    "inputFingerprint": "7f536deeaed55c388d84e58823a17374c1863fa564ca0405d7861621af2b00b1",
     "knownReportOnlyFindings": [
       {
         "code": "transfer_not_approved",
@@ -372,104 +372,6 @@
               "activity=introduction",
               "activity=reflection",
               "activity=word_build"
-            ],
-            "stage": "activity_requirements",
-            "status": "ready"
-          },
-          {
-            "blockers": [],
-            "evidence": [],
-            "stage": "group_composition",
-            "status": "not_assessed"
-          },
-          {
-            "blockers": [],
-            "evidence": [
-              "itemCount=18"
-            ],
-            "stage": "assignment_construction",
-            "status": "ready"
-          },
-          {
-            "blockers": [],
-            "evidence": [
-              "payloadVersion=1"
-            ],
-            "stage": "persisted_payload_validation",
-            "status": "ready"
-          },
-          {
-            "blockers": [],
-            "evidence": [],
-            "stage": "runtime_reconstruction",
-            "status": "not_assessed"
-          },
-          {
-            "blockers": [],
-            "evidence": [],
-            "stage": "activity_binding_resolution",
-            "status": "ready"
-          }
-        ],
-        "status": "not_assessed",
-        "wordAssessments": []
-      },
-      {
-        "dependencyFingerprint": "64040c4f323bf18dbaaa50f51948dddeb55cec1055ae089560a907559f918b7e",
-        "microSkillKey": "D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS",
-        "routeId": "closed_compound_word_lab",
-        "routeVersion": "v1",
-        "stages": [
-          {
-            "blockers": [],
-            "evidence": [
-              "profileDeclared=true",
-              "profileProductionEnabled=true",
-              "route=closed_compound_word_lab:v1",
-              "taxonomyActive=true"
-            ],
-            "stage": "taxonomy_and_route",
-            "status": "ready"
-          },
-          {
-            "blockers": [],
-            "evidence": [
-              "wordAssessmentCount=0"
-            ],
-            "stage": "canonical_word_facts",
-            "status": "not_assessed"
-          },
-          {
-            "blockers": [],
-            "evidence": [],
-            "stage": "word_microskill_support",
-            "status": "not_assessed"
-          },
-          {
-            "blockers": [],
-            "evidence": [
-              "eligibleAuthenticWordCount=not_assessed"
-            ],
-            "stage": "authentic_target_eligibility",
-            "status": "not_assessed"
-          },
-          {
-            "blockers": [],
-            "evidence": [
-              "eligibleTransferWordCount=not_assessed"
-            ],
-            "stage": "transfer_eligibility",
-            "status": "not_assessed"
-          },
-          {
-            "blockers": [],
-            "evidence": [
-              "activity=compound_jigsaw",
-              "activity=cover_check",
-              "activity=dictation",
-              "activity=introduction",
-              "activity=meaning_match",
-              "activity=reflection"
             ],
             "stage": "activity_requirements",
             "status": "ready"
@@ -2022,10 +1924,10 @@
     "mutationPerformed": false,
     "summary": {
       "blockedCount": 0,
-      "notAssessedCount": 20,
-      "productionMicroSkillCount": 20,
+      "notAssessedCount": 19,
+      "productionMicroSkillCount": 19,
       "readyCount": 0,
-      "structurallyDeclaredCount": 20
+      "structurallyDeclaredCount": 19
     }
   }
 }

@@ -4,6 +4,7 @@ import { readFileSync } from "node:fs";
 import {
   ADLE_NEW_ASSIGNMENT_ROUTE_IDS,
   createPersistedRouteMetadata,
+  createLegacyPersistedRouteMetadata,
   createPersistedRouteMetadataV2,
   parsePersistedLessonRouteMetadata,
   validatePersistedRouteMetadataCompatibility,
@@ -27,17 +28,16 @@ const expected = {
     recipe: "dynamic_affix_word_lab:v3",
     payload: "dynamic_affix_lesson_v3:3",
   },
-  closed_compound_word_lab: {
-    route: "v1",
-    recipe: "closed_compound_word_lab:v1",
-    payload: "closed_compound_lesson_v1:1",
-  },
   base_word_lab: {
     route: "v2",
     recipe: "base_word_family:v1",
     payload: "base_word_family_snapshot_v1:1",
   },
 } as const;
+
+const closedCompatibility = createLegacyPersistedRouteMetadata("closed_compound_word_lab");
+assert.deepEqual(validatePersistedRouteMetadataCompatibility(closedCompatibility), { ok: true });
+assert.equal(closedCompatibility.route.routeVersion, "v1");
 
 assert.deepEqual(
   [...ADLE_NEW_ASSIGNMENT_ROUTE_IDS].sort(),

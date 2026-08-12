@@ -32,6 +32,14 @@ import { ADLE_PILOT_CHILD_BAND } from "./composer-facts-loader";
 import { resolveAdleRouteActivationEnvironment } from "../route-activation-environment";
 import { loadEnabledBaseWordReleaseAuthorities } from "./curriculum-release-authority";
 import { isBaseWordIntakeSkill } from "../canonical-intake/route-readiness";
+import {
+  compileCompoundWordCanonicalIntakeRouteFacts,
+  COMPOUND_WORD_ROUTE_ID,
+  COMPOUND_WORD_ROUTE_VERSION,
+  type CompoundWordClosureWordFact,
+  type CompoundWordPublishedStructureFact,
+  type CompoundWordReleaseFact,
+} from "../canonical-intake/compound-word-release-readiness";
 
 type AdleClient = SupabaseClient;
 
@@ -39,6 +47,106 @@ const BASE_WORD_ROUTE = getCurriculumRouteDefinition("base_word_lab", "v2") ??
   (() => {
     throw new Error("Base Word route is not registered");
   })();
+
+const COMPOUND_WORD_ROUTE = getCurriculumRouteDefinition(
+  COMPOUND_WORD_ROUTE_ID,
+  COMPOUND_WORD_ROUTE_VERSION,
+) ?? (() => {
+  throw new Error("Compound Word v2 route is not registered");
+})();
+
+async function loadReleasedCompoundWordIntakeFacts(client: AdleClient) {
+  const { data: releases, error: releasesError } = await client
+    .from("adle_curriculum_release_manifests")
+    .select("id,release_key,release_manifest_sha256,dependency_fingerprint,route_id,route_version,activation_route_key,payload_version,manifest_payload")
+    .eq("route_id", COMPOUND_WORD_ROUTE_ID)
+    .eq("route_version", COMPOUND_WORD_ROUTE_VERSION);
+  if (releasesError) throwQuery("Compound Word curriculum releases", releasesError);
+  const releaseIds = (releases ?? []).map((row: any) => row.id as string);
+  if (releaseIds.length === 0) {
+    return compileCompoundWordCanonicalIntakeRouteFacts({ releases: [], publishedStructures: [], closureWords: [] });
+  }
+  const [{ data: dependencies, error: dependenciesError }, { data: structures, error: structuresError }] = await Promise.all([
+    client.from("adle_curriculum_release_dependencies")
+      .select("release_manifest_id,micro_skill_key,authority_type,authority_id,authority_key,authority_schema_version,semantic_fingerprint")
+      .in("release_manifest_id", releaseIds)
+      .in("micro_skill_key", [...COMPOUND_WORD_ROUTE.supportedMicroSkillKeys]),
+    client.from("canonical_teaching_dictionary_compound_structures_v2")
+      .select("canonical_word_id,micro_skill_key,assignment_eligible,row_status,review_status,source_metadata")
+      .in("micro_skill_key", [...COMPOUND_WORD_ROUTE.supportedMicroSkillKeys]),
+  ]);
+  if (dependenciesError) throwQuery("Compound Word release dependencies", dependenciesError);
+  if (structuresError) throwQuery("Compound Word published structures", structuresError);
+  const authorityIds = [...new Set((dependencies ?? []).map((row: any) => row.authority_id as string))];
+  const [{ data: authorities, error: authoritiesError }, { data: closureWords, error: closureWordsError }] = await Promise.all([
+    client.from("adle_curriculum_dependency_authorities")
+      .select("id,authority_type,authority_key,schema_version,semantic_fingerprint,semantic_projection")
+      .in("id", authorityIds),
+    client.from("adle_teaching_dictionary_closure_words")
+      .select("authority_id,canonical_word_id,display_word,dictation_sentence,dictation_target_token_index,dictation_target_end_exclusive,exact_governed_answer")
+      .in("authority_id", authorityIds),
+  ]);
+  if (authoritiesError) throwQuery("Compound Word dependency authorities", authoritiesError);
+  if (closureWordsError) throwQuery("Compound Word Teaching Dictionary closure", closureWordsError);
+  const authorityById = new Map((authorities ?? []).map((row: any) => [row.id as string, row]));
+  const releaseFacts: CompoundWordReleaseFact[] = [];
+  for (const release of releases ?? []) {
+    const releaseDependencies = (dependencies ?? []).filter((row: any) => row.release_manifest_id === (release as any).id);
+    const skillKeys = [...new Set(releaseDependencies.map((row: any) => row.micro_skill_key as string))];
+    for (const microSkillKey of skillKeys) {
+      releaseFacts.push({
+        releaseManifestId: (release as any).id,
+        releaseKey: (release as any).release_key,
+        releaseManifestSha256: (release as any).release_manifest_sha256,
+        dependencyFingerprint: (release as any).dependency_fingerprint,
+        routeId: (release as any).route_id,
+        routeVersion: (release as any).route_version,
+        activationRouteKey: (release as any).activation_route_key,
+        payloadVersion: (release as any).payload_version,
+        manifestPayload: (release as any).manifest_payload,
+        microSkillKey,
+        dependencies: releaseDependencies.filter((row: any) => row.micro_skill_key === microSkillKey).map((row: any) => {
+          const authority = authorityById.get(row.authority_id) as any;
+          return {
+            authorityType: row.authority_type,
+            authorityId: row.authority_id,
+            authorityKey: row.authority_key,
+            authoritySchemaVersion: row.authority_schema_version,
+            semanticFingerprint: row.semantic_fingerprint,
+            authority: authority ? {
+              id: authority.id,
+              authorityType: authority.authority_type,
+              authorityKey: authority.authority_key,
+              schemaVersion: authority.schema_version,
+              semanticFingerprint: authority.semantic_fingerprint,
+              semanticProjection: authority.semantic_projection,
+            } : null,
+          };
+        }),
+      });
+    }
+  }
+  return compileCompoundWordCanonicalIntakeRouteFacts({
+    releases: releaseFacts,
+    publishedStructures: (structures ?? []).map((row: any) => ({
+      canonicalWordId: row.canonical_word_id,
+      microSkillKey: row.micro_skill_key,
+      assignmentEligible: row.assignment_eligible,
+      rowStatus: row.row_status,
+      reviewStatus: row.review_status,
+      dependencyAuthorityId: typeof row.source_metadata?.dependencyAuthorityId === "string" ? row.source_metadata.dependencyAuthorityId : null,
+    } satisfies CompoundWordPublishedStructureFact)),
+    closureWords: (closureWords ?? []).map((row: any) => ({
+      authorityId: row.authority_id,
+      canonicalWordId: row.canonical_word_id,
+      displayWord: row.display_word,
+      dictationSentence: row.dictation_sentence,
+      dictationTargetStart: row.dictation_target_token_index,
+      dictationTargetEndExclusive: row.dictation_target_end_exclusive,
+      exactGovernedAnswer: row.exact_governed_answer,
+    } satisfies CompoundWordClosureWordFact)),
+  });
+}
 
 export interface CanonicalIntakeLiveResult {
   enabled: boolean;
@@ -84,6 +192,7 @@ async function routeActivationFacts(client: AdleClient, childId: string) {
     normalisedWord: string;
   }> = [];
   const activationEnvironment = resolveAdleRouteActivationEnvironment();
+  const compoundFactsPromise = loadReleasedCompoundWordIntakeFacts(client);
   const { data: selectorProfiles, error: selectorProfileError } = await client
     .from("canonical_teaching_dictionary_transfer_selector_profiles")
     .select("micro_skill_key,row_status,review_status,allowed_age_bands")
@@ -225,6 +334,10 @@ async function routeActivationFacts(client: AdleClient, childId: string) {
 
   if (isBaseWordFamilyPilotEnabledForChild(childId)) {
     if (!activationEnvironment) {
+      const compoundFacts = await compoundFactsPromise;
+      for (const skill of compoundFacts.enabledSkills) enabled.add(skill);
+      for (const pair of compoundFacts.readyPairs) readyPairs.add(pair);
+      routeReadiness.push(...compoundFacts.routeReadiness);
       return { enabled, readyPairs, routeReadiness, selectorProfiles: selectorProfiles ?? [], baseWordClosureWords };
     }
     const activations = await loadEnabledBaseWordReleaseAuthorities({
@@ -249,6 +362,10 @@ async function routeActivationFacts(client: AdleClient, childId: string) {
     for (const pair of baseFacts.readyPairs) readyPairs.add(pair);
     routeReadiness.push(...baseFacts.routeReadiness);
   }
+  const compoundFacts = await compoundFactsPromise;
+  for (const skill of compoundFacts.enabledSkills) enabled.add(skill);
+  for (const pair of compoundFacts.readyPairs) readyPairs.add(pair);
+  routeReadiness.push(...compoundFacts.routeReadiness);
   return {
     enabled,
     readyPairs,

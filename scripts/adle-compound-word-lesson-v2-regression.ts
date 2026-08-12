@@ -210,7 +210,7 @@ const route = ADLE_CURRICULUM_ROUTE_REGISTRY.find((entry) => entry.routeId === "
 assert(route);
 assert.deepEqual(route.supportedMicroSkillKeys, [CLOSED, SEPARATED]);
 assert.equal(route.newAssignmentCapable, false);
-assert.deepEqual(route.routeOwnership, { kind: "recipe_contract_only" });
+assert.deepEqual(route.routeOwnership, { kind: "skill_clusters", skillClusterKeys: ["D4_MOR_COMPOUND_WORDS"] });
 const templates = listRegisteredActivityTemplateKeys();
 assert.equal(templates.filter((key) => key === "MOR_COMPOUND_JIGSAW").length, 1);
 assert.equal(templates.filter((key) => key === "MOR_COMPOUND_MEANING_CONNECTION").length, 1);

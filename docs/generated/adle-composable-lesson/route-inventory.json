@@ -79,14 +79,14 @@
       "coverageRequirements": [
         "unique_dictation_sentences"
       ],
-      "implementationState": "registered",
+      "implementationState": "legacy_render_only",
       "intentionalItemCounts": [
         18
       ],
       "legacyDetectionRules": [
         "prompt_data.closedCompoundActivityId=intro-root"
       ],
-      "newAssignmentCapable": true,
+      "newAssignmentCapable": false,
       "payloadKind": "closed_compound_lesson_v1",
       "payloadVersions": [
         1
@@ -168,7 +168,10 @@
       "requiresAuthenticSelectableItem": true,
       "routeId": "compound_word_lab",
       "routeOwnership": {
-        "kind": "recipe_contract_only"
+        "kind": "skill_clusters",
+        "skillClusterKeys": [
+          "D4_MOR_COMPOUND_WORDS"
+        ]
       },
       "routeVersion": "v2",
       "runtimeAdapterKey": "compound_word_v2",

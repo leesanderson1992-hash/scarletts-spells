@@ -9,7 +9,7 @@
 | Route | Recipe | Payload | Adapter | Renderer | State | Skills | Items | Activities |
 |---|---|---|---|---|---|---:|---|---|
 | base_word_lab:v2 | base_word_family:v1 | base_word_family_snapshot_v1 1 | base_word_family_v1 | base_word_family_guided | registered | 4 | 18 | introduction, family_reveal, cleaver, word_build, cover_check, dictation, reflection |
-| closed_compound_word_lab:v1 | closed_compound_word_lab:v1 | closed_compound_lesson_v1 1 | closed_compound_v1 | closed_compound_guided | registered | 1 | 18 | introduction, compound_jigsaw, meaning_match, cover_check, dictation, reflection |
+| closed_compound_word_lab:v1 | closed_compound_word_lab:v1 | closed_compound_lesson_v1 1 | closed_compound_v1 | closed_compound_guided | legacy_render_only | 1 | 18 | introduction, compound_jigsaw, meaning_match, cover_check, dictation, reflection |
 | compound_word_lab:v2 | compound_word_lab:v2 | compound_word_lesson_v2 2 | compound_word_v2 | compound_word_guided | registered | 2 | 18 | introduction, compound_jigsaw, meaning_match, cover_check, dictation, reflection |
 | dynamic_affix_word_lab:v3 | dynamic_affix_word_lab:v3 | dynamic_affix_lesson_v3 3 | dynamic_affix_v3 | morphology_guided | registered | 10 | 16/18 | introduction, discovery, cleaver, word_build, cover_check, dictation, reflection |
 | dynamic_prefix_word_lab:v2 | dynamic_prefix_word_lab:v2 | dynamic_prefix_lesson_v2 2 | dynamic_prefix_v2 | morphology_guided | registered | 5 | 16/18 | introduction, discovery, cleaver, meaning_sort, word_build, cover_check, dictation, reflection |
