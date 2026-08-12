@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 2,
+  "releaseKey": "compound-word-v2-d4_mor_compound_words_separated_hyphenated-reading-pages-2026-08-12",
+  "route": {
+    "routeId": "compound_word_lab",
+    "routeVersion": "v2",
+    "activationRouteKey": "compound_word_lab:v2",
+    "payloadVersion": 2
+  },
+  "approvalRefs": [
+    "data/adle/review/d4-mor/v2/compound-word-separated-hyphenated-reading-pages-approval.json",
+    "sha256:61076b5bd5287496c73b56f1c355b2f0a208b75154297a162caf6592b62b0464"
+  ],
+  "microSkills": [
+    {
+      "microSkillKey": "D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED",
+      "dependencies": [
+        {
+          "authorityType": "compound_structure",
+          "authorityKey": "compound-word-v2-approved-14-2026-08-11",
+          "authoritySchemaVersion": 1,
+          "semanticFingerprint": "b07f735a8bced4f5b9dbfd6967b210b45a08d86572d7273473915a244cf33503"
+        },
+        {
+          "authorityType": "teaching_content",
+          "authorityKey": "compound-word-v2-separated-hyphenated-teaching-content-reading-pages-2026-08-12",
+          "authoritySchemaVersion": 1,
+          "semanticFingerprint": "090ded53c5258da833c78bb7cde85d21e72ed031530ce281b7fe49b583963440"
+        },
+        {
+          "authorityType": "teaching_dictionary_closure",
+          "authorityKey": "compound-word-v2-dictionary-closure-2026-08-11",
+          "authoritySchemaVersion": 2,
+          "semanticFingerprint": "0f22baf3d425e8684153a45c9abdb3740c05fb52a4a349ecd3f29f479a4c5d72"
+        }
+      ]
+    }
+  ]
+}

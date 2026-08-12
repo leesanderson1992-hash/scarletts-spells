@@ -58,7 +58,7 @@ const COMPOUND_WORD_ROUTE = getCurriculumRouteDefinition(
 async function loadReleasedCompoundWordIntakeFacts(client: AdleClient) {
   const { data: releases, error: releasesError } = await client
     .from("adle_curriculum_release_manifests")
-    .select("id,release_key,release_manifest_sha256,dependency_fingerprint,route_id,route_version,activation_route_key,payload_version,manifest_payload")
+    .select("id,release_key,release_manifest_sha256,dependency_fingerprint,route_id,route_version,activation_route_key,payload_version,manifest_payload,published_at")
     .eq("route_id", COMPOUND_WORD_ROUTE_ID)
     .eq("route_version", COMPOUND_WORD_ROUTE_VERSION);
   if (releasesError) throwQuery("Compound Word curriculum releases", releasesError);
@@ -105,6 +105,7 @@ async function loadReleasedCompoundWordIntakeFacts(client: AdleClient) {
         payloadVersion: (release as any).payload_version,
         manifestPayload: (release as any).manifest_payload,
         microSkillKey,
+        publishedAt: (release as any).published_at,
         dependencies: releaseDependencies.filter((row: any) => row.micro_skill_key === microSkillKey).map((row: any) => {
           const authority = authorityById.get(row.authority_id) as any;
           return {

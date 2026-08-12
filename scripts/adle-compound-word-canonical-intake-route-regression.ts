@@ -77,6 +77,7 @@ const release: CompoundWordReleaseFact = {
   payloadVersion: 2,
   manifestPayload: { microSkills: [{ microSkillKey: CLOSED }] },
   microSkillKey: CLOSED,
+  publishedAt: "2026-08-11T21:57:05.937Z",
   dependencies,
 };
 const compile = (releaseOverride: CompoundWordReleaseFact = release) => compileCompoundWordCanonicalIntakeRouteFacts({
@@ -117,6 +118,19 @@ assert.equal(compile({ ...release, dependencies: dependencies.slice(0, 2) }).rea
   "missing exact dependency fails closed");
 assert.equal(compile({ ...release, activationRouteKey: "wrong" }).readyPairs.size, 0,
   "wrong route release fails closed");
+const correctedRelease = {
+  ...release,
+  releaseManifestId: "88888888-8888-4888-8888-888888888888",
+  releaseKey: "compound-release-reading-correction",
+  publishedAt: "2026-08-12T12:00:00.000Z",
+};
+const historicalAndCorrected = compileCompoundWordCanonicalIntakeRouteFacts({
+  releases: [release, correctedRelease],
+  publishedStructures: [{ canonicalWordId: WORD_ID, microSkillKey: CLOSED, assignmentEligible: true, rowStatus: "active", reviewStatus: "approved_for_first_exposure", dependencyAuthorityId: STRUCTURE_ID }],
+  closureWords: [{ authorityId: CLOSURE_ID, canonicalWordId: WORD_ID, displayWord: "sunflower", dictationSentence: "The sunflower grew.", dictationTargetStart: 1, dictationTargetEndExclusive: 2, exactGovernedAnswer: "sunflower" }],
+});
+assert.equal(historicalAndCorrected.routeReadiness.length, 1, "only the newest immutable release is current for intake");
+assert.equal(historicalAndCorrected.routeReadiness[0]?.curriculumRelease?.releaseManifestId, correctedRelease.releaseManifestId);
 
 const migration = readFileSync("supabase/migrations/20260812100000_integrate_compound_word_v2_canonical_intake.sql", "utf8");
 for (const token of [

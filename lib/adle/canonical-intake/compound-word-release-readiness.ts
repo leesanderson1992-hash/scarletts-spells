@@ -64,6 +64,7 @@ export interface CompoundWordReleaseFact {
   payloadVersion: number;
   manifestPayload: unknown;
   microSkillKey: string;
+  publishedAt: string;
   dependencies: readonly CompoundWordReleaseDependencyFact[];
 }
 
@@ -121,14 +122,23 @@ export function compileCompoundWordCanonicalIntakeRouteFacts(input: {
   const enabledSkills = new Set<string>();
   const readyPairs = new Set<string>();
   const routeReadiness: CanonicalIntakeRouteReadinessFact[] = [];
+  const releases = [...input.releases]
+    .filter((release) => !Number.isNaN(Date.parse(release.publishedAt)))
+    .sort((left, right) => {
+      const byDate = Date.parse(right.publishedAt) - Date.parse(left.publishedAt);
+      return byDate || right.releaseManifestId.localeCompare(left.releaseManifestId);
+    })
+    .filter((release, index, all) =>
+      all.findIndex((candidate) => candidate.microSkillKey === release.microSkillKey) === index,
+    );
   const releaseCountBySkill = new Map<string, number>();
-  for (const release of input.releases) {
+  for (const release of releases) {
     releaseCountBySkill.set(
       release.microSkillKey,
       (releaseCountBySkill.get(release.microSkillKey) ?? 0) + 1,
     );
   }
-  for (const release of input.releases) {
+  for (const release of releases) {
     const releaseIdentity: IntakeCurriculumReleaseAuthorityV2 = {
       releaseManifestId: release.releaseManifestId,
       releaseKey: release.releaseKey,
