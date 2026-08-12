@@ -1,5 +1,5 @@
 import type { ComposedDailyPlan, PlanItemCandidate, PlanSection } from "../daily-assignment-composer";
-import { createPersistedRouteMetadata } from "../composable-lesson/persisted-route-metadata";
+import { createLegacyPersistedRouteMetadata } from "../composable-lesson/persisted-route-metadata";
 import { closedCompoundExpectedItemCount, type ClosedCompoundLessonPayloadV1 } from "./closed-compound-word-lab";
 
 /** Immutable 2 + 8 + 4 + 4 shape. Guided construction never claims independent mastery. */
@@ -20,5 +20,5 @@ export function buildClosedCompoundAssignmentPlan(basePlan: ComposedDailyPlan, p
     { sectionKey: "lesson_dictation", purpose: "Dictation", items: payload.activities.dictation.map((sentence) => item({ sectionKey: "lesson_dictation", templateKey: "DICTATION_NO_IMAGE", canonicalWordId: sentence.canonicalWordId, targetWord: sentence.targetWord, learningItemId: null, payload: { closedCompoundActivityId: `dictation-${sentence.canonicalWordId}`, sentence: sentence.sentence }, expectedEvidenceKind: "dictation" })) },
   ];
   if (sections.flatMap((section) => section.items).length !== closedCompoundExpectedItemCount()) throw new Error("Closed compound snapshot must contain exactly 18 items.");
-  return { ...basePlan, lessonRouteMetadata: createPersistedRouteMetadata("closed_compound_word_lab"), partOne: { dueQueue: [], presentationOrder: [], sections: [], skips: [] }, partTwo: { composed: true, microSkillKey: payload.microSkillId, selectionAudit: [], lessonWords: payload.words.lesson.map((word) => ({ canonicalWordId: word.canonicalWordId, provenance: "stretch", learningItemId: null, complexityLevel: null })), probePlan: null, stretchItemIntakes: [], sections, skips: [] }, budget: { ...basePlan.budget, estimatedResponses: 18, guidedWordCount: 4, introTrimmed: false, trims: [] } };
+  return { ...basePlan, lessonRouteMetadata: createLegacyPersistedRouteMetadata("closed_compound_word_lab"), partOne: { dueQueue: [], presentationOrder: [], sections: [], skips: [] }, partTwo: { composed: true, microSkillKey: payload.microSkillId, selectionAudit: [], lessonWords: payload.words.lesson.map((word) => ({ canonicalWordId: word.canonicalWordId, provenance: "stretch", learningItemId: null, complexityLevel: null })), probePlan: null, stretchItemIntakes: [], sections, skips: [] }, budget: { ...basePlan.budget, estimatedResponses: 18, guidedWordCount: 4, introTrimmed: false, trims: [] } };
 }

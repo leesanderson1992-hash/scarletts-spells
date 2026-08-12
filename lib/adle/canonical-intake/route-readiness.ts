@@ -32,6 +32,19 @@ export function isBaseWordIntakeSkill(
     route.activationAuthority === "database_route_activation";
 }
 
+/** Compound Word ownership derives from the canonical cluster and shared
+ * route registry. Curriculum release readiness is checked independently. */
+export function isCompoundWordIntakeSkill(
+  microSkillKey: string,
+  skillClusterKey: string | null,
+): boolean {
+  const route = getCurriculumRouteOwnerForTaxonomy({
+    microSkillKey,
+    skillClusterKey,
+  });
+  return route?.routeId === "compound_word_lab" && route.routeVersion === "v2";
+}
+
 export function resolveCanonicalIntakeRoute(
   microSkillKey: string,
   skillClusterKey: string | null = null,
@@ -45,6 +58,14 @@ export function resolveCanonicalIntakeRoute(
       skillClusterKey,
     });
     if (!route) throw new Error(`Base Word route disappeared for ${microSkillKey}`);
+    return { routeId: route.routeId, routeVersion: route.routeVersion };
+  }
+  if (isCompoundWordIntakeSkill(microSkillKey, skillClusterKey)) {
+    const route = getCurriculumRouteOwnerForTaxonomy({
+      microSkillKey,
+      skillClusterKey,
+    });
+    if (!route) throw new Error(`Compound Word route disappeared for ${microSkillKey}`);
     return { routeId: route.routeId, routeVersion: route.routeVersion };
   }
   if (isDynamicPrefixIntakeSkill(microSkillKey)) {

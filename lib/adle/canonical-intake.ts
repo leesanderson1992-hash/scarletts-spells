@@ -2,13 +2,23 @@ import { createHash } from "node:crypto";
 
 import {
   isBaseWordIntakeSkill,
+  isCompoundWordIntakeSkill,
   isDynamicAffixIntakeSkill,
   isDynamicPrefixIntakeSkill,
   resolveCanonicalIntakeRoute,
 } from "./canonical-intake/route-readiness";
 import type { IsoDate } from "./review-scheduler";
 import { canonicalWordSkillPair } from "./canonical-intake/keys";
-import type { PersistedCurriculumReleaseAuthorityV2 } from "./composable-lesson/contracts";
+
+/** Immutable release identity used by intake. Operational activation is an
+ * assignment concern and is deliberately optional here. */
+export type IntakeCurriculumReleaseAuthorityV2 = {
+  activationRevisionId?: string;
+  releaseManifestId: string;
+  releaseKey: string;
+  releaseManifestSha256: string;
+  dependencyFingerprint: string;
+};
 
 export { canonicalWordSkillPair } from "./canonical-intake/keys";
 
@@ -87,7 +97,7 @@ export type IntakeReadinessOutcome =
       readinessFingerprint: string;
       evidence: CurriculumEvidence[];
       routeActivationId?: string;
-      curriculumRelease?: PersistedCurriculumReleaseAuthorityV2;
+      curriculumRelease?: IntakeCurriculumReleaseAuthorityV2;
     }
   | {
       status: "blocked";
@@ -185,7 +195,7 @@ export interface CanonicalIntakeRouteReadinessFact {
   blockers: readonly IntakeReadinessBlockerCode[];
   evidence?: readonly CurriculumEvidence[];
   routeActivationId?: string;
-  curriculumRelease?: PersistedCurriculumReleaseAuthorityV2;
+  curriculumRelease?: IntakeCurriculumReleaseAuthorityV2;
 }
 
 export interface CanonicalIntakeReadinessFacts {
@@ -219,7 +229,7 @@ export interface CanonicalIntakeEligible {
   routeVersion: string;
   readinessFingerprint: string;
   routeActivationId?: string;
-  curriculumRelease?: PersistedCurriculumReleaseAuthorityV2;
+  curriculumRelease?: IntakeCurriculumReleaseAuthorityV2;
 }
 
 export interface CanonicalIntakeBlocked {
@@ -343,6 +353,14 @@ function isBaseWordCandidate(facts: CanonicalIntakeReadinessFacts): boolean {
   );
 }
 
+function isCompoundWordCandidate(facts: CanonicalIntakeReadinessFacts): boolean {
+  const skill = candidateMicroSkillFact(facts);
+  return isCompoundWordIntakeSkill(
+    facts.candidate.microSkillKey,
+    skill?.skillClusterKey ?? null,
+  );
+}
+
 function blockedOutcome(input: {
   facts: CanonicalIntakeReadinessFacts;
   codes: [IntakeReadinessBlockerCode, ...IntakeReadinessBlockerCode[]];
@@ -401,6 +419,7 @@ export function evaluateCanonicalIntakeReadiness(
   const targetToken = normalizeToken(candidate.correctSpellingNormalized);
   const route = canonicalIntakeRouteForFacts(facts);
   const baseWordCandidate = isBaseWordCandidate(facts);
+  const compoundWordCandidate = isCompoundWordCandidate(facts);
 
   if (!APPROVED_CANDIDATE_STATUSES.has(candidate.candidateStatus)) {
     return blockedOutcome({
@@ -556,7 +575,7 @@ export function evaluateCanonicalIntakeReadiness(
   }
 
   if (
-    !baseWordCandidate &&
+    !baseWordCandidate && !compoundWordCandidate &&
     (word.frequencyBand === null || word.ageBand === null)
   ) {
     return blockedOutcome({
@@ -589,6 +608,12 @@ export function evaluateCanonicalIntakeReadiness(
     Boolean(explicitRouteReadiness.routeActivationId) &&
     Boolean(explicitRouteReadiness.curriculumRelease) &&
     facts.routeSpecificReadyWordSkillPairs.has(pair);
+  const routeCertifiedCompoundWordMember =
+    compoundWordCandidate &&
+    explicitRouteReadiness?.ready === true &&
+    Boolean(explicitRouteReadiness.curriculumRelease) &&
+    !explicitRouteReadiness.routeActivationId &&
+    facts.routeSpecificReadyWordSkillPairs.has(pair);
 
   if (
     (word.frequencyBand === null ||
@@ -596,7 +621,8 @@ export function evaluateCanonicalIntakeReadiness(
       !facts.allowedFrequencyBands.has(word.frequencyBand) ||
       !facts.allowedAgeBands.has(word.ageBand)) &&
     !routeCertifiedAffixMember &&
-    !routeCertifiedBaseWordMember
+    !routeCertifiedBaseWordMember &&
+    !routeCertifiedCompoundWordMember
   ) {
     return blockedOutcome({
       facts,
@@ -630,6 +656,23 @@ export function evaluateCanonicalIntakeReadiness(
     if (
       explicitRouteReadiness?.ready !== true ||
       !explicitRouteReadiness.routeActivationId ||
+      !explicitRouteReadiness.curriculumRelease ||
+      !facts.routeSpecificReadyWordSkillPairs.has(pair)
+    ) {
+      return blockedOutcome({
+        facts,
+        codes: ["profile_membership_missing"],
+        targetIdentityStatus: "established",
+        targetToken,
+        canonicalWordId: word.canonicalWordId,
+        canonicalMappingId: mapping.mappingId,
+        evidence: [...(explicitRouteReadiness?.evidence ?? [])],
+      });
+    }
+  } else if (compoundWordCandidate) {
+    if (
+      explicitRouteReadiness?.ready !== true ||
+      explicitRouteReadiness.routeActivationId ||
       !explicitRouteReadiness.curriculumRelease ||
       !facts.routeSpecificReadyWordSkillPairs.has(pair)
     ) {

@@ -561,7 +561,10 @@ export function resolvePersistedLessonRoute(input: {
     parsed.metadata.route.routeVersion,
   );
   if (!route) return blocked("persisted_metadata", "unknown_route");
-  if (route.implementationState !== "registered") {
+  if (
+    route.implementationState !== "registered" &&
+    route.routeId !== "closed_compound_word_lab"
+  ) {
     return blocked("persisted_metadata", "route_unavailable");
   }
   const detected = detectedBoundRouteIds(items);
