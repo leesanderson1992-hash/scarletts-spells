@@ -46,6 +46,14 @@ assert.equal(packageManifest.sourceFileSha256, sha(resolve(root, packageManifest
 const introduction = resolveSeparatedHyphenatedReadingIntroductionV2(teaching);
 assert(introduction);
 assert.deepEqual(introduction.readingPages, approval.pages.map((page: any) => page.page_content));
+const publishedProjection = {
+  schemaVersion: teaching.schemaVersion,
+  microSkillKey: teaching.microSkillKey,
+  ...teaching.content,
+};
+const publishedIntroduction = resolveSeparatedHyphenatedReadingIntroductionV2(publishedProjection);
+assert(publishedIntroduction, "the immutable Production authority's flat semantic projection resolves");
+assert.deepEqual(publishedIntroduction.readingPages, introduction.readingPages);
 assert.deepEqual(compoundReadingNavigationV2(0, 3), { backAvailable: false, nextAvailable: true, workshopAvailable: false });
 assert.deepEqual(compoundReadingNavigationV2(1, 3), { backAvailable: true, nextAvailable: true, workshopAvailable: false });
 assert.deepEqual(compoundReadingNavigationV2(2, 3), { backAvailable: true, nextAvailable: false, workshopAvailable: true });

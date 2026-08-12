@@ -16,6 +16,9 @@ type TeachingContentAuthority = {
   };
 };
 
+type PublishedTeachingContentProjection = Omit<TeachingContentAuthority, "content"> &
+  TeachingContentAuthority["content"];
+
 function nonEmpty(value: unknown): value is string {
   return typeof value === "string" && value.trim().length > 0;
 }
@@ -24,20 +27,20 @@ export function resolveSeparatedHyphenatedReadingIntroductionV2(
   value: unknown,
 ): CompoundWordLessonIntroductionV2 | null {
   if (!value || typeof value !== "object" || Array.isArray(value)) return null;
-  const authority = value as Partial<TeachingContentAuthority>;
+  const authority = value as Partial<TeachingContentAuthority & PublishedTeachingContentProjection>;
+  const content = authority.content ?? authority;
   if (
     authority.schemaVersion !== 1 ||
     authority.microSkillKey !== SEPARATED_HYPHENATED_MICRO_SKILL_KEY ||
-    !authority.content ||
-    !nonEmpty(authority.content.childFriendlyExplanation) ||
-    !nonEmpty(authority.content.ruleExplanation) ||
-    !validateCompoundWordLessonReadingPagesV2(authority.content.readingPages)
+    !nonEmpty(content.childFriendlyExplanation) ||
+    !nonEmpty(content.ruleExplanation) ||
+    !validateCompoundWordLessonReadingPagesV2(content.readingPages)
   ) return null;
   return {
-    title: authority.content.readingPages[0].title,
-    childFriendlyExplanation: authority.content.childFriendlyExplanation,
-    summary: authority.content.ruleExplanation,
-    readingPages: authority.content.readingPages,
+    title: content.readingPages[0].title,
+    childFriendlyExplanation: content.childFriendlyExplanation,
+    summary: content.ruleExplanation,
+    readingPages: content.readingPages,
   };
 }
 
