@@ -30,7 +30,7 @@ as $$
         (
           revision.readiness_report#>>'{scope,kind}' = 'all_eligible'
           and jsonb_typeof(revision.readiness_report->'scope') = 'object'
-          and jsonb_object_length(revision.readiness_report->'scope') = 1
+          and revision.readiness_report->'scope' = '{"kind":"all_eligible"}'::jsonb
         )
         or (
           revision.readiness_report#>>'{scope,kind}' = 'child_allowlist'

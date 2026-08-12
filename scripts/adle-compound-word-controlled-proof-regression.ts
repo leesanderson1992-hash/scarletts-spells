@@ -99,7 +99,7 @@ assert(migration.includes("jsonb_array_length(p_items) <> 18"));
 assert(migration.includes("Generated Compound practice cannot enter learner scheduling"));
 const rolloutMigration = readFileSync("supabase/migrations/20260812190000_enable_all_eligible_route_activation_scope.sql", "utf8");
 assert(rolloutMigration.includes("revision.readiness_report#>>'{scope,kind}' = 'all_eligible'"));
-assert(rolloutMigration.includes("jsonb_object_length(revision.readiness_report->'scope') = 1"));
+assert(rolloutMigration.includes("revision.readiness_report->'scope' = '{\"kind\":\"all_eligible\"}'::jsonb"));
 assert(rolloutMigration.includes("revision.readiness_report#>>'{scope,kind}' = 'child_allowlist'"), "proof-child activation remains compatible");
 assert(!rolloutMigration.includes("insert into public.adle_route_activation_revisions"), "migration does not activate learners");
 assert(!rolloutMigration.includes("insert into public.daily_assignments"), "migration creates no learner work");
