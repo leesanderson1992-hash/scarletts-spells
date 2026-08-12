@@ -95,9 +95,8 @@ function recipeFromTeachingAuthority(
   };
 }
 
-/** Resolves an enabled, current, exact release for one child. An activation
- * head without the child in its governed allowlist is indistinguishable from
- * no activation. */
+/** Resolves an enabled, current, exact release for one child. The shared
+ * operational scope must admit the child before curriculum readiness is read. */
 export async function loadActivatedCompoundWordReleaseV2(params: {
   client: SupabaseClient;
   childId: string;
