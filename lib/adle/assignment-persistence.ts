@@ -69,8 +69,6 @@ export interface AssignmentItemDraft {
   /** Deterministic per (child, day, position) — the provenance key that
    * makes accidental double-append visible and auditable. */
   sourceEntityId: string;
-  /** Shared release-bound learner lineage. Generated practice is explicit null. */
-  learningItemId?: string | null;
   templateKey: string;
   targetWord: string | null;
   position: number;
@@ -125,9 +123,6 @@ function itemDraft(
     itemType: `adle_${candidate.sectionKey}`,
     sourceType: ADLE_ASSIGNMENT_SOURCE_TYPE,
     sourceEntityId: `adle:${plan.childId}:${plan.planDate}:${candidate.position}`,
-    ...(plan.lessonRouteMetadata?.metadataSchemaVersion === 2
-      ? { learningItemId: candidate.learningItemId }
-      : {}),
     templateKey: candidate.templateKey,
     targetWord: candidate.targetWord,
     position: candidate.position,
