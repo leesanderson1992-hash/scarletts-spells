@@ -199,6 +199,22 @@ function rotate<T>(values: readonly T[], seed: string): T[] {
   return [...values.slice(offset), ...values.slice(0, offset)];
 }
 
+function prioritiseSeparatedFormCoverage(
+  transferIds: readonly string[],
+  structures: ReadonlyMap<string, CompoundWordStructureV2>,
+  authenticIds: ReadonlySet<string>,
+): string[] {
+  const ordered = transferIds.filter((id) => !authenticIds.has(id));
+  const authentic = [...authenticIds]
+    .map((id) => structures.get(id))
+    .filter((value): value is CompoundWordStructureV2 => Boolean(value));
+  const hasSpace = authentic.some((structure) => structure.joins.some((join) => join.kind === "space"));
+  if (hasSpace) return ordered;
+  const firstOpen = ordered.findIndex((id) => structures.get(id)?.joins.some((join) => join.kind === "space"));
+  if (firstOpen <= 0) return ordered;
+  return [ordered[firstOpen], ...ordered.slice(0, firstOpen), ...ordered.slice(firstOpen + 1)];
+}
+
 function recipeValid(recipe: CompoundWordLessonRecipeV2): boolean {
   return recipe.recipeKey === COMPOUND_WORD_LESSON_RECIPE_KEY &&
     recipe.recipeVersion === COMPOUND_WORD_LESSON_RECIPE_VERSION &&
@@ -259,9 +275,12 @@ export function compileCompoundWordLessonV2(
       .map((structure) => structure.wholeCanonicalWordId),
     seed,
   );
+  const orderedTransferIds = input.recipe.microSkillKey === "D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED"
+    ? prioritiseSeparatedFormCoverage(transferIds, structures, new Set(authenticById.keys()))
+    : transferIds.filter((id) => !authenticById.has(id));
   const ids = [
     ...authentic.map((item) => item.canonicalWordId),
-    ...transferIds.filter((id) => !authenticById.has(id)),
+    ...orderedTransferIds,
   ].slice(0, COMPOUND_WORD_LESSON_WORD_COUNT);
   if (ids.length !== COMPOUND_WORD_LESSON_WORD_COUNT) return null;
 

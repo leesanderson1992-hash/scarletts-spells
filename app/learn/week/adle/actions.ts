@@ -30,7 +30,7 @@ import {
 import { reopenItemsForMicroSkills } from "@/lib/adle/learning-items";
 import { authenticUseProviderFromFacts } from "@/lib/adle/authentic-use";
 import type { DueItemKind } from "@/lib/adle/review-due-queue";
-import { isAttemptCorrect } from "@/lib/adle/session-correctness";
+import { isAttemptCorrect, isExactGovernedFormCorrect } from "@/lib/adle/session-correctness";
 import { loadActiveReviewPolicy } from "@/lib/adle/loaders/composer-facts-loader";
 import {
   getAdleDailyPlanReadModel,
@@ -70,6 +70,7 @@ import { persistBaseWordFamilyPilotCompletion } from "@/lib/adle/loaders/base-wo
 import { BASE_WORD_FAMILY_REFLECTION_PROMPT_KEY, upsertChildLearningReflection } from "@/lib/adle/morphology/reflections";
 import { safeCompletionTraceId, WordLabCompletionTimer } from "@/lib/adle/completion-timing";
 import {
+  persistReleaseBoundWordLabCompletion,
   persistWordLabCompletion,
   type WordLabReflectionWrite,
 } from "@/lib/adle/loaders/word-lab-completion-loader";
@@ -77,7 +78,8 @@ import {
   emitLessonRouteResolutionEvent,
   resolvePersistedLessonRoute,
 } from "@/lib/adle/composable-lesson/route-resolution";
-import { baseWordAssignmentRuntimeAllowed } from "@/lib/adle/loaders/curriculum-release-authority";
+import { baseWordAssignmentRuntimeAllowed, databaseActivatedAssignmentRuntimeAllowed } from "@/lib/adle/loaders/curriculum-release-authority";
+import { extractAuthoredTargetSpan } from "@/lib/adle/morphology/dictation-target-span";
 
 function readFormValue(formData: FormData, key: string): string | null {
   const value = formData.get(key);
@@ -280,6 +282,24 @@ function buildMorphologyReflection(context: SessionActionContext, payload: Morph
     contentVersion: payload.contentVersion,
     promptKey: reflection.promptKey,
     promptText: reflection.promptText,
+    reflectionText,
+  };
+}
+
+function buildCompoundWordV2Reflection(
+  context: SessionActionContext,
+  payload: import("@/lib/adle/morphology/compound-word-lesson-v2").CompoundWordLessonPayloadV2,
+  reflectionText: string | null,
+): WordLabReflectionWrite {
+  if (!reflectionText) throw new Error("Please write a reflection before finishing the Word Lab.");
+  return {
+    childId: context.childId,
+    parentUserId: context.parentUserId,
+    assignmentId: context.assignmentId,
+    microSkillKey: payload.microSkillKey,
+    contentVersion: payload.contentVersion,
+    promptKey: payload.activities.reflection.promptKey,
+    promptText: payload.activities.reflection.promptText,
     reflectionText,
   };
 }
@@ -506,6 +526,13 @@ export async function completeAdleLessonPartAction(formData: FormData) {
   ) {
     finishWith(context, "This Word Lab needs a grown-up check before it can continue.");
   }
+  if (!(await databaseActivatedAssignmentRuntimeAllowed({
+    client: serviceClient,
+    lessonRouteMetadata: readModel.lessonRouteMetadata,
+    assignmentCompleted: readModel.state === "completed",
+  }))) {
+    finishWith(context, "This Word Lab needs a grown-up check before it can continue.");
+  }
   const morphologyPilot =
     routeResolution.runtime.adapterKey === "morphology_guided_v1"
       ? routeResolution.runtime.payload
@@ -521,6 +548,10 @@ export async function completeAdleLessonPartAction(formData: FormData) {
   const compoundRuntime =
     routeResolution.runtime.adapterKey === "closed_compound_v1"
       ? routeResolution.runtime.completionPayload
+      : null;
+  const compoundV2 =
+    routeResolution.runtime.adapterKey === "compound_word_v2"
+      ? routeResolution.runtime.payload
       : null;
   const wordLabPayload = compoundRuntime ?? dynamicSuffix ?? dynamicPrefix ?? morphologyPilot;
   const dynamicAffixCompletionPolicy = dynamicSuffix !== null
@@ -545,7 +576,9 @@ export async function completeAdleLessonPartAction(formData: FormData) {
         item.canonicalWordId !== null
         && dynamicPrefixAuthenticIds.has(item.canonicalWordId),
       )
-    : productionItems;
+    : compoundV2 !== null
+      ? productionItems.filter((item) => item.adleLearningItemRef !== null)
+      : productionItems;
   const atomicWordLabCompletionEnabled = process.env.ADLE_WORD_LAB_ATOMIC_COMPLETION_ENABLED === "enabled";
   const learningReflection = readFormValue(formData, "learningReflection");
   if (readModel.partTwo.complete && wordLabPayload === null) {
@@ -563,6 +596,12 @@ export async function completeAdleLessonPartAction(formData: FormData) {
     finishWith(context, "Today's lesson is already recorded.", completionTraceId, timer, "batched_retry");
   }
   if (taughtCompletionExists && wordLabPayload === null) {
+    if (compoundV2 !== null) {
+      await upsertChildLearningReflection(
+        serviceClient,
+        buildCompoundWordV2Reflection(context, compoundV2, learningReflection),
+      );
+    }
     await markItemsCompleted(context, readModel.partTwo.items);
     finishWith(context, "Today's lesson is already recorded.");
   }
@@ -577,10 +616,19 @@ export async function completeAdleLessonPartAction(formData: FormData) {
     (item) => item.sectionKey === "lesson_dictation" && item.canonicalWordId !== null,
   );
   // Both immutable Word Lab versions derive correctness from the reviewed
-  // sentence token.  Only the legacy v1 payload can use its deliberately
-  // exact-snapshot atomic RPC; v2 uses the established durable write contract
-  // below, whose bindings are validated against its generic snapshot.
-  if (wordLabPayload !== null) {
+  // sentence token. Compound v2 carries the full authored span into the
+  // shared release-bound completion transaction below.
+  if (compoundV2 !== null) {
+    const derived = new Map<string, string>();
+    for (const word of compoundV2.words.lesson) {
+      const rawAttempt = dictationSentenceAttempts.get(word.structure.wholeCanonicalWordId) ?? "";
+      derived.set(
+        word.structure.wholeCanonicalWordId,
+        extractAuthoredTargetSpan(rawAttempt, word.dictation.targetSpan),
+      );
+    }
+    dictationAttempts = derived;
+  } else if (wordLabPayload !== null) {
     const sentenceActivity = wordLabPayload.activities.find((activity) => activity.type === "sentence_dictation");
     const derived = new Map<string, string>();
     for (const sentence of sentenceActivity?.sentences ?? []) {
@@ -610,7 +658,9 @@ export async function completeAdleLessonPartAction(formData: FormData) {
     return {
       canonicalWordId,
       attemptText,
-      correct: isAttemptCorrect(attemptText, target),
+      correct: compoundV2 !== null
+        ? isExactGovernedFormCorrect(attemptText, target)
+        : isAttemptCorrect(attemptText, target),
     };
   });
 
@@ -657,6 +707,19 @@ export async function completeAdleLessonPartAction(formData: FormData) {
           rewardEligible: authentic,
         };
       })
+    : compoundV2 !== null
+    ? producedWords.map((word) => {
+        const authentic = productionItems.some(
+          (item) => item.canonicalWordId === word.canonicalWordId && item.adleLearningItemRef !== null,
+        );
+        return {
+          canonicalWordId: word.canonicalWordId,
+          evidenceEligible: true,
+          scheduleEligible: authentic,
+          learningItemTransitionEligible: authentic,
+          rewardEligible: authentic,
+        };
+      })
     : undefined;
   const lessonResult = onLessonCompleted(policy, {
     childId,
@@ -664,7 +727,7 @@ export async function completeAdleLessonPartAction(formData: FormData) {
     completedOn: planDate,
     sourceRef: lessonSourceRef,
     bundleId: randomUUID(),
-    scheduleAllProducedWords: dynamicSuffix !== null || compoundRuntime !== null,
+    scheduleAllProducedWords: dynamicSuffix !== null || compoundRuntime !== null || compoundV2 !== null,
     producedWords,
     ...(completionWordPolicies ? { wordPolicies: completionWordPolicies } : {}),
     learningItems,
@@ -678,7 +741,34 @@ export async function completeAdleLessonPartAction(formData: FormData) {
     dictationRawAttempts: wordLabPayload === null ? undefined : dictationSentenceAttempts,
     guidedAttempts,
     probeAttempts,
+    correctness: compoundV2 !== null ? "exact_governed_form" : "normalised_token",
   });
+
+  if (compoundV2 !== null) {
+    const result = await timer.measure("atomic_durable_completion", () =>
+      persistReleaseBoundWordLabCompletion(serviceClient, {
+        parentUserId: context.parentUserId,
+        childId,
+        assignmentId: context.assignmentId,
+        planDate,
+        microSkillKey,
+        sourceRef: lessonSourceRef,
+        assignmentItemIds: readModel.partTwo.items.map((item) => item.id),
+        attempts: attemptEvents,
+        lesson: lessonResult,
+        reflection: buildCompoundWordV2Reflection(context, compoundV2, learningReflection),
+      }));
+    scheduleLessonReward(context, rewardProductionItems, timer);
+    finishWith(
+      context,
+      result.status === "already_completed"
+        ? "Today's lesson is already recorded."
+        : "Lesson finished. Your writing words join review tomorrow.",
+      completionTraceId,
+      timer,
+      result.status,
+    );
+  }
 
   if (morphologyPilot !== null && dynamicPrefix === null && dynamicSuffix === null && compoundRuntime === null && atomicWordLabCompletionEnabled) {
     const reflection = buildMorphologyReflection(context, morphologyPilot, learningReflection);

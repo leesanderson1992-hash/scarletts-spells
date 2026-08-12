@@ -37,7 +37,7 @@ import {
   emitLessonRouteResolutionEvent,
   resolvePersistedLessonRoute,
 } from "@/lib/adle/composable-lesson/route-resolution";
-import { baseWordAssignmentRuntimeAllowed } from "@/lib/adle/loaders/curriculum-release-authority";
+import { databaseActivatedAssignmentRuntimeAllowed } from "@/lib/adle/loaders/curriculum-release-authority";
 
 type AdleSessionPageProps = {
   searchParams?: Promise<{
@@ -120,7 +120,7 @@ export default async function AdleSessionPage({ searchParams }: AdleSessionPageP
       })
     : null;
   const runtimeSafetyBlocked = readModel.assignmentId !== null &&
-    !(await baseWordAssignmentRuntimeAllowed({
+    !(await databaseActivatedAssignmentRuntimeAllowed({
       client: createServiceRoleClient(),
       lessonRouteMetadata: readModel.lessonRouteMetadata,
       assignmentCompleted: readModel.state === "completed",

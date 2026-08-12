@@ -18,8 +18,8 @@ const second = auditProductionReadiness(
   buildRepositoryReadinessInput("repository/report"),
 );
 assert.equal(JSON.stringify(first), JSON.stringify(second));
-assert.equal(first.summary.productionMicroSkillCount, 19);
-assert.equal(first.summary.structurallyDeclaredCount, 19);
+assert.equal(first.summary.productionMicroSkillCount, 21);
+assert.equal(first.summary.structurallyDeclaredCount, 21);
 assert(first.microSkills.every((entry) => entry.stages.length === 11));
 assert.deepEqual(
   first.microSkills[0]?.stages.map((stage) => stage.stage),

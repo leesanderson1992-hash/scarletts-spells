@@ -288,7 +288,7 @@ export const ADLE_CURRICULUM_ROUTE_REGISTRY: readonly CurriculumRouteDefinition[
       skillClusterKeys: ["D4_MOR_COMPOUND_WORDS"],
     },
     implementationState: "registered",
-    newAssignmentCapable: false,
+    newAssignmentCapable: true,
     requiresAuthenticSelectableItem: true,
     payloadKind: "compound_word_lesson_v2",
     payloadVersions: [2],

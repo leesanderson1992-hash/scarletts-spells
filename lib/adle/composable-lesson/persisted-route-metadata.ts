@@ -19,6 +19,7 @@ export const ADLE_NEW_ASSIGNMENT_ROUTE_IDS = [
   "base_word_lab",
   "dynamic_prefix_word_lab",
   "dynamic_affix_word_lab",
+  "compound_word_lab",
 ] as const satisfies readonly LessonRouteId[];
 
 export type PersistedRouteMetadataParseResult =

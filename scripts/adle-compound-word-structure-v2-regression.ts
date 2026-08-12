@@ -234,6 +234,6 @@ const routeRegistry = readFileSync("lib/adle/curriculum-readiness/route-registry
 assert(routeRegistry.includes('routeId: "closed_compound_word_lab"'));
 assert(routeRegistry.includes('routeId: "compound_word_lab"'));
 assert(routeRegistry.includes('skillClusterKeys: ["D4_MOR_COMPOUND_WORDS"]'));
-assert(routeRegistry.includes('newAssignmentCapable: false'));
+assert(routeRegistry.match(/routeId: "compound_word_lab"[\s\S]*?newAssignmentCapable: true/));
 
 console.log("general Compound Word structure v2 regression passed");

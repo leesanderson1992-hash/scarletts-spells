@@ -243,17 +243,19 @@ export async function loadIncompleteAssignmentRuntimePolicy(params: {
 
 /** Completed assignments are always auditable. Only incomplete Base Word v2
  * assignments consult the operational safety-revocation head. */
-export async function baseWordAssignmentRuntimeAllowed(params: {
+export async function databaseActivatedAssignmentRuntimeAllowed(params: {
   client: SupabaseClient;
   lessonRouteMetadata: unknown | null;
   assignmentCompleted: boolean;
 }): Promise<boolean> {
   if (params.assignmentCompleted) return true;
   const parsed = parsePersistedLessonRouteMetadata(params.lessonRouteMetadata);
-  if (!parsed.ok || parsed.metadata.route.routeId !== "base_word_lab" ||
-      parsed.metadata.metadataSchemaVersion !== 2) return true;
+  if (!parsed.ok || parsed.metadata.metadataSchemaVersion !== 2) return true;
   return (await loadIncompleteAssignmentRuntimePolicy({
     client: params.client,
     activationRevisionId: parsed.metadata.curriculumRelease.activationRevisionId,
   })) === "allow_existing";
 }
+
+/** Compatibility name for existing Base Word callers. */
+export const baseWordAssignmentRuntimeAllowed = databaseActivatedAssignmentRuntimeAllowed;

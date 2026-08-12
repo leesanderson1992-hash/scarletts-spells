@@ -6,13 +6,13 @@
 
 Mode: `repository/report`
 
-Input fingerprint: `7f536deeaed55c388d84e58823a17374c1863fa564ca0405d7861621af2b00b1`
+Input fingerprint: `ca45043d83aec585c7b2679e89074104108b8e18b5d3049b2de13048454d15b4`
 
-Production morphology micro-skills: 19
-Structurally declared: 19
+Production morphology micro-skills: 21
+Structurally declared: 21
 Ready: 0
 Blocked: 0
-Not assessed: 19
+Not assessed: 21
 
 | Micro-skill | Route | Status | Blockers |
 |---|---|---|---|
@@ -20,6 +20,8 @@ Not assessed: 19
 | D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX | base_word_lab:v2 | not_assessed | none |
 | D4_MOR_BASE_WORDS_IDENTIFY_BASE | base_word_lab:v2 | not_assessed | none |
 | D4_MOR_BASE_WORDS_PRESERVE_BASE | base_word_lab:v2 | not_assessed | none |
+| D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS | compound_word_lab:v2 | not_assessed | none |
+| D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED | compound_word_lab:v2 | not_assessed | none |
 | D4_MOR_PREFIXES_DIS_MIS | dynamic_prefix_word_lab:v2 | not_assessed | none |
 | D4_MOR_PREFIXES_IN_IM_IL_IR | dynamic_prefix_word_lab:v2 | not_assessed | none |
 | D4_MOR_PREFIXES_RE_PRE | dynamic_prefix_word_lab:v2 | not_assessed | none |

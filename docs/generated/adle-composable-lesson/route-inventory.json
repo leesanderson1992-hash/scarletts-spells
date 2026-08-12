@@ -145,7 +145,7 @@
         18
       ],
       "legacyDetectionRules": [],
-      "newAssignmentCapable": false,
+      "newAssignmentCapable": true,
       "payloadKind": "compound_word_lesson_v2",
       "payloadVersions": [
         2

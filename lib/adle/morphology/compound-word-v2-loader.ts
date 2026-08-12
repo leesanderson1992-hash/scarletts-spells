@@ -29,6 +29,11 @@ export async function loadCompoundWordV2Authority(
   client: SupabaseClient,
   childId: string,
   microSkillKey: CompoundWordMicroSkillKey,
+  exactAuthority?: {
+    structureAuthorityId: string;
+    dictionaryClosureAuthorityId: string;
+    reviewedAt: string;
+  },
 ): Promise<LoadedCompoundWordV2Authority> {
   if (!COMPOUND_WORD_MICRO_SKILL_KEYS.includes(microSkillKey)) {
     throw new Error("loadCompoundWordV2Authority: unsupported Compound Word micro-skill");
@@ -54,6 +59,10 @@ export async function loadCompoundWordV2Authority(
 
   const structures: CompoundWordStructureV2[] = [];
   for (const raw of structureRows ?? []) {
+    if (
+      exactAuthority &&
+      (raw as any).source_metadata?.dependencyAuthorityId !== exactAuthority.structureAuthorityId
+    ) continue;
     const word = Array.isArray((raw as any).canonical_teaching_dictionary_words)
       ? (raw as any).canonical_teaching_dictionary_words[0]
       : (raw as any).canonical_teaching_dictionary_words;
@@ -98,7 +107,13 @@ export async function loadCompoundWordV2Authority(
 
   const ids = structures.map((structure) => structure.wholeCanonicalWordId);
   const { data: dictationRows, error: dictationError } = ids.length
-    ? await client
+    ? exactAuthority
+      ? await client
+        .from("adle_teaching_dictionary_closure_words")
+        .select("canonical_word_id,dictation_sentence,dictation_target_token_index,audio_text,dictation_target_end_exclusive,exact_governed_answer,dictation_source_row_hash")
+        .eq("authority_id", exactAuthority.dictionaryClosureAuthorityId)
+        .in("canonical_word_id", ids)
+      : await client
         .from("canonical_teaching_dictionary_dictation_sentences")
         .select("canonical_word_id,dictation_sentence,dictation_target_token_index,audio_text,review_status,reviewed_by,reviewed_at,source_sheet,source_row_hash")
         .in("canonical_word_id", ids)
@@ -115,8 +130,12 @@ export async function loadCompoundWordV2Authority(
     const targetSpan = {
       schemaVersion: DICTATION_TARGET_SPAN_SCHEMA_VERSION,
       startTokenIndex: (raw as any).dictation_target_token_index,
-      endTokenIndexExclusive: (raw as any).dictation_target_token_index + targetTokenCount,
-      exactAnswer: structure.wholeWord,
+      endTokenIndexExclusive: exactAuthority
+        ? (raw as any).dictation_target_end_exclusive
+        : (raw as any).dictation_target_token_index + targetTokenCount,
+      exactAnswer: exactAuthority
+        ? (raw as any).exact_governed_answer
+        : structure.wholeWord,
     } as const;
     if (!validateDictationTargetSpanV2((raw as any).dictation_sentence, targetSpan)) continue;
     dictationByCanonicalId.set(structure.wholeCanonicalWordId, {
@@ -125,13 +144,15 @@ export async function loadCompoundWordV2Authority(
       audioText: (raw as any).audio_text,
       targetSpan,
       review: {
-        status: (raw as any).review_status,
-        reviewedBy: (raw as any).reviewed_by,
-        reviewedAt: iso((raw as any).reviewed_at),
+        status: exactAuthority ? "approved_for_first_exposure" : (raw as any).review_status,
+        reviewedBy: exactAuthority ? "immutable_teaching_dictionary_closure" : (raw as any).reviewed_by,
+        reviewedAt: exactAuthority ? exactAuthority.reviewedAt : iso((raw as any).reviewed_at),
       },
       source: {
-        artifact: (raw as any).source_sheet || "canonical_teaching_dictionary_dictation_sentences",
-        sourceRowHash: (raw as any).source_row_hash,
+        artifact: exactAuthority ? "adle_teaching_dictionary_closure_words" : (raw as any).source_sheet || "canonical_teaching_dictionary_dictation_sentences",
+        sourceRowHash: exactAuthority
+          ? (raw as any).dictation_source_row_hash
+          : (raw as any).source_row_hash,
       },
     });
   }

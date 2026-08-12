@@ -53,7 +53,7 @@ import {
   type ProbePlan,
   type ProbeRunFact,
 } from "./composer-word-selection";
-import type { PersistedLessonRouteMetadataV1 } from "./composable-lesson/contracts";
+import type { PersistedLessonRouteMetadata } from "./composable-lesson/contracts";
 import { createPersistedRouteMetadata } from "./composable-lesson/persisted-route-metadata";
 
 export const HOMOPHONE_FAMILY_KEY = "D4_HOM";
@@ -217,7 +217,7 @@ export interface BudgetSummary {
 export interface ComposedDailyPlan {
   childId: string;
   planDate: IsoDate;
-  lessonRouteMetadata: PersistedLessonRouteMetadataV1 | null;
+  lessonRouteMetadata: PersistedLessonRouteMetadata | null;
   composerPolicyVersion: string;
   schedulePolicyVersion: string;
   throttle: ThrottleDecision;

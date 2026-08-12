@@ -47,12 +47,12 @@ const productionMorphologySkills = ADLE_CURRICULUM_ROUTE_REGISTRY.filter(
 ).flatMap((route) => route.supportedMicroSkillKeys);
 assert.equal(
   new Set(productionMorphologySkills).size,
-  19,
+  21,
   "all production-enabled morphology skills have exactly one current route",
 );
 assert.equal(
   productionMorphologySkills.length,
-  19,
+  21,
   "production morphology route declarations must not overlap",
 );
 
@@ -65,7 +65,7 @@ assert(closed.requiredActivities.includes("meaning_match"));
 
 const compoundV2 = getCurriculumRouteDefinition("compound_word_lab", "v2");
 assert(compoundV2);
-assert.equal(compoundV2.newAssignmentCapable, false);
+assert.equal(compoundV2.newAssignmentCapable, true);
 assert.deepEqual(compoundV2.routeOwnership, { kind: "skill_clusters", skillClusterKeys: ["D4_MOR_COMPOUND_WORDS"] });
 assert.deepEqual(compoundV2.intentionalItemCounts, [18]);
 

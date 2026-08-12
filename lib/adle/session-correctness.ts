@@ -25,3 +25,15 @@ export function isAttemptCorrect(attemptText: string, targetWord: string | null)
   const tokens: string[] = attemptText.toLowerCase().match(/[a-z]+/g) ?? [];
   return tokens.includes(target);
 }
+
+/** Route-neutral exact-form comparison for governed display forms where a
+ * space or hyphen is evidence-significant. */
+export function isExactGovernedFormCorrect(
+  attemptText: string,
+  targetWord: string | null,
+): boolean {
+  const expected = targetWord?.trim() ?? "";
+  return expected.length > 0 &&
+    attemptText.trim().toLocaleLowerCase("en-GB") ===
+      expected.toLocaleLowerCase("en-GB");
+}
