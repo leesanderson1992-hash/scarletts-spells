@@ -5,7 +5,11 @@ import { buildLessonAttemptEvents } from "../lib/adle/assignment-attempt-events"
 import { createPersistedRouteMetadataV2 } from "../lib/adle/composable-lesson/persisted-route-metadata";
 import { getCurriculumRouteDefinition } from "../lib/adle/curriculum-readiness/route-registry";
 import { extractAuthoredTargetSpan, validateDictationTargetSpanV2 } from "../lib/adle/morphology/dictation-target-span";
-import { activationAllowsChild, childAllowlistActivationReport } from "../lib/adle/route-activation-scope";
+import {
+  activationAllowsChild,
+  allEligibleActivationReport,
+  childAllowlistActivationReport,
+} from "../lib/adle/route-activation-scope";
 import { isExactGovernedFormCorrect } from "../lib/adle/session-correctness";
 
 const PROOF_CHILD = "e4f9fc37-3f85-4eb5-9fbd-4eabf4f2528e";
@@ -28,7 +32,10 @@ assert.equal(metadata.curriculumRelease.releaseManifestId, RELEASE.releaseManife
 const scope = childAllowlistActivationReport([PROOF_CHILD]);
 assert(activationAllowsChild(scope, PROOF_CHILD));
 assert(!activationAllowsChild(scope, OTHER_CHILD));
-assert(!activationAllowsChild({ ...scope, scope: { kind: "all_eligible", childIds: [PROOF_CHILD] } }, PROOF_CHILD));
+const allEligible = allEligibleActivationReport();
+assert(activationAllowsChild(allEligible, PROOF_CHILD));
+assert(activationAllowsChild(allEligible, OTHER_CHILD));
+assert(!activationAllowsChild({ ...allEligible, scope: { kind: "all_eligible", childIds: [PROOF_CHILD] } }, PROOF_CHILD));
 assert(!activationAllowsChild({ ...scope, emergencyDisableAvailable: false }, PROOF_CHILD));
 
 for (const [target, correct, wrong] of [
@@ -90,6 +97,12 @@ assert(!migration.includes("complete_adle_compound_word_v2"), "completion remain
 assert(migration.includes("child_allowlist"));
 assert(migration.includes("jsonb_array_length(p_items) <> 18"));
 assert(migration.includes("Generated Compound practice cannot enter learner scheduling"));
+const rolloutMigration = readFileSync("supabase/migrations/20260812190000_enable_all_eligible_route_activation_scope.sql", "utf8");
+assert(rolloutMigration.includes("revision.readiness_report#>>'{scope,kind}' = 'all_eligible'"));
+assert(rolloutMigration.includes("jsonb_object_length(revision.readiness_report->'scope') = 1"));
+assert(rolloutMigration.includes("revision.readiness_report#>>'{scope,kind}' = 'child_allowlist'"), "proof-child activation remains compatible");
+assert(!rolloutMigration.includes("insert into public.adle_route_activation_revisions"), "migration does not activate learners");
+assert(!rolloutMigration.includes("insert into public.daily_assignments"), "migration creates no learner work");
 const lineageRepair = readFileSync("supabase/migrations/20260812170000_restore_shared_adle_assignment_lineage_boundary.sql", "utf8");
 assert(lineageRepair.includes("metadata.adleLearningItemRef"));
 assert(lineageRepair.includes("v_item->>'sourceEntityId',\n      null,"));
