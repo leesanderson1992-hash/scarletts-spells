@@ -1,0 +1,253 @@
+{
+  "schema_version": 1,
+  "micro_skill_key": "D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED",
+  "source_file": "lib/adle/morphology/compound-word-reading-content-v2.ts",
+  "source_commit": "edce0c69ad1f0171e749ddbc72a7c91b4f999aca",
+  "source_file_sha256": "ba74c4d4714f0e09c5c82ca2062891f72a3fa48fe485e936ae95437a8d59c1c4",
+  "content_hash": "ff5fe5df3f6b8035c89d8162378cf0c0c22ad16535f966c51da17d041a9a9a5c",
+  "reviewer": "Katie Sanderson",
+  "approval_date": "2026-08-12",
+  "approval_status": "approved",
+  "pages": [
+    {
+      "micro_skill_key": "D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED",
+      "page_ordinal": 1,
+      "page_title": "Hyphens: When Do We Join Words Together?",
+      "page_content": {
+        "key": "descriptions",
+        "title": "Hyphens: When Do We Join Words Together?",
+        "introduction": [
+          "A hyphen (-) is a little line that can join words together.",
+          "The easiest way to understand hyphens is to ask:",
+          "Are these words working together as one thing?"
+        ],
+        "sections": [
+          {
+            "key": "two-word-description",
+            "heading": "1. Two words describing a noun",
+            "paragraphs": [
+              "Sometimes two words team up to make one description.",
+              "When that description comes before the noun, we often join the words with a hyphen."
+            ]
+          },
+          {
+            "key": "before-the-noun",
+            "heading": "Before the noun → hyphen",
+            "paragraphs": [],
+            "examples": [
+              {
+                "text": "a well-known rule"
+              },
+              {
+                "text": "a full-time job"
+              },
+              {
+                "text": "a five-minute break"
+              },
+              {
+                "text": "a high-speed train"
+              },
+              {
+                "text": "Think: well + known → one description → well-known rule"
+              }
+            ]
+          },
+          {
+            "key": "after-the-noun",
+            "heading": "After the noun → usually no hyphen",
+            "paragraphs": [
+              "But when the description comes after the noun, we often don't need the hyphen because the sentence is already clear."
+            ],
+            "examples": [
+              {
+                "text": "The rule is well known."
+              },
+              {
+                "text": "Her job is full time."
+              },
+              {
+                "text": "The break lasted five minutes."
+              }
+            ]
+          }
+        ]
+      },
+      "teaching_purpose": "Descriptions before/after nouns",
+      "source_file": "lib/adle/morphology/compound-word-reading-content-v2.ts",
+      "source_commit": "edce0c69ad1f0171e749ddbc72a7c91b4f999aca",
+      "content_hash": "0cfb7750b44ed6b0057b4026c24a6a7e4cdcd941423f8a34c40d75af03454947",
+      "reviewer": "Katie Sanderson",
+      "approval_date": "2026-08-12",
+      "approval_status": "approved"
+    },
+    {
+      "micro_skill_key": "D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED",
+      "page_ordinal": 2,
+      "page_title": "2. Phrasal verbs can turn into nouns",
+      "page_content": {
+        "key": "phrasal-verbs",
+        "title": "2. Phrasal verbs can turn into nouns",
+        "introduction": [
+          "A phrasal verb is a verb made from a verb plus another small word:"
+        ],
+        "sections": [
+          {
+            "key": "phrasal-verb-examples",
+            "paragraphs": [],
+            "examples": [
+              {
+                "text": "break + in → break in"
+              },
+              {
+                "text": "take + off → take off"
+              },
+              {
+                "text": "warm + up → warm up"
+              }
+            ]
+          },
+          {
+            "key": "actions-stay-separate",
+            "heading": "When it is an action → keep the words separate",
+            "paragraphs": [
+              "When you're describing the action, keep the words separate:"
+            ],
+            "examples": [
+              {
+                "text": "The burglar tried to break in."
+              }
+            ]
+          },
+          {
+            "key": "actions-become-nouns",
+            "heading": "When the action becomes a noun → it may use a hyphen",
+            "paragraphs": [
+              "Sometimes that action becomes the name of a thing or event. Then we may use a hyphen."
+            ],
+            "examples": [
+              {
+                "text": "The burglars broke in.",
+                "explanation": "verb: what they did"
+              },
+              {
+                "text": "There was a break-in.",
+                "explanation": "noun: the name of the event"
+              },
+              {
+                "text": "Let's warm up before football.",
+                "explanation": "verb"
+              },
+              {
+                "text": "Let's do a warm-up.",
+                "explanation": "noun"
+              }
+            ]
+          }
+        ]
+      },
+      "teaching_purpose": "Phrasal verbs becoming nouns",
+      "source_file": "lib/adle/morphology/compound-word-reading-content-v2.ts",
+      "source_commit": "edce0c69ad1f0171e749ddbc72a7c91b4f999aca",
+      "content_hash": "d5ff2fbdcfc367cc027d6eddb0f84b397ed6d237082ec1f2e1c89703588f81e2",
+      "reviewer": "Katie Sanderson",
+      "approval_date": "2026-08-12",
+      "approval_status": "approved"
+    },
+    {
+      "micro_skill_key": "D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED",
+      "page_ordinal": 3,
+      "page_title": "3. Compound nouns",
+      "page_content": {
+        "key": "compound-nouns",
+        "title": "3. Compound nouns",
+        "introduction": [
+          "A compound noun is when two or more words join together to name one person, place, thing or idea.",
+          "Even though there are two words, together they name one thing."
+        ],
+        "sections": [
+          {
+            "key": "open-compounds",
+            "heading": "Many compound nouns stay as separate words",
+            "paragraphs": [
+              "They don't automatically need a hyphen."
+            ],
+            "examples": [
+              {
+                "text": "primary school"
+              },
+              {
+                "text": "business owner"
+              },
+              {
+                "text": "apple pie"
+              }
+            ]
+          },
+          {
+            "key": "hyphenated-compounds",
+            "heading": "Some are traditionally written with hyphens",
+            "paragraphs": [],
+            "examples": [
+              {
+                "text": "brother-in-law"
+              },
+              {
+                "text": "mother-in-law"
+              },
+              {
+                "text": "jack-of-all-trades"
+              }
+            ]
+          },
+          {
+            "key": "closed-compounds",
+            "heading": "Others are written as one word",
+            "paragraphs": [],
+            "examples": [
+              {
+                "text": "football"
+              },
+              {
+                "text": "toothbrush"
+              },
+              {
+                "text": "bedroom"
+              }
+            ]
+          },
+          {
+            "key": "remember",
+            "heading": "The easiest way to remember",
+            "paragraphs": [
+              "There isn't one perfect rule for compound nouns. If you're unsure, check a dictionary."
+            ],
+            "examples": [
+              {
+                "text": "Description before a noun? → Often use a hyphen: well-known author"
+              },
+              {
+                "text": "Description after the noun? → Often leave it open: The author is well known."
+              },
+              {
+                "text": "Is it an action? → Usually separate: break in"
+              },
+              {
+                "text": "Has the action become the name of something? → It may be hyphenated: a break-in"
+              },
+              {
+                "text": "Is it the name of one thing made from several words? → It's a compound noun. Check the dictionary if you're unsure: apple pie, toothbrush, brother-in-law."
+              }
+            ]
+          }
+        ]
+      },
+      "teaching_purpose": "Compound nouns and recap rules",
+      "source_file": "lib/adle/morphology/compound-word-reading-content-v2.ts",
+      "source_commit": "edce0c69ad1f0171e749ddbc72a7c91b4f999aca",
+      "content_hash": "44d0f58b3955f97f717fd34f55e94d883ea81d487da3f7639c9360876a7e2fe7",
+      "reviewer": "Katie Sanderson",
+      "approval_date": "2026-08-12",
+      "approval_status": "approved"
+    }
+  ]
+}

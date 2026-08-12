@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "packageKey": "compound-word-separated-hyphenated-reading-pages-2026-08-12",
+  "microSkillKey": "D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED",
+  "sourceFile": "lib/adle/morphology/compound-word-reading-content-v2.ts",
+  "sourceCommit": "edce0c69ad1f0171e749ddbc72a7c91b4f999aca",
+  "sourceFileSha256": "ba74c4d4714f0e09c5c82ca2062891f72a3fa48fe485e936ae95437a8d59c1c4",
+  "contentHash": "ff5fe5df3f6b8035c89d8162378cf0c0c22ad16535f966c51da17d041a9a9a5c",
+  "approvalArtifact": "data/adle/review/d4-mor/v2/compound-word-separated-hyphenated-reading-pages-approval.json",
+  "approvalArtifactSha256": "61076b5bd5287496c73b56f1c355b2f0a208b75154297a162caf6592b62b0464",
+  "teachingContentAuthorityKey": "compound-word-v2-separated-hyphenated-teaching-content-reading-pages-2026-08-12",
+  "teachingContentManifestSha256": "105f2c32a569f1d9f5900d219e88d8a9ad51a3562b5157a6701adbc4a5614821",
+  "releaseKey": "compound-word-v2-d4_mor_compound_words_separated_hyphenated-reading-pages-2026-08-12",
+  "releaseFileSha256": "23b26152c184249978b1fccb70c6897748c105c9dd42b9009432c8da73f44e04",
+  "releaseFingerprints": {
+    "releaseManifestSha256": "7374d47fab6caf21ef2e3257319bec06e5210f6b141bb9a8a1a0f0072b21ad6f",
+    "dependencyFingerprint": "83072cc60fb24890db03e9a846de13c3b83ecd0d868ee56c0f694e52fa2cd18c"
+  },
+  "historicalAuthorityId": "120595ba-98e6-4b2c-b11e-fb23edc98be1",
+  "historicalReleaseId": "8bcae678-a1d2-4572-a1e9-9aacb378cf9f",
+  "productionDark": true
+}

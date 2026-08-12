@@ -129,7 +129,7 @@ function nonEmpty(value: unknown): value is string {
   return typeof value === "string" && value.trim().length > 0;
 }
 
-function readingPagesValid(value: unknown): boolean {
+export function validateCompoundWordLessonReadingPagesV2(value: unknown): value is readonly CompoundWordLessonReadingPageV2[] {
   if (value === undefined) return true;
   if (!Array.isArray(value) || value.length !== 3) return false;
   const pageKeys = new Set<string>();
@@ -207,7 +207,7 @@ function recipeValid(recipe: CompoundWordLessonRecipeV2): boolean {
     nonEmpty(recipe.introduction.title) &&
     nonEmpty(recipe.introduction.childFriendlyExplanation) &&
     nonEmpty(recipe.introduction.summary) &&
-    readingPagesValid(recipe.introduction.readingPages) &&
+    validateCompoundWordLessonReadingPagesV2(recipe.introduction.readingPages) &&
     nonEmpty(recipe.reflection.promptKey) &&
     nonEmpty(recipe.reflection.promptText);
 }
@@ -334,7 +334,7 @@ export function validateCompoundWordLessonPayloadV2(
     !nonEmpty(payload.activities.introduction?.title) ||
     !nonEmpty(payload.activities.introduction?.childFriendlyExplanation) ||
     !nonEmpty(payload.activities.introduction?.summary) ||
-    !readingPagesValid(payload.activities.introduction?.readingPages) ||
+    !validateCompoundWordLessonReadingPagesV2(payload.activities.introduction?.readingPages) ||
     !nonEmpty(payload.activities.reflection?.promptKey) ||
     !nonEmpty(payload.activities.reflection?.promptText)
   ) return false;

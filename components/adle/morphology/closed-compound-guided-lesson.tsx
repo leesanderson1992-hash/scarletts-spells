@@ -12,6 +12,7 @@ import type {
   CompoundWordLessonReadingPageV2,
 } from "@/lib/adle/morphology/compound-word-lesson-v2";
 import type { CompoundWordJoinKind } from "@/lib/adle/morphology/compound-word-structure-v2";
+import { compoundReadingNavigationV2 } from "@/lib/adle/morphology/compound-word-reading-release-v2";
 import {
   closedCompoundResumeKey,
   normaliseClosedCompoundResume,
@@ -116,11 +117,14 @@ function CompoundWordLessonRuntime(props: RuntimeProps) {
   const isV1 = props.resumeNamespace === "closed-compound";
   const readingPages = isV1 ? undefined : props.payload.activities.introduction.readingPages;
   const activeReadingPage = readingPages?.[Math.min(introPageIndex, readingPages.length - 1)];
+  const readingNavigation = activeReadingPage
+    ? compoundReadingNavigationV2(introPageIndex, readingPages?.length ?? 0)
+    : null;
   const content = state.stage === "intro" ? activeReadingPage ? <section className="grid gap-5">
       <CompoundReadingPage page={activeReadingPage} pageNumber={introPageIndex + 1} pageCount={readingPages.length} showLessonWords={introPageIndex === readingPages.length - 1} words={words} />
       <nav className="flex flex-wrap items-center justify-between gap-3" aria-label="Compound word reading pages">
-        <button type="button" disabled={introPageIndex === 0} className="min-h-12 rounded-full border border-cyan-200/60 px-6 font-black text-white disabled:cursor-not-allowed disabled:opacity-40" onClick={() => setIntroPageIndex((current) => Math.max(0, current - 1))}>Back</button>
-        {introPageIndex + 1 < readingPages.length ? <button type="button" className="min-h-12 rounded-full bg-cyan-300 px-7 font-black text-slate-950" onClick={() => setIntroPageIndex((current) => Math.min(readingPages.length - 1, current + 1))}>Next page</button> : <button type="button" className="min-h-12 rounded-full bg-cyan-300 px-7 font-black text-slate-950" onClick={() => setState((current) => ({ ...current, stage: "jigsaw" }))}>Open the compound workshop</button>}
+        <button type="button" disabled={!readingNavigation?.backAvailable} className="min-h-12 rounded-full border border-cyan-200/60 px-6 font-black text-white disabled:cursor-not-allowed disabled:opacity-40" onClick={() => setIntroPageIndex((current) => Math.max(0, current - 1))}>Back</button>
+        {readingNavigation?.nextAvailable ? <button type="button" className="min-h-12 rounded-full bg-cyan-300 px-7 font-black text-slate-950" onClick={() => setIntroPageIndex((current) => Math.min(readingPages.length - 1, current + 1))}>Next page</button> : readingNavigation?.workshopAvailable ? <button type="button" className="min-h-12 rounded-full bg-cyan-300 px-7 font-black text-slate-950" onClick={() => setState((current) => ({ ...current, stage: "jigsaw" }))}>Open the compound workshop</button> : null}
       </nav>
     </section> : <section className="grid gap-4 text-center text-cyan-50"><p className="text-xs font-black uppercase tracking-[.2em] text-cyan-200">{isV1 ? "Closed compounds" : "Compound words"}</p><h1 className="text-4xl font-black text-white">{props.payload.activities.introduction.title}</h1><p className="mx-auto max-w-xl text-lg leading-relaxed">{props.payload.activities.introduction.childFriendlyExplanation}</p><p className="font-black text-amber-100">{props.payload.activities.introduction.summary}</p>{!isV1 ? <div className="grid gap-2 text-left">{words.map((entry) => <article key={entry.canonicalWordId} className="rounded-2xl border border-cyan-300/30 bg-slate-950/35 p-3"><p className="font-black text-white">{entry.components.join(" + ")} → {entry.displayWord}</p><p className="text-sm text-cyan-100">{entry.componentMeanings?.join(" + ")}</p>{entry.componentToWholeRelationship ? <p className="mt-1 text-sm font-semibold text-amber-100">{entry.componentToWholeRelationship}</p> : null}</article>)}</div> : null}<button type="button" className="mx-auto min-h-12 rounded-full bg-cyan-300 px-7 font-black text-slate-950" onClick={() => setState((current) => ({ ...current, stage: "jigsaw" }))}>Open the compound workshop</button></section>
     : state.stage === "jigsaw" ? <CompoundJigsawActivity copyMode={isV1 ? "closed_v1" : "generalized"} targets={words.map((entry) => ({ canonicalWordId: entry.canonicalWordId, word: entry.displayWord, components: entry.components, joins: entry.joins }))} muted={state.muted} initialLocked={state.jigsawLocked} initialMisses={state.jigsawMisses} onProgress={({ locked, misses }) => setState((current) => ({ ...current, jigsawLocked: locked, jigsawMisses: misses }))} onComplete={({ locked, misses }) => setState((current) => ({ ...current, stage: "meaning", jigsawLocked: locked, jigsawMisses: misses }))} />
