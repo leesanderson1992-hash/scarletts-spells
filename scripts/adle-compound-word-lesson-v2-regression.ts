@@ -18,6 +18,7 @@ import {
   type CompoundWordLessonPayloadV2,
   type CompoundWordLessonRecipeV2,
 } from "../lib/adle/morphology/compound-word-lesson-v2";
+import { SEPARATED_HYPHENATED_READING_PAGES_V2 } from "../lib/adle/morphology/compound-word-reading-content-v2";
 import { governedCompoundSplitPoints } from "../lib/adle/morphology/compound-word-task-config";
 import {
   DICTATION_TARGET_SPAN_SCHEMA_VERSION,
@@ -90,7 +91,14 @@ function recipe(microSkillKey: CompoundWordMicroSkillKey): CompoundWordLessonRec
     recipeVersion: "v2",
     contentVersion: `cw2-regression-${microSkillKey}`,
     microSkillKey,
-    introduction: { title: "Compound words", childFriendlyExplanation: "Reviewed fixture introduction.", summary: "Keep each governed join." },
+    introduction: {
+      title: "Compound words",
+      childFriendlyExplanation: "Reviewed fixture introduction.",
+      summary: "Keep each governed join.",
+      ...(microSkillKey === SEPARATED
+        ? { readingPages: SEPARATED_HYPHENATED_READING_PAGES_V2 }
+        : {}),
+    },
     reflection: { promptKey: "compound-word-v2-reflection", promptText: "How do the parts contribute to the whole?" },
   };
 }
@@ -142,6 +150,34 @@ const closedPayload = compilePool(closedPool, sunflower);
 const separatedPayload = compilePool(separatedPool, iceCream);
 assert(closedPayload && validateCompoundWordLessonPayloadV2(closedPayload), "v2 closed lesson compiles");
 assert(separatedPayload && validateCompoundWordLessonPayloadV2(separatedPayload), "one v2 path compiles open, hyphenated, and three-part words");
+assert.equal(closedPayload.activities.introduction.readingPages, undefined, "closed v2 can retain its existing introduction");
+assert.equal(separatedPayload.activities.introduction.readingPages?.length, 3, "separated/hyphenated reading is split across three pages");
+assert.deepEqual(
+  separatedPayload.activities.introduction.readingPages?.map((page) => page.title),
+  [
+    "Hyphens: When Do We Join Words Together?",
+    "2. Phrasal verbs can turn into nouns",
+    "3. Compound nouns",
+  ],
+);
+assert(
+  separatedPayload.activities.introduction.readingPages?.[0].sections
+    .flatMap((section) => section.examples ?? [])
+    .some((example) => example.text === "a well-known rule"),
+  "page one preserves the before-a-noun example",
+);
+assert(
+  separatedPayload.activities.introduction.readingPages?.[1].sections
+    .flatMap((section) => section.examples ?? [])
+    .some((example) => example.text === "There was a break-in." && example.explanation === "noun: the name of the event"),
+  "page two preserves the phrasal-verb/noun contrast",
+);
+assert(
+  separatedPayload.activities.introduction.readingPages?.[2].sections
+    .flatMap((section) => section.examples ?? [])
+    .some((example) => example.text.endsWith("apple pie, toothbrush, brother-in-law.")),
+  "page three preserves open, closed, and hyphenated recall",
+);
 
 for (const expected of [
   { value: sunflower, parts: ["sun", "flower"], joins: ["none"], split: [3] },
@@ -252,9 +288,19 @@ assert(!validateCompoundWordLessonPayloadV2(invalidIdentity), "v2 payload reject
 const invalidJoinCount = structuredClone(separatedPayload) as CompoundWordLessonPayloadV2;
 invalidJoinCount.words.lesson[0].structure.joins = [];
 assert(!validateCompoundWordLessonPayloadV2(invalidJoinCount), "v2 payload rejects invalid join cardinality");
+const invalidReadingPageCount = structuredClone(separatedPayload) as CompoundWordLessonPayloadV2;
+invalidReadingPageCount.activities.introduction.readingPages = invalidReadingPageCount.activities.introduction.readingPages?.slice(0, 2);
+assert(!validateCompoundWordLessonPayloadV2(invalidReadingPageCount), "configured reading content requires exactly three pages");
+const duplicateReadingPageKey = structuredClone(separatedPayload) as CompoundWordLessonPayloadV2;
+if (duplicateReadingPageKey.activities.introduction.readingPages) {
+  duplicateReadingPageKey.activities.introduction.readingPages[1].key = duplicateReadingPageKey.activities.introduction.readingPages[0].key;
+}
+assert(!validateCompoundWordLessonPayloadV2(duplicateReadingPageKey), "reading page identity fails closed");
 
 const todayService = readFileSync("lib/adle/today-assignment-service.ts", "utf8");
 assert(!todayService.includes("compileCompoundWordLessonV2"), "CW-2 does not activate the Today writer");
+const compoundRenderer = readFileSync("components/adle/morphology/closed-compound-guided-lesson.tsx", "utf8");
+assert(!compoundRenderer.includes("The burglar tried to break in."), "reviewed reading copy remains payload configuration, not renderer code");
 for (const unchanged of ["base_word_lab:v2", "dynamic_prefix_word_lab:v2", "dynamic_affix_word_lab:v3", "generic_composer:v1"]) {
   const [routeId, routeVersion] = unchanged.split(":");
   assert(ADLE_CURRICULUM_ROUTE_REGISTRY.some((entry) => entry.routeId === routeId && entry.routeVersion === routeVersion && entry.newAssignmentCapable), `${unchanged} remains assignment-capable`);

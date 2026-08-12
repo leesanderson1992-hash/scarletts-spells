@@ -6,7 +6,11 @@ import { CoverShutter, DiffReveal, HearWordButton } from "@/components/adle/acti
 import type { AdleSessionItem } from "@/lib/adle/loaders/daily-plan-surface";
 import { EXACT_GOVERNED_FORM_ANSWER_POLICY, isAnswerCorrectUnderPolicy } from "@/lib/adle/answer-policy";
 import type { ClosedCompoundLessonPayloadV1 } from "@/lib/adle/morphology/closed-compound-word-lab";
-import type { CompoundWordLessonPayloadV2 } from "@/lib/adle/morphology/compound-word-lesson-v2";
+import type {
+  CompoundWordLessonIntroductionV2,
+  CompoundWordLessonPayloadV2,
+  CompoundWordLessonReadingPageV2,
+} from "@/lib/adle/morphology/compound-word-lesson-v2";
 import type { CompoundWordJoinKind } from "@/lib/adle/morphology/compound-word-structure-v2";
 import {
   closedCompoundResumeKey,
@@ -50,16 +54,42 @@ type RuntimePayload = {
   contentVersion: string;
   words: { lesson: readonly RuntimeWord[] };
   activities: {
-    introduction: { title: string; childFriendlyExplanation: string; summary: string };
+    introduction: CompoundWordLessonIntroductionV2;
     reflection: { promptKey: string; promptText: string };
   };
 };
 
 type RuntimeProps = { childId: string; assignmentId: string; items: AdleSessionItem[]; payload: RuntimePayload; resumeNamespace: "closed-compound" | "compound-word-v2" };
 
+function CompoundReadingPage(props: {
+  page: CompoundWordLessonReadingPageV2;
+  pageNumber: number;
+  pageCount: number;
+  showLessonWords: boolean;
+  words: readonly RuntimeWord[];
+}) {
+  return <section className="grid gap-5 text-left text-cyan-50" aria-labelledby={`compound-reading-${props.page.key}`}>
+    <header className="text-center">
+      <p className="text-xs font-black uppercase tracking-[.2em] text-cyan-200">Reading · Page {props.pageNumber} of {props.pageCount}</p>
+      <h1 id={`compound-reading-${props.page.key}`} className="mt-2 text-3xl font-black text-white md:text-4xl">{props.page.title}</h1>
+    </header>
+    {props.page.introduction.length ? <div className="grid gap-2 rounded-3xl border border-cyan-300/30 bg-slate-950/35 p-5 text-base leading-relaxed md:text-lg">{props.page.introduction.map((paragraph) => <p key={paragraph} className={paragraph.endsWith("?") ? "font-black text-amber-100" : undefined}>{paragraph}</p>)}</div> : null}
+    {props.page.sections.map((section) => <section key={section.key} className="grid gap-3 rounded-3xl border border-cyan-300/30 bg-slate-950/35 p-5">
+      {section.heading ? <h2 className="text-xl font-black text-white">{section.heading}</h2> : null}
+      {section.paragraphs.map((paragraph) => <p key={paragraph} className="leading-relaxed text-cyan-50">{paragraph}</p>)}
+      {section.examples?.length ? <ul className="grid gap-2" aria-label={section.heading ? `${section.heading} examples` : "Examples"}>{section.examples.map((example) => <li key={`${example.explanation ?? ""}:${example.text}`} className="rounded-2xl bg-white/10 px-4 py-3"><span className="font-black text-white">{example.text}</span>{example.explanation ? <span className="mt-1 block text-sm font-semibold text-amber-100">{example.explanation}</span> : null}</li>)}</ul> : null}
+    </section>)}
+    {props.showLessonWords ? <section className="grid gap-3" aria-labelledby="compound-reading-todays-words">
+      <h2 id="compound-reading-todays-words" className="text-center text-xl font-black text-white">Today&apos;s compound words</h2>
+      {props.words.map((entry) => <article key={entry.canonicalWordId} className="rounded-2xl border border-cyan-300/30 bg-slate-950/35 p-3"><p className="font-black text-white">{entry.components.join(" + ")} → {entry.displayWord}</p><p className="text-sm text-cyan-100">{entry.componentMeanings?.join(" + ")}</p>{entry.componentToWholeRelationship ? <p className="mt-1 text-sm font-semibold text-amber-100">{entry.componentToWholeRelationship}</p> : null}</article>)}
+    </section> : null}
+  </section>;
+}
+
 function CompoundWordLessonRuntime(props: RuntimeProps) {
   const [state, setState] = useState<ClosedCompoundResumeState>(INITIAL);
   const [hydrated, setHydrated] = useState(false);
+  const [introPageIndex, setIntroPageIndex] = useState(0);
   const words = props.payload.words.lesson;
   const wordIds = useMemo(() => words.map((entry) => entry.canonicalWordId), [words]);
   const resumeKey = props.resumeNamespace === "closed-compound"
@@ -84,7 +114,15 @@ function CompoundWordLessonRuntime(props: RuntimeProps) {
   const beat = useMemo<GuideBeatV1>(() => ({ id: `closed-${state.stage}`, activityId: state.stage, state: state.stage === "controlled" || state.stage === "dictation" ? "guideSilent" : state.stage === "reflect" ? "reflect" : "invite", say: "", goal: "Build, connect, remember, and spell compound words.", waitFor: "the next step", onComplete: "continue" }), [state.stage]);
   if (!hydrated) return <div className="min-h-[28rem]" aria-label="Restoring Word Lab" />;
   const isV1 = props.resumeNamespace === "closed-compound";
-  const content = state.stage === "intro" ? <section className="grid gap-4 text-center text-cyan-50"><p className="text-xs font-black uppercase tracking-[.2em] text-cyan-200">{isV1 ? "Closed compounds" : "Compound words"}</p><h1 className="text-4xl font-black text-white">{props.payload.activities.introduction.title}</h1><p className="mx-auto max-w-xl text-lg leading-relaxed">{props.payload.activities.introduction.childFriendlyExplanation}</p><p className="font-black text-amber-100">{props.payload.activities.introduction.summary}</p>{!isV1 ? <div className="grid gap-2 text-left">{words.map((entry) => <article key={entry.canonicalWordId} className="rounded-2xl border border-cyan-300/30 bg-slate-950/35 p-3"><p className="font-black text-white">{entry.components.join(" + ")} → {entry.displayWord}</p><p className="text-sm text-cyan-100">{entry.componentMeanings?.join(" + ")}</p>{entry.componentToWholeRelationship ? <p className="mt-1 text-sm font-semibold text-amber-100">{entry.componentToWholeRelationship}</p> : null}</article>)}</div> : null}<button type="button" className="mx-auto min-h-12 rounded-full bg-cyan-300 px-7 font-black text-slate-950" onClick={() => setState((current) => ({ ...current, stage: "jigsaw" }))}>Open the compound workshop</button></section>
+  const readingPages = isV1 ? undefined : props.payload.activities.introduction.readingPages;
+  const activeReadingPage = readingPages?.[Math.min(introPageIndex, readingPages.length - 1)];
+  const content = state.stage === "intro" ? activeReadingPage ? <section className="grid gap-5">
+      <CompoundReadingPage page={activeReadingPage} pageNumber={introPageIndex + 1} pageCount={readingPages.length} showLessonWords={introPageIndex === readingPages.length - 1} words={words} />
+      <nav className="flex flex-wrap items-center justify-between gap-3" aria-label="Compound word reading pages">
+        <button type="button" disabled={introPageIndex === 0} className="min-h-12 rounded-full border border-cyan-200/60 px-6 font-black text-white disabled:cursor-not-allowed disabled:opacity-40" onClick={() => setIntroPageIndex((current) => Math.max(0, current - 1))}>Back</button>
+        {introPageIndex + 1 < readingPages.length ? <button type="button" className="min-h-12 rounded-full bg-cyan-300 px-7 font-black text-slate-950" onClick={() => setIntroPageIndex((current) => Math.min(readingPages.length - 1, current + 1))}>Next page</button> : <button type="button" className="min-h-12 rounded-full bg-cyan-300 px-7 font-black text-slate-950" onClick={() => setState((current) => ({ ...current, stage: "jigsaw" }))}>Open the compound workshop</button>}
+      </nav>
+    </section> : <section className="grid gap-4 text-center text-cyan-50"><p className="text-xs font-black uppercase tracking-[.2em] text-cyan-200">{isV1 ? "Closed compounds" : "Compound words"}</p><h1 className="text-4xl font-black text-white">{props.payload.activities.introduction.title}</h1><p className="mx-auto max-w-xl text-lg leading-relaxed">{props.payload.activities.introduction.childFriendlyExplanation}</p><p className="font-black text-amber-100">{props.payload.activities.introduction.summary}</p>{!isV1 ? <div className="grid gap-2 text-left">{words.map((entry) => <article key={entry.canonicalWordId} className="rounded-2xl border border-cyan-300/30 bg-slate-950/35 p-3"><p className="font-black text-white">{entry.components.join(" + ")} → {entry.displayWord}</p><p className="text-sm text-cyan-100">{entry.componentMeanings?.join(" + ")}</p>{entry.componentToWholeRelationship ? <p className="mt-1 text-sm font-semibold text-amber-100">{entry.componentToWholeRelationship}</p> : null}</article>)}</div> : null}<button type="button" className="mx-auto min-h-12 rounded-full bg-cyan-300 px-7 font-black text-slate-950" onClick={() => setState((current) => ({ ...current, stage: "jigsaw" }))}>Open the compound workshop</button></section>
     : state.stage === "jigsaw" ? <CompoundJigsawActivity copyMode={isV1 ? "closed_v1" : "generalized"} targets={words.map((entry) => ({ canonicalWordId: entry.canonicalWordId, word: entry.displayWord, components: entry.components, joins: entry.joins }))} muted={state.muted} initialLocked={state.jigsawLocked} initialMisses={state.jigsawMisses} onProgress={({ locked, misses }) => setState((current) => ({ ...current, jigsawLocked: locked, jigsawMisses: misses }))} onComplete={({ locked, misses }) => setState((current) => ({ ...current, stage: "meaning", jigsawLocked: locked, jigsawMisses: misses }))} />
     : state.stage === "meaning" ? <MeaningConnectionActivity targets={words.map((entry) => ({ canonicalWordId: entry.canonicalWordId, word: entry.displayWord, definition: entry.childFriendlyDefinition, componentMeanings: entry.componentMeanings, componentToWholeRelationship: entry.componentToWholeRelationship }))} muted={state.muted} initialConnected={state.meaningConnected} initialMisses={state.meaningMisses} onProgress={({ connected, misses }) => setState((current) => ({ ...current, meaningConnected: connected, meaningMisses: misses }))} onComplete={({ connected, misses }) => setState((current) => ({ ...current, index: 0, stage: "controlled", meaningConnected: connected, meaningMisses: misses }))} />
     : state.stage === "controlled" ? <section className="grid gap-4 text-cyan-50"><p className="font-black">Remember word {state.index + 1} of {words.length}</p><CoverShutter key={word.canonicalWordId} word={word.displayWord} splitPoints={[...word.splitPoints]} components={word.components} muted={state.muted} onComplete={(value) => setState((current) => ({ ...current, attempts: { ...current.attempts, [word.canonicalWordId]: value } }))} />{state.attempts[word.canonicalWordId] !== undefined ? <button type="button" className="min-h-12 rounded-full bg-cyan-300 font-black text-slate-950" onClick={() => setState((current) => state.index + 1 < words.length ? ({ ...current, index: state.index + 1 }) : ({ ...current, index: 0, stage: "dictation" }))}>Continue</button> : null}</section>

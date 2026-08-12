@@ -24,10 +24,32 @@ export const COMPOUND_WORD_LESSON_RECIPE_VERSION = "v2" as const;
 export const COMPOUND_WORD_LESSON_ITEM_COUNT = 18 as const;
 export const COMPOUND_WORD_LESSON_WORD_COUNT = 4 as const;
 
+export type CompoundWordLessonReadingExampleV2 = {
+  text: string;
+  explanation?: string;
+};
+
+export type CompoundWordLessonReadingSectionV2 = {
+  key: string;
+  heading?: string;
+  paragraphs: readonly string[];
+  examples?: readonly CompoundWordLessonReadingExampleV2[];
+};
+
+export type CompoundWordLessonReadingPageV2 = {
+  key: string;
+  title: string;
+  introduction: readonly string[];
+  sections: readonly CompoundWordLessonReadingSectionV2[];
+};
+
 export type CompoundWordLessonIntroductionV2 = {
   title: string;
   childFriendlyExplanation: string;
   summary: string;
+  /** Optional for compatibility with already-compiled v2 payloads. New reviewed
+   * reading content can be snapshotted here without hard-coding it in the UI. */
+  readingPages?: readonly CompoundWordLessonReadingPageV2[];
 };
 
 export type CompoundWordLessonReflectionV2 = {
@@ -107,6 +129,51 @@ function nonEmpty(value: unknown): value is string {
   return typeof value === "string" && value.trim().length > 0;
 }
 
+function readingPagesValid(value: unknown): boolean {
+  if (value === undefined) return true;
+  if (!Array.isArray(value) || value.length !== 3) return false;
+  const pageKeys = new Set<string>();
+  for (const rawPage of value) {
+    if (!rawPage || typeof rawPage !== "object" || Array.isArray(rawPage)) return false;
+    const page = rawPage as Partial<CompoundWordLessonReadingPageV2>;
+    if (
+      !nonEmpty(page.key) ||
+      pageKeys.has(page.key) ||
+      !nonEmpty(page.title) ||
+      !Array.isArray(page.introduction) ||
+      !page.introduction.every(nonEmpty) ||
+      !Array.isArray(page.sections) ||
+      page.sections.length === 0
+    ) return false;
+    pageKeys.add(page.key);
+    const sectionKeys = new Set<string>();
+    for (const rawSection of page.sections) {
+      if (!rawSection || typeof rawSection !== "object" || Array.isArray(rawSection)) return false;
+      const section = rawSection as Partial<CompoundWordLessonReadingSectionV2>;
+      if (
+        !nonEmpty(section.key) ||
+        sectionKeys.has(section.key) ||
+        (section.heading !== undefined && !nonEmpty(section.heading)) ||
+        !Array.isArray(section.paragraphs) ||
+        !section.paragraphs.every(nonEmpty) ||
+        (section.examples !== undefined && (
+          !Array.isArray(section.examples) ||
+          !section.examples.every((example) =>
+            example !== null &&
+            typeof example === "object" &&
+            !Array.isArray(example) &&
+            nonEmpty((example as Partial<CompoundWordLessonReadingExampleV2>).text) &&
+            ((example as Partial<CompoundWordLessonReadingExampleV2>).explanation === undefined ||
+              nonEmpty((example as Partial<CompoundWordLessonReadingExampleV2>).explanation))
+          )
+        ))
+      ) return false;
+      sectionKeys.add(section.key);
+    }
+  }
+  return true;
+}
+
 function stable(value: unknown): unknown {
   if (Array.isArray(value)) return value.map(stable);
   if (value && typeof value === "object") {
@@ -140,6 +207,7 @@ function recipeValid(recipe: CompoundWordLessonRecipeV2): boolean {
     nonEmpty(recipe.introduction.title) &&
     nonEmpty(recipe.introduction.childFriendlyExplanation) &&
     nonEmpty(recipe.introduction.summary) &&
+    readingPagesValid(recipe.introduction.readingPages) &&
     nonEmpty(recipe.reflection.promptKey) &&
     nonEmpty(recipe.reflection.promptText);
 }
@@ -266,6 +334,7 @@ export function validateCompoundWordLessonPayloadV2(
     !nonEmpty(payload.activities.introduction?.title) ||
     !nonEmpty(payload.activities.introduction?.childFriendlyExplanation) ||
     !nonEmpty(payload.activities.introduction?.summary) ||
+    !readingPagesValid(payload.activities.introduction?.readingPages) ||
     !nonEmpty(payload.activities.reflection?.promptKey) ||
     !nonEmpty(payload.activities.reflection?.promptText)
   ) return false;
