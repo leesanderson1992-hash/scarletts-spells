@@ -41,7 +41,7 @@ export async function loadCompoundWordV2Authority(
   const [{ data: structureRows, error: structureError }, { data: itemRows, error: itemError }] = await Promise.all([
     client
       .from("canonical_teaching_dictionary_compound_structures_v2")
-      .select("id,canonical_word_id,micro_skill_key,schema_version,child_friendly_meaning,component_to_whole_relationship,morphology_provenance,assignment_eligible,transfer_eligible,review_status,reviewed_by,reviewed_at,source_sheet,source_row_number,source_row_hash,source_metadata,canonical_teaching_dictionary_words!canonical_word_id(display_word),canonical_teaching_dictionary_compound_components_v2(component_ordinal,canonical_component_word_id,display_surface,component_meaning,component_sense),canonical_teaching_dictionary_compound_joins_v2(join_ordinal,join_kind)")
+      .select("id,canonical_word_id,micro_skill_key,schema_version,child_friendly_meaning,component_to_whole_relationship,morphology_provenance,assignment_eligible,transfer_eligible,review_status,reviewed_by,reviewed_at,source_sheet,source_row_number,source_row_hash,source_metadata")
       .eq("micro_skill_key", microSkillKey)
       .eq("row_status", "active")
       .eq("review_status", "approved_for_first_exposure")
@@ -57,16 +57,43 @@ export async function loadCompoundWordV2Authority(
     throw new Error(`loadCompoundWordV2Authority: ${structureError?.message ?? itemError?.message}`);
   }
 
+  const structureIds = (structureRows ?? []).map((row: any) => row.id);
+  const canonicalWordIds = (structureRows ?? []).map((row: any) => row.canonical_word_id);
+  const [wordResult, componentResult, joinResult] = await Promise.all([
+    canonicalWordIds.length
+      ? client.from("canonical_teaching_dictionary_words").select("id,display_word").in("id", canonicalWordIds)
+      : Promise.resolve({ data: [], error: null }),
+    structureIds.length
+      ? client.from("canonical_teaching_dictionary_compound_components_v2").select("structure_id,component_ordinal,canonical_component_word_id,display_surface,component_meaning,component_sense").in("structure_id", structureIds)
+      : Promise.resolve({ data: [], error: null }),
+    structureIds.length
+      ? client.from("canonical_teaching_dictionary_compound_joins_v2").select("structure_id,join_ordinal,join_kind").in("structure_id", structureIds)
+      : Promise.resolve({ data: [], error: null }),
+  ]);
+  if (wordResult.error || componentResult.error || joinResult.error) {
+    throw new Error(`loadCompoundWordV2Authority: ${wordResult.error?.message ?? componentResult.error?.message ?? joinResult.error?.message}`);
+  }
+  const wordsById = new Map((wordResult.data ?? []).map((row: any) => [row.id, row.display_word]));
+  const componentsByStructure = new Map<string, any[]>();
+  for (const component of componentResult.data ?? []) {
+    const list = componentsByStructure.get((component as any).structure_id) ?? [];
+    list.push(component);
+    componentsByStructure.set((component as any).structure_id, list);
+  }
+  const joinsByStructure = new Map<string, any[]>();
+  for (const join of joinResult.data ?? []) {
+    const list = joinsByStructure.get((join as any).structure_id) ?? [];
+    list.push(join);
+    joinsByStructure.set((join as any).structure_id, list);
+  }
+
   const structures: CompoundWordStructureV2[] = [];
   for (const raw of structureRows ?? []) {
     if (
       exactAuthority &&
       (raw as any).source_metadata?.dependencyAuthorityId !== exactAuthority.structureAuthorityId
     ) continue;
-    const word = Array.isArray((raw as any).canonical_teaching_dictionary_words)
-      ? (raw as any).canonical_teaching_dictionary_words[0]
-      : (raw as any).canonical_teaching_dictionary_words;
-    const components = [...((raw as any).canonical_teaching_dictionary_compound_components_v2 ?? [])]
+    const components = [...(componentsByStructure.get((raw as any).id) ?? [])]
       .sort((left: any, right: any) => left.component_ordinal - right.component_ordinal)
       .map((component: any) => ({
         ordinal: component.component_ordinal,
@@ -75,14 +102,14 @@ export async function loadCompoundWordV2Authority(
         meaning: component.component_meaning,
         sense: component.component_sense,
       }));
-    const joins = [...((raw as any).canonical_teaching_dictionary_compound_joins_v2 ?? [])]
+    const joins = [...(joinsByStructure.get((raw as any).id) ?? [])]
       .sort((left: any, right: any) => left.join_ordinal - right.join_ordinal)
       .map((join: any) => ({ ordinal: join.join_ordinal, kind: join.join_kind }));
     const candidate = validateCompoundWordStructureV2({
       schemaVersion: (raw as any).schema_version,
       wholeCanonicalWordId: (raw as any).canonical_word_id,
       microSkillKey: (raw as any).micro_skill_key,
-      wholeWord: word?.display_word,
+      wholeWord: wordsById.get((raw as any).canonical_word_id),
       components,
       joins,
       childFriendlyMeaning: (raw as any).child_friendly_meaning,

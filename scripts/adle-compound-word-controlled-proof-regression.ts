@@ -90,5 +90,8 @@ assert(!migration.includes("complete_adle_compound_word_v2"), "completion remain
 assert(migration.includes("child_allowlist"));
 assert(migration.includes("jsonb_array_length(p_items) <> 18"));
 assert(migration.includes("Generated Compound practice cannot enter learner scheduling"));
+const authorityLoader = readFileSync("lib/adle/morphology/compound-word-v2-loader.ts", "utf8");
+assert(!authorityLoader.includes("canonical_teaching_dictionary_words!canonical_word_id"), "governed authority loading avoids ambiguous nested PostgREST relationships");
+assert(authorityLoader.includes('.in("structure_id", structureIds)'), "components and joins are fetched through their explicit governed structure identity");
 
 console.log("controlled Compound Word Production proof regression passed");
