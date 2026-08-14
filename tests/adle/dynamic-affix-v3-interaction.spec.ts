@@ -62,11 +62,11 @@ test("Dynamic Affix V3 feedback, Cover Check, Dictation, reload/resume, Reflecti
 
   await setStage(page, value, "split");
   const wrongPoint = value.splitPoint === 1 ? 2 : 1;
-  await page.getByRole("button", { name: `Split after letter ${wrongPoint}` }).click();
+  await page.getByRole("button", { name: `Split at boundary ${wrongPoint}` }).click();
   await expect(page.getByRole("status")).toContainText("Not there yet");
-  await page.getByRole("button", { name: `Split after letter ${wrongPoint}` }).click();
+  await page.getByRole("button", { name: `Split at boundary ${wrongPoint}` }).click();
   await expect(page.getByRole("status")).toContainText("suffix");
-  await page.getByRole("button", { name: `Split after letter ${value.splitPoint}` }).click();
+  await page.getByRole("button", { name: `Split at boundary ${value.splitPoint}` }).click();
   await expect(page.getByRole("heading", { name: /Yes/ })).toBeVisible();
 
   await setStage(page, value, "controlled");

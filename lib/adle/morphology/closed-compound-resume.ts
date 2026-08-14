@@ -22,6 +22,7 @@ export interface ClosedCompoundResumeState {
   reflection: string;
   jigsawLocked: string[];
   jigsawMisses: Record<string, number>;
+  jigsawPlacements: Record<string, Array<string | null>>;
   meaningConnected: string[];
   meaningMisses: Record<string, number>;
 }
@@ -69,6 +70,29 @@ function idList(value: unknown, ids: Set<string>): value is string[] {
   );
 }
 
+function placementRecord(
+  value: unknown,
+  ids: Set<string>,
+): value is Record<string, Array<string | null>> {
+  if (!isRecord(value)) return false;
+  const used = new Set<string>();
+  return Object.entries(value).every(([targetId, placements]) =>
+    ids.has(targetId)
+    && Array.isArray(placements)
+    && placements.length >= 2
+    && placements.length <= 12
+    && placements.every((pieceId) => {
+      if (pieceId === null) return true;
+      if (
+        typeof pieceId !== "string"
+        || ![...ids].some((id) => pieceId.startsWith(`${id}:`))
+        || used.has(pieceId)
+      ) return false;
+      used.add(pieceId);
+      return true;
+    }));
+}
+
 export function closedCompoundResumeKey(
   assignmentId: string,
   contentVersion: string,
@@ -95,12 +119,16 @@ export function normaliseClosedCompoundResume(
     !stringRecord(value.sentences, ids) ||
     !idList(value.jigsawLocked, ids) ||
     !countRecord(value.jigsawMisses, ids) ||
+    (value.jigsawPlacements !== undefined && !placementRecord(value.jigsawPlacements, ids)) ||
     !idList(value.meaningConnected, ids) ||
     !countRecord(value.meaningMisses, ids)
   ) {
     return null;
   }
-  const state = value as unknown as ClosedCompoundResumeState;
+  const state = {
+    ...(value as unknown as ClosedCompoundResumeState),
+    jigsawPlacements: value.jigsawPlacements as Record<string, Array<string | null>> | undefined ?? {},
+  };
   if (state.stage === "controlled" && state.attempts[canonicalWordIds[state.index]] !== undefined) {
     state.index += 1;
     if (state.index >= canonicalWordIds.length) {

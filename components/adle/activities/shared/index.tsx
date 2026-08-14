@@ -2,6 +2,7 @@
 
 export { DraggableTile } from "./draggable-tile";
 export { SnapRail } from "./snap-rail";
+export { DefinitionWordBuilder } from "./definition-word-builder";
 export { SplitHandle } from "./split-handle";
 export { BaseWordCleaver } from "./base-word-cleaver";
 export { FlipToggle } from "./flip-toggle";

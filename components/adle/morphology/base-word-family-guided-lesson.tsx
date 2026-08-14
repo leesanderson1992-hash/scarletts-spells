@@ -1,8 +1,10 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 
-import { BaseWordCleaver, CoverShutter, DiffReveal, HearWordButton, SnapRail } from "@/components/adle/activities/shared";
+import { BaseWordCleaver, CoverShutter, DiffReveal, HearWordButton } from "@/components/adle/activities/shared";
+import { DefinitionWordBuilder } from "@/components/adle/activities/shared/definition-word-builder";
+import { deterministicOrderedBuildOrder } from "@/components/adle/activities/shared/ordered-build-engine";
 import type { GuideBeatV1 } from "@/lib/adle/morphology/payload";
 import { extractAuthoredTargetToken } from "@/lib/adle/morphology/payload";
 import { finalYRestorationForBasePart, type BaseWordFamilyLessonSnapshotV1, type BaseWordFamilySnapshotWord } from "@/lib/adle/morphology/base-word-family-payload";
@@ -71,11 +73,12 @@ export function BaseWordFamilyGuidedLesson(props: {
   const guidedWords = props.payload.familySections.flatMap((section) => section.guidedWords);
   const independent = props.payload.independentWords[state.stage === "controlled" ? state.controlledIndex : state.dictationIndex];
   const phase = state.stage === "intro" ? 0 : state.stage === "families" ? 1 : state.stage === "cleave" ? 2 : state.stage === "word_sums" ? 4 : state.stage === "controlled" ? 5 : 5;
+  const definitionBuild = baseWordDefinitionBuild(guidedWords, state.buildIndex);
   return <WordLabScene beat={guideBeat(state.stage)} phase={phase} muted={muted} onMutedChange={setMuted} silent={state.stage === "controlled" || state.stage === "dictation"} help={clueOpen ? clueFor(state.stage) : undefined} onHelp={() => setClueOpen((current) => !current)} guideName="Word Builder">
     {state.stage === "intro" ? <Intro payload={props.payload} onNext={() => update({ stage: "families" })} /> : null}
     {state.stage === "families" ? <FamilyReveal key={props.payload.familySections[state.familyIndex].baseFamilyKey} section={props.payload.familySections[state.familyIndex]} number={state.familyIndex + 1} total={props.payload.familySections.length} onNext={() => update({ stage: "cleave", cleaveIndex: state.familyIndex, cleaveStep: 0 })} /> : null}
     {state.stage === "cleave" ? <Cleave word={guidedWords.find((word) => word.canonicalWordId === props.payload.authenticTargets[state.cleaveIndex].canonicalWordId)} cuts={state.cleaveCuts} misses={state.cleaveMisses} onCutsChange={(wordId, cuts) => update({ cleaveCuts: { ...state.cleaveCuts, [wordId]: cuts }, cleaveStep: cuts.length })} onMiss={(id, misses) => update({ cleaveMisses: { ...state.cleaveMisses, [id]: misses } })} onNext={() => state.cleaveIndex + 1 < props.payload.authenticTargets.length ? update({ stage: "families", familyIndex: state.cleaveIndex + 1, cleaveStep: 0 }) : update({ stage: "word_sums", buildIndex: 0 })} /> : null}
-    {state.stage === "word_sums" ? <WordBuilder key={guidedWords[state.buildIndex]?.canonicalWordId} words={guidedWords} index={state.buildIndex} onNext={() => state.buildIndex + 1 < guidedWords.length ? update({ buildIndex: state.buildIndex + 1 }) : update({ stage: "controlled" })} /> : null}
+    {state.stage === "word_sums" ? <DefinitionWordBuilder key={definitionBuild.targetId} {...definitionBuild} muted={muted} onContinue={() => state.buildIndex + 1 < guidedWords.length ? update({ buildIndex: state.buildIndex + 1 }) : update({ stage: "controlled" })} /> : null}
     {state.stage === "controlled" ? <Controlled word={independent} index={state.controlledIndex} total={props.payload.independentWords.length} attempt={state.controlledAttempts[independent.canonicalWordId] ?? ""} checked={state.controlledChecked[independent.canonicalWordId] === true} onAttempt={(attempt) => update({ controlledAttempts: { ...state.controlledAttempts, [independent.canonicalWordId]: attempt } })} onChecked={() => update({ controlledChecked: { ...state.controlledChecked, [independent.canonicalWordId]: true } })} onNext={() => state.controlledIndex + 1 < props.payload.independentWords.length ? update({ controlledIndex: state.controlledIndex + 1 }) : update({ stage: "dictation", dictationIndex: 0 })} /> : null}
     {state.stage === "dictation" ? <Dictation word={independent} index={state.dictationIndex} total={props.payload.independentWords.length} value={state.sentenceAttempts[independent.canonicalWordId] ?? ""} checked={state.sentenceChecked} onValue={(value) => update({ sentenceAttempts: { ...state.sentenceAttempts, [independent.canonicalWordId]: value } })} onCheck={() => update({ sentenceChecked: true })} onNext={() => state.dictationIndex + 1 < props.payload.independentWords.length ? update({ dictationIndex: state.dictationIndex + 1, sentenceChecked: false }) : update({ stage: "reflect", sentenceChecked: false })} /> : null}
     {state.stage === "reflect" ? <Reflection payload={props.payload} sentenceAttempts={state.sentenceAttempts} prompt={props.payload.reflectionPrompt} value={state.reflectionText} submitting={props.submitting === true} completionLabel={props.onComplete ? "Finish Word Lab" : "Finish preview"} onValue={(reflectionText) => update({ reflectionText })} onComplete={() => { if (props.submitting) return; props.onPreviewComplete?.(state.reflectionText); props.onComplete?.({ reflection: state.reflectionText, controlledAttempts: state.controlledAttempts, sentenceAttempts: state.sentenceAttempts }); }} /> : null}
@@ -114,18 +117,36 @@ function Cleave(props: { word: BaseWordFamilySnapshotWord | undefined; cuts: Rec
   return <BaseWordCleaver word={word!.displayWord} segments={wordParts.map((part) => ({ id: part.id, text: part.surfaceText }))} baseIndex={baseIndex} finalYRestoration={finalYRestoration} selectedCuts={props.cuts[word!.canonicalWordId] ?? []} misses={props.misses[key] ?? 0} onCutsChange={(cuts) => props.onCutsChange(word!.canonicalWordId, cuts)} onMiss={(misses) => props.onMiss(key, misses)} onContinue={props.onNext} />;
 }
 
-function WordBuilder(props: { words: BaseWordFamilySnapshotWord[]; index: number; onNext: () => void }) {
-  const word = props.words[props.index];
-  const allParts = useMemo(() => [...new Map(props.words.flatMap(parts).map((part) => [part.surfaceText, part])).values()], [props.words]);
+function baseWordDefinitionBuild(words: BaseWordFamilySnapshotWord[], index: number) {
+  const word = words[index];
+  const allParts = [...new Map(words.flatMap(parts).map((part) => [part.surfaceText, part])).values()];
   const expectedParts = parts(word);
   const distractors = allParts.filter((part) => !expectedParts.some((expected) => expected.surfaceText === part.surfaceText)).slice(0, 3);
   const toTile = (id: string, part: Part) => ({ id, text: part.surfaceText, role: part.kind === "prefix" ? "prefix" as const : part.kind === "suffix" ? "suffix" as const : "base" as const, gloss: part.gloss });
   const expectedIds = expectedParts.map((part) => `${word.canonicalWordId}:required:${part.id}`);
   const sourceTiles = [...expectedParts.map((part) => toTile(`${word.canonicalWordId}:required:${part.id}`, part)), ...distractors.map((part) => toTile(`${word.canonicalWordId}:distractor:${part.id}`, part))];
-  const tiles = sourceTiles.map((tile, index) => ({ tile, rank: Array.from(`${word.canonicalWordId}:${tile.id}`).reduce((total, character) => (total * 33 + character.charCodeAt(0)) >>> 0, index) })).sort((a, b) => a.rank - b.rank).map(({ tile }) => tile);
-  while (tiles[0]?.id === expectedIds[0] || expectedIds.every((id, index) => tiles[index]?.id === id)) { const first = tiles.shift(); if (first) tiles.push(first); else break; }
-  const [done, setDone] = useState(false);
-  return <section className="grid gap-5 text-center"><p className="text-xs font-black uppercase tracking-[.2em] text-cyan-200">Build {props.index + 1} of {props.words.length}</p><h2 className="text-3xl font-black text-white">Which word means “{word.childFriendlyMeaning}”?</h2><SnapRail tiles={tiles} expectedIds={expectedIds} checkMode="manual" label={`Build ${word.displayWord} from word parts`} onComplete={() => setDone(true)} onInvalid={() => undefined} />{done ? <><p className="rounded-2xl bg-emerald-100 p-4 font-black text-emerald-950">{word.wordSum} — {word.childFriendlyMeaning}</p><button type="button" onClick={props.onNext} className="mx-auto min-h-12 rounded-full bg-cyan-300 px-7 font-black text-slate-950">{props.index + 1 < props.words.length ? "Build the next word" : "Practise six words"}</button></> : null}</section>;
+  const tiles = deterministicOrderedBuildOrder(sourceTiles, `${word.canonicalWordId}:definition-word-builder`);
+  if (expectedIds.every((id, expectedIndex) => tiles[expectedIndex]?.id === id)) {
+    const first = tiles.shift();
+    if (first) tiles.push(first);
+  }
+  const governedJoins: Array<"none" | "space" | "hyphen"> = word.joins.flatMap((join) => {
+    if (!join || typeof join !== "object" || Array.isArray(join)) return [];
+    const joinType = (join as { joinType?: unknown }).joinType;
+    return joinType === "none" || joinType === "space" || joinType === "hyphen" ? [joinType] : [];
+  });
+  return {
+    targetId: word.canonicalWordId,
+    stepLabel: `Build ${index + 1} of ${words.length}`,
+    definition: word.childFriendlyMeaning,
+    tiles,
+    expectedIds,
+    joins: governedJoins.length ? governedJoins : undefined,
+    label: `Build ${word.displayWord} from word parts`,
+    wordSum: word.wordSum,
+    resultingMeaning: word.childFriendlyMeaning,
+    continueLabel: index + 1 < words.length ? "Build the next word" : "Practise six words",
+  };
 }
 
 function Controlled(props: { word: BaseWordFamilySnapshotWord; index: number; total: number; attempt: string; checked: boolean; onAttempt: (value: string) => void; onChecked: () => void; onNext: () => void }) { return <section className="grid gap-4"><p className="text-center text-sm font-black uppercase tracking-[.2em] text-cyan-200">Word to remember {props.index + 1} of {props.total}</p><CoverShutter key={props.word.canonicalWordId} word={props.word.displayWord} splitPoints={[]} initialAttempt={props.attempt} initialState={props.checked ? "check" : props.attempt ? "write" : "look"} muted={false} onStateChange={(_, attempt) => attempt && props.onAttempt(attempt)} onComplete={(attempt) => { props.onAttempt(attempt); props.onChecked(); }} />{props.checked ? <button type="button" onClick={props.onNext} className="min-h-12 rounded-full bg-cyan-300 font-black text-slate-950">Continue</button> : null}</section>; }
@@ -136,3 +157,7 @@ function Reflection(props: { payload: BaseWordFamilyLessonSnapshotV1; sentenceAt
   const revisit = outcomes.filter((outcome) => !outcome.secure);
   return <section className="grid gap-5"><h2 className="text-center text-3xl font-black text-white">What did you notice?</h2><section className="rounded-3xl border border-white/15 bg-white/[.07] p-4 text-left" aria-label="Your word recap"><h3 className="text-lg font-black text-white">Your word recap</h3>{secure.length ? <div className="mt-3"><p className="text-sm font-black text-cyan-100">Words you spelled securely</p><p className="mt-1 text-cyan-50">{secure.map((outcome) => outcome.word.displayWord).join(", ")}</p></div> : null}{revisit.length ? <div className="mt-3"><p className="text-sm font-black text-amber-100">Words to look at again</p><p className="mt-1 text-cyan-50">{revisit.map((outcome) => outcome.word.displayWord).join(", ")}</p><p className="mt-1 text-sm text-cyan-100">Use the base word to help you notice the part that stays the same.</p></div> : null}</section><label className="text-base font-black text-white">{props.prompt}<textarea autoFocus required maxLength={2000} value={props.value} disabled={props.submitting} onChange={(event) => props.onValue(event.target.value)} className="mt-2 min-h-32 w-full rounded-2xl bg-white p-4 text-lg font-normal text-slate-950 focus:outline-none focus:ring-4 focus:ring-cyan-300/30" /></label><button type="button" disabled={props.submitting || !props.value.trim()} onClick={props.onComplete} className="min-h-12 rounded-full bg-cyan-300 font-black text-slate-950 disabled:opacity-40">{props.submitting ? "Saving your Word Lab…" : props.completionLabel}</button></section>;
 }
+
+// Preview exports expose the real route-local surfaces to the admin-only
+// Visual Convergence Lab. They do not alter route dispatch or runtime state.
+export { Intro, FamilyReveal, Cleave, Controlled, Dictation, Reflection };

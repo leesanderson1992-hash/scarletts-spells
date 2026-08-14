@@ -31,7 +31,7 @@ assert.equal(findChildById(children, "child-b")?.id, "child-b");
 assert.equal(resolveParentManualAdleRoute("D4_MOR_PREFIXES_RE_PRE"), "dynamic_prefix_word_lab");
 assert.equal(resolveParentManualAdleRoute("D4_MOR_SUFFIXES_LY"), "dynamic_affix_word_lab");
 assert.equal(resolveParentManualAdleRoute("D4_MOR_BASE_WORDS_PRESERVE_BASE"), "base_word_lab");
-assert.equal(resolveParentManualAdleRoute("D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS"), "closed_compound_word_lab");
+assert.equal(resolveParentManualAdleRoute("D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS"), "compound_word_lab");
 assert.equal(resolveParentManualAdleRoute("D4_MOR_UNKNOWN"), null);
 
 assert.equal(deriveParentAdleTodayState([]), "error");

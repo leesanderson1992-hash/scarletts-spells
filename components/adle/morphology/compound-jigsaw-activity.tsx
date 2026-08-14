@@ -1,50 +1,68 @@
 "use client";
-/* eslint-disable react-hooks/refs -- DOM geometry is read only by drag handlers; callback refs populate the lookup map. */
 
 import {
   useEffect,
   useMemo,
   useRef,
   useState,
-  type DragEvent,
-  type MouseEvent as ReactMouseEvent,
+  type KeyboardEvent,
   type PointerEvent,
 } from "react";
+import {
+  deterministicOrderedBuildOrder,
+  useOrderedBuildEngine,
+  type OrderedBuildSnapshot,
+  type OrderedBuildTarget,
+} from "@/components/adle/activities/shared/ordered-build-engine";
+import { INTERACTION_MOTION, useReducedMotion } from "@/components/adle/activities/shared/motion";
 import { playInteractionSound } from "@/components/adle/activities/shared/sound";
+import {
+  compoundJigsawAutoScrollDelta,
+  compoundJigsawExpectedPieceIds,
+  compoundJigsawPieceEdges,
+  compoundJigsawPlacementIntentTargetId,
+  compoundJigsawPlacementTargetId,
+  compoundJigsawSlotEdges,
+  compoundJigsawTargetColumnSpan,
+  deriveCompoundJigsawPieces,
+  normaliseAnonymousCompoundJigsawSnapshot,
+  type CompoundJigsawEdges,
+  type CompoundJigsawPiece,
+  type CompoundJigsawPieceTarget,
+} from "@/lib/adle/morphology/compound-jigsaw-pieces";
 import {
   compoundWordJoinSeparator,
   type CompoundWordJoinKind,
 } from "@/lib/adle/morphology/compound-word-structure-v2";
 
-type V1Target = {
-  canonicalWordId: string;
-  word: string;
-  firstWord: string;
-  secondWord: string;
-};
-
-type V2Target = {
-  canonicalWordId: string;
-  word: string;
-  components: readonly string[];
+export interface CompoundJigsawTarget extends CompoundJigsawPieceTarget {
   joins: readonly CompoundWordJoinKind[];
-};
+}
 
-export type CompoundJigsawTarget = V1Target | V2Target;
-type NormalTarget = V2Target;
-type PiecePosition = "first" | "middle" | "last";
+export interface CompoundJigsawProgress {
+  locked: string[];
+  misses: Record<string, number>;
+  placements: OrderedBuildSnapshot["placements"];
+}
+
+type NormalTarget = CompoundJigsawTarget;
+type DragState = {
+  pieceId: string;
+  pointerId: number;
+  startX: number;
+  startY: number;
+  x: number;
+  y: number;
+  moved: boolean;
+};
 
 function normaliseTarget(target: CompoundJigsawTarget): NormalTarget | null {
-  const components = "components" in target
-    ? [...target.components]
-    : [target.firstWord, target.secondWord];
-  const joins = "joins" in target
-    ? [...target.joins]
-    : ["none" as const];
+  const components = [...target.components];
+  const joins = [...target.joins];
   if (
-    components.length < 2 ||
-    components.some((part) => !part) ||
-    joins.length !== components.length - 1
+    components.length < 2
+    || components.some((part) => !part)
+    || joins.length !== components.length - 1
   ) return null;
   const reconstructed = components.reduce((word, component, index) =>
     index === 0 ? component : `${word}${compoundWordJoinSeparator(joins[index - 1])}${component}`, "");
@@ -59,224 +77,452 @@ export function reconstructCompoundJigsawTarget(
   return normaliseTarget(target)?.word ?? null;
 }
 
-function seededOrder<T>(values: readonly T[], seed: string): T[] {
-  let state = [...seed].reduce(
-    (total, char) => (total * 31 + char.charCodeAt(0)) >>> 0,
-    1,
-  );
-  return [...values].sort(() => {
-    state = (state * 1664525 + 1013904223) >>> 0;
-    return state / 2 ** 32 - 0.5;
-  });
+function pieceLabel(piece: CompoundJigsawPiece): string {
+  if (piece.kind === "space") return "space connector";
+  if (piece.kind === "hyphen") return "hyphen connector";
+  return `${piece.text} word part`;
 }
 
-function Piece(props: {
-  id: string;
-  text: string;
-  position: PiecePosition;
+const JIGSAW_HEIGHT = 80;
+const JIGSAW_COMPONENT_WIDTH = 120;
+const JIGSAW_CONNECTOR_WIDTH = 80;
+const JIGSAW_TAB_DEPTH_PX = 14;
+
+export function compoundJigsawPiecePath(
+  edges: CompoundJigsawEdges,
+  width: number,
+): string {
+  const tabDepth = 20;
+  const rightBase = width - (edges.right === "tab" ? tabDepth : 0);
+  const rightTip = rightBase + tabDepth;
+  const leftBase = 0;
+  const leftTip = leftBase + tabDepth;
+  const rightEdge = edges.right === "tab"
+    ? `V25C${rightBase + 9} 17 ${rightTip} 22 ${rightTip} 40C${rightTip} 58 ${rightBase + 9} 63 ${rightBase} 55V76`
+    : "V76";
+  const leftEdge = edges.left === "socket"
+    ? `V55C${leftBase + 9} 63 ${leftTip} 58 ${leftTip} 40C${leftTip} 22 ${leftBase + 9} 17 ${leftBase} 25V4`
+    : "V4";
+  return `M${leftBase} 4H${rightBase}${rightEdge}H${leftBase}${leftEdge}Z`;
+}
+
+function JigsawPiece(props: {
+  piece: CompoundJigsawPiece;
+  edges: CompoundJigsawEdges;
   selected: boolean;
-  locked: boolean;
-  offset: { x: number; y: number };
-  onSelect: () => void;
-  onPointerDown: (event: PointerEvent<HTMLButtonElement>) => void;
+  completed?: boolean;
+  disabled?: boolean;
+  drag: DragState | null;
+  onActivate: () => void;
+  onPointerStart: (event: PointerEvent<HTMLButtonElement>) => void;
   onPointerMove: (event: PointerEvent<HTMLButtonElement>) => void;
-  onPointerUp: (event: PointerEvent<HTMLButtonElement>) => void;
-  onMouseDown: (event: ReactMouseEvent<HTMLButtonElement>) => void;
-  onDragStart: (event: DragEvent<HTMLButtonElement>) => void;
-  onDragOver: (event: DragEvent<HTMLButtonElement>) => void;
-  onDrop: (event: DragEvent<HTMLButtonElement>) => void;
-  buttonRef: (node: HTMLButtonElement | null) => void;
+  onPointerEnd: (event: PointerEvent<HTMLButtonElement>) => void;
+  onPointerCancel: (event: PointerEvent<HTMLButtonElement>) => void;
+  layer?: number;
 }) {
-  const first = props.position === "first";
-  const last = props.position === "last";
-  const d = first
-    ? "M4 4H104V25c13-8 25-2 25 11s-12 19-25 11v29H4Z"
-    : last
-      ? "M128 4H4v21c13-8 25-2 25 11S17 55 4 47v29h124Z"
-      : "M128 4H4v21c13-8 25-2 25 11S17 55 4 47v29h100V47c13 8 25 2 25-11s-12-19-25-11Z";
-  return (
-    <button
-      ref={props.buttonRef}
-      data-piece-id={props.id}
-      draggable={false}
-      type="button"
-      disabled={props.locked}
-      aria-label={`${props.text}, ${last ? "matching right-hand piece or final governed component" : "drag this piece to its matching right-hand piece or next governed component"}`}
-      aria-pressed={props.selected}
-      onClick={props.onSelect}
-      onPointerDown={props.onPointerDown}
-      onPointerMove={props.onPointerMove}
-      onPointerUp={props.onPointerUp}
-      onPointerCancel={props.onPointerUp}
-      onMouseDown={props.onMouseDown}
-      onDragStart={props.onDragStart}
-      onDragOver={props.onDragOver}
-      onDrop={props.onDrop}
-      style={{ transform: `translate3d(${props.offset.x}px,${props.offset.y}px,0)` }}
-      className={`relative h-20 min-w-32 touch-none overflow-visible outline-none transition-transform focus-visible:ring-4 focus-visible:ring-cyan-300/70 disabled:opacity-50 ${props.selected ? "-translate-y-1 scale-[1.03]" : "hover:-translate-y-0.5"}`}
-    >
-      <svg viewBox="0 0 132 80" aria-hidden="true" className="absolute inset-0 h-full w-full drop-shadow-[0_8px_12px_rgba(8,47,73,.32)]">
-        <path d={d} fill={first ? "#cffafe" : last ? "#fef3c7" : "#dcfce7"} stroke={props.selected ? "#22d3ee" : "#f59e0b"} strokeWidth="3" />
-      </svg>
-      <span className="relative grid h-full place-items-center px-5 text-lg font-black text-slate-950">{props.text}</span>
-    </button>
-  );
+  const reducedMotion = useReducedMotion();
+  const activeDrag = props.drag?.pieceId === props.piece.id ? props.drag : null;
+  const dragging = activeDrag !== null;
+  const offset = activeDrag
+    ? { x: activeDrag.x - activeDrag.startX, y: activeDrag.y - activeDrag.startY }
+    : { x: 0, y: 0 };
+  const connector = props.piece.kind !== "component";
+  const displayText = props.completed && props.piece.kind === "space" ? "" : props.piece.text;
+  const fill = props.piece.kind === "space"
+    ? "#e0f2fe"
+    : props.piece.kind === "hyphen"
+      ? "#fef3c7"
+      : props.edges.left === "flat"
+        ? "#cffafe"
+        : props.edges.right === "flat"
+          ? "#fef3c7"
+          : "#dcfce7";
+
+  function keyDown(event: KeyboardEvent<HTMLButtonElement>) {
+    if (event.key !== "Enter" && event.key !== " ") return;
+    event.preventDefault();
+    props.onActivate();
+  }
+
+  return <button
+    type="button"
+    disabled={props.disabled}
+    data-jigsaw-piece={props.piece.id}
+    data-jigsaw-piece-kind={props.piece.kind}
+    data-jigsaw-left-edge={props.edges.left}
+    data-jigsaw-right-edge={props.edges.right}
+    data-jigsaw-space-label-hidden={props.completed && props.piece.kind === "space" ? "true" : undefined}
+    aria-label={pieceLabel(props.piece)}
+    aria-pressed={props.selected}
+    onPointerDown={props.onPointerStart}
+    onPointerMove={props.onPointerMove}
+    onPointerUp={props.onPointerEnd}
+    onPointerCancel={props.onPointerCancel}
+    onKeyDown={keyDown}
+    style={{
+      transform: dragging
+        ? `translate3d(${offset.x}px,${offset.y}px,0) scale(${!reducedMotion ? 1.04 : 1})`
+        : undefined,
+      transition: dragging || reducedMotion ? "none" : `transform ${INTERACTION_MOTION.snapMs}ms ease`,
+      touchAction: "none",
+      zIndex: dragging ? 50 : props.layer ?? 10,
+    }}
+    className={`relative h-14 shrink-0 overflow-visible outline-none focus-visible:z-30 focus-visible:ring-4 focus-visible:ring-cyan-300/70 disabled:opacity-100 ${connector ? "w-14" : "w-[5.25rem]"} ${dragging ? "drop-shadow-2xl" : ""}`}
+  >
+    <svg viewBox={`0 0 ${connector ? JIGSAW_CONNECTOR_WIDTH : JIGSAW_COMPONENT_WIDTH} ${JIGSAW_HEIGHT}`} preserveAspectRatio="xMidYMid meet" aria-hidden="true" className="absolute inset-0 h-full w-full overflow-visible drop-shadow-[0_6px_9px_rgba(8,47,73,.32)]">
+      <path d={compoundJigsawPiecePath(props.edges, connector ? JIGSAW_CONNECTOR_WIDTH : JIGSAW_COMPONENT_WIDTH)} fill={fill} stroke={props.selected ? "#22d3ee" : props.completed ? "#6ee7b7" : "#f59e0b"} strokeWidth="3" />
+    </svg>
+    <span className={`relative grid h-full place-items-center font-black text-slate-950 ${connector ? "px-2 text-xs" : "px-4 text-base"}`}>
+      {displayText || <span className="sr-only">Space</span>}
+    </span>
+  </button>;
+}
+
+function EmptyJigsawSlot(props: {
+  label: string;
+  edges: CompoundJigsawEdges;
+  onClick: () => void;
+}) {
+  return <button
+    type="button"
+    aria-label={props.label}
+    onClick={props.onClick}
+    data-jigsaw-left-edge={props.edges.left}
+    data-jigsaw-right-edge={props.edges.right}
+    className="relative h-14 w-[5.25rem] shrink-0 outline-none focus-visible:z-30 focus-visible:ring-4 focus-visible:ring-cyan-300/70"
+  >
+    <svg viewBox={`0 0 ${JIGSAW_COMPONENT_WIDTH} ${JIGSAW_HEIGHT}`} preserveAspectRatio="xMidYMid meet" aria-hidden="true" className="absolute inset-0 h-full w-full overflow-visible">
+      <path d={compoundJigsawPiecePath(props.edges, JIGSAW_COMPONENT_WIDTH)} fill="rgba(207,250,254,.04)" stroke="rgba(103,232,249,.58)" strokeDasharray="7 5" strokeWidth="3" />
+    </svg>
+    <span className="relative grid h-full place-items-center px-2 text-[10px] font-black uppercase tracking-wide text-cyan-100">Place</span>
+  </button>;
 }
 
 export function CompoundJigsawActivity(props: {
   targets: readonly CompoundJigsawTarget[];
-  copyMode?: "closed_v1" | "generalized";
   muted?: boolean;
   initialLocked?: readonly string[];
   initialMisses?: Readonly<Record<string, number>>;
-  onProgress?: (progress: { locked: string[]; misses: Record<string, number> }) => void;
-  onComplete: (progress: { locked: string[]; misses: Record<string, number> }) => void;
+  initialPlacements?: OrderedBuildSnapshot["placements"];
+  onProgress?: (progress: CompoundJigsawProgress) => void;
+  onComplete: (progress: CompoundJigsawProgress) => void;
 }) {
   const targets = useMemo(
     () => props.targets.map(normaliseTarget).filter((target): target is NormalTarget => target !== null),
     [props.targets],
   );
-  const pieces = useMemo(() => seededOrder(
-    targets.flatMap((target) => target.components.map((text, ordinal) => ({
-      id: `${target.canonicalWordId}:${ordinal}`,
-      target,
-      ordinal,
-      position: ordinal === 0 ? "first" as const : ordinal === target.components.length - 1 ? "last" as const : "middle" as const,
-      text,
-    }))),
-    targets.map((target) => target.canonicalWordId).join(":"),
-  ), [targets]);
-  const [selected, setSelected] = useState<string | null>(null);
-  const [matchedEdges, setMatchedEdges] = useState<Record<string, number>>({});
-  const [locked, setLocked] = useState<string[]>(() => [...(props.initialLocked ?? [])]);
+  const piecesByTarget = useMemo(
+    () => new Map(targets.map((target) => [target.canonicalWordId, deriveCompoundJigsawPieces(target)])),
+    [targets],
+  );
+  const pieces = useMemo(() => deterministicOrderedBuildOrder(
+    targets.flatMap((target) => piecesByTarget.get(target.canonicalWordId) ?? []),
+    targets.map((target) => `${target.canonicalWordId}:${target.word}`).join("|"),
+  ), [piecesByTarget, targets]);
+  const pieceMap = useMemo(() => new Map(pieces.map((piece) => [piece.id, piece])), [pieces]);
+  const noExcludedTargetIds = useMemo(() => new Set<string>(), []);
+  const sourcePieceCounts = useMemo(() => new Map(targets.map((target) => [
+    target.canonicalWordId,
+    compoundJigsawExpectedPieceIds(target).length,
+  ])), [targets]);
+  const buildTargets = useMemo<OrderedBuildTarget[]>(() => targets.map((target) => ({
+    id: target.canonicalWordId,
+    expectedPieceIds: compoundJigsawExpectedPieceIds(target),
+    isCorrect: (placements) => compoundJigsawPlacementTargetId(targets, placements, noExcludedTargetIds, pieceMap) !== null,
+  })), [noExcludedTargetIds, pieceMap, targets]);
+  const initialSnapshot = useMemo(() => {
+    const normalised = normaliseAnonymousCompoundJigsawSnapshot(
+      targets,
+      props.initialPlacements,
+      props.initialLocked ?? [],
+    );
+    return {
+      placements: normalised.placements,
+      completedTargetIds: normalised.completedRowIds,
+    };
+  }, [props.initialLocked, props.initialPlacements, targets]);
+  const engine = useOrderedBuildEngine({
+    targets: buildTargets,
+    pieceIds: pieces.map((piece) => piece.id),
+    initialSnapshot,
+  });
   const [misses, setMisses] = useState<Record<string, number>>(() => ({ ...(props.initialMisses ?? {}) }));
   const [feedback, setFeedback] = useState("");
-  const [offsets, setOffsets] = useState<Record<string, { x: number; y: number }>>({});
-  const pieceRefs = useRef<Record<string, HTMLButtonElement | null>>({});
-  const dragging = useRef<string | null>(null);
-  const dragStart = useRef<{ x: number; y: number } | null>(null);
-  const dragged = useRef(false);
-  const suppressClick = useRef(false);
-  const complete = locked.length === targets.length && targets.length === props.targets.length;
+  const [drag, setDrag] = useState<DragState | null>(null);
+  const dragRef = useRef<DragState | null>(null);
+  const slotRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const onProgress = useRef(props.onProgress);
   useEffect(() => { onProgress.current = props.onProgress; }, [props.onProgress]);
-  useEffect(() => { onProgress.current?.({ locked, misses }); }, [locked, misses]);
+  const lockedTargetByRow = useMemo(() => {
+    const claimed = new Set<string>();
+    return new Map(engine.snapshot.completedTargetIds.flatMap((rowId) => {
+      const targetId = compoundJigsawPlacementTargetId(
+        targets,
+        engine.snapshot.placements[rowId] ?? [],
+        claimed,
+        pieceMap,
+      );
+      if (!targetId) return [];
+      claimed.add(targetId);
+      return [[rowId, targetId] as const];
+    }));
+  }, [engine.snapshot.completedTargetIds, engine.snapshot.placements, pieceMap, targets]);
+  const lockedTargetIds = useMemo(() => {
+    const locked = new Set(lockedTargetByRow.values());
+    return targets.flatMap((target) => locked.has(target.canonicalWordId) ? [target.canonicalWordId] : []);
+  }, [lockedTargetByRow, targets]);
+  useEffect(() => {
+    onProgress.current?.({
+      locked: lockedTargetIds,
+      misses,
+      placements: engine.snapshot.placements,
+    });
+  }, [engine.snapshot.placements, lockedTargetIds, misses]);
+  const complete = lockedTargetIds.length === targets.length
+    && targets.length === props.targets.length;
 
-  function lockTarget(target: NormalTarget) {
-    setLocked((current) => current.includes(target.canonicalWordId) ? current : [...current, target.canonicalWordId]);
-    setSelected(null);
-    setFeedback(`${target.word} clicks together.`);
+  function pieceById(pieceId: string | null) {
+    return pieceId ? pieceMap.get(pieceId) : undefined;
+  }
+
+  function nearestDestination(point: { x: number; y: number }) {
+    return Object.entries(slotRefs.current)
+      .flatMap(([key, node]) => {
+        if (!node) return [];
+        const [targetId] = key.split("::");
+        if (engine.snapshot.completedTargetIds.includes(targetId)) return [];
+        const rect = node.getBoundingClientRect();
+        const dx = Math.max(rect.left - point.x, 0, point.x - rect.right);
+        const dy = Math.max(rect.top - point.y, 0, point.y - rect.bottom);
+        return [{ key, distance: Math.hypot(dx, dy) }];
+      })
+      .filter((candidate) => candidate.distance <= INTERACTION_MOTION.snapDistancePx + 24)
+      .sort((left, right) => left.distance - right.distance)[0];
+  }
+
+  function placeAtPoint(pieceId: string, point: { x: number; y: number }) {
+    const destination = nearestDestination(point);
+    if (!destination) {
+      setFeedback("That piece did not reach a puzzle space. Try again or tap a piece, then tap a space.");
+      playInteractionSound("resist", props.muted);
+      return;
+    }
+    const [targetId, slotText] = destination.key.split("::");
+    engine.placePiece(pieceId, targetId, Number(slotText));
+    setFeedback(`${pieceById(pieceId)?.text ?? "Piece"} placed. You can move or swap it before checking.`);
     playInteractionSound("snap", props.muted);
   }
-  function reject(message: string, canonicalWordId: string) {
-    setMisses((value) => ({ ...value, [canonicalWordId]: (value[canonicalWordId] ?? 0) + 1 }));
-    setSelected(null);
-    setFeedback(message);
-    playInteractionSound("resist", props.muted);
-  }
-  function connect(source: typeof pieces[number], destination: typeof pieces[number]) {
-    const expectedSource = matchedEdges[source.target.canonicalWordId] ?? 0;
-    if (
-      source.target.canonicalWordId !== destination.target.canonicalWordId ||
-      source.ordinal !== expectedSource ||
-      destination.ordinal !== source.ordinal + 1
-    ) {
-      reject("Those pieces are not the next governed word parts. Try again.", source.target.canonicalWordId);
-      return;
-    }
-    const nextEdge = destination.ordinal;
-    if (nextEdge === source.target.components.length - 1) {
-      lockTarget(source.target);
-    } else {
-      setMatchedEdges((current) => ({ ...current, [source.target.canonicalWordId]: nextEdge }));
-      setSelected(destination.id);
-      setFeedback(`Good. Add the next part of ${source.target.word}.`);
-      playInteractionSound("snap", props.muted);
-    }
-  }
-  function choose(piece: typeof pieces[number]) {
-    if (suppressClick.current || complete || locked.includes(piece.target.canonicalWordId)) return;
-    if (!selected) {
-      const expected = matchedEdges[piece.target.canonicalWordId] ?? 0;
-      if (piece.ordinal !== expected) {
-        reject("Start with the first available part of the compound.", piece.target.canonicalWordId);
-        return;
-      }
-      setSelected(piece.id);
-      setFeedback("Choose the next governed component.");
-      return;
-    }
-    const source = pieces.find((candidate) => candidate.id === selected);
-    if (!source || source.id === piece.id) { setSelected(null); return; }
-    connect(source, piece);
-  }
-  function moveDragAt(clientX: number, clientY: number, piece: typeof pieces[number]) {
-    if (dragging.current !== piece.id || !dragStart.current) return;
-    const offset = { x: clientX - dragStart.current.x, y: clientY - dragStart.current.y };
-    if (Math.abs(offset.x) > 4 || Math.abs(offset.y) > 4) dragged.current = true;
-    setOffsets((current) => ({ ...current, [piece.id]: offset }));
-  }
-  function endDragAt(clientX: number, clientY: number, piece: typeof pieces[number]) {
-    if (dragging.current !== piece.id) return;
-    const didDrag = dragged.current;
-    dragging.current = null;
-    dragStart.current = null;
-    if (!didDrag) return;
-    suppressClick.current = true;
-    window.setTimeout(() => { suppressClick.current = false; }, 0);
-    const match = pieces.find((candidate) => candidate.target.canonicalWordId === piece.target.canonicalWordId && candidate.ordinal === piece.ordinal + 1);
-    const underPointer = document.elementFromPoint(clientX, clientY)?.closest<HTMLButtonElement>("[data-piece-id]")?.dataset.pieceId;
-    const sourceBox = pieceRefs.current[piece.id]?.getBoundingClientRect();
-    const destinationBox = match ? pieceRefs.current[match.id]?.getBoundingClientRect() : null;
-    setOffsets((current) => ({ ...current, [piece.id]: { x: 0, y: 0 } }));
-    if (match && (underPointer === match.id || (sourceBox && destinationBox && Math.hypot((sourceBox.left + sourceBox.width / 2) - (destinationBox.left + destinationBox.width / 2), (sourceBox.top + sourceBox.height / 2) - (destinationBox.top + destinationBox.height / 2)) < 135))) connect(piece, match);
-    else reject("Drag this piece onto its next governed component.", piece.target.canonicalWordId);
-  }
-  function canDrag(piece: typeof pieces[number]) {
-    return !locked.includes(piece.target.canonicalWordId) && piece.ordinal === (matchedEdges[piece.target.canonicalWordId] ?? 0) && piece.ordinal < piece.target.components.length - 1;
-  }
-  function beginDrag(event: PointerEvent<HTMLButtonElement>, piece: typeof pieces[number]) {
-    if (!canDrag(piece)) return;
+
+  function pointerStart(pieceId: string, event: PointerEvent<HTMLButtonElement>) {
+    if (event.currentTarget.disabled) return;
     event.currentTarget.setPointerCapture(event.pointerId);
-    dragStart.current = { x: event.clientX, y: event.clientY };
-    dragged.current = false;
-    dragging.current = piece.id;
-  }
-  function beginMouseDrag(event: ReactMouseEvent<HTMLButtonElement>, piece: typeof pieces[number]) {
-    if (!canDrag(piece)) return;
-    dragStart.current = { x: event.clientX, y: event.clientY };
-    dragged.current = false;
-    dragging.current = piece.id;
-    const move = (nativeEvent: globalThis.MouseEvent) => moveDragAt(nativeEvent.clientX, nativeEvent.clientY, piece);
-    const up = (nativeEvent: globalThis.MouseEvent) => {
-      document.removeEventListener("mousemove", move);
-      document.removeEventListener("mouseup", up);
-      endDragAt(nativeEvent.clientX, nativeEvent.clientY, piece);
+    const next = {
+      pieceId,
+      pointerId: event.pointerId,
+      startX: event.clientX,
+      startY: event.clientY,
+      x: event.clientX,
+      y: event.clientY,
+      moved: false,
     };
-    document.addEventListener("mousemove", move);
-    document.addEventListener("mouseup", up);
+    dragRef.current = next;
+    setDrag(next);
   }
-  function dropNative(event: DragEvent<HTMLButtonElement>, piece: typeof pieces[number]) {
-    event.preventDefault();
-    const source = pieces.find((candidate) => candidate.id === event.dataTransfer.getData("text/plain"));
-    if (source) connect(source, piece);
-    else reject("Those pieces do not make one of our compound words. Try again.", piece.target.canonicalWordId);
+
+  function pointerMove(event: PointerEvent<HTMLButtonElement>) {
+    const current = dragRef.current;
+    if (!current || current.pointerId !== event.pointerId) return;
+    const next = {
+      ...current,
+      x: event.clientX,
+      y: event.clientY,
+      moved: current.moved
+        || Math.abs(event.clientX - current.startX) > 4
+        || Math.abs(event.clientY - current.startY) > 4,
+    };
+    dragRef.current = next;
+    setDrag(next);
+    const scrollDelta = window.innerWidth < 768
+      ? compoundJigsawAutoScrollDelta(event.clientY, window.innerHeight)
+      : 0;
+    if (scrollDelta) window.scrollBy({ top: scrollDelta, behavior: "auto" });
   }
-  return (
-    <section className="grid gap-5 text-cyan-50" aria-labelledby="compound-jigsaw-title">
-      <div className="text-center">
-        <p className="text-xs font-black uppercase tracking-[.2em] text-cyan-200">Compound workshop</p>
-        <h2 id="compound-jigsaw-title" className="mt-2 text-3xl font-black text-white">Build all the compound words</h2>
-        <p className="mt-2 font-semibold text-cyan-100">{props.copyMode === "closed_v1" ? "The pieces are muddled. Drag a blue first-piece onto its matching gold second-piece. You can also select the two pieces with the keyboard." : "The pieces are muddled. Join each word’s components in their governed order. Drag or use the keyboard."}</p>
+
+  function finishPointer(
+    piece: CompoundJigsawPiece,
+    event: PointerEvent<HTMLButtonElement>,
+    activate: () => void,
+    cancelled = false,
+  ) {
+    const current = dragRef.current;
+    if (!current || current.pointerId !== event.pointerId || current.pieceId !== piece.id) return;
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    }
+    dragRef.current = null;
+    setDrag(null);
+    if (cancelled) {
+      setFeedback(`${piece.text} returned to its previous place.`);
+      return;
+    }
+    if (current.moved) placeAtPoint(piece.id, { x: event.clientX, y: event.clientY });
+    else activate();
+  }
+
+  function activateBankPiece(piece: CompoundJigsawPiece) {
+    engine.selectPiece(piece.id);
+    setFeedback(`${piece.text} selected. Choose a puzzle space.`);
+  }
+
+  function activatePlacedPiece(targetId: string, slot: number, piece: CompoundJigsawPiece) {
+    engine.liftPiece(targetId, slot);
+    setFeedback(`${piece.text} lifted. Choose a different space.`);
+  }
+
+  function checkBuilds() {
+    const fullRows = buildTargets.filter((row) =>
+      !engine.snapshot.completedTargetIds.includes(row.id)
+      && engine.snapshot.placements[row.id].every((pieceId) => pieceId !== null));
+    if (!fullRows.length) {
+      setFeedback("Fill every space in at least one puzzle row before checking.");
+      return;
+    }
+    const claimedTargetIds = new Set(lockedTargetIds);
+    const correct = fullRows.flatMap((row) => {
+      const targetId = compoundJigsawPlacementTargetId(
+        targets,
+        engine.snapshot.placements[row.id],
+        claimedTargetIds,
+        pieceMap,
+      );
+      if (!targetId) return [];
+      claimedTargetIds.add(targetId);
+      return [{ rowId: row.id, targetId }];
+    });
+    const correctRowIds = new Set(correct.map((entry) => entry.rowId));
+    const incorrect = fullRows.filter((row) => !correctRowIds.has(row.id));
+    correct.forEach(({ rowId }) => engine.completeTarget(rowId));
+    if (incorrect.length) {
+      const missedTargetIds = new Set(incorrect.flatMap((row) => {
+        const targetId = compoundJigsawPlacementIntentTargetId(targets, engine.snapshot.placements[row.id], pieceMap);
+        return targetId && !claimedTargetIds.has(targetId) ? [targetId] : [];
+      }));
+      if (missedTargetIds.size) {
+        setMisses((current) => ({
+          ...current,
+          ...Object.fromEntries([...missedTargetIds].map((targetId) => [targetId, (current[targetId] ?? 0) + 1])),
+        }));
+      }
+      setFeedback(missedTargetIds.size
+        ? "Some pieces are in the wrong order. Move them and check again."
+        : "That row mixes pieces from different words. Rearrange the pieces and check again.");
+      playInteractionSound("resist", props.muted);
+    } else {
+      setFeedback(correct.length === 1 ? "That word clicks together." : `${correct.length} words click together.`);
+      playInteractionSound("fusion", props.muted);
+    }
+  }
+
+  const progress = (): CompoundJigsawProgress => ({
+    locked: lockedTargetIds,
+    misses,
+    placements: engine.snapshot.placements,
+  });
+
+  return <section className="grid min-w-0 gap-5 text-cyan-50" aria-labelledby="compound-jigsaw-title" data-jigsaw-board>
+    <div className="text-center">
+      <p className="text-xs font-black uppercase tracking-[.2em] text-cyan-200">Jigsaw build</p>
+      <h2 id="compound-jigsaw-title" className="mt-2 text-3xl font-black text-white">Build all the words</h2>
+      <p className="mt-2 font-semibold text-cyan-100">Fit each word into any puzzle row with the right number of pieces. Spaces and hyphens are pieces too. Rearrange them until each word is right, then check.</p>
+    </div>
+
+    <div className="grid min-w-0 grid-cols-1 gap-3 md:grid-cols-2" aria-label="Anonymous jigsaw rows">
+      {buildTargets.map((row, rowIndex) => {
+        const placements = engine.snapshot.placements[row.id];
+        const locked = engine.snapshot.completedTargetIds.includes(row.id);
+        const lockedTargetId = lockedTargetByRow.get(row.id);
+        const lockedTarget = targets.find((target) => target.canonicalWordId === lockedTargetId);
+        const span = compoundJigsawTargetColumnSpan(row.expectedPieceIds.length);
+        const spanClass = span === "full" ? "md:col-span-2" : "";
+        return <section
+          key={row.id}
+          data-jigsaw-row={rowIndex + 1}
+          data-jigsaw-row-id={row.id}
+          data-jigsaw-piece-count={row.expectedPieceIds.length}
+          className={`min-w-0 rounded-2xl border p-3 ${spanClass} ${locked ? "border-emerald-300/50 bg-emerald-100/10" : "border-cyan-300/30 bg-slate-950/35"}`}
+          aria-label={`Puzzle row ${rowIndex + 1}, ${row.expectedPieceIds.length} pieces`}
+        >
+          <div className="flex items-center justify-between gap-2">
+            <p className="text-[10px] font-black uppercase tracking-[.14em] text-cyan-200">Puzzle row · {row.expectedPieceIds.length} pieces</p>
+            {locked ? <span className="rounded-full bg-emerald-200 px-2 py-0.5 text-[10px] font-black text-emerald-950">Built</span> : null}
+          </div>
+          <div className="mt-2 flex min-w-0 items-center justify-center overflow-visible px-2" data-jigsaw-slot-row>
+            {placements.map((pieceId, slot) => {
+              const piece = pieceById(pieceId);
+              const edges = piece
+                ? compoundJigsawPieceEdges(piece, sourcePieceCounts.get(piece.targetId) ?? 1)
+                : compoundJigsawSlotEdges(slot, placements.length);
+              return <div
+                key={`${row.id}:${slot}`}
+                ref={(node) => { slotRefs.current[`${row.id}::${slot}`] = node; }}
+                data-jigsaw-slot={`${row.id}:${slot}`}
+                className="relative shrink-0"
+                style={{ marginLeft: slot > 0 ? -JIGSAW_TAB_DEPTH_PX : undefined, zIndex: placements.length - slot }}
+              >
+                {piece ? <JigsawPiece
+                  piece={piece}
+                  edges={edges}
+                  selected={engine.selectedPieceId === piece.id}
+                  completed={locked}
+                  disabled={locked}
+                  drag={drag}
+                  layer={placements.length - slot}
+                  onActivate={() => activatePlacedPiece(row.id, slot, piece)}
+                  onPointerStart={(event) => pointerStart(piece.id, event)}
+                  onPointerMove={pointerMove}
+                  onPointerEnd={(event) => finishPointer(piece, event, () => activatePlacedPiece(row.id, slot, piece))}
+                  onPointerCancel={(event) => finishPointer(piece, event, () => undefined, true)}
+                /> : <EmptyJigsawSlot
+                  label={engine.selectedPieceId
+                    ? `Place ${pieceLabel(pieceById(engine.selectedPieceId)!)} in puzzle row ${rowIndex + 1}, position ${slot + 1}`
+                    : `Empty position ${slot + 1} in puzzle row ${rowIndex + 1}`}
+                  edges={edges}
+                  onClick={() => {
+                    if (engine.selectedPieceId) {
+                      engine.placeSelected(row.id, slot);
+                      setFeedback("Piece placed. You can move it again before checking.");
+                      playInteractionSound("snap", props.muted);
+                    } else setFeedback("Choose a jigsaw piece from the mixed bank first.");
+                  }}
+                />}
+              </div>;
+            })}
+          </div>
+          {lockedTarget ? <p className="mt-2 text-center text-sm font-black text-emerald-50">{lockedTarget.word}</p> : null}
+        </section>;
+      })}
+    </div>
+
+    <section className="rounded-3xl border border-cyan-300/30 bg-slate-950/45 p-4 sm:p-5" aria-label="Mixed jigsaw piece bank">
+      <p className="mb-3 text-center text-xs font-black uppercase tracking-[.16em] text-cyan-200">Mixed piece bank</p>
+      <div className="flex min-w-0 flex-wrap justify-center gap-x-3 gap-y-3">
+        {pieces.filter((piece) => engine.availablePieceIds.includes(piece.id)).map((piece) => <JigsawPiece
+            key={piece.id}
+            piece={piece}
+            edges={compoundJigsawPieceEdges(piece, sourcePieceCounts.get(piece.targetId) ?? 1)}
+            selected={engine.selectedPieceId === piece.id}
+            drag={drag}
+            onActivate={() => activateBankPiece(piece)}
+            onPointerStart={(event) => pointerStart(piece.id, event)}
+            onPointerMove={pointerMove}
+            onPointerEnd={(event) => finishPointer(piece, event, () => activateBankPiece(piece))}
+            onPointerCancel={(event) => finishPointer(piece, event, () => undefined, true)}
+          />)}
+        {engine.availablePieceIds.length === 0 ? <p className="py-3 text-sm font-semibold text-cyan-100">Every piece is in a puzzle tray. Check the order or lift a piece to move it.</p> : null}
       </div>
-      <div className="rounded-3xl border border-cyan-300/30 bg-slate-950/45 p-5">
-        <div className="flex flex-wrap justify-center gap-x-5 gap-y-6" aria-label="Muddled draggable jigsaw word pieces">
-          {pieces.map((piece) => <Piece key={piece.id} id={piece.id} text={piece.text} position={piece.position} selected={selected === piece.id} locked={locked.includes(piece.target.canonicalWordId)} offset={offsets[piece.id] ?? { x: 0, y: 0 }} buttonRef={(node) => { pieceRefs.current[piece.id] = node; }} onSelect={() => choose(piece)} onPointerDown={(event) => beginDrag(event, piece)} onPointerMove={(event) => moveDragAt(event.clientX, event.clientY, piece)} onPointerUp={(event) => { if (dragging.current === piece.id) event.preventDefault(); endDragAt(event.clientX, event.clientY, piece); }} onMouseDown={(event) => beginMouseDrag(event, piece)} onDragStart={(event) => { if (canDrag(piece)) { event.dataTransfer.setData("text/plain", piece.id); event.dataTransfer.effectAllowed = "move"; } }} onDragOver={(event) => { if (piece.ordinal > 0) event.preventDefault(); }} onDrop={(event) => dropNative(event, piece)} />)}
-        </div>
-      </div>
-      {locked.length ? <div className="rounded-3xl border border-emerald-300/30 bg-emerald-100/10 p-4"><p className="text-sm font-black uppercase tracking-wide text-emerald-200">Words you have built</p><div className="mt-3 flex flex-wrap gap-3">{targets.filter((target) => locked.includes(target.canonicalWordId)).map((target) => <span key={target.canonicalWordId} className="rounded-2xl bg-white px-4 py-2 text-lg font-black text-slate-950">{target.components.map((component, index) => <span key={`${component}-${index}`}><span className={index === 0 ? "underline decoration-amber-400 decoration-4 underline-offset-4" : ""}>{component}</span>{index < target.joins.length ? compoundWordJoinSeparator(target.joins[index]) : ""}</span>)}</span>)}</div></div> : null}
-      {complete ? <button type="button" onClick={() => props.onComplete({ locked, misses })} className="mx-auto min-h-12 rounded-full bg-cyan-300 px-7 font-black text-slate-950">Connect the meanings</button> : null}
-      <p aria-live="polite" className="min-h-6 text-center text-sm font-semibold text-cyan-100">{feedback}</p>
     </section>
-  );
+
+    {!complete ? <button type="button" onClick={checkBuilds} className="mx-auto min-h-12 rounded-full bg-cyan-300 px-7 font-black text-slate-950">Check my builds</button> : <button type="button" onClick={() => props.onComplete(progress())} className="mx-auto min-h-12 rounded-full bg-cyan-300 px-7 font-black text-slate-950">Connect the meanings</button>}
+    <p aria-live="polite" className="min-h-6 text-center text-sm font-semibold text-cyan-100">{feedback}</p>
+  </section>;
 }
