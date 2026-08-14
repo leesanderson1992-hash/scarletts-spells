@@ -70,11 +70,13 @@ if (previousProductionGate === undefined) delete process.env.ADLE_CLOSED_COMPOUN
 else process.env.ADLE_CLOSED_COMPOUND_PRODUCTION_ENABLED = previousProductionGate;
 const jigsawSource = readFileSync("components/adle/morphology/compound-jigsaw-activity.tsx", "utf8");
 const lessonSource = readFileSync("components/adle/morphology/closed-compound-guided-lesson.tsx", "utf8");
+const compatibilitySource = readFileSync("lib/adle/morphology/closed-compound-jigsaw-compatibility.ts", "utf8");
 const meaningSource = readFileSync("components/adle/morphology/meaning-connection-activity.tsx", "utf8");
 const loaderSource = readFileSync("lib/adle/morphology/closed-compound-profile-loader.ts", "utf8");
 const reflectionSource = readFileSync("lib/adle/morphology/reflections.ts", "utf8");
-assert(jigsawSource.includes("Muddled draggable jigsaw word pieces") && jigsawSource.includes("onPointerMove") && jigsawSource.includes("getBoundingClientRect"), "smoke gate: the board must retain all pieces, real pointer dragging, and proximity snap checks");
-assert(jigsawSource.includes("drag this piece to its matching right-hand piece") && jigsawSource.includes("M4 4H104V25") && jigsawSource.includes("M128 4H4v21"), "smoke gate: first and second pieces must expose complementary outward/indented jigsaw geometry");
+assert(jigsawSource.includes("Mixed jigsaw piece bank") && jigsawSource.includes("onPointerMove") && jigsawSource.includes("getBoundingClientRect"), "smoke gate: the board must retain one mixed bank, real pointer dragging, and slot proximity checks");
+assert(jigsawSource.includes("useOrderedBuildEngine") && jigsawSource.includes("Anonymous jigsaw rows") && jigsawSource.includes("compoundJigsawPiecePath") && jigsawSource.includes("compoundJigsawPlacementTargetId"), "smoke gate: Jigsaw keeps anonymous content-recognised rows and one shared piece geometry above shared ordered-build mechanics");
+assert(!jigsawSource.includes("closed_v1") && compatibilitySource.includes("components: [word.firstWord, word.secondWord]") && compatibilitySource.includes('joins: ["none"]'), "closed-v1 compatibility is data normalization, not a historical learner UI");
 assert(meaningSource.includes("Your arrow follows your cursor") && meaningSource.includes("markerEnd=\"url(#compound-arrow)\"") && meaningSource.includes("onPointerMove={pointer}"), "smoke gate: the meaning board must show a live cursor-following arrow and a snapped arrow head");
 assert(lessonSource.includes("Write the whole sentence") && lessonSource.includes("Check sentence") && lessonSource.includes("autoFocus") && lessonSource.includes("mode=\"sentence\""), "smoke gate: sentence dictation must provide a visible editable input and existing check/reveal flow");
 assert(!lessonSource.includes("<><DiffReveal attempt={attempts[word.canonicalWordId]}"), "smoke gate: CoverShutter owns the one and only word comparison reveal");

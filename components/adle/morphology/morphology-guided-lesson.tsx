@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useFormStatus } from "react-dom";
 import { completeAdleLessonPartAction } from "@/app/learn/week/adle/actions";
 import {
@@ -8,9 +8,10 @@ import {
   CoverShutter,
   DiffReveal,
   HearWordButton,
-  SnapRail,
   SplitHandle,
 } from "@/components/adle/activities/shared";
+import { DefinitionWordBuilder } from "@/components/adle/activities/shared/definition-word-builder";
+import { deterministicOrderedBuildOrder } from "@/components/adle/activities/shared/ordered-build-engine";
 import { playInteractionSound } from "@/components/adle/activities/shared/sound";
 import type { AdleSessionItem } from "@/lib/adle/loaders/daily-plan-surface";
 import {
@@ -160,6 +161,8 @@ export function MorphologyGuidedLesson(props: {
   );
   const meaningActivity = props.payload.activities.find((activity) => activity.type === "meaning_sort");
   const showMeaningOverview = meaningActivity?.meaningResultsPresentation !== "none";
+  const buildActivity = props.payload.activities.find((activity) => activity.type === "prefix_choice")!;
+  const definitionBuild = morphologyDefinitionBuild(props.payload, buildActivity, state.buildIndex);
   const phase =
     state.stage === "learn"
       ? 0
@@ -327,20 +330,16 @@ export function MorphologyGuidedLesson(props: {
         )
       ) : null}
       {state.stage === "build" ? (
-        <PrefixBuild
-          key={state.buildIndex}
-          buildIndex={state.buildIndex}
-          totalBuilds={props.payload.activities.find((activity) => activity.type === "prefix_choice")?.assignmentBindings.length ?? 1}
-          activity={props.payload.activities.find((activity) => activity.type === "prefix_choice")!}
-          beat={beat}
+        <DefinitionWordBuilder
+          key={definitionBuild.targetId}
+          {...definitionBuild}
           muted={state.muted}
-          onComplete={() => {
-            completeBinding(
-              props.payload.activities.find(
-                (activity) => activity.type === "prefix_choice",
-              )?.assignmentBindings[state.buildIndex] ?? "",
-            );
-            const buildCount = props.payload.activities.find((activity) => activity.type === "prefix_choice")?.assignmentBindings.length ?? 1;
+          renderIncorrectFeedback={(ids, misses) => morphologyDefinitionIncorrectFeedback(buildActivity, beat, definitionBuild.choiceById.get(ids[0]), definitionBuild.targetChoice, definitionBuild.baseWord, misses)}
+          onBuilt={() => completeBinding(
+            buildActivity.assignmentBindings[state.buildIndex] ?? "",
+          )}
+          onContinue={() => {
+            const buildCount = buildActivity.assignmentBindings.length || 1;
             if (state.buildIndex + 1 < buildCount) {
               update({ buildIndex: state.buildIndex + 1, helpLevel: 0 });
             } else {
@@ -455,7 +454,7 @@ function activityId(stage: Stage): string {
               ? "reflection"
               : stage;
 }
-function LearnIntroduction(props: {
+export function LearnIntroduction(props: {
   payload: MorphologyLessonPayloadV1;
   index: number;
   onNext: () => void;
@@ -559,7 +558,7 @@ function LearnIntroduction(props: {
     </section>
   );
 }
-function Discovery(props: {
+export function Discovery(props: {
   payload: MorphologyLessonPayloadV1;
   index: number;
   muted: boolean;
@@ -670,7 +669,7 @@ function Discovery(props: {
     </div>
   );
 }
-function SplitBuild(props: {
+export function SplitBuild(props: {
   word: MorphologyWordSnapshot;
   misses: number;
   correct: boolean;
@@ -758,7 +757,7 @@ function MeaningCards(props: { payload: MorphologyLessonPayloadV1 }) {
     </div>
   );
 }
-function MeaningOverview(props: {
+export function MeaningOverview(props: {
   payload: MorphologyLessonPayloadV1;
   onNext: () => void;
 }) {
@@ -800,75 +799,79 @@ function MeaningOverview(props: {
     </section>
   );
 }
-function PrefixBuild(props: {
-  activity: NonNullable<MorphologyLessonPayloadV1["activities"][number]>;
-  buildIndex: number;
-  totalBuilds: number;
-  beat: MorphologyLessonPayloadV1["guide"]["beats"][number];
-  muted: boolean;
-  onComplete: () => void;
-}) {
-  const build = props.activity.builds?.[props.buildIndex];
-  const [message, setMessage] = useState<ReactNode>("");
-  const [misses, setMisses] = useState(0);
-  const choices = build?.prefixChoices ?? props.activity.prefixChoices ?? [];
-  const target = choices.find((choice) => choice.status === "target");
-  const baseWord = build?.baseWord ?? props.activity.baseWord ?? "base word";
-  const targetMeaning = build?.targetMeaning ?? props.activity.targetMeaning;
-  const term = props.activity.affixTerm ?? "prefix";
-  const suffix = props.activity.affixPosition === "after";
-  return (
-    <div className="grid gap-4">
-      {props.totalBuilds > 1 ? (
-        <p className="text-center text-sm font-black uppercase tracking-[.2em] text-cyan-200">
-          Build a word {props.buildIndex + 1} of {props.totalBuilds}
-        </p>
-      ) : null}
-      {targetMeaning ? (
-        <h2 className="text-center text-3xl font-black text-white">
-          Build the word that means “{targetMeaning}”
-        </h2>
-      ) : null}
-      <SnapRail
-        tiles={choices.map((choice) => ({
-          id: choice.text,
-          text: choice.label,
-          role: suffix ? "suffix" as const : "prefix" as const,
-          gloss: choice.meaning ?? undefined,
-        }))}
-        expectedIds={target ? [target.text] : []}
-        fixedTiles={[{ id: baseWord, text: baseWord, role: "base" }]}
-        fixedTilesPosition={suffix ? "before" : "after"}
-        label={targetMeaning ? `Build the word that means ${targetMeaning}` : `Choose a ${term} for ${baseWord}`}
-        muted={props.muted}
-        onComplete={props.onComplete}
-        onInvalid={(ids) => {
-          const choice = choices.find((candidate) => candidate.text === ids[0]);
-          const nextMisses = misses + 1;
-          setMisses(nextMisses);
-          setMessage(
-            choice?.meaning && choice.rules?.length && props.activity.teachingCards
-              ? <SelectedPrefixFeedback card={{ text: choice.text, label: choice.label, meaning: choice.meaning, rules: [...choice.rules] as [string, ...string[]], ...(choice.example ? { example: choice.example } : {}) }} />
-              : choice?.status === "valid_alternative"
-              ? `${choice.outcome ?? choice.label} means ${choice.meaning}. ${props.beat.onPartial ?? `Choose the ${term} that makes this word.`}`
-              : nextMisses > 1
-                ? (props.beat.onRepeatedMisconception ??
-                  `Choose ${target?.label ?? `the right ${term}`} to make the word.`)
-                : (props.beat.onMisconception ??
-                  `That ${term} does not make the word we need with ${baseWord}.`),
-          );
-        }}
-      />
-      <p
-        aria-live="polite"
-        className="min-h-6 text-center font-semibold text-cyan-100"
-      >
-        {message}
-      </p>
-    </div>
-  );
+type PrefixChoice = NonNullable<MorphologyLessonPayloadV1["activities"][number]["prefixChoices"]>[number];
+
+function morphologyDefinitionBuild(
+  payload: MorphologyLessonPayloadV1,
+  activity: MorphologyLessonPayloadV1["activities"][number],
+  buildIndex: number,
+) {
+  const build = activity.builds?.[buildIndex];
+  const choices = build?.prefixChoices ?? activity.prefixChoices ?? [];
+  const targetChoiceIndex = choices.findIndex((choice) => choice.status === "target");
+  const target = choices[targetChoiceIndex];
+  const baseWord = build?.baseWord ?? activity.baseWord ?? "base word";
+  const targetWord = payload.words.lesson.find((word) =>
+    word.canonicalWordId === build?.canonicalWordId
+    || word.displayWord === target?.outcome)
+    ?? payload.words.lesson[buildIndex]
+    ?? payload.words.anchor;
+  const targetMeaning = build?.targetMeaning
+    ?? activity.targetMeaning
+    ?? target?.meaning
+    ?? targetWord.derivedMeaning;
+  const suffix = activity.affixPosition === "after";
+  const targetId = build?.canonicalWordId ?? targetWord.canonicalWordId;
+  const sourceTiles = choices.map((choice, index) => ({
+    id: `${targetId}:choice:${index}`,
+    text: choice.label,
+    role: suffix ? "suffix" as const : "prefix" as const,
+    gloss: choice.meaning ?? undefined,
+  }));
+  const tiles = deterministicOrderedBuildOrder(sourceTiles, `${targetId}:definition-word-builder`);
+  const expectedId = sourceTiles[targetChoiceIndex]?.id;
+  const wordSumParts = suffix ? [baseWord, target?.text] : [target?.text, baseWord];
+  const wordSum = `${wordSumParts.filter(Boolean).join(" + ")} → ${targetWord.displayWord}`;
+  return {
+    targetId,
+    stepLabel: activity.assignmentBindings.length > 1
+      ? `Build a word ${buildIndex + 1} of ${activity.assignmentBindings.length}`
+      : undefined,
+    definition: targetMeaning,
+    tiles,
+    expectedIds: expectedId ? [expectedId] : [],
+    fixedTiles: [{ id: `${targetId}:fixed-base`, text: baseWord, role: "base" as const }],
+    fixedTilesPosition: suffix ? "before" as const : "after" as const,
+    label: `Build the word that means ${targetMeaning}`,
+    wordSum,
+    resultingMeaning: targetMeaning,
+    continueLabel: buildIndex + 1 < activity.assignmentBindings.length ? "Build the next word" : "Remember the lesson words",
+    choiceById: new Map(sourceTiles.map((tile, index) => [tile.id, choices[index]])),
+    targetChoice: target,
+    baseWord,
+  };
 }
-function Controlled(props: {
+
+function morphologyDefinitionIncorrectFeedback(
+  activity: MorphologyLessonPayloadV1["activities"][number],
+  beat: MorphologyLessonPayloadV1["guide"]["beats"][number],
+  choice: PrefixChoice | undefined,
+  target: PrefixChoice | undefined,
+  baseWord: string,
+  misses: number,
+) {
+  const term = activity.affixTerm ?? "prefix";
+  if (choice?.meaning && choice.rules?.length && activity.teachingCards) {
+    return <SelectedPrefixFeedback card={{ text: choice.text, label: choice.label, meaning: choice.meaning, rules: [...choice.rules] as [string, ...string[]], ...(choice.example ? { example: choice.example } : {}) }} />;
+  }
+  if (choice?.status === "valid_alternative") {
+    return `${choice.outcome ?? choice.label} means ${choice.meaning}. ${beat.onPartial ?? `Choose the ${term} that makes this word.`}`;
+  }
+  return misses > 1
+    ? (beat.onRepeatedMisconception ?? `Choose ${target?.label ?? `the right ${term}`} to make the word.`)
+    : (beat.onMisconception ?? `That ${term} does not make the word we need with ${baseWord}.`);
+}
+export function Controlled(props: {
   index: number;
   total: number;
   word: MorphologyWordSnapshot;
@@ -913,7 +916,7 @@ function Controlled(props: {
     </div>
   );
 }
-function Dictation(props: {
+export function Dictation(props: {
   payload: MorphologyLessonPayloadV1;
   index: number;
   value: string;
@@ -981,7 +984,7 @@ function Dictation(props: {
   );
 }
 
-function ReflectionForm(props: {
+export function ReflectionForm(props: {
   state: LessonState;
   payload: MorphologyLessonPayloadV1;
   childId: string;
@@ -991,7 +994,7 @@ function ReflectionForm(props: {
   onPreviewComplete?: (reflectionText: string) => void;
 }) {
   const [finishing, setFinishing] = useState(false);
-  const [completionTraceId] = useState(() => crypto.randomUUID());
+  const [completionTraceId] = useState(() => props.onPreviewComplete ? "visual-convergence-preview" : crypto.randomUUID());
   const reflection = props.payload.activities.find(
     (activity) => activity.type === "reflection",
   )!;
