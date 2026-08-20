@@ -26,6 +26,7 @@ import {
   getGenericSnapshotTemplateDefinition,
   resolveGenericTemplateSemantics,
 } from "./generic-snapshot-registry";
+import { resolveSentenceDictationContract } from "../sentence-dictation-contract";
 
 export interface GenericSnapshotValidationItem {
   sourceEntityId: string;
@@ -237,6 +238,9 @@ function validActivity(value: unknown): value is ActivitySnapshotV2 {
     !oneOf(value.rendererKind, [
       "intro",
       "guided_prompt",
+      "cover_check",
+      "sentence_dictation",
+      "cold_word_recall",
       "dictation",
       "reflection",
       "quick_sort",
@@ -469,7 +473,15 @@ export function validateCompiledGenericLessonSnapshot(
     if (definition.compileSupport !== "supported") blockers.push(blocker("unsupported_template_shape", activity));
     if (!definition.supportedSections.includes(activity.sectionKey)) blockers.push(blocker("item_section_mismatch", activity));
     const semantics = resolveGenericTemplateSemantics(definition, activity.sectionKey);
-    if (activity.kind !== definition.kind || activity.rendererKind !== definition.rendererKind || activity.answerVisibility !== definition.answerVisibility || !sameJson(activity.evidence, semantics.evidence)) {
+    const legacyRendererCompatible = activity.rendererKind === "dictation" && [
+      "CONTROLLED_SPELLING",
+      "HIDE_WRITE",
+      "DICTATION_NO_IMAGE",
+      "DICTATION_SENTENCE_CONTEXT",
+      "REVIEW_DICTATION",
+      "DIAGNOSTIC_DICTATION_PROBE",
+    ].includes(activity.templateKey);
+    if (activity.kind !== definition.kind || (activity.rendererKind !== semantics.rendererKind && !legacyRendererCompatible) || activity.answerVisibility !== definition.answerVisibility || !sameJson(activity.evidence, semantics.evidence)) {
       blockers.push(blocker("evidence_binding_mismatch", activity));
     }
     if (activity.scheduleRole !== semantics.scheduleRole) blockers.push(blocker("schedule_role_mismatch", activity));
@@ -562,10 +574,18 @@ export function validateCompiledGenericLessonSnapshot(
         }));
         if (!sameJson(payloadWords, snapshotWords)) blockers.push(blocker("word_identity_mismatch", activity));
       }
-      if (activity.templateKey === "DICTATION_SENTENCE_CONTEXT" && item.promptData.requiresSentenceContext !== true) {
+      if (
+        (activity.templateKey === "DICTATION_NO_IMAGE" ||
+          (activity.templateKey === "DICTATION_SENTENCE_CONTEXT" && activity.sectionKey === "lesson_dictation")) &&
+        resolveSentenceDictationContract(item.promptData, item.targetWord) === null
+      ) {
         blockers.push(blocker("activity_requirement_failed", activity));
       }
-      if (activity.templateKey === "REVIEW_DICTATION" && !nonEmptyString(item.promptData.bundleId)) {
+      if (
+        (activity.templateKey === "REVIEW_DICTATION" ||
+          (activity.templateKey === "DICTATION_SENTENCE_CONTEXT" && activity.sectionKey === "review_production")) &&
+        !nonEmptyString(item.promptData.bundleId)
+      ) {
         blockers.push(blocker("activity_requirement_failed", activity));
       }
       if (activity.templateKey === "ERROR_REFLECTION_CUE") {

@@ -158,6 +158,19 @@ ${ADLE_ACTIVITY_AUDIT_CONCLUSIONS.cleaverBoundary}
 
 ${ADLE_ACTIVITY_AUDIT_CONCLUSIONS.reflectionBoundary}
 
+## Spell / Recall findings
+
+${ADLE_ACTIVITY_AUDIT_CONCLUSIONS.spellRecallBoundary}
+
+## Group 3 closeout status
+
+- Status: \`${ADLE_ACTIVITY_AUDIT_CONCLUSIONS.group3Closeout.status}\`
+- Owner manual acceptance: ${ADLE_ACTIVITY_AUDIT_CONCLUSIONS.group3Closeout.ownerAcceptedOn}
+- Result: ${ADLE_ACTIVITY_AUDIT_CONCLUSIONS.group3Closeout.summary}
+- Acceptance fixes: ${ADLE_ACTIVITY_AUDIT_CONCLUSIONS.group3Closeout.acceptanceFixes.join(" ")}
+- Preserved invariants: ${ADLE_ACTIVITY_AUDIT_CONCLUSIONS.group3Closeout.invariants}
+- Next step: ${ADLE_ACTIVITY_AUDIT_CONCLUSIONS.group3Closeout.nextStep}
+
 ## Genuine gaps
 
 ${ADLE_ACTIVITY_AUDIT_CONCLUSIONS.genuineGaps.map((gap) => `- ${gap}`).join("\n")}
@@ -199,6 +212,19 @@ ${ADLE_ACTIVITY_AUDIT_CONCLUSIONS.cleaverBoundary}
 ### Reflection family
 
 ${ADLE_ACTIVITY_AUDIT_CONCLUSIONS.reflectionBoundary}
+
+### Spell / Recall family
+
+${ADLE_ACTIVITY_AUDIT_CONCLUSIONS.spellRecallBoundary}
+
+### Group 3 closeout status
+
+- Status: \`${ADLE_ACTIVITY_AUDIT_CONCLUSIONS.group3Closeout.status}\`
+- Owner manual acceptance: ${ADLE_ACTIVITY_AUDIT_CONCLUSIONS.group3Closeout.ownerAcceptedOn}
+- Result: ${ADLE_ACTIVITY_AUDIT_CONCLUSIONS.group3Closeout.summary}
+- Acceptance fixes: ${ADLE_ACTIVITY_AUDIT_CONCLUSIONS.group3Closeout.acceptanceFixes.join(" ")}
+- Preserved invariants: ${ADLE_ACTIVITY_AUDIT_CONCLUSIONS.group3Closeout.invariants}
+- Next step: ${ADLE_ACTIVITY_AUDIT_CONCLUSIONS.group3Closeout.nextStep}
 
 ## Genuine platform gaps
 

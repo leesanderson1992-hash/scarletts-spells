@@ -4,20 +4,20 @@
 
 # ADLE Activity Implementation Audit Matrix
 
-Authoritative base SHA: `1306632d6ba643c103bf8d670706b085c88258e1`
+Authoritative base SHA: `aec090b9bec782829d333fe551f31538352c1f82`
 
 Scope: named child-facing activity components, shared learner-interaction primitives, embedded specialist activity functions, development components representing intended learner interactions, and the dispatch/shell components that own them. Pure data compilers, server actions, persistence helpers, sound/motion utilities, and non-ADLE course UI are excluded.
 
 ## Starting state
 
-- Audit worktree: Clean Group 2 worktree on codex/adle-group2-lesson-reflection at current origin/main; only the verified three-file Reflection preview precursor was carried forward before implementation.
-- Protected occupied checkout: The Group 1 checkout remained on codex/adle-group1-build-convergence with its authorized three-file Group 2 precursor patch intact; the patch was also preserved as a named stash object before transfer.
+- Audit worktree: Fresh Group 3 worktree on codex/adle-group3-cover-dictation-convergence at completed Group 2 commit aec090b9bec782829d333fe551f31538352c1f82.
+- Protected occupied checkout: Occupied Group 1 and Group 2 worktrees were inspected read-only and left unmodified. Fetched origin/main 1306632d6ba643c103bf8d670706b085c88258e1 is the parent of the completed local Group 2 commit.
 
 Existing runtime/architecture registries:
 
-- lib/adle/activity-template-registry.ts — 37 generic template keys and renderer-kind dispatch
+- lib/adle/activity-template-registry.ts — 34 generic template keys and renderer-kind dispatch
 - components/adle/activities/registry.ts — React compatibility wrapper over the generic runtime registry
-- lib/adle/composable-lesson/generic-snapshot-registry.ts — versioned generic snapshot semantics for the same 37 keys
+- lib/adle/composable-lesson/generic-snapshot-registry.ts — versioned generic snapshot semantics for the same 34 keys
 - lib/adle/composable-lesson/activity-requirements.ts — 15 pedagogical activity fact contracts
 - lib/adle/curriculum-readiness/route-registry.ts — seven generic/specialist route declarations
 - components/adle/word-lab/activity-registry.tsx — five dark Common Word Lab fixture plugin registrations
@@ -35,11 +35,11 @@ Architecture documents inspected:
 
 | Measure | Count |
 |---|---:|
-| Discovered implementations | 70 |
-| Canonical implementations | 18 |
-| Canonical mode/adapters | 19 |
-| Compatibility only | 2 |
-| Duplicates to migrate | 14 |
+| Discovered implementations | 69 |
+| Canonical implementations | 19 |
+| Canonical mode/adapters | 21 |
+| Compatibility only | 1 |
+| Duplicates to migrate | 11 |
 | Dead or unreferenced | 15 |
 | Requires architecture decision | 2 |
 
@@ -48,7 +48,7 @@ Architecture documents inspected:
 | Implementation | File | Concept | Routes | Template keys | Candidate | Classification | Risk | Historical replay | Action |
 |---|---|---|---|---|---|---|---|---|---|
 | IntroActivity | `components/adle/activities/intro-activity.tsx` | `INTRODUCTION` | generic_composer:v1 | MICRO_READ_ONLY_INTRO, LESSON_WORDS_INTRO | IntroActivity | `CANONICAL` | low | No | Retain and route new work through the catalogue. |
-| GuidedActivity | `components/adle/activities/guided-activity.tsx` | `GUIDED_PROMPT_FALLBACK / MEMORY_CUE` | generic_composer:v1 | HIDE_WRITE, MEMORY_CUE, PG_*, HOM_*, INF_*, IRRE_*, MOR_*, PAT_*, SYL_*, SCHWA_* | GuidedActivity | `CANONICAL` | medium | No | Retain and route new work through the catalogue. |
+| GuidedActivity | `components/adle/activities/guided-activity.tsx` | `GUIDED_PROMPT_FALLBACK / MEMORY_CUE` | generic_composer:v1 | MEMORY_CUE, PG_*, HOM_*, INF_*, IRRE_*, MOR_*, PAT_*, SYL_*, SCHWA_* | GuidedActivity | `CANONICAL` | medium | No | Retain and route new work through the catalogue. |
 | QuickSortActivity | `components/adle/activities/quick-sort-activity.tsx` | `REVIEW_SORT` | generic_composer:v1 | REVIEW_QUICK_SORT | QuickSortActivity | `CANONICAL` | low | No | Retain and route new work through the catalogue. |
 | ReflectionActivity | `components/adle/activities/reflection-activity.tsx` | `ERROR_REPAIR` | generic_composer:v1 | ERROR_REFLECTION_CUE | ReflectionActivity | `CANONICAL` | high | No | Retain and route new work through the catalogue. |
 | SplitHandle | `components/adle/activities/shared/split-handle.tsx` | `CLEAVER` | dynamic_prefix_word_lab:v2, fixed_un_prefix_word_lab:v1, dynamic_affix_word_lab:v3 | MOR_STRIP_BUILD | SplitHandle | `CANONICAL` | high | No | Retain and route new work through the catalogue. |
@@ -59,10 +59,10 @@ Architecture documents inspected:
 | DefinitionWordBuilder | `components/adle/activities/shared/definition-word-builder.tsx` | `WORD_ASSEMBLY` | dynamic_prefix_word_lab:v2, fixed_un_prefix_word_lab:v1, dynamic_affix_word_lab:v3, base_word_lab:v2 | MOR_BUILD_WORD | DefinitionWordBuilder | `CANONICAL` | high | No | Retain and route new work through the catalogue. |
 | BinSort | `components/adle/activities/shared/bin-sort.tsx` | `MEANING_SORT` | dynamic_prefix_word_lab:v2, fixed_un_prefix_word_lab:v1, dynamic_affix_word_lab:v3 | none | BinSort | `CANONICAL` | medium | No | Retain and route new work through the catalogue. |
 | FlipToggle | `components/adle/activities/shared/flip-toggle.tsx` | `MEANING_DISCOVERY` | none | none | Discovery | `DEAD_OR_UNREFERENCED` | low | No | Keep until convergence decision; do not select for new work. |
-| CoverShutter | `components/adle/activities/shared/cover-shutter.tsx` | `COVER_CHECK` | dynamic_prefix_word_lab:v2, fixed_un_prefix_word_lab:v1, dynamic_affix_word_lab:v3, base_word_lab:v2, compound_word_lab:v2, closed_compound_word_lab:v1 | none | CoverShutter | `CANONICAL` | high | No | Retain and route new work through the catalogue. |
-| SpellingField | `components/adle/activities/shared/spelling-field.tsx` | `CONTROLLED_SPELLING / DICTATION` | generic_composer:v1 | CONTROLLED_SPELLING, DICTATION_*, REVIEW_DICTATION, MUST_USE_* | SpellingField | `CANONICAL` | high | No | Retain and route new work through the catalogue. |
-| HearWordButton | `components/adle/activities/shared/spelling-field.tsx` | `AUDIO_SUPPORT` | generic_composer:v1, dynamic_prefix_word_lab:v2, fixed_un_prefix_word_lab:v1, dynamic_affix_word_lab:v3, base_word_lab:v2, compound_word_lab:v2, closed_compound_word_lab:v1 | none | SpellingField | `CANONICAL_MODE` | low | No | Retain and route new work through the catalogue. |
-| GrownUpReveal | `components/adle/activities/shared/spelling-field.tsx` | `AUDIO_SUPPORT` | generic_composer:v1 | none | SpellingField | `CANONICAL_MODE` | low | No | Retain and route new work through the catalogue. |
+| CoverShutter | `components/adle/activities/shared/cover-shutter.tsx` | `COVER_CHECK` | generic_composer:v1, dynamic_prefix_word_lab:v2, fixed_un_prefix_word_lab:v1, dynamic_affix_word_lab:v3, base_word_lab:v2, compound_word_lab:v2, closed_compound_word_lab:v1 | CONTROLLED_SPELLING, HIDE_WRITE | CoverShutter | `CANONICAL` | high | No | Retain and route new work through the catalogue. |
+| SentenceDictation | `components/adle/activities/shared/sentence-dictation.tsx` | `DICTATION.whole_sentence` | generic_composer:v1, dynamic_prefix_word_lab:v2, fixed_un_prefix_word_lab:v1, dynamic_affix_word_lab:v3, base_word_lab:v2, compound_word_lab:v2, closed_compound_word_lab:v1 | DICTATION_NO_IMAGE, DICTATION_SENTENCE_CONTEXT | SentenceDictation | `CANONICAL` | high | No | Retain and route new work through the catalogue. |
+| ColdWordRecall | `components/adle/activities/shared/cold-word-recall.tsx` | `REVIEW_DICTATION / DIAGNOSTIC_DICTATION_PROBE` | generic_composer:v1 | REVIEW_DICTATION, DIAGNOSTIC_DICTATION_PROBE | ColdWordRecall | `CANONICAL` | high | No | Retain and route new work through the catalogue. |
+| HearWordButton | `components/adle/activities/shared/authored-audio.tsx` | `AUDIO_SUPPORT` | generic_composer:v1, dynamic_prefix_word_lab:v2, fixed_un_prefix_word_lab:v1, dynamic_affix_word_lab:v3, base_word_lab:v2, compound_word_lab:v2, closed_compound_word_lab:v1 | none | CoverShutter / SentenceDictation / ColdWordRecall | `CANONICAL_MODE` | low | No | Retain and route new work through the catalogue. |
 | DiffReveal | `components/adle/activities/shared/diff-reveal.tsx` | `POST_ATTEMPT_COMPARISON` | dynamic_prefix_word_lab:v2, fixed_un_prefix_word_lab:v1, dynamic_affix_word_lab:v3, base_word_lab:v2, compound_word_lab:v2, closed_compound_word_lab:v1 | none | COVER_CHECK / DICTATION | `CANONICAL_MODE` | high | No | Retain and route new work through the catalogue. |
 | TransformationAnimation | `components/adle/activities/shared/transformation-animation.tsx` | `TRANSFORMATION` | /dev/adle/morphology-primitives only | none | none | `DEAD_OR_UNREFERENCED` | low | No | Do not add new usage before the backlog action is complete. |
 | MorphemeTile | `components/adle/activities/morphology/shared/morphology-primitives.tsx` | `WORD_PART_TILE` | /dev/adle/morphology-primitives only | none | DraggableTile | `DEAD_OR_UNREFERENCED` | medium | No | Do not add new usage before the backlog action is complete. |
@@ -88,23 +88,22 @@ Architecture documents inspected:
 | SplitBuild | `components/adle/morphology/morphology-guided-lesson.tsx` | `CLEAVER` | dynamic_prefix_word_lab:v2, fixed_un_prefix_word_lab:v1, dynamic_affix_word_lab:v3 | none | SplitHandle | `CANONICAL_MODE` | high | No | Retain and route new work through the catalogue. |
 | MeaningCards | `components/adle/morphology/morphology-guided-lesson.tsx` | `MEANING_SORT_RECAP` | dynamic_prefix_word_lab:v2, fixed_un_prefix_word_lab:v1, dynamic_affix_word_lab:v3 | none | BinSort | `CANONICAL_MODE` | medium | No | Retain and route new work through the catalogue. |
 | MeaningOverview | `components/adle/morphology/morphology-guided-lesson.tsx` | `MEANING_SORT_RECAP` | dynamic_prefix_word_lab:v2, fixed_un_prefix_word_lab:v1, dynamic_affix_word_lab:v3 | none | BinSort | `CANONICAL_MODE` | medium | No | Retain and route new work through the catalogue. |
-| Controlled (Morphology) | `components/adle/morphology/morphology-guided-lesson.tsx` | `COVER_CHECK` | dynamic_prefix_word_lab:v2, fixed_un_prefix_word_lab:v1, dynamic_affix_word_lab:v3 | none | CoverShutter | `CANONICAL_MODE` | high | No | Retain and route new work through the catalogue. |
-| Dictation (Morphology) | `components/adle/morphology/morphology-guided-lesson.tsx` | `DICTATION` | dynamic_prefix_word_lab:v2, fixed_un_prefix_word_lab:v1, dynamic_affix_word_lab:v3 | none | shared sentence-dictation mode | `DUPLICATE_TO_MIGRATE` | high | No | Do not add new usage before the backlog action is complete. |
+| Morphology Cover Check adapter | `components/adle/morphology/morphology-guided-lesson.tsx` | `COVER_CHECK adapter` | dynamic_prefix_word_lab:v2, fixed_un_prefix_word_lab:v1, dynamic_affix_word_lab:v3 | none | CoverShutter | `CANONICAL_MODE` | high | Yes | Retain and route new work through the catalogue. |
+| Morphology Sentence Dictation adapter | `components/adle/morphology/morphology-guided-lesson.tsx` | `DICTATION.whole_sentence adapter` | dynamic_prefix_word_lab:v2, fixed_un_prefix_word_lab:v1, dynamic_affix_word_lab:v3 | none | SentenceDictation | `CANONICAL_MODE` | high | Yes | Retain and route new work through the catalogue. |
 | MorphologyReflectionAdapter | `components/adle/morphology/morphology-guided-lesson.tsx` | `LESSON_REFLECTION adapter` | dynamic_prefix_word_lab:v2, fixed_un_prefix_word_lab:v1, dynamic_affix_word_lab:v3 | none | LessonReflection | `CANONICAL_MODE` | high | No | Retain and route new work through the catalogue. |
 | PrefixTeachingCards | `components/adle/morphology/prefix-teaching-cards.tsx` | `INTRODUCTION / LESSON_REFLECTION_RECAP` | dynamic_prefix_word_lab:v2, fixed_un_prefix_word_lab:v1, dynamic_affix_word_lab:v3 | none | INTRODUCTION / LessonReflection specialist recap | `CANONICAL_MODE` | medium | No | Retain and route new work through the catalogue. |
 | SelectedPrefixFeedback | `components/adle/morphology/prefix-teaching-cards.tsx` | `MEANING_SORT_FEEDBACK` | dynamic_prefix_word_lab:v2, fixed_un_prefix_word_lab:v1, dynamic_affix_word_lab:v3 | none | BinSort | `CANONICAL_MODE` | medium | No | Retain and route new work through the catalogue. |
-| DynamicPrefixStagingLab | `components/adle/morphology/dynamic-prefix-staging-lab.tsx` | `STAGING_PROOF_LESSON` | /learn/week/adle/dynamic-prefix in non-production | none | MorphologyGuidedLesson | `COMPATIBILITY_ONLY` | low | No | Retain only as a staging proof surface until its runbook is retired; never use it as a micro-skill renderer. |
 | Intro (Base Word) | `components/adle/morphology/base-word-family-guided-lesson.tsx` | `INTRODUCTION` | base_word_lab:v2 | none | IntroActivity / future reading shell | `DUPLICATE_TO_MIGRATE` | high | No | Do not add new usage before the backlog action is complete. |
 | FamilyReveal | `components/adle/morphology/base-word-family-guided-lesson.tsx` | `WORD_FAMILY_REVEAL` | base_word_lab:v2 | MOR_BASE_FAMILY_REVEAL (route-specific binding) | FamilyReveal | `CANONICAL` | high | No | Retain and route new work through the catalogue. |
 | Cleave (Base Word adapter) | `components/adle/morphology/base-word-family-guided-lesson.tsx` | `CLEAVER` | base_word_lab:v2 | none | future SplitHandle isolate_base mode | `CANONICAL_MODE` | high | No | Retain and route new work through the catalogue. |
-| Controlled (Base Word) | `components/adle/morphology/base-word-family-guided-lesson.tsx` | `COVER_CHECK` | base_word_lab:v2 | none | CoverShutter | `CANONICAL_MODE` | high | No | Retain and route new work through the catalogue. |
-| Dictation (Base Word) | `components/adle/morphology/base-word-family-guided-lesson.tsx` | `DICTATION` | base_word_lab:v2 | none | shared sentence-dictation mode | `DUPLICATE_TO_MIGRATE` | high | No | Do not add new usage before the backlog action is complete. |
+| Base Word Cover Check adapter | `components/adle/morphology/base-word-family-guided-lesson.tsx` | `COVER_CHECK adapter` | base_word_lab:v2 | none | CoverShutter | `CANONICAL_MODE` | high | No | Retain and route new work through the catalogue. |
+| Base Word Sentence Dictation adapter | `components/adle/morphology/base-word-family-guided-lesson.tsx` | `DICTATION.whole_sentence adapter` | base_word_lab:v2 | none | SentenceDictation | `CANONICAL_MODE` | high | No | Retain and route new work through the catalogue. |
 | Base Word reflection adapter | `components/adle/morphology/base-word-family-guided-lesson.tsx` | `LESSON_REFLECTION adapter` | base_word_lab:v2 | none | LessonReflection | `CANONICAL_MODE` | high | No | Retain and route new work through the catalogue. |
 | CompoundReadingPage | `components/adle/morphology/closed-compound-guided-lesson.tsx` | `READING_PAGE` | compound_word_lab:v2 | none | future ReadingPage | `REQUIRES_ARCHITECTURE_DECISION` | high | No | Do not add new usage before the backlog action is complete. |
 | CompoundJigsawActivity | `components/adle/morphology/compound-jigsaw-activity.tsx` | `COMPOUND_JIGSAW` | compound_word_lab:v2, closed_compound_word_lab:v1 | MOR_COMPOUND_JIGSAW | CompoundJigsawActivity | `CANONICAL` | high | Yes | Retain and route new work through the catalogue. |
 | MeaningConnectionActivity | `components/adle/morphology/meaning-connection-activity.tsx` | `MEANING_MATCH` | compound_word_lab:v2, closed_compound_word_lab:v1 | MOR_COMPOUND_MEANING_CONNECTION | MeaningConnectionActivity | `CANONICAL` | high | Yes | Retain and route new work through the catalogue. |
-| Controlled (Compound inline) | `components/adle/morphology/closed-compound-guided-lesson.tsx` | `COVER_CHECK` | compound_word_lab:v2, closed_compound_word_lab:v1 | none | CoverShutter | `CANONICAL_MODE` | high | Yes | Retain and route new work through the catalogue. |
-| Dictation (Compound inline) | `components/adle/morphology/closed-compound-guided-lesson.tsx` | `DICTATION` | compound_word_lab:v2, closed_compound_word_lab:v1 | none | shared sentence-dictation mode | `DUPLICATE_TO_MIGRATE` | high | Yes | Do not add new usage before the backlog action is complete. |
+| Compound Cover Check adapter | `components/adle/morphology/closed-compound-guided-lesson.tsx` | `COVER_CHECK adapter` | compound_word_lab:v2, closed_compound_word_lab:v1 | none | CoverShutter | `CANONICAL_MODE` | high | Yes | Retain and route new work through the catalogue. |
+| Compound Sentence Dictation adapter | `components/adle/morphology/closed-compound-guided-lesson.tsx` | `DICTATION.whole_sentence adapter` | compound_word_lab:v2, closed_compound_word_lab:v1 | none | SentenceDictation | `CANONICAL_MODE` | high | Yes | Retain and route new work through the catalogue. |
 | CompoundLessonReflectionAdapter | `components/adle/morphology/closed-compound-guided-lesson.tsx` | `LESSON_REFLECTION adapter` | compound_word_lab:v2, closed_compound_word_lab:v1 | none | LessonReflection | `CANONICAL_MODE` | high | Yes | Retain and route new work through the catalogue. |
 | LessonReflection | `components/adle/activities/lesson-reflection.tsx` | `LESSON_REFLECTION` | dynamic_prefix_word_lab:v2, fixed_un_prefix_word_lab:v1, dynamic_affix_word_lab:v3, base_word_lab:v2, compound_word_lab:v2, closed_compound_word_lab:v1 | none | LessonReflection | `CANONICAL` | high | No | Retain and route new work through the catalogue. |
 | FixtureActivity | `components/adle/word-lab/activity-registry.tsx` | `COMMON_WORD_LAB_PLACEHOLDER` | /dev/adle/common-word-lab only | none | real per-kind Word Lab plugins | `COMPATIBILITY_ONLY` | low | No | Keep the dark fixture runnable, but do not treat its five registrations as production activity implementations. |
@@ -125,6 +124,19 @@ Keep SplitHandle as the canonical interaction engine. Add isolate_base as config
 ## Reflection findings
 
 ERROR_REPAIR remains ReflectionActivity and keeps reveal-hide-retry evidence. MEMORY_CUE remains child mnemonic authoring. LessonReflection is the canonical end-of-first-impression LESSON_REFLECTION: it receives normalized attempted-versus-correct spelling summaries, a governed lesson-specific prompt, optional specialist/context recap, and one controlled response. Prefix context slips remain recap data rather than target assessment evidence. Route correctness, persistence, assignment and completion adapters remain outside the component; stored historical prompt keys/text remain assignment-owned.
+
+## Spell / Recall findings
+
+First-impression spelling has exactly two learner experiences: CoverShutter for study-cover-spell-compare and SentenceDictation for authored whole-sentence audio recall. Scheduled review and diagnostics share ColdWordRecall, which never reveals the governed spelling until the response is irreversibly locked. Historical CONTROLLED_SPELLING, HIDE_WRITE, DICTATION_NO_IMAGE, DICTATION_SENTENCE_CONTEXT, REVIEW_DICTATION and DIAGNOSTIC_DICTATION_PROBE keys remain accepted semantic/configuration inputs only. Route adapters retain resume, correctness, evidence, scheduling, probe intake, assignment and persistence. SpellingField and GrownUpReveal are retired.
+
+## Group 3 closeout status
+
+- Status: `READY_FOR_CLOSEOUT`
+- Owner manual acceptance: 2026-08-20
+- Result: Owner manual acceptance passed for Prefix, Suffix/Affix, Base Word and Compound Cover Check, Sentence Dictation and cross-route Lesson Reflection feedback.
+- Acceptance fixes: Enter submits valid Cover Check, Sentence Dictation and ColdWordRecall responses through their existing guarded Check/Lock actions; Shift+Enter remains a Sentence Dictation newline and plain Enter remains a Lesson Reflection newline. Lesson Reflection now separates governed spelling mistakes from feedback-only whole-sentence capitalization and punctuation comparisons across Prefix, Suffix/Affix, Base Word and Compound routes.
+- Preserved invariants: No evidence classification, correctness policy, attempt identity, assignment binding, scheduler outcome, diagnostic intake, persistence schema, curriculum release or Production state changed.
+- Next step: Perform the final closeout diff review, then stage and create the single Group 3 commit only after explicit owner authorization. Do not begin Group 4 before that closeout.
 
 ## Genuine gaps
 
@@ -161,7 +173,7 @@ ERROR_REPAIR remains ReflectionActivity and keeps reveal-hide-retry evidence. ME
 - Concept / family: `GUIDED_PROMPT_FALLBACK / MEMORY_CUE` / `guided_prompt_fallback / memory_cue`
 - Routes: `generic_composer:v1`
 - Micro-skills: `runtime-selected generic micro-skills`
-- Registry/template keys: `HIDE_WRITE`, `MEMORY_CUE`, `PG_*`, `HOM_*`, `INF_*`, `IRRE_*`, `MOR_*`, `PAT_*`, `SYL_*`, `SCHWA_*`
+- Registry/template keys: `MEMORY_CUE`, `PG_*`, `HOM_*`, `INF_*`, `IRRE_*`, `MOR_*`, `PAT_*`, `SYL_*`, `SCHWA_*`
 - Props/config differences: See component props and route adapter.
 - Visual differences: Uses its owning shell styling.
 - Behavioural differences: Local interaction state only.
@@ -172,7 +184,7 @@ ERROR_REPAIR remains ReflectionActivity and keeps reveal-hide-retry evidence. ME
 - Migration risk: `medium`
 - Historical replay dependency: No
 - Evidence: Repository import and route-dispatch trace at the audited base SHA.
-- Notes: Canonical only as the generic safe fallback and current memory-cue surface; it is not proof that every mapped rich interaction exists.
+- Notes: Canonical only as the generic safe fallback and current memory-cue surface; HIDE_WRITE is normalized to CoverShutter before this component.
 
 ### QuickSortActivity
 
@@ -368,13 +380,13 @@ ERROR_REPAIR remains ReflectionActivity and keeps reveal-hide-retry evidence. ME
 
 - File: `components/adle/activities/shared/cover-shutter.tsx`
 - Concept / family: `COVER_CHECK` / `cover_check`
-- Routes: `dynamic_prefix_word_lab:v2`, `fixed_un_prefix_word_lab:v1`, `dynamic_affix_word_lab:v3`, `base_word_lab:v2`, `compound_word_lab:v2`, `closed_compound_word_lab:v1`
-- Micro-skills: `D4_MOR_PREFIXES_UN`, `D4_MOR_PREFIXES_DIS_MIS`, `D4_MOR_PREFIXES_IN_IM_IL_IR`, `D4_MOR_PREFIXES_RE_PRE`, `D4_MOR_PREFIXES_SUB_INTER_SUPER`, `D4_MOR_SUFFIXES_ABLE_IBLE`, `D4_MOR_SUFFIXES_AL`, `D4_MOR_SUFFIXES_FUL_LESS`, `D4_MOR_SUFFIXES_ITY`, `D4_MOR_SUFFIXES_LY`, `D4_MOR_SUFFIXES_MENT`, `D4_MOR_SUFFIXES_NESS`, `D4_MOR_SUFFIXES_OUS`, `D4_MOR_SUFFIXES_SION`, `D4_MOR_SUFFIXES_TION`, `D4_MOR_BASE_WORDS_BASE_PLUS_PREFIX`, `D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX`, `D4_MOR_BASE_WORDS_IDENTIFY_BASE`, `D4_MOR_BASE_WORDS_PRESERVE_BASE`, `D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS`, `D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED`
-- Registry/template keys: None
+- Routes: `generic_composer:v1`, `dynamic_prefix_word_lab:v2`, `fixed_un_prefix_word_lab:v1`, `dynamic_affix_word_lab:v3`, `base_word_lab:v2`, `compound_word_lab:v2`, `closed_compound_word_lab:v1`
+- Micro-skills: `runtime-selected generic micro-skills`, `D4_MOR_PREFIXES_UN`, `D4_MOR_PREFIXES_DIS_MIS`, `D4_MOR_PREFIXES_IN_IM_IL_IR`, `D4_MOR_PREFIXES_RE_PRE`, `D4_MOR_PREFIXES_SUB_INTER_SUPER`, `D4_MOR_SUFFIXES_ABLE_IBLE`, `D4_MOR_SUFFIXES_AL`, `D4_MOR_SUFFIXES_FUL_LESS`, `D4_MOR_SUFFIXES_ITY`, `D4_MOR_SUFFIXES_LY`, `D4_MOR_SUFFIXES_MENT`, `D4_MOR_SUFFIXES_NESS`, `D4_MOR_SUFFIXES_OUS`, `D4_MOR_SUFFIXES_SION`, `D4_MOR_SUFFIXES_TION`, `D4_MOR_BASE_WORDS_BASE_PLUS_PREFIX`, `D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX`, `D4_MOR_BASE_WORDS_IDENTIFY_BASE`, `D4_MOR_BASE_WORDS_PRESERVE_BASE`, `D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS`, `D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED`
+- Registry/template keys: `CONTROLLED_SPELLING`, `HIDE_WRITE`
 - Props/config differences: See component props and route adapter.
 - Visual differences: Uses its owning shell styling.
 - Behavioural differences: Owns look/cover/write/check and the single word DiffReveal.
-- Persistence/evidence differences: Renderer does not write directly; owning session submits completion.
+- Persistence/evidence differences: Historical keys are retained by dispatch/evidence adapters, not learner UI.
 - Canonical candidate: `CoverShutter`
 - Classification: `CANONICAL`
 - Recommended action: Retain and route new work through the catalogue.
@@ -383,18 +395,37 @@ ERROR_REPAIR remains ReflectionActivity and keeps reveal-hide-retry evidence. ME
 - Evidence: Repository import and route-dispatch trace at the audited base SHA.
 - Notes: None.
 
-### SpellingField
+### SentenceDictation
 
-- File: `components/adle/activities/shared/spelling-field.tsx`
-- Concept / family: `CONTROLLED_SPELLING / DICTATION` / `controlled_spelling / dictation`
+- File: `components/adle/activities/shared/sentence-dictation.tsx`
+- Concept / family: `DICTATION.whole_sentence` / `dictation.whole_sentence`
+- Routes: `generic_composer:v1`, `dynamic_prefix_word_lab:v2`, `fixed_un_prefix_word_lab:v1`, `dynamic_affix_word_lab:v3`, `base_word_lab:v2`, `compound_word_lab:v2`, `closed_compound_word_lab:v1`
+- Micro-skills: `runtime-selected generic micro-skills`, `D4_MOR_PREFIXES_UN`, `D4_MOR_PREFIXES_DIS_MIS`, `D4_MOR_PREFIXES_IN_IM_IL_IR`, `D4_MOR_PREFIXES_RE_PRE`, `D4_MOR_PREFIXES_SUB_INTER_SUPER`, `D4_MOR_SUFFIXES_ABLE_IBLE`, `D4_MOR_SUFFIXES_AL`, `D4_MOR_SUFFIXES_FUL_LESS`, `D4_MOR_SUFFIXES_ITY`, `D4_MOR_SUFFIXES_LY`, `D4_MOR_SUFFIXES_MENT`, `D4_MOR_SUFFIXES_NESS`, `D4_MOR_SUFFIXES_OUS`, `D4_MOR_SUFFIXES_SION`, `D4_MOR_SUFFIXES_TION`, `D4_MOR_BASE_WORDS_BASE_PLUS_PREFIX`, `D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX`, `D4_MOR_BASE_WORDS_IDENTIFY_BASE`, `D4_MOR_BASE_WORDS_PRESERVE_BASE`, `D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS`, `D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED`
+- Registry/template keys: `DICTATION_NO_IMAGE`, `DICTATION_SENTENCE_CONTEXT`
+- Props/config differences: Authored audio and correct sentence are separate inputs; routes control value, checked state and continuation.
+- Visual differences: Uses its owning shell styling.
+- Behavioural differences: Owns textarea, manual check, locked post-check DiffReveal and focus/accessibility behavior.
+- Persistence/evidence differences: Emits callbacks only and contains no assignment, correctness or persistence policy.
+- Canonical candidate: `SentenceDictation`
+- Classification: `CANONICAL`
+- Recommended action: Retain and route new work through the catalogue.
+- Migration risk: `high`
+- Historical replay dependency: No
+- Evidence: Repository import and route-dispatch trace at the audited base SHA.
+- Notes: None.
+
+### ColdWordRecall
+
+- File: `components/adle/activities/shared/cold-word-recall.tsx`
+- Concept / family: `REVIEW_DICTATION / DIAGNOSTIC_DICTATION_PROBE` / `review_dictation / diagnostic_dictation_probe`
 - Routes: `generic_composer:v1`
 - Micro-skills: `runtime-selected generic micro-skills`
-- Registry/template keys: `CONTROLLED_SPELLING`, `DICTATION_*`, `REVIEW_DICTATION`, `MUST_USE_*`
-- Props/config differences: See component props and route adapter.
+- Registry/template keys: `REVIEW_DICTATION`, `DIAGNOSTIC_DICTATION_PROBE`
+- Props/config differences: scheduled_review and diagnostic_probe modes change copy only; route adapters retain evidence policy.
 - Visual differences: Uses its owning shell styling.
-- Behavioural differences: Local interaction state only.
-- Persistence/evidence differences: Renderer does not write directly; owning session submits completion.
-- Canonical candidate: `SpellingField`
+- Behavioural differences: Correct spelling is absent until the controlled response is locked; locked input is read-only and has no back/edit path.
+- Persistence/evidence differences: Existing review scheduler and diagnostic intake consume the unchanged owning attempt maps.
+- Canonical candidate: `ColdWordRecall`
 - Classification: `CANONICAL`
 - Recommended action: Retain and route new work through the catalogue.
 - Migration risk: `high`
@@ -404,7 +435,7 @@ ERROR_REPAIR remains ReflectionActivity and keeps reveal-hide-retry evidence. ME
 
 ### HearWordButton
 
-- File: `components/adle/activities/shared/spelling-field.tsx`
+- File: `components/adle/activities/shared/authored-audio.tsx`
 - Concept / family: `AUDIO_SUPPORT` / `audio_support`
 - Routes: `generic_composer:v1`, `dynamic_prefix_word_lab:v2`, `fixed_un_prefix_word_lab:v1`, `dynamic_affix_word_lab:v3`, `base_word_lab:v2`, `compound_word_lab:v2`, `closed_compound_word_lab:v1`
 - Micro-skills: `runtime-selected generic micro-skills`, `D4_MOR_PREFIXES_UN`, `D4_MOR_PREFIXES_DIS_MIS`, `D4_MOR_PREFIXES_IN_IM_IL_IR`, `D4_MOR_PREFIXES_RE_PRE`, `D4_MOR_PREFIXES_SUB_INTER_SUPER`, `D4_MOR_SUFFIXES_ABLE_IBLE`, `D4_MOR_SUFFIXES_AL`, `D4_MOR_SUFFIXES_FUL_LESS`, `D4_MOR_SUFFIXES_ITY`, `D4_MOR_SUFFIXES_LY`, `D4_MOR_SUFFIXES_MENT`, `D4_MOR_SUFFIXES_NESS`, `D4_MOR_SUFFIXES_OUS`, `D4_MOR_SUFFIXES_SION`, `D4_MOR_SUFFIXES_TION`, `D4_MOR_BASE_WORDS_BASE_PLUS_PREFIX`, `D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX`, `D4_MOR_BASE_WORDS_IDENTIFY_BASE`, `D4_MOR_BASE_WORDS_PRESERVE_BASE`, `D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS`, `D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED`
@@ -413,26 +444,7 @@ ERROR_REPAIR remains ReflectionActivity and keeps reveal-hide-retry evidence. ME
 - Visual differences: Uses its owning shell styling.
 - Behavioural differences: Local interaction state only.
 - Persistence/evidence differences: Renderer does not write directly; owning session submits completion.
-- Canonical candidate: `SpellingField`
-- Classification: `CANONICAL_MODE`
-- Recommended action: Retain and route new work through the catalogue.
-- Migration risk: `low`
-- Historical replay dependency: No
-- Evidence: Repository import and route-dispatch trace at the audited base SHA.
-- Notes: None.
-
-### GrownUpReveal
-
-- File: `components/adle/activities/shared/spelling-field.tsx`
-- Concept / family: `AUDIO_SUPPORT` / `audio_support`
-- Routes: `generic_composer:v1`
-- Micro-skills: `runtime-selected generic micro-skills`
-- Registry/template keys: None
-- Props/config differences: See component props and route adapter.
-- Visual differences: Uses its owning shell styling.
-- Behavioural differences: Local interaction state only.
-- Persistence/evidence differences: Renderer does not write directly; owning session submits completion.
-- Canonical candidate: `SpellingField`
+- Canonical candidate: `CoverShutter / SentenceDictation / ColdWordRecall`
 - Classification: `CANONICAL_MODE`
 - Recommended action: Retain and route new work through the catalogue.
 - Migration risk: `low`
@@ -915,14 +927,14 @@ ERROR_REPAIR remains ReflectionActivity and keeps reveal-hide-retry evidence. ME
 - Evidence: Repository import and route-dispatch trace at the audited base SHA.
 - Notes: None.
 
-### Controlled (Morphology)
+### Morphology Cover Check adapter
 
 - File: `components/adle/morphology/morphology-guided-lesson.tsx`
-- Concept / family: `COVER_CHECK` / `cover_check`
+- Concept / family: `COVER_CHECK adapter` / `cover_check adapter`
 - Routes: `dynamic_prefix_word_lab:v2`, `fixed_un_prefix_word_lab:v1`, `dynamic_affix_word_lab:v3`
 - Micro-skills: `D4_MOR_PREFIXES_UN`, `D4_MOR_PREFIXES_DIS_MIS`, `D4_MOR_PREFIXES_IN_IM_IL_IR`, `D4_MOR_PREFIXES_RE_PRE`, `D4_MOR_PREFIXES_SUB_INTER_SUPER`, `D4_MOR_SUFFIXES_ABLE_IBLE`, `D4_MOR_SUFFIXES_AL`, `D4_MOR_SUFFIXES_FUL_LESS`, `D4_MOR_SUFFIXES_ITY`, `D4_MOR_SUFFIXES_LY`, `D4_MOR_SUFFIXES_MENT`, `D4_MOR_SUFFIXES_NESS`, `D4_MOR_SUFFIXES_OUS`, `D4_MOR_SUFFIXES_SION`, `D4_MOR_SUFFIXES_TION`
 - Registry/template keys: None
-- Props/config differences: See component props and route adapter.
+- Props/config differences: Supplies governed word parts, ratio close policy, restored attempt/check state and route callbacks without learner UI.
 - Visual differences: Uses its owning shell styling.
 - Behavioural differences: Local interaction state only.
 - Persistence/evidence differences: Renderer does not write directly; owning session submits completion.
@@ -930,26 +942,26 @@ ERROR_REPAIR remains ReflectionActivity and keeps reveal-hide-retry evidence. ME
 - Classification: `CANONICAL_MODE`
 - Recommended action: Retain and route new work through the catalogue.
 - Migration risk: `high`
-- Historical replay dependency: No
+- Historical replay dependency: Yes
 - Evidence: Repository import and route-dispatch trace at the audited base SHA.
 - Notes: None.
 
-### Dictation (Morphology)
+### Morphology Sentence Dictation adapter
 
 - File: `components/adle/morphology/morphology-guided-lesson.tsx`
-- Concept / family: `DICTATION` / `dictation`
+- Concept / family: `DICTATION.whole_sentence adapter` / `dictation.whole_sentence adapter`
 - Routes: `dynamic_prefix_word_lab:v2`, `fixed_un_prefix_word_lab:v1`, `dynamic_affix_word_lab:v3`
 - Micro-skills: `D4_MOR_PREFIXES_UN`, `D4_MOR_PREFIXES_DIS_MIS`, `D4_MOR_PREFIXES_IN_IM_IL_IR`, `D4_MOR_PREFIXES_RE_PRE`, `D4_MOR_PREFIXES_SUB_INTER_SUPER`, `D4_MOR_SUFFIXES_ABLE_IBLE`, `D4_MOR_SUFFIXES_AL`, `D4_MOR_SUFFIXES_FUL_LESS`, `D4_MOR_SUFFIXES_ITY`, `D4_MOR_SUFFIXES_LY`, `D4_MOR_SUFFIXES_MENT`, `D4_MOR_SUFFIXES_NESS`, `D4_MOR_SUFFIXES_OUS`, `D4_MOR_SUFFIXES_SION`, `D4_MOR_SUFFIXES_TION`
 - Registry/template keys: None
-- Props/config differences: See component props and route adapter.
-- Visual differences: Dark shell textarea with sentence DiffReveal.
+- Props/config differences: Supplies authored sentence/audio, restored response/check state and continuation copy.
+- Visual differences: Uses its owning shell styling.
 - Behavioural differences: Local interaction state only.
-- Persistence/evidence differences: Renderer does not write directly; owning session submits completion.
-- Canonical candidate: `shared sentence-dictation mode`
-- Classification: `DUPLICATE_TO_MIGRATE`
-- Recommended action: Do not add new usage before the backlog action is complete.
+- Persistence/evidence differences: Target-token and context-slip analysis remain route-owned.
+- Canonical candidate: `SentenceDictation`
+- Classification: `CANONICAL_MODE`
+- Recommended action: Retain and route new work through the catalogue.
 - Migration risk: `high`
-- Historical replay dependency: No
+- Historical replay dependency: Yes
 - Evidence: Repository import and route-dispatch trace at the audited base SHA.
 - Notes: None.
 
@@ -1006,25 +1018,6 @@ ERROR_REPAIR remains ReflectionActivity and keeps reveal-hide-retry evidence. ME
 - Classification: `CANONICAL_MODE`
 - Recommended action: Retain and route new work through the catalogue.
 - Migration risk: `medium`
-- Historical replay dependency: No
-- Evidence: Repository import and route-dispatch trace at the audited base SHA.
-- Notes: None.
-
-### DynamicPrefixStagingLab
-
-- File: `components/adle/morphology/dynamic-prefix-staging-lab.tsx`
-- Concept / family: `STAGING_PROOF_LESSON` / `staging_proof_lesson`
-- Routes: `/learn/week/adle/dynamic-prefix in non-production`
-- Micro-skills: `none (development/staging reference only)`
-- Registry/template keys: None
-- Props/config differences: Standalone four-word cards, local dictation textarea, and local reflection.
-- Visual differences: Uses its owning shell styling.
-- Behavioural differences: Local interaction state only.
-- Persistence/evidence differences: Session-storage proof state only; explicitly writes no learner evidence.
-- Canonical candidate: `MorphologyGuidedLesson`
-- Classification: `COMPATIBILITY_ONLY`
-- Recommended action: Retain only as a staging proof surface until its runbook is retired; never use it as a micro-skill renderer.
-- Migration risk: `low`
 - Historical replay dependency: No
 - Evidence: Repository import and route-dispatch trace at the audited base SHA.
 - Notes: None.
@@ -1086,14 +1079,14 @@ ERROR_REPAIR remains ReflectionActivity and keeps reveal-hide-retry evidence. ME
 - Evidence: Repository import and route-dispatch trace at the audited base SHA.
 - Notes: None.
 
-### Controlled (Base Word)
+### Base Word Cover Check adapter
 
 - File: `components/adle/morphology/base-word-family-guided-lesson.tsx`
-- Concept / family: `COVER_CHECK` / `cover_check`
+- Concept / family: `COVER_CHECK adapter` / `cover_check adapter`
 - Routes: `base_word_lab:v2`
 - Micro-skills: `D4_MOR_BASE_WORDS_BASE_PLUS_PREFIX`, `D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX`, `D4_MOR_BASE_WORDS_IDENTIFY_BASE`, `D4_MOR_BASE_WORDS_PRESERVE_BASE`
 - Registry/template keys: None
-- Props/config differences: See component props and route adapter.
+- Props/config differences: Supplies the independent word and restored attempt/check state without learner UI.
 - Visual differences: Uses its owning shell styling.
 - Behavioural differences: Local interaction state only.
 - Persistence/evidence differences: Renderer does not write directly; owning session submits completion.
@@ -1105,20 +1098,20 @@ ERROR_REPAIR remains ReflectionActivity and keeps reveal-hide-retry evidence. ME
 - Evidence: Repository import and route-dispatch trace at the audited base SHA.
 - Notes: None.
 
-### Dictation (Base Word)
+### Base Word Sentence Dictation adapter
 
 - File: `components/adle/morphology/base-word-family-guided-lesson.tsx`
-- Concept / family: `DICTATION` / `dictation`
+- Concept / family: `DICTATION.whole_sentence adapter` / `dictation.whole_sentence adapter`
 - Routes: `base_word_lab:v2`
 - Micro-skills: `D4_MOR_BASE_WORDS_BASE_PLUS_PREFIX`, `D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX`, `D4_MOR_BASE_WORDS_IDENTIFY_BASE`, `D4_MOR_BASE_WORDS_PRESERVE_BASE`
 - Registry/template keys: None
-- Props/config differences: See component props and route adapter.
+- Props/config differences: Supplies authored audio/sentence and restored response/check state.
 - Visual differences: Uses its owning shell styling.
 - Behavioural differences: Local interaction state only.
-- Persistence/evidence differences: Renderer does not write directly; owning session submits completion.
-- Canonical candidate: `shared sentence-dictation mode`
-- Classification: `DUPLICATE_TO_MIGRATE`
-- Recommended action: Do not add new usage before the backlog action is complete.
+- Persistence/evidence differences: Authored target-token extraction remains route-owned.
+- Canonical candidate: `SentenceDictation`
+- Classification: `CANONICAL_MODE`
+- Recommended action: Retain and route new work through the catalogue.
 - Migration risk: `high`
 - Historical replay dependency: No
 - Evidence: Repository import and route-dispatch trace at the audited base SHA.
@@ -1200,14 +1193,14 @@ ERROR_REPAIR remains ReflectionActivity and keeps reveal-hide-retry evidence. ME
 - Evidence: Repository import and route-dispatch trace at the audited base SHA.
 - Notes: None.
 
-### Controlled (Compound inline)
+### Compound Cover Check adapter
 
 - File: `components/adle/morphology/closed-compound-guided-lesson.tsx`
-- Concept / family: `COVER_CHECK` / `cover_check`
+- Concept / family: `COVER_CHECK adapter` / `cover_check adapter`
 - Routes: `compound_word_lab:v2`, `closed_compound_word_lab:v1`
 - Micro-skills: `D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS`, `D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED`
 - Registry/template keys: None
-- Props/config differences: See component props and route adapter.
+- Props/config differences: Supplies governed components, split points and restored checked attempt through the shared v1/v2 runtime adapter.
 - Visual differences: Uses its owning shell styling.
 - Behavioural differences: Local interaction state only.
 - Persistence/evidence differences: Renderer does not write directly; owning session submits completion.
@@ -1219,20 +1212,20 @@ ERROR_REPAIR remains ReflectionActivity and keeps reveal-hide-retry evidence. ME
 - Evidence: Repository import and route-dispatch trace at the audited base SHA.
 - Notes: None.
 
-### Dictation (Compound inline)
+### Compound Sentence Dictation adapter
 
 - File: `components/adle/morphology/closed-compound-guided-lesson.tsx`
-- Concept / family: `DICTATION` / `dictation`
+- Concept / family: `DICTATION.whole_sentence adapter` / `dictation.whole_sentence adapter`
 - Routes: `compound_word_lab:v2`, `closed_compound_word_lab:v1`
 - Micro-skills: `D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS`, `D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED`
 - Registry/template keys: None
-- Props/config differences: See component props and route adapter.
+- Props/config differences: Supplies authored audio/sentence and restored response/check state through the shared v1/v2 runtime adapter.
 - Visual differences: Uses its owning shell styling.
 - Behavioural differences: Local interaction state only.
-- Persistence/evidence differences: Renderer does not write directly; owning session submits completion.
-- Canonical candidate: `shared sentence-dictation mode`
-- Classification: `DUPLICATE_TO_MIGRATE`
-- Recommended action: Do not add new usage before the backlog action is complete.
+- Persistence/evidence differences: Governed span extraction and separator-significant correctness remain route-owned.
+- Canonical candidate: `SentenceDictation`
+- Classification: `CANONICAL_MODE`
+- Recommended action: Retain and route new work through the catalogue.
 - Migration risk: `high`
 - Historical replay dependency: Yes
 - Evidence: Repository import and route-dispatch trace at the audited base SHA.

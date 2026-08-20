@@ -6,6 +6,7 @@ import {
   LESSON_REFLECTION_MAX_RESPONSE_LENGTH,
   type LessonReflectionContextRecap,
   type NormalizedLessonReflectionMistake,
+  type NormalizedLessonReflectionSentenceComparison,
 } from "@/lib/adle/lesson-reflection";
 
 export interface LessonReflectionSpecialistRecap {
@@ -29,6 +30,7 @@ export interface LessonReflectionProps {
   autoFocus?: boolean;
   successMessage?: string;
   contextRecap?: LessonReflectionContextRecap;
+  sentenceComparisons?: readonly NormalizedLessonReflectionSentenceComparison[];
   specialistRecaps?: readonly LessonReflectionSpecialistRecap[];
 }
 
@@ -95,6 +97,22 @@ export function LessonReflection(props: LessonReflectionProps) {
           </p>
         )}
       </section>
+
+      {props.sentenceComparisons?.length ? (
+        <section className="rounded-3xl border border-cyan-300/40 bg-slate-950/45 p-5" aria-labelledby={`${instanceId}-sentence-comparison-heading`} data-reflection-sentence-comparisons="feedback-only">
+          <p className="text-xs font-black uppercase tracking-[.2em] text-cyan-200">Sentence check</p>
+          <h2 id={`${instanceId}-sentence-comparison-heading`} className="mt-2 text-xl font-black text-white">Notice the whole sentence</h2>
+          <p className="mt-2 text-cyan-100">This helps you notice capitals and punctuation. It does not change your spelling result.</p>
+          <div className="mt-4 grid gap-3">
+            {props.sentenceComparisons.map((comparison) => (
+              <article key={comparison.id} className="rounded-2xl border border-cyan-200/50 bg-white/10 p-4">
+                <p><span className="font-black text-white">Your sentence:</span> “{comparison.attempt || "nothing yet"}”</p>
+                <p className="mt-2"><span className="font-black text-white">Correct sentence:</span> “{comparison.correct}”</p>
+              </article>
+            ))}
+          </div>
+        </section>
+      ) : null}
 
       {props.contextRecap?.items.length ? (
         <section className="rounded-3xl border border-cyan-300/40 bg-slate-950/45 p-5" aria-labelledby={`${instanceId}-context-heading`} data-reflection-context-recap="recap-only">

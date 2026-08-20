@@ -12,6 +12,19 @@ export interface NormalizedLessonReflectionMistake {
   };
 }
 
+/** Presentation-only sentence feedback. It must never be used to derive spelling evidence. */
+export interface NormalizedLessonReflectionSentenceComparison {
+  id: string;
+  attempt: string;
+  correct: string;
+}
+
+export function lessonReflectionSentenceComparison(
+  comparison: NormalizedLessonReflectionSentenceComparison,
+): NormalizedLessonReflectionSentenceComparison | null {
+  return comparison.attempt.trim() === comparison.correct.trim() ? null : comparison;
+}
+
 export interface LessonReflectionContextRecap {
   heading: string;
   introduction?: string;

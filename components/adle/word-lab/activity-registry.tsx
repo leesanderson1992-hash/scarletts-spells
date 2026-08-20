@@ -2,6 +2,9 @@
 
 import { useState, type ReactNode } from "react";
 
+import { CoverShutter } from "@/components/adle/activities/shared/cover-shutter";
+import { SentenceDictation } from "@/components/adle/activities/shared/sentence-dictation";
+
 import type {
   CompiledWordLabSnapshotV1,
   WordLabActivityResultV1,
@@ -102,11 +105,87 @@ function FixtureActivity(props: WordLabActivityPluginProps) {
   );
 }
 
+function CanonicalCoverCheckFixture(props: WordLabActivityPluginProps) {
+  const [index, setIndex] = useState(0);
+  const word = props.words[index];
+  if (!word) return null;
+  return (
+    <CoverShutter
+      key={word.slotId}
+      word={word.displayWord}
+      splitPoints={[]}
+      stepLabel={`Cover check ${index + 1} of ${props.words.length}`}
+      muted={props.muted}
+      onStateChange={(state, attempt) => props.onStateChange({ index, state, attempt })}
+      onComplete={() => undefined}
+      continueLabel={index === props.words.length - 1 ? "Complete Cover Check" : "Next word"}
+      onContinue={() => {
+        if (index < props.words.length - 1) {
+          setIndex((current) => current + 1);
+          return;
+        }
+        props.onComplete({
+          activityId: props.activity.activityId,
+          contractVersion: props.activity.contractVersion,
+          completed: true,
+          response: { canonicalRenderer: "CoverShutter" },
+        });
+      }}
+    />
+  );
+}
+
+function CanonicalSentenceDictationFixture(props: WordLabActivityPluginProps) {
+  const [index, setIndex] = useState(0);
+  const [value, setValue] = useState("");
+  const [checked, setChecked] = useState(false);
+  const word = props.words[index];
+  const sentences = props.activity.config.sentences;
+  const sentence = word && sentences && typeof sentences === "object"
+    ? (sentences as Record<string, unknown>)[word.displayWord]
+    : null;
+  if (!word || typeof sentence !== "string") return null;
+  return (
+    <SentenceDictation
+      key={word.slotId}
+      stepLabel={`Sentence ${index + 1} of ${props.words.length}`}
+      audioText={sentence}
+      correctSentence={sentence}
+      value={value}
+      checked={checked}
+      muted={props.muted}
+      onValueChange={(next) => {
+        setValue(next);
+        props.onStateChange({ index, value: next, checked: false });
+      }}
+      onCheck={() => {
+        setChecked(true);
+        props.onStateChange({ index, value, checked: true });
+      }}
+      continueLabel={index === props.words.length - 1 ? "Complete Sentence Dictation" : "Next sentence"}
+      onContinue={() => {
+        if (index < props.words.length - 1) {
+          setIndex((current) => current + 1);
+          setValue("");
+          setChecked(false);
+          return;
+        }
+        props.onComplete({
+          activityId: props.activity.activityId,
+          contractVersion: props.activity.contractVersion,
+          completed: true,
+          response: { canonicalRenderer: "SentenceDictation" },
+        });
+      }}
+    />
+  );
+}
+
 const pluginEntries = [
   ["strategy_notice", 1, (props: WordLabActivityPluginProps) => <FixtureActivity {...props} />],
   ["guided_map", 1, (props: WordLabActivityPluginProps) => <FixtureActivity {...props} />],
-  ["cover_check", 1, (props: WordLabActivityPluginProps) => <FixtureActivity {...props} />],
-  ["dictation", 1, (props: WordLabActivityPluginProps) => <FixtureActivity {...props} />],
+  ["cover_check", 1, (props: WordLabActivityPluginProps) => <CanonicalCoverCheckFixture {...props} />],
+  ["dictation", 1, (props: WordLabActivityPluginProps) => <CanonicalSentenceDictationFixture {...props} />],
   ["reflection", 1, (props: WordLabActivityPluginProps) => <FixtureActivity {...props} />],
 ] as const;
 

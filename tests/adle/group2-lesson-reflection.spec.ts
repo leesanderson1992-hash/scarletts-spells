@@ -88,7 +88,7 @@ test("Prefix learner shell restores and completes through the canonical reflecti
     controlledAttempts: { "dev-unfair": "unfare", "dev-unkind": "unkind", "dev-unlock": "unlock", "dev-untidy": "untidy" },
     controlledChecked: { "dev-unfair": true, "dev-unkind": true, "dev-unlock": true, "dev-untidy": true },
     sentenceAttempts: {
-      "dev-unfair": "It was unfair to change the rules.", "dev-unkind": "It was unkind to leave her out.",
+      "dev-unfair": "it was unfair to change the rules.", "dev-unkind": "It was unkind to leave her out",
       "dev-unlock": "Please unlock the door before we leave.", "dev-untidy": "The untidy desk needed sorting.",
     },
     checkedSentence: false, guidedBindings: [], muted: true, helpLevel: 0,
@@ -102,6 +102,9 @@ test("Prefix learner shell restores and completes through the canonical reflecti
   await page.reload({ waitUntil: "load" });
   await expect(page.getByRole("heading", { name: "What went wrong" })).toBeVisible();
   await expect(page.getByRole("article", { name: /Compare your spelling of unfair/ })).toBeVisible();
+  const prefixSentenceFeedback = page.locator('[data-reflection-sentence-comparisons="feedback-only"]');
+  await expect(prefixSentenceFeedback).toContainText("it was unfair to change the rules.");
+  await expect(prefixSentenceFeedback).toContainText("It was unkind to leave her out");
   await expect(page.getByRole("textbox", { name: /prefix un-/ })).toHaveValue("I will keep un- before the base word.");
   await page.getByRole("button", { name: "Finish the Word Lab" }).click();
   await expect(page.getByRole("heading", { name: /You finished the Word Lab/ })).toBeVisible();
@@ -115,7 +118,7 @@ test("Base Word learner shell restores target-token comparison and completes loc
     controlledIndex: 0, dictationIndex: 0,
     controlledAttempts: {}, controlledChecked: {},
     sentenceAttempts: {
-      replayed_en_gb: "We replay the song.", government_en_gb: "The government made a plan.",
+      replayed_en_gb: "we replayed the song.", government_en_gb: "The government made a plan.",
       play_en_gb: "We play outside.", replay_en_gb: "Can we replay that song?",
       govern_en_gb: "Leaders govern fairly.", governor_en_gb: "I am going to vote for our new governor.",
     },
@@ -128,7 +131,8 @@ test("Base Word learner shell restores target-token comparison and completes loc
   ), { contentVersion, state });
   await page.reload({ waitUntil: "load" });
   await expect(page.getByRole("heading", { name: "What went wrong" })).toBeVisible();
-  await expect(page.getByRole("article", { name: /Compare your spelling of replayed/ })).toBeVisible();
+  await expect(page.getByRole("article", { name: /Compare your spelling of replayed/ })).toHaveCount(0);
+  await expect(page.locator('[data-reflection-sentence-comparisons="feedback-only"]')).toContainText("we replayed the song.");
   await expect(page.getByRole("textbox", { name: /base words play and govern/ })).toHaveValue("The base words play and govern stay visible.");
   await page.getByRole("button", { name: "Finish preview" }).click();
   await expect(page.getByRole("heading", { name: /You finished the base-word Word Lab/ })).toBeVisible();
@@ -142,7 +146,7 @@ test("Closed Compound learner shell restores its exact-form comparison and compl
     stage: "reflect", index: 0, muted: true,
     attempts: { rainbow: "rain bow", football: "football", bedroom: "bedroom", playground: "playground" },
     sentences: {
-      rainbow: "A rain bow appeared after rain.", football: "Children play football after school.",
+      rainbow: "A rain bow appeared after rain.", football: "children play football after school",
       bedroom: "The bedroom was quiet.", playground: "We met at the playground.",
     },
     sentenceChecked: false, reflection: "I will join both complete words with no space.",
@@ -159,6 +163,7 @@ test("Closed Compound learner shell restores its exact-form comparison and compl
   await expect(page.getByRole("article", { name: /Compare your spelling of rainbow/ })).toBeVisible();
   await expect(page.getByText("rain", { exact: true })).toBeVisible();
   await expect(page.locator("p").filter({ hasText: "A rain bow appeared after rain." })).toBeVisible();
+  await expect(page.locator('[data-reflection-sentence-comparisons="feedback-only"]')).toContainText("children play football after school");
   await expect(page.getByRole("textbox", { name: /spelling compound words/ })).toHaveValue("I will join both complete words with no space.");
   await expect(page.locator('input[name="assignmentId"]')).toHaveValue(assignmentId);
   await expect(page.locator('input[name="learningReflection"]')).toHaveValue("I will join both complete words with no space.");

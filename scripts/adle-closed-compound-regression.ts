@@ -9,11 +9,18 @@ import { buildClosedCompoundAssignmentPlan } from "../lib/adle/morphology/closed
 import type { ComposedDailyPlan } from "../lib/adle/daily-assignment-composer";
 import { resolvePersistedLessonRoute } from "../lib/adle/composable-lesson/route-resolution";
 import { createLegacyPersistedRouteMetadata } from "../lib/adle/composable-lesson/persisted-route-metadata";
+import { lessonReflectionSentenceComparison } from "../lib/adle/lesson-reflection";
+import { dictationTargetSpanFromToken, extractAuthoredTargetSpan } from "../lib/adle/morphology/dictation-target-span";
 
 assert(isClosedCompoundAnswerCorrect("Football", "football"));
 assert(!isClosedCompoundAnswerCorrect("foot ball", "football"));
 assert(!isClosedCompoundAnswerCorrect("foot-ball", "football"));
 assert(!isClosedCompoundAnswerCorrect("ballfoot", "football"));
+for (const [id, attempted] of [["capital", "the children kicked the football."], ["punctuation", "The children kicked the football"]] as const) {
+  const span = dictationTargetSpanFromToken("The children kicked the football.", 4)!;
+  assert(isClosedCompoundAnswerCorrect(extractAuthoredTargetSpan(attempted, span), "football"), `${id}: Compound target evidence remains correct`);
+  assert(lessonReflectionSentenceComparison({ id, attempt: attempted, correct: "The children kicked the football." }), `${id}: Compound Reflection retains sentence feedback`);
+}
 const word = { canonicalWordId: "football", displayWord: "football", firstWord: "foot", secondWord: "ball", firstWordMeaning: "a body part", secondWordMeaning: "a round object", childFriendlyDefinition: "a game played by kicking a ball", audioText: "The children kicked the football.", dictationSentence: "The children kicked the football.", dictationTargetTokenIndex: 4, parts: [{ id: "a", text: "foot" }, { id: "b", text: "ball" }], joins: [{ afterPartId: "a", beforePartId: "b", joinType: "none" }], trueMorphology: { parts: [{ id: "a", text: "foot" }, { id: "b", text: "ball" }], joins: [{ afterPartId: "a", beforePartId: "b", joinType: "none" }], transformations: [], notes: "", provenance: { source: "test" } }, approvedTransfer: true } as any;
 const payload: any = { schemaVersion: 1, experience: "D4_MOR_CLOSED_COMPOUND", contentVersion: CLOSED_COMPOUND_CONTENT_VERSION, microSkillId: CLOSED_COMPOUND_MICRO_SKILL, experienceProfile: "closed_compound_word_lab_v1", words: { lesson: [word, { ...word, canonicalWordId: "bedroom", displayWord: "bedroom", firstWord: "bed", secondWord: "room" }, { ...word, canonicalWordId: "playground", displayWord: "playground", firstWord: "play", secondWord: "ground" }, { ...word, canonicalWordId: "rainbow", displayWord: "rainbow", firstWord: "rain", secondWord: "bow" }] }, activities: { introduction: {}, reflection: { promptKey: "closed-compounds-no-space-v1", promptText: "What happens to the space?" }, dictation: [] } };
 assert(!validateClosedCompoundLessonPayload(payload), "dictation must fail closed");
@@ -70,6 +77,7 @@ if (previousProductionGate === undefined) delete process.env.ADLE_CLOSED_COMPOUN
 else process.env.ADLE_CLOSED_COMPOUND_PRODUCTION_ENABLED = previousProductionGate;
 const jigsawSource = readFileSync("components/adle/morphology/compound-jigsaw-activity.tsx", "utf8");
 const lessonSource = readFileSync("components/adle/morphology/closed-compound-guided-lesson.tsx", "utf8");
+const sentenceDictationSource = readFileSync("components/adle/activities/shared/sentence-dictation.tsx", "utf8");
 const lessonReflectionSource = readFileSync("components/adle/activities/lesson-reflection.tsx", "utf8");
 const compatibilitySource = readFileSync("lib/adle/morphology/closed-compound-jigsaw-compatibility.ts", "utf8");
 const meaningSource = readFileSync("components/adle/morphology/meaning-connection-activity.tsx", "utf8");
@@ -79,9 +87,9 @@ assert(jigsawSource.includes("Mixed jigsaw piece bank") && jigsawSource.includes
 assert(jigsawSource.includes("useOrderedBuildEngine") && jigsawSource.includes("Anonymous jigsaw rows") && jigsawSource.includes("compoundJigsawPiecePath") && jigsawSource.includes("compoundJigsawPlacementTargetId"), "smoke gate: Jigsaw keeps anonymous content-recognised rows and one shared piece geometry above shared ordered-build mechanics");
 assert(!jigsawSource.includes("closed_v1") && compatibilitySource.includes("components: [word.firstWord, word.secondWord]") && compatibilitySource.includes('joins: ["none"]'), "closed-v1 compatibility is data normalization, not a historical learner UI");
 assert(meaningSource.includes("Your arrow follows your cursor") && meaningSource.includes("markerEnd=\"url(#compound-arrow)\"") && meaningSource.includes("onPointerMove={pointer}"), "smoke gate: the meaning board must show a live cursor-following arrow and a snapped arrow head");
-assert(lessonSource.includes("Write the whole sentence") && lessonSource.includes("Check sentence") && lessonSource.includes("autoFocus") && lessonSource.includes("mode=\"sentence\""), "smoke gate: sentence dictation must provide a visible editable input and existing check/reveal flow");
+assert(lessonSource.includes("<SentenceDictation") && sentenceDictationSource.includes("Write the whole sentence") && sentenceDictationSource.includes("Check sentence") && sentenceDictationSource.includes("autoFocus") && sentenceDictationSource.includes('mode="sentence"'), "smoke gate: Compound must configure canonical sentence dictation with the existing editable input and check/reveal flow");
 assert(!lessonSource.includes("<><DiffReveal attempt={attempts[word.canonicalWordId]}"), "smoke gate: CoverShutter owns the one and only word comparison reveal");
-assert(lessonSource.includes("<LessonReflection") && lessonSource.includes("EXACT_GOVERNED_FORM_ANSWER_POLICY") && lessonSource.includes("sentenceComparison"), "smoke gate: Compound normalizes exact-governed misses and existing sentence comparisons into LessonReflection");
+assert(lessonSource.includes("<LessonReflection") && lessonSource.includes("EXACT_GOVERNED_FORM_ANSWER_POLICY") && lessonSource.includes("lessonReflectionSentenceComparison"), "smoke gate: Compound normalizes exact-governed misses and feedback-only sentence comparisons into LessonReflection");
 assert(lessonReflectionSource.includes("You wrote") && lessonReflectionSource.includes("Correct spelling") && lessonReflectionSource.includes("border-4 border-cyan-300 bg-white"), "smoke gate: canonical reflection preserves the selected comparison-card hierarchy and high-contrast response area");
 assert(!lessonSource.includes("ClosedCompoundReflectionContent") && !lessonSource.includes("ClosedCompoundReflectionPreview"), "Compound-specific Reflection presentation is removed after canonical migration");
 assert(loaderSource.includes('canonical_teaching_dictionary_dictation_sentences")') && loaderSource.includes('.eq("row_status", "active").eq("review_status", "approved_for_first_exposure")'), "the loader must exclude superseded dictation rows before keying by canonical word");

@@ -103,7 +103,7 @@ assert.match(intake, /p_release_manifest_id: resolution\.curriculumRelease\?\.re
 assert.match(assignment, /createPersistedRouteMetadataV2/);
 assert.match(assignment, /releaseAuthority: activation/);
 assert.match(readModelSource, /request\.releaseAuthority/);
-assert.match(runtimePage, /baseWordAssignmentRuntimeAllowed/);
+assert.match(runtimePage, /databaseActivatedAssignmentRuntimeAllowed/);
 assert.match(completion, /baseWordAssignmentRuntimeAllowed/);
 assert.doesNotMatch(`${intake}\n${assignment}\n${readModelSource}\n${selector}\n${migration}`, /(?:^|[^a-z])(bed|foot|sun)(?:[^a-z]|$)/i);
 assert.doesNotMatch(`${baseWordIntakeBranch}\n${assignment}`, /canonical_teaching_dictionary_word_support/);

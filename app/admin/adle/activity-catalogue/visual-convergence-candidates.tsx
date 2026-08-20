@@ -10,23 +10,21 @@ import { ReflectionActivity } from "@/components/adle/activities/reflection-acti
 import { BinSort } from "@/components/adle/activities/shared/bin-sort";
 import { BaseWordCleaver } from "@/components/adle/activities/shared/base-word-cleaver";
 import { CoverShutter } from "@/components/adle/activities/shared/cover-shutter";
+import { ColdWordRecall } from "@/components/adle/activities/shared/cold-word-recall";
 import { DefinitionWordBuilder } from "@/components/adle/activities/shared/definition-word-builder";
-import { HearWordButton, SpellingField } from "@/components/adle/activities/shared/spelling-field";
+import { SentenceDictation } from "@/components/adle/activities/shared/sentence-dictation";
 import { SnapRail } from "@/components/adle/activities/shared/snap-rail";
 import { SplitHandle } from "@/components/adle/activities/shared/split-handle";
 import { MeaningFlip, MorphemeRail } from "@/components/adle/activities/morphology/shared/morphology-primitives";
 import { AssemblySlot } from "@/components/adle/interactions/selectable-item";
 import {
   Cleave as BaseCleave,
-  Dictation as BaseDictation,
   FamilyReveal,
   Intro as BaseIntro,
-  baseWordLessonReflectionMistakes,
+  baseWordLessonReflectionModel,
 } from "@/components/adle/morphology/base-word-family-guided-lesson";
 import { CompoundReadingPage } from "@/components/adle/morphology/closed-compound-guided-lesson";
 import {
-  Controlled as MorphologyControlled,
-  Dictation as MorphologyDictation,
   Discovery,
   LearnIntroduction,
   MeaningOverview,
@@ -112,11 +110,6 @@ function stateValue(state: VisualFixtureState, correct: string, incorrect: strin
   return state === "restored" || state === "active" ? incorrect.slice(0, Math.max(1, incorrect.length - 1)) : state === "incorrect" ? incorrect : state === "success" || state === "completed" ? correct : "";
 }
 
-function LocalField(props: { word: string; label: string; state: VisualFixtureState; reveal?: boolean; sentenceContext?: boolean }) {
-  const [value, setValue] = useState(() => stateValue(props.state, props.word, props.word === "unkind" ? "unkined" : "rain bo"));
-  return <SpellingField word={props.word} value={value} onChange={setValue} label={props.label} reveal={props.reveal} sentenceContext={props.sentenceContext} />;
-}
-
 function AssemblySlotPreview(props: { state: VisualFixtureState }) {
   const [placed, setPlaced] = useState(props.state === "active" || props.state === "completed");
   return <AssemblySlot label={placed ? "Remove un from position 1" : "Place selected tile in position 1"} active={!placed} onPlace={() => setPlaced((value) => !value)}>{placed ? "1. un · remove" : "Position 1"}</AssemblySlot>;
@@ -162,12 +155,13 @@ function ReflectionCandidates(props: { candidateId: string; state: VisualFixture
   const [value, setValue] = useState(() => props.state === "completed" || props.state === "restored" ? "I will look for the meaningful word parts." : "");
   if (props.candidateId === "morphology-reflection") {
     const model = morphologyLessonReflectionModel(MORPHOLOGY_PAYLOAD, reflectionState(props.state));
-    return <LessonReflection key={props.state} mistakes={model.mistakes} prompt={model.prompt} response={value} onResponseChange={setValue} onComplete={noop} completionLabel="Finish preview" contextRecap={model.contextRecap} />;
+    return <LessonReflection key={props.state} mistakes={model.mistakes} sentenceComparisons={model.sentenceComparisons} prompt={model.prompt} response={value} onResponseChange={setValue} onComplete={noop} completionLabel="Finish preview" contextRecap={model.contextRecap} />;
   }
   if (props.candidateId === "base-reflection") {
     const attempts = Object.fromEntries(BASE_WORD_FAMILY_PREVIEW_PAYLOAD.independentWords.map((word) => [word.canonicalWordId, word.dictationSentence]));
     if (props.state === "incorrect" || props.state === "active") attempts[BASE_WORD_FAMILY_PREVIEW_PAYLOAD.independentWords[0]!.canonicalWordId] = "We replay the song.";
-    return <LessonReflection key={props.state} mistakes={baseWordLessonReflectionMistakes(BASE_WORD_FAMILY_PREVIEW_PAYLOAD, attempts)} prompt={lessonReflectionPrompt({ kind: "base_word", values: BASE_WORD_FAMILY_PREVIEW_PAYLOAD.familySections.map((section) => section.baseWord.displayWord) })} response={value} onResponseChange={setValue} onComplete={noop} completionLabel="Finish preview" />;
+    const model = baseWordLessonReflectionModel(BASE_WORD_FAMILY_PREVIEW_PAYLOAD, attempts);
+    return <LessonReflection key={props.state} mistakes={model.mistakes} sentenceComparisons={model.sentenceComparisons} prompt={lessonReflectionPrompt({ kind: "base_word", values: BASE_WORD_FAMILY_PREVIEW_PAYLOAD.familySections.map((section) => section.baseWord.displayWord) })} response={value} onResponseChange={setValue} onComplete={noop} completionLabel="Finish preview" />;
   }
   if (props.candidateId === "compound-reflection") return <LessonReflection key={props.state} mistakes={lessonReflectionFixtureMistakes(props.state)} prompt={lessonReflectionPrompt({ kind: "compound" })} response={value} onResponseChange={setValue} onComplete={noop} completionLabel="Finish preview" successMessage="You checked each compound word carefully and kept its governed written form." />;
   if (props.candidateId === "common-reflection") {
@@ -194,13 +188,16 @@ function SpellCandidates(props: { candidateId: string; state: VisualFixtureState
   const baseWord = BASE_WORD_FAMILY_PREVIEW_PAYLOAD.independentWords[0]!;
   const checked = props.state === "success" || props.state === "completed";
   const [attempt, setAttempt] = useState(() => stateValue(props.state, morphWord.displayWord, "unfare"));
+  const [locallyChecked, setLocallyChecked] = useState(checked);
   const [repair, setRepair] = useState(() => props.state === "restored" ? "unki" : "");
   if (props.candidateId === "cover-check") return <CoverShutter key={props.state} word="unkind" splitPoints={[2]} components={["un", "kind"]} initialState={checked ? "check" : attempt ? "write" : "look"} initialAttempt={attempt} muted onComplete={noop} />;
-  if (props.candidateId === "generic-controlled") return <LocalField key={props.state} word="unkind" label="Copy and spell" state={props.state} reveal />;
-  if (props.candidateId === "specialist-controlled") return <MorphologyControlled key={props.state} index={0} total={4} word={morphWord} attempt={attempt} checked={checked} muted closePolicy={{ kind: "track_ratio", threshold: 0.8 }} onAttempt={setAttempt} onChecked={noop} onNext={noop} />;
-  if (props.candidateId === "generic-dictation") return <div className="grid gap-3"><div className="flex justify-center"><HearWordButton word="unkind" label="Play word" muted kind="dictation" /></div><LocalField key={props.state} word="unkind" label="Dictation word 1" state={props.state} /></div>;
-  if (props.candidateId === "morphology-dictation") return <MorphologyDictation key={props.state} payload={MORPHOLOGY_PAYLOAD} index={0} value={attempt} checked={checked} muted onValue={setAttempt} onCheck={noop} onNext={noop} />;
-  if (props.candidateId === "base-dictation") return <BaseDictation key={props.state} word={baseWord} index={0} total={6} value={attempt} checked={checked} onValue={setAttempt} onCheck={noop} onNext={noop} />;
+  if (props.candidateId === "generic-controlled") return <CoverShutter key={props.state} stepLabel="Compatibility key → Cover Check" word="unkind" splitPoints={[2]} components={["un", "kind"]} initialAttempt={attempt} initialState={checked ? "check" : attempt ? "write" : "look"} muted onComplete={setAttempt} />;
+  if (props.candidateId === "specialist-controlled") return <CoverShutter key={props.state} stepLabel="Word to remember 1 of 4" word={morphWord.displayWord} splitPoints={morphWord.splitPoints} initialAttempt={attempt} initialState={checked ? "check" : attempt ? "write" : "look"} muted closePolicy={{ kind: "track_ratio", threshold: 0.8 }} onStateChange={(_, value) => { if (value) setAttempt(value); }} onComplete={setAttempt} onContinue={noop} />;
+  if (props.candidateId === "generic-dictation") return <SentenceDictation key={props.state} stepLabel="Compatibility key → Sentence Dictation" audioText="It is unkind to leave someone out." correctSentence="It is unkind to leave someone out." value={attempt} checked={locallyChecked} muted onValueChange={setAttempt} onCheck={() => setLocallyChecked(true)} />;
+  if (props.candidateId === "review-cold-recall" || props.candidateId === "diagnostic-cold-recall") return <ColdWordRecall key={props.state} mode={props.candidateId === "review-cold-recall" ? "scheduled_review" : "diagnostic_probe"} targetWord="unkind" value={attempt} locked={locallyChecked} label={props.candidateId === "review-cold-recall" ? "Review word" : "Detective word"} muted onValueChange={setAttempt} onLock={() => setLocallyChecked(true)} />;
+  if (props.candidateId === "morphology-dictation") return <SentenceDictation key={props.state} stepLabel="Sentence 1 of 4" audioText="It was unfair to change the rules." correctSentence="It was unfair to change the rules." value={attempt} checked={locallyChecked} muted onValueChange={setAttempt} onCheck={() => setLocallyChecked(true)} continueLabel="Next sentence" onContinue={noop} />;
+  if (props.candidateId === "base-dictation") return <SentenceDictation key={props.state} stepLabel="Sentence 1 of 6" audioText={baseWord.audioText} correctSentence={baseWord.dictationSentence} value={attempt} checked={locallyChecked} muted onValueChange={setAttempt} onCheck={() => setLocallyChecked(true)} continueLabel="Next sentence" onContinue={noop} />;
+  if (props.candidateId === "compound-dictation") return <SentenceDictation key={props.state} stepLabel="Sentence 1 of 4" audioText="A rainbow appeared after rain." correctSentence="A rainbow appeared after rain." value={attempt} checked={locallyChecked} muted onValueChange={setAttempt} onCheck={() => setLocallyChecked(true)} continueLabel="Next sentence" onContinue={noop} />;
   if (props.candidateId === "error-repair") return <ReflectionActivity key={props.state} item={REPAIR_ITEM} priorAttempt="unkined" value={repair} onChange={setRepair} />;
   return null;
 }

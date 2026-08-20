@@ -12,4 +12,6 @@ export { TransformationAnimation } from "./transformation-animation";
 export { DiffReveal } from "./diff-reveal";
 export { INTERACTION_MOTION, useReducedMotion } from "./motion";
 export { playInteractionSound } from "./sound";
-export { GrownUpReveal, HearWordButton, SpellingField, speakWord } from "./spelling-field";
+export { HearWordButton, speakWord } from "./authored-audio";
+export { ColdWordRecall, type ColdWordRecallMode, type ColdWordRecallProps } from "./cold-word-recall";
+export { SentenceDictation, type SentenceDictationProps } from "./sentence-dictation";

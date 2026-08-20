@@ -16,7 +16,7 @@ const allowed = new Set<VisualConvergenceClassification>([
 
 assert.deepEqual(ADLE_VISUAL_CONVERGENCE_GROUPS.map((group) => group.number), [1, 2, 3, 4, 5, 6, 7], "all seven ordered visual groups must exist");
 assert.equal(new Set(ADLE_VISUAL_CONVERGENCE_GROUPS.map((group) => group.id)).size, 7, "visual group ids must be unique");
-assert.equal(visualConvergenceCandidateCount(), 35, "visual lab candidate inventory must remain explicit after retiring the closed-v1 learner mode");
+assert.equal(visualConvergenceCandidateCount(), 37, "visual lab candidate inventory includes both ColdWordRecall evidence configurations");
 
 const candidateIds = new Set<string>();
 for (const group of ADLE_VISUAL_CONVERGENCE_GROUPS) {
@@ -31,6 +31,9 @@ for (const group of ADLE_VISUAL_CONVERGENCE_GROUPS) {
     if (candidate.mount === "documented_only") assert.equal(candidate.supportedStates.length, 0, `${candidate.id} cannot advertise forced preview states`);
     else assert(candidate.supportedStates.length > 0, `${candidate.id} mounted previews need supported states`);
   }
+}
+for (const coldId of ["review-cold-recall", "diagnostic-cold-recall"]) {
+  assert(candidateIds.has(coldId), `${coldId} must remain visibly reviewable through the canonical ColdWordRecall`);
 }
 
 const routeSource = readFileSync(join(root, "app/admin/adle/activity-catalogue/page.tsx"), "utf8");

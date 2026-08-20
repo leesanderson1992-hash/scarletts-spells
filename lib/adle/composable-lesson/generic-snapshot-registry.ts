@@ -111,7 +111,7 @@ export const GENERIC_SNAPSHOT_TEMPLATE_REGISTRY = [
   }),
   definition("HIDE_WRITE", {
     kind: "hide_write",
-    rendererKind: "dictation",
+    rendererKind: "cover_check",
     supportedSections: ["guided_practice"],
     answerVisibility: "guided",
     evidence: guided,
@@ -121,7 +121,7 @@ export const GENERIC_SNAPSHOT_TEMPLATE_REGISTRY = [
   }),
   definition("CONTROLLED_SPELLING", {
     kind: "controlled_spelling",
-    rendererKind: "dictation",
+    rendererKind: "cover_check",
     supportedSections: ["lesson_production"],
     answerVisibility: "teaching",
     evidence: {
@@ -136,7 +136,7 @@ export const GENERIC_SNAPSHOT_TEMPLATE_REGISTRY = [
   }),
   definition("DICTATION_NO_IMAGE", {
     kind: "dictation",
-    rendererKind: "dictation",
+    rendererKind: "sentence_dictation",
     supportedSections: ["lesson_dictation"],
     answerVisibility: "recall_neutral",
     evidence: {
@@ -151,7 +151,7 @@ export const GENERIC_SNAPSHOT_TEMPLATE_REGISTRY = [
   }),
   definition("DICTATION_SENTENCE_CONTEXT", {
     kind: "dictation",
-    rendererKind: "dictation",
+    rendererKind: "sentence_dictation",
     supportedSections: ["review_production", "lesson_dictation"],
     answerVisibility: "recall_neutral",
     evidence: {
@@ -166,7 +166,7 @@ export const GENERIC_SNAPSHOT_TEMPLATE_REGISTRY = [
   }),
   definition("DIAGNOSTIC_DICTATION_PROBE", {
     kind: "diagnostic_probe",
-    rendererKind: "dictation",
+    rendererKind: "cold_word_recall",
     supportedSections: ["lesson_probe"],
     answerVisibility: "recall_neutral",
     evidence: {
@@ -191,7 +191,7 @@ export const GENERIC_SNAPSHOT_TEMPLATE_REGISTRY = [
   }),
   definition("REVIEW_DICTATION", {
     kind: "dictation",
-    rendererKind: "dictation",
+    rendererKind: "cold_word_recall",
     supportedSections: ["review_production"],
     answerVisibility: "recall_neutral",
     evidence: {
@@ -265,12 +265,13 @@ export function getGenericSnapshotTemplateDefinition(
 export function resolveGenericTemplateSemantics(
   definition: GenericSnapshotTemplateDefinition,
   sectionKey: GenericSnapshotSectionKeyV2,
-): Pick<GenericSnapshotTemplateDefinition, "evidence" | "scheduleRole" | "rewardRole"> {
+): Pick<GenericSnapshotTemplateDefinition, "rendererKind" | "evidence" | "scheduleRole" | "rewardRole"> {
   if (
     definition.templateKey === "DICTATION_SENTENCE_CONTEXT" &&
     sectionKey === "review_production"
   ) {
     return {
+      rendererKind: "cold_word_recall",
       evidence: {
         mode: "independent_word",
         capture: "submitted_on_part_finish",

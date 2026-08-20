@@ -7,6 +7,7 @@ import { priceWordEvidence } from "../lib/adle/evidence-pricing";
 import { computeWordEvidenceState } from "../lib/adle/word-evidence-state";
 import { REVIEW_POLICY_V1 } from "../lib/adle/review-scheduler";
 import { analyseDictationSentence } from "../lib/adle/morphology/dictation-context";
+import { lessonReflectionSentenceComparison } from "../lib/adle/lesson-reflection";
 import { compileDynamicPrefixWordLabDecision } from "../lib/adle/morphology/dynamic-prefix-compiler-rollout";
 import {
   DEFAULT_PREFIX_CLEAVER_FEEDBACK_POLICY,
@@ -122,6 +123,11 @@ expectAnalysis({ expected: "We took the subway home.", attempted: "We tuk the su
 expectAnalysis({ expected: "We took the subway home.", attempted: "we TOOK the SUBWAY home", targetIndex: 3, targetCorrect: true, contextKinds: [] });
 expectAnalysis({ expected: "The child’s well-known hero smiled.", attempted: "The child's well-known hero smiled", targetIndex: 3, targetCorrect: true, contextKinds: [] });
 expectAnalysis({ expected: "The cat and the cat sat.", attempted: "The cat plus and the cat sat.", targetIndex: 4, targetCorrect: true, contextKinds: ["insertion"] });
+for (const [id, attempted] of [["capital", "we took the subway home."], ["punctuation", "We took the subway home"]] as const) {
+  const analysis = expectAnalysis({ expected: "We took the subway home.", attempted, targetIndex: 3, targetCorrect: true, contextKinds: [] });
+  assert.equal(analysis.targetCorrect, true, `${id}: presentation difference stays spelling-correct`);
+  assert(lessonReflectionSentenceComparison({ id, attempt: attempted, correct: "We took the subway home." }), `${id}: Reflection still receives useful sentence feedback`);
+}
 
 const childId = "fixture-child";
 const words = ["international", "superhero", "subway", "interact"] as const;
@@ -203,6 +209,7 @@ assert(
 );
 assert(renderer.includes("targetAttemptedToken") && renderer.includes("correctSpelling: sentence.targetWord"));
 assert(renderer.includes("These are useful sentence checks. They do not add target-word mistakes"));
+assert(renderer.includes("sentenceComparisons={model.sentenceComparisons}"));
 assert(completionAction.includes("evidenceEligible: true"));
 assert(completionAction.includes("scheduleEligible: authentic"));
 assert(completionAction.includes("learningItemTransitionEligible: authentic"));

@@ -30,12 +30,13 @@ const resolve = (templateKey: string, sectionKey: string) =>
 const EXPECTED: ReadonlyArray<[string, string, ActivityRendererKind, ActivityMode, boolean]> = [
   ["MICRO_READ_ONLY_INTRO", "lesson_intro", "intro", "read_only", false],
   ["LESSON_WORDS_INTRO", "lesson_intro", "intro", "read_only", false],
-  ["REVIEW_DICTATION", "review_production", "dictation", "production", true],
-  ["DICTATION_NO_IMAGE", "lesson_dictation", "dictation", "production", true],
-  ["DICTATION_SENTENCE_CONTEXT", "lesson_dictation", "dictation", "production", true],
-  ["DIAGNOSTIC_DICTATION_PROBE", "lesson_probe", "dictation", "production", true],
-  ["CONTROLLED_SPELLING", "lesson_production", "dictation", "production", true],
-  ["HIDE_WRITE", "guided_practice", "dictation", "guided", true],
+  ["REVIEW_DICTATION", "review_production", "cold_word_recall", "production", true],
+  ["DICTATION_NO_IMAGE", "lesson_dictation", "sentence_dictation", "production", true],
+  ["DICTATION_SENTENCE_CONTEXT", "lesson_dictation", "sentence_dictation", "production", true],
+  ["DICTATION_SENTENCE_CONTEXT", "review_production", "cold_word_recall", "production", true],
+  ["DIAGNOSTIC_DICTATION_PROBE", "lesson_probe", "cold_word_recall", "production", true],
+  ["CONTROLLED_SPELLING", "lesson_production", "cover_check", "production", true],
+  ["HIDE_WRITE", "guided_practice", "cover_check", "guided", true],
   ["REVIEW_QUICK_SORT", "review_quick_sort", "quick_sort", "read_only", false],
   ["ERROR_REFLECTION_CUE", "review_reflection", "reflection", "reflection", true],
   ["MEMORY_CUE", "guided_practice", "reflection", "guided", true],
@@ -91,7 +92,9 @@ assert(getActivityTemplateDefinition("BRAND_NEW_TEMPLATE") === null, "unknown te
 
 // --- Unknown templates fail closed to safe, never throw ---------------------
 
-assert(resolve("BRAND_NEW_TEMPLATE", "lesson_production").rendererKind === "dictation", "unknown template falls back by section");
+assert(resolve("BRAND_NEW_TEMPLATE", "lesson_production").rendererKind === "cover_check", "unknown production template falls back to Cover Check");
+assert(resolve("BRAND_NEW_TEMPLATE", "lesson_dictation").rendererKind === "sentence_dictation", "unknown lesson Dictation falls back to Sentence Dictation");
+assert(resolve("BRAND_NEW_TEMPLATE", "review_production").rendererKind === "cold_word_recall", "unknown review production falls back to ColdWordRecall");
 assert(resolve("BRAND_NEW_TEMPLATE", "lesson_production").fallbackBehaviour === "section_safe_fallback", "section fallback is auditable");
 assert(resolve("BRAND_NEW_TEMPLATE", "review_reflection").rendererKind === "reflection", "unknown template -> reflection section");
 assert(resolve("BRAND_NEW_TEMPLATE", "review_quick_sort").rendererKind === "quick_sort", "unknown template -> quick_sort section");
@@ -103,7 +106,7 @@ assert(resolve("", "").rendererKind === "guided_prompt", "empty keys fail closed
 
 const unsupportedKnownSection = resolve("ERROR_REFLECTION_CUE", "lesson_production");
 assert(
-  unsupportedKnownSection.rendererKind === "dictation" &&
+  unsupportedKnownSection.rendererKind === "cover_check" &&
     unsupportedKnownSection.fallbackBehaviour === "section_safe_fallback",
   "known template in unsupported section falls back by section without claiming implementation",
 );

@@ -68,13 +68,23 @@ function requirementsFor(
         required("word_role_binding"),
         required("review_due_binding"),
       ];
+    case "DICTATION_NO_IMAGE":
+      return [
+        ...common,
+        required("canonical_identity"),
+        required("display_word"),
+        required("word_role_binding"),
+        required("sentence_evidence_contract"),
+      ];
     case "DICTATION_SENTENCE_CONTEXT":
       return [
         ...common,
         required("canonical_identity"),
         required("display_word"),
         required("word_role_binding"),
-        required("sentence_context_flag"),
+        optional("sentence_context_flag"),
+        optional("sentence_evidence_contract"),
+        optional("review_due_binding"),
       ];
     case "DIAGNOSTIC_DICTATION_PROBE":
       return [

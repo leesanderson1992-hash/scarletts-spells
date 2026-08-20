@@ -16,7 +16,7 @@
  */
 
 import dynamic from "next/dynamic";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import {
   completeAdleLessonPartAction,
@@ -31,12 +31,18 @@ import type { AdleSessionItem } from "@/lib/adle/loaders/daily-plan-surface";
 import { isAttemptCorrect } from "@/lib/adle/session-correctness";
 import { IntroActivity } from "@/components/adle/activities/intro-activity";
 import { QuickSortActivity } from "@/components/adle/activities/quick-sort-activity";
-import { SpellingField } from "@/components/adle/activities/shared/spelling-field";
+import { ColdWordRecall } from "@/components/adle/activities/shared/cold-word-recall";
+import { CoverShutter } from "@/components/adle/activities/shared/cover-shutter";
+import { SentenceDictation } from "@/components/adle/activities/shared/sentence-dictation";
 import { GuidedActivity } from "@/components/adle/activities/guided-activity";
 import { ReflectionActivity } from "@/components/adle/activities/reflection-activity";
 import type { BaseWordFamilyLessonSnapshotV1 } from "@/lib/adle/morphology/base-word-family-payload";
 import { ClosedCompoundGuidedLesson, CompoundWordGuidedLesson } from "@/components/adle/morphology/closed-compound-guided-lesson";
 import type { LessonRouteResolutionResult } from "@/lib/adle/composable-lesson/route-resolution";
+import {
+  extractSentenceTarget,
+  resolveSentenceDictationContract,
+} from "@/lib/adle/sentence-dictation-contract";
 
 const MorphologyGuidedLesson = dynamic(
   () =>
@@ -119,6 +125,24 @@ function mapWith(current: Map<string, string>, key: string, value: string): Map<
   return new Map(current).set(key, value);
 }
 
+function setWith(current: Set<string>, key: string): Set<string> {
+  return new Set(current).add(key);
+}
+
+function parseColdRecallResume(value: string | null): { attempts: Map<string, string>; locked: Set<string> } | null {
+  if (!value) return null;
+  try {
+    const parsed = JSON.parse(value) as { attempts?: Array<[string, string]>; locked?: string[] };
+    if (!Array.isArray(parsed.attempts) || !Array.isArray(parsed.locked)) return null;
+    return {
+      attempts: new Map(parsed.attempts.filter((entry) => Array.isArray(entry) && typeof entry[0] === "string" && typeof entry[1] === "string")),
+      locked: new Set(parsed.locked.filter((entry) => typeof entry === "string")),
+    };
+  } catch {
+    return null;
+  }
+}
+
 function BaseWordFamilyPart(props: { childId: string; assignmentId: string; payload: BaseWordFamilyLessonSnapshotV1 }) {
   const formRef = useRef<HTMLFormElement>(null);
   const controlledRef = useRef<HTMLInputElement>(null);
@@ -144,11 +168,28 @@ function BaseWordFamilyPart(props: { childId: string; assignmentId: string; payl
 
 function ReviewPart(props: { childId: string; assignmentId: string; items: AdleSessionItem[] }) {
   const quickSort = itemsForRenderer(props.items, "review_quick_sort", ["quick_sort"])[0] ?? null;
-  const production = itemsForRenderer(props.items, "review_production", ["dictation", "must_use_writing"]);
+  const production = itemsForRenderer(props.items, "review_production", ["cold_word_recall", "must_use_writing"]);
   const reflection = itemsForRenderer(props.items, "review_reflection", ["reflection"]);
   const [attempts, setAttempts] = useState<Map<string, string>>(new Map());
   const [retries, setRetries] = useState<Map<string, string>>(new Map());
+  const [locked, setLocked] = useState<Set<string>>(new Set());
   const [phase, setPhase] = useState<"sort" | "production" | "reflection">(quickSort ? "sort" : "production");
+  const reviewResumeKey = `adle:cold-word-recall:${props.assignmentId}:scheduled-review`;
+
+  useEffect(() => {
+    const restored = parseColdRecallResume(window.sessionStorage.getItem(reviewResumeKey));
+    if (!restored) return;
+    let active = true;
+    queueMicrotask(() => {
+      if (!active) return;
+      setAttempts(restored.attempts);
+      setLocked(restored.locked);
+    });
+    return () => { active = false; };
+  }, [reviewResumeKey]);
+  useEffect(() => {
+    window.sessionStorage.setItem(reviewResumeKey, JSON.stringify({ attempts: [...attempts], locked: [...locked] }));
+  }, [attempts, locked, reviewResumeKey]);
 
   const missed = production.filter((item) => {
     const attempt = attempts.get(item.canonicalWordId ?? "") ?? "";
@@ -180,18 +221,30 @@ function ReviewPart(props: { childId: string; assignmentId: string; items: AdleS
           <h2 className="text-sm font-semibold text-[color:var(--ink)]">Spell your review words</h2>
           <p className="mt-1 text-xs text-[color:var(--mid)]">Press play to hear each word, then spell it — no peeking.</p>
           <div className="mt-2 grid gap-3">
-            {production.map((item, index) => (
-              <SpellingField
+            {production.map((item, index) => {
+              const wordId = item.canonicalWordId ?? "";
+              return (
+              <ColdWordRecall
                 key={item.id}
-                word={item.targetWord ?? ""}
-                value={attempts.get(item.canonicalWordId ?? "") ?? ""}
-                onChange={(value) => setAttempts((current) => mapWith(current, item.canonicalWordId ?? "", value))}
+                mode="scheduled_review"
+                targetWord={item.targetWord ?? ""}
+                audioText={typeof item.promptData.audioText === "string" ? item.promptData.audioText : undefined}
+                value={attempts.get(wordId) ?? ""}
+                locked={locked.has(wordId)}
+                onValueChange={(value) => {
+                  if (!locked.has(wordId)) setAttempts((current) => mapWith(current, wordId, value));
+                }}
+                onLock={() => setLocked((current) => setWith(current, wordId))}
                 label={`Word ${index + 1}`}
-                sentenceContext={item.promptData.requiresSentenceContext === true}
               />
-            ))}
+              );
+            })}
           </div>
-          <NextButton label="Check my words →" onClick={() => setPhase("reflection")} />
+          {production.length > 0 && production.every((item) => locked.has(item.canonicalWordId ?? "")) ? (
+            <NextButton label="Continue to review results →" onClick={() => setPhase("reflection")} />
+          ) : (
+            <p className="mt-3 text-center text-xs text-[color:var(--mid)]">Lock each answer before continuing.</p>
+          )}
         </div>
       ) : null}
 
@@ -218,11 +271,8 @@ function ReviewPart(props: { childId: string; assignmentId: string; items: AdleS
           ) : (
             <p className="text-sm text-emerald-700">All words correct — brilliant.</p>
           )}
-          <div className="mt-4 flex items-center gap-3">
-            <button type="button" className="brand-secondary-btn" onClick={() => setPhase("production")}>
-              Back
-            </button>
-            <button type="submit" className="brand-primary-btn flex-1">
+          <div className="mt-4">
+            <button type="submit" className="brand-primary-btn w-full">
               Finish Part 1 →
             </button>
           </div>
@@ -234,14 +284,37 @@ function ReviewPart(props: { childId: string; assignmentId: string; items: AdleS
 
 function LessonPart(props: { childId: string; assignmentId: string; items: AdleSessionItem[] }) {
   const intro = itemsForRenderer(props.items, "lesson_intro", ["intro"]);
-  const guided = itemsForRenderer(props.items, "guided_practice", ["guided_prompt", "dictation", "reflection"]);
-  const production = itemsForRenderer(props.items, "lesson_production", ["dictation", "must_use_writing"]);
-  const dictation = itemsForRenderer(props.items, "lesson_dictation", ["dictation"]);
-  const probe = itemsForRenderer(props.items, "lesson_probe", ["dictation"])[0] ?? null;
+  const guided = itemsForRenderer(props.items, "guided_practice", ["guided_prompt", "reflection"]);
+  const guidedCover = itemsForRenderer(props.items, "guided_practice", ["cover_check"]);
+  const production = itemsForRenderer(props.items, "lesson_production", ["cover_check"]);
+  const mustUseWriting = itemsForRenderer(props.items, "lesson_production", ["must_use_writing"]);
+  const dictation = itemsForRenderer(props.items, "lesson_dictation", ["sentence_dictation"]);
+  const probe = itemsForRenderer(props.items, "lesson_probe", ["cold_word_recall"])[0] ?? null;
   const [attempts, setAttempts] = useState<Map<string, string>>(new Map());
   const [dictationAttempts, setDictationAttempts] = useState<Map<string, string>>(new Map());
+  const [dictationSentenceAttempts, setDictationSentenceAttempts] = useState<Map<string, string>>(new Map());
   const [probeAttempts, setProbeAttempts] = useState<Map<string, string>>(new Map());
   const [guidedNotes, setGuidedNotes] = useState<Map<string, string>>(new Map());
+  const [covered, setCovered] = useState<Set<string>>(new Set());
+  const [guidedCovered, setGuidedCovered] = useState<Set<string>>(new Set());
+  const [checkedSentences, setCheckedSentences] = useState<Set<string>>(new Set());
+  const [lockedProbes, setLockedProbes] = useState<Set<string>>(new Set());
+  const probeResumeKey = `adle:cold-word-recall:${props.assignmentId}:diagnostic-probe`;
+
+  useEffect(() => {
+    const restored = parseColdRecallResume(window.sessionStorage.getItem(probeResumeKey));
+    if (!restored) return;
+    let active = true;
+    queueMicrotask(() => {
+      if (!active) return;
+      setProbeAttempts(restored.attempts);
+      setLockedProbes(restored.locked);
+    });
+    return () => { active = false; };
+  }, [probeResumeKey]);
+  useEffect(() => {
+    window.sessionStorage.setItem(probeResumeKey, JSON.stringify({ attempts: [...probeAttempts], locked: [...lockedProbes] }));
+  }, [lockedProbes, probeAttempts, probeResumeKey]);
 
   const introItem = intro.find((item) => rendererKindFor(item) === "intro") ?? null;
   const probeWords = useMemo(() => {
@@ -252,6 +325,20 @@ function LessonPart(props: { childId: string; assignmentId: string; items: AdleS
         )
       : [];
   }, [probe]);
+  const dictationContracts = useMemo(
+    () => new Map(dictation.map((item) => [
+      item.id,
+      resolveSentenceDictationContract(item.promptData, item.targetWord),
+    ])),
+    [dictation],
+  );
+  const missingSentenceContracts = dictation.filter((item) => dictationContracts.get(item.id) === null);
+  const readyToSubmit =
+    production.every((item) => covered.has(item.id)) &&
+    guidedCover.every((item) => guidedCovered.has(item.id)) &&
+    dictation.every((item) => checkedSentences.has(item.id)) &&
+    probeWords.every((word) => lockedProbes.has(word.canonicalWordId ?? "")) &&
+    missingSentenceContracts.length === 0;
 
   return (
     <section className="brand-card mt-4 rounded-3xl p-4 md:p-5">
@@ -279,45 +366,99 @@ function LessonPart(props: { childId: string; assignmentId: string; items: AdleS
         </div>
       ) : null}
 
+      {guidedCover.length > 0 ? (
+        <div className="mt-4 grid gap-3">
+          {guidedCover.map((item, index) => (
+            <CoverShutter
+              key={item.id}
+              word={item.targetWord ?? ""}
+              splitPoints={[]}
+              stepLabel={`Cover check ${index + 1} of ${guidedCover.length}`}
+              muted
+              onStateChange={(_, value) => setGuidedNotes((current) => mapWith(current, item.id, value))}
+              onComplete={(value) => {
+                setGuidedNotes((current) => mapWith(current, item.id, value));
+                setGuidedCovered((current) => setWith(current, item.id));
+              }}
+            />
+          ))}
+        </div>
+      ) : null}
+
       <form action={completeAdleLessonPartAction} className="mt-4">
         <HiddenSessionFields childId={props.childId} assignmentId={props.assignmentId} />
         <input type="hidden" name="attempts" value={attemptsJson(attempts)} />
         <input type="hidden" name="dictationAttempts" value={attemptsJson(dictationAttempts)} />
+        <input type="hidden" name="dictationSentenceAttempts" value={attemptsJson(dictationSentenceAttempts)} />
         <input type="hidden" name="probeAttempts" value={attemptsJson(probeAttempts)} />
         <input type="hidden" name="guidedAttempts" value={attemptsJson(guidedNotes)} />
 
-        <h2 className="text-sm font-semibold text-[color:var(--ink)]">Spell all your lesson words</h2>
-        <p className="mt-1 text-xs text-[color:var(--mid)]">Copy each word carefully — this one you can see.</p>
+        <h2 className="text-sm font-semibold text-[color:var(--ink)]">Cover check</h2>
+        <p className="mt-1 text-xs text-[color:var(--mid)]">Study each word, deliberately cover it, then spell it from memory.</p>
         <div className="mt-2 grid gap-3">
-          {production.map((item) => (
-            <SpellingField
+          {production.map((item, index) => (
+            <CoverShutter
               key={item.id}
               word={item.targetWord ?? ""}
-              value={attempts.get(item.canonicalWordId ?? "") ?? ""}
-              onChange={(value) => setAttempts((current) => mapWith(current, item.canonicalWordId ?? "", value))}
-              label="Copy and spell"
-              reveal
+              splitPoints={[]}
+              stepLabel={`Word ${index + 1} of ${production.length}`}
+              muted
+              onStateChange={(_, value) => setAttempts((current) => mapWith(current, item.canonicalWordId ?? "", value))}
+              onComplete={(value) => {
+                setAttempts((current) => mapWith(current, item.canonicalWordId ?? "", value));
+                setCovered((current) => setWith(current, item.id));
+              }}
             />
           ))}
         </div>
 
+        {mustUseWriting.length > 0 ? (
+          <div className="mt-4 grid gap-3">
+            {mustUseWriting.map((item) => (
+              <GuidedActivity
+                key={item.id}
+                item={item}
+                value={attempts.get(item.canonicalWordId ?? "") ?? ""}
+                onChange={(value) => setAttempts((current) => mapWith(current, item.canonicalWordId ?? "", value))}
+              />
+            ))}
+          </div>
+        ) : null}
+
         {dictation.length > 0 ? (
           <div className="mt-4">
-            <h2 className="text-sm font-semibold text-[color:var(--ink)]">Dictation — no peeking</h2>
-            <p className="mt-1 text-xs text-[color:var(--mid)]">Press play to hear each word, then spell it.</p>
+            <h2 className="text-sm font-semibold text-[color:var(--ink)]">Sentence dictation</h2>
+            <p className="mt-1 text-xs text-[color:var(--mid)]">Hear the authored sentence, write the whole sentence, then lock and compare.</p>
             <div className="mt-2 grid gap-3">
-              {dictation.map((item, index) => (
-                <SpellingField
-                  key={item.id}
-                  word={item.targetWord ?? ""}
-                  value={dictationAttempts.get(item.canonicalWordId ?? "") ?? ""}
-                  onChange={(value) =>
-                    setDictationAttempts((current) => mapWith(current, item.canonicalWordId ?? "", value))
-                  }
-                  label={`Dictation word ${index + 1}`}
-                  sentenceContext={item.promptData.requiresSentenceContext === true}
-                />
-              ))}
+              {dictation.map((item, index) => {
+                const contract = dictationContracts.get(item.id);
+                if (!contract) return (
+                  <p key={item.id} role="alert" className="rounded-2xl border border-amber-300 bg-amber-50 p-4 text-sm text-amber-950">
+                    This historical activity has no governed authored sentence and cannot be attempted safely. Ask a grown-up to refresh this lesson.
+                  </p>
+                );
+                const wordId = item.canonicalWordId ?? "";
+                return (
+                  <SentenceDictation
+                    key={item.id}
+                    stepLabel={`Sentence ${index + 1} of ${dictation.length}`}
+                    audioText={contract.audioText}
+                    correctSentence={contract.sentence}
+                    value={dictationSentenceAttempts.get(wordId) ?? ""}
+                    checked={checkedSentences.has(item.id)}
+                    onValueChange={(value) => {
+                      if (!checkedSentences.has(item.id)) {
+                        setDictationSentenceAttempts((current) => mapWith(current, wordId, value));
+                      }
+                    }}
+                    onCheck={() => {
+                      const raw = dictationSentenceAttempts.get(wordId) ?? "";
+                      setDictationAttempts((current) => mapWith(current, wordId, extractSentenceTarget(raw, contract.targetTokenIndex)));
+                      setCheckedSentences((current) => setWith(current, item.id));
+                    }}
+                  />
+                );
+              })}
             </div>
           </div>
         ) : null}
@@ -330,13 +471,18 @@ function LessonPart(props: { childId: string; assignmentId: string; items: AdleS
             </p>
             <div className="mt-2 grid gap-3">
               {probeWords.map((word, index) => (
-                <SpellingField
+                <ColdWordRecall
                   key={word.canonicalWordId}
-                  word={word.targetWord ?? ""}
+                  mode="diagnostic_probe"
+                  targetWord={word.targetWord ?? ""}
                   value={probeAttempts.get(word.canonicalWordId ?? "") ?? ""}
-                  onChange={(value) =>
-                    setProbeAttempts((current) => mapWith(current, word.canonicalWordId ?? "", value))
-                  }
+                  locked={lockedProbes.has(word.canonicalWordId ?? "")}
+                  onValueChange={(value) => {
+                    if (!lockedProbes.has(word.canonicalWordId ?? "")) {
+                      setProbeAttempts((current) => mapWith(current, word.canonicalWordId ?? "", value));
+                    }
+                  }}
+                  onLock={() => setLockedProbes((current) => setWith(current, word.canonicalWordId ?? ""))}
                   label={`Detective word ${index + 1}`}
                 />
               ))}
@@ -344,7 +490,7 @@ function LessonPart(props: { childId: string; assignmentId: string; items: AdleS
           </div>
         ) : null}
 
-        <button type="submit" className="brand-primary-btn mt-4 w-full">
+        <button type="submit" disabled={!readyToSubmit} className="brand-primary-btn mt-4 w-full disabled:opacity-40">
           Finish Part 2 →
         </button>
       </form>

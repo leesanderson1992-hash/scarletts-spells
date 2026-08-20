@@ -4,6 +4,7 @@ import { readFileSync } from "node:fs";
 import {
   formatGovernedLessonValues,
   governedAffixForms,
+  lessonReflectionSentenceComparison,
   lessonReflectionPrompt,
 } from "../lib/adle/lesson-reflection";
 
@@ -15,6 +16,9 @@ assert.equal(formatGovernedLessonValues(["in-", "im-", "il-", "ir-"]), "in-, im-
 assert.equal(lessonReflectionPrompt({ kind: "prefix", values: ["dis-", "mis-"] }), "What did you learn about spelling with the prefixes dis- and mis-?");
 assert.equal(lessonReflectionPrompt({ kind: "suffix", values: ["-ful", "-less"] }), "What did you learn about spelling with the suffixes -ful and -less?");
 assert.deepEqual(governedAffixForms(["ness", "-ness", "ful"], "after"), ["-ness", "-ful"]);
+assert(lessonReflectionSentenceComparison({ id: "capital", attempt: "the dog was unhappy.", correct: "The dog was unhappy." }), "capital-only differences remain visible feedback");
+assert(lessonReflectionSentenceComparison({ id: "punctuation", attempt: "The dog was unhappy", correct: "The dog was unhappy." }), "terminal punctuation differences remain visible feedback");
+assert.equal(lessonReflectionSentenceComparison({ id: "same", attempt: "The dog was unhappy. ", correct: "The dog was unhappy." }), null);
 
 const shared = readFileSync("components/adle/activities/lesson-reflection.tsx", "utf8");
 const morphology = readFileSync("components/adle/morphology/morphology-guided-lesson.tsx", "utf8");
@@ -29,20 +33,26 @@ for (const copy of ["What went wrong", "You wrote", "Correct spelling", "Correct
 }
 for (const contract of [
   "NormalizedLessonReflectionMistake", "LessonReflectionContextRecap", "specialistRecaps",
+  "NormalizedLessonReflectionSentenceComparison", "sentenceComparisons", 'data-reflection-sentence-comparisons="feedback-only"',
   "maxLength={LESSON_REFLECTION_MAX_RESPONSE_LENGTH}", "autoFocus={props.autoFocus ?? true}",
   "value={props.response}", "props.onResponseChange", "onClick={props.onComplete}",
   'aria-live="polite"', "aria-describedby", "htmlFor={responseId}",
 ]) assert(shared.includes(contract), `LessonReflection contract missing ${contract}`);
+assert(!shared.includes("onKeyDown"), "plain Enter remains native multiline input and cannot complete LessonReflection");
 for (const forbidden of ["completeAdleLessonPartAction", "completeBaseWordFamilyLessonAction", "assignmentId", "Supabase", "fetch(", ".from("]) {
   assert(!shared.includes(forbidden), `LessonReflection must not own route/persistence capability: ${forbidden}`);
 }
 
-for (const route of [morphology, base, compound]) assert(route.includes("<LessonReflection"), "every specialist route must render LessonReflection");
+for (const route of [morphology, base, compound]) {
+  assert(route.includes("<LessonReflection"), "every specialist route must render LessonReflection");
+  assert(route.includes("sentenceComparisons="), "every specialist route supplies feedback-only sentence comparisons");
+}
 assert(morphology.includes("normaliseSessionWord") && morphology.includes("analyseDictationSentence"), "Prefix/Affix keeps normalized target and Prefix context policies in its adapter");
 assert(morphology.includes("contextItems.slice(0, 3)") && morphology.includes("contextRecap"), "Prefix context slips remain optional recap data");
 assert(base.includes("extractAuthoredTargetToken") && base.includes("baseWordLessonReflectionMistakes"), "Base Word keeps authored target-token extraction in its adapter");
 assert(compound.includes("EXACT_GOVERNED_FORM_ANSWER_POLICY") && compound.includes("extractAuthoredTargetSpan"), "Compound keeps exact governed correctness and span extraction in its adapter");
-assert(compound.includes("sentenceComparison"), "Compound retains its existing whole-sentence comparison");
+assert(compound.includes("lessonReflectionSentenceComparison"), "Compound retains its existing whole-sentence comparison through the normalized contract");
+assert([morphology, base, compound].every((route) => route.includes("correctSpelling")), "whole-sentence presentation remains separate from governed spelling mistakes");
 
 for (const obsolete of ["function Reflection(", "ClosedCompoundReflectionContent", "ClosedCompoundReflectionPreview", "export function ReflectionForm"]) {
   assert(!`${morphology}\n${base}\n${compound}`.includes(obsolete), `obsolete route-local presentation remains: ${obsolete}`);

@@ -30,17 +30,6 @@ This is a migration backlog, not authority to refactor, activate routes, change 
 - Model C release change required: Yes
 - Consolidation opportunity: High structural consolidation across three live specialist shells and one dark shell; no credible line count before the shared contract exists.
 
-### P1 — Extract shared sentence Dictation
-
-- Current implementations: `Morphology Dictation`, `Base Word Dictation`, `Compound inline Dictation`, `generic SpellingField dictation`
-- Target: SpellingField-backed Dictation component with word and sentence modes
-- Intended modes: `word`, `whole_sentence`, `sentence_context`, `diagnostic_probe`, `review`
-- Routes affected: `generic_composer:v1`, `dynamic_prefix_word_lab:v2`, `fixed_un_prefix_word_lab:v1`, `dynamic_affix_word_lab:v3`, `base_word_lab:v2`, `compound_word_lab:v2`, `closed_compound_word_lab:v1`
-- Regression requirements: authored audio; target-token semantics; sentence DiffReveal; context-slip analysis; attempt-key parity
-- Learner/runtime risk: `high`
-- Model C release change required: No
-- Consolidation opportunity: Remove three route-local textarea/check/reveal implementations after parity.
-
 ### P1 — Wire rich components through registry modes
 
 - Current implementations: `GuidedActivity fallback`, `specialist direct SplitHandle/SnapRail/BinSort/MeaningConnectionActivity`
@@ -54,7 +43,7 @@ This is a migration backlog, not authority to refactor, activate routes, change 
 
 ### P1 — Implement genuine missing activity surfaces
 
-- Current implementations: `PG/SYL/INF/PAT/SCHWA GuidedActivity fallbacks`, `MUST_USE_* SpellingField rendering`, `development-only transformation primitives`
+- Current implementations: `PG/SYL/INF/PAT/SCHWA GuidedActivity fallbacks`, `MUST_USE_* generic writing fallback`, `development-only transformation primitives`
 - Target: new catalogue-governed components only after NEW_INTERACTION_REQUIRED approval
 - Intended modes: `phoneme_grapheme_map`, `syllable_split_rebuild`, `authentic_free_writing`, `spelling_transformation`
 - Routes affected: `generic_composer:v1`
@@ -95,6 +84,19 @@ Keep SplitHandle as the canonical interaction engine. Add isolate_base as config
 ### Reflection family
 
 ERROR_REPAIR remains ReflectionActivity and keeps reveal-hide-retry evidence. MEMORY_CUE remains child mnemonic authoring. LessonReflection is the canonical end-of-first-impression LESSON_REFLECTION: it receives normalized attempted-versus-correct spelling summaries, a governed lesson-specific prompt, optional specialist/context recap, and one controlled response. Prefix context slips remain recap data rather than target assessment evidence. Route correctness, persistence, assignment and completion adapters remain outside the component; stored historical prompt keys/text remain assignment-owned.
+
+### Spell / Recall family
+
+First-impression spelling has exactly two learner experiences: CoverShutter for study-cover-spell-compare and SentenceDictation for authored whole-sentence audio recall. Scheduled review and diagnostics share ColdWordRecall, which never reveals the governed spelling until the response is irreversibly locked. Historical CONTROLLED_SPELLING, HIDE_WRITE, DICTATION_NO_IMAGE, DICTATION_SENTENCE_CONTEXT, REVIEW_DICTATION and DIAGNOSTIC_DICTATION_PROBE keys remain accepted semantic/configuration inputs only. Route adapters retain resume, correctness, evidence, scheduling, probe intake, assignment and persistence. SpellingField and GrownUpReveal are retired.
+
+### Group 3 closeout status
+
+- Status: `READY_FOR_CLOSEOUT`
+- Owner manual acceptance: 2026-08-20
+- Result: Owner manual acceptance passed for Prefix, Suffix/Affix, Base Word and Compound Cover Check, Sentence Dictation and cross-route Lesson Reflection feedback.
+- Acceptance fixes: Enter submits valid Cover Check, Sentence Dictation and ColdWordRecall responses through their existing guarded Check/Lock actions; Shift+Enter remains a Sentence Dictation newline and plain Enter remains a Lesson Reflection newline. Lesson Reflection now separates governed spelling mistakes from feedback-only whole-sentence capitalization and punctuation comparisons across Prefix, Suffix/Affix, Base Word and Compound routes.
+- Preserved invariants: No evidence classification, correctness policy, attempt identity, assignment binding, scheduler outcome, diagnostic intake, persistence schema, curriculum release or Production state changed.
+- Next step: Perform the final closeout diff review, then stage and create the single Group 3 commit only after explicit owner authorization. Do not begin Group 4 before that closeout.
 
 ## Genuine platform gaps
 
@@ -137,12 +139,11 @@ Still bespoke:
 - reading-page data shape outside Compound
 - Meet the Words implementations
 - shell navigation/resume
-- sentence Dictation wrappers
 - route completion adapters
 
 ## Review-template implications
 
-Review-eligible: `REVIEW_SORT`, `CONTROLLED_SPELLING.audio_recall`, `DICTATION.review`, `FREE_WRITING.review_transfer once implemented`
+Review-eligible: `REVIEW_SORT`, `DICTATION.word`, `DICTATION.review`, `FREE_WRITING.review_transfer once implemented`
 
 Not review-eligible: `INTRODUCTION`, `READING_PAGE`, `MEANING_DISCOVERY`, `WORD_FAMILY_REVEAL`, `LESSON_REFLECTION`
 

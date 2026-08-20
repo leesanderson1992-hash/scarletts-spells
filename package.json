@@ -14,6 +14,8 @@
     "adle:activity-visual-convergence-regression": "tsx scripts/adle-activity-visual-convergence-regression.ts",
     "adle:group2-lesson-reflection-regression": "tsx scripts/adle-group2-lesson-reflection-regression.ts",
     "adle:group2-lesson-reflection-interaction-regression": "playwright test --config=playwright.adle.config.ts tests/adle/group2-lesson-reflection.spec.ts",
+    "adle:group3-cover-dictation-convergence-regression": "tsx scripts/adle-group3-cover-dictation-convergence-regression.ts",
+    "adle:group3-cover-dictation-interaction-regression": "playwright test --config=playwright.adle.config.ts tests/adle/group3-cover-dictation-convergence.spec.ts",
     "adle:group1-build-convergence-regression": "tsx scripts/adle-group1-build-convergence-regression.ts",
     "adle:group1-build-interaction-regression": "playwright test --config=playwright.adle.config.ts tests/adle/group1-build-convergence.spec.ts",
     "child-switcher:regression": "tsx scripts/child-switcher-regression.ts",
