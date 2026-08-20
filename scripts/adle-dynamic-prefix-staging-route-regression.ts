@@ -7,7 +7,6 @@ function assert(condition: unknown, message: string): asserts condition {
 const access = readFileSync("lib/adle/morphology/dynamic-prefix-staging-access.ts", "utf8");
 const gate = readFileSync("lib/adle/morphology/dynamic-prefix-route-gate.ts", "utf8");
 const route = readFileSync("app/learn/week/adle/dynamic-prefix/page.tsx", "utf8");
-const renderer = readFileSync("components/adle/morphology/dynamic-prefix-staging-lab.tsx", "utf8");
 const legacy = readFileSync("app/learn/week/adle/page.tsx", "utf8");
 const resolver = readFileSync("lib/adle/composable-lesson/route-resolution.ts", "utf8");
 
@@ -16,7 +15,7 @@ assert(gate.includes('ADLE_ROUTE_ACTIVATION_ENVIRONMENT === "staging"'), "The de
 assert(gate.includes('process.env.VERCEL_ENV === "preview"') && gate.includes('ADLE_DYNAMIC_PREFIX_STAGING_ENABLED === "enabled"'), "Dynamic Prefix route must fail closed outside enabled preview deployments.");
 assert(gate.includes('process.env.VERCEL_ENV === "production"') && gate.includes('ADLE_DYNAMIC_PREFIX_PRODUCTION_ENABLED === "enabled"'), "Production requires its own explicit Dynamic Prefix gate.");
 assert(route.includes("selectDynamicPrefixWordLab") && route.includes("compileDynamicPrefixWordLabPayload"), "Staging route must compile the generic dynamic selector payload.");
-assert(renderer.includes("This staging-only route does not replace the fixed un- Word Lab") && route.includes("createDynamicPrefixStagingAssignmentAction"), "Staging route must retain legacy isolation and create durable work only through its explicit staging action.");
+assert(route.includes("createDynamicPrefixStagingAssignmentAction") && !route.includes("DynamicPrefixStagingLab"), "Staging route must create durable work through its explicit action and must not retain a parallel learner renderer.");
 assert(legacy.includes("resolvePersistedLessonRoute") && legacy.includes("isDynamicPrefixRouteEnabled"), "ADLE must admit v2 only through the shared route boundary and its explicit release gate.");
 assert(resolver.includes("resolveMorphologyPilotRuntime") && resolver.includes("resolveDynamicPrefixRuntime"), "the shared route boundary retains both legacy v1 and Dynamic Prefix v2 adapters.");
 console.log("PASS: Dynamic Prefix release gates are isolated from legacy v1");

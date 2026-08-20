@@ -12,7 +12,7 @@
         "mode": "independent_word"
       },
       "kind": "controlled_spelling",
-      "rendererKind": "dictation",
+      "rendererKind": "cover_check",
       "requirements": [
         {
           "availability": "compile",
@@ -63,7 +63,7 @@
         "mode": "diagnostic"
       },
       "kind": "diagnostic_probe",
-      "rendererKind": "dictation",
+      "rendererKind": "cold_word_recall",
       "requirements": [
         {
           "availability": "compile",
@@ -114,7 +114,7 @@
         "mode": "independent_word"
       },
       "kind": "dictation",
-      "rendererKind": "dictation",
+      "rendererKind": "sentence_dictation",
       "requirements": [
         {
           "availability": "compile",
@@ -143,7 +143,7 @@
         },
         {
           "availability": "compile",
-          "key": "micro_skill_content",
+          "key": "sentence_evidence_contract",
           "required": true
         }
       ],
@@ -165,7 +165,7 @@
         "mode": "independent_word"
       },
       "kind": "dictation",
-      "rendererKind": "dictation",
+      "rendererKind": "sentence_dictation",
       "requirements": [
         {
           "availability": "compile",
@@ -195,7 +195,17 @@
         {
           "availability": "compile",
           "key": "sentence_context_flag",
-          "required": true
+          "required": false
+        },
+        {
+          "availability": "compile",
+          "key": "sentence_evidence_contract",
+          "required": false
+        },
+        {
+          "availability": "compile",
+          "key": "review_due_binding",
+          "required": false
         }
       ],
       "rewardRole": "none",
@@ -273,7 +283,7 @@
         "mode": "guided_completion"
       },
       "kind": "hide_write",
-      "rendererKind": "dictation",
+      "rendererKind": "cover_check",
       "requirements": [
         {
           "availability": "compile",
@@ -1329,7 +1339,7 @@
         "mode": "independent_word"
       },
       "kind": "dictation",
-      "rendererKind": "dictation",
+      "rendererKind": "cold_word_recall",
       "requirements": [
         {
           "availability": "compile",

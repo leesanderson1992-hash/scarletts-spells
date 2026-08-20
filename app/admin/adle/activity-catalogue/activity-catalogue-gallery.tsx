@@ -5,7 +5,7 @@ import { useState, type ReactNode } from "react";
 import { IntroActivity } from "@/components/adle/activities/intro-activity";
 import { QuickSortActivity } from "@/components/adle/activities/quick-sort-activity";
 import { ReflectionActivity } from "@/components/adle/activities/reflection-activity";
-import { BaseWordCleaver, BinSort, CoverShutter, DiffReveal, SpellingField, SplitHandle } from "@/components/adle/activities/shared";
+import { BaseWordCleaver, BinSort, ColdWordRecall, CoverShutter, SentenceDictation, SplitHandle } from "@/components/adle/activities/shared";
 import { DefinitionWordBuilder } from "@/components/adle/activities/shared/definition-word-builder";
 import { CompoundJigsawActivity } from "@/components/adle/morphology/compound-jigsaw-activity";
 import { MeaningConnectionActivity } from "@/components/adle/morphology/meaning-connection-activity";
@@ -111,10 +111,12 @@ function CoverExample() {
   return <ExampleFrame activityKey="COVER_CHECK"><CoverShutter key={run} word="unhelpful" splitPoints={[2, 6]} components={["un", "help", "ful"]} muted onComplete={() => undefined} /><button type="button" className="mx-auto mt-4 block rounded-full border border-cyan-200 px-5 py-2 font-bold" onClick={() => setRun((value) => value + 1)}>Reset fixture</button></ExampleFrame>;
 }
 
-function SpellingExample() {
+function SpellExamples() {
   const [value, setValue] = useState("");
   const [checked, setChecked] = useState(false);
-  return <ExampleFrame activityKey="DICTATION"><SpellingField word="necessary" label="Gallery dictation word" value={value} onChange={(next) => { setValue(next); setChecked(false); }} />{value ? <button type="button" className="mt-3 w-full rounded-full bg-cyan-300 py-3 font-black text-slate-950" onClick={() => setChecked(true)}>Check locally</button> : null}{checked ? <div className="mt-3"><DiffReveal attempt={value} expected="necessary" /></div> : null}</ExampleFrame>;
+  const [recall, setRecall] = useState("");
+  const [locked, setLocked] = useState(false);
+  return <><ExampleFrame activityKey="DICTATION"><SentenceDictation stepLabel="Sentence 1 of 1" audioText="It is necessary to check the sentence." correctSentence="It is necessary to check the sentence." value={value} checked={checked} muted onValueChange={setValue} onCheck={() => setChecked(true)} continueLabel="Reset fixture" onContinue={() => { setValue(""); setChecked(false); }} /></ExampleFrame><ExampleFrame activityKey="COLD_WORD_RECALL"><ColdWordRecall mode="scheduled_review" targetWord="necessary" value={recall} locked={locked} label="Review word" muted onValueChange={setRecall} onLock={() => setLocked(true)} /></ExampleFrame></>;
 }
 
 function RepairExample() {
@@ -139,7 +141,7 @@ export function ActivityCatalogueGallery() {
         <AssemblyExample />
         <SortExample />
         <CoverExample />
-        <SpellingExample />
+        <SpellExamples />
         <RepairExample />
         <CompoundExamples />
       </div>

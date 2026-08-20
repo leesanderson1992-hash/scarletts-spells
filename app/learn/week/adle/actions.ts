@@ -80,6 +80,7 @@ import {
 } from "@/lib/adle/composable-lesson/route-resolution";
 import { baseWordAssignmentRuntimeAllowed, databaseActivatedAssignmentRuntimeAllowed } from "@/lib/adle/loaders/curriculum-release-authority";
 import { extractAuthoredTargetSpan } from "@/lib/adle/morphology/dictation-target-span";
+import { resolveSentenceDictationContract } from "@/lib/adle/sentence-dictation-contract";
 
 function readFormValue(formData: FormData, key: string): string | null {
   const value = formData.get(key);
@@ -643,6 +644,22 @@ export async function completeAdleLessonPartAction(formData: FormData) {
       derived.set(sentence.canonicalWordId, targetAttempt);
     }
     dictationAttempts = derived;
+  } else if (dictationSentenceAttempts.size > 0) {
+    const derived = new Map<string, string>();
+    for (const item of dictationItems) {
+      const contract = resolveSentenceDictationContract(item.promptData, item.targetWord);
+      if (!contract || item.canonicalWordId === null) continue;
+      const rawAttempt = dictationSentenceAttempts.get(item.canonicalWordId) ?? "";
+      derived.set(
+        item.canonicalWordId,
+        analyseDictationSentence(
+          contract.sentence,
+          rawAttempt,
+          contract.targetTokenIndex,
+        ).targetAttemptedToken ?? "",
+      );
+    }
+    dictationAttempts = derived;
   }
   const hasDictation = dictationItems.length > 0;
 
@@ -738,7 +755,7 @@ export async function completeAdleLessonPartAction(formData: FormData) {
     items: readModel.partTwo.items,
     controlledAttempts,
     dictationAttempts,
-    dictationRawAttempts: wordLabPayload === null ? undefined : dictationSentenceAttempts,
+    dictationRawAttempts: dictationSentenceAttempts.size > 0 ? dictationSentenceAttempts : undefined,
     guidedAttempts,
     probeAttempts,
     correctness: compoundV2 !== null ? "exact_governed_form" : "normalised_token",

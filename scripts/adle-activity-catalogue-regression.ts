@@ -80,7 +80,7 @@ for (const forbidden of [
 }
 for (const expected of [
   "SplitHandle", "BaseWordCleaver", "DefinitionWordBuilder", "BinSort", "CoverShutter",
-  "SpellingField", "ReflectionActivity", "CompoundJigsawActivity", "MeaningConnectionActivity",
+  "ColdWordRecall", "SentenceDictation", "ReflectionActivity", "CompoundJigsawActivity", "MeaningConnectionActivity",
 ]) {
   assert(gallery.includes(expected), `gallery must render ${expected}`);
 }

@@ -67,7 +67,14 @@ const fixtureActivities: readonly WordLabRecipeActivityV1[] = [
     order: 4,
     condition: { kind: "always" },
     words: { roles: allLessonRoles, min: 4, max: 4, includeAllMatching: true },
-    config: {},
+    config: {
+      sentences: {
+        rain: "Rain tapped softly on the window.",
+        train: "The train arrived beside the platform.",
+        paint: "We used blue paint for the sky.",
+        chain: "The silver chain had a tiny clasp.",
+      },
+    },
     answerVisibility: "recall_neutral",
     evidenceMode: "dictation",
     requiredForCompletion: true,

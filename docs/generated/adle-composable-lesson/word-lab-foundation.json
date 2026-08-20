@@ -119,7 +119,14 @@
           "condition": {
             "kind": "always"
           },
-          "config": {},
+          "config": {
+            "sentences": {
+              "chain": "The silver chain had a tiny clasp.",
+              "paint": "We used blue paint for the sky.",
+              "rain": "Rain tapped softly on the window.",
+              "train": "The train arrived beside the platform."
+            }
+          },
           "contractVersion": 1,
           "evidenceMode": "dictation",
           "kind": "dictation",
@@ -359,7 +366,14 @@
           "condition": {
             "kind": "always"
           },
-          "config": {},
+          "config": {
+            "sentences": {
+              "chain": "The silver chain had a tiny clasp.",
+              "paint": "We used blue paint for the sky.",
+              "rain": "Rain tapped softly on the window.",
+              "train": "The train arrived beside the platform."
+            }
+          },
           "contractVersion": 1,
           "evidenceMode": "dictation",
           "kind": "dictation",
@@ -597,7 +611,14 @@
           "condition": {
             "kind": "always"
           },
-          "config": {},
+          "config": {
+            "sentences": {
+              "chain": "The silver chain had a tiny clasp.",
+              "paint": "We used blue paint for the sky.",
+              "rain": "Rain tapped softly on the window.",
+              "train": "The train arrived beside the platform."
+            }
+          },
           "contractVersion": 1,
           "evidenceMode": "dictation",
           "kind": "dictation",
@@ -840,7 +861,14 @@
           "condition": {
             "kind": "always"
           },
-          "config": {},
+          "config": {
+            "sentences": {
+              "chain": "The silver chain had a tiny clasp.",
+              "paint": "We used blue paint for the sky.",
+              "rain": "Rain tapped softly on the window.",
+              "train": "The train arrived beside the platform."
+            }
+          },
           "contractVersion": 1,
           "evidenceMode": "dictation",
           "kind": "dictation",

@@ -1,0 +1,39 @@
+export interface SentenceDictationContract {
+  sentence: string;
+  audioText: string;
+  targetTokenIndex: number;
+}
+
+function nonEmpty(value: unknown): string | null {
+  return typeof value === "string" && value.trim() !== "" ? value.trim() : null;
+}
+
+export function resolveSentenceDictationContract(
+  promptData: Readonly<Record<string, unknown>>,
+  targetWord: string | null,
+): SentenceDictationContract | null {
+  const sentence = nonEmpty(promptData.sentence) ?? nonEmpty(promptData.authoredSentence);
+  if (sentence === null || targetWord === null) return null;
+  const tokens = sentence
+    .split(/\s+/)
+    .map((token) => token.toLocaleLowerCase("en-GB").replace(/[^a-z'-]/g, ""));
+  const governed = targetWord.toLocaleLowerCase("en-GB");
+  const suppliedIndex = promptData.targetTokenIndex;
+  const targetTokenIndex = Number.isInteger(suppliedIndex) && Number(suppliedIndex) >= 0
+    ? Number(suppliedIndex)
+    : tokens.findIndex((token) => token === governed);
+  if (targetTokenIndex < 0 || tokens[targetTokenIndex] !== governed) return null;
+  return {
+    sentence,
+    audioText: nonEmpty(promptData.audioText) ?? sentence,
+    targetTokenIndex,
+  };
+}
+
+export function extractSentenceTarget(attempt: string, targetTokenIndex: number): string {
+  return attempt
+    .trim()
+    .split(/\s+/)
+    .map((token) => token.toLocaleLowerCase("en-GB").replace(/[^a-z'-]/g, ""))
+    .filter(Boolean)[targetTokenIndex] ?? "";
+}

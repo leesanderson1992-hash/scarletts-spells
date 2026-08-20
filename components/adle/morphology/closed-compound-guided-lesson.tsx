@@ -2,7 +2,14 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { completeAdleLessonPartAction } from "@/app/learn/week/adle/actions";
-import { CoverShutter, DiffReveal, HearWordButton } from "@/components/adle/activities/shared";
+import { LessonReflection } from "@/components/adle/activities/lesson-reflection";
+import { CoverShutter, SentenceDictation } from "@/components/adle/activities/shared";
+import {
+  lessonReflectionSentenceComparison,
+  lessonReflectionPrompt,
+  type NormalizedLessonReflectionMistake,
+  type NormalizedLessonReflectionSentenceComparison,
+} from "@/lib/adle/lesson-reflection";
 import type { AdleSessionItem } from "@/lib/adle/loaders/daily-plan-surface";
 import { EXACT_GOVERNED_FORM_ANSWER_POLICY, isAnswerCorrectUnderPolicy } from "@/lib/adle/answer-policy";
 import type { ClosedCompoundLessonPayloadV1 } from "@/lib/adle/morphology/closed-compound-word-lab";
@@ -14,6 +21,11 @@ import type {
 } from "@/lib/adle/morphology/compound-word-lesson-v2";
 import type { CompoundWordJoinKind } from "@/lib/adle/morphology/compound-word-structure-v2";
 import { compoundReadingNavigationV2 } from "@/lib/adle/morphology/compound-word-reading-release-v2";
+import {
+  dictationTargetSpanFromToken,
+  extractAuthoredTargetSpan,
+  type DictationTargetSpanV2,
+} from "@/lib/adle/morphology/dictation-target-span";
 import {
   closedCompoundResumeKey,
   normaliseClosedCompoundResume,
@@ -50,6 +62,7 @@ type RuntimeWord = {
   componentToWholeRelationship: string;
   audioText: string;
   dictationSentence: string;
+  dictationTargetSpan: DictationTargetSpanV2;
   splitPoints: readonly number[];
 };
 
@@ -62,7 +75,7 @@ type RuntimePayload = {
   };
 };
 
-type RuntimeProps = { childId: string; assignmentId: string; items: AdleSessionItem[]; payload: RuntimePayload; resumeNamespace: "closed-compound" | "compound-word-v2" };
+type RuntimeProps = { childId: string; assignmentId: string; items: AdleSessionItem[]; payload: RuntimePayload; resumeNamespace: "closed-compound" | "compound-word-v2"; onPreviewComplete?: (reflection: string) => void };
 
 function CompoundReadingPage(props: {
   page: CompoundWordLessonReadingPageV2;
@@ -131,20 +144,36 @@ function CompoundWordLessonRuntime(props: RuntimeProps) {
     </section> : <section className="grid gap-4 text-center text-cyan-50"><p className="text-xs font-black uppercase tracking-[.2em] text-cyan-200">{isV1 ? "Closed compounds" : "Compound words"}</p><h1 className="text-4xl font-black text-white">{props.payload.activities.introduction.title}</h1><p className="mx-auto max-w-xl text-lg leading-relaxed">{props.payload.activities.introduction.childFriendlyExplanation}</p><p className="font-black text-amber-100">{props.payload.activities.introduction.summary}</p>{!isV1 ? <div className="grid gap-2 text-left">{words.map((entry) => <article key={entry.canonicalWordId} className="rounded-2xl border border-cyan-300/30 bg-slate-950/35 p-3"><p className="font-black text-white">{entry.components.join(" + ")} → {entry.displayWord}</p><p className="text-sm text-cyan-100">{entry.componentMeanings?.join(" + ")}</p>{entry.componentToWholeRelationship ? <p className="mt-1 text-sm font-semibold text-amber-100">{entry.componentToWholeRelationship}</p> : null}</article>)}</div> : null}<button type="button" className="mx-auto min-h-12 rounded-full bg-cyan-300 px-7 font-black text-slate-950" onClick={() => setState((current) => ({ ...current, stage: "jigsaw" }))}>Open the compound workshop</button></section>
     : state.stage === "jigsaw" ? <CompoundJigsawActivity targets={words.map((entry) => ({ canonicalWordId: entry.canonicalWordId, word: entry.displayWord, components: entry.components, joins: entry.joins }))} muted={state.muted} initialLocked={state.jigsawLocked} initialMisses={state.jigsawMisses} initialPlacements={state.jigsawPlacements} onProgress={({ locked, misses, placements }) => setState((current) => ({ ...current, jigsawLocked: locked, jigsawMisses: misses, jigsawPlacements: placements }))} onComplete={({ locked, misses, placements }) => setState((current) => ({ ...current, stage: "meaning", jigsawLocked: locked, jigsawMisses: misses, jigsawPlacements: placements }))} />
     : state.stage === "meaning" ? <MeaningConnectionActivity targets={words.map((entry) => ({ canonicalWordId: entry.canonicalWordId, word: entry.displayWord, definition: entry.childFriendlyDefinition, componentMeanings: entry.componentMeanings, componentToWholeRelationship: entry.componentToWholeRelationship }))} muted={state.muted} initialConnected={state.meaningConnected} initialMisses={state.meaningMisses} onProgress={({ connected, misses }) => setState((current) => ({ ...current, meaningConnected: connected, meaningMisses: misses }))} onComplete={({ connected, misses }) => setState((current) => ({ ...current, index: 0, stage: "controlled", meaningConnected: connected, meaningMisses: misses }))} />
-    : state.stage === "controlled" ? <section className="grid gap-4 text-cyan-50"><p className="font-black">Remember word {state.index + 1} of {words.length}</p><CoverShutter key={word.canonicalWordId} word={word.displayWord} splitPoints={[...word.splitPoints]} components={word.components} muted={state.muted} onComplete={(value) => setState((current) => ({ ...current, attempts: { ...current.attempts, [word.canonicalWordId]: value } }))} />{state.attempts[word.canonicalWordId] !== undefined ? <button type="button" className="min-h-12 rounded-full bg-cyan-300 font-black text-slate-950" onClick={() => setState((current) => state.index + 1 < words.length ? ({ ...current, index: state.index + 1 }) : ({ ...current, index: 0, stage: "dictation" }))}>Continue</button> : null}</section>
-    : state.stage === "dictation" ? <section className="grid gap-4 text-cyan-50"><p className="text-center text-sm font-black uppercase tracking-[.2em] text-cyan-200">Sentence {state.index + 1} of {words.length}</p><div className="flex justify-center"><HearWordButton word={word.audioText} label="Play sentence" muted={state.muted} kind="dictation" /></div><label className="text-sm font-semibold text-cyan-50">Write the whole sentence<textarea autoFocus spellCheck={false} autoComplete="off" autoCapitalize="sentences" value={state.sentences[word.canonicalWordId] ?? ""} onChange={(event) => setState((current) => ({ ...current, sentences: { ...current.sentences, [word.canonicalWordId]: event.target.value } }))} className="mt-2 min-h-28 w-full rounded-2xl bg-white p-4 text-lg text-slate-950 focus:outline-none focus:ring-4 focus:ring-cyan-300/30" /></label>{!state.sentenceChecked ? <button type="button" disabled={!state.sentences[word.canonicalWordId]?.trim()} className="min-h-12 rounded-full bg-cyan-300 font-black text-slate-950 disabled:opacity-40" onClick={() => setState((current) => ({ ...current, sentenceChecked: true }))}>Check sentence</button> : <><DiffReveal attempt={state.sentences[word.canonicalWordId] ?? ""} expected={word.dictationSentence} mode="sentence" /><button type="button" className="min-h-12 rounded-full bg-cyan-300 font-black text-slate-950" onClick={() => setState((current) => state.index + 1 < words.length ? ({ ...current, index: state.index + 1, sentenceChecked: false }) : ({ ...current, stage: "reflect", sentenceChecked: false }))}>{state.index + 1 < words.length ? "Next sentence" : "Reflect"}</button></>}</section>
-    : <ClosedCompoundReflection childId={props.childId} assignmentId={props.assignmentId} items={props.items} payload={props.payload} state={state} closedV1={isV1} onReflectionChange={(reflection) => setState((current) => ({ ...current, reflection }))} />;
+    : state.stage === "controlled" ? <CoverShutter key={word.canonicalWordId} stepLabel={`Remember word ${state.index + 1} of ${words.length}`} word={word.displayWord} splitPoints={[...word.splitPoints]} components={word.components} initialAttempt={state.attempts[word.canonicalWordId] ?? ""} initialState={state.attempts[word.canonicalWordId] !== undefined ? "check" : "look"} muted={state.muted} onComplete={(value) => setState((current) => ({ ...current, attempts: { ...current.attempts, [word.canonicalWordId]: value } }))} onContinue={() => setState((current) => current.index + 1 < words.length ? ({ ...current, index: current.index + 1 }) : ({ ...current, index: 0, stage: "dictation" }))} />
+    : state.stage === "dictation" ? <SentenceDictation key={word.canonicalWordId} stepLabel={`Sentence ${state.index + 1} of ${words.length}`} audioText={word.audioText} correctSentence={word.dictationSentence} value={state.sentences[word.canonicalWordId] ?? ""} checked={state.sentenceChecked} muted={state.muted} onValueChange={(value) => setState((current) => ({ ...current, sentences: { ...current.sentences, [word.canonicalWordId]: value } }))} onCheck={() => setState((current) => ({ ...current, sentenceChecked: true }))} continueLabel={state.index + 1 < words.length ? "Next sentence" : "Reflect"} onContinue={() => setState((current) => current.index + 1 < words.length ? ({ ...current, index: current.index + 1, sentenceChecked: false }) : ({ ...current, stage: "reflect", sentenceChecked: false }))} />
+    : <CompoundLessonReflectionAdapter childId={props.childId} assignmentId={props.assignmentId} items={props.items} payload={props.payload} state={state} closedV1={isV1} onReflectionChange={(reflection) => setState((current) => ({ ...current, reflection }))} onPreviewComplete={props.onPreviewComplete} />;
   return <WordLabScene beat={beat} phase={phase} muted={state.muted} onMutedChange={(muted) => setState((current) => ({ ...current, muted }))} silent={state.stage === "controlled" || state.stage === "dictation"} guideName="Word Builder">{content}</WordLabScene>;
 }
 
-function ClosedCompoundReflection(props: { childId: string; assignmentId: string; items: AdleSessionItem[]; payload: RuntimePayload; state: ClosedCompoundResumeState; closedV1: boolean; onReflectionChange: (value: string) => void }) {
-  const misses = props.payload.words.lesson.flatMap((entry) => {
-    const spellingAttempt = props.state.attempts[entry.canonicalWordId] ?? "";
-    const sentenceAttempt = props.state.sentences[entry.canonicalWordId] ?? "";
+function compoundLessonReflectionModel(payload: RuntimePayload, state: ClosedCompoundResumeState): {
+  mistakes: NormalizedLessonReflectionMistake[];
+  sentenceComparisons: NormalizedLessonReflectionSentenceComparison[];
+} {
+  const sentenceComparisons: NormalizedLessonReflectionSentenceComparison[] = [];
+  const mistakes = payload.words.lesson.flatMap((entry) => {
+    const spellingAttempt = state.attempts[entry.canonicalWordId] ?? "";
+    const sentenceAttempt = state.sentences[entry.canonicalWordId] ?? "";
+    const comparison = lessonReflectionSentenceComparison({ id: entry.canonicalWordId, attempt: sentenceAttempt, correct: entry.dictationSentence });
+    if (comparison) sentenceComparisons.push(comparison);
     const spellingMissed = !isAnswerCorrectUnderPolicy(spellingAttempt, entry.displayWord, EXACT_GOVERNED_FORM_ANSWER_POLICY);
-    const sentenceMissed = sentenceAttempt.trim() !== entry.dictationSentence.trim();
-    return spellingMissed || sentenceMissed ? [{ entry, spellingAttempt, sentenceAttempt, spellingMissed, sentenceMissed }] : [];
+    const sentenceTargetAttempt = extractAuthoredTargetSpan(sentenceAttempt, entry.dictationTargetSpan);
+    const sentenceTargetMissed = !isAnswerCorrectUnderPolicy(sentenceTargetAttempt, entry.displayWord, EXACT_GOVERNED_FORM_ANSWER_POLICY);
+    return spellingMissed || sentenceTargetMissed ? [{
+      id: entry.canonicalWordId,
+      attempt: sentenceTargetMissed ? sentenceTargetAttempt : spellingAttempt,
+      correctSpelling: entry.displayWord,
+    }] : [];
   });
+  return { mistakes, sentenceComparisons };
+}
+
+function CompoundLessonReflectionAdapter(props: { childId: string; assignmentId: string; items: AdleSessionItem[]; payload: RuntimePayload; state: ClosedCompoundResumeState; closedV1: boolean; onReflectionChange: (value: string) => void; onPreviewComplete?: (reflection: string) => void }) {
+  const reflectionModel = compoundLessonReflectionModel(props.payload, props.state);
   const guidedAttempts = props.items.flatMap((item) => {
     if (item.sectionKey === "lesson_intro") return [{ key: item.id, attemptText: "viewed" }];
     if (item.sectionKey !== "guided_practice" || !item.canonicalWordId) return [];
@@ -154,12 +183,21 @@ function ClosedCompoundReflection(props: { childId: string; assignmentId: string
     const incorrectAttempts = isJigsaw ? props.state.jigsawMisses[item.canonicalWordId] ?? 0 : props.state.meaningMisses[item.canonicalWordId] ?? 0;
     return [{ key: item.id, attemptText: JSON.stringify({ completed, incorrectAttempts, assistanceUsed: false }) }];
   });
-  return <form action={completeAdleLessonPartAction} className="grid gap-5 text-cyan-50"><input type="hidden" name="mode" value="child" /><input type="hidden" name="childId" value={props.childId} /><input type="hidden" name="assignmentId" value={props.assignmentId} /><input type="hidden" name="attempts" value={JSON.stringify(Object.entries(props.state.attempts).map(([key, attemptText]) => ({ key, attemptText })))} /><input type="hidden" name="dictationSentenceAttempts" value={JSON.stringify(Object.entries(props.state.sentences).map(([key, attemptText]) => ({ key, attemptText })))} /><input type="hidden" name="dictationAttempts" value="[]" /><input type="hidden" name="probeAttempts" value="[]" /><input type="hidden" name="guidedAttempts" value={JSON.stringify(guidedAttempts)} />
-    <section className="rounded-3xl border border-cyan-300/40 bg-slate-950/45 p-5" aria-labelledby="closed-compound-reflection-title"><p className="text-xs font-black uppercase tracking-[.2em] text-cyan-200">Look back</p><h2 id="closed-compound-reflection-title" className="mt-2 text-3xl font-black text-white">Think about your compound words</h2>{misses.length ? <><p className="mt-2 text-cyan-100">Let&apos;s look at the words that need another careful check.</p><div className="mt-4 grid gap-3">{misses.map(({ entry, spellingAttempt, sentenceAttempt, spellingMissed, sentenceMissed }) => <article key={entry.canonicalWordId} className="rounded-2xl border-2 border-amber-300 bg-amber-50 p-4 text-slate-950"><h3 className="text-xl font-black">{entry.displayWord}</h3>{spellingMissed ? <p className="mt-2">You wrote <span className="font-bold">“{spellingAttempt || "nothing yet"}”</span>. The word is <span className="font-black text-emerald-800">{entry.displayWord}</span>.</p> : null}{sentenceMissed ? <p className="mt-2">Check it in the sentence: <span className="font-semibold">“{entry.dictationSentence}”</span>{sentenceAttempt ? ` You wrote “${sentenceAttempt}”.` : ""}</p> : null}</article>)}</div></> : <p className="mt-2 rounded-2xl border-2 border-emerald-300 bg-emerald-50 p-4 font-semibold text-emerald-950">{props.closedV1 ? "You checked each compound word carefully. Remember: the two words join with no space." : "You checked each compound word carefully and kept its governed written form."}</p>}</section>
-    <label className="grid gap-2 rounded-3xl border border-cyan-300/40 bg-slate-950/45 p-5 text-lg font-black text-white">{props.payload.activities.reflection.promptText}<span className="text-sm font-semibold text-cyan-100">Write about what you learned{misses.length ? " or what you will remember next time" : "."}</span><textarea required autoFocus value={props.state.reflection} onChange={(event) => props.onReflectionChange(event.target.value)} placeholder="I learned that..." className="min-h-32 w-full rounded-2xl border-4 border-cyan-300 bg-white p-4 text-lg font-semibold text-slate-950 placeholder:text-slate-500 shadow-inner outline-none focus:border-amber-300 focus:ring-4 focus:ring-amber-200" /></label><input type="hidden" name="learningReflection" value={props.state.reflection} /><button disabled={!props.state.reflection.trim()} className="min-h-12 rounded-full bg-cyan-300 font-black text-slate-950 disabled:cursor-not-allowed disabled:opacity-40">Finish Word Lab</button></form>;
+  return <form action={props.onPreviewComplete ? undefined : completeAdleLessonPartAction} onSubmit={props.onPreviewComplete ? (event) => { event.preventDefault(); props.onPreviewComplete?.(props.state.reflection); } : undefined} className="grid gap-5 text-cyan-50"><input type="hidden" name="mode" value="child" /><input type="hidden" name="childId" value={props.childId} /><input type="hidden" name="assignmentId" value={props.assignmentId} /><input type="hidden" name="attempts" value={JSON.stringify(Object.entries(props.state.attempts).map(([key, attemptText]) => ({ key, attemptText })))} /><input type="hidden" name="dictationSentenceAttempts" value={JSON.stringify(Object.entries(props.state.sentences).map(([key, attemptText]) => ({ key, attemptText })))} /><input type="hidden" name="dictationAttempts" value="[]" /><input type="hidden" name="probeAttempts" value="[]" /><input type="hidden" name="guidedAttempts" value={JSON.stringify(guidedAttempts)} /><input type="hidden" name="learningReflection" value={props.state.reflection} />
+    <LessonReflection
+      mistakes={reflectionModel.mistakes}
+      sentenceComparisons={reflectionModel.sentenceComparisons}
+      prompt={lessonReflectionPrompt({ kind: "compound" })}
+      response={props.state.reflection}
+      onResponseChange={props.onReflectionChange}
+      completionType="submit"
+      completionLabel="Finish Word Lab"
+      successMessage={props.closedV1 ? "You checked each compound word carefully. Remember: the two words join with no space." : "You checked each compound word carefully and kept its governed written form."}
+    />
+  </form>;
 }
 
-export function ClosedCompoundGuidedLesson(props: { childId: string; assignmentId: string; items: AdleSessionItem[]; payload: ClosedCompoundLessonPayloadV1 }) {
+export function ClosedCompoundGuidedLesson(props: { childId: string; assignmentId: string; items: AdleSessionItem[]; payload: ClosedCompoundLessonPayloadV1; onPreviewComplete?: (reflection: string) => void }) {
   const jigsawTargets = adaptClosedCompoundJigsawTargets(props.payload);
   const jigsawById = new Map(jigsawTargets.map((target) => [target.canonicalWordId, target]));
   const payload: RuntimePayload = {
@@ -174,13 +212,14 @@ export function ClosedCompoundGuidedLesson(props: { childId: string; assignmentI
       componentToWholeRelationship: "",
       audioText: word.audioText,
       dictationSentence: word.dictationSentence,
+      dictationTargetSpan: dictationTargetSpanFromToken(word.dictationSentence, word.dictationTargetTokenIndex)!,
       splitPoints: [word.firstWord.length],
     })) },
   };
   return <CompoundWordLessonRuntime {...props} payload={payload} resumeNamespace="closed-compound" />;
 }
 
-export function CompoundWordGuidedLesson(props: { childId: string; assignmentId: string; items: AdleSessionItem[]; payload: CompoundWordLessonPayloadV2 }) {
+export function CompoundWordGuidedLesson(props: { childId: string; assignmentId: string; items: AdleSessionItem[]; payload: CompoundWordLessonPayloadV2; onPreviewComplete?: (reflection: string) => void }) {
   const payload: RuntimePayload = {
     contentVersion: props.payload.contentVersion,
     activities: props.payload.activities,
@@ -194,6 +233,7 @@ export function CompoundWordGuidedLesson(props: { childId: string; assignmentId:
       componentToWholeRelationship: word.structure.componentToWholeRelationship,
       audioText: word.dictation.audioText,
       dictationSentence: word.dictation.sentence,
+      dictationTargetSpan: word.dictation.targetSpan,
       splitPoints: word.tasks.split.splitPoints,
     })) },
   };

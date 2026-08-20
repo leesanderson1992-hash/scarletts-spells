@@ -1,4 +1,5 @@
 import type { AssignmentItemDraft } from "../assignment-persistence";
+import { resolveSentenceDictationContract } from "../sentence-dictation-contract";
 import type {
   ActivityTemplateFact,
   FamilyMethodFact,
@@ -301,10 +302,18 @@ export function compileGenericLessonSnapshot(
       else blockers.push({ code: "missing_word_binding", position: item.position, templateKey: item.templateKey });
     }
 
-    if (item.templateKey === "DICTATION_SENTENCE_CONTEXT" && item.promptData.requiresSentenceContext !== true) {
+    if (
+      (item.templateKey === "DICTATION_NO_IMAGE" ||
+        (item.templateKey === "DICTATION_SENTENCE_CONTEXT" && itemSection === "lesson_dictation")) &&
+      resolveSentenceDictationContract(item.promptData, item.targetWord) === null
+    ) {
       blockers.push({ code: "activity_requirement_failed", position: item.position, templateKey: item.templateKey });
     }
-    if (item.templateKey === "REVIEW_DICTATION" && !nonEmpty(item.promptData.bundleId)) {
+    if (
+      (item.templateKey === "REVIEW_DICTATION" ||
+        (item.templateKey === "DICTATION_SENTENCE_CONTEXT" && itemSection === "review_production")) &&
+      !nonEmpty(item.promptData.bundleId)
+    ) {
       blockers.push({ code: "activity_requirement_failed", position: item.position, templateKey: item.templateKey });
     }
     if (item.templateKey === "ERROR_REFLECTION_CUE" && item.promptData.conditional !== "on_misspelling") {
@@ -336,7 +345,7 @@ export function compileGenericLessonSnapshot(
       part: genericSnapshotPartForSection(itemSection),
       sectionKey: itemSection,
       templateKey: item.templateKey,
-      rendererKind: definition.rendererKind,
+      rendererKind: semantics.rendererKind,
       itemBinding: {
         sourceEntityId: item.sourceEntityId,
         position: item.position,

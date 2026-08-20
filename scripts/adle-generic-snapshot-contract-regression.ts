@@ -110,7 +110,11 @@ function planWith(templateOverride?: string): ComposedDailyPlan {
     candidate(4, "lesson_intro", "MICRO_READ_ONLY_INTRO", null, null, "SKILL_PG", {}),
     candidate(5, "guided_practice", "PG_SOUND_NOTICE", "lesson-word", "lesson", "SKILL_PG", {}, "learning-1"),
     candidate(6, "lesson_production", templateOverride ?? "CONTROLLED_SPELLING", "lesson-word", "lesson", "SKILL_PG", {}, "learning-1"),
-    candidate(7, "lesson_dictation", "DICTATION_NO_IMAGE", "lesson-word", "lesson", "SKILL_PG", {}, "learning-1"),
+    candidate(7, "lesson_dictation", "DICTATION_NO_IMAGE", "lesson-word", "lesson", "SKILL_PG", {
+      sentence: "The lesson word is lesson.",
+      audioText: "The lesson word is lesson.",
+      targetTokenIndex: 4,
+    }, "learning-1"),
   ];
   return {
     childId: CHILD,

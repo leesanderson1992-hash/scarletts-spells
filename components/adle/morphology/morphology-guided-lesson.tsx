@@ -1,13 +1,12 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useFormStatus } from "react-dom";
 import { completeAdleLessonPartAction } from "@/app/learn/week/adle/actions";
+import { LessonReflection, type LessonReflectionSpecialistRecap } from "@/components/adle/activities/lesson-reflection";
 import {
   BinSort,
   CoverShutter,
-  DiffReveal,
-  HearWordButton,
+  SentenceDictation,
   SplitHandle,
 } from "@/components/adle/activities/shared";
 import { DefinitionWordBuilder } from "@/components/adle/activities/shared/definition-word-builder";
@@ -22,10 +21,11 @@ import {
   type MorphologyLessonResumeState,
   type MorphologyLessonStage,
 } from "@/lib/adle/morphology/resume";
-import type {
-  MorphologyLessonPayloadV1,
-  MorphologyWordSnapshot,
-  PrefixCleaverFeedbackPolicyV1,
+import {
+  extractAuthoredTargetToken,
+  type MorphologyLessonPayloadV1,
+  type MorphologyWordSnapshot,
+  type PrefixCleaverFeedbackPolicyV1,
 } from "@/lib/adle/morphology/payload";
 import { morphologyMeaningSortItems } from "@/lib/adle/morphology/meaning-sort-items";
 import {
@@ -33,6 +33,14 @@ import {
   type DictationContextSlip,
 } from "@/lib/adle/morphology/dictation-context";
 import { normaliseSessionWord } from "@/lib/adle/session-correctness";
+import {
+  governedAffixForms,
+  lessonReflectionSentenceComparison,
+  lessonReflectionPrompt,
+  type LessonReflectionContextRecap,
+  type NormalizedLessonReflectionMistake,
+  type NormalizedLessonReflectionSentenceComparison,
+} from "@/lib/adle/lesson-reflection";
 import { WordLabScene } from "./word-lab-scene";
 import { PrefixTeachingCards, SelectedPrefixFeedback } from "./prefix-teaching-cards";
 
@@ -163,6 +171,10 @@ export function MorphologyGuidedLesson(props: {
   const showMeaningOverview = meaningActivity?.meaningResultsPresentation !== "none";
   const buildActivity = props.payload.activities.find((activity) => activity.type === "prefix_choice")!;
   const definitionBuild = morphologyDefinitionBuild(props.payload, buildActivity, state.buildIndex);
+  const dictationActivity = props.payload.activities.find(
+    (activity) => activity.type === "sentence_dictation",
+  )!;
+  const dictationSentence = dictationActivity.sentences![state.dictationIndex];
   const phase =
     state.stage === "learn"
       ? 0
@@ -349,33 +361,46 @@ export function MorphologyGuidedLesson(props: {
         />
       ) : null}
       {state.stage === "controlled" ? (
-        <Controlled
-          index={state.controlledIndex}
-          total={props.payload.words.lesson.length}
-          word={props.payload.words.lesson[state.controlledIndex]}
-          attempt={
+        <CoverShutter
+          key={props.payload.words.lesson[state.controlledIndex].canonicalWordId}
+          stepLabel={`Word to remember ${state.controlledIndex + 1} of ${props.payload.words.lesson.length}`}
+          word={props.payload.words.lesson[state.controlledIndex].displayWord}
+          splitPoints={props.payload.words.lesson[state.controlledIndex].splitPoints}
+          initialAttempt={
             state.controlledAttempts[
               props.payload.words.lesson[state.controlledIndex].canonicalWordId
             ] ?? ""
           }
-          checked={
+          initialState={
             state.controlledChecked[
               props.payload.words.lesson[state.controlledIndex].canonicalWordId
             ] === true
+              ? "check"
+              : state.controlledAttempts[
+                    props.payload.words.lesson[state.controlledIndex].canonicalWordId
+                  ]
+                ? "write"
+                : "look"
           }
           muted={state.muted}
           closePolicy={props.payload.activities.find((activity) => activity.type === "look_cover_write_check")?.coverClosePolicy}
-          onAttempt={(attempt) =>
+          onStateChange={(_, attempt) => {
+            if (!attempt) return;
             update({
               controlledAttempts: {
                 ...state.controlledAttempts,
                 [props.payload.words.lesson[state.controlledIndex]
                   .canonicalWordId]: attempt,
               },
-            })
-          }
-          onChecked={() =>
+            });
+          }}
+          onComplete={(attempt) =>
             update({
+              controlledAttempts: {
+                ...state.controlledAttempts,
+                [props.payload.words.lesson[state.controlledIndex]
+                  .canonicalWordId]: attempt,
+              },
               controlledChecked: {
                 ...state.controlledChecked,
                 [props.payload.words.lesson[state.controlledIndex]
@@ -383,7 +408,7 @@ export function MorphologyGuidedLesson(props: {
               },
             })
           }
-          onNext={() =>
+          onContinue={() =>
             state.controlledIndex < props.payload.words.lesson.length - 1
               ? update({
                   controlledIndex: state.controlledIndex + 1,
@@ -394,9 +419,11 @@ export function MorphologyGuidedLesson(props: {
         />
       ) : null}
       {state.stage === "dictation" ? (
-        <Dictation
-          payload={props.payload}
-          index={state.dictationIndex}
+        <SentenceDictation
+          key={dictationSentence.canonicalWordId}
+          stepLabel={`Sentence ${state.dictationIndex + 1} of ${dictationActivity.sentences?.length ?? 0}`}
+          audioText={dictationSentence.sentence}
+          correctSentence={dictationSentence.sentence}
           value={
             state.sentenceAttempts[
               props.payload.words.lesson[state.dictationIndex].canonicalWordId
@@ -404,7 +431,7 @@ export function MorphologyGuidedLesson(props: {
           }
           checked={state.checkedSentence}
           muted={state.muted}
-          onValue={(value) =>
+          onValueChange={(value) =>
             update({
               sentenceAttempts: {
                 ...state.sentenceAttempts,
@@ -414,7 +441,8 @@ export function MorphologyGuidedLesson(props: {
             })
           }
           onCheck={() => update({ checkedSentence: true })}
-          onNext={() =>
+          continueLabel={state.dictationIndex < 3 ? "Next sentence" : "See what you discovered"}
+          onContinue={() =>
             state.dictationIndex < 3
               ? update({
                   dictationIndex: state.dictationIndex + 1,
@@ -425,7 +453,7 @@ export function MorphologyGuidedLesson(props: {
         />
       ) : null}
       {state.stage === "reflect" ? (
-        <ReflectionForm
+        <MorphologyReflectionAdapter
           state={state}
           payload={props.payload}
           childId={props.childId}
@@ -871,120 +899,93 @@ function morphologyDefinitionIncorrectFeedback(
     ? (beat.onRepeatedMisconception ?? `Choose ${target?.label ?? `the right ${term}`} to make the word.`)
     : (beat.onMisconception ?? `That ${term} does not make the word we need with ${baseWord}.`);
 }
-export function Controlled(props: {
-  index: number;
-  total: number;
-  word: MorphologyWordSnapshot;
-  attempt: string;
-  checked: boolean;
-  muted: boolean;
-  closePolicy?: { kind: "track_ratio"; threshold: 0.8 };
-  onAttempt: (attempt: string) => void;
-  onChecked: () => void;
-  onNext: () => void;
-}) {
-  return (
-    <div className="grid gap-4">
-      <p className="text-center text-sm font-black uppercase tracking-[.2em] text-cyan-200">
-        Word to remember {props.index + 1} of {props.total}
-      </p>
-      <CoverShutter
-        key={props.word.canonicalWordId}
-        word={props.word.displayWord}
-        splitPoints={props.word.splitPoints}
-        initialAttempt={props.attempt}
-        initialState={
-          props.checked ? "check" : props.attempt ? "write" : "look"
-        }
-        muted={props.muted}
-        closePolicy={props.closePolicy}
-        onStateChange={(_, attempt) => attempt && props.onAttempt(attempt)}
-        onComplete={(attempt) => {
-          props.onAttempt(attempt);
-          props.onChecked();
-        }}
-      />
-      {props.checked ? (
-        <button
-          type="button"
-          onClick={props.onNext}
-          className="min-h-12 rounded-full bg-cyan-300 font-black text-slate-950"
-        >
-          Continue
-        </button>
-      ) : null}
-    </div>
-  );
-}
-export function Dictation(props: {
-  payload: MorphologyLessonPayloadV1;
-  index: number;
-  value: string;
-  checked: boolean;
-  muted: boolean;
-  onValue: (value: string) => void;
-  onCheck: () => void;
-  onNext: () => void;
-}) {
-  const activity = props.payload.activities.find(
-    (candidate) => candidate.type === "sentence_dictation",
-  )!;
-  const sentence = activity.sentences![props.index];
-  return (
-    <div className="grid gap-4">
-      <p className="text-center text-sm font-black uppercase tracking-[.2em] text-cyan-200">
-        Sentence {props.index + 1} of 4
-      </p>
-      <div className="flex justify-center">
-        <HearWordButton
-          word={sentence.sentence}
-          label="Play sentence"
-          muted={props.muted}
-          kind="dictation"
-        />
-      </div>
-      <label className="text-sm font-semibold text-cyan-50">
-        Write the whole sentence
-        <textarea
-          autoFocus
-          spellCheck={false}
-          autoComplete="off"
-          autoCapitalize="sentences"
-          value={props.value}
-          onChange={(event) => props.onValue(event.target.value)}
-          className="mt-2 min-h-28 w-full rounded-2xl bg-white p-4 text-lg text-slate-950 focus:outline-none focus:ring-4 focus:ring-cyan-300/30"
-        />
-      </label>
-      {!props.checked ? (
-        <button
-          type="button"
-          disabled={!props.value.trim()}
-          onClick={props.onCheck}
-          className="min-h-12 rounded-full bg-cyan-300 font-black text-slate-950 disabled:opacity-40"
-        >
-          Check sentence
-        </button>
-      ) : (
-        <>
-          <DiffReveal
-            attempt={props.value}
-            expected={sentence.sentence}
-            mode="sentence"
-          />
-          <button
-            type="button"
-            onClick={props.onNext}
-            className="min-h-12 rounded-full bg-cyan-300 font-black text-slate-950"
-          >
-            {props.index < 3 ? "Next sentence" : "See what you discovered"}
-          </button>
-        </>
-      )}
-    </div>
-  );
+export function morphologyLessonReflectionModel(
+  payload: MorphologyLessonPayloadV1,
+  state: LessonState,
+): {
+  mistakes: NormalizedLessonReflectionMistake[];
+  sentenceComparisons: NormalizedLessonReflectionSentenceComparison[];
+  prompt: string;
+  contextRecap?: LessonReflectionContextRecap;
+} {
+  const dictation = payload.activities.find((activity) => activity.type === "sentence_dictation")!;
+  const mistakes = new Map<string, NormalizedLessonReflectionMistake>();
+  const sentenceComparisons: NormalizedLessonReflectionSentenceComparison[] = [];
+  for (const word of payload.words.lesson) {
+    const attempt = state.controlledAttempts[word.canonicalWordId] ?? "";
+    if (normaliseSessionWord(attempt) !== normaliseSessionWord(word.displayWord)) {
+      mistakes.set(word.canonicalWordId, {
+        id: word.canonicalWordId,
+        attempt,
+        correctSpelling: word.displayWord,
+      });
+    }
+  }
+
+  const contextItems: Array<{ id: string; text: string }> = [];
+  for (const sentence of dictation.sentences ?? []) {
+    const sentenceAttempt = state.sentenceAttempts[sentence.canonicalWordId] ?? "";
+    const comparison = lessonReflectionSentenceComparison({
+      id: sentence.canonicalWordId,
+      attempt: sentenceAttempt,
+      correct: sentence.sentence,
+    });
+    if (comparison) sentenceComparisons.push(comparison);
+    const analysis = dictation.dictationContextPolicyVersion === "dictation_target_context_v1"
+      ? analyseDictationSentence(sentence.sentence, sentenceAttempt, sentence.targetTokenIndex)
+      : null;
+    const targetAttempt = analysis?.targetAttemptedToken
+      ?? extractAuthoredTargetToken(sentenceAttempt, sentence.targetTokenIndex);
+    const targetCorrect = analysis?.targetCorrect
+      ?? normaliseSessionWord(targetAttempt) === normaliseSessionWord(sentence.targetWord);
+    if (!targetCorrect) {
+      mistakes.set(sentence.canonicalWordId, {
+        id: sentence.canonicalWordId,
+        attempt: targetAttempt,
+        correctSpelling: sentence.targetWord,
+      });
+    }
+    for (const [index, slip] of (analysis?.contextSlips ?? []).entries()) {
+      contextItems.push({
+        id: `${sentence.canonicalWordId}-${slip.edit.kind}-${index}`,
+        text: dictationContextSlipText(slip),
+      });
+    }
+  }
+
+  const affixPosition = payload.words.lesson.some((word) => word.affixPosition === "after")
+    || payload.activities.some((activity) => activity.affixTerm === "suffix")
+    ? "after"
+    : "before";
+  const affixValues = payload.words.lesson.flatMap((word) => {
+    const explicit = word.affixText ?? word.prefixText;
+    if (explicit) return [explicit];
+    return word.parts
+      .filter((part) => part.role === (affixPosition === "after" ? "suffix" : "prefix"))
+      .map((part) => part.sourceText);
+  });
+  const prompt = lessonReflectionPrompt({
+    kind: affixPosition === "after" ? "suffix" : "prefix",
+    values: governedAffixForms(affixValues, affixPosition),
+  });
+  return {
+    mistakes: [...mistakes.values()],
+    sentenceComparisons,
+    prompt,
+    ...(contextItems.length ? {
+      contextRecap: {
+        heading: contextItems.length === 1 ? "One other sentence word changed" : "Some other sentence words changed",
+        introduction: "These are useful sentence checks. They do not add target-word mistakes to your spelling recap.",
+        items: contextItems.slice(0, 3),
+        ...(contextItems.length > 3 ? {
+          overflowText: `There ${contextItems.length - 3 === 1 ? "is" : "are"} ${contextItems.length - 3} more sentence ${contextItems.length - 3 === 1 ? "change" : "changes"} to check.`,
+        } : {}),
+      },
+    } : {}),
+  };
 }
 
-export function ReflectionForm(props: {
+export function MorphologyReflectionAdapter(props: {
   state: LessonState;
   payload: MorphologyLessonPayloadV1;
   childId: string;
@@ -998,62 +999,27 @@ export function ReflectionForm(props: {
   const reflection = props.payload.activities.find(
     (activity) => activity.type === "reflection",
   )!;
-  const dictation = props.payload.activities.find(
-    (activity) => activity.type === "sentence_dictation",
-  )!;
-  const controlledMisses = props.payload.words.lesson
-    .filter(
-      (word) =>
-        normaliseSessionWord(
-          props.state.controlledAttempts[word.canonicalWordId] ?? "",
-        ) !== normaliseSessionWord(word.displayWord),
-    )
-    .map((word) => ({
-      label: word.displayWord,
-      detail: `You wrote “${props.state.controlledAttempts[word.canonicalWordId] || "nothing"}”.`,
-    }));
-  const sentenceMisses = (dictation.sentences ?? [])
-    .filter(
-      (sentence) =>
-        (
-          props.state.sentenceAttempts[sentence.canonicalWordId] ?? ""
-        ).trim() !== sentence.sentence,
-    )
-    .map((sentence) => ({
-      label: sentence.targetWord,
-      detail: `Compare “${props.state.sentenceAttempts[sentence.canonicalWordId] || "nothing"}” with “${sentence.sentence}”.`,
-    }));
-  const misses = [...controlledMisses, ...sentenceMisses];
   const prefixCards = reflection.teachingCards;
-  const prefixPedagogy = Boolean(prefixCards?.length);
-  const prefixContextAnalyses = prefixPedagogy && dictation.dictationContextPolicyVersion === "dictation_target_context_v1"
-    ? (dictation.sentences ?? []).map((sentence) => ({
-        canonicalWordId: sentence.canonicalWordId,
-        analysis: analyseDictationSentence(
-          sentence.sentence,
-          props.state.sentenceAttempts[sentence.canonicalWordId] ?? "",
-          sentence.targetTokenIndex,
-        ),
-      }))
-    : [];
-  const prefixContextSlips = prefixContextAnalyses.flatMap(({ canonicalWordId, analysis }) =>
-    analysis.contextSlips.map((slip) => ({ canonicalWordId, targetCorrect: analysis.targetCorrect, slip })),
-  );
-  const prefixTargetMisses = prefixPedagogy
-    ? Array.from(new Set([
-        ...controlledMisses.map((miss) => miss.label),
-        ...prefixContextAnalyses
-          .filter(({ analysis }) => !analysis.targetCorrect)
-          .map(({ canonicalWordId }) =>
-            props.payload.words.lesson.find((word) =>
-              word.canonicalWordId === canonicalWordId,
-            )?.displayWord,
-          )
-          .filter((word): word is string => Boolean(word)),
-      ]))
-    : [];
   const meaningResultsPresentation = props.payload.activities.find((activity) => activity.type === "meaning_sort")?.meaningResultsPresentation;
   const ready = props.state.reflectionText.trim().length > 0;
+  const model = morphologyLessonReflectionModel(props.payload, props.state);
+  const specialistRecaps: LessonReflectionSpecialistRecap[] = [
+    ...(prefixCards?.length ? [{
+      id: "governed-prefix-teaching",
+      heading: "Today we studied:",
+      content: <PrefixTeachingCards cards={prefixCards} compact />,
+      position: "before_mistakes" as const,
+    }] : []),
+    ...(!prefixCards?.length
+      && ready
+      && props.payload.activities.some((activity) => activity.type === "meaning_sort")
+      && meaningResultsPresentation !== "none" ? [{
+        id: "meaning-overview",
+        heading: "Meaning recap",
+        content: <MeaningCards payload={props.payload} />,
+        position: "after_response" as const,
+      }] : []),
+  ];
   return (
     <form
       action={
@@ -1132,152 +1098,20 @@ export function ReflectionForm(props: {
           ),
         )}
       />
-      {prefixPedagogy ? (
-        <section className="grid gap-5" aria-labelledby="prefix-reflection-heading">
-          <section className="grid gap-4" aria-labelledby="prefix-study-heading">
-            <h2 id="prefix-study-heading" className="text-center text-2xl font-black text-white">
-              Today we studied:
-            </h2>
-            <PrefixTeachingCards cards={prefixCards!} compact />
-          </section>
-
-          <section className="grid gap-4" aria-labelledby="prefix-reflection-heading">
-            <h2 id="prefix-reflection-heading" className="text-center text-3xl font-black text-white">
-              Reflection Time
-            </h2>
-            <div className="rounded-2xl border border-white/15 bg-white/[.07] p-4 text-left text-cyan-50">
-              <p className="text-xs font-black uppercase tracking-[.18em] text-cyan-200">Task</p>
-              <p className="mt-2 text-lg font-black">
-                Did you get anything wrong below? Make yourself one rule for next time!
-              </p>
-              <p className="mt-3">
-                Put in your own words how each of the target prefixes change a word.
-              </p>
-            </div>
-
-            <section
-              className="rounded-2xl border border-amber-200/40 bg-amber-50 p-4 text-left text-amber-950"
-              aria-labelledby="prefix-mistakes-heading"
-            >
-              <h3 id="prefix-mistakes-heading" className="text-lg font-black">
-                Mistakes
-              </h3>
-              {prefixTargetMisses.length === 0 && prefixContextSlips.length === 0 ? (
-                <p className="mt-2 font-semibold">
-                  No spelling mistakes are recorded here. Think about any practice choices you changed too.
-                </p>
-              ) : null}
-              {prefixTargetMisses.length > 0 ? (
-                <div className="mt-3">
-                  <p className="font-semibold">Target words to check:</p>
-                  <ul className="mt-2 grid gap-2">
-                    {prefixTargetMisses.map((word) => (
-                      <li key={word} className="rounded-xl bg-white/70 p-3 font-semibold">
-                        {word}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ) : null}
-              {prefixContextSlips.length > 0 ? (
-                <div className="mt-3">
-                  {prefixContextSlips.some((entry) => entry.targetCorrect) ? (
-                    <p className="font-semibold">You spelled the target word correctly.</p>
-                  ) : null}
-                  <p className="mt-2">
-                    {prefixContextSlips.length === 1
-                      ? "You also changed another word in the sentence:"
-                      : "You also changed some words in the sentence:"}
-                  </p>
-                  <ul className="mt-3 grid gap-2">
-                    {prefixContextSlips.slice(0, 3).map((entry, index) => (
-                      <li
-                        key={`${entry.canonicalWordId}-${entry.slip.edit.kind}-${index}`}
-                        className="rounded-xl bg-white/70 p-3 font-semibold"
-                      >
-                        {dictationContextSlipText(entry.slip)}
-                      </li>
-                    ))}
-                  </ul>
-                  {prefixContextSlips.length > 3 ? (
-                    <p className="mt-2 text-sm font-semibold">
-                      There {prefixContextSlips.length - 3 === 1 ? "is" : "are"} {prefixContextSlips.length - 3} more sentence {prefixContextSlips.length - 3 === 1 ? "change" : "changes"} to check.
-                    </p>
-                  ) : null}
-                </div>
-              ) : null}
-            </section>
-
-            <label className="text-left text-base font-black text-white">
-              Reflection
-              <textarea
-                name="learningReflection"
-                required
-                maxLength={2000}
-                autoFocus
-                value={props.state.reflectionText}
-                onChange={(event) => props.onReflectionText(event.target.value)}
-                className="mt-2 min-h-32 w-full rounded-2xl bg-white p-4 text-lg font-normal text-slate-950 focus:outline-none focus:ring-4 focus:ring-cyan-300/30"
-              />
-            </label>
-          </section>
-        </section>
-      ) : <section
-        className="rounded-3xl border border-white/15 bg-white/[.07] p-4 text-left"
-        aria-labelledby="remember-recap-heading"
-      >
-        <p className="text-xs font-black uppercase tracking-[.18em] text-cyan-200">
-          Remember recap
-        </p>
-        <h2
-          id="remember-recap-heading"
-          className="mt-1 text-xl font-black text-white"
-        >
-          {misses.length
-            ? "A few things to look at again"
-            : "You remembered the targets"}
-        </h2>
-        {misses.length ? (
-          <ul className="mt-3 grid gap-2">
-            {misses.map((miss, index) => (
-              <li
-                key={`${miss.label}-${index}`}
-                className="rounded-2xl bg-amber-50 p-3 text-sm text-amber-950"
-              >
-                <span className="font-black">{miss.label}:</span> {miss.detail}
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p className="mt-2 text-sm text-cyan-50">
-            Use your reflection to explain the pattern you noticed.
-          </p>
-        )}
-      </section>}
-      {!prefixPedagogy ? (
-        <label className="text-left text-base font-black text-white">
-          {reflection.promptText}
-          <textarea
-            name="learningReflection"
-            required
-            maxLength={2000}
-            autoFocus
-            value={props.state.reflectionText}
-            onChange={(event) => props.onReflectionText(event.target.value)}
-            className="mt-2 min-h-32 w-full rounded-2xl bg-white p-4 text-lg font-normal text-slate-950 focus:outline-none focus:ring-4 focus:ring-cyan-300/30"
-          />
-        </label>
-      ) : null}
-      {ready ? (
-        <>
-          {!prefixPedagogy && props.payload.activities.some((activity) => activity.type === "meaning_sort") && meaningResultsPresentation !== "none" ? <MeaningCards payload={props.payload} /> : null}
-          <FinishWordLabButton />
-        </>
-      ) : (
-        <p className="text-center text-sm font-semibold text-cyan-100">
-          Write one thing you noticed to finish the Word Lab.
-        </p>
-      )}
+      <input type="hidden" name="learningReflection" value={props.state.reflectionText} />
+      <LessonReflection
+        mistakes={model.mistakes}
+        sentenceComparisons={model.sentenceComparisons}
+        prompt={model.prompt}
+        response={props.state.reflectionText}
+        onResponseChange={props.onReflectionText}
+        completionType="submit"
+        completionLabel="Finish the Word Lab"
+        pending={finishing && !props.onPreviewComplete}
+        pendingLabel="Finishing your Word Lab…"
+        contextRecap={model.contextRecap}
+        specialistRecaps={specialistRecaps}
+      />
     </form>
   );
 }
@@ -1290,18 +1124,4 @@ function dictationContextSlipText(slip: DictationContextSlip): string {
     return `You left out “${slip.edit.expectedToken}”.`;
   }
   return `You added “${slip.edit.attemptedToken}”.`;
-}
-
-function FinishWordLabButton() {
-  const { pending } = useFormStatus();
-  return (
-    <button
-      type="submit"
-      disabled={pending}
-      aria-live="polite"
-      className="min-h-14 rounded-full bg-cyan-300 px-8 text-lg font-black text-slate-950 disabled:cursor-wait disabled:opacity-80"
-    >
-      {pending ? "Finishing your Word Lab…" : "Finish the Word Lab"}
-    </button>
-  );
 }

@@ -5,7 +5,7 @@
 # ADLE Activity Catalogue
 
 Version: `adle_activity_catalogue_v1`
-Authoritative base: `183393713d3151fb50b9bbef2668cf4da7d5f387`
+Authoritative base: `aec090b9bec782829d333fe551f31538352c1f82`
 
 This is the chooser for curriculum designers and future implementation tasks. It describes interaction capability, not route-specific teaching content.
 
@@ -30,11 +30,12 @@ This is the chooser for curriculum designers and future implementation tasks. It
 | `MEANING_MATCH` | Connect each word to its whole-word definition. | When each word must be paired with a distinct definition. | Yes | No | `CANONICAL` |
 | `MEANING_SORT` | Sort words into reusable meaning or affix-form groups. | When several words share meaningful categories. | Yes | No | `CANONICAL` |
 | `REVIEW_SORT` | Reactivate a review bundle through fast categorisation before retrieval. | As a low-stakes review warm-up before production. | No | Yes | `CANONICAL` |
-| `COVER_CHECK` | Study a visible word, hide it, recall it, and compare the attempt. | For supported study-cover-recall practice where a teaching view is intentional. | Yes | Yes | `CANONICAL` |
-| `CONTROLLED_SPELLING` | Type a target word under a controlled reveal or recall policy. | For a single-word controlled production response. | Yes | Yes | `CANONICAL` |
-| `DICTATION` | Retrieve a word or sentence from authored audio without visual copying. | For cold or scheduled retrieval from authored audio. | Yes | Yes | `CANONICAL` |
+| `COVER_CHECK` | Study a visible word, hide it, recall it, and compare the attempt. | For supported study-cover-recall practice where a teaching view is intentional. | Yes | No | `CANONICAL` |
+| `CONTROLLED_SPELLING` | Historical catalogue concept for controlled study/spelling payloads. | Only to decode accepted historical template keys into Cover Check. | No | No | `COMPATIBILITY_ONLY` |
+| `DICTATION` | Transcribe a governed authored sentence from audio, then lock and compare. | For every first-impression Dictation activity with governed authored sentence content. | Yes | No | `CANONICAL` |
+| `COLD_WORD_RECALL` | Collect one answer-safe spoken-word response before any correct spelling is revealed. | For scheduled review or diagnostic scouting where seeing the answer first would contaminate evidence. | No | Yes | `CANONICAL` |
 | `ERROR_REPAIR` | Teach the correct spelling after an error, hide it, then collect a controlled retry. | Immediately after a known spelling error when a reveal-hide-retry sequence is required. | No | Yes | `CANONICAL` |
-| `LESSON_REFLECTION` | Review mistakes and state a rule learned for next time at the end of a first-impression lesson. | Once, at the end of every first-impression lesson. | Yes | No | `REQUIRES_ARCHITECTURE_DECISION` |
+| `LESSON_REFLECTION` | Review mistakes and state a rule learned for next time at the end of a first-impression lesson. | Once, at the end of every first-impression lesson. | Yes | No | `CANONICAL` |
 | `MEMORY_CUE` | Let the child create a personal cue for remembering a spelling. | When the pedagogical aim is to author a mnemonic. | Yes | No | `CANONICAL` |
 | `FREE_WRITING` | Use required target words in original, meaning-bearing writing. | When authentic transfer writing is the intended evidence. | Yes | Yes | `REQUIRES_ARCHITECTURE_DECISION` |
 | `TRANSFORMATION` | Show or manipulate a governed spelling change while a word is built. | When the spelling change itself must be noticed or rehearsed. | Yes | No | `REQUIRES_ARCHITECTURE_DECISION` |
@@ -42,7 +43,7 @@ This is the chooser for curriculum designers and future implementation tasks. It
 | `SYLLABLE_SPLIT_REBUILD` | Split a word into syllables and rebuild it from those syllables. | When syllable structure, rather than morphology, is the learning objective. | Yes | No | `REQUIRES_ARCHITECTURE_DECISION` |
 | `GUIDED_PROMPT_FALLBACK` | Keep a generic lesson usable when no structured rich renderer exists. | Only as the registered safe fallback for existing generic templates. | Yes | No | `COMPATIBILITY_ONLY` |
 
-The catalogue currently has 21 governed concepts, 14 with canonical status, and 47 declared modes. Entries marked `REQUIRES_ARCHITECTURE_DECISION` are genuine platform gaps or extraction decisions, not permission for route-local UI.
+The catalogue currently has 22 governed concepts, 15 with canonical status, and 45 declared modes. Entries marked `REQUIRES_ARCHITECTURE_DECISION` are genuine platform gaps or extraction decisions, not permission for route-local UI.
 
 ## INTRODUCTION — Introduction
 
@@ -329,73 +330,98 @@ The catalogue currently has 21 governed concepts, 14 with canonical status, and 
 - `component_marked`: Show governed components separated visually.
 - `ratio_close_policy`: Require a configured proportion of the shutter track.
 
-**Current users:** Routes `dynamic_prefix_word_lab:v2`, `fixed_un_prefix_word_lab:v1`, `dynamic_affix_word_lab:v3`, `base_word_lab:v2`, `compound_word_lab:v2`, `closed_compound_word_lab:v1`. Micro-skills `D4_MOR_PREFIXES_UN`, `D4_MOR_PREFIXES_DIS_MIS`, `D4_MOR_PREFIXES_IN_IM_IL_IR`, `D4_MOR_PREFIXES_RE_PRE`, `D4_MOR_PREFIXES_SUB_INTER_SUPER`, `D4_MOR_SUFFIXES_ABLE_IBLE`, `D4_MOR_SUFFIXES_AL`, `D4_MOR_SUFFIXES_FUL_LESS`, `D4_MOR_SUFFIXES_ITY`, `D4_MOR_SUFFIXES_LY`, `D4_MOR_SUFFIXES_MENT`, `D4_MOR_SUFFIXES_NESS`, `D4_MOR_SUFFIXES_OUS`, `D4_MOR_SUFFIXES_SION`, `D4_MOR_SUFFIXES_TION`, `D4_MOR_BASE_WORDS_BASE_PLUS_PREFIX`, `D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX`, `D4_MOR_BASE_WORDS_IDENTIFY_BASE`, `D4_MOR_BASE_WORDS_PRESERVE_BASE`, `D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS`, `D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED`.
+**Current users:** Routes `generic_composer:v1`, `dynamic_prefix_word_lab:v2`, `fixed_un_prefix_word_lab:v1`, `dynamic_affix_word_lab:v3`, `base_word_lab:v2`, `compound_word_lab:v2`, `closed_compound_word_lab:v1`. Micro-skills `historical generic compatibility`, `D4_MOR_PREFIXES_UN`, `D4_MOR_PREFIXES_DIS_MIS`, `D4_MOR_PREFIXES_IN_IM_IL_IR`, `D4_MOR_PREFIXES_RE_PRE`, `D4_MOR_PREFIXES_SUB_INTER_SUPER`, `D4_MOR_SUFFIXES_ABLE_IBLE`, `D4_MOR_SUFFIXES_AL`, `D4_MOR_SUFFIXES_FUL_LESS`, `D4_MOR_SUFFIXES_ITY`, `D4_MOR_SUFFIXES_LY`, `D4_MOR_SUFFIXES_MENT`, `D4_MOR_SUFFIXES_NESS`, `D4_MOR_SUFFIXES_OUS`, `D4_MOR_SUFFIXES_SION`, `D4_MOR_SUFFIXES_TION`, `D4_MOR_BASE_WORDS_BASE_PLUS_PREFIX`, `D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX`, `D4_MOR_BASE_WORDS_IDENTIFY_BASE`, `D4_MOR_BASE_WORDS_PRESERVE_BASE`, `D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS`, `D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED`.
 
 **Canonical implementation:** `CoverShutter` in `components/adle/activities/shared/cover-shutter.tsx`
 
 **Architectural status:** `CANONICAL`
 
-**Inputs:** Required: `word`, `splitPoints`. Optional: `components`, `closePolicy`, `resume state`.
+**Inputs:** Required: `word`, `splitPoints`. Optional: `components`, `closePolicy`, `resume state`, `progress label`, `continue callback`.
 
-**Capabilities:** Pointer Yes · Keyboard Yes · Reduced motion Yes · Audio Yes · Captures attempt Yes · Evidence-bearing Yes · First Impression Yes · Review Yes.
+**Capabilities:** Pointer Yes · Keyboard Yes · Reduced motion Yes · Audio Yes · Captures attempt Yes · Evidence-bearing Yes · First Impression Yes · Review No.
 
+**Notes:** Prefix, Suffix/Affix, Base Word and Compound routes directly configure this one learner renderer. Historical CONTROLLED_SPELLING assignment keys remain payload/evidence compatibility metadata, not a second specialist presentation.
 
 ## CONTROLLED_SPELLING — Controlled spelling
 
-**Pedagogical purpose:** Type a target word under a controlled reveal or recall policy.
+**Pedagogical purpose:** Historical catalogue concept for controlled study/spelling payloads.
 
 **Interaction family:** `typed_recall`
 
-**Best used for:** For a single-word controlled production response.
+**Best used for:** Only to decode accepted historical template keys into Cover Check.
 
-**Do not use when:** For an authored whole sentence; use DICTATION sentence mode.
+**Do not use when:** For new curriculum or as a learner-facing activity choice.
 
 **Modes:**
 
-- `visible_copy`: Target remains visible.
-- `hide_write`: Target is hidden before typing.
-- `audio_recall`: Target is spoken and not displayed.
+- `compatibility_to_cover_check`: Accepted CONTROLLED_SPELLING and HIDE_WRITE keys configure canonical Cover Check.
 
-**Current users:** Routes `generic_composer:v1`, `dynamic_prefix_word_lab:v2`, `fixed_un_prefix_word_lab:v1`, `dynamic_affix_word_lab:v3`, `base_word_lab:v2`, `compound_word_lab:v2`, `closed_compound_word_lab:v1`. Micro-skills `generic composer catalogue`, `D4_MOR_PREFIXES_UN`, `D4_MOR_PREFIXES_DIS_MIS`, `D4_MOR_PREFIXES_IN_IM_IL_IR`, `D4_MOR_PREFIXES_RE_PRE`, `D4_MOR_PREFIXES_SUB_INTER_SUPER`, `D4_MOR_SUFFIXES_ABLE_IBLE`, `D4_MOR_SUFFIXES_AL`, `D4_MOR_SUFFIXES_FUL_LESS`, `D4_MOR_SUFFIXES_ITY`, `D4_MOR_SUFFIXES_LY`, `D4_MOR_SUFFIXES_MENT`, `D4_MOR_SUFFIXES_NESS`, `D4_MOR_SUFFIXES_OUS`, `D4_MOR_SUFFIXES_SION`, `D4_MOR_SUFFIXES_TION`, `D4_MOR_BASE_WORDS_BASE_PLUS_PREFIX`, `D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX`, `D4_MOR_BASE_WORDS_IDENTIFY_BASE`, `D4_MOR_BASE_WORDS_PRESERVE_BASE`, `D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS`, `D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED`.
+**Current users:** Routes `generic_composer:v1`. Micro-skills `historical generic compatibility only`.
 
-**Canonical implementation:** `SpellingField` in `components/adle/activities/shared/spelling-field.tsx`
+**Canonical implementation:** `CoverShutter` in `components/adle/activities/shared/cover-shutter.tsx`
 
-**Architectural status:** `CANONICAL`
+**Architectural status:** `COMPATIBILITY_ONLY`
 
-**Inputs:** Required: `target word`, `value`, `change handler`. Optional: `reveal`, `sentenceContext`, `audio`.
+**Inputs:** Required: `governed target word`. Optional: `split points`, `resume state`.
 
-**Capabilities:** Pointer No · Keyboard Yes · Reduced motion Yes · Audio Yes · Captures attempt Yes · Evidence-bearing Yes · First Impression Yes · Review Yes.
+**Capabilities:** Pointer Yes · Keyboard Yes · Reduced motion Yes · Audio No · Captures attempt Yes · Evidence-bearing Yes · First Impression No · Review No.
 
-**Notes:** Specialist CONTROLLED_SPELLING uses CoverShutter, while generic CONTROLLED_SPELLING currently shows the word and asks the child to copy it.
+**Notes:** Visible-copy and simplified HIDE_WRITE learner UI are retired. New first-impression study/spelling uses COVER_CHECK directly.
 
 ## DICTATION — Dictation
 
-**Pedagogical purpose:** Retrieve a word or sentence from authored audio without visual copying.
+**Pedagogical purpose:** Transcribe a governed authored sentence from audio, then lock and compare.
 
 **Interaction family:** `typed_recall`
 
-**Best used for:** For cold or scheduled retrieval from authored audio.
+**Best used for:** For every first-impression Dictation activity with governed authored sentence content.
 
-**Do not use when:** For a visible study-copy task or free writing.
+**Do not use when:** For single-word review/diagnostic recall or visible study practice.
 
 **Modes:**
 
-- `word`: Hear and spell one word.
-- `sentence_context`: Spell a word in a meaning-bearing sentence.
-- `whole_sentence`: Transcribe an authored sentence.
-- `diagnostic_probe`: Cold, non-punitive first attempt.
-- `review`: Scheduled retrieval evidence.
+- `whole_sentence`: Transcribe and compare the whole authored sentence.
+- `target_token`: Route adapter extracts one governed token for correctness/evidence.
+- `target_span`: Route adapter extracts an exact governed multi-token span.
 
-**Current users:** Routes `generic_composer:v1`, `dynamic_prefix_word_lab:v2`, `fixed_un_prefix_word_lab:v1`, `dynamic_affix_word_lab:v3`, `base_word_lab:v2`, `compound_word_lab:v2`, `closed_compound_word_lab:v1`. Micro-skills `generic composer catalogue`, `D4_MOR_PREFIXES_UN`, `D4_MOR_PREFIXES_DIS_MIS`, `D4_MOR_PREFIXES_IN_IM_IL_IR`, `D4_MOR_PREFIXES_RE_PRE`, `D4_MOR_PREFIXES_SUB_INTER_SUPER`, `D4_MOR_SUFFIXES_ABLE_IBLE`, `D4_MOR_SUFFIXES_AL`, `D4_MOR_SUFFIXES_FUL_LESS`, `D4_MOR_SUFFIXES_ITY`, `D4_MOR_SUFFIXES_LY`, `D4_MOR_SUFFIXES_MENT`, `D4_MOR_SUFFIXES_NESS`, `D4_MOR_SUFFIXES_OUS`, `D4_MOR_SUFFIXES_SION`, `D4_MOR_SUFFIXES_TION`, `D4_MOR_BASE_WORDS_BASE_PLUS_PREFIX`, `D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX`, `D4_MOR_BASE_WORDS_IDENTIFY_BASE`, `D4_MOR_BASE_WORDS_PRESERVE_BASE`, `D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS`, `D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED`.
+**Current users:** Routes `generic_composer:v1`, `dynamic_prefix_word_lab:v2`, `fixed_un_prefix_word_lab:v1`, `dynamic_affix_word_lab:v3`, `base_word_lab:v2`, `compound_word_lab:v2`, `closed_compound_word_lab:v1`. Micro-skills `future generic curriculum with authored sentence contract`, `D4_MOR_PREFIXES_UN`, `D4_MOR_PREFIXES_DIS_MIS`, `D4_MOR_PREFIXES_IN_IM_IL_IR`, `D4_MOR_PREFIXES_RE_PRE`, `D4_MOR_PREFIXES_SUB_INTER_SUPER`, `D4_MOR_SUFFIXES_ABLE_IBLE`, `D4_MOR_SUFFIXES_AL`, `D4_MOR_SUFFIXES_FUL_LESS`, `D4_MOR_SUFFIXES_ITY`, `D4_MOR_SUFFIXES_LY`, `D4_MOR_SUFFIXES_MENT`, `D4_MOR_SUFFIXES_NESS`, `D4_MOR_SUFFIXES_OUS`, `D4_MOR_SUFFIXES_SION`, `D4_MOR_SUFFIXES_TION`, `D4_MOR_BASE_WORDS_BASE_PLUS_PREFIX`, `D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX`, `D4_MOR_BASE_WORDS_IDENTIFY_BASE`, `D4_MOR_BASE_WORDS_PRESERVE_BASE`, `D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS`, `D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED`.
 
-**Canonical implementation:** `SpellingField` in `components/adle/activities/shared/spelling-field.tsx`
+**Canonical implementation:** `SentenceDictation` in `components/adle/activities/shared/sentence-dictation.tsx`
 
 **Architectural status:** `CANONICAL`
 
-**Inputs:** Required: `authored audio text`, `target binding`. Optional: `sentence`, `target token index`, `evidence mode`.
+**Inputs:** Required: `authored sentence`, `audio text`, `target binding`. Optional: `target token index`, `target span`, `resume state`.
 
-**Capabilities:** Pointer No · Keyboard Yes · Reduced motion Yes · Audio Yes · Captures attempt Yes · Evidence-bearing Yes · First Impression Yes · Review Yes.
+**Capabilities:** Pointer No · Keyboard Yes · Reduced motion Yes · Audio Yes · Captures attempt Yes · Evidence-bearing Yes · First Impression Yes · Review No.
 
+**Notes:** The historical first-impression keys configure SentenceDictation. The section-overloaded DICTATION_SENTENCE_CONTEXT key configures ColdWordRecall when replayed in scheduled review. No single-word or sentence-context textbox renderer remains; missing historical lesson sentence content fails closed instead of exposing an inferior mode.
+
+## COLD_WORD_RECALL — Cold Word Recall
+
+**Pedagogical purpose:** Collect one answer-safe spoken-word response before any correct spelling is revealed.
+
+**Interaction family:** `cold_typed_recall`
+
+**Best used for:** For scheduled review or diagnostic scouting where seeing the answer first would contaminate evidence.
+
+**Do not use when:** For first-impression teaching or authored whole-sentence Dictation.
+
+**Modes:**
+
+- `scheduled_review`: Locks scheduled-review evidence before feedback.
+- `diagnostic_probe`: Locks a non-punitive diagnostic response before feedback.
+
+**Current users:** Routes `generic_composer:v1`. Micro-skills `all review-eligible and diagnostic generic micro-skills`.
+
+**Canonical implementation:** `ColdWordRecall` in `components/adle/activities/shared/cold-word-recall.tsx`
+
+**Architectural status:** `CANONICAL`
+
+**Inputs:** Required: `authored audio target`, `governed target word`, `evidence mode`. Optional: `resume input before lock`, `muted fixture mode`.
+
+**Capabilities:** Pointer No · Keyboard Yes · Reduced motion Yes · Audio Yes · Captures attempt Yes · Evidence-bearing Yes · First Impression No · Review Yes.
+
+**Notes:** The component owns audio, cold input, irreversible local lock and post-lock comparison only. Scheduler, rewards, due metadata, probe intake and persistence remain adapter-owned.
 
 ## ERROR_REPAIR — Error repair
 
@@ -434,19 +460,19 @@ The catalogue currently has 21 governed concepts, 14 with canonical status, and 
 
 **Modes:**
 
-- `look_back_and_rule`: Look at where you went wrong; record a personal rule and one rule learned today.
+- `standard_lesson_reflection`: Compare normalized attempted and correct spellings, answer one governed lesson-specific question, and complete through the owning route adapter.
 
 **Current users:** Routes `dynamic_prefix_word_lab:v2`, `fixed_un_prefix_word_lab:v1`, `dynamic_affix_word_lab:v3`, `base_word_lab:v2`, `compound_word_lab:v2`, `closed_compound_word_lab:v1`. Micro-skills `D4_MOR_PREFIXES_UN`, `D4_MOR_PREFIXES_DIS_MIS`, `D4_MOR_PREFIXES_IN_IM_IL_IR`, `D4_MOR_PREFIXES_RE_PRE`, `D4_MOR_PREFIXES_SUB_INTER_SUPER`, `D4_MOR_SUFFIXES_ABLE_IBLE`, `D4_MOR_SUFFIXES_AL`, `D4_MOR_SUFFIXES_FUL_LESS`, `D4_MOR_SUFFIXES_ITY`, `D4_MOR_SUFFIXES_LY`, `D4_MOR_SUFFIXES_MENT`, `D4_MOR_SUFFIXES_NESS`, `D4_MOR_SUFFIXES_OUS`, `D4_MOR_SUFFIXES_SION`, `D4_MOR_SUFFIXES_TION`, `D4_MOR_BASE_WORDS_BASE_PLUS_PREFIX`, `D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX`, `D4_MOR_BASE_WORDS_IDENTIFY_BASE`, `D4_MOR_BASE_WORDS_PRESERVE_BASE`, `D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS`, `D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED`.
 
-**Canonical implementation:** No canonical implementation yet.
+**Canonical implementation:** `LessonReflection` in `components/adle/activities/lesson-reflection.tsx`
 
-**Architectural status:** `REQUIRES_ARCHITECTURE_DECISION`
+**Architectural status:** `CANONICAL`
 
-**Inputs:** Required: `prior attempt summary`, `standard reflection prompts`. Optional: `specialist recap cards`.
+**Inputs:** Required: `normalized mistake summary`, `lesson-specific prompt`, `controlled child response`, `completion callback or submit boundary`. Optional: `context recap`, `specialist recap`, `route-specific success message`.
 
 **Capabilities:** Pointer No · Keyboard Yes · Reduced motion Yes · Audio No · Captures attempt Yes · Evidence-bearing Yes · First Impression Yes · Review No.
 
-**Notes:** No canonical component exists. The target component must accept a normalized attempt summary plus optional specialist recap content and emit one learningReflection string without changing evidence semantics.
+**Notes:** Prefix/Affix, Base Word and Compound adapters derive route-specific correctness, governed prompts and optional recap data before rendering one LessonReflection. Persistence, completion and historical prompt replay stay outside the component.
 
 ## MEMORY_CUE — Memory cue
 
@@ -498,7 +524,7 @@ The catalogue currently has 21 governed concepts, 14 with canonical status, and 
 
 **Capabilities:** Pointer No · Keyboard Yes · Reduced motion Yes · Audio No · Captures attempt Yes · Evidence-bearing Yes · First Impression Yes · Review Yes.
 
-**Notes:** The runtime registry dispatches these keys, but AdleSessionRunner currently renders one SpellingField per word rather than a free-writing surface.
+**Notes:** These composer/meta writing tokens remain outside Group 3. The generic runner uses its guided writing fallback; they are not Cover/Dictation learner modes.
 
 ## TRANSFORMATION — Spelling transformation
 

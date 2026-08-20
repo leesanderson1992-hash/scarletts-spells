@@ -87,11 +87,20 @@ test("Dynamic Affix V3 feedback, Cover Check, Dictation, reload/resume, Reflecti
   await expect(page.getByText("Sentence 2 of 4")).toBeVisible();
 
   const controlledAttempts = Object.fromEntries(value.wordIds.map((id, index) => [id, value.words[index]]));
-  const sentenceAttempts = Object.fromEntries(value.wordIds.map((id, index) => [id, value.sentences[index]]));
+  const sentenceAttempts = Object.fromEntries(value.wordIds.map((id, index) => [
+    id,
+    index === 0
+      ? `${value.sentences[index]!.charAt(0).toLowerCase()}${value.sentences[index]!.slice(1)}`
+      : index === 1
+        ? value.sentences[index]!.replace(/[.!?]+$/u, "")
+        : value.sentences[index],
+  ]));
   await setStage(page, value, "reflect", { controlledAttempts, sentenceAttempts, reflectionText: "Suffixes change a base into a new word." });
-  await expect(page.getByLabel(/How does/)).toHaveValue("Suffixes change a base into a new word.");
+  await expect(page.getByLabel(/What did you learn about spelling with the suffix/)).toHaveValue("Suffixes change a base into a new word.");
+  await expect(page.locator('[data-reflection-sentence-comparisons="feedback-only"]')).toBeVisible();
+  await expect(page.getByRole("article", { name: /Compare your spelling/ })).toHaveCount(0);
   await page.reload({ waitUntil: "load" });
-  await expect(page.getByLabel(/How does/)).toHaveValue("Suffixes change a base into a new word.");
+  await expect(page.getByLabel(/What did you learn about spelling with the suffix/)).toHaveValue("Suffixes change a base into a new word.");
   await page.getByRole("button", { name: "Finish the Word Lab" }).click();
   await expect(page.getByTestId("dynamic-affix-v3-complete")).toBeVisible();
 });

@@ -76,6 +76,9 @@ export type GenericSnapshotActivityKindV2 =
 export type GenericSnapshotRendererKindV2 =
   | "intro"
   | "guided_prompt"
+  | "cover_check"
+  | "sentence_dictation"
+  | "cold_word_recall"
   | "dictation"
   | "reflection"
   | "quick_sort"

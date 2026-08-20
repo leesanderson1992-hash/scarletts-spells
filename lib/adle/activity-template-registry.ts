@@ -8,7 +8,9 @@
 
 export type ActivityRendererKind =
   | "intro"
-  | "dictation"
+  | "cover_check"
+  | "sentence_dictation"
+  | "cold_word_recall"
   | "quick_sort"
   | "reflection"
   | "must_use_writing"
@@ -53,13 +55,13 @@ const TEMPLATE_DEFINITIONS = {
   MICRO_READ_ONLY_INTRO: definition("MICRO_READ_ONLY_INTRO", "intro", ["lesson_intro"], "intro", false, "read_only"),
   LESSON_WORDS_INTRO: definition("LESSON_WORDS_INTRO", "intro", ["lesson_intro"], "intro", false, "read_only"),
 
-  REVIEW_DICTATION: definition("REVIEW_DICTATION", "dictation", ["review_production"], "dictation", true, "production"),
-  DICTATION_NO_IMAGE: definition("DICTATION_NO_IMAGE", "dictation", ["lesson_dictation"], "dictation", true, "production"),
+  REVIEW_DICTATION: definition("REVIEW_DICTATION", "dictation", ["review_production"], "cold_word_recall", true, "production"),
+  DICTATION_NO_IMAGE: definition("DICTATION_NO_IMAGE", "dictation", ["lesson_dictation"], "sentence_dictation", true, "production"),
   DICTATION_SENTENCE_CONTEXT: definition(
     "DICTATION_SENTENCE_CONTEXT",
     "dictation",
     ["review_production", "lesson_dictation"],
-    "dictation",
+    "sentence_dictation",
     true,
     "production",
   ),
@@ -67,7 +69,7 @@ const TEMPLATE_DEFINITIONS = {
     "DIAGNOSTIC_DICTATION_PROBE",
     "dictation",
     ["lesson_probe"],
-    "dictation",
+    "cold_word_recall",
     true,
     "production",
   ),
@@ -75,11 +77,11 @@ const TEMPLATE_DEFINITIONS = {
     "CONTROLLED_SPELLING",
     "dictation",
     ["lesson_production"],
-    "dictation",
+    "cover_check",
     true,
     "production",
   ),
-  HIDE_WRITE: definition("HIDE_WRITE", "guided", ["guided_practice"], "dictation", true, "guided"),
+  HIDE_WRITE: definition("HIDE_WRITE", "guided", ["guided_practice"], "cover_check", true, "guided"),
 
   REVIEW_QUICK_SORT: definition(
     "REVIEW_QUICK_SORT",
@@ -154,7 +156,7 @@ const SECTION_FALLBACKS: Readonly<Record<string, Omit<ActivityTemplateDefinition
   review_production: fallback(
     "dictation",
     ["review_production"],
-    "dictation",
+    "cold_word_recall",
     true,
     "production",
     "section_safe_fallback",
@@ -170,7 +172,7 @@ const SECTION_FALLBACKS: Readonly<Record<string, Omit<ActivityTemplateDefinition
   lesson_production: fallback(
     "dictation",
     ["lesson_production"],
-    "dictation",
+    "cover_check",
     true,
     "production",
     "section_safe_fallback",
@@ -178,7 +180,7 @@ const SECTION_FALLBACKS: Readonly<Record<string, Omit<ActivityTemplateDefinition
   lesson_dictation: fallback(
     "dictation",
     ["lesson_dictation"],
-    "dictation",
+    "sentence_dictation",
     true,
     "production",
     "section_safe_fallback",
@@ -186,7 +188,7 @@ const SECTION_FALLBACKS: Readonly<Record<string, Omit<ActivityTemplateDefinition
   lesson_probe: fallback(
     "dictation",
     ["lesson_probe"],
-    "dictation",
+    "cold_word_recall",
     true,
     "production",
     "section_safe_fallback",
@@ -214,7 +216,12 @@ export function resolveActivityTemplateDefinition(input: {
     registered !== null &&
     (input.sectionKey === "" || registered.supportedSectionKeys.includes(input.sectionKey))
   ) {
-    return registered;
+    // The historical homophone key was section-overloaded. First-impression
+    // lesson use requires canonical SentenceDictation; scheduled review must
+    // remain answer-safe ColdWordRecall.
+    return input.templateKey === "DICTATION_SENTENCE_CONTEXT" && input.sectionKey === "review_production"
+      ? { ...registered, rendererKind: "cold_word_recall" }
+      : registered;
   }
   return (
     withTemplateKey(input.templateKey, SECTION_FALLBACKS[input.sectionKey]) ??

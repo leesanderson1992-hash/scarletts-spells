@@ -149,6 +149,11 @@ async function setup(): Promise<void> {
     if (teaching.rowCount !== 1 || banding.rowCount !== 1) {
       throw new Error("Required staging content provenance is incomplete");
     }
+    const dictation = await client.query<{ dictation_sentence: string; dictation_target_token_index: number; audio_text: string }>(
+      "select dictation_sentence, dictation_target_token_index, audio_text from public.canonical_teaching_dictionary_dictation_sentences where canonical_word_id = $1 and row_status = 'active' and review_status = 'approved_for_first_exposure' limit 1",
+      [lessonWord.id],
+    );
+    if (dictation.rowCount !== 1) throw new Error("The staging lesson word has no approved Sentence Dictation contract");
     const templateKeys = [
       "REVIEW_QUICK_SORT",
       "REVIEW_DICTATION",
@@ -193,7 +198,11 @@ async function setup(): Promise<void> {
       candidate(6, "lesson_intro", "MICRO_READ_ONLY_INTRO", null, null, SKILL, {}),
       candidate(7, "guided_practice", "MOR_STRIP_BUILD", lessonWord.id, lessonWord.display_word, SKILL, {}, learningItemId),
       candidate(8, "lesson_production", "CONTROLLED_SPELLING", lessonWord.id, lessonWord.display_word, SKILL, {}, learningItemId),
-      candidate(9, "lesson_dictation", "DICTATION_NO_IMAGE", lessonWord.id, lessonWord.display_word, SKILL, {}, learningItemId),
+      candidate(9, "lesson_dictation", "DICTATION_NO_IMAGE", lessonWord.id, lessonWord.display_word, SKILL, {
+        sentence: dictation.rows[0].dictation_sentence,
+        audioText: dictation.rows[0].audio_text,
+        targetTokenIndex: dictation.rows[0].dictation_target_token_index,
+      }, learningItemId),
     ];
     const plan: ComposedDailyPlan = {
       childId,

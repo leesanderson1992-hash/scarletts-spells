@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 
-import { BaseWordCleaver, CoverShutter, DiffReveal, HearWordButton } from "@/components/adle/activities/shared";
+import { LessonReflection } from "@/components/adle/activities/lesson-reflection";
+import { BaseWordCleaver, CoverShutter, SentenceDictation } from "@/components/adle/activities/shared";
 import { DefinitionWordBuilder } from "@/components/adle/activities/shared/definition-word-builder";
 import { deterministicOrderedBuildOrder } from "@/components/adle/activities/shared/ordered-build-engine";
 import type { GuideBeatV1 } from "@/lib/adle/morphology/payload";
@@ -10,6 +11,12 @@ import { extractAuthoredTargetToken } from "@/lib/adle/morphology/payload";
 import { finalYRestorationForBasePart, type BaseWordFamilyLessonSnapshotV1, type BaseWordFamilySnapshotWord } from "@/lib/adle/morphology/base-word-family-payload";
 import { baseWordFamilyResumeKey, normaliseBaseWordFamilyResume, type BaseWordFamilyResumeState } from "@/lib/adle/morphology/base-word-family-resume";
 import { isAttemptCorrect } from "@/lib/adle/session-correctness";
+import {
+  lessonReflectionSentenceComparison,
+  lessonReflectionPrompt,
+  type NormalizedLessonReflectionMistake,
+  type NormalizedLessonReflectionSentenceComparison,
+} from "@/lib/adle/lesson-reflection";
 import { WordLabScene } from "./word-lab-scene";
 
 const INITIAL: BaseWordFamilyResumeState = {
@@ -74,14 +81,24 @@ export function BaseWordFamilyGuidedLesson(props: {
   const independent = props.payload.independentWords[state.stage === "controlled" ? state.controlledIndex : state.dictationIndex];
   const phase = state.stage === "intro" ? 0 : state.stage === "families" ? 1 : state.stage === "cleave" ? 2 : state.stage === "word_sums" ? 4 : state.stage === "controlled" ? 5 : 5;
   const definitionBuild = baseWordDefinitionBuild(guidedWords, state.buildIndex);
+  const reflectionModel = baseWordLessonReflectionModel(props.payload, state.sentenceAttempts);
   return <WordLabScene beat={guideBeat(state.stage)} phase={phase} muted={muted} onMutedChange={setMuted} silent={state.stage === "controlled" || state.stage === "dictation"} help={clueOpen ? clueFor(state.stage) : undefined} onHelp={() => setClueOpen((current) => !current)} guideName="Word Builder">
     {state.stage === "intro" ? <Intro payload={props.payload} onNext={() => update({ stage: "families" })} /> : null}
     {state.stage === "families" ? <FamilyReveal key={props.payload.familySections[state.familyIndex].baseFamilyKey} section={props.payload.familySections[state.familyIndex]} number={state.familyIndex + 1} total={props.payload.familySections.length} onNext={() => update({ stage: "cleave", cleaveIndex: state.familyIndex, cleaveStep: 0 })} /> : null}
     {state.stage === "cleave" ? <Cleave word={guidedWords.find((word) => word.canonicalWordId === props.payload.authenticTargets[state.cleaveIndex].canonicalWordId)} cuts={state.cleaveCuts} misses={state.cleaveMisses} onCutsChange={(wordId, cuts) => update({ cleaveCuts: { ...state.cleaveCuts, [wordId]: cuts }, cleaveStep: cuts.length })} onMiss={(id, misses) => update({ cleaveMisses: { ...state.cleaveMisses, [id]: misses } })} onNext={() => state.cleaveIndex + 1 < props.payload.authenticTargets.length ? update({ stage: "families", familyIndex: state.cleaveIndex + 1, cleaveStep: 0 }) : update({ stage: "word_sums", buildIndex: 0 })} /> : null}
     {state.stage === "word_sums" ? <DefinitionWordBuilder key={definitionBuild.targetId} {...definitionBuild} muted={muted} onContinue={() => state.buildIndex + 1 < guidedWords.length ? update({ buildIndex: state.buildIndex + 1 }) : update({ stage: "controlled" })} /> : null}
-    {state.stage === "controlled" ? <Controlled word={independent} index={state.controlledIndex} total={props.payload.independentWords.length} attempt={state.controlledAttempts[independent.canonicalWordId] ?? ""} checked={state.controlledChecked[independent.canonicalWordId] === true} onAttempt={(attempt) => update({ controlledAttempts: { ...state.controlledAttempts, [independent.canonicalWordId]: attempt } })} onChecked={() => update({ controlledChecked: { ...state.controlledChecked, [independent.canonicalWordId]: true } })} onNext={() => state.controlledIndex + 1 < props.payload.independentWords.length ? update({ controlledIndex: state.controlledIndex + 1 }) : update({ stage: "dictation", dictationIndex: 0 })} /> : null}
-    {state.stage === "dictation" ? <Dictation word={independent} index={state.dictationIndex} total={props.payload.independentWords.length} value={state.sentenceAttempts[independent.canonicalWordId] ?? ""} checked={state.sentenceChecked} onValue={(value) => update({ sentenceAttempts: { ...state.sentenceAttempts, [independent.canonicalWordId]: value } })} onCheck={() => update({ sentenceChecked: true })} onNext={() => state.dictationIndex + 1 < props.payload.independentWords.length ? update({ dictationIndex: state.dictationIndex + 1, sentenceChecked: false }) : update({ stage: "reflect", sentenceChecked: false })} /> : null}
-    {state.stage === "reflect" ? <Reflection payload={props.payload} sentenceAttempts={state.sentenceAttempts} prompt={props.payload.reflectionPrompt} value={state.reflectionText} submitting={props.submitting === true} completionLabel={props.onComplete ? "Finish Word Lab" : "Finish preview"} onValue={(reflectionText) => update({ reflectionText })} onComplete={() => { if (props.submitting) return; props.onPreviewComplete?.(state.reflectionText); props.onComplete?.({ reflection: state.reflectionText, controlledAttempts: state.controlledAttempts, sentenceAttempts: state.sentenceAttempts }); }} /> : null}
+    {state.stage === "controlled" ? <CoverShutter key={independent.canonicalWordId} stepLabel={`Word to remember ${state.controlledIndex + 1} of ${props.payload.independentWords.length}`} word={independent.displayWord} splitPoints={[]} initialAttempt={state.controlledAttempts[independent.canonicalWordId] ?? ""} initialState={state.controlledChecked[independent.canonicalWordId] === true ? "check" : state.controlledAttempts[independent.canonicalWordId] ? "write" : "look"} muted={false} onStateChange={(_, attempt) => { if (attempt) update({ controlledAttempts: { ...state.controlledAttempts, [independent.canonicalWordId]: attempt } }); }} onComplete={(attempt) => update({ controlledAttempts: { ...state.controlledAttempts, [independent.canonicalWordId]: attempt }, controlledChecked: { ...state.controlledChecked, [independent.canonicalWordId]: true } })} onContinue={() => state.controlledIndex + 1 < props.payload.independentWords.length ? update({ controlledIndex: state.controlledIndex + 1 }) : update({ stage: "dictation", dictationIndex: 0 })} /> : null}
+    {state.stage === "dictation" ? <SentenceDictation key={independent.canonicalWordId} stepLabel={`Sentence ${state.dictationIndex + 1} of ${props.payload.independentWords.length}`} audioText={independent.audioText} correctSentence={independent.dictationSentence} value={state.sentenceAttempts[independent.canonicalWordId] ?? ""} checked={state.sentenceChecked} muted={false} onValueChange={(value) => update({ sentenceAttempts: { ...state.sentenceAttempts, [independent.canonicalWordId]: value } })} onCheck={() => update({ sentenceChecked: true })} continueLabel={state.dictationIndex + 1 < props.payload.independentWords.length ? "Next sentence" : "Reflect"} onContinue={() => state.dictationIndex + 1 < props.payload.independentWords.length ? update({ dictationIndex: state.dictationIndex + 1, sentenceChecked: false }) : update({ stage: "reflect", sentenceChecked: false })} /> : null}
+    {state.stage === "reflect" ? <LessonReflection
+      mistakes={reflectionModel.mistakes}
+      sentenceComparisons={reflectionModel.sentenceComparisons}
+      prompt={lessonReflectionPrompt({ kind: "base_word", values: props.payload.familySections.map((section) => section.baseWord.displayWord) })}
+      response={state.reflectionText}
+      pending={props.submitting === true}
+      completionLabel={props.onComplete ? "Finish Word Lab" : "Finish preview"}
+      onResponseChange={(reflectionText) => update({ reflectionText })}
+      onComplete={() => { if (props.submitting) return; props.onPreviewComplete?.(state.reflectionText); props.onComplete?.({ reflection: state.reflectionText, controlledAttempts: state.controlledAttempts, sentenceAttempts: state.sentenceAttempts }); }}
+    /> : null}
   </WordLabScene>;
 }
 
@@ -149,15 +166,42 @@ function baseWordDefinitionBuild(words: BaseWordFamilySnapshotWord[], index: num
   };
 }
 
-function Controlled(props: { word: BaseWordFamilySnapshotWord; index: number; total: number; attempt: string; checked: boolean; onAttempt: (value: string) => void; onChecked: () => void; onNext: () => void }) { return <section className="grid gap-4"><p className="text-center text-sm font-black uppercase tracking-[.2em] text-cyan-200">Word to remember {props.index + 1} of {props.total}</p><CoverShutter key={props.word.canonicalWordId} word={props.word.displayWord} splitPoints={[]} initialAttempt={props.attempt} initialState={props.checked ? "check" : props.attempt ? "write" : "look"} muted={false} onStateChange={(_, attempt) => attempt && props.onAttempt(attempt)} onComplete={(attempt) => { props.onAttempt(attempt); props.onChecked(); }} />{props.checked ? <button type="button" onClick={props.onNext} className="min-h-12 rounded-full bg-cyan-300 font-black text-slate-950">Continue</button> : null}</section>; }
-function Dictation(props: { word: BaseWordFamilySnapshotWord; index: number; total: number; value: string; checked: boolean; onValue: (value: string) => void; onCheck: () => void; onNext: () => void }) { return <section className="grid gap-4"><p className="text-center text-sm font-black uppercase tracking-[.2em] text-cyan-200">Sentence {props.index + 1} of {props.total}</p><div className="flex justify-center"><HearWordButton word={props.word.audioText} label="Play sentence" muted={false} kind="dictation" /></div><label className="text-sm font-semibold text-cyan-50">Write the whole sentence<textarea autoFocus spellCheck={false} autoComplete="off" autoCapitalize="sentences" value={props.value} onChange={(event) => props.onValue(event.target.value)} className="mt-2 min-h-28 w-full rounded-2xl bg-white p-4 text-lg text-slate-950 focus:outline-none focus:ring-4 focus:ring-cyan-300/30" /></label>{!props.checked ? <button type="button" disabled={!props.value.trim()} onClick={props.onCheck} className="min-h-12 rounded-full bg-cyan-300 font-black text-slate-950 disabled:opacity-40">Check sentence</button> : <><DiffReveal attempt={props.value} expected={props.word.dictationSentence} mode="sentence" /><button type="button" onClick={props.onNext} className="min-h-12 rounded-full bg-cyan-300 font-black text-slate-950">{props.index + 1 < props.total ? "Next sentence" : "Reflect"}</button></>}</section>; }
-function Reflection(props: { payload: BaseWordFamilyLessonSnapshotV1; sentenceAttempts: Record<string, string>; prompt: string; value: string; submitting: boolean; completionLabel: string; onValue: (value: string) => void; onComplete: () => void }) {
-  const outcomes = props.payload.independentWords.map((word) => ({ word, secure: isAttemptCorrect(extractAuthoredTargetToken(props.sentenceAttempts[word.canonicalWordId] ?? "", word.dictationTargetTokenIndex), word.displayWord) }));
-  const secure = outcomes.filter((outcome) => outcome.secure);
-  const revisit = outcomes.filter((outcome) => !outcome.secure);
-  return <section className="grid gap-5"><h2 className="text-center text-3xl font-black text-white">What did you notice?</h2><section className="rounded-3xl border border-white/15 bg-white/[.07] p-4 text-left" aria-label="Your word recap"><h3 className="text-lg font-black text-white">Your word recap</h3>{secure.length ? <div className="mt-3"><p className="text-sm font-black text-cyan-100">Words you spelled securely</p><p className="mt-1 text-cyan-50">{secure.map((outcome) => outcome.word.displayWord).join(", ")}</p></div> : null}{revisit.length ? <div className="mt-3"><p className="text-sm font-black text-amber-100">Words to look at again</p><p className="mt-1 text-cyan-50">{revisit.map((outcome) => outcome.word.displayWord).join(", ")}</p><p className="mt-1 text-sm text-cyan-100">Use the base word to help you notice the part that stays the same.</p></div> : null}</section><label className="text-base font-black text-white">{props.prompt}<textarea autoFocus required maxLength={2000} value={props.value} disabled={props.submitting} onChange={(event) => props.onValue(event.target.value)} className="mt-2 min-h-32 w-full rounded-2xl bg-white p-4 text-lg font-normal text-slate-950 focus:outline-none focus:ring-4 focus:ring-cyan-300/30" /></label><button type="button" disabled={props.submitting || !props.value.trim()} onClick={props.onComplete} className="min-h-12 rounded-full bg-cyan-300 font-black text-slate-950 disabled:opacity-40">{props.submitting ? "Saving your Word Lab…" : props.completionLabel}</button></section>;
+export function baseWordLessonReflectionMistakes(
+  payload: BaseWordFamilyLessonSnapshotV1,
+  sentenceAttempts: Record<string, string>,
+): NormalizedLessonReflectionMistake[] {
+  return baseWordLessonReflectionModel(payload, sentenceAttempts).mistakes;
+}
+
+export function baseWordLessonReflectionModel(
+  payload: BaseWordFamilyLessonSnapshotV1,
+  sentenceAttempts: Record<string, string>,
+): {
+  mistakes: NormalizedLessonReflectionMistake[];
+  sentenceComparisons: NormalizedLessonReflectionSentenceComparison[];
+} {
+  const sentenceComparisons: NormalizedLessonReflectionSentenceComparison[] = [];
+  const mistakes = payload.independentWords.flatMap((word) => {
+    const sentenceAttempt = sentenceAttempts[word.canonicalWordId] ?? "";
+    const comparison = lessonReflectionSentenceComparison({
+      id: word.canonicalWordId,
+      attempt: sentenceAttempt,
+      correct: word.dictationSentence,
+    });
+    if (comparison) sentenceComparisons.push(comparison);
+    const attempt = extractAuthoredTargetToken(
+      sentenceAttempt,
+      word.dictationTargetTokenIndex,
+    );
+    return isAttemptCorrect(attempt, word.displayWord) ? [] : [{
+      id: word.canonicalWordId,
+      attempt,
+      correctSpelling: word.displayWord,
+    }];
+  });
+  return { mistakes, sentenceComparisons };
 }
 
 // Preview exports expose the real route-local surfaces to the admin-only
 // Visual Convergence Lab. They do not alter route dispatch or runtime state.
-export { Intro, FamilyReveal, Cleave, Controlled, Dictation, Reflection };
+export { Intro, FamilyReveal, Cleave };
