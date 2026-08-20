@@ -5,7 +5,7 @@
 # ADLE Activity Catalogue
 
 Version: `adle_activity_catalogue_v1`
-Authoritative base: `183393713d3151fb50b9bbef2668cf4da7d5f387`
+Authoritative base: `1306632d6ba643c103bf8d670706b085c88258e1`
 
 This is the chooser for curriculum designers and future implementation tasks. It describes interaction capability, not route-specific teaching content.
 
@@ -34,7 +34,7 @@ This is the chooser for curriculum designers and future implementation tasks. It
 | `CONTROLLED_SPELLING` | Type a target word under a controlled reveal or recall policy. | For a single-word controlled production response. | Yes | Yes | `CANONICAL` |
 | `DICTATION` | Retrieve a word or sentence from authored audio without visual copying. | For cold or scheduled retrieval from authored audio. | Yes | Yes | `CANONICAL` |
 | `ERROR_REPAIR` | Teach the correct spelling after an error, hide it, then collect a controlled retry. | Immediately after a known spelling error when a reveal-hide-retry sequence is required. | No | Yes | `CANONICAL` |
-| `LESSON_REFLECTION` | Review mistakes and state a rule learned for next time at the end of a first-impression lesson. | Once, at the end of every first-impression lesson. | Yes | No | `REQUIRES_ARCHITECTURE_DECISION` |
+| `LESSON_REFLECTION` | Review mistakes and state a rule learned for next time at the end of a first-impression lesson. | Once, at the end of every first-impression lesson. | Yes | No | `CANONICAL` |
 | `MEMORY_CUE` | Let the child create a personal cue for remembering a spelling. | When the pedagogical aim is to author a mnemonic. | Yes | No | `CANONICAL` |
 | `FREE_WRITING` | Use required target words in original, meaning-bearing writing. | When authentic transfer writing is the intended evidence. | Yes | Yes | `REQUIRES_ARCHITECTURE_DECISION` |
 | `TRANSFORMATION` | Show or manipulate a governed spelling change while a word is built. | When the spelling change itself must be noticed or rehearsed. | Yes | No | `REQUIRES_ARCHITECTURE_DECISION` |
@@ -42,7 +42,7 @@ This is the chooser for curriculum designers and future implementation tasks. It
 | `SYLLABLE_SPLIT_REBUILD` | Split a word into syllables and rebuild it from those syllables. | When syllable structure, rather than morphology, is the learning objective. | Yes | No | `REQUIRES_ARCHITECTURE_DECISION` |
 | `GUIDED_PROMPT_FALLBACK` | Keep a generic lesson usable when no structured rich renderer exists. | Only as the registered safe fallback for existing generic templates. | Yes | No | `COMPATIBILITY_ONLY` |
 
-The catalogue currently has 21 governed concepts, 14 with canonical status, and 47 declared modes. Entries marked `REQUIRES_ARCHITECTURE_DECISION` are genuine platform gaps or extraction decisions, not permission for route-local UI.
+The catalogue currently has 21 governed concepts, 15 with canonical status, and 47 declared modes. Entries marked `REQUIRES_ARCHITECTURE_DECISION` are genuine platform gaps or extraction decisions, not permission for route-local UI.
 
 ## INTRODUCTION — Introduction
 
@@ -434,19 +434,19 @@ The catalogue currently has 21 governed concepts, 14 with canonical status, and 
 
 **Modes:**
 
-- `look_back_and_rule`: Look at where you went wrong; record a personal rule and one rule learned today.
+- `standard_lesson_reflection`: Compare normalized attempted and correct spellings, answer one governed lesson-specific question, and complete through the owning route adapter.
 
 **Current users:** Routes `dynamic_prefix_word_lab:v2`, `fixed_un_prefix_word_lab:v1`, `dynamic_affix_word_lab:v3`, `base_word_lab:v2`, `compound_word_lab:v2`, `closed_compound_word_lab:v1`. Micro-skills `D4_MOR_PREFIXES_UN`, `D4_MOR_PREFIXES_DIS_MIS`, `D4_MOR_PREFIXES_IN_IM_IL_IR`, `D4_MOR_PREFIXES_RE_PRE`, `D4_MOR_PREFIXES_SUB_INTER_SUPER`, `D4_MOR_SUFFIXES_ABLE_IBLE`, `D4_MOR_SUFFIXES_AL`, `D4_MOR_SUFFIXES_FUL_LESS`, `D4_MOR_SUFFIXES_ITY`, `D4_MOR_SUFFIXES_LY`, `D4_MOR_SUFFIXES_MENT`, `D4_MOR_SUFFIXES_NESS`, `D4_MOR_SUFFIXES_OUS`, `D4_MOR_SUFFIXES_SION`, `D4_MOR_SUFFIXES_TION`, `D4_MOR_BASE_WORDS_BASE_PLUS_PREFIX`, `D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX`, `D4_MOR_BASE_WORDS_IDENTIFY_BASE`, `D4_MOR_BASE_WORDS_PRESERVE_BASE`, `D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS`, `D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED`.
 
-**Canonical implementation:** No canonical implementation yet.
+**Canonical implementation:** `LessonReflection` in `components/adle/activities/lesson-reflection.tsx`
 
-**Architectural status:** `REQUIRES_ARCHITECTURE_DECISION`
+**Architectural status:** `CANONICAL`
 
-**Inputs:** Required: `prior attempt summary`, `standard reflection prompts`. Optional: `specialist recap cards`.
+**Inputs:** Required: `normalized mistake summary`, `lesson-specific prompt`, `controlled child response`, `completion callback or submit boundary`. Optional: `context recap`, `specialist recap`, `route-specific success message`.
 
 **Capabilities:** Pointer No · Keyboard Yes · Reduced motion Yes · Audio No · Captures attempt Yes · Evidence-bearing Yes · First Impression Yes · Review No.
 
-**Notes:** No canonical component exists. The target component must accept a normalized attempt summary plus optional specialist recap content and emit one learningReflection string without changing evidence semantics.
+**Notes:** Prefix/Affix, Base Word and Compound adapters derive route-specific correctness, governed prompts and optional recap data before rendering one LessonReflection. Persistence, completion and historical prompt replay stay outside the component.
 
 ## MEMORY_CUE — Memory cue
 

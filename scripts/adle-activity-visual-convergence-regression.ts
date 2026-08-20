@@ -50,7 +50,11 @@ for (const [name, source] of [["lab", labSource], ["preview", previewSource]] as
   ]) assert(!source.includes(forbidden), `${name} must not include learner/runtime mutation capability: ${forbidden}`);
 }
 assert(!previewSource.includes("<form"), "preview adapters must not introduce completion forms");
-assert(previewSource.includes("onPreviewComplete={noop}"), "ReflectionForm must use its non-mutating preview completion path");
+assert(previewSource.includes("<LessonReflection") && previewSource.includes("onComplete={noop}"), "LessonReflection previews must use controlled local state and non-mutating callbacks");
+const lessonReflectionSource = readFileSync(join(root, "components/adle/activities/lesson-reflection.tsx"), "utf8");
+for (const forbidden of ["completeAdleLessonPartAction", "completeBaseWordFamilyLessonAction", "createBrowserClient", ".from(", "fetch("]) {
+  assert(!lessonReflectionSource.includes(forbidden), `LessonReflection must not own runtime or persistence capability: ${forbidden}`);
+}
 
 for (const exactAuditClassification of ["GENUINELY_DIFFERENT_INTERACTION", "RETIRE"]) {
   assert(ADLE_VISUAL_CONVERGENCE_GROUPS.some((group) => group.candidates.some((candidate) => candidate.classification === exactAuditClassification)), `lab must expose established ${exactAuditClassification} findings`);

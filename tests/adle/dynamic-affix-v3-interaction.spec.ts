@@ -89,9 +89,9 @@ test("Dynamic Affix V3 feedback, Cover Check, Dictation, reload/resume, Reflecti
   const controlledAttempts = Object.fromEntries(value.wordIds.map((id, index) => [id, value.words[index]]));
   const sentenceAttempts = Object.fromEntries(value.wordIds.map((id, index) => [id, value.sentences[index]]));
   await setStage(page, value, "reflect", { controlledAttempts, sentenceAttempts, reflectionText: "Suffixes change a base into a new word." });
-  await expect(page.getByLabel(/How does/)).toHaveValue("Suffixes change a base into a new word.");
+  await expect(page.getByLabel(/What did you learn about spelling with the suffix/)).toHaveValue("Suffixes change a base into a new word.");
   await page.reload({ waitUntil: "load" });
-  await expect(page.getByLabel(/How does/)).toHaveValue("Suffixes change a base into a new word.");
+  await expect(page.getByLabel(/What did you learn about spelling with the suffix/)).toHaveValue("Suffixes change a base into a new word.");
   await page.getByRole("button", { name: "Finish the Word Lab" }).click();
   await expect(page.getByTestId("dynamic-affix-v3-complete")).toBeVisible();
 });

@@ -4,6 +4,7 @@ import { useState, type ReactNode } from "react";
 import dynamic from "next/dynamic";
 
 import { IntroActivity } from "@/components/adle/activities/intro-activity";
+import { LessonReflection } from "@/components/adle/activities/lesson-reflection";
 import { QuickSortActivity } from "@/components/adle/activities/quick-sort-activity";
 import { ReflectionActivity } from "@/components/adle/activities/reflection-activity";
 import { BinSort } from "@/components/adle/activities/shared/bin-sort";
@@ -20,7 +21,7 @@ import {
   Dictation as BaseDictation,
   FamilyReveal,
   Intro as BaseIntro,
-  Reflection as BaseReflection,
+  baseWordLessonReflectionMistakes,
 } from "@/components/adle/morphology/base-word-family-guided-lesson";
 import { CompoundReadingPage } from "@/components/adle/morphology/closed-compound-guided-lesson";
 import {
@@ -29,8 +30,8 @@ import {
   Discovery,
   LearnIntroduction,
   MeaningOverview,
-  ReflectionForm,
   SplitBuild,
+  morphologyLessonReflectionModel,
 } from "@/components/adle/morphology/morphology-guided-lesson";
 import { WordLabActivityHost } from "@/components/adle/word-lab/activity-registry";
 import type { VisualFixtureState } from "@/lib/adle/activity-visual-convergence";
@@ -39,6 +40,7 @@ import { BASE_WORD_FAMILY_PREVIEW_PAYLOAD } from "@/lib/adle/morphology/base-wor
 import { compileMorphologyUnPilotPayload } from "@/lib/adle/morphology/payload";
 import type { MorphologyLessonResumeState } from "@/lib/adle/morphology/resume";
 import type { CompiledWordLabSnapshotV1 } from "@/lib/adle/word-lab/contracts";
+import { lessonReflectionPrompt, type NormalizedLessonReflectionMistake } from "@/lib/adle/lesson-reflection";
 
 const noop = () => undefined;
 
@@ -51,11 +53,17 @@ const MeaningConnectionActivity = dynamic(
   { ssr: false, loading: () => <p className="min-h-56 text-center text-sm text-cyan-100">Preparing the real Meaning Connection…</p> },
 );
 
-const MORPHOLOGY_PAYLOAD = compileMorphologyUnPilotPayload({
+const MORPHOLOGY_PREVIEW_SOURCE = compileMorphologyUnPilotPayload({
   unhappy: "preview-unhappy", unfair: "preview-unfair", unkind: "preview-unkind",
   unlock: "preview-unlock", untidy: "preview-untidy", unnatural: "preview-unnatural",
   unnecessary: "preview-unnecessary",
 });
+const MORPHOLOGY_PAYLOAD = {
+  ...MORPHOLOGY_PREVIEW_SOURCE,
+  activities: MORPHOLOGY_PREVIEW_SOURCE.activities.map((activity) => activity.type === "sentence_dictation"
+    ? { ...activity, dictationContextPolicyVersion: "dictation_target_context_v1" as const }
+    : activity),
+};
 
 const COMPOUND_TARGETS = [
   { canonicalWordId: "preview-rainbow", word: "rainbow", components: ["rain", "bow"], joins: ["none" as const] },
@@ -129,13 +137,22 @@ function BuildCandidates(props: { candidateId: string; state: VisualFixtureState
 
 function reflectionState(state: VisualFixtureState): MorphologyLessonResumeState {
   const completed = state === "completed" || state === "restored";
+  const controlledAttempts = Object.fromEntries(MORPHOLOGY_PAYLOAD.words.lesson.map((word) => [word.canonicalWordId, word.displayWord]));
+  const sentenceActivity = MORPHOLOGY_PAYLOAD.activities.find((activity) => activity.type === "sentence_dictation")!;
+  const sentenceAttempts = Object.fromEntries((sentenceActivity.sentences ?? []).map((sentence) => [sentence.canonicalWordId, sentence.sentence]));
+  if (state === "incorrect") {
+    controlledAttempts["preview-unfair"] = "unfare";
+    sentenceAttempts["preview-unfair"] = "It was unfare to change rule.";
+  } else if (state === "active") {
+    sentenceAttempts["preview-unfair"] = "It was unfair to change rule.";
+  }
   return {
     stage: "reflect", introIndex: 0, discoverIndex: 0, discoverAddedPrefix: false,
     splitMisses: 0, splitCorrect: false, splitIndex: 0, matchComplete: true, buildIndex: 0,
     controlledIndex: 0, dictationIndex: 0,
-    controlledAttempts: { "preview-unfair": state === "incorrect" ? "unfare" : "unfair" },
+    controlledAttempts,
     controlledChecked: { "preview-unfair": true },
-    sentenceAttempts: { "preview-unfair": state === "incorrect" ? "That was unfare." : "That was unfair." },
+    sentenceAttempts,
     checkedSentence: true, guidedBindings: [], muted: true, helpLevel: 0,
     reflectionText: completed ? "I will keep the prefix and base in their reviewed order." : "",
   };
@@ -143,14 +160,33 @@ function reflectionState(state: VisualFixtureState): MorphologyLessonResumeState
 
 function ReflectionCandidates(props: { candidateId: string; state: VisualFixtureState }): ReactNode {
   const [value, setValue] = useState(() => props.state === "completed" || props.state === "restored" ? "I will look for the meaningful word parts." : "");
-  if (props.candidateId === "morphology-reflection") return <ReflectionForm key={props.state} state={reflectionState(props.state)} payload={MORPHOLOGY_PAYLOAD} childId="visual-preview-only" assignmentId="visual-preview-only" items={[]} onReflectionText={noop} onPreviewComplete={noop} />;
-  if (props.candidateId === "base-reflection") return <BaseReflection payload={BASE_WORD_FAMILY_PREVIEW_PAYLOAD} sentenceAttempts={{ replayed_en_gb: props.state === "incorrect" ? "We replay the song." : "We replayed the song." }} prompt={BASE_WORD_FAMILY_PREVIEW_PAYLOAD.reflectionPrompt} value={value} submitting={false} completionLabel="Finish preview" onValue={setValue} onComplete={noop} />;
+  if (props.candidateId === "morphology-reflection") {
+    const model = morphologyLessonReflectionModel(MORPHOLOGY_PAYLOAD, reflectionState(props.state));
+    return <LessonReflection key={props.state} mistakes={model.mistakes} prompt={model.prompt} response={value} onResponseChange={setValue} onComplete={noop} completionLabel="Finish preview" contextRecap={model.contextRecap} />;
+  }
+  if (props.candidateId === "base-reflection") {
+    const attempts = Object.fromEntries(BASE_WORD_FAMILY_PREVIEW_PAYLOAD.independentWords.map((word) => [word.canonicalWordId, word.dictationSentence]));
+    if (props.state === "incorrect" || props.state === "active") attempts[BASE_WORD_FAMILY_PREVIEW_PAYLOAD.independentWords[0]!.canonicalWordId] = "We replay the song.";
+    return <LessonReflection key={props.state} mistakes={baseWordLessonReflectionMistakes(BASE_WORD_FAMILY_PREVIEW_PAYLOAD, attempts)} prompt={lessonReflectionPrompt({ kind: "base_word", values: BASE_WORD_FAMILY_PREVIEW_PAYLOAD.familySections.map((section) => section.baseWord.displayWord) })} response={value} onResponseChange={setValue} onComplete={noop} completionLabel="Finish preview" />;
+  }
+  if (props.candidateId === "compound-reflection") return <LessonReflection key={props.state} mistakes={lessonReflectionFixtureMistakes(props.state)} prompt={lessonReflectionPrompt({ kind: "compound" })} response={value} onResponseChange={setValue} onComplete={noop} completionLabel="Finish preview" successMessage="You checked each compound word carefully and kept its governed written form." />;
   if (props.candidateId === "common-reflection") {
     const activity = { activityId: "visual-reflection", activityKey: "LESSON_REFLECTION", kind: "reflection", contractVersion: 1, order: 1, wordSlotIds: ["word-1"], assignmentItemIds: [], config: { title: "Look back", prompt: "What one rule did you learn today?" }, answerVisibility: "post_submit_only", evidenceMode: "none", requiredForCompletion: true } as CompiledWordLabSnapshotV1["activities"][number];
     const words = [{ slotId: "word-1", canonicalWordId: "preview-unkind", displayWord: "unkind", roles: ["practice"], learningItemId: null, complexityBand: null, contentRef: { sourceKey: "visual", sourceVersion: "1" }, coverage: {}, schedulingRole: "none", rewardRole: "ineligible" }] as CompiledWordLabSnapshotV1["words"];
     return <WordLabActivityHost key={props.state} activity={activity} words={words} initialState={{ response: value }} muted reducedMotion onStateChange={noop} onReflectionChange={setValue} onComplete={noop} />;
   }
   return null;
+}
+
+function lessonReflectionFixtureMistakes(state: VisualFixtureState): readonly NormalizedLessonReflectionMistake[] {
+  const mistakes: readonly NormalizedLessonReflectionMistake[] = [
+    { id: "rainbow", correctSpelling: "rainbow", attempt: "rain bow", sentenceComparison: { attempt: "A rain bow appeared.", correct: "A rainbow appeared." } },
+    { id: "ice-cream", correctSpelling: "ice cream", attempt: "icecream", sentenceComparison: { attempt: "I ate icecream.", correct: "We shared ice cream." } },
+    { id: "well-being", correctSpelling: "well-being", attempt: "wellbeing", sentenceComparison: { attempt: "Wellbeing matters.", correct: "Sleep supports well-being." } },
+  ];
+  if (state === "initial" || state === "completed" || state === "success") return [];
+  if (state === "active" || state === "restored") return mistakes.slice(0, 1);
+  return mistakes;
 }
 
 function SpellCandidates(props: { candidateId: string; state: VisualFixtureState }): ReactNode {
@@ -209,7 +245,7 @@ const READING_PAGE = {
   sections: [{ key: "example", heading: "Look closely", paragraphs: ["rain + bow can form rainbow."], examples: [{ text: "rain + bow → rainbow", explanation: "The whole word names a bow-shaped band of colours seen after rain." }] }],
 };
 
-const READING_WORDS = [{ canonicalWordId: "preview-rainbow", displayWord: "rainbow", components: ["rain", "bow"], joins: ["none" as const], componentMeanings: ["water from clouds", "a curved shape"], childFriendlyDefinition: "a band of colours", componentToWholeRelationship: "rain plus a bow-shaped arc", audioText: "rainbow", dictationSentence: "A rainbow appeared.", splitPoints: [4] }];
+const READING_WORDS = [{ canonicalWordId: "preview-rainbow", displayWord: "rainbow", components: ["rain", "bow"], joins: ["none" as const], componentMeanings: ["water from clouds", "a curved shape"], childFriendlyDefinition: "a band of colours", componentToWholeRelationship: "rain plus a bow-shaped arc", audioText: "rainbow", dictationSentence: "A rainbow appeared.", dictationTargetSpan: { schemaVersion: 2 as const, startTokenIndex: 1, endTokenIndexExclusive: 2, exactAnswer: "rainbow" }, splitPoints: [4] }];
 
 function TeachingCandidates(props: { candidateId: string; state: VisualFixtureState }): ReactNode {
   if (props.candidateId === "intro-activity") return <IntroActivity item={INTRO_ITEM} />;

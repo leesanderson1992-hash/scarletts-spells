@@ -19,17 +19,6 @@ This is a migration backlog, not authority to refactor, activate routes, change 
 - Model C release change required: No
 - Consolidation opportunity: Retire one 108-line duplicate implementation after route parity; adapter code may remain as configuration mapping.
 
-### P0 — Create one standard Lesson Reflection
-
-- Current implementations: `ReflectionForm`, `Base Word Reflection`, `ClosedCompoundReflection`, `Common Word Lab fixture reflection`
-- Target: new shared LessonReflection component
-- Intended modes: `look_back_and_rule`, `optional_specialist_recap`
-- Routes affected: `dynamic_prefix_word_lab:v2`, `fixed_un_prefix_word_lab:v1`, `dynamic_affix_word_lab:v3`, `base_word_lab:v2`, `compound_word_lab:v2`, `closed_compound_word_lab:v1`
-- Regression requirements: exact standard wording; attempt-summary parity; prefix context-slip recap; single reflection persistence; resume/reload; no repair-evidence conflation
-- Learner/runtime risk: `high`
-- Model C release change required: No
-- Consolidation opportunity: Consolidate four reflection layouts; deletion size must be measured only after adapters and historical replay tests exist.
-
 ### P0 — Extract the standard first-impression shell
 
 - Current implementations: `MorphologyGuidedLesson`, `BaseWordFamilyGuidedLesson`, `CompoundWordLessonRuntime`, `CommonWordLabShell`
@@ -105,12 +94,11 @@ Keep SplitHandle as the canonical interaction engine. Add isolate_base as config
 
 ### Reflection family
 
-ERROR_REPAIR remains ReflectionActivity and must keep reveal-hide-retry evidence. MEMORY_CUE remains child mnemonic authoring. Create a new canonical LESSON_REFLECTION that receives normalized prior-attempt summaries, renders exactly ‘Look at where you went wrong.’ plus ‘What rule can you give yourself?’ and ‘What one rule did you learn today?’, accepts optional specialist recap blocks, and emits the existing single learningReflection value. Prefix context slips are recap data, not a second assessment. Route persistence adapters remain outside the component.
+ERROR_REPAIR remains ReflectionActivity and keeps reveal-hide-retry evidence. MEMORY_CUE remains child mnemonic authoring. LessonReflection is the canonical end-of-first-impression LESSON_REFLECTION: it receives normalized attempted-versus-correct spelling summaries, a governed lesson-specific prompt, optional specialist/context recap, and one controlled response. Prefix context slips remain recap data rather than target assessment evidence. Route correctness, persistence, assignment and completion adapters remain outside the component; stored historical prompt keys/text remain assignment-owned.
 
 ## Genuine platform gaps
 
 - canonical Reading Page outside Compound
-- canonical Lesson Reflection
 - authentic Free Writing surface
 - phoneme–grapheme mapping
 - syllable split/rebuild
@@ -150,7 +138,6 @@ Still bespoke:
 - Meet the Words implementations
 - shell navigation/resume
 - sentence Dictation wrappers
-- all Lesson Reflection layouts
 - route completion adapters
 
 ## Review-template implications

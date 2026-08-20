@@ -293,14 +293,14 @@ export const ADLE_ACTIVITY_CATALOGUE: readonly ActivityCatalogueEntry[] = [
   activity({
     activityKey: "LESSON_REFLECTION", displayName: "Lesson reflection", interactionFamily: "metacognitive_reflection",
     pedagogicalPurpose: "Review mistakes and state a rule learned for next time at the end of a first-impression lesson.",
-    canonicalComponent: null, canonicalComponentPath: null,
-    supportedModes: ["look_back_and_rule"], modeDescriptions: { look_back_and_rule: "Look at where you went wrong; record a personal rule and one rule learned today." },
-    requiredInputs: ["prior attempt summary", "standard reflection prompts"], optionalInputs: ["specialist recap cards"],
+    canonicalComponent: "LessonReflection", canonicalComponentPath: "components/adle/activities/lesson-reflection.tsx",
+    supportedModes: ["standard_lesson_reflection"], modeDescriptions: { standard_lesson_reflection: "Compare normalized attempted and correct spellings, answer one governed lesson-specific question, and complete through the owning route adapter." },
+    requiredInputs: ["normalized mistake summary", "lesson-specific prompt", "controlled child response", "completion callback or submit boundary"], optionalInputs: ["context recap", "specialist recap", "route-specific success message"],
     capturesAttempt: true, evidenceBearing: true, usedByRoutes: [...ALL_SPECIALIST_ROUTES], usedByMicroSkills: [...MORPHOLOGY_SKILLS],
-    status: "REQUIRES_ARCHITECTURE_DECISION", reviewEligible: false,
+    status: "CANONICAL", reviewEligible: false,
     whenToUse: "Once, at the end of every first-impression lesson.", whenNotToUse: "For retrying one misspelling or authoring a mnemonic.",
-    duplicateImplementations: ["ReflectionForm", "Base Word Reflection", "ClosedCompoundReflection", "Common Word Lab FixtureActivity reflection"],
-    notes: "No canonical component exists. The target component must accept a normalized attempt summary plus optional specialist recap content and emit one learningReflection string without changing evidence semantics.",
+    compatibilityImplementations: ["Common Word Lab FixtureActivity reflection"],
+    notes: "Prefix/Affix, Base Word and Compound adapters derive route-specific correctness, governed prompts and optional recap data before rendering one LessonReflection. Persistence, completion and historical prompt replay stay outside the component.",
   }),
   activity({
     activityKey: "MEMORY_CUE", displayName: "Memory cue", interactionFamily: "mnemonic_authoring",
@@ -445,8 +445,8 @@ export const ADLE_ACTIVITY_IMPLEMENTATION_AUDIT: readonly ActivityImplementation
   auditRow("MeaningOverview", "components/adle/morphology/morphology-guided-lesson.tsx", "MEANING_SORT_RECAP", "CANONICAL_MODE", "BinSort", { currentRouteUsages: PREFIX_AFFIX, migrationRisk: "medium" }),
   auditRow("Controlled (Morphology)", "components/adle/morphology/morphology-guided-lesson.tsx", "COVER_CHECK", "CANONICAL_MODE", "CoverShutter", { currentRouteUsages: PREFIX_AFFIX, migrationRisk: "high" }),
   auditRow("Dictation (Morphology)", "components/adle/morphology/morphology-guided-lesson.tsx", "DICTATION", "DUPLICATE_TO_MIGRATE", "shared sentence-dictation mode", { currentRouteUsages: PREFIX_AFFIX, visualDifferences: "Dark shell textarea with sentence DiffReveal.", migrationRisk: "high" }),
-  auditRow("ReflectionForm", "components/adle/morphology/morphology-guided-lesson.tsx", "LESSON_REFLECTION", "DUPLICATE_TO_MIGRATE", "future LessonReflection", { currentRouteUsages: PREFIX_AFFIX, propsConfigDifferences: "Prefix mode adds teaching cards and target/context slip analysis; non-prefix mode shows generic miss recap.", persistenceEvidenceDifferences: "Submits learningReflection through completeAdleLessonPartAction and specialist guided/production attempts.", migrationRisk: "high" }),
-  auditRow("PrefixTeachingCards", "components/adle/morphology/prefix-teaching-cards.tsx", "INTRODUCTION / LESSON_REFLECTION_RECAP", "CANONICAL_MODE", "INTRODUCTION / future LessonReflection", { currentRouteUsages: PREFIX_AFFIX, propsConfigDifferences: "Full and compact display modes.", persistenceEvidenceDifferences: "Read-only specialist recap content; never writes evidence.", migrationRisk: "medium" }),
+  auditRow("MorphologyReflectionAdapter", "components/adle/morphology/morphology-guided-lesson.tsx", "LESSON_REFLECTION adapter", "CANONICAL_MODE", "LessonReflection", { currentRouteUsages: PREFIX_AFFIX, propsConfigDifferences: "Derives normalized target misses, governed Prefix/Suffix prompt, teaching recaps and Prefix context-slip recap.", persistenceEvidenceDifferences: "Retains completeAdleLessonPartAction, completion trace, assignment binding and specialist attempt envelopes outside LessonReflection.", migrationRisk: "high" }),
+  auditRow("PrefixTeachingCards", "components/adle/morphology/prefix-teaching-cards.tsx", "INTRODUCTION / LESSON_REFLECTION_RECAP", "CANONICAL_MODE", "INTRODUCTION / LessonReflection specialist recap", { currentRouteUsages: PREFIX_AFFIX, propsConfigDifferences: "Full and compact display modes.", persistenceEvidenceDifferences: "Read-only specialist recap content; never writes evidence.", migrationRisk: "medium" }),
   auditRow("SelectedPrefixFeedback", "components/adle/morphology/prefix-teaching-cards.tsx", "MEANING_SORT_FEEDBACK", "CANONICAL_MODE", "BinSort", { currentRouteUsages: PREFIX_AFFIX, propsConfigDifferences: "Renders selected-form meaning/rule/example feedback inside BinSort and SnapRail adapters.", persistenceEvidenceDifferences: "Feedback only.", migrationRisk: "medium" }),
   auditRow("DynamicPrefixStagingLab", "components/adle/morphology/dynamic-prefix-staging-lab.tsx", "STAGING_PROOF_LESSON", "COMPATIBILITY_ONLY", "MorphologyGuidedLesson", { currentRouteUsages: ["/learn/week/adle/dynamic-prefix in non-production"], propsConfigDifferences: "Standalone four-word cards, local dictation textarea, and local reflection.", persistenceEvidenceDifferences: "Session-storage proof state only; explicitly writes no learner evidence.", recommendedAction: "Retain only as a staging proof surface until its runbook is retired; never use it as a micro-skill renderer.", migrationRisk: "low" }),
 
@@ -455,14 +455,15 @@ export const ADLE_ACTIVITY_IMPLEMENTATION_AUDIT: readonly ActivityImplementation
   auditRow("Cleave (Base Word adapter)", "components/adle/morphology/base-word-family-guided-lesson.tsx", "CLEAVER", "CANONICAL_MODE", "future SplitHandle isolate_base mode", { currentRouteUsages: [BASE_ROUTE], migrationRisk: "high" }),
   auditRow("Controlled (Base Word)", "components/adle/morphology/base-word-family-guided-lesson.tsx", "COVER_CHECK", "CANONICAL_MODE", "CoverShutter", { currentRouteUsages: [BASE_ROUTE], migrationRisk: "high" }),
   auditRow("Dictation (Base Word)", "components/adle/morphology/base-word-family-guided-lesson.tsx", "DICTATION", "DUPLICATE_TO_MIGRATE", "shared sentence-dictation mode", { currentRouteUsages: [BASE_ROUTE], migrationRisk: "high" }),
-  auditRow("Reflection (Base Word)", "components/adle/morphology/base-word-family-guided-lesson.tsx", "LESSON_REFLECTION", "DUPLICATE_TO_MIGRATE", "future LessonReflection", { currentRouteUsages: [BASE_ROUTE], persistenceEvidenceDifferences: "Returned to BaseWordFamilyPart, then submitted as baseWordReflection.", migrationRisk: "high" }),
+  auditRow("Base Word reflection adapter", "components/adle/morphology/base-word-family-guided-lesson.tsx", "LESSON_REFLECTION adapter", "CANONICAL_MODE", "LessonReflection", { currentRouteUsages: [BASE_ROUTE], propsConfigDifferences: "Extracts the governed target token from each dictated sentence and derives the base-word prompt.", persistenceEvidenceDifferences: "Returns controlled attempts, sentence attempts and reflection to BaseWordFamilyPart; atomic completion remains external.", migrationRisk: "high" }),
 
   auditRow("CompoundReadingPage", "components/adle/morphology/closed-compound-guided-lesson.tsx", "READING_PAGE", "REQUIRES_ARCHITECTURE_DECISION", "future ReadingPage", { currentRouteUsages: ["compound_word_lab:v2"], migrationRisk: "high" }),
   auditRow("CompoundJigsawActivity", "components/adle/morphology/compound-jigsaw-activity.tsx", "COMPOUND_JIGSAW", "CANONICAL", "CompoundJigsawActivity", { currentRouteUsages: [...COMPOUND_ROUTES], registryTemplateKeys: ["MOR_COMPOUND_JIGSAW"], migrationRisk: "high", historicalReplayDependency: true }),
   auditRow("MeaningConnectionActivity", "components/adle/morphology/meaning-connection-activity.tsx", "MEANING_MATCH", "CANONICAL", "MeaningConnectionActivity", { currentRouteUsages: [...COMPOUND_ROUTES], registryTemplateKeys: ["MOR_COMPOUND_MEANING_CONNECTION"], migrationRisk: "high", historicalReplayDependency: true }),
   auditRow("Controlled (Compound inline)", "components/adle/morphology/closed-compound-guided-lesson.tsx", "COVER_CHECK", "CANONICAL_MODE", "CoverShutter", { currentRouteUsages: [...COMPOUND_ROUTES], migrationRisk: "high", historicalReplayDependency: true }),
   auditRow("Dictation (Compound inline)", "components/adle/morphology/closed-compound-guided-lesson.tsx", "DICTATION", "DUPLICATE_TO_MIGRATE", "shared sentence-dictation mode", { currentRouteUsages: [...COMPOUND_ROUTES], migrationRisk: "high", historicalReplayDependency: true }),
-  auditRow("ClosedCompoundReflection", "components/adle/morphology/closed-compound-guided-lesson.tsx", "LESSON_REFLECTION", "DUPLICATE_TO_MIGRATE", "future LessonReflection", { currentRouteUsages: [...COMPOUND_ROUTES], migrationRisk: "high", historicalReplayDependency: true }),
+  auditRow("CompoundLessonReflectionAdapter", "components/adle/morphology/closed-compound-guided-lesson.tsx", "LESSON_REFLECTION adapter", "CANONICAL_MODE", "LessonReflection", { currentRouteUsages: [...COMPOUND_ROUTES], propsConfigDifferences: "Derives exact-governed-form misses and retains existing sentence comparisons plus closed-v1 no-miss copy.", persistenceEvidenceDifferences: "Retains completeAdleLessonPartAction and all hidden guided/production envelopes outside LessonReflection.", migrationRisk: "high", historicalReplayDependency: true }),
+  auditRow("LessonReflection", "components/adle/activities/lesson-reflection.tsx", "LESSON_REFLECTION", "CANONICAL", "LessonReflection", { currentRouteUsages: [...ALL_SPECIALIST_ROUTES], propsConfigDifferences: "One neutral normalized mistake, context recap, specialist recap, governed prompt and controlled response contract.", persistenceEvidenceDifferences: "Emits response/completion UI only; performs no correctness, assignment, persistence or evidence work.", migrationRisk: "high" }),
 
   auditRow("FixtureActivity", "components/adle/word-lab/activity-registry.tsx", "COMMON_WORD_LAB_PLACEHOLDER", "COMPATIBILITY_ONLY", "real per-kind Word Lab plugins", { currentRouteUsages: ["/dev/adle/common-word-lab only"], propsConfigDifferences: "One textarea implementation stands in for strategy_notice, guided_map, cover_check, dictation, and reflection.", recommendedAction: "Keep the dark fixture runnable, but do not treat its five registrations as production activity implementations.", migrationRisk: "low" }),
   auditRow("WordLabActivityHost", "components/adle/word-lab/activity-registry.tsx", "RUNTIME_DISPATCH", "CANONICAL_MODE", "WordLabActivityHost", { currentRouteUsages: ["/dev/adle/common-word-lab only"], migrationRisk: "medium" }),
@@ -486,15 +487,6 @@ export const ADLE_ACTIVITY_CONVERGENCE_BACKLOG: readonly ActivityConvergenceBack
     regressionRequirements: ["SVG/size/copy snapshot", "pointer and keyboard boundary selection", "focus after two misses", "multiple boundaries", "final-y restoration", "resume parity", "no evidence change"],
     learnerRuntimeRisk: "high", modelCReleaseChangeRequired: false,
     consolidationOpportunity: "Retire one 108-line duplicate implementation after route parity; adapter code may remain as configuration mapping.",
-  },
-  {
-    priority: "P0", title: "Create one standard Lesson Reflection",
-    currentImplementations: ["ReflectionForm", "Base Word Reflection", "ClosedCompoundReflection", "Common Word Lab fixture reflection"],
-    targetCanonicalImplementation: "new shared LessonReflection component",
-    intendedModes: ["look_back_and_rule", "optional_specialist_recap"], routesAffected: [...ALL_SPECIALIST_ROUTES],
-    regressionRequirements: ["exact standard wording", "attempt-summary parity", "prefix context-slip recap", "single reflection persistence", "resume/reload", "no repair-evidence conflation"],
-    learnerRuntimeRisk: "high", modelCReleaseChangeRequired: false,
-    consolidationOpportunity: "Consolidate four reflection layouts; deletion size must be measured only after adapters and historical replay tests exist.",
   },
   {
     priority: "P0", title: "Extract the standard first-impression shell",
@@ -553,10 +545,10 @@ export const ADLE_ACTIVITY_CONVERGENCE_BACKLOG: readonly ActivityConvergenceBack
 ] as const;
 
 export const ADLE_ACTIVITY_AUDIT_CONCLUSIONS = {
-  authoritativeBaseSha: "183393713d3151fb50b9bbef2668cf4da7d5f387",
+  authoritativeBaseSha: "1306632d6ba643c103bf8d670706b085c88258e1",
   startingState: {
-    auditWorktree: "Detached worktree at origin/main; initial status was clean (`## HEAD (no branch)`).",
-    protectedOccupiedCheckout: "The pre-existing checkout was on codex/cw-3a-compound-publication-readiness at 01def23d288067ccdab8f7ac5be6ca2f7cbfc964, 26 commits behind origin/main, with unrelated modified and untracked Compound/documentation work. It was not changed by this audit.",
+    auditWorktree: "Clean Group 2 worktree on codex/adle-group2-lesson-reflection at current origin/main; only the verified three-file Reflection preview precursor was carried forward before implementation.",
+    protectedOccupiedCheckout: "The Group 1 checkout remained on codex/adle-group1-build-convergence with its authorized three-file Group 2 precursor patch intact; the patch was also preserved as a named stash object before transfer.",
     runtimeRegistries: [
       "lib/adle/activity-template-registry.ts — 37 generic template keys and renderer-kind dispatch",
       "components/adle/activities/registry.ts — React compatibility wrapper over the generic runtime registry",
@@ -577,7 +569,7 @@ export const ADLE_ACTIVITY_AUDIT_CONCLUSIONS = {
   authorityRelationship: "Activity Catalogue is the architectural chooser and capability inventory. activity-template-registry.ts remains the generic runtime dispatch authority; curriculum route registry plus specialist adapters remain the rich-route runtime authority. The catalogue regression maps every generic template key exactly once and validates every component path, so these authorities cannot silently drift while runtime refactoring is frozen.",
   buildBoundary: "BUILD is one shared ordered-placement interaction family with two learner experiences. DefinitionWordBuilder presents one definition-led target and is configured by all 19 Prefix, Suffix/Affix and Base Word microskills. CompoundJigsawActivity presents anonymous puzzle rows above one deterministic mixed bank using Jigsaw-shaped component, SPACE and hyphen pieces; checked row content identifies and locks the governed word. Both use OrderedBuildEngine for candidate order, placement, rearrangement, validation, completion and restoration. Historical closed-compound v1 payloads are translated at the route boundary to generalized two-piece/no-join targets; no historical Jigsaw UI remains.",
   cleaverBoundary: "Keep SplitHandle as the canonical interaction engine. Add isolate_base as configuration describing base segment/index and required adjacent cuts; add an optional post-split confirmation step; model final-y restoration as a post-split transformation hook; preserve SplitHandle's multi-boundary state, supplied components, copy policy, two-miss scaffold, focus movement, keyboard/pointer controls, sounds, reduced motion, success state and continuation. Migrate BaseWordCleaver only after pixel/interaction/resume parity. Do not merge word assembly or syllable splitting into Cleaver.",
-  reflectionBoundary: "ERROR_REPAIR remains ReflectionActivity and must keep reveal-hide-retry evidence. MEMORY_CUE remains child mnemonic authoring. Create a new canonical LESSON_REFLECTION that receives normalized prior-attempt summaries, renders exactly ‘Look at where you went wrong.’ plus ‘What rule can you give yourself?’ and ‘What one rule did you learn today?’, accepts optional specialist recap blocks, and emits the existing single learningReflection value. Prefix context slips are recap data, not a second assessment. Route persistence adapters remain outside the component.",
+  reflectionBoundary: "ERROR_REPAIR remains ReflectionActivity and keeps reveal-hide-retry evidence. MEMORY_CUE remains child mnemonic authoring. LessonReflection is the canonical end-of-first-impression LESSON_REFLECTION: it receives normalized attempted-versus-correct spelling summaries, a governed lesson-specific prompt, optional specialist/context recap, and one controlled response. Prefix context slips remain recap data rather than target assessment evidence. Route correctness, persistence, assignment and completion adapters remain outside the component; stored historical prompt keys/text remain assignment-owned.",
   newActivityRule: [
     "Search the canonical Activity Catalogue.",
     "Reuse an existing activity as-is if it meets the pedagogical requirement.",
@@ -592,14 +584,14 @@ export const ADLE_ACTIVITY_AUDIT_CONCLUSIONS = {
       "base_word_lab:v2 has introduction, Meet the Words/family reveal, configured rich work, controlled recall, dictation and reflection",
       "dynamic_prefix_word_lab:v2 and dynamic_affix_word_lab:v3 have multi-screen Learn, Discover, configured rich work, controlled recall, dictation and reflection",
     ],
-    bespokePieces: ["reading-page data shape outside Compound", "Meet the Words implementations", "shell navigation/resume", "sentence Dictation wrappers", "all Lesson Reflection layouts", "route completion adapters"],
+    bespokePieces: ["reading-page data shape outside Compound", "Meet the Words implementations", "shell navigation/resume", "sentence Dictation wrappers", "route completion adapters"],
   },
   reviewImplications: {
     eligible: ["REVIEW_SORT", "CONTROLLED_SPELLING.audio_recall", "DICTATION.review", "FREE_WRITING.review_transfer once implemented"],
     notEligible: ["INTRODUCTION", "READING_PAGE", "MEANING_DISCOVERY", "WORD_FAMILY_REVEAL", "LESSON_REFLECTION"],
     distinctions: ["ERROR_REPAIR is conditional same-session repair, not scheduled review.", "LESSON_REFLECTION is end-of-first-impression metacognition, not review.", "Review evidence remains independent retrieval; Cover Check is only review-eligible when its reveal policy does not contaminate the scored attempt."],
   },
-  genuineGaps: ["canonical Reading Page outside Compound", "canonical Lesson Reflection", "authentic Free Writing surface", "phoneme–grapheme mapping", "syllable split/rebuild", "production-ready spelling transformation interaction"],
+  genuineGaps: ["canonical Reading Page outside Compound", "authentic Free Writing surface", "phoneme–grapheme mapping", "syllable split/rebuild", "production-ready spelling transformation interaction"],
 } as const;
 
 export function activityAuditCounts() {

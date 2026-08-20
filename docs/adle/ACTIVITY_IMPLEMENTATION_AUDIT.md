@@ -4,14 +4,14 @@
 
 # ADLE Activity Implementation Audit Matrix
 
-Authoritative base SHA: `183393713d3151fb50b9bbef2668cf4da7d5f387`
+Authoritative base SHA: `1306632d6ba643c103bf8d670706b085c88258e1`
 
 Scope: named child-facing activity components, shared learner-interaction primitives, embedded specialist activity functions, development components representing intended learner interactions, and the dispatch/shell components that own them. Pure data compilers, server actions, persistence helpers, sound/motion utilities, and non-ADLE course UI are excluded.
 
 ## Starting state
 
-- Audit worktree: Detached worktree at origin/main; initial status was clean (`## HEAD (no branch)`).
-- Protected occupied checkout: The pre-existing checkout was on codex/cw-3a-compound-publication-readiness at 01def23d288067ccdab8f7ac5be6ca2f7cbfc964, 26 commits behind origin/main, with unrelated modified and untracked Compound/documentation work. It was not changed by this audit.
+- Audit worktree: Clean Group 2 worktree on codex/adle-group2-lesson-reflection at current origin/main; only the verified three-file Reflection preview precursor was carried forward before implementation.
+- Protected occupied checkout: The Group 1 checkout remained on codex/adle-group1-build-convergence with its authorized three-file Group 2 precursor patch intact; the patch was also preserved as a named stash object before transfer.
 
 Existing runtime/architecture registries:
 
@@ -35,11 +35,11 @@ Architecture documents inspected:
 
 | Measure | Count |
 |---|---:|
-| Discovered implementations | 69 |
-| Canonical implementations | 17 |
-| Canonical mode/adapters | 16 |
+| Discovered implementations | 70 |
+| Canonical implementations | 18 |
+| Canonical mode/adapters | 19 |
 | Compatibility only | 2 |
-| Duplicates to migrate | 17 |
+| Duplicates to migrate | 14 |
 | Dead or unreferenced | 15 |
 | Requires architecture decision | 2 |
 
@@ -90,8 +90,8 @@ Architecture documents inspected:
 | MeaningOverview | `components/adle/morphology/morphology-guided-lesson.tsx` | `MEANING_SORT_RECAP` | dynamic_prefix_word_lab:v2, fixed_un_prefix_word_lab:v1, dynamic_affix_word_lab:v3 | none | BinSort | `CANONICAL_MODE` | medium | No | Retain and route new work through the catalogue. |
 | Controlled (Morphology) | `components/adle/morphology/morphology-guided-lesson.tsx` | `COVER_CHECK` | dynamic_prefix_word_lab:v2, fixed_un_prefix_word_lab:v1, dynamic_affix_word_lab:v3 | none | CoverShutter | `CANONICAL_MODE` | high | No | Retain and route new work through the catalogue. |
 | Dictation (Morphology) | `components/adle/morphology/morphology-guided-lesson.tsx` | `DICTATION` | dynamic_prefix_word_lab:v2, fixed_un_prefix_word_lab:v1, dynamic_affix_word_lab:v3 | none | shared sentence-dictation mode | `DUPLICATE_TO_MIGRATE` | high | No | Do not add new usage before the backlog action is complete. |
-| ReflectionForm | `components/adle/morphology/morphology-guided-lesson.tsx` | `LESSON_REFLECTION` | dynamic_prefix_word_lab:v2, fixed_un_prefix_word_lab:v1, dynamic_affix_word_lab:v3 | none | future LessonReflection | `DUPLICATE_TO_MIGRATE` | high | No | Do not add new usage before the backlog action is complete. |
-| PrefixTeachingCards | `components/adle/morphology/prefix-teaching-cards.tsx` | `INTRODUCTION / LESSON_REFLECTION_RECAP` | dynamic_prefix_word_lab:v2, fixed_un_prefix_word_lab:v1, dynamic_affix_word_lab:v3 | none | INTRODUCTION / future LessonReflection | `CANONICAL_MODE` | medium | No | Retain and route new work through the catalogue. |
+| MorphologyReflectionAdapter | `components/adle/morphology/morphology-guided-lesson.tsx` | `LESSON_REFLECTION adapter` | dynamic_prefix_word_lab:v2, fixed_un_prefix_word_lab:v1, dynamic_affix_word_lab:v3 | none | LessonReflection | `CANONICAL_MODE` | high | No | Retain and route new work through the catalogue. |
+| PrefixTeachingCards | `components/adle/morphology/prefix-teaching-cards.tsx` | `INTRODUCTION / LESSON_REFLECTION_RECAP` | dynamic_prefix_word_lab:v2, fixed_un_prefix_word_lab:v1, dynamic_affix_word_lab:v3 | none | INTRODUCTION / LessonReflection specialist recap | `CANONICAL_MODE` | medium | No | Retain and route new work through the catalogue. |
 | SelectedPrefixFeedback | `components/adle/morphology/prefix-teaching-cards.tsx` | `MEANING_SORT_FEEDBACK` | dynamic_prefix_word_lab:v2, fixed_un_prefix_word_lab:v1, dynamic_affix_word_lab:v3 | none | BinSort | `CANONICAL_MODE` | medium | No | Retain and route new work through the catalogue. |
 | DynamicPrefixStagingLab | `components/adle/morphology/dynamic-prefix-staging-lab.tsx` | `STAGING_PROOF_LESSON` | /learn/week/adle/dynamic-prefix in non-production | none | MorphologyGuidedLesson | `COMPATIBILITY_ONLY` | low | No | Retain only as a staging proof surface until its runbook is retired; never use it as a micro-skill renderer. |
 | Intro (Base Word) | `components/adle/morphology/base-word-family-guided-lesson.tsx` | `INTRODUCTION` | base_word_lab:v2 | none | IntroActivity / future reading shell | `DUPLICATE_TO_MIGRATE` | high | No | Do not add new usage before the backlog action is complete. |
@@ -99,13 +99,14 @@ Architecture documents inspected:
 | Cleave (Base Word adapter) | `components/adle/morphology/base-word-family-guided-lesson.tsx` | `CLEAVER` | base_word_lab:v2 | none | future SplitHandle isolate_base mode | `CANONICAL_MODE` | high | No | Retain and route new work through the catalogue. |
 | Controlled (Base Word) | `components/adle/morphology/base-word-family-guided-lesson.tsx` | `COVER_CHECK` | base_word_lab:v2 | none | CoverShutter | `CANONICAL_MODE` | high | No | Retain and route new work through the catalogue. |
 | Dictation (Base Word) | `components/adle/morphology/base-word-family-guided-lesson.tsx` | `DICTATION` | base_word_lab:v2 | none | shared sentence-dictation mode | `DUPLICATE_TO_MIGRATE` | high | No | Do not add new usage before the backlog action is complete. |
-| Reflection (Base Word) | `components/adle/morphology/base-word-family-guided-lesson.tsx` | `LESSON_REFLECTION` | base_word_lab:v2 | none | future LessonReflection | `DUPLICATE_TO_MIGRATE` | high | No | Do not add new usage before the backlog action is complete. |
+| Base Word reflection adapter | `components/adle/morphology/base-word-family-guided-lesson.tsx` | `LESSON_REFLECTION adapter` | base_word_lab:v2 | none | LessonReflection | `CANONICAL_MODE` | high | No | Retain and route new work through the catalogue. |
 | CompoundReadingPage | `components/adle/morphology/closed-compound-guided-lesson.tsx` | `READING_PAGE` | compound_word_lab:v2 | none | future ReadingPage | `REQUIRES_ARCHITECTURE_DECISION` | high | No | Do not add new usage before the backlog action is complete. |
 | CompoundJigsawActivity | `components/adle/morphology/compound-jigsaw-activity.tsx` | `COMPOUND_JIGSAW` | compound_word_lab:v2, closed_compound_word_lab:v1 | MOR_COMPOUND_JIGSAW | CompoundJigsawActivity | `CANONICAL` | high | Yes | Retain and route new work through the catalogue. |
 | MeaningConnectionActivity | `components/adle/morphology/meaning-connection-activity.tsx` | `MEANING_MATCH` | compound_word_lab:v2, closed_compound_word_lab:v1 | MOR_COMPOUND_MEANING_CONNECTION | MeaningConnectionActivity | `CANONICAL` | high | Yes | Retain and route new work through the catalogue. |
 | Controlled (Compound inline) | `components/adle/morphology/closed-compound-guided-lesson.tsx` | `COVER_CHECK` | compound_word_lab:v2, closed_compound_word_lab:v1 | none | CoverShutter | `CANONICAL_MODE` | high | Yes | Retain and route new work through the catalogue. |
 | Dictation (Compound inline) | `components/adle/morphology/closed-compound-guided-lesson.tsx` | `DICTATION` | compound_word_lab:v2, closed_compound_word_lab:v1 | none | shared sentence-dictation mode | `DUPLICATE_TO_MIGRATE` | high | Yes | Do not add new usage before the backlog action is complete. |
-| ClosedCompoundReflection | `components/adle/morphology/closed-compound-guided-lesson.tsx` | `LESSON_REFLECTION` | compound_word_lab:v2, closed_compound_word_lab:v1 | none | future LessonReflection | `DUPLICATE_TO_MIGRATE` | high | Yes | Do not add new usage before the backlog action is complete. |
+| CompoundLessonReflectionAdapter | `components/adle/morphology/closed-compound-guided-lesson.tsx` | `LESSON_REFLECTION adapter` | compound_word_lab:v2, closed_compound_word_lab:v1 | none | LessonReflection | `CANONICAL_MODE` | high | Yes | Retain and route new work through the catalogue. |
+| LessonReflection | `components/adle/activities/lesson-reflection.tsx` | `LESSON_REFLECTION` | dynamic_prefix_word_lab:v2, fixed_un_prefix_word_lab:v1, dynamic_affix_word_lab:v3, base_word_lab:v2, compound_word_lab:v2, closed_compound_word_lab:v1 | none | LessonReflection | `CANONICAL` | high | No | Retain and route new work through the catalogue. |
 | FixtureActivity | `components/adle/word-lab/activity-registry.tsx` | `COMMON_WORD_LAB_PLACEHOLDER` | /dev/adle/common-word-lab only | none | real per-kind Word Lab plugins | `COMPATIBILITY_ONLY` | low | No | Keep the dark fixture runnable, but do not treat its five registrations as production activity implementations. |
 | WordLabActivityHost | `components/adle/word-lab/activity-registry.tsx` | `RUNTIME_DISPATCH` | /dev/adle/common-word-lab only | none | WordLabActivityHost | `CANONICAL_MODE` | medium | No | Retain and route new work through the catalogue. |
 | CommonWordLabShell | `components/adle/word-lab/common-word-lab-shell.tsx` | `LESSON_SHELL` | /dev/adle/common-word-lab only | none | future first-impression shell | `REQUIRES_ARCHITECTURE_DECISION` | high | No | Do not add new usage before the backlog action is complete. |
@@ -123,12 +124,11 @@ Keep SplitHandle as the canonical interaction engine. Add isolate_base as config
 
 ## Reflection findings
 
-ERROR_REPAIR remains ReflectionActivity and must keep reveal-hide-retry evidence. MEMORY_CUE remains child mnemonic authoring. Create a new canonical LESSON_REFLECTION that receives normalized prior-attempt summaries, renders exactly ‘Look at where you went wrong.’ plus ‘What rule can you give yourself?’ and ‘What one rule did you learn today?’, accepts optional specialist recap blocks, and emits the existing single learningReflection value. Prefix context slips are recap data, not a second assessment. Route persistence adapters remain outside the component.
+ERROR_REPAIR remains ReflectionActivity and keeps reveal-hide-retry evidence. MEMORY_CUE remains child mnemonic authoring. LessonReflection is the canonical end-of-first-impression LESSON_REFLECTION: it receives normalized attempted-versus-correct spelling summaries, a governed lesson-specific prompt, optional specialist/context recap, and one controlled response. Prefix context slips remain recap data rather than target assessment evidence. Route correctness, persistence, assignment and completion adapters remain outside the component; stored historical prompt keys/text remain assignment-owned.
 
 ## Genuine gaps
 
 - canonical Reading Page outside Compound
-- canonical Lesson Reflection
 - authentic Free Writing surface
 - phoneme–grapheme mapping
 - syllable split/rebuild
@@ -953,20 +953,20 @@ ERROR_REPAIR remains ReflectionActivity and must keep reveal-hide-retry evidence
 - Evidence: Repository import and route-dispatch trace at the audited base SHA.
 - Notes: None.
 
-### ReflectionForm
+### MorphologyReflectionAdapter
 
 - File: `components/adle/morphology/morphology-guided-lesson.tsx`
-- Concept / family: `LESSON_REFLECTION` / `lesson_reflection`
+- Concept / family: `LESSON_REFLECTION adapter` / `lesson_reflection adapter`
 - Routes: `dynamic_prefix_word_lab:v2`, `fixed_un_prefix_word_lab:v1`, `dynamic_affix_word_lab:v3`
 - Micro-skills: `D4_MOR_PREFIXES_UN`, `D4_MOR_PREFIXES_DIS_MIS`, `D4_MOR_PREFIXES_IN_IM_IL_IR`, `D4_MOR_PREFIXES_RE_PRE`, `D4_MOR_PREFIXES_SUB_INTER_SUPER`, `D4_MOR_SUFFIXES_ABLE_IBLE`, `D4_MOR_SUFFIXES_AL`, `D4_MOR_SUFFIXES_FUL_LESS`, `D4_MOR_SUFFIXES_ITY`, `D4_MOR_SUFFIXES_LY`, `D4_MOR_SUFFIXES_MENT`, `D4_MOR_SUFFIXES_NESS`, `D4_MOR_SUFFIXES_OUS`, `D4_MOR_SUFFIXES_SION`, `D4_MOR_SUFFIXES_TION`
 - Registry/template keys: None
-- Props/config differences: Prefix mode adds teaching cards and target/context slip analysis; non-prefix mode shows generic miss recap.
+- Props/config differences: Derives normalized target misses, governed Prefix/Suffix prompt, teaching recaps and Prefix context-slip recap.
 - Visual differences: Uses its owning shell styling.
 - Behavioural differences: Local interaction state only.
-- Persistence/evidence differences: Submits learningReflection through completeAdleLessonPartAction and specialist guided/production attempts.
-- Canonical candidate: `future LessonReflection`
-- Classification: `DUPLICATE_TO_MIGRATE`
-- Recommended action: Do not add new usage before the backlog action is complete.
+- Persistence/evidence differences: Retains completeAdleLessonPartAction, completion trace, assignment binding and specialist attempt envelopes outside LessonReflection.
+- Canonical candidate: `LessonReflection`
+- Classification: `CANONICAL_MODE`
+- Recommended action: Retain and route new work through the catalogue.
 - Migration risk: `high`
 - Historical replay dependency: No
 - Evidence: Repository import and route-dispatch trace at the audited base SHA.
@@ -983,7 +983,7 @@ ERROR_REPAIR remains ReflectionActivity and must keep reveal-hide-retry evidence
 - Visual differences: Uses its owning shell styling.
 - Behavioural differences: Local interaction state only.
 - Persistence/evidence differences: Read-only specialist recap content; never writes evidence.
-- Canonical candidate: `INTRODUCTION / future LessonReflection`
+- Canonical candidate: `INTRODUCTION / LessonReflection specialist recap`
 - Classification: `CANONICAL_MODE`
 - Recommended action: Retain and route new work through the catalogue.
 - Migration risk: `medium`
@@ -1124,20 +1124,20 @@ ERROR_REPAIR remains ReflectionActivity and must keep reveal-hide-retry evidence
 - Evidence: Repository import and route-dispatch trace at the audited base SHA.
 - Notes: None.
 
-### Reflection (Base Word)
+### Base Word reflection adapter
 
 - File: `components/adle/morphology/base-word-family-guided-lesson.tsx`
-- Concept / family: `LESSON_REFLECTION` / `lesson_reflection`
+- Concept / family: `LESSON_REFLECTION adapter` / `lesson_reflection adapter`
 - Routes: `base_word_lab:v2`
 - Micro-skills: `D4_MOR_BASE_WORDS_BASE_PLUS_PREFIX`, `D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX`, `D4_MOR_BASE_WORDS_IDENTIFY_BASE`, `D4_MOR_BASE_WORDS_PRESERVE_BASE`
 - Registry/template keys: None
-- Props/config differences: See component props and route adapter.
+- Props/config differences: Extracts the governed target token from each dictated sentence and derives the base-word prompt.
 - Visual differences: Uses its owning shell styling.
 - Behavioural differences: Local interaction state only.
-- Persistence/evidence differences: Returned to BaseWordFamilyPart, then submitted as baseWordReflection.
-- Canonical candidate: `future LessonReflection`
-- Classification: `DUPLICATE_TO_MIGRATE`
-- Recommended action: Do not add new usage before the backlog action is complete.
+- Persistence/evidence differences: Returns controlled attempts, sentence attempts and reflection to BaseWordFamilyPart; atomic completion remains external.
+- Canonical candidate: `LessonReflection`
+- Classification: `CANONICAL_MODE`
+- Recommended action: Retain and route new work through the catalogue.
 - Migration risk: `high`
 - Historical replay dependency: No
 - Evidence: Repository import and route-dispatch trace at the audited base SHA.
@@ -1238,22 +1238,41 @@ ERROR_REPAIR remains ReflectionActivity and must keep reveal-hide-retry evidence
 - Evidence: Repository import and route-dispatch trace at the audited base SHA.
 - Notes: None.
 
-### ClosedCompoundReflection
+### CompoundLessonReflectionAdapter
 
 - File: `components/adle/morphology/closed-compound-guided-lesson.tsx`
-- Concept / family: `LESSON_REFLECTION` / `lesson_reflection`
+- Concept / family: `LESSON_REFLECTION adapter` / `lesson_reflection adapter`
 - Routes: `compound_word_lab:v2`, `closed_compound_word_lab:v1`
 - Micro-skills: `D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS`, `D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED`
 - Registry/template keys: None
-- Props/config differences: See component props and route adapter.
+- Props/config differences: Derives exact-governed-form misses and retains existing sentence comparisons plus closed-v1 no-miss copy.
 - Visual differences: Uses its owning shell styling.
 - Behavioural differences: Local interaction state only.
-- Persistence/evidence differences: Renderer does not write directly; owning session submits completion.
-- Canonical candidate: `future LessonReflection`
-- Classification: `DUPLICATE_TO_MIGRATE`
-- Recommended action: Do not add new usage before the backlog action is complete.
+- Persistence/evidence differences: Retains completeAdleLessonPartAction and all hidden guided/production envelopes outside LessonReflection.
+- Canonical candidate: `LessonReflection`
+- Classification: `CANONICAL_MODE`
+- Recommended action: Retain and route new work through the catalogue.
 - Migration risk: `high`
 - Historical replay dependency: Yes
+- Evidence: Repository import and route-dispatch trace at the audited base SHA.
+- Notes: None.
+
+### LessonReflection
+
+- File: `components/adle/activities/lesson-reflection.tsx`
+- Concept / family: `LESSON_REFLECTION` / `lesson_reflection`
+- Routes: `dynamic_prefix_word_lab:v2`, `fixed_un_prefix_word_lab:v1`, `dynamic_affix_word_lab:v3`, `base_word_lab:v2`, `compound_word_lab:v2`, `closed_compound_word_lab:v1`
+- Micro-skills: `D4_MOR_PREFIXES_UN`, `D4_MOR_PREFIXES_DIS_MIS`, `D4_MOR_PREFIXES_IN_IM_IL_IR`, `D4_MOR_PREFIXES_RE_PRE`, `D4_MOR_PREFIXES_SUB_INTER_SUPER`, `D4_MOR_SUFFIXES_ABLE_IBLE`, `D4_MOR_SUFFIXES_AL`, `D4_MOR_SUFFIXES_FUL_LESS`, `D4_MOR_SUFFIXES_ITY`, `D4_MOR_SUFFIXES_LY`, `D4_MOR_SUFFIXES_MENT`, `D4_MOR_SUFFIXES_NESS`, `D4_MOR_SUFFIXES_OUS`, `D4_MOR_SUFFIXES_SION`, `D4_MOR_SUFFIXES_TION`, `D4_MOR_BASE_WORDS_BASE_PLUS_PREFIX`, `D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX`, `D4_MOR_BASE_WORDS_IDENTIFY_BASE`, `D4_MOR_BASE_WORDS_PRESERVE_BASE`, `D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS`, `D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED`
+- Registry/template keys: None
+- Props/config differences: One neutral normalized mistake, context recap, specialist recap, governed prompt and controlled response contract.
+- Visual differences: Uses its owning shell styling.
+- Behavioural differences: Local interaction state only.
+- Persistence/evidence differences: Emits response/completion UI only; performs no correctness, assignment, persistence or evidence work.
+- Canonical candidate: `LessonReflection`
+- Classification: `CANONICAL`
+- Recommended action: Retain and route new work through the catalogue.
+- Migration risk: `high`
+- Historical replay dependency: No
 - Evidence: Repository import and route-dispatch trace at the audited base SHA.
 - Notes: None.
 

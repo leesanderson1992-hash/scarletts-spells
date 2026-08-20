@@ -193,33 +193,16 @@ assert(!splitHandle.includes("Look for the prefix un-"));
 assert(!splitHandle.includes("un- is the first two letters"));
 assert(splitHandle.includes("revealCorrectBoundaryAfterMisses !== false"));
 assert(renderer.includes("Today we studied:"));
-assert(renderer.includes("Reflection Time"));
-assert(renderer.includes("Did you get anything wrong below? Make yourself one rule for next time!"));
-assert(renderer.includes("Put in your own words how each of the target prefixes change a word."));
-assert(renderer.includes("Mistakes"));
-assert(renderer.includes("Reflection"));
-assert(renderer.includes("You spelled the target word correctly."));
-assert(renderer.includes("prefixContextSlips.slice(0, 3)"));
+assert(renderer.includes("<LessonReflection"));
+assert(renderer.includes("analyseDictationSentence"));
+assert(renderer.includes("contextItems.slice(0, 3)"));
+assert(renderer.includes('data-reflection-context-recap') === false, "the route supplies recap data while the canonical component owns presentation");
 assert(
-  renderer.includes('!prefixPedagogy && props.payload.activities.some((activity) => activity.type === "meaning_sort")'),
+  renderer.includes('!prefixCards?.length') && renderer.includes('position: "after_response" as const'),
   "Prefix Reflection never renders the legacy MeaningCards summary boxes",
 );
-const prefixReflectionStart = renderer.indexOf("Today we studied:");
-const prefixReflectionSource = renderer.slice(prefixReflectionStart, prefixReflectionStart + 9_000);
-const reflectionOrder = [
-  "Today we studied:",
-  "Reflection Time",
-  "Did you get anything wrong below? Make yourself one rule for next time!",
-  "Put in your own words how each of the target prefixes change a word.",
-  "Mistakes",
-  "Reflection\n              <textarea",
-].map((copy) => prefixReflectionSource.indexOf(copy));
-assert(reflectionOrder.every((index) => index >= 0));
-assert.deepEqual(
-  reflectionOrder,
-  [...reflectionOrder].sort((left, right) => left - right),
-  "Prefix Reflection renders the reviewed sections in child-facing order",
-);
+assert(renderer.includes("targetAttemptedToken") && renderer.includes("correctSpelling: sentence.targetWord"));
+assert(renderer.includes("These are useful sentence checks. They do not add target-word mistakes"));
 assert(completionAction.includes("evidenceEligible: true"));
 assert(completionAction.includes("scheduleEligible: authentic"));
 assert(completionAction.includes("learningItemTransitionEligible: authentic"));

@@ -70,6 +70,7 @@ if (previousProductionGate === undefined) delete process.env.ADLE_CLOSED_COMPOUN
 else process.env.ADLE_CLOSED_COMPOUND_PRODUCTION_ENABLED = previousProductionGate;
 const jigsawSource = readFileSync("components/adle/morphology/compound-jigsaw-activity.tsx", "utf8");
 const lessonSource = readFileSync("components/adle/morphology/closed-compound-guided-lesson.tsx", "utf8");
+const lessonReflectionSource = readFileSync("components/adle/activities/lesson-reflection.tsx", "utf8");
 const compatibilitySource = readFileSync("lib/adle/morphology/closed-compound-jigsaw-compatibility.ts", "utf8");
 const meaningSource = readFileSync("components/adle/morphology/meaning-connection-activity.tsx", "utf8");
 const loaderSource = readFileSync("lib/adle/morphology/closed-compound-profile-loader.ts", "utf8");
@@ -80,7 +81,9 @@ assert(!jigsawSource.includes("closed_v1") && compatibilitySource.includes("comp
 assert(meaningSource.includes("Your arrow follows your cursor") && meaningSource.includes("markerEnd=\"url(#compound-arrow)\"") && meaningSource.includes("onPointerMove={pointer}"), "smoke gate: the meaning board must show a live cursor-following arrow and a snapped arrow head");
 assert(lessonSource.includes("Write the whole sentence") && lessonSource.includes("Check sentence") && lessonSource.includes("autoFocus") && lessonSource.includes("mode=\"sentence\""), "smoke gate: sentence dictation must provide a visible editable input and existing check/reveal flow");
 assert(!lessonSource.includes("<><DiffReveal attempt={attempts[word.canonicalWordId]}"), "smoke gate: CoverShutter owns the one and only word comparison reveal");
-assert(lessonSource.includes("Think about your compound words") && lessonSource.includes("The word is") && lessonSource.includes("bg-white p-4 text-lg font-semibold text-slate-950"), "smoke gate: reflection shows missed independent work and provides a high-contrast writing area");
+assert(lessonSource.includes("<LessonReflection") && lessonSource.includes("EXACT_GOVERNED_FORM_ANSWER_POLICY") && lessonSource.includes("sentenceComparison"), "smoke gate: Compound normalizes exact-governed misses and existing sentence comparisons into LessonReflection");
+assert(lessonReflectionSource.includes("You wrote") && lessonReflectionSource.includes("Correct spelling") && lessonReflectionSource.includes("border-4 border-cyan-300 bg-white"), "smoke gate: canonical reflection preserves the selected comparison-card hierarchy and high-contrast response area");
+assert(!lessonSource.includes("ClosedCompoundReflectionContent") && !lessonSource.includes("ClosedCompoundReflectionPreview"), "Compound-specific Reflection presentation is removed after canonical migration");
 assert(loaderSource.includes('canonical_teaching_dictionary_dictation_sentences")') && loaderSource.includes('.eq("row_status", "active").eq("review_status", "approved_for_first_exposure")'), "the loader must exclude superseded dictation rows before keying by canonical word");
 assert(lessonSource.includes('item.sectionKey === "lesson_intro"') && lessonSource.includes("incorrectAttempts"), "all ten guided/read-only snapshot items emit non-mastery activity evidence");
 assert(!reflectionSource.includes('.in("prompt_key"'), "completed routes show the assignment-owned reflection for every reviewed Word Lab profile");

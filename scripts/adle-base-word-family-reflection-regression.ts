@@ -6,8 +6,9 @@ const lesson = readFileSync("components/adle/morphology/base-word-family-guided-
 const action = readFileSync("app/learn/week/adle/actions.ts", "utf8");
 
 assert(lesson.includes("extractAuthoredTargetToken") && lesson.includes("isAttemptCorrect"), "reflection outcomes use the authoritative target-token and correctness helpers");
-assert(lesson.includes("Words you spelled securely") && lesson.includes("Words to look at again"), "reflection distinguishes secure words from words needing attention");
-assert(!lesson.includes("attemptText}"), "reflection never renders raw attempt text");
+assert(lesson.includes("baseWordLessonReflectionMistakes") && lesson.includes("<LessonReflection"), "Base Word normalizes target-token misses into the canonical LessonReflection");
+assert(lesson.includes("correctSpelling: word.displayWord") && lesson.includes("attempt,"), "Base Word exposes attempted-versus-correct spelling without changing correctness");
+assert(!lesson.includes("function Reflection("), "the route-local Base Word Reflection presentation is removed");
 assert(action.includes("extractAuthoredTargetToken(rawSentence, word.dictationTargetTokenIndex)"), "completion and reflection share authored target-token semantics");
 
 console.log("adle-base-word-family-reflection-regression: ok");

@@ -164,7 +164,7 @@ ${ADLE_ACTIVITY_AUDIT_CONCLUSIONS.genuineGaps.map((gap) => `- ${gap}`).join("\n"
 
 ## Full row evidence
 
-${ADLE_ACTIVITY_IMPLEMENTATION_AUDIT.map(auditDetails).join("\n")}
+${ADLE_ACTIVITY_IMPLEMENTATION_AUDIT.map(auditDetails).join("\n").trimEnd()}
 `;
 }
 
