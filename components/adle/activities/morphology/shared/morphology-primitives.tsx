@@ -13,9 +13,7 @@ import type {
   MorphologyPartKind,
   MorphologyRevealMode,
   RootArtifactCardViewModel,
-  TransformationViewModel,
   WordFamilyViewModel,
-  WordSplitViewModel,
 } from "@/lib/adle/ui/morphology-primitives";
 
 const KIND_STYLE: Record<MorphologyPartKind, string> = {
@@ -186,41 +184,6 @@ export function MorphemeRail(props: {
   );
 }
 
-export function WordSplitView(props: {
-  split: WordSplitViewModel;
-  revealed?: boolean;
-  onToggleReveal?: () => void;
-}) {
-  const revealed = props.revealed ?? true;
-  return (
-    <div className="rounded-2xl border border-[var(--border)] bg-white p-4">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <p className="break-words text-3xl font-black tracking-normal text-[color:var(--text)]">{props.split.displayWord}</p>
-        {props.onToggleReveal ? (
-          <button type="button" className="brand-secondary-btn" onClick={props.onToggleReveal}>
-            {revealed ? "Hide split" : "Show split"}
-          </button>
-        ) : null}
-      </div>
-      {revealed ? (
-        <div className="mt-4 flex flex-wrap items-center gap-2">
-          {props.split.parts.map((part, index) => {
-            const join = props.split.joins.find((candidate) => candidate.afterPartId === part.id);
-            return (
-              <span key={part.id} className="inline-flex items-center gap-2">
-                <span className="rounded-xl border border-[var(--border)] px-3 py-2 text-sm font-semibold">
-                  {part.surfaceText}
-                </span>
-                {index < props.split.parts.length - 1 ? <JoinMarker join={join} /> : null}
-              </span>
-            );
-          })}
-        </div>
-      ) : null}
-    </div>
-  );
-}
-
 export function MeaningFlip(props: { flip: MeaningFlipViewModel; reduceMotion?: boolean }) {
   return (
     <div className="grid gap-3 rounded-2xl border border-[var(--border)] bg-white p-4 sm:grid-cols-[1fr_auto_1fr] sm:items-center">
@@ -234,31 +197,6 @@ export function MeaningFlip(props: { flip: MeaningFlipViewModel; reduceMotion?: 
         to
       </span>
       <MeaningSide label="After" text={props.flip.afterText} caption={props.flip.afterCaption} />
-    </div>
-  );
-}
-
-export function TransformationView(props: { transformations: TransformationViewModel[] }) {
-  if (props.transformations.length === 0) {
-    return (
-      <div className="rounded-2xl border border-[var(--border)] bg-white p-4 text-sm text-[color:var(--mid)]">
-        No spelling transformation in this approved analysis.
-      </div>
-    );
-  }
-  return (
-    <div className="grid gap-3">
-      {props.transformations.map((transformation) => (
-        <div key={transformation.id} className="rounded-2xl border border-[var(--border)] bg-white p-4">
-          <p className="text-xs font-bold uppercase text-[color:var(--mid)]">{transformation.type.replaceAll("_", " ")}</p>
-          <div className="mt-2 flex flex-wrap items-center gap-2 text-lg font-black">
-            <span className="rounded-xl bg-amber-50 px-3 py-2 text-amber-950">{transformation.sourceText}</span>
-            <span className="text-sm font-semibold text-[color:var(--mid)]">becomes</span>
-            <span className="rounded-xl bg-emerald-50 px-3 py-2 text-emerald-950">{transformation.surfaceText}</span>
-          </div>
-          <p className="mt-2 text-sm text-[color:var(--mid)]">{transformation.explanation}</p>
-        </div>
-      ))}
     </div>
   );
 }

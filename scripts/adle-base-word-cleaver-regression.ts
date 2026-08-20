@@ -1,15 +1,16 @@
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 
-const source = readFileSync("components/adle/activities/shared/base-word-cleaver.tsx", "utf8");
+const split = readFileSync("components/adle/activities/shared/split-handle.tsx", "utf8");
+const adapter = readFileSync("components/adle/morphology/base-word-family-guided-lesson.tsx", "utf8");
 
 function assert(condition: boolean, message: string): void {
   if (!condition) throw new Error(message);
 }
 
-assert(source.includes('Chop off the parts that are not the base word.'), "cleaver prompt must not disclose the base word");
-assert(source.includes("const letters = Array.from(props.word);"), "cleaver must begin with individual letter boxes");
-assert(source.includes("What word remains?"), "cleaver must ask for the remaining word before confirming the base");
-assert(!source.includes("Chop the word until only <span"), "cleaver must not name the base in its heading before a chop");
-assert(!source.includes("props.segments.map((segment, index) =>"), "cleaver must not render reviewed morphology groups before a chop");
+assert(!existsSync("components/adle/activities/shared/base-word-cleaver.tsx"), "the independent BaseWordCleaver must be retired");
+assert(split.includes("selectedBoundaries") && split.includes("isolatedComponentIndex"), "canonical Split must support controlled Base Word restoration and governed isolation");
+assert(adapter.includes("requiredBoundaries") && adapter.includes("<SplitHandle"), "Base Word must derive adjacent governed cuts for the canonical Split engine");
+assert(!adapter.includes("What word remains?") && !adapter.includes("remainingWord"), "the redundant typed base confirmation must stay retired");
+assert(split.includes('event.key !== "Enter"') && split.includes('event.key !== " "'), "canonical Split must support keyboard activation for every route");
 
-console.log("adle-base-word-cleaver-regression: ok");
+console.log("adle-base-word-cleaver-regression: canonical Split adapter ok");

@@ -65,7 +65,8 @@ for (const row of ADLE_ACTIVITY_IMPLEMENTATION_AUDIT) {
 const counts = activityAuditCounts();
 assert.equal(
   counts.CANONICAL + counts.CANONICAL_MODE + counts.COMPATIBILITY_ONLY +
-  counts.DUPLICATE_TO_MIGRATE + counts.DEAD_OR_UNREFERENCED + counts.REQUIRES_ARCHITECTURE_DECISION,
+  counts.THIN_ADAPTER + counts.DEVELOPMENT_REFERENCE + counts.DUPLICATE_TO_MIGRATE +
+  counts.DEAD_OR_UNREFERENCED + counts.REQUIRES_ARCHITECTURE_DECISION,
   counts.totalImplementations,
   "every implementation must have exactly one classification",
 );
@@ -79,7 +80,7 @@ for (const forbidden of [
   assert(!gallery.includes(forbidden), `gallery must not include learner-state capability: ${forbidden}`);
 }
 for (const expected of [
-  "SplitHandle", "BaseWordCleaver", "DefinitionWordBuilder", "BinSort", "CoverShutter",
+  "SplitHandle", "DefinitionWordBuilder", "BinSort", "CoverShutter",
   "ColdWordRecall", "SentenceDictation", "ReflectionActivity", "CompoundJigsawActivity", "MeaningConnectionActivity",
 ]) {
   assert(gallery.includes(expected), `gallery must render ${expected}`);

@@ -12,9 +12,7 @@ import {
   MorphemeSequence,
   MorphologyDiff,
   RootArtifactCard,
-  TransformationView,
   WordFamilyView,
-  WordSplitView,
   useReducedMotionPreference,
 } from "@/components/adle/activities/morphology/shared/morphology-primitives";
 import type {
@@ -24,11 +22,10 @@ import type {
   MorphologyDiffViewModel,
   RootArtifactCardViewModel,
   WordFamilyViewModel,
-  WordSplitViewModel,
 } from "@/lib/adle/ui/morphology-primitives";
 import type { MorphologyLessonPayloadV1 } from "@/lib/adle/morphology/payload";
 import type { AdleSessionItem } from "@/lib/adle/loaders/daily-plan-surface";
-import { CoverShutter, TransformationAnimation } from "@/components/adle/activities/shared";
+import { CoverShutter } from "@/components/adle/activities/shared";
 import { clearMorphologyResume, morphologyResumeKey } from "@/lib/adle/morphology/resume";
 
 const DEV_GUIDED_ASSIGNMENT_ID = "dev-morphology-guided";
@@ -50,7 +47,6 @@ const MorphologyGuidedLesson = dynamic(
 export function MorphologyPrimitivesPreview(props: {
   pilotSequence: MorphemeSequenceViewModel;
   sequences: MorphemeSequenceViewModel[];
-  splits: WordSplitViewModel[];
   meaningFlip: MeaningFlipViewModel;
   glossCards: MorphemeGlossCardViewModel[];
   rootArtifact: RootArtifactCardViewModel;
@@ -58,14 +54,12 @@ export function MorphologyPrimitivesPreview(props: {
   diff: MorphologyDiffViewModel;
   guidedPayload: MorphologyLessonPayloadV1;
 }) {
-  const [splitRevealed, setSplitRevealed] = useState(true);
   const [guided, setGuided] = useState(true);
   const [guidedRun, setGuidedRun] = useState(0);
   const [guidedComplete, setGuidedComplete] = useState(false);
   const [previewReflection, setPreviewReflection] = useState("");
   const [coverCompleteCount, setCoverCompleteCount] = useState(0);
   const reducedMotion = useReducedMotionPreference();
-  const famous = props.sequences.find((sequence) => sequence.displayWord === "famous");
   const longWord = props.sequences.find((sequence) => sequence.displayWord === "unnecessary");
 
   const guidedItems: AdleSessionItem[] = props.guidedPayload.activities.flatMap((activity) => activity.assignmentBindings).map((binding, index) => ({ id: `dev-item-${index}`, sourceEntityId: `dev-item-${index}`, sectionKey: binding.startsWith("controlled-") ? "lesson_production" : binding.startsWith("dictation-") ? "lesson_dictation" : binding === "intro-root" ? "lesson_intro" : "guided_practice", templateKey: binding.startsWith("controlled-") ? "CONTROLLED_SPELLING" : binding.startsWith("dictation-") ? "DICTATION_NO_IMAGE" : "MOR_STRIP_BUILD", position: index + 1, status: "ready", targetWord: null, canonicalWordId: null, microSkillKey: "D4_MOR_PREFIXES_UN", adleLearningItemRef: null, promptData: { pilotActivityId: binding } }));
@@ -130,24 +124,6 @@ export function MorphologyPrimitivesPreview(props: {
                 </div>
               ))}
           </div>
-        </PreviewPanel>
-
-        {famous ? (
-          <PreviewPanel title="Source-to-surface transformation" caption={famous.sourceExpression}>
-            <MorphemeSequence sequence={famous} mode="teaching" />
-            <div className="mt-3">
-              <TransformationView transformations={famous.transformations} />
-              <div className="mt-3"><TransformationAnimation source="fame" removed="e" remaining="fam" suffix="ous" result="famous" description="The final e leaves before ous joins." /></div>
-            </div>
-          </PreviewPanel>
-        ) : null}
-
-        <PreviewPanel title="Word split view" caption="The reveal affordance belongs to the preview, not to a production template.">
-          <WordSplitView
-            split={props.splits[0]}
-            revealed={splitRevealed}
-            onToggleReveal={() => setSplitRevealed((current) => !current)}
-          />
         </PreviewPanel>
 
         <PreviewPanel title="Glosses, root artifact, and family cards" caption="Root origin and experience profile stay separate from runtime evidence.">

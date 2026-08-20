@@ -9,6 +9,8 @@
 export type ActivityArchitecturalStatus =
   | "CANONICAL"
   | "CANONICAL_MODE"
+  | "THIN_ADAPTER"
+  | "DEVELOPMENT_REFERENCE"
   | "COMPATIBILITY_ONLY"
   | "DUPLICATE_TO_MIGRATE"
   | "DEAD_OR_UNREFERENCED"
@@ -182,14 +184,15 @@ export const ADLE_ACTIVITY_CATALOGUE: readonly ActivityCatalogueEntry[] = [
     activityKey: "CLEAVER", displayName: "Cleaver", interactionFamily: "boundary_split",
     pedagogicalPurpose: "Find one or more meaningful boundaries inside a written word.",
     canonicalComponent: "SplitHandle", canonicalComponentPath: "components/adle/activities/shared/split-handle.tsx",
-    supportedModes: ["find_boundaries", "identify_components"], modeDescriptions: {
+    supportedModes: ["find_boundaries", "identify_components", "isolate_component"], modeDescriptions: {
       find_boundaries: "Strike all governed split points, with optional two-miss scaffold.",
       identify_components: "After success, display supplied component strings and tailored explanation.",
-    }, requiredInputs: ["word", "splitPoints"], optionalInputs: ["components", "feedback copy", "scaffold policy"],
+      isolate_component: "Strike only the governed adjacent boundaries, restore selected cuts, and highlight the isolated component.",
+    }, requiredInputs: ["word", "splitPoints"], optionalInputs: ["components", "selected boundaries", "isolated component index", "feedback copy", "scaffold policy"],
     supportsPointer: true, supportsAudio: true, usedByRoutes: [...PREFIX_ROUTES, AFFIX_ROUTE, BASE_ROUTE], usedByMicroSkills: [...PREFIX_SKILLS, ...AFFIX_SKILLS, ...BASE_SKILLS],
     templateKeys: ["MOR_STRIP_BUILD"], status: "CANONICAL", whenToUse: "To locate meaningful morpheme or word-part boundaries.",
-    whenNotToUse: "To reorder parts into a word; use WORD_ASSEMBLY.", duplicateImplementations: ["BaseWordCleaver"],
-    notes: "Target convergence adds isolate_base and final_y_restoration modes to SplitHandle; those are not current SplitHandle capabilities.",
+    whenNotToUse: "To reorder parts into a word; use WORD_ASSEMBLY.",
+    notes: "Group 4 converged Prefix, Affix and Base Word on one stateful SplitHandle. Spelling transformations are composed after Split completes.",
   }),
   activity({
     activityKey: "WORD_ASSEMBLY", displayName: "Word assembly", interactionFamily: "tile_assembly",
@@ -337,13 +340,13 @@ export const ADLE_ACTIVITY_CATALOGUE: readonly ActivityCatalogueEntry[] = [
   }),
   activity({
     activityKey: "TRANSFORMATION", displayName: "Spelling transformation", interactionFamily: "transformation",
-    pedagogicalPurpose: "Show or manipulate a governed spelling change while a word is built.",
-    canonicalComponent: null, canonicalComponentPath: null,
-    supportedModes: ["drop_e", "double_consonant", "y_to_i", "surface_to_source"], modeDescriptions: { drop_e: "Remove final e before a suffix.", double_consonant: "Double a final consonant.", y_to_i: "Change y to i.", surface_to_source: "Restore the semantic base after splitting." },
-    requiredInputs: ["source", "surface", "transformation rule"], optionalInputs: ["animation description"], supportsPointer: true,
-    usedByRoutes: [BASE_ROUTE, AFFIX_ROUTE], usedByMicroSkills: [...BASE_SKILLS, ...AFFIX_SKILLS], status: "REQUIRES_ARCHITECTURE_DECISION",
+    pedagogicalPurpose: "Show a governed source form after the child has identified the visible word-part boundary.",
+    canonicalComponent: "SpellingTransformationReveal", canonicalComponentPath: "components/adle/activities/shared/spelling-transformation-reveal.tsx",
+    supportedModes: ["surface_to_source"], modeDescriptions: { surface_to_source: "Reveal a governed source form after Split completes; the live Base Word case restores final y from visible i." },
+    requiredInputs: ["source text", "surface text", "explanation"], optionalInputs: ["action copy", "continuation copy"], supportsPointer: true, supportsAudio: true,
+    usedByRoutes: [BASE_ROUTE], usedByMicroSkills: [...BASE_SKILLS], status: "CANONICAL_MODE",
     whenToUse: "When the spelling change itself must be noticed or rehearsed.", whenNotToUse: "For a simple unchanged join.",
-    notes: "TransformationAnimation and TransformationView exist only in development previews; final-y restoration is embedded in BaseWordCleaver.",
+    notes: "This is a presentation-only post-Split mode. Drop-e, consonant doubling and other transformation interactions remain deferred.",
   }),
   activity({
     activityKey: "PHONEME_GRAPHEME_MAP", displayName: "Phoneme–grapheme mapping", interactionFamily: "sound_symbol_mapping",
@@ -394,13 +397,20 @@ function auditRow(
     ...(routes.some((route) => COMPOUND_ROUTES.includes(route as typeof COMPOUND_ROUTES[number])) ? COMPOUND_SKILLS : []),
     ...(routes.some((route) => route.startsWith("/dev/") || route.includes("development") || route.includes("non-production")) ? ["none (development/staging reference only)"] : []),
   ];
+  const recommendedAction = classification === "CANONICAL" || classification === "CANONICAL_MODE"
+    ? "Retain and route new work through the catalogue."
+    : classification === "THIN_ADAPTER"
+      ? "Retain as state-free curriculum translation into the canonical component."
+      : classification === "DEVELOPMENT_REFERENCE"
+        ? "Retain for governed development inspection only; do not route learner interaction through it."
+        : "Do not add new usage before the backlog action is complete.";
   return {
     implementationName, filePath, activityConcept, classification, canonicalCandidate,
     interactionFamily: activityConcept.toLocaleLowerCase("en-GB"), currentRouteUsages: routes,
     currentMicroSkillUsages: [...new Set(inferredSkills)], registryTemplateKeys: [], propsConfigDifferences: "See component props and route adapter.",
     visualDifferences: "Uses its owning shell styling.", behaviouralDifferences: "Local interaction state only.",
     persistenceEvidenceDifferences: "Renderer does not write directly; owning session submits completion.",
-    recommendedAction: classification === "CANONICAL" || classification === "CANONICAL_MODE" ? "Retain and route new work through the catalogue." : "Do not add new usage before the backlog action is complete.",
+    recommendedAction,
     migrationRisk: "medium", historicalReplayDependency: false,
     evidence: "Repository import and route-dispatch trace at the audited base SHA.", notes: "", ...input,
   };
@@ -416,8 +426,8 @@ export const ADLE_ACTIVITY_IMPLEMENTATION_AUDIT: readonly ActivityImplementation
   auditRow("QuickSortActivity", "components/adle/activities/quick-sort-activity.tsx", "REVIEW_SORT", "CANONICAL", "QuickSortActivity", { currentRouteUsages: GENERIC, registryTemplateKeys: ["REVIEW_QUICK_SORT"], migrationRisk: "low" }),
   auditRow("ReflectionActivity", "components/adle/activities/reflection-activity.tsx", "ERROR_REPAIR", "CANONICAL", "ReflectionActivity", { currentRouteUsages: GENERIC, registryTemplateKeys: ["ERROR_REFLECTION_CUE"], behaviouralDifferences: "Enforces reveal then Hide Word before retry.", migrationRisk: "high" }),
 
-  auditRow("SplitHandle", "components/adle/activities/shared/split-handle.tsx", "CLEAVER", "CANONICAL", "SplitHandle", { currentRouteUsages: PREFIX_AFFIX, registryTemplateKeys: ["MOR_STRIP_BUILD"], propsConfigDifferences: "Multiple split points, supplied components, feedback/scaffold/copy policy.", behaviouralDifferences: "Tracks multiple boundaries and exposes one completion callback.", migrationRisk: "high" }),
-  auditRow("BaseWordCleaver", "components/adle/activities/shared/base-word-cleaver.tsx", "CLEAVER", "DUPLICATE_TO_MIGRATE", "SplitHandle", { currentRouteUsages: [BASE_ROUTE], propsConfigDifferences: "Segments, baseIndex, selected cuts, final-y restoration, typed remaining-base confirmation.", visualDifferences: "Near-identical cleaver SVG at 64px instead of SplitHandle's 80px; custom base-highlight and aside animation.", behaviouralDifferences: "Only accepts cuts adjacent to the base, then asks the child to type the remaining base and can restore final y.", migrationRisk: "high", recommendedAction: "Add isolate_base and optional final_y_restoration modes to SplitHandle, prove parity, then migrate Base Word.", evidence: "Both files duplicate STRIKE_MS, CleaverIcon SVG, boundary buttons, sound, focus and two-miss scaffolding." }),
+  auditRow("SplitHandle", "components/adle/activities/shared/split-handle.tsx", "CLEAVER", "CANONICAL", "SplitHandle", { currentRouteUsages: [...PREFIX_AFFIX, BASE_ROUTE], registryTemplateKeys: ["MOR_STRIP_BUILD"], propsConfigDifferences: "Multiple governed split points, controlled/restored selected boundaries, isolated component index, feedback/scaffold/copy policy.", behaviouralDifferences: "Owns all boundary selection, checking, focus, sound, motion and completion mechanics.", migrationRisk: "high" }),
+  auditRow("SpellingTransformationReveal", "components/adle/activities/shared/spelling-transformation-reveal.tsx", "TRANSFORMATION.surface_to_source", "CANONICAL_MODE", "SpellingTransformationReveal", { currentRouteUsages: [BASE_ROUTE], propsConfigDifferences: "Receives governed source/surface text and explanation after Split completion.", behaviouralDifferences: "Presentation-only reveal state cannot alter selected boundaries or evidence.", migrationRisk: "medium" }),
   auditRow("DraggableTile", "components/adle/activities/shared/draggable-tile.tsx", "TILE_PRIMITIVE", "CANONICAL", "DraggableTile", { currentRouteUsages: PREFIX_AFFIX, migrationRisk: "low" }),
   auditRow("OrderedBuildEngine", "components/adle/activities/shared/ordered-build-engine.ts", "BUILD_MECHANICS", "CANONICAL", "OrderedBuildEngine", { currentRouteUsages: [...PREFIX_AFFIX, BASE_ROUTE, ...COMPOUND_ROUTES], behaviouralDifferences: "Headless placement, reordering, validation and restoration state shared by rail and Jigsaw presentations.", migrationRisk: "high" }),
   auditRow("SnapRail", "components/adle/activities/shared/snap-rail.tsx", "WORD_ASSEMBLY", "CANONICAL_MODE", "DefinitionWordBuilder", { currentRouteUsages: [...PREFIX_AFFIX, BASE_ROUTE], registryTemplateKeys: ["MOR_BUILD_WORD"], behaviouralDifferences: "One-row tile and pointer presentation over OrderedBuildEngine.", migrationRisk: "high" }),
@@ -429,14 +439,10 @@ export const ADLE_ACTIVITY_IMPLEMENTATION_AUDIT: readonly ActivityImplementation
   auditRow("ColdWordRecall", "components/adle/activities/shared/cold-word-recall.tsx", "REVIEW_DICTATION / DIAGNOSTIC_DICTATION_PROBE", "CANONICAL", "ColdWordRecall", { currentRouteUsages: GENERIC, registryTemplateKeys: ["REVIEW_DICTATION", "DIAGNOSTIC_DICTATION_PROBE"], propsConfigDifferences: "scheduled_review and diagnostic_probe modes change copy only; route adapters retain evidence policy.", behaviouralDifferences: "Correct spelling is absent until the controlled response is locked; locked input is read-only and has no back/edit path.", persistenceEvidenceDifferences: "Existing review scheduler and diagnostic intake consume the unchanged owning attempt maps.", migrationRisk: "high" }),
   auditRow("HearWordButton", "components/adle/activities/shared/authored-audio.tsx", "AUDIO_SUPPORT", "CANONICAL_MODE", "CoverShutter / SentenceDictation / ColdWordRecall", { currentRouteUsages: [GENERIC_ROUTE, ...SPECIALIST], migrationRisk: "low" }),
   auditRow("DiffReveal", "components/adle/activities/shared/diff-reveal.tsx", "POST_ATTEMPT_COMPARISON", "CANONICAL_MODE", "COVER_CHECK / DICTATION", { currentRouteUsages: SPECIALIST, propsConfigDifferences: "Word and sentence modes; optional split points.", migrationRisk: "high" }),
-  auditRow("TransformationAnimation", "components/adle/activities/shared/transformation-animation.tsx", "TRANSFORMATION", "DEAD_OR_UNREFERENCED", null, { currentRouteUsages: ["/dev/adle/morphology-primitives only"], evidence: "No learner route imports it.", migrationRisk: "low" }),
-
   auditRow("MorphemeTile", "components/adle/activities/morphology/shared/morphology-primitives.tsx", "WORD_PART_TILE", "DEAD_OR_UNREFERENCED", "DraggableTile", { currentRouteUsages: ["/dev/adle/morphology-primitives only"], evidence: "Used only by development preview compositions." }),
-  auditRow("MorphemeSequence", "components/adle/activities/morphology/shared/morphology-primitives.tsx", "WORD_PART_DISPLAY", "DEAD_OR_UNREFERENCED", null, { currentRouteUsages: ["/dev/adle/morphology-primitives only"] }),
+  auditRow("MorphemeSequence", "components/adle/activities/morphology/shared/morphology-primitives.tsx", "WORD_PART_DISPLAY", "DEVELOPMENT_REFERENCE", null, { currentRouteUsages: ["/dev/adle/morphology-primitives only"], recommendedAction: "Retain only as a read-only governed morphology-data inspection surface; do not route learner interaction through it." }),
   auditRow("MorphemeRail", "components/adle/activities/morphology/shared/morphology-primitives.tsx", "WORD_ASSEMBLY", "DUPLICATE_TO_MIGRATE", "SnapRail", { currentRouteUsages: ["/dev/adle/morphology-primitives only"], behaviouralDifferences: "Tap-only placement without correctness or completion contract.", migrationRisk: "low" }),
-  auditRow("WordSplitView", "components/adle/activities/morphology/shared/morphology-primitives.tsx", "WORD_PART_DISPLAY", "DEAD_OR_UNREFERENCED", null, { currentRouteUsages: ["/dev/adle/morphology-primitives only"] }),
   auditRow("MeaningFlip", "components/adle/activities/morphology/shared/morphology-primitives.tsx", "MEANING_DISCOVERY", "DUPLICATE_TO_MIGRATE", "Discovery", { currentRouteUsages: ["/dev/adle/morphology-primitives only"], migrationRisk: "low" }),
-  auditRow("TransformationView", "components/adle/activities/morphology/shared/morphology-primitives.tsx", "TRANSFORMATION", "DEAD_OR_UNREFERENCED", null, { currentRouteUsages: ["/dev/adle/morphology-primitives only"] }),
   auditRow("MorphologyDiff", "components/adle/activities/morphology/shared/morphology-primitives.tsx", "POST_ATTEMPT_COMPARISON", "DUPLICATE_TO_MIGRATE", "DiffReveal", { currentRouteUsages: ["/dev/adle/morphology-primitives only"], migrationRisk: "low" }),
   auditRow("MorphemeGlossCard", "components/adle/activities/morphology/shared/morphology-primitives.tsx", "MORPHOLOGY_REFERENCE", "DEAD_OR_UNREFERENCED", null, { currentRouteUsages: ["/dev/adle/morphology-primitives only"] }),
   auditRow("RootArtifactCard", "components/adle/activities/morphology/shared/morphology-primitives.tsx", "MORPHOLOGY_REFERENCE", "DEAD_OR_UNREFERENCED", null, { currentRouteUsages: ["/dev/adle/morphology-primitives only"] }),
@@ -453,7 +459,7 @@ export const ADLE_ACTIVITY_IMPLEMENTATION_AUDIT: readonly ActivityImplementation
 
   auditRow("LearnIntroduction", "components/adle/morphology/morphology-guided-lesson.tsx", "INTRODUCTION", "DUPLICATE_TO_MIGRATE", "IntroActivity / future reading shell", { currentRouteUsages: PREFIX_AFFIX, visualDifferences: "Dark Word Lab multi-screen model/cards layout.", migrationRisk: "high" }),
   auditRow("Discovery", "components/adle/morphology/morphology-guided-lesson.tsx", "MEANING_DISCOVERY", "CANONICAL", "Discovery", { currentRouteUsages: PREFIX_AFFIX, migrationRisk: "high" }),
-  auditRow("SplitBuild", "components/adle/morphology/morphology-guided-lesson.tsx", "CLEAVER", "CANONICAL_MODE", "SplitHandle", { currentRouteUsages: PREFIX_AFFIX, propsConfigDifferences: "Adapts prefix/suffix semantics and feedback policy into SplitHandle.", migrationRisk: "high" }),
+  auditRow("SplitBuild", "components/adle/morphology/morphology-guided-lesson.tsx", "CLEAVER", "THIN_ADAPTER", "SplitHandle", { currentRouteUsages: PREFIX_AFFIX, propsConfigDifferences: "Translates prefix/suffix semantics and feedback policy into SplitHandle without owning learner state.", migrationRisk: "high" }),
   auditRow("MeaningCards", "components/adle/morphology/morphology-guided-lesson.tsx", "MEANING_SORT_RECAP", "CANONICAL_MODE", "BinSort", { currentRouteUsages: PREFIX_AFFIX, migrationRisk: "medium" }),
   auditRow("MeaningOverview", "components/adle/morphology/morphology-guided-lesson.tsx", "MEANING_SORT_RECAP", "CANONICAL_MODE", "BinSort", { currentRouteUsages: PREFIX_AFFIX, migrationRisk: "medium" }),
   auditRow("Morphology Cover Check adapter", "components/adle/morphology/morphology-guided-lesson.tsx", "COVER_CHECK adapter", "CANONICAL_MODE", "CoverShutter", { currentRouteUsages: PREFIX_AFFIX, propsConfigDifferences: "Supplies governed word parts, ratio close policy, restored attempt/check state and route callbacks without learner UI.", migrationRisk: "high", historicalReplayDependency: true }),
@@ -464,7 +470,7 @@ export const ADLE_ACTIVITY_IMPLEMENTATION_AUDIT: readonly ActivityImplementation
 
   auditRow("Intro (Base Word)", "components/adle/morphology/base-word-family-guided-lesson.tsx", "INTRODUCTION", "DUPLICATE_TO_MIGRATE", "IntroActivity / future reading shell", { currentRouteUsages: [BASE_ROUTE], migrationRisk: "high" }),
   auditRow("FamilyReveal", "components/adle/morphology/base-word-family-guided-lesson.tsx", "WORD_FAMILY_REVEAL", "CANONICAL", "FamilyReveal", { currentRouteUsages: [BASE_ROUTE], registryTemplateKeys: ["MOR_BASE_FAMILY_REVEAL (route-specific binding)"], migrationRisk: "high" }),
-  auditRow("Cleave (Base Word adapter)", "components/adle/morphology/base-word-family-guided-lesson.tsx", "CLEAVER", "CANONICAL_MODE", "future SplitHandle isolate_base mode", { currentRouteUsages: [BASE_ROUTE], migrationRisk: "high" }),
+  auditRow("Cleave (Base Word adapter)", "components/adle/morphology/base-word-family-guided-lesson.tsx", "CLEAVER / TRANSFORMATION.surface_to_source", "THIN_ADAPTER", "SplitHandle", { currentRouteUsages: [BASE_ROUTE], propsConfigDifferences: "Derives adjacent governed boundaries, controlled cuts, isolated component and optional post-Split source-form reveal without owning boundary state.", migrationRisk: "high" }),
   auditRow("Base Word Cover Check adapter", "components/adle/morphology/base-word-family-guided-lesson.tsx", "COVER_CHECK adapter", "CANONICAL_MODE", "CoverShutter", { currentRouteUsages: [BASE_ROUTE], propsConfigDifferences: "Supplies the independent word and restored attempt/check state without learner UI.", migrationRisk: "high" }),
   auditRow("Base Word Sentence Dictation adapter", "components/adle/morphology/base-word-family-guided-lesson.tsx", "DICTATION.whole_sentence adapter", "CANONICAL_MODE", "SentenceDictation", { currentRouteUsages: [BASE_ROUTE], propsConfigDifferences: "Supplies authored audio/sentence and restored response/check state.", persistenceEvidenceDifferences: "Authored target-token extraction remains route-owned.", migrationRisk: "high" }),
   auditRow("Base Word reflection adapter", "components/adle/morphology/base-word-family-guided-lesson.tsx", "LESSON_REFLECTION adapter", "CANONICAL_MODE", "LessonReflection", { currentRouteUsages: [BASE_ROUTE], propsConfigDifferences: "Extracts the governed target token from each dictated sentence and derives the base-word prompt.", persistenceEvidenceDifferences: "Returns controlled attempts, sentence attempts and reflection to BaseWordFamilyPart; atomic completion remains external.", migrationRisk: "high" }),
@@ -490,16 +496,6 @@ export const ADLE_ACTIVITY_IMPLEMENTATION_AUDIT: readonly ActivityImplementation
 ] as const;
 
 export const ADLE_ACTIVITY_CONVERGENCE_BACKLOG: readonly ActivityConvergenceBacklogItem[] = [
-  {
-    priority: "P0", title: "Converge the Cleaver family",
-    currentImplementations: ["SplitHandle", "BaseWordCleaver", "SplitBuild", "Base Word Cleave adapter"],
-    targetCanonicalImplementation: "SplitHandle",
-    intendedModes: ["find_boundaries", "identify_components", "isolate_base", "final_y_restoration"],
-    routesAffected: [...PREFIX_ROUTES, AFFIX_ROUTE, BASE_ROUTE],
-    regressionRequirements: ["SVG/size/copy snapshot", "pointer and keyboard boundary selection", "focus after two misses", "multiple boundaries", "final-y restoration", "resume parity", "no evidence change"],
-    learnerRuntimeRisk: "high", modelCReleaseChangeRequired: false,
-    consolidationOpportunity: "Retire one 108-line duplicate implementation after route parity; adapter code may remain as configuration mapping.",
-  },
   {
     priority: "P0", title: "Extract the standard first-impression shell",
     currentImplementations: ["MorphologyGuidedLesson", "BaseWordFamilyGuidedLesson", "CompoundWordLessonRuntime", "CommonWordLabShell"],
@@ -529,7 +525,7 @@ export const ADLE_ACTIVITY_CONVERGENCE_BACKLOG: readonly ActivityConvergenceBack
   },
   {
     priority: "P2", title: "Retire preview-only/dead primitives after decisions",
-    currentImplementations: ["FlipToggle", "MorphemeRail", "WordSplitView", "MeaningFlip", "TransformationView", "MorphologyDiff", "ActivityFrame family"],
+    currentImplementations: ["FlipToggle", "MorphemeRail", "MeaningFlip", "MorphologyDiff", "ActivityFrame family"],
     targetCanonicalImplementation: "catalogue-selected shared primitives or explicit deletion",
     intendedModes: ["development_reference"], routesAffected: ["/dev/adle/morphology-primitives"],
     regressionRequirements: ["confirm no historical import", "retain screenshots or replacement gallery fixture where valuable"],
@@ -548,10 +544,10 @@ export const ADLE_ACTIVITY_CONVERGENCE_BACKLOG: readonly ActivityConvergenceBack
 ] as const;
 
 export const ADLE_ACTIVITY_AUDIT_CONCLUSIONS = {
-  authoritativeBaseSha: "aec090b9bec782829d333fe551f31538352c1f82",
+  authoritativeBaseSha: "bcc7e2a713573f46cc433f6c9096f688c697b2fc",
   startingState: {
-    auditWorktree: "Fresh Group 3 worktree on codex/adle-group3-cover-dictation-convergence at completed Group 2 commit aec090b9bec782829d333fe551f31538352c1f82.",
-    protectedOccupiedCheckout: "Occupied Group 1 and Group 2 worktrees were inspected read-only and left unmodified. Fetched origin/main 1306632d6ba643c103bf8d670706b085c88258e1 is the parent of the completed local Group 2 commit.",
+    auditWorktree: "Fresh Group 4 worktree on codex/adle-group4-split-cleaver-convergence at fetched origin/main bcc7e2a713573f46cc433f6c9096f688c697b2fc.",
+    protectedOccupiedCheckout: "The dirty primary checkout and occupied Group 1, Group 2 and Group 3 convergence worktrees were inspected read-only and left unmodified.",
     runtimeRegistries: [
       "lib/adle/activity-template-registry.ts — 34 generic template keys and renderer-kind dispatch",
       "components/adle/activities/registry.ts — React compatibility wrapper over the generic runtime registry",
@@ -571,7 +567,7 @@ export const ADLE_ACTIVITY_AUDIT_CONCLUSIONS = {
   },
   authorityRelationship: "Activity Catalogue is the architectural chooser and capability inventory. activity-template-registry.ts remains the generic runtime dispatch authority; curriculum route registry plus specialist adapters remain the rich-route runtime authority. The catalogue regression maps every generic template key exactly once and validates every component path, so these authorities cannot silently drift while runtime refactoring is frozen.",
   buildBoundary: "BUILD is one shared ordered-placement interaction family with two learner experiences. DefinitionWordBuilder presents one definition-led target and is configured by all 19 Prefix, Suffix/Affix and Base Word microskills. CompoundJigsawActivity presents anonymous puzzle rows above one deterministic mixed bank using Jigsaw-shaped component, SPACE and hyphen pieces; checked row content identifies and locks the governed word. Both use OrderedBuildEngine for candidate order, placement, rearrangement, validation, completion and restoration. Historical closed-compound v1 payloads are translated at the route boundary to generalized two-piece/no-join targets; no historical Jigsaw UI remains.",
-  cleaverBoundary: "Keep SplitHandle as the canonical interaction engine. Add isolate_base as configuration describing base segment/index and required adjacent cuts; add an optional post-split confirmation step; model final-y restoration as a post-split transformation hook; preserve SplitHandle's multi-boundary state, supplied components, copy policy, two-miss scaffold, focus movement, keyboard/pointer controls, sounds, reduced motion, success state and continuation. Migrate BaseWordCleaver only after pixel/interaction/resume parity. Do not merge word assembly or syllable splitting into Cleaver.",
+  cleaverBoundary: "SplitHandle is the one stateful Split engine across Prefix, Affix and Base Word. Required boundaries, restored selected cuts and an isolated governed component are neutral configuration; SplitBuild and Base Word Cleave are thin curriculum adapters. Final-y source-form restoration is a separate post-Split SpellingTransformationReveal, and the redundant typed base confirmation is retired. Word assembly and syllable split/rebuild remain separate learner actions.",
   reflectionBoundary: "ERROR_REPAIR remains ReflectionActivity and keeps reveal-hide-retry evidence. MEMORY_CUE remains child mnemonic authoring. LessonReflection is the canonical end-of-first-impression LESSON_REFLECTION: it receives normalized attempted-versus-correct spelling summaries, a governed lesson-specific prompt, optional specialist/context recap, and one controlled response. Prefix context slips remain recap data rather than target assessment evidence. Route correctness, persistence, assignment and completion adapters remain outside the component; stored historical prompt keys/text remain assignment-owned.",
   spellRecallBoundary: "First-impression spelling has exactly two learner experiences: CoverShutter for study-cover-spell-compare and SentenceDictation for authored whole-sentence audio recall. Scheduled review and diagnostics share ColdWordRecall, which never reveals the governed spelling until the response is irreversibly locked. Historical CONTROLLED_SPELLING, HIDE_WRITE, DICTATION_NO_IMAGE, DICTATION_SENTENCE_CONTEXT, REVIEW_DICTATION and DIAGNOSTIC_DICTATION_PROBE keys remain accepted semantic/configuration inputs only. Route adapters retain resume, correctness, evidence, scheduling, probe intake, assignment and persistence. SpellingField and GrownUpReveal are retired.",
   group3Closeout: {
@@ -584,6 +580,13 @@ export const ADLE_ACTIVITY_AUDIT_CONCLUSIONS = {
     ],
     invariants: "No evidence classification, correctness policy, attempt identity, assignment binding, scheduler outcome, diagnostic intake, persistence schema, curriculum release or Production state changed.",
     nextStep: "Perform the final closeout diff review, then stage and create the single Group 3 commit only after explicit owner authorization. Do not begin Group 4 before that closeout.",
+  },
+  group4Closeout: {
+    status: "OWNER_ACCEPTED_READY_FOR_RELEASE",
+    ownerAcceptedOn: "2026-08-20",
+    summary: "Owner manual acceptance passed for Prefix Split, Suffix/Affix Split, Base Word single/multi-boundary isolation, restored cuts, final-y reveal, scaffold, keyboard and narrow mobile fixtures. One stateful SplitHandle now serves Prefix, Affix and Base Word; the independent BaseWordCleaver and preview-only Split/transformation duplicates are retired.",
+    invariants: "No attempt identity, assignment binding, evidence classification, completion call, resume key/schema, release state, curriculum activation or Production data changed.",
+    nextStep: "Stage the reviewed Group 4 scope, create the single convergence commit, push through the normal mainline review/deployment path, and verify the resulting deployment without changing curriculum or Production data.",
   },
   newActivityRule: [
     "Search the canonical Activity Catalogue.",
@@ -606,12 +609,12 @@ export const ADLE_ACTIVITY_AUDIT_CONCLUSIONS = {
     notEligible: ["INTRODUCTION", "READING_PAGE", "MEANING_DISCOVERY", "WORD_FAMILY_REVEAL", "LESSON_REFLECTION"],
     distinctions: ["ERROR_REPAIR is conditional same-session repair, not scheduled review.", "LESSON_REFLECTION is end-of-first-impression metacognition, not review.", "Review evidence remains independent retrieval; Cover Check is only review-eligible when its reveal policy does not contaminate the scored attempt."],
   },
-  genuineGaps: ["canonical Reading Page outside Compound", "authentic Free Writing surface", "phoneme–grapheme mapping", "syllable split/rebuild", "production-ready spelling transformation interaction"],
+  genuineGaps: ["canonical Reading Page outside Compound", "authentic Free Writing surface", "phoneme–grapheme mapping", "syllable split/rebuild", "drop-e/doubling and other interactive spelling transformations"],
 } as const;
 
 export function activityAuditCounts() {
   const byStatus = Object.fromEntries(
-    (["CANONICAL", "CANONICAL_MODE", "COMPATIBILITY_ONLY", "DUPLICATE_TO_MIGRATE", "DEAD_OR_UNREFERENCED", "REQUIRES_ARCHITECTURE_DECISION"] as const)
+    (["CANONICAL", "CANONICAL_MODE", "THIN_ADAPTER", "DEVELOPMENT_REFERENCE", "COMPATIBILITY_ONLY", "DUPLICATE_TO_MIGRATE", "DEAD_OR_UNREFERENCED", "REQUIRES_ARCHITECTURE_DECISION"] as const)
       .map((status) => [status, ADLE_ACTIVITY_IMPLEMENTATION_AUDIT.filter((row) => row.classification === status).length]),
   ) as Record<ActivityArchitecturalStatus, number>;
   return {

@@ -5,7 +5,7 @@
 # ADLE Activity Catalogue
 
 Version: `adle_activity_catalogue_v1`
-Authoritative base: `aec090b9bec782829d333fe551f31538352c1f82`
+Authoritative base: `bcc7e2a713573f46cc433f6c9096f688c697b2fc`
 
 This is the chooser for curriculum designers and future implementation tasks. It describes interaction capability, not route-specific teaching content.
 
@@ -38,12 +38,12 @@ This is the chooser for curriculum designers and future implementation tasks. It
 | `LESSON_REFLECTION` | Review mistakes and state a rule learned for next time at the end of a first-impression lesson. | Once, at the end of every first-impression lesson. | Yes | No | `CANONICAL` |
 | `MEMORY_CUE` | Let the child create a personal cue for remembering a spelling. | When the pedagogical aim is to author a mnemonic. | Yes | No | `CANONICAL` |
 | `FREE_WRITING` | Use required target words in original, meaning-bearing writing. | When authentic transfer writing is the intended evidence. | Yes | Yes | `REQUIRES_ARCHITECTURE_DECISION` |
-| `TRANSFORMATION` | Show or manipulate a governed spelling change while a word is built. | When the spelling change itself must be noticed or rehearsed. | Yes | No | `REQUIRES_ARCHITECTURE_DECISION` |
+| `TRANSFORMATION` | Show a governed source form after the child has identified the visible word-part boundary. | When the spelling change itself must be noticed or rehearsed. | Yes | No | `CANONICAL_MODE` |
 | `PHONEME_GRAPHEME_MAP` | Map heard phonemes to grapheme choices. | When sound-to-symbol mapping is the core learning action. | Yes | No | `REQUIRES_ARCHITECTURE_DECISION` |
 | `SYLLABLE_SPLIT_REBUILD` | Split a word into syllables and rebuild it from those syllables. | When syllable structure, rather than morphology, is the learning objective. | Yes | No | `REQUIRES_ARCHITECTURE_DECISION` |
 | `GUIDED_PROMPT_FALLBACK` | Keep a generic lesson usable when no structured rich renderer exists. | Only as the registered safe fallback for existing generic templates. | Yes | No | `COMPATIBILITY_ONLY` |
 
-The catalogue currently has 22 governed concepts, 15 with canonical status, and 45 declared modes. Entries marked `REQUIRES_ARCHITECTURE_DECISION` are genuine platform gaps or extraction decisions, not permission for route-local UI.
+The catalogue currently has 22 governed concepts, 15 with canonical status, and 43 declared modes. Entries marked `REQUIRES_ARCHITECTURE_DECISION` are genuine platform gaps or extraction decisions, not permission for route-local UI.
 
 ## INTRODUCTION — Introduction
 
@@ -164,6 +164,7 @@ The catalogue currently has 22 governed concepts, 15 with canonical status, and 
 
 - `find_boundaries`: Strike all governed split points, with optional two-miss scaffold.
 - `identify_components`: After success, display supplied component strings and tailored explanation.
+- `isolate_component`: Strike only the governed adjacent boundaries, restore selected cuts, and highlight the isolated component.
 
 **Current users:** Routes `dynamic_prefix_word_lab:v2`, `fixed_un_prefix_word_lab:v1`, `dynamic_affix_word_lab:v3`, `base_word_lab:v2`. Micro-skills `D4_MOR_PREFIXES_UN`, `D4_MOR_PREFIXES_DIS_MIS`, `D4_MOR_PREFIXES_IN_IM_IL_IR`, `D4_MOR_PREFIXES_RE_PRE`, `D4_MOR_PREFIXES_SUB_INTER_SUPER`, `D4_MOR_SUFFIXES_ABLE_IBLE`, `D4_MOR_SUFFIXES_AL`, `D4_MOR_SUFFIXES_FUL_LESS`, `D4_MOR_SUFFIXES_ITY`, `D4_MOR_SUFFIXES_LY`, `D4_MOR_SUFFIXES_MENT`, `D4_MOR_SUFFIXES_NESS`, `D4_MOR_SUFFIXES_OUS`, `D4_MOR_SUFFIXES_SION`, `D4_MOR_SUFFIXES_TION`, `D4_MOR_BASE_WORDS_BASE_PLUS_PREFIX`, `D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX`, `D4_MOR_BASE_WORDS_IDENTIFY_BASE`, `D4_MOR_BASE_WORDS_PRESERVE_BASE`.
 
@@ -171,11 +172,11 @@ The catalogue currently has 22 governed concepts, 15 with canonical status, and 
 
 **Architectural status:** `CANONICAL`
 
-**Inputs:** Required: `word`, `splitPoints`. Optional: `components`, `feedback copy`, `scaffold policy`.
+**Inputs:** Required: `word`, `splitPoints`. Optional: `components`, `selected boundaries`, `isolated component index`, `feedback copy`, `scaffold policy`.
 
 **Capabilities:** Pointer Yes · Keyboard Yes · Reduced motion Yes · Audio Yes · Captures attempt No · Evidence-bearing No · First Impression Yes · Review No.
 
-**Notes:** Target convergence adds isolate_base and final_y_restoration modes to SplitHandle; those are not current SplitHandle capabilities.
+**Notes:** Group 4 converged Prefix, Affix and Base Word on one stateful SplitHandle. Spelling transformations are composed after Split completes.
 
 ## WORD_ASSEMBLY — Word assembly
 
@@ -528,7 +529,7 @@ The catalogue currently has 22 governed concepts, 15 with canonical status, and 
 
 ## TRANSFORMATION — Spelling transformation
 
-**Pedagogical purpose:** Show or manipulate a governed spelling change while a word is built.
+**Pedagogical purpose:** Show a governed source form after the child has identified the visible word-part boundary.
 
 **Interaction family:** `transformation`
 
@@ -538,22 +539,19 @@ The catalogue currently has 22 governed concepts, 15 with canonical status, and 
 
 **Modes:**
 
-- `drop_e`: Remove final e before a suffix.
-- `double_consonant`: Double a final consonant.
-- `y_to_i`: Change y to i.
-- `surface_to_source`: Restore the semantic base after splitting.
+- `surface_to_source`: Reveal a governed source form after Split completes; the live Base Word case restores final y from visible i.
 
-**Current users:** Routes `base_word_lab:v2`, `dynamic_affix_word_lab:v3`. Micro-skills `D4_MOR_BASE_WORDS_BASE_PLUS_PREFIX`, `D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX`, `D4_MOR_BASE_WORDS_IDENTIFY_BASE`, `D4_MOR_BASE_WORDS_PRESERVE_BASE`, `D4_MOR_SUFFIXES_ABLE_IBLE`, `D4_MOR_SUFFIXES_AL`, `D4_MOR_SUFFIXES_FUL_LESS`, `D4_MOR_SUFFIXES_ITY`, `D4_MOR_SUFFIXES_LY`, `D4_MOR_SUFFIXES_MENT`, `D4_MOR_SUFFIXES_NESS`, `D4_MOR_SUFFIXES_OUS`, `D4_MOR_SUFFIXES_SION`, `D4_MOR_SUFFIXES_TION`.
+**Current users:** Routes `base_word_lab:v2`. Micro-skills `D4_MOR_BASE_WORDS_BASE_PLUS_PREFIX`, `D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX`, `D4_MOR_BASE_WORDS_IDENTIFY_BASE`, `D4_MOR_BASE_WORDS_PRESERVE_BASE`.
 
-**Canonical implementation:** No canonical implementation yet.
+**Canonical implementation:** `SpellingTransformationReveal` in `components/adle/activities/shared/spelling-transformation-reveal.tsx`
 
-**Architectural status:** `REQUIRES_ARCHITECTURE_DECISION`
+**Architectural status:** `CANONICAL_MODE`
 
-**Inputs:** Required: `source`, `surface`, `transformation rule`. Optional: `animation description`.
+**Inputs:** Required: `source text`, `surface text`, `explanation`. Optional: `action copy`, `continuation copy`.
 
-**Capabilities:** Pointer Yes · Keyboard Yes · Reduced motion Yes · Audio No · Captures attempt No · Evidence-bearing No · First Impression Yes · Review No.
+**Capabilities:** Pointer Yes · Keyboard Yes · Reduced motion Yes · Audio Yes · Captures attempt No · Evidence-bearing No · First Impression Yes · Review No.
 
-**Notes:** TransformationAnimation and TransformationView exist only in development previews; final-y restoration is embedded in BaseWordCleaver.
+**Notes:** This is a presentation-only post-Split mode. Drop-e, consonant doubling and other transformation interactions remain deferred.
 
 ## PHONEME_GRAPHEME_MAP — Phoneme–grapheme mapping
 

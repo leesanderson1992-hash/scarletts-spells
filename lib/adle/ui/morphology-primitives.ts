@@ -125,13 +125,6 @@ export interface MorphemeSequenceViewModel {
   sourceExpression: string;
 }
 
-export interface WordSplitViewModel {
-  id: string;
-  displayWord: string;
-  parts: MorphemeTileViewModel[];
-  joins: MorphemeJoinViewModel[];
-}
-
 export interface MeaningFlipViewModel {
   id: string;
   beforeText: string;
@@ -220,16 +213,6 @@ export function toMorphologySequenceViewModel(record: ApprovedWordAnalysisRecord
     transformations: record.transformations.map(toTransformationViewModel),
     joiningStrategy: record.joiningStrategy,
     sourceExpression: buildSourceExpression(parts, joins),
-  };
-}
-
-export function toWordSplitViewModel(record: ApprovedWordAnalysisRecord): WordSplitViewModel {
-  const sequence = toMorphologySequenceViewModel(record);
-  return {
-    id: `${sequence.id}:split`,
-    displayWord: sequence.displayWord,
-    parts: sequence.parts,
-    joins: sequence.joins,
   };
 }
 
