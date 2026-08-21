@@ -5,7 +5,6 @@ import dynamic from "next/dynamic";
 
 import { IntroActivity } from "@/components/adle/activities/intro-activity";
 import { LessonReflection } from "@/components/adle/activities/lesson-reflection";
-import { QuickSortActivity } from "@/components/adle/activities/quick-sort-activity";
 import { ReflectionActivity } from "@/components/adle/activities/reflection-activity";
 import { BinSort } from "@/components/adle/activities/shared/bin-sort";
 import { CoverShutter } from "@/components/adle/activities/shared/cover-shutter";
@@ -14,7 +13,7 @@ import { DefinitionWordBuilder } from "@/components/adle/activities/shared/defin
 import { SentenceDictation } from "@/components/adle/activities/shared/sentence-dictation";
 import { SnapRail } from "@/components/adle/activities/shared/snap-rail";
 import { SplitHandle } from "@/components/adle/activities/shared/split-handle";
-import { MeaningFlip, MorphemeRail } from "@/components/adle/activities/morphology/shared/morphology-primitives";
+import { MorphemeRail } from "@/components/adle/activities/morphology/shared/morphology-primitives";
 import { AssemblySlot } from "@/components/adle/interactions/selectable-item";
 import {
   Cleave as BaseCleave,
@@ -26,7 +25,6 @@ import { CompoundReadingPage } from "@/components/adle/morphology/closed-compoun
 import {
   Discovery,
   LearnIntroduction,
-  MeaningOverview,
   SplitBuild,
   morphologyLessonReflectionModel,
 } from "@/components/adle/morphology/morphology-guided-lesson";
@@ -92,15 +90,6 @@ const INTRO_ITEM = sessionItem("intro", "MICRO_READ_ONLY_INTRO", null, {
     { canonicalWordId: "preview-unkind", displayWord: "unkind", provenance: "learning_item" },
     { canonicalWordId: "preview-rainbow", displayWord: "rainbow", provenance: "stretch" },
   ],
-});
-
-const SORT_ITEM = sessionItem("sort", "REVIEW_QUICK_SORT", null, {
-  childFacingCopy: "Sort each word by the job of its first part.",
-  words: [
-    { canonicalWordId: "preview-unkind", targetWord: "unkind" },
-    { canonicalWordId: "preview-replay", targetWord: "replay" },
-  ],
-  sortBins: { dimensionLabel: "prefix meaning", bins: [{ key: "not", label: "not" }, { key: "again", label: "again" }], correctBinByWordId: { "preview-unkind": "not", "preview-replay": "again" } },
 });
 
 const REPAIR_ITEM = sessionItem("repair", "ERROR_REFLECTION_CUE", "unkind", { misconceptionHint: "Think of un- plus kind." });
@@ -218,20 +207,12 @@ function SplitCandidates(props: { candidateId: string; state: VisualFixtureState
 const SORT_ITEMS = [{ id: "unkind", text: "unkind", destination: "not" }, { id: "replay", text: "replay", destination: "again" }];
 const SORT_BINS = [{ id: "not", label: "not", description: "changes the meaning to not" }, { id: "again", label: "again", description: "means do it again" }];
 
-function SortCandidates(props: { candidateId: string; state: VisualFixtureState }): ReactNode {
-  if (props.candidateId === "quick-sort") return <QuickSortActivity key={props.state} item={SORT_ITEM} />;
-  if (props.candidateId === "bin-sort") return <BinSort key={props.state} items={SORT_ITEMS} bins={SORT_BINS} instruction="Sort each word by meaning." muted />;
-  if (props.candidateId === "prefix-form-sort") return <BinSort key={props.state} items={SORT_ITEMS} bins={SORT_BINS} instruction="Which meaning does the prefix add?" muted />;
-  return null;
-}
-
 function MeaningCandidates(props: { candidateId: string; state: VisualFixtureState }): ReactNode {
   const restored = props.state === "restored" || props.state === "success";
   if (props.candidateId === "discovery") return <Discovery key={props.state} payload={MORPHOLOGY_PAYLOAD} index={0} muted addedPrefix={props.state !== "initial"} onAddPrefix={noop} onNext={noop} />;
   if (props.candidateId === "meaning-connection") return <MeaningConnectionActivity key={props.state} targets={MEANING_TARGETS} muted initialConnected={restored ? ["preview-rainbow"] : []} initialMisses={props.state === "incorrect" ? { "preview-rainbow": 1 } : {}} onComplete={noop} />;
-  if (props.candidateId === "meaning-bin-sort") return <BinSort key={props.state} items={SORT_ITEMS} bins={SORT_BINS} instruction="Sort by what the first part means." muted />;
-  if (props.candidateId === "meaning-flip") return <MeaningFlip flip={{ id: "preview-kind-to-unkind", beforeText: "kind", beforeCaption: "caring and helpful", afterText: "unkind", afterCaption: "not kind" }} reduceMotion />;
-  if (props.candidateId === "meaning-overview") return <MeaningOverview payload={MORPHOLOGY_PAYLOAD} onNext={noop} />;
+  if (props.candidateId === "bin-sort") return <BinSort key={props.state} items={SORT_ITEMS} bins={SORT_BINS} initialComplete={props.state === "completed" || props.state === "restored"} instruction="Sort by what the affix means." muted />;
+  if (props.candidateId === "prefix-form-sort") return <BinSort key={props.state} items={SORT_ITEMS} bins={SORT_BINS} initialComplete={props.state === "completed"} instruction="Which prefix form belongs before the word?" muted />;
   return null;
 }
 
@@ -257,7 +238,6 @@ export function VisualConvergenceCandidatePreview(props: { groupId: string; cand
   if (props.groupId === "reflection") return <ReflectionCandidates candidateId={props.candidateId} state={props.state} />;
   if (props.groupId === "spell") return <SpellCandidates candidateId={props.candidateId} state={props.state} />;
   if (props.groupId === "split") return <SplitCandidates candidateId={props.candidateId} state={props.state} />;
-  if (props.groupId === "sort") return <SortCandidates candidateId={props.candidateId} state={props.state} />;
   if (props.groupId === "meaning") return <MeaningCandidates candidateId={props.candidateId} state={props.state} />;
   if (props.groupId === "teaching") return <TeachingCandidates candidateId={props.candidateId} state={props.state} />;
   return null;

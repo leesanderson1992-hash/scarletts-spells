@@ -5,7 +5,7 @@
 # ADLE Activity Catalogue
 
 Version: `adle_activity_catalogue_v1`
-Authoritative base: `bcc7e2a713573f46cc433f6c9096f688c697b2fc`
+Authoritative base: `176a7745342b16490b3371f5ed7eccd3a0b04b85`
 
 This is the chooser for curriculum designers and future implementation tasks. It describes interaction capability, not route-specific teaching content.
 
@@ -29,7 +29,7 @@ This is the chooser for curriculum designers and future implementation tasks. It
 | `COMPOUND_JIGSAW` | Join compound components in governed order while preserving spaces and hyphens. | For compound structure where puzzle joining is itself pedagogically meaningful. | Yes | No | `CANONICAL` |
 | `MEANING_MATCH` | Connect each word to its whole-word definition. | When each word must be paired with a distinct definition. | Yes | No | `CANONICAL` |
 | `MEANING_SORT` | Sort words into reusable meaning or affix-form groups. | When several words share meaningful categories. | Yes | No | `CANONICAL` |
-| `REVIEW_SORT` | Reactivate a review bundle through fast categorisation before retrieval. | As a low-stakes review warm-up before production. | No | Yes | `CANONICAL` |
+| `REVIEW_SORT` | Decode immutable historical REVIEW_QUICK_SORT assignment and snapshot payloads without preserving a learner renderer. | Only while decoding immutable historical assignments or generic snapshot v2 payloads. | No | No | `COMPATIBILITY_ONLY` |
 | `COVER_CHECK` | Study a visible word, hide it, recall it, and compare the attempt. | For supported study-cover-recall practice where a teaching view is intentional. | Yes | No | `CANONICAL` |
 | `CONTROLLED_SPELLING` | Historical catalogue concept for controlled study/spelling payloads. | Only to decode accepted historical template keys into Cover Check. | No | No | `COMPATIBILITY_ONLY` |
 | `DICTATION` | Transcribe a governed authored sentence from audio, then lock and compare. | For every first-impression Dictation activity with governed authored sentence content. | Yes | No | `CANONICAL` |
@@ -43,7 +43,7 @@ This is the chooser for curriculum designers and future implementation tasks. It
 | `SYLLABLE_SPLIT_REBUILD` | Split a word into syllables and rebuild it from those syllables. | When syllable structure, rather than morphology, is the learning objective. | Yes | No | `REQUIRES_ARCHITECTURE_DECISION` |
 | `GUIDED_PROMPT_FALLBACK` | Keep a generic lesson usable when no structured rich renderer exists. | Only as the registered safe fallback for existing generic templates. | Yes | No | `COMPATIBILITY_ONLY` |
 
-The catalogue currently has 22 governed concepts, 15 with canonical status, and 43 declared modes. Entries marked `REQUIRES_ARCHITECTURE_DECISION` are genuine platform gaps or extraction decisions, not permission for route-local UI.
+The catalogue currently has 22 governed concepts, 14 with canonical status, and 43 declared modes. Entries marked `REQUIRES_ARCHITECTURE_DECISION` are genuine platform gaps or extraction decisions, not permission for route-local UI.
 
 ## INTRODUCTION — Introduction
 
@@ -259,7 +259,7 @@ The catalogue currently has 22 governed concepts, 15 with canonical status, and 
 
 **Capabilities:** Pointer Yes · Keyboard Yes · Reduced motion Yes · Audio Yes · Captures attempt No · Evidence-bearing No · First Impression Yes · Review No.
 
-**Notes:** Generic HOM/MOR keys still render the warm GuidedActivity shell; the rich canonical component is only wired by Compound routes.
+**Notes:** Compound routes use the rich interaction directly. Generic HOM/MOR keys select the same canonical renderer when their payload contains governed definitions; definition-less immutable historical payloads normalize to a compatibility-only GuidedActivity at the dispatch boundary.
 
 ## MEANING_SORT — Meaning sort
 
@@ -269,14 +269,15 @@ The catalogue currently has 22 governed concepts, 15 with canonical status, and 
 
 **Best used for:** When several words share meaningful categories.
 
-**Do not use when:** For a short review activation over a mixed bundle; use REVIEW_SORT.
+**Do not use when:** For word-to-definition pairing; use MEANING_MATCH. The completion overview is a state of this activity, not another activity.
 
 **Modes:**
 
 - `meaning`: Sort by semantic group.
 - `prefix_form`: Sort base words by the prefix form they take.
 - `immediate_feedback`: Respond after each choice.
-- `end_of_round`: Delay summary feedback.
+- `success_sparkle`: Brief presentation-only correct-placement celebration before automatic advance.
+- `completion_overview`: Read-only grouping of every governed word after the final correct placement.
 
 **Current users:** Routes `dynamic_prefix_word_lab:v2`, `fixed_un_prefix_word_lab:v1`, `dynamic_affix_word_lab:v3`. Micro-skills `D4_MOR_PREFIXES_UN`, `D4_MOR_PREFIXES_DIS_MIS`, `D4_MOR_PREFIXES_IN_IM_IL_IR`, `D4_MOR_PREFIXES_RE_PRE`, `D4_MOR_PREFIXES_SUB_INTER_SUPER`, `D4_MOR_SUFFIXES_ABLE_IBLE`, `D4_MOR_SUFFIXES_AL`, `D4_MOR_SUFFIXES_FUL_LESS`, `D4_MOR_SUFFIXES_ITY`, `D4_MOR_SUFFIXES_LY`, `D4_MOR_SUFFIXES_MENT`, `D4_MOR_SUFFIXES_NESS`, `D4_MOR_SUFFIXES_OUS`, `D4_MOR_SUFFIXES_SION`, `D4_MOR_SUFFIXES_TION`.
 
@@ -289,31 +290,31 @@ The catalogue currently has 22 governed concepts, 15 with canonical status, and 
 **Capabilities:** Pointer Yes · Keyboard Yes · Reduced motion Yes · Audio Yes · Captures attempt No · Evidence-bearing No · First Impression Yes · Review No.
 
 
-## REVIEW_SORT — Review quick sort
+## REVIEW_SORT — Historical review-sort key
 
-**Pedagogical purpose:** Reactivate a review bundle through fast categorisation before retrieval.
+**Pedagogical purpose:** Decode immutable historical REVIEW_QUICK_SORT assignment and snapshot payloads without preserving a learner renderer.
 
-**Interaction family:** `sorting`
+**Interaction family:** `compatibility_key`
 
-**Best used for:** As a low-stakes review warm-up before production.
+**Best used for:** Only while decoding immutable historical assignments or generic snapshot v2 payloads.
 
-**Do not use when:** As mastery evidence or a first-impression meaning lesson.
+**Do not use when:** For forward curriculum generation or any learner-facing categorisation.
 
 **Modes:**
 
-- `tap_bins`: Tap a configured bin for every review word.
-- `spoken_fallback`: Read-only prompt when concrete bins are absent.
+- `compatibility_noop`: Accept and ignore the historical non-evidence item while review proceeds to retrieval.
 
-**Current users:** Routes `generic_composer:v1`. Micro-skills `all review-eligible generic micro-skills`.
+**Current users:** Routes `historical generic assignments only`. Micro-skills `historical review payloads only`.
 
-**Canonical implementation:** `QuickSortActivity` in `components/adle/activities/quick-sort-activity.tsx`
+**Canonical implementation:** No canonical implementation yet.
 
-**Architectural status:** `CANONICAL`
+**Architectural status:** `COMPATIBILITY_ONLY`
 
-**Inputs:** Required: `review words`. Optional: `sortBins`.
+**Inputs:** Required: None. Optional: `historical review words`, `historical sortBins`.
 
-**Capabilities:** Pointer Yes · Keyboard Yes · Reduced motion Yes · Audio Yes · Captures attempt No · Evidence-bearing No · First Impression No · Review Yes.
+**Capabilities:** Pointer No · Keyboard Yes · Reduced motion Yes · Audio No · Captures attempt No · Evidence-bearing No · First Impression No · Review No.
 
+**Notes:** The current registry maps the key to compatibility_noop. Generic snapshot v2 retains its immutable quick_sort discriminator solely for historical decoding.
 
 ## COVER_CHECK — Cover Check
 

@@ -21,9 +21,9 @@ This is a migration backlog, not authority to refactor, activate routes, change 
 
 ### P1 — Wire rich components through registry modes
 
-- Current implementations: `GuidedActivity fallback`, `specialist direct SplitHandle/SnapRail/BinSort/MeaningConnectionActivity`
+- Current implementations: `GuidedActivity fallback for still-unbuilt non-Meaning families`, `specialist canonical activity adapters`
 - Target: Activity Catalogue mapping feeding versioned renderer registration
-- Intended modes: `cleaver`, `word_assembly`, `meaning_match`, `meaning_sort`
+- Intended modes: `remaining phoneme/grapheme, inflection, pattern and syllable interactions`
 - Routes affected: `generic_composer:v1`, `dynamic_prefix_word_lab:v2`, `fixed_un_prefix_word_lab:v1`, `dynamic_affix_word_lab:v3`, `base_word_lab:v2`, `compound_word_lab:v2`, `closed_compound_word_lab:v1`
 - Regression requirements: template-to-catalogue total mapping; payload validation; safe fallback; lazy renderer; no dispatch change until separately approved
 - Learner/runtime risk: `high`
@@ -43,7 +43,7 @@ This is a migration backlog, not authority to refactor, activate routes, change 
 
 ### P2 — Retire preview-only/dead primitives after decisions
 
-- Current implementations: `FlipToggle`, `MorphemeRail`, `MeaningFlip`, `MorphologyDiff`, `ActivityFrame family`
+- Current implementations: `MorphemeRail`, `MorphologyDiff`, `ActivityFrame family`
 - Target: catalogue-selected shared primitives or explicit deletion
 - Intended modes: `development_reference`
 - Routes affected: `/dev/adle/morphology-primitives`
@@ -132,7 +132,7 @@ Still bespoke:
 
 ## Review-template implications
 
-Review-eligible: `REVIEW_SORT`, `DICTATION.word`, `DICTATION.review`, `FREE_WRITING.review_transfer once implemented`
+Review-eligible: `DICTATION.word`, `DICTATION.review`, `FREE_WRITING.review_transfer once implemented`
 
 Not review-eligible: `INTRODUCTION`, `READING_PAGE`, `MEANING_DISCOVERY`, `WORD_FAMILY_REVEAL`, `LESSON_REFLECTION`
 

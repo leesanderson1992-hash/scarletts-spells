@@ -278,6 +278,36 @@ body {
   }
 }
 
+@keyframes binSortTickZoom {
+  0% {
+    opacity: 0;
+    transform: scale(0.25);
+  }
+  70% {
+    opacity: 1;
+    transform: scale(1.18);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes binSortSparkle {
+  0% {
+    opacity: 0;
+    transform: scale(0.3) rotate(-18deg);
+  }
+  45% {
+    opacity: 1;
+    transform: scale(1.25) rotate(8deg);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.7) rotate(18deg);
+  }
+}
+
 .reward-coins .reward-coin-front {
   animation: rewardCoinFloat 1.9s ease-in-out infinite;
   transform-origin: 76px 50px;

@@ -11,7 +11,8 @@ export type ActivityRendererKind =
   | "cover_check"
   | "sentence_dictation"
   | "cold_word_recall"
-  | "quick_sort"
+  | "compatibility_noop"
+  | "meaning_match"
   | "reflection"
   | "must_use_writing"
   | "guided_prompt";
@@ -87,7 +88,7 @@ const TEMPLATE_DEFINITIONS = {
     "REVIEW_QUICK_SORT",
     "review",
     ["review_quick_sort"],
-    "quick_sort",
+    "compatibility_noop",
     false,
     "read_only",
   ),
@@ -120,7 +121,7 @@ const TEMPLATE_DEFINITIONS = {
 
   PG_SOUND_NOTICE: guidedDefinition("PG_SOUND_NOTICE", "phoneme_grapheme"),
   PG_GRAPHEME_MAP: guidedDefinition("PG_GRAPHEME_MAP", "phoneme_grapheme"),
-  HOM_MEANING_MATCH: guidedDefinition("HOM_MEANING_MATCH", "homophone"),
+  HOM_MEANING_MATCH: meaningDefinition("HOM_MEANING_MATCH", "homophone"),
   HOM_SENTENCE_CHOICE: guidedDefinition("HOM_SENTENCE_CHOICE", "homophone"),
   HOM_CORRECTION: guidedDefinition("HOM_CORRECTION", "homophone"),
   INF_CONTEXT_CHOICE: guidedDefinition("INF_CONTEXT_CHOICE", "inflection"),
@@ -128,10 +129,10 @@ const TEMPLATE_DEFINITIONS = {
   INF_TRANSFORM: guidedDefinition("INF_TRANSFORM", "inflection"),
   IRRE_TRICKY_PART: guidedDefinition("IRRE_TRICKY_PART", "irregular"),
   MOR_STRIP_BUILD: guidedDefinition("MOR_STRIP_BUILD", "morphology"),
-  MOR_MEANING_MATCH: guidedDefinition("MOR_MEANING_MATCH", "morphology"),
+  MOR_MEANING_MATCH: meaningDefinition("MOR_MEANING_MATCH", "morphology"),
   MOR_BUILD_WORD: guidedDefinition("MOR_BUILD_WORD", "morphology"),
   MOR_COMPOUND_JIGSAW: compoundDefinition("MOR_COMPOUND_JIGSAW"),
-  MOR_COMPOUND_MEANING_CONNECTION: compoundDefinition("MOR_COMPOUND_MEANING_CONNECTION"),
+  MOR_COMPOUND_MEANING_CONNECTION: meaningDefinition("MOR_COMPOUND_MEANING_CONNECTION", "morphology", "D4_MOR_COMPOUND_WORD"),
   PAT_PATTERN_SPOT: guidedDefinition("PAT_PATTERN_SPOT", "pattern"),
   PAT_RULE_APPLY: guidedDefinition("PAT_RULE_APPLY", "pattern"),
   SYL_SPLIT: guidedDefinition("SYL_SPLIT", "syllable"),
@@ -148,7 +149,7 @@ const SECTION_FALLBACKS: Readonly<Record<string, Omit<ActivityTemplateDefinition
   review_quick_sort: fallback(
     "review",
     ["review_quick_sort"],
-    "quick_sort",
+    "compatibility_noop",
     false,
     "read_only",
     "section_safe_fallback",
@@ -275,6 +276,17 @@ function guidedDefinition(
   return templateFamily === "morphology"
     ? { ...result, richExperience: "D4_MOR_GUIDED", supportedPayloadVersions: [1] }
     : result;
+}
+
+function meaningDefinition(
+  templateKey: string,
+  templateFamily: ActivityTemplateFamily,
+  richExperience?: ActivityTemplateDefinition["richExperience"],
+): ActivityTemplateDefinition {
+  return {
+    ...definition(templateKey, templateFamily, ["guided_practice"], "meaning_match", true, "guided"),
+    ...(richExperience ? { richExperience, supportedPayloadVersions: [1, 2] } : {}),
+  };
 }
 
 function compoundDefinition(templateKey: string): ActivityTemplateDefinition {

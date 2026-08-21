@@ -30,7 +30,6 @@ import type {
   ActivityTemplateFact,
   FamilyMethodFact,
   TeachingContentFact,
-  WordStructuralMetadata,
 } from "../daily-assignment-composer";
 import type { ProbeRunFact } from "../composer-word-selection";
 import type {
@@ -213,31 +212,6 @@ export function activityTemplateFromRow(row: ActivityTemplateRow): ActivityTempl
     contentVersion: row.content_version,
     importBatchId: row.import_batch_id,
     rowStatus: row.row_status as SchedulerRowStatus,
-  };
-}
-
-/**
- * Slice 7a: structural word metadata (from
- * canonical_teaching_dictionary_word_metadata), surfaced only for the fields
- * that back a real interaction — the syllable *count* (`syllables` is a count
- * string, not a segmentation) and `has_schwa` drive the two derivable quick-sort
- * schemes; `phoneme_hint`/`stress_pattern` ride along for warm display only.
- */
-export interface WordStructuralMetadataRow {
-  canonical_word_id: string;
-  syllables: string | null;
-  has_schwa: boolean | null;
-  phoneme_hint: string | null;
-  stress_pattern: string | null;
-}
-
-export function wordStructuralMetadataFromRow(row: WordStructuralMetadataRow): WordStructuralMetadata {
-  return {
-    canonicalWordId: row.canonical_word_id,
-    syllables: row.syllables,
-    hasSchwa: row.has_schwa,
-    phonemeHint: row.phoneme_hint,
-    stressPattern: row.stress_pattern,
   };
 }
 

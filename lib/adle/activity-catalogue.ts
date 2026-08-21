@@ -228,27 +228,28 @@ export const ADLE_ACTIVITY_CATALOGUE: readonly ActivityCatalogueEntry[] = [
     supportsPointer: true, supportsAudio: true, usedByRoutes: [...COMPOUND_ROUTES, ...PREFIX_ROUTES, AFFIX_ROUTE, GENERIC_ROUTE], usedByMicroSkills: [...COMPOUND_SKILLS, ...PREFIX_SKILLS, ...AFFIX_SKILLS, "generic homophone/morphology skills"],
     templateKeys: ["HOM_MEANING_MATCH", "MOR_MEANING_MATCH", "MOR_COMPOUND_MEANING_CONNECTION"], status: "CANONICAL",
     whenToUse: "When each word must be paired with a distinct definition.", whenNotToUse: "When words belong in reusable semantic groups; use MEANING_SORT.",
-    notes: "Generic HOM/MOR keys still render the warm GuidedActivity shell; the rich canonical component is only wired by Compound routes.",
+    notes: "Compound routes use the rich interaction directly. Generic HOM/MOR keys select the same canonical renderer when their payload contains governed definitions; definition-less immutable historical payloads normalize to a compatibility-only GuidedActivity at the dispatch boundary.",
   }),
   activity({
     activityKey: "MEANING_SORT", displayName: "Meaning sort", interactionFamily: "sorting",
     pedagogicalPurpose: "Sort words into reusable meaning or affix-form groups.",
     canonicalComponent: "BinSort", canonicalComponentPath: "components/adle/activities/shared/bin-sort.tsx",
-    supportedModes: ["meaning", "prefix_form", "immediate_feedback", "end_of_round"], modeDescriptions: {
-      meaning: "Sort by semantic group.", prefix_form: "Sort base words by the prefix form they take.", immediate_feedback: "Respond after each choice.", end_of_round: "Delay summary feedback.",
+    supportedModes: ["meaning", "prefix_form", "immediate_feedback", "success_sparkle", "completion_overview"], modeDescriptions: {
+      meaning: "Sort by semantic group.", prefix_form: "Sort base words by the prefix form they take.", immediate_feedback: "Respond after each choice.", success_sparkle: "Brief presentation-only correct-placement celebration before automatic advance.", completion_overview: "Read-only grouping of every governed word after the final correct placement.",
     }, requiredInputs: ["items with destinations", "bins"], optionalInputs: ["feedback policy", "specialist teaching cards"],
     supportsPointer: true, supportsAudio: true, usedByRoutes: [...PREFIX_ROUTES, AFFIX_ROUTE], usedByMicroSkills: [...PREFIX_SKILLS, ...AFFIX_SKILLS],
-    status: "CANONICAL", whenToUse: "When several words share meaningful categories.", whenNotToUse: "For a short review activation over a mixed bundle; use REVIEW_SORT.",
+    status: "CANONICAL", whenToUse: "When several words share meaningful categories.", whenNotToUse: "For word-to-definition pairing; use MEANING_MATCH. The completion overview is a state of this activity, not another activity.",
   }),
   activity({
-    activityKey: "REVIEW_SORT", displayName: "Review quick sort", interactionFamily: "sorting",
-    pedagogicalPurpose: "Reactivate a review bundle through fast categorisation before retrieval.",
-    canonicalComponent: "QuickSortActivity", canonicalComponentPath: "components/adle/activities/quick-sort-activity.tsx",
-    supportedModes: ["tap_bins", "spoken_fallback"], modeDescriptions: { tap_bins: "Tap a configured bin for every review word.", spoken_fallback: "Read-only prompt when concrete bins are absent." },
-    requiredInputs: ["review words"], optionalInputs: ["sortBins"], supportsPointer: true, supportsAudio: true,
-    usedByRoutes: [GENERIC_ROUTE], usedByMicroSkills: ["all review-eligible generic micro-skills"], templateKeys: ["REVIEW_QUICK_SORT"],
-    status: "CANONICAL", firstImpressionEligible: false, reviewEligible: true,
-    whenToUse: "As a low-stakes review warm-up before production.", whenNotToUse: "As mastery evidence or a first-impression meaning lesson.",
+    activityKey: "REVIEW_SORT", displayName: "Historical review-sort key", interactionFamily: "compatibility_key",
+    pedagogicalPurpose: "Decode immutable historical REVIEW_QUICK_SORT assignment and snapshot payloads without preserving a learner renderer.",
+    canonicalComponent: null, canonicalComponentPath: null,
+    supportedModes: ["compatibility_noop"], modeDescriptions: { compatibility_noop: "Accept and ignore the historical non-evidence item while review proceeds to retrieval." },
+    requiredInputs: [], optionalInputs: ["historical review words", "historical sortBins"],
+    usedByRoutes: ["historical generic assignments only"], usedByMicroSkills: ["historical review payloads only"], templateKeys: ["REVIEW_QUICK_SORT"],
+    status: "COMPATIBILITY_ONLY", firstImpressionEligible: false, reviewEligible: false,
+    whenToUse: "Only while decoding immutable historical assignments or generic snapshot v2 payloads.", whenNotToUse: "For forward curriculum generation or any learner-facing categorisation.",
+    notes: "The current registry maps the key to compatibility_noop. Generic snapshot v2 retains its immutable quick_sort discriminator solely for historical decoding.",
   }),
   activity({
     activityKey: "COVER_CHECK", displayName: "Cover Check", interactionFamily: "cover_recall",
@@ -422,8 +423,8 @@ const SPECIALIST = [...ALL_SPECIALIST_ROUTES];
 
 export const ADLE_ACTIVITY_IMPLEMENTATION_AUDIT: readonly ActivityImplementationAuditRow[] = [
   auditRow("IntroActivity", "components/adle/activities/intro-activity.tsx", "INTRODUCTION", "CANONICAL", "IntroActivity", { currentRouteUsages: GENERIC, registryTemplateKeys: ["MICRO_READ_ONLY_INTRO", "LESSON_WORDS_INTRO"], migrationRisk: "low" }),
-  auditRow("GuidedActivity", "components/adle/activities/guided-activity.tsx", "GUIDED_PROMPT_FALLBACK / MEMORY_CUE", "CANONICAL", "GuidedActivity", { currentRouteUsages: GENERIC, registryTemplateKeys: ["MEMORY_CUE", "PG_*", "HOM_*", "INF_*", "IRRE_*", "MOR_*", "PAT_*", "SYL_*", "SCHWA_*"], notes: "Canonical only as the generic safe fallback and current memory-cue surface; HIDE_WRITE is normalized to CoverShutter before this component." }),
-  auditRow("QuickSortActivity", "components/adle/activities/quick-sort-activity.tsx", "REVIEW_SORT", "CANONICAL", "QuickSortActivity", { currentRouteUsages: GENERIC, registryTemplateKeys: ["REVIEW_QUICK_SORT"], migrationRisk: "low" }),
+  auditRow("GuidedActivity", "components/adle/activities/guided-activity.tsx", "GUIDED_PROMPT_FALLBACK / MEMORY_CUE", "CANONICAL", "GuidedActivity", { currentRouteUsages: GENERIC, registryTemplateKeys: ["MEMORY_CUE", "PG_*", "HOM_SENTENCE_CHOICE", "HOM_CORRECTION", "INF_*", "IRRE_*", "MOR_STRIP_BUILD", "MOR_BUILD_WORD", "PAT_*", "SYL_*", "SCHWA_*"], notes: "Canonical only as the generic safe fallback and current memory-cue surface. Definition-less immutable Meaning Match payloads may reach it through an explicit compatibility adapter; forward governed Meaning Match selects MeaningConnectionActivity." }),
+  auditRow("REVIEW_QUICK_SORT compatibility mapping", "lib/adle/activity-template-registry.ts", "REVIEW_SORT", "COMPATIBILITY_ONLY", null, { currentRouteUsages: ["historical generic assignments only"], registryTemplateKeys: ["REVIEW_QUICK_SORT"], persistenceEvidenceDifferences: "The historical item never carried production evidence and is ignored before review retrieval.", historicalReplayDependency: true, migrationRisk: "low" }),
   auditRow("ReflectionActivity", "components/adle/activities/reflection-activity.tsx", "ERROR_REPAIR", "CANONICAL", "ReflectionActivity", { currentRouteUsages: GENERIC, registryTemplateKeys: ["ERROR_REFLECTION_CUE"], behaviouralDifferences: "Enforces reveal then Hide Word before retry.", migrationRisk: "high" }),
 
   auditRow("SplitHandle", "components/adle/activities/shared/split-handle.tsx", "CLEAVER", "CANONICAL", "SplitHandle", { currentRouteUsages: [...PREFIX_AFFIX, BASE_ROUTE], registryTemplateKeys: ["MOR_STRIP_BUILD"], propsConfigDifferences: "Multiple governed split points, controlled/restored selected boundaries, isolated component index, feedback/scaffold/copy policy.", behaviouralDifferences: "Owns all boundary selection, checking, focus, sound, motion and completion mechanics.", migrationRisk: "high" }),
@@ -432,8 +433,8 @@ export const ADLE_ACTIVITY_IMPLEMENTATION_AUDIT: readonly ActivityImplementation
   auditRow("OrderedBuildEngine", "components/adle/activities/shared/ordered-build-engine.ts", "BUILD_MECHANICS", "CANONICAL", "OrderedBuildEngine", { currentRouteUsages: [...PREFIX_AFFIX, BASE_ROUTE, ...COMPOUND_ROUTES], behaviouralDifferences: "Headless placement, reordering, validation and restoration state shared by rail and Jigsaw presentations.", migrationRisk: "high" }),
   auditRow("SnapRail", "components/adle/activities/shared/snap-rail.tsx", "WORD_ASSEMBLY", "CANONICAL_MODE", "DefinitionWordBuilder", { currentRouteUsages: [...PREFIX_AFFIX, BASE_ROUTE], registryTemplateKeys: ["MOR_BUILD_WORD"], behaviouralDifferences: "One-row tile and pointer presentation over OrderedBuildEngine.", migrationRisk: "high" }),
   auditRow("DefinitionWordBuilder", "components/adle/activities/shared/definition-word-builder.tsx", "WORD_ASSEMBLY", "CANONICAL", "DefinitionWordBuilder", { currentRouteUsages: [...PREFIX_AFFIX, BASE_ROUTE], registryTemplateKeys: ["MOR_BUILD_WORD"], propsConfigDifferences: "Prefix, suffix and Base Word routes supply governed parts, definitions, word sums and feedback without route-local build state.", migrationRisk: "high" }),
-  auditRow("BinSort", "components/adle/activities/shared/bin-sort.tsx", "MEANING_SORT", "CANONICAL", "BinSort", { currentRouteUsages: PREFIX_AFFIX, migrationRisk: "medium" }),
-  auditRow("FlipToggle", "components/adle/activities/shared/flip-toggle.tsx", "MEANING_DISCOVERY", "DEAD_OR_UNREFERENCED", "Discovery", { evidence: "Exported by shared/index.tsx but no learner route or preview imports it.", migrationRisk: "low", recommendedAction: "Keep until convergence decision; do not select for new work." }),
+  auditRow("BinSort", "components/adle/activities/shared/bin-sort.tsx", "MEANING_SORT", "CANONICAL", "BinSort", { currentRouteUsages: PREFIX_AFFIX, behaviouralDifferences: "One state machine owns current item, correctness, brief success phase, automatic advance and completion.", persistenceEvidenceDifferences: "Glitter and Overview are presentation-only; onComplete retains the existing guided completion boundary.", migrationRisk: "medium" }),
+  auditRow("BinSortOverview", "components/adle/activities/shared/bin-sort.tsx", "MEANING_SORT completion view", "CANONICAL_MODE", "BinSort", { currentRouteUsages: PREFIX_AFFIX, behaviouralDifferences: "Stateless semantic grouping derived from BinSort items, bins and correct placements.", persistenceEvidenceDifferences: "Creates no attempt, evidence or persistence event.", migrationRisk: "low" }),
   auditRow("CoverShutter", "components/adle/activities/shared/cover-shutter.tsx", "COVER_CHECK", "CANONICAL", "CoverShutter", { currentRouteUsages: [GENERIC_ROUTE, ...SPECIALIST], registryTemplateKeys: ["CONTROLLED_SPELLING", "HIDE_WRITE"], behaviouralDifferences: "Owns look/cover/write/check and the single word DiffReveal.", persistenceEvidenceDifferences: "Historical keys are retained by dispatch/evidence adapters, not learner UI.", migrationRisk: "high" }),
   auditRow("SentenceDictation", "components/adle/activities/shared/sentence-dictation.tsx", "DICTATION.whole_sentence", "CANONICAL", "SentenceDictation", { currentRouteUsages: [GENERIC_ROUTE, ...SPECIALIST], registryTemplateKeys: ["DICTATION_NO_IMAGE", "DICTATION_SENTENCE_CONTEXT"], propsConfigDifferences: "Authored audio and correct sentence are separate inputs; routes control value, checked state and continuation.", behaviouralDifferences: "Owns textarea, manual check, locked post-check DiffReveal and focus/accessibility behavior.", persistenceEvidenceDifferences: "Emits callbacks only and contains no assignment, correctness or persistence policy.", migrationRisk: "high" }),
   auditRow("ColdWordRecall", "components/adle/activities/shared/cold-word-recall.tsx", "REVIEW_DICTATION / DIAGNOSTIC_DICTATION_PROBE", "CANONICAL", "ColdWordRecall", { currentRouteUsages: GENERIC, registryTemplateKeys: ["REVIEW_DICTATION", "DIAGNOSTIC_DICTATION_PROBE"], propsConfigDifferences: "scheduled_review and diagnostic_probe modes change copy only; route adapters retain evidence policy.", behaviouralDifferences: "Correct spelling is absent until the controlled response is locked; locked input is read-only and has no back/edit path.", persistenceEvidenceDifferences: "Existing review scheduler and diagnostic intake consume the unchanged owning attempt maps.", migrationRisk: "high" }),
@@ -442,7 +443,6 @@ export const ADLE_ACTIVITY_IMPLEMENTATION_AUDIT: readonly ActivityImplementation
   auditRow("MorphemeTile", "components/adle/activities/morphology/shared/morphology-primitives.tsx", "WORD_PART_TILE", "DEAD_OR_UNREFERENCED", "DraggableTile", { currentRouteUsages: ["/dev/adle/morphology-primitives only"], evidence: "Used only by development preview compositions." }),
   auditRow("MorphemeSequence", "components/adle/activities/morphology/shared/morphology-primitives.tsx", "WORD_PART_DISPLAY", "DEVELOPMENT_REFERENCE", null, { currentRouteUsages: ["/dev/adle/morphology-primitives only"], recommendedAction: "Retain only as a read-only governed morphology-data inspection surface; do not route learner interaction through it." }),
   auditRow("MorphemeRail", "components/adle/activities/morphology/shared/morphology-primitives.tsx", "WORD_ASSEMBLY", "DUPLICATE_TO_MIGRATE", "SnapRail", { currentRouteUsages: ["/dev/adle/morphology-primitives only"], behaviouralDifferences: "Tap-only placement without correctness or completion contract.", migrationRisk: "low" }),
-  auditRow("MeaningFlip", "components/adle/activities/morphology/shared/morphology-primitives.tsx", "MEANING_DISCOVERY", "DUPLICATE_TO_MIGRATE", "Discovery", { currentRouteUsages: ["/dev/adle/morphology-primitives only"], migrationRisk: "low" }),
   auditRow("MorphologyDiff", "components/adle/activities/morphology/shared/morphology-primitives.tsx", "POST_ATTEMPT_COMPARISON", "DUPLICATE_TO_MIGRATE", "DiffReveal", { currentRouteUsages: ["/dev/adle/morphology-primitives only"], migrationRisk: "low" }),
   auditRow("MorphemeGlossCard", "components/adle/activities/morphology/shared/morphology-primitives.tsx", "MORPHOLOGY_REFERENCE", "DEAD_OR_UNREFERENCED", null, { currentRouteUsages: ["/dev/adle/morphology-primitives only"] }),
   auditRow("RootArtifactCard", "components/adle/activities/morphology/shared/morphology-primitives.tsx", "MORPHOLOGY_REFERENCE", "DEAD_OR_UNREFERENCED", null, { currentRouteUsages: ["/dev/adle/morphology-primitives only"] }),
@@ -458,10 +458,8 @@ export const ADLE_ACTIVITY_IMPLEMENTATION_AUDIT: readonly ActivityImplementation
   auditRow("ChoiceCard", "components/adle/interactions/selectable-item.tsx", "CHOICE_PRIMITIVE", "DEAD_OR_UNREFERENCED", null, { evidence: "No import found outside its declaration." }),
 
   auditRow("LearnIntroduction", "components/adle/morphology/morphology-guided-lesson.tsx", "INTRODUCTION", "DUPLICATE_TO_MIGRATE", "IntroActivity / future reading shell", { currentRouteUsages: PREFIX_AFFIX, visualDifferences: "Dark Word Lab multi-screen model/cards layout.", migrationRisk: "high" }),
-  auditRow("Discovery", "components/adle/morphology/morphology-guided-lesson.tsx", "MEANING_DISCOVERY", "CANONICAL", "Discovery", { currentRouteUsages: PREFIX_AFFIX, migrationRisk: "high" }),
+  auditRow("Discovery", "components/adle/morphology/morphology-guided-lesson.tsx", "MEANING_DISCOVERY", "CANONICAL", "Discovery", { currentRouteUsages: PREFIX_AFFIX, propsConfigDifferences: "One stateful engine receives prefix/suffix position, label, governed transformation cards, distractors and audio through the morphology payload.", migrationRisk: "high" }),
   auditRow("SplitBuild", "components/adle/morphology/morphology-guided-lesson.tsx", "CLEAVER", "THIN_ADAPTER", "SplitHandle", { currentRouteUsages: PREFIX_AFFIX, propsConfigDifferences: "Translates prefix/suffix semantics and feedback policy into SplitHandle without owning learner state.", migrationRisk: "high" }),
-  auditRow("MeaningCards", "components/adle/morphology/morphology-guided-lesson.tsx", "MEANING_SORT_RECAP", "CANONICAL_MODE", "BinSort", { currentRouteUsages: PREFIX_AFFIX, migrationRisk: "medium" }),
-  auditRow("MeaningOverview", "components/adle/morphology/morphology-guided-lesson.tsx", "MEANING_SORT_RECAP", "CANONICAL_MODE", "BinSort", { currentRouteUsages: PREFIX_AFFIX, migrationRisk: "medium" }),
   auditRow("Morphology Cover Check adapter", "components/adle/morphology/morphology-guided-lesson.tsx", "COVER_CHECK adapter", "CANONICAL_MODE", "CoverShutter", { currentRouteUsages: PREFIX_AFFIX, propsConfigDifferences: "Supplies governed word parts, ratio close policy, restored attempt/check state and route callbacks without learner UI.", migrationRisk: "high", historicalReplayDependency: true }),
   auditRow("Morphology Sentence Dictation adapter", "components/adle/morphology/morphology-guided-lesson.tsx", "DICTATION.whole_sentence adapter", "CANONICAL_MODE", "SentenceDictation", { currentRouteUsages: PREFIX_AFFIX, propsConfigDifferences: "Supplies authored sentence/audio, restored response/check state and continuation copy.", persistenceEvidenceDifferences: "Target-token and context-slip analysis remain route-owned.", migrationRisk: "high", historicalReplayDependency: true }),
   auditRow("MorphologyReflectionAdapter", "components/adle/morphology/morphology-guided-lesson.tsx", "LESSON_REFLECTION adapter", "CANONICAL_MODE", "LessonReflection", { currentRouteUsages: PREFIX_AFFIX, propsConfigDifferences: "Derives normalized target misses, governed Prefix/Suffix prompt, teaching recaps and Prefix context-slip recap.", persistenceEvidenceDifferences: "Retains completeAdleLessonPartAction, completion trace, assignment binding and specialist attempt envelopes outside LessonReflection.", migrationRisk: "high" }),
@@ -477,7 +475,7 @@ export const ADLE_ACTIVITY_IMPLEMENTATION_AUDIT: readonly ActivityImplementation
 
   auditRow("CompoundReadingPage", "components/adle/morphology/closed-compound-guided-lesson.tsx", "READING_PAGE", "REQUIRES_ARCHITECTURE_DECISION", "future ReadingPage", { currentRouteUsages: ["compound_word_lab:v2"], migrationRisk: "high" }),
   auditRow("CompoundJigsawActivity", "components/adle/morphology/compound-jigsaw-activity.tsx", "COMPOUND_JIGSAW", "CANONICAL", "CompoundJigsawActivity", { currentRouteUsages: [...COMPOUND_ROUTES], registryTemplateKeys: ["MOR_COMPOUND_JIGSAW"], migrationRisk: "high", historicalReplayDependency: true }),
-  auditRow("MeaningConnectionActivity", "components/adle/morphology/meaning-connection-activity.tsx", "MEANING_MATCH", "CANONICAL", "MeaningConnectionActivity", { currentRouteUsages: [...COMPOUND_ROUTES], registryTemplateKeys: ["MOR_COMPOUND_MEANING_CONNECTION"], migrationRisk: "high", historicalReplayDependency: true }),
+  auditRow("MeaningConnectionActivity", "components/adle/morphology/meaning-connection-activity.tsx", "MEANING_MATCH", "CANONICAL", "MeaningConnectionActivity", { currentRouteUsages: [...COMPOUND_ROUTES, GENERIC_ROUTE], registryTemplateKeys: ["HOM_MEANING_MATCH", "MOR_MEANING_MATCH", "MOR_COMPOUND_MEANING_CONNECTION"], propsConfigDifferences: "Governed definitions are required; optional component clues and audio do not create another mode state machine.", migrationRisk: "high", historicalReplayDependency: true }),
   auditRow("Compound Cover Check adapter", "components/adle/morphology/closed-compound-guided-lesson.tsx", "COVER_CHECK adapter", "CANONICAL_MODE", "CoverShutter", { currentRouteUsages: [...COMPOUND_ROUTES], propsConfigDifferences: "Supplies governed components, split points and restored checked attempt through the shared v1/v2 runtime adapter.", migrationRisk: "high", historicalReplayDependency: true }),
   auditRow("Compound Sentence Dictation adapter", "components/adle/morphology/closed-compound-guided-lesson.tsx", "DICTATION.whole_sentence adapter", "CANONICAL_MODE", "SentenceDictation", { currentRouteUsages: [...COMPOUND_ROUTES], propsConfigDifferences: "Supplies authored audio/sentence and restored response/check state through the shared v1/v2 runtime adapter.", persistenceEvidenceDifferences: "Governed span extraction and separator-significant correctness remain route-owned.", migrationRisk: "high", historicalReplayDependency: true }),
   auditRow("CompoundLessonReflectionAdapter", "components/adle/morphology/closed-compound-guided-lesson.tsx", "LESSON_REFLECTION adapter", "CANONICAL_MODE", "LessonReflection", { currentRouteUsages: [...COMPOUND_ROUTES], propsConfigDifferences: "Derives exact-governed-form misses and retains existing sentence comparisons plus closed-v1 no-miss copy.", persistenceEvidenceDifferences: "Retains completeAdleLessonPartAction and all hidden guided/production envelopes outside LessonReflection.", migrationRisk: "high", historicalReplayDependency: true }),
@@ -507,9 +505,9 @@ export const ADLE_ACTIVITY_CONVERGENCE_BACKLOG: readonly ActivityConvergenceBack
   },
   {
     priority: "P1", title: "Wire rich components through registry modes",
-    currentImplementations: ["GuidedActivity fallback", "specialist direct SplitHandle/SnapRail/BinSort/MeaningConnectionActivity"],
+    currentImplementations: ["GuidedActivity fallback for still-unbuilt non-Meaning families", "specialist canonical activity adapters"],
     targetCanonicalImplementation: "Activity Catalogue mapping feeding versioned renderer registration",
-    intendedModes: ["cleaver", "word_assembly", "meaning_match", "meaning_sort"], routesAffected: [GENERIC_ROUTE, ...ALL_SPECIALIST_ROUTES],
+    intendedModes: ["remaining phoneme/grapheme, inflection, pattern and syllable interactions"], routesAffected: [GENERIC_ROUTE, ...ALL_SPECIALIST_ROUTES],
     regressionRequirements: ["template-to-catalogue total mapping", "payload validation", "safe fallback", "lazy renderer", "no dispatch change until separately approved"],
     learnerRuntimeRisk: "high", modelCReleaseChangeRequired: true,
     consolidationOpportunity: "Stops new generic/specialist divergence; source deletion depends on the later runtime refactor.",
@@ -525,7 +523,7 @@ export const ADLE_ACTIVITY_CONVERGENCE_BACKLOG: readonly ActivityConvergenceBack
   },
   {
     priority: "P2", title: "Retire preview-only/dead primitives after decisions",
-    currentImplementations: ["FlipToggle", "MorphemeRail", "MeaningFlip", "MorphologyDiff", "ActivityFrame family"],
+    currentImplementations: ["MorphemeRail", "MorphologyDiff", "ActivityFrame family"],
     targetCanonicalImplementation: "catalogue-selected shared primitives or explicit deletion",
     intendedModes: ["development_reference"], routesAffected: ["/dev/adle/morphology-primitives"],
     regressionRequirements: ["confirm no historical import", "retain screenshots or replacement gallery fixture where valuable"],
@@ -544,10 +542,10 @@ export const ADLE_ACTIVITY_CONVERGENCE_BACKLOG: readonly ActivityConvergenceBack
 ] as const;
 
 export const ADLE_ACTIVITY_AUDIT_CONCLUSIONS = {
-  authoritativeBaseSha: "bcc7e2a713573f46cc433f6c9096f688c697b2fc",
+  authoritativeBaseSha: "176a7745342b16490b3371f5ed7eccd3a0b04b85",
   startingState: {
-    auditWorktree: "Fresh Group 4 worktree on codex/adle-group4-split-cleaver-convergence at fetched origin/main bcc7e2a713573f46cc433f6c9096f688c697b2fc.",
-    protectedOccupiedCheckout: "The dirty primary checkout and occupied Group 1, Group 2 and Group 3 convergence worktrees were inspected read-only and left unmodified.",
+    auditWorktree: "Fresh Group 5 worktree on codex/adle-group5-meaning-categorisation-convergence at fetched origin/main 176a7745342b16490b3371f5ed7eccd3a0b04b85.",
+    protectedOccupiedCheckout: "The dirty primary checkout and occupied earlier convergence worktrees were inspected read-only and left unmodified.",
     runtimeRegistries: [
       "lib/adle/activity-template-registry.ts — 34 generic template keys and renderer-kind dispatch",
       "components/adle/activities/registry.ts — React compatibility wrapper over the generic runtime registry",
@@ -568,6 +566,7 @@ export const ADLE_ACTIVITY_AUDIT_CONCLUSIONS = {
   authorityRelationship: "Activity Catalogue is the architectural chooser and capability inventory. activity-template-registry.ts remains the generic runtime dispatch authority; curriculum route registry plus specialist adapters remain the rich-route runtime authority. The catalogue regression maps every generic template key exactly once and validates every component path, so these authorities cannot silently drift while runtime refactoring is frozen.",
   buildBoundary: "BUILD is one shared ordered-placement interaction family with two learner experiences. DefinitionWordBuilder presents one definition-led target and is configured by all 19 Prefix, Suffix/Affix and Base Word microskills. CompoundJigsawActivity presents anonymous puzzle rows above one deterministic mixed bank using Jigsaw-shaped component, SPACE and hyphen pieces; checked row content identifies and locks the governed word. Both use OrderedBuildEngine for candidate order, placement, rearrangement, validation, completion and restoration. Historical closed-compound v1 payloads are translated at the route boundary to generalized two-piece/no-join targets; no historical Jigsaw UI remains.",
   cleaverBoundary: "SplitHandle is the one stateful Split engine across Prefix, Affix and Base Word. Required boundaries, restored selected cuts and an isolated governed component are neutral configuration; SplitBuild and Base Word Cleave are thin curriculum adapters. Final-y source-form restoration is a separate post-Split SpellingTransformationReveal, and the redundant typed base confirmation is retired. Word assembly and syllable split/rebuild remain separate learner actions.",
+  meaningCategorisationBoundary: "Meaning has exactly three canonical learner actions. Discovery is one prefix/suffix-configured transformation-and-choice engine. MeaningConnectionActivity is one rich word-to-definition connection engine for Compound and governed generic payloads; definition-less immutable payloads use an explicit compatibility fallback. BinSort is one categorisation state machine and owns immediate feedback, a brief reduced-motion-safe success celebration, automatic advance, and its stateless final BinSortOverview. QuickSort UI and forward generation are retired; REVIEW_QUICK_SORT remains only a compatibility key and immutable generic snapshot v2 discriminator.",
   reflectionBoundary: "ERROR_REPAIR remains ReflectionActivity and keeps reveal-hide-retry evidence. MEMORY_CUE remains child mnemonic authoring. LessonReflection is the canonical end-of-first-impression LESSON_REFLECTION: it receives normalized attempted-versus-correct spelling summaries, a governed lesson-specific prompt, optional specialist/context recap, and one controlled response. Prefix context slips remain recap data rather than target assessment evidence. Route correctness, persistence, assignment and completion adapters remain outside the component; stored historical prompt keys/text remain assignment-owned.",
   spellRecallBoundary: "First-impression spelling has exactly two learner experiences: CoverShutter for study-cover-spell-compare and SentenceDictation for authored whole-sentence audio recall. Scheduled review and diagnostics share ColdWordRecall, which never reveals the governed spelling until the response is irreversibly locked. Historical CONTROLLED_SPELLING, HIDE_WRITE, DICTATION_NO_IMAGE, DICTATION_SENTENCE_CONTEXT, REVIEW_DICTATION and DIAGNOSTIC_DICTATION_PROBE keys remain accepted semantic/configuration inputs only. Route adapters retain resume, correctness, evidence, scheduling, probe intake, assignment and persistence. SpellingField and GrownUpReveal are retired.",
   group3Closeout: {
@@ -588,6 +587,12 @@ export const ADLE_ACTIVITY_AUDIT_CONCLUSIONS = {
     invariants: "No attempt identity, assignment binding, evidence classification, completion call, resume key/schema, release state, curriculum activation or Production data changed.",
     nextStep: "Stage the reviewed Group 4 scope, create the single convergence commit, push through the normal mainline review/deployment path, and verify the resulting deployment without changing curriculum or Production data.",
   },
+  group5Closeout: {
+    status: "READY_FOR_OWNER_ACCEPTANCE",
+    summary: "Three canonical Meaning learner experiences remain: Discovery, MeaningConnectionActivity and BinSort. Duplicate/prototype Meaning UI and standalone QuickSort are retired; BinSort owns its success and Overview states.",
+    invariants: "No attempt identity, correctness policy, assignment identity, evidence classification, completion envelope, resume schema, scheduler outcome, curriculum activation, release state or Production data changed.",
+    nextStep: "Run the deterministic Group 5 fixtures and obtain owner manual acceptance before any staging or commit.",
+  },
   newActivityRule: [
     "Search the canonical Activity Catalogue.",
     "Reuse an existing activity as-is if it meets the pedagogical requirement.",
@@ -605,7 +610,7 @@ export const ADLE_ACTIVITY_AUDIT_CONCLUSIONS = {
     bespokePieces: ["reading-page data shape outside Compound", "Meet the Words implementations", "shell navigation/resume", "route completion adapters"],
   },
   reviewImplications: {
-    eligible: ["REVIEW_SORT", "DICTATION.word", "DICTATION.review", "FREE_WRITING.review_transfer once implemented"],
+    eligible: ["DICTATION.word", "DICTATION.review", "FREE_WRITING.review_transfer once implemented"],
     notEligible: ["INTRODUCTION", "READING_PAGE", "MEANING_DISCOVERY", "WORD_FAMILY_REVEAL", "LESSON_REFLECTION"],
     distinctions: ["ERROR_REPAIR is conditional same-session repair, not scheduled review.", "LESSON_REFLECTION is end-of-first-impression metacognition, not review.", "Review evidence remains independent retrieval; Cover Check is only review-eligible when its reveal policy does not contaminate the scored attempt."],
   },

@@ -11,7 +11,8 @@
  *
  * ADLE 7R evidence contract: production/dictation/probe attempts are keyed by
  * canonical_word_id; guided practice and reflection retries are keyed by
- * assignment_item_id. Quick sort stays local. Correctness is derived
+ * assignment_item_id. Historical QuickSort items are compatibility-only and
+ * are deliberately ignored. Correctness is derived
  * server-side; the client submits raw attempt text only.
  */
 
@@ -30,7 +31,6 @@ import {
 import type { AdleSessionItem } from "@/lib/adle/loaders/daily-plan-surface";
 import { isAttemptCorrect } from "@/lib/adle/session-correctness";
 import { IntroActivity } from "@/components/adle/activities/intro-activity";
-import { QuickSortActivity } from "@/components/adle/activities/quick-sort-activity";
 import { ColdWordRecall } from "@/components/adle/activities/shared/cold-word-recall";
 import { CoverShutter } from "@/components/adle/activities/shared/cover-shutter";
 import { SentenceDictation } from "@/components/adle/activities/shared/sentence-dictation";
@@ -38,6 +38,10 @@ import { GuidedActivity } from "@/components/adle/activities/guided-activity";
 import { ReflectionActivity } from "@/components/adle/activities/reflection-activity";
 import type { BaseWordFamilyLessonSnapshotV1 } from "@/lib/adle/morphology/base-word-family-payload";
 import { ClosedCompoundGuidedLesson, CompoundWordGuidedLesson } from "@/components/adle/morphology/closed-compound-guided-lesson";
+import {
+  MeaningConnectionActivity,
+  type MeaningConnectionTarget,
+} from "@/components/adle/morphology/meaning-connection-activity";
 import type { LessonRouteResolutionResult } from "@/lib/adle/composable-lesson/route-resolution";
 import {
   extractSentenceTarget,
@@ -167,13 +171,12 @@ function BaseWordFamilyPart(props: { childId: string; assignmentId: string; payl
 }
 
 function ReviewPart(props: { childId: string; assignmentId: string; items: AdleSessionItem[] }) {
-  const quickSort = itemsForRenderer(props.items, "review_quick_sort", ["quick_sort"])[0] ?? null;
   const production = itemsForRenderer(props.items, "review_production", ["cold_word_recall", "must_use_writing"]);
   const reflection = itemsForRenderer(props.items, "review_reflection", ["reflection"]);
   const [attempts, setAttempts] = useState<Map<string, string>>(new Map());
   const [retries, setRetries] = useState<Map<string, string>>(new Map());
   const [locked, setLocked] = useState<Set<string>>(new Set());
-  const [phase, setPhase] = useState<"sort" | "production" | "reflection">(quickSort ? "sort" : "production");
+  const [phase, setPhase] = useState<"production" | "reflection">("production");
   const reviewResumeKey = `adle:cold-word-recall:${props.assignmentId}:scheduled-review`;
 
   useEffect(() => {
@@ -202,19 +205,6 @@ function ReviewPart(props: { childId: string; assignmentId: string; items: AdleS
   return (
     <section className="brand-card rounded-3xl p-4 md:p-5">
       <p className="brand-eyebrow">Part 1 · Review first</p>
-
-      {phase === "sort" && quickSort !== null ? (
-        <div className="mt-3">
-          <h2 className="text-sm font-semibold text-[color:var(--ink)]">Quick sort</h2>
-          <p className="mt-1 text-sm text-[color:var(--mid)]">
-            Warm up by sorting — then start spelling; the words hide and are read to you.
-          </p>
-          <div className="mt-2">
-            <QuickSortActivity item={quickSort} />
-          </div>
-          <NextButton label="Start spelling →" onClick={() => setPhase("production")} />
-        </div>
-      ) : null}
 
       {phase === "production" ? (
         <div className="mt-4">
@@ -282,9 +272,33 @@ function ReviewPart(props: { childId: string; assignmentId: string; items: AdleS
   );
 }
 
+function meaningConnectionTarget(item: AdleSessionItem): MeaningConnectionTarget | null {
+  const data = item.promptData;
+  const nested = typeof data.meaningConnection === "object" && data.meaningConnection !== null
+    ? data.meaningConnection as Record<string, unknown>
+    : data;
+  const definition = [nested.definition, nested.childFriendlyDefinition, nested.wholeWordMeaning]
+    .find((value): value is string => typeof value === "string" && value.trim().length > 0);
+  if (!item.canonicalWordId || !item.targetWord || !definition) return null;
+  const rawComponentMeanings = nested.componentMeanings;
+  return {
+    canonicalWordId: item.canonicalWordId,
+    word: item.targetWord,
+    ...(typeof nested.audioText === "string" ? { audioText: nested.audioText } : {}),
+    definition,
+    ...(Array.isArray(rawComponentMeanings)
+      ? { componentMeanings: rawComponentMeanings.filter((value): value is string => typeof value === "string") }
+      : {}),
+    ...(typeof nested.componentToWholeRelationship === "string"
+      ? { componentToWholeRelationship: nested.componentToWholeRelationship }
+      : {}),
+  };
+}
+
 function LessonPart(props: { childId: string; assignmentId: string; items: AdleSessionItem[] }) {
   const intro = itemsForRenderer(props.items, "lesson_intro", ["intro"]);
   const guided = itemsForRenderer(props.items, "guided_practice", ["guided_prompt", "reflection"]);
+  const meaningMatch = itemsForRenderer(props.items, "guided_practice", ["meaning_match"]);
   const guidedCover = itemsForRenderer(props.items, "guided_practice", ["cover_check"]);
   const production = itemsForRenderer(props.items, "lesson_production", ["cover_check"]);
   const mustUseWriting = itemsForRenderer(props.items, "lesson_production", ["must_use_writing"]);
@@ -332,6 +346,11 @@ function LessonPart(props: { childId: string; assignmentId: string; items: AdleS
     ])),
     [dictation],
   );
+  const meaningTargets = useMemo(
+    () => meaningMatch.map(meaningConnectionTarget),
+    [meaningMatch],
+  );
+  const hasGovernedMeaningTargets = meaningTargets.length > 0 && meaningTargets.every((target) => target !== null);
   const missingSentenceContracts = dictation.filter((item) => dictationContracts.get(item.id) === null);
   const readyToSubmit =
     production.every((item) => covered.has(item.id)) &&
@@ -363,6 +382,30 @@ function LessonPart(props: { childId: string; assignmentId: string; items: AdleS
               />
             ))}
           </div>
+        </div>
+      ) : null}
+
+      {meaningMatch.length > 0 ? (
+        <div className="mt-4">
+          {hasGovernedMeaningTargets ? (
+            <MeaningConnectionActivity
+              targets={meaningTargets as MeaningConnectionTarget[]}
+              muted
+              onComplete={({ connected }) => {
+                setGuidedNotes((current) => {
+                  const next = new Map(current);
+                  for (const item of meaningMatch) next.set(item.id, connected.includes(item.canonicalWordId ?? "") ? "connected" : "");
+                  return next;
+                });
+              }}
+            />
+          ) : (
+            <section aria-label="Historical meaning activity compatibility" className="grid gap-2">
+              {meaningMatch.map((item) => (
+                <GuidedActivity key={item.id} item={item} value={guidedNotes.get(item.id) ?? ""} onChange={(value) => setGuidedNotes((current) => mapWith(current, item.id, value))} />
+              ))}
+            </section>
+          )}
         </div>
       ) : null}
 

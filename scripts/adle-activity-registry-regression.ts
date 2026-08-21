@@ -37,7 +37,7 @@ const EXPECTED: ReadonlyArray<[string, string, ActivityRendererKind, ActivityMod
   ["DIAGNOSTIC_DICTATION_PROBE", "lesson_probe", "cold_word_recall", "production", true],
   ["CONTROLLED_SPELLING", "lesson_production", "cover_check", "production", true],
   ["HIDE_WRITE", "guided_practice", "cover_check", "guided", true],
-  ["REVIEW_QUICK_SORT", "review_quick_sort", "quick_sort", "read_only", false],
+  ["REVIEW_QUICK_SORT", "review_quick_sort", "compatibility_noop", "read_only", false],
   ["ERROR_REFLECTION_CUE", "review_reflection", "reflection", "reflection", true],
   ["MEMORY_CUE", "guided_practice", "reflection", "guided", true],
   ["MUST_USE_FREEWRITING", "lesson_production", "must_use_writing", "production", true],
@@ -56,7 +56,6 @@ for (const [templateKey, sectionKey, kind, mode, capturesAttempt] of EXPECTED) {
 const TIER_C_TEMPLATES = [
   "PG_SOUND_NOTICE",
   "PG_GRAPHEME_MAP",
-  "HOM_MEANING_MATCH",
   "HOM_SENTENCE_CHOICE",
   "HOM_CORRECTION",
   "INF_CONTEXT_CHOICE",
@@ -64,10 +63,8 @@ const TIER_C_TEMPLATES = [
   "INF_TRANSFORM",
   "IRRE_TRICKY_PART",
   "MOR_STRIP_BUILD",
-  "MOR_MEANING_MATCH",
   "MOR_BUILD_WORD",
   "MOR_COMPOUND_JIGSAW",
-  "MOR_COMPOUND_MEANING_CONNECTION",
   "PAT_PATTERN_SPOT",
   "PAT_RULE_APPLY",
   "SYL_SPLIT",
@@ -81,6 +78,12 @@ for (const templateKey of TIER_C_TEMPLATES) {
   assert(definition.rendererKind === "guided_prompt", `${templateKey} is a warm prompt shell`);
   assert(definition.activityMode === "guided", `${templateKey} is guided mode`);
   assert(definition.capturesAttempt, `${templateKey} captures the existing guided attempt map`);
+}
+
+for (const templateKey of ["HOM_MEANING_MATCH", "MOR_MEANING_MATCH", "MOR_COMPOUND_MEANING_CONNECTION"]) {
+  const definition = resolve(templateKey, "guided_practice");
+  assert(definition.rendererKind === "meaning_match", `${templateKey} selects canonical Meaning Connection`);
+  assert(definition.activityMode === "guided", `${templateKey} remains guided mode`);
 }
 
 // --- get/list APIs expose a strict known-key set ----------------------------
@@ -97,7 +100,7 @@ assert(resolve("BRAND_NEW_TEMPLATE", "lesson_dictation").rendererKind === "sente
 assert(resolve("BRAND_NEW_TEMPLATE", "review_production").rendererKind === "cold_word_recall", "unknown review production falls back to ColdWordRecall");
 assert(resolve("BRAND_NEW_TEMPLATE", "lesson_production").fallbackBehaviour === "section_safe_fallback", "section fallback is auditable");
 assert(resolve("BRAND_NEW_TEMPLATE", "review_reflection").rendererKind === "reflection", "unknown template -> reflection section");
-assert(resolve("BRAND_NEW_TEMPLATE", "review_quick_sort").rendererKind === "quick_sort", "unknown template -> quick_sort section");
+assert(resolve("BRAND_NEW_TEMPLATE", "review_quick_sort").rendererKind === "compatibility_noop", "historical review-sort section is ignored safely");
 assert(
   resolve("BRAND_NEW_TEMPLATE", "totally_unknown_section").rendererKind === "guided_prompt",
   "unknown template + unknown section -> warm prompt shell (never a broken screen)",
@@ -112,7 +115,7 @@ assert(
 );
 
 // --- Drift guard: the registry knows exactly the active template set ---------
-// (32 active generic templates plus two route-owned Compound modes.)
+// REVIEW_QUICK_SORT remains a compatibility key, not a forward renderer.
 
 const ACTIVE_TEMPLATES = [
   "CONTROLLED_SPELLING",

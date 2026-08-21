@@ -5,7 +5,6 @@ import wordAnalyses from "@/data/adle/approved/d4-mor/v1/d4-mor-v1-word-analyses
 import pilotFixture from "@/data/adle/approved/d4-mor/v1/d4-mor-prefixes-un-pilot-source-fixture.json";
 import { MorphologyPrimitivesPreview } from "./morphology-primitives-preview";
 import {
-  toMeaningFlipViewModel,
   toMorphemeGlossCardViewModel,
   toMorphologyDiffViewModel,
   toMorphologySequenceViewModel,
@@ -66,7 +65,6 @@ export default function MorphologyPrimitivesDevPreviewPage() {
     <MorphologyPrimitivesPreview
       pilotSequence={pilotSequence}
       sequences={sequences}
-      meaningFlip={toMeaningFlipViewModel(pilot.anchorAnalysis)}
       glossCards={[toMorphemeGlossCardViewModel(prefixUn), toMorphemeGlossCardViewModel(rootTele)]}
       rootArtifact={toRootArtifactCardViewModel(rootArtifact)}
       family={toWordFamilyViewModel({ morpheme: rootTele, anchorWord: telephone.displayWord })}

@@ -18,6 +18,8 @@
     "adle:group3-cover-dictation-interaction-regression": "playwright test --config=playwright.adle.config.ts tests/adle/group3-cover-dictation-convergence.spec.ts",
     "adle:group4-split-cleaver-convergence-regression": "tsx scripts/adle-group4-split-cleaver-convergence-regression.ts",
     "adle:group4-split-cleaver-interaction-regression": "playwright test --config=playwright.adle.config.ts tests/adle/group4-split-cleaver-convergence.spec.ts",
+    "adle:group5-meaning-convergence-regression": "tsx scripts/adle-group5-meaning-convergence-regression.ts",
+    "adle:group5-meaning-convergence-interaction-regression": "playwright test --config=playwright.adle.config.ts tests/adle/group5-meaning-convergence.spec.ts",
     "adle:group1-build-convergence-regression": "tsx scripts/adle-group1-build-convergence-regression.ts",
     "adle:group1-build-interaction-regression": "playwright test --config=playwright.adle.config.ts tests/adle/group1-build-convergence.spec.ts",
     "child-switcher:regression": "tsx scripts/child-switcher-regression.ts",
