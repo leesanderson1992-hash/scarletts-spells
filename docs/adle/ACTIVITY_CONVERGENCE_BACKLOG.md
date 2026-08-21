@@ -8,17 +8,6 @@ This is a migration backlog, not authority to refactor, activate routes, change 
 
 ## Ordered backlog
 
-### P0 — Converge the Cleaver family
-
-- Current implementations: `SplitHandle`, `BaseWordCleaver`, `SplitBuild`, `Base Word Cleave adapter`
-- Target: SplitHandle
-- Intended modes: `find_boundaries`, `identify_components`, `isolate_base`, `final_y_restoration`
-- Routes affected: `dynamic_prefix_word_lab:v2`, `fixed_un_prefix_word_lab:v1`, `dynamic_affix_word_lab:v3`, `base_word_lab:v2`
-- Regression requirements: SVG/size/copy snapshot; pointer and keyboard boundary selection; focus after two misses; multiple boundaries; final-y restoration; resume parity; no evidence change
-- Learner/runtime risk: `high`
-- Model C release change required: No
-- Consolidation opportunity: Retire one 108-line duplicate implementation after route parity; adapter code may remain as configuration mapping.
-
 ### P0 — Extract the standard first-impression shell
 
 - Current implementations: `MorphologyGuidedLesson`, `BaseWordFamilyGuidedLesson`, `CompoundWordLessonRuntime`, `CommonWordLabShell`
@@ -54,7 +43,7 @@ This is a migration backlog, not authority to refactor, activate routes, change 
 
 ### P2 — Retire preview-only/dead primitives after decisions
 
-- Current implementations: `FlipToggle`, `MorphemeRail`, `WordSplitView`, `MeaningFlip`, `TransformationView`, `MorphologyDiff`, `ActivityFrame family`
+- Current implementations: `FlipToggle`, `MorphemeRail`, `MeaningFlip`, `MorphologyDiff`, `ActivityFrame family`
 - Target: catalogue-selected shared primitives or explicit deletion
 - Intended modes: `development_reference`
 - Routes affected: `/dev/adle/morphology-primitives`
@@ -79,7 +68,7 @@ This is a migration backlog, not authority to refactor, activate routes, change 
 
 ### Cleaver family
 
-Keep SplitHandle as the canonical interaction engine. Add isolate_base as configuration describing base segment/index and required adjacent cuts; add an optional post-split confirmation step; model final-y restoration as a post-split transformation hook; preserve SplitHandle's multi-boundary state, supplied components, copy policy, two-miss scaffold, focus movement, keyboard/pointer controls, sounds, reduced motion, success state and continuation. Migrate BaseWordCleaver only after pixel/interaction/resume parity. Do not merge word assembly or syllable splitting into Cleaver.
+SplitHandle is the one stateful Split engine across Prefix, Affix and Base Word. Required boundaries, restored selected cuts and an isolated governed component are neutral configuration; SplitBuild and Base Word Cleave are thin curriculum adapters. Final-y source-form restoration is a separate post-Split SpellingTransformationReveal, and the redundant typed base confirmation is retired. Word assembly and syllable split/rebuild remain separate learner actions.
 
 ### Reflection family
 
@@ -104,7 +93,7 @@ First-impression spelling has exactly two learner experiences: CoverShutter for 
 - authentic Free Writing surface
 - phoneme–grapheme mapping
 - syllable split/rebuild
-- production-ready spelling transformation interaction
+- drop-e/doubling and other interactive spelling transformations
 
 ## Future new-activity rule
 

@@ -44,6 +44,8 @@ export function SplitHandle(props: {
   word: string;
   splitPoints: number[];
   components?: readonly string[];
+  selectedBoundaries?: readonly number[];
+  isolatedComponentIndex?: number;
   misses: number;
   correct: boolean;
   muted?: boolean;
@@ -56,20 +58,29 @@ export function SplitHandle(props: {
   repeatedMissPrompt?: string;
   revealCorrectBoundaryAfterMisses?: boolean;
   continueLabel?: string;
+  onSelectedBoundariesChange?: (boundaries: number[]) => void;
   onMiss: (misses: number) => void;
   onCorrect: () => void;
   onContinue: () => void;
 }) {
   const reducedMotion = useReducedMotion();
-  const [activeBoundary, setActiveBoundary] = useState(1);
+  const requiredBoundaries = [...new Set(props.splitPoints)]
+    .filter((point) => Number.isInteger(point) && point > 0 && point < props.word.length)
+    .sort((left, right) => left - right);
+  const restoredBoundaries = [...new Set(props.selectedBoundaries ?? [])]
+    .filter((point) => requiredBoundaries.includes(point))
+    .sort((left, right) => left - right);
+  const [internalBoundaries, setInternalBoundaries] = useState<number[]>(restoredBoundaries);
+  const foundBoundaries = props.selectedBoundaries === undefined ? internalBoundaries : restoredBoundaries;
+  const remainingBoundaries = requiredBoundaries.filter((point) => !foundBoundaries.includes(point));
+  const nextRemainingBoundary = remainingBoundaries[0];
+  const [activeBoundary, setActiveBoundary] = useState(remainingBoundaries[0] ?? 1);
   const [struckBoundary, setStruckBoundary] = useState<number | null>(null);
   const [lastWrongBoundary, setLastWrongBoundary] = useState<number | null>(null);
   const [striking, setStriking] = useState(false);
   const [showSparkles, setShowSparkles] = useState(false);
-  const [foundBoundaries, setFoundBoundaries] = useState<number[]>([]);
   const timers = useRef<number[]>([]);
   const completed = useRef(props.correct);
-  const correctButton = useRef<HTMLButtonElement | null>(null);
   const continueButton = useRef<HTMLButtonElement | null>(null);
   const boundaryButtons = useRef<Array<HTMLButtonElement | null>>([]);
   const repeatedMiss = props.misses >= 2;
@@ -78,8 +89,11 @@ export function SplitHandle(props: {
 
   useEffect(() => () => timers.current.forEach((timer) => window.clearTimeout(timer)), []);
   useEffect(() => {
-    if (scaffolded && !props.correct) correctButton.current?.focus();
-  }, [props.correct, scaffolded]);
+    completed.current = props.correct;
+  }, [props.correct]);
+  useEffect(() => {
+    if (scaffolded && !props.correct) boundaryButtons.current[nextRemainingBoundary]?.focus();
+  }, [nextRemainingBoundary, props.correct, scaffolded]);
   useEffect(() => {
     if (props.correct) continueButton.current?.focus();
   }, [props.correct]);
@@ -88,6 +102,11 @@ export function SplitHandle(props: {
       boundaryButtons.current[lastWrongBoundary]?.focus();
     }
   }, [lastWrongBoundary, props.correct, props.misses]);
+  useEffect(() => {
+    if (!props.correct && !striking && lastWrongBoundary === null && foundBoundaries.length > 0) {
+      boundaryButtons.current[nextRemainingBoundary]?.focus();
+    }
+  }, [foundBoundaries.length, lastWrongBoundary, nextRemainingBoundary, props.correct, striking]);
 
   function later(callback: () => void, delay: number) {
     const timer = window.setTimeout(callback, delay);
@@ -95,8 +114,8 @@ export function SplitHandle(props: {
   }
 
   function choose(point: number) {
-    if (striking || completed.current || foundBoundaries.includes(point) || (scaffolded && !props.splitPoints.includes(point))) return;
-    const correct = props.splitPoints.includes(point);
+    if (striking || completed.current || foundBoundaries.includes(point) || (scaffolded && !requiredBoundaries.includes(point))) return;
+    const correct = requiredBoundaries.includes(point);
     setActiveBoundary(point);
     setStruckBoundary(point);
     setStriking(true);
@@ -106,9 +125,10 @@ export function SplitHandle(props: {
       setStriking(false);
       if (correct) {
         setLastWrongBoundary(null);
-        const next = [...foundBoundaries, point];
-        setFoundBoundaries(next);
-        if (props.splitPoints.every((candidate) => next.includes(candidate))) {
+        const next = [...foundBoundaries, point].sort((left, right) => left - right);
+        if (props.selectedBoundaries === undefined) setInternalBoundaries(next);
+        props.onSelectedBoundariesChange?.(next);
+        if (requiredBoundaries.every((candidate) => next.includes(candidate))) {
           completed.current = true;
           setShowSparkles(!reducedMotion);
           later(() => setShowSparkles(false), reducedMotion ? 0 : 700);
@@ -127,12 +147,12 @@ export function SplitHandle(props: {
   }
 
   if (props.correct) {
-    const parts = splitHandleDisplayParts(props.word, props.splitPoints, props.components);
+    const parts = splitHandleDisplayParts(props.word, requiredBoundaries, props.components);
     return (
-      <section className="grid gap-5 text-center" aria-labelledby="split-correct-heading" aria-live="polite">
+      <section className="grid gap-5 text-center" aria-labelledby="split-correct-heading" aria-live="polite" data-split-state="complete">
         <div className="relative flex flex-wrap items-center justify-center gap-4">
           {showSparkles && !reducedMotion ? <span aria-hidden="true" className="pointer-events-none absolute inset-0 grid place-items-center text-4xl text-amber-200 motion-safe:animate-[pulse_700ms_ease-out_2]">✦ ✧ ✦</span> : null}
-          {parts.map((part, index) => <span key={`${part}-${index}`} className="contents"><span className={`rounded-2xl px-5 py-4 text-3xl font-black ${index % 2 === 0 ? "bg-cyan-100 text-cyan-950" : "bg-amber-100 text-amber-950"}`}>{part}</span>{index + 1 < parts.length ? <span aria-hidden="true" className="text-3xl text-emerald-300">✓</span> : null}</span>)}
+          {parts.map((part, index) => <span key={`${part}-${index}`} className="contents"><span data-isolated-component={index === props.isolatedComponentIndex ? "true" : undefined} className={`rounded-2xl px-5 py-4 text-3xl font-black ${index === props.isolatedComponentIndex ? "bg-amber-100 text-amber-950 ring-4 ring-amber-300/70" : index % 2 === 0 ? "bg-cyan-100 text-cyan-950" : "bg-white text-slate-950"}`}>{part}</span>{index + 1 < parts.length ? <span aria-hidden="true" className="text-3xl text-emerald-300">✓</span> : null}</span>)}
         </div>
         <div className="mx-auto max-w-xl rounded-2xl border border-emerald-300/40 bg-emerald-50 p-4 text-emerald-950">
           <h2 id="split-correct-heading" className="text-xl font-black">{props.correctHeading ?? "Yes — you found the word parts."}</h2>
@@ -149,7 +169,7 @@ export function SplitHandle(props: {
       ? props.missMessage ?? props.missPrompt ?? "Not there yet. Look again for the word parts."
       : "";
   return (
-    <div className="text-center">
+    <div className="text-center" data-split-state={foundBoundaries.length > 0 ? "active" : "initial"}>
       <p className="mb-2 text-sm font-bold text-cyan-100">Move the cleaver to each word-part boundary, then strike.</p>
       <div role="group" aria-label={`Choose where to split ${props.word}`} className="relative mx-auto mt-2 h-36 w-full max-w-md select-none pt-24">
         <div className="grid h-12 items-center" style={{ gridTemplateColumns: `repeat(${props.word.length}, minmax(0, 1fr))` }}>
@@ -161,7 +181,7 @@ export function SplitHandle(props: {
         </div>
         {props.word.slice(0, -1).split("").map((_, index) => {
           const point = index + 1;
-          const isCorrectBoundary = props.splitPoints.includes(point);
+          const isCorrectBoundary = requiredBoundaries.includes(point);
           const active = activeBoundary === point;
           const wrong = lastWrongBoundary === point;
           const found = foundBoundaries.includes(point);
@@ -171,10 +191,9 @@ export function SplitHandle(props: {
               key={point}
               ref={(node) => {
                 boundaryButtons.current[point] = node;
-                if (isCorrectBoundary) correctButton.current = node;
               }}
               type="button"
-              aria-label={`Split at boundary ${point}${found ? ", found" : ""}`}
+              aria-label={`Split at boundary ${point}. Split between ${props.word.slice(0, point)} and ${props.word.slice(point)}${found ? ", found" : ""}`}
               onPointerEnter={() => !disabled && setActiveBoundary(point)}
               onPointerDown={() => !disabled && setActiveBoundary(point)}
               onFocus={() => setActiveBoundary(point)}

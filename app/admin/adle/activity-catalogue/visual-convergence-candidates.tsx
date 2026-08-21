@@ -8,7 +8,6 @@ import { LessonReflection } from "@/components/adle/activities/lesson-reflection
 import { QuickSortActivity } from "@/components/adle/activities/quick-sort-activity";
 import { ReflectionActivity } from "@/components/adle/activities/reflection-activity";
 import { BinSort } from "@/components/adle/activities/shared/bin-sort";
-import { BaseWordCleaver } from "@/components/adle/activities/shared/base-word-cleaver";
 import { CoverShutter } from "@/components/adle/activities/shared/cover-shutter";
 import { ColdWordRecall } from "@/components/adle/activities/shared/cold-word-recall";
 import { DefinitionWordBuilder } from "@/components/adle/activities/shared/definition-word-builder";
@@ -210,7 +209,7 @@ function SplitCandidates(props: { candidateId: string; state: VisualFixtureState
   const [cuts, setCuts] = useState<Record<string, number[]>>(() => ({ [baseWord.canonicalWordId]: success ? [2, 6] : props.state === "restored" ? [2] : [] }));
   const [baseMisses, setBaseMisses] = useState<Record<string, number>>(() => ({ [`${baseWord.canonicalWordId}:base`]: misses }));
   if (props.candidateId === "split-handle") return <SplitHandle key={props.state} word="unkind" splitPoints={[2]} components={["un", "kind"]} misses={misses} correct={success} muted onMiss={noop} onCorrect={noop} onContinue={noop} />;
-  if (props.candidateId === "base-word-cleaver") return <BaseWordCleaver key={props.state} word="replayed" segments={[{ id: "re", text: "re" }, { id: "play", text: "play" }, { id: "ed", text: "ed" }]} baseIndex={1} selectedCuts={success ? [2, 6] : props.state === "restored" ? [2] : []} misses={misses} muted onCutsChange={noop} onMiss={noop} onContinue={noop} />;
+  if (props.candidateId === "split-isolate") return <SplitHandle key={props.state} word="replayed" splitPoints={[2, 6]} components={["re", "play", "ed"]} selectedBoundaries={success ? [2, 6] : props.state === "restored" ? [2] : []} isolatedComponentIndex={1} misses={misses} correct={success} muted onSelectedBoundariesChange={noop} onMiss={noop} onCorrect={noop} onContinue={noop} />;
   if (props.candidateId === "split-build") return <SplitBuild key={props.state} word={morphWord} misses={misses} correct={success} muted feedbackPolicy={MORPHOLOGY_PAYLOAD.activities.find((entry) => entry.type === "strip_build")?.cleaverFeedbackPolicy} continueLabel="Continue" onMiss={noop} onCorrect={noop} onComplete={noop} />;
   if (props.candidateId === "base-cleave") return <BaseCleave key={props.state} word={baseWord} cuts={cuts} misses={baseMisses} onCutsChange={(id, next) => setCuts((current) => ({ ...current, [id]: next }))} onMiss={(id, next) => setBaseMisses((current) => ({ ...current, [id]: next }))} onNext={noop} />;
   return null;

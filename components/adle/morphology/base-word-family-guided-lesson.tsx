@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 
 import { LessonReflection } from "@/components/adle/activities/lesson-reflection";
-import { BaseWordCleaver, CoverShutter, SentenceDictation } from "@/components/adle/activities/shared";
+import { CoverShutter, SentenceDictation, SpellingTransformationReveal, SplitHandle } from "@/components/adle/activities/shared";
 import { DefinitionWordBuilder } from "@/components/adle/activities/shared/definition-word-builder";
 import { deterministicOrderedBuildOrder } from "@/components/adle/activities/shared/ordered-build-engine";
 import type { GuideBeatV1 } from "@/lib/adle/morphology/payload";
@@ -130,8 +130,34 @@ function Cleave(props: { word: BaseWordFamilySnapshotWord | undefined; cuts: Rec
   const key = `${word!.canonicalWordId}:base`;
   const basePart = wordParts[baseIndex];
   const transformation = finalYRestorationForBasePart(basePart, word!.transformations ?? []);
-  const finalYRestoration = transformation ? { sourceText: transformation.sourceText, surfaceText: transformation.surfaceText, explanation: transformation.explanation } : undefined;
-  return <BaseWordCleaver word={word!.displayWord} segments={wordParts.map((part) => ({ id: part.id, text: part.surfaceText }))} baseIndex={baseIndex} finalYRestoration={finalYRestoration} selectedCuts={props.cuts[word!.canonicalWordId] ?? []} misses={props.misses[key] ?? 0} onCutsChange={(cuts) => props.onCutsChange(word!.canonicalWordId, cuts)} onMiss={(misses) => props.onMiss(key, misses)} onContinue={props.onNext} />;
+  const boundaries = wordParts.slice(0, -1).map((_, index) => wordParts.slice(0, index + 1).reduce((total, part) => total + part.surfaceText.length, 0));
+  const requiredBoundaries = [baseIndex > 0 ? boundaries[baseIndex - 1] : null, baseIndex < wordParts.length - 1 ? boundaries[baseIndex] : null].filter((point): point is number => point !== null);
+  const selectedBoundaries = [...new Set(props.cuts[word!.canonicalWordId] ?? [])].filter((point) => requiredBoundaries.includes(point)).sort((left, right) => left - right);
+  const splitComplete = requiredBoundaries.every((point) => selectedBoundaries.includes(point));
+
+  if (splitComplete && transformation) {
+    return <SpellingTransformationReveal surfaceText={transformation.surfaceText} sourceText={transformation.sourceText} explanation={transformation.explanation} actionLabel="Change i to y" continueLabel="Build words from meanings" onContinue={props.onNext} />;
+  }
+
+  return <SplitHandle
+    word={word!.displayWord}
+    splitPoints={requiredBoundaries}
+    components={wordParts.map((part) => part.surfaceText)}
+    selectedBoundaries={selectedBoundaries}
+    isolatedComponentIndex={baseIndex}
+    misses={props.misses[key] ?? 0}
+    correct={splitComplete}
+    prompt="Choose where to chop the word."
+    missMessage="Try again. Look for the edge of a meaningful word part."
+    repeatedMissMessage="Choose one of the glowing gaps beside the base word."
+    correctHeading={`Yes — ${basePart.sourceText} is the base word.`}
+    correctExplanation="The extra word parts have moved aside, leaving the governed base."
+    continueLabel="Build words from meanings"
+    onSelectedBoundariesChange={(cuts) => props.onCutsChange(word!.canonicalWordId, cuts)}
+    onMiss={(misses) => props.onMiss(key, misses)}
+    onCorrect={() => undefined}
+    onContinue={props.onNext}
+  />;
 }
 
 function baseWordDefinitionBuild(words: BaseWordFamilySnapshotWord[], index: number) {

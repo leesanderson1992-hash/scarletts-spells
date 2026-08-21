@@ -139,6 +139,8 @@ ${ADLE_ACTIVITY_AUDIT_CONCLUSIONS.startingState.architectureDocuments.map((item)
 | Discovered implementations | ${counts.totalImplementations} |
 | Canonical implementations | ${counts.CANONICAL} |
 | Canonical mode/adapters | ${counts.CANONICAL_MODE} |
+| Thin curriculum adapters | ${counts.THIN_ADAPTER} |
+| Development references | ${counts.DEVELOPMENT_REFERENCE} |
 | Compatibility only | ${counts.COMPATIBILITY_ONLY} |
 | Duplicates to migrate | ${counts.DUPLICATE_TO_MIGRATE} |
 | Dead or unreferenced | ${counts.DEAD_OR_UNREFERENCED} |

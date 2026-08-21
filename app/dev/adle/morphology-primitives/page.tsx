@@ -11,7 +11,6 @@ import {
   toMorphologySequenceViewModel,
   toRootArtifactCardViewModel,
   toWordFamilyViewModel,
-  toWordSplitViewModel,
   type ApprovedMorphemeRecord,
   type ApprovedRootArtifactRecord,
   type ApprovedWordAnalysisRecord,
@@ -67,7 +66,6 @@ export default function MorphologyPrimitivesDevPreviewPage() {
     <MorphologyPrimitivesPreview
       pilotSequence={pilotSequence}
       sequences={sequences}
-      splits={selectedRecords.slice(0, 5).map(toWordSplitViewModel)}
       meaningFlip={toMeaningFlipViewModel(pilot.anchorAnalysis)}
       glossCards={[toMorphemeGlossCardViewModel(prefixUn), toMorphemeGlossCardViewModel(rootTele)]}
       rootArtifact={toRootArtifactCardViewModel(rootArtifact)}

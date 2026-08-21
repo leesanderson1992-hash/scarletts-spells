@@ -5,7 +5,7 @@ import { useState, type ReactNode } from "react";
 import { IntroActivity } from "@/components/adle/activities/intro-activity";
 import { QuickSortActivity } from "@/components/adle/activities/quick-sort-activity";
 import { ReflectionActivity } from "@/components/adle/activities/reflection-activity";
-import { BaseWordCleaver, BinSort, ColdWordRecall, CoverShutter, SentenceDictation, SplitHandle } from "@/components/adle/activities/shared";
+import { BinSort, ColdWordRecall, CoverShutter, SentenceDictation, SplitHandle } from "@/components/adle/activities/shared";
 import { DefinitionWordBuilder } from "@/components/adle/activities/shared/definition-word-builder";
 import { CompoundJigsawActivity } from "@/components/adle/morphology/compound-jigsaw-activity";
 import { MeaningConnectionActivity } from "@/components/adle/morphology/meaning-connection-activity";
@@ -92,8 +92,9 @@ function CleaverExample() {
   const [cuts, setCuts] = useState<number[]>([]);
   const [complete, setComplete] = useState(false);
   function change(next: "one" | "two" | "base") { setMode(next); setMisses(0); setCorrect(false); setCuts([]); setComplete(false); }
-  const selector = <label className="text-xs font-semibold">Fixture mode<select className="ml-2 rounded-lg border bg-white px-2 py-1" value={mode} onChange={(event) => change(event.target.value as "one" | "two" | "base")}><option value="one">one boundary</option><option value="two">two boundaries</option><option value="base">current duplicate: isolate base</option></select></label>;
-  return <ExampleFrame activityKey="CLEAVER" modeSelector={selector}>{mode === "base" ? complete ? <button type="button" className="rounded-full bg-cyan-300 px-5 py-3 font-black text-slate-950" onClick={() => change("base")}>Run again</button> : <BaseWordCleaver word="unhelpful" segments={[{ id: "prefix", text: "un" }, { id: "base", text: "help" }, { id: "suffix", text: "ful" }]} baseIndex={1} selectedCuts={cuts} misses={misses} muted onCutsChange={setCuts} onMiss={setMisses} onContinue={() => setComplete(true)} /> : <SplitHandle key={mode} word={mode === "one" ? "unfair" : "unhelpful"} splitPoints={mode === "one" ? [2] : [2, 6]} components={mode === "one" ? ["un", "fair"] : ["un", "help", "ful"]} misses={misses} correct={correct} muted onMiss={setMisses} onCorrect={() => setCorrect(true)} onContinue={() => change(mode)} />}</ExampleFrame>;
+  const selector = <label className="text-xs font-semibold">Fixture mode<select className="ml-2 rounded-lg border bg-white px-2 py-1" value={mode} onChange={(event) => change(event.target.value as "one" | "two" | "base")}><option value="one">one boundary</option><option value="two">two boundaries</option><option value="base">isolate governed component</option></select></label>;
+  const baseCorrect = [2, 6].every((point) => cuts.includes(point));
+  return <ExampleFrame activityKey="CLEAVER" modeSelector={selector}>{mode === "base" ? complete ? <button type="button" className="rounded-full bg-cyan-300 px-5 py-3 font-black text-slate-950" onClick={() => change("base")}>Run again</button> : <SplitHandle word="unhelpful" splitPoints={[2, 6]} components={["un", "help", "ful"]} selectedBoundaries={cuts} isolatedComponentIndex={1} misses={misses} correct={baseCorrect} muted correctHeading="Yes — help is the governed base." onSelectedBoundariesChange={setCuts} onMiss={setMisses} onCorrect={() => undefined} onContinue={() => setComplete(true)} /> : <SplitHandle key={mode} word={mode === "one" ? "unfair" : "unhelpful"} splitPoints={mode === "one" ? [2] : [2, 6]} components={mode === "one" ? ["un", "fair"] : ["un", "help", "ful"]} misses={misses} correct={correct} muted onMiss={setMisses} onCorrect={() => setCorrect(true)} onContinue={() => change(mode)} />}</ExampleFrame>;
 }
 
 function AssemblyExample() {
