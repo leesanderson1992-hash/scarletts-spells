@@ -81,6 +81,7 @@ export type GenericSnapshotRendererKindV2 =
   | "cold_word_recall"
   | "dictation"
   | "reflection"
+  | "meaning_match"
   | "quick_sort"
   | "must_use_writing";
 

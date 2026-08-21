@@ -243,6 +243,7 @@ function validActivity(value: unknown): value is ActivitySnapshotV2 {
       "cold_word_recall",
       "dictation",
       "reflection",
+      "meaning_match",
       "quick_sort",
       "must_use_writing",
     ] as const) ||
@@ -473,14 +474,20 @@ export function validateCompiledGenericLessonSnapshot(
     if (definition.compileSupport !== "supported") blockers.push(blocker("unsupported_template_shape", activity));
     if (!definition.supportedSections.includes(activity.sectionKey)) blockers.push(blocker("item_section_mismatch", activity));
     const semantics = resolveGenericTemplateSemantics(definition, activity.sectionKey);
-    const legacyRendererCompatible = activity.rendererKind === "dictation" && [
-      "CONTROLLED_SPELLING",
-      "HIDE_WRITE",
-      "DICTATION_NO_IMAGE",
-      "DICTATION_SENTENCE_CONTEXT",
-      "REVIEW_DICTATION",
-      "DIAGNOSTIC_DICTATION_PROBE",
-    ].includes(activity.templateKey);
+    const legacyRendererCompatible =
+      (activity.rendererKind === "dictation" && [
+        "CONTROLLED_SPELLING",
+        "HIDE_WRITE",
+        "DICTATION_NO_IMAGE",
+        "DICTATION_SENTENCE_CONTEXT",
+        "REVIEW_DICTATION",
+        "DIAGNOSTIC_DICTATION_PROBE",
+      ].includes(activity.templateKey)) ||
+      (activity.rendererKind === "guided_prompt" && [
+        "HOM_MEANING_MATCH",
+        "MOR_MEANING_MATCH",
+        "MOR_COMPOUND_MEANING_CONNECTION",
+      ].includes(activity.templateKey));
     if (activity.kind !== definition.kind || (activity.rendererKind !== semantics.rendererKind && !legacyRendererCompatible) || activity.answerVisibility !== definition.answerVisibility || !sameJson(activity.evidence, semantics.evidence)) {
       blockers.push(blocker("evidence_binding_mismatch", activity));
     }

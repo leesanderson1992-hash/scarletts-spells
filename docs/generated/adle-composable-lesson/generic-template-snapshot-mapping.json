@@ -385,7 +385,7 @@
         "mode": "guided_completion"
       },
       "kind": "guided_prompt",
-      "rendererKind": "guided_prompt",
+      "rendererKind": "meaning_match",
       "requirements": [
         {
           "availability": "compile",
@@ -931,7 +931,7 @@
         "mode": "guided_completion"
       },
       "kind": "guided_prompt",
-      "rendererKind": "guided_prompt",
+      "rendererKind": "meaning_match",
       "requirements": [
         {
           "availability": "compile",
@@ -982,7 +982,7 @@
         "mode": "guided_completion"
       },
       "kind": "guided_prompt",
-      "rendererKind": "guided_prompt",
+      "rendererKind": "meaning_match",
       "requirements": [
         {
           "availability": "compile",
