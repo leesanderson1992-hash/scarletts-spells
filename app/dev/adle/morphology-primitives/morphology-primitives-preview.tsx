@@ -6,17 +6,14 @@ import type { ReactNode } from "react";
 
 import { ActivityFrame, ActivityHeader, FeedbackPanel, InstructionPanel } from "@/components/adle/experience/activity-frame";
 import {
-  MeaningFlip,
   MorphemeGlossCard,
   MorphemeRail,
   MorphemeSequence,
   MorphologyDiff,
   RootArtifactCard,
   WordFamilyView,
-  useReducedMotionPreference,
 } from "@/components/adle/activities/morphology/shared/morphology-primitives";
 import type {
-  MeaningFlipViewModel,
   MorphemeGlossCardViewModel,
   MorphemeSequenceViewModel,
   MorphologyDiffViewModel,
@@ -47,7 +44,6 @@ const MorphologyGuidedLesson = dynamic(
 export function MorphologyPrimitivesPreview(props: {
   pilotSequence: MorphemeSequenceViewModel;
   sequences: MorphemeSequenceViewModel[];
-  meaningFlip: MeaningFlipViewModel;
   glossCards: MorphemeGlossCardViewModel[];
   rootArtifact: RootArtifactCardViewModel;
   family: WordFamilyViewModel;
@@ -59,7 +55,6 @@ export function MorphologyPrimitivesPreview(props: {
   const [guidedComplete, setGuidedComplete] = useState(false);
   const [previewReflection, setPreviewReflection] = useState("");
   const [coverCompleteCount, setCoverCompleteCount] = useState(0);
-  const reducedMotion = useReducedMotionPreference();
   const longWord = props.sequences.find((sequence) => sequence.displayWord === "unnecessary");
 
   const guidedItems: AdleSessionItem[] = props.guidedPayload.activities.flatMap((activity) => activity.assignmentBindings).map((binding, index) => ({ id: `dev-item-${index}`, sourceEntityId: `dev-item-${index}`, sectionKey: binding.startsWith("controlled-") ? "lesson_production" : binding.startsWith("dictation-") ? "lesson_dictation" : binding === "intro-root" ? "lesson_intro" : "guided_practice", templateKey: binding.startsWith("controlled-") ? "CONTROLLED_SPELLING" : binding.startsWith("dictation-") ? "DICTATION_NO_IMAGE" : "MOR_STRIP_BUILD", position: index + 1, status: "ready", targetWord: null, canonicalWordId: null, microSkillKey: "D4_MOR_PREFIXES_UN", adleLearningItemRef: null, promptData: { pilotActivityId: binding } }));
@@ -98,9 +93,6 @@ export function MorphologyPrimitivesPreview(props: {
 
         <PreviewPanel title="Pilot fixture: simple prefix" caption={props.pilotSequence.sourceExpression}>
           <MorphemeSequence sequence={props.pilotSequence} mode="teaching" />
-          <div className="mt-3">
-            <MeaningFlip flip={props.meaningFlip} reduceMotion={reducedMotion} />
-          </div>
         </PreviewPanel>
 
         <PreviewPanel title="Tap and keyboard assembly rail" caption="No correctness policy; this only proves selection and placement mechanics.">

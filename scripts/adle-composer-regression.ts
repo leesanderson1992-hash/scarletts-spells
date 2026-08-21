@@ -33,7 +33,6 @@ import {
 } from "../lib/adle/composer-word-selection";
 import {
   composeDailyPlan,
-  parseReviewSortDimension,
   sessionMixOrder,
   type ActivityTemplateFact,
   type DailyPlanFacts,
@@ -694,8 +693,8 @@ function dueFixture(count: number) {
 // ---------------------------------------------------------------------------
 
 {
-  // Sort dimensions come from each word's family; homophone words get
-  // sentence-context production; reflection carries the misconception hint.
+  // Standalone QuickSort no longer composes; homophone words still get
+  // sentence-context production and reflection carries the misconception hint.
   const wordIds = ["mix-1", "mix-2", "mix-3", "mix-4"];
   const { bundle, words } = dueBundle("bundle-mix", wordIds);
   const facts = planFacts({
@@ -709,13 +708,7 @@ function dueFixture(count: number) {
     ]),
   });
   const plan = composeDailyPlan(facts, TODAY);
-  const quickSort = plan.partOne.sections.find((section) => section.sectionKey === "review_quick_sort");
-  assert(quickSort !== undefined, "quick-sort step composes");
-  const sortWords = (quickSort?.items[0].payload.words ?? []) as { canonicalWordId: string; sortDimension: string }[];
-  const dimensionOf = (id: string) => sortWords.find((word) => word.canonicalWordId === id)?.sortDimension;
-  assert(dimensionOf("mix-1") === "sound/spelling cue", "PG word sorts on sound/spelling cue");
-  assert(dimensionOf("mix-3") === "meaning/sentence fit", "homophone word sorts on meaning/sentence fit");
-  assert(dimensionOf("mix-4") === "rule/pattern", "pattern word sorts on rule/pattern");
+  assert(!plan.partOne.sections.some((section) => section.sectionKey === "review_quick_sort"), "forward plans never compose standalone QuickSort");
 
   const production = plan.partOne.sections.find((section) => section.sectionKey === "review_production");
   const productionFor = (id: string) => production?.items.find((entry) => entry.canonicalWordId === id);
@@ -1191,8 +1184,6 @@ function dueFixture(count: number) {
   const clusters = clustersBySkill(LESSON_ITEMS);
   assert(clusters.get("SKILL_PG_A")?.length === 5, "clusters computed at call time");
 
-  assert(parseReviewSortDimension("REVIEW_QUICK_SORT(sound/spelling cue)") === "sound/spelling cue", "sort dimension parses");
-  assert(parseReviewSortDimension("SOMETHING_ELSE(x)") === null, "unparseable sort dimension fails closed");
 }
 
 console.log("ADLE composer regression passed.");

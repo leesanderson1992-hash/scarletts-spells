@@ -125,14 +125,6 @@ export interface MorphemeSequenceViewModel {
   sourceExpression: string;
 }
 
-export interface MeaningFlipViewModel {
-  id: string;
-  beforeText: string;
-  afterText: string;
-  beforeCaption: string;
-  afterCaption: string;
-}
-
 export interface MorphemeGlossCardViewModel {
   id: string;
   text: string;
@@ -241,20 +233,6 @@ export function toRootArtifactCardViewModel(record: ApprovedRootArtifactRecord):
     descendantWords: record.descendantWords,
     microLore: record.microLore,
     themeKey: record.themeKey,
-  };
-}
-
-export function toMeaningFlipViewModel(record: ApprovedWordAnalysisRecord): MeaningFlipViewModel {
-  const base = record.parts.find((part) => part.kind === "base" || part.kind === "root");
-  return {
-    id: `${record.analysisKey}:meaning-flip`,
-    beforeText: base?.sourceText ?? record.displayWord,
-    afterText: record.displayWord,
-    beforeCaption: base?.gloss ? `${base.sourceText}: ${base.gloss}` : base?.sourceText ?? "before",
-    afterCaption: record.parts
-      .map((part) => [part.surfaceText, part.gloss].filter(Boolean).join(": "))
-      .filter(Boolean)
-      .join(" + "),
   };
 }
 

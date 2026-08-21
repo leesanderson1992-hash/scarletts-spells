@@ -2,19 +2,14 @@
  * ADLE Slice 7a (7a-B): composer payload-enrichment regression — fixture-backed,
  * DB-independent.
  *
- * Covers the data the interactive activity renderer needs and the data-honest
- * Tier map:
- * - `deriveQuickSortBins` pure logic: concrete bins for single-family D4_SYL
- *   (by syllable count) and D4_SCHWA (by has_schwa); null (warm prompt) for
- *   mixed families, unsupported families, missing metadata, or absent facts.
- * - end-to-end review compose: REVIEW_QUICK_SORT carries childFacingCopy +
- *   concrete sortBins; production/reflection carry their instruction copy.
+ * Covers the data the interactive activity renderer needs:
+ * - end-to-end review compose: standalone REVIEW_QUICK_SORT is absent while
+ *   production/reflection retain their governed instruction payloads.
  * - end-to-end lesson compose: the read-only intro carries display-word
  *   previews (with provenance); guided steps carry childFacingCopy + purpose +
  *   teachingObjective (the Tier-C prompt-shell source); controlled/dictation
  *   production carry instruction copy.
  * - determinism: the same facts compose byte-identical plans.
- * - fail-open: absent word metadata leaves sortBins null (warm prompt).
  */
 
 import { COMPOSER_POLICY_V1 } from "../lib/adle/composer-policy";
@@ -24,13 +19,11 @@ import type { LearningItemFact } from "../lib/adle/learning-items";
 import type { ComposerDictionaryFacts } from "../lib/adle/composer-word-selection";
 import {
   composeDailyPlan,
-  deriveQuickSortBins,
   type ActivityTemplateFact,
   type DailyPlanFacts,
   type FamilyMethodFact,
   type ReviewWordFact,
   type TeachingContentFact,
-  type WordStructuralMetadata,
 } from "../lib/adle/daily-assignment-composer";
 import type {
   BandingVersionFact,
@@ -42,9 +35,7 @@ import type {
 import { failClosedTaughtWordHistoryProvider } from "../lib/adle/dictionary-eligibility";
 import {
   dictionaryWordFromRow,
-  wordStructuralMetadataFromRow,
   type DictionaryWordRow,
-  type WordStructuralMetadataRow,
 } from "../lib/adle/loaders/rows";
 import { isAttemptCorrect, normaliseSessionWord } from "../lib/adle/session-correctness";
 
@@ -245,23 +236,6 @@ function reviewWordFacts(entries: readonly [string, string][]): Map<string, Revi
   );
 }
 
-function metadata(
-  entries: readonly (Partial<WordStructuralMetadata> & { canonicalWordId: string })[],
-): Map<string, WordStructuralMetadata> {
-  return new Map(
-    entries.map((entry) => [
-      entry.canonicalWordId,
-      {
-        canonicalWordId: entry.canonicalWordId,
-        syllables: entry.syllables ?? null,
-        hasSchwa: entry.hasSchwa ?? null,
-        phonemeHint: entry.phonemeHint ?? null,
-        stressPattern: entry.stressPattern ?? null,
-      },
-    ]),
-  );
-}
-
 function planFacts(overrides: Partial<DailyPlanFacts>): DailyPlanFacts {
   return {
     childId: CHILD,
@@ -288,90 +262,7 @@ function planFacts(overrides: Partial<DailyPlanFacts>): DailyPlanFacts {
 }
 
 // ---------------------------------------------------------------------------
-// deriveQuickSortBins — pure, data-honest Tier map
-// ---------------------------------------------------------------------------
-
-{
-  const sylBins = deriveQuickSortBins(
-    [
-      { canonicalWordId: "s1", familyKey: "D4_SYL", sortDimension: "syllable/chunk" },
-      { canonicalWordId: "s2", familyKey: "D4_SYL", sortDimension: "syllable/chunk" },
-      { canonicalWordId: "s3", familyKey: "D4_SYL", sortDimension: "syllable/chunk" },
-    ],
-    metadata([
-      { canonicalWordId: "s1", syllables: "1" },
-      { canonicalWordId: "s2", syllables: "2" },
-      { canonicalWordId: "s3", syllables: "4" },
-    ]),
-  );
-  assert(sylBins !== null, "single-family D4_SYL derives concrete bins");
-  assert(sylBins?.dimensionLabel === "syllable/chunk", "syllable bins carry the dimension label");
-  assert(sylBins?.bins.map((bin) => bin.key).join(",") === "1,2,3+", "syllable bins are 1 / 2 / 3+");
-  assert(sylBins?.correctBinByWordId.s1 === "1", "1-syllable word bins to 1");
-  assert(sylBins?.correctBinByWordId.s2 === "2", "2-syllable word bins to 2");
-  assert(sylBins?.correctBinByWordId.s3 === "3+", "4-syllable word bins to 3+");
-}
-
-{
-  const schwaBins = deriveQuickSortBins(
-    [
-      { canonicalWordId: "w1", familyKey: "D4_SCHWA", sortDimension: "hidden vowel/anchor" },
-      { canonicalWordId: "w2", familyKey: "D4_SCHWA", sortDimension: "hidden vowel/anchor" },
-    ],
-    metadata([
-      { canonicalWordId: "w1", hasSchwa: true },
-      { canonicalWordId: "w2", hasSchwa: false },
-    ]),
-  );
-  assert(schwaBins !== null, "single-family D4_SCHWA derives concrete bins");
-  assert(schwaBins?.bins.map((bin) => bin.key).join(",") === "schwa,no_schwa", "schwa bins are schwa / no_schwa");
-  assert(schwaBins?.correctBinByWordId.w1 === "schwa", "schwa word bins to schwa");
-  assert(schwaBins?.correctBinByWordId.w2 === "no_schwa", "non-schwa word bins to no_schwa");
-}
-
-{
-  const mixed = deriveQuickSortBins(
-    [
-      { canonicalWordId: "s1", familyKey: "D4_SYL", sortDimension: "syllable/chunk" },
-      { canonicalWordId: "p1", familyKey: "D4_PG", sortDimension: "sound/spelling cue" },
-    ],
-    metadata([
-      { canonicalWordId: "s1", syllables: "2" },
-      { canonicalWordId: "p1", syllables: "2" },
-    ]),
-  );
-  assert(mixed === null, "mixed-family session falls back to a warm prompt (null)");
-}
-
-{
-  const unsupported = deriveQuickSortBins(
-    [{ canonicalWordId: "p1", familyKey: "D4_PG", sortDimension: "sound/spelling cue" }],
-    metadata([{ canonicalWordId: "p1", syllables: "2", hasSchwa: true }]),
-  );
-  assert(unsupported === null, "a family with no derivable scheme falls back to null");
-}
-
-{
-  const missing = deriveQuickSortBins(
-    [
-      { canonicalWordId: "s1", familyKey: "D4_SYL", sortDimension: "syllable/chunk" },
-      { canonicalWordId: "s2", familyKey: "D4_SYL", sortDimension: "syllable/chunk" },
-    ],
-    metadata([{ canonicalWordId: "s1", syllables: "2" }]),
-  );
-  assert(missing === null, "any word missing its count fails closed to null (no partial sort)");
-  assert(deriveQuickSortBins([], undefined) === null, "no metadata facts -> null");
-  assert(
-    deriveQuickSortBins(
-      [{ canonicalWordId: "s1", familyKey: "D4_SYL", sortDimension: "syllable/chunk" }],
-      undefined,
-    ) === null,
-    "absent metadata map -> null",
-  );
-}
-
-// ---------------------------------------------------------------------------
-// End-to-end review compose: enriched quick-sort / production / reflection
+// End-to-end review compose: no QuickSort; production / reflection preserved
 // ---------------------------------------------------------------------------
 
 {
@@ -381,27 +272,9 @@ function planFacts(overrides: Partial<DailyPlanFacts>): DailyPlanFacts {
     bundles: [bundle],
     scheduleWords: words,
     reviewWordFacts: reviewWordFacts(wordIds.map((id) => [id, "SKILL_SYL_A"])),
-    wordMetadataByWordId: metadata([
-      { canonicalWordId: "syl-1", syllables: "1" },
-      { canonicalWordId: "syl-2", syllables: "3" },
-      { canonicalWordId: "syl-3", syllables: "2" },
-    ]),
   });
   const plan = composeDailyPlan(facts, TODAY);
-
-  const quickSort = plan.partOne.sections.find((section) => section.sectionKey === "review_quick_sort");
-  assert(quickSort !== undefined, "quick-sort composes for a due D4_SYL session");
-  const sortPayload = quickSort!.items[0].payload as {
-    childFacingCopy?: unknown;
-    sortBins?: { bins: { key: string }[]; correctBinByWordId: Record<string, string> } | null;
-  };
-  assert(sortPayload.childFacingCopy === "COPY:REVIEW_QUICK_SORT", "quick-sort payload carries the instruction copy");
-  assert(sortPayload.sortBins !== null && sortPayload.sortBins !== undefined, "single-family D4_SYL emits concrete bins");
-  assert(
-    sortPayload.sortBins!.bins.map((bin) => bin.key).join(",") === "1,2,3+",
-    "composed quick-sort bins are the syllable scheme",
-  );
-  assert(sortPayload.sortBins!.correctBinByWordId["syl-2"] === "3+", "3-syllable word bins to 3+ in the composed plan");
+  assert(!plan.partOne.sections.some((section) => section.sectionKey === "review_quick_sort"), "forward review composition omits standalone QuickSort");
 
   const production = plan.partOne.sections.find((section) => section.sectionKey === "review_production");
   assert(
@@ -425,36 +298,10 @@ function planFacts(overrides: Partial<DailyPlanFacts>): DailyPlanFacts {
       bundles: [bundle],
       scheduleWords: words,
       reviewWordFacts: reviewWordFacts(wordIds.map((id) => [id, "SKILL_SYL_A"])),
-      wordMetadataByWordId: metadata([
-        { canonicalWordId: "syl-1", syllables: "1" },
-        { canonicalWordId: "syl-2", syllables: "3" },
-        { canonicalWordId: "syl-3", syllables: "2" },
-      ]),
     }),
     TODAY,
   );
   assert(JSON.stringify(plan) === JSON.stringify(replay), "enriched compose is byte-deterministic");
-}
-
-// ---------------------------------------------------------------------------
-// Fail-open: absent word metadata -> warm-prompt quick sort (sortBins null)
-// ---------------------------------------------------------------------------
-
-{
-  const wordIds = ["syl-a", "syl-b"];
-  const { bundle, words } = dueBundle("bundle-syl-nometa", wordIds);
-  const plan = composeDailyPlan(
-    planFacts({
-      bundles: [bundle],
-      scheduleWords: words,
-      reviewWordFacts: reviewWordFacts(wordIds.map((id) => [id, "SKILL_SYL_A"])),
-      // no wordMetadataByWordId
-    }),
-    TODAY,
-  );
-  const quickSort = plan.partOne.sections.find((section) => section.sectionKey === "review_quick_sort");
-  const sortPayload = quickSort!.items[0].payload as { sortBins?: unknown };
-  assert(sortPayload.sortBins === null, "absent metadata -> sortBins null (warm prompt), never a broken sort");
 }
 
 // ---------------------------------------------------------------------------
@@ -539,18 +386,6 @@ function planFacts(overrides: Partial<DailyPlanFacts>): DailyPlanFacts {
   const nullDisplay = dictionaryWordFromRow({ ...row, display_word: null });
   assert(nullDisplay.displayWord === "mothersday", "null display_word coalesces to the normalised identity");
 
-  // Structural-metadata row -> fact: the fields that back interactions map
-  // through; a phonetic string is carried as-is (display only).
-  const metaFact = wordStructuralMetadataFromRow({
-    canonical_word_id: "cw-1",
-    syllables: "3",
-    has_schwa: true,
-    phoneme_hint: "/mˈʌðɚzdˌeɪ/",
-    stress_pattern: "primary-unstressed-secondary",
-  } satisfies WordStructuralMetadataRow);
-  assert(metaFact.canonicalWordId === "cw-1", "metadata mapper keys on the canonical word id");
-  assert(metaFact.syllables === "3" && metaFact.hasSchwa === true, "metadata mapper carries the interaction fields");
-  assert(metaFact.phonemeHint === "/mˈʌðɚzdˌeɪ/", "metadata mapper carries the phonetic hint verbatim");
 }
 
 // ---------------------------------------------------------------------------

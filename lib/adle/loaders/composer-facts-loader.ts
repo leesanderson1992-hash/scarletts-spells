@@ -58,7 +58,6 @@ import {
   taughtHistoryFromRow,
   teachingContentFromRow,
   wordBandingFromRow,
-  wordStructuralMetadataFromRow,
   wordSupportFromRow,
   type ActivityTemplateRow,
   type AuthenticUseEventRow,
@@ -77,7 +76,6 @@ import {
   type TaughtHistoryRow,
   type TeachingContentRow,
   type WordBandingRow,
-  type WordStructuralMetadataRow,
   type WordSupportRow,
 } from "./rows";
 
@@ -166,7 +164,6 @@ export async function loadDailyPlanFacts(
     outcomeEventRows,
     authenticUseRows,
     slippageRows,
-    wordMetadataRows,
     transferSelectorProfileRows,
     reviewedMorphologyRows,
   ] = await Promise.all([
@@ -303,13 +300,6 @@ export async function loadDailyPlanFacts(
         .eq("row_status", "active"),
       "loadDailyPlanFacts:slippage",
     ),
-    rows<WordStructuralMetadataRow>(
-      client
-        .from("canonical_teaching_dictionary_word_metadata")
-        .select("canonical_word_id, syllables, has_schwa, phoneme_hint, stress_pattern")
-        .eq("row_status", "active"),
-      "loadDailyPlanFacts:wordMetadata",
-    ),
     rows<{
       micro_skill_key: string;
       selector_kind: "affix" | "base_word_family";
@@ -373,9 +363,6 @@ export async function loadDailyPlanFacts(
   const activeTeachingSkillKeys = new Set(teachingContent.keys());
   const displayWordByWordId = new Map(wordRows.map((row) => [row.id, row.display_word ?? row.normalised_word]));
   const normalisedWordByWordId = new Map(wordRows.map((row) => [row.id, row.normalised_word]));
-  const wordMetadataByWordId = new Map(
-    wordMetadataRows.map((row) => [row.canonical_word_id, wordStructuralMetadataFromRow(row)]),
-  );
   const frequencyBandByWordId = new Map(words.map((word) => [word.canonicalWordId, word.frequencyBand]));
   const transferSelectorProfiles: TransferSelectorProfile[] =
     transferSelectorProfileRows.map((row) => ({
@@ -570,7 +557,6 @@ export async function loadDailyPlanFacts(
     reviewWordFacts,
     familyMethods: familyMethodRows.map(familyMethodFromRow),
     activityTemplates: activityTemplateRows.map(activityTemplateFromRow),
-    wordMetadataByWordId,
     teachingContent,
     skillFamilyKeyBySkill,
     learningItems,

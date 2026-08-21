@@ -5,6 +5,7 @@ import { completeAdleLessonPartAction } from "@/app/learn/week/adle/actions";
 import { LessonReflection, type LessonReflectionSpecialistRecap } from "@/components/adle/activities/lesson-reflection";
 import {
   BinSort,
+  BinSortOverview,
   CoverShutter,
   SentenceDictation,
   SplitHandle,
@@ -299,24 +300,22 @@ export function MorphologyGuidedLesson(props: {
         />
       ) : null}
       {state.stage === "match" ? (
-        state.matchComplete && showMeaningOverview ? (
-          <MeaningOverview
-            payload={props.payload}
-            onNext={() => update({ stage: "build", helpLevel: 0 })}
-          />
-        ) : (
           <BinSort
             items={morphologyMeaningSortItems(
               props.payload,
               meaningActivity?.meaningCheckKind ?? "meaning",
             )}
             bins={meaningBins(props.payload)}
+            showBinDescriptions={props.payload.words.anchor.affixPosition !== "after"}
             instruction={props.payload.words.anchor.affixPosition === "after"
               ? "Read the word. Decide what the suffix means. Then choose the meaning label that fits."
               : meaningActivity?.meaningCheckKind === "prefix_form"
                 ? "Read the base word. Choose the prefix form that belongs before its first letter."
                 : "Read the word. Think about what the prefix means. Then choose the meaning label that fits."}
             muted={state.muted}
+            initialComplete={state.matchComplete}
+            showOverview={showMeaningOverview}
+            completionCopy={meaningOverviewCopy(props.payload)}
             incorrectMessage={beat.onMisconception}
             repeatedIncorrectMessage={beat.onRepeatedMisconception}
             renderIncorrectFeedback={meaningActivity?.teachingCards ? (selectedBin) => {
@@ -338,8 +337,8 @@ export function MorphologyGuidedLesson(props: {
                 helpLevel: 0,
               })
             }
+            onContinue={() => update({ stage: "build", helpLevel: 0 })}
           />
-        )
       ) : null}
       {state.stage === "build" ? (
         <DefinitionWordBuilder
@@ -765,67 +764,24 @@ function meaningBins(payload: MorphologyLessonPayloadV1) {
     ]
   );
 }
-function MeaningCards(props: { payload: MorphologyLessonPayloadV1 }) {
-  return (
-    <div className="grid gap-3 sm:grid-cols-2">
-      {meaningBins(props.payload).map((bin, index) => (
-        <div
-          key={bin.id}
-          className={`rounded-2xl p-4 text-center ${index % 2 ? "bg-amber-100 text-amber-950" : "bg-cyan-100 text-cyan-950"}`}
-        >
-          <p className="font-black">{bin.label}</p>
-          <p>
-            {props.payload.words.lesson
-              .filter((word) => word.effect === bin.id)
-              .map((word) => word.displayWord)
-              .join(" · ")}
-          </p>
-        </div>
-      ))}
-    </div>
-  );
-}
-export function MeaningOverview(props: {
-  payload: MorphologyLessonPayloadV1;
-  onNext: () => void;
-}) {
-  const activity = props.payload.activities.find(
+function meaningOverviewCopy(payload: MorphologyLessonPayloadV1) {
+  const activity = payload.activities.find(
     (candidate) => candidate.type === "meaning_sort",
   );
-  const suffixProfile = props.payload.words.anchor.affixPosition === "after";
+  const suffixProfile = payload.words.anchor.affixPosition === "after";
   const affixLabel = suffixProfile
-    ? activity?.prefixLabel ?? props.payload.words.anchor.affixLabel ?? "the suffix"
+    ? activity?.prefixLabel ?? payload.words.anchor.affixLabel ?? "the suffix"
     : activity?.prefixLabel ?? "un-";
-  return (
-    <section
-      className="grid gap-5 text-center"
-      aria-labelledby="meaning-overview-heading"
-    >
-      <div>
-        <p className="text-xs font-black uppercase tracking-[.18em] text-cyan-200">
-          What {affixLabel} can do
-        </p>
-        <h2
-          id="meaning-overview-heading"
-          className="mt-1 text-3xl font-black text-white"
-        >
-          {suffixProfile
-            ? "Suffix meanings, four words"
-            : activity?.prefixLabel
-            ? "Meaning patterns, four words"
-            : "Two jobs, four words"}
-        </h2>
-      </div>
-      <MeaningCards payload={props.payload} />
-      <button
-        type="button"
-        onClick={props.onNext}
-        className="mx-auto min-h-12 rounded-full bg-cyan-300 px-7 font-black text-slate-950"
-      >
-        Build a word
-      </button>
-    </section>
-  );
+  return {
+    eyebrow: `What ${affixLabel} can do`,
+    title: suffixProfile
+      ? "Suffix meanings, four words"
+      : activity?.prefixLabel
+        ? "Meaning patterns, all sorted"
+        : "Two jobs, all sorted",
+    summary: "Every word is grouped under the meaning you found.",
+    continueLabel: "Build a word",
+  };
 }
 type PrefixChoice = NonNullable<MorphologyLessonPayloadV1["activities"][number]["prefixChoices"]>[number];
 
@@ -1016,7 +972,7 @@ export function MorphologyReflectionAdapter(props: {
       && meaningResultsPresentation !== "none" ? [{
         id: "meaning-overview",
         heading: "Meaning recap",
-        content: <MeaningCards payload={props.payload} />,
+        content: <BinSortOverview items={morphologyMeaningSortItems(props.payload, props.payload.activities.find((activity) => activity.type === "meaning_sort")?.meaningCheckKind ?? "meaning")} bins={meaningBins(props.payload)} showBinDescriptions={props.payload.words.anchor.affixPosition !== "after"} copy={meaningOverviewCopy(props.payload)} />,
         position: "after_response" as const,
       }] : []),
   ];

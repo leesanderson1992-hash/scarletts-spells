@@ -1,10 +1,9 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 
 import { AssemblySlot, SelectableItem } from "@/components/adle/interactions/selectable-item";
 import type {
-  MeaningFlipViewModel,
   MorphemeGlossCardViewModel,
   MorphemeJoinViewModel,
   MorphemeSequenceViewModel,
@@ -184,23 +183,6 @@ export function MorphemeRail(props: {
   );
 }
 
-export function MeaningFlip(props: { flip: MeaningFlipViewModel; reduceMotion?: boolean }) {
-  return (
-    <div className="grid gap-3 rounded-2xl border border-[var(--border)] bg-white p-4 sm:grid-cols-[1fr_auto_1fr] sm:items-center">
-      <MeaningSide label="Before" text={props.flip.beforeText} caption={props.flip.beforeCaption} />
-      <span
-        aria-hidden="true"
-        className={`hidden h-10 w-10 items-center justify-center rounded-full bg-[#fff0f7] text-lg font-black text-[color:var(--scarlett)] sm:inline-flex ${
-          props.reduceMotion ? "" : "motion-safe:animate-pulse"
-        }`}
-      >
-        to
-      </span>
-      <MeaningSide label="After" text={props.flip.afterText} caption={props.flip.afterCaption} />
-    </div>
-  );
-}
-
 export function MorphologyDiff(props: { diff: MorphologyDiffViewModel }) {
   return (
     <div className="rounded-2xl border border-[var(--border)] bg-white p-4">
@@ -306,23 +288,4 @@ function JoinMarker(props: { join?: MorphemeJoinViewModel }) {
       {text}
     </span>
   );
-}
-
-function MeaningSide(props: { label: string; text: string; caption: string }) {
-  return (
-    <div className="rounded-2xl border border-[var(--border)] bg-[#fff8fc] p-4">
-      <p className="text-xs font-bold uppercase text-[color:var(--mid)]">{props.label}</p>
-      <p className="mt-1 break-words text-2xl font-black tracking-normal text-[color:var(--text)]">{props.text}</p>
-      <p className="mt-2 text-sm text-[color:var(--mid)]">{props.caption}</p>
-    </div>
-  );
-}
-
-export function useReducedMotionPreference(): boolean {
-  return useMemo(() => {
-    if (typeof window === "undefined" || typeof window.matchMedia !== "function") {
-      return false;
-    }
-    return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  }, []);
 }

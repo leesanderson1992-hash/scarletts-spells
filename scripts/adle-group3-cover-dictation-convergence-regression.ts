@@ -59,8 +59,11 @@ for (const [name, source] of [["Prefix/Affix", morphology], ["Base Word", base],
   assert(!source.includes("function Dictation"), `${name} has no route-local Dictation presentation`);
   assert(!source.includes("<textarea"), `${name} has no route-local sentence response UI`);
   assert(!source.includes("<DiffReveal"), `${name} has no route-local comparison presentation`);
-  assert(!source.includes("<HearWordButton"), `${name} has no route-local Dictation audio presentation`);
+  if (name !== "Prefix/Affix") assert(!source.includes("<HearWordButton"), `${name} has no route-local Dictation audio presentation`);
 }
+const discoverySource = morphology.slice(morphology.indexOf("export function Discovery"), morphology.indexOf("export function SplitBuild"));
+assert(discoverySource.includes("<HearWordButton"), "Prefix/Affix governed audio is isolated to canonical Discovery");
+assert(!morphology.slice(morphology.indexOf('{state.stage === "dictation"'), morphology.indexOf('{state.stage === "reflect"')).includes("<HearWordButton"), "Prefix/Affix Dictation still delegates all audio presentation to SentenceDictation");
 
 assert(morphology.includes("controlledAttempts") && morphology.includes("controlledChecked") && morphology.includes("sentenceAttempts") && morphology.includes("checkedSentence"), "Prefix/Affix resume fields remain route-owned");
 assert(base.includes("controlledAttempts") && base.includes("controlledChecked") && base.includes("sentenceAttempts") && base.includes("sentenceChecked"), "Base Word resume fields remain route-owned");

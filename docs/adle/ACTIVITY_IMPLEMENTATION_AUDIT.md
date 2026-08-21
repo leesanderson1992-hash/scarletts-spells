@@ -4,14 +4,14 @@
 
 # ADLE Activity Implementation Audit Matrix
 
-Authoritative base SHA: `bcc7e2a713573f46cc433f6c9096f688c697b2fc`
+Authoritative base SHA: `176a7745342b16490b3371f5ed7eccd3a0b04b85`
 
 Scope: named child-facing activity components, shared learner-interaction primitives, embedded specialist activity functions, development components representing intended learner interactions, and the dispatch/shell components that own them. Pure data compilers, server actions, persistence helpers, sound/motion utilities, and non-ADLE course UI are excluded.
 
 ## Starting state
 
-- Audit worktree: Fresh Group 4 worktree on codex/adle-group4-split-cleaver-convergence at fetched origin/main bcc7e2a713573f46cc433f6c9096f688c697b2fc.
-- Protected occupied checkout: The dirty primary checkout and occupied Group 1, Group 2 and Group 3 convergence worktrees were inspected read-only and left unmodified.
+- Audit worktree: Fresh Group 5 worktree on codex/adle-group5-meaning-categorisation-convergence at fetched origin/main 176a7745342b16490b3371f5ed7eccd3a0b04b85.
+- Protected occupied checkout: The dirty primary checkout and occupied earlier convergence worktrees were inspected read-only and left unmodified.
 
 Existing runtime/architecture registries:
 
@@ -35,14 +35,14 @@ Architecture documents inspected:
 
 | Measure | Count |
 |---|---:|
-| Discovered implementations | 66 |
-| Canonical implementations | 19 |
-| Canonical mode/adapters | 20 |
+| Discovered implementations | 63 |
+| Canonical implementations | 18 |
+| Canonical mode/adapters | 19 |
 | Thin curriculum adapters | 2 |
 | Development references | 1 |
-| Compatibility only | 1 |
-| Duplicates to migrate | 10 |
-| Dead or unreferenced | 11 |
+| Compatibility only | 2 |
+| Duplicates to migrate | 9 |
+| Dead or unreferenced | 10 |
 | Requires architecture decision | 2 |
 
 ## Matrix
@@ -50,8 +50,8 @@ Architecture documents inspected:
 | Implementation | File | Concept | Routes | Template keys | Candidate | Classification | Risk | Historical replay | Action |
 |---|---|---|---|---|---|---|---|---|---|
 | IntroActivity | `components/adle/activities/intro-activity.tsx` | `INTRODUCTION` | generic_composer:v1 | MICRO_READ_ONLY_INTRO, LESSON_WORDS_INTRO | IntroActivity | `CANONICAL` | low | No | Retain and route new work through the catalogue. |
-| GuidedActivity | `components/adle/activities/guided-activity.tsx` | `GUIDED_PROMPT_FALLBACK / MEMORY_CUE` | generic_composer:v1 | MEMORY_CUE, PG_*, HOM_*, INF_*, IRRE_*, MOR_*, PAT_*, SYL_*, SCHWA_* | GuidedActivity | `CANONICAL` | medium | No | Retain and route new work through the catalogue. |
-| QuickSortActivity | `components/adle/activities/quick-sort-activity.tsx` | `REVIEW_SORT` | generic_composer:v1 | REVIEW_QUICK_SORT | QuickSortActivity | `CANONICAL` | low | No | Retain and route new work through the catalogue. |
+| GuidedActivity | `components/adle/activities/guided-activity.tsx` | `GUIDED_PROMPT_FALLBACK / MEMORY_CUE` | generic_composer:v1 | MEMORY_CUE, PG_*, HOM_SENTENCE_CHOICE, HOM_CORRECTION, INF_*, IRRE_*, MOR_STRIP_BUILD, MOR_BUILD_WORD, PAT_*, SYL_*, SCHWA_* | GuidedActivity | `CANONICAL` | medium | No | Retain and route new work through the catalogue. |
+| REVIEW_QUICK_SORT compatibility mapping | `lib/adle/activity-template-registry.ts` | `REVIEW_SORT` | historical generic assignments only | REVIEW_QUICK_SORT | none | `COMPATIBILITY_ONLY` | low | Yes | Do not add new usage before the backlog action is complete. |
 | ReflectionActivity | `components/adle/activities/reflection-activity.tsx` | `ERROR_REPAIR` | generic_composer:v1 | ERROR_REFLECTION_CUE | ReflectionActivity | `CANONICAL` | high | No | Retain and route new work through the catalogue. |
 | SplitHandle | `components/adle/activities/shared/split-handle.tsx` | `CLEAVER` | dynamic_prefix_word_lab:v2, fixed_un_prefix_word_lab:v1, dynamic_affix_word_lab:v3, base_word_lab:v2 | MOR_STRIP_BUILD | SplitHandle | `CANONICAL` | high | No | Retain and route new work through the catalogue. |
 | SpellingTransformationReveal | `components/adle/activities/shared/spelling-transformation-reveal.tsx` | `TRANSFORMATION.surface_to_source` | base_word_lab:v2 | none | SpellingTransformationReveal | `CANONICAL_MODE` | medium | No | Retain and route new work through the catalogue. |
@@ -60,7 +60,7 @@ Architecture documents inspected:
 | SnapRail | `components/adle/activities/shared/snap-rail.tsx` | `WORD_ASSEMBLY` | dynamic_prefix_word_lab:v2, fixed_un_prefix_word_lab:v1, dynamic_affix_word_lab:v3, base_word_lab:v2 | MOR_BUILD_WORD | DefinitionWordBuilder | `CANONICAL_MODE` | high | No | Retain and route new work through the catalogue. |
 | DefinitionWordBuilder | `components/adle/activities/shared/definition-word-builder.tsx` | `WORD_ASSEMBLY` | dynamic_prefix_word_lab:v2, fixed_un_prefix_word_lab:v1, dynamic_affix_word_lab:v3, base_word_lab:v2 | MOR_BUILD_WORD | DefinitionWordBuilder | `CANONICAL` | high | No | Retain and route new work through the catalogue. |
 | BinSort | `components/adle/activities/shared/bin-sort.tsx` | `MEANING_SORT` | dynamic_prefix_word_lab:v2, fixed_un_prefix_word_lab:v1, dynamic_affix_word_lab:v3 | none | BinSort | `CANONICAL` | medium | No | Retain and route new work through the catalogue. |
-| FlipToggle | `components/adle/activities/shared/flip-toggle.tsx` | `MEANING_DISCOVERY` | none | none | Discovery | `DEAD_OR_UNREFERENCED` | low | No | Keep until convergence decision; do not select for new work. |
+| BinSortOverview | `components/adle/activities/shared/bin-sort.tsx` | `MEANING_SORT completion view` | dynamic_prefix_word_lab:v2, fixed_un_prefix_word_lab:v1, dynamic_affix_word_lab:v3 | none | BinSort | `CANONICAL_MODE` | low | No | Retain and route new work through the catalogue. |
 | CoverShutter | `components/adle/activities/shared/cover-shutter.tsx` | `COVER_CHECK` | generic_composer:v1, dynamic_prefix_word_lab:v2, fixed_un_prefix_word_lab:v1, dynamic_affix_word_lab:v3, base_word_lab:v2, compound_word_lab:v2, closed_compound_word_lab:v1 | CONTROLLED_SPELLING, HIDE_WRITE | CoverShutter | `CANONICAL` | high | No | Retain and route new work through the catalogue. |
 | SentenceDictation | `components/adle/activities/shared/sentence-dictation.tsx` | `DICTATION.whole_sentence` | generic_composer:v1, dynamic_prefix_word_lab:v2, fixed_un_prefix_word_lab:v1, dynamic_affix_word_lab:v3, base_word_lab:v2, compound_word_lab:v2, closed_compound_word_lab:v1 | DICTATION_NO_IMAGE, DICTATION_SENTENCE_CONTEXT | SentenceDictation | `CANONICAL` | high | No | Retain and route new work through the catalogue. |
 | ColdWordRecall | `components/adle/activities/shared/cold-word-recall.tsx` | `REVIEW_DICTATION / DIAGNOSTIC_DICTATION_PROBE` | generic_composer:v1 | REVIEW_DICTATION, DIAGNOSTIC_DICTATION_PROBE | ColdWordRecall | `CANONICAL` | high | No | Retain and route new work through the catalogue. |
@@ -69,7 +69,6 @@ Architecture documents inspected:
 | MorphemeTile | `components/adle/activities/morphology/shared/morphology-primitives.tsx` | `WORD_PART_TILE` | /dev/adle/morphology-primitives only | none | DraggableTile | `DEAD_OR_UNREFERENCED` | medium | No | Do not add new usage before the backlog action is complete. |
 | MorphemeSequence | `components/adle/activities/morphology/shared/morphology-primitives.tsx` | `WORD_PART_DISPLAY` | /dev/adle/morphology-primitives only | none | none | `DEVELOPMENT_REFERENCE` | medium | No | Retain only as a read-only governed morphology-data inspection surface; do not route learner interaction through it. |
 | MorphemeRail | `components/adle/activities/morphology/shared/morphology-primitives.tsx` | `WORD_ASSEMBLY` | /dev/adle/morphology-primitives only | none | SnapRail | `DUPLICATE_TO_MIGRATE` | low | No | Do not add new usage before the backlog action is complete. |
-| MeaningFlip | `components/adle/activities/morphology/shared/morphology-primitives.tsx` | `MEANING_DISCOVERY` | /dev/adle/morphology-primitives only | none | Discovery | `DUPLICATE_TO_MIGRATE` | low | No | Do not add new usage before the backlog action is complete. |
 | MorphologyDiff | `components/adle/activities/morphology/shared/morphology-primitives.tsx` | `POST_ATTEMPT_COMPARISON` | /dev/adle/morphology-primitives only | none | DiffReveal | `DUPLICATE_TO_MIGRATE` | low | No | Do not add new usage before the backlog action is complete. |
 | MorphemeGlossCard | `components/adle/activities/morphology/shared/morphology-primitives.tsx` | `MORPHOLOGY_REFERENCE` | /dev/adle/morphology-primitives only | none | none | `DEAD_OR_UNREFERENCED` | medium | No | Do not add new usage before the backlog action is complete. |
 | RootArtifactCard | `components/adle/activities/morphology/shared/morphology-primitives.tsx` | `MORPHOLOGY_REFERENCE` | /dev/adle/morphology-primitives only | none | none | `DEAD_OR_UNREFERENCED` | medium | No | Do not add new usage before the backlog action is complete. |
@@ -85,8 +84,6 @@ Architecture documents inspected:
 | LearnIntroduction | `components/adle/morphology/morphology-guided-lesson.tsx` | `INTRODUCTION` | dynamic_prefix_word_lab:v2, fixed_un_prefix_word_lab:v1, dynamic_affix_word_lab:v3 | none | IntroActivity / future reading shell | `DUPLICATE_TO_MIGRATE` | high | No | Do not add new usage before the backlog action is complete. |
 | Discovery | `components/adle/morphology/morphology-guided-lesson.tsx` | `MEANING_DISCOVERY` | dynamic_prefix_word_lab:v2, fixed_un_prefix_word_lab:v1, dynamic_affix_word_lab:v3 | none | Discovery | `CANONICAL` | high | No | Retain and route new work through the catalogue. |
 | SplitBuild | `components/adle/morphology/morphology-guided-lesson.tsx` | `CLEAVER` | dynamic_prefix_word_lab:v2, fixed_un_prefix_word_lab:v1, dynamic_affix_word_lab:v3 | none | SplitHandle | `THIN_ADAPTER` | high | No | Retain as state-free curriculum translation into the canonical component. |
-| MeaningCards | `components/adle/morphology/morphology-guided-lesson.tsx` | `MEANING_SORT_RECAP` | dynamic_prefix_word_lab:v2, fixed_un_prefix_word_lab:v1, dynamic_affix_word_lab:v3 | none | BinSort | `CANONICAL_MODE` | medium | No | Retain and route new work through the catalogue. |
-| MeaningOverview | `components/adle/morphology/morphology-guided-lesson.tsx` | `MEANING_SORT_RECAP` | dynamic_prefix_word_lab:v2, fixed_un_prefix_word_lab:v1, dynamic_affix_word_lab:v3 | none | BinSort | `CANONICAL_MODE` | medium | No | Retain and route new work through the catalogue. |
 | Morphology Cover Check adapter | `components/adle/morphology/morphology-guided-lesson.tsx` | `COVER_CHECK adapter` | dynamic_prefix_word_lab:v2, fixed_un_prefix_word_lab:v1, dynamic_affix_word_lab:v3 | none | CoverShutter | `CANONICAL_MODE` | high | Yes | Retain and route new work through the catalogue. |
 | Morphology Sentence Dictation adapter | `components/adle/morphology/morphology-guided-lesson.tsx` | `DICTATION.whole_sentence adapter` | dynamic_prefix_word_lab:v2, fixed_un_prefix_word_lab:v1, dynamic_affix_word_lab:v3 | none | SentenceDictation | `CANONICAL_MODE` | high | Yes | Retain and route new work through the catalogue. |
 | MorphologyReflectionAdapter | `components/adle/morphology/morphology-guided-lesson.tsx` | `LESSON_REFLECTION adapter` | dynamic_prefix_word_lab:v2, fixed_un_prefix_word_lab:v1, dynamic_affix_word_lab:v3 | none | LessonReflection | `CANONICAL_MODE` | high | No | Retain and route new work through the catalogue. |
@@ -100,7 +97,7 @@ Architecture documents inspected:
 | Base Word reflection adapter | `components/adle/morphology/base-word-family-guided-lesson.tsx` | `LESSON_REFLECTION adapter` | base_word_lab:v2 | none | LessonReflection | `CANONICAL_MODE` | high | No | Retain and route new work through the catalogue. |
 | CompoundReadingPage | `components/adle/morphology/closed-compound-guided-lesson.tsx` | `READING_PAGE` | compound_word_lab:v2 | none | future ReadingPage | `REQUIRES_ARCHITECTURE_DECISION` | high | No | Do not add new usage before the backlog action is complete. |
 | CompoundJigsawActivity | `components/adle/morphology/compound-jigsaw-activity.tsx` | `COMPOUND_JIGSAW` | compound_word_lab:v2, closed_compound_word_lab:v1 | MOR_COMPOUND_JIGSAW | CompoundJigsawActivity | `CANONICAL` | high | Yes | Retain and route new work through the catalogue. |
-| MeaningConnectionActivity | `components/adle/morphology/meaning-connection-activity.tsx` | `MEANING_MATCH` | compound_word_lab:v2, closed_compound_word_lab:v1 | MOR_COMPOUND_MEANING_CONNECTION | MeaningConnectionActivity | `CANONICAL` | high | Yes | Retain and route new work through the catalogue. |
+| MeaningConnectionActivity | `components/adle/morphology/meaning-connection-activity.tsx` | `MEANING_MATCH` | compound_word_lab:v2, closed_compound_word_lab:v1, generic_composer:v1 | HOM_MEANING_MATCH, MOR_MEANING_MATCH, MOR_COMPOUND_MEANING_CONNECTION | MeaningConnectionActivity | `CANONICAL` | high | Yes | Retain and route new work through the catalogue. |
 | Compound Cover Check adapter | `components/adle/morphology/closed-compound-guided-lesson.tsx` | `COVER_CHECK adapter` | compound_word_lab:v2, closed_compound_word_lab:v1 | none | CoverShutter | `CANONICAL_MODE` | high | Yes | Retain and route new work through the catalogue. |
 | Compound Sentence Dictation adapter | `components/adle/morphology/closed-compound-guided-lesson.tsx` | `DICTATION.whole_sentence adapter` | compound_word_lab:v2, closed_compound_word_lab:v1 | none | SentenceDictation | `CANONICAL_MODE` | high | Yes | Retain and route new work through the catalogue. |
 | CompoundLessonReflectionAdapter | `components/adle/morphology/closed-compound-guided-lesson.tsx` | `LESSON_REFLECTION adapter` | compound_word_lab:v2, closed_compound_word_lab:v1 | none | LessonReflection | `CANONICAL_MODE` | high | Yes | Retain and route new work through the catalogue. |
@@ -172,7 +169,7 @@ First-impression spelling has exactly two learner experiences: CoverShutter for 
 - Concept / family: `GUIDED_PROMPT_FALLBACK / MEMORY_CUE` / `guided_prompt_fallback / memory_cue`
 - Routes: `generic_composer:v1`
 - Micro-skills: `runtime-selected generic micro-skills`
-- Registry/template keys: `MEMORY_CUE`, `PG_*`, `HOM_*`, `INF_*`, `IRRE_*`, `MOR_*`, `PAT_*`, `SYL_*`, `SCHWA_*`
+- Registry/template keys: `MEMORY_CUE`, `PG_*`, `HOM_SENTENCE_CHOICE`, `HOM_CORRECTION`, `INF_*`, `IRRE_*`, `MOR_STRIP_BUILD`, `MOR_BUILD_WORD`, `PAT_*`, `SYL_*`, `SCHWA_*`
 - Props/config differences: See component props and route adapter.
 - Visual differences: Uses its owning shell styling.
 - Behavioural differences: Local interaction state only.
@@ -183,24 +180,24 @@ First-impression spelling has exactly two learner experiences: CoverShutter for 
 - Migration risk: `medium`
 - Historical replay dependency: No
 - Evidence: Repository import and route-dispatch trace at the audited base SHA.
-- Notes: Canonical only as the generic safe fallback and current memory-cue surface; HIDE_WRITE is normalized to CoverShutter before this component.
+- Notes: Canonical only as the generic safe fallback and current memory-cue surface. Definition-less immutable Meaning Match payloads may reach it through an explicit compatibility adapter; forward governed Meaning Match selects MeaningConnectionActivity.
 
-### QuickSortActivity
+### REVIEW_QUICK_SORT compatibility mapping
 
-- File: `components/adle/activities/quick-sort-activity.tsx`
+- File: `lib/adle/activity-template-registry.ts`
 - Concept / family: `REVIEW_SORT` / `review_sort`
-- Routes: `generic_composer:v1`
-- Micro-skills: `runtime-selected generic micro-skills`
+- Routes: `historical generic assignments only`
+- Micro-skills: None
 - Registry/template keys: `REVIEW_QUICK_SORT`
 - Props/config differences: See component props and route adapter.
 - Visual differences: Uses its owning shell styling.
 - Behavioural differences: Local interaction state only.
-- Persistence/evidence differences: Renderer does not write directly; owning session submits completion.
-- Canonical candidate: `QuickSortActivity`
-- Classification: `CANONICAL`
-- Recommended action: Retain and route new work through the catalogue.
+- Persistence/evidence differences: The historical item never carried production evidence and is ignored before review retrieval.
+- Canonical candidate: None
+- Classification: `COMPATIBILITY_ONLY`
+- Recommended action: Do not add new usage before the backlog action is complete.
 - Migration risk: `low`
-- Historical replay dependency: No
+- Historical replay dependency: Yes
 - Evidence: Repository import and route-dispatch trace at the audited base SHA.
 - Notes: None.
 
@@ -346,8 +343,8 @@ First-impression spelling has exactly two learner experiences: CoverShutter for 
 - Registry/template keys: None
 - Props/config differences: See component props and route adapter.
 - Visual differences: Uses its owning shell styling.
-- Behavioural differences: Local interaction state only.
-- Persistence/evidence differences: Renderer does not write directly; owning session submits completion.
+- Behavioural differences: One state machine owns current item, correctness, brief success phase, automatic advance and completion.
+- Persistence/evidence differences: Glitter and Overview are presentation-only; onComplete retains the existing guided completion boundary.
 - Canonical candidate: `BinSort`
 - Classification: `CANONICAL`
 - Recommended action: Retain and route new work through the catalogue.
@@ -356,23 +353,23 @@ First-impression spelling has exactly two learner experiences: CoverShutter for 
 - Evidence: Repository import and route-dispatch trace at the audited base SHA.
 - Notes: None.
 
-### FlipToggle
+### BinSortOverview
 
-- File: `components/adle/activities/shared/flip-toggle.tsx`
-- Concept / family: `MEANING_DISCOVERY` / `meaning_discovery`
-- Routes: None
-- Micro-skills: None
+- File: `components/adle/activities/shared/bin-sort.tsx`
+- Concept / family: `MEANING_SORT completion view` / `meaning_sort completion view`
+- Routes: `dynamic_prefix_word_lab:v2`, `fixed_un_prefix_word_lab:v1`, `dynamic_affix_word_lab:v3`
+- Micro-skills: `D4_MOR_PREFIXES_UN`, `D4_MOR_PREFIXES_DIS_MIS`, `D4_MOR_PREFIXES_IN_IM_IL_IR`, `D4_MOR_PREFIXES_RE_PRE`, `D4_MOR_PREFIXES_SUB_INTER_SUPER`, `D4_MOR_SUFFIXES_ABLE_IBLE`, `D4_MOR_SUFFIXES_AL`, `D4_MOR_SUFFIXES_FUL_LESS`, `D4_MOR_SUFFIXES_ITY`, `D4_MOR_SUFFIXES_LY`, `D4_MOR_SUFFIXES_MENT`, `D4_MOR_SUFFIXES_NESS`, `D4_MOR_SUFFIXES_OUS`, `D4_MOR_SUFFIXES_SION`, `D4_MOR_SUFFIXES_TION`
 - Registry/template keys: None
 - Props/config differences: See component props and route adapter.
 - Visual differences: Uses its owning shell styling.
-- Behavioural differences: Local interaction state only.
-- Persistence/evidence differences: Renderer does not write directly; owning session submits completion.
-- Canonical candidate: `Discovery`
-- Classification: `DEAD_OR_UNREFERENCED`
-- Recommended action: Keep until convergence decision; do not select for new work.
+- Behavioural differences: Stateless semantic grouping derived from BinSort items, bins and correct placements.
+- Persistence/evidence differences: Creates no attempt, evidence or persistence event.
+- Canonical candidate: `BinSort`
+- Classification: `CANONICAL_MODE`
+- Recommended action: Retain and route new work through the catalogue.
 - Migration risk: `low`
 - Historical replay dependency: No
-- Evidence: Exported by shared/index.tsx but no learner route or preview imports it.
+- Evidence: Repository import and route-dispatch trace at the audited base SHA.
 - Notes: None.
 
 ### CoverShutter
@@ -520,25 +517,6 @@ First-impression spelling has exactly two learner experiences: CoverShutter for 
 - Behavioural differences: Tap-only placement without correctness or completion contract.
 - Persistence/evidence differences: Renderer does not write directly; owning session submits completion.
 - Canonical candidate: `SnapRail`
-- Classification: `DUPLICATE_TO_MIGRATE`
-- Recommended action: Do not add new usage before the backlog action is complete.
-- Migration risk: `low`
-- Historical replay dependency: No
-- Evidence: Repository import and route-dispatch trace at the audited base SHA.
-- Notes: None.
-
-### MeaningFlip
-
-- File: `components/adle/activities/morphology/shared/morphology-primitives.tsx`
-- Concept / family: `MEANING_DISCOVERY` / `meaning_discovery`
-- Routes: `/dev/adle/morphology-primitives only`
-- Micro-skills: `none (development/staging reference only)`
-- Registry/template keys: None
-- Props/config differences: See component props and route adapter.
-- Visual differences: Uses its owning shell styling.
-- Behavioural differences: Local interaction state only.
-- Persistence/evidence differences: Renderer does not write directly; owning session submits completion.
-- Canonical candidate: `Discovery`
 - Classification: `DUPLICATE_TO_MIGRATE`
 - Recommended action: Do not add new usage before the backlog action is complete.
 - Migration risk: `low`
@@ -800,7 +778,7 @@ First-impression spelling has exactly two learner experiences: CoverShutter for 
 - Routes: `dynamic_prefix_word_lab:v2`, `fixed_un_prefix_word_lab:v1`, `dynamic_affix_word_lab:v3`
 - Micro-skills: `D4_MOR_PREFIXES_UN`, `D4_MOR_PREFIXES_DIS_MIS`, `D4_MOR_PREFIXES_IN_IM_IL_IR`, `D4_MOR_PREFIXES_RE_PRE`, `D4_MOR_PREFIXES_SUB_INTER_SUPER`, `D4_MOR_SUFFIXES_ABLE_IBLE`, `D4_MOR_SUFFIXES_AL`, `D4_MOR_SUFFIXES_FUL_LESS`, `D4_MOR_SUFFIXES_ITY`, `D4_MOR_SUFFIXES_LY`, `D4_MOR_SUFFIXES_MENT`, `D4_MOR_SUFFIXES_NESS`, `D4_MOR_SUFFIXES_OUS`, `D4_MOR_SUFFIXES_SION`, `D4_MOR_SUFFIXES_TION`
 - Registry/template keys: None
-- Props/config differences: See component props and route adapter.
+- Props/config differences: One stateful engine receives prefix/suffix position, label, governed transformation cards, distractors and audio through the morphology payload.
 - Visual differences: Uses its owning shell styling.
 - Behavioural differences: Local interaction state only.
 - Persistence/evidence differences: Renderer does not write directly; owning session submits completion.
@@ -827,44 +805,6 @@ First-impression spelling has exactly two learner experiences: CoverShutter for 
 - Classification: `THIN_ADAPTER`
 - Recommended action: Retain as state-free curriculum translation into the canonical component.
 - Migration risk: `high`
-- Historical replay dependency: No
-- Evidence: Repository import and route-dispatch trace at the audited base SHA.
-- Notes: None.
-
-### MeaningCards
-
-- File: `components/adle/morphology/morphology-guided-lesson.tsx`
-- Concept / family: `MEANING_SORT_RECAP` / `meaning_sort_recap`
-- Routes: `dynamic_prefix_word_lab:v2`, `fixed_un_prefix_word_lab:v1`, `dynamic_affix_word_lab:v3`
-- Micro-skills: `D4_MOR_PREFIXES_UN`, `D4_MOR_PREFIXES_DIS_MIS`, `D4_MOR_PREFIXES_IN_IM_IL_IR`, `D4_MOR_PREFIXES_RE_PRE`, `D4_MOR_PREFIXES_SUB_INTER_SUPER`, `D4_MOR_SUFFIXES_ABLE_IBLE`, `D4_MOR_SUFFIXES_AL`, `D4_MOR_SUFFIXES_FUL_LESS`, `D4_MOR_SUFFIXES_ITY`, `D4_MOR_SUFFIXES_LY`, `D4_MOR_SUFFIXES_MENT`, `D4_MOR_SUFFIXES_NESS`, `D4_MOR_SUFFIXES_OUS`, `D4_MOR_SUFFIXES_SION`, `D4_MOR_SUFFIXES_TION`
-- Registry/template keys: None
-- Props/config differences: See component props and route adapter.
-- Visual differences: Uses its owning shell styling.
-- Behavioural differences: Local interaction state only.
-- Persistence/evidence differences: Renderer does not write directly; owning session submits completion.
-- Canonical candidate: `BinSort`
-- Classification: `CANONICAL_MODE`
-- Recommended action: Retain and route new work through the catalogue.
-- Migration risk: `medium`
-- Historical replay dependency: No
-- Evidence: Repository import and route-dispatch trace at the audited base SHA.
-- Notes: None.
-
-### MeaningOverview
-
-- File: `components/adle/morphology/morphology-guided-lesson.tsx`
-- Concept / family: `MEANING_SORT_RECAP` / `meaning_sort_recap`
-- Routes: `dynamic_prefix_word_lab:v2`, `fixed_un_prefix_word_lab:v1`, `dynamic_affix_word_lab:v3`
-- Micro-skills: `D4_MOR_PREFIXES_UN`, `D4_MOR_PREFIXES_DIS_MIS`, `D4_MOR_PREFIXES_IN_IM_IL_IR`, `D4_MOR_PREFIXES_RE_PRE`, `D4_MOR_PREFIXES_SUB_INTER_SUPER`, `D4_MOR_SUFFIXES_ABLE_IBLE`, `D4_MOR_SUFFIXES_AL`, `D4_MOR_SUFFIXES_FUL_LESS`, `D4_MOR_SUFFIXES_ITY`, `D4_MOR_SUFFIXES_LY`, `D4_MOR_SUFFIXES_MENT`, `D4_MOR_SUFFIXES_NESS`, `D4_MOR_SUFFIXES_OUS`, `D4_MOR_SUFFIXES_SION`, `D4_MOR_SUFFIXES_TION`
-- Registry/template keys: None
-- Props/config differences: See component props and route adapter.
-- Visual differences: Uses its owning shell styling.
-- Behavioural differences: Local interaction state only.
-- Persistence/evidence differences: Renderer does not write directly; owning session submits completion.
-- Canonical candidate: `BinSort`
-- Classification: `CANONICAL_MODE`
-- Recommended action: Retain and route new work through the catalogue.
-- Migration risk: `medium`
 - Historical replay dependency: No
 - Evidence: Repository import and route-dispatch trace at the audited base SHA.
 - Notes: None.
@@ -1120,10 +1060,10 @@ First-impression spelling has exactly two learner experiences: CoverShutter for 
 
 - File: `components/adle/morphology/meaning-connection-activity.tsx`
 - Concept / family: `MEANING_MATCH` / `meaning_match`
-- Routes: `compound_word_lab:v2`, `closed_compound_word_lab:v1`
-- Micro-skills: `D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS`, `D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED`
-- Registry/template keys: `MOR_COMPOUND_MEANING_CONNECTION`
-- Props/config differences: See component props and route adapter.
+- Routes: `compound_word_lab:v2`, `closed_compound_word_lab:v1`, `generic_composer:v1`
+- Micro-skills: `runtime-selected generic micro-skills`, `D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS`, `D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED`
+- Registry/template keys: `HOM_MEANING_MATCH`, `MOR_MEANING_MATCH`, `MOR_COMPOUND_MEANING_CONNECTION`
+- Props/config differences: Governed definitions are required; optional component clues and audio do not create another mode state machine.
 - Visual differences: Uses its owning shell styling.
 - Behavioural differences: Local interaction state only.
 - Persistence/evidence differences: Renderer does not write directly; owning session submits completion.

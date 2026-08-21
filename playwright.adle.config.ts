@@ -1,5 +1,8 @@
 import { defineConfig } from "@playwright/test";
 
+const adlePort = process.env.ADLE_PLAYWRIGHT_PORT ?? "3210";
+const adleBaseUrl = `http://127.0.0.1:${adlePort}`;
+
 export default defineConfig({
   testDir: "./tests/adle",
   timeout: 90_000,
@@ -8,14 +11,14 @@ export default defineConfig({
   retries: 0,
   reporter: "line",
   use: {
-    baseURL: "http://127.0.0.1:3210",
+    baseURL: adleBaseUrl,
     headless: true,
     reducedMotion: "no-preference",
     trace: "retain-on-failure",
   },
   webServer: {
-    command: "npm run dev -- --hostname 127.0.0.1 --port 3210",
-    url: "http://127.0.0.1:3210/dev/adle/morphology-primitives",
+    command: `npm run dev -- --hostname 127.0.0.1 --port ${adlePort}`,
+    url: `${adleBaseUrl}/dev/adle/morphology-primitives`,
     reuseExistingServer: false,
     timeout: 120_000,
   },

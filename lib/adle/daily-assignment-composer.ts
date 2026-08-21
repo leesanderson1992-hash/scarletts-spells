@@ -104,19 +104,6 @@ export interface ActivityTemplateFact {
   rowStatus: SchedulerRowStatus;
 }
 
-/** Slice 7a: structural word metadata used by the interactive activity
- * renderer. Only the syllable *count* and `hasSchwa` back a real interaction
- * (the two derivable quick-sort schemes); the rest is warm display context. */
-export interface WordStructuralMetadata {
-  canonicalWordId: string;
-  /** Count string, e.g. "1"/"4" — NOT a segmentation. */
-  syllables: string | null;
-  hasSchwa: boolean | null;
-  /** Phonetic transcription (e.g. "AH0 / EY1") — not a grapheme map. */
-  phonemeHint: string | null;
-  stressPattern: string | null;
-}
-
 export interface TeachingContentFact {
   microSkillKey: string;
   teachingObjective: string;
@@ -167,10 +154,6 @@ export interface DailyPlanFacts {
    * selection facts. Absent/empty = selection is byte-identical to before
    * (fail-open — the 5D pin). */
   notYetSecureSkillKeys?: ReadonlySet<string>;
-  /** Slice 7a: canonical_word_id -> structural metadata for the activity
-   * renderer. Optional and fail-open: absent/empty leaves every activity in its
-   * warm-prompt form and the composed plan byte-identical to before. */
-  wordMetadataByWordId?: ReadonlyMap<string, WordStructuralMetadata>;
   frequencyBandByWordId: ReadonlyMap<string, string | null>;
   previousLessonFamilyKey: string | null;
   dictionary: ComposerDictionaryFacts;
@@ -240,94 +223,6 @@ export interface ComposedDailyPlan {
     skips: PlanSkip[];
   };
   budget: BudgetSummary;
-}
-
-/** Parse "REVIEW_QUICK_SORT(sound/spelling cue)" -> "sound/spelling cue".
- * Unparseable values fail closed to null (missing_activity_strategy). */
-export function parseReviewSortDimension(raw: string): string | null {
-  const match = /^REVIEW_QUICK_SORT\((.+)\)$/.exec(raw.trim());
-  return match ? match[1].trim() : null;
-}
-
-/** Families whose review sort dimension maps to concrete, data-derivable bins
- * (Slice 7a, data-honest Tier map). Every other family's quick sort renders as
- * a warm prompt (sortBins === null). */
-export const SYLLABLE_FAMILY_KEY = "D4_SYL";
-export const SCHWA_FAMILY_KEY = "D4_SCHWA";
-
-/** A concrete, tappable quick-sort scheme derived from existing structural
- * metadata. `correctBinByWordId` powers soft, non-punitive feedback only —
- * quick sort is an activation step, never the production evidence. */
-export interface SortBinsDefinition {
-  dimensionLabel: string;
-  bins: { key: string; label: string }[];
-  correctBinByWordId: Record<string, string>;
-}
-
-const SYLLABLE_BINS: { key: string; label: string }[] = [
-  { key: "1", label: "1 beat" },
-  { key: "2", label: "2 beats" },
-  { key: "3+", label: "3 or more beats" },
-];
-const SCHWA_BINS: { key: string; label: string }[] = [
-  { key: "schwa", label: "Has a quiet vowel" },
-  { key: "no_schwa", label: "No quiet vowel" },
-];
-
-function syllableBinKey(syllables: string | null): string | null {
-  if (syllables === null) {
-    return null;
-  }
-  const n = Number.parseInt(syllables, 10);
-  if (!Number.isFinite(n) || n <= 0) {
-    return null;
-  }
-  return n <= 1 ? "1" : n === 2 ? "2" : "3+";
-}
-
-/**
- * Derive a concrete quick-sort scheme for the session's reviewable words, or
- * null (warm-prompt fallback). Concrete bins exist only for a single-family
- * session of D4_SYL (by syllable count) or D4_SCHWA (by has_schwa); mixed
- * families or any word missing the needed metadata fail closed to null so a
- * partial/incoherent sort is never shown.
- */
-export function deriveQuickSortBins(
-  entries: readonly { canonicalWordId: string; familyKey: string; sortDimension: string }[],
-  wordMetadata: ReadonlyMap<string, WordStructuralMetadata> | undefined,
-): SortBinsDefinition | null {
-  if (wordMetadata === undefined || entries.length === 0) {
-    return null;
-  }
-  const families = new Set(entries.map((entry) => entry.familyKey));
-  if (families.size !== 1) {
-    return null;
-  }
-  const family = entries[0].familyKey;
-  const dimensionLabel = entries[0].sortDimension;
-  const correctBinByWordId: Record<string, string> = {};
-
-  if (family === SYLLABLE_FAMILY_KEY) {
-    for (const entry of entries) {
-      const binKey = syllableBinKey(wordMetadata.get(entry.canonicalWordId)?.syllables ?? null);
-      if (binKey === null) {
-        return null;
-      }
-      correctBinByWordId[entry.canonicalWordId] = binKey;
-    }
-    return { dimensionLabel, bins: SYLLABLE_BINS, correctBinByWordId };
-  }
-  if (family === SCHWA_FAMILY_KEY) {
-    for (const entry of entries) {
-      const hasSchwa = wordMetadata.get(entry.canonicalWordId)?.hasSchwa ?? null;
-      if (hasSchwa === null) {
-        return null;
-      }
-      correctBinByWordId[entry.canonicalWordId] = hasSchwa ? "schwa" : "no_schwa";
-    }
-    return { dimensionLabel, bins: SCHWA_BINS, correctBinByWordId };
-  }
-  return null;
 }
 
 /**
@@ -405,8 +300,6 @@ export function composeDailyPlan(facts: DailyPlanFacts, today: IsoDate): Compose
     item: DueReviewItem;
     word: ReviewWordFact;
     familyKey: string;
-    method: FamilyMethodFact;
-    sortDimension: string;
   }[] = [];
   for (const item of presentation) {
     const word = facts.reviewWordFacts.get(item.canonicalWordId);
@@ -433,79 +326,7 @@ export function composeDailyPlan(facts: DailyPlanFacts, today: IsoDate): Compose
       });
       continue;
     }
-    const sortDimension = parseReviewSortDimension(method.reviewSortDimension);
-    if (sortDimension === null) {
-      partOneSkips.push({
-        reason: "missing_activity_strategy",
-        evidence: {
-          canonicalWordId: item.canonicalWordId,
-          missing: "review_sort_dimension",
-          raw: method.reviewSortDimension,
-        },
-      });
-      continue;
-    }
-    reviewable.push({ item, word, familyKey, method, sortDimension });
-  }
-
-  // Quick sort: one parameterised categorisation step over the session's
-  // words (activation only, weak evidence — never the production step).
-  const quickSortTemplate = templates.get("REVIEW_QUICK_SORT");
-  if (reviewable.length > 0) {
-    if (quickSortTemplate === undefined) {
-      partOneSkips.push({
-        reason: "missing_activity_strategy",
-        evidence: { missing: "template", templateKey: "REVIEW_QUICK_SORT" },
-      });
-    } else if (reviewable.length >= quickSortTemplate.minWordsRequired) {
-      partOneSections.push({
-        sectionKey: "review_quick_sort",
-        purpose: "Categorisation/activation step before review production",
-        items: [
-          {
-            position: (position += 1),
-            sectionKey: "review_quick_sort",
-            templateKey: "REVIEW_QUICK_SORT",
-            microSkillKey: null,
-            canonicalWordId: null,
-            targetWord: null,
-            learningItemId: null,
-            payload: {
-              childFacingCopy: quickSortTemplate.childFacingCopy,
-              words: reviewable.map((entry) => ({
-                canonicalWordId: entry.item.canonicalWordId,
-                targetWord: entry.word.displayWord,
-                sortDimension: entry.sortDimension,
-                familyKey: entry.familyKey,
-                microSkillKeys: entry.word.microSkillKeys ?? [entry.word.microSkillKey],
-                learningItemIds: entry.word.learningItemIds ?? [],
-              })),
-              // Concrete bins where the metadata backs them (D4_SYL/D4_SCHWA
-              // single-family sessions), else null -> warm prompt.
-              sortBins: deriveQuickSortBins(
-                reviewable.map((entry) => ({
-                  canonicalWordId: entry.item.canonicalWordId,
-                  familyKey: entry.familyKey,
-                  sortDimension: entry.sortDimension,
-                })),
-                facts.wordMetadataByWordId,
-              ),
-            },
-            expectedEvidenceKind: quickSortTemplate.evidenceKind,
-            provenance: "review_session",
-          },
-        ],
-      });
-    } else {
-      partOneSkips.push({
-        reason: "missing_required_words",
-        evidence: {
-          templateKey: "REVIEW_QUICK_SORT",
-          minWordsRequired: quickSortTemplate.minWordsRequired,
-          available: reviewable.length,
-        },
-      });
-    }
+    reviewable.push({ item, word, familyKey });
   }
 
   // Production: the step that carries the evidence. Homophone-choice words
@@ -663,11 +484,8 @@ export function composeDailyPlan(facts: DailyPlanFacts, today: IsoDate): Compose
         // Time budget: trim guided repetitions first (2-3 guided words; all
         // words still produced), then intro length. Production and
         // reflection are never cut.
-        const quickSortComposed = partOneSections.some(
-          (section) => section.sectionKey === "review_quick_sort",
-        );
         let build = assembled.build(guidedWordCount, introTrimmed);
-        let estimate = estimateResponses(reviewable.length, quickSortComposed, build);
+        let estimate = estimateResponses(reviewable.length, build);
         if (
           estimate > composerPolicy.sessionResponseBudget &&
           guidedWordCount > composerPolicy.guidedWordCountMin
@@ -675,7 +493,7 @@ export function composeDailyPlan(facts: DailyPlanFacts, today: IsoDate): Compose
           guidedWordCount = composerPolicy.guidedWordCountMin;
           trims.push("guided_repetitions");
           build = assembled.build(guidedWordCount, introTrimmed);
-          estimate = estimateResponses(reviewable.length, quickSortComposed, build);
+          estimate = estimateResponses(reviewable.length, build);
         }
         if (estimate > composerPolicy.sessionResponseBudget && !introTrimmed) {
           introTrimmed = true;
@@ -697,7 +515,6 @@ export function composeDailyPlan(facts: DailyPlanFacts, today: IsoDate): Compose
 
   const finalEstimate = estimateResponses(
     reviewable.length,
-    partOneSections.some((section) => section.sectionKey === "review_quick_sort"),
     partTwoSections,
   );
 
@@ -734,15 +551,14 @@ export function composeDailyPlan(facts: DailyPlanFacts, today: IsoDate): Compose
   };
 }
 
-/** Response estimate: one response per Part 1 production word, one for the
- * whole quick-sort step, one per Part 2 item candidate; conditional
+/** Response estimate: one response per Part 1 production word and one per
+ * Part 2 item candidate; conditional
  * reflection slots cost nothing at composition (they only run on misses). */
 function estimateResponses(
   reviewWordCount: number,
-  quickSortComposed: boolean,
   partTwoSections: readonly PlanSection[],
 ): number {
-  const partOne = reviewWordCount + (quickSortComposed && reviewWordCount >= 2 ? 1 : 0);
+  const partOne = reviewWordCount;
   const partTwo = partTwoSections.reduce((total, section) => {
     if (section.sectionKey === "lesson_probe") {
       const probeItem = section.items[0];

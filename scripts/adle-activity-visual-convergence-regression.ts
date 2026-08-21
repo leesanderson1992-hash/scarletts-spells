@@ -14,9 +14,9 @@ const allowed = new Set<VisualConvergenceClassification>([
   "GENUINELY_DIFFERENT_INTERACTION", "RETIRE", "OWNER_REVIEW_REQUIRED",
 ]);
 
-assert.deepEqual(ADLE_VISUAL_CONVERGENCE_GROUPS.map((group) => group.number), [1, 2, 3, 4, 5, 6, 7], "all seven ordered visual groups must exist");
-assert.equal(new Set(ADLE_VISUAL_CONVERGENCE_GROUPS.map((group) => group.id)).size, 7, "visual group ids must be unique");
-assert.equal(visualConvergenceCandidateCount(), 37, "visual lab candidate inventory includes both ColdWordRecall evidence configurations");
+assert.deepEqual(ADLE_VISUAL_CONVERGENCE_GROUPS.map((group) => group.number), [1, 2, 3, 4, 5, 6], "all six ordered visual groups must exist after Meaning/Categorisation convergence");
+assert.equal(new Set(ADLE_VISUAL_CONVERGENCE_GROUPS.map((group) => group.id)).size, 6, "visual group ids must be unique");
+assert.equal(visualConvergenceCandidateCount(), 33, "visual lab inventory contains canonical Meaning engines and both ColdWordRecall evidence configurations");
 
 const candidateIds = new Set<string>();
 for (const group of ADLE_VISUAL_CONVERGENCE_GROUPS) {
@@ -64,4 +64,4 @@ for (const exactAuditClassification of ["GENUINELY_DIFFERENT_INTERACTION", "RETI
 }
 assert(ADLE_VISUAL_CONVERGENCE_GROUPS.some((group) => group.candidates.some((candidate) => candidate.classification === "OWNER_REVIEW_REQUIRED")), "visual judgement must remain explicitly owner-reviewed");
 
-console.log(`PASS: ADLE Visual Convergence Lab (7 groups, ${visualConvergenceCandidateCount()} candidates, no mutation capability)`);
+console.log(`PASS: ADLE Visual Convergence Lab (6 groups, ${visualConvergenceCandidateCount()} candidates, no mutation capability)`);

@@ -71,6 +71,10 @@ function guidedPrompt(templateKey: string): GenericSnapshotTemplateDefinition {
   });
 }
 
+function meaningMatch(templateKey: string): GenericSnapshotTemplateDefinition {
+  return { ...guidedPrompt(templateKey), rendererKind: "meaning_match" };
+}
+
 function routeGuidedPrompt(templateKey: string): GenericSnapshotTemplateDefinition {
   return { ...guidedPrompt(templateKey), compileSupport: "route_specific" };
 }
@@ -84,15 +88,15 @@ export const GENERIC_SNAPSHOT_TEMPLATE_REGISTRY = [
   guidedPrompt("PAT_RULE_APPLY"),
   guidedPrompt("SYL_SPLIT"),
   guidedPrompt("SYL_REBUILD"),
-  guidedPrompt("HOM_MEANING_MATCH"),
+  meaningMatch("HOM_MEANING_MATCH"),
   guidedPrompt("HOM_SENTENCE_CHOICE"),
   guidedPrompt("HOM_CORRECTION"),
   guidedPrompt("IRRE_TRICKY_PART"),
   guidedPrompt("MOR_STRIP_BUILD"),
-  guidedPrompt("MOR_MEANING_MATCH"),
+  meaningMatch("MOR_MEANING_MATCH"),
   guidedPrompt("MOR_BUILD_WORD"),
   routeGuidedPrompt("MOR_COMPOUND_JIGSAW"),
-  routeGuidedPrompt("MOR_COMPOUND_MEANING_CONNECTION"),
+  { ...meaningMatch("MOR_COMPOUND_MEANING_CONNECTION"), compileSupport: "route_specific" },
   guidedPrompt("INF_CONTEXT_CHOICE"),
   guidedPrompt("INF_RULE_CHOICE"),
   guidedPrompt("INF_TRANSFORM"),

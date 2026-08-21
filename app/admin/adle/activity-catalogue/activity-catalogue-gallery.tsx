@@ -3,7 +3,6 @@
 import { useState, type ReactNode } from "react";
 
 import { IntroActivity } from "@/components/adle/activities/intro-activity";
-import { QuickSortActivity } from "@/components/adle/activities/quick-sort-activity";
 import { ReflectionActivity } from "@/components/adle/activities/reflection-activity";
 import { BinSort, ColdWordRecall, CoverShutter, SentenceDictation, SplitHandle } from "@/components/adle/activities/shared";
 import { DefinitionWordBuilder } from "@/components/adle/activities/shared/definition-word-builder";
@@ -38,23 +37,6 @@ const INTRO_FIXTURE = fixtureItem({
       { canonicalWordId: "gallery-unhelpful", displayWord: "unhelpful", provenance: "learning_item" },
       { canonicalWordId: "gallery-replay", displayWord: "replay", provenance: "stretch" },
     ],
-  },
-});
-
-const QUICK_SORT_FIXTURE = fixtureItem({
-  sectionKey: "review_quick_sort",
-  templateKey: "REVIEW_QUICK_SORT",
-  promptData: {
-    childFacingCopy: "Sort each word by the prefix meaning.",
-    words: [
-      { canonicalWordId: "gallery-replay", targetWord: "replay" },
-      { canonicalWordId: "gallery-unfair", targetWord: "unfair" },
-    ],
-    sortBins: {
-      dimensionLabel: "prefix meaning",
-      bins: [{ key: "again", label: "AGAIN" }, { key: "not", label: "NOT" }],
-      correctBinByWordId: { "gallery-replay": "again", "gallery-unfair": "not" },
-    },
   },
 });
 
@@ -104,7 +86,7 @@ function AssemblyExample() {
 
 function SortExample() {
   const [run, setRun] = useState(0);
-  return <ExampleFrame activityKey="MEANING_SORT"><BinSort key={run} muted items={[{ id: "unfair", text: "unfair", destination: "not" }, { id: "untie", text: "untie", destination: "reverse" }]} bins={[{ id: "not", label: "NOT" }, { id: "reverse", label: "REVERSE" }]} onComplete={() => setRun((value) => value + 1)} /></ExampleFrame>;
+  return <ExampleFrame activityKey="MEANING_SORT"><BinSort key={run} muted items={[{ id: "unfair", text: "unfair", destination: "not" }, { id: "untie", text: "untie", destination: "reverse" }]} bins={[{ id: "not", label: "NOT" }, { id: "reverse", label: "REVERSE" }]} completionCopy={{ title: "Meaning overview", continueLabel: "Reset fixture" }} onContinue={() => setRun((value) => value + 1)} /></ExampleFrame>;
 }
 
 function CoverExample() {
@@ -137,7 +119,6 @@ export function ActivityCatalogueGallery() {
       <div><p className="brand-eyebrow">Safe deterministic fixtures</p><h2 id="interactive-gallery-title" className="mt-2 text-3xl font-black">Interactive gallery</h2><p className="mt-2 text-sm text-[color:var(--mid)]">All state stays in this browser component and resets locally.</p></div>
       <div className="grid gap-5 xl:grid-cols-2">
         <ExampleFrame activityKey="INTRODUCTION"><div className="text-slate-950"><IntroActivity item={INTRO_FIXTURE} /></div></ExampleFrame>
-        <ExampleFrame activityKey="REVIEW_SORT"><div className="text-slate-950"><QuickSortActivity item={QUICK_SORT_FIXTURE} /></div></ExampleFrame>
         <CleaverExample />
         <AssemblyExample />
         <SortExample />

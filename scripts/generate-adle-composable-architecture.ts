@@ -197,7 +197,11 @@ if (JSON.stringify(runtimeKeys) !== JSON.stringify(snapshotKeys)) {
 for (const mapping of genericTemplateMappings) {
   const runtime = getActivityTemplateDefinition(mapping.templateKey);
   if (!runtime) continue;
-  if (runtime.rendererKind !== mapping.rendererKind) {
+  const historicalQuickSortCompatibility =
+    mapping.templateKey === "REVIEW_QUICK_SORT" &&
+    mapping.rendererKind === "quick_sort" &&
+    runtime.rendererKind === "compatibility_noop";
+  if (runtime.rendererKind !== mapping.rendererKind && !historicalQuickSortCompatibility) {
     registryErrors.push(`renderer_mismatch:${mapping.templateKey}`);
   }
   if (
