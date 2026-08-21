@@ -570,7 +570,7 @@ export const ADLE_ACTIVITY_AUDIT_CONCLUSIONS = {
   reflectionBoundary: "ERROR_REPAIR remains ReflectionActivity and keeps reveal-hide-retry evidence. MEMORY_CUE remains child mnemonic authoring. LessonReflection is the canonical end-of-first-impression LESSON_REFLECTION: it receives normalized attempted-versus-correct spelling summaries, a governed lesson-specific prompt, optional specialist/context recap, and one controlled response. Prefix context slips remain recap data rather than target assessment evidence. Route correctness, persistence, assignment and completion adapters remain outside the component; stored historical prompt keys/text remain assignment-owned.",
   spellRecallBoundary: "First-impression spelling has exactly two learner experiences: CoverShutter for study-cover-spell-compare and SentenceDictation for authored whole-sentence audio recall. Scheduled review and diagnostics share ColdWordRecall, which never reveals the governed spelling until the response is irreversibly locked. Historical CONTROLLED_SPELLING, HIDE_WRITE, DICTATION_NO_IMAGE, DICTATION_SENTENCE_CONTEXT, REVIEW_DICTATION and DIAGNOSTIC_DICTATION_PROBE keys remain accepted semantic/configuration inputs only. Route adapters retain resume, correctness, evidence, scheduling, probe intake, assignment and persistence. SpellingField and GrownUpReveal are retired.",
   group3Closeout: {
-    status: "READY_FOR_CLOSEOUT",
+    status: "COMPLETE_MERGED_AND_DEPLOYED",
     ownerAcceptedOn: "2026-08-20",
     summary: "Owner manual acceptance passed for Prefix, Suffix/Affix, Base Word and Compound Cover Check, Sentence Dictation and cross-route Lesson Reflection feedback.",
     acceptanceFixes: [
@@ -578,20 +578,30 @@ export const ADLE_ACTIVITY_AUDIT_CONCLUSIONS = {
       "Lesson Reflection now separates governed spelling mistakes from feedback-only whole-sentence capitalization and punctuation comparisons across Prefix, Suffix/Affix, Base Word and Compound routes.",
     ],
     invariants: "No evidence classification, correctness policy, attempt identity, assignment binding, scheduler outcome, diagnostic intake, persistence schema, curriculum release or Production state changed.",
-    nextStep: "Perform the final closeout diff review, then stage and create the single Group 3 commit only after explicit owner authorization. Do not begin Group 4 before that closeout.",
+    nextStep: "Closed. Preserve the canonical CoverShutter, SentenceDictation, ColdWordRecall and LessonReflection boundaries while later convergence groups proceed from authoritative origin/main.",
   },
   group4Closeout: {
-    status: "OWNER_ACCEPTED_READY_FOR_RELEASE",
+    status: "COMPLETE_MERGED_AND_DEPLOYED",
     ownerAcceptedOn: "2026-08-20",
-    summary: "Owner manual acceptance passed for Prefix Split, Suffix/Affix Split, Base Word single/multi-boundary isolation, restored cuts, final-y reveal, scaffold, keyboard and narrow mobile fixtures. One stateful SplitHandle now serves Prefix, Affix and Base Word; the independent BaseWordCleaver and preview-only Split/transformation duplicates are retired.",
+    summary: "Group 4 — Split / Cleaver Convergence is complete, merged to origin/main and deployed. One stateful SplitHandle serves Prefix, Affix and Base Word through thin curriculum adapters; the independent BaseWordCleaver and preview-only Split/transformation duplicates are retired. Final-y source-form restoration remains the separate post-Split SpellingTransformationReveal, and historical route compatibility remains at route/payload boundaries rather than as duplicate learner UI.",
     invariants: "No attempt identity, assignment binding, evidence classification, completion call, resume key/schema, release state, curriculum activation or Production data changed.",
-    nextStep: "Stage the reviewed Group 4 scope, create the single convergence commit, push through the normal mainline review/deployment path, and verify the resulting deployment without changing curriculum or Production data.",
+    nextStep: "Closed. Group 5 began from the merged Group 4 architecture; do not reintroduce independent Split/Cleaver state machines.",
   },
   group5Closeout: {
-    status: "READY_FOR_OWNER_ACCEPTANCE",
-    summary: "Three canonical Meaning learner experiences remain: Discovery, MeaningConnectionActivity and BinSort. Duplicate/prototype Meaning UI and standalone QuickSort are retired; BinSort owns its success and Overview states.",
+    status: "COMPLETE_MERGED_AND_DEPLOYED",
+    ownerAcceptedOn: "2026-08-21",
+    mergedAndDeployedOn: "2026-08-21",
+    summary: "Group 5 — Meaning & Categorisation Convergence is complete, merged to origin/main and deployed. The canonical learner architecture is Discovery, MeaningConnectionActivity and BinSort. BinSort owns immediate correctness feedback, its brief reduced-motion-safe success celebration and its stateless final BinSortOverview as one learner activity. QuickSort UI and forward generation are retired; duplicate, fallback and prototype Meaning/Sort UI is retained only as required configuration or compatibility code, or is retired.",
     invariants: "No attempt identity, correctness policy, assignment identity, evidence classification, completion envelope, resume schema, scheduler outcome, curriculum activation, release state or Production data changed.",
-    nextStep: "Run the deterministic Group 5 fixtures and obtain owner manual acceptance before any staging or commit.",
+    nextStep: "Closed. Preserve the three canonical Meaning learner actions and the REVIEW_QUICK_SORT compatibility boundary without restoring a standalone QuickSort learner renderer.",
+  },
+  formerGroup6: {
+    status: "ABSORBED_INTO_GROUP_5",
+    summary: "Former proposed Group 6 — Meaning was absorbed into Group 5 — Meaning & Categorisation Convergence. Sort and Meaning were intentionally implemented as one workstream; there is no separate Group 6 implementation, merge or outstanding dependency.",
+  },
+  nextConvergenceGroup: {
+    status: "OPEN_NEXT",
+    summary: "Groups 1–5 are complete. Former proposed Group 6 scope was absorbed into Group 5. Group 7 — Teaching Pages & First-Impression Lesson Shell Convergence is the next convergence workstream and must start from current authoritative origin/main.",
   },
   newActivityRule: [
     "Search the canonical Activity Catalogue.",
