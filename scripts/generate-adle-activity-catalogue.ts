@@ -91,6 +91,7 @@ ${ADLE_ACTIVITY_AUDIT_CONCLUSIONS.authorityRelationship}
 - Group 4: \`${ADLE_ACTIVITY_AUDIT_CONCLUSIONS.group4Closeout.status}\` — ${ADLE_ACTIVITY_AUDIT_CONCLUSIONS.group4Closeout.summary}
 - Group 5: \`${ADLE_ACTIVITY_AUDIT_CONCLUSIONS.group5Closeout.status}\` — ${ADLE_ACTIVITY_AUDIT_CONCLUSIONS.group5Closeout.summary}
 - Former proposed Group 6: \`${ADLE_ACTIVITY_AUDIT_CONCLUSIONS.formerGroup6.status}\` — ${ADLE_ACTIVITY_AUDIT_CONCLUSIONS.formerGroup6.summary}
+- Group 7: \`${ADLE_ACTIVITY_AUDIT_CONCLUSIONS.group7Closeout.status}\` — ${ADLE_ACTIVITY_AUDIT_CONCLUSIONS.group7Closeout.summary}
 - Next workstream: \`${ADLE_ACTIVITY_AUDIT_CONCLUSIONS.nextConvergenceGroup.status}\` — ${ADLE_ACTIVITY_AUDIT_CONCLUSIONS.nextConvergenceGroup.summary}
 `;
 }
@@ -177,6 +178,7 @@ ${ADLE_ACTIVITY_AUDIT_CONCLUSIONS.spellRecallBoundary}
 - Group 4 status: \`${ADLE_ACTIVITY_AUDIT_CONCLUSIONS.group4Closeout.status}\` — ${ADLE_ACTIVITY_AUDIT_CONCLUSIONS.group4Closeout.summary}
 - Group 5 status: \`${ADLE_ACTIVITY_AUDIT_CONCLUSIONS.group5Closeout.status}\` — ${ADLE_ACTIVITY_AUDIT_CONCLUSIONS.group5Closeout.summary}
 - Former proposed Group 6: \`${ADLE_ACTIVITY_AUDIT_CONCLUSIONS.formerGroup6.status}\` — ${ADLE_ACTIVITY_AUDIT_CONCLUSIONS.formerGroup6.summary}
+- Group 7 status: \`${ADLE_ACTIVITY_AUDIT_CONCLUSIONS.group7Closeout.status}\` — ${ADLE_ACTIVITY_AUDIT_CONCLUSIONS.group7Closeout.summary}
 - Next workstream: \`${ADLE_ACTIVITY_AUDIT_CONCLUSIONS.nextConvergenceGroup.status}\` — ${ADLE_ACTIVITY_AUDIT_CONCLUSIONS.nextConvergenceGroup.summary}
 
 ### Group 3 closeout detail
@@ -187,6 +189,15 @@ ${ADLE_ACTIVITY_AUDIT_CONCLUSIONS.spellRecallBoundary}
 - Acceptance fixes: ${ADLE_ACTIVITY_AUDIT_CONCLUSIONS.group3Closeout.acceptanceFixes.join(" ")}
 - Preserved invariants: ${ADLE_ACTIVITY_AUDIT_CONCLUSIONS.group3Closeout.invariants}
 - Next step: ${ADLE_ACTIVITY_AUDIT_CONCLUSIONS.group3Closeout.nextStep}
+
+### Group 7 closeout detail
+
+- Status: \`${ADLE_ACTIVITY_AUDIT_CONCLUSIONS.group7Closeout.status}\`
+- Owner manual acceptance: ${ADLE_ACTIVITY_AUDIT_CONCLUSIONS.group7Closeout.ownerAcceptedOn}
+- Production deployment: ${ADLE_ACTIVITY_AUDIT_CONCLUSIONS.group7Closeout.deployedOn}
+- Result: ${ADLE_ACTIVITY_AUDIT_CONCLUSIONS.group7Closeout.summary}
+- Preserved invariants: ${ADLE_ACTIVITY_AUDIT_CONCLUSIONS.group7Closeout.invariants}
+- Next step: ${ADLE_ACTIVITY_AUDIT_CONCLUSIONS.group7Closeout.nextStep}
 
 ## Genuine gaps
 
@@ -240,6 +251,7 @@ ${ADLE_ACTIVITY_AUDIT_CONCLUSIONS.spellRecallBoundary}
 - Group 4 status: \`${ADLE_ACTIVITY_AUDIT_CONCLUSIONS.group4Closeout.status}\` — ${ADLE_ACTIVITY_AUDIT_CONCLUSIONS.group4Closeout.summary}
 - Group 5 status: \`${ADLE_ACTIVITY_AUDIT_CONCLUSIONS.group5Closeout.status}\` — ${ADLE_ACTIVITY_AUDIT_CONCLUSIONS.group5Closeout.summary}
 - Former proposed Group 6: \`${ADLE_ACTIVITY_AUDIT_CONCLUSIONS.formerGroup6.status}\` — ${ADLE_ACTIVITY_AUDIT_CONCLUSIONS.formerGroup6.summary}
+- Group 7 status: \`${ADLE_ACTIVITY_AUDIT_CONCLUSIONS.group7Closeout.status}\` — ${ADLE_ACTIVITY_AUDIT_CONCLUSIONS.group7Closeout.summary}
 - Next workstream: \`${ADLE_ACTIVITY_AUDIT_CONCLUSIONS.nextConvergenceGroup.status}\` — ${ADLE_ACTIVITY_AUDIT_CONCLUSIONS.nextConvergenceGroup.summary}
 
 #### Group 3 closeout detail
@@ -250,6 +262,15 @@ ${ADLE_ACTIVITY_AUDIT_CONCLUSIONS.spellRecallBoundary}
 - Acceptance fixes: ${ADLE_ACTIVITY_AUDIT_CONCLUSIONS.group3Closeout.acceptanceFixes.join(" ")}
 - Preserved invariants: ${ADLE_ACTIVITY_AUDIT_CONCLUSIONS.group3Closeout.invariants}
 - Next step: ${ADLE_ACTIVITY_AUDIT_CONCLUSIONS.group3Closeout.nextStep}
+
+#### Group 7 closeout detail
+
+- Status: \`${ADLE_ACTIVITY_AUDIT_CONCLUSIONS.group7Closeout.status}\`
+- Owner manual acceptance: ${ADLE_ACTIVITY_AUDIT_CONCLUSIONS.group7Closeout.ownerAcceptedOn}
+- Production deployment: ${ADLE_ACTIVITY_AUDIT_CONCLUSIONS.group7Closeout.deployedOn}
+- Result: ${ADLE_ACTIVITY_AUDIT_CONCLUSIONS.group7Closeout.summary}
+- Preserved invariants: ${ADLE_ACTIVITY_AUDIT_CONCLUSIONS.group7Closeout.invariants}
+- Next step: ${ADLE_ACTIVITY_AUDIT_CONCLUSIONS.group7Closeout.nextStep}
 
 ## Genuine platform gaps
 

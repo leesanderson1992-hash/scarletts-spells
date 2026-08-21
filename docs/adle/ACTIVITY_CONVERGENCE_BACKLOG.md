@@ -84,7 +84,8 @@ First-impression spelling has exactly two learner experiences: CoverShutter for 
 - Group 4 status: `COMPLETE_MERGED_AND_DEPLOYED` — Group 4 — Split / Cleaver Convergence is complete, merged to origin/main and deployed. One stateful SplitHandle serves Prefix, Affix and Base Word through thin curriculum adapters; the independent BaseWordCleaver and preview-only Split/transformation duplicates are retired. Final-y source-form restoration remains the separate post-Split SpellingTransformationReveal, and historical route compatibility remains at route/payload boundaries rather than as duplicate learner UI.
 - Group 5 status: `COMPLETE_MERGED_AND_DEPLOYED` — Group 5 — Meaning & Categorisation Convergence is complete, merged to origin/main and deployed. The canonical learner architecture is Discovery, MeaningConnectionActivity and BinSort. BinSort owns immediate correctness feedback, its brief reduced-motion-safe success celebration and its stateless final BinSortOverview as one learner activity. QuickSort UI and forward generation are retired; duplicate, fallback and prototype Meaning/Sort UI is retained only as required configuration or compatibility code, or is retired.
 - Former proposed Group 6: `ABSORBED_INTO_GROUP_5` — Former proposed Group 6 — Meaning was absorbed into Group 5 — Meaning & Categorisation Convergence. Sort and Meaning were intentionally implemented as one workstream; there is no separate Group 6 implementation, merge or outstanding dependency.
-- Next workstream: `GROUP_7_IMPLEMENTED_AWAITING_OWNER_ACCEPTANCE` — Group 7 converges specialist First Impression lessons on TeachingPages and FirstImpressionLesson. Owner acceptance remains required before commit; no later convergence group may begin.
+- Group 7 status: `COMPLETE_COMMITTED_AND_DEPLOYED` — Group 7 — First Impression Shell Convergence is accepted, committed as 93ec640, pushed to codex/adle-group7-first-impression-shell-convergence and deployed to Production. TeachingPages is the one shared ordered teaching and Meet the Words experience; FirstImpressionLesson is the canonical staged shell for Prefix, Suffix/Affix, Base Word and Closed Compound lessons.
+- Next workstream: `P1_REGISTRY_WIRING_PROPOSED` — Wire existing rich components through versioned Activity Catalogue renderer registration. This is the next proposed planning stage, not an authorised implementation: it requires a separate Model C release decision and must preserve route dispatch, payload validation, fallback safety, resume, completion and evidence parity.
 
 #### Group 3 closeout detail
 
@@ -94,6 +95,15 @@ First-impression spelling has exactly two learner experiences: CoverShutter for 
 - Acceptance fixes: Enter submits valid Cover Check, Sentence Dictation and ColdWordRecall responses through their existing guarded Check/Lock actions; Shift+Enter remains a Sentence Dictation newline and plain Enter remains a Lesson Reflection newline. Lesson Reflection now separates governed spelling mistakes from feedback-only whole-sentence capitalization and punctuation comparisons across Prefix, Suffix/Affix, Base Word and Compound routes.
 - Preserved invariants: No evidence classification, correctness policy, attempt identity, assignment binding, scheduler outcome, diagnostic intake, persistence schema, curriculum release or Production state changed.
 - Next step: Closed. Preserve the canonical CoverShutter, SentenceDictation, ColdWordRecall and LessonReflection boundaries while later convergence groups proceed from authoritative origin/main.
+
+#### Group 7 closeout detail
+
+- Status: `COMPLETE_COMMITTED_AND_DEPLOYED`
+- Owner manual acceptance: 2026-08-21
+- Production deployment: 2026-08-21
+- Result: Group 7 — First Impression Shell Convergence is accepted, committed as 93ec640, pushed to codex/adle-group7-first-impression-shell-convergence and deployed to Production. TeachingPages is the one shared ordered teaching and Meet the Words experience; FirstImpressionLesson is the canonical staged shell for Prefix, Suffix/Affix, Base Word and Closed Compound lessons.
+- Preserved invariants: No answer correctness, evidence classification, assignment binding, completion envelope, persistence schema, curriculum activation or learner data changed.
+- Next step: Closed. Retain TeachingPages and FirstImpressionLesson as the canonical boundaries; do not restore route-local teaching-page navigation or duplicate Meet the Words screens.
 
 ## Genuine platform gaps
 

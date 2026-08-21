@@ -601,9 +601,17 @@ export const ADLE_ACTIVITY_AUDIT_CONCLUSIONS = {
     status: "ABSORBED_INTO_GROUP_5",
     summary: "Former proposed Group 6 — Meaning was absorbed into Group 5 — Meaning & Categorisation Convergence. Sort and Meaning were intentionally implemented as one workstream; there is no separate Group 6 implementation, merge or outstanding dependency.",
   },
+  group7Closeout: {
+    status: "COMPLETE_COMMITTED_AND_DEPLOYED",
+    ownerAcceptedOn: "2026-08-21",
+    deployedOn: "2026-08-21",
+    summary: "Group 7 — First Impression Shell Convergence is accepted, committed as 93ec640, pushed to codex/adle-group7-first-impression-shell-convergence and deployed to Production. TeachingPages is the one shared ordered teaching and Meet the Words experience; FirstImpressionLesson is the canonical staged shell for Prefix, Suffix/Affix, Base Word and Closed Compound lessons.",
+    invariants: "No answer correctness, evidence classification, assignment binding, completion envelope, persistence schema, curriculum activation or learner data changed.",
+    nextStep: "Closed. Retain TeachingPages and FirstImpressionLesson as the canonical boundaries; do not restore route-local teaching-page navigation or duplicate Meet the Words screens.",
+  },
   nextConvergenceGroup: {
-    status: "GROUP_7_IMPLEMENTED_AWAITING_OWNER_ACCEPTANCE",
-    summary: "Group 7 converges specialist First Impression lessons on TeachingPages and FirstImpressionLesson. Owner acceptance remains required before commit; no later convergence group may begin.",
+    status: "P1_REGISTRY_WIRING_PROPOSED",
+    summary: "Wire existing rich components through versioned Activity Catalogue renderer registration. This is the next proposed planning stage, not an authorised implementation: it requires a separate Model C release decision and must preserve route dispatch, payload validation, fallback safety, resume, completion and evidence parity.",
   },
   newActivityRule: [
     "Search the canonical Activity Catalogue.",
