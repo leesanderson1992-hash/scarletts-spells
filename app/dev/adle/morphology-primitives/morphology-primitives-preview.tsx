@@ -25,7 +25,7 @@ import type { AdleSessionItem } from "@/lib/adle/loaders/daily-plan-surface";
 import { CoverShutter } from "@/components/adle/activities/shared";
 import { clearMorphologyResume, morphologyResumeKey } from "@/lib/adle/morphology/resume";
 
-const DEV_GUIDED_ASSIGNMENT_ID = "dev-morphology-guided";
+const DEV_GUIDED_ASSIGNMENT_ID = "dev-morphology-guided-g7-teaching-pages";
 const MorphologyGuidedLesson = dynamic(
   () =>
     import("@/components/adle/morphology/morphology-guided-lesson").then(

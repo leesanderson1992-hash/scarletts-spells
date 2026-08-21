@@ -84,7 +84,7 @@ First-impression spelling has exactly two learner experiences: CoverShutter for 
 - Group 4 status: `COMPLETE_MERGED_AND_DEPLOYED` — Group 4 — Split / Cleaver Convergence is complete, merged to origin/main and deployed. One stateful SplitHandle serves Prefix, Affix and Base Word through thin curriculum adapters; the independent BaseWordCleaver and preview-only Split/transformation duplicates are retired. Final-y source-form restoration remains the separate post-Split SpellingTransformationReveal, and historical route compatibility remains at route/payload boundaries rather than as duplicate learner UI.
 - Group 5 status: `COMPLETE_MERGED_AND_DEPLOYED` — Group 5 — Meaning & Categorisation Convergence is complete, merged to origin/main and deployed. The canonical learner architecture is Discovery, MeaningConnectionActivity and BinSort. BinSort owns immediate correctness feedback, its brief reduced-motion-safe success celebration and its stateless final BinSortOverview as one learner activity. QuickSort UI and forward generation are retired; duplicate, fallback and prototype Meaning/Sort UI is retained only as required configuration or compatibility code, or is retired.
 - Former proposed Group 6: `ABSORBED_INTO_GROUP_5` — Former proposed Group 6 — Meaning was absorbed into Group 5 — Meaning & Categorisation Convergence. Sort and Meaning were intentionally implemented as one workstream; there is no separate Group 6 implementation, merge or outstanding dependency.
-- Next workstream: `OPEN_NEXT` — Groups 1–5 are complete. Former proposed Group 6 scope was absorbed into Group 5. Group 7 — Teaching Pages & First-Impression Lesson Shell Convergence is the next convergence workstream and must start from current authoritative origin/main.
+- Next workstream: `GROUP_7_IMPLEMENTED_AWAITING_OWNER_ACCEPTANCE` — Group 7 converges specialist First Impression lessons on TeachingPages and FirstImpressionLesson. Owner acceptance remains required before commit; no later convergence group may begin.
 
 #### Group 3 closeout detail
 
@@ -117,13 +117,15 @@ A genuinely new interaction must declare `NEW_INTERACTION_REQUIRED` and record t
 
 Target sequence:
 
-1. Reading Page 1
-2. Reading Page 2
-3. optional Reading Page 3
-4. Meet the Words
+1. Teaching Page 1
+2. optional Teaching Page 2
+3. optional Teaching Page 3
+4. required Meet the Words
 5. configured Activity Catalogue sequence
-6. Production/Recall
-7. Lesson Reflection
+6. CoverShutter
+7. SentenceDictation
+8. LessonReflection
+9. Celebration
 
 Current approximations:
 
@@ -133,10 +135,9 @@ Current approximations:
 
 Still bespoke:
 
-- reading-page data shape outside Compound
-- Meet the Words implementations
-- shell navigation/resume
-- route completion adapters
+- thin curriculum adapters
+- historical resume normalization
+- route evidence/completion envelopes
 
 ## Review-template implications
 

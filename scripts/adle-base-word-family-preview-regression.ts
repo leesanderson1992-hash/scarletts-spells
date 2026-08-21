@@ -35,7 +35,7 @@ assert(rail.includes("placed.map((id, index)") && rail.includes("slotRefs.curren
 const splitHandle = readFileSync("components/adle/activities/shared/split-handle.tsx", "utf8");
 assert(splitHandle.includes("The word is split at the reviewed boundary.") && splitHandle.includes('event.key !== "Enter"') && splitHandle.includes('event.key !== " "') && splitHandle.includes("selectedBoundaries"), "the shared SplitHandle preserves keyboard behavior and adds controlled restoration");
 assert(renderer.includes("raw misspelling") === false && renderer.includes("A word from your writing"), "renderer preserves authentic provenance without showing raw attempts");
-assert(renderer.includes('guideName="Word Builder"') && renderer.includes("function guideBeat") && renderer.includes("function clueFor"), "base-word lessons use the shared Word Lab guide, sound, and clue model rather than a silent generic shell");
-assert(renderer.includes('key={props.payload.familySections[state.familyIndex].baseFamilyKey}') && renderer.includes("Tap it and its word family will jump out."), "each authentic family has its own repeatable interactive reveal");
+assert(renderer.includes("<FirstImpressionLesson") && renderer.includes('guideName: "Word Builder"') && renderer.includes("function guideBeat") && renderer.includes("function clueFor"), "base-word lessons configure the shared First Impression shell, guide, sound, and clue model");
+assert(renderer.includes("<FamilyReveal") && renderer.includes("Tap it and its word family will jump out.") && renderer.includes('type: "WORD_FAMILY_REVEAL"'), "each authentic family remains its own configured interactive reveal, distinct from Meet the Words");
 
 console.log("adle-base-word-family-preview-regression: ok");

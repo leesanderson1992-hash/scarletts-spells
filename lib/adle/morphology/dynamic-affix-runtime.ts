@@ -1,4 +1,4 @@
-import type { GuideBeatV1, MorphologyLessonPayloadV1 } from "./payload";
+import type { GuideBeatV1, MorphologyIntroductionScreenV1, MorphologyLessonPayloadV1 } from "./payload";
 import { dynamicAffixExpectedItemCount, validateDynamicAffixWordLabPayload, type DynamicAffixLessonPayloadV3 } from "./affix-word-lab";
 
 export function dynamicAffixRuntime(payload: unknown): MorphologyLessonPayloadV1 | null {
@@ -13,17 +13,42 @@ export function dynamicAffixRuntime(payload: unknown): MorphologyLessonPayloadV1
   const affixMeaningSentence = snapshot.activities.introduction.meaningStatement
     ?? `The ${pluralAffix ? "suffixes" : term} ${snapshot.affix.label} ${pluralAffix ? "mean" : "means"} ${snapshot.affix.meaning}.`;
   const reflectionPrompt = `We have been learning about ${snapshot.affix.label}. How does ${snapshot.affix.label} affect the word when it is added on?`;
-  const exampleScreens = snapshot.activities.guided.includeMeaningSort
-    ? [...new Set(snapshot.words.lesson.map((word) => word.affixText))].map((form) => ({
-        id: `examples-${form}`,
-        title: `The suffix -${form}`,
-        paragraphs: [],
-        examples: snapshot.activities.introduction.examples
-          .filter((example) => example.affix === form)
-          .map((example) => ({ prefix: example.base, base: example.affix, word: example.word, meaning: example.meaning })),
-        ctaLabel: "See the next idea",
-      }))
-    : [];
+  const introScreens: MorphologyIntroductionScreenV1[] = term === "suffix"
+    ? [
+      {
+        id: "affix",
+        title: "What is a suffix?",
+        paragraphs: [
+          "A suffix is a group of letters added to the end of a base or root that change the meaning of the word.",
+          "Each suffix carries its own way to change the word.",
+        ],
+        model: { prefix: "base word", base: "suffix", result: "Changed word" },
+        ctaLabel: "Meet today’s suffix",
+      },
+      {
+        id: "today-suffix",
+        title: `Today’s suffix: ${snapshot.affix.label}`,
+        paragraphs: [
+          ...snapshot.activities.introduction.paragraphs.filter((paragraph) => paragraph !== "A suffix is added to the end of a base or root."),
+          ...snapshot.activities.introduction.spellingRules,
+        ],
+        examples: snapshot.activities.introduction.examples.map((example) => ({
+          prefix: example.base,
+          base: example.affix,
+          word: example.word,
+          meaning: example.meaning,
+        })),
+        ctaLabel: "Meet the words",
+      },
+    ]
+    : [{
+      id: "affix",
+      title: snapshot.activities.introduction.title,
+      paragraphs: [...snapshot.activities.introduction.paragraphs, ...snapshot.activities.introduction.spellingRules],
+      meaningCallout: affixMeaningSentence,
+      model: { prefix: first.affixText, base: first.teachingBaseText, result: first.displayWord },
+      ctaLabel: "Meet the words",
+    }];
   const beats: GuideBeatV1[] = [
     { id: "intro", activityId: "introduction", state: "invite", goal: `notice the ${term}`, waitFor: "continue", onComplete: "discover" },
     { id: "discover", activityId: "discover", state: "observe", goal: "notice meaning", waitFor: "choose", onComplete: "strip-build" },
@@ -35,12 +60,7 @@ export function dynamicAffixRuntime(payload: unknown): MorphologyLessonPayloadV1
     { id: "reflection", activityId: "reflection", state: "reflect", goal: "explain what you noticed", waitFor: "reflect", onComplete: "done" },
   ];
   return { schemaVersion: 1, experience: "D4_MOR_GUIDED", contentVersion: snapshot.contentVersion, microSkillId: snapshot.microSkillId, experienceProfile: "word_lab_v1", guide: { persona: "prefix_scout", displayName: snapshot.affix.position === "after" ? "Suffix Scout" : "Prefix Scout", narrationEnabled: true, beats }, words: { anchor: first, lesson: words, stretch: [] }, activities: [
-    { id: "introduction", type: "introduction", assignmentBindings: ["intro-root", "intro-words"], answerVisibility: "teaching", evidenceMode: "none", introScreens: [
-      { id: "affix", title: snapshot.activities.introduction.title, paragraphs: [...snapshot.activities.introduction.paragraphs, ...snapshot.activities.introduction.spellingRules], meaningCallout: affixMeaningSentence, model: snapshot.affix.position === "after" ? { prefix: first.teachingBaseText, base: first.affixText, result: first.displayWord } : { prefix: first.affixText, base: first.teachingBaseText, result: first.displayWord }, ctaLabel: "Explore the words" },
-      ...exampleScreens,
-      { id: "words", title: "Four words to explore", paragraphs: [`See how the ${term} changes each base or root word.`], wordCards: words.map((word) => ({ base: word.semanticBaseText, derived: word.displayWord, meaning: word.derivedMeaning })), ctaLabel: "Watch the meaning change" },
-      { id: "ready", title: "Ready to investigate?", paragraphs: [`Find the base or root and the ${term}.`], ctaLabel: "Start" },
-    ] },
+    { id: "introduction", type: "introduction", assignmentBindings: ["intro-root", "intro-words"], answerVisibility: "teaching", evidenceMode: "none", introScreens },
     { id: "discover", type: "discovery", assignmentBindings: [], answerVisibility: "teaching", evidenceMode: "none", prefixLabel: snapshot.affix.label, affixTerm: term, affixPosition: snapshot.affix.position, discoveryCards: snapshot.activities.discovery.map((card) => ({ ...card, prefixLabel: card.affixLabel })) },
     { id: "strip-build", type: "strip_build", assignmentBindings: split.map((word) => `guided-strip-${word!.canonicalWordId}`), answerVisibility: "guided", evidenceMode: "guided_completion", wordIds: split.map((word) => word!.canonicalWordId), affixTerm: term, affixPosition: snapshot.affix.position },
     ...(snapshot.activities.guided.includeMeaningSort ? [{ id: "meaning-match", type: "meaning_sort" as const, assignmentBindings: words.map((word) => `guided-meaning-${word.canonicalWordId}`), answerVisibility: "guided" as const, evidenceMode: "guided_completion" as const, wordIds: words.map((word) => word.canonicalWordId), meaningBins: snapshot.activities.meaningBins, prefixLabel: snapshot.affix.label, affixTerm: term, affixPosition: snapshot.affix.position }] : []),

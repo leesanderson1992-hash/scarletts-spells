@@ -5,6 +5,12 @@ import { completeAdleLessonPartAction } from "@/app/learn/week/adle/actions";
 import { LessonReflection } from "@/components/adle/activities/lesson-reflection";
 import { CoverShutter, SentenceDictation } from "@/components/adle/activities/shared";
 import {
+  FirstImpressionLesson,
+  type FirstImpressionConfiguredActivity,
+  type FirstImpressionStageId,
+} from "@/components/adle/first-impression/first-impression-lesson";
+import type { TeachingPagesConfig } from "@/components/adle/first-impression/teaching-pages";
+import {
   lessonReflectionSentenceComparison,
   lessonReflectionPrompt,
   type NormalizedLessonReflectionMistake,
@@ -20,7 +26,6 @@ import type {
   CompoundWordLessonReadingPageV2,
 } from "@/lib/adle/morphology/compound-word-lesson-v2";
 import type { CompoundWordJoinKind } from "@/lib/adle/morphology/compound-word-structure-v2";
-import { compoundReadingNavigationV2 } from "@/lib/adle/morphology/compound-word-reading-release-v2";
 import {
   dictationTargetSpanFromToken,
   extractAuthoredTargetSpan,
@@ -35,10 +40,10 @@ import { readMorphologyResume, writeMorphologyResume } from "@/lib/adle/morpholo
 import type { GuideBeatV1 } from "@/lib/adle/morphology/payload";
 import { CompoundJigsawActivity } from "./compound-jigsaw-activity";
 import { MeaningConnectionActivity } from "./meaning-connection-activity";
-import { WordLabScene } from "./word-lab-scene";
 
 const INITIAL: ClosedCompoundResumeState = {
   stage: "intro",
+  teachingPageIndex: 0,
   index: 0,
   muted: false,
   attempts: {},
@@ -77,35 +82,9 @@ type RuntimePayload = {
 
 type RuntimeProps = { childId: string; assignmentId: string; items: AdleSessionItem[]; payload: RuntimePayload; resumeNamespace: "closed-compound" | "compound-word-v2"; onPreviewComplete?: (reflection: string) => void };
 
-function CompoundReadingPage(props: {
-  page: CompoundWordLessonReadingPageV2;
-  pageNumber: number;
-  pageCount: number;
-  showLessonWords: boolean;
-  words: readonly RuntimeWord[];
-}) {
-  return <section className="grid gap-5 text-left text-cyan-50" aria-labelledby={`compound-reading-${props.page.key}`}>
-    <header className="text-center">
-      <p className="text-xs font-black uppercase tracking-[.2em] text-cyan-200">Reading · Page {props.pageNumber} of {props.pageCount}</p>
-      <h1 id={`compound-reading-${props.page.key}`} className="mt-2 text-3xl font-black text-white md:text-4xl">{props.page.title}</h1>
-    </header>
-    {props.page.introduction.length ? <div className="grid gap-2 rounded-3xl border border-cyan-300/30 bg-slate-950/35 p-5 text-base leading-relaxed md:text-lg">{props.page.introduction.map((paragraph) => <p key={paragraph} className={paragraph.endsWith("?") ? "font-black text-amber-100" : undefined}>{paragraph}</p>)}</div> : null}
-    {props.page.sections.map((section) => <section key={section.key} className="grid gap-3 rounded-3xl border border-cyan-300/30 bg-slate-950/35 p-5">
-      {section.heading ? <h2 className="text-xl font-black text-white">{section.heading}</h2> : null}
-      {section.paragraphs.map((paragraph) => <p key={paragraph} className="leading-relaxed text-cyan-50">{paragraph}</p>)}
-      {section.examples?.length ? <ul className="grid gap-2" aria-label={section.heading ? `${section.heading} examples` : "Examples"}>{section.examples.map((example) => <li key={`${example.explanation ?? ""}:${example.text}`} className="rounded-2xl bg-white/10 px-4 py-3"><span className="font-black text-white">{example.text}</span>{example.explanation ? <span className="mt-1 block text-sm font-semibold text-amber-100">{example.explanation}</span> : null}</li>)}</ul> : null}
-    </section>)}
-    {props.showLessonWords ? <section className="grid gap-3" aria-labelledby="compound-reading-todays-words">
-      <h2 id="compound-reading-todays-words" className="text-center text-xl font-black text-white">Today&apos;s compound words</h2>
-      {props.words.map((entry) => <article key={entry.canonicalWordId} className="rounded-2xl border border-cyan-300/30 bg-slate-950/35 p-3"><p className="font-black text-white">{entry.components.join(" + ")} → {entry.displayWord}</p><p className="text-sm text-cyan-100">{entry.componentMeanings?.join(" + ")}</p>{entry.componentToWholeRelationship ? <p className="mt-1 text-sm font-semibold text-amber-100">{entry.componentToWholeRelationship}</p> : null}</article>)}
-    </section> : null}
-  </section>;
-}
-
 function CompoundWordLessonRuntime(props: RuntimeProps) {
   const [state, setState] = useState<ClosedCompoundResumeState>(INITIAL);
   const [hydrated, setHydrated] = useState(false);
-  const [introPageIndex, setIntroPageIndex] = useState(0);
   const words = props.payload.words.lesson;
   const wordIds = useMemo(() => words.map((entry) => entry.canonicalWordId), [words]);
   const resumeKey = props.resumeNamespace === "closed-compound"
@@ -126,28 +105,66 @@ function CompoundWordLessonRuntime(props: RuntimeProps) {
     if (hydrated) writeMorphologyResume(resumeKey, props.payload.contentVersion, state);
   }, [hydrated, props.payload.contentVersion, resumeKey, state]);
   const word = words[state.index];
-  const phase = state.stage === "intro" ? 0 : state.stage === "jigsaw" ? 1 : state.stage === "meaning" ? 2 : state.stage === "controlled" ? 3 : state.stage === "dictation" ? 4 : 5;
   const beat = useMemo<GuideBeatV1>(() => ({ id: `closed-${state.stage}`, activityId: state.stage, state: state.stage === "controlled" || state.stage === "dictation" ? "guideSilent" : state.stage === "reflect" ? "reflect" : "invite", say: "", goal: "Build, connect, remember, and spell compound words.", waitFor: "the next step", onComplete: "continue" }), [state.stage]);
   if (!hydrated) return <div className="min-h-[28rem]" aria-label="Restoring Word Lab" />;
   const isV1 = props.resumeNamespace === "closed-compound";
   const readingPages = isV1 ? undefined : props.payload.activities.introduction.readingPages;
-  const activeReadingPage = readingPages?.[Math.min(introPageIndex, readingPages.length - 1)];
-  const readingNavigation = activeReadingPage
-    ? compoundReadingNavigationV2(introPageIndex, readingPages?.length ?? 0)
-    : null;
-  const content = state.stage === "intro" ? activeReadingPage ? <section className="grid gap-5">
-      <CompoundReadingPage page={activeReadingPage} pageNumber={introPageIndex + 1} pageCount={readingPages.length} showLessonWords={introPageIndex === readingPages.length - 1} words={words} />
-      <nav className="flex flex-wrap items-center justify-between gap-3" aria-label="Compound word reading pages">
-        <button type="button" disabled={!readingNavigation?.backAvailable} className="min-h-12 rounded-full border border-cyan-200/60 px-6 font-black text-white disabled:cursor-not-allowed disabled:opacity-40" onClick={() => setIntroPageIndex((current) => Math.max(0, current - 1))}>Back</button>
-        {readingNavigation?.nextAvailable ? <button type="button" className="min-h-12 rounded-full bg-cyan-300 px-7 font-black text-slate-950" onClick={() => setIntroPageIndex((current) => Math.min(readingPages.length - 1, current + 1))}>Next page</button> : readingNavigation?.workshopAvailable ? <button type="button" className="min-h-12 rounded-full bg-cyan-300 px-7 font-black text-slate-950" onClick={() => setState((current) => ({ ...current, stage: "jigsaw" }))}>Open the compound workshop</button> : null}
-      </nav>
-    </section> : <section className="grid gap-4 text-center text-cyan-50"><p className="text-xs font-black uppercase tracking-[.2em] text-cyan-200">{isV1 ? "Closed compounds" : "Compound words"}</p><h1 className="text-4xl font-black text-white">{props.payload.activities.introduction.title}</h1><p className="mx-auto max-w-xl text-lg leading-relaxed">{props.payload.activities.introduction.childFriendlyExplanation}</p><p className="font-black text-amber-100">{props.payload.activities.introduction.summary}</p>{!isV1 ? <div className="grid gap-2 text-left">{words.map((entry) => <article key={entry.canonicalWordId} className="rounded-2xl border border-cyan-300/30 bg-slate-950/35 p-3"><p className="font-black text-white">{entry.components.join(" + ")} → {entry.displayWord}</p><p className="text-sm text-cyan-100">{entry.componentMeanings?.join(" + ")}</p>{entry.componentToWholeRelationship ? <p className="mt-1 text-sm font-semibold text-amber-100">{entry.componentToWholeRelationship}</p> : null}</article>)}</div> : null}<button type="button" className="mx-auto min-h-12 rounded-full bg-cyan-300 px-7 font-black text-slate-950" onClick={() => setState((current) => ({ ...current, stage: "jigsaw" }))}>Open the compound workshop</button></section>
-    : state.stage === "jigsaw" ? <CompoundJigsawActivity targets={words.map((entry) => ({ canonicalWordId: entry.canonicalWordId, word: entry.displayWord, components: entry.components, joins: entry.joins }))} muted={state.muted} initialLocked={state.jigsawLocked} initialMisses={state.jigsawMisses} initialPlacements={state.jigsawPlacements} onProgress={({ locked, misses, placements }) => setState((current) => ({ ...current, jigsawLocked: locked, jigsawMisses: misses, jigsawPlacements: placements }))} onComplete={({ locked, misses, placements }) => setState((current) => ({ ...current, stage: "meaning", jigsawLocked: locked, jigsawMisses: misses, jigsawPlacements: placements }))} />
-    : state.stage === "meaning" ? <MeaningConnectionActivity targets={words.map((entry) => ({ canonicalWordId: entry.canonicalWordId, word: entry.displayWord, audioText: entry.audioText, definition: entry.childFriendlyDefinition, componentMeanings: entry.componentMeanings, componentToWholeRelationship: entry.componentToWholeRelationship }))} muted={state.muted} initialConnected={state.meaningConnected} initialMisses={state.meaningMisses} onProgress={({ connected, misses }) => setState((current) => ({ ...current, meaningConnected: connected, meaningMisses: misses }))} onComplete={({ connected, misses }) => setState((current) => ({ ...current, index: 0, stage: "controlled", meaningConnected: connected, meaningMisses: misses }))} />
-    : state.stage === "controlled" ? <CoverShutter key={word.canonicalWordId} stepLabel={`Remember word ${state.index + 1} of ${words.length}`} word={word.displayWord} splitPoints={[...word.splitPoints]} components={word.components} initialAttempt={state.attempts[word.canonicalWordId] ?? ""} initialState={state.attempts[word.canonicalWordId] !== undefined ? "check" : "look"} muted={state.muted} onComplete={(value) => setState((current) => ({ ...current, attempts: { ...current.attempts, [word.canonicalWordId]: value } }))} onContinue={() => setState((current) => current.index + 1 < words.length ? ({ ...current, index: current.index + 1 }) : ({ ...current, index: 0, stage: "dictation" }))} />
-    : state.stage === "dictation" ? <SentenceDictation key={word.canonicalWordId} stepLabel={`Sentence ${state.index + 1} of ${words.length}`} audioText={word.audioText} correctSentence={word.dictationSentence} value={state.sentences[word.canonicalWordId] ?? ""} checked={state.sentenceChecked} muted={state.muted} onValueChange={(value) => setState((current) => ({ ...current, sentences: { ...current.sentences, [word.canonicalWordId]: value } }))} onCheck={() => setState((current) => ({ ...current, sentenceChecked: true }))} continueLabel={state.index + 1 < words.length ? "Next sentence" : "Reflect"} onContinue={() => setState((current) => current.index + 1 < words.length ? ({ ...current, index: current.index + 1, sentenceChecked: false }) : ({ ...current, stage: "reflect", sentenceChecked: false }))} />
-    : <CompoundLessonReflectionAdapter childId={props.childId} assignmentId={props.assignmentId} items={props.items} payload={props.payload} state={state} closedV1={isV1} onReflectionChange={(reflection) => setState((current) => ({ ...current, reflection }))} onPreviewComplete={props.onPreviewComplete} />;
-  return <WordLabScene beat={beat} phase={phase} muted={state.muted} onMutedChange={(muted) => setState((current) => ({ ...current, muted }))} silent={state.stage === "controlled" || state.stage === "dictation"} guideName="Word Builder">{content}</WordLabScene>;
+  const teaching = compoundTeachingPages(props.payload, words, readingPages);
+  const activities: FirstImpressionConfiguredActivity[] = [
+    {
+      id: "jigsaw", type: "COMPOUND_JIGSAW", label: "Jigsaw",
+      render: ({ complete }) => <CompoundJigsawActivity targets={words.map((entry) => ({ canonicalWordId: entry.canonicalWordId, word: entry.displayWord, components: entry.components, joins: entry.joins }))} muted={state.muted} initialLocked={state.jigsawLocked} initialMisses={state.jigsawMisses} initialPlacements={state.jigsawPlacements} onProgress={({ locked, misses, placements }) => setState((current) => ({ ...current, jigsawLocked: locked, jigsawMisses: misses, jigsawPlacements: placements }))} onComplete={({ locked, misses, placements }) => { setState((current) => ({ ...current, jigsawLocked: locked, jigsawMisses: misses, jigsawPlacements: placements })); complete(); }} />,
+    },
+    {
+      id: "meaning", type: "MEANING_MATCH", label: "Meaning",
+      render: ({ complete }) => <MeaningConnectionActivity targets={words.map((entry) => ({ canonicalWordId: entry.canonicalWordId, word: entry.displayWord, audioText: entry.audioText, definition: entry.childFriendlyDefinition, componentMeanings: entry.componentMeanings, componentToWholeRelationship: entry.componentToWholeRelationship }))} muted={state.muted} initialConnected={state.meaningConnected} initialMisses={state.meaningMisses} onProgress={({ connected, misses }) => setState((current) => ({ ...current, meaningConnected: connected, meaningMisses: misses }))} onComplete={({ connected, misses }) => { setState((current) => ({ ...current, index: 0, meaningConnected: connected, meaningMisses: misses })); complete(); }} />,
+    },
+  ];
+  return <FirstImpressionLesson
+    teaching={teaching}
+    activities={activities}
+    initialStageId={compoundShellStage(state.stage)}
+    initialTeachingPageIndex={state.teachingPageIndex}
+    onTeachingPageChange={(teachingPageIndex) => setState((current) => current.teachingPageIndex === teachingPageIndex ? current : ({ ...current, teachingPageIndex }))}
+    onStageChange={(stageId) => setState((current) => ({ ...current, stage: compoundResumeStage(stageId), index: stageId === "cover" || stageId === "dictation" ? 0 : current.index }))}
+    scene={{ beat, muted: state.muted, onMutedChange: (muted) => setState((current) => ({ ...current, muted })), silent: state.stage === "controlled" || state.stage === "dictation", guideName: "Word Builder" }}
+    renderCover={({ complete }) => <CoverShutter key={word.canonicalWordId} stepLabel={`Remember word ${state.index + 1} of ${words.length}`} word={word.displayWord} splitPoints={[...word.splitPoints]} components={word.components} initialAttempt={state.attempts[word.canonicalWordId] ?? ""} initialState={state.attempts[word.canonicalWordId] !== undefined ? "check" : "look"} muted={state.muted} onComplete={(value) => setState((current) => ({ ...current, attempts: { ...current.attempts, [word.canonicalWordId]: value } }))} onContinue={() => state.index + 1 < words.length ? setState((current) => ({ ...current, index: current.index + 1 })) : complete()} />}
+    renderDictation={({ complete }) => <SentenceDictation key={word.canonicalWordId} stepLabel={`Sentence ${state.index + 1} of ${words.length}`} audioText={word.audioText} correctSentence={word.dictationSentence} value={state.sentences[word.canonicalWordId] ?? ""} checked={state.sentenceChecked} muted={state.muted} onValueChange={(value) => { if (!state.sentenceChecked) setState((current) => ({ ...current, sentences: { ...current.sentences, [word.canonicalWordId]: value } })); }} onCheck={() => setState((current) => ({ ...current, sentenceChecked: true }))} continueLabel={state.index + 1 < words.length ? "Next sentence" : "Reflect"} onContinue={() => state.index + 1 < words.length ? setState((current) => ({ ...current, index: current.index + 1, sentenceChecked: false })) : complete()} />}
+    renderReflection={() => <CompoundLessonReflectionAdapter childId={props.childId} assignmentId={props.assignmentId} items={props.items} payload={props.payload} state={state} closedV1={isV1} onReflectionChange={(reflection) => setState((current) => ({ ...current, reflection }))} onPreviewComplete={props.onPreviewComplete} />}
+  />;
+}
+
+function compoundShellStage(stage: ClosedCompoundResumeState["stage"]): FirstImpressionStageId {
+  return stage === "intro" ? "teaching" : stage === "jigsaw" || stage === "meaning" ? `activity:${stage}` : stage === "controlled" ? "cover" : stage === "dictation" ? "dictation" : "reflection";
+}
+
+function compoundResumeStage(stageId: FirstImpressionStageId): ClosedCompoundResumeState["stage"] {
+  return stageId === "teaching" ? "intro" : stageId === "activity:jigsaw" ? "jigsaw" : stageId === "activity:meaning" ? "meaning" : stageId === "cover" ? "controlled" : stageId === "dictation" ? "dictation" : "reflect";
+}
+
+function compoundTeachingPages(payload: RuntimePayload, words: readonly RuntimeWord[], readingPages: readonly CompoundWordLessonReadingPageV2[] | undefined): TeachingPagesConfig {
+  const pages = readingPages?.map((page) => ({
+    id: page.key,
+    type: "teaching" as const,
+    eyebrow: "Reading",
+    title: page.title,
+    paragraphs: page.introduction,
+    sections: page.sections.map((section) => ({ heading: section.heading, paragraphs: section.paragraphs, examples: section.examples })),
+  })) ?? [{
+    id: "compound-introduction",
+    type: "teaching" as const,
+    eyebrow: "Compound words",
+    title: payload.activities.introduction.title,
+    paragraphs: [payload.activities.introduction.childFriendlyExplanation],
+    callout: payload.activities.introduction.summary,
+  }];
+  return {
+    pages,
+    meetWords: {
+      title: "Today’s compound words",
+      words: words.map((word) => ({ id: word.canonicalWordId, word: word.displayWord, wordParts: word.components, detail: word.componentToWholeRelationship || word.childFriendlyDefinition })),
+    },
+  };
 }
 
 function compoundLessonReflectionModel(payload: RuntimePayload, state: ClosedCompoundResumeState): {
@@ -239,6 +256,3 @@ export function CompoundWordGuidedLesson(props: { childId: string; assignmentId:
   };
   return <CompoundWordLessonRuntime {...props} payload={payload} resumeNamespace="compound-word-v2" />;
 }
-
-// Read-only page surface used by the admin-only Visual Convergence Lab.
-export { CompoundReadingPage };

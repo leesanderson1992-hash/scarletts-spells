@@ -137,28 +137,28 @@ export const ADLE_ACTIVITY_CATALOGUE: readonly ActivityCatalogueEntry[] = [
   activity({
     activityKey: "INTRODUCTION", displayName: "Introduction", interactionFamily: "teaching_read",
     pedagogicalPurpose: "Introduce the rule, strategy, or concept before practice.",
-    canonicalComponent: "IntroActivity", canonicalComponentPath: "components/adle/activities/intro-activity.tsx",
-    supportedModes: ["rule_explanation", "lesson_words"], modeDescriptions: {
-      rule_explanation: "Shows the teaching objective and explanation.",
-      lesson_words: "Introduces the lesson-word set with provenance labels.",
-    }, requiredInputs: ["teachingObjective or childFriendlyExplanation"], optionalInputs: ["ruleExplanation", "lessonWordPreviews"],
+    canonicalComponent: "TeachingPages", canonicalComponentPath: "components/adle/first-impression/teaching-pages.tsx",
+    supportedModes: ["teaching_page", "meet_words"], modeDescriptions: {
+      teaching_page: "Shows one to three ordered authored teaching pages.",
+      meet_words: "Required final page using the accepted word-card presentation without audio or evidence.",
+    }, requiredInputs: ["one to three authored teaching pages", "governed lesson words"], optionalInputs: ["callout", "model", "examples", "sections", "provenance"],
     usedByRoutes: [GENERIC_ROUTE, ...ALL_SPECIALIST_ROUTES], usedByMicroSkills: ["generic composer catalogue", ...MORPHOLOGY_SKILLS],
     templateKeys: ["MICRO_READ_ONLY_INTRO", "LESSON_WORDS_INTRO"], status: "CANONICAL",
-    whenToUse: "At the start of a lesson to explain the idea or meet the lesson words.",
-    whenNotToUse: "For multi-page authored reading; use READING_PAGE.",
-    duplicateImplementations: ["LearnIntroduction", "BaseWordFamily Intro", "Compound inline intro"],
-    notes: "Specialist routes currently render bespoke introductions and should converge through a future first-impression shell.",
+    whenToUse: "At the start of every First Impression lesson for authored teaching followed by required Meet the Words.",
+    whenNotToUse: "For interactive family exploration; use WORD_FAMILY_REVEAL as a configured middle activity.",
+    compatibilityImplementations: ["IntroActivity for immutable generic assignments"],
+    notes: "Introduction and Reading Page remain pedagogical content concepts but normalize to TeachingPages. Meet the Words is always the final TeachingPages page and captures no attempt.",
   }),
   activity({
     activityKey: "READING_PAGE", displayName: "Reading page", interactionFamily: "teaching_read",
     pedagogicalPurpose: "Teach a concept through two or three ordered, child-readable pages.",
-    canonicalComponent: "CompoundReadingPage", canonicalComponentPath: "components/adle/morphology/closed-compound-guided-lesson.tsx",
-    supportedModes: ["ordered_pages"], modeDescriptions: { ordered_pages: "Back/next reading pages with examples and optional lesson-word reveal." },
-    requiredInputs: ["ordered reading pages"], optionalInputs: ["examples", "lesson words"],
-    usedByRoutes: ["compound_word_lab:v2"], usedByMicroSkills: [...COMPOUND_SKILLS], status: "REQUIRES_ARCHITECTURE_DECISION",
+    canonicalComponent: "TeachingPages", canonicalComponentPath: "components/adle/first-impression/teaching-pages.tsx",
+    supportedModes: ["teaching_page"], modeDescriptions: { teaching_page: "Compound reading content is normalized into the same ordered teaching-page presentation." },
+    requiredInputs: ["ordered reading pages"], optionalInputs: ["examples", "sections"],
+    usedByRoutes: ["compound_word_lab:v2"], usedByMicroSkills: [...COMPOUND_SKILLS], status: "CANONICAL",
     whenToUse: "When the child needs substantial authored explanation before interaction.",
-    whenNotToUse: "For a short rule card that fits INTRODUCTION.",
-    notes: "The only implementation is embedded in Compound; extraction is required before it can be a platform activity.",
+    whenNotToUse: "To create another navigation engine; short and long teaching both use TeachingPages.",
+    notes: "READING_PAGE is retained as a curriculum concept only. It no longer selects a separate stateful learner renderer.",
   }),
   activity({
     activityKey: "MEANING_DISCOVERY", displayName: "Meaning discovery", interactionFamily: "meaning_choice",
@@ -422,7 +422,9 @@ const PREFIX_AFFIX = [...PREFIX_ROUTES, AFFIX_ROUTE];
 const SPECIALIST = [...ALL_SPECIALIST_ROUTES];
 
 export const ADLE_ACTIVITY_IMPLEMENTATION_AUDIT: readonly ActivityImplementationAuditRow[] = [
-  auditRow("IntroActivity", "components/adle/activities/intro-activity.tsx", "INTRODUCTION", "CANONICAL", "IntroActivity", { currentRouteUsages: GENERIC, registryTemplateKeys: ["MICRO_READ_ONLY_INTRO", "LESSON_WORDS_INTRO"], migrationRisk: "low" }),
+  auditRow("TeachingPages", "components/adle/first-impression/teaching-pages.tsx", "INTRODUCTION / READING_PAGE / MEET_WORDS", "CANONICAL", "TeachingPages", { currentRouteUsages: SPECIALIST, behaviouralDifferences: "Owns one to three authored pages, the required final Meet the Words page, Back/Next, focus and page position.", persistenceEvidenceDifferences: "Page position only; no attempt, correctness or evidence.", migrationRisk: "high" }),
+  auditRow("MeetWords presentation", "components/adle/first-impression/teaching-pages.tsx", "MEET_WORDS", "CANONICAL_MODE", "TeachingPages", { currentRouteUsages: SPECIALIST, behaviouralDifferences: "Required final page with the accepted white word-card treatment; deliberately has no audio or interaction evidence.", migrationRisk: "medium" }),
+  auditRow("IntroActivity compatibility renderer", "components/adle/activities/intro-activity.tsx", "INTRODUCTION", "COMPATIBILITY_ONLY", "TeachingPages", { currentRouteUsages: GENERIC, registryTemplateKeys: ["MICRO_READ_ONLY_INTRO", "LESSON_WORDS_INTRO"], migrationRisk: "low", historicalReplayDependency: true, recommendedAction: "Retain only for immutable generic composer assignments until their compatibility renderer is normalized at the boundary." }),
   auditRow("GuidedActivity", "components/adle/activities/guided-activity.tsx", "GUIDED_PROMPT_FALLBACK / MEMORY_CUE", "CANONICAL", "GuidedActivity", { currentRouteUsages: GENERIC, registryTemplateKeys: ["MEMORY_CUE", "PG_*", "HOM_SENTENCE_CHOICE", "HOM_CORRECTION", "INF_*", "IRRE_*", "MOR_STRIP_BUILD", "MOR_BUILD_WORD", "PAT_*", "SYL_*", "SCHWA_*"], notes: "Canonical only as the generic safe fallback and current memory-cue surface. Definition-less immutable Meaning Match payloads may reach it through an explicit compatibility adapter; forward governed Meaning Match selects MeaningConnectionActivity." }),
   auditRow("REVIEW_QUICK_SORT compatibility mapping", "lib/adle/activity-template-registry.ts", "REVIEW_SORT", "COMPATIBILITY_ONLY", null, { currentRouteUsages: ["historical generic assignments only"], registryTemplateKeys: ["REVIEW_QUICK_SORT"], persistenceEvidenceDifferences: "The historical item never carried production evidence and is ignored before review retrieval.", historicalReplayDependency: true, migrationRisk: "low" }),
   auditRow("ReflectionActivity", "components/adle/activities/reflection-activity.tsx", "ERROR_REPAIR", "CANONICAL", "ReflectionActivity", { currentRouteUsages: GENERIC, registryTemplateKeys: ["ERROR_REFLECTION_CUE"], behaviouralDifferences: "Enforces reveal then Hide Word before retry.", migrationRisk: "high" }),
@@ -457,7 +459,6 @@ export const ADLE_ACTIVITY_IMPLEMENTATION_AUDIT: readonly ActivityImplementation
   auditRow("AssemblySlot", "components/adle/interactions/selectable-item.tsx", "WORD_ASSEMBLY", "DUPLICATE_TO_MIGRATE", "SnapRail", { currentRouteUsages: ["development morphology primitives only"], migrationRisk: "low" }),
   auditRow("ChoiceCard", "components/adle/interactions/selectable-item.tsx", "CHOICE_PRIMITIVE", "DEAD_OR_UNREFERENCED", null, { evidence: "No import found outside its declaration." }),
 
-  auditRow("LearnIntroduction", "components/adle/morphology/morphology-guided-lesson.tsx", "INTRODUCTION", "DUPLICATE_TO_MIGRATE", "IntroActivity / future reading shell", { currentRouteUsages: PREFIX_AFFIX, visualDifferences: "Dark Word Lab multi-screen model/cards layout.", migrationRisk: "high" }),
   auditRow("Discovery", "components/adle/morphology/morphology-guided-lesson.tsx", "MEANING_DISCOVERY", "CANONICAL", "Discovery", { currentRouteUsages: PREFIX_AFFIX, propsConfigDifferences: "One stateful engine receives prefix/suffix position, label, governed transformation cards, distractors and audio through the morphology payload.", migrationRisk: "high" }),
   auditRow("SplitBuild", "components/adle/morphology/morphology-guided-lesson.tsx", "CLEAVER", "THIN_ADAPTER", "SplitHandle", { currentRouteUsages: PREFIX_AFFIX, propsConfigDifferences: "Translates prefix/suffix semantics and feedback policy into SplitHandle without owning learner state.", migrationRisk: "high" }),
   auditRow("Morphology Cover Check adapter", "components/adle/morphology/morphology-guided-lesson.tsx", "COVER_CHECK adapter", "CANONICAL_MODE", "CoverShutter", { currentRouteUsages: PREFIX_AFFIX, propsConfigDifferences: "Supplies governed word parts, ratio close policy, restored attempt/check state and route callbacks without learner UI.", migrationRisk: "high", historicalReplayDependency: true }),
@@ -466,14 +467,14 @@ export const ADLE_ACTIVITY_IMPLEMENTATION_AUDIT: readonly ActivityImplementation
   auditRow("PrefixTeachingCards", "components/adle/morphology/prefix-teaching-cards.tsx", "INTRODUCTION / LESSON_REFLECTION_RECAP", "CANONICAL_MODE", "INTRODUCTION / LessonReflection specialist recap", { currentRouteUsages: PREFIX_AFFIX, propsConfigDifferences: "Full and compact display modes.", persistenceEvidenceDifferences: "Read-only specialist recap content; never writes evidence.", migrationRisk: "medium" }),
   auditRow("SelectedPrefixFeedback", "components/adle/morphology/prefix-teaching-cards.tsx", "MEANING_SORT_FEEDBACK", "CANONICAL_MODE", "BinSort", { currentRouteUsages: PREFIX_AFFIX, propsConfigDifferences: "Renders selected-form meaning/rule/example feedback inside BinSort and SnapRail adapters.", persistenceEvidenceDifferences: "Feedback only.", migrationRisk: "medium" }),
 
-  auditRow("Intro (Base Word)", "components/adle/morphology/base-word-family-guided-lesson.tsx", "INTRODUCTION", "DUPLICATE_TO_MIGRATE", "IntroActivity / future reading shell", { currentRouteUsages: [BASE_ROUTE], migrationRisk: "high" }),
+  auditRow("Base Word teaching adapter", "components/adle/morphology/base-word-family-guided-lesson.tsx", "INTRODUCTION / MEET_WORDS", "THIN_ADAPTER", "TeachingPages", { currentRouteUsages: [BASE_ROUTE], propsConfigDifferences: "Maps the base-word strategy and governed independent words into TeachingPages without another navigation state machine.", migrationRisk: "medium" }),
   auditRow("FamilyReveal", "components/adle/morphology/base-word-family-guided-lesson.tsx", "WORD_FAMILY_REVEAL", "CANONICAL", "FamilyReveal", { currentRouteUsages: [BASE_ROUTE], registryTemplateKeys: ["MOR_BASE_FAMILY_REVEAL (route-specific binding)"], migrationRisk: "high" }),
   auditRow("Cleave (Base Word adapter)", "components/adle/morphology/base-word-family-guided-lesson.tsx", "CLEAVER / TRANSFORMATION.surface_to_source", "THIN_ADAPTER", "SplitHandle", { currentRouteUsages: [BASE_ROUTE], propsConfigDifferences: "Derives adjacent governed boundaries, controlled cuts, isolated component and optional post-Split source-form reveal without owning boundary state.", migrationRisk: "high" }),
   auditRow("Base Word Cover Check adapter", "components/adle/morphology/base-word-family-guided-lesson.tsx", "COVER_CHECK adapter", "CANONICAL_MODE", "CoverShutter", { currentRouteUsages: [BASE_ROUTE], propsConfigDifferences: "Supplies the independent word and restored attempt/check state without learner UI.", migrationRisk: "high" }),
   auditRow("Base Word Sentence Dictation adapter", "components/adle/morphology/base-word-family-guided-lesson.tsx", "DICTATION.whole_sentence adapter", "CANONICAL_MODE", "SentenceDictation", { currentRouteUsages: [BASE_ROUTE], propsConfigDifferences: "Supplies authored audio/sentence and restored response/check state.", persistenceEvidenceDifferences: "Authored target-token extraction remains route-owned.", migrationRisk: "high" }),
   auditRow("Base Word reflection adapter", "components/adle/morphology/base-word-family-guided-lesson.tsx", "LESSON_REFLECTION adapter", "CANONICAL_MODE", "LessonReflection", { currentRouteUsages: [BASE_ROUTE], propsConfigDifferences: "Extracts the governed target token from each dictated sentence and derives the base-word prompt.", persistenceEvidenceDifferences: "Returns controlled attempts, sentence attempts and reflection to BaseWordFamilyPart; atomic completion remains external.", migrationRisk: "high" }),
 
-  auditRow("CompoundReadingPage", "components/adle/morphology/closed-compound-guided-lesson.tsx", "READING_PAGE", "REQUIRES_ARCHITECTURE_DECISION", "future ReadingPage", { currentRouteUsages: ["compound_word_lab:v2"], migrationRisk: "high" }),
+  auditRow("Compound teaching adapter", "components/adle/morphology/closed-compound-guided-lesson.tsx", "READING_PAGE / MEET_WORDS", "THIN_ADAPTER", "TeachingPages", { currentRouteUsages: ["compound_word_lab:v2", "closed_compound_word_lab:v1"], propsConfigDifferences: "Maps governed reading sections, examples and compound word structure into TeachingPages.", migrationRisk: "medium", historicalReplayDependency: true }),
   auditRow("CompoundJigsawActivity", "components/adle/morphology/compound-jigsaw-activity.tsx", "COMPOUND_JIGSAW", "CANONICAL", "CompoundJigsawActivity", { currentRouteUsages: [...COMPOUND_ROUTES], registryTemplateKeys: ["MOR_COMPOUND_JIGSAW"], migrationRisk: "high", historicalReplayDependency: true }),
   auditRow("MeaningConnectionActivity", "components/adle/morphology/meaning-connection-activity.tsx", "MEANING_MATCH", "CANONICAL", "MeaningConnectionActivity", { currentRouteUsages: [...COMPOUND_ROUTES, GENERIC_ROUTE], registryTemplateKeys: ["HOM_MEANING_MATCH", "MOR_MEANING_MATCH", "MOR_COMPOUND_MEANING_CONNECTION"], propsConfigDifferences: "Governed definitions are required; optional component clues and audio do not create another mode state machine.", migrationRisk: "high", historicalReplayDependency: true }),
   auditRow("Compound Cover Check adapter", "components/adle/morphology/closed-compound-guided-lesson.tsx", "COVER_CHECK adapter", "CANONICAL_MODE", "CoverShutter", { currentRouteUsages: [...COMPOUND_ROUTES], propsConfigDifferences: "Supplies governed components, split points and restored checked attempt through the shared v1/v2 runtime adapter.", migrationRisk: "high", historicalReplayDependency: true }),
@@ -483,14 +484,15 @@ export const ADLE_ACTIVITY_IMPLEMENTATION_AUDIT: readonly ActivityImplementation
 
   auditRow("FixtureActivity", "components/adle/word-lab/activity-registry.tsx", "COMMON_WORD_LAB_PLACEHOLDER", "COMPATIBILITY_ONLY", "real per-kind Word Lab plugins", { currentRouteUsages: ["/dev/adle/common-word-lab only"], propsConfigDifferences: "One textarea implementation stands in for strategy_notice, guided_map, cover_check, dictation, and reflection.", recommendedAction: "Keep the dark fixture runnable, but do not treat its five registrations as production activity implementations.", migrationRisk: "low" }),
   auditRow("WordLabActivityHost", "components/adle/word-lab/activity-registry.tsx", "RUNTIME_DISPATCH", "CANONICAL_MODE", "WordLabActivityHost", { currentRouteUsages: ["/dev/adle/common-word-lab only"], migrationRisk: "medium" }),
-  auditRow("CommonWordLabShell", "components/adle/word-lab/common-word-lab-shell.tsx", "LESSON_SHELL", "REQUIRES_ARCHITECTURE_DECISION", "future first-impression shell", { currentRouteUsages: ["/dev/adle/common-word-lab only"], behaviouralDifferences: "Snapshot/plugin/resume/completion shell is dark foundation, not a live route.", migrationRisk: "high" }),
-  auditRow("WordLabScene", "components/adle/morphology/word-lab-scene.tsx", "LESSON_SHELL", "CANONICAL", "WordLabScene", { currentRouteUsages: SPECIALIST, migrationRisk: "high" }),
+  auditRow("CommonWordLabShell", "components/adle/word-lab/common-word-lab-shell.tsx", "LESSON_SHELL", "DEVELOPMENT_REFERENCE", "FirstImpressionLesson", { currentRouteUsages: ["/dev/adle/common-word-lab only"], behaviouralDifferences: "Generic snapshot/plugin laboratory only; it is not a forward First Impression learner shell.", migrationRisk: "low" }),
+  auditRow("FirstImpressionLesson", "components/adle/first-impression/first-impression-lesson.tsx", "LESSON_SHELL", "CANONICAL", "FirstImpressionLesson", { currentRouteUsages: SPECIALIST, behaviouralDifferences: "Owns deterministic TeachingPages → configured activities → Cover → Dictation → Reflection order plus safe reread navigation.", persistenceEvidenceDifferences: "Owns stage progression only; activities and route adapters retain local state, evidence and completion envelopes.", migrationRisk: "high" }),
+  auditRow("WordLabScene", "components/adle/morphology/word-lab-scene.tsx", "LESSON_SCENE", "CANONICAL_MODE", "FirstImpressionLesson", { currentRouteUsages: SPECIALIST, migrationRisk: "medium" }),
   auditRow("LessonGuide", "components/adle/morphology/lesson-guide.tsx", "GUIDED_PROMPT_SHELL", "CANONICAL_MODE", "WordLabScene", { currentRouteUsages: SPECIALIST, migrationRisk: "medium" }),
   auditRow("AdleSessionCelebration", "components/adle/adle-session-celebration.tsx", "SESSION_COMPLETION_SHELL", "CANONICAL_MODE", "AdleSessionRunner", { currentRouteUsages: ["/learn/week/adle completed state"], persistenceEvidenceDifferences: "Read-only rendering from the server-derived reward model.", migrationRisk: "medium" }),
   auditRow("AdleSessionRunner", "components/adle-session-runner.tsx", "RUNTIME_DISPATCH", "CANONICAL", "AdleSessionRunner", { currentRouteUsages: ["/learn/week/adle"], behaviouralDifferences: "Dispatches generic renderer kinds and explicit specialist route runtimes.", migrationRisk: "high" }),
-  auditRow("MorphologyGuidedLesson", "components/adle/morphology/morphology-guided-lesson.tsx", "SPECIALIST_LESSON_SHELL", "DUPLICATE_TO_MIGRATE", "future first-impression shell", { currentRouteUsages: PREFIX_AFFIX, migrationRisk: "high", historicalReplayDependency: true }),
-  auditRow("BaseWordFamilyGuidedLesson", "components/adle/morphology/base-word-family-guided-lesson.tsx", "SPECIALIST_LESSON_SHELL", "DUPLICATE_TO_MIGRATE", "future first-impression shell", { currentRouteUsages: [BASE_ROUTE], migrationRisk: "high" }),
-  auditRow("CompoundWordLessonRuntime", "components/adle/morphology/closed-compound-guided-lesson.tsx", "SPECIALIST_LESSON_SHELL", "DUPLICATE_TO_MIGRATE", "future first-impression shell", { currentRouteUsages: [...COMPOUND_ROUTES], migrationRisk: "high", historicalReplayDependency: true }),
+  auditRow("MorphologyGuidedLesson adapter", "components/adle/morphology/morphology-guided-lesson.tsx", "LESSON_RUNTIME_ADAPTER", "THIN_ADAPTER", "FirstImpressionLesson", { currentRouteUsages: PREFIX_AFFIX, migrationRisk: "high", historicalReplayDependency: true, persistenceEvidenceDifferences: "Retains the stable resume envelope, guided bindings and completion form while configuring the shared shell." }),
+  auditRow("BaseWordFamilyGuidedLesson adapter", "components/adle/morphology/base-word-family-guided-lesson.tsx", "LESSON_RUNTIME_ADAPTER", "THIN_ADAPTER", "FirstImpressionLesson", { currentRouteUsages: [BASE_ROUTE], migrationRisk: "high", historicalReplayDependency: true }),
+  auditRow("CompoundWordLessonRuntime adapter", "components/adle/morphology/closed-compound-guided-lesson.tsx", "LESSON_RUNTIME_ADAPTER", "THIN_ADAPTER", "FirstImpressionLesson", { currentRouteUsages: [...COMPOUND_ROUTES], migrationRisk: "high", historicalReplayDependency: true }),
 ] as const;
 
 export const ADLE_ACTIVITY_CONVERGENCE_BACKLOG: readonly ActivityConvergenceBacklogItem[] = [
@@ -542,7 +544,7 @@ export const ADLE_ACTIVITY_CONVERGENCE_BACKLOG: readonly ActivityConvergenceBack
 ] as const;
 
 export const ADLE_ACTIVITY_AUDIT_CONCLUSIONS = {
-  authoritativeBaseSha: "176a7745342b16490b3371f5ed7eccd3a0b04b85",
+  authoritativeBaseSha: "4fcc64ae179e0a18a0ab9939346e9d95f44bd990",
   startingState: {
     auditWorktree: "Fresh Group 5 worktree on codex/adle-group5-meaning-categorisation-convergence at fetched origin/main 176a7745342b16490b3371f5ed7eccd3a0b04b85.",
     protectedOccupiedCheckout: "The dirty primary checkout and occupied earlier convergence worktrees were inspected read-only and left unmodified.",
@@ -600,8 +602,8 @@ export const ADLE_ACTIVITY_AUDIT_CONCLUSIONS = {
     summary: "Former proposed Group 6 — Meaning was absorbed into Group 5 — Meaning & Categorisation Convergence. Sort and Meaning were intentionally implemented as one workstream; there is no separate Group 6 implementation, merge or outstanding dependency.",
   },
   nextConvergenceGroup: {
-    status: "OPEN_NEXT",
-    summary: "Groups 1–5 are complete. Former proposed Group 6 scope was absorbed into Group 5. Group 7 — Teaching Pages & First-Impression Lesson Shell Convergence is the next convergence workstream and must start from current authoritative origin/main.",
+    status: "GROUP_7_IMPLEMENTED_AWAITING_OWNER_ACCEPTANCE",
+    summary: "Group 7 converges specialist First Impression lessons on TeachingPages and FirstImpressionLesson. Owner acceptance remains required before commit; no later convergence group may begin.",
   },
   newActivityRule: [
     "Search the canonical Activity Catalogue.",
@@ -611,13 +613,13 @@ export const ADLE_ACTIVITY_AUDIT_CONCLUSIONS = {
     "Only then declare NEW_INTERACTION_REQUIRED with the pedagogical requirement, why no catalogue activity works, why configuration is insufficient, and why extending an abstraction is inappropriate.",
   ],
   firstImpressionImplications: {
-    targetSequence: ["Reading Page 1", "Reading Page 2", "optional Reading Page 3", "Meet the Words", "configured Activity Catalogue sequence", "Production/Recall", "Lesson Reflection"],
+    targetSequence: ["Teaching Page 1", "optional Teaching Page 2", "optional Teaching Page 3", "required Meet the Words", "configured Activity Catalogue sequence", "CoverShutter", "SentenceDictation", "LessonReflection", "Celebration"],
     approximatingRoutes: [
       "compound_word_lab:v2 already has ordered reading pages, lesson words, configured rich work, controlled recall, dictation and reflection",
       "base_word_lab:v2 has introduction, Meet the Words/family reveal, configured rich work, controlled recall, dictation and reflection",
       "dynamic_prefix_word_lab:v2 and dynamic_affix_word_lab:v3 have multi-screen Learn, Discover, configured rich work, controlled recall, dictation and reflection",
     ],
-    bespokePieces: ["reading-page data shape outside Compound", "Meet the Words implementations", "shell navigation/resume", "route completion adapters"],
+    bespokePieces: ["thin curriculum adapters", "historical resume normalization", "route evidence/completion envelopes"],
   },
   reviewImplications: {
     eligible: ["DICTATION.word", "DICTATION.review", "FREE_WRITING.review_transfer once implemented"],

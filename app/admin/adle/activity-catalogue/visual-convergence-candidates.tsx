@@ -4,6 +4,8 @@ import { useState, type ReactNode } from "react";
 import dynamic from "next/dynamic";
 
 import { IntroActivity } from "@/components/adle/activities/intro-activity";
+import { FirstImpressionLesson, type FirstImpressionStageId } from "@/components/adle/first-impression/first-impression-lesson";
+import { TeachingPages, type TeachingPagesConfig } from "@/components/adle/first-impression/teaching-pages";
 import { LessonReflection } from "@/components/adle/activities/lesson-reflection";
 import { ReflectionActivity } from "@/components/adle/activities/reflection-activity";
 import { BinSort } from "@/components/adle/activities/shared/bin-sort";
@@ -18,13 +20,10 @@ import { AssemblySlot } from "@/components/adle/interactions/selectable-item";
 import {
   Cleave as BaseCleave,
   FamilyReveal,
-  Intro as BaseIntro,
   baseWordLessonReflectionModel,
 } from "@/components/adle/morphology/base-word-family-guided-lesson";
-import { CompoundReadingPage } from "@/components/adle/morphology/closed-compound-guided-lesson";
 import {
   Discovery,
-  LearnIntroduction,
   SplitBuild,
   morphologyLessonReflectionModel,
 } from "@/components/adle/morphology/morphology-guided-lesson";
@@ -224,11 +223,29 @@ const READING_PAGE = {
 
 const READING_WORDS = [{ canonicalWordId: "preview-rainbow", displayWord: "rainbow", components: ["rain", "bow"], joins: ["none" as const], componentMeanings: ["water from clouds", "a curved shape"], childFriendlyDefinition: "a band of colours", componentToWholeRelationship: "rain plus a bow-shaped arc", audioText: "rainbow", dictationSentence: "A rainbow appeared.", dictationTargetSpan: { schemaVersion: 2 as const, startTokenIndex: 1, endTokenIndexExclusive: 2, exactAnswer: "rainbow" }, splitPoints: [4] }];
 
+const TEACHING_PREVIEW: TeachingPagesConfig = {
+  pages: [{ id: READING_PAGE.key, type: "teaching", eyebrow: "Reading", title: READING_PAGE.title, paragraphs: READING_PAGE.introduction, sections: READING_PAGE.sections }],
+  meetWords: { words: READING_WORDS.map((word) => ({ id: word.canonicalWordId, word: word.displayWord, wordParts: word.components, detail: word.componentToWholeRelationship })) },
+};
+
+const PREVIEW_BEAT = { id: "group-7-preview", activityId: "teaching", state: "invite" as const, say: "Read the lesson pages, then meet today’s words.", goal: "Preview the canonical First Impression shell", waitFor: "the next step", onComplete: "Continue" };
+
 function TeachingCandidates(props: { candidateId: string; state: VisualFixtureState }): ReactNode {
   if (props.candidateId === "intro-activity") return <IntroActivity item={INTRO_ITEM} />;
-  if (props.candidateId === "learn-introduction") return <LearnIntroduction payload={MORPHOLOGY_PAYLOAD} index={props.state === "restored" || props.state === "active" ? 1 : 0} onNext={noop} />;
-  if (props.candidateId === "base-intro") return <BaseIntro payload={BASE_WORD_FAMILY_PREVIEW_PAYLOAD} onNext={noop} />;
-  if (props.candidateId === "compound-reading") return <CompoundReadingPage page={READING_PAGE} pageNumber={props.state === "restored" || props.state === "active" ? 2 : 1} pageCount={3} showLessonWords={props.state === "completed"} words={READING_WORDS} />;
+  if (props.candidateId === "teaching-pages") return <TeachingPages config={TEACHING_PREVIEW} initialPageIndex={props.state === "completed" || props.state === "restored" ? 1 : 0} onComplete={noop} />;
+  if (props.candidateId === "first-impression-shell") {
+    const initialStageId: FirstImpressionStageId = props.state === "initial" ? "teaching" : props.state === "completed" ? "reflection" : "activity:discover";
+    return <FirstImpressionLesson
+      teaching={TEACHING_PREVIEW}
+      activities={[{ id: "discover", type: "DISCOVER", label: "Discover", render: ({ complete }) => <section className="grid gap-4 text-center text-white"><h2 className="text-3xl font-black">Configured activity</h2><p>This slot is supplied by governed curriculum configuration.</p><button type="button" className="mx-auto min-h-12 rounded-full bg-cyan-300 px-7 font-black text-slate-950" onClick={complete}>Continue</button></section> }]}
+      initialStageId={initialStageId}
+      onStageChange={noop}
+      scene={{ beat: PREVIEW_BEAT, muted: true, onMutedChange: noop, guideName: "Word Builder" }}
+      renderCover={({ complete }) => <button type="button" onClick={complete}>Complete Cover preview</button>}
+      renderDictation={({ complete }) => <button type="button" onClick={complete}>Complete Dictation preview</button>}
+      renderReflection={() => <p className="text-center text-white">Lesson Reflection leads to the canonical celebration.</p>}
+    />;
+  }
   if (props.candidateId === "family-reveal") return <FamilyReveal key={props.state} section={BASE_WORD_FAMILY_PREVIEW_PAYLOAD.familySections[0]} number={1} total={2} onNext={noop} />;
   return null;
 }

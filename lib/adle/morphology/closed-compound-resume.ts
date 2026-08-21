@@ -14,6 +14,7 @@ export type ClosedCompoundStage =
 
 export interface ClosedCompoundResumeState {
   stage: ClosedCompoundStage;
+  teachingPageIndex: number;
   index: number;
   muted: boolean;
   attempts: Record<string, string>;
@@ -111,6 +112,7 @@ export function normaliseClosedCompoundResume(
     !Number.isInteger(value.index) ||
     Number(value.index) < 0 ||
     Number(value.index) >= canonicalWordIds.length ||
+    (value.teachingPageIndex !== undefined && (!Number.isInteger(value.teachingPageIndex) || Number(value.teachingPageIndex) < 0 || Number(value.teachingPageIndex) > 3)) ||
     typeof value.muted !== "boolean" ||
     typeof value.sentenceChecked !== "boolean" ||
     typeof value.reflection !== "string" ||
@@ -127,6 +129,7 @@ export function normaliseClosedCompoundResume(
   }
   const state = {
     ...(value as unknown as ClosedCompoundResumeState),
+    teachingPageIndex: value.teachingPageIndex === undefined ? 0 : Number(value.teachingPageIndex),
     jigsawPlacements: value.jigsawPlacements as Record<string, Array<string | null>> | undefined ?? {},
   };
   if (state.stage === "controlled" && state.attempts[canonicalWordIds[state.index]] !== undefined) {

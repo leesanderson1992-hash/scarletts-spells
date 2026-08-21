@@ -6,7 +6,7 @@ import { useState } from "react";
 import type { BaseWordFamilyLessonSnapshotV1 } from "@/lib/adle/morphology/base-word-family-payload";
 import { baseWordFamilyResumeKey } from "@/lib/adle/morphology/base-word-family-resume";
 
-const PREVIEW_ID = "dev-base-word-family";
+const PREVIEW_ID = "dev-base-word-family-g7-teaching-pages";
 const BaseWordFamilyGuidedLesson = dynamic(
   () => import("@/components/adle/morphology/base-word-family-guided-lesson").then((module) => module.BaseWordFamilyGuidedLesson),
   { ssr: false, loading: () => <div role="status" aria-live="polite" className="brand-card rounded-3xl p-8 text-center text-sm text-[color:var(--mid)]">Preparing the base-word Word Lab…</div> },

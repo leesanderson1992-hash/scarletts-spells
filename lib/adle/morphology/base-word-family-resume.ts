@@ -4,6 +4,7 @@ export type BaseWordFamilyLessonStage = "intro" | "families" | "cleave" | "word_
 
 export interface BaseWordFamilyResumeState {
   stage: BaseWordFamilyLessonStage;
+  teachingPageIndex: number;
   familyIndex: number;
   cleaveIndex: number;
   cleaveStep: number;
@@ -29,10 +30,10 @@ export function normaliseBaseWordFamilyResume(value: unknown, payload: BaseWordF
   if (!value || typeof value !== "object" || Array.isArray(value)) return null;
   const state = value as Partial<BaseWordFamilyResumeState>;
   const wordIds = new Set(payload.independentWords.map((word) => word.canonicalWordId));
-  if (!STAGES.includes(state.stage as BaseWordFamilyLessonStage) || !Number.isInteger(state.familyIndex) || !Number.isInteger(state.cleaveIndex) || !Number.isInteger(state.cleaveStep) || !Number.isInteger(state.buildIndex) || !Number.isInteger(state.controlledIndex) || !Number.isInteger(state.dictationIndex) || typeof state.sentenceChecked !== "boolean" || typeof state.reflectionText !== "string" || state.reflectionText.length > 2000 || !recordOfNumbers(state.cleaveMisses) || !recordOfStrings(state.controlledAttempts) || !recordOfBooleans(state.controlledChecked) || !recordOfStrings(state.sentenceAttempts) || (state.cleaveCuts !== undefined && !recordOfNumberArrays(state.cleaveCuts))) return null;
+  if (!STAGES.includes(state.stage as BaseWordFamilyLessonStage) || (state.teachingPageIndex !== undefined && (!Number.isInteger(state.teachingPageIndex) || Number(state.teachingPageIndex) < 0 || Number(state.teachingPageIndex) > 2)) || !Number.isInteger(state.familyIndex) || !Number.isInteger(state.cleaveIndex) || !Number.isInteger(state.cleaveStep) || !Number.isInteger(state.buildIndex) || !Number.isInteger(state.controlledIndex) || !Number.isInteger(state.dictationIndex) || typeof state.sentenceChecked !== "boolean" || typeof state.reflectionText !== "string" || state.reflectionText.length > 2000 || !recordOfNumbers(state.cleaveMisses) || !recordOfStrings(state.controlledAttempts) || !recordOfBooleans(state.controlledChecked) || !recordOfStrings(state.sentenceAttempts) || (state.cleaveCuts !== undefined && !recordOfNumberArrays(state.cleaveCuts))) return null;
   if (state.familyIndex! < 0 || state.familyIndex! >= payload.familySections.length || state.cleaveIndex! < 0 || state.cleaveIndex! >= payload.authenticTargets.length || state.cleaveStep! < 0 || state.buildIndex! < 0 || state.buildIndex! >= payload.familySections.flatMap((section) => section.guidedWords).length || state.controlledIndex! < 0 || state.controlledIndex! >= payload.independentWords.length || state.dictationIndex! < 0 || state.dictationIndex! >= payload.independentWords.length) return null;
   if ([...Object.keys(state.controlledAttempts!), ...Object.keys(state.controlledChecked!), ...Object.keys(state.sentenceAttempts!)].some((id) => !wordIds.has(id))) return null;
-  return { ...state, cleaveCuts: state.cleaveCuts ?? {}, cleaveStep: state.cleaveCuts === undefined && state.stage === "cleave" ? 0 : state.cleaveStep } as BaseWordFamilyResumeState;
+  return { ...state, teachingPageIndex: state.teachingPageIndex ?? 0, cleaveCuts: state.cleaveCuts ?? {}, cleaveStep: state.cleaveCuts === undefined && state.stage === "cleave" ? 0 : state.cleaveStep } as BaseWordFamilyResumeState;
 }
 
 function recordOfStrings(value: unknown): value is Record<string, string> { return !!value && typeof value === "object" && !Array.isArray(value) && Object.values(value).every((item) => typeof item === "string"); }

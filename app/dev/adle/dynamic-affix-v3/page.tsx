@@ -8,7 +8,7 @@ import type { ComposedDailyPlan } from "@/lib/adle/daily-assignment-composer";
 import { loadReviewedAffixPackageFixture } from "@/scripts/lib/adle-reviewed-affix-package-fixture";
 import { DynamicAffixV3InteractionFixture } from "./fixture";
 
-const ASSIGNMENT_ID = "dev-dynamic-affix-v3";
+const ASSIGNMENT_ID = "dev-dynamic-affix-v3-g7-teaching-pages";
 
 export default function DynamicAffixV3DevPage() {
   if (process.env.NODE_ENV === "production") notFound();

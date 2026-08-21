@@ -9,7 +9,7 @@ import {
   type ClosedCompoundLessonPayloadV1,
 } from "@/lib/adle/morphology/closed-compound-word-lab";
 
-const ASSIGNMENT_ID = "dev-closed-compound-reflection";
+const ASSIGNMENT_ID = "dev-closed-compound-g7-teaching-pages";
 const lessonWords = [
   ["rainbow", "rain", "bow", "A rainbow appeared after rain.", 1],
   ["football", "foot", "ball", "Children play football after school.", 2],

@@ -5,7 +5,7 @@
 # ADLE Activity Catalogue
 
 Version: `adle_activity_catalogue_v1`
-Authoritative base: `176a7745342b16490b3371f5ed7eccd3a0b04b85`
+Authoritative base: `4fcc64ae179e0a18a0ab9939346e9d95f44bd990`
 
 This is the chooser for curriculum designers and future implementation tasks. It describes interaction capability, not route-specific teaching content.
 
@@ -20,8 +20,8 @@ This is the chooser for curriculum designers and future implementation tasks. It
 
 | Activity | Purpose | Best for | First Impression | Review | Status |
 |---|---|---|---|---|---|
-| `INTRODUCTION` | Introduce the rule, strategy, or concept before practice. | At the start of a lesson to explain the idea or meet the lesson words. | Yes | No | `CANONICAL` |
-| `READING_PAGE` | Teach a concept through two or three ordered, child-readable pages. | When the child needs substantial authored explanation before interaction. | Yes | No | `REQUIRES_ARCHITECTURE_DECISION` |
+| `INTRODUCTION` | Introduce the rule, strategy, or concept before practice. | At the start of every First Impression lesson for authored teaching followed by required Meet the Words. | Yes | No | `CANONICAL` |
+| `READING_PAGE` | Teach a concept through two or three ordered, child-readable pages. | When the child needs substantial authored explanation before interaction. | Yes | No | `CANONICAL` |
 | `MEANING_DISCOVERY` | Let the child observe how adding an affix changes meaning, then choose the new meaning. | To teach an affix's semantic effect before sorting or building. | Yes | No | `CANONICAL` |
 | `WORD_FAMILY_REVEAL` | Reveal related words around a stable base so the child sees a reusable spelling anchor. | When a familiar base anchors several related spellings. | Yes | No | `CANONICAL` |
 | `CLEAVER` | Find one or more meaningful boundaries inside a written word. | To locate meaningful morpheme or word-part boundaries. | Yes | No | `CANONICAL` |
@@ -43,7 +43,7 @@ This is the chooser for curriculum designers and future implementation tasks. It
 | `SYLLABLE_SPLIT_REBUILD` | Split a word into syllables and rebuild it from those syllables. | When syllable structure, rather than morphology, is the learning objective. | Yes | No | `REQUIRES_ARCHITECTURE_DECISION` |
 | `GUIDED_PROMPT_FALLBACK` | Keep a generic lesson usable when no structured rich renderer exists. | Only as the registered safe fallback for existing generic templates. | Yes | No | `COMPATIBILITY_ONLY` |
 
-The catalogue currently has 22 governed concepts, 14 with canonical status, and 43 declared modes. Entries marked `REQUIRES_ARCHITECTURE_DECISION` are genuine platform gaps or extraction decisions, not permission for route-local UI.
+The catalogue currently has 22 governed concepts, 15 with canonical status, and 43 declared modes. Entries marked `REQUIRES_ARCHITECTURE_DECISION` are genuine platform gaps or extraction decisions, not permission for route-local UI.
 
 ## INTRODUCTION — Introduction
 
@@ -51,26 +51,26 @@ The catalogue currently has 22 governed concepts, 14 with canonical status, and 
 
 **Interaction family:** `teaching_read`
 
-**Best used for:** At the start of a lesson to explain the idea or meet the lesson words.
+**Best used for:** At the start of every First Impression lesson for authored teaching followed by required Meet the Words.
 
-**Do not use when:** For multi-page authored reading; use READING_PAGE.
+**Do not use when:** For interactive family exploration; use WORD_FAMILY_REVEAL as a configured middle activity.
 
 **Modes:**
 
-- `rule_explanation`: Shows the teaching objective and explanation.
-- `lesson_words`: Introduces the lesson-word set with provenance labels.
+- `teaching_page`: Shows one to three ordered authored teaching pages.
+- `meet_words`: Required final page using the accepted word-card presentation without audio or evidence.
 
 **Current users:** Routes `generic_composer:v1`, `dynamic_prefix_word_lab:v2`, `fixed_un_prefix_word_lab:v1`, `dynamic_affix_word_lab:v3`, `base_word_lab:v2`, `compound_word_lab:v2`, `closed_compound_word_lab:v1`. Micro-skills `generic composer catalogue`, `D4_MOR_PREFIXES_UN`, `D4_MOR_PREFIXES_DIS_MIS`, `D4_MOR_PREFIXES_IN_IM_IL_IR`, `D4_MOR_PREFIXES_RE_PRE`, `D4_MOR_PREFIXES_SUB_INTER_SUPER`, `D4_MOR_SUFFIXES_ABLE_IBLE`, `D4_MOR_SUFFIXES_AL`, `D4_MOR_SUFFIXES_FUL_LESS`, `D4_MOR_SUFFIXES_ITY`, `D4_MOR_SUFFIXES_LY`, `D4_MOR_SUFFIXES_MENT`, `D4_MOR_SUFFIXES_NESS`, `D4_MOR_SUFFIXES_OUS`, `D4_MOR_SUFFIXES_SION`, `D4_MOR_SUFFIXES_TION`, `D4_MOR_BASE_WORDS_BASE_PLUS_PREFIX`, `D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX`, `D4_MOR_BASE_WORDS_IDENTIFY_BASE`, `D4_MOR_BASE_WORDS_PRESERVE_BASE`, `D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS`, `D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED`.
 
-**Canonical implementation:** `IntroActivity` in `components/adle/activities/intro-activity.tsx`
+**Canonical implementation:** `TeachingPages` in `components/adle/first-impression/teaching-pages.tsx`
 
 **Architectural status:** `CANONICAL`
 
-**Inputs:** Required: `teachingObjective or childFriendlyExplanation`. Optional: `ruleExplanation`, `lessonWordPreviews`.
+**Inputs:** Required: `one to three authored teaching pages`, `governed lesson words`. Optional: `callout`, `model`, `examples`, `sections`, `provenance`.
 
 **Capabilities:** Pointer No · Keyboard Yes · Reduced motion Yes · Audio No · Captures attempt No · Evidence-bearing No · First Impression Yes · Review No.
 
-**Notes:** Specialist routes currently render bespoke introductions and should converge through a future first-impression shell.
+**Notes:** Introduction and Reading Page remain pedagogical content concepts but normalize to TeachingPages. Meet the Words is always the final TeachingPages page and captures no attempt.
 
 ## READING_PAGE — Reading page
 
@@ -80,23 +80,23 @@ The catalogue currently has 22 governed concepts, 14 with canonical status, and 
 
 **Best used for:** When the child needs substantial authored explanation before interaction.
 
-**Do not use when:** For a short rule card that fits INTRODUCTION.
+**Do not use when:** To create another navigation engine; short and long teaching both use TeachingPages.
 
 **Modes:**
 
-- `ordered_pages`: Back/next reading pages with examples and optional lesson-word reveal.
+- `teaching_page`: Compound reading content is normalized into the same ordered teaching-page presentation.
 
 **Current users:** Routes `compound_word_lab:v2`. Micro-skills `D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS`, `D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED`.
 
-**Canonical implementation:** `CompoundReadingPage` in `components/adle/morphology/closed-compound-guided-lesson.tsx`
+**Canonical implementation:** `TeachingPages` in `components/adle/first-impression/teaching-pages.tsx`
 
-**Architectural status:** `REQUIRES_ARCHITECTURE_DECISION`
+**Architectural status:** `CANONICAL`
 
-**Inputs:** Required: `ordered reading pages`. Optional: `examples`, `lesson words`.
+**Inputs:** Required: `ordered reading pages`. Optional: `examples`, `sections`.
 
 **Capabilities:** Pointer No · Keyboard Yes · Reduced motion Yes · Audio No · Captures attempt No · Evidence-bearing No · First Impression Yes · Review No.
 
-**Notes:** The only implementation is embedded in Compound; extraction is required before it can be a platform activity.
+**Notes:** READING_PAGE is retained as a curriculum concept only. It no longer selects a separate stateful learner renderer.
 
 ## MEANING_DISCOVERY — Meaning discovery
 
@@ -643,4 +643,4 @@ Activity Catalogue is the architectural chooser and capability inventory. activi
 - Group 4: `COMPLETE_MERGED_AND_DEPLOYED` — Group 4 — Split / Cleaver Convergence is complete, merged to origin/main and deployed. One stateful SplitHandle serves Prefix, Affix and Base Word through thin curriculum adapters; the independent BaseWordCleaver and preview-only Split/transformation duplicates are retired. Final-y source-form restoration remains the separate post-Split SpellingTransformationReveal, and historical route compatibility remains at route/payload boundaries rather than as duplicate learner UI.
 - Group 5: `COMPLETE_MERGED_AND_DEPLOYED` — Group 5 — Meaning & Categorisation Convergence is complete, merged to origin/main and deployed. The canonical learner architecture is Discovery, MeaningConnectionActivity and BinSort. BinSort owns immediate correctness feedback, its brief reduced-motion-safe success celebration and its stateless final BinSortOverview as one learner activity. QuickSort UI and forward generation are retired; duplicate, fallback and prototype Meaning/Sort UI is retained only as required configuration or compatibility code, or is retired.
 - Former proposed Group 6: `ABSORBED_INTO_GROUP_5` — Former proposed Group 6 — Meaning was absorbed into Group 5 — Meaning & Categorisation Convergence. Sort and Meaning were intentionally implemented as one workstream; there is no separate Group 6 implementation, merge or outstanding dependency.
-- Next workstream: `OPEN_NEXT` — Groups 1–5 are complete. Former proposed Group 6 scope was absorbed into Group 5. Group 7 — Teaching Pages & First-Impression Lesson Shell Convergence is the next convergence workstream and must start from current authoritative origin/main.
+- Next workstream: `GROUP_7_IMPLEMENTED_AWAITING_OWNER_ACCEPTANCE` — Group 7 converges specialist First Impression lessons on TeachingPages and FirstImpressionLesson. Owner acceptance remains required before commit; no later convergence group may begin.
