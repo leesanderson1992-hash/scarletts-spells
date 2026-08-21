@@ -775,7 +775,7 @@ function meaningOverviewCopy(payload: MorphologyLessonPayloadV1) {
   return {
     eyebrow: `What ${affixLabel} can do`,
     title: suffixProfile
-      ? "Suffix meanings, all sorted"
+      ? "Suffix meanings, four words"
       : activity?.prefixLabel
         ? "Meaning patterns, all sorted"
         : "Two jobs, all sorted",

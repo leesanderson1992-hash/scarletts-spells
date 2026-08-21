@@ -36,7 +36,7 @@ assert.deepEqual(
 );
 assert(rendererSource.includes("Decide what the suffix means"), "meaning sort uses suffix language");
 assert(
-  rendererSource.includes('activity?.prefixLabel ?? props.payload.words.anchor.affixLabel ?? "the suffix"')
+  rendererSource.includes('activity?.prefixLabel ?? payload.words.anchor.affixLabel ?? "the suffix"')
     && rendererSource.includes('"Suffix meanings, four words"'),
   "meaning overview uses the reviewed suffix label rather than the legacy un- fallback",
 );
