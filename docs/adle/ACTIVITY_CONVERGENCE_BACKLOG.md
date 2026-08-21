@@ -78,14 +78,22 @@ ERROR_REPAIR remains ReflectionActivity and keeps reveal-hide-retry evidence. ME
 
 First-impression spelling has exactly two learner experiences: CoverShutter for study-cover-spell-compare and SentenceDictation for authored whole-sentence audio recall. Scheduled review and diagnostics share ColdWordRecall, which never reveals the governed spelling until the response is irreversibly locked. Historical CONTROLLED_SPELLING, HIDE_WRITE, DICTATION_NO_IMAGE, DICTATION_SENTENCE_CONTEXT, REVIEW_DICTATION and DIAGNOSTIC_DICTATION_PROBE keys remain accepted semantic/configuration inputs only. Route adapters retain resume, correctness, evidence, scheduling, probe intake, assignment and persistence. SpellingField and GrownUpReveal are retired.
 
-### Group 3 closeout status
+### Convergence closeout status
 
-- Status: `READY_FOR_CLOSEOUT`
+- Group 3 status: `COMPLETE_MERGED_AND_DEPLOYED`
+- Group 4 status: `COMPLETE_MERGED_AND_DEPLOYED` — Group 4 — Split / Cleaver Convergence is complete, merged to origin/main and deployed. One stateful SplitHandle serves Prefix, Affix and Base Word through thin curriculum adapters; the independent BaseWordCleaver and preview-only Split/transformation duplicates are retired. Final-y source-form restoration remains the separate post-Split SpellingTransformationReveal, and historical route compatibility remains at route/payload boundaries rather than as duplicate learner UI.
+- Group 5 status: `COMPLETE_MERGED_AND_DEPLOYED` — Group 5 — Meaning & Categorisation Convergence is complete, merged to origin/main and deployed. The canonical learner architecture is Discovery, MeaningConnectionActivity and BinSort. BinSort owns immediate correctness feedback, its brief reduced-motion-safe success celebration and its stateless final BinSortOverview as one learner activity. QuickSort UI and forward generation are retired; duplicate, fallback and prototype Meaning/Sort UI is retained only as required configuration or compatibility code, or is retired.
+- Former proposed Group 6: `ABSORBED_INTO_GROUP_5` — Former proposed Group 6 — Meaning was absorbed into Group 5 — Meaning & Categorisation Convergence. Sort and Meaning were intentionally implemented as one workstream; there is no separate Group 6 implementation, merge or outstanding dependency.
+- Next workstream: `OPEN_NEXT` — Groups 1–5 are complete. Former proposed Group 6 scope was absorbed into Group 5. Group 7 — Teaching Pages & First-Impression Lesson Shell Convergence is the next convergence workstream and must start from current authoritative origin/main.
+
+#### Group 3 closeout detail
+
+- Status: `COMPLETE_MERGED_AND_DEPLOYED`
 - Owner manual acceptance: 2026-08-20
 - Result: Owner manual acceptance passed for Prefix, Suffix/Affix, Base Word and Compound Cover Check, Sentence Dictation and cross-route Lesson Reflection feedback.
 - Acceptance fixes: Enter submits valid Cover Check, Sentence Dictation and ColdWordRecall responses through their existing guarded Check/Lock actions; Shift+Enter remains a Sentence Dictation newline and plain Enter remains a Lesson Reflection newline. Lesson Reflection now separates governed spelling mistakes from feedback-only whole-sentence capitalization and punctuation comparisons across Prefix, Suffix/Affix, Base Word and Compound routes.
 - Preserved invariants: No evidence classification, correctness policy, attempt identity, assignment binding, scheduler outcome, diagnostic intake, persistence schema, curriculum release or Production state changed.
-- Next step: Perform the final closeout diff review, then stage and create the single Group 3 commit only after explicit owner authorization. Do not begin Group 4 before that closeout.
+- Next step: Closed. Preserve the canonical CoverShutter, SentenceDictation, ColdWordRecall and LessonReflection boundaries while later convergence groups proceed from authoritative origin/main.
 
 ## Genuine platform gaps
 

@@ -85,6 +85,13 @@ ${ADLE_ACTIVITY_CATALOGUE.map(activitySection).join("\n")}
 ## Authority relationship
 
 ${ADLE_ACTIVITY_AUDIT_CONCLUSIONS.authorityRelationship}
+
+## Convergence programme status
+
+- Group 4: \`${ADLE_ACTIVITY_AUDIT_CONCLUSIONS.group4Closeout.status}\` — ${ADLE_ACTIVITY_AUDIT_CONCLUSIONS.group4Closeout.summary}
+- Group 5: \`${ADLE_ACTIVITY_AUDIT_CONCLUSIONS.group5Closeout.status}\` — ${ADLE_ACTIVITY_AUDIT_CONCLUSIONS.group5Closeout.summary}
+- Former proposed Group 6: \`${ADLE_ACTIVITY_AUDIT_CONCLUSIONS.formerGroup6.status}\` — ${ADLE_ACTIVITY_AUDIT_CONCLUSIONS.formerGroup6.summary}
+- Next workstream: \`${ADLE_ACTIVITY_AUDIT_CONCLUSIONS.nextConvergenceGroup.status}\` — ${ADLE_ACTIVITY_AUDIT_CONCLUSIONS.nextConvergenceGroup.summary}
 `;
 }
 
@@ -164,7 +171,15 @@ ${ADLE_ACTIVITY_AUDIT_CONCLUSIONS.reflectionBoundary}
 
 ${ADLE_ACTIVITY_AUDIT_CONCLUSIONS.spellRecallBoundary}
 
-## Group 3 closeout status
+## Convergence closeout status
+
+- Group 3 status: \`${ADLE_ACTIVITY_AUDIT_CONCLUSIONS.group3Closeout.status}\`
+- Group 4 status: \`${ADLE_ACTIVITY_AUDIT_CONCLUSIONS.group4Closeout.status}\` — ${ADLE_ACTIVITY_AUDIT_CONCLUSIONS.group4Closeout.summary}
+- Group 5 status: \`${ADLE_ACTIVITY_AUDIT_CONCLUSIONS.group5Closeout.status}\` — ${ADLE_ACTIVITY_AUDIT_CONCLUSIONS.group5Closeout.summary}
+- Former proposed Group 6: \`${ADLE_ACTIVITY_AUDIT_CONCLUSIONS.formerGroup6.status}\` — ${ADLE_ACTIVITY_AUDIT_CONCLUSIONS.formerGroup6.summary}
+- Next workstream: \`${ADLE_ACTIVITY_AUDIT_CONCLUSIONS.nextConvergenceGroup.status}\` — ${ADLE_ACTIVITY_AUDIT_CONCLUSIONS.nextConvergenceGroup.summary}
+
+### Group 3 closeout detail
 
 - Status: \`${ADLE_ACTIVITY_AUDIT_CONCLUSIONS.group3Closeout.status}\`
 - Owner manual acceptance: ${ADLE_ACTIVITY_AUDIT_CONCLUSIONS.group3Closeout.ownerAcceptedOn}
@@ -219,7 +234,15 @@ ${ADLE_ACTIVITY_AUDIT_CONCLUSIONS.reflectionBoundary}
 
 ${ADLE_ACTIVITY_AUDIT_CONCLUSIONS.spellRecallBoundary}
 
-### Group 3 closeout status
+### Convergence closeout status
+
+- Group 3 status: \`${ADLE_ACTIVITY_AUDIT_CONCLUSIONS.group3Closeout.status}\`
+- Group 4 status: \`${ADLE_ACTIVITY_AUDIT_CONCLUSIONS.group4Closeout.status}\` — ${ADLE_ACTIVITY_AUDIT_CONCLUSIONS.group4Closeout.summary}
+- Group 5 status: \`${ADLE_ACTIVITY_AUDIT_CONCLUSIONS.group5Closeout.status}\` — ${ADLE_ACTIVITY_AUDIT_CONCLUSIONS.group5Closeout.summary}
+- Former proposed Group 6: \`${ADLE_ACTIVITY_AUDIT_CONCLUSIONS.formerGroup6.status}\` — ${ADLE_ACTIVITY_AUDIT_CONCLUSIONS.formerGroup6.summary}
+- Next workstream: \`${ADLE_ACTIVITY_AUDIT_CONCLUSIONS.nextConvergenceGroup.status}\` — ${ADLE_ACTIVITY_AUDIT_CONCLUSIONS.nextConvergenceGroup.summary}
+
+#### Group 3 closeout detail
 
 - Status: \`${ADLE_ACTIVITY_AUDIT_CONCLUSIONS.group3Closeout.status}\`
 - Owner manual acceptance: ${ADLE_ACTIVITY_AUDIT_CONCLUSIONS.group3Closeout.ownerAcceptedOn}
