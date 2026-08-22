@@ -6,6 +6,71 @@
 
 begin;
 
+create extension if not exists pgcrypto with schema extensions;
+
+-- D2A owns a narrowly scoped, versioned canonical JSON fingerprint helper so
+-- snapshot persistence does not depend on unrelated release-authority objects
+-- being present in a particular environment. These are stable storage-contract
+-- identities, not implementation/build identities.
+create or replace function public.adle_generic_snapshot_canonical_json_text_v1(
+  p_value jsonb
+) returns text
+language plpgsql
+immutable
+strict
+set search_path = public
+as $$
+declare
+  v_type text := jsonb_typeof(p_value);
+  v_result text;
+begin
+  if v_type = 'object' then
+    select '{' || coalesce(string_agg(
+      to_jsonb(entry.key)::text || ':' || public.adle_generic_snapshot_canonical_json_text_v1(entry.value),
+      ',' order by entry.key
+    ), '') || '}'
+      into v_result
+      from jsonb_each(p_value) entry;
+    return v_result;
+  elsif v_type = 'array' then
+    select '[' || coalesce(string_agg(
+      public.adle_generic_snapshot_canonical_json_text_v1(entry.value),
+      ',' order by entry.ordinality
+    ), '') || ']'
+      into v_result
+      from jsonb_array_elements(p_value) with ordinality entry(value, ordinality);
+    return v_result;
+  end if;
+  return p_value::text;
+end;
+$$;
+
+create or replace function public.adle_generic_snapshot_json_sha256_v1(
+  p_value jsonb
+) returns text
+language sql
+immutable
+strict
+set search_path = public, extensions
+as $$
+  select encode(
+    extensions.digest(
+      convert_to(public.adle_generic_snapshot_canonical_json_text_v1(p_value), 'utf8'),
+      'sha256'
+    ),
+    'hex'
+  )
+$$;
+
+revoke all on function public.adle_generic_snapshot_canonical_json_text_v1(jsonb)
+  from public, anon, authenticated;
+revoke all on function public.adle_generic_snapshot_json_sha256_v1(jsonb)
+  from public, anon, authenticated;
+grant execute on function public.adle_generic_snapshot_canonical_json_text_v1(jsonb)
+  to service_role;
+grant execute on function public.adle_generic_snapshot_json_sha256_v1(jsonb)
+  to service_role;
+
 do $$
 declare
   v_column_exists boolean := exists (
@@ -35,10 +100,6 @@ declare
       and not tgisinternal
   );
 begin
-  if to_regprocedure('public.adle_canonical_json_sha256_v1(jsonb)') is null then
-    raise exception 'D2A requires adle_canonical_json_sha256_v1(jsonb)';
-  end if;
-
   if to_regprocedure('public.adle_lesson_route_metadata_is_valid_v1(jsonb)') is null then
     raise exception 'D2A requires adle_lesson_route_metadata_is_valid_v1(jsonb)';
   end if;
@@ -304,7 +365,7 @@ begin
       )
       or jsonb_typeof(v_word->'factFingerprint') <> 'string'
       or coalesce(v_word->>'factFingerprint', '') !~ '^[a-f0-9]{64}$'
-      or public.adle_canonical_json_sha256_v1(v_word - 'factFingerprint') <> v_word->>'factFingerprint'
+      or public.adle_generic_snapshot_json_sha256_v1(v_word - 'factFingerprint') <> v_word->>'factFingerprint'
     then
       return false;
     end if;
@@ -499,7 +560,7 @@ begin
       ) <> 1
     )
     or (p_snapshot#>>'{assignment,itemCount}')::integer <> jsonb_array_length(p_snapshot->'activities')
-    or public.adle_canonical_json_sha256_v1(
+    or public.adle_generic_snapshot_json_sha256_v1(
       p_snapshot #- '{provenance,sourceFingerprint}'
     ) <> p_snapshot#>>'{provenance,sourceFingerprint}'
   then

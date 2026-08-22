@@ -50,6 +50,9 @@ assert.doesNotMatch(migration, /update\s+public\.daily_assignments\s+set\s+compi
 assert.match(migration, /case p_snapshot->>'snapshotSchemaVersion'[\s\S]+when '2'/);
 assert.match(migration, /when '3'/);
 assert.match(migration, /persist_adle_generic_daily_plan_v3/);
+assert.match(migration, /adle_generic_snapshot_canonical_json_text_v1/);
+assert.match(migration, /adle_generic_snapshot_json_sha256_v1/);
+assert.doesNotMatch(migration, /requires adle_canonical_json_sha256_v1/);
 assert.match(migration, /pg_advisory_xact_lock/);
 assert.match(migration, /is distinct from p_snapshot#>>'\{provenance,sourceFingerprint\}'/);
 assert.match(migration, /revoke all on function public\.persist_adle_generic_daily_plan_v3/);
