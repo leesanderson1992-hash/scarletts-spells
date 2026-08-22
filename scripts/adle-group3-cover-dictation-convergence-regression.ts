@@ -53,8 +53,8 @@ assert.equal(getActivityTemplateDefinition("DIAGNOSTIC_DICTATION_PROBE")?.render
 assert(!existsSync("components/adle/activities/shared/spelling-field.tsx"), "SpellingField source is deleted");
 
 for (const [name, source] of [["Prefix/Affix", morphology], ["Base Word", base], ["Compound", compound]] as const) {
-  assert(source.includes("<CoverShutter"), `${name} resolves Cover Check to CoverShutter`);
-  assert(source.includes("<SentenceDictation"), `${name} resolves whole-sentence Dictation to SentenceDictation`);
+  assert(source.includes("<CoverShutter") || source.includes('concept: "COVER_CHECK"'), `${name} resolves Cover Check directly or through the canonical registry`);
+  assert(source.includes("<SentenceDictation") || source.includes('concept: "DICTATION"'), `${name} resolves whole-sentence Dictation directly or through the canonical registry`);
   assert(!source.includes("function Controlled"), `${name} has no route-local Controlled presentation`);
   assert(!source.includes("function Dictation"), `${name} has no route-local Dictation presentation`);
   assert(!source.includes("<textarea"), `${name} has no route-local sentence response UI`);
@@ -62,7 +62,7 @@ for (const [name, source] of [["Prefix/Affix", morphology], ["Base Word", base],
   if (name !== "Prefix/Affix") assert(!source.includes("<HearWordButton"), `${name} has no route-local Dictation audio presentation`);
 }
 assert(!morphology.includes("<HearWordButton"), "Prefix/Affix route adapters do not duplicate canonical authored-audio controls");
-assert(morphology.includes("<SentenceDictation") && morphology.includes("audioText={dictationSentence.sentence}"), "Prefix/Affix Dictation delegates authored audio to SentenceDictation");
+assert(morphology.includes('concept: "DICTATION"') && morphology.includes("audioText: dictationSentence.sentence"), "Prefix/Affix Dictation delegates authored audio through the canonical SentenceDictation contract");
 
 assert(morphology.includes("controlledAttempts") && morphology.includes("controlledChecked") && morphology.includes("sentenceAttempts") && morphology.includes("checkedSentence"), "Prefix/Affix resume fields remain route-owned");
 assert(base.includes("controlledAttempts") && base.includes("controlledChecked") && base.includes("sentenceAttempts") && base.includes("sentenceChecked"), "Base Word resume fields remain route-owned");

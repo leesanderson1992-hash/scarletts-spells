@@ -40,7 +40,7 @@ function CleaverIcon(props: { striking: boolean; reducedMotion: boolean }) {
   );
 }
 
-export function SplitHandle(props: {
+export interface SplitHandleProps {
   word: string;
   splitPoints: number[];
   components?: readonly string[];
@@ -62,7 +62,9 @@ export function SplitHandle(props: {
   onMiss: (misses: number) => void;
   onCorrect: () => void;
   onContinue: () => void;
-}) {
+}
+
+export function SplitHandle(props: SplitHandleProps) {
   const reducedMotion = useReducedMotion();
   const requiredBoundaries = [...new Set(props.splitPoints)]
     .filter((point) => Number.isInteger(point) && point > 0 && point < props.word.length)

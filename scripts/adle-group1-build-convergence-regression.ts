@@ -187,6 +187,8 @@ const jigsawSource = readFileSync("components/adle/morphology/compound-jigsaw-ac
 const compoundAdapterSource = readFileSync("components/adle/morphology/closed-compound-guided-lesson.tsx", "utf8");
 const morphologySource = readFileSync("components/adle/morphology/morphology-guided-lesson.tsx", "utf8");
 const baseWordSource = readFileSync("components/adle/morphology/base-word-family-guided-lesson.tsx", "utf8");
+const canonicalRegistrySource = readFileSync("components/adle/activities/canonical-renderer-registry.tsx", "utf8");
+const definitionBuilderSource = readFileSync("components/adle/activities/shared/definition-word-builder.tsx", "utf8");
 const snapRailSource = readFileSync("components/adle/activities/shared/snap-rail.tsx", "utf8");
 assert(!jigsawSource.includes("closed_v1") && !jigsawSource.includes("copyMode") && !jigsawSource.includes("firstWord"), "the canonical Jigsaw renderer has no historical learner mode or payload shape");
 assert(jigsawSource.indexOf("Anonymous jigsaw rows") < jigsawSource.indexOf("Mixed jigsaw piece bank"), "anonymous rows render before the mixed bank");
@@ -195,8 +197,9 @@ assert(!jigsawSource.includes("Word {targetIndex + 1}") && jigsawSource.includes
 assert(jigsawSource.includes("compoundJigsawPiecePath") && jigsawSource.includes("preserveAspectRatio=\"xMidYMid meet\""), "bank pieces, placed pieces and silhouettes share aspect-ratio-safe SVG geometry");
 assert(jigsawSource.includes("pointerStart") && jigsawSource.includes("nearestDestination") && jigsawSource.includes("setPointerCapture"), "Jigsaw pointer capture and hit testing are controlled at board level");
 assert(compoundAdapterSource.includes("adaptClosedCompoundJigsawTargets"), "historical translation lives at the compatibility adapter boundary");
-assert(morphologySource.includes("<DefinitionWordBuilder") && !morphologySource.includes("function PrefixBuild"), "Prefix and Affix use the shared Definition Word Builder without a route-local renderer");
-assert(baseWordSource.includes("<DefinitionWordBuilder") && !baseWordSource.includes("function WordBuilder"), "Base Word uses the shared Definition Word Builder without a route-local renderer");
+assert(morphologySource.includes('concept: "WORD_ASSEMBLY"') && morphologySource.includes('mode: "definition_word_builder"') && canonicalRegistrySource.includes('"DefinitionWordBuilder", definitionBuilderLoader'), "Prefix and Affix resolve shared Definition Word Builder through the canonical registry");
+assert(baseWordSource.includes('concept: "WORD_ASSEMBLY"') && baseWordSource.includes('mode: "definition_word_builder"') && canonicalRegistrySource.includes('"DefinitionWordBuilder", definitionBuilderLoader') && !baseWordSource.includes("function WordBuilder"), "Base Word resolves the shared Definition Word Builder through the canonical registry without a route-local renderer");
+assert(!definitionBuilderSource.includes("Build from the meaning"), "Definition Word Builder has one progress title instead of a duplicate build heading");
 assert(snapRailSource.includes("useOrderedBuildEngine") && jigsawSource.includes("useOrderedBuildEngine"), "SnapRail and Jigsaw share one ordered-build state machine");
 
 const wordAssembly = ADLE_ACTIVITY_CATALOGUE.find((entry) => entry.activityKey === "WORD_ASSEMBLY")!;

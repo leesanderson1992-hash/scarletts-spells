@@ -36,10 +36,7 @@ export function DefinitionWordBuilder(props: DefinitionWordBuilderProps) {
   const [feedback, setFeedback] = useState<ReactNode>(null);
   return <section className="grid gap-5 text-center" data-definition-word-builder={props.targetId}>
     {props.stepLabel ? <p className="text-xs font-black uppercase tracking-[.2em] text-cyan-200">{props.stepLabel}</p> : null}
-    <div>
-      <p className="text-sm font-black uppercase tracking-[.16em] text-cyan-200">Build from the meaning</p>
-      <h2 className="mt-2 text-3xl font-black text-white">Which word means “{props.definition}”?</h2>
-    </div>
+    <h2 className="text-3xl font-black text-white">Which word means “{props.definition}”?</h2>
     <SnapRail
       tiles={props.tiles}
       expectedIds={props.expectedIds}

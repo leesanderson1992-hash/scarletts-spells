@@ -2,23 +2,29 @@
 
 import { useCallback, useMemo, useState, type ReactNode } from "react";
 
+import {
+  CanonicalActivityBlockedState,
+  CanonicalActivityRenderer,
+  createCanonicalActivityBinding,
+  type CanonicalActivityBinding,
+  type CanonicalActivityNavigation,
+  validateCanonicalActivitySequence,
+} from "@/components/adle/activities/canonical-renderer-registry";
 import type { GuideBeatV1 } from "@/lib/adle/morphology/payload";
 import { WordLabScene } from "@/components/adle/morphology/word-lab-scene";
-import { TeachingPages, type TeachingPagesConfig } from "./teaching-pages";
+import type { TeachingPagesConfig } from "./teaching-pages";
 
 export type FirstImpressionFixedStage = "teaching" | "cover" | "dictation" | "reflection";
 export type FirstImpressionStageId = FirstImpressionFixedStage | `activity:${string}`;
 
-export interface FirstImpressionActivityNavigation {
-  complete: () => void;
-  rereadTeaching: () => void;
-}
+export type FirstImpressionActivityNavigation = CanonicalActivityNavigation;
 
 export interface FirstImpressionConfiguredActivity {
   id: string;
   type: string;
   label: string;
-  render: (navigation: FirstImpressionActivityNavigation) => ReactNode;
+  binding?: CanonicalActivityBinding;
+  render?: (navigation: FirstImpressionActivityNavigation) => ReactNode;
 }
 
 export interface FirstImpressionSceneConfig {
@@ -38,9 +44,12 @@ export function FirstImpressionLesson(props: {
   initialTeachingPageIndex?: number;
   onStageChange: (stageId: FirstImpressionStageId) => void;
   onTeachingPageChange?: (pageIndex: number) => void;
-  renderCover: (navigation: FirstImpressionActivityNavigation) => ReactNode;
-  renderDictation: (navigation: FirstImpressionActivityNavigation) => ReactNode;
-  renderReflection: (navigation: FirstImpressionActivityNavigation) => ReactNode;
+  coverActivity?: CanonicalActivityBinding;
+  dictationActivity?: CanonicalActivityBinding;
+  reflectionActivity?: CanonicalActivityBinding;
+  renderCover?: (navigation: FirstImpressionActivityNavigation) => ReactNode;
+  renderDictation?: (navigation: FirstImpressionActivityNavigation) => ReactNode;
+  renderReflection?: (navigation: FirstImpressionActivityNavigation) => ReactNode;
   scene: FirstImpressionSceneConfig;
 }) {
   const onStageChange = props.onStageChange;
@@ -75,16 +84,18 @@ export function FirstImpressionLesson(props: {
   }, [stageId]);
 
   const navigation = useMemo<FirstImpressionActivityNavigation>(() => ({ complete: completeStage, rereadTeaching }), [completeStage, rereadTeaching]);
-  const activity = stageId.startsWith("activity:")
-    ? props.activities.find((candidate) => `activity:${candidate.id}` === stageId)
-    : undefined;
-  const content = stageId === "teaching" ? (
-    <TeachingPages
-      config={props.teaching}
-      initialPageIndex={props.initialTeachingPageIndex}
-      onPageChange={props.onTeachingPageChange}
-      completionLabel={returnStageId ? "Return to the activity" : undefined}
-      onComplete={() => {
+  const teachingActivity = createCanonicalActivityBinding({
+    id: "teaching",
+    concept: "INTRODUCTION",
+    mode: "teaching_page",
+    contractVersion: 1,
+    label: "Teaching",
+    createProps: () => ({
+      config: props.teaching,
+      initialPageIndex: props.initialTeachingPageIndex,
+      onPageChange: props.onTeachingPageChange,
+      completionLabel: returnStageId ? "Return to the activity" : undefined,
+      onComplete: () => {
         if (returnStageId) {
           const destination = returnStageId;
           setReturnStageId(null);
@@ -92,12 +103,29 @@ export function FirstImpressionLesson(props: {
           return;
         }
         completeStage();
-      }}
-    />
-  ) : activity ? activity.render(navigation)
-    : stageId === "cover" ? props.renderCover(navigation)
-      : stageId === "dictation" ? props.renderDictation(navigation)
-        : props.renderReflection(navigation);
+      },
+    }),
+  });
+  const validationFailures = validateCanonicalActivitySequence([
+    teachingActivity,
+    ...props.activities.flatMap((candidate) => candidate.binding ? [candidate.binding] : []),
+    ...(props.coverActivity ? [props.coverActivity] : []),
+    ...(props.dictationActivity ? [props.dictationActivity] : []),
+    ...(props.reflectionActivity ? [props.reflectionActivity] : []),
+  ]);
+  if (validationFailures.length > 0) return <CanonicalActivityBlockedState failure={validationFailures[0]} />;
+  const activity = stageId.startsWith("activity:")
+    ? props.activities.find((candidate) => `activity:${candidate.id}` === stageId)
+    : undefined;
+  const content = stageId === "teaching" ? <CanonicalActivityRenderer binding={teachingActivity} navigation={navigation} />
+    : activity?.binding ? <CanonicalActivityRenderer binding={activity.binding} navigation={navigation} />
+    : activity?.render ? activity.render(navigation)
+      : stageId === "cover" && props.coverActivity ? <CanonicalActivityRenderer binding={props.coverActivity} navigation={navigation} />
+        : stageId === "cover" && props.renderCover ? props.renderCover(navigation)
+          : stageId === "dictation" && props.dictationActivity ? <CanonicalActivityRenderer binding={props.dictationActivity} navigation={navigation} />
+            : stageId === "dictation" && props.renderDictation ? props.renderDictation(navigation)
+              : props.reflectionActivity ? <CanonicalActivityRenderer binding={props.reflectionActivity} navigation={navigation} />
+                : props.renderReflection?.(navigation);
 
   return (
     <WordLabScene

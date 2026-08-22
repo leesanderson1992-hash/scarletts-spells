@@ -228,6 +228,7 @@ ${ADLE_ACTIVITY_CONVERGENCE_BACKLOG.map((item) => `### ${item.priority} — ${it
 - Regression requirements: ${item.regressionRequirements.join("; ")}
 - Learner/runtime risk: \`${item.learnerRuntimeRisk}\`
 - Model C release change required: ${yes(item.modelCReleaseChangeRequired)}
+- Release boundary: ${item.releaseBoundary}
 - Consolidation opportunity: ${item.consolidationOpportunity}
 `).join("\n")}
 
@@ -288,9 +289,9 @@ Target sequence:
 
 ${first.targetSequence.map((step, index) => `${index + 1}. ${step}`).join("\n")}
 
-Current approximations:
+Canonical route adoption:
 
-${first.approximatingRoutes.map((route) => `- ${route}`).join("\n")}
+${first.canonicalRoutes.map((route) => `- ${route}`).join("\n")}
 
 Still bespoke:
 

@@ -8,27 +8,17 @@ This is a migration backlog, not authority to refactor, activate routes, change 
 
 ## Ordered backlog
 
-### P0 — Extract the standard first-impression shell
-
-- Current implementations: `MorphologyGuidedLesson`, `BaseWordFamilyGuidedLesson`, `CompoundWordLessonRuntime`, `CommonWordLabShell`
-- Target: future shared first-impression shell using Activity Catalogue sequences
-- Intended modes: `reading_pages`, `meet_words`, `configured_activities`, `production`, `lesson_reflection`
-- Routes affected: `dynamic_prefix_word_lab:v2`, `fixed_un_prefix_word_lab:v1`, `dynamic_affix_word_lab:v3`, `base_word_lab:v2`, `compound_word_lab:v2`, `closed_compound_word_lab:v1`
-- Regression requirements: route snapshot replay; resume keys; activity ordering; completion envelope; all evidence/persistence parity; historical route fixtures
-- Learner/runtime risk: `high`
-- Model C release change required: Yes
-- Consolidation opportunity: High structural consolidation across three live specialist shells and one dark shell; no credible line count before the shared contract exists.
-
 ### P1 — Wire rich components through registry modes
 
-- Current implementations: `GuidedActivity fallback for still-unbuilt non-Meaning families`, `specialist canonical activity adapters`
-- Target: Activity Catalogue mapping feeding versioned renderer registration
-- Intended modes: `remaining phoneme/grapheme, inflection, pattern and syllable interactions`
+- Current implementations: `canonical renderer registry for specialist routes`, `generic activity-template renderer-kind dispatch`, `generic snapshot registry/compiler`
+- Target: Activity Catalogue capability mapping feeding one versioned canonical renderer registry
+- Intended modes: `existing canonical activity contracts`, `behaviour-identical specialist routing`, `explicit historical normalization`
 - Routes affected: `generic_composer:v1`, `dynamic_prefix_word_lab:v2`, `fixed_un_prefix_word_lab:v1`, `dynamic_affix_word_lab:v3`, `base_word_lab:v2`, `compound_word_lab:v2`, `closed_compound_word_lab:v1`
-- Regression requirements: template-to-catalogue total mapping; payload validation; safe fallback; lazy renderer; no dispatch change until separately approved
+- Regression requirements: catalogue-to-registration totality; payload validation; lazy renderer loading; route replay; resume/completion/evidence parity; fail-closed unknown contracts
 - Learner/runtime risk: `high`
-- Model C release change required: Yes
-- Consolidation opportunity: Stops new generic/specialist divergence; source deletion depends on the later runtime refactor.
+- Model C release change required: No
+- Release boundary: Versioned registration groundwork and behaviour-identical routing of existing specialist payloads are internal refactors. Stop and require a separate Model C decision before any specialist payload, curriculum meaning, dependency fingerprint, route activation or learner semantics change. Generic snapshot v3 and new-generation output are a separate owner-gated release phase.
+- Consolidation opportunity: Phases A and B have removed specialist component selection from route render closures. Later owner-gated phases can normalize compatibility keys, move generic forward generation, and retire the remaining generic dispatch authority while route lifecycle boundaries stay explicit.
 
 ### P1 — Implement genuine missing activity surfaces
 
@@ -38,7 +28,8 @@ This is a migration backlog, not authority to refactor, activate routes, change 
 - Routes affected: `generic_composer:v1`
 - Regression requirements: pedagogical contract; keyboard/pointer/audio; answer visibility; evidence binding; fallback safety
 - Learner/runtime risk: `high`
-- Model C release change required: Yes
+- Model C release change required: No
+- Release boundary: These are generic curriculum capability additions rather than Model C specialist releases. Every new interaction still requires a separate pedagogical contract, owner approval and an independently authorized generic-generation release.
 - Consolidation opportunity: Capability addition, not a deletion opportunity.
 
 ### P2 — Retire preview-only/dead primitives after decisions
@@ -50,6 +41,7 @@ This is a migration backlog, not authority to refactor, activate routes, change 
 - Regression requirements: confirm no historical import; retain screenshots or replacement gallery fixture where valuable
 - Learner/runtime risk: `low`
 - Model C release change required: No
+- Release boundary: Development-reference cleanup has no release implication after reachability and historical-import checks pass.
 - Consolidation opportunity: Potential cleanup only; measure after architecture decisions because some primitives may seed genuine gap implementations.
 
 ### P2 — Retain historical route compatibility until replay retirement
@@ -61,6 +53,7 @@ This is a migration backlog, not authority to refactor, activate routes, change 
 - Regression requirements: persisted payload replay; resume; completion; separator policy; no new assignment generation
 - Learner/runtime risk: `high`
 - Model C release change required: No
+- Release boundary: Compatibility-only retention does not change a released contract. Retirement requires persisted replay inventory and owner confirmation of the retention obligation.
 - Consolidation opportunity: The closed-v1 learner UI is retired; retain only payload decoding, route resolution, resume and completion compatibility until persisted replay is retired.
 
 
@@ -84,8 +77,8 @@ First-impression spelling has exactly two learner experiences: CoverShutter for 
 - Group 4 status: `COMPLETE_MERGED_AND_DEPLOYED` — Group 4 — Split / Cleaver Convergence is complete, merged to origin/main and deployed. One stateful SplitHandle serves Prefix, Affix and Base Word through thin curriculum adapters; the independent BaseWordCleaver and preview-only Split/transformation duplicates are retired. Final-y source-form restoration remains the separate post-Split SpellingTransformationReveal, and historical route compatibility remains at route/payload boundaries rather than as duplicate learner UI.
 - Group 5 status: `COMPLETE_MERGED_AND_DEPLOYED` — Group 5 — Meaning & Categorisation Convergence is complete, merged to origin/main and deployed. The canonical learner architecture is Discovery, MeaningConnectionActivity and BinSort. BinSort owns immediate correctness feedback, its brief reduced-motion-safe success celebration and its stateless final BinSortOverview as one learner activity. QuickSort UI and forward generation are retired; duplicate, fallback and prototype Meaning/Sort UI is retained only as required configuration or compatibility code, or is retired.
 - Former proposed Group 6: `ABSORBED_INTO_GROUP_5` — Former proposed Group 6 — Meaning was absorbed into Group 5 — Meaning & Categorisation Convergence. Sort and Meaning were intentionally implemented as one workstream; there is no separate Group 6 implementation, merge or outstanding dependency.
-- Group 7 status: `COMPLETE_COMMITTED_AND_DEPLOYED` — Group 7 — First Impression Shell Convergence is accepted, committed as 93ec640, pushed to codex/adle-group7-first-impression-shell-convergence and deployed to Production. TeachingPages is the one shared ordered teaching and Meet the Words experience; FirstImpressionLesson is the canonical staged shell for Prefix, Suffix/Affix, Base Word and Closed Compound lessons.
-- Next workstream: `P1_REGISTRY_WIRING_PROPOSED` — Wire existing rich components through versioned Activity Catalogue renderer registration. This is the next proposed planning stage, not an authorised implementation: it requires a separate Model C release decision and must preserve route dispatch, payload validation, fallback safety, resume, completion and evidence parity.
+- Group 7 status: `COMPLETE_MERGED_AND_DEPLOYED` — Group 7 — First Impression Shell Convergence is accepted, merged into origin/main and deployed to Production. The authoritative d59506c main tree contains implementation commit 93ec640. TeachingPages is the one shared ordered teaching and Meet the Words experience; FirstImpressionLesson is the canonical staged shell for Prefix, Suffix/Affix, Base Word and Closed Compound lessons.
+- Next workstream: `P1_REGISTRY_WIRING_PHASES_A_B_COMPLETE_REVIEW_REQUIRED` — Governance reconciliation, versioned canonical registry groundwork and behaviour-identical specialist routing are complete for review. Stop before Phase C compatibility normalization. Generic/history cutover, new snapshot generation, Model C changes and all release-semantic changes remain unauthorised. Route payloads, resume, completion and evidence boundaries remain with the existing specialist adapters.
 
 #### Group 3 closeout detail
 
@@ -98,20 +91,21 @@ First-impression spelling has exactly two learner experiences: CoverShutter for 
 
 #### Group 7 closeout detail
 
-- Status: `COMPLETE_COMMITTED_AND_DEPLOYED`
+- Status: `COMPLETE_MERGED_AND_DEPLOYED`
 - Owner manual acceptance: 2026-08-21
 - Production deployment: 2026-08-21
-- Result: Group 7 — First Impression Shell Convergence is accepted, committed as 93ec640, pushed to codex/adle-group7-first-impression-shell-convergence and deployed to Production. TeachingPages is the one shared ordered teaching and Meet the Words experience; FirstImpressionLesson is the canonical staged shell for Prefix, Suffix/Affix, Base Word and Closed Compound lessons.
+- Result: Group 7 — First Impression Shell Convergence is accepted, merged into origin/main and deployed to Production. The authoritative d59506c main tree contains implementation commit 93ec640. TeachingPages is the one shared ordered teaching and Meet the Words experience; FirstImpressionLesson is the canonical staged shell for Prefix, Suffix/Affix, Base Word and Closed Compound lessons.
 - Preserved invariants: No answer correctness, evidence classification, assignment binding, completion envelope, persistence schema, curriculum activation or learner data changed.
 - Next step: Closed. Retain TeachingPages and FirstImpressionLesson as the canonical boundaries; do not restore route-local teaching-page navigation or duplicate Meet the Words screens.
 
 ## Genuine platform gaps
 
-- canonical Reading Page outside Compound
 - authentic Free Writing surface
-- phoneme–grapheme mapping
+- phoneme–grapheme and schwa/stress mapping
 - syllable split/rebuild
-- drop-e/doubling and other interactive spelling transformations
+- drop-e/doubling, inflectional and other interactive spelling transformations
+- homophone sentence-context choice and correction
+- pattern discovery/application where TeachingPages and existing practice are insufficient
 
 ## Future new-activity rule
 
@@ -137,11 +131,11 @@ Target sequence:
 8. LessonReflection
 9. Celebration
 
-Current approximations:
+Canonical route adoption:
 
-- compound_word_lab:v2 already has ordered reading pages, lesson words, configured rich work, controlled recall, dictation and reflection
-- base_word_lab:v2 has introduction, Meet the Words/family reveal, configured rich work, controlled recall, dictation and reflection
-- dynamic_prefix_word_lab:v2 and dynamic_affix_word_lab:v3 have multi-screen Learn, Discover, configured rich work, controlled recall, dictation and reflection
+- compound_word_lab:v2 and closed_compound_word_lab:v1 use TeachingPages and FirstImpressionLesson through the shared Compound runtime adapter
+- base_word_lab:v2 uses TeachingPages and FirstImpressionLesson through the Base Word runtime adapter
+- dynamic_prefix_word_lab:v2, fixed_un_prefix_word_lab:v1 and dynamic_affix_word_lab:v3 use TeachingPages and FirstImpressionLesson through the shared morphology runtime adapter
 
 Still bespoke:
 
@@ -151,7 +145,7 @@ Still bespoke:
 
 ## Review-template implications
 
-Review-eligible: `DICTATION.word`, `DICTATION.review`, `FREE_WRITING.review_transfer once implemented`
+Review-eligible: `COLD_WORD_RECALL.scheduled_review`, `FREE_WRITING.review_transfer once implemented`
 
 Not review-eligible: `INTRODUCTION`, `READING_PAGE`, `MEANING_DISCOVERY`, `WORD_FAMILY_REVEAL`, `LESSON_REFLECTION`
 

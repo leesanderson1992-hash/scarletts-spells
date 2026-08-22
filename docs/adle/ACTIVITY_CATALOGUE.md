@@ -5,7 +5,7 @@
 # ADLE Activity Catalogue
 
 Version: `adle_activity_catalogue_v1`
-Authoritative base: `4fcc64ae179e0a18a0ab9939346e9d95f44bd990`
+Authoritative base: `d59506c9f3175a73b3f4614a1077470f3ab0e4a2`
 
 This is the chooser for curriculum designers and future implementation tasks. It describes interaction capability, not route-specific teaching content.
 
@@ -636,12 +636,12 @@ The catalogue currently has 22 governed concepts, 15 with canonical status, and 
 
 ## Authority relationship
 
-Activity Catalogue is the architectural chooser and capability inventory. activity-template-registry.ts remains the generic runtime dispatch authority; curriculum route registry plus specialist adapters remain the rich-route runtime authority. The catalogue regression maps every generic template key exactly once and validates every component path, so these authorities cannot silently drift while runtime refactoring is frozen.
+Activity Catalogue is the architectural chooser and capability inventory. CanonicalActivityRenderer is now the versioned runtime renderer authority for specialist First Impression activity slots; thin specialist adapters still own curriculum transformation, resume, evidence and completion. activity-template-registry.ts and the generic snapshot registry/compiler remain the untouched generic and historical dispatch authorities until separately authorized compatibility and generic-generation phases. The catalogue and registry regressions prevent these transitional authorities from silently drifting.
 
 ## Convergence programme status
 
 - Group 4: `COMPLETE_MERGED_AND_DEPLOYED` — Group 4 — Split / Cleaver Convergence is complete, merged to origin/main and deployed. One stateful SplitHandle serves Prefix, Affix and Base Word through thin curriculum adapters; the independent BaseWordCleaver and preview-only Split/transformation duplicates are retired. Final-y source-form restoration remains the separate post-Split SpellingTransformationReveal, and historical route compatibility remains at route/payload boundaries rather than as duplicate learner UI.
 - Group 5: `COMPLETE_MERGED_AND_DEPLOYED` — Group 5 — Meaning & Categorisation Convergence is complete, merged to origin/main and deployed. The canonical learner architecture is Discovery, MeaningConnectionActivity and BinSort. BinSort owns immediate correctness feedback, its brief reduced-motion-safe success celebration and its stateless final BinSortOverview as one learner activity. QuickSort UI and forward generation are retired; duplicate, fallback and prototype Meaning/Sort UI is retained only as required configuration or compatibility code, or is retired.
 - Former proposed Group 6: `ABSORBED_INTO_GROUP_5` — Former proposed Group 6 — Meaning was absorbed into Group 5 — Meaning & Categorisation Convergence. Sort and Meaning were intentionally implemented as one workstream; there is no separate Group 6 implementation, merge or outstanding dependency.
-- Group 7: `COMPLETE_COMMITTED_AND_DEPLOYED` — Group 7 — First Impression Shell Convergence is accepted, committed as 93ec640, pushed to codex/adle-group7-first-impression-shell-convergence and deployed to Production. TeachingPages is the one shared ordered teaching and Meet the Words experience; FirstImpressionLesson is the canonical staged shell for Prefix, Suffix/Affix, Base Word and Closed Compound lessons.
-- Next workstream: `P1_REGISTRY_WIRING_PROPOSED` — Wire existing rich components through versioned Activity Catalogue renderer registration. This is the next proposed planning stage, not an authorised implementation: it requires a separate Model C release decision and must preserve route dispatch, payload validation, fallback safety, resume, completion and evidence parity.
+- Group 7: `COMPLETE_MERGED_AND_DEPLOYED` — Group 7 — First Impression Shell Convergence is accepted, merged into origin/main and deployed to Production. The authoritative d59506c main tree contains implementation commit 93ec640. TeachingPages is the one shared ordered teaching and Meet the Words experience; FirstImpressionLesson is the canonical staged shell for Prefix, Suffix/Affix, Base Word and Closed Compound lessons.
+- Next workstream: `P1_REGISTRY_WIRING_PHASES_A_B_COMPLETE_REVIEW_REQUIRED` — Governance reconciliation, versioned canonical registry groundwork and behaviour-identical specialist routing are complete for review. Stop before Phase C compatibility normalization. Generic/history cutover, new snapshot generation, Model C changes and all release-semantic changes remain unauthorised. Route payloads, resume, completion and evidence boundaries remain with the existing specialist adapters.

@@ -11,6 +11,7 @@
     "adle:activity-catalogue:generate": "tsx scripts/generate-adle-activity-catalogue.ts",
     "adle:activity-catalogue:check": "tsx scripts/generate-adle-activity-catalogue.ts --check",
     "adle:activity-catalogue-regression": "tsx scripts/adle-activity-catalogue-regression.ts",
+    "adle:canonical-renderer-registry-regression": "tsx scripts/adle-canonical-renderer-registry-regression.ts",
     "adle:activity-visual-convergence-regression": "tsx scripts/adle-activity-visual-convergence-regression.ts",
     "adle:group2-lesson-reflection-regression": "tsx scripts/adle-group2-lesson-reflection-regression.ts",
     "adle:group2-lesson-reflection-interaction-regression": "playwright test --config=playwright.adle.config.ts tests/adle/group2-lesson-reflection.spec.ts",

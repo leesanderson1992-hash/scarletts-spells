@@ -77,6 +77,7 @@ export interface ActivityConvergenceBacklogItem {
   regressionRequirements: readonly string[];
   learnerRuntimeRisk: "low" | "medium" | "high";
   modelCReleaseChangeRequired: boolean;
+  releaseBoundary: string;
   consolidationOpportunity: string;
 }
 
@@ -485,6 +486,7 @@ export const ADLE_ACTIVITY_IMPLEMENTATION_AUDIT: readonly ActivityImplementation
   auditRow("FixtureActivity", "components/adle/word-lab/activity-registry.tsx", "COMMON_WORD_LAB_PLACEHOLDER", "COMPATIBILITY_ONLY", "real per-kind Word Lab plugins", { currentRouteUsages: ["/dev/adle/common-word-lab only"], propsConfigDifferences: "One textarea implementation stands in for strategy_notice, guided_map, cover_check, dictation, and reflection.", recommendedAction: "Keep the dark fixture runnable, but do not treat its five registrations as production activity implementations.", migrationRisk: "low" }),
   auditRow("WordLabActivityHost", "components/adle/word-lab/activity-registry.tsx", "RUNTIME_DISPATCH", "CANONICAL_MODE", "WordLabActivityHost", { currentRouteUsages: ["/dev/adle/common-word-lab only"], migrationRisk: "medium" }),
   auditRow("CommonWordLabShell", "components/adle/word-lab/common-word-lab-shell.tsx", "LESSON_SHELL", "DEVELOPMENT_REFERENCE", "FirstImpressionLesson", { currentRouteUsages: ["/dev/adle/common-word-lab only"], behaviouralDifferences: "Generic snapshot/plugin laboratory only; it is not a forward First Impression learner shell.", migrationRisk: "low" }),
+  auditRow("CanonicalActivityRenderer registry", "components/adle/activities/canonical-renderer-registry.tsx", "RUNTIME_DISPATCH", "CANONICAL", "CanonicalActivityRenderer registry", { currentRouteUsages: SPECIALIST, propsConfigDifferences: "Nineteen versioned concept/mode contracts lazily load the existing canonical Group 1–7 learner components and validate route-adapted props before mount.", behaviouralDifferences: "Unknown contracts and invalid payloads fail closed with a learner-safe blocker; no generic prompt fallback is selected.", persistenceEvidenceDifferences: "The registry owns no resume, correctness, evidence, assignment or completion policy; those remain in the shell and route adapters.", migrationRisk: "high" }),
   auditRow("FirstImpressionLesson", "components/adle/first-impression/first-impression-lesson.tsx", "LESSON_SHELL", "CANONICAL", "FirstImpressionLesson", { currentRouteUsages: SPECIALIST, behaviouralDifferences: "Owns deterministic TeachingPages → configured activities → Cover → Dictation → Reflection order plus safe reread navigation.", persistenceEvidenceDifferences: "Owns stage progression only; activities and route adapters retain local state, evidence and completion envelopes.", migrationRisk: "high" }),
   auditRow("WordLabScene", "components/adle/morphology/word-lab-scene.tsx", "LESSON_SCENE", "CANONICAL_MODE", "FirstImpressionLesson", { currentRouteUsages: SPECIALIST, migrationRisk: "medium" }),
   auditRow("LessonGuide", "components/adle/morphology/lesson-guide.tsx", "GUIDED_PROMPT_SHELL", "CANONICAL_MODE", "WordLabScene", { currentRouteUsages: SPECIALIST, migrationRisk: "medium" }),
@@ -497,22 +499,14 @@ export const ADLE_ACTIVITY_IMPLEMENTATION_AUDIT: readonly ActivityImplementation
 
 export const ADLE_ACTIVITY_CONVERGENCE_BACKLOG: readonly ActivityConvergenceBacklogItem[] = [
   {
-    priority: "P0", title: "Extract the standard first-impression shell",
-    currentImplementations: ["MorphologyGuidedLesson", "BaseWordFamilyGuidedLesson", "CompoundWordLessonRuntime", "CommonWordLabShell"],
-    targetCanonicalImplementation: "future shared first-impression shell using Activity Catalogue sequences",
-    intendedModes: ["reading_pages", "meet_words", "configured_activities", "production", "lesson_reflection"], routesAffected: [...ALL_SPECIALIST_ROUTES],
-    regressionRequirements: ["route snapshot replay", "resume keys", "activity ordering", "completion envelope", "all evidence/persistence parity", "historical route fixtures"],
-    learnerRuntimeRisk: "high", modelCReleaseChangeRequired: true,
-    consolidationOpportunity: "High structural consolidation across three live specialist shells and one dark shell; no credible line count before the shared contract exists.",
-  },
-  {
     priority: "P1", title: "Wire rich components through registry modes",
-    currentImplementations: ["GuidedActivity fallback for still-unbuilt non-Meaning families", "specialist canonical activity adapters"],
-    targetCanonicalImplementation: "Activity Catalogue mapping feeding versioned renderer registration",
-    intendedModes: ["remaining phoneme/grapheme, inflection, pattern and syllable interactions"], routesAffected: [GENERIC_ROUTE, ...ALL_SPECIALIST_ROUTES],
-    regressionRequirements: ["template-to-catalogue total mapping", "payload validation", "safe fallback", "lazy renderer", "no dispatch change until separately approved"],
-    learnerRuntimeRisk: "high", modelCReleaseChangeRequired: true,
-    consolidationOpportunity: "Stops new generic/specialist divergence; source deletion depends on the later runtime refactor.",
+    currentImplementations: ["canonical renderer registry for specialist routes", "generic activity-template renderer-kind dispatch", "generic snapshot registry/compiler"],
+    targetCanonicalImplementation: "Activity Catalogue capability mapping feeding one versioned canonical renderer registry",
+    intendedModes: ["existing canonical activity contracts", "behaviour-identical specialist routing", "explicit historical normalization"], routesAffected: [GENERIC_ROUTE, ...ALL_SPECIALIST_ROUTES],
+    regressionRequirements: ["catalogue-to-registration totality", "payload validation", "lazy renderer loading", "route replay", "resume/completion/evidence parity", "fail-closed unknown contracts"],
+    learnerRuntimeRisk: "high", modelCReleaseChangeRequired: false,
+    releaseBoundary: "Versioned registration groundwork and behaviour-identical routing of existing specialist payloads are internal refactors. Stop and require a separate Model C decision before any specialist payload, curriculum meaning, dependency fingerprint, route activation or learner semantics change. Generic snapshot v3 and new-generation output are a separate owner-gated release phase.",
+    consolidationOpportunity: "Phases A and B have removed specialist component selection from route render closures. Later owner-gated phases can normalize compatibility keys, move generic forward generation, and retire the remaining generic dispatch authority while route lifecycle boundaries stay explicit.",
   },
   {
     priority: "P1", title: "Implement genuine missing activity surfaces",
@@ -520,7 +514,8 @@ export const ADLE_ACTIVITY_CONVERGENCE_BACKLOG: readonly ActivityConvergenceBack
     targetCanonicalImplementation: "new catalogue-governed components only after NEW_INTERACTION_REQUIRED approval",
     intendedModes: ["phoneme_grapheme_map", "syllable_split_rebuild", "authentic_free_writing", "spelling_transformation"], routesAffected: [GENERIC_ROUTE],
     regressionRequirements: ["pedagogical contract", "keyboard/pointer/audio", "answer visibility", "evidence binding", "fallback safety"],
-    learnerRuntimeRisk: "high", modelCReleaseChangeRequired: true,
+    learnerRuntimeRisk: "high", modelCReleaseChangeRequired: false,
+    releaseBoundary: "These are generic curriculum capability additions rather than Model C specialist releases. Every new interaction still requires a separate pedagogical contract, owner approval and an independently authorized generic-generation release.",
     consolidationOpportunity: "Capability addition, not a deletion opportunity.",
   },
   {
@@ -530,6 +525,7 @@ export const ADLE_ACTIVITY_CONVERGENCE_BACKLOG: readonly ActivityConvergenceBack
     intendedModes: ["development_reference"], routesAffected: ["/dev/adle/morphology-primitives"],
     regressionRequirements: ["confirm no historical import", "retain screenshots or replacement gallery fixture where valuable"],
     learnerRuntimeRisk: "low", modelCReleaseChangeRequired: false,
+    releaseBoundary: "Development-reference cleanup has no release implication after reachability and historical-import checks pass.",
     consolidationOpportunity: "Potential cleanup only; measure after architecture decisions because some primitives may seed genuine gap implementations.",
   },
   {
@@ -539,16 +535,18 @@ export const ADLE_ACTIVITY_CONVERGENCE_BACKLOG: readonly ActivityConvergenceBack
     intendedModes: ["historical_replay"], routesAffected: ["fixed_un_prefix_word_lab:v1", "closed_compound_word_lab:v1"],
     regressionRequirements: ["persisted payload replay", "resume", "completion", "separator policy", "no new assignment generation"],
     learnerRuntimeRisk: "high", modelCReleaseChangeRequired: false,
+    releaseBoundary: "Compatibility-only retention does not change a released contract. Retirement requires persisted replay inventory and owner confirmation of the retention obligation.",
     consolidationOpportunity: "The closed-v1 learner UI is retired; retain only payload decoding, route resolution, resume and completion compatibility until persisted replay is retired.",
   },
 ] as const;
 
 export const ADLE_ACTIVITY_AUDIT_CONCLUSIONS = {
-  authoritativeBaseSha: "4fcc64ae179e0a18a0ab9939346e9d95f44bd990",
+  authoritativeBaseSha: "d59506c9f3175a73b3f4614a1077470f3ab0e4a2",
   startingState: {
-    auditWorktree: "Fresh Group 5 worktree on codex/adle-group5-meaning-categorisation-convergence at fetched origin/main 176a7745342b16490b3371f5ed7eccd3a0b04b85.",
+    auditWorktree: "Fresh isolated worktree scarletts-spells-p1-registry-planning on codex/adle-p1-registry-wiring-plan at fetched origin/main d59506c9f3175a73b3f4614a1077470f3ab0e4a2.",
     protectedOccupiedCheckout: "The dirty primary checkout and occupied earlier convergence worktrees were inspected read-only and left unmodified.",
     runtimeRegistries: [
+      "components/adle/activities/canonical-renderer-registry.tsx — 19 versioned canonical concept/mode contracts for all specialist First Impression activity slots",
       "lib/adle/activity-template-registry.ts — 34 generic template keys and renderer-kind dispatch",
       "components/adle/activities/registry.ts — React compatibility wrapper over the generic runtime registry",
       "lib/adle/composable-lesson/generic-snapshot-registry.ts — versioned generic snapshot semantics for the same 34 keys",
@@ -565,7 +563,7 @@ export const ADLE_ACTIVITY_AUDIT_CONCLUSIONS = {
       "docs/implementation/adle-base-word-family-lesson-plan.md",
     ],
   },
-  authorityRelationship: "Activity Catalogue is the architectural chooser and capability inventory. activity-template-registry.ts remains the generic runtime dispatch authority; curriculum route registry plus specialist adapters remain the rich-route runtime authority. The catalogue regression maps every generic template key exactly once and validates every component path, so these authorities cannot silently drift while runtime refactoring is frozen.",
+  authorityRelationship: "Activity Catalogue is the architectural chooser and capability inventory. CanonicalActivityRenderer is now the versioned runtime renderer authority for specialist First Impression activity slots; thin specialist adapters still own curriculum transformation, resume, evidence and completion. activity-template-registry.ts and the generic snapshot registry/compiler remain the untouched generic and historical dispatch authorities until separately authorized compatibility and generic-generation phases. The catalogue and registry regressions prevent these transitional authorities from silently drifting.",
   buildBoundary: "BUILD is one shared ordered-placement interaction family with two learner experiences. DefinitionWordBuilder presents one definition-led target and is configured by all 19 Prefix, Suffix/Affix and Base Word microskills. CompoundJigsawActivity presents anonymous puzzle rows above one deterministic mixed bank using Jigsaw-shaped component, SPACE and hyphen pieces; checked row content identifies and locks the governed word. Both use OrderedBuildEngine for candidate order, placement, rearrangement, validation, completion and restoration. Historical closed-compound v1 payloads are translated at the route boundary to generalized two-piece/no-join targets; no historical Jigsaw UI remains.",
   cleaverBoundary: "SplitHandle is the one stateful Split engine across Prefix, Affix and Base Word. Required boundaries, restored selected cuts and an isolated governed component are neutral configuration; SplitBuild and Base Word Cleave are thin curriculum adapters. Final-y source-form restoration is a separate post-Split SpellingTransformationReveal, and the redundant typed base confirmation is retired. Word assembly and syllable split/rebuild remain separate learner actions.",
   meaningCategorisationBoundary: "Meaning has exactly three canonical learner actions. Discovery is one prefix/suffix-configured transformation-and-choice engine. MeaningConnectionActivity is one rich word-to-definition connection engine for Compound and governed generic payloads; definition-less immutable payloads use an explicit compatibility fallback. BinSort is one categorisation state machine and owns immediate feedback, a brief reduced-motion-safe success celebration, automatic advance, and its stateless final BinSortOverview. QuickSort UI and forward generation are retired; REVIEW_QUICK_SORT remains only a compatibility key and immutable generic snapshot v2 discriminator.",
@@ -602,16 +600,16 @@ export const ADLE_ACTIVITY_AUDIT_CONCLUSIONS = {
     summary: "Former proposed Group 6 — Meaning was absorbed into Group 5 — Meaning & Categorisation Convergence. Sort and Meaning were intentionally implemented as one workstream; there is no separate Group 6 implementation, merge or outstanding dependency.",
   },
   group7Closeout: {
-    status: "COMPLETE_COMMITTED_AND_DEPLOYED",
+    status: "COMPLETE_MERGED_AND_DEPLOYED",
     ownerAcceptedOn: "2026-08-21",
     deployedOn: "2026-08-21",
-    summary: "Group 7 — First Impression Shell Convergence is accepted, committed as 93ec640, pushed to codex/adle-group7-first-impression-shell-convergence and deployed to Production. TeachingPages is the one shared ordered teaching and Meet the Words experience; FirstImpressionLesson is the canonical staged shell for Prefix, Suffix/Affix, Base Word and Closed Compound lessons.",
+    summary: "Group 7 — First Impression Shell Convergence is accepted, merged into origin/main and deployed to Production. The authoritative d59506c main tree contains implementation commit 93ec640. TeachingPages is the one shared ordered teaching and Meet the Words experience; FirstImpressionLesson is the canonical staged shell for Prefix, Suffix/Affix, Base Word and Closed Compound lessons.",
     invariants: "No answer correctness, evidence classification, assignment binding, completion envelope, persistence schema, curriculum activation or learner data changed.",
     nextStep: "Closed. Retain TeachingPages and FirstImpressionLesson as the canonical boundaries; do not restore route-local teaching-page navigation or duplicate Meet the Words screens.",
   },
   nextConvergenceGroup: {
-    status: "P1_REGISTRY_WIRING_PROPOSED",
-    summary: "Wire existing rich components through versioned Activity Catalogue renderer registration. This is the next proposed planning stage, not an authorised implementation: it requires a separate Model C release decision and must preserve route dispatch, payload validation, fallback safety, resume, completion and evidence parity.",
+    status: "P1_REGISTRY_WIRING_PHASES_A_B_COMPLETE_REVIEW_REQUIRED",
+    summary: "Governance reconciliation, versioned canonical registry groundwork and behaviour-identical specialist routing are complete for review. Stop before Phase C compatibility normalization. Generic/history cutover, new snapshot generation, Model C changes and all release-semantic changes remain unauthorised. Route payloads, resume, completion and evidence boundaries remain with the existing specialist adapters.",
   },
   newActivityRule: [
     "Search the canonical Activity Catalogue.",
@@ -622,19 +620,19 @@ export const ADLE_ACTIVITY_AUDIT_CONCLUSIONS = {
   ],
   firstImpressionImplications: {
     targetSequence: ["Teaching Page 1", "optional Teaching Page 2", "optional Teaching Page 3", "required Meet the Words", "configured Activity Catalogue sequence", "CoverShutter", "SentenceDictation", "LessonReflection", "Celebration"],
-    approximatingRoutes: [
-      "compound_word_lab:v2 already has ordered reading pages, lesson words, configured rich work, controlled recall, dictation and reflection",
-      "base_word_lab:v2 has introduction, Meet the Words/family reveal, configured rich work, controlled recall, dictation and reflection",
-      "dynamic_prefix_word_lab:v2 and dynamic_affix_word_lab:v3 have multi-screen Learn, Discover, configured rich work, controlled recall, dictation and reflection",
+    canonicalRoutes: [
+      "compound_word_lab:v2 and closed_compound_word_lab:v1 use TeachingPages and FirstImpressionLesson through the shared Compound runtime adapter",
+      "base_word_lab:v2 uses TeachingPages and FirstImpressionLesson through the Base Word runtime adapter",
+      "dynamic_prefix_word_lab:v2, fixed_un_prefix_word_lab:v1 and dynamic_affix_word_lab:v3 use TeachingPages and FirstImpressionLesson through the shared morphology runtime adapter",
     ],
     bespokePieces: ["thin curriculum adapters", "historical resume normalization", "route evidence/completion envelopes"],
   },
   reviewImplications: {
-    eligible: ["DICTATION.word", "DICTATION.review", "FREE_WRITING.review_transfer once implemented"],
+    eligible: ["COLD_WORD_RECALL.scheduled_review", "FREE_WRITING.review_transfer once implemented"],
     notEligible: ["INTRODUCTION", "READING_PAGE", "MEANING_DISCOVERY", "WORD_FAMILY_REVEAL", "LESSON_REFLECTION"],
     distinctions: ["ERROR_REPAIR is conditional same-session repair, not scheduled review.", "LESSON_REFLECTION is end-of-first-impression metacognition, not review.", "Review evidence remains independent retrieval; Cover Check is only review-eligible when its reveal policy does not contaminate the scored attempt."],
   },
-  genuineGaps: ["canonical Reading Page outside Compound", "authentic Free Writing surface", "phoneme–grapheme mapping", "syllable split/rebuild", "drop-e/doubling and other interactive spelling transformations"],
+  genuineGaps: ["authentic Free Writing surface", "phoneme–grapheme and schwa/stress mapping", "syllable split/rebuild", "drop-e/doubling, inflectional and other interactive spelling transformations", "homophone sentence-context choice and correction", "pattern discovery/application where TeachingPages and existing practice are insufficient"],
 } as const;
 
 export function activityAuditCounts() {

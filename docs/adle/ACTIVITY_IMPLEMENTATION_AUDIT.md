@@ -4,17 +4,18 @@
 
 # ADLE Activity Implementation Audit Matrix
 
-Authoritative base SHA: `4fcc64ae179e0a18a0ab9939346e9d95f44bd990`
+Authoritative base SHA: `d59506c9f3175a73b3f4614a1077470f3ab0e4a2`
 
 Scope: named child-facing activity components, shared learner-interaction primitives, embedded specialist activity functions, development components representing intended learner interactions, and the dispatch/shell components that own them. Pure data compilers, server actions, persistence helpers, sound/motion utilities, and non-ADLE course UI are excluded.
 
 ## Starting state
 
-- Audit worktree: Fresh Group 5 worktree on codex/adle-group5-meaning-categorisation-convergence at fetched origin/main 176a7745342b16490b3371f5ed7eccd3a0b04b85.
+- Audit worktree: Fresh isolated worktree scarletts-spells-p1-registry-planning on codex/adle-p1-registry-wiring-plan at fetched origin/main d59506c9f3175a73b3f4614a1077470f3ab0e4a2.
 - Protected occupied checkout: The dirty primary checkout and occupied earlier convergence worktrees were inspected read-only and left unmodified.
 
 Existing runtime/architecture registries:
 
+- components/adle/activities/canonical-renderer-registry.tsx — 19 versioned canonical concept/mode contracts for all specialist First Impression activity slots
 - lib/adle/activity-template-registry.ts — 34 generic template keys and renderer-kind dispatch
 - components/adle/activities/registry.ts — React compatibility wrapper over the generic runtime registry
 - lib/adle/composable-lesson/generic-snapshot-registry.ts — versioned generic snapshot semantics for the same 34 keys
@@ -35,8 +36,8 @@ Architecture documents inspected:
 
 | Measure | Count |
 |---|---:|
-| Discovered implementations | 65 |
-| Canonical implementations | 18 |
+| Discovered implementations | 66 |
+| Canonical implementations | 19 |
 | Canonical mode/adapters | 21 |
 | Thin curriculum adapters | 7 |
 | Development references | 2 |
@@ -106,6 +107,7 @@ Architecture documents inspected:
 | FixtureActivity | `components/adle/word-lab/activity-registry.tsx` | `COMMON_WORD_LAB_PLACEHOLDER` | /dev/adle/common-word-lab only | none | real per-kind Word Lab plugins | `COMPATIBILITY_ONLY` | low | No | Keep the dark fixture runnable, but do not treat its five registrations as production activity implementations. |
 | WordLabActivityHost | `components/adle/word-lab/activity-registry.tsx` | `RUNTIME_DISPATCH` | /dev/adle/common-word-lab only | none | WordLabActivityHost | `CANONICAL_MODE` | medium | No | Retain and route new work through the catalogue. |
 | CommonWordLabShell | `components/adle/word-lab/common-word-lab-shell.tsx` | `LESSON_SHELL` | /dev/adle/common-word-lab only | none | FirstImpressionLesson | `DEVELOPMENT_REFERENCE` | low | No | Retain for governed development inspection only; do not route learner interaction through it. |
+| CanonicalActivityRenderer registry | `components/adle/activities/canonical-renderer-registry.tsx` | `RUNTIME_DISPATCH` | dynamic_prefix_word_lab:v2, fixed_un_prefix_word_lab:v1, dynamic_affix_word_lab:v3, base_word_lab:v2, compound_word_lab:v2, closed_compound_word_lab:v1 | none | CanonicalActivityRenderer registry | `CANONICAL` | high | No | Retain and route new work through the catalogue. |
 | FirstImpressionLesson | `components/adle/first-impression/first-impression-lesson.tsx` | `LESSON_SHELL` | dynamic_prefix_word_lab:v2, fixed_un_prefix_word_lab:v1, dynamic_affix_word_lab:v3, base_word_lab:v2, compound_word_lab:v2, closed_compound_word_lab:v1 | none | FirstImpressionLesson | `CANONICAL` | high | No | Retain and route new work through the catalogue. |
 | WordLabScene | `components/adle/morphology/word-lab-scene.tsx` | `LESSON_SCENE` | dynamic_prefix_word_lab:v2, fixed_un_prefix_word_lab:v1, dynamic_affix_word_lab:v3, base_word_lab:v2, compound_word_lab:v2, closed_compound_word_lab:v1 | none | FirstImpressionLesson | `CANONICAL_MODE` | medium | No | Retain and route new work through the catalogue. |
 | LessonGuide | `components/adle/morphology/lesson-guide.tsx` | `GUIDED_PROMPT_SHELL` | dynamic_prefix_word_lab:v2, fixed_un_prefix_word_lab:v1, dynamic_affix_word_lab:v3, base_word_lab:v2, compound_word_lab:v2, closed_compound_word_lab:v1 | none | WordLabScene | `CANONICAL_MODE` | medium | No | Retain and route new work through the catalogue. |
@@ -133,8 +135,8 @@ First-impression spelling has exactly two learner experiences: CoverShutter for 
 - Group 4 status: `COMPLETE_MERGED_AND_DEPLOYED` — Group 4 — Split / Cleaver Convergence is complete, merged to origin/main and deployed. One stateful SplitHandle serves Prefix, Affix and Base Word through thin curriculum adapters; the independent BaseWordCleaver and preview-only Split/transformation duplicates are retired. Final-y source-form restoration remains the separate post-Split SpellingTransformationReveal, and historical route compatibility remains at route/payload boundaries rather than as duplicate learner UI.
 - Group 5 status: `COMPLETE_MERGED_AND_DEPLOYED` — Group 5 — Meaning & Categorisation Convergence is complete, merged to origin/main and deployed. The canonical learner architecture is Discovery, MeaningConnectionActivity and BinSort. BinSort owns immediate correctness feedback, its brief reduced-motion-safe success celebration and its stateless final BinSortOverview as one learner activity. QuickSort UI and forward generation are retired; duplicate, fallback and prototype Meaning/Sort UI is retained only as required configuration or compatibility code, or is retired.
 - Former proposed Group 6: `ABSORBED_INTO_GROUP_5` — Former proposed Group 6 — Meaning was absorbed into Group 5 — Meaning & Categorisation Convergence. Sort and Meaning were intentionally implemented as one workstream; there is no separate Group 6 implementation, merge or outstanding dependency.
-- Group 7 status: `COMPLETE_COMMITTED_AND_DEPLOYED` — Group 7 — First Impression Shell Convergence is accepted, committed as 93ec640, pushed to codex/adle-group7-first-impression-shell-convergence and deployed to Production. TeachingPages is the one shared ordered teaching and Meet the Words experience; FirstImpressionLesson is the canonical staged shell for Prefix, Suffix/Affix, Base Word and Closed Compound lessons.
-- Next workstream: `P1_REGISTRY_WIRING_PROPOSED` — Wire existing rich components through versioned Activity Catalogue renderer registration. This is the next proposed planning stage, not an authorised implementation: it requires a separate Model C release decision and must preserve route dispatch, payload validation, fallback safety, resume, completion and evidence parity.
+- Group 7 status: `COMPLETE_MERGED_AND_DEPLOYED` — Group 7 — First Impression Shell Convergence is accepted, merged into origin/main and deployed to Production. The authoritative d59506c main tree contains implementation commit 93ec640. TeachingPages is the one shared ordered teaching and Meet the Words experience; FirstImpressionLesson is the canonical staged shell for Prefix, Suffix/Affix, Base Word and Closed Compound lessons.
+- Next workstream: `P1_REGISTRY_WIRING_PHASES_A_B_COMPLETE_REVIEW_REQUIRED` — Governance reconciliation, versioned canonical registry groundwork and behaviour-identical specialist routing are complete for review. Stop before Phase C compatibility normalization. Generic/history cutover, new snapshot generation, Model C changes and all release-semantic changes remain unauthorised. Route payloads, resume, completion and evidence boundaries remain with the existing specialist adapters.
 
 ### Group 3 closeout detail
 
@@ -147,20 +149,21 @@ First-impression spelling has exactly two learner experiences: CoverShutter for 
 
 ### Group 7 closeout detail
 
-- Status: `COMPLETE_COMMITTED_AND_DEPLOYED`
+- Status: `COMPLETE_MERGED_AND_DEPLOYED`
 - Owner manual acceptance: 2026-08-21
 - Production deployment: 2026-08-21
-- Result: Group 7 — First Impression Shell Convergence is accepted, committed as 93ec640, pushed to codex/adle-group7-first-impression-shell-convergence and deployed to Production. TeachingPages is the one shared ordered teaching and Meet the Words experience; FirstImpressionLesson is the canonical staged shell for Prefix, Suffix/Affix, Base Word and Closed Compound lessons.
+- Result: Group 7 — First Impression Shell Convergence is accepted, merged into origin/main and deployed to Production. The authoritative d59506c main tree contains implementation commit 93ec640. TeachingPages is the one shared ordered teaching and Meet the Words experience; FirstImpressionLesson is the canonical staged shell for Prefix, Suffix/Affix, Base Word and Closed Compound lessons.
 - Preserved invariants: No answer correctness, evidence classification, assignment binding, completion envelope, persistence schema, curriculum activation or learner data changed.
 - Next step: Closed. Retain TeachingPages and FirstImpressionLesson as the canonical boundaries; do not restore route-local teaching-page navigation or duplicate Meet the Words screens.
 
 ## Genuine gaps
 
-- canonical Reading Page outside Compound
 - authentic Free Writing surface
-- phoneme–grapheme mapping
+- phoneme–grapheme and schwa/stress mapping
 - syllable split/rebuild
-- drop-e/doubling and other interactive spelling transformations
+- drop-e/doubling, inflectional and other interactive spelling transformations
+- homophone sentence-context choice and correction
+- pattern discovery/application where TeachingPages and existing practice are insufficient
 
 ## Full row evidence
 
@@ -1243,6 +1246,25 @@ First-impression spelling has exactly two learner experiences: CoverShutter for 
 - Classification: `DEVELOPMENT_REFERENCE`
 - Recommended action: Retain for governed development inspection only; do not route learner interaction through it.
 - Migration risk: `low`
+- Historical replay dependency: No
+- Evidence: Repository import and route-dispatch trace at the audited base SHA.
+- Notes: None.
+
+### CanonicalActivityRenderer registry
+
+- File: `components/adle/activities/canonical-renderer-registry.tsx`
+- Concept / family: `RUNTIME_DISPATCH` / `runtime_dispatch`
+- Routes: `dynamic_prefix_word_lab:v2`, `fixed_un_prefix_word_lab:v1`, `dynamic_affix_word_lab:v3`, `base_word_lab:v2`, `compound_word_lab:v2`, `closed_compound_word_lab:v1`
+- Micro-skills: `D4_MOR_PREFIXES_UN`, `D4_MOR_PREFIXES_DIS_MIS`, `D4_MOR_PREFIXES_IN_IM_IL_IR`, `D4_MOR_PREFIXES_RE_PRE`, `D4_MOR_PREFIXES_SUB_INTER_SUPER`, `D4_MOR_SUFFIXES_ABLE_IBLE`, `D4_MOR_SUFFIXES_AL`, `D4_MOR_SUFFIXES_FUL_LESS`, `D4_MOR_SUFFIXES_ITY`, `D4_MOR_SUFFIXES_LY`, `D4_MOR_SUFFIXES_MENT`, `D4_MOR_SUFFIXES_NESS`, `D4_MOR_SUFFIXES_OUS`, `D4_MOR_SUFFIXES_SION`, `D4_MOR_SUFFIXES_TION`, `D4_MOR_BASE_WORDS_BASE_PLUS_PREFIX`, `D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX`, `D4_MOR_BASE_WORDS_IDENTIFY_BASE`, `D4_MOR_BASE_WORDS_PRESERVE_BASE`, `D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS`, `D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED`
+- Registry/template keys: None
+- Props/config differences: Nineteen versioned concept/mode contracts lazily load the existing canonical Group 1–7 learner components and validate route-adapted props before mount.
+- Visual differences: Uses its owning shell styling.
+- Behavioural differences: Unknown contracts and invalid payloads fail closed with a learner-safe blocker; no generic prompt fallback is selected.
+- Persistence/evidence differences: The registry owns no resume, correctness, evidence, assignment or completion policy; those remain in the shell and route adapters.
+- Canonical candidate: `CanonicalActivityRenderer registry`
+- Classification: `CANONICAL`
+- Recommended action: Retain and route new work through the catalogue.
+- Migration risk: `high`
 - Historical replay dependency: No
 - Evidence: Repository import and route-dispatch trace at the audited base SHA.
 - Notes: None.

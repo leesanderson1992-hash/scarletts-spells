@@ -1,9 +1,8 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { completeAdleLessonPartAction } from "@/app/learn/week/adle/actions";
-import { LessonReflection } from "@/components/adle/activities/lesson-reflection";
-import { CoverShutter, SentenceDictation } from "@/components/adle/activities/shared";
+import { createCanonicalActivityBinding } from "@/components/adle/activities/canonical-renderer-registry";
 import {
   FirstImpressionLesson,
   type FirstImpressionConfiguredActivity,
@@ -38,8 +37,6 @@ import {
 } from "@/lib/adle/morphology/closed-compound-resume";
 import { readMorphologyResume, writeMorphologyResume } from "@/lib/adle/morphology/resume";
 import type { GuideBeatV1 } from "@/lib/adle/morphology/payload";
-import { CompoundJigsawActivity } from "./compound-jigsaw-activity";
-import { MeaningConnectionActivity } from "./meaning-connection-activity";
 
 const INITIAL: ClosedCompoundResumeState = {
   stage: "intro",
@@ -110,14 +107,22 @@ function CompoundWordLessonRuntime(props: RuntimeProps) {
   const isV1 = props.resumeNamespace === "closed-compound";
   const readingPages = isV1 ? undefined : props.payload.activities.introduction.readingPages;
   const teaching = compoundTeachingPages(props.payload, words, readingPages);
+  const reflectionModel = compoundLessonReflectionModel(props.payload, state);
+  const guidedAttempts = compoundGuidedAttempts(props.items, state);
   const activities: FirstImpressionConfiguredActivity[] = [
     {
       id: "jigsaw", type: "COMPOUND_JIGSAW", label: "Jigsaw",
-      render: ({ complete }) => <CompoundJigsawActivity targets={words.map((entry) => ({ canonicalWordId: entry.canonicalWordId, word: entry.displayWord, components: entry.components, joins: entry.joins }))} muted={state.muted} initialLocked={state.jigsawLocked} initialMisses={state.jigsawMisses} initialPlacements={state.jigsawPlacements} onProgress={({ locked, misses, placements }) => setState((current) => ({ ...current, jigsawLocked: locked, jigsawMisses: misses, jigsawPlacements: placements }))} onComplete={({ locked, misses, placements }) => { setState((current) => ({ ...current, jigsawLocked: locked, jigsawMisses: misses, jigsawPlacements: placements })); complete(); }} />,
+      binding: createCanonicalActivityBinding({
+        id: "jigsaw", concept: "COMPOUND_JIGSAW", mode: "jigsaw_multi_target", contractVersion: 1, label: "Jigsaw",
+        createProps: ({ complete }) => ({ targets: words.map((entry) => ({ canonicalWordId: entry.canonicalWordId, word: entry.displayWord, components: entry.components, joins: entry.joins })), muted: state.muted, initialLocked: state.jigsawLocked, initialMisses: state.jigsawMisses, initialPlacements: state.jigsawPlacements, onProgress: ({ locked, misses, placements }: { locked: string[]; misses: Record<string, number>; placements: Record<string, string[]> }) => setState((current) => ({ ...current, jigsawLocked: locked, jigsawMisses: misses, jigsawPlacements: placements })), onComplete: ({ locked, misses, placements }: { locked: string[]; misses: Record<string, number>; placements: Record<string, string[]> }) => { setState((current) => ({ ...current, jigsawLocked: locked, jigsawMisses: misses, jigsawPlacements: placements })); complete(); } }),
+      }),
     },
     {
       id: "meaning", type: "MEANING_MATCH", label: "Meaning",
-      render: ({ complete }) => <MeaningConnectionActivity targets={words.map((entry) => ({ canonicalWordId: entry.canonicalWordId, word: entry.displayWord, audioText: entry.audioText, definition: entry.childFriendlyDefinition, componentMeanings: entry.componentMeanings, componentToWholeRelationship: entry.componentToWholeRelationship }))} muted={state.muted} initialConnected={state.meaningConnected} initialMisses={state.meaningMisses} onProgress={({ connected, misses }) => setState((current) => ({ ...current, meaningConnected: connected, meaningMisses: misses }))} onComplete={({ connected, misses }) => { setState((current) => ({ ...current, index: 0, meaningConnected: connected, meaningMisses: misses })); complete(); }} />,
+      binding: createCanonicalActivityBinding({
+        id: "meaning", concept: "MEANING_MATCH", mode: "component_clues", contractVersion: 1, label: "Meaning",
+        createProps: ({ complete }) => ({ targets: words.map((entry) => ({ canonicalWordId: entry.canonicalWordId, word: entry.displayWord, audioText: entry.audioText, definition: entry.childFriendlyDefinition, componentMeanings: entry.componentMeanings, componentToWholeRelationship: entry.componentToWholeRelationship })), muted: state.muted, initialConnected: state.meaningConnected, initialMisses: state.meaningMisses, onProgress: ({ connected, misses }: { connected: string[]; misses: Record<string, number> }) => setState((current) => ({ ...current, meaningConnected: connected, meaningMisses: misses })), onComplete: ({ connected, misses }: { connected: string[]; misses: Record<string, number> }) => { setState((current) => ({ ...current, index: 0, meaningConnected: connected, meaningMisses: misses })); complete(); } }),
+      }),
     },
   ];
   return <FirstImpressionLesson
@@ -128,9 +133,19 @@ function CompoundWordLessonRuntime(props: RuntimeProps) {
     onTeachingPageChange={(teachingPageIndex) => setState((current) => current.teachingPageIndex === teachingPageIndex ? current : ({ ...current, teachingPageIndex }))}
     onStageChange={(stageId) => setState((current) => ({ ...current, stage: compoundResumeStage(stageId), index: stageId === "cover" || stageId === "dictation" ? 0 : current.index }))}
     scene={{ beat, muted: state.muted, onMutedChange: (muted) => setState((current) => ({ ...current, muted })), silent: state.stage === "controlled" || state.stage === "dictation", guideName: "Word Builder" }}
-    renderCover={({ complete }) => <CoverShutter key={word.canonicalWordId} stepLabel={`Remember word ${state.index + 1} of ${words.length}`} word={word.displayWord} splitPoints={[...word.splitPoints]} components={word.components} initialAttempt={state.attempts[word.canonicalWordId] ?? ""} initialState={state.attempts[word.canonicalWordId] !== undefined ? "check" : "look"} muted={state.muted} onComplete={(value) => setState((current) => ({ ...current, attempts: { ...current.attempts, [word.canonicalWordId]: value } }))} onContinue={() => state.index + 1 < words.length ? setState((current) => ({ ...current, index: current.index + 1 })) : complete()} />}
-    renderDictation={({ complete }) => <SentenceDictation key={word.canonicalWordId} stepLabel={`Sentence ${state.index + 1} of ${words.length}`} audioText={word.audioText} correctSentence={word.dictationSentence} value={state.sentences[word.canonicalWordId] ?? ""} checked={state.sentenceChecked} muted={state.muted} onValueChange={(value) => { if (!state.sentenceChecked) setState((current) => ({ ...current, sentences: { ...current.sentences, [word.canonicalWordId]: value } })); }} onCheck={() => setState((current) => ({ ...current, sentenceChecked: true }))} continueLabel={state.index + 1 < words.length ? "Next sentence" : "Reflect"} onContinue={() => state.index + 1 < words.length ? setState((current) => ({ ...current, index: current.index + 1, sentenceChecked: false })) : complete()} />}
-    renderReflection={() => <CompoundLessonReflectionAdapter childId={props.childId} assignmentId={props.assignmentId} items={props.items} payload={props.payload} state={state} closedV1={isV1} onReflectionChange={(reflection) => setState((current) => ({ ...current, reflection }))} onPreviewComplete={props.onPreviewComplete} />}
+    coverActivity={createCanonicalActivityBinding({
+      id: "cover", concept: "COVER_CHECK", mode: "component_marked", contractVersion: 1, label: "Cover", renderKey: word.canonicalWordId,
+      createProps: ({ complete }) => ({ stepLabel: `Remember word ${state.index + 1} of ${words.length}`, word: word.displayWord, splitPoints: [...word.splitPoints], components: word.components, initialAttempt: state.attempts[word.canonicalWordId] ?? "", initialState: state.attempts[word.canonicalWordId] !== undefined ? "check" : "look", muted: state.muted, onComplete: (value: string) => setState((current) => ({ ...current, attempts: { ...current.attempts, [word.canonicalWordId]: value } })), onContinue: () => state.index + 1 < words.length ? setState((current) => ({ ...current, index: current.index + 1 })) : complete() }),
+    })}
+    dictationActivity={createCanonicalActivityBinding({
+      id: "dictation", concept: "DICTATION", mode: "target_span", contractVersion: 1, label: "Dictation", renderKey: word.canonicalWordId,
+      createProps: ({ complete }) => ({ stepLabel: `Sentence ${state.index + 1} of ${words.length}`, audioText: word.audioText, correctSentence: word.dictationSentence, value: state.sentences[word.canonicalWordId] ?? "", checked: state.sentenceChecked, muted: state.muted, onValueChange: (value: string) => { if (!state.sentenceChecked) setState((current) => ({ ...current, sentences: { ...current.sentences, [word.canonicalWordId]: value } })); }, onCheck: () => setState((current) => ({ ...current, sentenceChecked: true })), continueLabel: state.index + 1 < words.length ? "Next sentence" : "Reflect", onContinue: () => state.index + 1 < words.length ? setState((current) => ({ ...current, index: current.index + 1, sentenceChecked: false })) : complete() }),
+    })}
+    reflectionActivity={createCanonicalActivityBinding({
+      id: "reflection", concept: "LESSON_REFLECTION", mode: "standard_lesson_reflection", contractVersion: 1, label: "Reflection",
+      createProps: () => ({ mistakes: reflectionModel.mistakes, sentenceComparisons: reflectionModel.sentenceComparisons, prompt: lessonReflectionPrompt({ kind: "compound" }), response: state.reflection, onResponseChange: (reflection: string) => setState((current) => ({ ...current, reflection })), completionType: "submit", completionLabel: "Finish Word Lab", successMessage: isV1 ? "You checked each compound word carefully. Remember: the two words join with no space." : "You checked each compound word carefully and kept its governed written form." }),
+      wrap: (activity) => <CompoundLessonReflectionAdapter childId={props.childId} assignmentId={props.assignmentId} state={state} guidedAttempts={guidedAttempts} activity={activity} onPreviewComplete={props.onPreviewComplete} />,
+    })}
   />;
 }
 
@@ -189,28 +204,21 @@ function compoundLessonReflectionModel(payload: RuntimePayload, state: ClosedCom
   return { mistakes, sentenceComparisons };
 }
 
-function CompoundLessonReflectionAdapter(props: { childId: string; assignmentId: string; items: AdleSessionItem[]; payload: RuntimePayload; state: ClosedCompoundResumeState; closedV1: boolean; onReflectionChange: (value: string) => void; onPreviewComplete?: (reflection: string) => void }) {
-  const reflectionModel = compoundLessonReflectionModel(props.payload, props.state);
-  const guidedAttempts = props.items.flatMap((item) => {
+function compoundGuidedAttempts(items: AdleSessionItem[], state: ClosedCompoundResumeState) {
+  return items.flatMap((item) => {
     if (item.sectionKey === "lesson_intro") return [{ key: item.id, attemptText: "viewed" }];
     if (item.sectionKey !== "guided_practice" || !item.canonicalWordId) return [];
     const activityId = item.promptData.closedCompoundActivityId ?? item.promptData.compoundWordActivityId;
     const isJigsaw = activityId === `jigsaw-${item.canonicalWordId}`;
-    const completed = isJigsaw ? props.state.jigsawLocked.includes(item.canonicalWordId) : props.state.meaningConnected.includes(item.canonicalWordId);
-    const incorrectAttempts = isJigsaw ? props.state.jigsawMisses[item.canonicalWordId] ?? 0 : props.state.meaningMisses[item.canonicalWordId] ?? 0;
+    const completed = isJigsaw ? state.jigsawLocked.includes(item.canonicalWordId) : state.meaningConnected.includes(item.canonicalWordId);
+    const incorrectAttempts = isJigsaw ? state.jigsawMisses[item.canonicalWordId] ?? 0 : state.meaningMisses[item.canonicalWordId] ?? 0;
     return [{ key: item.id, attemptText: JSON.stringify({ completed, incorrectAttempts, assistanceUsed: false }) }];
   });
-  return <form action={props.onPreviewComplete ? undefined : completeAdleLessonPartAction} onSubmit={props.onPreviewComplete ? (event) => { event.preventDefault(); props.onPreviewComplete?.(props.state.reflection); } : undefined} className="grid gap-5 text-cyan-50"><input type="hidden" name="mode" value="child" /><input type="hidden" name="childId" value={props.childId} /><input type="hidden" name="assignmentId" value={props.assignmentId} /><input type="hidden" name="attempts" value={JSON.stringify(Object.entries(props.state.attempts).map(([key, attemptText]) => ({ key, attemptText })))} /><input type="hidden" name="dictationSentenceAttempts" value={JSON.stringify(Object.entries(props.state.sentences).map(([key, attemptText]) => ({ key, attemptText })))} /><input type="hidden" name="dictationAttempts" value="[]" /><input type="hidden" name="probeAttempts" value="[]" /><input type="hidden" name="guidedAttempts" value={JSON.stringify(guidedAttempts)} /><input type="hidden" name="learningReflection" value={props.state.reflection} />
-    <LessonReflection
-      mistakes={reflectionModel.mistakes}
-      sentenceComparisons={reflectionModel.sentenceComparisons}
-      prompt={lessonReflectionPrompt({ kind: "compound" })}
-      response={props.state.reflection}
-      onResponseChange={props.onReflectionChange}
-      completionType="submit"
-      completionLabel="Finish Word Lab"
-      successMessage={props.closedV1 ? "You checked each compound word carefully. Remember: the two words join with no space." : "You checked each compound word carefully and kept its governed written form."}
-    />
+}
+
+function CompoundLessonReflectionAdapter(props: { childId: string; assignmentId: string; state: ClosedCompoundResumeState; guidedAttempts: ReturnType<typeof compoundGuidedAttempts>; activity: ReactNode; onPreviewComplete?: (reflection: string) => void }) {
+  return <form action={props.onPreviewComplete ? undefined : completeAdleLessonPartAction} onSubmit={props.onPreviewComplete ? (event) => { event.preventDefault(); props.onPreviewComplete?.(props.state.reflection); } : undefined} className="grid gap-5 text-cyan-50"><input type="hidden" name="mode" value="child" /><input type="hidden" name="childId" value={props.childId} /><input type="hidden" name="assignmentId" value={props.assignmentId} /><input type="hidden" name="attempts" value={JSON.stringify(Object.entries(props.state.attempts).map(([key, attemptText]) => ({ key, attemptText })))} /><input type="hidden" name="dictationSentenceAttempts" value={JSON.stringify(Object.entries(props.state.sentences).map(([key, attemptText]) => ({ key, attemptText })))} /><input type="hidden" name="dictationAttempts" value="[]" /><input type="hidden" name="probeAttempts" value="[]" /><input type="hidden" name="guidedAttempts" value={JSON.stringify(props.guidedAttempts)} /><input type="hidden" name="learningReflection" value={props.state.reflection} />
+    {props.activity}
   </form>;
 }
 

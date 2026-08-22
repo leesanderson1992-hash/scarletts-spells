@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { cloneElement, useEffect, useMemo, useState, type ReactElement } from "react";
 import { completeAdleLessonPartAction } from "@/app/learn/week/adle/actions";
-import { LessonReflection, type LessonReflectionSpecialistRecap } from "@/components/adle/activities/lesson-reflection";
+import type { LessonReflectionProps, LessonReflectionSpecialistRecap } from "@/components/adle/activities/lesson-reflection";
+import { createCanonicalActivityBinding } from "@/components/adle/activities/canonical-renderer-registry";
 import {
   FirstImpressionLesson,
   type FirstImpressionActivityNavigation,
@@ -10,14 +11,8 @@ import {
   type FirstImpressionStageId,
 } from "@/components/adle/first-impression/first-impression-lesson";
 import type { TeachingPagesConfig } from "@/components/adle/first-impression/teaching-pages";
-import {
-  BinSort,
-  BinSortOverview,
-  CoverShutter,
-  SentenceDictation,
-  SplitHandle,
-} from "@/components/adle/activities/shared";
-import { DefinitionWordBuilder } from "@/components/adle/activities/shared/definition-word-builder";
+import { SplitHandle } from "@/components/adle/activities/shared/split-handle";
+import type { SplitHandleProps } from "@/components/adle/activities/shared/split-handle";
 import { deterministicOrderedBuildOrder } from "@/components/adle/activities/shared/ordered-build-engine";
 import { playInteractionSound } from "@/components/adle/activities/shared/sound";
 import type { AdleSessionItem } from "@/lib/adle/loaders/daily-plan-surface";
@@ -204,73 +199,147 @@ export function MorphologyGuidedLesson(props: {
         Preparing the Word Lab…
       </div>
     );
+  const reflectionActivity = props.payload.activities.find((activity) => activity.type === "reflection")!;
+  const prefixCards = reflectionActivity.teachingCards;
+  const reflectionModel = morphologyLessonReflectionModel(props.payload, state);
+  const specialistRecaps: LessonReflectionSpecialistRecap[] = [
+    ...(prefixCards?.length ? [{
+      id: "governed-prefix-teaching",
+      heading: "Today we studied:",
+      content: <PrefixTeachingCards cards={prefixCards} compact />,
+      position: "before_mistakes" as const,
+    }] : []),
+  ];
   const activities: FirstImpressionConfiguredActivity[] = [
     {
       id: "discover", type: "DISCOVER", label: "Discover",
-      render: ({ complete }) => <Discovery
-        key={state.discoverIndex}
-        payload={props.payload}
-        index={state.discoverIndex}
-        muted={state.muted}
-        addedPrefix={state.discoverAddedPrefix}
-        onAddPrefix={() => update({ discoverAddedPrefix: true })}
-        onNext={() => state.discoverIndex < (props.payload.activities.find((candidate) => candidate.type === "discovery")?.discoveryCards?.length ?? 1) - 1
-          ? update({ discoverIndex: state.discoverIndex + 1, discoverAddedPrefix: false, helpLevel: 0 })
-          : (update({ discoverAddedPrefix: false, helpLevel: 0 }), complete())}
-      />,
+      binding: createCanonicalActivityBinding({
+        id: "discover", label: "Discover", concept: "MEANING_DISCOVERY",
+        mode: props.payload.words.anchor.affixPosition === "after" ? "suffix" : "prefix", contractVersion: 1,
+        renderKey: String(state.discoverIndex),
+        createProps: ({ complete }) => ({
+          payload: props.payload,
+          index: state.discoverIndex,
+          muted: state.muted,
+          addedPrefix: state.discoverAddedPrefix,
+          onAddPrefix: () => update({ discoverAddedPrefix: true }),
+          onNext: () => state.discoverIndex < (props.payload.activities.find((candidate) => candidate.type === "discovery")?.discoveryCards?.length ?? 1) - 1
+            ? update({ discoverIndex: state.discoverIndex + 1, discoverAddedPrefix: false, helpLevel: 0 })
+            : (update({ discoverAddedPrefix: false, helpLevel: 0 }), complete()),
+        }),
+      }),
     },
     {
       id: "split", type: "SPLIT", label: "Split",
-      render: ({ complete }) => <SplitBuild
-        key={state.splitIndex}
-        word={props.payload.words.lesson.find((word) => word.canonicalWordId === (props.payload.activities.find((activity) => activity.type === "strip_build")?.wordIds?.[state.splitIndex] ?? props.payload.words.anchor.canonicalWordId)) ?? props.payload.words.anchor}
-        misses={state.splitMisses}
-        correct={state.splitCorrect}
-        muted={state.muted}
-        missMessage={beat.onSlip}
-        repeatedMissMessage={beat.onRepeatedMisconception}
-        feedbackPolicy={props.payload.activities.find((activity) => activity.type === "strip_build")?.cleaverFeedbackPolicy}
-        continueLabel={state.splitIndex + 1 < (props.payload.activities.find((activity) => activity.type === "strip_build")?.assignmentBindings.length ?? 1) ? "Try another split" : hasMeaningSort ? "Continue to meanings" : "Build a word"}
-        onMiss={(splitMisses) => update({ splitMisses })}
-        onCorrect={() => update({ splitCorrect: true })}
-        onComplete={() => {
-          completeBinding(props.payload.activities.find((activity) => activity.type === "strip_build")?.assignmentBindings[state.splitIndex] ?? "");
-          const splitCount = props.payload.activities.find((activity) => activity.type === "strip_build")?.assignmentBindings.length ?? 1;
-          if (state.splitIndex + 1 < splitCount) update({ splitIndex: state.splitIndex + 1, splitMisses: 0, splitCorrect: false, helpLevel: 0 });
-          else complete();
-        }}
-      />,
+      binding: createCanonicalActivityBinding({
+        id: "split", label: "Split", concept: "CLEAVER", mode: "find_boundaries", contractVersion: 1,
+        renderKey: String(state.splitIndex),
+        createProps: ({ complete }) => morphologySplitHandleProps({
+          word: props.payload.words.lesson.find((word) => word.canonicalWordId === (props.payload.activities.find((activity) => activity.type === "strip_build")?.wordIds?.[state.splitIndex] ?? props.payload.words.anchor.canonicalWordId)) ?? props.payload.words.anchor,
+          misses: state.splitMisses,
+          correct: state.splitCorrect,
+          muted: state.muted,
+          missMessage: beat.onSlip,
+          repeatedMissMessage: beat.onRepeatedMisconception,
+          feedbackPolicy: props.payload.activities.find((activity) => activity.type === "strip_build")?.cleaverFeedbackPolicy,
+          continueLabel: state.splitIndex + 1 < (props.payload.activities.find((activity) => activity.type === "strip_build")?.assignmentBindings.length ?? 1) ? "Try another split" : hasMeaningSort ? "Continue to meanings" : "Build a word",
+          onMiss: (splitMisses) => update({ splitMisses }),
+          onCorrect: () => update({ splitCorrect: true }),
+          onComplete: () => {
+            completeBinding(props.payload.activities.find((activity) => activity.type === "strip_build")?.assignmentBindings[state.splitIndex] ?? "");
+            const splitCount = props.payload.activities.find((activity) => activity.type === "strip_build")?.assignmentBindings.length ?? 1;
+            if (state.splitIndex + 1 < splitCount) update({ splitIndex: state.splitIndex + 1, splitMisses: 0, splitCorrect: false, helpLevel: 0 });
+            else complete();
+          },
+        }),
+      }),
     },
     ...(hasMeaningSort ? [{
       id: "meaning", type: "MEANING_SORT", label: "Meaning",
-      render: ({ complete }: FirstImpressionActivityNavigation) => <BinSort
-        items={morphologyMeaningSortItems(props.payload, meaningActivity?.meaningCheckKind ?? "meaning")}
-        bins={meaningBins(props.payload)}
-        showBinDescriptions={props.payload.words.anchor.affixPosition !== "after"}
-        instruction={props.payload.words.anchor.affixPosition === "after" ? "Read the word. Decide what the suffix means. Then choose the meaning label that fits." : meaningActivity?.meaningCheckKind === "prefix_form" ? "Read the base word. Choose the prefix form that belongs before its first letter." : "Read the word. Think about what the prefix means. Then choose the meaning label that fits."}
-        muted={state.muted}
-        initialComplete={state.matchComplete}
-        showOverview={showMeaningOverview}
-        completionCopy={meaningOverviewCopy(props.payload)}
-        incorrectMessage={beat.onMisconception}
-        repeatedIncorrectMessage={beat.onRepeatedMisconception}
-        renderIncorrectFeedback={meaningActivity?.teachingCards ? (selectedBin) => { const card = meaningActivity.teachingCards?.find((candidate) => candidate.text === selectedBin.prefixText); return card ? <SelectedPrefixFeedback card={card} /> : null; } : undefined}
-        onComplete={() => { update({ guidedBindings: [...new Set([...state.guidedBindings, ...props.payload.words.lesson.map((word) => `guided-meaning-${word.canonicalWordId}`)])], matchComplete: true, helpLevel: 0 }); if (!showMeaningOverview) complete(); }}
-        onContinue={complete}
-      />,
+      binding: createCanonicalActivityBinding({
+        id: "meaning", label: "Meaning", concept: "MEANING_SORT",
+        mode: meaningActivity?.meaningCheckKind === "prefix_form" ? "prefix_form" : "meaning", contractVersion: 1,
+        createProps: ({ complete }: FirstImpressionActivityNavigation) => ({
+          items: morphologyMeaningSortItems(props.payload, meaningActivity?.meaningCheckKind ?? "meaning"),
+          bins: meaningBins(props.payload),
+          showBinDescriptions: props.payload.words.anchor.affixPosition !== "after",
+          instruction: props.payload.words.anchor.affixPosition === "after" ? "Read the word. Decide what the suffix means. Then choose the meaning label that fits." : meaningActivity?.meaningCheckKind === "prefix_form" ? "Read the base word. Choose the prefix form that belongs before its first letter." : "Read the word. Think about what the prefix means. Then choose the meaning label that fits.",
+          muted: state.muted,
+          initialComplete: state.matchComplete,
+          showOverview: showMeaningOverview,
+          completionCopy: meaningOverviewCopy(props.payload),
+          incorrectMessage: beat.onMisconception,
+          repeatedIncorrectMessage: beat.onRepeatedMisconception,
+          renderIncorrectFeedback: meaningActivity?.teachingCards ? (selectedBin: { prefixText?: string }) => { const card = meaningActivity.teachingCards?.find((candidate) => candidate.text === selectedBin.prefixText); return card ? <SelectedPrefixFeedback card={card} /> : null; } : undefined,
+          onComplete: () => { update({ guidedBindings: [...new Set([...state.guidedBindings, ...props.payload.words.lesson.map((word) => `guided-meaning-${word.canonicalWordId}`)])], matchComplete: true, helpLevel: 0 }); if (!showMeaningOverview) complete(); },
+          onContinue: complete,
+        }),
+      }),
     }] : []),
     {
       id: "build", type: "BUILD", label: "Build",
-      render: ({ complete }) => <DefinitionWordBuilder
-        key={definitionBuild.targetId}
-        {...definitionBuild}
-        muted={state.muted}
-        renderIncorrectFeedback={(ids, misses) => morphologyDefinitionIncorrectFeedback(buildActivity, beat, definitionBuild.choiceById.get(ids[0]), definitionBuild.targetChoice, definitionBuild.baseWord, misses)}
-        onBuilt={() => completeBinding(buildActivity.assignmentBindings[state.buildIndex] ?? "")}
-        onContinue={() => { const buildCount = buildActivity.assignmentBindings.length || 1; if (state.buildIndex + 1 < buildCount) update({ buildIndex: state.buildIndex + 1, helpLevel: 0 }); else complete(); }}
-      />,
+      binding: createCanonicalActivityBinding({
+        id: "build", label: "Build", concept: "WORD_ASSEMBLY", mode: "definition_word_builder", contractVersion: 1,
+        renderKey: definitionBuild.targetId,
+        createProps: ({ complete }) => ({
+          ...definitionBuild,
+          muted: state.muted,
+          renderIncorrectFeedback: (ids: string[], misses: number) => morphologyDefinitionIncorrectFeedback(buildActivity, beat, definitionBuild.choiceById.get(ids[0]), definitionBuild.targetChoice, definitionBuild.baseWord, misses),
+          onBuilt: () => completeBinding(buildActivity.assignmentBindings[state.buildIndex] ?? ""),
+          onContinue: () => { const buildCount = buildActivity.assignmentBindings.length || 1; if (state.buildIndex + 1 < buildCount) update({ buildIndex: state.buildIndex + 1, helpLevel: 0 }); else complete(); },
+        }),
+      }),
     },
   ];
+  const coverActivity = createCanonicalActivityBinding({
+    id: "cover", label: "Cover", concept: "COVER_CHECK",
+    mode: props.payload.activities.find((activity) => activity.type === "look_cover_write_check")?.coverClosePolicy ? "ratio_close_policy" : "component_marked",
+    contractVersion: 1,
+    renderKey: props.payload.words.lesson[state.controlledIndex].canonicalWordId,
+    createProps: ({ complete }) => ({
+      stepLabel: `Word to remember ${state.controlledIndex + 1} of ${props.payload.words.lesson.length}`,
+      word: props.payload.words.lesson[state.controlledIndex].displayWord,
+      splitPoints: props.payload.words.lesson[state.controlledIndex].splitPoints,
+      initialAttempt: state.controlledAttempts[props.payload.words.lesson[state.controlledIndex].canonicalWordId] ?? "",
+      initialState: state.controlledChecked[props.payload.words.lesson[state.controlledIndex].canonicalWordId] === true ? "check" : state.controlledAttempts[props.payload.words.lesson[state.controlledIndex].canonicalWordId] ? "write" : "look",
+      muted: state.muted,
+      closePolicy: props.payload.activities.find((activity) => activity.type === "look_cover_write_check")?.coverClosePolicy,
+      onStateChange: (_: unknown, attempt: string) => { if (attempt) update({ controlledAttempts: { ...state.controlledAttempts, [props.payload.words.lesson[state.controlledIndex].canonicalWordId]: attempt } }); },
+      onComplete: (attempt: string) => update({ controlledAttempts: { ...state.controlledAttempts, [props.payload.words.lesson[state.controlledIndex].canonicalWordId]: attempt }, controlledChecked: { ...state.controlledChecked, [props.payload.words.lesson[state.controlledIndex].canonicalWordId]: true } }),
+      onContinue: () => state.controlledIndex < props.payload.words.lesson.length - 1 ? update({ controlledIndex: state.controlledIndex + 1, helpLevel: 0 }) : complete(),
+    }),
+  });
+  const dictationBinding = createCanonicalActivityBinding({
+    id: "dictation", label: "Dictate", concept: "DICTATION", mode: "target_token", contractVersion: 1,
+    renderKey: dictationSentence.canonicalWordId,
+    createProps: ({ complete }) => ({
+      stepLabel: `Sentence ${state.dictationIndex + 1} of ${dictationActivity.sentences?.length ?? 0}`,
+      audioText: dictationSentence.sentence,
+      correctSentence: dictationSentence.sentence,
+      value: state.sentenceAttempts[props.payload.words.lesson[state.dictationIndex].canonicalWordId] ?? "",
+      checked: state.checkedSentence,
+      muted: state.muted,
+      onValueChange: (value: string) => { if (!state.checkedSentence) update({ sentenceAttempts: { ...state.sentenceAttempts, [props.payload.words.lesson[state.dictationIndex].canonicalWordId]: value } }); },
+      onCheck: () => update({ checkedSentence: true }),
+      continueLabel: state.dictationIndex < 3 ? "Next sentence" : "See what you discovered",
+      onContinue: () => state.dictationIndex < (dictationActivity.sentences?.length ?? 1) - 1 ? update({ dictationIndex: state.dictationIndex + 1, checkedSentence: false }) : complete(),
+    }),
+  });
+  const reflectionBinding = createCanonicalActivityBinding({
+    id: "reflection", label: "Reflect", concept: "LESSON_REFLECTION", mode: "standard_lesson_reflection", contractVersion: 1,
+    createProps: () => ({
+      mistakes: reflectionModel.mistakes,
+      sentenceComparisons: reflectionModel.sentenceComparisons,
+      prompt: reflectionModel.prompt,
+      response: state.reflectionText,
+      onResponseChange: (reflectionText: string) => update({ reflectionText }),
+      completionType: "submit",
+      completionLabel: "Finish the Word Lab",
+      contextRecap: reflectionModel.contextRecap,
+      specialistRecaps,
+    } satisfies LessonReflectionProps),
+    wrap: (activity) => <MorphologyReflectionAdapter state={state} childId={props.childId} assignmentId={props.assignmentId} items={props.items} onPreviewComplete={props.onPreviewComplete}>{activity as ReactElement<Record<string, unknown>>}</MorphologyReflectionAdapter>,
+  });
   return (
     <FirstImpressionLesson
       teaching={morphologyTeachingPages(props.payload)}
@@ -280,87 +349,9 @@ export function MorphologyGuidedLesson(props: {
       onTeachingPageChange={(introIndex) => update({ introIndex })}
       onStageChange={(stageId) => update({ stage: morphologyResumeStage(stageId), ...(stageId === "cover" ? { controlledIndex: 0 } : {}), ...(stageId === "dictation" ? { dictationIndex: 0, checkedSentence: false } : {}), helpLevel: 0 })}
       scene={{ beat, muted: state.muted, onMutedChange: (muted) => update({ muted }), silent: state.stage === "dictation" || state.stage === "controlled", help, onHelp: () => update({ helpLevel: Math.min(2, state.helpLevel + 1) }), guideName: props.payload.guide.displayName }}
-      renderCover={({ complete }) => <CoverShutter
-          key={props.payload.words.lesson[state.controlledIndex].canonicalWordId}
-          stepLabel={`Word to remember ${state.controlledIndex + 1} of ${props.payload.words.lesson.length}`}
-          word={props.payload.words.lesson[state.controlledIndex].displayWord}
-          splitPoints={props.payload.words.lesson[state.controlledIndex].splitPoints}
-          initialAttempt={
-            state.controlledAttempts[
-              props.payload.words.lesson[state.controlledIndex].canonicalWordId
-            ] ?? ""
-          }
-          initialState={
-            state.controlledChecked[
-              props.payload.words.lesson[state.controlledIndex].canonicalWordId
-            ] === true
-              ? "check"
-              : state.controlledAttempts[
-                    props.payload.words.lesson[state.controlledIndex].canonicalWordId
-                  ]
-                ? "write"
-                : "look"
-          }
-          muted={state.muted}
-          closePolicy={props.payload.activities.find((activity) => activity.type === "look_cover_write_check")?.coverClosePolicy}
-          onStateChange={(_, attempt) => {
-            if (!attempt) return;
-            update({
-              controlledAttempts: {
-                ...state.controlledAttempts,
-                [props.payload.words.lesson[state.controlledIndex]
-                  .canonicalWordId]: attempt,
-              },
-            });
-          }}
-          onComplete={(attempt) =>
-            update({
-              controlledAttempts: {
-                ...state.controlledAttempts,
-                [props.payload.words.lesson[state.controlledIndex]
-                  .canonicalWordId]: attempt,
-              },
-              controlledChecked: {
-                ...state.controlledChecked,
-                [props.payload.words.lesson[state.controlledIndex]
-                  .canonicalWordId]: true,
-              },
-            })
-          }
-          onContinue={() => state.controlledIndex < props.payload.words.lesson.length - 1 ? update({ controlledIndex: state.controlledIndex + 1, helpLevel: 0 }) : complete()}
-        />}
-      renderDictation={({ complete }) => <SentenceDictation
-          key={dictationSentence.canonicalWordId}
-          stepLabel={`Sentence ${state.dictationIndex + 1} of ${dictationActivity.sentences?.length ?? 0}`}
-          audioText={dictationSentence.sentence}
-          correctSentence={dictationSentence.sentence}
-          value={
-            state.sentenceAttempts[
-              props.payload.words.lesson[state.dictationIndex].canonicalWordId
-            ] ?? ""
-          }
-          checked={state.checkedSentence}
-          muted={state.muted}
-          onValueChange={(value) => { if (!state.checkedSentence) update({
-              sentenceAttempts: {
-                ...state.sentenceAttempts,
-                [props.payload.words.lesson[state.dictationIndex]
-                  .canonicalWordId]: value,
-              },
-            }); }}
-          onCheck={() => update({ checkedSentence: true })}
-          continueLabel={state.dictationIndex < 3 ? "Next sentence" : "See what you discovered"}
-          onContinue={() => state.dictationIndex < (dictationActivity.sentences?.length ?? 1) - 1 ? update({ dictationIndex: state.dictationIndex + 1, checkedSentence: false }) : complete()}
-        />}
-      renderReflection={() => <MorphologyReflectionAdapter
-          state={state}
-          payload={props.payload}
-          childId={props.childId}
-          assignmentId={props.assignmentId}
-          items={props.items}
-          onReflectionText={(reflectionText) => update({ reflectionText })}
-          onPreviewComplete={props.onPreviewComplete}
-        />}
+      coverActivity={coverActivity}
+      dictationActivity={dictationBinding}
+      reflectionActivity={reflectionBinding}
     />
   );
 }
@@ -523,7 +514,7 @@ export function Discovery(props: {
     </div>
   );
 }
-export function SplitBuild(props: {
+export interface MorphologySplitAdapterProps {
   word: MorphologyWordSnapshot;
   misses: number;
   correct: boolean;
@@ -535,7 +526,9 @@ export function SplitBuild(props: {
   onMiss: (misses: number) => void;
   onCorrect: () => void;
   onComplete: () => void;
-}) {
+}
+
+export function morphologySplitHandleProps(props: MorphologySplitAdapterProps): SplitHandleProps {
   const suffix = props.word.affixPosition === "after" || props.word.parts.some((part) => part.role === "suffix");
   const affix = props.word.affixText ?? props.word.parts.find((part) => part.role === (suffix ? "suffix" : "prefix"))?.text;
   const baseOrRoot = props.word.parts.filter((part) => part.role !== (suffix ? "suffix" : "prefix")).map((part) => part.text).join("");
@@ -552,27 +545,29 @@ export function SplitBuild(props: {
     : undefined;
   const prefixFeedback = !suffix ? props.feedbackPolicy : undefined;
   const policyText = (lines: readonly string[]) => lines.join("\n\n");
-  return (
-    <SplitHandle
-      word={props.word.displayWord}
-      splitPoints={props.word.splitPoints}
-      misses={props.misses}
-      correct={props.correct}
-      muted={props.muted}
-      missMessage={prefixFeedback ? policyText(prefixFeedback.firstMiss) : props.missMessage}
-      repeatedMissMessage={prefixFeedback ? policyText(prefixFeedback.repeatedMiss) : props.repeatedMissMessage}
-      correctHeading={affix ? `Yes — ${suffix ? `-${affix} is at the end` : `${affix}- is at the front`} of the word.` : undefined}
-      correctExplanation={correctExplanation}
-      prompt={suffix ? "Find where the base/root ends and the suffix begins at the end of the word." : undefined}
-      missPrompt={suffix ? "Not there yet. Look for the suffix at the end of the word." : undefined}
-      repeatedMissPrompt={suffix && affix ? `The suffix -${affix} is at the end. Chop just before it.` : undefined}
-      revealCorrectBoundaryAfterMisses={prefixFeedback?.revealCorrectBoundaryAfterMisses}
-      continueLabel={props.continueLabel}
-      onMiss={props.onMiss}
-      onCorrect={props.onCorrect}
-      onContinue={props.onComplete}
-    />
-  );
+  return {
+    word: props.word.displayWord,
+    splitPoints: props.word.splitPoints,
+    misses: props.misses,
+    correct: props.correct,
+    muted: props.muted,
+    missMessage: prefixFeedback ? policyText(prefixFeedback.firstMiss) : props.missMessage,
+    repeatedMissMessage: prefixFeedback ? policyText(prefixFeedback.repeatedMiss) : props.repeatedMissMessage,
+    correctHeading: affix ? `Yes — ${suffix ? `-${affix} is at the end` : `${affix}- is at the front`} of the word.` : undefined,
+    correctExplanation,
+    prompt: suffix ? "Find where the base/root ends and the suffix begins at the end of the word." : undefined,
+    missPrompt: suffix ? "Not there yet. Look for the suffix at the end of the word." : undefined,
+    repeatedMissPrompt: suffix && affix ? `The suffix -${affix} is at the end. Chop just before it.` : undefined,
+    revealCorrectBoundaryAfterMisses: prefixFeedback?.revealCorrectBoundaryAfterMisses,
+    continueLabel: props.continueLabel,
+    onMiss: props.onMiss,
+    onCorrect: props.onCorrect,
+    onContinue: props.onComplete,
+  };
+}
+
+export function SplitBuild(props: MorphologySplitAdapterProps) {
+  return <SplitHandle {...morphologySplitHandleProps(props)} />;
 }
 function meaningBins(payload: MorphologyLessonPayloadV1) {
   return (
@@ -770,39 +765,14 @@ export function morphologyLessonReflectionModel(
 
 export function MorphologyReflectionAdapter(props: {
   state: LessonState;
-  payload: MorphologyLessonPayloadV1;
   childId: string;
   assignmentId: string;
   items: AdleSessionItem[];
-  onReflectionText: (value: string) => void;
   onPreviewComplete?: (reflectionText: string) => void;
+  children: ReactElement<Record<string, unknown>>;
 }) {
   const [finishing, setFinishing] = useState(false);
   const [completionTraceId] = useState(() => props.onPreviewComplete ? "visual-convergence-preview" : crypto.randomUUID());
-  const reflection = props.payload.activities.find(
-    (activity) => activity.type === "reflection",
-  )!;
-  const prefixCards = reflection.teachingCards;
-  const meaningResultsPresentation = props.payload.activities.find((activity) => activity.type === "meaning_sort")?.meaningResultsPresentation;
-  const ready = props.state.reflectionText.trim().length > 0;
-  const model = morphologyLessonReflectionModel(props.payload, props.state);
-  const specialistRecaps: LessonReflectionSpecialistRecap[] = [
-    ...(prefixCards?.length ? [{
-      id: "governed-prefix-teaching",
-      heading: "Today we studied:",
-      content: <PrefixTeachingCards cards={prefixCards} compact />,
-      position: "before_mistakes" as const,
-    }] : []),
-    ...(!prefixCards?.length
-      && ready
-      && props.payload.activities.some((activity) => activity.type === "meaning_sort")
-      && meaningResultsPresentation !== "none" ? [{
-        id: "meaning-overview",
-        heading: "Meaning recap",
-        content: <BinSortOverview items={morphologyMeaningSortItems(props.payload, props.payload.activities.find((activity) => activity.type === "meaning_sort")?.meaningCheckKind ?? "meaning")} bins={meaningBins(props.payload)} showBinDescriptions={props.payload.words.anchor.affixPosition !== "after"} copy={meaningOverviewCopy(props.payload)} />,
-        position: "after_response" as const,
-      }] : []),
-  ];
   return (
     <form
       action={
@@ -882,19 +852,10 @@ export function MorphologyReflectionAdapter(props: {
         )}
       />
       <input type="hidden" name="learningReflection" value={props.state.reflectionText} />
-      <LessonReflection
-        mistakes={model.mistakes}
-        sentenceComparisons={model.sentenceComparisons}
-        prompt={model.prompt}
-        response={props.state.reflectionText}
-        onResponseChange={props.onReflectionText}
-        completionType="submit"
-        completionLabel="Finish the Word Lab"
-        pending={finishing && !props.onPreviewComplete}
-        pendingLabel="Finishing your Word Lab…"
-        contextRecap={model.contextRecap}
-        specialistRecaps={specialistRecaps}
-      />
+      {cloneElement(props.children, {
+        pending: finishing && !props.onPreviewComplete,
+        pendingLabel: "Finishing your Word Lab…",
+      })}
     </form>
   );
 }

@@ -3,7 +3,9 @@ import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
 import {
+  ADLE_ACTIVITY_AUDIT_CONCLUSIONS,
   ADLE_ACTIVITY_CATALOGUE,
+  ADLE_ACTIVITY_CONVERGENCE_BACKLOG,
   ADLE_ACTIVITY_IMPLEMENTATION_AUDIT,
   activityAuditCounts,
 } from "../lib/adle/activity-catalogue";
@@ -69,6 +71,42 @@ assert.equal(
   counts.DEAD_OR_UNREFERENCED + counts.REQUIRES_ARCHITECTURE_DECISION,
   counts.totalImplementations,
   "every implementation must have exactly one classification",
+);
+
+assert.equal(
+  ADLE_ACTIVITY_AUDIT_CONCLUSIONS.authoritativeBaseSha,
+  "d59506c9f3175a73b3f4614a1077470f3ab0e4a2",
+  "catalogue governance must cite the fetched post-Group-7 authority",
+);
+assert.equal(
+  ADLE_ACTIVITY_AUDIT_CONCLUSIONS.group7Closeout.status,
+  "COMPLETE_MERGED_AND_DEPLOYED",
+  "Group 7 must remain recorded as merged and deployed",
+);
+assert(
+  !ADLE_ACTIVITY_CONVERGENCE_BACKLOG.some((item) => item.title === "Extract the standard first-impression shell"),
+  "the completed Group 7 shell extraction must not remain in the active backlog",
+);
+assert(
+  !ADLE_ACTIVITY_AUDIT_CONCLUSIONS.genuineGaps.some((gap) => gap.includes("Reading Page")),
+  "TeachingPages resolved the former canonical Reading Page gap",
+);
+const registryWiring = ADLE_ACTIVITY_CONVERGENCE_BACKLOG.find((item) => item.title === "Wire rich components through registry modes");
+assert(registryWiring, "registry wiring must remain the next active architecture workstream");
+assert.equal(registryWiring.modelCReleaseChangeRequired, false, "behaviour-identical registry wiring is not itself a Model C release change");
+assert(registryWiring.releaseBoundary.includes("Stop and require a separate Model C decision"), "registry wiring must retain the semantic-change release gate");
+assert.equal(
+  ADLE_ACTIVITY_AUDIT_CONCLUSIONS.nextConvergenceGroup.status,
+  "P1_REGISTRY_WIRING_PHASES_A_B_COMPLETE_REVIEW_REQUIRED",
+  "governance must stop for review before Phase C",
+);
+assert(
+  ADLE_ACTIVITY_IMPLEMENTATION_AUDIT.some((row) => row.implementationName === "CanonicalActivityRenderer registry" && row.classification === "CANONICAL"),
+  "the specialist versioned renderer registry must be governed as the current canonical runtime authority",
+);
+assert(
+  !registryWiring.currentImplementations.includes("FirstImpressionLesson render closures"),
+  "specialist render closures must no longer be listed as current renderer-selection authority",
 );
 
 const galleryPath = join(root, "app/admin/adle/activity-catalogue/activity-catalogue-gallery.tsx");

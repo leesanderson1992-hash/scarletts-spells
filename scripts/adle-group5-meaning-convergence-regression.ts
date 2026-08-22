@@ -24,7 +24,7 @@ for (const forbidden of ["completeAdleLessonPartAction", "completeAdleReviewPart
 assert(morphology.includes("export function Discovery") && morphology.includes("affixTerm") && morphology.includes("prefixLabel") && !morphology.includes("HearWordButton"), "one Discovery engine must accept Prefix/Affix configuration without a word-listen control");
 assert(match.includes("export function MeaningConnectionActivity") && match.includes("componentMeanings") && !match.includes("HearWordButton"), "one rich Meaning Match engine must retain clues and connections without a word-listen control");
 assert(binSort.includes("binSortTickZoom") && binSort.includes("SUCCESS_SPARKLES") && !binSort.includes("bg-emerald-100"), "correct Sort feedback must use a zooming tick and background sparkles without a colour block");
-assert(morphology.includes('showBinDescriptions={props.payload.words.anchor.affixPosition !== "after"}'), "Suffix Sort must keep its categories to the concise labels only");
+assert(morphology.includes('showBinDescriptions: props.payload.words.anchor.affixPosition !== "after"'), "Suffix Sort must keep its categories to the concise labels only");
 assert(session.includes('rendererKinds: readonly ActivityRendererKind[]') && session.includes("meaningConnectionTarget") && session.includes("Historical meaning activity compatibility"), "generic dispatch must select rich Match and isolate definition-less compatibility fallback");
 
 assert(!composer.includes('templateKey: "REVIEW_QUICK_SORT"') && !composer.includes('sectionKey: "review_quick_sort"'), "forward composer must not generate QuickSort");

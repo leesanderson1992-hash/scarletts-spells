@@ -44,11 +44,12 @@ for (const forbidden of ["completeAdleLessonPartAction", "completeBaseWordFamily
 }
 
 for (const route of [morphology, base, compound]) {
-  assert(route.includes("<LessonReflection"), "every specialist route must render LessonReflection");
-  assert(route.includes("sentenceComparisons="), "every specialist route supplies feedback-only sentence comparisons");
+  assert(route.includes("<LessonReflection") || route.includes('concept: "LESSON_REFLECTION"'), "every specialist route must resolve LessonReflection directly or through the canonical registry");
+  assert(route.includes("sentenceComparisons=") || route.includes("sentenceComparisons:"), "every specialist route supplies feedback-only sentence comparisons");
 }
 assert(morphology.includes("normaliseSessionWord") && morphology.includes("analyseDictationSentence"), "Prefix/Affix keeps normalized target and Prefix context policies in its adapter");
 assert(morphology.includes("contextItems.slice(0, 3)") && morphology.includes("contextRecap"), "Prefix context slips remain optional recap data");
+assert(!morphology.includes('heading: "Meaning recap"') && !morphology.includes('id: "meaning-overview"'), "Prefix/Affix reflection does not repeat the completed Meaning Sort overview");
 assert(base.includes("extractAuthoredTargetToken") && base.includes("baseWordLessonReflectionMistakes"), "Base Word keeps authored target-token extraction in its adapter");
 assert(compound.includes("EXACT_GOVERNED_FORM_ANSWER_POLICY") && compound.includes("extractAuthoredTargetSpan"), "Compound keeps exact governed correctness and span extraction in its adapter");
 assert(compound.includes("lessonReflectionSentenceComparison"), "Compound retains its existing whole-sentence comparison through the normalized contract");

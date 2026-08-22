@@ -32,7 +32,9 @@ for (const forbidden of ["completeAdleLessonPartAction", "Supabase", ".from(", "
 for (const [family, source] of [["Prefix/Affix", morphology], ["Base Word", base], ["Compound", compound]] as const) {
   assert(source.includes("<FirstImpressionLesson"), `${family} consumes the canonical shell`);
   assert(!source.includes("<WordLabScene"), `${family} no longer owns a specialist scene/navigation shell`);
-  assert(source.includes("<CoverShutter") && source.includes("<SentenceDictation") && source.includes("LessonReflection"), `${family} keeps the fixed canonical ending`);
+  const directCanonicalEnding = source.includes("<CoverShutter") && source.includes("<SentenceDictation") && source.includes("LessonReflection");
+  const registeredCanonicalEnding = source.includes('concept: "COVER_CHECK"') && source.includes('concept: "DICTATION"') && source.includes('concept: "LESSON_REFLECTION"');
+  assert(directCanonicalEnding || registeredCanonicalEnding, `${family} keeps the fixed canonical ending`);
 }
 assert(morphology.includes('type: "DISCOVER"') && morphology.includes('type: "SPLIT"') && morphology.includes('type: "BUILD"'), "Prefix/Affix middle sequence is configured");
 assert(base.includes('type: "WORD_FAMILY_REVEAL"') && base.includes('type: "SPLIT"') && base.includes('type: "BUILD"'), "Base Word configures FamilyReveal distinctly in its middle sequence");
