@@ -555,6 +555,10 @@ export async function completeAdleLessonPartAction(formData: FormData) {
       ? routeResolution.runtime.payload
       : null;
   const wordLabPayload = compoundRuntime ?? dynamicSuffix ?? dynamicPrefix ?? morphologyPilot;
+  const genericReflectionSpec = wordLabPayload === null
+    ? readModel.partTwo.items.find((item) => item.canonicalActivitySpec?.concept === "LESSON_REFLECTION"
+      && item.canonicalActivitySpec.mode === "standard_lesson_reflection")?.canonicalActivitySpec ?? null
+    : null;
   const dynamicAffixCompletionPolicy = dynamicSuffix !== null
     ? deriveDynamicAffixCompletionPolicy({
         allItems: allSessionItems(readModel),
@@ -828,6 +832,27 @@ export async function completeAdleLessonPartAction(formData: FormData) {
   await Promise.all([
     timer.measure("attempt_persistence", () => insertAssignmentAttemptEvents(serviceClient, attemptEvents)),
     timer.measure("lesson_persistence", () => persistLessonCompletion(serviceClient, lessonResult)),
+    ...(genericReflectionSpec ? [timer.measure("reflection_persistence", async () => {
+      const promptSource = genericReflectionSpec.payload.promptSource;
+      if (!learningReflection || !promptSource || typeof promptSource !== "object" || Array.isArray(promptSource)) {
+        throw new Error("Please write a reflection before finishing the Word Lab.");
+      }
+      const governed = promptSource as Record<string, unknown>;
+      if (typeof governed.contentVersion !== "string" || typeof governed.promptKey !== "string"
+        || typeof genericReflectionSpec.payload.prompt !== "string") {
+        throw new Error("This Word Lab reflection is missing its governed prompt contract.");
+      }
+      await upsertChildLearningReflection(serviceClient, {
+        childId,
+        parentUserId: context.parentUserId,
+        assignmentId: context.assignmentId,
+        microSkillKey,
+        contentVersion: governed.contentVersion,
+        promptKey: governed.promptKey,
+        promptText: genericReflectionSpec.payload.prompt,
+        reflectionText: learningReflection,
+      });
+    })] : []),
   ]);
 
   // Probe day: the diagnostic probe replaced the lesson dictation — record

@@ -309,6 +309,7 @@ const registrations = [
   registration("CLEAVER", "isolate_component", "SplitHandle", baseCleaveLoader, validateBaseCleaveAdapter, "Cleave"),
   registration("WORD_ASSEMBLY", "definition_word_builder", "DefinitionWordBuilder", definitionBuilderLoader, validateDefinitionBuilder),
   registration("COMPOUND_JIGSAW", "jigsaw_multi_target", "CompoundJigsawActivity", compoundJigsawLoader, validateCompoundJigsaw),
+  registration("MEANING_MATCH", "word_to_definition", "MeaningConnectionActivity", meaningConnectionLoader, validateMeaningConnection),
   registration("MEANING_MATCH", "component_clues", "MeaningConnectionActivity", meaningConnectionLoader, validateMeaningConnection),
   registration("MEANING_SORT", "meaning", "BinSort", binSortLoader, validateBinSort),
   registration("MEANING_SORT", "prefix_form", "BinSort", binSortLoader, validateBinSort),

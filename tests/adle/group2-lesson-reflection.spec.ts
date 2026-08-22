@@ -96,7 +96,7 @@ test("Prefix learner shell restores and completes through the canonical reflecti
   };
   await page.goto("/dev/adle/morphology-primitives", { waitUntil: "load" });
   await page.evaluate(({ contentVersion, state }) => localStorage.setItem(
-    `adle:morphology-un:dev-morphology-guided:1:${contentVersion}`,
+    `adle:morphology-un:dev-morphology-guided-g7-teaching-pages:1:${contentVersion}`,
     JSON.stringify({ savedAt: Date.now(), schemaVersion: 1, contentVersion, state }),
   ), { contentVersion, state });
   await page.reload({ waitUntil: "load" });
@@ -126,7 +126,7 @@ test("Base Word learner shell restores target-token comparison and completes loc
   };
   await page.goto("/dev/adle/base-word-family", { waitUntil: "load" });
   await page.evaluate(({ contentVersion, state }) => localStorage.setItem(
-    `adle:morphology-base-family:dev-base-word-family:1:${contentVersion}`,
+    `adle:morphology-base-family:dev-base-word-family-g7-teaching-pages:1:${contentVersion}`,
     JSON.stringify(state),
   ), { contentVersion, state });
   await page.reload({ waitUntil: "load" });
@@ -141,7 +141,7 @@ test("Base Word learner shell restores target-token comparison and completes loc
 test("Closed Compound learner shell restores its exact-form comparison and completes locally", async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== "desktop-chromium");
   const contentVersion = "d4_mor_closed_compounds_v1";
-  const assignmentId = "dev-closed-compound-reflection";
+  const assignmentId = "dev-closed-compound-g7-teaching-pages";
   const state = {
     stage: "reflect", index: 0, muted: true,
     attempts: { rainbow: "rain bow", football: "football", bedroom: "bedroom", playground: "playground" },
@@ -153,7 +153,7 @@ test("Closed Compound learner shell restores its exact-form comparison and compl
     jigsawLocked: [], jigsawMisses: {}, jigsawPlacements: {}, meaningConnected: [], meaningMisses: {},
   };
   await page.goto("/dev/adle/closed-compound", { waitUntil: "load" });
-  await expect(page.getByRole("button", { name: "Open the compound workshop" })).toBeVisible();
+  await expect(page.getByTestId("closed-compound-reflection-fixture")).toBeVisible();
   await page.evaluate(({ assignmentId, contentVersion, state }) => localStorage.setItem(
     `adle:morphology-un:${assignmentId}:1:${contentVersion}:closed-compound`,
     JSON.stringify({ savedAt: Date.now(), schemaVersion: 1, contentVersion, state }),

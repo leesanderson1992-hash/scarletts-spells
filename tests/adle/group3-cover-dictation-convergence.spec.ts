@@ -61,7 +61,7 @@ test("Base Word restores canonical Cover Check and Compound restores canonical S
   };
   await page.goto("/dev/adle/base-word-family", { waitUntil: "load" });
   await page.evaluate(({ contentVersion, state }) => localStorage.setItem(
-    `adle:morphology-base-family:dev-base-word-family:1:${contentVersion}`,
+    `adle:morphology-base-family:dev-base-word-family-g7-teaching-pages:1:${contentVersion}`,
     JSON.stringify(state),
   ), { contentVersion: baseContentVersion, state: baseState });
   await page.reload({ waitUntil: "load" });
@@ -70,7 +70,7 @@ test("Base Word restores canonical Cover Check and Compound restores canonical S
   await expect(page.getByRole("button", { name: "Continue" })).toBeVisible();
 
   const compoundContentVersion = "d4_mor_closed_compounds_v1";
-  const assignmentId = "dev-closed-compound-reflection";
+  const assignmentId = "dev-closed-compound-g7-teaching-pages";
   const compoundState = {
     stage: "dictation", index: 0, muted: true, attempts: {}, sentences: { rainbow: "A rain bow" }, sentenceChecked: false, reflection: "",
     jigsawLocked: [], jigsawMisses: {}, jigsawPlacements: {}, meaningConnected: [], meaningMisses: {},

@@ -39,6 +39,7 @@ import {
   resolveGenericLessonSnapshot,
   type GenericSnapshotResolutionResult,
 } from "../composable-lesson/generic-snapshot-reader";
+import type { CanonicalActivitySpec } from "../canonical-activity-spec";
 import {
   dailyPlanHeaderProjection,
   getCachedDailyPlanSnapshotCapability,
@@ -60,6 +61,7 @@ export interface AdleSessionItem {
   adleLearningItemRef: string | null;
   promptData: Record<string, unknown>;
   itemMetadata?: Record<string, unknown>;
+  canonicalActivitySpec?: CanonicalActivitySpec;
 }
 
 export const ADLE_PART_ONE_SECTION_KEYS = [
@@ -74,6 +76,7 @@ export const ADLE_PART_TWO_SECTION_KEYS = [
   "lesson_production",
   "lesson_probe",
   "lesson_dictation",
+  "lesson_reflection",
 ] as const;
 
 export interface AdleDailyPlanReadModel {

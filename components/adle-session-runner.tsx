@@ -30,6 +30,10 @@ import type {
 import { normalizeGenericActivitySequence } from "@/lib/adle/generic-activity-compatibility";
 import type { AdleSessionItem } from "@/lib/adle/loaders/daily-plan-surface";
 import { isAttemptCorrect } from "@/lib/adle/session-correctness";
+import type {
+  NormalizedLessonReflectionMistake,
+  NormalizedLessonReflectionSentenceComparison,
+} from "@/lib/adle/lesson-reflection";
 import {
   CanonicalActivityHost,
   CanonicalActivityNormalizationBlockedState,
@@ -37,7 +41,11 @@ import {
 import type { BaseWordFamilyLessonSnapshotV1 } from "@/lib/adle/morphology/base-word-family-payload";
 import { ClosedCompoundGuidedLesson, CompoundWordGuidedLesson } from "@/components/adle/morphology/closed-compound-guided-lesson";
 import type { LessonRouteResolutionResult } from "@/lib/adle/composable-lesson/route-resolution";
-import { extractSentenceTarget } from "@/lib/adle/sentence-dictation-contract";
+import {
+  extractCanonicalSentenceTarget,
+  extractSentenceTarget,
+  type CanonicalSentenceDictationTargetBinding,
+} from "@/lib/adle/sentence-dictation-contract";
 
 const MorphologyGuidedLesson = dynamic(
   () =>
@@ -99,6 +107,26 @@ function blockersFor(results: readonly CanonicalActivityNormalizationResult[], s
 function payloadString(spec: CanonicalActivitySpec, key: string): string {
   const value = spec.payload[key];
   return typeof value === "string" ? value : "";
+}
+
+function dictationTargetBinding(spec: CanonicalActivitySpec): CanonicalSentenceDictationTargetBinding {
+  const value = spec.payload.targetBinding;
+  if (value && typeof value === "object" && !Array.isArray(value)) {
+    const binding = value as Record<string, unknown>;
+    if (binding.kind === "token" && Number.isInteger(binding.tokenIndex)) {
+      return { kind: "token", tokenIndex: Number(binding.tokenIndex) };
+    }
+    if (binding.kind === "span" && Number.isInteger(binding.startTokenIndex)
+      && Number.isInteger(binding.endTokenIndexExclusive) && typeof binding.exactAnswer === "string") {
+      return {
+        kind: "span",
+        startTokenIndex: Number(binding.startTokenIndex),
+        endTokenIndexExclusive: Number(binding.endTokenIndexExclusive),
+        exactAnswer: binding.exactAnswer,
+      };
+    }
+  }
+  return { kind: "token", tokenIndex: typeof spec.payload.targetTokenIndex === "number" ? spec.payload.targetTokenIndex : 0 };
 }
 
 function attemptsJson(attempts: ReadonlyMap<string, string>): string {
@@ -297,14 +325,15 @@ function LessonPart(props: { childId: string; assignmentId: string; items: AdleS
   const normalized = useMemo(() => normalizeGenericActivitySequence(props.items), [props.items]);
   const intro = specsFor(normalized, "lesson_intro", "INTRODUCTION")[0] ?? null;
   const memoryCues = specsFor(normalized, "guided_practice", "MEMORY_CUE", ["child_authored_cue"]);
-  const meaningMatch = specsFor(normalized, "guided_practice", "MEANING_MATCH", ["component_clues"]);
+  const meaningMatch = specsFor(normalized, "guided_practice", "MEANING_MATCH", ["component_clues", "word_to_definition"]);
   const historicalMeaning = specsFor(normalized, "guided_practice", "MEANING_MATCH", ["historical_free_response"]);
   const guidedCover = specsFor(normalized, "guided_practice", "COVER_CHECK", ["whole_word"]);
   const production = specsFor(normalized, "lesson_production", "COVER_CHECK", ["whole_word"]);
   const mustUseWriting = specsFor(normalized, "lesson_production", "FREE_WRITING", ["first_impression_transfer"]);
   const dictation = specsFor(normalized, "lesson_dictation", "DICTATION", ["whole_sentence"]);
   const probeWords = specsFor(normalized, "lesson_probe", "COLD_WORD_RECALL", ["diagnostic_probe"]);
-  const blockers = blockersFor(normalized, ["lesson_intro", "guided_practice", "lesson_production", "lesson_probe", "lesson_dictation"]);
+  const lessonReflection = specsFor(normalized, "lesson_reflection", "LESSON_REFLECTION", ["standard_lesson_reflection"])[0] ?? null;
+  const blockers = blockersFor(normalized, ["lesson_intro", "guided_practice", "lesson_production", "lesson_probe", "lesson_dictation", "lesson_reflection"]);
   const [attempts, setAttempts] = useState<Map<string, string>>(new Map());
   const [dictationAttempts, setDictationAttempts] = useState<Map<string, string>>(new Map());
   const [dictationSentenceAttempts, setDictationSentenceAttempts] = useState<Map<string, string>>(new Map());
@@ -314,7 +343,11 @@ function LessonPart(props: { childId: string; assignmentId: string; items: AdleS
   const [guidedCovered, setGuidedCovered] = useState<Set<string>>(new Set());
   const [checkedSentences, setCheckedSentences] = useState<Set<string>>(new Set());
   const [lockedProbes, setLockedProbes] = useState<Set<string>>(new Set());
+  const [teachingComplete, setTeachingComplete] = useState(intro?.mode !== "teaching_page");
+  const [teachingPageIndex, setTeachingPageIndex] = useState(0);
+  const [reflectionResponse, setReflectionResponse] = useState("");
   const probeResumeKey = `adle:cold-word-recall:${props.assignmentId}:diagnostic-probe`;
+  const firstImpressionResumeKey = `adle:generic-v3:${props.assignmentId}:first-impression`;
 
   useEffect(() => {
     const restored = parseColdRecallResume(window.sessionStorage.getItem(probeResumeKey));
@@ -330,6 +363,25 @@ function LessonPart(props: { childId: string; assignmentId: string; items: AdleS
   useEffect(() => {
     window.sessionStorage.setItem(probeResumeKey, JSON.stringify({ attempts: [...probeAttempts], locked: [...lockedProbes] }));
   }, [lockedProbes, probeAttempts, probeResumeKey]);
+  useEffect(() => {
+    if (intro?.mode !== "teaching_page" && lessonReflection === null) return;
+    try {
+      const raw = window.sessionStorage.getItem(firstImpressionResumeKey);
+      if (!raw) return;
+      const restored = JSON.parse(raw) as { teachingComplete?: unknown; teachingPageIndex?: unknown; reflectionResponse?: unknown };
+      queueMicrotask(() => {
+        if (typeof restored.teachingComplete === "boolean") setTeachingComplete(restored.teachingComplete);
+        if (Number.isInteger(restored.teachingPageIndex) && Number(restored.teachingPageIndex) >= 0) setTeachingPageIndex(Number(restored.teachingPageIndex));
+        if (typeof restored.reflectionResponse === "string") setReflectionResponse(restored.reflectionResponse);
+      });
+    } catch {
+      // Malformed ephemeral resume state is ignored; the governed snapshot remains authoritative.
+    }
+  }, [firstImpressionResumeKey, intro?.mode, lessonReflection]);
+  useEffect(() => {
+    if (intro?.mode !== "teaching_page" && lessonReflection === null) return;
+    window.sessionStorage.setItem(firstImpressionResumeKey, JSON.stringify({ teachingComplete, teachingPageIndex, reflectionResponse }));
+  }, [firstImpressionResumeKey, intro?.mode, lessonReflection, reflectionResponse, teachingComplete, teachingPageIndex]);
 
   const meaningTargets = meaningMatch.flatMap((item) => Array.isArray(item.payload.targets) ? item.payload.targets : []);
   const readyToSubmit =
@@ -339,14 +391,52 @@ function LessonPart(props: { childId: string; assignmentId: string; items: AdleS
     dictation.every((item) => checkedSentences.has(item.id)) &&
     probeWords.every((word) => lockedProbes.has(payloadString(word, "canonicalWordId")));
 
+  const reflectionMistakes: NormalizedLessonReflectionMistake[] = production.flatMap((item) => {
+    const wordId = payloadString(item, "canonicalWordId");
+    const target = payloadString(item, "word") || payloadString(item, "targetWord");
+    const sentenceActivity = dictation.find((candidate) => payloadString(candidate, "canonicalWordId") === wordId);
+    const attempt = sentenceActivity ? dictationAttempts.get(wordId) ?? "" : attempts.get(wordId) ?? "";
+    return isAttemptCorrect(attempt, target) ? [] : [{ id: wordId, attempt, correctSpelling: target }];
+  });
+  const reflectionSentenceComparisons: NormalizedLessonReflectionSentenceComparison[] = dictation.flatMap((item) => {
+    const wordId = payloadString(item, "canonicalWordId");
+    const attempt = dictationSentenceAttempts.get(wordId) ?? "";
+    const correct = payloadString(item, "correctSentence");
+    return attempt.trim() === correct.trim() ? [] : [{ id: item.id, attempt, correct }];
+  });
+
+  if (intro?.mode === "teaching_page" && !teachingComplete) {
+    return (
+      <section className="brand-card mt-4 rounded-3xl p-4 md:p-5">
+        <p className="brand-eyebrow">Part 2 · Today&apos;s lesson</p>
+        <div className="mt-3">
+          <CanonicalActivityHost
+            spec={intro}
+            runtimeProps={{
+              initialPageIndex: teachingPageIndex,
+              onPageChange: setTeachingPageIndex,
+              onComplete: () => setTeachingComplete(true),
+            }}
+          />
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section className="brand-card mt-4 rounded-3xl p-4 md:p-5">
       <p className="brand-eyebrow">Part 2 · Today&apos;s lesson</p>
 
-      {intro !== null ? (
+      {intro !== null && intro.mode !== "teaching_page" ? (
         <div className="mt-3">
           <CanonicalActivityHost spec={intro} />
         </div>
+      ) : null}
+
+      {intro?.mode === "teaching_page" ? (
+        <button type="button" onClick={() => setTeachingComplete(false)} className="mt-3 min-h-11 rounded-full border border-cyan-700/30 px-4 text-sm font-bold text-cyan-950">
+          Reread lesson pages
+        </button>
       ) : null}
 
       {memoryCues.length > 0 ? (
@@ -420,6 +510,7 @@ function LessonPart(props: { childId: string; assignmentId: string; items: AdleS
         <input type="hidden" name="dictationSentenceAttempts" value={attemptsJson(dictationSentenceAttempts)} />
         <input type="hidden" name="probeAttempts" value={attemptsJson(probeAttempts)} />
         <input type="hidden" name="guidedAttempts" value={attemptsJson(guidedNotes)} />
+        <input type="hidden" name="learningReflection" value={reflectionResponse} />
 
         <h2 className="text-sm font-semibold text-[color:var(--ink)]">Cover check</h2>
         <p className="mt-1 text-xs text-[color:var(--mid)]">Study each word, deliberately cover it, then spell it from memory.</p>
@@ -464,7 +555,7 @@ function LessonPart(props: { childId: string; assignmentId: string; items: AdleS
             <div className="mt-2 grid gap-3">
               {dictation.map((item, index) => {
                 const wordId = payloadString(item, "canonicalWordId");
-                const targetTokenIndex = item.payload.targetTokenIndex;
+                const targetBinding = dictationTargetBinding(item);
                 return (
                   <CanonicalActivityHost
                     key={item.id}
@@ -479,7 +570,10 @@ function LessonPart(props: { childId: string; assignmentId: string; items: AdleS
                       },
                       onCheck: () => {
                         const raw = dictationSentenceAttempts.get(wordId) ?? "";
-                        setDictationAttempts((current) => mapWith(current, wordId, extractSentenceTarget(raw, typeof targetTokenIndex === "number" ? targetTokenIndex : 0)));
+                        setDictationAttempts((current) => mapWith(current, wordId,
+                          item.payload.targetBinding === undefined
+                            ? extractSentenceTarget(raw, targetBinding.kind === "token" ? targetBinding.tokenIndex : 0)
+                            : extractCanonicalSentenceTarget(raw, targetBinding)));
                         setCheckedSentences((current) => setWith(current, item.id));
                       },
                     }}
@@ -520,9 +614,32 @@ function LessonPart(props: { childId: string; assignmentId: string; items: AdleS
 
         {blockers.length > 0 ? <div className="mt-4 grid gap-3">{blockers.map((blocker) => <CanonicalActivityNormalizationBlockedState key={blocker.activityId} blocker={blocker} />)}</div> : null}
 
-        <button type={blockers.length === 0 ? "submit" : "button"} disabled={!readyToSubmit} className="brand-primary-btn mt-4 w-full disabled:opacity-40">
-          Finish Part 2 →
-        </button>
+        {lessonReflection && readyToSubmit ? (
+          <div className="mt-4">
+            <CanonicalActivityHost
+              spec={lessonReflection}
+              runtimeProps={{
+                mistakes: reflectionMistakes,
+                sentenceComparisons: lessonReflection.payload.sentenceComparison
+                  && typeof lessonReflection.payload.sentenceComparison === "object"
+                  && !Array.isArray(lessonReflection.payload.sentenceComparison)
+                  && (lessonReflection.payload.sentenceComparison as Record<string, unknown>).enabled === true
+                  ? reflectionSentenceComparisons
+                  : undefined,
+                response: reflectionResponse,
+                onResponseChange: setReflectionResponse,
+                completionType: "submit",
+                completionLabel: "Finish Word Lab",
+              }}
+            />
+          </div>
+        ) : lessonReflection === null ? (
+          <button type={blockers.length === 0 ? "submit" : "button"} disabled={!readyToSubmit} className="brand-primary-btn mt-4 w-full disabled:opacity-40">
+            Finish Part 2 →
+          </button>
+        ) : (
+          <p className="mt-4 text-center text-xs text-[color:var(--mid)]">Complete the lesson activities to unlock reflection.</p>
+        )}
       </form>
     </section>
   );

@@ -97,9 +97,14 @@ assert.equal(registryWiring.modelCReleaseChangeRequired, false, "behaviour-ident
 assert(registryWiring.releaseBoundary.includes("Stop and require a separate Model C decision"), "registry wiring must retain the semantic-change release gate");
 assert.equal(
   ADLE_ACTIVITY_AUDIT_CONCLUSIONS.nextConvergenceGroup.status,
-  "P1_REGISTRY_WIRING_PHASE_C_COMPLETE_REVIEW_REQUIRED",
-  "governance must stop for review before Phase D or Phase E",
+  "P1_REGISTRY_WIRING_PHASE_D_WRITER_COMPILER_COMPLETE_REAL_ASSIGNMENT_ENABLEMENT_OFF",
+  "governance must stop before real-assignment v3 enablement or Phase E",
 );
+assert.equal(
+  ADLE_ACTIVITY_AUDIT_CONCLUSIONS.genericSnapshotV3Boundary.writerStatus,
+  "DETERMINISTIC_COMPILER_AND_GUARDED_NON_PRODUCTION_PORT_COMPLETE; REAL_ASSIGNMENT_SELECTION_DEFAULT_OFF_AND_UNWIRED",
+);
+assert.equal(ADLE_ACTIVITY_AUDIT_CONCLUSIONS.genericSnapshotV3Boundary.readerContractsProposedForGeneration.length, 10);
 assert(
   ADLE_ACTIVITY_IMPLEMENTATION_AUDIT.some((row) => row.implementationName === "CanonicalActivityRenderer registry" && row.classification === "CANONICAL"),
   "the specialist versioned renderer registry must be governed as the current canonical runtime authority",

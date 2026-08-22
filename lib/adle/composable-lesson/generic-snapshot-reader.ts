@@ -2,6 +2,13 @@ import type {
   CompiledLessonSnapshotV2,
   GenericSnapshotBlocker,
 } from "./generic-snapshot-contracts";
+import type { CanonicalActivitySpec } from "../canonical-activity-spec";
+import type {
+  CompiledLessonSnapshotV3,
+  GenericSnapshotV3Blocker,
+} from "./generic-snapshot-v3-contracts";
+import { canonicalActivitySpecFromSnapshotV3 } from "./generic-snapshot-v3-registry";
+import { validateCompiledGenericLessonSnapshotV3 } from "./generic-snapshot-v3-validator";
 import type { GenericSnapshotMode } from "./generic-snapshot-mode";
 import {
   canonicalSnapshotJson,
@@ -21,6 +28,7 @@ export interface GenericSnapshotReadableItem {
   adleLearningItemRef: string | null;
   promptData: Record<string, unknown>;
   itemMetadata?: Record<string, unknown>;
+  canonicalActivitySpec?: CanonicalActivitySpec;
 }
 
 export type GenericSnapshotResolutionResult<T extends GenericSnapshotReadableItem> =
@@ -35,18 +43,18 @@ export type GenericSnapshotResolutionResult<T extends GenericSnapshotReadableIte
   | {
       status: "resolved";
       mode: GenericSnapshotMode;
-      source: "snapshot_v2";
-      snapshot: CompiledLessonSnapshotV2;
+      source: "snapshot_v2" | "snapshot_v3";
+      snapshot: CompiledLessonSnapshotV2 | CompiledLessonSnapshotV3;
       items: T[];
       blockers: readonly [];
     }
   | {
       status: "blocked";
       mode: GenericSnapshotMode;
-      source: "snapshot_v2" | "snapshot_column_unavailable";
+      source: "snapshot_v2" | "snapshot_v3" | "snapshot_column_unavailable";
       snapshot: null;
       items: readonly [];
-      blockers: readonly GenericSnapshotBlocker[];
+      blockers: readonly (GenericSnapshotBlocker | GenericSnapshotV3Blocker)[];
     };
 
 function projection<T extends GenericSnapshotReadableItem>(items: readonly T[]): unknown {
@@ -113,6 +121,76 @@ export function resolveGenericLessonSnapshot<T extends GenericSnapshotReadableIt
       source: "snapshot_absent",
       snapshot: null,
       items: legacyItems,
+      blockers: [],
+    };
+  }
+  if (
+    typeof input.compiledLessonSnapshot === "object"
+    && input.compiledLessonSnapshot !== null
+    && (input.compiledLessonSnapshot as { snapshotSchemaVersion?: unknown }).snapshotSchemaVersion === 3
+  ) {
+    const validated = validateCompiledGenericLessonSnapshotV3(input.compiledLessonSnapshot, {
+      lessonRouteMetadata: input.lessonRouteMetadata,
+      assignmentGenerationSource: input.assignmentGenerationSource,
+      items: legacyItems.map((item) => ({
+        sourceEntityId: item.sourceEntityId,
+        position: item.position,
+        sectionKey: item.sectionKey,
+        canonicalWordId: item.canonicalWordId,
+        targetWord: item.targetWord,
+      })),
+    });
+    if (validated.ok === false) {
+      return {
+        status: "blocked",
+        mode: input.mode,
+        source: "snapshot_v3",
+        snapshot: null,
+        items: [],
+        blockers: validated.blockers,
+      };
+    }
+    const itemBySource = new Map(legacyItems.map((item) => [item.sourceEntityId, item]));
+    const snapshotItems = validated.snapshot.activities.flatMap((activity) => {
+      const item = itemBySource.get(activity.itemBinding.sourceEntityId);
+      if (!item) return [];
+      return [{
+        ...item,
+        canonicalActivitySpec: canonicalActivitySpecFromSnapshotV3(
+          activity,
+          item as unknown as Record<string, unknown>,
+        ),
+      } as T];
+    });
+    if (snapshotItems.length !== legacyItems.length) {
+      return {
+        status: "blocked",
+        mode: input.mode,
+        source: "snapshot_v3",
+        snapshot: null,
+        items: [],
+        blockers: [{ code: "snapshot_item_count_mismatch" }],
+      };
+    }
+    if (canonicalSnapshotJson(projection(snapshotItems)) !== canonicalSnapshotJson(projection(legacyItems))) {
+      return {
+        status: "blocked",
+        mode: input.mode,
+        source: "snapshot_v3",
+        snapshot: null,
+        items: [],
+        blockers: [{ code: "item_position_mismatch" }],
+      };
+    }
+    return {
+      status: "resolved",
+      mode: input.mode,
+      source: "snapshot_v3",
+      snapshot: validated.snapshot,
+      items: input.mode === "enforce" ? snapshotItems : legacyItems.map((item) => {
+        const resolved = snapshotItems.find((candidate) => candidate.sourceEntityId === item.sourceEntityId);
+        return resolved ?? item;
+      }),
       blockers: [],
     };
   }

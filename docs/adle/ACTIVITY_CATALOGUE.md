@@ -71,7 +71,7 @@ The catalogue currently has 22 governed concepts, 15 with canonical status, and 
 
 **Capabilities:** Pointer No · Keyboard Yes · Reduced motion Yes · Audio No · Captures attempt No · Evidence-bearing No · First Impression Yes · Review No.
 
-**Notes:** Introduction and Reading Page remain pedagogical content concepts but normalize to TeachingPages. Meet the Words is always the final TeachingPages page and captures no attempt.
+**Notes:** Introduction and Reading Page remain pedagogical content concepts but normalize to TeachingPages. The governed v3 payload owns one to three authored pages plus the required final Meet the Words state; Meet the Words has no audio or attempt contract.
 
 ## READING_PAGE — Reading page
 
@@ -261,7 +261,7 @@ The catalogue currently has 22 governed concepts, 15 with canonical status, and 
 
 **Capabilities:** Pointer Yes · Keyboard Yes · Reduced motion Yes · Audio Yes · Captures attempt No · Evidence-bearing No · First Impression Yes · Review No.
 
-**Notes:** Compound routes use the rich interaction directly. Generic HOM/MOR keys select the same canonical renderer when their payload contains governed definitions; definition-less immutable historical payloads normalize to a compatibility-only GuidedActivity at the dispatch boundary.
+**Notes:** word_to_definition@1 and component_clues@1 are both complete v3 contracts when every governed definition is present. Definition-less immutable historical payloads normalize to a compatibility-only GuidedActivity at the dispatch boundary.
 
 ## MEANING_SORT — Meaning sort
 
@@ -344,7 +344,7 @@ The catalogue currently has 22 governed concepts, 15 with canonical status, and 
 
 **Capabilities:** Pointer Yes · Keyboard Yes · Reduced motion Yes · Audio Yes · Captures attempt Yes · Evidence-bearing Yes · First Impression Yes · Review No.
 
-**Notes:** Prefix, Suffix/Affix, Base Word and Compound routes directly configure this one learner renderer. Historical CONTROLLED_SPELLING assignment keys remain payload/evidence compatibility metadata, not a second specialist presentation.
+**Notes:** Forward v3 uses COVER_CHECK.whole_word@1 with optional governed components and closePolicy. component_marked and ratio_close_policy remain specialist registry identities for unchanged persisted route bindings, not separate future generic learner actions. Historical CONTROLLED_SPELLING keys remain compatibility metadata.
 
 ## CONTROLLED_SPELLING — Controlled spelling
 
@@ -398,7 +398,7 @@ The catalogue currently has 22 governed concepts, 15 with canonical status, and 
 
 **Capabilities:** Pointer No · Keyboard Yes · Reduced motion Yes · Audio Yes · Captures attempt Yes · Evidence-bearing Yes · First Impression Yes · Review No.
 
-**Notes:** The historical first-impression keys configure SentenceDictation. The section-overloaded DICTATION_SENTENCE_CONTEXT key configures ColdWordRecall when replayed in scheduled review. No single-word or sentence-context textbox renderer remains; missing historical lesson sentence content fails closed instead of exposing an inferior mode.
+**Notes:** Forward v3 uses DICTATION.whole_sentence@1 with a governed token-or-span targetBinding. target_token and target_span remain specialist registry identities for unchanged persisted route/evidence bindings. Historical first-impression keys configure SentenceDictation; missing sentence content fails closed.
 
 ## COLD_WORD_RECALL — Cold Word Recall
 
@@ -476,7 +476,7 @@ The catalogue currently has 22 governed concepts, 15 with canonical status, and 
 
 **Capabilities:** Pointer No · Keyboard Yes · Reduced motion Yes · Audio No · Captures attempt Yes · Evidence-bearing Yes · First Impression Yes · Review No.
 
-**Notes:** Prefix/Affix, Base Word and Compound adapters derive route-specific correctness, governed prompts and optional recap data before rendering one LessonReflection. Persistence, completion and historical prompt replay stay outside the component.
+**Notes:** The v3 contract governs prompt provenance, normalized mistake-summary policy, feedback-only sentence comparison, response/resume binding and part-submission completion. Prefix/Affix, Base Word and Compound adapters retain their existing equivalents; persistence, correctness and historical prompt replay stay outside the component.
 
 ## MEMORY_CUE — Memory cue
 
@@ -638,7 +638,7 @@ The catalogue currently has 22 governed concepts, 15 with canonical status, and 
 
 ## Authority relationship
 
-Activity Catalogue is the architectural chooser and capability inventory. CanonicalActivityHost and its versioned renderer registry are the sole React renderer-selection authority for specialist and supported generic/historical activities. The pure generic compatibility normalizer interprets historical keys into CanonicalActivitySpec contracts but cannot select React components. Thin specialist and generic lifecycle adapters retain curriculum transformation, resume, evidence and completion. Generic Snapshot v2 and forward composer output remain untouched; the old activity-template registry is no longer imported by learner runtime and is retained only as an explicit later-deletion candidate.
+Activity Catalogue is the architectural chooser and capability inventory. CanonicalActivityHost and its versioned renderer registry are the sole React renderer-selection authority for specialist and supported generic/historical activities. The pure generic compatibility normalizer interprets v0/v2 historical keys into CanonicalActivitySpec contracts but cannot select React components. Additive Generic Snapshot v3 stores canonical concept, mode, contract version and authored payload directly; its reader validates and supplies those contracts to the same host. Thin specialist and generic lifecycle adapters retain curriculum transformation, resume, evidence and completion. Generic Snapshot v2 remains immutable and replayable, and the v3 writer/forward composer output remain off pending owner approval.
 
 ## Convergence programme status
 
@@ -646,4 +646,4 @@ Activity Catalogue is the architectural chooser and capability inventory. Canoni
 - Group 5: `COMPLETE_MERGED_AND_DEPLOYED` — Group 5 — Meaning & Categorisation Convergence is complete, merged to origin/main and deployed. The canonical learner architecture is Discovery, MeaningConnectionActivity and BinSort. BinSort owns immediate correctness feedback, its brief reduced-motion-safe success celebration and its stateless final BinSortOverview as one learner activity. QuickSort UI and forward generation are retired; duplicate, fallback and prototype Meaning/Sort UI is retained only as required configuration or compatibility code, or is retired.
 - Former proposed Group 6: `ABSORBED_INTO_GROUP_5` — Former proposed Group 6 — Meaning was absorbed into Group 5 — Meaning & Categorisation Convergence. Sort and Meaning were intentionally implemented as one workstream; there is no separate Group 6 implementation, merge or outstanding dependency.
 - Group 7: `COMPLETE_MERGED_AND_DEPLOYED` — Group 7 — First Impression Shell Convergence is accepted, merged into origin/main and deployed to Production. The authoritative d59506c main tree contains implementation commit 93ec640. TeachingPages is the one shared ordered teaching and Meet the Words experience; FirstImpressionLesson is the canonical staged shell for Prefix, Suffix/Affix, Base Word and Closed Compound lessons.
-- Next workstream: `P1_REGISTRY_WIRING_PHASE_C_COMPLETE_REVIEW_REQUIRED` — Phases A–C are complete for review: supported generic/historical inputs normalize in memory to CanonicalActivitySpec and render through CanonicalActivityHost; unknown, malformed and unavailable rich interactions fail closed. Stop before Phase D or Phase E. Generic Snapshot v2, forward composer output, Model C releases, payload versions and lifecycle/evidence boundaries remain unchanged.
+- Next workstream: `P1_REGISTRY_WIRING_PHASE_D_WRITER_COMPILER_COMPLETE_REAL_ASSIGNMENT_ENABLEMENT_OFF` — The approved ten-contract v3 allow-list now has a deterministic compiler, pre-persistence validation, a separately guarded non-Production selector and JSON persistence port proof. A complete First Impression snapshot compiles, persists in the test port, reads back and resolves every activity through the canonical registry. Real assignment wiring remains absent/default OFF, Production continues generating v2, the existing database RPC/constraint remains v2-only, Snapshot v2 is unchanged and Phase E has not started.

@@ -4,6 +4,10 @@ export interface SentenceDictationContract {
   targetTokenIndex: number;
 }
 
+export type CanonicalSentenceDictationTargetBinding =
+  | { kind: "token"; tokenIndex: number }
+  | { kind: "span"; startTokenIndex: number; endTokenIndexExclusive: number; exactAnswer: string };
+
 function nonEmpty(value: unknown): string | null {
   return typeof value === "string" && value.trim() !== "" ? value.trim() : null;
 }
@@ -36,4 +40,19 @@ export function extractSentenceTarget(attempt: string, targetTokenIndex: number)
     .split(/\s+/)
     .map((token) => token.toLocaleLowerCase("en-GB").replace(/[^a-z'-]/g, ""))
     .filter(Boolean)[targetTokenIndex] ?? "";
+}
+
+/** Extracts only the governed evidence target; the learner still writes the whole sentence. */
+export function extractCanonicalSentenceTarget(
+  attempt: string,
+  binding: CanonicalSentenceDictationTargetBinding,
+): string {
+  const tokens = attempt
+    .trim()
+    .split(/\s+/)
+    .map((token) => token.toLocaleLowerCase("en-GB").replace(/[^a-z'-]/g, ""))
+    .filter(Boolean);
+  return binding.kind === "token"
+    ? tokens[binding.tokenIndex] ?? ""
+    : tokens.slice(binding.startTokenIndex, binding.endTokenIndexExclusive).join(" ");
 }

@@ -1,6 +1,6 @@
-import type { MeaningConnectionTarget } from "@/components/adle/morphology/meaning-connection-activity";
-import type { AdleSessionItem } from "@/lib/adle/loaders/daily-plan-surface";
-import { resolveSentenceDictationContract } from "@/lib/adle/sentence-dictation-contract";
+import type { MeaningConnectionTarget } from "./meaning-connection-contract";
+import type { AdleSessionItem } from "./loaders/daily-plan-surface";
+import { resolveSentenceDictationContract } from "./sentence-dictation-contract";
 
 import type {
   CanonicalActivityNormalizationResult,
@@ -97,6 +97,9 @@ export function meaningConnectionTargetFromHistoricalItem(item: AdleSessionItem)
  * complete learner semantics can be reconstructed from the historical row.
  */
 export function normalizeGenericActivity(item: AdleSessionItem): CanonicalActivityNormalizationResult {
+  if (item.canonicalActivitySpec) {
+    return { status: "normalized", spec: item.canonicalActivitySpec };
+  }
   const key = item.templateKey;
   const section = item.sectionKey;
 

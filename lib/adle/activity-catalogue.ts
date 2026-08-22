@@ -149,7 +149,7 @@ export const ADLE_ACTIVITY_CATALOGUE: readonly ActivityCatalogueEntry[] = [
     whenToUse: "At the start of every First Impression lesson for authored teaching followed by required Meet the Words.",
     whenNotToUse: "For interactive family exploration; use WORD_FAMILY_REVEAL as a configured middle activity.",
     compatibilityImplementations: ["IntroActivity for immutable generic assignments"],
-    notes: "Introduction and Reading Page remain pedagogical content concepts but normalize to TeachingPages. Meet the Words is always the final TeachingPages page and captures no attempt.",
+    notes: "Introduction and Reading Page remain pedagogical content concepts but normalize to TeachingPages. The governed v3 payload owns one to three authored pages plus the required final Meet the Words state; Meet the Words has no audio or attempt contract.",
   }),
   activity({
     activityKey: "READING_PAGE", displayName: "Reading page", interactionFamily: "teaching_read",
@@ -230,7 +230,7 @@ export const ADLE_ACTIVITY_CATALOGUE: readonly ActivityCatalogueEntry[] = [
     supportsPointer: true, supportsAudio: true, usedByRoutes: [...COMPOUND_ROUTES, ...PREFIX_ROUTES, AFFIX_ROUTE, GENERIC_ROUTE], usedByMicroSkills: [...COMPOUND_SKILLS, ...PREFIX_SKILLS, ...AFFIX_SKILLS, "generic homophone/morphology skills"],
     templateKeys: ["HOM_MEANING_MATCH", "MOR_MEANING_MATCH", "MOR_COMPOUND_MEANING_CONNECTION"], status: "CANONICAL",
     whenToUse: "When each word must be paired with a distinct definition.", whenNotToUse: "When words belong in reusable semantic groups; use MEANING_SORT.",
-    notes: "Compound routes use the rich interaction directly. Generic HOM/MOR keys select the same canonical renderer when their payload contains governed definitions; definition-less immutable historical payloads normalize to a compatibility-only GuidedActivity at the dispatch boundary.",
+    notes: "word_to_definition@1 and component_clues@1 are both complete v3 contracts when every governed definition is present. Definition-less immutable historical payloads normalize to a compatibility-only GuidedActivity at the dispatch boundary.",
   }),
   activity({
     activityKey: "MEANING_SORT", displayName: "Meaning sort", interactionFamily: "sorting",
@@ -262,7 +262,7 @@ export const ADLE_ACTIVITY_CATALOGUE: readonly ActivityCatalogueEntry[] = [
     capturesAttempt: true, evidenceBearing: true, supportsPointer: true, supportsAudio: true,
     usedByRoutes: [GENERIC_ROUTE, ...ALL_SPECIALIST_ROUTES], usedByMicroSkills: ["historical generic compatibility", ...MORPHOLOGY_SKILLS], status: "CANONICAL", reviewEligible: false,
     whenToUse: "For supported study-cover-recall practice where a teaching view is intentional.", whenNotToUse: "For cold dictation or diagnostic retrieval.",
-    notes: "Prefix, Suffix/Affix, Base Word and Compound routes directly configure this one learner renderer. Historical CONTROLLED_SPELLING assignment keys remain payload/evidence compatibility metadata, not a second specialist presentation.",
+    notes: "Forward v3 uses COVER_CHECK.whole_word@1 with optional governed components and closePolicy. component_marked and ratio_close_policy remain specialist registry identities for unchanged persisted route bindings, not separate future generic learner actions. Historical CONTROLLED_SPELLING keys remain compatibility metadata.",
   }),
   activity({
     activityKey: "CONTROLLED_SPELLING", displayName: "Controlled spelling", interactionFamily: "typed_recall",
@@ -286,7 +286,7 @@ export const ADLE_ACTIVITY_CATALOGUE: readonly ActivityCatalogueEntry[] = [
     templateKeys: ["DICTATION_NO_IMAGE", "DICTATION_SENTENCE_CONTEXT"],
     status: "CANONICAL", reviewEligible: false, whenToUse: "For every first-impression Dictation activity with governed authored sentence content.", whenNotToUse: "For single-word review/diagnostic recall or visible study practice.",
     compatibilityImplementations: ["legacy template-key normalization"],
-    notes: "The historical first-impression keys configure SentenceDictation. The section-overloaded DICTATION_SENTENCE_CONTEXT key configures ColdWordRecall when replayed in scheduled review. No single-word or sentence-context textbox renderer remains; missing historical lesson sentence content fails closed instead of exposing an inferior mode.",
+    notes: "Forward v3 uses DICTATION.whole_sentence@1 with a governed token-or-span targetBinding. target_token and target_span remain specialist registry identities for unchanged persisted route/evidence bindings. Historical first-impression keys configure SentenceDictation; missing sentence content fails closed.",
   }),
   activity({
     activityKey: "COLD_WORD_RECALL", displayName: "Cold Word Recall", interactionFamily: "cold_typed_recall",
@@ -319,7 +319,7 @@ export const ADLE_ACTIVITY_CATALOGUE: readonly ActivityCatalogueEntry[] = [
     status: "CANONICAL", reviewEligible: false,
     whenToUse: "Once, at the end of every first-impression lesson.", whenNotToUse: "For retrying one misspelling or authoring a mnemonic.",
     compatibilityImplementations: ["Common Word Lab FixtureActivity reflection"],
-    notes: "Prefix/Affix, Base Word and Compound adapters derive route-specific correctness, governed prompts and optional recap data before rendering one LessonReflection. Persistence, completion and historical prompt replay stay outside the component.",
+    notes: "The v3 contract governs prompt provenance, normalized mistake-summary policy, feedback-only sentence comparison, response/resume binding and part-submission completion. Prefix/Affix, Base Word and Compound adapters retain their existing equivalents; persistence, correctness and historical prompt replay stay outside the component.",
   }),
   activity({
     activityKey: "MEMORY_CUE", displayName: "Memory cue", interactionFamily: "mnemonic_authoring",
@@ -501,13 +501,13 @@ export const ADLE_ACTIVITY_IMPLEMENTATION_AUDIT: readonly ActivityImplementation
 export const ADLE_ACTIVITY_CONVERGENCE_BACKLOG: readonly ActivityConvergenceBacklogItem[] = [
   {
     priority: "P1", title: "Wire rich components through registry modes",
-    currentImplementations: ["canonical renderer registry for specialist routes", "generic activity-template renderer-kind dispatch", "generic snapshot registry/compiler"],
+    currentImplementations: ["canonical renderer registry for specialist and normalized generic routes", "immutable Generic Snapshot v2 compiler/validator/replay", "additive Generic Snapshot v3 canonical reader/validator plus deterministic guarded non-Production compiler/persistence port; real assignment writer disabled"],
     targetCanonicalImplementation: "Activity Catalogue capability mapping feeding one versioned canonical renderer registry",
     intendedModes: ["existing canonical activity contracts", "behaviour-identical specialist routing", "explicit historical normalization"], routesAffected: [GENERIC_ROUTE, ...ALL_SPECIALIST_ROUTES],
     regressionRequirements: ["catalogue-to-registration totality", "payload validation", "lazy renderer loading", "route replay", "resume/completion/evidence parity", "fail-closed unknown contracts"],
     learnerRuntimeRisk: "high", modelCReleaseChangeRequired: false,
-    releaseBoundary: "Versioned registration groundwork and behaviour-identical routing of existing specialist payloads are internal refactors. Stop and require a separate Model C decision before any specialist payload, curriculum meaning, dependency fingerprint, route activation or learner semantics change. Generic snapshot v3 and new-generation output are a separate owner-gated release phase.",
-    consolidationOpportunity: "Phases A and B have removed specialist component selection from route render closures. Later owner-gated phases can normalize compatibility keys, move generic forward generation, and retire the remaining generic dispatch authority while route lifecycle boundaries stay explicit.",
+    releaseBoundary: "Phases A–C, the Phase D reader/foundation, D1 contracts and guarded compiler slice leave real-assignment v3 selection physically unwired and default OFF. Production continues generating v2. Actual assignment enablement remains owner-gated. Stop and require a separate Model C decision before any specialist payload, curriculum meaning, dependency fingerprint, route activation or learner semantics change.",
+    consolidationOpportunity: "Phases A–C removed competing runtime renderer selection. The additive v3 reader and deterministic compiler now accept complete canonical contracts through a guarded non-Production JSON persistence port; a later owner-approved infrastructure gate can make the existing assignment JSON constraint/RPC v3-capable before any real writer selection.",
   },
   {
     priority: "P1", title: "Implement genuine missing activity surfaces",
@@ -564,7 +564,7 @@ export const ADLE_ACTIVITY_AUDIT_CONCLUSIONS = {
       "docs/implementation/adle-base-word-family-lesson-plan.md",
     ],
   },
-  authorityRelationship: "Activity Catalogue is the architectural chooser and capability inventory. CanonicalActivityHost and its versioned renderer registry are the sole React renderer-selection authority for specialist and supported generic/historical activities. The pure generic compatibility normalizer interprets historical keys into CanonicalActivitySpec contracts but cannot select React components. Thin specialist and generic lifecycle adapters retain curriculum transformation, resume, evidence and completion. Generic Snapshot v2 and forward composer output remain untouched; the old activity-template registry is no longer imported by learner runtime and is retained only as an explicit later-deletion candidate.",
+  authorityRelationship: "Activity Catalogue is the architectural chooser and capability inventory. CanonicalActivityHost and its versioned renderer registry are the sole React renderer-selection authority for specialist and supported generic/historical activities. The pure generic compatibility normalizer interprets v0/v2 historical keys into CanonicalActivitySpec contracts but cannot select React components. Additive Generic Snapshot v3 stores canonical concept, mode, contract version and authored payload directly; its reader validates and supplies those contracts to the same host. Thin specialist and generic lifecycle adapters retain curriculum transformation, resume, evidence and completion. Generic Snapshot v2 remains immutable and replayable, and the v3 writer/forward composer output remain off pending owner approval.",
   buildBoundary: "BUILD is one shared ordered-placement interaction family with two learner experiences. DefinitionWordBuilder presents one definition-led target and is configured by all 19 Prefix, Suffix/Affix and Base Word microskills. CompoundJigsawActivity presents anonymous puzzle rows above one deterministic mixed bank using Jigsaw-shaped component, SPACE and hyphen pieces; checked row content identifies and locks the governed word. Both use OrderedBuildEngine for candidate order, placement, rearrangement, validation, completion and restoration. Historical closed-compound v1 payloads are translated at the route boundary to generalized two-piece/no-join targets; no historical Jigsaw UI remains.",
   cleaverBoundary: "SplitHandle is the one stateful Split engine across Prefix, Affix and Base Word. Required boundaries, restored selected cuts and an isolated governed component are neutral configuration; SplitBuild and Base Word Cleave are thin curriculum adapters. Final-y source-form restoration is a separate post-Split SpellingTransformationReveal, and the redundant typed base confirmation is retired. Word assembly and syllable split/rebuild remain separate learner actions.",
   meaningCategorisationBoundary: "Meaning has exactly three canonical learner actions. Discovery is one prefix/suffix-configured transformation-and-choice engine. MeaningConnectionActivity is one rich word-to-definition connection engine for Compound and governed generic payloads; definition-less immutable payloads use an explicit compatibility fallback. BinSort is one categorisation state machine and owns immediate feedback, a brief reduced-motion-safe success celebration, automatic advance, and its stateless final BinSortOverview. QuickSort UI and forward generation are retired; REVIEW_QUICK_SORT remains only a compatibility key and immutable generic snapshot v2 discriminator.",
@@ -609,8 +609,26 @@ export const ADLE_ACTIVITY_AUDIT_CONCLUSIONS = {
     nextStep: "Closed. Retain TeachingPages and FirstImpressionLesson as the canonical boundaries; do not restore route-local teaching-page navigation or duplicate Meet the Words screens.",
   },
   nextConvergenceGroup: {
-    status: "P1_REGISTRY_WIRING_PHASE_C_COMPLETE_REVIEW_REQUIRED",
-    summary: "Phases A–C are complete for review: supported generic/historical inputs normalize in memory to CanonicalActivitySpec and render through CanonicalActivityHost; unknown, malformed and unavailable rich interactions fail closed. Stop before Phase D or Phase E. Generic Snapshot v2, forward composer output, Model C releases, payload versions and lifecycle/evidence boundaries remain unchanged.",
+    status: "P1_REGISTRY_WIRING_PHASE_D_WRITER_COMPILER_COMPLETE_REAL_ASSIGNMENT_ENABLEMENT_OFF",
+    summary: "The approved ten-contract v3 allow-list now has a deterministic compiler, pre-persistence validation, a separately guarded non-Production selector and JSON persistence port proof. A complete First Impression snapshot compiles, persists in the test port, reads back and resolves every activity through the canonical registry. Real assignment wiring remains absent/default OFF, Production continues generating v2, the existing database RPC/constraint remains v2-only, Snapshot v2 is unchanged and Phase E has not started.",
+  },
+  genericSnapshotV3Boundary: {
+    schemaVersion: 3,
+    storage: "Existing compiledLessonSnapshot JSON application boundary. The guarded non-Production proof uses an injected JSON persistence port; the live daily_assignments RPC/check constraint remains v2-only and was not changed.",
+    readerContractsProposedForGeneration: [
+      "INTRODUCTION.teaching_page@1",
+      "COVER_CHECK.whole_word@1",
+      "DICTATION.whole_sentence@1",
+      "COLD_WORD_RECALL.scheduled_review@1",
+      "COLD_WORD_RECALL.diagnostic_probe@1",
+      "ERROR_REPAIR.reveal_hide_retry@1",
+      "MEMORY_CUE.child_authored_cue@1",
+      "MEANING_MATCH.word_to_definition@1",
+      "MEANING_MATCH.component_clues@1",
+      "LESSON_REFLECTION.standard_lesson_reflection@1",
+    ],
+    writerStatus: "DETERMINISTIC_COMPILER_AND_GUARDED_NON_PRODUCTION_PORT_COMPLETE; REAL_ASSIGNMENT_SELECTION_DEFAULT_OFF_AND_UNWIRED",
+    immutableCompatibility: "Generic Snapshot v2 contracts, compiler, validator, fingerprints and replay remain unchanged.",
   },
   newActivityRule: [
     "Search the canonical Activity Catalogue.",

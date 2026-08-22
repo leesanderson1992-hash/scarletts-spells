@@ -23,7 +23,7 @@ function item(input: Partial<AdleSessionItem> & Pick<AdleSessionItem, "id" | "se
 }
 
 function contract(result: ReturnType<typeof normalizeGenericActivity>): string {
-  assert.notEqual(result.status, "blocked");
+  if (result.status === "blocked") throw new Error(`Expected normalized contract, received ${result.blocker.code}`);
   return `${result.spec.concept}.${result.spec.mode}@${result.spec.contractVersion}`;
 }
 
@@ -72,14 +72,16 @@ const snapshotHashes: Record<string, string> = {
   "lib/adle/composable-lesson/generic-snapshot-compiler.ts": "23c1fbf6973541d15c9c6c230ec47dfeae0c18dbb54efb39eff117fa59749da1",
   "lib/adle/composable-lesson/generic-snapshot-contracts.ts": "10275d6e5eb269098ebf4e57e2fb93ee696602ecd39e7e3f58b9b94dafe5361d",
   "lib/adle/composable-lesson/generic-snapshot-mode.ts": "85d3848c5f76d21835e7a15195316fc5e17e40b5e74af18a5f19dbd850286df5",
-  "lib/adle/composable-lesson/generic-snapshot-reader.ts": "c792568cefc14dad268cf3ab4dbd8abf785ac70bd09c5c38479723740228826c",
+  // Phase D adds an explicit v3 branch to the reader; its v2 branch and every
+  // v2 contract/compiler/validator dependency remain unchanged.
+  "lib/adle/composable-lesson/generic-snapshot-reader.ts": "d22c0ea4ed22b45613fec02129ece77e358101d6be40a42d0eccda7f5c8d8580",
   "lib/adle/composable-lesson/generic-snapshot-registry.ts": "e4fdb0ef1adb0b1487aa23255911ba1b92566f8199dfabe4e692e4e6b0fa0350",
   "lib/adle/composable-lesson/generic-snapshot-requirements.ts": "eeb2b73de9cbeafe0dee753e69c91334bb13c8ab393b830f1fec8b08a6f71ee5",
   "lib/adle/composable-lesson/generic-snapshot-validator.ts": "e6f94a21336afcd6f28a1a77160f48d25b6991430b6d0df2fe90dde82f72d101",
 };
 for (const [path, expected] of Object.entries(snapshotHashes)) {
   const actual = createHash("sha256").update(readFileSync(path)).digest("hex");
-  assert.equal(actual, expected, `${path} must remain byte-identical to the committed Snapshot v2 baseline`);
+  assert.equal(actual, expected, `${path} must remain byte-identical to the accepted Phase D reader/v2 baseline`);
 }
 
 const runner = readFileSync("components/adle-session-runner.tsx", "utf8");

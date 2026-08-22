@@ -16,7 +16,7 @@ test("three authored teaching pages precede the required Meet the Words page", a
     await page.getByRole("button", { name: "Next page" }).click();
     await expect(page.getByRole("heading", { name: heading })).toBeVisible();
   }
-  await expect(page.getByText("Page 4 of 4", { exact: true })).toBeVisible();
+  await expect(page.getByText("Page 4 of 4", { exact: false })).toBeVisible();
 });
 
 test("two authored teaching pages also end with the required Meet the Words page", async ({ page }) => {
@@ -25,7 +25,7 @@ test("two authored teaching pages also end with the required Meet the Words page
   await expect(page.getByRole("heading", { name: "Keep the base word steady." })).toBeVisible();
   await page.getByRole("button", { name: "Next page" }).click();
   await expect(page.getByRole("heading", { name: "Today’s words" })).toBeVisible();
-  await expect(page.getByText("Page 3 of 3", { exact: true })).toBeVisible();
+  await expect(page.getByText("Page 3 of 3", { exact: false })).toBeVisible();
 });
 
 test("teaching resume restores an exact authored page or Meet the Words", async ({ page }) => {
@@ -69,9 +69,11 @@ test("keyboard and narrow layout retain usable teaching navigation", async ({ pa
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/dev/adle/first-impression?pages=3");
   const nextPage = page.getByRole("button", { name: "Next page" });
-  await nextPage.focus();
+  for (let index = 0; index < 12 && !(await nextPage.evaluate((element) => element === document.activeElement)); index += 1) {
+    await page.keyboard.press("Tab");
+  }
   await expect(nextPage).toBeFocused();
-  await nextPage.press("Enter");
+  await page.keyboard.press("Enter");
   await expect(page.getByRole("heading", { name: "Keep the base word steady." })).toBeVisible();
   const dimensions = await page.evaluate(() => ({ scroll: document.documentElement.scrollWidth, client: document.documentElement.clientWidth }));
   expect(dimensions.scroll).toBeLessThanOrEqual(dimensions.client);

@@ -10,15 +10,15 @@ This is a migration backlog, not authority to refactor, activate routes, change 
 
 ### P1 — Wire rich components through registry modes
 
-- Current implementations: `canonical renderer registry for specialist routes`, `generic activity-template renderer-kind dispatch`, `generic snapshot registry/compiler`
+- Current implementations: `canonical renderer registry for specialist and normalized generic routes`, `immutable Generic Snapshot v2 compiler/validator/replay`, `additive Generic Snapshot v3 canonical reader/validator plus deterministic guarded non-Production compiler/persistence port; real assignment writer disabled`
 - Target: Activity Catalogue capability mapping feeding one versioned canonical renderer registry
 - Intended modes: `existing canonical activity contracts`, `behaviour-identical specialist routing`, `explicit historical normalization`
 - Routes affected: `generic_composer:v1`, `dynamic_prefix_word_lab:v2`, `fixed_un_prefix_word_lab:v1`, `dynamic_affix_word_lab:v3`, `base_word_lab:v2`, `compound_word_lab:v2`, `closed_compound_word_lab:v1`
 - Regression requirements: catalogue-to-registration totality; payload validation; lazy renderer loading; route replay; resume/completion/evidence parity; fail-closed unknown contracts
 - Learner/runtime risk: `high`
 - Model C release change required: No
-- Release boundary: Versioned registration groundwork and behaviour-identical routing of existing specialist payloads are internal refactors. Stop and require a separate Model C decision before any specialist payload, curriculum meaning, dependency fingerprint, route activation or learner semantics change. Generic snapshot v3 and new-generation output are a separate owner-gated release phase.
-- Consolidation opportunity: Phases A and B have removed specialist component selection from route render closures. Later owner-gated phases can normalize compatibility keys, move generic forward generation, and retire the remaining generic dispatch authority while route lifecycle boundaries stay explicit.
+- Release boundary: Phases A–C, the Phase D reader/foundation, D1 contracts and guarded compiler slice leave real-assignment v3 selection physically unwired and default OFF. Production continues generating v2. Actual assignment enablement remains owner-gated. Stop and require a separate Model C decision before any specialist payload, curriculum meaning, dependency fingerprint, route activation or learner semantics change.
+- Consolidation opportunity: Phases A–C removed competing runtime renderer selection. The additive v3 reader and deterministic compiler now accept complete canonical contracts through a guarded non-Production JSON persistence port; a later owner-approved infrastructure gate can make the existing assignment JSON constraint/RPC v3-capable before any real writer selection.
 
 ### P1 — Implement genuine missing activity surfaces
 
@@ -78,7 +78,7 @@ First-impression spelling has exactly two learner experiences: CoverShutter for 
 - Group 5 status: `COMPLETE_MERGED_AND_DEPLOYED` — Group 5 — Meaning & Categorisation Convergence is complete, merged to origin/main and deployed. The canonical learner architecture is Discovery, MeaningConnectionActivity and BinSort. BinSort owns immediate correctness feedback, its brief reduced-motion-safe success celebration and its stateless final BinSortOverview as one learner activity. QuickSort UI and forward generation are retired; duplicate, fallback and prototype Meaning/Sort UI is retained only as required configuration or compatibility code, or is retired.
 - Former proposed Group 6: `ABSORBED_INTO_GROUP_5` — Former proposed Group 6 — Meaning was absorbed into Group 5 — Meaning & Categorisation Convergence. Sort and Meaning were intentionally implemented as one workstream; there is no separate Group 6 implementation, merge or outstanding dependency.
 - Group 7 status: `COMPLETE_MERGED_AND_DEPLOYED` — Group 7 — First Impression Shell Convergence is accepted, merged into origin/main and deployed to Production. The authoritative d59506c main tree contains implementation commit 93ec640. TeachingPages is the one shared ordered teaching and Meet the Words experience; FirstImpressionLesson is the canonical staged shell for Prefix, Suffix/Affix, Base Word and Closed Compound lessons.
-- Next workstream: `P1_REGISTRY_WIRING_PHASE_C_COMPLETE_REVIEW_REQUIRED` — Phases A–C are complete for review: supported generic/historical inputs normalize in memory to CanonicalActivitySpec and render through CanonicalActivityHost; unknown, malformed and unavailable rich interactions fail closed. Stop before Phase D or Phase E. Generic Snapshot v2, forward composer output, Model C releases, payload versions and lifecycle/evidence boundaries remain unchanged.
+- Next workstream: `P1_REGISTRY_WIRING_PHASE_D_WRITER_COMPILER_COMPLETE_REAL_ASSIGNMENT_ENABLEMENT_OFF` — The approved ten-contract v3 allow-list now has a deterministic compiler, pre-persistence validation, a separately guarded non-Production selector and JSON persistence port proof. A complete First Impression snapshot compiles, persists in the test port, reads back and resolves every activity through the canonical registry. Real assignment wiring remains absent/default OFF, Production continues generating v2, the existing database RPC/constraint remains v2-only, Snapshot v2 is unchanged and Phase E has not started.
 
 #### Group 3 closeout detail
 

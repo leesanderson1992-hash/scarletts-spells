@@ -3,8 +3,9 @@
 
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { playInteractionSound } from "@/components/adle/activities/shared/sound";
+import type { MeaningConnectionTarget } from "@/lib/adle/meaning-connection-contract";
 
-export type MeaningConnectionTarget = { canonicalWordId: string; word: string; audioText?: string; definition: string; componentMeanings?: readonly string[]; componentToWholeRelationship?: string };
+export type { MeaningConnectionTarget } from "@/lib/adle/meaning-connection-contract";
 type Point = { x: number; y: number };
 function seededOrder<T>(values: readonly T[], seed: string): T[] {
   let state = [...seed].reduce((sum, char) => (sum * 31 + char.charCodeAt(0)) >>> 0, 1);
