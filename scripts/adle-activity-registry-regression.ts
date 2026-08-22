@@ -1,187 +1,55 @@
-/**
- * ADLE 7-UI-B: activity template registry regression — pure, DB-free.
- *
- * Proves typed metadata, renderer routing, section-safe fallback, and the
- * evidence-boundary rule that the registry imports no scheduler/reward/evidence
- * write code.
- */
-
+/** Phase C: generic keys are compatibility inputs, not React renderer kinds. */
 import { readFileSync } from "node:fs";
+import { deepStrictEqual } from "node:assert/strict";
 
-import {
-  getActivityTemplateDefinition,
-  listRegisteredActivityTemplateKeys,
-  resolveActivityTemplateDefinition,
-  type ActivityMode,
-  type ActivityRendererKind,
-} from "../lib/adle/activity-template-registry";
+import { listRegisteredActivityTemplateKeys } from "../lib/adle/activity-template-registry";
+import { normalizeGenericActivity, normalizeGenericActivitySequence } from "../lib/adle/generic-activity-compatibility";
+import type { AdleSessionItem } from "../lib/adle/loaders/daily-plan-surface";
 
-function assert(condition: unknown, message: string): void {
-  if (!condition) {
-    throw new Error(message);
-  }
+function assert(condition: unknown, message: string): asserts condition {
+  if (!condition) throw new Error(message);
 }
 
-const resolve = (templateKey: string, sectionKey: string) =>
-  resolveActivityTemplateDefinition({ templateKey, sectionKey });
-
-// --- Data-backed templates resolve to their tailored kind -------------------
-
-const EXPECTED: ReadonlyArray<[string, string, ActivityRendererKind, ActivityMode, boolean]> = [
-  ["MICRO_READ_ONLY_INTRO", "lesson_intro", "intro", "read_only", false],
-  ["LESSON_WORDS_INTRO", "lesson_intro", "intro", "read_only", false],
-  ["REVIEW_DICTATION", "review_production", "cold_word_recall", "production", true],
-  ["DICTATION_NO_IMAGE", "lesson_dictation", "sentence_dictation", "production", true],
-  ["DICTATION_SENTENCE_CONTEXT", "lesson_dictation", "sentence_dictation", "production", true],
-  ["DICTATION_SENTENCE_CONTEXT", "review_production", "cold_word_recall", "production", true],
-  ["DIAGNOSTIC_DICTATION_PROBE", "lesson_probe", "cold_word_recall", "production", true],
-  ["CONTROLLED_SPELLING", "lesson_production", "cover_check", "production", true],
-  ["HIDE_WRITE", "guided_practice", "cover_check", "guided", true],
-  ["REVIEW_QUICK_SORT", "review_quick_sort", "compatibility_noop", "read_only", false],
-  ["ERROR_REFLECTION_CUE", "review_reflection", "reflection", "reflection", true],
-  ["MEMORY_CUE", "guided_practice", "reflection", "guided", true],
-  ["MUST_USE_FREEWRITING", "lesson_production", "must_use_writing", "production", true],
-  ["REVIEW_MUST_USE_WRITING", "review_production", "must_use_writing", "production", true],
-];
-for (const [templateKey, sectionKey, kind, mode, capturesAttempt] of EXPECTED) {
-  const definition = resolve(templateKey, sectionKey);
-  assert(definition.rendererKind === kind, `${templateKey} resolves to ${kind}`);
-  assert(definition.activityMode === mode, `${templateKey} activity mode is ${mode}`);
-  assert(definition.capturesAttempt === capturesAttempt, `${templateKey} capturesAttempt is ${capturesAttempt}`);
-  assert(definition.fallbackBehaviour === "none", `${templateKey} is a registered route`);
+function fixture(templateKey: string, sectionKey: string): AdleSessionItem {
+  return { id: `${sectionKey}:${templateKey || "metadata-free"}`, sourceEntityId: templateKey, sectionKey, templateKey, position: 0, status: "pending", targetWord: "helpful", canonicalWordId: "word-helpful", microSkillKey: null, adleLearningItemRef: null, promptData: {} };
 }
 
-// --- Every content-dependent guided template is a warm prompt shell ---------
+const safeContracts = [
+  ["MICRO_READ_ONLY_INTRO", "lesson_intro", "INTRODUCTION", "historical_generic_read_only"],
+  ["LESSON_WORDS_INTRO", "lesson_intro", "INTRODUCTION", "historical_generic_read_only"],
+  ["REVIEW_DICTATION", "review_production", "COLD_WORD_RECALL", "scheduled_review"],
+  ["DICTATION_SENTENCE_CONTEXT", "review_production", "COLD_WORD_RECALL", "scheduled_review"],
+  ["DIAGNOSTIC_DICTATION_PROBE", "lesson_probe", "COLD_WORD_RECALL", "diagnostic_probe"],
+  ["CONTROLLED_SPELLING", "lesson_production", "COVER_CHECK", "whole_word"],
+  ["HIDE_WRITE", "guided_practice", "COVER_CHECK", "whole_word"],
+  ["REVIEW_QUICK_SORT", "review_quick_sort", "REVIEW_SORT", "compatibility_noop"],
+  ["ERROR_REFLECTION_CUE", "review_reflection", "ERROR_REPAIR", "reveal_hide_retry"],
+  ["MEMORY_CUE", "guided_practice", "MEMORY_CUE", "child_authored_cue"],
+  ["MUST_USE_FREEWRITING", "lesson_production", "FREE_WRITING", "first_impression_transfer"],
+  ["REVIEW_MUST_USE_WRITING", "review_production", "FREE_WRITING", "review_transfer"],
+] as const;
 
-const TIER_C_TEMPLATES = [
-  "PG_SOUND_NOTICE",
-  "PG_GRAPHEME_MAP",
-  "HOM_SENTENCE_CHOICE",
-  "HOM_CORRECTION",
-  "INF_CONTEXT_CHOICE",
-  "INF_RULE_CHOICE",
-  "INF_TRANSFORM",
-  "IRRE_TRICKY_PART",
-  "MOR_STRIP_BUILD",
-  "MOR_BUILD_WORD",
-  "MOR_COMPOUND_JIGSAW",
-  "PAT_PATTERN_SPOT",
-  "PAT_RULE_APPLY",
-  "SYL_SPLIT",
-  "SYL_REBUILD",
-  "SCHWA_STRESS_MARK",
-  "SCHWA_VOWEL_REVEAL",
-  "SCHWA_ANCHOR",
-];
-for (const templateKey of TIER_C_TEMPLATES) {
-  const definition = resolve(templateKey, "guided_practice");
-  assert(definition.rendererKind === "guided_prompt", `${templateKey} is a warm prompt shell`);
-  assert(definition.activityMode === "guided", `${templateKey} is guided mode`);
-  assert(definition.capturesAttempt, `${templateKey} captures the existing guided attempt map`);
+for (const [templateKey, sectionKey, concept, mode] of safeContracts) {
+  const input = fixture(templateKey, sectionKey);
+  if (templateKey === "DIAGNOSTIC_DICTATION_PROBE") input.promptData.words = [{ canonicalWordId: "probe-1", targetWord: "brightness" }];
+  const result = normalizeGenericActivity(input);
+  assert(result.status !== "blocked", `${templateKey} must remain a supported compatibility input`);
+  assert(result.spec.concept === concept && result.spec.mode === mode, `${templateKey} must normalize to ${concept}.${mode}`);
 }
 
-for (const templateKey of ["HOM_MEANING_MATCH", "MOR_MEANING_MATCH", "MOR_COMPOUND_MEANING_CONNECTION"]) {
-  const definition = resolve(templateKey, "guided_practice");
-  assert(definition.rendererKind === "meaning_match", `${templateKey} selects canonical Meaning Connection`);
-  assert(definition.activityMode === "guided", `${templateKey} remains guided mode`);
+for (const templateKey of ["PG_SOUND_NOTICE", "PG_GRAPHEME_MAP", "HOM_SENTENCE_CHOICE", "HOM_CORRECTION", "INF_CONTEXT_CHOICE", "INF_RULE_CHOICE", "INF_TRANSFORM", "IRRE_TRICKY_PART", "MOR_STRIP_BUILD", "MOR_BUILD_WORD", "MOR_COMPOUND_JIGSAW", "PAT_PATTERN_SPOT", "PAT_RULE_APPLY", "SYL_SPLIT", "SYL_REBUILD", "SCHWA_STRESS_MARK", "SCHWA_VOWEL_REVEAL", "SCHWA_ANCHOR"]) {
+  const result = normalizeGenericActivity(fixture(templateKey, "guided_practice"));
+  assert(result.status === "blocked" && result.blocker.code === "ADLE_ACTIVITY_RICH_INTERACTION_UNAVAILABLE", `${templateKey} must fail closed instead of selecting GuidedActivity`);
 }
 
-// --- get/list APIs expose a strict known-key set ----------------------------
+const unknown = normalizeGenericActivity(fixture("BRAND_NEW_TEMPLATE", "guided_practice"));
+assert(unknown.status === "blocked" && unknown.blocker.code === "ADLE_ACTIVITY_UNKNOWN_TEMPLATE", "unknown keys must fail closed");
+assert(listRegisteredActivityTemplateKeys().length === 34, "the immutable historical key vocabulary remains complete pending later retirement evidence");
+deepStrictEqual(normalizeGenericActivitySequence([fixture("MEMORY_CUE", "guided_practice")]), normalizeGenericActivitySequence([fixture("MEMORY_CUE", "guided_practice")]), "normalization is deterministic");
 
-for (const [templateKey] of EXPECTED) {
-  assert(getActivityTemplateDefinition(templateKey)?.templateKey === templateKey, `${templateKey} is gettable`);
-}
-assert(getActivityTemplateDefinition("BRAND_NEW_TEMPLATE") === null, "unknown template is not registered");
-
-// --- Unknown templates fail closed to safe, never throw ---------------------
-
-assert(resolve("BRAND_NEW_TEMPLATE", "lesson_production").rendererKind === "cover_check", "unknown production template falls back to Cover Check");
-assert(resolve("BRAND_NEW_TEMPLATE", "lesson_dictation").rendererKind === "sentence_dictation", "unknown lesson Dictation falls back to Sentence Dictation");
-assert(resolve("BRAND_NEW_TEMPLATE", "review_production").rendererKind === "cold_word_recall", "unknown review production falls back to ColdWordRecall");
-assert(resolve("BRAND_NEW_TEMPLATE", "lesson_production").fallbackBehaviour === "section_safe_fallback", "section fallback is auditable");
-assert(resolve("BRAND_NEW_TEMPLATE", "review_reflection").rendererKind === "reflection", "unknown template -> reflection section");
-assert(resolve("BRAND_NEW_TEMPLATE", "review_quick_sort").rendererKind === "compatibility_noop", "historical review-sort section is ignored safely");
-assert(
-  resolve("BRAND_NEW_TEMPLATE", "totally_unknown_section").rendererKind === "guided_prompt",
-  "unknown template + unknown section -> warm prompt shell (never a broken screen)",
-);
-assert(resolve("", "").rendererKind === "guided_prompt", "empty keys fail closed to the warm shell");
-
-const unsupportedKnownSection = resolve("ERROR_REFLECTION_CUE", "lesson_production");
-assert(
-  unsupportedKnownSection.rendererKind === "cover_check" &&
-    unsupportedKnownSection.fallbackBehaviour === "section_safe_fallback",
-  "known template in unsupported section falls back by section without claiming implementation",
-);
-
-// --- Drift guard: the registry knows exactly the active template set ---------
-// REVIEW_QUICK_SORT remains a compatibility key, not a forward renderer.
-
-const ACTIVE_TEMPLATES = [
-  "CONTROLLED_SPELLING",
-  "DIAGNOSTIC_DICTATION_PROBE",
-  "DICTATION_NO_IMAGE",
-  "DICTATION_SENTENCE_CONTEXT",
-  "ERROR_REFLECTION_CUE",
-  "HIDE_WRITE",
-  "HOM_CORRECTION",
-  "HOM_MEANING_MATCH",
-  "HOM_SENTENCE_CHOICE",
-  "INF_CONTEXT_CHOICE",
-  "INF_RULE_CHOICE",
-  "INF_TRANSFORM",
-  "IRRE_TRICKY_PART",
-  "LESSON_WORDS_INTRO",
-  "MEMORY_CUE",
-  "MICRO_READ_ONLY_INTRO",
-  "MOR_BUILD_WORD",
-  "MOR_COMPOUND_JIGSAW",
-  "MOR_COMPOUND_MEANING_CONNECTION",
-  "MOR_MEANING_MATCH",
-  "MOR_STRIP_BUILD",
-  "MUST_USE_FREEWRITING",
-  "PAT_PATTERN_SPOT",
-  "PAT_RULE_APPLY",
-  "PG_GRAPHEME_MAP",
-  "PG_SOUND_NOTICE",
-  "REVIEW_DICTATION",
-  "REVIEW_MUST_USE_WRITING",
-  "REVIEW_QUICK_SORT",
-  "SCHWA_ANCHOR",
-  "SCHWA_STRESS_MARK",
-  "SCHWA_VOWEL_REVEAL",
-  "SYL_REBUILD",
-  "SYL_SPLIT",
-];
-const registeredKeys: ReadonlySet<string> = new Set(listRegisteredActivityTemplateKeys());
-assert(ACTIVE_TEMPLATES.length === 34, "the pinned shared template set has 34 entries");
-for (const templateKey of ACTIVE_TEMPLATES) {
-  assert(registeredKeys.has(templateKey), `registry knows active template ${templateKey}`);
-}
-assert(
-  registeredKeys.size === ACTIVE_TEMPLATES.length,
-  "registry has no stale/extra templates beyond the active set",
-);
-
-// --- Import boundary: metadata registry stays out of evidence/scheduler/reward
-
-const registrySource = readFileSync("lib/adle/activity-template-registry.ts", "utf8");
-for (const forbidden of [
-  "assignment-attempt-events",
-  "session-completion-loader",
-  "evidence-policy",
-  "evidence-pricing",
-  "review-scheduler",
-  "review-due-queue",
-  "composer-completions",
-  "learning-items",
-  "reward",
-  "supabase",
-]) {
-  assert(!registrySource.includes(`from "./${forbidden}`), `registry must not import ${forbidden}`);
-  assert(!registrySource.includes(`from "../${forbidden}`), `registry must not import ${forbidden}`);
-  assert(!registrySource.includes(`@/lib/adle/${forbidden}`), `registry must not import ${forbidden}`);
-  assert(!registrySource.includes(`@/lib/rewards`), "registry must not import reward code");
+const normalizerSource = readFileSync("lib/adle/generic-activity-compatibility.ts", "utf8");
+for (const forbidden of ["react", "CanonicalActivityHost", "completeAdleLessonPartAction", "review-scheduler", "reward", "supabase"]) {
+  assert(!normalizerSource.includes(forbidden), `compatibility normalization must not own ${forbidden}`);
 }
 
-console.log("adle-activity-registry-regression: all checks passed");
+console.log("PASS: generic/historical keys normalize to canonical contracts; rich and unknown inputs fail closed; no React selection authority remains in compatibility code");

@@ -43,7 +43,7 @@ This is the chooser for curriculum designers and future implementation tasks. It
 | `SYLLABLE_SPLIT_REBUILD` | Split a word into syllables and rebuild it from those syllables. | When syllable structure, rather than morphology, is the learning objective. | Yes | No | `REQUIRES_ARCHITECTURE_DECISION` |
 | `GUIDED_PROMPT_FALLBACK` | Keep a generic lesson usable when no structured rich renderer exists. | Only as the registered safe fallback for existing generic templates. | Yes | No | `COMPATIBILITY_ONLY` |
 
-The catalogue currently has 22 governed concepts, 15 with canonical status, and 43 declared modes. Entries marked `REQUIRES_ARCHITECTURE_DECISION` are genuine platform gaps or extraction decisions, not permission for route-local UI.
+The catalogue currently has 22 governed concepts, 15 with canonical status, and 45 declared modes. Entries marked `REQUIRES_ARCHITECTURE_DECISION` are genuine platform gaps or extraction decisions, not permission for route-local UI.
 
 ## INTRODUCTION — Introduction
 
@@ -59,6 +59,7 @@ The catalogue currently has 22 governed concepts, 15 with canonical status, and 
 
 - `teaching_page`: Shows one to three ordered authored teaching pages.
 - `meet_words`: Required final page using the accepted word-card presentation without audio or evidence.
+- `historical_generic_read_only`: Replays immutable generic intro copy through the explicit IntroActivity compatibility adapter.
 
 **Current users:** Routes `generic_composer:v1`, `dynamic_prefix_word_lab:v2`, `fixed_un_prefix_word_lab:v1`, `dynamic_affix_word_lab:v3`, `base_word_lab:v2`, `compound_word_lab:v2`, `closed_compound_word_lab:v1`. Micro-skills `generic composer catalogue`, `D4_MOR_PREFIXES_UN`, `D4_MOR_PREFIXES_DIS_MIS`, `D4_MOR_PREFIXES_IN_IM_IL_IR`, `D4_MOR_PREFIXES_RE_PRE`, `D4_MOR_PREFIXES_SUB_INTER_SUPER`, `D4_MOR_SUFFIXES_ABLE_IBLE`, `D4_MOR_SUFFIXES_AL`, `D4_MOR_SUFFIXES_FUL_LESS`, `D4_MOR_SUFFIXES_ITY`, `D4_MOR_SUFFIXES_LY`, `D4_MOR_SUFFIXES_MENT`, `D4_MOR_SUFFIXES_NESS`, `D4_MOR_SUFFIXES_OUS`, `D4_MOR_SUFFIXES_SION`, `D4_MOR_SUFFIXES_TION`, `D4_MOR_BASE_WORDS_BASE_PLUS_PREFIX`, `D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX`, `D4_MOR_BASE_WORDS_IDENTIFY_BASE`, `D4_MOR_BASE_WORDS_PRESERVE_BASE`, `D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS`, `D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED`.
 
@@ -248,6 +249,7 @@ The catalogue currently has 22 governed concepts, 15 with canonical status, and 
 
 - `word_to_definition`: Select a word then its definition.
 - `component_clues`: Shows component meanings as clues.
+- `historical_free_response`: Preserves a definition-less persisted typed-response contract without claiming a rich meaning interaction.
 
 **Current users:** Routes `compound_word_lab:v2`, `closed_compound_word_lab:v1`, `dynamic_prefix_word_lab:v2`, `fixed_un_prefix_word_lab:v1`, `dynamic_affix_word_lab:v3`, `generic_composer:v1`. Micro-skills `D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS`, `D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED`, `D4_MOR_PREFIXES_UN`, `D4_MOR_PREFIXES_DIS_MIS`, `D4_MOR_PREFIXES_IN_IM_IL_IR`, `D4_MOR_PREFIXES_RE_PRE`, `D4_MOR_PREFIXES_SUB_INTER_SUPER`, `D4_MOR_SUFFIXES_ABLE_IBLE`, `D4_MOR_SUFFIXES_AL`, `D4_MOR_SUFFIXES_FUL_LESS`, `D4_MOR_SUFFIXES_ITY`, `D4_MOR_SUFFIXES_LY`, `D4_MOR_SUFFIXES_MENT`, `D4_MOR_SUFFIXES_NESS`, `D4_MOR_SUFFIXES_OUS`, `D4_MOR_SUFFIXES_SION`, `D4_MOR_SUFFIXES_TION`, `generic homophone/morphology skills`.
 
@@ -636,7 +638,7 @@ The catalogue currently has 22 governed concepts, 15 with canonical status, and 
 
 ## Authority relationship
 
-Activity Catalogue is the architectural chooser and capability inventory. CanonicalActivityRenderer is now the versioned runtime renderer authority for specialist First Impression activity slots; thin specialist adapters still own curriculum transformation, resume, evidence and completion. activity-template-registry.ts and the generic snapshot registry/compiler remain the untouched generic and historical dispatch authorities until separately authorized compatibility and generic-generation phases. The catalogue and registry regressions prevent these transitional authorities from silently drifting.
+Activity Catalogue is the architectural chooser and capability inventory. CanonicalActivityHost and its versioned renderer registry are the sole React renderer-selection authority for specialist and supported generic/historical activities. The pure generic compatibility normalizer interprets historical keys into CanonicalActivitySpec contracts but cannot select React components. Thin specialist and generic lifecycle adapters retain curriculum transformation, resume, evidence and completion. Generic Snapshot v2 and forward composer output remain untouched; the old activity-template registry is no longer imported by learner runtime and is retained only as an explicit later-deletion candidate.
 
 ## Convergence programme status
 
@@ -644,4 +646,4 @@ Activity Catalogue is the architectural chooser and capability inventory. Canoni
 - Group 5: `COMPLETE_MERGED_AND_DEPLOYED` — Group 5 — Meaning & Categorisation Convergence is complete, merged to origin/main and deployed. The canonical learner architecture is Discovery, MeaningConnectionActivity and BinSort. BinSort owns immediate correctness feedback, its brief reduced-motion-safe success celebration and its stateless final BinSortOverview as one learner activity. QuickSort UI and forward generation are retired; duplicate, fallback and prototype Meaning/Sort UI is retained only as required configuration or compatibility code, or is retired.
 - Former proposed Group 6: `ABSORBED_INTO_GROUP_5` — Former proposed Group 6 — Meaning was absorbed into Group 5 — Meaning & Categorisation Convergence. Sort and Meaning were intentionally implemented as one workstream; there is no separate Group 6 implementation, merge or outstanding dependency.
 - Group 7: `COMPLETE_MERGED_AND_DEPLOYED` — Group 7 — First Impression Shell Convergence is accepted, merged into origin/main and deployed to Production. The authoritative d59506c main tree contains implementation commit 93ec640. TeachingPages is the one shared ordered teaching and Meet the Words experience; FirstImpressionLesson is the canonical staged shell for Prefix, Suffix/Affix, Base Word and Closed Compound lessons.
-- Next workstream: `P1_REGISTRY_WIRING_PHASES_A_B_COMPLETE_REVIEW_REQUIRED` — Governance reconciliation, versioned canonical registry groundwork and behaviour-identical specialist routing are complete for review. Stop before Phase C compatibility normalization. Generic/history cutover, new snapshot generation, Model C changes and all release-semantic changes remain unauthorised. Route payloads, resume, completion and evidence boundaries remain with the existing specialist adapters.
+- Next workstream: `P1_REGISTRY_WIRING_PHASE_C_COMPLETE_REVIEW_REQUIRED` — Phases A–C are complete for review: supported generic/historical inputs normalize in memory to CanonicalActivitySpec and render through CanonicalActivityHost; unknown, malformed and unavailable rich interactions fail closed. Stop before Phase D or Phase E. Generic Snapshot v2, forward composer output, Model C releases, payload versions and lifecycle/evidence boundaries remain unchanged.

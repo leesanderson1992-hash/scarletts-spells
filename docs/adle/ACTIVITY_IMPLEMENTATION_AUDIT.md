@@ -15,9 +15,9 @@ Scope: named child-facing activity components, shared learner-interaction primit
 
 Existing runtime/architecture registries:
 
-- components/adle/activities/canonical-renderer-registry.tsx — 19 versioned canonical concept/mode contracts for all specialist First Impression activity slots
-- lib/adle/activity-template-registry.ts — 34 generic template keys and renderer-kind dispatch
-- components/adle/activities/registry.ts — React compatibility wrapper over the generic runtime registry
+- components/adle/activities/canonical-renderer-registry.tsx — versioned canonical concept/mode contracts for specialist and generic/historical runtime rendering
+- lib/adle/generic-activity-compatibility.ts — deterministic in-memory normalization of supported generic/historical inputs
+- lib/adle/activity-template-registry.ts — legacy 34-key renderer-kind vocabulary retained outside runtime pending Snapshot v2 retirement evidence
 - lib/adle/composable-lesson/generic-snapshot-registry.ts — versioned generic snapshot semantics for the same 34 keys
 - lib/adle/composable-lesson/activity-requirements.ts — 15 pedagogical activity fact contracts
 - lib/adle/curriculum-readiness/route-registry.ts — seven generic/specialist route declarations
@@ -37,11 +37,11 @@ Architecture documents inspected:
 | Measure | Count |
 |---|---:|
 | Discovered implementations | 66 |
-| Canonical implementations | 19 |
+| Canonical implementations | 18 |
 | Canonical mode/adapters | 21 |
 | Thin curriculum adapters | 7 |
 | Development references | 2 |
-| Compatibility only | 3 |
+| Compatibility only | 4 |
 | Duplicates to migrate | 4 |
 | Dead or unreferenced | 10 |
 | Requires architecture decision | 0 |
@@ -53,8 +53,8 @@ Architecture documents inspected:
 | TeachingPages | `components/adle/first-impression/teaching-pages.tsx` | `INTRODUCTION / READING_PAGE / MEET_WORDS` | dynamic_prefix_word_lab:v2, fixed_un_prefix_word_lab:v1, dynamic_affix_word_lab:v3, base_word_lab:v2, compound_word_lab:v2, closed_compound_word_lab:v1 | none | TeachingPages | `CANONICAL` | high | No | Retain and route new work through the catalogue. |
 | MeetWords presentation | `components/adle/first-impression/teaching-pages.tsx` | `MEET_WORDS` | dynamic_prefix_word_lab:v2, fixed_un_prefix_word_lab:v1, dynamic_affix_word_lab:v3, base_word_lab:v2, compound_word_lab:v2, closed_compound_word_lab:v1 | none | TeachingPages | `CANONICAL_MODE` | medium | No | Retain and route new work through the catalogue. |
 | IntroActivity compatibility renderer | `components/adle/activities/intro-activity.tsx` | `INTRODUCTION` | generic_composer:v1 | MICRO_READ_ONLY_INTRO, LESSON_WORDS_INTRO | TeachingPages | `COMPATIBILITY_ONLY` | low | Yes | Retain only for immutable generic composer assignments until their compatibility renderer is normalized at the boundary. |
-| GuidedActivity | `components/adle/activities/guided-activity.tsx` | `GUIDED_PROMPT_FALLBACK / MEMORY_CUE` | generic_composer:v1 | MEMORY_CUE, PG_*, HOM_SENTENCE_CHOICE, HOM_CORRECTION, INF_*, IRRE_*, MOR_STRIP_BUILD, MOR_BUILD_WORD, PAT_*, SYL_*, SCHWA_* | GuidedActivity | `CANONICAL` | medium | No | Retain and route new work through the catalogue. |
-| REVIEW_QUICK_SORT compatibility mapping | `lib/adle/activity-template-registry.ts` | `REVIEW_SORT` | historical generic assignments only | REVIEW_QUICK_SORT | none | `COMPATIBILITY_ONLY` | low | Yes | Do not add new usage before the backlog action is complete. |
+| GuidedActivity | `components/adle/activities/guided-activity.tsx` | `MEMORY_CUE / HISTORICAL_FREE_RESPONSE` | generic_composer:v1 | MEMORY_CUE, definition-less historical meaning keys, MUST_USE_FREEWRITING, REVIEW_MUST_USE_WRITING | GuidedActivity | `COMPATIBILITY_ONLY` | medium | Yes | Do not add new usage before the backlog action is complete. |
+| REVIEW_QUICK_SORT compatibility mapping | `lib/adle/generic-activity-compatibility.ts` | `REVIEW_SORT` | historical generic assignments only | REVIEW_QUICK_SORT | none | `COMPATIBILITY_ONLY` | low | Yes | Do not add new usage before the backlog action is complete. |
 | ReflectionActivity | `components/adle/activities/reflection-activity.tsx` | `ERROR_REPAIR` | generic_composer:v1 | ERROR_REFLECTION_CUE | ReflectionActivity | `CANONICAL` | high | No | Retain and route new work through the catalogue. |
 | SplitHandle | `components/adle/activities/shared/split-handle.tsx` | `CLEAVER` | dynamic_prefix_word_lab:v2, fixed_un_prefix_word_lab:v1, dynamic_affix_word_lab:v3, base_word_lab:v2 | MOR_STRIP_BUILD | SplitHandle | `CANONICAL` | high | No | Retain and route new work through the catalogue. |
 | SpellingTransformationReveal | `components/adle/activities/shared/spelling-transformation-reveal.tsx` | `TRANSFORMATION.surface_to_source` | base_word_lab:v2 | none | SpellingTransformationReveal | `CANONICAL_MODE` | medium | No | Retain and route new work through the catalogue. |
@@ -136,7 +136,7 @@ First-impression spelling has exactly two learner experiences: CoverShutter for 
 - Group 5 status: `COMPLETE_MERGED_AND_DEPLOYED` — Group 5 — Meaning & Categorisation Convergence is complete, merged to origin/main and deployed. The canonical learner architecture is Discovery, MeaningConnectionActivity and BinSort. BinSort owns immediate correctness feedback, its brief reduced-motion-safe success celebration and its stateless final BinSortOverview as one learner activity. QuickSort UI and forward generation are retired; duplicate, fallback and prototype Meaning/Sort UI is retained only as required configuration or compatibility code, or is retired.
 - Former proposed Group 6: `ABSORBED_INTO_GROUP_5` — Former proposed Group 6 — Meaning was absorbed into Group 5 — Meaning & Categorisation Convergence. Sort and Meaning were intentionally implemented as one workstream; there is no separate Group 6 implementation, merge or outstanding dependency.
 - Group 7 status: `COMPLETE_MERGED_AND_DEPLOYED` — Group 7 — First Impression Shell Convergence is accepted, merged into origin/main and deployed to Production. The authoritative d59506c main tree contains implementation commit 93ec640. TeachingPages is the one shared ordered teaching and Meet the Words experience; FirstImpressionLesson is the canonical staged shell for Prefix, Suffix/Affix, Base Word and Closed Compound lessons.
-- Next workstream: `P1_REGISTRY_WIRING_PHASES_A_B_COMPLETE_REVIEW_REQUIRED` — Governance reconciliation, versioned canonical registry groundwork and behaviour-identical specialist routing are complete for review. Stop before Phase C compatibility normalization. Generic/history cutover, new snapshot generation, Model C changes and all release-semantic changes remain unauthorised. Route payloads, resume, completion and evidence boundaries remain with the existing specialist adapters.
+- Next workstream: `P1_REGISTRY_WIRING_PHASE_C_COMPLETE_REVIEW_REQUIRED` — Phases A–C are complete for review: supported generic/historical inputs normalize in memory to CanonicalActivitySpec and render through CanonicalActivityHost; unknown, malformed and unavailable rich interactions fail closed. Stop before Phase D or Phase E. Generic Snapshot v2, forward composer output, Model C releases, payload versions and lifecycle/evidence boundaries remain unchanged.
 
 ### Group 3 closeout detail
 
@@ -227,25 +227,25 @@ First-impression spelling has exactly two learner experiences: CoverShutter for 
 ### GuidedActivity
 
 - File: `components/adle/activities/guided-activity.tsx`
-- Concept / family: `GUIDED_PROMPT_FALLBACK / MEMORY_CUE` / `guided_prompt_fallback / memory_cue`
+- Concept / family: `MEMORY_CUE / HISTORICAL_FREE_RESPONSE` / `memory_cue / historical_free_response`
 - Routes: `generic_composer:v1`
 - Micro-skills: `runtime-selected generic micro-skills`
-- Registry/template keys: `MEMORY_CUE`, `PG_*`, `HOM_SENTENCE_CHOICE`, `HOM_CORRECTION`, `INF_*`, `IRRE_*`, `MOR_STRIP_BUILD`, `MOR_BUILD_WORD`, `PAT_*`, `SYL_*`, `SCHWA_*`
+- Registry/template keys: `MEMORY_CUE`, `definition-less historical meaning keys`, `MUST_USE_FREEWRITING`, `REVIEW_MUST_USE_WRITING`
 - Props/config differences: See component props and route adapter.
 - Visual differences: Uses its owning shell styling.
 - Behavioural differences: Local interaction state only.
 - Persistence/evidence differences: Renderer does not write directly; owning session submits completion.
 - Canonical candidate: `GuidedActivity`
-- Classification: `CANONICAL`
-- Recommended action: Retain and route new work through the catalogue.
+- Classification: `COMPATIBILITY_ONLY`
+- Recommended action: Do not add new usage before the backlog action is complete.
 - Migration risk: `medium`
-- Historical replay dependency: No
+- Historical replay dependency: Yes
 - Evidence: Repository import and route-dispatch trace at the audited base SHA.
-- Notes: Canonical only as the generic safe fallback and current memory-cue surface. Definition-less immutable Meaning Match payloads may reach it through an explicit compatibility adapter; forward governed Meaning Match selects MeaningConnectionActivity.
+- Notes: The canonical host supplies an explicit memory_cue or historical_free_response variant. Unknown and missing rich PG/HOM/INF/IRRE/MOR/PAT/SYL/SCHWA interactions fail closed and can no longer select this renderer.
 
 ### REVIEW_QUICK_SORT compatibility mapping
 
-- File: `lib/adle/activity-template-registry.ts`
+- File: `lib/adle/generic-activity-compatibility.ts`
 - Concept / family: `REVIEW_SORT` / `review_sort`
 - Routes: `historical generic assignments only`
 - Micro-skills: None
@@ -253,7 +253,7 @@ First-impression spelling has exactly two learner experiences: CoverShutter for 
 - Props/config differences: See component props and route adapter.
 - Visual differences: Uses its owning shell styling.
 - Behavioural differences: Local interaction state only.
-- Persistence/evidence differences: The historical item never carried production evidence and is ignored before review retrieval.
+- Persistence/evidence differences: The historical item never carried production evidence and normalizes to the registered compatibility no-op before review retrieval.
 - Canonical candidate: None
 - Classification: `COMPATIBILITY_ONLY`
 - Recommended action: Do not add new usage before the backlog action is complete.

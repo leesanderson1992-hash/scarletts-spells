@@ -7,6 +7,11 @@ import {
 } from "react";
 import dynamic from "next/dynamic";
 
+import type {
+  CanonicalActivityNormalizationBlocker,
+  CanonicalActivitySpec,
+} from "@/lib/adle/canonical-activity-spec";
+
 export interface CanonicalActivityNavigation {
   complete: () => void;
   rereadTeaching: () => void;
@@ -38,7 +43,7 @@ export interface CanonicalActivityValidationFailure {
 
 type RendererModule = { default: ComponentType<Record<string, unknown>> };
 type RendererRegistration = CanonicalActivityIdentity & {
-  catalogueComponent: string;
+  catalogueComponent: string | null;
   runtimeAdapter?: string;
   load: () => Promise<RendererModule>;
   validate: (props: unknown) => boolean;
@@ -214,6 +219,41 @@ function validateTransformation(props: unknown): boolean {
     && functionValue(props.onContinue);
 }
 
+function validateHistoricalIntro(props: unknown): boolean {
+  return isRecord(props) && isRecord(props.item);
+}
+
+function validateColdWordRecall(props: unknown): boolean {
+  return isRecord(props)
+    && (props.mode === "scheduled_review" || props.mode === "diagnostic_probe")
+    && nonEmptyString(props.targetWord)
+    && typeof props.value === "string"
+    && typeof props.locked === "boolean"
+    && nonEmptyString(props.label)
+    && functionValue(props.onValueChange)
+    && functionValue(props.onLock);
+}
+
+function validateErrorRepair(props: unknown): boolean {
+  return isRecord(props)
+    && isRecord(props.item)
+    && typeof props.priorAttempt === "string"
+    && typeof props.value === "string"
+    && functionValue(props.onChange);
+}
+
+function validateGuidedCompatibility(props: unknown): boolean {
+  return isRecord(props)
+    && isRecord(props.item)
+    && (props.variant === "memory_cue" || props.variant === "historical_free_response")
+    && typeof props.value === "string"
+    && functionValue(props.onChange);
+}
+
+function validateCompatibilityNoop(props: unknown): boolean {
+  return isRecord(props);
+}
+
 function moduleLoader(
   load: () => Promise<Record<string, unknown>>,
   exportName: string,
@@ -239,11 +279,16 @@ const coverShutterLoader = moduleLoader(() => import("@/components/adle/activiti
 const sentenceDictationLoader = moduleLoader(() => import("@/components/adle/activities/shared/sentence-dictation"), "SentenceDictation");
 const lessonReflectionLoader = moduleLoader(() => import("@/components/adle/activities/lesson-reflection"), "LessonReflection");
 const transformationLoader = moduleLoader(() => import("@/components/adle/activities/shared/spelling-transformation-reveal"), "SpellingTransformationReveal");
+const historicalIntroLoader = moduleLoader(() => import("@/components/adle/activities/intro-activity"), "IntroActivity");
+const coldWordRecallLoader = moduleLoader(() => import("@/components/adle/activities/shared/cold-word-recall"), "ColdWordRecall");
+const errorRepairLoader = moduleLoader(() => import("@/components/adle/activities/reflection-activity"), "ReflectionActivity");
+const guidedCompatibilityLoader = moduleLoader(() => import("@/components/adle/activities/guided-activity"), "GuidedActivity");
+const compatibilityNoopLoader = moduleLoader(() => import("@/components/adle/activities/compatibility-noop"), "CompatibilityNoop");
 
 function registration(
   concept: string,
   mode: string,
-  catalogueComponent: string,
+  catalogueComponent: string | null,
   load: () => Promise<RendererModule>,
   validate: (props: unknown) => boolean,
   runtimeAdapter?: string,
@@ -275,6 +320,15 @@ const registrations = [
   registration("DICTATION", "target_span", "SentenceDictation", sentenceDictationLoader, validateSentenceDictation),
   registration("LESSON_REFLECTION", "standard_lesson_reflection", "LessonReflection", lessonReflectionLoader, validateLessonReflection),
   registration("TRANSFORMATION", "surface_to_source", "SpellingTransformationReveal", transformationLoader, validateTransformation),
+  registration("INTRODUCTION", "historical_generic_read_only", "TeachingPages", historicalIntroLoader, validateHistoricalIntro, "IntroActivity"),
+  registration("COLD_WORD_RECALL", "scheduled_review", "ColdWordRecall", coldWordRecallLoader, validateColdWordRecall),
+  registration("COLD_WORD_RECALL", "diagnostic_probe", "ColdWordRecall", coldWordRecallLoader, validateColdWordRecall),
+  registration("ERROR_REPAIR", "reveal_hide_retry", "ReflectionActivity", errorRepairLoader, validateErrorRepair),
+  registration("MEMORY_CUE", "child_authored_cue", "GuidedActivity", guidedCompatibilityLoader, validateGuidedCompatibility),
+  registration("MEANING_MATCH", "historical_free_response", "MeaningConnectionActivity", guidedCompatibilityLoader, validateGuidedCompatibility, "GuidedActivity"),
+  registration("FREE_WRITING", "first_impression_transfer", null, guidedCompatibilityLoader, validateGuidedCompatibility, "GuidedActivity"),
+  registration("FREE_WRITING", "review_transfer", null, guidedCompatibilityLoader, validateGuidedCompatibility, "GuidedActivity"),
+  registration("REVIEW_SORT", "compatibility_noop", null, compatibilityNoopLoader, validateCompatibilityNoop, "CompatibilityNoop"),
 ] as const;
 
 const registry = new Map(registrations.map((entry) => [canonicalActivityContractKey(entry), entry]));
@@ -348,12 +402,41 @@ export function CanonicalActivityRenderer(props: { binding: CanonicalActivityBin
   return <LazyCanonicalActivity {...props} />;
 }
 
+export function CanonicalActivityHost(props: {
+  spec: CanonicalActivitySpec;
+  runtimeProps?: Readonly<Record<string, unknown>>;
+  navigation?: CanonicalActivityNavigation;
+  wrap?: (activity: ReactNode) => ReactNode;
+}) {
+  const binding = createCanonicalActivityBinding({
+    id: props.spec.id,
+    label: props.spec.label,
+    concept: props.spec.concept,
+    mode: props.spec.mode,
+    contractVersion: props.spec.contractVersion,
+    renderKey: props.spec.id,
+    createProps: () => ({ ...props.spec.payload, ...props.runtimeProps }),
+    wrap: props.wrap,
+  });
+  return <CanonicalActivityRenderer binding={binding} navigation={props.navigation ?? noOpNavigation} />;
+}
+
 export function CanonicalActivityBlockedState(props: { failure: CanonicalActivityValidationFailure }) {
   return (
     <section role="alert" data-adle-activity-blocker={props.failure.code} className="brand-card grid gap-3 rounded-3xl p-8 text-center">
       <h2 className="text-xl font-black text-[color:var(--ink)]">This activity is not ready yet</h2>
       <p className="text-sm text-[color:var(--mid)]">Ask your grown-up to try this lesson again later. No answer has been saved.</p>
       {process.env.NODE_ENV !== "production" ? <code className="text-xs text-[color:var(--mid)]">{props.failure.code}: {props.failure.contractKey} — {props.failure.detail}</code> : null}
+    </section>
+  );
+}
+
+export function CanonicalActivityNormalizationBlockedState(props: { blocker: CanonicalActivityNormalizationBlocker }) {
+  return (
+    <section role="alert" data-adle-activity-blocker={props.blocker.code} className="brand-card grid gap-3 rounded-3xl p-8 text-center">
+      <h2 className="text-xl font-black text-[color:var(--ink)]">This activity is not ready yet</h2>
+      <p className="text-sm text-[color:var(--mid)]">Ask your grown-up to try this lesson again later. No answer has been saved.</p>
+      {process.env.NODE_ENV !== "production" ? <code className="text-xs text-[color:var(--mid)]">{props.blocker.code}: {props.blocker.templateKey || "metadata-free"} — {props.blocker.detail}</code> : null}
     </section>
   );
 }

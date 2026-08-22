@@ -1,7 +1,8 @@
 import assert from "node:assert/strict";
 import { existsSync, readFileSync } from "node:fs";
 import { ADLE_ACTIVITY_CATALOGUE, ADLE_ACTIVITY_IMPLEMENTATION_AUDIT } from "../lib/adle/activity-catalogue";
-import { resolveActivityTemplateDefinition } from "../lib/adle/activity-template-registry";
+import { normalizeGenericActivitySequence } from "../lib/adle/generic-activity-compatibility";
+import type { AdleSessionItem } from "../lib/adle/loaders/daily-plan-surface";
 
 const source = (path: string) => readFileSync(path, "utf8");
 const binSort = source("components/adle/activities/shared/bin-sort.tsx");
@@ -25,13 +26,18 @@ assert(morphology.includes("export function Discovery") && morphology.includes("
 assert(match.includes("export function MeaningConnectionActivity") && match.includes("componentMeanings") && !match.includes("HearWordButton"), "one rich Meaning Match engine must retain clues and connections without a word-listen control");
 assert(binSort.includes("binSortTickZoom") && binSort.includes("SUCCESS_SPARKLES") && !binSort.includes("bg-emerald-100"), "correct Sort feedback must use a zooming tick and background sparkles without a colour block");
 assert(morphology.includes('showBinDescriptions: props.payload.words.anchor.affixPosition !== "after"'), "Suffix Sort must keep its categories to the concise labels only");
-assert(session.includes('rendererKinds: readonly ActivityRendererKind[]') && session.includes("meaningConnectionTarget") && session.includes("Historical meaning activity compatibility"), "generic dispatch must select rich Match and isolate definition-less compatibility fallback");
+assert(session.includes("CanonicalActivityHost") && session.includes("Historical meaning activity compatibility") && !session.includes("rendererKindFor"), "generic dispatch must select rich Match through canonical contracts and isolate definition-less compatibility replay");
 
 assert(!composer.includes('templateKey: "REVIEW_QUICK_SORT"') && !composer.includes('sectionKey: "review_quick_sort"'), "forward composer must not generate QuickSort");
-assert(resolveActivityTemplateDefinition({ templateKey: "REVIEW_QUICK_SORT", sectionKey: "review_quick_sort" }).rendererKind === "compatibility_noop", "historical REVIEW_QUICK_SORT must normalize to no learner renderer");
+const historicalItem = (templateKey: string, promptData: Record<string, unknown> = {}): AdleSessionItem => ({ id: templateKey, sourceEntityId: templateKey, sectionKey: templateKey === "REVIEW_QUICK_SORT" ? "review_quick_sort" : "guided_practice", templateKey, position: 0, status: "pending", targetWord: "helpful", canonicalWordId: "word-helpful", microSkillKey: null, adleLearningItemRef: null, promptData });
+const reviewSort = normalizeGenericActivitySequence([historicalItem("REVIEW_QUICK_SORT")])[0];
+assert(reviewSort?.status === "compatibility" && reviewSort.spec.concept === "REVIEW_SORT", "historical REVIEW_QUICK_SORT must normalize to the canonical no-op contract");
 assert(snapshotRegistry.includes('rendererKind: "quick_sort"'), "immutable generic snapshot v2 must retain historical quick_sort decoding");
 
-for (const key of ["HOM_MEANING_MATCH", "MOR_MEANING_MATCH", "MOR_COMPOUND_MEANING_CONNECTION"]) assert(resolveActivityTemplateDefinition({ templateKey: key, sectionKey: "guided_practice" }).rendererKind === "meaning_match", `${key} must select canonical Meaning Match`);
+for (const key of ["HOM_MEANING_MATCH", "MOR_MEANING_MATCH", "MOR_COMPOUND_MEANING_CONNECTION"]) {
+  const normalized = normalizeGenericActivitySequence([historicalItem(key, { definition: "giving help" })])[0];
+  assert(normalized?.status === "normalized" && normalized.spec.concept === "MEANING_MATCH" && normalized.spec.mode === "component_clues", `${key} must normalize to canonical Meaning Match`);
+}
 assert.equal(ADLE_ACTIVITY_CATALOGUE.find((entry) => entry.activityKey === "MEANING_DISCOVERY")?.canonicalComponent, "Discovery");
 assert.equal(ADLE_ACTIVITY_CATALOGUE.find((entry) => entry.activityKey === "MEANING_MATCH")?.canonicalComponent, "MeaningConnectionActivity");
 assert.equal(ADLE_ACTIVITY_CATALOGUE.find((entry) => entry.activityKey === "MEANING_SORT")?.canonicalComponent, "BinSort");

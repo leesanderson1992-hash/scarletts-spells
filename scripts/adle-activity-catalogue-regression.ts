@@ -97,8 +97,8 @@ assert.equal(registryWiring.modelCReleaseChangeRequired, false, "behaviour-ident
 assert(registryWiring.releaseBoundary.includes("Stop and require a separate Model C decision"), "registry wiring must retain the semantic-change release gate");
 assert.equal(
   ADLE_ACTIVITY_AUDIT_CONCLUSIONS.nextConvergenceGroup.status,
-  "P1_REGISTRY_WIRING_PHASES_A_B_COMPLETE_REVIEW_REQUIRED",
-  "governance must stop for review before Phase C",
+  "P1_REGISTRY_WIRING_PHASE_C_COMPLETE_REVIEW_REQUIRED",
+  "governance must stop for review before Phase D or Phase E",
 );
 assert(
   ADLE_ACTIVITY_IMPLEMENTATION_AUDIT.some((row) => row.implementationName === "CanonicalActivityRenderer registry" && row.classification === "CANONICAL"),

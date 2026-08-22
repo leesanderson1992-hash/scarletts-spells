@@ -2,7 +2,8 @@ import assert from "node:assert/strict";
 import { existsSync, readFileSync } from "node:fs";
 
 import { ADLE_ACTIVITY_CATALOGUE, ADLE_ACTIVITY_IMPLEMENTATION_AUDIT } from "../lib/adle/activity-catalogue";
-import { getActivityTemplateDefinition, resolveActivityTemplateDefinition } from "../lib/adle/activity-template-registry";
+import { normalizeGenericActivity } from "../lib/adle/generic-activity-compatibility";
+import type { AdleSessionItem } from "../lib/adle/loaders/daily-plan-surface";
 import { getGenericSnapshotTemplateDefinition } from "../lib/adle/composable-lesson/generic-snapshot-registry";
 
 const read = (path: string) => readFileSync(path, "utf8");
@@ -42,14 +43,17 @@ assert(!reflection.includes("onKeyDown"), "LessonReflection retains native multi
 assert(!runner.includes("SpellingField") && !runner.includes("GrownUpReveal"), "generic runner uses no retired learner renderer or reveal");
 const reviewPart = runner.slice(runner.indexOf("function ReviewPart"), runner.indexOf("function LessonPart"));
 assert(!reviewPart.includes(">Back<") && !reviewPart.includes('setPhase("production")}>\n              Back'), "review has no post-feedback back-to-edit control");
-assert(runner.includes("dictationSentenceAttempts") && runner.includes("resolveSentenceDictationContract"), "generic first-impression Dictation requires authored sentence input");
-assert.equal(getActivityTemplateDefinition("CONTROLLED_SPELLING")?.rendererKind, "cover_check");
-assert.equal(getActivityTemplateDefinition("HIDE_WRITE")?.rendererKind, "cover_check");
-assert.equal(getActivityTemplateDefinition("DICTATION_NO_IMAGE")?.rendererKind, "sentence_dictation");
-assert.equal(getActivityTemplateDefinition("DICTATION_SENTENCE_CONTEXT")?.rendererKind, "sentence_dictation");
-assert.equal(resolveActivityTemplateDefinition({ templateKey: "DICTATION_SENTENCE_CONTEXT", sectionKey: "review_production" }).rendererKind, "cold_word_recall");
-assert.equal(getActivityTemplateDefinition("REVIEW_DICTATION")?.rendererKind, "cold_word_recall");
-assert.equal(getActivityTemplateDefinition("DIAGNOSTIC_DICTATION_PROBE")?.rendererKind, "cold_word_recall");
+assert(runner.includes("dictationSentenceAttempts") && read("lib/adle/generic-activity-compatibility.ts").includes("resolveSentenceDictationContract"), "generic first-impression Dictation requires authored sentence input before canonical rendering");
+const genericItem = (templateKey: string, sectionKey: string, promptData: Record<string, unknown> = {}): AdleSessionItem => ({ id: `${templateKey}:${sectionKey}`, sourceEntityId: templateKey, sectionKey, templateKey, position: 0, status: "pending", targetWord: "helpful", canonicalWordId: "word-helpful", microSkillKey: null, adleLearningItemRef: null, promptData });
+for (const [templateKey, sectionKey, concept] of [["CONTROLLED_SPELLING", "lesson_production", "COVER_CHECK"], ["HIDE_WRITE", "guided_practice", "COVER_CHECK"], ["DICTATION_SENTENCE_CONTEXT", "review_production", "COLD_WORD_RECALL"], ["REVIEW_DICTATION", "review_production", "COLD_WORD_RECALL"]] as const) {
+  const result = normalizeGenericActivity(genericItem(templateKey, sectionKey));
+  assert.notEqual(result.status, "blocked");
+  assert(result.status !== "blocked" && result.spec.concept === concept, `${templateKey} must normalize to ${concept}`);
+}
+const governedDictation = normalizeGenericActivity(genericItem("DICTATION_NO_IMAGE", "lesson_dictation", { sentence: "The helpful child smiled.", audioText: "The helpful child smiled.", targetTokenIndex: 1 }));
+assert(governedDictation.status !== "blocked" && governedDictation.spec.concept === "DICTATION");
+const governedProbe = normalizeGenericActivity(genericItem("DIAGNOSTIC_DICTATION_PROBE", "lesson_probe", { words: [{ canonicalWordId: "probe", targetWord: "brightness" }] }));
+assert(governedProbe.status !== "blocked" && governedProbe.spec.concept === "COLD_WORD_RECALL");
 assert(!existsSync("components/adle/activities/shared/spelling-field.tsx"), "SpellingField source is deleted");
 
 for (const [name, source] of [["Prefix/Affix", morphology], ["Base Word", base], ["Compound", compound]] as const) {

@@ -1,22 +1,14 @@
 "use client";
 
 /**
- * ADLE Slice 7a (7a-A): the guided-practice step — where Slice 6 flattened ~19
- * template types into one naked "jot your answer" box. This renders each guided
- * item as a warm, template-specific prompt shell driven by the registry kind
- * and the composer-plumbed copy (childFacingCopy + purpose + teachingObjective).
- *
- * Data-honest Tier map: the content-dependent guided templates (PG/HOM/MOR/PAT/
- * INF/IRRE/SYL/SCHWA) are warm prompt shells until the structured content is
- * authored — a real teaching question + the word + audio + a free response,
- * never a bare box. MEMORY_CUE gets cue framing. Historical HIDE_WRITE is
- * dispatched to canonical CoverShutter before this component. The response stays local (guided practice carries no submitted
- * evidence — the frozen Slice 6 contract), so the shell upgrades to a richer
- * interaction without touching the server actions.
+ * Explicit compatibility renderer for the two typed-response contracts whose
+ * historical learner semantics cannot be replaced by a rich interaction:
+ * child-authored memory cues and already-persisted free-response activities.
+ * Template keys never select this component; the compatibility normalizer must
+ * provide the explicit variant through CanonicalActivityHost.
  */
 
 import type { AdleSessionItem } from "@/lib/adle/loaders/daily-plan-surface";
-import { resolveActivityKind } from "./registry";
 import { HearWordButton } from "./shared/authored-audio";
 
 function copyOf(item: AdleSessionItem, fallback: string): string {
@@ -30,15 +22,15 @@ function purposeOf(item: AdleSessionItem): string | null {
 
 export function GuidedActivity(props: {
   item: AdleSessionItem;
+  variant: "memory_cue" | "historical_free_response";
   value: string;
   onChange: (value: string) => void;
 }) {
   const { item } = props;
-  const kind = resolveActivityKind({ templateKey: item.templateKey, sectionKey: item.sectionKey });
   const word = item.targetWord ?? "";
   const instruction = copyOf(item, "Talk this one through, then write your answer.");
   const purpose = purposeOf(item);
-  const isMemoryCue = kind === "reflection";
+  const isMemoryCue = props.variant === "memory_cue";
 
   const responsePlaceholder = isMemoryCue
     ? "Write a cue to help you remember it"

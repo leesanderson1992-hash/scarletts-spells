@@ -1,7 +1,9 @@
 /**
- * ADLE 7-UI-B: pure activity/template registry.
+ * Legacy generic template vocabulary retained for Snapshot v2 parity tooling
+ * and route compile-time keys. Learner runtime does not import this module.
  *
- * This module owns only template metadata and renderer routing. It has no
+ * This module owns only immutable template metadata. Its former section and
+ * catch-all renderer fallback functions were removed in Phase C. It has no
  * evidence, scheduler, reward, database, or server-action imports; completion
  * semantics stay in the existing attempt/completion modules.
  */
@@ -36,9 +38,7 @@ export type ActivityTemplateFamily =
   | "unsupported";
 
 export type ActivityTemplateFallbackBehaviour =
-  | "none"
-  | "section_safe_fallback"
-  | "guided_prompt_fallback";
+  | "none";
 
 export interface ActivityTemplateDefinition {
   templateKey: string;
@@ -144,98 +144,8 @@ const TEMPLATE_DEFINITIONS = {
 
 export type ActivityTemplateKey = keyof typeof TEMPLATE_DEFINITIONS;
 
-const SECTION_FALLBACKS: Readonly<Record<string, Omit<ActivityTemplateDefinition, "templateKey">>> = {
-  lesson_intro: fallback("intro", ["lesson_intro"], "intro", false, "read_only", "section_safe_fallback"),
-  review_quick_sort: fallback(
-    "review",
-    ["review_quick_sort"],
-    "compatibility_noop",
-    false,
-    "read_only",
-    "section_safe_fallback",
-  ),
-  review_production: fallback(
-    "dictation",
-    ["review_production"],
-    "cold_word_recall",
-    true,
-    "production",
-    "section_safe_fallback",
-  ),
-  review_reflection: fallback(
-    "review",
-    ["review_reflection"],
-    "reflection",
-    true,
-    "reflection",
-    "section_safe_fallback",
-  ),
-  lesson_production: fallback(
-    "dictation",
-    ["lesson_production"],
-    "cover_check",
-    true,
-    "production",
-    "section_safe_fallback",
-  ),
-  lesson_dictation: fallback(
-    "dictation",
-    ["lesson_dictation"],
-    "sentence_dictation",
-    true,
-    "production",
-    "section_safe_fallback",
-  ),
-  lesson_probe: fallback(
-    "dictation",
-    ["lesson_probe"],
-    "cold_word_recall",
-    true,
-    "production",
-    "section_safe_fallback",
-  ),
-  guided_practice: fallback(
-    "guided",
-    ["guided_practice"],
-    "guided_prompt",
-    true,
-    "guided",
-    "section_safe_fallback",
-  ),
-};
-
 export function getActivityTemplateDefinition(templateKey: string): ActivityTemplateDefinition | null {
   return TEMPLATE_DEFINITIONS[templateKey as ActivityTemplateKey] ?? null;
-}
-
-export function resolveActivityTemplateDefinition(input: {
-  templateKey: string;
-  sectionKey: string;
-}): ActivityTemplateDefinition {
-  const registered = getActivityTemplateDefinition(input.templateKey);
-  if (
-    registered !== null &&
-    (input.sectionKey === "" || registered.supportedSectionKeys.includes(input.sectionKey))
-  ) {
-    // The historical homophone key was section-overloaded. First-impression
-    // lesson use requires canonical SentenceDictation; scheduled review must
-    // remain answer-safe ColdWordRecall.
-    return input.templateKey === "DICTATION_SENTENCE_CONTEXT" && input.sectionKey === "review_production"
-      ? { ...registered, rendererKind: "cold_word_recall" }
-      : registered;
-  }
-  return (
-    withTemplateKey(input.templateKey, SECTION_FALLBACKS[input.sectionKey]) ??
-    {
-      templateKey: input.templateKey,
-      templateFamily: "unsupported",
-      supportedSectionKeys: [],
-      rendererKind: "guided_prompt",
-      fallbackBehaviour: "guided_prompt_fallback",
-      capturesAttempt: false,
-      activityMode: "guided",
-    }
-  );
 }
 
 export function listRegisteredActivityTemplateKeys(): ActivityTemplateKey[] {
@@ -295,29 +205,4 @@ function compoundDefinition(templateKey: string): ActivityTemplateDefinition {
     richExperience: "D4_MOR_COMPOUND_WORD",
     supportedPayloadVersions: [1, 2],
   };
-}
-
-function fallback(
-  templateFamily: ActivityTemplateFamily,
-  supportedSectionKeys: readonly string[],
-  rendererKind: ActivityRendererKind,
-  capturesAttempt: boolean,
-  activityMode: ActivityMode,
-  fallbackBehaviour: ActivityTemplateFallbackBehaviour,
-): Omit<ActivityTemplateDefinition, "templateKey"> {
-  return {
-    templateFamily,
-    supportedSectionKeys,
-    rendererKind,
-    fallbackBehaviour,
-    capturesAttempt,
-    activityMode,
-  };
-}
-
-function withTemplateKey(
-  templateKey: string,
-  definitionWithoutKey: Omit<ActivityTemplateDefinition, "templateKey"> | undefined,
-): ActivityTemplateDefinition | null {
-  return definitionWithoutKey === undefined ? null : { templateKey, ...definitionWithoutKey };
 }

@@ -19,7 +19,7 @@ export default defineConfig({
   webServer: {
     command: `npm run dev -- --hostname 127.0.0.1 --port ${adlePort}`,
     url: `${adleBaseUrl}/dev/adle/morphology-primitives`,
-    reuseExistingServer: false,
+    reuseExistingServer: process.env.ADLE_PLAYWRIGHT_REUSE_EXISTING === "true",
     timeout: 120_000,
   },
   projects: [

@@ -1,8 +1,8 @@
 /**
  * Canonical architectural inventory of child-facing ADLE activities.
  *
- * This is deliberately descriptive. Runtime dispatch remains owned by
- * activity-template-registry.ts and the registered specialist route adapters.
+ * This is deliberately descriptive. Runtime dispatch is owned by canonical
+ * activity contracts, the host registry, and registered specialist adapters.
  * Nothing in this module writes learner state or changes route activation.
  */
 
@@ -139,9 +139,10 @@ export const ADLE_ACTIVITY_CATALOGUE: readonly ActivityCatalogueEntry[] = [
     activityKey: "INTRODUCTION", displayName: "Introduction", interactionFamily: "teaching_read",
     pedagogicalPurpose: "Introduce the rule, strategy, or concept before practice.",
     canonicalComponent: "TeachingPages", canonicalComponentPath: "components/adle/first-impression/teaching-pages.tsx",
-    supportedModes: ["teaching_page", "meet_words"], modeDescriptions: {
+    supportedModes: ["teaching_page", "meet_words", "historical_generic_read_only"], modeDescriptions: {
       teaching_page: "Shows one to three ordered authored teaching pages.",
       meet_words: "Required final page using the accepted word-card presentation without audio or evidence.",
+      historical_generic_read_only: "Replays immutable generic intro copy through the explicit IntroActivity compatibility adapter.",
     }, requiredInputs: ["one to three authored teaching pages", "governed lesson words"], optionalInputs: ["callout", "model", "examples", "sections", "provenance"],
     usedByRoutes: [GENERIC_ROUTE, ...ALL_SPECIALIST_ROUTES], usedByMicroSkills: ["generic composer catalogue", ...MORPHOLOGY_SKILLS],
     templateKeys: ["MICRO_READ_ONLY_INTRO", "LESSON_WORDS_INTRO"], status: "CANONICAL",
@@ -224,7 +225,7 @@ export const ADLE_ACTIVITY_CATALOGUE: readonly ActivityCatalogueEntry[] = [
     activityKey: "MEANING_MATCH", displayName: "Meaning match", interactionFamily: "meaning_match",
     pedagogicalPurpose: "Connect each word to its whole-word definition.",
     canonicalComponent: "MeaningConnectionActivity", canonicalComponentPath: "components/adle/morphology/meaning-connection-activity.tsx",
-    supportedModes: ["word_to_definition", "component_clues"], modeDescriptions: { word_to_definition: "Select a word then its definition.", component_clues: "Shows component meanings as clues." },
+    supportedModes: ["word_to_definition", "component_clues", "historical_free_response"], modeDescriptions: { word_to_definition: "Select a word then its definition.", component_clues: "Shows component meanings as clues.", historical_free_response: "Preserves a definition-less persisted typed-response contract without claiming a rich meaning interaction." },
     requiredInputs: ["words", "definitions"], optionalInputs: ["component meanings", "component-to-whole explanation"],
     supportsPointer: true, supportsAudio: true, usedByRoutes: [...COMPOUND_ROUTES, ...PREFIX_ROUTES, AFFIX_ROUTE, GENERIC_ROUTE], usedByMicroSkills: [...COMPOUND_SKILLS, ...PREFIX_SKILLS, ...AFFIX_SKILLS, "generic homophone/morphology skills"],
     templateKeys: ["HOM_MEANING_MATCH", "MOR_MEANING_MATCH", "MOR_COMPOUND_MEANING_CONNECTION"], status: "CANONICAL",
@@ -426,8 +427,8 @@ export const ADLE_ACTIVITY_IMPLEMENTATION_AUDIT: readonly ActivityImplementation
   auditRow("TeachingPages", "components/adle/first-impression/teaching-pages.tsx", "INTRODUCTION / READING_PAGE / MEET_WORDS", "CANONICAL", "TeachingPages", { currentRouteUsages: SPECIALIST, behaviouralDifferences: "Owns one to three authored pages, the required final Meet the Words page, Back/Next, focus and page position.", persistenceEvidenceDifferences: "Page position only; no attempt, correctness or evidence.", migrationRisk: "high" }),
   auditRow("MeetWords presentation", "components/adle/first-impression/teaching-pages.tsx", "MEET_WORDS", "CANONICAL_MODE", "TeachingPages", { currentRouteUsages: SPECIALIST, behaviouralDifferences: "Required final page with the accepted white word-card treatment; deliberately has no audio or interaction evidence.", migrationRisk: "medium" }),
   auditRow("IntroActivity compatibility renderer", "components/adle/activities/intro-activity.tsx", "INTRODUCTION", "COMPATIBILITY_ONLY", "TeachingPages", { currentRouteUsages: GENERIC, registryTemplateKeys: ["MICRO_READ_ONLY_INTRO", "LESSON_WORDS_INTRO"], migrationRisk: "low", historicalReplayDependency: true, recommendedAction: "Retain only for immutable generic composer assignments until their compatibility renderer is normalized at the boundary." }),
-  auditRow("GuidedActivity", "components/adle/activities/guided-activity.tsx", "GUIDED_PROMPT_FALLBACK / MEMORY_CUE", "CANONICAL", "GuidedActivity", { currentRouteUsages: GENERIC, registryTemplateKeys: ["MEMORY_CUE", "PG_*", "HOM_SENTENCE_CHOICE", "HOM_CORRECTION", "INF_*", "IRRE_*", "MOR_STRIP_BUILD", "MOR_BUILD_WORD", "PAT_*", "SYL_*", "SCHWA_*"], notes: "Canonical only as the generic safe fallback and current memory-cue surface. Definition-less immutable Meaning Match payloads may reach it through an explicit compatibility adapter; forward governed Meaning Match selects MeaningConnectionActivity." }),
-  auditRow("REVIEW_QUICK_SORT compatibility mapping", "lib/adle/activity-template-registry.ts", "REVIEW_SORT", "COMPATIBILITY_ONLY", null, { currentRouteUsages: ["historical generic assignments only"], registryTemplateKeys: ["REVIEW_QUICK_SORT"], persistenceEvidenceDifferences: "The historical item never carried production evidence and is ignored before review retrieval.", historicalReplayDependency: true, migrationRisk: "low" }),
+  auditRow("GuidedActivity", "components/adle/activities/guided-activity.tsx", "MEMORY_CUE / HISTORICAL_FREE_RESPONSE", "COMPATIBILITY_ONLY", "GuidedActivity", { currentRouteUsages: GENERIC, registryTemplateKeys: ["MEMORY_CUE", "definition-less historical meaning keys", "MUST_USE_FREEWRITING", "REVIEW_MUST_USE_WRITING"], historicalReplayDependency: true, notes: "The canonical host supplies an explicit memory_cue or historical_free_response variant. Unknown and missing rich PG/HOM/INF/IRRE/MOR/PAT/SYL/SCHWA interactions fail closed and can no longer select this renderer." }),
+  auditRow("REVIEW_QUICK_SORT compatibility mapping", "lib/adle/generic-activity-compatibility.ts", "REVIEW_SORT", "COMPATIBILITY_ONLY", null, { currentRouteUsages: ["historical generic assignments only"], registryTemplateKeys: ["REVIEW_QUICK_SORT"], persistenceEvidenceDifferences: "The historical item never carried production evidence and normalizes to the registered compatibility no-op before review retrieval.", historicalReplayDependency: true, migrationRisk: "low" }),
   auditRow("ReflectionActivity", "components/adle/activities/reflection-activity.tsx", "ERROR_REPAIR", "CANONICAL", "ReflectionActivity", { currentRouteUsages: GENERIC, registryTemplateKeys: ["ERROR_REFLECTION_CUE"], behaviouralDifferences: "Enforces reveal then Hide Word before retry.", migrationRisk: "high" }),
 
   auditRow("SplitHandle", "components/adle/activities/shared/split-handle.tsx", "CLEAVER", "CANONICAL", "SplitHandle", { currentRouteUsages: [...PREFIX_AFFIX, BASE_ROUTE], registryTemplateKeys: ["MOR_STRIP_BUILD"], propsConfigDifferences: "Multiple governed split points, controlled/restored selected boundaries, isolated component index, feedback/scaffold/copy policy.", behaviouralDifferences: "Owns all boundary selection, checking, focus, sound, motion and completion mechanics.", migrationRisk: "high" }),
@@ -510,7 +511,7 @@ export const ADLE_ACTIVITY_CONVERGENCE_BACKLOG: readonly ActivityConvergenceBack
   },
   {
     priority: "P1", title: "Implement genuine missing activity surfaces",
-    currentImplementations: ["PG/SYL/INF/PAT/SCHWA GuidedActivity fallbacks", "MUST_USE_* generic writing fallback", "development-only transformation primitives"],
+    currentImplementations: ["blocked PG/SYL/INF/PAT/SCHWA generic compatibility inputs awaiting governed interactions", "explicit historical MUST_USE_* free-response compatibility", "development-only transformation primitives"],
     targetCanonicalImplementation: "new catalogue-governed components only after NEW_INTERACTION_REQUIRED approval",
     intendedModes: ["phoneme_grapheme_map", "syllable_split_rebuild", "authentic_free_writing", "spelling_transformation"], routesAffected: [GENERIC_ROUTE],
     regressionRequirements: ["pedagogical contract", "keyboard/pointer/audio", "answer visibility", "evidence binding", "fallback safety"],
@@ -546,9 +547,9 @@ export const ADLE_ACTIVITY_AUDIT_CONCLUSIONS = {
     auditWorktree: "Fresh isolated worktree scarletts-spells-p1-registry-planning on codex/adle-p1-registry-wiring-plan at fetched origin/main d59506c9f3175a73b3f4614a1077470f3ab0e4a2.",
     protectedOccupiedCheckout: "The dirty primary checkout and occupied earlier convergence worktrees were inspected read-only and left unmodified.",
     runtimeRegistries: [
-      "components/adle/activities/canonical-renderer-registry.tsx — 19 versioned canonical concept/mode contracts for all specialist First Impression activity slots",
-      "lib/adle/activity-template-registry.ts — 34 generic template keys and renderer-kind dispatch",
-      "components/adle/activities/registry.ts — React compatibility wrapper over the generic runtime registry",
+      "components/adle/activities/canonical-renderer-registry.tsx — versioned canonical concept/mode contracts for specialist and generic/historical runtime rendering",
+      "lib/adle/generic-activity-compatibility.ts — deterministic in-memory normalization of supported generic/historical inputs",
+      "lib/adle/activity-template-registry.ts — legacy 34-key renderer-kind vocabulary retained outside runtime pending Snapshot v2 retirement evidence",
       "lib/adle/composable-lesson/generic-snapshot-registry.ts — versioned generic snapshot semantics for the same 34 keys",
       "lib/adle/composable-lesson/activity-requirements.ts — 15 pedagogical activity fact contracts",
       "lib/adle/curriculum-readiness/route-registry.ts — seven generic/specialist route declarations",
@@ -563,7 +564,7 @@ export const ADLE_ACTIVITY_AUDIT_CONCLUSIONS = {
       "docs/implementation/adle-base-word-family-lesson-plan.md",
     ],
   },
-  authorityRelationship: "Activity Catalogue is the architectural chooser and capability inventory. CanonicalActivityRenderer is now the versioned runtime renderer authority for specialist First Impression activity slots; thin specialist adapters still own curriculum transformation, resume, evidence and completion. activity-template-registry.ts and the generic snapshot registry/compiler remain the untouched generic and historical dispatch authorities until separately authorized compatibility and generic-generation phases. The catalogue and registry regressions prevent these transitional authorities from silently drifting.",
+  authorityRelationship: "Activity Catalogue is the architectural chooser and capability inventory. CanonicalActivityHost and its versioned renderer registry are the sole React renderer-selection authority for specialist and supported generic/historical activities. The pure generic compatibility normalizer interprets historical keys into CanonicalActivitySpec contracts but cannot select React components. Thin specialist and generic lifecycle adapters retain curriculum transformation, resume, evidence and completion. Generic Snapshot v2 and forward composer output remain untouched; the old activity-template registry is no longer imported by learner runtime and is retained only as an explicit later-deletion candidate.",
   buildBoundary: "BUILD is one shared ordered-placement interaction family with two learner experiences. DefinitionWordBuilder presents one definition-led target and is configured by all 19 Prefix, Suffix/Affix and Base Word microskills. CompoundJigsawActivity presents anonymous puzzle rows above one deterministic mixed bank using Jigsaw-shaped component, SPACE and hyphen pieces; checked row content identifies and locks the governed word. Both use OrderedBuildEngine for candidate order, placement, rearrangement, validation, completion and restoration. Historical closed-compound v1 payloads are translated at the route boundary to generalized two-piece/no-join targets; no historical Jigsaw UI remains.",
   cleaverBoundary: "SplitHandle is the one stateful Split engine across Prefix, Affix and Base Word. Required boundaries, restored selected cuts and an isolated governed component are neutral configuration; SplitBuild and Base Word Cleave are thin curriculum adapters. Final-y source-form restoration is a separate post-Split SpellingTransformationReveal, and the redundant typed base confirmation is retired. Word assembly and syllable split/rebuild remain separate learner actions.",
   meaningCategorisationBoundary: "Meaning has exactly three canonical learner actions. Discovery is one prefix/suffix-configured transformation-and-choice engine. MeaningConnectionActivity is one rich word-to-definition connection engine for Compound and governed generic payloads; definition-less immutable payloads use an explicit compatibility fallback. BinSort is one categorisation state machine and owns immediate feedback, a brief reduced-motion-safe success celebration, automatic advance, and its stateless final BinSortOverview. QuickSort UI and forward generation are retired; REVIEW_QUICK_SORT remains only a compatibility key and immutable generic snapshot v2 discriminator.",
@@ -608,8 +609,8 @@ export const ADLE_ACTIVITY_AUDIT_CONCLUSIONS = {
     nextStep: "Closed. Retain TeachingPages and FirstImpressionLesson as the canonical boundaries; do not restore route-local teaching-page navigation or duplicate Meet the Words screens.",
   },
   nextConvergenceGroup: {
-    status: "P1_REGISTRY_WIRING_PHASES_A_B_COMPLETE_REVIEW_REQUIRED",
-    summary: "Governance reconciliation, versioned canonical registry groundwork and behaviour-identical specialist routing are complete for review. Stop before Phase C compatibility normalization. Generic/history cutover, new snapshot generation, Model C changes and all release-semantic changes remain unauthorised. Route payloads, resume, completion and evidence boundaries remain with the existing specialist adapters.",
+    status: "P1_REGISTRY_WIRING_PHASE_C_COMPLETE_REVIEW_REQUIRED",
+    summary: "Phases A–C are complete for review: supported generic/historical inputs normalize in memory to CanonicalActivitySpec and render through CanonicalActivityHost; unknown, malformed and unavailable rich interactions fail closed. Stop before Phase D or Phase E. Generic Snapshot v2, forward composer output, Model C releases, payload versions and lifecycle/evidence boundaries remain unchanged.",
   },
   newActivityRule: [
     "Search the canonical Activity Catalogue.",

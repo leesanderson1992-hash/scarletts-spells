@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 
 import { buildReviewAttemptEvents } from "../lib/adle/assignment-attempt-events";
-import { resolveActivityTemplateDefinition } from "../lib/adle/activity-template-registry";
+import { normalizeGenericActivity } from "../lib/adle/generic-activity-compatibility";
 import type { AdleSessionItem } from "../lib/adle/loaders/daily-plan-surface";
 
 function assert(condition: unknown, message: string) {
@@ -28,16 +28,13 @@ function item(overrides: Partial<AdleSessionItem>): AdleSessionItem {
 }
 
 const reflectionSource = readFileSync("components/adle/activities/reflection-activity.tsx", "utf8");
-const reflectionDefinition = resolveActivityTemplateDefinition({
-  templateKey: "ERROR_REFLECTION_CUE",
-  sectionKey: "review_reflection",
-});
+const reflectionDefinition = normalizeGenericActivity(item({}));
 
 assert(
-  reflectionDefinition.rendererKind === "reflection" &&
-    reflectionDefinition.activityMode === "reflection" &&
-    reflectionDefinition.capturesAttempt,
-  "ERROR_REFLECTION_CUE must route through the registry as a reflection attempt template",
+  reflectionDefinition.status === "normalized" &&
+    reflectionDefinition.spec.concept === "ERROR_REPAIR" &&
+    reflectionDefinition.spec.mode === "reveal_hide_retry",
+  "ERROR_REFLECTION_CUE must normalize to the canonical error-repair contract",
 );
 
 assert(

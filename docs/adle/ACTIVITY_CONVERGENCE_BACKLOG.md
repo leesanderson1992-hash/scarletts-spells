@@ -22,7 +22,7 @@ This is a migration backlog, not authority to refactor, activate routes, change 
 
 ### P1 — Implement genuine missing activity surfaces
 
-- Current implementations: `PG/SYL/INF/PAT/SCHWA GuidedActivity fallbacks`, `MUST_USE_* generic writing fallback`, `development-only transformation primitives`
+- Current implementations: `blocked PG/SYL/INF/PAT/SCHWA generic compatibility inputs awaiting governed interactions`, `explicit historical MUST_USE_* free-response compatibility`, `development-only transformation primitives`
 - Target: new catalogue-governed components only after NEW_INTERACTION_REQUIRED approval
 - Intended modes: `phoneme_grapheme_map`, `syllable_split_rebuild`, `authentic_free_writing`, `spelling_transformation`
 - Routes affected: `generic_composer:v1`
@@ -78,7 +78,7 @@ First-impression spelling has exactly two learner experiences: CoverShutter for 
 - Group 5 status: `COMPLETE_MERGED_AND_DEPLOYED` — Group 5 — Meaning & Categorisation Convergence is complete, merged to origin/main and deployed. The canonical learner architecture is Discovery, MeaningConnectionActivity and BinSort. BinSort owns immediate correctness feedback, its brief reduced-motion-safe success celebration and its stateless final BinSortOverview as one learner activity. QuickSort UI and forward generation are retired; duplicate, fallback and prototype Meaning/Sort UI is retained only as required configuration or compatibility code, or is retired.
 - Former proposed Group 6: `ABSORBED_INTO_GROUP_5` — Former proposed Group 6 — Meaning was absorbed into Group 5 — Meaning & Categorisation Convergence. Sort and Meaning were intentionally implemented as one workstream; there is no separate Group 6 implementation, merge or outstanding dependency.
 - Group 7 status: `COMPLETE_MERGED_AND_DEPLOYED` — Group 7 — First Impression Shell Convergence is accepted, merged into origin/main and deployed to Production. The authoritative d59506c main tree contains implementation commit 93ec640. TeachingPages is the one shared ordered teaching and Meet the Words experience; FirstImpressionLesson is the canonical staged shell for Prefix, Suffix/Affix, Base Word and Closed Compound lessons.
-- Next workstream: `P1_REGISTRY_WIRING_PHASES_A_B_COMPLETE_REVIEW_REQUIRED` — Governance reconciliation, versioned canonical registry groundwork and behaviour-identical specialist routing are complete for review. Stop before Phase C compatibility normalization. Generic/history cutover, new snapshot generation, Model C changes and all release-semantic changes remain unauthorised. Route payloads, resume, completion and evidence boundaries remain with the existing specialist adapters.
+- Next workstream: `P1_REGISTRY_WIRING_PHASE_C_COMPLETE_REVIEW_REQUIRED` — Phases A–C are complete for review: supported generic/historical inputs normalize in memory to CanonicalActivitySpec and render through CanonicalActivityHost; unknown, malformed and unavailable rich interactions fail closed. Stop before Phase D or Phase E. Generic Snapshot v2, forward composer output, Model C releases, payload versions and lifecycle/evidence boundaries remain unchanged.
 
 #### Group 3 closeout detail
 
