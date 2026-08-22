@@ -10,11 +10,16 @@ import type { ComposedDailyPlan, DailyPlanFacts, PlanItemCandidate } from "../li
 import { createPersistedRouteMetadata } from "../lib/adle/composable-lesson/persisted-route-metadata";
 import { compileGenericLessonSnapshotV3 } from "../lib/adle/composable-lesson/generic-snapshot-v3-compiler";
 import type { CompiledLessonSnapshotV3, GenericCanonicalActivityAuthoringV3 } from "../lib/adle/composable-lesson/generic-snapshot-v3-contracts";
-import { persistGuardedGenericSnapshotV3, type GenericSnapshotJsonPersistencePort } from "../lib/adle/composable-lesson/generic-snapshot-v3-persistence";
+import {
+  persistGuardedGenericSnapshotV3,
+  persistGuardedGenericSnapshotV3ToSupabase,
+  type GenericSnapshotJsonPersistencePort,
+} from "../lib/adle/composable-lesson/generic-snapshot-v3-persistence";
 import { GENERIC_SNAPSHOT_V3_WRITER_ENABLED } from "../lib/adle/composable-lesson/generic-snapshot-v3-registry";
 import { compileAndPersistGuardedGenericSnapshotV3 } from "../lib/adle/composable-lesson/generic-snapshot-v3-writer";
 import { selectGenericSnapshotWriter } from "../lib/adle/composable-lesson/generic-snapshot-writer-rollout";
 import { resolveGenericLessonSnapshot } from "../lib/adle/composable-lesson/generic-snapshot-reader";
+import { fingerprintCompiledLessonSnapshotV3 } from "../lib/adle/composable-lesson/generic-snapshot-v3-validator";
 import { normalizeGenericActivitySequence } from "../lib/adle/generic-activity-compatibility";
 import type { AdleSessionItem } from "../lib/adle/loaders/daily-plan-surface";
 
@@ -175,7 +180,7 @@ const port: GenericSnapshotJsonPersistencePort = {
   async persist(input) {
     writes += 1;
     stored = structuredClone(input);
-    return "assignment-v3-proof";
+    return "81818181-8181-4181-8181-818181818181";
   },
 };
 
@@ -197,7 +202,7 @@ async function main() {
     compiler: compilerInput,
     port,
   });
-  assert.equal(result.assignmentId, "assignment-v3-proof");
+  assert.equal(result.assignmentId, "81818181-8181-4181-8181-818181818181");
   assert.equal(writes, 1);
   assert(stored);
   const persisted = stored as Stored;
@@ -269,7 +274,77 @@ async function main() {
   assert(unsupportedResult.ok === false && unsupportedResult.blockers.some((entry) => entry.code === "unsupported_canonical_contract"));
   assert.equal(writes, 1, "unsupported contracts cannot reach the persistence port");
 
-  console.log("PASS: v3 writer compiler (10-contract gate, deterministic compile, guarded JSON persistence, readback, canonical registry render, pre-write fail-closed, Production=v2)");
+  let rpcCalls = 0;
+  const rpcClient = {
+    async rpc() {
+      rpcCalls += 1;
+      return { data: "91919191-9191-4191-8191-919191919191", error: null };
+    },
+  };
+  await assert.rejects(
+    persistGuardedGenericSnapshotV3ToSupabase(
+      rpcClient as never,
+      {
+        environment: "test",
+        parentUserId: PARENT,
+        childId: CHILD,
+        planDate: PLAN_DATE,
+        header: persistence.header!,
+        items: persistence.items,
+        intakes: persistence.learningItemIntakes,
+        snapshot: malformed,
+      },
+    ),
+    /validation/,
+  );
+  assert.equal(rpcCalls, 0, "pedagogically malformed payloads are rejected before the RPC");
+  const unsupportedSnapshot = structuredClone(compiledSnapshot);
+  unsupportedSnapshot.activities[0].canonical = {
+    concept: "NOT_FORWARD_AUTHORISED",
+    mode: "structurally_valid",
+    contractVersion: 1,
+  };
+  const unsupportedProvenance = structuredClone(unsupportedSnapshot.provenance);
+  delete (unsupportedProvenance as Partial<typeof unsupportedSnapshot.provenance>).sourceFingerprint;
+  unsupportedSnapshot.provenance.sourceFingerprint = fingerprintCompiledLessonSnapshotV3({
+    ...unsupportedSnapshot,
+    provenance: unsupportedProvenance,
+  });
+  await assert.rejects(
+    persistGuardedGenericSnapshotV3ToSupabase(
+      rpcClient as never,
+      {
+        environment: "test",
+        parentUserId: PARENT,
+        childId: CHILD,
+        planDate: PLAN_DATE,
+        header: persistence.header!,
+        items: persistence.items,
+        intakes: persistence.learningItemIntakes,
+        snapshot: unsupportedSnapshot,
+      },
+    ),
+    /unsupported_canonical_contract/,
+  );
+  assert.equal(rpcCalls, 0, "application canonical validation rejects unsupported contracts before the RPC");
+
+  const supabaseResult = await persistGuardedGenericSnapshotV3ToSupabase(
+    rpcClient as never,
+    {
+      environment: "test",
+      parentUserId: PARENT,
+      childId: CHILD,
+      planDate: PLAN_DATE,
+      header: persistence.header!,
+      items: persistence.items,
+      intakes: persistence.learningItemIntakes,
+      snapshot: compiledSnapshot,
+    },
+  );
+  assert.equal(supabaseResult.assignmentId, "91919191-9191-4191-8191-919191919191");
+  assert.equal(rpcCalls, 1, "valid canonical content reaches the explicit v3 RPC exactly once");
+
+  console.log("PASS: v3 writer compiler (10-contract gate, deterministic compile, guarded Supabase persistence, readback, canonical registry render, pre-write fail-closed, Production=v2)");
 }
 
 void main();
