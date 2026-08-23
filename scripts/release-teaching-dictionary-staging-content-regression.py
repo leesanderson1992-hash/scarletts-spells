@@ -47,6 +47,8 @@ def main() -> int:
     assert "canonical_teaching_dictionary_readiness_reports" in sql
     assert "canonical_teaching_dictionary_words" not in sql
     assert "learning_items" not in sql
+    assert "select id from _teaching_dictionary_import_batch" not in sql
+    assert "_staging_content_release_batch" in sql
     assert "reflection_prompt_key" in sql and "reflection_prompt_text" in sql
     assert "teaching_content_row_v2_reflection" in sql
 

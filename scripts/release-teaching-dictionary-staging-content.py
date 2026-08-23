@@ -94,7 +94,10 @@ def release_transaction_sql(importer: Any, manifest: dict[str, Any]) -> str:
         raise ValueError("The staged content version must explicitly supersede the current content version.")
 
     inserts = "\n\n".join(
-        importer.insert_statement(table, rows[table])
+        importer.insert_statement(table, rows[table]).replace(
+            "(select id from _teaching_dictionary_import_batch)",
+            "(select id from _staging_content_release_batch)",
+        )
         for table in (
             "canonical_teaching_dictionary_content_versions",
             "canonical_teaching_dictionary_field_reviews",
