@@ -38,6 +38,10 @@ import {
   resolvePersistedLessonRoute,
 } from "@/lib/adle/composable-lesson/route-resolution";
 import { databaseActivatedAssignmentRuntimeAllowed } from "@/lib/adle/loaders/curriculum-release-authority";
+import {
+  loadGenericV3Checkpoints,
+  type GenericV3DurableCheckpoint,
+} from "@/lib/adle/generic-v3-attempt-checkpoints";
 
 type AdleSessionPageProps = {
   searchParams?: Promise<{
@@ -119,12 +123,29 @@ export default async function AdleSessionPage({ searchParams }: AdleSessionPageP
         },
       })
     : null;
-  const runtimeSafetyBlocked = readModel.assignmentId !== null &&
+  let runtimeSafetyBlocked = readModel.assignmentId !== null &&
     !(await databaseActivatedAssignmentRuntimeAllowed({
       client: createServiceRoleClient(),
       lessonRouteMetadata: readModel.lessonRouteMetadata,
       assignmentCompleted: readModel.state === "completed",
     }));
+  let durableGenericV3Checkpoints: GenericV3DurableCheckpoint[] = [];
+  if (readModel.assignmentId
+    && readModel.genericSnapshotResolution?.status === "resolved"
+    && readModel.genericSnapshotResolution.source === "snapshot_v3") {
+    try {
+      durableGenericV3Checkpoints = await loadGenericV3Checkpoints({
+        client: createServiceRoleClient(),
+        readModel,
+        parentUserId: user.id,
+        childId: selectedChild.id,
+        assignmentId: readModel.assignmentId,
+      });
+    } catch (checkpointError) {
+      console.error("[adle-session] frozen v3 checkpoint resolution failed", checkpointError);
+      runtimeSafetyBlocked = true;
+    }
+  }
   if (routeResolution) {
     emitLessonRouteResolutionEvent(
       routeResolution,
@@ -239,6 +260,12 @@ export default async function AdleSessionPage({ searchParams }: AdleSessionPageP
             childId={selectedChild.id}
             assignmentId={readModel.assignmentId ?? ""}
             planDate={readModel.planDate}
+            snapshotFingerprint={readModel.genericSnapshotResolution?.status === "resolved"
+              ? readModel.genericSnapshotResolution.snapshot.provenance.sourceFingerprint
+              : "compatibility"}
+            durableGenericV3Enabled={readModel.genericSnapshotResolution?.status === "resolved"
+              && readModel.genericSnapshotResolution.source === "snapshot_v3"}
+            durableGenericV3Checkpoints={durableGenericV3Checkpoints}
             partOne={readModel.partOne}
             partTwo={readModel.partTwo}
             routeResolution={routeResolution}

@@ -1,6 +1,7 @@
 import type { AssignmentItemDraft } from "../assignment-persistence";
 import type {
   FamilyMethodFact,
+  GenericV3ReflectionFact,
   TeachingContentFact,
 } from "../daily-assignment-composer";
 import type {
@@ -122,6 +123,14 @@ export function compileGenericLessonSnapshotV3(
   const teachingRef = (content: TeachingContentFact | undefined): string | null => content
     ? addContent("teaching_content", content.microSkillKey, content.contentVersion, content.sourceRowHash ?? null)
     : null;
+  const reflectionRef = (content: GenericV3ReflectionFact | undefined): string | null => content
+    ? addContent(
+        "teaching_content",
+        `${content.microSkillKey}:reflection:${content.promptKey}`,
+        content.contentVersion,
+        content.sourceRowHash,
+      )
+    : null;
 
   const words: LessonWordSnapshotV3[] = [];
   const wordByPartAndCanonical = new Map<string, LessonWordSnapshotV3>();
@@ -235,6 +244,27 @@ export function compileGenericLessonSnapshotV3(
         const skill = item.metadata.microSkillKey ?? lessonSkill;
         const ref = skill ? teachingRef(facts.teachingContent.get(skill)) : null;
         if (ref) activityRefs.add(ref);
+      }
+    }
+    if (authored.canonical.concept === "LESSON_REFLECTION") {
+      const skill = item.metadata.microSkillKey ?? lessonSkill;
+      const authority = skill ? facts.genericV3Reflection?.get(skill) : undefined;
+      const governedRef = reflectionRef(authority);
+      const promptSource = authored.payload.promptSource;
+      if (!authority || authority.authorityKind !== "reflection_prompt" || !governedRef
+        || authored.payload.prompt !== authority.promptText
+        || !record(promptSource)
+        || promptSource.contentRefId !== governedRef
+        || promptSource.contentVersion !== authority.contentVersion
+        || promptSource.promptKey !== authority.promptKey
+        || promptSource.sourceRowHash !== authority.sourceRowHash) {
+        blockers.push({
+          code: "malformed_content_provenance",
+          position: item.position,
+          detail: "LessonReflection must exactly match its explicit governed prompt authority.",
+        });
+      } else {
+        activityRefs.add(governedRef);
       }
     }
     const condition = authored.condition ?? { kind: "always" as const };

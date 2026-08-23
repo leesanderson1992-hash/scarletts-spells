@@ -139,6 +139,13 @@ FIRST_EXPOSURE_REVIEW_FIELDS = [
     "licence",
 ]
 
+EXTENDED_TEACHING_CONTENT_HEADERS = [
+    *HEADERS["teaching_content_versions.csv"][:5],
+    "reflection_prompt_key",
+    "reflection_prompt_text",
+    *HEADERS["teaching_content_versions.csv"][5:],
+]
+
 
 def load_validator():
     spec = importlib.util.spec_from_file_location("teaching_dictionary_validator", VALIDATOR_PATH)
@@ -295,12 +302,49 @@ def write_fixture(name: str, data: dict[str, list[dict[str, str]]]) -> None:
             writer.writerows(data.get(file_name, []))
 
 
+def write_reflection_fixture(name: str, *, include_reviews: bool) -> None:
+    data = base_pg()
+    write_fixture(name, data)
+    row = {
+        **data["teaching_content_versions.csv"][0],
+        "reflection_prompt_key": "generic-noticing-v1",
+        "reflection_prompt_text": "What helped you spell these words?",
+    }
+    folder = FIXTURE_ROOT / name
+    with (folder / "teaching_content_versions.csv").open("w", encoding="utf-8", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=EXTENDED_TEACHING_CONTENT_HEADERS, lineterminator="\n")
+        writer.writeheader()
+        writer.writerow(row)
+    if include_reviews:
+        reviews = [
+            *data["teaching_content_field_reviews.csv"],
+            {
+                "micro_skill_key": PG_SKILL, "content_version": "v1",
+                "field_key": "reflection_prompt_key", "review_gate": "pedagogy",
+                "review_status": "approved_for_first_exposure", "reviewed_by": "Synthetic Admin",
+                "reviewed_at": "2026-06-29", "review_notes": "Synthetic Reflection key review.",
+            },
+            {
+                "micro_skill_key": PG_SKILL, "content_version": "v1",
+                "field_key": "reflection_prompt_text", "review_gate": "child_language",
+                "review_status": "approved_for_first_exposure", "reviewed_by": "Synthetic Admin",
+                "reviewed_at": "2026-06-29", "review_notes": "Synthetic Reflection text review.",
+            },
+        ]
+        with (folder / "teaching_content_field_reviews.csv").open("w", encoding="utf-8", newline="") as handle:
+            writer = csv.DictWriter(handle, fieldnames=HEADERS["teaching_content_field_reviews.csv"], lineterminator="\n")
+            writer.writeheader()
+            writer.writerows(reviews)
+
+
 def build_fixtures() -> None:
     if FIXTURE_ROOT.exists():
         shutil.rmtree(FIXTURE_ROOT)
     FIXTURE_ROOT.mkdir(parents=True)
 
     write_fixture("valid_first_exposure_pg", base_pg())
+    write_reflection_fixture("valid_reflection_prompt", include_reviews=True)
+    write_reflection_fixture("reflection_prompt_missing_reviews", include_reviews=False)
 
     guided = base_pg()
     guided["teaching_content_versions.csv"][0]["version_status"] = "in_review"
@@ -410,6 +454,16 @@ EXPECTED = {
     "valid_first_exposure_pg": {
         "states": {"ready_for_first_exposure": 1},
         "blockers": set(),
+        "errors": 0,
+    },
+    "valid_reflection_prompt": {
+        "states": {"ready_for_first_exposure": 1},
+        "blockers": set(),
+        "errors": 0,
+    },
+    "reflection_prompt_missing_reviews": {
+        "states": {"ready_for_guided_review_only": 1},
+        "blockers": {"needs_pedagogy_review"},
         "errors": 0,
     },
     "guided_review_only_pg": {

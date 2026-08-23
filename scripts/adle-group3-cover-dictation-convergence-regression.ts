@@ -24,7 +24,7 @@ for (const contract of ["look", "cover", "write", "check", "DiffReveal", "onStat
 assert(cover.includes('disabled={state !== "look"}') && cover.includes('state === "write"') && cover.includes('state === "check"'), "cover then write then check ordering remains enforced");
 assert(cover.includes('event.key === "Enter"') && cover.includes("checkAttempt()") && cover.includes("checkRequested.current"), "CoverShutter Enter shares the guarded Check action");
 
-for (const contract of ["audioText", "correctSentence", "value", "checked", "HearWordButton", "DiffReveal", "Check sentence", "readOnly={props.checked}", 'aria-live="polite"', "useId", "autoFocus"]) {
+for (const contract of ["audioText", "correctSentence", "value", "checked", "HearWordButton", "DiffReveal", "Check sentence", "readOnly={props.checked || saving}", 'aria-live="polite"', "useId", "autoFocus"]) {
   assert(sentence.includes(contract), `SentenceDictation contract missing ${contract}`);
 }
 assert(sentence.indexOf("!props.checked") < sentence.indexOf("expected={props.correctSentence}"), "correct sentence is rendered only by the checked branch");

@@ -8,6 +8,7 @@ preflight refusal behavior only.
 from __future__ import annotations
 
 import json
+import runpy
 import subprocess
 import sys
 from pathlib import Path
@@ -16,6 +17,8 @@ from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
 SCRIPT = ROOT / "scripts/import-teaching-dictionary-csv.py"
+MIGRATION = ROOT / "supabase/migrations/20260823120000_add_generic_reflection_prompt_authority.sql"
+NEXT_BATCH_BUILDER = ROOT / "scripts/build-next-teaching-dictionary-batch.py"
 FIXTURES = ROOT / "scripts/fixtures/teaching-dictionary-csv"
 TMP = ROOT / ".tmp/teaching-dictionary-import-regression"
 LOCAL_URL = "postgresql://postgres:postgres@127.0.0.1:54322/postgres"
@@ -52,6 +55,49 @@ def normalize_manifest(manifest: dict[str, Any]) -> dict[str, Any]:
 def main() -> int:
     TMP.mkdir(parents=True, exist_ok=True)
     importer_source = SCRIPT.read_text(encoding="utf-8")
+    migration_source = MIGRATION.read_text(encoding="utf-8")
+    next_batch_builder_source = NEXT_BATCH_BUILDER.read_text(encoding="utf-8")
+    importer = runpy.run_path(str(SCRIPT), run_name="teaching_dictionary_importer_regression")
+    legacy_row = {
+        "__row": "2", "micro_skill_key": "D4_PG_CVC_SHORT_VOWELS_SHORT_A",
+        "content_version": "historical-v1", "teaching_objective": "Historical objective",
+    }
+    legacy_hash = importer["stable_row_hash"]("teaching_content_versions.csv", legacy_row)
+    extended_empty_hash = importer["stable_row_hash"]("teaching_content_versions.csv", {
+        **legacy_row, "reflection_prompt_key": "", "reflection_prompt_text": "",
+    })
+    extended_hash = importer["stable_row_hash"]("teaching_content_versions.csv", {
+        **legacy_row, "content_version": "reflection-v2",
+        "reflection_prompt_key": "generic-noticing-v1",
+        "reflection_prompt_text": "What helped you spell these words?",
+    })
+    assert_true(legacy_hash == extended_empty_hash, "Historical source-row hashes must be unchanged by empty additive Reflection columns.")
+    assert_true(extended_hash != legacy_hash, "New populated Reflection fields must participate in source-row hashing.")
+    assert_true(
+        importer["source_metadata"]("teaching_content_versions.csv", legacy_row)["source_contract_version"] == "teaching_content_row_v1",
+        "Historical teaching content must retain the v1 source contract.",
+    )
+    assert_true(
+        importer["source_metadata"]("teaching_content_versions.csv", {
+            **legacy_row, "reflection_prompt_key": "generic-noticing-v1", "reflection_prompt_text": "What helped?",
+        })["source_contract_version"] == "teaching_content_row_v2_reflection",
+        "Populated Reflection content must use the extended source contract.",
+    )
+    assert_true(
+        "reflection_prompt_key" in migration_source
+        and "reflection_prompt_text" in migration_source
+        and "reflection_prompt_pair_check" in migration_source,
+        "Reflection authority migration must add the paired nullable fields and database constraint.",
+    )
+    assert_true(
+        "update public.canonical_teaching_dictionary_content_versions" not in migration_source.lower()
+        and "source_row_hash =" not in migration_source.lower(),
+        "Reflection authority migration must not rewrite historical content or source hashes.",
+    )
+    assert_true(
+        '"reflection_prompt_key", "reflection_prompt_text"' in next_batch_builder_source,
+        "New Teaching Dictionary batch templates must expose explicit Reflection authoring fields.",
+    )
     assert_true(
         "db_active_signed_off_content_conflicts" in importer_source,
         "Importer must preflight existing active signed-off content conflicts.",

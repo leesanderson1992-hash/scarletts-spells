@@ -197,6 +197,8 @@
     "adle:generic-snapshot-v3-foundation-regression": "npx tsx scripts/adle-generic-snapshot-v3-foundation-regression.ts",
     "adle:generic-snapshot-v3-d1-regression": "npx tsx scripts/adle-generic-snapshot-v3-d1-regression.ts",
     "adle:generic-snapshot-v3-writer-regression": "npx tsx scripts/adle-generic-snapshot-v3-writer-regression.ts",
+    "adle:generic-snapshot-v3-d3-regression": "npx tsx scripts/adle-generic-snapshot-v3-d3-regression.ts",
+    "adle:generic-v3-checkpoint-regression": "npx tsx scripts/adle-generic-v3-checkpoint-regression.ts",
     "adle:generic-snapshot-d2a-migration-regression": "npx tsx scripts/adle-generic-snapshot-d2a-migration-regression.ts",
     "adle:generic-snapshot-d2a-local-proof": "npx tsx scripts/adle-generic-snapshot-d2a-local-proof.ts",
     "adle:generic-snapshot-d2a-staging-migration": "npx tsx scripts/apply-adle-generic-snapshot-v2-v3-staging-migration.ts",

@@ -1,5 +1,6 @@
 import "server-only";
 
+import { createHash } from "node:crypto";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 import { buildScopedPath } from "@/lib/children";
@@ -8,10 +9,16 @@ import { getLondonPracticeDate } from "@/lib/practice-date";
 import {
   ADLE_ASSIGNMENT_GENERATION_SOURCE,
   ADLE_DAILY_ASSIGNMENT_TITLE,
+  planAssignmentPersistence,
+  type ExistingAssignmentHeaderFact,
 } from "./assignment-persistence";
 import { selectPartTwoSkill } from "./composer-skill-selection";
 import { ADLE_CURRICULUM_ROUTE_REGISTRY } from "./curriculum-readiness/route-registry";
 import { composeDailyPlan } from "./daily-assignment-composer";
+import { authorCompleteGenericSnapshotV3, evaluateNoSpecialistGenericSnapshotV3Boundary } from "./composable-lesson/generic-snapshot-v3-forward-authoring";
+import { supabaseGenericSnapshotV3PersistencePort } from "./composable-lesson/generic-snapshot-v3-persistence";
+import { compileAndPersistGuardedGenericSnapshotV3 } from "./composable-lesson/generic-snapshot-v3-writer";
+import { configuredProductionGenericSnapshotV3Writer } from "./composable-lesson/generic-snapshot-writer-rollout";
 import { loadDailyPlanFacts } from "./loaders/composer-facts-loader";
 import { persistComposedAdleDailyPlan } from "./loaders/daily-plan-surface";
 import {
@@ -228,15 +235,18 @@ function emitGenerationEvent(params: {
   outcome: EnsureParentAdleTodayResult["outcome"];
   routeId?: string;
   blockerCode?: string;
+  snapshotSchemaVersion?: number;
+  sourceFingerprint?: string;
 }): void {
   console.info(JSON.stringify({
     event: "adle_parent_manual_generation",
-    parentUserId: params.parentUserId,
-    childId: params.childId,
+    subjectRef: createHash("sha256").update(`${params.parentUserId}:${params.childId}`).digest("hex").slice(0, 16),
     practiceDate: params.practiceDate,
     outcome: params.outcome,
     routeId: params.routeId ?? null,
     blockerCode: params.blockerCode ?? null,
+    snapshotSchemaVersion: params.snapshotSchemaVersion ?? null,
+    sourceFingerprint: params.sourceFingerprint?.slice(0, 16) ?? null,
     deploymentSha: process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 12) ?? null,
     environment: process.env.ADLE_ROUTE_ACTIVATION_ENVIRONMENT
       ?? process.env.VERCEL_ENV
@@ -318,12 +328,99 @@ export async function ensureParentAdleTodayAssignment(params: {
 
     routeId = resolveParentManualAdleRoute(selection.microSkillKey) ?? undefined;
     if (!routeId) {
-      const result = { outcome: "no_eligible" as const, blockerCode: "no_active_specialist_route" };
+      const boundary = evaluateNoSpecialistGenericSnapshotV3Boundary({
+        authorization: configuredProductionGenericSnapshotV3Writer(params.childId),
+        author: () => authorCompleteGenericSnapshotV3(
+          facts,
+          composeDailyPlan(facts, practiceDate as IsoDate),
+        ),
+      });
+      if (!boundary.authorization) {
+        const result = { outcome: "no_eligible" as const, blockerCode: "no_active_specialist_route" };
+        emitGenerationEvent({
+          parentUserId: params.parentUserId,
+          childId: params.childId,
+          practiceDate,
+          outcome: result.outcome,
+          blockerCode: result.blockerCode,
+        });
+        return result;
+      }
+      const productionAuthorization = boundary.authorization;
+      const authored = boundary.authoring;
+      if (!authored.ok) {
+        const result = { outcome: "no_eligible" as const, blockerCode: authored.blockerCode };
+        emitGenerationEvent({
+          parentUserId: params.parentUserId,
+          childId: params.childId,
+          practiceDate,
+          outcome: result.outcome,
+          routeId: "generic_composer",
+          blockerCode: result.blockerCode,
+        });
+        return result;
+      }
+      const { data: existingHeadersData, error: existingHeadersError } = await params.userClient
+        .from("daily_assignments")
+        .select("child_id, assignment_date, title, status")
+        .eq("parent_user_id", params.parentUserId)
+        .eq("child_id", params.childId)
+        .eq("assignment_date", practiceDate);
+      if (existingHeadersError) throw new Error(`generic_v3_existing_headers:${existingHeadersError.message}`);
+      const existingHeaders = ((existingHeadersData ?? []) as Array<{
+        child_id: string; assignment_date: IsoDate; title: string; status: string;
+      }>).map((row): ExistingAssignmentHeaderFact => ({
+        childId: row.child_id,
+        assignmentDate: row.assignment_date,
+        title: row.title,
+        status: row.status,
+      }));
+      const persistence = planAssignmentPersistence(authored.plan, {
+        parentUserId: params.parentUserId,
+        existingHeaders,
+        generationTrigger: "parent_manual",
+      });
+      if (persistence.action !== "insert" || !persistence.header) {
+        const result = { outcome: "no_eligible" as const, blockerCode: `generic_v3_${persistence.noopReason ?? "no_persistence_plan"}` };
+        emitGenerationEvent({
+          parentUserId: params.parentUserId, childId: params.childId, practiceDate,
+          outcome: result.outcome, routeId: "generic_composer", blockerCode: result.blockerCode,
+        });
+        return result;
+      }
+      const persistedV3 = await compileAndPersistGuardedGenericSnapshotV3({
+        rollout: { snapshotMode: "off", childId: params.childId },
+        environment: "production",
+        productionAuthorization,
+        compiler: {
+          facts,
+          plan: authored.plan,
+          persistence: persistence as typeof persistence & { action: "insert"; header: NonNullable<typeof persistence.header> },
+        },
+        port: supabaseGenericSnapshotV3PersistencePort(params.serviceClient),
+      });
+      const status = statusResult(await loadOneStatus({
+        userClient: params.userClient,
+        parentUserId: params.parentUserId,
+        childId: params.childId,
+        now: params.now,
+      }), false);
+      if (status) {
+        emitGenerationEvent({
+          parentUserId: params.parentUserId, childId: params.childId, practiceDate,
+          outcome: status.outcome, routeId: "generic_composer",
+          snapshotSchemaVersion: 3,
+          sourceFingerprint: persistedV3.sourceFingerprint,
+        });
+        return status;
+      }
+      const result = { outcome: "failed" as const, blockerCode: "generic_v3_persisted_assignment_not_readable" };
       emitGenerationEvent({
         parentUserId: params.parentUserId,
         childId: params.childId,
         practiceDate,
         outcome: result.outcome,
+        routeId: "generic_composer",
         blockerCode: result.blockerCode,
       });
       return result;

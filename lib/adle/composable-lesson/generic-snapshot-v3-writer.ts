@@ -6,12 +6,14 @@ import {
 } from "./generic-snapshot-v3-persistence";
 import {
   selectGenericSnapshotWriter,
+  type GenericSnapshotV3ProductionAuthorization,
   type GenericSnapshotWriterRolloutInput,
 } from "./generic-snapshot-writer-rollout";
 
 export async function compileAndPersistGuardedGenericSnapshotV3(input: {
   rollout: GenericSnapshotWriterRolloutInput;
-  environment: "test" | "development" | "staging";
+  environment: "test" | "development" | "staging" | "production";
+  productionAuthorization?: GenericSnapshotV3ProductionAuthorization;
   compiler: GenericSnapshotCompileInputV3;
   port: GenericSnapshotJsonPersistencePort;
 }): Promise<{ assignmentId: string; sourceFingerprint: string }> {
@@ -20,7 +22,10 @@ export async function compileAndPersistGuardedGenericSnapshotV3(input: {
     || input.compiler.facts.childId !== input.compiler.persistence.header.childId) {
     throw new Error("compileAndPersistGuardedGenericSnapshotV3: assignment identity mismatch");
   }
-  if (selectGenericSnapshotWriter(input.rollout) !== "v3_guarded_non_production") {
+  const productionAuthorised = input.environment === "production"
+    && input.productionAuthorization?.kind === "on_for_current_learner"
+    && input.productionAuthorization.childId === input.compiler.persistence.header.childId;
+  if (!productionAuthorised && selectGenericSnapshotWriter(input.rollout) !== "v3_guarded_non_production") {
     throw new Error("compileAndPersistGuardedGenericSnapshotV3: rollout selector is not enabled for this non-Production child");
   }
   const compiled = compileGenericLessonSnapshotV3(input.compiler);
@@ -29,6 +34,7 @@ export async function compileAndPersistGuardedGenericSnapshotV3(input: {
   }
   const persisted = await persistGuardedGenericSnapshotV3(input.port, {
     environment: input.environment,
+    productionAuthorization: input.productionAuthorization,
     parentUserId: input.compiler.persistence.header.parentUserId,
     childId: input.compiler.persistence.header.childId,
     planDate: input.compiler.plan.planDate,

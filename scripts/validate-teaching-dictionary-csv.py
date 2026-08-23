@@ -79,6 +79,8 @@ REQUIRED_FILES = {
         "version_status",
         "is_active",
         "teaching_objective",
+        "reflection_prompt_key",
+        "reflection_prompt_text",
         "child_friendly_explanation",
         "rule_explanation",
         "memory_tip",
@@ -111,6 +113,15 @@ REQUIRED_FILES = {
         "review_notes",
     ],
 }
+
+# Phase 5C packages predate governed generic Reflection content. They remain a
+# valid v1 source shape and must keep their historical row hashes. The extended
+# v2 shape is selected only by the two additive columns above.
+LEGACY_TEACHING_CONTENT_HEADERS = [
+    header
+    for header in REQUIRED_FILES["teaching_content_versions.csv"]
+    if header not in {"reflection_prompt_key", "reflection_prompt_text"}
+]
 
 OPTIONAL_FILES = {
     "canonical_word_morphology.csv": [
@@ -359,7 +370,10 @@ def read_csv_file(path: Path, expected_headers: list[str]) -> tuple[list[dict[st
         with path.open("r", encoding="utf-8-sig", newline="") as handle:
             reader = csv.DictReader(handle)
             headers = reader.fieldnames or []
-            if headers != expected_headers:
+            allowed_headers = [expected_headers]
+            if path.name == "teaching_content_versions.csv":
+                allowed_headers.append(LEGACY_TEACHING_CONTENT_HEADERS)
+            if headers not in allowed_headers:
                 add_issue(
                     issues,
                     "error",
@@ -935,6 +949,18 @@ def validate_teaching_version(
     warnings: list[str] = []
     key = (clean(row["micro_skill_key"]), clean(row["content_version"]))
     version_status = clean(row["version_status"])
+    reflection_prompt_key = clean(row.get("reflection_prompt_key"))
+    reflection_prompt_text = clean(row.get("reflection_prompt_text"))
+
+    if bool(reflection_prompt_key) != bool(reflection_prompt_text):
+        add_blocker(
+            blockers,
+            "missing_review_status",
+            "reflection_prompt",
+            "blocking_first_exposure",
+            "pedagogy",
+            "Reflection prompt key and text must either both be absent or both be populated.",
+        )
 
     validate_source_fields(row, "teaching_content_versions.csv", [], blockers)
     source_category_blocks(row, blockers)
@@ -989,11 +1015,14 @@ def validate_teaching_version(
             "Final readiness review rejected this content version.",
         )
 
+    required_first_exposure_reviews = set(REQUIRED_FIRST_EXPOSURE_FIELD_REVIEWS)
+    if reflection_prompt_key and reflection_prompt_text:
+        required_first_exposure_reviews.update({"reflection_prompt_key", "reflection_prompt_text"})
     add_missing_review_blockers(
         blockers,
         reviews,
         key,
-        REQUIRED_FIRST_EXPOSURE_FIELD_REVIEWS,
+        required_first_exposure_reviews,
         "approved_for_first_exposure",
         "blocking_first_exposure",
     )

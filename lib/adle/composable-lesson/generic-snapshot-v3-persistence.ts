@@ -3,9 +3,14 @@ import type { LearningItemFact } from "../learning-items";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { CompiledLessonSnapshotV3, GenericSnapshotV3ValidationResult } from "./generic-snapshot-v3-contracts";
 import { validateCompiledGenericLessonSnapshotV3 } from "./generic-snapshot-v3-validator";
+import {
+  configuredProductionGenericSnapshotV3Writer,
+  type GenericSnapshotV3ProductionAuthorization,
+} from "./generic-snapshot-writer-rollout";
 
 export interface GuardedGenericSnapshotV3PersistenceInput {
-  environment: "test" | "development" | "staging";
+  environment: "test" | "development" | "staging" | "production";
+  productionAuthorization?: GenericSnapshotV3ProductionAuthorization;
   parentUserId: string;
   childId: string;
   planDate: string;
@@ -29,7 +34,7 @@ export interface GenericSnapshotJsonPersistencePort {
 
 type GenericSnapshotV3RpcClient = Pick<SupabaseClient, "rpc">;
 
-function supabaseGenericSnapshotV3PersistencePort(
+export function supabaseGenericSnapshotV3PersistencePort(
   serviceClient: GenericSnapshotV3RpcClient,
 ): GenericSnapshotJsonPersistencePort {
   return {
@@ -65,7 +70,12 @@ export async function persistGuardedGenericSnapshotV3(
 ): Promise<{ assignmentId: string; validation: Extract<GenericSnapshotV3ValidationResult, { ok: true }> }> {
   const environment: string = input.environment;
   if (environment === "production") {
-    throw new Error("persistGuardedGenericSnapshotV3: Production persistence is not authorised");
+    const configured = configuredProductionGenericSnapshotV3Writer(input.childId);
+    if (input.productionAuthorization?.kind !== "on_for_current_learner"
+      || input.productionAuthorization.childId !== input.childId
+      || configured?.childId !== input.childId) {
+      throw new Error("persistGuardedGenericSnapshotV3: Production persistence is not authorised");
+    }
   }
   const validation = validateCompiledGenericLessonSnapshotV3(input.snapshot, {
     lessonRouteMetadata: input.header.lessonRouteMetadata,

@@ -24,7 +24,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 import type { ChildBandProfile } from "../dictionary-eligibility";
-import type { DailyPlanFacts } from "../daily-assignment-composer";
+import type { DailyPlanFacts, GenericV3DictationFact, GenericV3ReflectionFact } from "../daily-assignment-composer";
 import type { ReviewWordFact } from "../daily-assignment-composer";
 import { COMPOSER_POLICY_V1 } from "../composer-policy";
 import { EVIDENCE_POLICY_V1 } from "../evidence-policy";
@@ -152,6 +152,7 @@ export async function loadDailyPlanFacts(
     familyMethodRows,
     activityTemplateRows,
     teachingContentRows,
+    genericV3DictationRows,
     catalogRows,
     wordRows,
     supportRows,
@@ -208,9 +209,23 @@ export async function loadDailyPlanFacts(
     rows<TeachingContentRow>(
       client
         .from("canonical_teaching_dictionary_content_versions")
-        .select("micro_skill_key, teaching_objective, child_friendly_explanation, rule_explanation, common_misconceptions, content_version, source_row_hash, import_batch_id")
+        .select("micro_skill_key, teaching_objective, reflection_prompt_key, reflection_prompt_text, child_friendly_explanation, rule_explanation, common_misconceptions, content_version, source_row_hash, import_batch_id, canonical_teaching_dictionary_field_reviews(field_key, review_status)")
         .eq("is_active", true),
       "loadDailyPlanFacts:teachingContent",
+    ),
+    rows<{
+      canonical_word_id: string;
+      dictation_sentence: string;
+      dictation_target_token_index: number;
+      audio_text: string;
+      source_row_hash: string;
+    }>(
+      client
+        .from("canonical_teaching_dictionary_dictation_sentences")
+        .select("canonical_word_id, dictation_sentence, dictation_target_token_index, audio_text, source_row_hash")
+        .eq("row_status", "active")
+        .eq("review_status", "approved_for_first_exposure"),
+      "loadDailyPlanFacts:genericV3Dictation",
     ),
     rows<{ micro_skill_key: string; skill_family_key: string }>(
       client.from("micro_skill_catalog").select("micro_skill_key, skill_family_key").eq("is_active", true),
@@ -360,6 +375,24 @@ export async function loadDailyPlanFacts(
 
   const skillFamilyKeyBySkill = new Map(catalogRows.map((row) => [row.micro_skill_key, row.skill_family_key]));
   const teachingContent = new Map(teachingContentRows.map((row) => [row.micro_skill_key, teachingContentFromRow(row)]));
+  const genericV3Reflection = new Map(
+    [...teachingContent.entries()].flatMap(([microSkillKey, content]): Array<[string, GenericV3ReflectionFact]> =>
+      content.reflectionPromptApprovedForFirstExposure
+      && content.reflectionPromptKey
+      && content.reflectionPromptText
+      && content.contentVersion
+      && content.sourceRowHash
+        ? [[microSkillKey, {
+            microSkillKey,
+            authorityKind: "reflection_prompt",
+            promptKey: content.reflectionPromptKey,
+            promptText: content.reflectionPromptText,
+            contentVersion: content.contentVersion,
+            sourceRowHash: content.sourceRowHash,
+          }]]
+        : [],
+    ),
+  );
   const activeTeachingSkillKeys = new Set(teachingContent.keys());
   const displayWordByWordId = new Map(wordRows.map((row) => [row.id, row.display_word ?? row.normalised_word]));
   const normalisedWordByWordId = new Map(wordRows.map((row) => [row.id, row.normalised_word]));
@@ -558,6 +591,17 @@ export async function loadDailyPlanFacts(
     familyMethods: familyMethodRows.map(familyMethodFromRow),
     activityTemplates: activityTemplateRows.map(activityTemplateFromRow),
     teachingContent,
+    genericV3Reflection,
+    genericV3Dictation: new Map(genericV3DictationRows.map((row): [string, GenericV3DictationFact] => [
+      row.canonical_word_id,
+      {
+        canonicalWordId: row.canonical_word_id,
+        sentence: row.dictation_sentence,
+        audioText: row.audio_text,
+        targetTokenIndex: row.dictation_target_token_index,
+        sourceRowHash: row.source_row_hash,
+      },
+    ])),
     skillFamilyKeyBySkill,
     learningItems,
     // No taxonomy prerequisite storage exists yet; the tier is pinned

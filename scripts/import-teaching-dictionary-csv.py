@@ -25,6 +25,7 @@ from urllib.parse import urlparse
 ROOT = Path(__file__).resolve().parents[1]
 VALIDATOR_PATH = ROOT / "scripts/validate-teaching-dictionary-csv.py"
 EXPECTED_MIGRATION_VERSION = "20260724140000"
+REFLECTION_AUTHORITY_MIGRATION_VERSION = "20260823120000"
 LOCAL_CONFIRMATION_TOKEN = "canonical-teaching-dictionary-local-dev"
 ADVISORY_LOCK_NAME = "canonical_teaching_dictionary_import"
 VALIDATOR_VERSION = "version_3_phase_5c_teaching_dictionary_csv_v4"
@@ -197,6 +198,8 @@ CONTENT_TABLE_COLUMNS = {
         "version_status",
         "is_active",
         "teaching_objective",
+        "reflection_prompt_key",
+        "reflection_prompt_text",
         "child_friendly_explanation",
         "rule_explanation",
         "memory_tip",
@@ -424,7 +427,7 @@ def row_number(row: dict[str, str]) -> int:
 
 
 def source_metadata(file_name: str, row: dict[str, str]) -> dict[str, Any]:
-    return {
+    metadata = {
         "csv_file": file_name,
         "source_row_number": row_number(row),
         "row_source": {
@@ -433,6 +436,13 @@ def source_metadata(file_name: str, row: dict[str, str]) -> dict[str, Any]:
             if row.get(key)
         },
     }
+    if file_name == "teaching_content_versions.csv":
+        metadata["source_contract_version"] = (
+            "teaching_content_row_v2_reflection"
+            if clean(row.get("reflection_prompt_key")) or clean(row.get("reflection_prompt_text"))
+            else "teaching_content_row_v1"
+        )
+    return metadata
 
 
 def coerce_column(column: str, value: Any) -> Any:
@@ -682,6 +692,8 @@ def build_planned_rows(folder: Path, validation_report: dict[str, Any]) -> dict[
                 "version_status": row["version_status"],
                 "is_active": row["is_active"],
                 "teaching_objective": row["teaching_objective"],
+                "reflection_prompt_key": row.get("reflection_prompt_key", ""),
+                "reflection_prompt_text": row.get("reflection_prompt_text", ""),
                 "child_friendly_explanation": row["child_friendly_explanation"],
                 "rule_explanation": row["rule_explanation"],
                 "memory_tip": row["memory_tip"],
@@ -1169,18 +1181,28 @@ def local_apply_preflight(
     if manifest.get("blocked_rows"):
         raise ValueError("Refusing local preflight because the import manifest has blocked rows.")
 
+    required_migration_versions = [EXPECTED_MIGRATION_VERSION]
+    if any(
+        clean(row.get("reflection_prompt_key")) or clean(row.get("reflection_prompt_text"))
+        for row in manifest["planned_rows_by_table"]["canonical_teaching_dictionary_content_versions"]
+    ):
+        required_migration_versions.append(REFLECTION_AUTHORITY_MIGRATION_VERSION)
     migration_rows = run_psql_json(
         db_url,
         (
             "select version from supabase_migrations.schema_migrations "
-            f"where version = {quote_sql_literal(EXPECTED_MIGRATION_VERSION)}"
+            "where version in ("
+            + ",".join(quote_sql_literal(version) for version in required_migration_versions)
+            + ")"
         ),
         psql_command,
         psql_mode,
         docker_container,
     )
-    if not migration_rows:
-        raise ValueError(f"Migration ledger is missing {EXPECTED_MIGRATION_VERSION}.")
+    present_migration_versions = {str(row["version"]) for row in migration_rows}
+    missing_migration_versions = sorted(set(required_migration_versions) - present_migration_versions)
+    if missing_migration_versions:
+        raise ValueError(f"Migration ledger is missing {missing_migration_versions}.")
 
     found_tables = db_existing_tables(db_url, ALL_STORAGE_TABLES, psql_command, psql_mode, docker_container)
     missing_tables = sorted(set(ALL_STORAGE_TABLES) - found_tables)
@@ -1249,7 +1271,7 @@ def local_apply_preflight(
             "docker_container": docker_container if psql_mode == "docker" else None,
         },
         "migration_ledger": {
-            "required_version": EXPECTED_MIGRATION_VERSION,
+            "required_versions": required_migration_versions,
             "present": True,
         },
         **audit_counts,

@@ -22,6 +22,7 @@ import {
   completeAdleLessonPartAction,
   completeAdleReviewPartAction,
   completeBaseWordFamilyLessonAction,
+  recordGenericV3CheckpointAction,
 } from "@/app/learn/week/adle/actions";
 import type {
   CanonicalActivityNormalizationResult,
@@ -41,6 +42,10 @@ import {
 import type { BaseWordFamilyLessonSnapshotV1 } from "@/lib/adle/morphology/base-word-family-payload";
 import { ClosedCompoundGuidedLesson, CompoundWordGuidedLesson } from "@/components/adle/morphology/closed-compound-guided-lesson";
 import type { LessonRouteResolutionResult } from "@/lib/adle/composable-lesson/route-resolution";
+import {
+  hydrateGenericV3CheckpointState,
+  type GenericV3DurableCheckpoint,
+} from "@/lib/adle/generic-v3-attempt-checkpoints";
 import {
   extractCanonicalSentenceTarget,
   extractSentenceTarget,
@@ -75,6 +80,9 @@ type AdleSessionRunnerProps = {
   childId: string;
   assignmentId: string;
   planDate: string;
+  snapshotFingerprint: string;
+  durableGenericV3Enabled: boolean;
+  durableGenericV3Checkpoints: readonly GenericV3DurableCheckpoint[];
   partOne: { items: AdleSessionItem[]; present: boolean; complete: boolean };
   partTwo: { items: AdleSessionItem[]; present: boolean; complete: boolean };
   routeResolution: Extract<
@@ -321,7 +329,14 @@ function ReviewPart(props: { childId: string; assignmentId: string; items: AdleS
   );
 }
 
-function LessonPart(props: { childId: string; assignmentId: string; items: AdleSessionItem[] }) {
+function LessonPart(props: {
+  childId: string;
+  assignmentId: string;
+  snapshotFingerprint: string;
+  durableGenericV3Enabled: boolean;
+  durableGenericV3Checkpoints: readonly GenericV3DurableCheckpoint[];
+  items: AdleSessionItem[];
+}) {
   const normalized = useMemo(() => normalizeGenericActivitySequence(props.items), [props.items]);
   const intro = specsFor(normalized, "lesson_intro", "INTRODUCTION")[0] ?? null;
   const memoryCues = specsFor(normalized, "guided_practice", "MEMORY_CUE", ["child_authored_cue"]);
@@ -334,20 +349,23 @@ function LessonPart(props: { childId: string; assignmentId: string; items: AdleS
   const probeWords = specsFor(normalized, "lesson_probe", "COLD_WORD_RECALL", ["diagnostic_probe"]);
   const lessonReflection = specsFor(normalized, "lesson_reflection", "LESSON_REFLECTION", ["standard_lesson_reflection"])[0] ?? null;
   const blockers = blockersFor(normalized, ["lesson_intro", "guided_practice", "lesson_production", "lesson_probe", "lesson_dictation", "lesson_reflection"]);
-  const [attempts, setAttempts] = useState<Map<string, string>>(new Map());
-  const [dictationAttempts, setDictationAttempts] = useState<Map<string, string>>(new Map());
-  const [dictationSentenceAttempts, setDictationSentenceAttempts] = useState<Map<string, string>>(new Map());
+  const durableCover = useMemo(() => props.durableGenericV3Checkpoints.filter((entry) => entry.kind === "cover_check"), [props.durableGenericV3Checkpoints]);
+  const durableDictation = useMemo(() => props.durableGenericV3Checkpoints.filter((entry) => entry.kind === "dictation"), [props.durableGenericV3Checkpoints]);
+  const durableState = useMemo(() => hydrateGenericV3CheckpointState(props.durableGenericV3Checkpoints), [props.durableGenericV3Checkpoints]);
+  const [attempts, setAttempts] = useState<Map<string, string>>(() => durableState.coverAttempts);
+  const [dictationAttempts, setDictationAttempts] = useState<Map<string, string>>(() => durableState.dictationTargetAttempts);
+  const [dictationSentenceAttempts, setDictationSentenceAttempts] = useState<Map<string, string>>(() => durableState.dictationSentenceAttempts);
   const [probeAttempts, setProbeAttempts] = useState<Map<string, string>>(new Map());
   const [guidedNotes, setGuidedNotes] = useState<Map<string, string>>(new Map());
-  const [covered, setCovered] = useState<Set<string>>(new Set());
+  const [covered, setCovered] = useState<Set<string>>(() => durableState.coveredItemIds);
   const [guidedCovered, setGuidedCovered] = useState<Set<string>>(new Set());
-  const [checkedSentences, setCheckedSentences] = useState<Set<string>>(new Set());
+  const [checkedSentences, setCheckedSentences] = useState<Set<string>>(() => durableState.checkedDictationItemIds);
   const [lockedProbes, setLockedProbes] = useState<Set<string>>(new Set());
   const [teachingComplete, setTeachingComplete] = useState(intro?.mode !== "teaching_page");
   const [teachingPageIndex, setTeachingPageIndex] = useState(0);
   const [reflectionResponse, setReflectionResponse] = useState("");
   const probeResumeKey = `adle:cold-word-recall:${props.assignmentId}:diagnostic-probe`;
-  const firstImpressionResumeKey = `adle:generic-v3:${props.assignmentId}:first-impression`;
+  const firstImpressionResumeKey = `adle:generic-v3:${props.assignmentId}:${props.snapshotFingerprint}:first-impression`;
 
   useEffect(() => {
     const restored = parseColdRecallResume(window.sessionStorage.getItem(probeResumeKey));
@@ -368,20 +386,52 @@ function LessonPart(props: { childId: string; assignmentId: string; items: AdleS
     try {
       const raw = window.sessionStorage.getItem(firstImpressionResumeKey);
       if (!raw) return;
-      const restored = JSON.parse(raw) as { teachingComplete?: unknown; teachingPageIndex?: unknown; reflectionResponse?: unknown };
+      const restored = JSON.parse(raw) as {
+        teachingComplete?: unknown; teachingPageIndex?: unknown; reflectionResponse?: unknown;
+        attempts?: unknown; dictationAttempts?: unknown; dictationSentenceAttempts?: unknown;
+        guidedNotes?: unknown; covered?: unknown; guidedCovered?: unknown; checkedSentences?: unknown;
+      };
+      const stringMap = (value: unknown) => new Map(Array.isArray(value)
+        ? value.filter((entry): entry is [string, string] => Array.isArray(entry) && typeof entry[0] === "string" && typeof entry[1] === "string")
+        : []);
+      const stringSet = (value: unknown) => new Set(Array.isArray(value)
+        ? value.filter((entry): entry is string => typeof entry === "string")
+        : []);
       queueMicrotask(() => {
         if (typeof restored.teachingComplete === "boolean") setTeachingComplete(restored.teachingComplete);
         if (Number.isInteger(restored.teachingPageIndex) && Number(restored.teachingPageIndex) >= 0) setTeachingPageIndex(Number(restored.teachingPageIndex));
         if (typeof restored.reflectionResponse === "string") setReflectionResponse(restored.reflectionResponse);
+        const restoredAttempts = stringMap(restored.attempts);
+        const restoredDictationAttempts = stringMap(restored.dictationAttempts);
+        const restoredSentenceAttempts = stringMap(restored.dictationSentenceAttempts);
+        for (const entry of durableCover) restoredAttempts.set(entry.canonicalWordId, entry.attemptText);
+        for (const entry of durableDictation) {
+          restoredDictationAttempts.set(entry.canonicalWordId, entry.targetAttempt);
+          restoredSentenceAttempts.set(entry.canonicalWordId, entry.attemptText);
+        }
+        setAttempts(restoredAttempts);
+        setDictationAttempts(restoredDictationAttempts);
+        setDictationSentenceAttempts(restoredSentenceAttempts);
+        setGuidedNotes(stringMap(restored.guidedNotes));
+        setCovered(new Set([...stringSet(restored.covered), ...durableCover.map((entry) => entry.assignmentItemId)]));
+        setGuidedCovered(stringSet(restored.guidedCovered));
+        setCheckedSentences(new Set([...stringSet(restored.checkedSentences), ...durableDictation.map((entry) => entry.assignmentItemId)]));
       });
     } catch {
       // Malformed ephemeral resume state is ignored; the governed snapshot remains authoritative.
     }
-  }, [firstImpressionResumeKey, intro?.mode, lessonReflection]);
+  }, [durableCover, durableDictation, firstImpressionResumeKey, intro?.mode, lessonReflection]);
   useEffect(() => {
     if (intro?.mode !== "teaching_page" && lessonReflection === null) return;
-    window.sessionStorage.setItem(firstImpressionResumeKey, JSON.stringify({ teachingComplete, teachingPageIndex, reflectionResponse }));
-  }, [firstImpressionResumeKey, intro?.mode, lessonReflection, reflectionResponse, teachingComplete, teachingPageIndex]);
+    window.sessionStorage.setItem(firstImpressionResumeKey, JSON.stringify({
+      teachingComplete, teachingPageIndex, reflectionResponse,
+      attempts: [...attempts], dictationAttempts: [...dictationAttempts],
+      dictationSentenceAttempts: [...dictationSentenceAttempts], guidedNotes: [...guidedNotes],
+      covered: [...covered], guidedCovered: [...guidedCovered], checkedSentences: [...checkedSentences],
+    }));
+  }, [attempts, checkedSentences, covered, dictationAttempts, dictationSentenceAttempts,
+    firstImpressionResumeKey, guidedCovered, guidedNotes, intro?.mode, lessonReflection,
+    reflectionResponse, teachingComplete, teachingPageIndex]);
 
   const meaningTargets = meaningMatch.flatMap((item) => Array.isArray(item.payload.targets) ? item.payload.targets : []);
   const readyToSubmit =
@@ -486,11 +536,13 @@ function LessonPart(props: { childId: string; assignmentId: string; items: AdleS
         <div className="mt-4 grid gap-3">
           {guidedCover.map((item, index) => (
             <CanonicalActivityHost
-              key={item.id}
+              key={`${item.id}:${guidedCovered.has(item.id) ? "checked" : "active"}`}
               spec={item}
               runtimeProps={{
                 stepLabel: `Cover check ${index + 1} of ${guidedCover.length}`,
                 muted: true,
+                initialState: guidedCovered.has(item.id) ? "check" : undefined,
+                initialAttempt: guidedNotes.get(item.id) ?? "",
                 onContinue: () => undefined,
                 onStateChange: (_: unknown, value: string) => setGuidedNotes((current) => mapWith(current, item.id, value)),
                 onComplete: (value: string) => {
@@ -517,16 +569,32 @@ function LessonPart(props: { childId: string; assignmentId: string; items: AdleS
         <div className="mt-2 grid gap-3">
           {production.map((item, index) => (
             <CanonicalActivityHost
-              key={item.id}
+              key={`${item.id}:${covered.has(item.id) ? "checked" : "active"}`}
               spec={item}
               runtimeProps={{
                 stepLabel: `Word ${index + 1} of ${production.length}`,
                 muted: true,
+                initialState: covered.has(item.id) ? "check" : undefined,
+                initialAttempt: attempts.get(payloadString(item, "canonicalWordId")) ?? "",
                 onContinue: () => undefined,
                 onStateChange: (_: unknown, value: string) => setAttempts((current) => mapWith(current, payloadString(item, "canonicalWordId"), value)),
-                onComplete: (value: string) => {
-                  setAttempts((current) => mapWith(current, payloadString(item, "canonicalWordId"), value));
-                  setCovered((current) => setWith(current, item.id));
+                onComplete: async (value: string) => {
+                  if (!props.durableGenericV3Enabled) {
+                    setAttempts((current) => mapWith(current, payloadString(item, "canonicalWordId"), value));
+                    setCovered((current) => setWith(current, item.id));
+                    return;
+                  }
+                  const result = await recordGenericV3CheckpointAction({
+                    childId: props.childId,
+                    assignmentId: props.assignmentId,
+                    itemId: item.id,
+                    snapshotFingerprint: props.snapshotFingerprint,
+                    kind: "cover_check",
+                    attemptText: value,
+                  });
+                  if (!result.ok) throw new Error("That checked response is already frozen.");
+                  setAttempts((current) => mapWith(current, result.checkpoint.canonicalWordId, result.checkpoint.attemptText));
+                  setCovered((current) => setWith(current, result.checkpoint.assignmentItemId));
                 },
               }}
             />
@@ -568,13 +636,28 @@ function LessonPart(props: { childId: string; assignmentId: string; items: AdleS
                       onValueChange: (value: string) => {
                         if (!checkedSentences.has(item.id)) setDictationSentenceAttempts((current) => mapWith(current, wordId, value));
                       },
-                      onCheck: () => {
+                      onCheck: async () => {
                         const raw = dictationSentenceAttempts.get(wordId) ?? "";
-                        setDictationAttempts((current) => mapWith(current, wordId,
-                          item.payload.targetBinding === undefined
-                            ? extractSentenceTarget(raw, targetBinding.kind === "token" ? targetBinding.tokenIndex : 0)
-                            : extractCanonicalSentenceTarget(raw, targetBinding)));
-                        setCheckedSentences((current) => setWith(current, item.id));
+                        if (!props.durableGenericV3Enabled) {
+                          setDictationAttempts((current) => mapWith(current, wordId,
+                            item.payload.targetBinding === undefined
+                              ? extractSentenceTarget(raw, targetBinding.kind === "token" ? targetBinding.tokenIndex : 0)
+                              : extractCanonicalSentenceTarget(raw, targetBinding)));
+                          setCheckedSentences((current) => setWith(current, item.id));
+                          return;
+                        }
+                        const result = await recordGenericV3CheckpointAction({
+                          childId: props.childId,
+                          assignmentId: props.assignmentId,
+                          itemId: item.id,
+                          snapshotFingerprint: props.snapshotFingerprint,
+                          kind: "dictation",
+                          attemptText: raw,
+                        });
+                        if (!result.ok) throw new Error("That checked response is already frozen.");
+                        setDictationSentenceAttempts((current) => mapWith(current, result.checkpoint.canonicalWordId, result.checkpoint.attemptText));
+                        setDictationAttempts((current) => mapWith(current, result.checkpoint.canonicalWordId, result.checkpoint.targetAttempt));
+                        setCheckedSentences((current) => setWith(current, result.checkpoint.assignmentItemId));
                       },
                     }}
                   />
@@ -680,7 +763,7 @@ export function AdleSessionRunner(props: AdleSessionRunnerProps) {
         runtime.rendererKey === "morphology_guided" ? (
           <MorphologyGuidedLesson childId={props.childId} assignmentId={props.assignmentId} items={partTwo.items} payload={runtime.payload} />
         ) : (
-          <LessonPart childId={props.childId} assignmentId={props.assignmentId} items={partTwo.items} />
+          <LessonPart childId={props.childId} assignmentId={props.assignmentId} snapshotFingerprint={props.snapshotFingerprint} durableGenericV3Enabled={props.durableGenericV3Enabled} durableGenericV3Checkpoints={props.durableGenericV3Checkpoints} items={partTwo.items} />
         )
       ) : null}
 

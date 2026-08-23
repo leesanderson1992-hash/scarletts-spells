@@ -81,6 +81,14 @@ import {
 import { baseWordAssignmentRuntimeAllowed, databaseActivatedAssignmentRuntimeAllowed } from "@/lib/adle/loaders/curriculum-release-authority";
 import { extractAuthoredTargetSpan } from "@/lib/adle/morphology/dictation-target-span";
 import { resolveSentenceDictationContract } from "@/lib/adle/sentence-dictation-contract";
+import {
+  buildGenericV3Checkpoint,
+  loadGenericV3Checkpoints,
+  persistGenericV3Checkpoint,
+  reconcileGenericV3CompletionAttempts,
+  type GenericV3CheckpointKind,
+  type GenericV3DurableCheckpoint,
+} from "@/lib/adle/generic-v3-attempt-checkpoints";
 
 function readFormValue(formData: FormData, key: string): string | null {
   const value = formData.get(key);
@@ -481,6 +489,47 @@ export async function completeAdleReviewPartAction(formData: FormData) {
   );
 }
 
+export async function recordGenericV3CheckpointAction(input: {
+  childId: string;
+  assignmentId: string;
+  itemId: string;
+  snapshotFingerprint: string;
+  kind: GenericV3CheckpointKind;
+  attemptText: string;
+}): Promise<
+  | { ok: true; checkpoint: GenericV3DurableCheckpoint }
+  | { ok: false; code: "generic_v3_checkpoint_conflict" }
+> {
+  const formData = new FormData();
+  formData.set("mode", "child");
+  formData.set("childId", input.childId);
+  formData.set("assignmentId", input.assignmentId);
+  const context = await resolveSessionContext(formData);
+  const readModel = await getAdleDailyPlanReadModel({
+    userClient: context.userClient,
+    parentUserId: context.parentUserId,
+    childId: context.childId,
+    planDate: context.planDate,
+    assignmentId: context.assignmentId,
+  });
+  blockInvalidGenericSnapshot(context, readModel);
+  const built = buildGenericV3Checkpoint({
+    readModel,
+    parentUserId: context.parentUserId,
+    childId: context.childId,
+    assignmentId: context.assignmentId,
+    itemId: input.itemId,
+    attemptText: input.attemptText,
+  });
+  if (built.checkpoint.kind !== input.kind
+    || built.checkpoint.snapshotFingerprint !== input.snapshotFingerprint) {
+    throw new Error("recordGenericV3CheckpointAction:frozen snapshot checkpoint mismatch");
+  }
+  const persisted = await persistGenericV3Checkpoint(context.serviceClient, built);
+  if ("code" in persisted) return { ok: false, code: persisted.code };
+  return { ok: true, checkpoint: persisted };
+}
+
 export async function completeAdleLessonPartAction(formData: FormData) {
   const completionTraceId = safeCompletionTraceId(formData.get("completionTraceId"), randomUUID());
   const timer = new WordLabCompletionTimer(completionTraceId);
@@ -559,6 +608,9 @@ export async function completeAdleLessonPartAction(formData: FormData) {
     ? readModel.partTwo.items.find((item) => item.canonicalActivitySpec?.concept === "LESSON_REFLECTION"
       && item.canonicalActivitySpec.mode === "standard_lesson_reflection")?.canonicalActivitySpec ?? null
     : null;
+  const isGenericV3 = wordLabPayload === null
+    && readModel.genericSnapshotResolution?.status === "resolved"
+    && readModel.genericSnapshotResolution.source === "snapshot_v3";
   const dynamicAffixCompletionPolicy = dynamicSuffix !== null
     ? deriveDynamicAffixCompletionPolicy({
         allItems: allSessionItems(readModel),
@@ -601,6 +653,16 @@ export async function completeAdleLessonPartAction(formData: FormData) {
     finishWith(context, "Today's lesson is already recorded.", completionTraceId, timer, "batched_retry");
   }
   if (taughtCompletionExists && wordLabPayload === null) {
+    if (isGenericV3) {
+      const durable = await loadGenericV3Checkpoints({
+        client: serviceClient,
+        readModel,
+        parentUserId: context.parentUserId,
+        childId,
+        assignmentId: context.assignmentId,
+      });
+      reconcileGenericV3CompletionAttempts({ readModel, checkpoints: durable });
+    }
     if (compoundV2 !== null) {
       await upsertChildLearningReflection(
         serviceClient,
@@ -611,11 +673,25 @@ export async function completeAdleLessonPartAction(formData: FormData) {
     finishWith(context, "Today's lesson is already recorded.");
   }
 
-  const controlledAttempts = parseAttempts(formData, "attempts");
+  let controlledAttempts = parseAttempts(formData, "attempts");
   let dictationAttempts = parseAttempts(formData, "dictationAttempts");
-  const dictationSentenceAttempts = parseAttempts(formData, "dictationSentenceAttempts");
+  let dictationSentenceAttempts = parseAttempts(formData, "dictationSentenceAttempts");
   const probeAttempts = parseAttempts(formData, "probeAttempts");
   const guidedAttempts = parseAttempts(formData, "guidedAttempts");
+
+  if (isGenericV3) {
+    const durable = await loadGenericV3Checkpoints({
+      client: serviceClient,
+      readModel,
+      parentUserId: context.parentUserId,
+      childId,
+      assignmentId: context.assignmentId,
+    });
+    const reconciled = reconcileGenericV3CompletionAttempts({ readModel, checkpoints: durable });
+    controlledAttempts = reconciled.controlledAttempts;
+    dictationAttempts = reconciled.dictationAttempts;
+    dictationSentenceAttempts = reconciled.dictationSentenceAttempts;
+  }
 
   const dictationItems = readModel.partTwo.items.filter(
     (item) => item.sectionKey === "lesson_dictation" && item.canonicalWordId !== null,

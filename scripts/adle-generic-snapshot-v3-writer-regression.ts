@@ -31,7 +31,8 @@ const FAMILY = "D4_AFFIX";
 const WORD_ID = "word-helpful";
 const WORD = "helpful";
 const CONTENT_VERSION = "approved-affix-ful-v1";
-const TEACHING_REF = `teaching_content:${SKILL}:${CONTENT_VERSION}`;
+const REFLECTION_KEY = "affix-ful-reflection-v1";
+const REFLECTION_REF = `teaching_content:${SKILL}:reflection:${REFLECTION_KEY}:${CONTENT_VERSION}`;
 
 function authoring(input: Omit<GenericCanonicalActivityAuthoringV3, "schemaVersion">): GenericCanonicalActivityAuthoringV3 {
   return { schemaVersion: 3, ...input };
@@ -99,7 +100,7 @@ const activities = [
       label: "Reflection", canonical: { concept: "LESSON_REFLECTION", mode: "standard_lesson_reflection", contractVersion: 1 }, canonicalWordIds: [],
       payload: {
         prompt: "What did you learn about spelling with -ful?",
-        promptSource: { kind: "teaching_content", contentRefId: TEACHING_REF, contentVersion: CONTENT_VERSION, promptKey: "affix-ful-reflection-v1" },
+        promptSource: { kind: "teaching_content", contentRefId: REFLECTION_REF, contentVersion: CONTENT_VERSION, promptKey: REFLECTION_KEY, sourceRowHash: "reflection-hash" },
         mistakeSummary: { kind: "normalized_lesson_attempts", sections: ["lesson_production", "lesson_dictation"] },
         sentenceComparison: { kind: "feedback_only", enabled: true, spellingEvidence: false },
         responseBinding: { kind: "learning_reflection", field: "learningReflection" },
@@ -145,6 +146,7 @@ const facts = {
   familyMethods: [{ familyKey: FAMILY, familyName: "Affixes", guidedQuestionSequence: [], reviewSortDimension: "", productionTask: "", contentVersion: "family-v1", rowStatus: "active" }],
   activityTemplates: [],
   teachingContent: new Map([[SKILL, { microSkillKey: SKILL, teachingObjective: "Use -ful", childFriendlyExplanation: "-ful means full of", ruleExplanation: "Keep the base word visible", commonMisconceptions: "Check the join", contentVersion: CONTENT_VERSION, sourceRowHash: "content-hash" }]]),
+  genericV3Reflection: new Map([[SKILL, { microSkillKey: SKILL, authorityKind: "reflection_prompt", promptKey: REFLECTION_KEY, promptText: "What did you learn about spelling with -ful?", contentVersion: CONTENT_VERSION, sourceRowHash: "reflection-hash" }]]),
   skillFamilyKeyBySkill: new Map([[SKILL, FAMILY]]),
   learningItems: [], prerequisiteKeysBySkill: new Map(), frequencyBandByWordId: new Map(), previousLessonFamilyKey: null,
   dictionary: {

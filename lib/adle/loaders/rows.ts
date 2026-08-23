@@ -221,18 +221,34 @@ export interface TeachingContentRow {
   child_friendly_explanation: string | null;
   rule_explanation: string | null;
   common_misconceptions: string | null;
+  reflection_prompt_key?: string | null;
+  reflection_prompt_text?: string | null;
+  canonical_teaching_dictionary_field_reviews?: Array<{
+    field_key: string;
+    review_status: string;
+  }>;
   content_version?: string;
   source_row_hash?: string;
   import_batch_id?: string;
 }
 
 export function teachingContentFromRow(row: TeachingContentRow): TeachingContentFact {
+  const approvedReflectionFields = new Set(
+    (row.canonical_teaching_dictionary_field_reviews ?? [])
+      .filter((review) => review.review_status === "approved_for_first_exposure")
+      .map((review) => review.field_key),
+  );
   return {
     microSkillKey: row.micro_skill_key,
     teachingObjective: row.teaching_objective ?? "",
     childFriendlyExplanation: row.child_friendly_explanation ?? "",
     ruleExplanation: row.rule_explanation ?? "",
     commonMisconceptions: row.common_misconceptions ?? "",
+    reflectionPromptKey: row.reflection_prompt_key ?? undefined,
+    reflectionPromptText: row.reflection_prompt_text ?? undefined,
+    reflectionPromptApprovedForFirstExposure:
+      approvedReflectionFields.has("reflection_prompt_key")
+      && approvedReflectionFields.has("reflection_prompt_text"),
     contentVersion: row.content_version,
     sourceRowHash: row.source_row_hash,
     importBatchId: row.import_batch_id,

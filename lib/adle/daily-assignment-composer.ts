@@ -110,10 +110,32 @@ export interface TeachingContentFact {
   childFriendlyExplanation: string;
   ruleExplanation: string;
   commonMisconceptions: string;
+  reflectionPromptKey?: string;
+  reflectionPromptText?: string;
+  reflectionPromptApprovedForFirstExposure?: boolean;
   /** Immutable Teaching Dictionary provenance consumed by snapshots. */
   contentVersion?: string;
   sourceRowHash?: string;
   importBatchId?: string;
+}
+
+/** Approved canonical sentence content used only by forward v3 authoring. */
+export interface GenericV3DictationFact {
+  canonicalWordId: string;
+  sentence: string;
+  audioText: string;
+  targetTokenIndex: number;
+  sourceRowHash: string;
+}
+
+/** Explicit, approved Reflection authority for forward v3 authoring. */
+export interface GenericV3ReflectionFact {
+  microSkillKey: string;
+  authorityKind: "reflection_prompt";
+  promptKey: string;
+  promptText: string;
+  contentVersion: string;
+  sourceRowHash: string;
 }
 
 export interface ReviewWordFact {
@@ -146,6 +168,14 @@ export interface DailyPlanFacts {
   activityTemplates: readonly ActivityTemplateFact[];
   /** micro_skill_key -> active teaching content. */
   teachingContent: ReadonlyMap<string, TeachingContentFact>;
+  /** canonical_word_id -> approved First Impression dictation sentence. */
+  genericV3Dictation?: ReadonlyMap<string, GenericV3DictationFact>;
+  /**
+   * micro_skill_key -> explicitly governed Reflection prompt. The Production
+   * loader deliberately leaves this absent until an authoritative generic
+   * Reflection source equivalent to prompt_key + prompt_text exists.
+   */
+  genericV3Reflection?: ReadonlyMap<string, GenericV3ReflectionFact>;
   skillFamilyKeyBySkill: ReadonlyMap<string, string>;
   learningItems: readonly LearningItemFact[];
   prerequisiteKeysBySkill: ReadonlyMap<string, readonly string[]>;
