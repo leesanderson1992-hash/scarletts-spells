@@ -87,7 +87,7 @@ begin
  for v_item,v_pos in select value,ordinality::integer from jsonb_array_elements(p_items) with ordinality loop
   if v_item->>'childId'<>p_child_id::text or v_item->>'parentUserId'<>p_parent_user_id::text or v_item->>'position'<>v_pos::text
     or v_item->>'domainModule'<>'spelling' or v_item->>'status'<>'ready' or v_item#>>'{metadata,planDate}'<>p_plan_date::text
-    or v_item->>'sourceType'<>case when v_base then 'adle_base_word_family_pilot' else 'adle_composer' end then raise exception 'ADLE specialist v3 item invalid at %',v_pos; end if;
+    or v_item->>'sourceType'<>(case when v_base then 'adle_base_word_family_pilot' else 'adle_composer' end) then raise exception 'ADLE specialist v3 item invalid at %',v_pos; end if;
  end loop;
  if exists(with b as(select a.value->>'sectionKey' section_key,x.value from jsonb_array_elements(p_snapshot->'activities') a,jsonb_array_elements(a.value->'itemBindings') x)
   select 1 from b full join jsonb_array_elements(p_items) i on b.value->>'sourceEntityId'=i.value->>'sourceEntityId'
