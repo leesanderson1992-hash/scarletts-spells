@@ -40,7 +40,7 @@ import {
   resolveGenericLessonSnapshot,
   type GenericSnapshotResolutionResult,
 } from "../composable-lesson/generic-snapshot-reader";
-import { isCompoundWordSpecialistSnapshotV3 } from "../composable-lesson/specialist-snapshot-v3-validator";
+import { isSpecialistSnapshotV3 } from "../composable-lesson/specialist-snapshot-v3-validator";
 import type { CanonicalActivitySpec } from "../canonical-activity-spec";
 import {
   dailyPlanHeaderProjection,
@@ -448,7 +448,7 @@ export async function getAdleDailyPlanReadModel(params: {
   const genericSnapshotResolution =
     isExplicitGeneric || (compiledLessonSnapshot !== null
       && compiledLessonSnapshot !== undefined
-      && !isCompoundWordSpecialistSnapshotV3(compiledLessonSnapshot))
+      && !isSpecialistSnapshotV3(compiledLessonSnapshot))
       ? resolveGenericLessonSnapshot({
           mode: snapshotMode,
           lessonRouteMetadata: header.lesson_route_metadata,

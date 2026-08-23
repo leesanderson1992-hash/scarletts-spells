@@ -19,6 +19,9 @@ export type DynamicSuffixProfileLoadDiagnostic = {
 
 type JsonRecord = Record<string, unknown>;
 type ProfileRow = {
+  id: unknown;
+  import_batch_id: unknown;
+  source_row_hash: unknown;
   micro_skill_key: unknown;
   suffix_label: unknown;
   suffix_text: unknown;
@@ -33,6 +36,8 @@ type ProfileRow = {
   canonical_teaching_dictionary_suffix_members: unknown;
 };
 type MemberRow = {
+  id: unknown;
+  source_row_hash: unknown;
   canonical_word_id: unknown;
   member_role: unknown;
   suffix_variant: unknown;
@@ -54,6 +59,7 @@ type MemberRow = {
 };
 type DictionaryWordRow = {
   id: unknown;
+  source_row_hash: unknown;
   display_word: unknown;
   frequency_band: unknown;
   age_band: unknown;
@@ -62,6 +68,8 @@ type DictionaryWordRow = {
   review_status: unknown;
 };
 type DictationRow = {
+  id: unknown;
+  source_row_hash: unknown;
   canonical_word_id: unknown;
   dictation_sentence: unknown;
   dictation_target_token_index: unknown;
@@ -250,7 +258,7 @@ export async function loadDynamicSuffixProfiles(
     { data: rawItems, error: itemError },
     { data: rawSkills, error: skillError },
   ] = await Promise.all([
-    client.from("canonical_teaching_dictionary_suffix_profiles").select("id,micro_skill_key,suffix_label,suffix_text,suffix_meaning,meaning_bins,include_meaning_sort,suffix_choices,intro_content,reflection_prompt_key,reflection_prompt_text,production_enabled,row_status,review_status,canonical_teaching_dictionary_suffix_members(canonical_word_id,member_role,suffix_variant,semantic_base_text,semantic_base_kind,base_meaning,new_word_meaning,meaning_bin_key,teaching_split_parts,teaching_split_joins,true_morphology_parts,true_morphology_joins,true_morphology_transformations,transformation_notes,true_morphology_provenance,assignment_eligible,row_status,review_status)").in("micro_skill_key", DYNAMIC_SUFFIX_PROFILE_KEYS).eq("row_status", "active").eq("review_status", "approved_for_first_exposure"),
+      client.from("canonical_teaching_dictionary_suffix_profiles").select("id,import_batch_id,source_row_hash,micro_skill_key,suffix_label,suffix_text,suffix_meaning,meaning_bins,include_meaning_sort,suffix_choices,intro_content,reflection_prompt_key,reflection_prompt_text,production_enabled,row_status,review_status,canonical_teaching_dictionary_suffix_members(id,source_row_hash,canonical_word_id,member_role,suffix_variant,semantic_base_text,semantic_base_kind,base_meaning,new_word_meaning,meaning_bin_key,teaching_split_parts,teaching_split_joins,true_morphology_parts,true_morphology_joins,true_morphology_transformations,transformation_notes,true_morphology_provenance,assignment_eligible,row_status,review_status)").in("micro_skill_key", DYNAMIC_SUFFIX_PROFILE_KEYS).eq("row_status", "active").eq("review_status", "approved_for_first_exposure"),
     client.from("adle_learning_items").select("id,child_id,canonical_word_id,micro_skill_key,item_status,source_kind,source_ref,source_attempt_text,reteach_priority,ejected_on,intake_on,row_status").eq("child_id", childId).in("micro_skill_key", DYNAMIC_SUFFIX_PROFILE_KEYS).eq("row_status", "active"),
     client.from("micro_skill_catalog").select("micro_skill_key,mastery_domain_key,is_active,is_assignable").in("micro_skill_key", DYNAMIC_SUFFIX_PROFILE_KEYS),
   ]);
@@ -270,8 +278,8 @@ export async function loadDynamicSuffixProfiles(
   ))];
   const [{ data: rawWords, error: wordsError }, { data: rawDictations, error: dictationError }, { data: rawMetadata, error: metadataError }] = wordIds.length
     ? await Promise.all([
-      client.from("canonical_teaching_dictionary_words").select("id,display_word,frequency_band,age_band,complexity_band,row_status,review_status").in("id", wordIds),
-      client.from("canonical_teaching_dictionary_dictation_sentences").select("canonical_word_id,dictation_sentence,dictation_target_token_index,audio_text,row_status,review_status").in("canonical_word_id", wordIds),
+      client.from("canonical_teaching_dictionary_words").select("id,source_row_hash,display_word,frequency_band,age_band,complexity_band,row_status,review_status").in("id", wordIds),
+      client.from("canonical_teaching_dictionary_dictation_sentences").select("id,source_row_hash,canonical_word_id,dictation_sentence,dictation_target_token_index,audio_text,row_status,review_status").in("canonical_word_id", wordIds),
       client.from("canonical_teaching_dictionary_word_metadata").select("canonical_word_id,syllables,phoneme_hint,stress_pattern,has_schwa,row_status,review_status").in("canonical_word_id", wordIds),
     ])
     : [{ data: [], error: null }, { data: [], error: null }, { data: [], error: null }];
@@ -416,6 +424,13 @@ export async function loadDynamicSuffixProfiles(
           provenance,
         },
         approvedTransfer: member.member_role === "transfer",
+        governance: {
+          memberId: member.id as string,
+          memberSourceRowHash: member.source_row_hash as string,
+          dictionaryWordSourceRowHash: word!.source_row_hash as string,
+          dictationId: dictation!.id as string,
+          dictationSourceRowHash: dictation!.source_row_hash as string,
+        },
       });
     }
     if (words.size < 4) {
@@ -438,6 +453,11 @@ export async function loadDynamicSuffixProfiles(
         promptText: row.reflection_prompt_text as string,
       },
       introduction: intro,
+      governance: {
+        profileId: row.id as string,
+        importBatchId: row.import_batch_id as string,
+        sourceRowHash: row.source_row_hash as string,
+      },
     });
   }
   const learningItems = itemRows.flatMap((row): LearningItemFact[] => {

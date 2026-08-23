@@ -35,9 +35,10 @@ function emitBlocker(profileKey: string | null): void {
 export function deriveDynamicAffixCompletionPolicy(params: {
   allItems: readonly { promptData: Record<string, unknown> }[];
   productionItems: readonly DynamicAffixCompletionItem[];
+  frozenPayload?: DynamicAffixLessonPayloadV3;
 }): DynamicAffixCompletionPolicyResult {
   const root = params.allItems.find((item) => item.promptData.dynamicAffixActivityId === "intro-root");
-  const candidate = root?.promptData.dynamicAffixLesson;
+  const candidate = params.frozenPayload ?? root?.promptData.dynamicAffixLesson;
   if (!validateDynamicAffixWordLabPayload(candidate)) {
     emitBlocker(null);
     return { ok: false, blockerCode: "completion_role_mismatch" };

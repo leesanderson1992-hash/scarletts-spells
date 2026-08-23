@@ -1,7 +1,8 @@
 import type { GuideBeatV1, MorphologyIntroductionScreenV1, MorphologyLessonPayloadV1 } from "./payload";
 import { dynamicAffixExpectedItemCount, validateDynamicAffixWordLabPayload, type DynamicAffixLessonPayloadV3 } from "./affix-word-lab";
+import { resolveMorphologyTeachingPages, type ResolvedMorphologyTeachingPages } from "./morphology-teaching-pages";
 
-export function dynamicAffixRuntime(payload: unknown): MorphologyLessonPayloadV1 | null {
+function compileDynamicAffixRuntime(payload: unknown): MorphologyLessonPayloadV1 | null {
   if (!validateDynamicAffixWordLabPayload(payload)) return null;
   const snapshot = payload as DynamicAffixLessonPayloadV3;
   const words = snapshot.words.lesson.map((word) => ({ ...word, affixPosition: snapshot.affix.position, affixText: word.affixText, affixLabel: word.affixLabel }));
@@ -69,6 +70,39 @@ export function dynamicAffixRuntime(payload: unknown): MorphologyLessonPayloadV1
     { id: "dictation", type: "sentence_dictation", assignmentBindings: words.map((word) => `dictation-${word.canonicalWordId}`), answerVisibility: "recall_neutral", evidenceMode: "first_exposure_word", sentences: snapshot.activities.dictation },
     { id: "reflection", type: "reflection", assignmentBindings: [], answerVisibility: "post_submit", evidenceMode: "none", promptKey: snapshot.activities.reflection.promptKey, promptText: reflectionPrompt },
   ] };
+}
+
+/**
+ * The single resolved authority for Dynamic Affix v3.  The source payload is
+ * retained for completion lineage while runtimePayload is exactly what the
+ * existing MorphologyGuidedLesson renders, including code-owned teaching and
+ * Reflection copy.
+ */
+export type ResolvedDynamicAffixLessonV3 = Readonly<{
+  sourcePayload: DynamicAffixLessonPayloadV3;
+  runtimePayload: MorphologyLessonPayloadV1;
+  teaching: ResolvedMorphologyTeachingPages;
+}>;
+
+export function resolveDynamicAffixLessonAuthorityV3(
+  payload: unknown,
+): ResolvedDynamicAffixLessonV3 | null {
+  if (!validateDynamicAffixWordLabPayload(payload)) return null;
+  // This authority is persisted as JSON. Normalize optional `undefined`
+  // properties once here so both the live runtime and snapshot compiler see
+  // the exact same JSON-representable lesson.
+  const sourcePayload = JSON.parse(JSON.stringify(payload)) as DynamicAffixLessonPayloadV3;
+  const compiledRuntime = compileDynamicAffixRuntime(sourcePayload);
+  const runtimePayload = compiledRuntime
+    ? JSON.parse(JSON.stringify(compiledRuntime)) as MorphologyLessonPayloadV1
+    : null;
+  return runtimePayload
+    ? { sourcePayload, runtimePayload, teaching: resolveMorphologyTeachingPages(runtimePayload) }
+    : null;
+}
+
+export function dynamicAffixRuntime(payload: unknown): MorphologyLessonPayloadV1 | null {
+  return resolveDynamicAffixLessonAuthorityV3(payload)?.runtimePayload ?? null;
 }
 
 export function resolveDynamicAffixRuntime(enabled: boolean, items: readonly { promptData: Record<string, unknown>; sectionKey: string; templateKey: string; canonicalWordId: string | null; targetWord: string | null }[]): MorphologyLessonPayloadV1 | null {

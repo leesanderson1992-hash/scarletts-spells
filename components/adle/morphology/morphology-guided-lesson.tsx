@@ -10,7 +10,6 @@ import {
   type FirstImpressionConfiguredActivity,
   type FirstImpressionStageId,
 } from "@/components/adle/first-impression/first-impression-lesson";
-import type { TeachingPagesConfig } from "@/components/adle/first-impression/teaching-pages";
 import { SplitHandle } from "@/components/adle/activities/shared/split-handle";
 import type { SplitHandleProps } from "@/components/adle/activities/shared/split-handle";
 import { deterministicOrderedBuildOrder } from "@/components/adle/activities/shared/ordered-build-engine";
@@ -30,6 +29,7 @@ import {
   type MorphologyWordSnapshot,
   type PrefixCleaverFeedbackPolicyV1,
 } from "@/lib/adle/morphology/payload";
+import { resolveMorphologyTeachingPages } from "@/lib/adle/morphology/morphology-teaching-pages";
 import { morphologyMeaningSortItems } from "@/lib/adle/morphology/meaning-sort-items";
 import {
   analyseDictationSentence,
@@ -342,7 +342,7 @@ export function MorphologyGuidedLesson(props: {
   });
   return (
     <FirstImpressionLesson
-      teaching={morphologyTeachingPages(props.payload)}
+      teaching={resolveMorphologyTeachingPages(props.payload)}
       activities={activities}
       initialStageId={morphologyShellStage(state.stage)}
       initialTeachingPageIndex={state.introIndex}
@@ -362,30 +362,6 @@ function morphologyShellStage(stage: MorphologyLessonStage): FirstImpressionStag
 
 function morphologyResumeStage(stageId: FirstImpressionStageId): MorphologyLessonStage {
   return stageId === "teaching" ? "learn" : stageId === "activity:discover" ? "discover" : stageId === "activity:split" ? "split" : stageId === "activity:meaning" ? "match" : stageId === "activity:build" ? "build" : stageId === "cover" ? "controlled" : stageId === "dictation" ? "dictation" : "reflect";
-}
-
-function morphologyTeachingPages(payload: MorphologyLessonPayloadV1): TeachingPagesConfig {
-  const screens = (payload.activities.find((activity) => activity.type === "introduction")?.introScreens ?? [])
-    .filter((screen) => !["words", "review-words", "ready"].includes(screen.id));
-  return {
-    pages: screens.map((screen) => ({
-      id: screen.id,
-      type: "teaching" as const,
-      eyebrow: "Learn",
-      title: screen.title,
-      paragraphs: screen.paragraphs,
-      callout: screen.meaningCallout,
-      model: screen.model ? { first: screen.model.prefix, second: screen.model.base, result: screen.model.result } : undefined,
-      examples: [
-        ...(screen.wordCards ?? []).map((card) => ({ text: `${card.base} → ${card.derived}`, explanation: card.meaning })),
-        ...(screen.examples ?? []).map((example) => ({ text: `${example.prefix} + ${example.base} → ${example.word}`, explanation: example.meaning })),
-        ...(screen.teachingCards ?? []).map((card) => ({ text: `${card.text}: ${card.label}`, explanation: `${card.meaning}. ${card.rules.join(" ")}` })),
-      ],
-    })),
-    meetWords: {
-      words: payload.words.lesson.map((word) => ({ id: word.canonicalWordId, word: word.displayWord, wordParts: word.parts.map((part) => part.text), detail: word.derivedMeaning })),
-    },
-  };
 }
 
 function activityId(stage: Stage): string {

@@ -2,7 +2,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 
 import type { AssignmentHeaderDraft, AssignmentItemDraft } from "../assignment-persistence";
 import type { LearningItemFact } from "../learning-items";
-import type { CompiledCompoundWordSpecialistSnapshotV3 } from "./specialist-snapshot-v3-contracts";
+import type { CompiledSpecialistSnapshotV3 } from "./specialist-snapshot-v3-contracts";
 import { validateCompiledSpecialistSnapshotV3 } from "./specialist-snapshot-v3-validator";
 import type { SpecialistSnapshotV3WriterAuthorization } from "./specialist-snapshot-writer-rollout";
 
@@ -14,12 +14,12 @@ export type SpecialistSnapshotV3PersistenceInput = {
   header: AssignmentHeaderDraft;
   items: readonly AssignmentItemDraft[];
   intakes: readonly LearningItemFact[];
-  snapshot: CompiledCompoundWordSpecialistSnapshotV3;
+  snapshot: CompiledSpecialistSnapshotV3;
 };
 
 export interface SpecialistSnapshotV3PersistencePort {
   persist(input: Omit<SpecialistSnapshotV3PersistenceInput, "authorization" | "snapshot"> & {
-    compiledLessonSnapshot: CompiledCompoundWordSpecialistSnapshotV3;
+    compiledLessonSnapshot: CompiledSpecialistSnapshotV3;
   }): Promise<string>;
 }
 
@@ -49,7 +49,10 @@ export async function persistSpecialistSnapshotV3(
   port: SpecialistSnapshotV3PersistencePort,
   input: SpecialistSnapshotV3PersistenceInput,
 ): Promise<string> {
-  if (input.authorization.kind !== "compound_word_v2_for_current_learner"
+  const requiredAuthorization = input.snapshot.route.routeId === "dynamic_affix_word_lab"
+    ? "dynamic_affix_v3_for_current_learner"
+    : "compound_word_v2_for_current_learner";
+  if (input.authorization.kind !== requiredAuthorization
     || input.authorization.childId.toLowerCase() !== input.childId.toLowerCase()) {
     throw new Error("persistSpecialistSnapshotV3: writer selection mismatch");
   }
@@ -73,7 +76,7 @@ export async function persistSpecialistSnapshotV3(
     || input.header.title !== "ADLE Daily Plan"
     || input.header.status !== "pending"
     || input.header.assignmentGenerationSource !== "adle_composer_v1"
-    || input.items.length !== 18
+    || input.items.length !== input.snapshot.assignment.itemCount
     || input.items.some((item, index) => item.childId !== input.childId
       || item.parentUserId !== input.parentUserId
       || item.metadata.planDate !== input.planDate

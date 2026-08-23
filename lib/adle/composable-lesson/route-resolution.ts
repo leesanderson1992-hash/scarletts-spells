@@ -27,7 +27,7 @@ import {
 } from "../morphology/dynamic-prefix-runtime";
 import { validateDynamicPrefixWordLabPayload } from "../morphology/dynamic-prefix-word-lab";
 import {
-  dynamicAffixRuntime,
+  resolveDynamicAffixLessonAuthorityV3,
   resolveDynamicAffixRuntime,
 } from "../morphology/dynamic-affix-runtime";
 import {
@@ -51,7 +51,7 @@ import {
   type CompoundWordLessonPayloadV2,
 } from "../morphology/compound-word-lesson-v2";
 import { resolveCompoundWordFirstImpressionConfig, type ResolvedCompoundWordFirstImpressionV2 } from "../morphology/resolved-compound-word-lesson-v2";
-import { isCompoundWordSpecialistSnapshotV3, validateCompiledSpecialistSnapshotV3 } from "./specialist-snapshot-v3-validator";
+import { isCompoundWordSpecialistSnapshotV3, isDynamicAffixSpecialistSnapshotV3, validateCompiledSpecialistSnapshotV3 } from "./specialist-snapshot-v3-validator";
 
 export interface LessonRouteResolutionItem {
   id: string;
@@ -91,10 +91,16 @@ export type ResolvedLessonRuntime =
   | {
       adapterKey:
         | "morphology_guided_v1"
-        | "dynamic_prefix_v2"
-        | "dynamic_affix_v3";
+        | "dynamic_prefix_v2";
       rendererKey: "morphology_guided";
       payload: MorphologyLessonPayloadV1;
+    }
+  | {
+      adapterKey: "dynamic_affix_v3";
+      rendererKey: "morphology_guided";
+      payload: MorphologyLessonPayloadV1;
+      sourcePayload: import("../morphology/affix-word-lab").DynamicAffixLessonPayloadV3;
+      resolvedLesson: import("../morphology/dynamic-affix-runtime").ResolvedDynamicAffixLessonV3;
     }
   | {
       adapterKey: "closed_compound_v1";
@@ -382,9 +388,12 @@ function runAdapter(
       if (candidates.length === 0) return { ok: false, blocker: "root_item_missing" };
       if (candidates.length > 1) return { ok: false, blocker: "root_item_duplicate" };
       const source = candidates[0].promptData.dynamicAffixLesson;
+      const resolvedLesson = validateDynamicAffixWordLabPayload(source)
+        ? resolveDynamicAffixLessonAuthorityV3(source)
+        : null;
       if (
         !validateDynamicAffixWordLabPayload(source) ||
-        !dynamicAffixRuntime(source) ||
+        !resolvedLesson ||
         items.length !== dynamicAffixExpectedItemCount(source)
       ) {
         return { ok: false, blocker: "persisted_payload_malformed" };
@@ -398,6 +407,8 @@ function runAdapter(
               adapterKey: "dynamic_affix_v3",
               rendererKey: "morphology_guided",
               payload,
+              sourcePayload: resolvedLesson.sourcePayload,
+              resolvedLesson,
             },
           }
         : { ok: false, blocker: "assignment_binding_mismatch" };
@@ -591,6 +602,7 @@ export function resolvePersistedLessonRoute(input: {
   }
   let adapterItems = items;
   let frozenCompoundLesson: ResolvedCompoundWordFirstImpressionV2 | null = null;
+  let frozenDynamicAffixLesson: import("../morphology/dynamic-affix-runtime").ResolvedDynamicAffixLessonV3 | null = null;
   if (isCompoundWordSpecialistSnapshotV3(input.compiledLessonSnapshot)) {
     if (route.routeId !== "compound_word_lab") {
       return blocked("persisted_metadata", "persisted_payload_malformed");
@@ -609,11 +621,26 @@ export function resolvePersistedLessonRoute(input: {
       })),
     });
     if (!specialist.ok) return blocked("persisted_metadata", "persisted_payload_malformed");
-    frozenCompoundLesson = specialist.snapshot.payload.resolvedLesson;
+    frozenCompoundLesson = input.compiledLessonSnapshot.payload.resolvedLesson;
     adapterItems = items.map((item) => item.promptData.compoundWordActivityId === "intro-root"
       ? { ...item, promptData: { ...item.promptData, compoundWordLesson: frozenCompoundLesson!.sourcePayload } }
       : item);
-  } else if (route.routeId === "compound_word_lab"
+  } else if (isDynamicAffixSpecialistSnapshotV3(input.compiledLessonSnapshot)) {
+    if (route.routeId !== "dynamic_affix_word_lab") return blocked("persisted_metadata", "persisted_payload_malformed");
+    const specialist = validateCompiledSpecialistSnapshotV3(input.compiledLessonSnapshot, {
+      lessonRouteMetadata,
+      assignmentGenerationSource: "adle_composer_v1",
+      items: items.map((item) => ({
+        sourceEntityId: item.sourceEntityId ?? "", position: item.position ?? 0, sectionKey: item.sectionKey,
+        canonicalWordId: item.canonicalWordId, templateKey: item.templateKey, targetWord: item.targetWord, promptData: item.promptData,
+      })),
+    });
+    if (!specialist.ok || specialist.snapshot.route.routeId !== "dynamic_affix_word_lab") return blocked("persisted_metadata", "persisted_payload_malformed");
+    frozenDynamicAffixLesson = input.compiledLessonSnapshot.payload.resolvedLesson;
+    adapterItems = items.map((item) => item.promptData.dynamicAffixActivityId === "intro-root"
+      ? { ...item, promptData: { ...item.promptData, dynamicAffixLesson: frozenDynamicAffixLesson!.sourcePayload } }
+      : item);
+  } else if ((route.routeId === "compound_word_lab" || route.routeId === "dynamic_affix_word_lab")
     && input.compiledLessonSnapshot !== null
     && input.compiledLessonSnapshot !== undefined) {
     return blocked("persisted_metadata", "persisted_payload_malformed");
@@ -622,6 +649,11 @@ export function resolvePersistedLessonRoute(input: {
   if (!adapter.ok) return blocked("persisted_metadata", adapter.blocker);
   if (frozenCompoundLesson && adapter.runtime.adapterKey === "compound_word_v2") {
     adapter.runtime.resolvedLesson = frozenCompoundLesson;
+  }
+  if (frozenDynamicAffixLesson && adapter.runtime.adapterKey === "dynamic_affix_v3") {
+    adapter.runtime.payload = frozenDynamicAffixLesson.runtimePayload;
+    adapter.runtime.sourcePayload = frozenDynamicAffixLesson.sourcePayload;
+    adapter.runtime.resolvedLesson = frozenDynamicAffixLesson;
   }
   return {
     status: "resolved_explicit",

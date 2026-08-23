@@ -1,5 +1,8 @@
 import type { AssignmentHeaderDraft, AssignmentItemDraft } from "../assignment-persistence";
 import type { ActivatedCompoundWordReleaseV2 } from "../morphology/compound-word-release-loader";
+import type { DynamicAffixCompilerDecision } from "../morphology/dynamic-affix-compiler-rollout";
+import type { DynamicAffixSelection } from "../morphology/affix-word-lab";
+import type { ResolvedDynamicAffixLessonV3 } from "../morphology/dynamic-affix-runtime";
 import type { ResolvedCompoundWordFirstImpressionV2 } from "../morphology/resolved-compound-word-lesson-v2";
 import type { CompiledLessonSnapshotV3 } from "./generic-snapshot-v3-contracts";
 
@@ -37,6 +40,13 @@ export type SpecialistSnapshotAuthorityV3 = {
     | "compound_structure"
     | "teaching_content"
     | "teaching_dictionary_closure"
+    | "affix_profile_content"
+    | "affix_member_content"
+    | "teaching_dictionary_word"
+    | "dictation_content"
+    | "shared_affix_source"
+    | "shared_affix_lesson"
+    | "public_payload"
     | "recipe_content";
   authorityId: string;
   version: string;
@@ -81,10 +91,48 @@ export type CompiledCompoundWordSpecialistSnapshotV3 = {
   };
 };
 
+export type CompiledDynamicAffixSpecialistSnapshotV3 = {
+  snapshotSchemaVersion: 3;
+  compilerVersion: typeof SPECIALIST_SNAPSHOT_V3_COMPILER_VERSION;
+  validatorVersion: typeof SPECIALIST_SNAPSHOT_V3_VALIDATOR_VERSION;
+  canonicalContractRegistryVersion: typeof SPECIALIST_SNAPSHOT_V3_REGISTRY_VERSION;
+  route: { routeId: "dynamic_affix_word_lab"; routeVersion: "v3" };
+  recipe: { recipeKey: "dynamic_affix_word_lab"; recipeVersion: "v3" };
+  payload: {
+    kind: "dynamic_affix_lesson_v3";
+    version: 3;
+    resolvedLesson: ResolvedDynamicAffixLessonV3;
+  };
+  runtime: { adapterKey: "dynamic_affix_v3"; rendererKey: "morphology_guided" };
+  assignment: { generationSource: "adle_composer_v1"; itemCount: 16 | 18 };
+  taxonomy: { microSkillKey: string };
+  words: readonly {
+    wordSnapshotId: string;
+    order: number;
+    canonicalWordId: string;
+    displayWord: string;
+    learningItemId: string | null;
+    lineageKind: "authentic_target" | "transfer";
+  }[];
+  activities: readonly SpecialistCanonicalActivitySnapshotV3[];
+  segments: readonly [{ segmentId: "lesson"; wordSnapshotIds: readonly string[]; activityIds: readonly string[] }];
+  contentVersions: readonly SpecialistSnapshotAuthorityV3[];
+  provenance: {
+    sourceKind: "compiled_specialist_assignment";
+    fingerprintAlgorithm: "sha256";
+    fingerprintVersion: 1;
+    sourceFingerprint: string;
+  };
+};
+
+export type CompiledSpecialistSnapshotV3 =
+  | CompiledCompoundWordSpecialistSnapshotV3
+  | CompiledDynamicAffixSpecialistSnapshotV3;
+
 /** Route is the v3 discriminator; each branch retains its own exact validator. */
 export type CompiledAdleLessonSnapshotV3 =
   | CompiledLessonSnapshotV3
-  | CompiledCompoundWordSpecialistSnapshotV3;
+  | CompiledSpecialistSnapshotV3;
 
 export type SpecialistSnapshotV3ValidationItem = Pick<
   AssignmentItemDraft,
@@ -98,6 +146,14 @@ export type SpecialistSnapshotV3ValidationItem = Pick<
 export type CompileCompoundWordSpecialistSnapshotV3Input = {
   payload: ResolvedCompoundWordFirstImpressionV2;
   releaseAuthority: ActivatedCompoundWordReleaseV2;
+  header: AssignmentHeaderDraft;
+  items: readonly AssignmentItemDraft[];
+};
+
+export type CompileDynamicAffixSpecialistSnapshotV3Input = {
+  payload: ResolvedDynamicAffixLessonV3;
+  selection: DynamicAffixSelection;
+  compilerDecision: Extract<DynamicAffixCompilerDecision, { ok: true }>;
   header: AssignmentHeaderDraft;
   items: readonly AssignmentItemDraft[];
 };
@@ -121,5 +177,5 @@ export const SPECIALIST_SNAPSHOT_V3_BLOCKER_CODES = [
 
 export type SpecialistSnapshotV3BlockerCode = typeof SPECIALIST_SNAPSHOT_V3_BLOCKER_CODES[number];
 export type SpecialistSnapshotV3ValidationResult =
-  | { ok: true; snapshot: CompiledCompoundWordSpecialistSnapshotV3 }
+  | { ok: true; snapshot: CompiledSpecialistSnapshotV3 }
   | { ok: false; blockers: readonly { code: SpecialistSnapshotV3BlockerCode; detail?: string }[] };

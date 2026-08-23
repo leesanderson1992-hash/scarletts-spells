@@ -621,6 +621,9 @@ export async function completeAdleLessonPartAction(formData: FormData) {
     ? deriveDynamicAffixCompletionPolicy({
         allItems: allSessionItems(readModel),
         productionItems,
+        frozenPayload: routeResolution.runtime.adapterKey === "dynamic_affix_v3"
+          ? routeResolution.runtime.sourcePayload
+          : undefined,
       })
     : null;
   if (dynamicAffixCompletionPolicy && !dynamicAffixCompletionPolicy.ok) {

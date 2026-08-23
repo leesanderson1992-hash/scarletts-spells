@@ -43,6 +43,14 @@ export interface DynamicAffixWord {
   /** Structured canonical facts are not used as a child cleaver. */
   trueMorphology: { parts: MorphologyWordSnapshot["parts"]; joins: MorphologyWordSnapshot["joins"]; transformations: unknown[]; notes: string; provenance: Record<string, unknown> };
   approvedTransfer: boolean;
+  /** Governed row identities used only by immutable specialist snapshots. */
+  governance?: {
+    memberId: string;
+    memberSourceRowHash: string;
+    dictionaryWordSourceRowHash: string;
+    dictationId: string;
+    dictationSourceRowHash: string;
+  };
 }
 
 export interface DynamicAffixProfile {
@@ -64,6 +72,12 @@ export interface DynamicAffixProfile {
     examples: Array<{ affix: string; base: string; word: string; meaning: string }>;
     /** Optional reviewed sentence used verbatim as the prominent meaning callout. */
     meaningStatement?: string;
+  };
+  /** Optional on historical fixtures; required before specialist capture. */
+  governance?: {
+    profileId: string;
+    importBatchId: string;
+    sourceRowHash: string;
   };
 }
 
