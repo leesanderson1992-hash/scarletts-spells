@@ -4,6 +4,11 @@ import type { DynamicAffixCompilerDecision } from "../morphology/dynamic-affix-c
 import type { DynamicAffixSelection } from "../morphology/affix-word-lab";
 import type { ResolvedDynamicAffixLessonV3 } from "../morphology/dynamic-affix-runtime";
 import type { ResolvedCompoundWordFirstImpressionV2 } from "../morphology/resolved-compound-word-lesson-v2";
+import type { DynamicPrefixCompilerDecision } from "../morphology/dynamic-prefix-compiler-rollout";
+import type { DynamicPrefixSelection } from "../morphology/dynamic-prefix-word-lab";
+import type { ResolvedDynamicPrefixLessonV2 } from "../morphology/dynamic-prefix-runtime";
+import type { ResolvedBaseWordFamilyLessonV2 } from "../morphology/resolved-base-word-family-lesson-v2";
+import type { ActivatedBaseWordReleaseAuthority } from "../curriculum-release-activation";
 import type { CompiledLessonSnapshotV3 } from "./generic-snapshot-v3-contracts";
 
 export const SPECIALIST_SNAPSHOT_V3_COMPILER_VERSION =
@@ -125,9 +130,29 @@ export type CompiledDynamicAffixSpecialistSnapshotV3 = {
   };
 };
 
+export type CompiledDynamicPrefixSpecialistSnapshotV3 = Omit<CompiledDynamicAffixSpecialistSnapshotV3,
+  "route" | "recipe" | "payload" | "runtime" | "assignment"> & {
+  route: { routeId: "dynamic_prefix_word_lab"; routeVersion: "v2" };
+  recipe: { recipeKey: "dynamic_prefix_word_lab"; recipeVersion: "v2" };
+  payload: { kind: "dynamic_prefix_lesson_v2"; version: 2; resolvedLesson: ResolvedDynamicPrefixLessonV2 };
+  runtime: { adapterKey: "dynamic_prefix_v2"; rendererKey: "morphology_guided" };
+  assignment: { generationSource: "adle_composer_v1"; itemCount: 16 | 18 | 20 };
+};
+
+export type CompiledBaseWordSpecialistSnapshotV3 = Omit<CompiledDynamicAffixSpecialistSnapshotV3,
+  "route" | "recipe" | "payload" | "runtime" | "assignment"> & {
+  route: { routeId: "base_word_lab"; routeVersion: "v2" };
+  recipe: { recipeKey: "base_word_family"; recipeVersion: "v1" };
+  payload: { kind: "base_word_family_snapshot_v1"; version: 1; resolvedLesson: ResolvedBaseWordFamilyLessonV2 };
+  runtime: { adapterKey: "base_word_family_v1"; rendererKey: "base_word_family_guided" };
+  assignment: { generationSource: "adle_base_word_family_pilot_v1"; itemCount: 18 };
+};
+
 export type CompiledSpecialistSnapshotV3 =
   | CompiledCompoundWordSpecialistSnapshotV3
-  | CompiledDynamicAffixSpecialistSnapshotV3;
+  | CompiledDynamicAffixSpecialistSnapshotV3
+  | CompiledDynamicPrefixSpecialistSnapshotV3
+  | CompiledBaseWordSpecialistSnapshotV3;
 
 /** Route is the v3 discriminator; each branch retains its own exact validator. */
 export type CompiledAdleLessonSnapshotV3 =
@@ -154,6 +179,21 @@ export type CompileDynamicAffixSpecialistSnapshotV3Input = {
   payload: ResolvedDynamicAffixLessonV3;
   selection: DynamicAffixSelection;
   compilerDecision: Extract<DynamicAffixCompilerDecision, { ok: true }>;
+  header: AssignmentHeaderDraft;
+  items: readonly AssignmentItemDraft[];
+};
+
+export type CompileDynamicPrefixSpecialistSnapshotV3Input = {
+  payload: ResolvedDynamicPrefixLessonV2;
+  selection: DynamicPrefixSelection;
+  compilerDecision: Extract<DynamicPrefixCompilerDecision, { ok: true }>;
+  header: AssignmentHeaderDraft;
+  items: readonly AssignmentItemDraft[];
+};
+
+export type CompileBaseWordSpecialistSnapshotV3Input = {
+  payload: ResolvedBaseWordFamilyLessonV2;
+  releaseAuthority: ActivatedBaseWordReleaseAuthority;
   header: AssignmentHeaderDraft;
   items: readonly AssignmentItemDraft[];
 };

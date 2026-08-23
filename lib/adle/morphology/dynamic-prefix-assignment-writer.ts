@@ -4,7 +4,11 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 
 import { composeDailyPlan, type ComposedDailyPlan } from "../daily-assignment-composer";
 import type { AdleGenerationTrigger } from "../assignment-persistence";
-import { getExistingAdleSessionPlanId, persistComposedAdleDailyPlan } from "../loaders/daily-plan-surface";
+import { getExistingAdleSessionPlanId, persistComposedAdleDailyPlan, prepareComposedAdleDailyPlanPersistence, findAdleHeader } from "../loaders/daily-plan-surface";
+import { configuredSpecialistSnapshotV3Writer } from "../composable-lesson/specialist-snapshot-writer-rollout";
+import { compileDynamicPrefixSpecialistSnapshotV3 } from "../composable-lesson/specialist-snapshot-v3-prefix-base-compiler";
+import { persistSpecialistSnapshotV3, supabaseSpecialistSnapshotV3PersistencePort } from "../composable-lesson/specialist-snapshot-v3-persistence";
+import { resolveDynamicPrefixLessonAuthorityV2 } from "./dynamic-prefix-runtime";
 import { loadDailyPlanFacts } from "../loaders/composer-facts-loader";
 import {
   buildDynamicPrefixAssignmentPlan,
@@ -14,9 +18,11 @@ import {
   canPersistDynamicPrefixCompilerDecision,
   compileDynamicPrefixWordLabDecision,
   emitDynamicPrefixCompilerDecision,
+  type DynamicPrefixCompilerDecision,
 } from "./dynamic-prefix-compiler-rollout";
 import { loadDynamicPrefixProfiles } from "./dynamic-prefix-profile-loader";
 import { selectDynamicPrefixWordLab } from "./dynamic-prefix-word-lab";
+import type { DynamicPrefixLessonPayloadV2, DynamicPrefixSelection } from "./dynamic-prefix-word-lab";
 
 const ISO_DATE_ONLY = /^\d{4}-\d{2}-\d{2}$/;
 
@@ -47,6 +53,9 @@ export type PreparedDynamicPrefixAssignment =
       planDate: string;
       plan: ComposedDailyPlan;
       itemCount: number;
+      selection: DynamicPrefixSelection;
+      payload: DynamicPrefixLessonPayloadV2;
+      compilerDecision: Extract<DynamicPrefixCompilerDecision, { ok: true }>;
     }
   | Exclude<DynamicPrefixAssignmentResult, { status: "created" }>;
 
@@ -199,13 +208,32 @@ export async function prepareDynamicPrefixAssignment(
     planDate: params.planDate,
     plan,
     itemCount: plan.partTwo.sections.flatMap((section) => section.items).length,
+    selection,
+    payload: compilerDecision.payload,
+    compilerDecision,
   };
 }
 
 export async function persistPreparedDynamicPrefixAssignment(params: WriterParams & {
   prepared: Extract<PreparedDynamicPrefixAssignment, { status: "ready" }>;
 }): Promise<DynamicPrefixAssignmentResult> {
-  const assignmentId = await persistComposedAdleDailyPlan({
+  const authorization = configuredSpecialistSnapshotV3Writer(params.childId, "dynamic_prefix_word_lab:v2");
+  let assignmentId: string | null;
+  if (authorization) {
+    const persistence = await prepareComposedAdleDailyPlanPersistence({
+      userClient: params.userClient, serviceClient: params.serviceClient, parentUserId: params.parentUserId,
+      childId: params.childId, planDate: params.prepared.planDate, plan: params.prepared.plan, generationTrigger: params.generationTrigger,
+    });
+    if (persistence.action === "noop") assignmentId = persistence.noopReason === "existing_active_plan"
+      ? (await findAdleHeader(params.userClient, params.parentUserId, params.childId, params.prepared.planDate))?.id ?? null : null;
+    else {
+      if (!persistence.header) throw new Error("persistDynamicPrefixAssignment:specialist_snapshot:missing_header");
+      const resolved = resolveDynamicPrefixLessonAuthorityV2(params.prepared.payload);
+      if (!resolved) throw new Error("persistDynamicPrefixAssignment:specialist_snapshot:resolved_lesson_invalid");
+      const snapshot = compileDynamicPrefixSpecialistSnapshotV3({ payload: resolved, selection: params.prepared.selection, compilerDecision: params.prepared.compilerDecision, header: persistence.header, items: persistence.items });
+      assignmentId = await persistSpecialistSnapshotV3(supabaseSpecialistSnapshotV3PersistencePort(params.serviceClient), { authorization, parentUserId: params.parentUserId, childId: params.childId, planDate: params.prepared.planDate, header: persistence.header, items: persistence.items, intakes: persistence.learningItemIntakes, snapshot });
+    }
+  } else assignmentId = await persistComposedAdleDailyPlan({
     userClient: params.userClient,
     serviceClient: params.serviceClient,
     parentUserId: params.parentUserId,

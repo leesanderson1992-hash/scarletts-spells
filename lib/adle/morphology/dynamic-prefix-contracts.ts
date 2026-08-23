@@ -50,6 +50,14 @@ export interface DynamicPrefixWord {
   prefixMeaning?: string;
   /** Only reviewed, assignment-safe words can be selected as transfers. */
   approvedTransfer: boolean;
+  /** Governed row identities used only by immutable specialist snapshots. */
+  governance?: {
+    memberId: string;
+    memberSourceRowHash: string;
+    dictionaryWordSourceRowHash: string;
+    dictationId: string;
+    dictationSourceRowHash: string;
+  };
 }
 
 export interface PrefixTeachingCardV1 {
@@ -115,6 +123,7 @@ export interface DynamicPrefixProfile {
   };
   /** Required for newly released pedagogy snapshots; omitted by historical profiles. */
   pedagogy?: DynamicPrefixPedagogyV1;
+  governance?: { profileId: string; importBatchId: string; sourceRowHash: string };
 }
 
 export interface DynamicPrefixSelection {

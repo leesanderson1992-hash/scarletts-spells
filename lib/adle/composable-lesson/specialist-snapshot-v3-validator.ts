@@ -5,6 +5,8 @@ import {
   SPECIALIST_SNAPSHOT_V3_VALIDATOR_VERSION,
   type CompiledCompoundWordSpecialistSnapshotV3,
   type CompiledDynamicAffixSpecialistSnapshotV3,
+  type CompiledDynamicPrefixSpecialistSnapshotV3,
+  type CompiledBaseWordSpecialistSnapshotV3,
   type CompiledSpecialistSnapshotV3,
   type SpecialistCanonicalActivitySnapshotV3,
   type SpecialistSnapshotV3BlockerCode,
@@ -15,6 +17,8 @@ import { validateCompoundWordLessonPayloadV2 } from "../morphology/compound-word
 import { resolveCompoundWordFirstImpressionConfig } from "../morphology/resolved-compound-word-lesson-v2";
 import { validateDynamicAffixWordLabPayload } from "../morphology/affix-word-lab";
 import { resolveDynamicAffixLessonAuthorityV3 } from "../morphology/dynamic-affix-runtime";
+import { resolveDynamicPrefixLessonAuthorityV2 } from "../morphology/dynamic-prefix-runtime";
+import { resolveBaseWordFamilyLessonAuthorityV2 } from "../morphology/resolved-base-word-family-lesson-v2";
 
 const CONTRACTS = new Set([
   "INTRODUCTION.teaching_page@1",
@@ -357,16 +361,104 @@ export function validateCompiledSpecialistSnapshotV3(
   value: unknown,
   context: SpecialistSnapshotV3ValidationContext = {},
 ): SpecialistSnapshotV3ValidationResult {
+  if (record(value) && record(value.route) && (value.route.routeId === "dynamic_prefix_word_lab" || value.route.routeId === "base_word_lab")) {
+    return validatePrefixOrBaseSnapshot(value, context);
+  }
   if (record(value) && record(value.route) && value.route.routeId === "dynamic_affix_word_lab") {
     return validateDynamicAffixSpecialistSnapshotV3(value, context);
   }
   return validateCompoundWordSpecialistSnapshotV3(value, context);
 }
 
+const PREFIX_BASE_CONTRACTS = new Set([
+  "INTRODUCTION.teaching_page@1", "MEANING_DISCOVERY.prefix@1", "CLEAVER.find_boundaries@1",
+  "MEANING_SORT.meaning@1", "MEANING_SORT.prefix_form@1", "WORD_ASSEMBLY.definition_word_builder@1",
+  "COVER_CHECK.component_marked@1", "COVER_CHECK.ratio_close_policy@1", "COVER_CHECK.whole_word@1",
+  "DICTATION.target_token@1", "WORD_FAMILY_REVEAL.base_led_family@1", "CLEAVER.isolate_component@1",
+  "LESSON_REFLECTION.standard_lesson_reflection@1",
+]);
+
+function expectedPrefixBaseActivity(item: SpecialistSnapshotV3ValidationItem, routeId: string): string | null {
+  const source = routeId === "dynamic_prefix_word_lab" ? item.promptData.dynamicPrefixActivityId : item.promptData.pilotActivityId;
+  if (typeof source !== "string") return null;
+  if (routeId === "dynamic_prefix_word_lab") {
+    if (source === "intro-root" || source === "intro-words") return "teaching-pages";
+    if (source.startsWith("guided-strip-")) return "split";
+    if (source.startsWith("guided-meaning-")) return "meaning";
+    if (source.startsWith("guided-build-")) return "build";
+    if (source.startsWith("controlled-")) return "cover";
+    if (source.startsWith("dictation-")) return "dictation";
+  } else {
+    if (source === "strategy-intro") return "teaching-pages";
+    if (source.startsWith("family-reveal-")) return `family-${source.slice("family-reveal-".length)}`;
+    if (source.startsWith("cleave-")) return source;
+    if (source === "word-sum-builder") return "word-sums";
+    if (source.startsWith("controlled-")) return "cover";
+    if (source.startsWith("dictation-")) return "dictation";
+  }
+  return null;
+}
+
+function validatePrefixOrBaseSnapshot(value: Record<string, unknown>, context: SpecialistSnapshotV3ValidationContext): SpecialistSnapshotV3ValidationResult {
+  const snapshot = value as unknown as CompiledDynamicPrefixSpecialistSnapshotV3 | CompiledBaseWordSpecialistSnapshotV3;
+  const blockers: ReturnType<typeof blocker>[] = [];
+  const prefix = snapshot.route.routeId === "dynamic_prefix_word_lab";
+  if (snapshot.snapshotSchemaVersion !== 3 || snapshot.compilerVersion !== SPECIALIST_SNAPSHOT_V3_COMPILER_VERSION || snapshot.validatorVersion !== SPECIALIST_SNAPSHOT_V3_VALIDATOR_VERSION || snapshot.canonicalContractRegistryVersion !== SPECIALIST_SNAPSHOT_V3_REGISTRY_VERSION) blockers.push(blocker("specialist_version_mismatch"));
+  const expected = prefix
+    ? { routeVersion: "v2", recipe: "dynamic_prefix_word_lab", recipeVersion: "v2", kind: "dynamic_prefix_lesson_v2", version: 2, adapter: "dynamic_prefix_v2", renderer: "morphology_guided", generation: "adle_composer_v1" }
+    : { routeVersion: "v2", recipe: "base_word_family", recipeVersion: "v1", kind: "base_word_family_snapshot_v1", version: 1, adapter: "base_word_family_v1", renderer: "base_word_family_guided", generation: "adle_base_word_family_pilot_v1" };
+  if (snapshot.route.routeVersion !== expected.routeVersion || snapshot.recipe.recipeKey !== expected.recipe || snapshot.recipe.recipeVersion !== expected.recipeVersion || snapshot.payload.kind !== expected.kind || snapshot.payload.version !== expected.version) blockers.push(blocker("specialist_route_mismatch"));
+  if (context.lessonRouteMetadata !== undefined) {
+    const metadata = context.lessonRouteMetadata;
+    if (!record(metadata) || !record(metadata.route) || !record(metadata.recipe) || !record(metadata.payload)
+      || metadata.route.routeId !== snapshot.route.routeId || metadata.route.routeVersion !== snapshot.route.routeVersion
+      || metadata.recipe.recipeKey !== snapshot.recipe.recipeKey || metadata.recipe.recipeVersion !== snapshot.recipe.recipeVersion
+      || metadata.payload.kind !== snapshot.payload.kind || metadata.payload.version !== snapshot.payload.version) blockers.push(blocker("specialist_route_mismatch"));
+  }
+  if (snapshot.runtime.adapterKey !== expected.adapter || snapshot.runtime.rendererKey !== expected.renderer) blockers.push(blocker("specialist_runtime_mismatch"));
+  if (snapshot.assignment.generationSource !== expected.generation || (context.assignmentGenerationSource !== undefined && context.assignmentGenerationSource !== expected.generation) || (prefix ? ![16, 18, 20].includes(snapshot.assignment.itemCount) : snapshot.assignment.itemCount !== 18)) blockers.push(blocker("specialist_assignment_mismatch"));
+  const resolved = prefix ? resolveDynamicPrefixLessonAuthorityV2(snapshot.payload.resolvedLesson?.sourcePayload) : resolveBaseWordFamilyLessonAuthorityV2(snapshot.payload.resolvedLesson?.sourcePayload);
+  if (!resolved || canonicalSnapshotJson(resolved) !== canonicalSnapshotJson(snapshot.payload.resolvedLesson)) blockers.push(blocker("specialist_resolved_lesson_mismatch"));
+  if (!Array.isArray(snapshot.words) || (prefix ? snapshot.words.length !== 4 : snapshot.words.length !== 6) || new Set(snapshot.words.map((word) => word.canonicalWordId)).size !== snapshot.words.length) blockers.push(blocker("specialist_payload_mismatch"));
+  if (!Array.isArray(snapshot.contentVersions) || snapshot.contentVersions.length !== (prefix ? 17 : 7) || snapshot.contentVersions.some((entry) => !nonEmpty(entry.authorityId) || !nonEmpty(entry.version) || !/^[a-f0-9]{64}$/u.test(entry.sourceHash))) blockers.push(blocker("specialist_content_provenance_malformed"));
+  if (!Array.isArray(snapshot.activities) || !snapshot.activities.every(activityShape)) blockers.push(blocker("malformed_specialist_snapshot_v3"));
+  else {
+    const ids = snapshot.activities.map((activity) => activity.activityId);
+    if (new Set(ids).size !== ids.length || snapshot.activities.some((activity, index) => activity.order !== index + 1)) blockers.push(blocker("malformed_specialist_snapshot_v3"));
+    const expectedIds = prefix
+      ? (() => { const runtime = (snapshot as CompiledDynamicPrefixSpecialistSnapshotV3).payload.resolvedLesson.runtimePayload; return ["teaching-pages", "discover", "split", ...(runtime.activities.some((entry) => entry.type === "meaning_sort") ? ["meaning"] : []), "build", "cover", "dictation", "lesson-reflection"]; })()
+      : (() => { const source = (snapshot as CompiledBaseWordSpecialistSnapshotV3).payload.resolvedLesson.sourcePayload; return ["teaching-pages", ...source.familySections.map((section) => `family-${section.baseFamilyKey}`), ...source.authenticTargets.map((target) => `cleave-${target.canonicalWordId}`), "word-sums", "cover", "dictation", "lesson-reflection"]; })();
+    if (canonicalSnapshotJson(ids) !== canonicalSnapshotJson(expectedIds)) blockers.push(blocker("specialist_payload_mismatch"));
+    for (const activity of snapshot.activities) {
+      const key = `${activity.canonical.concept}.${activity.canonical.mode}@${activity.canonical.contractVersion}`;
+      if (!PREFIX_BASE_CONTRACTS.has(key)) blockers.push(blocker("specialist_unsupported_canonical_contract", key));
+      const routeOwned = activity.activityId === "lesson-reflection" || (prefix && activity.activityId === "discover");
+      if ((activity.ownership === "route_owned") !== routeOwned) blockers.push(blocker("specialist_item_binding_mismatch", activity.activityId));
+    }
+    const flat = snapshot.activities.flatMap((activity) => activity.itemBindings.map((entry) => ({ activity, entry })));
+    if (new Set(flat.map(({ entry }) => entry.sourceEntityId)).size !== flat.length) blockers.push(blocker("specialist_duplicate_item_binding"));
+    if (context.items) {
+      const byId = new Map(context.items.map((item) => [item.sourceEntityId, item]));
+      if (flat.length !== context.items.length || context.items.length !== snapshot.assignment.itemCount || context.items.some((item) => !flat.some(({ entry }) => entry.sourceEntityId === item.sourceEntityId))) blockers.push(blocker("specialist_unbound_assignment_item"));
+      for (const { activity, entry } of flat) { const item = byId.get(entry.sourceEntityId); if (!item || item.position !== entry.position || item.sectionKey !== activity.sectionKey || expectedPrefixBaseActivity(item, snapshot.route.routeId) !== activity.activityId) blockers.push(blocker("specialist_item_binding_mismatch", entry.sourceEntityId)); }
+    }
+  }
+  const fingerprint = snapshot.provenance?.sourceFingerprint;
+  if (!nonEmpty(fingerprint) || fingerprintSnapshotValue({ ...snapshot, provenance: { sourceKind: snapshot.provenance.sourceKind, fingerprintAlgorithm: snapshot.provenance.fingerprintAlgorithm, fingerprintVersion: snapshot.provenance.fingerprintVersion } }) !== fingerprint) blockers.push(blocker("specialist_fingerprint_mismatch"));
+  return blockers.length ? { ok: false, blockers } : { ok: true, snapshot };
+}
+
 export function isDynamicAffixSpecialistSnapshotV3(value: unknown): value is CompiledDynamicAffixSpecialistSnapshotV3 {
   return record(value) && value.snapshotSchemaVersion === 3 && record(value.route) && value.route.routeId === "dynamic_affix_word_lab";
 }
 
+export function isDynamicPrefixSpecialistSnapshotV3(value: unknown): value is CompiledDynamicPrefixSpecialistSnapshotV3 {
+  return record(value) && value.snapshotSchemaVersion === 3 && record(value.route) && value.route.routeId === "dynamic_prefix_word_lab";
+}
+export function isBaseWordSpecialistSnapshotV3(value: unknown): value is CompiledBaseWordSpecialistSnapshotV3 {
+  return record(value) && value.snapshotSchemaVersion === 3 && record(value.route) && value.route.routeId === "base_word_lab";
+}
+
 export function isSpecialistSnapshotV3(value: unknown): value is CompiledSpecialistSnapshotV3 {
-  return isCompoundWordSpecialistSnapshotV3(value) || isDynamicAffixSpecialistSnapshotV3(value);
+  return isCompoundWordSpecialistSnapshotV3(value) || isDynamicAffixSpecialistSnapshotV3(value) || isDynamicPrefixSpecialistSnapshotV3(value) || isBaseWordSpecialistSnapshotV3(value);
 }

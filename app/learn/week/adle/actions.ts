@@ -67,7 +67,7 @@ import { BASE_WORD_FAMILY_ASSIGNMENT_SOURCE, BASE_WORD_FAMILY_ASSIGNMENT_TITLE }
 import { baseWordTransferMissWrites } from "@/lib/adle/base-word-transfer-evidence";
 import { baseWordSlotAssignmentRole, baseWordSlotHasLearnerEvidence } from "@/lib/adle/morphology/base-word-family-payload";
 import { persistBaseWordFamilyPilotCompletion } from "@/lib/adle/loaders/base-word-family-pilot-loader";
-import { BASE_WORD_FAMILY_REFLECTION_PROMPT_KEY, upsertChildLearningReflection } from "@/lib/adle/morphology/reflections";
+import { upsertChildLearningReflection } from "@/lib/adle/morphology/reflections";
 import { safeCompletionTraceId, WordLabCompletionTimer } from "@/lib/adle/completion-timing";
 import {
   persistReleaseBoundWordLabCompletion,
@@ -1026,6 +1026,7 @@ export async function completeBaseWordFamilyLessonAction(formData: FormData) {
     finishWith(context, "This Word Lab needs a grown-up check before it can continue.");
   }
   const payload = routeResolution.runtime.payload;
+  const resolvedBaseWordLesson = routeResolution.runtime.resolvedLesson;
   const controlledAttempts = parseAttempts(formData, "baseWordControlledAttempts");
   const sentenceAttempts = parseAttempts(formData, "baseWordSentenceAttempts");
   const reflection = readFormValue(formData, "baseWordReflection");
@@ -1065,7 +1066,7 @@ export async function completeBaseWordFamilyLessonAction(formData: FormData) {
     client: context.serviceClient, parentUserId: context.parentUserId, childId: context.childId,
     assignmentId: context.assignmentId, planDate: context.planDate, microSkillKey: payload.microSkillKey,
     sourceRef, assignmentItemIds: readModel.partTwo.items.map((item) => item.id), attempts, lesson,
-    reflection: { childId: context.childId, parentUserId: context.parentUserId, assignmentId: context.assignmentId, microSkillKey: payload.microSkillKey, contentVersion: payload.contentVersion, promptKey: BASE_WORD_FAMILY_REFLECTION_PROMPT_KEY, promptText: payload.reflectionPrompt, reflectionText: reflection },
+    reflection: { childId: context.childId, parentUserId: context.parentUserId, assignmentId: context.assignmentId, microSkillKey: payload.microSkillKey, contentVersion: payload.contentVersion, promptKey: resolvedBaseWordLesson.reflection.promptKey, promptText: resolvedBaseWordLesson.reflection.promptText, reflectionText: reflection },
     transferMisses: baseWordTransferMissWrites({ payload, childId: context.childId, lessonSourceRef: sourceRef, occurredOn: context.planDate as import("@/lib/adle/review-scheduler").IsoDate, finalAttempts }),
   });
   scheduleLessonReward(context, authenticProductionItems);

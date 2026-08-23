@@ -8,7 +8,6 @@ import {
   type FirstImpressionConfiguredActivity,
   type FirstImpressionStageId,
 } from "@/components/adle/first-impression/first-impression-lesson";
-import type { TeachingPagesConfig } from "@/components/adle/first-impression/teaching-pages";
 import { SpellingTransformationReveal } from "@/components/adle/activities/shared/spelling-transformation-reveal";
 import { SplitHandle } from "@/components/adle/activities/shared/split-handle";
 import { deterministicOrderedBuildOrder } from "@/components/adle/activities/shared/ordered-build-engine";
@@ -19,10 +18,10 @@ import { baseWordFamilyResumeKey, normaliseBaseWordFamilyResume, type BaseWordFa
 import { isAttemptCorrect } from "@/lib/adle/session-correctness";
 import {
   lessonReflectionSentenceComparison,
-  lessonReflectionPrompt,
   type NormalizedLessonReflectionMistake,
   type NormalizedLessonReflectionSentenceComparison,
 } from "@/lib/adle/lesson-reflection";
+import { resolveBaseWordFamilyLessonAuthorityV2 } from "@/lib/adle/morphology/resolved-base-word-family-lesson-v2";
 
 const INITIAL: BaseWordFamilyResumeState = {
   stage: "intro", teachingPageIndex: 0, familyIndex: 0, cleaveIndex: 0, cleaveStep: 0, cleaveCuts: {}, cleaveMisses: {}, buildIndex: 0,
@@ -55,6 +54,8 @@ export function BaseWordFamilyGuidedLesson(props: {
   onPreviewComplete?: (reflection: string) => void;
   onComplete?: (input: { reflection: string; controlledAttempts: Record<string, string>; sentenceAttempts: Record<string, string> }) => void;
 }) {
+  const resolvedLesson = resolveBaseWordFamilyLessonAuthorityV2(props.payload);
+  if (!resolvedLesson) throw new Error("BaseWordFamilyGuidedLesson: malformed resolved lesson");
   const [state, setState] = useState<BaseWordFamilyResumeState>(INITIAL);
   const [hydrated, setHydrated] = useState(false);
   const [muted, setMuted] = useState(false);
@@ -130,7 +131,7 @@ export function BaseWordFamilyGuidedLesson(props: {
     }),
   });
   return <FirstImpressionLesson
-    teaching={baseWordTeachingPages(props.payload)}
+    teaching={resolvedLesson.teaching}
     activities={activities}
     initialStageId={baseWordShellStage(state)}
     initialTeachingPageIndex={state.teachingPageIndex}
@@ -147,21 +148,9 @@ export function BaseWordFamilyGuidedLesson(props: {
     })}
     reflectionActivity={createCanonicalActivityBinding({
       id: "reflection", concept: "LESSON_REFLECTION", mode: "standard_lesson_reflection", contractVersion: 1, label: "Reflection",
-      createProps: () => ({ mistakes: reflectionModel.mistakes, sentenceComparisons: reflectionModel.sentenceComparisons, prompt: lessonReflectionPrompt({ kind: "base_word", values: props.payload.familySections.map((section) => section.baseWord.displayWord) }), response: state.reflectionText, pending: props.submitting === true, completionLabel: props.onComplete ? "Finish Word Lab" : "Finish preview", onResponseChange: (reflectionText: string) => update({ reflectionText }), onComplete: () => { if (props.submitting) return; props.onPreviewComplete?.(state.reflectionText); props.onComplete?.({ reflection: state.reflectionText, controlledAttempts: state.controlledAttempts, sentenceAttempts: state.sentenceAttempts }); } }),
+      createProps: () => ({ mistakes: reflectionModel.mistakes, sentenceComparisons: reflectionModel.sentenceComparisons, prompt: resolvedLesson.reflection.promptText, response: state.reflectionText, pending: props.submitting === true, completionLabel: props.onComplete ? "Finish Word Lab" : "Finish preview", onResponseChange: (reflectionText: string) => update({ reflectionText }), onComplete: () => { if (props.submitting) return; props.onPreviewComplete?.(state.reflectionText); props.onComplete?.({ reflection: state.reflectionText, controlledAttempts: state.controlledAttempts, sentenceAttempts: state.sentenceAttempts }); } }),
     })}
   />;
-}
-
-function baseWordTeachingPages(payload: BaseWordFamilyLessonSnapshotV1): TeachingPagesConfig {
-  return {
-    pages: [
-      { id: "base-word-strategy", type: "teaching", eyebrow: "Base-word strategy", title: "What is a base word?", paragraphs: ["A base word is a familiar word that can stay inside a longer word.", "Knowing one spelling can help you spell many related words."] },
-      { id: "base-word-model", type: "teaching", eyebrow: "Look closely", title: "Keep the base word steady.", paragraphs: ["Look for the familiar base inside each longer word before you spell it."], examples: payload.familySections.map((section) => ({ text: `${section.baseWord.displayWord} → ${section.guidedWords.find((word) => word.canonicalWordId !== section.baseWord.canonicalWordId)?.displayWord ?? section.baseWord.displayWord}`, explanation: section.baseMeaning })) },
-    ],
-    meetWords: {
-      words: payload.independentWords.map((word) => ({ id: word.canonicalWordId, word: word.displayWord, detail: word.childFriendlyMeaning, provenance: payload.authenticTargets.some((target) => target.canonicalWordId === word.canonicalWordId) ? "A word from your writing" : undefined })),
-    },
-  };
 }
 
 function baseWordShellStage(state: BaseWordFamilyResumeState): FirstImpressionStageId {

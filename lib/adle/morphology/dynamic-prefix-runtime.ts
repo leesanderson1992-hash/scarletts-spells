@@ -4,12 +4,13 @@ import {
   validateDynamicPrefixWordLabPayload,
   type DynamicPrefixLessonPayloadV2,
 } from "./dynamic-prefix-word-lab";
+import { resolveMorphologyTeachingPages, type ResolvedMorphologyTeachingPages } from "./morphology-teaching-pages";
 
 /**
  * Presents a v2 immutable snapshot through the shared Word Lab mechanics.
  * This is an adapter only: the persisted source remains the v2 payload.
  */
-export function dynamicPrefixRuntime(payload: unknown): MorphologyLessonPayloadV1 | null {
+function compileDynamicPrefixRuntime(payload: unknown): MorphologyLessonPayloadV1 | null {
   if (!validateDynamicPrefixWordLabPayload(payload)) return null;
   const snapshot = payload as DynamicPrefixLessonPayloadV2;
   const words = snapshot.words.lesson;
@@ -69,6 +70,25 @@ export function dynamicPrefixRuntime(payload: unknown): MorphologyLessonPayloadV
       { id: "reflection", type: "reflection", assignmentBindings: [], answerVisibility: "post_submit", evidenceMode: "none", promptKey: snapshot.activities.reflection.promptKey, promptText: snapshot.activities.reflection.promptText, ...(teachingCards ? { teachingCards } : {}) },
     ],
   };
+}
+
+/** One JSON-stable authority shared by the live Prefix runtime and snapshot compiler. */
+export type ResolvedDynamicPrefixLessonV2 = Readonly<{
+  sourcePayload: DynamicPrefixLessonPayloadV2;
+  runtimePayload: MorphologyLessonPayloadV1;
+  teaching: ResolvedMorphologyTeachingPages;
+}>;
+
+export function resolveDynamicPrefixLessonAuthorityV2(payload: unknown): ResolvedDynamicPrefixLessonV2 | null {
+  if (!validateDynamicPrefixWordLabPayload(payload)) return null;
+  const sourcePayload = JSON.parse(JSON.stringify(payload)) as DynamicPrefixLessonPayloadV2;
+  const compiled = compileDynamicPrefixRuntime(sourcePayload);
+  const runtimePayload = compiled ? JSON.parse(JSON.stringify(compiled)) as MorphologyLessonPayloadV1 : null;
+  return runtimePayload ? { sourcePayload, runtimePayload, teaching: resolveMorphologyTeachingPages(runtimePayload) } : null;
+}
+
+export function dynamicPrefixRuntime(payload: unknown): MorphologyLessonPayloadV1 | null {
+  return resolveDynamicPrefixLessonAuthorityV2(payload)?.runtimePayload ?? null;
 }
 
 export function resolveDynamicPrefixRuntime(

@@ -175,7 +175,7 @@ export const ADLE_CURRICULUM_ROUTE_REGISTRY: readonly CurriculumRouteDefinition[
       "dictation",
       "reflection",
     ],
-    intentionalItemCounts: [16, 18],
+    intentionalItemCounts: [16, 18, 20],
     wordCounts: { lesson: [4, 4], authentic: [1, 4], transfer: [0, 3] },
     coverageRequirements: ["distinct_forms", "meaning_groups", "unique_dictation_sentences"],
   },

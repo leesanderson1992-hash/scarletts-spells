@@ -23,8 +23,10 @@ import {
 } from "../morphology/payload";
 import {
   dynamicPrefixRuntime,
+  resolveDynamicPrefixLessonAuthorityV2,
   resolveDynamicPrefixRuntime,
 } from "../morphology/dynamic-prefix-runtime";
+import { resolveBaseWordFamilyLessonAuthorityV2 } from "../morphology/resolved-base-word-family-lesson-v2";
 import { validateDynamicPrefixWordLabPayload } from "../morphology/dynamic-prefix-word-lab";
 import {
   resolveDynamicAffixLessonAuthorityV3,
@@ -51,7 +53,7 @@ import {
   type CompoundWordLessonPayloadV2,
 } from "../morphology/compound-word-lesson-v2";
 import { resolveCompoundWordFirstImpressionConfig, type ResolvedCompoundWordFirstImpressionV2 } from "../morphology/resolved-compound-word-lesson-v2";
-import { isCompoundWordSpecialistSnapshotV3, isDynamicAffixSpecialistSnapshotV3, validateCompiledSpecialistSnapshotV3 } from "./specialist-snapshot-v3-validator";
+import { isCompoundWordSpecialistSnapshotV3, isDynamicAffixSpecialistSnapshotV3, isDynamicPrefixSpecialistSnapshotV3, isBaseWordSpecialistSnapshotV3, validateCompiledSpecialistSnapshotV3 } from "./specialist-snapshot-v3-validator";
 
 export interface LessonRouteResolutionItem {
   id: string;
@@ -94,6 +96,8 @@ export type ResolvedLessonRuntime =
         | "dynamic_prefix_v2";
       rendererKey: "morphology_guided";
       payload: MorphologyLessonPayloadV1;
+      sourcePayload?: import("../morphology/dynamic-prefix-word-lab").DynamicPrefixLessonPayloadV2;
+      resolvedLesson?: import("../morphology/dynamic-prefix-runtime").ResolvedDynamicPrefixLessonV2;
     }
   | {
       adapterKey: "dynamic_affix_v3";
@@ -118,6 +122,7 @@ export type ResolvedLessonRuntime =
       adapterKey: "base_word_family_v1";
       rendererKey: "base_word_family_guided";
       payload: BaseWordFamilyLessonSnapshotV1;
+      resolvedLesson: import("../morphology/resolved-base-word-family-lesson-v2").ResolvedBaseWordFamilyLessonV2;
     };
 
 export type LessonRouteResolutionResult =
@@ -367,7 +372,8 @@ function runAdapter(
       if (candidates.length === 0) return { ok: false, blocker: "root_item_missing" };
       if (candidates.length > 1) return { ok: false, blocker: "root_item_duplicate" };
       const source = candidates[0].promptData.dynamicPrefixLesson;
-      if (!validateDynamicPrefixWordLabPayload(source) || !dynamicPrefixRuntime(source)) {
+      const resolvedLesson = resolveDynamicPrefixLessonAuthorityV2(source);
+      if (!validateDynamicPrefixWordLabPayload(source) || !resolvedLesson || !dynamicPrefixRuntime(source)) {
         return { ok: false, blocker: "persisted_payload_malformed" };
       }
       if (!context.dynamicPrefixEnabled) return { ok: false, blocker: "route_unavailable" };
@@ -379,6 +385,8 @@ function runAdapter(
               adapterKey: "dynamic_prefix_v2",
               rendererKey: "morphology_guided",
               payload,
+              sourcePayload: resolvedLesson.sourcePayload,
+              resolvedLesson,
             },
           }
         : { ok: false, blocker: "assignment_binding_mismatch" };
@@ -469,13 +477,15 @@ function runAdapter(
         context.baseWordFamilyEnabled,
         items,
       );
-      return payload
+      const resolvedLesson = payload ? resolveBaseWordFamilyLessonAuthorityV2(payload) : null;
+      return payload && resolvedLesson
         ? {
             ok: true,
             runtime: {
               adapterKey: "base_word_family_v1",
               rendererKey: "base_word_family_guided",
               payload,
+              resolvedLesson,
             },
           }
         : { ok: false, blocker: "assignment_binding_mismatch" };
@@ -603,6 +613,8 @@ export function resolvePersistedLessonRoute(input: {
   let adapterItems = items;
   let frozenCompoundLesson: ResolvedCompoundWordFirstImpressionV2 | null = null;
   let frozenDynamicAffixLesson: import("../morphology/dynamic-affix-runtime").ResolvedDynamicAffixLessonV3 | null = null;
+  let frozenDynamicPrefixLesson: import("../morphology/dynamic-prefix-runtime").ResolvedDynamicPrefixLessonV2 | null = null;
+  let frozenBaseWordLesson: import("../morphology/resolved-base-word-family-lesson-v2").ResolvedBaseWordFamilyLessonV2 | null = null;
   if (isCompoundWordSpecialistSnapshotV3(input.compiledLessonSnapshot)) {
     if (route.routeId !== "compound_word_lab") {
       return blocked("persisted_metadata", "persisted_payload_malformed");
@@ -640,7 +652,19 @@ export function resolvePersistedLessonRoute(input: {
     adapterItems = items.map((item) => item.promptData.dynamicAffixActivityId === "intro-root"
       ? { ...item, promptData: { ...item.promptData, dynamicAffixLesson: frozenDynamicAffixLesson!.sourcePayload } }
       : item);
-  } else if ((route.routeId === "compound_word_lab" || route.routeId === "dynamic_affix_word_lab")
+  } else if (isDynamicPrefixSpecialistSnapshotV3(input.compiledLessonSnapshot)) {
+    if (route.routeId !== "dynamic_prefix_word_lab") return blocked("persisted_metadata", "persisted_payload_malformed");
+    const specialist = validateCompiledSpecialistSnapshotV3(input.compiledLessonSnapshot, { lessonRouteMetadata, assignmentGenerationSource: "adle_composer_v1", items: items.map((item) => ({ sourceEntityId: item.sourceEntityId ?? "", position: item.position ?? 0, sectionKey: item.sectionKey, canonicalWordId: item.canonicalWordId, templateKey: item.templateKey, targetWord: item.targetWord, promptData: item.promptData })) });
+    if (!specialist.ok || specialist.snapshot.route.routeId !== "dynamic_prefix_word_lab") return blocked("persisted_metadata", "persisted_payload_malformed");
+    frozenDynamicPrefixLesson = input.compiledLessonSnapshot.payload.resolvedLesson;
+    adapterItems = items.map((item) => item.promptData.dynamicPrefixActivityId === "intro-root" ? { ...item, promptData: { ...item.promptData, dynamicPrefixLesson: frozenDynamicPrefixLesson!.sourcePayload } } : item);
+  } else if (isBaseWordSpecialistSnapshotV3(input.compiledLessonSnapshot)) {
+    if (route.routeId !== "base_word_lab") return blocked("persisted_metadata", "persisted_payload_malformed");
+    const specialist = validateCompiledSpecialistSnapshotV3(input.compiledLessonSnapshot, { lessonRouteMetadata, assignmentGenerationSource: "adle_base_word_family_pilot_v1", items: items.map((item) => ({ sourceEntityId: item.sourceEntityId ?? "", position: item.position ?? 0, sectionKey: item.sectionKey, canonicalWordId: item.canonicalWordId, templateKey: item.templateKey, targetWord: item.targetWord, promptData: item.promptData })) });
+    if (!specialist.ok || specialist.snapshot.route.routeId !== "base_word_lab") return blocked("persisted_metadata", "persisted_payload_malformed");
+    frozenBaseWordLesson = input.compiledLessonSnapshot.payload.resolvedLesson;
+    adapterItems = items.map((item) => item.promptData.pilotActivityId === "strategy-intro" ? { ...item, promptData: { ...item.promptData, baseWordFamilyLesson: frozenBaseWordLesson!.sourcePayload } } : item);
+  } else if ((route.routeId === "compound_word_lab" || route.routeId === "dynamic_affix_word_lab" || route.routeId === "dynamic_prefix_word_lab" || route.routeId === "base_word_lab")
     && input.compiledLessonSnapshot !== null
     && input.compiledLessonSnapshot !== undefined) {
     return blocked("persisted_metadata", "persisted_payload_malformed");
@@ -654,6 +678,15 @@ export function resolvePersistedLessonRoute(input: {
     adapter.runtime.payload = frozenDynamicAffixLesson.runtimePayload;
     adapter.runtime.sourcePayload = frozenDynamicAffixLesson.sourcePayload;
     adapter.runtime.resolvedLesson = frozenDynamicAffixLesson;
+  }
+  if (frozenDynamicPrefixLesson && adapter.runtime.adapterKey === "dynamic_prefix_v2") {
+    adapter.runtime.payload = frozenDynamicPrefixLesson.runtimePayload;
+    adapter.runtime.sourcePayload = frozenDynamicPrefixLesson.sourcePayload;
+    adapter.runtime.resolvedLesson = frozenDynamicPrefixLesson;
+  }
+  if (frozenBaseWordLesson && adapter.runtime.adapterKey === "base_word_family_v1") {
+    adapter.runtime.payload = frozenBaseWordLesson.sourcePayload;
+    adapter.runtime.resolvedLesson = frozenBaseWordLesson;
   }
   return {
     status: "resolved_explicit",

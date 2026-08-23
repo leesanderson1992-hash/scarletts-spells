@@ -187,10 +187,21 @@ const teachingCardsRenderer = readFileSync("components/adle/morphology/prefix-te
 const loader = readFileSync("lib/adle/morphology/dynamic-prefix-profile-loader.ts", "utf8");
 const release = readFileSync("scripts/adle-dynamic-prefix-pedagogy-release.ts", "utf8");
 assert(renderer.includes('meaningResultsPresentation !== "none"'));
-assert(renderer.includes('!prefixCards?.length') && renderer.includes('position: "after_response" as const'));
-assert(renderer.includes('stage: "build" as const'));
+assert(
+  renderer.includes('prefixCards?.length')
+    && renderer.includes('position: "before_mistakes" as const'),
+  "governed Prefix teaching cards remain a pre-mistake Reflection recap",
+);
+assert(
+  renderer.includes('stage === "build" ? "activity:build"'),
+  "Build remains mapped into the canonical first-impression stage sequence",
+);
 assert(renderer.includes("Today we studied:"));
-assert(renderer.includes("<LessonReflection"));
+assert(
+  renderer.includes('concept: "LESSON_REFLECTION"')
+    && renderer.includes('mode: "standard_lesson_reflection"'),
+  "Reflection remains resolved through the canonical activity registry",
+);
 assert(renderer.includes("morphologyLessonReflectionModel"));
 assert(renderer.includes("governedAffixForms") && renderer.includes("lessonReflectionPrompt"));
 assert(teachingCardsRenderer.includes('props.cards.length === 3'));

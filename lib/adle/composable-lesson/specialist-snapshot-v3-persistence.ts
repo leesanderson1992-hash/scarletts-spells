@@ -49,9 +49,10 @@ export async function persistSpecialistSnapshotV3(
   port: SpecialistSnapshotV3PersistencePort,
   input: SpecialistSnapshotV3PersistenceInput,
 ): Promise<string> {
-  const requiredAuthorization = input.snapshot.route.routeId === "dynamic_affix_word_lab"
-    ? "dynamic_affix_v3_for_current_learner"
-    : "compound_word_v2_for_current_learner";
+  const requiredAuthorization = input.snapshot.route.routeId === "dynamic_affix_word_lab" ? "dynamic_affix_v3_for_current_learner"
+    : input.snapshot.route.routeId === "dynamic_prefix_word_lab" ? "dynamic_prefix_v2_for_current_learner"
+      : input.snapshot.route.routeId === "base_word_lab" ? "base_word_v2_for_current_learner"
+        : "compound_word_v2_for_current_learner";
   if (input.authorization.kind !== requiredAuthorization
     || input.authorization.childId.toLowerCase() !== input.childId.toLowerCase()) {
     throw new Error("persistSpecialistSnapshotV3: writer selection mismatch");
@@ -70,20 +71,22 @@ export async function persistSpecialistSnapshotV3(
     })),
   });
   if (!validation.ok) throw new Error(`persistSpecialistSnapshotV3:validation:${validation.blockers.map((entry) => entry.code).join(",")}`);
+  const baseWord = input.snapshot.route.routeId === "base_word_lab";
   if (input.header.childId !== input.childId
     || input.header.parentUserId !== input.parentUserId
     || input.header.assignmentDate !== input.planDate
-    || input.header.title !== "ADLE Daily Plan"
+    || input.header.title !== (baseWord ? "ADLE Base-word Family Pilot" : "ADLE Daily Plan")
     || input.header.status !== "pending"
-    || input.header.assignmentGenerationSource !== "adle_composer_v1"
+    || input.header.assignmentGenerationSource !== (baseWord ? "adle_base_word_family_pilot_v1" : "adle_composer_v1")
     || input.items.length !== input.snapshot.assignment.itemCount
     || input.items.some((item, index) => item.childId !== input.childId
       || item.parentUserId !== input.parentUserId
       || item.metadata.planDate !== input.planDate
       || item.position !== index + 1
       || item.domainModule !== "spelling"
-      || item.sourceType !== "adle_composer"
+      || item.sourceType !== (baseWord ? "adle_base_word_family_pilot" : "adle_composer")
       || item.status !== "ready")
+    || (baseWord && input.intakes.length !== 0)
     || input.intakes.some((intake) => intake.childId !== input.childId)) {
     throw new Error("persistSpecialistSnapshotV3: durable assignment identity mismatch");
   }
