@@ -36,6 +36,7 @@
     "teaching-dictionary:deactivate": "tsx scripts/teaching-dictionary-release.ts deactivate",
     "teaching-dictionary:apply-required-migrations": "tsx scripts/apply-teaching-dictionary-release-migrations.ts",
     "teaching-dictionary:release-regression": "tsx scripts/teaching-dictionary-release-regression.ts",
+    "teaching-dictionary:staging-content-release-regression": "python3 scripts/release-teaching-dictionary-staging-content-regression.py",
     "adle:dynamic-prefix-un-release:validate": "tsx scripts/adle-dynamic-prefix-un-profile-release.ts validate",
     "adle:dynamic-prefix-un-release:plan": "tsx scripts/adle-dynamic-prefix-un-profile-release.ts plan",
     "adle:dynamic-prefix-un-release:release": "tsx scripts/adle-dynamic-prefix-un-profile-release.ts release",
