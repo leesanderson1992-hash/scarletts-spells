@@ -114,6 +114,7 @@ export default async function AdleSessionPage({ searchParams }: AdleSessionPageP
   const routeResolution = readModel.assignmentId
     ? resolvePersistedLessonRoute({
         lessonRouteMetadata: readModel.lessonRouteMetadata,
+        compiledLessonSnapshot: readModel.compiledLessonSnapshot,
         items: assignmentItems,
         runtimeContext: {
           morphologyUnEnabled: isMorphologyUnPilotEnabledForChild(selectedChild.id),

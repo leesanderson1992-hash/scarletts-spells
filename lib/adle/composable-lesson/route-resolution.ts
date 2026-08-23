@@ -50,9 +50,13 @@ import {
   validateCompoundWordLessonPayloadV2,
   type CompoundWordLessonPayloadV2,
 } from "../morphology/compound-word-lesson-v2";
+import { resolveCompoundWordFirstImpressionConfig, type ResolvedCompoundWordFirstImpressionV2 } from "../morphology/resolved-compound-word-lesson-v2";
+import { isCompoundWordSpecialistSnapshotV3, validateCompiledSpecialistSnapshotV3 } from "./specialist-snapshot-v3-validator";
 
 export interface LessonRouteResolutionItem {
   id: string;
+  sourceEntityId?: string;
+  position?: number;
   sectionKey: string;
   templateKey: string;
   canonicalWordId: string | null;
@@ -102,6 +106,7 @@ export type ResolvedLessonRuntime =
       adapterKey: "compound_word_v2";
       rendererKey: "compound_word_guided";
       payload: CompoundWordLessonPayloadV2;
+      resolvedLesson: ResolvedCompoundWordFirstImpressionV2;
     }
   | {
       adapterKey: "base_word_family_v1";
@@ -429,12 +434,15 @@ function runAdapter(
       if (!validateCompoundWordV2Bindings(items, source)) {
         return { ok: false, blocker: "assignment_binding_mismatch" };
       }
+      const resolvedLesson = resolveCompoundWordFirstImpressionConfig(source);
+      if (!resolvedLesson) return { ok: false, blocker: "persisted_payload_malformed" };
       return {
         ok: true,
         runtime: {
           adapterKey: "compound_word_v2",
           rendererKey: "compound_word_guided",
           payload: source,
+          resolvedLesson,
         },
       };
     }
@@ -540,6 +548,7 @@ export function resolvePersistedLessonRoute(input: {
   lessonRouteMetadata: unknown | null;
   items: readonly LessonRouteResolutionItem[];
   runtimeContext: LessonRouteRuntimeContext;
+  compiledLessonSnapshot?: unknown | null;
 }): LessonRouteResolutionResult {
   const { lessonRouteMetadata, items, runtimeContext } = input;
   if (lessonRouteMetadata === null || lessonRouteMetadata === undefined) {
@@ -580,8 +589,40 @@ export function resolvePersistedLessonRoute(input: {
   ) {
     return blocked("persisted_metadata", "explicit_legacy_disagreement");
   }
-  const adapter = runAdapter(route, items, runtimeContext);
+  let adapterItems = items;
+  let frozenCompoundLesson: ResolvedCompoundWordFirstImpressionV2 | null = null;
+  if (isCompoundWordSpecialistSnapshotV3(input.compiledLessonSnapshot)) {
+    if (route.routeId !== "compound_word_lab") {
+      return blocked("persisted_metadata", "persisted_payload_malformed");
+    }
+    const specialist = validateCompiledSpecialistSnapshotV3(input.compiledLessonSnapshot, {
+      lessonRouteMetadata,
+      assignmentGenerationSource: "adle_composer_v1",
+      items: items.map((item) => ({
+        sourceEntityId: item.sourceEntityId ?? "",
+        position: item.position ?? 0,
+        sectionKey: item.sectionKey,
+        canonicalWordId: item.canonicalWordId,
+        templateKey: item.templateKey,
+        targetWord: item.targetWord,
+        promptData: item.promptData,
+      })),
+    });
+    if (!specialist.ok) return blocked("persisted_metadata", "persisted_payload_malformed");
+    frozenCompoundLesson = specialist.snapshot.payload.resolvedLesson;
+    adapterItems = items.map((item) => item.promptData.compoundWordActivityId === "intro-root"
+      ? { ...item, promptData: { ...item.promptData, compoundWordLesson: frozenCompoundLesson!.sourcePayload } }
+      : item);
+  } else if (route.routeId === "compound_word_lab"
+    && input.compiledLessonSnapshot !== null
+    && input.compiledLessonSnapshot !== undefined) {
+    return blocked("persisted_metadata", "persisted_payload_malformed");
+  }
+  const adapter = runAdapter(route, adapterItems, runtimeContext);
   if (!adapter.ok) return blocked("persisted_metadata", adapter.blocker);
+  if (frozenCompoundLesson && adapter.runtime.adapterKey === "compound_word_v2") {
+    adapter.runtime.resolvedLesson = frozenCompoundLesson;
+  }
   return {
     status: "resolved_explicit",
     source: "persisted_metadata",

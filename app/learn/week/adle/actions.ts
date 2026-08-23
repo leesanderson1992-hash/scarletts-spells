@@ -297,7 +297,7 @@ function buildMorphologyReflection(context: SessionActionContext, payload: Morph
 
 function buildCompoundWordV2Reflection(
   context: SessionActionContext,
-  payload: import("@/lib/adle/morphology/compound-word-lesson-v2").CompoundWordLessonPayloadV2,
+  lesson: import("@/lib/adle/morphology/resolved-compound-word-lesson-v2").ResolvedCompoundWordFirstImpressionV2,
   reflectionText: string | null,
 ): WordLabReflectionWrite {
   if (!reflectionText) throw new Error("Please write a reflection before finishing the Word Lab.");
@@ -305,10 +305,10 @@ function buildCompoundWordV2Reflection(
     childId: context.childId,
     parentUserId: context.parentUserId,
     assignmentId: context.assignmentId,
-    microSkillKey: payload.microSkillKey,
-    contentVersion: payload.contentVersion,
-    promptKey: payload.activities.reflection.promptKey,
-    promptText: payload.activities.reflection.promptText,
+    microSkillKey: lesson.microSkillKey,
+    contentVersion: lesson.contentVersion,
+    promptKey: lesson.reflection.promptKey,
+    promptText: lesson.reflection.promptText,
     reflectionText,
   };
 }
@@ -337,6 +337,7 @@ export async function completeAdleReviewPartAction(formData: FormData) {
   }
   const routeResolution = resolvePersistedLessonRoute({
     lessonRouteMetadata: readModel.lessonRouteMetadata,
+    compiledLessonSnapshot: readModel.compiledLessonSnapshot,
     items: allSessionItems(readModel),
     runtimeContext: {
       morphologyUnEnabled: isMorphologyUnPilotEnabledForChild(childId),
@@ -558,6 +559,7 @@ export async function completeAdleLessonPartAction(formData: FormData) {
   const lessonSourceRef = `lesson:${childId}:${planDate}:${microSkillKey}`;
   const routeResolution = resolvePersistedLessonRoute({
     lessonRouteMetadata: readModel.lessonRouteMetadata,
+    compiledLessonSnapshot: readModel.compiledLessonSnapshot,
     items: allSessionItems(readModel),
     runtimeContext: {
       morphologyUnEnabled: isMorphologyUnPilotEnabledForChild(childId),
@@ -602,6 +604,10 @@ export async function completeAdleLessonPartAction(formData: FormData) {
   const compoundV2 =
     routeResolution.runtime.adapterKey === "compound_word_v2"
       ? routeResolution.runtime.payload
+      : null;
+  const compoundV2Resolved =
+    routeResolution.runtime.adapterKey === "compound_word_v2"
+      ? routeResolution.runtime.resolvedLesson
       : null;
   const wordLabPayload = compoundRuntime ?? dynamicSuffix ?? dynamicPrefix ?? morphologyPilot;
   const genericReflectionSpec = wordLabPayload === null
@@ -666,7 +672,7 @@ export async function completeAdleLessonPartAction(formData: FormData) {
     if (compoundV2 !== null) {
       await upsertChildLearningReflection(
         serviceClient,
-        buildCompoundWordV2Reflection(context, compoundV2, learningReflection),
+        buildCompoundWordV2Reflection(context, compoundV2Resolved!, learningReflection),
       );
     }
     await markItemsCompleted(context, readModel.partTwo.items);
@@ -853,7 +859,7 @@ export async function completeAdleLessonPartAction(formData: FormData) {
         assignmentItemIds: readModel.partTwo.items.map((item) => item.id),
         attempts: attemptEvents,
         lesson: lessonResult,
-        reflection: buildCompoundWordV2Reflection(context, compoundV2, learningReflection),
+        reflection: buildCompoundWordV2Reflection(context, compoundV2Resolved!, learningReflection),
       }));
     scheduleLessonReward(context, rewardProductionItems, timer);
     finishWith(
@@ -996,6 +1002,7 @@ export async function completeBaseWordFamilyLessonAction(formData: FormData) {
   blockInvalidGenericSnapshot(context, readModel);
   const routeResolution = resolvePersistedLessonRoute({
     lessonRouteMetadata: readModel.lessonRouteMetadata,
+    compiledLessonSnapshot: readModel.compiledLessonSnapshot,
     items: allSessionItems(readModel),
     runtimeContext: {
       morphologyUnEnabled: isMorphologyUnPilotEnabledForChild(context.childId),

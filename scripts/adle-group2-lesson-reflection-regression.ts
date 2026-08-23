@@ -24,6 +24,7 @@ const shared = readFileSync("components/adle/activities/lesson-reflection.tsx", 
 const morphology = readFileSync("components/adle/morphology/morphology-guided-lesson.tsx", "utf8");
 const base = readFileSync("components/adle/morphology/base-word-family-guided-lesson.tsx", "utf8");
 const compound = readFileSync("components/adle/morphology/closed-compound-guided-lesson.tsx", "utf8");
+const resolvedCompound = readFileSync("lib/adle/morphology/resolved-compound-word-lesson-v2.ts", "utf8");
 const actions = readFileSync("app/learn/week/adle/actions.ts", "utf8");
 const errorRepair = readFileSync("components/adle/activities/reflection-activity.tsx", "utf8");
 const gallery = readFileSync("app/admin/adle/activity-catalogue/visual-convergence-candidates.tsx", "utf8");
@@ -63,7 +64,8 @@ assert(base.includes("props.onComplete?.({ reflection: state.reflectionText, con
 assert(compound.includes("completeAdleLessonPartAction") && compound.includes('name="guidedAttempts"') && compound.includes('name="learningReflection"'), "Compound completion/persistence envelope remains adapter-owned");
 
 assert(actions.includes("promptKey: reflection.promptKey") && actions.includes("promptText: reflection.promptText"), "Morphology stored prompt key/text remain payload-owned");
-assert(actions.includes("promptKey: payload.activities.reflection.promptKey") && actions.includes("promptText: payload.activities.reflection.promptText"), "Compound stored prompt key/text remain payload-owned");
+assert(actions.includes("promptKey: lesson.reflection.promptKey") && actions.includes("promptText: lesson.reflection.promptText"), "Compound completion persists the shared resolved learner-visible prompt");
+assert(resolvedCompound.includes('lessonReflectionPrompt({ kind: "compound" })') && !actions.includes("payload.activities.reflection.promptText"), "unused route-payload prompt cannot become Compound completion authority");
 assert(actions.includes("promptKey: BASE_WORD_FAMILY_REFLECTION_PROMPT_KEY") && actions.includes("promptText: payload.reflectionPrompt"), "Base Word stored prompt key/text remain historically compatible");
 assert(actions.includes("persistWordLabCompletion") && actions.includes("persistReleaseBoundWordLabCompletion") && actions.includes("persistBaseWordFamilyPilotCompletion"), "all atomic completion boundaries remain in place");
 

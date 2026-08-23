@@ -2,6 +2,12 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 
 import { composeDailyPlan } from "../daily-assignment-composer";
 import { createPersistedRouteMetadataV2 } from "../composable-lesson/persisted-route-metadata";
+import { compileCompoundWordSpecialistSnapshotV3 } from "../composable-lesson/specialist-snapshot-v3-compiler";
+import {
+  persistSpecialistSnapshotV3,
+  supabaseSpecialistSnapshotV3PersistencePort,
+} from "../composable-lesson/specialist-snapshot-v3-persistence";
+import { configuredSpecialistSnapshotV3Writer } from "../composable-lesson/specialist-snapshot-writer-rollout";
 import { buildCompoundWordAssignmentPlanV2 } from "../morphology/compound-word-assignment-plan-v2";
 import {
   compileCompoundWordLessonV2,
@@ -13,10 +19,15 @@ import {
   type ActivatedCompoundWordReleaseV2,
 } from "../morphology/compound-word-release-loader";
 import type { CompoundWordMicroSkillKey } from "../morphology/compound-word-structure-v2";
+import { resolveCompoundWordFirstImpressionConfig } from "../morphology/resolved-compound-word-lesson-v2";
 import { resolveAdleRouteActivationEnvironment } from "../route-activation-environment";
 import type { IsoDate } from "../review-scheduler";
 import { loadDailyPlanFacts } from "./composer-facts-loader";
-import { persistComposedAdleDailyPlan } from "./daily-plan-surface";
+import {
+  findAdleHeader,
+  persistComposedAdleDailyPlan,
+  prepareComposedAdleDailyPlanPersistence,
+} from "./daily-plan-surface";
 
 export async function loadCompoundWordAssignmentReadiness(params: {
   client: SupabaseClient;
@@ -83,6 +94,45 @@ export async function persistCompoundWordAssignment(params: {
       persistedCompoundWordReleaseAuthority(params.releaseAuthority),
     ),
   );
+  const authorization = configuredSpecialistSnapshotV3Writer(params.childId);
+  if (authorization) {
+    const persistence = await prepareComposedAdleDailyPlanPersistence({
+      userClient: params.userClient,
+      serviceClient: params.serviceClient,
+      parentUserId: params.parentUserId,
+      childId: params.childId,
+      planDate: params.planDate as IsoDate,
+      plan,
+      generationTrigger: params.generationTrigger,
+    });
+    if (persistence.action === "noop") {
+      return persistence.noopReason === "existing_active_plan"
+        ? (await findAdleHeader(params.userClient, params.parentUserId, params.childId, params.planDate as IsoDate))?.id ?? null
+        : null;
+    }
+    if (!persistence.header) return null;
+    const resolvedLesson = resolveCompoundWordFirstImpressionConfig(params.payload);
+    if (!resolvedLesson) throw new Error("persistCompoundWordAssignment:specialist_snapshot:resolved_lesson_invalid");
+    const snapshot = compileCompoundWordSpecialistSnapshotV3({
+      payload: resolvedLesson,
+      releaseAuthority: params.releaseAuthority,
+      header: persistence.header,
+      items: persistence.items,
+    });
+    return persistSpecialistSnapshotV3(
+      supabaseSpecialistSnapshotV3PersistencePort(params.serviceClient),
+      {
+        authorization,
+        parentUserId: params.parentUserId,
+        childId: params.childId,
+        planDate: params.planDate,
+        header: persistence.header,
+        items: persistence.items,
+        intakes: persistence.learningItemIntakes,
+        snapshot,
+      },
+    );
+  }
   return persistComposedAdleDailyPlan({
     userClient: params.userClient,
     serviceClient: params.serviceClient,

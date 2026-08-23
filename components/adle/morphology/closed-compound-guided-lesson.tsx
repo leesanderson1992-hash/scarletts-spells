@@ -11,7 +11,6 @@ import {
 import type { TeachingPagesConfig } from "@/components/adle/first-impression/teaching-pages";
 import {
   lessonReflectionSentenceComparison,
-  lessonReflectionPrompt,
   type NormalizedLessonReflectionMistake,
   type NormalizedLessonReflectionSentenceComparison,
 } from "@/lib/adle/lesson-reflection";
@@ -24,6 +23,10 @@ import type {
   CompoundWordLessonPayloadV2,
   CompoundWordLessonReadingPageV2,
 } from "@/lib/adle/morphology/compound-word-lesson-v2";
+import {
+  resolveCompoundWordFirstImpressionConfig,
+  type ResolvedCompoundWordFirstImpressionV2,
+} from "@/lib/adle/morphology/resolved-compound-word-lesson-v2";
 import type { CompoundWordJoinKind } from "@/lib/adle/morphology/compound-word-structure-v2";
 import {
   dictationTargetSpanFromToken,
@@ -70,6 +73,7 @@ type RuntimeWord = {
 
 type RuntimePayload = {
   contentVersion: string;
+  teaching?: TeachingPagesConfig;
   words: { lesson: readonly RuntimeWord[] };
   activities: {
     introduction: CompoundWordLessonIntroductionV2;
@@ -106,7 +110,7 @@ function CompoundWordLessonRuntime(props: RuntimeProps) {
   if (!hydrated) return <div className="min-h-[28rem]" aria-label="Restoring Word Lab" />;
   const isV1 = props.resumeNamespace === "closed-compound";
   const readingPages = isV1 ? undefined : props.payload.activities.introduction.readingPages;
-  const teaching = compoundTeachingPages(props.payload, words, readingPages);
+  const teaching = props.payload.teaching ?? compoundTeachingPages(props.payload, words, readingPages);
   const reflectionModel = compoundLessonReflectionModel(props.payload, state);
   const guidedAttempts = compoundGuidedAttempts(props.items, state);
   const activities: FirstImpressionConfiguredActivity[] = [
@@ -143,7 +147,7 @@ function CompoundWordLessonRuntime(props: RuntimeProps) {
     })}
     reflectionActivity={createCanonicalActivityBinding({
       id: "reflection", concept: "LESSON_REFLECTION", mode: "standard_lesson_reflection", contractVersion: 1, label: "Reflection",
-      createProps: () => ({ mistakes: reflectionModel.mistakes, sentenceComparisons: reflectionModel.sentenceComparisons, prompt: lessonReflectionPrompt({ kind: "compound" }), response: state.reflection, onResponseChange: (reflection: string) => setState((current) => ({ ...current, reflection })), completionType: "submit", completionLabel: "Finish Word Lab", successMessage: isV1 ? "You checked each compound word carefully. Remember: the two words join with no space." : "You checked each compound word carefully and kept its governed written form." }),
+      createProps: () => ({ mistakes: reflectionModel.mistakes, sentenceComparisons: reflectionModel.sentenceComparisons, prompt: props.payload.activities.reflection.promptText, response: state.reflection, onResponseChange: (reflection: string) => setState((current) => ({ ...current, reflection })), completionType: "submit", completionLabel: "Finish Word Lab", successMessage: isV1 ? "You checked each compound word carefully. Remember: the two words join with no space." : "You checked each compound word carefully and kept its governed written form." }),
       wrap: (activity) => <CompoundLessonReflectionAdapter childId={props.childId} assignmentId={props.assignmentId} state={state} guidedAttempts={guidedAttempts} activity={activity} onPreviewComplete={props.onPreviewComplete} />,
     })}
   />;
@@ -244,23 +248,17 @@ export function ClosedCompoundGuidedLesson(props: { childId: string; assignmentI
   return <CompoundWordLessonRuntime {...props} payload={payload} resumeNamespace="closed-compound" />;
 }
 
-export function CompoundWordGuidedLesson(props: { childId: string; assignmentId: string; items: AdleSessionItem[]; payload: CompoundWordLessonPayloadV2; onPreviewComplete?: (reflection: string) => void }) {
+export function CompoundWordGuidedLesson(props: { childId: string; assignmentId: string; items: AdleSessionItem[]; payload?: CompoundWordLessonPayloadV2; resolvedLesson?: ResolvedCompoundWordFirstImpressionV2; onPreviewComplete?: (reflection: string) => void }) {
+  const resolved = props.resolvedLesson ?? (props.payload ? resolveCompoundWordFirstImpressionConfig(props.payload) : null);
+  if (!resolved) throw new Error("CompoundWordGuidedLesson: resolved Compound Word v2 lesson is invalid");
   const payload: RuntimePayload = {
-    contentVersion: props.payload.contentVersion,
-    activities: props.payload.activities,
-    words: { lesson: props.payload.words.lesson.map((word) => ({
-      canonicalWordId: word.structure.wholeCanonicalWordId,
-      displayWord: word.structure.wholeWord,
-      components: word.tasks.split.components,
-      joins: word.tasks.split.joins,
-      componentMeanings: word.structure.components.map((component) => component.meaning),
-      childFriendlyDefinition: word.structure.childFriendlyMeaning,
-      componentToWholeRelationship: word.structure.componentToWholeRelationship,
-      audioText: word.dictation.audioText,
-      dictationSentence: word.dictation.sentence,
-      dictationTargetSpan: word.dictation.targetSpan,
-      splitPoints: word.tasks.split.splitPoints,
-    })) },
+    contentVersion: resolved.contentVersion,
+    teaching: resolved.teaching,
+    activities: {
+      introduction: resolved.sourcePayload.activities.introduction,
+      reflection: resolved.reflection,
+    },
+    words: { lesson: resolved.words },
   };
-  return <CompoundWordLessonRuntime {...props} payload={payload} resumeNamespace="compound-word-v2" />;
+  return <CompoundWordLessonRuntime childId={props.childId} assignmentId={props.assignmentId} items={props.items} payload={payload} resumeNamespace="compound-word-v2" onPreviewComplete={props.onPreviewComplete} />;
 }

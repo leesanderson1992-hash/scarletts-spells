@@ -22,6 +22,7 @@ import {
   ADLE_ASSIGNMENT_GENERATION_SOURCE,
   ADLE_DAILY_ASSIGNMENT_TITLE,
   planAssignmentPersistence,
+  type AssignmentPersistencePlan,
   type AdleGenerationTrigger,
   type ExistingAssignmentHeaderFact,
 } from "../assignment-persistence";
@@ -39,6 +40,7 @@ import {
   resolveGenericLessonSnapshot,
   type GenericSnapshotResolutionResult,
 } from "../composable-lesson/generic-snapshot-reader";
+import { isCompoundWordSpecialistSnapshotV3 } from "../composable-lesson/specialist-snapshot-v3-validator";
 import type { CanonicalActivitySpec } from "../canonical-activity-spec";
 import {
   dailyPlanHeaderProjection,
@@ -194,19 +196,27 @@ export interface EnsureAdleDailyPlanParams {
   planDate: IsoDate;
 }
 
-export async function persistComposedAdleDailyPlan(params: EnsureAdleDailyPlanParams & {
+export async function prepareComposedAdleDailyPlanPersistence(params: EnsureAdleDailyPlanParams & {
   plan: ComposedDailyPlan;
   generationTrigger?: AdleGenerationTrigger;
-}): Promise<string | null> {
-  const { userClient, serviceClient, parentUserId, childId, planDate, plan } = params;
+}): Promise<AssignmentPersistencePlan> {
+  const { userClient, parentUserId, childId, planDate, plan } = params;
   const { data: headerRows, error: headersError } = await userClient.from("daily_assignments").select("child_id, assignment_date, title, status").eq("parent_user_id", parentUserId).eq("child_id", childId).eq("assignment_date", planDate);
   if (headersError) throw new Error(`persistComposedAdleDailyPlan:headers: ${headersError.message}`);
   const existingHeaders: ExistingAssignmentHeaderFact[] = (headerRows ?? []).map((row) => ({ childId: (row as { child_id: string }).child_id, assignmentDate: (row as { assignment_date: string }).assignment_date, title: (row as { title: string | null }).title ?? "", status: (row as { status: string }).status }));
-  const persistence = planAssignmentPersistence(plan, {
+  return planAssignmentPersistence(plan, {
     parentUserId,
     existingHeaders,
     generationTrigger: params.generationTrigger,
   });
+}
+
+export async function persistComposedAdleDailyPlan(params: EnsureAdleDailyPlanParams & {
+  plan: ComposedDailyPlan;
+  generationTrigger?: AdleGenerationTrigger;
+}): Promise<string | null> {
+  const { userClient, serviceClient, parentUserId, childId, planDate } = params;
+  const persistence = await prepareComposedAdleDailyPlanPersistence(params);
   if (persistence.action === "noop") return persistence.noopReason === "existing_active_plan" ? (await findAdleHeader(userClient, parentUserId, childId, planDate))?.id ?? null : null;
   if (!persistence.header) return null;
   if (
@@ -436,7 +446,9 @@ export async function getAdleDailyPlanReadModel(params: {
     ? header.compiled_lesson_snapshot ?? null
     : undefined;
   const genericSnapshotResolution =
-    isExplicitGeneric || compiledLessonSnapshot !== null && compiledLessonSnapshot !== undefined
+    isExplicitGeneric || (compiledLessonSnapshot !== null
+      && compiledLessonSnapshot !== undefined
+      && !isCompoundWordSpecialistSnapshotV3(compiledLessonSnapshot))
       ? resolveGenericLessonSnapshot({
           mode: snapshotMode,
           lessonRouteMetadata: header.lesson_route_metadata,

@@ -739,7 +739,7 @@ export function AdleSessionRunner(props: AdleSessionRunnerProps) {
   }
 
   if (runtime.adapterKey === "compound_word_v2" && props.assignmentId && partTwo.present && !partTwo.complete) {
-    return <CompoundWordGuidedLesson childId={props.childId} assignmentId={props.assignmentId} items={partTwo.items} payload={runtime.payload} />;
+    return <CompoundWordGuidedLesson childId={props.childId} assignmentId={props.assignmentId} items={partTwo.items} resolvedLesson={runtime.resolvedLesson} />;
   }
 
   if (runtime.adapterKey === "base_word_family_v1" && props.assignmentId) {
