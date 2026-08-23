@@ -51,6 +51,7 @@ def main() -> int:
     assert "_staging_content_release_batch" in sql
     assert "reflection_prompt_key" in sql and "reflection_prompt_text" in sql
     assert "teaching_content_row_v2_reflection" in sql
+    assert "'admin_import', 'applied'" in sql
 
     with tempfile.TemporaryDirectory() as tmp:
         copied = Path(tmp) / "package"

@@ -155,7 +155,7 @@ with inserted as (
     {importer.sql_value(manifest['validation']['summary'], jsonb=True)},
     {importer.sql_value({'content_release_rows': expected}, jsonb=True)},
     {importer.sql_value(manifest['readiness_summary'], jsonb=True)},
-    'staging_reviewed_content_release', 'applied',
+    'admin_import', 'applied',
     {importer.sql_value({'target': 'staging_only', 'allowed_tables': sorted(ALLOWED_TABLES), 'source_contract_version': 'teaching_content_row_v2_reflection'}, jsonb=True)},
     'd3_staging_content_release_adapter', timezone('utc', now())
   ) returning id
