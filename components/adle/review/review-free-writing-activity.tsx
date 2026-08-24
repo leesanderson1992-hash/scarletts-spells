@@ -9,6 +9,11 @@ import {
   type ReviewChallengeType,
   type ReviewTargetSnapshotV3,
 } from "@/lib/adle/review-v3/contracts";
+import type {
+  ReviewR3Gateway,
+  ReviewR3SessionView,
+} from "@/lib/adle/review-v3/r3-contracts";
+import { exactReviewTargetIds } from "@/lib/adle/review-v3/target-word-matcher";
 import {
   createReviewWritingChallengeDraftEnvelope,
   restoreReviewWritingChallengeDraft,
@@ -133,6 +138,134 @@ function TargetAudioButton(props: {
   );
 }
 
+function TargetWordRetrievalChecks(props: {
+  snapshot: CompiledReviewSnapshotV3;
+  reviewSession: ReviewR3SessionView;
+  gateway: ReviewR3Gateway;
+  onSession: (session: ReviewR3SessionView) => void;
+}) {
+  const [responses, setResponses] = useState<Record<string, string>>({});
+  const [submittingEncounterId, setSubmittingEncounterId] = useState<string | null>(null);
+  const [message, setMessage] = useState<string | null>(null);
+  const encounterById = new Map(props.reviewSession.encounters.map((encounter) => [
+    encounter.encounterId,
+    encounter,
+  ]));
+  const unresolvedTargets = [...props.snapshot.targets]
+    .sort((left, right) => left.order - right.order)
+    .filter((target) => {
+      const encounter = encounterById.get(target.encounterId);
+      return encounter?.audioCheckEligible || encounter?.resultSource === "review_audio_check";
+    });
+  const remainingChecks = props.reviewSession.encounters.filter((encounter) =>
+    encounter.audioCheckEligible,
+  ).length;
+  const repairCount = props.reviewSession.encounters.filter((encounter) =>
+    encounter.repairRequired,
+  ).length;
+
+  async function submitAudioCheck(encounterId: string) {
+    const response = responses[encounterId] ?? "";
+    if (response.trim().length === 0 || submittingEncounterId !== null) return;
+    setSubmittingEncounterId(encounterId);
+    setMessage(null);
+    try {
+      const result = await props.gateway.submitAudioCheck({
+        encounterId,
+        response,
+        idempotencyKey: `review-audio-check:${props.reviewSession.snapshotFingerprint}:${encounterId}`,
+      });
+      if (result.ok) {
+        props.onSession(result.session);
+      } else {
+        setMessage(result.code === "audio_response_conflict"
+          ? "This Target Word response is already locked."
+          : "That check could not be saved. Please reload and try again.");
+      }
+    } catch {
+      setMessage("That check could not be saved. Please reload and try again.");
+    } finally {
+      setSubmittingEncounterId(null);
+    }
+  }
+
+  return (
+    <main className="mx-auto grid max-w-3xl gap-6 px-4 py-6 sm:px-6">
+      <header className="border-b border-[var(--border)] pb-5">
+        <p className="brand-eyebrow">Writing Challenge</p>
+        <h1 className="brand-lesson-title mt-1 text-3xl font-semibold">Target Word checks</h1>
+        <p className="mt-2 text-base leading-7 text-[color:var(--mid)]">
+          Listen and spell each Target Word that is still waiting for a check.
+        </p>
+      </header>
+
+      {unresolvedTargets.map((target) => {
+        const encounter = encounterById.get(target.encounterId);
+        if (!encounter) return null;
+        const locked = encounter.audioCheckLocked;
+        return (
+          <section key={target.encounterId} className="brand-card grid gap-4 rounded-lg p-5">
+            <div className="flex items-center justify-between gap-3">
+              <p className="font-semibold text-[color:var(--ink)]">Target Word {target.order}</p>
+              <TargetAudioButton
+                index={target.order - 1}
+                target={target}
+              />
+            </div>
+            <label className="grid gap-2 text-sm font-semibold text-[color:var(--mid)]">
+              Spell this Target Word
+              <input
+                value={locked ? encounter.submittedAudioResponse ?? "" : responses[target.encounterId] ?? ""}
+                onChange={(event) => setResponses((current) => ({
+                  ...current,
+                  [target.encounterId]: event.target.value,
+                }))}
+                disabled={locked}
+                spellCheck={false}
+                autoCorrect="off"
+                autoCapitalize="none"
+                autoComplete="off"
+                className="brand-input min-h-12 rounded-lg px-3 text-lg disabled:bg-[var(--mist)]"
+              />
+            </label>
+            {!locked ? (
+              <button
+                type="button"
+                className="brand-primary-btn justify-self-start"
+                disabled={submittingEncounterId !== null || (responses[target.encounterId] ?? "").trim().length === 0}
+                onClick={() => void submitAudioCheck(target.encounterId)}
+              >
+                {submittingEncounterId === target.encounterId ? "Checking..." : "Check"}
+              </button>
+            ) : encounter.originalOutcome === "success" ? (
+              <p className="font-semibold text-emerald-800" role="status">Correct. This response is saved.</p>
+            ) : (
+              <div className="grid gap-1" role="status">
+                <p className="font-semibold text-[color:var(--scarlett)]">This word needs Reflection &amp; Repair.</p>
+                {encounter.governedCorrectSpellingReveal !== null ? (
+                  <p className="text-sm text-[color:var(--ink)]">The word was: <strong>{encounter.governedCorrectSpellingReveal}</strong></p>
+                ) : null}
+              </div>
+            )}
+          </section>
+        );
+      })}
+
+      {remainingChecks === 0 ? (
+        <section className="rounded-lg border border-[var(--border)] bg-[var(--mist)] p-5" role="status">
+          <p className="font-semibold text-[color:var(--ink)]">All original retrieval checks are locked.</p>
+          <p className="mt-1 text-sm text-[color:var(--mid)]">
+            {repairCount > 0
+              ? `${repairCount} ${repairCount === 1 ? "word is" : "words are"} ready for Reflection & Repair.`
+              : "No words need repair. Review completion will be connected in a later stage."}
+          </p>
+        </section>
+      ) : null}
+      {message !== null ? <p className="text-sm text-[color:var(--scarlett)]" role="alert">{message}</p> : null}
+    </main>
+  );
+}
+
 function ChallengeWheel(props: {
   selected: ReviewChallengeType | null;
   spinning: boolean;
@@ -145,9 +278,9 @@ function ChallengeWheel(props: {
   const challengeTypes = REVIEW_CHALLENGE_TYPES;
 
   return (
-    <section className="grid gap-5" aria-label="Writing Challenge selector">
-      <div className="mx-auto grid w-full max-w-md place-items-center">
-        <div className="relative aspect-square w-[min(90vw,30rem)] max-w-full pt-4">
+    <section className="grid min-w-0 gap-5" aria-label="Writing Challenge selector">
+      <div className="mx-auto grid w-full min-w-0 max-w-md place-items-center">
+        <div className="relative aspect-square w-full max-w-[30rem] pt-4">
           <svg
             aria-hidden="true"
             className={`absolute left-1/2 top-0 z-30 h-20 w-20 -translate-x-1/2 drop-shadow-[0_8px_8px_rgba(36,10,37,0.25)] ${props.spinning ? "review-wheel-pointer-ticking" : ""}`}
@@ -290,7 +423,7 @@ function ChallengeWheel(props: {
                 type="button"
                 role="tab"
                 aria-selected={props.selected === challengeType}
-                className={`min-h-12 rounded-lg border px-3 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[rgba(194,24,91,0.2)] ${props.selected === challengeType ? "border-[color:var(--scarlett)] bg-[#fff0f7] text-[color:var(--scarlett)]" : "border-[var(--border)] bg-white text-[color:var(--mid)] hover:border-[color:var(--scarlett)]"}`}
+                className={`min-h-12 min-w-0 break-words rounded-lg border px-3 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[rgba(194,24,91,0.2)] ${props.selected === challengeType ? "border-[color:var(--scarlett)] bg-[#fff0f7] text-[color:var(--scarlett)]" : "border-[var(--border)] bg-white text-[color:var(--mid)] hover:border-[color:var(--scarlett)]"}`}
                 onClick={() => props.onSelect(challengeType)}
               >
                 {CHALLENGE_LABELS[challengeType]}
@@ -313,6 +446,7 @@ export interface ReviewFreeWritingActivityProps {
   onPlayTargetAudio?: (target: ReviewTargetSnapshotV3, index: number) => void;
   requestParentReauthenticatedExtension?: (extensionSeconds: 300 | 600 | 900) => Promise<boolean>;
   onWritingTimeFinished?: (session: ReviewWritingChallengeSessionV1) => void;
+  reviewR3Gateway?: ReviewR3Gateway;
 }
 
 /**
@@ -338,6 +472,10 @@ export function ReviewFreeWritingActivity(props: ReviewFreeWritingActivityProps)
   );
   const [wheelAnimationDurationMs, setWheelAnimationDurationMs] = useState(0);
   const [extensionMessage, setExtensionMessage] = useState<string | null>(null);
+  const [reviewR3Session, setReviewR3Session] = useState<ReviewR3SessionView | null>(null);
+  const [reviewR3Hydrated, setReviewR3Hydrated] = useState(() => props.reviewR3Gateway === undefined);
+  const [reviewR3Submitting, setReviewR3Submitting] = useState(false);
+  const [reviewR3Message, setReviewR3Message] = useState<string | null>(null);
   const now = useWritingClock(session);
   const priorPhase = useRef(session.phase);
   const spinTimer = useRef<number | null>(null);
@@ -358,6 +496,22 @@ export function ReviewFreeWritingActivity(props: ReviewFreeWritingActivityProps)
     }, 0);
     return () => window.clearTimeout(restoreTimer);
   }, [draftKey, draftStore, snapshot]);
+
+  useEffect(() => {
+    if (!props.reviewR3Gateway) return;
+    let active = true;
+    void props.reviewR3Gateway.hydrate()
+      .then((restored) => {
+        if (active) setReviewR3Session(restored);
+      })
+      .catch(() => {
+        if (active) setReviewR3Message("Review state could not be loaded. Please refresh.");
+      })
+      .finally(() => {
+        if (active) setReviewR3Hydrated(true);
+      });
+    return () => { active = false; };
+  }, [props.reviewR3Gateway]);
 
   useEffect(() => () => {
     if (spinTimer.current !== null) window.clearTimeout(spinTimer.current);
@@ -388,6 +542,7 @@ export function ReviewFreeWritingActivity(props: ReviewFreeWritingActivityProps)
 
   const prompt = selectedChallengePrompt(snapshot, session);
   const remainingSeconds = remainingWritingSeconds(session, now);
+  const progressCount = exactReviewTargetIds(session.draftText, snapshot.targets).size;
   const canExtendExpiredWriting = session.phase === "writing_time_finished" &&
     session.extensionSeconds === null &&
     session.writingDeadlineAtMs !== null &&
@@ -442,25 +597,60 @@ export function ReviewFreeWritingActivity(props: ReviewFreeWritingActivityProps)
     }
   }
 
+  async function submitWritingForRetrieval(nextSession: ReviewWritingChallengeSessionV1) {
+    if (!props.reviewR3Gateway) return;
+    setReviewR3Submitting(true);
+    setReviewR3Message(null);
+    try {
+      const result = await props.reviewR3Gateway.submitWriting({
+        finalWriting: nextSession.draftText,
+        idempotencyKey: `review-writing:${snapshot.provenance.sourceFingerprint}`,
+      });
+      if (result.ok) {
+        setReviewR3Session(result.session);
+      } else {
+        setReviewR3Message(result.code === "writing_submission_conflict"
+          ? "This writing has already been submitted and cannot be replaced."
+          : "Your writing could not be submitted. Please reload and try again.");
+      }
+    } catch {
+      setReviewR3Message("Your writing could not be submitted. Please reload and try again.");
+    } finally {
+      setReviewR3Submitting(false);
+    }
+  }
+
   function endWriting() {
     const result = finishCreativeWriting(session, Date.now());
     if (!result.ok) return;
     updateSession(result.session);
+    void submitWritingForRetrieval(result.session);
   }
 
-  if (!resumeLoaded) {
+  if (!resumeLoaded || !reviewR3Hydrated) {
     return <section className="brand-card mx-auto max-w-3xl rounded-lg p-6" aria-busy="true" />;
+  }
+
+  if (reviewR3Session?.submittedWritingFrozen && props.reviewR3Gateway) {
+    return (
+      <TargetWordRetrievalChecks
+        snapshot={snapshot}
+        reviewSession={reviewR3Session}
+        gateway={props.reviewR3Gateway}
+        onSession={setReviewR3Session}
+      />
+    );
   }
 
   if (session.phase === "challenge_selection") {
     return (
-      <main className="mx-auto grid max-w-4xl gap-6 px-4 py-6 sm:px-6">
+      <main className="mx-auto grid w-full max-w-4xl gap-6 px-4 py-6 sm:px-6">
         <header className="text-center">
           <p className="brand-eyebrow">Review</p>
           <h1 className="brand-lesson-title mt-2 text-3xl font-semibold">Writing Challenge</h1>
           <p className="mt-2 text-sm text-[color:var(--mid)]">Let the wheel choose, then make it your own.</p>
         </header>
-        <section className="brand-card rounded-lg p-5 sm:p-7">
+        <section className="brand-card min-w-0 rounded-lg p-5 sm:p-7">
           <ChallengeWheel
             selected={session.selectedChallengeType}
             spinning={wheelSpinning}
@@ -473,7 +663,7 @@ export function ReviewFreeWritingActivity(props: ReviewFreeWritingActivityProps)
           {prompt !== null && wheelRevealed ? (
             <button
               type="button"
-              className="brand-primary-btn mx-auto mt-7"
+              className="brand-primary-btn relative z-10 mx-auto mt-7"
               onClick={() => {
                 const result = beginCreativeWriting(props.snapshot, session, Date.now());
                 if (result.ok) updateSession(result.session);
@@ -505,7 +695,10 @@ export function ReviewFreeWritingActivity(props: ReviewFreeWritingActivityProps)
       </header>
 
       <section className="grid gap-3 border-b border-[var(--border)] pb-5">
-        <p className="text-lg font-semibold text-[color:var(--ink)]">Target Words: 0 / {props.snapshot.targets.length}</p>
+        <p className="text-lg font-semibold text-[color:var(--ink)]" aria-live="polite">
+          Target Words: {progressCount} / {props.snapshot.targets.length}
+          {progressCount === props.snapshot.targets.length ? <span aria-label="challenge achievement"> ✨</span> : null}
+        </p>
         <div className="flex flex-wrap gap-2" aria-label={`${props.snapshot.targets.length} Target Word audio controls`}>
           {props.snapshot.targets.map((target, index) => (
             <TargetAudioButton key={target.encounterId} target={target} index={index} onPlay={props.onPlayTargetAudio} />
@@ -541,6 +734,14 @@ export function ReviewFreeWritingActivity(props: ReviewFreeWritingActivityProps)
                 </div>
               </div>
             ) : null}
+            <button
+              type="button"
+              className="brand-primary-btn justify-self-start"
+              disabled={reviewR3Submitting}
+              onClick={() => void submitWritingForRetrieval(session)}
+            >
+              {reviewR3Submitting ? "Saving..." : "Continue to word checks"}
+            </button>
           </section>
           <textarea
             value={session.draftText}
@@ -552,6 +753,7 @@ export function ReviewFreeWritingActivity(props: ReviewFreeWritingActivityProps)
             className="brand-textarea min-h-[20rem] resize-y rounded-lg p-4 text-lg leading-8"
           />
           {extensionMessage !== null ? <p className="text-sm text-[color:var(--mid)]" role="status">{extensionMessage}</p> : null}
+          {reviewR3Message !== null ? <p className="text-sm text-[color:var(--scarlett)]" role="alert">{reviewR3Message}</p> : null}
         </>
       ) : (
         <>
@@ -568,9 +770,12 @@ export function ReviewFreeWritingActivity(props: ReviewFreeWritingActivityProps)
           />
           <div className="flex flex-col gap-3 border-t border-[var(--border)] pt-5 sm:flex-row sm:items-center sm:justify-between">
             <p className="text-sm font-medium text-[color:var(--mid)]">You can ask for one time extension if the timer runs out.</p>
-            <button type="button" className="brand-primary-btn" onClick={endWriting}>Finish writing</button>
+            <button type="button" className="brand-primary-btn" disabled={reviewR3Submitting} onClick={endWriting}>
+              {reviewR3Submitting ? "Saving..." : "Finish writing"}
+            </button>
           </div>
           {extensionMessage !== null ? <p className="text-sm text-[color:var(--mid)]" role="status">{extensionMessage}</p> : null}
+          {reviewR3Message !== null ? <p className="text-sm text-[color:var(--scarlett)]" role="alert">{reviewR3Message}</p> : null}
         </>
       )}
     </main>
