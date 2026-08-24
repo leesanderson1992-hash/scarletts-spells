@@ -135,6 +135,22 @@ body {
   box-shadow: 0 16px 28px rgba(194, 24, 91, 0.24);
 }
 
+@keyframes review-wheel-pointer-tick {
+  0%, 100% { transform: translateX(-50%) rotate(0deg); }
+  48% { transform: translateX(-50%) rotate(-5deg) translateY(2px); }
+}
+
+.review-wheel-pointer-ticking {
+  animation: review-wheel-pointer-tick 360ms ease-in-out infinite;
+  transform-origin: 50% 15%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .review-wheel-pointer-ticking {
+    animation: none;
+  }
+}
+
 .brand-secondary-btn {
   border: 1px solid var(--border);
   background: rgba(255, 255, 255, 0.82);
