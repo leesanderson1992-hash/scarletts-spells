@@ -12,6 +12,8 @@ export interface ReviewWritingToken {
   normalized: string;
   index: number;
   separatorBefore: string;
+  startOffset: number;
+  endOffset: number;
 }
 
 export interface ReviewExactTargetMatch {
@@ -20,6 +22,8 @@ export interface ReviewExactTargetMatch {
   tokenStart: number;
   tokenEndExclusive: number;
   matchedText: string;
+  startOffset: number;
+  endOffset: number;
 }
 
 export function normalizeReviewSpellingText(value: string): string {
@@ -43,6 +47,8 @@ export function tokenizeReviewWriting(value: string): ReviewWritingToken[] {
       normalized: match[0].toLowerCase(),
       index,
       separatorBefore: canonicalText.slice(priorEnd, start),
+      startOffset: start,
+      endOffset: start + match[0].length,
     };
     priorEnd = start + match[0].length;
     return token;
@@ -87,6 +93,8 @@ export function findExactReviewTargetMatches(
           .slice(start, start + expectedTokens.length)
           .map((token) => token.surface)
           .join(" "),
+        startOffset: writingTokens[start]!.startOffset,
+        endOffset: writingTokens[start + expectedTokens.length - 1]!.endOffset,
       }];
     }
     return [];
@@ -109,4 +117,31 @@ export function isExactReviewAudioResponse(
   return responseTokens.length === expectedTokens.length &&
     expectedTokens.length > 0 &&
     expectedTokens.every((expected, index) => responseTokens[index] === expected);
+}
+
+export interface ReviewWritingSelection {
+  text: string;
+  normalizedTokens: readonly string[];
+  startOffset: number;
+  endOffset: number;
+}
+
+export function validateReviewWritingSelection(
+  writing: string,
+  startOffset: number,
+  endOffset: number,
+): ReviewWritingSelection | null {
+  if (!Number.isInteger(startOffset) || !Number.isInteger(endOffset) ||
+    startOffset < 0 || endOffset <= startOffset || endOffset > writing.length) return null;
+  const text = writing.slice(startOffset, endOffset);
+  const tokens = tokenizeReviewWriting(text);
+  if (tokens.length === 0 || tokens[0]?.startOffset !== 0 ||
+    tokens.at(-1)?.endOffset !== text.length ||
+    tokens.some((token, index) => index > 0 && !/^\s+$/u.test(token.separatorBefore))) return null;
+  return {
+    text,
+    normalizedTokens: tokens.map((token) => token.normalized),
+    startOffset,
+    endOffset,
+  };
 }

@@ -8,6 +8,11 @@ export type ReviewR3ResultSource =
   | "review_audio_check"
   | null;
 
+export type ReviewR31WritingAttributionPrompt =
+  | { kind: "confirm_suggestion"; observedText: string }
+  | { kind: "ask_attempt" }
+  | { kind: "select_attempt" };
+
 export interface ReviewR3EncounterView {
   encounterId: string;
   targetOrder: number;
@@ -20,6 +25,8 @@ export interface ReviewR3EncounterView {
   audioCheckLocked: boolean;
   governedCorrectSpellingReveal: string | null;
   repairRequired: boolean;
+  writingAttributionPrompt: ReviewR31WritingAttributionPrompt | null;
+  confirmedWritingAttempt: string | null;
 }
 
 export interface ReviewR3SessionView {
@@ -41,6 +48,19 @@ export interface ReviewR3AudioSubmission {
   idempotencyKey: string;
 }
 
+export interface ReviewR31DecisionSubmission {
+  encounterId: string;
+  decision: "yes" | "no";
+  idempotencyKey: string;
+}
+
+export interface ReviewR31SpanSubmission {
+  encounterId: string;
+  startOffset: number;
+  endOffset: number;
+  idempotencyKey: string;
+}
+
 export type ReviewR3GatewayResult =
   | { ok: true; session: ReviewR3SessionView; replayed: boolean }
   | {
@@ -51,11 +71,18 @@ export type ReviewR3GatewayResult =
       | "encounter_not_found"
       | "audio_check_not_eligible"
       | "audio_response_conflict"
-      | "invalid_response";
+      | "invalid_response"
+      | "attribution_confirmation_not_eligible"
+      | "attribution_confirmation_conflict"
+      | "invalid_writing_span"
+      | "writing_span_already_consumed";
   };
 
 export interface ReviewR3Gateway {
   hydrate(): Promise<ReviewR3SessionView | null>;
   submitWriting(input: ReviewR3WritingSubmission): Promise<ReviewR3GatewayResult>;
   submitAudioCheck(input: ReviewR3AudioSubmission): Promise<ReviewR3GatewayResult>;
+  confirmSuggestion(input: ReviewR31DecisionSubmission): Promise<ReviewR3GatewayResult>;
+  answerAttemptQuestion(input: ReviewR31DecisionSubmission): Promise<ReviewR3GatewayResult>;
+  confirmWritingSpan(input: ReviewR31SpanSubmission): Promise<ReviewR3GatewayResult>;
 }

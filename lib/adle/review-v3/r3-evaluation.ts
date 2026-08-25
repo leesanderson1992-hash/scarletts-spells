@@ -7,6 +7,7 @@ import {
   findExactReviewTargetMatches,
   normalizeReviewSpellingText,
   tokenizeReviewWriting,
+  type ReviewWritingToken,
 } from "./target-word-matcher";
 
 export const REVIEW_MISSPELLING_ATTRIBUTION_VERSION =
@@ -20,6 +21,15 @@ export interface GovernedReviewMisspellingMapping {
   dialectCode: string;
   normalizationVersion: string;
   authorityReference: string;
+  authorityLevel?: "global_canonical" | "learner_confirmed";
+  sourceReviewEncounterId?: string;
+}
+
+export interface NonAuthoritativeReviewSuggestion {
+  observedNormalized: string;
+  correctSpellingNormalized: string;
+  resolverVersion: string;
+  source: "heuristic_correction_resolver" | "canonical_mapping_recommendation";
 }
 
 export interface ReviewWritingEvaluation {
@@ -31,6 +41,11 @@ export interface ReviewWritingEvaluation {
   attributionProvenance: Readonly<Record<string, ReviewSnapshotJsonValue>>;
 }
 
+export interface ReviewWritingConfirmationFlow {
+  learnerConfirmedMappings?: readonly GovernedReviewMisspellingMapping[];
+  nonAuthoritativeSuggestions?: readonly NonAuthoritativeReviewSuggestion[];
+}
+
 function resolverLookupToken(value: string): string | null {
   const normalized = normalizeReviewSpellingText(value).trim();
   return /^[a-z]+$/.test(normalized) ? normalized : null;
@@ -40,6 +55,7 @@ export function evaluateSubmittedReviewWriting(input: {
   writing: string;
   targets: readonly ReviewTargetSnapshotV3[];
   governedMappings: readonly GovernedReviewMisspellingMapping[];
+  confirmationFlow?: ReviewWritingConfirmationFlow;
 }): ReviewWritingEvaluation[] {
   const exactMatches = findExactReviewTargetMatches(input.writing, input.targets);
   const exactByEncounter = new Map(exactMatches.map((match) => [match.encounterId, match]));
@@ -55,15 +71,28 @@ export function evaluateSubmittedReviewWriting(input: {
   }
 
   const tokens = tokenizeReviewWriting(input.writing);
+  const automaticMappings = [
+    ...input.governedMappings.map((mapping) => ({
+      ...mapping,
+      authorityLevel: mapping.authorityLevel ?? "global_canonical" as const,
+    })),
+    ...(input.confirmationFlow?.learnerConfirmedMappings ?? []).map((mapping) => ({
+      ...mapping,
+      authorityLevel: "learner_confirmed" as const,
+    })),
+  ];
   const attributableByEncounter = new Map<string, {
     token: string;
     tokenIndex: number;
+    startOffset: number;
+    endOffset: number;
     mappings: GovernedReviewMisspellingMapping[];
   }>();
+  const consumedTokenIndexes = new Set<number>();
 
   for (const token of tokens) {
     if (!/^[a-z]+$/.test(token.normalized)) continue;
-    const mappings = input.governedMappings.filter((mapping) =>
+    const mappings = automaticMappings.filter((mapping) =>
       mapping.misspellingNormalized === token.normalized,
     );
     const candidates = new Map<string, {
@@ -83,8 +112,38 @@ export function evaluateSubmittedReviewWriting(input: {
       attributableByEncounter.set(target.encounterId, {
         token: token.surface,
         tokenIndex: token.index,
+        startOffset: token.startOffset,
+        endOffset: token.endOffset,
         mappings: targetMappings,
       });
+      consumedTokenIndexes.add(token.index);
+    }
+  }
+
+  const suggestionByEncounter = new Map<string, {
+    token: ReviewWritingToken;
+    suggestion: NonAuthoritativeReviewSuggestion;
+  }>();
+  if (input.confirmationFlow) {
+    for (const token of tokens) {
+      if (consumedTokenIndexes.has(token.index)) continue;
+      const tokenSuggestions = (input.confirmationFlow.nonAuthoritativeSuggestions ?? [])
+        .filter((suggestion) => suggestion.observedNormalized === token.normalized);
+      const candidates = new Map<string, {
+        target: ReviewTargetSnapshotV3;
+        suggestion: NonAuthoritativeReviewSuggestion;
+      }>();
+      for (const suggestion of tokenSuggestions) {
+        for (const target of absentByNormalizedAnswer.get(suggestion.correctSpellingNormalized) ?? []) {
+          if (attributableByEncounter.has(target.encounterId)) continue;
+          candidates.set(target.encounterId, { target, suggestion });
+        }
+      }
+      if (candidates.size !== 1) continue;
+      const [{ target, suggestion }] = [...candidates.values()];
+      if (!suggestionByEncounter.has(target.encounterId)) {
+        suggestionByEncounter.set(target.encounterId, { token, suggestion });
+      }
     }
   }
 
@@ -103,6 +162,9 @@ export function evaluateSubmittedReviewWriting(input: {
             matcherVersion: REVIEW_EXACT_MATCHER_VERSION,
             tokenStart: exact.tokenStart,
             tokenEndExclusive: exact.tokenEndExclusive,
+            authorityLevel: "accepted_spelling",
+            matchedSpanStart: exact.startOffset,
+            matchedSpanEnd: exact.endOffset,
           },
         };
       }
@@ -119,6 +181,36 @@ export function evaluateSubmittedReviewWriting(input: {
             mappingIds: attributable.mappings.map((mapping) => mapping.mappingId),
             authorityReferences: attributable.mappings.map((mapping) => mapping.authorityReference),
             normalizationVersion: attributable.mappings[0]?.normalizationVersion ?? "spelling_normalize_v1",
+            authorityLevel: attributable.mappings.some((mapping) =>
+              mapping.authorityLevel === "global_canonical"
+            ) ? "authoritative_misspelling" : "learner_specific_authoritative_misspelling",
+            sourceReviewEncounterIds: attributable.mappings.flatMap((mapping) =>
+              mapping.sourceReviewEncounterId ? [mapping.sourceReviewEncounterId] : []
+            ),
+            confirmedSpanStart: attributable.startOffset,
+            confirmedSpanEnd: attributable.endOffset,
+          },
+        };
+      }
+      const suggestion = suggestionByEncounter.get(target.encounterId);
+      if (suggestion) {
+        return {
+          encounterId: target.encounterId,
+          targetOrder: target.order,
+          disposition: "unaccounted_for",
+          observedText: suggestion.token.surface,
+          attributionAlgorithmVersion: REVIEW_MISSPELLING_ATTRIBUTION_VERSION,
+          attributionProvenance: {
+            classification: "non_authoritative_suggestion_requires_learner_confirmation",
+            authorityLevel: "non_authoritative_suggestion",
+            r31ConfirmationState: "suggestion_confirmation_required",
+            observedText: suggestion.token.surface,
+            observedNormalized: suggestion.token.normalized,
+            suggestedCorrectSpellingNormalized: suggestion.suggestion.correctSpellingNormalized,
+            resolverVersion: suggestion.suggestion.resolverVersion,
+            resolverSource: suggestion.suggestion.source,
+            suggestedSpanStart: suggestion.token.startOffset,
+            suggestedSpanEnd: suggestion.token.endOffset,
           },
         };
       }
@@ -129,7 +221,13 @@ export function evaluateSubmittedReviewWriting(input: {
         observedText: null,
         attributionAlgorithmVersion: REVIEW_MISSPELLING_ATTRIBUTION_VERSION,
         attributionProvenance: {
-          classification: "conservative_unresolved_no_unique_governed_mapping",
+          classification: input.confirmationFlow
+            ? "unknown_requires_learner_attempt_question"
+            : "conservative_unresolved_no_unique_governed_mapping",
+          ...(input.confirmationFlow ? {
+            authorityLevel: "unknown",
+            r31ConfirmationState: "attempt_question_required",
+          } : {}),
         },
       };
     });

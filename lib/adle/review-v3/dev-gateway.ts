@@ -31,6 +31,15 @@ export function reviewR3DevelopmentGateway(): ReviewR3Gateway {
     submitAudioCheck(input: ReviewR3AudioSubmission) {
       return post({ action: "submit_audio_check", ...input });
     },
+    confirmSuggestion(input) {
+      return post({ action: "confirm_suggestion", ...input });
+    },
+    answerAttemptQuestion(input) {
+      return post({ action: "answer_attempt_question", ...input });
+    },
+    confirmWritingSpan(input) {
+      return post({ action: "confirm_writing_span", ...input });
+    },
   };
 }
 

@@ -143,10 +143,17 @@ function TargetWordRetrievalChecks(props: {
   reviewSession: ReviewR3SessionView;
   gateway: ReviewR3Gateway;
   onSession: (session: ReviewR3SessionView) => void;
+  onPlayTargetAudio?: (target: ReviewTargetSnapshotV3, index: number) => void;
 }) {
   const [responses, setResponses] = useState<Record<string, string>>({});
   const [submittingEncounterId, setSubmittingEncounterId] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
+  const [attributionSubmitting, setAttributionSubmitting] = useState(false);
+  const [selectedSpan, setSelectedSpan] = useState<{
+    startOffset: number;
+    endOffset: number;
+    text: string;
+  } | null>(null);
   const encounterById = new Map(props.reviewSession.encounters.map((encounter) => [
     encounter.encounterId,
     encounter,
@@ -163,6 +170,77 @@ function TargetWordRetrievalChecks(props: {
   const repairCount = props.reviewSession.encounters.filter((encounter) =>
     encounter.repairRequired,
   ).length;
+  const pendingAttribution = props.reviewSession.encounters.find((encounter) =>
+    encounter.writingAttributionPrompt !== null,
+  ) ?? null;
+  const pendingAttributionTarget = pendingAttribution === null
+    ? null
+    : props.snapshot.targets.find((target) => target.encounterId === pendingAttribution.encounterId) ?? null;
+
+  function captureSelectedSpan(element: HTMLTextAreaElement) {
+    const startOffset = element.selectionStart;
+    const endOffset = element.selectionEnd;
+    setSelectedSpan(endOffset > startOffset ? {
+      startOffset,
+      endOffset,
+      text: element.value.slice(startOffset, endOffset),
+    } : null);
+  }
+
+  async function submitAttributionDecision(
+    kind: "suggestion" | "attempt",
+    decision: "yes" | "no",
+  ) {
+    if (!pendingAttribution || attributionSubmitting) return;
+    setAttributionSubmitting(true);
+    setMessage(null);
+    try {
+      const input = {
+        encounterId: pendingAttribution.encounterId,
+        decision,
+        idempotencyKey: `review-r31:${kind}:${props.reviewSession.snapshotFingerprint}:${pendingAttribution.encounterId}`,
+      };
+      const result = kind === "suggestion"
+        ? await props.gateway.confirmSuggestion(input)
+        : await props.gateway.answerAttemptQuestion(input);
+      if (result.ok) {
+        setSelectedSpan(null);
+        props.onSession(result.session);
+      }
+      else setMessage(result.code === "attribution_confirmation_conflict"
+        ? "That answer is already locked."
+        : "That answer could not be saved. Please reload and try again.");
+    } catch {
+      setMessage("That answer could not be saved. Please reload and try again.");
+    } finally {
+      setAttributionSubmitting(false);
+    }
+  }
+
+  async function submitSelectedSpan() {
+    if (!pendingAttribution || !selectedSpan || attributionSubmitting) return;
+    setAttributionSubmitting(true);
+    setMessage(null);
+    try {
+      const result = await props.gateway.confirmWritingSpan({
+        encounterId: pendingAttribution.encounterId,
+        startOffset: selectedSpan.startOffset,
+        endOffset: selectedSpan.endOffset,
+        idempotencyKey: `review-r31:span:${props.reviewSession.snapshotFingerprint}:${pendingAttribution.encounterId}`,
+      });
+      if (result.ok) {
+        setSelectedSpan(null);
+        props.onSession(result.session);
+      }
+      else setMessage(result.code === "writing_span_already_consumed"
+        ? "That part of the writing is already linked to another Target Word."
+        : "Select one word or a continuous group of words from your writing.");
+    } catch {
+      setMessage("That selection could not be saved. Please reload and try again.");
+    } finally {
+      setAttributionSubmitting(false);
+    }
+  }
 
   async function submitAudioCheck(encounterId: string) {
     const response = responses[encounterId] ?? "";
@@ -199,7 +277,88 @@ function TargetWordRetrievalChecks(props: {
         </p>
       </header>
 
-      {unresolvedTargets.map((target) => {
+      {pendingAttribution && pendingAttributionTarget ? (
+        <section className="brand-card grid gap-5 rounded-lg p-5" aria-label="Target Word writing check">
+          <div className="flex items-center justify-between gap-3">
+            <p className="font-semibold text-[color:var(--ink)]">Target Word {pendingAttribution.targetOrder}</p>
+          </div>
+          {pendingAttribution.writingAttributionPrompt?.kind === "confirm_suggestion" ? (
+            <div className="grid gap-4">
+              <p className="text-lg leading-7 text-[color:var(--ink)]">
+                Did you mean{" "}
+                <span className="mx-1 inline-flex align-middle">
+                  <TargetAudioButton
+                    index={pendingAttribution.targetOrder - 1}
+                    target={pendingAttributionTarget}
+                    onPlay={props.onPlayTargetAudio}
+                  />
+                </span>
+                {" "}when you wrote <strong>&ldquo;{pendingAttribution.writingAttributionPrompt.observedText}&rdquo;</strong>?
+              </p>
+              <div className="flex flex-wrap gap-3">
+                <button type="button" className="brand-primary-btn" disabled={attributionSubmitting}
+                  onClick={() => void submitAttributionDecision("suggestion", "yes")}>Yes</button>
+                <button type="button" className="brand-secondary-btn" disabled={attributionSubmitting}
+                  onClick={() => void submitAttributionDecision("suggestion", "no")}>No</button>
+              </div>
+            </div>
+          ) : pendingAttribution.writingAttributionPrompt?.kind === "ask_attempt" ? (
+            <div className="grid gap-4">
+              <p className="text-lg leading-7 text-[color:var(--ink)]">
+                Did you try to use{" "}
+                <span className="mx-1 inline-flex align-middle">
+                  <TargetAudioButton
+                    index={pendingAttribution.targetOrder - 1}
+                    target={pendingAttributionTarget}
+                    onPlay={props.onPlayTargetAudio}
+                  />
+                </span>
+                {" "}in your writing?
+              </p>
+              <div className="flex flex-wrap gap-3">
+                <button type="button" className="brand-primary-btn" disabled={attributionSubmitting}
+                  onClick={() => void submitAttributionDecision("attempt", "yes")}>Yes</button>
+                <button type="button" className="brand-secondary-btn" disabled={attributionSubmitting}
+                  onClick={() => void submitAttributionDecision("attempt", "no")}>No</button>
+              </div>
+            </div>
+          ) : (
+            <div className="grid gap-4">
+              <div>
+                <p className="text-lg font-semibold leading-7 text-[color:var(--ink)]">
+                  Select the word you meant for{" "}
+                  <span className="mx-1 inline-flex align-middle">
+                    <TargetAudioButton
+                      index={pendingAttribution.targetOrder - 1}
+                      target={pendingAttributionTarget}
+                      onPlay={props.onPlayTargetAudio}
+                    />
+                  </span>
+                  .
+                </p>
+                <p className="mt-1 text-sm leading-6 text-[color:var(--mid)]">Highlight one word or a continuous group of words in your submitted writing.</p>
+              </div>
+              <textarea
+                value={props.reviewSession.submittedWritingText ?? ""}
+                readOnly
+                spellCheck={false}
+                aria-label="Select your attempted Target Word from the submitted writing"
+                className="brand-textarea min-h-48 resize-y rounded-lg p-4 text-lg leading-8"
+                onSelect={(event) => captureSelectedSpan(event.currentTarget)}
+                onKeyUp={(event) => captureSelectedSpan(event.currentTarget)}
+                onPointerUp={(event) => captureSelectedSpan(event.currentTarget)}
+              />
+              {selectedSpan ? <p className="text-sm text-[color:var(--mid)]">Selected: <strong>{selectedSpan.text}</strong></p> : null}
+              <button type="button" className="brand-primary-btn justify-self-start"
+                disabled={!selectedSpan || attributionSubmitting} onClick={() => void submitSelectedSpan()}>
+                Confirm selection
+              </button>
+            </div>
+          )}
+        </section>
+      ) : null}
+
+      {pendingAttribution === null ? unresolvedTargets.map((target) => {
         const encounter = encounterById.get(target.encounterId);
         if (!encounter) return null;
         const locked = encounter.audioCheckLocked;
@@ -210,6 +369,7 @@ function TargetWordRetrievalChecks(props: {
               <TargetAudioButton
                 index={target.order - 1}
                 target={target}
+                onPlay={props.onPlayTargetAudio}
               />
             </div>
             <label className="grid gap-2 text-sm font-semibold text-[color:var(--mid)]">
@@ -249,9 +409,9 @@ function TargetWordRetrievalChecks(props: {
             )}
           </section>
         );
-      })}
+      }) : null}
 
-      {remainingChecks === 0 ? (
+      {pendingAttribution === null && remainingChecks === 0 ? (
         <section className="rounded-lg border border-[var(--border)] bg-[var(--mist)] p-5" role="status">
           <p className="font-semibold text-[color:var(--ink)]">All original retrieval checks are locked.</p>
           <p className="mt-1 text-sm text-[color:var(--mid)]">
@@ -638,6 +798,7 @@ export function ReviewFreeWritingActivity(props: ReviewFreeWritingActivityProps)
         reviewSession={reviewR3Session}
         gateway={props.reviewR3Gateway}
         onSession={setReviewR3Session}
+        onPlayTargetAudio={props.onPlayTargetAudio}
       />
     );
   }

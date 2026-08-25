@@ -7,6 +7,9 @@ import {
   reviewR3SessionView,
   submitReviewR3AudioCheck,
   submitReviewR3Writing,
+  answerReviewR31AttemptQuestion,
+  answerReviewR31Suggestion,
+  confirmReviewR31WritingSpan,
   type ReviewR3StoredState,
 } from "./r3-state";
 import type {
@@ -14,6 +17,8 @@ import type {
   ReviewR3GatewayResult,
   ReviewR3SessionView,
   ReviewR3WritingSubmission,
+  ReviewR31DecisionSubmission,
+  ReviewR31SpanSubmission,
 } from "./r3-contracts";
 
 const snapshot = reviewWritingChallengeDevSnapshot();
@@ -27,7 +32,22 @@ const DEV_GOVERNED_MAPPINGS = [
     normalizationVersion: "spelling_normalize_v1",
     authorityReference: "dev:resolver-visible-token-safe:neccesary",
   },
+  {
+    mappingId: "dev-governed-nesessary",
+    misspellingNormalized: "nesessary",
+    correctSpellingNormalized: "necessary",
+    microSkillKey: "DEV_REVIEW",
+    dialectCode: "en-GB",
+    normalizationVersion: "spelling_normalize_v1",
+    authorityReference: "dev:resolver-visible-token-safe:nesessary",
+  },
 ] as const;
+const DEV_SUGGESTIONS = [{
+  observedNormalized: "buisness",
+  correctSpellingNormalized: "business",
+  resolverVersion: "dev-non-authoritative-suggestion-v1",
+  source: "heuristic_correction_resolver" as const,
+}];
 
 declare global {
   // Development-only server memory lets browser checks prove fresh-page hydration.
@@ -55,8 +75,33 @@ export function submitReviewR3DevWriting(
       writing: submission.finalWriting,
       targets: snapshot.targets,
       governedMappings: DEV_GOVERNED_MAPPINGS,
+      confirmationFlow: { nonAuthoritativeSuggestions: DEV_SUGGESTIONS },
     }),
   });
+  if (transition.result.ok) globalThis.__adleReviewR3DevState = transition.state;
+  return transition.result;
+}
+
+export function answerReviewR31DevSuggestion(
+  submission: ReviewR31DecisionSubmission,
+): ReviewR3GatewayResult {
+  const transition = answerReviewR31Suggestion({ snapshot, state: currentState(), submission });
+  if (transition.result.ok) globalThis.__adleReviewR3DevState = transition.state;
+  return transition.result;
+}
+
+export function answerReviewR31DevAttemptQuestion(
+  submission: ReviewR31DecisionSubmission,
+): ReviewR3GatewayResult {
+  const transition = answerReviewR31AttemptQuestion({ snapshot, state: currentState(), submission });
+  if (transition.result.ok) globalThis.__adleReviewR3DevState = transition.state;
+  return transition.result;
+}
+
+export function confirmReviewR31DevWritingSpan(
+  submission: ReviewR31SpanSubmission,
+): ReviewR3GatewayResult {
+  const transition = confirmReviewR31WritingSpan({ snapshot, state: currentState(), submission });
   if (transition.result.ok) globalThis.__adleReviewR3DevState = transition.state;
   return transition.result;
 }

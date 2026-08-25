@@ -5,6 +5,9 @@ import {
   resetReviewR3DevSession,
   submitReviewR3DevAudio,
   submitReviewR3DevWriting,
+  answerReviewR31DevAttemptQuestion,
+  answerReviewR31DevSuggestion,
+  confirmReviewR31DevWritingSpan,
 } from "@/lib/adle/review-v3/dev-store";
 
 function unavailable() {
@@ -29,6 +32,24 @@ export async function POST(request: Request) {
     return NextResponse.json(submitReviewR3DevAudio({
       encounterId: String(body.encounterId ?? ""),
       response: String(body.response ?? ""),
+      idempotencyKey: String(body.idempotencyKey ?? ""),
+    }));
+  }
+  if (body.action === "confirm_suggestion" || body.action === "answer_attempt_question") {
+    const submission = {
+      encounterId: String(body.encounterId ?? ""),
+      decision: body.decision === "yes" ? "yes" as const : "no" as const,
+      idempotencyKey: String(body.idempotencyKey ?? ""),
+    };
+    return NextResponse.json(body.action === "confirm_suggestion"
+      ? answerReviewR31DevSuggestion(submission)
+      : answerReviewR31DevAttemptQuestion(submission));
+  }
+  if (body.action === "confirm_writing_span") {
+    return NextResponse.json(confirmReviewR31DevWritingSpan({
+      encounterId: String(body.encounterId ?? ""),
+      startOffset: Number(body.startOffset),
+      endOffset: Number(body.endOffset),
       idempotencyKey: String(body.idempotencyKey ?? ""),
     }));
   }

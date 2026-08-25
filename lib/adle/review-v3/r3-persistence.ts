@@ -11,6 +11,8 @@ import type {
   ReviewR3GatewayResult,
   ReviewR3SessionView,
   ReviewR3WritingSubmission,
+  ReviewR31DecisionSubmission,
+  ReviewR31SpanSubmission,
 } from "./r3-contracts";
 import { evaluateSubmittedReviewWritingServer } from "./server-evaluation";
 import {
@@ -18,7 +20,10 @@ import {
   type ReviewR3StoredAudioAttempt,
   type ReviewR3StoredState,
 } from "./r3-state";
-import { isExactReviewAudioResponse } from "./target-word-matcher";
+import {
+  isExactReviewAudioResponse,
+  validateReviewWritingSelection,
+} from "./target-word-matcher";
 
 type SessionRow = {
   id: string;
@@ -126,6 +131,8 @@ export async function submitReviewR3WritingDurably(input: {
   const evaluations = await evaluateSubmittedReviewWritingServer({
     writing: input.submission.finalWriting,
     targets: input.snapshot.targets,
+    client: input.client,
+    reviewSessionId: input.reviewSessionId,
   });
   const { data, error } = await input.client.rpc("submit_adle_review_writing_r3", {
     p_review_session_id: input.reviewSessionId,
@@ -183,4 +190,103 @@ export async function submitReviewR3AudioCheckDurably(input: {
   }
   const session = await hydrateReviewR3Session(input);
   return { ok: true, session, replayed: Boolean((data as { replayed?: boolean } | null)?.replayed) };
+}
+
+async function transitionReviewR31AttributionDurably(input: {
+  client: SupabaseClient;
+  snapshot: CompiledReviewSnapshotV3;
+  reviewSessionId: string;
+  encounterId: string;
+  transitionKind:
+    | "confirm_writing_suggestion"
+    | "answer_writing_attempt_question"
+    | "confirm_writing_span";
+  decision?: "yes" | "no";
+  startOffset?: number;
+  endOffset?: number;
+  selectedText?: string;
+  idempotencyKey: string;
+}): Promise<ReviewR3GatewayResult> {
+  const { data, error } = await input.client.rpc("transition_adle_review_writing_attribution_r31", {
+    p_review_session_id: input.reviewSessionId,
+    p_encounter_id: input.encounterId,
+    p_snapshot_fingerprint: input.snapshot.provenance.sourceFingerprint,
+    p_transition_kind: input.transitionKind,
+    p_decision: input.decision ?? null,
+    p_start_offset: input.startOffset ?? null,
+    p_end_offset: input.endOffset ?? null,
+    p_selected_text: input.selectedText ?? null,
+    p_idempotency_key: input.idempotencyKey,
+  });
+  if (error) {
+    const codes = [
+      "attribution_confirmation_not_eligible",
+      "attribution_confirmation_conflict",
+      "invalid_writing_span",
+      "writing_span_already_consumed",
+    ] as const;
+    const code = codes.find((candidate) => error.message.includes(candidate));
+    if (code) return { ok: false, code };
+    if (error.message.includes("review_encounter_not_found")) {
+      return { ok: false, code: "encounter_not_found" };
+    }
+    persistenceFailure(error);
+  }
+  const session = await hydrateReviewR3Session(input);
+  return { ok: true, session, replayed: Boolean((data as { replayed?: boolean } | null)?.replayed) };
+}
+
+export function confirmReviewR31SuggestionDurably(input: {
+  client: SupabaseClient;
+  snapshot: CompiledReviewSnapshotV3;
+  reviewSessionId: string;
+  submission: ReviewR31DecisionSubmission;
+}) {
+  return transitionReviewR31AttributionDurably({
+    ...input,
+    encounterId: input.submission.encounterId,
+    transitionKind: "confirm_writing_suggestion",
+    decision: input.submission.decision,
+    idempotencyKey: input.submission.idempotencyKey,
+  });
+}
+
+export function answerReviewR31AttemptQuestionDurably(input: {
+  client: SupabaseClient;
+  snapshot: CompiledReviewSnapshotV3;
+  reviewSessionId: string;
+  submission: ReviewR31DecisionSubmission;
+}) {
+  return transitionReviewR31AttributionDurably({
+    ...input,
+    encounterId: input.submission.encounterId,
+    transitionKind: "answer_writing_attempt_question",
+    decision: input.submission.decision,
+    idempotencyKey: input.submission.idempotencyKey,
+  });
+}
+
+export async function confirmReviewR31WritingSpanDurably(input: {
+  client: SupabaseClient;
+  snapshot: CompiledReviewSnapshotV3;
+  reviewSessionId: string;
+  submission: ReviewR31SpanSubmission;
+}): Promise<ReviewR3GatewayResult> {
+  const session = await hydrateReviewR3Session(input);
+  if (session.submittedWritingText === null) return { ok: false, code: "writing_not_submitted" };
+  const selection = validateReviewWritingSelection(
+    session.submittedWritingText,
+    input.submission.startOffset,
+    input.submission.endOffset,
+  );
+  if (!selection) return { ok: false, code: "invalid_writing_span" };
+  return transitionReviewR31AttributionDurably({
+    ...input,
+    encounterId: input.submission.encounterId,
+    transitionKind: "confirm_writing_span",
+    startOffset: selection.startOffset,
+    endOffset: selection.endOffset,
+    selectedText: selection.text,
+    idempotencyKey: input.submission.idempotencyKey,
+  });
 }
