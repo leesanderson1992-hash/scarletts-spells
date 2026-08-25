@@ -138,6 +138,7 @@ export function reviewR3SessionView(
           repairRequired:
             encounter.originalOutcome === "failure" &&
             encounter.repairState === "required",
+          repairState: encounter.repairState,
           writingAttributionPrompt: attributionPrompt(encounter),
           confirmedWritingAttempt: encounter.originalOutcomeSource === "writing"
             ? provenanceString(encounter, "observedText")

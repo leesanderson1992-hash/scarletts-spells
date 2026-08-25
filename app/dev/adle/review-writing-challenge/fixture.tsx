@@ -7,6 +7,7 @@ import type { CompiledReviewSnapshotV3 } from "@/lib/adle/review-v3/contracts";
 import {
   resetReviewR3DevelopmentGateway,
   reviewR3DevelopmentGateway,
+  reviewR4DevelopmentGateway,
 } from "@/lib/adle/review-v3/dev-gateway";
 import {
   browserReviewWritingChallengeDraftStore,
@@ -18,6 +19,7 @@ export function ReviewWritingChallengeDevFixture(props: {
   snapshot: CompiledReviewSnapshotV3;
 }) {
   const reviewR3Gateway = useMemo(() => reviewR3DevelopmentGateway(), []);
+  const reviewR4Gateway = useMemo(() => reviewR4DevelopmentGateway(), []);
   const [draftStore, setDraftStore] = useState<ReviewWritingChallengeDraftStore | null>(null);
   useEffect(() => {
     let active = true;
@@ -53,6 +55,7 @@ export function ReviewWritingChallengeDevFixture(props: {
       snapshot={props.snapshot}
       draftStore={draftStore}
       reviewR3Gateway={reviewR3Gateway}
+      reviewR4Gateway={reviewR4Gateway}
       requestParentReauthenticatedExtension={async () => true}
     />
   );

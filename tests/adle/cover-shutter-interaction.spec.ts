@@ -10,6 +10,7 @@ async function openFixture(page: Page) {
   return {
     fixture,
     shutter: fixture.locator('button[aria-label^="Slide the cover"]'),
+    checkpoints: fixture.getByTestId("dynamic-prefix-cover-checkpoints"),
     completions: fixture.getByTestId("dynamic-prefix-cover-completions"),
   };
 }
@@ -55,14 +56,17 @@ async function assertPointerBoundaries(page: Page, pointerType: PointerKind) {
   await below.shutter.dispatchEvent("pointermove", { ...eventBase, buttons: 1, clientX: belowEndX, clientY: below.y });
   await below.shutter.dispatchEvent("pointerup", { ...eventBase, buttons: 0, clientX: belowEndX, clientY: below.y });
   await expect(below.fixture.locator("[data-cover-state='look']")).toBeVisible();
-  await expect(below.fixture.locator("p.text-4xl")).toBeVisible();
+  await expect(below.fixture.locator(".text-4xl")).toBeVisible();
   await expect(below.shutter).toHaveCSS("transform", openTransform);
   await expect(below.completions).toHaveText("0");
 
   const exact = await dispatchPointer(page, 0.8, pointerType, "up_only");
   await expect(exact.shutter).toHaveCSS("transform", "matrix(1, 0, 0, 1, 0, 0)");
   await expect(exact.fixture.locator("[data-cover-state='write']")).toBeVisible();
-  await expect(exact.fixture.locator("p.text-4xl")).toHaveCount(0);
+  await expect(exact.fixture.locator(".text-4xl")).toHaveCount(0);
+  await expect(exact.fixture.getByText("unhappy", { exact: true })).toHaveCount(0);
+  await expect(exact.fixture.locator('[aria-label*="unhappy" i], [title*="unhappy" i]')).toHaveCount(0);
+  await expect(exact.checkpoints).toHaveText("1");
   const input = exact.fixture.getByLabel("Type the whole word");
   await expect(input).toBeVisible();
   await expect(exact.completions).toHaveText("0");
@@ -76,9 +80,11 @@ async function assertPointerBoundaries(page: Page, pointerType: PointerKind) {
   const exactMoveEndX = exactMove.startX + (exactMove.track * 0.8);
   await exactMove.shutter.dispatchEvent("pointerdown", { ...eventBase, buttons: 1, clientX: exactMove.startX, clientY: exactMove.y });
   await exactMove.shutter.dispatchEvent("pointermove", { ...eventBase, buttons: 1, clientX: exactMoveEndX, clientY: exactMove.y });
+  await exactMove.shutter.dispatchEvent("pointerup", { ...eventBase, buttons: 0, clientX: exactMoveEndX, clientY: exactMove.y });
   await expect(exactMove.shutter).toHaveCSS("transform", "matrix(1, 0, 0, 1, 0, 0)");
   await expect(exactMove.fixture.locator("[data-cover-state='write']")).toBeVisible();
   await expect(exactMove.completions).toHaveText("0");
+  await expect(exactMove.checkpoints).toHaveText("1");
 
   const above = await pointerCoordinates(page);
   const aboveEndX = above.startX + (above.track * 0.9);
@@ -86,7 +92,7 @@ async function assertPointerBoundaries(page: Page, pointerType: PointerKind) {
   await above.shutter.dispatchEvent("pointermove", { ...eventBase, buttons: 1, clientX: aboveEndX, clientY: above.y });
   await expect(above.shutter).toHaveCSS("transform", "matrix(1, 0, 0, 1, 0, 0)");
   await expect(above.fixture.locator("[data-cover-state='write']")).toBeVisible();
-  await expect(above.fixture.locator("p.text-4xl")).toHaveCount(0);
+  await expect(above.fixture.locator(".text-4xl")).toHaveCount(0);
   await expect(above.completions).toHaveText("0");
 }
 
@@ -108,9 +114,21 @@ test.describe("Dynamic Prefix Cover track-ratio policy", () => {
       await shutter.focus();
       await shutter.press(key);
       await expect(fixture.locator("[data-cover-state='write']")).toBeVisible();
-      await expect(fixture.locator("p.text-4xl")).toHaveCount(0);
+      await expect(fixture.locator(".text-4xl")).toHaveCount(0);
       await expect(fixture.getByLabel("Type the whole word")).toBeVisible();
       await expect(completions).toHaveText("0");
     }
+  });
+
+  test("reduced motion awaits one durable cover checkpoint and rejects repeated keyboard closure", async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== "desktop-chromium");
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    const { fixture, shutter, checkpoints, completions } = await openFixture(page);
+    await shutter.focus();
+    await shutter.press("Enter");
+    await shutter.press("Enter");
+    await expect(fixture.locator("[data-cover-state='write']")).toBeVisible();
+    await expect(checkpoints).toHaveText("1");
+    await expect(completions).toHaveText("0");
   });
 });

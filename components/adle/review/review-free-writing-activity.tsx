@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 
-import { speakAuthoredNarration } from "@/components/adle/activities/shared/narration";
 import {
   REVIEW_CHALLENGE_TYPES,
   type CompiledReviewSnapshotV3,
@@ -13,6 +12,10 @@ import type {
   ReviewR3Gateway,
   ReviewR3SessionView,
 } from "@/lib/adle/review-v3/r3-contracts";
+import { participatesInReviewRepair } from "@/lib/adle/review-v3/r3-contracts";
+import type { ReviewR4Gateway } from "@/lib/adle/review-v3/r4-contracts";
+import { WordReflectionRepair } from "./word-reflection-repair";
+import { TargetAudioButton } from "./target-audio-button";
 import { exactReviewTargetIds } from "@/lib/adle/review-v3/target-word-matcher";
 import {
   createReviewWritingChallengeDraftEnvelope,
@@ -112,36 +115,11 @@ function useWritingClock(session: ReviewWritingChallengeSessionV1): number {
   return now;
 }
 
-function TargetAudioButton(props: {
-  index: number;
-  target: ReviewTargetSnapshotV3;
-  onPlay?: (target: ReviewTargetSnapshotV3, index: number) => void;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={() => {
-        if (props.onPlay) {
-          props.onPlay(props.target, props.index);
-          return;
-        }
-        if (props.target.audioAuthority.kind === "speech_text") {
-          speakAuthoredNarration(props.target.audioAuthority.speechText ?? "", "word");
-        }
-      }}
-      className="grid h-11 w-11 place-items-center rounded-full border border-[var(--border)] bg-white text-lg text-[color:var(--scarlett)] shadow-sm transition hover:border-[color:var(--scarlett)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[rgba(194,24,91,0.2)]"
-      aria-label={`Play target word ${props.index + 1}`}
-      title={`Play target word ${props.index + 1}`}
-    >
-      <span aria-hidden="true">🔊</span>
-    </button>
-  );
-}
-
 function TargetWordRetrievalChecks(props: {
   snapshot: CompiledReviewSnapshotV3;
   reviewSession: ReviewR3SessionView;
   gateway: ReviewR3Gateway;
+  repairGateway?: ReviewR4Gateway;
   onSession: (session: ReviewR3SessionView) => void;
   onPlayTargetAudio?: (target: ReviewTargetSnapshotV3, index: number) => void;
 }) {
@@ -167,15 +145,24 @@ function TargetWordRetrievalChecks(props: {
   const remainingChecks = props.reviewSession.encounters.filter((encounter) =>
     encounter.audioCheckEligible,
   ).length;
-  const repairCount = props.reviewSession.encounters.filter((encounter) =>
-    encounter.repairRequired,
-  ).length;
+  const repairCount = props.reviewSession.encounters.filter(participatesInReviewRepair).length;
   const pendingAttribution = props.reviewSession.encounters.find((encounter) =>
     encounter.writingAttributionPrompt !== null,
   ) ?? null;
   const pendingAttributionTarget = pendingAttribution === null
     ? null
     : props.snapshot.targets.find((target) => target.encounterId === pendingAttribution.encounterId) ?? null;
+
+  if (pendingAttribution === null && remainingChecks === 0 && repairCount > 0 && props.repairGateway) {
+    return (
+      <WordReflectionRepair
+        snapshot={props.snapshot}
+        reviewSession={props.reviewSession}
+        gateway={props.repairGateway}
+        onPlayTargetAudio={props.onPlayTargetAudio}
+      />
+    );
+  }
 
   function captureSelectedSpan(element: HTMLTextAreaElement) {
     const startOffset = element.selectionStart;
@@ -607,6 +594,7 @@ export interface ReviewFreeWritingActivityProps {
   requestParentReauthenticatedExtension?: (extensionSeconds: 300 | 600 | 900) => Promise<boolean>;
   onWritingTimeFinished?: (session: ReviewWritingChallengeSessionV1) => void;
   reviewR3Gateway?: ReviewR3Gateway;
+  reviewR4Gateway?: ReviewR4Gateway;
 }
 
 /**
@@ -797,6 +785,7 @@ export function ReviewFreeWritingActivity(props: ReviewFreeWritingActivityProps)
         snapshot={snapshot}
         reviewSession={reviewR3Session}
         gateway={props.reviewR3Gateway}
+        repairGateway={props.reviewR4Gateway}
         onSession={setReviewR3Session}
         onPlayTargetAudio={props.onPlayTargetAudio}
       />

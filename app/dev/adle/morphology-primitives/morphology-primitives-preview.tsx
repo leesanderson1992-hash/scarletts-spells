@@ -55,6 +55,7 @@ export function MorphologyPrimitivesPreview(props: {
   const [guidedComplete, setGuidedComplete] = useState(false);
   const [previewReflection, setPreviewReflection] = useState("");
   const [coverCompleteCount, setCoverCompleteCount] = useState(0);
+  const [coverCheckpointCount, setCoverCheckpointCount] = useState(0);
   const longWord = props.sequences.find((sequence) => sequence.displayWord === "unnecessary");
 
   const guidedItems: AdleSessionItem[] = props.guidedPayload.activities.flatMap((activity) => activity.assignmentBindings).map((binding, index) => ({ id: `dev-item-${index}`, sourceEntityId: `dev-item-${index}`, sectionKey: binding.startsWith("controlled-") ? "lesson_production" : binding.startsWith("dictation-") ? "lesson_dictation" : binding === "intro-root" ? "lesson_intro" : "guided_practice", templateKey: binding.startsWith("controlled-") ? "CONTROLLED_SPELLING" : binding.startsWith("dictation-") ? "DICTATION_NO_IMAGE" : "MOR_STRIP_BUILD", position: index + 1, status: "ready", targetWord: null, canonicalWordId: null, microSkillKey: "D4_MOR_PREFIXES_UN", adleLearningItemRef: null, promptData: { pilotActivityId: binding } }));
@@ -81,7 +82,13 @@ export function MorphologyPrimitivesPreview(props: {
         <button type="button" className="brand-primary-btn" onClick={() => setGuided(true)}>Run guided lesson</button>
         <PreviewPanel title="Dynamic Prefix Cover threshold" caption="Development-only fixture for the Prefix 80% track-ratio policy.">
           <div data-testid="dynamic-prefix-cover-fixture">
-            <CoverShutter word="unhappy" splitPoints={[2]} closePolicy={{ kind: "track_ratio", threshold: 0.8 }} muted onComplete={() => setCoverCompleteCount((count) => count + 1)} />
+            <CoverShutter word="unhappy" splitPoints={[2]} closePolicy={{ kind: "track_ratio", threshold: 0.8 }} muted
+              onCovered={async () => {
+                await new Promise((resolve) => window.setTimeout(resolve, 40));
+                setCoverCheckpointCount((count) => count + 1);
+              }}
+              onComplete={() => setCoverCompleteCount((count) => count + 1)} />
+            <output data-testid="dynamic-prefix-cover-checkpoints" className="sr-only">{coverCheckpointCount}</output>
             <output data-testid="dynamic-prefix-cover-completions" className="sr-only">{coverCompleteCount}</output>
           </div>
         </PreviewPanel>

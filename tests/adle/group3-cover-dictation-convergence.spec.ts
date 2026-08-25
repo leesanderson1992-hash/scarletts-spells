@@ -13,11 +13,11 @@ test("canonical Cover Check enforces study, keyboard cover, recall, comparison a
   test.skip(testInfo.project.name !== "desktop-chromium");
   await openSpellGroup(page);
   const cover = candidate(page, "CoverShutter · Prefix/Affix config");
-  await expect(cover.locator("p.text-4xl")).toBeVisible();
+  await expect(cover.locator(".text-4xl")).toBeVisible();
   const shutter = cover.locator('button[aria-label^="Slide the cover"]');
   await shutter.focus();
   await shutter.press("Enter");
-  await expect(cover.locator("p.text-4xl")).toHaveCount(0);
+  await expect(cover.locator(".text-4xl")).toHaveCount(0);
   const input = cover.getByLabel("Type the whole word");
   await expect(input).toBeFocused();
   await input.fill("unkined");
