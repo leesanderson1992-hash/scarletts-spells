@@ -1463,11 +1463,11 @@ begin
   update public.daily_assignments set
     compiled_lesson_snapshot = p_snapshot,
     lesson_route_metadata = p_lesson_route_metadata,
-    target_words = array(select distinct value order by value from unnest(
+    target_words = array(select distinct value from unnest(
       target_words || array(select item->>'targetWord'
         from jsonb_array_elements(p_items) item
         where nullif(btrim(item->>'targetWord'), '') is not null)
-    ) value)
+    ) value order by value)
   where id = p_daily_assignment_id;
   for v_item in select value from jsonb_array_elements(p_items)
   loop

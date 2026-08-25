@@ -6,6 +6,8 @@ import { execFileSync } from "node:child_process";
 
 import pg from "pg";
 
+import { formatMigrationFailureDiagnostic } from "./lib/adle-review-migration-diagnostics";
+
 const PRODUCTION_PROJECT_REF = "wwohrqtunajrbwxyssjf";
 const DATABASE_URL_ENV = "SUPABASE_PRODUCTION_DB_URL_POOLER_SHARED";
 const APPROVAL_ENV = "ADLE_REVIEW_R6_GATE_A_APPROVAL";
@@ -102,7 +104,11 @@ async function main(): Promise<void> {
       return;
     }
     for (const entry of entries.slice(applied.length)) {
-      await client.query(entry.sql);
+      try {
+        await client.query(entry.sql);
+      } catch (error) {
+        throw new Error(formatMigrationFailureDiagnostic(entry.filename, entry.sql, error), { cause: error });
+      }
       const version = entry.filename.slice(0, 14);
       const name = basename(entry.filename, ".sql").slice(15);
       await client.query(
