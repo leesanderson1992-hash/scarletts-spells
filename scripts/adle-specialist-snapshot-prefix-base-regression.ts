@@ -57,7 +57,7 @@ assert(legacy.status!=="blocked"&&frozen.status!=="blocked"&&legacy.runtime.adap
 assert.equal(selectSpecialistSnapshotV3Writer({childId,routeKey:"dynamic_prefix_word_lab:v2"}),null); assert.equal(selectSpecialistSnapshotV3Writer({childId,routeKey:"base_word_lab:v2"}),null);
 let calls=0; const auth=selectSpecialistSnapshotV3Writer({childId,routeKey:"base_word_lab:v2",mode:"base_word_v2_for_current_learner",currentLearnerChildId:childId}); if (!auth) throw new Error("base writer authorization fixture failed");
 async function persistenceProof() {
-  await persistSpecialistSnapshotV3({persist:async()=>{calls++;return "eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee";}},{authorization:auth,parentUserId:parentId,childId,planDate:date,header:baseHeader,items:baseItems,intakes:[],snapshot:baseA}); assert.equal(calls,1);
+  await persistSpecialistSnapshotV3({persist:async()=>{calls++;return "eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee";}},{authorization:auth!,parentUserId:parentId,childId,planDate:date,header:baseHeader,items:baseItems,intakes:[],snapshot:baseA}); assert.equal(calls,1);
   await assert.rejects(()=>persistSpecialistSnapshotV3({persist:async()=>{calls++;return "eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee";}},{authorization:{kind:"compound_word_v2_for_current_learner",childId},parentUserId:parentId,childId,planDate:date,header:baseHeader,items:baseItems,intakes:[],snapshot:baseA})); assert.equal(calls,1);
   console.log(JSON.stringify({status:"passed",prefix:{items:prefixPersist.items.length,fingerprint:prefixA.provenance.sourceFingerprint,governedTwentyItemFingerprint:twentySnapshot.provenance.sourceFingerprint},baseWord:{items:18,fingerprint:baseA.provenance.sourceFingerprint},atomicPersistenceCalls:calls}));
 }

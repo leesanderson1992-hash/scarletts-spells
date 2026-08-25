@@ -51,9 +51,12 @@ function clueFor(stage: BaseWordFamilyResumeState["stage"]): string {
 export function BaseWordFamilyGuidedLesson(props: {
   previewId?: string; assignmentId?: string; payload: BaseWordFamilyLessonSnapshotV1;
   submitting?: boolean;
+  durableResumeState?: unknown;
+  onDurableResumeStateChange?: (state: unknown) => void;
   onPreviewComplete?: (reflection: string) => void;
   onComplete?: (input: { reflection: string; controlledAttempts: Record<string, string>; sentenceAttempts: Record<string, string> }) => void;
 }) {
+  const onDurableResumeStateChange = props.onDurableResumeStateChange;
   const resolvedLesson = resolveBaseWordFamilyLessonAuthorityV2(props.payload);
   if (!resolvedLesson) throw new Error("BaseWordFamilyGuidedLesson: malformed resolved lesson");
   const [state, setState] = useState<BaseWordFamilyResumeState>(INITIAL);
@@ -67,10 +70,10 @@ export function BaseWordFamilyGuidedLesson(props: {
     queueMicrotask(() => {
       if (!active) return;
       try {
-        const saved = window.localStorage.getItem(key);
-        const restored = saved
+        const saved = props.durableResumeState ?? window.localStorage.getItem(key);
+        const restored = typeof saved === "string"
           ? normaliseBaseWordFamilyResume(JSON.parse(saved), props.payload)
-          : null;
+          : normaliseBaseWordFamilyResume(saved, props.payload);
         if (restored) setState(restored);
       } catch {
         /* Resume is optional. */
@@ -80,8 +83,8 @@ export function BaseWordFamilyGuidedLesson(props: {
     return () => {
       active = false;
     };
-  }, [key, props.payload]);
-  useEffect(() => { if (!hydrated) return; try { window.localStorage.setItem(key, JSON.stringify(state)); } catch { /* Resume is optional. */ } }, [hydrated, key, state]);
+  }, [key, props.durableResumeState, props.payload]);
+  useEffect(() => { if (!hydrated) return; try { window.localStorage.setItem(key, JSON.stringify(state)); } catch { /* Resume is optional. */ } onDurableResumeStateChange?.(state); }, [hydrated, key, onDurableResumeStateChange, state]);
   if (!hydrated) return <div role="status" aria-live="polite" className="brand-card rounded-3xl p-8 text-center text-sm text-[color:var(--mid)]">Preparing the base-word Word Lab…</div>;
   const guidedWords = props.payload.familySections.flatMap((section) => section.guidedWords);
   const independent = props.payload.independentWords[state.stage === "controlled" ? state.controlledIndex : state.dictationIndex];

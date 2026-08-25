@@ -68,6 +68,7 @@ export function WordReflectionRepair(props: {
   reviewSession: ReviewR3SessionView;
   gateway: ReviewR4Gateway;
   onPlayTargetAudio?: (target: ReviewTargetSnapshotV3, index: number) => void;
+  onReadyToComplete?: () => Promise<void>;
 }) {
   const [session, setSession] = useState<ReviewR4SessionView | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -218,7 +219,16 @@ export function WordReflectionRepair(props: {
               ? "That word will come back again soon. Your work here is saved."
               : "Your repair work is saved and ready for the next Review step."}
           </p>
-          <p className="text-sm text-[color:var(--mid)]">Review completion will be connected in R5.</p>
+          {props.onReadyToComplete ? (
+            <button
+              type="button"
+              className="brand-primary-btn justify-self-start"
+              disabled={submitting}
+              onClick={() => void props.onReadyToComplete?.()}
+            >
+              Finish Review
+            </button>
+          ) : null}
         </section>
       </main>
     );

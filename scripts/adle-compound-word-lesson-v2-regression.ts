@@ -361,7 +361,8 @@ assert.deepEqual(snapshotResolution.runtime.resolvedLesson, resolvedLesson, "sna
 assert.deepEqual(snapshotResolution.runtime.payload, resolvedLesson.sourcePayload, "mutable item payload cannot replace the frozen specialist authority");
 
 const duplicateBinding = structuredClone(firstSnapshot);
-duplicateBinding.activities[1].itemBindings[0] = duplicateBinding.activities[0].itemBindings[0];
+(duplicateBinding.activities[1].itemBindings as Array<(typeof duplicateBinding.activities)[number]["itemBindings"][number]>)[0]
+  = duplicateBinding.activities[0].itemBindings[0];
 assert.equal(validateCompiledSpecialistSnapshotV3(duplicateBinding, {
   lessonRouteMetadata: persistence.header.lessonRouteMetadata,
   assignmentGenerationSource: persistence.header.assignmentGenerationSource,
@@ -373,7 +374,7 @@ assert.equal(selectSpecialistSnapshotV3Writer({ childId: learnerId }), null, "wr
 assert.equal(selectSpecialistSnapshotV3Writer({ childId: learnerId, mode: "off", currentLearnerChildId: learnerId }), null);
 assert.equal(selectSpecialistSnapshotV3Writer({ childId: learnerId, mode: "compound_word_v2_for_current_learner", currentLearnerChildId: "00000000-0000-4000-8000-000000000098" }), null);
 const authorization = selectSpecialistSnapshotV3Writer({ childId: learnerId, mode: "compound_word_v2_for_current_learner", currentLearnerChildId: learnerId });
-assert(authorization);
+if (!authorization) throw new Error("compound specialist writer authorization fixture failed");
 async function verifySpecialistPersistenceBoundary() {
   let persistenceCalls = 0;
   const storedId = await persistSpecialistSnapshotV3({
@@ -382,7 +383,7 @@ async function verifySpecialistPersistenceBoundary() {
       return "00000000-0000-4000-8000-000000000099";
     },
   }, {
-    authorization: { ...authorization, childId: snapshotPlan.childId },
+    authorization: { kind: "compound_word_v2_for_current_learner", childId: snapshotPlan.childId },
     parentUserId: persistence.header!.parentUserId,
     childId: snapshotPlan.childId,
     planDate: snapshotPlan.planDate,
@@ -396,7 +397,7 @@ async function verifySpecialistPersistenceBoundary() {
   const invalidSnapshot = structuredClone(firstSnapshot);
   invalidSnapshot.activities[0].itemBindings = invalidSnapshot.activities[0].itemBindings.slice(1);
   await assert.rejects(() => persistSpecialistSnapshotV3({ persist: async () => { persistenceCalls += 1; return storedId; } }, {
-    authorization: { ...authorization, childId: snapshotPlan.childId },
+    authorization: { kind: "compound_word_v2_for_current_learner", childId: snapshotPlan.childId },
     parentUserId: persistence.header!.parentUserId,
     childId: snapshotPlan.childId,
     planDate: snapshotPlan.planDate,

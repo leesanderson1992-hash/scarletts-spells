@@ -98,7 +98,7 @@ async function main() {
 
   const unsupported = authorCompleteGenericSnapshotV3(eligibleFacts, rawPlan({ sections: [{ sectionKey: "guided_practice", purpose: "Old", items: [rawItem("TYPED_PROMPT")] }] }));
   assert.deepEqual(unsupported, { ok: false, blockerCode: "generic_v3_unsupported_activity" });
-  const probe = authorCompleteGenericSnapshotV3(eligibleFacts, rawPlan({ probePlan: { canonicalWordIds: [WORD_ID] } as ComposedDailyPlan["partTwo"]["probePlan"] }));
+  const probe = authorCompleteGenericSnapshotV3(eligibleFacts, rawPlan({ probePlan: { canonicalWordIds: [WORD_ID] } as unknown as ComposedDailyPlan["partTwo"]["probePlan"] }));
   assert.deepEqual(probe, { ok: false, blockerCode: "generic_v3_required_dictation_replaced_by_probe" });
   const reviewPlan = rawPlan();
   reviewPlan.partOne.sections = [{ sectionKey: "review_quick_sort", purpose: "Review", items: [rawItem("REVIEW_QUICK_SORT", "review_quick_sort")] }];

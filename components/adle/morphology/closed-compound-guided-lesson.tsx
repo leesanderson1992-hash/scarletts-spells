@@ -81,9 +81,10 @@ type RuntimePayload = {
   };
 };
 
-type RuntimeProps = { childId: string; assignmentId: string; items: AdleSessionItem[]; payload: RuntimePayload; resumeNamespace: "closed-compound" | "compound-word-v2"; onPreviewComplete?: (reflection: string) => void };
+type RuntimeProps = { childId: string; assignmentId: string; items: AdleSessionItem[]; payload: RuntimePayload; resumeNamespace: "closed-compound" | "compound-word-v2"; onPreviewComplete?: (reflection: string) => void; durableResumeState?: unknown; onDurableResumeStateChange?: (state: unknown) => void };
 
 function CompoundWordLessonRuntime(props: RuntimeProps) {
+  const onDurableResumeStateChange = props.onDurableResumeStateChange;
   const [state, setState] = useState<ClosedCompoundResumeState>(INITIAL);
   const [hydrated, setHydrated] = useState(false);
   const words = props.payload.words.lesson;
@@ -94,17 +95,17 @@ function CompoundWordLessonRuntime(props: RuntimeProps) {
   useEffect(() => {
     const timer = window.setTimeout(() => {
       const restored = normaliseClosedCompoundResume(
-        readMorphologyResume<unknown>(resumeKey, props.payload.contentVersion),
+        props.durableResumeState ?? readMorphologyResume<unknown>(resumeKey, props.payload.contentVersion),
         wordIds,
       );
       if (restored) setState(restored);
       setHydrated(true);
     }, 0);
     return () => window.clearTimeout(timer);
-  }, [props.payload.contentVersion, resumeKey, wordIds]);
+  }, [props.durableResumeState, props.payload.contentVersion, resumeKey, wordIds]);
   useEffect(() => {
-    if (hydrated) writeMorphologyResume(resumeKey, props.payload.contentVersion, state);
-  }, [hydrated, props.payload.contentVersion, resumeKey, state]);
+    if (hydrated) { writeMorphologyResume(resumeKey, props.payload.contentVersion, state); onDurableResumeStateChange?.(state); }
+  }, [hydrated, onDurableResumeStateChange, props.payload.contentVersion, resumeKey, state]);
   const word = words[state.index];
   const beat = useMemo<GuideBeatV1>(() => ({ id: `closed-${state.stage}`, activityId: state.stage, state: state.stage === "controlled" || state.stage === "dictation" ? "guideSilent" : state.stage === "reflect" ? "reflect" : "invite", say: "", goal: "Build, connect, remember, and spell compound words.", waitFor: "the next step", onComplete: "continue" }), [state.stage]);
   if (!hydrated) return <div className="min-h-[28rem]" aria-label="Restoring Word Lab" />;
@@ -226,7 +227,7 @@ function CompoundLessonReflectionAdapter(props: { childId: string; assignmentId:
   </form>;
 }
 
-export function ClosedCompoundGuidedLesson(props: { childId: string; assignmentId: string; items: AdleSessionItem[]; payload: ClosedCompoundLessonPayloadV1; onPreviewComplete?: (reflection: string) => void }) {
+export function ClosedCompoundGuidedLesson(props: { childId: string; assignmentId: string; items: AdleSessionItem[]; payload: ClosedCompoundLessonPayloadV1; onPreviewComplete?: (reflection: string) => void; durableResumeState?: unknown; onDurableResumeStateChange?: (state: unknown) => void }) {
   const jigsawTargets = adaptClosedCompoundJigsawTargets(props.payload);
   const jigsawById = new Map(jigsawTargets.map((target) => [target.canonicalWordId, target]));
   const payload: RuntimePayload = {
@@ -248,7 +249,7 @@ export function ClosedCompoundGuidedLesson(props: { childId: string; assignmentI
   return <CompoundWordLessonRuntime {...props} payload={payload} resumeNamespace="closed-compound" />;
 }
 
-export function CompoundWordGuidedLesson(props: { childId: string; assignmentId: string; items: AdleSessionItem[]; payload?: CompoundWordLessonPayloadV2; resolvedLesson?: ResolvedCompoundWordFirstImpressionV2; onPreviewComplete?: (reflection: string) => void }) {
+export function CompoundWordGuidedLesson(props: { childId: string; assignmentId: string; items: AdleSessionItem[]; payload?: CompoundWordLessonPayloadV2; resolvedLesson?: ResolvedCompoundWordFirstImpressionV2; onPreviewComplete?: (reflection: string) => void; durableResumeState?: unknown; onDurableResumeStateChange?: (state: unknown) => void }) {
   const resolved = props.resolvedLesson ?? (props.payload ? resolveCompoundWordFirstImpressionConfig(props.payload) : null);
   if (!resolved) throw new Error("CompoundWordGuidedLesson: resolved Compound Word v2 lesson is invalid");
   const payload: RuntimePayload = {
@@ -260,5 +261,5 @@ export function CompoundWordGuidedLesson(props: { childId: string; assignmentId:
     },
     words: { lesson: resolved.words },
   };
-  return <CompoundWordLessonRuntime childId={props.childId} assignmentId={props.assignmentId} items={props.items} payload={payload} resumeNamespace="compound-word-v2" onPreviewComplete={props.onPreviewComplete} />;
+  return <CompoundWordLessonRuntime childId={props.childId} assignmentId={props.assignmentId} items={props.items} payload={payload} resumeNamespace="compound-word-v2" onPreviewComplete={props.onPreviewComplete} durableResumeState={props.durableResumeState} onDurableResumeStateChange={props.onDurableResumeStateChange} />;
 }

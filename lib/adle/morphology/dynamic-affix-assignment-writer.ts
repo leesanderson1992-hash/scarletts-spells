@@ -76,6 +76,7 @@ type WriterParams = Omit<PreviewParams, "purpose"> & {
   parentUserId: string;
   planDate: string;
   generationTrigger?: AdleGenerationTrigger;
+  r6AppendAssignmentId?: string;
 };
 
 function emitCandidateReadinessDiagnostics(
@@ -181,7 +182,7 @@ export async function prepareDynamicAffixAssignment(
     childId: params.childId,
     planDate: params.planDate,
   });
-  if (existingId) {
+  if (existingId && existingId !== params.r6AppendAssignmentId) {
     const existingProfile = await existingProfileKey(params.serviceClient, existingId);
     return {
       status: !params.requiredProfileKey || existingProfile === params.requiredProfileKey

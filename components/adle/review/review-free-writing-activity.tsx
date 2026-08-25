@@ -122,6 +122,7 @@ function TargetWordRetrievalChecks(props: {
   repairGateway?: ReviewR4Gateway;
   onSession: (session: ReviewR3SessionView) => void;
   onPlayTargetAudio?: (target: ReviewTargetSnapshotV3, index: number) => void;
+  onReadyToComplete?: () => Promise<void>;
 }) {
   const [responses, setResponses] = useState<Record<string, string>>({});
   const [submittingEncounterId, setSubmittingEncounterId] = useState<string | null>(null);
@@ -160,6 +161,7 @@ function TargetWordRetrievalChecks(props: {
         reviewSession={props.reviewSession}
         gateway={props.repairGateway}
         onPlayTargetAudio={props.onPlayTargetAudio}
+        onReadyToComplete={props.onReadyToComplete}
       />
     );
   }
@@ -404,8 +406,13 @@ function TargetWordRetrievalChecks(props: {
           <p className="mt-1 text-sm text-[color:var(--mid)]">
             {repairCount > 0
               ? `${repairCount} ${repairCount === 1 ? "word is" : "words are"} ready for Reflection & Repair.`
-              : "No words need repair. Review completion will be connected in a later stage."}
+              : "No words need repair. Review is ready to finish."}
           </p>
+          {repairCount === 0 && props.onReadyToComplete ? (
+            <button type="button" className="brand-primary-btn mt-4" onClick={() => void props.onReadyToComplete?.()}>
+              Finish Review
+            </button>
+          ) : null}
         </section>
       ) : null}
       {message !== null ? <p className="text-sm text-[color:var(--scarlett)]" role="alert">{message}</p> : null}
@@ -595,6 +602,28 @@ export interface ReviewFreeWritingActivityProps {
   onWritingTimeFinished?: (session: ReviewWritingChallengeSessionV1) => void;
   reviewR3Gateway?: ReviewR3Gateway;
   reviewR4Gateway?: ReviewR4Gateway;
+  onReadyToComplete?: () => Promise<void>;
+  durableWritingGateway?: ReviewR2DurableWritingGateway;
+  initialServerStateVersion?: number;
+}
+
+export interface ReviewR2DurableWritingGateway {
+  selectPrompt(input: {
+    challengeType: ReviewChallengeType;
+    expectedStateVersion: number;
+  }): Promise<{ session: ReviewWritingChallengeSessionV1; stateVersion: number }>;
+  startWriting(input: {
+    challengeType: ReviewChallengeType;
+    expectedStateVersion: number;
+  }): Promise<{ session: ReviewWritingChallengeSessionV1; stateVersion: number }>;
+  saveDraft(input: {
+    draftText: string;
+    expectedStateVersion: number;
+  }): Promise<{ stateVersion: number }>;
+  extendWriting(input: {
+    extensionSeconds: 300 | 600 | 900;
+    expectedStateVersion: number;
+  }): Promise<{ session: ReviewWritingChallengeSessionV1; stateVersion: number }>;
 }
 
 /**
@@ -624,6 +653,9 @@ export function ReviewFreeWritingActivity(props: ReviewFreeWritingActivityProps)
   const [reviewR3Hydrated, setReviewR3Hydrated] = useState(() => props.reviewR3Gateway === undefined);
   const [reviewR3Submitting, setReviewR3Submitting] = useState(false);
   const [reviewR3Message, setReviewR3Message] = useState<string | null>(null);
+  const [serverStateVersion, setServerStateVersion] = useState(props.initialServerStateVersion ?? 0);
+  const [durableWritingBusy, setDurableWritingBusy] = useState(false);
+  const lastDurableDraft = useRef(session.draftText);
   const now = useWritingClock(session);
   const priorPhase = useRef(session.phase);
   const spinTimer = useRef<number | null>(null);
@@ -674,6 +706,25 @@ export function ReviewFreeWritingActivity(props: ReviewFreeWritingActivityProps)
   }, [draftKey, draftStore, resumeLoaded, session, snapshot]);
 
   useEffect(() => {
+    if (!props.durableWritingGateway || session.phase !== "creative_writing") return;
+    if (session.draftText === lastDurableDraft.current || durableWritingBusy) return;
+    const draftText = session.draftText;
+    const timer = window.setTimeout(() => {
+      setDurableWritingBusy(true);
+      void props.durableWritingGateway!.saveDraft({
+        draftText,
+        expectedStateVersion: serverStateVersion,
+      }).then((result) => {
+        lastDurableDraft.current = draftText;
+        setServerStateVersion(result.stateVersion);
+      }).catch(() => {
+        setReviewR3Message("Your latest draft could not be saved. Please pause and try again.");
+      }).finally(() => setDurableWritingBusy(false));
+    }, 700);
+    return () => window.clearTimeout(timer);
+  }, [durableWritingBusy, props.durableWritingGateway, serverStateVersion, session.draftText, session.phase]);
+
+  useEffect(() => {
     if (session.phase !== "creative_writing") return;
     const expiryTimer = window.setInterval(() => {
       setSession((current) => expireCreativeWritingIfNeeded(current, Date.now()));
@@ -701,6 +752,22 @@ export function ReviewFreeWritingActivity(props: ReviewFreeWritingActivityProps)
     setSession(next);
   }
 
+  function persistPromptSelection(challengeType: ReviewChallengeType, nextSession: ReviewWritingChallengeSessionV1) {
+    if (!props.durableWritingGateway) {
+      updateSession(nextSession);
+      return;
+    }
+    setDurableWritingBusy(true);
+    void props.durableWritingGateway.selectPrompt({
+      challengeType,
+      expectedStateVersion: serverStateVersion,
+    }).then((result) => {
+      setServerStateVersion(result.stateVersion);
+      updateSession(result.session);
+    }).catch(() => setReviewR3Message("That Writing Challenge choice could not be saved. Please try again."))
+      .finally(() => setDurableWritingBusy(false));
+  }
+
   function spinWheel() {
     if (wheelSpinning) return;
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -714,7 +781,7 @@ export function ReviewFreeWritingActivity(props: ReviewFreeWritingActivityProps)
     ));
     spinTimer.current = window.setTimeout(() => {
       const result = revealInitialWheelResult(props.snapshot, session);
-      if (result.ok) updateSession(result.session);
+      if (result.ok) persistPromptSelection(session.wheelResult, result.session);
       setWheelSpinning(false);
       setWheelRevealed(true);
       spinTimer.current = null;
@@ -727,7 +794,7 @@ export function ReviewFreeWritingActivity(props: ReviewFreeWritingActivityProps)
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     setWheelAnimationDurationMs(reducedMotion ? 120 : 620);
     setWheelRotation((currentRotation) => reviewWheelSelectionRotation(currentRotation, challengeType));
-    updateSession(result.session);
+    persistPromptSelection(challengeType, result.session);
   }
 
   async function requestExtension(seconds: 300 | 600 | 900) {
@@ -736,6 +803,20 @@ export function ReviewFreeWritingActivity(props: ReviewFreeWritingActivityProps)
     const accepted = await props.requestParentReauthenticatedExtension(seconds);
     if (!accepted) {
       setExtensionMessage("Your grown-up has not added extra time.");
+      return;
+    }
+    if (props.durableWritingGateway) {
+      try {
+        const durable = await props.durableWritingGateway.extendWriting({
+          extensionSeconds: seconds,
+          expectedStateVersion: serverStateVersion,
+        });
+        setServerStateVersion(durable.stateVersion);
+        updateSession(durable.session);
+        setExtensionMessage("Extra writing time added.");
+      } catch {
+        setExtensionMessage("Extra time could not be added. Please try again.");
+      }
       return;
     }
     const result = applyParentReauthenticatedExtension(session, seconds, currentTimestamp());
@@ -788,6 +869,7 @@ export function ReviewFreeWritingActivity(props: ReviewFreeWritingActivityProps)
         repairGateway={props.reviewR4Gateway}
         onSession={setReviewR3Session}
         onPlayTargetAudio={props.onPlayTargetAudio}
+        onReadyToComplete={props.onReadyToComplete}
       />
     );
   }
@@ -814,9 +896,23 @@ export function ReviewFreeWritingActivity(props: ReviewFreeWritingActivityProps)
             <button
               type="button"
               className="brand-primary-btn relative z-10 mx-auto mt-7"
+              disabled={durableWritingBusy}
               onClick={() => {
                 const result = beginCreativeWriting(props.snapshot, session, Date.now());
-                if (result.ok) updateSession(result.session);
+                if (!result.ok) return;
+                if (!props.durableWritingGateway || result.session.selectedChallengeType === null) {
+                  updateSession(result.session);
+                  return;
+                }
+                setDurableWritingBusy(true);
+                void props.durableWritingGateway.startWriting({
+                  challengeType: result.session.selectedChallengeType,
+                  expectedStateVersion: serverStateVersion,
+                }).then((durable) => {
+                  setServerStateVersion(durable.stateVersion);
+                  updateSession(durable.session);
+                }).catch(() => setReviewR3Message("Writing time could not start. Please try again."))
+                  .finally(() => setDurableWritingBusy(false));
               }}
             >
               Start writing

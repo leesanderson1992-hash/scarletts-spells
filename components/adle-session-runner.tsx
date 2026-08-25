@@ -16,7 +16,7 @@
  */
 
 import dynamic from "next/dynamic";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import {
   completeAdleLessonPartAction,
@@ -24,6 +24,7 @@ import {
   completeBaseWordFamilyLessonAction,
   recordGenericV3CheckpointAction,
 } from "@/app/learn/week/adle/actions";
+import { persistAdleSpecialistCheckpointR6Action } from "@/app/learn/week/adle/review-r6-actions";
 import type {
   CanonicalActivityNormalizationResult,
   CanonicalActivitySpec,
@@ -51,6 +52,7 @@ import {
   extractSentenceTarget,
   type CanonicalSentenceDictationTargetBinding,
 } from "@/lib/adle/sentence-dictation-contract";
+import type { AdleSpecialistCheckpointR6View } from "@/lib/adle/review-v3/r6-session-contracts";
 
 const MorphologyGuidedLesson = dynamic(
   () =>
@@ -83,6 +85,7 @@ type AdleSessionRunnerProps = {
   snapshotFingerprint: string;
   durableGenericV3Enabled: boolean;
   durableGenericV3Checkpoints: readonly GenericV3DurableCheckpoint[];
+  r6SpecialistCheckpoint?: AdleSpecialistCheckpointR6View | null;
   partOne: { items: AdleSessionItem[]; present: boolean; complete: boolean };
   partTwo: { items: AdleSessionItem[]; present: boolean; complete: boolean };
   routeResolution: Extract<
@@ -90,6 +93,31 @@ type AdleSessionRunnerProps = {
     { status: "resolved_explicit" | "resolved_legacy" }
   >;
 };
+
+function useR6SpecialistCheckpointWriter(props: AdleSessionRunnerProps) {
+  const version = useRef(props.r6SpecialistCheckpoint?.stateVersion ?? 0);
+  const timer = useRef<number | null>(null);
+  const chain = useRef<Promise<void>>(Promise.resolve());
+  useEffect(() => () => { if (timer.current !== null) window.clearTimeout(timer.current); }, []);
+  return useCallback((adapterKey: string, checkpointSchemaVersion: string, state: unknown) => {
+    if (!props.r6SpecialistCheckpoint && props.snapshotFingerprint === "compatibility") return;
+    if (timer.current !== null) window.clearTimeout(timer.current);
+    timer.current = window.setTimeout(() => {
+      timer.current = null;
+      chain.current = chain.current.then(async () => {
+        const result = await persistAdleSpecialistCheckpointR6Action({
+          assignmentId: props.assignmentId,
+          adapterKey,
+          checkpointSchemaVersion,
+          lessonSnapshotFingerprint: props.snapshotFingerprint,
+          checkpointPayload: { state },
+          expectedStateVersion: version.current,
+        });
+        version.current = result.stateVersion;
+      }).catch((error) => console.error("[adle-session] specialist checkpoint failed", error));
+    }, 350);
+  }, [props.assignmentId, props.r6SpecialistCheckpoint, props.snapshotFingerprint]);
+}
 
 type NormalizedActivity = Extract<CanonicalActivityNormalizationResult, { status: "normalized" | "compatibility" }>;
 
@@ -181,7 +209,7 @@ function parseColdRecallResume(value: string | null): { attempts: Map<string, st
   }
 }
 
-function BaseWordFamilyPart(props: { childId: string; assignmentId: string; payload: BaseWordFamilyLessonSnapshotV1 }) {
+function BaseWordFamilyPart(props: { childId: string; assignmentId: string; payload: BaseWordFamilyLessonSnapshotV1; durableResumeState?: unknown; onDurableResumeStateChange?: (state: unknown) => void }) {
   const formRef = useRef<HTMLFormElement>(null);
   const controlledRef = useRef<HTMLInputElement>(null);
   const sentenceRef = useRef<HTMLInputElement>(null);
@@ -193,7 +221,7 @@ function BaseWordFamilyPart(props: { childId: string; assignmentId: string; payl
     <input ref={sentenceRef} type="hidden" name="baseWordSentenceAttempts" />
     <input ref={reflectionRef} type="hidden" name="baseWordReflection" />
     {submitting ? <p role="status" aria-live="polite" className="brand-card rounded-2xl p-4 text-center">Saving your Word Lab…</p> : null}
-    <BaseWordFamilyGuidedLesson assignmentId={props.assignmentId} payload={props.payload} submitting={submitting} onComplete={(input) => {
+    <BaseWordFamilyGuidedLesson assignmentId={props.assignmentId} payload={props.payload} submitting={submitting} durableResumeState={props.durableResumeState} onDurableResumeStateChange={props.onDurableResumeStateChange} onComplete={(input) => {
       if (!controlledRef.current || !sentenceRef.current || !reflectionRef.current) return;
       controlledRef.current.value = JSON.stringify(Object.entries(input.controlledAttempts).map(([key, attemptText]) => ({ key, attemptText })));
       sentenceRef.current.value = JSON.stringify(Object.entries(input.sentenceAttempts).map(([key, attemptText]) => ({ key, attemptText })));
@@ -731,19 +759,21 @@ function LessonPart(props: {
 export function AdleSessionRunner(props: AdleSessionRunnerProps) {
   const { partOne, partTwo } = props;
   const { runtime } = props.routeResolution;
+  const saveR6Checkpoint = useR6SpecialistCheckpointWriter(props);
+  const durableState = props.r6SpecialistCheckpoint?.checkpointPayload.state;
 
   // A profile-declared closed-compound lesson is its own complete Word Lab.
   // It must not be hidden behind the generic daily review panel.
   if (runtime.adapterKey === "closed_compound_v1" && props.assignmentId && partTwo.present && !partTwo.complete) {
-    return <ClosedCompoundGuidedLesson childId={props.childId} assignmentId={props.assignmentId} items={partTwo.items} payload={runtime.payload} />;
+    return <ClosedCompoundGuidedLesson childId={props.childId} assignmentId={props.assignmentId} items={partTwo.items} payload={runtime.payload} durableResumeState={durableState} onDurableResumeStateChange={(state) => saveR6Checkpoint("closed_compound_v1", "closed_compound_resume_v1", state)} />;
   }
 
   if (runtime.adapterKey === "compound_word_v2" && props.assignmentId && partTwo.present && !partTwo.complete) {
-    return <CompoundWordGuidedLesson childId={props.childId} assignmentId={props.assignmentId} items={partTwo.items} resolvedLesson={runtime.resolvedLesson} />;
+    return <CompoundWordGuidedLesson childId={props.childId} assignmentId={props.assignmentId} items={partTwo.items} resolvedLesson={runtime.resolvedLesson} durableResumeState={durableState} onDurableResumeStateChange={(state) => saveR6Checkpoint("compound_word_v2", "closed_compound_resume_v1", state)} />;
   }
 
   if (runtime.adapterKey === "base_word_family_v1" && props.assignmentId) {
-    return <BaseWordFamilyPart childId={props.childId} assignmentId={props.assignmentId} payload={runtime.payload} />;
+    return <BaseWordFamilyPart childId={props.childId} assignmentId={props.assignmentId} payload={runtime.payload} durableResumeState={durableState} onDurableResumeStateChange={(state) => saveR6Checkpoint("base_word_family_v1", "base_word_resume_v1", state)} />;
   }
 
   return (
@@ -761,7 +791,7 @@ export function AdleSessionRunner(props: AdleSessionRunnerProps) {
 
       {partTwo.present && (partOne.complete || !partOne.present) && !partTwo.complete ? (
         runtime.rendererKey === "morphology_guided" ? (
-          <MorphologyGuidedLesson childId={props.childId} assignmentId={props.assignmentId} items={partTwo.items} payload={runtime.payload} />
+          <MorphologyGuidedLesson childId={props.childId} assignmentId={props.assignmentId} items={partTwo.items} payload={runtime.payload} durableResumeState={durableState} onDurableResumeStateChange={(state) => saveR6Checkpoint(runtime.adapterKey, "morphology_resume_v1", state)} />
         ) : (
           <LessonPart childId={props.childId} assignmentId={props.assignmentId} snapshotFingerprint={props.snapshotFingerprint} durableGenericV3Enabled={props.durableGenericV3Enabled} durableGenericV3Checkpoints={props.durableGenericV3Checkpoints} items={partTwo.items} />
         )

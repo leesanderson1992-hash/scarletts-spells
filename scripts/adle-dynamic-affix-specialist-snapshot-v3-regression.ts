@@ -152,7 +152,7 @@ assert(completion.ok, "completion authority comes from the frozen snapshot");
 assert.equal(selectSpecialistSnapshotV3Writer({ childId, routeKey: "dynamic_affix_word_lab:v3" }), null, "writer defaults OFF");
 assert.equal(selectSpecialistSnapshotV3Writer({ childId, routeKey: "dynamic_affix_word_lab:v3", mode: "compound_word_v2_for_current_learner", currentLearnerChildId: childId }), null, "Compound mode cannot capture Affix");
 const authorization = selectSpecialistSnapshotV3Writer({ childId, routeKey: "dynamic_affix_word_lab:v3", mode: "dynamic_affix_v3_for_current_learner", currentLearnerChildId: childId });
-assert(authorization);
+if (!authorization) throw new Error("dynamic affix writer authorization fixture failed");
 let calls = 0;
 async function verifyPersistence(): Promise<void> {
   const stored = await persistSpecialistSnapshotV3({ persist: async () => { calls += 1; return "00000000-0000-4000-8000-000000000203"; } }, {
@@ -162,7 +162,9 @@ async function verifyPersistence(): Promise<void> {
   assert.equal(stored, "00000000-0000-4000-8000-000000000203");
   assert.equal(calls, 1);
   const invalid = structuredClone(first);
-  invalid.activities.find((activity) => activity.activityId === "cover")!.itemBindings.pop();
+  (invalid.activities.find((activity) => activity.activityId === "cover")!.itemBindings as Array<
+    (typeof invalid.activities)[number]["itemBindings"][number]
+  >).pop();
   await assert.rejects(() => persistSpecialistSnapshotV3({ persist: async () => { calls += 1; return stored; } }, {
     authorization: authorization!, parentUserId, childId, planDate: plan.planDate, header: persistence.header!,
     items: persistence.items, intakes: persistence.learningItemIntakes, snapshot: invalid,
@@ -216,10 +218,10 @@ assert.equal(calls, 1, "invalid/partial envelope never crosses the sole atomic p
   }).ok, "18-item Meaning Sort shape validates through the same subtype");
 
   console.log(JSON.stringify({
-    status: "ok", route: "dynamic_affix_word_lab:v3", microskill: decision.payload.microSkillId,
+    status: "ok", route: "dynamic_affix_word_lab:v3", microskill: first.taxonomy.microSkillKey,
     itemCount: bindings.length, activityCount: first.activities.length, meaningSortItemCount: 18,
     fingerprint: first.provenance.sourceFingerprint,
-    reflectionPrompt: resolved.runtimePayload.activities.find((activity) => activity.type === "reflection")?.promptText,
+    reflectionPrompt: first.activities.find((activity) => activity.activityId === "lesson-reflection")?.payload.promptText,
   }));
 }
 

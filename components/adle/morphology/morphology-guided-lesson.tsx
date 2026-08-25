@@ -92,8 +92,11 @@ export function MorphologyGuidedLesson(props: {
   assignmentId: string;
   items: AdleSessionItem[];
   payload: MorphologyLessonPayloadV1;
+  durableResumeState?: unknown;
+  onDurableResumeStateChange?: (state: unknown) => void;
   onPreviewComplete?: (reflectionText: string) => void;
 }) {
+  const onDurableResumeStateChange = props.onDurableResumeStateChange;
   const [state, setState] = useState<LessonState>(INITIAL);
   const [hydrated, setHydrated] = useState(false);
   const key = morphologyResumeKey(
@@ -113,9 +116,8 @@ export function MorphologyGuidedLesson(props: {
     // Resume restoration must also run when a lesson reloads in a background
     // tab; requestAnimationFrame may be throttled indefinitely there.
     const timer = window.setTimeout(() => {
-      const restored = readMorphologyResume<unknown>(
-        key,
-        props.payload.contentVersion,
+      const restored = props.durableResumeState ?? readMorphologyResume<unknown>(
+        key, props.payload.contentVersion,
       );
       const normalised = normaliseMorphologyLessonResume(
         restored,
@@ -137,11 +139,14 @@ export function MorphologyGuidedLesson(props: {
     props.payload.activities,
     props.payload.contentVersion,
     props.payload.words.lesson,
+    props.durableResumeState,
   ]);
   useEffect(() => {
-    if (hydrated)
+    if (hydrated) {
       writeMorphologyResume(key, props.payload.contentVersion, state);
-  }, [hydrated, key, props.payload.contentVersion, state]);
+      onDurableResumeStateChange?.(state);
+    }
+  }, [hydrated, key, onDurableResumeStateChange, props.payload.contentVersion, state]);
   const beat = useMemo(() => {
     if (state.stage === "learn")
       return (

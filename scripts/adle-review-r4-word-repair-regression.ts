@@ -27,7 +27,7 @@ import {
 const snapshot = reviewWritingChallengeDevSnapshot();
 
 function evaluations(dispositions: Array<ReviewWritingEvaluation["disposition"]>): ReviewWritingEvaluation[] {
-  return snapshot.targets.map((target, index) => ({
+  return snapshot.targets.map((target, index): ReviewWritingEvaluation => ({
     encounterId: target.encounterId,
     targetOrder: target.order,
     disposition: dispositions[index] ?? "unaccounted_for",

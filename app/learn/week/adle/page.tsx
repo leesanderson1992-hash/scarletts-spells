@@ -42,6 +42,9 @@ import {
   loadGenericV3Checkpoints,
   type GenericV3DurableCheckpoint,
 } from "@/lib/adle/generic-v3-attempt-checkpoints";
+import { loadAdleSpecialistCheckpointR6, loadAdleTodaySessionR6 } from "@/lib/adle/review-v3/r6-persistence";
+import { ReviewR6Session } from "@/components/adle/review/review-r6-session";
+import { continueAdleAfterReviewR6Action } from "./review-r6-actions";
 
 type AdleSessionPageProps = {
   searchParams?: Promise<{
@@ -88,14 +91,30 @@ export default async function AdleSessionPage({ searchParams }: AdleSessionPageP
     notFound();
   }
 
-  let assignmentId: string | null = null;
+  const serviceClient = createServiceRoleClient();
+  let r6Session = null;
   try {
-    assignmentId = await getExistingAdleSessionPlanId({
-      userClient: supabase,
+    r6Session = await loadAdleTodaySessionR6({
+      client: serviceClient,
       parentUserId: user.id,
       childId: selectedChild.id,
-      planDate,
+      assignmentDate: planDate,
     });
+  } catch (r6Error) {
+    console.error("[adle-session] R6 session resolution failed", r6Error);
+  }
+
+  let assignmentId: string | null = r6Session?.assignmentId ?? null;
+  const resolvedPlanDate = r6Session?.assignmentDate ?? planDate;
+  try {
+    if (assignmentId === null) {
+      assignmentId = await getExistingAdleSessionPlanId({
+        userClient: supabase,
+        parentUserId: user.id,
+        childId: selectedChild.id,
+        planDate: resolvedPlanDate,
+      });
+    }
   } catch (error) {
     console.error("[adle-session] assignment lookup failed", error);
   }
@@ -104,14 +123,14 @@ export default async function AdleSessionPage({ searchParams }: AdleSessionPageP
     userClient: supabase,
     parentUserId: user.id,
     childId: selectedChild.id,
-    planDate,
+    planDate: resolvedPlanDate,
     assignmentId,
   });
 
   const backPath = buildScopedPath("/learn/week", selectedChild.id, mode);
   const assignmentItems = [...readModel.partOne.items, ...readModel.partTwo.items]
     .sort((left, right) => left.position - right.position);
-  const routeResolution = readModel.assignmentId
+  const routeResolution = readModel.assignmentId && (!r6Session || r6Session.majorStage === "specialist_lesson")
     ? resolvePersistedLessonRoute({
         lessonRouteMetadata: readModel.lessonRouteMetadata,
         compiledLessonSnapshot: readModel.compiledLessonSnapshot,
@@ -126,17 +145,20 @@ export default async function AdleSessionPage({ searchParams }: AdleSessionPageP
     : null;
   let runtimeSafetyBlocked = readModel.assignmentId !== null &&
     !(await databaseActivatedAssignmentRuntimeAllowed({
-      client: createServiceRoleClient(),
+      client: serviceClient,
       lessonRouteMetadata: readModel.lessonRouteMetadata,
       assignmentCompleted: readModel.state === "completed",
     }));
   let durableGenericV3Checkpoints: GenericV3DurableCheckpoint[] = [];
+  const r6SpecialistCheckpoint = r6Session?.majorStage === "specialist_lesson" && readModel.assignmentId
+    ? await loadAdleSpecialistCheckpointR6({ client: serviceClient, assignmentId: readModel.assignmentId })
+    : null;
   if (readModel.assignmentId
     && readModel.genericSnapshotResolution?.status === "resolved"
     && readModel.genericSnapshotResolution.source === "snapshot_v3") {
     try {
       durableGenericV3Checkpoints = await loadGenericV3Checkpoints({
-        client: createServiceRoleClient(),
+        client: serviceClient,
         readModel,
         parentUserId: user.id,
         childId: selectedChild.id,
@@ -160,6 +182,11 @@ export default async function AdleSessionPage({ searchParams }: AdleSessionPageP
     "contentVersion" in routeResolution.runtime.payload
       ? routeResolution.runtime.payload.contentVersion
       : null;
+  const r6LessonFingerprint = r6Session?.specialist?.compiledLessonSnapshot
+    && typeof r6Session.specialist.compiledLessonSnapshot === "object"
+    && "provenance" in r6Session.specialist.compiledLessonSnapshot
+    ? (r6Session.specialist.compiledLessonSnapshot as { provenance?: { sourceFingerprint?: string } }).provenance?.sourceFingerprint
+    : undefined;
 
   // Slice 7a-D: on the completed screen, read the child's Word Treasure state and
   // derive today's celebration (Nugget->Forge from lesson completion + any
@@ -167,13 +194,14 @@ export default async function AdleSessionPage({ searchParams }: AdleSessionPageP
   // revalidates this page); a failure falls back to the plain "all done" card.
   let celebration: AdleSessionCelebrationModel | null = null;
   let completedReflection: ChildLearningReflection | null = null;
-  if (readModel.state === "completed") {
+  const sessionCompleted = r6Session?.majorStage === "session_complete" || readModel.state === "completed";
+  if (sessionCompleted) {
     const completedDetails = await loadAdleCompletedRouteDetails({
       supabase,
       parentUserId: user.id,
       childId: selectedChild.id,
       assignmentId: readModel.assignmentId,
-      planDate,
+      planDate: resolvedPlanDate,
       traceId: resolvedSearchParams?.completionTrace,
     });
     celebration = completedDetails.celebration;
@@ -214,14 +242,48 @@ export default async function AdleSessionPage({ searchParams }: AdleSessionPageP
           </Link>
         </div>
 
-        {readModel.state === "empty" ? (
+        {r6Session?.majorStage === "review" && r6Session.review ? (
+          <ReviewR6Session
+            assignmentId={r6Session.assignmentId ?? ""}
+            reviewSessionId={r6Session.review.sessionId}
+            snapshot={r6Session.review.snapshot}
+          />
+        ) : r6Session?.majorStage === "specialist_generation" && r6Session.review ? (
+          <div className="w-full overflow-hidden rounded-[2rem] border border-cyan-300/20 bg-[radial-gradient(circle_at_top_right,rgba(8,145,178,.22),transparent_42%),linear-gradient(145deg,#07111f,#0f2742)] p-6 text-white shadow-[0_30px_100px_rgba(2,6,23,.35)]">
+            <p className="text-xs font-black uppercase tracking-[0.2em] text-cyan-200">Review complete ✓</p>
+            <h2 className="mt-3 text-2xl font-semibold">Now for today&apos;s lesson…</h2>
+            <p className="mt-2 text-sm text-cyan-50/80">Your Review is safely finished. Continue to prepare the next stage.</p>
+            <form action={continueAdleAfterReviewR6Action} className="mt-5">
+              <input type="hidden" name="assignmentId" value={r6Session.assignmentId ?? ""} />
+              <input type="hidden" name="reviewSessionId" value={r6Session.review.sessionId} />
+              <input type="hidden" name="snapshotFingerprint" value={r6Session.review.snapshot.provenance.sourceFingerprint} />
+              <input type="hidden" name="childId" value={selectedChild.id} />
+              <button type="submit" className="min-h-11 rounded-full bg-cyan-300 px-5 font-bold text-slate-950">Continue</button>
+            </form>
+          </div>
+        ) : r6Session?.majorStage === "blocked" ? (
+          <div className="brand-card rounded-3xl p-5" role="alert">
+            <p className="brand-eyebrow">Today&apos;s Lesson paused</p>
+            <h2 className="mt-1 text-lg font-semibold">Your work is safe.</h2>
+            <p className="mt-2 text-sm text-[color:var(--mid)]">A grown-up needs to check the next ADLE stage before you continue.</p>
+            {r6Session.review?.complete ? (
+              <form action={continueAdleAfterReviewR6Action} className="mt-4">
+                <input type="hidden" name="assignmentId" value={r6Session.assignmentId ?? ""} />
+                <input type="hidden" name="reviewSessionId" value={r6Session.review.sessionId} />
+                <input type="hidden" name="snapshotFingerprint" value={r6Session.review.snapshot.provenance.sourceFingerprint} />
+                <input type="hidden" name="childId" value={selectedChild.id} />
+                <button type="submit" className="brand-secondary-btn">Try the next stage again</button>
+              </form>
+            ) : null}
+          </div>
+        ) : readModel.state === "empty" && !sessionCompleted ? (
           <div className="brand-card rounded-3xl p-4 md:p-5">
             <p className="text-sm text-[color:var(--mid)]">
               Today&apos;s spelling plan has not been set up yet. Check back after
               your grown-up has prepared it.
             </p>
           </div>
-        ) : readModel.state === "completed" ? (
+        ) : sessionCompleted ? (
           <div className="grid gap-4">
             {resolvedSearchParams?.completionTrace && /^[0-9a-f-]{36}$/i.test(resolvedSearchParams.completionTrace) ? <WordLabCompletionPerformanceObserver traceId={resolvedSearchParams.completionTrace} /> : null}
             {resolvedContentVersion && readModel.assignmentId ? <ClearCompletedMorphologyResume assignmentId={readModel.assignmentId} contentVersion={resolvedContentVersion} /> : null}
@@ -261,12 +323,13 @@ export default async function AdleSessionPage({ searchParams }: AdleSessionPageP
             childId={selectedChild.id}
             assignmentId={readModel.assignmentId ?? ""}
             planDate={readModel.planDate}
-            snapshotFingerprint={readModel.genericSnapshotResolution?.status === "resolved"
+            snapshotFingerprint={r6LessonFingerprint ?? (readModel.genericSnapshotResolution?.status === "resolved"
               ? readModel.genericSnapshotResolution.snapshot.provenance.sourceFingerprint
-              : "compatibility"}
+              : "compatibility")}
             durableGenericV3Enabled={readModel.genericSnapshotResolution?.status === "resolved"
               && readModel.genericSnapshotResolution.source === "snapshot_v3"}
             durableGenericV3Checkpoints={durableGenericV3Checkpoints}
+            r6SpecialistCheckpoint={r6SpecialistCheckpoint}
             partOne={readModel.partOne}
             partTwo={readModel.partTwo}
             routeResolution={routeResolution}

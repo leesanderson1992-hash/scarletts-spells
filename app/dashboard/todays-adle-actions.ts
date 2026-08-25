@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 
-import { ensureParentAdleTodayAssignment } from "@/lib/adle/today-assignment-service";
+import { ensureTodayAdleSession } from "@/lib/adle/today-assignment-service";
 import { createClient } from "@/lib/supabase/server";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 
@@ -40,7 +40,7 @@ export async function generateTodayAdleAction(
     .maybeSingle();
   if (error || !child) return { state: "rejected" };
 
-  const result = await ensureParentAdleTodayAssignment({
+  const result = await ensureTodayAdleSession({
     userClient,
     serviceClient: createServiceRoleClient(),
     parentUserId: user.id,

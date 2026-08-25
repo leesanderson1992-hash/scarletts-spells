@@ -120,7 +120,9 @@ async function main() {
   const firstCover = await persistGenericV3Checkpoint(client as unknown as SupabaseClient, cover);
   assert(!("code" in firstCover), "first Cover Check persists");
   const retryCover = await persistGenericV3Checkpoint(client as unknown as SupabaseClient, cover);
-  assert(!("code" in retryCover) && client.rows.length === 1, "identical Cover Check retry is idempotent");
+  assert(!("code" in retryCover), "identical Cover Check retry is idempotent");
+  const rowCountAfterRetry: number = client.rows.length;
+  assert(rowCountAfterRetry === 1, "identical Cover Check retry does not duplicate the row");
   const conflictingCover = buildGenericV3Checkpoint({
     readModel, parentUserId: PARENT, childId: CHILD, assignmentId: ASSIGNMENT,
     itemId: "cover-item", attemptText: "unfair",

@@ -97,7 +97,7 @@ function attemptRows(count: 0 | 1 | 2, lastCorrect = false): ReviewR4Persistence
 
 function hydrate(input: {
   stage: ReviewR4PersistenceEncounterRow["repair_stage"];
-  state: ReviewR4PersistenceEncounterRow["repair_state"];
+  state: Exclude<ReviewR4PersistenceEncounterRow["repair_state"], "not_required">;
   withCue?: boolean;
   attempts?: 0 | 1 | 2;
   lastCorrect?: boolean;

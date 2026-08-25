@@ -125,6 +125,8 @@
     "adle:review-r4-persistence-hydration-regression": "NODE_OPTIONS=--conditions=react-server npx tsx scripts/adle-review-r4-persistence-hydration-regression.ts",
     "adle:review-r5-regression": "npx tsx scripts/adle-review-r5-regression.ts",
     "adle:review-r5-multi-week-simulation": "npx tsx scripts/adle-review-r5-multi-week-simulation.ts",
+    "adle:review-r6-regression": "npx tsx scripts/adle-review-r6-regression.ts",
+    "adle:review-r6-migration-release": "npx tsx scripts/adle-review-r6-migration-release.ts",
     "adle:composer-regression": "rm -rf .tmp/adle-composer-regression && npx tsc --outDir .tmp/adle-composer-regression --rootDir . --module commonjs --target es2022 --moduleResolution node --esModuleInterop --skipLibCheck --noEmit false scripts/adle-composer-regression.ts && node .tmp/adle-composer-regression/scripts/adle-composer-regression.js",
     "adle:parent-dashboard-generator-regression": "NODE_OPTIONS=--conditions=react-server npx tsx scripts/parent-dashboard-adle-generator-regression.ts",
     "adle:base-word-family-selection-regression": "rm -rf .tmp/adle-base-word-family-selection-regression && npx tsc --outDir .tmp/adle-base-word-family-selection-regression --rootDir . --module commonjs --target es2022 --moduleResolution node --esModuleInterop --skipLibCheck --noEmit false scripts/adle-base-word-family-selection-regression.ts && node .tmp/adle-base-word-family-selection-regression/scripts/adle-base-word-family-selection-regression.js",

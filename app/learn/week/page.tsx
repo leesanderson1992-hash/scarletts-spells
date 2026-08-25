@@ -17,6 +17,7 @@ import {
   buildMissingDailySpellingPracticeReadModel,
   getDailySpellingPracticeReadModel,
 } from "@/lib/writing-practice/daily-spelling-practice-read-model";
+import { openTodayAdleSessionAction } from "./todays-adle-action";
 
 type LearnWeekPageProps = {
   searchParams?: Promise<{
@@ -389,12 +390,12 @@ export default async function LearnWeekPage({ searchParams }: LearnWeekPageProps
               Today&apos;s two-part spelling plan: review first, then a lesson when
               the queue allows.
             </p>
-            <a
-              href={buildScopedPath("/learn/week/adle", selectedChild.id, "child")}
-              className="brand-primary-btn"
-            >
-              Open today&apos;s plan
-            </a>
+            <form action={openTodayAdleSessionAction}>
+              <input type="hidden" name="childId" value={selectedChild.id} />
+              <button type="submit" className="brand-primary-btn">
+                Today&apos;s Lesson
+              </button>
+            </form>
           </div>
         </div>
       ) : null}

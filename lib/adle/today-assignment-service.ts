@@ -45,6 +45,8 @@ import { isDynamicSuffixRouteEnabled } from "./morphology/dynamic-suffix-route-g
 import { generateGuardedCompoundWordAssignment } from "./loaders/compound-word-assignment-loader";
 import { COMPOUND_WORD_MICRO_SKILL_KEYS } from "./morphology/compound-word-structure-v2";
 import type { IsoDate } from "./review-scheduler";
+import { ensureReviewAssignmentR6 } from "./review-v3/r6-generation";
+import { adoptSpecialistOnlySessionR6 } from "./review-v3/r6-persistence";
 
 type Client = SupabaseClient;
 
@@ -209,10 +211,15 @@ async function loadOneStatus(params: {
   return status;
 }
 
+type ExistingAdleTodayResult = Extract<
+  EnsureParentAdleTodayResult,
+  { outcome: "ready" | "completed" }
+>;
+
 function statusResult(
   status: ParentAdleTodayStatus,
   reused: boolean,
-): EnsureParentAdleTodayResult | null {
+): ExistingAdleTodayResult | null {
   if (!status.assignmentId || !status.href) return null;
   if (status.state === "completed") {
     return { outcome: "completed", assignmentId: status.assignmentId, href: status.href };
@@ -281,6 +288,53 @@ export async function ensureParentAdleTodayAssignment(params: {
     return { outcome: "rejected" };
   }
 
+  // R6 precedence is deliberately ahead of the same-day specialist header
+  // lookup. An older incomplete Review must resume before a new/unstarted
+  // lesson, and a Review-only day must not depend on specialist eligibility.
+  try {
+    const review = await ensureReviewAssignmentR6({
+      client: params.serviceClient,
+      parentUserId: params.parentUserId,
+      childId: params.childId,
+      assignmentDate: practiceDate,
+    });
+    if (review.outcome === "created" || review.outcome === "reused_incomplete") {
+      const result = {
+        outcome: "ready" as const,
+        assignmentId: review.assignmentId,
+        href: learnerHref(params.childId),
+        reused: review.outcome === "reused_incomplete",
+      };
+      emitGenerationEvent({
+        parentUserId: params.parentUserId,
+        childId: params.childId,
+        practiceDate,
+        outcome: result.outcome,
+        routeId: "review_writing_challenge_v3",
+      });
+      return result;
+    }
+    if (review.outcome === "blocked") {
+      emitGenerationEvent({
+        parentUserId: params.parentUserId,
+        childId: params.childId,
+        practiceDate,
+        outcome: "failed",
+        routeId: "review_writing_challenge_v3",
+        blockerCode: review.blockerCode,
+      });
+      return { outcome: "failed", blockerCode: review.blockerCode };
+    }
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "review_r6_generation_failed";
+    // A pre-R6 schema is a compatibility state, not an activation request.
+    // All other active-scope Review failures fail closed instead of silently
+    // skipping due Review and generating a specialist lesson.
+    if (!message.includes("adle_review_r6_child_rollouts")) {
+      return { outcome: "failed", blockerCode: message.slice(0, 240) };
+    }
+  }
+
   const existing = statusResult(await loadOneStatus({
     userClient: params.userClient,
     parentUserId: params.parentUserId,
@@ -288,6 +342,10 @@ export async function ensureParentAdleTodayAssignment(params: {
     now: params.now,
   }), true);
   if (existing) {
+    await adoptSpecialistOnlySessionR6({
+      client: params.serviceClient,
+      assignmentId: existing.assignmentId,
+    });
     emitGenerationEvent({
       parentUserId: params.parentUserId,
       childId: params.childId,
@@ -406,6 +464,10 @@ export async function ensureParentAdleTodayAssignment(params: {
         now: params.now,
       }), false);
       if (status) {
+        await adoptSpecialistOnlySessionR6({
+          client: params.serviceClient,
+          assignmentId: status.assignmentId,
+        });
         emitGenerationEvent({
           parentUserId: params.parentUserId, childId: params.childId, practiceDate,
           outcome: status.outcome, routeId: "generic_composer",
@@ -539,6 +601,10 @@ export async function ensureParentAdleTodayAssignment(params: {
       now: params.now,
     }), generatedAssignmentId === null);
     if (status) {
+      await adoptSpecialistOnlySessionR6({
+        client: params.serviceClient,
+        assignmentId: status.assignmentId,
+      });
       emitGenerationEvent({
         parentUserId: params.parentUserId,
         childId: params.childId,
@@ -571,6 +637,10 @@ export async function ensureParentAdleTodayAssignment(params: {
         now: params.now,
       }), true);
       if (winner) {
+        await adoptSpecialistOnlySessionR6({
+          client: params.serviceClient,
+          assignmentId: winner.assignmentId,
+        });
         emitGenerationEvent({
           parentUserId: params.parentUserId,
           childId: params.childId,
@@ -597,3 +667,7 @@ export async function ensureParentAdleTodayAssignment(params: {
     return { outcome: "failed", blockerCode };
   }
 }
+
+/** R6 public orchestration boundary. The historical export remains available
+ * for compatibility, while new callers use the session-level name. */
+export const ensureTodayAdleSession = ensureParentAdleTodayAssignment;
