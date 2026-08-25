@@ -42,7 +42,8 @@ export function authenticUseProviderFromFacts(
   facts: readonly AuthenticUseEventFact[],
 ): AuthenticUseProvider {
   const verified = facts.filter(
-    (fact) => fact.rowStatus === "active" && fact.parentVerified,
+    (fact) => fact.rowStatus === "active" && fact.parentVerified &&
+      fact.provenanceKind !== "prompted_review_writing_application",
   );
   return {
     hasAuthenticUseSince: (childId, canonicalWordId, sinceDate) =>
@@ -133,6 +134,7 @@ export function applyAuthenticUseCredit(
         (event) =>
           event.rowStatus === "active" &&
           event.parentVerified &&
+          event.provenanceKind !== "prompted_review_writing_application" &&
           event.useKind === ("authentic_correct_use" satisfies AuthenticUseKind) &&
           event.childId === item.childId &&
           event.canonicalWordId === item.canonicalWordId &&

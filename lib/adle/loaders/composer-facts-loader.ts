@@ -300,7 +300,7 @@ export async function loadDailyPlanFacts(
     rows<AuthenticUseEventRow>(
       client
         .from("adle_authentic_use_events")
-        .select("child_id, canonical_word_id, occurred_on, use_kind, parent_verified, piece_ref, source_ref, row_status")
+        .select("child_id, canonical_word_id, occurred_on, use_kind, parent_verified, piece_ref, source_ref, row_status, provenance_kind")
         .eq("child_id", childId)
         .eq("row_status", "active"),
       "loadDailyPlanFacts:authenticUse",
