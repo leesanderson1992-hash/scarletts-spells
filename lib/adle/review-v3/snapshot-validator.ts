@@ -1,4 +1,5 @@
 import { fingerprintSnapshotValue } from "../composable-lesson/canonical-fingerprint";
+import { CONUNDRUM_VIDEO_BLOCKER, frozenConundrumVideo } from "./conundrum-video";
 import {
   REVIEW_ACTIVITY_SEQUENCE_V3,
   REVIEW_CHALLENGE_TYPES,
@@ -30,6 +31,7 @@ export const REVIEW_SNAPSHOT_V3_BLOCKER_CODES = [
   "review_snapshot_completion_contract_invalid",
   "review_snapshot_content_provenance_invalid",
   "review_snapshot_fingerprint_invalid",
+  CONUNDRUM_VIDEO_BLOCKER,
 ] as const;
 
 export type ReviewSnapshotV3BlockerCode =
@@ -338,6 +340,10 @@ export function validateCompiledReviewSnapshotV3(
     REVIEW_CHALLENGE_TYPES.some((type) => !challengeTypes.includes(type))
   ) blockers.push({ code: "review_snapshot_prompt_set_invalid" });
   for (const prompt of snapshot.promptCandidates) {
+    const video = frozenConundrumVideo(prompt);
+    if (video.status === "blocked") {
+      blockers.push({ code: video.code, detail: prompt.stablePromptKey });
+    }
     const expected = prompt.challengeType === "reflection"
       ? "reusable_lru_no_immediate_repeat"
       : "once_per_learner";

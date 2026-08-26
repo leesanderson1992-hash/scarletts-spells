@@ -126,6 +126,7 @@
     "adle:review-r5-regression": "npx tsx scripts/adle-review-r5-regression.ts",
     "adle:review-r5-multi-week-simulation": "npx tsx scripts/adle-review-r5-multi-week-simulation.ts",
     "adle:review-r6-regression": "npx tsx scripts/adle-review-r6-regression.ts",
+    "adle:review-conundrum-video-regression": "NODE_OPTIONS=--conditions=react-server tsx scripts/adle-review-conundrum-video-regression.ts",
     "adle:review-r6-migration-release": "npx tsx scripts/adle-review-r6-migration-release.ts",
     "adle:review-r6-migration-release-regression": "npx tsx scripts/adle-review-r6-migration-release-regression.ts",
     "adle:composer-regression": "rm -rf .tmp/adle-composer-regression && npx tsc --outDir .tmp/adle-composer-regression --rootDir . --module commonjs --target es2022 --moduleResolution node --esModuleInterop --skipLibCheck --noEmit false scripts/adle-composer-regression.ts && node .tmp/adle-composer-regression/scripts/adle-composer-regression.js",

@@ -3,6 +3,7 @@ import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 import { validateCompiledReviewSnapshotV3 } from "./snapshot-validator";
+import { CONUNDRUM_VIDEO_BLOCKER } from "./conundrum-video";
 import type {
   AdleTodaySessionReadModel,
   AdleSpecialistCheckpointR6View,
@@ -104,7 +105,8 @@ export async function loadAdleTodaySessionR6(input: {
         assignmentId: orchestration.daily_assignment_id,
         majorStage: "blocked",
         stateVersion: orchestration.state_version,
-        blockerCode: "review_r6_snapshot_or_session_conflict",
+        blockerCode: !validated.ok && validated.blockers.some((blocker) => blocker.code === CONUNDRUM_VIDEO_BLOCKER)
+          ? CONUNDRUM_VIDEO_BLOCKER : "review_r6_snapshot_or_session_conflict",
         review: null,
         specialist: null,
       };
