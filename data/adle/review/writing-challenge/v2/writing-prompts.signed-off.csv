@@ -1,0 +1,393 @@
+prompt_key,category,title,task_intro,prompt_text,top_tip,category_top_tip,reuse_policy,editorial_status,publication_status,content_version,release_reference,original_source_fingerprint,source_reference,review_decision,review_notes,reviewed_by,reviewed_on
+REFLECTION-01,Reflection — Stoic Journal,Inside My Control,"Reflection is a chance to think carefully about your day.
+
+There is no perfect answer. Choose a real moment, describe what happened, and think about what you can learn from it. Try to focus on your choices, your response, and what you might do next time.","What was inside my control today, and what was outside my control?","Separate the two clearly. Then spend most of your writing on what you could choose: your effort, words, attitude, preparation or response.",,reusable_lru_no_immediate_repeat,reviewed,Pending approval — not active,v1,adle-review-writing-challenge-2026-08-26-v1,32269d39b916f2849d97f87565f5d4c90c53598a8fc4ef5282580a35d253a521,user:ADLE Review Writing Challenge — Teaching Content Handoff:2026-08-26,,,,
+REFLECTION-02,Reflection — Stoic Journal,The Difficult Thing,"Reflection is a chance to think carefully about your day.
+
+There is no perfect answer. Choose a real moment, describe what happened, and think about what you can learn from it. Try to focus on your choices, your response, and what you might do next time.",What difficult thing did I deal with today?,"Tell the story of what happened, then explain what made it difficult. Finish with one thing you did well or one thing you could try next time.",,reusable_lru_no_immediate_repeat,reviewed,Pending approval — not active,v1,adle-review-writing-challenge-2026-08-26-v1,1210ced8c50f30c80111d55c621a66dc1cf042bf3affd4d612c08bdde8f4a440,user:ADLE Review Writing Challenge — Teaching Content Handoff:2026-08-26,,,,
+REFLECTION-03,Reflection — Stoic Journal,How Big Is It Really?,"Reflection is a chance to think carefully about your day.
+
+There is no perfect answer. Choose a real moment, describe what happened, and think about what you can learn from it. Try to focus on your choices, your response, and what you might do next time.","Will this matter tomorrow, next month or next year?","Pick one thing that felt important today. Zoom out in time. Explain how your feelings about it might change tomorrow, next month and next year.",,reusable_lru_no_immediate_repeat,reviewed,Pending approval — not active,v1,adle-review-writing-challenge-2026-08-26-v1,104b41333f647c2e552e07c65e77c7dc0c63991c87baa7b9e3c8fa805eb89066,user:ADLE Review Writing Challenge — Teaching Content Handoff:2026-08-26,,,,
+REFLECTION-04,Reflection — Stoic Journal,An Ordinary Good Thing,"Reflection is a chance to think carefully about your day.
+
+There is no perfect answer. Choose a real moment, describe what happened, and think about what you can learn from it. Try to focus on your choices, your response, and what you might do next time.",What ordinary thing am I grateful for?,"Choose something small and specific. Instead of simply naming it, describe why it made your day better.",,reusable_lru_no_immediate_repeat,reviewed,Pending approval — not active,v1,adle-review-writing-challenge-2026-08-26-v1,2108560d3f35b752e72806c6e12bce8370fa0bde3daceba9b9c103503c6b2a2d,user:ADLE Review Writing Challenge — Teaching Content Handoff:2026-08-26,,,,
+REFLECTION-05,Reflection — Stoic Journal,I Did It Anyway,"Reflection is a chance to think carefully about your day.
+
+There is no perfect answer. Choose a real moment, describe what happened, and think about what you can learn from it. Try to focus on your choices, your response, and what you might do next time.",When did I do something despite feeling nervous?,"Describe what you were nervous about, what you chose to do anyway, and how you felt afterwards. Courage does not mean you were never scared.",,reusable_lru_no_immediate_repeat,reviewed,Pending approval — not active,v1,adle-review-writing-challenge-2026-08-26-v1,e87cf8cf75041dfa4d74b7e9ea9fb5a3716fc7b93b4c7e350535082e3a698bf5,user:ADLE Review Writing Challenge — Teaching Content Handoff:2026-08-26,,,,
+REFLECTION-06,Reflection — Stoic Journal,How I Chose to Respond,"Reflection is a chance to think carefully about your day.
+
+There is no perfect answer. Choose a real moment, describe what happened, and think about what you can learn from it. Try to focus on your choices, your response, and what you might do next time.",Something annoying happened. How did I choose to respond?,"Describe the event without spending the whole piece blaming it. Focus on the part you controlled: what you said, did, thought or decided next.",,reusable_lru_no_immediate_repeat,reviewed,Pending approval — not active,v1,adle-review-writing-challenge-2026-08-26-v1,d2329ab42a733f0456a1b5c26782a9f492d4cfcbfc798641530a82418ba610de,user:ADLE Review Writing Challenge — Teaching Content Handoff:2026-08-26,,,,
+REFLECTION-07,Reflection — Stoic Journal,Advice From Tomorrow Me,"Reflection is a chance to think carefully about your day.
+
+There is no perfect answer. Choose a real moment, describe what happened, and think about what you can learn from it. Try to focus on your choices, your response, and what you might do next time.",What advice would tomorrow's version of me give me?,Imagine tomorrow-you knows how today turned out. Write the advice as if that wiser version of you were talking directly to you.,,reusable_lru_no_immediate_repeat,reviewed,Pending approval — not active,v1,adle-review-writing-challenge-2026-08-26-v1,fc2605f5e631a70bb44ae5523027f8f51581908e5e813b7010c54f0fbf136056,user:ADLE Review Writing Challenge — Teaching Content Handoff:2026-08-26,,,,
+REFLECTION-08,Reflection — Stoic Journal,What the Mistake Taught Me,"Reflection is a chance to think carefully about your day.
+
+There is no perfect answer. Choose a real moment, describe what happened, and think about what you can learn from it. Try to focus on your choices, your response, and what you might do next time.",What can I learn from something that went wrong?,"Do not just describe the mistake. Find the lesson inside it: What did it show me, and what could I do differently next time?",,reusable_lru_no_immediate_repeat,reviewed,Pending approval — not active,v1,adle-review-writing-challenge-2026-08-26-v1,768908c057dd8ce2fe743606e2557bace7039086637363f90345a19c7b6933e6,user:ADLE Review Writing Challenge — Teaching Content Handoff:2026-08-26,,,,
+STORY-01,Silly Stories,The Dragon at the Dentist,"Silly Stories let your imagination go completely wild.
+
+Use the prompt as your starting point, then take the story anywhere you like. Make something unexpected happen. Your job is not to make the story realistic — it is to make it entertaining while using as many of your Target Words as you naturally can.","A dragon arrives at the dentist with a very unusual problem. Unfortunately, the dentist has never treated a dragon before. What happens?",Give the dragon a strong personality. Make the problem get worse before somebody finds an unexpected solution.,"A fun story usually needs:
+
+Somebody interesting.
+
+Something they want.
+
+A problem that gets in the way.
+
+An unexpected turn.
+
+An ending that changes something.",once_per_learner,reviewed,Pending approval — not active,v1,adle-review-writing-challenge-2026-08-26-v1,cbc17e082c138eea03acd3de2dcea56af70ee6b1df1c8bce6623b801e302f951,user:ADLE Review Writing Challenge — Teaching Content Handoff:2026-08-26,,,,
+STORY-02,Silly Stories,No More Gravity,"Silly Stories let your imagination go completely wild.
+
+Use the prompt as your starting point, then take the story anywhere you like. Make something unexpected happen. Your job is not to make the story realistic — it is to make it entertaining while using as many of your Target Words as you naturally can.","At exactly 9:17 in the morning, gravity stops working for ten minutes. Tell the story of what happens.","Start somewhere ordinary. Then imagine the tiny details: drinks, chairs, pets, people and everything that was not tied down.","A fun story usually needs:
+
+Somebody interesting.
+
+Something they want.
+
+A problem that gets in the way.
+
+An unexpected turn.
+
+An ending that changes something.",once_per_learner,reviewed,Pending approval — not active,v1,adle-review-writing-challenge-2026-08-26-v1,18e338f848cb490b86fca51105a96eaa523c6cfda3cd6f171422f2b809bfb8b4,user:ADLE Review Writing Challenge — Teaching Content Handoff:2026-08-26,,,,
+STORY-03,Silly Stories,The Invisible Lunchbox,"Silly Stories let your imagination go completely wild.
+
+Use the prompt as your starting point, then take the story anywhere you like. Make something unexpected happen. Your job is not to make the story realistic — it is to make it entertaining while using as many of your Target Words as you naturally can.","Your lunchbox has turned invisible. You can still touch it, open it and smell what is inside — but nobody can see it. Then somebody else finds it.",Use the invisible object to create misunderstandings. Let one small problem grow into a much bigger one.,"A fun story usually needs:
+
+Somebody interesting.
+
+Something they want.
+
+A problem that gets in the way.
+
+An unexpected turn.
+
+An ending that changes something.",once_per_learner,reviewed,Pending approval — not active,v1,adle-review-writing-challenge-2026-08-26-v1,66dc07f1213ae14b937c218a47e2370bc999ac68a9fe8df90fa00a6d444b0000,user:ADLE Review Writing Challenge — Teaching Content Handoff:2026-08-26,,,,
+STORY-04,Silly Stories,The Moon's Missing Treasure,"Silly Stories let your imagination go completely wild.
+
+Use the prompt as your starting point, then take the story anywhere you like. Make something unexpected happen. Your job is not to make the story realistic — it is to make it entertaining while using as many of your Target Words as you naturally can.",The Moon sends you a message saying it has lost something extremely important somewhere on Earth. You have until midnight to find it.,"Decide what was lost and why it matters. Give your character clues, obstacles and a ticking clock.","A fun story usually needs:
+
+Somebody interesting.
+
+Something they want.
+
+A problem that gets in the way.
+
+An unexpected turn.
+
+An ending that changes something.",once_per_learner,reviewed,Pending approval — not active,v1,adle-review-writing-challenge-2026-08-26-v1,e14262ff7973dfa06d1998cff384fa445ce9ac01f91c1dc5129c79561c23b8e5,user:ADLE Review Writing Challenge — Teaching Content Handoff:2026-08-26,,,,
+STORY-05,Silly Stories,Magic on Aisle Seven,"Silly Stories let your imagination go completely wild.
+
+Use the prompt as your starting point, then take the story anywhere you like. Make something unexpected happen. Your job is not to make the story realistic — it is to make it entertaining while using as many of your Target Words as you naturally can.",A confused magician performs the wrong spell inside a supermarket. Suddenly the aisles begin behaving very strangely.,Choose one magical rule and keep making the consequences bigger and sillier.,"A fun story usually needs:
+
+Somebody interesting.
+
+Something they want.
+
+A problem that gets in the way.
+
+An unexpected turn.
+
+An ending that changes something.",once_per_learner,reviewed,Pending approval — not active,v1,adle-review-writing-challenge-2026-08-26-v1,581286b864bc61471e5ea509627be000511faa8a886fa47a657340b879a9ad94,user:ADLE Review Writing Challenge — Teaching Content Handoff:2026-08-26,,,,
+STORY-06,Silly Stories,The Robot Teacher Mystery,"Silly Stories let your imagination go completely wild.
+
+Use the prompt as your starting point, then take the story anywhere you like. Make something unexpected happen. Your job is not to make the story realistic — it is to make it entertaining while using as many of your Target Words as you naturally can.","You become convinced that one of your teachers is secretly a robot. What evidence do you find, and what happens when you investigate?",Plant three clues. Make at least one clue turn out to have a completely ordinary explanation.,"A fun story usually needs:
+
+Somebody interesting.
+
+Something they want.
+
+A problem that gets in the way.
+
+An unexpected turn.
+
+An ending that changes something.",once_per_learner,reviewed,Pending approval — not active,v1,adle-review-writing-challenge-2026-08-26-v1,3429e04c3935a7f0c1e1ec3e7c589ed02f0da92957a554f2c394ca0d9e9215d6,user:ADLE Review Writing Challenge — Teaching Content Handoff:2026-08-26,,,,
+STORY-07,Silly Stories,The Time Machine With One Problem,"Silly Stories let your imagination go completely wild.
+
+Use the prompt as your starting point, then take the story anywhere you like. Make something unexpected happen. Your job is not to make the story realistic — it is to make it entertaining while using as many of your Target Words as you naturally can.","You discover a time machine, but it has one ridiculous flaw. Every time you use it, something unexpected happens.",Decide the machine's strange rule first. Then let your character make the mistake of using it again.,"A fun story usually needs:
+
+Somebody interesting.
+
+Something they want.
+
+A problem that gets in the way.
+
+An unexpected turn.
+
+An ending that changes something.",once_per_learner,reviewed,Pending approval — not active,v1,adle-review-writing-challenge-2026-08-26-v1,720b990c5d5d72708524d2d63872f039d219910ebd902ade305118d55862e433,user:ADLE Review Writing Challenge — Teaching Content Handoff:2026-08-26,,,,
+STORY-08,Silly Stories,A Completely Useless Superpower,"Silly Stories let your imagination go completely wild.
+
+Use the prompt as your starting point, then take the story anywhere you like. Make something unexpected happen. Your job is not to make the story realistic — it is to make it entertaining while using as many of your Target Words as you naturally can.","You wake up with a superpower. Unfortunately, it seems completely useless. By the end of the day, you discover exactly why it matters.",Make the power funny at first. Then create a problem where that exact strange ability becomes surprisingly useful.,"A fun story usually needs:
+
+Somebody interesting.
+
+Something they want.
+
+A problem that gets in the way.
+
+An unexpected turn.
+
+An ending that changes something.",once_per_learner,reviewed,Pending approval — not active,v1,adle-review-writing-challenge-2026-08-26-v1,3b154f1e5a585ae18fab6cd747bcb7becd21f8c8943f6c23a5b426398fa8f05d,user:ADLE Review Writing Challenge — Teaching Content Handoff:2026-08-26,,,,
+STORY-09,Silly Stories,You're Hired!,"Silly Stories let your imagination go completely wild.
+
+Use the prompt as your starting point, then take the story anywhere you like. Make something unexpected happen. Your job is not to make the story realistic — it is to make it entertaining while using as many of your Target Words as you naturally can.",An animal arrives for a job interview and is absolutely certain it is the perfect person for the job. Tell us about the interview.,Choose a job that is a terrible match for the animal. Let the animal explain why each apparent weakness is actually a brilliant qualification.,"A fun story usually needs:
+
+Somebody interesting.
+
+Something they want.
+
+A problem that gets in the way.
+
+An unexpected turn.
+
+An ending that changes something.",once_per_learner,reviewed,Pending approval — not active,v1,adle-review-writing-challenge-2026-08-26-v1,6300b0284127f80612ec8572e7231123cc24c979b28bb6c7039fc90008c50826,user:ADLE Review Writing Challenge — Teaching Content Handoff:2026-08-26,,,,
+STORY-10,Silly Stories,The New Door,"Silly Stories let your imagination go completely wild.
+
+Use the prompt as your starting point, then take the story anywhere you like. Make something unexpected happen. Your job is not to make the story realistic — it is to make it entertaining while using as many of your Target Words as you naturally can.",A door appears in a familiar place where there definitely was not a door yesterday. Everyone tells you not to open it.,Build curiosity before opening the door. Decide what your character expects — then surprise them.,"A fun story usually needs:
+
+Somebody interesting.
+
+Something they want.
+
+A problem that gets in the way.
+
+An unexpected turn.
+
+An ending that changes something.",once_per_learner,reviewed,Pending approval — not active,v1,adle-review-writing-challenge-2026-08-26-v1,9797b3a69aa1c75becee653fc026ac933bd8429eae09639a70be0916c46bec31,user:ADLE Review Writing Challenge — Teaching Content Handoff:2026-08-26,,,,
+FU-01,Fortunately / Unfortunately,The Treasure Map,"Fortunately / Unfortunately is a story that keeps changing direction.
+
+Begin with the prompt. Then alternate between good news and bad news:
+
+Fortunately... something helpful happens.
+Unfortunately... a new problem appears.
+Fortunately... things improve again.
+
+Keep switching until you reach an ending.","You find an old treasure map hidden inside a library book.
+
+Start with: Fortunately, the map showed that the treasure was very close...",Make each solution create the next problem.,Every new sentence should change the situation. Do not simply say something is good or bad — make something actually happen because of it.,once_per_learner,reviewed,Pending approval — not active,v1,adle-review-writing-challenge-2026-08-26-v1,6cf5c733d3b72cad504b8a3e6fd6a7ae7dcd8163227872269932eb6f489be992,user:ADLE Review Writing Challenge — Teaching Content Handoff:2026-08-26,,,,
+FU-02,Fortunately / Unfortunately,The School Trip Goes Wrong,"Fortunately / Unfortunately is a story that keeps changing direction.
+
+Begin with the prompt. Then alternate between good news and bad news:
+
+Fortunately... something helpful happens.
+Unfortunately... a new problem appears.
+Fortunately... things improve again.
+
+Keep switching until you reach an ending.","Your class sets off on what should be the best school trip ever.
+
+Start with: Fortunately, we arrived exactly on time...",Use each Fortunately sentence to rescue the characters — then let Unfortunately spoil the rescue.,Every new sentence should change the situation. Do not simply say something is good or bad — make something actually happen because of it.,once_per_learner,reviewed,Pending approval — not active,v1,adle-review-writing-challenge-2026-08-26-v1,cf2b454cad9f278474fa4ae287947b6c651390f1cf6a9d1612e41e305ccfed87,user:ADLE Review Writing Challenge — Teaching Content Handoff:2026-08-26,,,,
+FU-03,Fortunately / Unfortunately,The Dog Who Followed Me Home,"Fortunately / Unfortunately is a story that keeps changing direction.
+
+Begin with the prompt. Then alternate between good news and bad news:
+
+Fortunately... something helpful happens.
+Unfortunately... a new problem appears.
+Fortunately... things improve again.
+
+Keep switching until you reach an ending.","A very friendly dog begins following you home.
+
+Start with: Fortunately, the dog seemed to know exactly where it was going...",Let the dog's behaviour solve problems as often as it causes them.,Every new sentence should change the situation. Do not simply say something is good or bad — make something actually happen because of it.,once_per_learner,reviewed,Pending approval — not active,v1,adle-review-writing-challenge-2026-08-26-v1,2b807d9674824a936a9f2dd5864a98ddfb6234e9dbab8f6af355ef02f1918d54,user:ADLE Review Writing Challenge — Teaching Content Handoff:2026-08-26,,,,
+FU-04,Fortunately / Unfortunately,The Cake Disaster,"Fortunately / Unfortunately is a story that keeps changing direction.
+
+Begin with the prompt. Then alternate between good news and bad news:
+
+Fortunately... something helpful happens.
+Unfortunately... a new problem appears.
+Fortunately... things improve again.
+
+Keep switching until you reach an ending.","You are responsible for getting an enormous birthday cake safely to a party.
+
+Start with: Fortunately, the cake looked perfect...","Use physical problems: doors, weather, transport, animals or people in the way.",Every new sentence should change the situation. Do not simply say something is good or bad — make something actually happen because of it.,once_per_learner,reviewed,Pending approval — not active,v1,adle-review-writing-challenge-2026-08-26-v1,f527884b26b944b6fc0421def325bb5cb232edeaa08e30133ab35ad75a3beb38,user:ADLE Review Writing Challenge — Teaching Content Handoff:2026-08-26,,,,
+FU-05,Fortunately / Unfortunately,After Closing Time,"Fortunately / Unfortunately is a story that keeps changing direction.
+
+Begin with the prompt. Then alternate between good news and bad news:
+
+Fortunately... something helpful happens.
+Unfortunately... a new problem appears.
+Fortunately... things improve again.
+
+Keep switching until you reach an ending.","You realise everyone has gone home and you are locked inside a museum.
+
+Start with: Fortunately, I still had my phone...","Let the setting create your twists. Think about exhibits, alarms, guards and strange noises.",Every new sentence should change the situation. Do not simply say something is good or bad — make something actually happen because of it.,once_per_learner,reviewed,Pending approval — not active,v1,adle-review-writing-challenge-2026-08-26-v1,5da54153659d615c83dd41e79dc80d042ff6e8fa3c41719791a71f8c8cea1828,user:ADLE Review Writing Challenge — Teaching Content Handoff:2026-08-26,,,,
+FU-06,Fortunately / Unfortunately,The Impossible Final,"Fortunately / Unfortunately is a story that keeps changing direction.
+
+Begin with the prompt. Then alternate between good news and bad news:
+
+Fortunately... something helpful happens.
+Unfortunately... a new problem appears.
+Fortunately... things improve again.
+
+Keep switching until you reach an ending.","Your team reaches the final, but everything starts going wrong.
+
+Start with: Fortunately, we scored first...",Keep changing who seems most likely to win until the very end.,Every new sentence should change the situation. Do not simply say something is good or bad — make something actually happen because of it.,once_per_learner,reviewed,Pending approval — not active,v1,adle-review-writing-challenge-2026-08-26-v1,0b8488f3cfd43220cbc9560ba979a2529478ba2039bba528a690b2e32ac46597,user:ADLE Review Writing Challenge — Teaching Content Handoff:2026-08-26,,,,
+FU-07,Fortunately / Unfortunately,Mission to Mars-ish,"Fortunately / Unfortunately is a story that keeps changing direction.
+
+Begin with the prompt. Then alternate between good news and bad news:
+
+Fortunately... something helpful happens.
+Unfortunately... a new problem appears.
+Fortunately... things improve again.
+
+Keep switching until you reach an ending.","You are on your first space mission when the computer announces that the spacecraft is going somewhere unexpected.
+
+Start with: Fortunately, we had plenty of fuel...",Make every new problem require a clever decision rather than pure luck.,Every new sentence should change the situation. Do not simply say something is good or bad — make something actually happen because of it.,once_per_learner,reviewed,Pending approval — not active,v1,adle-review-writing-challenge-2026-08-26-v1,a993127fc9ecaeebeaccf0dbcb2b2bb743f426310b3e6f6fb2aa3ec892b10f6c,user:ADLE Review Writing Challenge — Teaching Content Handoff:2026-08-26,,,,
+FU-08,Fortunately / Unfortunately,The Pet With a Secret,"Fortunately / Unfortunately is a story that keeps changing direction.
+
+Begin with the prompt. Then alternate between good news and bad news:
+
+Fortunately... something helpful happens.
+Unfortunately... a new problem appears.
+Fortunately... things improve again.
+
+Keep switching until you reach an ending.","Your family brings home a new pet. On the first night, you discover it can do something impossible.
+
+Start with: Fortunately, nobody else had noticed yet...",Decide the pet's secret ability first and use it repeatedly in different ways.,Every new sentence should change the situation. Do not simply say something is good or bad — make something actually happen because of it.,once_per_learner,reviewed,Pending approval — not active,v1,adle-review-writing-challenge-2026-08-26-v1,886215b89e260afd6d677002d1d228bb29e2c3b54bc54bcaf0dbe28d939ed417,user:ADLE Review Writing Challenge — Teaching Content Handoff:2026-08-26,,,,
+PERSUADE-01,Persuasion,Should Homework Be Banned?,"Persuasion means trying to convince somebody.
+
+Choose a clear position, then give your strongest reasons. A powerful argument also thinks about what somebody on the other side might say.
+
+You do not have to choose the answer you think an adult would prefer. You need to make the strongest case you can. Write a letter to a headmaster explaining your case. Dear Headmaster, …. ",Should children have homework after a full day at school?,"Think about learning, free time, family life and whether all homework is equally useful.","Use this simple structure:
+
+My position: say exactly what you think.
+
+My reasons: give two or three strong reasons.
+
+An example: show why one reason matters.
+
+The other side: mention a reasonable objection.
+
+My reply: explain why you still think your position is stronger.",once_per_learner,reviewed,Pending approval — not active,v1,adle-review-writing-challenge-2026-08-26-v1,67c4e97b456ebe4df847c2c4ddd05b7d414b80f759ad95fd5cfcc08b90852fa7,user:ADLE Review Writing Challenge — Teaching Content Handoff:2026-08-26,,,,
+PERSUADE-02,Persuasion,Who Should Choose Bedtime?,"Persuasion means trying to convince somebody.
+
+Choose a clear position, then give your strongest reasons. A powerful argument also thinks about what somebody on the other side might say.
+
+You do not have to choose the answer you think an adult would prefer. You need to make the strongest case you can. Write a letter to your mummy or daddy persuading them to see things the way that you do. Dear Mummy / Daddy, …",Should children be allowed to choose their own bedtime?,"Consider freedom, responsibility, sleep and what happens the next morning.","Use this simple structure:
+
+My position: say exactly what you think.
+
+My reasons: give two or three strong reasons.
+
+An example: show why one reason matters.
+
+The other side: mention a reasonable objection.
+
+My reply: explain why you still think your position is stronger.",once_per_learner,reviewed,Pending approval — not active,v1,adle-review-writing-challenge-2026-08-26-v1,e79a129eea31713959c8e3bb1234b6706f2b570de2c05b59ea1eaa96d2e630d8,user:ADLE Review Writing Challenge — Teaching Content Handoff:2026-08-26,,,,
+PERSUADE-03,Persuasion,Every Home Needs a Pet,"Persuasion means trying to convince somebody.
+
+Choose a clear position, then give your strongest reasons. A powerful argument also thinks about what somebody on the other side might say.
+
+You do not have to choose the answer you think an adult would prefer. You need to make the strongest case you can. Write a letter to your mummy or daddy persuading them to see things the way that you do. Dear Mummy / Daddy, …",Should every home have an animal that kids help to look after?,"Consider responsibility and enjoyment, but also allergies, cost, holidays and animal welfare.","Use this simple structure:
+
+My position: say exactly what you think.
+
+My reasons: give two or three strong reasons.
+
+An example: show why one reason matters.
+
+The other side: mention a reasonable objection.
+
+My reply: explain why you still think your position is stronger.",once_per_learner,reviewed,Pending approval — not active,v1,adle-review-writing-challenge-2026-08-26-v1,8e34f33dab7b8050686ae4301bb1ff3d388d3a2ac1d5efa59799725fd80995ca,user:ADLE Review Writing Challenge — Teaching Content Handoff:2026-08-26,,,,
+PERSUADE-04,Persuasion,The Three-Day Weekend,"Persuasion means trying to convince somebody.
+
+Choose a clear position, then give your strongest reasons. A powerful argument also thinks about what somebody on the other side might say.
+
+You do not have to choose the answer you think an adult would prefer. You need to make the strongest case you can. Write a letter to your teacher whether that is your parent or school teacher persuading them to see things the way that you do. Dear Mummy / Daddy, …",Should the school week be four longer days instead of five normal days?,Compare the benefits of an extra day off with what longer school days might feel like.,"Use this simple structure:
+
+My position: say exactly what you think.
+
+My reasons: give two or three strong reasons.
+
+An example: show why one reason matters.
+
+The other side: mention a reasonable objection.
+
+My reply: explain why you still think your position is stronger.",once_per_learner,reviewed,Pending approval — not active,v1,adle-review-writing-challenge-2026-08-26-v1,a847cfbc619f0e95b17b7f2475a781cc15c527829a608127dbe5b1ae6bf9c67e,user:ADLE Review Writing Challenge — Teaching Content Handoff:2026-08-26,,,,
+PERSUADE-05,Persuasion,Robot Teachers?,"Persuasion means trying to convince somebody.
+
+Choose a clear position, then give your strongest reasons. A powerful argument also thinks about what somebody on the other side might say.
+
+You do not have to choose the answer you think an adult would prefer. You need to make the strongest case you can. You are writing to the Minister of Education in the government. Dear Minister, …",Should robots or AI be allowed to teach some school lessons?,Think about what technology might do brilliantly and what a human teacher can do that a machine may struggle with.,"Use this simple structure:
+
+My position: say exactly what you think.
+
+My reasons: give two or three strong reasons.
+
+An example: show why one reason matters.
+
+The other side: mention a reasonable objection.
+
+My reply: explain why you still think your position is stronger.",once_per_learner,reviewed,Pending approval — not active,v1,adle-review-writing-challenge-2026-08-26-v1,1403ce2f692cdaa4d0ee91bb7fb9e2c0a214f8130d23697b94364079f8bed3b5,user:ADLE Review Writing Challenge — Teaching Content Handoff:2026-08-26,,,,
+PERSUADE-06,Persuasion,Car-Free Town Centres,"Persuasion means trying to convince somebody.
+
+Choose a clear position, then give your strongest reasons. A powerful argument also thinks about what somebody on the other side might say.
+
+You do not have to choose the answer you think an adult would prefer. You need to make the strongest case you can. Write a letter to your Mayor persuading them to see things the way that you do. Dear Mayor ….",Should cars be banned from busy town centres?,"Think about safety, pollution and pleasant streets, but also deliveries, disabilities and people who need to travel.","Use this simple structure:
+
+My position: say exactly what you think.
+
+My reasons: give two or three strong reasons.
+
+An example: show why one reason matters.
+
+The other side: mention a reasonable objection.
+
+My reply: explain why you still think your position is stronger.",once_per_learner,reviewed,Pending approval — not active,v1,adle-review-writing-challenge-2026-08-26-v1,cf96a5e77e58d4e861b1afb977c922dda1f2162937c8f0a3db342e671424c668,user:ADLE Review Writing Challenge — Teaching Content Handoff:2026-08-26,,,,
+PERSUADE-07,Persuasion,Should Pocket Money Be Earned?,"Persuasion means trying to convince somebody.
+
+Choose a clear position, then give your strongest reasons. A powerful argument also thinks about what somebody on the other side might say.
+
+You do not have to choose the answer you think an adult would prefer. You need to make the strongest case you can. Write a letter to your mummy or daddy persuading them to see things the way that you do. Dear Mummy / Daddy, …",Should children have to do jobs at home to earn pocket money?,Think about responsibility and fairness. Are some household jobs simply part of being in a family?,"Use this simple structure:
+
+My position: say exactly what you think.
+
+My reasons: give two or three strong reasons.
+
+An example: show why one reason matters.
+
+The other side: mention a reasonable objection.
+
+My reply: explain why you still think your position is stronger.",once_per_learner,reviewed,Pending approval — not active,v1,adle-review-writing-challenge-2026-08-26-v1,a02a02db3bdb3887b3de58443e7966a892b63e56ce039154a449071a36805d13,user:ADLE Review Writing Challenge — Teaching Content Handoff:2026-08-26,,,,
+PERSUADE-08,Persuasion,"More Break, Less Lesson?","Persuasion means trying to convince somebody.
+
+Choose a clear position, then give your strongest reasons. A powerful argument also thinks about what somebody on the other side might say.
+
+You do not have to choose the answer you think an adult would prefer. You need to make the strongest case you can. Write a letter to the Minster of Education in the government persuading them to see things the way that you do. Dear Minister …",Should schools shorten lessons so children can have longer breaktimes?,"Consider concentration, exercise, friendships and how much learning time would be lost.","Use this simple structure:
+
+My position: say exactly what you think.
+
+My reasons: give two or three strong reasons.
+
+An example: show why one reason matters.
+
+The other side: mention a reasonable objection.
+
+My reply: explain why you still think your position is stronger.",once_per_learner,reviewed,Pending approval — not active,v1,adle-review-writing-challenge-2026-08-26-v1,bc22ad3fd559dd204184eeeedc22f19bfecc5983fa73123945384fcddf41b41b,user:ADLE Review Writing Challenge — Teaching Content Handoff:2026-08-26,,,,
+PERSUADE-09,Persuasion,Should Zoos Exist?,"Persuasion means trying to convince somebody.
+
+Choose a clear position, then give your strongest reasons. A powerful argument also thinks about what somebody on the other side might say.
+
+You do not have to choose the answer you think an adult would prefer. You need to make the strongest case you can Choose an adult to write to. Dear ….",Should zoos continue to exist?,Consider conservation and education as well as animal freedom and welfare. This is a good prompt for acknowledging a strong opposing argument.,"Use this simple structure:
+
+My position: say exactly what you think.
+
+My reasons: give two or three strong reasons.
+
+An example: show why one reason matters.
+
+The other side: mention a reasonable objection.
+
+My reply: explain why you still think your position is stronger.",once_per_learner,reviewed,Pending approval — not active,v1,adle-review-writing-challenge-2026-08-26-v1,4ea16d5deb5ce0a28adf6f2be15abc6f9915727f32f1c3764024b30c53273dac,user:ADLE Review Writing Challenge — Teaching Content Handoff:2026-08-26,,,,
+PERSUADE-10,Persuasion,Is Gaming a Sport?,"Persuasion means trying to convince somebody.
+
+Choose a clear position, then give your strongest reasons. A powerful argument also thinks about what somebody on the other side might say.
+
+You do not have to choose the answer you think an adult would prefer. You need to make the strongest case you can Write a letter to the Minister of Education persuading them to see things the way that you do. Dear Minister, …",Should competitive video gaming count as a sport?,First decide what you think makes something a sport. Then test gaming against your own definition.,"Use this simple structure:
+
+My position: say exactly what you think.
+
+My reasons: give two or three strong reasons.
+
+An example: show why one reason matters.
+
+The other side: mention a reasonable objection.
+
+My reply: explain why you still think your position is stronger.",once_per_learner,reviewed,Pending approval — not active,v1,adle-review-writing-challenge-2026-08-26-v1,df5e0a9f55f628c1b19963490a019290b2ac945cb47559dbe1f9e89780d97768,user:ADLE Review Writing Challenge — Teaching Content Handoff:2026-08-26,,,,

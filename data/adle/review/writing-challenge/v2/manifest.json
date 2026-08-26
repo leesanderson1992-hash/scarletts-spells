@@ -1,0 +1,82 @@
+{
+  "package_schema_version": "adle_review_writing_challenge_handoff_v2",
+  "release_reference": "adle-review-writing-challenge-2026-08-26-v2",
+  "content_version": "v2",
+  "status": "content_signed_off_not_imported_or_activated",
+  "content_approval_reference": "user-review-content-signoff-2026-08-26-v2",
+  "replaces_review_package": "../v1/",
+  "prior_package_preserved": true,
+  "import_file": "adle_review_prompt_versions.import.json",
+  "import_row_count": 98,
+  "import_review_status": "approved",
+  "database_table": "adle_review_prompt_versions",
+  "approval_scope": {
+    "writing_prompts": 36,
+    "conundrum_candidates": 63
+  },
+  "excluded_keys": [
+    "CONUNDRUM-YXMchZeXnXw"
+  ],
+  "sources": [
+    {
+      "file": "writing-prompts.signed-off.csv",
+      "sha256": "7ad001a1eb721badaedd1d98736a2732c84d60ea40d1c39f27a58ec746fecb97"
+    },
+    {
+      "file": "writing-review.source.json",
+      "sha256": "1050898f506dfa68a28cf9992814006231ef9d1d287655ed441cb8c5a8f52f12"
+    },
+    {
+      "file": "approval.source.json",
+      "sha256": "8f06242b9d374b173e4f1fd7393d8e96108a9d1faa07268f955fa2f678ac68cf"
+    },
+    {
+      "file": "amendments.json",
+      "sha256": "7f53a6192b4cbacd5262d1fbe763621ce1ff11d8cbf8f71fb7135f52fc87d722"
+    }
+  ],
+  "generated_files": [
+    {
+      "file": "teaching-content.source.json",
+      "sha256": "704d6028d188f35a6f4c3f49a78e64cc1085284306f094cadc7d2393a11587aa"
+    },
+    {
+      "file": "instructions.json",
+      "sha256": "4fc68df46ffc1f799f0d131343a1edd258ff5cf2455172d687770eef4ac26148"
+    },
+    {
+      "file": "governed-prompts.json",
+      "sha256": "f01d578d6ec1ac529bc503b484b1da1ed85cf3904304233f75184024d0e81f02"
+    },
+    {
+      "file": "adle_review_prompt_versions.import.json",
+      "sha256": "9b53410602db3facb5addc3cf44486d815f323617de56bc8c27f22c9d4f525a6"
+    },
+    {
+      "file": "conundrum-approval-register.json",
+      "sha256": "8bc5d61322cfc34c965ac0570a1f3be46a2d5af14d01c4a65932275585dc8884"
+    },
+    {
+      "file": "validation-report.json",
+      "sha256": "3dab63ade12a3b7a685468ce6963655c84eea4c61b69b4985daa0c6b0c24e6c4"
+    }
+  ],
+  "fingerprint_algorithm": "SHA-256 of recursively key-sorted import row excluding source_fingerprint, review_status and row_status; includes exact content, configuration, provenance and approval reference",
+  "product_rules": {
+    "learner_term": "Target Words",
+    "target_words_maximum": 10,
+    "target_delivery": "separate_audio_only_controls",
+    "target_spellings_hidden_during_creative_writing": true,
+    "dynamic_prompt_rewriting": false,
+    "review_outcome_authority": "per_word_retrieval_evidence",
+    "ten_of_ten_role": "challenge_achievement_not_review_completion",
+    "incorrect_target_flow": "governed_word_reflection_and_repair",
+    "shared_review_engine": true,
+    "ordinary_reuse_policy": "once_per_learner",
+    "reflection_reuse_policy": "reusable_lru_no_immediate_repeat",
+    "unavailable_video_policy": "block_and_review_never_silently_replace",
+    "transcript_storage": "no_full_transcripts"
+  },
+  "database_changed": false,
+  "activation_ready": false
+}

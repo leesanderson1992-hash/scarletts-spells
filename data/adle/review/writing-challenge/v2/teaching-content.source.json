@@ -1,0 +1,306 @@
+{
+  "release_reference": "adle-review-writing-challenge-2026-08-26-v2",
+  "content_version": "v2",
+  "source_reference": "user-review-content-signoff-2026-08-26-v2:writing_csv:7ad001a1eb721badaedd1d98736a2732c84d60ea40d1c39f27a58ec746fecb97",
+  "locale": "en-GB",
+  "categories": {
+    "conundrums": {
+      "label": "Conundrums",
+      "task_intro": "Conundrums are problems that make you think.\n\nWatch the video carefully. There may not be one perfect answer. Decide what you think, then explain your reasoning. A strong answer tells us what you would choose, why you would choose it, and what might make someone else disagree.",
+      "category_top_tip": null,
+      "reuse_policy": "once_per_learner",
+      "video_source": "Astra Nova School",
+      "video_library": "https://www.youtube.com/@astranovaschool/videos",
+      "prompt_template": "Watch the conundrum. What do you think should happen? Explain your choice and give at least two reasons. If there is another reasonable point of view, explain why somebody might choose it.",
+      "top_tip_template": "Make a decision first. Then give your strongest reason. Finally, test your idea: What would someone who disagrees with me say?"
+    },
+    "reflection": {
+      "label": "Reflection — Stoic Journal",
+      "task_intro": "Reflection is a chance to think carefully about your day.\n\nThere is no perfect answer. Choose a real moment, describe what happened, and think about what you can learn from it. Try to focus on your choices, your response, and what you might do next time.",
+      "category_top_tip": null,
+      "reuse_policy": "reusable_lru_no_immediate_repeat"
+    },
+    "stories": {
+      "label": "Silly Stories",
+      "task_intro": "Silly Stories let your imagination go completely wild.\n\nUse the prompt as your starting point, then take the story anywhere you like. Make something unexpected happen. Your job is not to make the story realistic — it is to make it entertaining while using as many of your Target Words as you naturally can.",
+      "category_top_tip": "A fun story usually needs:\n\nSomebody interesting.\n\nSomething they want.\n\nA problem that gets in the way.\n\nAn unexpected turn.\n\nAn ending that changes something.",
+      "reuse_policy": "once_per_learner"
+    },
+    "fortunately_unfortunately": {
+      "label": "Fortunately / Unfortunately",
+      "task_intro": "Fortunately / Unfortunately is a story that keeps changing direction.\n\nBegin with the prompt. Then alternate between good news and bad news:\n\nFortunately... something helpful happens.\nUnfortunately... a new problem appears.\nFortunately... things improve again.\n\nKeep switching until you reach an ending.",
+      "category_top_tip": "Every new sentence should change the situation. Do not simply say something is good or bad — make something actually happen because of it.",
+      "reuse_policy": "once_per_learner"
+    },
+    "persuasion": {
+      "label": "Persuasion",
+      "task_intro": "Persuasion means trying to convince somebody.\n\nChoose a clear position, then give your strongest reasons. A powerful argument also thinks about what somebody on the other side might say.\n\nYou do not have to choose the answer you think an adult would prefer. You need to make the strongest case you can.",
+      "category_top_tip": "Use this simple structure:\n\nMy position: say exactly what you think.\n\nMy reasons: give two or three strong reasons.\n\nAn example: show why one reason matters.\n\nThe other side: mention a reasonable objection.\n\nMy reply: explain why you still think your position is stronger.",
+      "reuse_policy": "once_per_learner"
+    }
+  },
+  "prompts": [
+    {
+      "prompt_key": "REFLECTION-01",
+      "category": "reflection",
+      "title": "Inside My Control",
+      "prompt_text": "What was inside my control today, and what was outside my control?",
+      "top_tip": "Separate the two clearly. Then spend most of your writing on what you could choose: your effort, words, attitude, preparation or response."
+    },
+    {
+      "prompt_key": "REFLECTION-02",
+      "category": "reflection",
+      "title": "The Difficult Thing",
+      "prompt_text": "What difficult thing did I deal with today?",
+      "top_tip": "Tell the story of what happened, then explain what made it difficult. Finish with one thing you did well or one thing you could try next time."
+    },
+    {
+      "prompt_key": "REFLECTION-03",
+      "category": "reflection",
+      "title": "How Big Is It Really?",
+      "prompt_text": "Will this matter tomorrow, next month or next year?",
+      "top_tip": "Pick one thing that felt important today. Zoom out in time. Explain how your feelings about it might change tomorrow, next month and next year."
+    },
+    {
+      "prompt_key": "REFLECTION-04",
+      "category": "reflection",
+      "title": "An Ordinary Good Thing",
+      "prompt_text": "What ordinary thing am I grateful for?",
+      "top_tip": "Choose something small and specific. Instead of simply naming it, describe why it made your day better."
+    },
+    {
+      "prompt_key": "REFLECTION-05",
+      "category": "reflection",
+      "title": "I Did It Anyway",
+      "prompt_text": "When did I do something despite feeling nervous?",
+      "top_tip": "Describe what you were nervous about, what you chose to do anyway, and how you felt afterwards. Courage does not mean you were never scared."
+    },
+    {
+      "prompt_key": "REFLECTION-06",
+      "category": "reflection",
+      "title": "How I Chose to Respond",
+      "prompt_text": "Something annoying happened. How did I choose to respond?",
+      "top_tip": "Describe the event without spending the whole piece blaming it. Focus on the part you controlled: what you said, did, thought or decided next."
+    },
+    {
+      "prompt_key": "REFLECTION-07",
+      "category": "reflection",
+      "title": "Advice From Tomorrow Me",
+      "prompt_text": "What advice would tomorrow's version of me give me?",
+      "top_tip": "Imagine tomorrow-you knows how today turned out. Write the advice as if that wiser version of you were talking directly to you."
+    },
+    {
+      "prompt_key": "REFLECTION-08",
+      "category": "reflection",
+      "title": "What the Mistake Taught Me",
+      "prompt_text": "What can I learn from something that went wrong?",
+      "top_tip": "Do not just describe the mistake. Find the lesson inside it: What did it show me, and what could I do differently next time?"
+    },
+    {
+      "prompt_key": "STORY-01",
+      "category": "stories",
+      "title": "The Dragon at the Dentist",
+      "prompt_text": "A dragon arrives at the dentist with a very unusual problem. Unfortunately, the dentist has never treated a dragon before. What happens?",
+      "top_tip": "Give the dragon a strong personality. Make the problem get worse before somebody finds an unexpected solution."
+    },
+    {
+      "prompt_key": "STORY-02",
+      "category": "stories",
+      "title": "No More Gravity",
+      "prompt_text": "At exactly 9:17 in the morning, gravity stops working for ten minutes. Tell the story of what happens.",
+      "top_tip": "Start somewhere ordinary. Then imagine the tiny details: drinks, chairs, pets, people and everything that was not tied down."
+    },
+    {
+      "prompt_key": "STORY-03",
+      "category": "stories",
+      "title": "The Invisible Lunchbox",
+      "prompt_text": "Your lunchbox has turned invisible. You can still touch it, open it and smell what is inside — but nobody can see it. Then somebody else finds it.",
+      "top_tip": "Use the invisible object to create misunderstandings. Let one small problem grow into a much bigger one."
+    },
+    {
+      "prompt_key": "STORY-04",
+      "category": "stories",
+      "title": "The Moon's Missing Treasure",
+      "prompt_text": "The Moon sends you a message saying it has lost something extremely important somewhere on Earth. You have until midnight to find it.",
+      "top_tip": "Decide what was lost and why it matters. Give your character clues, obstacles and a ticking clock."
+    },
+    {
+      "prompt_key": "STORY-05",
+      "category": "stories",
+      "title": "Magic on Aisle Seven",
+      "prompt_text": "A confused magician performs the wrong spell inside a supermarket. Suddenly the aisles begin behaving very strangely.",
+      "top_tip": "Choose one magical rule and keep making the consequences bigger and sillier."
+    },
+    {
+      "prompt_key": "STORY-06",
+      "category": "stories",
+      "title": "The Robot Teacher Mystery",
+      "prompt_text": "You become convinced that one of your teachers is secretly a robot. What evidence do you find, and what happens when you investigate?",
+      "top_tip": "Plant three clues. Make at least one clue turn out to have a completely ordinary explanation."
+    },
+    {
+      "prompt_key": "STORY-07",
+      "category": "stories",
+      "title": "The Time Machine With One Problem",
+      "prompt_text": "You discover a time machine, but it has one ridiculous flaw. Every time you use it, something unexpected happens.",
+      "top_tip": "Decide the machine's strange rule first. Then let your character make the mistake of using it again."
+    },
+    {
+      "prompt_key": "STORY-08",
+      "category": "stories",
+      "title": "A Completely Useless Superpower",
+      "prompt_text": "You wake up with a superpower. Unfortunately, it seems completely useless. By the end of the day, you discover exactly why it matters.",
+      "top_tip": "Make the power funny at first. Then create a problem where that exact strange ability becomes surprisingly useful."
+    },
+    {
+      "prompt_key": "STORY-09",
+      "category": "stories",
+      "title": "You're Hired!",
+      "prompt_text": "An animal arrives for a job interview and is absolutely certain it is the perfect person for the job. Tell us about the interview.",
+      "top_tip": "Choose a job that is a terrible match for the animal. Let the animal explain why each apparent weakness is actually a brilliant qualification."
+    },
+    {
+      "prompt_key": "STORY-10",
+      "category": "stories",
+      "title": "The New Door",
+      "prompt_text": "A door appears in a familiar place where there definitely was not a door yesterday. Everyone tells you not to open it.",
+      "top_tip": "Build curiosity before opening the door. Decide what your character expects — then surprise them."
+    },
+    {
+      "prompt_key": "FU-01",
+      "category": "fortunately_unfortunately",
+      "title": "The Treasure Map",
+      "prompt_text": "You find an old treasure map hidden inside a library book.\n\nStart with: Fortunately, the map showed that the treasure was very close...",
+      "top_tip": "Make each solution create the next problem."
+    },
+    {
+      "prompt_key": "FU-02",
+      "category": "fortunately_unfortunately",
+      "title": "The School Trip Goes Wrong",
+      "prompt_text": "Your class sets off on what should be the best school trip ever.\n\nStart with: Fortunately, we arrived exactly on time...",
+      "top_tip": "Use each Fortunately sentence to rescue the characters — then let Unfortunately spoil the rescue."
+    },
+    {
+      "prompt_key": "FU-03",
+      "category": "fortunately_unfortunately",
+      "title": "The Dog Who Followed Me Home",
+      "prompt_text": "A very friendly dog begins following you home.\n\nStart with: Fortunately, the dog seemed to know exactly where it was going...",
+      "top_tip": "Let the dog's behaviour solve problems as often as it causes them."
+    },
+    {
+      "prompt_key": "FU-04",
+      "category": "fortunately_unfortunately",
+      "title": "The Cake Disaster",
+      "prompt_text": "You are responsible for getting an enormous birthday cake safely to a party.\n\nStart with: Fortunately, the cake looked perfect...",
+      "top_tip": "Use physical problems: doors, weather, transport, animals or people in the way."
+    },
+    {
+      "prompt_key": "FU-05",
+      "category": "fortunately_unfortunately",
+      "title": "After Closing Time",
+      "prompt_text": "You realise everyone has gone home and you are locked inside a museum.\n\nStart with: Fortunately, I still had my phone...",
+      "top_tip": "Let the setting create your twists. Think about exhibits, alarms, guards and strange noises."
+    },
+    {
+      "prompt_key": "FU-06",
+      "category": "fortunately_unfortunately",
+      "title": "The Impossible Final",
+      "prompt_text": "Your team reaches the final, but everything starts going wrong.\n\nStart with: Fortunately, we scored first...",
+      "top_tip": "Keep changing who seems most likely to win until the very end."
+    },
+    {
+      "prompt_key": "FU-07",
+      "category": "fortunately_unfortunately",
+      "title": "Mission to Mars-ish",
+      "prompt_text": "You are on your first space mission when the computer announces that the spacecraft is going somewhere unexpected.\n\nStart with: Fortunately, we had plenty of fuel...",
+      "top_tip": "Make every new problem require a clever decision rather than pure luck."
+    },
+    {
+      "prompt_key": "FU-08",
+      "category": "fortunately_unfortunately",
+      "title": "The Pet With a Secret",
+      "prompt_text": "Your family brings home a new pet. On the first night, you discover it can do something impossible.\n\nStart with: Fortunately, nobody else had noticed yet...",
+      "top_tip": "Decide the pet's secret ability first and use it repeatedly in different ways."
+    },
+    {
+      "prompt_key": "PERSUADE-01",
+      "category": "persuasion",
+      "title": "Should Homework Be Banned?",
+      "prompt_text": "Should children have homework after a full day at school?",
+      "top_tip": "Think about learning, free time, family life and whether all homework is equally useful.",
+      "task_intro": "Persuasion means trying to convince somebody.\n\nChoose a clear position, then give your strongest reasons. A powerful argument also thinks about what somebody on the other side might say.\n\nYou do not have to choose the answer you think an adult would prefer. You need to make the strongest case you can. Write a letter to a headmaster explaining your case. Dear Headmaster, …. "
+    },
+    {
+      "prompt_key": "PERSUADE-02",
+      "category": "persuasion",
+      "title": "Who Should Choose Bedtime?",
+      "prompt_text": "Should children be allowed to choose their own bedtime?",
+      "top_tip": "Consider freedom, responsibility, sleep and what happens the next morning.",
+      "task_intro": "Persuasion means trying to convince somebody.\n\nChoose a clear position, then give your strongest reasons. A powerful argument also thinks about what somebody on the other side might say.\n\nYou do not have to choose the answer you think an adult would prefer. You need to make the strongest case you can. Write a letter to your mummy or daddy persuading them to see things the way that you do. Dear Mummy / Daddy, …"
+    },
+    {
+      "prompt_key": "PERSUADE-03",
+      "category": "persuasion",
+      "title": "Every Home Needs a Pet",
+      "prompt_text": "Should every home have an animal that kids help to look after?",
+      "top_tip": "Consider responsibility and enjoyment, but also allergies, cost, holidays and animal welfare.",
+      "task_intro": "Persuasion means trying to convince somebody.\n\nChoose a clear position, then give your strongest reasons. A powerful argument also thinks about what somebody on the other side might say.\n\nYou do not have to choose the answer you think an adult would prefer. You need to make the strongest case you can. Write a letter to your mummy or daddy persuading them to see things the way that you do. Dear Mummy / Daddy, …"
+    },
+    {
+      "prompt_key": "PERSUADE-04",
+      "category": "persuasion",
+      "title": "The Three-Day Weekend",
+      "prompt_text": "Should the school week be four longer days instead of five normal days?",
+      "top_tip": "Compare the benefits of an extra day off with what longer school days might feel like.",
+      "task_intro": "Persuasion means trying to convince somebody.\n\nChoose a clear position, then give your strongest reasons. A powerful argument also thinks about what somebody on the other side might say.\n\nYou do not have to choose the answer you think an adult would prefer. You need to make the strongest case you can. Write a letter to your teacher whether that is your parent or school teacher persuading them to see things the way that you do. Dear Mummy / Daddy, …"
+    },
+    {
+      "prompt_key": "PERSUADE-05",
+      "category": "persuasion",
+      "title": "Robot Teachers?",
+      "prompt_text": "Should robots or AI be allowed to teach some school lessons?",
+      "top_tip": "Think about what technology might do brilliantly and what a human teacher can do that a machine may struggle with.",
+      "task_intro": "Persuasion means trying to convince somebody.\n\nChoose a clear position, then give your strongest reasons. A powerful argument also thinks about what somebody on the other side might say.\n\nYou do not have to choose the answer you think an adult would prefer. You need to make the strongest case you can. You are writing to the Minister of Education in the government. Dear Minister, …"
+    },
+    {
+      "prompt_key": "PERSUADE-06",
+      "category": "persuasion",
+      "title": "Car-Free Town Centres",
+      "prompt_text": "Should cars be banned from busy town centres?",
+      "top_tip": "Think about safety, pollution and pleasant streets, but also deliveries, disabilities and people who need to travel.",
+      "task_intro": "Persuasion means trying to convince somebody.\n\nChoose a clear position, then give your strongest reasons. A powerful argument also thinks about what somebody on the other side might say.\n\nYou do not have to choose the answer you think an adult would prefer. You need to make the strongest case you can. Write a letter to your Mayor persuading them to see things the way that you do. Dear Mayor …."
+    },
+    {
+      "prompt_key": "PERSUADE-07",
+      "category": "persuasion",
+      "title": "Should Pocket Money Be Earned?",
+      "prompt_text": "Should children have to do jobs at home to earn pocket money?",
+      "top_tip": "Think about responsibility and fairness. Are some household jobs simply part of being in a family?",
+      "task_intro": "Persuasion means trying to convince somebody.\n\nChoose a clear position, then give your strongest reasons. A powerful argument also thinks about what somebody on the other side might say.\n\nYou do not have to choose the answer you think an adult would prefer. You need to make the strongest case you can. Write a letter to your mummy or daddy persuading them to see things the way that you do. Dear Mummy / Daddy, …"
+    },
+    {
+      "prompt_key": "PERSUADE-08",
+      "category": "persuasion",
+      "title": "More Break, Less Lesson?",
+      "prompt_text": "Should schools shorten lessons so children can have longer breaktimes?",
+      "top_tip": "Consider concentration, exercise, friendships and how much learning time would be lost.",
+      "task_intro": "Persuasion means trying to convince somebody.\n\nChoose a clear position, then give your strongest reasons. A powerful argument also thinks about what somebody on the other side might say.\n\nYou do not have to choose the answer you think an adult would prefer. You need to make the strongest case you can. Write a letter to the Minster of Education in the government persuading them to see things the way that you do. Dear Minister …"
+    },
+    {
+      "prompt_key": "PERSUADE-09",
+      "category": "persuasion",
+      "title": "Should Zoos Exist?",
+      "prompt_text": "Should zoos continue to exist?",
+      "top_tip": "Consider conservation and education as well as animal freedom and welfare. This is a good prompt for acknowledging a strong opposing argument.",
+      "task_intro": "Persuasion means trying to convince somebody.\n\nChoose a clear position, then give your strongest reasons. A powerful argument also thinks about what somebody on the other side might say.\n\nYou do not have to choose the answer you think an adult would prefer. You need to make the strongest case you can Choose an adult to write to. Dear …."
+    },
+    {
+      "prompt_key": "PERSUADE-10",
+      "category": "persuasion",
+      "title": "Is Gaming a Sport?",
+      "prompt_text": "Should competitive video gaming count as a sport?",
+      "top_tip": "First decide what you think makes something a sport. Then test gaming against your own definition.",
+      "task_intro": "Persuasion means trying to convince somebody.\n\nChoose a clear position, then give your strongest reasons. A powerful argument also thinks about what somebody on the other side might say.\n\nYou do not have to choose the answer you think an adult would prefer. You need to make the strongest case you can Write a letter to the Minister of Education persuading them to see things the way that you do. Dear Minister, …"
+    }
+  ]
+}

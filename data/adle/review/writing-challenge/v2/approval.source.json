@@ -1,0 +1,21 @@
+{
+  "approval_reference": "user-review-content-signoff-2026-08-26-v2",
+  "approval_source": "explicit_user_message",
+  "approved_on": "2026-08-26",
+  "approved_by": "user",
+  "user_statement": "These have all been reviewed and signed off. I have made amendments to writing prompts but conundrums are great as they are.",
+  "scope": "36 writing prompts in the supplied amended CSV and 63 unchanged Conundrum review candidates",
+  "writing_csv_sha256": "7ad001a1eb721badaedd1d98736a2732c84d60ea40d1c39f27a58ec746fecb97",
+  "writing_review_json_sha256": "1050898f506dfa68a28cf9992814006231ef9d1d287655ed441cb8c5a8f52f12",
+  "previous_governed_prompts_sha256": "56c93b72d126665ea5b9076ddfaae85499456cfea8a0e9a5a30d03b0b3086a13",
+  "conundrum_queue_sha256": "2a6b6f948414647bde9f519d2f98305f49616e1910d841fb67075931d5f20a6b",
+  "original_teaching_source_sha256": "b62cf286be1191f83edb0064b6d6b3b8ef8290e7961588a3f5d7ef341538ef93",
+  "catalogue_source_sha256": "3859ae3db6faaad162033ef9575034e353cb78df9b7880582104d5ebea1bc7dd",
+  "authority_notes": [
+    "Approval comes from the user's message, not blank review columns or stale Pending approval text in the CSV.",
+    "Conundrum content sign-off is user-attested; no independent video playback or watching is claimed by Codex.",
+    "A research placeholder cannot become a learner question merely because the set was signed off."
+  ],
+  "authorises_database_write": false,
+  "authorises_rollout_activation": false
+}

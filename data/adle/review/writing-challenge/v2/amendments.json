@@ -1,0 +1,105 @@
+{
+  "changed_prompt_count": 10,
+  "unchanged_prompt_count": 26,
+  "changes": [
+    {
+      "prompt_key": "PERSUADE-01",
+      "changes": {
+        "task_intro": {
+          "before": "Persuasion means trying to convince somebody.\n\nChoose a clear position, then give your strongest reasons. A powerful argument also thinks about what somebody on the other side might say.\n\nYou do not have to choose the answer you think an adult would prefer. You need to make the strongest case you can.",
+          "after": "Persuasion means trying to convince somebody.\n\nChoose a clear position, then give your strongest reasons. A powerful argument also thinks about what somebody on the other side might say.\n\nYou do not have to choose the answer you think an adult would prefer. You need to make the strongest case you can. Write a letter to a headmaster explaining your case. Dear Headmaster, …. "
+        }
+      }
+    },
+    {
+      "prompt_key": "PERSUADE-02",
+      "changes": {
+        "task_intro": {
+          "before": "Persuasion means trying to convince somebody.\n\nChoose a clear position, then give your strongest reasons. A powerful argument also thinks about what somebody on the other side might say.\n\nYou do not have to choose the answer you think an adult would prefer. You need to make the strongest case you can.",
+          "after": "Persuasion means trying to convince somebody.\n\nChoose a clear position, then give your strongest reasons. A powerful argument also thinks about what somebody on the other side might say.\n\nYou do not have to choose the answer you think an adult would prefer. You need to make the strongest case you can. Write a letter to your mummy or daddy persuading them to see things the way that you do. Dear Mummy / Daddy, …"
+        }
+      }
+    },
+    {
+      "prompt_key": "PERSUADE-03",
+      "changes": {
+        "title": {
+          "before": "Every School Needs a Pet",
+          "after": "Every Home Needs a Pet"
+        },
+        "task_intro": {
+          "before": "Persuasion means trying to convince somebody.\n\nChoose a clear position, then give your strongest reasons. A powerful argument also thinks about what somebody on the other side might say.\n\nYou do not have to choose the answer you think an adult would prefer. You need to make the strongest case you can.",
+          "after": "Persuasion means trying to convince somebody.\n\nChoose a clear position, then give your strongest reasons. A powerful argument also thinks about what somebody on the other side might say.\n\nYou do not have to choose the answer you think an adult would prefer. You need to make the strongest case you can. Write a letter to your mummy or daddy persuading them to see things the way that you do. Dear Mummy / Daddy, …"
+        },
+        "prompt_text": {
+          "before": "Should every school have an animal that pupils help to look after?",
+          "after": "Should every home have an animal that kids help to look after?"
+        }
+      }
+    },
+    {
+      "prompt_key": "PERSUADE-04",
+      "changes": {
+        "task_intro": {
+          "before": "Persuasion means trying to convince somebody.\n\nChoose a clear position, then give your strongest reasons. A powerful argument also thinks about what somebody on the other side might say.\n\nYou do not have to choose the answer you think an adult would prefer. You need to make the strongest case you can.",
+          "after": "Persuasion means trying to convince somebody.\n\nChoose a clear position, then give your strongest reasons. A powerful argument also thinks about what somebody on the other side might say.\n\nYou do not have to choose the answer you think an adult would prefer. You need to make the strongest case you can. Write a letter to your teacher whether that is your parent or school teacher persuading them to see things the way that you do. Dear Mummy / Daddy, …"
+        }
+      }
+    },
+    {
+      "prompt_key": "PERSUADE-05",
+      "changes": {
+        "task_intro": {
+          "before": "Persuasion means trying to convince somebody.\n\nChoose a clear position, then give your strongest reasons. A powerful argument also thinks about what somebody on the other side might say.\n\nYou do not have to choose the answer you think an adult would prefer. You need to make the strongest case you can.",
+          "after": "Persuasion means trying to convince somebody.\n\nChoose a clear position, then give your strongest reasons. A powerful argument also thinks about what somebody on the other side might say.\n\nYou do not have to choose the answer you think an adult would prefer. You need to make the strongest case you can. You are writing to the Minister of Education in the government. Dear Minister, …"
+        }
+      }
+    },
+    {
+      "prompt_key": "PERSUADE-06",
+      "changes": {
+        "task_intro": {
+          "before": "Persuasion means trying to convince somebody.\n\nChoose a clear position, then give your strongest reasons. A powerful argument also thinks about what somebody on the other side might say.\n\nYou do not have to choose the answer you think an adult would prefer. You need to make the strongest case you can.",
+          "after": "Persuasion means trying to convince somebody.\n\nChoose a clear position, then give your strongest reasons. A powerful argument also thinks about what somebody on the other side might say.\n\nYou do not have to choose the answer you think an adult would prefer. You need to make the strongest case you can. Write a letter to your Mayor persuading them to see things the way that you do. Dear Mayor …."
+        }
+      }
+    },
+    {
+      "prompt_key": "PERSUADE-07",
+      "changes": {
+        "task_intro": {
+          "before": "Persuasion means trying to convince somebody.\n\nChoose a clear position, then give your strongest reasons. A powerful argument also thinks about what somebody on the other side might say.\n\nYou do not have to choose the answer you think an adult would prefer. You need to make the strongest case you can.",
+          "after": "Persuasion means trying to convince somebody.\n\nChoose a clear position, then give your strongest reasons. A powerful argument also thinks about what somebody on the other side might say.\n\nYou do not have to choose the answer you think an adult would prefer. You need to make the strongest case you can. Write a letter to your mummy or daddy persuading them to see things the way that you do. Dear Mummy / Daddy, …"
+        }
+      }
+    },
+    {
+      "prompt_key": "PERSUADE-08",
+      "changes": {
+        "task_intro": {
+          "before": "Persuasion means trying to convince somebody.\n\nChoose a clear position, then give your strongest reasons. A powerful argument also thinks about what somebody on the other side might say.\n\nYou do not have to choose the answer you think an adult would prefer. You need to make the strongest case you can.",
+          "after": "Persuasion means trying to convince somebody.\n\nChoose a clear position, then give your strongest reasons. A powerful argument also thinks about what somebody on the other side might say.\n\nYou do not have to choose the answer you think an adult would prefer. You need to make the strongest case you can. Write a letter to the Minster of Education in the government persuading them to see things the way that you do. Dear Minister …"
+        }
+      }
+    },
+    {
+      "prompt_key": "PERSUADE-09",
+      "changes": {
+        "task_intro": {
+          "before": "Persuasion means trying to convince somebody.\n\nChoose a clear position, then give your strongest reasons. A powerful argument also thinks about what somebody on the other side might say.\n\nYou do not have to choose the answer you think an adult would prefer. You need to make the strongest case you can.",
+          "after": "Persuasion means trying to convince somebody.\n\nChoose a clear position, then give your strongest reasons. A powerful argument also thinks about what somebody on the other side might say.\n\nYou do not have to choose the answer you think an adult would prefer. You need to make the strongest case you can Choose an adult to write to. Dear …."
+        }
+      }
+    },
+    {
+      "prompt_key": "PERSUADE-10",
+      "changes": {
+        "task_intro": {
+          "before": "Persuasion means trying to convince somebody.\n\nChoose a clear position, then give your strongest reasons. A powerful argument also thinks about what somebody on the other side might say.\n\nYou do not have to choose the answer you think an adult would prefer. You need to make the strongest case you can.",
+          "after": "Persuasion means trying to convince somebody.\n\nChoose a clear position, then give your strongest reasons. A powerful argument also thinks about what somebody on the other side might say.\n\nYou do not have to choose the answer you think an adult would prefer. You need to make the strongest case you can Write a letter to the Minister of Education persuading them to see things the way that you do. Dear Minister, …"
+        }
+      }
+    }
+  ],
+  "copy_normalisation": "none; exact signed text retained, including punctuation and whitespace"
+}

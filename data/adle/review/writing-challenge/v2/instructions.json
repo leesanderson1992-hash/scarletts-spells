@@ -1,0 +1,137 @@
+[
+  {
+    "instruction_reference": "adle-review-writing-challenge-2026-08-26-v2:instruction:conundrums",
+    "category": "conundrums",
+    "content_version": "v2",
+    "category_label": "Conundrums",
+    "task_intro": "Conundrums are problems that make you think.\n\nWatch the video carefully. There may not be one perfect answer. Decide what you think, then explain your reasoning. A strong answer tells us what you would choose, why you would choose it, and what might make someone else disagree.",
+    "category_top_tip": null,
+    "reuse_policy": "once_per_learner"
+  },
+  {
+    "instruction_reference": "adle-review-writing-challenge-2026-08-26-v2:instruction:reflection",
+    "category": "reflection",
+    "content_version": "v2",
+    "category_label": "Reflection — Stoic Journal",
+    "task_intro": "Reflection is a chance to think carefully about your day.\n\nThere is no perfect answer. Choose a real moment, describe what happened, and think about what you can learn from it. Try to focus on your choices, your response, and what you might do next time.",
+    "category_top_tip": null,
+    "reuse_policy": "reusable_lru_no_immediate_repeat"
+  },
+  {
+    "instruction_reference": "adle-review-writing-challenge-2026-08-26-v2:instruction:stories",
+    "category": "stories",
+    "content_version": "v2",
+    "category_label": "Silly Stories",
+    "task_intro": "Silly Stories let your imagination go completely wild.\n\nUse the prompt as your starting point, then take the story anywhere you like. Make something unexpected happen. Your job is not to make the story realistic — it is to make it entertaining while using as many of your Target Words as you naturally can.",
+    "category_top_tip": "A fun story usually needs:\n\nSomebody interesting.\n\nSomething they want.\n\nA problem that gets in the way.\n\nAn unexpected turn.\n\nAn ending that changes something.",
+    "reuse_policy": "once_per_learner"
+  },
+  {
+    "instruction_reference": "adle-review-writing-challenge-2026-08-26-v2:instruction:fortunately_unfortunately",
+    "category": "fortunately_unfortunately",
+    "content_version": "v2",
+    "category_label": "Fortunately / Unfortunately",
+    "task_intro": "Fortunately / Unfortunately is a story that keeps changing direction.\n\nBegin with the prompt. Then alternate between good news and bad news:\n\nFortunately... something helpful happens.\nUnfortunately... a new problem appears.\nFortunately... things improve again.\n\nKeep switching until you reach an ending.",
+    "category_top_tip": "Every new sentence should change the situation. Do not simply say something is good or bad — make something actually happen because of it.",
+    "reuse_policy": "once_per_learner"
+  },
+  {
+    "instruction_reference": "adle-review-writing-challenge-2026-08-26-v2:instruction:persuasion",
+    "category": "persuasion",
+    "content_version": "v2",
+    "category_label": "Persuasion",
+    "task_intro": "Persuasion means trying to convince somebody.\n\nChoose a clear position, then give your strongest reasons. A powerful argument also thinks about what somebody on the other side might say.\n\nYou do not have to choose the answer you think an adult would prefer. You need to make the strongest case you can.",
+    "category_top_tip": "Use this simple structure:\n\nMy position: say exactly what you think.\n\nMy reasons: give two or three strong reasons.\n\nAn example: show why one reason matters.\n\nThe other side: mention a reasonable objection.\n\nMy reply: explain why you still think your position is stronger.",
+    "reuse_policy": "once_per_learner"
+  },
+  {
+    "instruction_reference": "adle-review-writing-challenge-2026-08-26-v2:instruction:PERSUADE-01",
+    "category": "persuasion",
+    "content_version": "v2",
+    "category_label": "Persuasion",
+    "task_intro": "Persuasion means trying to convince somebody.\n\nChoose a clear position, then give your strongest reasons. A powerful argument also thinks about what somebody on the other side might say.\n\nYou do not have to choose the answer you think an adult would prefer. You need to make the strongest case you can. Write a letter to a headmaster explaining your case. Dear Headmaster, …. ",
+    "category_top_tip": "Use this simple structure:\n\nMy position: say exactly what you think.\n\nMy reasons: give two or three strong reasons.\n\nAn example: show why one reason matters.\n\nThe other side: mention a reasonable objection.\n\nMy reply: explain why you still think your position is stronger.",
+    "reuse_policy": "once_per_learner"
+  },
+  {
+    "instruction_reference": "adle-review-writing-challenge-2026-08-26-v2:instruction:PERSUADE-02",
+    "category": "persuasion",
+    "content_version": "v2",
+    "category_label": "Persuasion",
+    "task_intro": "Persuasion means trying to convince somebody.\n\nChoose a clear position, then give your strongest reasons. A powerful argument also thinks about what somebody on the other side might say.\n\nYou do not have to choose the answer you think an adult would prefer. You need to make the strongest case you can. Write a letter to your mummy or daddy persuading them to see things the way that you do. Dear Mummy / Daddy, …",
+    "category_top_tip": "Use this simple structure:\n\nMy position: say exactly what you think.\n\nMy reasons: give two or three strong reasons.\n\nAn example: show why one reason matters.\n\nThe other side: mention a reasonable objection.\n\nMy reply: explain why you still think your position is stronger.",
+    "reuse_policy": "once_per_learner"
+  },
+  {
+    "instruction_reference": "adle-review-writing-challenge-2026-08-26-v2:instruction:PERSUADE-03",
+    "category": "persuasion",
+    "content_version": "v2",
+    "category_label": "Persuasion",
+    "task_intro": "Persuasion means trying to convince somebody.\n\nChoose a clear position, then give your strongest reasons. A powerful argument also thinks about what somebody on the other side might say.\n\nYou do not have to choose the answer you think an adult would prefer. You need to make the strongest case you can. Write a letter to your mummy or daddy persuading them to see things the way that you do. Dear Mummy / Daddy, …",
+    "category_top_tip": "Use this simple structure:\n\nMy position: say exactly what you think.\n\nMy reasons: give two or three strong reasons.\n\nAn example: show why one reason matters.\n\nThe other side: mention a reasonable objection.\n\nMy reply: explain why you still think your position is stronger.",
+    "reuse_policy": "once_per_learner"
+  },
+  {
+    "instruction_reference": "adle-review-writing-challenge-2026-08-26-v2:instruction:PERSUADE-04",
+    "category": "persuasion",
+    "content_version": "v2",
+    "category_label": "Persuasion",
+    "task_intro": "Persuasion means trying to convince somebody.\n\nChoose a clear position, then give your strongest reasons. A powerful argument also thinks about what somebody on the other side might say.\n\nYou do not have to choose the answer you think an adult would prefer. You need to make the strongest case you can. Write a letter to your teacher whether that is your parent or school teacher persuading them to see things the way that you do. Dear Mummy / Daddy, …",
+    "category_top_tip": "Use this simple structure:\n\nMy position: say exactly what you think.\n\nMy reasons: give two or three strong reasons.\n\nAn example: show why one reason matters.\n\nThe other side: mention a reasonable objection.\n\nMy reply: explain why you still think your position is stronger.",
+    "reuse_policy": "once_per_learner"
+  },
+  {
+    "instruction_reference": "adle-review-writing-challenge-2026-08-26-v2:instruction:PERSUADE-05",
+    "category": "persuasion",
+    "content_version": "v2",
+    "category_label": "Persuasion",
+    "task_intro": "Persuasion means trying to convince somebody.\n\nChoose a clear position, then give your strongest reasons. A powerful argument also thinks about what somebody on the other side might say.\n\nYou do not have to choose the answer you think an adult would prefer. You need to make the strongest case you can. You are writing to the Minister of Education in the government. Dear Minister, …",
+    "category_top_tip": "Use this simple structure:\n\nMy position: say exactly what you think.\n\nMy reasons: give two or three strong reasons.\n\nAn example: show why one reason matters.\n\nThe other side: mention a reasonable objection.\n\nMy reply: explain why you still think your position is stronger.",
+    "reuse_policy": "once_per_learner"
+  },
+  {
+    "instruction_reference": "adle-review-writing-challenge-2026-08-26-v2:instruction:PERSUADE-06",
+    "category": "persuasion",
+    "content_version": "v2",
+    "category_label": "Persuasion",
+    "task_intro": "Persuasion means trying to convince somebody.\n\nChoose a clear position, then give your strongest reasons. A powerful argument also thinks about what somebody on the other side might say.\n\nYou do not have to choose the answer you think an adult would prefer. You need to make the strongest case you can. Write a letter to your Mayor persuading them to see things the way that you do. Dear Mayor ….",
+    "category_top_tip": "Use this simple structure:\n\nMy position: say exactly what you think.\n\nMy reasons: give two or three strong reasons.\n\nAn example: show why one reason matters.\n\nThe other side: mention a reasonable objection.\n\nMy reply: explain why you still think your position is stronger.",
+    "reuse_policy": "once_per_learner"
+  },
+  {
+    "instruction_reference": "adle-review-writing-challenge-2026-08-26-v2:instruction:PERSUADE-07",
+    "category": "persuasion",
+    "content_version": "v2",
+    "category_label": "Persuasion",
+    "task_intro": "Persuasion means trying to convince somebody.\n\nChoose a clear position, then give your strongest reasons. A powerful argument also thinks about what somebody on the other side might say.\n\nYou do not have to choose the answer you think an adult would prefer. You need to make the strongest case you can. Write a letter to your mummy or daddy persuading them to see things the way that you do. Dear Mummy / Daddy, …",
+    "category_top_tip": "Use this simple structure:\n\nMy position: say exactly what you think.\n\nMy reasons: give two or three strong reasons.\n\nAn example: show why one reason matters.\n\nThe other side: mention a reasonable objection.\n\nMy reply: explain why you still think your position is stronger.",
+    "reuse_policy": "once_per_learner"
+  },
+  {
+    "instruction_reference": "adle-review-writing-challenge-2026-08-26-v2:instruction:PERSUADE-08",
+    "category": "persuasion",
+    "content_version": "v2",
+    "category_label": "Persuasion",
+    "task_intro": "Persuasion means trying to convince somebody.\n\nChoose a clear position, then give your strongest reasons. A powerful argument also thinks about what somebody on the other side might say.\n\nYou do not have to choose the answer you think an adult would prefer. You need to make the strongest case you can. Write a letter to the Minster of Education in the government persuading them to see things the way that you do. Dear Minister …",
+    "category_top_tip": "Use this simple structure:\n\nMy position: say exactly what you think.\n\nMy reasons: give two or three strong reasons.\n\nAn example: show why one reason matters.\n\nThe other side: mention a reasonable objection.\n\nMy reply: explain why you still think your position is stronger.",
+    "reuse_policy": "once_per_learner"
+  },
+  {
+    "instruction_reference": "adle-review-writing-challenge-2026-08-26-v2:instruction:PERSUADE-09",
+    "category": "persuasion",
+    "content_version": "v2",
+    "category_label": "Persuasion",
+    "task_intro": "Persuasion means trying to convince somebody.\n\nChoose a clear position, then give your strongest reasons. A powerful argument also thinks about what somebody on the other side might say.\n\nYou do not have to choose the answer you think an adult would prefer. You need to make the strongest case you can Choose an adult to write to. Dear ….",
+    "category_top_tip": "Use this simple structure:\n\nMy position: say exactly what you think.\n\nMy reasons: give two or three strong reasons.\n\nAn example: show why one reason matters.\n\nThe other side: mention a reasonable objection.\n\nMy reply: explain why you still think your position is stronger.",
+    "reuse_policy": "once_per_learner"
+  },
+  {
+    "instruction_reference": "adle-review-writing-challenge-2026-08-26-v2:instruction:PERSUADE-10",
+    "category": "persuasion",
+    "content_version": "v2",
+    "category_label": "Persuasion",
+    "task_intro": "Persuasion means trying to convince somebody.\n\nChoose a clear position, then give your strongest reasons. A powerful argument also thinks about what somebody on the other side might say.\n\nYou do not have to choose the answer you think an adult would prefer. You need to make the strongest case you can Write a letter to the Minister of Education persuading them to see things the way that you do. Dear Minister, …",
+    "category_top_tip": "Use this simple structure:\n\nMy position: say exactly what you think.\n\nMy reasons: give two or three strong reasons.\n\nAn example: show why one reason matters.\n\nThe other side: mention a reasonable objection.\n\nMy reply: explain why you still think your position is stronger.",
+    "reuse_policy": "once_per_learner"
+  }
+]
