@@ -171,7 +171,7 @@ export function ReviewR6Session(props: {
       phaseCues={["Choose your challenge", "Use your Target Words", "Check each word", "Repair tricky parts", "Today’s lesson"]}
       toolbar={<span className="rounded-full bg-cyan-300 px-3 py-2 text-xs font-black uppercase tracking-wide text-slate-950">Today’s Lesson · Review first</span>}
     >
-      <div className="min-w-0 rounded-3xl bg-white p-1 text-slate-950 shadow-2xl sm:p-3">
+      <div className="adle-presentation min-w-0">
         {initial ? (
           <ReviewFreeWritingActivity
             snapshot={props.snapshot}
@@ -189,11 +189,11 @@ export function ReviewR6Session(props: {
           />
         ) : (
           <div className="grid min-h-80 place-items-center" aria-busy="true" role="status">
-            <p className="font-semibold text-slate-600">Preparing your Review…</p>
+            <p className="font-semibold text-cyan-100">Preparing your Review…</p>
           </div>
         )}
         {finishing || message ? (
-          <p className="mx-4 mb-4 rounded-2xl bg-cyan-50 px-4 py-3 text-center font-semibold text-cyan-950" aria-live="polite">
+          <p className="review-callout mx-4 mb-4 text-center font-semibold" aria-live="polite">
             {message ?? "Finishing Review…"}
           </p>
         ) : null}
