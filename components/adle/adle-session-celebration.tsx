@@ -20,22 +20,22 @@ export function AdleSessionCelebration(props: {
   const forged = model.forgedTodayWords;
 
   return (
-    <section className="brand-card rounded-3xl p-5 md:p-7 text-center">
-      <p className="brand-eyebrow">All done for today</p>
-      <h2 className="mt-1 text-2xl font-semibold tracking-tight text-[color:var(--ink)]">
+    <section className="adle-presentation review-scene rounded-3xl p-5 md:p-7 text-center">
+      <p className="review-eyebrow">All done for today</p>
+      <h2 className="mt-1 text-2xl font-black tracking-tight text-[color:var(--review-text)]">
         You finished today&apos;s spelling! 🎉
       </h2>
-      <p className="mt-1 text-sm text-[color:var(--mid)]">{props.planDate}</p>
+      <p className="mt-1 text-sm text-[color:var(--review-muted)]">{props.planDate}</p>
 
       {bars.length > 0 ? (
         <div className="mt-5 rounded-3xl border border-[color:var(--gold)] bg-[color:var(--gold)]/10 px-4 py-5">
           <div className="flex justify-center">
-            <GoldBarIcon size="lg" className="animate-bounce" />
+            <GoldBarIcon size="lg" className="motion-safe:animate-bounce" />
           </div>
-          <p className="mt-2 text-lg font-semibold text-[color:var(--scarlett)]">
+          <p className="mt-2 text-lg font-semibold text-[color:var(--review-accent)]">
             {bars.length === 1 ? "You earned a Golden Bar!" : `You earned ${bars.length} Golden Bars!`}
           </p>
-          <p className="mt-1 text-sm text-[color:var(--ink)]">
+          <p className="mt-1 text-sm text-[color:var(--review-text)]">
             Your real writing proved you know{" "}
             <span className="font-semibold">{formatWordList(bars)}</span>. That&apos;s the whole
             journey — nugget to bar.
@@ -44,12 +44,12 @@ export function AdleSessionCelebration(props: {
       ) : null}
 
       {forged.length > 0 ? (
-        <div className="mt-5 rounded-3xl border border-[var(--border)] bg-white px-4 py-5">
+        <div className="mt-5 rounded-3xl border border-[var(--review-border)] bg-slate-950/40 px-4 py-5">
           <div className="flex items-center justify-center gap-2">
-            <WarmWorkshopIcon size="lg" className="animate-pulse" />
-            <p className="text-base font-semibold text-[color:var(--ink)]">Into the Workshop!</p>
+            <WarmWorkshopIcon size="lg" className="motion-safe:animate-pulse" />
+            <p className="text-base font-semibold text-[color:var(--review-text)]">Into the Workshop!</p>
           </div>
-          <p className="mt-1 text-sm text-[color:var(--mid)]">
+          <p className="mt-1 text-sm text-[color:var(--review-muted)]">
             {forged.length === 1 ? "Your word is" : `Your ${forged.length} words are`} being forged.
             Use {forged.length === 1 ? "it" : "them"} in your writing to earn a Golden Bar.
           </p>
@@ -57,7 +57,7 @@ export function AdleSessionCelebration(props: {
             {forged.map((word) => (
               <li
                 key={word}
-                className="inline-flex items-center gap-1.5 rounded-full bg-[color:var(--wash,#faf5f8)] px-3 py-1 text-sm font-semibold text-[color:var(--ink)]"
+                className="inline-flex items-center gap-1.5 rounded-full bg-cyan-300/10 px-3 py-1 text-sm font-semibold text-[color:var(--review-text)]"
               >
                 <NuggetIcon size="sm" />
                 {word}
@@ -68,12 +68,12 @@ export function AdleSessionCelebration(props: {
       ) : null}
 
       {!model.hasSomethingToCelebrate ? (
-        <p className="mt-4 text-sm text-emerald-700">Great work today — see you tomorrow.</p>
+        <p className="mt-4 text-sm text-emerald-200">Great work today — see you tomorrow.</p>
       ) : (
-        <p className="mt-5 text-sm text-[color:var(--mid)]">See you tomorrow. 🌙</p>
+        <p className="mt-5 text-sm text-[color:var(--review-muted)]">See you tomorrow. 🌙</p>
       )}
 
-      <Link href={props.backPath} className="brand-primary-btn mt-5 inline-flex min-h-11 items-center">
+      <Link href={props.backPath} className="review-primary mt-5 inline-flex min-h-11 items-center">
         Back to my week
       </Link>
     </section>

@@ -1,0 +1,168 @@
+/* Shared ADLE presentation, matching WordLabScene and specialist teaching pages.
+   Opt-in only: no site-wide brand overrides or Review state behaviour. */
+.adle-presentation {
+  --review-text: #f0faff;
+  --review-muted: #b7d6e8;
+  --review-accent: #67e8f9;
+  --review-border: rgb(103 232 249 / 24%);
+  --review-inset: #0b2036;
+  color: var(--review-text);
+  font-family: var(--font-sans);
+  min-width: 0;
+  color-scheme: dark;
+}
+
+.adle-presentation ::selection {
+  color: #07111f;
+  background: #67e8f9;
+}
+
+.adle-presentation :is(button, a, input, textarea, summary):focus-visible {
+  outline: 3px solid #a5f3fc;
+  outline-offset: 4px;
+}
+
+.adle-presentation .review-page,
+.adle-presentation.review-page {
+  width: 100%;
+  min-width: 0;
+  padding: clamp(1rem, 2.5vw, 1.75rem);
+}
+
+.review-scene {
+  background: radial-gradient(circle at top right, rgb(8 145 178 / 22%), transparent 42%), linear-gradient(145deg, #07111f, #0f2742);
+  border: 1px solid rgb(103 232 249 / 24%);
+  border-radius: 2rem;
+  box-shadow: 0 24px 70px rgb(2 6 23 / 25%);
+}
+
+.review-surface {
+  min-width: 0;
+  border: 1px solid var(--review-border);
+  border-radius: 1.5rem;
+  background: linear-gradient(145deg, rgb(12 35 58 / 96%), rgb(7 22 40 / 96%));
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 4%), 0 12px 36px rgb(2 6 23 / 16%);
+}
+
+.review-eyebrow {
+  color: var(--review-accent);
+  font-size: .75rem;
+  font-weight: 900;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+}
+
+.review-title {
+  color: #fff;
+  font-family: var(--font-sans);
+  font-size: clamp(1.65rem, 2.7vw, 2.25rem);
+  line-height: 1.2;
+  font-weight: 900;
+  letter-spacing: -.025em;
+  overflow-wrap: anywhere;
+}
+
+.review-primary,
+.review-secondary,
+.review-choice {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 3rem;
+  padding: .75rem 1.5rem;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  font: inherit;
+  font-weight: 800;
+  line-height: 1.35;
+  text-align: center;
+  cursor: pointer;
+  transition: background-color 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
+}
+
+.review-primary {
+  color: #082033;
+  background: #67e8f9;
+  box-shadow: 0 4px 20px rgb(34 211 238 / 14%);
+}
+
+.review-primary:hover:not(:disabled) { background: #a5f3fc; box-shadow: 0 4px 24px rgb(34 211 238 / 26%); }
+.review-secondary,
+.review-choice { color: var(--review-text); background: #102c46; border-color: rgb(103 232 249 / 48%); }
+.review-secondary:hover:not(:disabled),
+.review-choice:hover { background: #193e59; border-color: #67e8f9; }
+.review-choice { border-radius: 1rem; padding: .75rem; font-size: .875rem; }
+.review-choice[aria-selected="true"] { color: #082033; background: #67e8f9; border-color: #cffafe; box-shadow: 0 0 18px rgb(34 211 238 / 18%); }
+.adle-presentation :is(.review-primary, .review-secondary):disabled { opacity: .5; cursor: not-allowed; box-shadow: none; }
+
+.review-input {
+  width: 100%;
+  min-width: 0;
+  border: 1px solid rgb(103 232 249 / 38%);
+  border-radius: 1.25rem;
+  background: #071a2d;
+  color: var(--review-text);
+  caret-color: #67e8f9;
+  box-shadow: inset 0 2px 8px rgb(2 6 23 / 20%);
+  font-family: inherit;
+}
+.review-input::placeholder { color: #98b9cd; opacity: 1; }
+.review-input:disabled, .review-input:read-only { background: #10263b; color: #d1e4ef; }
+
+.review-callout {
+  min-width: 0;
+  border: 1px solid rgb(103 232 249 / 38%);
+  border-left: 3px solid #67e8f9;
+  border-radius: 1.25rem;
+  padding: 1.25rem;
+  background: linear-gradient(120deg, rgb(8 145 178 / 18%), rgb(7 26 45 / 85%));
+}
+.review-tip { border-color: rgb(167 139 250 / 45%); border-left-color: #a78bfa; background: linear-gradient(120deg, rgb(99 102 241 / 15%), rgb(7 26 45 / 85%)); }
+.review-tip .review-eyebrow { color: #c4b5fd; }
+.review-targets { padding: 1.25rem; container-type: inline-size; }
+.review-audio-grid { display: grid; grid-template-columns: repeat(5, 3.25rem); gap: .875rem; }
+.review-audio {
+  position: relative;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 3.25rem;
+  height: 3.25rem;
+  border: 1px solid #67e8f9;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 25%, #164967, #092038 75%);
+  color: #a5f3fc;
+  box-shadow: inset 0 0 10px rgb(34 211 238 / 12%), 0 0 12px rgb(34 211 238 / 16%);
+  cursor: pointer;
+}
+.review-audio:hover { color: #fff; background: #164967; box-shadow: 0 0 18px rgb(34 211 238 / 35%); }
+.review-audio-number { position: absolute; right: -4px; bottom: -3px; display: grid; place-items: center; min-width: 1.25rem; height: 1.25rem; border: 1px solid #67e8f9; border-radius: 999px; background: #071a2d; color: #cffafe; font-size: .625rem; font-weight: 800; }
+@container (max-width: 320px) {
+  .review-audio-grid { grid-template-columns: repeat(5, 2.75rem); gap: .5rem; }
+  .review-audio-grid .review-audio { width: 2.75rem; height: 2.75rem; }
+}
+@container (max-width: 251px) {
+  .review-audio-grid { grid-template-columns: repeat(2, 3.25rem); gap: .875rem; }
+  .review-audio-grid .review-audio { width: 3.25rem; height: 3.25rem; }
+}
+.review-timer { border: 1px solid var(--review-border); border-radius: 1rem; background: #071a2d; padding: .75rem 1rem; }
+.review-timer[data-warning="true"] { border-color: #fbbf24; background: #302817; }
+.review-timer[data-warning="true"] p { color: #fde68a; }
+
+.review-letter { min-height: 3rem; min-width: 2.75rem; border: 1px solid var(--review-border); border-radius: .65rem; padding: .25rem .5rem; color: var(--review-text); background: #071a2d; font-size: 1.5rem; font-weight: 700; cursor: pointer; }
+.review-letter[aria-pressed="true"], .review-highlight { color: #082033; background: #67e8f9; border-color: #cffafe; box-shadow: 0 0 0 2px rgb(103 232 249 / 20%); }
+.review-letter:disabled { cursor: default; }
+.review-comparison { overflow-wrap: anywhere; }
+.review-ideas summary { min-height: 2.75rem; align-content: center; }
+.review-wheel-stage { overflow: hidden; padding: .5rem; }
+.review-spin { min-width: 12rem; min-height: 3.5rem; letter-spacing: .15em; }
+
+@media (max-width: 640px) {
+  .adle-presentation .review-page, .adle-presentation.review-page { padding: 1rem .25rem; }
+  .review-wheel-surface { padding: .75rem; }
+  .review-callout, .review-targets { padding: 1rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .adle-presentation *, .adle-presentation *::before, .adle-presentation *::after { animation: none !important; }
+  .review-primary, .review-secondary, .review-choice { transition: none; }
+}

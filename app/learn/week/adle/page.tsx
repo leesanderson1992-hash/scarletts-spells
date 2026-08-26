@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 
+import { AdlePlanHeader, AdleEmptyPlan, AdleReviewCompleteTransition } from "@/components/adle/adle-plan-presentation";
 import { AppShell } from "@/components/app-shell";
 import { AdleSessionRunner } from "@/components/adle-session-runner";
 import {
@@ -218,29 +219,7 @@ export default async function AdleSessionPage({ searchParams }: AdleSessionPageP
       layout="focus"
     >
       <section className="grid gap-4">
-        <div className="brand-card rounded-3xl p-4 md:p-5">
-          <p className="brand-eyebrow">ADLE spelling</p>
-          <h1 className="mt-1 text-2xl font-semibold tracking-tight text-[color:var(--ink)]">
-            Today&apos;s spelling plan
-          </h1>
-          <p className="mt-1 text-sm text-[color:var(--mid)]">{readModel.planDate}</p>
-          {resolvedSearchParams?.saved ? (
-            <p className="mt-3 rounded-2xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
-              {resolvedSearchParams.saved}
-            </p>
-          ) : null}
-          {resolvedSearchParams?.error ? (
-            <p className="mt-3 rounded-2xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">
-              {resolvedSearchParams.error}
-            </p>
-          ) : null}
-          <Link
-            href={backPath}
-            className="mt-3 inline-flex min-h-11 items-center rounded-full border border-[var(--border)] bg-white px-3 text-xs font-medium text-[color:var(--ink)]"
-          >
-            Back to my week
-          </Link>
-        </div>
+        <AdlePlanHeader planDate={readModel.planDate} backPath={backPath} saved={resolvedSearchParams?.saved} error={resolvedSearchParams?.error} />
 
         {r6Session?.majorStage === "review" && r6Session.review ? (
           <ReviewR6Session
@@ -249,40 +228,32 @@ export default async function AdleSessionPage({ searchParams }: AdleSessionPageP
             snapshot={r6Session.review.snapshot}
           />
         ) : r6Session?.majorStage === "specialist_generation" && r6Session.review ? (
-          <div className="w-full overflow-hidden rounded-[2rem] border border-cyan-300/20 bg-[radial-gradient(circle_at_top_right,rgba(8,145,178,.22),transparent_42%),linear-gradient(145deg,#07111f,#0f2742)] p-6 text-white shadow-[0_30px_100px_rgba(2,6,23,.35)]">
-            <p className="text-xs font-black uppercase tracking-[0.2em] text-cyan-200">Review complete ✓</p>
-            <h2 className="mt-3 text-2xl font-semibold">Now for today&apos;s lesson…</h2>
-            <p className="mt-2 text-sm text-cyan-50/80">Your Review is safely finished. Continue to prepare the next stage.</p>
+          <AdleReviewCompleteTransition>
             <form action={continueAdleAfterReviewR6Action} className="mt-5">
               <input type="hidden" name="assignmentId" value={r6Session.assignmentId ?? ""} />
               <input type="hidden" name="reviewSessionId" value={r6Session.review.sessionId} />
               <input type="hidden" name="snapshotFingerprint" value={r6Session.review.snapshot.provenance.sourceFingerprint} />
               <input type="hidden" name="childId" value={selectedChild.id} />
-              <button type="submit" className="min-h-11 rounded-full bg-cyan-300 px-5 font-bold text-slate-950">Continue</button>
+              <button type="submit" className="review-primary">Continue</button>
             </form>
-          </div>
+          </AdleReviewCompleteTransition>
         ) : r6Session?.majorStage === "blocked" ? (
-          <div className="brand-card rounded-3xl p-5" role="alert">
-            <p className="brand-eyebrow">Today&apos;s Lesson paused</p>
+          <div className="adle-presentation review-scene rounded-3xl p-5" role="alert">
+            <p className="review-eyebrow">Today&apos;s Lesson paused</p>
             <h2 className="mt-1 text-lg font-semibold">Your work is safe.</h2>
-            <p className="mt-2 text-sm text-[color:var(--mid)]">A grown-up needs to check the next ADLE stage before you continue.</p>
+            <p className="mt-2 text-sm text-[color:var(--review-muted)]">A grown-up needs to check the next ADLE stage before you continue.</p>
             {r6Session.review?.complete ? (
               <form action={continueAdleAfterReviewR6Action} className="mt-4">
                 <input type="hidden" name="assignmentId" value={r6Session.assignmentId ?? ""} />
                 <input type="hidden" name="reviewSessionId" value={r6Session.review.sessionId} />
                 <input type="hidden" name="snapshotFingerprint" value={r6Session.review.snapshot.provenance.sourceFingerprint} />
                 <input type="hidden" name="childId" value={selectedChild.id} />
-                <button type="submit" className="brand-secondary-btn">Try the next stage again</button>
+                <button type="submit" className="review-secondary">Try the next stage again</button>
               </form>
             ) : null}
           </div>
         ) : readModel.state === "empty" && !sessionCompleted ? (
-          <div className="brand-card rounded-3xl p-4 md:p-5">
-            <p className="text-sm text-[color:var(--mid)]">
-              Today&apos;s spelling plan has not been set up yet. Check back after
-              your grown-up has prepared it.
-            </p>
-          </div>
+          <AdleEmptyPlan />
         ) : sessionCompleted ? (
           <div className="grid gap-4">
             {resolvedSearchParams?.completionTrace && /^[0-9a-f-]{36}$/i.test(resolvedSearchParams.completionTrace) ? <WordLabCompletionPerformanceObserver traceId={resolvedSearchParams.completionTrace} /> : null}
@@ -290,7 +261,7 @@ export default async function AdleSessionPage({ searchParams }: AdleSessionPageP
             {celebration !== null ? (
               <AdleSessionCelebration model={celebration} planDate={readModel.planDate} backPath={backPath} />
             ) : (
-              <div className="brand-card rounded-3xl p-4 md:p-5"><p className="text-sm text-emerald-700">Today&apos;s spelling plan is all done. See you tomorrow.</p></div>
+              <div className="adle-presentation review-scene rounded-3xl p-4 md:p-5"><p className="text-sm text-emerald-200">Today&apos;s spelling plan is all done. See you tomorrow.</p></div>
             )}
             {completedReflection ? (
               <section className="brand-card rounded-3xl p-4 md:p-5" aria-labelledby="completed-word-lab-reflection">
