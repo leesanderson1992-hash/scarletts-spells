@@ -1,0 +1,1334 @@
+{
+  "status": "OPTION_A_READ_ONLY_PROOF_PASSED_PENDING_OWNER_ACCEPTANCE",
+  "contractVersion": "gate_b_readonly_learner_history_preservation_v2",
+  "childId": "e4f9fc37-3f85-4eb5-9fbd-4eabf4f2528e",
+  "productionProject": "wwohrqtunajrbwxyssjf",
+  "mainAndDeployedSha": "1f4e687157ab767faa88417e68b0953828f577e0",
+  "productionMutationsPerformed": 0,
+  "ownerBaselineAccepted": false,
+  "quiescencePerformed": false,
+  "gateB2Performed": false,
+  "cronPaused": false,
+  "recommendedOption": "A",
+  "fieldClassifications": {
+    "classificationKey": {
+      "A": "Semantic/provenance state retained exactly",
+      "B": "Proven operational bookkeeping excluded only in this table",
+      "C": "Uncertain; never exclude without further evidence"
+    },
+    "fieldCount": 27,
+    "uncertainFields": [],
+    "fields": [
+      {
+        "field": "id",
+        "classification": "A",
+        "meaning": "Stable candidate row identity.",
+        "existingRowSweepSetClause": "neither"
+      },
+      {
+        "field": "source_candidate_mapping_id",
+        "classification": "A",
+        "meaning": "Unique link to the owner-approved spelling source.",
+        "existingRowSweepSetClause": "neither"
+      },
+      {
+        "field": "source_submission_id",
+        "classification": "A",
+        "meaning": "Original writing submission provenance.",
+        "existingRowSweepSetClause": "neither"
+      },
+      {
+        "field": "child_id",
+        "classification": "A",
+        "meaning": "Learner ownership boundary.",
+        "existingRowSweepSetClause": "neither"
+      },
+      {
+        "field": "normalized_target_token",
+        "classification": "A",
+        "meaning": "Canonical target spelling identity, including unresolved targets.",
+        "existingRowSweepSetClause": "blocked"
+      },
+      {
+        "field": "canonical_word_id",
+        "classification": "A",
+        "meaning": "Resolved dictionary identity; null can mean dictionary content is missing.",
+        "existingRowSweepSetClause": "blocked_and_ready"
+      },
+      {
+        "field": "target_identity_status",
+        "classification": "A",
+        "meaning": "Whether target identity is established or unresolved.",
+        "existingRowSweepSetClause": "blocked_and_ready"
+      },
+      {
+        "field": "route_id",
+        "classification": "A",
+        "meaning": "Curriculum route identity.",
+        "existingRowSweepSetClause": "blocked_and_ready"
+      },
+      {
+        "field": "route_version",
+        "classification": "A",
+        "meaning": "Curriculum route contract version.",
+        "existingRowSweepSetClause": "blocked_and_ready"
+      },
+      {
+        "field": "micro_skill_key",
+        "classification": "A",
+        "meaning": "Error-specific curriculum/learning route.",
+        "existingRowSweepSetClause": "blocked_and_ready"
+      },
+      {
+        "field": "candidate_state",
+        "classification": "A",
+        "meaning": "Intake lifecycle/readiness or activation state; it is not mastery or a Review result.",
+        "existingRowSweepSetClause": "blocked_and_ready"
+      },
+      {
+        "field": "priority",
+        "classification": "B",
+        "meaning": "Reconciler work ordering only; not ADLE reteach priority or review scheduling.",
+        "existingRowSweepSetClause": "neither"
+      },
+      {
+        "field": "blockers",
+        "classification": "A",
+        "meaning": "Reasons and evidence preventing intake activation.",
+        "existingRowSweepSetClause": "blocked_and_ready"
+      },
+      {
+        "field": "readiness_fingerprint",
+        "classification": "A",
+        "meaning": "Deterministic identity/readiness/release signature, not an evaluation timestamp.",
+        "existingRowSweepSetClause": "blocked_and_ready"
+      },
+      {
+        "field": "first_seen_at",
+        "classification": "A",
+        "meaning": "First intake occurrence provenance; also used for sweep ordering; conservatively retained.",
+        "existingRowSweepSetClause": "neither"
+      },
+      {
+        "field": "last_evaluated_at",
+        "classification": "B",
+        "meaning": "Time of the most recent readiness evaluation.",
+        "existingRowSweepSetClause": "blocked_and_ready"
+      },
+      {
+        "field": "next_retry_at",
+        "classification": "B",
+        "meaning": "Operational retry marker; current writers clear it; actual worker retries use queue available_at.",
+        "existingRowSweepSetClause": "blocked_and_ready"
+      },
+      {
+        "field": "learning_item_id",
+        "classification": "A",
+        "meaning": "Link to the resulting durable ADLE learning item.",
+        "existingRowSweepSetClause": "blocked_and_ready"
+      },
+      {
+        "field": "activated_at",
+        "classification": "A",
+        "meaning": "Intake activation provenance; unrelated to Review-v3 rollout activation.",
+        "existingRowSweepSetClause": "blocked_and_ready"
+      },
+      {
+        "field": "resolved_at",
+        "classification": "A",
+        "meaning": "Intake resolution provenance, retained even though a ready replay can refresh it.",
+        "existingRowSweepSetClause": "blocked_and_ready"
+      },
+      {
+        "field": "lock_version",
+        "classification": "B",
+        "meaning": "Incrementing intake update counter; no schedule/evidence reader or observed CAS consumer.",
+        "existingRowSweepSetClause": "blocked_and_ready"
+      },
+      {
+        "field": "created_at",
+        "classification": "A",
+        "meaning": "Candidate creation provenance, conservatively retained.",
+        "existingRowSweepSetClause": "neither"
+      },
+      {
+        "field": "updated_at",
+        "classification": "B",
+        "meaning": "Last candidate-row write time; not the parent-verification date consumed by learning intake.",
+        "existingRowSweepSetClause": "blocked_and_ready"
+      },
+      {
+        "field": "route_activation_revision_id",
+        "classification": "A",
+        "meaning": "Pinned curriculum route activation revision authority.",
+        "existingRowSweepSetClause": "ready"
+      },
+      {
+        "field": "curriculum_release_manifest_id",
+        "classification": "A",
+        "meaning": "Pinned immutable curriculum release identity.",
+        "existingRowSweepSetClause": "ready"
+      },
+      {
+        "field": "curriculum_release_manifest_sha256",
+        "classification": "A",
+        "meaning": "Pinned curriculum release contents fingerprint.",
+        "existingRowSweepSetClause": "ready"
+      },
+      {
+        "field": "curriculum_dependency_fingerprint",
+        "classification": "A",
+        "meaning": "Pinned curriculum dependency semantics fingerprint.",
+        "existingRowSweepSetClause": "ready"
+      }
+    ]
+  },
+  "manifest": {
+    "contractVersion": "gate_b_readonly_learner_history_preservation_v2",
+    "childId": "e4f9fc37-3f85-4eb5-9fbd-4eabf4f2528e",
+    "tables": [
+      {
+        "table": "adle_assignment_attempt_event_routes",
+        "scope": "EXISTS (SELECT 1 FROM public.adle_assignment_attempt_events e WHERE e.id = t.attempt_event_id AND e.child_id = $1)",
+        "projection": {
+          "kind": "full_row"
+        },
+        "row_count": 16,
+        "digest": "aac0fc4ef2595896985a1547c61e86a09ff85aaf42c73888696761f4c9744f63"
+      },
+      {
+        "table": "adle_assignment_attempt_events",
+        "scope": "t.child_id = $1",
+        "projection": {
+          "kind": "full_row"
+        },
+        "row_count": 152,
+        "digest": "0a1bd319b5fb4e6933c47605eb9cf1330f4c350b161b54caf4786943e127c0e3"
+      },
+      {
+        "table": "adle_authentic_use_events",
+        "scope": "t.child_id = $1",
+        "projection": {
+          "kind": "full_row"
+        },
+        "row_count": 352,
+        "digest": "7f260865156d5463864fb329ec1ccd8fe0481b25a91e446101eb9ef492efbc33"
+      },
+      {
+        "table": "adle_base_word_family_pilot_runs",
+        "scope": "t.child_id = $1",
+        "projection": {
+          "kind": "full_row"
+        },
+        "row_count": 3,
+        "digest": "ede1df234c0b44f89c1f05bbeb17eab8ff3e3b789d4abfc06a3ac61681648387"
+      },
+      {
+        "table": "adle_base_word_transfer_miss_events",
+        "scope": "t.child_id = $1",
+        "projection": {
+          "kind": "full_row"
+        },
+        "row_count": 0,
+        "digest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      {
+        "table": "adle_canonical_intake_candidates",
+        "scope": "t.child_id = $1",
+        "projection": {
+          "kind": "explicit_columns",
+          "columns": [
+            "activated_at",
+            "blockers",
+            "candidate_state",
+            "canonical_word_id",
+            "child_id",
+            "created_at",
+            "curriculum_dependency_fingerprint",
+            "curriculum_release_manifest_id",
+            "curriculum_release_manifest_sha256",
+            "first_seen_at",
+            "id",
+            "learning_item_id",
+            "micro_skill_key",
+            "normalized_target_token",
+            "readiness_fingerprint",
+            "resolved_at",
+            "route_activation_revision_id",
+            "route_id",
+            "route_version",
+            "source_candidate_mapping_id",
+            "source_submission_id",
+            "target_identity_status"
+          ],
+          "excludedOperationalColumns": [
+            "last_evaluated_at",
+            "lock_version",
+            "next_retry_at",
+            "priority",
+            "updated_at"
+          ]
+        },
+        "row_count": 27,
+        "digest": "67766340cd1721f01a3706f6f8e1850909a2243de35ce09dce46f0ce6b373080"
+      },
+      {
+        "table": "adle_child_learning_reflections",
+        "scope": "t.child_id = $1",
+        "projection": {
+          "kind": "full_row"
+        },
+        "row_count": 9,
+        "digest": "d48f36053168cab1149af795adc51350021e9ce76f3ef6b5523942eccaed9e57"
+      },
+      {
+        "table": "adle_learning_item_sources",
+        "scope": "EXISTS (SELECT 1 FROM public.adle_learning_items i WHERE i.id = t.learning_item_id AND i.child_id = $1)",
+        "projection": {
+          "kind": "full_row"
+        },
+        "row_count": 24,
+        "digest": "ba6eaecb9461881eac6aeeae11791f8c304e83231708ada86b32e949d7b4c49e"
+      },
+      {
+        "table": "adle_learning_items",
+        "scope": "t.child_id = $1",
+        "projection": {
+          "kind": "full_row"
+        },
+        "row_count": 27,
+        "digest": "8d079048960c235feb738c4a3e880cddc80f4803086cc349c12da6c01721ddb4"
+      },
+      {
+        "table": "adle_probe_runs",
+        "scope": "t.child_id = $1",
+        "projection": {
+          "kind": "full_row"
+        },
+        "row_count": 0,
+        "digest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      {
+        "table": "adle_review_bundles",
+        "scope": "t.child_id = $1",
+        "projection": {
+          "kind": "full_row"
+        },
+        "row_count": 10,
+        "digest": "b1f4edfb05c21989339213f9104d1b2b2fa8c65c24837fe3ce62fc30b16a6912"
+      },
+      {
+        "table": "adle_review_outcome_event_routes",
+        "scope": "EXISTS (SELECT 1 FROM public.adle_review_outcome_events e WHERE e.id = t.outcome_event_id AND e.child_id = $1)",
+        "projection": {
+          "kind": "full_row"
+        },
+        "row_count": 0,
+        "digest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      {
+        "table": "adle_review_outcome_events",
+        "scope": "t.child_id = $1",
+        "projection": {
+          "kind": "full_row"
+        },
+        "row_count": 3,
+        "digest": "312260e03907b9aefdbf5ff52753446daa1e41d1364331de57a4fe832f17c4e5"
+      },
+      {
+        "table": "adle_review_schedule_word_routes",
+        "scope": "EXISTS (SELECT 1 FROM public.adle_review_schedule_words w WHERE w.id = t.schedule_word_id AND w.child_id = $1)",
+        "projection": {
+          "kind": "full_row"
+        },
+        "row_count": 22,
+        "digest": "bbe48066373513276d88c48d37e569fd51a0484fe905b5c8f136c4f2c1c18f22"
+      },
+      {
+        "table": "adle_slippage_events",
+        "scope": "t.child_id = $1",
+        "projection": {
+          "kind": "full_row"
+        },
+        "row_count": 0,
+        "digest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      {
+        "table": "adle_taught_word_history",
+        "scope": "t.child_id = $1",
+        "projection": {
+          "kind": "full_row"
+        },
+        "row_count": 34,
+        "digest": "01590e8ec78ce53e129982838697d3fe51c95fc1e3651a64d0d62e34561e8bba"
+      },
+      {
+        "table": "assignment_items",
+        "scope": "t.child_id = $1",
+        "projection": {
+          "kind": "full_row"
+        },
+        "row_count": 254,
+        "digest": "6b683efafee844490823d15f2502088c49d6bfc07e38dbf8c457f6fb7b772026"
+      },
+      {
+        "table": "child_gold_bar_ledger_events",
+        "scope": "t.child_id = $1",
+        "projection": {
+          "kind": "full_row"
+        },
+        "row_count": 5,
+        "digest": "873415f369cec89bf3c6162660d6b864c8355568e32e4a5613d4c1f3d1fe0fc5"
+      },
+      {
+        "table": "child_gold_coin_ledger_events",
+        "scope": "t.child_id = $1",
+        "projection": {
+          "kind": "full_row"
+        },
+        "row_count": 43,
+        "digest": "7a4c13b52dedebaa46636492c1180fa75b052e7c749301bbe63ac6144dc6d63b"
+      },
+      {
+        "table": "child_word_treasure_events",
+        "scope": "t.child_id = $1",
+        "projection": {
+          "kind": "full_row"
+        },
+        "row_count": 45,
+        "digest": "44033aaaf8128228164f1f9d8d9c70ffc4d4c5a6a999df266e8dcf261c791879"
+      },
+      {
+        "table": "child_word_treasure_evidence_candidates",
+        "scope": "t.child_id = $1",
+        "projection": {
+          "kind": "full_row"
+        },
+        "row_count": 0,
+        "digest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      {
+        "table": "child_word_treasures",
+        "scope": "t.child_id = $1",
+        "projection": {
+          "kind": "full_row"
+        },
+        "row_count": 26,
+        "digest": "a6dec77f3e4081e11a9c21cb110fbade91634f136f6f184f6917bf0ece12318f"
+      },
+      {
+        "table": "daily_assignments",
+        "scope": "t.child_id = $1",
+        "projection": {
+          "kind": "full_row"
+        },
+        "row_count": 72,
+        "digest": "c4dd4cf07ffc828974ce96adc3ea821f3ada183138e77612770bfb988b297db6"
+      },
+      {
+        "table": "learning_item_evidence",
+        "scope": "t.child_id = $1",
+        "projection": {
+          "kind": "full_row"
+        },
+        "row_count": 76,
+        "digest": "d01b7b706effa46bdb082c2f947e24ded0b17245ea125c9128a0ff08d4e8315a"
+      },
+      {
+        "table": "learning_item_issue_links",
+        "scope": "t.child_id = $1",
+        "projection": {
+          "kind": "full_row"
+        },
+        "row_count": 38,
+        "digest": "5a3f237e3ba210dadfc19c43dda3d27be611e93a8f77dcb64a028bc35ceec795"
+      },
+      {
+        "table": "learning_items",
+        "scope": "t.child_id = $1",
+        "projection": {
+          "kind": "full_row"
+        },
+        "row_count": 21,
+        "digest": "3aef7abc732d0cc96a397500fb405c4ed130eb20c346316d339297f1b524e0b3"
+      },
+      {
+        "table": "misspelling_instances",
+        "scope": "t.child_id = $1",
+        "projection": {
+          "kind": "full_row"
+        },
+        "row_count": 309,
+        "digest": "db51047092ae58c7700a054475eb83049084c8233fc77e9714a7fd77aff69638"
+      },
+      {
+        "table": "parent_verifications",
+        "scope": "t.child_id = $1",
+        "projection": {
+          "kind": "full_row"
+        },
+        "row_count": 56,
+        "digest": "bd0b6424d16c6066dc0ae7c1d19af3bff0a00df4827874a42cce2cde07aa8a6a"
+      },
+      {
+        "table": "parent_verified_spelling_candidate_mappings",
+        "scope": "t.child_id = $1",
+        "projection": {
+          "kind": "full_row"
+        },
+        "row_count": 39,
+        "digest": "f372894afc8aa045a282902fc54e0f7684015803cc873c116c1114aa0a15ee02"
+      },
+      {
+        "table": "practice_attempts",
+        "scope": "t.child_id = $1",
+        "projection": {
+          "kind": "full_row"
+        },
+        "row_count": 0,
+        "digest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      {
+        "table": "spelling_reward_events",
+        "scope": "t.child_id = $1",
+        "projection": {
+          "kind": "full_row"
+        },
+        "row_count": 0,
+        "digest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      {
+        "table": "spelling_reward_states",
+        "scope": "t.child_id = $1",
+        "projection": {
+          "kind": "full_row"
+        },
+        "row_count": 0,
+        "digest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      {
+        "table": "task_completions",
+        "scope": "t.child_id = $1",
+        "projection": {
+          "kind": "full_row"
+        },
+        "row_count": 74,
+        "digest": "2b3d20c461b78172766a7790ab3e020a08d187d29fcfe2f63b728ce279572551"
+      },
+      {
+        "table": "task_submission_payloads",
+        "scope": "t.child_id = $1",
+        "projection": {
+          "kind": "full_row"
+        },
+        "row_count": 264,
+        "digest": "ead2a322761c7e2dd6bee8f6c4ebf2949439322e53e1b342f2df802202e6ba90"
+      },
+      {
+        "table": "task_submissions",
+        "scope": "t.child_id = $1",
+        "projection": {
+          "kind": "full_row"
+        },
+        "row_count": 264,
+        "digest": "12dc1e890f58f320673274dd0d79d4332dc845b805e4f0a3761be389aba3622b"
+      },
+      {
+        "table": "word_progress",
+        "scope": "t.child_id = $1",
+        "projection": {
+          "kind": "full_row"
+        },
+        "row_count": 0,
+        "digest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      {
+        "table": "writing_issue_correction_attempts",
+        "scope": "t.child_id = $1",
+        "projection": {
+          "kind": "full_row"
+        },
+        "row_count": 61,
+        "digest": "e491904d0cc8eb5e0bf01d159ebf94470430b8739fa8d5025f248c2a85a0def9"
+      },
+      {
+        "table": "writing_issues",
+        "scope": "t.child_id = $1",
+        "projection": {
+          "kind": "full_row"
+        },
+        "row_count": 64,
+        "digest": "c96731fc8a7043db90e61ba0eb679300ad602f8a25c9acd8ffb28f034dc5e34d"
+      },
+      {
+        "table": "writing_samples",
+        "scope": "t.child_id = $1",
+        "projection": {
+          "kind": "full_row"
+        },
+        "row_count": 272,
+        "digest": "04ea701c2f990ac00145e44d3682999439bac24207fdb39088d42ecbda796294"
+      }
+    ]
+  },
+  "supplementalDigest": "bb76e8e1dff2c10a6bbbc1fb0535820d89d2485ef66ce0d75f9be2945eb8ec36",
+  "crossSweepProof": {
+    "before": {
+      "observed": {
+        "at": "2026-08-26 09:21:17.148565+00",
+        "read_only": "on",
+        "snapshot": "187552:187552:"
+      },
+      "fullIntakeDigest": "09817687265593caecd31d6fd1f2ec74383e05fb00456010d1640938cdd8792b",
+      "v2Digest": "bb76e8e1dff2c10a6bbbc1fb0535820d89d2485ef66ce0d75f9be2945eb8ec36"
+    },
+    "after": {
+      "observed": {
+        "at": "2026-08-26 09:25:45.945898+00",
+        "read_only": "on",
+        "snapshot": "187669:187669:"
+      },
+      "fullIntakeDigest": "582cad16701f5a088aa41e4c95e3e67d5868403e7447273f86fd4a2b71a0dff9",
+      "v2Digest": "bb76e8e1dff2c10a6bbbc1fb0535820d89d2485ef66ce0d75f9be2945eb8ec36"
+    },
+    "firstSampleAt": "2026-08-26 09:21:17.148565+00",
+    "v2DigestUnchanged": true,
+    "fullIntakeDigestChanged": true,
+    "fieldDifferences": [
+      {
+        "candidateId": "02237461-f0da-4e32-849a-6db646e01e46",
+        "changedFields": [
+          "updated_at",
+          "lock_version",
+          "last_evaluated_at"
+        ],
+        "beforeOperational": {
+          "priority": 100,
+          "updated_at": "2026-08-26T09:20:07.565689+00:00",
+          "lock_version": 5975,
+          "next_retry_at": null,
+          "last_evaluated_at": "2026-08-26T09:20:07.565689+00:00"
+        },
+        "afterOperational": {
+          "priority": 100,
+          "updated_at": "2026-08-26T09:25:16.091576+00:00",
+          "lock_version": 5976,
+          "next_retry_at": null,
+          "last_evaluated_at": "2026-08-26T09:25:16.091576+00:00"
+        }
+      },
+      {
+        "candidateId": "0c88c01f-5c3a-4722-acff-bebb81552a2e",
+        "changedFields": [
+          "updated_at",
+          "lock_version",
+          "last_evaluated_at"
+        ],
+        "beforeOperational": {
+          "priority": 100,
+          "updated_at": "2026-08-26T09:20:19.566657+00:00",
+          "lock_version": 4545,
+          "next_retry_at": null,
+          "last_evaluated_at": "2026-08-26T09:20:19.566657+00:00"
+        },
+        "afterOperational": {
+          "priority": 100,
+          "updated_at": "2026-08-26T09:25:32.985634+00:00",
+          "lock_version": 4546,
+          "next_retry_at": null,
+          "last_evaluated_at": "2026-08-26T09:25:32.985634+00:00"
+        }
+      },
+      {
+        "candidateId": "4761e616-3471-40d4-a072-c6830f4bd5b2",
+        "changedFields": [
+          "updated_at",
+          "lock_version",
+          "last_evaluated_at"
+        ],
+        "beforeOperational": {
+          "priority": 100,
+          "updated_at": "2026-08-26T09:20:16.030377+00:00",
+          "lock_version": 4919,
+          "next_retry_at": null,
+          "last_evaluated_at": "2026-08-26T09:20:16.030377+00:00"
+        },
+        "afterOperational": {
+          "priority": 100,
+          "updated_at": "2026-08-26T09:25:29.471238+00:00",
+          "lock_version": 4920,
+          "next_retry_at": null,
+          "last_evaluated_at": "2026-08-26T09:25:29.471238+00:00"
+        }
+      },
+      {
+        "candidateId": "7d369573-70e4-408b-9064-7a471f024dcd",
+        "changedFields": [
+          "updated_at",
+          "lock_version",
+          "last_evaluated_at"
+        ],
+        "beforeOperational": {
+          "priority": 100,
+          "updated_at": "2026-08-26T09:20:11.714076+00:00",
+          "lock_version": 4919,
+          "next_retry_at": null,
+          "last_evaluated_at": "2026-08-26T09:20:11.714076+00:00"
+        },
+        "afterOperational": {
+          "priority": 100,
+          "updated_at": "2026-08-26T09:25:24.186659+00:00",
+          "lock_version": 4920,
+          "next_retry_at": null,
+          "last_evaluated_at": "2026-08-26T09:25:24.186659+00:00"
+        }
+      },
+      {
+        "candidateId": "ddd41c6e-d632-4cc7-970b-59737c4bd963",
+        "changedFields": [
+          "updated_at",
+          "lock_version",
+          "last_evaluated_at"
+        ],
+        "beforeOperational": {
+          "priority": 100,
+          "updated_at": "2026-08-26T09:20:23.009542+00:00",
+          "lock_version": 4545,
+          "next_retry_at": null,
+          "last_evaluated_at": "2026-08-26T09:20:23.009542+00:00"
+        },
+        "afterOperational": {
+          "priority": 100,
+          "updated_at": "2026-08-26T09:25:36.766855+00:00",
+          "lock_version": 4546,
+          "next_retry_at": null,
+          "last_evaluated_at": "2026-08-26T09:25:36.766855+00:00"
+        }
+      }
+    ],
+    "completedInterveningJobs": [
+      {
+        "id": "3028804b-5c11-4604-8d62-9b30fd34659e",
+        "candidate_id": "02237461-f0da-4e32-849a-6db646e01e46",
+        "trigger_type": "safety_sweep",
+        "source_ref": "cron:adle-canonical-intake",
+        "job_status": "completed",
+        "created_at": "2026-08-26 09:25:04.013379+00",
+        "updated_at": "2026-08-26 09:25:16.091576+00"
+      },
+      {
+        "id": "1c68682b-83ce-4293-b49a-dec93db45c37",
+        "candidate_id": "7d369573-70e4-408b-9064-7a471f024dcd",
+        "trigger_type": "safety_sweep",
+        "source_ref": "cron:adle-canonical-intake",
+        "job_status": "completed",
+        "created_at": "2026-08-26 09:25:04.297561+00",
+        "updated_at": "2026-08-26 09:25:24.186659+00"
+      },
+      {
+        "id": "8e85d391-79ff-4686-b6cf-c23275d5b688",
+        "candidate_id": "4761e616-3471-40d4-a072-c6830f4bd5b2",
+        "trigger_type": "safety_sweep",
+        "source_ref": "cron:adle-canonical-intake",
+        "job_status": "completed",
+        "created_at": "2026-08-26 09:25:04.580714+00",
+        "updated_at": "2026-08-26 09:25:29.471238+00"
+      },
+      {
+        "id": "05c591fa-8317-4069-8e45-87aaf261ce05",
+        "candidate_id": "0c88c01f-5c3a-4722-acff-bebb81552a2e",
+        "trigger_type": "safety_sweep",
+        "source_ref": "cron:adle-canonical-intake",
+        "job_status": "completed",
+        "created_at": "2026-08-26 09:25:04.877305+00",
+        "updated_at": "2026-08-26 09:25:32.985634+00"
+      },
+      {
+        "id": "82eca340-a0e4-41c2-83a3-a03fbab278bf",
+        "candidate_id": "ddd41c6e-d632-4cc7-970b-59737c4bd963",
+        "trigger_type": "safety_sweep",
+        "source_ref": "cron:adle-canonical-intake",
+        "job_status": "completed",
+        "created_at": "2026-08-26 09:25:05.308186+00",
+        "updated_at": "2026-08-26 09:25:36.766855+00"
+      }
+    ]
+  },
+  "historicalProof": {
+    "fullHistoricalRowImagesAvailable": false,
+    "partialEventComparisons": [
+      {
+        "candidate_id": "02237461-f0da-4e32-849a-6db646e01e46",
+        "before_event_id": "3e16ee9d-25b3-4fbe-8f22-8951c6b15813",
+        "before_event_at": "2026-08-26 08:20:06.493844+00",
+        "sweep_event_id": "874914d4-9a4e-4c4f-b8fa-96d5726cb467",
+        "sweep_event_at": "2026-08-26 09:05:06.949356+00",
+        "payload_unchanged": true,
+        "readiness_fingerprint_unchanged": true,
+        "event_payload": {
+          "demandType": "teaching_content",
+          "candidateState": "pending_content",
+          "primaryBlocker": "canonical_word_missing",
+          "targetIdentityStatus": "established"
+        }
+      },
+      {
+        "candidate_id": "0c88c01f-5c3a-4722-acff-bebb81552a2e",
+        "before_event_id": "700be469-5008-40da-bb09-1b405f88f986",
+        "before_event_at": "2026-08-26 08:20:17.995441+00",
+        "sweep_event_id": "416373a9-33b3-409d-99e8-63b6d31063b0",
+        "sweep_event_at": "2026-08-26 09:05:18.639657+00",
+        "payload_unchanged": true,
+        "readiness_fingerprint_unchanged": true,
+        "event_payload": {
+          "demandType": "resolver",
+          "candidateState": "pending_mapping",
+          "primaryBlocker": "mapping_missing",
+          "targetIdentityStatus": "unresolved"
+        }
+      },
+      {
+        "candidate_id": "4761e616-3471-40d4-a072-c6830f4bd5b2",
+        "before_event_id": "b7990606-48c5-4654-a02f-02f0057fda87",
+        "before_event_at": "2026-08-26 08:20:14.562065+00",
+        "sweep_event_id": "eea86acf-30ce-4c16-8532-35878e13d6ae",
+        "sweep_event_at": "2026-08-26 09:05:15.151836+00",
+        "payload_unchanged": true,
+        "readiness_fingerprint_unchanged": true,
+        "event_payload": {
+          "demandType": "teaching_content",
+          "candidateState": "pending_content",
+          "primaryBlocker": "profile_not_enabled",
+          "targetIdentityStatus": "established"
+        }
+      },
+      {
+        "candidate_id": "7d369573-70e4-408b-9064-7a471f024dcd",
+        "before_event_id": "e761fda9-6b01-426a-938b-63a1c4d1f062",
+        "before_event_at": "2026-08-26 08:20:11.056283+00",
+        "sweep_event_id": "55dd9727-8a42-4ce6-be20-1941c482291b",
+        "sweep_event_at": "2026-08-26 09:05:11.503388+00",
+        "payload_unchanged": true,
+        "readiness_fingerprint_unchanged": true,
+        "event_payload": {
+          "demandType": "teaching_content",
+          "candidateState": "pending_content",
+          "primaryBlocker": "canonical_word_missing",
+          "targetIdentityStatus": "established"
+        }
+      },
+      {
+        "candidate_id": "ddd41c6e-d632-4cc7-970b-59737c4bd963",
+        "before_event_id": "96bd7c1a-e8e9-4271-b4bd-1a732315df86",
+        "before_event_at": "2026-08-26 08:20:21.606677+00",
+        "sweep_event_id": "6b1192c5-6232-421e-881a-06869efa0395",
+        "sweep_event_at": "2026-08-26 09:05:21.971409+00",
+        "payload_unchanged": true,
+        "readiness_fingerprint_unchanged": true,
+        "event_payload": {
+          "demandType": "resolver",
+          "candidateState": "pending_mapping",
+          "primaryBlocker": "mapping_missing",
+          "targetIdentityStatus": "unresolved"
+        }
+      }
+    ]
+  },
+  "nativeAudit": {
+    "scope": [
+      "e4f9fc37-3f85-4eb5-9fbd-4eabf4f2528e"
+    ],
+    "counts": {
+      "overdue": 25,
+      "dueToday": 0,
+      "excluded": 0,
+      "ambiguity": 0,
+      "futureDue": 0,
+      "catchUpStage1": 1,
+      "catchUpStage2": 0,
+      "preRetirement": 0,
+      "canonicalWords": 25,
+      "legacyAuthoritative": 25,
+      "totalActiveScheduleRows": 25,
+      "alreadyPerWordAuthoritative": 0
+    },
+    "auditOn": "2026-08-26",
+    "fingerprint": "6c7874f1a8f4be124226010f72dd30798a9239ff6c3b9413426a6769b2a8dacd",
+    "stateCounts": {
+      "catch_up": 1,
+      "scheduled": 24,
+      "paused_parent_review": 0,
+      "awaiting_pre_retirement_check": 0
+    },
+    "activeRowIds": [
+      "0029467d-4898-4db8-90de-a3a52b1479e3",
+      "09b3011a-251e-4965-83b3-c9543207f1f9",
+      "0ac95e15-b2fa-4aed-9017-0cc82a4fe50b",
+      "0daad7b6-f09d-452f-ad40-12d77f43774a",
+      "21176bb1-3587-40be-a53e-19e9ccd964a7",
+      "4299fc98-a5f6-47d0-a8f2-3231e8ce58d5",
+      "43c8c5cf-d6e2-4a7f-962d-12848e456c19",
+      "4d72c04c-cfd1-4d70-aae0-19bd41120536",
+      "6243eea3-92f2-4aa7-8abf-21e2b1000e4b",
+      "64c8a1a1-ebd0-4fe8-b210-254e9caa131f",
+      "74713a4b-d9ac-4e12-9029-2ca616540cc2",
+      "7c37a74f-c5e7-477d-8c53-202b3bbe8d8a",
+      "89d637a0-847c-4202-9ad9-13129b26411c",
+      "93f641f4-e8ef-484a-8709-b6b4ba49f657",
+      "9444b26e-9546-4e3d-95bf-ce39d7c4616c",
+      "9bddf825-80d1-4158-9e27-3fbda6c27e32",
+      "9e8b4953-a11e-4e0d-b8ee-9d381f91127f",
+      "9fa394d9-afdf-4642-a242-eb3ea9872494",
+      "ab948cda-7baf-4662-9cb1-6d2caff84b1a",
+      "b0623db0-bbef-4a95-a798-87f3ec802410",
+      "b115ced2-b0e8-4559-af00-d1b41b76d84c",
+      "b88454c0-13ee-4892-857d-92a06821aba6",
+      "d138de61-09cc-419f-a39d-c70ded5d2f74",
+      "ddcc25d8-419b-4aef-96e1-9feca0edd3e4",
+      "f54f2ea3-5bbb-477d-881d-baedbc27b69a"
+    ],
+    "contractVersion": "adle_review_r6_authority_cutover_v1",
+    "canonicalWordIds": [
+      "01a8b531-1a64-554d-8c40-00ee0b436abd",
+      "1f459c84-8f54-4dab-bed3-1f0d4c954536",
+      "2c8be08f-1205-5422-9799-f95b43a455f8",
+      "479e8116-f29c-52bc-a50c-4ae45f328939",
+      "4ac4f61e-9cdc-48d7-bc67-d8a5a0c60047",
+      "5791a5dd-6576-5fed-9e25-427e9efe7673",
+      "5ada7d53-4586-5757-928c-e27d261c147e",
+      "66577bba-d406-51f0-b826-75b19d234d5c",
+      "67791ae4-53bd-555f-902c-2f5cd1467c4d",
+      "6fa700d8-4790-5791-b34a-86b4b3ac6371",
+      "73efe7d1-9186-5e4b-933c-4f1d6a1a0ba9",
+      "821f2a3f-1cbe-4068-b7c3-483efb839ada",
+      "8393ad7f-5987-5731-8ac1-b7c306f58838",
+      "8fe80b99-b9e1-4aaf-9646-88d30ba9a860",
+      "93cf04c8-235f-59d5-9249-f93bb9badb76",
+      "a32cdc9f-88c0-5dd5-b844-9e2f2fa52713",
+      "abd80ebb-ca67-47c2-8cdb-ae58f8cef11f",
+      "bf239c62-fdcb-5982-87b3-7dfe295304ce",
+      "c11f987a-8631-51db-8c0f-cbd739f39274",
+      "d9350337-6486-56bf-ba48-f7fdd063e748",
+      "dab17452-f475-5ffc-96f8-cc9358e36abe",
+      "dcc56b79-450f-4213-b340-b097c33813ae",
+      "e2c0f099-ac92-5ded-ac80-05f40f1135f0",
+      "e36f28b7-519b-5f86-99ee-4e3521db21e7",
+      "ec7d7616-676c-5d4d-b986-dfd2a7c1f97c"
+    ],
+    "activeStatePredicate": {
+      "memberships": [
+        "scheduled",
+        "catch_up",
+        "awaiting_pre_retirement_check",
+        "paused_parent_review"
+      ],
+      "bundleStatus": "active",
+      "bundleRowStatus": "active",
+      "scheduleRowStatus": "active",
+      "canonicalRowStatus": "active",
+      "excludedMemberships": [
+        "ejected_pending_reteach",
+        "retired"
+      ]
+    },
+    "protectedStateDigest": "ac9d632fdbadce5777739c1bfe4fbb87fa36708682c8218700c572c366821b6e",
+    "outcomeReferenceCount": 3
+  },
+  "inventory": [
+    {
+      "scheduleWordId": "0029467d-4898-4db8-90de-a3a52b1479e3",
+      "word": "incorrect",
+      "state": "scheduled",
+      "dueOn": "2026-08-08",
+      "intervalIndex": 0,
+      "catchUpStage": 0,
+      "failedReviewOn": null,
+      "retestDueOn": null
+    },
+    {
+      "scheduleWordId": "09b3011a-251e-4965-83b3-c9543207f1f9",
+      "word": "dislike",
+      "state": "scheduled",
+      "dueOn": "2026-08-21",
+      "intervalIndex": 0,
+      "catchUpStage": 0,
+      "failedReviewOn": null,
+      "retestDueOn": null
+    },
+    {
+      "scheduleWordId": "0ac95e15-b2fa-4aed-9017-0cc82a4fe50b",
+      "word": "grandmother",
+      "state": "scheduled",
+      "dueOn": "2026-08-14",
+      "intervalIndex": 0,
+      "catchUpStage": 0,
+      "failedReviewOn": null,
+      "retestDueOn": null
+    },
+    {
+      "scheduleWordId": "0daad7b6-f09d-452f-ad40-12d77f43774a",
+      "word": "international",
+      "state": "scheduled",
+      "dueOn": "2026-08-06",
+      "intervalIndex": 0,
+      "catchUpStage": 0,
+      "failedReviewOn": null,
+      "retestDueOn": null
+    },
+    {
+      "scheduleWordId": "21176bb1-3587-40be-a53e-19e9ccd964a7",
+      "word": "misplace",
+      "state": "scheduled",
+      "dueOn": "2026-08-21",
+      "intervalIndex": 0,
+      "catchUpStage": 0,
+      "failedReviewOn": null,
+      "retestDueOn": null
+    },
+    {
+      "scheduleWordId": "4299fc98-a5f6-47d0-a8f2-3231e8ce58d5",
+      "word": "well-known",
+      "state": "scheduled",
+      "dueOn": "2026-08-15",
+      "intervalIndex": 0,
+      "catchUpStage": 0,
+      "failedReviewOn": null,
+      "retestDueOn": null
+    },
+    {
+      "scheduleWordId": "43c8c5cf-d6e2-4a7f-962d-12848e456c19",
+      "word": "subway",
+      "state": "scheduled",
+      "dueOn": "2026-08-06",
+      "intervalIndex": 0,
+      "catchUpStage": 0,
+      "failedReviewOn": null,
+      "retestDueOn": null
+    },
+    {
+      "scheduleWordId": "4d72c04c-cfd1-4d70-aae0-19bd41120536",
+      "word": "writing",
+      "state": "scheduled",
+      "dueOn": "2026-07-13",
+      "intervalIndex": 1,
+      "catchUpStage": 0,
+      "failedReviewOn": null,
+      "retestDueOn": null
+    },
+    {
+      "scheduleWordId": "6243eea3-92f2-4aa7-8abf-21e2b1000e4b",
+      "word": "colourful",
+      "state": "scheduled",
+      "dueOn": "2026-08-13",
+      "intervalIndex": 0,
+      "catchUpStage": 0,
+      "failedReviewOn": null,
+      "retestDueOn": null
+    },
+    {
+      "scheduleWordId": "64c8a1a1-ebd0-4fe8-b210-254e9caa131f",
+      "word": "football",
+      "state": "scheduled",
+      "dueOn": "2026-08-14",
+      "intervalIndex": 0,
+      "catchUpStage": 0,
+      "failedReviewOn": null,
+      "retestDueOn": null
+    },
+    {
+      "scheduleWordId": "74713a4b-d9ac-4e12-9029-2ca616540cc2",
+      "word": "invisible",
+      "state": "scheduled",
+      "dueOn": "2026-08-08",
+      "intervalIndex": 0,
+      "catchUpStage": 0,
+      "failedReviewOn": null,
+      "retestDueOn": null
+    },
+    {
+      "scheduleWordId": "7c37a74f-c5e7-477d-8c53-202b3bbe8d8a",
+      "word": "preview",
+      "state": "scheduled",
+      "dueOn": "2026-08-07",
+      "intervalIndex": 0,
+      "catchUpStage": 0,
+      "failedReviewOn": null,
+      "retestDueOn": null
+    },
+    {
+      "scheduleWordId": "89d637a0-847c-4202-9ad9-13129b26411c",
+      "word": "careful",
+      "state": "scheduled",
+      "dueOn": "2026-08-13",
+      "intervalIndex": 0,
+      "catchUpStage": 0,
+      "failedReviewOn": null,
+      "retestDueOn": null
+    },
+    {
+      "scheduleWordId": "93f641f4-e8ef-484a-8709-b6b4ba49f657",
+      "word": "mislead",
+      "state": "scheduled",
+      "dueOn": "2026-08-09",
+      "intervalIndex": 0,
+      "catchUpStage": 0,
+      "failedReviewOn": null,
+      "retestDueOn": null
+    },
+    {
+      "scheduleWordId": "9444b26e-9546-4e3d-95bf-ce39d7c4616c",
+      "word": "superhero",
+      "state": "scheduled",
+      "dueOn": "2026-08-06",
+      "intervalIndex": 0,
+      "catchUpStage": 0,
+      "failedReviewOn": null,
+      "retestDueOn": null
+    },
+    {
+      "scheduleWordId": "9bddf825-80d1-4158-9e27-3fbda6c27e32",
+      "word": "replay",
+      "state": "scheduled",
+      "dueOn": "2026-08-07",
+      "intervalIndex": 0,
+      "catchUpStage": 0,
+      "failedReviewOn": null,
+      "retestDueOn": null
+    },
+    {
+      "scheduleWordId": "9e8b4953-a11e-4e0d-b8ee-9d381f91127f",
+      "word": "mother-in-law",
+      "state": "scheduled",
+      "dueOn": "2026-08-15",
+      "intervalIndex": 0,
+      "catchUpStage": 0,
+      "failedReviewOn": null,
+      "retestDueOn": null
+    },
+    {
+      "scheduleWordId": "9fa394d9-afdf-4642-a242-eb3ea9872494",
+      "word": "making",
+      "state": "scheduled",
+      "dueOn": "2026-07-13",
+      "intervalIndex": 1,
+      "catchUpStage": 0,
+      "failedReviewOn": null,
+      "retestDueOn": null
+    },
+    {
+      "scheduleWordId": "ab948cda-7baf-4662-9cb1-6d2caff84b1a",
+      "word": "dishonest",
+      "state": "scheduled",
+      "dueOn": "2026-08-09",
+      "intervalIndex": 0,
+      "catchUpStage": 0,
+      "failedReviewOn": null,
+      "retestDueOn": null
+    },
+    {
+      "scheduleWordId": "b0623db0-bbef-4a95-a798-87f3ec802410",
+      "word": "hoping",
+      "state": "catch_up",
+      "dueOn": "2026-07-11",
+      "intervalIndex": 1,
+      "catchUpStage": 1,
+      "failedReviewOn": "2026-07-10",
+      "retestDueOn": "2026-07-11"
+    },
+    {
+      "scheduleWordId": "b115ced2-b0e8-4559-af00-d1b41b76d84c",
+      "word": "unnecessary",
+      "state": "scheduled",
+      "dueOn": "2026-08-10",
+      "intervalIndex": 0,
+      "catchUpStage": 0,
+      "failedReviewOn": null,
+      "retestDueOn": null
+    },
+    {
+      "scheduleWordId": "b88454c0-13ee-4892-857d-92a06821aba6",
+      "word": "rebuild",
+      "state": "scheduled",
+      "dueOn": "2026-08-07",
+      "intervalIndex": 0,
+      "catchUpStage": 0,
+      "failedReviewOn": null,
+      "retestDueOn": null
+    },
+    {
+      "scheduleWordId": "d138de61-09cc-419f-a39d-c70ded5d2f74",
+      "word": "impossible",
+      "state": "scheduled",
+      "dueOn": "2026-08-08",
+      "intervalIndex": 0,
+      "catchUpStage": 0,
+      "failedReviewOn": null,
+      "retestDueOn": null
+    },
+    {
+      "scheduleWordId": "ddcc25d8-419b-4aef-96e1-9feca0edd3e4",
+      "word": "unnatural",
+      "state": "scheduled",
+      "dueOn": "2026-08-10",
+      "intervalIndex": 0,
+      "catchUpStage": 0,
+      "failedReviewOn": null,
+      "retestDueOn": null
+    },
+    {
+      "scheduleWordId": "f54f2ea3-5bbb-477d-881d-baedbc27b69a",
+      "word": "unkind",
+      "state": "scheduled",
+      "dueOn": "2026-08-10",
+      "intervalIndex": 0,
+      "catchUpStage": 0,
+      "failedReviewOn": null,
+      "retestDueOn": null
+    }
+  ],
+  "controls": {
+    "rollout_rows": 0,
+    "approval_receipts": 0,
+    "authority_receipts": 0,
+    "review_sessions": 0,
+    "review_encounters": 0,
+    "active_rollouts": 0
+  },
+  "projectionTests": [
+    {
+      "field": "activated_at",
+      "protected": true,
+      "detected": true
+    },
+    {
+      "field": "blockers",
+      "protected": true,
+      "detected": true
+    },
+    {
+      "field": "candidate_state",
+      "protected": true,
+      "detected": true
+    },
+    {
+      "field": "canonical_word_id",
+      "protected": true,
+      "detected": true
+    },
+    {
+      "field": "child_id",
+      "protected": true,
+      "detected": true
+    },
+    {
+      "field": "created_at",
+      "protected": true,
+      "detected": true
+    },
+    {
+      "field": "curriculum_dependency_fingerprint",
+      "protected": true,
+      "detected": true
+    },
+    {
+      "field": "curriculum_release_manifest_id",
+      "protected": true,
+      "detected": true
+    },
+    {
+      "field": "curriculum_release_manifest_sha256",
+      "protected": true,
+      "detected": true
+    },
+    {
+      "field": "first_seen_at",
+      "protected": true,
+      "detected": true
+    },
+    {
+      "field": "id",
+      "protected": true,
+      "detected": true
+    },
+    {
+      "field": "last_evaluated_at",
+      "protected": false,
+      "detected": false
+    },
+    {
+      "field": "learning_item_id",
+      "protected": true,
+      "detected": true
+    },
+    {
+      "field": "lock_version",
+      "protected": false,
+      "detected": false
+    },
+    {
+      "field": "micro_skill_key",
+      "protected": true,
+      "detected": true
+    },
+    {
+      "field": "next_retry_at",
+      "protected": false,
+      "detected": false
+    },
+    {
+      "field": "normalized_target_token",
+      "protected": true,
+      "detected": true
+    },
+    {
+      "field": "priority",
+      "protected": false,
+      "detected": false
+    },
+    {
+      "field": "readiness_fingerprint",
+      "protected": true,
+      "detected": true
+    },
+    {
+      "field": "resolved_at",
+      "protected": true,
+      "detected": true
+    },
+    {
+      "field": "route_activation_revision_id",
+      "protected": true,
+      "detected": true
+    },
+    {
+      "field": "route_id",
+      "protected": true,
+      "detected": true
+    },
+    {
+      "field": "route_version",
+      "protected": true,
+      "detected": true
+    },
+    {
+      "field": "source_candidate_mapping_id",
+      "protected": true,
+      "detected": true
+    },
+    {
+      "field": "source_submission_id",
+      "protected": true,
+      "detected": true
+    },
+    {
+      "field": "target_identity_status",
+      "protected": true,
+      "detected": true
+    },
+    {
+      "field": "updated_at",
+      "protected": false,
+      "detected": false
+    }
+  ]
+}

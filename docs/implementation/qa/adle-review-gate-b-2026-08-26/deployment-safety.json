@@ -1,0 +1,31 @@
+{
+  "status": "PUSH_BLOCKED_PENDING_BRANCH_SPECIFIC_NO_DEPLOY_AUTHORIZATION",
+  "receiptBranch": "codex/gate-b-closeout-20260826",
+  "productionMainSha": "1f4e687157ab767faa88417e68b0953828f577e0",
+  "vercelProjectId": "prj_PShWdOn82RyJ4P6BND0DBZ1TSIEl",
+  "vercelTeamId": "team_wGEZLHjfYh5juZIXKgZMGNRQ",
+  "readOnlyProjectFindings": {
+    "gitProviderOptions": { "createDeployments": "enabled" },
+    "productionBranch": "main",
+    "commandForIgnoringBuildStep": "not present in GET project response",
+    "repositoryGitDeploymentEnabledRule": "absent",
+    "deployHooksCount": 0,
+    "githubWorkflowPushBranches": ["main"],
+    "githubWorkflowAlsoRunsOnPullRequest": true,
+    "vercelignoreExcludesQaDirectory": true,
+    "vercelignoreProvesGitDeploymentSuppression": false
+  },
+  "proposedNotApplied": {
+    "file": "vercel.json",
+    "git": {
+      "deploymentEnabled": { "codex/gate-b-closeout-20260826": false }
+    },
+    "reasonForAdditionalApproval": "User authorized staging only Gate B evidence files; this is an additional branch-specific deployment control."
+  },
+  "projectSettingsMutated": false,
+  "applicationDeployed": false,
+  "branchPushed": false,
+  "mergedToMain": false,
+  "manualVisualQaStarted": false,
+  "nextPermittedWorkstreamAfterCloseout": "Manual Visual QA before Gate C"
+}

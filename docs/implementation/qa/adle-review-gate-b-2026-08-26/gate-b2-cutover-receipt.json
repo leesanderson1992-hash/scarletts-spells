@@ -1,0 +1,67 @@
+{
+  "id": "805b845d-19df-451c-ace8-860a44e1dfa0",
+  "audit_on": "2026-08-26",
+  "created_at": "2026-08-26T13:34:57.117538+00:00",
+  "state_counts": {
+    "catch_up": 1,
+    "scheduled": 24,
+    "paused_parent_review": 0,
+    "awaiting_pre_retirement_check": 0
+  },
+  "overdue_count": 25,
+  "result_payload": {
+    "ok": true,
+    "counts": {
+      "overdue": 25,
+      "dueToday": 0,
+      "excluded": 0,
+      "ambiguity": 0,
+      "futureDue": 0,
+      "catchUpStage1": 1,
+      "catchUpStage2": 0,
+      "preRetirement": 0,
+      "canonicalWords": 25,
+      "legacyAuthoritative": 25,
+      "totalActiveScheduleRows": 25,
+      "alreadyPerWordAuthoritative": 0
+    },
+    "auditOn": "2026-08-26",
+    "replayed": false,
+    "stateCounts": {
+      "catch_up": 1,
+      "scheduled": 24,
+      "paused_parent_review": 0,
+      "awaiting_pre_retirement_check": 0
+    },
+    "cutoverVersion": "gate-b-e4f9fc37-3f85-4eb5-9fbd-4eabf4f2528e-20260826-v2",
+    "r6RolloutState": "cutover_complete",
+    "contractVersion": "adle_review_r6_authority_cutover_v1",
+    "approvedChildIds": [
+      "e4f9fc37-3f85-4eb5-9fbd-4eabf4f2528e"
+    ],
+    "auditFingerprint": "6c7874f1a8f4be124226010f72dd30798a9239ff6c3b9413426a6769b2a8dacd",
+    "protectedAfterDigest": "ac9d632fdbadce5777739c1bfe4fbb87fa36708682c8218700c572c366821b6e",
+    "protectedBeforeDigest": "ac9d632fdbadce5777739c1bfe4fbb87fa36708682c8218700c572c366821b6e",
+    "initializedAuthorityRows": 25,
+    "outcomeReferenceCountAfter": 3,
+    "outcomeReferenceCountBefore": 3
+  },
+  "ambiguity_count": 0,
+  "cutover_version": "gate-b-e4f9fc37-3f85-4eb5-9fbd-4eabf4f2528e-20260826-v2",
+  "due_today_count": 0,
+  "idempotency_key": "gate-b2:e4f9fc37-3f85-4eb5-9fbd-4eabf4f2528e:20260826:v2",
+  "future_due_count": 0,
+  "audit_fingerprint": "6c7874f1a8f4be124226010f72dd30798a9239ff6c3b9413426a6769b2a8dacd",
+  "approved_child_ids": [
+    "e4f9fc37-3f85-4eb5-9fbd-4eabf4f2528e"
+  ],
+  "canonical_word_count": 25,
+  "pre_retirement_count": 0,
+  "catch_up_stage_1_count": 1,
+  "catch_up_stage_2_count": 0,
+  "protected_after_digest": "ac9d632fdbadce5777739c1bfe4fbb87fa36708682c8218700c572c366821b6e",
+  "protected_before_digest": "ac9d632fdbadce5777739c1bfe4fbb87fa36708682c8218700c572c366821b6e",
+  "active_schedule_row_count": 25,
+  "gate_b_approval_reference": "gate-b2-owner:e4f9fc37-3f85-4eb5-9fbd-4eabf4f2528e:20260826:v2",
+  "initialized_authority_count": 25
+}

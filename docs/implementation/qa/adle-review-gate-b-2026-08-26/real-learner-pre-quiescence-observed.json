@@ -1,0 +1,1451 @@
+{
+  "control": {
+    "observed_at": "2026-08-26 09:05:46.790248+00",
+    "read_only": "on",
+    "rollout": [],
+    "approvals": [],
+    "open_review_sessions": 0,
+    "authority_receipts": 0,
+    "global_review_sessions": 0,
+    "global_review_encounters": 0,
+    "global_starter_cutovers": 0,
+    "global_authority_cutovers": 0,
+    "global_active_rollouts": 0
+  },
+  "identity": {
+    "id": "e4f9fc37-3f85-4eb5-9fbd-4eabf4f2528e",
+    "parent_user_id": "a28d4885-8328-4853-ba11-6c676619b9ea",
+    "is_archived": false,
+    "digest": "cd43f34626aab07a47a6e787f9afec37eba68aba81c63e0e01034ce9694fdfc9"
+  },
+  "stale": {
+    "id": "bd6389be-d27a-48fd-b7a1-8a9fc1d4c03b",
+    "assignment_date": "2026-08-11",
+    "status": "pending",
+    "digest": "aa095ac678a021391d5d075832f4718d8de05ada18328692be3d0f8f8f93c4bd",
+    "items": 18,
+    "completed_items": 0
+  },
+  "integrity": {
+    "total_schedule_rows": 25,
+    "unique_canonical_words": 25,
+    "orphan_rows": 0
+  },
+  "nativeAudit": {
+    "scope": [
+      "e4f9fc37-3f85-4eb5-9fbd-4eabf4f2528e"
+    ],
+    "counts": {
+      "overdue": 25,
+      "dueToday": 0,
+      "excluded": 0,
+      "ambiguity": 0,
+      "futureDue": 0,
+      "catchUpStage1": 1,
+      "catchUpStage2": 0,
+      "preRetirement": 0,
+      "canonicalWords": 25,
+      "legacyAuthoritative": 25,
+      "totalActiveScheduleRows": 25,
+      "alreadyPerWordAuthoritative": 0
+    },
+    "auditOn": "2026-08-26",
+    "fingerprint": "6c7874f1a8f4be124226010f72dd30798a9239ff6c3b9413426a6769b2a8dacd",
+    "stateCounts": {
+      "catch_up": 1,
+      "scheduled": 24,
+      "paused_parent_review": 0,
+      "awaiting_pre_retirement_check": 0
+    },
+    "activeRowIds": [
+      "0029467d-4898-4db8-90de-a3a52b1479e3",
+      "09b3011a-251e-4965-83b3-c9543207f1f9",
+      "0ac95e15-b2fa-4aed-9017-0cc82a4fe50b",
+      "0daad7b6-f09d-452f-ad40-12d77f43774a",
+      "21176bb1-3587-40be-a53e-19e9ccd964a7",
+      "4299fc98-a5f6-47d0-a8f2-3231e8ce58d5",
+      "43c8c5cf-d6e2-4a7f-962d-12848e456c19",
+      "4d72c04c-cfd1-4d70-aae0-19bd41120536",
+      "6243eea3-92f2-4aa7-8abf-21e2b1000e4b",
+      "64c8a1a1-ebd0-4fe8-b210-254e9caa131f",
+      "74713a4b-d9ac-4e12-9029-2ca616540cc2",
+      "7c37a74f-c5e7-477d-8c53-202b3bbe8d8a",
+      "89d637a0-847c-4202-9ad9-13129b26411c",
+      "93f641f4-e8ef-484a-8709-b6b4ba49f657",
+      "9444b26e-9546-4e3d-95bf-ce39d7c4616c",
+      "9bddf825-80d1-4158-9e27-3fbda6c27e32",
+      "9e8b4953-a11e-4e0d-b8ee-9d381f91127f",
+      "9fa394d9-afdf-4642-a242-eb3ea9872494",
+      "ab948cda-7baf-4662-9cb1-6d2caff84b1a",
+      "b0623db0-bbef-4a95-a798-87f3ec802410",
+      "b115ced2-b0e8-4559-af00-d1b41b76d84c",
+      "b88454c0-13ee-4892-857d-92a06821aba6",
+      "d138de61-09cc-419f-a39d-c70ded5d2f74",
+      "ddcc25d8-419b-4aef-96e1-9feca0edd3e4",
+      "f54f2ea3-5bbb-477d-881d-baedbc27b69a"
+    ],
+    "contractVersion": "adle_review_r6_authority_cutover_v1",
+    "canonicalWordIds": [
+      "01a8b531-1a64-554d-8c40-00ee0b436abd",
+      "1f459c84-8f54-4dab-bed3-1f0d4c954536",
+      "2c8be08f-1205-5422-9799-f95b43a455f8",
+      "479e8116-f29c-52bc-a50c-4ae45f328939",
+      "4ac4f61e-9cdc-48d7-bc67-d8a5a0c60047",
+      "5791a5dd-6576-5fed-9e25-427e9efe7673",
+      "5ada7d53-4586-5757-928c-e27d261c147e",
+      "66577bba-d406-51f0-b826-75b19d234d5c",
+      "67791ae4-53bd-555f-902c-2f5cd1467c4d",
+      "6fa700d8-4790-5791-b34a-86b4b3ac6371",
+      "73efe7d1-9186-5e4b-933c-4f1d6a1a0ba9",
+      "821f2a3f-1cbe-4068-b7c3-483efb839ada",
+      "8393ad7f-5987-5731-8ac1-b7c306f58838",
+      "8fe80b99-b9e1-4aaf-9646-88d30ba9a860",
+      "93cf04c8-235f-59d5-9249-f93bb9badb76",
+      "a32cdc9f-88c0-5dd5-b844-9e2f2fa52713",
+      "abd80ebb-ca67-47c2-8cdb-ae58f8cef11f",
+      "bf239c62-fdcb-5982-87b3-7dfe295304ce",
+      "c11f987a-8631-51db-8c0f-cbd739f39274",
+      "d9350337-6486-56bf-ba48-f7fdd063e748",
+      "dab17452-f475-5ffc-96f8-cc9358e36abe",
+      "dcc56b79-450f-4213-b340-b097c33813ae",
+      "e2c0f099-ac92-5ded-ac80-05f40f1135f0",
+      "e36f28b7-519b-5f86-99ee-4e3521db21e7",
+      "ec7d7616-676c-5d4d-b986-dfd2a7c1f97c"
+    ],
+    "activeStatePredicate": {
+      "memberships": [
+        "scheduled",
+        "catch_up",
+        "awaiting_pre_retirement_check",
+        "paused_parent_review"
+      ],
+      "bundleStatus": "active",
+      "bundleRowStatus": "active",
+      "scheduleRowStatus": "active",
+      "canonicalRowStatus": "active",
+      "excludedMemberships": [
+        "ejected_pending_reteach",
+        "retired"
+      ]
+    },
+    "protectedStateDigest": "ac9d632fdbadce5777739c1bfe4fbb87fa36708682c8218700c572c366821b6e",
+    "outcomeReferenceCount": 3
+  },
+  "inventory": [
+    {
+      "word": "careful",
+      "scheduleWordId": "89d637a0-847c-4202-9ad9-13129b26411c",
+      "canonicalWordId": "5ada7d53-4586-5757-928c-e27d261c147e",
+      "wordKey": "careful_en_gb",
+      "classification": "legacy_authoritative",
+      "state": "scheduled",
+      "effectiveDueOn": "2026-08-13",
+      "intervalIndex": 0,
+      "normalIntervalDays": 1,
+      "catchUpStage": 0,
+      "failedReviewOn": null,
+      "nextRetestDueOn": null,
+      "preRetirementCheckDueOn": null,
+      "taughtOn": "2026-08-12",
+      "policy": "review_policy_v1_2026-07-04",
+      "authority": {
+        "wordNextDueOn": null,
+        "wordIntervalIndex": null,
+        "wordScheduleVersion": null,
+        "wordSchedulePolicyVersion": null
+      },
+      "bundle": {
+        "id": "8d75e098-7e08-4822-b8c7-7ddf84a20689",
+        "childId": "e4f9fc37-3f85-4eb5-9fbd-4eabf4f2528e",
+        "nextDueOn": "2026-08-13",
+        "rowStatus": "active",
+        "sourceRef": "lesson:e4f9fc37-3f85-4eb5-9fbd-4eabf4f2528e:2026-08-12:D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX",
+        "bundleStatus": "active",
+        "intervalIndex": 0,
+        "schedulePolicyVersion": "review_policy_v1_2026-07-04"
+      },
+      "ambiguityCodes": []
+    },
+    {
+      "word": "colourful",
+      "scheduleWordId": "6243eea3-92f2-4aa7-8abf-21e2b1000e4b",
+      "canonicalWordId": "479e8116-f29c-52bc-a50c-4ae45f328939",
+      "wordKey": "colourful_en_gb",
+      "classification": "legacy_authoritative",
+      "state": "scheduled",
+      "effectiveDueOn": "2026-08-13",
+      "intervalIndex": 0,
+      "normalIntervalDays": 1,
+      "catchUpStage": 0,
+      "failedReviewOn": null,
+      "nextRetestDueOn": null,
+      "preRetirementCheckDueOn": null,
+      "taughtOn": "2026-08-12",
+      "policy": "review_policy_v1_2026-07-04",
+      "authority": {
+        "wordNextDueOn": null,
+        "wordIntervalIndex": null,
+        "wordScheduleVersion": null,
+        "wordSchedulePolicyVersion": null
+      },
+      "bundle": {
+        "id": "8d75e098-7e08-4822-b8c7-7ddf84a20689",
+        "childId": "e4f9fc37-3f85-4eb5-9fbd-4eabf4f2528e",
+        "nextDueOn": "2026-08-13",
+        "rowStatus": "active",
+        "sourceRef": "lesson:e4f9fc37-3f85-4eb5-9fbd-4eabf4f2528e:2026-08-12:D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX",
+        "bundleStatus": "active",
+        "intervalIndex": 0,
+        "schedulePolicyVersion": "review_policy_v1_2026-07-04"
+      },
+      "ambiguityCodes": []
+    },
+    {
+      "word": "dishonest",
+      "scheduleWordId": "ab948cda-7baf-4662-9cb1-6d2caff84b1a",
+      "canonicalWordId": "821f2a3f-1cbe-4068-b7c3-483efb839ada",
+      "wordKey": "dishonest_en_gb",
+      "classification": "legacy_authoritative",
+      "state": "scheduled",
+      "effectiveDueOn": "2026-08-09",
+      "intervalIndex": 0,
+      "normalIntervalDays": 1,
+      "catchUpStage": 0,
+      "failedReviewOn": null,
+      "nextRetestDueOn": null,
+      "preRetirementCheckDueOn": null,
+      "taughtOn": "2026-08-08",
+      "policy": "review_policy_v1_2026-07-04",
+      "authority": {
+        "wordNextDueOn": null,
+        "wordIntervalIndex": null,
+        "wordScheduleVersion": null,
+        "wordSchedulePolicyVersion": null
+      },
+      "bundle": {
+        "id": "263a9fd2-fafc-4d32-ba03-aebd357e8921",
+        "childId": "e4f9fc37-3f85-4eb5-9fbd-4eabf4f2528e",
+        "nextDueOn": "2026-08-09",
+        "rowStatus": "active",
+        "sourceRef": "lesson:e4f9fc37-3f85-4eb5-9fbd-4eabf4f2528e:2026-08-08:D4_MOR_PREFIXES_DIS_MIS",
+        "bundleStatus": "active",
+        "intervalIndex": 0,
+        "schedulePolicyVersion": "review_policy_v1_2026-07-04"
+      },
+      "ambiguityCodes": []
+    },
+    {
+      "word": "dislike",
+      "scheduleWordId": "09b3011a-251e-4965-83b3-c9543207f1f9",
+      "canonicalWordId": "66577bba-d406-51f0-b826-75b19d234d5c",
+      "wordKey": "dislike_en_gb",
+      "classification": "legacy_authoritative",
+      "state": "scheduled",
+      "effectiveDueOn": "2026-08-21",
+      "intervalIndex": 0,
+      "normalIntervalDays": 1,
+      "catchUpStage": 0,
+      "failedReviewOn": null,
+      "nextRetestDueOn": null,
+      "preRetirementCheckDueOn": null,
+      "taughtOn": "2026-08-20",
+      "policy": "review_policy_v1_2026-07-04",
+      "authority": {
+        "wordNextDueOn": null,
+        "wordIntervalIndex": null,
+        "wordScheduleVersion": null,
+        "wordSchedulePolicyVersion": null
+      },
+      "bundle": {
+        "id": "4bbd7870-e7a3-4079-9bdd-7e836cc11d75",
+        "childId": "e4f9fc37-3f85-4eb5-9fbd-4eabf4f2528e",
+        "nextDueOn": "2026-08-21",
+        "rowStatus": "active",
+        "sourceRef": "lesson:e4f9fc37-3f85-4eb5-9fbd-4eabf4f2528e:2026-08-20:D4_MOR_BASE_WORDS_BASE_PLUS_PREFIX",
+        "bundleStatus": "active",
+        "intervalIndex": 0,
+        "schedulePolicyVersion": "review_policy_v1_2026-07-04"
+      },
+      "ambiguityCodes": []
+    },
+    {
+      "word": "football",
+      "scheduleWordId": "64c8a1a1-ebd0-4fe8-b210-254e9caa131f",
+      "canonicalWordId": "2c8be08f-1205-5422-9799-f95b43a455f8",
+      "wordKey": "football_en_gb",
+      "classification": "legacy_authoritative",
+      "state": "scheduled",
+      "effectiveDueOn": "2026-08-14",
+      "intervalIndex": 0,
+      "normalIntervalDays": 1,
+      "catchUpStage": 0,
+      "failedReviewOn": null,
+      "nextRetestDueOn": null,
+      "preRetirementCheckDueOn": null,
+      "taughtOn": "2026-08-13",
+      "policy": "review_policy_v1_2026-07-04",
+      "authority": {
+        "wordNextDueOn": null,
+        "wordIntervalIndex": null,
+        "wordScheduleVersion": null,
+        "wordSchedulePolicyVersion": null
+      },
+      "bundle": {
+        "id": "75480943-ae75-4cd8-8eac-0d311e7f6736",
+        "childId": "e4f9fc37-3f85-4eb5-9fbd-4eabf4f2528e",
+        "nextDueOn": "2026-08-14",
+        "rowStatus": "active",
+        "sourceRef": "lesson:e4f9fc37-3f85-4eb5-9fbd-4eabf4f2528e:2026-08-13:D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS",
+        "bundleStatus": "active",
+        "intervalIndex": 0,
+        "schedulePolicyVersion": "review_policy_v1_2026-07-04"
+      },
+      "ambiguityCodes": []
+    },
+    {
+      "word": "grandmother",
+      "scheduleWordId": "0ac95e15-b2fa-4aed-9017-0cc82a4fe50b",
+      "canonicalWordId": "73efe7d1-9186-5e4b-933c-4f1d6a1a0ba9",
+      "wordKey": "grandmother_en_gb",
+      "classification": "legacy_authoritative",
+      "state": "scheduled",
+      "effectiveDueOn": "2026-08-14",
+      "intervalIndex": 0,
+      "normalIntervalDays": 1,
+      "catchUpStage": 0,
+      "failedReviewOn": null,
+      "nextRetestDueOn": null,
+      "preRetirementCheckDueOn": null,
+      "taughtOn": "2026-08-13",
+      "policy": "review_policy_v1_2026-07-04",
+      "authority": {
+        "wordNextDueOn": null,
+        "wordIntervalIndex": null,
+        "wordScheduleVersion": null,
+        "wordSchedulePolicyVersion": null
+      },
+      "bundle": {
+        "id": "75480943-ae75-4cd8-8eac-0d311e7f6736",
+        "childId": "e4f9fc37-3f85-4eb5-9fbd-4eabf4f2528e",
+        "nextDueOn": "2026-08-14",
+        "rowStatus": "active",
+        "sourceRef": "lesson:e4f9fc37-3f85-4eb5-9fbd-4eabf4f2528e:2026-08-13:D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS",
+        "bundleStatus": "active",
+        "intervalIndex": 0,
+        "schedulePolicyVersion": "review_policy_v1_2026-07-04"
+      },
+      "ambiguityCodes": []
+    },
+    {
+      "word": "hoping",
+      "scheduleWordId": "b0623db0-bbef-4a95-a798-87f3ec802410",
+      "canonicalWordId": "8393ad7f-5987-5731-8ac1-b7c306f58838",
+      "wordKey": "hoping_en_gb",
+      "classification": "legacy_authoritative",
+      "state": "catch_up",
+      "effectiveDueOn": "2026-07-11",
+      "intervalIndex": 1,
+      "normalIntervalDays": 3,
+      "catchUpStage": 1,
+      "failedReviewOn": "2026-07-10",
+      "nextRetestDueOn": "2026-07-11",
+      "preRetirementCheckDueOn": null,
+      "taughtOn": "2026-07-09",
+      "policy": "review_policy_v1_2026-07-04",
+      "authority": {
+        "wordNextDueOn": null,
+        "wordIntervalIndex": null,
+        "wordScheduleVersion": null,
+        "wordSchedulePolicyVersion": null
+      },
+      "bundle": {
+        "id": "d24d2ad7-8a07-444f-a3ed-d23a08eda4ac",
+        "childId": "e4f9fc37-3f85-4eb5-9fbd-4eabf4f2528e",
+        "nextDueOn": "2026-07-13",
+        "rowStatus": "active",
+        "sourceRef": "lesson:e4f9fc37-3f85-4eb5-9fbd-4eabf4f2528e:2026-07-09:D4_INF_ING_ENDINGS_DROP_E",
+        "bundleStatus": "active",
+        "intervalIndex": 1,
+        "schedulePolicyVersion": "review_policy_v1_2026-07-04"
+      },
+      "ambiguityCodes": []
+    },
+    {
+      "word": "impossible",
+      "scheduleWordId": "d138de61-09cc-419f-a39d-c70ded5d2f74",
+      "canonicalWordId": "67791ae4-53bd-555f-902c-2f5cd1467c4d",
+      "wordKey": "impossible_en_gb",
+      "classification": "legacy_authoritative",
+      "state": "scheduled",
+      "effectiveDueOn": "2026-08-08",
+      "intervalIndex": 0,
+      "normalIntervalDays": 1,
+      "catchUpStage": 0,
+      "failedReviewOn": null,
+      "nextRetestDueOn": null,
+      "preRetirementCheckDueOn": null,
+      "taughtOn": "2026-08-07",
+      "policy": "review_policy_v1_2026-07-04",
+      "authority": {
+        "wordNextDueOn": null,
+        "wordIntervalIndex": null,
+        "wordScheduleVersion": null,
+        "wordSchedulePolicyVersion": null
+      },
+      "bundle": {
+        "id": "cc87d27a-141f-4af6-b12b-5fcfaa544931",
+        "childId": "e4f9fc37-3f85-4eb5-9fbd-4eabf4f2528e",
+        "nextDueOn": "2026-08-08",
+        "rowStatus": "active",
+        "sourceRef": "lesson:e4f9fc37-3f85-4eb5-9fbd-4eabf4f2528e:2026-08-07:D4_MOR_PREFIXES_IN_IM_IL_IR",
+        "bundleStatus": "active",
+        "intervalIndex": 0,
+        "schedulePolicyVersion": "review_policy_v1_2026-07-04"
+      },
+      "ambiguityCodes": []
+    },
+    {
+      "word": "incorrect",
+      "scheduleWordId": "0029467d-4898-4db8-90de-a3a52b1479e3",
+      "canonicalWordId": "6fa700d8-4790-5791-b34a-86b4b3ac6371",
+      "wordKey": "incorrect_en_gb",
+      "classification": "legacy_authoritative",
+      "state": "scheduled",
+      "effectiveDueOn": "2026-08-08",
+      "intervalIndex": 0,
+      "normalIntervalDays": 1,
+      "catchUpStage": 0,
+      "failedReviewOn": null,
+      "nextRetestDueOn": null,
+      "preRetirementCheckDueOn": null,
+      "taughtOn": "2026-08-07",
+      "policy": "review_policy_v1_2026-07-04",
+      "authority": {
+        "wordNextDueOn": null,
+        "wordIntervalIndex": null,
+        "wordScheduleVersion": null,
+        "wordSchedulePolicyVersion": null
+      },
+      "bundle": {
+        "id": "cc87d27a-141f-4af6-b12b-5fcfaa544931",
+        "childId": "e4f9fc37-3f85-4eb5-9fbd-4eabf4f2528e",
+        "nextDueOn": "2026-08-08",
+        "rowStatus": "active",
+        "sourceRef": "lesson:e4f9fc37-3f85-4eb5-9fbd-4eabf4f2528e:2026-08-07:D4_MOR_PREFIXES_IN_IM_IL_IR",
+        "bundleStatus": "active",
+        "intervalIndex": 0,
+        "schedulePolicyVersion": "review_policy_v1_2026-07-04"
+      },
+      "ambiguityCodes": []
+    },
+    {
+      "word": "international",
+      "scheduleWordId": "0daad7b6-f09d-452f-ad40-12d77f43774a",
+      "canonicalWordId": "a32cdc9f-88c0-5dd5-b844-9e2f2fa52713",
+      "wordKey": "international_en_gb",
+      "classification": "legacy_authoritative",
+      "state": "scheduled",
+      "effectiveDueOn": "2026-08-06",
+      "intervalIndex": 0,
+      "normalIntervalDays": 1,
+      "catchUpStage": 0,
+      "failedReviewOn": null,
+      "nextRetestDueOn": null,
+      "preRetirementCheckDueOn": null,
+      "taughtOn": "2026-08-05",
+      "policy": "review_policy_v1_2026-07-04",
+      "authority": {
+        "wordNextDueOn": null,
+        "wordIntervalIndex": null,
+        "wordScheduleVersion": null,
+        "wordSchedulePolicyVersion": null
+      },
+      "bundle": {
+        "id": "294c169a-0f93-4a9c-a68a-cb4942e6df3b",
+        "childId": "e4f9fc37-3f85-4eb5-9fbd-4eabf4f2528e",
+        "nextDueOn": "2026-08-06",
+        "rowStatus": "active",
+        "sourceRef": "lesson:e4f9fc37-3f85-4eb5-9fbd-4eabf4f2528e:2026-08-05:D4_MOR_PREFIXES_SUB_INTER_SUPER",
+        "bundleStatus": "active",
+        "intervalIndex": 0,
+        "schedulePolicyVersion": "review_policy_v1_2026-07-04"
+      },
+      "ambiguityCodes": []
+    },
+    {
+      "word": "invisible",
+      "scheduleWordId": "74713a4b-d9ac-4e12-9029-2ca616540cc2",
+      "canonicalWordId": "dab17452-f475-5ffc-96f8-cc9358e36abe",
+      "wordKey": "invisible_en_gb",
+      "classification": "legacy_authoritative",
+      "state": "scheduled",
+      "effectiveDueOn": "2026-08-08",
+      "intervalIndex": 0,
+      "normalIntervalDays": 1,
+      "catchUpStage": 0,
+      "failedReviewOn": null,
+      "nextRetestDueOn": null,
+      "preRetirementCheckDueOn": null,
+      "taughtOn": "2026-08-07",
+      "policy": "review_policy_v1_2026-07-04",
+      "authority": {
+        "wordNextDueOn": null,
+        "wordIntervalIndex": null,
+        "wordScheduleVersion": null,
+        "wordSchedulePolicyVersion": null
+      },
+      "bundle": {
+        "id": "cc87d27a-141f-4af6-b12b-5fcfaa544931",
+        "childId": "e4f9fc37-3f85-4eb5-9fbd-4eabf4f2528e",
+        "nextDueOn": "2026-08-08",
+        "rowStatus": "active",
+        "sourceRef": "lesson:e4f9fc37-3f85-4eb5-9fbd-4eabf4f2528e:2026-08-07:D4_MOR_PREFIXES_IN_IM_IL_IR",
+        "bundleStatus": "active",
+        "intervalIndex": 0,
+        "schedulePolicyVersion": "review_policy_v1_2026-07-04"
+      },
+      "ambiguityCodes": []
+    },
+    {
+      "word": "making",
+      "scheduleWordId": "9fa394d9-afdf-4642-a242-eb3ea9872494",
+      "canonicalWordId": "c11f987a-8631-51db-8c0f-cbd739f39274",
+      "wordKey": "making_en_gb",
+      "classification": "legacy_authoritative",
+      "state": "scheduled",
+      "effectiveDueOn": "2026-07-13",
+      "intervalIndex": 1,
+      "normalIntervalDays": 3,
+      "catchUpStage": 0,
+      "failedReviewOn": null,
+      "nextRetestDueOn": null,
+      "preRetirementCheckDueOn": null,
+      "taughtOn": "2026-07-09",
+      "policy": "review_policy_v1_2026-07-04",
+      "authority": {
+        "wordNextDueOn": null,
+        "wordIntervalIndex": null,
+        "wordScheduleVersion": null,
+        "wordSchedulePolicyVersion": null
+      },
+      "bundle": {
+        "id": "d24d2ad7-8a07-444f-a3ed-d23a08eda4ac",
+        "childId": "e4f9fc37-3f85-4eb5-9fbd-4eabf4f2528e",
+        "nextDueOn": "2026-07-13",
+        "rowStatus": "active",
+        "sourceRef": "lesson:e4f9fc37-3f85-4eb5-9fbd-4eabf4f2528e:2026-07-09:D4_INF_ING_ENDINGS_DROP_E",
+        "bundleStatus": "active",
+        "intervalIndex": 1,
+        "schedulePolicyVersion": "review_policy_v1_2026-07-04"
+      },
+      "ambiguityCodes": []
+    },
+    {
+      "word": "mislead",
+      "scheduleWordId": "93f641f4-e8ef-484a-8709-b6b4ba49f657",
+      "canonicalWordId": "abd80ebb-ca67-47c2-8cdb-ae58f8cef11f",
+      "wordKey": "mislead_en_gb",
+      "classification": "legacy_authoritative",
+      "state": "scheduled",
+      "effectiveDueOn": "2026-08-09",
+      "intervalIndex": 0,
+      "normalIntervalDays": 1,
+      "catchUpStage": 0,
+      "failedReviewOn": null,
+      "nextRetestDueOn": null,
+      "preRetirementCheckDueOn": null,
+      "taughtOn": "2026-08-08",
+      "policy": "review_policy_v1_2026-07-04",
+      "authority": {
+        "wordNextDueOn": null,
+        "wordIntervalIndex": null,
+        "wordScheduleVersion": null,
+        "wordSchedulePolicyVersion": null
+      },
+      "bundle": {
+        "id": "263a9fd2-fafc-4d32-ba03-aebd357e8921",
+        "childId": "e4f9fc37-3f85-4eb5-9fbd-4eabf4f2528e",
+        "nextDueOn": "2026-08-09",
+        "rowStatus": "active",
+        "sourceRef": "lesson:e4f9fc37-3f85-4eb5-9fbd-4eabf4f2528e:2026-08-08:D4_MOR_PREFIXES_DIS_MIS",
+        "bundleStatus": "active",
+        "intervalIndex": 0,
+        "schedulePolicyVersion": "review_policy_v1_2026-07-04"
+      },
+      "ambiguityCodes": []
+    },
+    {
+      "word": "misplace",
+      "scheduleWordId": "21176bb1-3587-40be-a53e-19e9ccd964a7",
+      "canonicalWordId": "ec7d7616-676c-5d4d-b986-dfd2a7c1f97c",
+      "wordKey": "misplace_en_gb",
+      "classification": "legacy_authoritative",
+      "state": "scheduled",
+      "effectiveDueOn": "2026-08-21",
+      "intervalIndex": 0,
+      "normalIntervalDays": 1,
+      "catchUpStage": 0,
+      "failedReviewOn": null,
+      "nextRetestDueOn": null,
+      "preRetirementCheckDueOn": null,
+      "taughtOn": "2026-08-20",
+      "policy": "review_policy_v1_2026-07-04",
+      "authority": {
+        "wordNextDueOn": null,
+        "wordIntervalIndex": null,
+        "wordScheduleVersion": null,
+        "wordSchedulePolicyVersion": null
+      },
+      "bundle": {
+        "id": "4bbd7870-e7a3-4079-9bdd-7e836cc11d75",
+        "childId": "e4f9fc37-3f85-4eb5-9fbd-4eabf4f2528e",
+        "nextDueOn": "2026-08-21",
+        "rowStatus": "active",
+        "sourceRef": "lesson:e4f9fc37-3f85-4eb5-9fbd-4eabf4f2528e:2026-08-20:D4_MOR_BASE_WORDS_BASE_PLUS_PREFIX",
+        "bundleStatus": "active",
+        "intervalIndex": 0,
+        "schedulePolicyVersion": "review_policy_v1_2026-07-04"
+      },
+      "ambiguityCodes": []
+    },
+    {
+      "word": "mother-in-law",
+      "scheduleWordId": "9e8b4953-a11e-4e0d-b8ee-9d381f91127f",
+      "canonicalWordId": "e36f28b7-519b-5f86-99ee-4e3521db21e7",
+      "wordKey": "mother_in_law_en_gb",
+      "classification": "legacy_authoritative",
+      "state": "scheduled",
+      "effectiveDueOn": "2026-08-15",
+      "intervalIndex": 0,
+      "normalIntervalDays": 1,
+      "catchUpStage": 0,
+      "failedReviewOn": null,
+      "nextRetestDueOn": null,
+      "preRetirementCheckDueOn": null,
+      "taughtOn": "2026-08-14",
+      "policy": "review_policy_v1_2026-07-04",
+      "authority": {
+        "wordNextDueOn": null,
+        "wordIntervalIndex": null,
+        "wordScheduleVersion": null,
+        "wordSchedulePolicyVersion": null
+      },
+      "bundle": {
+        "id": "97d0e192-60a6-432d-b6ec-f714f42f929a",
+        "childId": "e4f9fc37-3f85-4eb5-9fbd-4eabf4f2528e",
+        "nextDueOn": "2026-08-15",
+        "rowStatus": "active",
+        "sourceRef": "lesson:e4f9fc37-3f85-4eb5-9fbd-4eabf4f2528e:2026-08-14:D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED",
+        "bundleStatus": "active",
+        "intervalIndex": 0,
+        "schedulePolicyVersion": "review_policy_v1_2026-07-04"
+      },
+      "ambiguityCodes": []
+    },
+    {
+      "word": "preview",
+      "scheduleWordId": "7c37a74f-c5e7-477d-8c53-202b3bbe8d8a",
+      "canonicalWordId": "01a8b531-1a64-554d-8c40-00ee0b436abd",
+      "wordKey": "preview_en_gb",
+      "classification": "legacy_authoritative",
+      "state": "scheduled",
+      "effectiveDueOn": "2026-08-07",
+      "intervalIndex": 0,
+      "normalIntervalDays": 1,
+      "catchUpStage": 0,
+      "failedReviewOn": null,
+      "nextRetestDueOn": null,
+      "preRetirementCheckDueOn": null,
+      "taughtOn": "2026-08-06",
+      "policy": "review_policy_v1_2026-07-04",
+      "authority": {
+        "wordNextDueOn": null,
+        "wordIntervalIndex": null,
+        "wordScheduleVersion": null,
+        "wordSchedulePolicyVersion": null
+      },
+      "bundle": {
+        "id": "4a30e369-b907-452c-96e3-0d01b21d2a1b",
+        "childId": "e4f9fc37-3f85-4eb5-9fbd-4eabf4f2528e",
+        "nextDueOn": "2026-08-07",
+        "rowStatus": "active",
+        "sourceRef": "lesson:e4f9fc37-3f85-4eb5-9fbd-4eabf4f2528e:2026-08-06:D4_MOR_PREFIXES_RE_PRE",
+        "bundleStatus": "active",
+        "intervalIndex": 0,
+        "schedulePolicyVersion": "review_policy_v1_2026-07-04"
+      },
+      "ambiguityCodes": []
+    },
+    {
+      "word": "rebuild",
+      "scheduleWordId": "b88454c0-13ee-4892-857d-92a06821aba6",
+      "canonicalWordId": "dcc56b79-450f-4213-b340-b097c33813ae",
+      "wordKey": "rebuild_en_gb",
+      "classification": "legacy_authoritative",
+      "state": "scheduled",
+      "effectiveDueOn": "2026-08-07",
+      "intervalIndex": 0,
+      "normalIntervalDays": 1,
+      "catchUpStage": 0,
+      "failedReviewOn": null,
+      "nextRetestDueOn": null,
+      "preRetirementCheckDueOn": null,
+      "taughtOn": "2026-08-06",
+      "policy": "review_policy_v1_2026-07-04",
+      "authority": {
+        "wordNextDueOn": null,
+        "wordIntervalIndex": null,
+        "wordScheduleVersion": null,
+        "wordSchedulePolicyVersion": null
+      },
+      "bundle": {
+        "id": "4a30e369-b907-452c-96e3-0d01b21d2a1b",
+        "childId": "e4f9fc37-3f85-4eb5-9fbd-4eabf4f2528e",
+        "nextDueOn": "2026-08-07",
+        "rowStatus": "active",
+        "sourceRef": "lesson:e4f9fc37-3f85-4eb5-9fbd-4eabf4f2528e:2026-08-06:D4_MOR_PREFIXES_RE_PRE",
+        "bundleStatus": "active",
+        "intervalIndex": 0,
+        "schedulePolicyVersion": "review_policy_v1_2026-07-04"
+      },
+      "ambiguityCodes": []
+    },
+    {
+      "word": "replay",
+      "scheduleWordId": "9bddf825-80d1-4158-9e27-3fbda6c27e32",
+      "canonicalWordId": "5791a5dd-6576-5fed-9e25-427e9efe7673",
+      "wordKey": "replay_en_gb",
+      "classification": "legacy_authoritative",
+      "state": "scheduled",
+      "effectiveDueOn": "2026-08-07",
+      "intervalIndex": 0,
+      "normalIntervalDays": 1,
+      "catchUpStage": 0,
+      "failedReviewOn": null,
+      "nextRetestDueOn": null,
+      "preRetirementCheckDueOn": null,
+      "taughtOn": "2026-08-06",
+      "policy": "review_policy_v1_2026-07-04",
+      "authority": {
+        "wordNextDueOn": null,
+        "wordIntervalIndex": null,
+        "wordScheduleVersion": null,
+        "wordSchedulePolicyVersion": null
+      },
+      "bundle": {
+        "id": "4a30e369-b907-452c-96e3-0d01b21d2a1b",
+        "childId": "e4f9fc37-3f85-4eb5-9fbd-4eabf4f2528e",
+        "nextDueOn": "2026-08-07",
+        "rowStatus": "active",
+        "sourceRef": "lesson:e4f9fc37-3f85-4eb5-9fbd-4eabf4f2528e:2026-08-06:D4_MOR_PREFIXES_RE_PRE",
+        "bundleStatus": "active",
+        "intervalIndex": 0,
+        "schedulePolicyVersion": "review_policy_v1_2026-07-04"
+      },
+      "ambiguityCodes": []
+    },
+    {
+      "word": "subway",
+      "scheduleWordId": "43c8c5cf-d6e2-4a7f-962d-12848e456c19",
+      "canonicalWordId": "d9350337-6486-56bf-ba48-f7fdd063e748",
+      "wordKey": "subway_en_gb",
+      "classification": "legacy_authoritative",
+      "state": "scheduled",
+      "effectiveDueOn": "2026-08-06",
+      "intervalIndex": 0,
+      "normalIntervalDays": 1,
+      "catchUpStage": 0,
+      "failedReviewOn": null,
+      "nextRetestDueOn": null,
+      "preRetirementCheckDueOn": null,
+      "taughtOn": "2026-08-05",
+      "policy": "review_policy_v1_2026-07-04",
+      "authority": {
+        "wordNextDueOn": null,
+        "wordIntervalIndex": null,
+        "wordScheduleVersion": null,
+        "wordSchedulePolicyVersion": null
+      },
+      "bundle": {
+        "id": "294c169a-0f93-4a9c-a68a-cb4942e6df3b",
+        "childId": "e4f9fc37-3f85-4eb5-9fbd-4eabf4f2528e",
+        "nextDueOn": "2026-08-06",
+        "rowStatus": "active",
+        "sourceRef": "lesson:e4f9fc37-3f85-4eb5-9fbd-4eabf4f2528e:2026-08-05:D4_MOR_PREFIXES_SUB_INTER_SUPER",
+        "bundleStatus": "active",
+        "intervalIndex": 0,
+        "schedulePolicyVersion": "review_policy_v1_2026-07-04"
+      },
+      "ambiguityCodes": []
+    },
+    {
+      "word": "superhero",
+      "scheduleWordId": "9444b26e-9546-4e3d-95bf-ce39d7c4616c",
+      "canonicalWordId": "1f459c84-8f54-4dab-bed3-1f0d4c954536",
+      "wordKey": "superhero_en_gb",
+      "classification": "legacy_authoritative",
+      "state": "scheduled",
+      "effectiveDueOn": "2026-08-06",
+      "intervalIndex": 0,
+      "normalIntervalDays": 1,
+      "catchUpStage": 0,
+      "failedReviewOn": null,
+      "nextRetestDueOn": null,
+      "preRetirementCheckDueOn": null,
+      "taughtOn": "2026-08-05",
+      "policy": "review_policy_v1_2026-07-04",
+      "authority": {
+        "wordNextDueOn": null,
+        "wordIntervalIndex": null,
+        "wordScheduleVersion": null,
+        "wordSchedulePolicyVersion": null
+      },
+      "bundle": {
+        "id": "294c169a-0f93-4a9c-a68a-cb4942e6df3b",
+        "childId": "e4f9fc37-3f85-4eb5-9fbd-4eabf4f2528e",
+        "nextDueOn": "2026-08-06",
+        "rowStatus": "active",
+        "sourceRef": "lesson:e4f9fc37-3f85-4eb5-9fbd-4eabf4f2528e:2026-08-05:D4_MOR_PREFIXES_SUB_INTER_SUPER",
+        "bundleStatus": "active",
+        "intervalIndex": 0,
+        "schedulePolicyVersion": "review_policy_v1_2026-07-04"
+      },
+      "ambiguityCodes": []
+    },
+    {
+      "word": "unkind",
+      "scheduleWordId": "f54f2ea3-5bbb-477d-881d-baedbc27b69a",
+      "canonicalWordId": "bf239c62-fdcb-5982-87b3-7dfe295304ce",
+      "wordKey": "unkind_en_gb",
+      "classification": "legacy_authoritative",
+      "state": "scheduled",
+      "effectiveDueOn": "2026-08-10",
+      "intervalIndex": 0,
+      "normalIntervalDays": 1,
+      "catchUpStage": 0,
+      "failedReviewOn": null,
+      "nextRetestDueOn": null,
+      "preRetirementCheckDueOn": null,
+      "taughtOn": "2026-08-09",
+      "policy": "review_policy_v1_2026-07-04",
+      "authority": {
+        "wordNextDueOn": null,
+        "wordIntervalIndex": null,
+        "wordScheduleVersion": null,
+        "wordSchedulePolicyVersion": null
+      },
+      "bundle": {
+        "id": "f32b6e91-9f87-40bf-b01e-058caf3f882f",
+        "childId": "e4f9fc37-3f85-4eb5-9fbd-4eabf4f2528e",
+        "nextDueOn": "2026-08-10",
+        "rowStatus": "active",
+        "sourceRef": "lesson:e4f9fc37-3f85-4eb5-9fbd-4eabf4f2528e:2026-08-09:D4_MOR_PREFIXES_UN",
+        "bundleStatus": "active",
+        "intervalIndex": 0,
+        "schedulePolicyVersion": "review_policy_v1_2026-07-04"
+      },
+      "ambiguityCodes": []
+    },
+    {
+      "word": "unnatural",
+      "scheduleWordId": "ddcc25d8-419b-4aef-96e1-9feca0edd3e4",
+      "canonicalWordId": "8fe80b99-b9e1-4aaf-9646-88d30ba9a860",
+      "wordKey": "unnatural_en_gb",
+      "classification": "legacy_authoritative",
+      "state": "scheduled",
+      "effectiveDueOn": "2026-08-10",
+      "intervalIndex": 0,
+      "normalIntervalDays": 1,
+      "catchUpStage": 0,
+      "failedReviewOn": null,
+      "nextRetestDueOn": null,
+      "preRetirementCheckDueOn": null,
+      "taughtOn": "2026-08-09",
+      "policy": "review_policy_v1_2026-07-04",
+      "authority": {
+        "wordNextDueOn": null,
+        "wordIntervalIndex": null,
+        "wordScheduleVersion": null,
+        "wordSchedulePolicyVersion": null
+      },
+      "bundle": {
+        "id": "f32b6e91-9f87-40bf-b01e-058caf3f882f",
+        "childId": "e4f9fc37-3f85-4eb5-9fbd-4eabf4f2528e",
+        "nextDueOn": "2026-08-10",
+        "rowStatus": "active",
+        "sourceRef": "lesson:e4f9fc37-3f85-4eb5-9fbd-4eabf4f2528e:2026-08-09:D4_MOR_PREFIXES_UN",
+        "bundleStatus": "active",
+        "intervalIndex": 0,
+        "schedulePolicyVersion": "review_policy_v1_2026-07-04"
+      },
+      "ambiguityCodes": []
+    },
+    {
+      "word": "unnecessary",
+      "scheduleWordId": "b115ced2-b0e8-4559-af00-d1b41b76d84c",
+      "canonicalWordId": "4ac4f61e-9cdc-48d7-bc67-d8a5a0c60047",
+      "wordKey": "unnecessary_en_gb",
+      "classification": "legacy_authoritative",
+      "state": "scheduled",
+      "effectiveDueOn": "2026-08-10",
+      "intervalIndex": 0,
+      "normalIntervalDays": 1,
+      "catchUpStage": 0,
+      "failedReviewOn": null,
+      "nextRetestDueOn": null,
+      "preRetirementCheckDueOn": null,
+      "taughtOn": "2026-08-09",
+      "policy": "review_policy_v1_2026-07-04",
+      "authority": {
+        "wordNextDueOn": null,
+        "wordIntervalIndex": null,
+        "wordScheduleVersion": null,
+        "wordSchedulePolicyVersion": null
+      },
+      "bundle": {
+        "id": "f32b6e91-9f87-40bf-b01e-058caf3f882f",
+        "childId": "e4f9fc37-3f85-4eb5-9fbd-4eabf4f2528e",
+        "nextDueOn": "2026-08-10",
+        "rowStatus": "active",
+        "sourceRef": "lesson:e4f9fc37-3f85-4eb5-9fbd-4eabf4f2528e:2026-08-09:D4_MOR_PREFIXES_UN",
+        "bundleStatus": "active",
+        "intervalIndex": 0,
+        "schedulePolicyVersion": "review_policy_v1_2026-07-04"
+      },
+      "ambiguityCodes": []
+    },
+    {
+      "word": "well-known",
+      "scheduleWordId": "4299fc98-a5f6-47d0-a8f2-3231e8ce58d5",
+      "canonicalWordId": "93cf04c8-235f-59d5-9249-f93bb9badb76",
+      "wordKey": "well_known_en_gb",
+      "classification": "legacy_authoritative",
+      "state": "scheduled",
+      "effectiveDueOn": "2026-08-15",
+      "intervalIndex": 0,
+      "normalIntervalDays": 1,
+      "catchUpStage": 0,
+      "failedReviewOn": null,
+      "nextRetestDueOn": null,
+      "preRetirementCheckDueOn": null,
+      "taughtOn": "2026-08-14",
+      "policy": "review_policy_v1_2026-07-04",
+      "authority": {
+        "wordNextDueOn": null,
+        "wordIntervalIndex": null,
+        "wordScheduleVersion": null,
+        "wordSchedulePolicyVersion": null
+      },
+      "bundle": {
+        "id": "97d0e192-60a6-432d-b6ec-f714f42f929a",
+        "childId": "e4f9fc37-3f85-4eb5-9fbd-4eabf4f2528e",
+        "nextDueOn": "2026-08-15",
+        "rowStatus": "active",
+        "sourceRef": "lesson:e4f9fc37-3f85-4eb5-9fbd-4eabf4f2528e:2026-08-14:D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED",
+        "bundleStatus": "active",
+        "intervalIndex": 0,
+        "schedulePolicyVersion": "review_policy_v1_2026-07-04"
+      },
+      "ambiguityCodes": []
+    },
+    {
+      "word": "writing",
+      "scheduleWordId": "4d72c04c-cfd1-4d70-aae0-19bd41120536",
+      "canonicalWordId": "e2c0f099-ac92-5ded-ac80-05f40f1135f0",
+      "wordKey": "writing_en_gb",
+      "classification": "legacy_authoritative",
+      "state": "scheduled",
+      "effectiveDueOn": "2026-07-13",
+      "intervalIndex": 1,
+      "normalIntervalDays": 3,
+      "catchUpStage": 0,
+      "failedReviewOn": null,
+      "nextRetestDueOn": null,
+      "preRetirementCheckDueOn": null,
+      "taughtOn": "2026-07-09",
+      "policy": "review_policy_v1_2026-07-04",
+      "authority": {
+        "wordNextDueOn": null,
+        "wordIntervalIndex": null,
+        "wordScheduleVersion": null,
+        "wordSchedulePolicyVersion": null
+      },
+      "bundle": {
+        "id": "d24d2ad7-8a07-444f-a3ed-d23a08eda4ac",
+        "childId": "e4f9fc37-3f85-4eb5-9fbd-4eabf4f2528e",
+        "nextDueOn": "2026-07-13",
+        "rowStatus": "active",
+        "sourceRef": "lesson:e4f9fc37-3f85-4eb5-9fbd-4eabf4f2528e:2026-07-09:D4_INF_ING_ENDINGS_DROP_E",
+        "bundleStatus": "active",
+        "intervalIndex": 1,
+        "schedulePolicyVersion": "review_policy_v1_2026-07-04"
+      },
+      "ambiguityCodes": []
+    }
+  ],
+  "history": {
+    "manifest": {
+      "contractVersion": "gate_b_readonly_learner_history_preservation_v1",
+      "childId": "e4f9fc37-3f85-4eb5-9fbd-4eabf4f2528e",
+      "tables": [
+        {
+          "table": "adle_assignment_attempt_event_routes",
+          "row_count": 16,
+          "digest": "aac0fc4ef2595896985a1547c61e86a09ff85aaf42c73888696761f4c9744f63"
+        },
+        {
+          "table": "adle_assignment_attempt_events",
+          "row_count": 152,
+          "digest": "0a1bd319b5fb4e6933c47605eb9cf1330f4c350b161b54caf4786943e127c0e3"
+        },
+        {
+          "table": "adle_authentic_use_events",
+          "row_count": 352,
+          "digest": "7f260865156d5463864fb329ec1ccd8fe0481b25a91e446101eb9ef492efbc33"
+        },
+        {
+          "table": "adle_base_word_family_pilot_runs",
+          "row_count": 3,
+          "digest": "ede1df234c0b44f89c1f05bbeb17eab8ff3e3b789d4abfc06a3ac61681648387"
+        },
+        {
+          "table": "adle_base_word_transfer_miss_events",
+          "row_count": 0,
+          "digest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        {
+          "table": "adle_canonical_intake_candidates",
+          "row_count": 27,
+          "digest": "f8a925019e5435cc339c4a91639239ddf7da0b82ee25e86794ddbf8729f7aeee"
+        },
+        {
+          "table": "adle_child_learning_reflections",
+          "row_count": 9,
+          "digest": "d48f36053168cab1149af795adc51350021e9ce76f3ef6b5523942eccaed9e57"
+        },
+        {
+          "table": "adle_learning_items",
+          "row_count": 27,
+          "digest": "8d079048960c235feb738c4a3e880cddc80f4803086cc349c12da6c01721ddb4"
+        },
+        {
+          "table": "adle_probe_runs",
+          "row_count": 0,
+          "digest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        {
+          "table": "adle_review_bundles",
+          "row_count": 10,
+          "digest": "b1f4edfb05c21989339213f9104d1b2b2fa8c65c24837fe3ce62fc30b16a6912"
+        },
+        {
+          "table": "adle_review_outcome_event_routes",
+          "row_count": 0,
+          "digest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        {
+          "table": "adle_review_outcome_events",
+          "row_count": 3,
+          "digest": "312260e03907b9aefdbf5ff52753446daa1e41d1364331de57a4fe832f17c4e5"
+        },
+        {
+          "table": "adle_review_schedule_word_routes",
+          "row_count": 22,
+          "digest": "bbe48066373513276d88c48d37e569fd51a0484fe905b5c8f136c4f2c1c18f22"
+        },
+        {
+          "table": "adle_slippage_events",
+          "row_count": 0,
+          "digest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        {
+          "table": "adle_taught_word_history",
+          "row_count": 34,
+          "digest": "01590e8ec78ce53e129982838697d3fe51c95fc1e3651a64d0d62e34561e8bba"
+        },
+        {
+          "table": "assignment_items",
+          "row_count": 254,
+          "digest": "6b683efafee844490823d15f2502088c49d6bfc07e38dbf8c457f6fb7b772026"
+        },
+        {
+          "table": "child_gold_bar_ledger_events",
+          "row_count": 5,
+          "digest": "873415f369cec89bf3c6162660d6b864c8355568e32e4a5613d4c1f3d1fe0fc5"
+        },
+        {
+          "table": "child_gold_coin_ledger_events",
+          "row_count": 43,
+          "digest": "7a4c13b52dedebaa46636492c1180fa75b052e7c749301bbe63ac6144dc6d63b"
+        },
+        {
+          "table": "child_word_treasure_events",
+          "row_count": 45,
+          "digest": "44033aaaf8128228164f1f9d8d9c70ffc4d4c5a6a999df266e8dcf261c791879"
+        },
+        {
+          "table": "child_word_treasure_evidence_candidates",
+          "row_count": 0,
+          "digest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        {
+          "table": "child_word_treasures",
+          "row_count": 26,
+          "digest": "a6dec77f3e4081e11a9c21cb110fbade91634f136f6f184f6917bf0ece12318f"
+        },
+        {
+          "table": "daily_assignments",
+          "row_count": 72,
+          "digest": "c4dd4cf07ffc828974ce96adc3ea821f3ada183138e77612770bfb988b297db6"
+        },
+        {
+          "table": "learning_item_evidence",
+          "row_count": 76,
+          "digest": "d01b7b706effa46bdb082c2f947e24ded0b17245ea125c9128a0ff08d4e8315a"
+        },
+        {
+          "table": "learning_item_issue_links",
+          "row_count": 38,
+          "digest": "5a3f237e3ba210dadfc19c43dda3d27be611e93a8f77dcb64a028bc35ceec795"
+        },
+        {
+          "table": "learning_items",
+          "row_count": 21,
+          "digest": "3aef7abc732d0cc96a397500fb405c4ed130eb20c346316d339297f1b524e0b3"
+        },
+        {
+          "table": "misspelling_instances",
+          "row_count": 309,
+          "digest": "db51047092ae58c7700a054475eb83049084c8233fc77e9714a7fd77aff69638"
+        },
+        {
+          "table": "parent_verifications",
+          "row_count": 56,
+          "digest": "bd0b6424d16c6066dc0ae7c1d19af3bff0a00df4827874a42cce2cde07aa8a6a"
+        },
+        {
+          "table": "parent_verified_spelling_candidate_mappings",
+          "row_count": 39,
+          "digest": "f372894afc8aa045a282902fc54e0f7684015803cc873c116c1114aa0a15ee02"
+        },
+        {
+          "table": "practice_attempts",
+          "row_count": 0,
+          "digest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        {
+          "table": "spelling_reward_events",
+          "row_count": 0,
+          "digest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        {
+          "table": "spelling_reward_states",
+          "row_count": 0,
+          "digest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        {
+          "table": "task_completions",
+          "row_count": 74,
+          "digest": "2b3d20c461b78172766a7790ab3e020a08d187d29fcfe2f63b728ce279572551"
+        },
+        {
+          "table": "task_submission_payloads",
+          "row_count": 264,
+          "digest": "ead2a322761c7e2dd6bee8f6c4ebf2949439322e53e1b342f2df802202e6ba90"
+        },
+        {
+          "table": "task_submissions",
+          "row_count": 264,
+          "digest": "12dc1e890f58f320673274dd0d79d4332dc845b805e4f0a3761be389aba3622b"
+        },
+        {
+          "table": "word_progress",
+          "row_count": 0,
+          "digest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        {
+          "table": "writing_issue_correction_attempts",
+          "row_count": 61,
+          "digest": "e491904d0cc8eb5e0bf01d159ebf94470430b8739fa8d5025f248c2a85a0def9"
+        },
+        {
+          "table": "writing_issues",
+          "row_count": 64,
+          "digest": "c96731fc8a7043db90e61ba0eb679300ad602f8a25c9acd8ffb28f034dc5e34d"
+        },
+        {
+          "table": "writing_samples",
+          "row_count": 272,
+          "digest": "04ea701c2f990ac00145e44d3682999439bac24207fdb39088d42ecbda796294"
+        }
+      ]
+    },
+    "digest": "f6c96bc935972468e300b0cc856a598e5ca26d4a3e4cfde25dde4327a12ffb6d"
+  },
+  "curriculum": {
+    "manifest": {
+      "contractVersion": "gate_b_global_curriculum_rowhash_multiset_v1",
+      "tables": [
+        {
+          "table": "adle_curriculum_dependency_authorities",
+          "row_count": 15,
+          "digest": "37b0937b199c143b082b7b89c0391bd2272c18f1db313486958c007f1ee26cf2"
+        },
+        {
+          "table": "adle_curriculum_import_manifests",
+          "row_count": 0,
+          "digest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        {
+          "table": "adle_curriculum_release_dependencies",
+          "row_count": 21,
+          "digest": "ce19958f8cd55a71042872f9da953d37fd20b0b0c678d24f8a6c526282eb002f"
+        },
+        {
+          "table": "adle_curriculum_release_manifests",
+          "row_count": 6,
+          "digest": "831b87f1d8120879fc5dce5c92b4f90c3c818de6050dd0917c8d628879e896d0"
+        },
+        {
+          "table": "adle_evidence_policy_versions",
+          "row_count": 1,
+          "digest": "f53f5f1b07fa48131119dccad8afb12450f2744038738376bbf6147b145c15a4"
+        },
+        {
+          "table": "adle_lesson_route_activations",
+          "row_count": 0,
+          "digest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        {
+          "table": "adle_review_policy_versions",
+          "row_count": 1,
+          "digest": "e16b000191ec37d2b758cfab81b44b5b69c3f4e82a459ded69d7f8bd76ea250b"
+        },
+        {
+          "table": "adle_review_prompt_versions",
+          "row_count": 98,
+          "digest": "b8d3b9dbef4e7ac399dcfc00068fea4543576b9dba5dceaa5f3e466f04ff258c"
+        },
+        {
+          "table": "adle_route_activation_heads",
+          "row_count": 6,
+          "digest": "4f0d52b50ba508019b80f59eec7e992cf8a4ff144ae2e87a72fa4f39d35f4624"
+        },
+        {
+          "table": "adle_route_activation_revisions",
+          "row_count": 32,
+          "digest": "30f66f805adcaf99da8c773115a79a5d0b19cd669f4441ffa2bb6586355468a4"
+        },
+        {
+          "table": "adle_teaching_dictionary_closure_words",
+          "row_count": 319,
+          "digest": "c908cac3b34306eee4fec3d1c64808e97c6509d5439093dfd770449b6fe8cb63"
+        },
+        {
+          "table": "canonical_spelling_word_map_route_support",
+          "row_count": 0,
+          "digest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        {
+          "table": "canonical_teaching_dictionary_banding_overrides",
+          "row_count": 0,
+          "digest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        {
+          "table": "canonical_teaching_dictionary_banding_versions",
+          "row_count": 1,
+          "digest": "a0745b654941cfc278a0a6406cc16d5c8dd2d5771ef7545550d079692e943fed"
+        },
+        {
+          "table": "canonical_teaching_dictionary_base_word_families",
+          "row_count": 183,
+          "digest": "4cfd2f265a265d6b10ecb1565f33468b4474583326bb8ef5874dfe31e917f316"
+        },
+        {
+          "table": "canonical_teaching_dictionary_base_word_family_members",
+          "row_count": 454,
+          "digest": "1de64dd080e6a7218efea753ab52715a21cf18cd5dc5250c34bfa39cafeb3b30"
+        },
+        {
+          "table": "canonical_teaching_dictionary_compound_components_v2",
+          "row_count": 29,
+          "digest": "0a4c12c20b1ce3e9f01e5101babf9f44c086e470b5944d370e7f7b7f611aacca"
+        },
+        {
+          "table": "canonical_teaching_dictionary_compound_facts",
+          "row_count": 7,
+          "digest": "5d8c09ac78858a76da5d199b9c239807b30483fe08905c2c6b59da8e26f71edd"
+        },
+        {
+          "table": "canonical_teaching_dictionary_compound_joins_v2",
+          "row_count": 15,
+          "digest": "7ce5403e08c1d21d8da8d5bc11bb59d763e89da66f5421e75338a5edf381b4ba"
+        },
+        {
+          "table": "canonical_teaching_dictionary_compound_profiles",
+          "row_count": 1,
+          "digest": "3034df051634ae8d2e94720605c3556e85705342f4cddb985c27318a2adfbfd0"
+        },
+        {
+          "table": "canonical_teaching_dictionary_compound_structures_v2",
+          "row_count": 14,
+          "digest": "e22a91074bc6e216c5d0f89519cf2425939d65309b34449d5b3543347f3507a1"
+        },
+        {
+          "table": "canonical_teaching_dictionary_content_versions",
+          "row_count": 238,
+          "digest": "46df277af9846536e2de6ee66802a8fd45042fe5cc704b1661964dec516714c8"
+        },
+        {
+          "table": "canonical_teaching_dictionary_dictation_sentences",
+          "row_count": 1930,
+          "digest": "dfd2ed20f073288f52f64aa4d923104ec57f94bd8bbda67aa8c505f67a093f64"
+        },
+        {
+          "table": "canonical_teaching_dictionary_field_reviews",
+          "row_count": 2618,
+          "digest": "e03074c85d28a69ff77b42185c4b30a4a3c55429d858325c03755d9c70659b78"
+        },
+        {
+          "table": "canonical_teaching_dictionary_import_batches",
+          "row_count": 29,
+          "digest": "c533eb53d8157212db2cb22a8ac6bdc6891bdedcaca3169ad39538e0aab7392f"
+        },
+        {
+          "table": "canonical_teaching_dictionary_prefix_members",
+          "row_count": 35,
+          "digest": "cef4e88f7bc92b11f9575318c8ad8ae465fd995535d63f1d104b82678268d766"
+        },
+        {
+          "table": "canonical_teaching_dictionary_prefix_profiles",
+          "row_count": 5,
+          "digest": "4c1522d52ad474e34c5ac50b7c3165560d6a2a80b76ae6abacfde77e6179a151"
+        },
+        {
+          "table": "canonical_teaching_dictionary_readiness_reports",
+          "row_count": 238,
+          "digest": "8dd73380ebdd24e083ccd55217765b6dc68824ad7f3f29596f6173cce3cab2f0"
+        },
+        {
+          "table": "canonical_teaching_dictionary_skill_level_allocation",
+          "row_count": 368,
+          "digest": "f58caa37d7255fac5608c6816c33597cb7ae08f32750a31f56f1db45a15b7d70"
+        },
+        {
+          "table": "canonical_teaching_dictionary_sources",
+          "row_count": 28,
+          "digest": "9d52489af2348fc3d0112b33fa95cb1fbf62c7dafbfdc1332851e27d20ad20ff"
+        },
+        {
+          "table": "canonical_teaching_dictionary_suffix_members",
+          "row_count": 40,
+          "digest": "ea3140acaa4f3f500a4b2d949903601b22360a3c7bc87586cae0d55487697571"
+        },
+        {
+          "table": "canonical_teaching_dictionary_suffix_profiles",
+          "row_count": 10,
+          "digest": "6c2f3b1386aa1bb32c7129d56a6fcbffed36f1fa4571bd78aa03aaa5fdc8c668"
+        },
+        {
+          "table": "canonical_teaching_dictionary_transfer_selector_profiles",
+          "row_count": 0,
+          "digest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        {
+          "table": "canonical_teaching_dictionary_word_banding",
+          "row_count": 875,
+          "digest": "1d864e6fcbe3cfb58981273beb73063a897e154c74fd18ac7f794bd03ab28452"
+        },
+        {
+          "table": "canonical_teaching_dictionary_word_metadata",
+          "row_count": 1929,
+          "digest": "06251d1a28c9a0a275626d33ad9c435b7098c3b6b457520a3cc400faab1ac997"
+        },
+        {
+          "table": "canonical_teaching_dictionary_word_morphology",
+          "row_count": 1035,
+          "digest": "f487e078d5eb332c7cd7fe3c59b2f91ab609e972840802b244660de5109145ca"
+        },
+        {
+          "table": "canonical_teaching_dictionary_word_support",
+          "row_count": 988,
+          "digest": "48017d475dc0afb20957d1ecd545e9b3dd9eadedf62a0f6d3d56646ca19dc893"
+        },
+        {
+          "table": "canonical_teaching_dictionary_words",
+          "row_count": 1922,
+          "digest": "f4a5a0be674322fb74582d7ffa16c6830eca6778ebca98978f3888433f0b841c"
+        },
+        {
+          "table": "micro_skill_catalog",
+          "row_count": 241,
+          "digest": "896785c4a10aacbf40dca902651970ceebce65d016b0985c136ce8cee3b56b28"
+        },
+        {
+          "table": "micro_skill_clusters",
+          "row_count": 46,
+          "digest": "8d7bde9eb03d567ed2f03ded885b059afcce38e1d75c6bee6669cfceb75d6879"
+        },
+        {
+          "table": "micro_skill_families",
+          "row_count": 8,
+          "digest": "d977cdc87e29c8db99623e0dd9ebe09a2e843af2e73c9bd1496df94d7c2e8bff"
+        }
+      ]
+    },
+    "digest": "99c3dd3b4fd989f75ef7dc09d4cfc1dc1eb6da3d589371e755242633f688e26f"
+  },
+  "guards": {
+    "triggers": [
+      {
+        "tgname": "adle_review_r6_bundle_quiescence",
+        "tgenabled": "O",
+        "relname": "adle_review_bundles",
+        "definition": "CREATE TRIGGER adle_review_r6_bundle_quiescence BEFORE INSERT OR UPDATE ON public.adle_review_bundles FOR EACH ROW EXECUTE FUNCTION enforce_adle_review_r6_bundle_quiescence()"
+      },
+      {
+        "tgname": "adle_review_r6_approval_receipts_append_only",
+        "tgenabled": "O",
+        "relname": "adle_review_r6_approval_receipts",
+        "definition": "CREATE TRIGGER adle_review_r6_approval_receipts_append_only BEFORE DELETE OR UPDATE ON public.adle_review_r6_approval_receipts FOR EACH ROW EXECUTE FUNCTION prevent_adle_review_r6_receipt_mutation()"
+      },
+      {
+        "tgname": "adle_review_r6_schedule_authority",
+        "tgenabled": "O",
+        "relname": "adle_review_schedule_words",
+        "definition": "CREATE TRIGGER adle_review_r6_schedule_authority BEFORE INSERT OR UPDATE ON public.adle_review_schedule_words FOR EACH ROW EXECUTE FUNCTION enforce_adle_review_r6_schedule_authority()"
+      }
+    ],
+    "functions": [
+      {
+        "name": "adle_review_schedule_authority_rows_r6",
+        "bodySha256": "8f52c10682cd1d5d7c843f5020036bf007c878131f59b79ae6a316dc65c3dc06"
+      },
+      {
+        "name": "apply_adle_review_schedule_authority_cutover_r6",
+        "bodySha256": "38920c8f3466ced0f7f4004a297d011e48a68c9615fb2f46fd6208e435cd6f4e"
+      },
+      {
+        "name": "audit_adle_review_schedule_authority_r6",
+        "bodySha256": "2169de5991d9e8c57ef69a7185afb4295dbe31bbc7bbdc3e9293e7ac7e349466"
+      },
+      {
+        "name": "enforce_adle_review_r6_bundle_quiescence",
+        "bodySha256": "8b51e5312052b4f9128721c1ae206baaf8117d275310b6a47137fe750afc9143"
+      },
+      {
+        "name": "enforce_adle_review_r6_schedule_authority",
+        "bodySha256": "a3bba0a11b6ec2b34c11ffa9e4a4bbe75848d9950c87b19a07af67dc7a3805ef"
+      },
+      {
+        "name": "quiesce_adle_review_r6_scope",
+        "bodySha256": "64814300636400bba11b24e538752d08443696be89a81eb3237560f1bf1cd928"
+      }
+    ],
+    "settings": {
+      "replication_role": "origin",
+      "per_word_capability": ""
+    },
+    "verificationMethod": "Enabled deployed guard definitions, exact body comparison, ordinary session settings and persisted scoped rollout; no learner-data write probes."
+  }
+}

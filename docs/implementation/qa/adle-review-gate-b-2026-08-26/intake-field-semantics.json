@@ -1,0 +1,173 @@
+{
+  "classificationKey": {
+    "A": "Semantic/provenance state retained exactly",
+    "B": "Proven operational bookkeeping excluded only in this table",
+    "C": "Uncertain; never exclude without further evidence"
+  },
+  "fieldCount": 27,
+  "uncertainFields": [],
+  "fields": [
+    {
+      "field": "id",
+      "classification": "A",
+      "meaning": "Stable candidate row identity.",
+      "existingRowSweepSetClause": "neither"
+    },
+    {
+      "field": "source_candidate_mapping_id",
+      "classification": "A",
+      "meaning": "Unique link to the owner-approved spelling source.",
+      "existingRowSweepSetClause": "neither"
+    },
+    {
+      "field": "source_submission_id",
+      "classification": "A",
+      "meaning": "Original writing submission provenance.",
+      "existingRowSweepSetClause": "neither"
+    },
+    {
+      "field": "child_id",
+      "classification": "A",
+      "meaning": "Learner ownership boundary.",
+      "existingRowSweepSetClause": "neither"
+    },
+    {
+      "field": "normalized_target_token",
+      "classification": "A",
+      "meaning": "Canonical target spelling identity, including unresolved targets.",
+      "existingRowSweepSetClause": "blocked"
+    },
+    {
+      "field": "canonical_word_id",
+      "classification": "A",
+      "meaning": "Resolved dictionary identity; null can mean dictionary content is missing.",
+      "existingRowSweepSetClause": "blocked_and_ready"
+    },
+    {
+      "field": "target_identity_status",
+      "classification": "A",
+      "meaning": "Whether target identity is established or unresolved.",
+      "existingRowSweepSetClause": "blocked_and_ready"
+    },
+    {
+      "field": "route_id",
+      "classification": "A",
+      "meaning": "Curriculum route identity.",
+      "existingRowSweepSetClause": "blocked_and_ready"
+    },
+    {
+      "field": "route_version",
+      "classification": "A",
+      "meaning": "Curriculum route contract version.",
+      "existingRowSweepSetClause": "blocked_and_ready"
+    },
+    {
+      "field": "micro_skill_key",
+      "classification": "A",
+      "meaning": "Error-specific curriculum/learning route.",
+      "existingRowSweepSetClause": "blocked_and_ready"
+    },
+    {
+      "field": "candidate_state",
+      "classification": "A",
+      "meaning": "Intake lifecycle/readiness or activation state; it is not mastery or a Review result.",
+      "existingRowSweepSetClause": "blocked_and_ready"
+    },
+    {
+      "field": "priority",
+      "classification": "B",
+      "meaning": "Reconciler work ordering only; not ADLE reteach priority or review scheduling.",
+      "existingRowSweepSetClause": "neither"
+    },
+    {
+      "field": "blockers",
+      "classification": "A",
+      "meaning": "Reasons and evidence preventing intake activation.",
+      "existingRowSweepSetClause": "blocked_and_ready"
+    },
+    {
+      "field": "readiness_fingerprint",
+      "classification": "A",
+      "meaning": "Deterministic identity/readiness/release signature, not an evaluation timestamp.",
+      "existingRowSweepSetClause": "blocked_and_ready"
+    },
+    {
+      "field": "first_seen_at",
+      "classification": "A",
+      "meaning": "First intake occurrence provenance; also used for sweep ordering; conservatively retained.",
+      "existingRowSweepSetClause": "neither"
+    },
+    {
+      "field": "last_evaluated_at",
+      "classification": "B",
+      "meaning": "Time of the most recent readiness evaluation.",
+      "existingRowSweepSetClause": "blocked_and_ready"
+    },
+    {
+      "field": "next_retry_at",
+      "classification": "B",
+      "meaning": "Operational retry marker; current writers clear it; actual worker retries use queue available_at.",
+      "existingRowSweepSetClause": "blocked_and_ready"
+    },
+    {
+      "field": "learning_item_id",
+      "classification": "A",
+      "meaning": "Link to the resulting durable ADLE learning item.",
+      "existingRowSweepSetClause": "blocked_and_ready"
+    },
+    {
+      "field": "activated_at",
+      "classification": "A",
+      "meaning": "Intake activation provenance; unrelated to Review-v3 rollout activation.",
+      "existingRowSweepSetClause": "blocked_and_ready"
+    },
+    {
+      "field": "resolved_at",
+      "classification": "A",
+      "meaning": "Intake resolution provenance, retained even though a ready replay can refresh it.",
+      "existingRowSweepSetClause": "blocked_and_ready"
+    },
+    {
+      "field": "lock_version",
+      "classification": "B",
+      "meaning": "Incrementing intake update counter; no schedule/evidence reader or observed CAS consumer.",
+      "existingRowSweepSetClause": "blocked_and_ready"
+    },
+    {
+      "field": "created_at",
+      "classification": "A",
+      "meaning": "Candidate creation provenance, conservatively retained.",
+      "existingRowSweepSetClause": "neither"
+    },
+    {
+      "field": "updated_at",
+      "classification": "B",
+      "meaning": "Last candidate-row write time; not the parent-verification date consumed by learning intake.",
+      "existingRowSweepSetClause": "blocked_and_ready"
+    },
+    {
+      "field": "route_activation_revision_id",
+      "classification": "A",
+      "meaning": "Pinned curriculum route activation revision authority.",
+      "existingRowSweepSetClause": "ready"
+    },
+    {
+      "field": "curriculum_release_manifest_id",
+      "classification": "A",
+      "meaning": "Pinned immutable curriculum release identity.",
+      "existingRowSweepSetClause": "ready"
+    },
+    {
+      "field": "curriculum_release_manifest_sha256",
+      "classification": "A",
+      "meaning": "Pinned curriculum release contents fingerprint.",
+      "existingRowSweepSetClause": "ready"
+    },
+    {
+      "field": "curriculum_dependency_fingerprint",
+      "classification": "A",
+      "meaning": "Pinned curriculum dependency semantics fingerprint.",
+      "existingRowSweepSetClause": "ready"
+    }
+  ]
+}

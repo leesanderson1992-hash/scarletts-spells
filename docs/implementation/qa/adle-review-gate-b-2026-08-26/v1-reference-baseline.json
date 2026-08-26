@@ -1,0 +1,239 @@
+{
+  "childId": "e4f9fc37-3f85-4eb5-9fbd-4eabf4f2528e",
+  "parentId": "a28d4885-8328-4853-ba11-6c676619b9ea",
+  "fingerprint": "6c7874f1a8f4be124226010f72dd30798a9239ff6c3b9413426a6769b2a8dacd",
+  "protectedStateDigest": "ac9d632fdbadce5777739c1bfe4fbb87fa36708682c8218700c572c366821b6e",
+  "supplementalHistoryDigest": [
+    {
+      "digest": "a9ffe828ac580535590aa694e0492c5f8944502be93fed091c20e341a3ea5ccd"
+    }
+  ],
+  "preservationManifest": {
+    "contractVersion": "gate_b_readonly_learner_history_preservation_v1",
+    "childId": "e4f9fc37-3f85-4eb5-9fbd-4eabf4f2528e",
+    "tables": [
+      {
+        "table": "adle_assignment_attempt_event_routes",
+        "row_count": 16,
+        "digest": "aac0fc4ef2595896985a1547c61e86a09ff85aaf42c73888696761f4c9744f63"
+      },
+      {
+        "table": "adle_assignment_attempt_events",
+        "row_count": 152,
+        "digest": "0a1bd319b5fb4e6933c47605eb9cf1330f4c350b161b54caf4786943e127c0e3"
+      },
+      {
+        "table": "adle_authentic_use_events",
+        "row_count": 352,
+        "digest": "7f260865156d5463864fb329ec1ccd8fe0481b25a91e446101eb9ef492efbc33"
+      },
+      {
+        "table": "adle_base_word_family_pilot_runs",
+        "row_count": 3,
+        "digest": "ede1df234c0b44f89c1f05bbeb17eab8ff3e3b789d4abfc06a3ac61681648387"
+      },
+      {
+        "table": "adle_base_word_transfer_miss_events",
+        "row_count": 0,
+        "digest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      {
+        "table": "adle_canonical_intake_candidates",
+        "row_count": 27,
+        "digest": "83f35c37cae2e3e2e23ce68122400751c6e34d19813495211c3fd3e1f2d54ae8"
+      },
+      {
+        "table": "adle_child_learning_reflections",
+        "row_count": 9,
+        "digest": "d48f36053168cab1149af795adc51350021e9ce76f3ef6b5523942eccaed9e57"
+      },
+      {
+        "table": "adle_learning_items",
+        "row_count": 27,
+        "digest": "8d079048960c235feb738c4a3e880cddc80f4803086cc349c12da6c01721ddb4"
+      },
+      {
+        "table": "adle_probe_runs",
+        "row_count": 0,
+        "digest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      {
+        "table": "adle_review_bundles",
+        "row_count": 10,
+        "digest": "b1f4edfb05c21989339213f9104d1b2b2fa8c65c24837fe3ce62fc30b16a6912"
+      },
+      {
+        "table": "adle_review_outcome_event_routes",
+        "row_count": 0,
+        "digest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      {
+        "table": "adle_review_outcome_events",
+        "row_count": 3,
+        "digest": "312260e03907b9aefdbf5ff52753446daa1e41d1364331de57a4fe832f17c4e5"
+      },
+      {
+        "table": "adle_review_schedule_word_routes",
+        "row_count": 22,
+        "digest": "bbe48066373513276d88c48d37e569fd51a0484fe905b5c8f136c4f2c1c18f22"
+      },
+      {
+        "table": "adle_slippage_events",
+        "row_count": 0,
+        "digest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      {
+        "table": "adle_taught_word_history",
+        "row_count": 34,
+        "digest": "01590e8ec78ce53e129982838697d3fe51c95fc1e3651a64d0d62e34561e8bba"
+      },
+      {
+        "table": "assignment_items",
+        "row_count": 254,
+        "digest": "6b683efafee844490823d15f2502088c49d6bfc07e38dbf8c457f6fb7b772026"
+      },
+      {
+        "table": "child_gold_bar_ledger_events",
+        "row_count": 5,
+        "digest": "873415f369cec89bf3c6162660d6b864c8355568e32e4a5613d4c1f3d1fe0fc5"
+      },
+      {
+        "table": "child_gold_coin_ledger_events",
+        "row_count": 43,
+        "digest": "7a4c13b52dedebaa46636492c1180fa75b052e7c749301bbe63ac6144dc6d63b"
+      },
+      {
+        "table": "child_word_treasure_events",
+        "row_count": 45,
+        "digest": "44033aaaf8128228164f1f9d8d9c70ffc4d4c5a6a999df266e8dcf261c791879"
+      },
+      {
+        "table": "child_word_treasure_evidence_candidates",
+        "row_count": 0,
+        "digest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      {
+        "table": "child_word_treasures",
+        "row_count": 26,
+        "digest": "a6dec77f3e4081e11a9c21cb110fbade91634f136f6f184f6917bf0ece12318f"
+      },
+      {
+        "table": "daily_assignments",
+        "row_count": 72,
+        "digest": "c4dd4cf07ffc828974ce96adc3ea821f3ada183138e77612770bfb988b297db6"
+      },
+      {
+        "table": "learning_item_evidence",
+        "row_count": 76,
+        "digest": "d01b7b706effa46bdb082c2f947e24ded0b17245ea125c9128a0ff08d4e8315a"
+      },
+      {
+        "table": "learning_item_issue_links",
+        "row_count": 38,
+        "digest": "5a3f237e3ba210dadfc19c43dda3d27be611e93a8f77dcb64a028bc35ceec795"
+      },
+      {
+        "table": "learning_items",
+        "row_count": 21,
+        "digest": "3aef7abc732d0cc96a397500fb405c4ed130eb20c346316d339297f1b524e0b3"
+      },
+      {
+        "table": "misspelling_instances",
+        "row_count": 309,
+        "digest": "db51047092ae58c7700a054475eb83049084c8233fc77e9714a7fd77aff69638"
+      },
+      {
+        "table": "parent_verifications",
+        "row_count": 56,
+        "digest": "bd0b6424d16c6066dc0ae7c1d19af3bff0a00df4827874a42cce2cde07aa8a6a"
+      },
+      {
+        "table": "parent_verified_spelling_candidate_mappings",
+        "row_count": 39,
+        "digest": "f372894afc8aa045a282902fc54e0f7684015803cc873c116c1114aa0a15ee02"
+      },
+      {
+        "table": "practice_attempts",
+        "row_count": 0,
+        "digest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      {
+        "table": "spelling_reward_events",
+        "row_count": 0,
+        "digest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      {
+        "table": "spelling_reward_states",
+        "row_count": 0,
+        "digest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      {
+        "table": "task_completions",
+        "row_count": 74,
+        "digest": "2b3d20c461b78172766a7790ab3e020a08d187d29fcfe2f63b728ce279572551"
+      },
+      {
+        "table": "task_submission_payloads",
+        "row_count": 264,
+        "digest": "ead2a322761c7e2dd6bee8f6c4ebf2949439322e53e1b342f2df802202e6ba90"
+      },
+      {
+        "table": "task_submissions",
+        "row_count": 264,
+        "digest": "12dc1e890f58f320673274dd0d79d4332dc845b805e4f0a3761be389aba3622b"
+      },
+      {
+        "table": "word_progress",
+        "row_count": 0,
+        "digest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      {
+        "table": "writing_issue_correction_attempts",
+        "row_count": 61,
+        "digest": "e491904d0cc8eb5e0bf01d159ebf94470430b8739fa8d5025f248c2a85a0def9"
+      },
+      {
+        "table": "writing_issues",
+        "row_count": 64,
+        "digest": "c96731fc8a7043db90e61ba0eb679300ad602f8a25c9acd8ffb28f034dc5e34d"
+      },
+      {
+        "table": "writing_samples",
+        "row_count": 272,
+        "digest": "04ea701c2f990ac00145e44d3682999439bac24207fdb39088d42ecbda796294"
+      }
+    ]
+  },
+  "functions": [
+    {
+      "name": "adle_review_schedule_authority_rows_r6",
+      "releaseBodyMatch": true,
+      "bodySha256": "8f52c10682cd1d5d7c843f5020036bf007c878131f59b79ae6a316dc65c3dc06"
+    },
+    {
+      "name": "apply_adle_review_schedule_authority_cutover_r6",
+      "releaseBodyMatch": true,
+      "bodySha256": "38920c8f3466ced0f7f4004a297d011e48a68c9615fb2f46fd6208e435cd6f4e"
+    },
+    {
+      "name": "audit_adle_review_schedule_authority_r6",
+      "releaseBodyMatch": true,
+      "bodySha256": "2169de5991d9e8c57ef69a7185afb4295dbe31bbc7bbdc3e9293e7ac7e349466"
+    },
+    {
+      "name": "enforce_adle_review_r6_bundle_quiescence",
+      "releaseBodyMatch": true,
+      "bodySha256": "8b51e5312052b4f9128721c1ae206baaf8117d275310b6a47137fe750afc9143"
+    },
+    {
+      "name": "enforce_adle_review_r6_schedule_authority",
+      "releaseBodyMatch": true,
+      "bodySha256": "a3bba0a11b6ec2b34c11ffa9e4a4bbe75848d9950c87b19a07af67dc7a3805ef"
+    },
+    {
+      "name": "quiesce_adle_review_r6_scope",
+      "releaseBodyMatch": true,
+      "bodySha256": "64814300636400bba11b24e538752d08443696be89a81eb3237560f1bf1cd928"
+    }
+  ]
+}

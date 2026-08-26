@@ -1,0 +1,902 @@
+{
+  "status": "AWAITING_SEPARATE_OWNER_APPROVAL_NOT_EXECUTED",
+  "productionProject": "wwohrqtunajrbwxyssjf",
+  "mainAndDeployedSha": "1f4e687157ab767faa88417e68b0953828f577e0",
+  "productionDeploymentId": "dpl_GMWwXfKWHumFrXG95Vset8e5iQYn",
+  "childId": "e4f9fc37-3f85-4eb5-9fbd-4eabf4f2528e",
+  "parentId": "a28d4885-8328-4853-ba11-6c676619b9ea",
+  "verifiedAt": "2026-08-26 09:55:34.417651+00",
+  "quiescenceReceipt": {
+    "id": "c1ffac8f-49ee-4a92-8130-c56900c77ccf",
+    "gate": "gate_b_schedule_authority_cutover",
+    "created_at": "2026-08-26T09:50:55.985645+00:00",
+    "approval_payload": {
+      "scope": [
+        "e4f9fc37-3f85-4eb5-9fbd-4eabf4f2528e"
+      ],
+      "operation": "legacy_quiescence_only",
+      "cronPolicy": "keep_adle_canonical_intake_production_safety_sweep_running",
+      "r7Authorized": false,
+      "gateCAuthorized": false,
+      "staleAssignment": {
+        "id": "bd6389be-d27a-48fd-b7a1-8a9fc1d4c03b",
+        "disposition": "owner_confirmed_stale_test_do_not_modify_or_resume"
+      },
+      "phaseEAuthorized": false,
+      "productionProject": "wwohrqtunajrbwxyssjf",
+      "testChildAuthorized": false,
+      "nativeAuditFingerprint": "6c7874f1a8f4be124226010f72dd30798a9239ff6c3b9413426a6769b2a8dacd",
+      "authorityCutoverAuthorized": false,
+      "nativeProtectedStateDigest": "ac9d632fdbadce5777739c1bfe4fbb87fa36708682c8218700c572c366821b6e",
+      "supplementalBaselineDigest": "bb76e8e1dff2c10a6bbbc1fb0535820d89d2485ef66ce0d75f9be2945eb8ec36",
+      "learnerActivationAuthorized": false,
+      "preservationContractVersion": "gate_b_readonly_learner_history_preservation_v2",
+      "preservationContractFileSha256": "75dfe842709d9f8cbccd7a49451396ff300f6907f0b07406e028a25077578505"
+    },
+    "audit_fingerprint": null,
+    "approval_reference": "gate-b-quiescence:e4f9fc37-3f85-4eb5-9fbd-4eabf4f2528e:20260826:v2",
+    "approved_child_ids": [
+      "e4f9fc37-3f85-4eb5-9fbd-4eabf4f2528e"
+    ],
+    "migration_manifest": {
+      "supplementalBaselineDigest": "bb76e8e1dff2c10a6bbbc1fb0535820d89d2485ef66ce0d75f9be2945eb8ec36",
+      "preservationContractVersion": "gate_b_readonly_learner_history_preservation_v2",
+      "preservationContractFileSha256": "75dfe842709d9f8cbccd7a49451396ff300f6907f0b07406e028a25077578505"
+    }
+  },
+  "rolloutState": "legacy_quiesced",
+  "cutoverContractVersion": "adle_review_r6_authority_cutover_v1",
+  "cutoverFunction": "apply_adle_review_schedule_authority_cutover_r6",
+  "functionHashes": [
+    {
+      "proname": "apply_adle_review_schedule_authority_cutover_r6",
+      "body_sha256": "38920c8f3466ced0f7f4004a297d011e48a68c9615fb2f46fd6208e435cd6f4e"
+    },
+    {
+      "proname": "enforce_adle_review_r6_bundle_quiescence",
+      "body_sha256": "8b51e5312052b4f9128721c1ae206baaf8117d275310b6a47137fe750afc9143"
+    },
+    {
+      "proname": "enforce_adle_review_r6_schedule_authority",
+      "body_sha256": "a3bba0a11b6ec2b34c11ffa9e4a4bbe75848d9950c87b19a07af67dc7a3805ef"
+    },
+    {
+      "proname": "quiesce_adle_review_r6_scope",
+      "body_sha256": "64814300636400bba11b24e538752d08443696be89a81eb3237560f1bf1cd928"
+    }
+  ],
+  "approvalReference": "gate-b2-owner:e4f9fc37-3f85-4eb5-9fbd-4eabf4f2528e:20260826:v2",
+  "approvalReceiptGate": "gate_b_schedule_authority_cutover",
+  "approvalReceiptAuditFingerprint": "6c7874f1a8f4be124226010f72dd30798a9239ff6c3b9413426a6769b2a8dacd",
+  "requiredApprovalPayload": {
+    "auditOn": "2026-08-26",
+    "cutoverVersion": "gate-b-e4f9fc37-3f85-4eb5-9fbd-4eabf4f2528e-20260826-v2",
+    "idempotencyKey": "gate-b2:e4f9fc37-3f85-4eb5-9fbd-4eabf4f2528e:20260826:v2"
+  },
+  "rpcArguments": {
+    "p_child_ids": [
+      "e4f9fc37-3f85-4eb5-9fbd-4eabf4f2528e"
+    ],
+    "p_audit_on": "2026-08-26",
+    "p_audit_fingerprint": "6c7874f1a8f4be124226010f72dd30798a9239ff6c3b9413426a6769b2a8dacd",
+    "p_cutover_version": "gate-b-e4f9fc37-3f85-4eb5-9fbd-4eabf4f2528e-20260826-v2",
+    "p_idempotency_key": "gate-b2:e4f9fc37-3f85-4eb5-9fbd-4eabf4f2528e:20260826:v2",
+    "p_gate_b_approval_reference": "gate-b2-owner:e4f9fc37-3f85-4eb5-9fbd-4eabf4f2528e:20260826:v2"
+  },
+  "protectedStateDigest": "ac9d632fdbadce5777739c1bfe4fbb87fa36708682c8218700c572c366821b6e",
+  "supplementalContractVersion": "gate_b_readonly_learner_history_preservation_v2",
+  "supplementalDigest": "bb76e8e1dff2c10a6bbbc1fb0535820d89d2485ef66ce0d75f9be2945eb8ec36",
+  "counts": {
+    "overdue": 25,
+    "dueToday": 0,
+    "excluded": 0,
+    "ambiguity": 0,
+    "futureDue": 0,
+    "catchUpStage1": 1,
+    "catchUpStage2": 0,
+    "preRetirement": 0,
+    "canonicalWords": 25,
+    "legacyAuthoritative": 25,
+    "totalActiveScheduleRows": 25,
+    "alreadyPerWordAuthoritative": 0
+  },
+  "stateCounts": {
+    "catch_up": 1,
+    "scheduled": 24,
+    "paused_parent_review": 0,
+    "awaiting_pre_retirement_check": 0
+  },
+  "activeRowIds": [
+    "0029467d-4898-4db8-90de-a3a52b1479e3",
+    "09b3011a-251e-4965-83b3-c9543207f1f9",
+    "0ac95e15-b2fa-4aed-9017-0cc82a4fe50b",
+    "0daad7b6-f09d-452f-ad40-12d77f43774a",
+    "21176bb1-3587-40be-a53e-19e9ccd964a7",
+    "4299fc98-a5f6-47d0-a8f2-3231e8ce58d5",
+    "43c8c5cf-d6e2-4a7f-962d-12848e456c19",
+    "4d72c04c-cfd1-4d70-aae0-19bd41120536",
+    "6243eea3-92f2-4aa7-8abf-21e2b1000e4b",
+    "64c8a1a1-ebd0-4fe8-b210-254e9caa131f",
+    "74713a4b-d9ac-4e12-9029-2ca616540cc2",
+    "7c37a74f-c5e7-477d-8c53-202b3bbe8d8a",
+    "89d637a0-847c-4202-9ad9-13129b26411c",
+    "93f641f4-e8ef-484a-8709-b6b4ba49f657",
+    "9444b26e-9546-4e3d-95bf-ce39d7c4616c",
+    "9bddf825-80d1-4158-9e27-3fbda6c27e32",
+    "9e8b4953-a11e-4e0d-b8ee-9d381f91127f",
+    "9fa394d9-afdf-4642-a242-eb3ea9872494",
+    "ab948cda-7baf-4662-9cb1-6d2caff84b1a",
+    "b0623db0-bbef-4a95-a798-87f3ec802410",
+    "b115ced2-b0e8-4559-af00-d1b41b76d84c",
+    "b88454c0-13ee-4892-857d-92a06821aba6",
+    "d138de61-09cc-419f-a39d-c70ded5d2f74",
+    "ddcc25d8-419b-4aef-96e1-9feca0edd3e4",
+    "f54f2ea3-5bbb-477d-881d-baedbc27b69a"
+  ],
+  "canonicalWordIds": [
+    "01a8b531-1a64-554d-8c40-00ee0b436abd",
+    "1f459c84-8f54-4dab-bed3-1f0d4c954536",
+    "2c8be08f-1205-5422-9799-f95b43a455f8",
+    "479e8116-f29c-52bc-a50c-4ae45f328939",
+    "4ac4f61e-9cdc-48d7-bc67-d8a5a0c60047",
+    "5791a5dd-6576-5fed-9e25-427e9efe7673",
+    "5ada7d53-4586-5757-928c-e27d261c147e",
+    "66577bba-d406-51f0-b826-75b19d234d5c",
+    "67791ae4-53bd-555f-902c-2f5cd1467c4d",
+    "6fa700d8-4790-5791-b34a-86b4b3ac6371",
+    "73efe7d1-9186-5e4b-933c-4f1d6a1a0ba9",
+    "821f2a3f-1cbe-4068-b7c3-483efb839ada",
+    "8393ad7f-5987-5731-8ac1-b7c306f58838",
+    "8fe80b99-b9e1-4aaf-9646-88d30ba9a860",
+    "93cf04c8-235f-59d5-9249-f93bb9badb76",
+    "a32cdc9f-88c0-5dd5-b844-9e2f2fa52713",
+    "abd80ebb-ca67-47c2-8cdb-ae58f8cef11f",
+    "bf239c62-fdcb-5982-87b3-7dfe295304ce",
+    "c11f987a-8631-51db-8c0f-cbd739f39274",
+    "d9350337-6486-56bf-ba48-f7fdd063e748",
+    "dab17452-f475-5ffc-96f8-cc9358e36abe",
+    "dcc56b79-450f-4213-b340-b097c33813ae",
+    "e2c0f099-ac92-5ded-ac80-05f40f1135f0",
+    "e36f28b7-519b-5f86-99ee-4e3521db21e7",
+    "ec7d7616-676c-5d4d-b986-dfd2a7c1f97c"
+  ],
+  "inventory": [
+    {
+      "scheduleWordId": "89d637a0-847c-4202-9ad9-13129b26411c",
+      "canonicalWordId": "5ada7d53-4586-5757-928c-e27d261c147e",
+      "word": "careful",
+      "wordKey": "careful_en_gb",
+      "state": "scheduled",
+      "dueOn": "2026-08-13",
+      "intervalIndex": 0,
+      "catchUpStage": 0,
+      "failedReviewOn": null,
+      "retestDueOn": null,
+      "preRetirementDueOn": null,
+      "classification": "legacy_authoritative",
+      "authority": {
+        "wordNextDueOn": null,
+        "wordIntervalIndex": null,
+        "wordScheduleVersion": null,
+        "wordSchedulePolicyVersion": null
+      },
+      "ambiguityCodes": [],
+      "normalIntervalDays": 1,
+      "proposedAuthority": {
+        "wordScheduleVersion": "adle_review_per_word_schedule_v1",
+        "wordIntervalIndex": 0,
+        "wordNextDueOn": "2026-08-13",
+        "wordSchedulePolicyVersion": "copy exact existing bundle.schedule_policy_version"
+      }
+    },
+    {
+      "scheduleWordId": "6243eea3-92f2-4aa7-8abf-21e2b1000e4b",
+      "canonicalWordId": "479e8116-f29c-52bc-a50c-4ae45f328939",
+      "word": "colourful",
+      "wordKey": "colourful_en_gb",
+      "state": "scheduled",
+      "dueOn": "2026-08-13",
+      "intervalIndex": 0,
+      "catchUpStage": 0,
+      "failedReviewOn": null,
+      "retestDueOn": null,
+      "preRetirementDueOn": null,
+      "classification": "legacy_authoritative",
+      "authority": {
+        "wordNextDueOn": null,
+        "wordIntervalIndex": null,
+        "wordScheduleVersion": null,
+        "wordSchedulePolicyVersion": null
+      },
+      "ambiguityCodes": [],
+      "normalIntervalDays": 1,
+      "proposedAuthority": {
+        "wordScheduleVersion": "adle_review_per_word_schedule_v1",
+        "wordIntervalIndex": 0,
+        "wordNextDueOn": "2026-08-13",
+        "wordSchedulePolicyVersion": "copy exact existing bundle.schedule_policy_version"
+      }
+    },
+    {
+      "scheduleWordId": "ab948cda-7baf-4662-9cb1-6d2caff84b1a",
+      "canonicalWordId": "821f2a3f-1cbe-4068-b7c3-483efb839ada",
+      "word": "dishonest",
+      "wordKey": "dishonest_en_gb",
+      "state": "scheduled",
+      "dueOn": "2026-08-09",
+      "intervalIndex": 0,
+      "catchUpStage": 0,
+      "failedReviewOn": null,
+      "retestDueOn": null,
+      "preRetirementDueOn": null,
+      "classification": "legacy_authoritative",
+      "authority": {
+        "wordNextDueOn": null,
+        "wordIntervalIndex": null,
+        "wordScheduleVersion": null,
+        "wordSchedulePolicyVersion": null
+      },
+      "ambiguityCodes": [],
+      "normalIntervalDays": 1,
+      "proposedAuthority": {
+        "wordScheduleVersion": "adle_review_per_word_schedule_v1",
+        "wordIntervalIndex": 0,
+        "wordNextDueOn": "2026-08-09",
+        "wordSchedulePolicyVersion": "copy exact existing bundle.schedule_policy_version"
+      }
+    },
+    {
+      "scheduleWordId": "09b3011a-251e-4965-83b3-c9543207f1f9",
+      "canonicalWordId": "66577bba-d406-51f0-b826-75b19d234d5c",
+      "word": "dislike",
+      "wordKey": "dislike_en_gb",
+      "state": "scheduled",
+      "dueOn": "2026-08-21",
+      "intervalIndex": 0,
+      "catchUpStage": 0,
+      "failedReviewOn": null,
+      "retestDueOn": null,
+      "preRetirementDueOn": null,
+      "classification": "legacy_authoritative",
+      "authority": {
+        "wordNextDueOn": null,
+        "wordIntervalIndex": null,
+        "wordScheduleVersion": null,
+        "wordSchedulePolicyVersion": null
+      },
+      "ambiguityCodes": [],
+      "normalIntervalDays": 1,
+      "proposedAuthority": {
+        "wordScheduleVersion": "adle_review_per_word_schedule_v1",
+        "wordIntervalIndex": 0,
+        "wordNextDueOn": "2026-08-21",
+        "wordSchedulePolicyVersion": "copy exact existing bundle.schedule_policy_version"
+      }
+    },
+    {
+      "scheduleWordId": "64c8a1a1-ebd0-4fe8-b210-254e9caa131f",
+      "canonicalWordId": "2c8be08f-1205-5422-9799-f95b43a455f8",
+      "word": "football",
+      "wordKey": "football_en_gb",
+      "state": "scheduled",
+      "dueOn": "2026-08-14",
+      "intervalIndex": 0,
+      "catchUpStage": 0,
+      "failedReviewOn": null,
+      "retestDueOn": null,
+      "preRetirementDueOn": null,
+      "classification": "legacy_authoritative",
+      "authority": {
+        "wordNextDueOn": null,
+        "wordIntervalIndex": null,
+        "wordScheduleVersion": null,
+        "wordSchedulePolicyVersion": null
+      },
+      "ambiguityCodes": [],
+      "normalIntervalDays": 1,
+      "proposedAuthority": {
+        "wordScheduleVersion": "adle_review_per_word_schedule_v1",
+        "wordIntervalIndex": 0,
+        "wordNextDueOn": "2026-08-14",
+        "wordSchedulePolicyVersion": "copy exact existing bundle.schedule_policy_version"
+      }
+    },
+    {
+      "scheduleWordId": "0ac95e15-b2fa-4aed-9017-0cc82a4fe50b",
+      "canonicalWordId": "73efe7d1-9186-5e4b-933c-4f1d6a1a0ba9",
+      "word": "grandmother",
+      "wordKey": "grandmother_en_gb",
+      "state": "scheduled",
+      "dueOn": "2026-08-14",
+      "intervalIndex": 0,
+      "catchUpStage": 0,
+      "failedReviewOn": null,
+      "retestDueOn": null,
+      "preRetirementDueOn": null,
+      "classification": "legacy_authoritative",
+      "authority": {
+        "wordNextDueOn": null,
+        "wordIntervalIndex": null,
+        "wordScheduleVersion": null,
+        "wordSchedulePolicyVersion": null
+      },
+      "ambiguityCodes": [],
+      "normalIntervalDays": 1,
+      "proposedAuthority": {
+        "wordScheduleVersion": "adle_review_per_word_schedule_v1",
+        "wordIntervalIndex": 0,
+        "wordNextDueOn": "2026-08-14",
+        "wordSchedulePolicyVersion": "copy exact existing bundle.schedule_policy_version"
+      }
+    },
+    {
+      "scheduleWordId": "b0623db0-bbef-4a95-a798-87f3ec802410",
+      "canonicalWordId": "8393ad7f-5987-5731-8ac1-b7c306f58838",
+      "word": "hoping",
+      "wordKey": "hoping_en_gb",
+      "state": "catch_up",
+      "dueOn": "2026-07-11",
+      "intervalIndex": 1,
+      "catchUpStage": 1,
+      "failedReviewOn": "2026-07-10",
+      "retestDueOn": "2026-07-11",
+      "preRetirementDueOn": null,
+      "classification": "legacy_authoritative",
+      "authority": {
+        "wordNextDueOn": null,
+        "wordIntervalIndex": null,
+        "wordScheduleVersion": null,
+        "wordSchedulePolicyVersion": null
+      },
+      "ambiguityCodes": [],
+      "normalIntervalDays": 3,
+      "proposedAuthority": {
+        "wordScheduleVersion": "adle_review_per_word_schedule_v1",
+        "wordIntervalIndex": 1,
+        "wordNextDueOn": null,
+        "wordSchedulePolicyVersion": "copy exact existing bundle.schedule_policy_version"
+      }
+    },
+    {
+      "scheduleWordId": "d138de61-09cc-419f-a39d-c70ded5d2f74",
+      "canonicalWordId": "67791ae4-53bd-555f-902c-2f5cd1467c4d",
+      "word": "impossible",
+      "wordKey": "impossible_en_gb",
+      "state": "scheduled",
+      "dueOn": "2026-08-08",
+      "intervalIndex": 0,
+      "catchUpStage": 0,
+      "failedReviewOn": null,
+      "retestDueOn": null,
+      "preRetirementDueOn": null,
+      "classification": "legacy_authoritative",
+      "authority": {
+        "wordNextDueOn": null,
+        "wordIntervalIndex": null,
+        "wordScheduleVersion": null,
+        "wordSchedulePolicyVersion": null
+      },
+      "ambiguityCodes": [],
+      "normalIntervalDays": 1,
+      "proposedAuthority": {
+        "wordScheduleVersion": "adle_review_per_word_schedule_v1",
+        "wordIntervalIndex": 0,
+        "wordNextDueOn": "2026-08-08",
+        "wordSchedulePolicyVersion": "copy exact existing bundle.schedule_policy_version"
+      }
+    },
+    {
+      "scheduleWordId": "0029467d-4898-4db8-90de-a3a52b1479e3",
+      "canonicalWordId": "6fa700d8-4790-5791-b34a-86b4b3ac6371",
+      "word": "incorrect",
+      "wordKey": "incorrect_en_gb",
+      "state": "scheduled",
+      "dueOn": "2026-08-08",
+      "intervalIndex": 0,
+      "catchUpStage": 0,
+      "failedReviewOn": null,
+      "retestDueOn": null,
+      "preRetirementDueOn": null,
+      "classification": "legacy_authoritative",
+      "authority": {
+        "wordNextDueOn": null,
+        "wordIntervalIndex": null,
+        "wordScheduleVersion": null,
+        "wordSchedulePolicyVersion": null
+      },
+      "ambiguityCodes": [],
+      "normalIntervalDays": 1,
+      "proposedAuthority": {
+        "wordScheduleVersion": "adle_review_per_word_schedule_v1",
+        "wordIntervalIndex": 0,
+        "wordNextDueOn": "2026-08-08",
+        "wordSchedulePolicyVersion": "copy exact existing bundle.schedule_policy_version"
+      }
+    },
+    {
+      "scheduleWordId": "0daad7b6-f09d-452f-ad40-12d77f43774a",
+      "canonicalWordId": "a32cdc9f-88c0-5dd5-b844-9e2f2fa52713",
+      "word": "international",
+      "wordKey": "international_en_gb",
+      "state": "scheduled",
+      "dueOn": "2026-08-06",
+      "intervalIndex": 0,
+      "catchUpStage": 0,
+      "failedReviewOn": null,
+      "retestDueOn": null,
+      "preRetirementDueOn": null,
+      "classification": "legacy_authoritative",
+      "authority": {
+        "wordNextDueOn": null,
+        "wordIntervalIndex": null,
+        "wordScheduleVersion": null,
+        "wordSchedulePolicyVersion": null
+      },
+      "ambiguityCodes": [],
+      "normalIntervalDays": 1,
+      "proposedAuthority": {
+        "wordScheduleVersion": "adle_review_per_word_schedule_v1",
+        "wordIntervalIndex": 0,
+        "wordNextDueOn": "2026-08-06",
+        "wordSchedulePolicyVersion": "copy exact existing bundle.schedule_policy_version"
+      }
+    },
+    {
+      "scheduleWordId": "74713a4b-d9ac-4e12-9029-2ca616540cc2",
+      "canonicalWordId": "dab17452-f475-5ffc-96f8-cc9358e36abe",
+      "word": "invisible",
+      "wordKey": "invisible_en_gb",
+      "state": "scheduled",
+      "dueOn": "2026-08-08",
+      "intervalIndex": 0,
+      "catchUpStage": 0,
+      "failedReviewOn": null,
+      "retestDueOn": null,
+      "preRetirementDueOn": null,
+      "classification": "legacy_authoritative",
+      "authority": {
+        "wordNextDueOn": null,
+        "wordIntervalIndex": null,
+        "wordScheduleVersion": null,
+        "wordSchedulePolicyVersion": null
+      },
+      "ambiguityCodes": [],
+      "normalIntervalDays": 1,
+      "proposedAuthority": {
+        "wordScheduleVersion": "adle_review_per_word_schedule_v1",
+        "wordIntervalIndex": 0,
+        "wordNextDueOn": "2026-08-08",
+        "wordSchedulePolicyVersion": "copy exact existing bundle.schedule_policy_version"
+      }
+    },
+    {
+      "scheduleWordId": "9fa394d9-afdf-4642-a242-eb3ea9872494",
+      "canonicalWordId": "c11f987a-8631-51db-8c0f-cbd739f39274",
+      "word": "making",
+      "wordKey": "making_en_gb",
+      "state": "scheduled",
+      "dueOn": "2026-07-13",
+      "intervalIndex": 1,
+      "catchUpStage": 0,
+      "failedReviewOn": null,
+      "retestDueOn": null,
+      "preRetirementDueOn": null,
+      "classification": "legacy_authoritative",
+      "authority": {
+        "wordNextDueOn": null,
+        "wordIntervalIndex": null,
+        "wordScheduleVersion": null,
+        "wordSchedulePolicyVersion": null
+      },
+      "ambiguityCodes": [],
+      "normalIntervalDays": 3,
+      "proposedAuthority": {
+        "wordScheduleVersion": "adle_review_per_word_schedule_v1",
+        "wordIntervalIndex": 1,
+        "wordNextDueOn": "2026-07-13",
+        "wordSchedulePolicyVersion": "copy exact existing bundle.schedule_policy_version"
+      }
+    },
+    {
+      "scheduleWordId": "93f641f4-e8ef-484a-8709-b6b4ba49f657",
+      "canonicalWordId": "abd80ebb-ca67-47c2-8cdb-ae58f8cef11f",
+      "word": "mislead",
+      "wordKey": "mislead_en_gb",
+      "state": "scheduled",
+      "dueOn": "2026-08-09",
+      "intervalIndex": 0,
+      "catchUpStage": 0,
+      "failedReviewOn": null,
+      "retestDueOn": null,
+      "preRetirementDueOn": null,
+      "classification": "legacy_authoritative",
+      "authority": {
+        "wordNextDueOn": null,
+        "wordIntervalIndex": null,
+        "wordScheduleVersion": null,
+        "wordSchedulePolicyVersion": null
+      },
+      "ambiguityCodes": [],
+      "normalIntervalDays": 1,
+      "proposedAuthority": {
+        "wordScheduleVersion": "adle_review_per_word_schedule_v1",
+        "wordIntervalIndex": 0,
+        "wordNextDueOn": "2026-08-09",
+        "wordSchedulePolicyVersion": "copy exact existing bundle.schedule_policy_version"
+      }
+    },
+    {
+      "scheduleWordId": "21176bb1-3587-40be-a53e-19e9ccd964a7",
+      "canonicalWordId": "ec7d7616-676c-5d4d-b986-dfd2a7c1f97c",
+      "word": "misplace",
+      "wordKey": "misplace_en_gb",
+      "state": "scheduled",
+      "dueOn": "2026-08-21",
+      "intervalIndex": 0,
+      "catchUpStage": 0,
+      "failedReviewOn": null,
+      "retestDueOn": null,
+      "preRetirementDueOn": null,
+      "classification": "legacy_authoritative",
+      "authority": {
+        "wordNextDueOn": null,
+        "wordIntervalIndex": null,
+        "wordScheduleVersion": null,
+        "wordSchedulePolicyVersion": null
+      },
+      "ambiguityCodes": [],
+      "normalIntervalDays": 1,
+      "proposedAuthority": {
+        "wordScheduleVersion": "adle_review_per_word_schedule_v1",
+        "wordIntervalIndex": 0,
+        "wordNextDueOn": "2026-08-21",
+        "wordSchedulePolicyVersion": "copy exact existing bundle.schedule_policy_version"
+      }
+    },
+    {
+      "scheduleWordId": "9e8b4953-a11e-4e0d-b8ee-9d381f91127f",
+      "canonicalWordId": "e36f28b7-519b-5f86-99ee-4e3521db21e7",
+      "word": "mother-in-law",
+      "wordKey": "mother_in_law_en_gb",
+      "state": "scheduled",
+      "dueOn": "2026-08-15",
+      "intervalIndex": 0,
+      "catchUpStage": 0,
+      "failedReviewOn": null,
+      "retestDueOn": null,
+      "preRetirementDueOn": null,
+      "classification": "legacy_authoritative",
+      "authority": {
+        "wordNextDueOn": null,
+        "wordIntervalIndex": null,
+        "wordScheduleVersion": null,
+        "wordSchedulePolicyVersion": null
+      },
+      "ambiguityCodes": [],
+      "normalIntervalDays": 1,
+      "proposedAuthority": {
+        "wordScheduleVersion": "adle_review_per_word_schedule_v1",
+        "wordIntervalIndex": 0,
+        "wordNextDueOn": "2026-08-15",
+        "wordSchedulePolicyVersion": "copy exact existing bundle.schedule_policy_version"
+      }
+    },
+    {
+      "scheduleWordId": "7c37a74f-c5e7-477d-8c53-202b3bbe8d8a",
+      "canonicalWordId": "01a8b531-1a64-554d-8c40-00ee0b436abd",
+      "word": "preview",
+      "wordKey": "preview_en_gb",
+      "state": "scheduled",
+      "dueOn": "2026-08-07",
+      "intervalIndex": 0,
+      "catchUpStage": 0,
+      "failedReviewOn": null,
+      "retestDueOn": null,
+      "preRetirementDueOn": null,
+      "classification": "legacy_authoritative",
+      "authority": {
+        "wordNextDueOn": null,
+        "wordIntervalIndex": null,
+        "wordScheduleVersion": null,
+        "wordSchedulePolicyVersion": null
+      },
+      "ambiguityCodes": [],
+      "normalIntervalDays": 1,
+      "proposedAuthority": {
+        "wordScheduleVersion": "adle_review_per_word_schedule_v1",
+        "wordIntervalIndex": 0,
+        "wordNextDueOn": "2026-08-07",
+        "wordSchedulePolicyVersion": "copy exact existing bundle.schedule_policy_version"
+      }
+    },
+    {
+      "scheduleWordId": "b88454c0-13ee-4892-857d-92a06821aba6",
+      "canonicalWordId": "dcc56b79-450f-4213-b340-b097c33813ae",
+      "word": "rebuild",
+      "wordKey": "rebuild_en_gb",
+      "state": "scheduled",
+      "dueOn": "2026-08-07",
+      "intervalIndex": 0,
+      "catchUpStage": 0,
+      "failedReviewOn": null,
+      "retestDueOn": null,
+      "preRetirementDueOn": null,
+      "classification": "legacy_authoritative",
+      "authority": {
+        "wordNextDueOn": null,
+        "wordIntervalIndex": null,
+        "wordScheduleVersion": null,
+        "wordSchedulePolicyVersion": null
+      },
+      "ambiguityCodes": [],
+      "normalIntervalDays": 1,
+      "proposedAuthority": {
+        "wordScheduleVersion": "adle_review_per_word_schedule_v1",
+        "wordIntervalIndex": 0,
+        "wordNextDueOn": "2026-08-07",
+        "wordSchedulePolicyVersion": "copy exact existing bundle.schedule_policy_version"
+      }
+    },
+    {
+      "scheduleWordId": "9bddf825-80d1-4158-9e27-3fbda6c27e32",
+      "canonicalWordId": "5791a5dd-6576-5fed-9e25-427e9efe7673",
+      "word": "replay",
+      "wordKey": "replay_en_gb",
+      "state": "scheduled",
+      "dueOn": "2026-08-07",
+      "intervalIndex": 0,
+      "catchUpStage": 0,
+      "failedReviewOn": null,
+      "retestDueOn": null,
+      "preRetirementDueOn": null,
+      "classification": "legacy_authoritative",
+      "authority": {
+        "wordNextDueOn": null,
+        "wordIntervalIndex": null,
+        "wordScheduleVersion": null,
+        "wordSchedulePolicyVersion": null
+      },
+      "ambiguityCodes": [],
+      "normalIntervalDays": 1,
+      "proposedAuthority": {
+        "wordScheduleVersion": "adle_review_per_word_schedule_v1",
+        "wordIntervalIndex": 0,
+        "wordNextDueOn": "2026-08-07",
+        "wordSchedulePolicyVersion": "copy exact existing bundle.schedule_policy_version"
+      }
+    },
+    {
+      "scheduleWordId": "43c8c5cf-d6e2-4a7f-962d-12848e456c19",
+      "canonicalWordId": "d9350337-6486-56bf-ba48-f7fdd063e748",
+      "word": "subway",
+      "wordKey": "subway_en_gb",
+      "state": "scheduled",
+      "dueOn": "2026-08-06",
+      "intervalIndex": 0,
+      "catchUpStage": 0,
+      "failedReviewOn": null,
+      "retestDueOn": null,
+      "preRetirementDueOn": null,
+      "classification": "legacy_authoritative",
+      "authority": {
+        "wordNextDueOn": null,
+        "wordIntervalIndex": null,
+        "wordScheduleVersion": null,
+        "wordSchedulePolicyVersion": null
+      },
+      "ambiguityCodes": [],
+      "normalIntervalDays": 1,
+      "proposedAuthority": {
+        "wordScheduleVersion": "adle_review_per_word_schedule_v1",
+        "wordIntervalIndex": 0,
+        "wordNextDueOn": "2026-08-06",
+        "wordSchedulePolicyVersion": "copy exact existing bundle.schedule_policy_version"
+      }
+    },
+    {
+      "scheduleWordId": "9444b26e-9546-4e3d-95bf-ce39d7c4616c",
+      "canonicalWordId": "1f459c84-8f54-4dab-bed3-1f0d4c954536",
+      "word": "superhero",
+      "wordKey": "superhero_en_gb",
+      "state": "scheduled",
+      "dueOn": "2026-08-06",
+      "intervalIndex": 0,
+      "catchUpStage": 0,
+      "failedReviewOn": null,
+      "retestDueOn": null,
+      "preRetirementDueOn": null,
+      "classification": "legacy_authoritative",
+      "authority": {
+        "wordNextDueOn": null,
+        "wordIntervalIndex": null,
+        "wordScheduleVersion": null,
+        "wordSchedulePolicyVersion": null
+      },
+      "ambiguityCodes": [],
+      "normalIntervalDays": 1,
+      "proposedAuthority": {
+        "wordScheduleVersion": "adle_review_per_word_schedule_v1",
+        "wordIntervalIndex": 0,
+        "wordNextDueOn": "2026-08-06",
+        "wordSchedulePolicyVersion": "copy exact existing bundle.schedule_policy_version"
+      }
+    },
+    {
+      "scheduleWordId": "f54f2ea3-5bbb-477d-881d-baedbc27b69a",
+      "canonicalWordId": "bf239c62-fdcb-5982-87b3-7dfe295304ce",
+      "word": "unkind",
+      "wordKey": "unkind_en_gb",
+      "state": "scheduled",
+      "dueOn": "2026-08-10",
+      "intervalIndex": 0,
+      "catchUpStage": 0,
+      "failedReviewOn": null,
+      "retestDueOn": null,
+      "preRetirementDueOn": null,
+      "classification": "legacy_authoritative",
+      "authority": {
+        "wordNextDueOn": null,
+        "wordIntervalIndex": null,
+        "wordScheduleVersion": null,
+        "wordSchedulePolicyVersion": null
+      },
+      "ambiguityCodes": [],
+      "normalIntervalDays": 1,
+      "proposedAuthority": {
+        "wordScheduleVersion": "adle_review_per_word_schedule_v1",
+        "wordIntervalIndex": 0,
+        "wordNextDueOn": "2026-08-10",
+        "wordSchedulePolicyVersion": "copy exact existing bundle.schedule_policy_version"
+      }
+    },
+    {
+      "scheduleWordId": "ddcc25d8-419b-4aef-96e1-9feca0edd3e4",
+      "canonicalWordId": "8fe80b99-b9e1-4aaf-9646-88d30ba9a860",
+      "word": "unnatural",
+      "wordKey": "unnatural_en_gb",
+      "state": "scheduled",
+      "dueOn": "2026-08-10",
+      "intervalIndex": 0,
+      "catchUpStage": 0,
+      "failedReviewOn": null,
+      "retestDueOn": null,
+      "preRetirementDueOn": null,
+      "classification": "legacy_authoritative",
+      "authority": {
+        "wordNextDueOn": null,
+        "wordIntervalIndex": null,
+        "wordScheduleVersion": null,
+        "wordSchedulePolicyVersion": null
+      },
+      "ambiguityCodes": [],
+      "normalIntervalDays": 1,
+      "proposedAuthority": {
+        "wordScheduleVersion": "adle_review_per_word_schedule_v1",
+        "wordIntervalIndex": 0,
+        "wordNextDueOn": "2026-08-10",
+        "wordSchedulePolicyVersion": "copy exact existing bundle.schedule_policy_version"
+      }
+    },
+    {
+      "scheduleWordId": "b115ced2-b0e8-4559-af00-d1b41b76d84c",
+      "canonicalWordId": "4ac4f61e-9cdc-48d7-bc67-d8a5a0c60047",
+      "word": "unnecessary",
+      "wordKey": "unnecessary_en_gb",
+      "state": "scheduled",
+      "dueOn": "2026-08-10",
+      "intervalIndex": 0,
+      "catchUpStage": 0,
+      "failedReviewOn": null,
+      "retestDueOn": null,
+      "preRetirementDueOn": null,
+      "classification": "legacy_authoritative",
+      "authority": {
+        "wordNextDueOn": null,
+        "wordIntervalIndex": null,
+        "wordScheduleVersion": null,
+        "wordSchedulePolicyVersion": null
+      },
+      "ambiguityCodes": [],
+      "normalIntervalDays": 1,
+      "proposedAuthority": {
+        "wordScheduleVersion": "adle_review_per_word_schedule_v1",
+        "wordIntervalIndex": 0,
+        "wordNextDueOn": "2026-08-10",
+        "wordSchedulePolicyVersion": "copy exact existing bundle.schedule_policy_version"
+      }
+    },
+    {
+      "scheduleWordId": "4299fc98-a5f6-47d0-a8f2-3231e8ce58d5",
+      "canonicalWordId": "93cf04c8-235f-59d5-9249-f93bb9badb76",
+      "word": "well-known",
+      "wordKey": "well_known_en_gb",
+      "state": "scheduled",
+      "dueOn": "2026-08-15",
+      "intervalIndex": 0,
+      "catchUpStage": 0,
+      "failedReviewOn": null,
+      "retestDueOn": null,
+      "preRetirementDueOn": null,
+      "classification": "legacy_authoritative",
+      "authority": {
+        "wordNextDueOn": null,
+        "wordIntervalIndex": null,
+        "wordScheduleVersion": null,
+        "wordSchedulePolicyVersion": null
+      },
+      "ambiguityCodes": [],
+      "normalIntervalDays": 1,
+      "proposedAuthority": {
+        "wordScheduleVersion": "adle_review_per_word_schedule_v1",
+        "wordIntervalIndex": 0,
+        "wordNextDueOn": "2026-08-15",
+        "wordSchedulePolicyVersion": "copy exact existing bundle.schedule_policy_version"
+      }
+    },
+    {
+      "scheduleWordId": "4d72c04c-cfd1-4d70-aae0-19bd41120536",
+      "canonicalWordId": "e2c0f099-ac92-5ded-ac80-05f40f1135f0",
+      "word": "writing",
+      "wordKey": "writing_en_gb",
+      "state": "scheduled",
+      "dueOn": "2026-07-13",
+      "intervalIndex": 1,
+      "catchUpStage": 0,
+      "failedReviewOn": null,
+      "retestDueOn": null,
+      "preRetirementDueOn": null,
+      "classification": "legacy_authoritative",
+      "authority": {
+        "wordNextDueOn": null,
+        "wordIntervalIndex": null,
+        "wordScheduleVersion": null,
+        "wordSchedulePolicyVersion": null
+      },
+      "ambiguityCodes": [],
+      "normalIntervalDays": 3,
+      "proposedAuthority": {
+        "wordScheduleVersion": "adle_review_per_word_schedule_v1",
+        "wordIntervalIndex": 1,
+        "wordNextDueOn": "2026-07-13",
+        "wordSchedulePolicyVersion": "copy exact existing bundle.schedule_policy_version"
+      }
+    }
+  ],
+  "proposedProductionChanges": {
+    "approvalReceiptsInserted": 1,
+    "existingScheduleRowsAuthorityInitialized": 25,
+    "authorityFieldsPerRow": [
+      "word_schedule_version",
+      "word_interval_index",
+      "word_next_due_on",
+      "word_schedule_policy_version"
+    ],
+    "authorityCutoverReceiptsInserted": 1,
+    "existingRolloutRowsUpdatedToCutoverComplete": 1,
+    "reviewOutcomesInserted": 0,
+    "assignmentsCreatedOrModified": 0,
+    "existingScheduleRowsDeleted": 0,
+    "newScheduleRowsInserted": 0,
+    "learnersActivated": 0
+  },
+  "unchangedRequirements": [
+    "All native protected scheduler values and exact active row-ID/canonical-word-ID sets",
+    "All 39-table v2 manifest projections including 24 source-lineage rows",
+    "Stale assignment and all its items",
+    "Global cron enabled",
+    "No test-child mutation"
+  ],
+  "guardVerification": {
+    "method": "deployed function body hashes, enabled triggers, committed rollout, ordinary origin session; no write probes",
+    "limitations": "Quiescence blocks ordinary legacy bundle advancement and schedule writes. It is not a database-wide freeze; specialist supersession/parent release exceptions and transaction-local R6 capability exist. No learner/parent write activity is permitted during the maintenance window. Independently mutable intake bookkeeping remains allowed."
+  },
+  "postCutoverVerification": [
+    "Within the same transaction require initializedAuthorityRows=25, zero ambiguity, legacyAuthoritative=0 and alreadyPerWordAuthoritative=25",
+    "Require exact row-ID and canonical-word-ID sets, 24 scheduled + 1 catch-up, identical due-date buckets, stages/anchors and outcome references",
+    "Require native protected digest and supplemental v2 digest unchanged; record the new authority-sensitive audit fingerprint",
+    "Verify only four authority fields changed per scheduled-word row and updated_at preserved; no other learner/history writes",
+    "Verify one cutover receipt, rollout cutover_complete with activated_at null, zero Review-v3 sessions/encounters and no active rollout",
+    "Commit only after all checks; independently re-read committed state; retain legacy authority block and keep cron running"
+  ],
+  "ownerApprovalText": "I approve Gate B2 schedule-authority transition only in Production wwohrqtunajrbwxyssjf, at deployed/main SHA 1f4e687157ab767faa88417e68b0953828f577e0, for learner e4f9fc37-3f85-4eb5-9fbd-4eabf4f2528e only.\n\nUse native contract adle_review_r6_authority_cutover_v1, auditOn 2026-08-26, and the exact 25 active schedule-row IDs in real-learner-gate-b2-owner-package-v2.json. Require 24 scheduled + 1 catch-up, 25 legacy-authoritative, zero already per-word-authoritative, and zero ambiguity before the first execution.\n\nRequire before execution:\nnative audit fingerprint 6c7874f1a8f4be124226010f72dd30798a9239ff6c3b9413426a6769b2a8dacd\nnative protected-state digest ac9d632fdbadce5777739c1bfe4fbb87fa36708682c8218700c572c366821b6e\ngate_b_readonly_learner_history_preservation_v2 supplemental digest bb76e8e1dff2c10a6bbbc1fb0535820d89d2485ef66ce0d75f9be2945eb8ec36\nrollout state legacy_quiesced under receipt c1ffac8f-49ee-4a92-8130-c56900c77ccf / gate-b-quiescence:e4f9fc37-3f85-4eb5-9fbd-4eabf4f2528e:20260826:v2.\n\nCreate the distinct Gate B2 approval receipt gate-b2-owner:e4f9fc37-3f85-4eb5-9fbd-4eabf4f2528e:20260826:v2, binding the exact scope, fingerprint and approval payload. Use cutoverVersion gate-b-e4f9fc37-3f85-4eb5-9fbd-4eabf4f2528e-20260826-v2 and one-time idempotencyKey gate-b2:e4f9fc37-3f85-4eb5-9fbd-4eabf4f2528e:20260826:v2.\n\nRun the deployed apply_adle_review_schedule_authority_cutover_r6 RPC in an explicit transaction with before/after native and v2 preservation checks before commit. Transition authority in place for exactly these 25 rows. Copy the existing bundle interval index and policy; copy its due date only for scheduled membership. Preserve all effective due dates, catch-up stages/retest dates/failure anchors, pre-retirement state, provenance and genuine history. No resets, fabricated outcomes, new assignments, schedule-row insertion/deletion, or learner activation are authorized.\n\nMaking and writing must retain their existing 3-day intervals and 2026-07-13 due dates. Hoping must retain catch-up stage 1, failure anchor 2026-07-10 and retest/effective due date 2026-07-11. Every other row must retain its existing interval and due date.\n\nThe protected-state and supplemental digests must remain identical before/after. The native audit fingerprint may change only as expected from the approved authority fields/classification; retain both fingerprints. Verify the exact active row-ID and canonical-word-ID sets and all scheduler states/dates. Stop and roll back on any other drift.\n\nLeave the learner at cutover_complete with legacy scheduling authority blocked, not active. Keep the canonical-intake safety-sweep cron running. Keep assignment bd6389be-d27a-48fd-b7a1-8a9fc1d4c03b untouched. No learner lesson, Review, save, completion, parent release, or retry will run during execution. Do not modify the test child. Do not begin Gate C, R7 or Phase E. If the maintenance window/date, code, scope or protected baseline changes, stop for a fresh audit and approval. This approval permits only the named first execution or its identical idempotent replay."
+}

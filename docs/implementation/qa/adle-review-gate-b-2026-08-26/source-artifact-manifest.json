@@ -1,0 +1,126 @@
+{
+  "contract": "gate_b_closeout_source_artifact_integrity_v1",
+  "historicalFilesRewritten": false,
+  "hashAlgorithm": "SHA256 of exact file bytes",
+  "sources": [
+    {
+      "file": "v1-reference-baseline.json",
+      "sourceFile": "v1-reference-baseline.json",
+      "sha256": "499b82b9df9bce1b25a209af4d89e658921c31cfc1ec29a3e4b73fcb55935978",
+      "bytes": 8297,
+      "mode": "exact_historical_bytes"
+    },
+    {
+      "file": "real-learner-pre-quiescence-observed.json",
+      "sourceFile": "real-learner-pre-quiescence-observed.json",
+      "sha256": "31b5e37b125d1f11c64f147764f93ff81485002cb45c5b9ad4d8d3ebd76b1523",
+      "bytes": 53133,
+      "mode": "exact_historical_bytes"
+    },
+    {
+      "file": "learner-history-preservation-v2-contract.json",
+      "sourceFile": "learner-history-preservation-v2-contract.json",
+      "sha256": "75dfe842709d9f8cbccd7a49451396ff300f6907f0b07406e028a25077578505",
+      "bytes": 7921,
+      "mode": "exact_historical_bytes"
+    },
+    {
+      "file": "intake-field-semantics.json",
+      "sourceFile": "intake-field-semantics.json",
+      "sha256": "db82239747b640a7b4571711eb52256f382ddcf271f080f2ab40da908f794375",
+      "bytes": 5899,
+      "mode": "exact_historical_bytes"
+    },
+    {
+      "file": "v2-preservation-proof-receipt.json",
+      "sourceFile": "v2-preservation-proof-receipt.json",
+      "sha256": "899354e06aa9266a3d9b57403a4877b06bb464a22ffaa5f8d95117f0c0a22685",
+      "bytes": 41853,
+      "mode": "exact_historical_bytes"
+    },
+    {
+      "file": "real-learner-v2-quiescence-verified.json",
+      "sourceFile": "real-learner-v2-quiescence-verified.json",
+      "sha256": "efd57634609c5b0587a27b882d3f38a06ec2208fa3a3cc31ba49fc7e8eb1a97a",
+      "bytes": 34180,
+      "mode": "exact_historical_bytes"
+    },
+    {
+      "file": "real-learner-quiescence-final-readback.json",
+      "sourceFile": "real-learner-quiescence-final-readback.json",
+      "sha256": "152721ca77ceb582992333c0fdd3f00f9534af5f581932aa20ea0ee17d209b30",
+      "bytes": 17085,
+      "mode": "exact_historical_bytes"
+    },
+    {
+      "file": "real-learner-gate-b2-owner-package-v2.json",
+      "sourceFile": "real-learner-gate-b2-owner-package-v2.json",
+      "sha256": "3ece7d4484b672c7f19b1f91870d4ad55bcdab01fd2fd5b83acbd5a374cf88b8",
+      "bytes": 36227,
+      "mode": "exact_historical_bytes"
+    },
+    {
+      "file": "real-learner-gate-b2-v2-completion.md",
+      "sourceFile": "real-learner-gate-b2-v2-completion.md",
+      "sha256": "07244d74b9bae57e162acb8010010d877810e2ef58935423fee4ad6605ed8f5d",
+      "bytes": 7872,
+      "mode": "exact_historical_bytes"
+    },
+    {
+      "sourceFile": "gate-b2-v2-precommit-parity.json",
+      "sha256": "94b9384b24c2e151c487c0d78ed1fc87ff9c8aec09b55e1c4c189dbde1817050",
+      "bytes": 277037,
+      "mode": "private_original_reference_only",
+      "reason": "Retain original locally; public repository carries necessary hashes, counts and approved scheduling/control projections without raw learner evidence."
+    },
+    {
+      "sourceFile": "gate-b2-v2-preflight.json",
+      "sha256": "18b45874f27b7f89a3f86e82b2533b65a15b218ee86cdbca3f77e3ed43cedfec",
+      "bytes": 126976,
+      "mode": "private_original_reference_only",
+      "reason": "Retain original locally; public repository carries necessary hashes, counts and approved scheduling/control projections without raw learner evidence."
+    },
+    {
+      "sourceFile": "real-learner-gate-b2-v2-verified.json",
+      "sha256": "aea1267bd5a62b4e196285ae077beb8c9a52a9ed1c56f78add0d9dc19fac187c",
+      "bytes": 284705,
+      "mode": "private_original_reference_only",
+      "reason": "Retain original locally; public repository carries necessary hashes, counts and approved scheduling/control projections without raw learner evidence."
+    },
+    {
+      "sourceFile": "gate-b2-v2-read-only-reconciliation.json",
+      "sha256": "bf3976ac606ece8c3c3290c329cec44c58c14ec939634e2fb659f141147a0daf",
+      "bytes": 135767,
+      "mode": "private_original_reference_only",
+      "reason": "Retain original locally; public repository carries necessary hashes, counts and approved scheduling/control projections without raw learner evidence."
+    },
+    {
+      "sourceFile": "v2-sample-1.json",
+      "sha256": "74a9b78b86bd93da4be4ff071318ab63188bb1b6352184a735236ebc1d5ddeb8",
+      "bytes": 112554,
+      "mode": "private_original_reference_only",
+      "reason": "Retain original locally; public repository carries necessary hashes, counts and approved scheduling/control projections without raw learner evidence."
+    },
+    {
+      "sourceFile": "v2-sample-2.json",
+      "sha256": "d81b533599296b53cff3ce4249a441b874239da76594f34a8aaade4014ec4ff6",
+      "bytes": 118205,
+      "mode": "private_original_reference_only",
+      "reason": "Retain original locally; public repository carries necessary hashes, counts and approved scheduling/control projections without raw learner evidence."
+    },
+    {
+      "sourceFile": "v2-sample-3.json",
+      "sha256": "ae53ed8466092a1dce3f816929a876b8d93bc11d45c0012e19eeb92edf034217",
+      "bytes": 123760,
+      "mode": "private_original_reference_only",
+      "reason": "Retain original locally; public repository carries necessary hashes, counts and approved scheduling/control projections without raw learner evidence."
+    },
+    {
+      "sourceFile": "real-learner-quiescence-stopped-receipt.json",
+      "sha256": "53af6efab15fc7398523b7036e4dd06e50349ea029a7a08e1842c92f846f6a14",
+      "bytes": 34716,
+      "mode": "private_original_reference_only",
+      "reason": "Retain original locally; public repository carries necessary hashes, counts and approved scheduling/control projections without raw learner evidence."
+    }
+  ]
+}

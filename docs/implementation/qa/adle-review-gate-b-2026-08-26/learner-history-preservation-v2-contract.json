@@ -1,0 +1,323 @@
+{
+  "contractVersion": "gate_b_readonly_learner_history_preservation_v2",
+  "status": "PROPOSED_FOR_OWNER_REVIEW_NOT_ACCEPTED",
+  "productionProject": "wwohrqtunajrbwxyssjf",
+  "childId": "e4f9fc37-3f85-4eb5-9fbd-4eabf4f2528e",
+  "option": "A_semantic_projection",
+  "nativeSchedulingContract": "adle_review_r6_authority_cutover_v1_UNCHANGED",
+  "schemaDriftPolicy": "Fail if the intake candidate column-name set differs from included plus excluded; never silently omit a new column.",
+  "serialization": {
+    "timezone": "UTC",
+    "rowOrder": "id ascending",
+    "tableOrder": "table name ascending",
+    "rowDigest": "SHA256(UTF8(COALESCE(jsonb_agg(projected_row ORDER BY id),'[]'::jsonb)::text))",
+    "manifestDigest": "SHA256(UTF8(manifest::jsonb::text))",
+    "manifestShape": "{contractVersion,childId,tables:[{table,scope,projection,row_count,digest}]}"
+  },
+  "tables": [
+    {
+      "table": "adle_assignment_attempt_event_routes",
+      "scope": "EXISTS (SELECT 1 FROM public.adle_assignment_attempt_events e WHERE e.id = t.attempt_event_id AND e.child_id = $1)",
+      "projection": {
+        "kind": "full_row"
+      }
+    },
+    {
+      "table": "adle_assignment_attempt_events",
+      "scope": "t.child_id = $1",
+      "projection": {
+        "kind": "full_row"
+      }
+    },
+    {
+      "table": "adle_authentic_use_events",
+      "scope": "t.child_id = $1",
+      "projection": {
+        "kind": "full_row"
+      }
+    },
+    {
+      "table": "adle_base_word_family_pilot_runs",
+      "scope": "t.child_id = $1",
+      "projection": {
+        "kind": "full_row"
+      }
+    },
+    {
+      "table": "adle_base_word_transfer_miss_events",
+      "scope": "t.child_id = $1",
+      "projection": {
+        "kind": "full_row"
+      }
+    },
+    {
+      "table": "adle_canonical_intake_candidates",
+      "scope": "t.child_id = $1",
+      "projection": {
+        "kind": "explicit_columns",
+        "columns": [
+          "activated_at",
+          "blockers",
+          "candidate_state",
+          "canonical_word_id",
+          "child_id",
+          "created_at",
+          "curriculum_dependency_fingerprint",
+          "curriculum_release_manifest_id",
+          "curriculum_release_manifest_sha256",
+          "first_seen_at",
+          "id",
+          "learning_item_id",
+          "micro_skill_key",
+          "normalized_target_token",
+          "readiness_fingerprint",
+          "resolved_at",
+          "route_activation_revision_id",
+          "route_id",
+          "route_version",
+          "source_candidate_mapping_id",
+          "source_submission_id",
+          "target_identity_status"
+        ],
+        "excludedOperationalColumns": [
+          "last_evaluated_at",
+          "lock_version",
+          "next_retry_at",
+          "priority",
+          "updated_at"
+        ]
+      }
+    },
+    {
+      "table": "adle_child_learning_reflections",
+      "scope": "t.child_id = $1",
+      "projection": {
+        "kind": "full_row"
+      }
+    },
+    {
+      "table": "adle_learning_item_sources",
+      "scope": "EXISTS (SELECT 1 FROM public.adle_learning_items i WHERE i.id = t.learning_item_id AND i.child_id = $1)",
+      "projection": {
+        "kind": "full_row"
+      }
+    },
+    {
+      "table": "adle_learning_items",
+      "scope": "t.child_id = $1",
+      "projection": {
+        "kind": "full_row"
+      }
+    },
+    {
+      "table": "adle_probe_runs",
+      "scope": "t.child_id = $1",
+      "projection": {
+        "kind": "full_row"
+      }
+    },
+    {
+      "table": "adle_review_bundles",
+      "scope": "t.child_id = $1",
+      "projection": {
+        "kind": "full_row"
+      }
+    },
+    {
+      "table": "adle_review_outcome_event_routes",
+      "scope": "EXISTS (SELECT 1 FROM public.adle_review_outcome_events e WHERE e.id = t.outcome_event_id AND e.child_id = $1)",
+      "projection": {
+        "kind": "full_row"
+      }
+    },
+    {
+      "table": "adle_review_outcome_events",
+      "scope": "t.child_id = $1",
+      "projection": {
+        "kind": "full_row"
+      }
+    },
+    {
+      "table": "adle_review_schedule_word_routes",
+      "scope": "EXISTS (SELECT 1 FROM public.adle_review_schedule_words w WHERE w.id = t.schedule_word_id AND w.child_id = $1)",
+      "projection": {
+        "kind": "full_row"
+      }
+    },
+    {
+      "table": "adle_slippage_events",
+      "scope": "t.child_id = $1",
+      "projection": {
+        "kind": "full_row"
+      }
+    },
+    {
+      "table": "adle_taught_word_history",
+      "scope": "t.child_id = $1",
+      "projection": {
+        "kind": "full_row"
+      }
+    },
+    {
+      "table": "assignment_items",
+      "scope": "t.child_id = $1",
+      "projection": {
+        "kind": "full_row"
+      }
+    },
+    {
+      "table": "child_gold_bar_ledger_events",
+      "scope": "t.child_id = $1",
+      "projection": {
+        "kind": "full_row"
+      }
+    },
+    {
+      "table": "child_gold_coin_ledger_events",
+      "scope": "t.child_id = $1",
+      "projection": {
+        "kind": "full_row"
+      }
+    },
+    {
+      "table": "child_word_treasure_events",
+      "scope": "t.child_id = $1",
+      "projection": {
+        "kind": "full_row"
+      }
+    },
+    {
+      "table": "child_word_treasure_evidence_candidates",
+      "scope": "t.child_id = $1",
+      "projection": {
+        "kind": "full_row"
+      }
+    },
+    {
+      "table": "child_word_treasures",
+      "scope": "t.child_id = $1",
+      "projection": {
+        "kind": "full_row"
+      }
+    },
+    {
+      "table": "daily_assignments",
+      "scope": "t.child_id = $1",
+      "projection": {
+        "kind": "full_row"
+      }
+    },
+    {
+      "table": "learning_item_evidence",
+      "scope": "t.child_id = $1",
+      "projection": {
+        "kind": "full_row"
+      }
+    },
+    {
+      "table": "learning_item_issue_links",
+      "scope": "t.child_id = $1",
+      "projection": {
+        "kind": "full_row"
+      }
+    },
+    {
+      "table": "learning_items",
+      "scope": "t.child_id = $1",
+      "projection": {
+        "kind": "full_row"
+      }
+    },
+    {
+      "table": "misspelling_instances",
+      "scope": "t.child_id = $1",
+      "projection": {
+        "kind": "full_row"
+      }
+    },
+    {
+      "table": "parent_verifications",
+      "scope": "t.child_id = $1",
+      "projection": {
+        "kind": "full_row"
+      }
+    },
+    {
+      "table": "parent_verified_spelling_candidate_mappings",
+      "scope": "t.child_id = $1",
+      "projection": {
+        "kind": "full_row"
+      }
+    },
+    {
+      "table": "practice_attempts",
+      "scope": "t.child_id = $1",
+      "projection": {
+        "kind": "full_row"
+      }
+    },
+    {
+      "table": "spelling_reward_events",
+      "scope": "t.child_id = $1",
+      "projection": {
+        "kind": "full_row"
+      }
+    },
+    {
+      "table": "spelling_reward_states",
+      "scope": "t.child_id = $1",
+      "projection": {
+        "kind": "full_row"
+      }
+    },
+    {
+      "table": "task_completions",
+      "scope": "t.child_id = $1",
+      "projection": {
+        "kind": "full_row"
+      }
+    },
+    {
+      "table": "task_submission_payloads",
+      "scope": "t.child_id = $1",
+      "projection": {
+        "kind": "full_row"
+      }
+    },
+    {
+      "table": "task_submissions",
+      "scope": "t.child_id = $1",
+      "projection": {
+        "kind": "full_row"
+      }
+    },
+    {
+      "table": "word_progress",
+      "scope": "t.child_id = $1",
+      "projection": {
+        "kind": "full_row"
+      }
+    },
+    {
+      "table": "writing_issue_correction_attempts",
+      "scope": "t.child_id = $1",
+      "projection": {
+        "kind": "full_row"
+      }
+    },
+    {
+      "table": "writing_issues",
+      "scope": "t.child_id = $1",
+      "projection": {
+        "kind": "full_row"
+      }
+    },
+    {
+      "table": "writing_samples",
+      "scope": "t.child_id = $1",
+      "projection": {
+        "kind": "full_row"
+      }
+    }
+  ]
+}
