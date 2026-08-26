@@ -16,6 +16,8 @@ import { participatesInReviewRepair } from "@/lib/adle/review-v3/r3-contracts";
 import type { ReviewR4Gateway } from "@/lib/adle/review-v3/r4-contracts";
 import { WordReflectionRepair } from "./word-reflection-repair";
 import { TargetAudioButton } from "./target-audio-button";
+import { ConundrumVideoPlayer } from "./conundrum-video-player";
+import { frozenConundrumVideo } from "@/lib/adle/review-v3/conundrum-video";
 import { exactReviewTargetIds } from "@/lib/adle/review-v3/target-word-matcher";
 import {
   createReviewWritingChallengeDraftEnvelope,
@@ -874,6 +876,18 @@ export function ReviewFreeWritingActivity(props: ReviewFreeWritingActivityProps)
     );
   }
 
+  const conundrumVideo = prompt === null ? null : frozenConundrumVideo(prompt);
+  if (conundrumVideo?.status === "blocked") {
+    return (
+      <main className="adle-presentation review-page mx-auto max-w-3xl px-4 py-6">
+        <section className="review-callout" role="alert" data-blocker-code={conundrumVideo.code}>
+          <h1 className="review-title text-2xl font-semibold">Conundrum content unavailable</h1>
+          <p className="mt-3">This challenge’s required video configuration needs checking. Ask a grown-up for help. Your Review has not been replaced.</p>
+        </section>
+      </main>
+    );
+  }
+
   if (session.phase === "challenge_selection") {
     return (
       <main className="adle-presentation review-page mx-auto grid w-full max-w-4xl gap-6 px-4 py-6 sm:px-6">
@@ -941,6 +955,10 @@ export function ReviewFreeWritingActivity(props: ReviewFreeWritingActivityProps)
           <p className="mt-1 font-mono text-2xl font-bold text-[color:var(--review-accent)]" aria-live="polite">{formatRemaining(remainingSeconds)}</p>
         </div>
       </header>
+
+      {conundrumVideo?.status === "ready" ? (
+        <ConundrumVideoPlayer key={prompt.promptVersionId} video={conundrumVideo.video} />
+      ) : null}
 
       <section className="review-callout grid gap-3" aria-label="Challenge prompt">
         <p className="review-eyebrow">Your challenge</p>
